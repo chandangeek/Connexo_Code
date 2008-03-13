@@ -1,0 +1,14 @@
+18/07/2005 Application checksum calculation? banary add no carry? XOR ?
+20/07/2005 page 2-8 of the alpha+ meter product description. meter release 2.2 or higher... See mail from Mike Thorne of 19/07/2005
+           Registers billing counter, etc...
+26/07/2005 Calculate checksum of a profile day class 17
+26/07/2005 Reading class17 profile data with packet size = 1, uses LENH LENL pattern BUT LENL highest bit is used for last packet indication instead of LENH highest bit as described in the protocoldoc at page 27
+26/07/2005 Reading class17 profile data? always standard time?? What about DST? 
+26/07/2005 Page 15-1 RULEN ?
+
+27/07/2005 Class2 EBLKCF1/2 and Class6 XUOM VA??? var??? profile channels and meterreadings
+
+----> ABB ALPHA,01 I command, wait for a half a second before sending again... !!!!!
+
+
+12102005 Class 0 or Class 7 kwh 's per input pulse...

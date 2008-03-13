@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE attributes PUBLIC "-//NetBeans//DTD DefaultAttributes 1.0//EN" "http://www.netbeans.org/dtds/attributes-1_0.dtd">
+<attributes version="1.0">
+    <fileobject name="DataIdentity.java">
+        <attr name="class_dependency_java.io.Serializable" stringvalue="DataIdentity"/>
+    </fileobject>
+    <fileobject name="Encryption.java">
+        <attr name="class_dependency_com.energyict.protocolimpl.base.Encryptor" stringvalue="Encryption"/>
+    </fileobject>
+    <fileobject name="PPM.java">
+        <attr name="class_dependency_com.energyict.protocol.HHUEnabler" stringvalue="PPM"/>
+        <attr name="class_dependency_com.energyict.protocol.MeterExceptionInfo" stringvalue="PPM"/>
+        <attr name="class_dependency_com.energyict.protocol.MeterProtocol" stringvalue="PPM"/>
+        <attr name="class_dependency_com.energyict.protocol.RegisterProtocol" stringvalue="PPM"/>
+        <attr name="class_dependency_com.energyict.protocol.SerialNumber" stringvalue="PPM"/>
+    </fileobject>
+    <fileobject name="PPMIOException.java">
+        <attr name="class_dependency_java.io.IOException" stringvalue="PPMIOException"/>
+    </fileobject>
+    <fileobject name="Test.java">
+        <attr name="class_dependency_java.util.logging.Formatter" stringvalue="PlainFormatter"/>
+    </fileobject>
+</attributes>

@@ -1,0 +1,12 @@
+Trimaran Vert
+- 26062006 testen van profiel op een meter met stroomonderbreking, clockset, dst switch...
+              - 26062006 page 10 -> poids faibles?
+              - 27062006 Testen van DST overgang...
+              
+to do?
+datalink layer: Length check
+session layer: session timeout 22s              
+
+  
+
+  

@@ -1,0 +1,465 @@
+/*
+ * Siemens7ED62.java
+ *
+ * Created on 24 januari 2003, 14:43
+ * <B>Description :</B><BR>
+ * Class that implements the Siemens7ED62 SCTM protocol version of the meter.
+ * <BR>
+ */
+
+package com.energyict.protocolimpl.siemens7ED62;
+
+
+import java.io.*;
+import java.util.*;
+import java.math.*;
+
+import com.energyict.protocol.*;
+import java.util.logging.*;
+import com.energyict.cbo.*;
+
+// KV 06092005 WVEM
+import com.energyict.obis.ObisCode; 
+import com.energyict.protocolimpl.sctm.base.GenericRegisters;
+import com.energyict.protocol.NoSuchRegisterException;
+/**
+ *
+ * @author  Koen
+ * @beginchanges
+KV|07032005|changes for setTime and use of 8 character SCTM ID
+KV|23032005|Changed header to be compatible with protocol version tool 
+KV|12012006|correct time set handling (add intervals)
+KV|24012006|Avoid timeset too close to interval boundary
+KV|16032006|Add ChannelMap to expose nr of channels
+ * @endchanges
+ */
+public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
+
+    // init
+    private TimeZone timeZone;
+    private Logger logger;
+    private SiemensSCTM siemensSCTM;
+    
+    //validateProperties     
+    private String strID;
+    private String strPassword;
+    private int iSCTMTimeoutProperty;
+    private int iProtocolRetriesProperty;
+    private int iRoundtripCorrection;
+    private int iProfileInterval;
+    private int iEchoCancelling;
+    private String strMeterClass;
+    private String nodeId;
+    private int forcedDelay;
+    
+    private static final String[]  meterReadingsC1 = {"1-1:1.8.1","1-1:1.8.2","1-1:1.8.3","1-1:1.8.4","1-1:5.8.1","1-1:5.8.2"};
+    private static final String[]  meterReadingsC05 = {"181","182","183","184","581","582"};
+    private static final String[]  meterReadingsCxx = {"8.1","8.2","8.3","8.4","8.1","8.2"}; // KV at KP 27032003
+   
+    private int nrOfChannels;
+    private String[] meterReadings=null;
+    
+    SCTMDumpData dumpData=null;
+    private boolean removePowerOutageIntervals;
+    
+    GenericRegisters genericRegisters; // KV 06092005 WVEM
+    
+    /** Creates a new instance of Siemens7ED62 */
+    public Siemens7ED62() {
+       
+    }
+    
+    /**
+     * @throws IOException  */    
+    public void connect() throws IOException {
+       try
+       {
+          siemensSCTM.connectMAC();
+          siemensSCTM.flag(strID);
+          siemensSCTM.sendInit();
+       }
+       catch(SiemensSCTMException e)
+       {
+          throw new IOException(e.getMessage());
+       }
+    }
+    
+    public void disconnect() {
+       try
+       {
+          siemensSCTM.disconnectMAC();
+       }
+       catch(SiemensSCTMException e)
+       {
+          logger.severe("disconnect() error, "+e.getMessage());
+       }
+    }
+
+    private SCTMDumpData getDumpData() throws IOException {
+        if (dumpData == null)
+            dumpData = new SCTMDumpData(siemensSCTM.getDumpData(),0);
+        return dumpData;
+    }
+    
+    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+        if (channelId > meterReadings.length) throw new IOException("Siemens7ED62, getMeterReading, invalid channelId");
+        return getDumpData().getRegister(meterReadings[channelId]);
+    }
+    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+        return getDumpData().getRegister(name);
+    }
+    
+    public int getNumberOfChannels() throws UnsupportedException, IOException {
+        return nrOfChannels;
+    }
+    
+    public ProfileData getProfileData(boolean includeEvents) throws IOException {
+        Calendar calendarFrom=ProtocolUtils.getCleanCalendar(timeZone);
+        calendarFrom.add(Calendar.YEAR,-10);
+        return doGetProfileData(calendarFrom,ProtocolUtils.getCalendar(timeZone),includeEvents);
+    }
+    
+    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
+        Calendar calendarFrom=ProtocolUtils.getCleanCalendar(timeZone);
+        calendarFrom.setTime(lastReading);
+        return doGetProfileData(calendarFrom,ProtocolUtils.getCalendar(timeZone),includeEvents);
+    }
+    
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+        Calendar calendarFrom=ProtocolUtils.getCleanCalendar(timeZone);
+        calendarFrom.setTime(from);
+        Calendar calendarTo=ProtocolUtils.getCleanCalendar(timeZone);
+        calendarTo.setTime(to);
+        return doGetProfileData(calendarFrom,calendarTo,includeEvents);
+    }
+    
+    private ProfileData doGetProfileData(Calendar calendarFrom, Calendar calendarTo, boolean includeEvents) throws IOException {
+       try { 
+           ProfileData profileData=null;
+           SCTMTimeData from = new SCTMTimeData(calendarFrom);
+           SCTMTimeData to = new SCTMTimeData(calendarTo); 
+            
+           ByteArrayOutputStream baos = new ByteArrayOutputStream();
+           baos.write(SiemensSCTM.PERIODICBUFFERS);
+           baos.write(from.getBUFENQData());
+           baos.write(to.getBUFENQData());
+           byte[] data = siemensSCTM.sendRequest(SiemensSCTM.BUFENQ2, baos.toByteArray());
+           SCTMProfileSingleBuffer7ED62 sctmp = new SCTMProfileSingleBuffer7ED62(data);
+           profileData = sctmp.getProfileData(getProfileInterval(),timeZone, getNumberOfChannels(), -1, removePowerOutageIntervals);
+           if (includeEvents) {
+               GetEvents(calendarFrom,profileData);
+               // Apply the events to the channel statusvalues
+               profileData.applyEvents(getProfileInterval()/60); 
+           }
+           return profileData;
+       }
+       catch(SiemensSCTMException e) {
+          throw new IOException("Siemens7ED62, doGetProfileData, SiemensSCTMException, "+e.getMessage());
+       }
+    }
+    
+    private void GetEvents(Calendar calendar,ProfileData profileData) throws IOException {
+       SCTMTimeData from = new SCTMTimeData(calendar);
+       ByteArrayOutputStream baos = new ByteArrayOutputStream();
+       baos.write(SiemensSCTM.SPONTANEOUSBUFFERS);
+       baos.write(from.getBUFENQData());
+       List sctmEvents = doGetEvents(SiemensSCTM.BUFENQ1,baos.toByteArray());
+       addToProfile(sctmEvents,profileData);
+    }
+    
+    private void addToProfile(List sctmEvents,ProfileData profileData) {
+        
+        Iterator iterator = sctmEvents.iterator();
+        while(iterator.hasNext()) {
+           SCTMEvent sctmEvent = (SCTMEvent)iterator.next();
+           
+           switch(sctmEvent.getType()) {
+               case 0xA1:
+               case 0xA2:
+                    profileData.addEvent(new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.OTHER,sctmEvent.getType()));
+                    break;
+                    
+               case 0xC1:
+               case 0xC2:
+                    profileData.addEvent(new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.CONFIGURATIONCHANGE,sctmEvent.getType()));
+                    break;
+                                   
+               case 0xA3:
+                    profileData.addEvent(new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.POWERDOWN,sctmEvent.getType()));
+                    profileData.addEvent(new MeterEvent(sctmEvent.getTo().getDate(timeZone),MeterEvent.POWERUP,sctmEvent.getType()));
+                    break;
+               
+               case 0xD1:
+               case 0xD2:
+               case 0xD3:
+               case 0xD4:
+                    profileData.addEvent(new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.SETCLOCK_BEFORE,sctmEvent.getType()));
+                    profileData.addEvent(new MeterEvent(sctmEvent.getTo().getDate(timeZone),MeterEvent.SETCLOCK_AFTER,sctmEvent.getType()));
+                    break;
+              
+               default:
+                    profileData.addEvent(new MeterEvent(new Date(),MeterEvent.OTHER,sctmEvent.getType()));
+                    break;
+                    
+           } // switch(sctmEvent.type)
+        }
+    }
+    
+    private List doGetEvents(byte[] command, byte[] data) throws IOException {
+        try {
+           List sctmEvents = new ArrayList();
+           byte[] received;
+           
+           while(true) {
+               received = siemensSCTM.sendRequest(command, data);
+               if (received == null) break;
+               SCTMEvent sctmEvent = new SCTMEvent(received);
+               sctmEvents.add(sctmEvent);
+               command = SiemensSCTM.NEXT; 
+               data = SiemensSCTM.SPONTANEOUSBUFFERS;
+           }  
+           
+           return sctmEvents;
+        }
+        catch(SiemensSCTMException e) {
+          throw new IOException("Siemens7ED62, doGetEvents, SiemensSCTMException, "+e.getMessage());
+        }
+    }
+    
+    public int getProfileInterval() throws UnsupportedException, IOException {
+        return iProfileInterval;
+    }
+    
+    
+    
+    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+        return getDumpData().getRegister(name).getAmount().toString();
+    }
+    
+    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+        throw new UnsupportedException();
+    }
+    
+    public void setTime() throws IOException {
+           Calendar calendar=null;
+           calendar = ProtocolUtils.getCalendar(timeZone);
+           // KV 24012006
+           int restMinutes = (getProfileInterval()/60) - (calendar.get(Calendar.MINUTE)%(getProfileInterval()/60));        
+           if (restMinutes > 1) {           
+               calendar.add(Calendar.MINUTE,1);
+               calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);           
+               doSetTime(calendar);
+           }
+           else logger.warning("setTime(), time sync is too close to boundary, will try again next dialin session...");
+    }
+    
+    private void doSetTime(Calendar calendar) throws IOException {
+        try {
+             SCTMTimeData timeData = new SCTMTimeData(calendar);
+             siemensSCTM.sendRequest(siemensSCTM.SETTIME,timeData.getSETTIMEData());
+             waitForMinute(calendar);
+             siemensSCTM.sendRequest(siemensSCTM.SSYNC,null);
+        }
+        catch(SiemensSCTMException e) {
+            throw new IOException("Siemens7ED2, doSetTime, SiemensSCTMException, "+e.getMessage()) ;
+        }
+        catch(IOException e) {
+            throw new IOException("Siemens7ED2, doSetTime, IOException, "+e.getMessage()) ;
+        }
+    } // private void doSetTime(Calendar calendar)
+    
+    private void waitForMinute(Calendar calendar) throws IOException {
+        int iDelay = ((59 - calendar.get(Calendar.SECOND))*1000)-iRoundtripCorrection;
+        while(iDelay>0) {
+            try {
+                if (iDelay < 10000) {
+                    Thread.sleep(iDelay);
+                    break;
+                }
+                else {
+                   Thread.sleep(10000);
+                   long elapsedTime = System.currentTimeMillis();
+                   siemensSCTM.sendInit();
+                   elapsedTime = System.currentTimeMillis() - elapsedTime;
+                   iDelay -= (10000+elapsedTime);
+                   if (iDelay <= 0) break;
+                }
+            }
+            catch(InterruptedException e) {
+                throw new NestedIOException(e);
+            }
+            catch(SiemensSCTMException e) {
+                throw new NestedIOException(e);
+            }
+        } // while(true)
+    } // private void waitForMinute(Calendar calendar)
+
+    
+    public Date getTime() throws IOException {       
+        try {
+            byte[] data = siemensSCTM.sendRequest(siemensSCTM.TABENQ3,siemensSCTM.DATETIME);
+            long date = new SCTMTimeData(data).getDate(timeZone).getTime() - iRoundtripCorrection;
+            return new Date(date);
+        }
+        catch(SiemensSCTMException e) {
+            throw new IOException("Siemens7ED2, getTime, SiemensSCTMException, "+e.getMessage());   
+        }
+    }
+    
+    public String getProtocolVersion() {
+        return "$Revision: 1.34 $";
+    }
+    
+    public String getFirmwareVersion() throws IOException,UnsupportedException {
+        throw new UnsupportedException();
+    }
+    
+    private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException
+    {
+        try {
+            Iterator iterator= getRequiredKeys().iterator();
+            while (iterator.hasNext())
+            { 
+                String key = (String) iterator.next();
+                if (properties.getProperty(key) == null)
+                    throw new MissingPropertyException (key + " key missing");
+            }
+            strID = properties.getProperty(MeterProtocol.ADDRESS);
+            strPassword = properties.getProperty(MeterProtocol.PASSWORD,"");
+            if ((strPassword.length() != 5) && (strPassword.length() != 8))
+                throw new InvalidPropertyException("Password (SCTM ID) must have a length of 5 or 8!");
+            
+            iProfileInterval = Integer.parseInt(properties.getProperty(MeterProtocol.PROFILEINTERVAL,"900").trim()); // configured profile interval in seconds        
+            
+            iSCTMTimeoutProperty=Integer.parseInt(properties.getProperty("Timeout","10000").trim());
+            iProtocolRetriesProperty=Integer.parseInt(properties.getProperty("Retries","2").trim());
+            iRoundtripCorrection=Integer.parseInt(properties.getProperty("RoundtripCorrection","0").trim());
+            iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling","0").trim());
+            strMeterClass = properties.getProperty("MeterClass","1");
+            nodeId=properties.getProperty(MeterProtocol.NODEID,"");//strPassword);
+            removePowerOutageIntervals = Integer.parseInt(properties.getProperty("RemovePowerOutageIntervals","0").trim())==1?true:false;
+            forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay","100"));
+            nrOfChannels = Integer.parseInt(properties.getProperty("ChannelMap","6"));
+            
+        }
+        catch (NumberFormatException e) {
+           throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
+        }
+    }
+    
+    public List getOptionalKeys() { 
+        List result = new ArrayList();
+        result.add("Timeout");
+        result.add("Retries");
+        result.add("EchoCancelling");
+        result.add("MeterClass");
+        result.add("RemovePowerOutageIntervals");
+        result.add("LogBookReadCommand");
+        result.add("ForcedDelay");
+        result.add("ChannelMap");
+        return result;
+    }
+    
+    public List getRequiredKeys() {
+        List result = new ArrayList(0);
+        return result;
+    }
+    
+    private void setMeterReadingRegisters() throws SiemensSCTMException {
+        if (strMeterClass.compareTo("1") == 0) {
+            meterReadings = meterReadingsC1;
+        }
+        else if (strMeterClass.compareTo("0.5") == 0) {
+            meterReadings = meterReadingsC05;
+        }
+        else {
+            meterReadings = meterReadingsC1;
+            throw new SiemensSCTMException("Siemens7ED62, setMeterReadingRegisters, infotype MeterClass invalid value ("+strMeterClass+")");
+        }
+    }
+    
+    public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) {
+        this.timeZone = timeZone;
+        this.logger = logger;
+        
+        try
+        {
+           siemensSCTM=new SiemensSCTM(inputStream,outputStream,iSCTMTimeoutProperty,iProtocolRetriesProperty,strPassword,nodeId,iEchoCancelling,forcedDelay);
+           genericRegisters = new GenericRegisters(siemensSCTM); // KV 06092005 WVEM
+           setMeterReadingRegisters();
+           
+        }
+        catch(SiemensSCTMException e)
+        {
+           logger.severe ("SiemensSCTM: init(...), "+e.getMessage());
+        }
+    }
+    
+    public void initializeDevice() throws IOException, UnsupportedException {
+    }
+    
+    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+        validateProperties(properties);
+    }
+    
+    public Object getCache() {
+        return null;
+    }
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+        return null;
+    }
+    
+    public void setCache(Object cacheObject) {
+    }
+    
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    }
+    public void release() throws IOException {
+    }
+    
+    /**
+     * Getter for property removePowerOutageIntervals.
+     * @return Value of property removePowerOutageIntervals.
+     */
+    public boolean isRemovePowerOutageIntervals() {
+        return removePowerOutageIntervals;
+    }
+
+    // KV 06092005 WVEM
+    /*******************************************************************************************
+    R e g i s t e r P r o t o c o l  i n t e r f a c e 
+    *******************************************************************************************/
+    public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
+        return new RegisterInfo(obisCode.getDescription());
+    }
+    
+    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+        if (genericRegisters.isManufacturerSpecific(obisCode)) {
+            return genericRegisters.readRegisterValue(obisCode);
+        }
+        else {
+            String name = null;
+            if (strMeterClass.compareTo("0.5") == 0)
+                name = convertObisCode2ShortCode(obisCode);
+            else
+                name = convertObisCode2Edis(obisCode);
+            
+            Quantity q = getDumpData().getRegister(name);
+            if (q==null)
+                throw new NoSuchRegisterException("Register with obiscode "+obisCode+" does not exist!");
+            else
+                return new RegisterValue(obisCode,getDumpData().getRegister(name));
+        }
+   }
+    
+   // KV 06092005 WVEM
+   private String convertObisCode2Edis(ObisCode obisCode) {
+      return obisCode.getA()+"-"+obisCode.getB()+":"+obisCode.getC()+"."+obisCode.getD()+"."+obisCode.getE();
+   } 
+   private String convertObisCode2ShortCode(ObisCode obisCode) {
+      return Integer.toString(obisCode.getC()*100+obisCode.getD()*10+obisCode.getE());
+       
+   } 
+   
+    
+}

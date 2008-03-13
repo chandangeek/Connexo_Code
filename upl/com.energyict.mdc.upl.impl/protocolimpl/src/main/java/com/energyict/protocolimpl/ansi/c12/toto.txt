@@ -1,0 +1,38 @@
+Layer2
+Error & exceptionhandling? emulation?
+
+KV 18102005 
+Read van een table attribute per attribute door info
+van een table aan te leggen en dan via partial read met offset en 
+length enkel die attribuut lezen die we nodig hebben...
+Aspects van een table?
+
+KV 20102005
+finding a good mechanism to parse the response of an initiated procedure using full read of table 8...
+procedure response table ook member AbstractProcedure procedure toekennen?
+en via parse response terugkrijgen?
+
+KV 25102005
+hoe werkt het ganse DST & timezone in C12? Evt trachten te testen met een KV meter en metermate software...
+
+KV 02112005
+table 28 timeremaining keert terug bij elke demand value (see c12.19 p.85)
+in ge GEKV doc niet! Daar komt timeremaining maar één keer voor...
+
+DECADE 30 (display) en 40 (security) nog implementeren indien nodig
+
+KV 23112005 KV meter layer 2 2-the byte = 0x40 (reserved or manufacturer specific in C12) Have seen 0xC0 in MV90 traces...
+
+KV 28112005 KV2 meter BUG!, negotiation for 256 bytes, 3 packets returnes 256, 1 packet. However, the KV2 doc tells that when a modem is used, only
+packets of a max size of 180 bytes are possible! However, the response to the negotiation request is packet size 256,  1 packet. Thius results i a 
+timeout!!! ?? However, the doc sayt that nr of packets X packet size should NOT exceed 256? Is this the responsability of the sender???
+
+
+KV 09122005
+standard table 52 and 53 gebruiken om timezone and dst info te betrekken bij de timestamps...  (DONE)
+
+KV 15022006
+standard tables DECADE 90 uit C12.21 nog implementeren!
+
+KV 07112007
+Changes to the Loadprofile tables to adjust partialreading for nr of intervals from..to

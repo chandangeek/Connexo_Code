@@ -1,0 +1,452 @@
+/*
+ * Metcom.java
+ *
+ * Created on 8 april 2003, 16:37
+ */
+
+package com.energyict.protocolimpl.metcom;
+
+import com.energyict.protocolimpl.siemens7ED62.*;
+import java.io.*;
+import java.util.*;
+import java.math.*;
+
+import com.energyict.protocol.*;  
+import java.util.logging.*;
+import com.energyict.cbo.*;
+import com.energyict.protocol.HalfDuplexEnabler;
+import com.energyict.dialer.core.HalfDuplexController;
+
+/**
+ *
+ * @author  Koen
+ * <B>Changes :</B><BR>
+ *      KV 08042003 Initial version.<BR>
+ *      KV 17032004 Add HalfDuplex support
+ *      KV 18032004 add ChannelMap
+ *      KV 13122004 test for password == null
+ */
+abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
+
+    
+    
+    private static final int DEBUG = 0;
+    
+    abstract public ProfileData getProfileData(boolean includeEvents) throws IOException;
+    abstract public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException;
+    abstract public String getDefaultChannelMap();
+    abstract public String buildDefaultChannelMap() throws IOException;
+    abstract public int getNumberOfChannels() throws UnsupportedException, IOException;
+    abstract public String getProtocolVersion();
+    abstract public String getRegistersInfo(int extendedLogging) throws IOException;
+    
+    // init
+    private TimeZone timeZone;
+    private Logger logger;
+    private SiemensSCTM siemensSCTM;
+    
+    //validateProperties     
+    private String strID;
+    private String strPassword;
+    private String nodeId;
+    private int iSCTMTimeoutProperty;
+    private int iProtocolRetriesProperty;
+    private int iRoundtripCorrection;
+    private int iProfileInterval;
+    private int iEchoCancelling;
+    private String strMeterClass;
+    private int halfDuplex;
+    private ChannelMap channelMap;
+    private int extendedLogging;
+    private byte[] logbookReadCommand;
+    private HalfDuplexController halfDuplexController=null;
+    private boolean removePowerOutageIntervals;
+    private int forcedDelay;
+    private int intervalStatusBehaviour;
+    
+    //SCTMDumpData dumpData=null;
+    List dumpDatas=null; // of type SCTMDumpData
+    private int autoBillingPointNrOfDigits;
+    
+    /** Creates a new instance of Metcom3 */
+    public Metcom() {
+    }
+    
+    /**
+     * @throws IOException  */    
+    public void connect() throws IOException {
+       try
+       {
+          siemensSCTM.connectMAC();
+          siemensSCTM.sendInit();
+          if (strPassword.compareTo(nodeId)!=0)
+               sendPassword(strPassword.getBytes());
+       }
+       catch(SiemensSCTMException e)
+       {
+          throw new IOException(e.getMessage());
+       }
+       
+       if (extendedLogging >= 1) 
+          logger.info(getRegistersInfo(extendedLogging));
+       
+    }
+    
+    public void disconnect() {
+       try
+       {
+          siemensSCTM.disconnectMAC();
+       }
+       catch(SiemensSCTMException e)
+       {
+          logger.severe("disconnect() error, "+e.getMessage());
+       }
+    }
+
+    protected SCTMDumpData getDumpData(int buffer) throws IOException {
+        
+        if (buffer < 0) buffer = 0;
+        
+        if (dumpDatas == null)
+            dumpDatas = new ArrayList();
+        
+        SCTMDumpData dumpData=null;
+        Iterator it = dumpDatas.iterator();
+        while(it.hasNext()) {
+            dumpData = (SCTMDumpData)it.next();
+            if (dumpData.getBufferId() == buffer)
+                return dumpData;
+        }
+        
+        dumpData = new SCTMDumpData(getClearingData(buffer),buffer);
+        dumpDatas.add(dumpData);
+        return dumpData;
+    }
+    
+    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+        throw new UnsupportedException();
+    }
+    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+        throw new UnsupportedException();
+    }    
+    
+    public SiemensSCTM getSCTMConnection() {
+       return siemensSCTM;   
+    }
+    
+    public int getProfileInterval() throws UnsupportedException, IOException {
+        return iProfileInterval;
+    }
+    
+    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+        if ("GET_CLOCK_OBJECT".compareTo(name) == 0)
+            throw new NoSuchRegisterException();
+        else
+            return doGetRegister(name);
+    }
+    
+
+    
+    private String doGetRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+        try {
+            byte[] data = siemensSCTM.sendRequest(siemensSCTM.TABENQ1,name.getBytes());
+            String str = new SCTMRegister(data).toString();
+            return str;
+        }
+        catch(SiemensSCTMException e) {
+            throw new IOException("Siemens7ED2, getTime, SiemensSCTMException, "+e.getMessage());   
+        }        
+    }
+    
+    protected BufferStructure getBufferStructure() throws IOException, UnsupportedException, NoSuchRegisterException {
+        return getBufferStructure(0);         
+    }
+    protected BufferStructure getBufferStructure(int bufferId) throws IOException, UnsupportedException, NoSuchRegisterException {
+        try {
+            return new BufferStructure(siemensSCTM.sendRequest(siemensSCTM.TABENQ3,String.valueOf(20+bufferId+1).getBytes()));
+        }
+        catch(SiemensSCTMException e) {
+            throw new IOException("Siemens7ED2, getTime, SiemensSCTMException, "+e.getMessage());   
+        }        
+    }
+    
+    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+        throw new UnsupportedException();
+    }
+    
+    public void setTime() throws IOException {
+       Calendar calendar=null;
+       calendar = ProtocolUtils.getCalendar(getTimeZone());
+       calendar.add(Calendar.MINUTE,1);
+       calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);           
+       doSetTime(calendar);
+    }
+    
+    private void doSetTime(Calendar calendar) throws IOException {
+        try {
+             SCTMTimeData timeData = new SCTMTimeData(calendar);
+             siemensSCTM.sendRequest(siemensSCTM.SETTIME,timeData.getSETTIMEData());
+             waitForMinute(calendar);
+             siemensSCTM.sendRequest(siemensSCTM.SSYNC,null);
+        }
+        catch(SiemensSCTMException e) {
+            throw new IOException("Siemens7ED2, doSetTime, SiemensSCTMException, "+e.getMessage()) ;
+        }
+        catch(IOException e) {
+            throw new IOException("Siemens7ED2, doSetTime, IOException, "+e.getMessage()) ;
+        }
+    } // private void doSetTime(Calendar calendar)
+    
+    private void waitForMinute(Calendar calendar) throws IOException {
+        int iDelay = ((59 - calendar.get(Calendar.SECOND))*1000)-iRoundtripCorrection;
+        while(iDelay>0) {
+            try {
+                if (iDelay < 10000) {
+                    Thread.sleep(iDelay);
+                    break;
+                }
+                else {
+                   Thread.sleep(10000);
+                   long elapsedTime = System.currentTimeMillis();
+                   siemensSCTM.sendInit();
+                   elapsedTime = System.currentTimeMillis() - elapsedTime;
+                   iDelay -= (10000+elapsedTime);
+                   if (iDelay <= 0) break;
+                }
+            }
+            catch(InterruptedException e) {
+                throw new NestedIOException(e);
+            }
+            catch(SiemensSCTMException e) {
+                throw new NestedIOException(e);
+            }
+        } // while(true)
+    } // private void waitForMinute(Calendar calendar)
+
+    protected byte[] getClearingData(int buffer) throws IOException {       
+        try {
+            byte[] data = siemensSCTM.sendRequest(siemensSCTM.TABENQ3,new byte[]{'1',(byte)(0x31+buffer)}); //siemensSCTM.CLEARINGDATA);
+
+            if (DEBUG>=1) System.out.println("KV_DEBUG> "+new String(data));
+
+            return data;
+        }
+        catch(SiemensSCTMException e) {
+            throw new IOException("Siemens7ED2, getTime, SiemensSCTMException, "+e.getMessage());   
+        }
+    }
+    
+    public void sendPassword(byte[] password) throws IOException {       
+        try {
+            byte[] data = siemensSCTM.sendRequest(siemensSCTM.PASSWORD,password);
+            String retVal = new String(data);
+            if (retVal.compareTo("11111111")==0)
+                throw new IOException("Password verification failed. Password probably wrong!");
+            else if (retVal.compareTo("33333333")==0)
+                throw new IOException("Wrong password level for this type of access! Password probably wrong!");
+            
+        }
+        catch(SiemensSCTMException e) {
+            throw new IOException("Siemens7ED2, getTime, SiemensSCTMException, "+e.getMessage());   
+        }
+    } 
+    
+    public Date getTime() throws IOException {       
+        try {
+            byte[] data = siemensSCTM.sendRequest(siemensSCTM.TABENQ3,siemensSCTM.DATETIME);
+            
+            String retVal = new String(data);
+            if ((data.length == 8) && (retVal.compareTo("33333333")==0))
+                throw new IOException("Probably wrong password for Time&Date request! Password probably wrong!");
+            
+            long date = new SCTMTimeData(data).getDate(getTimeZone()).getTime() - iRoundtripCorrection;
+            return new Date(date);
+        }
+        catch(SiemensSCTMException e) {
+            throw new IOException("Siemens7ED2, getTime, SiemensSCTMException, "+e.getMessage());   
+        }
+    }
+    
+    public String getFirmwareVersion() throws IOException,UnsupportedException {
+        throw new UnsupportedException();
+    }
+    
+    private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException
+    {
+        try {
+            Iterator iterator= getRequiredKeys().iterator();
+            while (iterator.hasNext()) { 
+                String key = (String) iterator.next();
+                if (properties.getProperty(key) == null)
+                    throw new MissingPropertyException (key + " key missing");
+            }
+            strID = properties.getProperty(MeterProtocol.ADDRESS);
+            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            if (strPassword==null)
+                throw new MissingPropertyException ("password key is missing!");
+            if ((strPassword.length() != 5) && (strPassword.length() != 8))
+                throw new InvalidPropertyException("Password (SCTM ID) must have a length of 5 or 8!");
+            nodeId=properties.getProperty(MeterProtocol.NODEID);
+            if (nodeId==null)
+               nodeId=strPassword;
+            
+            
+            iSCTMTimeoutProperty=Integer.parseInt(properties.getProperty("Timeout","10000").trim());
+            iProtocolRetriesProperty=Integer.parseInt(properties.getProperty("Retries","2").trim());
+            iRoundtripCorrection=Integer.parseInt(properties.getProperty("RoundtripCorrection","0").trim());
+            iProfileInterval = Integer.parseInt(properties.getProperty("ProfileInterval","900").trim()); // configured profile interval in seconds        
+            iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling","0").trim());
+            strMeterClass = properties.getProperty("MeterClass","20");
+            halfDuplex = Integer.parseInt(properties.getProperty("HalfDuplex","0").trim());
+            removePowerOutageIntervals = Integer.parseInt(properties.getProperty("RemovePowerOutageIntervals","0").trim())==1?true:false;
+            forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay","100"));   
+            setIntervalStatusBehaviour(Integer.parseInt(properties.getProperty("IntervalStatusBehaviour","0")));  
+            
+            if (properties.getProperty("ChannelMap") == null) {
+                if (getDefaultChannelMap() == null)
+                    channelMap = null;
+                else
+                    channelMap = new ChannelMap(getDefaultChannelMap());
+            }
+            else channelMap = new ChannelMap(properties.getProperty("ChannelMap"));
+            
+            extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0").trim());            
+            
+            if (properties.getProperty("LogBookReadCommand","E4").compareTo("E6") == 0)
+               logbookReadCommand = SiemensSCTM.BUFENQ2; // E6
+            else            
+               logbookReadCommand = SiemensSCTM.BUFENQ1; // E4 
+            
+            setAutoBillingPointNrOfDigits(Integer.parseInt(properties.getProperty("AutoBillingPointNrOfDigits","1")));  
+            
+        }
+        catch (NumberFormatException e) {
+           throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
+        }
+    }
+    
+    
+    public List getRequiredKeys() {
+        List result = new ArrayList(0);
+        return result;
+    }
+    
+    
+    public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) {
+        this.timeZone = timeZone;
+        this.logger = logger;
+        
+        // lazy initializing
+        dumpDatas=null;
+        
+        try {
+            // KV 16022004 STA changed from 0x6X to 0x3X
+            siemensSCTM=new SiemensSCTM(inputStream,outputStream,iSCTMTimeoutProperty,iProtocolRetriesProperty,strPassword,nodeId,iEchoCancelling,halfDuplex != 0 ? halfDuplexController:null,forcedDelay);
+        }
+        catch(SiemensSCTMException e) {
+           logger.severe ("SiemensSCTM: init(...), "+e.getMessage());
+        }
+    }
+    
+    public void initializeDevice() throws IOException, UnsupportedException {
+    }
+    
+    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+        validateProperties(properties);
+    }
+    
+    public Object getCache() {
+        return null;
+    }
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+        return null;
+    }
+    
+    public void setCache(Object cacheObject) {
+    }
+    
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    }
+    
+    // implement HalfDuplexEnabler
+    public void setHalfDuplexController(HalfDuplexController halfDuplexController) { 
+        this.halfDuplexController=halfDuplexController;    
+        halfDuplexController.setDelay(halfDuplex);
+    }
+    
+    /** Getter for property channelMap.
+     * @return Value of property channelMap.
+     *
+     */
+    public com.energyict.protocolimpl.metcom.ChannelMap getChannelMap() throws IOException {
+        if (channelMap == null)
+            channelMap = new ChannelMap(buildDefaultChannelMap());
+        
+        return channelMap;
+    }
+    
+    /** Setter for property channelMap.
+     * @param channelMap New value of property channelMap.
+     *
+     */
+    public void setChannelMap(com.energyict.protocolimpl.metcom.ChannelMap channelMap) {
+        this.channelMap = channelMap;
+    }
+    
+    /**
+     * Getter for property timeZone.
+     * @return Value of property timeZone.
+     */
+    public java.util.TimeZone getTimeZone() {
+        return timeZone;
+    }
+    
+    /**
+     * Getter for property strMeterClass.
+     * @return Value of property strMeterClass.
+     */
+    public java.lang.String getStrMeterClass() {
+        return strMeterClass;
+    }
+    
+    /**
+     * Getter for property removePowerOutageIntervals.
+     * @return Value of property removePowerOutageIntervals.
+     */
+    public boolean isRemovePowerOutageIntervals() {
+        return removePowerOutageIntervals;
+    }
+    
+    /**
+     * Getter for property logger.
+     * @return Value of property logger.
+     */
+    public java.util.logging.Logger getLogger() {
+        return logger;
+    }    
+
+    /**
+     * Getter for property logbookReadCommand.
+     * @return Value of property logbookReadCommand.
+     */
+    public byte[] getLogbookReadCommand() {
+        return this.logbookReadCommand;
+    }    
+
+    public int getIntervalStatusBehaviour() {
+        return intervalStatusBehaviour;
+    }
+
+    public void setIntervalStatusBehaviour(int intervalStatusBehaviour) {
+        this.intervalStatusBehaviour = intervalStatusBehaviour;
+    }
+
+    public int getAutoBillingPointNrOfDigits() {
+        return autoBillingPointNrOfDigits;
+    }
+
+    public void setAutoBillingPointNrOfDigits(int autoBillingPointNrOfDigits) {
+        this.autoBillingPointNrOfDigits = autoBillingPointNrOfDigits;
+    }
+ 
+}

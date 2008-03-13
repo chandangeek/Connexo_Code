@@ -1,0 +1,100 @@
+/*
+ * PACTRegisterFactory.java
+ *
+ * Created on 26 maart 2004, 17:15
+ */
+
+package com.energyict.protocolimpl.pact.core.common;
+
+import java.io.*;
+import java.util.*;
+
+import com.energyict.cbo.NestedIOException;
+import com.energyict.protocolimpl.pact.core.common.*;
+import com.energyict.protocolimpl.pact.core.meterreading.*;
+import com.energyict.protocolimpl.base.*;
+import com.energyict.dialer.connection.ConnectionException;
+/**
+ *
+ * @author  Koen
+ */
+public class PACTRegisterFactory {
+    
+    private static final int DEBUG=0;
+    
+    ProtocolLink protocolLink;
+    FileTransfer fileTransfer=null;
+    
+    MeterIdentitySerialNumber meterIdentitySerialNumber=null;
+    MeterReadingsInterpreter meterReadingsInterpreter=null;
+    
+    /** Creates a new instance of PACTRegister */
+    public PACTRegisterFactory(ProtocolLink protocolLink) {
+        this.protocolLink=protocolLink;
+    }
+    
+    
+    /** Getter for property protocolLink.
+     * @return Value of property protocolLink.
+     *
+     */
+    public com.energyict.protocolimpl.pact.core.common.ProtocolLink getProtocolLink() {
+        return protocolLink;
+    }
+    
+    /** Getter for property meterIdentitySerialNumber.
+     * @return Value of property meterIdentitySerialNumber.
+     *
+     */
+    public com.energyict.protocolimpl.pact.core.common.MeterIdentitySerialNumber getMeterIdentitySerialNumber() throws NestedIOException, ConnectionException {
+        if (meterIdentitySerialNumber==null) {
+            meterIdentitySerialNumber = new MeterIdentitySerialNumber(getProtocolLink().getPactConnection().sendStringRequest("s"));   
+            if (DEBUG >=1) 
+                System.out.println("KV_DEBUG>\n"+meterIdentitySerialNumber.toString());
+        }
+        return meterIdentitySerialNumber;
+    }
+    
+    public MeterReadingsInterpreter getMeterReadingsInterpreter() throws NestedIOException, ConnectionException {
+        if (meterReadingsInterpreter == null) {
+            
+            // get raw meterreading data
+            byte[] data=null;
+            if (getProtocolLink().getPACTMode().isPACTStandard())
+                data = getProtocolLink().getPactConnection().getMeterReadingData();   
+            else if (getProtocolLink().getPACTMode().isPAKNET())
+                data = getProtocolLink().getPactConnection().getMeterReadingDataStream();   
+            
+            // do authorization and validation
+            if (getProtocolLink().getPACTToolkit() != null) {
+                getFileTransfer().appendData(data);
+                try {
+                    int encrypted = getProtocolLink().getPACTToolkit().validateData(getFileTransfer().getFileName());
+                    if (encrypted == 1) {
+                       data = getFileTransfer().getDecryptedReadingsData();    
+                    }
+                }
+                catch(IOException e) {
+                    throw new NestedIOException(e);   
+                }
+            } // if (getProtocolLink().getPACTToolkit() != null)
+            
+            meterReadingsInterpreter = new MeterReadingsInterpreter(data,getProtocolLink());
+            meterReadingsInterpreter.parse();
+            
+            if (protocolLink.isExtendedLogging())
+                protocolLink.getLogger().info(meterReadingsInterpreter.toString());
+        }
+        return meterReadingsInterpreter;
+    }
+
+    /** Getter for property fileTransfer.
+     * @return Value of property fileTransfer.
+     *
+     */
+    public FileTransfer getFileTransfer() {
+        if (fileTransfer == null) 
+            fileTransfer = new FileTransfer();
+        return fileTransfer;
+    }
+}
