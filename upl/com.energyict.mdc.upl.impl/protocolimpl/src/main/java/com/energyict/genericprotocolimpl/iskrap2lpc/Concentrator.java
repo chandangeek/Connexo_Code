@@ -34,7 +34,7 @@ import com.energyict.tcpip.PPPDialer;
 
 public class Concentrator implements Messaging, GenericProtocol {
     
-    private boolean DEBUG = false;
+    private boolean DEBUG = true;
     private boolean TESTING = false;
     
     private static final int ELECTRICITY 	= 0x00;
@@ -286,6 +286,7 @@ public class Concentrator implements Messaging, GenericProtocol {
                     		dataHandler.getMeterReadingData().getRegisterValues().clear();
                     		importRegisters(concentrator, gasMeter, dataHandler, meter.getSerialNumber());
                     		handleRegisters(dataHandler, gasMeter);
+                    		sendMeterMessages(concentrator, gasMeter, dataHandler);
                     	}
                     	
                     	gasMeter.store(pd[GAS]);
@@ -612,8 +613,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     }
     
     /** Send Pending RtuMessage to meter. */
-    private void sendMeterMessages(Rtu concentrator, Rtu rtu, XmlHandler dataHandler) 
-        throws BusinessException, SQLException {
+    private void sendMeterMessages(Rtu concentrator, Rtu rtu, XmlHandler dataHandler) throws BusinessException, SQLException {
     
         /* short circuit */
         if( ! communicationProfile.getSendRtuMessage() )
@@ -645,12 +645,20 @@ public class Concentrator implements Messaging, GenericProtocol {
                         
                         RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
                         ObisCode oc = spec.getRegisterMapping().getObisCode();
-                        rl.add( oc.toString() );
+                        if (oc.getF() == 255){
+	                        rl.add( new String(oc.getC()+"."+oc.getD()+"."+oc.getE()) );
+	                        dataHandler.addMessageEnd(oc.getF());
+                        }
                         
                     }
                     if (DEBUG) System.out.println(rl);
                     String registers [] = (String[]) rl.toArray(new String[0] ); 
                     String r = port(concentrator).getMeterOnDemandResultsList(serial, registers);
+                    
+//                    String register = "1.8.1";
+                    
+//                    String r = port(concentrator).getMeterOnDemandResults(serial, register);
+                    
                     importData(r, dataHandler);
                     
                 }

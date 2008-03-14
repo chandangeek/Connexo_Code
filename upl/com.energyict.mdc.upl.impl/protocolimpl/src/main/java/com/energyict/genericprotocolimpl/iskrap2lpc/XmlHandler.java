@@ -106,6 +106,8 @@ class XmlHandler extends DefaultHandler {
     private static final int MONTHLY		= 0x01;
     private int profileDuration = -1;
     
+    private ArrayList messageEnds = new ArrayList();
+    
     private SimpleDateFormat dateFormat;
     private boolean inProfile;
     private Logger logger;
@@ -200,6 +202,36 @@ class XmlHandler extends DefaultHandler {
 	                      
 	                    if( ident.split("\\.").length ==  6 )                
 	                    	oc = ObisCode.fromString( ident );
+                    }
+                    
+                    if ( messageEnds.size() > 0 ){
+                    	
+                    	String end = null;
+                    	
+                    	if( messageEnds.get(0).equals((int)0) ){
+                    		end = ".VZ";
+                    		messageEnds.remove(0);
+                    	}
+                    	else if ( messageEnds.get(0).equals((int)1) ){
+                    		end = ".VZ-1";
+                    		messageEnds.remove(0);
+                    	}
+                    	else{
+                    		end = ".255";
+                    		messageEnds.remove(0);
+                    	}
+                    		
+                    	if (!end.equals(null)){
+	                    	if( ident.split("\\.").length == 3 )
+	                    		oc = ObisCode.fromString( "1.0." + ident + end);
+	                      
+	                    	if( ident.split("\\.").length == 5 )
+	                    		oc = ObisCode.fromString( ident + end);
+		                      
+		                    if( ident.split("\\.").length ==  6 )                
+		                    	oc = ObisCode.fromString( ident );
+                    	}
+                    	
                     }
                 }
                 
@@ -618,6 +650,10 @@ class XmlHandler extends DefaultHandler {
         }
         
     }
+
+	public void addMessageEnd(int f) {
+		messageEnds.add(f);	
+	}
 
 
 
