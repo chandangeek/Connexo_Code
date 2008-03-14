@@ -55,13 +55,12 @@ public class EchelonExporter extends AbstractExporter {
     private boolean debug;
     private String serverUri;
     private Group group;
-    private String concentratorId;
     
     private String error[] = { 
         "Unable to run exporter, missing parameter \"" + URI + "\"",
         "NES returned invalid message",
         "Exception occured during export",
-        "Echelon concentrator not defined, missing device id as parameter."
+        "Echelon concentrator not defined for meter %s"
     };
     
     protected void preExport() throws IOException, BusinessException, SQLException {
@@ -73,15 +72,14 @@ public class EchelonExporter extends AbstractExporter {
         serverUri = getProperty(URI);
         if (serverUri == null) 
             throw new BusinessException(error[0]);
-        concentratorId = getProperty(CONCENTRATORID);
-        if (concentratorId == null) {
-        	throw new BusinessException(error[3]);
-        }
     }
 
     
     protected void export() throws IOException, BusinessException, SQLException {
     	String sessionId;
+    	
+    	List<String> concentrators = new ArrayList<String>();
+    	
     	try {
     		sessionId = EchelonSession.getInstance(serverUri).getSession();
     	} catch (EchelonException ex) {
@@ -89,9 +87,20 @@ public class EchelonExporter extends AbstractExporter {
     	}
     	
         Iterator i = getGroup().getMembers().iterator();
+        Rtu rtu;
+        Rtu gateway;
         while (i.hasNext()) {
 
-            Rtu rtu = (Rtu) i.next();
+            rtu = (Rtu) i.next();
+            gateway = (Rtu) rtu.getGateway();
+            if (gateway == null || gateway.getDeviceId() == null || gateway.getDeviceId() == "") {
+            	throw new BusinessException(String.format(error[3],rtu.getName()));
+            }
+            
+            if (!concentrators.contains(rtu.getGateway().getDeviceId())) {
+            	concentrators.add(rtu.getGateway().getDeviceId());
+            }
+            
             try {
 
                 debug( "Handling " + rtu.getFullName() );
@@ -117,7 +126,9 @@ public class EchelonExporter extends AbstractExporter {
         }
         
         try {
-            EchelonSession.getInstance(serverUri).connect(concentratorId, sessionId);
+        	for (String concentrator : concentrators) {
+                EchelonSession.getInstance(serverUri).connect(concentrator, sessionId);
+			}
         } catch (EchelonException e) {
             getLogger().log(Level.SEVERE, error[2] + e.getMessage(), e);
             e.printStackTrace();
@@ -243,14 +254,14 @@ public class EchelonExporter extends AbstractExporter {
 		    return Constants.DeviceCommands.READ_SELF_BILLING_DATA;
 		}
 		
-		if (contents.indexOf(MeterMessaging.CONNECT_LOAD) != -1) {
-		    debug( "sending connect to " + getDeviceId(rtu) );
-		    return Constants.DeviceCommands.REMOTE_METER_CONNECT;
-		}
-		
 		if (contents.indexOf(MeterMessaging.DISCONNECT_LOAD) != -1) {
 		    debug( "sending disconnect to " + getDeviceId(rtu) );
 		    return Constants.DeviceCommands.REMOTE_METER_DISCONNECT;
+		}
+		
+		if (contents.indexOf(MeterMessaging.CONNECT_LOAD) != -1) {
+		    debug( "sending connect to " + getDeviceId(rtu) );
+		    return Constants.DeviceCommands.REMOTE_METER_CONNECT;
 		}
 		
 		if (contents.indexOf(MeterMessaging.READ_EVENTS) != -1) {
