@@ -11,7 +11,7 @@
 package com.energyict.protocolimpl.modbus.ge.pqm2;
 
 import com.energyict.cbo.*;
-import com.energyict.concentrator.core.*;
+//import com.energyict.concentrator.core.*;
 import com.energyict.obis.*;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ParseUtils;
