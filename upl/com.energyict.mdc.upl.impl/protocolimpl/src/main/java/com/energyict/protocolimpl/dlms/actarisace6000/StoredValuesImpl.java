@@ -198,17 +198,17 @@ if (DEBUG>=1) System.out.println("**********************************************
             billingSet.addBillingValues(getBillingValues(billingSetId,ENERGY_RATES,dc)); // energy rates
             billingSet.addBillingValues(getAllMaximumDemands(billingSetId,dc)); // maximum demands
             billingSet.addBillingValue(getBillingValue(billingSetId,52,dc)); // minimum PF
-            billingSet.addBillingValue(getBillingValue(billingSetId,53,dc)); // average PF
-            billingSet.addBillingValue(getBillingValue(billingSetId,54,dc)); // minimum frequency
-            billingSet.addBillingValue(getBillingValue(billingSetId,55,dc)); // maximum frequency
-            billingSet.addBillingValues(getBillingValues(billingSetId,56,dc)); // Maximum RMS values
+            //billingSet.addBillingValue(getBillingValue(billingSetId,53,dc)); // average PF
+            //billingSet.addBillingValue(getBillingValue(billingSetId,54,dc)); // minimum frequency
+            //billingSet.addBillingValue(getBillingValue(billingSetId,55,dc)); // maximum frequency
+            //billingSet.addBillingValues(getBillingValues(billingSetId,56,dc)); // Maximum RMS values
             billingSet.addBillingValue(getBillingValue(billingSetId,57,dc)); // minimum temperature
-            billingSet.addBillingValue(getBillingValue(billingSetId,58,dc)); // maximum temperature
+            //billingSet.addBillingValue(getBillingValue(billingSetId,58,dc)); // maximum temperature
             billingSet.addBillingValue(getBillingValue(billingSetId,59,dc)); // import active power aggregate
             billingSet.addBillingValue(getBillingValue(billingSetId,60,dc)); // export active power aggregate
             billingSet.addBillingValue(getBillingValue(billingSetId,61,dc)); // import reactive power aggregate
             billingSet.addBillingValue(getBillingValue(billingSetId,62,dc)); // export reactive power aggregate
-            billingSet.addBillingValues(getBillingValues(billingSetId,63,dc)); // excess demand
+            //billingSet.addBillingValues(getBillingValues(billingSetId,63,dc)); // excess demand
             billingSets.add(billingSet);
         } // for (billingSetId=0;billingSetId<nrOfBillingSets;billingSetId++)
     } // private void processDataContainer(DataContainer dc)

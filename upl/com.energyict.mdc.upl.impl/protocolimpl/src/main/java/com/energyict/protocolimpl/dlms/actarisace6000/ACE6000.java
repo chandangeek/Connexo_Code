@@ -1,34 +1,17 @@
 package com.energyict.protocolimpl.dlms.actarisace6000;
 
+import com.energyict.cbo.*;
+import com.energyict.dialer.connection.*;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dlms.*;
+import com.energyict.dlms.cosem.*;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.dlms.*;
+
 import java.io.*;
 import java.util.*;
-
-
-import com.energyict.protocol.*;
-import java.util.logging.*;
-import com.energyict.cbo.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocolimpl.dlms.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dlms.*;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.DLMSObis;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.UniversalObject;
+import java.util.logging.Logger;
 
 public class ACE6000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
     private static final byte DEBUG=0;  // KV 16012004 changed all DEBUG values  
@@ -71,7 +54,27 @@ public class ACE6000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Pro
     // Lazy initializing
     int numberOfChannels=-1;
     int configProgramChanges=-1;
-
+    
+    private int statusAlarmChannelIndex = -1; 
+  
+    
+    // interval alarm status flags
+    private static final int EXTERNAL_CLOCK_INCOHERENCE = 1;
+    private static final int NON_VOLATILE_MEMORY_NON_FATAL_ERROR = 2;
+    private static final int COVER_OPENING = 4;
+    private static final int CLOCK_LOSS = 8;
+    private static final int WATCH_DOG_RESET = 16;
+    private static final int CURRENT_REVERSAL_PHASE_1 = 32;
+    private static final int CURRENT_REVERSAL_PHASE_2 = 64;
+    private static final int CURRENT_REVERSAL_PHASE_3 = 128;
+    private static final int TEMPERATURE_ALARM = 256;
+    private static final int VOLTAGE_CUT_PHASE_1 = 512;
+    private static final int VOLTAGE_CUT_PHASE_2 = 1024;
+    private static final int VOLTAGE_CUT_PHASE_3 = 2048;
+    private static final int BATTERY = 4096;
+    private static final int EXCESS_DEMAND = 8192;
+    private static final int PARAMETER_PROGRAMMING = 16384;
+    
     // DLMS PDU offsets
     private static final byte DL_COSEMPDU_DATA_OFFSET=0x07;
 
@@ -473,8 +476,10 @@ public class ACE6000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Pro
     protected boolean containsStatusAlarmChannel(int numberOfChannels) throws IOException {
         CapturedObjects capturedObjects = getCapturedObjects();
         for (int i = 0; i < numberOfChannels; i++) {
-            if (isAlarmStatusChannel(i))
+            if (isAlarmStatusChannel(i)) {
+                statusAlarmChannelIndex = i;
                 return true;
+            }
         }
         return false;
     }
@@ -488,9 +493,11 @@ public class ACE6000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Pro
     public int getNumberOfChannels() throws UnsupportedException, IOException {
         if (numberOfChannels == -1) {
             numberOfChannels = getCapturedObjects().getNROfChannels();
-            if ((alarmStatusFlagChannel == 1) && 
-                (containsStatusAlarmChannel(numberOfChannels)))
+            boolean containsStatusAlarmChannel = 
+                containsStatusAlarmChannel(numberOfChannels);
+            if ((alarmStatusFlagChannel == 0) && (containsStatusAlarmChannel)) {
                 numberOfChannels = numberOfChannels - 1;
+            }
         }
         return numberOfChannels;
     } // public int getNumberOfChannels() throws IOException
@@ -536,16 +543,25 @@ public class ACE6000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Pro
     }
     
     private ProfileData doGetDemandValues(Calendar fromCalendar, byte bNROfChannels,  boolean includeEvents) throws IOException {
+        int channelCount = getNumberOfChannels();
+        if ((alarmStatusFlagChannel == 0) && 
+                (containsStatusAlarmChannel(numberOfChannels)))
+            channelCount = channelCount + 1;
         
         ProfileData profileData = new ProfileData();
         DataContainer dataContainer = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getBuffer(fromCalendar);
         ScalerUnit[] scalerunit = new ScalerUnit[bNROfChannels];
         
-        for (int i=0;i<bNROfChannels;i++) {
-           scalerunit[i] = getMeterDemandRegisterScalerUnit(i); 
-           profileData.addChannel(new ChannelInfo(i,
-                                                  "dlmsSL7000_channel_"+i,
+        int channelIndex = 0;
+        for (int i=0;i<channelCount;i++) {
+           if ((i != this.statusAlarmChannelIndex) || 
+                    (alarmStatusFlagChannel == 1)) {
+               scalerunit[channelIndex] = getMeterDemandRegisterScalerUnit(i); 
+               profileData.addChannel(new ChannelInfo(i,
+                                                  "dlmsACE6000_channel_"+i,
                                                   scalerunit[i].getUnit()));
+               channelIndex++;
+           }
         }
         buildProfileData(bNROfChannels,dataContainer,profileData,scalerunit);
         
@@ -849,24 +865,48 @@ public class ACE6000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Pro
         return intervalData;
     }
     
-    protected boolean isDataChannel(int index) throws IOException {
-        CapturedObjects capturedObjects = getCapturedObjects();
-        int value = index;
-        boolean isDataChannel = capturedObjects.isChannelData(index);
-        boolean isAlarmStatus = isAlarmStatusChannel(index);
-        return ((capturedObjects.isChannelData(index)) && 
-                (!isAlarmStatusChannel(index)));
-    }
-    
     private IntervalData getIntervalData(DataStructure dataStructure,Calendar calendar) throws UnsupportedException, IOException {
         // Add interval data...
+        int channelIndex = 0;
+        int protocolStatus = 0;
         IntervalData intervalData = new IntervalData(new Date(((Calendar)calendar.clone()).getTime().getTime()));
-        for (int t=0;t<getCapturedObjects().getNROfObjects();t++)
-            //if (getCapturedObjects().isChannelData(t))
-            if (isDataChannel(t))
-                intervalData.addValue(new Integer(dataStructure.getInteger(t)));
+        for (int t=0;t<getCapturedObjects().getNROfObjects();t++) {
+            if (getCapturedObjects().isChannelData(t)) {
+                Integer value = new Integer(dataStructure.getInteger(t));
+                if (channelIndex == statusAlarmChannelIndex)
+                    protocolStatus = value.intValue();
+                if ((channelIndex != this.statusAlarmChannelIndex) || 
+                    (alarmStatusFlagChannel == 1))
+                    intervalData.addValue(value);
+                channelIndex++;
+            }
+        }
+        mapIntervalStatus2EIStatus(intervalData, protocolStatus);
         return intervalData;
     }
+    
+    protected void mapIntervalStatus2EIStatus(IntervalData intervalData, int intervalStatus) {
+        if ((intervalStatus & WATCH_DOG_RESET) == WATCH_DOG_RESET) 
+            intervalData.addEiStatus(IntervalStateBits.WATCHDOGRESET);    
+        if (((intervalStatus & CURRENT_REVERSAL_PHASE_1) == CURRENT_REVERSAL_PHASE_1) ||
+            ((intervalStatus & CURRENT_REVERSAL_PHASE_2) == CURRENT_REVERSAL_PHASE_2) ||
+            ((intervalStatus & CURRENT_REVERSAL_PHASE_3) == CURRENT_REVERSAL_PHASE_3))
+            intervalData.addEiStatus(IntervalStateBits.REVERSERUN);    
+        if (((intervalStatus & VOLTAGE_CUT_PHASE_1) == VOLTAGE_CUT_PHASE_1) ||
+            ((intervalStatus & VOLTAGE_CUT_PHASE_2) == VOLTAGE_CUT_PHASE_2) ||
+            ((intervalStatus & VOLTAGE_CUT_PHASE_3) == VOLTAGE_CUT_PHASE_3))
+            intervalData.addEiStatus(IntervalStateBits.PHASEFAILURE);   
+        if ((intervalStatus & BATTERY) == BATTERY) 
+            intervalData.addEiStatus(IntervalStateBits.BATTERY_LOW);
+        if ( ((intervalStatus & EXTERNAL_CLOCK_INCOHERENCE) == EXTERNAL_CLOCK_INCOHERENCE) ||
+             ((intervalStatus & NON_VOLATILE_MEMORY_NON_FATAL_ERROR) == NON_VOLATILE_MEMORY_NON_FATAL_ERROR) ||
+             ((intervalStatus & COVER_OPENING) == COVER_OPENING) ||
+             ((intervalStatus & CLOCK_LOSS) == CLOCK_LOSS) ||
+             ((intervalStatus & TEMPERATURE_ALARM) == TEMPERATURE_ALARM) ||
+             ((intervalStatus & EXCESS_DEMAND) == EXCESS_DEMAND) || 
+             ((intervalStatus & PARAMETER_PROGRAMMING) == PARAMETER_PROGRAMMING))
+            intervalData.addEiStatus(IntervalStateBits.OTHER);
+    } 
     
     public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
         throw new UnsupportedException();
@@ -1154,7 +1194,7 @@ public class ACE6000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Pro
         
         // all billing points values...
         strBuff.append("********************* Objects captured into billing points *********************\n");
-        strBuff.append("The SL7000 has 18 billingpoints for most electricity related registers registers.\n");
+        strBuff.append("The ACE6000 has 18 billingpoints for most electricity related registers registers.\n");
         strBuff.append("For more specific rfegisters like instantaneous values etc, refer to the manufacturers.\n");
 
         strBuff.append(getAllTotalEnergies(true));
@@ -1241,7 +1281,7 @@ public class ACE6000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Pro
     } // public String getSerialNumber() throws IOException  
     
     public String getProtocolVersion() {
-        return "$Revision: 1.1 $";
+        return "$Revision: 1.5 $";
     }
     public String getFirmwareVersion() throws IOException,UnsupportedException {
         if (version == null) {
@@ -1314,7 +1354,7 @@ public class ACE6000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Pro
             extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0"));  
             addressingMode=Integer.parseInt(properties.getProperty("AddressingMode","-1"));  
             connectionMode = Integer.parseInt(properties.getProperty("Connection","0")); // 0=HDLC, 1= TCP/IP
-            alarmStatusFlagChannel = Integer.parseInt(properties.getProperty("StatusFlagChannel","1"));
+            alarmStatusFlagChannel = Integer.parseInt(properties.getProperty("StatusFlagChannel","0"));
         }
         catch (NumberFormatException e) {
            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
