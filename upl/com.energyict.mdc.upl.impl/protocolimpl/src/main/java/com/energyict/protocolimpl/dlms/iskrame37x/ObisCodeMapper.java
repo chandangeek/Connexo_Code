@@ -259,7 +259,10 @@ public class ObisCodeMapper {
             
             if (obisCode.getC() == 128) {
             	if ( (obisCode.getD() == 50) && (obisCode.getE() == 0) ){
-            		return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(0),Unit.get(BaseUnit.CUBICMETER)));
+            		ExtendedRegister register = cof[DAILY].getExtendedRegister(obisCode);
+            		Data data = cof[DAILY].getData(new ObisCode(0,1,128,50,0,255));
+            		return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),register.getScalerUnit().getUnit()),register.getCaptureTime());
+//            		return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(0),Unit.get(BaseUnit.CUBICMETER)));
             	}
             }
             

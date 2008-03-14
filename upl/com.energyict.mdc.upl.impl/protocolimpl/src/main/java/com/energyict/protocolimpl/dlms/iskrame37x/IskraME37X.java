@@ -62,7 +62,7 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
     private static byte[] connectMsg = new byte[] { 0x11, 0x01 };
     private static byte[] disconnectMsg = new byte[] { 0x11, 0x00 };
     
-    public static ScalerUnit[] demandScalerUnits = {new ScalerUnit(0,30), new ScalerUnit(0,13)};
+    public static ScalerUnit[] demandScalerUnits = {new ScalerUnit(0,30), new ScalerUnit(0,0)};
     private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("ISK");
     private DLMSCache dlmsCache=new DLMSCache();  
     private Logger logger=null;
@@ -194,6 +194,8 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
     ObisCode dailyBillings 		= 	ObisCode.fromString("1.0.99.2.0.255");
     ObisCode monthlyBillings 	=	ObisCode.fromString("1.0.98.2.0.255");
     
+    ObisCode mbusScalerUnit 	=	ObisCode.fromString("0.1.128.50.0.255");
+    
     /** Creates a new instance of IskraME37X, empty constructor*/
     public IskraME37X()
     {
@@ -239,7 +241,6 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
             	metertype = ELECTRICITY;
 //            	demandScalerUnits[metertype] = new ScalerUnit(0,30);
             }
-            	
             
         }
         catch(DLMSConnectionException e) {
@@ -617,8 +618,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
         		if ( !rtuType.equalsIgnoreCase("mbus")){
                 	
 //    	        	if (capturedObjects.getChannelNR(channelId) >= 0){
-        				demandScalerUnits[0] = new ScalerUnit(readRegister(capturedObjects.getProfileDataChannel(channelId)).getQuantity().getUnit().getScale(),
-        						readRegister(capturedObjects.getProfileDataChannel(channelId)).getQuantity().getUnit());
+        			RegisterValue scalerRegister = readRegister(capturedObjects.getProfileDataChannel(channelId));
+        				demandScalerUnits[0] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),
+        						scalerRegister.getQuantity().getUnit());
 //    	                Unit unit = readRegister(capturedObjects.getProfileDataChannel(channelId)).getQuantity().getUnit();
     	                profileData.addChannel(new ChannelInfo(channelId, "IskraME37x_channel_"+channelId, demandScalerUnits[0].getUnit()));
 //    	                channelId++;
@@ -631,8 +633,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
             		if ( DEBUG == 1 )System.out.println("We got a MBUS channel");
             		
 //    	        	if (capturedObjects.getChannelNR(channelId) >= 0){
-    				demandScalerUnits[1] = new ScalerUnit(readRegister(capturedObjects.getProfileDataChannel(channelId)).getQuantity().getUnit().getScale(),
-    						readRegister(capturedObjects.getProfileDataChannel(channelId)).getQuantity().getUnit());
+            		RegisterValue scalerRegister = readRegister(capturedObjects.getProfileDataChannel(channelId));
+    				demandScalerUnits[1] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),
+    						scalerRegister.getQuantity().getUnit());
 //    	                Unit unit = readRegister(capturedObjects.getProfileDataChannel(channelId)).getQuantity().getUnit();
     	                profileData.addChannel(new ChannelInfo(channelId, "IskraME37x_channel_"+channelId, demandScalerUnits[1].getUnit()));
 //    	                channelId++;
@@ -1209,6 +1212,11 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
                     
                     if (extendedLogging >= 1) 
                        logger.info(getRegistersInfo(extendedLogging));
+                    
+	                if ( demandScalerUnits[MBUS].getUnitCode() == 0 ){
+	                	RegisterValue scalerRegister = readRegister(mbusScalerUnit);
+	                	demandScalerUnits[MBUS] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),scalerRegister.getQuantity().getUnit());
+	                }
                     
                 }
                 catch(IOException e) {
