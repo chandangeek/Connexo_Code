@@ -34,7 +34,7 @@ import com.energyict.tcpip.PPPDialer;
 
 public class Concentrator implements Messaging, GenericProtocol {
     
-    private boolean DEBUG = true;
+    private boolean DEBUG = false;
     private boolean TESTING = false;
     
     private static final int ELECTRICITY 	= 0x00;
@@ -286,7 +286,7 @@ public class Concentrator implements Messaging, GenericProtocol {
                     		dataHandler.getMeterReadingData().getRegisterValues().clear();
                     		importRegisters(concentrator, gasMeter, dataHandler, meter.getSerialNumber());
                     		handleRegisters(dataHandler, gasMeter);
-                    		sendMeterMessages(concentrator, gasMeter, dataHandler);
+                    		//sendMeterMessages(concentrator, gasMeter, dataHandler);
                     	}
                     	
                     	gasMeter.store(pd[GAS]);
@@ -647,7 +647,8 @@ public class Concentrator implements Messaging, GenericProtocol {
                         ObisCode oc = spec.getRegisterMapping().getObisCode();
                         if (oc.getF() == 255){
 	                        rl.add( new String(oc.getC()+"."+oc.getD()+"."+oc.getE()) );
-	                        dataHandler.addMessageEnd(oc.getF());
+//	                        dataHandler.addMessageEnd(oc.getF());
+	                        dataHandler.checkOnDemands(true);
                         }
                         
                     }

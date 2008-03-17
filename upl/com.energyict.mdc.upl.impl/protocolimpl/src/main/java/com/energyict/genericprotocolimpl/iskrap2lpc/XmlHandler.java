@@ -120,6 +120,7 @@ class XmlHandler extends DefaultHandler {
     private MeterReadingData meterReadingData = new MeterReadingData();
     private Profile profile = new Profile();
     private List eventList = new ArrayList();
+	private boolean checkOndemands;
     
     
     
@@ -204,22 +205,23 @@ class XmlHandler extends DefaultHandler {
 	                    	oc = ObisCode.fromString( ident );
                     }
                     
-                    if ( messageEnds.size() > 0 ){
+                    if (checkOndemands){
+                    	checkOndemands = false;
                     	
-                    	String end = null;
+                    	String end = ".255";
                     	
-                    	if( messageEnds.get(0).equals((int)0) ){
-                    		end = ".VZ";
-                    		messageEnds.remove(0);
-                    	}
-                    	else if ( messageEnds.get(0).equals((int)1) ){
-                    		end = ".VZ-1";
-                    		messageEnds.remove(0);
-                    	}
-                    	else{
-                    		end = ".255";
-                    		messageEnds.remove(0);
-                    	}
+//                    	if( messageEnds.get(0).equals(0) ){
+//                    		end = ".VZ";
+//                    		messageEnds.remove(0);
+//                    	}
+//                    	else if ( messageEnds.get(0).equals(1) ){
+//                    		end = ".VZ-1";
+//                    		messageEnds.remove(0);
+//                    	}
+//                    	else{
+//                    		end = ".255";
+//                    		messageEnds.remove(0);
+//                    	}
                     		
                     	if (!end.equals(null)){
 	                    	if( ident.split("\\.").length == 3 )
@@ -651,9 +653,14 @@ class XmlHandler extends DefaultHandler {
         
     }
 
-	public void addMessageEnd(int f) {
-		messageEnds.add(f);	
+	public void checkOnDemands(boolean b) {
+		checkOndemands = b;
+		
 	}
+
+//	public void addMessageEnd(int f) {
+//		messageEnds.add(f);	
+//	}
 
 
 
