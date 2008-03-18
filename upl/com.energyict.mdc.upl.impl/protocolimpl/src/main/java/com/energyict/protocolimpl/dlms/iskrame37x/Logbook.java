@@ -59,16 +59,19 @@ public class Logbook {
     public List getMeterEvents(DataContainer dc) {
         List meterEvents = new ArrayList(); // of type MeterEvent
         int size = dc.getRoot().getNrOfElements();
-        for (int i = (size-1);i>=0;i--) {
+        Date eventTimeStamp = null;
+        for (int i = 0; i<=(size-1); i++) {
         	
-        	int eventId = dc.getRoot().getStructure(i).getInteger(1);
+//        	int eventId = dc.getRoot().getStructure(i).getInteger(1);
+        	int eventId = (int) dc.getRoot().getStructure(i).getValue(1);
+//        	int eventId = (byte)dc.getRoot().getStructure(i).getValue(1);
         	
-        	if ( isOctetString(dc.getRoot().getStructure(i)) ){
-                Date eventTimeStamp = dc.getRoot().getStructure(i).getOctetString(0).toDate(timeZone);
+        	if ( isOctetString(dc.getRoot().getStructure(i)) )
+                eventTimeStamp = dc.getRoot().getStructure(i).getOctetString(0).toDate(timeZone);
                 
-                buildMeterEvent(meterEvents,eventTimeStamp,eventId);
-                if (DEBUG >= 1) System.out.println("KV_DEBUG> eventId="+eventId+", eventTimeStamp="+eventTimeStamp);
-        	}
+            buildMeterEvent(meterEvents,eventTimeStamp,eventId);
+            if (DEBUG >= 1) System.out.println("KV_DEBUG> eventId="+eventId+", eventTimeStamp="+eventTimeStamp);
+        	
         	
 
         }
@@ -88,12 +91,14 @@ public class Logbook {
 
 
 	private void buildMeterEvent(List meterEvents, Date eventTimeStamp, int eventId) {
+		
+		int aloneEventId = eventId + 0x10000;
         
         if( ( eventId & 0x8000 ) == 0 ) {
             
             /* These events can be combined */
             if ((eventId & EVENT_STATUS_FATAL_ERROR)==EVENT_STATUS_FATAL_ERROR)
-                meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.FATAL_ERROR));
+                meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.FATAL_ERROR,"Device disturbance"));
             if ((eventId & EVENT_STATUS_DEVICE_CLOCK_RESERVE)==EVENT_STATUS_DEVICE_CLOCK_RESERVE)
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.OTHER,"Event status device clock reserve"));
             if ((eventId & EVENT_STATUS_VALUE_CORRUPT)==EVENT_STATUS_VALUE_CORRUPT)
@@ -101,13 +106,13 @@ public class Logbook {
             if ((eventId & EVENT_STATUS_DAYLIGHT_CHANGE)==EVENT_STATUS_DAYLIGHT_CHANGE)
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.OTHER,"Event status daylight change"));
             if ((eventId & EVENT_STATUS_BILLING_RESET)==EVENT_STATUS_BILLING_RESET)
-                meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.BILLING_ACTION));
+                meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.BILLING_ACTION,"Billing action occured"));
             if ((eventId & EVENT_STATUS_DEVICE_CLOCK_CHANGED)==EVENT_STATUS_DEVICE_CLOCK_CHANGED)
-                meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.SETCLOCK));
+                meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.SETCLOCK,"Set time"));
             if ((eventId & EVENT_STATUS_POWER_RETURNED)==EVENT_STATUS_POWER_RETURNED)
-                meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.POWERUP));
+                meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.POWERUP,"PowerUp"));
             if ((eventId & EVENT_STATUS_POWER_FAILURE)==EVENT_STATUS_POWER_FAILURE)
-                meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.POWERDOWN));
+                meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.POWERDOWN,"PowerDown"));
             if ((eventId & EVENT_STATUS_VARIABLE_SET)==EVENT_STATUS_VARIABLE_SET)
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.OTHER,"Event status variable set"));
             if ((eventId & EVENT_STATUS_UNRELIABLE_OPERATING_CONDITIONS)==EVENT_STATUS_UNRELIABLE_OPERATING_CONDITIONS)
@@ -126,21 +131,21 @@ public class Logbook {
         } else {
             
             /* These events occur alone */
-            if (eventId == EVENT_STATUS_L1_POWER_FAILURE)
+            if (aloneEventId == EVENT_STATUS_L1_POWER_FAILURE)
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.PHASE_FAILURE,"Event status L1 phase failure"));
-            if (eventId == EVENT_STATUS_L2_POWER_FAILURE)
+            if (aloneEventId == EVENT_STATUS_L2_POWER_FAILURE)
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.PHASE_FAILURE,"Event status L2 phase failure"));
-            if (eventId == EVENT_STATUS_L3_POWER_FAILURE)
+            if (aloneEventId == EVENT_STATUS_L3_POWER_FAILURE)
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.PHASE_FAILURE,"Event status L3 phase failure"));
-            if (eventId == EVENT_STATUS_L1_POWER_RETURNED )
+            if (aloneEventId == EVENT_STATUS_L1_POWER_RETURNED )
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.OTHER,"Event status end of L1 phase failure"));
-            if (eventId == EVENT_STATUS_L2_POWER_RETURNED )
+            if (aloneEventId == EVENT_STATUS_L2_POWER_RETURNED )
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.OTHER,"Event status end of L2 phase failure"));
-            if (eventId == EVENT_STATUS_L3_POWER_RETURNED)
+            if (aloneEventId == EVENT_STATUS_L3_POWER_RETURNED)
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.OTHER,"Event status end of L3 phase failure"));
-            if (eventId == EVENT_STATUS_METER_COVER_OPENED)
+            if (aloneEventId == EVENT_STATUS_METER_COVER_OPENED)
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.OTHER,"Event status meter cover opened"));
-            if (eventId == EVENT_STATUS_TERMINAL_COVER_OPENED)
+            if (aloneEventId == EVENT_STATUS_TERMINAL_COVER_OPENED)
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.OTHER,"Event status terminal cover opened"));
         
         }

@@ -631,6 +631,8 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
 //            	else if ( bytesToObisString(capturedObjects.getLN(channelId)).indexOf("0.1.128.50.0.255") == 0 ){
         		else if ( bytesToObisString(capturedObjects.getProfileDataChannel(channelId).getLN()).indexOf("0.1.128.50.0.255") == 0 ){
             		if ( DEBUG == 1 )System.out.println("We got a MBUS channel");
+            		// don't show the events on the mbus meter
+            		includeEvents = false;
             		
 //    	        	if (capturedObjects.getChannelNR(channelId) >= 0){
             		RegisterValue scalerRegister = readRegister(capturedObjects.getProfileDataChannel(channelId));
