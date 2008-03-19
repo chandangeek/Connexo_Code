@@ -49,8 +49,6 @@ public class EchelonExporter extends AbstractExporter {
     private final String GROUP = "group";
     /** property name of server URI */
     private final String URI = "uri";
-    /** property echelon concentrator device id */
-    private final String CONCENTRATORID = "Concentrator device id";
     
     private boolean debug;
     private String serverUri;
@@ -558,7 +556,6 @@ public class EchelonExporter extends AbstractExporter {
     public List getRequiredKeys() {
         List result = new ArrayList(super.getRequiredKeys());
         result.add( GROUP );
-        result.add( CONCENTRATORID);
         return result;
     }
 
