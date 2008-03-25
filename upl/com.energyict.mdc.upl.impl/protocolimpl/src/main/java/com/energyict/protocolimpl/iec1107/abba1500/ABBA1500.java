@@ -6,6 +6,7 @@ import java.util.*;
 import java.math.*;
 
 import com.energyict.protocol.*;
+
 import java.util.logging.*;
 import com.energyict.cbo.*;
 
@@ -37,6 +38,7 @@ KV|20042007|Fix registerreading
 KV|16112007|Add workaround due to a meterbug (DataReadoutRequest=2)
 KV|13122007|Avoid index out of bound exception and retry for datareadout reception
 KV|17012008|Add forced delay as property and add reconnect to connection layer in case of break received during protocolsession
+GN|25032008|Added roundTripTime to correct the readout time when retries have occurred
  * @endchanges
  */
 public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol {
@@ -45,6 +47,8 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
 
     private String strID;
     private String strPassword;
+    private String serialNumber;
+    private String mSerialNumber = null;
     private int iIEC1107TimeoutProperty; 
     private int iProtocolRetriesProperty;
     private int iRoundtripCorrection;
@@ -58,6 +62,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
     ProtocolChannelMap protocolChannelMap = null;
     private int scaler;
     private int dataReadoutRequest;
+    private long roundTripTime = 0;
     
     private TimeZone timeZone;
     private Logger logger;
@@ -74,6 +79,8 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
     boolean profileDateRead=false;
     
     int forcedDelay;
+    
+    private DataDumpParser dataDumpParser;
     
     /** Creates a new instance of Abba1500, empty constructor*/
     public ABBA1500() {
@@ -135,8 +142,11 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
     
     public Date getTime() throws IOException {
         if ((getDataReadoutRequest()!=2) | profileDateRead) {
+        	roundTripTime = Calendar.getInstance().getTime().getTime();
             Date date =  (Date)getAbba1500Registry().getRegister("TimeDate");
-            return new Date(date.getTime()-iRoundtripCorrection);
+            roundTripTime = Calendar.getInstance().getTime().getTime() - roundTripTime;
+//            return new Date(date.getTime()-iRoundtripCorrection);
+            return new Date(date.getTime()-roundTripTime);
         }
         else return new Date();
     }
@@ -191,6 +201,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
             extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0").trim());
             vdewCompatible=Integer.parseInt(properties.getProperty("VDEWCompatible","1").trim());
             forcedDelay=Integer.parseInt(properties.getProperty("ForcedDelay","0").trim());
+            serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
         }
         catch (NumberFormatException e) {
            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
@@ -314,6 +325,10 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
           
           flagIEC1107Connection.connectMAC(strID,strPassword,iSecurityLevel,nodeId);
           
+          if (!verifyMeterSerialNR()) 
+              throw new IOException("ABB A1500, connect, Wrong SerialNR!, EISerialNumber="+serialNumber+", MeterSerialNumber="+getSerialNumber());
+
+          
           if ((getFlagIEC1107Connection().getHhuSignOn()!=null)  && (getDataReadoutRequest()==1))
                dataReadout = getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
        }
@@ -325,6 +340,30 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
           getRegistersInfo();
        
     }
+    
+    private String getSerialNumber() throws IOException {
+    	if ( mSerialNumber == null ){
+    		String serialInfo = getDataDumpParser().getRegisterFFStrValue("0.0.0");
+    		mSerialNumber = serialInfo.substring(serialInfo.indexOf("(")+1, serialInfo.indexOf(")"));
+    	}
+
+		return mSerialNumber; 
+	}
+
+    private DataDumpParser getDataDumpParser() throws IOException {
+        if( dataDumpParser==null )
+            dataDumpParser = new DataDumpParser(getDataReadout());
+        return dataDumpParser;
+    }
+
+	private boolean verifyMeterSerialNR() throws IOException {
+        if ((serialNumber == null) || 
+        		("".compareTo(serialNumber)==0) || 
+        		(serialNumber.compareTo(getSerialNumber().substring(getSerialNumber().length()-serialNumber.length())) == 0))
+            return true;
+        else 
+            return false;
+	}
     
     public void disconnect() throws IOException {
        try {
