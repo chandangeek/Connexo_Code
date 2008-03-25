@@ -4,14 +4,19 @@
  * Created on 24 maart 2004, 17:42
  * Changes:
  * KV 29112004 solved bug in block counting. Resulted in a -13 authentication error because non streaming mode retrieved 8 bytes more then necessary!
+ * GN 25032008 added a main to check the dates
  */
 
 package com.energyict.protocolimpl.pact.core.common;
 
 import java.io.*;
 import java.util.*;
+
+import sun.security.jca.GetInstance;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.protocolimpl.base.*;
+
 import com.energyict.protocol.*;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.Connection;
@@ -39,20 +44,20 @@ public class PACTConnection extends Connection {
     
     //*************************************************************************
     // Control codes
-    static public final int CFM=0xFC; // ‘Confirm’ The action implicit in the previous exchange(s) was taken.
-    static public final int TRM=0xFF; // ‘Terminate transaction’ - sender has ended or abandoned the current transaction.
-    static public final int NXT=0xF1; // ‘Next block’ - request next block in sequence of block transfer. This also provides an implicit acknowledge that the previous block has been accepted.
-    static public final int PRE=0xF0; // ‘Repeat block’ - request re-sending of previous block, either for confirmation, or because of data corruption.
-    static public final int MBH=0x8A; // ‘Meter block header’ - Header prefix character to 8-byte data block sent to HHU from meter.
-    static public final int HBH=0x9A; // ‘HHU block header’ - Header prefix character to 8-byte data block sent to meter from HHU.
-    static public final int CHK=0x00; // ‘Checksum’ - Suffix to 8-byte data blocks consisting of exclusive-or of the prefix byte and the 8 bytes of data.
-    static public final int RDM=0x80; // ‘Read meter’ - Transaction initiation code for reading a meter.
-    static public final int RDL=0xA0; // ‘Read log’ - Transaction initiation code for reading load survey information from a meter.
-    static public final int DLT=0x90; // ‘Download Tariff’ - Transaction initiation code for downloading tariff or other program information to a meter.
-    static public final int MDR=0xE0; // ‘Reset Max Demand’ - Transaction initiation code for Max Demand resetting.
-    static public final int MB6=0x87; // ‘Meter block header 6’ - Header prefix character to 6-byte data block sent to HHU from meter.
-    static public final int RTC=0xA1; // ‘Read time and code’ - Request to read meter time and time access code.
-    static public final int WTC=0xA9; // ‘Write time and code’ - Prefix to 8-byte data block containing time, date, access authenticator, and new time access block.
+    static public final int CFM=0xFC; // ï¿½Confirmï¿½ The action implicit in the previous exchange(s) was taken.
+    static public final int TRM=0xFF; // ï¿½Terminate transactionï¿½ - sender has ended or abandoned the current transaction.
+    static public final int NXT=0xF1; // ï¿½Next blockï¿½ - request next block in sequence of block transfer. This also provides an implicit acknowledge that the previous block has been accepted.
+    static public final int PRE=0xF0; // ï¿½Repeat blockï¿½ - request re-sending of previous block, either for confirmation, or because of data corruption.
+    static public final int MBH=0x8A; // ï¿½Meter block headerï¿½ - Header prefix character to 8-byte data block sent to HHU from meter.
+    static public final int HBH=0x9A; // ï¿½HHU block headerï¿½ - Header prefix character to 8-byte data block sent to meter from HHU.
+    static public final int CHK=0x00; // ï¿½Checksumï¿½ - Suffix to 8-byte data blocks consisting of exclusive-or of the prefix byte and the 8 bytes of data.
+    static public final int RDM=0x80; // ï¿½Read meterï¿½ - Transaction initiation code for reading a meter.
+    static public final int RDL=0xA0; // ï¿½Read logï¿½ - Transaction initiation code for reading load survey information from a meter.
+    static public final int DLT=0x90; // ï¿½Download Tariffï¿½ - Transaction initiation code for downloading tariff or other program information to a meter.
+    static public final int MDR=0xE0; // ï¿½Reset Max Demandï¿½ - Transaction initiation code for Max Demand resetting.
+    static public final int MB6=0x87; // ï¿½Meter block header 6ï¿½ - Header prefix character to 6-byte data block sent to HHU from meter.
+    static public final int RTC=0xA1; // ï¿½Read time and codeï¿½ - Request to read meter time and time access code.
+    static public final int WTC=0xA9; // ï¿½Write time and codeï¿½ - Prefix to 8-byte data block containing time, date, access authenticator, and new time access block.
     static public final int RQ3=0xBC; // Request Baud rate change to 300 Baud.
     static public final int RQ1=0xBD; // Request Baud rate change to 1200 Baud.
     static public final int RQ2=0xBE; // Request Baud rate change to 2400 Baud. 
@@ -230,6 +235,7 @@ public class PACTConnection extends Connection {
                     if (retries++ >= maxRetries) {
                         throw new NestedIOException(new IOException(),"PACTConnection, sendRequest(PACTConnection.RTC), max retry (data=="+(data==null?"null":"0x"+Integer.toHexString((int)data[0]))+")");
                     }
+                    delayAndFlush(2000);
                     // retry...
                 }
                 else return ProtocolUtils.getSubArray2(data,1,data.length-1);
@@ -239,6 +245,7 @@ public class PACTConnection extends Connection {
                     if (retries++ >= maxRetries) {
                         throw new NestedIOException(e);
                     }
+                    delayAndFlush(2000);
                 }
                 else throw new NestedIOException(e);
             }
@@ -786,6 +793,25 @@ public class PACTConnection extends Connection {
 
     public void setForceDelay(long forceDelay) {
         this.forceDelay = forceDelay;
+    }
+    
+    public static void main(String[] args) throws IOException{
+    	
+    	Calendar cal = Calendar.getInstance();
+    	
+//    	byte[] data = new byte[]{(byte)0x00,(byte)0x00,(byte)0x47,(byte)0x11,(byte)0x44,(byte)0x28};
+//    	byte[] data = new byte[]{(byte)0x00,(byte)0x40,(byte)0x00,(byte)0x00,(byte)0x53,(byte)0x11};
+//    	byte[] data = new byte[]{(byte)0x00,(byte)0x00,(byte)0x68,(byte)0x00,(byte)0x45,(byte)0x28};
+//    	byte[] data = new byte[]{(byte)0x00,(byte)0x87,(byte)0x00,(byte)0x00,(byte)0x70,(byte)0x40};
+//    	byte[] data = new byte[]{(byte)0x00,(byte)0x00,(byte)0x3D,(byte)0x00,(byte)0x43,(byte)0x28};
+    	byte[] data = new byte[]{(byte)0x00,(byte)0x00,(byte)0x49,(byte)0x00,(byte)0x00,(byte)0x00};
+    
+    	
+//    	87	0	0	49	0	0	0
+
+    	DateTime dateTime = new DateTime(data, cal.getTimeZone());
+    	System.out.println(dateTime.getDate());
+    	
     }
     
 } // public class PACTConnection extends Connection

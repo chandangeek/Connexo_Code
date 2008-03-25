@@ -66,10 +66,16 @@ public class MeterReadingProcessor {
             // UK : (C5) (code 5 clems
             // all the rest (TPA) : Tariff+ CLEM programs
             
-            TotalRegister tr = getTotalRegister();
-            Unit unit = EnergyTypeCode.getUnit(tr.getEType(),energy);
+//-------------------------------------------------------------------------------    
+//  		|250308| GN Moved this into the "if"      	
+//            TotalRegister tr = getTotalRegister();
+//            Unit unit = EnergyTypeCode.getUnit(tr.getEType(),energy);
+//-------------------------------------------------------------------------------    
+        	Unit unit = null;
             
             if (mrid.isTotal()) {
+            	TotalRegister tr = getTotalRegister();
+            	unit = EnergyTypeCode.getUnit(tr.getEType(),energy);
                 return unit;
             }
             else if (mrid.isRate()) {
