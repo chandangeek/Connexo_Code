@@ -531,11 +531,16 @@ class Profile extends VDEWProfile {
                 }
                 
                 ChannelInfo ci = ((ChannelInfo)getChannelInfos().get(0));
-                if( ci.getUnit().isFlowUnit() ) {
-                    BigDecimal size = new BigDecimal( entries.size());
-                    sum = sum.divide(size, BigDecimal.ROUND_HALF_UP);
-                }
                 
+                //***************************************************************
+                // Not correct exactly, normally the flows should be devided,
+                // but now it is according to the MAN software
+                
+//                if( ci.getUnit().isFlowUnit() ) {
+//                    BigDecimal size = new BigDecimal( entries.size());
+//                    sum = sum.divide(size, BigDecimal.ROUND_HALF_UP);
+//                }
+                //***************************************************************
                 id.addValue(sum);
                 
             }

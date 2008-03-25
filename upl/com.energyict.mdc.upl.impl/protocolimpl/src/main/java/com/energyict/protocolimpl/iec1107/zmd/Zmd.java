@@ -33,6 +33,8 @@ public class Zmd
     
     private String strID;
     private String strPassword;
+    private String serialNumber;
+    private String mSerialNumber = null;
     private int iIEC1107TimeoutProperty;
     private int iProtocolRetriesProperty;
     private int iRoundtripCorrection;
@@ -142,6 +144,7 @@ public class Zmd
             profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
             protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0,0,0,0"));
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
+            serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
             
         } catch (NumberFormatException e) {
             String msg = "validateProperties, NumberFormatException, " + e.getMessage();
@@ -198,7 +201,7 @@ public class Zmd
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.4 $";
+        return "$Revision: 1.6 $";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -248,6 +251,10 @@ public class Zmd
             
             flagIEC1107Connection.connectMAC(strID, strPassword, iSecurityLevel, nodeId);
             
+            if (!verifyMeterSerialNR()) 
+                throw new IOException("L&G ZMD, connect, Wrong SerialNR!, EISerialNumber="+serialNumber+", MeterSerialNumber="+getSerialNumber());
+
+            
             if (getFlagIEC1107Connection().getHhuSignOn() != null)
                 dataReadout = getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
             
@@ -261,7 +268,23 @@ public class Zmd
         
     }
     
-    public void disconnect() throws IOException {
+    private String getSerialNumber() throws IOException {
+    	if ( mSerialNumber == null ){
+    		String serialInfo = getDataDumpParser().getRegisterFFStrValue("0.0.0");
+    		mSerialNumber = serialInfo.substring(serialInfo.indexOf("(")+1, serialInfo.indexOf(")"));
+    	}
+
+		return mSerialNumber; 
+	}
+
+	private boolean verifyMeterSerialNR() throws IOException {
+        if ((serialNumber == null) || ("".compareTo(serialNumber)==0) || (serialNumber.compareTo(getSerialNumber()) == 0))
+            return true;
+        else 
+            return false;
+	}
+
+	public void disconnect() throws IOException {
         try {
             flagIEC1107Connection.disconnectMAC();
         } catch (FlagIEC1107ConnectionException e) {
