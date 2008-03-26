@@ -63,6 +63,8 @@ public class Zmd
     private static SimpleDateFormat registerFormat;
     private DataDumpParser dataDumpParser;
     
+    ObisCode serialNumbObisCode = ObisCode.fromString("1.0.9.0.0.255");
+    
     public Zmd() { } 
     
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
@@ -270,8 +272,7 @@ public class Zmd
     
     private String getSerialNumber() throws IOException {
     	if ( mSerialNumber == null ){
-    		String serialInfo = getDataDumpParser().getRegisterFFStrValue("0.0.0");
-    		mSerialNumber = serialInfo.substring(serialInfo.indexOf("(")+1, serialInfo.indexOf(")"));
+    		mSerialNumber = (String) registry.getRegister("SerialNumber");
     	}
 
 		return mSerialNumber; 
@@ -407,6 +408,12 @@ public class Zmd
               return new RegisterValue(obis, str);
         }
         
+        if (obis.equals(serialNumbObisCode)){
+        	byte[] data = getDataDumpParser().getRegisterStrValue(toEdis(obis)).getBytes();
+        	String text = parseText(data);
+        	return new RegisterValue(obis,null,null,null,null,null,0,text);
+        }
+        
         Quantity quantity = getDataDumpParser().getRegister(toEdis(obis));
         Date eventTime = getDataDumpParser().getRegisterDateTime(toEdis(obis), getTimeZone());
         Date toTime = null;
@@ -414,6 +421,12 @@ public class Zmd
             toTime = getDataDumpParser().getRegisterDateTime("0.1.0" + getEdisBillingNotation(obis), getTimeZone());
         return new RegisterValue(obis, quantity, eventTime, toTime);
     }
+    
+    private String parseText(byte[] data) throws IOException {
+        DataParser dp = new DataParser(getTimeZone());
+        String text = dp.parseBetweenBrackets(data,0,0);
+        return text;
+	}
     
     /* Convert Obis code to Edis code. */
     private String toEdis(ObisCode obis) throws IOException{

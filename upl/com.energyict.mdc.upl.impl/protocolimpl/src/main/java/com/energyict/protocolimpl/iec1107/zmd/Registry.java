@@ -55,6 +55,7 @@ class Registry extends AbstractVDEWRegistry {
         registers.put("Date", new VDEWRegister("0.9.2",VDEWRegisterDataParse.VDEW_DATESTRING,0, -1,null,VDEWRegister.WRITEABLE,VDEWRegister.NOT_CACHED));
         registers.put("TimeDate", new VDEWRegister("0.9.1 0.9.2",VDEWRegisterDataParse.VDEW_TIMEDATE,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED));
         registers.put("TimeDate2", new VDEWRegister("C003",VDEWRegisterDataParse.VDEW_DATE_TIME,0, -1,null,VDEWRegister.WRITEABLE,VDEWRegister.NOT_CACHED,FlagIEC1107Connection.READ5,FlagIEC1107Connection.WRITE2));
+        registers.put("SerialNumber", new VDEWRegister("0.0.0",VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.NOT_CACHED));
     }
     
 }

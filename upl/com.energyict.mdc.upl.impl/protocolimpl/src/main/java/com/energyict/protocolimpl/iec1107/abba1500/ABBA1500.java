@@ -72,6 +72,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
     FlagIEC1107Connection flagIEC1107Connection=null;
     ABBA1500Registry abba1500Registry=null;
     ABBA1500Profile abba1500Profile=null;
+    ObisCode serialNumbObisCode = ObisCode.fromString("1.0.0.0.0.255");
     
     List registerValues=null;
     
@@ -343,23 +344,17 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
     
     private String getSerialNumber() throws IOException {
     	if ( mSerialNumber == null ){
-    		String serialInfo = getDataDumpParser().getRegisterFFStrValue("0.0.0");
-    		mSerialNumber = serialInfo.substring(serialInfo.indexOf("(")+1, serialInfo.indexOf(")"));
+    		RegisterValue serialInfo = readRegister(serialNumbObisCode);
+    		mSerialNumber = serialInfo.getText();
     	}
 
 		return mSerialNumber; 
 	}
 
-    private DataDumpParser getDataDumpParser() throws IOException {
-        if( dataDumpParser==null )
-            dataDumpParser = new DataDumpParser(getDataReadout());
-        return dataDumpParser;
-    }
-
 	private boolean verifyMeterSerialNR() throws IOException {
         if ((serialNumber == null) || 
         		("".compareTo(serialNumber)==0) || 
-        		(serialNumber.compareTo(getSerialNumber().substring(getSerialNumber().length()-serialNumber.length())) == 0))
+        		(serialNumber.compareTo(getSerialNumber()) == 0))
             return true;
         else 
             return false;
@@ -573,6 +568,12 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
        try {
           
           byte[] data = readRegisterData(obisCode);
+          
+          if (obisCode.equals(serialNumbObisCode)){
+        	  String text = parseText(data);
+        	  return new RegisterValue(obisCode,null,null,null,null,null,0,text);
+          }
+          
           Quantity quantity = parseQuantity(data);
           Date date = parseDate(data,1);
           Date billlingDate = null; 
@@ -612,7 +613,13 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
        }
     }
     
-    private RegisterValue doTheReadBillingRegisterTimestamp(ObisCode obisCode) throws IOException {
+    private String parseText(byte[] data) throws IOException {
+        DataParser dp = new DataParser(getTimeZone());
+        String text = dp.parseBetweenBrackets(data,0,0);
+        return text;
+	}
+
+	private RegisterValue doTheReadBillingRegisterTimestamp(ObisCode obisCode) throws IOException {
        try {
           byte[] data = readRegisterData(obisCode);
           
