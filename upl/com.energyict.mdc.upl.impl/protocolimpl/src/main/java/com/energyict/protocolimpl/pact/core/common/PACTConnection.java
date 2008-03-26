@@ -12,10 +12,7 @@ package com.energyict.protocolimpl.pact.core.common;
 import java.io.*;
 import java.util.*;
 
-import sun.security.jca.GetInstance;
-
 import com.energyict.cbo.NestedIOException;
-import com.energyict.protocolimpl.base.*;
 
 import com.energyict.protocol.*;
 import com.energyict.dialer.connection.ConnectionException;
