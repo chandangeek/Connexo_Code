@@ -283,7 +283,7 @@ public class GenericModbusDiscover extends Modbus implements MessageProtocol {
         discoverResult.setProtocolMODBUS();
         
         try {
-            setProperties(getProperties(discoverTools.getAddress()));
+            setProperties(discoverTools.getProperties());
             if (getInfoTypeHalfDuplex() != 0)
                 setHalfDuplexController(discoverTools.getDialer().getHalfDuplexController());
             init(discoverTools.getDialer().getInputStream(),discoverTools.getDialer().getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
@@ -317,7 +317,7 @@ public class GenericModbusDiscover extends Modbus implements MessageProtocol {
         Properties properties = new Properties();
         properties.setProperty(MeterProtocol.ADDRESS,""+address);
         properties.setProperty("ProfileInterval", "900");
-        properties.setProperty("HalfDuplex", "1");
+        properties.setProperty("HalfDuplex", "-1");
         return properties;        
     }        
     
@@ -332,7 +332,8 @@ public class GenericModbusDiscover extends Modbus implements MessageProtocol {
                 discoverTools = new DiscoverTools("COM1");
             else
                 discoverTools = new DiscoverTools(args[1]); //"/dev/ttyXR0";
-            discoverTools.setAddress(11);
+            discoverTools.setProperties(genericModbusDiscover.getProperties(5));
+            discoverTools.setAddress(5);
             discoverTools.init();
             discoverTools.connect();
             

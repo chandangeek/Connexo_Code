@@ -13,6 +13,7 @@ package com.energyict.protocolimpl.modbus.eictmodbusrtu;
 import com.energyict.protocolimpl.modbus.core.connection.*;
 import com.energyict.protocolimpl.modbus.core.discover.*;
 import com.energyict.protocolimpl.modbus.core.functioncode.*;
+import com.energyict.protocolimpl.modbus.eictmodbusrtu.eictveris.RegisterFactory;
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
@@ -55,6 +56,7 @@ public class EictModbusRtu extends Modbus {
     }
     
     protected void initRegisterFactory(){
+        setRegisterFactory(new RegisterFactory(this));
     }
     
     
@@ -82,17 +84,17 @@ public class EictModbusRtu extends Modbus {
             Properties properties = new Properties();
             properties.setProperty("ProfileInterval", "900");
             properties.setProperty(MeterProtocol.NODEID,"0");
-            properties.setProperty(MeterProtocol.ADDRESS,"1");
-            properties.setProperty("HalfDuplex", "10");
+            properties.setProperty(MeterProtocol.ADDRESS,"5");
+            properties.setProperty("HalfDuplex", "1");
             
             // ********************** EictRtuModbus **********************
             EictModbusRtu eictRtuModbus = new EictModbusRtu();
-            eictRtuModbus.setHalfDuplexController(dialer.getHalfDuplexController());
             eictRtuModbus.setProperties(properties);
+            eictRtuModbus.setHalfDuplexController(dialer.getHalfDuplexController());
             eictRtuModbus.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
             eictRtuModbus.connect();
             //System.out.println(eictRtuModbus.getRegistersInfo(1));
-            System.out.println(eictRtuModbus.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
+            System.out.println(eictRtuModbus.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
 //            System.out.println(eictRtuModbus.getFunctionCodeFactory().getReadHoldingRegistersRequest(1700-1,3)); // lees 3 16 bit registers
 //            
 //            System.out.println(eictRtuModbus.getFunctionCodeFactory().getReadHoldingRegistersRequest(1724-1,3));

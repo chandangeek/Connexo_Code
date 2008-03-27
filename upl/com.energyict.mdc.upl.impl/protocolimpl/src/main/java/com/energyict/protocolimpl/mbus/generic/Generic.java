@@ -29,7 +29,7 @@ import java.util.logging.*;
 public class Generic extends MBus {
     
     
-    final int DEBUG=1;
+    final int DEBUG=0;
     
     RegisterFactory registerFactory=null;
     
