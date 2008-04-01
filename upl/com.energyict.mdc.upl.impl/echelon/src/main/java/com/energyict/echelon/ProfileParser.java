@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.TimeZone;
 
 /**
@@ -29,14 +28,6 @@ import java.util.TimeZone;
 public class ProfileParser {
 
     SourceCode sourceCode[] = new SourceCode[8];
-
-    /* map EXTENDEDSTATUS of entire Interval to IntervalStateBit */
-    private final static int[] INT_STATUS = {
-            -1,                          /* 0 (daylight savings time in effect) */
-            IntervalStateBits.POWERDOWN, /* 1 (power fail within interval) */
-            IntervalStateBits.SHORTLONG, /* 2 (clock set forward during interval) */
-            IntervalStateBits.SHORTLONG, /* 3 (clock reset backward during interval) */
-    };
 
     ProfileData toLoadProfile(Document doc, TimeZone timeZone) throws Exception {
 
@@ -71,9 +62,12 @@ public class ProfileParser {
 
     /**
      * create initial channelInfo object, with undefined unit
+     *
+     * @param result
+     * @param nrChannels
      */
     private void initChannelInfo(ProfileData result, int nrChannels) {
-        ArrayList ci = new ArrayList();
+        ArrayList<ChannelInfo> ci = new ArrayList<ChannelInfo>();
         for (int i = 0; i < nrChannels; i++) {
             ci.add(new ChannelInfo(i, "channel" + i, Unit.getUndefined()));
         }
@@ -82,9 +76,11 @@ public class ProfileParser {
 
     /**
      * create final channelInfo object, with description and actual unit's
+     *
+     * @param result
      */
     private void getChannelInfo(ProfileData result) {
-        ArrayList ci = new ArrayList();
+        ArrayList<ChannelInfo> ci = new ArrayList<ChannelInfo>();
         for (int i = 0; i < sourceCode.length; i++) {
             if (sourceCode[i] != null) {
                 SourceCode code = sourceCode[i];
@@ -96,6 +92,11 @@ public class ProfileParser {
 
     /**
      * convert an INTERVAL node to an IntervalData object
+     *
+     * @param intervalNode
+     * @param timeZone
+     * @return IntervalData (with mapped status flags), null if date of interval in the future.
+     * @throws java.text.ParseException
      */
     private IntervalData toInterval(Node intervalNode, TimeZone timeZone) throws ParseException {
 
@@ -112,10 +113,9 @@ public class ProfileParser {
         int eiStatus = mapIntervalStatus(Util.getNodeInt((Element) intervalNode, "EXTENDEDSTATUS"));
 
         int channelIndex = 0;
-        Iterator it = Util.collectNodes(intervalNode, Util.CHANNEL_TAG, Util.ID_TAG).iterator();
-        while (it.hasNext()) {
+        for (Object o : Util.collectNodes(intervalNode, Util.CHANNEL_TAG, Util.ID_TAG)) {
 
-            Node channelNode = (Node) it.next();
+            Node channelNode = (Node) o;
 
             channelStatus = mapChannelStatus(Util.getNodeInt((Element) channelNode, "EXTENDEDSTATUS"));
 
@@ -128,7 +128,7 @@ public class ProfileParser {
             channelIndex = channelIndex + 1;
 
             BigDecimal value = new BigDecimal(Util.getNodeValue((Element) channelNode, "VALUE"));
-            if (value == null || value.equals(0)) {
+            if (value.equals(BigDecimal.ZERO)) {
                 channelStatus |= IntervalStateBits.MISSING;
             }
 
@@ -145,13 +145,15 @@ public class ProfileParser {
 
     /**
      * retrieve number of channels parameter from the document
+     *
+     * @param aDocument
+     * @return
      */
     private int getNumberOfChannels(Document aDocument) {
         NodeList nodeList = aDocument.getElementsByTagName(Util.NUMBEROFCHANNELS_TAG);
         Node node = nodeList.item(0);
         String valueString = node.getFirstChild().getNodeValue();
-        int result = Integer.parseInt(valueString);
-        return result;
+        return Integer.parseInt(valueString);
     }
 
     private MeterEvent toMeterEvent(Element eventElement) throws ParseException {
@@ -160,8 +162,7 @@ public class ProfileParser {
         int eventNumber = Util.getNodeInt(eventElement, Util.EVENT_NUMBER_TAG);
         String eventData = Util.getNodeValue(eventElement, Util.EVENT_DATA_TAG);
 
-        MeterEvent event = EventMapper.getInstance().Map(date, eventNumber, eventData);
-        return event;
+        return EventMapper.getInstance().Map(date, eventNumber, eventData);
     }
 
     private int mapChannelStatus(int status) {
