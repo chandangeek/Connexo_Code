@@ -7,8 +7,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -38,14 +36,6 @@ public class ProfileParser {
             IntervalStateBits.POWERDOWN, /* 1 (power fail within interval) */
             IntervalStateBits.SHORTLONG, /* 2 (clock set forward during interval) */
             IntervalStateBits.SHORTLONG, /* 3 (clock reset backward during interval) */
-    };
-
-    /* map EXTENDEDSTATUS of entire Interval to IntervalStateBit */
-    private final static int[] CHN_STATUS = {
-            -1,                         /* 0 (no status flag) */
-            IntervalStateBits.OVERFLOW, /* 1 (overflow) */
-            IntervalStateBits.SHORTLONG,/* 2 (partial interval due to common state) */
-            IntervalStateBits.SHORTLONG,/* 3 (long interval due to common state) */
     };
 
     ProfileData toLoadProfile(Document doc, TimeZone timeZone) throws Exception {
@@ -118,9 +108,8 @@ public class ProfileParser {
 
         IntervalData intervalData = new IntervalData(date);
 
-        int iStatus = Util.getNodeInt((Element) intervalNode, "EXTENDEDSTATUS");
-        if (iStatus < INT_STATUS.length && INT_STATUS[iStatus] != -1)
-            intervalData.addEiStatus(INT_STATUS[iStatus]);
+        int channelStatus;
+        int eiStatus = mapIntervalStatus(Util.getNodeInt((Element) intervalNode, "EXTENDEDSTATUS"));
 
         int channelIndex = 0;
         Iterator it = Util.collectNodes(intervalNode, Util.CHANNEL_TAG, Util.ID_TAG).iterator();
@@ -128,24 +117,27 @@ public class ProfileParser {
 
             Node channelNode = (Node) it.next();
 
-            int cStatus = Util.getNodeInt((Element) channelNode, "EXTENDEDSTATUS");
-            if (cStatus < CHN_STATUS.length && CHN_STATUS[cStatus] != -1)
-                intervalData.addEiStatus(CHN_STATUS[cStatus]);
+            channelStatus = mapChannelStatus(Util.getNodeInt((Element) channelNode, "EXTENDEDSTATUS"));
 
             int id = Util.getNodeInt((Element) channelNode, Util.ID_TAG);
 
-            if (sourceCode[channelIndex] == null)
+            if (sourceCode[channelIndex] == null) {
                 sourceCode[channelIndex] = SourceCode.get(id);
+            }
+
             channelIndex = channelIndex + 1;
 
             BigDecimal value = new BigDecimal(Util.getNodeValue((Element) channelNode, "VALUE"));
             if (value == null || value.equals(0)) {
-                intervalData.setEiStatus(IntervalStateBits.MISSING);
+                channelStatus |= IntervalStateBits.MISSING;
             }
 
-            intervalData.addValue(value);
+            eiStatus |= channelStatus;
+            intervalData.addValue(value, 0, channelStatus);
 
         }
+
+        intervalData.setEiStatus(eiStatus);
 
         return intervalData;
 
@@ -172,19 +164,45 @@ public class ProfileParser {
         return event;
     }
 
-    public static void main(String[] args) throws Exception {
+    private int mapChannelStatus(int status) {
+        /*
+                1 (overflow)
+                2 (partial interval due to common state)
+                3 (long interval due to common state)
+                8 (MEP security failure)
+                15 (M-Bus channel placeholder in effect)
+         */
 
-        ProfileParser parser = new ProfileParser();
-
-        File file = new File("c:\\ep2.xml");
-        FileInputStream fis = new FileInputStream(file);
-
-        byte[] buffer = new byte[(int) file.length()];
-        fis.read(buffer);
-
-        System.out.println(parser.toLoadProfile(Util.toDom(new String(buffer)), null));
-
+        switch (status) {
+            case 1:
+                return IntervalStateBits.OVERFLOW;
+            case 2:
+            case 3:
+                return IntervalStateBits.SHORTLONG;
+            case 8:
+            case 15:
+                return IntervalStateBits.OTHER;
+            default:
+                return IntervalStateBits.OK;
+        }
     }
 
+    private int mapIntervalStatus(int status) {
+        /*
+                0 (daylight savings time in effect)
+                1 (power fail within interval)
+                2 (clock set forward during interval)
+                3 (clock reset backward during interval)
+         */
+        switch (status) {
+            case 1:
+                return IntervalStateBits.POWERDOWN;
+            case 2:
+            case 3:
+                return IntervalStateBits.OTHER;
+            default:
+                return IntervalStateBits.OK;
+        }
+    }
 
 }
