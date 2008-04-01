@@ -471,7 +471,7 @@ public class EchelonExporter extends AbstractExporter {
     }
 
     private void storeProfile(Document document, Rtu rtu) throws Exception {
-        ProfileData pd = new ProfileParser().toLoadProfile(document);
+        ProfileData pd = new ProfileParser().toLoadProfile(document, rtu.getDeviceTimeZone());
         debug("Storing load profile " + pd.toString());
         rtu.store(pd);
     }
