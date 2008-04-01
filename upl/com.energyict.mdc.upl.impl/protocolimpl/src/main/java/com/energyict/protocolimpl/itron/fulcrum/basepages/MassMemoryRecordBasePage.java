@@ -74,12 +74,16 @@ public class MassMemoryRecordBasePage extends AbstractBasePage {
         TimeZone tz = ((BasePagesFactory)getBasePagesFactory()).getProtocolLink().getTimeZone();
         if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())
             tz = ProtocolUtils.getWinterTimeZone(tz);
-        setCalendar(ProtocolUtils.getCleanCalendar(tz));
+        setCalendar(ProtocolUtils.getCleanCalendar(tz));        
         getCalendar().set(Calendar.MONTH,data[0]-1);
         getCalendar().set(Calendar.DAY_OF_MONTH,data[1]);
         getCalendar().set(Calendar.HOUR_OF_DAY,data[2]);
         Calendar now = ProtocolUtils.getCalendar(tz);
         ParseUtils.adjustYear(now, getCalendar());
+        //set fields again to deal with leap day issue 
+        getCalendar().set(Calendar.MONTH,data[0]-1);
+        getCalendar().set(Calendar.DAY_OF_MONTH,data[1]);
+        getCalendar().set(Calendar.HOUR_OF_DAY,data[2]);        
         offset+=3;
         
         setStatus(ProtocolUtils.getLong(data,offset, 8));
