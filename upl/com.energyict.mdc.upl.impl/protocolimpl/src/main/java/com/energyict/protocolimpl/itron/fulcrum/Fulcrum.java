@@ -8,6 +8,10 @@
  * Open. You can then make changes to the template in the Source Editor.
  */
 
+/*
+ * leap day issue 1/4/2008
+ */
+
 package com.energyict.protocolimpl.itron.fulcrum;
 
 import com.energyict.dialer.core.*;
