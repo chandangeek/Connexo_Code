@@ -119,7 +119,8 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         protocolclasses.add("com.energyict.protocolimpl.iec1107.sdc.Sdc");protocolnames.add("IEC 1107 SdC");
         protocolclasses.add("com.energyict.protocolimpl.dlms.flex.Flex");protocolnames.add("DLMS LandysGyr Flex");
         protocolclasses.add("com.energyict.protocolimpl.modbus.socomec.a40.A40");protocolnames.add("Socomec Diris A40 meter Modbus");      
-        protocolclasses.add("com.energyict.protocolimpl.modbus.cutlerhammer.iq230.IQ230");protocolnames.add("Cutler Hammer IQ230 meter with Modbus");        
+        protocolclasses.add("com.energyict.protocolimpl.modbus.cutlerhammer.iq230.IQ230");protocolnames.add("Cutler Hammer IQ230 meter with Modbus");   
+        protocolclasses.add("com.energyict.protocolimpl.dlms.actarisace6000.ACE6000");protocolnames.add("DLMS Actaris ACE6000");
         
     }  
     
