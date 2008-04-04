@@ -29,7 +29,7 @@ import com.energyict.dlms.ProtocolLink;
  * @author  Koen
  */
 public class StoredValuesImpl implements StoredValues {
-    final int DEBUG=1;
+    final int DEBUG=0;
     
     private static final int EOB_STATUS=0;
     private static final int TOTAL_ENERGY=1;
@@ -128,7 +128,7 @@ public class StoredValuesImpl implements StoredValues {
         List billingValues = new ArrayList();
         for(int id=MAXIMUM_DEMANDS;id<(MAXIMUM_DEMANDS+MD_RANGE*2);id+=2) {
             ObisCode maximumDemandObisCode = dc.getRoot().getStructure(billingSetId).getOctetString(id).toObisCode();
-            System.out.println(id + ": " + maximumDemandObisCode);
+            //System.out.println(id + ": " + maximumDemandObisCode);
             if (dc.getRoot().getStructure(billingSetId).getStructure(id+1).isStructure(0)) {
                 DataStructure ds = dc.getRoot().getStructure(billingSetId).getStructure(id+1).getStructure(0);
                 long value = ds.getValue(0);
@@ -149,7 +149,7 @@ public class StoredValuesImpl implements StoredValues {
         int entries = ds.getNrOfElements();
         for(int id=0;id<entries;id++) {
             ObisCode obisCode = ds.getStructure(id).getOctetString(0).toObisCode();
-            System.out.println(typeId + ": " + obisCode);
+            //System.out.println(typeId + ": " + obisCode);
             long value = ds.getStructure(id).getValue(1);
             ScalerUnit scalerUnit = new ScalerUnit(ds.getStructure(id).getStructure(2).getInteger(0),
                                                    ds.getStructure(id).getStructure(2).getInteger(1));
@@ -169,7 +169,7 @@ public class StoredValuesImpl implements StoredValues {
         DataStructure ds = dc.getRoot().getStructure(billingSetId).getStructure(typeId);
         int entries = ds.getNrOfElements();
         ObisCode obisCode = ds.getOctetString(0).toObisCode();
-        System.out.println(typeId + ": " + obisCode);
+        //System.out.println(typeId + ": " + obisCode);
         long value = ds.getValue(1);
         ScalerUnit scalerUnit = new ScalerUnit(ds.getStructure(2).getInteger(0),
                                                ds.getStructure(2).getInteger(1));
