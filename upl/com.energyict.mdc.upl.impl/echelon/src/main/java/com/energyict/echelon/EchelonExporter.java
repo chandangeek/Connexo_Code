@@ -74,6 +74,10 @@ public class EchelonExporter extends AbstractExporter {
             "Exception occured during export",
             "Echelon gateway not defined for meter %s"
     };
+    private static final String FORWARD_ACTIVE = "FORWARDACTIVE";
+    private static final String REVERSE_ACTIVE = "REVERSEACTIVE";
+    private static final String IMPORT_REACTIVE = "IMPORTREACTIVE";
+    private static final String EXPORT_REACTIVE = "EXPORTREACTIVE";
 
     protected void preExport() throws IOException, BusinessException, SQLException {
 
@@ -104,15 +108,16 @@ public class EchelonExporter extends AbstractExporter {
         while (i.hasNext()) {
 
             rtu = (Rtu) i.next();
-            gateway = (Rtu) rtu.getGateway();
-            if (gateway == null || gateway.getDeviceId() == null || gateway.getDeviceId() == "") {
+            gateway = rtu.getGateway();
+            if (gateway == null || gateway.getDeviceId() == null || gateway.getDeviceId().length() == 0) {
                 throw new BusinessException(String.format(error[3], rtu.getName()));
             }
 
-            // don't add a concentrator twice and don't mistaken a meter for a concentrator in case of an M-Bus RTU
+            // don't add a concentrator twice and
+            // don't mistaken a meter for a concentrator in case of an M-Bus RTU
             if (!concentrators.contains(gateway.getDeviceId()) &&
                     gateway.getGateway() == null) {
-                concentrators.add(rtu.getGateway().getDeviceId());
+                concentrators.add(gateway.getDeviceId());
             }
 
             try {
@@ -165,8 +170,8 @@ public class EchelonExporter extends AbstractExporter {
         public Object doExecute() throws BusinessException, SQLException {
             try {
                 ResultId[] ids = toResultId(document);
-                for (int j = 0; j < ids.length; j++) {
-                    store(fetchResult(ids[j], sessionId), rtu);
+                for (ResultId id : ids) {
+                    store(fetchResult(id, sessionId), rtu);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -179,6 +184,8 @@ public class EchelonExporter extends AbstractExporter {
 
     /**
      * persist/log debug messages
+     *
+     * @param msg
      */
     private void debug(String msg) {
         if (debug) {
@@ -190,9 +197,16 @@ public class EchelonExporter extends AbstractExporter {
 
     /**
      * fetch list of Results (=Load Profiles)
+     *
+     * @param rtu
+     * @param fetchDeltaProfile
+     * @param sessionId
+     * @return
+     * @throws javax.xml.rpc.ServiceException
+     * @throws Throwable
      */
     private Document fetchResultList(Rtu rtu, boolean fetchDeltaProfile, String sessionId)
-            throws RemoteException, ServiceException, Exception, Throwable {
+            throws Throwable {
 
         String query = resultListQuery(rtu, fetchDeltaProfile);
         return EchelonSession.getInstance(serverUri).retrieveResultList(query, sessionId);
@@ -201,8 +215,15 @@ public class EchelonExporter extends AbstractExporter {
 
     /**
      * fetch Result document
+     *
+     * @param id
+     * @param sessionId
+     * @return
+     * @throws EchelonException
+     * @throws javax.xml.rpc.ServiceException
+     * @throws java.rmi.RemoteException
      */
-    private Document fetchResult(ResultId id, String sessionId) throws RemoteException, ServiceException, Exception {
+    private Document fetchResult(ResultId id, String sessionId) throws RemoteException, ServiceException, EchelonException {
         Document doc = EchelonSession.getInstance(serverUri).retrieveResult(id.id, sessionId);
         return doc;
     }
@@ -211,39 +232,46 @@ public class EchelonExporter extends AbstractExporter {
 
         if (getDeviceId(rtu) == null) return;
 
-        Iterator mi = rtu.getSentMessages().iterator();
-        while (mi.hasNext()) {
+        for (Object o : rtu.getSentMessages()) {
 
-            RtuMessage msg = (RtuMessage) mi.next();
+            RtuMessage msg = (RtuMessage) o;
             if (msg.getTrackingId() == null) continue;
 
             String taskId = msg.getTrackingId();
+            try {
+                Document r = EchelonSession.getInstance(serverUri).retrieveCommandHistory(taskId, sessionId);
+                Element e = Util.xPath(r, "//STATUSTYPEID");
+                String taSkStatus = e.getFirstChild().getNodeValue();
 
-            Document r = EchelonSession.getInstance(serverUri).retrieveCommandHistory(taskId, sessionId);
-            Element e = Util.xPath(r, "//STATUSTYPEID");
-            String taSkStatus = e.getFirstChild().getNodeValue();
+                debug(msg.getContents() + ": " + Util.getStatusDescription(taSkStatus));
 
-            debug(msg.getContents() + ": " + Util.getStatusDescription(taSkStatus));
+                if (Constants.CommandHistoryStatus.SUCCESS.equals(taSkStatus)) {
+                    msg.confirm();
+                }
 
-            if (Constants.CommandHistoryStatus.SUCCESS.equals(taSkStatus))
-                msg.confirm();
-
-            if (Constants.CommandHistoryStatus.FAILURE.equals(taSkStatus))
+                if (Constants.CommandHistoryStatus.FAILURE.equals(taSkStatus)) {
+                    msg.setFailed();
+                }
+            } catch (EchelonException ex) {
                 msg.setFailed();
+            }
         }
     }
 
     /**
      * send translate RtuMessage to the Ness service
+     *
+     * @param rtu
+     * @param sessionId
+     * @throws Throwable
      */
     private void exportRtuMessages(Rtu rtu, String sessionId) throws Throwable {
 
         if (getDeviceId(rtu) == null) return;
 
-        Iterator mi = rtu.getPendingMessages().iterator();
-        while (mi.hasNext()) {
+        for (Object o : rtu.getPendingMessages()) {
 
-            RtuMessage msg = (RtuMessage) mi.next();
+            RtuMessage msg = (RtuMessage) o;
             String contents = msg.getContents();
             String cmd = createNesCommand(rtu, contents);
 
@@ -317,6 +345,9 @@ public class EchelonExporter extends AbstractExporter {
 
     /**
      * return true if status element is SUCCESS, false otherwise
+     *
+     * @param document
+     * @return
      */
     private boolean isSuccess(Document document) {
         String status = getStatus(document);
@@ -326,6 +357,9 @@ public class EchelonExporter extends AbstractExporter {
 
     /**
      * return status element value, null if no status element is present
+     *
+     * @param document
+     * @return
      */
     private String getStatus(Document document) {
         NodeList nl = (NodeList) document.getElementsByTagName("STATUS");
@@ -336,6 +370,10 @@ public class EchelonExporter extends AbstractExporter {
 
     /**
      * return all ResultIds in document
+     *
+     * @param document
+     * @return
+     * @throws java.text.ParseException
      */
     private ResultId[] toResultId(Document document) throws ParseException {
 
@@ -365,6 +403,11 @@ public class EchelonExporter extends AbstractExporter {
 
     /**
      * build query parameters for retrieving a ResultList for a given Rtu
+     *
+     * @param rtu
+     * @param fetchDeltaProfile
+     * @return
+     * @throws Throwable
      */
     private String resultListQuery(Rtu rtu, boolean fetchDeltaProfile) throws Throwable {
 
@@ -409,6 +452,12 @@ public class EchelonExporter extends AbstractExporter {
 
     /**
      * build the parameters for a performCommand service
+     *
+     * @param rtu
+     * @param cmd
+     * @param highPriority
+     * @return
+     * @throws Throwable
      */
     private String commandParam(Rtu rtu, String cmd, boolean highPriority)
             throws Throwable {
@@ -435,6 +484,8 @@ public class EchelonExporter extends AbstractExporter {
 
     /**
      * return group of rtu's on which this exporter works
+     *
+     * @return
      */
     private Group getGroup() {
         if (group == null) {
@@ -446,6 +497,10 @@ public class EchelonExporter extends AbstractExporter {
 
     /**
      * identify Result type, and dispatch to appropriate store method
+     *
+     * @param document
+     * @param rtu
+     * @throws Exception
      */
     private void store(Document document, Rtu rtu) throws Exception {
         Element result = Util.getElementByName(document, Util.RESULT_TAG);
@@ -471,7 +526,7 @@ public class EchelonExporter extends AbstractExporter {
     }
 
     private void storeProfile(Document document, Rtu rtu) throws Exception {
-        ProfileData pd = new ProfileParser().toLoadProfile(document, rtu.getDeviceTimeZone());
+        ProfileData pd = new ProfileParser().toLoadProfile(document, rtu.getDeviceTimeZone(), rtu.getChannels());
         debug("Storing load profile " + pd.toString());
         rtu.store(pd);
     }
@@ -479,32 +534,43 @@ public class EchelonExporter extends AbstractExporter {
     private void storeBilling(Document document, Rtu rtu) throws Exception {
 
         MeterReadingData mr = new MeterReadingData();
-        BigDecimal v = null;
         Element billingData = Util.getElementByName(document, Util.BILLING_DATA_TAG);
-        Date d = Util.getNodeDate(billingData, Util.DATETIME_TAG, rtu.getDeviceTimeZone());
+        Date date = Util.getNodeDate(billingData, Util.DATETIME_TAG, rtu.getDeviceTimeZone());
 
-        if (readingAlreadyExists(rtu, d, "1.1.1.8.0.255")) {
-            v = new BigDecimal(Util.getNodeValue(document, "FORWARDACTIVE"));
-            mr.add(toRegisterValue(rtu, "1.1.1.8.0.255", toKwh(v), d));
+        if (date.after(new Date())) {
+            return; // don't store stuff from the future
         }
 
-        if (readingAlreadyExists(rtu, d, "1.1.2.8.0.255")) {
-            v = new BigDecimal(Util.getNodeValue(document, "REVERSEACTIVE"));
-            mr.add(toRegisterValue(rtu, "1.1.2.8.0.255", toKwh(v), d));
+        NodeList tiers = billingData.getElementsByTagName("TIERS").item(0).getChildNodes();
+
+        for (int i = 0; i < tiers.getLength(); i++) {
+            Element tier = (Element) tiers.item(i);
+
+            int index;
+            try {
+                // SUM OF TIERS HAS NO INDEX ELEMENT
+                index = Util.getNodeInt(tier, "INDEX");
+            } catch (Exception ex) {
+                index = 0;
+            }
+
+            storeTierValues(rtu, mr, date, tier, index, FORWARD_ACTIVE);
+            storeTierValues(rtu, mr, date, tier, index, REVERSE_ACTIVE);
+            storeTierValues(rtu, mr, date, tier, index, IMPORT_REACTIVE);
+            storeTierValues(rtu, mr, date, tier, index, EXPORT_REACTIVE);
         }
 
-        if (readingAlreadyExists(rtu, d, "1.1.3.8.0.255")) {
-            v = new BigDecimal(Util.getNodeValue(document, "IMPORTREACTIVE"));
-            mr.add(toRegisterValue(rtu, "1.1.3.8.0.255", toKvarh(v), d));
-        }
-
-        if (readingAlreadyExists(rtu, d, "1.1.4.8.0.255")) {
-            v = new BigDecimal(Util.getNodeValue(document, "EXPORTREACTIVE"));
-            mr.add(toRegisterValue(rtu, "1.1.4.8.0.255", toKvarh(v), d));
-        }
 
         rtu.store(mr);
 
+    }
+
+    private void storeTierValues(Rtu rtu, MeterReadingData mr, Date date, Element tier, int index, String name) {
+        ObisCode obis = getObisCode(index, name);
+
+        if (rtu.getRegister(obis) != null && rtu.getRegister(obis).getReadingAt(date) == null) {
+            mr.add(toRegisterValue(rtu, obis, getQuantity(tier, name), date));
+        }
     }
 
     private void storeMBusBilling(Document document, Rtu rtu) throws Exception {
@@ -525,15 +591,15 @@ public class EchelonExporter extends AbstractExporter {
 
 //    	debug(ciField72h.toString());
 
-        for (int i = 0; i < dataRecords.size(); i++) {
+        for (Object dataRecord : dataRecords) {
 
-            record = (DataRecord) dataRecords.get(i);
+            record = (DataRecord) dataRecord;
             valueInfo = record.getDataRecordHeader().getValueInformationBlock().getValueInformationfieldCoding();
 
             if (valueInfo.isTypeUnit() && valueInfo.getDescription().equalsIgnoreCase("volume")) {
                 valueInfo.getObisCodeCreator().setA(ciField72h.getDeviceType().getObisA());
                 obisCode = valueInfo.getObisCodeCreator().toString();
-                mr.add(toRegisterValue(rtu, obisCode, record.getQuantity(), readTime));
+                mr.add(toRegisterValue(rtu, ObisCode.fromString(obisCode), record.getQuantity(), readTime));
                 rtu.store(mr);
                 break;
             }
@@ -544,15 +610,6 @@ public class EchelonExporter extends AbstractExporter {
         ProfileData pd = new ProfileParser().toEventProfile(document);
         debug("Storing event log: " + pd.toString());
         rtu.store(pd);
-    }
-
-    /**
-     * RtuRegister for obiscode exists, and does not have a value for date d
-     */
-    private boolean readingAlreadyExists(Rtu rtu, Date d, String os) {
-        ObisCode o = toObisCode(os);
-        return rtu.getRegister(o) != null &&
-                rtu.getRegister(o).getReadingAt(d) == null;
     }
 
     public String getDescription() {
@@ -597,15 +654,23 @@ public class EchelonExporter extends AbstractExporter {
 
     /**
      * utility method for creating RegisterValue object
+     *
+     * @param rtu
+     * @param obis
+     * @param quantity
+     * @param date
+     * @return
      */
-    private RegisterValue toRegisterValue(Rtu rtu, String obis, Quantity quantity, Date date) {
-        ObisCode code = ObisCode.fromString(obis);
-        int id = rtu.getRegister(code).getId();
-        return new RegisterValue(code, quantity, null, null, date, date, id);
+    private RegisterValue toRegisterValue(Rtu rtu, ObisCode obis, Quantity quantity, Date date) {
+        int id = rtu.getRegister(obis).getId();
+        return new RegisterValue(obis, quantity, null, null, date, date, id);
     }
 
     /**
      * utility method for creating Quantity object
+     *
+     * @param bd
+     * @return
      */
     private Quantity toKwh(BigDecimal bd) {
         return new Quantity(bd, Unit.get(BaseUnit.WATTHOUR, 0));
@@ -613,13 +678,18 @@ public class EchelonExporter extends AbstractExporter {
 
     /**
      * utility method for creating Quantity object
+     *
+     * @param bd
+     * @return
      */
     private Quantity toKvarh(BigDecimal bd) {
         return new Quantity(bd, Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, 0));
     }
 
     /**
-     * utility method for creating Date 1 month in the future
+     * utility method for creating Date 1 hour in the future
+     *
+     * @return
      */
     private Date nextHour() {
         Calendar c = Calendar.getInstance();
@@ -629,13 +699,36 @@ public class EchelonExporter extends AbstractExporter {
 
     /**
      * return true if date is 24 hours ago
+     *
+     * @param date
+     * @return
      */
     private boolean is24HoursAgo(Date date) {
         return (System.currentTimeMillis() - date.getTime()) > 86400000;
     }
 
-    private ObisCode toObisCode(String obisCode) {
-        return ObisCode.fromString(obisCode);
+    private ObisCode getObisCode(int index, String c_parameter) {
+        int c_Code = 0;
+        if (c_parameter.equals(FORWARD_ACTIVE)) {
+            c_Code = 1;
+        } else if (c_parameter.equals(REVERSE_ACTIVE)) {
+            c_Code = 2;
+        } else if (c_parameter.equals(IMPORT_REACTIVE)) {
+            c_Code = 3;
+        } else if (c_parameter.equals(EXPORT_REACTIVE)) {
+            c_Code = 4;
+        }
+        return ObisCode.fromString(String.format("1.1.%d.8.%d.255", c_Code, index));
+    }
+
+    private Quantity getQuantity(Element tier, String c_parameter) {
+        BigDecimal v = new BigDecimal(Util.getNodeValue(tier, c_parameter));
+        if (c_parameter.equals(FORWARD_ACTIVE) || c_parameter.equals(REVERSE_ACTIVE)) {
+            return toKwh(v);
+        } else if (c_parameter.equals(IMPORT_REACTIVE) || c_parameter.equals(EXPORT_REACTIVE)) {
+            return toKvarh(v);
+        }
+        return null;
     }
 
     private byte[] convertHexStringToByte(String hexString) throws Exception {

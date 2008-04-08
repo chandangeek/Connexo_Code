@@ -1,6 +1,7 @@
 package com.energyict.echelon;
 
 import com.energyict.cbo.Unit;
+import com.energyict.mdw.core.Channel;
 import com.energyict.protocol.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 /**
@@ -27,14 +29,27 @@ import java.util.TimeZone;
 
 public class ProfileParser {
 
-    SourceCode sourceCode[] = new SourceCode[8];
+    /* TODO: refactoring: remove global variable 'sourceCode' as a parser should be stateless. */
 
-    ProfileData toLoadProfile(Document doc, TimeZone timeZone) throws Exception {
+    SourceCode sourceCode[];
+
+    /**
+     * Parse the echelon xml result into a load profile object.
+     *
+     * @param doc      Echelon xml result
+     * @param timeZone device timezone
+     * @param channels list of channels
+     * @return Load ProfileData
+     * @throws Exception
+     */
+    ProfileData toLoadProfile(Document doc, TimeZone timeZone, List<Channel> channels) throws Exception {
 
         ProfileData result = new ProfileData();
 
         int nrChannels = getNumberOfChannels(doc);
-        initChannelInfo(result, nrChannels);
+        sourceCode = new SourceCode[nrChannels];
+
+        initChannelInfo(result, nrChannels, channels);
 
         NodeList nl = doc.getElementsByTagName(Util.INTERVAL_TAG);
         IntervalData interval;
@@ -49,6 +64,13 @@ public class ProfileParser {
         return result;
     }
 
+    /**
+     * Parse the echelon xml result into a event profile object.
+     *
+     * @param doc Echelon xml result
+     * @return Event ProfileData
+     * @throws Exception
+     */
     ProfileData toEventProfile(Document doc) throws Exception {
         ProfileData result = new ProfileData();
 
@@ -63,13 +85,20 @@ public class ProfileParser {
     /**
      * create initial channelInfo object, with undefined unit
      *
-     * @param result
-     * @param nrChannels
+     * @param result     ProfileData
+     * @param nrChannels nr of returned channels
+     * @param channels   list of channels
+     * @param nrChannels number of channels
      */
-    private void initChannelInfo(ProfileData result, int nrChannels) {
+    private void initChannelInfo(ProfileData result, int nrChannels, List<Channel> channels) {
         ArrayList<ChannelInfo> ci = new ArrayList<ChannelInfo>();
+        ChannelInfo channelInfo;
         for (int i = 0; i < nrChannels; i++) {
-            ci.add(new ChannelInfo(i, "channel" + i, Unit.getUndefined()));
+            channelInfo = new ChannelInfo(i, "channel" + i, Unit.getUndefined());
+            if (channels.get(i).getCumulative()) {
+                channelInfo.setCumulativeWrapValue(new BigDecimal(999999999));     // TODO: replace hard coded wrap value by configurable value
+            }
+            ci.add(channelInfo);
         }
         result.setChannelInfos(ci);
     }
@@ -77,7 +106,7 @@ public class ProfileParser {
     /**
      * create final channelInfo object, with description and actual unit's
      *
-     * @param result
+     * @param result ProfileData to paste into the channel info.
      */
     private void getChannelInfo(ProfileData result) {
         ArrayList<ChannelInfo> ci = new ArrayList<ChannelInfo>();
@@ -93,51 +122,56 @@ public class ProfileParser {
     /**
      * convert an INTERVAL node to an IntervalData object
      *
-     * @param intervalNode
-     * @param timeZone
-     * @return IntervalData (with mapped status flags), null if date of interval in the future.
-     * @throws java.text.ParseException
+     * @param intervalNode to be parsed into IntervalData
+     * @param timeZone     of the RTU
+     * @return IntervalData (with mapped status flags), null if date of interval in the future (or parse exception).
      */
-    private IntervalData toInterval(Node intervalNode, TimeZone timeZone) throws ParseException {
+    private IntervalData toInterval(Node intervalNode, TimeZone timeZone) {
 
-        Date date = Util.getNodeDate((Element) intervalNode, Util.DATETIME_TAG, timeZone);
+        IntervalData intervalData;
 
-        Date now = new Date();
-        if (now.before(date)) {
+        try {
+            Date date = Util.getNodeDate((Element) intervalNode, Util.DATETIME_TAG, timeZone);
+
+            Date now = new Date();
+            if (now.before(date)) {
+                return null;
+            }
+
+            intervalData = new IntervalData(date);
+
+            int channelStatus;
+            int eiStatus = mapIntervalStatus(Util.getNodeInt((Element) intervalNode, "EXTENDEDSTATUS"));
+
+            int channelIndex = 0;
+            for (Object o : Util.collectNodes(intervalNode, Util.CHANNEL_TAG, Util.ID_TAG)) {
+
+                Node channelNode = (Node) o;
+
+                channelStatus = mapChannelStatus(Util.getNodeInt((Element) channelNode, "EXTENDEDSTATUS"));
+
+                int id = Util.getNodeInt((Element) channelNode, Util.ID_TAG);
+
+                if (sourceCode[channelIndex] == null) {
+                    sourceCode[channelIndex] = SourceCode.get(id);
+                }
+
+                channelIndex = channelIndex + 1;
+
+                BigDecimal value = new BigDecimal(Util.getNodeValue((Element) channelNode, "VALUE"));
+                if (value.equals(BigDecimal.ZERO)) {
+                    channelStatus |= IntervalStateBits.MISSING;
+                }
+
+                eiStatus |= channelStatus;
+                intervalData.addValue(value, 0, channelStatus);
+
+            }
+
+            intervalData.setEiStatus(eiStatus);
+        } catch (ParseException ex) {
             return null;
         }
-
-        IntervalData intervalData = new IntervalData(date);
-
-        int channelStatus;
-        int eiStatus = mapIntervalStatus(Util.getNodeInt((Element) intervalNode, "EXTENDEDSTATUS"));
-
-        int channelIndex = 0;
-        for (Object o : Util.collectNodes(intervalNode, Util.CHANNEL_TAG, Util.ID_TAG)) {
-
-            Node channelNode = (Node) o;
-
-            channelStatus = mapChannelStatus(Util.getNodeInt((Element) channelNode, "EXTENDEDSTATUS"));
-
-            int id = Util.getNodeInt((Element) channelNode, Util.ID_TAG);
-
-            if (sourceCode[channelIndex] == null) {
-                sourceCode[channelIndex] = SourceCode.get(id);
-            }
-
-            channelIndex = channelIndex + 1;
-
-            BigDecimal value = new BigDecimal(Util.getNodeValue((Element) channelNode, "VALUE"));
-            if (value.equals(BigDecimal.ZERO)) {
-                channelStatus |= IntervalStateBits.MISSING;
-            }
-
-            eiStatus |= channelStatus;
-            intervalData.addValue(value, 0, channelStatus);
-
-        }
-
-        intervalData.setEiStatus(eiStatus);
 
         return intervalData;
 
@@ -146,8 +180,8 @@ public class ProfileParser {
     /**
      * retrieve number of channels parameter from the document
      *
-     * @param aDocument
-     * @return
+     * @param aDocument is the xml document retrieved from NES
+     * @return the number of channels
      */
     private int getNumberOfChannels(Document aDocument) {
         NodeList nodeList = aDocument.getElementsByTagName(Util.NUMBEROFCHANNELS_TAG);
