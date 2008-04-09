@@ -55,6 +55,7 @@ public class EnermetE70x extends Metcom2 implements RegisterProtocol {
         result.add("RemovePowerOutageIntervals");
         result.add("LogBookReadCommand");
         result.add("ForcedDelay");
+        result.add("TimeSetMethod");
         return result;
     }
     

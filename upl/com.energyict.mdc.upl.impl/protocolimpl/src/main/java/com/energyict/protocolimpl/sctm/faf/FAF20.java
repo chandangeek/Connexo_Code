@@ -52,6 +52,7 @@ public class FAF20 extends Metcom3FAF implements RegisterProtocol {
         result.add("RemovePowerOutageIntervals");
         result.add("LogBookReadCommand");
         result.add("ForcedDelay");
+        result.add("TimeSetMethod");
         return result;
     }    
     
