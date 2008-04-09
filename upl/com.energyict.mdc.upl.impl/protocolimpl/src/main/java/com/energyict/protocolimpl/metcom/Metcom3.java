@@ -132,6 +132,7 @@ public class Metcom3 extends Metcom {
         result.add("ChannelMap");
         result.add("RemovePowerOutageIntervals");
         result.add("LogBookReadCommand");
+        result.add("TimeSetMethod");
         return result;
     }
       

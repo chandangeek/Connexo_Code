@@ -151,6 +151,7 @@ public class Metcom2 extends Metcom{
         result.add("RemovePowerOutageIntervals");
         result.add("LogBookReadCommand");
         result.add("IntervalStatusBehaviour");
+        result.add("TimeSetMethod");
         return result;
     }
     
