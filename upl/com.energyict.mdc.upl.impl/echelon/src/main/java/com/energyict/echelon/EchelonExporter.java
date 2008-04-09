@@ -8,10 +8,7 @@ import com.energyict.cpo.Environment;
 import com.energyict.cpo.Transaction;
 import com.energyict.echelon.Constants.DeviceResultTypes;
 import com.energyict.eisexport.core.AbstractExporter;
-import com.energyict.mdw.core.Group;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterReadingData;
@@ -25,10 +22,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import javax.xml.rpc.ServiceException;
+import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.*;
@@ -63,10 +59,15 @@ public class EchelonExporter extends AbstractExporter {
      * property name of server URI
      */
     private final String URI = "uri";
+    /**
+     * property name of the run task timeout
+     */
+    private final String RUN_TASK_TIMEOUT = "run task timeout (minutes, default 5)";
 
     private boolean debug;
     private String serverUri;
     private Group group;
+    private int timeoutOffset;
 
     private String error[] = {
             "Unable to run exporter, missing parameter \"" + URI + "\"",
@@ -86,8 +87,19 @@ public class EchelonExporter extends AbstractExporter {
         debug = getProperty(DBG) != null;
 
         serverUri = getProperty(URI);
-        if (serverUri == null)
+        if (serverUri == null) {
             throw new BusinessException(error[0]);
+        }
+
+        try {
+            timeoutOffset = Integer.parseInt(getProperty(RUN_TASK_TIMEOUT));
+        } catch (NumberFormatException ex) {
+            timeoutOffset = 5;
+        }
+        if (timeoutOffset == 0) {
+            timeoutOffset = 5;
+        }
+
     }
 
 
@@ -95,6 +107,8 @@ public class EchelonExporter extends AbstractExporter {
         String sessionId;
 
         List<String> concentrators = new ArrayList<String>();
+        List<String> highConcentrators = new ArrayList<String>();
+        List<RtuMessage> highPriorityTasks = new ArrayList<RtuMessage>();
 
         try {
             sessionId = EchelonSession.getInstance(serverUri).getSession();
@@ -122,14 +136,24 @@ public class EchelonExporter extends AbstractExporter {
 
             try {
 
-                debug("Handling " + rtu.getFullName());
+                if (debug) {
+                    debug("Handling " + rtu.getFullName());
+                }
 
                 checkSentMessages(rtu, sessionId);
-                exportRtuMessages(rtu, sessionId);
+                List<RtuMessage> highTasks = exportRtuMessages(rtu, sessionId);
+                if (highTasks.size() > 0) {
+                    if (concentrators.contains(gateway.getDeviceId())) {
+                        highConcentrators.add(gateway.getDeviceId());
+                        highPriorityTasks.addAll(highTasks);
+                    }
+                }
 
-                debug("Echelon exporter: handling readings");
+                if (debug) {
+                    debug("Echelon exporter: handling readings");
+                }
 
-                Document d = fetchResultList(rtu, is24HoursAgo(rtu.getLastReading()), sessionId);
+                Document d = fetchResultList(rtu, sessionId);
 
                 if (isSuccess(d)) {
                     Environment.getDefault().execute(new StoreTransaction(rtu, d, sessionId));
@@ -144,15 +168,95 @@ public class EchelonExporter extends AbstractExporter {
 
         }
 
+        connectConcentratorsHighPriority(sessionId, highConcentrators, highPriorityTasks);
+
+        connectConcentratorsNormalPriority(sessionId, concentrators);
+
+    }
+
+    private void connectConcentratorsHighPriority(String sessionId, List<String> highConcentrators, List<RtuMessage> highPriorityTasks) throws SQLException, BusinessException {
         try {
-            for (String concentrator : concentrators) {
-                EchelonSession.getInstance(serverUri).connect(concentrator, sessionId);
+            // connect to all concentrators so all high priority tasks will be send
+            for (String concentrator : highConcentrators) {
+                EchelonSession.getInstance(serverUri).connect(concentrator, sessionId, true);
+            }
+            // poll the tasks till they all are finished, timed out or the general runtime timed out
+            pollHighPriorityTasks(sessionId, highPriorityTasks);
+            // disconnect all concentrators with a high priority connection.
+            for (String concentrator : highConcentrators) {
+                EchelonSession.getInstance(serverUri).disconnect(concentrator, sessionId);
             }
         } catch (EchelonException e) {
             getLogger().log(Level.SEVERE, error[2] + e.getMessage(), e);
             e.printStackTrace();
         }
+    }
 
+    private void pollHighPriorityTasks(String sessionId, List<RtuMessage> highPriorityTasks) throws SQLException, BusinessException {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MINUTE, timeoutOffset);
+        Date taskTimeout = cal.getTime();
+        Date now = new Date();
+
+        // wait till all tasks are completed (succes or failed) or the timeout has been reached.
+        while (now.before(taskTimeout) && highPriorityTasks.size() > 0) {
+
+            highPriorityTasks = checkHighPriorityMessages(sessionId, highPriorityTasks);
+
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            now = new Date();
+        }
+    }
+
+    private void connectConcentratorsNormalPriority(String sessionId, List<String> concentrators) {
+        try {
+            for (String concentrator : concentrators) {
+                EchelonSession.getInstance(serverUri).connect(concentrator, sessionId, false);
+            }
+        } catch (EchelonException e) {
+            getLogger().log(Level.SEVERE, error[2] + e.getMessage(), e);
+            e.printStackTrace();
+        }
+    }
+
+    private List<RtuMessage> checkHighPriorityMessages(String sessionId, List<RtuMessage> highPriorityTasks) throws SQLException, BusinessException {
+        List<RtuMessage> remainingTasks = new ArrayList<RtuMessage>();
+
+        Document result;
+
+        try {
+            result = EchelonSession.getInstance(serverUri).retrieveCommandHistory(sessionId);
+        } catch (EchelonException ex) {
+            return highPriorityTasks;
+        }
+
+        if (result != null) {
+            for (RtuMessage message : highPriorityTasks) {
+                Element e = null;
+                try {
+                    e = Util.xPath(result, String.format("//COMMANDHISTORY/STATUSTYPEID[../ID/text() = '%s']", message.getTrackingId()));
+                } catch (TransformerException e1) {
+                    e1.printStackTrace();
+                }
+                if (e != null && e.getFirstChild() != null) {
+                    String taskStatus = e.getFirstChild().getNodeValue();
+
+                    if (Constants.CommandHistoryStatus.WAITING.equals(taskStatus) ||
+                            Constants.CommandHistoryStatus.IN_PROGRESS.equals(taskStatus)) {
+                        remainingTasks.add(message);
+                    }
+                    updateMessageStatus(message, taskStatus);
+                }
+
+            }
+        }
+
+        return remainingTasks;
     }
 
     class StoreTransaction implements Transaction {
@@ -185,147 +289,235 @@ public class EchelonExporter extends AbstractExporter {
     /**
      * persist/log debug messages
      *
-     * @param msg
+     * @param msg debug message
      */
     private void debug(String msg) {
-        if (debug) {
-            getLogger().info(msg);
-            System.out.println(msg);
-        }
-
+        getLogger().info(msg);
+        System.out.println(msg);
     }
 
     /**
      * fetch list of Results (=Load Profiles)
      *
-     * @param rtu
-     * @param fetchDeltaProfile
-     * @param sessionId
-     * @return
-     * @throws javax.xml.rpc.ServiceException
-     * @throws Throwable
+     * @param rtu       The processed RTU
+     * @param sessionId The sessionId retrieved from NES
+     * @return XML document with list of available result sets.
+     * @throws EchelonException when a NES error occurred.
      */
-    private Document fetchResultList(Rtu rtu, boolean fetchDeltaProfile, String sessionId)
-            throws Throwable {
-
-        String query = resultListQuery(rtu, fetchDeltaProfile);
+    private Document fetchResultList(Rtu rtu, String sessionId) throws EchelonException {
+        String query = resultListQuery(rtu);
         return EchelonSession.getInstance(serverUri).retrieveResultList(query, sessionId);
-
     }
 
     /**
      * fetch Result document
      *
-     * @param id
-     * @param sessionId
-     * @return
-     * @throws EchelonException
-     * @throws javax.xml.rpc.ServiceException
-     * @throws java.rmi.RemoteException
+     * @param id        Result id
+     * @param sessionId NES session id
+     * @return XML document with the result data retrieved from NES.
+     * @throws EchelonException when a NES error occurred.
      */
-    private Document fetchResult(ResultId id, String sessionId) throws RemoteException, ServiceException, EchelonException {
-        Document doc = EchelonSession.getInstance(serverUri).retrieveResult(id.id, sessionId);
-        return doc;
+    private Document fetchResult(ResultId id, String sessionId) throws EchelonException {
+        return EchelonSession.getInstance(serverUri).retrieveResult(id.id, sessionId);
     }
 
     private void checkSentMessages(Rtu rtu, String sessionId) throws Throwable {
 
-        if (getDeviceId(rtu) == null) return;
+        if (rtu.getDeviceId() == null) return;
+
+        Document r = null;
+        boolean echelonError = false;
+        try {
+            r = EchelonSession.getInstance(serverUri).retrieveCommandHistory(sessionId, rtu.getDeviceId());
+        } catch (EchelonException ex) {
+            echelonError = true;
+        }
 
         for (Object o : rtu.getSentMessages()) {
 
             RtuMessage msg = (RtuMessage) o;
-            if (msg.getTrackingId() == null) continue;
+            if (msg.getTrackingId() == null) {
+                continue;
+            }
+
+            if (echelonError) {
+                msg.setFailed();
+                continue;
+            }
 
             String taskId = msg.getTrackingId();
-            try {
-                Document r = EchelonSession.getInstance(serverUri).retrieveCommandHistory(taskId, sessionId);
-                Element e = Util.xPath(r, "//STATUSTYPEID");
-                String taSkStatus = e.getFirstChild().getNodeValue();
+            Element e = Util.xPath(r, String.format("//COMMANDHISTORY/STATUSTYPEID[../ID/text() = '%s']", taskId));
+            String taSkStatus = e.getFirstChild().getNodeValue();
 
+            if (debug) {
                 debug(msg.getContents() + ": " + Util.getStatusDescription(taSkStatus));
-
-                if (Constants.CommandHistoryStatus.SUCCESS.equals(taSkStatus)) {
-                    msg.confirm();
-                }
-
-                if (Constants.CommandHistoryStatus.FAILURE.equals(taSkStatus)) {
-                    msg.setFailed();
-                }
-            } catch (EchelonException ex) {
-                msg.setFailed();
             }
+
+            updateMessageStatus(msg, taSkStatus);
+        }
+        enforceContinuousDeltaLoadProfileCommand(rtu, sessionId, r);
+    }
+
+    private void updateMessageStatus(RtuMessage msg, String taSkStatus) throws BusinessException, SQLException {
+        if (Constants.CommandHistoryStatus.SUCCESS.equals(taSkStatus)) {
+            msg.confirm();
+        } else if (Constants.CommandHistoryStatus.FAILURE.equals(taSkStatus)) {
+            msg.setFailed();
+        } else if (Constants.CommandHistoryStatus.CANCELLED.equals(taSkStatus)) {
+            msg.setFailed();
+        } else if (Constants.CommandHistoryStatus.DELETED.equals(taSkStatus)) {
+            msg.setFailed();
+        } else if (Constants.CommandHistoryStatus.IN_PROGRESS.equals(taSkStatus)) {
+            msg.setSent();
+        } else if (Constants.CommandHistoryStatus.WAITING.equals(taSkStatus)) {
+            msg.setPending();
+        }
+
+    }
+
+    private void enforceContinuousDeltaLoadProfileCommand(Rtu rtu, String sessionId, Document r) throws TransformerException, EchelonException {
+        // test if a 'continuous delta load profile' is in the command list with status <> failed, completed.
+        // if not, add one.
+
+        NodeList nodes = Util.xPathNodeList(r, String.format("//COMMANDHISTORY[COMMANDID= '%s']/STATUSTYPEID", Constants.DeviceCommands.READ_CONTINUOUS_DELTA_LOAD_PROFILE));
+        boolean hasActiveContinuousDelta = false;
+        Element e;
+
+        // check if one of the continuous delta load commands in the node list is in progress or waiting.
+        for (int i = 0; i < nodes.getLength() && !hasActiveContinuousDelta; i++) {
+            e = (Element) nodes.item(i);
+            String deltaLoadStatus = null;
+            if (e != null) {
+                deltaLoadStatus = e.getFirstChild().getNodeValue();
+            }
+            if (deltaLoadStatus != null &&
+                    (deltaLoadStatus.equals(Constants.CommandHistoryStatus.IN_PROGRESS) ||
+                            deltaLoadStatus.equals(Constants.CommandHistoryStatus.WAITING))) {
+                hasActiveContinuousDelta = true;
+            }
+        }
+
+        // add a cont. delta load command in case there's no active one.
+        if (!hasActiveContinuousDelta) {
+            String nesCommand = createNesCommand(rtu.getDeviceId(), MeterMessaging.CONTINUOUS_DELTA_LOAD_PROFILE);
+            Calendar c = Calendar.getInstance();
+            c.add(Calendar.YEAR, 20);
+            Date timeout = c.getTime();
+            String param = commandParam(rtu, nesCommand, false, timeout);
+            EchelonSession.getInstance(serverUri).performCommand(param, sessionId);
         }
     }
 
     /**
      * send translate RtuMessage to the Ness service
      *
-     * @param rtu
-     * @param sessionId
-     * @throws Throwable
+     * @param rtu       The processed RTU.
+     * @param sessionId The NES session id.
+     * @return List of high priority messages. empty if none.
+     * @throws BusinessException when a functional error occurred.
+     * @throws SQLException      when a sql operation failed.
      */
-    private void exportRtuMessages(Rtu rtu, String sessionId) throws Throwable {
+    private List<RtuMessage> exportRtuMessages(Rtu rtu, String sessionId) throws BusinessException, SQLException {
 
-        if (getDeviceId(rtu) == null) return;
+        List<RtuMessage> highPriorityTasks = new ArrayList<RtuMessage>();
 
+        if (rtu.getDeviceId() == null) {
+            return highPriorityTasks;
+        }
+
+        boolean highPriority;
+        Date timeout;
         for (Object o : rtu.getPendingMessages()) {
 
             RtuMessage msg = (RtuMessage) o;
             String contents = msg.getContents();
-            String cmd = createNesCommand(rtu, contents);
+            String cmd = createNesCommand(rtu.getDeviceId(), contents);
 
+            if (cmd.equals(Constants.DeviceCommands.CONNECT_LOAD)
+                    || cmd.equals(Constants.DeviceCommands.DISCONNECT_LOAD)
+                    || cmd.equals(Constants.DeviceCommands.READ_BILLING_DATA_ON_DEMAND)) {
+                highPriority = true;
+                timeout = nextTwoMinutes();
+            } else {
+                highPriority = false;
+                timeout = nextHour();
+            }
 
             if (cmd != null) {
 
                 try {
-                    String param = commandParam(rtu, cmd, false);
+                    String param = commandParam(rtu, cmd, highPriority, timeout);
                     Document r = EchelonSession.getInstance(serverUri).performCommand(param, sessionId);
                     Element e = Util.xPath(r, "//TRACKINGID");
                     String tracking = e.getFirstChild().getNodeValue();
                     updateRtuMessage(msg, tracking);
+                    if (highPriority) {
+                        highPriorityTasks.add(msg);
+                    }
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     msg.setFailed();
                 }
             }
         }
+        return highPriorityTasks;
     }
 
 
-    private String createNesCommand(Rtu rtu, String contents) {
+    private String createNesCommand(String deviceId, String contents) {
         if (contents.indexOf(MeterMessaging.READ_REGISTERS_ON_DEMAND) != -1) {
-            debug("sending read billing data on demand to " + getDeviceId(rtu));
+            if (debug) {
+                debug("sending read billing data on demand to " + deviceId);
+            }
             return Constants.DeviceCommands.READ_BILLING_DATA_ON_DEMAND;
         }
 
         if (contents.indexOf(MeterMessaging.READ_REGISTERS) != -1) {
-            debug("sending read billing data to " + getDeviceId(rtu));
+            if (debug) {
+                debug("sending read billing data to " + deviceId);
+            }
             return Constants.DeviceCommands.READ_SELF_BILLING_DATA;
         }
 
         if (contents.indexOf(MeterMessaging.DISCONNECT_LOAD) != -1) {
-            debug("sending disconnect to " + getDeviceId(rtu));
+            if (debug) {
+                debug("sending disconnect to " + deviceId);
+            }
             return Constants.DeviceCommands.REMOTE_METER_DISCONNECT;
         }
 
         if (contents.indexOf(MeterMessaging.CONNECT_LOAD) != -1) {
-            debug("sending connect to " + getDeviceId(rtu));
+            if (debug) {
+                debug("sending connect to " + deviceId);
+            }
             return Constants.DeviceCommands.REMOTE_METER_CONNECT;
         }
 
         if (contents.indexOf(MeterMessaging.READ_EVENTS) != -1) {
-            debug("sending read events to " + getDeviceId(rtu));
+            if (debug) {
+                debug("sending read events to " + deviceId);
+            }
             return Constants.DeviceCommands.READ_EVENT_LOG;
         }
 
+        if (contents.indexOf(MeterMessaging.CONTINUOUS_DELTA_LOAD_PROFILE) != 1) {
+            if (debug) {
+                debug("sending continuous delta load profile to " + deviceId);
+            }
+            return Constants.DeviceCommands.READ_CONTINUOUS_DELTA_LOAD_PROFILE;
+        }
+
         if (contents.indexOf(MeterMessaging.LOAD_PROFILE_DELTA) != -1) {
-            debug("sending read delta load profile to " + getDeviceId(rtu));
+            if (debug) {
+                debug("sending read delta load profile to " + deviceId);
+            }
             return Constants.DeviceCommands.READ_DELTA_LOAD_PROFILE;
         }
 
         if (contents.indexOf(MeterMessaging.LOAD_PROFILE) != -1) {
-            debug("sending read full load profile to " + getDeviceId(rtu));
+            if (debug) {
+                debug("sending read full load profile to " + deviceId);
+            }
             return Constants.DeviceCommands.READ_FULL_LOAD_PROFILE;
         }
 
@@ -346,8 +538,8 @@ public class EchelonExporter extends AbstractExporter {
     /**
      * return true if status element is SUCCESS, false otherwise
      *
-     * @param document
-     * @return
+     * @param document XML document returned by NES.
+     * @return true if the return code == succeeded, false otherwise.
      */
     private boolean isSuccess(Document document) {
         String status = getStatus(document);
@@ -356,13 +548,13 @@ public class EchelonExporter extends AbstractExporter {
     }
 
     /**
-     * return status element value, null if no status element is present
+     * return status element value
      *
-     * @param document
-     * @return
+     * @param document XML document returned by NES.
+     * @return the status, null if no status is present.
      */
     private String getStatus(Document document) {
-        NodeList nl = (NodeList) document.getElementsByTagName("STATUS");
+        NodeList nl = document.getElementsByTagName("STATUS");
         if (nl.getLength() == 0)
             return null;
         return nl.item(0).getFirstChild().getNodeValue();
@@ -371,9 +563,9 @@ public class EchelonExporter extends AbstractExporter {
     /**
      * return all ResultIds in document
      *
-     * @param document
-     * @return
-     * @throws java.text.ParseException
+     * @param document XML document returned by NES with all available result sets.
+     * @return list of result id objects.
+     * @throws java.text.ParseException when the parsing the result id set failed.
      */
     private ResultId[] toResultId(Document document) throws ParseException {
 
@@ -381,7 +573,7 @@ public class EchelonExporter extends AbstractExporter {
         /* needs to be sorted !!! NES returns from new to old.
          * If new is imported first the lastReading date is set,
          * and old is skipped. */
-        TreeSet results = new TreeSet();
+        TreeSet<ResultId> results = new TreeSet<ResultId>();
 
         for (int i = 0; i < nl.getLength(); i++) {
 
@@ -397,19 +589,17 @@ public class EchelonExporter extends AbstractExporter {
 
         }
 
-        return (ResultId[]) results.toArray(new ResultId[0]);
+        return results.toArray(new ResultId[results.size()]);
 
     }
 
     /**
      * build query parameters for retrieving a ResultList for a given Rtu
      *
-     * @param rtu
-     * @param fetchDeltaProfile
-     * @return
-     * @throws Throwable
+     * @param rtu The processed RTU.
+     * @return Parameter string to retrieve the available resultsets in NES
      */
-    private String resultListQuery(Rtu rtu, boolean fetchDeltaProfile) throws Throwable {
+    private String resultListQuery(Rtu rtu) {
 
         String deviceId = rtu.getDeviceId();
         Date lastReading = rtu.getLastReading();
@@ -418,11 +608,8 @@ public class EchelonExporter extends AbstractExporter {
 
         Element resultTypes = builder.addElement("RESULTTYPES");
 
-        Element resultType = null;
-        if (fetchDeltaProfile) {
-            resultType = builder.addElement(resultTypes, "RESULTTYPE");
-            builder.addElement(resultType, "ID", DeviceResultTypes.DELTA_LOAD_PROFILE);
-        }
+        Element resultType = builder.addElement(resultTypes, "RESULTTYPE");
+        builder.addElement(resultType, "ID", DeviceResultTypes.DELTA_LOAD_PROFILE);
 
         resultType = builder.addElement(resultTypes, "RESULTTYPE");
         builder.addElement(resultType, "ID", DeviceResultTypes.FULL_LOAD_PROFILE);
@@ -434,9 +621,6 @@ public class EchelonExporter extends AbstractExporter {
         builder.addElement(resultType, "ID", DeviceResultTypes.BILLING_DATA_ON_DEMAND);
 
         resultType = builder.addElement(resultTypes, "RESULTTYPE");
-        builder.addElement(resultType, "ID", DeviceResultTypes.SELF_BILLING_DATA);
-
-        resultType = builder.addElement(resultTypes, "RESULTTYPE");
         builder.addElement(resultType, "ID", DeviceResultTypes.EVENT_LOG);
 
         builder.addElement("STARTDATETIME", Util.DATE_FORMAT.format(lastReading));
@@ -445,47 +629,39 @@ public class EchelonExporter extends AbstractExporter {
         Element device = builder.addElement(devices, "DEVICE");
         builder.addElement(device, "ID", deviceId);
 
-        // debug(Util.scrubHeader(builder.toXmlString()));
         return Util.scrubHeader(builder.toXmlString());
-
     }
 
     /**
      * build the parameters for a performCommand service
      *
-     * @param rtu
-     * @param cmd
-     * @param highPriority
-     * @return
-     * @throws Throwable
+     * @param rtu          The processed RTU
+     * @param cmd          The NES command being performed.
+     * @param highPriority Flag indicating if the message is send with high priority.
+     * @param timeout      absolute time when the command should timeout.
+     * @return Paramteters for the NES command.
      */
-    private String commandParam(Rtu rtu, String cmd, boolean highPriority)
-            throws Throwable {
+    private String commandParam(Rtu rtu, String cmd, boolean highPriority, Date timeout) {
 
-        String deviceId = getDeviceId(rtu);
+        String deviceId = rtu.getDeviceId();
 
         DomHelper builder = new DomHelper("PARAMETERS");
 
         builder.addElement("DEVICEID", deviceId);
         builder.addElement("COMMANDID", cmd);
-        builder.addElement("TIMEOUTDATETIME", Util.DATE_FORMAT.format(nextHour()));
+        builder.addElement("TIMEOUTDATETIME", Util.DATE_FORMAT.format(timeout));
 
-        if (highPriority)
+        if (highPriority) {
             builder.addElement("PRIORITY", "" + Constants.TaskPriorities.HIGH);
+        }
 
         return Util.scrubHeader(builder.toXmlString());
-
-    }
-
-
-    private String getDeviceId(Rtu rtu) {
-        return rtu.getDeviceId();
     }
 
     /**
      * return group of rtu's on which this exporter works
      *
-     * @return
+     * @return The GROUP object referenced by the custom property on the exporter.
      */
     private Group getGroup() {
         if (group == null) {
@@ -498,9 +674,9 @@ public class EchelonExporter extends AbstractExporter {
     /**
      * identify Result type, and dispatch to appropriate store method
      *
-     * @param document
-     * @param rtu
-     * @throws Exception
+     * @param document XML document returned buy NES.
+     * @param rtu      The processed RTU.
+     * @throws Exception when something failed storing the values.
      */
     private void store(Document document, Rtu rtu) throws Exception {
         Element result = Util.getElementByName(document, Util.RESULT_TAG);
@@ -526,8 +702,11 @@ public class EchelonExporter extends AbstractExporter {
     }
 
     private void storeProfile(Document document, Rtu rtu) throws Exception {
-        ProfileData pd = new ProfileParser().toLoadProfile(document, rtu.getDeviceTimeZone(), rtu.getChannels());
-        debug("Storing load profile " + pd.toString());
+        List<Channel> channels = (List<Channel>) rtu.getChannels();
+        ProfileData pd = new ProfileParser().toLoadProfile(document, rtu.getDeviceTimeZone(), channels);
+        if (debug) {
+            debug("Storing load profile " + pd.toString());
+        }
         rtu.store(pd);
     }
 
@@ -608,7 +787,9 @@ public class EchelonExporter extends AbstractExporter {
 
     private void storeEventLog(Document document, Rtu rtu) throws Exception {
         ProfileData pd = new ProfileParser().toEventProfile(document);
-        debug("Storing event log: " + pd.toString());
+        if (debug) {
+            debug("Storing event log: " + pd.toString());
+        }
         rtu.store(pd);
     }
 
@@ -643,6 +824,7 @@ public class EchelonExporter extends AbstractExporter {
         List result = new ArrayList(super.getOptionalKeys());
         result.add(DBG);
         result.add(URI);
+        result.add(RUN_TASK_TIMEOUT);
         return result;
     }
 
@@ -655,11 +837,11 @@ public class EchelonExporter extends AbstractExporter {
     /**
      * utility method for creating RegisterValue object
      *
-     * @param rtu
-     * @param obis
-     * @param quantity
-     * @param date
-     * @return
+     * @param rtu      The processed RTU.
+     * @param obis     The OBIS code of the register value.
+     * @param quantity The quantity (=value + unit) to be stored as a register value.
+     * @param date     The registers capture date.
+     * @return the register value.
      */
     private RegisterValue toRegisterValue(Rtu rtu, ObisCode obis, Quantity quantity, Date date) {
         int id = rtu.getRegister(obis).getId();
@@ -669,8 +851,8 @@ public class EchelonExporter extends AbstractExporter {
     /**
      * utility method for creating Quantity object
      *
-     * @param bd
-     * @return
+     * @param bd The bigdecimal to be stored as a Watt/Hour quantity
+     * @return KWh quantity
      */
     private Quantity toKwh(BigDecimal bd) {
         return new Quantity(bd, Unit.get(BaseUnit.WATTHOUR, 0));
@@ -679,8 +861,8 @@ public class EchelonExporter extends AbstractExporter {
     /**
      * utility method for creating Quantity object
      *
-     * @param bd
-     * @return
+     * @param bd The bigdecimal to be stored as KVar/Hour quantity
+     * @return KVarh quantity
      */
     private Quantity toKvarh(BigDecimal bd) {
         return new Quantity(bd, Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, 0));
@@ -689,7 +871,7 @@ public class EchelonExporter extends AbstractExporter {
     /**
      * utility method for creating Date 1 hour in the future
      *
-     * @return
+     * @return The current time + 1 hour.
      */
     private Date nextHour() {
         Calendar c = Calendar.getInstance();
@@ -698,13 +880,14 @@ public class EchelonExporter extends AbstractExporter {
     }
 
     /**
-     * return true if date is 24 hours ago
+     * utility method for creating Date 1 hour in the future
      *
-     * @param date
-     * @return
+     * @return The current time + 1 hour.
      */
-    private boolean is24HoursAgo(Date date) {
-        return (System.currentTimeMillis() - date.getTime()) > 86400000;
+    private Date nextTwoMinutes() {
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.MINUTE, 2);
+        return c.getTime();
     }
 
     private ObisCode getObisCode(int index, String c_parameter) {
