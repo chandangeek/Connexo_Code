@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.*;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -24,6 +25,7 @@ import java.util.logging.Logger;
    || Bugfix: 
    || RegisterValues for registers from last billing point did not have a toTime.
    || This is now filled with register: 0.1.0*F.
+   GN |march 2008| Added serialnumber support and message is thrown when meter doesn't support this; then use property 'ignoreSerialNumberCheck'
  * @endchanges
  */
 
@@ -199,6 +201,7 @@ public class Zmd
         result.add("IEC1107Compatible");
         result.add("ChannelMap");
         result.add("ExtendedLogging");
+        result.add("IgnoreSerialNumberCheck");
         return result;
     }
     
@@ -253,10 +256,9 @@ public class Zmd
             
             flagIEC1107Connection.connectMAC(strID, strPassword, iSecurityLevel, nodeId);
             
-            if (!verifyMeterSerialNR()) 
-                throw new IOException("L&G ZMD, connect, Wrong SerialNR!, EISerialNumber="+serialNumber+", MeterSerialNumber="+getSerialNumber());
-
-            
+    		if (!verifyMeterSerialNR()) 
+    			throw new IOException("L&G ZMD, connect, Wrong SerialNR!, EISerialNumber="+serialNumber+", MeterSerialNumber="+getSerialNumber());
+     
             if (getFlagIEC1107Connection().getHhuSignOn() != null)
                 dataReadout = getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
             
@@ -272,7 +274,8 @@ public class Zmd
     
     private String getSerialNumber() throws IOException {
     	if ( mSerialNumber == null ){
-    		mSerialNumber = (String) registry.getRegister("SerialNumber");
+			mSerialNumber = getDataDumpParser().getRegisterFFStrValue("0.0.0");
+			mSerialNumber = mSerialNumber.substring(mSerialNumber.indexOf("(") + 1, mSerialNumber.indexOf(")"));
     	}
 
 		return mSerialNumber; 
