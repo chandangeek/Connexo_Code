@@ -93,6 +93,7 @@ public class SiemensSCTM {
     public static final byte[] NEXT={'E','5'};
     public static final byte[] SETTIME={'T','1'};
     public static final byte[] SSYNC={'T','2'};
+    public static final byte[] MSYNC={'T','4'};
     
     public static final byte[] PASSWORD={'P','1'};
     

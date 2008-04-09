@@ -15,6 +15,7 @@ import java.util.*;
 import java.math.*;
 
 import com.energyict.protocol.*;
+
 import java.util.logging.*;
 import com.energyict.cbo.*;
 
@@ -31,6 +32,7 @@ KV|23032005|Changed header to be compatible with protocol version tool
 KV|12012006|correct time set handling (add intervals)
 KV|24012006|Avoid timeset too close to interval boundary
 KV|16032006|Add ChannelMap to expose nr of channels
+GN|03042008|Added the MSYNC
  * @endchanges
  */
 public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
@@ -63,6 +65,9 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
     private boolean removePowerOutageIntervals;
     
     GenericRegisters genericRegisters; // KV 06092005 WVEM
+	private int timeSetMethod;
+	private long roundTripTime;
+	private int DEBUG = 0;
     
     /** Creates a new instance of Siemens7ED62 */
     public Siemens7ED62() {
@@ -256,9 +261,39 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
     private void doSetTime(Calendar calendar) throws IOException {
         try {
              SCTMTimeData timeData = new SCTMTimeData(calendar);
-             siemensSCTM.sendRequest(siemensSCTM.SETTIME,timeData.getSETTIMEData());
-             waitForMinute(calendar);
-             siemensSCTM.sendRequest(siemensSCTM.SSYNC,null);
+             Date systemDate = ProtocolUtils.getCalendar(getTimeZone()).getTime();
+             roundTripTime = System.currentTimeMillis();
+             Date meterDate = getTime();
+             roundTripTime = System.currentTimeMillis() - roundTripTime;
+//             meterDate = new Date(meterDate.getTime()-roundTripTime);
+             
+             
+             if (( getTimeSetMethod() == 0 ) || ((Math.abs(systemDate.getTime()-meterDate.getTime()) > 30000) ) ){
+            	 siemensSCTM.sendRequest(siemensSCTM.SETTIME,timeData.getSETTIMEData());
+				 waitForMinute(calendar);
+				 siemensSCTM.sendRequest(siemensSCTM.SSYNC,null);
+             }
+             
+             else{	// the MSYNC method -> not shown in statusBits
+                 
+                 if (DEBUG == 1) System.out.println("RoundTripTime: " + roundTripTime);
+                 
+                 calendar.setTime(systemDate);
+            	 System.out.println("Difference = " + Math.abs(systemDate.getTime() - meterDate.getTime()) );
+                 if ( meterDate.before(calendar.getTime()) ){
+                	 if (DEBUG == 1) System.out.println("WaitToAdd ...");
+                	 waitForAddition(calendar, meterDate);
+                 }
+                 else{
+                	 if (DEBUG == 1) System.out.println("WaitToSub ...");
+                	 waitForSubstraction(calendar, meterDate);
+                 }
+                 
+                 siemensSCTM.sendRequest(siemensSCTM.MSYNC, null);
+                 if(DEBUG == 1)System.out.println("MeterTime: " + getTime().toString());
+                 if(DEBUG == 1)System.out.println("SystemTime: " + Calendar.getInstance().getTime().toString());
+               
+             }
         }
         catch(SiemensSCTMException e) {
             throw new IOException("Siemens7ED2, doSetTime, SiemensSCTMException, "+e.getMessage()) ;
@@ -268,12 +303,66 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         }
     } // private void doSetTime(Calendar calendar)
     
-    private void waitForMinute(Calendar calendar) throws IOException {
+    private void waitForSubstraction(Calendar calendar, Date meterDate) throws NestedIOException {
+    	Calendar meterCal = Calendar.getInstance(getTimeZone());
+    	meterCal.setTime(meterDate);
+    	int offSet = 28; //29-1 ; the meter doesn't show his milliseconds, can cause addition when we want substraction
+    	int meterSeconds = meterCal.get(Calendar.SECOND);
+    	long delay = -1;
+    	
+    	if ( (meterCal.getTimeInMillis() - calendar.getTimeInMillis()) < 29000){
+    		calendar.setTimeInMillis(System.currentTimeMillis());
+		// this should set the meter to the system time
+		delay = ( 59000 - calendar.get(Calendar.SECOND)*1000 + calendar.get(Calendar.MILLISECOND) ) - roundTripTime;
+	}
+    	
+    	else if (meterSeconds >= 29){
+    		delay = ((59 - meterSeconds + offSet) * 1000) - roundTripTime;
+    	}
+    	
+    	else{
+    		delay = ((offSet - meterCal.get(Calendar.SECOND)) * 1000) - roundTripTime;
+    	}
+    	
+    	if (DEBUG == 1) System.out.println("SystemTime: " + calendar.getTime().toString() + " ** MeterTime: " + meterDate.toString() + " ** Delay: " + delay);
+    	
+    	waitRoutine(delay);
+	}
+    
+	private void waitForAddition(Calendar calendar, Date meterDate) throws NestedIOException {
+    	Calendar meterCal = Calendar.getInstance(getTimeZone());
+    	meterCal.setTime(meterDate);
+    	int meterSeconds = meterCal.get(Calendar.SECOND);
+    	long delay = -1;
+    	
+    	if ( (calendar.getTimeInMillis() - meterCal.getTimeInMillis()) < 29000){
+    		calendar.setTimeInMillis(System.currentTimeMillis());
+    		// this should set the meter to the system time
+			delay = ( 59000 - calendar.get(Calendar.SECOND)*1000 + calendar.get(Calendar.MILLISECOND) )  - roundTripTime;
+    	}
+    	
+    	else if (meterSeconds >= 29){
+    		delay = ((59 - meterSeconds + 30)*1000);
+    	}
+    	
+    	else{
+    		delay = ((30 - meterCal.get(Calendar.SECOND)) * 1000) - roundTripTime;
+    	}
+    	
+    	if (DEBUG == 1) System.out.println("SystemTime: " + calendar.getTime().toString() + " ** MeterTime: " + meterDate.toString() + " ** Delay: " + delay);
+    	waitRoutine(delay);    	
+	}
+    
+	private void waitForMinute(Calendar calendar) throws IOException {
         int iDelay = ((59 - calendar.get(Calendar.SECOND))*1000)-iRoundtripCorrection;
-        while(iDelay>0) {
+        waitRoutine(iDelay);
+    } // private void waitForMinute(Calendar calendar)
+
+    private void waitRoutine(long delay) throws NestedIOException {
+        while(delay>0) {
             try {
-                if (iDelay < 10000) {
-                    Thread.sleep(iDelay);
+                if ((delay+roundTripTime) < 10000) {
+                    Thread.sleep(delay);
                     break;
                 }
                 else {
@@ -281,8 +370,8 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
                    long elapsedTime = System.currentTimeMillis();
                    siemensSCTM.sendInit();
                    elapsedTime = System.currentTimeMillis() - elapsedTime;
-                   iDelay -= (10000+elapsedTime);
-                   if (iDelay <= 0) break;
+                   delay -= (10000+elapsedTime);
+                   if (delay <= 0) break;
                 }
             }
             catch(InterruptedException e) {
@@ -292,8 +381,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
                 throw new NestedIOException(e);
             }
         } // while(true)
-    } // private void waitForMinute(Calendar calendar)
-
+	}
     
     public Date getTime() throws IOException {       
         try {
@@ -340,6 +428,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
             removePowerOutageIntervals = Integer.parseInt(properties.getProperty("RemovePowerOutageIntervals","0").trim())==1?true:false;
             forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay","100"));
             nrOfChannels = Integer.parseInt(properties.getProperty("ChannelMap","6"));
+            timeSetMethod = Integer.parseInt(properties.getProperty("TimeSetMethod","0").trim());
             
         }
         catch (NumberFormatException e) {
@@ -357,6 +446,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         result.add("LogBookReadCommand");
         result.add("ForcedDelay");
         result.add("ChannelMap");
+        result.add("TimeSetMethod");
         return result;
     }
     
@@ -417,6 +507,14 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
     public void release() throws IOException {
     }
     
+	public int getTimeSetMethod() {
+		return timeSetMethod;
+	}
+	
+	public TimeZone getTimeZone() {
+		return timeZone;
+	} 
+    
     /**
      * Getter for property removePowerOutageIntervals.
      * @return Value of property removePowerOutageIntervals.
@@ -459,7 +557,6 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
    private String convertObisCode2ShortCode(ObisCode obisCode) {
       return Integer.toString(obisCode.getC()*100+obisCode.getD()*10+obisCode.getE());
        
-   } 
-   
-    
+   }
+
 }
