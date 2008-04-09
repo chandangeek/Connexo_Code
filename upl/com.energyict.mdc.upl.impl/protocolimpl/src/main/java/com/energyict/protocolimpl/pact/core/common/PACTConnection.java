@@ -228,11 +228,12 @@ public class PACTConnection extends Connection {
             try {
                 byte[] data = doSendControlCode(code,false);
                 // do validation for getTime...
-                if ((code == PACTConnection.RTC) && ((data == null) || (((int)data[0]&0xFF) != 0x87))) {
+                if ((code == PACTConnection.RTC) && ((data == null) || (((int)data[0]&0xFF) != 0x87)) ) {
                     if (retries++ >= maxRetries) {
                         throw new NestedIOException(new IOException(),"PACTConnection, sendRequest(PACTConnection.RTC), max retry (data=="+(data==null?"null":"0x"+Integer.toHexString((int)data[0]))+")");
                     }
                     delayAndFlush(2000);
+                    Thread.sleep(2000);
                     // retry...
                 }
                 else return ProtocolUtils.getSubArray2(data,1,data.length-1);
@@ -243,9 +244,18 @@ public class PACTConnection extends Connection {
                         throw new NestedIOException(e);
                     }
                     delayAndFlush(2000);
+                    try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
                 }
                 else throw new NestedIOException(e);
-            }
+            } catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         } // while(true)           
     } // public byte[] sendRequest(int code)
     
@@ -703,6 +713,7 @@ public class PACTConnection extends Connection {
                 }
                 else if (!blockTransaction && (count >= (length-1))) {
                     return frame; //ProtocolUtils.getSubArray2(frame,1,length-1);
+//                	return ProtocolUtils.getSubArray2(frame, 0, length);
                 }
                 count++;
                 
@@ -725,6 +736,7 @@ public class PACTConnection extends Connection {
                     if (retries++ >= maxRetries) {
                         throw new NestedIOException(e);
                     }
+                    delayAndFlush(2000);
                 }
                 else throw new NestedIOException(e);
             }
@@ -801,7 +813,7 @@ public class PACTConnection extends Connection {
 //    	byte[] data = new byte[]{(byte)0x00,(byte)0x00,(byte)0x68,(byte)0x00,(byte)0x45,(byte)0x28};
 //    	byte[] data = new byte[]{(byte)0x00,(byte)0x87,(byte)0x00,(byte)0x00,(byte)0x70,(byte)0x40};
 //    	byte[] data = new byte[]{(byte)0x00,(byte)0x00,(byte)0x3D,(byte)0x00,(byte)0x43,(byte)0x28};
-    	byte[] data = new byte[]{(byte)0x00,(byte)0x00,(byte)0x49,(byte)0x00,(byte)0x00,(byte)0x00};
+    	byte[] data = new byte[]{(byte)0x00,(byte)0x00,(byte)0xFF,(byte)0x2A,(byte)0xF9,(byte)0x87};
     
     	
 //    	87	0	0	49	0	0	0

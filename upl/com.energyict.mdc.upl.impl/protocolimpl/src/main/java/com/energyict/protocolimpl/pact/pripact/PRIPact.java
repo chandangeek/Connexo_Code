@@ -37,6 +37,7 @@ KV|20062005|Add MeterType = 0 (not relevant) e.g. pulse counters
 KV|05072005|Avoid future logging events
 KV|29082006|Added 2 new intervalstate flags DEVICE_ERROR and BATTERY_LOW
 KV|30112006|Avoid nullpointerexception when meter has no maximumdemand registers
+GN|02042008|Readout meterTime at different way, if not supported, still the old way; new way has a more fixed format to check if it is correct
  * @endchanges
  */
 public class PRIPact implements MeterProtocol, ProtocolLink, RegisterProtocol {
@@ -44,6 +45,7 @@ public class PRIPact implements MeterProtocol, ProtocolLink, RegisterProtocol {
     private TimeZone timeZone;
     private TimeZone registerTimeZone;
     private Logger logger;
+    private String readDate = null;
     
     PACTConnection pactConnection=null;
     
@@ -145,13 +147,20 @@ public class PRIPact implements MeterProtocol, ProtocolLink, RegisterProtocol {
         }
         if ((serialNumber != null) && ("".compareTo(serialNumber) != 0)) {
             String serialId = getPactRegisterFactory().getMeterReadingsInterpreter().getSerialId();
+//        	String serialId = getSerialNumber();
             if (serialNumber.compareTo(serialId) != 0) {
                 throw new IOException("PRIPact, validateMeterIdentification(), Wrong serialNumber!, meter="+serialId+", configured="+serialNumber);   
             }
         }
     } // private boolean validateMeterIdentification() throws NestedIOException
     
-    public com.energyict.cbo.Quantity getMeterReading(String name) throws UnsupportedException, java.io.IOException {
+//    private String getSerialNumber() throws NestedIOException, ConnectionException {
+//		byte[] data = getPactConnection().sendStringRequest("S");
+//		String serial = new String(data);
+//		return serial.substring(2);
+//	}
+
+	public com.energyict.cbo.Quantity getMeterReading(String name) throws UnsupportedException, java.io.IOException {
         if (name.indexOf("_")==0) {
             return getInstantaneousFactory().getRegisterValue(name.substring(1));
         }
@@ -278,11 +287,51 @@ public class PRIPact implements MeterProtocol, ProtocolLink, RegisterProtocol {
     }
     
     public java.util.Date getTime() throws java.io.IOException {
-        DateTime dateTime = new DateTime(getPactConnection().sendRequest(PACTConnection.RTC),getTimeZone());
-        return dateTime.getDate();
+    	long roundTripTime = 0;
+    	int hour = 0; int min = 0; int sec = 0;
+    	roundTripTime = Calendar.getInstance().getTime().getTime();
+		Date oldMeterDateTime = getPactRegisterFactory().getMeterReadingsInterpreter().getCounters().getMeterDateTime();
+    	Calendar oldCalendar = Calendar.getInstance(getTimeZone());
+    	String newMeterTime = getNewMeterTime();
+    	if (!newMeterTime.equalsIgnoreCase("NotSupported")){
+    		hour	= 	Integer.parseInt(newMeterTime.substring(2, 4));
+        	min 	=	Integer.parseInt(newMeterTime.substring(5, 7));
+        	sec		=	Integer.parseInt(newMeterTime.substring(8, 10));
+        	oldCalendar.set(Calendar.HOUR_OF_DAY, hour);
+        	oldCalendar.set(Calendar.MINUTE, min);
+        	oldCalendar.set(Calendar.SECOND, sec);
+        	roundTripTime = Calendar.getInstance().getTime().getTime() - roundTripTime;
+        	oldCalendar.setTimeInMillis(oldCalendar.getTimeInMillis() - roundTripTime);
+    	}
+    	
+    	else{
+    		DateTime dateTime = new DateTime(getPactConnection().sendRequest(PACTConnection.RTC),getTimeZone());
+    		roundTripTime = Calendar.getInstance().getTime().getTime() - roundTripTime;
+    		oldCalendar.setTime(dateTime.getDate());
+    		oldCalendar.setTimeInMillis(oldCalendar.getTimeInMillis() - roundTripTime);
+    	}
+    	
+    	return oldCalendar.getTime();
+
     }
     
-    public void setTime() throws java.io.IOException {
+    private String getNewMeterTime() throws IOException {
+		String newMeterTime = null;
+		int count = 0;
+    	do{
+    		if (count >= 3)
+    			throw new IOException("Error reading the dateTime from meter, will try again next communication.");
+    		byte[] data = getPactConnection().sendStringRequest("R");
+//    		byte[] data = getPactConnection().sendStringRequest("D");
+    		newMeterTime = new String(data);
+    		if (newMeterTime.equalsIgnoreCase("R") || newMeterTime.equalsIgnoreCase("R="))
+    			return new String("NotSupported");
+    		count++;
+		}while( !(newMeterTime.startsWith("R=")) || !(newMeterTime.startsWith(":", 4)) || !(newMeterTime.startsWith(":", 7)) || (newMeterTime.length() != 10) );
+		return newMeterTime;
+	}
+
+	public void setTime() throws java.io.IOException {
         Calendar calendar=null;
         calendar = ProtocolUtils.getCalendar(timeZone);
         int delay = (5-(calendar.get(Calendar.SECOND)%5))*1000;
