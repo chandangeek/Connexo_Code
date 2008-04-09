@@ -32,8 +32,15 @@ public class ObisCodeMapper {
     private static final int DAILY 		= 	0x00;
     private static final int MONTHLY	=	0x01;
     
-    private static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
-    private static final ObisCode monthlyObisCode = ObisCode.fromString("1.0.98.2.0.255");
+    // It is this one for Founter!!
+//    private static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
+//  private static final ObisCode monthlyObisCode = ObisCode.fromString("1.0.98.2.0.255");
+    
+    // These are for the ESSENT project, make them compatible later!
+    private static final ObisCode dailyObisCode = ObisCode.fromString("1.0.98.2.0.255");
+    private static final ObisCode monthlyObisCode = ObisCode.fromString("1.0.98.1.0.255");
+    
+
     
     public int billingIndex;
     private boolean debug = false;
