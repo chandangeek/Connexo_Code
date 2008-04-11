@@ -45,6 +45,7 @@ class Util {
 
     static {
         DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        DATE_FORMAT.setTimeZone(UTC_ZONE);
     }
 
     /**
@@ -1910,10 +1911,10 @@ class Util {
             return "WAITING";
         if (s.equals(Constants.CommandHistoryStatus.DELETED))
             return "DELETED";
-		if (s.equals(Constants.CommandHistoryStatus.IN_PROGRESS))
-			return "IN_PROGRESS";
+        if (s.equals(Constants.CommandHistoryStatus.IN_PROGRESS))
+            return "IN_PROGRESS";
 
-		return null;
-	}
+        return null;
+    }
 
 }

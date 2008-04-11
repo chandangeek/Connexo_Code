@@ -2,6 +2,7 @@ package com.energyict.echelon;
 
 import com.energyict.cbo.Unit;
 import com.energyict.mdw.core.Channel;
+import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -13,7 +14,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 /**
  * DOM-based parser for profile data.  Could be way more efficient with a
@@ -37,12 +37,11 @@ public class ProfileParser {
      * Parse the echelon xml result into a load profile object.
      *
      * @param doc      Echelon xml result
-     * @param timeZone device timezone
      * @param channels list of channels
      * @return Load ProfileData
      * @throws Exception
      */
-    ProfileData toLoadProfile(Document doc, TimeZone timeZone, List<Channel> channels) throws Exception {
+    ProfileData toLoadProfile(Document doc, Rtu rtu, List<Channel> channels) throws Exception {
 
         ProfileData result = new ProfileData();
 
@@ -54,8 +53,8 @@ public class ProfileParser {
         NodeList nl = doc.getElementsByTagName(Util.INTERVAL_TAG);
         IntervalData interval;
         for (int i = 0; i < nl.getLength(); i++) {
-            interval = toInterval(nl.item(i), timeZone);
-            if (interval != null) {
+            interval = toInterval(nl.item(i));
+            if (interval != null && (rtu.getLastReading() == null || interval.getEndTime().after(rtu.getLastReading()))) {
                 result.addInterval(interval);
             }
         }
@@ -71,12 +70,15 @@ public class ProfileParser {
      * @return Event ProfileData
      * @throws Exception
      */
-    ProfileData toEventProfile(Document doc) throws Exception {
+    ProfileData toEventProfile(Document doc, Rtu rtu) throws Exception {
         ProfileData result = new ProfileData();
 
         NodeList nl = doc.getElementsByTagName(Util.EVENT_TAG);
         for (int i = 0; i < nl.getLength(); i++) {
-            result.addEvent(toMeterEvent((Element) nl.item(i)));
+            MeterEvent event = toMeterEvent((Element) nl.item(i));
+            if (event != null && (rtu.getLastLogbook() == null || event.getTime().after(rtu.getLastLogbook()))) {
+                result.addEvent(event);
+            }
         }
 
         return result;
@@ -95,9 +97,7 @@ public class ProfileParser {
         ChannelInfo channelInfo;
         for (int i = 0; i < nrChannels; i++) {
             channelInfo = new ChannelInfo(i, "channel" + i, Unit.getUndefined());
-            if (channels.get(i).getCumulative()) {
-                channelInfo.setCumulativeWrapValue(new BigDecimal(999999999));     // TODO: replace hard coded wrap value by configurable value
-            }
+            channelInfo.setCumulativeWrapValue(new BigDecimal(999999999));     // TODO: replace hard coded wrap value by configurable value
             ci.add(channelInfo);
         }
         result.setChannelInfos(ci);
@@ -113,7 +113,9 @@ public class ProfileParser {
         for (int i = 0; i < sourceCode.length; i++) {
             if (sourceCode[i] != null) {
                 SourceCode code = sourceCode[i];
-                ci.add(new ChannelInfo(i, code.getDescription(), code.getUnit()));
+                ChannelInfo channelInfo = new ChannelInfo(i, sourceCode[i].getDescription(), sourceCode[i].getUnit());
+                channelInfo.setCumulativeWrapValue(((ChannelInfo) result.getChannelInfos().get(i)).getCumulativeWrapValue());
+                ci.add(channelInfo);
             }
         }
         result.setChannelInfos(ci);
@@ -123,15 +125,14 @@ public class ProfileParser {
      * convert an INTERVAL node to an IntervalData object
      *
      * @param intervalNode to be parsed into IntervalData
-     * @param timeZone     of the RTU
      * @return IntervalData (with mapped status flags), null if date of interval in the future (or parse exception).
      */
-    private IntervalData toInterval(Node intervalNode, TimeZone timeZone) {
+    private IntervalData toInterval(Node intervalNode) {
 
         IntervalData intervalData;
 
         try {
-            Date date = Util.getNodeDate((Element) intervalNode, Util.DATETIME_TAG, timeZone);
+            Date date = Util.getNodeDate((Element) intervalNode, Util.DATETIME_TAG);
 
             Date now = new Date();
             if (now.before(date)) {

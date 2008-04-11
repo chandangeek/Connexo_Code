@@ -34,8 +34,8 @@ public class MeterMessaging implements Messaging, MeterProtocol {
         msgSpec = addBasicMsg("Read registers on demand", READ_REGISTERS_ON_DEMAND, !ADVANCED);
         cat.addMessageSpec(msgSpec);
 
-        msgSpec = addBasicMsg("Read full load profile", LOAD_PROFILE, !ADVANCED);
-        cat.addMessageSpec(msgSpec);
+//        msgSpec = addBasicMsg("Read full load profile", LOAD_PROFILE, !ADVANCED);
+//        cat.addMessageSpec(msgSpec);
 
         msgSpec = addBasicMsg("Read events", READ_EVENTS, !ADVANCED);
         cat.addMessageSpec(msgSpec);
