@@ -831,7 +831,7 @@ public class EchelonExporter extends AbstractExporter {
     private boolean storeTierValues(Rtu rtu, MeterReadingData mr, Date date, Element tier, int index, String name) {
         ObisCode obis = getObisCode(index, name);
 
-        if (rtu.getRegister(obis) != null && rtu.getRegister(obis).getReadingAt(date) == null) {
+        if (rtu.getRegister(obis) != null) {
             RegisterValue value = toRegisterValue(rtu, obis, getQuantity(tier, name), date);
             mr.add(value);
             if (debug) {
@@ -870,7 +870,7 @@ public class EchelonExporter extends AbstractExporter {
                 valueInfo.getObisCodeCreator().setA(ciField72h.getDeviceType().getObisA());
                 obisCode = valueInfo.getObisCodeCreator().toString();
                 ObisCode obis = ObisCode.fromString(obisCode);
-                if (rtu.getRegister(obis) != null && rtu.getRegister(obis).getReadingAt(readTime) == null) {
+                if (rtu.getRegister(obis) != null) {
                     RegisterValue value = toRegisterValue(rtu, ObisCode.fromString(obisCode), record.getQuantity(), readTime);
                     mr.add(value);
                     if (debug) {
