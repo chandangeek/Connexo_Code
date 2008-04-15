@@ -771,7 +771,8 @@ public class EchelonExporter extends AbstractExporter {
             if (Constants.DeviceTypes.METER.equals(deviceTypeId)) {
                 return storeBilling(document, rtu);
             } else if (Constants.DeviceTypes.MBUS.equals(deviceTypeId)) {
-                return storeMBusBilling(document, rtu);
+                boolean onDemand = Constants.DeviceResultTypes.BILLING_DATA_ON_DEMAND.equals(resultTypeId);
+                return storeMBusBilling(document, rtu, onDemand);
             }
         } else if (Constants.DeviceResultTypes.EVENT_LOG.equals(resultTypeId)) {
             return storeEventLog(document, rtu);
@@ -795,10 +796,11 @@ public class EchelonExporter extends AbstractExporter {
     private boolean storeBilling(Document document, Rtu rtu) throws Exception {
         boolean hasNewValues = false;
         MeterReadingData mr = new MeterReadingData();
+        Date readDate = Util.getNodeDate((Element) document.getFirstChild(), Util.DATETIME_TAG);
         Element billingData = Util.getElementByName(document, Util.BILLING_DATA_TAG);
-        Date date = Util.getNodeDate(billingData, Util.DATETIME_TAG, rtu.getDeviceTimeZone());
+        Date toDate = Util.getNodeDate(billingData, Util.DATETIME_TAG, rtu.getDeviceTimeZone());
 
-        if (date.after(new Date())) {
+        if (toDate.after(new Date())) {
             return false; // don't store stuff from the future
         }
 
@@ -815,10 +817,10 @@ public class EchelonExporter extends AbstractExporter {
                 index = 0;
             }
 
-            hasNewValues |= storeTierValues(rtu, mr, date, tier, index, FORWARD_ACTIVE);
-            hasNewValues |= storeTierValues(rtu, mr, date, tier, index, REVERSE_ACTIVE);
-            hasNewValues |= storeTierValues(rtu, mr, date, tier, index, IMPORT_REACTIVE);
-            hasNewValues |= storeTierValues(rtu, mr, date, tier, index, EXPORT_REACTIVE);
+            hasNewValues |= storeTierValues(rtu, mr, toDate, readDate, tier, index, FORWARD_ACTIVE);
+            hasNewValues |= storeTierValues(rtu, mr, toDate, readDate, tier, index, REVERSE_ACTIVE);
+            hasNewValues |= storeTierValues(rtu, mr, toDate, readDate, tier, index, IMPORT_REACTIVE);
+            hasNewValues |= storeTierValues(rtu, mr, toDate, readDate, tier, index, EXPORT_REACTIVE);
         }
 
         if (hasNewValues) {
@@ -828,11 +830,11 @@ public class EchelonExporter extends AbstractExporter {
 
     }
 
-    private boolean storeTierValues(Rtu rtu, MeterReadingData mr, Date date, Element tier, int index, String name) {
+    private boolean storeTierValues(Rtu rtu, MeterReadingData mr, Date toDate, Date readDate, Element tier, int index, String name) {
         ObisCode obis = getObisCode(index, name);
 
-        if (rtu.getRegister(obis) != null) {
-            RegisterValue value = toRegisterValue(rtu, obis, getQuantity(tier, name), date);
+        if (rtu.getRegister(obis) != null && rtu.getRegister(obis).getReadingAt(readDate) == null) {
+            RegisterValue value = toRegisterValue(rtu, obis, getQuantity(tier, name), toDate, readDate);
             mr.add(value);
             if (debug) {
                 debug(rtu, "Storing register " + value.toString());
@@ -842,12 +844,19 @@ public class EchelonExporter extends AbstractExporter {
         return false;
     }
 
-    private boolean storeMBusBilling(Document document, Rtu rtu) throws Exception {
+    private boolean storeMBusBilling(Document document, Rtu rtu, boolean onDemand) throws Exception {
         MeterReadingData mr = new MeterReadingData();
         boolean hasNewValues = false;
 
+        Date readDate;
+        if (onDemand) {
+            readDate = Util.getNodeDate((Element) document.getFirstChild(), Util.DATETIME_TAG, rtu.getDeviceTimeZone());
+        } else {
+            readDate = Util.getNodeDate((Element) document.getFirstChild(), Util.DATETIME_TAG);
+        }
+
         Element billingData = Util.getElementByName(document, Util.BILLING_DATA_TAG);
-        Date readTime = Util.getNodeDate(billingData, Util.DATETIME_TAG, rtu.getDeviceTimeZone());
+        Date toDate = Util.getNodeDate(billingData, Util.DATETIME_TAG, rtu.getDeviceTimeZone());
 
         String rawData = Util.getNodeValue(billingData, Util.RAW_DATA_TAG);
         byte[] mbusDataFrame = convertHexStringToByte(rawData.substring(16));
@@ -870,8 +879,8 @@ public class EchelonExporter extends AbstractExporter {
                 valueInfo.getObisCodeCreator().setA(ciField72h.getDeviceType().getObisA());
                 obisCode = valueInfo.getObisCodeCreator().toString();
                 ObisCode obis = ObisCode.fromString(obisCode);
-                if (rtu.getRegister(obis) != null) {
-                    RegisterValue value = toRegisterValue(rtu, ObisCode.fromString(obisCode), record.getQuantity(), readTime);
+                if (rtu.getRegister(obis) != null && rtu.getRegister(obis).getReadingAt(readDate) == null) {
+                    RegisterValue value = toRegisterValue(rtu, ObisCode.fromString(obisCode), record.getQuantity(), toDate, readDate);
                     mr.add(value);
                     if (debug) {
                         debug(rtu, "Storing register " + value.toString());
@@ -944,12 +953,12 @@ public class EchelonExporter extends AbstractExporter {
      * @param rtu      The processed RTU.
      * @param obis     The OBIS code of the register value.
      * @param quantity The quantity (=value + unit) to be stored as a register value.
-     * @param date     The registers capture date.
+     * @param toDate   The registers capture date.
      * @return the register value.
      */
-    private RegisterValue toRegisterValue(Rtu rtu, ObisCode obis, Quantity quantity, Date date) {
+    private RegisterValue toRegisterValue(Rtu rtu, ObisCode obis, Quantity quantity, Date toDate, Date readDate) {
         int id = rtu.getRegister(obis).getId();
-        return new RegisterValue(obis, quantity, null, null, date, new Date(), id);
+        return new RegisterValue(obis, quantity, null, null, toDate, readDate, id);
     }
 
     /**

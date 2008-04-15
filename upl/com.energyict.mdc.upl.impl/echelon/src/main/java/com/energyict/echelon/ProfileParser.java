@@ -50,11 +50,13 @@ public class ProfileParser {
 
         initChannelInfo(result, nrChannels, channels);
 
+        Date endDate = Util.getNodeDate(doc, Util.ENDDATETIME_TAG, Util.UTC_ZONE);
+
         NodeList nl = doc.getElementsByTagName(Util.INTERVAL_TAG);
         IntervalData interval;
         for (int i = 0; i < nl.getLength(); i++) {
-            interval = toInterval(nl.item(i));
-            if (interval != null && (rtu.getLastReading() == null || interval.getEndTime().after(rtu.getLastReading()))) {
+            interval = toInterval(nl.item(i), endDate);
+            if (interval != null && (rtu.getLastReading() == null || rtu.getLastReading().before(interval.getEndTime()))) {
                 result.addInterval(interval);
             }
         }
@@ -127,22 +129,22 @@ public class ProfileParser {
      * @param intervalNode to be parsed into IntervalData
      * @return IntervalData (with mapped status flags), null if date of interval in the future (or parse exception).
      */
-    private IntervalData toInterval(Node intervalNode) {
+    private IntervalData toInterval(Node intervalNode, Date endDate) {
 
         IntervalData intervalData;
 
         try {
             Date date = Util.getNodeDate((Element) intervalNode, Util.DATETIME_TAG);
 
-            Date now = new Date();
-            if (now.before(date)) {
+            if (endDate.before(date)) {
                 return null;
             }
 
             intervalData = new IntervalData(date);
 
             int channelStatus;
-            int eiStatus = mapIntervalStatus(Util.getNodeInt((Element) intervalNode, "EXTENDEDSTATUS"));
+            int eiStatus = mapIntervalStatus(Util.getNodeInt((Element) intervalNode, "STATUS"),
+                    Util.getNodeInt((Element) intervalNode, "EXTENDEDSTATUS"));
 
             int channelIndex = 0;
             for (Object o : Util.collectNodes(intervalNode, Util.CHANNEL_TAG, Util.ID_TAG)) {
@@ -160,9 +162,6 @@ public class ProfileParser {
                 channelIndex = channelIndex + 1;
 
                 BigDecimal value = new BigDecimal(Util.getNodeValue((Element) channelNode, "VALUE"));
-                if (value.equals(BigDecimal.ZERO)) {
-                    channelStatus |= IntervalStateBits.MISSING;
-                }
 
                 eiStatus |= channelStatus;
                 intervalData.addValue(value, 0, channelStatus);
@@ -223,22 +222,39 @@ public class ProfileParser {
         }
     }
 
-    private int mapIntervalStatus(int status) {
+    private int mapIntervalStatus(int status, int extendedstatus) {
         /*
                 0 (daylight savings time in effect)
                 1 (power fail within interval)
                 2 (clock set forward during interval)
                 3 (clock reset backward during interval)
          */
+        int intervalStatus = 0;
+
         switch (status) {
+            case 0:
+                intervalStatus |= IntervalStateBits.CORRUPTED | IntervalStateBits.MISSING;
+                break;
+            default:
+                intervalStatus |= IntervalStateBits.OK;
+        }
+
+        switch (extendedstatus) {
+            case 0:
+                intervalStatus |= IntervalStateBits.OK;
+                break;
             case 1:
-                return IntervalStateBits.POWERDOWN;
+                intervalStatus |= IntervalStateBits.POWERDOWN | IntervalStateBits.POWERUP;
+                break;
             case 2:
             case 3:
-                return IntervalStateBits.OTHER;
+                intervalStatus |= IntervalStateBits.SHORTLONG;
+                break;
             default:
-                return IntervalStateBits.OK;
+                intervalStatus |= IntervalStateBits.OK;
         }
+
+        return intervalStatus;
     }
 
 }

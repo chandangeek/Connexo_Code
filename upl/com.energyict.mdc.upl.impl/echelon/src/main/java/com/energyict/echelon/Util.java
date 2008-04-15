@@ -30,6 +30,7 @@ class Util {
     public static final String CHANNEL_TAG = "CHANNEL";
     public static final String DATETIME_TAG = "DATETIME";
     public static final String DEVICE_TAG = "DEVICE";
+    public static final String ENDDATETIME_TAG = "ENDDATETIME";
     public static final String EVENT_TAG = "EVENT";
     public static final String EVENT_NUMBER_TAG = "EVENTNUMBER";
     public static final String EVENT_DATA_TAG = "EVENTDATA";
