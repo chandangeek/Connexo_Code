@@ -74,6 +74,7 @@ import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
 import com.energyict.protocolimpl.dlms.HDLCConnection;
@@ -1126,6 +1127,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             
             else if ( contents.indexOf(CONNECT) != -1 )
             	cosemObjectFactory.writeObject(breakerObisCode, 1, 2, connectMsg);
+            //getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255")).
     		
     		BigDecimal breakerState = readRegister(breakerObisCode).getQuantity().getAmount();
     		
@@ -1161,6 +1163,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         MessageSpec msgSpec = addBasicMsg("Disconnect meter", DISCONNECT, false);
         cat.addMessageSpec(msgSpec);
         msgSpec = addBasicMsg("Connect meter", CONNECT, false);
+        cat.addMessageSpec(msgSpec);
+        
+        msgSpec = addTouMessage("Set Time of use", "TOU", false);
         cat.addMessageSpec(msgSpec);
         
         /* Probably for the "knijpen" */
@@ -1223,6 +1228,14 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+    
+    private MessageSpec addTouMessage(String keyId, String tagName, boolean advanced) {
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
         return msgSpec;
     }
