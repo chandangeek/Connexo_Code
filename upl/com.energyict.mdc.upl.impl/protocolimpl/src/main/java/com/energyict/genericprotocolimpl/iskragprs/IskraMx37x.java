@@ -14,6 +14,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -48,16 +49,17 @@ import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.RtuType;
+import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
@@ -72,7 +74,6 @@ import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
 import com.energyict.protocolimpl.dlms.HDLCConnection;
@@ -93,6 +94,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private CosemObjectFactory 		cosemObjectFactory;
     private SecureConnection		secureConnection;
     private Rtu                    	rtu;
+    private Rtu[]					mbus = {null, null, null, null};
     private Cache 					dlmsCache;
     private DLMSMeterConfig 		meterConfig;
     private Object 					source;
@@ -116,6 +118,10 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	private int metertype;
 	private int dataContainerOffset = -1;
 	private int deviation = -1;
+	private int genericInterval1;
+	private int genericInterval2;
+	private int genericInterval3;
+	private int genericInterval4;
 	
     private String strID;
 	private String strPassword;
@@ -129,7 +135,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	
     private ObisCode genericProfile1 		= 	ObisCode.fromString("1.0.99.1.0.255");		// mostly considered as intervalProfile
     private ObisCode genericProfile2 		= 	ObisCode.fromString("1.0.99.2.0.255");		// mostly considered as MBus profile of daily profile
-    private ObisCode genericProfile3 		= 	ObisCode.fromString("1.0.99.2.0.255");		// mostly considered as monthly or daily profile
+    private ObisCode genericProfile3 		= 	ObisCode.fromString("1.0.98.1.0.255");		// mostly considered as monthly or daily profile
     private ObisCode genericProfile4 		=	ObisCode.fromString("1.0.98.2.0.255");		// mostly considered as daily or monthly profile
     private ObisCode loadProfileObisCode97 	= 	ObisCode.fromString("1.0.99.97.0.255");
     private ObisCode breakerObisCode 		= 	ObisCode.fromString("0.0.128.30.21.255");
@@ -138,7 +144,14 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private ObisCode deviceLogicalName		= 	ObisCode.fromString("0.0.42.0.0.255");
     private ObisCode clock					=	ObisCode.fromString("0.0.1.0.0.255");
     private ObisCode status 				= 	ObisCode.fromString("1.0.96.240.0.255");
+    private ObisCode endOfBilling			=	ObisCode.fromString("0.0.15.0.0.255");
+    private ObisCode endOfCapturedObjects	=	ObisCode.fromString("0.0.15.1.0.255");
+    private ObisCode mbusPrimaryAddress		= 	ObisCode.fromString("0.1.128.50.20.255");
+    private ObisCode mbusCustomerID			= 	ObisCode.fromString("0.1.128.50.21.255");
+    private ObisCode dailyObisCode 			= 	null;
+    private ObisCode monthlyObisCode 		= 	null;
     private ObisCode loadProfileObisCode 	= 	null;
+    private ObisCode mbusLProfileObisCode	=	null;
 
     private static final int ELECTRICITY = 0x00;
     private static final int MBUS = 0x01;
@@ -150,8 +163,10 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     
     private static byte[] connectMsg = new byte[] { 0x11, 0x01 };
     private static byte[] disconnectMsg = new byte[] { 0x11, 0x00 };
+    
     final static String CONNECT_LOAD = "connectLoad";
     final static String DISCONNECT_LOAD = "disconnectLoad";
+    final static String RTU_TYPE = "RtuType";
     
     public static ScalerUnit[] demandScalerUnits = {new ScalerUnit(0,30), new ScalerUnit(0,0), new ScalerUnit(0,0), new ScalerUnit(0,0), new ScalerUnit(0,0)};
     
@@ -163,6 +178,14 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     
     private final byte TYPEDESC_OCTET_STRING=0x09;
     
+    private final static String AUTO_CREATE_ERROR_1 =
+        "No automatic meter creation: no property RtuType defined.";
+
+    private final static String AUTOCREATE_ERROR_2 =
+        "No automatic meter creation: property RtuType has no prototype.";
+
+    private final static String DUPLICATE_SERIALS =
+        "Multiple meters where found with serial: {0}.  Data will not be read.";
     
 	/**
 	 * 
@@ -174,7 +197,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
 	}
 
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
@@ -189,6 +211,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		connect();
 		
         try {
+        	
+        	checkConfiguration();
+        	checkMbusDevices();
         	
         	// Set clock ... if necessary
         	if( communicationProfile.getWriteClock() ) {
@@ -219,6 +244,135 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 			e.printStackTrace();
 		}
 	}
+	
+	/** Short notation for MeteringWarehouse.getCurrent() */
+    private MeteringWarehouse mw() {
+        return MeteringWarehouse.getCurrent();
+    }
+
+	private void checkConfiguration() throws IOException {
+		byte[] dailyByte = {0, 0, 0, 0, -1, -1, -1, -1, -1};
+		byte[] monthlyByte = {0, 0, 0, 0, -1, -1, -1, 1, -1};
+		
+		genericInterval1 = getCosemObjectFactory().getProfileGeneric(genericProfile1).getCapturePeriod();
+		genericInterval2 = getCosemObjectFactory().getProfileGeneric(genericProfile2).getCapturePeriod();
+		
+		if (rtu.getIntervalInSeconds() == genericInterval1)
+			loadProfileObisCode = genericProfile1;
+		else if (rtu.getIntervalInSeconds() == genericInterval2)
+			loadProfileObisCode = genericProfile2;
+		
+		// TODO make the mbusRtu!
+//		if (mbusRtu.getIntervalInSeconds() == genericInterval1)
+//			mbusLProfileObisCode = genericProfile1;
+//		else if (mbusRtu.getIntervalInSeconds() == genericInterval2)
+//			mbusLProfileObisCode = genericProfile2;
+		
+		if (compareByteArray(dailyByte, checkByte(getCosemObjectFactory().getGenericRead(endOfBilling, 24, 22).getResponseData())))
+			dailyObisCode = genericProfile3;
+		else if (compareByteArray(dailyByte, checkByte(getCosemObjectFactory().getGenericRead(endOfCapturedObjects, 24, 22).getResponseData())))
+			dailyObisCode = genericProfile4;
+		
+		if (compareByteArray(monthlyByte, checkByte(getCosemObjectFactory().getGenericRead(endOfBilling, 24, 22).getResponseData())))
+			monthlyObisCode = genericProfile3;
+		else if (compareByteArray(monthlyByte, checkByte(getCosemObjectFactory().getGenericRead(endOfCapturedObjects, 24, 22).getResponseData())))
+			monthlyObisCode = genericProfile4;
+	}
+	
+	private byte[] checkByte(byte[] testByte){
+		
+		// TODO normally this should be in an object ... fix this later
+		
+		int offset = 6;
+		byte[] dateByte = new byte[9];
+		for (int i = 0; i+offset <= 16; i ++){
+			dateByte[i] = testByte[i+offset]; 
+			if (i+offset == 9)
+				offset += 2;
+		}
+		return dateByte;
+	}
+	
+	private boolean compareByteArray(byte[] bArray1, byte[] bArray2){
+		if(bArray1.length != bArray2.length)
+			return false;
+		for(int i = 0; i < bArray1.length; i++){
+			if(bArray1[i] != bArray2[i])
+				return false;
+		}
+		return true;
+	}
+	
+
+	private void checkMbusDevices() throws IOException, SQLException, BusinessException {
+		long pAddress1 = getCosemObjectFactory().getCosemObject(mbusPrimaryAddress).getValue();
+		if ( pAddress1 != 0){
+			String customerID = getCosemObjectFactory().getData(mbusCustomerID).getString();
+			mbus[1] = findOrCreateNewMbusDevice(pAddress1, customerID);
+		}
+//		long test = getCosemObjectFactory().getCosemObject(mbusPrimaryAddress).getValue();
+//		System.out.println(test);
+//		String testStr1 = getCosemObjectFactory().getData(mbusCustomerID).getString();
+//		System.out.println(testStr1);
+	}
+
+	private Rtu findOrCreateNewMbusDevice(long address1, String customerID) throws SQLException, BusinessException {
+		
+		List mbusList = mw().getRtuFactory().findBySerialNumber(customerID);
+		
+		if( mbusList.size() == 1 ) {
+			((Rtu)mbusList.get(0)).updateGateway(rtu);
+			return (Rtu)mbusList.get(0);
+		}
+		
+        if( mbusList.size() > 1 ) {
+            getLogger().severe( toDuplicateSerialsErrorMsg(customerID) );
+            return null;
+        }
+        
+        if( getRtuType() == null ) {
+            getLogger().severe( AUTO_CREATE_ERROR_1 );
+            return null;
+        }
+        
+        if( getRtuType().getPrototypeRtu() == null ) {
+            getLogger().severe( AUTOCREATE_ERROR_2 );    
+            return null;
+        }
+        
+        return createMeter(rtu, getRtuType(), customerID);
+	}
+	
+    private Rtu createMeter(Rtu rtu2, RtuType type, String customerID) throws SQLException, BusinessException {
+        RtuShadow shadow = type.newRtuShadow();
+        
+        Date lastreading = shadow.getLastReading();
+        
+    	shadow.setName(customerID);
+        shadow.setSerialNumber(customerID);
+
+    	shadow.setGatewayId(rtu.getId());
+    	shadow.setLastReading(lastreading);
+        return mw().getRtuFactory().create(shadow);
+	}
+
+	private RtuType getRtuType() {
+    	String type = getProperty(RTU_TYPE);
+    	
+        if (type != null){
+           return mw().getRtuTypeFactory().find(type);
+        }
+        else return null;
+	}
+    
+    private String getProperty(String key){
+        return (String)properties.get(key);
+    }
+
+	private String toDuplicateSerialsErrorMsg(String serial) {
+        return new MessageFormat( DUPLICATE_SERIALS )
+                    .format( new Object [] { serial } );
+    }
 
 	private void init(InputStream is, OutputStream os) throws IOException {
 		
@@ -448,6 +602,11 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         	
             RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
             ObisCode oc = spec.getObisCode();
+            
+        	if(oc.getF() == 0){
+        		if(DEBUG == 1)System.out.println("A Daily billing register");
+        		
+        	}
            
             RegisterValue rv = readRegister(oc);
             RtuRegister register = rtu.getRegister( rv.getObisCode() );
