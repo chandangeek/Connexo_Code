@@ -243,8 +243,8 @@ while(count++<1) {
             Properties properties = new Properties();
             properties.setProperty("ProfileInterval", "60");
             //properties.setProperty(MeterProtocol.NODEID,"0");
-            properties.setProperty(MeterProtocol.ADDRESS,"5");
-            properties.setProperty("HalfDuplex", "1");
+            properties.setProperty(MeterProtocol.ADDRESS,"1");
+            properties.setProperty("HalfDuplex", "-1");
             int ift;
             if ((args==null) || (args.length==0))
                 ift=25;
@@ -263,7 +263,18 @@ while(count++<1) {
             System.out.println(hawkeye.getFirmwareVersion());
             
 
-            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
+//            try {
+//            	System.out.println(hawkeye.getRegisterFactory().getFunctionCodeFactory().getReadHoldingRegistersRequest(4046,1));
+//           	}
+//            catch(Exception e){
+//               	
+//            }
+            try {System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.132.7.0.255")));}catch(Exception e){}
+            try {System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.152.7.0.255")));}catch(Exception e){}
+            try {System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.172.7.0.255")));}catch(Exception e){}
+//            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
+//            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
+//            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
             //System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.254")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.132.7.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
