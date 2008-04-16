@@ -911,7 +911,7 @@ public class EchelonExporter extends AbstractExporter {
     }
 
     public String getVersion() {
-        return "$Revision: 1.15 $";
+        return "$Revision: 1.16 $";
     }
 
     /* RetrieveResultList service returns list of ResultId 's */
