@@ -31,8 +31,6 @@
 
 -keepnames class com.energyict.protocolimpl.dlms.DLMSCache
 
--keepnames class com.energyict.protocolimpl.dlms.DLMSCOSEMGlobals
-
 -keepnames class com.energyict.protocolimpl.metcom.Metcom3
 
 -keepnames class com.energyict.protocolimpl.metcom.Metcom2

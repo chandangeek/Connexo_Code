@@ -35,7 +35,6 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>protocolimplno-${project.version}.jar</finalName>
         <plugins>
             <plugin>
                 <groupId>com.pyx4me</groupId>
@@ -49,9 +48,12 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <injar>${project.build.finalName}.jar</injar>
-                    <outjar>${project.artifactId}-${project.version}.jar</outjar>
-                    <outputDirectory>${project.build.directory}</outputDirectory>
+                    <options>
+                        <option>-allowaccessmodification</option>
+                    </options>
+                    <!--<injar>protocolimplno-${project.version}.jar</injar>-->
+                    <!--<outjar>${project.artifactId}-${project.version}.jar</outjar>-->
+                    <!--<outputDirectory>${project.build.directory}</outputDirectory>-->
                     <proguardInclude>${basedir}/protocolimpl.pro</proguardInclude>
                     <libs>
                         <lib>${java.home}/lib/rt.jar</lib>
