@@ -99,11 +99,14 @@ class XmlHandler extends DefaultHandler {
     private static final String POWER_DOWN_MSG = "Power down.";
     
     private static final int ELECTRICITY 	= 0x00;
-    private static final int GAS 			= 0x01;
+    private static final int MBUS 			= 0x01;
     private static final String ELECTRICITY_NAME 	= "ELECTRICITY";
-    private static final String GAS_NAME 			= "GAS";
+    private static final String MBUS_NAME 			= "MBUS";
     private static final int DAILY			= 0x00;
+    private static String dailyStr = null;
     private static final int MONTHLY		= 0x01;
+    private static String monthlyStr = null;
+    
     private int profileDuration = -1;
     
     private ArrayList messageEnds = new ArrayList();
@@ -121,9 +124,6 @@ class XmlHandler extends DefaultHandler {
     private Profile profile = new Profile();
     private List eventList = new ArrayList();
 	private boolean checkOndemands;
-    
-    
-    
     
     public XmlHandler(Logger logger, ProtocolChannelMap channelMap) {
         this.logger = logger;
@@ -160,11 +160,16 @@ class XmlHandler extends DefaultHandler {
 
 
     private void handleStartProfile(Attributes attrbs) {
-    	String ident 	=	attrbs.getValue("Ident");
-    	if ( ident.equals("99.2.0"))
-    		profileDuration = DAILY;
-    	else if ( ident.equals("98.1.0") | ident.equals("98.2.0"))
-    		profileDuration = MONTHLY;
+    	String ident = attrbs.getValue("Ident");
+//    	if ( ident.equals("99.2.0"))
+//    		profileDuration = DAILY;
+//    	else if ( ident.equals("98.1.0") | ident.equals("98.2.0"))
+//    		profileDuration = MONTHLY;
+//    	else
+    	if ( ident.equals(getDailyStr()) )
+    		setProfileDuration(DAILY);
+    	else if ( ident.equals(getMonthlyStr()) )
+    		setProfileDuration(MONTHLY);
     	else
     		inProfile = true;
     }
@@ -206,7 +211,6 @@ class XmlHandler extends DefaultHandler {
                     }
                     
                     if (checkOndemands){
-                    	checkOndemands = false;
                     	
                     	String end = ".255";
                     	
@@ -486,10 +490,10 @@ class XmlHandler extends DefaultHandler {
             	ID = ELECTRICITY;
             }           	
             
-            else if ( channel.register.equals("0.1.128.50.0") ){   //GAS
+            else if ( channel.register.equals("0.1.128.50.0") ){   //MBus(gas)
             	u = Unit.get(BaseUnit.CUBICMETER);
-            	name = GAS_NAME;
-            	ID = GAS;
+            	name = MBUS_NAME;
+            	ID = MBUS;
             }
             
             else{
@@ -563,7 +567,7 @@ class XmlHandler extends DefaultHandler {
         	
             ProfileData[] profileData = {new ProfileData( ), new ProfileData( )};
             profileData[ELECTRICITY].setChannelInfos( getChannelInfos()[ELECTRICITY] );
-            profileData[GAS].setChannelInfos( getChannelInfos()[GAS] );
+            profileData[MBUS].setChannelInfos( getChannelInfos()[MBUS] );
 //            profileDataGas.setChannelInfos( getChannelInfos() );
             Interval[] interval = {new Interval(null), new Interval(null), new Interval(null)};
             Iterator i = intervalMap.values().iterator();
@@ -577,30 +581,36 @@ class XmlHandler extends DefaultHandler {
             	interval[2] = (Interval)i.next();
 //            	interval = copyIntervalSettings(interval);
             	interval[ELECTRICITY].values.clear();
-            	interval[GAS].values.clear();
+            	interval[MBUS].values.clear();
             	int j = 0;
                 Iterator it = interval[2].values.iterator();
                 while( it.hasNext() ){
                 	Object value = it.next();
                 	
-                	if ( (channelMap.getProtocolChannel(j).register.equals("1.8.0")) 
-                			| (channelMap.getProtocolChannel(j).register.equals("2.8.0")) 
-                			| (channelMap.getProtocolChannel(j).register.equals("1.5.0"))) {
-                		interval = copyIntervalSettings(interval, ELECTRICITY);
-                		interval[ELECTRICITY].values.add(value);
+                	if (value != null ){
+                		
+                    	if ( (channelMap.getProtocolChannel(j).register.equals("1.8.0")) 
+                    			| (channelMap.getProtocolChannel(j).register.equals("2.8.0")) 
+                    			| (channelMap.getProtocolChannel(j).register.equals("1.5.0"))) {
+                    		interval = copyIntervalSettings(interval, ELECTRICITY);
+                    		interval[ELECTRICITY].values.add(value);
+                    	}
+                    	
+                    	else if ( channelMap.getProtocolChannel(j).register.equals("0.1.128.50.0") ){ 
+                    		interval = copyIntervalSettings(interval, MBUS);
+                    		interval[MBUS].values.add(value);
+                    	}
+                    	j++;
+                    	
                 	}
-                	
-                	else if ( channelMap.getProtocolChannel(j).register.equals("0.1.128.50.0") ){ 
-                		interval = copyIntervalSettings(interval, GAS);
-                		interval[GAS].values.add(value);
-                	}
-                	j++;
                 }
                 
                 if ( interval[ELECTRICITY].values.size() != 0 )
                 	profileData[ELECTRICITY].addInterval( interval[ELECTRICITY].toIntervalData() );
-                if ( interval[GAS].values.size() != 0 )
-                	profileData[GAS].addInterval( interval[GAS].toIntervalData() );
+                if ( interval[MBUS].values.size() != 0 ){
+                	interval[MBUS].eiStatus = 0;
+                	profileData[MBUS].addInterval( interval[MBUS].toIntervalData() );                	
+                }
                 
             }
             
@@ -613,7 +623,7 @@ class XmlHandler extends DefaultHandler {
             }
             
             profileData[ELECTRICITY].sort();
-            profileData[GAS].sort();
+            profileData[MBUS].sort();
             
             
             return profileData;
@@ -641,7 +651,8 @@ class XmlHandler extends DefaultHandler {
             int nrI = channelMap.getNrOfProtocolChannels();
             values = new ArrayList( channelMap.getNrOfProtocolChannels() );
             for( int i = 0; i < nrI; i ++ ) {
-                values.add( i, new BigDecimal(0) );
+//                values.add( i, new BigDecimal(0) );
+            	values.add( i, null );
             }
         }
         
@@ -656,6 +667,30 @@ class XmlHandler extends DefaultHandler {
 	public void checkOnDemands(boolean b) {
 		checkOndemands = b;
 		
+	}
+
+	public int getProfileDuration() {
+		return profileDuration;
+	}
+
+	public void setProfileDuration(int profileDuration) {
+		this.profileDuration = profileDuration;
+	}
+
+	public String getDailyStr() {
+		return dailyStr;
+	}
+
+	public void setDailyStr(String dailyStr) {
+		XmlHandler.dailyStr = dailyStr;
+	}
+
+	public String getMonthlyStr() {
+		return monthlyStr;
+	}
+
+	public void setMonthlyStr(String monthlyStr) {
+		XmlHandler.monthlyStr = monthlyStr;
 	}
 
 //	public void addMessageEnd(int f) {

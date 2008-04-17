@@ -1,20 +1,36 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import javax.xml.parsers.*;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.FactoryConfigurationError;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.rpc.ServiceException;
 
-import org.apache.axis.types.UnsignedInt;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -22,14 +38,37 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Environment;
 import com.energyict.cpo.Transaction;
 import com.energyict.dialer.core.Link;
+import com.energyict.genericprotocolimpl.iskrap2lpc.stub.CosemDateTime;
+import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ObjectDef;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.P2LPCSoapPort_PortType;
+import com.energyict.genericprotocolimpl.iskrap2lpc.stub.PeriodicProfileType;
+import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ProfileType;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.WebServiceLocator;
-import com.energyict.mdw.amr.*;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.amr.GenericProtocol;
+import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.RtuRegisterSpec;
+import com.energyict.mdw.core.CommunicationProfile;
+import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.Folder;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.RtuType;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.Messaging;
 import com.energyict.tcpip.PPPDialer;
 
 public class Concentrator implements Messaging, GenericProtocol {
@@ -38,9 +77,12 @@ public class Concentrator implements Messaging, GenericProtocol {
     private boolean TESTING = false;
     
     private static final int ELECTRICITY 	= 0x00;
-    private static final int GAS 			= 0x01;
+    private static final int MBUS 			= 0x01;
     
     private static File plpFile = new File("c://TEST_FILES/Sub_38517965_200802.plp");
+    
+    private static String TOUConfig = "TOU";
+    private static String MBUSSTRING = "mbus";
 
     private Logger logger;
     private Properties properties;
@@ -48,7 +90,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     
     /** RtuType is used for creating new Rtu's */
     private RtuType[] rtuType = {null, null};
-    
+	private ProtocolChannelMap protocolChannelMap = null;
     
     /** Error message for a meter error */
     private final static String METER_ERROR = 
@@ -56,7 +98,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     
     /** Error message for a concentrator error */
     private final static String CONCENTRATOR_ERROR = 
-        "Concentrator failed, serialnumber meter: ";
+        "Concentrator failed, serialnumber concentrator: ";
     
     private final static String AUTO_CREATE_ERROR_1 =
         "No automatic meter creation: no property RtuType defined.";
@@ -70,14 +112,13 @@ public class Concentrator implements Messaging, GenericProtocol {
     
     private final static boolean ADVANCED = true;
     
-    
 
-    public void execute( 
-        CommunicationScheduler scheduler, Link link, Logger logger) 
-            throws BusinessException, SQLException, IOException {
+    public void execute( CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
         
         this.logger = logger;
         this.communicationProfile = scheduler.getCommunicationProfile();
+        
+        int meterCount = -1;
         
         Rtu concentrator = scheduler.getRtu();
         String serial = concentrator.getSerialNumber();
@@ -103,8 +144,9 @@ public class Concentrator implements Messaging, GenericProtocol {
             /* Meters discovered by concentrator */
             String meterList = port(concentrator).getMetersList();
             List discovered = collectSerials(meterList);
+            meterCount = discovered.size();
             
-            getLogger().log(Level.INFO,"Discoverd meter count: " + discovered.size());
+            getLogger().log(Level.INFO,"Discoverd meter count: " + meterCount);
             
             
             Iterator im = discovered.iterator();
@@ -112,6 +154,7 @@ public class Concentrator implements Messaging, GenericProtocol {
                 String meterSerial = (String) im.next();
                 handleMeter(concentrator, meterSerial);
                 progressLog.append(meterSerial + " ");
+                getLogger().log(Level.INFO, "" + --meterCount + " meters to go.");
             }
             
             handleConcentrator(concentrator);
@@ -152,8 +195,8 @@ public class Concentrator implements Messaging, GenericProtocol {
         
         
     }
-    
-    public void addProperties(Properties properties) {
+
+	public void addProperties(Properties properties) {
         this.properties = properties;
     }
 
@@ -252,13 +295,12 @@ public class Concentrator implements Messaging, GenericProtocol {
             
         	ProfileData[] pd = {new ProfileData(), new ProfileData()};
             Rtu meter = findOrCreate(concentrator, serial, "Electricity");
-            
+
             try {
                 
                 if (meter != null) {
 
-                    XmlHandler dataHandler = new XmlHandler( 
-                            getLogger(), getChannelMap(meter) );
+                    XmlHandler dataHandler = new XmlHandler( getLogger(), getChannelMap(meter) );
                    
                     importProfile(concentrator, meter, dataHandler);
                     importRegisters(concentrator, meter, dataHandler);
@@ -268,28 +310,31 @@ public class Concentrator implements Messaging, GenericProtocol {
                     pd = dataHandler.getProfileData();
                     meter.store(pd[ELECTRICITY]);
                     
-                    if ( pd[GAS].getChannelInfos().size() != 0){
-                    	
-                    	if (DEBUG) System.out.println("Make a new GAS meter!");
+                    if ( (meter.getDownstreamRtus().size() > 0) || ( pd[MBUS].getChannelInfos().size() != 0) ){
                     	
                     	if ( mbusSerial == null ){
-                    		if(DEBUG)System.out.println("Read the serialnumber of the Mbus device!");
+                    		if(DEBUG)System.out.println("Read the serialnumber of the Mbus device.");
                     		
 //                    		mbusSerial = readMbusSerialNumber(dataHandler, meter, serial, concentrator);
                     		
                     	}
                     	
-                    	getLogger().log(Level.INFO, "New M-Bus device for meter with serialnumber " + serial + ", discovered.");
-                    	Rtu gasMeter = findOrCreate(concentrator, serial, "Gas");
+                    	getLogger().log(Level.INFO, "********* Handling M-Bus device for meter " + serial + " *********");
+                    	Rtu mbusMeter = findOrCreate(concentrator, serial, MBUSSTRING);
                     	
-                    	if ( gasMeter.getRegisters().size() != 0 ){
+                    	if ( mbusMeter.getRegisters().size() != 0 ){
                     		dataHandler.getMeterReadingData().getRegisterValues().clear();
-                    		importRegisters(concentrator, gasMeter, dataHandler, meter.getSerialNumber());
-                    		handleRegisters(dataHandler, gasMeter);
-                    		//sendMeterMessages(concentrator, gasMeter, dataHandler);
+                    		importRegisters(concentrator, mbusMeter, dataHandler, meter.getSerialNumber());
                     	}
                     	
-                    	gasMeter.store(pd[GAS]);
+                    	if ( mbusMeter.getMessages().size() != 0 ){
+                    		sendMeterMessages(concentrator, meter, mbusMeter, dataHandler);
+                    	}
+                    	
+                    	handleRegisters(dataHandler, mbusMeter);
+                    	mbusMeter.store(pd[MBUS]);
+                    	
+                    	getLogger().log(Level.INFO, "***********************************************************************");
                     	
                     }
                     
@@ -322,11 +367,11 @@ public class Concentrator implements Messaging, GenericProtocol {
         List meterList = mw().getRtuFactory().findBySerialNumber(serial);
 
         if( meterList.size() == 1 ) {
-        	if ( type == "Gas" ){
+        	if ( type == MBUSSTRING ){
         		List gasList = mw().getRtuFactory().findByName(serial + " - " + type);
         		
         		if ( gasList.size() == 0 )
-        			return createMeter(concentrator, getRtuType(GAS), serial, type, (Rtu)meterList.get(0));
+        			return createMeter(concentrator, getRtuType(MBUS), serial, type, (Rtu)meterList.get(0));
         		else{
         			((Rtu)gasList.get(0)).updateGateway((Rtu)meterList.get(0));
         			
@@ -442,11 +487,28 @@ public class Concentrator implements Messaging, GenericProtocol {
     private void importProfile(Rtu ctr, Rtu meter, XmlHandler dataHandler) throws ServiceException, IOException, BusinessException {
     
         String xml = null;        
-
+        String profile = null;
         String mtr = meter.getSerialNumber();
-
-        String from = Constant.getInstance().format(getLastReading( meter ) );
+        
+        Date fromDate = getLastReading(meter);
+        
+        // if the meter has mbus meters with an earlier LastReading, then use this LastReading
+        if(meter.getDownstreamRtus().size() > 0){
+        	Date downDate = null;
+        	Iterator i = meter.getDownstreamRtus().iterator();
+        	while(i.hasNext()){
+        		Rtu downRtu = (Rtu)i.next();
+        		downDate = getLastReading(downRtu);
+        		if (downDate.before(fromDate))
+        			fromDate.setTime(downDate.getTime());
+        	}
+        }
+        
+        String from = Constant.getInstance().format( fromDate );
         String to = Constant.getInstance().format(new Date());
+        
+        String[] loadProfile1 = {"LoadProfile1", "99.1.0"};
+        String[] loadProfile2 = {"LoadProfile2", "99.2.0"};
         
         /*
          * Read profile data 
@@ -456,22 +518,48 @@ public class Concentrator implements Messaging, GenericProtocol {
         	getLogger().log(Level.INFO, "Reading PROFILE from meter with serialnumber " + mtr + ".");
             
             ProtocolChannelMap channelMap = getChannelMap(meter);
+            
+            ObjectDef[] lp1 = port(ctr).getMeterProfileConfig(mtr, new ProfileType(loadProfile1[0]));
+
+            ObjectDef[] lp2 = null;
+            int lpPeriod1 = port(ctr).getMeterLoadProfilePeriod(mtr, new PeriodicProfileType(loadProfile1[0])).intValue();
+            int lpPeriod2 = -1;
+            
+            if (meter.getIntervalInSeconds() != lpPeriod1){
+            	getLogger().log(Level.SEVERE, "ProfileInterval meter: " + lpPeriod1 +  ", ProfileInterval EIServer: " + meter.getIntervalInSeconds());
+            	throw new BusinessException("Interval didn't match");
+            }
+            
             for( int i = 0; i < channelMap.getNrOfProtocolChannels(); i ++ ) {
             
                 ProtocolChannel channel = channelMap.getProtocolChannel(i);
-                String profile = "99.1.0";
                 String register = channel.getRegister();
                 
-                if ( TESTING ){
-                	FileReader inFile = new FileReader(plpFile);
-                	xml = readWithStringBuffer(inFile);
+                if (lpContainsRegister(lp1, register)){
+                	profile = loadProfile1[1];
+                    xml = port(ctr).getMeterProfile(mtr, profile, register, from, to);
+                    dataHandler.setChannelIndex( i );
+                    importData(xml, dataHandler);
                 }
-                else
-                	xml = port(ctr).getMeterProfile(mtr, profile, register, from, to);
-
-                dataHandler.setChannelIndex( i );
-                importData(xml, dataHandler);
-            
+                
+                else{
+                	if (lp2 == null){
+                		lp2 = port(ctr).getMeterProfileConfig(mtr, new ProfileType(loadProfile2[0]));
+                	}
+                	if (lpPeriod2 == -1){
+                		lpPeriod2 = port(ctr).getMeterLoadProfilePeriod(mtr, new PeriodicProfileType(loadProfile2[0])).intValue();
+                	}
+                	
+                	
+                    if (lpContainsRegister(lp2, register)){
+                    	profile = loadProfile2[1];
+                        xml = port(ctr).getMeterProfile(mtr, profile, register, from, to);
+                        dataHandler.setChannelIndex( i );
+                        importData(xml, dataHandler);
+                    }
+                	
+                }
+                
             }
             
             getLogger().log(Level.INFO, "Done reading PROFILE.");
@@ -500,7 +588,21 @@ public class Concentrator implements Messaging, GenericProtocol {
     
     }
     
-    private void importRegisters(Rtu ctr, Rtu meter, XmlHandler dataHandler) throws ServiceException, IOException, BusinessException{
+    private boolean lpContainsRegister(ObjectDef[] lp, String register) {
+		for (int i = 0; i< lp.length; i++){
+			String instId = lp[i].getInstanceId();
+			if (register.length() == 5){
+				if (instId.indexOf(register) == 4)
+					return true;
+			}
+			else
+				if (instId.indexOf(register.subSequence(0, register.length()).toString()) >= 0)
+					return true;
+		}
+		return false;
+	}
+
+	private void importRegisters(Rtu ctr, Rtu meter, XmlHandler dataHandler) throws ServiceException, IOException, BusinessException{
     	importRegisters(ctr, meter, dataHandler, meter.getSerialNumber());
     }
     
@@ -520,6 +622,46 @@ public class Concentrator implements Messaging, GenericProtocol {
         	
         	getLogger().log(Level.INFO, "Reading REGISTERS from meter with serialnumber " + mtr + ".");
         	
+        	String daily = null;
+        	String monthly = null;
+        	int count = 0;
+        	
+//            CosemDateTime cdt = port(ctr).getMeterBillingReadTime(meter.getSerialNumber());
+//            CosemDateTime[] cdt2 = port(ctr).getMeterScheduledReadTimes(mtr);
+//            ObjectDef[] lp1 = port(ctr).getMeterProfileConfig(mtr, new ProfileType("LoadProfile2"));
+            
+            while( ((daily == null ) || (monthly == null)) || count != 2 ) {
+            	switch(count){
+            	case 0:{
+            		int period = port(ctr).getMeterLoadProfilePeriod(mtr, new PeriodicProfileType("LoadProfile2")).intValue();
+            		if ( period == 86400 ){ // Profile contains daily values
+            			daily = "99.2.0";
+            		}
+            		else
+            			daily = null;
+            		count++;
+            	}break;
+            	case 1:{
+            		CosemDateTime cdt = port(ctr).getMeterBillingReadTime(mtr);
+            		if ( (cdt.getDayOfMonth().intValue() == 1) && (cdt.getHour().intValue() == 0) && (cdt.getYear().intValue() == 65535) && (cdt.getMonth().intValue() == 255) ){
+            			monthly = "98.1.0";
+            			if (daily == null) daily = "98.2.0";
+            		}
+            		else{
+            			monthly = "98.2.0";
+            			if (daily == null) daily = "98.1.0";
+            		}
+            		count++;
+            	}break;
+            	default:break;
+            	
+            	}
+            }
+            
+            // set registers for the DataHandler
+            dataHandler.setDailyStr(daily);
+            dataHandler.setMonthlyStr(monthly);
+        	
             Iterator i = meter.getRtuType().getRtuRegisterSpecs().iterator();
             while (i.hasNext()) {
                 
@@ -531,7 +673,8 @@ public class Concentrator implements Messaging, GenericProtocol {
                 if (oc.getF() == 0){
                     
                     /* historical - daily*/
-                    profile = "99.2.0";
+//                    profile = "99.2.0";
+                	profile = daily;
                     xml = port(ctr).getMeterProfile(mtr, profile, register, from, to);
                     importData(xml, dataHandler);
                    
@@ -540,13 +683,14 @@ public class Concentrator implements Messaging, GenericProtocol {
                 else if (oc.getF() == -1){
 
                 	 /* historical - monthly*/
-                    profile = "98.1.0";
+//                    profile = "98.1.0";
+                	profile = monthly;
                     xml = port(ctr).getMeterProfile(mtr, profile, register, from, to);
                     importData(xml, dataHandler);
-
-                    profile = "98.2.0";
-                    xml = port(ctr).getMeterProfile(mtr, profile, register, from, to);
-                    importData(xml, dataHandler);
+//
+//                    profile = "98.2.0";
+//                    xml = port(ctr).getMeterProfile(mtr, profile, register, from, to);
+//                    importData(xml, dataHandler);
                     
                 }
             }
@@ -612,14 +756,34 @@ public class Concentrator implements Messaging, GenericProtocol {
     
     }
     
-    /** Send Pending RtuMessage to meter. */
-    private void sendMeterMessages(Rtu concentrator, Rtu rtu, XmlHandler dataHandler) throws BusinessException, SQLException {
+    private void sendMeterMessages(Rtu concentrator, Rtu rtu, XmlHandler dataHandler) throws BusinessException, SQLException{
+    	sendMeterMessages(concentrator, rtu, null, dataHandler);
+    }
+    
+    /** Send Pending RtuMessage to meter. 
+     * 	Currently we use the eRtu as a concentrator for the mbusRtu, so the serialNumber is this from the eRtu.
+     * 	The messages them are those from the mbus device if this is not NULL.
+     * */
+    private void sendMeterMessages(Rtu concentrator, Rtu eRtu, Rtu mbusRtu, XmlHandler dataHandler) throws BusinessException, SQLException {
     
         /* short circuit */
         if( ! communicationProfile.getSendRtuMessage() )
             return;
         
-        Iterator mi = rtu.getPendingMessages().iterator();
+        Iterator mi = null;
+        
+        if (mbusRtu != null)	//mbus messages
+        	mi = mbusRtu.getPendingMessages().iterator();
+        else					//eRtu messages
+            mi = eRtu.getPendingMessages().iterator();
+        
+        String serial = eRtu.getSerialNumber();     
+        
+        if (mi.hasNext())
+        	getLogger().log(Level.INFO, "Handling MESSAGES from meter with serialnumber " + serial);
+        else
+        	return;
+        
         while (mi.hasNext()) {
             
             RtuMessage msg = (RtuMessage) mi.next();
@@ -629,26 +793,36 @@ public class Concentrator implements Messaging, GenericProtocol {
             boolean doConnect       = contents.indexOf(Constant.CONNECT_LOAD) != -1;
             boolean doDisconnect    = contents.indexOf(Constant.DISCONNECT_LOAD) != -1;
             
-            String serial = rtu.getSerialNumber();
-            
+            boolean loadControlOn     = contents.indexOf(Constant.LOAD_CONTROL_ON) != -1;
+            boolean loadControlOff    = contents.indexOf(Constant.LOAD_CONTROL_OFF) != -1;
+                        
             /* A single message failure must not stop the other msgs. */
             try {
             	
-                getLogger().log(Level.INFO, "Handling MESSAGES from meter with serialnumber " + serial);
-
-                
                 if (doReadRegister){
                     
                     List rl = new ArrayList( );
-                    Iterator i = rtu.getRtuType().getRtuRegisterSpecs().iterator();
+                    Iterator i = null;
+                    String ocString = null;
+                    
+                    if (mbusRtu != null)
+                    	i = mbusRtu.getRtuType().getRtuRegisterSpecs().iterator();
+                    else
+                    	i = eRtu.getRtuType().getRtuRegisterSpecs().iterator();
+                    
                     while (i.hasNext()) {
                         
                         RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
                         ObisCode oc = spec.getRegisterMapping().getObisCode();
                         if (oc.getF() == 255){
-	                        rl.add( new String(oc.getC()+"."+oc.getD()+"."+oc.getE()) );
-//	                        dataHandler.addMessageEnd(oc.getF());
+                        	
+                        	if (mbusRtu != null)
+                        		rl.add(oc.toString());
+                        	else
+                        		rl.add( new String(oc.getC()+"."+oc.getD()+"."+oc.getE()) );
+                        	
 	                        dataHandler.checkOnDemands(true);
+	                        dataHandler.setProfileDuration(-1);
                         }
                         
                     }
@@ -656,11 +830,10 @@ public class Concentrator implements Messaging, GenericProtocol {
                     String registers [] = (String[]) rl.toArray(new String[0] ); 
                     String r = port(concentrator).getMeterOnDemandResultsList(serial, registers);
                     
-//                    String register = "1.8.1";
-                    
 //                    String r = port(concentrator).getMeterOnDemandResults(serial, register);
                     
                     importData(r, dataHandler);
+                    dataHandler.checkOnDemands(false);
                     
                 }
                 
@@ -672,9 +845,17 @@ public class Concentrator implements Messaging, GenericProtocol {
                     port(concentrator).setMeterDisconnectControl(serial, false);
                 }
                 
+                if (loadControlOn) {
+                    port(concentrator).setMeterLoadControl(serial, true);
+                }
+                
+                if (loadControlOff) {
+                    port(concentrator).setMeterLoadControl(serial, false);
+                }
+                
                 /* These are synchronous calls, so no sent state is ever used */
                 msg.confirm();
-                getLogger().log(Level.INFO, "Current message " + contents + " has finished!");
+                getLogger().log(Level.INFO, "Current message " + contents + " has finished.");
                 
             } catch (RemoteException re) {
                 msg.setFailed();
@@ -689,6 +870,8 @@ public class Concentrator implements Messaging, GenericProtocol {
             }
             
         }
+        
+        getLogger().log(Level.INFO, "Done handling messages.");
     
     }
     
@@ -711,7 +894,7 @@ public class Concentrator implements Messaging, GenericProtocol {
         
         Date lastreading = shadow.getLastReading();
         
-        if ( energyType == "Gas" ){
+        if ( energyType == MBUSSTRING ){
         	shadow.setName(serial + " - " + energyType);
         }
         else{
@@ -721,7 +904,7 @@ public class Concentrator implements Messaging, GenericProtocol {
         
         //*************************************************
         // this moves the new Rtu to the Concentrator folder, else it will be placed in the prototype folder
-//        shadow.setFolderId(gwRtu.getFolderId());
+        // shadow.setFolderId(gwRtu.getFolderId());
         //*************************************************
         
     	shadow.setGatewayId(gwRtu.getId());
@@ -734,9 +917,9 @@ public class Concentrator implements Messaging, GenericProtocol {
      * @throws ServiceException 
      * @throws RemoteException 
      * @throws ParseException */
-    private void handleConcentrator(Rtu concentrator) 
-        throws BusinessException, SQLException, RemoteException, 
-                ServiceException, ParseException {
+    private void handleConcentrator(Rtu concentrator) throws BusinessException, SQLException, RemoteException, ServiceException, ParseException {
+    	
+    	getLogger().log(Level.INFO, "Handling the concentrator with serialnumber: " + concentrator.getSerialNumber());
         
         if( communicationProfile.getWriteClock() ) {
             setTime(concentrator);
@@ -754,6 +937,8 @@ public class Concentrator implements Messaging, GenericProtocol {
             }
             
         }
+        
+        getLogger().log(Level.INFO, "Concentrator " + concentrator.getSerialNumber() + " has completely finished.");
         
     }
 
@@ -806,23 +991,35 @@ public class Concentrator implements Messaging, GenericProtocol {
             String contents = msg.getContents();
             
             if (contents.indexOf(Constant.TOU_SCHEDULE) != -1) {
-                
-                Element e = (Element) toDom(contents).getFirstChild();
-                String idString = e.getAttribute(Constant.USER_FILE_ID);
-                
-                int id = Integer.parseInt(idString);
-                
-                UserFile uf = mw().getUserFileFactory().find(id);
-                if (uf != null) {
+            	
+//            	Folder concFolder = concentrator.getContainer();
+//            	List ufcon = concFolder.getUserFiles();
+            	
+            	int idUF = findTOUConfig(concentrator);
+            	
+            	if (idUF != -1){
+            		getLogger().info("Sending new tariff program to concenctrator with serialnumber: " + concentrator.getSerialNumber());
+            		
+                    UserFile uf = mw().getUserFileFactory().find(idUF);
+                    if (uf != null) {
+                        
+                        String xml = new String(uf.loadFileInByteArray());
+                        port(concentrator).setMeterTariffSettings(xml);
+                        success = true;
+                        getLogger().info("New tariff program succesfully implemented.");
+                        
+                    } else {
+                        getLogger().severe(toErrorMsg(msg) + "User file not found (id=" + idUF + ")");
+                    }
                     
-                    String xml = new String(uf.loadFileInByteArray());
-                    port(concentrator).setMeterTariffSettings(xml);
-                    success = true;
-                    
-                } else {
-                    severe(toErrorMsg(msg) + " User file not found (id=" + id + ")");
-                }
-                
+            	}
+            	else{
+            		getLogger().severe(toErrorMsg(msg) + "No Userfile with the name 'TOU' in concentrator folder");
+            	}
+//                Element e = (Element) toDom(contents).getFirstChild();
+//                String idString = e.getAttribute(Constant.USER_FILE_ID);
+//                
+//                int id = Integer.parseInt(idString);
             }
             
         /* A single RtuMessage failed: log and try next msg. */
@@ -835,9 +1032,6 @@ public class Concentrator implements Messaging, GenericProtocol {
         } catch (IOException thrown) {
             severe(thrown, toErrorMsg(serial, msg));
             thrown.printStackTrace();
-        } catch (XmlException thrown) {
-            severe(thrown, toErrorMsg(serial, msg));
-            thrown.printStackTrace();
         } finally {
             if (success)
                 msg.confirm();
@@ -847,7 +1041,19 @@ public class Concentrator implements Messaging, GenericProtocol {
         
     }
     
-    /** Short notation for MeteringWarehouse.getCurrent() */
+    private int findTOUConfig(Rtu concentrator) {
+    	Folder concFolder = concentrator.getContainer();
+    	List ufcon = concFolder.getUserFiles();
+    	
+    	for( int i = 0; i < ufcon.size(); i++ ){
+    		if ( ((UserFile)ufcon.get(0)).getName().compareToIgnoreCase(TOUConfig) == 0 )
+    			return ((UserFile)ufcon.get(0)).getId();
+    	}
+    	
+		return -1;
+	}
+
+	/** Short notation for MeteringWarehouse.getCurrent() */
     private MeteringWarehouse mw() {
         return MeteringWarehouse.getCurrent();
     }
@@ -982,8 +1188,12 @@ public class Concentrator implements Messaging, GenericProtocol {
     }
     
     private ProtocolChannelMap getChannelMap(Rtu meter) throws InvalidPropertyException {
-        String sChannelMap = meter.getProperties().getProperty( Constant.CHANNEL_MAP );
-        return new ProtocolChannelMap( sChannelMap );
+    	if (protocolChannelMap == null){
+    		String sChannelMap = meter.getProperties().getProperty( Constant.CHANNEL_MAP );
+    		protocolChannelMap = new ProtocolChannelMap( sChannelMap ); 
+    	}
+        
+        return protocolChannelMap;
     }
     
     /** log to severe */
@@ -1057,7 +1267,7 @@ public class Concentrator implements Messaging, GenericProtocol {
         MessageCategorySpec cat = new MessageCategorySpec("Actions");
         MessageSpec msgSpec = null;
         
-        String xml = Constant.TOU_SCHEDULE + " " + Constant.USER_FILE_ID + "=\"\"";
+        String xml = Constant.TOU_SCHEDULE;
         msgSpec = addBasicMsg("Set tou schedule", xml, !ADVANCED);
         cat.addMessageSpec(msgSpec);
 
@@ -1121,5 +1331,5 @@ public class Concentrator implements Messaging, GenericProtocol {
     public String writeValue(MessageValue msgValue) {
         return msgValue.getValue();
     }
-
+    
 }

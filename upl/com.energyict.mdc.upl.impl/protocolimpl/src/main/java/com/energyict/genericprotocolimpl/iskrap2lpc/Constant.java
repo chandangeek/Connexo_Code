@@ -26,6 +26,12 @@ class Constant {
     final static String CONNECT_LOAD = "connectLoad";
     /** RtuMessage tag for disconnecting load */
     final static String DISCONNECT_LOAD = "disconnectLoad";
+    
+    /** RtuMessage tag for connecting load */
+    final static String LOAD_CONTROL_ON = "loadControlOn";
+    /** RtuMessage tag for disconnecting load */
+    final static String LOAD_CONTROL_OFF = "loadControlOff";
+    
     /** RtuMessage tag for reading profile data */
     final static String READ_PROFILE = "<readProfile/>";
     

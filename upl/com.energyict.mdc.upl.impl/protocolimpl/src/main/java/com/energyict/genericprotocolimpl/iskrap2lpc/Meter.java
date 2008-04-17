@@ -28,6 +28,12 @@ public class Meter implements Messaging, MeterProtocol {
         msgSpec = addBasicMsg("Disconnect", Constant.DISCONNECT_LOAD, !ADVANCED);
         cat.addMessageSpec(msgSpec);
         
+//        msgSpec = addBasicMsg("LoadControlOn", Constant.LOAD_CONTROL_ON, !ADVANCED);
+//        cat.addMessageSpec(msgSpec);
+//        
+//        msgSpec = addBasicMsg("LoadControlOff", Constant.LOAD_CONTROL_OFF, !ADVANCED);
+//        cat.addMessageSpec(msgSpec);
+        
         theCategories.add(cat);
         return theCategories;
     }
