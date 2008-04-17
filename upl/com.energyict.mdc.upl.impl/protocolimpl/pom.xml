@@ -35,6 +35,7 @@
         </dependency>
     </dependencies>
     <build>
+        <finalName>protocolimplno-${project.version}.jar</finalName>
         <plugins>
             <plugin>
                 <groupId>com.pyx4me</groupId>
@@ -49,7 +50,7 @@
                 </executions>
                 <configuration>
                     <injar>${project.build.finalName}.jar</injar>
-                    <outjar>protocolimpl-${build.project.version}.jar</outjar>
+                    <outjar>${project.artifactId}-${project.version}.jar</outjar>
                     <outputDirectory>${project.build.directory}</outputDirectory>
                     <proguardInclude>${basedir}/protocolimpl.pro</proguardInclude>
                     <libs>
