@@ -326,12 +326,12 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
           
           flagIEC1107Connection.connectMAC(strID,strPassword,iSecurityLevel,nodeId);
           
-          if (!verifyMeterSerialNR()) 
-              throw new IOException("ABB A1500, connect, Wrong SerialNR!, EISerialNumber="+serialNumber+", MeterSerialNumber="+getSerialNumber());
-
           
           if ((getFlagIEC1107Connection().getHhuSignOn()!=null)  && (getDataReadoutRequest()==1))
                dataReadout = getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
+          
+          if (!verifyMeterSerialNR()) 
+              throw new IOException("ABB A1500, connect, Wrong SerialNR!, EISerialNumber="+serialNumber+", MeterSerialNumber="+getSerialNumber());
        }
        catch(FlagIEC1107ConnectionException e) {
           throw new IOException(e.getMessage());
