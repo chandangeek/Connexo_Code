@@ -138,9 +138,14 @@ public class ActivityCalendar  {
 	}
 
 	public void setPassiveCalendarName(byte passiveCalendarName) {
-		this.passiveCalendarName = new OctetString(passiveCalendarName);
+		setPassiveCalendarName(new OctetString(passiveCalendarName));
 	}
 
+	
+	public void setPassiveCalendarName(OctetString passiveCalendarName) {
+		this.passiveCalendarName = passiveCalendarName;
+	}
+	
 	public List getPassiveSeasonProfiles() {
 		return passiveSeasonProfiles;
 	}
