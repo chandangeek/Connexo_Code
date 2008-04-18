@@ -3,6 +3,7 @@
  */
 package com.energyict.genericprotocolimpl.iskragprs;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,12 +23,14 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import javax.xml.rpc.ServiceException;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.CreateException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
@@ -39,20 +42,25 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
+import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.Folder;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.core.RtuType;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
@@ -159,6 +167,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     
     private static String CONNECT = "CONNECT";
     private static String DISCONNECT = "DISCONNECT";
+    private static String TOU = "TOU";
     
     private List messages = new ArrayList(9);
     
@@ -1127,7 +1136,10 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             
             else if ( contents.indexOf(CONNECT) != -1 )
             	cosemObjectFactory.writeObject(breakerObisCode, 1, 2, connectMsg);
-            //getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255")).
+            
+            else if ( contents.indexOf(TOU) != -1) {
+            	sendActivityCalendar(contents, msg);
+            }
     		
     		BigDecimal breakerState = readRegister(breakerObisCode).getQuantity().getAmount();
     		
@@ -1146,13 +1158,59 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     			else 
     				msg.setFailed();    
     		}break;
-    		
+
     		default:{
     			msg.setFailed();
     			break;
     		}
     		}
             
+		}
+	}
+	
+	public void sendActivityCalendar(String contents, RtuMessage msg) throws SQLException, BusinessException, IOException  {
+    	UserFile userFile = getUserFile(contents);
+    	
+    	ActivityCalendar activityCalendar =
+    		getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255"));
+    
+    	com.energyict.genericprotocolimpl.common.tou.ActivityCalendar calendarData = 
+    		new com.energyict.genericprotocolimpl.common.tou.ActivityCalendar();
+    	ActivityCalendarReader reader = new IskraActivityCalendarReader(calendarData);
+    	calendarData.setReader(reader);
+    	calendarData.read(new ByteArrayInputStream(userFile.loadFileInByteArray()));
+    	CosemActivityCalendarBuilder builder = new 
+    		CosemActivityCalendarBuilder(calendarData);
+    	
+        activityCalendar.writeCalendarNamePassive(builder.calendarNamePassive());
+        activityCalendar.writeDayProfileTablePassive(builder.dayProfileTablePassive());
+        activityCalendar.writeWeekProfileTablePassive(builder.weekProfileTablePassive());
+        activityCalendar.writeSeasonProfilePassive(builder.seasonProfilePassive());
+        activityCalendar.writeActivatePassiveCalendarTime(builder.activatePassiveCalendarTime());
+        
+        // read calendar, if error
+        msg.confirm();
+    	
+    }
+	
+	protected UserFile getUserFile(String contents)throws BusinessException {
+        int id = getTouFileId(contents);
+        UserFile userFile = 
+        	MeteringWarehouse.getCurrent().getUserFileFactory().find(id);
+        if (userFile == null)
+        	throw new BusinessException("No userfile found with id " + id);
+        return null;
+	}
+	
+	protected int getTouFileId(String contents) throws BusinessException {
+		int startIndex = 2 + TOU.length();  // <TOU>
+		int endIndex = contents.indexOf("</" + TOU + ">") - 1;
+		String value = contents.substring(startIndex, endIndex);
+		try {
+			return Integer.parseInt(value);
+		}
+		catch (NumberFormatException e) {
+			throw new BusinessException("Invalid userfile id: " + value);
 		}
 	}
 
@@ -1165,7 +1223,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         msgSpec = addBasicMsg("Connect meter", CONNECT, false);
         cat.addMessageSpec(msgSpec);
         
-        msgSpec = addTouMessage("Set Time of use", "TOU", false);
+        msgSpec = addTouMessage("Set Time of use", TOU, false);
         cat.addMessageSpec(msgSpec);
         
         /* Probably for the "knijpen" */
