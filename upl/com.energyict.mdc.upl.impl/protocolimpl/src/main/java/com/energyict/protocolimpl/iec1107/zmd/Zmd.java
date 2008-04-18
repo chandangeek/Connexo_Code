@@ -256,12 +256,12 @@ public class Zmd
             
             flagIEC1107Connection.connectMAC(strID, strPassword, iSecurityLevel, nodeId);
             
-    		if (!verifyMeterSerialNR()) 
-    			throw new IOException("L&G ZMD, connect, Wrong SerialNR!, EISerialNumber="+serialNumber+", MeterSerialNumber="+getSerialNumber());
-     
             if (getFlagIEC1107Connection().getHhuSignOn() != null)
                 dataReadout = getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
             
+    		if (!verifyMeterSerialNR()) 
+    			throw new IOException("L&G ZMD, connect, Wrong SerialNR!, EISerialNumber="+serialNumber+", MeterSerialNumber="+getSerialNumber());
+     
         } catch (FlagIEC1107ConnectionException e) {
             throw new IOException(e.getMessage());
         }
