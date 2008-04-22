@@ -84,9 +84,10 @@ public class Concentrator implements Messaging, GenericProtocol {
     private static String TOUConfig = "TOU";
     private static String MBUSSTRING = "mbus";
 
-    private Logger logger;
-    private Properties properties;
-    private CommunicationProfile communicationProfile;	
+    private Logger 					logger;
+    private Properties 				properties;
+    private CommunicationProfile 	communicationProfile;	
+    private MbusDevice[]			mbusDevices = {null, null, null, null};				// max. 4 MBus meters
     
     /** RtuType is used for creating new Rtu's */
     private RtuType[] rtuType = {null, null};
@@ -320,19 +321,20 @@ public class Concentrator implements Messaging, GenericProtocol {
                     	}
                     	
                     	getLogger().log(Level.INFO, "********* Handling M-Bus device for meter " + serial + " *********");
-                    	Rtu mbusMeter = findOrCreate(concentrator, serial, MBUSSTRING);
+//                    	Rtu mbusMeter = findOrCreate(concentrator, serial, MBUSSTRING);
+                    	mbusDevices[0] = new MbusDevice(findOrCreate(concentrator, serial, MBUSSTRING));
                     	
-                    	if ( mbusMeter.getRegisters().size() != 0 ){
+                    	if ( mbusDevices[0].getRtu().getRegisters().size() != 0 ){
                     		dataHandler.getMeterReadingData().getRegisterValues().clear();
-                    		importRegisters(concentrator, mbusMeter, dataHandler, meter.getSerialNumber());
+                    		importRegisters(concentrator, mbusDevices[0].getRtu(), dataHandler, meter.getSerialNumber());
                     	}
                     	
-                    	if ( mbusMeter.getMessages().size() != 0 ){
-                    		sendMeterMessages(concentrator, meter, mbusMeter, dataHandler);
+                    	if ( mbusDevices[0].getRtu().getMessages().size() != 0 ){
+                    		sendMeterMessages(concentrator, meter, mbusDevices[0].getRtu(), dataHandler);
                     	}
                     	
-                    	handleRegisters(dataHandler, mbusMeter);
-                    	mbusMeter.store(pd[MBUS]);
+                    	handleRegisters(dataHandler, mbusDevices[0].getRtu());
+                    	mbusDevices[0].getRtu().store(pd[MBUS]);
                     	
                     	getLogger().log(Level.INFO, "***********************************************************************");
                     	
