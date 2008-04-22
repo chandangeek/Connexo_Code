@@ -1,8 +1,12 @@
 package com.energyict.genericprotocolimpl.iskragprs;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.util.Calendar;
+import java.util.StringTokenizer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -16,7 +20,13 @@ import org.xml.sax.SAXException;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.genericprotocolimpl.common.tou.ActivityCalendar;
+import com.energyict.genericprotocolimpl.common.tou.CosemCalendar;
+import com.energyict.genericprotocolimpl.common.tou.DayProfile;
+import com.energyict.genericprotocolimpl.common.tou.DayProfileSegment;
 import com.energyict.genericprotocolimpl.common.tou.OctetString;
+import com.energyict.genericprotocolimpl.common.tou.SeasonProfile;
+import com.energyict.genericprotocolimpl.common.tou.WeekProfile;
+import com.energyict.protocol.ProtocolUtils;
 
 public class IskraActivityCalendarReader implements com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader {
 
@@ -51,20 +61,228 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 	}
 	
 	protected void readActivityCalendar(Element element){
-
+		readCalendarName(element);
+		readSeasons(element);
+		readWeeks(element);
+		readDays(element);
+	}
+	
+	protected void readDays(Element element) {
+		try {
+			NodeList days = element.getElementsByTagName("DayProfile");
+			System.out.println("days: " + days.getLength());
+			for (int i = 0; i < days.getLength(); i++) {
+				Element day = (Element) days.item(i);
+				int dayId = Integer.parseInt(day.getAttribute("DayId"));
+				System.out.println(dayId);
+				DayProfile dayprofile = new DayProfile(dayId);
+				readDay(day, dayprofile);
+			}
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("Invalid day profile");
+		}
+	}
+	
+	protected void readDay(Element element, DayProfile dayprofile) {
+		try {
+			NodeList actions = element.getElementsByTagName("DayProfileAction");
+			System.out.println("actions: " + actions.getLength());
+			for (int i = 0; i < actions.getLength(); i++) {
+				Element action = (Element) actions.item(i);
+				String startTime = action.getAttribute("StartTime");
+				String script = action.getAttribute("Script");
+				String selector = action.getAttribute("Selector");
+				DayProfileSegment daySegment = 
+					new DayProfileSegment(
+							newDaySegment(startTime), 
+							getScript(script),
+							getSelector(selector));
+				System.out.println(startTime + ": " + ProtocolUtils.outputHexString(newDaySegment(startTime)));
+				System.out.println(script + ": " + ProtocolUtils.outputHexString(getScript(script)));
+				System.out.println(getSelector(selector));
+			}
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("Invalid day profile");
+		}
+	}
+	
+	protected int getSelector(String selector) {
+		try {
+			return Integer.parseInt(selector);
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("Invalid day profile: selector should be a number");
+		}
+	}
+	
+	protected void readWeeks(Element element) {
+		try {
+			NodeList weeks = element.getElementsByTagName("WeekProfile");
+			System.out.println("weeks: " + weeks.getLength());
+			for (int i = 0; i < weeks.getLength(); i++) {
+				Element week = (Element) weeks.item(i);
+				String name = week.getAttribute("Name");
+				WeekProfile weekProfile = new WeekProfile(name);
+				weekProfile.setMonday(Integer.parseInt(week.getAttribute("Monday")));
+				weekProfile.setTuesday(Integer.parseInt(week.getAttribute("Tuesday")));
+				weekProfile.setWednesday(Integer.parseInt(week.getAttribute("Wednesday")));
+				weekProfile.setThursday(Integer.parseInt(week.getAttribute("Thursday")));
+				weekProfile.setFriday(Integer.parseInt(week.getAttribute("Friday")));
+				weekProfile.setSaturday(Integer.parseInt(week.getAttribute("Saturday")));
+				weekProfile.setSunday(Integer.parseInt(week.getAttribute("Sunday")));
+				System.out.println(weekProfile);
+				activityCalendar.addPassiveWeekProfiles(weekProfile);
+			}
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("Invalid week profile");
+		}
+	}
+	
+	protected void readSeasons(Element element) {
+		NodeList seasons = element.getElementsByTagName("Season");
+		System.out.println("seasons: " + seasons.getLength());
+		for (int i = 0; i < seasons.getLength(); i++) {
+			Element season = (Element) seasons.item(i);
+			String name = season.getAttribute("Name");
+			String start = season.getAttribute("Start");
+			String weekProfile = season.getAttribute("WeekProfile");
+			SeasonProfile seasonProfile = 
+				new SeasonProfile(name, newSeason(start), weekProfile);
+			System.out.println(name + ", " + ProtocolUtils.outputHexString(newSeason(start)) + ", " + weekProfile);
+			activityCalendar.addPassiveSeasonProfiles(seasonProfile);
+		}
 	}
 	
 	protected void readCalendarName(Element element){
 		NodeList names = element.getElementsByTagName("Calendar");
+		System.out.println(names.getLength());
 		if (names.getLength() != 0){
-			activityCalendar.setPassiveCalendarName(
-					new OctetString(((Element) names.item(0)).getAttribute("Name")));
+			String name = ((Element) names.item(0)).getAttribute("Name");
+			System.out.println("name: " + name);
+			activityCalendar.setPassiveCalendarName(new OctetString(name));
 		} else {
 			throw new ApplicationException("No calendar name found");
 		}
-		activityCalendar.setPassiveCalendarName(new OctetString(element.getAttribute("Name")));
 		
 			
+	}
+	
+	protected byte[] getScript(String value) {
+		try {
+			StringTokenizer tokenizer = new StringTokenizer(value, ".");
+			if (tokenizer.countTokens() != 6)
+				throw new ApplicationException("Invalid DayProfileAction Script");
+			byte[] bytes = new byte[6];
+			bytes[0]= (byte) Integer.parseInt(tokenizer.nextToken());
+			bytes[1]= (byte) Integer.parseInt(tokenizer.nextToken());
+			bytes[2]= (byte) Integer.parseInt(tokenizer.nextToken());
+			bytes[3]= (byte) Integer.parseInt(tokenizer.nextToken());
+			bytes[4]= (byte) Integer.parseInt(tokenizer.nextToken());
+			bytes[5]= (byte) Integer.parseInt(tokenizer.nextToken());
+			return bytes;
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("Invalid DayProfileAction Script");
+		}
+	}
+	
+	protected byte[] newDaySegment(String value) {
+		try {
+			int index = value.indexOf(':');
+			int hour = Integer.parseInt(value.substring(0, index));
+			value = value.substring(index + 1);
+			index = value.indexOf(':');
+			int min = Integer.parseInt(value.substring(0, index));
+			byte[] bytes = new byte[4];
+			bytes[0]= (byte) hour;  //hour
+			bytes[1]= (byte) min;	//min
+			bytes[2]= (byte) 0x00;
+			bytes[3]= (byte) 0x00;
+			return bytes;
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("Invalid DayProfileAction StartTime");
+		}
+	}
+	
+	protected byte[] newSeason(String value) {
+		try {
+			int index = value.indexOf('.');
+			int month = Integer.parseInt(value.substring(0, index));
+			value = value.substring(index + 1);
+			index = value.indexOf('.');
+			int day = Integer.parseInt(value.substring(0, index));
+			byte[] bytes = new byte[12];
+			bytes[0]= (byte) 0xFF;  //year
+			bytes[1]= (byte) 0xFF;	//year
+			bytes[2]= (byte) month;	//month
+			bytes[3]= (byte) day;		//day
+			bytes[4]= (byte) 0xFF;
+			bytes[5]= (byte) 0x00;
+			bytes[6]= (byte) 0x00;
+			bytes[7]= (byte) 0x00;
+			bytes[8]= (byte) 0x00;
+			bytes[9]= (byte) 0x00;
+			bytes[10]= (byte) 0x00;
+			bytes[11]= (byte) 0x00;
+			return bytes;
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("Invalid season start");
+		}
+	}
+	
+	public static void main(String args[]) throws Exception {
+		/*CosemCalendar cal = new CosemCalendar(new OctetString("7:d7:c:5:4:e:35:e:0:80:0:0:"));
+		
+		byte[] bytes = new byte[12];
+		bytes[0]= (byte) 0xFF;
+		bytes[1]= (byte) 0xFF;
+		bytes[2]= (byte) 0x01;
+		bytes[3]= (byte) 0x01;
+		bytes[4]= (byte) 0xFF;
+		bytes[5]= (byte) 0x00;
+		bytes[6]= (byte) 0x00;
+		bytes[7]= (byte) 0x00;
+		bytes[8]= (byte) 0x00;
+		bytes[9]= (byte) 0x00;
+		bytes[10]= (byte) 0x00;
+		bytes[11]= (byte) 0x00;
+		OctetString octetString = new OctetString(bytes);
+		
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.YEAR, 65535);
+		calendar.set(Calendar.MONTH, 0);
+		calendar.set(Calendar.DATE, 1);
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		CosemCalendar cosemCalendar = new CosemCalendar(calendar, true);
+	
+		
+		//CosemCalendar cal2 = new CosemCalendar(new OctetString("FFFF0101FF00000000000000"));
+		CosemCalendar cal2 = new CosemCalendar(octetString);
+		System.out.println(cal.getCalendar().getTime() + ", " + ProtocolUtils.outputHexString(cal.getOctetString().getOctets()));
+		System.out.println(cal2.getCalendar().getTime() + ", " + ProtocolUtils.outputHexString(cal2.getOctetString().getOctets()));
+		System.out.println(cosemCalendar.getCalendar().getTime() + ", " + ProtocolUtils.outputHexString(cosemCalendar.getOctetString().getOctets()));
+		
+
+		
+		
+
+		
+		CosemCalendar cal3 = new CosemCalendar(new OctetString(bytes2));
+		System.out.println(cal3.getCalendar().getTime() + ", " + ProtocolUtils.outputHexString(cal3.getOctetString().getOctets()));
+		
+		*/
+		
+		InputStream stream = new FileInputStream(new File("C:/Iskra/tariff.xml"));
+		IskraActivityCalendarReader reader = new IskraActivityCalendarReader(new ActivityCalendar());
+		reader.read(stream);
 	}
 	
 }
