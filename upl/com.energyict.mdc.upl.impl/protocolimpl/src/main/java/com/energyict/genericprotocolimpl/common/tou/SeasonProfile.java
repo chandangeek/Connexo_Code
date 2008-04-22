@@ -39,6 +39,13 @@ public class SeasonProfile {
 		this.start = new CosemCalendar(new OctetString(start));
 		this.week = new OctetString(week);
 	}
+	
+	public SeasonProfile(String name, byte[] start, String week){
+		super();
+		this.name = new OctetString(name);
+		this.start = new CosemCalendar(new OctetString(start));
+		this.week = new OctetString(week);
+	}
 
         
     public String toString() {

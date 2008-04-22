@@ -5,8 +5,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.energyict.cbo.ApplicationException;
-import com.energyict.edf.messages.objects.ActionItem;
-import com.energyict.edf.messages.objects.OctetString;
 
 public class DayProfileSegment {
 	
