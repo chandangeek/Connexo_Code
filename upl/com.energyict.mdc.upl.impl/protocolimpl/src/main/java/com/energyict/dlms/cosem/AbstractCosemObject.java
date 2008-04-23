@@ -32,6 +32,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
     static public final int CLASSID_SCRIPTTABLE=9;
     static public final int CLASSID_ACTIVITY_CALENDAR=20;
     static public final int CLASSID_REGISTER_MONITOR=21;
+    static public final int CLASSID_SINGLE_ACTION_SCHEDULE=22;
     static public final int CLASSID_SMTP_SETUP=46;
     
     protected ProtocolLink protocolLink;

@@ -94,6 +94,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public RegisterMonitor getRegisterMonitor(ObisCode obisCode) throws IOException {
         return new RegisterMonitor(protocolLink, getObjectReference(obisCode));
     }
+    
+    public SingleActionSchedule getSingleActionSchedule(ObisCode obisCode) throws IOException{
+    	return new SingleActionSchedule(protocolLink, getObjectReference(obisCode));
+    }
  
     public void writeObject(ObisCode obisCode, int classId, int attrId, byte[] data) throws IOException {
         GenericWrite gw = new GenericWrite(protocolLink,new ObjectReference(obisCode.getLN(),classId), attrId);
