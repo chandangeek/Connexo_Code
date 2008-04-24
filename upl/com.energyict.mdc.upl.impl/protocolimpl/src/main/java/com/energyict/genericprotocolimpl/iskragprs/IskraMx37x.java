@@ -1337,8 +1337,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         		}
             }
             
-            /*if (tou)
-            	sendActivityCalendar(contents, msg);*/
+            if (tou)
+            	sendActivityCalendar(contents, msg);
             
             if (ondemand){
             	Iterator i = rtu.getRtuType().getRtuRegisterSpecs().iterator();
