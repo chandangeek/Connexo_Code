@@ -70,7 +70,7 @@ public class Logbook {
                 eventTimeStamp = dc.getRoot().getStructure(i).getOctetString(0).toDate(timeZone);
                 
             buildMeterEvent(meterEvents,eventTimeStamp,eventId);
-            if (DEBUG >= 1) System.out.println("KV_DEBUG> eventId="+eventId+", eventTimeStamp="+eventTimeStamp);
+            if (DEBUG >= 1) System.out.println("DEBUG> eventId="+eventId+", eventTimeStamp="+eventTimeStamp);
         	
         	
 

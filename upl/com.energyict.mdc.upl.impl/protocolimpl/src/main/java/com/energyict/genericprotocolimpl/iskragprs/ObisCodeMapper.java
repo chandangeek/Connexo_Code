@@ -7,6 +7,7 @@
 package com.energyict.genericprotocolimpl.iskragprs;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.NoSuchElementException;
 
@@ -34,19 +35,14 @@ public class ObisCodeMapper {
     private static final int DAILY 		= 	0x00;
     private static final int MONTHLY	=	0x01;
     
-    // It is this one for Founter!!
-//    private static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
-//  private static final ObisCode monthlyObisCode = ObisCode.fromString("1.0.98.2.0.255");
-    
-    // These are for the ESSENT project, make them compatible later!
-    private static final ObisCode dailyObisCode = ObisCode.fromString("1.0.98.2.0.255");
-    private static final ObisCode monthlyObisCode = ObisCode.fromString("1.0.98.1.0.255");
-    
-
+    private static ObisCode dailyObisCode 		= null;
+    private static ObisCode monthlyObisCode 	= null;
+    private	static ArrayList profileConfiguration = null;
     
     public int billingIndex;
-    private boolean debug = false;
-    
+    private boolean debug 			= false;
+    private boolean daily			= false;
+    private boolean monthly			= false;
     
     
     /** Creates a new instance of ObisCodeMapper */
@@ -68,19 +64,19 @@ public class ObisCodeMapper {
         RegisterValue registerValue=null;
         int billingPoint=-1;
         try {
-            // obis F code
-        	if(obisCode.getF() == 0){
-        		if(debug)System.out.println("A Daily billing register");
-        		billingPoint = -2;
-        	}
-        	
-        	else if (obisCode.getF() == -1){
-        		if(debug)System.out.println("A Monthly billing register");
-        		billingPoint = -2;
-        	}
-        		
-        	else if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
-//        	if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
+//            // obis F code
+//        	if(obisCode.getF() == 0){
+//        		if(debug)System.out.println("A Daily billing register");
+//        		billingPoint = -2;
+//        	}
+//        	
+//        	else if (obisCode.getF() == -1){
+//        		if(debug)System.out.println("A Monthly billing register");
+//        		billingPoint = -2;
+//        	}
+//        		
+//        	else if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
+        	if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
                 billingPoint = obisCode.getF()+101;
             else if ((obisCode.getF()  <=0) && (obisCode.getF() >= -99))
                 billingPoint = (obisCode.getF()*-1)+101;
@@ -94,65 +90,46 @@ public class ObisCodeMapper {
                 obisCode = new ObisCode(obisCode.getA(),obisCode.getB(),obisCode.getC(),obisCode.getD(),obisCode.getE(),billingPoint);
             
             
-            // -------------------------------------------------------------------------------------------
-            //BillingPoint registers
-            if ( (billingPoint == -2) ) {     
+            //*********************************************************************************
+            //	Daily and Monthly registers
+            if ( daily || monthly ) {
             	int cofIndex = -1;
             	Date billingDate;
             	Date fromTime;
             	
-            	billingIndex = obisCode.getF();
+            	if (daily) cofIndex = 0;
+            	else if (monthly) cofIndex = 1;
             	
-            	if (billingIndex == 0) cofIndex = 0;
-            	else if (billingIndex == -1) cofIndex = 1;
-            	
-            	billingPoint = 255;
             	CosemObject cosemObject = null;
             	
             	switch(cofIndex){
             	case 0:{
             		registerProfile[DAILY].setCosemObjectFactory(cof[DAILY]);
+            		registerProfile[DAILY].setProfileConfiguration(profileConfiguration);
             		registerProfile[DAILY].getInterval(dailyObisCode);
             		registerProfile[DAILY].getProfileBuffer(dailyObisCode);
             		cosemObject = registerProfile[DAILY].getValues(obisCode);
-            		
-            		billingDate = cosemObject.getBillingDate();
-            		fromTime = registerProfile[DAILY].getFromDate();
             		
             	}break;
             		
             	case 1:{
             		registerProfile[MONTHLY].setCosemObjectFactory(cof[MONTHLY]);
+            		registerProfile[MONTHLY].setProfileConfiguration(profileConfiguration);
             		registerProfile[MONTHLY].getProfileBuffer(monthlyObisCode);
             		cosemObject = registerProfile[MONTHLY].getValues(obisCode);
-            		
-            		billingDate = cosemObject.getBillingDate();
-            		fromTime = registerProfile[MONTHLY].getFromDate();
             		
             	}break;
             		
             	default: throw new NoSuchElementException("Only daily and monthly register reads.");
             	}
-            	
-//            	Date billingDate = 
-            	
-//            	obisCode = new ObisCode(obisCode.getA(),obisCode.getB(), obisCode.getC(), obisCode.getD(), obisCode.getE(), billingIndex);
-            	
-//                CosemObject cosemObject = cof[cofIndex].getStoredValues().getHistoricalValue(obisCode);
-//                
-//                DataContainer dc = cof.getProfileGeneric(ObisCode.fromString("1.0.98.1.0.255")).getBuffer();
-//                
-                
-//                registerValue = new RegisterValue(obisCode,
-//                                                  cosemObject.getQuantityValue(),
-//                                                  billingDate, fromTime, billingDate, billingDate);
-            	
-            	registerValue = new RegisterValue(obisCode,cosemObject.getQuantityValue(),null,billingDate);
-                return registerValue; 
+            	if(cosemObject != null){
+                	billingDate = cosemObject.getBillingDate();
+                	registerValue = new RegisterValue(obisCode,cosemObject.getQuantityValue(),null,billingDate);
+                    return registerValue; 
+            	}
+            	return null;
             }
-            // -------------------------------------------------------------------------------------------
 
-            
             // *********************************************************************************
             // General purpose ObisRegisters & abstract general service
             if ((obisCode.toString().indexOf("1.1.0.1.0.255") != -1) || (obisCode.toString().indexOf("1.0.0.1.0.255") != -1)) { // billing counter
@@ -190,40 +167,44 @@ public class ObisCodeMapper {
                             cosemObject.getText());
                     return registerValue; 
 	            }
+	            
+	            else if (( obisCode.toString().indexOf("0.0.128.7.") != -1) || (obisCode.toString().indexOf("0.0.128.8.") != -1)){
+	            	registerValue = new RegisterValue(obisCode,cosemObject.getQuantityValue());
+	            	return registerValue;
+	            }
+	            
+	            else
+	            	throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 
-                Date captureTime = null;
-                Date billingDate = null;
-                try {
-                   captureTime = cosemObject.getCaptureTime();
-                   billingDate = cosemObject.getBillingDate();
-                }
-                catch(ClassCastException e) {
-                    // absorb
-                }
-                try {
-                    registerValue = new RegisterValue(obisCode,
-                                                      cosemObject.getQuantityValue(),
-                                                      captureTime==null?billingDate:captureTime,
-                                                      null,
-                                                      billingDate,
-                                                      new Date(),
-                                                      0,
-                                                      cosemObject.getText());
-                    return registerValue;      
-                }
-                catch(ClassCastException e) {
-                    throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-                }
-//                CosemObject cosemObject = cof.getCosemObject(obisCode);
-//                if (cosemObject==null)
+//                Date captureTime = null;
+//                Date billingDate = null;
+//                try {
+//                   captureTime = cosemObject.getCaptureTime();
+//                   billingDate = cosemObject.getBillingDate();
+//                }
+//                catch(ClassCastException e) {
+//                    // absorb
+//                }
+//                try {
+//                    registerValue = new RegisterValue(obisCode,
+//                                                      cosemObject.getQuantityValue(),
+//                                                      captureTime==null?billingDate:captureTime,
+//                                                      null,
+//                                                      billingDate,
+//                                                      new Date(),
+//                                                      0,
+//                                                      cosemObject.getText());
+//                    return registerValue;      
+//                }
+//                catch(ClassCastException e) {
 //                    throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-//                return new RegisterValue(obisCode,cosemObject.getText());
+//                }
             }
             
             
             // *********************************************************************************
             // Electricity related ObisRegisters
-            if ((obisCode.getA() == 1) && ((obisCode.getB() == 0) || (obisCode.getB() >= 2))) {
+            if ((obisCode.getA() == 1) && ((obisCode.getB() == 0) || (obisCode.getB() <= 2))) {
                 if (obisCode.getD() == 8) { // cumulative values, indexes
                     Register register = cof[DAILY].getRegister(obisCode);
                     if (billingPoint != -1) {
@@ -266,6 +247,8 @@ public class ObisCodeMapper {
                 } // maximum demand values
             } // if ((obisCode.getA() == 1) && (obisCode.getB() == 0)) {
             
+            
+            // MBus register
             if (obisCode.getC() == 128) {
             	if ( (obisCode.getD() == 50) && (obisCode.getE() == 0) ){
             		ExtendedRegister register = cof[DAILY].getExtendedRegister(obisCode);
@@ -277,9 +260,7 @@ public class ObisCodeMapper {
             		else u = Unit.get(BaseUnit.UNITLESS, 0);
             		
             		Date captime = register.getCaptureTime();
-            		return new RegisterValue(obisCode, new Quantity(am, u), captime);
-//            		return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(register.getValue()),),register.getCaptureTime());
-//            		return new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(0),Unit.get(BaseUnit.CUBICMETER)));
+            		return new RegisterValue(obisCode, new Quantity(am, u), null, captime);
             	}
             }
             
@@ -289,9 +270,32 @@ public class ObisCodeMapper {
         
     } // private Object doGetRegister(ObisCode obisCode) throws IOException
 
-	private void test(CosemObject co) {
-		
-		
+	public static void setDailyObisCode(ObisCode dailyObisCode) {
+		ObisCodeMapper.dailyObisCode = dailyObisCode;
+	}
+
+	public static void setMonthlyObisCode(ObisCode monthlyObisCode) {
+		ObisCodeMapper.monthlyObisCode = monthlyObisCode;
+	}
+
+	public void setDaily() {
+		daily = true;
+	}
+
+	public void setMonthly() {
+		monthly = true;
+	}
+
+	public void clearDaily() {
+		daily = false;
+	}
+
+	public void clearMonthly() {
+		monthly = false;
+	}
+
+	public static void setProfileConfiguration(ArrayList profileConfiguration) {
+		ObisCodeMapper.profileConfiguration = profileConfiguration;
 	}
     
 } // public class ObisCodeMapper

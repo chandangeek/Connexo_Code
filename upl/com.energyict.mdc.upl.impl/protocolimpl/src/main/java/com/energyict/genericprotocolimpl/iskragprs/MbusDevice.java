@@ -6,24 +6,38 @@ package com.energyict.genericprotocolimpl.iskragprs;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
+import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.RtuRegisterSpec;
+import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.RtuMessage;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.Messaging;
 
@@ -32,12 +46,28 @@ import com.energyict.protocol.messaging.Messaging;
  *
  */
 public class MbusDevice implements Messaging, MeterProtocol{
+	
+	private long mbusAddress	= -1;
+	
+	private String customerID;
+	
+	public Rtu	mbus;
+	private Logger logger;
+	
+	
+	private static String ONDEMAND = "ONDEMAND";
 
 	/**
 	 * 
 	 */
 	public MbusDevice() {
-		// TODO Auto-generated constructor stub
+	}
+
+	public MbusDevice(long address, String customerID, Rtu rtu, Logger logger) {
+		this.mbusAddress = address;
+		this.customerID	= customerID;
+		this.mbus = rtu;
+		this.logger = logger;
 	}
 
 	/**
@@ -179,23 +209,124 @@ public class MbusDevice implements Messaging, MeterProtocol{
 	}
 
 	public List getMessageCategories() {
-		// TODO Auto-generated method stub
-		return null;
+        List theCategories = new ArrayList();
+        MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
+        
+        MessageSpec msgSpec = addBasicMsg("ReadOnDemand", ONDEMAND, false);
+        cat.addMessageSpec(msgSpec);
+        
+//        MessageSpec msgSpec = addBasicMsg("Disconnect meter", DISCONNECT, false);
+//        cat.addMessageSpec(msgSpec);
+//        msgSpec = addBasicMsg("Connect meter", CONNECT, false);
+//        cat.addMessageSpec(msgSpec);
+        
+        theCategories.add(cat);
+        
+		return theCategories;
 	}
 
 	public String writeMessage(Message msg) {
-		// TODO Auto-generated method stub
-		return null;
+		return msg.write(this);
 	}
 
-	public String writeTag(MessageTag tag) {
-		// TODO Auto-generated method stub
-		return null;
+	public String writeTag(MessageTag msgTag) {
+        StringBuffer buf = new StringBuffer();
+        
+        // a. Opening tag
+        buf.append("<");
+        buf.append(msgTag.getName());
+        
+        // b. Attributes
+        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
+            MessageAttribute att = (MessageAttribute) it.next();
+            if (att.getValue() == null || att.getValue().length() == 0)
+                continue;
+            buf.append(" ").append(att.getSpec().getName());
+            buf.append("=").append('"').append(att.getValue()).append('"');
+        }
+        if (msgTag.getSubElements().isEmpty()) {
+            buf.append("/>");
+            return buf.toString();
+        }
+        buf.append(">");
+        // c. sub elements
+        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
+            MessageElement elt = (MessageElement) it.next();
+            if (elt.isTag())
+                buf.append(writeTag((MessageTag) elt));
+            else if (elt.isValue()) {
+                String value = writeValue((MessageValue) elt);
+                if (value == null || value.length() == 0)
+                    return "";
+                buf.append(value);
+            }
+        }
+        
+        // d. Closing tag
+        buf.append("</");
+        buf.append(msgTag.getName());
+        buf.append(">");
+        
+        return buf.toString();
 	}
 
-	public String writeValue(MessageValue value) {
-		// TODO Auto-generated method stub
-		return null;
+	public String writeValue(MessageValue msgValue) {
+		return msgValue.getValue();
+	}
+	
+    private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+	public Rtu getMbus() {
+		return mbus;
+	}
+
+	public void sendMeterMessages(IskraMx37x iskraMx37x) throws IOException, BusinessException, SQLException {
+		Iterator mi = mbus.getPendingMessages().iterator();
+		
+		while(mi.hasNext()){
+            RtuMessage msg = (RtuMessage) mi.next();
+            String contents = msg.getContents();
+            contents = contents.substring(contents.indexOf("<")+1, contents.indexOf("/>"));
+            
+            boolean ondemand 	= contents.equalsIgnoreCase(ONDEMAND);
+            
+            if (ondemand){
+            	getLogger().log(Level.INFO, "Getting ondemand registers for MBus device with serailnumber: " + getMbus().getSerialNumber());
+            	Iterator i = mbus.getRtuType().getRtuRegisterSpecs().iterator();
+                while (i.hasNext()) {
+                	
+                    RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
+                    ObisCode oc = spec.getObisCode();
+                    RtuRegister register = mbus.getRegister( oc );
+                    
+                    if (register != null){
+                    	
+                    	if (oc.getF() == 255){
+                        	RegisterValue rv = iskraMx37x.readRegister(oc);
+        					register.add(rv.getQuantity().getAmount(), rv
+        							.getEventTime(), rv.getFromTime(), rv.getToTime(),
+        							rv.getReadTime());
+                        }
+                    	
+                    }
+        			else {
+        				String obis = oc.toString();
+        				String msgError = "Register " + obis + " not defined on device";
+        				getLogger().info(msgError);
+        			}
+                }
+            	msg.confirm();
+            }
+		}
+	}
+
+	public Logger getLogger() {
+		return logger;
 	}
 
 }

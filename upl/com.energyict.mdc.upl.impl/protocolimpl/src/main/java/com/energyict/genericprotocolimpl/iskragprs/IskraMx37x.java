@@ -3,7 +3,6 @@
  */
 package com.energyict.genericprotocolimpl.iskragprs;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -23,15 +22,14 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import javax.xml.rpc.ServiceException;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.CreateException;
 import com.energyict.dialer.core.Link;
+import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
@@ -42,25 +40,28 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.GenericWrite;
+import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
-import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
+import com.energyict.mdw.amrimpl.RtuRegisterReadingImpl;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Folder;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.core.RtuType;
-import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
@@ -103,12 +104,13 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private CosemObjectFactory 		cosemObjectFactory;
     private SecureConnection		secureConnection;
     private Rtu                    	rtu;
-    private Rtu[]					mbus = {null, null, null, null};
     private Cache 					dlmsCache;
     private DLMSMeterConfig 		meterConfig;
     private Object 					source;
     private ObisCodeMapper 			ocm = null;
-    private CapturedObjects 		capturedObjects = null;
+    private CapturedObjects[] 		capturedObjects = {null, null, null, null, null};	// max. 5 (1E-meter + 4MBus-meters)
+    private MbusDevice[]			mbusDevices = {null, null, null, null};				// max. 4 MBus meters
+    public static ScalerUnit[] 		demandScalerUnits = {new ScalerUnit(0,30), new ScalerUnit(0,0), new ScalerUnit(0,0), new ScalerUnit(0,0), new ScalerUnit(0,0)};
     
     private int iHDLCTimeoutProperty;
     private int iProtocolRetriesProperty;
@@ -121,16 +123,14 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	private int extendedLogging;
 	private int addressingMode;
 	private int connectionMode;
-	private int numberOfChannels;
+	private int numberOfChannels[] = {-1, -1, -1, -1, -1};
 	private int configProgramChanges;
-	private int iInterval;
+	private int iInterval[] = {-1, -1, -1, -1, -1};
 	private int metertype;
 	private int dataContainerOffset = -1;
 	private int deviation = -1;
-	private int genericInterval1;
-	private int genericInterval2;
-	private int genericInterval3;
-	private int genericInterval4;
+	
+	private long maxValue = -1;
 	
     private String strID;
 	private String strPassword;
@@ -157,36 +157,49 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private ObisCode endOfCapturedObjects	=	ObisCode.fromString("0.0.15.1.0.255");
     private ObisCode mbusPrimaryAddress		= 	ObisCode.fromString("0.1.128.50.20.255");
     private ObisCode mbusCustomerID			= 	ObisCode.fromString("0.1.128.50.21.255");
+    private ObisCode crGroupID				= 	ObisCode.fromString("0.0.128.62.0.255");
+    private ObisCode crStartDate			= 	ObisCode.fromString("0.0.128.62.1.255");
+    private ObisCode crDuration				= 	ObisCode.fromString("0.0.128.62.2.255");
+    private ObisCode crPowerLimit			= 	ObisCode.fromString("0.0.128.62.3.255");
+    private ObisCode crMeterGroupID			= 	ObisCode.fromString("0.0.128.62.6.255");
+    private ObisCode contractPowerLimit		=	ObisCode.fromString("0.0.128.61.1.255");
     private ObisCode dailyObisCode 			= 	null;
     private ObisCode monthlyObisCode 		= 	null;
     private ObisCode loadProfileObisCode 	= 	null;
-    private ObisCode mbusLProfileObisCode	=	null;
+    private ObisCode[] mbusLProfileObisCode	=	{null, null, null, null};
+    
+    private static String CONNECT 			= "CONNECT";
+    private static String DISCONNECT 		= "DISCONNECT";
+    private static String ONDEMAND 			= "ONDEMAND";
+    private static String CODERED 			= "CODERED";
+    private static String CODERED_END		= "END_CODERED";
+    private static String CONPOWERLIMIT		= "Contractual Power Limit (W)";
+    private static String CODERED_LIMIT 	= "CodeRed Power Limit (W)";
+    private static String CODERED_START_DT	= "CodeRed StartDate (dd/mm/yyyy HH:MM:SS)";
+    private static String CODERED_STOP_DT	= "CodeRed EndDate (dd/mm/yyyy HH:MM:SS)";
 
-    private static final int ELECTRICITY = 0x00;
-    private static final int MBUS = 0x01;
+    private static final int ELECTRICITY 	= 0x00;
+    private static final int MBUS 			= 0x01;
     
-    private static String CONNECT = "CONNECT";
-    private static String DISCONNECT = "DISCONNECT";
-    private static String TOU = "TOU";
+    private final static String CONNECT_LOAD 	= "connectLoad";
+    private final static String DISCONNECT_LOAD = "disconnectLoad";
+    private final static String RTU_TYPE 		= "RtuType";
     
-    private List messages = new ArrayList(9);
+//    private List messages = new ArrayList(9);
     
-    private static byte[] connectMsg = new byte[] { 0x11, 0x01 };
-    private static byte[] disconnectMsg = new byte[] { 0x11, 0x00 };
-    
-    final static String CONNECT_LOAD = "connectLoad";
-    final static String DISCONNECT_LOAD = "disconnectLoad";
-    final static String RTU_TYPE = "RtuType";
-    
-    public static ScalerUnit[] demandScalerUnits = {new ScalerUnit(0,30), new ScalerUnit(0,0), new ScalerUnit(0,0), new ScalerUnit(0,0), new ScalerUnit(0,0)};
+    private byte[] connectMsg 				= new byte[] { DLMSCOSEMGlobals.TYPEDESC_UNSIGNED, 0x01 };
+    private byte[] disconnectMsg 			= new byte[] { DLMSCOSEMGlobals.TYPEDESC_UNSIGNED, 0x00 };
+    private byte[] contractPowerLimitMsg 	= new byte[] { DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED, 0, 0, 0, 0 };
+    private byte[] crPowerLimitMsg 			= new byte[] { DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED, 0, 0, 0, 0 };
+    private byte[] crDurationMsg 			= new byte[] { DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED, 0, 0, 0, 0 };
+    private byte[] crMeterGroupIDMsg 		= new byte[] { DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED, 0, 0 };
+    private byte[] crGroupIDMsg 			= new byte[] { DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED, 0, 0 };
     
     private final int PROFILE_STATUS_DEVICE_DISTURBANCE=0x01;
     private final int PROFILE_STATUS_RESET_CUMULATION=0x10;
     private final int PROFILE_STATUS_DEVICE_CLOCK_CHANGED=0x20;
     private final int PROFILE_STATUS_POWER_RETURNED=0x40;
     private final int PROFILE_STATUS_POWER_FAILURE=0x80;
-    
-    private final byte TYPEDESC_OCTET_STRING=0x09;
     
     private final static String AUTO_CREATE_ERROR_1 =
         "No automatic meter creation: no property RtuType defined.";
@@ -196,7 +209,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
     private final static String DUPLICATE_SERIALS =
         "Multiple meters where found with serial: {0}.  Data will not be read.";
-    
+
 	/**
 	 * 
 	 */
@@ -207,6 +220,22 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+		String startDate = new String("18/04/2008 11:39:40");
+		
+    	Calendar cal = Calendar.getInstance();
+    	Date date = new Date();
+    	
+    	cal.set(Calendar.DATE, Integer.valueOf(startDate.substring(0, startDate.indexOf("/"))));
+    	cal.set(Calendar.MONTH, (Integer.valueOf(startDate.substring(startDate.indexOf("/") + 1, startDate.lastIndexOf("/")))) - 1);
+    	cal.set(Calendar.YEAR, Integer.valueOf(startDate.substring(startDate.lastIndexOf("/") + 1, startDate.indexOf(" "))));
+    	
+    	cal.set(Calendar.HOUR_OF_DAY, Integer.valueOf(startDate.substring(startDate.indexOf(" ") + 1, startDate.indexOf(":"))));
+    	cal.set(Calendar.MINUTE, Integer.valueOf(startDate.substring(startDate.indexOf(":") + 1, startDate.lastIndexOf(":"))));
+    	cal.set(Calendar.SECOND, Integer.valueOf(startDate.substring(startDate.lastIndexOf(":") + 1, startDate.length())));
+    	
+    	System.out.println(cal.getTime());
+		
 	}
 
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
@@ -222,8 +251,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		
         try {
         	
-        	checkConfiguration();
         	checkMbusDevices();
+        	checkConfiguration();
+        	stopCacheMechanism();
         	
         	// Set clock ... if necessary
         	if( communicationProfile.getWriteClock() ) {
@@ -232,20 +262,25 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         	
         	// Read profiles and events ... if necessary
     		if( (communicationProfile.getReadDemandValues()) && (communicationProfile.getReadMeterEvents()) ){
-    			getProfileData(rtu.getLastLogbook(), true);
+    			getProfileData(rtu.getLastLogbook(), true, loadProfileObisCode);
+    			// no events on the MBus meters
+    			getProfileData(mbusDevices[0].getMbus().getLastReading(), false, mbusLProfileObisCode[0]);
     		}
     		else if( (communicationProfile.getReadDemandValues()) && !(communicationProfile.getReadMeterEvents()) ){
-    			getProfileData(rtu.getLastLogbook(), false);
+    			getProfileData(rtu.getLastLogbook(), false, loadProfileObisCode);
+    			getProfileData(mbusDevices[0].getMbus().getLastReading(), false, mbusLProfileObisCode[0]);
     		}
     		
     		// Read registers ... if necessary
     		if( communicationProfile.getReadMeterReadings() ) {
-    			getRegisters();
+    			getRegisters(ELECTRICITY);
+    			getRegisters(MBUS);
     		}
     		
     		// Send messages ... if there are messages
     		if( communicationProfile.getSendRtuMessage() ){
     			sendMeterMessages();
+    			mbusDevices[0].sendMeterMessages(this);
     		}
         	
 		} catch (ServiceException e) {
@@ -264,69 +299,94 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		byte[] dailyByte = {0, 0, 0, 0, -1, -1, -1, -1, -1};
 		byte[] monthlyByte = {0, 0, 0, 0, -1, -1, -1, 1, -1};
 		
-		genericInterval1 = getCosemObjectFactory().getProfileGeneric(genericProfile1).getCapturePeriod();
-		genericInterval2 = getCosemObjectFactory().getProfileGeneric(genericProfile2).getCapturePeriod();
+		if( dlmsCache.getGenericInterval1() == -1 )
+			dlmsCache.setGenericInterval1(getCosemObjectFactory().getProfileGeneric(genericProfile1).getCapturePeriod());
+		if( dlmsCache.getGenericInterval2() == -1 )
+			dlmsCache.setGenericInterval2(getCosemObjectFactory().getProfileGeneric(genericProfile2).getCapturePeriod());
+		if( dlmsCache.getGenericInterval3() == null )
+			dlmsCache.setGenericInterval3(getCosemObjectFactory().getSingleActionSchedule(endOfBilling).getExecutionTime().getBEREncodedByteArray());
+		if( dlmsCache.getGenericInterval4() == null )
+			dlmsCache.setGenericInterval4(getCosemObjectFactory().getSingleActionSchedule(endOfCapturedObjects).getExecutionTime().getBEREncodedByteArray());
 		
-		if (rtu.getIntervalInSeconds() == genericInterval1)
+		if (rtu.getIntervalInSeconds() == dlmsCache.getGenericInterval1())
 			loadProfileObisCode = genericProfile1;
-		else if (rtu.getIntervalInSeconds() == genericInterval2)
+		else if (rtu.getIntervalInSeconds() == dlmsCache.getGenericInterval2())
 			loadProfileObisCode = genericProfile2;
 		
-		// TODO make the mbusRtu!
-//		if (mbusRtu.getIntervalInSeconds() == genericInterval1)
-//			mbusLProfileObisCode = genericProfile1;
-//		else if (mbusRtu.getIntervalInSeconds() == genericInterval2)
-//			mbusLProfileObisCode = genericProfile2;
+		for (int i = 0; i < mbusCount(); i++){
+			if (mbusDevices[i] != null){
+				if (mbusDevices[i].getMbus().getIntervalInSeconds() == dlmsCache.getGenericInterval1()){
+					mbusLProfileObisCode[i] = genericProfile1;
+				}
+				else if (mbusDevices[i].getMbus().getIntervalInSeconds() == dlmsCache.getGenericInterval2()){
+					mbusLProfileObisCode[i] = genericProfile2;
+				}
+			}
+		}
 		
-		if (compareByteArray(dailyByte, checkByte(getCosemObjectFactory().getGenericRead(endOfBilling, 24, 22).getResponseData())))
+		if (isDailyArray(new Array(dlmsCache.getGenericInterval3(),0,0))){
 			dailyObisCode = genericProfile3;
-		else if (compareByteArray(dailyByte, checkByte(getCosemObjectFactory().getGenericRead(endOfCapturedObjects, 24, 22).getResponseData())))
+		} else if (isDailyArray(new Array(dlmsCache.getGenericInterval4(),0,0))){
 			dailyObisCode = genericProfile4;
+		} else if (dlmsCache.getGenericInterval2() == 84600){
+			dailyObisCode = genericProfile2;
+		} else
+			throw new IOException("Iskra Mx37x, checkConfiguration, no dailyProfile configured for meter " + strID);
 		
-		if (compareByteArray(monthlyByte, checkByte(getCosemObjectFactory().getGenericRead(endOfBilling, 24, 22).getResponseData())))
+		if (isMonthlyArray(new Array(dlmsCache.getGenericInterval3(),0,0))){
 			monthlyObisCode = genericProfile3;
-		else if (compareByteArray(monthlyByte, checkByte(getCosemObjectFactory().getGenericRead(endOfCapturedObjects, 24, 22).getResponseData())))
+		} else if (isMonthlyArray(new Array(dlmsCache.getGenericInterval4(),0,0))){
 			monthlyObisCode = genericProfile4;
+		} else
+			throw new IOException("Iskra Mx37x, checkConfiguration, no monthlyProfile configured for meter " + strID);
+
+		ObisCodeMapper.setDailyObisCode(dailyObisCode);
+        ObisCodeMapper.setMonthlyObisCode(monthlyObisCode);
 	}
 	
-	private byte[] checkByte(byte[] testByte){
-		
-		// TODO normally this should be in an object ... fix this later
-		
-		int offset = 6;
-		byte[] dateByte = new byte[9];
-		for (int i = 0; i+offset <= 16; i ++){
-			dateByte[i] = testByte[i+offset]; 
-			if (i+offset == 9)
-				offset += 2;
-		}
-		return dateByte;
-	}
-	
-	private boolean compareByteArray(byte[] bArray1, byte[] bArray2){
-		if(bArray1.length != bArray2.length)
+	private boolean isDailyArray(Array genericInterval) {
+		byte[] time = genericInterval.getDataType(0).getStructure().getDataType(0).getOctetString().getOctetStr();
+		byte[] date = genericInterval.getDataType(0).getStructure().getDataType(1).getOctetString().getOctetStr();
+		if((time[0]+time[1]+time[2]+time[3]) != 0x00)
 			return false;
-		for(int i = 0; i < bArray1.length; i++){
-			if(bArray1[i] != bArray2[i])
-				return false;
-		}
-		return true;
+		
+		if((date[0]==-1)&&(date[1]==-1)&&(date[2]==-1)&&(date[3]==-1)&&(date[4]==-1))
+			return true;
+		else
+			return false;
 	}
 	
+	private boolean isMonthlyArray(Array genericInterval){
+		byte[] time = genericInterval.getDataType(0).getStructure().getDataType(0).getOctetString().getOctetStr();
+		byte[] date = genericInterval.getDataType(0).getStructure().getDataType(1).getOctetString().getOctetStr();
+		if((time[0]+time[1]+time[2]+time[3]) != 0x00)
+			return false;
+		
+		if((date[3]==1)&&(date[1]==-1)&&(date[2]==-1)&&(date[0]==-1)&&(date[4]==-1))
+			return true;
+		else
+			return false;
+	}
+
+	private int mbusCount() {
+		int count =0;
+		for (int i = 0; i < mbusDevices.length; i++){
+			if (mbusDevices[i] != null)
+				count++;
+		}
+		return count;
+	}
 
 	private void checkMbusDevices() throws IOException, SQLException, BusinessException {
 		long pAddress1 = getCosemObjectFactory().getCosemObject(mbusPrimaryAddress).getValue();
 		if ( pAddress1 != 0){
 			String customerID = getCosemObjectFactory().getData(mbusCustomerID).getString();
-			mbus[1] = findOrCreateNewMbusDevice(pAddress1, customerID);
+			mbusDevices[0] = new MbusDevice(pAddress1, customerID, findOrCreateNewMbusDevice(pAddress1, customerID), logger);
 		}
-//		long test = getCosemObjectFactory().getCosemObject(mbusPrimaryAddress).getValue();
-//		System.out.println(test);
-//		String testStr1 = getCosemObjectFactory().getData(mbusCustomerID).getString();
-//		System.out.println(testStr1);
+		// TODO complete this if there are more than one Mbus devices on the meters
 	}
 
-	private Rtu findOrCreateNewMbusDevice(long address1, String customerID) throws SQLException, BusinessException {
+	private Rtu findOrCreateNewMbusDevice(long address1, String customerID) throws SQLException, BusinessException, IOException {
 		
 		List mbusList = mw().getRtuFactory().findBySerialNumber(customerID);
 		
@@ -366,13 +426,13 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         return mw().getRtuFactory().create(shadow);
 	}
 
-	private RtuType getRtuType() {
+	private RtuType getRtuType() throws IOException {
     	String type = getProperty(RTU_TYPE);
     	
         if (type != null){
            return mw().getRtuTypeFactory().find(type);
         }
-        else return null;
+        else throw new IOException("Iskra Mx37x, No or wrong rtuType defined om E-meter.");
 	}
     
     private String getProperty(String key){
@@ -380,19 +440,17 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     }
 
 	private String toDuplicateSerialsErrorMsg(String serial) {
-        return new MessageFormat( DUPLICATE_SERIALS )
-                    .format( new Object [] { serial } );
+        return new MessageFormat( DUPLICATE_SERIALS ).format( new Object [] { serial } );
     }
 
 	private void init(InputStream is, OutputStream os) throws IOException {
 		
-        numberOfChannels 		= 	-1;
         configProgramChanges 	= 	-1;
-        iInterval 				= 	0;
         
         dlmsCache 			= 	new Cache();
 		cosemObjectFactory 	= 	new CosemObjectFactory((ProtocolLink)this);
 		meterConfig 		=	DLMSMeterConfig.getInstance("ISK");
+		ocm					= 	new ObisCodeMapper(getCosemObjectFactory());
 		
 		if (rtuType.equalsIgnoreCase("mbus"))
 			metertype = MBUS;
@@ -422,13 +480,12 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 			new SecureConnection(iSecurityLevelProperty, firmwareVersion, strPassword, getDLMSConnection());
 			
 			collectCache();
-			stopCacheMechanism();
 			
             if (!verifyMeterID()) 
-                throw new IOException("Iskra MT37x, connect, Wrong DeviceID!, settings="+strID+", meter="+getDeviceAddress());
+                throw new IOException("Iskra Mx37x, connect, Wrong DeviceID!, settings="+strID+", meter="+getDeviceAddress());
 
             if (!verifyMeterSerialNR()) 
-                throw new IOException("Iskra MT37x, connect, Wrong SerialNR!, settings="+serialNumber+", meter="+getSerialNumber());
+                throw new IOException("Iskra Mx37x, connect, Wrong SerialNR!, settings="+serialNumber+", meter="+getSerialNumber());
             
             if (extendedLogging >= 1) 
                 logger.info(getRegistersInfo(extendedLogging));
@@ -437,8 +494,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
              	RegisterValue scalerRegister = readRegister(mbusScalerUnit);
              	demandScalerUnits[MBUS] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),scalerRegister.getQuantity().getUnit());
              }
-			
-			System.out.println("OK");
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -495,17 +550,18 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             catch(IOException e) {
                 e.printStackTrace();
                 iConf=-1;
-                logger.severe("Iskra MT37x: Configuration change is not accessible, request object list...");
+                logger.severe("Iskra Mx37x: Configuration change is not accessible, request object list...");
                 requestObjectList();
                 dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
+                dlmsCache.setConfProgChange(iConf);  // set new configuration program change
             }
 
             if (iConf != dlmsCache.getConfProgChange()) {
                 
             	if (DEBUG>=1) System.out.println("iConf="+iConf+", dlmsCache.getConfProgChange()="+dlmsCache.getConfProgChange());    
                 
-            	logger.severe("Iskra MT37x: Configuration changed, request object list...");
-                requestObjectList();           // request object list again from rtu
+            	logger.severe("Iskra Mx37x: Configuration changed, request object list...");
+                requestObjectList();	// request object list again from rtu
                 dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
                 dlmsCache.setConfProgChange(iConf);  // set new configuration program change
                 
@@ -514,7 +570,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         }
         
         else { // Cache not exist
-            logger.info("Iskra MT37x: Cache does not exist, request object list.");
+            logger.info("Iskra Mx37x: Cache does not exist, request object list.");
             requestObjectList();
             try {
                 iConf = requestConfigurationProgramChanges();
@@ -578,107 +634,179 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     
     private void doSetTime(Calendar calendar) throws IOException
     {
-       byte[] byteTimeBuffer = new byte[14];
-
-       byteTimeBuffer[0]=TYPEDESC_OCTET_STRING;
-       byteTimeBuffer[1]=12; // length
-       byteTimeBuffer[2]=(byte)(calendar.get(calendar.YEAR) >> 8);
-       byteTimeBuffer[3]=(byte)calendar.get(calendar.YEAR);
-       byteTimeBuffer[4]=(byte)(calendar.get(calendar.MONTH)+1);
-       byteTimeBuffer[5]=(byte)calendar.get(calendar.DAY_OF_MONTH);
-       byte bDOW = (byte)calendar.get(calendar.DAY_OF_WEEK);
-       byteTimeBuffer[6]=bDOW--==1?(byte)7:bDOW;
-       byteTimeBuffer[7]=(byte)calendar.get(calendar.HOUR_OF_DAY);
-       byteTimeBuffer[8]=(byte)calendar.get(calendar.MINUTE);
-       byteTimeBuffer[9]=(byte)calendar.get(calendar.SECOND);
-       byteTimeBuffer[10]=(byte)0x0; // hundreds of seconds
-       
-       byteTimeBuffer[11]=(byte)(0x80); 
-       byteTimeBuffer[12]=(byte)0;
-       
-       if (getTimeZone().inDaylightTime(calendar.getTime()))
-           byteTimeBuffer[13]=(byte)0x80; //0x00;
-       else
-           byteTimeBuffer[13]=(byte)0x00; //0x00;
+    	byte[] byteTimeBuffer = createByteDate(calendar);
        
        getCosemObjectFactory().writeObject(clock,8,2, byteTimeBuffer);
     }
-	
-	
-	private void getRegisters() throws UnsupportedException, NoSuchRegisterException, IOException, SQLException, BusinessException {
+    
+	private byte[] createByteDate(Calendar calendar) {
+		byte[] byteStartDateBuffer = new byte[14];
 		
-        Iterator i = rtu.getRtuType().getRtuRegisterSpecs().iterator();
+		byteStartDateBuffer[0]=DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+		byteStartDateBuffer[1]=12; // length
+		byteStartDateBuffer[2]=(byte)(calendar.get(calendar.YEAR) >> 8);
+		byteStartDateBuffer[3]=(byte)calendar.get(calendar.YEAR);
+		byteStartDateBuffer[4]=(byte)(calendar.get(calendar.MONTH)+1);
+		byteStartDateBuffer[5]=(byte)calendar.get(calendar.DAY_OF_MONTH);
+		byte bDOW = (byte)calendar.get(calendar.DAY_OF_WEEK);
+		byteStartDateBuffer[6]=bDOW--==1?(byte)7:bDOW;
+		byteStartDateBuffer[7]=(byte)calendar.get(calendar.HOUR_OF_DAY);
+		byteStartDateBuffer[8]=(byte)calendar.get(calendar.MINUTE);
+		byteStartDateBuffer[9]=(byte)calendar.get(calendar.SECOND);
+		byteStartDateBuffer[10]=(byte)0x0; // hundreds of seconds
+		                
+		byteStartDateBuffer[11]=(byte)(0x80); 
+		byteStartDateBuffer[12]=(byte)0;
+		                
+		if (getTimeZone().inDaylightTime(calendar.getTime()))
+			byteStartDateBuffer[13]=(byte)0x80; //0x00;
+		else
+			byteStartDateBuffer[13]=(byte)0x00; //0x00;
+		
+		return byteStartDateBuffer;
+	}
+	
+	private void getRegisters(int deviceType) throws UnsupportedException, NoSuchRegisterException, IOException, SQLException, BusinessException {
+		
+		Rtu nRtu = null;
+		
+		if(deviceType == ELECTRICITY)
+			nRtu = rtu;
+		else if (deviceType == MBUS)
+			nRtu = mbusDevices[0].getMbus();
+		
+		List registerGroups = communicationProfile.getRtuRegisterGroups();
+		
+        Iterator i = nRtu.getRtuType().getRtuRegisterSpecs().iterator();
         while (i.hasNext()) {
         	
             RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
             ObisCode oc = spec.getObisCode();
+            RtuRegister register = nRtu.getRegister( oc );
             
-        	if(oc.getF() == 0){
-        		if(DEBUG == 1)System.out.println("A Daily billing register");
-        		
-        	}
-           
-            RegisterValue rv = readRegister(oc);
-            RtuRegister register = rtu.getRegister( rv.getObisCode() );
-            
-            if( register != null )
-//                register.store( rv );
-            	register.add(rv.getQuantity().getAmount(), rv.getEventTime(), rv.getFromTime(), rv.getToTime(), rv.getReadTime());
-            
-            else {
-                String obis = rv.getObisCode().toString();
-                String msg = "Register " + obis + " not defined on device";
-                getLogger().info( msg );
+            if (register != null){
+            	
+            	if (oc.getF() != 255){
+            		
+            		if (oc.getF() == 0)
+            			ocm.setDaily();
+            		else if (oc.getF() == -1)
+            			ocm.setMonthly();
+            		
+            		RtuRegisterReadingImpl rrri = null;
+            		Date lastRegisterDate = null;
+            		Calendar registerCalendar = Calendar.getInstance(getTimeZone());
+            		Calendar systemCalendar = Calendar.getInstance(getTimeZone());
+                	List registerValues = mw().getRtuRegisterReadingFactory().findByRegister(register.getId());
+                	
+                	if (registerValues.size() != 0){
+                		lastRegisterDate = getLastRegisterDate(registerValues);
+                		registerCalendar.setTime(lastRegisterDate);
+                	}else{
+                		registerCalendar.add(Calendar.MONTH, -1);
+                		lastRegisterDate = registerCalendar.getTime();
+                	}
+            		
+            		int previousCount = getDayDifferenc(systemCalendar, registerCalendar);
+            		
+            		for (int j = previousCount; j >= 0; j--){
+            			ObisCode previousOc = new ObisCode(oc.getA(), oc.getB(), oc.getC(), oc.getD(), oc.getE(), 0-j, true);
+            			RegisterValue rv = readRegister(previousOc);
+            			if ((rv != null)&&(rv.getToTime().after(lastRegisterDate))){
+            				System.out.println(rv.getToTime() + " " + rv.getQuantity());
+        					register.add(rv.getQuantity().getAmount(), rv.getEventTime(), rv.getFromTime(), rv.getToTime(),rv.getReadTime());
+        					try {
+								Thread.sleep(750);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+            			}
+            		}
+            		if (oc.getF() == 0)
+            			ocm.clearDaily();
+            		else if (oc.getF() == -1)
+            			ocm.clearMonthly();
+                }
             }
+			else {
+				String obis = oc.toString();
+				String msg = "Register " + obis + " not defined on device";
+				getLogger().info(msg);
+			}
         }
 	}
 	
-    public ProfileData getProfileData(Date lastReading,boolean includeEvents) throws IOException, SQLException, BusinessException {
+    private int getDayDifferenc(Calendar systemCalendar, Calendar registerCalendar) {
+		long diff = Math.abs(systemCalendar.getTimeInMillis() - registerCalendar.getTimeInMillis());
+		return (int) (diff/(1000*60*60*24));
+	}
+
+	private Date getLastRegisterDate(List registerValues) {
+    	Date lastDate = ((RtuRegisterReadingImpl) registerValues.get(0)).getToTime();
+    	Iterator it = registerValues.iterator();
+    	while(it.hasNext()){
+    		Date dateRrri = ((RtuRegisterReadingImpl)it.next()).getToTime();
+    		if (dateRrri.after(lastDate))
+    			lastDate = dateRrri;
+    	}
+    	return lastDate;
+	}
+
+	public ProfileData getProfileData(Date lastReading,boolean includeEvents, ObisCode lProfileObisCode) throws IOException, SQLException, BusinessException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
         fromCalendar.setTime(lastReading);
-        return doGetProfileData(fromCalendar,ProtocolUtils.getCalendar(getTimeZone()),includeEvents);
+        return doGetProfileData(fromCalendar,ProtocolUtils.getCalendar(getTimeZone()),includeEvents, lProfileObisCode);
     }
     
-    private ProfileData doGetProfileData(Calendar fromCalendar,Calendar toCalendar,boolean includeEvents) throws IOException, SQLException, BusinessException {
-        byte bNROfChannels = (byte)getNumberOfChannels();
-        return doGetDemandValues(fromCalendar, bNROfChannels, includeEvents);
+    private ProfileData doGetProfileData(Calendar fromCalendar,Calendar toCalendar,boolean includeEvents, ObisCode lProfileObisCode) throws IOException, SQLException, BusinessException {
+        byte bNROfChannels = (byte)getNumberOfChannels(lProfileObisCode);
+        return doGetDemandValues(fromCalendar, bNROfChannels, includeEvents, lProfileObisCode);
     }
     
-    private ProfileData doGetDemandValues(Calendar fromCalendar, byte bNROfChannels,  boolean includeEvents) throws IOException, SQLException, BusinessException {
+    private ProfileData doGetDemandValues(Calendar fromCalendar, byte bNROfChannels,  boolean includeEvents, ObisCode profileObisCode) throws IOException, SQLException, BusinessException {
         
+    	String nRtuType = null;
+    	
+    	if (profileObisCode.equals(loadProfileObisCode))
+    		nRtuType = rtuType;
+    	else if (profileObisCode.equals(mbusLProfileObisCode[0]))
+    		nRtuType = mbusDevices[0].getMbus().getProperties().getProperty(RTU_TYPE);
+    	
     	ProfileData profileData = new ProfileData( );
-        DataContainer dataContainer = getCosemObjectFactory().getProfileGeneric(loadProfileObisCode).getBuffer(fromCalendar, ProtocolUtils.getCalendar(getTimeZone()));
+        DataContainer dataContainer = getCosemObjectFactory().getProfileGeneric(profileObisCode).getBuffer(fromCalendar, ProtocolUtils.getCalendar(getTimeZone()));
         for (int channelId=0;channelId<bNROfChannels;channelId++) {
-    		if ( !rtuType.equalsIgnoreCase("mbus")){
+    		if ( !nRtuType.equalsIgnoreCase("mbus")){
             	
-    			RegisterValue scalerRegister = readRegister(capturedObjects.getProfileDataChannel(channelId));
+    			RegisterValue scalerRegister = readRegister(getCapturedObjects(profileObisCode).getProfileDataChannel(channelId));
 				demandScalerUnits[0] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),scalerRegister.getQuantity().getUnit());
-				ChannelInfo ci = new ChannelInfo(channelId, "IskraME37x_channel_"+channelId, demandScalerUnits[0].getUnit());
+				ChannelInfo ci = new ChannelInfo(channelId, "IskraMx37x_channel_"+channelId, demandScalerUnits[0].getUnit());
 				ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
                 profileData.addChannel(ci);
         	}
             	
-    		else if ( bytesToObisString(capturedObjects.getProfileDataChannel(channelId).getLN()).indexOf("0.1.128.50.0.255") == 0 ){
-        		if ( DEBUG == 1 )System.out.println("We got a MBUS channel");
-            		// don't show the events on the mbus meter
-            		includeEvents = false;
-            		RegisterValue scalerRegister = readRegister(capturedObjects.getProfileDataChannel(channelId));
-    				demandScalerUnits[1] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),scalerRegister.getQuantity().getUnit());
-    				ChannelInfo ci2 = new ChannelInfo(channelId, "IskraME37x_channel_"+channelId, demandScalerUnits[1].getUnit());
-    				ci2.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
-    	            profileData.addChannel(ci2);
+    		else if ( bytesToObisString(getCapturedObjects(profileObisCode).getProfileDataChannel(channelId).getLN()).indexOf("0.1.128.50.0.255") == 0 ){
+        		// don't show the events on the mbus meter
+        		includeEvents = false;
+        		RegisterValue scalerRegister = readRegister(getCapturedObjects(profileObisCode).getProfileDataChannel(channelId));
+				demandScalerUnits[1] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),scalerRegister.getQuantity().getUnit());
+				ChannelInfo ci2 = new ChannelInfo(channelId, "IskraMx37x_channel_"+channelId, demandScalerUnits[1].getUnit());
+				ci2.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
+	            profileData.addChannel(ci2);
         	}
         }
         
-        buildProfileData(bNROfChannels,dataContainer,profileData);
+        buildProfileData(bNROfChannels,dataContainer,profileData,profileObisCode);
         
         if (includeEvents) {
             profileData.getMeterEvents().addAll(getLogbookData(fromCalendar, ProtocolUtils.getCalendar(getTimeZone())));
             // Apply the events to the channel statusvalues
-            profileData.applyEvents(getProfileInterval()/60); 
+            profileData.applyEvents(getProfileInterval(profileObisCode)/60); 
         }
         
-        rtu.store(profileData);
+    	if (profileObisCode.equals(loadProfileObisCode))
+    		rtu.store(profileData);
+    	else if (profileObisCode.equals(mbusLProfileObisCode[0]))
+    		mbusDevices[0].getMbus().store(profileData);
         
         return profileData;
     }
@@ -688,14 +816,22 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         return logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(eventLogObisCode).getBuffer(fromCalendar, toCalendar));
     }
 	
-    public int getProfileInterval() throws IOException,UnsupportedException{
-        if (iInterval == 0) {
-           iInterval = getCosemObjectFactory().getProfileGeneric(loadProfileObisCode).getCapturePeriod();
+    public int getProfileInterval(ObisCode profileObisCode) throws IOException,UnsupportedException{
+    	
+    	int item = -1;
+    	
+    	if (profileObisCode.equals(loadProfileObisCode))
+    		item = 0;
+    	else if (profileObisCode.equals(mbusLProfileObisCode[0]))
+    		item = 1;
+    	
+        if (iInterval[item] == -1) {
+           iInterval[item] = getCosemObjectFactory().getProfileGeneric(profileObisCode).getCapturePeriod();
         }
-        return iInterval;
+        return iInterval[item];
     }
     
-    private void buildProfileData(byte bNROfChannels, DataContainer dataContainer,ProfileData profileData)  throws IOException
+    private void buildProfileData(byte bNROfChannels, DataContainer dataContainer,ProfileData profileData, ObisCode profileObisCode)  throws IOException
     {
         Calendar calendar=null,calendarEV=null;
         int i,t,protocolStatus=0;
@@ -709,20 +845,20 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         
         for (i=0;i<dataContainer.getRoot().element.length;i++) { // for all retrieved intervals
             try {    
-                calendar = dataContainer.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex()).toCalendar(getTimeZone());        
+                calendar = dataContainer.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(profileObisCode)).toCalendar(getTimeZone());        
             }
             catch(ClassCastException e) {
                 // absorb
-                if (DEBUG>=1)  System.out.println ("KV_DEBUG> buildProfileData, ClassCastException ,"+e.toString());
-                if (calendar != null) calendar.add(calendar.MINUTE,(getProfileInterval()/60));
+                if (DEBUG>=1)  System.out.println ("DEBUG> buildProfileData, ClassCastException ,"+e.toString());
+                if (calendar != null) calendar.add(calendar.MINUTE,(getProfileInterval(profileObisCode)/60));
             }
             if (calendar != null) {
-                if (getProfileStatusChannelIndex()!=-1)
-                    protocolStatus = dataContainer.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex());   
+                if (getProfileStatusChannelIndex(profileObisCode)!=-1)
+                    protocolStatus = dataContainer.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex(profileObisCode));   
                 else
                     protocolStatus=0;
 
-                currentIntervalData = getIntervalData(dataContainer.getRoot().getStructure(i), calendar, protocolStatus);
+                currentIntervalData = getIntervalData(dataContainer.getRoot().getStructure(i), calendar, protocolStatus, profileObisCode);
 
                 // KV 16012004
                 if (DEBUG >=1) { 
@@ -751,22 +887,22 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         
     }
     
-    private IntervalData getIntervalData(DataStructure dataStructure,Calendar calendar,int protocolStatus) throws UnsupportedException, IOException {
+    private IntervalData getIntervalData(DataStructure dataStructure,Calendar calendar,int protocolStatus, ObisCode profileObisCode) throws UnsupportedException, IOException {
         // Add interval data...
         IntervalData intervalData = new IntervalData(new Date(((Calendar)calendar.clone()).getTime().getTime()),map(protocolStatus),protocolStatus);
         
-        for (int t=0;t<getCapturedObjects().getNROfChannels();t++){
+        for (int t=0;t<getCapturedObjects(profileObisCode).getNROfChannels();t++){
         	
-                if (getCapturedObjects().isChannelData(getObjectNumber(t)))
-                    intervalData.addValue(new Integer(dataStructure.getInteger(getObjectNumber(t) + dataContainerOffset)));
+                if (getCapturedObjects(profileObisCode).isChannelData(getObjectNumber(t, profileObisCode)))
+                    intervalData.addValue(new Integer(dataStructure.getInteger(getObjectNumber(t, profileObisCode) + dataContainerOffset)));
         }
         	
         return intervalData;
     }
     
-    private int getObjectNumber(int t) throws UnsupportedException {
-		for(int i = 0; i < capturedObjects.getNROfObjects(); i++){
-			if ( capturedObjects.getChannelNR(i) == t)
+    private int getObjectNumber(int t, ObisCode profileObisCode) throws IOException {
+		for(int i = 0; i < getCapturedObjects(profileObisCode).getNROfObjects(); i++){
+			if ( getCapturedObjects(profileObisCode).getChannelNR(i) == t)
 				return i;
 		}
 		throw new UnsupportedException();
@@ -807,51 +943,67 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         return intervalData;
     }
     
-    private int getProfileClockChannelIndex() throws IOException {
-        for (int i=0;i<capturedObjects.getNROfObjects();i++) {
-            if (!capturedObjects.isChannelData(i)) {
-                if (ObisCode.fromByteArray(capturedObjects.getLN(i)).equals(clock))
+    private int getProfileClockChannelIndex(ObisCode profileObisCode) throws IOException {
+        for (int i=0;i<getCapturedObjects(profileObisCode).getNROfObjects();i++) {
+            if (!getCapturedObjects(profileObisCode).isChannelData(i)) {
+                if (ObisCode.fromByteArray(getCapturedObjects(profileObisCode).getLN(i)).equals(clock))
                     return i;
             }
         }
-        throw new IOException("Iskra MT37x, no clock channel found in captureobjects!");
+        throw new IOException("Iskra Mx37x, no clock channel found in captureobjects!");
     }
     
-    private int getProfileStatusChannelIndex() {
-        for (int i=0;i<capturedObjects.getNROfObjects();i++) {
-            if (!capturedObjects.isChannelData(i)) {
-                if (ObisCode.fromByteArray(capturedObjects.getLN(i)).equals(status))
+    private int getProfileStatusChannelIndex(ObisCode profileObisCode) throws UnsupportedException, IOException {
+        for (int i=0;i<getCapturedObjects(profileObisCode).getNROfObjects();i++) {
+            if (!getCapturedObjects(profileObisCode).isChannelData(i)) {
+                if (ObisCode.fromByteArray(getCapturedObjects(profileObisCode).getLN(i)).equals(status))
                     return i;
             }
         }
         return -1;
     }
     
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
-        if (numberOfChannels == -1) {
-            numberOfChannels = getCapturedObjects().getNROfChannels();
+    public int getNumberOfChannels(ObisCode profileObisCode) throws UnsupportedException, IOException {
+    	
+    	int item = -1;
+    	
+    	if (profileObisCode.equals(loadProfileObisCode))
+    		item = 0;
+    	else if (profileObisCode.equals(mbusLProfileObisCode[0]))
+    		item = 1;
+    	
+        if (numberOfChannels[item] == -1) {
+            numberOfChannels[item] = getCapturedObjects(profileObisCode).getNROfChannels();
         }
-        return numberOfChannels;
+        return numberOfChannels[item];
     }
     
-    private CapturedObjects getCapturedObjects()  throws UnsupportedException, IOException {
-        if (capturedObjects == null) {
+    private CapturedObjects getCapturedObjects(ObisCode profileObisCode)  throws UnsupportedException, IOException {
+    	
+    	int item = -1;
+    	
+    	if (profileObisCode.equals(loadProfileObisCode))
+    		item = 0;
+    	else if (profileObisCode.equals(mbusLProfileObisCode[0]))
+    		item = 1;
+    	
+        if (capturedObjects[item] == null) {
            int i;
            int j = 0;
            DataContainer dataContainer = null;
            try {
-               ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(loadProfileObisCode);
+               ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(profileObisCode);
                meterConfig.setCapturedObjectList(profileGeneric.getCaptureObjectsAsUniversalObjects());               
                dataContainer = profileGeneric.getCaptureObjectsAsDataContainer();
                
-               capturedObjects = new CapturedObjects(dataContainer.getRoot().element.length);
+               capturedObjects[item] = new CapturedObjects(dataContainer.getRoot().element.length);
                for (i=0;i<dataContainer.getRoot().element.length;i++) {
             	   
             	   if ( i >= 2){
             		   
             		   if ( rtuType.equalsIgnoreCase("mbus") ){
                 		   if ( bytesToObisString(dataContainer.getRoot().getStructure(i).getOctetString(1).getArray()).indexOf("0.1.128.50.0.255") == 0 ){
-                               capturedObjects.add(j,
+                               capturedObjects[item].add(j,
                                        dataContainer.getRoot().getStructure(i).getInteger(0),
                                        dataContainer.getRoot().getStructure(i).getOctetString(1).getArray(),
                                        dataContainer.getRoot().getStructure(i).getInteger(2));
@@ -861,7 +1013,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
                 	   }
                 	   else{
                 		   if ( bytesToObisString(dataContainer.getRoot().getStructure(i).getOctetString(1).getArray()).indexOf("0.1.128.50.0.255") != 0 ){
-                               capturedObjects.add(j,
+                               capturedObjects[item].add(j,
                                        dataContainer.getRoot().getStructure(i).getInteger(0),
                                        dataContainer.getRoot().getStructure(i).getOctetString(1).getArray(),
                                        dataContainer.getRoot().getStructure(i).getInteger(2));
@@ -872,7 +1024,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             	   }
             	   
             	   else{
-                       capturedObjects.add(j,
+                       capturedObjects[item].add(j,
                                dataContainer.getRoot().getStructure(i).getInteger(0),
                                dataContainer.getRoot().getStructure(i).getOctetString(1).getArray(),
                                dataContainer.getRoot().getStructure(i).getInteger(2));
@@ -888,7 +1040,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
            }
            
         } 
-        return capturedObjects;
+        return capturedObjects[item];
     }
     
     private String bytesToObisString(byte[] channelLN) {
@@ -1023,7 +1175,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
                 loadProfileObisCode = genericProfile2;
             else if (Integer.parseInt(properties.getProperty("LoadProfileId","1")) == 97)
                 loadProfileObisCode = loadProfileObisCode97;
-            else throw new InvalidPropertyException("IskraME37X, validateProperties, invalid LoadProfileId, "+Integer.parseInt(properties.getProperty("LoadProfileId","1"))); 
+            else throw new InvalidPropertyException("IskraMx37x, validateProperties, invalid LoadProfileId, "+Integer.parseInt(properties.getProperty("LoadProfileId","1"))); 
             
 		}
 		catch(NumberFormatException e){
@@ -1109,7 +1261,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
 	public String getFileName() {
 		Calendar calendar = Calendar.getInstance();
-	    return calendar.get(Calendar.YEAR)+"_"+(calendar.get(Calendar.MONTH)+1)+"_"+calendar.get(Calendar.DAY_OF_MONTH)+"_"+strID+"_"+strPassword+"_"+serialNumber+"_"+iServerUpperMacAddress+"_IskraME37x.cache";
+	    return calendar.get(Calendar.YEAR) + "_" + strID + "_" + iServerUpperMacAddress + "_IskraMx37x.cache";
 	}
 
 	public void setCache(Object cacheObject) {
@@ -1129,108 +1281,212 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		
 		while(mi.hasNext()){
             RtuMessage msg = (RtuMessage) mi.next();
-            String contents = msg.getContents();
+            String msgString = msg.getContents();
+            String contents = msgString.substring(msgString.indexOf("<")+1, msgString.indexOf(">"));
+            if (contents.endsWith("/"))
+            	contents = contents.substring(0, contents.length()-1);
+            BigDecimal breakerState = null;
             
-            if ( contents.indexOf(DISCONNECT) != -1 )
-            	cosemObjectFactory.writeObject(breakerObisCode, 1, 2, disconnectMsg);
+            boolean disconnect 	= contents.equalsIgnoreCase(DISCONNECT);
+            boolean connect 	= contents.equalsIgnoreCase(CONNECT);
+            boolean ondemand 	= contents.equalsIgnoreCase(ONDEMAND);
+            boolean codered		= contents.equalsIgnoreCase(CONPOWERLIMIT)||
+            					contents.equalsIgnoreCase(CODERED_LIMIT)||
+            					contents.equalsIgnoreCase(CODERED_START_DT)||
+            					contents.equalsIgnoreCase(CODERED_STOP_DT);
+            boolean endcodered 	= contents.equalsIgnoreCase(CODERED_END);
             
-            else if ( contents.indexOf(CONNECT) != -1 )
-            	cosemObjectFactory.writeObject(breakerObisCode, 1, 2, connectMsg);
-            
-            else if ( contents.indexOf(TOU) != -1) {
-            	sendActivityCalendar(contents, msg);
+            if (connect || disconnect){
+                if (disconnect){
+                	cosemObjectFactory.writeObject(breakerObisCode, 1, 2, disconnectMsg);
+                	breakerState = readRegister(breakerObisCode).getQuantity().getAmount();
+                }
+                
+                if (connect){
+                	cosemObjectFactory.writeObject(breakerObisCode, 1, 2, connectMsg);
+                	breakerState = readRegister(breakerObisCode).getQuantity().getAmount();
+                }
+        		
+        		switch(breakerState.intValue()){
+        		
+        		case 0: {
+        			if ( contents.indexOf(DISCONNECT) != -1 )
+        				msg.confirm();
+        			else 
+        	            msg.setFailed();          
+        		}break;
+        		
+        		case 1: {
+        			if ( contents.indexOf(CONNECT) != -1 )
+        				msg.confirm();
+        			else 
+        				msg.setFailed();    
+        		}break;
+        		
+        		default:{
+        			msg.setFailed();
+        			break;
+        		}
+        		}
             }
-    		
-    		BigDecimal breakerState = readRegister(breakerObisCode).getQuantity().getAmount();
-    		
-    		switch(breakerState.intValue()){
-    		
-    		case 0: {
-    			if ( contents.indexOf(DISCONNECT) != -1 )
-    				msg.confirm();
-    			else 
-    	            msg.setFailed();          
-    		}break;
-    		
-    		case 1: {
-    			if ( contents.indexOf(CONNECT) != -1 )
-    				msg.confirm();
-    			else 
-    				msg.setFailed();    
-    		}break;
-
-    		default:{
-    			msg.setFailed();
-    			break;
-    		}
-    		}
             
+            if (ondemand){
+            	Iterator i = rtu.getRtuType().getRtuRegisterSpecs().iterator();
+                while (i.hasNext()) {
+                	
+                    RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
+                    ObisCode oc = spec.getObisCode();
+                    RtuRegister register = rtu.getRegister( oc );
+                    
+                    if (register != null){
+                    	
+                    	if (oc.getF() == 255){
+                        	RegisterValue rv = readRegister(oc);
+        					register.add(rv.getQuantity().getAmount(), rv
+        							.getEventTime(), rv.getFromTime(), rv.getToTime(),
+        							rv.getReadTime());
+                        }
+                    	
+                    }
+        			else {
+        				String obis = oc.toString();
+        				String msgError = "Register " + obis + " not defined on device";
+        				getLogger().info(msgError);
+        			}
+                }
+            	msg.confirm();
+            }
+            
+            if (codered || endcodered){
+            	
+            	long contractPL = 0;
+            	long limit = 0;
+            	String startDate = "";
+            	String stopDate = "";
+            	Calendar startCal = null; 
+            	Calendar stopCal = null;
+            	
+            	if(codered){
+            		
+            		// the contractual Power Limit
+                	if (getMessageValue(msgString, CONPOWERLIMIT).equalsIgnoreCase("")){
+                		contractPL = readRegister(contractPowerLimit).getQuantity().getAmount().longValue();
+                	}else
+                		contractPL = Integer.parseInt(getMessageValue(msgString, CONPOWERLIMIT));
+                	
+                	// the CodeRed Power Limit
+                	if (getMessageValue(msgString, CODERED_LIMIT).equalsIgnoreCase("")){
+                		throw new IOException("No Code Red Limit was entered for the CodeRed message.");
+                	}else
+                		limit = Integer.parseInt(getMessageValue(msgString, CODERED_LIMIT));
+                	
+                	// the Start- and EndDates to calculate the duration
+                	startDate = getMessageValue(msgString, CODERED_START_DT);
+                	stopDate = getMessageValue(msgString, CODERED_STOP_DT);
+                	startCal = (startDate.equalsIgnoreCase(""))?Calendar.getInstance(getTimeZone()):getCalendarFromString(startDate);
+                	if (stopDate.equalsIgnoreCase("")){
+                		stopCal = Calendar.getInstance();
+                		stopCal.setTime(startCal.getTime());
+                		stopCal.add(Calendar.YEAR, 1);
+                	}else{
+                		stopCal = getCalendarFromString(stopDate);
+                	}
+            	}
+            	
+            	if(endcodered){
+            		
+            		// read the Contractual Power Limit from the meter
+            		contractPL = readRegister(contractPowerLimit).getQuantity().getAmount().longValue();
+            		
+            		// read the CodeRed Power Limit from the meter
+            		limit = readRegister(crPowerLimit).getQuantity().getAmount().longValue();
+            		
+            		startCal = Calendar.getInstance(getTimeZone());
+            		stopCal = startCal;
+            	}
+            	
+            	contractPowerLimitMsg[1]=(byte)(contractPL >> 24);
+            	contractPowerLimitMsg[2]=(byte)(contractPL >> 16);
+            	contractPowerLimitMsg[3]=(byte)(contractPL >> 8);
+            	contractPowerLimitMsg[4]=(byte)contractPL;
+            	
+            	int rtuID = rtu.getId();
+            	crMeterGroupIDMsg[1]=(byte)(rtuID >> 8);
+            	crMeterGroupIDMsg[2]=(byte)rtuID;
+            	crGroupIDMsg = crMeterGroupIDMsg;
+
+            	crPowerLimitMsg[1]=(byte)(limit >> 24);
+            	crPowerLimitMsg[2]=(byte)(limit >> 16);
+            	crPowerLimitMsg[3]=(byte)(limit >> 8);
+            	crPowerLimitMsg[4]=(byte)limit;
+
+            	long crDur = (Math.abs(stopCal.getTimeInMillis() - startCal.getTimeInMillis()))/1000;
+            	crDurationMsg[1]=(byte)(crDur >> 24);
+            	crDurationMsg[2]=(byte)(crDur >> 16);
+            	crDurationMsg[3]=(byte)(crDur >> 8);
+            	crDurationMsg[4]=(byte)crDur;
+            	byte[] byteDate = createByteDate(startCal);
+            	
+            	getCosemObjectFactory().writeObject(contractPowerLimit, 3, 2, contractPowerLimitMsg);
+            	getCosemObjectFactory().writeObject(crMeterGroupID, 1, 2, crMeterGroupIDMsg);
+            	getCosemObjectFactory().writeObject(crPowerLimit, 3, 2, crPowerLimitMsg);
+            	try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					// absorb
+					e.printStackTrace();
+				}
+				getCosemObjectFactory().writeObject(crGroupID, 1, 2, crGroupIDMsg);
+				getCosemObjectFactory().writeObject(crStartDate, 1, 2, byteDate);
+            	getCosemObjectFactory().writeObject(crDuration, 3, 2, crDurationMsg);
+            	
+            	msg.confirm();
+            }
 		}
 	}
-	
-	public void sendActivityCalendar(String contents, RtuMessage msg) throws SQLException, BusinessException, IOException  {
-    	UserFile userFile = getUserFile(contents);
+
+	private Calendar getCalendarFromString(String strDate) {
+		Calendar cal = Calendar.getInstance(getTimeZone());
+    	cal.set(Calendar.DATE, Integer.valueOf(strDate.substring(0, strDate.indexOf("/"))));
+    	cal.set(Calendar.MONTH, (Integer.valueOf(strDate.substring(strDate.indexOf("/") + 1, strDate.lastIndexOf("/")))) - 1);
+    	cal.set(Calendar.YEAR, Integer.valueOf(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" "))));
     	
-    	ActivityCalendar activityCalendar =
-    		getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255"));
-    
-    	com.energyict.genericprotocolimpl.common.tou.ActivityCalendar calendarData = 
-    		new com.energyict.genericprotocolimpl.common.tou.ActivityCalendar();
-    	ActivityCalendarReader reader = new IskraActivityCalendarReader(calendarData);
-    	calendarData.setReader(reader);
-    	calendarData.read(new ByteArrayInputStream(userFile.loadFileInByteArray()));
-    	CosemActivityCalendarBuilder builder = new 
-    		CosemActivityCalendarBuilder(calendarData);
-    	
-        activityCalendar.writeCalendarNamePassive(builder.calendarNamePassive());
-        activityCalendar.writeDayProfileTablePassive(builder.dayProfileTablePassive());
-        activityCalendar.writeWeekProfileTablePassive(builder.weekProfileTablePassive());
-        activityCalendar.writeSeasonProfilePassive(builder.seasonProfilePassive());
-        activityCalendar.writeActivatePassiveCalendarTime(builder.activatePassiveCalendarTime());
-        
-        // read calendar, if error
-        msg.confirm();
-    	
-    }
-	
-	protected UserFile getUserFile(String contents)throws BusinessException {
-        int id = getTouFileId(contents);
-        UserFile userFile = 
-        	MeteringWarehouse.getCurrent().getUserFileFactory().find(id);
-        if (userFile == null)
-        	throw new BusinessException("No userfile found with id " + id);
-        return null;
+    	cal.set(Calendar.HOUR_OF_DAY, Integer.valueOf(strDate.substring(strDate.indexOf(" ") + 1, strDate.indexOf(":"))));
+    	cal.set(Calendar.MINUTE, Integer.valueOf(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":"))));
+    	cal.set(Calendar.SECOND, Integer.valueOf(strDate.substring(strDate.lastIndexOf(":") + 1, strDate.length())));
+    	cal.clear(Calendar.MILLISECOND);
+		return cal;
 	}
-	
-	protected int getTouFileId(String contents) throws BusinessException {
-		int startIndex = 2 + TOU.length();  // <TOU>
-		int endIndex = contents.indexOf("</" + TOU + ">") - 1;
-		String value = contents.substring(startIndex, endIndex);
+
+	private String getMessageValue(String msgStr, String str) {
 		try {
-			return Integer.parseInt(value);
-		}
-		catch (NumberFormatException e) {
-			throw new BusinessException("Invalid userfile id: " + value);
+			return msgStr.substring(msgStr.indexOf(str + ">") + str.length()
+					+ 1, msgStr.indexOf("</" + str));
+		} catch (Exception e) {
+			return "";
 		}
 	}
 
 	public List getMessageCategories() {
         List theCategories = new ArrayList();
-        MessageCategorySpec cat = new MessageCategorySpec("IskraMT372Messages");
+        MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
+        MessageCategorySpec cat2 = new MessageCategorySpec("CodeRedMessages");
         
         MessageSpec msgSpec = addBasicMsg("Disconnect meter", DISCONNECT, false);
         cat.addMessageSpec(msgSpec);
         msgSpec = addBasicMsg("Connect meter", CONNECT, false);
         cat.addMessageSpec(msgSpec);
-        
-        msgSpec = addTouMessage("Set Time of use", TOU, false);
+        msgSpec = addBasicMsg("ReadOnDemand", ONDEMAND, false);
         cat.addMessageSpec(msgSpec);
-        
-        /* Probably for the "knijpen" */
-//        msgSpec = addBasicMsg("Limit current to 6A", "LIMITCURRENT6A", false);
-//        cat.addMessageSpec(msgSpec);
+        msgSpec = addTouMessage("Set Time of use", "TOU", false);
+        cat.addMessageSpec(msgSpec);
+        msgSpec = addCodeRedMessage("CodeRed: Enter parameters", CODERED, false);
+        cat2.addMessageSpec(msgSpec);
+        msgSpec = addBasicMsg("CodeRed: Stop", CODERED_END, false);
+        cat2.addMessageSpec(msgSpec);
         
         theCategories.add(cat);
+        theCategories.add(cat2);
         return theCategories;
 	}
 
@@ -1297,5 +1553,22 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         msgSpec.add(tagSpec);
         return msgSpec;
     }
+
+	private MessageSpec addCodeRedMessage(String keyId, String tagName, boolean advanced) {
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(CONPOWERLIMIT);
+        tagSpec.add(new MessageValueSpec());
+        msgSpec.add(tagSpec);
+        tagSpec = new MessageTagSpec(CODERED_LIMIT);
+        tagSpec.add(new MessageValueSpec());
+        msgSpec.add(tagSpec);
+        tagSpec = new MessageTagSpec(CODERED_START_DT);
+        tagSpec.add(new MessageValueSpec());
+        msgSpec.add(tagSpec);
+        tagSpec = new MessageTagSpec(CODERED_STOP_DT);
+        tagSpec.add(new MessageValueSpec());
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
 
 }
