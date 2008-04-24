@@ -3,6 +3,7 @@
  */
 package com.energyict.genericprotocolimpl.iskragprs;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -45,6 +46,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -52,6 +54,8 @@ import com.energyict.dlms.cosem.GenericWrite;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
+import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
@@ -62,6 +66,7 @@ import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.core.RtuType;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
@@ -177,6 +182,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private static String CODERED_LIMIT 	= "CodeRed Power Limit (W)";
     private static String CODERED_START_DT	= "CodeRed StartDate (dd/mm/yyyy HH:MM:SS)";
     private static String CODERED_STOP_DT	= "CodeRed EndDate (dd/mm/yyyy HH:MM:SS)";
+    private static String TOU = "TOU";
 
     private static final int ELECTRICITY 	= 0x00;
     private static final int MBUS 			= 0x01;
@@ -1295,6 +1301,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             					contents.equalsIgnoreCase(CODERED_START_DT)||
             					contents.equalsIgnoreCase(CODERED_STOP_DT);
             boolean endcodered 	= contents.equalsIgnoreCase(CODERED_END);
+            boolean tou = contents.equalsIgnoreCase(TOU);
             
             if (connect || disconnect){
                 if (disconnect){
@@ -1329,6 +1336,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         		}
         		}
             }
+            
+            /*if (tou)
+            	sendActivityCalendar(contents, msg);*/
             
             if (ondemand){
             	Iterator i = rtu.getRtuType().getRtuRegisterSpecs().iterator();
@@ -1444,6 +1454,53 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             }
 		}
 	}
+	
+	public void sendActivityCalendar(String contents, RtuMessage msg) throws SQLException, BusinessException, IOException  {
+    	UserFile userFile = getUserFile(contents);
+    	
+    	ActivityCalendar activityCalendar =
+    		getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255"));
+    
+    	com.energyict.genericprotocolimpl.common.tou.ActivityCalendar calendarData = 
+    		new com.energyict.genericprotocolimpl.common.tou.ActivityCalendar();
+    	ActivityCalendarReader reader = new IskraActivityCalendarReader(calendarData);
+    	calendarData.setReader(reader);
+    	calendarData.read(new ByteArrayInputStream(userFile.loadFileInByteArray()));
+    	CosemActivityCalendarBuilder builder = new 
+    		CosemActivityCalendarBuilder(calendarData);
+    	
+        activityCalendar.writeCalendarNamePassive(builder.calendarNamePassive());
+        activityCalendar.writeDayProfileTablePassive(builder.dayProfileTablePassive());
+        activityCalendar.writeWeekProfileTablePassive(builder.weekProfileTablePassive());
+        activityCalendar.writeSeasonProfilePassive(builder.seasonProfilePassive());
+        activityCalendar.writeActivatePassiveCalendarTime(builder.activatePassiveCalendarTime());
+        
+        // read calendar, if error
+        msg.confirm();
+    	
+    }
+	
+	protected UserFile getUserFile(String contents)throws BusinessException {
+        int id = getTouFileId(contents);
+        UserFile userFile = 
+        	MeteringWarehouse.getCurrent().getUserFileFactory().find(id);
+        if (userFile == null)
+        	throw new BusinessException("No userfile found with id " + id);
+        return null;
+	}
+	
+	protected int getTouFileId(String contents) throws BusinessException {
+		int startIndex = 2 + TOU.length();  // <TOU>
+		int endIndex = contents.indexOf("</" + TOU + ">") - 1;
+		String value = contents.substring(startIndex, endIndex);
+		try {
+			return Integer.parseInt(value);
+		}
+		catch (NumberFormatException e) {
+			throw new BusinessException("Invalid userfile id: " + value);
+		}
+	}
+
 
 	private Calendar getCalendarFromString(String strDate) {
 		Calendar cal = Calendar.getInstance(getTimeZone());
