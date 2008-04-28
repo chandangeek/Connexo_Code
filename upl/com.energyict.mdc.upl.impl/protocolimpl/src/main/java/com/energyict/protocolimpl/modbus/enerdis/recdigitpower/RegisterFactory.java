@@ -32,6 +32,8 @@ import com.energyict.protocolimpl.modbus.core.Parser;
  * RegisterFactory is used as a central point for parsing.
  * 
  * @author fbo
+ * @beginchanges
+ * GNA|25042008| changed default timeZone to meterTimezone 
  */
 
 class RegisterFactory extends AbstractRegisterFactory {
@@ -724,7 +726,7 @@ class RegisterFactory extends AbstractRegisterFactory {
     Date toPowerStreamDate(ByteArray byteArray) {
         
         
-        Calendar cal = ProtocolUtils.getCleanCalendar(TimeZone.getDefault()/*getModBus().getTimeZone()*/);
+        Calendar cal = ProtocolUtils.getCleanCalendar(getModBus().getTimeZone());
 
         byte[] values = byteArray.getBytes();
         int bcd[] = new int[16];
