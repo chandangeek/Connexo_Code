@@ -6,17 +6,18 @@
  * Class that implements the DLMS COSEM meter protocol of the Actaris SL7000 meter with LN referencing. 
  * <BR>
  * <B>@beginchanges</B><BR>
-KV|14052002|Initial version
-KV|25102002|Re-engineered to MeterProtocol interface
-KV|28082003|Password variable length
-KV||bugfix, change of interface signature getValuesIterator in IntervalData 
-KV|29102003|bugfix, did not request meterreading unit
-KV|16012004|changed powerfail handling...
-KV|06102004| reengineer using cosem package and add obiscode register mapping
-KV|17112004|add logbook implementation
-KV|17032005|improved registerreading
-KV|23032005|Changed header to be compatible with protocol version tool
-KV|31032005|Handle DataContainerException
+	KV|14052002|Initial version
+	KV|25102002|Re-engineered to MeterProtocol interface
+	KV|28082003|Password variable length
+	KV||bugfix, change of interface signature getValuesIterator in IntervalData 
+	KV|29102003|bugfix, did not request meterreading unit
+	KV|16012004|changed powerfail handling...
+	KV|06102004| reengineer using cosem package and add obiscode register mapping
+	KV|17112004|add logbook implementation
+	KV|17032005|improved registerreading
+	KV|23032005|Changed header to be compatible with protocol version tool
+	KV|31032005|Handle DataContainerException
+	GN|25042008|Missing hour values with a profileInterval of 10min
  * @endchanges
  */
 package com.energyict.protocolimpl.dlms;  
@@ -54,7 +55,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
 
 public class DLMSLNSL7000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
-    private static final byte DEBUG=0;  // KV 16012004 changed all DEBUG values  
+    private static final byte DEBUG=2;  // KV 16012004 changed all DEBUG values  
     
     private static final byte[] profileLN={0,0,99,1,0,(byte)255}; 
     private static final int iNROfIntervals = 50000;
@@ -693,17 +694,18 @@ public class DLMSLNSL7000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
     }
     
     private boolean parseEnd(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
-        calendar = setCalendar(calendar,dataStructure.getStructure(1),(byte)0x01);
+//        calendar = setCalendar(calendar,dataStructure.getStructure(1),(byte)0x01);
+        Calendar endIntervalCal = setCalendar(calendar,dataStructure.getStructure(1), (byte)0x01);
         if (DEBUG >=1) System.out.print("event: "+calendar.getTime());
         
         if ((dataStructure.getStructure(1).getInteger(1) & EV_ALL_CLOCK_SETTINGS) != 0) { // time set before
-           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
+           profileData.addEvent(new MeterEvent(new Date(((Calendar)endIntervalCal.clone()).getTime().getTime()),
                                                (int)MeterEvent.SETCLOCK_BEFORE,
                                                (int)dataStructure.getStructure(1).getInteger(1)));
         }
         
         if ((dataStructure.getStructure(1).getInteger(1) & EV_POWER_FAILURE) != 0) { // power down
-           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
+           profileData.addEvent(new MeterEvent(new Date(((Calendar)endIntervalCal.clone()).getTime().getTime()),
                                                (int)MeterEvent.POWERDOWN,
                                                (int)EV_POWER_FAILURE));
            return true; // KV 16012004
@@ -711,14 +713,18 @@ public class DLMSLNSL7000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
         
         /* No WD event added cause time is set to 00h00'00" */
         if ((dataStructure.getStructure(1).getInteger(1) & EV_DST) != 0) { // power down
-           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
+           profileData.addEvent(new MeterEvent(new Date(((Calendar)endIntervalCal.clone()).getTime().getTime()),
                                                (int)MeterEvent.SETCLOCK_BEFORE,
                                                (int)EV_DST));
            return true;
         }
         
+        if ( (getProfileInterval()*1000) - (endIntervalCal.getTimeInMillis() - calendar.getTimeInMillis()) == 1000 ){
+        	return true;	//GN 25042008 special case ...
+        }
+        
         return false;
-        //return true; // KV 16012004
+//        return true; // KV 16012004
     }
     
     private boolean parseTime1(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
