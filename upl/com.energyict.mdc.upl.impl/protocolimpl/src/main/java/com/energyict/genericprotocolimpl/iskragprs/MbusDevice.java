@@ -50,6 +50,7 @@ public class MbusDevice implements Messaging, MeterProtocol{
 	private long mbusAddress	= -1;
 	
 	private String customerID;
+	private String rtuType;
 	
 	public Rtu	mbus;
 	private Logger logger;
@@ -63,11 +64,12 @@ public class MbusDevice implements Messaging, MeterProtocol{
 	public MbusDevice() {
 	}
 
-	public MbusDevice(long address, String customerID, Rtu rtu, Logger logger) {
+	public MbusDevice(long address, String customerID, Rtu rtu, Logger logger) throws InvalidPropertyException, MissingPropertyException {
 		this.mbusAddress = address;
 		this.customerID	= customerID;
 		this.mbus = rtu;
 		this.logger = logger;
+		setProperties(mbus.getProperties());
 	}
 
 	/**
@@ -177,10 +179,8 @@ public class MbusDevice implements Messaging, MeterProtocol{
 		
 	}
 
-	public void setProperties(Properties properties)
-			throws InvalidPropertyException, MissingPropertyException {
-		// TODO Auto-generated method stub
-		
+	public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+		rtuType = properties.getProperty("RtuType","mbus");
 	}
 
 	public void setRegister(String name, String value) throws IOException,
@@ -327,6 +327,10 @@ public class MbusDevice implements Messaging, MeterProtocol{
 
 	public Logger getLogger() {
 		return logger;
+	}
+
+	public String getRtuType() {
+		return rtuType;
 	}
 
 }
