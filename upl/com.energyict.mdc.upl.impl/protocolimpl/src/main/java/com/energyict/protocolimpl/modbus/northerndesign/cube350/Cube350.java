@@ -27,6 +27,9 @@ import com.energyict.protocolimpl.modbus.core.Modbus;
 
 public class Cube350 extends Modbus {
     
+	
+	
+	
     public Cube350() { }
     
     protected void doTheConnect() throws IOException { /* relax */ }
@@ -35,10 +38,12 @@ public class Cube350 extends Modbus {
     
     protected void doTheValidateProperties(Properties properties) 
         throws MissingPropertyException, InvalidPropertyException {
-        
-        int t = Integer.parseInt(properties.getProperty("InterframeTimeout", "25").trim());
-        setInfoTypeInterframeTimeout(t);
-        
+        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout", "25").trim()));
+        setInfoTypeMeterFirmwareVersion(properties.getProperty("MeterFirmwareVersion", "1.07"));
+        if (Float.parseFloat(getInfoTypeMeterFirmwareVersion())>=1.07)
+            setInfoTypeFirstTimeDelay(Integer.parseInt(properties.getProperty("FirstTimeDelay", "0").trim()));
+        else
+        	setInfoTypeFirstTimeDelay(Integer.parseInt(properties.getProperty("FirstTimeDelay", "400").trim()));
     }
     
     protected List doTheGetOptionalKeys() {
@@ -49,6 +54,7 @@ public class Cube350 extends Modbus {
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         return "" + getRegisterFactory().findRegister("firmwareVersion").objectValueWithParser("value0");
+        
     }
     
     public String getProtocolVersion() {
@@ -89,15 +95,24 @@ public class Cube350 extends Modbus {
                         SerialCommunicationChannel.STOPBITS_1);
                 dialer.connect();
                 
+                int t=0;
+                while(t++<100) {
+                	
                 // ********************** Properties **********************
                 Properties properties = new Properties();
                 properties.setProperty("ProfileInterval", "60");
                 // properties.setProperty(MeterProtocol.NODEID,"0");
-                properties.setProperty(MeterProtocol.ADDRESS, "6");
-                properties.setProperty("HalfDuplex", "10");
-                properties.setProperty("Retries", "5");
                 
-                properties.setProperty("InterframeTimeout", "" + 25);
+                if ((t%2)==0) properties.setProperty(MeterProtocol.ADDRESS, "7");
+                else properties.setProperty(MeterProtocol.ADDRESS, "1");
+                
+//                properties.setProperty(MeterProtocol.ADDRESS, "1");
+                
+                properties.setProperty("HalfDuplex", "-1");
+                
+                //properties.setProperty("Retries", "5");
+                
+                //properties.setProperty("InterframeTimeout", "" + 25);
                 
                 // ********************** EictRtuModbus **********************
                 Cube350 cube = new Cube350();
@@ -115,13 +130,20 @@ public class Cube350 extends Modbus {
                 
                 cube.connect();
                 
+                
+               
+//                System.out.println(t+" *************************\n"+cube.getRegistersInfo(1));
+                
 //                System.out.println(cube.getFirmwareVersion());
 //                
 //                System.out.println(cube.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
 //                System.out.println(cube.readRegister(ObisCode.fromString("1.1.1.7.0.255")));
-//                System.out.println(cube.readRegister(ObisCode.fromString("1.1.3.7.0.255")));
+                
+                
+                System.out.println(cube.readRegister(ObisCode.fromString("1.1.3.7.0.255")));
+                
 //                System.out.println(cube.readRegister(ObisCode.fromString("1.1.9.7.0.255")));
-//                System.out.println(cube.readRegister(ObisCode.fromString("1.1.13.7.0.255")));
+                //System.out.println(cube.readRegister(ObisCode.fromString("1.1.13.7.0.255")));
 //
 //                System.out.println(cube.readRegister(ObisCode.fromString("1.1.21.7.0.255")));
 //                System.out.println(cube.readRegister(ObisCode.fromString("1.1.41.7.0.255")));
@@ -146,10 +168,10 @@ public class Cube350 extends Modbus {
 //                System.out.println(cube.readRegister(ObisCode.fromString("1.1.51.7.0.255")));
 //                System.out.println(cube.readRegister(ObisCode.fromString("1.1.71.7.0.255")));
                 
-                System.out.println(cube.getRegisterFactory().findRegister("MeterModel").values()[0]);
-                
-                dialer.disConnect();
+                //System.out.println(cube.getRegisterFactory().findRegister("MeterModel").values()[0]);
                 cube.disconnect();
+                }
+                dialer.disConnect();
             }
              
 

@@ -73,13 +73,13 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
     private void assembleAndSend(RequestData requestData) throws NestedIOException, ConnectionException {
         byte[] data = ProtocolUtils.concatByteArrays(new byte[]{(byte)getAddress()},requestData.getFrameData());
         int crc = CRCGenerator.calcCRCModbus(data);
-        
         sendRawData(ProtocolUtils.concatByteArrays(data,new byte[]{(byte)(crc%256),(byte)(crc/256)}));
     }
     
     public ResponseData sendRequest(RequestData requestData) throws IOException {
         int retry=0;
         while(true) {
+        	flushInputStream();
             ResponseData responseData;
             try {
                 assembleAndSend(requestData);
@@ -97,8 +97,14 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
                 return responseData;
             }
             catch(ConnectionException e) {
+                if (DEBUG>=1) System.out.println("KV_DEBUG> CRC_ERROR retry="+retry+" of getMaxRetries()="+getMaxRetries());
                 if (retry++>=getMaxRetries()) {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> CRC_ERROR retry="+retry+" of getMaxRetries()="+getMaxRetries());
+                    throw new ProtocolConnectionException("ModbusConnection, sendRequest(), error maxRetries ("+getMaxRetries()+"), "+e.getMessage());
+                }
+            }
+            catch(ModbusException e) {
+                if (DEBUG>=1) System.out.println("KV_DEBUG> ModbusException retry="+retry+" of getMaxRetries()="+getMaxRetries());
+                if (retry++>=getMaxRetries()) {
                     throw new ProtocolConnectionException("ModbusConnection, sendRequest(), error maxRetries ("+getMaxRetries()+"), "+e.getMessage());
                 }
             }
@@ -125,13 +131,13 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
         int functionErrorCode=0;
         resultDataArrayOutputStream.reset();
         allDataArrayOutputStream.reset();
-        if (DEBUG == 1) System.out.println("receiveDataLength(...):");
+        if (DEBUG >= 2) System.out.println("receiveDataLength(...):");
         copyEchoBuffer();
         while(true) {
             
             if ((kar = readIn()) != -1) {
                 
-                if (DEBUG == 1) {
+                if (DEBUG >= 2) {
                     System.out.print(",0x");
                     ProtocolUtils.outputHex( ((int)kar));
                 }
@@ -197,11 +203,11 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
                             if (crc2==crc) {
                                 data = resultDataArrayOutputStream.toByteArray();
                                 responseData.setData(ProtocolUtils.getSubArray2(data, 0, data.length-2));
-                                if (DEBUG>=1) System.out.println("KV_DEBUG> "+responseData);
+                                if (DEBUG>=2) System.out.println("KV_DEBUG> "+responseData);
                                 return responseData;
                             }
                             else {
-                                if (DEBUG>=1) System.out.println("KV_DEBUG> CRC_ERROR ");
+                                if (DEBUG>=2) System.out.println("KV_DEBUG> CRC_ERROR ");
                                 throw new ProtocolConnectionException("receiveDataLength() CRC Error",CRC_ERROR);
                             }
                         }
@@ -244,7 +250,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
         
         resultDataArrayOutputStream.reset();
         allDataArrayOutputStream.reset();
-        if (DEBUG == 1) System.out.println("receiveData(...):");
+        if (DEBUG >=2) System.out.println("receiveData(...):");
         copyEchoBuffer();
         while(true) {
             
@@ -253,7 +259,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
                 if (state != STATE_WAIT_FOR_ADDRESS)
                      interframe = System.currentTimeMillis() + interframeTimeout; // // 3.5 cher T @ 2400 (supposed as lowest baudrate)
                 
-                if (DEBUG == 1) {
+                if (DEBUG >= 2) {
                     System.out.print(",0x");
                     ProtocolUtils.outputHex( ((int)kar));
                 }
@@ -267,7 +273,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
                             allDataArrayOutputStream.write(kar);
                             responseData.setAddress(kar);
                             state = STATE_WAIT_FOR_FUNCTIONCODE;
-                            if (DEBUG>=1) System.out.println("KV_DEBUG> address received");
+                            if (DEBUG>=2) System.out.println("KV_DEBUG> address received");
                         }
                         else allDataArrayOutputStream.reset();
                    } break; // STATE_WAIT_FOR_ADDRESS
@@ -316,11 +322,11 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
                     if (crc2==crc) {
                         data = resultDataArrayOutputStream.toByteArray();
                         responseData.setData(ProtocolUtils.getSubArray2(data, 0, data.length-2));
-                        if (DEBUG>=1) System.out.println("KV_DEBUG> "+responseData);
+                        if (DEBUG>=2) System.out.println("KV_DEBUG> "+responseData);
                         return responseData;
                     }
                     else {
-                        if (DEBUG>=1) System.out.println("KV_DEBUG> CRC_ERROR ");
+                        if (DEBUG>=2) System.out.println("KV_DEBUG> CRC_ERROR ");
                         throw new ProtocolConnectionException("receiveDataModbus() CRC Error",CRC_ERROR);
                     }
                 } // if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0)

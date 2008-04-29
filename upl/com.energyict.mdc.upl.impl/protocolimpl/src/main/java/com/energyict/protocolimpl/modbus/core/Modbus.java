@@ -40,7 +40,9 @@ abstract public class Modbus extends AbstractProtocol implements Discover {
     private boolean virtualLoadProfile;
     int responseTimeout;
     int physicalLayer;
-            
+    int firstTimeDelay;
+    String meterFirmwareVersion;
+    
     private int registerOrderFixedPoint;
     private int registerOrderFloatingPoint;
     
@@ -49,6 +51,12 @@ abstract public class Modbus extends AbstractProtocol implements Discover {
     }
     
     protected void doConnect() throws IOException {
+    	
+    	try {
+    		Thread.sleep(firstTimeDelay);
+    	}
+    	catch(InterruptedException e) {}
+    	
         doTheConnect();
     }
     
@@ -86,8 +94,8 @@ abstract public class Modbus extends AbstractProtocol implements Discover {
         
         setRegisterOrderFixedPoint(Integer.parseInt(properties.getProperty("RegisterOrderFixedPoint","1").trim()));
         setRegisterOrderFloatingPoint(Integer.parseInt(properties.getProperty("RegisterOrderFloatingPoint","1").trim()));
-        
-        
+        firstTimeDelay = Integer.parseInt(properties.getProperty("FirstTimeDelay", "0").trim());
+        meterFirmwareVersion = properties.getProperty("MeterFirmwareVersion", "");
         doTheValidateProperties(properties);
     }
     
@@ -257,5 +265,17 @@ abstract public class Modbus extends AbstractProtocol implements Discover {
     private void setRegisterOrderFloatingPoint(int registerOrderFloatingPoint) {
         this.registerOrderFloatingPoint = registerOrderFloatingPoint;
     }
+    protected int getInfoTypeFirstTimeDelay() { 
+		return firstTimeDelay;
+	}
+	protected void setInfoTypeFirstTimeDelay(int firstTimeDelay) {
+		this.firstTimeDelay = firstTimeDelay;
+	}
+	protected String getInfoTypeMeterFirmwareVersion() {
+		return meterFirmwareVersion;
+	}
+	protected void setInfoTypeMeterFirmwareVersion(String meterFirmwareVersion) {
+		this.meterFirmwareVersion = meterFirmwareVersion;
+	}
     
 }

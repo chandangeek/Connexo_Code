@@ -205,49 +205,83 @@ public class PM800 extends Modbus implements MessageProtocol {
     
     
     static public void main(String[] args) {
-        try {
-            // ********************** Dialer **********************
-            Dialer dialer = DialerFactory.getDirectDialer().newDialer();
-            dialer.init("COM1");
-            dialer.getSerialCommunicationChannel().setParams(9600,
-                                                             SerialCommunicationChannel.DATABITS_8,
-                                                             SerialCommunicationChannel.PARITY_NONE,
-                                                             SerialCommunicationChannel.STOPBITS_1);
-            dialer.connect();
-            
-            // ********************** Properties **********************
-            Properties properties = new Properties();
-            properties.setProperty("ProfileInterval", "900");
-            //properties.setProperty(MeterProtocol.NODEID,"0");
-            properties.setProperty(MeterProtocol.ADDRESS,"2");
-            properties.setProperty("HalfDuplex", "1");
+		try {
+			int countMax;
+            if ((args==null) || (args.length<=3))
+            	countMax=1;
+            else
+            	countMax=Integer.parseInt(args[3]);				
+			
+			int count = 0;
+			while (count++ < countMax) {
+				
+				// ********************** Dialer **********************
+				Dialer dialer = DialerFactory.getDirectDialer().newDialer();
+	            String comport;
+	            if ((args==null) || (args.length<=1))
+	                comport="COM1";
+	            else
+	                comport=args[1]; //"/dev/ttyXR0";			
+				dialer.init(comport);
+				
+				dialer.getSerialCommunicationChannel().setParams(9600,
+						SerialCommunicationChannel.DATABITS_8,
+						SerialCommunicationChannel.PARITY_NONE,
+						SerialCommunicationChannel.STOPBITS_1);
+				dialer.connect();
 
-            // ********************** EictRtuModbus **********************
-            PM800 eictRtuModbus = new PM800();
-            //System.out.println(eictRtuModbus.translateRegister(ObisCode.fromString("1.1.1.8.0.255")));
-            
-            eictRtuModbus.setProperties(properties);
-            eictRtuModbus.setHalfDuplexController(dialer.getHalfDuplexController());
-            eictRtuModbus.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
-            eictRtuModbus.connect();
-            
-            //System.out.println(eictRtuModbus.getRegisterFactory().getFunctionCodeFactory().getMandatoryReadDeviceIdentification());
-            
-//            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).getReadHoldingRegistersRequest());
-//            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).quantityValue());
-//            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(3034).dateValue());
-//            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).quantityValueWithParser("BigDecimal"));
-//            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).objectValueWithParser("powerfactor"));
-            
-            System.out.println(eictRtuModbus.getFirmwareVersion());
-            System.out.println(eictRtuModbus.getClass().getName());
-            System.out.println(eictRtuModbus.getTime());
-//            System.out.println(eictRtuModbus.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
-//            System.out.println(eictRtuModbus.readRegister(ObisCode.fromString("1.1.1.7.0.255")));
-//            System.out.println(eictRtuModbus.getRegistersInfo(0));
-//            System.out.println(eictRtuModbus.getRegistersInfo(1));
-            
-            eictRtuModbus.disconnect();
+				// ********************** Properties **********************
+				Properties properties = new Properties();
+				properties.setProperty("ProfileInterval", "900");
+				// properties.setProperty(MeterProtocol.NODEID,"0");
+				properties.setProperty(MeterProtocol.ADDRESS, "6");
+				properties.setProperty("Timeout", "2000");
+
+	            int ift;
+	            if ((args==null) || (args.length==0))
+	                ift=50;
+	            else
+	                ift=Integer.parseInt(args[0]);				
+	            properties.setProperty("InterframeTimeout", ""+ift);
+	            
+
+	            int hdt;
+	            if ((args==null) || (args.length<=2))
+	            	hdt=-1;
+	            else
+	            	hdt=Integer.parseInt(args[2]);				
+				properties.setProperty("HalfDuplex", ""+hdt); 
+
+	            // ********************** EictRtuModbus **********************
+	            PM800 eictRtuModbus = new PM800();
+	            //System.out.println(eictRtuModbus.translateRegister(ObisCode.fromString("1.1.1.8.0.255")));
+	            
+	            eictRtuModbus.setProperties(properties);
+	            eictRtuModbus.setHalfDuplexController(dialer.getHalfDuplexController());
+	            eictRtuModbus.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
+	            eictRtuModbus.connect();
+	            
+	            //System.out.println(eictRtuModbus.getRegisterFactory().getFunctionCodeFactory().getMandatoryReadDeviceIdentification());
+	            
+	//            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).getReadHoldingRegistersRequest());
+	//            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).quantityValue());
+	//            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(3034).dateValue());
+	//            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).quantityValueWithParser("BigDecimal"));
+	//            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).objectValueWithParser("powerfactor"));
+	            
+	            //System.out.println(eictRtuModbus.getFirmwareVersion());
+	            //System.out.println(eictRtuModbus.getClass().getName());
+	            //System.out.println(eictRtuModbus.getTime());
+	           System.out.println(eictRtuModbus.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
+	            //System.out.println(eictRtuModbus.readRegister(ObisCode.fromString("1.1.1.7.0.255")));
+	            //System.out.println(eictRtuModbus.readRegister(ObisCode.fromString("1.1.1.7.0.255")));
+	            //System.out.println(eictRtuModbus.getRegistersInfo(0));
+	            //System.out.println(eictRtuModbus.getRegistersInfo(1));
+	            
+	            
+				eictRtuModbus.disconnect();
+				dialer.disConnect();
+			}
             
         }
         catch(Exception e) {
