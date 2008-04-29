@@ -1,7 +1,5 @@
 package com.energyict.genericprotocolimpl.lgadvantis;
 
-import junit.framework.TestCase;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,16 +9,15 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Date;
 
-public class HttpTimeoutTest extends TestCase {
+import static org.junit.Assert.assertTrue;
 
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
+import org.junit.Ignore;
+import org.junit.Test;
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
+@Ignore
+public class HttpTimeoutTest {
 
+	@Test
     public void testHttpTimeout() {
         try {
             int msTimeout = 5000;
