@@ -57,7 +57,8 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 		if ("P2LPCTariff".equals(nodeName)){
 			readActivityCalendar(element);
 		}
-		throw new ApplicationException("Unknown tag found in xml userfile: " + element.getNodeName());
+		else
+			throw new ApplicationException("Unknown tag found in xml userfile: " + element.getNodeName());
 	}
 	
 	protected void readActivityCalendar(Element element){
@@ -75,8 +76,10 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 				Element day = (Element) days.item(i);
 				int dayId = Integer.parseInt(day.getAttribute("DayId"));
 				System.out.println(dayId);
-				DayProfile dayprofile = new DayProfile(dayId);
-				readDay(day, dayprofile);
+				DayProfile dayProfile = new DayProfile(dayId);
+				readDay(day, dayProfile);
+				activityCalendar.addPassiveDayProfiles(dayProfile);
+				
 			}
 		}
 		catch (NumberFormatException e) {
@@ -101,6 +104,7 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 				System.out.println(startTime + ": " + ProtocolUtils.outputHexString(newDaySegment(startTime)));
 				System.out.println(script + ": " + ProtocolUtils.outputHexString(getScript(script)));
 				System.out.println(getSelector(selector));
+				dayprofile.addSegment(daySegment);
 			}
 		}
 		catch (NumberFormatException e) {
@@ -163,11 +167,51 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 			String name = ((Element) names.item(0)).getAttribute("Name");
 			System.out.println("name: " + name);
 			activityCalendar.setPassiveCalendarName(new OctetString(name));
+			String activateTime = ((Element) names.item(0)).getAttribute("ActivateTime");
+			if ((activateTime != null) && (!"".equals(activateTime)))
+				activityCalendar.setActivatePassiveCalendarTime(
+						getActivateTime(activateTime));
 		} else {
 			throw new ApplicationException("No calendar name found");
+		}	
+	}
+	
+	protected CosemCalendar getActivateTime(String value) {
+		try {
+			int index = value.indexOf('.');
+			int day = Integer.parseInt(value.substring(0, index));
+			value = value.substring(index + 1);
+			index = value.indexOf('.');
+			int month = Integer.parseInt(value.substring(0, index));
+			value = value.substring(index + 1);
+			index = value.indexOf(' ');
+			int year = Integer.parseInt(value.substring(0, index));
+			value = value.substring(index + 1);
+			int hours = Integer.parseInt(value.substring(0, 2));
+			int minutes = Integer.parseInt(value.substring(3, 5));
+			int seconds = Integer.parseInt(value.substring(6, 8));
+			System.out.println("++++++++++++++++++++++++++  econds = " + seconds);
+			byte[] bytes = new byte[12];
+			bytes[0]= (byte) (year >> 8);
+			bytes[1] = (byte) year;
+			bytes[2]= (byte) month;	//month
+			bytes[3]= (byte) day;		//day
+			bytes[4]= (byte) 0xFF;
+			bytes[5]= (byte) hours;
+			bytes[6]= (byte) minutes;
+			bytes[7]= (byte) seconds;
+			bytes[8]= (byte) 0x00;
+			bytes[9]= (byte) 0x00;
+			bytes[10]= (byte) 0x00;
+			bytes[11]= (byte) 0x00;
+			return new CosemCalendar(new OctetString(bytes));
 		}
-		
-			
+		catch (IndexOutOfBoundsException e) {
+			throw new ApplicationException("Invalid activate time");
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("Invalid activate time");
+		}
 	}
 	
 	protected byte[] getScript(String value) {
@@ -211,13 +255,16 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 	protected byte[] newSeason(String value) {
 		try {
 			int index = value.indexOf('.');
-			int month = Integer.parseInt(value.substring(0, index));
+			int day = Integer.parseInt(value.substring(0, index));
 			value = value.substring(index + 1);
 			index = value.indexOf('.');
-			int day = Integer.parseInt(value.substring(0, index));
+			int month = Integer.parseInt(value.substring(0, index));
+			value = value.substring(index + 1);
+			index = value.indexOf(' ');
+			int year = Integer.parseInt(value.substring(0, index));
 			byte[] bytes = new byte[12];
-			bytes[0]= (byte) 0xFF;  //year
-			bytes[1]= (byte) 0xFF;	//year
+			bytes[0]= (byte) (year >> 8);
+			bytes[1] = (byte) year;
 			bytes[2]= (byte) month;	//month
 			bytes[3]= (byte) day;		//day
 			bytes[4]= (byte) 0xFF;
@@ -280,9 +327,19 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 		
 		*/
 		
-		InputStream stream = new FileInputStream(new File("C:/Iskra/tariff.xml"));
+		/*System.out.println(
+				ProtocolUtils.outputHexString(
+						new com.energyict.genericprotocolimpl.common.tou.OctetString("11:12:13:14:").getOctets()));
+		*/
+		/*InputStream stream = new FileInputStream(new File("C:/Iskra/tariff.xml"));
 		IskraActivityCalendarReader reader = new IskraActivityCalendarReader(new ActivityCalendar());
-		reader.read(stream);
+		reader.read(stream);*/
+		
+		byte[] bytes = new byte[2];
+		bytes[0]= (byte) (65535  >> 8);
+		bytes[1] = (byte) 65535 ;
+		System.out.println(ProtocolUtils.outputHexString(bytes));
+
 	}
 	
 }

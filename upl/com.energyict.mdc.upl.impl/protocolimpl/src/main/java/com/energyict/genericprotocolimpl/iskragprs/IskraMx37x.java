@@ -1497,7 +1497,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	}
 	
 	public void sendActivityCalendar(String contents, RtuMessage msg) throws SQLException, BusinessException, IOException  {
-    	UserFile userFile = getUserFile(contents);
+    	UserFile userFile = getUserFile(msg.getContents());
     	
     	ActivityCalendar activityCalendar =
     		getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255"));
@@ -1517,7 +1517,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         activityCalendar.writeActivatePassiveCalendarTime(builder.activatePassiveCalendarTime());
         
         // read calendar, if error
-        msg.confirm();
+        //msg.confirm();
     	
     }
 	
@@ -1527,12 +1527,12 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         	MeteringWarehouse.getCurrent().getUserFileFactory().find(id);
         if (userFile == null)
         	throw new BusinessException("No userfile found with id " + id);
-        return null;
+        return userFile;
 	}
 	
 	protected int getTouFileId(String contents) throws BusinessException {
 		int startIndex = 2 + TOU.length();  // <TOU>
-		int endIndex = contents.indexOf("</" + TOU + ">") - 1;
+		int endIndex = contents.indexOf("</" + TOU + ">");
 		String value = contents.substring(startIndex, endIndex);
 		try {
 			return Integer.parseInt(value);

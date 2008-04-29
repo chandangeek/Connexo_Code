@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.protocol.ProtocolUtils;
 
 public class CosemActivityCalendarBuilder {
     
@@ -114,26 +115,27 @@ public class CosemActivityCalendarBuilder {
         return array;        
     }
     public Array dayProfileTablePassive() {
-        Structure structureDay = new Structure();
-        Array arrayDay = new Array();
+        Array dayProfilesArray = new Array();
         List dayProfiles = messageActivityCalendar.getPassiveDayProfiles();
         Iterator it = dayProfiles.iterator();
         while(it.hasNext()) {
+            Structure dayProfileStructure = new Structure();
             DayProfile dp = (DayProfile)it.next();
-            structureDay.addDataType(new Unsigned8(dp.getDayId()));
-            Array array = new Array();
+            dayProfileStructure.addDataType(new Unsigned8(dp.getDayId()));
+            Array segmentsArray = new Array();
             Iterator itSegments = dp.getSegments().iterator();
             while(itSegments.hasNext()) {
                 DayProfileSegment dps = (DayProfileSegment)itSegments.next();
-                Structure structure = new Structure();
-                structure.addDataType(new OctetString(dps.getStartTimeOctets()));
-                structure.addDataType(new OctetString(dps.getAction().getLogicalNameOctets()));
-                structure.addDataType(new Unsigned16(dps.getAction().getSelector()));
-                array.addDataType(structure);
+                Structure segmentStructure = new Structure();
+                segmentStructure.addDataType(new OctetString(dps.getStartTimeOctets()));
+                segmentStructure.addDataType(new OctetString(dps.getAction().getLogicalNameOctets()));
+                segmentStructure.addDataType(new Unsigned16(dps.getAction().getSelector()));
+                segmentsArray.addDataType(segmentStructure);
             }
-            structureDay.addDataType(array);
+            dayProfileStructure.addDataType(segmentsArray);
+            dayProfilesArray.addDataType(dayProfileStructure);
         }
-        return arrayDay;
+        return dayProfilesArray;
     }
             
     public OctetString activatePassiveCalendarTime() {

@@ -7,7 +7,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.energyict.cbo.ApplicationException;
-import com.energyict.edf.messages.objects.DayProfileSegment;
 
 public class DayProfile {
 	
