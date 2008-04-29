@@ -31,16 +31,18 @@ public class ConstructXmlFilesTest extends TestCase {
 			"</telerel-rq>/n" +
 			"</releve-cpl>/n";
 			
-			File file = new File("C:/tmp/testfile.xml");
-			FileOutputStream output = new FileOutputStream(file);
+			File file = File.createTempFile("testfile","xml");
+            FileOutputStream output = new FileOutputStream(file);
 			PrintStream p =  new PrintStream(output);
 			p.println(xml);
 			p.close();
 			
-			String cXml = ConstructXmlFiles.getXmlFile("C:/tmp/testfile.xml");
+			String cXml = ConstructXmlFiles.getXmlFile(file.getPath());
 			
 			assertEquals(xml,cXml);
-		} catch (FileNotFoundException e) {
+
+            file.delete();
+        } catch (FileNotFoundException e) {
 			e.printStackTrace();
 			fail();
 		} catch (IOException e) {
