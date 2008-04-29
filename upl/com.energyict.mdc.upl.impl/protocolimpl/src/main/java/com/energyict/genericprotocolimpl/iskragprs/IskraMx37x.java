@@ -1514,7 +1514,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         activityCalendar.writeDayProfileTablePassive(builder.dayProfileTablePassive());
         activityCalendar.writeWeekProfileTablePassive(builder.weekProfileTablePassive());
         activityCalendar.writeSeasonProfilePassive(builder.seasonProfilePassive());
-        activityCalendar.writeActivatePassiveCalendarTime(builder.activatePassiveCalendarTime());
+        if (calendarData.getActivatePassiveCalendarTime() != null)
+        	activityCalendar.writeActivatePassiveCalendarTime(builder.activatePassiveCalendarTime());
         
         // read calendar, if error
         //msg.confirm();

@@ -34,7 +34,7 @@ public class ActivityCalendar  {
 	private List passiveSeasonProfiles = new ArrayList();
 	private List passiveWeekProfiles = new ArrayList();
 	private List passiveDayProfiles = new ArrayList();
-	private CosemCalendar activatePassiveCalendarTime = new CosemCalendar();
+	private CosemCalendar activatePassiveCalendarTime; /* = new CosemCalendar();*/
 	
 	private ActivityCalendarReader reader;
 	private ActivityCalendarWriter writer;
