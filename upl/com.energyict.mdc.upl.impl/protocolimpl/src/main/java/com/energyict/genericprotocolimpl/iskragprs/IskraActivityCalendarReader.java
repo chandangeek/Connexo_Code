@@ -71,11 +71,11 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 	protected void readDays(Element element) {
 		try {
 			NodeList days = element.getElementsByTagName("DayProfile");
-			System.out.println("days: " + days.getLength());
+			//System.out.println("days: " + days.getLength());
 			for (int i = 0; i < days.getLength(); i++) {
 				Element day = (Element) days.item(i);
 				int dayId = Integer.parseInt(day.getAttribute("DayId"));
-				System.out.println(dayId);
+				//System.out.println(dayId);
 				DayProfile dayProfile = new DayProfile(dayId);
 				readDay(day, dayProfile);
 				activityCalendar.addPassiveDayProfiles(dayProfile);
@@ -90,7 +90,7 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 	protected void readDay(Element element, DayProfile dayprofile) {
 		try {
 			NodeList actions = element.getElementsByTagName("DayProfileAction");
-			System.out.println("actions: " + actions.getLength());
+			//System.out.println("actions: " + actions.getLength());
 			for (int i = 0; i < actions.getLength(); i++) {
 				Element action = (Element) actions.item(i);
 				String startTime = action.getAttribute("StartTime");
@@ -101,9 +101,9 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 							newDaySegment(startTime), 
 							getScript(script),
 							getSelector(selector));
-				System.out.println(startTime + ": " + ProtocolUtils.outputHexString(newDaySegment(startTime)));
-				System.out.println(script + ": " + ProtocolUtils.outputHexString(getScript(script)));
-				System.out.println(getSelector(selector));
+				//System.out.println(startTime + ": " + ProtocolUtils.outputHexString(newDaySegment(startTime)));
+				//System.out.println(script + ": " + ProtocolUtils.outputHexString(getScript(script)));
+				//System.out.println(getSelector(selector));
 				dayprofile.addSegment(daySegment);
 			}
 		}
@@ -124,7 +124,7 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 	protected void readWeeks(Element element) {
 		try {
 			NodeList weeks = element.getElementsByTagName("WeekProfile");
-			System.out.println("weeks: " + weeks.getLength());
+			//System.out.println("weeks: " + weeks.getLength());
 			for (int i = 0; i < weeks.getLength(); i++) {
 				Element week = (Element) weeks.item(i);
 				String name = week.getAttribute("Name");
@@ -136,7 +136,7 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 				weekProfile.setFriday(Integer.parseInt(week.getAttribute("Friday")));
 				weekProfile.setSaturday(Integer.parseInt(week.getAttribute("Saturday")));
 				weekProfile.setSunday(Integer.parseInt(week.getAttribute("Sunday")));
-				System.out.println(weekProfile);
+				//System.out.println(weekProfile);
 				activityCalendar.addPassiveWeekProfiles(weekProfile);
 			}
 		}
@@ -147,7 +147,7 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 	
 	protected void readSeasons(Element element) {
 		NodeList seasons = element.getElementsByTagName("Season");
-		System.out.println("seasons: " + seasons.getLength());
+		//System.out.println("seasons: " + seasons.getLength());
 		for (int i = 0; i < seasons.getLength(); i++) {
 			Element season = (Element) seasons.item(i);
 			String name = season.getAttribute("Name");
@@ -155,17 +155,17 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 			String weekProfile = season.getAttribute("WeekProfile");
 			SeasonProfile seasonProfile = 
 				new SeasonProfile(name, newSeason(start), weekProfile);
-			System.out.println(name + ", " + ProtocolUtils.outputHexString(newSeason(start)) + ", " + weekProfile);
+			//System.out.println(name + ", " + ProtocolUtils.outputHexString(newSeason(start)) + ", " + weekProfile);
 			activityCalendar.addPassiveSeasonProfiles(seasonProfile);
 		}
 	}
 	
 	protected void readCalendarName(Element element){
 		NodeList names = element.getElementsByTagName("Calendar");
-		System.out.println(names.getLength());
+		//System.out.println(names.getLength());
 		if (names.getLength() != 0){
 			String name = ((Element) names.item(0)).getAttribute("Name");
-			System.out.println("name: " + name);
+			//System.out.println("name: " + name);
 			activityCalendar.setPassiveCalendarName(new OctetString(name));
 			String activateTime = ((Element) names.item(0)).getAttribute("ActivateTime");
 			if ((activateTime != null) && (!"".equals(activateTime)))
@@ -190,7 +190,7 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 			int hours = Integer.parseInt(value.substring(0, 2));
 			int minutes = Integer.parseInt(value.substring(3, 5));
 			int seconds = Integer.parseInt(value.substring(6, 8));
-			System.out.println("++++++++++++++++++++++++++  econds = " + seconds);
+			//System.out.println("seconds = " + seconds);
 			byte[] bytes = new byte[12];
 			bytes[0]= (byte) (year >> 8);
 			bytes[1] = (byte) year;
