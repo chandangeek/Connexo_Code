@@ -43,22 +43,20 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
 import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
 import com.energyict.mdw.amrimpl.RtuRegisterReadingImpl;
+import com.energyict.mdw.core.AmrJournalEntry;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.MeteringWarehouse;
@@ -116,6 +114,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private CapturedObjects[] 		capturedObjects = {null, null, null, null, null};	// max. 5 (1E-meter + 4MBus-meters)
     private MbusDevice[]			mbusDevices = {null, null, null, null};				// max. 4 MBus meters
     public static ScalerUnit[] 		demandScalerUnits = {new ScalerUnit(0,30), new ScalerUnit(0,0), new ScalerUnit(0,0), new ScalerUnit(0,0), new ScalerUnit(0,0)};
+    private CommunicationScheduler scheduler;
     
     private int iHDLCTimeoutProperty;
     private int iProtocolRetriesProperty;
@@ -250,6 +249,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		this.logger = logger;
 		this.communicationProfile = scheduler.getCommunicationProfile();
 		this.link = link;
+		this.scheduler = scheduler;
 		
 		rtu = scheduler.getRtu();
 		validateProperties();
@@ -1497,29 +1497,38 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	}
 	
 	public void sendActivityCalendar(String contents, RtuMessage msg) throws SQLException, BusinessException, IOException  {
-    	UserFile userFile = getUserFile(msg.getContents());
+    	try {
+			UserFile userFile = getUserFile(msg.getContents());
+	    	
+	    	ActivityCalendar activityCalendar =
+	    		getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255"));
+	    
+	    	com.energyict.genericprotocolimpl.common.tou.ActivityCalendar calendarData = 
+	    		new com.energyict.genericprotocolimpl.common.tou.ActivityCalendar();
+	    	ActivityCalendarReader reader = new IskraActivityCalendarReader(calendarData);
+	    	calendarData.setReader(reader);
+	    	calendarData.read(new ByteArrayInputStream(userFile.loadFileInByteArray()));
+	    	CosemActivityCalendarBuilder builder = new 
+	    		CosemActivityCalendarBuilder(calendarData);
     	
-    	ActivityCalendar activityCalendar =
-    		getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255"));
-    
-    	com.energyict.genericprotocolimpl.common.tou.ActivityCalendar calendarData = 
-    		new com.energyict.genericprotocolimpl.common.tou.ActivityCalendar();
-    	ActivityCalendarReader reader = new IskraActivityCalendarReader(calendarData);
-    	calendarData.setReader(reader);
-    	calendarData.read(new ByteArrayInputStream(userFile.loadFileInByteArray()));
-    	CosemActivityCalendarBuilder builder = new 
-    		CosemActivityCalendarBuilder(calendarData);
-    	
-        activityCalendar.writeCalendarNamePassive(builder.calendarNamePassive());
-        activityCalendar.writeDayProfileTablePassive(builder.dayProfileTablePassive());
-        activityCalendar.writeWeekProfileTablePassive(builder.weekProfileTablePassive());
-        activityCalendar.writeSeasonProfilePassive(builder.seasonProfilePassive());
-        if (calendarData.getActivatePassiveCalendarTime() != null)
-        	activityCalendar.writeActivatePassiveCalendarTime(builder.activatePassiveCalendarTime());
-        
-        // read calendar, if error
-        //msg.confirm();
-    	
+	        activityCalendar.writeCalendarNamePassive(builder.calendarNamePassive());
+	        activityCalendar.writeDayProfileTablePassive(builder.dayProfileTablePassive());
+	        activityCalendar.writeWeekProfileTablePassive(builder.weekProfileTablePassive());
+	        activityCalendar.writeSeasonProfilePassive(builder.seasonProfilePassive());
+	        if (calendarData.getActivatePassiveCalendarTime() != null)
+	        	activityCalendar.writeActivatePassiveCalendarTime(builder.activatePassiveCalendarTime());
+	        msg.confirm();
+    	}
+    	catch (Exception e) {
+    		msg.setFailed();
+    		AMRJournalManager amrJournalManager = 
+    			new AMRJournalManager(rtu, scheduler);
+    		amrJournalManager.journal(
+    				new AmrJournalEntry(AmrJournalEntry.DETAIL, "Sending time of use failed: " + e.toString()));
+    		amrJournalManager.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
+    		amrJournalManager.updateRetrials();
+    		getLogger().severe(e.toString());
+    	}
     }
 	
 	protected UserFile getUserFile(String contents)throws BusinessException {
