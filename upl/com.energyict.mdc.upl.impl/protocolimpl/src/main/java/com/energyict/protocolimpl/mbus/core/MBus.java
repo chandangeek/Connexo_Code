@@ -105,12 +105,12 @@ abstract public class MBus extends AbstractProtocol implements Discover {
      R e g i s t e r P r o t o c o l  i n t e r f a c e 
      *******************************************************************************************/
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        obisCode=new ObisCode(0,0,96,99,0,obisCode.getF());
+        obisCode=new ObisCode(0,0,96,99,obisCode.getE(),obisCode.getF());
         return getRegisterFactory().findRegisterValue(obisCode);
     }
     
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        obisCode=new ObisCode(0,0,96,99,0,obisCode.getF());
+        obisCode=new ObisCode(0,0,96,99,obisCode.getE(),obisCode.getF());
         return new RegisterInfo(obisCode.getDescription());
     }    
     
@@ -140,7 +140,7 @@ abstract public class MBus extends AbstractProtocol implements Discover {
     public AbstractRegisterFactory getRegisterFactory() throws IOException {
         if (registerFactory==null) {
             initRegisterFactory();
-            registerFactory.init(getCIField72h().getDataRecords());
+            registerFactory.init(getCIField72h()); //.getDataRecords());
         }
         return registerFactory;
     }

@@ -222,6 +222,19 @@ public class EictVeris extends Modbus implements MessageProtocol {
     }    
     
     static public void main(String[] args) {
+    	try {
+    		EictVeris hawkeye = new EictVeris();
+    		System.out.println(hawkeye.translateRegister(ObisCode.fromString("1.1.16.8.0.255")));
+    		
+    	
+    	}
+    	catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    	
+    }
+    
+    static public void main2(String[] args) {
         try {
 int count=0;
 while(count++<1) {          

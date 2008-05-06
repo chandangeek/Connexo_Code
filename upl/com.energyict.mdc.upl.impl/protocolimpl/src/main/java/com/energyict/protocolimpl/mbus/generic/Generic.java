@@ -136,7 +136,7 @@ public class Generic extends MBus {
         try {
             // ********************** EictRtuModbus **********************
             DiscoverTools discoverTools = null;
-            for (int address = 29;address<30;address++) {
+            for (int address = 0;address<5;address++) {
                 System.out.println("---------------------> discover address "+address);
                 try {
                     Generic generic = new Generic();
@@ -145,7 +145,7 @@ public class Generic extends MBus {
                     SerialCommunicationSettings settings = new SerialCommunicationSettings(2400,8, 'E', 1);
 
                     if ((args==null) || (args.length<=1))
-                        discoverTools = new DiscoverTools("COM4",settings);
+                        discoverTools = new DiscoverTools("COM1",settings);
                     else
                         discoverTools = new DiscoverTools(args[1],settings); //"/dev/ttyXR0";
                     

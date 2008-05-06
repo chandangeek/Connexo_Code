@@ -11,9 +11,17 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import java.util.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterValue;
 
 /**
  *
@@ -43,8 +51,8 @@ abstract public class AbstractRegisterFactory {
         throw new NoSuchRegisterException("Register "+obisCode+" is not supported!");
     }
     
-    public void init(List dataRecords) {
-        this.dataRecords=dataRecords;
+    public void init(CIField72h cIField72h) { //List dataRecords) {
+        this.dataRecords=cIField72h.getDataRecords();
         setRegisterValues(new ArrayList());
         Iterator it = dataRecords.iterator();
         int code=0;
@@ -69,11 +77,32 @@ abstract public class AbstractRegisterFactory {
                 getRegisterValues().add(registerValue);
                 code++;
             }
-            
         }
+        
+        addHeaderRegisterValues(cIField72h);
     }    
 
-    public DataRecord getDataRecord(int index) {
+    private void addHeaderRegisterValues(CIField72h cIField72h) {
+        RegisterValue registerValue = new RegisterValue(ObisCode.fromString("0.0.96.99.255.248"),null,null,null,null,new Date(),-1,"MBUS header meter ID "+cIField72h.getMeter3LetterId());
+        getRegisterValues().add(registerValue);
+        registerValue = new RegisterValue(ObisCode.fromString("0.0.96.99.255.249"),new Quantity(new BigDecimal(cIField72h.getManufacturerIdentification()),Unit.get("")),null,null,null,new Date(),-1,"MBUS header manufacturer identification");
+        getRegisterValues().add(registerValue);
+        registerValue = new RegisterValue(ObisCode.fromString("0.0.96.99.255.250"),new Quantity(new BigDecimal(cIField72h.getVersion()),Unit.get("")),null,null,null,new Date(),-1,"MBUS header version");
+        getRegisterValues().add(registerValue);
+        registerValue = new RegisterValue(ObisCode.fromString("0.0.96.99.255.251"),null,null,null,null,new Date(),-1,"MBUS header devicetype "+cIField72h.getDeviceType().toString());
+        getRegisterValues().add(registerValue);
+        registerValue = new RegisterValue(ObisCode.fromString("0.0.96.99.255.252"),new Quantity(new BigDecimal(cIField72h.getAccessNumber()),Unit.get("")),null,null,null,new Date(),-1,"MBUS header access number");
+        getRegisterValues().add(registerValue);
+        registerValue = new RegisterValue(ObisCode.fromString("0.0.96.99.255.253"),new Quantity(new BigDecimal(cIField72h.getIdentificationNumber()),Unit.get("")),null,null,null,new Date(),-1,"MBUS header identification number");
+        getRegisterValues().add(registerValue);
+        registerValue = new RegisterValue(ObisCode.fromString("0.0.96.99.255.254"),new Quantity(new BigDecimal(cIField72h.getStatusByte()),Unit.get("")),null,null,null,new Date(),-1,"MBUS header status byte");
+        getRegisterValues().add(registerValue);
+        registerValue = new RegisterValue(ObisCode.fromString("0.0.96.99.255.255"),new Quantity(new BigDecimal(cIField72h.getSignatureField()),Unit.get("")),null,null,null,new Date(),-1,"MBUS header signature field");
+        getRegisterValues().add(registerValue);
+    }
+    
+    
+    private DataRecord getDataRecord(int index) {
        return (DataRecord)dataRecords.get(index);   
     }
     
