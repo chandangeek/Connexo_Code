@@ -173,32 +173,30 @@ public class ObisCodeMapper {
 	            	return registerValue;
 	            }
 	            
-	            else
-	            	throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 
-//                Date captureTime = null;
-//                Date billingDate = null;
-//                try {
-//                   captureTime = cosemObject.getCaptureTime();
-//                   billingDate = cosemObject.getBillingDate();
-//                }
-//                catch(ClassCastException e) {
-//                    // absorb
-//                }
-//                try {
-//                    registerValue = new RegisterValue(obisCode,
-//                                                      cosemObject.getQuantityValue(),
-//                                                      captureTime==null?billingDate:captureTime,
-//                                                      null,
-//                                                      billingDate,
-//                                                      new Date(),
-//                                                      0,
-//                                                      cosemObject.getText());
-//                    return registerValue;      
-//                }
-//                catch(ClassCastException e) {
-//                    throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-//                }
+                Date billingDate = null;
+                Date captureTime = null;
+				try {
+                   captureTime = cosemObject.getCaptureTime();
+                   billingDate = cosemObject.getBillingDate();
+                }
+                catch(ClassCastException e) {
+                    // absorb
+                }
+                try {
+                    registerValue = new RegisterValue(obisCode,
+                                                      cosemObject.getQuantityValue(),
+                                                      captureTime==null?billingDate:captureTime,
+                                                      null,
+                                                      billingDate,
+                                                      new Date(),
+                                                      0,
+                                                      cosemObject.getText());
+                    return registerValue;      
+                }
+                catch(ClassCastException e) {
+                    throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+                }
             }
             
             

@@ -233,13 +233,13 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     	Calendar cal = Calendar.getInstance();
     	Date date = new Date();
     	
-    	cal.set(Calendar.DATE, Integer.valueOf(startDate.substring(0, startDate.indexOf("/"))));
-    	cal.set(Calendar.MONTH, (Integer.valueOf(startDate.substring(startDate.indexOf("/") + 1, startDate.lastIndexOf("/")))) - 1);
-    	cal.set(Calendar.YEAR, Integer.valueOf(startDate.substring(startDate.lastIndexOf("/") + 1, startDate.indexOf(" "))));
+    	cal.set(Calendar.DATE, Integer.parseInt(startDate.substring(0, startDate.indexOf("/"))));
+    	cal.set(Calendar.MONTH, (Integer.parseInt(startDate.substring(startDate.indexOf("/") + 1, startDate.lastIndexOf("/")))) - 1);
+    	cal.set(Calendar.YEAR, Integer.parseInt(startDate.substring(startDate.lastIndexOf("/") + 1, startDate.indexOf(" "))));
     	
-    	cal.set(Calendar.HOUR_OF_DAY, Integer.valueOf(startDate.substring(startDate.indexOf(" ") + 1, startDate.indexOf(":"))));
-    	cal.set(Calendar.MINUTE, Integer.valueOf(startDate.substring(startDate.indexOf(":") + 1, startDate.lastIndexOf(":"))));
-    	cal.set(Calendar.SECOND, Integer.valueOf(startDate.substring(startDate.lastIndexOf(":") + 1, startDate.length())));
+    	cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(startDate.substring(startDate.indexOf(" ") + 1, startDate.indexOf(":"))));
+    	cal.set(Calendar.MINUTE, Integer.parseInt(startDate.substring(startDate.indexOf(":") + 1, startDate.lastIndexOf(":"))));
+    	cal.set(Calendar.SECOND, Integer.parseInt(startDate.substring(startDate.lastIndexOf(":") + 1, startDate.length())));
     	
     	System.out.println(cal.getTime());
 		
@@ -271,7 +271,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         	// Read profiles and events ... if necessary
     		if( (communicationProfile.getReadDemandValues()) && (communicationProfile.getReadMeterEvents()) ){
     			getLogger().log(Level.INFO, "Getting loadProfile for meter with serailnumber: " + rtu.getSerialNumber());
-    			getProfileData(rtu.getLastLogbook(), true, loadProfileObisCode);
+    			getProfileData(rtu.getLastReading(), true, loadProfileObisCode);
     			if(mbusDevices[0] != null){
     				// no events on the MBus meters
     				getLogger().log(Level.INFO, "Getting loadProfile for MBus device with serailnumber: " + mbusDevices[0].getMbus().getSerialNumber());
@@ -280,7 +280,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     		}
     		else if( (communicationProfile.getReadDemandValues()) && !(communicationProfile.getReadMeterEvents()) ){
     			getLogger().log(Level.INFO, "Getting loadProfile for meter with serailnumber: " + rtu.getSerialNumber());
-    			getProfileData(rtu.getLastLogbook(), false, loadProfileObisCode);
+    			getProfileData(rtu.getLastReading(), false, loadProfileObisCode);
     			if (mbusDevices[0] != null){
     				getLogger().log(Level.INFO, "Getting loadProfile for MBus device with serailnumber: " + mbusDevices[0].getMbus().getSerialNumber());
     				getProfileData(mbusDevices[0].getMbus().getLastReading(), false, mbusLProfileObisCode[0]);
@@ -835,7 +835,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         buildProfileData(bNROfChannels,dataContainer,profileData,profileObisCode);
         
         if (includeEvents) {
-            profileData.getMeterEvents().addAll(getLogbookData(fromCalendar, ProtocolUtils.getCalendar(getTimeZone())));
+        	Calendar eventCalendar = Calendar.getInstance(getTimeZone());
+        	eventCalendar.setTime(rtu.getLastLogbook());
+            profileData.getMeterEvents().addAll(getLogbookData(eventCalendar, ProtocolUtils.getCalendar(getTimeZone())));
             // Apply the events to the channel statusvalues
             profileData.applyEvents(getProfileInterval(profileObisCode)/60); 
         }
@@ -1221,7 +1223,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	}
 
 	public String getVersion() {
-		return "$Revision: 1.1 $";
+		return "$Revision: 1.4 $";
 	}
 
 	public List getOptionalKeys() {
@@ -1552,17 +1554,23 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		}
 	}
 
-	private Calendar getCalendarFromString(String strDate) {
-		Calendar cal = Calendar.getInstance(getTimeZone());
-    	cal.set(Calendar.DATE, Integer.valueOf(strDate.substring(0, strDate.indexOf("/"))));
-    	cal.set(Calendar.MONTH, (Integer.valueOf(strDate.substring(strDate.indexOf("/") + 1, strDate.lastIndexOf("/")))) - 1);
-    	cal.set(Calendar.YEAR, Integer.valueOf(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" "))));
-    	
-    	cal.set(Calendar.HOUR_OF_DAY, Integer.valueOf(strDate.substring(strDate.indexOf(" ") + 1, strDate.indexOf(":"))));
-    	cal.set(Calendar.MINUTE, Integer.valueOf(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":"))));
-    	cal.set(Calendar.SECOND, Integer.valueOf(strDate.substring(strDate.lastIndexOf(":") + 1, strDate.length())));
-    	cal.clear(Calendar.MILLISECOND);
-		return cal;
+	private Calendar getCalendarFromString(String strDate) throws BusinessException {
+		try{
+			Calendar cal = Calendar.getInstance(getTimeZone());
+	    	cal.set(Calendar.DATE, Integer.parseInt(strDate.substring(0, strDate.indexOf("/"))));
+	    	cal.set(Calendar.MONTH, (Integer.parseInt(strDate.substring(strDate.indexOf("/") + 1, strDate.lastIndexOf("/")))) - 1);
+	    	cal.set(Calendar.YEAR, Integer.parseInt(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" "))));
+	    	
+	    	cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(strDate.substring(strDate.indexOf(" ") + 1, strDate.indexOf(":"))));
+	    	cal.set(Calendar.MINUTE, Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":"))));
+	    	cal.set(Calendar.SECOND, Integer.parseInt(strDate.substring(strDate.lastIndexOf(":") + 1, strDate.length())));
+	    	cal.clear(Calendar.MILLISECOND);
+	    	return cal;
+		}
+    	catch(NumberFormatException e){
+    		throw new BusinessException("Invalid dateTime format for the codeRed message.");
+    	}
+		
 	}
 
 	private String getMessageValue(String msgStr, String str) {

@@ -144,7 +144,7 @@ public class MbusDevice implements Messaging, MeterProtocol{
 	}
 
 	public String getProtocolVersion() {
-		return "$Revision: 1.1 $";
+		return "$Revision: 1.2 $";
 	}
 
 	public String getRegister(String name) throws IOException,
