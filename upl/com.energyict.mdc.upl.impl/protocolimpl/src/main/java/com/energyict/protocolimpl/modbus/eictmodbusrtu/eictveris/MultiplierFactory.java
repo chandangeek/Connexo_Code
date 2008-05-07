@@ -72,6 +72,8 @@ public class MultiplierFactory {
             meterType=1;
         else if (firmwareVersion.indexOf("400")>=0)
             meterType=1;
+        else if (firmwareVersion.indexOf("600")>=0)
+            meterType=2;
         else if (firmwareVersion.indexOf("800")>=0)
             meterType=2;
         else if (firmwareVersion.indexOf("1600")>=0)

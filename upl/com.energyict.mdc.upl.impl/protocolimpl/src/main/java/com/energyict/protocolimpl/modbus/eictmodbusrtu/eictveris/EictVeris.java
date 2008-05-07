@@ -222,22 +222,9 @@ public class EictVeris extends Modbus implements MessageProtocol {
     }    
     
     static public void main(String[] args) {
-    	try {
-    		EictVeris hawkeye = new EictVeris();
-    		System.out.println(hawkeye.translateRegister(ObisCode.fromString("1.1.16.8.0.255")));
-    		
-    	
-    	}
-    	catch(Exception e) {
-    		e.printStackTrace();
-    	}
-    	
-    }
-    
-    static public void main2(String[] args) {
         try {
 int count=0;
-while(count++<1) {          
+while(count++<2) {          
     // ********************** Dialer **********************
             Dialer dialer = DialerFactory.getDirectDialer().newDialer();
             String comport;
@@ -282,17 +269,17 @@ while(count++<1) {
 //            catch(Exception e){
 //               	
 //            }
-            try {System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.132.7.0.255")));}catch(Exception e){}
-            try {System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.152.7.0.255")));}catch(Exception e){}
-            try {System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.172.7.0.255")));}catch(Exception e){}
+            //try {System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.132.7.0.255")));}catch(Exception e){}
+            //try {System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.152.7.0.255")));}catch(Exception e){}
+            //try {System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.172.7.0.255")));}catch(Exception e){}
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
             //System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.254")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.132.7.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
-            //System.out.println(hawkeye.getRegistersInfo(0));
-            //System.out.println(hawkeye.getRegistersInfo(1));
+            System.out.println(hawkeye.getRegistersInfo(0));
+            System.out.println(hawkeye.getRegistersInfo(1));
 
             dialer.disConnect();
             hawkeye.disconnect();
