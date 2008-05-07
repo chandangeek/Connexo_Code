@@ -88,6 +88,9 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public ActivityCalendar getActivityCalendar(ObisCode obisCode) throws IOException {
         return new ActivityCalendar(protocolLink, getObjectReference(obisCode));
     }
+    public SpecialDaysTable getSpecialDaysTable(ObisCode obisCode) throws IOException {
+        return new SpecialDaysTable(protocolLink, getObjectReference(obisCode));
+    }
     public ScriptTable getScriptTable(ObisCode obisCode) throws IOException {
         return new ScriptTable(protocolLink, getObjectReference(obisCode));
     }
