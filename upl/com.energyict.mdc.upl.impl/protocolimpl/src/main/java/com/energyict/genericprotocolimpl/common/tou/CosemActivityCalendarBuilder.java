@@ -114,6 +114,23 @@ public class CosemActivityCalendarBuilder {
         }
         return array;        
     }
+    
+    
+    public Array specialDays() {
+    	Array specialDaysArray = new Array();
+    	Iterator it = messageActivityCalendar.getSpecialDays().iterator();
+    	while (it.hasNext()) {
+    		SpecialDay specialDay = (SpecialDay) it.next();
+    		Structure specialDayStructure = new Structure();
+    		specialDayStructure.addDataType(new Unsigned16(specialDay.getIndex()));
+    		specialDayStructure.addDataType(new OctetString(specialDay.getDateOctets()));
+    		specialDayStructure.addDataType(new Unsigned8(specialDay.getDayId()));
+    		specialDaysArray.addDataType(specialDayStructure);
+    	}
+    	return specialDaysArray;
+    }
+    
+    
     public Array dayProfileTablePassive() {
         Array dayProfilesArray = new Array();
         List dayProfiles = messageActivityCalendar.getPassiveDayProfiles();

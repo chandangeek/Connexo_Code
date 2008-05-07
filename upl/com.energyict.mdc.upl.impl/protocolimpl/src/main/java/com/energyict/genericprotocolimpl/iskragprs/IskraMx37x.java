@@ -48,6 +48,7 @@ import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
@@ -1519,6 +1520,21 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	        activityCalendar.writeSeasonProfilePassive(builder.seasonProfilePassive());
 	        if (calendarData.getActivatePassiveCalendarTime() != null)
 	        	activityCalendar.writeActivatePassiveCalendarTime(builder.activatePassiveCalendarTime());
+	        
+	        // check if xml file contains special days
+	        if (calendarData.getSpecialDays().size() > 0) {
+		        SpecialDaysTable specialDaysTable =
+		    		getCosemObjectFactory().getSpecialDaysTable(ObisCode.fromString("0.0.11.0.0.255"));
+		        
+		        // delete old special days
+		        Array array = specialDaysTable.readSpecialDays();
+		        int currentMaxSpecialDayIndex = array.nrOfDataTypes();
+		        for (int i = 0; i < currentMaxSpecialDayIndex; i++) {
+		        	specialDaysTable.delete(i);
+		        }
+		        specialDaysTable.writeSpecialDays(builder.specialDays());
+	        }
+	        
 	        msg.confirm();
     	}
     	catch (Exception e) {

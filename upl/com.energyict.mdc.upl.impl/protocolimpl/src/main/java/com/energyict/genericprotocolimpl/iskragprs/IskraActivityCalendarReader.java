@@ -25,6 +25,7 @@ import com.energyict.genericprotocolimpl.common.tou.DayProfile;
 import com.energyict.genericprotocolimpl.common.tou.DayProfileSegment;
 import com.energyict.genericprotocolimpl.common.tou.OctetString;
 import com.energyict.genericprotocolimpl.common.tou.SeasonProfile;
+import com.energyict.genericprotocolimpl.common.tou.SpecialDay;
 import com.energyict.genericprotocolimpl.common.tou.WeekProfile;
 import com.energyict.protocol.ProtocolUtils;
 
@@ -66,6 +67,25 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 		readSeasons(element);
 		readWeeks(element);
 		readDays(element);
+		readSpecialDays(element);
+	}
+	
+	protected void readSpecialDays(Element element) {
+		try {
+			NodeList specialDays = element.getElementsByTagName("SpecialDay");
+			for (int i = 0; i < specialDays.getLength(); i++) {
+				Element specialDay = (Element) specialDays.item(i);
+				int index = Integer.parseInt(specialDay.getAttribute("Index"));
+				byte[] date = getSpecialDay(specialDay.getAttribute("Date"));
+				int dayId = Integer.parseInt(specialDay.getAttribute("DayId"));
+				System.out.println(index + ", " + specialDay.getAttribute("Date") + ", " + dayId);
+				activityCalendar.addSpecialDay(new SpecialDay(index, date, dayId));
+			}
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("Invalid special day");
+		}
+		
 	}
 	
 	protected void readDays(Element element) {
@@ -233,6 +253,29 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 		}
 	}
 	
+	protected byte[] getSpecialDay(String value) {
+		try {
+			int index = value.indexOf('.');
+			int day = Integer.parseInt(value.substring(0, index));
+			value = value.substring(index + 1);
+			index = value.indexOf('.');
+			int month = Integer.parseInt(value.substring(0, index));
+			value = value.substring(index + 1);
+			index = value.indexOf(' ');
+			int year = Integer.parseInt(value.substring(0, index));
+			byte[] bytes = new byte[12];
+			bytes[0]= (byte) (year >> 8);
+			bytes[1] = (byte) year;
+			bytes[2]= (byte) month;	//month
+			bytes[3]= (byte) day;		//day
+			bytes[4]= (byte) 0xFF;
+			return bytes;
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("Invalid special day date: + " + value);
+		}
+	}
+	
 	protected byte[] newDaySegment(String value) {
 		try {
 			int index = value.indexOf(':');
@@ -283,6 +326,10 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 	}
 	
 	public static void main(String args[]) throws Exception {
+		InputStream stream = new FileInputStream(new File("C:/Iskra/tariff.xml"));
+		IskraActivityCalendarReader reader = new IskraActivityCalendarReader(new ActivityCalendar());
+		reader.read(stream);
+		
 		/*CosemCalendar cal = new CosemCalendar(new OctetString("7:d7:c:5:4:e:35:e:0:80:0:0:"));
 		
 		byte[] bytes = new byte[12];
@@ -331,14 +378,11 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 				ProtocolUtils.outputHexString(
 						new com.energyict.genericprotocolimpl.common.tou.OctetString("11:12:13:14:").getOctets()));
 		*/
-		/*InputStream stream = new FileInputStream(new File("C:/Iskra/tariff.xml"));
-		IskraActivityCalendarReader reader = new IskraActivityCalendarReader(new ActivityCalendar());
-		reader.read(stream);*/
 		
-		byte[] bytes = new byte[2];
+		/*byte[] bytes = new byte[2];
 		bytes[0]= (byte) (65535  >> 8);
 		bytes[1] = (byte) 65535 ;
-		System.out.println(ProtocolUtils.outputHexString(bytes));
+		System.out.println(ProtocolUtils.outputHexString(bytes));*/
 
 	}
 	

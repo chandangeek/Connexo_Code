@@ -35,6 +35,7 @@ public class ActivityCalendar  {
 	private List passiveWeekProfiles = new ArrayList();
 	private List passiveDayProfiles = new ArrayList();
 	private CosemCalendar activatePassiveCalendarTime; /* = new CosemCalendar();*/
+	private List specialDays = new ArrayList();
 	
 	private ActivityCalendarReader reader;
 	private ActivityCalendarWriter writer;
@@ -189,5 +190,17 @@ public class ActivityCalendar  {
 	public void setActivatePassiveCalendarTime(
 			CosemCalendar activatePassiveCalendarTime) {
 		this.activatePassiveCalendarTime = activatePassiveCalendarTime;
+	}
+	
+	public void addSpecialDay(SpecialDay specialDay) {
+		this.specialDays.add(specialDay);
+	}
+	
+	public SpecialDay getSpecialDay(int i) {
+		return (SpecialDay) specialDays.get(i);
+	}
+	
+	public List getSpecialDays() {
+		return specialDays;
 	}
 }
