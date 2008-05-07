@@ -1527,11 +1527,11 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		    		getCosemObjectFactory().getSpecialDaysTable(ObisCode.fromString("0.0.11.0.0.255"));
 		        
 		        // delete old special days
-		        Array array = specialDaysTable.readSpecialDays();
+		        /*Array array = specialDaysTable.readSpecialDays();
 		        int currentMaxSpecialDayIndex = array.nrOfDataTypes();
 		        for (int i = 0; i < currentMaxSpecialDayIndex; i++) {
 		        	specialDaysTable.delete(i);
-		        }
+		        }*/
 		        specialDaysTable.writeSpecialDays(builder.specialDays());
 	        }
 	        
