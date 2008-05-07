@@ -1248,8 +1248,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
 	public List getRequiredKeys() {
         List result = new ArrayList(3);
-        result.add("ServerUpperMacAddress");
-        result.add("ServerLowerMacAddress");
         result.add("Connection");
         return result; 
 	}
@@ -1348,7 +1346,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
                 }
                 
                 if (connect){
-                	getLogger().log(Level.INFO, "Sending connect message for meter with serailnumber: " + rtu.getSerialNumber());
+                	getLogger().log(Level.INFO, "Sending connect message for meter with serialnumber: " + rtu.getSerialNumber());
                 	cosemObjectFactory.writeObject(breakerObisCode, 1, 2, connectMsg);
                 	breakerState = readRegister(breakerObisCode).getQuantity().getAmount();
                 }
@@ -1400,7 +1398,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	    	
 	    	if(codered){
 	    		description = 
-	    			"Sending new CodeRed configuration for meter with serailnumber: " + rtu.getSerialNumber();
+	    			"Sending new CodeRed configuration for meter with serialnumber: " + rtu.getSerialNumber();
 	    		getLogger().log(Level.INFO, description);
 	    		// the contractual Power Limit
 	        	if (getMessageValue(msgString, CONPOWERLIMIT).equalsIgnoreCase("")){
@@ -1429,7 +1427,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	    	
 	    	if(endcodered){
 	    		description = 
-	    			"Stop CodeRed situation for meter with serailnumber: " + rtu.getSerialNumber();
+	    			"Stop CodeRed situation for meter with serialnumber: " + rtu.getSerialNumber();
 	    		getLogger().log(Level.INFO, description);
 	    		// read the Contractual Power Limit from the meter
 	    		contractPL = readRegister(contractPowerLimit).getQuantity().getAmount().longValue();
@@ -1484,7 +1482,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	}
 	
 	protected void onDemand(Rtu rtu, RtuMessage msg) throws IOException, SQLException, BusinessException {
-		String description = "Getting ondemand registers for meter with serailnumber: " + rtu.getSerialNumber();
+		String description = "Getting ondemand registers for meter with serialnumber: " + rtu.getSerialNumber();
 		try {
 			getLogger().log(Level.INFO, description);
 			MeterReadingData mrd = new MeterReadingData();
@@ -1530,7 +1528,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	
 	public void sendActivityCalendar(String contents, RtuMessage msg) throws SQLException, BusinessException, IOException  {
 		String description = 
-			"Sending new Tariff Program message to meter with serailnumber: " + rtu.getSerialNumber();
+			"Sending new Tariff Program message to meter with serialnumber: " + rtu.getSerialNumber();
 		try {
 			getLogger().log(Level.INFO, description);
 			UserFile userFile = getUserFile(msg.getContents());
