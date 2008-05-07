@@ -19,13 +19,16 @@ import java.util.logging.Logger;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
+import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
+import com.energyict.mdw.core.AmrJournalEntry;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
@@ -296,33 +299,59 @@ public class MbusDevice implements Messaging, MeterProtocol{
             boolean ondemand 	= contents.equalsIgnoreCase(ONDEMAND);
             
             if (ondemand){
-            	getLogger().log(Level.INFO, "Getting ondemand registers for MBus device with serailnumber: " + getMbus().getSerialNumber());
-            	Iterator i = mbus.getRtuType().getRtuRegisterSpecs().iterator();
-                while (i.hasNext()) {
-                	
-                    RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
-                    ObisCode oc = spec.getObisCode();
-                    RtuRegister register = mbus.getRegister( oc );
-                    
-                    if (register != null){
-                    	
-                    	if (oc.getF() == 255){
-                        	RegisterValue rv = iskraMx37x.readRegister(oc);
-        					register.add(rv.getQuantity().getAmount(), rv
-        							.getEventTime(), rv.getFromTime(), rv.getToTime(),
-        							rv.getReadTime());
-                        }
-                    	
-                    }
-        			else {
-        				String obis = oc.toString();
-        				String msgError = "Register " + obis + " not defined on device";
-        				getLogger().info(msgError);
-        			}
-                }
-            	msg.confirm();
+            	String description = 
+            		"Getting ondemand registers for MBus device with serailnumber: " + getMbus().getSerialNumber();
+            	try {
+	            	getLogger().log(Level.INFO, description);
+	            	Iterator i = mbus.getRtuType().getRtuRegisterSpecs().iterator();
+	                while (i.hasNext()) {
+	                	
+	                    RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
+	                    ObisCode oc = spec.getObisCode();
+	                    RtuRegister register = mbus.getRegister( oc );
+	                    
+	                    if (register != null){
+	                    	
+	                    	if (oc.getF() == 255){
+	                        	RegisterValue rv = iskraMx37x.readRegister(oc);
+	                        	rv.setRtuRegisterId(register.getId());
+	                        	
+	                        	MeterReadingData meterReadingData = new MeterReadingData();
+	                        	meterReadingData.add(rv);
+	                        	mbus.store(meterReadingData);
+	                        	
+	        					/*register.add(rv.getQuantity().getAmount(), rv
+	        							.getEventTime(), rv.getFromTime(), rv.getToTime(),
+	        							rv.getReadTime());*/
+	                        }
+	                    	
+	                    }
+	        			else {
+	        				String obis = oc.toString();
+	        				String msgError = "Register " + obis + " not defined on device";
+	        				getLogger().info(msgError);
+	        			}
+	                }
+	            	msg.confirm();
+            	}
+            	catch (Exception e) {
+        			fail(e, msg, description);
+            	}
             }
 		}
+	}
+	
+	protected void fail(Exception e, RtuMessage msg, String description) throws BusinessException, SQLException {
+		msg.setFailed();
+		/*Rtu rtu = getMbus();
+		CommunicationScheduler scheduler = rtu.getC
+		AMRJournalManager amrJournalManager = 
+			new AMRJournalManager(rtu, scheduler);
+		amrJournalManager.journal(
+				new AmrJournalEntry(AmrJournalEntry.DETAIL, description + ": " + e.toString()));
+		amrJournalManager.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
+		amrJournalManager.updateRetrials();
+		getLogger().severe(e.toString());*/
 	}
 
 	public Logger getLogger() {
