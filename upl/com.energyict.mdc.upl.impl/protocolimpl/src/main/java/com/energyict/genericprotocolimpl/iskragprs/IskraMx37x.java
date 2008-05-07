@@ -178,12 +178,12 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private static String CONNECT 			= "CONNECT";
     private static String DISCONNECT 		= "DISCONNECT";
     private static String ONDEMAND 			= "ONDEMAND";
-    private static String CODERED 			= "CODERED";
-    private static String CODERED_END		= "END_CODERED";
+    private static String THRESHOLD 		= "THRESHOLD";
+    private static String THRESHOLD_CLEAR	= "THRESHOLD_CLEAR";
     private static String CONPOWERLIMIT		= "Contractual Power Limit (W)";
-    private static String CODERED_LIMIT 	= "CodeRed Power Limit (W)";
-    private static String CODERED_START_DT	= "CodeRed StartDate (dd/mm/yyyy HH:MM:SS)";
-    private static String CODERED_STOP_DT	= "CodeRed EndDate (dd/mm/yyyy HH:MM:SS)";
+    private static String THRESHOLD_LIMIT 	= "Threshold Power Limit (W)";
+    private static String THRESHOLD_STARTDT	= "StartDate (dd/mm/yyyy HH:MM:SS)";
+    private static String THRESHOLD_STOPDT	= "EndDate (dd/mm/yyyy HH:MM:SS)";
 
     private static final int ELECTRICITY 	= 0x00;
     private static final int MBUS 			= 0x01;
@@ -1331,11 +1331,11 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             boolean disconnect 	= contents.equalsIgnoreCase(DISCONNECT);
             boolean connect 	= contents.equalsIgnoreCase(CONNECT);
             boolean ondemand 	= contents.equalsIgnoreCase(ONDEMAND);
-            boolean codered		= contents.equalsIgnoreCase(CONPOWERLIMIT)||
-            					contents.equalsIgnoreCase(CODERED_LIMIT)||
-            					contents.equalsIgnoreCase(CODERED_START_DT)||
-            					contents.equalsIgnoreCase(CODERED_STOP_DT);
-            boolean endcodered 	= contents.equalsIgnoreCase(CODERED_END);
+            boolean threshold	= contents.equalsIgnoreCase(CONPOWERLIMIT)||
+            					contents.equalsIgnoreCase(THRESHOLD_LIMIT)||
+            					contents.equalsIgnoreCase(THRESHOLD_STARTDT)||
+            					contents.equalsIgnoreCase(THRESHOLD_STOPDT);
+            boolean thresholdcl = contents.equalsIgnoreCase(THRESHOLD_CLEAR);
             boolean tou			= contents.equalsIgnoreCase(TOU);
             
             if (connect || disconnect){
@@ -1380,13 +1380,13 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             if (ondemand) {
             	onDemand(rtu,msg);
             }
-            if (codered || endcodered) {
-            	codeRed(codered, endcodered, msg, msgString);
+            if (threshold || thresholdcl) {
+            	applyThreshold(threshold, thresholdcl, msg, msgString);
             }
 		}
 	}
 	
-	protected void codeRed(boolean codered, boolean endcodered, RtuMessage msg, String msgString) throws IOException, SQLException, BusinessException{
+	protected void applyThreshold(boolean threshold, boolean thresholdcl, RtuMessage msg, String msgString) throws IOException, SQLException, BusinessException{
     	String description = "";
     	try {
 			long contractPL = 0;
@@ -1396,9 +1396,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	    	Calendar startCal = null; 
 	    	Calendar stopCal = null;
 	    	
-	    	if(codered){
+	    	if(threshold){
 	    		description = 
-	    			"Sending new CodeRed configuration for meter with serialnumber: " + rtu.getSerialNumber();
+	    			"Sending new threshold configuration for meter with serialnumber: " + rtu.getSerialNumber();
 	    		getLogger().log(Level.INFO, description);
 	    		// the contractual Power Limit
 	        	if (getMessageValue(msgString, CONPOWERLIMIT).equalsIgnoreCase("")){
@@ -1406,15 +1406,15 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	        	}else
 	        		contractPL = Integer.parseInt(getMessageValue(msgString, CONPOWERLIMIT));
 	        	
-	        	// the CodeRed Power Limit
-	        	if (getMessageValue(msgString, CODERED_LIMIT).equalsIgnoreCase("")){
-	        		throw new IOException("No Code Red Limit was entered for the CodeRed message.");
+	        	// the threshold Power Limit
+	        	if (getMessageValue(msgString, THRESHOLD_LIMIT).equalsIgnoreCase("")){
+	        		throw new IOException("No threshold Limit was entered for the applyThreshold message.");
 	        	}else
-	        		limit = Integer.parseInt(getMessageValue(msgString, CODERED_LIMIT));
+	        		limit = Integer.parseInt(getMessageValue(msgString, THRESHOLD_LIMIT));
 	        	
 	        	// the Start- and EndDates to calculate the duration
-	        	startDate = getMessageValue(msgString, CODERED_START_DT);
-	        	stopDate = getMessageValue(msgString, CODERED_STOP_DT);
+	        	startDate = getMessageValue(msgString, THRESHOLD_STARTDT);
+	        	stopDate = getMessageValue(msgString, THRESHOLD_STOPDT);
 	        	startCal = (startDate.equalsIgnoreCase(""))?Calendar.getInstance(getTimeZone()):getCalendarFromString(startDate);
 	        	if (stopDate.equalsIgnoreCase("")){
 	        		stopCal = Calendar.getInstance();
@@ -1425,14 +1425,14 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	        	}
 	    	}
 	    	
-	    	if(endcodered){
+	    	if(thresholdcl){
 	    		description = 
-	    			"Stop CodeRed situation for meter with serialnumber: " + rtu.getSerialNumber();
+	    			"Clear threshold for meter with serialnumber: " + rtu.getSerialNumber();
 	    		getLogger().log(Level.INFO, description);
 	    		// read the Contractual Power Limit from the meter
 	    		contractPL = readRegister(contractPowerLimit).getQuantity().getAmount().longValue();
 	    		
-	    		// read the CodeRed Power Limit from the meter
+	    		// read the threshold Power Limit from the meter
 	    		limit = readRegister(crPowerLimit).getQuantity().getAmount().longValue();
 	    		
 	    		startCal = Calendar.getInstance(getTimeZone());
@@ -1607,7 +1607,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	    	return cal;
 		}
     	catch(NumberFormatException e){
-    		throw new BusinessException("Invalid dateTime format for the codeRed message.");
+    		throw new BusinessException("Invalid dateTime format for the applyThreshold message.");
     	}
 		
 	}
@@ -1624,7 +1624,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	public List getMessageCategories() {
         List theCategories = new ArrayList();
         MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
-        MessageCategorySpec cat2 = new MessageCategorySpec("CodeRedMessages");
+        MessageCategorySpec cat2 = new MessageCategorySpec("ThresholdMessages");
         
         MessageSpec msgSpec = addBasicMsg("Disconnect meter", DISCONNECT, false);
         cat.addMessageSpec(msgSpec);
@@ -1634,9 +1634,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         cat.addMessageSpec(msgSpec);
         msgSpec = addTouMessage("Set Time of use", TOU, false);
         cat.addMessageSpec(msgSpec);
-        msgSpec = addCodeRedMessage("CodeRed: Start", CODERED, false);
+        msgSpec = addThresholdMessage("Apply Threshold", THRESHOLD, false);
         cat2.addMessageSpec(msgSpec);
-        msgSpec = addBasicMsg("CodeRed: Stop", CODERED_END, false);
+        msgSpec = addBasicMsg("Clear Threshold", THRESHOLD_CLEAR, false);
         cat2.addMessageSpec(msgSpec);
         
         theCategories.add(cat);
@@ -1708,18 +1708,18 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         return msgSpec;
     }
 
-	private MessageSpec addCodeRedMessage(String keyId, String tagName, boolean advanced) {
+	private MessageSpec addThresholdMessage(String keyId, String tagName, boolean advanced) {
     	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(CONPOWERLIMIT);
         tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
-        tagSpec = new MessageTagSpec(CODERED_LIMIT);
+        tagSpec = new MessageTagSpec(THRESHOLD_LIMIT);
         tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
-        tagSpec = new MessageTagSpec(CODERED_START_DT);
+        tagSpec = new MessageTagSpec(THRESHOLD_STARTDT);
         tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
-        tagSpec = new MessageTagSpec(CODERED_STOP_DT);
+        tagSpec = new MessageTagSpec(THRESHOLD_STOPDT);
         tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
         return msgSpec;
