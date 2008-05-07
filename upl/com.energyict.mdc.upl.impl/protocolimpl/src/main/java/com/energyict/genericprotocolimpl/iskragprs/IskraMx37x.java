@@ -1376,131 +1376,163 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         		}
             }
 
-			if(tou){
-				getLogger().log(Level.INFO, "Sending new Tariff Program message to meter with serailnumber: " + rtu.getSerialNumber());
+			if(tou) {
 				sendActivityCalendar(contents,msg);
 			}
-			
-            if (ondemand){
-            	getLogger().log(Level.INFO, "Getting ondemand registers for meter with serailnumber: " + rtu.getSerialNumber());
-            	MeterReadingData mrd = new MeterReadingData();
-            	Iterator i = rtu.getRtuType().getRtuRegisterSpecs().iterator();
-                while (i.hasNext()) {
-                	
-                    RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
-                    ObisCode oc = spec.getObisCode();
-                    RtuRegister register = rtu.getRegister( oc );
-                    
-                    if (register != null){
-                    	
-                    	if (oc.getF() == 255){
-                        	RegisterValue rv = readRegister(oc);
-                        	rv.setRtuRegisterId(register.getId());
-                        	mrd.add(rv);
-                        }
-                    }
-        			else {
-        				String obis = oc.toString();
-        				String msgError = "Register " + obis + " not defined on device";
-        				getLogger().info(msgError);
-        			}
-                }
-                rtu.store(mrd);
-            	msg.confirm();
+            if (ondemand) {
+            	onDemand(rtu,msg);
             }
-            
-            if (codered || endcodered){
-            	
-            	long contractPL = 0;
-            	long limit = 0;
-            	String startDate = "";
-            	String stopDate = "";
-            	Calendar startCal = null; 
-            	Calendar stopCal = null;
-            	
-            	if(codered){
-            		
-            		getLogger().log(Level.INFO, "Sending new CodeRed configuration for meter with serailnumber: " + rtu.getSerialNumber());
-            		// the contractual Power Limit
-                	if (getMessageValue(msgString, CONPOWERLIMIT).equalsIgnoreCase("")){
-                		contractPL = readRegister(contractPowerLimit).getQuantity().getAmount().longValue();
-                	}else
-                		contractPL = Integer.parseInt(getMessageValue(msgString, CONPOWERLIMIT));
-                	
-                	// the CodeRed Power Limit
-                	if (getMessageValue(msgString, CODERED_LIMIT).equalsIgnoreCase("")){
-                		throw new IOException("No Code Red Limit was entered for the CodeRed message.");
-                	}else
-                		limit = Integer.parseInt(getMessageValue(msgString, CODERED_LIMIT));
-                	
-                	// the Start- and EndDates to calculate the duration
-                	startDate = getMessageValue(msgString, CODERED_START_DT);
-                	stopDate = getMessageValue(msgString, CODERED_STOP_DT);
-                	startCal = (startDate.equalsIgnoreCase(""))?Calendar.getInstance(getTimeZone()):getCalendarFromString(startDate);
-                	if (stopDate.equalsIgnoreCase("")){
-                		stopCal = Calendar.getInstance();
-                		stopCal.setTime(startCal.getTime());
-                		stopCal.add(Calendar.YEAR, 1);
-                	}else{
-                		stopCal = getCalendarFromString(stopDate);
-                	}
-            	}
-            	
-            	if(endcodered){
-            		
-            		getLogger().log(Level.INFO, "Stop CodeRed situation for meter with serailnumber: " + rtu.getSerialNumber());
-            		// read the Contractual Power Limit from the meter
-            		contractPL = readRegister(contractPowerLimit).getQuantity().getAmount().longValue();
-            		
-            		// read the CodeRed Power Limit from the meter
-            		limit = readRegister(crPowerLimit).getQuantity().getAmount().longValue();
-            		
-            		startCal = Calendar.getInstance(getTimeZone());
-            		stopCal = startCal;
-            	}
-            	
-            	contractPowerLimitMsg[1]=(byte)(contractPL >> 24);
-            	contractPowerLimitMsg[2]=(byte)(contractPL >> 16);
-            	contractPowerLimitMsg[3]=(byte)(contractPL >> 8);
-            	contractPowerLimitMsg[4]=(byte)contractPL;
-            	
-            	int rtuID = rtu.getId();
-            	crMeterGroupIDMsg[1]=(byte)(rtuID >> 8);
-            	crMeterGroupIDMsg[2]=(byte)rtuID;
-            	crGroupIDMsg = crMeterGroupIDMsg;
-
-            	crPowerLimitMsg[1]=(byte)(limit >> 24);
-            	crPowerLimitMsg[2]=(byte)(limit >> 16);
-            	crPowerLimitMsg[3]=(byte)(limit >> 8);
-            	crPowerLimitMsg[4]=(byte)limit;
-
-            	long crDur = (Math.abs(stopCal.getTimeInMillis() - startCal.getTimeInMillis()))/1000;
-            	crDurationMsg[1]=(byte)(crDur >> 24);
-            	crDurationMsg[2]=(byte)(crDur >> 16);
-            	crDurationMsg[3]=(byte)(crDur >> 8);
-            	crDurationMsg[4]=(byte)crDur;
-            	byte[] byteDate = createByteDate(startCal);
-            	
-            	getCosemObjectFactory().writeObject(contractPowerLimit, 3, 2, contractPowerLimitMsg);
-            	getCosemObjectFactory().writeObject(crMeterGroupID, 1, 2, crMeterGroupIDMsg);
-            	getCosemObjectFactory().writeObject(crPowerLimit, 3, 2, crPowerLimitMsg);
-            	try {
-					Thread.sleep(10000);
-				} catch (InterruptedException e) {
-					// absorb
-					e.printStackTrace();
-				}
-				getCosemObjectFactory().writeObject(crGroupID, 1, 2, crGroupIDMsg);
-				getCosemObjectFactory().writeObject(crStartDate, 1, 2, byteDate);
-            	getCosemObjectFactory().writeObject(crDuration, 3, 2, crDurationMsg);
-            	
-            	msg.confirm();
+            if (codered || endcodered) {
+            	codeRed(codered, endcodered, msg, msgString);
             }
 		}
 	}
 	
-	public void sendActivityCalendar(String contents, RtuMessage msg) throws SQLException, BusinessException, IOException  {
+	protected void codeRed(boolean codered, boolean endcodered, RtuMessage msg, String msgString) throws IOException, SQLException, BusinessException{
+    	String description = "";
     	try {
+			long contractPL = 0;
+	    	long limit = 0;
+	    	String startDate = "";
+	    	String stopDate = "";
+	    	Calendar startCal = null; 
+	    	Calendar stopCal = null;
+	    	
+	    	if(codered){
+	    		description = 
+	    			"Sending new CodeRed configuration for meter with serailnumber: " + rtu.getSerialNumber();
+	    		getLogger().log(Level.INFO, description);
+	    		// the contractual Power Limit
+	        	if (getMessageValue(msgString, CONPOWERLIMIT).equalsIgnoreCase("")){
+	        		contractPL = readRegister(contractPowerLimit).getQuantity().getAmount().longValue();
+	        	}else
+	        		contractPL = Integer.parseInt(getMessageValue(msgString, CONPOWERLIMIT));
+	        	
+	        	// the CodeRed Power Limit
+	        	if (getMessageValue(msgString, CODERED_LIMIT).equalsIgnoreCase("")){
+	        		throw new IOException("No Code Red Limit was entered for the CodeRed message.");
+	        	}else
+	        		limit = Integer.parseInt(getMessageValue(msgString, CODERED_LIMIT));
+	        	
+	        	// the Start- and EndDates to calculate the duration
+	        	startDate = getMessageValue(msgString, CODERED_START_DT);
+	        	stopDate = getMessageValue(msgString, CODERED_STOP_DT);
+	        	startCal = (startDate.equalsIgnoreCase(""))?Calendar.getInstance(getTimeZone()):getCalendarFromString(startDate);
+	        	if (stopDate.equalsIgnoreCase("")){
+	        		stopCal = Calendar.getInstance();
+	        		stopCal.setTime(startCal.getTime());
+	        		stopCal.add(Calendar.YEAR, 1);
+	        	}else{
+	        		stopCal = getCalendarFromString(stopDate);
+	        	}
+	    	}
+	    	
+	    	if(endcodered){
+	    		description = 
+	    			"Stop CodeRed situation for meter with serailnumber: " + rtu.getSerialNumber();
+	    		getLogger().log(Level.INFO, description);
+	    		// read the Contractual Power Limit from the meter
+	    		contractPL = readRegister(contractPowerLimit).getQuantity().getAmount().longValue();
+	    		
+	    		// read the CodeRed Power Limit from the meter
+	    		limit = readRegister(crPowerLimit).getQuantity().getAmount().longValue();
+	    		
+	    		startCal = Calendar.getInstance(getTimeZone());
+	    		stopCal = startCal;
+	    	}
+	    	
+	    	contractPowerLimitMsg[1]=(byte)(contractPL >> 24);
+	    	contractPowerLimitMsg[2]=(byte)(contractPL >> 16);
+	    	contractPowerLimitMsg[3]=(byte)(contractPL >> 8);
+	    	contractPowerLimitMsg[4]=(byte)contractPL;
+	    	
+	    	int rtuID = rtu.getId();
+	    	crMeterGroupIDMsg[1]=(byte)(rtuID >> 8);
+	    	crMeterGroupIDMsg[2]=(byte)rtuID;
+	    	crGroupIDMsg = crMeterGroupIDMsg;
+	
+	    	crPowerLimitMsg[1]=(byte)(limit >> 24);
+	    	crPowerLimitMsg[2]=(byte)(limit >> 16);
+	    	crPowerLimitMsg[3]=(byte)(limit >> 8);
+	    	crPowerLimitMsg[4]=(byte)limit;
+	
+	    	long crDur = (Math.abs(stopCal.getTimeInMillis() - startCal.getTimeInMillis()))/1000;
+	    	crDurationMsg[1]=(byte)(crDur >> 24);
+	    	crDurationMsg[2]=(byte)(crDur >> 16);
+	    	crDurationMsg[3]=(byte)(crDur >> 8);
+	    	crDurationMsg[4]=(byte)crDur;
+	    	byte[] byteDate = createByteDate(startCal);
+	    	
+	    	getCosemObjectFactory().writeObject(contractPowerLimit, 3, 2, contractPowerLimitMsg);
+	    	getCosemObjectFactory().writeObject(crMeterGroupID, 1, 2, crMeterGroupIDMsg);
+	    	getCosemObjectFactory().writeObject(crPowerLimit, 3, 2, crPowerLimitMsg);
+	    	try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e) {
+				// absorb
+				e.printStackTrace();
+			}
+			getCosemObjectFactory().writeObject(crGroupID, 1, 2, crGroupIDMsg);
+			getCosemObjectFactory().writeObject(crStartDate, 1, 2, byteDate);
+	    	getCosemObjectFactory().writeObject(crDuration, 3, 2, crDurationMsg);
+	    	
+	    	msg.confirm();
+    	}
+    	catch (Exception e) {
+			fail(e, msg, description);
+    	}
+	}
+	
+	protected void onDemand(Rtu rtu, RtuMessage msg) throws IOException, SQLException, BusinessException {
+		String description = "Getting ondemand registers for meter with serailnumber: " + rtu.getSerialNumber();
+		try {
+			getLogger().log(Level.INFO, description);
+			MeterReadingData mrd = new MeterReadingData();
+	    	Iterator i = rtu.getRtuType().getRtuRegisterSpecs().iterator();
+	        while (i.hasNext()) {
+	        	
+	            RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
+	            ObisCode oc = spec.getObisCode();
+	            RtuRegister register = rtu.getRegister( oc );
+	            
+	            if (register != null){
+	            	
+	            	if (oc.getF() == 255){
+	                	RegisterValue rv = readRegister(oc);
+	                	rv.setRtuRegisterId(register.getId());
+	                	mrd.add(rv);
+	                }
+	            }
+				else {
+					String obis = oc.toString();
+					String msgError = "Register " + obis + " not defined on device";
+					getLogger().info(msgError);
+				}
+	        }
+	        rtu.store(mrd);
+	    	msg.confirm();
+		}
+		catch (Exception e) {
+			fail(e, msg, description);
+    	}
+	}
+	
+	protected void fail(Exception e, RtuMessage msg, String description) throws BusinessException, SQLException {
+		msg.setFailed();
+		AMRJournalManager amrJournalManager = 
+			new AMRJournalManager(rtu, scheduler);
+		amrJournalManager.journal(
+				new AmrJournalEntry(AmrJournalEntry.DETAIL, description + ": " + e.toString()));
+		amrJournalManager.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
+		amrJournalManager.updateRetrials();
+		getLogger().severe(e.toString());
+	}
+	
+	public void sendActivityCalendar(String contents, RtuMessage msg) throws SQLException, BusinessException, IOException  {
+		String description = 
+			"Sending new Tariff Program message to meter with serailnumber: " + rtu.getSerialNumber();
+		try {
+			getLogger().log(Level.INFO, description);
 			UserFile userFile = getUserFile(msg.getContents());
 	    	
 	    	ActivityCalendar activityCalendar =
@@ -1538,14 +1570,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	        msg.confirm();
     	}
     	catch (Exception e) {
-    		msg.setFailed();
-    		AMRJournalManager amrJournalManager = 
-    			new AMRJournalManager(rtu, scheduler);
-    		amrJournalManager.journal(
-    				new AmrJournalEntry(AmrJournalEntry.DETAIL, "Sending time of use failed: " + e.toString()));
-    		amrJournalManager.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
-    		amrJournalManager.updateRetrials();
-    		getLogger().severe(e.toString());
+    		fail(e, msg, description);
     	}
     }
 	
@@ -1611,7 +1636,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         cat.addMessageSpec(msgSpec);
         msgSpec = addTouMessage("Set Time of use", TOU, false);
         cat.addMessageSpec(msgSpec);
-        msgSpec = addCodeRedMessage("CodeRed: Enter parameters", CODERED, false);
+        msgSpec = addCodeRedMessage("CodeRed: Start", CODERED, false);
         cat2.addMessageSpec(msgSpec);
         msgSpec = addBasicMsg("CodeRed: Stop", CODERED_END, false);
         cat2.addMessageSpec(msgSpec);
