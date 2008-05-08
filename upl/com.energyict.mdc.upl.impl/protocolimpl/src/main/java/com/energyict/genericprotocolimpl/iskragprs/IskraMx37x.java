@@ -1559,6 +1559,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		        for (int i = 0; i < currentMaxSpecialDayIndex; i++) {
 		        	specialDaysTable.delete(i);
 		        }*/
+		        //specialDaysTable.delete(31);
 		        specialDaysTable.writeSpecialDays(builder.specialDays());
 	        }
 	        
