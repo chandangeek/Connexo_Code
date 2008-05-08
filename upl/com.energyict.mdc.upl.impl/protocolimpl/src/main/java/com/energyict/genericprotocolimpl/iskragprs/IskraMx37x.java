@@ -193,7 +193,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private final static String CONNECT_LOAD 	= "connectLoad";
     private final static String DISCONNECT_LOAD = "disconnectLoad";
     private final static String RTU_TYPE 		= "RtuType";
-    private final static String TOU 			= "TOU";
+    private final static String TOU 			= "UserFile ID of tariff program";
     
 //    private List messages = new ArrayList(9);
     
@@ -1629,7 +1629,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         cat.addMessageSpec(msgSpec);
         msgSpec = addBasicMsg("ReadOnDemand", ONDEMAND, false);
         cat.addMessageSpec(msgSpec);
-        msgSpec = addTouMessage("Set Time of use", TOU, false);
+        msgSpec = addTouMessage("Set new tariff program", TOU, false);
         cat.addMessageSpec(msgSpec);
         msgSpec = addThresholdMessage("Apply Threshold", THRESHOLD, false);
         cat2.addMessageSpec(msgSpec);
