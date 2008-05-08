@@ -78,7 +78,7 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 				int index = Integer.parseInt(specialDay.getAttribute("Index"));
 				byte[] date = getSpecialDay(specialDay.getAttribute("Date"));
 				int dayId = Integer.parseInt(specialDay.getAttribute("DayId"));
-				System.out.println(index + ", " + specialDay.getAttribute("Date") + ", " + dayId);
+				//System.out.println(index + ", " + specialDay.getAttribute("Date") + ", " + dayId);
 				activityCalendar.addSpecialDay(new SpecialDay(index, date, dayId));
 			}
 		}
