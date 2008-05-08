@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import javax.xml.rpc.ServiceException;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.Utils;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
@@ -208,12 +209,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private final int PROFILE_STATUS_DEVICE_CLOCK_CHANGED=0x20;
     private final int PROFILE_STATUS_POWER_RETURNED=0x40;
     private final int PROFILE_STATUS_POWER_FAILURE=0x80;
-    
-    private final static String AUTO_CREATE_ERROR_1 =
-        "No automatic meter creation: no property RtuType defined.";
-
-    private final static String AUTOCREATE_ERROR_2 =
-        "No automatic meter creation: property RtuType has no prototype.";
 
     private final static String DUPLICATE_SERIALS =
         "Multiple meters where found with serial: {0}.  Data will not be read.";
@@ -420,37 +415,32 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		long pAddress1 = getCosemObjectFactory().getCosemObject(mbusPrimaryAddress).getValue();
 		if ( pAddress1 != 0){
 			String customerID = getCosemObjectFactory().getData(mbusCustomerID).getString();
-			mbusDevices[0] = new MbusDevice(pAddress1, customerID, findOrCreateNewMbusDevice(pAddress1, customerID), logger);
-			getLogger().log(Level.INFO, "Meter with serialnumber: " + rtu.getSerialNumber() + " has an MBus device with serialnumber: " + customerID);
+			Rtu rtu = findOrCreateNewMbusDevice(pAddress1, customerID);
+			if (rtu != null) {
+				mbusDevices[0] = new MbusDevice(pAddress1, customerID, rtu, logger);
+				getLogger().log(Level.INFO, 
+						"Meter with serialnumber: " + rtu.getSerialNumber() + 
+						" has an MBus device with serialnumber: " + customerID);
+			}
 		}
 		// TODO complete this if there are more than one Mbus devices on the meters
 	}
 
 	private Rtu findOrCreateNewMbusDevice(long address1, String customerID) throws SQLException, BusinessException, IOException {
-		
 		List mbusList = mw().getRtuFactory().findBySerialNumber(customerID);
-		
 		if( mbusList.size() == 1 ) {
 			((Rtu)mbusList.get(0)).updateGateway(rtu);
 			return (Rtu)mbusList.get(0);
 		}
-		
         if( mbusList.size() > 1 ) {
             getLogger().severe( toDuplicateSerialsErrorMsg(customerID) );
             return null;
         }
-        
-        if( getRtuType() == null ) {
-            getLogger().severe( AUTO_CREATE_ERROR_1 );
-            return null;
-        }
-        
-        if( getRtuType().getPrototypeRtu() == null ) {
-            getLogger().severe( AUTOCREATE_ERROR_2 );    
-            return null;
-        }
-        
-        return createMeter(rtu, getRtuType(), customerID);
+        RtuType rtuType = getRtuType();
+        if (rtuType == null)
+        	return null;
+        else
+        	return createMeter(rtu, getRtuType(), customerID);
 	}
 	
     private Rtu createMeter(Rtu rtu2, RtuType type, String customerID) throws SQLException, BusinessException {
@@ -468,11 +458,18 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
 	private RtuType getRtuType() throws IOException {
     	String type = getProperty(RTU_TYPE);
-    	
-        if (type != null){
-           return mw().getRtuTypeFactory().find(type);
+    	if (Utils.isNull(type)) {
+    		getLogger().warning("No automatic meter creation: no property RtuType defined.");
+    		return null;
+    	}
+    	else {
+           RtuType rtuType = mw().getRtuTypeFactory().find(type);
+           if (rtuType == null)
+        	   throw new IOException("Iskra Mx37x, No rtutype defined with name '" + type + "'");
+           if (rtuType.getPrototypeRtu() == null)
+        	   throw new IOException("Iskra Mx37x, rtutype '" + type + "' has not prototype rtu");
+           return rtuType;
         }
-        else throw new IOException("Iskra Mx37x, No or wrong rtuType defined om E-meter.");
 	}
     
     private String getProperty(String key){
