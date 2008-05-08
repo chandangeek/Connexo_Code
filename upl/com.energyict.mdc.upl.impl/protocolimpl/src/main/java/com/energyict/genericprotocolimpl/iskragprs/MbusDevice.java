@@ -23,6 +23,7 @@ import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
 import com.energyict.mdw.core.AmrJournalEntry;
+import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
@@ -343,15 +344,22 @@ public class MbusDevice implements Messaging, MeterProtocol{
 	
 	protected void fail(Exception e, RtuMessage msg, String description) throws BusinessException, SQLException {
 		msg.setFailed();
-		/*Rtu rtu = getMbus();
-		CommunicationScheduler scheduler = rtu.getC
-		AMRJournalManager amrJournalManager = 
-			new AMRJournalManager(rtu, scheduler);
-		amrJournalManager.journal(
-				new AmrJournalEntry(AmrJournalEntry.DETAIL, description + ": " + e.toString()));
-		amrJournalManager.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
-		amrJournalManager.updateRetrials();
-		getLogger().severe(e.toString());*/
+		Rtu concentrator = getMbus().getGateway();
+		if (concentrator != null) {
+			List schedulers = concentrator.getCommunicationSchedulers();
+			if (schedulers.size() > 0) {
+				CommunicationScheduler scheduler = (CommunicationScheduler) schedulers.get(0);
+				if (scheduler != null) {
+					AMRJournalManager amrJournalManager = 
+						new AMRJournalManager(concentrator, scheduler);
+					amrJournalManager.journal(
+							new AmrJournalEntry(AmrJournalEntry.DETAIL, description + ": " + e.toString()));
+					amrJournalManager.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
+					amrJournalManager.updateRetrials();
+				}
+			}
+		}
+		getLogger().severe(e.toString());
 	}
 
 	public Logger getLogger() {
