@@ -44,6 +44,7 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
@@ -266,29 +267,29 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         	
         	// Read profiles and events ... if necessary
     		if( (communicationProfile.getReadDemandValues()) && (communicationProfile.getReadMeterEvents()) ){
-    			getLogger().log(Level.INFO, "Getting loadProfile for meter with serailnumber: " + rtu.getSerialNumber());
+    			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + rtu.getSerialNumber());
     			getProfileData(rtu.getLastReading(), true, loadProfileObisCode);
     			if(mbusDevices[0] != null){
     				// no events on the MBus meters
-    				getLogger().log(Level.INFO, "Getting loadProfile for MBus device with serailnumber: " + mbusDevices[0].getMbus().getSerialNumber());
+    				getLogger().log(Level.INFO, "Getting loadProfile for MBus device with serialnumber: " + mbusDevices[0].getMbus().getSerialNumber());
     				getProfileData(mbusDevices[0].getMbus().getLastReading(), false, mbusLProfileObisCode[0]);
     			}
     		}
     		else if( (communicationProfile.getReadDemandValues()) && !(communicationProfile.getReadMeterEvents()) ){
-    			getLogger().log(Level.INFO, "Getting loadProfile for meter with serailnumber: " + rtu.getSerialNumber());
+    			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + rtu.getSerialNumber());
     			getProfileData(rtu.getLastReading(), false, loadProfileObisCode);
     			if (mbusDevices[0] != null){
-    				getLogger().log(Level.INFO, "Getting loadProfile for MBus device with serailnumber: " + mbusDevices[0].getMbus().getSerialNumber());
+    				getLogger().log(Level.INFO, "Getting loadProfile for MBus device with serialnumber: " + mbusDevices[0].getMbus().getSerialNumber());
     				getProfileData(mbusDevices[0].getMbus().getLastReading(), false, mbusLProfileObisCode[0]);
     			}
     		}
     		
     		// Read registers ... if necessary
     		if( communicationProfile.getReadMeterReadings() ) {
-    			getLogger().log(Level.INFO, "Getting registers for meter with serailnumber: " + rtu.getSerialNumber());
+    			getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + rtu.getSerialNumber());
     			getRegisters(ELECTRICITY);
     			if (mbusDevices[0] != null){
-	    			getLogger().log(Level.INFO, "Getting registers for MBus device with serailnumber: " + mbusDevices[0].getMbus().getSerialNumber());
+	    			getLogger().log(Level.INFO, "Getting registers for MBus device with serialnumber: " + mbusDevices[0].getMbus().getSerialNumber());
 	    			getRegisters(MBUS);
     			}
     		}
@@ -1337,7 +1338,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             
             if (connect || disconnect){
                 if (disconnect){
-                	getLogger().log(Level.INFO, "Sending disconnect message for meter with serailnumber: " + rtu.getSerialNumber());
+                	getLogger().log(Level.INFO, "Sending disconnect message for meter with serialnumber: " + rtu.getSerialNumber());
                 	cosemObjectFactory.writeObject(breakerObisCode, 1, 2, disconnectMsg);
                 	breakerState = readRegister(breakerObisCode).getQuantity().getAmount();
                 }
@@ -1552,7 +1553,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	        if (calendarData.getSpecialDays().size() > 0) {
 		        SpecialDaysTable specialDaysTable =
 		    		getCosemObjectFactory().getSpecialDaysTable(ObisCode.fromString("0.0.11.0.0.255"));
-		        
 		        // delete old special days
 		        /*Array array = specialDaysTable.readSpecialDays();
 		        int currentMaxSpecialDayIndex = array.nrOfDataTypes();
