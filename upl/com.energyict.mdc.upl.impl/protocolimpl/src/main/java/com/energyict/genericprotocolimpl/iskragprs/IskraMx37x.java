@@ -1210,7 +1210,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             serialNumber = rtu.getSerialNumber();
             extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0"));            
             addressingMode=Integer.parseInt(properties.getProperty("AddressingMode","2"));              
-            connectionMode = Integer.parseInt(properties.getProperty("Connection","0")); // 0=HDLC, 1= TCP/IP
+            connectionMode = Integer.parseInt(properties.getProperty("Connection","1")); // 0=HDLC, 1= TCP/IP
             rtuType = properties.getProperty("RtuType","");
             
             if (Integer.parseInt(properties.getProperty("LoadProfileId","1")) == 1)
