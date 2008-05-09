@@ -196,6 +196,17 @@ public class ActivityCalendar  {
 		this.specialDays.add(specialDay);
 	}
 	
+	public void addDummyDay(int index) {
+		byte[] date = new byte[12];
+		date[0]= (byte) 0xFF;
+		date[1] = (byte) 0xFF;
+		date[2]= (byte) 0xFF;
+		date[3]= (byte) 0xFF;
+		date[4]= (byte) 0xFF;
+		SpecialDay dummy = new SpecialDay(index, date, 255);
+		addSpecialDay(dummy);
+	}
+	
 	public SpecialDay getSpecialDay(int i) {
 		return (SpecialDay) specialDays.get(i);
 	}
