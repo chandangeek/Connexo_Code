@@ -1251,8 +1251,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	}
 
 	public List getRequiredKeys() {
-        List result = new ArrayList(3);
-        result.add("Connection");
+        List result = new ArrayList();
+//        result.add("Connection");
         return result; 
 	}
 
