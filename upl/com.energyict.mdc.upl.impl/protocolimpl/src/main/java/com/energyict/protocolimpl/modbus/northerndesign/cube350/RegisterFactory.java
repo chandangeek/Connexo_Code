@@ -59,7 +59,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(514,2,toObis("1.1.1.8.0.255"),Unit.get("kWh"))); 
         
         /* active power */
-        getRegisters().add(new HoldingRegister(2816,1,toObis("1.1.1.7.0.255"),Unit.get("kW"))); 
+        getRegisters().add(new HoldingRegister(2816,1,toObis("1.1.1.7.0.255"),Unit.get("W"))); 
         /* reactive power */
         getRegisters().add(new HoldingRegister(2818,1,toObis("1.1.3.7.0.255"),Unit.get("var"))); 
         /* apparent power */
@@ -70,11 +70,11 @@ public class RegisterFactory extends AbstractRegisterFactory {
         
         
         /* power phase A */ 
-        getRegisters().add(new HoldingRegister(2823,1,toObis("1.1.21.7.0.255"),Unit.get("kW")));
+        getRegisters().add(new HoldingRegister(2823,1,toObis("1.1.21.7.0.255"),Unit.get("W")));
         /* power phase B */ 
-        getRegisters().add(new HoldingRegister(2826,1,toObis("1.1.41.7.0.255"),Unit.get("kW")));
+        getRegisters().add(new HoldingRegister(2826,1,toObis("1.1.41.7.0.255"),Unit.get("W")));
         /* power phase C */ 
-        getRegisters().add(new HoldingRegister(2829,1,toObis("1.1.61.7.0.255"),Unit.get("kW"))); 
+        getRegisters().add(new HoldingRegister(2829,1,toObis("1.1.61.7.0.255"),Unit.get("W"))); 
 
         
         /* power factor phase A */
@@ -143,9 +143,10 @@ public class RegisterFactory extends AbstractRegisterFactory {
             scaleMap = new HashMap( );
             
             scaleMap.put( toObis( "1.1.1.8.0.255" ), "escale" ); 
-            scaleMap.put( toObis( "1.1.1.7.0.255" ), "escale" );
-            scaleMap.put( toObis( "1.1.3.7.0.255" ), "escale"  );
-            scaleMap.put( toObis( "1.1.9.7.0.255" ), "escale"  );
+            
+            scaleMap.put( toObis( "1.1.1.7.0.255" ), "kp" );
+            scaleMap.put( toObis( "1.1.3.7.0.255" ), "kp"  );
+            scaleMap.put( toObis( "1.1.9.7.0.255" ), "kp"  );
             
             scaleMap.put( toObis( "1.1.13.7.0.255" ),"pf" );
             
