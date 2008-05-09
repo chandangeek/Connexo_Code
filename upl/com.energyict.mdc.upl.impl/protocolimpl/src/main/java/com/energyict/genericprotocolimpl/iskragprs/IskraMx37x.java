@@ -1636,19 +1636,17 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	        	activityCalendar.writeActivatePassiveCalendarTime(builder.activatePassiveCalendarTime());
 	        
 	        // check if xml file contains special days
-	        if (calendarData.getSpecialDays().size() > 0) {
+	        int newSpecialDays = calendarData.getSpecialDays().size();
+	        if (newSpecialDays > 0) {
 		        SpecialDaysTable specialDaysTable =
 		    		getCosemObjectFactory().getSpecialDaysTable(ObisCode.fromString("0.0.11.0.0.255"));
 		        // delete old special days
-		        /*Array array = specialDaysTable.readSpecialDays();
+		        Array array = specialDaysTable.readSpecialDays();
 		        int currentMaxSpecialDayIndex = array.nrOfDataTypes();
-		        for (int i = 0; i < currentMaxSpecialDayIndex; i++) {
-		        	specialDaysTable.delete(i);
-		        }*/
-		        //specialDaysTable.delete(31);
+		        for (int i = newSpecialDays; i < currentMaxSpecialDayIndex; i++) 
+		        	calendarData.addDummyDay(i);
 		        specialDaysTable.writeSpecialDays(builder.specialDays());
 	        }
-	        
 	        msg.confirm();
     	}
     	catch (Exception e) {
