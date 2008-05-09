@@ -180,6 +180,10 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private static String CONNECT 			= "CONNECT";
     private static String DISCONNECT 		= "DISCONNECT";
     private static String ONDEMAND 			= "ONDEMAND";
+    private static String THRESHOLD_PARAMETERS = "thresholdParameters";
+    private static String THRESHOLD_GROUPID = "Threshold GroupId *";
+    private static String PARAMETER_GROUPID = "Parameter GroupId *";
+    private static String CL_THRES_GROUPID  = "Clear threshold GroupId *";
     private static String THRESHOLD 		= "THRESHOLD";
     private static String THRESHOLD_CLEAR	= "THRESHOLD_CLEAR";
     private static String CONPOWERLIMIT		= "Contractual Power Limit (W)";
@@ -301,6 +305,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     				mbusDevices[0].sendMeterMessages(this);
     			}
     		}
+    		
+    		getLogger().log(Level.INFO, "Meter with serialnumber " + rtu.getSerialNumber() + " has completely finished.");
         	
 		} catch (ServiceException e) {
 			e.printStackTrace();
@@ -1329,12 +1335,22 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             boolean disconnect 	= contents.equalsIgnoreCase(DISCONNECT);
             boolean connect 	= contents.equalsIgnoreCase(CONNECT);
             boolean ondemand 	= contents.equalsIgnoreCase(ONDEMAND);
-            boolean threshold	= contents.equalsIgnoreCase(CONPOWERLIMIT)||
-            					contents.equalsIgnoreCase(THRESHOLD_LIMIT)||
-            					contents.equalsIgnoreCase(THRESHOLD_STARTDT)||
-            					contents.equalsIgnoreCase(THRESHOLD_STOPDT);
-            boolean thresholdcl = contents.equalsIgnoreCase(THRESHOLD_CLEAR);
+            boolean threshpars  = contents.equalsIgnoreCase(PARAMETER_GROUPID);
+            boolean threshold  	= contents.equalsIgnoreCase(THRESHOLD_GROUPID);
+            boolean thresholdcl = contents.equalsIgnoreCase(CL_THRES_GROUPID);
+            boolean falsemsg	= contents.equalsIgnoreCase(THRESHOLD_STARTDT) || contents.equalsIgnoreCase(THRESHOLD_STOPDT);
             boolean tou			= contents.equalsIgnoreCase(TOU);
+            
+            if (falsemsg){
+            	msg.setFailed();
+        		AMRJournalManager amrJournalManager = 
+        			new AMRJournalManager(rtu, scheduler);
+        		amrJournalManager.journal(
+        				new AmrJournalEntry(AmrJournalEntry.DETAIL, "No groupID was entered."));
+        		amrJournalManager.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
+        		amrJournalManager.updateRetrials();
+        		getLogger().severe("No groupID was entered.");
+            }
             
             if (connect || disconnect){
                 if (disconnect){
@@ -1378,80 +1394,48 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             if (ondemand) {
             	onDemand(rtu,msg);
             }
-            if (threshold || thresholdcl) {
-            	applyThreshold(threshold, thresholdcl, msg, msgString);
+            
+            if (threshpars){
+            	thresholdParameters(msg);
+            }
+            
+            if (threshold){
+            	applyThresholdValue(msg);
+            }
+            
+            if (thresholdcl){
+            	clearThreshold(msg);
             }
 		}
 	}
 	
-	protected void applyThreshold(boolean threshold, boolean thresholdcl, RtuMessage msg, String msgString) throws IOException, SQLException, BusinessException{
-    	String description = "";
-    	try {
-			long contractPL = 0;
-	    	long limit = 0;
+	private void clearThreshold(RtuMessage msg) throws BusinessException, SQLException {
+		String description = "Clear threshold for meter with serialnumber: " + rtu.getSerialNumber();
+		try{
+			
+			String groupID = getMessageValue(msg.getContents(), CL_THRES_GROUPID);
+			if(groupID.equalsIgnoreCase(""))
+				throw new BusinessException("No groupID was entered.");
+			
+			int grID = 0;
+			
+        	try{
+		    	grID = Integer.parseInt(groupID);
+		    	crGroupIDMsg[1]=(byte)(grID >> 8);
+		    	crGroupIDMsg[2]=(byte)grID;
+		    	
+        	} catch(NumberFormatException e){
+        		throw new BusinessException("Invalid groupID");
+        	}
+			
 	    	String startDate = "";
 	    	String stopDate = "";
 	    	Calendar startCal = null; 
 	    	Calendar stopCal = null;
-	    	
-	    	if(threshold){
-	    		description = 
-	    			"Sending new threshold configuration for meter with serialnumber: " + rtu.getSerialNumber();
-	    		getLogger().log(Level.INFO, description);
-	    		// the contractual Power Limit
-	        	if (getMessageValue(msgString, CONPOWERLIMIT).equalsIgnoreCase("")){
-	        		contractPL = readRegister(contractPowerLimit).getQuantity().getAmount().longValue();
-	        	}else
-	        		contractPL = Integer.parseInt(getMessageValue(msgString, CONPOWERLIMIT));
-	        	
-	        	// the threshold Power Limit
-	        	if (getMessageValue(msgString, THRESHOLD_LIMIT).equalsIgnoreCase("")){
-	        		throw new IOException("No threshold Limit was entered for the applyThreshold message.");
-	        	}else
-	        		limit = Integer.parseInt(getMessageValue(msgString, THRESHOLD_LIMIT));
-	        	
-	        	// the Start- and EndDates to calculate the duration
-	        	startDate = getMessageValue(msgString, THRESHOLD_STARTDT);
-	        	stopDate = getMessageValue(msgString, THRESHOLD_STOPDT);
-	        	startCal = (startDate.equalsIgnoreCase(""))?Calendar.getInstance(getTimeZone()):getCalendarFromString(startDate);
-	        	if (stopDate.equalsIgnoreCase("")){
-	        		stopCal = Calendar.getInstance();
-	        		stopCal.setTime(startCal.getTime());
-	        		stopCal.add(Calendar.YEAR, 1);
-	        	}else{
-	        		stopCal = getCalendarFromString(stopDate);
-	        	}
-	    	}
-	    	
-	    	if(thresholdcl){
-	    		description = 
-	    			"Clear threshold for meter with serialnumber: " + rtu.getSerialNumber();
-	    		getLogger().log(Level.INFO, description);
-	    		// read the Contractual Power Limit from the meter
-	    		contractPL = readRegister(contractPowerLimit).getQuantity().getAmount().longValue();
-	    		
-	    		// read the threshold Power Limit from the meter
-	    		limit = readRegister(crPowerLimit).getQuantity().getAmount().longValue();
-	    		
-	    		startCal = Calendar.getInstance(getTimeZone());
-	    		stopCal = startCal;
-	    	}
-	    	
-	    	contractPowerLimitMsg[1]=(byte)(contractPL >> 24);
-	    	contractPowerLimitMsg[2]=(byte)(contractPL >> 16);
-	    	contractPowerLimitMsg[3]=(byte)(contractPL >> 8);
-	    	contractPowerLimitMsg[4]=(byte)contractPL;
-	    	
-	    	int rtuID = rtu.getId();
-	    	crMeterGroupIDMsg[1]=(byte)(rtuID >> 8);
-	    	crMeterGroupIDMsg[2]=(byte)rtuID;
-	    	crGroupIDMsg = crMeterGroupIDMsg;
-	
-	    	crPowerLimitMsg[1]=(byte)(limit >> 24);
-	    	crPowerLimitMsg[2]=(byte)(limit >> 16);
-	    	crPowerLimitMsg[3]=(byte)(limit >> 8);
-	    	crPowerLimitMsg[4]=(byte)limit;
-	
+			
+    		startCal = Calendar.getInstance(getTimeZone());
+    		stopCal = startCal;
+    		
 	    	long crDur = (Math.abs(stopCal.getTimeInMillis() - startCal.getTimeInMillis()))/1000;
 	    	crDurationMsg[1]=(byte)(crDur >> 24);
 	    	crDurationMsg[2]=(byte)(crDur >> 16);
@@ -1459,24 +1443,126 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	    	crDurationMsg[4]=(byte)crDur;
 	    	byte[] byteDate = createByteDate(startCal);
 	    	
-	    	getCosemObjectFactory().writeObject(contractPowerLimit, 3, 2, contractPowerLimitMsg);
-	    	getCosemObjectFactory().writeObject(crMeterGroupID, 1, 2, crMeterGroupIDMsg);
-	    	getCosemObjectFactory().writeObject(crPowerLimit, 3, 2, crPowerLimitMsg);
-	    	try {
-				Thread.sleep(10000);
-			} catch (InterruptedException e) {
-				// absorb
-				e.printStackTrace();
-			}
+	    	getLogger().log(Level.INFO, description);
 			getCosemObjectFactory().writeObject(crGroupID, 1, 2, crGroupIDMsg);
 			getCosemObjectFactory().writeObject(crStartDate, 1, 2, byteDate);
-	    	getCosemObjectFactory().writeObject(crDuration, 3, 2, crDurationMsg);
-	    	
-	    	msg.confirm();
-    	}
-    	catch (Exception e) {
+			getCosemObjectFactory().writeObject(crDuration, 3, 2, crDurationMsg);
+			
+			msg.confirm();
+			
+		} catch(Exception e) {
 			fail(e, msg, description);
     	}
+	}
+
+	private void applyThresholdValue(RtuMessage msg) throws BusinessException, SQLException {
+		String description = "Setting threshold value for meter with serialnumber: " + rtu.getSerialNumber();
+		try{
+			
+			String groupID = getMessageValue(msg.getContents(), THRESHOLD_GROUPID);
+			if(groupID.equalsIgnoreCase(""))
+				throw new BusinessException("No groupID was entered.");
+			
+			int grID = 0;
+			
+        	try{
+		    	grID = Integer.parseInt(groupID);
+		    	crGroupIDMsg[1]=(byte)(grID >> 8);
+		    	crGroupIDMsg[2]=(byte)grID;
+		    	
+        	} catch(NumberFormatException e){
+        		throw new BusinessException("Invalid groupID");
+        	}
+			
+	    	String startDate = "";
+	    	String stopDate = "";
+	    	Calendar startCal = null; 
+	    	Calendar stopCal = null;
+			
+        	startDate = getMessageValue(msg.getContents(), THRESHOLD_STARTDT);
+        	stopDate = getMessageValue(msg.getContents(), THRESHOLD_STOPDT);
+        	startCal = (startDate.equalsIgnoreCase(""))?Calendar.getInstance(getTimeZone()):getCalendarFromString(startDate);
+        	if (stopDate.equalsIgnoreCase("")){
+        		stopCal = Calendar.getInstance();
+        		stopCal.setTime(startCal.getTime());
+        		stopCal.add(Calendar.YEAR, 1);
+        	}else{
+        		stopCal = getCalendarFromString(stopDate);
+        	}
+        	
+	    	long crDur = (Math.abs(stopCal.getTimeInMillis() - startCal.getTimeInMillis()))/1000;
+	    	crDurationMsg[1]=(byte)(crDur >> 24);
+	    	crDurationMsg[2]=(byte)(crDur >> 16);
+	    	crDurationMsg[3]=(byte)(crDur >> 8);
+	    	crDurationMsg[4]=(byte)crDur;
+	    	byte[] byteDate = createByteDate(startCal);
+	    	
+	    	getLogger().log(Level.INFO, description);
+			getCosemObjectFactory().writeObject(crGroupID, 1, 2, crGroupIDMsg);
+			getCosemObjectFactory().writeObject(crStartDate, 1, 2, byteDate);
+			getCosemObjectFactory().writeObject(crDuration, 3, 2, crDurationMsg);
+			
+			msg.confirm();
+			
+		} catch(Exception e) {
+			fail(e, msg, description);
+    	}
+	}
+
+	private void thresholdParameters(RtuMessage msg) throws BusinessException, SQLException {
+		String description = "Sending threshold configuration for meter with serialnumber: " + rtu.getSerialNumber();
+		try {
+			
+			String groupID = getMessageValue(msg.getContents(), PARAMETER_GROUPID);
+			if(groupID.equalsIgnoreCase(""))
+				throw new BusinessException("No groupID was entered.");
+			
+			String thresholdPL = getMessageValue(msg.getContents(), THRESHOLD_LIMIT);
+			String contractPL = getMessageValue(msg.getContents(), CONPOWERLIMIT);
+        	if ( (thresholdPL.equalsIgnoreCase("")) && (contractPL.equalsIgnoreCase("")) )
+    			throw new BusinessException("Neighter contractual nor threshold limit was given.");
+        	
+        	long conPL = 0;
+        	long limit = 0;
+        	int grID = -1;
+        	
+        	try{
+		    	grID = Integer.parseInt(groupID);
+		    	crMeterGroupIDMsg[1]=(byte)(grID >> 8);
+		    	crMeterGroupIDMsg[2]=(byte)grID;
+		    	
+		    	if(!contractPL.equalsIgnoreCase("")){
+		    		conPL = Integer.parseInt(contractPL);
+		    		contractPowerLimitMsg[1]=(byte)(conPL >> 24);
+		    		contractPowerLimitMsg[2]=(byte)(conPL >> 16);
+		    		contractPowerLimitMsg[3]=(byte)(conPL >> 8);
+		    		contractPowerLimitMsg[4]=(byte)conPL;
+		    	}
+		    	
+		    	if(!thresholdPL.equalsIgnoreCase("")){
+		    		limit = Integer.parseInt(thresholdPL);
+			    	crPowerLimitMsg[1]=(byte)(limit >> 24);
+			    	crPowerLimitMsg[2]=(byte)(limit >> 16);
+			    	crPowerLimitMsg[3]=(byte)(limit >> 8);
+			    	crPowerLimitMsg[4]=(byte)limit;
+		    	}
+		    	
+        	} catch(NumberFormatException e){
+        		throw new BusinessException("Invalid groupID");
+        	}
+        	getLogger().log(Level.INFO, description);
+        	getCosemObjectFactory().writeObject(crMeterGroupID, 1, 2, crMeterGroupIDMsg);
+        	if(!contractPL.equalsIgnoreCase(""))
+        		getCosemObjectFactory().writeObject(contractPowerLimit, 3, 2, contractPowerLimitMsg);
+        	if(!thresholdPL.equalsIgnoreCase(""))
+        		getCosemObjectFactory().writeObject(crPowerLimit, 3, 2, crPowerLimitMsg);
+        	
+        	msg.confirm();
+        	
+		} catch (Exception e) {
+			fail(e, msg, description);
+    	}
+		
 	}
 	
 	protected void onDemand(Rtu rtu, RtuMessage msg) throws IOException, SQLException, BusinessException {
@@ -1632,14 +1718,38 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         cat.addMessageSpec(msgSpec);
         msgSpec = addTouMessage("Set new tariff program", TOU, false);
         cat.addMessageSpec(msgSpec);
+        msgSpec = addThresholdParameters("Threshold parameters", THRESHOLD_PARAMETERS, false);
+        cat2.addMessageSpec(msgSpec);
         msgSpec = addThresholdMessage("Apply Threshold", THRESHOLD, false);
         cat2.addMessageSpec(msgSpec);
-        msgSpec = addBasicMsg("Clear Threshold", THRESHOLD_CLEAR, false);
+        msgSpec = addClearThresholdMessage("Clear Threshold", THRESHOLD_CLEAR, false);
         cat2.addMessageSpec(msgSpec);
         
         theCategories.add(cat);
         theCategories.add(cat2);
         return theCategories;
+	}
+
+	private MessageSpec addClearThresholdMessage(String keyId, String tagName, boolean advanced) {
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+	    MessageTagSpec tagSpec = new MessageTagSpec(CL_THRES_GROUPID);
+	    tagSpec.add(new MessageValueSpec());
+	    msgSpec.add(tagSpec);
+		return msgSpec;
+	}
+
+	private MessageSpec addThresholdParameters(String keyId, String tagName, boolean advanced){
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+	    MessageTagSpec tagSpec = new MessageTagSpec(PARAMETER_GROUPID);
+	    tagSpec.add(new MessageValueSpec());
+	    msgSpec.add(tagSpec);
+	    tagSpec = new MessageTagSpec(THRESHOLD_LIMIT);
+	    tagSpec.add(new MessageValueSpec());
+	    msgSpec.add(tagSpec);
+	    tagSpec = new MessageTagSpec(CONPOWERLIMIT);
+	    tagSpec.add(new MessageValueSpec());
+	    msgSpec.add(tagSpec);
+		return msgSpec;
 	}
 
 	public String writeMessage(Message msg) {
@@ -1708,12 +1818,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
 	private MessageSpec addThresholdMessage(String keyId, String tagName, boolean advanced) {
     	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(CONPOWERLIMIT);
-        tagSpec.add(new MessageValueSpec());
-        msgSpec.add(tagSpec);
-        tagSpec = new MessageTagSpec(THRESHOLD_LIMIT);
-        tagSpec.add(new MessageValueSpec());
-        msgSpec.add(tagSpec);
+    	MessageTagSpec tagSpec = new MessageTagSpec(THRESHOLD_GROUPID);
+    	tagSpec.add(new MessageValueSpec());
+    	msgSpec.add(tagSpec);
         tagSpec = new MessageTagSpec(THRESHOLD_STARTDT);
         tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
