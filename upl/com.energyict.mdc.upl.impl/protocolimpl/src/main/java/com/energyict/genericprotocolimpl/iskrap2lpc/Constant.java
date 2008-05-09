@@ -3,6 +3,8 @@ package com.energyict.genericprotocolimpl.iskrap2lpc;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.energyict.obis.ObisCode;
+
 class Constant {
     
     private final static Constant instance = new Constant( );
@@ -27,6 +29,16 @@ class Constant {
     /** RtuMessage tag for disconnecting load */
     final static String DISCONNECT_LOAD = "disconnectLoad";
     
+    /** RtuMessage tag for threshold parameters */
+    final static String THRESHOLD_PARAMETERS = "thresholdParameters";
+    final static String THRESHOLD_GROUPID = "Threshold GroupId *";
+    final static String THRESHOLD_POWERLIMIT = "Threshold PowerLimit (W)";
+    final static String CONTRACT_POWERLIMIT = "Contractual PowerLimit (W)";
+    final static String APPLY_THRESHOLD	= "Apply threshold";
+    final static String CLEAR_THRESHOLD	= "Clear threshold - groupID";
+    final static String THRESHOLD_STARTDT = "StartDate (dd/mm/yyyy HH:MM:SS)";
+    final static String THRESHOLD_STOPDT = "EndDate (dd/mm/yyyy HH:MM:SS)";
+    
     /** RtuMessage tag for connecting load */
     final static String LOAD_CONTROL_ON = "loadControlOn";
     /** RtuMessage tag for disconnecting load */
@@ -38,9 +50,9 @@ class Constant {
     /** RtuMessage tag for time sync */
     final static String  TIME_SYNC = "timeSync";
     /** RtuMessage tag for tou schedule */
-    final static String  TOU_SCHEDULE = "touSchedule ";
-    /** RtuMessage tag for user file id */
-    final static String USER_FILE_ID = "userFileId";  
+    final static String  TOU_SCHEDULE = "UserFile ID of tariff program";
+//    /** RtuMessage tag for user file id */
+//    final static String USER_FILE_ID = "userFileId";  
 
     final static String CHANNEL_MAP = "ChannelMap"; 
 
@@ -58,6 +70,10 @@ class Constant {
 
     final static String USER = "User";
     final static String PASSWORD = "Password";
+    
+    final static ObisCode mbusSerialObisCode = ObisCode.fromString("0.1.128.50.21.255");
+    final static ObisCode powerLimitObisCode = ObisCode.fromString("0.0.128.61.1.255");
+    final static ObisCode confChangeObisCode = ObisCode.fromString("0.0.96.2.0.255");
     
     private SimpleDateFormat fixedDateFormat;
     private SimpleDateFormat dateFormat;

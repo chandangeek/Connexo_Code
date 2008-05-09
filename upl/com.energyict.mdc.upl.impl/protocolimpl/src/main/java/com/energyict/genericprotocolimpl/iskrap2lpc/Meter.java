@@ -28,11 +28,8 @@ public class Meter implements Messaging, MeterProtocol {
         msgSpec = addBasicMsg("Disconnect", Constant.DISCONNECT_LOAD, !ADVANCED);
         cat.addMessageSpec(msgSpec);
         
-//        msgSpec = addBasicMsg("LoadControlOn", Constant.LOAD_CONTROL_ON, !ADVANCED);
-//        cat.addMessageSpec(msgSpec);
-//        
-//        msgSpec = addBasicMsg("LoadControlOff", Constant.LOAD_CONTROL_OFF, !ADVANCED);
-//        cat.addMessageSpec(msgSpec);
+        msgSpec = addThresholdParameters("Threshold parameters", Constant.THRESHOLD_PARAMETERS, !ADVANCED);
+        cat.addMessageSpec(msgSpec);
         
         theCategories.add(cat);
         return theCategories;
@@ -45,6 +42,20 @@ public class Meter implements Messaging, MeterProtocol {
     private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+    
+    private MessageSpec addThresholdParameters(String keyId, String tagName, boolean advanced){
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(Constant.THRESHOLD_GROUPID);
+        tagSpec.add(new MessageValueSpec());
+        msgSpec.add(tagSpec);
+        tagSpec = new MessageTagSpec(Constant.THRESHOLD_POWERLIMIT);
+        tagSpec.add(new MessageValueSpec());
+        msgSpec.add(tagSpec);
+        tagSpec = new MessageTagSpec(Constant.CONTRACT_POWERLIMIT);
+        tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
         return msgSpec;
     }

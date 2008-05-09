@@ -53,6 +53,8 @@ import com.energyict.protocol.*;
  */
 
 class XmlHandler extends DefaultHandler {
+	
+	private int debug = 1;
 
     private final static String DEVICE = "Device";
     private final static String PROFILE = "Profile";
@@ -289,101 +291,107 @@ class XmlHandler extends DefaultHandler {
             
             String dateTime = attrbs.getValue("DateTime");
             String status = attrbs.getValue("Status");
+            String ident = attrbs.getValue("Ident");
             int eventId = Integer.parseInt(status);
             Date time = dateFormat.parse(dateTime);
+            
+            if(ident != null)
+            	addMeterEvent(time, MeterEvent.OTHER, ident);
+            else{
+            	if ( mask(eventId, EVENT_FATAL_ERROR) ){
+            		final String msg = "Fatal error.";
+            		addMeterEvent(time,MeterEvent.FATAL_ERROR, msg);
+            	}
+            	if ( mask(eventId, EVENT_DEVICE_CLOCK_RESERVE) ){
+            		final String msg = "Event status device clock reserve.";
+            		addMeterEvent(time,MeterEvent.OTHER,msg);
+            	}
+            	if ( mask(eventId, EVENT_VALUE_CORRUPT) ){
+            		final String msg = "Event status value corrupt.";
+            		addMeterEvent(time,MeterEvent.OTHER,msg);
+            	}
+            	if ( mask(eventId, EVENT_DAYLIGHT_CHANGE) ){
+            		final String msg = "Event status daylight change.";
+            		addMeterEvent(time,MeterEvent.OTHER,msg);
+            	}
+            	if ( mask(eventId, EVENT_BILLING_RESET) ){
+            		final String msg = "Billing.";
+            		addMeterEvent(time,MeterEvent.BILLING_ACTION, msg);
+            	}
+            	if ( mask(eventId, EVENT_DEVICE_CLOCK_CHANGED) ){
+            		final String msg = "Set Clock.";
+            		addMeterEvent(time,MeterEvent.SETCLOCK, msg);
+            	}
+            	if ( mask(eventId, EVENT_POWER_RETURNED) ){
+            		final String msg = POWER_UP_MSG;
+            		addMeterEvent(time,MeterEvent.POWERUP, msg);
+            	}
+            	if ( mask(eventId, EVENT_POWER_FAILURE) ){
+            		final String msg = POWER_DOWN_MSG;
+            		addMeterEvent(time,MeterEvent.POWERDOWN, msg);
+            	}
+            	if ( mask(eventId, EVENT_VARIABLE_SET) ){
+            		final String msg = "Event status variable set.";
+            		addMeterEvent(time,MeterEvent.OTHER,msg);
+            	}
+            	if ( mask(eventId, EVENT_UNRELIABLE_OPERATING_CONDITIONS) ){
+            		final String msg = "Event status unreliable operating conditions.";
+            		addMeterEvent(time,MeterEvent.OTHER,msg);
+            	}
+            	if ( mask(eventId, EVENT_END_OF_UNRELIABLE_OPERATING_CONDITIONS) ){
+            		final String msg = "Event status end of unreliable operating conditions.";
+            		addMeterEvent(time,MeterEvent.OTHER,msg);
+            	}
+            	if ( mask(eventId, EVENT_UNRELIABLE_EXTERNAL_CONTROL) ){
+            		final String msg = "Event status unreliable external control.";
+            		addMeterEvent(time,MeterEvent.OTHER,msg);
+            	}
+            	if ( mask(eventId, EVENT_END_OF_UNRELIABLE_EXTERNAL_CONTROL) ){
+            		final String msg = "Event status end of unreliable external control.";
+            		addMeterEvent(time,MeterEvent.OTHER,msg);
+            	}
+            	if ( mask(eventId, EVENT_EVENTLOG_CLEARED) ){
+            		final String msg = "Event status event log cleared.";
+            		addMeterEvent(time,MeterEvent.CLEAR_DATA,msg);
+            	}
+            	if ( mask(eventId, EVENT_LOADPROFILE_CLEARED) ){
+            		final String msg = "Event status load profile cleared.";
+            		addMeterEvent(time,MeterEvent.CLEAR_DATA,msg);
+            	}
+            	if ( mask(eventId, EVENT_L1_POWER_FAILURE) ) {
+            		final String msg = "Event status L1 phase failure.";
+            		addMeterEvent(time,MeterEvent.PHASE_FAILURE,msg);
+            	}
+            	if ( mask(eventId, EVENT_L2_POWER_FAILURE) ) {
+            		final String msg = "Event status L2 phase failure.";
+            		addMeterEvent(time,MeterEvent.PHASE_FAILURE,msg); 
+            	}
+            	if ( mask(eventId, EVENT_L3_POWER_FAILURE) ){
+            		final String msg = "Event status L3 phase failure.";
+            		addMeterEvent(time,MeterEvent.PHASE_FAILURE,msg);
+            	}
+            	if (mask(eventId, EVENT_L1_POWER_RETURNED) ){
+            		final String msg = "Event status end of L1 phase failure.";
+            		addMeterEvent(time,MeterEvent.OTHER,msg);
+            	}
+            	if ( mask(eventId, EVENT_L2_POWER_RETURNED) ){
+            		final String msg = "Event status end of L2 phase failure.";
+            		addMeterEvent(time,MeterEvent.OTHER,msg);
+            	}
+            	if ( mask(eventId, EVENT_L3_POWER_RETURNED) ){
+            		final String msg = "Event status end of L3 phase failure.";
+            		addMeterEvent(time,MeterEvent.OTHER,msg);
+            	}
+            	if ( mask(eventId, EVENT_METER_COVER_OPENED) ){
+            		final String msg = "Event status meter cover opened.";
+            		addMeterEvent(time,MeterEvent.OTHER,msg);
+            	}
+            	if ( mask(eventId, EVENT_TERMINAL_COVER_OPENED) ){
+            		final String msg = "Event status terminal cover opened.";
+            		addMeterEvent(time,MeterEvent.OTHER,msg);
+            	}
+            }
            
-            if ( mask(eventId, EVENT_FATAL_ERROR) ){
-                final String msg = "Fatal error.";
-                addMeterEvent(time,MeterEvent.FATAL_ERROR, msg);
-            }
-            if ( mask(eventId, EVENT_DEVICE_CLOCK_RESERVE) ){
-                final String msg = "Event status device clock reserve.";
-                addMeterEvent(time,MeterEvent.OTHER,msg);
-            }
-            if ( mask(eventId, EVENT_VALUE_CORRUPT) ){
-                final String msg = "Event status value corrupt.";
-                addMeterEvent(time,MeterEvent.OTHER,msg);
-            }
-            if ( mask(eventId, EVENT_DAYLIGHT_CHANGE) ){
-                final String msg = "Event status daylight change.";
-                addMeterEvent(time,MeterEvent.OTHER,msg);
-            }
-            if ( mask(eventId, EVENT_BILLING_RESET) ){
-                final String msg = "Billing.";
-                addMeterEvent(time,MeterEvent.BILLING_ACTION, msg);
-            }
-            if ( mask(eventId, EVENT_DEVICE_CLOCK_CHANGED) ){
-                final String msg = "Set Clock.";
-                addMeterEvent(time,MeterEvent.SETCLOCK, msg);
-            }
-            if ( mask(eventId, EVENT_POWER_RETURNED) ){
-                final String msg = POWER_UP_MSG;
-                addMeterEvent(time,MeterEvent.POWERUP, msg);
-            }
-            if ( mask(eventId, EVENT_POWER_FAILURE) ){
-                final String msg = POWER_DOWN_MSG;
-                addMeterEvent(time,MeterEvent.POWERDOWN, msg);
-            }
-            if ( mask(eventId, EVENT_VARIABLE_SET) ){
-                final String msg = "Event status variable set.";
-                addMeterEvent(time,MeterEvent.OTHER,msg);
-            }
-            if ( mask(eventId, EVENT_UNRELIABLE_OPERATING_CONDITIONS) ){
-                final String msg = "Event status unreliable operating conditions.";
-                addMeterEvent(time,MeterEvent.OTHER,msg);
-            }
-            if ( mask(eventId, EVENT_END_OF_UNRELIABLE_OPERATING_CONDITIONS) ){
-                final String msg = "Event status end of unreliable operating conditions.";
-                addMeterEvent(time,MeterEvent.OTHER,msg);
-            }
-            if ( mask(eventId, EVENT_UNRELIABLE_EXTERNAL_CONTROL) ){
-                final String msg = "Event status unreliable external control.";
-                addMeterEvent(time,MeterEvent.OTHER,msg);
-            }
-            if ( mask(eventId, EVENT_END_OF_UNRELIABLE_EXTERNAL_CONTROL) ){
-                final String msg = "Event status end of unreliable external control.";
-                addMeterEvent(time,MeterEvent.OTHER,msg);
-            }
-            if ( mask(eventId, EVENT_EVENTLOG_CLEARED) ){
-                final String msg = "Event status event log cleared.";
-                addMeterEvent(time,MeterEvent.CLEAR_DATA,msg);
-            }
-            if ( mask(eventId, EVENT_LOADPROFILE_CLEARED) ){
-                final String msg = "Event status load profile cleared.";
-                addMeterEvent(time,MeterEvent.CLEAR_DATA,msg);
-            }
-            if ( mask(eventId, EVENT_L1_POWER_FAILURE) ) {
-                final String msg = "Event status L1 phase failure.";
-                addMeterEvent(time,MeterEvent.PHASE_FAILURE,msg);
-            }
-            if ( mask(eventId, EVENT_L2_POWER_FAILURE) ) {
-                final String msg = "Event status L2 phase failure.";
-                addMeterEvent(time,MeterEvent.PHASE_FAILURE,msg); 
-            }
-            if ( mask(eventId, EVENT_L3_POWER_FAILURE) ){
-                final String msg = "Event status L3 phase failure.";
-                addMeterEvent(time,MeterEvent.PHASE_FAILURE,msg);
-            }
-            if (mask(eventId, EVENT_L1_POWER_RETURNED) ){
-                final String msg = "Event status end of L1 phase failure.";
-                addMeterEvent(time,MeterEvent.OTHER,msg);
-            }
-            if ( mask(eventId, EVENT_L2_POWER_RETURNED) ){
-                final String msg = "Event status end of L2 phase failure.";
-                addMeterEvent(time,MeterEvent.OTHER,msg);
-            }
-            if ( mask(eventId, EVENT_L3_POWER_RETURNED) ){
-                final String msg = "Event status end of L3 phase failure.";
-                addMeterEvent(time,MeterEvent.OTHER,msg);
-            }
-            if ( mask(eventId, EVENT_METER_COVER_OPENED) ){
-                final String msg = "Event status meter cover opened.";
-                addMeterEvent(time,MeterEvent.OTHER,msg);
-            }
-            if ( mask(eventId, EVENT_TERMINAL_COVER_OPENED) ){
-                final String msg = "Event status terminal cover opened.";
-                addMeterEvent(time,MeterEvent.OTHER,msg);
-            }
         
         } catch (ParseException e) {
             e.printStackTrace();
@@ -543,40 +551,13 @@ class XmlHandler extends DefaultHandler {
         }
         
         ProfileData[] toProfileData( ) {
-
-//            ProfileData profileData = new ProfileData( );
-//            ProfileData profileDataGas = new ProfileData( );
-//            profileData.setChannelInfos( getChannelInfos() );
-//            profileDataGas.setChannelInfos( getChannelInfos() );
-//        
-//            Iterator i = intervalMap.values().iterator();
-//            while( i.hasNext() ){
-//                Interval interval = (Interval)i.next();
-//                profileData.addInterval( interval.toIntervalData() );
-//            }
-//            
-//            i = eventList.iterator();
-//            while( i.hasNext() ){
-//                MeterEvent event = (MeterEvent)i.next();
-//                profileData.addEvent( event );
-//            }
-//            
-//            profileData.sort();
-//            
-//            return profileData;
         	
             ProfileData[] profileData = {new ProfileData( ), new ProfileData( )};
             profileData[ELECTRICITY].setChannelInfos( getChannelInfos()[ELECTRICITY] );
             profileData[MBUS].setChannelInfos( getChannelInfos()[MBUS] );
-//            profileDataGas.setChannelInfos( getChannelInfos() );
             Interval[] interval = {new Interval(null), new Interval(null), new Interval(null)};
             Iterator i = intervalMap.values().iterator();
             while( i.hasNext() ){
-//            	Interval electricity;
-//            	Interval gas;
-//                Interval interval = (Interval)i.next();
-//                copyIntervalSettings(interval, electricity, gas);
-            	
             	
             	interval[2] = (Interval)i.next();
 //            	interval = copyIntervalSettings(interval);
@@ -588,7 +569,6 @@ class XmlHandler extends DefaultHandler {
                 	Object value = it.next();
                 	
                 	if (value != null ){
-                		
                     	if ( (channelMap.getProtocolChannel(j).register.equals("1.8.0")) 
                     			| (channelMap.getProtocolChannel(j).register.equals("2.8.0")) 
                     			| (channelMap.getProtocolChannel(j).register.equals("1.5.0"))) {
@@ -600,9 +580,8 @@ class XmlHandler extends DefaultHandler {
                     		interval = copyIntervalSettings(interval, MBUS);
                     		interval[MBUS].values.add(value);
                     	}
-                    	j++;
-                    	
                 	}
+                	j++;
                 }
                 
                 if ( interval[ELECTRICITY].values.size() != 0 )
@@ -613,8 +592,6 @@ class XmlHandler extends DefaultHandler {
                 }
                 
             }
-            
-
             
             i = eventList.iterator();
             while( i.hasNext() ){
@@ -691,6 +668,16 @@ class XmlHandler extends DefaultHandler {
 
 	public void setMonthlyStr(String monthlyStr) {
 		XmlHandler.monthlyStr = monthlyStr;
+	}
+
+	public ProfileData addEvents() {
+		ProfileData profileData = new ProfileData();
+        Iterator i = eventList.iterator();
+        while( i.hasNext() ){
+            MeterEvent event = (MeterEvent)i.next();
+            profileData.addEvent( event );
+        }
+		return profileData;
 	}
 
 //	public void addMessageEnd(int f) {
