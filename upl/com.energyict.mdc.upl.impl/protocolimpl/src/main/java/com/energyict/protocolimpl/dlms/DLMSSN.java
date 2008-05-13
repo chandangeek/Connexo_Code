@@ -494,7 +494,8 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
     }
     
     private ProfileData doGetProfileData(Calendar fromCalendar,Calendar toCalendar, boolean includeEvents) throws IOException {
-        byte bNROfChannels = (byte)getNumberOfChannels();
+//        byte bNROfChannels = (byte)getNumberOfChannels(); 	//GN |13052008| otherwise this stays at -1
+    	byte bNROfChannels = (byte)iNumberOfChannels;
         return doGetDemandValues(fromCalendar,toCalendar,bNROfChannels,includeEvents);
     }
     
