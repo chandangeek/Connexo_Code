@@ -18,6 +18,8 @@ import com.energyict.protocol.discover.*;
 import com.energyict.protocolimpl.mbus.core.*;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.*;
 import com.energyict.protocolimpl.mbus.core.discover.*;
+import com.energyict.protocolimpl.mbus.nzr.pn16.PN16;
+
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
@@ -80,6 +82,8 @@ public class Generic extends MBus {
                 }
             }
             
+            //System.out.println(cIField72h.header());
+            
             return discoverResult;
         }
         catch(Exception e) {
@@ -98,13 +102,27 @@ public class Generic extends MBus {
     }
     
     protected void doTheConnect() throws IOException {
-        getMBusConnection().sendSND_NKE(); 
+    	if (getInfoTypeSecondaryAddressing() == 0) {
+             getMBusConnection().sendSND_NKE(); 
+    	}
+    	else {
+    		// getMBusConnection().sendSND_NKE(); I think it IS allowed to send the SND_NKE here to clear the current selection
+    		// however, a wrong secondary addressing also clears the selection bit in the device...
+    		try {
+    			getMBusConnection().selectSecondaryAddress(Long.parseLong(getInfoTypeSerialNumber()));
+    		}
+    		catch(NumberFormatException e) {
+    			throw new IOException("Generic, secondary addressing used, configure a valid serial number! SerialNumber "+getInfoTypeSerialNumber()+" is invalid!");
+    		}
+    	}
     }
     protected void doTheDisConnect() throws IOException {
         
     }
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        
+    	if (getInfoTypeSecondaryAddressing() == 1) {
+    		setInfoTypeDeviceID("253");
+    	}
     }
     protected List doTheGetOptionalKeys() {
         List list = new ArrayList();
@@ -132,6 +150,50 @@ public class Generic extends MBus {
     }    
     
     static public void main(String[] args) {
+        try {
+            // ********************** Dialer **********************
+            Dialer dialer = DialerFactory.getDirectDialer().newDialer();
+            dialer.init("COM1"); // "/dev/ttyXR0";
+            dialer.getSerialCommunicationChannel().setParams(2400,
+                                                             SerialCommunicationChannel.DATABITS_8,
+                                                             SerialCommunicationChannel.PARITY_EVEN,
+                                                             SerialCommunicationChannel.STOPBITS_1);
+            dialer.connect();
+            
+            // ********************** Properties **********************
+            Properties properties = new Properties();
+            properties.setProperty("ProfileInterval", "60");
+            properties.setProperty("SecondaryAddressing", "0");
+            properties.setProperty(MeterProtocol.ADDRESS,"3");
+            properties.setProperty("SerialNumber","6158629"); //65553712");
+            //properties.setProperty("HalfDuplex", "-1");
+            // ********************** EictRtuModbus **********************
+            Generic generic = new Generic();
+            
+            generic.setProperties(properties); 
+            generic.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
+            generic.connect();
+            //generic.getMBusConnection().sendSND_NKE(); 
+            //generic.getMBusConnection().selectSecondaryAddress(65553712); //,0x0FF0FFFF);
+            //generic.getMBusConnection().selectSecondaryAddress(6158629);
+            //generic.getMBusConnection().sendREQ_UD1();
+            System.out.println("************************************************************************************************");
+
+            
+             
+            System.out.println(generic.getRegistersInfo(0));
+            
+            dialer.disConnect();
+            generic.disconnect();
+                    
+                    
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }    
+    
+    static public void main2(String[] args) {
         
         try {
             // ********************** EictRtuModbus **********************

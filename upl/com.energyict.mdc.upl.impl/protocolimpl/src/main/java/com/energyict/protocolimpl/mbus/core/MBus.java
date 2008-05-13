@@ -38,6 +38,8 @@ abstract public class MBus extends AbstractProtocol implements Discover {
     private AbstractRegisterFactory registerFactory=null;
     private CIField72h cIField72h=null;
     
+    int secondaryAddressing;
+    
     /** Creates a new instance of MBus */
     public MBus() {
     }
@@ -72,6 +74,7 @@ abstract public class MBus extends AbstractProtocol implements Discover {
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","3000").trim()));
         setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty("Retries","2").trim()));
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
+        setSecondaryAddressing(Integer.parseInt(properties.getProperty("SecondaryAddressing","0")));
         doTheValidateProperties(properties);
     }
     
@@ -81,6 +84,7 @@ abstract public class MBus extends AbstractProtocol implements Discover {
     
     protected List doGetOptionalKeys() {
         List list = new ArrayList();
+        list.add("SecondaryAddressing");
         return list;
     }
     
@@ -150,8 +154,18 @@ abstract public class MBus extends AbstractProtocol implements Discover {
     }
 
     public CIField72h getCIField72h() throws IOException {
-        if (cIField72h==null)
-            cIField72h = (CIField72h)getMBusConnection().sendREQ_UD2().getASDU().buildAbstractCIFieldObject(getTimeZone());
+        if (cIField72h==null) {
+        	ApplicationData frame = getMBusConnection().sendREQ_UD2().getASDU();
+        	if (frame == null)
+        		throw new IOException("MBus, Framing error!");
+            cIField72h = (CIField72h)frame.buildAbstractCIFieldObject(getTimeZone());
+        }
         return cIField72h;
     }
+	public int getInfoTypeSecondaryAddressing() {
+		return secondaryAddressing;
+	}
+	private void setSecondaryAddressing(int secondaryAddressing) {
+		this.secondaryAddressing = secondaryAddressing;
+	}
 }

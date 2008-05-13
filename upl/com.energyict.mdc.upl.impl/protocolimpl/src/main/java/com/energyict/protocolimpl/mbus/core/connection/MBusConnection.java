@@ -10,16 +10,21 @@
 
 package com.energyict.protocolimpl.mbus.core.connection;
 
-import com.energyict.cbo.*;
-import com.energyict.dialer.connection.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.meteridentification.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.mbus.core.*;
-import com.energyict.protocolimpl.mbus.core.connection.iec870.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.TimeZone;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.mbus.core.ApplicationData;
+import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870Connection;
+import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870ConnectionException;
+import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870Frame;
 
 /**
  *
@@ -80,6 +85,30 @@ public class MBusConnection extends IEC870Connection implements ProtocolConnecti
     
     public int getMaxRetries() {
         return maxRetries;
+    }
+    
+    public IEC870Frame selectSecondaryAddress(long identification) throws IOException, MBusException {
+    	return selectSecondaryAddress(identification,0,0,0xffff,0,0xff,0,0xff);    	
+    }
+    public IEC870Frame selectSecondaryAddress(long identification,long identificationMask) throws IOException, MBusException {
+    	return selectSecondaryAddress(identification,identificationMask,0,0xffff,0,0xff,0,0xff);    	
+    }
+    public IEC870Frame selectSecondaryAddress(long identification, int manufacturer, int version, int medium) throws IOException, MBusException {
+    	return selectSecondaryAddress(identification,0,manufacturer,0,version,0,medium,0);
+    }
+    public IEC870Frame selectSecondaryAddress(long identification,long identificationMask, int manufacturer, int manufacturerMask, int version, int versionMask, int medium, int mediumMask) throws IOException, MBusException {
+        try {
+            delay(forcedDelay);
+            byte[] data = new byte[8];
+            System.arraycopy(ParseUtils.applyMask(ParseUtils.createBCDByteArrayLE(identification,8),identificationMask), 0, data, 0, 4);
+            System.arraycopy(ParseUtils.applyMask(ParseUtils.createBCDByteArrayLE(manufacturer,4),manufacturerMask), 0, data, 4, 2);
+            System.arraycopy(ParseUtils.applyMask(ParseUtils.createBCDByteArrayLE(version,2),versionMask), 0, data, 6, 1);
+            System.arraycopy(ParseUtils.applyMask(ParseUtils.createBCDByteArrayLE(medium,2),mediumMask), 0, data, 7, 1);
+            return sendFrame(IEC870Frame.FRAME_VARIABLE_LENGTH, IEC870Frame.CONTROL_SEND_CONFIRM_USER_DATA, getRTUAddress(), new ApplicationData(0x52,data), false);
+        }
+        catch(IEC870ConnectionException e) {
+            throw new MBusException(com.energyict.cbo.Utils.stack2string(e));
+        }
     }
     
     public IEC870Frame sendApplicationReset(int resetSubcode) throws IOException, MBusException {
