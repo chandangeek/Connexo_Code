@@ -183,7 +183,7 @@
 	public *;
 }
 
-- keep public class com.energyict.protocolimpl.dlms.*{
+-keep public class com.energyict.protocolimpl.dlms.* {
 	public *;
 }
 
