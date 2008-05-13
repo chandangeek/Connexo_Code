@@ -184,7 +184,7 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 		NodeList names = element.getElementsByTagName("Calendar");
 		//System.out.println(names.getLength());
 		if (names.getLength() != 0){
-			String name = ((Element) names.item(0)).getAttribute("Name");
+			String name = getName(((Element) names.item(0)).getAttribute("Name"));
 			//System.out.println("name: " + name);
 			activityCalendar.setPassiveCalendarName(new OctetString(name));
 			String activateTime = ((Element) names.item(0)).getAttribute("ActivateTime");
@@ -194,6 +194,19 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 		} else {
 			throw new ApplicationException("No calendar name found");
 		}	
+	}
+	
+	protected String getName(String value) {
+		try {
+			int val = Integer.parseInt(value);
+			if (val > 255)
+				throw new ApplicationException("Calendar name should be a number smaller then 256");
+			return "" + (char) ProtocolUtils.convertHexLSB(val) + 
+		    (char) ProtocolUtils.convertHexMSB(val);
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("Calendar name is not a number: " + value);
+		}
 	}
 	
 	protected CosemCalendar getActivateTime(String value) {
