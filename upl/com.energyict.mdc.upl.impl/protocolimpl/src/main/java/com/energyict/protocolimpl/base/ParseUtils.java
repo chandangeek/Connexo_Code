@@ -6,10 +6,14 @@
 
 package com.energyict.protocolimpl.base;
 
-import java.io.*;
+import java.io.IOException;
 import java.math.*;
-import java.util.*;
-import com.energyict.protocol.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -487,6 +491,35 @@ public class ParseUtils {
         return value;
     }
     
+    public static byte[] createBCDByteArray(long val,int nrOfBCDDigits) {
+    	int arrayLength = nrOfBCDDigits/2+nrOfBCDDigits%2;
+    	byte[] data = new byte[arrayLength];
+    	for (int i=0;i<arrayLength;i++) {
+        	long modulo = (long)Double.valueOf(Math.pow(100,arrayLength-i)).longValue();
+        	long divide = (long)Double.valueOf(Math.pow(100,(arrayLength-1)-i)).longValue();
+        	long val2 = (val % modulo) / divide;
+    		data[i] = ProtocolUtils.hex2BCD((byte)val2);
+    	}
+    	return data;
+    }
+    public static byte[] createBCDByteArrayLE(long val,int nrOfBCDDigits) {
+    	int arrayLength = nrOfBCDDigits/2+nrOfBCDDigits%2;
+    	byte[] data = new byte[arrayLength];
+    	for (int i=0;i<arrayLength;i++) {
+        	long modulo = (long)Double.valueOf(Math.pow(100,i+1)).longValue();
+        	long divide = (long)Double.valueOf(Math.pow(100,i)).longValue();
+        	long val2 = (val % modulo) / divide;
+    		data[i] = ProtocolUtils.hex2BCD((byte)val2);
+    	}
+    	return data;
+    }
+    
+    public static byte[] applyMask(byte[] temp, long mask) {
+        for (int i=0;i<temp.length;i++) {
+       	 	temp[i] |= (mask >> (8*i));
+        }
+        return temp;
+    }
     
     static public void main(String[] argv) {
         try {
@@ -500,14 +533,13 @@ public class ParseUtils {
 //            val=0x124567; 
 //            System.out.println(buildStringHexExtendedWithSpaces(val,7));
             
-            byte[] byteBuffer= new byte[]{(byte)0xff,(byte)0xFE,(byte)0x76,(byte)0xF7,(byte)0xF9,(byte)0x20}; 
-            //System.out.println(ParseUtils.convertNormSignedFP2NumberNeg(byteBuffer, 0, 6,16));
-            //System.out.println(ParseUtils.convertNormSignedFP2Number(byteBuffer, 0, 6,16));
-            System.out.println(ParseUtils.getBigInteger(byteBuffer, 2, 3));
-            System.out.println(ParseUtils.getBigIntegerLE(byteBuffer, 2, 3));
+//            byte[] byteBuffer= new byte[]{(byte)0xff,(byte)0xFE,(byte)0x76,(byte)0xF7,(byte)0xF9,(byte)0x20}; 
+//            //System.out.println(ParseUtils.convertNormSignedFP2NumberNeg(byteBuffer, 0, 6,16));
+//            //System.out.println(ParseUtils.convertNormSignedFP2Number(byteBuffer, 0, 6,16));
+//            System.out.println(ParseUtils.getBigInteger(byteBuffer, 2, 3));
+//            System.out.println(ParseUtils.getBigIntegerLE(byteBuffer, 2, 3));
             
-            System.out.println(ParseUtils.signExtend(0xffe8,16));
-            
+            System.out.println(ProtocolUtils.outputHexString(applyMask(createBCDByteArrayLE(12345678,8),0xfffffff)));
             
 //            Calendar systemTime = ProtocolUtils.getCalendar(TimeZone.getTimeZone("CST"));
 //            Calendar timeUnderTest = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("CST"));
@@ -521,7 +553,7 @@ public class ParseUtils {
             
            // throw new IOException("test");
         }
-        catch(IOException e) {
+        catch(Exception e) {
             e.printStackTrace();
         }
         

@@ -737,6 +737,9 @@ public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, Ser
     public String getInfoTypeDeviceID() {
         return strID;
     }
+    public void setInfoTypeDeviceID(String strID) {
+        this.strID=strID;
+    }
     
     /*
      * Getter for property strPassword. strPassword is the infotype property value MeterProtocol.PASSWORD
