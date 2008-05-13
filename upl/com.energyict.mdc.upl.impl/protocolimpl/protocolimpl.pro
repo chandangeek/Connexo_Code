@@ -183,6 +183,10 @@
 	public *;
 }
 
+- keep public class com.energyict.protocolimpl.dlms.*{
+	public *;
+}
+
 -keepnames class com.energyict.protocolimpl.mbus.hydrometer.sharky770.Sharky770
 
 -keepnames class com.energyict.protocolimpl.iec1107.emh.lzqj.LZQJ
