@@ -1629,9 +1629,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	    		CosemActivityCalendarBuilder(calendarData);
     	
 	        activityCalendar.writeCalendarNamePassive(builder.calendarNamePassive());
-	        activityCalendar.writeDayProfileTablePassive(builder.dayProfileTablePassive());
-	        activityCalendar.writeWeekProfileTablePassive(builder.weekProfileTablePassive());
 	        activityCalendar.writeSeasonProfilePassive(builder.seasonProfilePassive());
+	        activityCalendar.writeWeekProfileTablePassive(builder.weekProfileTablePassive());
+	        activityCalendar.writeDayProfileTablePassive(builder.dayProfileTablePassive());
 	        if (calendarData.getActivatePassiveCalendarTime() != null)
 	        	activityCalendar.writeActivatePassiveCalendarTime(builder.activatePassiveCalendarTime());
 	        
