@@ -29,7 +29,8 @@ import java.util.logging.*;
 
 /**
  *@beginchanges
-KV|23052007|Bugfix to avoid looping in CourbeCharge object when retrieving more then the bufferspace in the meter
+	KV|23052007|Bugfix to avoid looping in CourbeCharge object when retrieving more then the bufferspace in the meter
+	GN|19052008|Added a delayAfterConnect parameter to avoid gms failures
  *@endchanges
  */
 
@@ -42,6 +43,7 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
     private DLMSPDUFactory dLMSPDUFactory;
     private int sourceTransportAddress;
     private int destinationTransportAddress;
+    private int delayAfterConnect;
     private APSEParameters aPSEParameters;
     private VDEType vDEType = new VDEType(); // default set as
     private TrimaranObjectFactory trimaranObjectFactory;
@@ -93,6 +95,12 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
         getAPSEParameters().setCallingPhysicalAddress(properties.getProperty("CallingPhysicalAddress","30")); // APSE calling physical address, enter as string of even length, containing HEX karakters, default 0x30
         getAPSEParameters().setProposedAppCtxName(Integer.parseInt(properties.getProperty("ProposedAppCtxName","0").trim())); // APSE proposed App context name, default 0
         setInfoTypePassword(properties.getProperty(MeterProtocol.PASSWORD,"0000000000000000"));
+        
+        if(Integer.parseInt(properties.getProperty("DelayAfterConnect", "0")) == 1)
+        	delayAfterConnect = 6000;
+        else 
+        	delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "0").trim());
+        
         try {
             getAPSEParameters().setKey(ProtocolUtils.convert2ascii(getInfoTypePassword().getBytes()));
         }
@@ -104,13 +112,14 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
         
     }
     protected List doGetOptionalKeys() {
-        List list = new ArrayList();
+        List list = new ArrayList(7);
         list.add("T1Timeout");
         list.add("STSAP");
         list.add("DTSAP");
         list.add("ClientType");
         list.add("CallingPhysicalAddress");
         list.add("ProposedAppCtxName");
+        list.add("DelayAfterConnect");
         //list.add("VDEType");
         return list;
     }
@@ -120,7 +129,7 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
         setAPSEFactory(new APSEPDUFactory(this,getAPSEParameters()));
         setDLMSPDUFactory(new DLMSPDUFactory(this));
         setTrimaranObjectFactory(new TrimaranObjectFactory(this));
-        setConnection62056(new Connection62056(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber(),getInfoTypeSecurityLevel(),getInfoTypeHalfDuplex(),getT1Timeout(), getSourceTransportAddress(), getDestinationTransportAddress())); 
+        setConnection62056(new Connection62056(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber(),getInfoTypeSecurityLevel(),getInfoTypeHalfDuplex(),getT1Timeout(), getSourceTransportAddress(), getDestinationTransportAddress(), getDelayAfterConnect())); 
         getConnection62056().initProtocolLayers();
         trimaranPlusProfile = new TrimaranPlusProfile(this);
         
@@ -364,4 +373,8 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
     public void setRegisterFactory(RegisterFactory registerFactory) {
         this.registerFactory = registerFactory;
     }
+
+	protected int getDelayAfterConnect() {
+		return delayAfterConnect;
+	}
 }

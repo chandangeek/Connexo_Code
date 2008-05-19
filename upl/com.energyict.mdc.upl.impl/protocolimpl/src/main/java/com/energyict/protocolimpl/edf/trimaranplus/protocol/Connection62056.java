@@ -43,6 +43,7 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
     private int t1Timeout;
     int sourceTransportAddress;
     int destinationTransportAddress;
+    int delayAfterConnect;
     
     // protocollayers
     private Physical6205641 physical6205641;
@@ -50,7 +51,8 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
     private Transport6205651 transport6205651;
     private LayerManager layerManager;
     
-    /** Creates a new instance of TrimeranConnection */
+    /** Creates a new instance of TrimeranConnection 
+     * @param delayAfterConnect */
     public Connection62056(InputStream inputStream,
             OutputStream outputStream,
             int timeout,
@@ -63,7 +65,7 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
             int halfDuplex,
             int t1Timeout,
             int sourceTransportAddress,
-            int destinationTransportAddress) throws ConnectionException {
+            int destinationTransportAddress, int delayAfterConnect) throws ConnectionException {
         super(inputStream, outputStream, forcedDelay, echoCancelling,halfDuplexController);
         this.timeout=timeout;
         this.maxRetries=maxRetries;
@@ -73,6 +75,7 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
         this.setT1Timeout(t1Timeout);
         this.sourceTransportAddress=sourceTransportAddress;
         this.destinationTransportAddress=destinationTransportAddress;
+        this.delayAfterConnect = delayAfterConnect;
         
     } // EZ7Connection(...)
     
@@ -89,6 +92,7 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
     }
     
     public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException, ProtocolConnectionException {
+    	delayAndFlush(delayAfterConnect);
         this.nodeId=nodeId;
         return null;
     }
@@ -142,9 +146,9 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
     
     public void sendData(byte[] data) throws IOException {
         if (DEBUG>=1) System.out.println("KV_DEBUG> sendData, "+ProtocolUtils.outputHexString(data)+", "+System.currentTimeMillis());
-        //getHalfDuplexController().setRTS(true);
+//        getHalfDuplexController().setRTS(true);
         sendOut(data);
-        //getHalfDuplexController().setRTS(false);
+//        getHalfDuplexController().setRTS(false);
     }
     
     private final int WAIT_FOR_LENGTH=0;
