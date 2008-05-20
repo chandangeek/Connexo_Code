@@ -10,67 +10,67 @@ class UnitParser {
     
     static Unit parse(String id){
 
-        if( "Wh".equals( id) ) 
+    	if( "Wh".equalsIgnoreCase( id) ) 
             return Unit.get(BaseUnit.WATTHOUR);
         
-        if( "kWh".equals( id) ) 
+        if( "kWh".equalsIgnoreCase( id) ) 
             return Unit.get(BaseUnit.WATTHOUR, 3);
 
-        if( "MWh".equals( id) ) 
+        if( "MWh".equalsIgnoreCase( id) ) 
             return Unit.get(BaseUnit.WATTHOUR, 6);
                 
-        if( "W".equals( id) )  
+        if( "W".equalsIgnoreCase( id) )  
             return Unit.get(BaseUnit.WATT);
         
-        if( "kW".equals( id) )  
+        if( "kW".equalsIgnoreCase( id) )  
             return Unit.get(BaseUnit.WATT, 3);
         
-        if ( "MW".equals( id) )
+        if ( "MW".equalsIgnoreCase( id) )
         	return Unit.get(BaseUnit.WATT, 6);
         
-        if( "varh".equals(id)) 
+        if( "varh".equalsIgnoreCase(id)) 
             return Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR);
         
-        if( "kvarh".equals(id)) 
+        if( "kvarh".equalsIgnoreCase(id)) 
             return Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, 3 );
         
-        if( "Mvarh".equals(id)) 
+        if( "Mvarh".equalsIgnoreCase(id)) 
             return Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, 6 );
         
-        if( "var".equals(id))  
+        if( "var".equalsIgnoreCase(id))  
             return Unit.get(BaseUnit.VOLTAMPEREREACTIVE);
         
-        if( "kvar".equals(id))  
+        if( "kvar".equalsIgnoreCase(id))  
             return Unit.get(BaseUnit.VOLTAMPEREREACTIVE, 3 );
 
-        if( "Mvar".equals(id))  
+        if( "Mvar".equalsIgnoreCase(id))  
             return Unit.get(BaseUnit.VOLTAMPEREREACTIVE, 6 );
         
-        if( "VA".equals(id))   
+        if( "VA".equalsIgnoreCase(id))   
             return Unit.get(BaseUnit.VOLTAMPERE);
         
-        if( "kVA".equals(id))   
+        if( "kVA".equalsIgnoreCase(id))   
             return Unit.get(BaseUnit.VOLTAMPERE, 3 );
         
-        if( "MVA".equals(id))   
+        if( "MVA".equalsIgnoreCase(id))   
             return Unit.get(BaseUnit.VOLTAMPERE, 6 );
 
-        if( "VAh".equals(id))  
+        if( "VAh".equalsIgnoreCase(id))  
             return Unit.get(BaseUnit.VOLTAMPEREHOUR);
 
-        if( "kVAh".equals(id))  
+        if( "kVAh".equalsIgnoreCase(id))  
             return Unit.get(BaseUnit.VOLTAMPEREHOUR, 3 );
 
-        if( "MVAh".equals(id))  
+        if( "MVAh".equalsIgnoreCase(id))  
             return Unit.get(BaseUnit.VOLTAMPEREHOUR, 6 );
         
-        if( "m3".equals(id))    
+        if( "m3".equalsIgnoreCase(id))    
             return Unit.get(BaseUnit.CUBICMETER, 0 );
         
-        if( "m3/h".equals(id))  
+        if( "m3/h".equalsIgnoreCase(id))  
             return Unit.get(BaseUnit.CUBICMETERPERHOUR, 0 );
 
-        if( "min".equals(id))  
+        if( "min".equalsIgnoreCase(id))  
             return Unit.get(BaseUnit.MINUTE, 0 );
         
         throw new ApplicationException( "Unit " + id + " not supported " );

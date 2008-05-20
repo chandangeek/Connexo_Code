@@ -73,6 +73,7 @@ import com.energyict.protocolimpl.iec1107.IEC1107Connection;
  * FBL|29102007| Bug fix: multiplier was not correct when not powers of 10
  * (10, 100, 1000).  Units with Mega prefix where not supported.
  * GNA|10012008| Bug fix: EIServer didn't read data after power outage on the meter
+ * GNA|19052008| Unit conversions are NOT case sensitive anymore
  * @endchanges
  */
 public class Prometer extends AbstractProtocol  {
@@ -645,7 +646,8 @@ public class Prometer extends AbstractProtocol  {
      * @see AbstractProtocol#getProtocolVersion()
      */
     public String getProtocolVersion() {
-        return "$Revision: 1.14 $";
+//        return "$Revision: 1.14 $";	// cvs version
+    	return "$Date$";	// svn version
     }
     
     /** Fetch firware version. 
