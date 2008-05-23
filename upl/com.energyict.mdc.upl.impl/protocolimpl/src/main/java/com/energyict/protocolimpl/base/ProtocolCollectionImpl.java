@@ -44,7 +44,6 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         protocolclasses.add("com.energyict.protocolimpl.dlms.DLMSEMO");protocolnames.add("DLMS Enermet E700");
         protocolclasses.add("com.energyict.protocolimpl.dukepower.DukePower");protocolnames.add("Dukepower EnergyICT WebRTU & RTU V5");
         protocolclasses.add("com.energyict.protocolimpl.dlms.DLMSZMD");protocolnames.add("DLMS Siemens ZMD");
-        protocolclasses.add("com.energyict.protocolimpl.dlms.DLMSZMD_EXT");protocolnames.add("DLMS Siemens ZMD [no profile support]");
         protocolclasses.add("com.energyict.protocolimpl.actarissevc.SEVC");protocolnames.add("IEC1107 Actaris SEVC-D gascorrector");
         protocolclasses.add("com.energyict.protocolimpl.dlms.DLMSLNSL7000");protocolnames.add("DLMS-LN Actaris SL7000");
         protocolclasses.add("com.energyict.protocolimpl.pact.pripact.PRIPact");protocolnames.add("PRI PACT meter");
@@ -122,6 +121,8 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         protocolclasses.add("com.energyict.protocolimpl.modbus.socomec.a40.A40");protocolnames.add("Socomec Diris A40 meter Modbus");      
         protocolclasses.add("com.energyict.protocolimpl.modbus.cutlerhammer.iq230.IQ230");protocolnames.add("Cutler Hammer IQ230 meter with Modbus");   
         protocolclasses.add("com.energyict.protocolimpl.dlms.actarisace6000.ACE6000");protocolnames.add("DLMS Actaris ACE6000");
+        protocolclasses.add("com.energyict.protocolimpl.dlms.DLMSZMD_EXT");protocolnames.add("DLMS Siemens ZMD [no profile support]");
+        protocolclasses.add("com.energyict.protocolimpl.edf.trimarancje.Trimaran");protocolnames.add("Trimaran CJE meter");
         
     }  
     
