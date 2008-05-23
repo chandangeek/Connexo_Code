@@ -162,7 +162,7 @@ public class Trimaran extends AbstractProtocol {
     
     public String getProtocolVersion() {
 //        return "$Revision$" ; 
-        return "$Date:$";
+        return "$Date$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
