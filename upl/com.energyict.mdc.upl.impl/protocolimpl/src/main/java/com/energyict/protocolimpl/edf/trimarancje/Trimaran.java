@@ -161,7 +161,7 @@ public class Trimaran extends AbstractProtocol {
     }
     
     public String getProtocolVersion() {
-//        return "$Revision$"; 
+//        return "$Revision$" ; 
         return "$Date$";
     }
     
