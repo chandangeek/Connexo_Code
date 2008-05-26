@@ -239,6 +239,7 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
 
                 if (DEBUG >= 2) System.out.println("GetSession received AbstractSPDU.SPDU_EOD frame...");
 
+                if(DEBUG >=2)System.out.println("receivedLength: " + resultArrayOutputStream.toByteArray().length + ", codedLength: " + len);
                 if ((len>0) && (resultArrayOutputStream.toByteArray().length != len)) {
                     if (DEBUG >= 2) System.out.println("Error, GetSession received AbstractSPDU.SPDU_EOD frame...");
                     throw new ProtocolConnectionException("getSessionData() Length error received="+resultArrayOutputStream.toByteArray().length+", allowed receive="+len,ERROR_LENGTH);

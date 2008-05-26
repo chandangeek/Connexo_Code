@@ -22,7 +22,7 @@ import java.util.*;
  */
 public class DemandData extends AbstractTable {
     
-    private final int DEBUG=10;
+    private final int DEBUG=0;
     
     private byte[] data;
     private List demandValuesList;
@@ -103,7 +103,7 @@ public class DemandData extends AbstractTable {
         }
     }
     
-    protected void parse(byte[] data) throws IOException { 
+    public void parse(byte[] data) throws IOException { 
         this.setData(data);
 
         
@@ -202,80 +202,80 @@ public class DemandData extends AbstractTable {
     	return intervalCalendar;
 	}
 
-	private Calendar parseCalendar(int val, TimeZone timeZone, Calendar retrievalCalendar) throws IOException {
-        
-        Calendar intervalCalendar = getCalendarDayAndMonth((val & 0x0F00)>>8, retrievalCalendar);
-        int hour = (val & 0x00F8)>>3;
-        int interval = val & 0x0007;
-        intervalCalendar.set(Calendar.HOUR_OF_DAY,hour);
-        intervalCalendar.set(Calendar.MINUTE,interval*(getProfileInterval()/60));
-
-        // KV 30102006 fix to adjust load profile
-        // SSSSSWWWW
-        //      |
-        //      --> Transition from summer to wintertime AND previous time with current differs <= 2 hour BUT > 1 hour --> subtract 1 hour from current
-        if (previousDate != null) {
-            if (timeZone.inDaylightTime(previousDate) && !timeZone.inDaylightTime(intervalCalendar.getTime())) {
-                long diff = (intervalCalendar.getTime().getTime() - previousDate.getTime())/1000;
-                if ((diff<=7200) && (diff>3600)) {
-                    intervalCalendar.add(Calendar.HOUR_OF_DAY,-1);
-                }
-            }
-        }
-        previousDate = intervalCalendar.getTime();
-        
-        
-        return intervalCalendar;
-        
-    } // private Date parseDate(int val, TimeZone timeZone)
+//	private Calendar parseCalendar(int val, TimeZone timeZone, Calendar retrievalCalendar) throws IOException {
+//        
+//        Calendar intervalCalendar = getCalendarDayAndMonth((val & 0x0F00)>>8, retrievalCalendar);
+//        int hour = (val & 0x00F8)>>3;
+//        int interval = val & 0x0007;
+//        intervalCalendar.set(Calendar.HOUR_OF_DAY,hour);
+//        intervalCalendar.set(Calendar.MINUTE,interval*(getProfileInterval()/60));
+//
+//        // KV 30102006 fix to adjust load profile
+//        // SSSSSWWWW
+//        //      |
+//        //      --> Transition from summer to wintertime AND previous time with current differs <= 2 hour BUT > 1 hour --> subtract 1 hour from current
+//        if (previousDate != null) {
+//            if (timeZone.inDaylightTime(previousDate) && !timeZone.inDaylightTime(intervalCalendar.getTime())) {
+//                long diff = (intervalCalendar.getTime().getTime() - previousDate.getTime())/1000;
+//                if ((diff<=7200) && (diff>3600)) {
+//                    intervalCalendar.add(Calendar.HOUR_OF_DAY,-1);
+//                }
+//            }
+//        }
+//        previousDate = intervalCalendar.getTime();
+//        
+//        
+//        return intervalCalendar;
+//        
+//    } // private Date parseDate(int val, TimeZone timeZone)
     
     
-    private Calendar getCalendarDayAndMonth(int quinzaineDay, Calendar retrievalCalendar) {
-         
-         
-         int retrievalDayOfMonth = retrievalCalendar.get(Calendar.DAY_OF_MONTH);
-         int retrievalMonth = retrievalCalendar.get(Calendar.MONTH);
-         int intervalYear = retrievalCalendar.get(Calendar.YEAR);
-         int intervalDay;
-         int intervalMonth;
-         
-         if (retrievalDayOfMonth < 16) {
-             if (quinzaineDay > retrievalDayOfMonth) {
-                 // previous month, quinzaine 2
-                 intervalDay = quinzaineDay+16; // 0=16, 1=17, ... 15=31
-                 if (retrievalMonth--<=0) {
-                    intervalMonth = 11;
-                    intervalYear--;
-                 }
-                 else intervalMonth=retrievalMonth;
-                 //intervalMonth = retrievalMonth--<=0?11:retrievalMonth;
-             }
-             else {
-                 // current month, quinzaine 1
-                 intervalDay = quinzaineDay; // 1=1, 2=2, ... 15=15
-                 intervalMonth = retrievalMonth;
-             }
-             
-         }   
-         else {
-             if (quinzaineDay > (retrievalDayOfMonth-16)) {
-                 // current month, quinzaine 1
-                 intervalDay = quinzaineDay; // 1=1, 2=2, ... 15=15
-                 intervalMonth = retrievalMonth;
-             }
-             else {
-                 // current month, quinzaine 2
-                 intervalDay = quinzaineDay+16; // 0=16, 1=17, ... 15=31
-                 intervalMonth = retrievalMonth;
-             }
-         }
-                 
-         Calendar intervalCal = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("ECT")); 
-         intervalCal.set(Calendar.YEAR,intervalYear);
-         intervalCal.set(Calendar.MONTH,intervalMonth);
-         intervalCal.set(Calendar.DAY_OF_MONTH,intervalDay);
-         return intervalCal;
-    }    
+//    private Calendar getCalendarDayAndMonth(int quinzaineDay, Calendar retrievalCalendar) {
+//         
+//         
+//         int retrievalDayOfMonth = retrievalCalendar.get(Calendar.DAY_OF_MONTH);
+//         int retrievalMonth = retrievalCalendar.get(Calendar.MONTH);
+//         int intervalYear = retrievalCalendar.get(Calendar.YEAR);
+//         int intervalDay;
+//         int intervalMonth;
+//         
+//         if (retrievalDayOfMonth < 16) {
+//             if (quinzaineDay > retrievalDayOfMonth) {
+//                 // previous month, quinzaine 2
+//                 intervalDay = quinzaineDay+16; // 0=16, 1=17, ... 15=31
+//                 if (retrievalMonth--<=0) {
+//                    intervalMonth = 11;
+//                    intervalYear--;
+//                 }
+//                 else intervalMonth=retrievalMonth;
+//                 //intervalMonth = retrievalMonth--<=0?11:retrievalMonth;
+//             }
+//             else {
+//                 // current month, quinzaine 1
+//                 intervalDay = quinzaineDay; // 1=1, 2=2, ... 15=15
+//                 intervalMonth = retrievalMonth;
+//             }
+//             
+//         }   
+//         else {
+//             if (quinzaineDay > (retrievalDayOfMonth-16)) {
+//                 // current month, quinzaine 1
+//                 intervalDay = quinzaineDay; // 1=1, 2=2, ... 15=15
+//                 intervalMonth = retrievalMonth;
+//             }
+//             else {
+//                 // current month, quinzaine 2
+//                 intervalDay = quinzaineDay+16; // 0=16, 1=17, ... 15=31
+//                 intervalMonth = retrievalMonth;
+//             }
+//         }
+//                 
+//         Calendar intervalCal = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("ECT")); 
+//         intervalCal.set(Calendar.YEAR,intervalYear);
+//         intervalCal.set(Calendar.MONTH,intervalMonth);
+//         intervalCal.set(Calendar.DAY_OF_MONTH,intervalDay);
+//         return intervalCal;
+//    }    
     
     public byte[] getData() {
         return data;
@@ -285,64 +285,62 @@ public class DemandData extends AbstractTable {
         this.data = data;
     }
     
-    
-    
     // only for testing...
-    private int getTestTimestamp(int quinzaineDay, int hour) {
-        int temp = 0xC000;
-        temp = temp | (quinzaineDay<<8);
-        temp = temp | (hour<<3);
-        
-        return temp;
-    }
-    private void addIntervalValues(LittleEndianOutputStream leos, int quinzaineDay) throws IOException {
-        
-        for (int hour=0;hour<24;hour++) {
-            leos.writeLEShort((short)getTestTimestamp(quinzaineDay,hour));
-            leos.writeLEShort((short)100);
-            leos.writeLEShort((short)200);
-            leos.writeLEShort((short)300);
-            leos.writeLEShort((short)400);
-            leos.writeLEShort((short)500);
-            leos.writeLEShort((short)600);
-        }
-    }
+//    private int getTestTimestamp(int quinzaineDay, int hour) {
+//        int temp = 0xC000;
+//        temp = temp | (quinzaineDay<<8);
+//        temp = temp | (hour<<3);
+//        
+//        return temp;
+//    }
+//    private void addIntervalValues(LittleEndianOutputStream leos, int quinzaineDay) throws IOException {
+//        
+//        for (int hour=0;hour<24;hour++) {
+//            leos.writeLEShort((short)getTestTimestamp(quinzaineDay,hour));
+//            leos.writeLEShort((short)100);
+//            leos.writeLEShort((short)200);
+//            leos.writeLEShort((short)300);
+//            leos.writeLEShort((short)400);
+//            leos.writeLEShort((short)500);
+//            leos.writeLEShort((short)600);
+//        }
+//    }
     
     
-    private Calendar getRetrievalCalendar() throws IOException {
-        if (getDataFactory()==null) {
-            Calendar cal = ProtocolUtils.getCleanCalendar(getTimeZone());
-            cal.set(Calendar.YEAR,2007);
-            cal.set(Calendar.MONTH,9);
-            cal.set(Calendar.DAY_OF_MONTH,30);
-            cal.set(Calendar.HOUR_OF_DAY,10);
-            cal.set(Calendar.MINUTE,15);
-            return cal;
-        }
-        else
-            return getDataFactory().getTrimaran().getDataFactory().getCurrentMonthInfoTable().getTimestampCalendar();
-    }
+//    private Calendar getRetrievalCalendar() throws IOException {
+//        if (getDataFactory()==null) {
+//            Calendar cal = ProtocolUtils.getCleanCalendar(getTimeZone());
+//            cal.set(Calendar.YEAR,2007);
+//            cal.set(Calendar.MONTH,9);
+//            cal.set(Calendar.DAY_OF_MONTH,30);
+//            cal.set(Calendar.HOUR_OF_DAY,10);
+//            cal.set(Calendar.MINUTE,15);
+//            return cal;
+//        }
+//        else
+//            return getDataFactory().getTrimaran().getDataFactory().getCurrentMonthInfoTable().getTimestampCalendar();
+//    }
     
-    private byte[] loadTestValues() throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        LittleEndianOutputStream leos = new LittleEndianOutputStream(baos);
-        addIntervalValues(leos,8);
-        addIntervalValues(leos,9);
-        addIntervalValues(leos,10);
-        addIntervalValues(leos,11);
-        addIntervalValues(leos,12);
-        addIntervalValues(leos,13);
-        addIntervalValues(leos,14);
-        leos.writeLEInt(0xFFFFFFFF);
-        addIntervalValues(leos,1);
-        addIntervalValues(leos,2);
-        addIntervalValues(leos,3);
-        addIntervalValues(leos,4);
-        addIntervalValues(leos,5);
-        addIntervalValues(leos,6);
-        addIntervalValues(leos,7);
-        
-        return baos.toByteArray();
+//    private byte[] loadTestValues() throws IOException {
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        LittleEndianOutputStream leos = new LittleEndianOutputStream(baos);
+//        addIntervalValues(leos,8);
+//        addIntervalValues(leos,9);
+//        addIntervalValues(leos,10);
+//        addIntervalValues(leos,11);
+//        addIntervalValues(leos,12);
+//        addIntervalValues(leos,13);
+//        addIntervalValues(leos,14);
+//        leos.writeLEInt(0xFFFFFFFF);
+//        addIntervalValues(leos,1);
+//        addIntervalValues(leos,2);
+//        addIntervalValues(leos,3);
+//        addIntervalValues(leos,4);
+//        addIntervalValues(leos,5);
+//        addIntervalValues(leos,6);
+//        addIntervalValues(leos,7);
+//        
+//        return baos.toByteArray();
         
 /*        
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -361,7 +359,7 @@ public class DemandData extends AbstractTable {
             baos.write(temp);
         } // while(true)
  */
-    }    
+//    }    
     
     // only for testing...
     static public void main(String[] args) {

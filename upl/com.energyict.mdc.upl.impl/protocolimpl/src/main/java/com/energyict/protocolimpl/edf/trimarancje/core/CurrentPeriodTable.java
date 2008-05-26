@@ -21,7 +21,7 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class CurrentPeriodTable extends AbstractTable{
 	
-	private int DEBUG = 10;
+	private int DEBUG = 0;
 	
 	private Date timeStamp;
 	
@@ -103,7 +103,7 @@ public class CurrentPeriodTable extends AbstractTable{
 	@Override
 	protected void parse(byte[] data) throws IOException {
 //      System.out.println("KV_DEBUG> write to file");
-//      File file = new File("c://TEST_FILES/PreviousPeriodTable.bin");
+//      File file = new File("c://TEST_FILES/CurrentPeriodTable.bin");
 //      FileOutputStream fos = new FileOutputStream(file);
 //      fos.write(data);
 //      fos.close();
@@ -121,13 +121,9 @@ public class CurrentPeriodTable extends AbstractTable{
 		setTarif(ProtocolUtils.getIntLE(data, offset, 1)); offset+=1;
 		
 		for(int i = 0; i < 6; i++){setActiveEnergy(ProtocolUtils.getIntLE(data,offset,3), i);offset+=3;}
-		
 		for(int i = 0; i < 4; i++){setDurationExceedingPower(ProtocolUtils.getIntLE(data, offset, 2), i); offset+=2;}
-		
 		for(int i = 0; i < 4; i++){setMaxDemand(ProtocolUtils.getIntLE(data, offset, 2), i);offset+=2;}
-		
 		for(int i = 0; i < 4; i++){setExceedingPower(ProtocolUtils.getIntLE(data, offset, 2), i);offset+=2;}
-		
 		for(int i = 0; i < 4; i++){setCoefficient(ProtocolUtils.getIntLE(data, offset, 1), i);offset+=1;}
 		
 		setTarifVersionNextPeriod(ProtocolUtils.getIntLE(data, offset, 1));offset+=1;
@@ -143,7 +139,7 @@ public class CurrentPeriodTable extends AbstractTable{
 		try{
 			CurrentPeriodTable cpt = new CurrentPeriodTable(null);
 			
-	        File file = new File("c://TEST_FILES/PreviousPeriodTable.bin");
+	        File file = new File("c://TEST_FILES/CurrentPeriodTable.bin");
 	        FileInputStream fis = new FileInputStream(file);
 	        byte[] data=new byte[(int)file.length()];
 	        fis.read(data);

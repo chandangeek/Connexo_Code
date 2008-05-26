@@ -166,6 +166,7 @@ public class Trimaran extends AbstractProtocol {
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
+//    	getDataFactory().getPreviousPeriodTable();
 //    	getDataFactory().getCurrentPeriodTable();
 //        return "TARIF="+getDataFactory().getMeterStatusTable().getTarif()+
 //               ", MODETA="+getDataFactory().getMeterStatusTable().getModeta()+ 
@@ -311,7 +312,7 @@ public class Trimaran extends AbstractProtocol {
         return dataFactory;
     }
 
-    private void setDataFactory(DataFactory dataFactory) {
+    protected void setDataFactory(DataFactory dataFactory) {
         this.dataFactory = dataFactory;
     }
 
@@ -319,7 +320,7 @@ public class Trimaran extends AbstractProtocol {
         return trimeranProfile;
     }
 
-    private void setTrimeranProfile(TrimaranProfile trimeranProfile) {
+    public void setTrimeranProfile(TrimaranProfile trimeranProfile) {
         this.trimeranProfile = trimeranProfile;
     }
 

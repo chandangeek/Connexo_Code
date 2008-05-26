@@ -27,6 +27,7 @@ public class DataFactory {
     MeterStatusTable meterStatusTable = null;
     ContractsTable contractsTable = null;
     CurrentPeriodTable currentPeriodTable = null;
+    PreviousPeriodTable previousPeriodTable = null;
     
     /** Creates a new instance of DataFactory */
     public DataFactory(Trimaran trimaran) {
@@ -40,6 +41,15 @@ public class DataFactory {
 			contractsTable.invoke();
 		}
 		return contractsTable;
+	}
+	
+	public PreviousPeriodTable getPreviousPeriodTable() throws IOException{
+		if(previousPeriodTable == null){
+			previousPeriodTable = new PreviousPeriodTable(this);
+			previousPeriodTable.setLength(107);
+			previousPeriodTable.invoke();
+		}
+		return previousPeriodTable;
 	}
 	
 	public CurrentPeriodTable getCurrentPeriodTable() throws IOException {

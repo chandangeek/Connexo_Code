@@ -25,6 +25,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.edf.trimarancje.Trimaran;
 import com.energyict.protocolimpl.edf.trimarancje.core.CurrentPeriodTable;
 import com.energyict.protocolimpl.edf.trimarancje.core.MonthInfoTable;
+import com.energyict.protocolimpl.edf.trimarancje.core.PreviousPeriodTable;
 
 /**
  *
@@ -63,15 +64,62 @@ public class RegisterFactory {
     public void buidRegisterList() throws IOException {
         registers = new ArrayList();
         
-        buildIndexes(trimaran.getDataFactory().getCurrentPeriodTable());
+        buildIndexes(trimaran.getDataFactory().getCurrentPeriodTable(),
+        		trimaran.getDataFactory().getPreviousPeriodTable());
         
 //        buildIndexes(255,trimaran.getDataFactory().getCurrentMonthInfoTable());
 //        buildIndexes(0,trimaran.getDataFactory().getPreviousMonthInfoTable());
     }
     
-    private void buildIndexes(CurrentPeriodTable currentPeriodTable) {
-		// TODO Auto-generated method stub
-		
+    private void buildIndexes(CurrentPeriodTable currentPeriodTable, PreviousPeriodTable previousPeriodTable) {
+        Quantity quantity=null;
+        RegisterValue registerValue=null;
+        Date toDate=null;
+        Date fromDate=null;		
+        
+        for (int eField = 1; eField <= 6; eField++) {
+        	quantity = currentPeriodTable.getActiveQuantity(eField-1);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.8."+ eField +".255"), quantity);
+        	registers.add(new Register(registerValue));
+        	quantity = previousPeriodTable.getActiveQuantityP1(eField-1);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.8."+ eField +".0"), quantity, 
+        			null, currentPeriodTable.getTimeStamp());
+        	registers.add(new Register(registerValue));
+        	quantity = previousPeriodTable.getActiveQuantityP2(eField-1);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.8."+ eField +".1"), quantity,
+        			null, previousPeriodTable.getTimeStamp());
+        	registers.add(new Register(registerValue));
+        }
+        int offset = 17;
+        for (int zone = 0; zone <= 3; zone++){
+        	// Puissance souscrite - Exceeding power
+        	quantity = currentPeriodTable.getExceedingPowerQuantity(zone);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.129." + (offset+zone) + ".255"), quantity);
+        	registers.add(new Register(registerValue));
+        	quantity = previousPeriodTable.getExceedingPowerQuantityP1(zone);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.129." + (offset+zone) + ".0"), quantity,
+        			null, currentPeriodTable.getTimeStamp());
+        	registers.add(new Register(registerValue));
+        	quantity = previousPeriodTable.getExceedingPowerQuantityP2(zone);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.129." + (offset+zone) + ".1"), quantity,
+        			null, previousPeriodTable.getTimeStamp());
+        	registers.add(new Register(registerValue));
+        	
+        	// Puissance apparente maximale - Maximum Demand
+        	quantity = currentPeriodTable.getExceedingPowerQuantity(zone);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.6." + (offset+zone) + ".255"), quantity);
+        	registers.add(new Register(registerValue));
+        	quantity = previousPeriodTable.getExceedingPowerQuantityP1(zone);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.6." + (offset+zone) + ".0"), quantity,
+        			null, currentPeriodTable.getTimeStamp());
+        	registers.add(new Register(registerValue));
+        	quantity = previousPeriodTable.getExceedingPowerQuantityP2(zone);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.6." + (offset+zone) + ".1"), quantity,
+        			null, previousPeriodTable.getTimeStamp());
+        	registers.add(new Register(registerValue));
+        	
+        }
+        
 	}
 
 	private void buildIndexes(int fField,MonthInfoTable monthInfo) {

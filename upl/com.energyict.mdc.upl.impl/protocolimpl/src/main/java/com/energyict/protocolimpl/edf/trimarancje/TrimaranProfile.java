@@ -23,6 +23,8 @@ public class TrimaranProfile {
     
     Trimaran trimaran;
     
+    private DemandData demandData = null;
+    
     /** Creates a new instance of TrimeranProfile */
     public TrimaranProfile(Trimaran trimaran) {
         this.trimaran=trimaran;
@@ -31,9 +33,18 @@ public class TrimaranProfile {
     
     public ProfileData getProfileData() throws IOException {
         ProfileData profileData = new ProfileData();
-        DemandData demandData = trimaran.getDataFactory().getDemandData();
+        if(this.demandData == null)
+        	setDemandData(trimaran.getDataFactory().getDemandData());
+        
         profileData.setChannelInfos(demandData.getChannelInfos());
         profileData.setIntervalDatas(demandData.getIntervalDatas());
         return profileData;
+    }
+    
+    protected DemandData getDemandData(){
+    	return this.demandData;
+    }
+    protected void setDemandData(DemandData demandData){
+    	this.demandData = demandData;
     }
 }
