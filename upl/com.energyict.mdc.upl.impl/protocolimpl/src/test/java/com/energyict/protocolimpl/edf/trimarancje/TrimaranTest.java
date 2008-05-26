@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.edf.trimarancje;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,10 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.energyict.cbo.Utils;
-import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.edf.trimarancje.Trimaran;
-import com.energyict.protocolimpl.edf.trimarancje.TrimaranProfile;
 import com.energyict.protocolimpl.edf.trimarancje.core.DataFactory;
 import com.energyict.protocolimpl.edf.trimarancje.core.DemandData;
 
@@ -28,7 +25,6 @@ public class TrimaranTest {
 	public void setUp() throws Exception {
 		cje = new Trimaran();
 		cje.init(null, null, TimeZone.getTimeZone("ECT"), null);
-
 	}
 
 	@After
@@ -48,6 +44,7 @@ public class TrimaranTest {
 	        fis.close();   
 	        cje.getTrimeranProfile().getDemandData().parse(data);
 			cje.getProfileData(null, null, false);
+			// if we can get this far it should be OK ...
 		} catch (UnsupportedException e) {
 			fail();
 			e.printStackTrace();
