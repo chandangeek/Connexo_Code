@@ -223,25 +223,25 @@ public class SentinelLoadProfile {
     }
 
     // using manufacturer tables...
-//    private void buildIntervalData2(ProfileData profileData, Date lastReading, Date to) throws IOException {
-//        
-//        
-//        LoadProfilePreliminaryDataRead lppdr = sentinel.getDataReadFactory().getLoadProfilePreliminaryDataRead();
-//         
-//        if (DEBUG>=1) System.out.println("KV_DEBUG> "+lppdr);        
-//        int startBlockOffset = sentinel.getManufacturerProcedureFactory().getLoadProfileStartBlock(lastReading).getStartingBlockOffset();
-//        int nrOfBlocks = lppdr.getIndexOfLastLoadProfileBlock()-startBlockOffset+1;
-//        int blockSize = (264 * sentinel.getNumberOfChannels())+260;
-//        int headersize = 8*sentinel.getNumberOfChannels()+4;
-//        
-//        if (DEBUG>=1) System.out.println("KV_DEBUG> startBlockOffset="+startBlockOffset+", nrOfBlocks="+nrOfBlocks+", blockSize="+blockSize);        
-//
-//        for (int block=startBlockOffset;block<(startBlockOffset+nrOfBlocks);block++) {
-//            LoadProfileData lpd = sentinel.getManufacturerTableFactory().getLoadProfileDataHeaderOnly(block);
-//            if (DEBUG>=1) System.out.println("KV_DEBUG> "+lpd); 
-//        }
-//        
-//    }
+    private void buildIntervalData2(ProfileData profileData, Date lastReading, Date to) throws IOException {
+        
+        
+        LoadProfilePreliminaryDataRead lppdr = sentinel.getDataReadFactory().getLoadProfilePreliminaryDataRead();
+         
+        if (DEBUG>=1) System.out.println("KV_DEBUG> "+lppdr);        
+        int startBlockOffset = sentinel.getManufacturerProcedureFactory().getLoadProfileStartBlock(lastReading).getStartingBlockOffset();
+        int nrOfBlocks = lppdr.getIndexOfLastLoadProfileBlock()-startBlockOffset+1;
+        int blockSize = (264 * sentinel.getNumberOfChannels())+260;
+        int headersize = 8*sentinel.getNumberOfChannels()+4;
+        
+        if (DEBUG>=1) System.out.println("KV_DEBUG> startBlockOffset="+startBlockOffset+", nrOfBlocks="+nrOfBlocks+", blockSize="+blockSize);        
+
+        for (int block=startBlockOffset;block<(startBlockOffset+nrOfBlocks);block++) {
+            LoadProfileData lpd = sentinel.getManufacturerTableFactory().getLoadProfileDataHeaderOnly(block);
+            if (DEBUG>=1) System.out.println("KV_DEBUG> "+lpd); 
+        }
+        
+    }
     
     private final long MINUTES60=(60*60*1000);
     

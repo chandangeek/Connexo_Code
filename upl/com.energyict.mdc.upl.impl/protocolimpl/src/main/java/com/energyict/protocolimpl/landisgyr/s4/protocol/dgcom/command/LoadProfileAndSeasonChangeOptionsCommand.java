@@ -25,6 +25,8 @@ import com.energyict.protocolimpl.base.*;
  */
 public class LoadProfileAndSeasonChangeOptionsCommand extends AbstractCommand {
     
+	final int DEBUG=0;
+	
     private int settings; // bit0 demand rest control
                   // bit1 15 minutes profile interval
                   // bit2 30 minutes profile interval
@@ -49,7 +51,13 @@ public class LoadProfileAndSeasonChangeOptionsCommand extends AbstractCommand {
     public int getLoadProfileMemorySize(Date from) throws IOException {
         Date to = new Date();
         long seconds2read = (to.getTime() - from.getTime())/1000;
-        return (int)((seconds2read*getNrOfActiveChannels()*2)/(getProfileInterval()));
+        if (DEBUG>=1) System.out.println("seconds2read="+seconds2read);
+        // round up to next day...
+        seconds2read = seconds2read + (86400 -(seconds2read%86400));
+        if (DEBUG>=1) System.out.println("seconds2read modulo day="+seconds2read);
+        // add 1 interval extra
+        long nrOfIntervals = seconds2read/getProfileInterval() + 1;
+        return (int)((nrOfIntervals*getNrOfActiveChannels()*2));
     }
     
     public Unit getLoadProfileChannelUnit(int channelIndex) throws IOException {

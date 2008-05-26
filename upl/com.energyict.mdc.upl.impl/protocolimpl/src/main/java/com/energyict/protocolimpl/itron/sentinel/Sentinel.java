@@ -212,6 +212,18 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         int skip=0;
         StringBuffer strBuff = new StringBuffer();
+    	
+/*        
+        strBuff.append(getStandardTableFactory().getConfigurationTable());
+        strBuff.append(getStandardTableFactory().getActualLoadProfileTable());    	
+        strBuff.append(getStandardTableFactory().getLoadProfileControlTable());
+        strBuff.append(getStandardTableFactory().getLoadProfileStatusTable());
+//        strBuff.append(getStandardTableFactory().getLoadProfileDataSetTable(0,0));
+    	boolean skipIt=true;
+    	if (skipIt) return strBuff.toString();
+*/    	
+    	
+    	
         strBuff.append("----------------------------------------------MANUFACTURER TABLES--------------------------------------------------\n");
         
         strBuff.append(getDataReadFactory().getConstantsDataRead()+"\n"); 

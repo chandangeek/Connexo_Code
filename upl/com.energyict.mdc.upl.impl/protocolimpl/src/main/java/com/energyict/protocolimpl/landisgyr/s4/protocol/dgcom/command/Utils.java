@@ -27,13 +27,22 @@ public class Utils {
     
     static public Date getTimestampwwhhddYYDDMM(byte[] data, int offset, TimeZone timeZone) throws IOException {
         Calendar cal = ProtocolUtils.getCleanCalendar(timeZone);
-        cal.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[offset++]));
-        cal.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(data[offset++]));
-        cal.set(Calendar.DAY_OF_WEEK,ProtocolUtils.BCD2hex(data[offset++]));
-        int year = ProtocolUtils.BCD2hex(data[offset++]);
-        cal.set(Calendar.YEAR,year>50?1900+year:2000+year);
-        cal.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex(data[offset++]));
-        cal.set(Calendar.MONTH,ProtocolUtils.BCD2hex(data[offset++])-1);
-        return cal.getTime();
+        try {
+	        cal.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[offset++]));
+	        cal.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(data[offset++]));
+	        cal.set(Calendar.DAY_OF_WEEK,ProtocolUtils.BCD2hex(data[offset++]));
+	        int year = ProtocolUtils.BCD2hex(data[offset++]);
+	        cal.set(Calendar.YEAR,year>50?1900+year:2000+year);
+	        cal.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex(data[offset++]));
+	        cal.set(Calendar.MONTH,ProtocolUtils.BCD2hex(data[offset++])-1);
+	        return cal.getTime();
+        }
+        catch(IOException e) {
+        	// if a BCD error, then we suppose the date is not valid and we return the 1970 date...
+        	if (e.toString().indexOf("BCD error")>=0)
+        		return null; //cal.getTime(); //ProtocolUtils.getCleanCalendar(timeZone).getTime();
+        	else
+        		throw e;
+        }
     }   
 }

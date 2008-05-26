@@ -43,7 +43,10 @@ public class MarkVProfile {
         ProfileData profileData=null;
         int nrOfDays = ParseUtils.getNrOfDays(lastReading,new Date(),markV.getTimeZone());
         int nrOfIntervalsParDay = ((24*3600) / markV.getProfileInterval());
-        int nrOfRecords = nrOfDays * nrOfIntervalsParDay;
+        
+        ProtocolChannelMap pcm = markV.getCommandFactory().getDCCommand().getProtocolChannelMap();
+        
+        int nrOfRecords = nrOfDays * nrOfIntervalsParDay * pcm.getNrOfUsedProtocolChannels();
         
         Calendar cal = checkIfTimeValid();
         

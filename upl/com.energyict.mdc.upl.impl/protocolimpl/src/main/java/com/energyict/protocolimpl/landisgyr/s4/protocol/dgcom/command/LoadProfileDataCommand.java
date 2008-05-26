@@ -54,7 +54,7 @@ public class LoadProfileDataCommand extends AbstractCommand {
         
         // 2 extra 1K blocks to be sure that we have a full day... Problem is with the DATE_STAMP
         // If this is not OK, we can always build in a mechanism that counts the DATA entries before the first DATE_STAMP and then
-        // at first DATE_STAMP roll back with correct interval decrments...
+        // at first DATE_STAMP roll back with correct interval decrements...
         int memorySizeInKbytes=(getMemorySize()/1024)+2; 
         
         
@@ -156,6 +156,69 @@ RXS4 32k 122k
             }
         } // for (int i=0;i<(intervalDatas.size()-1);i++)
     }
+
+//    private Calendar searchInitialCalendar(byte[] data) throws IOException {
+//        int offset=0;
+//        int length = data.length;
+//        int interval=0;
+//        Calendar cal=null;
+//        int channelIndex=0;
+//        boolean dateStamp=false;
+//        boolean timeStamp=false;
+//        
+//        while (offset<length) {
+//            int value = ProtocolUtils.getIntLE(data,offset, 2); offset+=2;
+//            int event = DATA;
+//            if ((value&0x8000)==0x8000) {
+//                if ((value&0x4000)==0x4000)
+//                    event = TIME_STAMP;
+//                else
+//                    event = DATE_STAMP;
+//            }
+//            else {
+//                if (!checkParity(value)) {
+//                    if (DEBUG>=1) System.out.println("KV_DEBUG> Corrupted value, bad parity");
+//                    // KV_TO_DO set corrupted intervalstate bit!
+//                }
+//                value &= 0x3FFF; // mask out bit 14 & 15
+//            }
+//            
+//            if (event == DATE_STAMP) {
+//                if (DEBUG>=2) System.out.println("DATE_STAMP");                
+//                
+//                // KV 07082007
+//                // if calendar is older then previous, remove already collected intervals
+//                Calendar temp = getDateStamp(value);
+//                if ((cal != null) && (temp.getTime().before(cal.getTime()))) {
+//                    if (DEBUG>=2) System.out.println("KV_DEBUG> Trash all received intervals until now...");   
+//                }
+//                cal = temp;
+//                        
+//                if (dateStamp)
+//                    timeStamp=false;
+//                if (!timeStamp)
+//                    dateStamp=true;
+//                
+//            } // if (event == DATE_STAMP)
+//            
+//            if (event == TIME_STAMP) {
+//                if (DEBUG>=2) System.out.println("TIME_STAMP");                  
+//                getTimeStamp(cal,value);
+//                if ((!dateStamp) && (!timeStamp)) {
+//                    timeStamp = true;
+//                }
+//                else if (timeStamp) {
+//                    dateStamp=false;
+//                    timeStamp=false;
+//                }
+//                ParseUtils.roundDown2nearestInterval(cal, getCommandFactory().getLoadProfileAndSeasonChangeOptionsCommand().getProfileInterval());
+//                
+//            } // if (event == TIME_STAMP)
+//            
+//            interval++;
+//            
+//        } //  while (offset<length)
+//    }
     
     protected List collect(byte[] data) throws IOException {
         int offset=0;
@@ -168,6 +231,8 @@ RXS4 32k 122k
         boolean dateStamp=false;
         boolean timeStamp=false;
         IntervalData intervalData=null;
+        
+        
         
         while (offset<length) {
             int value = ProtocolUtils.getIntLE(data,offset, 2); offset+=2;
@@ -271,6 +336,7 @@ RXS4 32k 122k
                     intervalStateBits=0;
                     
                 }
+                
             } // if (event == DATA)
             
             interval++;

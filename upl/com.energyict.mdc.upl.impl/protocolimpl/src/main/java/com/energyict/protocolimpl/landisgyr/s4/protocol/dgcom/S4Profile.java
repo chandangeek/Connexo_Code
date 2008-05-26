@@ -49,7 +49,9 @@ public class S4Profile {
             if (DEBUG>=1) System.out.println("KV_DEBUG> memorySize="+memorySize);
 
             LoadProfileDataCommand lpdc = getS4().getCommandFactory().getLoadProfileDataCommand(memorySize);
-
+            
+            if (DEBUG>=1) System.out.println("KV_DEBUG> lpdc="+lpdc);
+            
             profileData.setIntervalDatas(lpdc.getIntervalDatas());
             profileData.setChannelInfos(lpdc.getChannelInfos());
 

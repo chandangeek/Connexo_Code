@@ -539,8 +539,12 @@ public class ParseUtils {
 //            System.out.println(ParseUtils.getBigInteger(byteBuffer, 2, 3));
 //            System.out.println(ParseUtils.getBigIntegerLE(byteBuffer, 2, 3));
             
-            System.out.println(ProtocolUtils.outputHexString(applyMask(createBCDByteArrayLE(12345678,8),0xfffffff)));
-            
+            //System.out.println(ProtocolUtils.outputHexString(applyMask(createBCDByteArrayLE(12345678,8),0xfffffff)));
+     
+        	Calendar cal = Calendar.getInstance();
+        	cal.add(Calendar.DATE, -1);
+        	System.out.println(ParseUtils.getNrOfDays(cal.getTime(), new Date(), TimeZone.getTimeZone("ECT")));
+        	
 //            Calendar systemTime = ProtocolUtils.getCalendar(TimeZone.getTimeZone("CST"));
 //            Calendar timeUnderTest = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("CST"));
 //            timeUnderTest.set(Calendar.MONTH,11);
