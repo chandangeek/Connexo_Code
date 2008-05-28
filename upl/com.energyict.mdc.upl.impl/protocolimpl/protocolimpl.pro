@@ -192,3 +192,6 @@
 -keepnames class com.energyict.protocolimpl.iec1107.emh.lzqj.LZQJ
 
 -keepnames class com.energyict.protocolimpl.instromet.v555.Instromet555
+
+-keepnames class com.energyict.protocolimpl.instromet.v444.Instromet444
+
