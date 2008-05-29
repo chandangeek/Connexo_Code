@@ -82,7 +82,7 @@ public class AlphaPlusProfile {
 
     private int getNrOfDays(Date lastReading) throws IOException {
         Date now = new Date();
-        int nrOfDays = ParseUtils.getNrOfDays(lastReading,now,alphaPlus.getTimeZone());
+        int nrOfDays = ParseUtils.getNrOfDays(lastReading,now,ProtocolUtils.getWinterTimeZone(alphaPlus.getTimeZone()));
         if (nrOfDays > alphaPlus.getClassFactory().getClass14LoadProfileConfiguration().getLPMEM()) {
             alphaPlus.getLogger().warning("AlphaPlusProfile, getNrOfDays(lastReading), requesting for "+nrOfDays+" days of profile data while the maximum days of profiledata in the meter is "+alphaPlus.getClassFactory().getClass14LoadProfileConfiguration().getLPMEM()+". So, limiting the nr of days to request to "+alphaPlus.getClassFactory().getClass14LoadProfileConfiguration().getLPMEM());
             nrOfDays = alphaPlus.getClassFactory().getClass14LoadProfileConfiguration().getLPMEM();
