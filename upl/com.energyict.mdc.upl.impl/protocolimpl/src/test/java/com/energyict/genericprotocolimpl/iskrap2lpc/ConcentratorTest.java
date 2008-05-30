@@ -78,7 +78,7 @@ public class ConcentratorTest{
 	}
 	
 	@Ignore
-//	@Test
+	@Test
 	public void importProfileTest() {
 		try {
 			if(meter==null)
