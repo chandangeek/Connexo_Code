@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.energyict.dialer.core.Dialer;
@@ -51,17 +52,17 @@ import com.energyict.protocolimpl.edf.trimarancje.registermapping.RegisterFactor
  */
 public class Trimaran extends AbstractProtocol {
     
-    private TrimeranConnection trimeranConnection=null;
+    private TrimeranConnection trimaranConnection=null;
     private SPDUFactory sPDUFactory=null;
     private DataFactory dataFactory=null;
-    private TrimaranProfile trimeranProfile=null;
+    private TrimaranProfile trimaranProfile=null;
     private RegisterFactory registerFactory=null;
     private int interKarTimeout;
     private int ackTimeout;
     private int commandTimeout;
     private int flushTimeout;
     
-    /** Creates a new instance of Trimeran */
+    /** Creates a new instance of Trimaran */
     public Trimaran() {
     }
     
@@ -83,12 +84,19 @@ public class Trimaran extends AbstractProtocol {
 //    }
     
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
-        return getTrimeranProfile().getProfileData();
+        return getTrimaranProfile().getProfileData();
     }
     
     public int getProfileInterval() throws UnsupportedException, IOException { 
 //        return 600;
-    	return 300;
+//    	return 300;
+    	return getTrimaranProfile().getProfileInterval();
+    }
+    
+    public int getMeterProfileInterval(){
+    	this.getLogger().log(Level.INFO, "** Could not retreive profileInterval from the meter **");
+    	this.getLogger().log(Level.INFO, "** Make sure the interval on the meter is correct. **");
+    	return Integer.parseInt(MeterProtocol.PROFILEINTERVAL);
     }
     
    /*  
@@ -123,7 +131,8 @@ public class Trimaran extends AbstractProtocol {
         setAckTimeout(Integer.parseInt(properties.getProperty("ACKTimeoutTL","5000").trim())); // TL (datalink layer)
         setInterKarTimeout(Integer.parseInt(properties.getProperty("InterCharTimeout","400").trim())); // 
         
-        setCommandTimeout(Integer.parseInt(properties.getProperty("CommandTimeout","3000").trim())); // Command retry timeout
+//        setCommandTimeout(Integer.parseInt(properties.getProperty("CommandTimeout","3000").trim())); // Command retry timeout
+        setCommandTimeout(Integer.parseInt(properties.getProperty("CommandTimeout","600").trim())); // Command retry timeout
         setFlushTimeout(Integer.parseInt(properties.getProperty("FlushTimeout","500").trim())); // Timeout to wait before sending a new command for receiving duplicate frames send by meter
     }
     
@@ -144,10 +153,10 @@ public class Trimaran extends AbstractProtocol {
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
         setSPDUFactory(new SPDUFactory(this));
         setDataFactory(new DataFactory(this));
-        trimeranProfile=new TrimaranProfile(this);
+        trimaranProfile=new TrimaranProfile(this);
         setRegisterFactory(new RegisterFactory(this));
-        setTrimeranConnection(new TrimeranConnection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber(),getInfoTypeSecurityLevel(),getInfoTypeHalfDuplex(),getInterKarTimeout(),getAckTimeout(),getCommandTimeout(),getFlushTimeout()));
-        return getTrimeranConnection();
+        setTrimaranConnection(new TrimeranConnection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber(),getInfoTypeSecurityLevel(),getInfoTypeHalfDuplex(),getInterKarTimeout(),getAckTimeout(),getCommandTimeout(),getFlushTimeout()));
+        return getTrimaranConnection();
     }
     
     public Date getTime() throws IOException {
@@ -174,7 +183,7 @@ public class Trimaran extends AbstractProtocol {
 //               ", ERRFAT="+getDataFactory().getMeterStatusTable().getErrFat()+
 //               ", ERRSES="+getDataFactory().getMeterStatusTable().getErrSes();
     	
-    	return "Currently not implemented";
+    	return "UNSUPPORTED";
     }
     
     public String getSerialNumber() throws IOException {
@@ -208,7 +217,7 @@ public class Trimaran extends AbstractProtocol {
 
     static public void main(String args[]) {
         // TODO code application logic here
-        Trimaran trimeran = new Trimaran();
+        Trimaran trimaran = new Trimaran();
         Dialer dialer=null;
         
         String[] phones=new String[]{"033681497551","0033493746195","0033164498288","0033254601214","0033555877984","0033296550926","0033299834824","0033321853985","0033493746195","0033490868582","0033324564410","0033381506179","0033139811766","0033299825952","0033298531729","0033468082801","0033557519694","0033164498288"};
@@ -251,7 +260,7 @@ public class Trimaran extends AbstractProtocol {
             properties.setProperty(MeterProtocol.PASSWORD,clientPasswords[index]);
             properties.setProperty("ProfileInterval", "600");
 // transfer the properties to the protocol
-            trimeran.setProperties(properties);    
+            trimaran.setProperties(properties);    
             
 // depending on the dialer, set the initial (pre-connect) communication parameters            
 //            dialer.getSerialCommunicationChannel().setParamsAndFlush(1200,
@@ -259,23 +268,23 @@ public class Trimaran extends AbstractProtocol {
 //                                                                     SerialCommunicationChannel.PARITY_NONE,
 //                                                                     SerialCommunicationChannel.STOPBITS_1);
 // initialize the protocol
-            trimeran.setHalfDuplexController(dialer.getHalfDuplexController());
+            trimaran.setHalfDuplexController(dialer.getHalfDuplexController());
             
-            trimeran.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
+            trimaran.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
  
             
             
-            trimeran.connect();  
+            trimaran.connect();  
             
             
             System.out.println("*********************** connect() ***********************");
             
-            //System.out.println(trimeran.getDataFactory().getCurrentMonthInfoTable());
-            //System.out.println(trimeran.getDataFactory().getPreviousMonthInfoTable());
-            //System.out.println(trimeran.getDataFactory().getMeterStatusTable()); 
-            //System.out.println(trimeran.getProfileData(null,null,false));
+            //System.out.println(trimaran.getDataFactory().getCurrentMonthInfoTable());
+            //System.out.println(trimaran.getDataFactory().getPreviousMonthInfoTable());
+            //System.out.println(trimaran.getDataFactory().getMeterStatusTable()); 
+            //System.out.println(trimaran.getProfileData(null,null,false));
             
-                   System.out.println(trimeran.getTime());
+                   System.out.println(trimaran.getTime());
             
         }
         catch(Exception e) {
@@ -283,7 +292,7 @@ public class Trimaran extends AbstractProtocol {
         }
         finally {
             try {
-                trimeran.disconnect();
+                trimaran.disconnect();
             }
             catch(IOException e) {
                 e.printStackTrace();
@@ -292,12 +301,12 @@ public class Trimaran extends AbstractProtocol {
     }
     
     
-    public TrimeranConnection getTrimeranConnection() {
-        return trimeranConnection;
+    public TrimeranConnection getTrimaranConnection() {
+        return trimaranConnection;
     }
 
-    private void setTrimeranConnection(TrimeranConnection trimeranConnection) {
-        this.trimeranConnection = trimeranConnection;
+    private void setTrimaranConnection(TrimeranConnection trimaranConnection) {
+        this.trimaranConnection = trimaranConnection;
     }
 
     public SPDUFactory getSPDUFactory() {
@@ -316,19 +325,19 @@ public class Trimaran extends AbstractProtocol {
         this.dataFactory = dataFactory;
     }
 
-    public TrimaranProfile getTrimeranProfile() {
-        return trimeranProfile;
+    public TrimaranProfile getTrimaranProfile() {
+        return trimaranProfile;
     }
 
-    public void setTrimeranProfile(TrimaranProfile trimeranProfile) {
-        this.trimeranProfile = trimeranProfile;
+    protected void setTrimaranProfile(TrimaranProfile trimaranProfile) {
+        this.trimaranProfile = trimaranProfile;
     }
 
     public RegisterFactory getRegisterFactory() {
         return registerFactory;
     }
 
-    private void setRegisterFactory(RegisterFactory registerFactory) {
+    protected void setRegisterFactory(RegisterFactory registerFactory) {
         this.registerFactory = registerFactory;
     }
 

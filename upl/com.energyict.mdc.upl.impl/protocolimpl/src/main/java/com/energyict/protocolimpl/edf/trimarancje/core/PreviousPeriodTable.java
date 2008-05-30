@@ -63,37 +63,41 @@ public class PreviousPeriodTable extends AbstractTable{
 	@Override
 	protected void parse(byte[] data) throws IOException {
 //		System.out.println("KV_DEBUG> write to file");
-//		File file = new File("c://TEST_FILES/PreviousPeriodTable.bin");
+//		File file = new File("c://TEST_FILES/PPTCJE9205.bin");
 //		FileOutputStream fos = new FileOutputStream(file);
 //		fos.write(data);
 //		fos.close();
 		
-		int offset = 0;
-		Calendar cal = Calendar.getInstance();
-		int jour = ProtocolUtils.BCD2hex(data[offset++]);cal.set(Calendar.DAY_OF_MONTH, jour);
-		int mois = ProtocolUtils.BCD2hex(data[offset++]);cal.set(Calendar.MONTH, mois - 1);
-		int an = ProtocolUtils.BCD2hex(data[offset++]);cal.set(Calendar.YEAR, (cal.get(Calendar.YEAR)/10)*10 + an);
-		int heure = ProtocolUtils.BCD2hex(data[offset++]);cal.set(Calendar.HOUR_OF_DAY, heure);
-		int minute = ProtocolUtils.BCD2hex(data[offset++]);cal.set(Calendar.MINUTE, minute);
-		cal.set(Calendar.SECOND, 0); cal.set(Calendar.MILLISECOND, 0);
-		setTimeStamp(cal.getTime());
-		
-		setTarif(ProtocolUtils.getIntLE(data, offset, 1)); offset+=1;
-		
-		for(int i = 0; i < 6; i++){setActiveEnergyP1(ProtocolUtils.getIntLE(data,offset,3), i);offset+=3;}
-		for(int i = 0; i < 4; i++){setDurationExceedingPowerP1(ProtocolUtils.getIntLE(data, offset, 2), i); offset+=2;}
-		for(int i = 0; i < 4; i++){setMaxDemandP1(ProtocolUtils.getIntLE(data, offset, 2), i);offset+=2;}
-		for(int i = 0; i < 4; i++){setExceedingPowerP1(ProtocolUtils.getIntLE(data, offset, 2), i);offset+=2;}
-		for(int i = 0; i < 6; i++){setActiveEnergyP2(ProtocolUtils.getIntLE(data,offset,3), i);offset+=3;}
-		for(int i = 0; i < 4; i++){setDurationExceedingPowerP2(ProtocolUtils.getIntLE(data, offset, 2), i); offset+=2;}
-		for(int i = 0; i < 4; i++){setMaxDemandP2(ProtocolUtils.getIntLE(data, offset, 2), i);offset+=2;}
-		for(int i = 0; i < 4; i++){setExceedingPowerP2(ProtocolUtils.getIntLE(data, offset, 2), i);offset+=2;}
-		for(int i = 0; i < 4; i++){setCoefficientP1(ProtocolUtils.getIntLE(data, offset, 1), i);offset+=1;}
-		for(int i = 0; i < 4; i++){setCoefficientP2(ProtocolUtils.getIntLE(data, offset, 1), i);offset+=1;}
-		
-		setTarifVersionNextPeriod(ProtocolUtils.getIntLE(data, offset, 1));offset+=1;
-		
-		for(int i = 0; i < 4; i++){setTarifDuration(ProtocolUtils.getIntLE(data, offset, 2), i);offset+=2;}
+		if((data[0]!=-1)&&(data[1]!=-1)&&(data[2]!=-1)&&(data[3]!=-1)&&(data[4]!=-1)){
+			
+			int offset = 0;
+			Calendar cal = Calendar.getInstance();
+			int jour = ProtocolUtils.BCD2hex(data[offset++]);cal.set(Calendar.DAY_OF_MONTH, jour);
+			int mois = ProtocolUtils.BCD2hex(data[offset++]);cal.set(Calendar.MONTH, mois - 1);
+			int an = ProtocolUtils.BCD2hex(data[offset++]);cal.set(Calendar.YEAR, (cal.get(Calendar.YEAR)/10)*10 + an);
+			int heure = ProtocolUtils.BCD2hex(data[offset++]);cal.set(Calendar.HOUR_OF_DAY, heure);
+			int minute = ProtocolUtils.BCD2hex(data[offset++]);cal.set(Calendar.MINUTE, minute);
+			cal.set(Calendar.SECOND, 0); cal.set(Calendar.MILLISECOND, 0);
+			setTimeStamp(cal.getTime());
+			
+			setTarif(ProtocolUtils.getIntLE(data, offset, 1)); offset+=1;
+			
+			for(int i = 0; i < 6; i++){setActiveEnergyP1(ProtocolUtils.getIntLE(data,offset,3), i);offset+=3;}
+			for(int i = 0; i < 4; i++){setDurationExceedingPowerP1(ProtocolUtils.getIntLE(data, offset, 2), i); offset+=2;}
+			for(int i = 0; i < 4; i++){setMaxDemandP1(ProtocolUtils.getIntLE(data, offset, 2), i);offset+=2;}
+			for(int i = 0; i < 4; i++){setExceedingPowerP1(ProtocolUtils.getIntLE(data, offset, 2), i);offset+=2;}
+			for(int i = 0; i < 6; i++){setActiveEnergyP2(ProtocolUtils.getIntLE(data,offset,3), i);offset+=3;}
+			for(int i = 0; i < 4; i++){setDurationExceedingPowerP2(ProtocolUtils.getIntLE(data, offset, 2), i); offset+=2;}
+			for(int i = 0; i < 4; i++){setMaxDemandP2(ProtocolUtils.getIntLE(data, offset, 2), i);offset+=2;}
+			for(int i = 0; i < 4; i++){setExceedingPowerP2(ProtocolUtils.getIntLE(data, offset, 2), i);offset+=2;}
+			for(int i = 0; i < 4; i++){setCoefficientP1(ProtocolUtils.getIntLE(data, offset, 1), i);offset+=1;}
+			for(int i = 0; i < 4; i++){setCoefficientP2(ProtocolUtils.getIntLE(data, offset, 1), i);offset+=1;}
+			
+			setTarifVersionNextPeriod(ProtocolUtils.getIntLE(data, offset, 1));offset+=1;
+			
+			for(int i = 0; i < 4; i++){setTarifDuration(ProtocolUtils.getIntLE(data, offset, 2), i);offset+=2;}
+			
+		}
 	}
 	
 	public static void main(String args[]){

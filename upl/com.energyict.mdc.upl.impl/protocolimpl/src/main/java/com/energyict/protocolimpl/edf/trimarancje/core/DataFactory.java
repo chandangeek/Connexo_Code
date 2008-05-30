@@ -90,13 +90,17 @@ public class DataFactory {
         return previousMonthInfoTable;
     }
 
-    public DemandData getDemandData() throws IOException {
-        DemandData dv = new DemandData(this);
-//        dv.setLength(4096);
-//        dv.setLength(16384);
-        dv.setLength(1024);
-        dv.invoke();
-        return dv;
+    public DemandData getDemandData() throws IOException{
+    	return getDemandData(0);
+    }
+    public DemandData getDemandData(int pointer) throws IOException {
+        DemandData dd = new DemandData(this);
+//        dd.setLength(4096);
+//        dd.setLength(16384);
+        dd.setLength(1024);
+        dd.setPointer(pointer);
+        dd.invoke();
+        return dd;
     }
     
     public Trimaran getTrimaran() {

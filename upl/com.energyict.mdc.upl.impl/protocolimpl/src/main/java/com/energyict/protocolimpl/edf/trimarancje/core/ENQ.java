@@ -20,6 +20,7 @@ public class ENQ extends AbstractSPDU {
     
     private int code;
     private byte[] data;
+    private int index = -1;
     
     /** Creates a new instance of XID */
     public ENQ(SPDUFactory sPDUFactory) {
@@ -28,9 +29,18 @@ public class ENQ extends AbstractSPDU {
     
     
     protected byte[] prepareBuild() throws IOException {
-        byte[] data = new byte[2]; 
+        byte[] data = new byte[3]; 
         data[0] = SPDU_ENQ;
         data[1] = (byte)getCode();
+        if(getIndex() == -1)
+        	data[2] = 0x0A;
+        else{
+        	data[2] = (byte)(getIndex()+10);
+        	setIndex(-1);
+        }
+        
+//        data[1] = 0x02;
+//        data[2] = 0x0A;
         return data;
     }
     
@@ -53,5 +63,21 @@ public class ENQ extends AbstractSPDU {
     public void setData(byte[] data) {
         this.data = data;
     }
+
+
+	/**
+	 * @return the index
+	 */
+	public int getIndex() {
+		return index;
+	}
+
+
+	/**
+	 * @param index the index to set
+	 */
+	public void setIndex(int index) {
+		this.index = index;
+	}
     
 } // public class XID extends AabstractSPDU

@@ -42,7 +42,7 @@ abstract public class AbstractSPDU {
 
     public void invoke() throws IOException {
         byte[] data = prepareBuild();
-        byte[] rd = getSPDUFactory().getTrimeran().getTrimeranConnection().sendCommand(data, getLength());
+        byte[] rd = getSPDUFactory().getTrimeran().getTrimaranConnection().sendCommand(data, getLength());
         if (rd!=null)
             parse(rd);
     }    

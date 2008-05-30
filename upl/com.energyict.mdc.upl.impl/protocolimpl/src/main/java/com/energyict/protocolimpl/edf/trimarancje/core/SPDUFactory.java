@@ -46,10 +46,15 @@ public class SPDUFactory {
         eos.invoke();
     }
     
-    public ENQ enq(int code, int len) throws IOException {
+    public ENQ enq(int code, int len) throws IOException{
+    	return enq(code, len, 0);
+    }
+    
+    public ENQ enq(int code, int len, int pointer) throws IOException {
         ENQ enq = new ENQ(this);
         enq.setCode(code);
         enq.setLength(len);
+        enq.setIndex(pointer);
         enq.invoke();
         return enq;
     }

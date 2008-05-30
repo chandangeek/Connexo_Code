@@ -35,6 +35,7 @@ public class RegisterFactory {
     
     Trimaran trimaran;
     List registers=null;
+    int[] activeEnergyMatrix={6, 1, 4, 5, 11, 12}; //these form the same ObisCodes as for the CVE and ICE meter 
     
     /** Creates a new instance of RegisterFactory */
     public RegisterFactory(Trimaran trimaran) {
@@ -77,16 +78,16 @@ public class RegisterFactory {
         Date toDate=null;
         Date fromDate=null;		
         
-        for (int eField = 1; eField <= 6; eField++) {
-        	quantity = currentPeriodTable.getActiveQuantity(eField-1);
-        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.8."+ eField +".255"), quantity);
+        for (int eField = 0; eField < 6; eField++) {
+        	quantity = currentPeriodTable.getActiveQuantity(eField);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.8."+ activeEnergyMatrix[eField] +".255"), quantity);
         	registers.add(new Register(registerValue));
-        	quantity = previousPeriodTable.getActiveQuantityP1(eField-1);
-        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.8."+ eField +".0"), quantity, 
+        	quantity = previousPeriodTable.getActiveQuantityP1(eField);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.8."+ activeEnergyMatrix[eField] +".0"), quantity, 
         			null, currentPeriodTable.getTimeStamp());
         	registers.add(new Register(registerValue));
-        	quantity = previousPeriodTable.getActiveQuantityP2(eField-1);
-        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.8."+ eField +".1"), quantity,
+        	quantity = previousPeriodTable.getActiveQuantityP2(eField);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.8."+ activeEnergyMatrix[eField] +".1"), quantity,
         			null, previousPeriodTable.getTimeStamp());
         	registers.add(new Register(registerValue));
         }
@@ -118,6 +119,40 @@ public class RegisterFactory {
         			null, previousPeriodTable.getTimeStamp());
         	registers.add(new Register(registerValue));
         	
+        	// Temps de fonctionnement pendant la zone ??
+        	quantity = currentPeriodTable.getTarifDurationQuantity(zone);
+        	registerValue = new RegisterValue(ObisCode.fromString("0.1.96.8." + (offset+zone) + ".255"), quantity);
+        	registers.add(new Register(registerValue));
+        	quantity = previousPeriodTable.getTarifDurationQuantity(zone);
+        	registerValue = new RegisterValue(ObisCode.fromString("0.1.96.8." + (offset+zone) + ".0"), quantity,
+        			null, currentPeriodTable.getTimeStamp());
+        	registers.add(new Register(registerValue));
+        	
+        	// Durée totale de dépassement de la puissance souscrite dans la zone tarifaire ??
+        	quantity = currentPeriodTable.getDurationExceedingPowerQuantity(zone);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.37." + (offset+zone) + ".255"), quantity);
+        	registers.add(new Register(registerValue));
+        	quantity = previousPeriodTable.getDurationExceedingPowerQuantityP1(zone);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.37." + (offset+zone) + ".0"), quantity,
+        			null, currentPeriodTable.getTimeStamp());
+        	registers.add(new Register(registerValue));
+          	quantity = previousPeriodTable.getDurationExceedingPowerQuantityP2(zone);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.37." + (offset+zone) + ".1"), quantity,
+        			null, previousPeriodTable.getTimeStamp());
+        	registers.add(new Register(registerValue));
+        	
+        	// Coefficients de dépassement dans la zone tariaire ???
+        	quantity = currentPeriodTable.getCoefficientQuantity(zone);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.130." + (offset+zone) + ".255"), quantity);
+        	registers.add(new Register(registerValue));
+        	quantity = previousPeriodTable.getCoefficientQuantityP1(zone);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.130." + (offset+zone) + ".0"), quantity,
+        			null, currentPeriodTable.getTimeStamp());
+        	registers.add(new Register(registerValue));
+          	quantity = previousPeriodTable.getCoefficientQuantityP2(zone);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.130." + (offset+zone) + ".1"), quantity,
+        			null, previousPeriodTable.getTimeStamp());
+        	registers.add(new Register(registerValue));
         }
         
 	}

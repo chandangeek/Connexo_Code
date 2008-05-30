@@ -23,6 +23,7 @@ abstract public class AbstractTable {
     abstract protected void parse(byte[] data) throws IOException;
     abstract protected int getCode();
     private int length;
+    private int pointer;
     
     private DataFactory dataFactory;
             
@@ -30,6 +31,7 @@ abstract public class AbstractTable {
     public AbstractTable(DataFactory dataFactory) {
         this.setDataFactory(dataFactory);
         setLength(0);
+        setPointer(0);
     }
 
     public DataFactory getDataFactory() { 
@@ -45,7 +47,8 @@ abstract public class AbstractTable {
         int retries=0;
         while(true) {
             try {
-                parse(getDataFactory().getTrimaran().getSPDUFactory().enq(getCode(),getLength()).getData());
+//                parse(getDataFactory().getTrimaran().getSPDUFactory().enq(getCode(),getLength()).getData());
+            	parse(getDataFactory().getTrimaran().getSPDUFactory().enq(getCode(), getLength(), getPointer()).getData());
                 break;
             }
             catch(IOException e) {
@@ -86,5 +89,17 @@ abstract public class AbstractTable {
     public void setLength(int length) {
         this.length = length;
     }
+	/**
+	 * @return the pointer
+	 */
+	public int getPointer() {
+		return pointer;
+	}
+	/**
+	 * @param pointer the pointer to set
+	 */
+	public void setPointer(int pointer) {
+		this.pointer = pointer;
+	}
     
 }
