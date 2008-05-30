@@ -52,23 +52,23 @@ public class ConcentratorTest{
 	
 	@Before
 	public void setUp() throws Exception {
-		iskraConcentrator = new Concentrator();
-		iskraConcentrator.setTESTING(true);
-		conRtuType 		= iskraConcentrator.mw().getRtuTypeFactory().find(concentratorRtuType);
-		meterRtuType	= iskraConcentrator.mw().getRtuTypeFactory().find(iskraGprsMeterRtuType);
-		conShadow 		= conRtuType.newRtuShadow();
-		meterShadow 	= meterRtuType.newRtuShadow();
-		meterShadow.setName("testRtu");
-		meter 			= iskraConcentrator.mw().getRtuFactory().create(meterShadow);
-		concentrator 	= meter.getGateway();
-		if (concentrator != null){
-			Iterator scheduleIt = concentrator.getCommunicationSchedulers().iterator();
-			while((!notCorrect) && (scheduleIt.hasNext())){
-				scheduler = (CommunicationScheduler) scheduleIt.next();
-				notCorrect = scheduler.getCommunicationProfile().getReadDemandValues();
-			}
-			iskraConcentrator.communicationProfile = scheduler.getCommunicationProfile();
-		}
+//		iskraConcentrator = new Concentrator();
+//		iskraConcentrator.setTESTING(true);
+//		conRtuType 		= iskraConcentrator.mw().getRtuTypeFactory().find(concentratorRtuType);
+//		meterRtuType	= iskraConcentrator.mw().getRtuTypeFactory().find(iskraGprsMeterRtuType);
+//		conShadow 		= conRtuType.newRtuShadow();
+//		meterShadow 	= meterRtuType.newRtuShadow();
+//		meterShadow.setName("testRtu");
+//		meter 			= iskraConcentrator.mw().getRtuFactory().create(meterShadow);
+//		concentrator 	= meter.getGateway();
+//		if (concentrator != null){
+//			Iterator scheduleIt = concentrator.getCommunicationSchedulers().iterator();
+//			while((!notCorrect) && (scheduleIt.hasNext())){
+//				scheduler = (CommunicationScheduler) scheduleIt.next();
+//				notCorrect = scheduler.getCommunicationProfile().getReadDemandValues();
+//			}
+//			iskraConcentrator.communicationProfile = scheduler.getCommunicationProfile();
+//		}
 	}
 
 	@After
@@ -78,6 +78,7 @@ public class ConcentratorTest{
 	}
 	
 	@Ignore
+//	@Test
 	public void importProfileTest() {
 		try {
 			if(meter==null)
