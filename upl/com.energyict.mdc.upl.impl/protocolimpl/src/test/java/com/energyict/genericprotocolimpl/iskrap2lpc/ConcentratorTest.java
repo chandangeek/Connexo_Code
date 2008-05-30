@@ -46,8 +46,8 @@ public class ConcentratorTest{
 	
 	@BeforeClass
 	public static void setUpOnce() {
-		Utilities.createEnvironment();
-		MeteringWarehouse.createBatchContext(false);
+//		Utilities.createEnvironment();
+//		MeteringWarehouse.createBatchContext(false);
 	}
 	
 	@Before
