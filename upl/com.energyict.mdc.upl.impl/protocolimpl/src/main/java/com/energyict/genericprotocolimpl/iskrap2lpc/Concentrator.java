@@ -14,6 +14,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.net.URL;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.text.MessageFormat;
@@ -45,6 +46,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
 import com.energyict.cpo.Transaction;
 import com.energyict.dialer.core.Link;
@@ -88,27 +90,26 @@ import com.energyict.tcpip.PPPDialer;
 public class Concentrator implements Messaging, GenericProtocol {
     
     private boolean DEBUG = false;
-    private boolean TESTING = true;
+    private boolean TESTING = false;
     
     private static final int ELECTRICITY 	= 0x00;
     private static final int MBUS 			= 0x01;
     
-//    private static File conSerialFile 	= new File("c://TEST_FILES/ConcentratorSerial.xml");
-    private static File conSerialFile	= new File("/offlinefiles/ConcentratorSerial.xml");
-    private static File profileConfig1 	= new File("c://TEST_FILES/ObjectDefFile1.xml");
-    private static File profileConfig2 	= new File("c://TEST_FILES/ObjectDefFile2.xml");
-    private static File[] profileFiles 	= {new File("c://TEST_FILES/profile0.xml"), new File("c://TEST_FILES/profile1.xml")};
-    private static File mbusProfile		= new File("c://TEST_FILES/mbus.xml");
-    private static File eventsFile		= new File("c://TEST_FILES/events.xml");
-    private static File powerDownFile	= new File("c://TEST_FILES/powerFailures.xml");
-    private static File dateTimeFile	= new File("c://TEST_FILES/cosemDateTime.xml");
-    private static File conEventFile 	= new File("c://TEST_FILES/conEvent.xml");
-    private static File mbusSerialFile  = new File("c://TEST_FILES/mbusSerial.xml");
-    private static File testFile		= new File("c://TEST_FILES/test.xml");
+    private static String conSerialFile 	= "/offlineFiles/ConcentratorSerial.xml";
+    private static String profileConfig1 	= "/offlineFiles/ObjectDefFile1.xml";
+    private static String profileConfig2 	= "/offlineFiles/ObjectDefFile2.xml";
+    private static String[] profileFiles 	= {"/offlineFiles/profile0.xml", "/offlinefiles/profile1.xml"};
+    private static String mbusProfile 		= "/offlineFiles/mbus.xml";
+    private static String eventsFile 		= "/offlineFiles/events.xml";
+    private static String powerDownFile 	= "/offlineFiles/powerFailures.xml";
+    private static String dateTimeFile 		= "/offlineFiles/cosemDateTime.xml";
+    private static String conEventFile 		= "/offlineFiles/conEvent.xml";
+    private static String mbusSerialFile 	= "/offlineFiles/mbusSerial.xml";
+    private static String testFile 			= "/offlineFiles/test.xml";
     
     private Logger 					logger;
     private Properties 				properties;
-    private CommunicationProfile 	communicationProfile;	
+    protected CommunicationProfile 	communicationProfile;	
     private MbusDevice[]			mbusDevices = {null, null, null, null};				// max. 4 MBus meters
     
     /** Cached Objects */
@@ -261,18 +262,19 @@ public class Concentrator implements Messaging, GenericProtocol {
 	}
 
 	private String checkConcentratorSerial(Rtu concentrator) throws BusinessException {
-		String conID;
+		String conID = null;
 		getLogger().log(Level.INFO, "Checking concentrator serialnumber.");
 		
         try {
 			if (TESTING) {
-				FileReader inFile = new FileReader(conSerialFile);
+				FileReader inFile = new FileReader(Utils.class.getResource(conSerialFile).getFile());
 				conID = readWithStringBuffer(inFile);
+				return conID;
 			} else {
 				conID = port(concentrator).getConcentratorStatus();
+				return conID.substring(conID.indexOf('"') + 1, conID.indexOf('"',conID.indexOf('"') + 1));
 			}
-			return conID.substring(conID.indexOf('"') + 1, conID.indexOf('"',
-					conID.indexOf('"') + 1));
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new BusinessException("Failed while reading the concentrator serialnumber.");
@@ -461,7 +463,8 @@ public class Concentrator implements Messaging, GenericProtocol {
 			
 			if ((meter.getDownstreamRtus().size() > 0) || (getRtuType(meter) != null)){
 				if ( TESTING ){
-					FileReader inFile = new FileReader(mbusSerialFile);
+//					FileReader inFile = new FileReader(mbusSerialFile);
+					FileReader inFile = new FileReader(Utils.class.getResource(mbusSerialFile).getFile());
 					mSerial = readWithStringBuffer(inFile);
 				}
 				else{
@@ -746,7 +749,7 @@ public class Concentrator implements Messaging, GenericProtocol {
      *   (2) Registers - GN|210208| Not anymore
      *   (3) Events
      */
-    private void importProfile(Rtu ctr, Rtu meter, XmlHandler dataHandler) throws ServiceException, IOException, BusinessException {
+    protected void importProfile(Rtu ctr, Rtu meter, XmlHandler dataHandler) throws ServiceException, IOException, BusinessException {
     
         String xml = null;        
         String profile = null;
@@ -789,11 +792,12 @@ public class Concentrator implements Messaging, GenericProtocol {
             int lpPeriod1;
             int lpPeriod2 = -1;
             if ( TESTING ){
-            	FileReader inFile = new FileReader(profileConfig1);
+//            	FileReader inFile = new FileReader(profileConfig1);
+            	FileReader inFile = new FileReader(Utils.class.getResource(profileConfig1).getFile());
             	xml = readWithStringBuffer(inFile);
             	lp1 = getlpConfigObjectDefFromString(xml);
             	lpPeriod1 = 900;
-            	inFile = new FileReader(profileConfig2);
+            	inFile = new FileReader(Utils.class.getResource(profileConfig2).getFile());
             	xml = readWithStringBuffer(inFile);
             	lp2 = getlpConfigObjectDefFromString(xml);
             	lpPeriod2 = 3600;
@@ -821,7 +825,8 @@ public class Concentrator implements Messaging, GenericProtocol {
                 	profile = lpString1;
                 	
                 	if(TESTING){
-                		FileReader inFile = new FileReader(profileFiles[i]);
+//                		FileReader inFile = new FileReader(profileFiles[i]);
+                		FileReader inFile = new FileReader(Utils.class.getResource(profileFiles[i]).getFile());
                 		xml = readWithStringBuffer(inFile);
                 	}
                 	else xml = port(ctr).getMeterProfile(mtr, profile, register, from, to);
@@ -851,7 +856,8 @@ public class Concentrator implements Messaging, GenericProtocol {
                     	profile = lpString2;
                     	
                     	if(TESTING){
-                    		FileReader inFile = new FileReader(mbusProfile);
+//                    		FileReader inFile = new FileReader(mbusProfile);
+                    		FileReader inFile = new FileReader(Utils.class.getResource(mbusProfile).getFile());
                     		xml = readWithStringBuffer(inFile);
                     	}
                     	else xml = port(ctr).getMeterProfile(mtr, profile, register, from, to);
@@ -874,9 +880,11 @@ public class Concentrator implements Messaging, GenericProtocol {
             from = Constant.getInstance().format(getLastLogboog(meter));
             String events, powerFailures;
             if(TESTING){
-        		FileReader inFile = new FileReader(eventsFile);
+//        		FileReader inFile = new FileReader(eventsFile);
+            	FileReader inFile = new FileReader(Utils.class.getResource(eventsFile).getFile());
         		events = readWithStringBuffer(inFile);
-        		inFile = new FileReader(powerDownFile);
+//        		inFile = new FileReader(powerDownFile);
+        		inFile = new FileReader(Utils.class.getResource(powerDownFile).getFile());
         		powerFailures = readWithStringBuffer(inFile);
             }
             else{
@@ -956,7 +964,8 @@ public class Concentrator implements Messaging, GenericProtocol {
         	int period;
         	CosemDateTime cdt;
             if ( TESTING ){
-            	FileReader inFile = new FileReader(dateTimeFile);
+//            	FileReader inFile = new FileReader(dateTimeFile);
+            	FileReader inFile = new FileReader(Utils.class.getResource(dateTimeFile).getFile());
             	xml = readWithStringBuffer(inFile);
             	period = 3600;
             	cdt = getCosemDateTimeFromXmlString(xml);
@@ -1435,7 +1444,8 @@ public class Concentrator implements Messaging, GenericProtocol {
         	String to = Constant.getInstance().format(new Date());
         	String conEvents;
             if ( TESTING ){
-            	FileReader inFile = new FileReader(conEventFile);
+//            	FileReader inFile = new FileReader(conEventFile);
+            	FileReader inFile = new FileReader(Utils.class.getResource(conEventFile).getFile());
             	conEvents = readWithStringBuffer(inFile);
             }
             else
@@ -1920,5 +1930,13 @@ public class Concentrator implements Messaging, GenericProtocol {
     public String writeValue(MessageValue msgValue) {
         return msgValue.getValue();
     }
+
+	protected boolean isTESTING() {
+		return TESTING;
+	}
+
+	protected void setTESTING(boolean testing) {
+		TESTING = testing;
+	}
     
 }
