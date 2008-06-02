@@ -33,6 +33,7 @@ abstract public class SdcBase extends AbstractProtocol {
     SdcLoadProfile sdcLoadProfile=null;
     ObisCodeMapper ocm = null;
 	private int iSecurityLevelProperty;
+	private int extendedLogging;
     
     
     abstract protected RegisterConfig getRegs();
@@ -48,16 +49,65 @@ abstract public class SdcBase extends AbstractProtocol {
     
     protected void doConnect() throws IOException {
         dataReadingCommandFactory = new DataReadingCommandFactory(this);
+//        if (extendedLogging >= 1) 
+//            getRegistersInfo();
+    }
+    
+    private void getRegistersInfo() throws IOException{
+//        StringBuffer strBuff = new StringBuffer();
+////        if (getDataReadoutRequest()==1) {
+////            strBuff.append("******************* ExtendedLogging *******************\n");
+////            strBuff.append(new String(getDataReadout()));
+////        }
+////        else {
+//            strBuff.append("******************* ExtendedLogging *******************\n");
+//            strBuff.append("1.0.1.8.128.255: Active Energy tariff HV" + "\n");
+//            strBuff.append("1.0.1.8.129.255: Active Energy tariff HP" + "\n");
+//            strBuff.append("1.0.1.8.130.255: Active Energy tariff HC" + "\n");
+//            strBuff.append("1.0.1.8.131.255: Active Energy tariff HSV" + "\n");
+//            strBuff.append("1.0.3.8.128.255: Reactive Energy inductive tariff HV" + "\n");
+//            strBuff.append("1.0.3.8.132.255: Reactive Energy inductive tariff HFV" + "\n");
+//            strBuff.append("1.0.4.8.128.255: Reactive Energy capacitive tariff HV" + "\n");
+//            strBuff.append("1.0.4.8.132.255: Reactive Energy capacitive tariff HFV" + "\n");
+//            strBuff.append("1.0.1.6.128.255: Active Energy maximum demand tariff HV" + "\n");
+//            strBuff.append("1.0.1.6.132.255: Active Energy maximum demand tariff HFV" + "\n");
+//            strBuff.append("1.0.3.6.128.255: Reactive Energy maximum demand inductive tariff HV" + "\n");
+//            strBuff.append("1.0.3.6.132.255: Reactive Energy maximum demand inductive tariff HFV" + "\n");
+//            strBuff.append("1.0.4.6.128.255: Reactive Energy maximum demand capacitive tariff HV" + "\n");
+//            strBuff.append("1.0.4.6.132.255: Reactive Energy maximum demand capacitive tariff HFV" + "\n");
+//            strBuff.append("1.0.1.8.0.255: Active Energy total (all phases)" + "\n");
+//            strBuff.append("1.0.3.8.0.255: Reactive Energy inductive total (all phases)" + "\n");
+//            strBuff.append("1.0.4.8.0.255: Reactive Energy capacitive total (all phases)" + "\n");
+//            strBuff.append("*******************************************************\n");
+////        }
+//        getLogger().info(strBuff.toString());
     }
 
     protected void doDisConnect() throws IOException {
     }
     
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-//        return getRegs().getRegisterInfoForId()+
-//            "1.1.0.4.4.255 = Overal transformer ratio (text\n" +
-//            "1.1.0.2.0.255 = Configuration program number (text)";
-    	return "Not supported";
+    	StringBuffer strBuff = new StringBuffer();
+    	strBuff.append("******************* ExtendedLogging *******************\n");
+    	strBuff.append("1.0.1.8.128.255: Active Energy tariff HV" + "\n");
+    	strBuff.append("1.0.1.8.129.255: Active Energy tariff HP" + "\n");
+    	strBuff.append("1.0.1.8.130.255: Active Energy tariff HC" + "\n");
+    	strBuff.append("1.0.1.8.131.255: Active Energy tariff HSV" + "\n");
+    	strBuff.append("1.0.3.8.128.255: Reactive Energy inductive tariff HV" + "\n");
+    	strBuff.append("1.0.3.8.132.255: Reactive Energy inductive tariff HFV" + "\n");
+    	strBuff.append("1.0.4.8.128.255: Reactive Energy capacitive tariff HV" + "\n");
+    	strBuff.append("1.0.4.8.132.255: Reactive Energy capacitive tariff HFV" + "\n");
+    	strBuff.append("1.0.1.6.128.255: Active Energy maximum demand tariff HV" + "\n");
+    	strBuff.append("1.0.1.6.132.255: Active Energy maximum demand tariff HFV" + "\n");
+    	strBuff.append("1.0.3.6.128.255: Reactive Energy maximum demand inductive tariff HV" + "\n");
+    	strBuff.append("1.0.3.6.132.255: Reactive Energy maximum demand inductive tariff HFV" + "\n");
+    	strBuff.append("1.0.4.6.128.255: Reactive Energy maximum demand capacitive tariff HV" + "\n");
+    	strBuff.append("1.0.4.6.132.255: Reactive Energy maximum demand capacitive tariff HFV" + "\n");
+    	strBuff.append("1.0.1.8.0.255: Active Energy total (all phases)" + "\n");
+    	strBuff.append("1.0.3.8.0.255: Reactive Energy inductive total (all phases)" + "\n");
+    	strBuff.append("1.0.4.8.0.255: Reactive Energy capacitive total (all phases)" + "\n");
+    	strBuff.append("*******************************************************\n");
+    	return strBuff.toString();
     }
     
     
@@ -84,6 +134,7 @@ abstract public class SdcBase extends AbstractProtocol {
     
     protected void doValidateProperties(Properties properties) throws com.energyict.protocol.MissingPropertyException, com.energyict.protocol.InvalidPropertyException {
 //    	properties.setProperty("SecurityLevel","0");    	
+    	extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0").trim());
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -167,9 +218,13 @@ abstract public class SdcBase extends AbstractProtocol {
     	ObisCode oc = new ObisCode(1,0,0,0,0,255);
     	String str = readRegister(oc).getText();
     	str = str.substring(str.indexOf(",") + 2 );
-    	if ( str.compareTo(getInfoTypeNodeAddress().substring(getInfoTypeNodeAddress().indexOf(str.charAt(0)))) == -1 )
+    	if(!getInfoTypeNodeAddress().equalsIgnoreCase("")){
+	    	if ( str.compareTo(getInfoTypeNodeAddress().substring(getInfoTypeNodeAddress().indexOf(str.charAt(0)))) == -1 )
+	    		throw new IOException("Incorrect node Address!");
+    	}
+    	else 
     		throw new IOException("Incorrect node Address!");
-    	
+	    
     	return;
     }
     
@@ -178,7 +233,7 @@ abstract public class SdcBase extends AbstractProtocol {
     /*******************************************************************************************
      * m a i n ( )  i m p l e m e n t a t i o n ,  u n i t  t e s t i n g
      *******************************************************************************************/
-    public static void main(String[] args) {
+    private static void main(String[] args) {
         Dialer dialer=null;
         Sdc sdc=null;
         try {

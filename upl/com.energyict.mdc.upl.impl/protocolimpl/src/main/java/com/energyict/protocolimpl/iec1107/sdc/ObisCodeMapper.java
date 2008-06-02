@@ -85,7 +85,7 @@ public class ObisCodeMapper {
             		registerValue = new RegisterValue(obisCode, rsf.getRegisterSet(billingPoint).getRegister(registerNumber).toString());
             	
             	else
-            		registerValue = new RegisterValue(obisCode, rsf.getRegisterSet(billingPoint).getRegister(registerNumber).quantity,
+            		registerValue = new RegisterValue(obisCode, rsf.getRegisterSet(billingPoint).getRegister(registerNumber).quantity,null,
             				rsf.getRegisterSet(billingPoint).getRegister(registerNumber).billingTimestamp);
             
             else throw new NoSuchRegisterException("Billingperiod " + billingPoint + " is not yet available.");

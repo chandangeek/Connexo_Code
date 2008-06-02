@@ -220,15 +220,23 @@ public class RegisterSet {
         return registers[index];
     }
     
-    private int getRegisterIndex(int typeNumber){
+    private int getRegisterIndex(int typeNumber) throws NoSuchRegisterException{
     	int number = -1;
     	int teller = 0;
-    	do{
-    		if (registers[teller].type == typeNumber)
-    			number = teller;
-    		teller++;
-    	}while( (number == -1) & (registers[teller] != null));
-    	return number;
+//    	do{
+//    		if (registers[teller].type == typeNumber)
+//    			number = teller;
+//    		teller++;
+//    	}while( (number == -1) & (registers[teller] != null));
+    	
+    	for(teller = 0; teller  < registers.length; teller++){
+    		if(registers[teller] != null){
+    			if(registers[teller].type == typeNumber)
+    				return teller;
+    		}
+    	}
+    	
+    	throw new NoSuchRegisterException("RegisterSet, getRegisterIndex, typeNumber not found in registerset.");
     }
     
     static public void main(String[] args) {
