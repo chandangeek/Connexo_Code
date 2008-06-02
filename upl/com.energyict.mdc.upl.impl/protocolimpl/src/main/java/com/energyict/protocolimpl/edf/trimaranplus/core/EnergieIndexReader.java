@@ -48,8 +48,8 @@ public class EnergieIndexReader extends AbstractTrimaranObject {
     
     protected void parse(byte[] data) throws IOException {
         DataContainer dc = new DataContainer();
-        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaranPlus().getLogger());
-        setEnergie(new Energie(dc, getTrimaranObjectFactory().getTrimaranPlus().getTimeZone(), getVariableName()));
+        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
+        setEnergie(new Energie(dc, getTrimaranObjectFactory().getTrimaran().getTimeZone(), getVariableName()));
     }
 
     public Energie getEnergie() {

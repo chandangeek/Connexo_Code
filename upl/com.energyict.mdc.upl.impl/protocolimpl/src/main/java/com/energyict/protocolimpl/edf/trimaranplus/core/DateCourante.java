@@ -46,8 +46,8 @@ public class DateCourante extends AbstractTrimaranObject {
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         DataContainer dc = new DataContainer();
-        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaranPlus().getLogger());
-        DateType dt = new DateType(dc.getRoot().getLong(0), getTrimaranObjectFactory().getTrimaranPlus().getTimeZone());
+        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
+        DateType dt = new DateType(dc.getRoot().getLong(0), getTrimaranObjectFactory().getTrimaran().getTimeZone());
         setDate(dt.getCalendar().getTime());
     }    
     

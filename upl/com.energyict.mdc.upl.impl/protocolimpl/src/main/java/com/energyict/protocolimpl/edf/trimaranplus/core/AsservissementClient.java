@@ -22,9 +22,9 @@ import java.util.*;
 public class AsservissementClient extends AbstractTrimaranObject {
     
    
-    private int KDC; // Integer8, - le coefficient de préavis de dépassement KDC, exprimé en %, avec une valeur entre 80 et 100 ;
-    private int KDCD; // Integer8, - le coefficient de dégagement de préavis de dépassement KDCD, exprimé en %, avec une valeur entre 70 et 100
-    private int Sorcli; // Integer8 - le numéro permettant de choisir le type de programmation des contacts de sortie Clients C2 à C10, avec une valeur entre 1 et 4.    
+    private int KDC; // Integer8, - le coefficient de prï¿½avis de dï¿½passement KDC, exprimï¿½ en %, avec une valeur entre 80 et 100 ;
+    private int KDCD; // Integer8, - le coefficient de dï¿½gagement de prï¿½avis de dï¿½passement KDCD, exprimï¿½ en %, avec une valeur entre 70 et 100
+    private int Sorcli; // Integer8 - le numï¿½ro permettant de choisir le type de programmation des contacts de sortie Clients C2 ï¿½ C10, avec une valeur entre 1 et 4.    
     
     /** Creates a new instance of AsservissementClient */
     public AsservissementClient(TrimaranObjectFactory trimaranObjectFactory) {
@@ -52,7 +52,7 @@ public class AsservissementClient extends AbstractTrimaranObject {
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         DataContainer dc = new DataContainer();
-        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaranPlus().getLogger());
+        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
         setKDC(dc.getRoot().getInteger(offset++));
         setKDCD(dc.getRoot().getInteger(offset++));
         setSorcli(dc.getRoot().getInteger(offset++));

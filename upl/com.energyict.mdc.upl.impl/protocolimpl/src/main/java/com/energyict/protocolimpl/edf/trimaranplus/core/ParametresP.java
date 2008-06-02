@@ -21,24 +21,24 @@ import java.math.*;
  */
 public class ParametresP extends AbstractTrimaranObject {
     
-    private DateType DateDebutPeriode; // -- date de début de la période de facturation P
-    private int CodeAF; // Integer16, - code de l'action facturation à l'origine de la période - bits
-    // 0 à 7 : code action, bits 8 à 15 : commentaire
-    private DateType DateFinPeriode; // DateType, - champ sans signification, date par défaut
-    private int TC; // Integer16, -- rapport de transformation de puissance, de 1 à 400
-    private int TT; // Integer16, -- rapport de transformation de puissance, de 1 à 450
-    private Quantity[] PS; // SEQUENCE OF Integer16, -- puissances souscrites par période tarifaire, exprimées en kW
-    private int KJ; // Integer16, -- valeur du coefficient de pertes joules, multiplié par 1000
-    private int KPr; // Integer8, -- valeur du coefficient utilisé pour le calcul de l'énergie réactive positive en kvarh ramenés au primaire multiplié par 100
-    private Quantity KF; // Integer16, -- valeur du paramètre pertes Fer, exprimé en W
-    private boolean A5; // BOOLEAN, -- à VRAI si le tarif est A5, à FAUX si le tarif est A8
-    private int TCourbeCharge; // Integer8, -- période d'intégration Tc pour le suivi de la courbe de charge en nombre de fois 5 min.
-    private int[] TableauHeureJour1; // SEQUENCE OF Integer8, -- champ heure, de 0 à 23, des éléments de la table journalière 1
-    private int[] TableauMinuteJour1; // SEQUENCE OF Integer8, -- champ minute des éléments de la table journalière 1, exprimé en nombre de fois Td
-    private int[] TableauPosteJour1; // SEQUENCE OF Integer8, -- champ poste horaire, des éléments de la table journalière 1
-    private int[] TableauHeureJour2; // SEQUENCE OF Integer8, -- champ heure, de 0 à 23, des éléments de la table journalière 2
-    private int[] TableauMinuteJour2; // SEQUENCE OF Integer8, -- champ minute des éléments de la table journalière 2, exprimé en nombre de fois Td
-    private int[] TableauPosteJour2; // SEQUENCE OF Integer8 } -- champ poste horaire, des éléments de la table journalière 2
+    private DateType DateDebutPeriode; // -- date de dï¿½but de la pï¿½riode de facturation P
+    private int CodeAF; // Integer16, - code de l'action facturation ï¿½ l'origine de la pï¿½riode - bits
+    // 0 ï¿½ 7 : code action, bits 8 ï¿½ 15 : commentaire
+    private DateType DateFinPeriode; // DateType, - champ sans signification, date par dï¿½faut
+    private int TC; // Integer16, -- rapport de transformation de puissance, de 1 ï¿½ 400
+    private int TT; // Integer16, -- rapport de transformation de puissance, de 1 ï¿½ 450
+    private Quantity[] PS; // SEQUENCE OF Integer16, -- puissances souscrites par pï¿½riode tarifaire, exprimï¿½es en kW
+    private int KJ; // Integer16, -- valeur du coefficient de pertes joules, multipliï¿½ par 1000
+    private int KPr; // Integer8, -- valeur du coefficient utilisï¿½ pour le calcul de l'ï¿½nergie rï¿½active positive en kvarh ramenï¿½s au primaire multipliï¿½ par 100
+    private Quantity KF; // Integer16, -- valeur du paramï¿½tre pertes Fer, exprimï¿½ en W
+    private boolean A5; // BOOLEAN, -- ï¿½ VRAI si le tarif est A5, ï¿½ FAUX si le tarif est A8
+    private int TCourbeCharge; // Integer8, -- pï¿½riode d'intï¿½gration Tc pour le suivi de la courbe de charge en nombre de fois 5 min.
+    private int[] TableauHeureJour1; // SEQUENCE OF Integer8, -- champ heure, de 0 ï¿½ 23, des ï¿½lï¿½ments de la table journaliï¿½re 1
+    private int[] TableauMinuteJour1; // SEQUENCE OF Integer8, -- champ minute des ï¿½lï¿½ments de la table journaliï¿½re 1, exprimï¿½ en nombre de fois Td
+    private int[] TableauPosteJour1; // SEQUENCE OF Integer8, -- champ poste horaire, des ï¿½lï¿½ments de la table journaliï¿½re 1
+    private int[] TableauHeureJour2; // SEQUENCE OF Integer8, -- champ heure, de 0 ï¿½ 23, des ï¿½lï¿½ments de la table journaliï¿½re 2
+    private int[] TableauMinuteJour2; // SEQUENCE OF Integer8, -- champ minute des ï¿½lï¿½ments de la table journaliï¿½re 2, exprimï¿½ en nombre de fois Td
+    private int[] TableauPosteJour2; // SEQUENCE OF Integer8 } -- champ poste horaire, des ï¿½lï¿½ments de la table journaliï¿½re 2
     
     private int variableName;
             
@@ -68,7 +68,7 @@ public class ParametresP extends AbstractTrimaranObject {
         strBuff.append("   TC="+getTC()+"\n");
         strBuff.append("   TCourbeCharge="+getTCourbeCharge()+"\n");
         strBuff.append("   TT="+getTT()+"\n");
-        if (getTrimaranObjectFactory().getTrimaranPlus().getVDEType().isVDEBASE() || getTrimaranObjectFactory().getTrimaranPlus().getVDEType().isVDEEJP())
+        if (getTrimaranObjectFactory().getTrimaran().getVDEType().isVDEBASE() || getTrimaranObjectFactory().getTrimaran().getVDEType().isVDEEJP())
             strBuff.append("   a5="+isA5()+"\n");
         strBuff.append("   codeAF="+getCodeAF()+"\n");
         for (int i=0;i<getTableauHeureJour1().length;i++) {
@@ -80,7 +80,7 @@ public class ParametresP extends AbstractTrimaranObject {
         for (int i=0;i<getTableauPosteJour1().length;i++) {
             strBuff.append("       tableauPosteJour1["+i+"]="+getTableauPosteJour1()[i]+"\n");
         }
-        if (getTrimaranObjectFactory().getTrimaranPlus().getVDEType().isVDEBASE() || getTrimaranObjectFactory().getTrimaranPlus().getVDEType().isVDEEJP()) {
+        if (getTrimaranObjectFactory().getTrimaran().getVDEType().isVDEBASE() || getTrimaranObjectFactory().getTrimaran().getVDEType().isVDEEJP()) {
             for (int i=0;i<getTableauHeureJour2().length;i++) {
                 strBuff.append("       tableauHeureJour2["+i+"]="+getTableauHeureJour2()[i]+"\n");
             }
@@ -105,7 +105,7 @@ public class ParametresP extends AbstractTrimaranObject {
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         DataContainer dc = new DataContainer();
-        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaranPlus().getLogger());
+        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
         
         //int structureLength = dc.getRoot().getNrOfElements(); // 17 for VDEType BASE and EJP, 13 for VDEType MODULABLE
         
@@ -114,9 +114,9 @@ public class ParametresP extends AbstractTrimaranObject {
 //        else
 //            getTrimaranObjectFactory().getTrimaranPlus().getVDEType().setVDEType(VDEType.getVDEMODULABLE());
         
-        setDateDebutPeriode(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaranPlus().getTimeZone()));
+        setDateDebutPeriode(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaran().getTimeZone()));
         setCodeAF(dc.getRoot().getInteger(offset++));
-        setDateFinPeriode(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaranPlus().getTimeZone()));
+        setDateFinPeriode(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaran().getTimeZone()));
         setTC(dc.getRoot().getInteger(offset++));
         setTT(dc.getRoot().getInteger(offset++));
         setPS(new Quantity[dc.getRoot().getStructure(offset).getNrOfElements()]);
@@ -126,7 +126,7 @@ public class ParametresP extends AbstractTrimaranObject {
         setKJ(dc.getRoot().getInteger(offset++));
         setKPr(dc.getRoot().getInteger(offset++));
         setKF(new Quantity(new BigDecimal(""+dc.getRoot().getInteger(offset++)),Unit.get("W")));
-        if ((getTrimaranObjectFactory().getTrimaranPlus().getVDEType().isVDEBASE() || getTrimaranObjectFactory().getTrimaranPlus().getVDEType().isVDEEJP()))
+        if ((getTrimaranObjectFactory().getTrimaran().getVDEType().isVDEBASE() || getTrimaranObjectFactory().getTrimaran().getVDEType().isVDEEJP()))
             setA5((dc.getRoot().getInteger(offset++)==1));
         setTCourbeCharge(dc.getRoot().getInteger(offset++));
         setTableauHeureJour1(new int[dc.getRoot().getStructure(offset).getNrOfElements()]);
@@ -141,7 +141,7 @@ public class ParametresP extends AbstractTrimaranObject {
         for (int i=0;i<getTableauPosteJour1().length;i++)
             getTableauPosteJour1()[i] = dc.getRoot().getStructure(offset).getInteger(i);
         offset++;
-        if (getTrimaranObjectFactory().getTrimaranPlus().getVDEType().isVDEBASE() || getTrimaranObjectFactory().getTrimaranPlus().getVDEType().isVDEEJP()) {
+        if (getTrimaranObjectFactory().getTrimaran().getVDEType().isVDEBASE() || getTrimaranObjectFactory().getTrimaran().getVDEType().isVDEEJP()) {
             setTableauHeureJour2(new int[dc.getRoot().getStructure(offset).getNrOfElements()]);
             for (int i=0;i<getTableauHeureJour2().length;i++)
                 getTableauHeureJour2()[i] = dc.getRoot().getStructure(offset).getInteger(i);

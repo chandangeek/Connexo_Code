@@ -50,14 +50,14 @@ public class CourbeCharge {
        if (getTrimaranObjectFactory() == null)
            return 600;
        else
-           return getTrimaranObjectFactory().getTrimaranPlus().getProfileInterval();
+           return getTrimaranObjectFactory().getTrimaran().getProfileInterval();
     }
     
     private TimeZone getTimeZone() {
        if (getTrimaranObjectFactory() == null)
            return TimeZone.getTimeZone("ECT");
        else
-           return getTrimaranObjectFactory().getTrimaranPlus().getTimeZone();
+           return getTrimaranObjectFactory().getTrimaran().getTimeZone();
     }
 
     
@@ -256,7 +256,7 @@ public class CourbeCharge {
                 }
             }
             else if ((val & 0xC000) == 0x8000) {
-                // bit 13..0 Valeur de la puissance avec coupure (« tronquée »)
+                // bit 13..0 Valeur de la puissance avec coupure (ï¿½ tronquï¿½e ï¿½)
                 val &= 0x3FFF;
                 if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", shortlong, val="+val);
                 if (cal != null) {
@@ -277,7 +277,7 @@ public class CourbeCharge {
                 
                 currentElement=ELEMENT_DATATION_DATE;
                 // element date
-                // bit 12..9 chiffre des unités de l'année bit 8..5 mois bit 4..0 jour
+                // bit 12..9 chiffre des unitï¿½s de l'annï¿½e bit 8..5 mois bit 4..0 jour
                 int year = (val & 0x1E00) >> 9;
                 int month = (val & 0x01E0) >> 5;
                 int day = (val & 0x001F);
@@ -315,43 +315,43 @@ public class CourbeCharge {
                 
                 
                 if (type == 0) { // every hour
-                    // heure ronde ou changement de jour tarifaire ; dans le cas d'une heure ronde seule, l'élément-date n'est pas
-                    // inséré ; ce type de marquage n'est fait que s'il n'y a pas d'autre marquage à faire à la même date
+                    // heure ronde ou changement de jour tarifaire ; dans le cas d'une heure ronde seule, l'ï¿½lï¿½ment-date n'est pas
+                    // insï¿½rï¿½ ; ce type de marquage n'est fait que s'il n'y a pas d'autre marquage ï¿½ faire ï¿½ la mï¿½me date
                 }
                 else if (type == 1) { // timeset
-                    // remise à l'heure ou changement d'heure légale ; dans ce cas, deux marquages sont effectués, un avec
-                    // l'ancienne heure et un avec la nouvelle heure (élément-date et élément-heure à chaque fois) ; pour chacun
-                    // un enregistrement complémentaire est effectué pour donner la valeur des minutes et des secondes de la date
-                    // marquée (élément-minute/seconde)
+                    // remise ï¿½ l'heure ou changement d'heure lï¿½gale ; dans ce cas, deux marquages sont effectuï¿½s, un avec
+                    // l'ancienne heure et un avec la nouvelle heure (ï¿½lï¿½ment-date et ï¿½lï¿½ment-heure ï¿½ chaque fois) ; pour chacun
+                    // un enregistrement complï¿½mentaire est effectuï¿½ pour donner la valeur des minutes et des secondes de la date
+                    // marquï¿½e (ï¿½lï¿½ment-minute/seconde)
                     
                 }
                 else if (type == 2) {
-                    // prise d'effet de changement des valeurs d'une table journalière (élément-date et élément-heure)
+                    // prise d'effet de changement des valeurs d'une table journaliï¿½re (ï¿½lï¿½ment-date et ï¿½lï¿½ment-heure)
                 }
                 else if (type == 3) {
-                    // changement de structure annuelle ou de poste horaire (en option Base ou EJP), entrée ou sortie de la
-                    // période tarifaire pointe mobile ou changement de saison mobile (en option MODULABLE), changement
-                    // de mode (toutes options) ; l'élément-date n'est inséré que dans le cas de changement de structure annuelle
-                    // ou de mode ; un enregistrement complémentaire est effectué pour préciser la saison, le poste, la structure
-                    // ou le mode suivant le cas (élément-poste/structure/mode)
+                    // changement de structure annuelle ou de poste horaire (en option Base ou EJP), entrï¿½e ou sortie de la
+                    // pï¿½riode tarifaire pointe mobile ou changement de saison mobile (en option MODULABLE), changement
+                    // de mode (toutes options) ; l'ï¿½lï¿½ment-date n'est insï¿½rï¿½ que dans le cas de changement de structure annuelle
+                    // ou de mode ; un enregistrement complï¿½mentaire est effectuï¿½ pour prï¿½ciser la saison, le poste, la structure
+                    // ou le mode suivant le cas (ï¿½lï¿½ment-poste/structure/mode)
                 }
                 else if (type == 4) {
-                    // prise d'effet de nouvelles valeurs de puissances souscrites (élément-date et élément-heure)
+                    // prise d'effet de nouvelles valeurs de puissances souscrites (ï¿½lï¿½ment-date et ï¿½lï¿½ment-heure)
                 }
                 else if (type == 5) {
-                    // changement de la valeur de la durée de la période d’intégration Tc (élément-date et élément-heure)
+                    // changement de la valeur de la durï¿½e de la pï¿½riode dï¿½intï¿½gration Tc (ï¿½lï¿½ment-date et ï¿½lï¿½ment-heure)
                 }
                 else if (type == 6) {
                     
                     intervalData.addEiStatus(IntervalStateBits.POWERDOWN);
                     meterEvents.add(new MeterEvent(cal.getTime(),MeterEvent.POWERUP));
-                    // retour de l’alimentation réseau après une coupure ; si la durée de la coupure excède la réserve de marche, la
-                    // date enregistrée correspond au 1er Janvier 1992, et l'heure enregistrée est 00h00    
+                    // retour de lï¿½alimentation rï¿½seau aprï¿½s une coupure ; si la durï¿½e de la coupure excï¿½de la rï¿½serve de marche, la
+                    // date enregistrï¿½e correspond au 1er Janvier 1992, et l'heure enregistrï¿½e est 00h00    
                 }
                 else if (type == 7) {
-                    // multi-marquage. Dans ce cas, un enregistrement complémentaire est effectué pour préciser les marquages.
-                    // Le multi-marquage ne concerne pas le marquage de « remise à l'heure » ou de « changement d'heure
-                    // légale » qui est effectué indépendamment du reste.
+                    // multi-marquage. Dans ce cas, un enregistrement complï¿½mentaire est effectuï¿½ pour prï¿½ciser les marquages.
+                    // Le multi-marquage ne concerne pas le marquage de ï¿½ remise ï¿½ l'heure ï¿½ ou de ï¿½ changement d'heure
+                    // lï¿½gale ï¿½ qui est effectuï¿½ indï¿½pendamment du reste.
                 }
             }
             // ************************************************************************************************************************ 
@@ -360,8 +360,8 @@ public class CourbeCharge {
             else if ((val & 0xF000) == 0xF000) {
                 if (previousElement == ELEMENT_DATATION_HEURE) {
                     if (type == 0) {
-                        // heure ronde ou changement de jour tarifaire ; dans le cas d'une heure ronde seule, l'élément-date n'est pas
-                        // inséré ; ce type de marquage n'est fait que s'il n'y a pas d'autre marquage à faire à la même date ;
+                        // heure ronde ou changement de jour tarifaire ; dans le cas d'une heure ronde seule, l'ï¿½lï¿½ment-date n'est pas
+                        // insï¿½rï¿½ ; ce type de marquage n'est fait que s'il n'y a pas d'autre marquage ï¿½ faire ï¿½ la mï¿½me date ;
                     }
                     else if (type == 1) {
                         

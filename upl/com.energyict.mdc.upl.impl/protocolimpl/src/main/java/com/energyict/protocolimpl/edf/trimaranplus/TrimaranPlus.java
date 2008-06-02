@@ -10,22 +10,41 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus;
 
-import com.energyict.dialer.core.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.edf.trimaranplus.core.*;
-import com.energyict.protocolimpl.edf.trimaranplus.core.TrimaranObjectFactory;
-import com.energyict.protocolimpl.edf.trimaranplus.dlmscore.*;
-import com.energyict.protocolimpl.edf.trimaranplus.dlmscore.dlmspdu.*;
-import com.energyict.protocolimpl.edf.trimaranplus.registermapping.*;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 
-import com.energyict.protocolimpl.edf.trimaranplus.protocol.*;
-import com.energyict.protocolimpl.edf.trimaranplus.dlmscore.APSEPDUFactory;
-import com.energyict.protocolimpl.edf.trimaranplus.dlmscore.dlmspdu.DLMSPDUFactory;
-import java.util.logging.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.APSEPDUFactory;
+import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu.DLMSPDUFactory;
+import com.energyict.protocolimpl.edf.trimarandlms.protocol.APSEParameters;
+import com.energyict.protocolimpl.edf.trimarandlms.protocol.Connection62056;
+import com.energyict.protocolimpl.edf.trimarandlms.protocol.ProtocolLink;
+import com.energyict.protocolimpl.edf.trimaranplus.core.TrimaranObjectFactory;
+import com.energyict.protocolimpl.edf.trimaranplus.core.VDEType;
+import com.energyict.protocolimpl.edf.trimaranplus.registermapping.RegisterFactory;
 
 /**
  *@beginchanges

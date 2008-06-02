@@ -48,8 +48,8 @@ public class DureeDepassementReader extends AbstractTrimaranObject {
     
     protected void parse(byte[] data) throws IOException {
         DataContainer dc = new DataContainer();
-        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaranPlus().getLogger());
-        setDureeDepassement(new DureeDepassement(dc, getTrimaranObjectFactory().getTrimaranPlus().getTimeZone(), getVariableName()));
+        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
+        setDureeDepassement(new DureeDepassement(dc, getTrimaranObjectFactory().getTrimaran().getTimeZone(), getVariableName()));
     }
 
     public void setVariableName(int variableName) {

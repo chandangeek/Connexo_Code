@@ -48,8 +48,8 @@ public class TempsFonctionnementReader extends AbstractTrimaranObject {
     
     protected void parse(byte[] data) throws IOException {
         DataContainer dc = new DataContainer();
-        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaranPlus().getLogger());
-        setTempsFonctionnement(new TempsFonctionnement(dc, getTrimaranObjectFactory().getTrimaranPlus().getTimeZone(), getVariableName()));
+        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
+        setTempsFonctionnement(new TempsFonctionnement(dc, getTrimaranObjectFactory().getTrimaran().getTimeZone(), getVariableName()));
     }
 
     public void setVariableName(int variableName) {

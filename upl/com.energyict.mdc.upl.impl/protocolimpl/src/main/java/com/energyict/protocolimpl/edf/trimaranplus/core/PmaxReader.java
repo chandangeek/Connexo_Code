@@ -48,8 +48,8 @@ public class PmaxReader extends AbstractTrimaranObject {
     
     protected void parse(byte[] data) throws IOException {
         DataContainer dc = new DataContainer();
-        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaranPlus().getLogger());
-        setPmax(new Pmax(dc, getTrimaranObjectFactory().getTrimaranPlus().getTimeZone(), getVariableName()));
+        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
+        setPmax(new Pmax(dc, getTrimaranObjectFactory().getTrimaran().getTimeZone(), getVariableName()));
     }
 
     public void setVariableName(int variableName) {

@@ -21,18 +21,18 @@ import java.math.*;
  */
 public class ParametresPplus1 extends AbstractTrimaranObject {
     
-    private Quantity[] PS; // SEQUENCE OF Integer16, -- puissances souscrites par période tarifaire, exprimées en kW
-    private int KJ; // Integer16, -- valeur du coefficient de pertes joules, multiplié par 1000
-    private int KPr; // Integer8, -- valeur du coefficient utilisé pour le calcul de l'énergie réactive positive en kvarh ramenés au primaire multiplié par 100
-    private Quantity KF; // Integer16, -- valeur du paramètre pertes Fer, exprimé en W
-    private boolean A5; // BOOLEAN, -- à VRAI si le tarif est A5, à FAUX si le tarif est A8
-    private int TCourbeCharge; // Integer8, -- période d'intégration Tc pour le suivi de la courbe de charge en nombre de fois 5 min.
-    private int[] TableauHeureJour1; // SEQUENCE OF Integer8, -- champ heure, de 0 à 23, des éléments de la table journalière 1
-    private int[] TableauMinuteJour1; // SEQUENCE OF Integer8, -- champ minute des éléments de la table journalière 1, exprimé en nombre de fois Td
-    private int[] TableauPosteJour1; // SEQUENCE OF Integer8, -- champ poste horaire, des éléments de la table journalière 1
-    private int[] TableauHeureJour2; // SEQUENCE OF Integer8, -- champ heure, de 0 à 23, des éléments de la table journalière 2
-    private int[] TableauMinuteJour2; // SEQUENCE OF Integer8, -- champ minute des éléments de la table journalière 2, exprimé en nombre de fois Td
-    private int[] TableauPosteJour2; // SEQUENCE OF Integer8 } -- champ poste horaire, des éléments de la table journalière 2
+    private Quantity[] PS; // SEQUENCE OF Integer16, -- puissances souscrites par pï¿½riode tarifaire, exprimï¿½es en kW
+    private int KJ; // Integer16, -- valeur du coefficient de pertes joules, multipliï¿½ par 1000
+    private int KPr; // Integer8, -- valeur du coefficient utilisï¿½ pour le calcul de l'ï¿½nergie rï¿½active positive en kvarh ramenï¿½s au primaire multipliï¿½ par 100
+    private Quantity KF; // Integer16, -- valeur du paramï¿½tre pertes Fer, exprimï¿½ en W
+    private boolean A5; // BOOLEAN, -- ï¿½ VRAI si le tarif est A5, ï¿½ FAUX si le tarif est A8
+    private int TCourbeCharge; // Integer8, -- pï¿½riode d'intï¿½gration Tc pour le suivi de la courbe de charge en nombre de fois 5 min.
+    private int[] TableauHeureJour1; // SEQUENCE OF Integer8, -- champ heure, de 0 ï¿½ 23, des ï¿½lï¿½ments de la table journaliï¿½re 1
+    private int[] TableauMinuteJour1; // SEQUENCE OF Integer8, -- champ minute des ï¿½lï¿½ments de la table journaliï¿½re 1, exprimï¿½ en nombre de fois Td
+    private int[] TableauPosteJour1; // SEQUENCE OF Integer8, -- champ poste horaire, des ï¿½lï¿½ments de la table journaliï¿½re 1
+    private int[] TableauHeureJour2; // SEQUENCE OF Integer8, -- champ heure, de 0 ï¿½ 23, des ï¿½lï¿½ments de la table journaliï¿½re 2
+    private int[] TableauMinuteJour2; // SEQUENCE OF Integer8, -- champ minute des ï¿½lï¿½ments de la table journaliï¿½re 2, exprimï¿½ en nombre de fois Td
+    private int[] TableauPosteJour2; // SEQUENCE OF Integer8 } -- champ poste horaire, des ï¿½lï¿½ments de la table journaliï¿½re 2
             
     int structureLength;
             
@@ -89,7 +89,7 @@ public class ParametresPplus1 extends AbstractTrimaranObject {
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         DataContainer dc = new DataContainer();
-        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaranPlus().getLogger());
+        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
         
         structureLength = dc.getRoot().getNrOfElements(); // 12 for VDEType BASE and EJP, 8 for VDEType MODULABLE
         

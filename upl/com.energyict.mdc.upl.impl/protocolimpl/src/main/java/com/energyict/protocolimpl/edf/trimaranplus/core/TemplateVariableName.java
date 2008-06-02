@@ -46,7 +46,7 @@ public class TemplateVariableName extends AbstractTrimaranObject {
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         DataContainer dc = new DataContainer();
-        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaranPlus().getLogger());
+        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
     }
     
 }

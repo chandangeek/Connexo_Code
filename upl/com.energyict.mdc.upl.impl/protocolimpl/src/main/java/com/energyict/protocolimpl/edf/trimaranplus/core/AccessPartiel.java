@@ -55,7 +55,7 @@ public class AccessPartiel extends AbstractTrimaranObject {
         baos.write(0x04); // bit string
         baos.write(0x28); // 40 bits following
         if (getDateAccess()!=null) {
-           DateType dt = new DateType(getDateAccess(), getTrimaranObjectFactory().getTrimaranPlus().getTimeZone()); 
+           DateType dt = new DateType(getDateAccess(), getTrimaranObjectFactory().getTrimaran().getTimeZone()); 
            baos.write(dt.getData());  
         }
         else {
@@ -67,9 +67,9 @@ public class AccessPartiel extends AbstractTrimaranObject {
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         DataContainer dc = new DataContainer();
-        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaranPlus().getLogger());
+        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
         setNomAccess(dc.getRoot().getInteger(0));
-        DateType dt = new DateType(dc.getRoot().getLong(1), getTrimaranObjectFactory().getTrimaranPlus().getTimeZone());
+        DateType dt = new DateType(dc.getRoot().getLong(1), getTrimaranObjectFactory().getTrimaran().getTimeZone());
         setDateAccess(dt.getCalendar().getTime());
         setCalendarAccess(dt.getCalendar());
     }    

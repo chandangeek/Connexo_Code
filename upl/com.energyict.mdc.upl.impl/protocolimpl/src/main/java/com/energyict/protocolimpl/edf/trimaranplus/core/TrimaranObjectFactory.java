@@ -21,7 +21,7 @@ import java.util.*;
  */
 public class TrimaranObjectFactory {
     
-    private TrimaranPlus trimaranPlus;
+    private TrimaranPlus trimaran;
     EnergieIndex energieIndex = null; 
     PmaxValues pmaxValues = null;
     DureeDepassementValues dureeDepassementValues = null;
@@ -35,7 +35,7 @@ public class TrimaranObjectFactory {
     
     /** Creates a new instance of TrimaranObjectFactory */
     public TrimaranObjectFactory(TrimaranPlus trimaranPlus) {
-        this.setTrimaranPlus(trimaranPlus);
+        this.setTrimaran(trimaranPlus);
     }
     
     public TempsFonctionnementValues readTempsFonctionnementValues() throws IOException {
@@ -199,7 +199,7 @@ public class TrimaranObjectFactory {
     }
     
     protected void writeAccessPartiel(int nr) throws IOException {
-        Calendar cal = ProtocolUtils.getCleanCalendar(getTrimaranPlus().getTimeZone());
+        Calendar cal = ProtocolUtils.getCleanCalendar(getTrimaran().getTimeZone());
         cal.set(Calendar.YEAR,1992);
         cal.set(Calendar.MONTH,0);
         cal.set(Calendar.DAY_OF_MONTH,1);
@@ -224,12 +224,12 @@ public class TrimaranObjectFactory {
         obj.write();
     }
     
-    public TrimaranPlus getTrimaranPlus() {
-        return trimaranPlus;
+    public TrimaranPlus getTrimaran() {
+        return trimaran;
     }
 
-    public void setTrimaranPlus(TrimaranPlus trimaranPlus) {
-        this.trimaranPlus = trimaranPlus;
+    public void setTrimaran(TrimaranPlus trimaranPlus) {
+        this.trimaran = trimaranPlus;
     }
     
     protected CourbeChargePartielle getCourbeChargePartielle() throws IOException {

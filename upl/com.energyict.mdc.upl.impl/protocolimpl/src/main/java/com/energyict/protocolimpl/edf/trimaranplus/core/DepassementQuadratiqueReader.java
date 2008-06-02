@@ -48,7 +48,7 @@ public class DepassementQuadratiqueReader extends AbstractTrimaranObject {
     
     protected void parse(byte[] data) throws IOException {
         DataContainer dc = new DataContainer();
-        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaranPlus().getLogger());
+        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
 //        if (dc.getRoot().getNrOfElements() == 5) {
 //            if (getTrimaranObjectFactory().getTrimaranPlus().getVDEType().isVDEBASE())
 //                getTrimaranObjectFactory().getTrimaranPlus().getVDEType().setVDEType(VDEType.getVDEEJP());
@@ -58,7 +58,7 @@ public class DepassementQuadratiqueReader extends AbstractTrimaranObject {
 //                getTrimaranObjectFactory().getTrimaranPlus().getVDEType().setVDEType(VDEType.getVDEBASE());
 //        }
         
-        setDepassementQuadratique(new DepassementQuadratique(dc, getTrimaranObjectFactory().getTrimaranPlus().getTimeZone(), getVariableName()));
+        setDepassementQuadratique(new DepassementQuadratique(dc, getTrimaranObjectFactory().getTrimaran().getTimeZone(), getVariableName()));
     }
 
     public void setVariableName(int variableName) {
