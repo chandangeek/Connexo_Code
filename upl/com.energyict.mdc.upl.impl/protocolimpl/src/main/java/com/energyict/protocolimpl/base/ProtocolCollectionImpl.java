@@ -123,6 +123,7 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         protocolclasses.add("com.energyict.protocolimpl.dlms.actarisace6000.ACE6000");protocolnames.add("DLMS Actaris ACE6000");
         protocolclasses.add("com.energyict.protocolimpl.dlms.DLMSZMD_EXT");protocolnames.add("DLMS Siemens ZMD [no profile support]");
         protocolclasses.add("com.energyict.protocolimpl.edf.trimarancje.Trimaran");protocolnames.add("Trimaran CJE meter");
+        protocolclasses.add("com.energyict.protocolimpl.edf.trimaran2p.Trimaran2P");protocolnames.add("Trimaran 2P meter");
         
     }  
     
