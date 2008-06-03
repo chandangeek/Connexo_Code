@@ -8,7 +8,7 @@
  *                 add array2String method
  */
 
-package com.energyict.protocolimpl.edf.trimaranplus.core.axdr;
+package com.energyict.protocolimpl.edf.trimarandlms.axdr;
 
 import java.util.*;
 import java.io.*;

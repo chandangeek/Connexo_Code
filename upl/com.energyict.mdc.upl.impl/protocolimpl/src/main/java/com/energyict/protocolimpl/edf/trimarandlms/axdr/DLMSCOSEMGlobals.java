@@ -4,7 +4,7 @@
  * Created on 16 september 2002, 16:38
  */
 
-package com.energyict.protocolimpl.edf.trimaranplus.core.axdr;
+package com.energyict.protocolimpl.edf.trimarandlms.axdr;
 
 /**
  *

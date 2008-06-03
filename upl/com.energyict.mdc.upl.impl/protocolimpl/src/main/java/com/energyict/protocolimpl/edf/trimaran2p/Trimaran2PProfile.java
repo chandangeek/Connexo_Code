@@ -3,17 +3,27 @@
  */
 package com.energyict.protocolimpl.edf.trimaran2p;
 
+import java.io.IOException;
+import java.util.Date;
+
+import com.energyict.protocol.ProfileData;
+
 /**
  * @author gna
  *
  */
 public class Trimaran2PProfile {
+	
+	Trimaran2P trimaran;
 
 	/**
 	 * 
 	 */
 	public Trimaran2PProfile() {
-		// TODO Auto-generated constructor stub
+	}
+
+	public Trimaran2PProfile(Trimaran2P trimaran2P) {
+		this.trimaran = trimaran2P;
 	}
 
 	/**
@@ -22,6 +32,10 @@ public class Trimaran2PProfile {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public ProfileData getProfileData(Date lastReading) throws IOException {
+		return trimaran.getTrimaranObjectFactory().getCourbeCharge(lastReading).getProfileData();
 	}
 
 }

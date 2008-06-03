@@ -4,7 +4,7 @@
  * Created on 17 januari 2003, 15:55
  */
 
-package com.energyict.protocolimpl.edf.trimaranplus.core.axdr;
+package com.energyict.protocolimpl.edf.trimarandlms.axdr;
 
 import java.util.*;
 import java.io.*;

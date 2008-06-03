@@ -10,11 +10,13 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.edf.trimaranplus.core.axdr.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.TimeZone;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
+import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
 /**
  *
@@ -34,7 +36,7 @@ public class DureeDepassement {
         setVariableName(variableName);
         setDateDebutPeriode(new DateType(dc.getRoot().getLong(offset++), timezone));
         setCodeAF(dc.getRoot().getInteger(offset++));
-        setDateFinPeriode(new DateType(dc.getRoot().getLong(offset++), timezone)); // DateType, -- champ sans signification, date par défaut
+        setDateFinPeriode(new DateType(dc.getRoot().getLong(offset++), timezone)); // DateType, -- champ sans signification, date par dï¿½faut
         setValueDureeDepassement(new Quantity[dc.getRoot().getStructure(offset).getNrOfElements()]);
         for (int i=0;i<getValueDureeDepassement().length;i++) {
             getValueDureeDepassement()[i] = new Quantity(BigDecimal.valueOf(dc.getRoot().getStructure(offset).getLong(i)),VariableNameFactory.getVariableName(variableName).getUnit());

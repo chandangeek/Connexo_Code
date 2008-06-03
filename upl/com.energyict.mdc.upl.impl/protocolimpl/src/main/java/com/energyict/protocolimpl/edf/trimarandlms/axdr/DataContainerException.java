@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.edf.trimaranplus.core.axdr;
+package com.energyict.protocolimpl.edf.trimarandlms.axdr;
 
 import java.io.*;
 
