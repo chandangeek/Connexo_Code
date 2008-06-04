@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -44,11 +45,22 @@ public class CourbeCharge {
      
     private TrimaranObjectFactory trimaranObjectFactory;
     private List elements;
+    private Date now;
     private int elementCount = 0;
+    private int elementId,previousElementId;
     
-    Date now;
+    final int ELEMENT_BEGIN=-1;
+    final int ELEMENT_PUISSANCE=0;
+    final int ELEMENT_PUISSANCE_TRONQUE=1;
+    final int ELEMENT_DATATION_HEURE=2;
+    final int ELEMENT_DATATION_DATE=3;
+    final int ELEMENT_DATATION_MINUTE_SECONDE=4;
+    final int ELEMENT_DATATION_POSTE=5;
+    final int STATE_PUISSANCE=0;
+    final int STATE_OLD_TIME=1;
+    final int STATE_NEW_TIME=2;
+    
     private ProfileData profileData=null;
-    int elementId,previousElementId;
     
     /** Creates a new instance of CourbeCharge */
     public CourbeCharge(TrimaranObjectFactory trimaranObjectFactory) {
@@ -83,14 +95,14 @@ public class CourbeCharge {
         elementId = previousElementId = getElementCount();
         setElements(new ArrayList());
         setProfileData(new ProfileData());
-        getProfileData().addChannel(new ChannelInfo(0,"Trimeran 2P P+ channel",Unit.get("kW")));
-        getProfileData().addChannel(new ChannelInfo(1,"Trimeran 2P P- channel",Unit.get("kW")));
-//        if(getTrimaranObjectFactory().readParameters().isCcReact()){
-            getProfileData().addChannel(new ChannelInfo(2,"Trimeran 2P Q1(Q+) channel",Unit.get("kvar")));
-            getProfileData().addChannel(new ChannelInfo(3,"Trimeran 2P Q3(Q-) channel",Unit.get("kvar")));
-            getProfileData().addChannel(new ChannelInfo(4,"Trimeran 2P Q2(Q+) channel",Unit.get("kvar")));
-            getProfileData().addChannel(new ChannelInfo(5,"Trimeran 2P Q4(Q-) channel",Unit.get("kvar")));
-//        }
+        getProfileData().addChannel((new ChannelInfo(0,"Trimaran 2P P+ channel", Unit.get("kW"), 0, 0, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
+        getProfileData().addChannel((new ChannelInfo(1,"Trimaran 2P P- channel", Unit.get("kW"), 0, 1, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
+        if(getTrimaranObjectFactory().readParameters().isCcReact()){
+        	 getProfileData().addChannel((new ChannelInfo(2,"Trimaran 2P Q1(Q+) channel", Unit.get("kvar"), 0, 2, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
+        	 getProfileData().addChannel((new ChannelInfo(3,"Trimaran 2P Q3(Q-) channel", Unit.get("kvar"), 0, 3, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
+        	 getProfileData().addChannel((new ChannelInfo(4,"Trimaran 2P Q2(Q+) channel", Unit.get("kvar"), 0, 4, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
+        	 getProfileData().addChannel((new ChannelInfo(5,"Trimaran 2P Q4(Q-) channel", Unit.get("kvar"), 0, 5, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
+        }
     }
     
     private void waitUntilCopied() throws IOException { // max 20 sec
@@ -179,7 +191,6 @@ public class CourbeCharge {
         }
     }
     
-//    private int stupidcounter = 0;
     private void retrieve(Date from) throws IOException {
         if (DEBUG>=1) System.out.println("GN_DEBUG> retrieve elementId "+elementId);
         getTrimaranObjectFactory().writeAccessPartiel(from);
@@ -200,7 +211,6 @@ public class CourbeCharge {
     }
     
     private void retrieve() throws IOException {
-        now = new Date();
         if (DEBUG>=1) System.out.println("GN_DEBUG> retrieve elementId "+elementId);
 //        getTrimaranObjectFactory().writeAccessPartiel(elementId);
         getTrimaranObjectFactory().writeAccessPartiel(now);
@@ -228,22 +238,7 @@ public class CourbeCharge {
         setElements(new ArrayList());
         getElements().addAll(0, temp);
         
-//        for (int i = 0; i< values.length; i++) {
-//            getElements().add(new Integer(values[i]));
-//        }
     } // private void addValues(int[] values) throws IOException
-    
-    
-    final int ELEMENT_BEGIN=-1;
-    final int ELEMENT_PUISSANCE=0;
-    final int ELEMENT_PUISSANCE_TRONQUE=1;
-    final int ELEMENT_DATATION_HEURE=2;
-    final int ELEMENT_DATATION_DATE=3;
-    final int ELEMENT_DATATION_MINUTE_SECONDE=4;
-    final int ELEMENT_DATATION_POSTE=5;
-    final int STATE_PUISSANCE=0;
-    final int STATE_OLD_TIME=1;
-    final int STATE_NEW_TIME=2;
     
     public void doParse() throws IOException {
         int previousElement=ELEMENT_BEGIN;
@@ -281,8 +276,8 @@ public class CourbeCharge {
                     if (now.after(cal.getTime())) {
                         intervalData = new IntervalData(new Date(cal.getTime().getTime()),0,0,tariff);
                         intervalData.addValue(new Integer(val));
-//                        for(int j = 0; j < getTrimaranObjectFactory().getTrimaran().getNumberOfChannels() - 1; j++){
-                        for(int j = 0; j < 5; j++){
+                        for(int j = 0; j < getTrimaranObjectFactory().getTrimaran().getNumberOfChannels() - 1; j++){
+//                        for(int j = 0; j < 5; j++){
                         	if(it.hasNext()){
 	                        	val = ((Integer)it.next()).intValue();
 	                        	 if (DEBUG>=2) i++;
@@ -336,7 +331,7 @@ public class CourbeCharge {
                 cal.set(Calendar.DAY_OF_MONTH,day);
                 
                  
-                if (DEBUG>=2) System.out.println("KV_DEBUG> ********************************************* "+i+", cal="+cal.getTime());
+                if (DEBUG>=2) System.out.println("GN_DEBUG> *********** "+i+", cal="+cal.getTime());
                 
             } // else if ((val & 0xE000) == 0xC000)
             // ************************************************************************************************************************ 
@@ -355,8 +350,7 @@ public class CourbeCharge {
                     cal.set(Calendar.MINUTE,minutes);
                 }
                 
-                if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", type=0x"+Integer.toHexString(type)+", cal="+(cal!=null?""+cal.getTime():"no start calendar"));
-                
+                if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", type=0x"+Integer.toHexString(type)+", cal="+(cal!=null?""+cal.getTime():"no start calendar"));
                 
                 if (type == 0) { // every hour
                     // heure ronde ou changement de jour tarifaire ; dans le cas d'une heure ronde seule, l'�l�ment-date n'est pas
@@ -367,23 +361,18 @@ public class CourbeCharge {
                     // l'ancienne heure et un avec la nouvelle heure (�l�ment-date et �l�ment-heure � chaque fois) ; pour chacun
                     // un enregistrement compl�mentaire est effectu� pour donner la valeur des minutes et des secondes de la date
                     // marqu�e (�l�ment-minute/seconde)
-                    
                 }
                 else if (type == 2) {
-                    // prise d'effet de changement des valeurs d'une table journali�re (�l�ment-date et �l�ment-heure)
+                    // suppressions des puissances réactives
                 }
                 else if (type == 3) {
-                    // changement de structure annuelle ou de poste horaire (en option Base ou EJP), entr�e ou sortie de la
-                    // p�riode tarifaire pointe mobile ou changement de saison mobile (en option MODULABLE), changement
-                    // de mode (toutes options) ; l'�l�ment-date n'est ins�r� que dans le cas de changement de structure annuelle
-                    // ou de mode ; un enregistrement compl�mentaire est effectu� pour pr�ciser la saison, le poste, la structure
-                    // ou le mode suivant le cas (�l�ment-poste/structure/mode)
+                    // introductions des puissances réactives
                 }
                 else if (type == 4) {
-                    // prise d'effet de nouvelles valeurs de puissances souscrites (�l�ment-date et �l�ment-heure)
+                    // changements de valeur de paramètres (TC, TT, KJ, KF, KPr, RL, XL, Kep)
                 }
                 else if (type == 5) {
-                    // changement de la valeur de la dur�e de la p�riode d�int�gration Tc (�l�ment-date et �l�ment-heure)
+                    // changement de valeur de Tc(élément date et heure)
                 }
                 else if (type == 6) {
                     
@@ -420,7 +409,7 @@ public class CourbeCharge {
                              calSetClock.set(Calendar.SECOND,seconde);
                              meterEvents.add(new MeterEvent(calSetClock.getTime(),MeterEvent.SETCLOCK_BEFORE));
                              state = STATE_OLD_TIME;
-                             if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", minute="+minute+", seconde="+seconde);
+                             if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", minute="+minute+", seconde="+seconde);
                         }
                         else if ((previousElement == ELEMENT_DATATION_HEURE) && (state == STATE_OLD_TIME)) {
                              currentElement=ELEMENT_DATATION_MINUTE_SECONDE;
@@ -431,86 +420,70 @@ public class CourbeCharge {
                              calSetClock.set(Calendar.SECOND,seconde);
                              meterEvents.add(new MeterEvent(calSetClock.getTime(),MeterEvent.SETCLOCK_AFTER));
                              state = STATE_NEW_TIME;
-                             if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", minute="+minute+", seconde="+seconde);
+                             if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", minute="+minute+", seconde="+seconde);
                         }
                         else if ((previousElement == ELEMENT_DATATION_MINUTE_SECONDE) && (state == STATE_NEW_TIME)) {
                              currentElement=ELEMENT_DATATION_POSTE;
-                             int saisonMobile = (val & 0x0C00)>>10;
-                             int posteHoraire = (val & 0x0300)>>8;
-                             int a = (val & 0x0080)>>7;
-                             int mode = (val & 0x0040)>>6;
+                             int mode = (val & 0x0040) >> 6;
+                             int config = (val & 0x0E00) >> 9;
                              int marquage = (val & 0x003F);
                              state = STATE_PUISSANCE;
-                             if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", saisonMobile="+saisonMobile+", posteHoraire="+posteHoraire+", a="+a+", mode="+mode+", marquage="+marquage);
+                             if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", Mode="+mode+", config="+config+", marquage="+marquage);
                              tariff=val&0xFFF;
                              //getMeterEvents().add(new MeterEvent(calSetClock.getTime(),MeterEvent.OTHER,val&0xFFF));
                         }
                     }
                     else if (type == 2) {
                         currentElement=ELEMENT_DATATION_POSTE;
-                        int saisonMobile = (val & 0x0C00)>>10;
-                        int posteHoraire = (val & 0x0300)>>8;
-                        int a = (val & 0x0080)>>7;
-                        int mode = (val & 0x0040)>>6;
+                        int mode = (val & 0x0040) >> 6;
+                        int config = (val & 0x0E00) >> 9;
                         int marquage = (val & 0x003F);
-                        tariff=val&0xFFF;
-                        if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", saisonMobile="+saisonMobile+", posteHoraire="+posteHoraire+", a="+a+", mode="+mode+", marquage="+marquage);
+                        state = STATE_PUISSANCE;
+                        if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", Mode="+mode+", config="+config+", marquage="+marquage);
                     }
                     else if (type == 3) {
                         currentElement=ELEMENT_DATATION_POSTE;
-                        int saisonMobile = (val & 0x0C00)>>10;
-                        int posteHoraire = (val & 0x0300)>>8;
-                        int a = (val & 0x0080)>>7;
-                        int mode = (val & 0x0040)>>6;
+                        int mode = (val & 0x0040) >> 6;
+                        int config = (val & 0x0E00) >> 9;
                         int marquage = (val & 0x003F);
-                        tariff=val&0xFFF;
-                        if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", saisonMobile="+saisonMobile+", posteHoraire="+posteHoraire+", a="+a+", mode="+mode+", marquage="+marquage);
+                        state = STATE_PUISSANCE;
+                        if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", Mode="+mode+", config="+config+", marquage="+marquage);
                     }
                     else if (type == 4) {
                         currentElement=ELEMENT_DATATION_POSTE;
-                        int saisonMobile = (val & 0x0C00)>>10;
-                        int posteHoraire = (val & 0x0300)>>8;
-                        int a = (val & 0x0080)>>7;
-                        int mode = (val & 0x0040)>>6;
+                        int mode = (val & 0x0040) >> 6;
+                        int config = (val & 0x0E00) >> 9;
                         int marquage = (val & 0x003F);
-                        tariff=val&0xFFF;
-                        if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", saisonMobile="+saisonMobile+", posteHoraire="+posteHoraire+", a="+a+", mode="+mode+", marquage="+marquage);
+                        state = STATE_PUISSANCE;
+                        if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", Mode="+mode+", config="+config+", marquage="+marquage);
                     }
                     else if (type == 5) {
                         currentElement=ELEMENT_DATATION_POSTE;
-                        int saisonMobile = (val & 0x0C00)>>10;
-                        int posteHoraire = (val & 0x0300)>>8;
-                        int a = (val & 0x0080)>>7;
-                        int mode = (val & 0x0040)>>6;
+                        int mode = (val & 0x0040) >> 6;
+                        int config = (val & 0x0E00) >> 9;
                         int marquage = (val & 0x003F);
-                        tariff=val&0xFFF;
-                        if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", saisonMobile="+saisonMobile+", posteHoraire="+posteHoraire+", a="+a+", mode="+mode+", marquage="+marquage);
+                        state = STATE_PUISSANCE;
+                        if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", Mode="+mode+", config="+config+", marquage="+marquage);
                     }
                     else if (type == 6) {
                         currentElement=ELEMENT_DATATION_POSTE;
-                        int saisonMobile = (val & 0x0C00)>>10;
-                        int posteHoraire = (val & 0x0300)>>8;
-                        int a = (val & 0x0080)>>7;
-                        int mode = (val & 0x0040)>>6;
+                        int mode = (val & 0x0040) >> 6;
+                        int config = (val & 0x0E00) >> 9;
                         int marquage = (val & 0x003F);
-                        tariff=val&0xFFF;
-                        if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", saisonMobile="+saisonMobile+", posteHoraire="+posteHoraire+", a="+a+", mode="+mode+", marquage="+marquage);
+                        state = STATE_PUISSANCE;
+                        if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", Mode="+mode+", config="+config+", marquage="+marquage);
                     }
                     else if (type == 7) {
-                        currentElement=ELEMENT_DATATION_POSTE;
-                        int saisonMobile = (val & 0x0C00)>>10;
-                        int posteHoraire = (val & 0x0300)>>8;
-                        int a = (val & 0x0080)>>7;
-                        int mode = (val & 0x0040)>>6;
+                        int mode = (val & 0x0040) >> 6;
+                        int config = (val & 0x0E00) >> 9;
                         int marquage = (val & 0x003F);
-                        tariff=val&0xFFF; 
-                        if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", saisonMobile="+saisonMobile+", posteHoraire="+posteHoraire+", a="+a+", mode="+mode+", marquage="+marquage);
+                        state = STATE_PUISSANCE;
+                        if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", Mode="+mode+", config="+config+", marquage="+marquage);
                     }
                     else {
                        throw new IOException("Courbecharge, parse(), invalid element 0x"+Integer.toHexString(val)+", type="+type+", currentElement="+currentElement+", previousElement="+previousElement);
                     }
                 } // if (previousElement == ELEMENT_DATATION_HEURE)
-                
             } // else if ((val & 0xF000) == 0xF000)
             else {
                throw new IOException("Courbecharge, parse(), invalid element 0x"+Integer.toHexString(val)+", currentElement="+currentElement+", previousElement="+previousElement);
@@ -524,21 +497,10 @@ public class CourbeCharge {
             
         } // while(count<getValues().length)  
         
-        if (DEBUG>=1) System.out.println("doParse(), elementId="+elementId+" elementOffset="+elementOffset);
-        
-        elementId = elementId + (1250-elementOffset);
-        
-        if (DEBUG>=1) System.out.println("doParse(), elementId="+elementId+" --> elementId + (1250-elementOffset)");
-        
         getProfileData().setMeterEvents(meterEvents);
-//        getProfileData().setIntervalDatas(intervalDatas);
         getProfileData().getIntervalDatas().addAll(intervalDatas);
         getProfileData().sort();
-        
-//        if ((FILE_OPERATION==1) && (file)) 
-//            aggregateAndRemoveDuplicates();
-        
-        if (DEBUG >= 1) System.out.println(getProfileData());
+        if (DEBUG >= 2) System.out.println(getProfileData());
         
     } // public void doParse() throws IOException
     
@@ -582,7 +544,6 @@ public class CourbeCharge {
 			ois.close();
 			fis.close(); 
             cc.addValues(values);
-//            cc.now = new Date();
             cc.doParse();
             
         }
