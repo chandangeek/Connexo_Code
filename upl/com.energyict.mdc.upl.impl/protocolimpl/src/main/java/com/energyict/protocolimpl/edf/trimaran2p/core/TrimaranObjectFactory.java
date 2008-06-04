@@ -9,6 +9,7 @@ import java.util.Date;
 
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edf.trimaran2p.Trimaran2P;
+import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
 /**
  * @author gna
@@ -16,8 +17,9 @@ import com.energyict.protocolimpl.edf.trimaran2p.Trimaran2P;
  */
 public class TrimaranObjectFactory {
 	
-	private Parameters parameters = null;
+	private int DEBUG = 10;
 	
+	private Parameters parameters = null;
 	private Trimaran2P trimaran;
 
 	/**
@@ -77,6 +79,8 @@ public class TrimaranObjectFactory {
         AccessPartiel obj = new AccessPartiel(this);
         obj.setDateAccess(dateAccess);
         obj.setNomAccess(1);
+        if (DEBUG>=1) System.out.println("GN_DEBUG> AccesPartiel: " + obj.toString());
+        if (DEBUG>=1) System.out.println("GN_DEBUG> The DateType: " + new DateType(obj.getDateAccess(), obj.getTrimaranObjectFactory().getTrimaran().getTimeZone()));
         obj.write();
     }
     
@@ -90,6 +94,12 @@ public class TrimaranObjectFactory {
         CourbeChargePartielle2 ccp2 = new CourbeChargePartielle2(this);
         ccp2.read();
         return ccp2;
+    }
+    
+    protected CourbeChargePartielle getCourbeChargePartielle() throws IOException{
+    	CourbeChargePartielle ccp = new CourbeChargePartielle(this);
+    	ccp.read();
+    	return ccp;
     }
     
     protected void writeAccessPartiel(int nr) throws IOException {

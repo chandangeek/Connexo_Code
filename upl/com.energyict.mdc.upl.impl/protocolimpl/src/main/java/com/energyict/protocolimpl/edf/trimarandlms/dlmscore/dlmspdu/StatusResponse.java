@@ -30,15 +30,10 @@ public class StatusResponse extends ConfirmedRespAPSE {
     private int[] vAAList;
     private StatusIdentify[] statusIdentifies;
     
-    
-    
-    
-    
     /** Creates a new instance of WriteResponse */
     public StatusResponse(DLMSPDUFactory dLMSPDUFactory) {
         super(dLMSPDUFactory.getProtocolLink().getAPSEFactory());
     }
-    
     
     public String toString() {
         // Generated code by ToStringBuilder
@@ -90,9 +85,6 @@ public class StatusResponse extends ConfirmedRespAPSE {
             getStatusIdentifies()[i] = new StatusIdentify(data,offset);
             offset += getStatusIdentifies()[i].getSize();
         }
-        
-        
-        
     }
 
     public int getVDEType() {

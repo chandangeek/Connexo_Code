@@ -147,8 +147,11 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 		}
 	}
 	
-	public int getNumberOfChannels(){
-		return 1;
+	public int getNumberOfChannels() throws IOException{
+		if(getTrimaranObjectFactory().readParameters().isCcReact())
+			return 6;
+		else
+			return 2;
 	}
 	
 	public int getProfileInterval() throws IOException{

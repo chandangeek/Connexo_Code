@@ -22,8 +22,8 @@ import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 public class Parameters extends AbstractTrimaranObject {
 	
 	
-	private DateType dateDebutPeriode; 	// Date de configuration de TC ou TT
-	private DateType dateFinPeriode; 	// Date en cours au moment de la lecture
+	private DateType debutPeriode_48; 	// Date de dernière écriture de Paramètre+1
+	private DateType dernierHoroDate; 	// Date en cours au moment de la lecture
 	
 	private int TC;						// rapport de transformation de puissance, de 1 à 3000
 	private int TT;						// rapport de transformation de puissance, de 1 à 6000
@@ -34,7 +34,9 @@ public class Parameters extends AbstractTrimaranObject {
 	private int XL;						// valeur de la r"actance de perte Ligne signée multipliée par 100
 	private int kep;					// Facteur d'échelle des puissances en puissance de 10
 
-	private int tCourbeCharge;			// période d'intégration Tc pour le suivi de la courbe de charge en multiples de 1mn et selon un sous-multiple de 60
+	private int tcc;					// période d'intégration Tc pour le suivi de la courbe de charge en multiples de 1mn et selon un sous-multiple de 60
+	
+	private boolean ccReact;			// enregistrement des quatre puissances réactives dans la courbe de charge
 	
 	private int variableName;
 	
@@ -90,6 +92,11 @@ public class Parameters extends AbstractTrimaranObject {
 		setXL(dc.getRoot().getInteger(offset++));
 		setKep(dc.getRoot().getInteger(offset++));
 		setTCourbeCharge(dc.getRoot().getInteger(offset++));
+//		setCcReact(dc.getRoot().getElement(offset++));
+		if (dc.getRoot().getInteger(offset) == 1)
+			setCcReact(true);
+		else
+			setCcReact(false);
 	}
 
 	@Override
@@ -105,28 +112,28 @@ public class Parameters extends AbstractTrimaranObject {
 	 * @return the dateDebutPeriode
 	 */
 	public DateType getDateDebutPeriode() {
-		return dateDebutPeriode;
+		return debutPeriode_48;
 	}
 
 	/**
 	 * @param dateDebutPeriode the dateDebutPeriode to set
 	 */
 	public void setDateDebutPeriode(DateType dateDebutPeriode) {
-		this.dateDebutPeriode = dateDebutPeriode;
+		this.debutPeriode_48 = dateDebutPeriode;
 	}
 
 	/**
 	 * @return the dateFinPeriode
 	 */
 	public DateType getDateFinPeriode() {
-		return dateFinPeriode;
+		return dernierHoroDate;
 	}
 
 	/**
 	 * @param dateFinPeriode the dateFinPeriode to set
 	 */
 	public void setDateFinPeriode(DateType dateFinPeriode) {
-		this.dateFinPeriode = dateFinPeriode;
+		this.dernierHoroDate = dateFinPeriode;
 	}
 
 	/**
@@ -245,14 +252,14 @@ public class Parameters extends AbstractTrimaranObject {
 	 * @return the tCourbeCharge
 	 */
 	public int getTCourbeCharge() {
-		return tCourbeCharge;
+		return tcc;
 	}
 
 	/**
 	 * @param courbeCharge the tCourbeCharge to set
 	 */
 	public void setTCourbeCharge(int courbeCharge) {
-		tCourbeCharge = courbeCharge;
+		tcc = courbeCharge;
 	}
 	
 	public String toString(){
@@ -269,7 +276,22 @@ public class Parameters extends AbstractTrimaranObject {
 		strBuff.append("XL: " + getXL());strBuff.append("\n");
 		strBuff.append("kep: " + getKep());strBuff.append("\n");
 		strBuff.append("tCourbeCharge: " + getTCourbeCharge());strBuff.append("\n");
+		strBuff.append("ccReact: " + isCcReact());
 		return strBuff.toString();
+	}
+
+	/**
+	 * @return the ccReact
+	 */
+	public boolean isCcReact() {
+		return ccReact;
+	}
+
+	/**
+	 * @param ccReact the ccReact to set
+	 */
+	public void setCcReact(boolean ccReact) {
+		this.ccReact = ccReact;
 	}
 
 }
