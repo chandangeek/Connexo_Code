@@ -121,4 +121,18 @@ public class TrimaranObjectFactory {
         obj.setNomAccess(0x01);
         obj.write();
     }
+
+	/**
+	 * @param parameters the parameters to set
+	 */
+	protected void setParameters(Parameters parameters) {
+		this.parameters = parameters;
+	}
+
+	/**
+	 * @return the parameters
+	 */
+	protected Parameters getParameters() {
+		return parameters;
+	}
 }

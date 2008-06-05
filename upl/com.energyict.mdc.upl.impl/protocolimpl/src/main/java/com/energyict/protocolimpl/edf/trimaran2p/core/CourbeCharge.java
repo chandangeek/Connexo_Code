@@ -91,7 +91,7 @@ public class CourbeCharge {
            return getTrimaranObjectFactory().getTrimaran().getTimeZone();
     }
     
-    private void initCollections() throws IOException {
+    protected void initCollections() throws IOException {
         elementId = previousElementId = getElementCount();
         setElements(new ArrayList());
         setProfileData(new ProfileData());
@@ -169,7 +169,7 @@ public class CourbeCharge {
     } //  public void collect(Date from) throws IOException
     
 
-    private void aggregateAndRemoveDuplicates() {
+    protected void aggregateAndRemoveDuplicates() {
         IntervalData ivd2Check=null;
         Iterator it = getProfileData().getIntervalDatas().iterator();
         while(it.hasNext()) {
@@ -190,7 +190,7 @@ public class CourbeCharge {
             ivd2Check = ivd;
         }
     }
-    
+    private int fileCounter = 0;
     private void retrieve(Date from) throws IOException {
         if (DEBUG>=1) System.out.println("GN_DEBUG> retrieve elementId "+elementId);
         getTrimaranObjectFactory().writeAccessPartiel(from);
@@ -198,8 +198,8 @@ public class CourbeCharge {
         int[] values = getTrimaranObjectFactory().getCourbeChargePartielle1().getValues();
         
 //    	System.out.println("GN_DEBUG> write to file");
-//    	File file = new File("c://TEST_FILES/Object_Values_0406_long" + stupidcounter+".bin");
-//    	stupidcounter++;
+//    	File file = new File("c://TEST_FILES/Object_Values_0406_long" + fileCounter+".bin");
+//    	fileCounter++;
 //    	FileOutputStream fos = new FileOutputStream(file);
 //    	ObjectOutputStream oos = new ObjectOutputStream(fos);
 //    	oos.writeObject(values);
@@ -230,7 +230,7 @@ public class CourbeCharge {
     } // public void collect(int range) throws IOException
     
     
-    private void addValues(int[] values) throws IOException {
+    protected void addValues(int[] values) throws IOException {
         List temp = new ArrayList();
         for (int i = 0; i< values.length; i++) {
             temp.add(new Integer(values[i]));   
@@ -523,7 +523,7 @@ public class CourbeCharge {
     
     static public void main(String[] args) {
         try {
-            CourbeCharge cc = new CourbeCharge(null);
+            CourbeCharge cc = new CourbeCharge(new TrimaranObjectFactory(null));
             
 			FileInputStream fis;
 			File file = new File("c://TEST_FILES/Object_Values_0406_long0.bin");
@@ -574,6 +574,20 @@ public class CourbeCharge {
 	 */
 	public void setElementCount(int elementCount) {
 		this.elementCount = elementCount;
+	}
+
+	/**
+	 * @return the now date
+	 */
+	protected Date getNow() {
+		return now;
+	}
+
+	/**
+	 * @param set now to a specific date
+	 */
+	protected void setNow(Date now) {
+		this.now = now;
 	}
 
     

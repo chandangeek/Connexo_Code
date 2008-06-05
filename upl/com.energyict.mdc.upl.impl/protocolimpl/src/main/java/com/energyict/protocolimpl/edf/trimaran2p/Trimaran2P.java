@@ -237,7 +237,7 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	/**
 	 * @return the trimaranObjectFactory
 	 */
-	protected TrimaranObjectFactory getTrimaranObjectFactory() {
+	public TrimaranObjectFactory getTrimaranObjectFactory() {
 		return trimaranObjectFactory;
 	}
 

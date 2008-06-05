@@ -290,7 +290,7 @@ public class Parameters extends AbstractTrimaranObject {
 	/**
 	 * @param ccReact the ccReact to set
 	 */
-	public void setCcReact(boolean ccReact) {
+	protected void setCcReact(boolean ccReact) {
 		this.ccReact = ccReact;
 	}
 
