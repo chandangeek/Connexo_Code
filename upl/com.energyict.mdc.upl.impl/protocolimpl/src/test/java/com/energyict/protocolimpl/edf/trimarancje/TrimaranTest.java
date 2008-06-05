@@ -41,6 +41,7 @@ public class TrimaranTest {
 
 	@After
 	public void tearDown() throws Exception {
+		cje.release();
 	}
 	
 	@Test
