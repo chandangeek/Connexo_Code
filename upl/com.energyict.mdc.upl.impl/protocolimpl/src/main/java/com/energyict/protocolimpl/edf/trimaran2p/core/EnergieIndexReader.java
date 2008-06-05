@@ -32,8 +32,8 @@ public class EnergieIndexReader extends AbstractTrimaranObject {
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
-        strBuff.append("EnergieActivePeriodeP:\n");
-        strBuff.append("   energie=" + getEnergie()+"\n");
+        strBuff.append("*** EnergieIndexReader: ***\n");
+        strBuff.append("	- energie = " + getEnergie()+"\n");
         return strBuff.toString();
     }    
     

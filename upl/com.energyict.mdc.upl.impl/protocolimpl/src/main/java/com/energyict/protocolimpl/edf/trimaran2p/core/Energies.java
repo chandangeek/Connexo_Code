@@ -4,8 +4,11 @@
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.TimeZone;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
@@ -19,12 +22,12 @@ public class Energies{
 	
 	private DateType debutPeriode;	// Date de mise en service
 	private DateType dernierHoroDate;	// Date courante au moment de la lecture de la variable
-	private long[] ixNRJact;			// seq of 2 - index des Energies Eabp, Eabn exprimés en MWh
-	private int[] nRJact_Reste;		// seq of 2 - reste des Energies Eabp, Eabn exprimés en kWh
-	private long[] ixNRJind;			// seq of 2 - index des Energies Q+ Erb1, Q- Erb3 exprimés en Mvarh
-	private int[] nRJind_Reste;		// seq of 2 - reste des Energies Q+ Erb1, Q- Erb3 exprimés en kvarh
-	private long[] ixNRJcap;			// seq of 2 - index des Energies Q+ Erb2, Q- Erb4 exprimés en Mvarh
-	private int[] nRJcap_Reste;		// seq of 2 - reste des Energies Q+ Erb2, Q- Erb4 exprimés en kvarh
+	private Quantity[] ixNRJact = {null, null};			// seq of 2 - index des Energies Eabp, Eabn exprimés en MWh
+	private Quantity[] nRJact_Reste = {null, null};		// seq of 2 - reste des Energies Eabp, Eabn exprimés en kWh
+	private Quantity[] ixNRJind = {null, null};			// seq of 2 - index des Energies Q+ Erb1, Q- Erb3 exprimés en Mvarh
+	private Quantity[] nRJind_Reste = {null, null};		// seq of 2 - reste des Energies Q+ Erb1, Q- Erb3 exprimés en kvarh
+	private Quantity[] ixNRJcap = {null, null};			// seq of 2 - index des Energies Q+ Erb2, Q- Erb4 exprimés en Mvarh
+	private Quantity[] nRJcap_Reste = {null, null};		// seq of 2 - reste des Energies Q+ Erb2, Q- Erb4 exprimés en kvarh
 
 
 	public Energies(DataContainer dc, TimeZone timeZone, int variableName) throws IOException {
@@ -32,26 +35,26 @@ public class Energies{
 		int offset = 0;
 		setDebutPeriode(new DateType(dc.getRoot().getLong(offset++), timeZone));
 		setDernierHoroDate(new DateType(dc.getRoot().getLong(offset++), timeZone));
-		setIxNRJact(dc.getRoot().getLong(offset++), 0);
-		setIxNRJact(dc.getRoot().getLong(offset++), 1);
-		setNRJact_Reste(dc.getRoot().getInteger(offset++), 0);
-		setNRJact_Reste(dc.getRoot().getInteger(offset++), 1);
-		setIxNRJind(dc.getRoot().getLong(offset++), 0);
-		setIxNRJind(dc.getRoot().getLong(offset++), 1);
-		setNRJind_Reste(dc.getRoot().getInteger(offset++), 0);
-		setNRJind_Reste(dc.getRoot().getInteger(offset++), 1);
-		setIxNRJcap(dc.getRoot().getLong(offset++), 0);
-		setIxNRJcap(dc.getRoot().getLong(offset++), 1);
-		setNRJcap_Reste(dc.getRoot().getInteger(offset++), 0);
-		setNRJcap_Reste(dc.getRoot().getInteger(offset++), 1);
+		setIxNRJact(new Quantity(new BigDecimal(""+dc.getRoot().getStructure(offset).getLong(0)), Unit.get("MWh")), 0);
+		setIxNRJact(new Quantity(new BigDecimal(""+dc.getRoot().getStructure(offset++).getLong(1)), Unit.get("MWh")), 1);
+		setNRJact_Reste(new Quantity(new BigDecimal(""+dc.getRoot().getStructure(offset).getInteger(0)), Unit.get("kWh")), 0);
+		setNRJact_Reste(new Quantity(new BigDecimal(""+dc.getRoot().getStructure(offset++).getInteger(1)), Unit.get("kWh")), 1);
+		setIxNRJind(new Quantity(new BigDecimal(""+dc.getRoot().getStructure(offset).getLong(0)), Unit.get("Mvarh")), 0);
+		setIxNRJind(new Quantity(new BigDecimal(""+dc.getRoot().getStructure(offset++).getLong(1)), Unit.get("Mvarh")), 1);
+		setNRJind_Reste(new Quantity(new BigDecimal(""+dc.getRoot().getStructure(offset).getInteger(0)), Unit.get("kvarh")), 0);
+		setNRJind_Reste(new Quantity(new BigDecimal(""+dc.getRoot().getStructure(offset++).getInteger(1)), Unit.get("kvarh")), 1);
+		setIxNRJcap(new Quantity(new BigDecimal(""+dc.getRoot().getStructure(offset).getLong(0)), Unit.get("Mvarh")), 0);
+		setIxNRJcap(new Quantity(new BigDecimal(""+dc.getRoot().getStructure(offset++).getLong(1)), Unit.get("Mvarh")), 1);
+		setNRJcap_Reste(new Quantity(new BigDecimal(""+dc.getRoot().getStructure(offset).getInteger(0)), Unit.get("kvarh")), 0);
+		setNRJcap_Reste(new Quantity(new BigDecimal(""+dc.getRoot().getStructure(offset++).getInteger(1)), Unit.get("kvarh")), 1);
 	}
 	
 	public String toString(){
 		StringBuffer strBuff = new StringBuffer();
 		
-		strBuff.append("*** Energies: ***\n");
-		strBuff.append("	- DateDebutPeriode: " + getDebutPeriode());strBuff.append("\n");
-		strBuff.append("	- DateDernierHoroDate: " + getDernierHoroDate());strBuff.append("\n");
+		strBuff.append("*** Energies " + getVariableName() + ": ***\n");
+		strBuff.append("	- DateDebutPeriode: " + getDebutPeriode());
+		strBuff.append("	- DateDernierHoroDate: " + getDernierHoroDate());
 		
 		strBuff.append("	- IxNRJact - Eabp: " + getIxNRJact(0));strBuff.append("\n");
 		strBuff.append("	- IxNRJact - Eabn: " + getIxNRJact(1));strBuff.append("\n");
@@ -121,84 +124,84 @@ public class Energies{
 	/**
 	 * @return the ixNRJact
 	 */
-	public long getIxNRJact(int i) {
+	public Quantity getIxNRJact(int i) {
 		return ixNRJact[i];
 	}
 
 	/**
 	 * @param ixNRJact the ixNRJact to set
 	 */
-	public void setIxNRJact(long ixNRJact, int i) {
+	public void setIxNRJact(Quantity ixNRJact, int i) {
 		this.ixNRJact[i] = ixNRJact;
 	}
 
 	/**
 	 * @return the nRJact_Reste
 	 */
-	public int getNRJact_Reste(int i) {
+	public Quantity getNRJact_Reste(int i) {
 		return nRJact_Reste[i];
 	}
 
 	/**
 	 * @param jact_Reste the nRJact_Reste to set
 	 */
-	public void setNRJact_Reste(int jact_Reste, int i) {
+	public void setNRJact_Reste(Quantity jact_Reste, int i) {
 		nRJact_Reste[i] = jact_Reste;
 	}
 
 	/**
 	 * @return the ixNRJind
 	 */
-	public long getIxNRJind(int i) {
+	public Quantity getIxNRJind(int i) {
 		return ixNRJind[i];
 	}
 
 	/**
 	 * @param ixNRJind the ixNRJind to set
 	 */
-	public void setIxNRJind(long ixNRJind, int i) {
+	public void setIxNRJind(Quantity ixNRJind, int i) {
 		this.ixNRJind[i] = ixNRJind;
 	}
 
 	/**
 	 * @return the nRJind_Reste
 	 */
-	public int getNRJind_Reste(int i) {
+	public Quantity getNRJind_Reste(int i) {
 		return nRJind_Reste[i];
 	}
 
 	/**
 	 * @param jind_Reste the nRJind_Reste to set
 	 */
-	public void setNRJind_Reste(int jind_Reste, int i) {
+	public void setNRJind_Reste(Quantity jind_Reste, int i) {
 		nRJind_Reste[i] = jind_Reste;
 	}
 
 	/**
 	 * @return the ixNRJcap
 	 */
-	public long getIxNRJcap(int i) {
+	public Quantity getIxNRJcap(int i) {
 		return ixNRJcap[i];
 	}
 
 	/**
 	 * @param ixNRJcap the ixNRJcap to set
 	 */
-	public void setIxNRJcap(long ixNRJcap, int i) {
+	public void setIxNRJcap(Quantity ixNRJcap, int i) {
 		this.ixNRJcap[i] = ixNRJcap;
 	}
 
 	/**
 	 * @return the nRJcap_Reste
 	 */
-	public int getNRJcap_Reste(int i) {
+	public Quantity getNRJcap_Reste(int i) {
 		return nRJcap_Reste[i];
 	}
 
 	/**
 	 * @param jcap_Reste the nRJcap_Reste to set
 	 */
-	public void setNRJcap_Reste(int jcap_Reste, int i) {
+	public void setNRJcap_Reste(Quantity jcap_Reste, int i) {
 		nRJcap_Reste[i] = jcap_Reste;
 	}
 

@@ -17,10 +17,18 @@ import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
  */
 public class TrimaranObjectFactory {
 	
-	private int DEBUG = 10;
+	private int DEBUG = 0;
 	
 	private Parameters parameters = null;
+	private ParametersPlus1 parametersPlus1 = null;
+	private ParametersMinus1 parametersMinus1 = null;
+	private TempsFonctionnement tempsFonctionnement = null;
+	private EnergieIndex energieIndex = null;
+	private ArreteJournalier arreteJournalier = null;
 	private Trimaran2P trimaran;
+	
+	private final int brute = 56;
+	private final int nette = 64;
 
 	/**
 	 * 
@@ -61,6 +69,58 @@ public class TrimaranObjectFactory {
 			parameters.read();
 		}
 		return parameters;
+	}
+	
+	public ParametersPlus1 readParametersPlus1() throws IOException{
+		if(parametersPlus1 == null){
+			parametersPlus1 = new ParametersPlus1(this);
+			parametersPlus1.setVariableName_plus1(40);
+			parametersPlus1.read();
+		}
+		return parametersPlus1;
+	}
+	
+	public ParametersMinus1 readParametersMinus1() throws IOException{
+		if(parametersMinus1 == null){
+			parametersMinus1 = new ParametersMinus1(this);
+			parametersMinus1.setVariableName_Minus1(168);
+			parametersMinus1.read();
+		}
+		return parametersMinus1;
+	}
+	
+	public TempsFonctionnement readTempsFonctionnement() throws IOException{
+		if(tempsFonctionnement == null){
+			tempsFonctionnement = new TempsFonctionnement(this);
+			tempsFonctionnement.setVariableName(152);
+			tempsFonctionnement.read();
+		}
+		return tempsFonctionnement;
+	}
+	
+	public ArreteJournalier readArreteJournalier() throws IOException{
+		if(arreteJournalier == null){
+			arreteJournalier = new ArreteJournalier(this);
+			arreteJournalier.setVariableName(104);
+			arreteJournalier.read();
+		}
+		return arreteJournalier;
+	}
+	
+	public EnergieIndex readEnergieIndex() throws IOException{
+		if(energieIndex == null){
+			energieIndex = new EnergieIndex();
+			energieIndex.addEnergie(readEnergieIndexReader(brute).getEnergie());
+			energieIndex.addEnergie(readEnergieIndexReader(nette).getEnergie());
+		}
+		return energieIndex;
+	}
+	
+	private EnergieIndexReader readEnergieIndexReader(int variableName) throws IOException{
+		EnergieIndexReader eir = new EnergieIndexReader(this);
+		eir.setVariableName(variableName);
+		eir.read();
+		return eir;
 	}
 	
     public CourbeCharge getCourbeCharge(Date from) throws IOException {
@@ -135,4 +195,5 @@ public class TrimaranObjectFactory {
 	protected Parameters getParameters() {
 		return parameters;
 	}
+
 }

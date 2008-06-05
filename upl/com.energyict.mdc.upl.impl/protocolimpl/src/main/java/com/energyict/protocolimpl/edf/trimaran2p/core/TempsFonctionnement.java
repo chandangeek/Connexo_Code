@@ -46,8 +46,8 @@ public class TempsFonctionnement extends AbstractTrimaranObject{
 		DataContainer dc = new DataContainer();
 		dc.parseObjectList(data, null);
 		
-		setDebutPeriode152(new DateType(dc.getRoot().getLong(offset++), TimeZone.getTimeZone("ECT")));
-		setDernierHoroDate(new DateType(dc.getRoot().getLong(offset++), TimeZone.getTimeZone("ECT")));
+		setDebutPeriode152(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaran().getTimeZone()));
+		setDernierHoroDate(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaran().getTimeZone()));
 		setTempsFonct(dc.getRoot().getLong(offset++));
 		
 	}
@@ -111,7 +111,7 @@ public class TempsFonctionnement extends AbstractTrimaranObject{
 		strBuff.append("*** TempsFonctionnement: ***\n");
 		strBuff.append("	- debutPeriod152: " + getDebutPeriode152());
 		strBuff.append("	- dernierHoroDate: " + getDernierHoroDate());
-		strBuff.append("	- tempsFonctionne: " + getTempsFonct());
+		strBuff.append("	- tempsFonctionne: " + getTempsFonct());strBuff.append("\n");
 		return strBuff.toString();
 	}
 

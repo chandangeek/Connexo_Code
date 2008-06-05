@@ -30,7 +30,6 @@ public class EnergieIndex {
 	
 	public String toString(){
         StringBuffer strBuff = new StringBuffer();
-		strBuff.append("*** Energies: ***\n");
         for(int i = 0; i < getEnergies().size(); i++) {
             Energies obj = (Energies)getEnergies().get(i);
             strBuff.append(obj+"\n");

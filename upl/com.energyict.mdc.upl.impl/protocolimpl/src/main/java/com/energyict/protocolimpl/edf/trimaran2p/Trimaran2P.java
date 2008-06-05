@@ -45,6 +45,8 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
     private int destinationTransportAddress;
     private int delayAfterConnect;
     private int t1Timeout;
+    
+    private long roundTripStart;
 
 	/**
 	 * 
@@ -70,6 +72,15 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException{
 		return getTrimaran2PProfile().getProfileData(lastReading);
+	}
+	
+	protected void validateSerialNumber() throws IOException{
+		if((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber()) == 0)) return;
+		
+		String serialNumber = getDLMSPDUFactory().getStatusResponse().getSerialNumber();
+		if(serialNumber.compareTo(getInfoTypeSerialNumber()) == 0) return;
+		
+		throw new IOException("SerialNumber mismatch! Meter serialNumber = "+serialNumber+", configured serialNumber = "+getInfoTypeSerialNumber());
 	}
 
 	@Override
@@ -170,14 +181,28 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 
 	@Override
 	public Date getTime() throws IOException {
-		// TODO date courante
-		return new Date();
+		long roundTrip = System.currentTimeMillis() - getRoundTripStart();
+		long meterTime = getTrimaranObjectFactory().readParameters().getDernierHoroDate().getCalendar().getTimeInMillis();
+		return new Date(meterTime + roundTrip);
 	}
 
 	@Override
 	public void setTime() throws IOException {
-		// TODO Auto-generated method stub
+		throw new UnsupportedException();
+	}
+	
+	protected String getRegistersInfo(int extendedLogging) throws IOException{
+		StringBuffer strBuff = new StringBuffer();
 		
+		strBuff.append(getTrimaranObjectFactory().readParameters());
+		strBuff.append(getTrimaranObjectFactory().readParametersPlus1());
+		strBuff.append(getTrimaranObjectFactory().readParametersMinus1());
+		strBuff.append(getTrimaranObjectFactory().readAccessPartiel());
+		strBuff.append(getTrimaranObjectFactory().readTempsFonctionnement());
+		strBuff.append(getTrimaranObjectFactory().readEnergieIndex());
+		strBuff.append(getTrimaranObjectFactory().readArreteJournalier());
+		
+		return strBuff.toString();
 	}
 
 	public APSEPDUFactory getAPSEFactory() {
@@ -282,6 +307,20 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	 */
 	protected void setT1Timeout(int timeout) {
 		t1Timeout = timeout;
+	}
+
+	/**
+	 * @return the roundTripStart
+	 */
+	protected long getRoundTripStart() {
+		return roundTripStart;
+	}
+
+	/**
+	 * @param roundTripStart the roundTripStart to set
+	 */
+	public void setRoundTripStart(long roundTripStart) {
+		this.roundTripStart = roundTripStart;
 	}
 
 }

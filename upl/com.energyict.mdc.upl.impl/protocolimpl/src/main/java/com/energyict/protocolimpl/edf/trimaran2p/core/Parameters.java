@@ -13,6 +13,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
+import com.jidesoft.swing.JideSwingUtilities.GetHandler;
 
 
 /**
@@ -22,7 +23,7 @@ import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 public class Parameters extends AbstractTrimaranObject {
 	
 	
-	private DateType debutPeriode_48; 	// Date de dernière écriture de Paramètre+1
+	private DateType debutPeriode_48; 	// Date de dernière écriture de Paramètre
 	private DateType dernierHoroDate; 	// Date en cours au moment de la lecture
 	
 	private int TC;						// rapport de transformation de puissance, de 1 à 3000
@@ -80,8 +81,9 @@ public class Parameters extends AbstractTrimaranObject {
 		DataContainer dc = new DataContainer();
 		dc.parseObjectList(data, null);
 		
-		setDateDebutPeriode(new DateType(dc.getRoot().getLong(offset++), TimeZone.getTimeZone("ECT")));
-		setDateFinPeriode(new DateType(dc.getRoot().getLong(offset++), TimeZone.getTimeZone("ECT")));
+		setDebutPeriode_48(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaran().getTimeZone()));
+		setDernierHoroDate(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaran().getTimeZone()));
+		getTrimaranObjectFactory().getTrimaran().setRoundTripStart(System.currentTimeMillis());
 		
 		setTC(dc.getRoot().getInteger(offset++));
 		setTT(dc.getRoot().getInteger(offset++));
@@ -92,7 +94,6 @@ public class Parameters extends AbstractTrimaranObject {
 		setXL(dc.getRoot().getInteger(offset++));
 		setKep(dc.getRoot().getInteger(offset++));
 		setTCourbeCharge(dc.getRoot().getInteger(offset++));
-//		setCcReact(dc.getRoot().getElement(offset++));
 		if (dc.getRoot().getInteger(offset) == 1)
 			setCcReact(true);
 		else
@@ -109,31 +110,31 @@ public class Parameters extends AbstractTrimaranObject {
 	}
 
 	/**
-	 * @return the dateDebutPeriode
+	 * @return the debutPeriode_48
 	 */
-	public DateType getDateDebutPeriode() {
+	public DateType getDebutPeriode_48() {
 		return debutPeriode_48;
 	}
 
 	/**
-	 * @param dateDebutPeriode the dateDebutPeriode to set
+	 * @param debutPeriode_48 the dateDebutPeriode to set
 	 */
-	public void setDateDebutPeriode(DateType dateDebutPeriode) {
-		this.debutPeriode_48 = dateDebutPeriode;
+	public void setDebutPeriode_48(DateType debutPeriode_48) {
+		this.debutPeriode_48 = debutPeriode_48;
 	}
 
 	/**
-	 * @return the dateFinPeriode
+	 * @return the dernierHoroDate
 	 */
-	public DateType getDateFinPeriode() {
+	public DateType getDernierHoroDate() {
 		return dernierHoroDate;
 	}
 
 	/**
-	 * @param dateFinPeriode the dateFinPeriode to set
+	 * @param dernierHoroDate the dateFinPeriode to set
 	 */
-	public void setDateFinPeriode(DateType dateFinPeriode) {
-		this.dernierHoroDate = dateFinPeriode;
+	public void setDernierHoroDate(DateType dernierHoroDate) {
+		this.dernierHoroDate = dernierHoroDate;
 	}
 
 	/**
@@ -264,19 +265,24 @@ public class Parameters extends AbstractTrimaranObject {
 	
 	public String toString(){
 		StringBuffer strBuff = new StringBuffer();
-		strBuff.append("Parameters: \n");
-		strBuff.append("DateDebutPeriode: " + getDateDebutPeriode());strBuff.append("\n");
-		strBuff.append("DateFinPeriode: " + getDateFinPeriode());strBuff.append("\n");
-		strBuff.append("TC: " + getTC());strBuff.append("\n");
-		strBuff.append("TT: " + getTT());strBuff.append("\n");
-		strBuff.append("KJ: " + getKJ());strBuff.append("\n");
-		strBuff.append("KPr: " + getKPr());strBuff.append("\n");
-		strBuff.append("KF: " + getKF());strBuff.append("\n");
-		strBuff.append("RL: " + getRL());strBuff.append("\n");
-		strBuff.append("XL: " + getXL());strBuff.append("\n");
-		strBuff.append("kep: " + getKep());strBuff.append("\n");
-		strBuff.append("tCourbeCharge: " + getTCourbeCharge());strBuff.append("\n");
-		strBuff.append("ccReact: " + isCcReact());
+		strBuff.append("*** Parameters: ***\n");
+		strBuff.append("	- DateDebutPeriode: " + getDebutPeriode_48());
+		strBuff.append("	- DateFinPeriode: " + getDernierHoroDate());
+		strBuff.append("	- TC: " + getTC());strBuff.append("\n");
+		strBuff.append("	- TT: " + getTT());strBuff.append("\n");
+		strBuff.append("	- KJ: " + getKJ());strBuff.append("\n");
+		strBuff.append("	- KPr: " + getKPr());strBuff.append("\n");
+		strBuff.append("	- KF: " + getKF());strBuff.append("\n");
+		strBuff.append("	- RL: " + getRL());strBuff.append("\n");
+		strBuff.append("	- XL: " + getXL());strBuff.append("\n");
+		strBuff.append("	- kep: " + getKep());strBuff.append("\n");
+		strBuff.append("	- tCourbeCharge: " + getTCourbeCharge());strBuff.append("\n");
+		if(isCcReact()){
+			strBuff.append("	- ccReact: true");strBuff.append("\n");
+		}
+		else{
+			strBuff.append("	- ccReact: false");strBuff.append("\n");
+		}
 		return strBuff.toString();
 	}
 

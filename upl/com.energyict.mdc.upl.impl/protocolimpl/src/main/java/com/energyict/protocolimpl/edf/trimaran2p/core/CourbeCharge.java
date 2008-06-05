@@ -10,13 +10,10 @@
 
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -40,14 +37,12 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class CourbeCharge {
     
-    int FILE_OPERATION=0;
-    final int DEBUG=10;
+    final int DEBUG=0;
      
     private TrimaranObjectFactory trimaranObjectFactory;
     private List elements;
     private Date now;
     private int elementCount = 0;
-    private int elementId,previousElementId;
     
     final int ELEMENT_BEGIN=-1;
     final int ELEMENT_PUISSANCE=0;
@@ -92,7 +87,6 @@ public class CourbeCharge {
     }
     
     protected void initCollections() throws IOException {
-        elementId = previousElementId = getElementCount();
         setElements(new ArrayList());
         setProfileData(new ProfileData());
         getProfileData().addChannel((new ChannelInfo(0,"Trimaran 2P P+ channel", Unit.get("kW"), 0, 0, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
@@ -130,42 +124,13 @@ public class CourbeCharge {
         do {
         	if (DEBUG>=1) System.out.println("GN_DEBUG> Retreive data from: " + collectTime);
             retrieve(collectTime);
-            
-//            // if earliest interval is before the from, leave loop
-//            if (getProfileData().getIntervalData(0).getEndTime().before(from))
-//                break;
-//            // safety, if earliest interval is after previous interval, that means we wrap around in the buffer
-//            if ((previousEndTime != null) && (getProfileData().getIntervalData(0).getEndTime().after(previousEndTime)))
-//                break;
-            
             collectTime = getProfileData().getIntervalData(getProfileData().getIntervalDatas().size()-1).getEndTime();
-            
-//            previousEndTime = getProfileData().getIntervalData(0).getEndTime();      
-            
-            
-//            if (elementId==previousElementId) {
-//                if (DEBUG >= 1) System.out.println("elementId==previousElementId --> break");
-//                break;
-//            }
-//            previousElementId = elementId;
-            
-//        }  while(elementId<=(30*1250)); // safety margin
         }while(Math.abs(collectTime.getTime()/1000-now.getTime()/1000) > getTrimaranObjectFactory().getTrimaran().getProfileInterval());
         
         // if the connection of data takes more then the profileinterval, a duplicate interval will occur
         aggregateAndRemoveDuplicates();
         
         if (DEBUG >= 1) System.out.println(getProfileData());
-        
-        if (FILE_OPERATION==1) {
-            FileOutputStream fos = new FileOutputStream(new File("trimeranplus.bin"));
-            DataOutputStream dos = new DataOutputStream(fos);
-            dos.writeLong(now.getTime());
-            for (int i=0;i<getElements().size();i++) {
-                dos.writeInt(((Integer)getElements().get(i)).intValue());
-            }
-            fos.close();
-        } // if (FILE_OPERATION==1)
     } //  public void collect(Date from) throws IOException
     
 
@@ -192,7 +157,6 @@ public class CourbeCharge {
     }
     private int fileCounter = 0;
     private void retrieve(Date from) throws IOException {
-        if (DEBUG>=1) System.out.println("GN_DEBUG> retrieve elementId "+elementId);
         getTrimaranObjectFactory().writeAccessPartiel(from);
         waitUntilCopied();
         int[] values = getTrimaranObjectFactory().getCourbeChargePartielle1().getValues();
@@ -211,7 +175,6 @@ public class CourbeCharge {
     }
     
     private void retrieve() throws IOException {
-        if (DEBUG>=1) System.out.println("GN_DEBUG> retrieve elementId "+elementId);
 //        getTrimaranObjectFactory().writeAccessPartiel(elementId);
         getTrimaranObjectFactory().writeAccessPartiel(now);
         waitUntilCopied();

@@ -37,10 +37,10 @@ public class AccessPartiel extends AbstractTrimaranObject {
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
-        strBuff.append("AccessPartiel:\n");
-        strBuff.append("   calendarAccess="+getCalendarAccess()+"\n");
-        strBuff.append("   dateAccess="+getDateAccess()+"\n");
-        strBuff.append("   nomAccess="+getNomAccess()+"\n");
+        strBuff.append("*** AccessPartiel: ***\n");
+        strBuff.append("	- calendarAccess="+getCalendarAccess()+"\n");
+        strBuff.append("	- dateAccess="+getDateAccess()+"\n");
+        strBuff.append("	- nomAccess="+getNomAccess()+"\n");
         return strBuff.toString();
     }      
 
