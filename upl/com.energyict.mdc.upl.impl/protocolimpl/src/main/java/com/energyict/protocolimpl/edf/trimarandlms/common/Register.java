@@ -8,13 +8,11 @@
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-package com.energyict.protocolimpl.edf.trimaranplus.registermapping;
+package com.energyict.protocolimpl.edf.trimarandlms.common;
 
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.edf.trimaran.registermapping.RegisterNameFactory;
-import com.energyict.protocolimpl.edf.trimaranplus.core.*;
-import java.io.*;
+import java.io.IOException;
+
+import com.energyict.obis.ObisCode;
 
 /**
  *

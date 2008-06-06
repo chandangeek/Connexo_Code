@@ -8,7 +8,7 @@
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-package com.energyict.protocolimpl.edf.trimaranplus.core;
+package com.energyict.protocolimpl.edf.trimarandlms.common;
 
 import com.energyict.cbo.*;
 

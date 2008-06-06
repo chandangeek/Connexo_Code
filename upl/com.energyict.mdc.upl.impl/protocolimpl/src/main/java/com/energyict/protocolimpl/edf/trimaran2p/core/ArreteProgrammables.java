@@ -60,7 +60,7 @@ public class ArreteProgrammables extends AbstractTrimaranObject{
 		strBuff.append("	- DebutProgJour: " + getDebutProgJour());
 		strBuff.append("	- NombreJour: " + getNombreJour());strBuff.append("\n");
 		strBuff.append("	- DebutProgMois: " + getDebutProgMois());
-		strBuff.append("	- NombreMois: " + getNombreMois());
+		strBuff.append("	- NombreMois: " + getNombreMois());strBuff.append("\n");
 		
 		return strBuff.toString();
 	}

@@ -8,7 +8,7 @@
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-package com.energyict.protocolimpl.edf.trimaranplus.registermapping;
+package com.energyict.protocolimpl.edf.trimarandlms.common;
 
 import com.energyict.obis.*;
 import java.util.HashMap;
@@ -29,8 +29,8 @@ public class RegisterNameFactory {
     
     static public void buildRegisterNames(int fField) {
         for (int eField=1;eField<=16;eField++) {
-            map.put(ObisCode.fromString("1.1.1.37."+eField+"."+fField), "Dépassement Duration");
-            map.put(ObisCode.fromString("1.1.1.38."+eField+"."+fField), "Dépassement Quadratique");
+            map.put(ObisCode.fromString("1.1.1.37."+eField+"."+fField), "Dï¿½passement Duration");
+            map.put(ObisCode.fromString("1.1.1.38."+eField+"."+fField), "Dï¿½passement Quadratique");
             map.put(ObisCode.fromString("0.1.96.8."+eField+"."+fField), "Temps de fonctionnement");
             map.put(ObisCode.fromString("1.1.1.129."+eField+"."+fField), "Puissances Souscrites");
             

@@ -24,11 +24,15 @@ public class TrimaranObjectFactory {
 	private ParametersMinus1 parametersMinus1 = null;
 	private TempsFonctionnement tempsFonctionnement = null;
 	private EnergieIndex energieIndex = null;
+	private ProgrammablesIndex programmablesIndex = null;
 	private ArreteJournalier arreteJournalier = null;
+	private ArreteProgrammables arreteProgrammables = null;
 	private Trimaran2P trimaran;
 	
 	private final int brute = 56;
 	private final int nette = 64;
+	private final int jour = 120;
+	private final int mois = 128;
 
 	/**
 	 * 
@@ -116,12 +120,39 @@ public class TrimaranObjectFactory {
 		return energieIndex;
 	}
 	
+	public ProgrammablesIndex readProgrammablesIndex() throws IOException{
+		if(programmablesIndex == null){
+			programmablesIndex = new ProgrammablesIndex();
+			programmablesIndex.addProgrammables(readProgrammablesIndexReader(jour).getProgrammables());
+			programmablesIndex.addProgrammables(readProgrammablesIndexReader(mois).getProgrammables());
+		}
+		return programmablesIndex;
+	}
+	
+	private ProgrammablesIndexReader readProgrammablesIndexReader(int variableName) throws IOException {
+		ProgrammablesIndexReader pir = new ProgrammablesIndexReader(this);
+		pir.setVariableName(variableName);
+		pir.read();
+		return pir;
+	}
+
 	private EnergieIndexReader readEnergieIndexReader(int variableName) throws IOException{
 		EnergieIndexReader eir = new EnergieIndexReader(this);
 		eir.setVariableName(variableName);
 		eir.read();
 		return eir;
 	}
+	
+	public ArreteProgrammables readArreteProgrammables() throws IOException{
+		if(arreteProgrammables == null){
+			arreteProgrammables = new ArreteProgrammables(this);
+			arreteProgrammables.setVariableName(112);
+			arreteProgrammables.read();
+		}
+		return arreteProgrammables;
+	}
+	
+	
 	
     public CourbeCharge getCourbeCharge(Date from) throws IOException {
         CourbeCharge cc = new CourbeCharge(this);

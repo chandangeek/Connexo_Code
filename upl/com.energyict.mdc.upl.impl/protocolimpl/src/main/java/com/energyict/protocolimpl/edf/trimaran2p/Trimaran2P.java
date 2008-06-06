@@ -12,21 +12,24 @@ import java.util.List;
 import java.util.Properties;
 
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.edf.trimaran2p.core.TrimaranObjectFactory;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.APSEPDUFactory;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu.DLMSPDUFactory;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.APSEParameters;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.Connection62056;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.ProtocolLink;
-import com.energyict.protocolimpl.edf.trimaran2p.core.TrimaranObjectFactory;
 
 /**
  * @author gna
@@ -40,6 +43,7 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	private Connection62056 connection62056;
 	private Trimaran2PProfile trimaran2PProfile;
 	private TrimaranObjectFactory trimaranObjectFactory;
+	private RegisterFactory registerFactory = null;
 	
     private int sourceTransportAddress;
     private int destinationTransportAddress;
@@ -201,8 +205,29 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 		strBuff.append(getTrimaranObjectFactory().readTempsFonctionnement());
 		strBuff.append(getTrimaranObjectFactory().readEnergieIndex());
 		strBuff.append(getTrimaranObjectFactory().readArreteJournalier());
+		strBuff.append(getTrimaranObjectFactory().readArreteProgrammables());
+		strBuff.append(getTrimaranObjectFactory().readProgrammablesIndex());
 		
 		return strBuff.toString();
+	}
+	
+    /*******************************************************************************************
+    R e g i s t e r P r o t o c o l  i n t e r f a c e 
+     * @throws NoSuchRegisterException 
+    *******************************************************************************************/
+	public RegisterValue readRegister(ObisCode obisCode) throws NoSuchRegisterException{
+		ObisCodeMapper ocm = new ObisCodeMapper(this);
+		return ocm.getRegisterValue(obisCode);
+	}
+	
+	public RegisterFactory getRegisterFactory(){
+		if(registerFactory == null)
+			setRegisterFactory(new RegisterFactory(this));
+		return registerFactory;
+	}
+	
+	public void setRegisterFactory(RegisterFactory registerFactory){
+		this.registerFactory = registerFactory;
 	}
 
 	public APSEPDUFactory getAPSEFactory() {

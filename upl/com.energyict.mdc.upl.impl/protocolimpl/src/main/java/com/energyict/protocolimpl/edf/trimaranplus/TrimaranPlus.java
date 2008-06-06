@@ -44,7 +44,6 @@ import com.energyict.protocolimpl.edf.trimarandlms.protocol.Connection62056;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.ProtocolLink;
 import com.energyict.protocolimpl.edf.trimaranplus.core.TrimaranObjectFactory;
 import com.energyict.protocolimpl.edf.trimaranplus.core.VDEType;
-import com.energyict.protocolimpl.edf.trimaranplus.registermapping.RegisterFactory;
 
 /**
  *@beginchanges

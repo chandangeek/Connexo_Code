@@ -12,6 +12,8 @@ package com.energyict.protocolimpl.edf.trimaranplus;
 
 import com.energyict.obis.*;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.edf.trimarandlms.common.Register;
+import com.energyict.protocolimpl.edf.trimarandlms.common.RegisterNameFactory;
 import com.energyict.protocolimpl.edf.trimaranplus.core.*;
 import com.energyict.protocolimpl.edf.trimaranplus.registermapping.*;
 import java.io.*;
@@ -23,9 +25,6 @@ import java.io.*;
 public class ObisCodeMapper {
     
     TrimaranPlus trimaranPlus;
-    
-
-    
     
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(TrimaranPlus trimaranPlus) {
