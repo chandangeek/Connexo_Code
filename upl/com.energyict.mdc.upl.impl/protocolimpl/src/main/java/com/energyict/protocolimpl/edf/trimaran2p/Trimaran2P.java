@@ -213,14 +213,14 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	
     /*******************************************************************************************
     R e g i s t e r P r o t o c o l  i n t e r f a c e 
-     * @throws NoSuchRegisterException 
+     * @throws IOException 
     *******************************************************************************************/
-	public RegisterValue readRegister(ObisCode obisCode) throws NoSuchRegisterException{
+	public RegisterValue readRegister(ObisCode obisCode) throws IOException{
 		ObisCodeMapper ocm = new ObisCodeMapper(this);
 		return ocm.getRegisterValue(obisCode);
 	}
 	
-	public RegisterFactory getRegisterFactory(){
+	public RegisterFactory getRegisterFactory() throws IOException{
 		if(registerFactory == null)
 			setRegisterFactory(new RegisterFactory(this));
 		return registerFactory;

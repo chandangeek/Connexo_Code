@@ -19,6 +19,7 @@ import org.junit.Test;
 import com.energyict.cbo.BusinessException;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.coreimpl.CommunicationProtocolImpl;
 import com.energyict.mdw.coreimpl.RtuImpl;
@@ -53,10 +54,10 @@ public class UtilitiesTest {
 	public void tearDown() throws Exception {
 		
 		// first delete the device
-		List result = Utilities.mw().getRtuFactory().findBySerialNumber("99999999");
+		List result = Utilities.mw().getRtuFactory().findByName(testRtu);
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
-				((RtuImpl)result.get(0)).delete();
+				((Rtu)result.get(0)).delete();
 		
 		// then the deviceType
 		result = Utilities.mw().getRtuTypeFactory().findByName(testRtu);
@@ -116,7 +117,7 @@ public class UtilitiesTest {
 			e.printStackTrace();
 		}
 	}
-	@Ignore
+	
 	@Test
 	public void createRtuTest(){
 		CommunicationProtocol commProtocol;
@@ -143,6 +144,5 @@ public class UtilitiesTest {
 			e.printStackTrace();
 		}
 	}
-	
 
 }

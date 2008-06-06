@@ -47,7 +47,7 @@ public class ObisCodeMapper {
         return new RegisterInfo(RegisterNameFactory.findObisCode(obisCode));
     }
 
-	public RegisterValue getRegisterValue(ObisCode obisCode) throws NoSuchRegisterException {
+	public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
 		
 		Register register = getTrimaran2P().getRegisterFactory().findRegister(obisCode);
 		

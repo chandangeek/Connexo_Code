@@ -19,12 +19,13 @@ import com.energyict.cbo.*;
 public class VariableName {
     
     
-    public static final int ENERGIE=0;
-    public static final int TEMPS_FONCTIONNEMENT=1;
-    public static final int DEPASSEMENT_QUADRATIUQUE=2;
-    public static final int DUREE_DEPASSEMENT=3;
-    public static final int PMAX=4;
-    public static final int ABSTRACT=5;
+    public static final int ENERGIE = 0;
+    public static final int TEMPS_FONCTIONNEMENT = 1;
+    public static final int DEPASSEMENT_QUADRATIUQUE = 2;
+    public static final int DUREE_DEPASSEMENT = 3;
+    public static final int PMAX = 4;
+    public static final int ABSTRACT = 5;
+    public static final int ARRETE = 6;
     
     private int code;
     private String description;
@@ -39,9 +40,11 @@ public class VariableName {
     public VariableName(String description, int code, int type) {
         this(description, code, null,-1,-1,-1, -1, type);
     }
+    
     public VariableName(String description, int code, Unit unit, int obisCField, int obisDField, int obisFField, int type) {
         this(description,code,unit,1,obisCField,obisDField,obisFField, type);
     }
+    
     public VariableName(String description, int code, Unit unit, int obisAField, int obisCField, int obisDField, int obisFField, int type) {
         this.setCode(code);
         this.setDescription(description);
@@ -52,8 +55,8 @@ public class VariableName {
         setObisFField(obisFField);
         setType(type);
     }
-
-    public String toString() {
+    
+	public String toString() {
         return code+", "+description;
     }
     

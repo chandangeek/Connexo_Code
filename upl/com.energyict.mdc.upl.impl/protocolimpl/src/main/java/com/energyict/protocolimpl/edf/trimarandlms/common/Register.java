@@ -33,7 +33,13 @@ public class Register {
         setDescription(RegisterNameFactory.findObisCode(obisCode)==null?obisCode.getDescription():RegisterNameFactory.findObisCode(obisCode));
     }
 
-    public String toString() {
+    public Register(VariableName variableName, ObisCode obisCode) {
+    	setVariableName(variableName);
+    	setObisCode(obisCode);
+    	setDescription(RegisterNameFactory.findObisCode(obisCode)==null?obisCode.getDescription():RegisterNameFactory.findObisCode(obisCode));
+	}
+
+	public String toString() {
         return getDescription()+", variable name "+getVariableName()+", tariff index "+getIndex();
     }
 

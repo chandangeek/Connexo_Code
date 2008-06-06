@@ -46,9 +46,11 @@ public class Utilities {
 	}
 	
 	public static Rtu createRtu(RtuType rtuType) throws SQLException, BusinessException{
-		RtuShadow rtuShadow = rtuType.newRtuShadow();
-		rtuShadow.markClean();
+		RtuShadow rtuShadow = new RtuShadow();
+		rtuShadow.setRtuTypeId(rtuType.getId());
 		rtuShadow.setName(rtuType.getName());
+		rtuShadow.setExternalName(rtuType.getName());
+		rtuShadow.setIntervalInSeconds(3600);
 		rtuShadow.setSerialNumber("99999999");
 		Rtu rtu = mw().getRtuFactory().create(rtuShadow);
 		return rtu;
