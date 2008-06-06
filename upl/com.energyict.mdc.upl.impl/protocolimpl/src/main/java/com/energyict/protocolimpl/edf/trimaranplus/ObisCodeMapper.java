@@ -10,13 +10,20 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus;
 
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
+
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.edf.trimarandlms.common.Register;
 import com.energyict.protocolimpl.edf.trimarandlms.common.RegisterNameFactory;
-import com.energyict.protocolimpl.edf.trimaranplus.core.*;
-import com.energyict.protocolimpl.edf.trimaranplus.registermapping.*;
-import java.io.*;
+import com.energyict.protocolimpl.edf.trimaranplus.core.DepassementQuadratique;
+import com.energyict.protocolimpl.edf.trimaranplus.core.DureeDepassement;
+import com.energyict.protocolimpl.edf.trimaranplus.core.Energie;
+import com.energyict.protocolimpl.edf.trimaranplus.core.ParametresP;
+import com.energyict.protocolimpl.edf.trimaranplus.core.Pmax;
+import com.energyict.protocolimpl.edf.trimaranplus.core.TempsFonctionnement;
 
 /**
  *
