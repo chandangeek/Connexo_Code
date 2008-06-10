@@ -143,119 +143,18 @@ public class RegisterFactory {
         	
         	// Coefficients de dépassement dans la zone tariaire ???
         	quantity = currentPeriodTable.getCoefficientQuantity(zone);
-        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.130." + (offset+zone) + ".255"), quantity);
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.139." + (offset+zone) + ".255"), quantity);
         	registers.add(new Register(registerValue));
         	quantity = previousPeriodTable.getCoefficientQuantityP1(zone);
-        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.130." + (offset+zone) + ".0"), quantity,
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.139." + (offset+zone) + ".0"), quantity,
         			null, currentPeriodTable.getTimeStamp());
         	registers.add(new Register(registerValue));
           	quantity = previousPeriodTable.getCoefficientQuantityP2(zone);
-        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.130." + (offset+zone) + ".1"), quantity,
+        	registerValue = new RegisterValue(ObisCode.fromString("1.1.1.139." + (offset+zone) + ".1"), quantity,
         			null, previousPeriodTable.getTimeStamp());
         	registers.add(new Register(registerValue));
         }
         
 	}
-
-	private void buildIndexes(int fField,MonthInfoTable monthInfo) {
-        Quantity quantity=null;
-        RegisterValue registerValue=null;
-        Date toDate=null;
-        Date fromDate=null;
-                
-        if (fField == 0) {
-            Calendar cal = ProtocolUtils.getCalendar(trimaran.getTimeZone());
-            int month = monthInfo.getMonth();
-            if ((++month) > 12)
-                month=1;
-            month--;
-            cal.set(Calendar.MONTH,month);
-            cal.set(Calendar.DAY_OF_MONTH,1);
-            cal.set(Calendar.HOUR_OF_DAY,2);
-            cal.set(Calendar.MINUTE,0);
-            cal.set(Calendar.SECOND,0);
-            toDate = new Date(cal.getTime().getTime());
-            cal.add(Calendar.MONTH,-1);
-            fromDate = new Date(cal.getTime().getTime());
-        }
-        
-        if (fField == 255) {
-            Calendar cal = ProtocolUtils.getCalendar(trimaran.getTimeZone());
-            int month = monthInfo.getMonth()-1;
-            cal.set(Calendar.MONTH,month);
-            cal.set(Calendar.DAY_OF_MONTH,1);
-            cal.set(Calendar.HOUR_OF_DAY,2);
-            cal.set(Calendar.MINUTE,0);
-            cal.set(Calendar.SECOND,0);
-            fromDate = new Date(cal.getTime().getTime());
-        }
-        
-        
-        for (int eField=1;eField<=3;eField++) {
-            quantity = monthInfo.getActiveQuantity(eField-1);
-            registerValue = new RegisterValue(ObisCode.fromString("1.1.1.8."+eField+"."+fField),quantity,null,toDate);
-            registers.add(new Register(registerValue));
-            
-            quantity = monthInfo.getReactiveQuantity(eField-1);
-            registerValue = new RegisterValue(ObisCode.fromString("1.1.3.8."+eField+"."+fField),quantity,null,toDate);
-            registers.add(new Register(registerValue));
-
-            quantity = monthInfo.getSquareExceedQuantity(eField-1);
-            registerValue = new RegisterValue(ObisCode.fromString("1.1.1.38."+eField+"."+fField),quantity,null,fromDate,toDate);
-            registers.add(new Register(registerValue));
-            
-            quantity = monthInfo.getMaxDemandQuantity(eField-1);
-            registerValue = new RegisterValue(ObisCode.fromString("1.1.1.6."+eField+"."+fField),quantity,null,fromDate,toDate);
-            registers.add(new Register(registerValue));
-            
-            quantity = monthInfo.getNrOf10inuteIntervalsQuantity(eField-1);
-            registerValue = new RegisterValue(ObisCode.fromString("0.1.96.8."+eField+"."+fField),quantity,null,fromDate,toDate);
-            registers.add(new Register(registerValue));
-            
-            quantity = monthInfo.getNrOfExceedsQuantity(eField-1);
-            registerValue = new RegisterValue(ObisCode.fromString("1.1.1.128."+eField+"."+fField),quantity,null,fromDate,toDate);
-            registers.add(new Register(registerValue));
-        } // for (int eField=1;eField<=3;eField++)
-        
-        quantity = monthInfo.getExceededEnergyQuantity();
-        registerValue = new RegisterValue(ObisCode.fromString("1.1.1.10.1."+fField),quantity,null,fromDate,toDate);
-        registers.add(new Register(registerValue));
-        
-        quantity = monthInfo.getSubscribedPowerPeakQuantity();
-        registerValue = new RegisterValue(ObisCode.fromString("1.1.1.129.1."+fField),quantity,null,fromDate,toDate);
-        registers.add(new Register(registerValue));
-        quantity = monthInfo.getSubscribedPowerNormalWinterQuantity();
-        registerValue = new RegisterValue(ObisCode.fromString("1.1.1.130.1."+fField),quantity,null,fromDate,toDate);
-        registers.add(new Register(registerValue));
-        quantity = monthInfo.getSubscribedPowerLowWinterQuantity();
-        registerValue = new RegisterValue(ObisCode.fromString("1.1.1.131.1."+fField),quantity,null,fromDate,toDate);
-        registers.add(new Register(registerValue));
-        quantity = monthInfo.getSubscribedPowerNormalSummerQuantity();
-        registerValue = new RegisterValue(ObisCode.fromString("1.1.1.132.1."+fField),quantity,null,fromDate,toDate);
-        registers.add(new Register(registerValue));
-        quantity = monthInfo.getSubscribedPowerLowSummerQuantity();
-        registerValue = new RegisterValue(ObisCode.fromString("1.1.1.133.1."+fField),quantity,null,fromDate,toDate);
-        registers.add(new Register(registerValue));
-        quantity = monthInfo.getSubscribedPowerMobileQuantity();
-        registerValue = new RegisterValue(ObisCode.fromString("1.1.1.134.1."+fField),quantity,null,fromDate,toDate);
-        registers.add(new Register(registerValue));
-        quantity = monthInfo.getSubscribedPowerNormalHalfSeasonQuantity();
-        registerValue = new RegisterValue(ObisCode.fromString("1.1.1.135.1."+fField),quantity,null,fromDate,toDate);
-        registers.add(new Register(registerValue));
-        quantity = monthInfo.getSubscribedPowerLowHalfSeasonQuantity();
-        registerValue = new RegisterValue(ObisCode.fromString("1.1.1.136.1."+fField),quantity,null,fromDate,toDate);
-        registers.add(new Register(registerValue));
-        quantity = monthInfo.getSubscribedPowerLowLowSeasonQuantity();
-        registerValue = new RegisterValue(ObisCode.fromString("1.1.1.137.1."+fField),quantity,null,fromDate,toDate);
-        registers.add(new Register(registerValue));
-        quantity = monthInfo.getRapportQuantity();
-        registerValue = new RegisterValue(ObisCode.fromString("1.1.1.138.1."+fField),quantity,null,fromDate,toDate);
-        registers.add(new Register(registerValue));
-        
-        
-        
-    } // private void buildIndexes(int fField,MonthInfoTable monthInfo)
-    
-    
     
 }

@@ -25,11 +25,12 @@ public class VariableNameFactory {
 		
 		list.add(new VariableName("Energies Brutes", 56, Unit.get("Wh"), 1, 8, 255, VariableName.ENERGIE));
 		list.add(new VariableName("Energies Nettes", 64, Unit.get("Wh"), 1, 8, 255, VariableName.ENERGIE));
+		list.add(new VariableName("Temp Fonctionnement", 152, Unit.get("min"), 1, 8, 255, VariableName.TEMPS_FONCTIONNEMENT));
 		
-		list.add(new VariableName("Arrete Journalier", 104, Unit.get("kWh"), 1, 8, 128, VariableName.ENERGIE));
-		list.add(new VariableName("Arrete Programmables", 112, Unit.get(255), 0, 1, 255, VariableName.ABSTRACT));	// billing perdiod counter
-		list.add(new VariableName("Programmable jour", 120, Unit.get("kWh"), 1, 8, 255, VariableName.ENERGIE));
-		list.add(new VariableName("Programmable mois", 128, Unit.get("kWh"), 1, 8, 255, VariableName.ENERGIE));
+		list.add(new VariableName("Arrete Journalier", 104, Unit.get("kWh"), 1, 8, 0, VariableName.ARRETE_JOURNALIER));
+		list.add(new VariableName("Arrete Programmables", 112, Unit.get("kWh"), 0, 1, 255, VariableName.ARRETES_PROGRAMMABLES));	// billing perdiod counter
+		list.add(new VariableName("Programmable jour", 120, Unit.get("kWh"), 1, 8, 255, VariableName.ARRETES_PROGRAMMABLES));
+		list.add(new VariableName("Programmable mois", 128, Unit.get("kWh"), 1, 8, 255, VariableName.ARRETES_PROGRAMMABLES));
 		
 	}
 

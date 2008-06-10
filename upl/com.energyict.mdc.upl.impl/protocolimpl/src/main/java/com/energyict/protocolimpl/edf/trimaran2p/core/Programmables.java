@@ -100,7 +100,7 @@ public class Programmables{
 	}
 
 	/**
-	 * @return the debutPeriode
+	 * @return the debutPeriode - Start of measurement period
 	 */
 	public DateType getDebutPeriode() {
 		return debutPeriode;
@@ -128,14 +128,14 @@ public class Programmables{
 	}
 
 	/**
-	 * @return the dernierHorodate
+	 * @return the dernierHorodate - Current Date
 	 */
 	public DateType getDernierHorodate() {
 		return dernierHorodate;
 	}
 
 	/**
-	 * @param dernierHorodate the dernierHorodate to set
+	 * @param dernierHorodate the dernierHorodate to set - Set the current date
 	 */
 	public void setDernierHorodate(DateType dernierHorodate) {
 		this.dernierHorodate = dernierHorodate;

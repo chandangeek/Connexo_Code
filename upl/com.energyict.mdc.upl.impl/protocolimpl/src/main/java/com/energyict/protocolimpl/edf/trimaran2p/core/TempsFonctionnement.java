@@ -4,8 +4,11 @@
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.TimeZone;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
@@ -18,7 +21,7 @@ public class TempsFonctionnement extends AbstractTrimaranObject{
 	private int variableName;
 	private DateType debutPeriode152;	// date du jour à 00h de la dernière mise à zéro de l'index NJ ou date d'initialisation si elle est postérieure
 	private DateType dernierHoroDate;	// date courante
-	private long tempsFonct;				// temps de fonctionnement du compteur depuis la derniére initialisation (en minutes)
+	private Quantity tempsFonct;				// temps de fonctionnement du compteur depuis la derniére initialisation (en minutes)
 	
 
 	/**
@@ -48,7 +51,7 @@ public class TempsFonctionnement extends AbstractTrimaranObject{
 		
 		setDebutPeriode152(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaran().getTimeZone()));
 		setDernierHoroDate(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaran().getTimeZone()));
-		setTempsFonct(dc.getRoot().getLong(offset++));
+		setTempsFonct(new Quantity(new BigDecimal(dc.getRoot().getLong(offset++)), Unit.get("min")));
 		
 	}
 
@@ -88,14 +91,14 @@ public class TempsFonctionnement extends AbstractTrimaranObject{
 	/**
 	 * @return the tempsFonct
 	 */
-	public long getTempsFonct() {
+	public Quantity getTempsFonct() {
 		return tempsFonct;
 	}
 
 	/**
 	 * @param tempsFonct the tempsFonct to set
 	 */
-	public void setTempsFonct(long tempsFonct) {
+	public void setTempsFonct(Quantity tempsFonct) {
 		this.tempsFonct = tempsFonct;
 	}
 

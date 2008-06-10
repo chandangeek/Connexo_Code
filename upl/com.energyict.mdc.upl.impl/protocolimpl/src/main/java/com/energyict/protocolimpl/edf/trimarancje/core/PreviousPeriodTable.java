@@ -5,7 +5,6 @@ package com.energyict.protocolimpl.edf.trimarancje.core;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -23,18 +22,6 @@ public class PreviousPeriodTable extends AbstractTable{
 	
 	private Date timeStamp;
 	private int tarif;
-	
-	private int zoneA = 0;
-	private int zoneB = 1;
-	private int zoneC = 2;
-	private int zoneD = 3;
-	
-	private int pointe = 0;
-	private int pleinesdHiver = 1;
-	private int creusesdHiver = 2;
-	private int pleinesdEte = 3;
-	private int creusesdEte = 4;
-	private int pointeMobile = 5;
 	
 	private long activeEnergyP1[] = new long[6]; 			//kWh
 	private int durationExceedingPowerP1[] = new int[4]; 	//minutes

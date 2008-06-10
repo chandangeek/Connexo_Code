@@ -25,7 +25,8 @@ public class VariableName {
     public static final int DUREE_DEPASSEMENT = 3;
     public static final int PMAX = 4;
     public static final int ABSTRACT = 5;
-    public static final int ARRETE = 6;
+    public static final int ARRETE_JOURNALIER = 6;
+    public static final int ARRETES_PROGRAMMABLES = 7;
     
     private int code;
     private String description;
@@ -146,6 +147,14 @@ public class VariableName {
 
     public boolean isABSTRACT() {
         return type==ABSTRACT;
+    }
+    
+    public boolean isARRETE_JOURNALIER(){
+    	return type == ARRETE_JOURNALIER;
+    }
+    
+    public boolean isARRETES_PROGRAMMABLES(){
+    	return type == ARRETES_PROGRAMMABLES;
     }
     
 }

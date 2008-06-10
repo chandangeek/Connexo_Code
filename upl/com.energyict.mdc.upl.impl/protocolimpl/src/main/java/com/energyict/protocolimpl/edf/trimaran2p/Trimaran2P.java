@@ -19,6 +19,7 @@ import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.AbstractProtocol;
@@ -219,6 +220,10 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 		ObisCodeMapper ocm = new ObisCodeMapper(this);
 		return ocm.getRegisterValue(obisCode);
 	}
+	
+    public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
+        return ObisCodeMapper.getRegisterInfo(obisCode);
+    } 
 	
 	public RegisterFactory getRegisterFactory() throws IOException{
 		if(registerFactory == null)
