@@ -5,12 +5,10 @@ package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.TimeZone;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
-import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
 /**
  * @author gna
@@ -55,10 +53,12 @@ public class ParametersPlus1 extends AbstractTrimaranObject{
 		setXL_plus1(dc.getRoot().getInteger(offset++));
 		setKep_plus1(dc.getRoot().getInteger(offset++));
 		setTcc_plus1(dc.getRoot().getInteger(offset++));
-		if (dc.getRoot().getInteger(offset) == 1)
-			setCcReact_plus1(true);
-		else
-			setCcReact_plus1(false);
+		if(dc.getRoot().isInteger(offset)){
+			if (dc.getRoot().getInteger(offset) == 1)
+				setCcReact_plus1(true);
+			else
+				setCcReact_plus1(false);
+		}
 	}
 
 	@Override

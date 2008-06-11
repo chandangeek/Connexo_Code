@@ -7,13 +7,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.TimeZone;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
-import com.jidesoft.swing.JideSwingUtilities.GetHandler;
 
 
 /**
@@ -94,8 +92,12 @@ public class Parameters extends AbstractTrimaranObject {
 		setXL(dc.getRoot().getInteger(offset++));
 		setKep(dc.getRoot().getInteger(offset++));
 		setTCourbeCharge(dc.getRoot().getInteger(offset++));
-		if (dc.getRoot().getInteger(offset) == 1)
-			setCcReact(true);
+		if(dc.getRoot().isInteger(offset)){
+			if (dc.getRoot().getInteger(offset) == 1)
+				setCcReact(true);
+			else
+				setCcReact(false);
+		}
 		else
 			setCcReact(false);
 	}

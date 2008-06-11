@@ -23,13 +23,6 @@ public class RegisterFactory {
 	
 	Trimaran2P trimaran2P;
 	private List registers;
-//	private ObisCode[] energiesB = {ObisCode.fromString("1.0.1.8.21.255"), ObisCode.fromString("1.0.2.8.21.255"),
-//									ObisCode.fromString("1.0.5.8.21.255"), ObisCode.fromString("1.0.6.8.21.255"),
-//									ObisCode.fromString("1.0.7.8.21.255"), ObisCode.fromString("1.0.8.8.21.255")};
-//
-//	private ObisCode[] energiesN = {ObisCode.fromString("1.0.1.8.22.255"), ObisCode.fromString("1.0.2.8.22.255"),
-//									ObisCode.fromString("1.0.5.8.22.255"), ObisCode.fromString("1.0.6.8.22.255"),
-//									ObisCode.fromString("1.0.7.8.22.255"), ObisCode.fromString("1.0.8.8.22.255")};
 	
 	private ObisCode tempFonctionne = ObisCode.fromString("0.1.96.8.1.255");
 	

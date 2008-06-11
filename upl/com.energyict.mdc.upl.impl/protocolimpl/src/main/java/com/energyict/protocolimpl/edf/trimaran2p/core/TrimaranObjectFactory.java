@@ -21,12 +21,14 @@ public class TrimaranObjectFactory {
 	
 	private Parameters parameters = null;
 	private ParametersPlus1 parametersPlus1 = null;
-	private ParametersMinus1 parametersMinus1 = null;
+	private ParametersMoins1 parametersMoins1 = null;
 	private TempsFonctionnement tempsFonctionnement = null;
 	private EnergieIndex energieIndex = null;
 	private ProgrammablesIndex programmablesIndex = null;
 	private ArreteJournalier arreteJournalier = null;
 	private ArreteProgrammables arreteProgrammables = null;
+	private DureesPnonGarantie dureesPnonGarantie = null;
+	private PMaxMois pMaxMois = null;
 	private Trimaran2P trimaran;
 	
 	private final int brute = 56;
@@ -84,13 +86,13 @@ public class TrimaranObjectFactory {
 		return parametersPlus1;
 	}
 	
-	public ParametersMinus1 readParametersMinus1() throws IOException{
-		if(parametersMinus1 == null){
-			parametersMinus1 = new ParametersMinus1(this);
-			parametersMinus1.setVariableName_Minus1(168);
-			parametersMinus1.read();
+	public ParametersMoins1 readParametersMoins1() throws IOException{
+		if(parametersMoins1 == null){
+			parametersMoins1 = new ParametersMoins1(this);
+			parametersMoins1.setVariableName_Moins1(168);
+			parametersMoins1.read();
 		}
-		return parametersMinus1;
+		return parametersMoins1;
 	}
 	
 	public TempsFonctionnement readTempsFonctionnement() throws IOException{
@@ -109,6 +111,24 @@ public class TrimaranObjectFactory {
 			arreteJournalier.read();
 		}
 		return arreteJournalier;
+	}
+	
+	public DureesPnonGarantie readDureesPnonGarantie() throws IOException{
+		if(dureesPnonGarantie == null){
+			dureesPnonGarantie = new DureesPnonGarantie(this);
+			dureesPnonGarantie.setVariableName(118);
+			dureesPnonGarantie.read();
+		}
+		return dureesPnonGarantie;
+	}
+	
+	public PMaxMois readPMaxMois() throws IOException{
+		if(pMaxMois == null){
+			pMaxMois = new PMaxMois(this);
+			pMaxMois.setVariableName(104);
+			pMaxMois.read();
+		}
+		return pMaxMois;
 	}
 	
 	public EnergieIndex readEnergieIndex() throws IOException{
@@ -151,8 +171,6 @@ public class TrimaranObjectFactory {
 		}
 		return arreteProgrammables;
 	}
-	
-	
 	
     public CourbeCharge getCourbeCharge(Date from) throws IOException {
         CourbeCharge cc = new CourbeCharge(this);

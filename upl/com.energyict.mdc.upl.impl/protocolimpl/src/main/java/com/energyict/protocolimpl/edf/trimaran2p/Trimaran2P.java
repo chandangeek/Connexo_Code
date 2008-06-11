@@ -201,13 +201,15 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 		
 		strBuff.append(getTrimaranObjectFactory().readParameters());
 		strBuff.append(getTrimaranObjectFactory().readParametersPlus1());
-		strBuff.append(getTrimaranObjectFactory().readParametersMinus1());
+		strBuff.append(getTrimaranObjectFactory().readParametersMoins1());
 		strBuff.append(getTrimaranObjectFactory().readAccessPartiel());
 		strBuff.append(getTrimaranObjectFactory().readTempsFonctionnement());
 		strBuff.append(getTrimaranObjectFactory().readEnergieIndex());
 		strBuff.append(getTrimaranObjectFactory().readArreteJournalier());
 		strBuff.append(getTrimaranObjectFactory().readArreteProgrammables());
 		strBuff.append(getTrimaranObjectFactory().readProgrammablesIndex());
+//		strBuff.append(getTrimaranObjectFactory().readPMaxMois());
+//		strBuff.append(getTrimaranObjectFactory().readDureesPnonGarantie());
 		
 		return strBuff.toString();
 	}

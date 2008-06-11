@@ -5,7 +5,6 @@ package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.TimeZone;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;

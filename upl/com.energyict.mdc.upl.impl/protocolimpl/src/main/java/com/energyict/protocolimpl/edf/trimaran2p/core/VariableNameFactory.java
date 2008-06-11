@@ -32,6 +32,9 @@ public class VariableNameFactory {
 		list.add(new VariableName("Programmable jour", 120, Unit.get("kWh"), 1, 8, 255, VariableName.ARRETES_PROGRAMMABLES));
 		list.add(new VariableName("Programmable mois", 128, Unit.get("kWh"), 1, 8, 255, VariableName.ARRETES_PROGRAMMABLES));
 		
+		list.add(new VariableName("PMaxMois", 104, Unit.get("kW"), 1, 6, 255, VariableName.PMAX));	// TODO watch out for the dubble coding of 104!
+		list.add(new VariableName("Durees non Garantie", 118, Unit.get("min"), 1, 37, 255, VariableName.DUREE_DEPASSEMENT));
+		
 	}
 
 	/**

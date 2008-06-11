@@ -53,11 +53,11 @@ public class CourbeChargePartielle2 extends AbstractTrimaranObject {
     
     protected void parse(byte[] data) throws IOException {
     	
-        System.out.println("GN_DEBUG> write to file");
-        File file = new File("c://TEST_FILES/CourbeCharge_par2.bin");
-        FileOutputStream fos = new FileOutputStream(file);
-        fos.write(data);
-        fos.close();
+//        System.out.println("GN_DEBUG> write to file");
+//        File file = new File("c://TEST_FILES/CourbeCharge_par2.bin");
+//        FileOutputStream fos = new FileOutputStream(file);
+//        fos.write(data);
+//        fos.close();
     	
         int offset=0;
         DataContainer dc = new DataContainer();
