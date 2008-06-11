@@ -3,7 +3,10 @@
  */
 package com.energyict.protocolimpl.edf.trimaran2p;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -22,7 +25,7 @@ import com.energyict.protocolimpl.edf.trimarandlms.common.VariableName;
 public class RegisterFactory {
 	
 	Trimaran2P trimaran2P;
-	private List registers;
+	private ArrayList registers;
 	
 	private ObisCode tempFonctionne = ObisCode.fromString("0.1.96.8.1.255");
 	
@@ -48,6 +51,16 @@ public class RegisterFactory {
 		buildEnergieRegisters();
 		buildTempFonctionnementRegisters();
 		buildArretesRegisters();
+		
+//    	System.out.println("GN_DEBUG> write to file");
+//    	File file = new File("c://TEST_FILES/BuildedRegisters.bin");
+//    	FileOutputStream fos = new FileOutputStream(file);
+//    	ObjectOutputStream oos = new ObjectOutputStream(fos);
+////    	fos.write(data);
+//    	oos.writeObject(registers);
+//    	oos.close();
+//    	fos.close();
+		
 	}
 
 	private void buildTempFonctionnementRegisters() throws IOException {

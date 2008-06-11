@@ -4,6 +4,7 @@
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -15,9 +16,9 @@ import com.energyict.protocolimpl.edf.trimarandlms.common.VariableName;
  * @author gna
  *
  */
-public class VariableNameFactory {
+public class VariableNameFactory implements Serializable{
 	
-	static List list = new ArrayList();
+	static ArrayList list = new ArrayList();
 	
 	static {
 		list.add(new VariableName("ParametresPlus1", 40, Unit.get("W"), 1, 129, 2, VariableName.ABSTRACT));

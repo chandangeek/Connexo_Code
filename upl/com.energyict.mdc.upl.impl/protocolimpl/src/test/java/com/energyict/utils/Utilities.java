@@ -8,6 +8,10 @@ import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.LinkException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
@@ -64,6 +68,22 @@ public class Utilities {
 		return rtu;
 	}
 	
+	/**
+	 * @param COM1 - 9600 - NO Parity - 1 - 60000(timeOut in ms)
+	 * @return new dialer
+	 * 
+	 */
+	public static Dialer getNewDialer() throws LinkException, IOException{
+		Dialer dialer=null;
+        dialer =DialerFactory.getDirectDialer().newDialer();
+        dialer.init("COM1");
+        dialer.connect("",60000); 
+        dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
+                SerialCommunicationChannel.DATABITS_8,
+                SerialCommunicationChannel.PARITY_NONE,
+                SerialCommunicationChannel.STOPBITS_1);
+		return dialer;
+	}
 	
     public static MeteringWarehouse mw() {
         return MeteringWarehouse.getCurrent();

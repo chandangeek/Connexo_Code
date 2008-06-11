@@ -102,7 +102,7 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	}
 
 	@Override
-	protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
+	public ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
 		
 		setAPSEFactory(new APSEPDUFactory(this, getAPSEParameters()));
 		setDLMSPDUFactory(new DLMSPDUFactory(this));
@@ -138,7 +138,7 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	}
 
 	@Override
-	protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+	public void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 		setT1Timeout(Integer.parseInt(properties.getProperty("T1Timeout","5000").trim()));
 		setSourceTransportAddress(Integer.parseInt(properties.getProperty("STSAP","0").trim()));
 		setDestinationTransportAddress(Integer.parseInt(properties.getProperty("DTSAP","2").trim()));
@@ -193,7 +193,7 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 
 	@Override
 	public void setTime() throws IOException {
-		throw new UnsupportedException();
+		throw new UnsupportedException("Setting time in Trimaran meter is not supported.");
 	}
 	
 	protected String getRegistersInfo(int extendedLogging) throws IOException{
@@ -266,28 +266,28 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	/**
 	 * @param factory the aPSEFactory to set
 	 */
-	protected void setAPSEFactory(APSEPDUFactory factory) {
+	public void setAPSEFactory(APSEPDUFactory factory) {
 		aPSEFactory = factory;
 	}
 
 	/**
 	 * @return the aPSEParameters
 	 */
-	protected APSEParameters getAPSEParameters() {
+	public APSEParameters getAPSEParameters() {
 		return aPSEParameters;
 	}
 
 	/**
 	 * @param parameters the aPSEParameters to set
 	 */
-	protected void setAPSEParameters(APSEParameters parameters) {
+	private void setAPSEParameters(APSEParameters parameters) {
 		aPSEParameters = parameters;
 	}
 
 	/**
 	 * @param factory the dLMSPDUFactory to set
 	 */
-	protected void setDLMSPDUFactory(DLMSPDUFactory factory) {
+	public void setDLMSPDUFactory(DLMSPDUFactory factory) {
 		dLMSPDUFactory = factory;
 	}
 

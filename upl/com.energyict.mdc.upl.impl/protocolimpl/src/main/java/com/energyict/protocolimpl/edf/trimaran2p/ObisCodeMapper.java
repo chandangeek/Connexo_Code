@@ -199,39 +199,6 @@ public class ObisCodeMapper {
 					throw new NoSuchRegisterException("Register with obisCode: " + obisCode.toString() + " is not supported.");
 			}
 		}
-			
-		
-		
-//		else if(register.getVariableName().isARRETES_PROGRAMMABLES()){
-//			Programmables programmables = null;
-//			if(obisCode.getF() == 0){
-//				programmables = getTrimaran2P().getTrimaranObjectFactory().readProgrammablesIndex().getProgrammalbes(register.getVariableName().getCode());
-//				switch(obisCode.getC()){
-//				case 1:{
-//					quan = programmables.
-//				};break;
-//				case 2:{
-//					quan = arreteJournalier.getIxJour(1);
-//				};break;
-//				case 5:{
-//					quan = arreteJournalier.getIxJour(2);
-//				};break;
-//				case 6:{
-//					quan = arreteJournalier.getIxJour(4);
-//				};break;
-//				case 7:{
-//					quan = arreteJournalier.getIxJour(3);
-//				};break;
-//				case 8:{
-//					quan = arreteJournalier.getIxJour(5);
-//				};break;
-//				default:{
-//					throw new NoSuchRegisterException("Register with obisCode: " + obisCode.toString() + " is not supported.");
-//				}
-//				}
-//			}
-//		}
-		
 		throw new NoSuchRegisterException("Register with obisCode: " + obisCode.toString() + " is not supported.");
 	}
 

@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.edf.trimarandlms.common;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import com.energyict.obis.ObisCode;
 
@@ -18,7 +19,7 @@ import com.energyict.obis.ObisCode;
  *
  * @author Koen
  */
-public class Register {
+public class Register implements Serializable{
     
     private VariableName variableName;
     private int index;

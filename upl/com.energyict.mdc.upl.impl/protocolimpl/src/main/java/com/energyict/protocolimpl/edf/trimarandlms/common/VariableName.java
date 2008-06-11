@@ -10,13 +10,15 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.common;
 
+import java.io.Serializable;
+
 import com.energyict.cbo.*;
 
 /**
  *
  * @author Koen
  */
-public class VariableName {
+public class VariableName implements Serializable{
     
     
     public static final int ENERGIE = 0;

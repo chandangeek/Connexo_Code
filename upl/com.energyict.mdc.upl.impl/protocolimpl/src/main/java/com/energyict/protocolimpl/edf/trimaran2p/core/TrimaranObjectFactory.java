@@ -31,8 +31,8 @@ public class TrimaranObjectFactory {
 	private PMaxMois pMaxMois = null;
 	private Trimaran2P trimaran;
 	
-	private final int brute = 56;
-	private final int nette = 64;
+	protected final int brute = 56;
+	protected final int nette = 64;
 	private final int jour = 120;
 	private final int mois = 128;
 
@@ -65,7 +65,7 @@ public class TrimaranObjectFactory {
 	
 	/**
 	 * @param
-	 * @return 
+	 * @return parameters
 	 * @throws IOException 
 	 */
 	public Parameters readParameters() throws IOException{
@@ -156,7 +156,7 @@ public class TrimaranObjectFactory {
 		return pir;
 	}
 
-	private EnergieIndexReader readEnergieIndexReader(int variableName) throws IOException{
+	protected EnergieIndexReader readEnergieIndexReader(int variableName) throws IOException{
 		EnergieIndexReader eir = new EnergieIndexReader(this);
 		eir.setVariableName(variableName);
 		eir.read();
@@ -185,12 +185,12 @@ public class TrimaranObjectFactory {
     }
 
     protected void writeAccessPartiel(Date dateAccess) throws IOException {
-        AccessPartiel obj = new AccessPartiel(this);
-        obj.setDateAccess(dateAccess);
-        obj.setNomAccess(1);
-        if (DEBUG>=1) System.out.println("GN_DEBUG> AccesPartiel: " + obj.toString());
-        if (DEBUG>=1) System.out.println("GN_DEBUG> The DateType: " + new DateType(obj.getDateAccess(), obj.getTrimaranObjectFactory().getTrimaran().getTimeZone()));
-        obj.write();
+        AccessPartiel acp = new AccessPartiel(this);
+        acp.setDateAccess(dateAccess);
+        acp.setNomAccess(1);
+        if (DEBUG>=1) System.out.println("GN_DEBUG> AccesPartiel: " + acp.toString());
+        if (DEBUG>=1) System.out.println("GN_DEBUG> The DateType: " + new DateType(acp.getDateAccess(), acp.getTrimaranObjectFactory().getTrimaran().getTimeZone()));
+        acp.write();
     }
     
     protected CourbeChargePartielle1 getCourbeChargePartielle1() throws IOException {
