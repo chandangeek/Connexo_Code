@@ -142,18 +142,10 @@ public class ObisCodeMapper {
             registerName = "CummMainVAImport";
         } else if (obisCode.getC() == 10) {
             registerName = "CummMainVAExport";
-        } else if (obisCode.getC() == 128) {
-            if (read) {
-                CustDefRegConfig cdrc = (CustDefRegConfig)rFactory.getRegister("CustDefRegConfig");
-                unit = EnergyTypeCode.getUnitFromRegSource(cdrc.getRegSource(0),true);
-            }
-            registerName = "CummMainCustDef1";
-        } else if (obisCode.getC() == 129) {
-            if (read) {
-                CustDefRegConfig cdrc = (CustDefRegConfig)rFactory.getRegister("CustDefRegConfig");
-                unit = EnergyTypeCode.getUnitFromRegSource(cdrc.getRegSource(1),true);
-            }
-            registerName = "CummMainCustDef2";
+        } else if (obisCode.getC() == 3) {
+            registerName = "CummMainvarhImport";
+        } else if (obisCode.getC() == 4) {
+            registerName = "CummMainvarhExport";
         }
         
         else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");

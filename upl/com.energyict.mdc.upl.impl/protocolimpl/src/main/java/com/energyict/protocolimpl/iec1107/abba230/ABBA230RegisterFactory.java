@@ -29,8 +29,8 @@ public class ABBA230RegisterFactory {
     private ABBA230Register cTPrimary;
     private ABBA230Register cTPrimaryAndSecundary;
     private ABBA230Register cTSecundary;
-    private ABBA230Register cummMainCustDef1;
-    private ABBA230Register cummMainCustDef2;
+    private ABBA230Register cummMainvarhImport;
+    private ABBA230Register cummMainvarhExport;
     private ABBA230Register cummMainExport;
     private ABBA230Register cummMainImport;
     private ABBA230Register cummMainQ1;
@@ -127,13 +127,6 @@ public class ABBA230RegisterFactory {
         return cTSecundary;
     }
 
-    public ABBA230Register getCummMainCustDef1() {
-        return cummMainCustDef1;
-    }
-
-    public ABBA230Register getCummMainCustDef2() {
-        return cummMainCustDef2;
-    }
 
     public ABBA230Register getCummMainExport() {
         return cummMainExport;
@@ -361,8 +354,8 @@ public class ABBA230RegisterFactory {
         cummMainVAImport = cr("507", "CummMainVAImport", ABBA230RegisterData.ABBA_REGISTER,48,8,mvah);
         cummMainVAExport = cr("507", "CummMainVAExport", ABBA230RegisterData.ABBA_REGISTER,56,8,mvah);
         // reserved for future use
-        cummMainCustDef1 = cr("507", "CummMainCustDef1", ABBA230RegisterData.ABBA_REGISTER,112,8,Unit.get(BaseUnit.COUNT,0));
-        cummMainCustDef2 = cr("507", "CummMainCustDef2", ABBA230RegisterData.ABBA_REGISTER,120,8,Unit.get(BaseUnit.COUNT,0));
+        cummMainvarhImport = cr("507", "CummMainvarhImport", ABBA230RegisterData.ABBA_REGISTER,112,8,mvarh);
+        cummMainvarhExport = cr("507", "CummMainvarhExport", ABBA230RegisterData.ABBA_REGISTER,120,8,mvarh);
         
         timeOfUse0 = cr("508", "TimeOfUse0", ABBA230RegisterData.ABBA_REGISTER,0,8,null);
         timeOfUse1 = cr("508", "TimeOfUse1", ABBA230RegisterData.ABBA_REGISTER,8,8,null);
@@ -567,6 +560,14 @@ public class ABBA230RegisterFactory {
         }
         return sb.toString();
     }
+
+	public ABBA230Register getCummMainvarhImport() {
+		return cummMainvarhImport;
+	}
+
+	public ABBA230Register getCummMainvarhExport() {
+		return cummMainvarhExport;
+	}
 
 
     

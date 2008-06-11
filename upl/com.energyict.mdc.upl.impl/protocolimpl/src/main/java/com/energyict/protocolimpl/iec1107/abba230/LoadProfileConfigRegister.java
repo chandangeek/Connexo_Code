@@ -68,7 +68,7 @@ public class LoadProfileConfigRegister {
         int i = 0;
         
         
-        System.out.println("KV_DEBUG> 0x"+Integer.toHexString((int)channelMask[0]&0xff)+""+Integer.toHexString((int)channelMask[1]&0xff));
+        //System.out.println("KV_DEBUG> 0x"+Integer.toHexString((int)channelMask[0]&0xff)+""+Integer.toHexString((int)channelMask[1]&0xff));
         
         if( ( channelMask[1] & 0x01 ) > 0 ) {
             importWh = true;
@@ -141,27 +141,25 @@ public class LoadProfileConfigRegister {
             channelInfo.add( new ChannelInfo( i, "ELSTERA1140_channel_"+ i, u ) );
             i = i + 1;
         }
-/*        KV_DEBUGGING
         if( ( channelMask[0] & 0x40 ) > 0 ) {
             customerDefined1 = true;
-            ABBA1140Register r = rFactory.getCummMainCustDef1();
+            ABBA230Register r = rFactory.getCummMainvarhImport();
             register.add( r );
-            CustDefRegConfig cd = (CustDefRegConfig)rFactory.getRegister(rFactory.getCustDefRegConfig());
-            Unit unit = EnergyTypeCode.getUnitFromRegSource(cd.getRegSource(0),true).getFlowUnit();
-            channelInfo.add( new ChannelInfo( i, "ELSTERA1140_channel_"+ i, unit ) );
+            Unit u = r.getUnit().getFlowUnit();
+            channelInfo.add( new ChannelInfo( i, "ELSTERA1140_channel_"+ i, u ) );
             i = i + 1;
         }
         
         if( ( channelMask[0] & 0x80 ) > 0 ) {
             customerDefined2 = true;
-            ABBA1140Register r = rFactory.getCummMainCustDef2();
+            ABBA230Register r = rFactory.getCummMainvarhExport();
             register.add( r );
-            CustDefRegConfig cd = (CustDefRegConfig)rFactory.getRegister(rFactory.getCustDefRegConfig());
-            Unit unit = EnergyTypeCode.getUnitFromRegSource(cd.getRegSource(1),true).getFlowUnit();
-            channelInfo.add( new ChannelInfo( i, "ELSTERA1140_channel_"+ i, unit ) );
+            register.add( r );
+            Unit u = r.getUnit().getFlowUnit();
+            channelInfo.add( new ChannelInfo( i, "ELSTERA1140_channel_"+ i, u ) );
             i = i + 1;
         }
-*/      
+      
     }
 
     int getNumberRegisters() {
