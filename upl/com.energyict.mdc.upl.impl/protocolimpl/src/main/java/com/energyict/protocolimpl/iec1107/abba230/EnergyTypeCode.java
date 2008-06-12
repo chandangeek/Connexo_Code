@@ -24,8 +24,8 @@ public class EnergyTypeCode {
         list.add(new EnergyTypeCode(6,Unit.get(BaseUnit.VOLTAMPEREHOUR,-3),9,"import apparent"));  
         list.add(new EnergyTypeCode(7,Unit.get(BaseUnit.VOLTAMPEREHOUR,-3),10,"export apparent"));  
         
-        list.add(new EnergyTypeCode(14,Unit.get(BaseUnit.COUNT,0),128,"customer defined 1"));  
-        list.add(new EnergyTypeCode(15,Unit.get(BaseUnit.COUNT,0),129,"customer defined 2"));  
+        list.add(new EnergyTypeCode(14,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),3,"reactive import"));  
+        list.add(new EnergyTypeCode(15,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),4,"reactive export"));  
     }
     
     int regSource;

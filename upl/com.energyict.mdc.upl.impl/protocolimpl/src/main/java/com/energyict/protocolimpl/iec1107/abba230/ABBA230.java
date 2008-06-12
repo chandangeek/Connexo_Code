@@ -83,7 +83,7 @@ public class ABBA230 implements
     final static int PD_ROUNDTRIP_CORRECTION = 0;
     final static int PD_SECURITY_LEVEL = 2;
     final static int PD_EXTENDED_LOGGING = 0;
-    final static int PD_IEC1107_COMPATIBLE = 0;
+    final static int PD_IEC1107_COMPATIBLE = 1;
     final static int PD_ECHO_CANCELING = 0;
     
     /**
