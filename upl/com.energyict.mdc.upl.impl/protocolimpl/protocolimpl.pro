@@ -195,3 +195,5 @@
 
 -keepnames class com.energyict.protocolimpl.instromet.v444.Instromet444
 
+-keepnames class com.energyict.protocolimpl.iec1107.abba230.ABBA230
+
