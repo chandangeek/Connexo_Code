@@ -55,6 +55,7 @@ public class ABBA230RegisterFactory {
     private ABBA230Register loadProfile64Blocks;
     private ABBA230Register loadProfileConfiguration;
     private ABBA230Register loadProfileReadByDate;
+    private ABBA230Register loadProfileByDate64Blocks;
     private ABBA230Register loadProfileSet;
     private ABBA230Register maximumDemand0;
     private ABBA230Register maximumDemand1;
@@ -399,6 +400,7 @@ public class ABBA230RegisterFactory {
         loadProfile256Blocks = cr("551", "LoadProfile256Blocks", ABBA230RegisterData.ABBA_HEX,2,2, null);
         
         loadProfileReadByDate = cr("554", "LoadProfileReadByDate", ABBA230RegisterData.ABBA_LOAD_PROFILE_BY_DATE,0, 2, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
+        loadProfileByDate64Blocks = cr("554", "LoadProfileByDate64Blocks", ABBA230RegisterData.ABBA_HEX,0,2, null);
         
         systemStatus = cr("724", "SystemStatus", ABBA230RegisterData.ABBA_SYSTEMSTATUS,0,4, null);
         
@@ -567,6 +569,10 @@ public class ABBA230RegisterFactory {
 
 	public ABBA230Register getCummMainvarhExport() {
 		return cummMainvarhExport;
+	}
+
+	public ABBA230Register getLoadProfileByDate64Blocks() {
+		return loadProfileByDate64Blocks;
 	}
 
 

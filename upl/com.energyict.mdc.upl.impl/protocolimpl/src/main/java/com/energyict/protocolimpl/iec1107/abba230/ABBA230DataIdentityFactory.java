@@ -135,6 +135,7 @@ public class ABBA230DataIdentityFactory {
         add("543", 457, 15 ,ABBA230DataIdentity.STREAMEABLE);
         // Configure Load Profile Read By Date
         add("554", 8, ABBA230DataIdentity.NOT_STREAMEABLE );
+        
     }
     
     private void add(String id, int length, boolean streamable ){

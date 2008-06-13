@@ -137,13 +137,15 @@ public class ABBA230Profile {
     
     private ProfileData doGetProfileData( boolean includeEvents ) throws IOException {
         byte[] data;
-        if (protocolLink.isIEC1107Compatible()) {
-            long nrOfBlocks = ((Long)rFactory.getRegister("LoadProfile64Blocks")).longValue();
+        
+        // the use of stream mode requires a write to the 551 identity. Now we use the 554 identity deading load profile from - to
+        //if (protocolLink.isIEC1107Compatible()) {
+            long nrOfBlocks = ((Long)rFactory.getRegister("LoadProfileByDate64Blocks")).longValue();
             data = rFactory.getRegisterRawData("LoadProfile", (int)nrOfBlocks*64);
-        } else {
-            long nrOfBlocks = ((Long)rFactory.getRegister("LoadProfile256Blocks")).longValue();
-            data = rFactory.getRegisterRawDataStream("LoadProfile",(int)nrOfBlocks);
-        }
+        //} else {
+        //    long nrOfBlocks = ((Long)rFactory.getRegister("LoadProfile256Blocks")).longValue();
+        //    data = rFactory.getRegisterRawDataStream("LoadProfile",(int)nrOfBlocks);
+        //}
         
         ProfileData profileData = parse(new ByteArrayInputStream(data), protocolLink.getNumberOfChannels());
         
