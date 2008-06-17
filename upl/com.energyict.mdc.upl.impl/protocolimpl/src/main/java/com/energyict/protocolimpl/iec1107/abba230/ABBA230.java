@@ -41,6 +41,9 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
@@ -52,6 +55,14 @@ import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
@@ -63,8 +74,12 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 public class ABBA230 implements
         MeterProtocol, ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo,
-        RegisterProtocol {
+        RegisterProtocol, MessageProtocol {
     
+    private static String CONNECT 			= "CONNECT";
+    private static String DISCONNECT 		= "DISCONNECT";
+	
+	
     final static long FORCE_DELAY = 300;
     
     /** Property keys specific for A140 protocol. */
@@ -608,6 +623,38 @@ public class ABBA230 implements
      * @see com.energyict.protocol.MeterProtocol#getRegister(java.lang.String)
      */
     public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    	
+/*    	
+    	long val = ((Long)rFactory.getRegister("ContactorStatus")).longValue();
+    	System.out.println("status -> "+val);
+    	
+    	if (val == 0) {
+	    	rFactory.setRegister("ContactorStatus",new byte[]{1});
+	    	try { Thread.sleep(5000); } catch(InterruptedException e) {}
+	    	System.out.println("should read 1, open contactor "+((Long)rFactory.getRegister("ContactorStatus")).longValue());
+    	}
+    	else {
+    		rFactory.setRegister("ContactorCloser",new byte[]{0});
+	    	try { Thread.sleep(5000); } catch(InterruptedException e) {}
+	    	System.out.println("should read 0, open contactor "+((Long)rFactory.getRegister("ContactorStatus")).longValue());
+    	}
+    	
+    	rFactory.setRegister("ContactorStatus",new byte[]{0});
+    	rFactory.setRegister("ContactorCloser",new byte[]{0});
+    	try { Thread.sleep(5000); } catch(InterruptedException e) {}
+    	System.out.println("should read 0, closed contactor "+((Long)rFactory.getRegister("ContactorStatus")).longValue());
+    	
+    	rFactory.setRegister("ContactorStatus",new byte[]{1});
+    	try { Thread.sleep(5000); } catch(InterruptedException e) {}
+    	System.out.println("should read 1, open contactor "+((Long)rFactory.getRegister("ContactorStatus")).longValue());
+    	
+    	rFactory.setRegister("ContactorStatus",new byte[]{0});
+    	rFactory.setRegister("ContactorCloser",new byte[]{0});
+    	try { Thread.sleep(5000); } catch(InterruptedException e) {}
+    	System.out.println("should read 0, closed contactor "+((Long)rFactory.getRegister("ContactorStatus")).longValue());
+    	
+    	return "";
+*/    	
         throw new UnsupportedException( "getRegister() is not supported" );
     }
     
@@ -789,5 +836,99 @@ public class ABBA230 implements
         
     }
     
+	public List getMessageCategories() {
+        List theCategories = new ArrayList();
+        MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
+        MessageSpec msgSpec = addBasicMsg("Disconnect meter", DISCONNECT, false);
+        cat.addMessageSpec(msgSpec);
+        msgSpec = addBasicMsg("Connect meter", CONNECT, false);
+        cat.addMessageSpec(msgSpec);
+        theCategories.add(cat);
+        return theCategories;
+	}
+
+    private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
     
+	public String writeMessage(Message msg) {
+		return msg.write(this);
+	}
+
+	public String writeTag(MessageTag msgTag) {
+        StringBuffer buf = new StringBuffer();
+        
+        // a. Opening tag
+        buf.append("<");
+        buf.append(msgTag.getName());
+        
+        // b. Attributes
+        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
+            MessageAttribute att = (MessageAttribute) it.next();
+            if (att.getValue() == null || att.getValue().length() == 0)
+                continue;
+            buf.append(" ").append(att.getSpec().getName());
+            buf.append("=").append('"').append(att.getValue()).append('"');
+        }
+        if (msgTag.getSubElements().isEmpty()) {
+            buf.append("/>");
+            return buf.toString();
+        }
+        buf.append(">");
+        // c. sub elements
+        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
+            MessageElement elt = (MessageElement) it.next();
+            if (elt.isTag())
+                buf.append(writeTag((MessageTag) elt));
+            else if (elt.isValue()) {
+                String value = writeValue((MessageValue) elt);
+                if (value == null || value.length() == 0)
+                    return "";
+                buf.append(value);
+            }
+        }
+        
+        // d. Closing tag
+        buf.append("</");
+        buf.append(msgTag.getName());
+        buf.append(">");
+        
+        return buf.toString();
+	}
+
+	public String writeValue(MessageValue msgValue) {
+		return msgValue.getValue();
+	}
+
+	public void applyMessages(List messageEntries) throws IOException {
+		
+	}
+
+	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
+		
+		try {
+			if (messageEntry.getContent().indexOf("<"+DISCONNECT)>=0) {
+		    	long val = ((Long)rFactory.getRegister("ContactorStatus")).longValue();
+		    	if (val == 0) {
+		        	rFactory.setRegister("ContactorStatus",new byte[]{1});
+		    	}
+			}
+			else if (messageEntry.getContent().indexOf("<"+CONNECT)>=0) {
+		    	long val = ((Long)rFactory.getRegister("ContactorStatus")).longValue();
+		    	if (val == 1) {
+		        	rFactory.setRegister("ContactorStatus",new byte[]{0});
+		        	rFactory.setRegister("ContactorCloser",new byte[]{0});
+		    	}
+			}
+			return MessageResult.createSuccess(messageEntry);
+		}
+		catch(IOException e) {
+			return MessageResult.createFailed(messageEntry);
+		}
+	}
+	
+	
 }

@@ -103,10 +103,14 @@ public class ABBA230DataIdentityFactory {
     
     private void initRegisters() {
         
+        add("411", 1,ABBA230DataIdentity.NOT_STREAMEABLE);
+        add("412", 1,ABBA230DataIdentity.NOT_STREAMEABLE);
+        
         add("798", 16,ABBA230DataIdentity.NOT_STREAMEABLE);
         add("795", 8,ABBA230DataIdentity.NOT_STREAMEABLE);
         add("861", 7,ABBA230DataIdentity.NOT_STREAMEABLE);
         add("507", 128,ABBA230DataIdentity.NOT_STREAMEABLE);
+        add("508", 128,ABBA230DataIdentity.NOT_STREAMEABLE);
         add("509", 36,ABBA230DataIdentity.NOT_STREAMEABLE);
         add("510", 144,ABBA230DataIdentity.NOT_STREAMEABLE);
         // ct primary and secundary current

@@ -79,7 +79,7 @@ abstract public class ABBA230RegisterData {
                 return null;
                 
             case ABBA_HEX:
-                return null;
+                return buildHex((byte[])object);
                 
             case ABBA_HEX_LE:
                 return buildHexLE((Long)object);
@@ -102,6 +102,13 @@ abstract public class ABBA230RegisterData {
         ProtocolUtils.val2HEXascii((int)lVal&0xFF,data,0);
         ProtocolUtils.val2HEXascii((int)(lVal>>8)&0xFF,data,2);
         
+        return new String(data);
+    }
+    
+    private String buildHex(byte[] val) {
+        byte[] data = new byte[val.length*2];
+        for (int i=0;i<val.length;i++)
+        	ProtocolUtils.val2HEXascii((int)val[i]&0xFF,data,i*2);
         return new String(data);
     }
     

@@ -83,6 +83,7 @@ public class ABBA230RegisterFactory {
     private ABBA230Register timeOfUse5;
     private ABBA230Register timeOfUse6;
     private ABBA230Register timeOfUse7;
+    private ABBA230Register contactorStatus,contactorCloser;
     
     /**
      * Creates a new instance of ABBA1140RegisterFactory
@@ -415,6 +416,9 @@ public class ABBA230RegisterFactory {
         loadProfileConfiguration = cr("777", "LoadProfileConfiguration", ABBA230RegisterData.ABBA_LOAD_PROFILE_CONFIG,0,2, null);
         integrationPeriod = cr("878", "IntegrationPeriod", ABBA230RegisterData.ABBA_INTEGRATION_PERIOD,0,1, null);
         
+        contactorStatus = cr("411", "ContactorStatus", ABBA230RegisterData.ABBA_HEX,0,1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
+        contactorCloser = cr("412", "ContactorCloser", ABBA230RegisterData.ABBA_HEX,0,1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
+        
     }
     
     /** factory method for ABBARegisters */
@@ -573,6 +577,14 @@ public class ABBA230RegisterFactory {
 
 	public ABBA230Register getLoadProfileByDate64Blocks() {
 		return loadProfileByDate64Blocks;
+	}
+
+	public ABBA230Register getContactorStatus() {
+		return contactorStatus;
+	}
+
+	public void setContactorStatus(ABBA230Register contactorStatus) {
+		this.contactorStatus = contactorStatus;
 	}
 
 
