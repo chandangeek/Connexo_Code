@@ -911,12 +911,15 @@ public class ABBA230 implements
 		
 		try {
 			if (messageEntry.getContent().indexOf("<"+DISCONNECT)>=0) {
+				logger.info("************************* DISCONNECT CONTACTOR *************************");
 		    	long val = ((Long)rFactory.getRegister("ContactorStatus")).longValue();
 		    	if (val == 0) {
+		    		
 		        	rFactory.setRegister("ContactorStatus",new byte[]{1});
 		    	}
 			}
 			else if (messageEntry.getContent().indexOf("<"+CONNECT)>=0) {
+				logger.info("************************* CONNECT CONTACTOR *************************");
 		    	long val = ((Long)rFactory.getRegister("ContactorStatus")).longValue();
 		    	if (val == 1) {
 		        	rFactory.setRegister("ContactorStatus",new byte[]{0});
