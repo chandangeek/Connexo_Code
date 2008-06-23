@@ -126,14 +126,13 @@ public class Trimaran extends AbstractProtocol {
         setInfoTypeHalfDuplex(Integer.parseInt(properties.getProperty("HalfDuplex","50").trim())); // TC  
         //setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","6000").trim())); // TL
         
-        // KV_DEBUG
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","22000").trim())); // TSE (session layer)
         setAckTimeout(Integer.parseInt(properties.getProperty("ACKTimeoutTL","5000").trim())); // TL (datalink layer)
         setInterKarTimeout(Integer.parseInt(properties.getProperty("InterCharTimeout","400").trim())); // 
         
-//        setCommandTimeout(Integer.parseInt(properties.getProperty("CommandTimeout","3000").trim())); // Command retry timeout
-        setCommandTimeout(Integer.parseInt(properties.getProperty("CommandTimeout","600").trim())); // Command retry timeout
+        setCommandTimeout(Integer.parseInt(properties.getProperty("CommandTimeout","3000").trim())); // Command retry timeout
         setFlushTimeout(Integer.parseInt(properties.getProperty("FlushTimeout","500").trim())); // Timeout to wait before sending a new command for receiving duplicate frames send by meter
+        
     }
     
     protected List doGetOptionalKeys() {
@@ -372,5 +371,4 @@ public class Trimaran extends AbstractProtocol {
     public void setFlushTimeout(int flushTimeout) {
         this.flushTimeout = flushTimeout;
     }
-
 }

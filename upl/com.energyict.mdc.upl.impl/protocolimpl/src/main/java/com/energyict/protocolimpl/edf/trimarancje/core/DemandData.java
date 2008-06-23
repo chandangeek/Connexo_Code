@@ -94,8 +94,8 @@ public class DemandData extends AbstractTable {
     public void parse(byte[] data) throws IOException { 
         this.setData(data);
         
-//        System.out.println("KV_DEBUG> write to file");
-//        File file = new File("c://TEST_FILES/A12E_TJ_Actaris.bin");
+//        System.out.println("GN_DEBUG> write to file");
+//        File file = new File("c://TEST_FILES/H3296.bin");
 //        FileOutputStream fos = new FileOutputStream(file);
 //        fos.write(data);
 //        fos.close();
@@ -119,7 +119,7 @@ public class DemandData extends AbstractTable {
                     
                 if ((temp&0x8000)==0) {
                 	if(traceCalendar != null)
-                		traceCalendar.add(Calendar.SECOND, 300);
+                		traceCalendar.add(Calendar.SECOND, getProfileInterval());
                     if (DEBUG>=2) System.out.println("value = "+temp); 
                     infoDeCoupure = (temp&0x6000) >> 13;
                     if( (demandValues != null) && (posteHoraire == -1) ){
@@ -263,7 +263,7 @@ public class DemandData extends AbstractTable {
 	private void fillInTheGaps(Calendar cal, Calendar traceCalendar, DemandValues demandValues) {
 		while(cal.getTimeInMillis() != traceCalendar.getTimeInMillis()){
 			addValue(demandValues, new Interval(valDePuissance, IntervalStateBits.MISSING));
-			traceCalendar.add(Calendar.SECOND, 300);
+			traceCalendar.add(Calendar.SECOND, getProfileInterval());
 		}
 	}
 
@@ -293,7 +293,7 @@ public class DemandData extends AbstractTable {
         try {
             DemandData dv = new DemandData(null);
                     
-	        File file = new File("c://TEST_FILES/A12E_TJ_Actaris.bin");
+	        File file = new File("c://TEST_FILES/H3296.bin");
 	        FileInputStream fis = new FileInputStream(file);
 	        byte[] data=new byte[(int)file.length()];
 	        fis.read(data);
@@ -311,6 +311,23 @@ public class DemandData extends AbstractTable {
             e.printStackTrace();
         }
         
+//        byte[] data = new byte[4];
+//        byte[] data2 = new byte[4];
+//    	byte test = ProtocolUtils.hex2BCD(10);
+//    	byte test1 = ProtocolUtils.hex2BCD(15);
+//    	byte test2 = ProtocolUtils.hex2BCD(20);
+//    	byte test3 = ProtocolUtils.hex2BCD(25);
+//    	data[0] = test;
+//    	data[1] = test1;
+//    	data[2] = test2;
+//    	data[3] = test3;
+//    	
+//    	data2[0] = 0x10;
+//    	data2[1] = 0x15;
+//    	data2[2] = 0x20;
+//    	data2[3] = 0x25;
+    	
+    	
    }
 
     public List getDemandValuesList() {
