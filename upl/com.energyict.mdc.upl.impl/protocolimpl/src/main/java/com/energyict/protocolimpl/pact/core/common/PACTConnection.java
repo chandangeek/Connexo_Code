@@ -233,7 +233,6 @@ public class PACTConnection extends Connection {
                         throw new NestedIOException(new IOException(),"PACTConnection, sendRequest(PACTConnection.RTC), max retry (data=="+(data==null?"null":"0x"+Integer.toHexString((int)data[0]))+")");
                     }
                     delayAndFlush(2000);
-                    Thread.sleep(2000);
                     // retry...
                 }
                 else return ProtocolUtils.getSubArray2(data,1,data.length-1);
@@ -244,18 +243,9 @@ public class PACTConnection extends Connection {
                         throw new NestedIOException(e);
                     }
                     delayAndFlush(2000);
-                    try {
-						Thread.sleep(2000);
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
                 }
                 else throw new NestedIOException(e);
-            } catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+            }
         } // while(true)           
     } // public byte[] sendRequest(int code)
     

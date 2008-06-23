@@ -22,6 +22,9 @@ public class PACTRegisterFactory {
     
     private static final int DEBUG=0;
     
+    private long timeOffset = 0;
+    private Date oldMeterTime;
+    
     ProtocolLink protocolLink;
     FileTransfer fileTransfer=null;
     
@@ -57,6 +60,8 @@ public class PACTRegisterFactory {
     
     public MeterReadingsInterpreter getMeterReadingsInterpreter() throws NestedIOException, ConnectionException {
         if (meterReadingsInterpreter == null) {
+        	
+        	setTimeOffset();
             
             // get raw meterreading data
             byte[] data=null;
@@ -81,14 +86,31 @@ public class PACTRegisterFactory {
             
             meterReadingsInterpreter = new MeterReadingsInterpreter(data,getProtocolLink());
             meterReadingsInterpreter.parse();
+            setOldMeterDate(meterReadingsInterpreter.getCounters().getMeterDateTime());
             
             if (protocolLink.isExtendedLogging())
                 protocolLink.getLogger().info(meterReadingsInterpreter.toString());
         }
         return meterReadingsInterpreter;
     }
+    
+    private void setTimeOffset(){
+    	this.timeOffset = System.currentTimeMillis();
+    }
+    private long getTimeOffset(){
+    	return this.timeOffset;
+    }
 
-    /** Getter for property fileTransfer.
+    private void setOldMeterDate(Date meterDateTime) {
+    	this.oldMeterTime = meterDateTime;
+	}
+    
+    public Date getCurrentTime(){
+    	return new Date(oldMeterTime.getTime() + System.currentTimeMillis() - getTimeOffset());
+    }
+
+
+	/** Getter for property fileTransfer.
      * @return Value of property fileTransfer.
      *
      */

@@ -41,6 +41,8 @@ GN|02042008|Readout meterTime at different way, if not supported, still the old 
  * @endchanges
  */
 public class PRIPact implements MeterProtocol, ProtocolLink, RegisterProtocol {
+	
+	private int DEBUG = 2;
 
     private TimeZone timeZone;
     private TimeZone registerTimeZone;
@@ -135,7 +137,8 @@ public class PRIPact implements MeterProtocol, ProtocolLink, RegisterProtocol {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.29 $";
+//        return "$Revision: 1.29 $";
+    	return "$Date$";
     }
     
     private void validateMeterIdentification() throws IOException {
@@ -286,51 +289,72 @@ public class PRIPact implements MeterProtocol, ProtocolLink, RegisterProtocol {
         return result;
     }
     
+//    public java.util.Date getTime() throws java.io.IOException {
+//    	long roundTripTime = 0;
+//    	int hour = 0; int min = 0; int sec = 0;
+//    	roundTripTime = Calendar.getInstance().getTime().getTime();
+//		Date oldMeterDateTime = getPactRegisterFactory().getMeterReadingsInterpreter().getCounters().getMeterDateTime();
+//    	Calendar oldCalendar = Calendar.getInstance(getTimeZone());
+//    	String newMeterTime = getNewMeterTime();
+////    	if (!newMeterTime.equalsIgnoreCase("NotSupported")){
+////    		hour	= 	Integer.parseInt(newMeterTime.substring(2, 4));
+////        	min 	=	Integer.parseInt(newMeterTime.substring(5, 7));
+////        	sec		=	Integer.parseInt(newMeterTime.substring(8, 10));
+////        	oldCalendar.set(Calendar.HOUR_OF_DAY, hour);
+////        	oldCalendar.set(Calendar.MINUTE, min);
+////        	oldCalendar.set(Calendar.SECOND, sec);
+////        	roundTripTime = Calendar.getInstance().getTime().getTime() - roundTripTime;
+////        	oldCalendar.setTimeInMillis(oldCalendar.getTimeInMillis() - roundTripTime);
+////    	}
+//    	
+////    	else{
+//    		DateTime dateTime = new DateTime(getPactConnection().sendRequest(PACTConnection.RTC),getTimeZone());
+//    		Date dateTime2 = getPactRegisterFactory().getCurrentTime();
+//    		roundTripTime = Calendar.getInstance().getTime().getTime() - roundTripTime;
+//    		oldCalendar.setTime(dateTime.getDate());
+//    		oldCalendar.setTimeInMillis(oldCalendar.getTimeInMillis() - roundTripTime);
+////    	}
+//    	
+//    	return oldCalendar.getTime();
+//
+//    }
+    
+//    private String getNewMeterTime() throws IOException {
+//		String newMeterTime = null;
+//		int count = 0;
+//    	do{
+//    		if (count >= 3)
+//    			throw new IOException("Error reading the dateTime from meter, will try again next communication.");
+//    		byte[] data = getPactConnection().sendStringRequest("R");
+////    		byte[] data = getPactConnection().sendStringRequest("D");
+//    		newMeterTime = new String(data);
+//    		if (newMeterTime.equalsIgnoreCase("R") || newMeterTime.equalsIgnoreCase("R="))
+//    			return new String("NotSupported");
+//    		count++;
+//		}while( !(newMeterTime.startsWith("R=")) || !(newMeterTime.startsWith(":", 4)) || !(newMeterTime.startsWith(":", 7)) || (newMeterTime.length() != 10) );
+//		return newMeterTime;
+//	}
+    
     public java.util.Date getTime() throws java.io.IOException {
-    	long roundTripTime = 0;
-    	int hour = 0; int min = 0; int sec = 0;
-    	roundTripTime = Calendar.getInstance().getTime().getTime();
-		Date oldMeterDateTime = getPactRegisterFactory().getMeterReadingsInterpreter().getCounters().getMeterDateTime();
-    	Calendar oldCalendar = Calendar.getInstance(getTimeZone());
-    	String newMeterTime = getNewMeterTime();
-    	if (!newMeterTime.equalsIgnoreCase("NotSupported")){
-    		hour	= 	Integer.parseInt(newMeterTime.substring(2, 4));
-        	min 	=	Integer.parseInt(newMeterTime.substring(5, 7));
-        	sec		=	Integer.parseInt(newMeterTime.substring(8, 10));
-        	oldCalendar.set(Calendar.HOUR_OF_DAY, hour);
-        	oldCalendar.set(Calendar.MINUTE, min);
-        	oldCalendar.set(Calendar.SECOND, sec);
-        	roundTripTime = Calendar.getInstance().getTime().getTime() - roundTripTime;
-        	oldCalendar.setTimeInMillis(oldCalendar.getTimeInMillis() - roundTripTime);
-    	}
+    	long roundTripTime = System.currentTimeMillis();
+    	DateTime currentTime;
+    	Date returnDate;
     	
-    	else{
-    		DateTime dateTime = new DateTime(getPactConnection().sendRequest(PACTConnection.RTC),getTimeZone());
-    		roundTripTime = Calendar.getInstance().getTime().getTime() - roundTripTime;
-    		oldCalendar.setTime(dateTime.getDate());
-    		oldCalendar.setTimeInMillis(oldCalendar.getTimeInMillis() - roundTripTime);
-    	}
+    	currentTime = new DateTime(getPactConnection().sendRequest(PACTConnection.RTC), getTimeZone());
+    	if(Math.abs(currentTime.getDate().getTime() - getPactRegisterFactory().getCurrentTime().getTime()) > 60000)
+    		returnDate = getPactRegisterFactory().getCurrentTime();
+    	else
+    		returnDate = currentTime.getDate();
     	
-    	return oldCalendar.getTime();
-
+    	if(DEBUG >=2) System.out.println("SystemTime : " + new Date(System.currentTimeMillis()));
+    	if(DEBUG >=2) System.out.println("OldTime: " + getPactRegisterFactory().getCurrentTime() + " - CurrentTime : " + currentTime.getDate());
+    	
+    	roundTripTime = System.currentTimeMillis() - roundTripTime;
+    	
+    	return new Date(returnDate.getTime() - roundTripTime);
     }
     
-    private String getNewMeterTime() throws IOException {
-		String newMeterTime = null;
-		int count = 0;
-    	do{
-    		if (count >= 3)
-    			throw new IOException("Error reading the dateTime from meter, will try again next communication.");
-    		byte[] data = getPactConnection().sendStringRequest("R");
-//    		byte[] data = getPactConnection().sendStringRequest("D");
-    		newMeterTime = new String(data);
-    		if (newMeterTime.equalsIgnoreCase("R") || newMeterTime.equalsIgnoreCase("R="))
-    			return new String("NotSupported");
-    		count++;
-		}while( !(newMeterTime.startsWith("R=")) || !(newMeterTime.startsWith(":", 4)) || !(newMeterTime.startsWith(":", 7)) || (newMeterTime.length() != 10) );
-		return newMeterTime;
-	}
-
+    
 	public void setTime() throws java.io.IOException {
         Calendar calendar=null;
         calendar = ProtocolUtils.getCalendar(timeZone);
