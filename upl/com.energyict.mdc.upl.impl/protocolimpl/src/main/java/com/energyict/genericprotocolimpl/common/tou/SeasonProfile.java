@@ -19,7 +19,7 @@ public class SeasonProfile {
 	
 	private OctetString name = new OctetString();
 	private CosemCalendar start = new CosemCalendar();
-	private OctetString week = new OctetString();
+	private int week = -1;
 	
 	
 	public SeasonProfile() {
@@ -30,21 +30,21 @@ public class SeasonProfile {
 		super();
 		this.name = new OctetString(name);
 		this.start = new CosemCalendar(calendar,isDaylightSavingsTimeActive);
-		this.week = new OctetString(week);
+		this.week = Integer.parseInt(week);
 	}
 	
 	public SeasonProfile(byte name, byte[] start, byte week){
 		super();
 		this.name = new OctetString(name);
 		this.start = new CosemCalendar(new OctetString(start));
-		this.week = new OctetString(week);
+		this.week = (int)week;
 	}
 	
 	public SeasonProfile(String name, byte[] start, String week){
 		super();
 		this.name = new OctetString(name);
 		this.start = new CosemCalendar(new OctetString(start));
-		this.week = new OctetString(week);
+		this.week = Integer.parseInt(week);
 	}
 
         
@@ -76,11 +76,11 @@ public class SeasonProfile {
 	}
 
 	public byte getWeek() {
-		return week.getOctets()[0];
+		return (byte)week;
 	}
 
 	public void setWeek(byte week) {
-		this.week = new OctetString(week);
+		this.week = (int)week;
 	}
 
 }
