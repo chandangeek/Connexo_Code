@@ -54,6 +54,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                  <maxMemory>512m</maxMemory>
                     <options>
                         <option>-allowaccessmodification</option>
                     </options>
