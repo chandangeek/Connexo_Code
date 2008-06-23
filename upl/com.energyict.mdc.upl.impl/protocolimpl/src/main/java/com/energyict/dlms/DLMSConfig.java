@@ -53,7 +53,7 @@ public class DLMSConfig {
             new DLMSConfig("LGZ",1,1,0,0,0,0,255),
             new DLMSConfig("EMO",1,1,0,0,0,0,255),
             new DLMSConfig("SLB",1,0,0,96,1,255,255),    
-            new DLMSConfig("ISK",1,1,0,0,0,0,255)
+            new DLMSConfig("ISK",1,0,0,96,1,0,255)
     };
      
     final static private DLMSConfig[] meterReading = {
