@@ -32,7 +32,7 @@ public class RegisterFactory {
 	private int[] index = {1, 2, 5, 6 ,7, 8};
 	private int[] indexBrut = {140, 141, 142, 143, 144, 145};
 	private int offsetJour = 10;
-	private int offsetMois = 20;
+	private int offsetArretJour = 20;
 
 	
 	/**
@@ -91,7 +91,7 @@ public class RegisterFactory {
 			for(int j = 0; j < 4; j++){
 				variableName = VariableNameFactory.getVariableName(104);
 				variableName.setObisCField(index[i]);		
-				variableName.setObisFField(j);						//Les indexProgJour
+				variableName.setObisFField(j+offsetArretJour);						//Les indexProgJour
 				registers.add(new Register(variableName, i, 0));
 				if(j < 2){
 					variableName = VariableNameFactory.getVariableName(120);
@@ -100,7 +100,7 @@ public class RegisterFactory {
 					registers.add(new Register(variableName, i, 0));
 					variableName = VariableNameFactory.getVariableName(128);
 					variableName.setObisCField(index[i]);		
-					variableName.setObisFField(j+offsetMois);
+					variableName.setObisFField(j);
 					registers.add(new Register(variableName, i, 0));
 				}
 			}
@@ -109,8 +109,11 @@ public class RegisterFactory {
 
 	/**
 	 * @param args
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
+		RegisterFactory rf = new RegisterFactory();
+		rf.buildRegisters();
 	}
 
 	public Register findRegister(ObisCode obc) throws NoSuchRegisterException {

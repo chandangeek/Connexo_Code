@@ -63,14 +63,12 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 		
 	}
 
-	@Override
 	protected void doConnect() throws IOException {
 		getAPSEFactory().getAuthenticationReqAPSE();
 		getDLMSPDUFactory().getInitiateRequest();
 		getLogger().info(getDLMSPDUFactory().getStatusResponse().toString());
 	}
 
-	@Override
 	protected void doDisConnect() throws IOException {
 		
 	}
@@ -88,7 +86,6 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 		throw new IOException("SerialNumber mismatch! Meter serialNumber = "+serialNumber+", configured serialNumber = "+getInfoTypeSerialNumber());
 	}
 
-	@Override
 	protected List doGetOptionalKeys() {
         List list = new ArrayList(7);
         list.add("T1Timeout");
@@ -101,7 +98,6 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 		return list;
 	}
 
-	@Override
 	public ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
 		
 		setAPSEFactory(new APSEPDUFactory(this, getAPSEParameters()));
@@ -137,7 +133,6 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 		return delayAfterConnect;
 	}
 
-	@Override
 	public void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 		setT1Timeout(Integer.parseInt(properties.getProperty("T1Timeout","5000").trim()));
 		setSourceTransportAddress(Integer.parseInt(properties.getProperty("STSAP","0").trim()));
@@ -174,24 +169,21 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 		return getTrimaranObjectFactory().readParameters().getTCourbeCharge() * 60;
 	}
 
-	@Override
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
 		return getDLMSPDUFactory().getStatusResponse().getStatusIdentifies()[0].toString();
 	}
 
-	@Override
 	public String getProtocolVersion() {
 		return "$Date$";
+//		return "$Revision$";
 	}
 
-	@Override
 	public Date getTime() throws IOException {
 		long roundTrip = System.currentTimeMillis() - getRoundTripStart();
 		long meterTime = getTrimaranObjectFactory().readParameters().getDernierHoroDate().getCalendar().getTimeInMillis();
 		return new Date(meterTime + roundTrip);
 	}
 
-	@Override
 	public void setTime() throws IOException {
 		throw new UnsupportedException("Setting time in Trimaran meter is not supported.");
 	}

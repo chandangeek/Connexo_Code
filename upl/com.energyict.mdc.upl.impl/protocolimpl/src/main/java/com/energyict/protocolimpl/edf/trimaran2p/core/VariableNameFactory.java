@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.edf.trimarandlms.common.VariableName;
