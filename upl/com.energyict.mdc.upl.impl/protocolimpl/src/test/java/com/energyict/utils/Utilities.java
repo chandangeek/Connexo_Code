@@ -50,21 +50,29 @@ public class Utilities {
 	}
 	
 	public static Rtu createRtu(RtuType rtuType) throws SQLException, BusinessException{
-		RtuShadow rtuShadow = new RtuShadow();
+		return createRtu(rtuType, "99999999");
+	}
+	
+	public static Rtu createRtu(RtuType rtuType, String serial) throws SQLException, BusinessException{
+		return createRtu(rtuType, serial, 3600);
+	}
+	
+	public static Rtu createRtu(RtuType rtuType, String serial, int interval) throws SQLException, BusinessException{
+		final RtuShadow rtuShadow = rtuType.newRtuShadow();
 		rtuShadow.setRtuTypeId(rtuType.getId());
 		rtuShadow.setName(rtuType.getName());
 		rtuShadow.setExternalName(rtuType.getName());
-		rtuShadow.setIntervalInSeconds(3600);
-		rtuShadow.setSerialNumber("99999999");
+		rtuShadow.setIntervalInSeconds(interval);
+		rtuShadow.setSerialNumber(serial);
 		Rtu rtu = mw().getRtuFactory().create(rtuShadow);
 		return rtu;
 	}
 	
-	public static Rtu createRtu(RtuType rtuType, String serial) throws SQLException, BusinessException{
-		final RtuShadow rtuShadow = rtuType.newRtuShadow();
-		rtuShadow.setName(rtuType.getName());
-		rtuShadow.setSerialNumber(serial);
-		Rtu rtu = mw().getRtuFactory().create(rtuShadow);
+	public static Rtu addPropertyToRtu(Rtu rtu, String key, String value) throws SQLException, BusinessException{
+		RtuShadow rtuShadow = rtu.getShadow();
+		rtuShadow.getProperties().setProperty(key, value);
+		rtu.delete();
+		rtu = mw().getRtuFactory().create(rtuShadow);
 		return rtu;
 	}
 	
