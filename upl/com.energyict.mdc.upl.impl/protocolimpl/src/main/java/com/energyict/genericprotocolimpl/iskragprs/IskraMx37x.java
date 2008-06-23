@@ -44,7 +44,6 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
@@ -101,6 +100,7 @@ import com.energyict.protocolimpl.dlms.HDLCConnection;
 public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism, Messaging{
 	
 	private int DEBUG = 0;
+	private boolean initCheck = false;
 	
     private Logger 					logger;
     private Properties 				properties;
@@ -256,13 +256,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		validateProperties();
 		init(link.getInputStream(),link.getOutputStream());
 		
-		connect();
 		
         try {
-        	
-        	checkMbusDevices();
-        	checkConfiguration();
-        	stopCacheMechanism();
+        	connect();
         	
         	// Set clock ... if necessary
         	if( communicationProfile.getWriteClock() ) {
@@ -271,6 +267,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         	
         	// Read profiles and events ... if necessary
     		if( (communicationProfile.getReadDemandValues()) && (communicationProfile.getReadMeterEvents()) ){
+    			doTheCheckMethods();
     			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + rtu.getSerialNumber());
     			getProfileData(rtu.getLastReading(), true, loadProfileObisCode);
     			if(mbusDevices[0] != null){
@@ -280,6 +277,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     			}
     		}
     		else if( (communicationProfile.getReadDemandValues()) && !(communicationProfile.getReadMeterEvents()) ){
+    			doTheCheckMethods();
     			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + rtu.getSerialNumber());
     			getProfileData(rtu.getLastReading(), false, loadProfileObisCode);
     			if (mbusDevices[0] != null){
@@ -290,6 +288,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     		
     		// Read registers ... if necessary
     		if( communicationProfile.getReadMeterReadings() ) {
+    			doTheCheckMethods();
     			getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + rtu.getSerialNumber());
     			getRegisters(ELECTRICITY);
     			if (mbusDevices[0] != null){
@@ -305,14 +304,34 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     				mbusDevices[0].sendMeterMessages(this);
     			}
     		}
+    		stopCacheMechanism();
+    		disConnect();
     		
     		getLogger().log(Level.INFO, "Meter with serialnumber " + rtu.getSerialNumber() + " has completely finished.");
         	
 		} catch (ServiceException e) {
+			stopCacheMechanism();
+			disConnect();
 			e.printStackTrace();
 		} catch (ParseException e) {
+			stopCacheMechanism();
+			disConnect();
+			e.printStackTrace();
+		} catch (DLMSConnectionException e) {
+			stopCacheMechanism();
+			disConnect();
 			e.printStackTrace();
 		}
+	}
+	
+	private void doTheCheckMethods() throws IOException, SQLException, BusinessException{
+    	if(!initCheck){
+//    		collectCache();
+        	checkMbusDevices();
+        	checkConfiguration();
+//        	stopCacheMechanism();
+    		initCheck = true;
+    	}
 	}
 	
 	/** Short notation for MeteringWarehouse.getCurrent() */
@@ -419,15 +438,38 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	}
 
 	private void checkMbusDevices() throws IOException, SQLException, BusinessException {
-		long pAddress1 = getCosemObjectFactory().getCosemObject(mbusPrimaryAddress).getValue();
-		if ( pAddress1 != 0){
-			String customerID = getCosemObjectFactory().getData(mbusCustomerID).getString();
-			Rtu rtu = findOrCreateNewMbusDevice(pAddress1, customerID);
-			if (rtu != null) {
-				mbusDevices[0] = new MbusDevice(pAddress1, customerID, rtu, logger);
-				getLogger().log(Level.INFO, 
-						"Meter with serialnumber: " + rtu.getSerialNumber() + 
-						" has an MBus device with serialnumber: " + customerID);
+		
+		String customerID = "";
+		
+		if(this.rtu.getDownstreamRtus().size() > 0){
+			customerID = getCosemObjectFactory().getData(mbusCustomerID).getString();
+			if(((Rtu)rtu.getDownstreamRtus().get(0)).getSerialNumber().equals(customerID)){		// serialNumber mismatch
+				mbusDevices[0] = new MbusDevice(1, customerID, ((Rtu)rtu.getDownstreamRtus().get(0)), logger); // the "1" represents the address
+			}
+			else
+				getLogger().log(Level.SEVERE, "Mbus serialnumber mismatch; serial in EIServer: " + ((Rtu)rtu.getDownstreamRtus().get(0)).getSerialNumber() +
+						", serial in Meter: " + customerID);
+		}
+		else{
+			if(getProperty(RTU_TYPE) != null){
+				long pAddress1 = getCosemObjectFactory().getCosemObject(mbusPrimaryAddress).getValue();
+				if ( pAddress1 != 0){
+					customerID = getCosemObjectFactory().getData(mbusCustomerID).getString();
+					Rtu mbus = findOrCreateNewMbusDevice(pAddress1, customerID);
+					if (mbus != null) {
+					mbusDevices[0] = new MbusDevice(pAddress1, customerID, mbus, logger);
+					getLogger().log(Level.INFO, 
+							"Meter with serialnumber: " + mbus.getSerialNumber() + 
+							" has an MBus device with serialnumber: " + customerID);
+					}
+				}
+			}
+		}
+		
+		if(mbusDevices[0] != null){
+			if (demandScalerUnits[MBUS].getUnitCode() == 0) {
+				RegisterValue scalerRegister = readRegister(mbusScalerUnit);
+				demandScalerUnits[MBUS] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(), scalerRegister.getQuantity().getUnit());
 			}
 		}
 		// TODO complete this if there are more than one Mbus devices on the meters
@@ -510,41 +552,36 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 			
 			dlmsConnection.setIskraWrapper(1);
 			
-			startCacheMechanism(this);
-			
 		} catch (DLMSConnectionException e) {
 			throw new IOException(e.getMessage());
 		}
 	}
 
-	private void connect() {
-		try {
+	private void connect() throws IOException, DLMSConnectionException {
 			getDLMSConnection().connectMAC();
-			
-			new SecureConnection(iSecurityLevelProperty, firmwareVersion, strPassword, getDLMSConnection());
-			
-			collectCache();
-			
-            if (!verifyMeterID()) 
-                throw new IOException("Iskra Mx37x, connect, Wrong DeviceID!, settings="+strID+", meter="+getDeviceAddress());
-
-            if (!verifyMeterSerialNR()) 
-                throw new IOException("Iskra Mx37x, connect, Wrong SerialNR!, settings="+serialNumber+", meter="+getSerialNumber());
-            
-            if (extendedLogging >= 1) 
-                logger.info(getRegistersInfo(extendedLogging));
-             
-             if ( demandScalerUnits[MBUS].getUnitCode() == 0 ){
-             	RegisterValue scalerRegister = readRegister(mbusScalerUnit);
-             	demandScalerUnits[MBUS] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),scalerRegister.getQuantity().getUnit());
-             }
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (DLMSConnectionException e) {
-			e.printStackTrace();
-		}
-		
+			secureConnection = new SecureConnection(iSecurityLevelProperty,
+					firmwareVersion, strPassword, getDLMSConnection());
+//			collectCache();
+			startCacheMechanism(this);
+			if(meterConfig.getCapturedObjectList() == null)
+				meterConfig.setInstantiatedObjectList(dlmsCache.getObjectList());
+			if (!verifyMeterID())
+				throw new IOException("Iskra Mx37x, connect, Wrong DeviceID!, settings=" + strID + ", meter=" + getDeviceAddress());
+			if (!verifyMeterSerialNR())
+				throw new IOException("Iskra Mx37x, connect, Wrong SerialNR!, settings=" + serialNumber + ", meter=" + getSerialNumber());
+			if (extendedLogging >= 1)
+				logger.info(getRegistersInfo(extendedLogging));
+	}
+	
+	private void disConnect(){
+	       try {
+	         	  secureConnection.disConnect();
+	         	  getDLMSConnection().disconnectMAC();
+	        } catch(DLMSConnectionException e) {
+	           logger.severe("DLMSLN: disconnect(), "+e.getMessage());
+	        } catch (IOException e) {
+				e.printStackTrace();
+			}
 	}
 	
 	public void startCacheMechanism(Object fileSource) throws FileNotFoundException, IOException {
@@ -557,10 +594,12 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             ((CacheMechanism) source).setCache(ois.readObject());
          }
          catch(ClassNotFoundException e) {
+        	 collectCache();
              e.printStackTrace();
          }
          catch(FileNotFoundException e) {
-             // absorb
+        	 // if there is no file, we must readout the cache to have the objectList
+        	 collectCache();
          }
          finally {
             if (ois != null) 
@@ -1316,8 +1355,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
      * @throws SQLException 
      * @throws BusinessException 
     *******************************************************************************************/
-   // message protocol
-
 	private void sendMeterMessages() throws IOException, BusinessException, SQLException {
 		
 		Iterator mi = rtu.getPendingMessages().iterator();

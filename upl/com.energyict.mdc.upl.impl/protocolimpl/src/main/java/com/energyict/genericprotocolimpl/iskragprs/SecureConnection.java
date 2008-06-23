@@ -82,6 +82,10 @@ public class SecureConnection {
 		    (byte)0x5F,(byte)0x1F,(byte)0x04,(byte)0x00,(byte)0x00,(byte)0x10,(byte)0x1D, // proposed conformance
 		    (byte)0x21,(byte)0x34};
     
+	byte[] rlrq_APDU={
+			(byte)0xE6, (byte)0xE6, (byte)0x00,
+			(byte)0x62, (byte)0x03, (byte)0x80, (byte)0x00, (byte)0x00};
+    
     private static final byte AARE_TAG							=	0x61;
     private static final byte AARE_APPLICATION_CONTEXT_NAME 	= 	(byte)0xA1;
     private static final byte AARE_RESULT 						= 	(byte)0xA2;
@@ -378,6 +382,10 @@ public class SecureConnection {
 		this.dlmsConnection = dlmsConnection;
 	}
 	
+	public void disConnect() throws IOException{
+		byte[] responseData = getDlmsConnection().sendRequest(rlrq_APDU);
+	    if (DEBUG >= 1) ProtocolUtils.printResponseData(responseData);
+	}
 
     class InitiateResponse
     {

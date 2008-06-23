@@ -2,19 +2,11 @@ package com.energyict.genericprotocolimpl.iskrap2lpc;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Reader;
 import java.io.StringReader;
-import java.net.URL;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.text.MessageFormat;
@@ -48,7 +40,6 @@ import org.xml.sax.SAXException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
-import com.energyict.cpo.Transaction;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.CosemDateTime;
@@ -71,7 +62,6 @@ import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.coreimpl.RtuImpl;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
@@ -90,61 +80,14 @@ import com.energyict.tcpip.PPPDialer;
 public class Concentrator implements Messaging, GenericProtocol {
     
     private boolean DEBUG = false;
-    private boolean TESTING = false;
-    
-    private static final int ELECTRICITY 	= 0x00;
-    private static final int MBUS 			= 0x01;
-    
-    private static String conSerialFile 	= "/offlineFiles/ConcentratorSerial.xml";
-    private static String profileConfig1 	= "/offlineFiles/ObjectDefFile1.xml";
-    private static String profileConfig2 	= "/offlineFiles/ObjectDefFile2.xml";
-    private static String[] profileFiles 	= {"/offlineFiles/profile0.xml", "/offlinefiles/profile1.xml"};
-    private static String mbusProfile 		= "/offlineFiles/mbus.xml";
-    private static String eventsFile 		= "/offlineFiles/events.xml";
-    private static String powerDownFile 	= "/offlineFiles/powerFailures.xml";
-    private static String dateTimeFile 		= "/offlineFiles/cosemDateTime.xml";
-    private static String conEventFile 		= "/offlineFiles/conEvent.xml";
-    private static String mbusSerialFile 	= "/offlineFiles/mbusSerial.xml";
-    private static String testFile 			= "/offlineFiles/test.xml";
-    
+    boolean TESTING = false;
+
     private Logger 					logger;
     private Properties 				properties;
     protected CommunicationProfile 	communicationProfile;	
-    private MbusDevice[]			mbusDevices = {null, null, null, null};				// max. 4 MBus meters
-    
-    /** Cached Objects */
-	public int confProgChange;
-	public int loadProfilePeriod1;
-	public int loadProfilePeriod2;
-	public boolean changed;
-	public ObjectDef[] loadProfileConfig1;
-	public ObjectDef[] loadProfileConfig2;
-	public CosemDateTime billingReadTime;
-	public CosemDateTime captureObjReadTime;
     
     /** RtuType is used for creating new Rtu's */
     private RtuType[] rtuType = {null, null};
-	private ProtocolChannelMap protocolChannelMap = null;
-    
-    /** Error message for a meter error */
-    private final static String METER_ERROR = 
-        "Meter failed, serialnumber meter: ";
-    
-    /** Error message for a concentrator error */
-    private final static String CONCENTRATOR_ERROR = 
-        "Concentrator failed, serialnumber concentrator: ";
-    
-//    private final static String AUTO_CREATE_ERROR_1 =
-//        "No automatic meter creation: no property RtuType defined.";
-//
-//    private final static String AUTOCREATE_ERROR_2 =
-//        "No automatic meter creation: property RtuType has no prototype.";
-
-    private final static String DUPLICATE_SERIALS =
-        "Multiple meters where found with serial: {0}.  Data will not be read.";
-    
-    private final static String NO_AUTODISCOVERY =
-        "Meter doesn't exist in database and no rtuType is configured so automatic meter creation.";
     
     private final static boolean ADVANCED = true;
     
@@ -163,17 +106,14 @@ public class Concentrator implements Messaging, GenericProtocol {
 
         try {
             
-            if (useDialUp(concentrator)) {
+            if (useDialUp(concentrator)) {	// something for ftp?
                 dialer = new PPPDialer(serial, logger);
-                
                 String user = getUser(concentrator);
                 if( user!=null ) 
                     dialer.setUserName(user);
-                
                 String pwd = getPassword(concentrator);
                 if( pwd!=null ) 
                     dialer.setPassword(pwd);
-                
                 dialer.connect();
             }
             
@@ -183,7 +123,6 @@ public class Concentrator implements Messaging, GenericProtocol {
             
             if(serial.equalsIgnoreCase(conSerial)){
             	
-//            	RtuType type = getRtuType(ELECTRICITY);
             	RtuType type = getRtuType(concentrator);
             	
             	/* use the meters in the dataBase */
@@ -192,9 +131,15 @@ public class Concentrator implements Messaging, GenericProtocol {
             		meters = collectSerialsFromRtuList(meters);
             	}
             	/* use the auto discovery */ 
-            	else{					
-            		meterList = port(concentrator).getMetersList();
-            		meters = collectSerials(meterList);
+            	else{
+            		if(communicationProfile.getReadMeterReadings()||communicationProfile.getReadDemandValues()){
+            			meterList = port(concentrator).getMetersList();
+            			meters = collectSerials(meterList);
+            		}
+            		else{
+            			meters = concentrator.getDownstreamRtus();
+            			meters = collectSerialsFromRtuList(meters);
+            		}
             	}
             	
                 meterCount = meters.size();
@@ -216,8 +161,6 @@ public class Concentrator implements Messaging, GenericProtocol {
             	getLogger().log(Level.CONFIG, "ConcentratorID EIServer(" + serial + ") didn't match concentratorID(" + conSerial + ").");
             }
 
-            
-            
         } catch (ServiceException thrown) {
             
             /* Single concentrator failed, log and on to next concentrator */
@@ -261,13 +204,13 @@ public class Concentrator implements Messaging, GenericProtocol {
 		return serials;
 	}
 
-	private String checkConcentratorSerial(Rtu concentrator) throws BusinessException {
+	private String checkConcentratorSerial(Rtu concentrator) throws IOException, ServiceException {
 		String conID = null;
 		getLogger().log(Level.INFO, "Checking concentrator serialnumber.");
 		
         try {
 			if (TESTING) {
-				FileReader inFile = new FileReader(Utils.class.getResource(conSerialFile).getFile());
+				FileReader inFile = new FileReader(Utils.class.getResource(Constant.conSerialFile).getFile());
 				conID = readWithStringBuffer(inFile);
 				return conID;
 			} else {
@@ -277,10 +220,10 @@ public class Concentrator implements Messaging, GenericProtocol {
 			
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new BusinessException("Failed while reading the concentrator serialnumber.");
+			throw new IOException("Failed while reading the concentrator serialnumber.");
 		} catch (ServiceException e) {
 			e.printStackTrace();
-			throw new BusinessException("Failed while reading the concentrator serialnumber.");
+			throw new ServiceException("Failed while reading the concentrator serialnumber.");
 		}
 	}
 	
@@ -314,7 +257,7 @@ public class Concentrator implements Messaging, GenericProtocol {
         return result;
     }
     
-    private Logger getLogger( ){
+    protected Logger getLogger( ){
         return logger;
     }
     
@@ -323,7 +266,7 @@ public class Concentrator implements Messaging, GenericProtocol {
         
         try {
             
-            MeterReadTransaction mrt = new MeterReadTransaction(concentrator, serial);
+            MeterReadTransaction mrt = new MeterReadTransaction(this, concentrator, serial, communicationProfile);
             
             Environment.getDefault().execute(mrt);
             
@@ -331,7 +274,7 @@ public class Concentrator implements Messaging, GenericProtocol {
             /*
              * A single MeterReadTransaction failed: log and try next meter.
              */
-            String msg = METER_ERROR + serial + ". ";
+            String msg = Constant.METER_ERROR + serial + ". ";
             getLogger().log(Level.SEVERE, msg + thrown.getMessage(), thrown);
             thrown.printStackTrace();
             
@@ -339,754 +282,13 @@ public class Concentrator implements Messaging, GenericProtocol {
             /*
              * A single MeterReadTransaction failed: log and try next meter.
              */
-            String msg = METER_ERROR + serial + ". ";
+            String msg = Constant.METER_ERROR + serial + ". ";
             getLogger().log(Level.SEVERE, msg + thrown.getMessage(), thrown);
             thrown.printStackTrace();
         }
     }
     
-    /**
-     * Meter handling: 
-     *  - find or create meter 
-     *  - read meter 
-     *  - export message 
-     * Transaction: all operations for a meter fail or all succeed.
-     */
-    class MeterReadTransaction implements Transaction, CacheMechanism {
-    	
-        private Object source;
-        
-        /** Concentrator "containing" the meter */
-        private Rtu concentrator;
-        
-        /** Serial of the meter */
-        private String serial;
-        
-        /** Serial of the mbusMeter */
-        private String mbusSerial[] = {null, null, null, null};
-        private String mSerial;
-
-		private Cache dlmsCache;
-        
-        public MeterReadTransaction(Rtu concentrator, String serial) {
-            
-            this.concentrator = concentrator;
-            this.serial = serial;
-            this.dlmsCache = new Cache();
-        }
-        
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.energyict.cpo.Transaction#doExecute()
-         */
-        public Object doExecute() throws BusinessException, SQLException {
-            
-        	ProfileData[] pd = {new ProfileData(), new ProfileData()};
-            Rtu meter = findOrCreate(concentrator, serial, ELECTRICITY);
-            
-            try {
-				startCacheMechanism(this);
-
-			} catch (FileNotFoundException e) {
-				// absorb
-				e.printStackTrace();
-			} catch (IOException e) {
-				// absorb
-				e.printStackTrace();
-			}
-            
-            try {
-            	
-				collectCache();
-				saveConfiguration();
-            	checkMbusDevices(meter);
-                
-                if (meter != null) {
-
-                    XmlHandler dataHandler = new XmlHandler( getLogger(), getChannelMap(meter) );
-                   
-                    importProfile(concentrator, meter, dataHandler);
-                    
-                    pd = dataHandler.getProfileData();
-                    meter.store(pd[ELECTRICITY]);
-                    
-                    importRegisters(concentrator, meter, dataHandler);
-                    sendMeterMessages(concentrator, meter, dataHandler);
-                    handleRegisters(dataHandler, meter);
-                    
-                    if ( mbusDevices[0] != null ){
-                    	
-                    	if(mbusSerial[0].equalsIgnoreCase(mSerial)){
-                        	
-                        	if(mbusDevices[0].getRtu() != null){
-                        		
-                        		mbusDevices[0].getRtu().store(pd[MBUS]);
-                        		
-                            	if ( mbusDevices[0].getRtu().getRegisters().size() != 0 ){
-                            		dataHandler.getMeterReadingData().getRegisterValues().clear();
-                            		importRegisters(concentrator, mbusDevices[0].getRtu(), dataHandler, meter.getSerialNumber());
-                            	}
-                            	
-                            	if ( mbusDevices[0].getRtu().getMessages().size() != 0 ){
-                            		sendMeterMessages(concentrator, meter, mbusDevices[0].getRtu(), dataHandler);
-                            	}
-                            	
-                            	handleRegisters(dataHandler, mbusDevices[0].getRtu());
-                        	}
-                    	}
-                    	else
-                    	getLogger().log(Level.CONFIG, "MBus serialnumber in EIServer(" + mbusSerial[0] + ") didn't match serialnumber in meter(" + mSerial+ ")");
-                    }
-                    getLogger().log(Level.INFO, "Meter with serialnumber " + serial + " has completely finished");
-                }
-                
-            } catch (ServiceException thrown) {
-                
-                severe( thrown, thrown.getMessage() );
-                thrown.printStackTrace();
-                throw new BusinessException(thrown); /* roll back */
-                
-            } catch (IOException thrown) {
-                
-                severe( thrown, thrown.getMessage() );
-                thrown.printStackTrace();
-                throw new BusinessException(thrown); /* roll back */
-                
-            }
-            
-            return meter; /* return whatever */
-            
-        }
-
-		private void checkMbusDevices(Rtu meter) throws IOException, NumberFormatException, ServiceException, SQLException, BusinessException {
-			
-			if ((meter.getDownstreamRtus().size() > 0) || (getRtuType(meter) != null)){
-				if ( TESTING ){
-//					FileReader inFile = new FileReader(mbusSerialFile);
-					FileReader inFile = new FileReader(Utils.class.getResource(mbusSerialFile).getFile());
-					mSerial = readWithStringBuffer(inFile);
-				}
-				else{
-					getLogger().log(Level.INFO, "Checking mbus configuration.");
-					mSerial = getMbusSerial(concentrator, serial);
-				}
-				
-				if (( getRtuType(meter) != null ) && (meter.getDownstreamRtus().size() == 0)){
-					mbusDevices[0] = new MbusDevice(1, mSerial, findOrCreate(meter, mSerial, MBUS), getLogger());	
-				}
-				fillInMbusSerials(meter.getDownstreamRtus());
-				
-				if(!(( getRtuType(meter) != null ) && (meter.getDownstreamRtus().size() == 0)))
-					mbusDevices[0] = new MbusDevice(1, mbusSerial[0], findOrCreate(meter, mbusSerial[0], MBUS), getLogger());
-				
-				
-			}
-			
-		}
-
-		private void saveConfiguration() {
-			dlmsCache.setBillingReadTime(billingReadTime);
-			dlmsCache.setCaptureObjReadTime(captureObjReadTime); // not necessary
-			dlmsCache.setLoadProfileConfig1(loadProfileConfig1);
-			dlmsCache.setLoadProfileConfig2(loadProfileConfig2);
-			dlmsCache.setLoadProfilePeriod1(loadProfilePeriod1);
-			dlmsCache.setLoadProfilePeriod2(loadProfilePeriod2);
-			stopCacheMechanism();
-		}
-
-		private void collectCache() throws BusinessException {
-			int iConf;
-			try{
-				if( dlmsCache.getLoadProfileConfig1() != null ){
-					
-					setCachedObjects(dlmsCache.getBillingReadTime(), dlmsCache.getCaptureObjReadTime(), dlmsCache.getLoadProfileConfig1(),
-							dlmsCache.getLoadProfileConfig2(), dlmsCache.getLoadProfilePeriod1(), dlmsCache.getLoadProfilePeriod2());
-					
-					try{
-						getLogger().log(Level.INFO, "Checking configuration parameters.");
-						iConf = requestConfigurationChanges(concentrator, serial);
-						
-					}catch (NumberFormatException e) {
-						iConf = -1;
-						getLogger().log(Level.INFO, "Iskra Mx37x: Configuration change is not accessible, requesting configuration parameters ...");
-						getLogger().log(Level.INFO, "(This will take several minutes.)");
-						requestConfigurationParameters(concentrator, serial);
-						dlmsCache.setConfProgChange(iConf);
-						e.printStackTrace();
-					} catch (ServiceException e) {
-						iConf = -1;
-						getLogger().log(Level.INFO, "Iskra Mx37x: Configuration change is not accessible, requesting configuration parameters ...");
-						getLogger().log(Level.INFO, "(This will take several minutes.)");
-						requestConfigurationParameters(concentrator, serial);
-						dlmsCache.setConfProgChange(iConf);
-						e.printStackTrace();
-					} catch (RemoteException e) {
-						iConf = -1;
-						getLogger().log(Level.INFO, "Iskra Mx37x: Configuration change is not accessible, requesting configuration parameters ...");
-						getLogger().log(Level.INFO, "(This will take several minutes.)");
-						requestConfigurationParameters(concentrator, serial);
-						dlmsCache.setConfProgChange(iConf);
-						e.printStackTrace();
-					}
-					
-					if (iConf != dlmsCache.getConfProgChange()){
-						getLogger().log(Level.INFO, "Iskra Mx37x: Configuration changed, requesting configuration parameters...");
-						getLogger().log(Level.INFO, "(This will take several minutes.)");
-						requestConfigurationParameters(concentrator, serial);
-						dlmsCache.setConfProgChange(iConf);
-					}
-				}
-				
-				else{ 	//if cache doesn't exist
-					getLogger().log(Level.INFO, "Iskra Mx37x: Cache does not exist, requesting configuration parameters...");
-					getLogger().log(Level.INFO, "(This will take several minutes.)");
-					requestConfigurationParameters(concentrator, serial);
-					
-					try{
-						iConf = requestConfigurationChanges(concentrator, serial);
-						dlmsCache.setConfProgChange(iConf);
-						
-					}catch (NumberFormatException e) {
-						iConf = -1;
-						e.printStackTrace();
-					} catch (ServiceException e) {
-						iConf = -1;
-						e.printStackTrace();
-					} catch (RemoteException e) {
-						iConf = -1;
-						e.printStackTrace();
-					}
-				}
-			} catch (BusinessException e) {
-				e.printStackTrace();
-				throw new BusinessException(e); /* roll back */
-			}
-		}
-
-		private void fillInMbusSerials(List downstreamRtus) {
-			Iterator it = downstreamRtus.iterator();
-			int count = 0;
-			while(it.hasNext()){
-				mbusSerial[count] = ((Rtu)it.next()).getSerialNumber();
-				count++;
-				if(count > mbusSerial.length){
-					getLogger().log(Level.WARNING, "MBus device count exceeds maximum(4)");
-				}
-			}
-		}
-		
-		public void startCacheMechanism(Object fileSource) throws FileNotFoundException, IOException {
-			
-			this.source = fileSource;
-			ObjectInputStream ois = null;
-	        try {
-	            File file = new File(((CacheMechanism) source).getFileName());
-	            ois = new ObjectInputStream(new FileInputStream(file));
-	            ((CacheMechanism) source).setCache(ois.readObject());
-	         }
-	         catch(ClassNotFoundException e) {
-	             e.printStackTrace();
-	         }
-	         catch(FileNotFoundException e) {
-	             // absorb
-	         }
-	         finally {
-	            if (ois != null) 
-	                ois.close();
-	         }
-		}
-		
-		public void stopCacheMechanism() {
-	        File file = new File(((CacheMechanism) source).getFileName());
-	        ObjectOutputStream oos;
-			try {
-				oos = new ObjectOutputStream(new FileOutputStream(file));
-				oos.writeObject(((CacheMechanism) source).getCache());
-		        oos.close();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-		public String getFileName() {
-			Calendar calendar = Calendar.getInstance();
-		    return calendar.get(Calendar.YEAR) + "_" + serial + "_IskraMx37x.cache";
-		}
-
-		public Object getCache() {
-			return dlmsCache;
-		}
-
-		public void setCache(Object cacheObject) {
-			this.dlmsCache=(Cache)cacheObject;
-		}
-    }
-    
-	private String getMbusSerial(Rtu concentrator, String meterID) throws NumberFormatException, RemoteException, ServiceException {
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.MINUTE, 5);
-		String startBefore = Constant.getInstance().getDateFormatFixed().format(cal.getTime());
-		cal.add(Calendar.MINUTE, 10);
-		String endBefore = Constant.getInstance().getDateFormatFixed().format(cal.getTime());
-		String str = new String(port(concentrator).cosemGetRequest(meterID, startBefore, endBefore, Constant.mbusSerialObisCode.toString(), new UnsignedInt(1), new UnsignedInt(2)));
-		return str.substring(2);
-	}
-    
-    public void requestConfigurationParameters(Rtu concentrator, String serial) throws BusinessException {
-        String loadProfile1 = "LoadProfile1";
-        String loadProfile2 = "LoadProfile2";
-        
-		try {
-			
-			this.loadProfilePeriod1 = port(concentrator).getMeterLoadProfilePeriod(serial, new PeriodicProfileType(loadProfile1)).intValue();
-			this.loadProfilePeriod2 = port(concentrator).getMeterLoadProfilePeriod(serial, new PeriodicProfileType(loadProfile2)).intValue();
-			this.loadProfileConfig1 = port(concentrator).getMeterProfileConfig(serial, new ProfileType(loadProfile1));
-			this.loadProfileConfig2 = port(concentrator).getMeterProfileConfig(serial, new ProfileType(loadProfile2));
-			this.billingReadTime = port(concentrator).getMeterBillingReadTime(serial);
-			
-		} catch (RemoteException e) {
-			getLogger().log(Level.SEVERE, "IskraMx37x: could not retreive configuration parameters, meter will NOT be handled");
-			e.printStackTrace();
-			throw new BusinessException( "No parameters could be retreived.", e );
-		} catch (ServiceException e) {
-			getLogger().log(Level.SEVERE, "IskraMx37x: could not retreive configuration parameters, meter will NOT be handled");
-			e.printStackTrace();
-			throw new BusinessException( "No parameters could be retreived.", e );
-		}
-		
-	}
-
-	public int requestConfigurationChanges(Rtu concentrator, String serial) throws NumberFormatException, RemoteException, ServiceException {
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.MINUTE, 5);
-		String startBefore = Constant.getInstance().getDateFormatFixed().format(cal.getTime());
-		cal.add(Calendar.MINUTE, 10);
-		String endBefore = Constant.getInstance().getDateFormatFixed().format(cal.getTime());
-		byte[] byteStrs = port(concentrator).cosemGetRequest(serial, startBefore, endBefore, Constant.confChangeObisCode.toString(), new UnsignedInt(1), new UnsignedInt(2));
-		int changes = byteStrs[2];
-		changes = changes + (byteStrs[1]<<8);
-		return changes;
-	}
-
-	public void setCachedObjects(CosemDateTime billingReadTime,
-			CosemDateTime captureObjReadTime, ObjectDef[] loadProfileConfig1,
-			ObjectDef[] loadProfileConfig2, int loadProfilePeriod1,
-			int loadProfilePeriod2) {
-		this.billingReadTime = billingReadTime;
-		this.captureObjReadTime = captureObjReadTime;
-		this.loadProfileConfig1 = loadProfileConfig1;
-		this.loadProfileConfig2 = loadProfileConfig2;
-		this.loadProfilePeriod1 = loadProfilePeriod1;
-		this.loadProfilePeriod2 = loadProfilePeriod2;
-		
-	}
-
-	private Rtu findOrCreate(Rtu concentrator, String serial, int type) throws SQLException, BusinessException { 
-        
-        List meterList = mw().getRtuFactory().findBySerialNumber(serial);
-
-        if( meterList.size() == 1 ) {
-    		
-        	((Rtu)meterList.get(0)).updateGateway(concentrator);
-        	
-			//******************************************************************
-			// this moves the rtu to his concentrator folder
-        	// ((Rtu)meterList.get(0)).moveToFolder(concentrator.getFolder());
-        	//******************************************************************
-        	
-            return (Rtu) meterList.get(0);
-        }
-        
-        if( meterList.size() > 1 ) {
-            getLogger().severe( toDuplicateSerialsErrorMsg(serial) );
-            return null;
-        }
-            
-//        if( getRtuType(ELECTRICITY) == null ) {
-//            getLogger().severe( AUTO_CREATE_ERROR_1 );
-//            return null;
-//        }
-//        
-//        if( getRtuType(ELECTRICITY).getPrototypeRtu() == null ) {
-//            getLogger().severe( AUTOCREATE_ERROR_2 );    
-//            return null;
-//        }
-        
-//        if(getRtuType(type) != null)
-//        	return createMeter(concentrator, getRtuType(type), serial);
-        if(getRtuType(concentrator) != null)
-        	return createMeter(concentrator, getRtuType(concentrator), serial);
-        else{
-        	getLogger().severe( NO_AUTODISCOVERY ); 
-        	return null;
-        }
-    }
-
-	private void handleRegisters(XmlHandler dataHandler, Rtu meter) throws ServiceException, BusinessException, SQLException {
-		
-        Iterator i = dataHandler.getMeterReadingData().getRegisterValues().iterator();
-        while (i.hasNext()) {
-            
-            RegisterValue registerValue = (RegisterValue) i.next();
-            RtuRegister register = meter.getRegister( registerValue.getObisCode() );
-
-            if( register != null )
-                register.store( registerValue );
-            else {
-                String obis = registerValue.getObisCode().toString();
-                String msg = "Register " + obis + " not defined on device";
-                getLogger().info( msg );
-            }
-        }
-	}
-
-	/*
-     * Import:
-     *   (1) ProfileData
-     *   (2) Registers - GN|210208| Not anymore
-     *   (3) Events
-     */
-    protected void importProfile(Rtu ctr, Rtu meter, XmlHandler dataHandler) throws ServiceException, IOException, BusinessException {
-    
-        String xml = null;        
-        String profile = null;
-        String mtr = meter.getSerialNumber();
-        
-        Date fromDate = getLastReading(meter);
-        
-        // if the meter has MBus meters with an earlier LastReading, then use this LastReading
-        if(meter.getDownstreamRtus().size() > 0){
-        	Date downDate = null;
-        	Iterator i = meter.getDownstreamRtus().iterator();
-        	while(i.hasNext()){
-        		Rtu downRtu = (Rtu)i.next();
-        		downDate = getLastReading(downRtu);
-        		if (downDate.before(fromDate))
-        			fromDate.setTime(downDate.getTime());
-        	}
-        }
-        
-        String from = Constant.getInstance().format( fromDate );
-        String to = Constant.getInstance().format(new Date());
-        
-//        String[] loadProfile1 = {"LoadProfile1", "99.1.0"};
-//        String[] loadProfile2 = {"LoadProfile2", "99.2.0"};
-        
-        String lpString1 = "99.1.0";
-        String lpString2 = "99.2.0";
-        
-        /*
-         * Read profile data 
-         */
-        if( communicationProfile.getReadDemandValues() ) {
-        	
-        	getLogger().log(Level.INFO, "Reading PROFILE from meter with serialnumber " + mtr + ".");
-            
-            ProtocolChannelMap channelMap = getChannelMap(meter);
-            
-            ObjectDef[] lp1;
-            ObjectDef[] lp2 = null;
-            int lpPeriod1;
-            int lpPeriod2 = -1;
-            if ( TESTING ){
-//            	FileReader inFile = new FileReader(profileConfig1);
-            	FileReader inFile = new FileReader(Utils.class.getResource(profileConfig1).getFile());
-            	xml = readWithStringBuffer(inFile);
-            	lp1 = getlpConfigObjectDefFromString(xml);
-            	lpPeriod1 = 900;
-            	inFile = new FileReader(Utils.class.getResource(profileConfig2).getFile());
-            	xml = readWithStringBuffer(inFile);
-            	lp2 = getlpConfigObjectDefFromString(xml);
-            	lpPeriod2 = 3600;
-            }
-            else{
-//            	lp1 = port(ctr).getMeterProfileConfig(mtr, new ProfileType(loadProfile1[0]));
-//            	lpPeriod1 = port(ctr).getMeterLoadProfilePeriod(mtr, new PeriodicProfileType(loadProfile1[0])).intValue();
-            	lp1 = loadProfileConfig1;
-            	lp2 = loadProfileConfig2;
-            	lpPeriod1 = loadProfilePeriod1;
-            	lpPeriod2 = loadProfilePeriod2;
-            }
-            
-            if (meter.getIntervalInSeconds() != lpPeriod1){
-            	getLogger().log(Level.SEVERE, "ProfileInterval meter: " + lpPeriod1 +  ", ProfileInterval EIServer: " + meter.getIntervalInSeconds());
-            	throw new BusinessException("Interval didn't match");
-            }
-            
-            for( int i = 0; i < channelMap.getNrOfProtocolChannels(); i ++ ) {
-            
-                ProtocolChannel channel = channelMap.getProtocolChannel(i);
-                String register = channel.getRegister();
-                
-                if (lpContainsRegister(lp1, register)){
-                	profile = lpString1;
-                	
-                	if(TESTING){
-//                		FileReader inFile = new FileReader(profileFiles[i]);
-                		FileReader inFile = new FileReader(Utils.class.getResource(profileFiles[i]).getFile());
-                		xml = readWithStringBuffer(inFile);
-                	}
-                	else xml = port(ctr).getMeterProfile(mtr, profile, register, from, to);
-                	
-                    dataHandler.setChannelIndex( i );
-                    importData(xml, dataHandler);
-                }
-                
-                else{
-                	
-//                	if(TESTING){
-//                    	FileReader inFile = new FileReader(profileConfig2);
-//                    	xml = readWithStringBuffer(inFile);
-//                    	lp2 = getlpConfigObjectDefFromString(xml);
-//                    	lpPeriod2 = 3600;
-//                	}
-//                	else{
-//                    	if (lp2 == null){
-//                    		lp2 = port(ctr).getMeterProfileConfig(mtr, new ProfileType(loadProfile2[0]));
-//                    	}
-//                    	if (lpPeriod2 == -1){
-//                    		lpPeriod2 = port(ctr).getMeterLoadProfilePeriod(mtr, new PeriodicProfileType(loadProfile2[0])).intValue();
-//                    	}	
-//                	}
-                	
-                    if (lpContainsRegister(lp2, register)){
-                    	profile = lpString2;
-                    	
-                    	if(TESTING){
-//                    		FileReader inFile = new FileReader(mbusProfile);
-                    		FileReader inFile = new FileReader(Utils.class.getResource(mbusProfile).getFile());
-                    		xml = readWithStringBuffer(inFile);
-                    	}
-                    	else xml = port(ctr).getMeterProfile(mtr, profile, register, from, to);
-                    	
-                        dataHandler.setChannelIndex( i );
-                        importData(xml, dataHandler);
-                    }
-                }
-            }
-            getLogger().log(Level.INFO, "Done reading PROFILE.");
-        }
-        
-        /*
-         * Read logbook
-         */
-        if( communicationProfile.getReadMeterEvents() ) {
-        	
-        	getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + mtr + ".");
-            
-            from = Constant.getInstance().format(getLastLogboog(meter));
-            String events, powerFailures;
-            if(TESTING){
-//        		FileReader inFile = new FileReader(eventsFile);
-            	FileReader inFile = new FileReader(Utils.class.getResource(eventsFile).getFile());
-        		events = readWithStringBuffer(inFile);
-//        		inFile = new FileReader(powerDownFile);
-        		inFile = new FileReader(Utils.class.getResource(powerDownFile).getFile());
-        		powerFailures = readWithStringBuffer(inFile);
-            }
-            else{
-            	events = port(ctr).getMeterEvents(mtr, from, to);
-            	powerFailures = port(ctr).getMeterPowerFailures(mtr, from, to);
-            }
-            importData(events, dataHandler);
-            importData(powerFailures, dataHandler);
-            
-            getLogger().log(Level.INFO, "Done reading EVENTS.");
-        }
-    }
-    
-    private ObjectDef[] getlpConfigObjectDefFromString(String xml) {
-    	ObjectDef[] od = {null, null, null, null, null, null, null, null, null, null};
-    	try {
-			Element topElement = toDom(xml).getDocumentElement();
-			NodeList objects = topElement.getElementsByTagName("Object");
-			
-			for(int i = 0; i < objects.getLength(); i++){
-				Element object = (Element) objects.item(i);
-				UnsignedShort classId = new UnsignedShort(object.getElementsByTagName("ClassId").item(0).getFirstChild().getTextContent());
-				String instanceId = object.getElementsByTagName("InstanceId").item(0).getFirstChild().getTextContent();
-				byte attributeId = (byte)Integer.parseInt(object.getElementsByTagName("AttributeId").item(0).getFirstChild().getTextContent());
-				UnsignedShort dataId = new UnsignedShort(object.getElementsByTagName("DataId").item(0).getFirstChild().getTextContent());
-				od[i] = new ObjectDef(classId, instanceId, attributeId, dataId);
-			}
-			
-		} catch (XmlException e) {
-			e.printStackTrace();
-		}
-    	
-		return od;
-	}
-
-	private boolean lpContainsRegister(ObjectDef[] lp, String register) {
-		for (int i = 0; i< lp.length; i++){
-			if(lp[i]!=null){
-				String instId = lp[i].getInstanceId();
-				if (register.length() == 5){
-					if (instId.indexOf(register) == 4)
-						return true;
-				}
-				else
-					if (instId.indexOf(register.subSequence(0, register.length()).toString()) >= 0)
-						return true;
-			}
-		}
-		return false;
-	}
-
-	private void importRegisters(Rtu ctr, Rtu meter, XmlHandler dataHandler) throws ServiceException, IOException, BusinessException{
-    	importRegisters(ctr, meter, dataHandler, meter.getSerialNumber());
-    }
-    
-    private void importRegisters(Rtu ctr, Rtu meter, XmlHandler dataHandler, String serialNumb)throws ServiceException, IOException, BusinessException {
-    	
-    	String xml = null;
-    	String mtr = serialNumb;
-//        String from = Constant.getInstance().format(getLastReading( meter ) );
-    	String from = Constant.getInstance().format(new Date());
-        String to = Constant.getInstance().format(new Date());
-    	
-        /*
-         * Read registers 
-         * (use lastReading as from date !!)
-         */
-    	
-        if( communicationProfile.getReadMeterReadings() ) {
-        	
-        	getLogger().log(Level.INFO, "Reading REGISTERS from meter with serialnumber " + meter.getSerialNumber() + ".");
-        	
-        	String daily = null;
-        	String monthly = null;
-//        	int count = 0;
-        	
-        	int period;
-        	CosemDateTime cdt;
-            if ( TESTING ){
-//            	FileReader inFile = new FileReader(dateTimeFile);
-            	FileReader inFile = new FileReader(Utils.class.getResource(dateTimeFile).getFile());
-            	xml = readWithStringBuffer(inFile);
-            	period = 3600;
-            	cdt = getCosemDateTimeFromXmlString(xml);
-            }
-            else{
-//            	period = port(ctr).getMeterLoadProfilePeriod(mtr, new PeriodicProfileType("LoadProfile2")).intValue();
-//            	cdt = port(ctr).getMeterBillingReadTime(mtr);
-            	period = loadProfilePeriod2;
-            	cdt = billingReadTime;
-            }
-            
-    		if ( period == 86400 ){ // Profile contains daily values
-    			daily = "99.2.0";
-    		}
-    		else
-    			daily = null;
-        	
-    		if ( (cdt.getDayOfMonth().intValue() == 1) && (cdt.getHour().intValue() == 0) && (cdt.getYear().intValue() == 65535) && (cdt.getMonth().intValue() == 255) ){
-    			monthly = "98.1.0";
-    			if (daily == null) daily = "98.2.0";
-    		}
-    		else{
-    			monthly = "98.2.0";
-    			if (daily == null) daily = "98.1.0";
-    		}
-    		
-//            while( ((daily == null ) || (monthly == null)) || count != 2 ) {
-//                switch(count){
-//            	case 0:{
-//
-//            		count++;
-//            	}break;
-//            	case 1:{
-//
-//            		count++;
-//            	}break;
-//            	default:break;
-//            	
-//            	}
-//            }
-            
-            // set registers for the DataHandler
-            dataHandler.setDailyStr(daily);
-            dataHandler.setMonthlyStr(monthly);
-        	
-            Iterator i = meter.getRtuType().getRtuRegisterSpecs().iterator();
-            while (i.hasNext()) {
-                
-                RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
-                ObisCode oc = spec.getObisCode();
-                
-                if((oc.getF()==0)||(oc.getF()==-1)){
-                    String register = oc.toString();
-                    String profile = null;
-                    List registerValues = mw().getRtuRegisterReadingFactory().findByRegister(meter.getRegister(oc).getId());
-                    Date lastRegisterDate = null;
-                	if (registerValues.size() != 0){
-                		lastRegisterDate = getLastRegisterDate(registerValues);
-                	}else{
-                		Calendar registerCalendar = Calendar.getInstance();
-                		registerCalendar.add(Calendar.DAY_OF_MONTH, -10);
-                		lastRegisterDate = registerCalendar.getTime();
-                	}
-                    from = Constant.getInstance().format( lastRegisterDate );
-                    if (oc.getF() == 0){
-                        
-                        /* historical - daily*/
-                    	profile = daily;
-                        xml = port(ctr).getMeterProfile(mtr, profile, register, from, to);
-                        importData(xml, dataHandler);
-                       
-                    }
-                    
-                    else if (oc.getF() == -1){
-
-                    	 /* historical - monthly*/
-                    	profile = monthly;
-                        xml = port(ctr).getMeterProfile(mtr, profile, register, from, to);
-                        importData(xml, dataHandler);
-                        
-//                        profile = "98.2.0";
-//                        xml = port(ctr).getMeterProfile(mtr, profile, register, from, to);
-//                        importData(xml, dataHandler);
-                        
-                    }
-                }
-            }
-            getLogger().log(Level.INFO, "Done reading REGISTERS.");
-            
-        }
-    }
-    
-	private Date getLastRegisterDate(List registerValues) {
-    	Date lastDate = ((RtuRegisterReadingImpl) registerValues.get(0)).getToTime();
-    	Iterator it = registerValues.iterator();
-    	while(it.hasNext()){
-    		Date dateRrri = ((RtuRegisterReadingImpl)it.next()).getToTime();
-    		if (dateRrri.after(lastDate))
-    			lastDate = dateRrri;
-    	}
-    	return lastDate;
-	}
-    
-    private CosemDateTime getCosemDateTimeFromXmlString(String xml) {
-    	CosemDateTime cdt = null;
-    	try {
-			Element topElement = toDom(xml).getDocumentElement();
-			UnsignedShort year = new UnsignedShort(topElement.getElementsByTagName("Year").item(0).getFirstChild().getTextContent());
-			UnsignedByte month = new UnsignedByte(topElement.getElementsByTagName("Month").item(0).getFirstChild().getTextContent());
-			UnsignedByte dayOfMonth = new UnsignedByte(topElement.getElementsByTagName("DayOfMonth").item(0).getFirstChild().getTextContent());
-			UnsignedByte dayOfWeek = new UnsignedByte(topElement.getElementsByTagName("DayOfWeek").item(0).getFirstChild().getTextContent());
-			UnsignedByte hour = new UnsignedByte(topElement.getElementsByTagName("Hour").item(0).getFirstChild().getTextContent());
-			UnsignedByte minute = new UnsignedByte(topElement.getElementsByTagName("Minute").item(0).getFirstChild().getTextContent());
-			cdt = new CosemDateTime(year, month, dayOfMonth, dayOfWeek, hour, minute);
-		} catch (XmlException e) {
-			e.printStackTrace();
-		}
-		return cdt;
-	}
-    
-    String readWithStringBuffer(Reader fileReader) throws IOException {
+    protected String readWithStringBuffer(Reader fileReader) throws IOException {
     	BufferedReader br = new BufferedReader(fileReader);
     	String line;
     	StringBuffer result = new StringBuffer();
@@ -1096,24 +298,8 @@ public class Concentrator implements Messaging, GenericProtocol {
     	return result.toString();
     }
     
-    Date getLastReading(Rtu rtu) {
-        Date result = rtu.getLastReading();
-        if( result == null ) {
-            result = new Date( 0 );
-        }
-        return result;
-    }
-    
-    Date getLastLogboog(Rtu rtu) {
-        Date result = rtu.getLastLogbook();
-        if( result == null ) {
-            result = new Date( 0 );
-        }
-        return result;
-    }
-    
     /** Generic data import procedure. All imported data is in one xml format. */
-    private void importData(String data, XmlHandler dataHandler) 
+    protected void importData(String data, XmlHandler dataHandler) 
         throws BusinessException {
         
         try {
@@ -1142,180 +328,6 @@ public class Concentrator implements Messaging, GenericProtocol {
     
     }
     
-    private void sendMeterMessages(Rtu concentrator, Rtu rtu, XmlHandler dataHandler) throws BusinessException, SQLException{
-    	sendMeterMessages(concentrator, rtu, null, dataHandler);
-    }
-    
-    /** Send Pending RtuMessage to meter. 
-     * 	Currently we use the eRtu as a concentrator for the mbusRtu, so the serialNumber is this from the eRtu.
-     * 	The messages them are those from the mbus device if this is not NULL.
-     * */
-    private void sendMeterMessages(Rtu concentrator, Rtu eRtu, Rtu mbusRtu, XmlHandler dataHandler) throws BusinessException, SQLException {
-    
-        /* short circuit */
-        if( ! communicationProfile.getSendRtuMessage() )
-            return;
-        
-        Iterator mi = null;
-        String showSerial = null;
-        
-        if (mbusRtu != null){	//mbus messages
-        	mi = mbusRtu.getPendingMessages().iterator();
-        	showSerial = mbusRtu.getSerialNumber();
-        }
-        else{					//eRtu messages
-            mi = eRtu.getPendingMessages().iterator();
-            showSerial = eRtu.getSerialNumber();
-        }
-        
-        String serial = eRtu.getSerialNumber();     
-        
-        if (mi.hasNext())
-        	getLogger().log(Level.INFO, "Handling MESSAGES from meter with serialnumber " + showSerial);
-        else
-        	return;
-        
-        while (mi.hasNext()) {
-            
-            RtuMessage msg = (RtuMessage) mi.next();
-            String contents = msg.getContents();
-            
-            boolean doReadRegister  = contents.indexOf(Constant.ON_DEMAND) != -1;
-            boolean doConnect       = contents.indexOf(Constant.CONNECT_LOAD) != -1;
-            boolean doDisconnect    = contents.indexOf(Constant.DISCONNECT_LOAD) != -1;
-            
-//            boolean loadControlOn     = contents.indexOf(Constant.LOAD_CONTROL_ON) != -1;
-//            boolean loadControlOff    = contents.indexOf(Constant.LOAD_CONTROL_OFF) != -1;
-            
-            boolean thresholdParameters	= (contents.indexOf(Constant.THRESHOLD_GROUPID) != -1) ||
-            									(contents.indexOf(Constant.THRESHOLD_POWERLIMIT) != -1) ||
-            									(contents.indexOf(Constant.CONTRACT_POWERLIMIT) != -1);
-//            boolean applythreshold			= (contents.indexOf(Constant.THRESHOLD_STARTDT) != -1) ||
-//            									(contents.indexOf(Constant.THRESHOLD_STOPDT) != -1);            
-            
-            /* A single message failure must not stop the other msgs. */
-            try {
-            	
-                if (doReadRegister){
-                    
-                    List rl = new ArrayList( );
-                    Iterator i = null;
-                    
-                    if (mbusRtu != null)
-                    	i = mbusRtu.getRtuType().getRtuRegisterSpecs().iterator();
-                    else
-                    	i = eRtu.getRtuType().getRtuRegisterSpecs().iterator();
-                    
-                    while (i.hasNext()) {
-                        
-                        RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
-                        ObisCode oc = spec.getRegisterMapping().getObisCode();
-                        if (oc.getF() == 255){
-                        	
-                        	if (checkManObisCodes(oc)){
-                        		rl.add(oc.toString());
-                        	}
-                        			
-                        	else if(checkOtherObisCodes(oc))
-                        		rl.add( new String(oc.getC()+"."+oc.getD()+"."+oc.getE()) );
-                        	
-                        	else
-                        		getLogger().log(Level.INFO, "Register with obisCode " + oc.toString() + " is not supported.");
-                     
-	                        dataHandler.checkOnDemands(true);
-	                        dataHandler.setProfileDuration(-1);
-                        }
-                        
-                    }
-                    if (DEBUG) System.out.println(rl);
-                    String registers [] = (String[]) rl.toArray(new String[0] ); 
-                    String r = port(concentrator).getMeterOnDemandResultsList(serial, registers);
-                    
-                    importData(r, dataHandler);
-                    dataHandler.checkOnDemands(false);
-                    
-                }
-                
-                if (doConnect) {
-                    port(concentrator).setMeterDisconnectControl(serial, true);
-                }
-                
-                if (doDisconnect) {
-                    port(concentrator).setMeterDisconnectControl(serial, false);
-                }
-                
-                if (thresholdParameters){
-                	
-                	String groupID = getMessageValue(contents, Constant.THRESHOLD_GROUPID);
-                	if (groupID.equalsIgnoreCase(""))
-                		throw new BusinessException("No groupID was entered.");
-                	
-                	String thresholdPL = getMessageValue(contents, Constant.THRESHOLD_POWERLIMIT);
-                	String contractPL = getMessageValue(contents, Constant.CONTRACT_POWERLIMIT);
-                	if ( (thresholdPL.equalsIgnoreCase("")) && (contractPL.equalsIgnoreCase("")) )
-                			throw new BusinessException("Neighter contractual nor threshold limit was given.");
-                	                	
-                	UnsignedInt uiGrId = new UnsignedInt();
-                	UnsignedInt crPl = new UnsignedInt();
-                	byte[] contractPowerLimit	= new byte[]{DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED,0, 0, 0, 0};
-
-                	if (thresholdPL.equalsIgnoreCase(""))
-                		throw new BusinessException("No threshold powerLimit was given.");
-
-                	try{
-                		uiGrId.setValue((long)Integer.parseInt(groupID));
-                		if (!thresholdPL.equalsIgnoreCase(""))
-                			crPl.setValue((long)Integer.parseInt(thresholdPL));
-                		if (!contractPL.equalsIgnoreCase("")){
-                    		contractPowerLimit[1] = (byte)((long)Integer.parseInt(contractPL) >> 24);
-                    		contractPowerLimit[2] = (byte)((long)Integer.parseInt(contractPL) >> 16);
-                    		contractPowerLimit[3] = (byte)((long)Integer.parseInt(contractPL) >> 8);
-                    		contractPowerLimit[4] = (byte)((long)Integer.parseInt(contractPL));
-                		}
-                	}
-                	catch(NumberFormatException e){
-                		throw new BusinessException("Invalid threshold parameters");
-                	}
-                	/*
-                	 * Normally the webService setMeterPowerLimit should be used, but it doens't work with that,
-                	 * to speed up the development we used the general setCosem method and this works fine!
-                	 * 
-                	 * 		port(concentrator).setMeterPowerLimit(serial, contractPl);
-                	 * 
-                	 */
-                	if (!contractPL.equalsIgnoreCase("")){
-                		Calendar cal = Calendar.getInstance();
-                		cal.add(Calendar.MINUTE, 5);
-                		String startBefore = Constant.getInstance().getDateFormatFixed().format(cal.getTime());
-                		cal.add(Calendar.MINUTE, 10);
-                		String endBefore = Constant.getInstance().getDateFormatFixed().format(cal.getTime());
-                		port(concentrator).cosemSetRequest(serial, startBefore, endBefore, Constant.powerLimitObisCode.toString(), new UnsignedInt(3), new UnsignedInt(2), contractPowerLimit);
-                	}
-                	
-                	port(concentrator).setMeterCodeRedGroupId(serial, uiGrId);
-                	if (!thresholdPL.equalsIgnoreCase(""))
-                		port(concentrator).setMeterCodeRedPowerLimit(serial, crPl);
-                }
-                
-                /* These are synchronous calls, so no sent state is ever used */
-                msg.confirm();
-                getLogger().log(Level.INFO, "Current message " + contents + " has finished.");
-                
-            } catch (RemoteException re) {
-                msg.setFailed();
-                re.printStackTrace();
-                severe(re, re.getMessage());
-                throw new BusinessException(re);
-            } catch (ServiceException se) {
-                msg.setFailed();
-                se.printStackTrace();
-                severe(se, se.getMessage());
-                throw new BusinessException(se);
-            }
-        }
-        getLogger().log(Level.INFO, "Done handling messages.");
-    }
-    
 	private Calendar getCalendarFromString(String strDate) {
 		Calendar cal = Calendar.getInstance();
     	cal.set(Calendar.DATE, Integer.parseInt(strDate.substring(0, strDate.indexOf("/"))));
@@ -1329,7 +341,7 @@ public class Concentrator implements Messaging, GenericProtocol {
 		return cal;
 	}
     
-	private String getMessageValue(String msgStr, String str) {
+	protected String getMessageValue(String msgStr, String str) {
 		try {
 			return msgStr.substring(msgStr.indexOf(str + ">") + str.length()
 					+ 1, msgStr.indexOf("</" + str));
@@ -1337,84 +349,6 @@ public class Concentrator implements Messaging, GenericProtocol {
 			return "";
 		}
 	}
-    
-    private boolean checkOtherObisCodes(ObisCode oc) {
-    	if((oc.getA()==1)&&((oc.getB()==0)||(oc.getB()==1))){
-    		if((oc.getC()==1)||(oc.getC()==2)){
-    			if((oc.getD()==4)&&(oc.getE()==0))
-    				return true;		// Current average demand
-    			if((oc.getD()==5)&&(oc.getE()==0))
-    				return true;		// Last average demand
-    			if((oc.getD()==6)&&((oc.getE()>=0)&&(oc.getE()<=4)))
-    				return true;		// Max. demand rate E
-    			if((oc.getD()==8)&&((oc.getE()>=0)&&(oc.getE()<=4)))
-    				return true;		// Active energy
-    		}
-    	}
-		return false;
-	}
-
-	private boolean checkManObisCodes(ObisCode oc) {
-    	if((oc.getA()==0)&&((oc.getB()==0)||(oc.getB()==1))){
-    		if(oc.getD() == 7){			// dips and swells
-    			if((oc.getE()>=11)&&(oc.getE()<=17))
-    				return true;
-    			if((oc.getE()>=21)&&(oc.getE()<=27))
-    				return true;
-    			if((oc.getE()>=31)&&(oc.getE()<=37))
-    				return true;
-    			if((oc.getE()>=41)&&(oc.getE()<=47))
-    				return true;
-    			if((oc.getE()>=50)&&(oc.getE()<=51))	// voltage asymmetry
-    				return true;
-    		}
-    		else if(oc.getD() == 8){	// daily peak and minimum
-    			if((oc.getE()>=0)&&(oc.getE()<=3))
-    				return true;
-    			if((oc.getE()>=10)&&(oc.getE()<=13))
-    				return true;
-    			if((oc.getE()>=20)&&(oc.getE()<=23))
-    				return true;
-    			if((oc.getE()>=30)&&(oc.getE()<=33))
-    				return true;
-    			if(oc.getE()==50)
-    				return true;
-    		}
-    		else if(oc.getD() == 6){		// reclosing counter
-    			if(oc.getE()==1)
-    				return true;
-    		}
-    		else if((oc.getD() == 50)&&(oc.getE() == 0)) // ondemand gas
-    			return true;
-    	}
-    	return false;
-	}
-
-	/** Create a meter for configured RtuType 
-     * @throws BusinessException 
-     * @throws SQLException */
-    
-    private Rtu createMeter(Rtu concentrator, RtuType type, String serial) throws SQLException, BusinessException{
-        
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_MONTH, -10);
-        Date lastreading = cal.getTime();
-        
-        RtuShadow shadow = type.newRtuShadow();
-        
-        shadow.setName(serial);
-        shadow.setSerialNumber(serial);
-        
-        //*************************************************
-        // this moves the new Rtu to the Concentrator folder, else it will be placed in the prototype folder
-        // shadow.setFolderId(gwRtu.getFolderId());
-        //*************************************************
-        
-    	shadow.setGatewayId(concentrator.getId());
-    	shadow.setLastReading(lastreading);
-        return mw().getRtuFactory().create(shadow);
-        
-    }
     
     /** Import a single concentrator. 
      * @throws ServiceException 
@@ -1440,17 +374,16 @@ public class Concentrator implements Messaging, GenericProtocol {
         }
         
         if ( communicationProfile.getReadMeterEvents() ){
-        	String from = Constant.getInstance().format(getLastLogboog(concentrator));
+        	String from = Constant.getInstance().format(concentrator.getLastLogbook());
         	String to = Constant.getInstance().format(new Date());
         	String conEvents;
             if ( TESTING ){
-//            	FileReader inFile = new FileReader(conEventFile);
-            	FileReader inFile = new FileReader(Utils.class.getResource(conEventFile).getFile());
+            	FileReader inFile = new FileReader(Utils.class.getResource(Constant.conEventFile).getFile());
             	conEvents = readWithStringBuffer(inFile);
             }
             else
             	 conEvents = port(concentrator).getConcentratorEvents(from, to);
-        	XmlHandler dataHandler = new XmlHandler( getLogger(), getChannelMap(concentrator) );
+        	XmlHandler dataHandler = new XmlHandler( getLogger(), null );
         	ProfileData pd = new ProfileData();
         	importData(conEvents, dataHandler);
         	pd = dataHandler.addEvents();
@@ -1638,7 +571,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     }
     
     /** Instantiate webservice stub */
-    private P2LPCSoapPort_PortType port(Rtu concentrator) throws ServiceException {
+    protected P2LPCSoapPort_PortType port(Rtu concentrator) throws ServiceException {
         
         WebServiceLocator wsl = new WebServiceLocator();
         wsl.setP2LPCSoapPortEndpointAddress(getUrl(concentrator));
@@ -1657,29 +590,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     
     
     /** Find RtuType for creating new meters. */
-//    private RtuType getRtuType() {
-//        if (rtuType == null) {
-//            String type = getProperty(Constant.RTU_TYPE);
-//            rtuType[ELECTRICITY] = mw().getRtuTypeFactory().find(type);
-//        }
-//        return rtuType[ELECTRICITY];
-//    }
-    
-//    private RtuType getRtuType(int energyType) {
-//    	
-//        if (rtuType[energyType] == null) {
-//            String type = getProperty(Constant.RTU_TYPE);
-//            if (type != null){
-//	            type = type.split(":")[energyType];
-//	            rtuType[energyType] = mw().getRtuTypeFactory().find(type);
-//            }
-//            else return null;
-//        }
-//        
-//        return rtuType[energyType];
-//    }
-    
-    private RtuType getRtuType(Rtu concentrator){
+    protected RtuType getRtuType(Rtu concentrator){
     	String type = concentrator.getProperties().getProperty(Constant.RTU_TYPE);
     	if(type != null){
     		return mw().getRtuTypeFactory().find(type);
@@ -1710,7 +621,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     /** Convert/wrap concentrator serial to err msg */
     private String toConcetratorErrorMsg(String serial) {
         return new StringBuffer()
-                .append(CONCENTRATOR_ERROR)
+                .append(Constant.CONCENTRATOR_ERROR)
                 .append(serial)
                 .append(".")
                     .toString();
@@ -1751,22 +662,8 @@ public class Concentrator implements Messaging, GenericProtocol {
         return toConcetratorErrorMsg(serial) + toErrorMsg(msg);
     }
     
-    private String toDuplicateSerialsErrorMsg(String serial) {
-        return new MessageFormat( DUPLICATE_SERIALS )
-                    .format( new Object [] { serial } );
-    }
-    
-    public ProtocolChannelMap getChannelMap(Rtu meter) throws InvalidPropertyException {
-    	if (protocolChannelMap == null){
-    		String sChannelMap = meter.getProperties().getProperty( Constant.CHANNEL_MAP );
-    		protocolChannelMap = new ProtocolChannelMap( sChannelMap ); 
-    	}
-        
-        return protocolChannelMap;
-    }
-    
     /** log to severe */
-    private void severe(Throwable thrown, String eMsg) {
+    protected void severe(Throwable thrown, String eMsg) {
         String msg = eMsg + " (" + thrown.toString() + ")";
         getLogger().log(Level.SEVERE, msg, thrown);
     }
@@ -1777,7 +674,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     }
     
     /** DOM wrapping */
-    private Document toDom(String data) throws XmlException  {
+    protected Document toDom(String data) throws XmlException  {
         
         InputSource is = new InputSource(new StringReader(data));
         try {
@@ -1805,7 +702,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     }
     
     /** Some try/catch releaf */
-    private class XmlException extends Exception {
+    protected class XmlException extends Exception {
         
         private static final long serialVersionUID = 1L;
 
@@ -1817,8 +714,6 @@ public class Concentrator implements Messaging, GenericProtocol {
             super(cause);
         }
     }
-    
-    /* Dbg */
 
     /** dump some verbose dbg info to std out */
     private void debug(String msg) {
@@ -1854,9 +749,6 @@ public class Concentrator implements Messaging, GenericProtocol {
         MessageTagSpec tagSpec = new MessageTagSpec(Constant.THRESHOLD_GROUPID);
         tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
-//        tagSpec = new MessageTagSpec(Constant.THRESHOLD_POWERLIMIT);
-//        tagSpec.add(new MessageValueSpec());
-//        msgSpec.add(tagSpec);
         tagSpec = new MessageTagSpec(Constant.THRESHOLD_STARTDT);
         tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
@@ -1937,6 +829,13 @@ public class Concentrator implements Messaging, GenericProtocol {
 
 	protected void setTESTING(boolean testing) {
 		TESTING = testing;
+	}
+
+	/**
+	 * @param logger the logger to set
+	 */
+	protected void setLogger(Logger logger) {
+		this.logger = logger;
 	}
     
 }

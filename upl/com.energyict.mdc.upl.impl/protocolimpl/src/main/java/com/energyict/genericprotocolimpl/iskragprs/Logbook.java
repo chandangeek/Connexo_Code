@@ -21,7 +21,7 @@ import com.energyict.protocol.MeterEvent;
  */
 public class Logbook {
     
-    private static final int DEBUG = 5;
+    private static final int DEBUG = 0;
     
     TimeZone timeZone;
     

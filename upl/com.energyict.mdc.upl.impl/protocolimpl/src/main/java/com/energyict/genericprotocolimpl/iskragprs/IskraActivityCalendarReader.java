@@ -328,7 +328,8 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 			bytes[6]= (byte) 0x00;
 			bytes[7]= (byte) 0x00;
 			bytes[8]= (byte) 0x00;
-			bytes[9]= (byte) 0x00;
+//			bytes[9]= (byte) 0x00;
+			bytes[9]= (byte) 0x80;
 			bytes[10]= (byte) 0x00;
 			bytes[11]= (byte) 0x00;
 			return bytes;

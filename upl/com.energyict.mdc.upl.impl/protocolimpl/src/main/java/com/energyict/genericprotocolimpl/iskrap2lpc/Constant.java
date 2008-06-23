@@ -56,8 +56,22 @@ class Constant {
 
     final static String CHANNEL_MAP = "ChannelMap"; 
 
-    /** */
+    /** RtuType */
     final static String RTU_TYPE = "RtuType";
+    
+    /** Error message for a meter error */
+    final static String METER_ERROR = 
+        "Meter failed, serialnumber meter: ";
+    
+    /** Error message for a concentrator error */
+    final static String CONCENTRATOR_ERROR = 
+        "Concentrator failed, serialnumber concentrator: ";
+
+    final static String DUPLICATE_SERIALS =
+        "Multiple meters where found with serial: {0}.  Data will not be read.";
+    
+    final static String NO_AUTODISCOVERY =
+        "Meter serialnumber is not found in database and no rtuType is configured so no automatic meter creation.";
     
     /** ftp related properties */
     
@@ -77,6 +91,18 @@ class Constant {
     
     private SimpleDateFormat fixedDateFormat;
     private SimpleDateFormat dateFormat;
+    
+    final static String conSerialFile 	= "/offlineFiles/iskrap2lpc/ConcentratorSerial.xml";
+    final static String profileConfig1 	= "/offlineFiles/iskrap2lpc/ObjectDefFile1.xml";
+    final static String profileConfig2 	= "/offlineFiles/iskrap2lpc/ObjectDefFile2.xml";
+    final static String[] profileFiles 	= {"/offlineFiles/iskrap2lpc/profile0.xml", "/offlinefiles/iskrap2lpc/profile1.xml"};
+    final static String mbusProfile 		= "/offlineFiles/iskrap2lpc/mbus.xml";
+    final static String eventsFile 		= "/offlineFiles/iskrap2lpc/events.xml";
+    final static String powerDownFile 	= "/offlineFiles/iskrap2lpc/powerFailures.xml";
+    final static String dateTimeFile 		= "/offlineFiles/iskrap2lpc/cosemDateTime.xml";
+    final static String conEventFile 		= "/offlineFiles/iskrap2lpc/conEvent.xml";
+    final static String mbusSerialFile 	= "/offlineFiles/iskrap2lpc/mbusSerial.xml";
+    final static String testFile 			= "/offlineFiles/iskrap2lpc/test.xml";
     
     static Constant getInstance( ){
         return instance;
