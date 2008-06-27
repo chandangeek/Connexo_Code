@@ -11,6 +11,7 @@ import java.util.TimeZone;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.energyict.cbo.Unit;
@@ -56,14 +57,17 @@ public class TrimaranTest {
 	        fis.read(data);
 	        fis.close();   
 	        cje.getTrimaranProfile().getDemandData().parse(data);
-	        cje.getTrimaranProfile().incrementPointer();
 	        
-	        /* have to check two profiles now */
-	        cje.getTrimaranProfile().setDemandData(new DemandData(cje.getDataFactory()));
-	        cje.getTrimaranProfile().getDemandData().parse(data);
+	        //TODO you should check the values!!
 	        
-			cje.getProfileData(null, null, false);
-			// if we can get this far it should be OK ...
+//	        cje.getTrimaranProfile().incrementPointer();
+//	        
+//	        /* have to check two profiles now */
+//	        cje.getTrimaranProfile().setDemandData(new DemandData(cje.getDataFactory()));
+//	        cje.getTrimaranProfile().getDemandData().parse(data);
+//	        
+//			cje.getProfileData(null, null, false);
+//			// if we can get this far it should be OK ...
 		} catch (UnsupportedException e) {
 			fail();
 			e.printStackTrace();
@@ -80,6 +84,7 @@ public class TrimaranTest {
 	public void profileTest2(){
 		cje.setTrimaranProfile(new TrimaranProfile(cje));
 		cje.setDataFactory(new DataFactory(cje));
+		cje.setMeterVersion("V2");
 		try {
 			for(int i = 0; i < profile.length; i++){
 				cje.getTrimaranProfile().setDemandData(new DemandData(cje.getDataFactory()));

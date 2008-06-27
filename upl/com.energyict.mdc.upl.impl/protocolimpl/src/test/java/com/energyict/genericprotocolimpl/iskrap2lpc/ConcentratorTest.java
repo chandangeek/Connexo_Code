@@ -108,7 +108,7 @@ public class ConcentratorTest{
 				((CommunicationProtocolImpl)result.get(0)).delete();
 	}
 	
-	@Ignore
+//	@Ignore
 	@Test
 	public void importProfileTest() {
 		try {
