@@ -18,7 +18,7 @@ import java.io.*;
  */
 abstract public class AbstractTable {
     
-    final int DEBUG=10;
+    final int DEBUG=0;
     
     abstract protected void parse(byte[] data) throws IOException;
     abstract protected int getCode();

@@ -10,20 +10,13 @@
 
 package com.energyict.protocolimpl.edf.trimarancje;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.axis.utils.ByteArray;
-
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edf.trimarancje.core.DemandData;
-import com.energyict.protocolimpl.edf.trimarancje.core.DemandValues;
 
 /**
  *
@@ -50,33 +43,47 @@ public class TrimaranProfile {
 
     	if( profileData == null){
     		profileData = new ProfileData();
-    		while(true){
-    			if(getDemandData() == null)
-    				setDemandData(trimaran.getDataFactory().getDemandData(pointer));
-    			if (pointer == 1){
-    				if(Arrays.equals(getDemandData(0).getData(), getDemandData(1).getData())){
-    					break;          
-    				}
-    			}
-    			incrementPointer();
-    			if (pointer >= 16)
-    				break;
-    		}
-    		if(pointer >= 16){
-    			
-    			profileData.setChannelInfos(getDemandData(0).getChannelInfos(1));
-    			List allIntervals = new ArrayList();
-    			for(int i = 0; i < pointer; i++){
-    				allIntervals.add(getDemandData(i).getIntervalDatas());
-    			}
-    			profileData.setIntervalDatas(allIntervals);
-    		}
-    		else{
+    		
+    		if(trimaran.getMeterVersion().equalsIgnoreCase("V1")){
+    			setDemandData(trimaran.getDataFactory().getDemandData());
     			profileData.setChannelInfos(getDemandData(0).getChannelInfos());
     			profileData.setIntervalDatas(getDemandData(0).getIntervalDatas());
     		}
+    		
+    		else if(trimaran.getMeterVersion().equalsIgnoreCase("V2")){
+    			//**********************************************************************************
+    			// Made this implementation to check if het meter has a small or a large profile,
+    			// this doesn't seem to work with all the metes so I canceled this and just 
+    			// concentrated on the version one meters, these are the once that are implemented 
+    			// in the ACCOR project.
+    			//**********************************************************************************
+	    		while(true){
+	    			if(getDemandData() == null)
+	    				setDemandData(trimaran.getDataFactory().getDemandData(pointer));
+	    			if (pointer == 1){
+	    				if(Arrays.equals(getDemandData(0).getData(), getDemandData(1).getData())){
+	    					break;          
+	    				}
+	    			}
+	    			incrementPointer();
+	    			if (pointer >= 16)
+	    				break;
+	    		}
+	    		if(pointer >= 16){
+	    			
+	    			profileData.setChannelInfos(getDemandData(0).getChannelInfos(1));
+	    			List allIntervals = new ArrayList();
+	    			for(int i = 0; i < pointer; i++){
+	    				allIntervals.add(getDemandData(i).getIntervalDatas());
+	    			}
+	    			profileData.setIntervalDatas(allIntervals);
+	    		}
+	    		else{
+	    			profileData.setChannelInfos(getDemandData(0).getChannelInfos());
+	    			profileData.setIntervalDatas(getDemandData(0).getIntervalDatas());
+	    		}
+    		}
     	}
-        
         return profileData;
     }
     

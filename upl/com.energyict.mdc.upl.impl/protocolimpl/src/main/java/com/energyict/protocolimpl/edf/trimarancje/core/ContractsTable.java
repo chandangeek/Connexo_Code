@@ -20,12 +20,10 @@ public class ContractsTable extends AbstractTable{
 		super(dataFactory);
 	}
 
-	@Override
 	protected int getCode() {
 		return 12;
 	}
 
-	@Override
 	protected void parse(byte[] data) throws IOException {
 		System.out.println(data);
 //      System.out.println("KV_DEBUG> write to file");

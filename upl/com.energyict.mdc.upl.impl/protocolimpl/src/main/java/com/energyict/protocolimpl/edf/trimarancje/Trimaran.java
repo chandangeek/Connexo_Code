@@ -61,6 +61,7 @@ public class Trimaran extends AbstractProtocol {
     private int ackTimeout;
     private int commandTimeout;
     private int flushTimeout;
+    private String meterVersion;
     
     /** Creates a new instance of Trimaran */
     public Trimaran() {
@@ -90,6 +91,7 @@ public class Trimaran extends AbstractProtocol {
     public int getProfileInterval() throws UnsupportedException, IOException { 
 //        return 600;
 //    	return 300;
+    	getTrimaranProfile().getProfileData();
     	return getTrimaranProfile().getProfileInterval();
     }
     
@@ -133,6 +135,8 @@ public class Trimaran extends AbstractProtocol {
         setCommandTimeout(Integer.parseInt(properties.getProperty("CommandTimeout","3000").trim())); // Command retry timeout
         setFlushTimeout(Integer.parseInt(properties.getProperty("FlushTimeout","500").trim())); // Timeout to wait before sending a new command for receiving duplicate frames send by meter
         
+        setMeterVersion(properties.getProperty("MeterVersion", "V1")); // Select the meterVersion, V2 is NOT TESTED YET!
+        
     }
     
     protected List doGetOptionalKeys() {
@@ -141,7 +145,7 @@ public class Trimaran extends AbstractProtocol {
         result.add("ACKTimeoutTL");
         result.add("CommandTimeout");
         result.add("FlushTimeout");
-        
+        result.add("MeterVersion");
         return result;
     }
     
@@ -371,4 +375,14 @@ public class Trimaran extends AbstractProtocol {
     public void setFlushTimeout(int flushTimeout) {
         this.flushTimeout = flushTimeout;
     }
+
+
+	protected String getMeterVersion() {
+		return meterVersion;
+	}
+
+
+	protected void setMeterVersion(String meterVersion) {
+		this.meterVersion = meterVersion;
+	}
 }

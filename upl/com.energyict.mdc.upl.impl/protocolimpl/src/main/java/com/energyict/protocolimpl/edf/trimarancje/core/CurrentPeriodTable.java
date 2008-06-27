@@ -52,7 +52,6 @@ public class CurrentPeriodTable extends AbstractTable{
 		super(dataFactory);
 	}
 
-	@Override
 	protected int getCode() {
 		return 2;
 	}
@@ -100,7 +99,6 @@ public class CurrentPeriodTable extends AbstractTable{
 		 return strBuff.toString();
 	}
 
-	@Override
 	protected void parse(byte[] data) throws IOException {
 //      System.out.println("KV_DEBUG> write to file");
 //      File file = new File("c://TEST_FILES/CPTCJE9205.bin");

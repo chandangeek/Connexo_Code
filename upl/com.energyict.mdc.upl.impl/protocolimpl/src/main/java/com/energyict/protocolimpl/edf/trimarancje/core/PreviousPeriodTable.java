@@ -42,12 +42,10 @@ public class PreviousPeriodTable extends AbstractTable{
 		super(dataFactory);
 	}
 
-	@Override
 	protected int getCode() {
 		return 1;
 	}
 
-	@Override
 	protected void parse(byte[] data) throws IOException {
 //		System.out.println("KV_DEBUG> write to file");
 //		File file = new File("c://TEST_FILES/PPTCJE9205.bin");
