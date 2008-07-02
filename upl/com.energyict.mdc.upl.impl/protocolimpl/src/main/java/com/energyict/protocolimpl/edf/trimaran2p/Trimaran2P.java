@@ -27,6 +27,7 @@ import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.edf.trimaran2p.core.TrimaranObjectFactory;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.APSEPDUFactory;
+import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.StatusIdentify;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu.DLMSPDUFactory;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.APSEParameters;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.Connection62056;
@@ -52,6 +53,8 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
     private int t1Timeout;
     
     private long roundTripStart;
+    
+    private String meterVersion;
 
 	/**
 	 * 
@@ -73,8 +76,8 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 		
 	}
 	
-	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException{
-		return getTrimaran2PProfile().getProfileData(lastReading);
+	public ProfileData getProfileData(Date lastReading, Date to, boolean includeEvents) throws IOException{
+		return getTrimaran2PProfile().getProfileData(lastReading, to);
 	}
 	
 	protected void validateSerialNumber() throws IOException{
@@ -170,7 +173,9 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	}
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
-		return getDLMSPDUFactory().getStatusResponse().getStatusIdentifies()[0].toString();
+		String firm = getDLMSPDUFactory().getStatusResponse().getStatusIdentifies()[0].toString();
+		setMeterVersion(getDLMSPDUFactory().getStatusResponse().getStatusIdentifies()[0].getResources());
+		return firm;
 	}
 
 	public String getProtocolVersion() {
@@ -192,14 +197,14 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 		StringBuffer strBuff = new StringBuffer();
 		
 		strBuff.append(getTrimaranObjectFactory().readParameters());
-		strBuff.append(getTrimaranObjectFactory().readParametersPlus1());
+//		strBuff.append(getTrimaranObjectFactory().readParametersPlus1());
 		strBuff.append(getTrimaranObjectFactory().readParametersMoins1());
 		strBuff.append(getTrimaranObjectFactory().readAccessPartiel());
 		strBuff.append(getTrimaranObjectFactory().readTempsFonctionnement());
 		strBuff.append(getTrimaranObjectFactory().readEnergieIndex());
-		strBuff.append(getTrimaranObjectFactory().readArreteJournalier());
-		strBuff.append(getTrimaranObjectFactory().readArreteProgrammables());
-		strBuff.append(getTrimaranObjectFactory().readProgrammablesIndex());
+//		strBuff.append(getTrimaranObjectFactory().readArreteJournalier());
+//		strBuff.append(getTrimaranObjectFactory().readArreteProgrammables());
+//		strBuff.append(getTrimaranObjectFactory().readProgrammablesIndex());
 //		strBuff.append(getTrimaranObjectFactory().readPMaxMois());
 //		strBuff.append(getTrimaranObjectFactory().readDureesPnonGarantie());
 		
@@ -345,6 +350,14 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	 */
 	public void setRoundTripStart(long roundTripStart) {
 		this.roundTripStart = roundTripStart;
+	}
+
+	protected String getMeterVersion() {
+		return meterVersion;
+	}
+
+	protected void setMeterVersion(String meterVersion) {
+		this.meterVersion = meterVersion;
 	}
 
 }

@@ -13,10 +13,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.energyict.cbo.Utils;
@@ -55,6 +57,7 @@ public class CourbeChargeTest {
 		deuxP.release();
 	}
 	
+	@Ignore
 	@Test
 	public void doParseTest(){
 		
@@ -85,7 +88,7 @@ public class CourbeChargeTest {
 			assertEquals(6, cc.getProfileData().getChannelInfos().size());
 			
 			for(int i = 0; i < 6; i++){
-				file = new File(Utils.class.getResource("/offlineFiles/Object_Values_0406_long" + i + ".bin").getFile());
+				file = new File(Utils.class.getResource("/offlineFiles/trimaran/Object_Values_0406_long" + i + ".bin").getFile());
 				fis = new FileInputStream(file);
 				ois = new ObjectInputStream(fis);
 				values = (int[])ois.readObject();
@@ -137,6 +140,52 @@ public class CourbeChargeTest {
 			fail();
 			e.printStackTrace();
 		}
+	}
+	
+	@Test
+	public void doParseTest2(){
+		
+		FileInputStream fis;
+		ObjectInputStream ois;
+		File file;
+		int[] values;
+		
+		Calendar cal = Calendar.getInstance(deuxP.getTimeZone());	//set the last day of the profile to 05/06/08 - 08:07:23
+		cal.set(Calendar.DAY_OF_MONTH, 1);
+		cal.set(Calendar.MONTH, 7);
+		cal.set(Calendar.YEAR, 2008);
+		cal.set(Calendar.HOUR_OF_DAY, 9);
+		cal.set(Calendar.MINUTE, 57);
+		cal.set(Calendar.SECOND, 23);
+		
+		try {
+			CourbeCharge cc = new CourbeCharge(deuxP.getTrimaranObjectFactory());
+			cc.getTrimaranObjectFactory().setParameters(new Parameters(cc.getTrimaranObjectFactory()));
+			cc.getTrimaranObjectFactory().getParameters().setTCourbeCharge(10);
+			cc.getTrimaranObjectFactory().getParameters().setCcReact(true);		// we must have six channels
+			cc.initCollections();
+			cc.setNow(new Date(System.currentTimeMillis()));
+			
+			for(int i = 7; i < 8; i++){
+				file = new File(Utils.class.getResource("/offlineFiles/trimaran/deuxp184/080735000184Profile_" + i + ".bin").getFile());
+				fis = new FileInputStream(file);
+				ois = new ObjectInputStream(fis);
+				values = (int[])ois.readObject();
+				cc.addValues(values);
+				cc.doParse();
+			}
+			
+		} catch (FileNotFoundException e) {
+			fail();
+			e.printStackTrace();
+		} catch (IOException e) {
+			fail();
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			fail();
+			e.printStackTrace();
+		}
+		
 	}
 
 }

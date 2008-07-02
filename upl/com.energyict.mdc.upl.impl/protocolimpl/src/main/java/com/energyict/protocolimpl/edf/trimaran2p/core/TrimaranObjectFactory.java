@@ -172,9 +172,9 @@ public class TrimaranObjectFactory {
 		return arreteProgrammables;
 	}
 	
-    public CourbeCharge getCourbeCharge(Date from) throws IOException {
+    public CourbeCharge getCourbeCharge(Date from, Date to) throws IOException {
         CourbeCharge cc = new CourbeCharge(this);
-        cc.collect(from);
+        cc.collect(from, to);
         return cc;
     }
 	

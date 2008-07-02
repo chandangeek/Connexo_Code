@@ -35,8 +35,6 @@ public class TrimaranObjectFactoryTest {
 	private EnergieIndexReader energieIndexReader = null;
 	private EnergieIndex energieIndex = null;
 	private Energies energies = null;
-//	private AccessPartiel accessPartiel = null;
-//	private Dialer dialer = null;
 	
 	private Quantity expected = new Quantity(new BigDecimal(BigInteger.valueOf(328499700),3), Unit.get("MWh"));
 
@@ -80,7 +78,7 @@ public class TrimaranObjectFactoryTest {
 		DataContainer dc = new DataContainer();
 		try {
 			
-			file = new File(Utils.class.getResource("/offlineFiles/EnergieIndexes.bin").getFile());
+			file = new File(Utils.class.getResource("/offlineFiles/trimaran/EnergieIndexes.bin").getFile());
 			fis = new FileInputStream(file);
 			byte[] data=new byte[(int)file.length()];
 			fis.read(data);

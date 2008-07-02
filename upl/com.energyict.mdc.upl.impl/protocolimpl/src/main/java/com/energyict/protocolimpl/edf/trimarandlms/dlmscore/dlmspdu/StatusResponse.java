@@ -10,6 +10,8 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import com.energyict.protocol.ProtocolUtils;
@@ -58,6 +60,14 @@ public class StatusResponse extends ConfirmedRespAPSE {
     final int DLMSPDU_STATUS_RESPONSE=0x09;
     
     protected void parsePDU(byte[] data) throws IOException {
+    	
+//    	System.out.println("GN_DEBUG> write to file");
+//    	File file = new File("c://TEST_FILES/089807000857StatusResponce.bin");
+//    	FileOutputStream fos = new FileOutputStream(file);
+//    	fos.write(data);
+//    	fos.close();
+    	
+    	
         int offset=0;
         if (DEBUG>=1) System.out.println("KV_DEBUG> "+ProtocolUtils.outputHexString(data));
         

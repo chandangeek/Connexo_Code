@@ -34,8 +34,8 @@ public class Trimaran2PProfile {
 
 	}
 
-	public ProfileData getProfileData(Date lastReading) throws IOException {
-		return trimaran.getTrimaranObjectFactory().getCourbeCharge(lastReading).getProfileData();
+	public ProfileData getProfileData(Date lastReading, Date to) throws IOException {
+		return trimaran.getTrimaranObjectFactory().getCourbeCharge(lastReading, to).getProfileData();
 	}
 
 }

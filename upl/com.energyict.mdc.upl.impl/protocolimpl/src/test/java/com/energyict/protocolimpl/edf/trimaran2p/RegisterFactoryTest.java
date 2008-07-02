@@ -59,7 +59,7 @@ public class RegisterFactoryTest {
 		try {
 			rf = new RegisterFactory(deuxP);
 			
-			file = new File(Utils.class.getResource("/offlineFiles/BuildedRegisters.bin").getFile());
+			file = new File(Utils.class.getResource("/offlineFiles/trimaran/BuildedRegisters.bin").getFile());
 			fis = new FileInputStream(file);
 			ois = new ObjectInputStream(fis);
 			buildedRegisters = (ArrayList)ois.readObject();

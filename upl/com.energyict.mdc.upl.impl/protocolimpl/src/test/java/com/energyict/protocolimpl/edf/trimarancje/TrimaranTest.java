@@ -24,16 +24,16 @@ import com.energyict.protocolimpl.edf.trimarancje.core.DemandData;
 public class TrimaranTest {
 	
 	private Trimaran cje;
-	private String trimaranProfile = "/offlineFiles/TrimaranProfile.bin";
-	private String[] profile = {"/offlineFiles/Profile1.bin", "/offlineFiles/Profile2.bin",
-								"/offlineFiles/Profile3.bin", "/offlineFiles/Profile4.bin",
-								"/offlineFiles/Profile5.bin", "/offlineFiles/Profile6.bin",
-								"/offlineFiles/Profile7.bin", "/offlineFiles/Profile8.bin",
-								"/offlineFiles/Profile9.bin", "/offlineFiles/Profile10.bin",
-								"/offlineFiles/Profile11.bin", "/offlineFiles/Profile12.bin",
-								"/offlineFiles/Profile13.bin", "/offlineFiles/Profile14.bin",
-								"/offlineFiles/Profile15.bin", "/offlineFiles/Profile16.bin",};
-	private String test = "/offlineFiles/Profile1.bin";
+	private String trimaranProfile = "/offlineFiles/trimaran/TrimaranProfile.bin";
+	private String[] profile = {"/offlineFiles/trimaran/cje/Profile1.bin", "/offlineFiles/trimaran/cje/Profile2.bin",
+								"/offlineFiles/trimaran/cje/Profile3.bin", "/offlineFiles/trimaran/cje/Profile4.bin",
+								"/offlineFiles/trimaran/cje/Profile5.bin", "/offlineFiles/trimaran/cje/Profile6.bin",
+								"/offlineFiles/trimaran/cje/Profile7.bin", "/offlineFiles/trimaran/cje/Profile8.bin",
+								"/offlineFiles/trimaran/cje/Profile9.bin", "/offlineFiles/trimaran/cje/Profile10.bin",
+								"/offlineFiles/trimaran/cje/Profile11.bin", "/offlineFiles/trimaran/cje/Profile12.bin",
+								"/offlineFiles/trimaran/cje/Profile13.bin", "/offlineFiles/trimaran/cje/Profile14.bin",
+								"/offlineFiles/trimaran/cje/Profile15.bin", "/offlineFiles/trimaran/cje/Profile16.bin",};
+	private String test = "/offlineFiles/trimaran/Profile1.bin";
 	@Before
 	public void setUp() throws Exception {
 		cje = new Trimaran();
