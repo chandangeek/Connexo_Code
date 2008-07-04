@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.landisgyr.maxsys2510;
 import java.util.Iterator;
 import java.util.TreeMap;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 
 class UnitOfMeasureCode {
@@ -46,7 +47,7 @@ class UnitOfMeasureCode {
         cr(2, "Kilowatt demand", "kW");
         cr(3, "Kilovar hours", "kvarh");
         cr(4, "Kilovar demand", "kvar");
-        cr(5, "Temperature, degrees F", 508);
+        cr(5, "Temperature, degrees F", BaseUnit.FAHRENHEIT);
         cr(6, "KQ demand at 60 degrees", Unit.getUndefined());
         cr(7, "Volts squared hours", "V2h");
         cr(8, "KQ hours at 60 degrees", Unit.getUndefined());
@@ -54,7 +55,7 @@ class UnitOfMeasureCode {
         cr(10, "Amps squared hours", Unit.getUndefined());
         cr(11, "Volts", "V");
         cr(12, "Amps", "A");
-        cr(13, "Temperature, degrees C", "°C");
+        cr(13, "Temperature, degrees C", "\u00B0C");
         cr(14, "Dew point", Unit.getUndefined());
         cr(15, "Amplitude", Unit.getUndefined());
         cr(16, "Temperature hours, degrees F", Unit.getUndefined());
@@ -71,8 +72,8 @@ class UnitOfMeasureCode {
         cr(63, "Kilowatt demand Channel 3", "kW");
         cr(64, "Kilowatt demand Channel 4", "kW");
         cr(65, "Kilowatt hours all totalized", "kWh");
-        cr(66, "Degree days, Fahrenheit", "°F");
-        cr(67, "Degree days, Celsius", "°C");
+        cr(66, "Degree days, Fahrenheit", "\u00B0F");
+        cr(67, "Degree days, Celsius", "\u00B0C");
         cr(68, "Kilovar demand", "kvar");
         cr(69, "Kilovolt-amp demand", "kva");
         cr(70, "Sum of kilowatt demand squared", Unit.getUndefined());
@@ -117,7 +118,7 @@ class UnitOfMeasureCode {
         cr(119, "SQRT_PERCNT_RATIO_ST 2-second update sqrt percent ratio ", Unit.getUndefined());
         cr(120, "Volt hours (square root of V2H)", Unit.getUndefined());
         cr(121, "Amp hours (square root of I2H)", Unit.getUndefined());
-        cr(122, "Difference transforms (A – B)", Unit.getUndefined());
+        cr(122, "Difference transforms (A ï¿½ B)", Unit.getUndefined());
         cr(123, "Product transform (A * B)", Unit.getUndefined());
         cr(124, "Quotient transform (A / B)", Unit.getUndefined());
         cr(125, "Data Gates transform", Unit.getUndefined());
