@@ -10,12 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,12 +34,18 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class CourbeCharge {
     
-    final int DEBUG=2;
+    final int DEBUG=0;
      
     private TrimaranObjectFactory trimaranObjectFactory;
     private List elements;
+    private List meterEvents = new ArrayList();
     private Date now;
     private int elementCount = 0;
+    private boolean boundryExceed = false;
+    private boolean dontAdd = false;
+    private boolean reactive = true;
+    private boolean corrupted = false;
+    private Iterator elementIterator;
     
     final int ELEMENT_BEGIN=-1;
     final int ELEMENT_PUISSANCE=0;
@@ -88,17 +89,24 @@ public class CourbeCharge {
            return getTrimaranObjectFactory().getTrimaran().getTimeZone();
     }
     
-    protected void initCollections() throws IOException {
+    protected void initCollectionsTEC() throws IOException {
         setElements(new ArrayList());
         setProfileData(new ProfileData());
-        getProfileData().addChannel((new ChannelInfo(0,"Trimaran 2P P+ channel", Unit.get("kW"), 0, 0, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
-        getProfileData().addChannel((new ChannelInfo(1,"Trimaran 2P P- channel", Unit.get("kW"), 0, 1, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
+        getProfileData().addChannel((new ChannelInfo(0,"Trimaran 2P TEC P+ channel", Unit.get("kW"), 0, 0, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
+        getProfileData().addChannel((new ChannelInfo(1,"Trimaran 2P TEC P- channel", Unit.get("kW"), 0, 1, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
         if(getTrimaranObjectFactory().readParameters().isCcReact()){
-        	 getProfileData().addChannel((new ChannelInfo(2,"Trimaran 2P Q1(Q+) channel", Unit.get("kvar"), 0, 2, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
-        	 getProfileData().addChannel((new ChannelInfo(3,"Trimaran 2P Q3(Q-) channel", Unit.get("kvar"), 0, 3, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
-        	 getProfileData().addChannel((new ChannelInfo(4,"Trimaran 2P Q2(Q+) channel", Unit.get("kvar"), 0, 4, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
-        	 getProfileData().addChannel((new ChannelInfo(5,"Trimaran 2P Q4(Q-) channel", Unit.get("kvar"), 0, 5, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
+        	 getProfileData().addChannel((new ChannelInfo(2,"Trimaran 2P TEC Q1(Q+) channel", Unit.get("kvar"), 0, 2, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
+        	 getProfileData().addChannel((new ChannelInfo(3,"Trimaran 2P TEC Q3(Q-) channel", Unit.get("kvar"), 0, 3, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
+        	 getProfileData().addChannel((new ChannelInfo(4,"Trimaran 2P TEC Q2(Q+) channel", Unit.get("kvar"), 0, 4, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
+        	 getProfileData().addChannel((new ChannelInfo(5,"Trimaran 2P TEC Q4(Q-) channel", Unit.get("kvar"), 0, 5, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
         }
+    }
+    
+    protected void initCollectionsTEP() throws IOException {
+        setElements(new ArrayList());
+        setProfileData(new ProfileData());
+        getProfileData().addChannel((new ChannelInfo(0,"Trimaran 2P TEP Q channel", Unit.get("kvar"), 0, 0, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
+        getProfileData().addChannel((new ChannelInfo(1,"Trimaran 2P TEP P channel", Unit.get("kW"), 0, 1, new BigDecimal(Math.pow(10, (getTrimaranObjectFactory().readParameters().getKep()))))));
     }
     
     private void waitUntilCopied() throws IOException { // max 20 sec
@@ -124,7 +132,10 @@ public class CourbeCharge {
     	else
     		now = to;
     	Date collectTime = from;
-        initCollections();
+        if( getTrimaranObjectFactory().getTrimaran().isTECMeter())
+        	initCollectionsTEC();	// only the tec version has this on
+        else if( getTrimaranObjectFactory().getTrimaran().isTEPMeter())
+        	initCollectionsTEP();	// only the tep version has this on
         do {
         	if (DEBUG>=1) System.out.println("GN_DEBUG> Retreive data from: " + collectTime);
             retrieve(collectTime);
@@ -145,14 +156,12 @@ public class CourbeCharge {
             IntervalData ivd = (IntervalData)it.next();
             if (ivd2Check !=null) {
                 if (ivd.getEndTime().compareTo(ivd2Check.getEndTime())==0) {
-                    
                     if ((ivd.getEiStatus() != 0) || (ivd2Check.getEiStatus() != 0)) {
                         List intervalValues = ivd2Check.getIntervalValues();
                         IntervalValue iv = (IntervalValue)intervalValues.get(0);
                         Integer i = new Integer(ivd.get(0).intValue()+ivd2Check.get(0).intValue());
                         iv.setNumber(i);
                     }
-                            
                     it.remove(); // remove ivd
                 }
             }
@@ -167,7 +176,7 @@ public class CourbeCharge {
 //        int[] values = getTrimaranObjectFactory().getCourbeChargePartielle2().getValues();
         
 //    	System.out.println("GN_DEBUG> write to file");
-//    	File file = new File("c://TEST_FILES/080735000184Profile_" + fileCounter+".bin");
+//    	File file = new File("c://TEST_FILES/201Profile_" + fileCounter+".bin");
 //    	fileCounter++;
 //    	FileOutputStream fos = new FileOutputStream(file);
 //    	ObjectOutputStream oos = new ObjectOutputStream(fos);
@@ -216,29 +225,30 @@ public class CourbeCharge {
         int tariff=0;
         int elementOffset=0;
         int i=0;
-        
-        boolean dontAdd = false;
+        reactive = true;
         
         Calendar calSetClock=null;
         Calendar cal = null;
         IntervalData intervalData=null;
-        List meterEvents=new ArrayList();
         List intervalDatas=new ArrayList();
+        meterEvents = new ArrayList();
         
-        if (DEBUG>=2) System.out.println("GN_DEBUG> load profile up to now="+now);
+        if (DEBUG>=2) 
+        	System.out.println("GN_DEBUG> load profile up to now="+now);
         
-        Iterator it = getElements().iterator();
-        while(it.hasNext()) {
-            int val = ((Integer)it.next()).intValue();
-            
+        setElementIterator(getElements().iterator());
+        
+        while(getElementIterator().hasNext()) {
+            int val = ((Integer)getElementIterator().next()).intValue();
             if (DEBUG>=2){
             	i++;
-            	if(val == 58007)
+            	if(val == 49151)
             		System.out.println("STOP");
             }
             
             if ((val & 0x8000) == 0) {
                 if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", val="+val);
+                val = getValue(val);
                 if (cal != null) {
                     cal.add(Calendar.SECOND,getProfileInterval());
                     currentElement=ELEMENT_PUISSANCE;
@@ -248,14 +258,10 @@ public class CourbeCharge {
                     if (now.after(cal.getTime())) {
                         intervalData = new IntervalData(new Date(cal.getTime().getTime()),0,0,tariff);
                         intervalData.addValue(new Integer(val));
-                        for(int j = 0; j < getTrimaranObjectFactory().getTrimaran().getNumberOfChannels() - 1; j++){
-                        	if(it.hasNext()){
-	                        	val = ((Integer)it.next()).intValue();
-	                        	 if (DEBUG>=2) i++;
-	                        	intervalData.addValue(new Integer(val));
-                        	}
-                        	else
-                        		dontAdd = true;
+                        addRestOfIntervals(intervalData);
+                        if(corrupted){
+                        	corrupted = false;
+                        	intervalData.addEiStatus(IntervalStateBits.CORRUPTED);
                         }
                         if(!dontAdd){
                         	intervalDatas.add(intervalData);
@@ -264,16 +270,25 @@ public class CourbeCharge {
                         	dontAdd = false;
                     }
                 }
+                type = 0;
             }
             else if ((val & 0xC000) == 0x8000) {
                 // bit 13..0 Valeur de la puissance avec coupure (� tronqu�e �)
-                val &= 0x3FFF;
+                val = getValue(val);
                 if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", shortlong, val="+val);
                 if (cal != null) {
                 	if(type == 0) // only add when no event has occured
                 		cal.add(Calendar.SECOND,getProfileInterval());
-                	else
-                		cal.setTime(((IntervalData)intervalDatas.get(intervalDatas.size()-1)).getEndTime());
+                	else{
+                		if(intervalDatas.size()!=0){
+                			if(!boundryExceed){
+                				cal.setTime(((IntervalData)intervalDatas.get(intervalDatas.size()-1)).getEndTime());
+                			} else {
+                				cal.add(Calendar.SECOND, getProfileInterval());
+                				boundryExceed = false;
+                			}
+                		}
+                	}
                 	
                     currentElement=ELEMENT_PUISSANCE_TRONQUE;
                     state = STATE_PUISSANCE;
@@ -282,17 +297,13 @@ public class CourbeCharge {
                         intervalData = new IntervalData(new Date(cal.getTime().getTime()),0,0,tariff);
                 		intervalData.addEiStatus(IntervalStateBits.SHORTLONG);
                 		if (type == 6) intervalData.addEiStatus(IntervalStateBits.POWERUP);
-//                		meterEvents.add(new MeterEvent(cal.getTime(),MeterEvent.POWERDOWN));
-                        intervalData.addValue(new Integer(val));
-                        for(int j = 0; j < getTrimaranObjectFactory().getTrimaran().getNumberOfChannels() - 1; j++){
-                        	if(it.hasNext()){
-	                        	val = (((Integer)it.next()).intValue())&0x3FFF;
-	                        	 if (DEBUG>=2) i++;
-	                        	intervalData.addValue(new Integer(val));
-                        	}
-                        	else
-                        		dontAdd = true;
+                		intervalData.addValue(new Integer(val));
+                		addRestOfIntervals(intervalData);
+                        if(corrupted){
+                        	corrupted = false;
+                        	intervalData.addEiStatus(IntervalStateBits.CORRUPTED);
                         }
+//                		meterEvents.add(new MeterEvent(cal.getTime(),MeterEvent.POWERDOWN));
                         if(!dontAdd){
                         	intervalDatas.add(intervalData);
                         }
@@ -335,9 +346,12 @@ public class CourbeCharge {
                 // bit 11..9 type 8..4 heure bit 3..0 minutes en multiples de Tc 
                 type = (val & 0x0E00) >> 9;
                 int hour = (val & 0x01F0) >> 4;
-//                int minutes = (val & 0x000F)*(getProfileInterval()/60); 	// La minute doit été multiplié avec 5mn pour le TEC et 10mn pour le TEP!!
-                int minutes = (val & 0x000F)*5;
-                //if (((previousElement == ELEMENT_BEGIN) || (previousElement == ELEMENT_DATATION_DATE)) && (cal != null)) {
+//              // La minute doit été multiplié avec 5mn pour le TEC et 10mn pour le TEP!!
+                int minutes = 0;
+                if(getTrimaranObjectFactory().getTrimaran().isTECMeter())
+                	minutes = (val & 0x000F)*5;
+                else if(getTrimaranObjectFactory().getTrimaran().isTEPMeter())
+                	minutes = (val & 0x000F)*10;
                 if (cal != null) {
                     cal.set(Calendar.HOUR_OF_DAY,hour);
                     cal.set(Calendar.MINUTE,minutes);
@@ -363,8 +377,10 @@ public class CourbeCharge {
                 }
                 else if (type == 4) {
                     // changements de valeur de paramètres (TC, TT, KJ, KF, KPr, RL, XL, Kep)
-                	intervalData.addEiStatus(IntervalStateBits.CONFIGURATIONCHANGE);
-                	meterEvents.add(new MeterEvent(cal.getTime(),MeterEvent.CONFIGURATIONCHANGE));
+                	
+                	// possible to uncomment these again... see with testing
+//                	intervalData.addEiStatus(IntervalStateBits.CONFIGURATIONCHANGE);
+//                	meterEvents.add(new MeterEvent(cal.getTime(),MeterEvent.CONFIGURATIONCHANGE));
                 }
                 else if (type == 5) {
                     // changement de valeur de Tc(élément date et heure)
@@ -372,19 +388,16 @@ public class CourbeCharge {
                 else if (type == 6) {
                     
                         if (now.after(cal.getTime())) {
-                        	val = ((Integer)it.next()).intValue();
+                        	val = ((Integer)getElementIterator().next()).intValue();
+                        	val = getValue(val);
                             intervalData = new IntervalData(new Date(cal.getTime().getTime()),0,0,tariff);
                     		intervalData.addEiStatus(IntervalStateBits.POWERUP);
                     		meterEvents.add(new MeterEvent(cal.getTime(),MeterEvent.POWERUP));
                             intervalData.addValue(new Integer(val));
-                            for(int j = 0; j < getTrimaranObjectFactory().getTrimaran().getNumberOfChannels() - 1; j++){
-                            	if(it.hasNext()){
-    	                        	val = ((Integer)it.next()).intValue();
-    	                        	 if (DEBUG>=2) i++;
-    	                        	intervalData.addValue(new Integer(val));
-                            	}
-                            	else
-                            		dontAdd = true;
+                            addRestOfIntervals(intervalData);
+                            if(corrupted){
+                            	corrupted = false;
+                            	intervalData.addEiStatus(IntervalStateBits.CORRUPTED);
                             }
                             if(!dontAdd){
                             	intervalDatas.add(intervalData);
@@ -435,6 +448,8 @@ public class CourbeCharge {
                              calSetClock.set(Calendar.SECOND,seconde);
                              meterEvents.add(new MeterEvent(calSetClock.getTime(),MeterEvent.SETCLOCK_AFTER));
                              state = STATE_NEW_TIME;
+                             if(!calSetClock.getTime().before(((IntervalData)intervalDatas.get(intervalDatas.size()-1)).getEndTime()))
+                            	 boundryExceed = true;
                              if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", minute="+minute+", seconde="+seconde);
                         }
                         else if ((previousElement == ELEMENT_DATATION_MINUTE_SECONDE) && (state == STATE_NEW_TIME)) {
@@ -445,55 +460,91 @@ public class CourbeCharge {
                              state = STATE_PUISSANCE;
                              if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", Mode="+mode+", config="+config+", marquage="+marquage);
                              tariff=val&0xFFF;
-                             //getMeterEvents().add(new MeterEvent(calSetClock.getTime(),MeterEvent.OTHER,val&0xFFF));
                         }
                     }
                     else if (type == 2) {
                         currentElement=ELEMENT_DATATION_POSTE;
-                        int mode = (val & 0x0040) >> 6;
-                        int config = (val & 0x0E00) >> 9;
-                        int marquage = (val & 0x003F);
                         state = STATE_PUISSANCE;
-                        if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", Mode="+mode+", config="+config+", marquage="+marquage);
+                        multiMarquage(val, cal);
+                        
+                        if(getTrimaranObjectFactory().getTrimaran().isTEPMeter()){
+                        	//*******************************
+                        	// Only with TEP meter
+                        	//*******************************
+                        	if (now.after(cal.getTime())){ 
+                        		intervalData = directionChange(cal, tariff);
+                                if(corrupted){
+                                	corrupted = false;
+                                	intervalData.addEiStatus(IntervalStateBits.CORRUPTED);
+                                }
+                        	}
+                        	if(!dontAdd)
+                        		intervalDatas.add(intervalData);
+                        	else
+                        		dontAdd = false;
+                        	type = 0;
+                        }
                     }
                     else if (type == 3) {
                         currentElement=ELEMENT_DATATION_POSTE;
-                        int mode = (val & 0x0040) >> 6;
-                        int config = (val & 0x0E00) >> 9;
-                        int marquage = (val & 0x003F);
                         state = STATE_PUISSANCE;
-                        if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", Mode="+mode+", config="+config+", marquage="+marquage);
+                        multiMarquage(val, cal);
+                        
+                        if(getTrimaranObjectFactory().getTrimaran().isTEPMeter()){
+                        	//*******************************
+                        	// Only with TEP meter
+                        	//*******************************
+                        	if (now.after(cal.getTime())){ 
+                        		intervalData = directionChange(cal, tariff);
+                                if(corrupted){
+                                	corrupted = false;
+                                	intervalData.addEiStatus(IntervalStateBits.CORRUPTED);
+                                }
+                        	}
+                        	if(!dontAdd)
+                        		intervalDatas.add(intervalData);
+                        	else
+                        		dontAdd = false;
+                        	type = 0;
+                        }
+                        
                     }
                     else if (type == 4) {
                         currentElement=ELEMENT_DATATION_POSTE;
-                        int mode = (val & 0x0040) >> 6;
-                        int config = (val & 0x0E00) >> 9;
-                        int marquage = (val & 0x003F);
                         state = STATE_PUISSANCE;
-                        if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", Mode="+mode+", config="+config+", marquage="+marquage);
+                        multiMarquage(val, cal);
+                        
+                        if(getTrimaranObjectFactory().getTrimaran().isTEPMeter()){
+                        	//*******************************
+                        	// Only with TEP meter
+                        	//*******************************
+                        	if (now.after(cal.getTime())){ 
+                        		intervalData = directionChange(cal, tariff);
+                                if(corrupted){
+                                	corrupted = false;
+                                	intervalData.addEiStatus(IntervalStateBits.CORRUPTED);
+                                }
+                        	}
+                        	if(!dontAdd)
+                        		intervalDatas.add(intervalData);
+                        	else
+                        		dontAdd = false;
+                        	type = 0;
+                        }
                     }
                     else if (type == 5) {
                         currentElement=ELEMENT_DATATION_POSTE;
-                        int mode = (val & 0x0040) >> 6;
-                        int config = (val & 0x0E00) >> 9;
-                        int marquage = (val & 0x003F);
                         state = STATE_PUISSANCE;
-                        if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", Mode="+mode+", config="+config+", marquage="+marquage);
+                        multiMarquage(val, cal);
                     }
                     else if (type == 6) {
                         currentElement=ELEMENT_DATATION_POSTE;
-                        int mode = (val & 0x0040) >> 6;
-                        int config = (val & 0x0E00) >> 9;
-                        int marquage = (val & 0x003F);
                         state = STATE_PUISSANCE;
-                        if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", Mode="+mode+", config="+config+", marquage="+marquage);
+                        multiMarquage(val, cal);
                     }
                     else if (type == 7) {
-                        int mode = (val & 0x0040) >> 6;
-                        int config = (val & 0x0E00) >> 9;
-                        int marquage = (val & 0x003F);
                         state = STATE_PUISSANCE;
-                        if (DEBUG>=2) System.out.println("GN_DEBUG> "+i+", Mode="+mode+", config="+config+", marquage="+marquage);
+                        multiMarquage(val, cal);
                     }
                     else {
                        throw new IOException("Courbecharge, parse(), invalid element 0x"+Integer.toHexString(val)+", type="+type+", currentElement="+currentElement+", previousElement="+previousElement);
@@ -507,19 +558,70 @@ public class CourbeCharge {
         
             if (cal==null) {
                 elementOffset++;
-                it.remove();
+                getElementIterator().remove();
             }
             
         } // while(count<getValues().length)  
         
-        getProfileData().setMeterEvents(meterEvents);
+        meterEvents.addAll(getProfileData().getMeterEvents());				// first get the events and add them to the local events
+        getProfileData().setMeterEvents(meterEvents);						// then add the events back to the profileData
+        if (DEBUG >= 2) System.out.println(getProfileData().getMeterEvents());
         getProfileData().getIntervalDatas().addAll(mergeDuplicateIntervals(intervalDatas));
         getProfileData().sort();
         if (DEBUG >= 2) System.out.println(getProfileData());
         
     } // public void doParse() throws IOException
     
-
+    private IntervalData directionChange(Calendar cal, int tariff) throws IOException{
+    	IntervalData[] intervals = {null, null};
+    	IntervalData intervalData = null;
+		intervals[0] = new IntervalData(new Date(cal.getTime().getTime()),0,0,tariff);
+		intervals[1] = new IntervalData(new Date(cal.getTime().getTime()),0,0,tariff);
+		
+//		int val = (((Integer)getElementIterator().next()).intValue());
+		int val = getValue(((Integer)getElementIterator().next()).intValue());
+		intervals[0].addValue(new Integer(val));
+		intervals[0] = addRestOfIntervals(intervals[0]);
+//		val = (((Integer)getElementIterator().next()).intValue());
+		val = getValue(((Integer)getElementIterator().next()).intValue());
+		intervals[1].addValue(new Integer(val));
+		intervals[1] = addRestOfIntervals(intervals[1]);
+		
+		intervalData = new IntervalData(new Date(cal.getTime().getTime()),0,0,tariff);
+		intervalData.addEiStatus(IntervalStateBits.OTHER);
+		Iterator it0 = ((IntervalData)intervals[0]).getValuesIterator();
+		Iterator it1 = ((IntervalData)intervals[1]).getValuesIterator();
+		while(it0.hasNext()){
+			intervalData.addValue(new Integer(((IntervalValue)it0.next()).getNumber().intValue() + ((IntervalValue)it1.next()).getNumber().intValue()));
+		}
+    	return intervalData;
+    }
+    
+    private IntervalData addRestOfIntervals(IntervalData intervalData) throws IOException{
+    	for(int i = 0; i < getTrimaranObjectFactory().getTrimaran().getNumberOfChannels() -1; i++){
+    		if(getElementIterator().hasNext()){
+				int val = getValue(((Integer)getElementIterator().next()).intValue());
+				intervalData.addValue(new Integer(val));
+    		}
+    		else
+    			dontAdd = true;
+    	}
+    	return intervalData;
+    }
+    
+    private void multiMarquage(int value, Calendar cal){
+        int mode = (value & 0x0040) >> 6;
+        int config = (value & 0x0E00) >> 9;
+        int marquage = (value & 0x003F);
+        switch(marquage){
+        case 1: meterEvents.add(new MeterEvent(cal.getTime(), MeterEvent.OTHER, "Changement de sens de transit ou sens indéterminé"));break;
+        case 2: meterEvents.add(new MeterEvent(cal.getTime(), MeterEvent.CONFIGURATIONCHANGE));break;
+        case 8: meterEvents.add(new MeterEvent(cal.getTime(), MeterEvent.CONFIGURATIONCHANGE, "Changement de temp d'intégration"));break;
+        case 16: meterEvents.add(new MeterEvent(cal.getTime(), MeterEvent.POWERUP));break;
+        case 32: meterEvents.add(new MeterEvent(cal.getTime(), MeterEvent.OTHER, "Changement de mode"));break;
+        }
+    }
+    
     private List mergeDuplicateIntervals(List intervalDatas) {
     	
     	List mergedIntervals = new ArrayList();
@@ -538,7 +640,7 @@ public class CourbeCharge {
     				Iterator itValuesP = previousIntervalData.getValuesIterator();
     				Iterator itValuesC = intervalData.getValuesIterator();
     				while(itValuesP.hasNext()){
-    					newIntervalData.addValue(((IntervalValue)itValuesP.next()).getNumber().intValue() + ((IntervalValue)itValuesC.next()).getNumber().intValue());
+    					newIntervalData.addValue(new Integer(((IntervalValue)itValuesP.next()).getNumber().intValue() + ((IntervalValue)itValuesC.next()).getNumber().intValue()));
     				}
     			}
     			else{
@@ -569,12 +671,62 @@ public class CourbeCharge {
         this.trimaranObjectFactory = trimaranObjectFactory;
     }
     
+    public int getValue(int val){
+    	int tronquée = 0xC000;
+    	int pasTronquée = 0x8000;
+    	
+    	if(getTrimaranObjectFactory().getTrimaran().isTEPMeter()){	// for the TEP meter
+    		if(reactive){	// only the reactive part has possible diff. values
+    			reactive = false;
+    			if((val&pasTronquée) == 0){		// case no gap
+    				if((val&0x4000) == 1){			// check the sign bit
+    					val = val-0x8000;		// two's complement ...
+    				}
+    			}
+    			else if((val&tronquée) == 0x8000){	// case we do have a gap
+    				val &= 0x3FFF;					// trim the value
+    				if((val&0x2000) == 1){				// check the sign bit
+    					val = val - 0x4000;			// two's complement ...
+    				}
+    			}
+    		}
+    		else{
+    			reactive = true;	// the Active value stays the same for the TEP meter
+    		}
+    	}
+    	else if(getTrimaranObjectFactory().getTrimaran().isTECMeter()){ 	// for the TEC meter
+    		if((val&pasTronquée) == 0){		// case no gap
+    			if(val == (0x8000-1)){
+    				val = 0; corrupted = true;
+    			}
+    		}
+    		else if((val&tronquée) == 0x8000){
+    			val &= 0x3FFF;
+    			if(val == (0x4000-1)){
+    				val = 0; corrupted = true;
+    			}
+    		}
+    	}
+    	return val;
+    }
+    
     static public void main(String[] args) {
     	
-    	byte b1 = (byte) 0x0FFF;
-    	int i1 = 0x0FFF;
+    	int val = 32685;
+    	int mask = 0x8000;
+    	System.out.println("Before: " + val);
+		if(mask >= 32768){	// case no gap
+			if(val >= 16384)
+				val = val - 32768;
+		}
+		System.out.println("After: " + val);
+		
     	
-    	System.out.println("Byte: " + b1 + "; Int: " + i1);
+    	
+//    	byte b1 = (byte) 0x0FFF;
+//    	int i1 = 0x0FFF;
+//    	
+//    	System.out.println("Byte: " + b1 + "; Int: " + i1);
     	
 //        try {
 //            CourbeCharge cc = new CourbeCharge(new TrimaranObjectFactory(null));
@@ -642,6 +794,22 @@ public class CourbeCharge {
 	 */
 	protected void setNow(Date now) {
 		this.now = now;
+	}
+
+	private List getMeterEvents() {
+		return meterEvents;
+	}
+
+	private void setMeterEvents(List meterEvents) {
+		this.meterEvents = meterEvents;
+	}
+
+	private Iterator getElementIterator() {
+		return elementIterator;
+	}
+
+	private void setElementIterator(Iterator elementIterator) {
+		this.elementIterator = elementIterator;
 	}
 
     

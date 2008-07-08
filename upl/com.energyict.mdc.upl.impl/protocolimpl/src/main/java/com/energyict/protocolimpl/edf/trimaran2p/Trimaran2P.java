@@ -69,6 +69,10 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	protected void doConnect() throws IOException {
 		getAPSEFactory().getAuthenticationReqAPSE();
 		getDLMSPDUFactory().getInitiateRequest();
+		if(getDLMSPDUFactory().getStatusResponse().getStatusIdentifies()[0].getResources().indexOf("TEC") != -1)
+			setMeterVersion("TEC");
+		else if(getDLMSPDUFactory().getStatusResponse().getStatusIdentifies()[0].getResources().indexOf("TEP") != -1)
+			setMeterVersion("TEP");
 		getLogger().info(getDLMSPDUFactory().getStatusResponse().toString());
 	}
 
@@ -174,7 +178,7 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
 		String firm = getDLMSPDUFactory().getStatusResponse().getStatusIdentifies()[0].toString();
-		setMeterVersion(getDLMSPDUFactory().getStatusResponse().getStatusIdentifies()[0].getResources());
+//		setMeterVersion(getDLMSPDUFactory().getStatusResponse().getStatusIdentifies()[0].getResources());	// do the version check in the init routine
 		return firm;
 	}
 
@@ -197,16 +201,20 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 		StringBuffer strBuff = new StringBuffer();
 		
 		strBuff.append(getTrimaranObjectFactory().readParameters());
-//		strBuff.append(getTrimaranObjectFactory().readParametersPlus1());
 		strBuff.append(getTrimaranObjectFactory().readParametersMoins1());
 		strBuff.append(getTrimaranObjectFactory().readAccessPartiel());
-		strBuff.append(getTrimaranObjectFactory().readTempsFonctionnement());
 		strBuff.append(getTrimaranObjectFactory().readEnergieIndex());
-//		strBuff.append(getTrimaranObjectFactory().readArreteJournalier());
-//		strBuff.append(getTrimaranObjectFactory().readArreteProgrammables());
-//		strBuff.append(getTrimaranObjectFactory().readProgrammablesIndex());
-//		strBuff.append(getTrimaranObjectFactory().readPMaxMois());
-//		strBuff.append(getTrimaranObjectFactory().readDureesPnonGarantie());
+		strBuff.append(getTrimaranObjectFactory().readTempsFonctionnement());	// not sure with TEP
+		if(isTECMeter()){
+			strBuff.append(getTrimaranObjectFactory().readParametersPlus1());		// not with TEP
+			strBuff.append(getTrimaranObjectFactory().readArreteJournalier());		// not with TEP
+			strBuff.append(getTrimaranObjectFactory().readArreteProgrammables());	// not with TEP
+			strBuff.append(getTrimaranObjectFactory().readProgrammablesIndex());	// not with TEP
+		}
+		else if(isTEPMeter()){
+			strBuff.append(getTrimaranObjectFactory().readPMaxMois());				// not with TEC
+//			strBuff.append(getTrimaranObjectFactory().readDureesPnonGarantie());	// not with TEC
+		}
 		
 		return strBuff.toString();
 	}
@@ -351,13 +359,27 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	public void setRoundTripStart(long roundTripStart) {
 		this.roundTripStart = roundTripStart;
 	}
-
+	
 	protected String getMeterVersion() {
 		return meterVersion;
 	}
 
-	protected void setMeterVersion(String meterVersion) {
+	public void setMeterVersion(String meterVersion) {
 		this.meterVersion = meterVersion;
+	}
+	
+	public boolean isTECMeter(){
+		if(getMeterVersion().equalsIgnoreCase("TEC"))
+			return true;
+		else
+			return false;
+	}
+	
+	public boolean isTEPMeter(){
+		if(getMeterVersion().equalsIgnoreCase("TEP"))
+			return true;
+		else
+			return false;
 	}
 
 }

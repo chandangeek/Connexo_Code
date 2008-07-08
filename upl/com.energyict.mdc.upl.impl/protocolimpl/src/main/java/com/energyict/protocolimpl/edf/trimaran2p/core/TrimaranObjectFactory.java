@@ -135,7 +135,8 @@ public class TrimaranObjectFactory {
 		if(energieIndex == null){
 			energieIndex = new EnergieIndex();
 			energieIndex.addEnergie(readEnergieIndexReader(brute).getEnergie());
-			energieIndex.addEnergie(readEnergieIndexReader(nette).getEnergie());
+			if(getTrimaran().isTECMeter())
+				energieIndex.addEnergie(readEnergieIndexReader(nette).getEnergie());	// not with TEP
 		}
 		return energieIndex;
 	}

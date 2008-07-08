@@ -56,6 +56,7 @@ public class RegisterFactoryTest {
 		ObjectInputStream ois;
 		ArrayList buildedRegisters = new ArrayList();
 		ArrayList actualRegisters = new ArrayList();
+		deuxP.setMeterVersion("TEC");
 		try {
 			rf = new RegisterFactory(deuxP);
 			

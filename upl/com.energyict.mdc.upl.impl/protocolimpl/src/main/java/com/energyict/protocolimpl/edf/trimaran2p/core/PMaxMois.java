@@ -110,11 +110,11 @@ public class PMaxMois extends AbstractTrimaranObject{
 	@Override
 	protected void parse(byte[] data) throws IOException {
 		
-    	System.out.println("GN_DEBUG> write to file");
-    	File file = new File("c://TEST_FILES/089807000857PMaxMois.bin");
-    	FileOutputStream fos = new FileOutputStream(file);
-    	fos.write(data);
-    	fos.close();
+//    	System.out.println("GN_DEBUG> write to file");
+//    	File file = new File("c://TEST_FILES/089807000857PMaxMois.bin");
+//    	FileOutputStream fos = new FileOutputStream(file);
+//    	fos.write(data);
+//    	fos.close();
 		
 		int offset = 0;
 		DataContainer dc = new DataContainer();
@@ -135,16 +135,16 @@ public class PMaxMois extends AbstractTrimaranObject{
 		offset++;
 		
 		for(int i = 0; i < 5; i++)
-			setDatesPApMax(new DateType(dc.getRoot().getLong(offset), getTrimaranObjectFactory().getTrimaran().getTimeZone()), i);
+			setDatesPApMax(new DateType(dc.getRoot().getStructure(offset).getLong(i), getTrimaranObjectFactory().getTrimaran().getTimeZone()), i);
 		offset++;
 		for(int i = 0; i < 5; i++)
-			setDatesPAnMax(new DateType(dc.getRoot().getLong(offset), getTrimaranObjectFactory().getTrimaran().getTimeZone()), i);
+			setDatesPAnMax(new DateType(dc.getRoot().getStructure(offset).getLong(i), getTrimaranObjectFactory().getTrimaran().getTimeZone()), i);
 		offset++;
 		for(int i = 0; i < 5; i++)
-			setDatesPRpMax(new DateType(dc.getRoot().getLong(offset), getTrimaranObjectFactory().getTrimaran().getTimeZone()), i);
+			setDatesPRpMax(new DateType(dc.getRoot().getStructure(offset).getLong(i), getTrimaranObjectFactory().getTrimaran().getTimeZone()), i);
 		offset++;
 		for(int i = 0; i < 5; i++)
-			setDatesPRnMax(new DateType(dc.getRoot().getLong(offset), getTrimaranObjectFactory().getTrimaran().getTimeZone()), i);
+			setDatesPRnMax(new DateType(dc.getRoot().getStructure(offset).getLong(i), getTrimaranObjectFactory().getTrimaran().getTimeZone()), i);
 		offset++;
 	}
 

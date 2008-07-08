@@ -13,6 +13,7 @@ import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.edf.trimaran2p.core.ArreteJournalier;
+import com.energyict.protocolimpl.edf.trimaran2p.core.ArreteProgrammables;
 import com.energyict.protocolimpl.edf.trimaran2p.core.Energies;
 import com.energyict.protocolimpl.edf.trimaran2p.core.Programmables;
 import com.energyict.protocolimpl.edf.trimaran2p.core.TempsFonctionnement;
@@ -25,8 +26,13 @@ import com.energyict.protocolimpl.edf.trimarandlms.common.RegisterNameFactory;
  */
 public class ObisCodeMapper {
 	
-	Trimaran2P trimaran2P;
-
+	private Trimaran2P trimaran2P;
+	private Energies energie = null;
+	private ArreteJournalier arreteJournalier = null;
+	private Programmables programmables = null;
+	private TempsFonctionnement tempsFonctionnement = null;
+	private ArreteProgrammables arreteProgrammables = null;
+	
 	/**
 	 * 
 	 */
@@ -57,7 +63,8 @@ public class ObisCodeMapper {
 		if(obisCode.getD() == 8){
 			if(register.getVariableName().isENERGIE()){
 				if(obisCode.getF() == 255){
-					Energies energie = getTrimaran2P().getTrimaranObjectFactory().readEnergieIndex().getEnergie(register.getVariableName().getCode());
+					if(energie == null)
+						energie = getTrimaran2P().getTrimaranObjectFactory().readEnergieIndex().getEnergie(register.getVariableName().getCode());
 					toTime.setTime(energie.getDernierHoroDate().getCalendar().getTimeInMillis());
 					switch(obisCode.getC()){
 					case 1:{quan = energie.getIxNRJact(0).add(energie.getNRJact_Reste(0));};break;
@@ -81,14 +88,15 @@ public class ObisCodeMapper {
 			}
 			
 			else if(register.getVariableName().isARRETE_JOURNALIER()){
-				ArreteJournalier arreteJournalier = getTrimaran2P().getTrimaranObjectFactory().readArreteJournalier();
+				if(arreteJournalier == null)
+					arreteJournalier = getTrimaran2P().getTrimaranObjectFactory().readArreteJournalier();
 				tempCalendar.setTime(arreteJournalier.getDernierHoroDate().getCalendar().getTime());
 				tempCalendar.set(Calendar.HOUR_OF_DAY, 0);
 				tempCalendar.set(Calendar.MINUTE, 0);
 				tempCalendar.set(Calendar.SECOND, 0);
 				tempCalendar.set(Calendar.MILLISECOND, 0);
 				toTime.setTime(arreteJournalier.getDernierHoroDate().getCalendar().getTimeInMillis());
-				if(Math.abs(obisCode.getF()) == 0){
+				if(Math.abs(obisCode.getF()) == 20){
 					switch(obisCode.getC()){
 					case 1:{quan = arreteJournalier.getIxJour(0);};break;
 					case 2:{quan = arreteJournalier.getIxJour(1);};break;
@@ -101,7 +109,7 @@ public class ObisCodeMapper {
 					return new RegisterValue(obisCode, quan, null, tempCalendar.getTime(), toTime);
 				}
 				
-				else if(Math.abs(obisCode.getF()) == 1){
+				else if(Math.abs(obisCode.getF()) == 21){
 //					arreteJournalier = getTrimaran2P().getTrimaranObjectFactory().readArreteJournalier();
 					toTime.setTime(tempCalendar.getTimeInMillis());
 					tempCalendar.add(Calendar.DAY_OF_MONTH, -1);
@@ -117,7 +125,7 @@ public class ObisCodeMapper {
 					return new RegisterValue(obisCode, quan, null, tempCalendar.getTime(), toTime);
 				}
 				
-				else if(Math.abs(obisCode.getF()) == 2){
+				else if(Math.abs(obisCode.getF()) == 22){
 //					arreteJournalier = getTrimaran2P().getTrimaranObjectFactory().readArreteJournalier();
 					tempCalendar.add(Calendar.DAY_OF_MONTH, -1);
 					toTime.setTime(tempCalendar.getTimeInMillis());
@@ -134,7 +142,7 @@ public class ObisCodeMapper {
 					return new RegisterValue(obisCode, quan, null, tempCalendar.getTime(), toTime);
 				}
 				
-				else if(Math.abs(obisCode.getF()) == 3){
+				else if(Math.abs(obisCode.getF()) == 23){
 //					arreteJournalier = getTrimaran2P().getTrimaranObjectFactory().readArreteJournalier();
 					tempCalendar.add(Calendar.DAY_OF_MONTH, -2);
 					toTime.setTime(tempCalendar.getTimeInMillis());
@@ -153,11 +161,19 @@ public class ObisCodeMapper {
 			}
 			
 			else if(register.getVariableName().isARRETES_PROGRAMMABLES()){
-				Programmables programmables = getTrimaran2P().getTrimaranObjectFactory().readProgrammablesIndex().getProgrammalbes(register.getVariableName().getCode());
+				if(programmables == null)
+					programmables = getTrimaran2P().getTrimaranObjectFactory().readProgrammablesIndex().getProgrammalbes(register.getVariableName().getCode());
+				if(arreteProgrammables == null)
+					arreteProgrammables = getTrimaran2P().getTrimaranObjectFactory().readArreteProgrammables();
 				tempCalendar.setTime(programmables.getDebutPeriode().getCalendar().getTime());
 				toTime.setTime(programmables.getDernierHorodate().getCalendar().getTimeInMillis());
-				int periodicite = programmables.getNombre();
-				if((Math.abs(obisCode.getF()) == 10) || (Math.abs(obisCode.getF()) == 20)){
+//				int periodicite = programmables.getNombre();
+				int periodicite = 1;
+				if(register.getVariableName().getCode() == 120)
+					periodicite = arreteProgrammables.getNombreJour();
+				else 
+					periodicite = arreteProgrammables.getNombreMois();
+				if((Math.abs(obisCode.getF()) == 0) || (Math.abs(obisCode.getF()) == 10)){
 					switch(obisCode.getC()){
 					case 1:{quan = programmables.getIxProg(0);};break;
 					case 2:{quan = programmables.getIxProg(1);};break;
@@ -170,7 +186,7 @@ public class ObisCodeMapper {
 					return new RegisterValue(obisCode, quan, null, tempCalendar.getTime(), toTime);
 				}
 				
-				else if((Math.abs(obisCode.getF()) == 11) || (Math.abs(obisCode.getF()) == 21)){
+				else if((Math.abs(obisCode.getF()) == 1) || (Math.abs(obisCode.getF()) == 11)){
 					toTime.setTime(tempCalendar.getTimeInMillis());
 					if(register.getVariableName().getCode() == 120)
 						tempCalendar.add(Calendar.DAY_OF_MONTH, -periodicite);
@@ -191,7 +207,8 @@ public class ObisCodeMapper {
 			
 			else if(register.getVariableName().isTEMPS_FONCTIONNEMENT()){
 				if(obisCode.getF() == 255){
-					TempsFonctionnement tempsFonctionnement = getTrimaran2P().getTrimaranObjectFactory().readTempsFonctionnement();
+					if(tempsFonctionnement == null)
+						tempsFonctionnement = getTrimaran2P().getTrimaranObjectFactory().readTempsFonctionnement();
 					toTime.setTime(tempsFonctionnement.getDernierHoroDate().getCalendar().getTimeInMillis());
 					return new RegisterValue(obisCode, tempsFonctionnement.getTempsFonct(), null, toTime);
 				}
@@ -207,6 +224,38 @@ public class ObisCodeMapper {
 	 */
 	protected Trimaran2P getTrimaran2P() {
 		return trimaran2P;
+	}
+
+	public Energies getEnergie() {
+		return energie;
+	}
+
+	public void setEnergie(Energies energie) {
+		this.energie = energie;
+	}
+
+	public ArreteJournalier getArreteJournalier() {
+		return arreteJournalier;
+	}
+
+	public void setArreteJournalier(ArreteJournalier arreteJournalier) {
+		this.arreteJournalier = arreteJournalier;
+	}
+
+	public Programmables getProgrammables() {
+		return programmables;
+	}
+
+	public void setProgrammables(Programmables programmables) {
+		this.programmables = programmables;
+	}
+
+	public TempsFonctionnement getTempsFonctionnement() {
+		return tempsFonctionnement;
+	}
+
+	public void setTempsFonctionnement(TempsFonctionnement tempsFonctionnement) {
+		this.tempsFonctionnement = tempsFonctionnement;
 	}
 
 }

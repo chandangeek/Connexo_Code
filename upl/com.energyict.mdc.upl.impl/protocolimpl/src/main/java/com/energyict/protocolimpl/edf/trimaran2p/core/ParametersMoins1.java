@@ -80,14 +80,17 @@ public class ParametersMoins1 extends AbstractTrimaranObject{
 		setXL_Moins1(dc.getRoot().getInteger(offset++));
 		setKep_Moins1(dc.getRoot().getInteger(offset++));
 		setTcc_Moins1(dc.getRoot().getInteger(offset++));
-		if(dc.getRoot().isInteger(offset)){
-			if (dc.getRoot().getInteger(offset) == 1)
-				setCcReact_Moins1(true);
+		if(getTrimaranObjectFactory().getTrimaran().isTECMeter()){
+			// Only with TEC meter
+			if(dc.getRoot().isInteger(offset)){
+				if (dc.getRoot().getInteger(offset) == 1)
+					setCcReact_Moins1(true);
+				else
+					setCcReact_Moins1(false);
+			}
 			else
-				setCcReact_Moins1(false);		
+				setCcReact_Moins1(false);
 		}
-		else
-			setCcReact_Moins1(false);	
 	}
 
 	@Override

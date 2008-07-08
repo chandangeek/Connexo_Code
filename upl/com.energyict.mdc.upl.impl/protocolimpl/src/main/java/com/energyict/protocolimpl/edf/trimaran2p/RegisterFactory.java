@@ -29,8 +29,8 @@ public class RegisterFactory {
 	
 	private ObisCode tempFonctionne = ObisCode.fromString("0.1.96.8.1.255");
 	
-	private int[] index = {1, 2, 5, 6 ,7, 8};
-	private int[] indexBrut = {140, 141, 142, 143, 144, 145};
+	private int[] index = {140, 141, 142, 143, 144, 145};
+	private int[] indexBrut = {1, 2, 5, 6 ,7, 8};
 	private int offsetJour = 10;
 	private int offsetArretJour = 20;
 
@@ -50,7 +50,8 @@ public class RegisterFactory {
 		registers = new ArrayList();
 		buildEnergieRegisters();
 		buildTempFonctionnementRegisters();
-		buildArretesRegisters();
+		if(trimaran2P.isTECMeter())
+			buildArretesRegisters();
 		
 //    	System.out.println("GN_DEBUG> write to file");
 //    	File file = new File("c://TEST_FILES/BuildedRegisters.bin");
@@ -76,11 +77,13 @@ public class RegisterFactory {
 			registers.add(new Register(variableName, i, 0));
 		}
 		
-		variableName = VariableNameFactory.getVariableName(64); 	// Nette standard!
-		for(int i = 0; i < 6; i++){
-			variableName.setObisFField(255);
-			variableName.setObisCField(index[i]);					
-			registers.add(new Register(variableName, i, 0));
+		if(trimaran2P.isTECMeter()){
+			variableName = VariableNameFactory.getVariableName(64); 	// Nette standard!
+			for(int i = 0; i < 6; i++){
+				variableName.setObisFField(255);
+				variableName.setObisCField(index[i]);					
+				registers.add(new Register(variableName, i, 0));
+			}
 		}
 	}
 	

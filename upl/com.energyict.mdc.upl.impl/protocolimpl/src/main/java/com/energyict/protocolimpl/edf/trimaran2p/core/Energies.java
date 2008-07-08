@@ -3,7 +3,10 @@
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.util.TimeZone;
 
@@ -31,6 +34,16 @@ public class Energies{
 
 
 	public Energies(DataContainer dc, TimeZone timeZone, int variableName) throws IOException {
+		
+		
+//    	System.out.println("GN_DEBUG> write to file");
+//    	File file = new File("c://TEST_FILES/Energies184.bin");
+//    	FileOutputStream fos = new FileOutputStream(file);
+//    	ObjectOutputStream oos = new ObjectOutputStream(fos);
+//    	oos.writeObject(dc);
+//    	oos.close();
+//    	fos.close();
+		
 		setVariableName(variableName);
 		int offset = 0;
 		setDebutPeriode(new DateType(dc.getRoot().getLong(offset++), timeZone));

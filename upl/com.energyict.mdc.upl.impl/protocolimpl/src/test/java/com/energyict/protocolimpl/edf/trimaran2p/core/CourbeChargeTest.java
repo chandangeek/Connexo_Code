@@ -39,7 +39,20 @@ public class CourbeChargeTest {
 	private OctetString interval592 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x04, (byte)0xFF, (byte)0x02, (byte)0x32, (byte)0x00});
 	private OctetString interval736 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x05, (byte)0xFF, (byte)0x02, (byte)0x32, (byte)0x00});
 	private OctetString interval767 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x05, (byte)0xFF, (byte)0x08, (byte)0x00, (byte)0x00});
+	
+	private OctetString interval704 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x09, (byte)0x1E, (byte)0x00});
+	private OctetString interval706 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x09, (byte)0x32, (byte)0x00});
+	private OctetString interval707 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x0A, (byte)0x00, (byte)0x00});
+	private OctetString interval733 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x0E, (byte)0x14, (byte)0x00});
+	private OctetString interval751 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x11, (byte)0x14, (byte)0x00});
 
+	private OctetString interval540 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x09, (byte)0x28, (byte)0x00});
+	private OctetString interval542 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x0A, (byte)0x00, (byte)0x00});
+	private OctetString interval555 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x0C, (byte)0x0A, (byte)0x00});
+	private OctetString interval568 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x0E, (byte)0x14, (byte)0x00});
+	private OctetString interval569 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x0E, (byte)0x1E, (byte)0x00});
+	private OctetString interval586 = new OctetString(new byte[]{(byte)0x07, (byte)0xD8, (byte)0x06, (byte)0x19, (byte)0xFF, (byte)0x11, (byte)0x14, (byte)0x00});
+	
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -57,7 +70,6 @@ public class CourbeChargeTest {
 		deuxP.release();
 	}
 	
-	@Ignore
 	@Test
 	public void doParseTest(){
 		
@@ -80,11 +92,12 @@ public class CourbeChargeTest {
 			cc.getTrimaranObjectFactory().setParameters(new Parameters(cc.getTrimaranObjectFactory()));
 			cc.getTrimaranObjectFactory().getParameters().setTCourbeCharge(10);
 			cc.getTrimaranObjectFactory().getParameters().setCcReact(false); 	// we must have two channels
-			cc.initCollections();
+			cc.initCollectionsTEC();
+			cc.getTrimaranObjectFactory().getTrimaran().setMeterVersion("TEC");
 			assertEquals(2, cc.getProfileData().getChannelInfos().size());
 			
 			cc.getTrimaranObjectFactory().getParameters().setCcReact(true);		// we must have six channels
-			cc.initCollections();
+			cc.initCollectionsTEC();
 			assertEquals(6, cc.getProfileData().getChannelInfos().size());
 			
 			for(int i = 0; i < 6; i++){
@@ -143,37 +156,62 @@ public class CourbeChargeTest {
 	}
 	
 	@Test
-	public void doParseTest2(){
+	public void doParseTestTEP(){
 		
 		FileInputStream fis;
 		ObjectInputStream ois;
 		File file;
 		int[] values;
+		CourbeCharge cc = new CourbeCharge(deuxP.getTrimaranObjectFactory());
 		
-		Calendar cal = Calendar.getInstance(deuxP.getTimeZone());	//set the last day of the profile to 05/06/08 - 08:07:23
-		cal.set(Calendar.DAY_OF_MONTH, 1);
-		cal.set(Calendar.MONTH, 7);
-		cal.set(Calendar.YEAR, 2008);
-		cal.set(Calendar.HOUR_OF_DAY, 9);
-		cal.set(Calendar.MINUTE, 57);
-		cal.set(Calendar.SECOND, 23);
-		
+		// Test the TEP version
 		try {
-			CourbeCharge cc = new CourbeCharge(deuxP.getTrimaranObjectFactory());
+			cc.getTrimaranObjectFactory().getTrimaran().setMeterVersion("TEP");
 			cc.getTrimaranObjectFactory().setParameters(new Parameters(cc.getTrimaranObjectFactory()));
 			cc.getTrimaranObjectFactory().getParameters().setTCourbeCharge(10);
-			cc.getTrimaranObjectFactory().getParameters().setCcReact(true);		// we must have six channels
-			cc.initCollections();
+			cc.getTrimaranObjectFactory().getParameters().setCcReact(false);		// we must have two channels
+			cc.initCollectionsTEP();
 			cc.setNow(new Date(System.currentTimeMillis()));
 			
-			for(int i = 7; i < 8; i++){
-				file = new File(Utils.class.getResource("/offlineFiles/trimaran/deuxp184/080735000184Profile_" + i + ".bin").getFile());
+			for(int i = 1; i < 6; i++){
+				file = new File(Utils.class.getResource("/offlineFiles/trimaran/deuxp857/089807000857Profile_" + i + ".bin").getFile());
 				fis = new FileInputStream(file);
 				ois = new ObjectInputStream(fis);
 				values = (int[])ois.readObject();
 				cc.addValues(values);
 				cc.doParse();
 			}
+			
+			// intervalcount must match
+			assertEquals(cc.getProfileData().getNumberOfIntervals(), 799);
+			// channels must match
+			assertEquals(cc.getProfileData().getNumberOfChannels(), 2);
+
+			IntervalData inter704 = new IntervalData(interval704.toDate(deuxP.getTimeZone()), 4, 0, 0);
+			inter704.addValue(new Integer(0)); inter704.addValue(new Integer(0));
+			assertEquals(cc.getProfileData().getIntervalData(704).get(0), inter704.get(0));
+			assertEquals(cc.getProfileData().getIntervalData(704).get(1), inter704.get(1));
+			
+			IntervalData inter706 = new IntervalData(interval706.toDate(deuxP.getTimeZone()), 0, 0, 0);
+			inter706.addValue(new Integer(684)); inter706.addValue(new Integer(1186));
+			assertEquals(cc.getProfileData().getIntervalData(706).get(0), inter706.get(0));
+			assertEquals(cc.getProfileData().getIntervalData(706).get(1), inter706.get(1));
+			
+			IntervalData inter707 = new IntervalData(interval707.toDate(deuxP.getTimeZone()), 4, 0, 0);
+			inter707.addValue(new Integer(1090)); inter707.addValue(new Integer(1888));
+			assertEquals(cc.getProfileData().getIntervalData(707).get(0), inter707.get(0));
+			assertEquals(cc.getProfileData().getIntervalData(707).get(1), inter707.get(1));
+
+			IntervalData inter733 = new IntervalData(interval733.toDate(deuxP.getTimeZone()), 2048, 0, 0);
+			inter733.addValue(new Integer(992)); inter733.addValue(new Integer(2033));
+			assertEquals(cc.getProfileData().getIntervalData(733).get(0), inter733.get(0));
+			assertEquals(cc.getProfileData().getIntervalData(733).get(1), inter733.get(1));
+			
+			IntervalData inter751 = new IntervalData(interval751.toDate(deuxP.getTimeZone()), 0, 0, 0);
+			inter751.addValue(new Integer(311)); inter751.addValue(new Integer(855));
+			assertEquals(cc.getProfileData().getIntervalData(751).get(0), inter751.get(0));
+			assertEquals(cc.getProfileData().getIntervalData(751).get(1), inter751.get(1));
+			
 			
 		} catch (FileNotFoundException e) {
 			fail();
@@ -186,6 +224,85 @@ public class CourbeChargeTest {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	@Test
+	public void doParseTestTEC(){
+		
+		FileInputStream fis;
+		ObjectInputStream ois;
+		File file;
+		int[] values;
+		CourbeCharge cc = new CourbeCharge(deuxP.getTrimaranObjectFactory());
+		// Test the TEC version
+		try {
+			cc.getTrimaranObjectFactory().getTrimaran().setMeterVersion("TEC");
+			cc.getTrimaranObjectFactory().setParameters(new Parameters(cc.getTrimaranObjectFactory()));
+			cc.getTrimaranObjectFactory().getParameters().setTCourbeCharge(10);
+			cc.getTrimaranObjectFactory().getParameters().setCcReact(true);			// we must have six channels
+			cc.initCollectionsTEC();
+			cc.setNow(new Date(System.currentTimeMillis()));
+			
+			for(int i = 1; i < 6; i++){
+				file = new File(Utils.class.getResource("/offlineFiles/trimaran/deuxp201/080307000201Profile_" + i + ".bin").getFile());
+				fis = new FileInputStream(file);
+				ois = new ObjectInputStream(fis);
+				values = (int[])ois.readObject();
+				cc.addValues(values);
+				cc.doParse();
+			}
+			
+			// intervalcount must match
+			assertEquals(cc.getProfileData().getNumberOfIntervals(), 800);
+			// channels must match
+			assertEquals(cc.getProfileData().getNumberOfChannels(), 6);
+
+			IntervalData inter540 = new IntervalData(interval540.toDate(deuxP.getTimeZone()), 4, 0, 0);
+			inter540.addValue(new Integer(0)); inter540.addValue(new Integer(0)); inter540.addValue(new Integer(0));
+			inter540.addValue(new Integer(2)); inter540.addValue(new Integer(0)); inter540.addValue(new Integer(4));
+			for(int i = 0; i < inter540.getIntervalValues().size(); i++)
+				assertEquals(cc.getProfileData().getIntervalData(540).get(i), inter540.get(i));
+
+			IntervalData inter542 = new IntervalData(interval542.toDate(deuxP.getTimeZone()), 36, 0, 0);
+			inter542.addValue(new Integer(0)); inter542.addValue(new Integer(0)); inter542.addValue(new Integer(0));
+			inter542.addValue(new Integer(0)); inter542.addValue(new Integer(0)); inter542.addValue(new Integer(0));
+			for(int i = 0; i < inter542.getIntervalValues().size(); i++)
+				assertEquals(cc.getProfileData().getIntervalData(542).get(i), inter542.get(i));
+			
+			IntervalData inter555 = new IntervalData(interval555.toDate(deuxP.getTimeZone()), 0, 0, 0);
+			inter555.addValue(new Integer(1980)); inter555.addValue(new Integer(0)); inter555.addValue(new Integer(1142));
+			inter555.addValue(new Integer(0)); inter555.addValue(new Integer(0)); inter555.addValue(new Integer(0));
+			for(int i = 0; i < inter555.getIntervalValues().size(); i++)
+				assertEquals(cc.getProfileData().getIntervalData(555).get(i), inter555.get(i));
+			
+			IntervalData inter568 = new IntervalData(interval568.toDate(deuxP.getTimeZone()), 0, 0, 0);
+			inter568.addValue(new Integer(1208)); inter568.addValue(new Integer(808)); inter568.addValue(new Integer(705));
+			inter568.addValue(new Integer(297)); inter568.addValue(new Integer(10)); inter568.addValue(new Integer(0));
+			for(int i = 0; i < inter568.getIntervalValues().size(); i++)
+				assertEquals(cc.getProfileData().getIntervalData(568).get(i), inter568.get(i));
+			
+			IntervalData inter569 = new IntervalData(interval569.toDate(deuxP.getTimeZone()), 0, 0, 0);
+			inter569.addValue(new Integer(0)); inter569.addValue(new Integer(2148)); inter569.addValue(new Integer(0));
+			inter569.addValue(new Integer(781)); inter569.addValue(new Integer(0)); inter569.addValue(new Integer(0));
+			for(int i = 0; i < inter569.getIntervalValues().size(); i++)
+				assertEquals(cc.getProfileData().getIntervalData(569).get(i), inter569.get(i));
+			
+			IntervalData inter586 = new IntervalData(interval586.toDate(deuxP.getTimeZone()), 0, 0, 0);
+			inter586.addValue(new Integer(0)); inter586.addValue(new Integer(854)); inter586.addValue(new Integer(0));
+			inter586.addValue(new Integer(310)); inter586.addValue(new Integer(0)); inter586.addValue(new Integer(0));
+			for(int i = 0; i < inter586.getIntervalValues().size(); i++)
+				assertEquals(cc.getProfileData().getIntervalData(586).get(i), inter586.get(i));
+			
+		} catch (FileNotFoundException e) {
+			fail();
+			e.printStackTrace();
+		} catch (IOException e) {
+			fail();
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			fail();
+			e.printStackTrace();
+		}
 	}
 
 }

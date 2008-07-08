@@ -76,12 +76,12 @@ public class Parameters extends AbstractTrimaranObject {
 
 	@Override
 	protected void parse(byte[] data) throws IOException {
-		
-    	System.out.println("GN_DEBUG> write to file");
-    	File file = new File("c://TEST_FILES/089807000857Parameters.bin");
-    	FileOutputStream fos = new FileOutputStream(file);
-    	fos.write(data);
-    	fos.close();
+//		
+//   	System.out.println("GN_DEBUG> write to file");
+//    	File file = new File("c://TEST_FILES/089807000857Parameters.bin");
+//    	FileOutputStream fos = new FileOutputStream(file);
+//    	fos.write(data);
+//    	fos.close();
 		
 		int offset = 0;
 		DataContainer dc = new DataContainer();
@@ -100,14 +100,17 @@ public class Parameters extends AbstractTrimaranObject {
 		setXL(dc.getRoot().getInteger(offset++));
 		setKep(dc.getRoot().getInteger(offset++));
 		setTCourbeCharge(dc.getRoot().getInteger(offset++));
-		if(dc.getRoot().isInteger(offset)){
-			if (dc.getRoot().getInteger(offset) == 1)
-				setCcReact(true);
+		if(getTrimaranObjectFactory().getTrimaran().isTECMeter()){
+			// Only with TEC meter
+			if(dc.getRoot().isInteger(offset)){
+				if (dc.getRoot().getInteger(offset) == 1)
+					setCcReact(true);
+				else
+					setCcReact(false);
+			}
 			else
 				setCcReact(false);
 		}
-		else
-			setCcReact(false);
 	}
 
 	@Override

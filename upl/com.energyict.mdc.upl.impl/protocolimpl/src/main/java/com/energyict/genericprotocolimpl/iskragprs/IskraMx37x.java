@@ -299,6 +299,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     		
     		// Send messages ... if there are messages
     		if( communicationProfile.getSendRtuMessage() ){
+    			if(!initCheck){			// otherwise the MBus messages will not be executed
+    				checkMbusDevices();
+    			}
     			sendMeterMessages();
     			if (mbusDevices[0] != null){
     				mbusDevices[0].sendMeterMessages(this);

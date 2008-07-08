@@ -154,6 +154,9 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
                 
                 // Send messages
                 if( communicationProfile.getSendRtuMessage() ){
+                	if(!initCheck){			// otherwise the MBus messages will not be executed
+                		checkMbusDevices(meter);
+                	}
                 	sendMeterMessages(rtuConcentrator, meter, dataHandler);
                 	if(mbusCheck()){
                     	if ( mbusDevices[0].getRtu().getMessages().size() != 0 ){
@@ -738,8 +741,8 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
     	}
     }
 
-	private void checkMbusDevices(Rtu meter) throws IOException, NumberFormatException, ServiceException, SQLException, BusinessException {
 		
+    private void checkMbusDevices(Rtu meter) throws IOException, NumberFormatException, ServiceException, SQLException, BusinessException {
 		if ((meter.getDownstreamRtus().size() > 0) || (concentrator.getRtuType(meter) != null)){
 			if ( concentrator.TESTING ){
 				FileReader inFile = new FileReader(Utils.class.getResource(Constant.mbusSerialFile).getFile());

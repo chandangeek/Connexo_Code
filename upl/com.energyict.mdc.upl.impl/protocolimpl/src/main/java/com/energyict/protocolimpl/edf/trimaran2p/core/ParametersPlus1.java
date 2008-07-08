@@ -53,9 +53,14 @@ public class ParametersPlus1 extends AbstractTrimaranObject{
 		setXL_plus1(dc.getRoot().getInteger(offset++));
 		setKep_plus1(dc.getRoot().getInteger(offset++));
 		setTcc_plus1(dc.getRoot().getInteger(offset++));
-		if(dc.getRoot().isInteger(offset)){
-			if (dc.getRoot().getInteger(offset) == 1)
-				setCcReact_plus1(true);
+		if(getTrimaranObjectFactory().getTrimaran().isTECMeter()){
+			// Only with TEC meter
+			if(dc.getRoot().isInteger(offset)){
+				if (dc.getRoot().getInteger(offset) == 1)
+					setCcReact_plus1(true);
+				else
+					setCcReact_plus1(false);
+			}
 			else
 				setCcReact_plus1(false);
 		}
