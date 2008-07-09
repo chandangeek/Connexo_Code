@@ -203,7 +203,7 @@ public class CurrentPeriodTable extends AbstractTable{
 	}
 	
 	public Quantity getDurationExceedingPowerQuantity(int t){
-		return new Quantity(BigDecimal.valueOf(getDurationExceedingPower(t)), Unit.get("MINUTE"));
+		return new Quantity(BigDecimal.valueOf(getDurationExceedingPower(t)), Unit.get("min"));
 	}
 
 	/**
@@ -257,7 +257,7 @@ public class CurrentPeriodTable extends AbstractTable{
 	}
 	
 	public Quantity getTarifDurationQuantity(int t){
-		return new Quantity(BigDecimal.valueOf(getTarifDuration(t)), Unit.get("HOUR"));
+		return new Quantity(BigDecimal.valueOf(getTarifDuration(t)), Unit.get("h"));
 	}
 
 	/**
@@ -275,7 +275,7 @@ public class CurrentPeriodTable extends AbstractTable{
 	}
 	
 	public Quantity getCoefficientQuantity(int t){
-		return new Quantity(BigDecimal.valueOf(getCoefficient(t)),Unit.get("PERCENT"));
+		return new Quantity(BigDecimal.valueOf(getCoefficient(t)),Unit.get("%"));
 	}
 
 	/**

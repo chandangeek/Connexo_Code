@@ -170,7 +170,7 @@ public class PreviousPeriodTable extends AbstractTable{
 	}
 	
 	public Quantity getDurationExceedingPowerQuantityP1(int t){
-		return new Quantity(BigDecimal.valueOf(getDurationExceedingPowerP1(t)), Unit.get("MINUTE"));
+		return new Quantity(BigDecimal.valueOf(getDurationExceedingPowerP1(t)), Unit.get("min"));
 	}
 
 	/**
@@ -224,7 +224,7 @@ public class PreviousPeriodTable extends AbstractTable{
 	}
 	
 	public Quantity getCoefficientQuantityP1(int t){
-		return new Quantity(BigDecimal.valueOf(getCoefficientP1(t)),Unit.get("PERCENT"));
+		return new Quantity(BigDecimal.valueOf(getCoefficientP1(t)),Unit.get("%"));
 	}
 
 	/**
@@ -260,7 +260,7 @@ public class PreviousPeriodTable extends AbstractTable{
 	}
 	
 	public Quantity getDurationExceedingPowerQuantityP2(int t){
-		return new Quantity(BigDecimal.valueOf(getDurationExceedingPowerP2(t)), Unit.get("MINUTE"));
+		return new Quantity(BigDecimal.valueOf(getDurationExceedingPowerP2(t)), Unit.get("min"));
 	}
 
 	/**
@@ -321,7 +321,7 @@ public class PreviousPeriodTable extends AbstractTable{
 	}
 	
 	public Quantity getCoefficientQuantityP2(int t){
-		return new Quantity(BigDecimal.valueOf(getCoefficientP2(t)),Unit.get("PERCENT"));
+		return new Quantity(BigDecimal.valueOf(getCoefficientP2(t)),Unit.get("%"));
 	}
 
 	/**
@@ -332,7 +332,7 @@ public class PreviousPeriodTable extends AbstractTable{
 	}
 	
 	public Quantity getTarifDurationQuantity(int t){
-		return new Quantity(BigDecimal.valueOf(getTarifDuration(t)), Unit.get("HOUR"));
+		return new Quantity(BigDecimal.valueOf(getTarifDuration(t)), Unit.get("h"));
 	}
 
 	/**
