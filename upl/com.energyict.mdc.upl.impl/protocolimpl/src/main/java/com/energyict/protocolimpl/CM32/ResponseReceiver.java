@@ -44,7 +44,6 @@ public class ResponseReceiver {
 		dataArrayOutputStream.reset();
 		cm32Connection.echoCancellation();
 		StringBuffer crcRead = new StringBuffer("");
-		byte[] dataForCrcCalculation;
         int kar;
         int state = WAIT_FOR_START;
         while (true) {
