@@ -17,6 +17,11 @@ public class CommandFactory {
 		return command;
 	}
 	
+	public LogoutCommand getLogoutCommand() {
+		LogoutCommand command = new LogoutCommand(cm32Protocol);
+		return command;
+	}
+	
 	
 }
 

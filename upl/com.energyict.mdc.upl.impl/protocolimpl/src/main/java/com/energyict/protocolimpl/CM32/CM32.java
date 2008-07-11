@@ -62,10 +62,14 @@ public class CM32 extends AbstractProtocol {
 		CommandFactory commandFactory = getCommandFactory();
 		Response response = 
 			commandFactory.getLoginCommand(id, password).invoke();
+		//parse response!!!
 	}
 
 	protected void doDisConnect() throws IOException {
-
+		CommandFactory commandFactory = getCommandFactory();
+		Response response = 
+			commandFactory.getLogoutCommand().invoke();
+		//parse response!!!
 	}
 
 	protected List doGetOptionalKeys() {
