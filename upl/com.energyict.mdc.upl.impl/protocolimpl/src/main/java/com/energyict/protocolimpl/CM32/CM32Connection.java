@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.Connection;
@@ -134,11 +135,37 @@ public class CM32Connection extends Connection implements ProtocolConnection {
         sendOut(outputStream.toByteArray());
     }
 	
+	protected void writeCharacters(String data) {
+        for (int i = 0; i < data.length(); i++) {
+        	outputStream.write((int) data.charAt(i));
+        }
+	}
+	
+	protected void writeSpace() {
+		outputStream.write((int)' ');
+	}
+	
+	protected void writeStartCrc() {
+		outputStream.write((int)'{');
+	}
+	
+	protected void writeEndCrc() {
+		outputStream.write((int)'}');
+	}
+	
 	private void doSendCommand(Command command) throws ConnectionException,IOException {
 		outputStream.reset();
-        int checksum=0;
-        outputStream.write((byte)0x3A); // : (must start each pakket)
+		writeCharacters(command.getCommand());
+		List parameters = command.getParameters();
+		for (int i = 0; i < parameters.size(); i++) {
+			writeSpace();
+			writeCharacters((String) parameters.get(i));
+		}
+        writeSpace();
+        writeStartCrc();
         writeCrc();
+        writeEndCrc();
+        outputStream.write(Connection.CR); 
     } 
 	
 	protected void writeCrc() {
