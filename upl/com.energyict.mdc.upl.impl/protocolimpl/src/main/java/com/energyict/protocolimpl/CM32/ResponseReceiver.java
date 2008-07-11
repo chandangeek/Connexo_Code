@@ -101,6 +101,7 @@ public class ResponseReceiver {
 		checkCrc(crcValueFound, dataForCrcCalculation);
 	}
 	
+	// crc calculation to be changed!
 	public void checkCrc(int crcValueFound, byte[] data) throws IOException {
 		int crcCalculated = CRCGenerator.calcCCITTCRCReverse(
 				ProtocolUtils.getSubArray2(data, 0, data.length-2));
