@@ -38,6 +38,7 @@ public class ResponseReceiver {
     }
 
 
+    // check for "invalid command response"
 	protected Response receiveResponse(Command command) throws IOException {
         long protocolTimeout = System.currentTimeMillis() + TIMEOUT;
         ByteArrayOutputStream dataArrayOutputStream = new ByteArrayOutputStream();
