@@ -1,10 +1,12 @@
 package com.energyict.protocolimpl.CM32;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Command {
     
-    private String data;
+    private List parameters = new ArrayList();
     private String command;
     
     /** Creates a new instance of Command */
@@ -15,13 +17,21 @@ public class Command {
     public void validate() throws IOException {
 
     }
-
-    public String getData() {
-        return data;
+    
+    public void addParameter(String parameter) {
+    	parameters.add(parameter);
+    }
+    
+    public String getParameter(int i) {
+    	return (String) parameters.get(i);
     }
 
-    public void setData(String data) {
-        this.data = data;
+    public List getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(List parameters) {
+        this.parameters = parameters;
     }
 
     public String getCommand() {

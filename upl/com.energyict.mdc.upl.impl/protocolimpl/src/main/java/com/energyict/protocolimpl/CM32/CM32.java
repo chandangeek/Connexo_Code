@@ -13,9 +13,12 @@ import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.coreimpl.ATDialer;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
@@ -34,6 +37,18 @@ public class CM32 extends AbstractProtocol {
         return getCM32Profile().getProfileData(lastReading,includeEvents);
     }
     
+    public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
+        return ObisCodeMapper.getRegisterInfo(obisCode);
+    }
+    
+    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+        return obisCodeMapper.getRegisterValue(obisCode);
+    } 
+    
+    public int getNumberOfChannels() throws UnsupportedException, IOException {
+        return 16;
+    }
+    
     protected void validateSerialNumber() throws IOException {
         boolean check = true;
         if ((getInfoTypeSerialNumber() == null) || 
@@ -41,7 +56,12 @@ public class CM32 extends AbstractProtocol {
     }
     
 	protected void doConnect() throws IOException {
-		this.getCM32Connection().wakeUp();
+		getCM32Connection().wakeUp();
+		String id = getInfoTypeDeviceID();
+		String password = getInfoTypePassword();
+		CommandFactory commandFactory = getCommandFactory();
+		Response response = 
+			commandFactory.getLoginCommand(id, password).invoke();
 	}
 
 	protected void doDisConnect() throws IOException {

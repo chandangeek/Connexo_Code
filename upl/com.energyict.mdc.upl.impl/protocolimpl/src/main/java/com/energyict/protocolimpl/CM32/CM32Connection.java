@@ -53,7 +53,7 @@ public class CM32Connection extends Connection implements ProtocolConnection {
 	}
 	
 	protected ResponseReceiver doGetResponseReceiver() {
-		return new ResponseReceiver(this, timeout);
+		return new ResponseReceiver(this);
 	}
 	
 	public Response sendCommand(Command command) throws IOException {
@@ -61,8 +61,7 @@ public class CM32Connection extends Connection implements ProtocolConnection {
         doSendCommand(command);
         while(true) {
             try {
-            	//System.out.println("delayAndFlush");
-                delayAndFlush(forcedDelay); // KV_DEBUG
+                delayAndFlush(forcedDelay); 
                 sendFrame();
                 Thread.sleep(100); 
                 Response response = receiveResponse(command);
@@ -115,7 +114,7 @@ public class CM32Connection extends Connection implements ProtocolConnection {
 
     
     public Response receiveResponse(Command command) throws IOException {
-        return getResponseReceiver().receiveResponse(command,-1);
+        return getResponseReceiver().receiveResponse(command);
     }
     
     int readNext() throws IOException {
