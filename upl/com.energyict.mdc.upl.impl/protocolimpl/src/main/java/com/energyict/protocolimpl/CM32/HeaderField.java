@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.CM32;
 
 import java.util.Date;
 
+import com.energyict.cbo.ApplicationException;
 import com.energyict.protocol.ProtocolUtils;
 
 public class HeaderField {
@@ -26,20 +27,20 @@ public class HeaderField {
 	
 	public void parse(byte[] header) {
 		parseSourceType(ProtocolUtils.getSubArray(header, 0, 15));
-		parseSourceVersion(ProtocolUtils.getSubArray(header, 15, 31));
-		parseSourceIdetity(ProtocolUtils.getSubArray(header, 31, 47));
-		parseTimeSent(ProtocolUtils.getSubArray(header, 47, 79));
-		parseConfigStart(ProtocolUtils.getSubArray(header, 79, 95));
-		parseConfigSize(ProtocolUtils.getSubArray(header, 95, 111));
-		parseDataType(ProtocolUtils.getSubArray(header, 111, 127));
-		parseDataStartDate(ProtocolUtils.getSubArray(header, 127, 143));
-		parseNumberOfDays(ProtocolUtils.getSubArray(header, 143, 159));
-		parseDataRecordSize(ProtocolUtils.getSubArray(header, 159, 175));
-		parseNumberOfRecords(ProtocolUtils.getSubArray(header, 175, 191));
-		parseDataStart(ProtocolUtils.getSubArray(header, 191, 207));
-		parseDataSize(ProtocolUtils.getSubArray(header, 207, 223));
-		parseInterval(ProtocolUtils.getSubArray(header, 223, 239));
-		parseConfigVersion(ProtocolUtils.getSubArray(header, 239, 255));
+		parseSourceVersion(ProtocolUtils.getSubArray(header, 16, 31));
+		parseSourceIdetity(ProtocolUtils.getSubArray(header, 32, 47));
+		parseTimeSent(ProtocolUtils.getSubArray(header, 48, 79));
+		parseConfigStart(ProtocolUtils.getSubArray(header, 80, 95));
+		parseConfigSize(ProtocolUtils.getSubArray(header, 96, 111));
+		parseDataType(ProtocolUtils.getSubArray(header, 112, 127));
+		parseDataStartDate(ProtocolUtils.getSubArray(header, 128, 143));
+		parseNumberOfDays(ProtocolUtils.getSubArray(header, 144, 159));
+		parseDataRecordSize(ProtocolUtils.getSubArray(header, 160, 175));
+		parseNumberOfRecords(ProtocolUtils.getSubArray(header, 176, 191));
+		parseDataStart(ProtocolUtils.getSubArray(header, 192, 207));
+		parseDataSize(ProtocolUtils.getSubArray(header, 208, 223));
+		parseInterval(ProtocolUtils.getSubArray(header, 224, 239));
+		parseConfigVersion(ProtocolUtils.getSubArray(header, 240, 255));
 	}
 	
 	public String toString() {
@@ -97,15 +98,27 @@ public class HeaderField {
 	}
 	
 	protected void parseConfigStart(byte[] data) {
-		
+		String value = parseValues(data);
+		try {
+			this.configStart = Integer.parseInt(value);
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("HeaderField pares error: Invalid config seek value '" + value + "'");
+		}
 	}
 	
 	protected void parseConfigSize(byte[] data) {
-		
+		String value = parseValues(data);
+		try {
+			this.configSize = Integer.parseInt(value);
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("HeaderField pares error: Invalid config size value '" + value + "'");
+		}
 	}
 	
 	protected void parseDataType(byte[] data) {
-		
+		this.dataType = parseValues(data);
 	}
 	
 	protected void parseDataStartDate(byte[] data) {
@@ -113,31 +126,67 @@ public class HeaderField {
 	}
 	
 	protected void parseNumberOfDays(byte[] data) {
-		
+		String value = parseValues(data);
+		try {
+			this.numberOfDays = Integer.parseInt(value);
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("HeaderField pares error: Invalid number of days value '" + value + "'");
+		}
 	}
 	
 	protected void parseDataRecordSize(byte[] data) {
-		
+		String value = parseValues(data);
+		try {
+			this.dataRecordSize = Integer.parseInt(value);
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("HeaderField pares error: Invalid data record size value '" + value + "'");
+		}
 	}
 	
 	protected void parseNumberOfRecords(byte[] data) {
-		
+		String value = parseValues(data);
+		try {
+			this.dataFieldNumberOfRecords = Integer.parseInt(value);
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("HeaderField pares error: Invalid number of datarecords value '" + value + "'");
+		}
 	}
 
 	protected void parseDataStart(byte[] data) {
-	
+		String value = parseValues(data);
+		try {
+			this.dataStart = Integer.parseInt(value);
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("HeaderField pares error: Invalid data start value '" + value + "'");
+		}
 	}
 
 	protected void parseDataSize(byte[] data) {
-	
+		String value = parseValues(data);
+		try {
+			this.dataSize = Integer.parseInt(value);
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("HeaderField pares error: Invalid data size value '" + value + "'");
+		}
 	}
 
 	protected void parseInterval(byte[] data) {
-	
+		String value = parseValues(data);
+		try {
+			this.interval = Integer.parseInt(value);
+		}
+		catch (NumberFormatException e) {
+			throw new ApplicationException("HeaderField pares error: Invalid interval value '" + value + "'");
+		}
 	}
 
 	protected void parseConfigVersion(byte[] data) {
-	
+		this.configVersion = parseValues(data);
 	}
 	
 	public String getSourceType() {
