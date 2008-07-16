@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.elster.opus;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -140,9 +142,13 @@ public class Opus implements MeterProtocol{
 		System.out.println(" interval: "+this.interval);
 		DateFormat d=DateFormat.getDateInstance();
 		Date date=getTime();
-		System.out.println("get time:               "+d.format(date)+" "+date.getHours()+" "+date.getMinutes()+" "+date.getSeconds());
+		System.out.println("get time:               "+d.format(date)+" "+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds());
 		setTime();
-		System.out.println("get time after setting: "+d.format(date)+" "+date.getHours()+" "+date.getMinutes()+" "+date.getSeconds());	
+		System.out.println("get time after setting: "+d.format(date)+" "+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds());
+//		Calendar cal=Calendar.getInstance();
+//		cal.set(Calendar.HOUR_OF_DAY, 12);
+//		getProfileData(cal.getTime(),Calendar.getInstance().getTime(),true);
+		// s=ocf.command(1 ,attempts,timeOut, null);
 		// end of testing routines
 	}
 
@@ -190,10 +196,13 @@ public class Opus implements MeterProtocol{
 
 	public ProfileData getProfileData(Date fromTime, Date toTime, boolean arg2)	throws IOException, UnsupportedException {
 		ProfileData pd = new ProfileData();
+		int[][] datamatrix;
+		IntervalData id= new IntervalData();
+		ArrayList<String[]> data= new ArrayList<String[]>();
 		Calendar cal1 = Calendar.getInstance(); // removed getTimeZone()
-		Calendar now = Calendar.getInstance(); // removed getTimeZone()
+		Calendar tempcal=Calendar.getInstance(); // to store data in for the interval data
 		int command=10; // 10 is the value of today...69 of 60 days ago
-		
+		long millis=0;
 		// build object
 		for(int i=0; i<this.numChan;i++ ){
 			pd.addChannel(new ChannelInfo(i,i, "Elster Opus channel "+(i+1), Unit.get(BaseUnit.UNITLESS)));
@@ -207,22 +216,81 @@ public class Opus implements MeterProtocol{
             throw new IOException("load profile interval must be > 0 sec. (is "+getProfileInterval()+")");
         ParseUtils.roundDown2nearestInterval(cal1,getProfileInterval());
         // start downloading
-        while(fromTime.before(toTime)) {
-        	        	
+        while(cal1.getTime().before(toTime)) {
+        	command=getCommandnr(cal1); // download the specified day
+        	if(command>69)
+        		throw new IOException("the requested data is no longer available. (maximum is 60 days)");
         	
-        	IntervalData id = new IntervalData(cal1.getTime());
-           
-        	id.addValue(new BigDecimal(10000+Math.round(Math.random()*100)));
-        	id.addValue(new BigDecimal(1000+Math.round(Math.random()*10)));
-        	pd.addInterval(id);
-
+        	// get the data
+        	data=ocf.command(command, attempts, timeOut, null);
+        	// put the data in a 2D matrix
+        	datamatrix=processIntervalData(data);
+        	// make the calendar object for that date
+        	tempcal.setTime(cal1.getTime()); 		// set date and hour
+    		tempcal.set(Calendar.HOUR_OF_DAY, 0);	// reset hour
+    		tempcal.set(Calendar.MINUTE, 0);		// reset minutes
+    		tempcal.set(Calendar.SECOND, 0);		// reset seconds
+        	millis=tempcal.getTimeInMillis();
+        	
+        	for(int i=0; i<(3600*24/getProfileInterval()); i++){// 0->47
+        		cal1.setTimeInMillis(millis);
+        		millis+=(getProfileInterval()*1000);
+        		id=new IntervalData(cal1.getTime());
+        		for(int ii=0;ii<getNumberOfChannels();ii++){// 0->12
+        			id.addValue(datamatrix[i][ii]);
+        		}
+        		if(cal1.getTime().after(fromTime) && cal1.getTime().before(toTime)){
+        			System.out.println("this is "+i+" at "+command );
+            		pd.addInterval(id);        			
+        		}
+        	}
         	cal1.setTimeInMillis(cal1.getTimeInMillis()+(3600*24*1000));// date change
         }
         
         //pd.addEvent(new MeterEvent(now,MeterEvent.APPLICATION_ALERT_START, "SDK Sample"));
 
-		// TODO Auto-generated method stub
 		return pd;
+	}
+
+	protected int[][] processIntervalData(ArrayList<String[]> data) throws UnsupportedException, IOException {
+		int tel=-1;
+		int channelBody=0;
+		int[][] matrix=new int[(int) (3600*24/getProfileInterval())][getNumberOfChannels()];
+		String[] s;
+		for(int index=1; index<data.size(); index++){
+			s=data.get(index);
+			if(s[0].charAt(0)=='S' && s[0].charAt(4)=='C'){
+				// this is a channel header
+				tel++;
+				channelBody=0;
+			}else{
+				// channel body
+				for(int i=0; i<8; i++){
+					matrix[i+channelBody][tel]=Integer.parseInt(s[i]);
+				}
+				channelBody+=8;
+			}			
+		}
+		return matrix;
+	}
+
+	protected int getCommandnr(Calendar cal1) {
+		int command=10;
+		long now, then;
+		Calendar calnow=Calendar.getInstance();
+		calnow.set(Calendar.HOUR_OF_DAY, 0);
+		calnow.set(Calendar.MINUTE, 0);
+		calnow.set(Calendar.SECOND, 0);
+		cal1.set(Calendar.HOUR_OF_DAY, 0);
+		cal1.set(Calendar.MINUTE, 0);
+		cal1.set(Calendar.SECOND, 0);
+		now=calnow.getTimeInMillis(); 	// current date
+		then=cal1.getTimeInMillis();	// requested date
+		while(then<now){
+			then+=3600*24*1000;
+			command++;
+		}
+		return command;
 	}
 
 	public int getProfileInterval() throws UnsupportedException, IOException {
