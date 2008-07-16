@@ -78,8 +78,8 @@ public class Opus implements MeterProtocol{
 	 *  <p>
 	 *  Initial version:<p>
 	 *  ----------------<p>
-	 *  Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
-	 *  Version: 1.0 <p>
+	 *  @Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+	 *  @Version: 1.0 <p>
 	 *  First edit date: 10/07/2008 PST<p>
 	 *  Last edit date: 16/07/2008  PST<p>
 	 *  Comments:<p>
@@ -192,28 +192,34 @@ public class Opus implements MeterProtocol{
 		ProfileData pd = new ProfileData();
 		Calendar cal1 = Calendar.getInstance(); // removed getTimeZone()
 		Calendar now = Calendar.getInstance(); // removed getTimeZone()
+		int command=10; // 10 is the value of today...69 of 60 days ago
+		
 		// build object
 		for(int i=0; i<this.numChan;i++ ){
 			pd.addChannel(new ChannelInfo(i,i, "Elster Opus channel "+(i+1), Unit.get(BaseUnit.UNITLESS)));
 		}
+		
         // set timers
 		cal1.setTime(fromTime);
+		
 		// check properties
         if (getProfileInterval()<=0)
             throw new IOException("load profile interval must be > 0 sec. (is "+getProfileInterval()+")");
         ParseUtils.roundDown2nearestInterval(cal1,getProfileInterval());
         // start downloading
-        while(fromTime.before(toTime)) { 
+        while(fromTime.before(toTime)) {
+        	        	
+        	
+        	IntervalData id = new IntervalData(cal1.getTime());
            
-           IntervalData id = new IntervalData(cal1.getTime());
-           
-           id.addValue(new BigDecimal(10000+Math.round(Math.random()*100)));
-           id.addValue(new BigDecimal(1000+Math.round(Math.random()*10)));
-           pd.addInterval(id);
-           cal1.add(Calendar.SECOND, getProfileInterval());
+        	id.addValue(new BigDecimal(10000+Math.round(Math.random()*100)));
+        	id.addValue(new BigDecimal(1000+Math.round(Math.random()*10)));
+        	pd.addInterval(id);
+
+        	cal1.setTimeInMillis(cal1.getTimeInMillis()+(3600*24*1000));// date change
         }
         
-        pd.addEvent(new MeterEvent(now,MeterEvent.APPLICATION_ALERT_START, "SDK Sample"));
+        //pd.addEvent(new MeterEvent(now,MeterEvent.APPLICATION_ALERT_START, "SDK Sample"));
 
 		// TODO Auto-generated method stub
 		return pd;
