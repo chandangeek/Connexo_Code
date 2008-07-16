@@ -46,6 +46,7 @@ public class OpusCommandFactory {
 	private int cap=0;
 	private int dateOffset=0;
 	private boolean infoOnly=false;
+	private boolean com121=false;
 	
 
 	/*
@@ -86,9 +87,12 @@ public class OpusCommandFactory {
 		else if(command==550){s=null;}// commands for PPM stations, so far not implemented
 		else if(command==860){s=null;}
 		else if(command==999){s=null;}
+		// test commands
+		//else if(command==1)  {s=identificationData(attempts,timeOut);}
 		else{throw new IOException("command unknown");}
 		return s;
 	}
+
 
 	/*
 	 * 2) array and data builders + State Machine selection
@@ -138,10 +142,19 @@ public class OpusCommandFactory {
 		String[] data=dataArrayBuilder(""+deltamin,"0","0","0","0","0",oldPassword,newPassword); // build data packet
 		return stateMachine4(111,attempts,timeOut,data,numChan);
 	}
-	private ArrayList<String[]> writeReadControlOutstation(int attempts,int timeOut) {
-		// TODO Auto-generated method stub
-		return null;
+	private ArrayList<String[]> writeReadControlOutstation(int attempts,int timeOut) throws IOException {
+		// only read cycles implemented for security reasons
+		String[] data=dataArrayBuilder("48","0","0","0","0","1",oldPassword,newPassword); // build data packet
+		// 48 at position 0 must be there, 1 at position 5 indicates that all values are to be ignored + read operation
+		com121=true;
+		ArrayList<String[]> s=stateMachine3(121,attempts,timeOut,data);
+		com121=false;
+		return s;
 	}
+//	private ArrayList<String[]> identificationData(int attempts, int timeOut) throws IOException {
+//		String[] data=dataArrayBuilder("0","0","0","0","0","0",oldPassword,newPassword); // build data packet
+//		return stateMachine3(1,attempts,timeOut,data);
+//	}
 
 	
 	/*
@@ -453,6 +466,7 @@ public class OpusCommandFactory {
 					break;
 				case 10:
 					if(temp){
+						if(this.com121){outputStream.write(ACK);};
 						outputStream.write(EOT);
 						state=11;
 					}else{
