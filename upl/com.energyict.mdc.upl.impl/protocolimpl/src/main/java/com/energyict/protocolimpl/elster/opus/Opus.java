@@ -3,126 +3,163 @@ package com.energyict.protocolimpl.elster.opus;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 
 public class Opus implements MeterProtocol{
-
+	/**
+	 * ---------------------------------------------------------------------------------<p>
+	 * Protocol description:<p>
+	 * The protocol consists out of layers<p>
+	 * 1) Parsers object is the deepest layer handling serialization 
+	 * 		and deserialization of matrixes and primitive types to byte arrays
+	 * <p>
+	 * 2) OpusBuildPacket inherits the Parsers object, this object is 
+	 * 		responsible for the correct building and unpacking of the frames
+	 * 		it is both used for putting data in the right frame as feeding
+	 * 		it with a received frame as byte array to put it back into 
+	 * 		a OpusBuildPacket object.  Deserializing the byte array allows
+	 * 		the user to get the data array from the object.<p>
+	 * 		TODO: checksum testing on two levels: wrong number vs. wrong data
+	 * <p>
+	 * 3) OpusCommandFactory deals with the commands.  The previously described
+	 * 		OpusBuildPacket is only called from here. The factory has 3 internal 
+	 * 		layers: command selection, command building, command executing. 
+	 * 		Basically this factory is an interface called each time the same way.  
+	 * 		A number of globals should be set in the factory, some should be 
+	 * 		passed with the command method.  Settings to be passed to the factory,
+	 * 		that don't have the property to change frequently are set by setters. Settings
+	 * 		that might change frequently are: type of command, number of attempts to 
+	 * 		execute the command, timeout and a calendar object containing data on the 
+	 * 		time frame to retrieve data from.
+	 * 		The command executing is done using 4 state machines, handling a total
+	 * 		of almost 70 commands.  Commands not yet implemented either because
+	 * 		they must not be used (setting special function registers in the meter) or
+	 * 		because they are related to other types of meters but were described in 
+	 * 		the datasheet are all commands ranging from 121 to 999<p>
+	 * 		TODO proper checksum and error handling, parsing specific data into arrays 
+	 * 		or objects
+	 * <p>
+	 *  4) Opus: this is the meter protocol, in the connect method some meter props are
+	 *  	read.
+	 *  <p>
+	 *  Initial version:<p>
+	 *  ----------------<p>
+	 *  Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+	 *  Version: 1.0 <p>
+	 *  First edit date: 10/07/2008 PST<p>
+	 *  Last edit date: 16/07/2008  PST<p>
+	 *  Comments:<p>
+	 *  Released for testing: not yet, still under construction
+	 *  .<p>
+	 *  Revisions<p>
+	 *  ----------------<p>
+	 *  Author: <p>
+	 *  Version:(SET IN CODE:protocolVersion)<p>
+	 *  Last edit date: <p>
+	 *  Comments:<p>
+	 *  released for testing:
+	 * ---------------------------------------------------------------------------------<p>
+	 *  
+	 */
+	private static final float protocolVersion=(float) 1.0;
+	
 	private final String oldPassword;
 	private final String newPassword;
 	private final int outstationID;	
 	
 	private InputStream inputStream;
 	private OutputStream outputStream;
-	private int timeOut=5000;
+	private int timeOut=5000;			// timeout time in ms
+	private OpusCommandFactory ocf; 	// command factory
+	private int attempts=5;				// number of attempts
 
-	Opus(){
+	// attributes to retrieve from the data
+	private int numChan=-1;				// number of channels
+	private int interval=-1;			// temp value
+	
+	
+	public Opus(){
 		this.oldPassword="--------";
 		this.newPassword="--------";
 		this.outstationID=7; // for testing purposes only!!!!!!!!!!
 	}
 	
-	Opus(String oldPassword, String newPassword, int outstationID){
+	public Opus(String oldPassword, String newPassword, int outstationID){
 		this.oldPassword=oldPassword;
 		this.newPassword=newPassword;
 		this.outstationID=outstationID;
 	}
 
-	protected void doConnect() throws IOException {
-		// TODO Auto-generated method stub
-		System.out.println("test");
-		
-	}
-
-	protected void doDisConnect() throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	protected List doGetOptionalKeys() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected ProtocolConnection doInit(InputStream inputStream,
-			OutputStream outputStream, int timeoutProperty,
-			int protocolRetriesProperty, int forcedDelay, int echoCancelling,
-			int protocolCompatible, Encryptor encryptor,
-			HalfDuplexController halfDuplexController) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected void doValidateProperties(Properties properties)
-			throws MissingPropertyException, InvalidPropertyException {
-	}
-
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getProtocolVersion() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public Date getTime() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public void setTime() throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
 	public void connect() throws IOException {
-		// testrun
-		OpusCommandFactory ocf=new OpusCommandFactory(outstationID,oldPassword,newPassword,inputStream,outputStream);
-		ocf.setNumChan(15);
-		ocf.setCap(0);  // hard on 0
-		ocf.setPeriod(1);
-		ocf.setDateOffset(0); // hard on 0
-		ocf.command(3 ,5,timeOut);  // command and maximum attempts
-		ocf.command(4 ,5,timeOut);  // command and maximum attempts
-		ocf.command(5 ,5,timeOut);  // command and maximum attempts
-		ocf.command(81,5,timeOut); // command and maximum attempts
+		// download final information
+		ocf.setInfoOnly(true);							// set getting properties only flag
+		ArrayList<String[]> s;							// ArrayList to catch data from factory
+		s=ocf.command(10 ,attempts,timeOut, null);		// factory command
+		ocf.setNumChan(Integer.valueOf(s.get(0)[6])); 	// factory setter for further use in the factory
+		this.numChan=ocf.getNumChan();					// set number of channels in this object
+		this.interval=24*3600/Integer.valueOf(s.get(0)[5]);	// set interval in this object
+		ocf.setInfoOnly(false);							// reset properties flag
+		// end of download
+		
+		// testing routines, to be removed
+		System.out.println("number of channels:     "+this.numChan);
+		System.out.println(" interval: "+this.interval);
+		DateFormat d=DateFormat.getDateInstance();
+		Date date=getTime();
+		System.out.println("get time:               "+d.format(date)+" "+date.getHours()+" "+date.getMinutes()+" "+date.getSeconds());
+		setTime();
+		System.out.println("get time after setting: "+d.format(date)+" "+date.getHours()+" "+date.getMinutes()+" "+date.getSeconds());	
+		// end of testing routines
 	}
 
 	public void disconnect() throws IOException {
-		// TODO Auto-generated method stub
-		
 	}
 
 	public Object fetchCache(int arg0) throws SQLException, BusinessException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Object getCache() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
+	public String getFirmwareVersion() throws IOException, UnsupportedException {
+		return "UNKNOWN";
+	}
 	public Quantity getMeterReading(int arg0) throws UnsupportedException,
 			IOException {
 		// TODO Auto-generated method stub
@@ -136,30 +173,58 @@ public class Opus implements MeterProtocol{
 	}
 
 	public int getNumberOfChannels() throws UnsupportedException, IOException {
-		// TODO Auto-generated method stub
-		return 0;
+        if (this.numChan == -1)
+            throw new IOException("getNumberOfChannels(), ChannelMap property not given. Cannot determine the nr of channels...");
+		return this.numChan;
 	}
 
-	public ProfileData getProfileData(boolean arg0) throws IOException {
-		// TODO Auto-generated method stub
+	public ProfileData getProfileData(boolean includeEvents) throws IOException {
+//		TODO return getProfileData(, includeEvents);
 		return null;
 	}
 
-	public ProfileData getProfileData(Date arg0, boolean arg1)
+	public ProfileData getProfileData(Date fromTime, boolean includeEvents)
 			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return getProfileData(fromTime, Calendar.getInstance().getTime(), includeEvents);
 	}
 
-	public ProfileData getProfileData(Date arg0, Date arg1, boolean arg2)
-			throws IOException, UnsupportedException {
+	public ProfileData getProfileData(Date fromTime, Date toTime, boolean arg2)	throws IOException, UnsupportedException {
+		ProfileData pd = new ProfileData();
+		Calendar cal1 = Calendar.getInstance(); // removed getTimeZone()
+		Calendar now = Calendar.getInstance(); // removed getTimeZone()
+		// build object
+		for(int i=0; i<this.numChan;i++ ){
+			pd.addChannel(new ChannelInfo(i,i, "Elster Opus channel "+(i+1), Unit.get(BaseUnit.UNITLESS)));
+		}
+        // set timers
+		cal1.setTime(fromTime);
+		// check properties
+        if (getProfileInterval()<=0)
+            throw new IOException("load profile interval must be > 0 sec. (is "+getProfileInterval()+")");
+        ParseUtils.roundDown2nearestInterval(cal1,getProfileInterval());
+        // start downloading
+        while(fromTime.before(toTime)) { 
+           
+           IntervalData id = new IntervalData(cal1.getTime());
+           
+           id.addValue(new BigDecimal(10000+Math.round(Math.random()*100)));
+           id.addValue(new BigDecimal(1000+Math.round(Math.random()*10)));
+           pd.addInterval(id);
+           cal1.add(Calendar.SECOND, getProfileInterval());
+        }
+        
+        pd.addEvent(new MeterEvent(now,MeterEvent.APPLICATION_ALERT_START, "SDK Sample"));
+
 		// TODO Auto-generated method stub
-		return null;
+		return pd;
 	}
 
 	public int getProfileInterval() throws UnsupportedException, IOException {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.interval;
+	}
+
+	public String getProtocolVersion() {
+		return "$Revision "+Opus.protocolVersion+"$";
 	}
 
 	public String getRegister(String arg0) throws IOException,
@@ -168,58 +233,62 @@ public class Opus implements MeterProtocol{
 		return null;
 	}
 
-	public void init(InputStream inputStream, OutputStream outputStream, TimeZone arg2,
-			Logger arg3) throws IOException {
-		// TODO Auto-generated method stub
-		System.out.println("init");
-        this.inputStream = inputStream;
-        this.outputStream = outputStream;
-		
+	public Date getTime() throws IOException  {
+		Calendar cal=Calendar.getInstance();
+		ArrayList<String[]> d=ocf.command(102, attempts, timeOut, null);
+		String[] s=d.get(d.size()-1); // last index
+		cal.set(Integer.parseInt(s[5])+2000,
+				Integer.parseInt(s[4]),
+				Integer.parseInt(s[3]),
+				Integer.parseInt(s[0]),
+				Integer.parseInt(s[1]),
+				Integer.parseInt(s[2]));		
+		return cal.getTime();
+	}
+	public void setTime() throws IOException {
+		// time and date are read in the factory
+		ocf.command(101, attempts, timeOut, null);
 	}
 
 	public void initializeDevice() throws IOException, UnsupportedException {
-		// TODO Auto-generated method stub
-		
 	}
 
 	public void release() throws IOException {
-		// TODO Auto-generated method stub
-		
 	}
 
 	public void setCache(Object arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	public void setProperties(Properties arg0) throws InvalidPropertyException,
 			MissingPropertyException {
 		// TODO Auto-generated method stub
-		
-	}
-
-	public void setRegister(String arg0, String arg1) throws IOException,
-			NoSuchRegisterException, UnsupportedException {
-		// TODO Auto-generated method stub
-		
 	}
 
 	public void updateCache(int arg0, Object arg1) throws SQLException,
 			BusinessException {
-		// TODO Auto-generated method stub
-		
 	}
 
 	public List getOptionalKeys() {
-		// TODO Auto-generated method stub
 		ArrayList list = new ArrayList();
 		return list;
 	}
 
 	public List getRequiredKeys() {
-		// TODO Auto-generated method stub
 		ArrayList list = new ArrayList();
 		return list;
 	}
 
+	public void init(InputStream inputStream, OutputStream outputStream, TimeZone arg2,
+			Logger arg3) throws IOException {
+		// set streams
+        this.inputStream = inputStream;
+        this.outputStream = outputStream;
+        // build command factory
+		this.ocf=new OpusCommandFactory(this.outstationID,this.oldPassword,this.newPassword,this.inputStream,this.outputStream);
+	}
+
+	public void setRegister(String arg0, String arg1) throws IOException,
+			NoSuchRegisterException, UnsupportedException {
+	}
+	
 }

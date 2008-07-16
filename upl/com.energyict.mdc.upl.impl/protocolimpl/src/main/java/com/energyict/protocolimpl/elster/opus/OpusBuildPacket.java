@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.elster.opus;
 
+import java.io.IOException;
+
 public class OpusBuildPacket extends Parsers{
 	/*
 	 * Implementation of chapter 2) communications, 2.1 & 2.2
@@ -32,10 +34,10 @@ public class OpusBuildPacket extends Parsers{
 	
 	// operators	
 	OpusBuildPacket(){} // mainly for testing purposes
-	OpusBuildPacket(byte[] b){ // for incoming data
+	OpusBuildPacket(byte[] b) throws IOException{ // for incoming data
 		process(parseBArraytoCArray(b));
 	}
-	OpusBuildPacket(char[] c){ // incoming data
+	OpusBuildPacket(char[] c) throws IOException{ // incoming data
 		process(c);
 	}
 	OpusBuildPacket(int OS,int NNN,int PPP,String[] data, boolean CDC){ // outgoing data
@@ -54,30 +56,35 @@ public class OpusBuildPacket extends Parsers{
 	}
 	
 	// char processing
-	private void process(char[] c) {
+	private void process(char[] c) throws IOException {
 		String s= new String(c);
 		this.data=new String[8];
 		int tel=-1, counter=10,packTel=0; // data sequence starts at byte 11
 		if(c[packTel]!= SOH){
 			packTel++;
 			counter++;
+		}	
+		
+		if(verifyCheckSum(c)){ // checksum is checked on possible validity
+			soh=c[packTel]; // 0 is SOH
+			OSnumber=Integer.valueOf(s.substring(1+packTel, 4+packTel));
+			callNumber=Integer.valueOf(s.substring(4+packTel, 7+packTel));
+			packetNumber=Integer.valueOf(s.substring(7+packTel, 10+packTel));
+			while(!(c[counter]=='#' && c[counter+1]=='#')){
+				if(c[counter]=='#'){
+					tel++; // next data sequence (starts at index 0)
+					this.data[tel]="";
+				}else{
+					this.data[tel]+=c[counter];
+				}			
+				counter++;
+			}
+			checkSum=Integer.valueOf(s.substring(s.length()-4, s.length()-1));
+			packetTerminator=c[c.length-1];
+			commandBuilder();
+		}else{
+			throw new IOException("checksum problem, format not valid");
 		}
-		soh=c[packTel]; // 0 is SOH
-		OSnumber=Integer.valueOf(s.substring(1+packTel, 4+packTel));
-		callNumber=Integer.valueOf(s.substring(4+packTel, 7+packTel));
-		packetNumber=Integer.valueOf(s.substring(7+packTel, 10+packTel));
-		while(!(c[counter]=='#' && c[counter+1]=='#')){
-			if(c[counter]=='#'){
-				tel++; // next data sequence (starts at index 0)
-				this.data[tel]="";
-			}else{
-				this.data[tel]+=c[counter];
-			}			
-			counter++;
-		}
-		checkSum=Integer.valueOf(s.substring(s.length()-4, s.length()-1));
-		packetTerminator=c[c.length-1];
-		commandBuilder();
 	}	
 	
 	// command structure builder
@@ -124,6 +131,30 @@ public class OpusBuildPacket extends Parsers{
 		checkSum%=256;
 		if(checkSum==this.checkSum){check=true;}
 		return check;
+	}
+	public boolean verifyCheckSum(char[] c) {
+		boolean check=false;
+		int i=0, checksum=0;
+		while(c[i]!=SOH){i++;}
+		for(int s=i;s<c.length-4;s++){
+			checksum+=c[s];
+		}
+		checksum%=256;
+		// no parsing allowed, checksum can be anything
+		int orCheckSum=100*(c[c.length-4]-'0')+10*(c[c.length-3]-'0')+c[c.length-2]-'0';
+		if(checksum==orCheckSum){
+			check=true;
+		}
+		return check;
+	}
+	public boolean verifyValidCheckSum(char[] c) {
+		boolean r=false;
+		if(((c[c.length-4]-'0')<10 && (c[c.length-4]-'0')>=0) &&
+		   ((c[c.length-3]-'0')<10 && (c[c.length-3]-'0')>=0) && 
+		   ((c[c.length-2]-'0')<10 && (c[c.length-2]-'0')>=0)){
+			r=true;
+		}
+		return r;
 	}
 	
 	// verify correctness of SSS,NNN,PPP,CCC
