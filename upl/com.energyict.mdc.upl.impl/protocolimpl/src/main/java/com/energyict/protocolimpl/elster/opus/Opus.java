@@ -112,6 +112,7 @@ public class Opus implements MeterProtocol{
 	// attributes to retrieve from the data
 	private int numChan=-1;				// number of channels
 	private int interval=-1;			// temp value
+	private String firmwareVersion;
 	
 	
 	public Opus(){
@@ -128,18 +129,19 @@ public class Opus implements MeterProtocol{
 
 	public void connect() throws IOException {
 		// download final information
-		ocf.setInfoOnly(true);							// set getting properties only flag
 		ArrayList<String[]> s;							// ArrayList to catch data from factory
-		s=ocf.command(10 ,attempts,timeOut, null);		// factory command
-		ocf.setNumChan(Integer.valueOf(s.get(0)[6])); 	// factory setter for further use in the factory
-		this.numChan=ocf.getNumChan();					// set number of channels in this object
-		this.interval=24*3600/Integer.valueOf(s.get(0)[5]);	// set interval in this object
-		ocf.setInfoOnly(false);							// reset properties flag
+		s=ocf.command(121,attempts,timeOut, null);		// factory command
+		this.numChan=Integer.valueOf(s.get(0)[1]);					// set number of channels in this object
+		this.interval=24*3600/Integer.valueOf(s.get(0)[0]);	// set interval in this object
+		this.firmwareVersion=s.get(0)[6];
+		// set factory globals
+		ocf.setNumChan(this.numChan);
 		// end of download
 		
 		// testing routines, to be removed
 		System.out.println("number of channels:     "+this.numChan);
-		System.out.println(" interval: "+this.interval);
+		System.out.println("interval:               "+this.interval);
+		System.out.println("firmwareVersion:        "+this.firmwareVersion);
 		DateFormat d=DateFormat.getDateInstance();
 		Date date=getTime();
 		System.out.println("get time:               "+d.format(date)+" "+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds());
@@ -164,7 +166,7 @@ public class Opus implements MeterProtocol{
 	}
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
-		return "UNKNOWN";
+		return this.firmwareVersion;
 	}
 	public Quantity getMeterReading(int arg0) throws UnsupportedException,
 			IOException {
@@ -202,22 +204,28 @@ public class Opus implements MeterProtocol{
 		Calendar cal1 = Calendar.getInstance(); // removed getTimeZone()
 		Calendar tempcal=Calendar.getInstance(); // to store data in for the interval data
 		int command=10; // 10 is the value of today...69 of 60 days ago
-		long millis=0;
+		long millis=0,temp=0;
 		// build object
 		for(int i=0; i<this.numChan;i++ ){
 			pd.addChannel(new ChannelInfo(i,i, "Elster Opus channel "+(i+1), Unit.get(BaseUnit.UNITLESS)));
 		}
 		
         // set timers
+		// set to start of day
 		cal1.setTime(fromTime);
+		cal1.set(Calendar.HOUR_OF_DAY, 0);	// reset hour
+		cal1.set(Calendar.MINUTE, 0);		// reset minutes
+		cal1.set(Calendar.SECOND, 0);		// reset seconds
+		cal1.set(Calendar.MILLISECOND, 0);
 		
 		// check properties
         if (getProfileInterval()<=0)
             throw new IOException("load profile interval must be > 0 sec. (is "+getProfileInterval()+")");
         ParseUtils.roundDown2nearestInterval(cal1,getProfileInterval());
         // start downloading
+        setTime(); // synchronize
         while(cal1.getTime().before(toTime)) {
-        	command=getCommandnr(cal1); // download the specified day
+        	command=getCommandnr(cal1.getTime()); // download the specified day
         	if(command>69)
         		throw new IOException("the requested data is no longer available. (maximum is 60 days)");
         	
@@ -230,21 +238,22 @@ public class Opus implements MeterProtocol{
     		tempcal.set(Calendar.HOUR_OF_DAY, 0);	// reset hour
     		tempcal.set(Calendar.MINUTE, 0);		// reset minutes
     		tempcal.set(Calendar.SECOND, 0);		// reset seconds
+    		tempcal.set(Calendar.MILLISECOND, 0);
         	millis=tempcal.getTimeInMillis();
         	
         	for(int i=0; i<(3600*24/getProfileInterval()); i++){// 0->47
-        		cal1.setTimeInMillis(millis);
+        		tempcal.setTimeInMillis(millis);
         		millis+=(getProfileInterval()*1000);
-        		id=new IntervalData(cal1.getTime());
+        		id=new IntervalData(tempcal.getTime());
         		for(int ii=0;ii<getNumberOfChannels();ii++){// 0->12
         			id.addValue(datamatrix[i][ii]);
         		}
-        		if(cal1.getTime().after(fromTime) && cal1.getTime().before(toTime)){
-        			System.out.println("this is "+i+" at "+command );
+        		if(tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime)){
             		pd.addInterval(id);        			
         		}
         	}
-        	cal1.setTimeInMillis(cal1.getTimeInMillis()+(3600*24*1000));// date change
+        	temp=cal1.getTimeInMillis()+(3600*24*1000);
+        	cal1.setTimeInMillis(temp);// date change
         }
         
         //pd.addEvent(new MeterEvent(now,MeterEvent.APPLICATION_ALERT_START, "SDK Sample"));
@@ -274,18 +283,22 @@ public class Opus implements MeterProtocol{
 		return matrix;
 	}
 
-	protected int getCommandnr(Calendar cal1) {
+	protected int getCommandnr(Date cal1) {
 		int command=10;
 		long now, then;
+		Calendar calthen=Calendar.getInstance();
+		calthen.setTime(cal1);
 		Calendar calnow=Calendar.getInstance();
 		calnow.set(Calendar.HOUR_OF_DAY, 0);
 		calnow.set(Calendar.MINUTE, 0);
 		calnow.set(Calendar.SECOND, 0);
-		cal1.set(Calendar.HOUR_OF_DAY, 0);
-		cal1.set(Calendar.MINUTE, 0);
-		cal1.set(Calendar.SECOND, 0);
+		calnow.set(Calendar.MILLISECOND, 0);
+		calthen.set(Calendar.HOUR_OF_DAY, 0);
+		calthen.set(Calendar.MINUTE, 0);
+		calthen.set(Calendar.SECOND, 0);
+		calthen.set(Calendar.MILLISECOND, 0);
 		now=calnow.getTimeInMillis(); 	// current date
-		then=cal1.getTimeInMillis();	// requested date
+		then=calthen.getTimeInMillis();	// requested date
 		while(then<now){
 			then+=3600*24*1000;
 			command++;
