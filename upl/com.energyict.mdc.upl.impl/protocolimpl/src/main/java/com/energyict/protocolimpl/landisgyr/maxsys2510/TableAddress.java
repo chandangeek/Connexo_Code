@@ -49,6 +49,11 @@ class TableAddress {
         return assembly.stringValue(length);
     }
     
+    byte[] readBytes( int length ) throws IOException {
+        Assembly assembly = new Assembly( maxSys, maxSys.read( this ) );
+        return assembly.getBytes(length).getBytes();
+    }
+    
     TableAddress copy( ){
         return copy( 0 );
     }

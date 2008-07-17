@@ -15,11 +15,18 @@ import java.util.logging.Logger;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
+import com.energyict.cpo.ShadowList;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdw.amr.RtuRegisterMapping;
+import com.energyict.mdw.amr.RtuRegisterSpec;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.RtuType;
+import com.energyict.mdw.shadow.RtuTypeShadow;
+import com.energyict.mdw.shadow.amr.RtuRegisterSpecShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
@@ -74,6 +81,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     final static String PK_SECURITY_LEVEL = "SecurityLevel";
     final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
     final static String PK_FORCE_DELAY = "ForceDelay";
+    final static String PK_READ_UNIT1_SERIALNUMBER = "ReadUnit1SerialNumber";
 
     /** Property Default values */
     final static String PD_NODE_ID = "";
@@ -115,6 +123,8 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     private Logger logger = null;
 
     private Firmware firmware;
+    
+    private boolean readUnit1SerialNumber = false;
     
     public MaxSys() { }
 
@@ -173,7 +183,9 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         
         if (p.getProperty(PK_EXTENDED_LOGGING) != null)
             pExtendedLogging = p.getProperty(PK_EXTENDED_LOGGING);
-
+        
+         readUnit1SerialNumber = 
+        	"1".equals(p.getProperty(PK_READ_UNIT1_SERIALNUMBER));
     }
 
     /**
@@ -197,6 +209,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         result.add(PK_TIMEOUT);
         result.add(PK_RETRIES);
         result.add(PK_EXTENDED_LOGGING);
+        result.add(PK_READ_UNIT1_SERIALNUMBER);
         return result;
     }
 
@@ -356,9 +369,20 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         if ((pSerialNumber == null) || ("".equals(pSerialNumber)))
             return;
      
-        TableAddress ta = new TableAddress( this, 2, 19 );
-        String sn = ta.readString(11);
-
+        String sn = null;
+        
+        // initial implementataion: serialnumber = unit_id3 (this is the default!)
+        // implementation for Imserv: serialnumber = unit_id1
+        if (!readUnit1SerialNumber) {
+        	TableAddress ta = new TableAddress( this, 2, 19 );
+        	sn = ta.readString(11);
+        }
+        else {
+        	TableAddress ta = new TableAddress( this, 2, 0 );
+        	byte[] values = ta.readBytes(4);
+        	sn = getSerialNumber(values).substring(1);
+        }
+        
         if( sn!= null ) {
             if( pSerialNumber.equals( sn ) )
                 return;
@@ -367,6 +391,16 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
                 "SerialNumber mismatch! meter sn=" + sn +
                 ", configured sn=" + pSerialNumber;
         throw new IOException(msg);
+    }
+    
+    protected String getSerialNumber(byte[] data) {
+    	StringBuffer strBuff=new StringBuffer(); 
+        for (int i=0;i<data.length;i++) {
+        	int bKar = data[i]&0xFF;
+        	strBuff.append(String.valueOf((char) ProtocolUtils.convertHexLSB(bKar)));
+        	strBuff.append(String.valueOf((char) ProtocolUtils.convertHexMSB(bKar)));
+        }
+        return strBuff.toString();
     }
     
     public String getProtocolVersion() {
@@ -695,5 +729,6 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         }
 
     }
+    
 
 }

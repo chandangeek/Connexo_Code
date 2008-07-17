@@ -49,6 +49,12 @@ class Table12 {
         t.intervalMinutes = t11.getTypeStoreCntrlRcd().getIntvlInMins();
         
         t.parseChannelInfo(assembly);
+        
+        //The next 
+        //item is the LAST_INTVL_TIME which defines the time of the most recent End Of 
+        //Interval (EOI). This time is the time tag for the first interval to be 
+        //returned to the Central Computer.
+
         t.lastIntlTime  = TypeDateTimeRcd.parse( assembly ).toDate();
         
         t.parseProfileData(assembly);
