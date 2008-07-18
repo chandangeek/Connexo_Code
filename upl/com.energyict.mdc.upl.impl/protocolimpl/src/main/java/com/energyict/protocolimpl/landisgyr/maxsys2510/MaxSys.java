@@ -127,6 +127,10 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     private boolean readUnit1SerialNumber = false;
     
     public MaxSys() { }
+    
+    public Logger getLogger() {
+    	return this.logger;
+    }
 
     /* ___ Implement interface MeterProtocol ___ */
 
@@ -259,6 +263,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
      * @see com.energyict.protocol.MeterProtocol#connect()
      */
     public void connect() throws IOException {
+    	this.getLogger().info("connect");
         connect(0);
     }
 
@@ -277,7 +282,8 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     }
 
     public void disconnect() throws IOException {
-        linkLayer.send( commandFactory.createX( nextCrn(), 0x00, 0x10 ) );
+    	this.getLogger().info("disconnect");
+        linkLayer.send( commandFactory.createX( nextCrn(), 0x00, 0x10 ), 1);
     }
 
     public int getNumberOfChannels() throws UnsupportedException, IOException {
@@ -366,6 +372,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     }
 
     private void validateSerialNumber( ) throws IOException {
+    	this.getLogger().info("validateSerialNumber");
         if ((pSerialNumber == null) || ("".equals(pSerialNumber)))
             return;
      

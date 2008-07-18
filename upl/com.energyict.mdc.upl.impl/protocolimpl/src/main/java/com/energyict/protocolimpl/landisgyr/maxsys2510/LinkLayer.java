@@ -28,7 +28,6 @@ class LinkLayer extends Connection {
 
     /** Send a StandardCommand */
     ByteArray send(StandardCommand command) throws IOException {
-
         int nrTry = 0;
 
         while (nrTry < retries) {
@@ -80,12 +79,37 @@ class LinkLayer extends Connection {
 
         }
 
-        throw new IOException("Failed to read: ");
+        throw new IOException("Failed to read: communication error or wrong password");
 
     }
     
-    ByteArray send( XCommand command ) throws IOException {
+    ByteArray send( XCommand command, int customRetries ) throws IOException {
+        int nrTry = 0;
+        while (nrTry < customRetries) {
 
+            try {
+
+                cmdCount = cmdCount + 1;
+                command.setCrn(cmdCount);
+                command.setPassword(maxSys.getPassword());
+
+                sendRawData(command.getBytes());
+                return receive(16);
+
+            } catch (TimeOutException toe) {
+                toe.printStackTrace();
+                nrTry++;
+            } catch (IOException ioe) {
+                throw ioe;
+            }
+
+        }
+
+        throw new IOException("Failed to read: communication error or wrong password");
+        
+    }
+    
+    ByteArray send( XCommand command ) throws IOException {
         int nrTry = 0;
         while (nrTry < retries) {
 
@@ -107,7 +131,7 @@ class LinkLayer extends Connection {
 
         }
 
-        throw new IOException("Failed to read: ");
+        throw new IOException("Failed to read: communication error or wrong password");
         
     }
 
