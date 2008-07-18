@@ -18,19 +18,11 @@ public class OpusCommandFactory {
 	 * -> the return is a data array (List)
 	 */
 	
-	/*
-	 * Static Final Attributes
-	 */
-	// ASCII commands used in command control and communication
-	private static final char SOH =0x0001;  // start of heading
 	private static final char STX =0x0002;  // start of text
 	private static final char ETX =0x0003;  // end of text
 	private static final char EOT =0x0004;  // end of transmission 
-	private static final char ENQ =0x0005;  // enquiry
 	private static final char ACK =0x0006;  // acknowledge
 	private static final char CR  =0x000D;  // carriage return
-	private static final char XON =0x0011;  // instruction packet control characters
-	private static final char XOFF=0x0013;  // instruction packet control characters
 	private static final char NAK =0x0021;  // negative acknowledge
 
 	/*
@@ -41,11 +33,10 @@ public class OpusCommandFactory {
 	private String newPassword;
 	private String oldPassword;
 	private int outstationID;
-	private int numChan=1;
+	private int numChan=-1;
 	private int period=1;
 	private int cap=0;
 	private int dateOffset=0;
-	private boolean infoOnly=false;
 	private boolean com121=false;
 	
 
@@ -68,13 +59,16 @@ public class OpusCommandFactory {
 	 * 1) Processing of the command (after making an instance of the class)
 	 */
 	public ArrayList<String[]> command(int command, int attempts, int timeOut, Calendar cal) throws IOException{
-		// maybe good to catch some of the errors here
 		ArrayList<String[]> s=new ArrayList<String[]>();
+		if(numChan==-1){
+			s=writeReadControlOutstation(attempts, timeOut);
+			this.numChan=Integer.valueOf(s.get(0)[1]);					// set number of channels in this object			
+		}
+		// maybe good to catch some of the errors here
 		if     (command==3) {s=currentMonthCumulativeReadings(attempts, timeOut, numChan);}
 		else if(command==4) {s=previousMonthCumulativeReadings(attempts, timeOut, numChan);}
 		else if(command==5) {s=previousDayCumulativeReadings(attempts, timeOut, numChan);}
 		else if(command>9 && command<70){
-			// state machine 2
 			s=retrievalOfDailyPeriodData(command,attempts,timeOut,numChan,dateOffset,cap);
 		}
 		else if(command==81) {s=currentDayPeriodData(attempts, timeOut, numChan, period, cap);}
@@ -82,7 +76,7 @@ public class OpusCommandFactory {
 		else if(command==102){s=fetchTimeDateFromOutstation(attempts,timeOut);}
 		else if(command==111){s=retrievalDeltaMinAdvance(attempts, timeOut,cal,numChan);} // use command as deltamin
 		else if(command==121){s=writeReadControlOutstation(attempts, timeOut);}
-		//TODO command implementation
+		//further command implementation not needed 
 		else if(command==200){s=null;}
 		else if(command==550){s=null;}// commands for PPM stations, so far not implemented
 		else if(command==860){s=null;}
@@ -204,8 +198,8 @@ public class OpusCommandFactory {
 				case 4:
 					s=getStringArray();
 					state=5;
-					receivePacket=new OpusBuildPacket(s.toCharArray());
-					temp=receivePacket.verifyCheckSum();
+					receivePacket=new OpusBuildPacket(s.toCharArray()); // can throw error on checksum
+					temp=receivePacket.verifyCheckSum(); // verify checksum on mathematical correctness
 					data=receivePacket.getData();
 					attempts2--;
 					break;
@@ -215,7 +209,7 @@ public class OpusCommandFactory {
 				case 8:
 				case 9:
 				case 10:
-					state=detectUnstable(data,temp,11,4);
+					state=detectUnstable(data,temp,11,4,1);
 					break;
 				case 11:					
 					returnedData.add(data);
@@ -336,16 +330,7 @@ public class OpusCommandFactory {
 					break;
 				case 5:
 				case 6:
-					if(infoOnly){ // make unstable
-						if(!(data[2].equals("00") && data[3].equals("00") && data[4].equals("00"))){
-							data[2]="00";
-							data[3]="00";
-							data[4]="00";
-							returnedData.add(data);
-							loop=false;
-						}
-					}
-					state=detectUnstable(data,temp,7,4);
+					state=detectUnstable(data,temp,7,4,13);
 					if(state==7){returnedData.add(data);}  // data passed ack frame
 					break;
 				case 7:
@@ -696,13 +681,13 @@ public class OpusCommandFactory {
 	/*
 	 * State machine read and write functions
 	 */
-	private int detectUnstable(String[] data, boolean temp, int i, int j) throws IOException {
+	private int detectUnstable(String[] data, boolean temp, int i, int j, int k) throws IOException {
 		int state=1;
 		if((data[2].equals("00") && data[3].equals("00") && data[4].equals("00") || (data[0]=="000"))){
-			// data unstable
+			// data unstable or date wrong
 			outputStream.write(EOT);
 			// introduce timeout pause
-			state=1;
+			state=k;
 		}else{ 
 			state=acknack(temp,i,j);
 		}			
@@ -787,10 +772,6 @@ public class OpusCommandFactory {
 		return numChan;
 	}
 
-	public void setNumChan(int numChan) {
-		this.numChan = numChan;
-	}
-
 	public int getPeriod() {
 		return period;
 	}
@@ -813,12 +794,9 @@ public class OpusCommandFactory {
 	public void setDateOffset(int dateOffset) {
 		this.dateOffset = dateOffset;
 	}
-	public boolean isInfoOnly() {
-		return infoOnly;
+
+	public void setNumChan(int numChan) {
+		this.numChan = numChan;
 	}
 
-	public void setInfoOnly(boolean infoOnly) {
-		this.infoOnly = infoOnly;
-	}
-	
 }

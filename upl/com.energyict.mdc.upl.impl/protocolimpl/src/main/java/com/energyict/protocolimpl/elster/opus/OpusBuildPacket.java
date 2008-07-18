@@ -29,7 +29,8 @@ public class OpusBuildPacket extends Parsers{
 	private int packetNumber;
 	private int checkSum=0;
 	private char packetTerminator;
-	private String dataTerminator="##";
+	private boolean majorproblem=false;
+	private static final String dataTerminator="##";
 	private String[] data;
 	
 	// operators	
@@ -38,9 +39,11 @@ public class OpusBuildPacket extends Parsers{
 		process(parseBArraytoCArray(b));
 	}
 	OpusBuildPacket(char[] c) throws IOException{ // incoming data
+		majorproblem=false;
 		process(c);
 	}
 	OpusBuildPacket(int OS,int NNN,int PPP,String[] data, boolean CDC){ // outgoing data
+		majorproblem=false;
 		soh=SOH;
 		this.OSnumber=OS;
 		this.callNumber=NNN;
@@ -56,7 +59,7 @@ public class OpusBuildPacket extends Parsers{
 	}
 	
 	// char processing
-	private void process(char[] c) throws IOException {
+	private void process(char[] c){
 		String s= new String(c);
 		this.data=new String[8];
 		int tel=-1, counter=10,packTel=0; // data sequence starts at byte 11
@@ -83,7 +86,13 @@ public class OpusBuildPacket extends Parsers{
 			packetTerminator=c[c.length-1];
 			commandBuilder();
 		}else{
-			throw new IOException("checksum problem, format not valid");
+			majorproblem=true;
+			System.out.println("majorproblem detected");
+			soh=0;OSnumber=0;callNumber=0;packetNumber=0;
+			for(int i=0; i<8; i++){
+				data[i]="0";
+			}
+			this.checkSum=999; // impossible checksum
 		}
 	}	
 	
@@ -124,26 +133,31 @@ public class OpusBuildPacket extends Parsers{
 	public boolean verifyCheckSum(){
 		// check checksum of incoming data
 		boolean check=false;
-		int checkSum=0;
-		for(int i=0; i<command.length()-4; i++){
-			checkSum+=command.charAt(i);
+		if(!majorproblem){ // errors in characterset
+			int checkSum=0;
+			for(int i=0; i<command.length()-4; i++){
+				checkSum+=command.charAt(i);
+			}
+			checkSum%=256;			
+			if(checkSum==this.checkSum){check=true;}
 		}
-		checkSum%=256;
-		if(checkSum==this.checkSum){check=true;}
 		return check;
 	}
 	public boolean verifyCheckSum(char[] c) {
 		boolean check=false;
 		int i=0, checksum=0;
-		while(c[i]!=SOH){i++;}
-		for(int s=i;s<c.length-4;s++){
-			checksum+=c[s];
-		}
-		checksum%=256;
-		// no parsing allowed, checksum can be anything
-		int orCheckSum=100*(c[c.length-4]-'0')+10*(c[c.length-3]-'0')+c[c.length-2]-'0';
-		if(checksum==orCheckSum){
-			check=true;
+		if(c.length>10 && verifyValidCheckSum(c)){// primary check on validity: length and char content
+			// secondary check on validity: other content
+			while(c[i]!=SOH){i++;}// go to start of header
+			for(int s=i;s<c.length-4;s++){
+				checksum+=c[s];	// sum all bytes 
+			}
+			checksum%=256; // calculate checksum
+			// no parsing allowed, checksum can be anything
+			int orCheckSum=100*(c[c.length-4]-'0')+10*(c[c.length-3]-'0')+c[c.length-2]-'0'; // retrieve checksum from data
+			if(checksum==orCheckSum){
+				check=true;
+			}
 		}
 		return check;
 	}
@@ -217,67 +231,6 @@ public class OpusBuildPacket extends Parsers{
 		return data;
 	}
 	
-	
-	/**
-	 * @return the sOH
-	 */
-	public static char getSOH() {
-		return SOH;
-	}
-	/**
-	 * @return the sTX
-	 */
-	public static char getSTX() {
-		return STX;
-	}
-	/**
-	 * @return the eTX
-	 */
-	public static char getETX() {
-		return ETX;
-	}
-	/**
-	 * @return the eOT
-	 */
-	public static char getEOT() {
-		return EOT;
-	}
-	/**
-	 * @return the eNQ
-	 */
-	public static char getENQ() {
-		return ENQ;
-	}
-	/**
-	 * @return the aCK
-	 */
-	public static char getACK() {
-		return ACK;
-	}
-	/**
-	 * @return the cR
-	 */
-	public static char getCR() {
-		return CR;
-	}
-	/**
-	 * @return the xON
-	 */
-	public static char getXON() {
-		return XON;
-	}
-	/**
-	 * @return the xOFF
-	 */
-	public static char getXOFF() {
-		return XOFF;
-	}
-	/**
-	 * @return the nAK
-	 */
-	public static char getNAK() {
-		return NAK;
-	}
 	/**
 	 * @return the command
 	 */
