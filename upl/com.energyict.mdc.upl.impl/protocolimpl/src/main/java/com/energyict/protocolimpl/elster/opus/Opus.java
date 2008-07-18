@@ -3,9 +3,7 @@ package com.energyict.protocolimpl.elster.opus;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -16,29 +14,17 @@ import java.util.logging.Logger;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.genericprotocolimpl.iskrap2lpc.ProtocolChannelMap;
-import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ParseUtils;
@@ -57,8 +43,7 @@ public class Opus extends AbstractProtocol{
 	 * 		it is both used for putting data in the right frame as feeding
 	 * 		it with a received frame as byte array to put it back into 
 	 * 		a OpusBuildPacket object.  Deserializing the byte array allows
-	 * 		the user to get the data array from the object.<p>
-	 * 		TODO: checksum testing on two levels: wrong number vs. wrong data
+	 * 		the user to get the data array from the object.<p>	
 	 * <p>
 	 * 3) OpusCommandFactory deals with the commands.  The previously described
 	 * 		OpusBuildPacket is only called from here. The factory has 3 internal 
@@ -75,8 +60,7 @@ public class Opus extends AbstractProtocol{
 	 * 		they must not be used (setting special function registers in the meter) or
 	 * 		because they are related to other types of meters but were described in 
 	 * 		the datasheet are all commands ranging from 121 to 999<p>
-	 * 		TODO proper checksum and error handling, parsing specific data into arrays 
-	 * 		or objects
+	 * 		
 	 * <p>
 	 *  4) Opus: this is the meter protocol, in the connect method some meter props are
 	 *  	read.
@@ -331,6 +315,7 @@ public class Opus extends AbstractProtocol{
 
 	private int getCommandnr(Date cal1) {
 		int command=10;
+		int dateOffset=0;
 		long now, then;
 		Calendar calthen=Calendar.getInstance();
 		calthen.setTime(cal1);
@@ -348,7 +333,12 @@ public class Opus extends AbstractProtocol{
 		while(then<now){
 			then+=3600*24*1000;
 			command++;
+			if(command==69){
+				command=10;
+				dateOffset+=59;
+			}
 		}
+		this.ocf.setDateOffset(dateOffset); // change offset in factory
 		return command;
 	}
 
