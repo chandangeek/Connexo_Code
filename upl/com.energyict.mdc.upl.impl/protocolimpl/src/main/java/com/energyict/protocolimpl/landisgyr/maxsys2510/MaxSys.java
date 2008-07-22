@@ -154,7 +154,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
                 pwd = "    ";
             }
             
-            if( pwd.length() > 4 ) {
+            if( pwd.length() != 4 ) {
                 String msg = "Password must be a string of 4 characters long. eg 0000";
                 throw new InvalidPropertyException( msg );
             }
