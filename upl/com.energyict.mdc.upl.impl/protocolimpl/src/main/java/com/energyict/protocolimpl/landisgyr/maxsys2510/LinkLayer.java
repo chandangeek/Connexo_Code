@@ -44,7 +44,7 @@ class LinkLayer extends Connection {
                 sendRawData(command.getBytes());
                 ByteArray ba = receive(16);
                 if ((PASSWORD_ERROR_BIT & ba.getBytes()[6]) == PASSWORD_ERROR_BIT)
-                	throw new IOException("password error");
+                	throw new IOException("password error: wrong password");
 
                 ByteArray rslt = new ByteArray();
                 boolean done = false;
