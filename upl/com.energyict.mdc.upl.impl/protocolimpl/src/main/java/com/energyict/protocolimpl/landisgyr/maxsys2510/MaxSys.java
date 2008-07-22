@@ -696,7 +696,10 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     
     public static void main(String[] args) throws Exception {
         
-        Dialer dialer = null;
+    	System.out.println(0x80 & 0xC0);
+    	
+    	
+        /*ialer dialer = null;
         MaxSys max = new MaxSys();
         try {
 
@@ -733,7 +736,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         } catch (IOException e) {
             System.out.println("MaxSys, IOException, " + e.getMessage());
             max.disconnect();
-        }
+        }*/
 
     }
     
