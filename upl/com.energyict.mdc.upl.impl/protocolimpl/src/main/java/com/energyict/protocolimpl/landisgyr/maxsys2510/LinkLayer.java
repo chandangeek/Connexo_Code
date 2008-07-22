@@ -6,8 +6,11 @@ import java.io.OutputStream;
 
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.ProtocolUtils;
 
 class LinkLayer extends Connection {
+	
+	private static final int PASSWORD_ERROR_BIT = 0x80;
 
     int cmdCount = 0;
     int timeoutMilli = 10000;
@@ -39,7 +42,9 @@ class LinkLayer extends Connection {
                 command.setPassword(maxSys.getPassword());
 
                 sendRawData(command.getBytes());
-                receive(16);
+                ByteArray ba = receive(16);
+                if ((PASSWORD_ERROR_BIT & ba.getBytes()[6]) == PASSWORD_ERROR_BIT)
+                	throw new IOException("password error");
 
                 ByteArray rslt = new ByteArray();
                 boolean done = false;
@@ -79,7 +84,7 @@ class LinkLayer extends Connection {
 
         }
 
-        throw new IOException("Failed to read: communication error or wrong password");
+        throw new IOException("Failed to read: communication error");
 
     }
     
@@ -94,7 +99,10 @@ class LinkLayer extends Connection {
                 command.setPassword(maxSys.getPassword());
 
                 sendRawData(command.getBytes());
-                return receive(16);
+                ByteArray ba = receive(16);
+                if ((PASSWORD_ERROR_BIT & ba.getBytes()[6]) == PASSWORD_ERROR_BIT)
+                	throw new IOException("password error: check password level");
+                return ba;
 
             } catch (TimeOutException toe) {
                 toe.printStackTrace();
@@ -105,7 +113,7 @@ class LinkLayer extends Connection {
 
         }
 
-        throw new IOException("Failed to read: communication error or wrong password");
+        throw new IOException("Failed to read: communication error");
         
     }
     
@@ -120,7 +128,10 @@ class LinkLayer extends Connection {
                 command.setPassword(maxSys.getPassword());
 
                 sendRawData(command.getBytes());
-                return receive(16);
+                ByteArray ba = receive(16);
+                if ((PASSWORD_ERROR_BIT & ba.getBytes()[6]) == PASSWORD_ERROR_BIT)
+                	throw new IOException("password error: check password level");
+                return ba;
 
             } catch (TimeOutException toe) {
                 toe.printStackTrace();
@@ -131,7 +142,7 @@ class LinkLayer extends Connection {
 
         }
 
-        throw new IOException("Failed to read: communication error or wrong password");
+        throw new IOException("Failed to read: communication error");
         
     }
 
