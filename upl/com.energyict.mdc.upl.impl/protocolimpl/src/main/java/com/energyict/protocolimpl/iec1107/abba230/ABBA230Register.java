@@ -29,7 +29,7 @@ public class ABBA230Register extends ABBA230RegisterData {
     private boolean cached;
     private ABBA230RegisterFactory registerFactory = null;
     
-    /** Creates a new instance of ABBA1140Register */
+    /** Creates a new instance of ABBA230Register */
     protected ABBA230Register(
         String dataId, String name, int type, int offset, int length,
         Unit unit, boolean writeable, boolean cached, 
@@ -82,8 +82,8 @@ public class ABBA230Register extends ABBA230RegisterData {
         return registerFactory;
     }
     
-    protected ABBA230DataIdentityFactory getABBA1140DataIdentityFactory() {
-        return registerFactory.getABBA1140DataIdentityFactory();
+    protected ABBA230DataIdentityFactory getABBA230DataIdentityFactory() {
+        return registerFactory.getABBA230DataIdentityFactory();
     }
     
     protected FlagIEC1107Connection getFlagIEC1107Connection() {
@@ -96,12 +96,12 @@ public class ABBA230Register extends ABBA230RegisterData {
     
     protected void writeRegister(String value)
     throws FlagIEC1107ConnectionException, IOException {
-        getABBA1140DataIdentityFactory().setDataIdentity(getDataID(), value);
+        getABBA230DataIdentityFactory().setDataIdentity(getDataID(), value);
     }
     
     protected void writeRegister(Object object)
     throws FlagIEC1107ConnectionException, IOException {
-        getABBA1140DataIdentityFactory().setDataIdentity(getDataID(),
+        getABBA230DataIdentityFactory().setDataIdentity(getDataID(),
         buildData(object));
     }
     
@@ -117,17 +117,17 @@ public class ABBA230Register extends ABBA230RegisterData {
     
     protected byte[] readRegister(boolean cached, int dataLength, int set)
     throws FlagIEC1107ConnectionException, IOException {
-        return (getABBA1140DataIdentityFactory().getDataIdentity(getDataID(), cached, dataLength, set));
+        return (getABBA230DataIdentityFactory().getDataIdentity(getDataID(), cached, dataLength, set));
     }
     
     protected byte[] readRegisterStream(boolean cached, int nrOfBlocks)
     throws FlagIEC1107ConnectionException, IOException {
-        return (getABBA1140DataIdentityFactory().getDataIdentityStream(getDataID(), cached, nrOfBlocks));
+        return (getABBA230DataIdentityFactory().getDataIdentityStream(getDataID(), cached, nrOfBlocks));
     }
     
     public String toString() {
         return new StringBuffer()
-        .append("ABBA1140Register[ ")
+        .append("ABBA230Register[ ")
         .append("id=" + dataId + ", ")
         .append("name=" + name + ", " )
         .append("offset=" + offset + ", ")

@@ -22,7 +22,7 @@ public class ABBA230DataIdentity {
     private boolean streameable;
     private ABBA230DataIdentityFactory dataIdentityFactory=null;
     
-    /** Create new ABBA1140identity
+    /** Create new A230identity
      * @param dataId 
      * @param dataIdentityFactory 
      * @param length in bytes
@@ -88,7 +88,7 @@ public class ABBA230DataIdentity {
      */
     byte[] readStream(boolean cached, int nrOfBlocks) throws FlagIEC1107ConnectionException,IOException {
         if (getSets() != 1)
-            throw new IOException("ABBA1140DataIdentity, readRawRegisterStream, error nr of sets != 1 !!!, use of method not allowed");
+            throw new IOException("ABBA230DataIdentity, readRawRegisterStream, error nr of sets != 1 !!!, use of method not allowed");
         if ((!cached) || (dataBlocks[0] == null)) {
             dataBlocks[0] = doReadRawRegisterStream(cached,nrOfBlocks);
         }
@@ -128,7 +128,7 @@ public class ABBA230DataIdentity {
         String str = new String(dataBlock);
         if (str.indexOf("ERR") != -1) {
             String exceptionId = str.substring(str.indexOf("ERR"),str.indexOf("ERR")+4);
-            throw new FlagIEC1107ConnectionException("ABBA1140DataIdentity, readRawRegisterStream, "+dataIdentityFactory.getMeterExceptionInfo().getExceptionInfo(exceptionId));
+            throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, readRawRegisterStream, "+dataIdentityFactory.getMeterExceptionInfo().getExceptionInfo(exceptionId));
         }
         return dataBlock;
     }
@@ -140,7 +140,7 @@ public class ABBA230DataIdentity {
     private byte[] doReadRawRegister(int dataLen,int set) throws FlagIEC1107ConnectionException,IOException {
         byte[] dataBlock=null;
         long timeout = System.currentTimeMillis() + AUTHENTICATE_REARM; // After 4,5 min, do authentication before continue! otherwise we can receive ERR5, password timeout!
-        if (dataLen <= 0) throw new FlagIEC1107ConnectionException("ABBA1140DataIdentity, doReadRawRegister, wrong dataLength ("+dataLen+")!");
+        if (dataLen <= 0) throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, doReadRawRegister, wrong dataLength ("+dataLen+")!");
         ByteArrayOutputStream data = new ByteArrayOutputStream();
         int packetid = ((dataLen/64) + ((dataLen%64)==0?0:1)) * set + 1; // calculate packetid
         int dataLength=dataLen;
@@ -157,12 +157,12 @@ public class ABBA230DataIdentity {
             byte[] ba = dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().receiveData();
             
             if (ba.length != (len*2))
-                throw new FlagIEC1107ConnectionException("ABBA1140DataIdentity, doReadRawRegister, data length received ("+ba.length+") is different from data length requested ("+(len*2)+") !");
+                throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, doReadRawRegister, data length received ("+ba.length+") is different from data length requested ("+(len*2)+") !");
             
             String str = new String(ba);
             if (str.indexOf("ERR") != -1) {
                 String exceptionId = str.substring(str.indexOf("ERR"),str.indexOf("ERR")+4);
-                throw new FlagIEC1107ConnectionException("ABBA1140DataIdentity, doReadRawRegister, "+dataIdentityFactory.getMeterExceptionInfo().getExceptionInfo(exceptionId));
+                throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, doReadRawRegister, "+dataIdentityFactory.getMeterExceptionInfo().getExceptionInfo(exceptionId));
             }
             data.write(ba);
             

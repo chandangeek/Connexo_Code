@@ -91,7 +91,7 @@ abstract public class ABBA230RegisterData {
                 return build((LoadProfileReadByDate)object);
                 
             default:
-                throw new IOException("ABBA1140RegisterData, parse , unknown type "+getType());
+                throw new IOException("ABBA230RegisterData, parse , unknown type "+getType());
         }
         
     }
@@ -219,7 +219,7 @@ abstract public class ABBA230RegisterData {
                     return new Integer( getRegisterFactory().getDataType().integrationPeriod.parse(data[0]) );
                     
                 case ABBA_LOAD_PROFILE_BY_DATE: {
-                    String msg = "ABBA1140RegisterData, parse, "
+                    String msg = "ABBA230RegisterData, parse, "
                             + "type can only be read" + getType();
                     throw new IOException(msg);
                 }
@@ -228,11 +228,11 @@ abstract public class ABBA230RegisterData {
                     return new LoadProfileConfigRegister(getRegisterFactory(), data);
                     
                 default:
-                    throw new IOException("ABBA1140RegisterData, parse , unknown type " + getType());
+                    throw new IOException("ABBA230RegisterData, parse , unknown type " + getType());
             }
         }
         catch(NumberFormatException e) {
-            throw new IOException("ABBA1140RegisterData, parse error");
+            throw new IOException("ABBA230RegisterData, parse error");
         }
     }
     
@@ -244,29 +244,29 @@ abstract public class ABBA230RegisterData {
     }
     
     private BigDecimal parseBigDecimal(byte[] data) throws IOException,NumberFormatException {
-        if (getLength() > 8) throw new IOException("ABBA1140RegisterData, parseBigDecimal, datalength should not exceed 8!");
+        if (getLength() > 8) throw new IOException("Elster A230RegisterData, parseBigDecimal, datalength should not exceed 8!");
         BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
         return bd.movePointLeft(Math.abs(getUnit().getScale()));
     }
     
     private Quantity parseQuantity(byte[] data) throws IOException,NumberFormatException {
-        if (getLength() > 8) throw new IOException("ABBA1140RegisterData, parseQuantity, datalength should not exceed 8!");
+        if (getLength() > 8) throw new IOException("Elster A230RegisterData, parseQuantity, datalength should not exceed 8!");
         BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
         return new Quantity(bd,getUnit());
     }
     
     private Long parseBitfield(byte[] data) throws IOException {
-        if (getLength() > 8) throw new IOException("ABBA1140RegisterData, parseBitfield, datalength should not exceed 8!");
+        if (getLength() > 8) throw new IOException("Elster A230RegisterData, parseBitfield, datalength should not exceed 8!");
         return new Long(ProtocolUtils.getLong(data,getOffset(),getLength()));
     }
     
     private Long parseLong(byte[] data) throws IOException,NumberFormatException {
-        if (getLength() > 8) throw new IOException("ABBA1140RegisterData, parseLong, datalength should not exceed 8!");
+        if (getLength() > 8) throw new IOException("Elster A230RegisterData, parseLong, datalength should not exceed 8!");
         return new Long(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
     }
     
     private Integer parseInteger(byte[] data) throws IOException,NumberFormatException {
-        if (getLength() > 4) throw new IOException("ABBA1140RegisterData, parseInteger, datalength should not exceed 4!");
+        if (getLength() > 4) throw new IOException("Elster A230RegisterData, parseInteger, datalength should not exceed 4!");
         return new Integer(Integer.parseInt(Integer.toHexString(ProtocolUtils.getIntLE(data,getOffset(),getLength()))));
     }
     

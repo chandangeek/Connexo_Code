@@ -65,10 +65,10 @@ public class ABBA230Profile {
     /** integration period in seconds */
     private int integrationPeriod;
     
-    ABBA230Profile(ProtocolLink protocolLink,ABBA230RegisterFactory abba1140RegisterFactory) {
+    ABBA230Profile(ProtocolLink protocolLink,ABBA230RegisterFactory abba230RegisterFactory) {
         this.protocolLink = protocolLink;
         this.timeZone = protocolLink.getTimeZone();
-        this.rFactory = abba1140RegisterFactory;
+        this.rFactory = abba230RegisterFactory;
     }
     
     /** Retrieve the load profile between from and to date.
@@ -89,7 +89,7 @@ public class ABBA230Profile {
         }
         
         if (to.getTime() < from.getTime())
-            throw new IOException("ABBA1140Profile, getProfileData, error ("+from+") > ("+to+")");
+            throw new IOException("ABBA230Profile, getProfileData, error ("+from+") > ("+to+")");
         
         /** If the to date is after the metertime, set the to date to the meter
          * time.  Obvious isn't it. */
@@ -228,9 +228,7 @@ public class ABBA230Profile {
             // dst behaviour can be set NOT to follow DST while
             // the profile data has it's dst flag set.
             if ((timeZone.useDaylightTime()) && !e4Dst) {
-                String msg =
-                        "ABBA1140Profile, parse, configured timezone expects " +
-                        "profiledata to follow DST, correct first!";
+                String msg = "ABBA230Profile, parse, configured timezone expects profiledata to follow DST, correct first!";
                 throw new IOException( msg );
             }
             

@@ -1,5 +1,5 @@
 /*
- * ABBA1140.java
+ * ABBA230.java
  *
  * <B>Description :</B><BR>
  * Class that implements the Elster A1140 meter protocol.
@@ -123,7 +123,7 @@ public class ABBA230 implements
     private int pEchoCancelling = PD_ECHO_CANCELING;
     private int pIEC1107Compatible = PD_IEC1107_COMPATIBLE;
     
-    private ABBA230MeterType abba1140MeterType=null;
+    private ABBA230MeterType abba230MeterType=null;
     private TimeZone timeZone;
     private Logger logger;
     private FlagIEC1107Connection flagConnection=null;
@@ -197,7 +197,7 @@ public class ABBA230 implements
             
             
         } catch (NumberFormatException e) {
-            throw new InvalidPropertyException("ABBA1140, validateProperties, NumberFormatException, "+e.getMessage());
+            throw new InvalidPropertyException("Elster A230, validateProperties, NumberFormatException, "+e.getMessage());
         }
         
     }
@@ -234,11 +234,11 @@ public class ABBA230 implements
         
         if (logger.isLoggable(Level.INFO)) {
             String infoMsg =
-                    "A1140 protocol init \n"
+                    "A230 protocol init \n"
                     + " Address = " + pAddress + ","
                     + " Node Id = " + pNodeId + ","
                     + " SerialNr = " + pSerialNumber + ","
-                    + " Psswd = " + pPassword + ","
+                    + " Psswd = " + pPassword + ",\n"
                     + " Timeout = " + pTimeout + ","
                     + " Retries = " + pRetries + ","
                     + " Ext. Logging = " + pExtendedLogging + ","
@@ -256,7 +256,7 @@ public class ABBA230 implements
                     FORCE_DELAY,pEchoCancelling,pIEC1107Compatible,
                     new CAI700());
         } catch(ConnectionException e) {
-            logger.severe("ABBA1140: init(...), " + e.getMessage());
+            logger.severe("Elster A230: init(...), " + e.getMessage());
         }
     }
     
@@ -553,8 +553,8 @@ public class ABBA230 implements
         throw new IOException(msg);
     }
     
-    public ABBA230MeterType getAbba1140MeterType() {
-        return abba1140MeterType;
+    public ABBA230MeterType getAbba230MeterType() {
+        return abba230MeterType;
     }
     
     /* ________ Not supported methods ___________ */

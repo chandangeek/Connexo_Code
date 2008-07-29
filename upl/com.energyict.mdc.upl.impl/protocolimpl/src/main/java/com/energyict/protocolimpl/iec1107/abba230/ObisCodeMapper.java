@@ -28,8 +28,8 @@ public class ObisCodeMapper {
     private ABBA230RegisterFactory rFactory;
     
     /** Creates a new instance of ObisCodeMapping */
-    ObisCodeMapper(ABBA230RegisterFactory abba1140RegisterFactory) {
-        this.rFactory=abba1140RegisterFactory;
+    ObisCodeMapper(ABBA230RegisterFactory abba230RegisterFactory) {
+        this.rFactory=abba230RegisterFactory;
     }
     
     static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {

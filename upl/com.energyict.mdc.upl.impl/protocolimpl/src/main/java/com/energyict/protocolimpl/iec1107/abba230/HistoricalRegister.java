@@ -60,10 +60,10 @@ public class HistoricalRegister {
         ba508 = ProtocolUtils.getSubArray2(data, 128, 144);
         ba667 = ProtocolUtils.getSubArray2(data, 256, 16);
         ba509 = ProtocolUtils.getSubArray2(data, 272, 36);
-        ba510 = ProtocolUtils.getSubArray2(data, 308, 144);
+        ba510 = ProtocolUtils.getSubArray2(data, 308, 24);
         
-        billingTrigger = ProtocolUtils.getIntLE(data,452,1);
-        long shift = (long)ProtocolUtils.getIntLE(data,453,4)&0xFFFFFFFFL;
+        billingTrigger = ProtocolUtils.getIntLE(data,332,1);
+        long shift = (long)ProtocolUtils.getIntLE(data,333,4)&0xFFFFFFFFL;
         TimeZone tz = protocolLink.getTimeZone();
         if(shift != 0)
             billingDate = ProtocolUtils.getCalendar(tz,shift).getTime();

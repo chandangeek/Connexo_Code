@@ -57,19 +57,9 @@ public class ABBA230RegisterFactory {
     private ABBA230Register loadProfileReadByDate;
     private ABBA230Register loadProfileByDate64Blocks;
     private ABBA230Register loadProfileSet;
+    private ABBA230Register maximumDemandRegisters;
     private ABBA230Register maximumDemand0;
     private ABBA230Register maximumDemand1;
-    private ABBA230Register maximumDemand10;
-    private ABBA230Register maximumDemand11;
-    private ABBA230Register maximumDemand2;
-    private ABBA230Register maximumDemand3;
-    private ABBA230Register maximumDemand4;
-    private ABBA230Register maximumDemand5;
-    private ABBA230Register maximumDemand6;
-    private ABBA230Register maximumDemand7;
-    private ABBA230Register maximumDemand8;
-    private ABBA230Register maximumDemand9;
-    private ABBA230Register maximumDemandRegisters;
     private ABBA230Register schemeID;
     private ABBA230Register serialNumber;
     private ABBA230Register systemStatus;
@@ -86,7 +76,7 @@ public class ABBA230RegisterFactory {
     private ABBA230Register contactorStatus,contactorCloser;
     
     /**
-     * Creates a new instance of ABBA1140RegisterFactory
+     * Creates a new instance of ABBA230RegisterFactory
      * @param protocolLink
      * @param meterExceptionInfo
      */
@@ -101,7 +91,7 @@ public class ABBA230RegisterFactory {
         
     }
     
-    protected ABBA230DataIdentityFactory getABBA1140DataIdentityFactory() {
+    protected ABBA230DataIdentityFactory getABBA230DataIdentityFactory() {
         return dataIdentityFactory;
     }
     
@@ -238,46 +228,6 @@ public class ABBA230RegisterFactory {
         return maximumDemand1;
     }
 
-    public ABBA230Register getMaximumDemand10() {
-        return maximumDemand10;
-    }
-
-    public ABBA230Register getMaximumDemand11() {
-        return maximumDemand11;
-    }
-
-    public ABBA230Register getMaximumDemand2() {
-        return maximumDemand2;
-    }
-
-    public ABBA230Register getMaximumDemand3() {
-        return maximumDemand3;
-    }
-
-    public ABBA230Register getMaximumDemand4() {
-        return maximumDemand4;
-    }
-
-    public ABBA230Register getMaximumDemand5() {
-        return maximumDemand5;
-    }
-
-    public ABBA230Register getMaximumDemand6() {
-        return maximumDemand6;
-    }
-
-    public ABBA230Register getMaximumDemand7() {
-        return maximumDemand7;
-    }
-
-    public ABBA230Register getMaximumDemand8() {
-        return maximumDemand8;
-    }
-
-    public ABBA230Register getMaximumDemand9() {
-        return maximumDemand9;
-    }
-
     public ABBA230Register getMaximumDemandRegisters() {
         return maximumDemandRegisters;
     }
@@ -374,19 +324,9 @@ public class ABBA230RegisterFactory {
         cumulativeMaximumDemand2 = cr("509","CumulativeMaximumDemand2", ABBA230RegisterData.ABBA_CMD,18,9,null);
         cumulativeMaximumDemand3 = cr("509","CumulativeMaximumDemand3", ABBA230RegisterData.ABBA_CMD,27,9,null);
         
-        maximumDemandRegisters = cr("510", "MaximumDemandRegisters", ABBA230RegisterData.ABBA_BYTEARRAY,0,208, null );
+        maximumDemandRegisters = cr("510", "MaximumDemandRegisters", ABBA230RegisterData.ABBA_BYTEARRAY,0,24, null );
         maximumDemand0 = cr( "510", "MaximumDemand0", ABBA230RegisterData.ABBA_MD,0,12,null);
         maximumDemand1 = cr( "510", "MaximumDemand1", ABBA230RegisterData.ABBA_MD,12,12,null);
-        maximumDemand2 = cr( "510", "MaximumDemand2", ABBA230RegisterData.ABBA_MD,24,12,null);
-        maximumDemand3 = cr( "510", "MaximumDemand3", ABBA230RegisterData.ABBA_MD,36,12,null);
-        maximumDemand4 = cr( "510", "MaximumDemand4", ABBA230RegisterData.ABBA_MD,48,12,null);
-        maximumDemand5 = cr( "510", "MaximumDemand5", ABBA230RegisterData.ABBA_MD,60,12,null);
-        maximumDemand6 = cr( "510", "MaximumDemand6", ABBA230RegisterData.ABBA_MD,72,12,null);
-        maximumDemand7 = cr( "510", "MaximumDemand7", ABBA230RegisterData.ABBA_MD,84,12,null);
-        maximumDemand8 = cr( "510", "MaximumDemand8", ABBA230RegisterData.ABBA_MD,96,12,null); 
-        maximumDemand9 = cr( "510", "MaximumDemand9", ABBA230RegisterData.ABBA_MD,108,12,null);
-        maximumDemand10 = cr( "510", "MaximumDemand10", ABBA230RegisterData.ABBA_MD,120,12,null);
-        maximumDemand11 = cr( "510", "MaximumDemand11", ABBA230RegisterData.ABBA_MD,132,12,null);
         
         historicalRegister = cr("543", "HistoricalRegister", ABBA230RegisterData.ABBA_HISTORICALVALUES,0,457, null);
         historicalEvents = cr("544", "HistoricalEvents", ABBA230RegisterData.ABBA_HISTORICALEVENTS,0,792, null);
@@ -450,10 +390,10 @@ public class ABBA230RegisterFactory {
         try {
             ABBA230Register register = findRegister(name);
             if (register.isWriteable()) register.writeRegister(value);
-            else throw new IOException("ABBA1140, setRegister, register not writeable");
+            else throw new IOException("Elster A230, setRegister, register not writeable");
             
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("ABBA1140, setRegister, "+e.getMessage());
+            throw new IOException("Elster A230, setRegister, "+e.getMessage());
         }
     }
     
@@ -461,15 +401,15 @@ public class ABBA230RegisterFactory {
         try {
             ABBA230Register register = findRegister(name);
             if (register.isWriteable()) register.writeRegister(object);
-            else throw new IOException("ABBA1140, setRegister, register not writeable");
+            else throw new IOException("Elster A230, setRegister, register not writeable");
             
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("ABBA1140, setRegister, "+e.getMessage());
+            throw new IOException("Elster A230, setRegister, "+e.getMessage());
         }
     }
     
     
-    public ABBA230Register getABBA1140Register(String name) throws IOException {
+    public ABBA230Register getABBA230Register(String name) throws IOException {
         return findRegister(name);
     }
     
@@ -514,9 +454,9 @@ public class ABBA230RegisterFactory {
                     register2Retrieve = findRegister(name);
                     return register2Retrieve.parse(register2Retrieve.readRegister(register2Retrieve.isCached(),billingPoint));
                 }
-            } else throw new IOException("ABBA1140, getRegister, invalid billing point "+billingPoint+"!");
+            } else throw new IOException("Elster A230, getRegister, invalid billing point "+billingPoint+"!");
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("ABBA1140, getRegister, "+e.getMessage());
+            throw new IOException("Elster A230, getRegister, "+e.getMessage());
         }
     }
     
@@ -530,7 +470,7 @@ public class ABBA230RegisterFactory {
             ABBA230Register register = findRegister(name);
             return (register.readRegister(register.isCached(),dataLength,0));
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("ABBA1140, getRegisterRawData, "+e.getMessage());
+            throw new IOException("Elster A230, getRegisterRawData, "+e.getMessage());
         }
     }
     
@@ -539,7 +479,7 @@ public class ABBA230RegisterFactory {
             ABBA230Register register = findRegister(name);
             return (register.readRegisterStream(register.isCached(),nrOfBlocks));
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("ABBA1140, getRegisterRawDataStream, "+e.getMessage());
+            throw new IOException("Elster A230, getRegisterRawDataStream, "+e.getMessage());
         }
     }
     
@@ -547,7 +487,7 @@ public class ABBA230RegisterFactory {
     private ABBA230Register findRegister(String name) throws IOException {
         ABBA230Register register = (ABBA230Register)registers.get(name);
         if (register == null) {
-            String msg = "ABBA1140RegisterFactory, findRegister, " + name + " does not exist!";
+            String msg = "Elster A230RegisterFactory, findRegister, " + name + " does not exist!";
             throw new IOException(msg);
         } else return register;
     }

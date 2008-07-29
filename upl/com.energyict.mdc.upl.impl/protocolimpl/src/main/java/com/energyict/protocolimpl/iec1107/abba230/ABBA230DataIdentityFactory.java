@@ -61,7 +61,7 @@ public class ABBA230DataIdentityFactory {
             ABBA230DataIdentity rawRegister = findRawRegister(dataID);
             return rawRegister.read(cached,(dataLength==-1?rawRegister.getLength():dataLength),set);
         } catch(FlagIEC1107ConnectionException e) {
-            String msg = "ABBA1140DataIdentityFactory, getDataIdentity, "
+            String msg = "ABBA230DataIdentityFactory, getDataIdentity, "
                     + "dataID=" + dataID + " " + e.getMessage();
             throw new IOException(msg);
         }
@@ -79,10 +79,10 @@ public class ABBA230DataIdentityFactory {
         try {
             ABBA230DataIdentity rawRegister = findRawRegister(dataID);
             if (!rawRegister.isStreameable())
-                throw new IOException("ABBA1140DataIdentity, getDataIdentityStream, data identity not streameable!");
+                throw new IOException("ABBA230DataIdentity, getDataIdentityStream, data identity not streameable!");
             return rawRegister.readStream(cached,nrOfBlocks);
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("ABBA1140DataIdentityFactory, getDataIdentityStream, "+e.getMessage());
+            throw new IOException("ABBA230DataIdentityFactory, getDataIdentityStream, "+e.getMessage());
         }
     }
     
@@ -96,7 +96,7 @@ public class ABBA230DataIdentityFactory {
             ABBA230DataIdentity rawRegister = findRawRegister(dataID);
             rawRegister.writeRawRegister(value);
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("ABBA1140DataIdentityFactory, setDataIdentity, "+e.getMessage());
+            throw new IOException("ABBA230DataIdentityFactory, setDataIdentity, "+e.getMessage());
         }
     }
     
@@ -110,9 +110,8 @@ public class ABBA230DataIdentityFactory {
         add("795", 8,ABBA230DataIdentity.NOT_STREAMEABLE);
         add("861", 7,ABBA230DataIdentity.NOT_STREAMEABLE);
         add("507", 128,ABBA230DataIdentity.NOT_STREAMEABLE);
-        add("508", 128,ABBA230DataIdentity.NOT_STREAMEABLE);
         add("509", 36,ABBA230DataIdentity.NOT_STREAMEABLE);
-        add("510", 144,ABBA230DataIdentity.NOT_STREAMEABLE);
+        add("510", 24,ABBA230DataIdentity.NOT_STREAMEABLE);
         // ct primary and secundary current
         add("616", 6,ABBA230DataIdentity.NOT_STREAMEABLE);
         // Load profile configuration
@@ -154,13 +153,13 @@ public class ABBA230DataIdentityFactory {
     private ABBA230DataIdentity findRawRegister(String dataID) throws IOException {
         ABBA230DataIdentity rawRegister = (ABBA230DataIdentity)rawRegisters.get(dataID);
         if (rawRegister == null)
-            throw new IOException("ABBA1140DataIdentityFactory, findRawRegister, "+dataID+" does not exist!");
+            throw new IOException("ABBA230DataIdentityFactory, findRawRegister, "+dataID+" does not exist!");
         return rawRegister;
     }
     
     public String toString( ){
         StringBuffer rslt = new StringBuffer();
-        rslt.append( "ABBA1140DataIdentityFactory [\n" );
+        rslt.append( "ABBA230DataIdentityFactory [\n" );
         
         Iterator i = rawRegisters.values().iterator();
         while(i.hasNext()){
