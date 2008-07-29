@@ -341,10 +341,18 @@ public class PRIPact implements MeterProtocol, ProtocolLink, RegisterProtocol {
     	Date returnDate;
     	
     	currentTime = new DateTime(getPactConnection().sendRequest(PACTConnection.RTC), getTimeZone());
-    	if(Math.abs(currentTime.getDate().getTime() - getPactRegisterFactory().getCurrentTime().getTime()) > 60000)
-    		returnDate = getPactRegisterFactory().getCurrentTime();
-    	else
+    	if(getPactRegisterFactory().getCurrentTime() != null){
+    		long currentTemp = currentTime.getDate().getTime();
+    		long tableTemp = getPactRegisterFactory().getCurrentTime().getTime();
+    		if(Math.abs( currentTemp - tableTemp ) > 60000)
+    			returnDate = getPactRegisterFactory().getCurrentTime();
+    		else
+    			returnDate = currentTime.getDate();
+    	}
+    	else{
+    		getLogger().log(Level.WARNING, "Probably old meter, no secundairy meterTime check is made.");
     		returnDate = currentTime.getDate();
+    	}
     	
     	if(DEBUG >=2) System.out.println("SystemTime : " + new Date(System.currentTimeMillis()));
     	if(DEBUG >=2) System.out.println("OldTime: " + getPactRegisterFactory().getCurrentTime() + " - CurrentTime : " + currentTime.getDate());

@@ -106,7 +106,10 @@ public class PACTRegisterFactory {
 	}
     
     public Date getCurrentTime(){
-    	return new Date(oldMeterTime.getTime() + System.currentTimeMillis() - getTimeOffset());
+    	if(oldMeterTime != null)
+    		return new Date(oldMeterTime.getTime() + System.currentTimeMillis() - getTimeOffset());
+    	else
+    		return null;
     }
 
 
