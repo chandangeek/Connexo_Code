@@ -68,9 +68,9 @@ public class Opus extends AbstractProtocol{
 	 *  Initial version:<p>
 	 *  ----------------<p>
 	 *  @Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
-	 *  @Version: 1.1 <p>
-	 *  First edit date: 10/07/2008 PST<p>
-	 *  Last edit date: 17/07/2008  PST<p>
+	 *  @Version: 1.0 <p>
+	 *  First edit date: 9/07/2008 PST<p>
+	 *  Last edit date: 30/07/2008  PST<p>
 	 *  Comments:<p>
 	 *  Released for testing: not yet, still under construction
 	 *  .<p>
@@ -86,7 +86,7 @@ public class Opus extends AbstractProtocol{
 	 */
 	private static final float protocolVersion=(float) 1.0;
 	
-	private ProtocolChannelMap channelMap;
+	private ProtocolChannelMap channelMap=null;
 	
 	private final String oldPassword;
 	private final String newPassword;
@@ -94,10 +94,10 @@ public class Opus extends AbstractProtocol{
 	
 	private InputStream inputStream;
 	private OutputStream outputStream;
-	private int timeOut=5000;			// timeout time in ms
 	private OpusCommandFactory ocf; 	// command factory
-	private int attempts=5;				// number of attempts
 	private ObisCodeMapper ocm;
+	private int timeOut=5000;			// timeout time in ms
+	private int attempts=5;				// number of attempts
 
 	// attributes to retrieve from the data
 	private int numChan=-1;				// number of channels
@@ -119,13 +119,15 @@ public class Opus extends AbstractProtocol{
 
 	public void connect() throws IOException {
 		// download final information
-		ArrayList<String[]> s;							// ArrayList to catch data from factory
-		s=ocf.command(121,attempts,timeOut, null);		// factory command
-		this.numChan=Integer.valueOf(s.get(0)[1]);					// set number of channels in this object
+		ArrayList<String[]> s;								// ArrayList to catch data from factory
+		s=ocf.command(121,attempts,timeOut, null);			// factory command
+		this.numChan=Integer.valueOf(s.get(0)[1]);			// set number of channels in this object
 		this.interval=24*3600/Integer.valueOf(s.get(0)[0]);	// set interval in this object
 		this.firmwareVersion=s.get(0)[6];
 		// set factory globals (IMORTANT)
 		ocf.setNumChan(this.numChan);
+		// make channelmap with all channels enabled
+		
 		// end of download
 	}
 
@@ -160,23 +162,35 @@ public class Opus extends AbstractProtocol{
 	}
 
 	public ProfileData getProfileData(Date fromTime, Date toTime, boolean event)	throws IOException, UnsupportedException {
-		ProfileData pd = new ProfileData();
-		int[][] datamatrix;
-		IntervalData id= new IntervalData();
-		IntervalData previd= new IntervalData();
-		MeterEvent mev;
-		ArrayList<String[]> data= new ArrayList<String[]>();
-		Calendar cal1 = Calendar.getInstance(); // removed getTimeZone()
-		Calendar tempcal=Calendar.getInstance(); // to store data in for the interval data
-		int command=10; // 10 is the value of today...69 of 60 days ago
+		// TODO use scanning instead of pointing because pointing can be corrupted 
+		// put matrix received from the meter into a 2D matrix
+		ArrayList<String[]> data= new ArrayList<String[]>(); // original data list (holds raw data strings)
+		int[][] datamatrix; // holds raw VALUES, no header info (channels are columns, data sits in the rows)
+		// instantiate the profile and interval data, 
+		ProfileData pd = new ProfileData();		
+		IntervalData id= new IntervalData();		// current interval data
+		IntervalData previd= new IntervalData();	// previous interval data, is kept for power down and power up flags (are to be set before the occurence of a power down and after a power up)
+		MeterEvent mev; 							// meter event flagging
+		// build calendar objects
+		Calendar cal1 = Calendar.getInstance();  	// removed getTimeZone()
+		Calendar tempcal=Calendar.getInstance(); 	// to store data in for the interval data
+		// command sequences
+		int command=10, ident=0;// 10 is the value of today...69 of 60 days ago, this is theory (in reality every time a new date is set that does not correspond with the actual date in the meter a new register is opened)
 		long millis=0,temp=0;
-		boolean eventflag=false,powDownFlag=false, firstchan=true;
-
-		// build object
-		for(int i=0; i<this.numChan;i++ ){
-			pd.addChannel(new ChannelInfo(i,i, "Elster Opus channel "+(i+1), Unit.get(BaseUnit.UNITLESS)));
-		}
+		// flagging
+		boolean eventflag=false,powDownFlag=false,firstchan=true; // firstchan is not needed since the first channel is always read (might change in the future, this is done by the opus software, but increases transmission time)
+		// END instantiations
 		
+		// build profile data object
+		for(int i=0; i<this.numChan;i++ ){
+			if(channelMap.isProtocolChannelEnabled(i)){	
+				pd.addChannel(new ChannelInfo(ident,ident, "Elster Opus channel "+(i+1), Unit.get(BaseUnit.UNITLESS)));
+				ident++;
+				// more logical way of working:
+				// does not work on EIserver
+				// pd.addChannel(new ChannelInfo(ident++,i, "Elster Opus channel "+(i+1), Unit.get(BaseUnit.UNITLESS)));				
+			}
+		}
         // set timers
 		// set to start of day
 		cal1.setTime(fromTime);
@@ -197,7 +211,7 @@ public class Opus extends AbstractProtocol{
         while(cal1.getTime().before(toTime)) {
         	command=getCommandnr(cal1.getTime()); // download the specified day        	
         	// get the data
-        	data=ocf.command(command, attempts, timeOut, null);
+        	data=ocf.command(command, attempts, timeOut, cal1);
         	// put the data in a 2D matrix
         	if(data.size()>0){// data available test
         		// dump data in 2D matrix
@@ -208,21 +222,20 @@ public class Opus extends AbstractProtocol{
         		tempcal.set(Calendar.MINUTE, 0);		// reset minutes
         		tempcal.set(Calendar.SECOND, 0);		// reset seconds
         		tempcal.set(Calendar.MILLISECOND, 0);	// reset milliseconds
-        		millis=tempcal.getTimeInMillis(); // start at 0:0:0h (interval 47 of previous day)
+        		millis=tempcal.getTimeInMillis(); 		// start at 0:0:0h (interval 47 of previous day)
         	
         		for(int i=0; i<(3600*24/getProfileInterval()); i++){// 0->47
-        		
         			// save previous data
         			previd=new IntervalData(tempcal.getTime());
         			previd.setIntervalValues(id.getIntervalValues());
-        			previd.setEiStatus(id.getEiStatus());
-        		
-        			// 	generate stepclock
+        			previd.setEiStatus(id.getEiStatus());        		
+        			// 	generate step clock
         			millis+=(getProfileInterval()*1000); 	// now time correction        		
         			tempcal.setTimeInMillis(millis);		// set to now
         			id=new IntervalData(tempcal.getTime());
         			firstchan=true;
         			for(int ii=0;ii<getNumberOfChannels();ii++){// 0->12
+        				if(channelMap.isProtocolChannelEnabled(ii) && ii!=0){ // process first channel for flagging (no idea if this is hardware req.
         				// check value
         				if(datamatrix[i][ii]>999990){
         					// value should be zero, because is false
@@ -272,20 +285,23 @@ public class Opus extends AbstractProtocol{
         					}
         					eventflag=false;
         					// value is real value
-        					id.addValue(datamatrix[i][ii]);
-        				}
-        			}
-        			if(tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime)){        			
-        				pd.addInterval(id);        			
-        			}
-        		}
+        					if(channelMap.isProtocolChannelEnabled(ii)){ // skip first if disabled (eventflagging of first channel in case of flagged off is done)
+        						id.addValue(datamatrix[i][ii]);
+        					}
+        				}// data & flag check
+        				}// channel map
+        			}// end ii for loop (channel)
+        			if(tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime)){
+   						pd.addInterval(id);        		
+    				}
+        		}// end i for loop (interval)        		
         	}// end data available test
         	// next day
         	temp=cal1.getTimeInMillis()+(3600*24*1000);
         	cal1.setTimeInMillis(temp);// date change        	
         }
         
-       // pd.getMeterEvents().addAll(mev);
+        //pd.getMeterEvents().addAll(mev);
         //pd.addEvent(new MeterEvent(now,MeterEvent.APPLICATION_ALERT_START, "SDK Sample"));
 
 		return pd;
@@ -314,6 +330,7 @@ public class Opus extends AbstractProtocol{
 	}
 
 	private int getCommandnr(Date cal1) {
+		// fix the bank bug here
 		int command=10;
 		int dateOffset=0;
 		long now, then;
@@ -370,7 +387,7 @@ public class Opus extends AbstractProtocol{
 		ArrayList<String[]> d=ocf.command(102, attempts, timeOut, null);
 		String[] s=d.get(d.size()-1); // last index
 		cal.set(Integer.parseInt(s[5])+2000,
-				Integer.parseInt(s[4]),
+				Integer.parseInt(s[4])-1, // correction for java date
 				Integer.parseInt(s[3]),
 				Integer.parseInt(s[0]),
 				Integer.parseInt(s[1]),
@@ -393,7 +410,7 @@ public class Opus extends AbstractProtocol{
 
 	public void setProperties(Properties properties) throws InvalidPropertyException,	MissingPropertyException {
 		outstationID = Integer.parseInt(properties.getProperty("NodeAddress", "000"));
-		channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", null));
+		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap"));		
 	}
 
 	public void updateCache(int arg0, Object arg1) throws SQLException,
@@ -417,7 +434,18 @@ public class Opus extends AbstractProtocol{
         this.inputStream = inputStream;
         this.outputStream = outputStream;
         // build command factory
+        System.out.println("init");
 		this.ocf=new OpusCommandFactory(this.outstationID,this.oldPassword,this.newPassword,this.inputStream,this.outputStream);
+		
+		if(this.channelMap==null){ // if no setProperties has been called
+			String cs="1";
+			for(int i=1;i<this.numChan; i++){
+				cs+=":0";
+			}
+			channelMap=new ProtocolChannelMap(cs);
+		}
+		
+		this.ocf.setChannelMap(this.channelMap); // set the channel map in the factory
 	}
 
 	protected void doConnect() throws IOException {
