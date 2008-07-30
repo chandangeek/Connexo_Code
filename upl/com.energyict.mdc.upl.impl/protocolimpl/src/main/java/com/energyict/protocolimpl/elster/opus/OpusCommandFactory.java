@@ -372,12 +372,13 @@ public class OpusCommandFactory {
 					 * channels used NOW and transmit that to the server.  Read the register, and transfer
 					 * all channels stored in that register not using the previously transferred number
 					 * of channels. 
+					 * 
+					 * Solution: scan all channels by using ENQ and count number of headers, close with a timeout
 					 */
 					boolean checkLastChan=false;
 					if(enq==0x1 && temp){ // status ok & checksum ok		
-						System.out.println(!channelMap.isProtocolChannelZero(channr-1)+" "+channr);
-						if(!channelMap.isProtocolChannel(channr-1)){// more channels show up than initially installed (strange problem appeared on test meter in historical data) 
-							if(channr-1!=0 && !channelMap.isProtocolChannelEnabled(channr-1)){// ENQ will not be sent on channel 1 (is no problem for this software, might be a problem for the software of elster								
+						if(channelMap.isProtocolChannel(channr-1)){// more channels show up than initially installed (strange problem appeared on test meter in historical data) 
+							if(channr-1!=0 && !channelMap.isProtocolChannelEnabled(channr-1)){// ENQ will not be sent on channel 1 (is no problem for this software, might be a problem for the software of elster
 								outputStream.write(ENQ); // not first channel and channel disabled
 								state=7;
 								checkLastChan=true;
