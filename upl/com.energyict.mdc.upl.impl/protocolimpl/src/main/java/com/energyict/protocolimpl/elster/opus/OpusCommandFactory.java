@@ -10,13 +10,34 @@ import com.energyict.genericprotocolimpl.iskrap2lpc.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 public class OpusCommandFactory {
-	/*
+	/**
+	 * Command Factory:
+	 * <p>
 	 * Commands are executed in 3 layers
 	 * 1) command number is used to call the correct method
 	 * 2) method generates the data sequence needed for the transmission
 	 * 3) the correct state machine connected to the command is selected and the connection is made
 	 * 
 	 * -> the return is a data array (List)
+	 *  <p>
+	 *  Initial version:<p>
+	 *  ----------------<p>
+	 *  @Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+	 *  @Version: 1.0 <p>
+	 *  First edit date: 9/07/2008 PST<p>
+	 *  Last edit date: 30/07/2008  PST<p>
+	 *  Comments:<p>
+	 *  Released for testing: not yet, still under construction
+	 *  .<p>
+	 *  Revisions<p>
+	 *  ----------------<p>
+	 *  Author: <p>
+	 *  Version:<p>
+	 *  Last edit date: <p>
+	 *  Comments:<p>
+	 *  released for testing:
+	 * ---------------------------------------------------------------------------------<p>
+	 *  
 	 */
 	
 	private static final char STX =0x0002;  // start of text
