@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import com.energyict.genericprotocolimpl.iskrap2lpc.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 public class OpusCommandFactory {
@@ -21,6 +22,7 @@ public class OpusCommandFactory {
 	private static final char STX =0x0002;  // start of text
 	private static final char ETX =0x0003;  // end of text
 	private static final char EOT =0x0004;  // end of transmission 
+	private static final char ENQ =0x0005;  // enquiry
 	private static final char ACK =0x0006;  // acknowledge
 	private static final char CR  =0x000D;  // carriage return
 	private static final char NAK =0x0021;  // negative acknowledge
@@ -34,11 +36,13 @@ public class OpusCommandFactory {
 	private String oldPassword;
 	private int outstationID;
 	private int numChan=-1;
+	private int enq=0;
 	private int period=1;
 	private int cap=0;
 	private int dateOffset=0;
 	private boolean com121=false;
-	
+	private ProtocolChannelMap channelMap;
+
 
 	/*
 	 * Constructor (no empty constructor allowed)
@@ -69,7 +73,7 @@ public class OpusCommandFactory {
 		else if(command==4) {s=previousMonthCumulativeReadings(attempts, timeOut, numChan);}
 		else if(command==5) {s=previousDayCumulativeReadings(attempts, timeOut, numChan);}
 		else if(command>9 && command<70){
-			s=retrievalOfDailyPeriodData(command,attempts,timeOut,numChan,dateOffset,cap);
+			s=retrievalOfDailyPeriodData(command,attempts,timeOut,numChan,dateOffset,cap,cal);
 		}
 		else if(command==81) {s=currentDayPeriodData(attempts, timeOut, numChan, period, cap);}
 		else if(command==101){s=synchronizeOutstation(attempts, timeOut);}
@@ -103,11 +107,11 @@ public class OpusCommandFactory {
 		String[] data=dataArrayBuilder("0","0","0","0","0","0",oldPassword,newPassword); // build data packet
 		return stateMachine1(5,attempts,timeOut,numChan,data);
 	}
-	private ArrayList<String[]> retrievalOfDailyPeriodData(int commandnr,int attempts, int timeOut, int numChan, int offset, int cap) throws IOException {
+	private ArrayList<String[]> retrievalOfDailyPeriodData(int commandnr,int attempts, int timeOut, int numChan, int offset, int cap, Calendar cal) throws IOException {
 		String d=""+offset;
 		String c=""+cap;
 		String[] data=dataArrayBuilder("0",d,c,"0","0","0",oldPassword,newPassword); // build data packet
-		return stateMachine2(commandnr,attempts,timeOut,data);
+		return stateMachine2(commandnr,attempts,timeOut,data,cal);
 	}
 	private ArrayList<String[]> currentDayPeriodData(int attempts,int timeOut, int numChan,int period, int cap) throws IOException {
 		// check 001 thing, comes from log-files
@@ -266,7 +270,7 @@ public class OpusCommandFactory {
 		return returnedData;
 	}
 	// second state machine, commands 10-69
-	private ArrayList<String[]> stateMachine2(int commandnr,int attempts, int timeOut, String[] data) throws IOException{
+	private ArrayList<String[]> stateMachine2(int commandnr,int attempts, int timeOut, String[] data,Calendar cal) throws IOException{
 		int attempts1= attempts,attempts2=attempts, attempts3=attempts,attempts4=attempts;
 		ArrayList<String[]> returnedData=new ArrayList<String[]>();
 		boolean temp=true,loop=true; // to pass true or false flags from state to state
@@ -280,6 +284,7 @@ public class OpusCommandFactory {
 		int numChan=1;
 		int datanr=0;
 		int numData=8; 
+		//int day=0,month=0,year=0;
 		interFrameTimeout = System.currentTimeMillis() + timeOut; // timeout between states
 		while(loop){			
 			// time out check
@@ -319,18 +324,26 @@ public class OpusCommandFactory {
 					data=receivePacket.getData();
 					// set number of channels
 					if(temp){
-						numChan=Integer.parseInt(data[6]);
-						// 	set number of data samples per day
+						//day=Integer.parseInt(data[2]);
+						//month=Integer.parseInt(data[3]);
+						//year=Integer.parseInt(data[4]);
 						numData=Integer.parseInt(data[5]);
-					}else{
-						loop=false;
-						throw new IOException("connection properties are probably wrong or noise on connection");
+						numChan=Integer.parseInt(data[6]);
+						this.enq=(Integer.parseInt(data[7]) & 0x1); // comes out of status register
 					}
 					attempts2--;
 					break;
 				case 5:
 				case 6:
-					state=detectUnstable(data,temp,7,4,13);
+					// date check implemented in the datasheet, should not be implemented
+					//if(day==cal.get(Calendar.DAY_OF_MONTH) && month==cal.get(Calendar.MONTH)+1 &&	year==cal.get(Calendar.YEAR)){
+						state=detectUnstable(data,temp,7,4,13);
+					//	System.out.println("date correct"+day+" "+month+" "+year+" "+cal.getTime().toLocaleString());
+					//}else{
+					//	outputStream.write(EOT); // date not correct
+					//	System.out.println("date not correct"+day+" "+month+" "+year+" "+cal.getTime().toLocaleString());
+					//	state=13;
+					//}
 					if(state==7){returnedData.add(data);}  // data passed ack frame
 					break;
 				case 7:
@@ -340,13 +353,48 @@ public class OpusCommandFactory {
 					receivePacket=new OpusBuildPacket(s.toCharArray());
 					temp=receivePacket.verifyCheckSum();
 					if(!temp){attempts3--;}
-					data=receivePacket.getData();
-					channr=Integer.parseInt(data[0].substring(5));
+					if(temp){
+						data=receivePacket.getData();
+						channr=Integer.parseInt(data[0].substring(5));
+					}
 					state=8;
 					break;
 				case 8:
-					// ENQ not implemented
-					state=acknack(temp,9,7);
+					/*
+					 * TODO: here the exceeding channel problem of the OPUS should be solved
+					 * TODO: This channel problem should be solved in the FIRMWARE!!
+					 * 
+					 * This problem is a FIRMWARE BUG.  The problem is that the number of channels
+					 * retured by the OPUS is not taken from the register where the channels are stored
+					 * but taken in a register containing current up to date information.  Historical
+					 * data however does not necessarily have the same amount of channels stored per register
+					 * as current up to date registers.  The firmware does the following: takes number of
+					 * channels used NOW and transmit that to the server.  Read the register, and transfer
+					 * all channels stored in that register not using the previously transferred number
+					 * of channels. 
+					 */
+					boolean checkLastChan=false;
+					if(enq==0x1 && temp){ // status ok & checksum ok		
+						System.out.println(!channelMap.isProtocolChannelZero(channr-1)+" "+channr);
+						if(!channelMap.isProtocolChannel(channr-1)){// more channels show up than initially installed (strange problem appeared on test meter in historical data) 
+							if(channr-1!=0 && !channelMap.isProtocolChannelEnabled(channr-1)){// ENQ will not be sent on channel 1 (is no problem for this software, might be a problem for the software of elster								
+								outputStream.write(ENQ); // not first channel and channel disabled
+								state=7;
+								checkLastChan=true;
+							}else{// receive channel
+								state=acknack(temp,9,7);
+							}
+						}else{// send ENQ also when channels are exceeding this.numChan
+							outputStream.write(ENQ);
+							checkLastChan=true;
+							state=7;
+						}
+						if(channr==numChan && checkLastChan){ // if ENQ for last channel then goto 13;
+							state=13;
+						}						
+					}else{
+						state=acknack(temp,9,7);
+					}
 					if(state==9){returnedData.add(data);}  // data passed ack frame, retries not included
 					break;
 				case 9:
@@ -671,7 +719,7 @@ public class OpusCommandFactory {
 		data[1]=""+cal.get(Calendar.MINUTE);
 		data[2]=""+cal.get(Calendar.SECOND);
 		data[3]=""+cal.get(Calendar.DAY_OF_MONTH);
-		data[4]=""+cal.get(Calendar.MONTH);
+		data[4]=""+(cal.get(Calendar.MONTH)+1);
 		data[5]=""+cal.get(Calendar.YEAR);
 		data[6]=oldPassword;
 		data[7]=newPassword;
@@ -728,21 +776,6 @@ public class OpusCommandFactory {
 	/*
 	 * Setters and Getters
 	 */	
-	public InputStream getInputStream() {
-		return inputStream;
-	}
-
-	public void setInputStream(InputStream inputStream) {
-		this.inputStream = inputStream;
-	}
-
-	public OutputStream getOutputStream() {
-		return outputStream;
-	}
-
-	public void setOutputStream(OutputStream outputStream) {
-		this.outputStream = outputStream;
-	}
 
 	public String getNewPassword() {
 		return newPassword;
@@ -798,5 +831,15 @@ public class OpusCommandFactory {
 	public void setNumChan(int numChan) {
 		this.numChan = numChan;
 	}
+
+	public ProtocolChannelMap getChannelMap() {
+		return channelMap;
+	}
+
+	public void setChannelMap(ProtocolChannelMap channelMap) {
+		System.out.println("check");
+		this.channelMap = channelMap;
+	}
+
 
 }
