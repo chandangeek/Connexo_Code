@@ -39,6 +39,7 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.EventMapper;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
@@ -74,7 +75,7 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 public class ABBA230 implements
         MeterProtocol, ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo,
-        RegisterProtocol, MessageProtocol {
+        RegisterProtocol, MessageProtocol, EventMapper {
     
     private static String CONNECT 			= "CONNECT";
     private static String DISCONNECT 		= "DISCONNECT";
@@ -200,6 +201,13 @@ public class ABBA230 implements
             throw new InvalidPropertyException("Elster A230, validateProperties, NumberFormatException, "+e.getMessage());
         }
         
+    }
+    
+    public List map2MeterEvent(String event) {
+    	
+    	List meterEvents = new ArrayList();
+    	
+    	return meterEvents;
     }
     
     /* (non-Javadoc)

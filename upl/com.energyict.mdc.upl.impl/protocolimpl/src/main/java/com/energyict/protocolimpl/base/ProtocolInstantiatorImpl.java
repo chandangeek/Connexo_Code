@@ -6,10 +6,19 @@
 
 package com.energyict.protocolimpl.base;
 
-import java.util.*;
-import java.io.*;
+import java.io.IOException;
+import java.util.List;
 
-import com.energyict.protocol.*; //ProtocolInstantiator;
+import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.DemandResetProtocol;
+import com.energyict.protocol.DialinScheduleProtocol;
+import com.energyict.protocol.EventMapper;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.HalfDuplexEnabler;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.ProtocolInstantiator;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.SerialNumber;
 
 /**
  *
@@ -17,6 +26,7 @@ import com.energyict.protocol.*; //ProtocolInstantiator;
  */
 public class ProtocolInstantiatorImpl implements ProtocolInstantiator {
     
+	EventMapper eventMapper=null;
     MeterProtocol meterProtocol=null;
     HHUEnabler hhuEnabler=null;
     HalfDuplexEnabler halfDuplexEnabler=null;
@@ -31,12 +41,20 @@ public class ProtocolInstantiatorImpl implements ProtocolInstantiator {
     
     public void buildInstance(String className) throws IOException {
         Object protocolInstance = getInstance(className);
+        
         try {
-           meterProtocol = (MeterProtocol)protocolInstance;
+        	eventMapper = (EventMapper)protocolInstance;
         }
         catch(ClassCastException e) {
-           meterProtocol=null;   
+        	eventMapper=null;   
         }
+        
+        try {
+            meterProtocol = (MeterProtocol)protocolInstance;
+         }
+         catch(ClassCastException e) {
+            meterProtocol=null;   
+         }
         try {
            hhuEnabler = (HHUEnabler)protocolInstance;
         }
@@ -152,4 +170,8 @@ public class ProtocolInstantiatorImpl implements ProtocolInstantiator {
         }
         
     } // private void instantiateProtocol(String className)
+
+	public EventMapper getEventMapper() {
+		return eventMapper;
+	}
 }

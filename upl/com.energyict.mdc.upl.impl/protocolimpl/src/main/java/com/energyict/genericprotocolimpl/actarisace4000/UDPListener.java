@@ -97,7 +97,7 @@ public class UDPListener extends Thread {
     }
     
     private String getInterfaceMACAddress(NetworkInterface ni) throws SocketException{
-    	byte[] b = ni.getHardwareAddress();
+    	byte[] b = null; //ni.getHardwareAddress();
     	if (b != null){
     		StringBuilder mac = new StringBuilder();
     		for(int i = 0; i < b.length; i++){

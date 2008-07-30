@@ -40,6 +40,8 @@ public class IdentificationFactoryImpl implements IdentificationFactory {
         map.put("GEC", new GEC());
         map.put("ISK", new ISK());
         map.put("LGZ", new LGZ());
+        map.put("AS230", new AS230());
+        
     }    
     
     
