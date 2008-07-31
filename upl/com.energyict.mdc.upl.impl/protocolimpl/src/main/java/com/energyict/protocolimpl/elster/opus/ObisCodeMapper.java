@@ -1,6 +1,10 @@
 package com.energyict.protocolimpl.elster.opus;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
@@ -8,19 +12,78 @@ import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 
 public class ObisCodeMapper {
-
+	
+	private Opus opus = null;
+	private RegisterValue rv;
+	private Quantity q; 
+	private Calendar calendar;
+	private ArrayList <String[]> dataArray;
+	
 	public ObisCodeMapper(Opus opus) {
-		// TODO Auto-generated constructor stub
+		this.opus = opus;
 	}
 
-	//public RegisterValue getRegisterValue(ObisCode obisCode) {
-		// TODO Auto-generated method stub
-		//Quantity q = new Quantity(new BigDecimal("waarde"), Unit.get(BaseUnit.UNITLESS));
-		//RegisterValue rv = new RegisterValue(obisCode, q, null, getTime());
-		//throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-		//return rv;
-	//}
+	public RegisterValue getRegisterValue(ObisCode obisCode) throws UnsupportedException, NoSuchRegisterException, IOException {
+		if( obisCode.getA()!=1 || 
+			obisCode.getC()!=0 ||
+			obisCode.getD()!=7 ||
+			obisCode.getE()!=0 ||
+			obisCode.getB()>=opus.getNumberOfChannels() ||
+			obisCode.getB()<0){
+			// check validity of the code
+			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+		}
+		switch(obisCode.getF()){
+			case 255:
+				q = new Quantity(new BigDecimal(subFactory(3,obisCode)), Unit.get(BaseUnit.UNITLESS));
+				rv = new RegisterValue(obisCode, q, null, getTime());				
+				break;
+			case -1:
+				q = new Quantity(new BigDecimal(subFactory(4,obisCode)), Unit.get(BaseUnit.UNITLESS));
+				rv = new RegisterValue(obisCode, q, null, getTime());				
+				break;
+			case 0:
+				q = new Quantity(new BigDecimal(subFactory(5,obisCode)), Unit.get(BaseUnit.UNITLESS));
+				rv = new RegisterValue(obisCode, q, null, getTime());				
+				break;
+			default:
+				throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+		}
+		return rv;
+	}
+	private Date getTime() {
+		return calendar.getTime();
+	}
+	
+	private int subFactory(int command,ObisCode obisCode) throws IOException{
+		// ALL statemachine 1
+		int channel, readVal, x, y;
+		calendar=Calendar.getInstance();
+		channel = obisCode.getB();
+		dataArray=opus.getOcf().command(command, opus.getAttempts(), opus.getTimeOut(), null);
+		if(dataArray.size()==1){
+			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!, data was metastable, try again later");
+		}else{
+			x=(int) Math.floor(channel/8);
+			y=channel%8;
+			readVal = Integer.parseInt(dataArray.get(2+2*x)[y]);
+			calendar.set(Integer.parseInt(dataArray.get(0)[4])+2000,
+						 Integer.parseInt(dataArray.get(0)[3])-1,
+						 Integer.parseInt(dataArray.get(0)[2]));
+			if(command>3){ // let time as it is on command 3
+				calendar.set(Calendar.HOUR_OF_DAY, 0);
+				calendar.set(Calendar.MINUTE, 	   0);	// reset minutes
+				calendar.set(Calendar.SECOND, 	   0);	// reset seconds
+				calendar.set(Calendar.MILLISECOND, 0);	// reset milliseconds
+				long newcal=calendar.getTimeInMillis()+24*3600*1000;
+				calendar.setTimeInMillis(newcal); // midnight 
+			}
+		}
+		return readVal;
+	}
+
 
 }

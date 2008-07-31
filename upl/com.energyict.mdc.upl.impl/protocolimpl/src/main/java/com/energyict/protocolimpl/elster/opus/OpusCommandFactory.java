@@ -741,7 +741,7 @@ public class OpusCommandFactory {
 		data[1]=""+cal.get(Calendar.MINUTE);
 		data[2]=""+cal.get(Calendar.SECOND);
 		data[3]=""+cal.get(Calendar.DAY_OF_MONTH);
-		data[4]=""+(cal.get(Calendar.MONTH)+1);
+		data[4]=""+(cal.get(Calendar.MONTH)+1); // correction for java month indexing
 		data[5]=""+cal.get(Calendar.YEAR);
 		data[6]=oldPassword;
 		data[7]=newPassword;

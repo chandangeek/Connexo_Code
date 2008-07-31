@@ -17,6 +17,7 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.genericprotocolimpl.iskrap2lpc.ProtocolChannelMap;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
@@ -24,6 +25,8 @@ import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
@@ -127,7 +130,6 @@ public class Opus extends AbstractProtocol{
 		// set factory globals (IMORTANT)
 		ocf.setNumChan(this.numChan);
 		// make channelmap with all channels enabled
-		
 		// end of download
 	}
 
@@ -177,17 +179,17 @@ public class Opus extends AbstractProtocol{
     /*******************************************************************************************
     R e g i s t e r P r o t o c o l  i n t e r f a c e 
     *******************************************************************************************/
-//   public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-       //TODO
-//	   if(ocm == null)
-//		   ocm = new ObisCodeMapper(this);
-//       return ocm.getRegisterValue(obisCode);
-//   }
+   public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+	   if(ocm == null)
+		   ocm = new ObisCodeMapper(this);
+       return ocm.getRegisterValue(obisCode);
+   }
    
    //TODO
-//   public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-//       return ObisCodeMapper.getRegisterInfo(obisCode);
-//   }   
+   public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
+	   RegisterInfo registerInfo = new RegisterInfo("");
+	   return registerInfo;
+   }   
 
 	public Date getTime() throws IOException  {
 		Calendar cal=Calendar.getInstance();
@@ -278,5 +280,26 @@ public class Opus extends AbstractProtocol{
 			throws MissingPropertyException, InvalidPropertyException {
 		
 	}
-	
+
+	public OpusCommandFactory getOcf() {
+		return ocf;
+	}
+
+	public int getTimeOut() {
+		return timeOut;
+	}
+
+	public void setTimeOut(int timeOut) {
+		this.timeOut = timeOut;
+	}
+
+	public int getAttempts() {
+		return attempts;
+	}
+
+	public void setAttempts(int attempts) {
+		this.attempts = attempts;
+	}
+
+
 }
