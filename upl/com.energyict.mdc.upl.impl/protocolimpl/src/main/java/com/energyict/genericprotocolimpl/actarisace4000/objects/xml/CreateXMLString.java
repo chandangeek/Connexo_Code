@@ -1,8 +1,11 @@
 /**
  * 
  */
-package com.energyict.genericprotocolimpl.actarisace4000.objects;
+package com.energyict.genericprotocolimpl.actarisace4000.objects.xml;
 
+import org.w3c.dom.Node;
+
+import com.energyict.genericprotocolimpl.actarisace4000.objects.ObjectFactory;
 import com.energyict.xml.xmlhelper.DomHelper;
 
 /**
@@ -14,10 +17,6 @@ public class CreateXMLString {
 	private DomHelper dh = null;
 	private ObjectFactory of;
 	
-	private String root 		= "MPull";
-	private String meterData 	= "MD";
-	private String serialNumber = "M";
-	private String tracker 		= "T";
 	/**
 	 * 
 	 */
@@ -33,28 +32,25 @@ public class CreateXMLString {
 	 */
 	public static void main(String[] args) {
 		CreateXMLString cxmls = new CreateXMLString();
-		DomHelper dh = new DomHelper(cxmls.root);
+		DomHelper dh = new DomHelper(XMLTags.mPull);
 		
-		dh.addElement(cxmls.meterData);
-		dh.addElement(cxmls.serialNumber, String.valueOf(1234));
-		dh.addElement(cxmls.tracker, String.valueOf(1));
-		dh.addElement("qV");
+		Node md = dh.addElement(XMLTags.meterData);
+//		dh.addElement(md, cxmls.meterData);
+		dh.addElement(md, XMLTags.serialNumber, String.valueOf(1234));
+		dh.addElement(md, XMLTags.tracker, String.valueOf(1));
+		dh.addElement(md, XMLTags.reqFirmware);
 		
 		System.out.println(dh.toString());
 		System.out.println(dh.toXmlString());
 	}
 
 	public String createRequest(String tag, int tracker) {
-		createBasic(tracker);
-		dh.addElement(tag);
+		dh = new DomHelper(XMLTags.mPull);
+		Node md = dh.addElement(XMLTags.meterData);
+		dh.addElement(md, XMLTags.serialNumber, getOf().getAace().getDeviceSerialnumber());
+		dh.addElement(md, XMLTags.tracker, String.valueOf(tracker));
+		dh.addElement(md, tag);
 		return (dh.toXmlString()).substring(dh.toXmlString().indexOf("?>")+2) ;
-	}
-	
-	public void createBasic(int tracker){
-		dh = new DomHelper(root);
-		dh.addElement(meterData);
-		dh.addElement(serialNumber, getOf().getAace().getDeviceSerialnumber());
-		dh.addElement(this.tracker, String.valueOf(tracker));
 	}
 
 	public ObjectFactory getOf() {

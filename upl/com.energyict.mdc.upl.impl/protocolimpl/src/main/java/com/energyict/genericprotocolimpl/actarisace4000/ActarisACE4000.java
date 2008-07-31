@@ -19,7 +19,12 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.core.LinkException;
-import com.energyict.genericprotocolimpl.actarisace4000.objects.*;
+import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.CreateXMLString;
+import com.energyict.genericprotocolimpl.actarisace4000.objects.ObjectFactory;
+import com.energyict.genericprotocolimpl.actarisace4000.udp.ActarisUDPSocket;
+import com.energyict.genericprotocolimpl.actarisace4000.udp.DPacket;
+import com.energyict.genericprotocolimpl.actarisace4000.udp.PacketBuffer;
+import com.energyict.genericprotocolimpl.actarisace4000.udp.UDPListener;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
@@ -47,10 +52,15 @@ public class ActarisACE4000 implements GenericProtocol{
 	private Properties				properties;
 	private CreateXMLString			createXMLString;
 	private ObjectFactory			objectFactory;
+	private ActarisUDPSocket		udpSocket;
 	
 	private String					serialNumber;
 	private String					phoneNumber;
 	private int						tracker;
+	
+	public ActarisACE4000(){
+		
+	}
 	
 	public ActarisACE4000(Dialer dialer) throws SocketException, UnknownHostException{
 //		this.dialer = dialer;
@@ -71,8 +81,11 @@ public class ActarisACE4000 implements GenericProtocol{
 		
 		init();
 		
-		getObjectFactory().requestFirmwareVersion();
-
+//		System.out.println("AuxiliaryFirmwareVersion: " + getObjectFactory().requestFirmwareVersion().getAuxiliaryFirmwareVersion());
+//		System.out.println("MetrologyFirmwareVersion: " + getObjectFactory().requestFirmwareVersion().getMetrologyFirmwareVersion());
+		
+		getObjectFactory().setAutoPushConfig();
+//		getObjectFactory().requestFullMeterConfig();
 	}
 	
 	private void validateProperties() throws MissingPropertyException, InvalidPropertyException{
@@ -93,10 +106,11 @@ public class ActarisACE4000 implements GenericProtocol{
 	}
 
 	private void init() throws IOException {
-		meter = scheduler.getRtu();
-		packet = new DPacket(this);
-		validateProperties();
+		meter = scheduler.getRtu();		// need the meter to get the properties
+		validateProperties();			// read all the necessary properties
 		
+		udpSocket = new ActarisUDPSocket(phoneNumber);
+		packet = new DPacket(this);
 		setObjectFactory(new ObjectFactory(this));
 		
 		tracker = 0;
@@ -275,6 +289,10 @@ public class ActarisACE4000 implements GenericProtocol{
 
 	public DPacket getPacket() {
 		return packet;
+	}
+
+	public ActarisUDPSocket getUdpSocket() {
+		return udpSocket;
 	}
 
 }

@@ -7,19 +7,20 @@ package com.energyict.genericprotocolimpl.actarisace4000.objects;
  * @author gna
  *
  */
-public class Acknowledge extends AbstractActarisObject{
-
-	private int trackingID;
-	private String reqString = null;
+public class Serialnumber extends AbstractActarisObject{
 	
+	private int trackingID;
+	private String serialnumber;
+	private String reqString;
+
 	/**
 	 * 
 	 */
-	public Acknowledge() {
+	public Serialnumber() {
 		this(null);
 	}
 	
-	public Acknowledge(ObjectFactory objectFactory){
+	public Serialnumber(ObjectFactory objectFactory){
 		super(objectFactory);
 	}
 
@@ -38,11 +39,20 @@ public class Acknowledge extends AbstractActarisObject{
 		this.trackingID = trackingID;
 	}
 
+	public String getSerialnumber() {
+		return serialnumber;
+	}
+
+	public void setSerialnumber(String serialnumber) {
+		this.serialnumber = serialnumber;
+	}
+
 	protected String getReqString() {
 		return reqString;
 	}
-
+	
 	private void setReqString(String reqString){
 		this.reqString = reqString;
 	}
+
 }

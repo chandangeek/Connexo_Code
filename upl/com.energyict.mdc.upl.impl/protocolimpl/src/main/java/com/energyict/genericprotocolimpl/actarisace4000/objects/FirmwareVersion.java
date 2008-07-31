@@ -3,13 +3,21 @@
  */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
+
 /**
  * @author gna
  *
  */
 public class FirmwareVersion extends AbstractActarisObject{
 	
-	private String firmwareVersion = null;
+	private String metrologyFirmwareVersion = null;
+	private String auxiliaryFirmwareVersion = null;
+	private String reqString = null;
 	private int trackingID;
 
 	/**
@@ -19,13 +27,30 @@ public class FirmwareVersion extends AbstractActarisObject{
 		this(null);
 	}
 	
-	public FirmwareVersion(ObjectFactory objectFactory) {
-		super(objectFactory);
+	public FirmwareVersion(ObjectFactory of) {
+		super(of);
 	}
 
-	public String getRequestString(){
-		String msg = getObjectFactory().getXmlString().createRequest("qV", getTrackingID());
-		return msg;
+	protected void prepareXML(){
+		Document doc = createDomDocument();
+		
+		Element root = doc.createElement(XMLTags.mPull);
+		doc.appendChild(root);
+		Element md = doc.createElement(XMLTags.meterData);
+		root.appendChild(md);
+		Element s = doc.createElement(XMLTags.serialNumber);
+		s.setTextContent(getObjectFactory().getAace().getDeviceSerialnumber());
+		md.appendChild(s);
+		Element t = doc.createElement(XMLTags.tracker);
+		t.setTextContent(String.valueOf(trackingID));
+		md.appendChild(t);
+		
+		Element cf = doc.createElement(XMLTags.reqFirmware);
+		md.appendChild(cf);
+
+		String msg = convertDocumentToString(doc);
+		
+		setReqString(msg.substring(msg.indexOf("?>")+2));
 	}
 
 	/**
@@ -40,6 +65,44 @@ public class FirmwareVersion extends AbstractActarisObject{
 
 	protected void setTrackingID(int trackingID) {
 		this.trackingID = trackingID;
+	}
+
+	protected void setElement(Element mdElement) {
+		NodeList list = mdElement.getChildNodes();
+		
+		for(int i = 0; i < list.getLength(); i++){
+			Element element = (Element)list.item(i);
+			
+			if(element.getNodeName().equalsIgnoreCase(XMLTags.auxFirmVers))
+				setAuxiliaryFirmwareVersion(element.getTextContent());
+			else if(element.getNodeName().equalsIgnoreCase(XMLTags.metFirmVers))
+				setMetrologyFirmwareVersion(element.getTextContent());
+			
+		}
+	}
+
+	public String getAuxiliaryFirmwareVersion() {
+		return auxiliaryFirmwareVersion;
+	}
+
+	private void setAuxiliaryFirmwareVersion(String auxiliaryFirmwareVersion) {
+		this.auxiliaryFirmwareVersion = auxiliaryFirmwareVersion;
+	}
+
+	public String getMetrologyFirmwareVersion() {
+		return metrologyFirmwareVersion;
+	}
+
+	private void setMetrologyFirmwareVersion(String metrologyFirmwareVersion) {
+		this.metrologyFirmwareVersion = metrologyFirmwareVersion;
+	}
+
+	protected String getReqString() {
+		return reqString;
+	}
+
+	private void setReqString(String reqString) {
+		this.reqString = reqString;
 	}
 
 }

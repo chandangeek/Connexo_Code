@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.energyict.genericprotocolimpl.actarisace4000;
+package com.energyict.genericprotocolimpl.actarisace4000.udp;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -13,6 +13,7 @@ import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Enumeration;
 
+import com.energyict.genericprotocolimpl.actarisace4000.ActarisACE4000;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -77,38 +78,38 @@ public class UDPListener extends Thread {
 	public static void main(String[] args) {
 		try {
 			UDPListener udpListener = new UDPListener();
-			udpListener.allInterfacesInfo();
+//			udpListener.allInterfacesInfo();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-    private void allInterfacesInfo() throws IOException {
-        Enumeration<NetworkInterface> enumNetworkInterface = NetworkInterface.getNetworkInterfaces();
-        for (NetworkInterface networkInterface : Collections.list(enumNetworkInterface)) {
-            if (DEBUG>=1) {
-                System.out.println("*********************************************************************************************************");
-                System.out.println("Name: "+networkInterface.getName());
-                System.out.println("Displayname: "+networkInterface.getDisplayName());
-                System.out.println("HardwareAddress: " + getInterfaceMACAddress(networkInterface));
-            }
-            int count=0;
-        }
-    }
-    
-    private String getInterfaceMACAddress(NetworkInterface ni) throws SocketException{
-    	byte[] b = null; //ni.getHardwareAddress();
-    	if (b != null){
-    		StringBuilder mac = new StringBuilder();
-    		for(int i = 0; i < b.length; i++){
-    			mac.append(ProtocolUtils.buildStringHex(b[i]&0xFF, 2));
-    			if(i == b.length-1)
-    				return mac.toString();
-    			mac.append(":");
-    		}
-    	}
-    	return null;
-    }
+//    private void allInterfacesInfo() throws IOException {
+//        Enumeration<NetworkInterface> enumNetworkInterface = NetworkInterface.getNetworkInterfaces();
+//        for (NetworkInterface networkInterface : Collections.list(enumNetworkInterface)) {
+//            if (DEBUG>=1) {
+//                System.out.println("*********************************************************************************************************");
+//                System.out.println("Name: "+networkInterface.getName());
+//                System.out.println("Displayname: "+networkInterface.getDisplayName());
+//                System.out.println("HardwareAddress: " + getInterfaceMACAddress(networkInterface));
+//            }
+//            int count=0;
+//        }
+//    }
+//    
+//    private String getInterfaceMACAddress(NetworkInterface ni) throws SocketException{
+//    	byte[] b = ni.getHardwareAddress();
+//    	if (b != null){
+//    		StringBuilder mac = new StringBuilder();
+//    		for(int i = 0; i < b.length; i++){
+//    			mac.append(ProtocolUtils.buildStringHex(b[i]&0xFF, 2));
+//    			if(i == b.length-1)
+//    				return mac.toString();
+//    			mac.append(":");
+//    		}
+//    	}
+//    	return null;
+//    }
 
 	public DatagramSocket getDatagramSocket() {
 		return datagramSocket;

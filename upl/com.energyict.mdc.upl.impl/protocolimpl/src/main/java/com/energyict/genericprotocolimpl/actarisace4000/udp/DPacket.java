@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.energyict.genericprotocolimpl.actarisace4000;
+package com.energyict.genericprotocolimpl.actarisace4000.udp;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -12,6 +12,11 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
+
+import com.energyict.genericprotocolimpl.actarisace4000.ActarisACE4000;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -28,10 +33,10 @@ public class DPacket {
 	private SocketAddress socketAddress = null;
 	private InetAddress inetAddress = null;
 	
-	private int port = 4096;
+//	private int port = 4096;
+//	private String ipAddress = "194.122.175.38";
 	private int timeOut = 60000;
-	private String ipAddress = "194.122.175.38";
-	private byte[] buffer = new byte[160];
+	private byte[] buffer;
 	
 	private static int maxChars = 160;
 	private static int maxSize = 8192;	// theoretical maximum UDP size
@@ -45,24 +50,17 @@ public class DPacket {
 
 	public DPacket(ActarisACE4000 aace) throws SocketException {
 		this.aace = aace;
-		
-//			inetAddress = InetAddress.getByName(ipAddress);
-//			socketAddress = new InetSocketAddress(inetAddress, port);
-		
-//			socket = new DatagramSocket(port);
-//			socket.connect(socketAddress);
-		
-		socket = aace.getUDPListener().getDatagramSocket();
-//			socket.bind(socketAddress);
-		
-		packet = new DatagramPacket(buffer, buffer.length);
+		socket = aace.getUdpSocket().getUdpSocket();
 	}
 
 	public void sendMessage(String msg){
+		buffer = new byte[msg.getBytes().length];
+		packet = new DatagramPacket(buffer, buffer.length);
 		System.arraycopy(msg.getBytes(), 0, buffer, 0, msg.getBytes().length);
 		packet.setData(buffer);
 		
 		try {
+			if(DEBUG >=1) System.out.println("Message sent: " + new String(packet.getData()));
 			socket.send(packet);
 			receive();
 		} catch (IOException e) {
@@ -71,18 +69,29 @@ public class DPacket {
 	}
 	
 	private void receive(){
+		
+		byte packetBuff[];
+		
+		buffer = new byte[maxSize];
+		packet = new DatagramPacket(buffer, buffer.length);
+		
 		try {
 			socket.setSoTimeout(timeOut);
 			while(true){
-				if(DEBUG >=1) System.out.println("Waiting for receive.");
+				if(DEBUG >=1) System.out.println("Waiting for responce.");
 				socket.receive(packet);
-				if(DEBUG >=1) System.out.println(packet.toString());
-				if(DEBUG >=1) System.out.println("Datalenght = " + packet.getData().length);
-				if(DEBUG >=1) System.out.println(new String(packet.getData()));
+				packetBuff = new byte[packet.getLength()];
+				System.arraycopy(packet.getData(), 0, packetBuff, 0, packet.getLength());
+				if(DEBUG >=1) System.out.println("Received: " + new String(packetBuff));
+				aace.getObjectFactory().parseXML(new String(packetBuff));
 			}
 		} catch (SocketException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
 			e.printStackTrace();
 		}
 	}

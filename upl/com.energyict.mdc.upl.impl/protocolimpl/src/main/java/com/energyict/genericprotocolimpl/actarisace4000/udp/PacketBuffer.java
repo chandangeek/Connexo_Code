@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.energyict.genericprotocolimpl.actarisace4000;
+package com.energyict.genericprotocolimpl.actarisace4000.udp;
 
 
 /**
