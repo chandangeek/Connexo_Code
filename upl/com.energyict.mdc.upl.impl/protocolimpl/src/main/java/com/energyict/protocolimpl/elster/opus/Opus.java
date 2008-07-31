@@ -280,7 +280,7 @@ public class Opus extends AbstractProtocol{
 			throws MissingPropertyException, InvalidPropertyException {
 		
 	}
-
+	// additional getters and setters
 	public OpusCommandFactory getOcf() {
 		return ocf;
 	}
