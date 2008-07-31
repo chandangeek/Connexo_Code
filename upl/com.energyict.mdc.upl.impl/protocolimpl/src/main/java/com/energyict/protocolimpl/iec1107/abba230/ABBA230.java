@@ -203,11 +203,12 @@ public class ABBA230 implements
         
     }
     
-    public List map2MeterEvent(String event) {
-    	
-    	List meterEvents = new ArrayList();
-    	
-    	return meterEvents;
+    
+    
+    
+    public List map2MeterEvent(String event) throws IOException {
+    	EventMapperFactory emf = new EventMapperFactory();
+    	return emf.getMeterEvents(event);
     }
     
     /* (non-Javadoc)
@@ -215,6 +216,12 @@ public class ABBA230 implements
      */
     public List getRequiredKeys() {
         List result = new ArrayList(0);
+        
+        
+        
+        
+        
+        
         return result;
     }
     
