@@ -243,7 +243,6 @@ public class Opus extends AbstractProtocol{
         this.inputStream = inputStream;
         this.outputStream = outputStream;
         // build command factory
-        System.out.println("init");
 		this.ocf=new OpusCommandFactory(this.outstationID,this.oldPassword,this.newPassword,this.inputStream,this.outputStream);
 		
 		if(this.channelMap==null){ // if no setProperties has been called

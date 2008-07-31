@@ -87,7 +87,7 @@ public class OpusBuildPacket extends Parsers{
 			commandBuilder();
 		}else{
 			majorproblem=true;
-			System.out.println("majorproblem detected");
+			//System.out.println("majorproblem detected");
 			soh=0;OSnumber=0;callNumber=0;packetNumber=0;
 			for(int i=0; i<8; i++){
 				data[i]="0";
