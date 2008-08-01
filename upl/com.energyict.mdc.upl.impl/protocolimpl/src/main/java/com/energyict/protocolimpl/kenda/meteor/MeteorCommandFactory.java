@@ -31,7 +31,7 @@ public class MeteorCommandFactory{
 		mcf=new MeteorCommunicationsFactory(sourceCode,sourceCodeExt,destinationCode,destinationCodeExt,inputStream,outputStream);
 	}
 	
-	private Parsers process(ComStruc s, Parsers command){
+	private Parsers process(ComStruc s, Parsers command) throws IOException{
 		type=s.isType();  // type of command
 		if (type){ // SEND (is always in a vector)
 			this.command=mcf.buildCommand(s.getByteArray(), null); // returns object for the receive side

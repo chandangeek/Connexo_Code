@@ -7,7 +7,7 @@ public abstract class Parsers {
 	abstract byte[] parseToByteArray();
 	
 	// implemented classes
-	protected char[] parseShortToChar(short s){
+	static protected char[] parseShortToChar(short s){
 		// parses to a char array
 		char[] c=new char[2];
 		c[1]=(char) (((s & 0xFF00)>>8)& 0xFF);

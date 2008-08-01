@@ -13,7 +13,10 @@ public class MeteorFirmwareVersion extends Parsers implements MeteorCommandAbstr
 		processFirmwareVersion(parseBArraytoCArray(b));
 	}
 	private void processFirmwareVersion(char[] c) {
-		version=new String(c);
+		version="";		
+		for(int i=0; i<c.length; i++){
+			if(c[i]>0){version+=c[i];}
+		}
 	}
 	/**
 	 * @return the version of the firmware

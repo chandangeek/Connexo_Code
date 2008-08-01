@@ -124,6 +124,7 @@ public class Meteor implements MeterProtocol{
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
 		MeteorFirmwareVersion mfv=(MeteorFirmwareVersion) mcf.transmitData(firmwareVersion, ack, null);
+		//System.out.println("firmware version: "+mfv.getVersion());
 		return mfv.getVersion();
 	}
 
@@ -143,12 +144,15 @@ public class Meteor implements MeterProtocol{
 	public void init(InputStream inputStream, OutputStream outputStream, TimeZone arg2,
 			Logger arg3) throws IOException {
 		// set streams
-        this.inputStream = inputStream;
+        //System.out.println("init");
+		this.inputStream = inputStream;
         this.outputStream = outputStream;
         // build command factory
-		this.mcf=new MeteorCommunicationsFactory(inputStream,outputStream);
+		this.mcf=new MeteorCommunicationsFactory(sourceCode,sourceCodeExt,destinationCode,destinationCodeExt,inputStream,outputStream);
 	}
 	public void connect() throws IOException {
+		//System.out.println("connect()");
+		
 		// TODO Auto-generated method stub
 		
 	}
@@ -202,6 +206,7 @@ public class Meteor implements MeterProtocol{
 		return null;
 	}
 	public void initializeDevice() throws IOException, UnsupportedException {
+		System.out.println("initializeDevice()");
 		// TODO Auto-generated method stub
 		
 	}
@@ -215,7 +220,9 @@ public class Meteor implements MeterProtocol{
 	}
 	public void setProperties(Properties properties) throws InvalidPropertyException,
 			MissingPropertyException {
-		this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress", "000"));		
+		this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress", "000"));
+		this.destinationCode=Parsers.parseCArraytoBArray(Parsers.parseShortToChar((short) outstationID));
+		//System.out.println("properties set");
 	}
 	public void setRegister(String arg0, String arg1) throws IOException,
 			NoSuchRegisterException, UnsupportedException {

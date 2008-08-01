@@ -186,6 +186,7 @@ public class MeteorCommunicationsFactory{
 		// calculate number of blocks
 		numOfBlocks=(int) Math.ceil(((double) (block.length-10))/245); // minus 10 to remove the checksum and the header
 		// generate blockProck 2D matrix
+		if(numOfBlocks==0){numOfBlocks=1;}
 		blockProc = new byte[numOfBlocks][];
 		if (numOfBlocks==1){
 			blockProc[0]=addCheckSum(block); // generate and add checksum
@@ -255,8 +256,8 @@ public class MeteorCommunicationsFactory{
 			bs=p.parseToByteArray();
 		}
 		sendData(bs);
-		
-		pr=buildCommand(bs,p);
+		System.out.println();
+		pr=buildCommand(addCheckSum(bs),p);
 		br=receiveData();
 		return buildCommand(blockMerging(br),pr);
 	}
@@ -285,7 +286,7 @@ public class MeteorCommunicationsFactory{
 			}
 			recdat.add(s);
 		}
-		data=new byte[recdat.size()+1][];
+		data=new byte[recdat.size()][];
 		i=0;
 		for(String str:recdat){
 			data[i++]=Parsers.parseCArraytoBArray(str.toCharArray());
@@ -312,11 +313,12 @@ public class MeteorCommunicationsFactory{
 	 * when the parser object is a parser then the byte array is considered a request
 	 * the request is parsed into the right object and that object is then returned
 	 */
-	public Parsers buildCommand(byte [] b, Parsers p) { // feed with a command from the stream and objects are generated automatically
+	public Parsers buildCommand(byte [] b, Parsers p) throws IOException { // feed with a command from the stream and objects are generated automatically
 		// build command using the objects and parse it into a byte array
 		// checksum error check
 		// set p=null for transmission
 		boolean checkSum=verifyCheckSum(b);
+		if(b.length<11){throw new IOException("no data returned from the meter");}
 		byte[] rawdata=new byte[b.length-11]; // strip header and checksum
 		for (int i=10; i<b.length-1; i++){
 			rawdata[i-10]=b[i];
@@ -353,7 +355,7 @@ public class MeteorCommunicationsFactory{
 						// send data, no return requested
 						break;
 					case firmwareVersion:
-						System.out.println("Get Firmware Version");
+						//System.out.println("Get Firmware Version");
 						p=new MeteorFirmwareVersion();
 						break;
 					case status:
@@ -406,6 +408,7 @@ public class MeteorCommunicationsFactory{
 					p=new MeteorExtendedPersonalityTable(rawdata);
 				}else if(p instanceof MeteorCLK){
 				}else if(p instanceof MeteorFirmwareVersion){
+					p=new MeteorFirmwareVersion(rawdata);
 				}else if(p instanceof MeteorStatus){
 					p=new MeteorStatus(rawdata);
 				}else if(p instanceof MeteorReturnedReadMeterDemands){
