@@ -258,26 +258,34 @@ public class MeteorCommunicationsFactory{
 		sendData(bs);
 		System.out.println();
 		pr=buildCommand(addCheckSum(bs),p);
-		br=receiveData();
+		br=receiveData(bs[0]);
 		return buildCommand(blockMerging(br),pr);
 	}
 
 	/*
 	 * Input readers 
 	 */
-	private byte[][] receiveData() throws IOException {
-		int i=0,counter=0,length=11;
+	private byte[][] receiveData(byte ident) throws IOException {
+		int i=0,counter,length;
 		byte[][] data;
 		ArrayList <String> recdat=new ArrayList<String>();
-		boolean go=true;
-		String s="";
+		boolean go=true, correct=false;
+		String s;
 		while(go){
+			counter=0;
+			length=11;
+			s="";
 			while(counter<length){	// timeout!
 				i=inputStream.read();
-				s+=(char) i;
-				if(counter==1){// block length byte
-					length=i;
-					if(i==0){length=256;} // modulus
+				if(counter==0 && ((i & 0x1F)==ident)){
+					correct=true;					
+				}
+				if(correct){
+					s+=(char) i;
+					if(counter==1){// block length byte
+						length=i;
+						if(i==0){length=256;} // modulus
+					}
 				}
 				counter++;
 			}
@@ -286,6 +294,9 @@ public class MeteorCommunicationsFactory{
 			}
 			recdat.add(s);
 		}
+		//for(int ii=0; ii<11; ii++){
+		//	i=inputStream.read(); // check not implemented.
+		//}
 		data=new byte[recdat.size()][];
 		i=0;
 		for(String str:recdat){
@@ -337,11 +348,11 @@ public class MeteorCommunicationsFactory{
 						System.out.println("Set fullPersTable register");
 						break;
 					case extendedPersTableRead:
-						System.out.println("Get partPersTable register");
+						System.out.println("Get extendedPersTable register");
 						p = new MeteorExtendedPersonalityTable(); // make correct parser
 						break;
 					case extendedPersTableWrite:
-						System.out.println("Set partPersTable register");
+						System.out.println("Set extendedPersTable register");
 						break;
 					case readRTC:
 						System.out.println("Get RTC register");

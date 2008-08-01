@@ -62,6 +62,7 @@ public class MeteorStatus extends Parsers implements MeteorCommandAbstract{
 	}
 
 	private void process(char[] c) {
+		System.out.println(c.length);
 		String s = new String(c);
 		clk=new MeteorCLK(s.substring(0, 6).toCharArray());
 		statusReads=parseCharToLong(s.substring(6,10).toCharArray());

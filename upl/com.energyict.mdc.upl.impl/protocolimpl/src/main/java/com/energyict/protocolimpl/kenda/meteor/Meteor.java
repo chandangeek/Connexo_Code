@@ -43,6 +43,11 @@ public class Meteor implements MeterProtocol{
 	private byte   unit;					// DIP routing ???
 	private byte   port;					// DIP routing ???
 	
+	// data objects
+	private MeteorFullPersonalityTable fullperstable=null;
+	private MeteorExtendedPersonalityTable extperstable=null;
+	private MeteorStatus statusreg=null;
+	
 	// ident byte
 	// Ack bit, first block bit, last block bit, R/W, 4 bit operation select
 	
@@ -141,6 +146,24 @@ public class Meteor implements MeterProtocol{
 		// TODO Auto-generated method stub
 		
 	}
+	public MeteorFullPersonalityTable getFullPersonalityTable() throws IOException {
+		MeteorFullPersonalityTable mfpt=(MeteorFullPersonalityTable) mcf.transmitData(fullPersTableRead, ack, null);;
+		mfpt.printData();
+		return mfpt;
+	}
+	
+	public MeteorExtendedPersonalityTable getExtendedPersonalityTable() throws IOException {
+		MeteorExtendedPersonalityTable mept=(MeteorExtendedPersonalityTable) mcf.transmitData(extendedPersTableRead, ack, null);;
+		mept.printData();
+		return mept;
+	}
+	
+	public MeteorStatus getMeteorStatus() throws IOException{
+		MeteorStatus statusreg=(MeteorStatus) mcf.transmitData(status, ack, null);
+		statusreg.printData();
+		return statusreg;
+	}
+	
 	public void init(InputStream inputStream, OutputStream outputStream, TimeZone arg2,
 			Logger arg3) throws IOException {
 		// set streams
@@ -152,7 +175,10 @@ public class Meteor implements MeterProtocol{
 	}
 	public void connect() throws IOException {
 		//System.out.println("connect()");
-		
+		getFirmwareVersion();
+		fullperstable = getFullPersonalityTable();
+		statusreg = getMeteorStatus();
+		extperstable = getExtendedPersonalityTable();
 		// TODO Auto-generated method stub
 		
 	}
@@ -197,8 +223,7 @@ public class Meteor implements MeterProtocol{
 		return null;
 	}
 	public int getProfileInterval() throws UnsupportedException, IOException {
-		//TODO
-		return 1800;
+		return 60*fullperstable.getDemper();
 	}
 	public String getRegister(String arg0) throws IOException,
 			UnsupportedException, NoSuchRegisterException {

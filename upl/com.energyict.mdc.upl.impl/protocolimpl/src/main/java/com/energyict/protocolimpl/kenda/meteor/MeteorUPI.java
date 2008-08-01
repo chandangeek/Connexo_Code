@@ -14,7 +14,7 @@ public class MeteorUPI {
 		this.m=m;
 	}
 	public String toString(){
-		return "m: "+(int) (m & 0x00FF)+ "d: "+(int) (d & 0x00FF);
+		return " m:"+(int) (m & 0x00FF)+ " d:"+(int) (d & 0x00FF);
 	}
 	public void setm(char m){
 		this.m=m;
