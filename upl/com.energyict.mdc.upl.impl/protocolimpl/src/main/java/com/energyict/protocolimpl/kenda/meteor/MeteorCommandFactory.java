@@ -1,7 +1,9 @@
 package com.energyict.protocolimpl.kenda.meteor;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-public class MeteorCommandFactory {
+public class MeteorCommandFactory{
 	/*
 	 * The command factory takes in blocks of raw data received by the input stream
 	 * The data is either in vector format or a sequence of a vector
@@ -15,16 +17,18 @@ public class MeteorCommandFactory {
 	private boolean type=true;
 	private MeteorCommunicationsFactory mcf;
 	
-	MeteorCommandFactory(){
-		mcf=new MeteorCommunicationsFactory();
+	MeteorCommandFactory(InputStream inputStream, OutputStream outputStream){
+		mcf=new MeteorCommunicationsFactory(inputStream,outputStream);
 	}
 	
-	public MeteorCommandFactory(byte blockSize,  // real constructor, sets header correct.
+	public MeteorCommandFactory(  // real constructor, sets header correct.
 			byte[] sourceCode, 
 			byte sourceCodeExt, 
 			byte[] destinationCode, 
-			byte destinationCodeExt){
-		mcf=new MeteorCommunicationsFactory(blockSize,sourceCode,sourceCodeExt,destinationCode,destinationCodeExt);
+			byte destinationCodeExt,
+			InputStream inputStream, 
+			OutputStream outputStream){
+		mcf=new MeteorCommunicationsFactory(sourceCode,sourceCodeExt,destinationCode,destinationCodeExt,inputStream,outputStream);
 	}
 	
 	private Parsers process(ComStruc s, Parsers command){
@@ -70,8 +74,7 @@ public class MeteorCommandFactory {
 	}
 	public Parsers sendSmallCommand(byte b, Object object) {
 		// build comstruc
-		mcf.buildIdent(false,true,true,b);
-		byte[] proc=mcf.buildHeader();
+		byte[] proc=mcf.buildHeader(mcf.buildIdent(false,true,true,b),11);
 		proc=mcf.addCheckSum(proc);
 		return(mcf.buildCommand(proc, null));
 	}

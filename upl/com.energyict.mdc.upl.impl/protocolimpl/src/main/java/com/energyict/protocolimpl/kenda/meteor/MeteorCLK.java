@@ -27,14 +27,13 @@ public class MeteorCLK extends Parsers{
 				(int) (TAD[3]),(int) (TAD[2]),
 				(int) (TAD[1]),(int) (TAD[0]));
 	}
-	@SuppressWarnings("static-access")
 	private void changeTAD(){
-		TAD[5]=(char) (calendar.get(calendar.YEAR)%100); // only lowest two numbers
-		TAD[4]=(char) (calendar.get(calendar.MONTH));
-		TAD[3]=(char) (calendar.get(calendar.DAY_OF_MONTH));
-		TAD[2]=(char) (calendar.get(calendar.HOUR_OF_DAY));
-		TAD[1]=(char) (calendar.get(calendar.MINUTE));
-		TAD[0]=(char) (calendar.get(calendar.SECOND));
+		TAD[5]=(char) (calendar.get(Calendar.YEAR)%100); // only lowest two numbers
+		TAD[4]=(char) (calendar.get(Calendar.MONTH));
+		TAD[3]=(char) (calendar.get(Calendar.DAY_OF_MONTH));
+		TAD[2]=(char) (calendar.get(Calendar.HOUR_OF_DAY));
+		TAD[1]=(char) (calendar.get(Calendar.MINUTE));
+		TAD[0]=(char) (calendar.get(Calendar.SECOND));
 	}
 	public void setTAD(char sec, char min, char hr, char day, char mth, char yr){
 		setTime(sec,min,hr);
@@ -116,6 +115,12 @@ public class MeteorCLK extends Parsers{
 	 */
 	public void setCalendar(Calendar calendar) {
 		this.calendar = calendar;
+	}
+
+	@Override
+	byte[] parseToByteArray() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

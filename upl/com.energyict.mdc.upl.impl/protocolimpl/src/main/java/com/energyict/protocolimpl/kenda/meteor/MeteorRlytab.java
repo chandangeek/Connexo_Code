@@ -18,7 +18,7 @@ public class MeteorRlytab extends Parsers{
 		this.imp=imp;
 		this.width=width;
 	}	
-	public byte[] getbyteArray(){
+	public byte[] parseToByteArray(){
 		byte[] b= new byte[5];
 		char[] c= getcharArray();
 		b=parseCharToByte(c);

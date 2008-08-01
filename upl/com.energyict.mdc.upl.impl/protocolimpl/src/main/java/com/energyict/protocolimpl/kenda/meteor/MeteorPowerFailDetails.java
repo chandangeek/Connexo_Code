@@ -119,4 +119,10 @@ public class MeteorPowerFailDetails extends Parsers {
 		return pffree;
 	}
 
+	@Override
+	byte[] parseToByteArray() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

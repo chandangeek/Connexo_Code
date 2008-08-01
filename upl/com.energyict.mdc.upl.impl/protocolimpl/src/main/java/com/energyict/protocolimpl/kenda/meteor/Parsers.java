@@ -2,12 +2,16 @@ package com.energyict.protocolimpl.kenda.meteor;
 /*
  * copy past of Medo Parsers object
  */
-public class Parsers {
+public abstract class Parsers {
+	// abstract classes
+	abstract byte[] parseToByteArray();
+	
+	// implemented classes
 	protected char[] parseShortToChar(short s){
 		// parses to a char array
 		char[] c=new char[2];
 		c[1]=(char) (((s & 0xFF00)>>8)& 0xFF);
-		c[0]=(char) (s & 0xFF);
+		c[0]=(char) (s & 0x00FF);
 		return c;
 	}
 

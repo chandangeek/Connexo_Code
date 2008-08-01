@@ -1,13 +1,15 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-public class MeteorCommunicationsFactory extends Parsers{
+public class MeteorCommunicationsFactory{
 	
 	// command descriptions from the datasheet
 	// Header format, at the moment I consider only ident as a variable
 	private byte   ident;					// see ident format listed below
-	private final byte   blockSize;			// character count of block modulo 256	
+	private byte   blockSize;			// character count of block modulo 256	
 	private final byte[] sourceCode;		// Defines central equipment of origin
 	private final byte   sourceCodeExt;		// Defines peripheral equipment of origin
 	private final byte[] destinationCode;	// Defines central equipment of final destination
@@ -44,33 +46,41 @@ public class MeteorCommunicationsFactory extends Parsers{
 	private static final byte   priorityTelNo				=0x1F; // N/A 
 	private static final byte   alarmChanTimes				=0x0F; // N/A
 
+	private InputStream inputStream;
+	private OutputStream outputStream;
 	// first three bits are to be set in BuildIdent method (later)
 	// byte: 8 bit, word 16 bit signed integer, long 32 bit signed integer
 	
-	public MeteorCommunicationsFactory(){// blank constructor for testing purposes only
+	public MeteorCommunicationsFactory(InputStream inputStream, OutputStream outputStream){// blank constructor for testing purposes only
 		byte[] blank={0,0};
 		ident=0;				// see ident format listed below
-		blockSize=0;			// character count of block modulo 256	
+		blockSize=11;			// character count of block modulo 256	
 		sourceCode=blank;		// Defines central equipment of origin
 		sourceCodeExt=0;		// Defines peripheral equipment of origin
 		destinationCode=blank;	// Defines central equipment of final destination
 		destinationCodeExt=0;	// Defines peripheral equipment of final destination
 		unit=0;					// DIP routing ???
-		port=0;					// DIP routing ???		
+		port=0;					// DIP routing ???
+		this.inputStream=inputStream;
+		this.outputStream=outputStream;
 	}
-	public MeteorCommunicationsFactory(byte blockSize,  // real constructor, sets header correct.
+	public MeteorCommunicationsFactory(  // real constructor, sets header correct.
 			byte[] sourceCode, 
 			byte sourceCodeExt, 
 			byte[] destinationCode, 
-			byte destinationCodeExt){
+			byte destinationCodeExt,
+			InputStream inputStream, 
+			OutputStream outputStream){
 		ident=0;
-		this.blockSize=blockSize;
+		blockSize=11;
 		this.sourceCode=sourceCode;
 		this.sourceCodeExt=sourceCodeExt;
 		this.destinationCode=destinationCode;
 		this.destinationCodeExt=destinationCodeExt;
 		unit=0; // correct?
 		port=0; // correct?
+		this.inputStream=inputStream;
+		this.outputStream=outputStream;
 	}
 	
 	/*
@@ -86,11 +96,11 @@ public class MeteorCommunicationsFactory extends Parsers{
 		return command;
 	}
 	// constructs header
-	public byte[] buildHeader(){
+	public byte[] buildHeader(byte ident, int blocksize){
 		byte[] header= new byte[10];
 		// all of the following globals should be built before calling BuildHeader
 		header[0]=ident;
-		header[1]=blockSize;
+		header[1]=(byte) (blocksize & 0x000000FF);
 		header[2]=sourceCode[0];
 		header[3]=sourceCode[1];
 		header[4]=sourceCodeExt;
@@ -148,8 +158,9 @@ public class MeteorCommunicationsFactory extends Parsers{
 			}
 		}
 		// add header
+		ident = block[0][0];
 		ident = buildIdent((ident & 0x80)==0x80,true,true,(byte) ((byte) ident & 0x1F));
-		header= buildHeader();
+		header= buildHeader(ident,(1+b.length)%256);
 		for(int i=0; i<10; i++){
 			b[i]=header[i];
 		}
@@ -179,12 +190,13 @@ public class MeteorCommunicationsFactory extends Parsers{
 			blockProc[0]=addCheckSum(block); // generate and add checksum
 		}else{
 			// start building ident bits
+			ident=block[0];
 			if((ident & 0x80) == 0x80){
 				ack=true; 
 			}
 			// adapt first ident using BuildIdent
 			ident=buildIdent(ack, true, false, (byte) (ident & 0x1F)); // global ident adapted
-			header = buildHeader(); // header matrix construction
+			header = buildHeader(ident, 0); // header matrix construction
 			blockSection = new byte[255];
 			for(int i=0; i<255;i++){
 				if(i<10)  {blockSection[i]=header[i];}     // add header
@@ -197,7 +209,7 @@ public class MeteorCommunicationsFactory extends Parsers{
 			//adapt ident for center frames
 			if(numOfBlocks>2){
 				ident=buildIdent(ack, false, false, (byte) (ident & 0x1F)); // change ident (introduce F and L bits)
-				header = buildHeader();										// rebuild header
+				header = buildHeader(ident, 0);										// rebuild header
 				blockSection = new byte[255];								// rebuild the subframe
 				for (int i=1; i<(numOfBlocks-1); i++){
 					for(int ii=0; ii<255;ii++){
@@ -211,7 +223,7 @@ public class MeteorCommunicationsFactory extends Parsers{
 			// adapt last ident
 			mod=(block.length-10)-245*(numOfBlocks-1); // last data left over
 			ident=buildIdent(ack, false, true, (byte) (ident & 0x1F));
-			header = buildHeader();
+			header = buildHeader(ident, (mod+11)%256);
 			blockSection = new byte[mod+10]; // data + header
 			for(int i=0; i<mod;i++){
 				if(i<10)  {blockSection[i]=header[i];}     // add header
@@ -227,6 +239,44 @@ public class MeteorCommunicationsFactory extends Parsers{
 	 * 1)GENERAL chapter, pg 4 to 6, description of how the communication frames
 	 *  should look like
 	*/
+	
+	public Parsers transmitData(byte command, boolean ack, Parsers p) throws IOException{
+		byte[] bs=new byte[0];
+		byte[][] br;
+		Parsers pr;
+		// build command
+		if(p==null){ // request of data from the meter (11 byte command)
+			bs=addCheckSum(buildHeader(buildIdent(ack, true,true,command), 11));			
+		}else{ // writing data to the meter
+			bs=p.parseToByteArray();
+		}
+		sendData(bs);
+		
+		pr=buildCommand(bs,p);
+		br=receiveData();
+		return buildCommand(blockMerging(br),pr);
+	}
+
+	/*
+	 * Input readers 
+	 */
+	private byte[][] receiveData() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * output writers
+	 */
+	private void sendData(byte[] bs) throws IOException {
+		// TODO check on length en do the blockprocessing
+		byte[][] b=blockProcessing(bs);
+		for(byte[] bp: b){
+			outputStream.write(bs);
+		}
+	}
+	
+	
 	
 	/*
 	 * The following method buildCommand takes in a byte array and if needed a parser object

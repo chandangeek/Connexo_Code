@@ -50,4 +50,9 @@ public class MeteorReturnedReadMeterDemands extends Parsers{
 		public void setMeter(short[] meter) {
 			this.meter = meter;
 		}
+		@Override
+		byte[] parseToByteArray() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 }

@@ -13,21 +13,15 @@ import java.util.logging.Logger;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.genericprotocolimpl.iskrap2lpc.ProtocolChannelMap;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
-import com.energyict.protocolimpl.elster.opus.OpusCommandFactory;
 
 public class Meteor implements MeterProtocol{
 
@@ -35,15 +29,16 @@ public class Meteor implements MeterProtocol{
 	private InputStream inputStream;
 	private int DEBUG=0;
 	private MeteorCommandFactory mcf;
-
+	private int outstationID;
+	
 	// command descriptions from the datasheet
 	// Header format, at the moment I consider only ident as a variable
 	private byte   ident;					// see ident format listed below
-	private final byte   blockSize;			// character count of block modulo 256	
-	private final byte[] sourceCode;		// Defines central equipment of origin
-	private final byte   sourceCodeExt;		// Defines peripheral equipment of origin
-	private final byte[] destinationCode;	// Defines central equipment of final destination
-	private final byte   destinationCodeExt;// Defines peripheral equipment of final destination
+	private byte   blockSize;	     		// character count of block modulo 256	
+	private byte[] sourceCode;		// Defines central equipment of origin
+	private byte   sourceCodeExt;		// Defines peripheral equipment of origin
+	private byte[] destinationCode;	// Defines central equipment of final destination
+	private byte   destinationCodeExt;// Defines peripheral equipment of final destination
 	private byte   unit;					// DIP routing ???
 	private byte   port;					// DIP routing ???
 	
@@ -86,7 +81,7 @@ public class Meteor implements MeterProtocol{
 	public Meteor(){// blank constructor for testing purposes only
 		byte[] blank={0,0};
 		ident=0;				// see ident format listed below
-		blockSize=0;			// character count of block modulo 256	
+		blockSize=11;			// character count of block modulo 256	
 		sourceCode=blank;		// Defines central equipment of origin
 		sourceCodeExt=0;		// Defines peripheral equipment of origin
 		destinationCode=blank;	// Defines central equipment of final destination
@@ -94,13 +89,12 @@ public class Meteor implements MeterProtocol{
 		unit=0;					// DIP routing ???
 		port=0;					// DIP routing ???		
 	}
-	public Meteor(byte blockSize,  // real constructor, sets header correct.
+	public Meteor(  // real constructor, sets header correct.
 			byte[] sourceCode, 
 			byte sourceCodeExt, 
 			byte[] destinationCode, 
 			byte destinationCodeExt){
 		ident=0;
-		this.blockSize=blockSize;
 		this.sourceCode=sourceCode;
 		this.sourceCodeExt=sourceCodeExt;
 		this.destinationCode=destinationCode;
@@ -108,31 +102,18 @@ public class Meteor implements MeterProtocol{
 		unit=0; // correct?
 		port=0; // correct?
 	}
-	
-	protected void doConnect() throws IOException {
-	}
 
-	protected void doDisConnect() throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	protected List doGetOptionalKeys() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected ProtocolConnection doInit(InputStream inputStream,
-			OutputStream outputStream, int timeoutProperty,
-			int protocolRetriesProperty, int forcedDelay, int echoCancelling,
-			int protocolCompatible, Encryptor encryptor,
-			HalfDuplexController halfDuplexController) throws IOException {
-		
-		this.inputStream=inputStream;
-		this.outputStream=outputStream;
-							
-		return null;
-	}
+//	protected ProtocolConnection doInit(InputStream inputStream,
+//			OutputStream outputStream, int timeoutProperty,
+//			int protocolRetriesProperty, int forcedDelay, int echoCancelling,
+//			int protocolCompatible, Encryptor encryptor,
+//			HalfDuplexController halfDuplexController) throws IOException {
+//		
+//		this.inputStream=inputStream;
+//		this.outputStream=outputStream;
+//							
+//		return null;
+//	}
 	
 	protected void doValidateProperties(Properties properties)
 			throws MissingPropertyException, InvalidPropertyException {
@@ -142,8 +123,8 @@ public class Meteor implements MeterProtocol{
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
 		//TODO
-//		mcf.addCommand(firmwareVersion,null);
-		return "Meteor Metering Equipment Digital Outstation - V1.3";
+		MeteorFirmwareVersion mfv=(MeteorFirmwareVersion) mcf.sendSmallCommand(firmwareVersion,null);
+		return mfv.getVersion();
 	}
 
 	public String getProtocolVersion() {
@@ -152,7 +133,7 @@ public class Meteor implements MeterProtocol{
 
 	public Date getTime() throws IOException {
 		// TODO Auto-generated method stub
-		return null;
+		return new Date(System.currentTimeMillis());
 	}
 
 	public void setTime() throws IOException {
@@ -165,7 +146,7 @@ public class Meteor implements MeterProtocol{
         this.inputStream = inputStream;
         this.outputStream = outputStream;
         // build command factory
-        this.mcf=new MeteorCommandFactory();
+        this.mcf=new MeteorCommandFactory(inputStream,outputStream);
 	}
 	public void connect() throws IOException {
 		// TODO Auto-generated method stub
@@ -212,8 +193,8 @@ public class Meteor implements MeterProtocol{
 		return null;
 	}
 	public int getProfileInterval() throws UnsupportedException, IOException {
-		// TODO Auto-generated method stub
-		return 0;
+		//TODO
+		return 1800;
 	}
 	public String getRegister(String arg0) throws IOException,
 			UnsupportedException, NoSuchRegisterException {
@@ -232,10 +213,9 @@ public class Meteor implements MeterProtocol{
 		// TODO Auto-generated method stub
 		
 	}
-	public void setProperties(Properties arg0) throws InvalidPropertyException,
+	public void setProperties(Properties properties) throws InvalidPropertyException,
 			MissingPropertyException {
-		// TODO Auto-generated method stub
-		
+		this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress", "000"));		
 	}
 	public void setRegister(String arg0, String arg1) throws IOException,
 			NoSuchRegisterException, UnsupportedException {
