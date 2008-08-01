@@ -185,7 +185,6 @@ public class Opus extends AbstractProtocol{
        return ocm.getRegisterValue(obisCode);
    }
    
-   //TODO
    public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
 	   RegisterInfo registerInfo = new RegisterInfo("");
 	   return registerInfo;
