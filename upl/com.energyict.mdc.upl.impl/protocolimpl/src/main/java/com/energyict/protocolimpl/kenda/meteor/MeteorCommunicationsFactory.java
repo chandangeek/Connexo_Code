@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.kenda.meteor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 public class MeteorCommunicationsFactory{
 	
@@ -240,13 +241,16 @@ public class MeteorCommunicationsFactory{
 	 *  should look like
 	*/
 	
+	/*
+	 * START data transmission 
+	 */
 	public Parsers transmitData(byte command, boolean ack, Parsers p) throws IOException{
 		byte[] bs=new byte[0];
 		byte[][] br;
 		Parsers pr;
 		// build command
 		if(p==null){ // request of data from the meter (11 byte command)
-			bs=addCheckSum(buildHeader(buildIdent(ack, true,true,command), 11));			
+			bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing		
 		}else{ // writing data to the meter
 			bs=p.parseToByteArray();
 		}
@@ -260,24 +264,48 @@ public class MeteorCommunicationsFactory{
 	/*
 	 * Input readers 
 	 */
-	private byte[][] receiveData() {
-		// TODO Auto-generated method stub
-		return null;
+	private byte[][] receiveData() throws IOException {
+		int i=0,counter=0,length=11;
+		byte[][] data;
+		ArrayList <String> recdat=new ArrayList<String>();
+		boolean go=true;
+		String s="";
+		while(go){
+			while(counter<length){	// timeout!
+				i=inputStream.read();
+				s+=(char) i;
+				if(counter==1){// block length byte
+					length=i;
+					if(i==0){length=256;} // modulus
+				}
+				counter++;
+			}
+			if((s.charAt(0) & 0x0020)==0x20){ // check ident on last block to transmit
+				go=false;
+			}
+			recdat.add(s);
+		}
+		data=new byte[recdat.size()+1][];
+		i=0;
+		for(String str:recdat){
+			data[i++]=Parsers.parseCArraytoBArray(str.toCharArray());
+		}		
+		return data;
 	}
 
 	/*
 	 * output writers
 	 */
 	private void sendData(byte[] bs) throws IOException {
-		// TODO check on length en do the blockprocessing
-		byte[][] b=blockProcessing(bs);
+		byte[][] b=blockProcessing(bs); // cuts up the bs into the frames requested by the meter
 		for(byte[] bp: b){
-			outputStream.write(bs);
+			outputStream.write(bp); // send all frames
 		}
 	}
-	
-	
-	
+	/*
+	 * END Data transmission
+	 */
+		
 	/*
 	 * The following method buildCommand takes in a byte array and if needed a parser object
 	 * when the parser object is a null, the byte array is considered a command to write to the meter

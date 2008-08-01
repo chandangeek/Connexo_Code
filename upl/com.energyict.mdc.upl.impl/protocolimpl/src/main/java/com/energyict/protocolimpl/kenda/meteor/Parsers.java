@@ -43,14 +43,14 @@ public abstract class Parsers {
 		l&=0x00000000FFFFFFFF;
 		return parseIntToChar((int)l);
 	}
-	protected byte[] parseCArraytoBArray(char[] charArray) {
+	static protected byte[] parseCArraytoBArray(char[] charArray) { // can be accessed from other classes (instantiating is not possible)
 		byte[] b=new byte[charArray.length];
 		for(int i=0; i<charArray.length; i++){
 			b[i]=(byte) charArray[i];
 		}
 		return b;
 	}
-	protected char[] parseBArraytoCArray(byte[] byteArray) {
+	static protected char[] parseBArraytoCArray(byte[] byteArray) {
 		char[] c = new char[byteArray.length];
 		for(int i=0; i<byteArray.length; i++){
 			c[i] = (char) byteArray[i];
