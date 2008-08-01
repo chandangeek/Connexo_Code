@@ -28,8 +28,9 @@ public class Meteor implements MeterProtocol{
 	private OutputStream outputStream;
 	private InputStream inputStream;
 	private int DEBUG=0;
-	private MeteorCommandFactory mcf;
+	private MeteorCommunicationsFactory mcf;
 	private int outstationID;
+	boolean ack=false;
 	
 	// command descriptions from the datasheet
 	// Header format, at the moment I consider only ident as a variable
@@ -122,8 +123,7 @@ public class Meteor implements MeterProtocol{
 	}
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
-		//TODO
-		MeteorFirmwareVersion mfv=(MeteorFirmwareVersion) mcf.sendSmallCommand(firmwareVersion,null);
+		MeteorFirmwareVersion mfv=(MeteorFirmwareVersion) mcf.transmitData(firmwareVersion, ack, null);
 		return mfv.getVersion();
 	}
 
@@ -146,7 +146,7 @@ public class Meteor implements MeterProtocol{
         this.inputStream = inputStream;
         this.outputStream = outputStream;
         // build command factory
-        this.mcf=new MeteorCommandFactory(inputStream,outputStream);
+		this.mcf=new MeteorCommunicationsFactory(inputStream,outputStream);
 	}
 	public void connect() throws IOException {
 		// TODO Auto-generated method stub
@@ -234,5 +234,11 @@ public class Meteor implements MeterProtocol{
 	public List getRequiredKeys() {
 		ArrayList list = new ArrayList();
 		return list;
+	}
+	public boolean isAck() {
+		return ack;
+	}
+	public void setAck(boolean ack) {
+		this.ack = ack;
 	}
 }

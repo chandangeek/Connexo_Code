@@ -1,6 +1,9 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
 public class MeteorFirmwareVersion extends Parsers implements MeteorCommandAbstract{
+	/**
+	 * @author pst 
+	 */
 	private String version;
 	MeteorFirmwareVersion(){}
 	MeteorFirmwareVersion(char[] c){
@@ -13,7 +16,7 @@ public class MeteorFirmwareVersion extends Parsers implements MeteorCommandAbstr
 		version=new String(c);
 	}
 	/**
-	 * @return the version
+	 * @return the version of the firmware
 	 */
 	public String getVersion() {
 		return version;

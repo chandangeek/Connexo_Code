@@ -69,14 +69,8 @@ public class MeteorCommandFactory{
 		}
 		return this.command;
 	}
-	public Parsers sendCommand(ComStruc s, Parsers command){
-		return process(s,command);
-	}
-	public Parsers sendSmallCommand(byte b, Object object) {
-		// build comstruc
-		byte[] proc=mcf.buildHeader(mcf.buildIdent(false,true,true,b),11);
-		proc=mcf.addCheckSum(proc);
-		return(mcf.buildCommand(proc, null));
+	public Parsers sendCommand(byte command, boolean ack, Parsers p) throws IOException{
+		return mcf.transmitData(command,ack,p);
 	}
 	public boolean isReady(){
 		return flag;
