@@ -337,14 +337,14 @@ public class MeteorCommunicationsFactory{
 				/** don't forget to break up sequences */
 				switch((b[0]&0x1F)){ // mask ident byte
 					case fullPersTableRead:
-						System.out.println("Get fullPersTable register");
+						//System.out.println("Get fullPersTable register");
 						p = new MeteorFullPersonalityTable(); // make correct parser
 						break;
 					case fullPersTableWrite:
 						System.out.println("Set fullPersTable register");
 						break;
 					case extendedPersTableRead:
-						System.out.println("Get extendedPersTable register");
+						//System.out.println("Get extendedPersTable register");
 						p = new MeteorExtendedPersonalityTable(); // make correct parser
 						break;
 					case extendedPersTableWrite:
@@ -355,18 +355,19 @@ public class MeteorCommunicationsFactory{
 						p = new MeteorCLK();
 						break;
 					case setRTC:
-						System.out.println("Set RTC register");
+						//System.out.println("Set RTC register");
 						break;
 					case trimRTC:
-						System.out.println("Trim RTC");
+						// System.out.println("Trim RTC");
 						// send data, no return requested
+						// TODO
 						break;
 					case firmwareVersion:
 						//System.out.println("Get Firmware Version");
 						p=new MeteorFirmwareVersion();
 						break;
 					case status:
-						System.out.println("Get Status register");
+						//System.out.println("Get Status register");
 						p=new MeteorStatus();
 						break;
 					case readRelay:

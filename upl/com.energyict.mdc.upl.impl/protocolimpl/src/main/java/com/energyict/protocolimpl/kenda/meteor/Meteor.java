@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -138,7 +139,8 @@ public class Meteor implements MeterProtocol{
 
 	public Date getTime() throws IOException {		
 		MeteorCLK clk=(MeteorCLK) mcf.transmitData(readRTC, null);;
-		System.out.println("time: " + clk.getCalendar().getTime().toLocaleString());
+		System.out.println("meter    time: " + clk.getCalendar().getTime().toLocaleString());
+		System.out.println("computer time: " + Calendar.getInstance().getTime().toLocaleString());
 		return clk.getCalendar().getTime();
 	}
 

@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
 import java.util.Calendar;
+import java.util.TimeZone;
 
 public class MeteorCLK extends Parsers{
 	
@@ -9,7 +10,8 @@ public class MeteorCLK extends Parsers{
 	 * both char and byte can be entered in the methods and constructor
 	 */
 	private char[] TAD=new char[6];
-	private Calendar calendar=Calendar.getInstance();
+	private TimeZone tz = TimeZone.getTimeZone("GMT");  // all meter data is in GMT
+	private Calendar calendar=Calendar.getInstance(tz);
 	
 	MeteorCLK(){}
 	
