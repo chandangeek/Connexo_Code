@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.TimeZone;
 
 import com.energyict.genericprotocolimpl.iskrap2lpc.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -146,7 +147,8 @@ public class OpusCommandFactory {
 	private ArrayList<String[]> synchronizeOutstation(int attempts, int timeOut) throws IOException{
 		// build calendar object
 		Calendar cal;
-		cal=Calendar.getInstance();
+		TimeZone tz = TimeZone.getTimeZone("GMT");
+		cal=Calendar.getInstance(tz);
 		String[] data=dataArrayBuilder(cal,oldPassword,newPassword); // build data packet
 		return stateMachine3(101,attempts,timeOut,data);
 	}
