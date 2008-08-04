@@ -136,14 +136,16 @@ public class Meteor implements MeterProtocol{
 		return "$Date: 2008-07-01 08:35:14 +0200 (di, 01 jul 2008) $";
 	}
 
-	public Date getTime() throws IOException {
-		// TODO Auto-generated method stub
-		return new Date(System.currentTimeMillis());
+	public Date getTime() throws IOException {		
+		MeteorCLK clk=(MeteorCLK) mcf.transmitData(readRTC, null);;
+		System.out.println("time: " + clk.getCalendar().getTime().toLocaleString());
+		return clk.getCalendar().getTime();
 	}
 
 	public void setTime() throws IOException {
-		// TODO Auto-generated method stub
-		
+		// set time is only possible on commissioning or after loading a new personality table (pg 8)
+		// use only trimmer. Use a while loop to push further if offset appears to be larger than 59 sec
+		//TODO		
 	}
 	public MeteorFullPersonalityTable getFullPersonalityTable() throws IOException {
 		MeteorFullPersonalityTable mfpt=(MeteorFullPersonalityTable) mcf.transmitData(fullPersTableRead, null);;

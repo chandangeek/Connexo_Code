@@ -15,21 +15,26 @@ public class MeteorCLK extends Parsers{
 	
 	MeteorCLK(char[] cs){
 		TAD=cs;
-		changeCalendar();
+		process();
 	}
 	
 	MeteorCLK(Calendar calendar){
 		changeTAD();
 	}
 	
-	private void changeCalendar(){
-		calendar.set((int) (TAD[5]),(int) (TAD[4]),
+	public MeteorCLK(byte[] rawdata) {
+		TAD=parseBArraytoCArray(rawdata);
+		process();
+	}
+
+	private void process(){
+		calendar.set((int) (TAD[5])+2000,(int) (TAD[4])-1,
 				(int) (TAD[3]),(int) (TAD[2]),
 				(int) (TAD[1]),(int) (TAD[0]));
 	}
 	private void changeTAD(){
 		TAD[5]=(char) (calendar.get(Calendar.YEAR)%100); // only lowest two numbers
-		TAD[4]=(char) (calendar.get(Calendar.MONTH));
+		TAD[4]=(char) (calendar.get(Calendar.MONTH)+1);
 		TAD[3]=(char) (calendar.get(Calendar.DAY_OF_MONTH));
 		TAD[2]=(char) (calendar.get(Calendar.HOUR_OF_DAY));
 		TAD[1]=(char) (calendar.get(Calendar.MINUTE));
@@ -51,7 +56,7 @@ public class MeteorCLK extends Parsers{
 		TAD[0]=sec;
 		TAD[1]=min;
 		TAD[2]=hr;
-		changeCalendar();
+		process();
 	}
 	public char[] getTime(){
 		char[] c={TAD[0], TAD[1], TAD[2]};
@@ -61,13 +66,13 @@ public class MeteorCLK extends Parsers{
 		TAD[0]=(char) sec;
 		TAD[1]=(char) min;
 		TAD[2]=(char) hr;
-		changeCalendar();
+		process();
 	}
 	public void setDate( char day, char mth, char yr){
 		TAD[3]=day;
 		TAD[4]=mth;
 		TAD[5]=yr;
-		changeCalendar();
+		process();
 	}
 	public char[] getDate(){
 		char[] c={TAD[3], TAD[4], TAD[5]};
@@ -77,7 +82,7 @@ public class MeteorCLK extends Parsers{
 		TAD[3]=(char) day;
 		TAD[4]=(char) mth;
 		TAD[5]=(char) yr;
-		changeCalendar();
+		process();
 	}
 	public char[] getcharArray(){
 		return TAD;

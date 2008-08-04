@@ -351,7 +351,7 @@ public class MeteorCommunicationsFactory{
 						System.out.println("Set extendedPersTable register");
 						break;
 					case readRTC:
-						System.out.println("Get RTC register");
+						//System.out.println("Get RTC register");
 						p = new MeteorCLK();
 						break;
 					case setRTC:
@@ -414,6 +414,7 @@ public class MeteorCommunicationsFactory{
 				}else if(p instanceof MeteorExtendedPersonalityTable){	
 					p=new MeteorExtendedPersonalityTable(rawdata);
 				}else if(p instanceof MeteorCLK){
+					p=new MeteorCLK(rawdata);
 				}else if(p instanceof MeteorFirmwareVersion){
 					p=new MeteorFirmwareVersion(rawdata);
 				}else if(p instanceof MeteorStatus){
