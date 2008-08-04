@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
@@ -51,8 +52,9 @@ public class OpusGetProfileData {
 		IntervalData previd= new IntervalData();	// previous interval data, is kept for power down and power up flags (are to be set before the occurence of a power down and after a power up)
 		MeterEvent mev; 							// meter event flagging
 		// build calendar objects
-		Calendar cal1 = Calendar.getInstance();  	// removed getTimeZone()
-		Calendar tempcal=Calendar.getInstance(); 	// to store data in for the interval data
+		TimeZone tz = TimeZone.getTimeZone("GMT");
+		Calendar cal1 = Calendar.getInstance(tz);  	// removed getTimeZone()
+		Calendar tempcal=Calendar.getInstance(tz); 	// to store data in for the interval data
 		// command sequences
 		int command=10, ident=0;// 10 is the value of today...69 of 60 days ago, this is theory (in reality every time a new date is set that does not correspond with the actual date in the meter a new register is opened)
 		long millis=0,temp=0;
@@ -168,7 +170,7 @@ public class OpusGetProfileData {
         								id.addEiStatus(IntervalStateBits.MISSING);
         								if(!powDownFlag){
         									long pdtemp=millis-getProfileInterval()*1000;
-        									Calendar cal=Calendar.getInstance();
+        									Calendar cal=Calendar.getInstance(tz);
         									cal.setTimeInMillis(pdtemp); // set time one interval back
         									mev=new MeterEvent(cal.getTime(), MeterEvent.POWERDOWN);
         									if(tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime)){pd.addEvent(mev);}
@@ -248,9 +250,10 @@ public class OpusGetProfileData {
 		int command=10;
 		int dateOffset=0;
 		long now, then;
-		Calendar calthen=Calendar.getInstance();
+		TimeZone tz = TimeZone.getTimeZone("GMT");
+		Calendar calthen=Calendar.getInstance(tz);
 		calthen.setTime(cal1);
-		Calendar calnow=Calendar.getInstance();
+		Calendar calnow=Calendar.getInstance(tz);
 		calnow.set(Calendar.HOUR_OF_DAY, 0);
 		calnow.set(Calendar.MINUTE, 0);
 		calnow.set(Calendar.SECOND, 0);

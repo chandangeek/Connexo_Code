@@ -145,7 +145,7 @@ public class OpusCommandFactory {
 		return stateMachine1(81,attempts,timeOut,numChan,data);
 	}
 	private ArrayList<String[]> synchronizeOutstation(int attempts, int timeOut) throws IOException{
-		// build calendar object
+		// build calendar object in GMT time
 		Calendar cal;
 		TimeZone tz = TimeZone.getTimeZone("GMT");
 		cal=Calendar.getInstance(tz);

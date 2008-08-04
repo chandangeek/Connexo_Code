@@ -160,7 +160,9 @@ public class Opus extends AbstractProtocol{
 
 	public ProfileData getProfileData(Date fromTime, boolean includeEvents)
 			throws IOException {
-		return getProfileData(fromTime, Calendar.getInstance().getTime(), includeEvents);
+		TimeZone tz = TimeZone.getTimeZone("GMT");
+		Calendar cal=Calendar.getInstance(tz);
+		return getProfileData(fromTime, cal.getTime(), includeEvents);
 	}
 
 	public ProfileData getProfileData(Date fromTime, Date toTime, boolean event) throws IOException, UnsupportedException {
@@ -191,7 +193,8 @@ public class Opus extends AbstractProtocol{
    }   
 
 	public Date getTime() throws IOException  {
-		Calendar cal=Calendar.getInstance();
+		TimeZone tz = TimeZone.getTimeZone("GMT");
+		Calendar cal=Calendar.getInstance(tz);
 		ArrayList<String[]> d=ocf.command(102, attempts, timeOut, null);
 		String[] s=d.get(d.size()-1); // last index
 		cal.set(Integer.parseInt(s[5])+2000,
