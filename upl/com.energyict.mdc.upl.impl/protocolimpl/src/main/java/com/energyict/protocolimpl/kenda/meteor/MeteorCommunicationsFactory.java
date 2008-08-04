@@ -257,13 +257,22 @@ public class MeteorCommunicationsFactory{
 			bs=p.parseToByteArray();
 		}
 		sendData(bs);
-		System.out.println();
 		pr=buildCommand(addCheckSum(bs),p);
 		br=receiveData((byte) (bs[0]& 0x1F));
 		ack=true;
 		bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
 		sendData(bs);
 		return buildCommand(blockMerging(br),pr);
+	}
+	
+	public void trimRTC(byte b) throws IOException{
+		byte[] bs=new byte[11];
+		byte[] bs2=buildHeader(buildIdent(false, true,true,(byte) 0x14), 12);	// checksum added in blockprocessing
+		for(int i=0; i<bs2.length; i++){
+			bs[i]=bs2[i];
+		}
+		bs[10]=b;
+		sendData(bs);
 	}
 
 	/*
@@ -359,7 +368,7 @@ public class MeteorCommunicationsFactory{
 						break;
 					case trimRTC:
 						// System.out.println("Trim RTC");
-						// send data, no return requested
+						p=null;
 						// TODO
 						break;
 					case firmwareVersion:

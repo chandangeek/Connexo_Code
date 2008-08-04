@@ -147,7 +147,26 @@ public class Meteor implements MeterProtocol{
 	public void setTime() throws IOException {
 		// set time is only possible on commissioning or after loading a new personality table (pg 8)
 		// use only trimmer. Use a while loop to push further if offset appears to be larger than 59 sec
-		//TODO		
+		//TODO
+		long gettime, settime;
+		byte result=0;
+		
+		TimeZone tz = TimeZone.getTimeZone("GMT");
+		Calendar cal=Calendar.getInstance(tz);
+		Calendar getCal=Calendar.getInstance(tz);
+		getCal.setTime(getTime());
+		gettime=getCal.getTimeInMillis();
+		settime=cal.getTimeInMillis();
+		if(Math.abs(gettime-settime)/1000<59){
+			// max 59 sec deviation
+			result=(byte) ((int) ((settime-gettime)/1000)& 0x000000FF);
+		}else{
+			result=59;
+			if(gettime>settime){
+				result=-59;
+			}
+		}
+		mcf.trimRTC(result);
 	}
 	public MeteorFullPersonalityTable getFullPersonalityTable() throws IOException {
 		MeteorFullPersonalityTable mfpt=(MeteorFullPersonalityTable) mcf.transmitData(fullPersTableRead, null);;
