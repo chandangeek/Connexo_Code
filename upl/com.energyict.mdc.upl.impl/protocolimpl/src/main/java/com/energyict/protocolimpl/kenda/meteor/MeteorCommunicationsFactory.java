@@ -245,10 +245,11 @@ public class MeteorCommunicationsFactory{
 	/*
 	 * START data transmission 
 	 */
-	public Parsers transmitData(byte command, boolean ack, Parsers p) throws IOException{
+	public Parsers transmitData(byte command, Parsers p) throws IOException{
 		byte[] bs=new byte[0];
 		byte[][] br;
 		Parsers pr;
+		boolean ack=false;
 		// build command
 		if(p==null){ // request of data from the meter (11 byte command)
 			bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing		
@@ -258,7 +259,10 @@ public class MeteorCommunicationsFactory{
 		sendData(bs);
 		System.out.println();
 		pr=buildCommand(addCheckSum(bs),p);
-		br=receiveData(bs[0]);
+		br=receiveData((byte) (bs[0]& 0x1F));
+		ack=true;
+		bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
+		sendData(bs);
 		return buildCommand(blockMerging(br),pr);
 	}
 
@@ -277,6 +281,7 @@ public class MeteorCommunicationsFactory{
 			s="";
 			while(counter<length){	// timeout!
 				i=inputStream.read();
+				System.out.println((i & 0x1F)+" "+ident+" "+counter+" "+length);
 				if(counter==0 && ((i & 0x1F)==ident)){
 					correct=true;					
 				}
@@ -289,10 +294,13 @@ public class MeteorCommunicationsFactory{
 				}
 				counter++;
 			}
-			if((s.charAt(0) & 0x0020)==0x20){ // check ident on last block to transmit
-				go=false;
+			System.out.println("hangs");
+			if(correct){
+				if((s.charAt(0) & 0x0020)==0x20){ // check ident on last block to transmit
+					go=false;
+				}
+				recdat.add(s);
 			}
-			recdat.add(s);
 		}
 		//for(int ii=0; ii<11; ii++){
 		//	i=inputStream.read(); // check not implemented.

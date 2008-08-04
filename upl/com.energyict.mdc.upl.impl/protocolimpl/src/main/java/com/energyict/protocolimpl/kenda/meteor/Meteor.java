@@ -29,8 +29,7 @@ public class Meteor implements MeterProtocol{
 	private InputStream inputStream;
 	private int DEBUG=0;
 	private MeteorCommunicationsFactory mcf;
-	private int outstationID;
-	boolean ack=false;
+	private int outstationID;	
 	
 	// command descriptions from the datasheet
 	// Header format, at the moment I consider only ident as a variable
@@ -128,7 +127,7 @@ public class Meteor implements MeterProtocol{
 	}
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
-		MeteorFirmwareVersion mfv=(MeteorFirmwareVersion) mcf.transmitData(firmwareVersion, ack, null);
+		MeteorFirmwareVersion mfv=(MeteorFirmwareVersion) mcf.transmitData(firmwareVersion, null);
 		//System.out.println("firmware version: "+mfv.getVersion());
 		return mfv.getVersion();
 	}
@@ -147,19 +146,19 @@ public class Meteor implements MeterProtocol{
 		
 	}
 	public MeteorFullPersonalityTable getFullPersonalityTable() throws IOException {
-		MeteorFullPersonalityTable mfpt=(MeteorFullPersonalityTable) mcf.transmitData(fullPersTableRead, ack, null);;
+		MeteorFullPersonalityTable mfpt=(MeteorFullPersonalityTable) mcf.transmitData(fullPersTableRead, null);;
 		mfpt.printData();
 		return mfpt;
 	}
 	
 	public MeteorExtendedPersonalityTable getExtendedPersonalityTable() throws IOException {
-		MeteorExtendedPersonalityTable mept=(MeteorExtendedPersonalityTable) mcf.transmitData(extendedPersTableRead, ack, null);;
+		MeteorExtendedPersonalityTable mept=(MeteorExtendedPersonalityTable) mcf.transmitData(extendedPersTableRead, null);;
 		mept.printData();
 		return mept;
 	}
 	
 	public MeteorStatus getMeteorStatus() throws IOException{
-		MeteorStatus statusreg=(MeteorStatus) mcf.transmitData(status, ack, null);
+		MeteorStatus statusreg=(MeteorStatus) mcf.transmitData(status,  null);
 		statusreg.printData();
 		return statusreg;
 	}
@@ -267,10 +266,5 @@ public class Meteor implements MeterProtocol{
 		ArrayList list = new ArrayList();
 		return list;
 	}
-	public boolean isAck() {
-		return ack;
-	}
-	public void setAck(boolean ack) {
-		this.ack = ack;
-	}
+
 }
