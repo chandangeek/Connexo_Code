@@ -1,7 +1,10 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
 public class MeteorExtendedPersonalityTable extends Parsers implements MeteorCommandAbstract{
-	
+	/**
+	 * This extended personality Table is different from the one described in the datasheet
+	 * it is not used by the server and left as it is now.  Some fields are shifted 64 or 128 bytes. 
+	 */
 	protected char dumbPrinter=0;
 	protected char[] siteName=new char[64];
 	protected char[] unAssigned=new char[64]; // problem in the datasheet!!!!!!!!!!!
@@ -67,14 +70,14 @@ public class MeteorExtendedPersonalityTable extends Parsers implements MeteorCom
 			System.out.print(NumberToString(siteName[i])+" ");
 		}
 		System.out.println();
-		System.out.print  ("unAssigned:        ");
-		for(int i=0; i<64; i++){
-			System.out.print(NumberToString(unAssigned[i])+" ");
-		}
-		System.out.println();
+//		System.out.print  ("unAssigned:        ");
+//		for(int i=0; i<64; i++){
+//			System.out.print(NumberToString(unAssigned[i])+" ");
+//		}
+//		System.out.println();
 		System.out.print  ("osName:            ");
 		for(int i=0; i<64; i++){
-			System.out.print(NumberToString(osName[i])+" ");
+			System.out.print(osName[i]);
 		}
 		System.out.println();
 		System.out.print  ("prHeader:          ");
@@ -84,12 +87,12 @@ public class MeteorExtendedPersonalityTable extends Parsers implements MeteorCom
 		System.out.println();
 		System.out.print  ("prTrail:           ");
 		for(int i=0; i<64; i++){
-			System.out.print(NumberToString(prTrail[i])+" ");
+			System.out.print(prTrail[i]);
 		}
 		System.out.println();		
 		System.out.print  ("osName2:           ");
 		for(int i=0; i<64; i++){
-			System.out.print(NumberToString(osName2[i])+" ");
+			System.out.print(osName2[i]);
 		}
 		System.out.println();
 		System.out.print  ("chanName:          ");
@@ -99,7 +102,7 @@ public class MeteorExtendedPersonalityTable extends Parsers implements MeteorCom
 		System.out.println();
 		System.out.print  ("prOrder:           ");	
 		for(int i=0; i<96; i++){
-			System.out.print(NumberToString(prOrder[i]));			
+			System.out.print(prOrder[i]);			
 		}
 		System.out.println();
 		System.out.print  ("commSetup:         ");	
@@ -109,10 +112,10 @@ public class MeteorExtendedPersonalityTable extends Parsers implements MeteorCom
 		System.out.println();
 		System.out.println(new String(filler));
 		System.out.print  ("setupInfo:         ");	
+		System.out.println();
 		for (int i=0; i<5; i++){
 			setupInfo[i].printData();
 		}
-		System.out.println();
 		System.out.print  ("powerType:         ");	
 		for (int i=0; i<48; i++){
 			System.out.print(NumberToString(powerType[i]));
@@ -135,30 +138,30 @@ public class MeteorExtendedPersonalityTable extends Parsers implements MeteorCom
 		dumbPrinter= s.charAt(0);
 		for (int i=0; i<64; i++){
 			siteName[i]=s.charAt(1+i);
-			osName[i]=s.charAt(129+i); // mistake in the datasheet?
-			prHeader[i]=s.charAt(193+i);
-			prTrail[i]=s.charAt(257+i);
-			osName2[i]=s.charAt(321+i);
+			osName[i]=s.charAt(129-64+i); // mistake in the datasheet?
+			prHeader[i]=s.charAt(193-64+i);
+			//prTrail[i]=s.charAt(257+i);
+			//osName2[i]=s.charAt(321+i);
 		}
 		for (int i=0; i<96; i++){
-			chanName[i]=new MeteorChanName(s.substring(385+i*8,385+(i+1)*8 ).toCharArray());
-			prOrder[i]=s.charAt(1153+i);
+			chanName[i]=new MeteorChanName(s.substring(385-128+i*8,385-128+(i+1)*8 ).toCharArray());
+			prOrder[i]=s.charAt(1153-128+i);
 		}
 		for (int i=0; i<4; i++){
-			commsSetup[i]=new MeteorCommsSetup(s.substring(1249+i*4,1249+(i+1)*4).toCharArray());
+			commsSetup[i]=new MeteorCommsSetup(s.substring(1249-128+i*4,1249-128+(i+1)*4).toCharArray());
 		}
 		for (int i=0; i<46; i++){
-			filler[i]=s.charAt(1265+i);
+			filler[i]=s.charAt(1265+i-128);
 		}
 		for (int i=0; i<5; i++){
-			setupInfo[i]=new MeteorSetupInfo(s.substring(1311+i*32, 1311+(i+1)*32).toCharArray());
+			setupInfo[i]=new MeteorSetupInfo(s.substring(1311-128+i*32, 1311-128+(i+1)*32).toCharArray());
 		}
 		for (int i=0; i<48; i++){
-			powerType[i]=s.charAt(1471+i);
-			circuitNo[i]=s.charAt(1519+i);			
+			powerType[i]=s.charAt(1471-128+i);
+			circuitNo[i]=s.charAt(1519-128+i);			
 		}
 		for (int i=0; i<6; i++){
-			cctName[i]=new MeteorCCTName(s.substring(1567+i*16, 1567+(i+1)*16).toCharArray());
+			cctName[i]=new MeteorCCTName(s.substring(1567-128+i*16, 1567-128+(i+1)*16).toCharArray());
 		}		
 	}
 	

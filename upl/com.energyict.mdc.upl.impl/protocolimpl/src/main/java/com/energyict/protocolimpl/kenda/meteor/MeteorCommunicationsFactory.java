@@ -273,7 +273,7 @@ public class MeteorCommunicationsFactory{
 		int i=0,counter,length;
 		byte[][] data;
 		ArrayList <String> recdat=new ArrayList<String>();
-		boolean go=true, correct=false;
+		boolean go=true;
 		String s;
 		while(go){
 			counter=0;
@@ -281,30 +281,18 @@ public class MeteorCommunicationsFactory{
 			s="";
 			while(counter<length){	// timeout!
 				i=inputStream.read();
-				System.out.println((i & 0x1F)+" "+ident+" "+counter+" "+length);
-				if(counter==0 && ((i & 0x1F)==ident)){
-					correct=true;					
-				}
-				if(correct){
-					s+=(char) i;
-					if(counter==1){// block length byte
-						length=i;
-						if(i==0){length=256;} // modulus
-					}
+				s+=(char) i;
+				if(counter==1){// block length byte
+					length=i;
+					if(i==0){length=256;} // modulus
 				}
 				counter++;
 			}
-			System.out.println("hangs");
-			if(correct){
-				if((s.charAt(0) & 0x0020)==0x20){ // check ident on last block to transmit
-					go=false;
-				}
-				recdat.add(s);
+			if((s.charAt(0) & 0x0020)==0x20){ // check ident on last block to transmit
+				go=false;
 			}
+			recdat.add(s);
 		}
-		//for(int ii=0; ii<11; ii++){
-		//	i=inputStream.read(); // check not implemented.
-		//}
 		data=new byte[recdat.size()][];
 		i=0;
 		for(String str:recdat){

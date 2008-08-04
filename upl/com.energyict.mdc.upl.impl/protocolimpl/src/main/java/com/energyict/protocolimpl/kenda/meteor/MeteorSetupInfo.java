@@ -1,21 +1,19 @@
 package com.energyict.protocolimpl.kenda.meteor;;
 
 public class MeteorSetupInfo extends Parsers implements MeteorCommandAbstract{
-
+	private String data;
 	public MeteorSetupInfo(char[] charArray) {
-		// TODO Auto-generated constructor stub
+		process(charArray);
 	}
 	private void process(char[] c){
-		
+		data=new String(c);
 	}
 	public byte[] parseToByteArray() {
-		// TODO Auto-generated method stub
-		return null;
+		return parseCArraytoBArray(data.toCharArray());
 	}
 
 	public void printData() {
-		// TODO Auto-generated method stub
-		
+		System.out.println(data);
 	}
 
 }

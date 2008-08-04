@@ -4,6 +4,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class MeteorCommandFactory{
+	/**
+	 * To Be removed from the project, was only for file reading
+	 */
 	/*
 	 * The command factory takes in blocks of raw data received by the input stream
 	 * The data is either in vector format or a sequence of a vector
@@ -69,9 +72,9 @@ public class MeteorCommandFactory{
 		}
 		return this.command;
 	}
-	public Parsers sendCommand(byte command, boolean ack, Parsers p) throws IOException{
-		return mcf.transmitData(command,ack,p);
-	}
+//	public Parsers sendCommand(byte command, boolean ack, Parsers p) throws IOException{
+//		return mcf.transmitData(command,ack,p);
+//	}
 	public boolean isReady(){
 		return flag;
 	}
