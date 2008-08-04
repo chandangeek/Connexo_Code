@@ -1,22 +1,26 @@
 package com.energyict.protocolimpl.kenda.meteor;
+
+import java.util.Calendar;
+
 public class MeteorRequestReadMeterDemands extends Parsers {
 	private long stPeriod=0;
 	private short noPeriods=0;
 	
 	MeteorRequestReadMeterDemands(){}
 	
-	MeteorRequestReadMeterDemands(int stperiod, short noperiods){
-		this.stPeriod=stperiod;
-		this.noPeriods=noperiods;
+	MeteorRequestReadMeterDemands(Calendar cal, Calendar cal2, int intervaltime){
+		long c2=cal2.getTimeInMillis();
+		this.stPeriod  = cal.getTimeInMillis();
+		this.noPeriods = (short) Math.floor(((c2-stPeriod)/(1000*intervaltime)));
 	}
 	MeteorRequestReadMeterDemands(char[] c){
-		processRequest(c);
+		process(c);
 	}
 	MeteorRequestReadMeterDemands(byte[] b){
-		processRequest(parseBArraytoCArray(b));	
+		process(parseBArraytoCArray(b));	
 	}
 
-	private void processRequest(char[] c) {
+	private void process(char[] c) {
 		String s = new String(c);
 		stPeriod=parseCharToInt(s.substring(0, 4).toCharArray());
 		noPeriods=parseCharToShort(s.substring(4, 6).toCharArray());

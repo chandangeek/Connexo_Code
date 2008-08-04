@@ -139,18 +139,17 @@ public class Meteor implements MeterProtocol{
 
 	public Date getTime() throws IOException {		
 		MeteorCLK clk=(MeteorCLK) mcf.transmitData(readRTC, null);;
-		System.out.println("meter    time: " + clk.getCalendar().getTime().toLocaleString());
-		System.out.println("computer time: " + Calendar.getInstance().getTime().toLocaleString());
+		//System.out.println("meter    time: " + clk.getCalendar().getTime().toLocaleString());
+		//System.out.println("computer time: " + Calendar.getInstance().getTime().toLocaleString());
 		return clk.getCalendar().getTime();
 	}
 
 	public void setTime() throws IOException {
 		// set time is only possible on commissioning or after loading a new personality table (pg 8)
-		// use only trimmer. Use a while loop to push further if offset appears to be larger than 59 sec
-		//TODO
+		// use only trimmer. 
+		// the value sent to the meter is added on the RTC value in the meter
 		long gettime, settime;
 		byte result=0;
-		
 		TimeZone tz = TimeZone.getTimeZone("GMT");
 		Calendar cal=Calendar.getInstance(tz);
 		Calendar getCal=Calendar.getInstance(tz);
@@ -170,19 +169,19 @@ public class Meteor implements MeterProtocol{
 	}
 	public MeteorFullPersonalityTable getFullPersonalityTable() throws IOException {
 		MeteorFullPersonalityTable mfpt=(MeteorFullPersonalityTable) mcf.transmitData(fullPersTableRead, null);;
-		mfpt.printData();
+//		mfpt.printData();
 		return mfpt;
 	}
 	
 	public MeteorExtendedPersonalityTable getExtendedPersonalityTable() throws IOException {
 		MeteorExtendedPersonalityTable mept=(MeteorExtendedPersonalityTable) mcf.transmitData(extendedPersTableRead, null);;
-		mept.printData();
+//		mept.printData();
 		return mept;
 	}
 	
 	public MeteorStatus getMeteorStatus() throws IOException{
 		MeteorStatus statusreg=(MeteorStatus) mcf.transmitData(status,  null);
-		statusreg.printData();
+//		statusreg.printData();
 		return statusreg;
 	}
 	
@@ -194,14 +193,17 @@ public class Meteor implements MeterProtocol{
         this.outputStream = outputStream;
         // build command factory
 		this.mcf=new MeteorCommunicationsFactory(sourceCode,sourceCodeExt,destinationCode,destinationCodeExt,inputStream,outputStream);
+		// TODO retries & timeout set from server
+		mcf.setRetries(5);
+		mcf.setTimeOut(5000);
 	}
 	public void connect() throws IOException {
 		//System.out.println("connect()");
 		getFirmwareVersion();
+		setTime();
 		fullperstable = getFullPersonalityTable();
 		statusreg = getMeteorStatus();
-		extperstable = getExtendedPersonalityTable();
-		// TODO Auto-generated method stub
+		//extperstable = getExtendedPersonalityTable();
 		
 	}
 	public void disconnect() throws IOException {
@@ -239,12 +241,15 @@ public class Meteor implements MeterProtocol{
 		// TODO Auto-generated method stub
 		return null;
 	}
-	public ProfileData getProfileData(Date arg0, Date arg1, boolean arg2)
+	public ProfileData getProfileData(Date start, Date stop, boolean arg2)
 			throws IOException, UnsupportedException {
-		// TODO Auto-generated method stub
+		mcf.requestMeterDemands(start, stop, getProfileInterval());
 		return null;
 	}
 	public int getProfileInterval() throws UnsupportedException, IOException {
+		if(fullperstable==null){
+			fullperstable = getFullPersonalityTable();
+		}
 		return 60*fullperstable.getDemper();
 	}
 	public String getRegister(String arg0) throws IOException,
@@ -268,7 +273,7 @@ public class Meteor implements MeterProtocol{
 	public void setProperties(Properties properties) throws InvalidPropertyException,
 			MissingPropertyException {
 		this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress", "000"));
-		this.destinationCode=Parsers.parseCArraytoBArray(Parsers.parseShortToChar((short) outstationID));
+		this.destinationCode=Parsers.parseCArraytoBArray(Parsers.parseShortToChar((short) outstationID));		
 		//System.out.println("properties set");
 	}
 	public void setRegister(String arg0, String arg1) throws IOException,

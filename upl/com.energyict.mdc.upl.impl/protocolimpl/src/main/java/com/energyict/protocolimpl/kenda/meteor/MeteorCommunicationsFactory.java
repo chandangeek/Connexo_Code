@@ -4,6 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 public class MeteorCommunicationsFactory{
 	
@@ -49,6 +54,8 @@ public class MeteorCommunicationsFactory{
 
 	private InputStream inputStream;
 	private OutputStream outputStream;
+	int retries=5;
+	private long timeOut=5000; // 5000 milliseconds
 	// first three bits are to be set in BuildIdent method (later)
 	// byte: 8 bit, word 16 bit signed integer, long 32 bit signed integer
 	
@@ -246,35 +253,92 @@ public class MeteorCommunicationsFactory{
 	 * START data transmission 
 	 */
 	public Parsers transmitData(byte command, Parsers p) throws IOException{
+		// TODO implement retries & timeout in receive data
 		byte[] bs=new byte[0];
-		byte[][] br;
-		Parsers pr;
+		byte[][] br=new byte[0][0];
+		Parsers pr=null;
 		boolean ack=false;
 		// build command
-		if(p==null){ // request of data from the meter (11 byte command)
-			bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing		
-		}else{ // writing data to the meter
-			bs=p.parseToByteArray();
+		int pog=retries;
+		while(!ack && pog>0){
+			pog--;
+			if(p==null){ // request of data from the meter (11 byte command)
+				bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing		
+			}else{ // writing data to the meter
+				bs=p.parseToByteArray();
+			}
+			sendData(bs);
+			pr=buildCommand(addCheckSum(bs),p);
+			br=receiveData((byte) (bs[0]& 0x1F));
+			// send ack
+			if((br[br.length-1][0]&0x20)==0x20){
+				ack=true;			
+			}
+			bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
+			sendData(bs);			
 		}
-		sendData(bs);
-		pr=buildCommand(addCheckSum(bs),p);
-		br=receiveData((byte) (bs[0]& 0x1F));
-		ack=true;
-		bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
-		sendData(bs);
+		if(!ack){
+			throw new IOException("Data transmission did not succeed, thrown by communicationsFactory->transmitData");
+		}
 		return buildCommand(blockMerging(br),pr);
 	}
 	
 	public void trimRTC(byte b) throws IOException{
+		// TODO implement retries & timeout in receive data
 		byte[] bs=new byte[11];
+		byte[][] br;
 		byte[] bs2=buildHeader(buildIdent(false, true,true,(byte) 0x14), 12);	// checksum added in blockprocessing
+		boolean ack=false;
+		int pog=retries;
+
 		for(int i=0; i<bs2.length; i++){
 			bs[i]=bs2[i];
 		}
 		bs[10]=b;
-		sendData(bs);
+		while(!ack && pog>0){
+			pog--;
+			sendData(bs);
+			// receive ack
+			br=receiveData((byte) (bs[0]& 0x1F));
+			if((br[0][0] & 0x80)==0x80){ack=true;} // get acknowledge
+		}
+		if(!ack){
+			throw new IOException("Data transmission did not succeed, thrown by communicationsFactory->transmitData");
+		}
 	}
-
+	public void requestMeterDemands(Date d1, Date d2, int intervaltime) throws IOException{
+		byte[] bs=new byte[16];
+		byte[][] br;
+		byte[] bs2=buildHeader(buildIdent(false, true,true,(byte) 0x07), 17);	// checksum added in blockprocessing
+		byte[] data;
+		boolean ack=false;
+		int pog=this.retries;
+		TimeZone tz = TimeZone.getTimeZone("GMT");
+		Calendar start=Calendar.getInstance(tz);
+		Calendar stop=Calendar.getInstance(tz);
+		start.setTime(d1);
+		stop.setTime(d2);
+		MeteorRequestReadMeterDemands mrrd;
+		mrrd = new MeteorRequestReadMeterDemands(start, stop, intervaltime);
+		// ready to send
+		data=mrrd.parseToByteArray();
+		for(int i=0; i<bs2.length; i++){
+			bs[i]=bs2[i];
+			if(i<6){bs[i+bs2.length]=data[i];}
+		}
+		while(!ack && pog>0){
+			pog--;
+			sendData(bs);
+			// receive ack
+			br=receiveData((byte) (bs[0]& 0x1F));
+			if((br[br.length-1][0]&0x20)==0x20){
+				ack=true;			
+			}
+		}
+		if(!ack){
+			throw new IOException("Data transmission did not succeed, thrown by communicationsFactory->transmitData");
+		}
+	}
 	/*
 	 * Input readers 
 	 */
@@ -284,7 +348,13 @@ public class MeteorCommunicationsFactory{
 		ArrayList <String> recdat=new ArrayList<String>();
 		boolean go=true;
 		String s;
+		long interFrameTimeout;
+			// time out check
 		while(go){
+			interFrameTimeout = System.currentTimeMillis() + this.timeOut;
+	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {	        	
+	            throw new ProtocolConnectionException("Interframe timeout error");
+	        }
 			counter=0;
 			length=11;
 			s="";
@@ -449,5 +519,17 @@ public class MeteorCommunicationsFactory{
 	}
 	public void setIdent(byte ident) {
 		this.ident = ident;
+	}
+	public int getRetries() {
+		return retries;
+	}
+	public void setRetries(int retries) {
+		this.retries = retries;
+	}
+	public long getTimeOut() {
+		return timeOut;
+	}
+	public void setTimeOut(long timeOut) {
+		this.timeOut = timeOut;
 	}
 }
