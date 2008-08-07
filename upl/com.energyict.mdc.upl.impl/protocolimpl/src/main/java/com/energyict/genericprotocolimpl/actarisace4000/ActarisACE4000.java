@@ -70,12 +70,51 @@ public class ActarisACE4000 implements GenericProtocol{
 		this.udpListener = new UDPListener(this);	// start the UDPListener
 	}
 	
+	
 	/**
 	 * This function determines the whole protocol 
 	 */
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 		this.logger = logger;
 		this.link = link;
+		
+		
+//		// ************************ KV Only for testing ***************************
+//		// receive
+//		int count=0;
+//		InputStream is=link.getInputStream();
+//		while(true) {
+//			byte[] buffer = new byte[1024];
+//			if (is.available() > 0) {
+//				int len = is.read(buffer,0, 1024);
+//				
+//			}
+//			else {
+//				try {
+//					Thread.sleep(100);
+//					if (count++>50)
+//						break;
+//				}
+//				catch(Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}
+//
+//		// send OK
+//		try {
+//			
+//			link.getOutputStream().write("OK".getBytes());
+//			link.disConnect();
+//			return;
+//		}
+//		catch(Exception e) {
+//			e.printStackTrace();
+//		}
+//		//return;
+//		// ************************ KV Only for testing ***************************
+		
+		
 		this.communicationProfile = scheduler.getCommunicationProfile();
 		this.scheduler = scheduler;
 		
