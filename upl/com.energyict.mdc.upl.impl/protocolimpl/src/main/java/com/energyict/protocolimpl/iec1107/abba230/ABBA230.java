@@ -79,6 +79,7 @@ public class ABBA230 implements
     
     private static String CONNECT 			= "CONNECT";
     private static String DISCONNECT 		= "DISCONNECT";
+    private static String TARIFFPROGRAM 		= "TARIFFPROGRAM";
 	
 	
     final static long FORCE_DELAY = 300;
@@ -394,7 +395,13 @@ public class ABBA230 implements
      * @see com.energyict.protocol.MeterProtocol#setRegister(java.lang.String, java.lang.String)
      */
     public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
-        rFactory.setRegister(name,value);
+
+//    	if (name.compareTo("TARIFFPROGRAM")==0) {
+//    		logger.info("setRegister "+name);
+//			TariffSaxParser o = new TariffSaxParser(rFactory.getABBA230DataIdentityFactory());
+//			o.start(value);
+//    	}
+    	
     }
     
     /* (non-Javadoc)
@@ -854,10 +861,16 @@ public class ABBA230 implements
 	public List getMessageCategories() {
         List theCategories = new ArrayList();
         MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
+        
         MessageSpec msgSpec = addBasicMsg("Disconnect meter", DISCONNECT, false);
         cat.addMessageSpec(msgSpec);
+        
         msgSpec = addBasicMsg("Connect meter", CONNECT, false);
         cat.addMessageSpec(msgSpec);
+        
+        msgSpec = addBasicMsg("Program TOU tables", TARIFFPROGRAM, false);
+        cat.addMessageSpec(msgSpec);
+        
         theCategories.add(cat);
         return theCategories;
 	}
@@ -873,7 +886,45 @@ public class ABBA230 implements
 		return msg.write(this);
 	}
 
-	public String writeTag(MessageTag msgTag) {
+    public String writeTag(MessageTag msgTag) {
+        StringBuffer buf = new StringBuffer();
+        
+        // a. Opening tag
+        buf.append("<");
+        buf.append( msgTag.getName() );
+        
+        // b. Attributes
+        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
+            MessageAttribute att = (MessageAttribute)it.next();
+            if (att.getValue()==null || att.getValue().length()==0)
+                continue;
+            buf.append(" ").append(att.getSpec().getName());
+            buf.append("=").append('"').append(att.getValue()).append('"');
+        }
+        buf.append(">");
+        
+        // c. sub elements
+        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
+            MessageElement elt = (MessageElement)it.next();
+            if (elt.isTag())
+                buf.append( writeTag((MessageTag)elt) );
+            else if (elt.isValue()) {
+                String value = writeValue((MessageValue)elt);
+                if (value==null || value.length()==0)
+                    return "";
+                buf.append(value);
+            }
+        }
+        
+        // d. Closing tag
+        buf.append("</");
+        buf.append( msgTag.getName() );
+        buf.append(">");
+        
+        return buf.toString();    
+    }	
+	
+	public String writeTag2(MessageTag msgTag) {
         StringBuffer buf = new StringBuffer();
         
         // a. Opening tag
@@ -940,6 +991,14 @@ public class ABBA230 implements
 		        	rFactory.setRegister("ContactorStatus",new byte[]{0});
 		        	rFactory.setRegister("ContactorCloser",new byte[]{0});
 		    	}
+			}
+			else if (messageEntry.getContent().indexOf("<"+TARIFFPROGRAM)>=0) {
+				logger.info("************************* PROGRAM TARIFF *************************");
+				int start = messageEntry.getContent().indexOf("TARIFFPROGRAM")+"TARIFFPROGRAM".length()+1;
+				int end = messageEntry.getContent().lastIndexOf("TARIFFPROGRAM")-2;
+				String tariffXMLData = messageEntry.getContent().substring(start,end);
+				TariffSaxParser o = new TariffSaxParser(rFactory.getABBA230DataIdentityFactory());
+				o.start(tariffXMLData,true); // KV_TO_DO if we have the expanded content, no file reference...
 			}
 			return MessageResult.createSuccess(messageEntry);
 		}

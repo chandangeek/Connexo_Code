@@ -100,6 +100,14 @@ public class ABBA230DataIdentityFactory {
         }
     }
     
+    void setDataIdentity(String dataID, int packet, String value) throws IOException {
+        try {
+            ABBA230DataIdentity rawRegister = new ABBA230DataIdentity(dataID,this);
+            rawRegister.writeRawRegister(packet,value);
+        } catch(FlagIEC1107ConnectionException e) {
+            throw new IOException("ABBA230DataIdentityFactory, setDataIdentity, "+e.getMessage());
+        }
+    }
     
     private void initRegisters() {
         
@@ -151,6 +159,13 @@ public class ABBA230DataIdentityFactory {
     }
     
     private ABBA230DataIdentity findRawRegister(String dataID) throws IOException {
+        ABBA230DataIdentity rawRegister = (ABBA230DataIdentity)rawRegisters.get(dataID);
+        if (rawRegister == null)
+            throw new IOException("ABBA230DataIdentityFactory, findRawRegister, "+dataID+" does not exist!");
+        return rawRegister;
+    }
+    
+    private ABBA230DataIdentity setRawRegister(String dataID) throws IOException {
         ABBA230DataIdentity rawRegister = (ABBA230DataIdentity)rawRegisters.get(dataID);
         if (rawRegister == null)
             throw new IOException("ABBA230DataIdentityFactory, findRawRegister, "+dataID+" does not exist!");

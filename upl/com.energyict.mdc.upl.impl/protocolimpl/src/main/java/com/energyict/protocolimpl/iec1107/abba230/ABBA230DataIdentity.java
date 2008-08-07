@@ -29,13 +29,21 @@ public class ABBA230DataIdentity {
      * @param sets nr of sets
      * @param streameable 
      */
-    ABBA230DataIdentity(
-            String dataId, int length, int sets, boolean streameable, ABBA230DataIdentityFactory dataIdentityFactory) {
+    ABBA230DataIdentity(String dataId, int length, int sets, boolean streameable, ABBA230DataIdentityFactory dataIdentityFactory) {
         this.dataId = dataId;
         this.length = length;
         this.sets = sets;
         this.dataBlocks=new byte[sets][];
         this.streameable = streameable;
+        this.dataIdentityFactory = dataIdentityFactory;
+    }
+    
+    ABBA230DataIdentity(String dataId, ABBA230DataIdentityFactory dataIdentityFactory) {
+        this.dataId = dataId;
+        this.length = -1;
+        this.sets = -1;
+        this.dataBlocks=null;
+        this.streameable = false;
         this.dataIdentityFactory = dataIdentityFactory;
     }
     
@@ -93,6 +101,14 @@ public class ABBA230DataIdentity {
             dataBlocks[0] = doReadRawRegisterStream(cached,nrOfBlocks);
         }
         return dataBlocks[0];
+    }
+
+    
+    protected void writeRawRegister(int packet, String value) throws FlagIEC1107ConnectionException,IOException {
+        String data = dataId+ProtocolUtils.buildStringDecimal(packet,3)+"("+value+")";
+        String retVal = dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().sendRawCommandFrameAndReturn(FlagIEC1107Connection.WRITE1,data.getBytes());
+        if ((retVal != null) && (retVal.indexOf("ERR") != -1))
+            throw new IOException(retVal+" received! Write command failed! Possibly wrong password level!");
     }
     
     /** Write value to register.

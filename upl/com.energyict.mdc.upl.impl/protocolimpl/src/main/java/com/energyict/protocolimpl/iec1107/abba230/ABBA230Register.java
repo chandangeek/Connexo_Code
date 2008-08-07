@@ -101,8 +101,7 @@ public class ABBA230Register extends ABBA230RegisterData {
     
     protected void writeRegister(Object object)
     throws FlagIEC1107ConnectionException, IOException {
-        getABBA230DataIdentityFactory().setDataIdentity(getDataID(),
-        buildData(object));
+        getABBA230DataIdentityFactory().setDataIdentity(getDataID(), buildData(object));
     }
     
     protected byte[] readRegister(boolean cached)
