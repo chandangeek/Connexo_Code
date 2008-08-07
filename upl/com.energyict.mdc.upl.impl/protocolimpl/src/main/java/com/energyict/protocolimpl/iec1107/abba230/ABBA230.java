@@ -998,7 +998,7 @@ public class ABBA230 implements
 				int end = messageEntry.getContent().lastIndexOf("TARIFFPROGRAM")-2;
 				String tariffXMLData = messageEntry.getContent().substring(start,end);
 				TariffSaxParser o = new TariffSaxParser(rFactory.getABBA230DataIdentityFactory());
-				o.start(tariffXMLData,true); // KV_TO_DO if we have the expanded content, no file reference...
+				o.start(tariffXMLData,false); // KV_TO_DO if we have the expanded content, no file reference...
 			}
 			return MessageResult.createSuccess(messageEntry);
 		}
