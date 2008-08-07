@@ -1,0 +1,56 @@
+package com.energyict.protocolimpl.iec1107.abba230;
+
+import java.io.IOException;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+
+public class TariffXMLHandler extends DefaultHandler {
+
+	final int DEBUG=0;
+	
+	ABBA230DataIdentityFactory abba230DataIdentityFactory;
+	
+	public TariffXMLHandler(ABBA230DataIdentityFactory abba230DataIdentityFactory) {
+		this.abba230DataIdentityFactory=abba230DataIdentityFactory;
+	}
+
+	public void startDocument() throws SAXException {
+		
+		if (DEBUG>=1)
+			System.out.println("start document");
+	}
+
+	public void endDocument() throws SAXException {
+		
+		if (DEBUG>=1)
+			System.out.println("end document");
+	}
+	
+	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+		if (DEBUG>=1)
+			System.out.print(qName+" --> ");
+		int len = attributes.getLength();
+		for (int i=0;i<len;i++) {
+			if (DEBUG>=1)
+				System.out.print(attributes.getQName(i)+"="+attributes.getValue(i)+" ");
+		}
+		if (abba230DataIdentityFactory!=null) {
+			try {
+				if ((attributes.getLength()==3) && 
+					(attributes.getQName(0).compareTo("id")==0) &&
+					(attributes.getQName(1).compareTo("packet")==0) &&
+					(attributes.getQName(2).compareTo("data")==0)) {
+					abba230DataIdentityFactory.setDataIdentity(attributes.getValue(0), Integer.parseInt(attributes.getValue(1)), attributes.getValue(2));
+				}
+			}
+			catch(IOException e) {
+				throw new SAXException(e);
+			}
+		}
+		if (DEBUG>=1)
+			System.out.println();
+	}
+	
+}
