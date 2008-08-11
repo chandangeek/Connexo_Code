@@ -8,6 +8,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 public class MeteorCommunicationsFactory{
@@ -311,11 +314,13 @@ public class MeteorCommunicationsFactory{
 			throw new IOException("Data transmission did not succeed, thrown by communicationsFactory->transmitData");
 		}
 	}
-	public void requestMeterDemands(Date d1, Date d2, int intervaltime) throws IOException{
+	private short[][] requestMeterDemands(byte command, Date d1, Date d2, int intervaltime) throws IOException{
 		byte[] bs=new byte[16];
 		byte[][] br;
 		byte[] bs2=buildHeader(buildIdent(false, true,true,(byte) 0x07), 17);	// checksum added in blockprocessing
 		byte[] data;
+		short[][] shortData=new short[0][0];
+		byte[][] byteData=new byte[0][0];
 		boolean ack=false;
 		int pog=this.retries;
 		TimeZone tz = TimeZone.getTimeZone("GMT");
@@ -332,18 +337,68 @@ public class MeteorCommunicationsFactory{
 			if(i<6){bs[i+bs2.length]=data[i];}
 		}
 		while(!ack && pog>0){
+			int tel=0;
 			pog--;
 			sendData(bs);
 			// receive ack
-			br=receiveData((byte) (bs[0]& 0x1F));
+			br=receiveData((byte) (bs[0]& 0x1F));			
 			if((br[br.length-1][0]&0x20)==0x20){
 				ack=true;			
 			}
+			// deal with the data, cut header and checksum
+			byteData=new byte[br.length][0];
+			for(byte[] bt:br){
+				byteData[tel]=new byte[bt.length-11];
+				for(int i=10; i<byteData[tel].length-1; i++){
+					byteData[tel][i-10]=bt[i];
+				}
+				tel++;
+			}
+			// parse the data
+			shortData=new short[byteData.length][0];
+			tel=0;
+			for(byte[] b:byteData){
+				shortData[tel]=Parsers.parseBArraytoSArray(b);
+				tel++;
+			}
+			// send back ack
+			bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
+			sendData(bs);									
 		}
 		if(!ack){
 			throw new IOException("Data transmission did not succeed, thrown by communicationsFactory->transmitData");
 		}
+		return shortData;
 	}
+	public ProfileData retrieveProfileData(Date start, Date stop, int intervaltime) throws IOException{ 
+		ProfileData pd = new ProfileData();		
+		IntervalData id = new IntervalData();		// current interval data
+		IntervalData previd = new IntervalData();	// previous interval data, is kept for power down and power up flags (are to be set before the occurence of a power down and after a power up)
+		MeterEvent meterEvent;
+		ArrayList <MeterEvent> MeterEventList = new ArrayList<MeterEvent>(); 							// meter event flagging
+
+		// set time earlier, in order to have the power up/down correct
+		TimeZone tz = TimeZone.getTimeZone("GMT");
+		Calendar cal1 = Calendar.getInstance(tz);  	// removed getTimeZone()
+		Calendar tempcal = Calendar.getInstance(tz); 	// to store data in for the interval data
+		cal1.setTime(start);
+		long millis=cal1.getTimeInMillis();
+		cal1.setTimeInMillis(millis-(1000*intervaltime)); // set interval back
+		// read data
+		short[][] s=requestMeterDemands((byte) 0x07,cal1.getTime(),stop,intervaltime);
+		// first block of data can be skipped
+		for(short[] st:s){
+			for(short stt:st){
+				System.out.print(stt+" ");
+			}
+			System.out.println();
+		}
+		// process data
+		
+		// return profileData
+		return pd;
+	}
+
 	/*
 	 * Input readers 
 	 */

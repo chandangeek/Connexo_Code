@@ -15,7 +15,7 @@ public abstract class Parsers {
 		return c;
 	}
 
-	protected short parseCharToShort(char[] c){
+	static protected short parseCharToShort(char[] c){
 		c[0]&=0x00FF;
 		c[1]&=0x00FF;
 		return (short) ((c[1]<<8) | c[0]);
@@ -56,6 +56,16 @@ public abstract class Parsers {
 			c[i] = (char) byteArray[i];
 		}
 		return c;
+	}
+	static protected short[] parseBArraytoSArray(byte[] charArray) {
+		short[] s= new short[charArray.length/2];
+		char[] temp=new char[2];		
+		for(int i=0; i<2*Math.floor(charArray.length/2); i+=2){
+			temp[0]=(char) charArray[i];
+			temp[1]=(char) charArray[i+1];
+			s[i/2]=parseCharToShort(temp);
+		}
+		return s;		
 	}
 	protected String NumberToString(byte b){
 		// byte is seen as unsigned 8 bit integer

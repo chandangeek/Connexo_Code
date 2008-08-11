@@ -205,14 +205,13 @@ public class Meteor implements MeterProtocol{
 		fullperstable = getFullPersonalityTable();
 		statusreg = getMeteorStatus();
 		TimeZone tz=TimeZone.getTimeZone("GMT");
-		Calendar cal=Calendar.getInstance(tz);		
+		Calendar cal=Calendar.getInstance(tz);
 		Calendar cal2=Calendar.getInstance(tz);
 		cal.set(Calendar.DAY_OF_MONTH, 1);
-		
 		getProfileData(cal.getTime(),cal2.getTime(),false); // probleem zit in de returnstring?
-		//extperstable = getExtendedPersonalityTable();
-		
+		//extperstable = getExtendedPersonalityTable();		
 	}
+	
 	public void disconnect() throws IOException {
 		// TODO Auto-generated method stub
 		
@@ -250,9 +249,8 @@ public class Meteor implements MeterProtocol{
 		return getProfileData(fromTime, cal.getTime(), includeEvents);
 	}
 	public ProfileData getProfileData(Date start, Date stop, boolean arg2)
-			throws IOException, UnsupportedException {
-		mcf.requestMeterDemands(start, stop, getProfileInterval());
-		return null;
+			throws IOException, UnsupportedException {		
+		return mcf.retrieveProfileData(start, stop, getProfileInterval());
 	}
 	public int getProfileInterval() throws UnsupportedException, IOException {
 		if(fullperstable==null){
