@@ -30,7 +30,7 @@ public class Meteor implements MeterProtocol{
 	private InputStream inputStream;
 	private int DEBUG=0;
 	private MeteorCommunicationsFactory mcf;
-	private int outstationID;	
+	private int outstationID, retry, timeout;	
 	
 	// command descriptions from the datasheet
 	// Header format, at the moment I consider only ident as a variable
@@ -139,8 +139,8 @@ public class Meteor implements MeterProtocol{
 
 	public Date getTime() throws IOException {		
 		MeteorCLK clk=(MeteorCLK) mcf.transmitData(readRTC, null);;
-		//System.out.println("meter    time: " + clk.getCalendar().getTime().toLocaleString());
-		//System.out.println("computer time: " + Calendar.getInstance().getTime().toLocaleString());
+//		System.out.println("meter    time: " + clk.getCalendar().getTime().toLocaleString());
+//		System.out.println("computer time: " + Calendar.getInstance().getTime().toLocaleString());
 		return clk.getCalendar().getTime();
 	}
 
@@ -193,16 +193,23 @@ public class Meteor implements MeterProtocol{
         this.outputStream = outputStream;
         // build command factory
 		this.mcf=new MeteorCommunicationsFactory(sourceCode,sourceCodeExt,destinationCode,destinationCodeExt,inputStream,outputStream);
-		// TODO retries & timeout set from server
-		mcf.setRetries(5);
-		mcf.setTimeOut(5000);
+		mcf.setRetries(retry);
+		mcf.setTimeOut(timeout);
 	}
+	
 	public void connect() throws IOException {
 		//System.out.println("connect()");
 		getFirmwareVersion();
-		setTime();
+		//getTime();
+		//setTime();
 		fullperstable = getFullPersonalityTable();
 		statusreg = getMeteorStatus();
+		TimeZone tz=TimeZone.getTimeZone("GMT");
+		Calendar cal=Calendar.getInstance(tz);		
+		Calendar cal2=Calendar.getInstance(tz);
+		cal.set(Calendar.DAY_OF_MONTH, 1);
+		
+		getProfileData(cal.getTime(),cal2.getTime(),false); // probleem zit in de returnstring?
 		//extperstable = getExtendedPersonalityTable();
 		
 	}
@@ -236,10 +243,11 @@ public class Meteor implements MeterProtocol{
 		// TODO Auto-generated method stub
 		return null;
 	}
-	public ProfileData getProfileData(Date arg0, boolean arg1)
-			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+	public ProfileData getProfileData(Date fromTime, boolean includeEvents)
+	throws IOException {
+		TimeZone tz = TimeZone.getTimeZone("GMT");
+		Calendar cal=Calendar.getInstance(tz);
+		return getProfileData(fromTime, cal.getTime(), includeEvents);
 	}
 	public ProfileData getProfileData(Date start, Date stop, boolean arg2)
 			throws IOException, UnsupportedException {
@@ -275,6 +283,8 @@ public class Meteor implements MeterProtocol{
 		this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress", "000"));
 		this.destinationCode=Parsers.parseCArraytoBArray(Parsers.parseShortToChar((short) outstationID));		
 		//System.out.println("properties set");
+		this.timeout=Integer.parseInt(properties.getProperty("TimeOut","5000"));
+		this.retry=Integer.parseInt(properties.getProperty("Retry", "3"));
 	}
 	public void setRegister(String arg0, String arg1) throws IOException,
 			NoSuchRegisterException, UnsupportedException {
@@ -288,6 +298,8 @@ public class Meteor implements MeterProtocol{
 	}
 	public List getOptionalKeys() {
 		ArrayList list = new ArrayList();
+		list.add("TimeOut");
+		list.add("Retry");
 		return list;
 	}
 	public List getRequiredKeys() {

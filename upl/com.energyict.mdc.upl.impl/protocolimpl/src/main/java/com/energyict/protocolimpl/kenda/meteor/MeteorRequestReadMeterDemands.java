@@ -12,6 +12,7 @@ public class MeteorRequestReadMeterDemands extends Parsers {
 		long c2=cal2.getTimeInMillis();
 		this.stPeriod  = cal.getTimeInMillis();
 		this.noPeriods = (short) Math.floor(((c2-stPeriod)/(1000*intervaltime)));
+		System.out.println("this is the number of periods: "+noPeriods);
 	}
 	MeteorRequestReadMeterDemands(char[] c){
 		process(c);
