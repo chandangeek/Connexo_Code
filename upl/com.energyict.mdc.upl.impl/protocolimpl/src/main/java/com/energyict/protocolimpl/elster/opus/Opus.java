@@ -100,7 +100,7 @@ public class Opus extends AbstractProtocol{
 	private OpusCommandFactory ocf; 	// command factory
 	private ObisCodeMapper ocm;
 	private int timeOut=5000;			// timeout time in ms
-	private int attempts=5;				// number of attempts
+	private int attempts=3;				// number of attempts
 
 	// attributes to retrieve from the data
 	private int numChan=-1;				// number of channels
@@ -220,8 +220,10 @@ public class Opus extends AbstractProtocol{
 	}
 
 	public void setProperties(Properties properties) throws InvalidPropertyException,	MissingPropertyException {
-		outstationID = Integer.parseInt(properties.getProperty("NodeAddress", "000"));
-		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap"));		
+		this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress", "000"));
+		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap"));
+		this.timeOut=Integer.parseInt(properties.getProperty("TimeOut","5000"));
+		this.attempts=Integer.parseInt(properties.getProperty("Retry", "3"));		
 	}
 
 	public void updateCache(int arg0, Object arg1) throws SQLException,
