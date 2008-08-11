@@ -35,12 +35,10 @@ public class ArreteProgrammables extends AbstractTrimaranObject{
 
 	}
 
-	@Override
 	protected int getVariableName() {
 		return variableName;
 	}
 
-	@Override
 	protected void parse(byte[] data) throws IOException {
 		int offset = 0;
 		DataContainer dc = new DataContainer();
@@ -65,7 +63,6 @@ public class ArreteProgrammables extends AbstractTrimaranObject{
 		return strBuff.toString();
 	}
 
-	@Override
 	protected byte[] prepareBuild() throws IOException {
 		return null;
 	}
