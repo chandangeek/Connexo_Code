@@ -71,7 +71,7 @@ public class Meteor implements MeterProtocol{
 	private static final byte   readdialReadingCurrent		=0x0A;
 	private static final byte   writedialReadingCurrent		=0x1A;
 	private static final byte   dialReadingPast				=0x0B;
-	private static final byte   powerFailureDetails			=0x0C;
+	private static final byte   powerFailDetails			=0x0C;
 	private static final byte   readCommissioningCounters	=0x0D;
 	private static final byte   writeCommissioningCounters	=0x1D;
 	private static final byte   readMemoryDirect			=0x0E;
@@ -143,7 +143,11 @@ public class Meteor implements MeterProtocol{
 //		System.out.println("computer time: " + Calendar.getInstance().getTime().toLocaleString());
 		return clk.getCalendar().getTime();
 	}
-
+	public MeteorPowerFailDetails getPowerFailDetails() throws IOException{
+		MeteorPowerFailDetails mpfd=(MeteorPowerFailDetails) mcf.transmitData(powerFailDetails, null);
+		mpfd.printData();
+		return mpfd;
+	}
 	public void setTime() throws IOException {
 		// set time is only possible on commissioning or after loading a new personality table (pg 8)
 		// use only trimmer. 
@@ -208,7 +212,10 @@ public class Meteor implements MeterProtocol{
 		Calendar cal=Calendar.getInstance(tz);
 		Calendar cal2=Calendar.getInstance(tz);
 		cal.set(Calendar.DAY_OF_MONTH, 1);
-		getProfileData(cal.getTime(),cal2.getTime(),false); // probleem zit in de returnstring?
+		cal.set(Calendar.MONTH, 6);
+		//getProfileData(cal.getTime(),cal2.getTime(),false); // probleem zit in de returnstring?
+		//mcf.getTotalDemands(cal.getTime(), cal2.getTime(), getProfileInterval());
+		getPowerFailDetails();
 		//extperstable = getExtendedPersonalityTable();		
 	}
 	

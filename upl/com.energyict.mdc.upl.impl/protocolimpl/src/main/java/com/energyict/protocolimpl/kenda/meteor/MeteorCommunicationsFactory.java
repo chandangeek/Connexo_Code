@@ -317,7 +317,7 @@ public class MeteorCommunicationsFactory{
 	private short[][] requestMeterDemands(byte command, Date d1, Date d2, int intervaltime) throws IOException{
 		byte[] bs=new byte[16];
 		byte[][] br;
-		byte[] bs2=buildHeader(buildIdent(false, true,true,(byte) 0x07), 17);	// checksum added in blockprocessing
+		byte[] bs2=buildHeader(buildIdent(false, true,true,command), 17);	// checksum added in blockprocessing
 		byte[] data;
 		short[][] shortData=new short[0][0];
 		byte[][] byteData=new byte[0][0];
@@ -329,7 +329,7 @@ public class MeteorCommunicationsFactory{
 		start.setTime(d1);
 		stop.setTime(d2);
 		MeteorRequestReadMeterDemands mrrd;
-		mrrd = new MeteorRequestReadMeterDemands(start, stop, intervaltime);
+		mrrd = new MeteorRequestReadMeterDemands(start,stop,intervaltime);
 		// ready to send
 		data=mrrd.parseToByteArray();
 		for(int i=0; i<bs2.length; i++){
@@ -369,6 +369,9 @@ public class MeteorCommunicationsFactory{
 			throw new IOException("Data transmission did not succeed, thrown by communicationsFactory->transmitData");
 		}
 		return shortData;
+	}
+	public short[][] getTotalDemands(Date start, Date stop, int intervaltime) throws IOException{
+		return requestMeterDemands((byte) 0x08,start,stop,intervaltime);
 	}
 	public ProfileData retrieveProfileData(Date start, Date stop, int intervaltime) throws IOException{ 
 		ProfileData pd = new ProfileData();		

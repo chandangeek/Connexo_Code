@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
 public class MeteorReadDialReadings extends Parsers{
-	private int[] cnt= new int[36];
+	private int[] cnt= new int[48];
 	
 	MeteorReadDialReadings(){}
 	MeteorReadDialReadings(int[] i){
-		for(int ii=0; ii<i.length && ii <36; ii++){
+		for(int ii=0; ii<i.length && ii <48; ii++){
 			cnt[ii]=i[ii];
 		}
 	}
@@ -29,7 +29,7 @@ public class MeteorReadDialReadings extends Parsers{
 	}
 	public String toString(){
 		String s = "cnt:        ";
-		for(int i=0; i<36; i++){
+		for(int i=0; i<48; i++){
 			s+=cnt[i] + " "; 
 		}
 		return s;

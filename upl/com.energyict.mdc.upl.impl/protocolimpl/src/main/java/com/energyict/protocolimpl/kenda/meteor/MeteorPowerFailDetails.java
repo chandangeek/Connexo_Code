@@ -4,7 +4,7 @@ public class MeteorPowerFailDetails extends Parsers {
 	private MeteorCLK firstFailure= new MeteorCLK();
 	private MeteorCLK lastRecovery= new MeteorCLK();
 	private MeteorReadDialReadings dialPf=new MeteorReadDialReadings();
-	private short perOut=0;
+	private long perOut=0;
 	private short secOut=0;
 	private short lpfCNT=0;
 	private MeteorCLK[] pfhist= new MeteorCLK[14];
@@ -31,12 +31,12 @@ public class MeteorPowerFailDetails extends Parsers {
 		String s=new String(c);
 		firstFailure=new MeteorCLK(s.substring(0,6).toCharArray());
 		lastRecovery=new MeteorCLK(s.substring(6,12).toCharArray());
-		dialPf=new MeteorReadDialReadings(s.substring(12,156).toCharArray());
-		perOut=parseCharToShort(s.substring(156, 158).toCharArray());
-		secOut=parseCharToShort(s.substring(158, 160).toCharArray());
-		lpfCNT=parseCharToShort(s.substring(160, 162).toCharArray());
+		dialPf=new MeteorReadDialReadings(s.substring(12,204).toCharArray());
+		perOut=parseCharToLong(s.substring(204, 208).toCharArray());
+		secOut=parseCharToShort(s.substring(208, 210).toCharArray());
+		lpfCNT=parseCharToShort(s.substring(210, 212).toCharArray());
 		for (int i=0; i<14; i++){
-			pfhist[i]=new MeteorCLK(s.substring(162+i*6,168+i*6).toCharArray());
+			pfhist[i]=new MeteorCLK(s.substring(212+i*6,212+(i+1)*6).toCharArray());
 		}
 		pffree[0]=c[246];
 		pffree[1]=c[247];
@@ -87,7 +87,7 @@ public class MeteorPowerFailDetails extends Parsers {
 	/**
 	 * @return the perOut
 	 */
-	public short getPerOut() {
+	public long getPerOut() {
 		return perOut;
 	}
 
@@ -121,7 +121,6 @@ public class MeteorPowerFailDetails extends Parsers {
 
 	@Override
 	byte[] parseToByteArray() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
