@@ -672,18 +672,18 @@ public class CourbeCharge {
     }
     
     public int getValue(int val){
-    	int tronquée = 0xC000;
-    	int pasTronquée = 0x8000;
+    	int tronquee = 0xC000;
+    	int pasTronquee = 0x8000;
     	
     	if(getTrimaranObjectFactory().getTrimaran().isTEPMeter()){	// for the TEP meter
     		if(reactive){	// only the reactive part has possible diff. values
     			reactive = false;
-    			if((val&pasTronquée) == 0){		// case no gap
+    			if((val&pasTronquee) == 0){		// case no gap
     				if((val&0x4000) == 1){			// check the sign bit
     					val = val-0x8000;		// two's complement ...
     				}
     			}
-    			else if((val&tronquée) == 0x8000){	// case we do have a gap
+    			else if((val&tronquee) == 0x8000){	// case we do have a gap
     				val &= 0x3FFF;					// trim the value
     				if((val&0x2000) == 1){				// check the sign bit
     					val = val - 0x4000;			// two's complement ...
@@ -695,12 +695,12 @@ public class CourbeCharge {
     		}
     	}
     	else if(getTrimaranObjectFactory().getTrimaran().isTECMeter()){ 	// for the TEC meter
-    		if((val&pasTronquée) == 0){		// case no gap
+    		if((val&pasTronquee) == 0){		// case no gap
     			if(val == (0x8000-1)){
     				val = 0; corrupted = true;
     			}
     		}
-    		else if((val&tronquée) == 0x8000){
+    		else if((val&tronquee) == 0x8000){
     			val &= 0x3FFF;
     			if(val == (0x4000-1)){
     				val = 0; corrupted = true;
