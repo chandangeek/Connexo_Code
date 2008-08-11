@@ -60,12 +60,10 @@ public class DureesPnonGarantie extends AbstractTrimaranObject{
 	public static void main(String[] args) {
 	}
 
-	@Override
 	protected int getVariableName() {
 		return variableName;
 	}
 
-	@Override
 	protected void parse(byte[] data) throws IOException {
 		int offset = 0;
 		DataContainer dc = new DataContainer();
@@ -83,7 +81,6 @@ public class DureesPnonGarantie extends AbstractTrimaranObject{
 		}
 	}
 
-	@Override
 	protected byte[] prepareBuild() throws IOException {
 		return null;
 	}

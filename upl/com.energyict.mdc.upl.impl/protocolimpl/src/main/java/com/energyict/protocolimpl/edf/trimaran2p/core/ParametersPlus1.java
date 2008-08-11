@@ -36,12 +36,10 @@ public class ParametersPlus1 extends AbstractTrimaranObject{
 		super(trimaranObjectFacotry);
 	}
 
-	@Override
 	protected int getVariableName() {
 		return variableName_plus1;
 	}
 
-	@Override
 	protected void parse(byte[] data) throws IOException {
 		int offset = 0;
 		DataContainer dc = new DataContainer();
@@ -66,7 +64,6 @@ public class ParametersPlus1 extends AbstractTrimaranObject{
 		}
 	}
 
-	@Override
 	protected byte[] prepareBuild() throws IOException {
 		return null;
 	}

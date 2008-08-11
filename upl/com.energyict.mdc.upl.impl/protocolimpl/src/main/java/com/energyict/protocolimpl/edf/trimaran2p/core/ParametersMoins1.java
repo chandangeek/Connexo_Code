@@ -50,12 +50,10 @@ public class ParametersMoins1 extends AbstractTrimaranObject{
 
 	}
 
-	@Override
 	protected int getVariableName() {
 		return variableName_Moins1;
 	}
 
-	@Override
 	protected void parse(byte[] data) throws IOException {
 		
 //    	System.out.println("GN_DEBUG> write to file");
@@ -93,7 +91,6 @@ public class ParametersMoins1 extends AbstractTrimaranObject{
 		}
 	}
 
-	@Override
 	protected byte[] prepareBuild() throws IOException {
 		return null;
 	}

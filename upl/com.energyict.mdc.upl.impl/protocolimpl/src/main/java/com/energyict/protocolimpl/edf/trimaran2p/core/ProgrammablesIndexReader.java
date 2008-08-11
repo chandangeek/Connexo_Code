@@ -50,19 +50,16 @@ public class ProgrammablesIndexReader extends AbstractTrimaranObject{
 
 	}
 
-	@Override
 	protected int getVariableName() {
 		return variablName;
 	}
 
-	@Override
 	protected void parse(byte[] data) throws IOException {
         DataContainer dc = new DataContainer();
         dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
         setProgrammables(new Programmables(dc, getTrimaranObjectFactory().getTrimaran().getTimeZone(), getVariableName()));
 	}
 
-	@Override
 	protected byte[] prepareBuild() throws IOException {
 		return null;
 	}
