@@ -15,14 +15,18 @@ import java.util.logging.Logger;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.kenda.meteor.ObisCodeMapper;
 
 public class Meteor implements MeterProtocol{
 
@@ -47,7 +51,8 @@ public class Meteor implements MeterProtocol{
 	private MeteorFullPersonalityTable fullperstable=null;
 	private MeteorExtendedPersonalityTable extperstable=null;
 	private MeteorStatus statusreg=null;
-	
+	private ObisCodeMapper ocm;
+
 	// ident byte
 	// Ack bit, first block bit, last block bit, R/W, 4 bit operation select
 	
@@ -314,5 +319,26 @@ public class Meteor implements MeterProtocol{
 		ArrayList list = new ArrayList();
 		return list;
 	}
-
+    /*******************************************************************************************
+    R e g i s t e r P r o t o c o l  i n t e r f a c e 
+    *******************************************************************************************/
+   public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+	   if(ocm == null)
+		    ocm = new ObisCodeMapper(this);
+       return ocm.getRegisterValue(obisCode);
+   }
+   
+   public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
+	   RegisterInfo registerInfo = new RegisterInfo("");
+	   return registerInfo;
+   }
+   public MeteorCommunicationsFactory getMcf() {
+	   return mcf;
+   }
+   public int getRetry() {
+	   return retry;
+   }
+   public int getTimeout() {
+	   return timeout;
+   }   
 }
