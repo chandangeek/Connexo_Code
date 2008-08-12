@@ -8,7 +8,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -47,7 +51,7 @@ public class MeteorCommunicationsFactory{
 	private static final byte   readdialReadingCurrent		=0x0A;
 	private static final byte   writedialReadingCurrent		=0x1A;
 	private static final byte   dialReadingPast				=0x0B;
-	private static final byte   powerFailureDetails			=0x0C;
+	private static final byte   powerFailDetails			=0x0C;
 	private static final byte   readCommissioningCounters	=0x0D;
 	private static final byte   writeCommissioningCounters	=0x1D;
 	private static final byte   readMemoryDirect			=0x0E;
@@ -376,28 +380,75 @@ public class MeteorCommunicationsFactory{
 	public ProfileData retrieveProfileData(Date start, Date stop, int intervaltime) throws IOException{ 
 		ProfileData pd = new ProfileData();		
 		IntervalData id = new IntervalData();		// current interval data
-		IntervalData previd = new IntervalData();	// previous interval data, is kept for power down and power up flags (are to be set before the occurence of a power down and after a power up)
 		MeterEvent meterEvent;
-		ArrayList <MeterEvent> MeterEventList = new ArrayList<MeterEvent>(); 							// meter event flagging
-
-		// set time earlier, in order to have the power up/down correct
-		TimeZone tz = TimeZone.getTimeZone("GMT");
-		Calendar cal1 = Calendar.getInstance(tz);  	// removed getTimeZone()
-		Calendar tempcal = Calendar.getInstance(tz); 	// to store data in for the interval data
-		cal1.setTime(start);
-		long millis=cal1.getTimeInMillis();
-		cal1.setTimeInMillis(millis-(1000*intervaltime)); // set interval back
-		// read data
-		short[][] s=requestMeterDemands((byte) 0x07,cal1.getTime(),stop,intervaltime);
-		// first block of data can be skipped
-		for(short[] st:s){
-			for(short stt:st){
-				System.out.print(stt+" ");
-			}
-			System.out.println();
-		}
-		// process data
+		ArrayList <MeterEvent> meterEventList = new ArrayList<MeterEvent>();
+		ArrayList <MeteorCLK> meteorCLK= new ArrayList<MeteorCLK>();// meter event flagging parallel matrix
 		
+		boolean flag=false, powdownflag=false;
+		long millis=0;
+		int ids=0;
+		// set timezone and calendar object
+		TimeZone tz = TimeZone.getTimeZone("GMT");
+		Calendar cal1 = Calendar.getInstance(tz); 
+		cal1.setTime(start);
+		// retrieve powerFailDetails and add meter events
+		MeteorPowerFailDetails mpfd=(MeteorPowerFailDetails) transmitData(powerFailDetails, null);
+		MeteorCLK[] pfhist=mpfd.getPfhist();
+		for(MeteorCLK mclk: pfhist){
+			if(mclk.checkValidity()){
+				cal1=mclk.getCalendar();
+				meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERDOWN);
+				meterEventList.add(meterEvent);
+				meteorCLK.add(mclk); // parallel power down matrix
+			}
+		}
+		// reset cal1 object
+		cal1 = Calendar.getInstance(tz); // for security reasons , should be not needed
+		cal1.setTime(start);
+		// get meter data
+		short[][] s=requestMeterDemands((byte) 0x07,cal1.getTime(),stop,intervaltime);
+		// build channel map in profile data
+		for(int i=0; i<s[0].length;i++ ){
+			pd.addChannel(new ChannelInfo(ids,ids, "Meteor channel "+(i+1), Unit.get(BaseUnit.UNITLESS)));
+			ids++;
+		}
+		// first block of data can be skipped
+		for(int i=1; i<s.length; i++){
+			// read first meter for flagging
+			int statusflag=0;
+			powdownflag=false;
+			flag=false;
+			for(MeteorCLK m:meteorCLK){
+				long timeInterval = (cal1.getTimeInMillis()-m.getCalendar().getTimeInMillis());
+				if(timeInterval<intervaltime){
+					powdownflag=true;
+				}
+			}
+			for(int ii=0; ii<s[i].length; ii++){
+				if(s[i][0]<0 && !flag){ // end or begin of power down
+					flag=true;
+					s[i][0]=(short) (0x7FFF & s[i][0]); // mask negative bit
+					// check meter events
+					if(powdownflag){
+						id.addEiStatus(IntervalStateBits.POWERDOWN); // can be a power up or a power down
+					}else{
+						id.addEiStatus(IntervalStateBits.POWERUP); // can be a power up or a power down
+					}
+				}else if(s[i][ii]==0x3FFF){ // power is down (on all lines)
+					s[i][ii]=0;
+					if(!flag){
+						flag=true;
+						id.addEiStatus(IntervalStateBits.MISSING);
+					}
+				}
+				// add value to profile data
+				id.addValue(s[i][ii]);
+			}
+			
+			pd.addInterval(id);        		
+			millis=cal1.getTimeInMillis()+1000*intervaltime; // increment for next interval
+			cal1.setTimeInMillis(millis);
+		}
 		// return profileData
 		return pd;
 	}
@@ -537,8 +588,7 @@ public class MeteorCommunicationsFactory{
 						System.out.println("Get dialReadingPast");
 						p=new MeteorReadSavedDialReadings();
 						break;
-					case powerFailureDetails:
-						System.out.println("Get powerFailureDetails");
+					case powerFailDetails:
 						p= new MeteorPowerFailDetails();
 						break;
 					case readCommissioningCounters:

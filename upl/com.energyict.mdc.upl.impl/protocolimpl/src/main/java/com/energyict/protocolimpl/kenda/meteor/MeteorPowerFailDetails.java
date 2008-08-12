@@ -20,14 +20,14 @@ public class MeteorPowerFailDetails extends Parsers {
 	}
 	
 	MeteorPowerFailDetails(char[] c){
-		processMeteorPowerFailDetails(c);
+		process(c);
 	}
 	
 	MeteorPowerFailDetails(byte[] b){
-		processMeteorPowerFailDetails(parseBArraytoCArray(b));
+		process(parseBArraytoCArray(b));
 	}
 	
-	private void processMeteorPowerFailDetails(char[] c){
+	private void process(char[] c){
 		String s=new String(c);
 		firstFailure=new MeteorCLK(s.substring(0,6).toCharArray());
 		lastRecovery=new MeteorCLK(s.substring(6,12).toCharArray());
@@ -38,12 +38,12 @@ public class MeteorPowerFailDetails extends Parsers {
 		for (int i=0; i<14; i++){
 			pfhist[i]=new MeteorCLK(s.substring(212+i*6,212+(i+1)*6).toCharArray());
 		}
-		pffree[0]=c[246];
-		pffree[1]=c[247];
-		pffree[2]=c[248];
-		pffree[3]=c[249];
-		pffree[4]=c[250];
-		pffree[5]=c[251];
+		pffree[0]=c[296];
+		pffree[1]=c[297];
+		pffree[2]=c[298];
+		pffree[3]=c[299];
+		pffree[4]=c[300];
+		pffree[5]=c[301];
 	}
 	
 	public void printData(){		

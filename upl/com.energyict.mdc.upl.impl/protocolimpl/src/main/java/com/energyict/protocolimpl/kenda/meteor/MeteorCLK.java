@@ -96,6 +96,14 @@ public class MeteorCLK extends Parsers{
 		}
 		return b;
 	}
+	public boolean checkValidity(){
+		boolean valid=true;
+		// if day==0 date and hour invalid
+		if(TAD[3]==0){
+			valid=false;
+		}
+		return valid;
+	}
 	public String toString(){
 		return("Time: "+(int) TAD[2]+":"+(int) TAD[1]+":"+(int) TAD[0]+ "  Date: "+(int) TAD[3]+"/"+(int) TAD[4]+"/"+(int) TAD[5]);
 	}
