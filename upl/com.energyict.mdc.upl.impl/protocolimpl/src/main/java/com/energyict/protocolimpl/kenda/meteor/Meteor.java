@@ -207,6 +207,7 @@ public class Meteor implements MeterProtocol{
 		//getTime();
 		//setTime();
 		fullperstable = getFullPersonalityTable();
+		fullperstable.printData();
 		// set multipliers
 		mcf.setMultipliers(fullperstable.getDialexp(), fullperstable.getDialmlt());
 		statusreg = getMeteorStatus();

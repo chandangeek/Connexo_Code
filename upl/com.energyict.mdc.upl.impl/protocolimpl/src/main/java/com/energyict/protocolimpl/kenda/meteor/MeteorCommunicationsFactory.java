@@ -284,7 +284,9 @@ public class MeteorCommunicationsFactory{
 		}
 		return buildCommand(blockMerging(br),pr);
 	}
-	
+	/*
+	 * specific requests and sets for the meter
+	 */
 	public void trimRTC(byte b) throws IOException{
 		byte[] bs=new byte[11];
 		byte[][] br;
@@ -362,6 +364,9 @@ public class MeteorCommunicationsFactory{
 		}
 		return shortData;
 	}
+	/*
+	 * commands to get profile data, contains also flagging
+	 */
 	public short[][] getTotalDemands(Date start, Date stop, int intervaltime) throws IOException{
 		return requestMeterDemands((byte) 0x08,start,stop,intervaltime);
 	}
@@ -469,6 +474,9 @@ public class MeteorCommunicationsFactory{
 		// return profileData
 		return pd;
 	}
+	/*
+	 * End of profile data commands
+	 */
 
 	/*
 	 * Input readers 
@@ -664,7 +672,7 @@ public class MeteorCommunicationsFactory{
 	public void setMultipliers(char[] dialexp, char[] dialmlt) {
 		channelMultipliers=new int[numChan];
 		for(int i=0; i<numChan; i++){
-			channelMultipliers[i]=(int) Math.pow(10,dialexp[i])*dialmlt[i];
+			channelMultipliers[i]=(int) Math.pow(10,(long) dialexp[i])*dialmlt[i];
 		}		
 	}
 }
