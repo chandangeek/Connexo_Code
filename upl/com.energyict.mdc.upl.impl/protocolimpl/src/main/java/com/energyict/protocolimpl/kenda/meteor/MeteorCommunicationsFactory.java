@@ -15,6 +15,7 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 public class MeteorCommunicationsFactory{
@@ -260,7 +261,6 @@ public class MeteorCommunicationsFactory{
 	 * START data transmission 
 	 */
 	public Parsers transmitData(byte command, Parsers p) throws IOException{
-		// TODO implement retries & timeout in receive data
 		byte[] bs=new byte[0];
 		byte[][] br=new byte[0][0];
 		Parsers pr=null;
@@ -296,7 +296,6 @@ public class MeteorCommunicationsFactory{
 	}
 	
 	public void trimRTC(byte b) throws IOException{
-		// TODO implement retries & timeout in receive data
 		byte[] bs=new byte[11];
 		byte[][] br;
 		byte[] bs2=buildHeader(buildIdent(false, true,true,(byte) 0x14), 12);	// checksum added in blockprocessing
@@ -384,7 +383,7 @@ public class MeteorCommunicationsFactory{
 		ArrayList <MeterEvent> meterEventList = new ArrayList<MeterEvent>();
 		ArrayList <MeteorCLK> meteorCLK= new ArrayList<MeteorCLK>();// meter event flagging parallel matrix
 		
-		boolean flag=false, powdownflag=false;
+		boolean flag=false, powdownflag=false, prevIntervalPowdownflag=false;
 		long millis=0;
 		int ids=0;
 		// set timezone and calendar object
@@ -405,49 +404,78 @@ public class MeteorCommunicationsFactory{
 		// reset cal1 object
 		cal1 = Calendar.getInstance(tz); // for security reasons , should be not needed
 		cal1.setTime(start);
-		// get meter data
+        ParseUtils.roundDown2nearestInterval(cal1,intervaltime);
+        // get meter data
 		short[][] s=requestMeterDemands((byte) 0x07,cal1.getTime(),stop,intervaltime);
 		// build channel map in profile data
 		for(int i=0; i<s[0].length;i++ ){
 			pd.addChannel(new ChannelInfo(ids,ids, "Meteor channel "+(i+1), Unit.get(BaseUnit.UNITLESS)));
-			ids++;
+			ids++; // will run parallel with i but is needed in case of a channelmap
 		}
 		// first block of data can be skipped
 		for(int i=1; i<s.length; i++){
 			// read first meter for flagging
-			int statusflag=0;
 			powdownflag=false;
 			flag=false;
-			for(MeteorCLK m:meteorCLK){
+			id=new IntervalData(cal1.getTime());  // add time and date to the interval
+			for(MeteorCLK m:meteorCLK){ // process event flagging
 				long timeInterval = (cal1.getTimeInMillis()-m.getCalendar().getTimeInMillis());
-				if(timeInterval<intervaltime){
+				if(timeInterval<intervaltime*1000 && timeInterval>=0){
 					powdownflag=true;
 				}
 			}
 			for(int ii=0; ii<s[i].length; ii++){
-				if(s[i][0]<0 && !flag){ // end or begin of power down
+				if(s[i][0]<0){ // end or begin of power down (here real data is still available
 					flag=true;
-					s[i][0]=(short) (0x7FFF & s[i][0]); // mask negative bit
-					// check meter events
-					if(powdownflag){
-						id.addEiStatus(IntervalStateBits.POWERDOWN); // can be a power up or a power down
-					}else{
-						id.addEiStatus(IntervalStateBits.POWERUP); // can be a power up or a power down
+					if(!flag){
+						s[i][0]=(short) (0x7FFF & s[i][0]); // mask negative bit
+						// check meter events
+						if(powdownflag){
+							id.addEiStatus(IntervalStateBits.POWERDOWN); // when power down from event register, change in status can only be power down
+							meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERDOWN);
+							meterEventList.add(meterEvent);
+							prevIntervalPowdownflag=true;
+						}else{
+							id.addEiStatus(IntervalStateBits.POWERUP); // no power down in event register, so this must be a power up
+							meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERUP);
+							meterEventList.add(meterEvent);
+							prevIntervalPowdownflag=false;
+						}
 					}
 				}else if(s[i][ii]==0x3FFF){ // power is down (on all lines)
 					s[i][ii]=0;
 					if(!flag){
 						flag=true;
-						id.addEiStatus(IntervalStateBits.MISSING);
+						prevIntervalPowdownflag=true;
+						if(powdownflag){
+							id.addEiStatus(IntervalStateBits.POWERDOWN); // when power down from event register, change in status can only be power down
+							meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERDOWN);
+							meterEventList.add(meterEvent);
+							prevIntervalPowdownflag=true;
+						}else{
+							id.addEiStatus(IntervalStateBits.MISSING);							
+						}
+					}					
+				}else{
+					// boundary condition
+					if(prevIntervalPowdownflag && !flag){ // previous interval was power down and no negative value has been detected (boundary condition)
+						prevIntervalPowdownflag=false;
+						flag=true;
+						id.addEiStatus(IntervalStateBits.POWERUP);
+						meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERUP);
+						meterEventList.add(meterEvent);
 					}
 				}
 				// add value to profile data
-				id.addValue(s[i][ii]);
+				id.addValue(s[i][ii]); // add data to the interval
 			}
-			
 			pd.addInterval(id);        		
 			millis=cal1.getTimeInMillis()+1000*intervaltime; // increment for next interval
 			cal1.setTimeInMillis(millis);
+		}
+		//add meter events
+		for(MeterEvent m:meterEventList){
+			pd.addEvent(m);
 		}
 		// return profileData
 		return pd;
@@ -553,7 +581,6 @@ public class MeteorCommunicationsFactory{
 					case trimRTC:
 						// System.out.println("Trim RTC");
 						p=null;
-						// TODO
 						break;
 					case firmwareVersion:
 						//System.out.println("Get Firmware Version");
