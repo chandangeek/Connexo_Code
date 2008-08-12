@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.kenda.meteor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -51,8 +52,10 @@ public class MeteorCommunicationsFactory{
 	private static final byte   writeCommissioningCounters	=0x1D;
 	private InputStream inputStream;
 	private OutputStream outputStream;
-	int retries=5;
+	private int retries=5;
 	private long timeOut=5000; // 5000 milliseconds
+	private int numChan=48; // hardwired to 48 for this meter
+	private int[] channelMultipliers;
 	// first three bits are to be set in BuildIdent method (later)
 	// byte: 8 bit, word 16 bit signed integer, long 32 bit signed integer
 	
@@ -310,7 +313,7 @@ public class MeteorCommunicationsFactory{
 		byte[] bs2=buildHeader(buildIdent(false, true,true,command), 17);	// checksum added in blockprocessing
 		byte[] data;
 		short[][] shortData=new short[0][0];
-		byte[][] byteData=new byte[0][0];
+		byte[] byteData=new byte[0];
 		boolean ack=false;
 		int pog=this.retries;
 		TimeZone tz = TimeZone.getTimeZone("GMT");
@@ -327,7 +330,7 @@ public class MeteorCommunicationsFactory{
 			if(i<6){bs[i+bs2.length]=data[i];}
 		}
 		while(!ack && pog>0){
-			int tel=0;
+			int tel=0, subcounter=0;
 			pog--;
 			sendData(bs);
 			// receive ack
@@ -336,20 +339,19 @@ public class MeteorCommunicationsFactory{
 				ack=true;			
 			}
 			// deal with the data, cut header and checksum
-			byteData=new byte[br.length][0];
 			for(byte[] bt:br){
-				byteData[tel]=new byte[bt.length-11];
-				for(int i=10; i<byteData[tel].length-1; i++){
-					byteData[tel][i-10]=bt[i];
-				}
-				tel++;
+				tel+=bt.length;
 			}
+			byteData=new byte[tel];
 			// parse the data
-			shortData=new short[byteData.length][0];
+			shortData=new short[byteData.length/(numChan*2)][numChan];
 			tel=0;
-			for(byte[] b:byteData){
-				shortData[tel]=Parsers.parseBArraytoSArray(b);
-				tel++;
+			short[] tempshort=Parsers.parseBArraytoSArray(byteData);
+			for(int i=0; i<tempshort.length/numChan; i++){
+				for(int ii=0; ii<numChan; ii++){
+					shortData[i][ii]=tempshort[subcounter];
+					subcounter++;
+				}
 			}
 			// send back ack
 			bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
@@ -396,7 +398,7 @@ public class MeteorCommunicationsFactory{
 		short[][] s=requestMeterDemands((byte) 0x07,cal1.getTime(),stop,intervaltime);
 		// build channel map in profile data
 		for(int i=0; i<s[0].length;i++ ){
-			pd.addChannel(new ChannelInfo(ids,ids, "Meteor channel "+(i+1), Unit.get(BaseUnit.UNITLESS)));
+			pd.addChannel(new ChannelInfo(ids, "Meteor channel "+(i+1), Unit.get(BaseUnit.UNITLESS),0,ids, BigDecimal.valueOf(channelMultipliers[i])));			
 			ids++; // will run parallel with i but is needed in case of a channelmap
 		}
 		// first block of data can be skipped
@@ -658,5 +660,11 @@ public class MeteorCommunicationsFactory{
 	}
 	public void setTimeOut(long timeOut) {
 		this.timeOut = timeOut;
+	}
+	public void setMultipliers(char[] dialexp, char[] dialmlt) {
+		channelMultipliers=new int[numChan];
+		for(int i=0; i<numChan; i++){
+			channelMultipliers[i]=(int) Math.pow(10,dialexp[i])*dialmlt[i];
+		}		
 	}
 }

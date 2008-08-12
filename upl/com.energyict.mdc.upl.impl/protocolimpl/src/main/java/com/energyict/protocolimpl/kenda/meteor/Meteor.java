@@ -177,11 +177,11 @@ public class Meteor implements MeterProtocol{
 		return mfpt;
 	}
 	
-	public MeteorExtendedPersonalityTable getExtendedPersonalityTable() throws IOException {
-		MeteorExtendedPersonalityTable mept=(MeteorExtendedPersonalityTable) mcf.transmitData(extendedPersTableRead, null);;
-//		mept.printData();
-		return mept;
-	}
+//	public MeteorExtendedPersonalityTable getExtendedPersonalityTable() throws IOException {
+//		MeteorExtendedPersonalityTable mept=(MeteorExtendedPersonalityTable) mcf.transmitData(extendedPersTableRead, null);;
+////		mept.printData();
+//		return mept;
+//	}
 	
 	public MeteorStatus getMeteorStatus() throws IOException{
 		MeteorStatus statusreg=(MeteorStatus) mcf.transmitData(status,  null);
@@ -203,19 +203,21 @@ public class Meteor implements MeterProtocol{
 	
 	public void connect() throws IOException {
 		//System.out.println("connect()");
-		getFirmwareVersion();
+		//getFirmwareVersion();
 		//getTime();
 		//setTime();
 		fullperstable = getFullPersonalityTable();
+		// set multipliers
+		mcf.setMultipliers(fullperstable.getDialexp(), fullperstable.getDialmlt());
 		statusreg = getMeteorStatus();
-		TimeZone tz=TimeZone.getTimeZone("GMT");
-		Calendar cal=Calendar.getInstance(tz);
-		Calendar cal2=Calendar.getInstance(tz);
-		cal.set(Calendar.DAY_OF_MONTH, 1);
-		cal.set(Calendar.MONTH, 6);
-		//getProfileData(cal.getTime(),cal2.getTime(),false); // probleem zit in de returnstring?
+//		TimeZone tz=TimeZone.getTimeZone("GMT");
+//		Calendar cal=Calendar.getInstance(tz);
+//		Calendar cal2=Calendar.getInstance(tz);
+//		cal.set(Calendar.DAY_OF_MONTH, 1);
+//		cal.set(Calendar.MONTH, 6);
+//		getProfileData(cal.getTime(),cal2.getTime(),false); // probleem zit in de returnstring?
 		//mcf.getTotalDemands(cal.getTime(), cal2.getTime(), getProfileInterval());
-		getPowerFailDetails();
+		//getPowerFailDetails();
 		//extperstable = getExtendedPersonalityTable();		
 	}
 	
@@ -271,7 +273,7 @@ public class Meteor implements MeterProtocol{
 		return null;
 	}
 	public void initializeDevice() throws IOException, UnsupportedException {
-		System.out.println("initializeDevice()");
+		//System.out.println("initializeDevice()");
 		// TODO Auto-generated method stub
 		
 	}
