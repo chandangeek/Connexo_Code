@@ -24,4 +24,9 @@ public class MedoFirmwareVersion extends Parsers{
 	public void setVersion(String version) {
 		this.version = version;
 	}
+	@Override
+	byte[] parseToByteArray() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

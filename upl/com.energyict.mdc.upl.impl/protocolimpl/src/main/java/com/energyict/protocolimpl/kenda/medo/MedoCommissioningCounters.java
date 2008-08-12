@@ -32,5 +32,10 @@ public class MedoCommissioningCounters extends Parsers {
 	public void setCntr(char[] cntr) {
 		this.cntr = cntr;
 	}
+	@Override
+	byte[] parseToByteArray() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

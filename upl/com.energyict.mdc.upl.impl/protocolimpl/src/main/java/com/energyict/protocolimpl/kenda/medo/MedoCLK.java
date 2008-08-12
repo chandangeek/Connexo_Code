@@ -118,4 +118,10 @@ public class MedoCLK extends Parsers{
 		this.calendar = calendar;
 	}
 
+	@Override
+	byte[] parseToByteArray() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

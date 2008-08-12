@@ -67,4 +67,10 @@ public class MedoDirectMemoryAccess extends Parsers{
 	public void setDatafield(char[] datafield) {
 		this.datafield = datafield;
 	}
+
+	@Override
+	byte[] parseToByteArray() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

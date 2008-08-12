@@ -172,5 +172,11 @@ public class MedoPowerFailDetails extends Parsers {
 	 */
 	public void setPffree(char[] pffree) {
 		this.pffree = pffree;
+	}
+
+	@Override
+	byte[] parseToByteArray() {
+		// TODO Auto-generated method stub
+		return null;
 	}	
 }
