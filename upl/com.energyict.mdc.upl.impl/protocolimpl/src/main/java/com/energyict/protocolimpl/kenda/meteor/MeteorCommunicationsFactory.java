@@ -23,7 +23,6 @@ public class MeteorCommunicationsFactory{
 	// command descriptions from the datasheet
 	// Header format, at the moment I consider only ident as a variable
 	private byte   ident;					// see ident format listed below
-	private byte   blockSize;			// character count of block modulo 256	
 	private final byte[] sourceCode;		// Defines central equipment of origin
 	private final byte   sourceCodeExt;		// Defines peripheral equipment of origin
 	private final byte[] destinationCode;	// Defines central equipment of final destination
@@ -31,9 +30,6 @@ public class MeteorCommunicationsFactory{
 	private byte   unit;					// DIP routing ???
 	private byte   port;					// DIP routing ???
 	
-	// ident byte
-	// Ack bit, first block bit, last block bit, R/W, 4 bit operation select
-	private static final byte   RESERVED                   	=0x00;		  // internal DIP/Central System function
 	private static final byte   fullPersTableRead          	=0x01;	  // ram initialised, table defines modes
 	private static final byte   fullPersTableWrite         	=0x11;    // ... page 6/16 Meteor communications protocol
 	private static final byte   extendedPersTableRead      	=0x02;
@@ -46,8 +42,6 @@ public class MeteorCommunicationsFactory{
 	private static final byte   readRelay					=0x16;
 	private static final byte   setRelay					=0x06;
 	private static final byte   meterDemands				=0x07;
-	private static final byte   totalDemands				=0x08;  // Not available (page 12/16)
-	private static final byte	readingTimes				=0x09;
 	private static final byte   writingTimes				=0x19;
 	private static final byte   readdialReadingCurrent		=0x0A;
 	private static final byte   writedialReadingCurrent		=0x1A;
@@ -55,11 +49,6 @@ public class MeteorCommunicationsFactory{
 	private static final byte   powerFailDetails			=0x0C;
 	private static final byte   readCommissioningCounters	=0x0D;
 	private static final byte   writeCommissioningCounters	=0x1D;
-	private static final byte   readMemoryDirect			=0x0E;
-	private static final byte   writeMemoryDirect			=0x1E;
-	private static final byte   priorityTelNo				=0x1F; // N/A 
-	private static final byte   alarmChanTimes				=0x0F; // N/A
-
 	private InputStream inputStream;
 	private OutputStream outputStream;
 	int retries=5;
@@ -70,7 +59,6 @@ public class MeteorCommunicationsFactory{
 	public MeteorCommunicationsFactory(InputStream inputStream, OutputStream outputStream){// blank constructor for testing purposes only
 		byte[] blank={0,0};
 		ident=0;				// see ident format listed below
-		blockSize=11;			// character count of block modulo 256	
 		sourceCode=blank;		// Defines central equipment of origin
 		sourceCodeExt=0;		// Defines peripheral equipment of origin
 		destinationCode=blank;	// Defines central equipment of final destination
@@ -88,7 +76,6 @@ public class MeteorCommunicationsFactory{
 			InputStream inputStream, 
 			OutputStream outputStream){
 		ident=0;
-		blockSize=11;
 		this.sourceCode=sourceCode;
 		this.sourceCodeExt=sourceCodeExt;
 		this.destinationCode=destinationCode;
