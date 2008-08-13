@@ -125,6 +125,8 @@ public class OpusGetProfileData {
         			if(offset<0){ // this situation is never supposed to happen, when this happens it indicates that the meter has some serious problems
         				offset=offset-10+command;
         				command=10;
+        				String string = checkcal.get(Calendar.DAY_OF_MONTH)+"/"+checkcal.get(Calendar.MONTH)+"/"+checkcal.get(Calendar.YEAR);
+						throw new IOException("The data in the meter is corrupted and is not valid, timegaps are observed in the profile, the date retrieved from the meter is: "+string);
         			}
         			ocf.setDateOffset(offset);        				
         		}else{
@@ -204,7 +206,42 @@ public class OpusGetProfileData {
         				}
         			}// end i for loop (interval)        		
         		}// end of checkcal
-        	}// end data available test
+        		// end data available test
+        	}else{ // data not available (set flags and zero data)
+    			correctdate=true;
+        		// make the calendar object for that date
+        		tempcal.setTime(cal1.getTime()); 		// set date
+        		tempcal.set(Calendar.HOUR_OF_DAY, 0);	// reset hour
+        		tempcal.set(Calendar.MINUTE, 	  0);	// reset minutes
+        		tempcal.set(Calendar.SECOND, 	  0);	// reset seconds
+        		tempcal.set(Calendar.MILLISECOND, 0);	// reset milliseconds
+        		millis=tempcal.getTimeInMillis(); 		// start at 0:0:0h (interval 47 of previous day)
+    			for(int i=0; i<(3600*24/getProfileInterval()); i++){// 0->47
+    				// save previous data
+    				// 	generate step clock
+    				millis+=(getProfileInterval()*1000); 	// now time correction        		
+    				tempcal.setTimeInMillis(millis);		// set to now
+    				id=new IntervalData(tempcal.getTime());
+    				firstchan=true;
+    				for(int ii=0;ii<numChan;ii++){// 0->12
+    					if(channelMap.isProtocolChannelEnabled(ii) || ii==0){ // process first channel for flagging (no idea if this is hardware req.
+    						firstchan=false;
+    						// check value
+   							// 	value should be zero, because is false
+   							if(channelMap.isProtocolChannelEnabled(ii)){
+   								id.addValue(0);
+   							}
+							id.addEiStatus(IntervalStateBits.MISSING);
+							mev=new MeterEvent(tempcal.getTime(), MeterEvent.OTHER,"No Data");
+							if(firstchan && tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime)){pd.addEvent(mev);}
+    					}
+    				}
+    				if(tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime)){
+    					pd.addInterval(id);        		
+    				}
+    			}
+    			
+        	}
         	// next day
         	if(correctdate){
         		temp=cal1.getTimeInMillis()+(3600*24*1000);

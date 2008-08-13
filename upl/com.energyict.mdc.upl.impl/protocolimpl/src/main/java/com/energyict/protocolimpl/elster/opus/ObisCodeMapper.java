@@ -61,9 +61,9 @@ public class ObisCodeMapper {
 	private int subFactory(int command,ObisCode obisCode) throws IOException{
 		// ALL statemachine 1
 		int channel, readVal, x, y;
-		calendar=Calendar.getInstance();
+		calendar = Calendar.getInstance();
 		channel = obisCode.getB();
-		dataArray=opus.getOcf().command(command, opus.getAttempts(), opus.getTimeOut(), null);
+		dataArray = opus.getOcf().command(command, opus.getAttempts(), opus.getTimeOut(), null);
 		if(dataArray.size()==1){
 			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!, data was metastable, try again later");
 		}else{

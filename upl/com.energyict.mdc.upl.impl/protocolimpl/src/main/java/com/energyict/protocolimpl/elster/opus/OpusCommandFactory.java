@@ -216,7 +216,7 @@ public class OpusCommandFactory {
 					attempts1--;
 					break;
 				case 2:	
-					state=acknak(3,1,2);
+					state=acknak(3,1,2,17);
 					break;
 				case 3:
 					outputStream.write(STX);
@@ -794,6 +794,20 @@ public class OpusCommandFactory {
 			// checksum error
 			state=NAKstate;
 		}	
+		return state;
+	}
+
+	private int acknak(int ACKstate, int NAKstate,int curstate, int endtransm) throws IOException{
+		int state=curstate; // will timeout
+		int i = inputStream.read();
+		if(i==ACK){
+			state=ACKstate;
+		}else if(i==NAK){
+			// checksum error
+			state=NAKstate;
+		}else if(i==EOT){
+			state=endtransm;
+		}
 		return state;
 	}
 	

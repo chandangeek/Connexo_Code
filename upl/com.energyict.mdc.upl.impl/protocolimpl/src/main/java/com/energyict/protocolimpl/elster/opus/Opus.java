@@ -70,8 +70,8 @@ public class Opus extends AbstractProtocol{
 	 *  <p>
 	 *  Initial version:<p>
 	 *  ----------------<p>
-	 *  @Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
-	 *  @Version: 1.0 <p>
+	 *  Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+	 *  Version: 1.0 <p>
 	 *  First edit date: 9/07/2008 PST<p>
 	 *  Last edit date: 31/07/2008  PST<p>
 	 *  Comments: Beta ready for testing<p> 
@@ -79,8 +79,14 @@ public class Opus extends AbstractProtocol{
 	 *  .<p>
 	 *  Revisions<p>
 	 *  ----------------<p>
+	 *  @Author: Peter Staelens<p>
+	 *  @Version:1.01<p>
+	 *  Last edit date:13/08/2008 <p>
+	 *  Comments:changes in commandfactory: empty matrix handling and offset calculation debug<p>
+	 *  released for testing:
+
 	 *  Author: <p>
-	 *  Version:(SET IN CODE:protocolVersion)<p>
+	 *  Version:<p>
 	 *  Last edit date: <p>
 	 *  Comments:<p>
 	 *  released for testing:
@@ -221,7 +227,7 @@ public class Opus extends AbstractProtocol{
 
 	public void setProperties(Properties properties) throws InvalidPropertyException,	MissingPropertyException {
 		this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress", "000"));
-		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap"));
+		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1"));
 		this.timeOut=Integer.parseInt(properties.getProperty("TimeOut","5000"));
 		this.attempts=Integer.parseInt(properties.getProperty("Retry", "3"));		
 	}
@@ -252,7 +258,7 @@ public class Opus extends AbstractProtocol{
 		if(this.channelMap==null){ // if no setProperties has been called
 			String cs="1";
 			for(int i=1;i<this.numChan; i++){
-				cs+=":0";
+				cs+=":1";
 			}
 			channelMap=new ProtocolChannelMap(cs);
 		}
