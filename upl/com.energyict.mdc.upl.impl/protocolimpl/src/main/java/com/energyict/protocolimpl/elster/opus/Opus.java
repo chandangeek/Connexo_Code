@@ -81,12 +81,14 @@ public class Opus extends AbstractProtocol{
 	 *  ----------------<p>
 	 *  @Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
 	 *  @Version:1.01<p>
+	 *  First edit date:13/08/2008 <p>
 	 *  Last edit date:13/08/2008 <p>
-	 *  Comments:changes in commandfactory: empty matrix handling and offset calculation debug, firmware problem solved with error throw<p>
-	 *  released for testing:
+	 *  Comments:changes in command factory: empty matrix handling and offset calculation debug, firmware problem solved with error throw<p>
+	 *  released for testing:13/08/2008
 
 	 *  Author: <p>
 	 *  Version:<p>
+	 *  First edit date: <p>
 	 *  Last edit date: <p>
 	 *  Comments:<p>
 	 *  released for testing:
