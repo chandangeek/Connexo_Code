@@ -76,7 +76,7 @@ public class Opus extends AbstractProtocol{
 	 *  Last edit date: 31/07/2008  PST<p>
 	 *  Comments: Beta ready for testing<p> 
 	 *  Released for testing: 31/07/2008<p>
-	 *  .<p>
+	 *  <p>
 	 *  Revisions<p>
 	 *  ----------------<p>
 	 *  @Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
