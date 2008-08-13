@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.kenda.medo;
 
+import java.io.IOException;
+
 public class MedoCommandFactory {
 	/*
 	 * The command factory takes in blocks of raw data received by the input stream
@@ -15,21 +17,21 @@ public class MedoCommandFactory {
 	
 	MedoCommandFactory(){};
 	
-	MedoCommandFactory(ComStruc s, Parsers command){
+	MedoCommandFactory(ComStruc s, Parsers command) throws IOException{
 		process(s,command);
 	}
 	
-	private Parsers process(ComStruc s, Parsers command){
+	private Parsers process(ComStruc s, Parsers command) throws IOException{
 		Medo medo=new Medo();
 		type=s.isType();
 		if (type){ // SEND (is always in a vector)
-			this.command=medo.buildCommand(s.getByteArray(), null); // returns object for the receive side
+			this.command=medo.getMcf().buildCommand(s.getByteArray(), null); // returns object for the receive side
 			flag=true;
 		}
 		if (!type){ // RECEIVE (is probably in a matrix to be parsed into a vector
 			// check first and last bits
 			if((s.getByteArray()[0] & 0x60)==0x60){
-				this.command=medo.buildCommand(s.getByteArray(),command);  // vector case
+				this.command=medo.getMcf().buildCommand(s.getByteArray(),command);  // vector case
 				flag=true;
 			}
 			// other cases
@@ -40,7 +42,7 @@ public class MedoCommandFactory {
 				}
 				bArray[byteArray.length]=s.getByteArray();
 				byteArray=bArray;
-				this.command=medo.buildCommand(medo.blockMerging(byteArray),command);
+				this.command=medo.getMcf().buildCommand(medo.getMcf().blockMerging(byteArray),command);
 				flag=true;
 			}else if((s.getByteArray()[0] & 0x40)==0x40){ // first block
 				flag=false;
@@ -58,7 +60,7 @@ public class MedoCommandFactory {
 		}
 		return this.command;
 	}
-	public Parsers addCommand(ComStruc s, Parsers command){
+	public Parsers addCommand(ComStruc s, Parsers command) throws IOException{
 		return process(s,command);
 	}
 	public boolean isReady(){

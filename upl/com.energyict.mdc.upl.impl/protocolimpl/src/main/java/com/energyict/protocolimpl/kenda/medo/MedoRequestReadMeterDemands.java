@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.kenda.medo;
 
+import java.util.Calendar;
+
 
 public class MedoRequestReadMeterDemands extends Parsers {
 	private int stPeriod=0;
@@ -16,6 +18,11 @@ public class MedoRequestReadMeterDemands extends Parsers {
 	}
 	MedoRequestReadMeterDemands(byte[] b){
 		processRequest(parseBArraytoCArray(b));	
+	}
+
+	public MedoRequestReadMeterDemands(Calendar start, Calendar stop,
+			int intervaltime) {
+		// TODO Auto-generated constructor stub
 	}
 
 	private void processRequest(char[] c) {
