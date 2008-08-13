@@ -11,6 +11,7 @@ import java.util.TimeZone;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
+import com.energyict.genericprotocolimpl.iskrap2lpc.ProtocolChannelMap;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
@@ -20,7 +21,38 @@ import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 public class MedoCommunicationsFactory{
-	
+	/**
+ 	 * ---------------------------------------------------------------------------------<p>
+	 * Medo CommunicationsFactory<p>
+	 * <p>
+	 * Starts with the attributes and constructors.  After the constructors all methods dealing with 
+	 * serialization can be found: building the headers, generating and checking the checksum, packing 
+	 * and unpacking the data blocks.  After the processing methods general purpose communication
+	 * methods and dedicated methods (trim RTC and data download).  Under the communication methods the
+	 * backbone of these methods can be found to send and receive data.  They throw timeout exceptions
+	 * if necessary.  The last method deals with the parsing of the streams in the right objects.
+	 * <p>
+	 * building profile data and events is done in the method: retrieveProfileData
+	 * <p>
+	 *  Initial version:<p>
+	 *  ----------------<p>
+	 *  Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+	 *  Version: 1.0 <p>
+	 *  First edit date: 1/07/2008 PST<p>
+	 *  Last edit date: 13/08/2008  PST<p>
+	 *  Comments: Beta ready for testing<p> 
+	 *  Released for testing: 13/08/2008<p>
+	 *  <p>
+	 *  Revisions<p>
+	 *  ----------------<p> 
+	 *  Author: <p>
+	 *  Version:<p>
+	 *  First edit date: <p>
+	 *  Last edit date: <p>
+	 *  Comments:<p>
+	 *  released for testing:<p>
+	 * ---------------------------------------------------------------------------------<p>
+	 */
 	// command descriptions from the datasheet
 	// Header format, at the moment I consider only ident as a variable
 	private byte   ident;					// see ident format listed below
@@ -33,7 +65,7 @@ public class MedoCommunicationsFactory{
 	
 	private static final byte   fullPersTableRead          	=0x01;	  // ram initialised, table defines modes
 	private static final byte   fullPersTableWrite         	=0x11;    // ... page 6/16 medo communications protocol
-		private static final byte   partPersTableRead      	=0x02;
+	private static final byte   partPersTableRead    	  	=0x02;
 	private static final byte   partPersTableWrite     		=0x12;
 	private static final byte   readRTC						=0x03;
 	private static final byte   setRTC						=0x13;
@@ -56,6 +88,7 @@ public class MedoCommunicationsFactory{
 	private long timeOut=5000; // 5000 milliseconds
 	private int numChan=48; // hardwired to 48 for this meter
 	private int[] channelMultipliers;
+	private ProtocolChannelMap channelMap;
 	// first three bits are to be set in BuildIdent method (later)
 	// byte: 8 bit, word 16 bit signed integer, long 32 bit signed integer
 	
@@ -324,7 +357,7 @@ public class MedoCommunicationsFactory{
 		start.setTime(d1);
 		stop.setTime(d2);
 		MedoRequestReadMeterDemands mrrd;
-		mrrd = new MedoRequestReadMeterDemands(start,stop,intervaltime); //TODO implement constructor
+		mrrd = new MedoRequestReadMeterDemands(start,stop,intervaltime); 
 		// ready to send
 		data=mrrd.parseToByteArray();
 		for(int i=0; i<bs2.length; i++){
@@ -403,8 +436,10 @@ public class MedoCommunicationsFactory{
 		short[][] s=requestMeterDemands((byte) 0x07,cal1.getTime(),stop,intervaltime);
 		// build channel map in profile data
 		for(int i=0; i<s[0].length;i++ ){
-			pd.addChannel(new ChannelInfo(ids, "medo channel "+(i+1), Unit.get(BaseUnit.UNITLESS),0,ids, BigDecimal.valueOf(channelMultipliers[i])));			
-			ids++; // will run parallel with i but is needed in case of a channelmap
+			if(channelMap.isProtocolChannelEnabled(i)){	
+				pd.addChannel(new ChannelInfo(ids, "medo channel "+(i+1), Unit.get(BaseUnit.UNITLESS),0,ids, BigDecimal.valueOf(channelMultipliers[i])));			
+				ids++; // will run parallel with i but is needed in case of a channelmap
+			}
 		}
 		// first block of data can be skipped
 		for(int i=1; i<s.length; i++){
@@ -461,7 +496,9 @@ public class MedoCommunicationsFactory{
 					}
 				}
 				// add value to profile data
-				id.addValue(s[i][ii]); // add data to the interval
+				if(channelMap.isProtocolChannelEnabled(i)){	
+					id.addValue(s[i][ii]); // add data to the interval
+				}
 			}
 			pd.addInterval(id);        		
 			millis=cal1.getTimeInMillis()+1000*intervaltime; // increment for next interval
@@ -674,5 +711,8 @@ public class MedoCommunicationsFactory{
 		for(int i=0; i<numChan; i++){
 			channelMultipliers[i]=(int) Math.pow(10,(long) dialexp[i])*dialmlt[i];
 		}		
+	}
+	public void setChannelMap(ProtocolChannelMap channelMap) {
+		this.channelMap=channelMap;		
 	}
 }

@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.genericprotocolimpl.iskrap2lpc.ProtocolChannelMap;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
@@ -29,6 +30,49 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.kenda.meteor.ObisCodeMapper;
 
 public class Meteor implements MeterProtocol{
+	/**
+ 	 * ---------------------------------------------------------------------------------<p>
+	 * Meteor Protocol description:<p>
+	 * The protocol consists out of layers<p>
+	 * <p>
+	 * 1) The deepest layer is the Parsers layer.  Part of the layer has been made
+	 * 		static and made abstract.  The second layer extends this class.
+	 * <p>
+	 * 2) All registers are implemented in classes. The classes always implement the
+	 * 		type of methods: process to parse (deserializes) the byte array in the 
+	 * 		object variables,printData visualizes the data matrix (parsed) in the console
+	 * 		and parseToByteArray serializes the object.
+	 * <p>
+	 * 3) The MeteorCommunicationsFactory deals with all the communication issues.  It
+	 * 		arranges the data flows and communication.  It starts with sending the command
+	 * 		and getting back the right object to parse the data in.  Also the profileData 
+	 * 		factory is implemented in this class.
+	 * <p>
+	 * 4) This class: Meteor.java masters and is the interface from the server
+	 * <p>
+	 *  Additional classes are implemented mostly to help in the Unit testing.	
+	 * <p>
+	 *  Initial version:<p>
+	 *  ----------------<p>
+	 *  Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+	 *  Version: 1.0 <p>
+	 *  First edit date: 1/07/2008 PST<p>
+	 *  Last edit date: 13/08/2008  PST<p>
+	 *  Comments: Beta ready for testing<p> 
+	 *  Released for testing: 13/08/2008<p>
+	 *  <p>
+	 *  Revisions<p>
+	 *  ----------------<p> 
+	 *  Author: <p>
+	 *  Version:<p>
+	 *  First edit date: <p>
+	 *  Last edit date: <p>
+	 *  Comments:<p>
+	 *  released for testing:<p>
+	 * ---------------------------------------------------------------------------------<p>
+	 *  
+	 */
+	private String protocolVersion=protocolVersion="$Date: 2008-07-01 08:35:14 +0200 (di, 01 jul 2008) $";;
 
 	private OutputStream outputStream;
 	private InputStream inputStream;
@@ -52,6 +96,7 @@ public class Meteor implements MeterProtocol{
 	private MeteorExtendedPersonalityTable extperstable=null;
 	private MeteorStatus statusreg=null;
 	private ObisCodeMapper ocm;
+	private ProtocolChannelMap channelMap;
 
 	// ident byte
 	// Ack bit, first block bit, last block bit, R/W, 4 bit operation select
@@ -87,7 +132,9 @@ public class Meteor implements MeterProtocol{
 	// byte: 8 bit, word 16 bit signed integer, long 32 bit signed integer
 	
 	/*
-	 * constructors
+	 * constructors, usually the meteor() constructor will be called
+	 * the source and destination address should be set in a method
+	 * that is done in the properties method.
 	 */
 	public Meteor(){// blank constructor for testing purposes only
 		byte[] blank={0,0};
@@ -133,18 +180,15 @@ public class Meteor implements MeterProtocol{
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
 		MeteorFirmwareVersion mfv=(MeteorFirmwareVersion) mcf.transmitData(firmwareVersion, null);
-		//System.out.println("firmware version: "+mfv.getVersion());
 		return mfv.getVersion();
 	}
 
 	public String getProtocolVersion() {
-		return "$Date: 2008-07-01 08:35:14 +0200 (di, 01 jul 2008) $";
+		return protocolVersion;
 	}
 
 	public Date getTime() throws IOException {		
 		MeteorCLK clk=(MeteorCLK) mcf.transmitData(readRTC, null);;
-//		System.out.println("meter    time: " + clk.getCalendar().getTime().toLocaleString());
-//		System.out.println("computer time: " + Calendar.getInstance().getTime().toLocaleString());
 		return clk.getCalendar().getTime();
 	}
 	public MeteorPowerFailDetails getPowerFailDetails() throws IOException{
@@ -154,7 +198,7 @@ public class Meteor implements MeterProtocol{
 	}
 	public void setTime() throws IOException {
 		// set time is only possible on commissioning or after loading a new personality table (pg 8)
-		// use only trimmer. 
+		// => use only trimmer. 
 		// the value sent to the meter is added on the RTC value in the meter
 		long gettime, settime;
 		byte result=0;
@@ -177,53 +221,39 @@ public class Meteor implements MeterProtocol{
 	}
 	public MeteorFullPersonalityTable getFullPersonalityTable() throws IOException {
 		MeteorFullPersonalityTable mfpt=(MeteorFullPersonalityTable) mcf.transmitData(fullPersTableRead, null);;
-//		mfpt.printData();
 		return mfpt;
 	}
 	
-//	public MeteorExtendedPersonalityTable getExtendedPersonalityTable() throws IOException {
-//		MeteorExtendedPersonalityTable mept=(MeteorExtendedPersonalityTable) mcf.transmitData(extendedPersTableRead, null);;
-////		mept.printData();
-//		return mept;
-//	}
-	
 	public MeteorStatus getMeteorStatus() throws IOException{
 		MeteorStatus statusreg=(MeteorStatus) mcf.transmitData(status,  null);
-//		statusreg.printData();
 		return statusreg;
 	}
 	
 	public void init(InputStream inputStream, OutputStream outputStream, TimeZone arg2,
 			Logger arg3) throws IOException {
 		// set streams
-        //System.out.println("init");
 		this.inputStream = inputStream;
         this.outputStream = outputStream;
         // build command factory
 		this.mcf=new MeteorCommunicationsFactory(sourceCode,sourceCodeExt,destinationCode,destinationCodeExt,inputStream,outputStream);
+		// set the timeout and retry (set in the properties method)
 		mcf.setRetries(retry);
 		mcf.setTimeOut(timeout);
 	}
 	
 	public void connect() throws IOException {
-		//System.out.println("connect()");
-		//getFirmwareVersion();
-		//getTime();
-		//setTime();
+		// full personality table should be downloaded because some of the registers
+		// are needed in the communicationsfactory
 		fullperstable = getFullPersonalityTable();
-		fullperstable.printData();
 		// set multipliers
 		mcf.setMultipliers(fullperstable.getDialexp(), fullperstable.getDialmlt());
 		statusreg = getMeteorStatus();
-//		TimeZone tz=TimeZone.getTimeZone("GMT");
-//		Calendar cal=Calendar.getInstance(tz);
-//		Calendar cal2=Calendar.getInstance(tz);
-//		cal.set(Calendar.DAY_OF_MONTH, 1);
-//		cal.set(Calendar.MONTH, 6);
-//		getProfileData(cal.getTime(),cal2.getTime(),false); // probleem zit in de returnstring?
-		//mcf.getTotalDemands(cal.getTime(), cal2.getTime(), getProfileInterval());
-		//getPowerFailDetails();
-		//extperstable = getExtendedPersonalityTable();		
+		// channelmap is to be set in the factory
+		mcf.setChannelMap(this.channelMap);
+		// extended personality table contains only meta data and is not implemented
+		// reasons not to implement are
+		// 1) not needed
+		// 2) the format described in the datasheet is not correct
 	}
 	
 	public void disconnect() throws IOException {
@@ -243,7 +273,7 @@ public class Meteor implements MeterProtocol{
 		return null;
 	}
 	public int getNumberOfChannels() throws UnsupportedException, IOException {
-		return 48;
+		return channelMap.getNrOfUsedProtocolChannels();  // the meter always has the same number of physical channels
 	}
 	public ProfileData getProfileData(boolean arg0) throws IOException {
 		return null;
@@ -278,7 +308,7 @@ public class Meteor implements MeterProtocol{
 			MissingPropertyException {
 		this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress", "000"));
 		this.destinationCode=Parsers.parseCArraytoBArray(Parsers.parseShortToChar((short) outstationID));		
-		//System.out.println("properties set");
+		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1"));
 		this.timeout=Integer.parseInt(properties.getProperty("TimeOut","5000"));
 		this.retry=Integer.parseInt(properties.getProperty("Retry", "3"));
 	}
@@ -292,6 +322,7 @@ public class Meteor implements MeterProtocol{
 		ArrayList list = new ArrayList();
 		list.add("TimeOut");
 		list.add("Retry");
+		list.add("ChannelMap");
 		return list;
 	}
 	public List getRequiredKeys() {

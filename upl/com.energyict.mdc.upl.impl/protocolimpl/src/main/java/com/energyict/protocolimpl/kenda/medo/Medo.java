@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.genericprotocolimpl.iskrap2lpc.ProtocolChannelMap;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
@@ -29,7 +30,48 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.kenda.medo.ObisCodeMapper;
 
 public class Medo implements MeterProtocol{
-
+	/**
+ 	 * ---------------------------------------------------------------------------------<p>
+	 * Medo Protocol description:<p>
+	 * The protocol consists out of layers<p>
+	 * <p>
+	 * 1) The deepest layer is the Parsers layer.  Part of the layer has been made
+	 * 		static and made abstract.  The second layer extends this class.
+	 * <p>
+	 * 2) All registers are implemented in classes. The classes always implement the
+	 * 		type of methods: process to parse (deserializes) the byte array in the 
+	 * 		object variables,printData visualizes the data matrix (parsed) in the console
+	 * 		and parseToByteArray serializes the object.
+	 * <p>
+	 * 3) The MedoCommunicationsFactory deals with all the communication issues.  It
+	 * 		arranges the data flows and communication.  It starts with sending the command
+	 * 		and getting back the right object to parse the data in.  Also the profileData 
+	 * 		factory is implemented in this class.
+	 * <p>
+	 * 4) This class: Medo.java masters and is the interface from the server
+	 * <p>
+	 *  Additional classes are implemented mostly to help in the Unit testing.	
+	 * <p>
+	 *  Initial version:<p>
+	 *  ----------------<p>
+	 *  Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+	 *  Version: 1.0 <p>
+	 *  First edit date: 1/07/2008 PST<p>
+	 *  Last edit date: 13/08/2008  PST<p>
+	 *  Comments: Beta ready for testing<p> 
+	 *  Released for testing: 13/08/2008<p>
+	 *  <p>
+	 *  Revisions<p>
+	 *  ----------------<p> 
+	 *  Author: <p>
+	 *  Version:<p>
+	 *  First edit date: <p>
+	 *  Last edit date: <p>
+	 *  Comments:<p>
+	 *  released for testing:<p>
+	 * ---------------------------------------------------------------------------------<p>
+	 *  
+	 */
 	private OutputStream outputStream;
 	private InputStream inputStream;
 	private int DEBUG=0;
@@ -51,6 +93,7 @@ public class Medo implements MeterProtocol{
 	private MedoFullPersonalityTable fullperstable=null;
 	private MedoStatus statusreg=null;
 	private ObisCodeMapper ocm;
+	private ProtocolChannelMap channelMap;
 
 	// ident byte
 	// Ack bit, first block bit, last block bit, R/W, 4 bit operation select
@@ -176,26 +219,17 @@ public class Medo implements MeterProtocol{
 	}
 	public MedoFullPersonalityTable getFullPersonalityTable() throws IOException {
 		MedoFullPersonalityTable mfpt=(MedoFullPersonalityTable) mcf.transmitData(fullPersTableRead, null);;
-//		mfpt.printData();
 		return mfpt;
 	}
 	
-//	public medoExtendedPersonalityTable getExtendedPersonalityTable() throws IOException {
-//		medoExtendedPersonalityTable mept=(medoExtendedPersonalityTable) mcf.transmitData(extendedPersTableRead, null);;
-////		mept.printData();
-//		return mept;
-//	}
-	
 	public MedoStatus getmedoStatus() throws IOException{
 		MedoStatus statusreg=(MedoStatus) mcf.transmitData(status,  null);
-//		statusreg.printData();
 		return statusreg;
 	}
 	
 	public void init(InputStream inputStream, OutputStream outputStream, TimeZone arg2,
 			Logger arg3) throws IOException {
 		// set streams
-        //System.out.println("init");
 		this.inputStream = inputStream;
         this.outputStream = outputStream;
         // build command factory
@@ -205,24 +239,12 @@ public class Medo implements MeterProtocol{
 	}
 	
 	public void connect() throws IOException {
-		//System.out.println("connect()");
-		//getFirmwareVersion();
-		//getTime();
-		//setTime();
 		fullperstable = getFullPersonalityTable();
-		fullperstable.printData();
 		// set multipliers
 		mcf.setMultipliers(fullperstable.getDialexp(), fullperstable.getDialmlt());
 		statusreg = getmedoStatus();
-//		TimeZone tz=TimeZone.getTimeZone("GMT");
-//		Calendar cal=Calendar.getInstance(tz);
-//		Calendar cal2=Calendar.getInstance(tz);
-//		cal.set(Calendar.DAY_OF_MONTH, 1);
-//		cal.set(Calendar.MONTH, 6);
-//		getProfileData(cal.getTime(),cal2.getTime(),false); // probleem zit in de returnstring?
-		//mcf.getTotalDemands(cal.getTime(), cal2.getTime(), getProfileInterval());
-		//getPowerFailDetails();
-		//extperstable = getExtendedPersonalityTable();		
+		// channelmap is to be set in the factory
+		mcf.setChannelMap(this.channelMap);
 	}
 	
 	public void disconnect() throws IOException {
@@ -242,7 +264,7 @@ public class Medo implements MeterProtocol{
 		return null;
 	}
 	public int getNumberOfChannels() throws UnsupportedException, IOException {
-		return 48;
+		return channelMap.getNrOfUsedProtocolChannels();
 	}
 	public ProfileData getProfileData(boolean arg0) throws IOException {
 		return null;
@@ -277,7 +299,7 @@ public class Medo implements MeterProtocol{
 			MissingPropertyException {
 		this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress", "000"));
 		this.destinationCode=Parsers.parseCArraytoBArray(Parsers.parseShortToChar((short) outstationID));		
-		//System.out.println("properties set");
+		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1"));
 		this.timeout=Integer.parseInt(properties.getProperty("TimeOut","10000"));
 		this.retry=Integer.parseInt(properties.getProperty("Retry", "3"));
 	}

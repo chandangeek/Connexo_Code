@@ -92,7 +92,7 @@ public class Opus extends AbstractProtocol{
 	 *  First edit date: <p>
 	 *  Last edit date: <p>
 	 *  Comments:<p>
-	 *  released for testing:
+	 *  released for testing:<p>
 	 * ---------------------------------------------------------------------------------<p>
 	 *  
 	 */
@@ -112,7 +112,7 @@ public class Opus extends AbstractProtocol{
 	private int attempts=3;				// number of attempts
 
 	// attributes to retrieve from the data
-	private int numChan=-1;				// number of channels
+	private int numChan=-1;				// number of channels (derived from channel map)
 	private int interval=-1;			// temp value
 	private String firmwareVersion;
 	
@@ -140,6 +140,8 @@ public class Opus extends AbstractProtocol{
 		ocf.setNumChan(this.numChan);
 		// make channelmap with all channels enabled
 		// end of download
+		// change numChan to the real numChan derived from the channelMap
+		
 	}
 
 	public void disconnect() throws IOException {
@@ -157,9 +159,9 @@ public class Opus extends AbstractProtocol{
 		return this.firmwareVersion;
 	}
 	public int getNumberOfChannels() throws UnsupportedException, IOException {
-        if (this.numChan == -1)
+        if (this.channelMap.getNrOfProtocolChannels() == -1)
             throw new IOException("getNumberOfChannels(), ChannelMap property not given. Cannot determine the nr of channels...");
-		return this.numChan;
+		return this.channelMap.getNrOfUsedProtocolChannels();
 	}
 
 	public ProfileData getProfileData(boolean includeEvents) throws IOException {
