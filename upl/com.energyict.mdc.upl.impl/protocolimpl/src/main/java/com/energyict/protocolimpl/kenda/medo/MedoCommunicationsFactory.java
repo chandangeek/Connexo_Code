@@ -33,8 +33,8 @@ public class MedoCommunicationsFactory{
 	
 	private static final byte   fullPersTableRead          	=0x01;	  // ram initialised, table defines modes
 	private static final byte   fullPersTableWrite         	=0x11;    // ... page 6/16 medo communications protocol
-	private static final byte   extendedPersTableRead      	=0x02;
-	private static final byte   extendedPersTableWrite     	=0x12;
+		private static final byte   partPersTableRead      	=0x02;
+	private static final byte   partPersTableWrite     		=0x12;
 	private static final byte   readRTC						=0x03;
 	private static final byte   setRTC						=0x13;
 	private static final byte   trimRTC						=0x14;
@@ -561,12 +561,12 @@ public class MedoCommunicationsFactory{
 					case fullPersTableWrite:
 						System.out.println("Set fullPersTable register");
 						break;
-					case extendedPersTableRead:
+					case partPersTableRead:
 						//System.out.println("Get extendedPersTable register");
 //						p = new MedoExtendedPersonalityTable(); // make correct parser
 						break;
-					case extendedPersTableWrite:
-						System.out.println("Set extendedPersTable register");
+					case partPersTableWrite:
+						System.out.println("Set partPersTable register");
 						break;
 					case readRTC:
 						//System.out.println("Get RTC register");
