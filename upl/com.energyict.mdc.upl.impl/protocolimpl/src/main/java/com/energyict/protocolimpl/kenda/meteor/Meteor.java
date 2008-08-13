@@ -128,8 +128,7 @@ public class Meteor implements MeterProtocol{
 	
 	protected void doValidateProperties(Properties properties)
 			throws MissingPropertyException, InvalidPropertyException {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -228,33 +227,25 @@ public class Meteor implements MeterProtocol{
 	}
 	
 	public void disconnect() throws IOException {
-		// TODO Auto-generated method stub
-		
 	}
 	public Object fetchCache(int arg0) throws SQLException, BusinessException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	public Object getCache() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	public Quantity getMeterReading(int arg0) throws UnsupportedException,
 			IOException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	public Quantity getMeterReading(String arg0) throws UnsupportedException,
 			IOException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	public int getNumberOfChannels() throws UnsupportedException, IOException {
-		// TODO Auto-generated method stub
-		return 0;
+		return 48;
 	}
 	public ProfileData getProfileData(boolean arg0) throws IOException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	public ProfileData getProfileData(Date fromTime, boolean includeEvents)
@@ -275,21 +266,13 @@ public class Meteor implements MeterProtocol{
 	}
 	public String getRegister(String arg0) throws IOException,
 			UnsupportedException, NoSuchRegisterException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedException("No registers configured on meter.");
 	}
 	public void initializeDevice() throws IOException, UnsupportedException {
-		//System.out.println("initializeDevice()");
-		// TODO Auto-generated method stub
-		
 	}
 	public void release() throws IOException {
-		// TODO Auto-generated method stub
-		
 	}
 	public void setCache(Object arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 	public void setProperties(Properties properties) throws InvalidPropertyException,
 			MissingPropertyException {
@@ -301,13 +284,9 @@ public class Meteor implements MeterProtocol{
 	}
 	public void setRegister(String arg0, String arg1) throws IOException,
 			NoSuchRegisterException, UnsupportedException {
-		// TODO Auto-generated method stub
-		
 	}
 	public void updateCache(int arg0, Object arg1) throws SQLException,
 			BusinessException {
-		// TODO Auto-generated method stub
-		
 	}
 	public List getOptionalKeys() {
 		ArrayList list = new ArrayList();
