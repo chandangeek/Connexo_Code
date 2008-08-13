@@ -278,7 +278,7 @@ public class Medo implements MeterProtocol{
 		this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress", "000"));
 		this.destinationCode=Parsers.parseCArraytoBArray(Parsers.parseShortToChar((short) outstationID));		
 		//System.out.println("properties set");
-		this.timeout=Integer.parseInt(properties.getProperty("TimeOut","5000"));
+		this.timeout=Integer.parseInt(properties.getProperty("TimeOut","10000"));
 		this.retry=Integer.parseInt(properties.getProperty("Retry", "3"));
 	}
 	public void setRegister(String arg0, String arg1) throws IOException,
