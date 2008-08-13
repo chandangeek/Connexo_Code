@@ -228,6 +228,10 @@ public class GenericModbusDiscover extends Modbus implements MessageProtocol {
                         discoverResult.setAddress(discoverTools.getAddress());
                         discoverResult.setResult(str);
                         discoverResult.setDeviceTypeName(dpi.getDeviceType());
+                        
+                        discoverResult.setShortDeviceTypeName("");
+                        discoverResult.setDeviceName(str.replace('.','-').replace('/',' ')); // '.' and '/' are not allowed in EIServer as character in a device name!
+                        
                         break;
                     }
                 }
