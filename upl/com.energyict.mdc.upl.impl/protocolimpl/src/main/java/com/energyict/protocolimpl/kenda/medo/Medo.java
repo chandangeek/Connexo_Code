@@ -14,7 +14,6 @@ import java.util.logging.Logger;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.genericprotocolimpl.iskrap2lpc.ProtocolChannelMap;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
@@ -25,8 +24,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.base.Encryptor;
-import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.kenda.medo.ObisCodeMapper;
 
 public class Medo implements MeterProtocol{
@@ -74,20 +71,13 @@ public class Medo implements MeterProtocol{
 	 */
 	private OutputStream outputStream;
 	private InputStream inputStream;
-	private int DEBUG=0;
 	private MedoCommunicationsFactory mcf;
 	private int outstationID, retry, timeout;	
 	
-	// command descriptions from the datasheet
-	// Header format, at the moment I consider only ident as a variable
-	private byte   ident;					// see ident format listed below
-	private byte   blockSize;	     		// character count of block modulo 256	
 	private byte[] sourceCode;		// Defines central equipment of origin
 	private byte   sourceCodeExt;		// Defines peripheral equipment of origin
 	private byte[] destinationCode;	// Defines central equipment of final destination
 	private byte   destinationCodeExt;// Defines peripheral equipment of final destination
-	private byte   unit;					// DIP routing ???
-	private byte   port;					// DIP routing ???
 	
 	// data objects
 	private MedoFullPersonalityTable fullperstable=null;
@@ -133,27 +123,20 @@ public class Medo implements MeterProtocol{
 	 */
 	public Medo(){// blank constructor for testing purposes only
 		byte[] blank={0,0};
-		ident=0;				// see ident format listed below
-		blockSize=11;			// character count of block modulo 256	
 		sourceCode=blank;		// Defines central equipment of origin
 		sourceCodeExt=0;		// Defines peripheral equipment of origin
 		destinationCode=blank;	// Defines central equipment of final destination
 		destinationCodeExt=0;	// Defines peripheral equipment of final destination
-		unit=0;					// DIP routing ???
-		port=0;					// DIP routing ???		
 	}
 	public Medo(  // real constructor, sets header correct.
 			byte[] sourceCode, 
 			byte sourceCodeExt, 
 			byte[] destinationCode, 
 			byte destinationCodeExt){
-		ident=0;
 		this.sourceCode=sourceCode;
 		this.sourceCodeExt=sourceCodeExt;
 		this.destinationCode=destinationCode;
 		this.destinationCodeExt=destinationCodeExt;
-		unit=0; // correct?
-		port=0; // correct?
 	}
 
 //	protected ProtocolConnection doInit(InputStream inputStream,
