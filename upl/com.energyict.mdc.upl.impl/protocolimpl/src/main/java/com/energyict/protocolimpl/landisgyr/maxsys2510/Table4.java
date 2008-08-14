@@ -44,7 +44,6 @@ class Table4 {
     	List tempList= new ArrayList();
     	MeterEvent currentMeterEvent, nextMeterEvent, newMeterEvent;
     	int length=me.size()-1;
-    	Calendar current = null, next = null;
     	if(length>0){
     		for(int i=0; i<length-1; i++){
     			int inc=1;
@@ -52,15 +51,12 @@ class Table4 {
     			currentMeterEvent=(MeterEvent) me.get(i);
     			newMeterEvent=currentMeterEvent;
     			nextMeterEvent=(MeterEvent) me.get(i+1);
-    		
-    			current.setTime(currentMeterEvent.getTime());
-    			next.setTime(nextMeterEvent.getTime());
-    		
-    			if(current.getTimeInMillis()==next.getTimeInMillis()){
+    		   		
+    			if(currentMeterEvent.getTime().getTime()==nextMeterEvent.getTime().getTime()){
     				// overlapping data, add string to the next event
     				//	new MeterEvent(evntDate, eiCode, evntCode, description );
     				Calendar newTime=null;
-    				newTime.setTimeInMillis(current.getTimeInMillis()+inc); // add one millisecond
+    				newTime.setTimeInMillis(currentMeterEvent.getTime().getTime()+inc); // add one millisecond
     				inc++;
     				newMeterEvent= new MeterEvent(newTime.getTime(), currentMeterEvent.getEiCode(), currentMeterEvent.getProtocolCode(),currentMeterEvent.getMessage());
     			}else{
