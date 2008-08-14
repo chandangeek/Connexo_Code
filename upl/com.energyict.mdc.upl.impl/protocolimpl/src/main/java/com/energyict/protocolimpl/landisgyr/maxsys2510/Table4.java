@@ -45,34 +45,34 @@ class Table4 {
     	MeterEvent currentMeterEvent, nextMeterEvent, newMeterEvent;
     	int length=me.size()-1;
     	Calendar current = null, next = null;
-    	
-    	for(int i=0; i<length-1; i++){
-    		int inc=1;
+    	if(length>0){
+    		for(int i=0; i<length-1; i++){
+    			int inc=1;
     		
-    		currentMeterEvent=(MeterEvent) me.get(i);
-    		newMeterEvent=currentMeterEvent;
-    		nextMeterEvent=(MeterEvent) me.get(i+1);
+    			currentMeterEvent=(MeterEvent) me.get(i);
+    			newMeterEvent=currentMeterEvent;
+    			nextMeterEvent=(MeterEvent) me.get(i+1);
     		
-    		current.setTime(currentMeterEvent.getTime());
-    		next.setTime(nextMeterEvent.getTime());
+    			current.setTime(currentMeterEvent.getTime());
+    			next.setTime(nextMeterEvent.getTime());
     		
-    		if(current.getTimeInMillis()==next.getTimeInMillis()){
-    			// overlapping data, add string to the next event
-    			//new MeterEvent(evntDate, eiCode, evntCode, description );
-    			Calendar newTime=null;
-    			newTime.setTimeInMillis(current.getTimeInMillis()+inc); // add one millisecond
-    			inc++;
-    			newMeterEvent= new MeterEvent(newTime.getTime(), currentMeterEvent.getEiCode(), currentMeterEvent.getProtocolCode(),currentMeterEvent.getMessage());
-    		}else{
-    			inc=1;
-    			newMeterEvent=currentMeterEvent;    			
-    		}
-    		
-    		tempList.add(newMeterEvent);
+    			if(current.getTimeInMillis()==next.getTimeInMillis()){
+    				// overlapping data, add string to the next event
+    				//	new MeterEvent(evntDate, eiCode, evntCode, description );
+    				Calendar newTime=null;
+    				newTime.setTimeInMillis(current.getTimeInMillis()+inc); // add one millisecond
+    				inc++;
+    				newMeterEvent= new MeterEvent(newTime.getTime(), currentMeterEvent.getEiCode(), currentMeterEvent.getProtocolCode(),currentMeterEvent.getMessage());
+    			}else{
+    				inc=1;
+    				newMeterEvent=currentMeterEvent;    			
+    			}
+        		tempList.add(newMeterEvent);
+    		}    		
     	}
-    	
-		tempList.add(me.get(length));// add last event
-    	
+    	if(length>=0){    	
+    		tempList.add(me.get(length));// add last event
+    	}
 		return tempList;
 	}
 
