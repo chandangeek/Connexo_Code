@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
@@ -32,10 +33,50 @@ class Table4 {
     }
     
     List getMeterEvents( ){
+    	// DEBUG, author PST, here a correction should be added on overlapping events (events that happen on the same moment)
+    	// solution is to concat the strings or to shift the event 1 ms, concat does not work since the codes can not be concatenated
+    	this.meterEvents=checkOnOverlappingEvents(this.meterEvents);
         return meterEvents;
     }
     
-    public String toString( ){
+    private List checkOnOverlappingEvents(List me) { // author PST
+    	
+    	List tempList= new ArrayList();
+    	MeterEvent currentMeterEvent, nextMeterEvent, newMeterEvent;
+    	int length=me.size()-1;
+    	Calendar current = null, next = null;
+    	
+    	for(int i=0; i<length-1; i++){
+    		int inc=1;
+    		
+    		currentMeterEvent=(MeterEvent) me.get(i);
+    		newMeterEvent=currentMeterEvent;
+    		nextMeterEvent=(MeterEvent) me.get(i+1);
+    		
+    		current.setTime(currentMeterEvent.getTime());
+    		next.setTime(nextMeterEvent.getTime());
+    		
+    		if(current.getTimeInMillis()==next.getTimeInMillis()){
+    			// overlapping data, add string to the next event
+    			//new MeterEvent(evntDate, eiCode, evntCode, description );
+    			Calendar newTime=null;
+    			newTime.setTimeInMillis(current.getTimeInMillis()+inc); // add one millisecond
+    			inc++;
+    			newMeterEvent= new MeterEvent(newTime.getTime(), currentMeterEvent.getEiCode(), currentMeterEvent.getProtocolCode(),currentMeterEvent.getMessage());
+    		}else{
+    			inc=1;
+    			newMeterEvent=currentMeterEvent;    			
+    		}
+    		
+    		tempList.add(newMeterEvent);
+    	}
+    	
+		tempList.add(me.get(length));// add last event
+    	
+		return tempList;
+	}
+
+	public String toString( ){
         StringBuffer rslt = new StringBuffer();
         rslt.append( "Table4 [\n" );
         Iterator i = meterEvents.iterator();
