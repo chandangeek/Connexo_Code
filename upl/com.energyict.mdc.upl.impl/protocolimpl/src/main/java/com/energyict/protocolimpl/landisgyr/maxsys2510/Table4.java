@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -55,10 +56,10 @@ class Table4 {
     			if(currentMeterEvent.getTime().getTime()==nextMeterEvent.getTime().getTime()){
     				// overlapping data, add string to the next event
     				//	new MeterEvent(evntDate, eiCode, evntCode, description );
-    				Calendar newTime=null;
-    				newTime.setTimeInMillis(currentMeterEvent.getTime().getTime()+inc); // add one millisecond
+    				Date newTime=currentMeterEvent.getTime();
+    				newTime.setTime(currentMeterEvent.getTime().getTime()+inc); // add one millisecond
     				inc++;
-    				newMeterEvent= new MeterEvent(newTime.getTime(), currentMeterEvent.getEiCode(), currentMeterEvent.getProtocolCode(),currentMeterEvent.getMessage());
+    				newMeterEvent= new MeterEvent(newTime, currentMeterEvent.getEiCode(), currentMeterEvent.getProtocolCode(),currentMeterEvent.getMessage());
     			}else{
     				inc=1;
     				newMeterEvent=currentMeterEvent;    			
