@@ -10,7 +10,6 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -26,14 +25,13 @@ import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.core.LinkException;
-import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.CreateXMLString;
 import com.energyict.genericprotocolimpl.actarisace4000.objects.ObjectFactory;
+import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.CreateXMLString;
 import com.energyict.genericprotocolimpl.actarisace4000.udp.ActarisUDPSocket;
 import com.energyict.genericprotocolimpl.actarisace4000.udp.DPacket;
 import com.energyict.genericprotocolimpl.actarisace4000.udp.PacketBuffer;
 import com.energyict.genericprotocolimpl.actarisace4000.udp.UDPListener;
 import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.core.AmrJournalEntry;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.CommunicationScheduler;
@@ -175,7 +173,7 @@ public class ActarisACE4000 implements GenericProtocol{
 			errorString.append(e1.getMessage());
 			success = false;
 			e1.printStackTrace();
-			throw new IOException(e1);
+			throw new IOException(e1.getMessage());
 		} catch (ParserConfigurationException e) {
 			if(errorString == null){
 				errorString = new StringBuilder();
@@ -211,7 +209,7 @@ public class ActarisACE4000 implements GenericProtocol{
 				e.printStackTrace();
 	        	// Close the connection after an SQL exception, connection will startup again if requested
 	        	Environment.getDefault().closeConnection();
-	        	throw new SQLException(e);
+	        	throw e;
 			}
 		}
 		

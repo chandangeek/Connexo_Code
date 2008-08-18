@@ -79,7 +79,7 @@ public class AMRLogging {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new SQLException("Could not add to AMR journal", e);
+			throw e;
 		} catch (BusinessException e) {
 			e.printStackTrace();
 			throw new BusinessException("Could not add to AMR journal", e);
@@ -112,7 +112,7 @@ public class AMRLogging {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new SQLException("Could not add to AMR journal", e);
+			throw e;
 		} catch (BusinessException e) {
 			e.printStackTrace();
 			throw new BusinessException("Could not add to AMR journal", e);

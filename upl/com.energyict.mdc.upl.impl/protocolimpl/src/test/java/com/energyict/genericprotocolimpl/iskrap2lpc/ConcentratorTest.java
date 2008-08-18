@@ -131,6 +131,7 @@ public class ConcentratorTest{
 			
 			XmlHandler xmlHandler = new XmlHandler(logger, meterReadTransaction.getChannelMap(meter));
 			meterReadTransaction.importProfile(null, meter, xmlHandler, false);
+			meter.store(xmlHandler.getProfileData()[0]);
 			
 			assertEquals(2, xmlHandler.getProfileData().length);
 			assertEquals(Unit.get("kWh"), ((ChannelInfo)xmlHandler.getProfileData()[0].getChannelInfos().get(0)).getUnit());
