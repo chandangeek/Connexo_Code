@@ -57,7 +57,7 @@ public class FullMeterConfig extends AbstractActarisObject {
 		Element md = doc.createElement(XMLTags.meterData);
 		root.appendChild(md);
 		Element s = doc.createElement(XMLTags.serialNumber);
-		s.setTextContent(getObjectFactory().getAace().getDeviceSerialnumber());
+		s.setTextContent(getObjectFactory().getAace().getPushedSerialnumber());
 		md.appendChild(s);
 		Element t = doc.createElement(XMLTags.tracker);
 		t.setTextContent(String.valueOf(trackingID));
@@ -69,6 +69,11 @@ public class FullMeterConfig extends AbstractActarisObject {
 		String msg = convertDocumentToString(doc);
 		
 		setReqString(msg.substring(msg.indexOf("?>")+2));
+	}
+
+	protected void setElement(Element element) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

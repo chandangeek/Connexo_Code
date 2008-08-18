@@ -115,5 +115,10 @@ public class AutoPushConfig extends AbstractActarisObject {
 	private void setReqString(String reqString){
 		this.reqString = reqString;
 	}
+
+	protected void setElement(Element element) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

@@ -62,7 +62,7 @@ public class DPacket {
 		try {
 			if(DEBUG >=1) System.out.println("Message sent: " + new String(packet.getData()));
 			socket.send(packet);
-			receive();
+//			receive();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

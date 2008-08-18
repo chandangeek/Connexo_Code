@@ -48,7 +48,28 @@ public class XMLTags {
 	// loadProfile tags
 	public final static String reqLP			= "qLPDTr";		// request loadProfile within a date range
 	public final static String reqLPAll			= "qLPAll";		// request all loadProfile data
+	public final static String loadPr			= "LP";			// loadProfile data with incremental values
+	public final static String loadPrAbs		= "LPA";		// loadProfile data with absolute values
+	public final static String loadPrDinSo		= "LPd";		// loadProfile data for DIN/SO meters
 	
+	//MBus tags
+	public final static String mbusRaw			= "RAW";		// raw MBus meter data
+	public final static String mbusLP			= "MBR";		// MBus data sub-schema parent tag
+	public final static String mbusCReading		= "MBCR";		// MBus instantaneous register readings
+	public final static String reqMBAllData		= "qMBRAll";	// request all raw MBus meter consumption data
+	
+	// meter installation and removal
+	public final static String announce			= "Announce";	// Meter installation & removal sub-schema parent tag
+	public final static String lost				= "Lost";		// Used to denote the removal of a meter
+	public final static String icid				= "ICID";		// The ICID number of the SIM associated with a meter
+	public final static String type				= "Type";		// meter type
+	public final static String sStrength		= "SS";			// GSM signal strength
+	public final static String bStation			= "BS";			// GSM cell base station ID
+	public final static String operatorName		= "OT";			// GSM operator name
+	public final static String codString		= "CS";			// meter codification string, if this does not apply then 0 is sent in the data field
+	public final static String curReading		= "CR";			// instantaneous register readings
+	public final static String readingData		= "RD";			// the actual reading data
+	public final static String crAttr			= "R";			// attribute of the current readings
 	
 	/**
 	 * 

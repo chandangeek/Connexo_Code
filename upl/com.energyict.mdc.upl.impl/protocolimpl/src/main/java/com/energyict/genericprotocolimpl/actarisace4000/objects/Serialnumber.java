@@ -3,6 +3,8 @@
  */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
+import org.w3c.dom.Element;
+
 /**
  * @author gna
  *
@@ -53,6 +55,11 @@ public class Serialnumber extends AbstractActarisObject{
 	
 	private void setReqString(String reqString){
 		this.reqString = reqString;
+	}
+
+	protected void setElement(Element element) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

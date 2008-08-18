@@ -99,4 +99,9 @@ public class NetworkSettings extends AbstractActarisObject {
 
 	}
 
+	protected void setElement(Element element) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
