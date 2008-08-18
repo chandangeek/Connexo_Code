@@ -20,7 +20,10 @@ public class Cache implements Serializable{
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -5702561538312339908L;
+	private static final long serialVersionUID = 1234;
+	/**
+	 * 
+	 */
 	UniversalObject[] objectList;
     int confProgChange;
     boolean changed;

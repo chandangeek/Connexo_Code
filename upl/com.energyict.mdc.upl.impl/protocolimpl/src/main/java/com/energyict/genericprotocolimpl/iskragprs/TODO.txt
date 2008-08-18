@@ -1,0 +1,1 @@
+- handle the sql exception like in the concentrator

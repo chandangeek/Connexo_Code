@@ -4,16 +4,16 @@
 package com.energyict.genericprotocolimpl.iskragprs;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.sql.Blob;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.text.ParseException;
@@ -30,7 +30,11 @@ import java.util.logging.Logger;
 import javax.xml.rpc.ServiceException;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.DatabaseException;
 import com.energyict.cbo.Utils;
+import com.energyict.cpo.Environment;
+import com.energyict.cpo.SqlBuilder;
+import com.energyict.cpo.Transaction;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
@@ -100,6 +104,7 @@ import com.energyict.protocolimpl.dlms.HDLCConnection;
 public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism, Messaging{
 	
 	private int DEBUG = 0;
+	private int TESTLOGGING = 0; 
 	private boolean initCheck = false;
 	
     private Logger 					logger;
@@ -116,7 +121,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private ObisCodeMapper 			ocm = null;
     private CapturedObjects[] 		capturedObjects = {null, null, null, null, null};	// max. 5 (1E-meter + 4MBus-meters)
     private MbusDevice[]			mbusDevices = {null, null, null, null};				// max. 4 MBus meters
-    public static ScalerUnit[] 		demandScalerUnits = {new ScalerUnit(0,30), new ScalerUnit(0,0), new ScalerUnit(0,0), new ScalerUnit(0,0), new ScalerUnit(0,0)};
+    public static ScalerUnit[] 		demandScalerUnits = {new ScalerUnit(0,30), new ScalerUnit(0,255), new ScalerUnit(0,255), new ScalerUnit(0,255), new ScalerUnit(0,255)};
     private CommunicationScheduler scheduler;
     
     private int iHDLCTimeoutProperty;
@@ -255,10 +260,14 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		rtu = scheduler.getRtu();
 		validateProperties();
 		init(link.getInputStream(),link.getOutputStream());
-		
+		Date lastReading;
 		
         try {
         	connect();
+        	
+        	lastReading = rtu.getLastReading();
+        	if(lastReading == null)
+        		lastReading = getClearMidnightDate();
         	
         	// Set clock ... if necessary
         	if( communicationProfile.getWriteClock() ) {
@@ -269,20 +278,26 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     		if( (communicationProfile.getReadDemandValues()) && (communicationProfile.getReadMeterEvents()) ){
     			doTheCheckMethods();
     			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + rtu.getSerialNumber());
-    			getProfileData(rtu.getLastReading(), true, loadProfileObisCode);
+    			getProfileData(lastReading, true, loadProfileObisCode);
     			if(mbusDevices[0] != null){
     				// no events on the MBus meters
     				getLogger().log(Level.INFO, "Getting loadProfile for MBus device with serialnumber: " + mbusDevices[0].getMbus().getSerialNumber());
-    				getProfileData(mbusDevices[0].getMbus().getLastReading(), false, mbusLProfileObisCode[0]);
+    				Date lastMbusReading = mbusDevices[0].getMbus().getLastReading();
+    				if(lastMbusReading == null)
+    					lastMbusReading = getClearMidnightDate();
+    				getProfileData(lastMbusReading, false, mbusLProfileObisCode[0]);
     			}
     		}
     		else if( (communicationProfile.getReadDemandValues()) && !(communicationProfile.getReadMeterEvents()) ){
     			doTheCheckMethods();
     			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + rtu.getSerialNumber());
-    			getProfileData(rtu.getLastReading(), false, loadProfileObisCode);
+    			getProfileData(lastReading, false, loadProfileObisCode);
     			if (mbusDevices[0] != null){
     				getLogger().log(Level.INFO, "Getting loadProfile for MBus device with serialnumber: " + mbusDevices[0].getMbus().getSerialNumber());
-    				getProfileData(mbusDevices[0].getMbus().getLastReading(), false, mbusLProfileObisCode[0]);
+    				Date lastMbusReading = mbusDevices[0].getMbus().getLastReading();
+    				if(lastMbusReading == null)
+    					lastMbusReading = getClearMidnightDate();
+    				getProfileData(lastMbusReading, false, mbusLProfileObisCode[0]);
     			}
     		}
     		
@@ -307,6 +322,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     				mbusDevices[0].sendMeterMessages(this);
     			}
     		}
+    		
+    		if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Stopping the cache mechanism, saving to disk.");
+    		
     		stopCacheMechanism();
     		disConnect();
     		
@@ -325,6 +343,15 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 			disConnect();
 			e.printStackTrace();
 		}
+	}
+	
+	private Date getClearMidnightDate(){
+   		Calendar tempCalendar = Calendar.getInstance(getTimeZone());
+		tempCalendar.add(Calendar.HOUR_OF_DAY, 0 );
+		tempCalendar.add(Calendar.MINUTE, 0 );
+		tempCalendar.add(Calendar.SECOND, 0 );
+		tempCalendar.add(Calendar.MILLISECOND, 0 );
+		return tempCalendar.getTime();
 	}
 	
 	private void doTheCheckMethods() throws IOException, SQLException, BusinessException{
@@ -349,14 +376,23 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		byte[] dailyByte = {0, 0, 0, 0, -1, -1, -1, -1, -1};
 		byte[] monthlyByte = {0, 0, 0, 0, -1, -1, -1, 1, -1};
 		
-		if( dlmsCache.getGenericInterval1() == -1 )
+		if( dlmsCache.getGenericInterval1() == -1 ){
+			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Reading generic profile period 1.");
 			dlmsCache.setGenericInterval1(getCosemObjectFactory().getProfileGeneric(genericProfile1).getCapturePeriod());
-		if( dlmsCache.getGenericInterval2() == -1 )
+		}
+		if( dlmsCache.getGenericInterval2() == -1 ){
+			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Reading generic profile period 2.");
 			dlmsCache.setGenericInterval2(getCosemObjectFactory().getProfileGeneric(genericProfile2).getCapturePeriod());
-		if( dlmsCache.getGenericInterval3() == null )
+		}
+			
+		if( dlmsCache.getGenericInterval3() == null ){
+			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Reading end of billing period 1.");			
 			dlmsCache.setGenericInterval3(getCosemObjectFactory().getSingleActionSchedule(endOfBilling).getExecutionTime().getBEREncodedByteArray());
-		if( dlmsCache.getGenericInterval4() == null )
+		}
+		if( dlmsCache.getGenericInterval4() == null ){
+			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Reading end of billing period 2.");
 			dlmsCache.setGenericInterval4(getCosemObjectFactory().getSingleActionSchedule(endOfCapturedObjects).getExecutionTime().getBEREncodedByteArray());
+		}
 		
 		if (rtu.getIntervalInSeconds() == dlmsCache.getGenericInterval1())
 			loadProfileObisCode = genericProfile1;
@@ -391,6 +427,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 			throw new IOException("Iskra Mx37x, checkConfiguration, no monthlyProfile configured for meter " + strID);
 
 		if(dlmsCache.getMonthlyProfileConfig() == null){
+			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Reading Monthly captured Objects");
 			List capObjects = getCosemObjectFactory().getProfileGeneric(monthlyObisCode).getCaptureObjects();
 			Iterator it = capObjects.iterator();
 			while(it.hasNext()){
@@ -445,6 +482,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		String customerID = "";
 		
 		if(this.rtu.getDownstreamRtus().size() > 0){
+			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: RTU has a known MBUS device, checking MBUS serialnumber.");
 			customerID = getCosemObjectFactory().getData(mbusCustomerID).getString();
 			if(((Rtu)rtu.getDownstreamRtus().get(0)).getSerialNumber().equals(customerID)){		// serialNumber mismatch
 				mbusDevices[0] = new MbusDevice(1, customerID, ((Rtu)rtu.getDownstreamRtus().get(0)), logger); // the "1" represents the address
@@ -455,6 +493,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		}
 		else{
 			if(getProperty(RTU_TYPE) != null){
+				if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: RTU has no MBUS device, checking for new MBUS devices.");
 				long pAddress1 = getCosemObjectFactory().getCosemObject(mbusPrimaryAddress).getValue();
 				if ( pAddress1 != 0){
 					customerID = getCosemObjectFactory().getData(mbusCustomerID).getString();
@@ -470,10 +509,12 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		}
 		
 		if(mbusDevices[0] != null){
-			if (demandScalerUnits[MBUS].getUnitCode() == 0) {
+			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: RTU has MBUS device, checking the MBUS UNIT.");
+			if (demandScalerUnits[MBUS].getUnitCode() == 255) {		// which is unitless
 				RegisterValue scalerRegister = readRegister(mbusScalerUnit);
 				demandScalerUnits[MBUS] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(), scalerRegister.getQuantity().getUnit());
 			}
+			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: MBUS unit = " + demandScalerUnits[MBUS]);
 		}
 		// TODO complete this if there are more than one Mbus devices on the meters
 	}
@@ -565,6 +606,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 			secureConnection = new SecureConnection(iSecurityLevelProperty,
 					firmwareVersion, strPassword, getDLMSConnection());
 //			collectCache();
+			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Starting the Cache mechanism(checking if cache exists, reading cache if it doesn't exist)");
+			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Starting the Cache mechanism does not mean saving to disk.");
 			startCacheMechanism(this);
 			if(meterConfig.getCapturedObjectList() == null)
 				meterConfig.setInstantiatedObjectList(dlmsCache.getObjectList());
@@ -588,42 +631,164 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	}
 	
 	public void startCacheMechanism(Object fileSource) throws FileNotFoundException, IOException {
-		
-		this.source = fileSource;
-		ObjectInputStream ois = null;
-        try {
-            File file = new File(((CacheMechanism) source).getFileName());
-            ois = new ObjectInputStream(new FileInputStream(file));
-            ((CacheMechanism) source).setCache(ois.readObject());
-         }
-         catch(ClassNotFoundException e) {
-        	 collectCache();
-             e.printStackTrace();
-         }
-         catch(FileNotFoundException e) {
-        	 // if there is no file, we must readout the cache to have the objectList
-        	 collectCache();
-         }
-         finally {
-            if (ois != null) 
-                ois.close();
-         }
+
+		SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ? ");
+        builder.bindInt(rtu.getId());
+        PreparedStatement stmnt;
+		try {
+			stmnt = builder.getStatement(Environment.getDefault().getConnection());
+
+	        try {
+	              InputStream in = null;
+	              ResultSet resultSet = stmnt.executeQuery();
+	              try {
+	            	  if (resultSet.next()) {
+	            		  Blob blob = resultSet.getBlob(1);
+	            		  if (blob.length() > 0) {
+	            			  in = blob.getBinaryStream();
+	            			  ObjectInputStream ois = new ObjectInputStream(in);
+	            			  try {
+	            				  dlmsCache = (Cache)ois.readObject();
+	            			  } catch (ClassNotFoundException e) {
+	            				  e.printStackTrace();
+	            			  } finally {
+	            				  ois.close();
+	            			  }
+	            		  }
+	            	  }
+	                   else {
+	                	   collectCache();
+	                   }
+	              } finally {
+	                   resultSet.close();
+	              }
+	        } finally {
+	              stmnt.close();
+        }
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}	
+
 	}
 
-	public void stopCacheMechanism() {
-        File file = new File(((CacheMechanism) source).getFileName());
-        ObjectOutputStream oos;
+//	public void stopCacheMechanism() {
+//        File file = new File(((CacheMechanism) source).getFileName());
+//        ObjectOutputStream oos;
+//		try {
+//			oos = new ObjectOutputStream(new FileOutputStream(file));
+//			oos.writeObject(((CacheMechanism) source).getCache());
+//	        oos.close();
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
+	
+//	protected void updateBlob() throws SQLException {
+	
+	protected void stopCacheMechanism() throws SQLException, BusinessException {
+		Transaction tr = new Transaction() {
+			public Object doExecute() throws SQLException, BusinessException {
+				createOrUpdateDeviceCache();		// TODO get back to first version
+				updateCacheContent();				// TODO get back to first version - without the for update
+				return null;
+			}
+		};
+		MeteringWarehouse.getCurrent().execute(tr);
+	}
+	
+	private void updateCacheContent() throws SQLException {
+		SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ? for update");
+		builder.bindInt(rtu.getId());
+		PreparedStatement stmnt = builder.getStatement(Environment.getDefault().getConnection());		
 		try {
-			oos = new ObjectOutputStream(new FileOutputStream(file));
-			oos.writeObject(((CacheMechanism) source).getCache());
-	        oos.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+			ResultSet rs = stmnt.executeQuery();
+			if (!rs.next()) {
+				throw new SQLException("Record not found");
+			}
+			try {
+				java.sql.Blob blob = (java.sql.Blob) rs.getBlob(1);
+				ObjectOutputStream out = new ObjectOutputStream(blob.setBinaryStream(0L));
+				out.writeObject(dlmsCache);
+				out.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				rs.close();
+			}
+		} finally {
+			stmnt.close();
 		}
 	}
 
+	private void createOrUpdateDeviceCache() throws SQLException {
+		SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ?");
+		builder.bindInt(rtu.getId());
+		PreparedStatement stmnt = builder.getStatement(Environment.getDefault().getConnection());		
+		try {
+			ResultSet rs = stmnt.executeQuery();
+			if (!rs.next()) {
+				builder = new SqlBuilder("insert into eisdevicecache (rtuid, content, mod_date) values (?,empty_blob(),sysdate)");
+				builder.bindInt(rtu.getId());
+				PreparedStatement insertStmnt = builder.getStatement(Environment.getDefault().getConnection());
+				try {
+					insertStmnt.executeUpdate();
+				}
+				finally {
+					insertStmnt.close();
+				}
+			}
+		} finally {
+			stmnt.close();
+		}
+	}
+	
+//	private void createOrUpdateDeviceCache() throws SQLException {
+//		SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ?");
+//		builder.bindInt(rtu.getId());
+//		PreparedStatement stmnt = builder.getStatement(Environment.getDefault().getConnection());		
+//		try {
+//			ResultSet rs = stmnt.executeQuery();
+//			if (!rs.next()) {
+//				builder = new SqlBuilder("insert into eisdevicecache (rtuid, content, mod_date) values (?,empty_blob(),sysdate)");
+//				builder.bindInt(rtu.getId());
+//				PreparedStatement insertStmnt = builder.getStatement(Environment.getDefault().getConnection());
+//				try {
+//					insertStmnt.executeQuery();
+//				}
+//				finally {
+//					insertStmnt.close();
+//				}
+//				builder = new SqlBuilder("select content from eisdevicecache where rtuid = ? for update");
+//				builder.bindInt(rtu.getId());
+//				PreparedStatement selectStmnt = builder.getStatement(Environment.getDefault().getConnection());
+//				try {
+//					rs = selectStmnt.executeQuery();
+//					if(rs.getConcurrency() == ResultSet.CONCUR_READ_ONLY)
+//						System.out.println("ResultSet non-updatable");
+//					else if(rs.getConcurrency() == ResultSet.CONCUR_UPDATABLE)
+//						System.out.println("ResultSet updatable");
+//				} finally {
+//					selectStmnt.close();
+//				}
+//			}
+//			try {
+//				java.sql.Blob blob = (java.sql.Blob) rs.getBlob(1);
+//				ObjectOutputStream out = new ObjectOutputStream(blob.setBinaryStream(0L));
+//				out.writeObject(dlmsCache);
+//				out.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			} finally {
+//				rs.close();
+//			}
+//
+//		} finally {
+//			stmnt.close();
+//		}
+//	}
+	
 	private void collectCache() throws IOException {
         int iConf;
         
@@ -858,9 +1023,12 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     		nRtuType = mbusDevices[0].getRtuType();
     	
     	ProfileData profileData = new ProfileData( );
+    	if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Getting LoadProfile buffer from Generic Profile: " + profileObisCode.toString());
+    	if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Last reading = " + fromCalendar.getTime());
         DataContainer dataContainer = getCosemObjectFactory().getProfileGeneric(profileObisCode).getBuffer(fromCalendar, ProtocolUtils.getCalendar(getTimeZone()));
         for (int channelId=0;channelId<bNROfChannels;channelId++) {
     		if ( !nRtuType.equalsIgnoreCase("mbus")){
+    			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Adding electricity meter channel " + channelId);
     			RegisterValue scalerRegister = readRegister(getCapturedObjects(profileObisCode).getProfileDataChannel(channelId));
 				demandScalerUnits[0] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),scalerRegister.getQuantity().getUnit());
 				ChannelInfo ci = new ChannelInfo(channelId, "IskraMx37x_channel_"+channelId, demandScalerUnits[0].getUnit());
@@ -870,6 +1038,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             	
     		else if ( bytesToObisString(getCapturedObjects(profileObisCode).getProfileDataChannel(channelId).getLN()).indexOf("0.1.128.50.0.255") == 0 ){
         		// don't show the events on the mbus meter
+    			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Adding MBUS meter channel " + channelId);
         		includeEvents = false;
         		RegisterValue scalerRegister = readRegister(getCapturedObjects(profileObisCode).getProfileDataChannel(channelId));
 				demandScalerUnits[1] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),scalerRegister.getQuantity().getUnit());
@@ -883,7 +1052,11 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         
         if (includeEvents) {
         	Calendar eventCalendar = Calendar.getInstance(getTimeZone());
-        	eventCalendar.setTime(rtu.getLastLogbook());
+        	Date lastLogBookTime = rtu.getLastLogbook();
+        	if(lastLogBookTime == null){
+        		lastLogBookTime = getClearMidnightDate();
+        	}
+        	eventCalendar.setTime(lastLogBookTime);
             profileData.getMeterEvents().addAll(getLogbookData(eventCalendar, ProtocolUtils.getCalendar(getTimeZone())));
             // Apply the events to the channel statusvalues
             profileData.applyEvents(getProfileInterval(profileObisCode)/60); 
@@ -912,6 +1085,12 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     		item = 1;
     	
         if (iInterval[item] == -1) {
+        	if (profileObisCode.equals(loadProfileObisCode)){
+        		if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Getting electricity meter profile interval.");
+        	}
+        	else if (profileObisCode.equals(mbusLProfileObisCode[0])){
+        		if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Getting MBUS meter profile interval.");
+        	}
            iInterval[item] = getCosemObjectFactory().getProfileGeneric(profileObisCode).getCapturePeriod();
         }
         return iInterval[item];
@@ -926,8 +1105,13 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
         if (DEBUG >=1) dataContainer.printDataContainer();
         
+        if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Parsing LoadProfile.");
+        if(TESTLOGGING == 2) getLogger().log(Level.INFO, "GN - TESTLOG: Content of LoadProfile DataContainer:");
+        if(TESTLOGGING == 2) getLogger().log(Level.INFO, dataContainer.toString());
+        
+        
         if (dataContainer.getRoot().element.length == 0)
-           throw new IOException("No entries in object list.");
+           throw new IOException("No entries in Load Profile Datacontainer.");
         
         for (i=0;i<dataContainer.getRoot().element.length;i++) { // for all retrieved intervals
             try {    
@@ -1059,6 +1243,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     		item = 1;
     	
         if (numberOfChannels[item] == -1) {
+        	if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Getting channel count.");
             numberOfChannels[item] = getCapturedObjects(profileObisCode).getNROfChannels();
         }
         return numberOfChannels[item];
@@ -1254,7 +1439,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             addressingMode=Integer.parseInt(properties.getProperty("AddressingMode","2"));              
             connectionMode = Integer.parseInt(properties.getProperty("Connection","1")); // 0=HDLC, 1= TCP/IP
             rtuType = properties.getProperty("RtuType","");
-            
+            TESTLOGGING = Integer.parseInt(properties.getProperty("TestLogging" , "0"));
+            	 
             if (Integer.parseInt(properties.getProperty("LoadProfileId","1")) == 1)
                 loadProfileObisCode = genericProfile1;
             else if (Integer.parseInt(properties.getProperty("LoadProfileId","1")) == 2)
@@ -1274,7 +1460,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	}
 
 	public List getOptionalKeys() {
-        List result = new ArrayList(9);
+        List result = new ArrayList(16);
         result.add("Timeout");
         result.add("Retries");
         result.add("DelayAfterFail");
@@ -1289,6 +1475,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         result.add("AddressingMode");
         result.add("Connection");
         result.add("RtuType");
+        result.add("TestLogging");
         return result;
 	}
 
