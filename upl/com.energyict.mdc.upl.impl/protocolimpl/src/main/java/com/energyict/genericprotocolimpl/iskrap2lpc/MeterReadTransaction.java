@@ -121,9 +121,10 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
     public Object doExecute() throws BusinessException, SQLException {
         
     	ProfileData[] pd = {new ProfileData(), new ProfileData()};
-        Rtu meter = findOrCreate(rtuConcentrator, serial, ELECTRICITY);
-        
+    	Rtu meter;
+    	
         try {
+        	meter = findOrCreate(rtuConcentrator, serial, ELECTRICITY);
             if (meter != null) {
 
                 XmlHandler dataHandler = new XmlHandler( getLogger(), getChannelMap(meter) );
@@ -207,8 +208,10 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
         	while(i.hasNext()){
         		Rtu downRtu = (Rtu)i.next();
         		downDate = getLastReading(downRtu);
-        		if (downDate.before(fromDate))
-        			fromDate.setTime(downDate.getTime());
+        		if(downDate != null){
+        			if (downDate.before(fromDate))
+        				fromDate.setTime(downDate.getTime());
+        		}
         	}
         }
         
@@ -482,6 +485,8 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
             try {
             	
                 if (doReadRegister){
+                	
+                	dataHandler.getMeterReadingData().getRegisterValues().clear();
                     
                     List rl = new ArrayList( );
                     Iterator i = null;
@@ -687,18 +692,25 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
     
     protected Date getLastReading(Rtu rtu) {
         Date result = rtu.getLastReading();
-        if( result == null ) {
-            result = new Date( 0 );
-        }
+        if( result == null )
+        	result = getClearMidnightDate(rtu);
         return result;
     }
     
     protected Date getLastLogboog(Rtu rtu) {
         Date result = rtu.getLastLogbook();
-        if( result == null ) {
-            result = new Date( 0 );
-        }
+        if( result == null ) 
+        	result = getClearMidnightDate(rtu);
         return result;
+    }
+    
+    private Date getClearMidnightDate(Rtu rtu){
+   		Calendar tempCalendar = Calendar.getInstance(rtu.getDeviceTimeZone());
+		tempCalendar.add(Calendar.HOUR_OF_DAY, 0 );
+		tempCalendar.add(Calendar.MINUTE, 0 );
+		tempCalendar.add(Calendar.SECOND, 0 );
+		tempCalendar.add(Calendar.MILLISECOND, 0 );
+		return tempCalendar.getTime();
     }
     
     public ProtocolChannelMap getChannelMap(Rtu meter) throws InvalidPropertyException {
@@ -726,6 +738,7 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
     private void doTheCheckMethods(Rtu meter) throws NumberFormatException, IOException, ServiceException, SQLException, BusinessException{
     	if(!initCheck){
     		try {
+    			if(getConcentrator().getTESTLOGGING() >= 1)getLogger().log(Level.INFO, "TESTLOGGING - Start the cache mechanism.");
     			startCacheMechanism(this);
     		} catch (FileNotFoundException e) {
     			// absorb - The transaction may NOT fail, if the file is not found, then make one.
@@ -773,7 +786,7 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 		return str.substring(2);
 	}
 	
-	protected Rtu findOrCreate(Rtu concentrator, String serial, int type) throws SQLException, BusinessException { 
+	protected Rtu findOrCreate(Rtu concentrator, String serial, int type) throws SQLException, BusinessException, IOException { 
         
         List meterList = getConcentrator().mw().getRtuFactory().findBySerialNumber(serial);
 
@@ -847,7 +860,7 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 		int iConf;
 		try{
 			if( dlmsCache.getLoadProfileConfig1() != null ){
-				
+				if(getConcentrator().getTESTLOGGING() >= 1)getLogger().log(Level.INFO, "TESTLOGGING - Collect1/ cache file is not empty");
 				setCachedObjects(dlmsCache.getBillingReadTime(), dlmsCache.getCaptureObjReadTime(), dlmsCache.getLoadProfileConfig1(),
 						dlmsCache.getLoadProfileConfig2(), dlmsCache.getLoadProfilePeriod1(), dlmsCache.getLoadProfilePeriod2());
 				
@@ -906,9 +919,12 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 					e.printStackTrace();
 				}
 			}
-		} catch (BusinessException e) {
-			e.printStackTrace();
-			throw new BusinessException(e); /* roll back */
+		}  catch (RemoteException e1) {
+			e1.printStackTrace();
+			throw new BusinessException(e1); /* roll back */
+		} catch (ServiceException e1) {
+			e1.printStackTrace();
+			throw new BusinessException(e1); /* roll back */
 		}
 	}
 	
@@ -930,8 +946,11 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 		ObjectInputStream ois = null;
         try {
             File file = new File(((CacheMechanism) source).getFileName());
+            if(getConcentrator().getTESTLOGGING() >= 1)getLogger().log(Level.INFO, "TESTLOGGING - Cache1/ got the file");
             ois = new ObjectInputStream(new FileInputStream(file));
+            if(getConcentrator().getTESTLOGGING() >= 1)getLogger().log(Level.INFO, "TESTLOGGING - Cache2/ got the inputstream and go to setcache");
             ((CacheMechanism) source).setCache(ois.readObject());
+            if(getConcentrator().getTESTLOGGING() >= 1)getLogger().log(Level.INFO, "TESTLOGGING - Cache3/ set the cache");
          }
          catch(ClassNotFoundException e) {
              e.printStackTrace();
@@ -976,26 +995,30 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 		return getConcentrator().getLogger();
 	}
 	
-    protected void requestConfigurationParameters(Rtu concentrator, String serial) throws BusinessException {
+    protected void requestConfigurationParameters(Rtu concentrator, String serial) throws RemoteException, ServiceException {
         String loadProfile1 = "LoadProfile1";
         String loadProfile2 = "LoadProfile2";
         
 		try {
-			
+			if(getConcentrator().getTESTLOGGING() >= 1)getLogger().log(Level.INFO, "TESTLOGGING - Requesting1/ lp period1");
 			this.loadProfilePeriod1 =  getPort(concentrator).getMeterLoadProfilePeriod(serial, new PeriodicProfileType(loadProfile1)).intValue();
+			if(getConcentrator().getTESTLOGGING() >= 1)getLogger().log(Level.INFO, "TESTLOGGING - Requesting2/ lp period2");
 			this.loadProfilePeriod2 =  getPort(concentrator).getMeterLoadProfilePeriod(serial, new PeriodicProfileType(loadProfile2)).intValue();
+			if(getConcentrator().getTESTLOGGING() >= 1)getLogger().log(Level.INFO, "TESTLOGGING - Requesting3/ lp config1");
 			this.loadProfileConfig1 =  getPort(concentrator).getMeterProfileConfig(serial, new ProfileType(loadProfile1));
+			if(getConcentrator().getTESTLOGGING() >= 1)getLogger().log(Level.INFO, "TESTLOGGING - Requesting4/ lp config2");
 			this.loadProfileConfig2 =  getPort(concentrator).getMeterProfileConfig(serial, new ProfileType(loadProfile2));
+			if(getConcentrator().getTESTLOGGING() >= 1)getLogger().log(Level.INFO, "TESTLOGGING - Requesting5/ billing readTime");
 			this.billingReadTime =  getPort(concentrator).getMeterBillingReadTime(serial);
 			
 		} catch (RemoteException e) {
 			getLogger().log(Level.SEVERE, "IskraMx37x: could not retreive configuration parameters, meter will NOT be handled");
 			e.printStackTrace();
-			throw new BusinessException( "No parameters could be retreived.", e );
+			throw new RemoteException( "No parameters could be retreived.", e );
 		} catch (ServiceException e) {
 			getLogger().log(Level.SEVERE, "IskraMx37x: could not retreive configuration parameters, meter will NOT be handled");
 			e.printStackTrace();
-			throw new BusinessException( "No parameters could be retreived.", e );
+			throw new ServiceException( "No parameters could be retreived.", e );
 		}
 	}
     

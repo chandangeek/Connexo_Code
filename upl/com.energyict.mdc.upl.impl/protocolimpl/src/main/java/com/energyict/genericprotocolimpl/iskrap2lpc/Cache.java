@@ -17,7 +17,7 @@ public class Cache implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 5453292191870456602L;
+	private static final long serialVersionUID = 1234;
 	
 	public int confProgChange;
 	public int loadProfilePeriod1;

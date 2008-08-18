@@ -2,6 +2,7 @@ package com.energyict.genericprotocolimpl.iskrap2lpc;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,6 +82,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     
     private boolean DEBUG = false;
     boolean TESTING = false;
+    private int TESTLOGGING = 0; 
 
     private Logger 					logger;
     private Properties 				properties;
@@ -94,13 +96,17 @@ public class Concentrator implements Messaging, GenericProtocol {
 
     public void execute( CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
         
+    	if(TESTLOGGING >= 1)logger.log(Level.INFO, "TESTLOGGING - 1/ Started the execute method.");
+    	
         this.logger = logger;
         this.communicationProfile = scheduler.getCommunicationProfile();
         
         int meterCount = -1;
         
         Rtu concentrator = scheduler.getRtu();
+        if(TESTLOGGING >= 1)getLogger().log(Level.INFO, "TESTLOGGING - 2/ Got the rtu from database");
         String serial = concentrator.getSerialNumber();
+        if(TESTLOGGING >= 1)getLogger().log(Level.INFO, "TESTLOGGING - 3/ Got serialNumber form rtu from database");
         StringBuffer progressLog = new StringBuffer();
         PPPDialer dialer = null;
 
@@ -116,7 +122,7 @@ public class Concentrator implements Messaging, GenericProtocol {
                     dialer.setPassword(pwd);
                 dialer.connect();
             }
-            
+            if(TESTLOGGING >= 1)getLogger().log(Level.INFO, "TESTLOGGING - 4/ Will start the request for the serialNumber over GPRS");
             String conSerial = checkConcentratorSerial(concentrator);
             String meterList = null;
             List meters = null;
@@ -179,8 +185,11 @@ public class Concentrator implements Messaging, GenericProtocol {
         
             throw new BusinessException( msg, thrown );
 
-        } catch (Throwable thrown) {
-            
+        } catch (SQLException thrown) {
+        	
+        	// Close the connection after an SQL exception, connection will startup again if requested
+        	Environment.getDefault().closeConnection();
+        	
             /* Single concentrator failed, log and on to next concentrator */
             String msg = toConcetratorErrorMsg(serial, progressLog);
             severe(thrown, msg);
@@ -188,7 +197,15 @@ public class Concentrator implements Messaging, GenericProtocol {
             
             throw new BusinessException( msg, thrown );
             
-        } finally {
+        } catch (ParseException thrown) {
+        	
+            /* Single concentrator failed, log and on to next concentrator */
+            String msg = toConcetratorErrorMsg(serial, progressLog);
+            severe(thrown, msg);
+            thrown.printStackTrace();
+            
+            throw new BusinessException( msg, thrown );
+		} finally {
             /** clean up, must simply ALWAYS happen */
             if (useDialUp(concentrator) && dialer != null)
                 dialer.disconnect();
@@ -204,7 +221,7 @@ public class Concentrator implements Messaging, GenericProtocol {
 		return serials;
 	}
 
-	private String checkConcentratorSerial(Rtu concentrator) throws IOException, ServiceException {
+	private String checkConcentratorSerial(Rtu concentrator) throws ServiceException, IOException{
 		String conID = null;
 		getLogger().log(Level.INFO, "Checking concentrator serialnumber.");
 		
@@ -218,18 +235,30 @@ public class Concentrator implements Messaging, GenericProtocol {
 				return conID.substring(conID.indexOf('"') + 1, conID.indexOf('"',conID.indexOf('"') + 1));
 			}
 			
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("Failed while reading the concentrator serialnumber.");
 		} catch (ServiceException e) {
 			e.printStackTrace();
-			throw new ServiceException("Failed while reading the concentrator serialnumber.");
+			throw new ServiceException("Failed while reading the concentrator serialnumber." + e.getMessage());
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			throw new FileNotFoundException("Failed while reading the concentrator serialnumber." + e.getMessage());
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			throw new RemoteException("Failed while reading the concentrator serialnumber" + e.getMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Failed while reading the concentrator serialnumber" + e.getMessage());
 		}
 	}
 	
 
 	public void addProperties(Properties properties) {
         this.properties = properties;
+        try {
+			TESTLOGGING = Integer.parseInt(properties.getProperty("TestLogging", "0"));
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			throw new NumberFormatException("Could not convert " + properties.getProperty("TestLogging") + " to an integer");
+		}
     }
 
     public String getProtocolVersion() {
@@ -248,6 +277,7 @@ public class Concentrator implements Messaging, GenericProtocol {
         result.add( Constant.USE_DIAL_UP );
         result.add( Constant.USER );
         result.add( Constant.PASSWORD );
+        result.add("TestLogging");
         return result;
     }
 
@@ -288,14 +318,19 @@ public class Concentrator implements Messaging, GenericProtocol {
         }
     }
     
-    protected String readWithStringBuffer(Reader fileReader) throws IOException {
-    	BufferedReader br = new BufferedReader(fileReader);
-    	String line;
-    	StringBuffer result = new StringBuffer();
-    	while ((line = br.readLine()) != null) {
-    		result.append(line);
-    	}
-    	return result.toString();
+    protected String readWithStringBuffer(Reader fileReader) throws IOException{
+    	try {
+    		BufferedReader br = new BufferedReader(fileReader);
+    		String line;
+    		StringBuffer result = new StringBuffer();
+			while ((line = br.readLine()) != null) {
+				result.append(line);
+			}
+			return result.toString();
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Failed to readin the file." + "("+e.getMessage()+")");
+		}
     }
     
     /** Generic data import procedure. All imported data is in one xml format. */
@@ -374,7 +409,11 @@ public class Concentrator implements Messaging, GenericProtocol {
         }
         
         if ( communicationProfile.getReadMeterEvents() ){
-        	String from = Constant.getInstance().format(concentrator.getLastLogbook());
+        	Date lastLogBookConcentrator = concentrator.getLastLogbook();
+        	if(lastLogBookConcentrator == null){
+        		lastLogBookConcentrator = getClearMidnightDate(concentrator);
+        	}
+        	String from = Constant.getInstance().format(lastLogBookConcentrator);
         	String to = Constant.getInstance().format(new Date());
         	String conEvents;
             if ( TESTING ){
@@ -394,6 +433,15 @@ public class Concentrator implements Messaging, GenericProtocol {
         getLogger().log(Level.INFO, "Concentrator " + concentrator.getSerialNumber() + " has completely finished.");
     }
 
+    private Date getClearMidnightDate(Rtu rtu){
+   		Calendar tempCalendar = Calendar.getInstance(rtu.getDeviceTimeZone());
+		tempCalendar.add(Calendar.HOUR_OF_DAY, 0 );
+		tempCalendar.add(Calendar.MINUTE, 0 );
+		tempCalendar.add(Calendar.SECOND, 0 );
+		tempCalendar.add(Calendar.MILLISECOND, 0 );
+		return tempCalendar.getTime();
+    }
+    
     private void setTime(Rtu concentrator) 
         throws RemoteException, ServiceException, ParseException {
         
@@ -421,7 +469,7 @@ public class Concentrator implements Messaging, GenericProtocol {
         
         if( ( sAbsDiff < max ) && ( sAbsDiff > min ) ) { 
             
-            getLogger().severe("Adjust meter time to system time");
+            getLogger().severe("Adjust meter time to system time. Concentrator time: " + cTime + ", System time: " + now);
         
             String d = Constant.getInstance().getDateFormatFixed().format(now);
             
@@ -589,14 +637,22 @@ public class Concentrator implements Messaging, GenericProtocol {
     }
     
     
-    /** Find RtuType for creating new meters. */
-    protected RtuType getRtuType(Rtu concentrator){
+    /** Find RtuType for creating new meters. 
+     * @throws IOException */
+    protected RtuType getRtuType(Rtu concentrator) throws IOException{
     	String type = concentrator.getProperties().getProperty(Constant.RTU_TYPE);
     	if(type != null){
-    		return mw().getRtuTypeFactory().find(type);
+    		RtuType rtuType = mw().getRtuTypeFactory().find(type);
+            if (rtuType == null)
+         	   throw new IOException("Iskra Mx37x, No rtutype defined with name '" + type + "'");
+            if (rtuType.getPrototypeRtu() == null)
+         	   throw new IOException("Iskra Mx37x, rtutype '" + type + "' has not prototype rtu");
+            return rtuType;
     	}
-    	else 
+    	else{
+    		getLogger().warning("No automatic meter creation: no property RtuType defined.");
     		return null;
+    	}
     }
     
     /** Dial up property defined on Concentrator RTU. */
@@ -836,6 +892,10 @@ public class Concentrator implements Messaging, GenericProtocol {
 	 */
 	protected void setLogger(Logger logger) {
 		this.logger = logger;
+	}
+
+	public int getTESTLOGGING() {
+		return TESTLOGGING;
 	}
     
 }
