@@ -57,6 +57,7 @@ public class XMLTags {
 	public final static String mbusLP			= "MBR";		// MBus data sub-schema parent tag
 	public final static String mbusCReading		= "MBCR";		// MBus instantaneous register readings
 	public final static String reqMBAllData		= "qMBRAll";	// request all raw MBus meter consumption data
+	public final static String reqMBrange		= "qMBRDTr";	// Raw MBus meter data within a date range. Start date in UTC format in hex and the stop date in UTC format in hex
 	
 	// meter installation and removal
 	public final static String announce			= "Announce";	// Meter installation & removal sub-schema parent tag
@@ -70,6 +71,34 @@ public class XMLTags {
 	public final static String curReading		= "CR";			// instantaneous register readings
 	public final static String readingData		= "RD";			// the actual reading data
 	public final static String crAttr			= "R";			// attribute of the current readings
+	
+	// time set/sync tags
+	public final static String syncTime			= "ST";			// SNTP time synchronization sub-schema parent tags
+	public final static String forceTime		= "FT";			// Force meter time to that of the system sub-schema parent tags
+	public final static String time1			= "T1";			// The time on the meter when the time sync message was sent. In UTC format as hex
+	public final static String time2			= "T2";			// The time the system received the time sync message from the meter. In UTC format as hex
+	public final static String time3			= "T3";			// The time the system sent out a time sync response to the meter. In UTC format as hex
+	
+	public final static String timeSync			= "Time";		// Clock sync settings sub-schema parent tags
+	public final static String diff				= "Dif";		// Maximum time difference allowed for clock synchronization in seconds
+	public final static String trip				= "Trip";		// Maximum SNTP message trip time allowed in seconds
+	public final static String retry			= "Retry";		// Number of clock sync retries allowed
+	
+	public final static String meterTime		= "DT";			// Current meter time in UTC format in hex
+	
+	// billing data tags
+	public final static String billData			= "BD";			// Billing data sub-schema parent tags
+	public final static String bdAttr			= "R";			// attribute of the billing data 
+	public final static String regData			= "RD";			// Billing register data
+	
+	public final static String reqAllBD			= "qBRAll";		// Request all billing data from a meter
+	public final static String reqBDrange		= "qBRDTr";		// Request billing data from a time range
+	
+	public final static String billingConf		= "Billing";	// Billing register recording settings sub-schema parent tags
+	public final static String billEnable		= "Enable";		// Recording enable state
+	public final static String billInt			= "BRInt";		// Time interval between each record
+	public final static String billNumb			= "BRNum";		// Maximum number of records to store
+	
 	
 	/**
 	 * 

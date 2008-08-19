@@ -49,6 +49,8 @@ public class ObjectFactory {
 	private LoadProfile			loadProfile		= null;
 	private MBLoadProfile		mbLoadProfile	= null;
 	private MBCurrentReadings	mbCurrReadings	= null;
+	private Time				time			= null;
+	private BillingData			billingData		= null;
 	
 	private int tempTrackingID = -1;
 	/**
@@ -56,17 +58,6 @@ public class ObjectFactory {
 	 */
 	public ObjectFactory(ActarisACE4000 aace) {
 		this.aace = aace;
-	}
-	
-	// TODO change this to a getfullMeterConfig and a sendrequest
-	public FullMeterConfig requestFullMeterConfig() throws IOException{
-		if(fullMeterConfig == null){
-			fullMeterConfig = new FullMeterConfig(this);
-			fullMeterConfig.setTrackingID(getAace().getTracker());
-			fullMeterConfig.prepareXML();
-			fullMeterConfig.request();
-		}
-		return fullMeterConfig;
 	}
 	
 	public FullMeterConfig getFullMeterConfig(){
@@ -87,7 +78,7 @@ public class ObjectFactory {
 		if(autoPushConfig == null){
 			autoPushConfig = new AutoPushConfig(this);
 			autoPushConfig.setTrackingID(getAace().getTracker());
-			autoPushConfig.prepareXML(EnableTable.enabled, "3C", "168", false);
+			autoPushConfig.prepareXML(EnableTable.enabled, "A", "78", false);
 			autoPushConfig.request();
 		}
 		return autoPushConfig;
@@ -144,6 +135,50 @@ public class ObjectFactory {
 		getMBLoadProfile().setTrackingID(getAace().getTracker());
 		getMBLoadProfile().prepareXML();
 		getMBLoadProfile().request();
+	}
+	
+	public void sendMBLoadProfileRequest(Date from) throws IOException{
+		getMBLoadProfile().setTrackingID(getAace().getTracker());
+		getMBLoadProfile().prepareXML(from);
+		getMBLoadProfile().request();
+	}
+	
+	public BillingData getBillingData(){
+		if(billingData == null){
+			billingData = new BillingData(this);
+		}
+		return billingData;
+	}
+	
+	public void sendBDRequest() throws IOException{
+		getBillingData().setTrackingID(getAace().getTracker());
+		getBillingData().prepareXML();
+		getBillingData().request();
+	}
+	
+	public void sendBDRequest(Date from) throws IOException{
+		getBillingData().setTrackingID(getAace().getTracker());
+		getBillingData().prepareXML(from);
+		getBillingData().request();
+	}
+	
+	public Time getTime(){
+		if(time == null){
+			time = new Time(this);
+		}
+		return time;
+	}
+	
+	public void sendForceTime() throws IOException{
+		getTime().setTrackingID(getAace().getTracker());
+		getTime().prepareXML();
+		getTime().request();
+	}
+	
+	public void sendSyncTime() throws IOException{
+		getTime().setTrackingID(getAace().getTracker());
+		getTime().prepareSyncXML();
+		getTime().request();
 	}
 	
 	public Acknowledge getAcknowledge(){
@@ -288,18 +323,33 @@ public class ObjectFactory {
 					}
 						
 					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.curReading)){
-						getCurrentReadings().setElement(mdElement);
 						log(Level.INFO, "Received current readings from meter with serialnumber " + getAace().getPushedSerialnumber());
+						getCurrentReadings().setElement(mdElement);
 					}
 					
 					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.mbusCReading)){
+						log(Level.INFO, "Received current readings from MBus meter with serialnumber " + getAace().getPushedSerialnumber());
 						getMBCurrentReadings().setElement(mdElement);
-						log(Level.INFO, "Received current readings from meter with serialnumber " + getAace().getPushedSerialnumber());
 					}
 					
 					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.resFirmware)){
 						getFirmwareVersion().setElement(mdElement);
 					}
+					
+					// TODO uncomment
+//					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.billData)){
+//						log(Level.INFO, "Received billing data from meter with serialnumber " + getAace().getPushedSerialnumber());
+//						getBillingData().setElement(mdElement);
+//					}
+//					
+//					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.billingConf)){
+//						getBillingData().setConfig(mdElement);
+//					}
+					
+					// TODO verify timezone Stuff
+//					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.meterTime)){
+//						getTime().setElement(mdElement);
+//					}
 				}
 			}
 			else

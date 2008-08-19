@@ -97,7 +97,7 @@ public class LoadProfile extends AbstractActarisObject {
 		md.appendChild(t);
 		
 		Element lp = doc.createElement(XMLTags.reqLP);
-		lp.setTextContent(Long.toHexString(from.getTime())+Long.toHexString(System.currentTimeMillis()));
+		lp.setTextContent(Long.toHexString(from.getTime()/1000)+Long.toHexString(System.currentTimeMillis()/1000));
 		md.appendChild(lp);
 		
 		String msg = convertDocumentToString(doc);
@@ -235,24 +235,6 @@ public class LoadProfile extends AbstractActarisObject {
 		
 		if(getTrackingID() != -1)
 			getObjectFactory().sendAcknowledge(getTrackingID());
-		
-		/**
-		 * store the profile after you got all the messages
-		 */
-//		// if you there are intervals, store them in the meter
-//		if(getProfileData().getNumberOfIntervals() > 0){
-//			try {
-//				getObjectFactory().getAace().getMeter().store(getProfileData());
-//				if(getTrackingID() != -1)
-//					getObjectFactory().sendAcknowledge(getTrackingID());
-//			} catch (SQLException e) {
-//				e.printStackTrace();
-//				throw new SQLException("Could not store the parsed data in the loadProfile for meter " + getObjectFactory().getAace().getDeviceSerialnumber());
-//			} catch (BusinessException e) {
-//				e.printStackTrace();
-//				throw new BusinessException("Could not store the parsed data in the loadProfile for meter " + getObjectFactory().getAace().getDeviceSerialnumber());
-//			}
-//		}
 	}
 
 	public int getLpInterval() {

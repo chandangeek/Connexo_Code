@@ -232,6 +232,7 @@ public class Concentrator implements Messaging, GenericProtocol {
 				return conID;
 			} else {
 				conID = port(concentrator).getConcentratorStatus();
+				if(TESTLOGGING >= 1)getLogger().log(Level.INFO, "TESTLOGGING - SerialNumber = " + conID);
 				return conID.substring(conID.indexOf('"') + 1, conID.indexOf('"',conID.indexOf('"') + 1));
 			}
 			

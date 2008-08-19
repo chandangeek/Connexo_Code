@@ -107,8 +107,8 @@ public class MBLoadProfile extends AbstractActarisObject {
 		t.setTextContent(String.valueOf(trackingID));
 		md.appendChild(t);
 		
-		Element lp = doc.createElement(XMLTags.reqLP);
-		lp.setTextContent(Long.toHexString(from.getTime())+Long.toHexString(System.currentTimeMillis()));
+		Element lp = doc.createElement(XMLTags.reqMBrange);
+		lp.setTextContent(Long.toHexString(from.getTime()/1000)+Long.toHexString(System.currentTimeMillis()/1000));
 		md.appendChild(lp);
 		
 		String msg = convertDocumentToString(doc);

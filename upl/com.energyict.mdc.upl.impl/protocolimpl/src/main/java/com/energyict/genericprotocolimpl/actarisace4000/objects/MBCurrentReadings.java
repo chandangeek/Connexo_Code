@@ -41,6 +41,8 @@ public class MBCurrentReadings extends AbstractActarisObject {
 	private int trackingID;
 	private String reqString = null;
 	
+	MeterReadingData mrd = new MeterReadingData();
+	
 	private Date timeStamp = null;
 
 	/**
@@ -140,7 +142,7 @@ public class MBCurrentReadings extends AbstractActarisObject {
 		
 	}
 	
-	protected void setElement(Element mdElement) throws DOMException, IOException {
+	protected void setElement(Element mdElement) throws DOMException, IOException, SQLException, BusinessException {
 		NodeList list = mdElement.getChildNodes();
 		
 		for(int i = 0; i < list.getLength(); i++){
@@ -149,9 +151,23 @@ public class MBCurrentReadings extends AbstractActarisObject {
 				setMBReadingData(element.getTextContent());
 			}
 		}
+		
+		if(getMrd().getRegisterValues().size() > 0){
+			try {
+				getObjectFactory().getAace().getMeter().store(mrd);
+			} catch (SQLException e) {
+				e.printStackTrace();
+				getObjectFactory().log(Level.INFO, "Could not store current readings for meter with serialNumber: "
+						+ getObjectFactory().getAace().getPushedSerialnumber());
+			} catch (BusinessException e) {
+				e.printStackTrace();
+				getObjectFactory().log(Level.INFO, "Could not store current readings for meter with serialNumber: "
+						+ getObjectFactory().getAace().getPushedSerialnumber());
+			}
+		}
 	}
 
-	private void setMBReadingData(String textContent) throws IOException {
+	private void setMBReadingData(String textContent) throws IOException, SQLException, BusinessException {
 		int offset = 0;
 		byte[] decoded = Base64.decode(textContent);
 		if(DEBUG >=1)System.out.println(new String(decoded));
@@ -160,7 +176,6 @@ public class MBCurrentReadings extends AbstractActarisObject {
 		setTimeStamp(new Date(timeStamp));
 		offset+=4;
 		
-		MeterReadingData mrd = new MeterReadingData();
 		RegisterValue rv = null;
 		RtuRegister register = null;
 		
@@ -193,31 +208,24 @@ public class MBCurrentReadings extends AbstractActarisObject {
 					valueInfo = record.getDataRecordHeader().getValueInformationBlock().getValueInformationfieldCoding();
 	
 					
-					if(valueInfo.isTypeUnit() && valueInfo.getDescription().equalsIgnoreCase("Gas")){
+					if(valueInfo.isTypeUnit() && valueInfo.getDescription().equalsIgnoreCase("Volume")){
 						valueInfo.getObisCodeCreator().setA(ciField72h.getDeviceType().getObisA());
 						obisString = valueInfo.getObisCodeCreator().toString();
 						ObisCode oc = ObisCode.fromString(obisString);
+						register = getObjectFactory().getAace().getMeter().getRegister(oc);
+						if(register != null && register.getReadingAt(getTimeStamp()) == null){
+							RegisterValue value = new RegisterValue(oc, record.getQuantity(), getTimeStamp());
+							value.setRtuRegisterId(register.getId());
+							getMrd().add(value);
+						}
 					}
 				}
 	        }
+	        
 			
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			throw new IOException("Failed to parse the RawMBusFrame." + e1.getMessage());
-		}
-			
-		if(mrd.getRegisterValues().size() != 0){
-			try {
-				getObjectFactory().getAace().getMeter().store(mrd);
-			} catch (SQLException e) {
-				e.printStackTrace();
-				getObjectFactory().log(Level.INFO, "Could not store current readings for meter with serialNumber: "
-						+ getObjectFactory().getAace().getPushedSerialnumber());
-			} catch (BusinessException e) {
-				e.printStackTrace();
-				getObjectFactory().log(Level.INFO, "Could not store current readings for meter with serialNumber: "
-						+ getObjectFactory().getAace().getPushedSerialnumber());
-			}
 		}
 	}
 
@@ -227,6 +235,14 @@ public class MBCurrentReadings extends AbstractActarisObject {
 
 	protected void setTimeStamp(Date timeStamp) {
 		this.timeStamp = timeStamp;
+	}
+
+	protected MeterReadingData getMrd() {
+		return mrd;
+	}
+
+	protected void setMrd(MeterReadingData mrd) {
+		this.mrd = mrd;
 	}
 	
 }

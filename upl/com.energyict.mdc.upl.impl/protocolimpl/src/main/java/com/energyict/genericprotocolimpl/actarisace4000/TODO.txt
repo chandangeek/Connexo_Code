@@ -1,0 +1,2 @@
+- check the alarm flag in LP, CR and BD
+- add profileIntervalStateFlags
