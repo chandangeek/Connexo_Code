@@ -1,12 +1,14 @@
 package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
 
 class Table4 {
 
@@ -35,45 +37,12 @@ class Table4 {
     
     List getMeterEvents( ){
     	// DEBUG, author PST, here a correction should be added on overlapping events (events that happen on the same moment)
-    	// solution is to concat the strings or to shift the event 1 ms, concat does not work since the codes can not be concatenated
-    	this.meterEvents=checkOnOverlappingEvents(this.meterEvents);
+    	// solution is to concat the strings or to shift the event 1 second (changed from ms to s, IGH), concat does not work since the codes can not be concatenated
+    	this.meterEvents = ProtocolUtils.checkOnOverlappingEvents(this.meterEvents);
         return meterEvents;
     }
     
-    private List checkOnOverlappingEvents(List me) { // author PST
-    	
-    	List tempList= new ArrayList();
-    	MeterEvent currentMeterEvent, nextMeterEvent, newMeterEvent;
-    	int length=me.size()-1;
-    	if(length>0){
-    		for(int i=0; i<length-1; i++){
-    			int inc=1;
-    		
-    			currentMeterEvent=(MeterEvent) me.get(i);
-    			newMeterEvent=currentMeterEvent;
-    			nextMeterEvent=(MeterEvent) me.get(i+1);
-    		   		
-    			if(currentMeterEvent.getTime().getTime()==nextMeterEvent.getTime().getTime()){
-    				// overlapping data, add string to the next event
-    				//	new MeterEvent(evntDate, eiCode, evntCode, description );
-    				Date newTime=currentMeterEvent.getTime();
-    				newTime.setTime(currentMeterEvent.getTime().getTime()+inc); // add one millisecond
-    				inc++;
-    				newMeterEvent= new MeterEvent(newTime, currentMeterEvent.getEiCode(), currentMeterEvent.getProtocolCode(),currentMeterEvent.getMessage());
-    			}else{
-    				inc=1;
-    				newMeterEvent=currentMeterEvent;    			
-    			}
-        		tempList.add(newMeterEvent);
-    		}    		
-    	}
-    	if(length>=0){    	
-    		tempList.add(me.get(length));// add last event
-    	}
-		return tempList;
-	}
-
-	public String toString( ){
+    public String toString( ){
         StringBuffer rslt = new StringBuffer();
         rslt.append( "Table4 [\n" );
         Iterator i = meterEvents.iterator();
