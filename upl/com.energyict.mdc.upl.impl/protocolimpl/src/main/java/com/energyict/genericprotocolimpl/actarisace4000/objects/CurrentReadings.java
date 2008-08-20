@@ -265,11 +265,11 @@ public class CurrentReadings extends AbstractActarisObject {
 					} catch (SQLException e) {
 						e.printStackTrace();
 						getObjectFactory().log(Level.INFO, "Could not store current readings for meter with serialNumber: "
-								+ getObjectFactory().getAace().getPushedSerialnumber());
+								+ getObjectFactory().getAace().getNecessarySerialnumber());
 					} catch (BusinessException e) {
 						e.printStackTrace();
 						getObjectFactory().log(Level.INFO, "Could not store current readings for meter with serialNumber: "
-								+ getObjectFactory().getAace().getPushedSerialnumber());
+								+ getObjectFactory().getAace().getNecessarySerialnumber());
 					}
 			}
 			

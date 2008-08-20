@@ -28,7 +28,8 @@ public class Time extends AbstractActarisObject {
 	
 	private long meterTime;
 	private long receiveTime;
-	
+	private long minDiff = 180000;
+	private long maxDiff = 600000;
 
 	/**
 	 * @param of
@@ -73,7 +74,7 @@ public class Time extends AbstractActarisObject {
 		Element md = doc.createElement(XMLTags.meterData);
 		root.appendChild(md);
 		Element s = doc.createElement(XMLTags.serialNumber);
-		s.setTextContent(getObjectFactory().getAace().getPushedSerialnumber());
+		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
 		md.appendChild(s);
 		Element t = doc.createElement(XMLTags.tracker);
 		t.setTextContent(String.valueOf(trackingID));
@@ -98,6 +99,9 @@ public class Time extends AbstractActarisObject {
 		setReqString(msg.substring(msg.indexOf("?>")+2));
 	}
 	
+	/**
+	 * Sync the meter time to the system time
+	 */
 	protected void prepareSyncXML(){
 		Document doc = createDomDocument();
 		
@@ -106,7 +110,7 @@ public class Time extends AbstractActarisObject {
 		Element md = doc.createElement(XMLTags.meterData);
 		root.appendChild(md);
 		Element s = doc.createElement(XMLTags.serialNumber);
-		s.setTextContent(getObjectFactory().getAace().getPushedSerialnumber());
+		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
 		md.appendChild(s);
 		Element t = doc.createElement(XMLTags.tracker);
 		t.setTextContent(String.valueOf(trackingID));
@@ -128,10 +132,57 @@ public class Time extends AbstractActarisObject {
 		setReqString(msg.substring(msg.indexOf("?>")+2));
 	}
 	
+	/**
+	 * Sends a new time configuration to the meter
+	 * @param diff Maximum time difference allowed for clock synchronization in seconds
+	 * @param trip Maximum SNTP message trip allowed in seconds
+	 * @param retry Number of clock sync retries allowed
+	 */
+	protected void prepareXMLConfig(int diff, int trip, int retry){
+		Document doc = createDomDocument();
+		
+		Element root = doc.createElement(XMLTags.mPull);
+		doc.appendChild(root);
+		Element md = doc.createElement(XMLTags.meterData);
+		root.appendChild(md);
+		Element s = doc.createElement(XMLTags.serialNumber);
+		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
+		md.appendChild(s);
+		Element t = doc.createElement(XMLTags.tracker);
+		t.setTextContent(String.valueOf(trackingID));
+		md.appendChild(t);
+		
+		Element cf = doc.createElement(XMLTags.configHandling);
+		md.appendChild(cf);
+		Element ps = doc.createElement(XMLTags.timeSync);
+		cf.appendChild(ps);
+		Element tDiff = doc.createElement(XMLTags.diff);
+		tDiff.setTextContent(Integer.toString(diff, 16));
+		ps.appendChild(tDiff);
+		Element tTrip = doc.createElement(XMLTags.trip);
+		tTrip.setTextContent(Integer.toString(trip, 16));
+		ps.appendChild(tTrip);
+		Element tRetry = doc.createElement(XMLTags.retry);
+		tRetry.setTextContent(Integer.toString(retry, 16));
+		ps.appendChild(tRetry);
+			
+		String msg = convertDocumentToString(doc);
+		setReqString(msg.substring(msg.indexOf("?>")+2));
+	}
+	
 	protected void setElement(Element mdElement) throws IOException{
 		setReceiveTime(ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT")).getTimeInMillis());
 		setMeterTime(Long.valueOf(mdElement.getTextContent(), 16));
-		getObjectFactory().sendSyncTime();
+		long diff = Math.abs(getMeterTime() - getReceiveTime()); 
+		if(diff > minDiff){
+			if(diff < maxDiff)
+				getObjectFactory().sendSyncTime();
+			else{
+				getObjectFactory().getAace().getLogger().severe("No clock sync, time difference exceeds allow maximum");
+				getObjectFactory().getAace().getLogger().severe("MeterTime: " + new Date(getMeterTime()) + " - SystemTime: " + new Date(getReceiveTime()));
+			}
+			
+		}
 	}
 
 	/**
@@ -140,7 +191,7 @@ public class Time extends AbstractActarisObject {
 	public static void main(String[] args) {
 //		Calendar cal = ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT"));
 //		System.out.println(cal.getTime());
-		String hexString = "48a97d9d";
+		String hexString = "48ac1e0f";
 		Long timeLong = (Long.valueOf(hexString, 16))*1000;
 		Calendar cal2 = ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT"));
 		cal2.setTimeInMillis(timeLong);

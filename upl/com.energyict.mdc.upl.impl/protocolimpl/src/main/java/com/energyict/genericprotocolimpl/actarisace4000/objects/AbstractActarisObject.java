@@ -34,6 +34,7 @@ import com.energyict.obis.ObisCode;
 abstract public class AbstractActarisObject {
 	
 	private ObjectFactory objectFactory;
+	private String serialNumber;
 	
 	/**
 	 * Gets the tracking ID of this object
@@ -62,6 +63,7 @@ abstract public class AbstractActarisObject {
 	 */
 	public AbstractActarisObject(ObjectFactory of) {
 		this.objectFactory = of;
+		this.serialNumber = getObjectFactory().getAace().getPushedSerialNumber();
 	}
 
 	/**
@@ -85,6 +87,10 @@ abstract public class AbstractActarisObject {
 
 	public void setObjectFactory(ObjectFactory objectFactory) {
 		this.objectFactory = objectFactory;
+	}
+	
+	public String getSerialNumber(){
+		return serialNumber;
 	}
 	
 	/**

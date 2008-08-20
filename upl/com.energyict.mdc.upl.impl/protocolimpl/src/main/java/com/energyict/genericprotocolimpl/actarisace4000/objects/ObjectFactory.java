@@ -69,19 +69,23 @@ public class ObjectFactory {
 	
 	public void sendFullMeterConfigRequest() throws IOException{
 		getFullMeterConfig().setTrackingID(getAace().getTracker());
+		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
 		getFullMeterConfig().prepareXML();
 		getFullMeterConfig().request();
 	}
 	
-	// TODO change this to a getautopushconfig and a sendrequest
-	public AutoPushConfig setAutoPushConfig() throws IOException{
+	public AutoPushConfig getAutoPushConfig(){
 		if(autoPushConfig == null){
 			autoPushConfig = new AutoPushConfig(this);
-			autoPushConfig.setTrackingID(getAace().getTracker());
-			autoPushConfig.prepareXML(EnableTable.enabled, "A", "78", false);
-			autoPushConfig.request();
 		}
 		return autoPushConfig;
+	}
+	
+	public void setAutoPushConfig() throws IOException{
+		getAutoPushConfig().setTrackingID(getAace().getTracker());
+		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
+		getAutoPushConfig().prepareXML(EnableTable.enabled, "A", "78", false);
+		getAutoPushConfig().request();
 	}
 	
 	public Announcement getAnnouncement(){
@@ -114,12 +118,14 @@ public class ObjectFactory {
 	
 	public void sendLoadProfileRequest() throws IOException{
 		getLoadProfile().setTrackingID(getAace().getTracker());
+		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
 		getLoadProfile().prepareXML();
 		getLoadProfile().request();
 	}
 	
 	public void sendLoadProfileRequest(Date from) throws IOException{
 		getLoadProfile().setTrackingID(getAace().getTracker());
+		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
 		getLoadProfile().prepareXML(from);
 		getLoadProfile().request();
 	}
@@ -133,12 +139,14 @@ public class ObjectFactory {
 	
 	public void sendMBLoadProfileRequest() throws IOException{
 		getMBLoadProfile().setTrackingID(getAace().getTracker());
+		getAace().setNecessarySerialNumber(getAace().getMBSerialNumber().get(0));
 		getMBLoadProfile().prepareXML();
 		getMBLoadProfile().request();
 	}
 	
 	public void sendMBLoadProfileRequest(Date from) throws IOException{
 		getMBLoadProfile().setTrackingID(getAace().getTracker());
+		getAace().setNecessarySerialNumber(getAace().getMBSerialNumber().get(0));
 		getMBLoadProfile().prepareXML(from);
 		getMBLoadProfile().request();
 	}
@@ -152,13 +160,22 @@ public class ObjectFactory {
 	
 	public void sendBDRequest() throws IOException{
 		getBillingData().setTrackingID(getAace().getTracker());
+		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
 		getBillingData().prepareXML();
 		getBillingData().request();
 	}
 	
 	public void sendBDRequest(Date from) throws IOException{
 		getBillingData().setTrackingID(getAace().getTracker());
+		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
 		getBillingData().prepareXML(from);
+		getBillingData().request();
+	}
+	
+	public void sendBDConfig(int enabled, int intervals, int numbOfInt) throws IOException{
+		getBillingData().setTrackingID(getAace().getTracker());
+		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
+		getBillingData().prepareXMLConfig(enabled, intervals, numbOfInt);
 		getBillingData().request();
 	}
 	
@@ -171,13 +188,22 @@ public class ObjectFactory {
 	
 	public void sendForceTime() throws IOException{
 		getTime().setTrackingID(getAace().getTracker());
+		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
 		getTime().prepareXML();
 		getTime().request();
 	}
 	
 	public void sendSyncTime() throws IOException{
 		getTime().setTrackingID(getAace().getTracker());
+		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
 		getTime().prepareSyncXML();
+		getTime().request();
+	}
+	
+	public void sendTimeConfig(int diff, int trip, int retry) throws IOException{
+		getTime().setTrackingID(getAace().getTracker());
+		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
+		getTime().prepareXMLConfig(diff, trip, retry);
 		getTime().request();
 	}
 	
@@ -190,6 +216,7 @@ public class ObjectFactory {
 	
 	public void sendAcknowledge(int tracker) throws IOException{
 		getAcknowledge().setTrackingID(tracker);
+		getAace().setNecessarySerialNumber(getAcknowledge().getSerialNumber());
 		getAcknowledge().prepareXML();
 		getAcknowledge().request();
 	}
@@ -203,6 +230,7 @@ public class ObjectFactory {
 	
 	public void sendFirmwareRequest() throws IOException{
 		getFirmwareVersion().setTrackingID(getAace().getTracker());
+		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
 		getFirmwareVersion().prepareXML();
 		getFirmwareVersion().request();
 	}
@@ -237,22 +265,22 @@ public class ObjectFactory {
 			parseElements(topElement);
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
-			throw new ParserConfigurationException("Failed to make a new builder from the documentBuilderfactory");
+			throw new ParserConfigurationException("Failed to make a new builder from the documentBuilderfactory" + e.getMessage());
 		} catch (SAXException e) {
 			e.printStackTrace();
-			throw new SAXException("Could not parse the received xmlString.");
+			throw new SAXException("Could not parse the received xmlString." + e.getMessage());
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("The received xml is not a valid inputSource");
+			throw new IOException(e.getMessage());
 		} catch (DOMException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw new IOException(e.getMessage());
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw new IOException(e.getMessage());
 		} catch (BusinessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw new IOException(e.getMessage());
 		} 
 	}
 	
@@ -296,8 +324,8 @@ public class ObjectFactory {
 					Element mdElement = (Element)mdNodeList.item(i);
 					
 					if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.serialNumber)){
-						getAace().setPushedSerialnumber(mdElement.getTextContent());
-						log(Level.INFO, "Received data from meter with serialnumber " + getAace().getPushedSerialnumber());
+						getAace().setSerialnumbers(mdElement.getTextContent());
+						log(Level.INFO, "Received data from meter with serialnumber " + getAace().getPushedSerialNumber());
 					}
 					
 					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.tracker)){
@@ -323,12 +351,12 @@ public class ObjectFactory {
 					}
 						
 					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.curReading)){
-						log(Level.INFO, "Received current readings from meter with serialnumber " + getAace().getPushedSerialnumber());
+						log(Level.INFO, "Received current readings from meter with serialnumber " + getAace().getPushedSerialNumber());
 						getCurrentReadings().setElement(mdElement);
 					}
 					
 					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.mbusCReading)){
-						log(Level.INFO, "Received current readings from MBus meter with serialnumber " + getAace().getPushedSerialnumber());
+						log(Level.INFO, "Received current readings from MBus meter with serialnumber " + getAace().getPushedSerialNumber());
 						getMBCurrentReadings().setElement(mdElement);
 					}
 					
@@ -336,20 +364,24 @@ public class ObjectFactory {
 						getFirmwareVersion().setElement(mdElement);
 					}
 					
-					// TODO uncomment
-//					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.billData)){
-//						log(Level.INFO, "Received billing data from meter with serialnumber " + getAace().getPushedSerialnumber());
-//						getBillingData().setElement(mdElement);
-//					}
-//					
+					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.billData)){
+						log(Level.INFO, "Received billing data from meter with serialnumber " + getAace().getPushedSerialNumber());
+						getBillingData().setElement(mdElement);
+					}
+					
 //					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.billingConf)){
 //						getBillingData().setConfig(mdElement);
 //					}
 					
+					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.configHandling)){
+						log(Level.INFO, "Received configuration from meter with serialnumber " + getAace().getPushedSerialNumber());
+						getFullMeterConfig().setElement(mdElement);
+					}
+					
 					// TODO verify timezone Stuff
-//					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.meterTime)){
-//						getTime().setElement(mdElement);
-//					}
+					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.meterTime)){
+						getTime().setElement(mdElement);
+					}
 				}
 			}
 			else

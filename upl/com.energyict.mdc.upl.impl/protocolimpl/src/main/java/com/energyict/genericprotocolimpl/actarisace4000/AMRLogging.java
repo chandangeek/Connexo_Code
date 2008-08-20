@@ -50,7 +50,7 @@ public class AMRLogging {
 		
 		CommunicationScheduler cs = aace.mw().getCommunicationSchedulerFactory().find(5387);
 		
-		aace.setMeter(cs.getRtu());
+		aace.setMasterMeter(cs.getRtu());
 		try {
 			amrl.addSuccessFullLogging();
 		} catch (SQLException e) {

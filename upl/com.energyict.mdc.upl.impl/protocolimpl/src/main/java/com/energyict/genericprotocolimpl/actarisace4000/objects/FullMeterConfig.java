@@ -5,8 +5,10 @@ package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
+import com.energyict.mdwswing.actions.estimation.GetBlockToEstimateAction;
 
 /**
  * @author gna
@@ -57,7 +59,7 @@ public class FullMeterConfig extends AbstractActarisObject {
 		Element md = doc.createElement(XMLTags.meterData);
 		root.appendChild(md);
 		Element s = doc.createElement(XMLTags.serialNumber);
-		s.setTextContent(getObjectFactory().getAace().getPushedSerialnumber());
+		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
 		md.appendChild(s);
 		Element t = doc.createElement(XMLTags.tracker);
 		t.setTextContent(String.valueOf(trackingID));
@@ -71,9 +73,17 @@ public class FullMeterConfig extends AbstractActarisObject {
 		setReqString(msg.substring(msg.indexOf("?>")+2));
 	}
 
-	protected void setElement(Element element) {
-		// TODO Auto-generated method stub
+	protected void setElement(Element mdElement) {
+		NodeList list = mdElement.getChildNodes();
 		
+		for(int i = 0; i < list.getLength(); i++){
+			Element element = (Element)list.item(i);
+			
+			// TODO handle the other config parameters
+			if(element.getNodeName().equalsIgnoreCase(XMLTags.billingConf))
+				getObjectFactory().getBillingData().setConfig(element);
+			
+		}		
 	}
 
 }

@@ -11,6 +11,7 @@ import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -18,6 +19,7 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.naming.ConfigurationException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
@@ -62,6 +64,7 @@ public class ActarisACE4000 implements GenericProtocol{
 	private PacketBuffer 			buffer;
 	private UDPListener				udpListener;
 	private Rtu						meter;
+	private HashMap<String, Rtu>	mbusMeters;
 	private Logger 					logger;
 	private CommunicationScheduler 	scheduler;
 	private CommunicationProfile 	communicationProfile;
@@ -71,11 +74,15 @@ public class ActarisACE4000 implements GenericProtocol{
 	private ActarisUDPSocket		udpSocket;
 	private AMRLogging				amrLogging;
 	
-	private List					mbSerialNumber;
+	private List<String>			mbSerialNumber;
 	private String					pushedSerialNumber;
+	private String					masterSerialNumber;
+	private String					necessarySerialNumber;
 	private String					phoneNumber;
 	private StringBuilder			errorString;
 	private int						tracker;
+	
+	private int oneTimer = 0;
 	
 	// TODO change the timeOut
 	// TODO change the timeOut
@@ -84,7 +91,7 @@ public class ActarisACE4000 implements GenericProtocol{
 	// TODO change the timeOut
 	// TODO change the timeOut
 	// TODO change the timeOut
-	private int 					timeOut = 60000;	// default timeout of 1min
+	private int 					timeOut = 30000;	// default timeout of 1min
 	
 	public ActarisACE4000(){
 		
@@ -154,31 +161,29 @@ public class ActarisACE4000 implements GenericProtocol{
 							break; // we can leave the loop cause we did not receive a message within the passed minute
 						}
 					}
-					// TODO uncomment
-//					if(!getObjectFactory().getBillingData().getMap().isEmpty()){
+//					if(!getObjectFactory().getBillingData().getMap().isEmpty() && getObjectFactory().getBillingData().getInterval() == -1){
 //						// request the configuration from the meter
-//						interMessageTimeout = System.currentTimeMillis() + timeOut;
-//						//TODO you can not enter the serialNumber yourself!
-//						setPushedSerialnumber("0505514283927180");
+//						interMessageTimeout = System.currentTimeMillis() + timeOut;	// keep the session alive
 //						getObjectFactory().sendFullMeterConfigRequest();
 //					}
+					
+					if(oneTimer == 0){
+						oneTimer++;
+						Calendar cal = ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT"));
+						cal.add(Calendar.MONTH, -2);
+						interMessageTimeout = System.currentTimeMillis() + timeOut;	// keep the session alive
+//						getObjectFactory().sendBDConfig(1, 1, 15);
+//						getObjectFactory().sendFullMeterConfigRequest();
+//						getObjectFactory().sendBDRequest(cal.getTime());
+//						getObjectFactory().sendLoadProfileRequest(cal.getTime());
+//						getObjectFactory().sendTimeConfig(4800, 120, 3);
+						getObjectFactory().sendForceTime();
+					}
 					if (((long) (System.currentTimeMillis() - interMessageTimeout)) > 0) {
 						break; // we can leave the loop cause we did not receive a message within the passed minute
 					}
 				}
 				
-				// after getting all the messages, save the necessary data
-//			setPushedSerialnumber("07100516");
-//			setPushedSerialnumber("0505514283927180");
-//			getObjectFactory().sendLoadProfileRequest();
-//			getObjectFactory().setAutoPushConfig();
-//			getObjectFactory().sendMBLoadProfileRequest();
-//			Calendar cal = ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT"));
-//			cal.add(Calendar.MONTH, -3);
-//			getObjectFactory().sendMBLoadProfileRequest(cal.getTime());
-//			getObjectFactory().sendFullMeterConfigRequest();
-//			getObjectFactory().sendForceTime();
-//			getObjectFactory().sendBDRequest(cal.getTime());
 				/**
 				 * If there is valid data in the profile, store it in the database
 				 */
@@ -188,14 +193,34 @@ public class ActarisACE4000 implements GenericProtocol{
 				}
 				if(getObjectFactory().getMBLoadProfile().getProfileData().getIntervalDatas().size() > 0){
 					getObjectFactory().getMBLoadProfile().getProfileData().sort();
-					getMeter().store(getObjectFactory().getMBLoadProfile().getProfileData());
+					// TODO make MBLoadProfile a dynamic object so multiple MBus meters can have one ...
+					for( int i = 0; i < getMBSerialNumber().size(); i++){
+						getMbusMetersMap().get(getMBSerialNumber().get(i)).store(getObjectFactory().getMBLoadProfile().getProfileData());
+					}
 				}
-				// TODO uncomment
-//				if(!getObjectFactory().getBillingData().getMap().isEmpty()
-//						&& getObjectFactory().getBillingData().getEnabled() == 1){
-//					getObjectFactory().getBillingData().constructProfile();
-//					// TODO store the profile in the corresponding daily/monthly channel
-//				}
+				if(getObjectFactory().getBillingData().getProfileData().getIntervalDatas().size() > 0){
+					getObjectFactory().getBillingData().getProfileData().sort();
+					getMeter().store(getObjectFactory().getBillingData().getProfileData());
+				}
+				
+				// after getting all the messages, save the necessary data
+//				setPushedSerialnumber("07100516");
+//				setPushedSerialnumber("0505514283927180");
+//				getObjectFactory().sendLoadProfileRequest();
+//				getObjectFactory().setAutoPushConfig();
+//				getObjectFactory().sendMBLoadProfileRequest();
+//				Calendar cal = ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT"));
+//				cal.add(Calendar.DAY_OF_MONTH, -20);
+//				getObjectFactory().sendMBLoadProfileRequest(cal.getTime());
+//				getObjectFactory().sendFullMeterConfigRequest();
+//				getObjectFactory().sendForceTime();
+//				getObjectFactory().sendBDRequest(cal.getTime());
+					
+//				setNecessarySerialNumber("07100516");
+//				Calendar cal = ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT"));
+//				cal.add(Calendar.MONTH, -1);
+//				getObjectFactory().sendBDRequest(cal.getTime());
+//				getObjectFactory().sendMBLoadProfileRequest(cal.getTime());
 			}
 			
 		} catch (InterruptedException e1) {
@@ -429,10 +454,6 @@ public class ActarisACE4000 implements GenericProtocol{
 		return udpListener;
 	}
 
-	public List getMBSerialNumber() {
-		return mbSerialNumber;
-	}
-
 	public int getTracker() {
 		// TODO use the scheduler ID to track messages
 		if(tracker == 4096)
@@ -460,19 +481,132 @@ public class ActarisACE4000 implements GenericProtocol{
 		return udpSocket;
 	}
 
-	public void setPushedSerialnumber(String pushedSerialNumber) {
+	/**
+	 * Important method to determine the meters topology
+	 * If we get a serialNumber from the UDPListener, fill in all the serialNumber we can find in the database and
+	 * fill in the necessary Rtu's as well
+	 * @param pushedSerialNumber
+	 * @throws IOException 
+	 */
+	public void setSerialnumbers(String pushedSerialNumber) throws IOException{
 		this.pushedSerialNumber = pushedSerialNumber;
 		
-		//TODO find this RTU in the database
-		//TODO find the MBUS meter if the type is slave
-		if(meter == null){
-			meter = findMeter(this.pushedSerialNumber);
-			findSlaveMeters();
+		try {
+			if(meter == null){	// First message cause nothing is filled in yet, Master must be filled in
+//			meter = findMeter(this.pushedSerialNumber);
+//			findSlaveMeters();
+				
+				if(isMasterMeter(getPushedSerialNumber())){
+					// TODO find the slaves
+					findAllSlaveMeters();
+				}
+				else if(isSlaveMeter(getPushedSerialNumber())){
+					// TODO find the master 
+					findMasterMeter();
+					// TODO find all other slaves
+					findAllSlaveMeters();
+				}
+				else
+					throw new IOException("Meter is not found in database, no autodiscovery YET implemented.");
+			}
+		} catch (ConfigurationException e) {
+			e.printStackTrace();
+			throw new IOException(e.getMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw e;
 		}
 	}
 	
-	public String getPushedSerialnumber(){
+	public boolean isMasterMeter(String serialNumber) throws ConfigurationException{
+		
+		// find by CallHomeID, unique in database
+		List meterList = mw().getRtuFactory().findByDialHomeId("ACE4000"+serialNumber);
+		
+		if(meterList.size() == 1){	// we found him, take him down boys ....
+			setMasterMeter((Rtu)meterList.get(0));
+			setMasterSerialNumber(serialNumber);
+			return true;
+		}
+        else if( meterList.size() > 1 ) {
+            getLogger().severe( "Multiple meters where found with serial: " + serialNumber );
+            throw new ConfigurationException("Multiple meters where found with serial: " + serialNumber);
+        }
+//        else{
+//        	getLogger().severe("Meter serialnumber is not found in database.");
+//        	throw new ConfigurationException("Meter serialnumber "+serialNumber+" is not found in database.");
+//        }
+		
+		return false;
+	}
+	
+	public boolean isSlaveMeter(String serialNumber) throws ConfigurationException{
+		
+		// find by CallHomeID, unique in database
+		List meterList = mw().getRtuFactory().findByDialHomeId("ACE4000MB"+serialNumber);
+		
+		if(meterList.size() == 1){	// we found him, take him down boys ....
+			if(getMbusMetersMap() == null)
+				mbusMeters = new HashMap<String, Rtu>();
+			getMbusMetersMap().put(serialNumber, (Rtu)meterList.get(0));
+			getMBSerialNumber().add(serialNumber);
+			return true;
+		}
+        else if( meterList.size() > 1 ) {
+            getLogger().severe( "Multiple meters where found with serial: " + serialNumber );
+            throw new ConfigurationException("Multiple meters where found with serial: " + serialNumber);
+        }
+//        else{
+//        	getLogger().severe("Meter serialnumber is not found in database.");
+//        	throw new ConfigurationException("Meter serialnumber "+serialNumber+" is not found in database.");
+//        }
+		return false;
+	}
+	
+	public void setNecessarySerialNumber(String necessarySerialNumber){
+		this.necessarySerialNumber = necessarySerialNumber;
+	}
+	
+	/**
+	 * Returns the serialNumber of the E-meter or the MBus-meters
+	 * Needs to be set before the message is sent!
+	 * @return a serialNumber
+	 */
+	public String getNecessarySerialnumber(){
+		return necessarySerialNumber;
+	}
+	
+	public String getPushedSerialNumber(){
 		return pushedSerialNumber;
+	}
+	
+	/** @return the masters serialNumber */
+	public String getMasterSerialNumber(){
+		return masterSerialNumber;
+	}
+	/** Sets the masters serialNumber 
+	 * @param masterSerialNumber */
+	public void setMasterSerialNumber(String masterSerialNumber){
+		this.masterSerialNumber = masterSerialNumber;
+	}
+	
+	/**
+	 * Returns a list of all serialNumber of the slave devices
+	 * @return MBus serialnumbers
+	 */
+	public List<String> getMBSerialNumber() {
+		if(mbSerialNumber == null)
+			mbSerialNumber = new ArrayList();
+		return mbSerialNumber;
+	}
+	
+	/**
+	 * Contains a map of the serialNumbers with there Rtu's.
+	 * No database overkill if we keep on asking the Rtu
+	 * @return the mbusMeters hashMap
+	 */
+	private HashMap<String, Rtu> getMbusMetersMap(){
+		return mbusMeters;
 	}
 	
 	public int getMeterProfileInterval(){
@@ -496,7 +630,11 @@ public class ActarisACE4000 implements GenericProtocol{
 		return meter;
 	}
 	
-	public void setMeter(Rtu meter) {
+	private Rtu getMBusMeter(String string) {
+		return (Rtu)getMbusMetersMap().get(string);
+	}
+	
+	public void setMasterMeter(Rtu meter) {
 		this.meter = meter;
 	}
 	
@@ -519,20 +657,46 @@ public class ActarisACE4000 implements GenericProtocol{
 		return null;
 	}
 	
-	private void findSlaveMeters(){
-		if(meter != null){
-			List slaves = meter.getDownstreamRtus();
-			Iterator it = slaves.iterator();
-			while(it.hasNext()){
-				getMBSerialNumber().add(((Rtu)it.next()).getSerialNumber());
-			}
+	private void findMasterMeter(){
+		if(!getMbusMetersMap().isEmpty()){
+			Rtu mbusSlave = getMbusMetersMap().get(getPushedSerialNumber());
+			
+			if(mbusSlave.getGateway() != null)
+				setMasterMeter(mbusSlave.getGateway());
+			else
+				getLogger().severe("MBus slave meter has no gateway configured so no master meter was found!");
 		}
+		else
+			getLogger().severe("MasterMeter can NOT be found because no slaves are detected.");
 	}
 	
+	private void findAllSlaveMeters(){
+		if(meter != null){
+			List<Rtu> slaves = meter.getDownstreamRtus();
+			Iterator it = slaves.iterator();
+			while(it.hasNext()){
+				if(getMbusMetersMap() == null)
+					mbusMeters = new HashMap<String, Rtu>();
+				
+				Rtu mbus = (Rtu)it.next();
+				if(!getMbusMetersMap().containsKey(mbus.getSerialNumber())){
+					getMbusMetersMap().put(mbus.getSerialNumber(), mbus);
+					// add this one so we can loop through the list for all the serialnumbers
+					getMBSerialNumber().add(mbus.getSerialNumber());
+				}
+			}
+		}
+		else
+			getLogger().severe("No slaves can be found because the MasterMeter is NULL.");
+	}
+	
+	/**
+	 * TODO need to complete this method in order to work with the announcement
+	 */
 	public void findOrCreateMeter() {
 		if(meter == null){
 			// find by CallHomeID, unique in database
-			List meterList = mw().getRtuFactory().findByDialHomeId("ACE4000"+getPushedSerialnumber());
+			List meterList = mw().getRtuFactory().findByDialHomeId("ACE4000"+getNecessarySerialnumber());
 			
 			if(meterList.size() == 1){
 				meter = (Rtu) meterList.get(0);
@@ -541,6 +705,14 @@ public class ActarisACE4000 implements GenericProtocol{
 				createMeter();
 			}
 		}
+	}
+	
+	public AMRLogging getAmrLogging() {
+		return amrLogging;
+	}
+
+	public void setAmrLogging(AMRLogging amrLogging) {
+		this.amrLogging = amrLogging;
 	}
 	
 	//**********************************************************************************************************************
@@ -552,14 +724,14 @@ public class ActarisACE4000 implements GenericProtocol{
 	private void createMeter(){
 		try {
 			CommunicationProtocol commProt = getCommunicationProtocol(this.getClass().getName());
-			RtuType rtuType = createRtuType(commProt, getPushedSerialnumber(), 4);
-			meter = createRtu(rtuType, getPushedSerialnumber(), "ACE4000"+getPushedSerialnumber(), 1800);
+			RtuType rtuType = createRtuType(commProt, getNecessarySerialnumber(), 4);
+			meter = createRtu(rtuType, getNecessarySerialnumber(), "ACE4000"+getNecessarySerialnumber(), 1800);
 		} catch (BusinessException e) {
 			e.printStackTrace();
-			getLogger().log(Level.INFO, "Could not create meter with serialnumber " + getPushedSerialnumber());
+			getLogger().log(Level.INFO, "Could not create meter with serialnumber " + getNecessarySerialnumber());
 		} catch (SQLException e) {
 			e.printStackTrace();
-			getLogger().log(Level.INFO, "Could not create meter with serialnumber " + getPushedSerialnumber());
+			getLogger().log(Level.INFO, "Could not create meter with serialnumber " + getNecessarySerialnumber());
 		}
 	}
 	
@@ -613,14 +785,6 @@ public class ActarisACE4000 implements GenericProtocol{
 		return rtu;
 	}
 
-	public AMRLogging getAmrLogging() {
-		return amrLogging;
-	}
-
-	public void setAmrLogging(AMRLogging amrLogging) {
-		this.amrLogging = amrLogging;
-	}
-	
 	//**********************************************************************************************************************
 
 }
