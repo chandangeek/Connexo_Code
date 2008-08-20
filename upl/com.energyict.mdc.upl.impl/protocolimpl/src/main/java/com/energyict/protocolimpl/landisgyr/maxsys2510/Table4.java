@@ -38,10 +38,32 @@ class Table4 {
     List getMeterEvents( ){
     	// DEBUG, author PST, here a correction should be added on overlapping events (events that happen on the same moment)
     	// solution is to concat the strings or to shift the event 1 second (changed from ms to s, IGH), concat does not work since the codes can not be concatenated
-    	this.meterEvents = ProtocolUtils.checkOnOverlappingEvents(this.meterEvents);
+    	this.meterEvents = checkOnOverlappingEvents(this.meterEvents);
         return meterEvents;
-    }
+    } 
     
+    protected List checkOnOverlappingEvents(List meterEvents) {
+    	Map eventsMap = new HashMap();
+        int size = meterEvents.size();
+	    for (int i = 0; i < size; i++) {
+	    	MeterEvent event = (MeterEvent) meterEvents.get(i);
+	    	Date time = event.getTime();
+	    	MeterEvent eventInMap = (MeterEvent) eventsMap.get(time);
+	    	while (eventInMap != null) {
+	    		time.setTime(time.getTime() + 1000); // add one second
+				eventInMap = (MeterEvent) eventsMap.get(time);
+	    	}
+	    	MeterEvent newMeterEvent= 
+	    		new MeterEvent(time, event.getEiCode(), event.getProtocolCode(),event.getMessage());
+    		eventsMap.put(time, newMeterEvent);
+	    }
+	    Iterator it = eventsMap.values().iterator();
+		List result = new ArrayList();
+	    while (it.hasNext()) 
+	        result.add((MeterEvent) it.next());
+		return result;
+    }
+     
     public String toString( ){
         StringBuffer rslt = new StringBuffer();
         rslt.append( "Table4 [\n" );
