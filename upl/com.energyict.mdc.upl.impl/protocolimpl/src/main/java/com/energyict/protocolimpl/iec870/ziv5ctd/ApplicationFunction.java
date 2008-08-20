@@ -23,7 +23,7 @@ public class ApplicationFunction {
     private final LinkLayer linkLayer;
     private final FrameFactory frameFactory;
     
-    private final boolean cumulative;
+    private boolean cumulative;
     private final ArrayList channelInfo;
     
     /** Creates a new instance of ApplicationFunction */
