@@ -13,10 +13,15 @@ public class ResponseReceiver {
 	private static final int DEBUG=0;
 	private static final long TIMEOUT=60000;
 	
-	private final int WAIT_FOR_START=0;
-    private final int WAIT_FOR_DATA=2;
-    private final int WAIT_FOR_CRC=3;
-    private final int WAIT_FOR_END=4;
+	private final int WAIT_FOR_CM10_ID=0;
+    private final int WAIT_FOR_BLOCK_SIZE=1;
+    private final int WAIT_FOR_SOURCE_CODE=2;
+    private final int WAIT_FOR_SOURCE_EXTENSION=3;
+    private final int WAIT_FOR_DESTINATION_CODE=4;
+    private final int WAIT_FOR_DESTINATION_EXTENSION=5;
+    private final int WAIT_FOR_PROTOCOL_TYPE=6;
+    private final int WAIT_FOR_PORT=7;
+    private final int WAIT_FOR_CRC=8;
     
     private CM32Connection cm32Connection;
     
@@ -26,21 +31,31 @@ public class ResponseReceiver {
     
     protected void printState(int state) {
     	if (state == 0)
-    		System.out.println("WAIT_FOR_START");
+    		System.out.println("WAIT_FOR_CM10_ID");
     	else if (state == 1)
-    		System.out.println("WAIT_FOR_DATA");
+    		System.out.println("WAIT_FOR_BLOCK_SIZE");
     	else if (state == 2)
-    		System.out.println("WAIT_FOR_CRC");
+    		System.out.println("WAIT_FOR_SOURCE_CODE");
     	else if (state == 3)
-    		System.out.println("WAIT_FOR_END");
-    	else
+    		System.out.println("WAIT_FOR_SOURCE_EXTENSION");
+    	else if (state == 4)
+    		System.out.println("WAIT_FOR_DESTINATION_CODE");
+    	else if (state == 5)
+    		System.out.println("WAIT_FOR_DESTINATION_EXTENSION");
+    	else if (state == 6)
+    		System.out.println("WAIT_FOR_PROTOCOL_TYPE");
+    	else if (state == 7)
+    		System.out.println("WAIT_FOR_PORT");
+    	else if (state == 8)
+    		System.out.println("WAIT_FOR_CRC");
+    	else 
     		System.out.println( "invalid state = " + state);
     }
 
 
     // check for "invalid command response"
 	protected Response receiveResponse(Command command) throws IOException {
-        long protocolTimeout = System.currentTimeMillis() + TIMEOUT;
+        /*long protocolTimeout = System.currentTimeMillis() + TIMEOUT;
         ByteArrayOutputStream dataArrayOutputStream = new ByteArrayOutputStream();
 		dataArrayOutputStream.reset();
 		cm32Connection.echoCancellation();
@@ -84,7 +99,8 @@ public class ResponseReceiver {
 	                		cm32Connection.getTimeoutError());
 	            }
         	}
-        }
+        }*/
+		return null;
 	}
 	
 	protected void checkCrc(String crcFound, ByteArrayOutputStream dataArrayOutputStream) throws IOException {
