@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -21,7 +22,7 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class Time extends AbstractActarisObject {
 	
-	private int DEBUG = 1;
+	private int DEBUG = 0;
 	
 	private String reqString = null;
 	private int trackingID;
@@ -173,15 +174,17 @@ public class Time extends AbstractActarisObject {
 	protected void setElement(Element mdElement) throws IOException{
 		setReceiveTime(ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT")).getTimeInMillis());
 		setMeterTime(Long.valueOf(mdElement.getTextContent(), 16));
-		long diff = Math.abs(getMeterTime() - getReceiveTime()); 
+		long diff = Math.abs(getMeterTime()*1000 - getReceiveTime()); 
 		if(diff > minDiff){
 			if(diff < maxDiff)
 				getObjectFactory().sendSyncTime();
 			else{
-				getObjectFactory().getAace().getLogger().severe("No clock sync, time difference exceeds allow maximum");
-				getObjectFactory().getAace().getLogger().severe("MeterTime: " + new Date(getMeterTime()) + " - SystemTime: " + new Date(getReceiveTime()));
+				getObjectFactory().getAace().getLogger().severe("No clock sync, time difference exceeds allow maximum: " + diff/1000 + "s.");
+				getObjectFactory().getAace().getLogger().severe("MeterTime: " + new Date(getMeterTime()*1000) + " - SystemTime: " + new Date(getReceiveTime()));
 			}
 			
+		} else{
+			getObjectFactory().getAace().getLogger().log(Level.INFO, "MeterTime: " + new Date(getMeterTime()*1000) + " - SystemTime: " + new Date(getReceiveTime()) + " - Difference = " + diff/1000 + "s.");
 		}
 	}
 

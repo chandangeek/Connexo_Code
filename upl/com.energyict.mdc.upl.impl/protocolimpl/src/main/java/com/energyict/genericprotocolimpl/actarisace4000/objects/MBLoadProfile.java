@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
 import org.apache.axis.encoding.Base64;
 import org.w3c.dom.DOMException;
@@ -35,7 +36,7 @@ import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
  */
 public class MBLoadProfile extends AbstractActarisObject {
 	
-	private int DEBUG = 1;
+	private int DEBUG = 0;
 	
 	private String reqString = null;
 	private int trackingID;
@@ -202,6 +203,11 @@ public class MBLoadProfile extends AbstractActarisObject {
 						getProfileData().addInterval(id);
 					}
 				}
+			}
+			
+			if(getTrackingID() != -1){
+				getObjectFactory().sendAcknowledge(getTrackingID());
+				getObjectFactory().getAace().getLogger().log(Level.INFO, "Sent MBus loadprofile ACK for tracknr: " + getTrackingID());
 			}
 			
 		} catch (IOException e) {

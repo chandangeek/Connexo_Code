@@ -3,13 +3,16 @@
  */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
 
 import org.apache.axis.encoding.Base64;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -33,7 +36,7 @@ import com.energyict.protocol.RegisterValue;
  */
 public class BillingData extends AbstractActarisObject {
 	
-	private int DEBUG = 1;
+	private int DEBUG = 0;
 	
 	private int trackingID;
 	private String reqString = null;
@@ -46,7 +49,6 @@ public class BillingData extends AbstractActarisObject {
 	private int interval = -1;
 	private int numOfRecs = -1;
 	
-//	private HashMap map = new HashMap();
 	private ProfileData billingProfile;
 	private ChannelInfo channelInfo;
 	
@@ -87,15 +89,22 @@ public class BillingData extends AbstractActarisObject {
 		String str = "SHxmVgAAA9UAAAAAAAAA2AAAAv0AAAAAAAAAAAEB";
 		String str2 = "SJJSAAAAA9UAAAAAAAAA2AAAAv0AAAAAAAAAAAER";
 		String str3 = "1bDUQQAABucAAAAAAAACmAAABE8AAAAAAAAAAAEB";
+		String str4 = "SKywAAAACE8AAAAAAAADBAAABUsAAAAAAAAAAAEA";
+
 
 		ActarisACE4000 aace = new ActarisACE4000();
 		ObjectFactory of = new ObjectFactory(aace);
 		BillingData bd = new BillingData(of);
 		
 		bd.subSet = "TR1234";
+		bd.setTrackingID(-1);
 //		bd.setRegisterData(str);
 //		bd.setRegisterData(str2);
-		bd.setRegisterData(str3);
+		try {
+			bd.setRegisterData(str4);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		System.out.println(bd.getProfileData());
 	}
 	
@@ -181,7 +190,7 @@ public class BillingData extends AbstractActarisObject {
 		setReqString(msg.substring(msg.indexOf("?>")+2));
 	}
 
-	public void setElement(Element mdElement) {
+	public void setElement(Element mdElement) throws DOMException, IOException {
 		subSet = mdElement.getAttribute(XMLTags.bdAttr);
 		
 		NodeList list = mdElement.getChildNodes();
@@ -209,7 +218,7 @@ public class BillingData extends AbstractActarisObject {
 		}
 	}
 
-	private void setRegisterData(String textContent) {
+	private void setRegisterData(String textContent) throws IOException {
 		
 		int offset = 0;
 		byte[] decoded = Base64.decode(textContent);
@@ -271,6 +280,11 @@ public class BillingData extends AbstractActarisObject {
 			} else id.addValue(0);
 			
 			getProfileData().addInterval(id);
+		}
+		
+		if(getTrackingID() != -1){
+			getObjectFactory().sendAcknowledge(getTrackingID());
+			getObjectFactory().getAace().getLogger().log(Level.INFO, "Sent billingdata ACK for tracknr: " + getTrackingID());
 		}
 	}
 	

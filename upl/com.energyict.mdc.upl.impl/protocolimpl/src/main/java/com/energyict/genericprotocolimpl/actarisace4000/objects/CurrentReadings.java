@@ -28,7 +28,7 @@ import com.energyict.protocol.RegisterValue;
  */
 public class CurrentReadings extends AbstractActarisObject {
 	
-	private int DEBUG = 2;
+	private int DEBUG = 0;
 	
 	private int trackingID;
 	private String reqString = null;
@@ -155,129 +155,123 @@ public class CurrentReadings extends AbstractActarisObject {
 	}
 
 	private void setReadingData(String textContent) {
-//		try {
-			int offset = 0;
-			byte[] decoded = Base64.decode(textContent);
-			if(DEBUG >=1)System.out.println(new String(decoded));
-			long timeStamp = (long)(getNumberFromB64(decoded, offset, 4))*1000;
-			if(DEBUG >= 1)System.out.println(new Date(timeStamp));
-			setTimeStamp(new Date(timeStamp));
-			offset+=4;
-			
-			if(subSet != null){
-				MeterReadingData mrd = new MeterReadingData();
-				RegisterValue rv = null;
-				RtuRegister register = null;
-				ObisCode oc = null;
-				if(subSet.indexOf("T") != -1){
-					setTotalForward(new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR)));
-					offset+=4;
-					oc = ObisCode.fromString("1.0.1.8.0.255");
-					register = getObjectFactory().getAace().getMeter().getRegister(oc);
-					if(register != null){
-						//TODO do we need the dubbel check ??
-						if(isAllowed(oc)){
-							rv = new RegisterValue(oc, getTotalForward(), null, getTimeStamp());
-							rv.setRtuRegisterId(register.getId());
-							mrd.add(rv);
-						}
+		int offset = 0;
+		byte[] decoded = Base64.decode(textContent);
+		if(DEBUG >=1)System.out.println(new String(decoded));
+		long timeStamp = (long)(getNumberFromB64(decoded, offset, 4))*1000;
+		if(DEBUG >= 1)System.out.println(new Date(timeStamp));
+		setTimeStamp(new Date(timeStamp));
+		offset+=4;
+		
+		if(subSet != null){
+			MeterReadingData mrd = new MeterReadingData();
+			RegisterValue rv = null;
+			RtuRegister register = null;
+			ObisCode oc = null;
+			if(subSet.indexOf("T") != -1){
+				setTotalForward(new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR)));
+				offset+=4;
+				oc = ObisCode.fromString("1.0.1.8.0.255");
+				register = getObjectFactory().getAace().getMeter().getRegister(oc);
+				if(register != null){
+					//TODO do we need the dubbel check ??
+					if(isAllowed(oc)){
+						rv = new RegisterValue(oc, getTotalForward(), null, getTimeStamp());
+						rv.setRtuRegisterId(register.getId());
+						mrd.add(rv);
 					}
 				}
-				
-				if(subSet.indexOf("R") != -1){
-					setTotalReverse(new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR)));
-					offset+=4;
-					oc = ObisCode.fromString("1.0.2.8.0.255");
-					register = getObjectFactory().getAace().getMeter().getRegister(oc);
-					if(register != null){
-						//TODO do we need the dubbel check ??
-						if(isAllowed(oc)){
-							rv = new RegisterValue(oc, getTotalReverse(), null, getTimeStamp());
-							rv.setRtuRegisterId(register.getId());
-							mrd.add(rv);
-						}
-					}
-				}
-				
-				if(subSet.indexOf("1") != -1){
-					setRate1(new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR)));
-					offset+=4;
-					oc = ObisCode.fromString("1.0.1.8.1.255");
-					register = getObjectFactory().getAace().getMeter().getRegister(oc);
-					if(register != null){
-						//TODO do we need the dubbel check ??
-						if(isAllowed(oc)){
-							rv = new RegisterValue(oc, getRate1(), null, getTimeStamp());
-							rv.setRtuRegisterId(register.getId());
-							mrd.add(rv);
-						}
-					}
-				}
-				
-				if(subSet.indexOf("2") != -1){
-					setRate2(new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR)));
-					offset+=4;
-					oc = ObisCode.fromString("1.0.1.8.2.255");
-					register = getObjectFactory().getAace().getMeter().getRegister(oc);
-					if(register != null){
-						//TODO do we need the dubbel check ??
-						if(isAllowed(oc)){
-							rv = new RegisterValue(oc, getRate2(), null, getTimeStamp());
-							rv.setRtuRegisterId(register.getId());
-							mrd.add(rv);
-						}
-					}
-				}
-				
-				if(subSet.indexOf("3") != -1){
-					setRate3(new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR)));
-					offset+=4;
-					oc = ObisCode.fromString("1.0.1.8.3.255");
-					register = getObjectFactory().getAace().getMeter().getRegister(oc);
-					if(register != null){
-						//TODO do we need the dubbel check ??
-						if(isAllowed(oc)){
-							rv = new RegisterValue(oc, getRate3(), null, getTimeStamp());
-							rv.setRtuRegisterId(register.getId());
-							mrd.add(rv);
-						}
-					}
-				}
-				
-				if(subSet.indexOf("4") != -1){
-					setRate4(new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR)));
-					offset+=4;
-					oc = ObisCode.fromString("1.0.1.8.4.255");
-					register = getObjectFactory().getAace().getMeter().getRegister(oc);
-					if(register != null){
-						//TODO do we need the dubbel check ??
-						if(isAllowed(oc)){
-							rv = new RegisterValue(oc, getRate4(), null, getTimeStamp());
-							rv.setRtuRegisterId(register.getId());
-							mrd.add(rv);
-						}
-					}
-				}
-				
-				if(mrd.getRegisterValues().size() != 0)
-					try {
-						getObjectFactory().getAace().getMeter().store(mrd);
-					} catch (SQLException e) {
-						e.printStackTrace();
-						getObjectFactory().log(Level.INFO, "Could not store current readings for meter with serialNumber: "
-								+ getObjectFactory().getAace().getNecessarySerialnumber());
-					} catch (BusinessException e) {
-						e.printStackTrace();
-						getObjectFactory().log(Level.INFO, "Could not store current readings for meter with serialNumber: "
-								+ getObjectFactory().getAace().getNecessarySerialnumber());
-					}
 			}
 			
-//		} catch (Base64DecodingException e) {
-//			e.printStackTrace();
-//			throw new Base64DecodingException("Could not decode the requested string: " + textContent);
-//		}
-		
+			if(subSet.indexOf("R") != -1){
+				setTotalReverse(new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR)));
+				offset+=4;
+				oc = ObisCode.fromString("1.0.2.8.0.255");
+				register = getObjectFactory().getAace().getMeter().getRegister(oc);
+				if(register != null){
+					//TODO do we need the dubbel check ??
+					if(isAllowed(oc)){
+						rv = new RegisterValue(oc, getTotalReverse(), null, getTimeStamp());
+						rv.setRtuRegisterId(register.getId());
+						mrd.add(rv);
+					}
+				}
+			}
+			
+			if(subSet.indexOf("1") != -1){
+				setRate1(new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR)));
+				offset+=4;
+				oc = ObisCode.fromString("1.0.1.8.1.255");
+				register = getObjectFactory().getAace().getMeter().getRegister(oc);
+				if(register != null){
+					//TODO do we need the dubbel check ??
+					if(isAllowed(oc)){
+						rv = new RegisterValue(oc, getRate1(), null, getTimeStamp());
+						rv.setRtuRegisterId(register.getId());
+						mrd.add(rv);
+					}
+				}
+			}
+			
+			if(subSet.indexOf("2") != -1){
+				setRate2(new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR)));
+				offset+=4;
+				oc = ObisCode.fromString("1.0.1.8.2.255");
+				register = getObjectFactory().getAace().getMeter().getRegister(oc);
+				if(register != null){
+					//TODO do we need the dubbel check ??
+					if(isAllowed(oc)){
+						rv = new RegisterValue(oc, getRate2(), null, getTimeStamp());
+						rv.setRtuRegisterId(register.getId());
+						mrd.add(rv);
+					}
+				}
+			}
+			
+			if(subSet.indexOf("3") != -1){
+				setRate3(new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR)));
+				offset+=4;
+				oc = ObisCode.fromString("1.0.1.8.3.255");
+				register = getObjectFactory().getAace().getMeter().getRegister(oc);
+				if(register != null){
+					//TODO do we need the dubbel check ??
+					if(isAllowed(oc)){
+						rv = new RegisterValue(oc, getRate3(), null, getTimeStamp());
+						rv.setRtuRegisterId(register.getId());
+						mrd.add(rv);
+					}
+				}
+			}
+			
+			if(subSet.indexOf("4") != -1){
+				setRate4(new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR)));
+				offset+=4;
+				oc = ObisCode.fromString("1.0.1.8.4.255");
+				register = getObjectFactory().getAace().getMeter().getRegister(oc);
+				if(register != null){
+					//TODO do we need the dubbel check ??
+					if(isAllowed(oc)){
+						rv = new RegisterValue(oc, getRate4(), null, getTimeStamp());
+						rv.setRtuRegisterId(register.getId());
+						mrd.add(rv);
+					}
+				}
+			}
+			
+			if(mrd.getRegisterValues().size() != 0){
+				try {
+					getObjectFactory().getAace().getMeter().store(mrd);
+				} catch (SQLException e) {
+					e.printStackTrace();
+					getObjectFactory().log(Level.INFO, "Could not store current readings for meter with serialNumber: "
+							+ getObjectFactory().getAace().getNecessarySerialnumber());
+				} catch (BusinessException e) {
+					e.printStackTrace();
+					getObjectFactory().log(Level.INFO, "Could not store current readings for meter with serialNumber: "
+							+ getObjectFactory().getAace().getNecessarySerialnumber());
+				}
+			}
+		}
 	}
 
 	public Quantity getTotalForward() {

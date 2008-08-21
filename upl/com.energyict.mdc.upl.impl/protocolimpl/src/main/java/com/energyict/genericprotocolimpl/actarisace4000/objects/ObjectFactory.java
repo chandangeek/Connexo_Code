@@ -36,7 +36,7 @@ import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
  */
 public class ObjectFactory {
 	
-	private int DEBUG = 1;
+	private int DEBUG = 0;
 	
 	private ActarisACE4000 		aace;
 	private Acknowledge 		acknowledge;
@@ -67,6 +67,11 @@ public class ObjectFactory {
 		return fullMeterConfig;
 	}
 	
+	
+	/** 
+	 * Send a request for full meter configuration
+	 * @throws IOException
+	 */
 	public void sendFullMeterConfigRequest() throws IOException{
 		getFullMeterConfig().setTrackingID(getAace().getTracker());
 		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
@@ -81,6 +86,11 @@ public class ObjectFactory {
 		return autoPushConfig;
 	}
 	
+	/**
+	 * TODO adjust method to enter the values yourself
+	 * Send xml with the meters autopush config - Startime, Stoptime pushwindow ...
+	 * @throws IOException
+	 */
 	public void setAutoPushConfig() throws IOException{
 		getAutoPushConfig().setTrackingID(getAace().getTracker());
 		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
@@ -116,6 +126,10 @@ public class ObjectFactory {
 		return loadProfile;
 	}
 	
+	/**
+	 * Request all the loadprofile data
+	 * @throws IOException
+	 */
 	public void sendLoadProfileRequest() throws IOException{
 		getLoadProfile().setTrackingID(getAace().getTracker());
 		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
@@ -123,6 +137,11 @@ public class ObjectFactory {
 		getLoadProfile().request();
 	}
 	
+	/**
+	 * Request the loadprofile data from a certain point in time
+	 * @param from equals the the point in time
+	 * @throws IOException
+	 */
 	public void sendLoadProfileRequest(Date from) throws IOException{
 		getLoadProfile().setTrackingID(getAace().getTracker());
 		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
@@ -137,6 +156,10 @@ public class ObjectFactory {
 		return mbLoadProfile;
 	}
 	
+	/**
+	 * Request all the MBus loadprofile data
+	 * @throws IOException
+	 */
 	public void sendMBLoadProfileRequest() throws IOException{
 		getMBLoadProfile().setTrackingID(getAace().getTracker());
 		getAace().setNecessarySerialNumber(getAace().getMBSerialNumber().get(0));
@@ -144,6 +167,11 @@ public class ObjectFactory {
 		getMBLoadProfile().request();
 	}
 	
+	/**
+	 * Request the MBus loadprofile data from a certain point in time
+	 * @param from equals the point in time
+	 * @throws IOException
+	 */
 	public void sendMBLoadProfileRequest(Date from) throws IOException{
 		getMBLoadProfile().setTrackingID(getAace().getTracker());
 		getAace().setNecessarySerialNumber(getAace().getMBSerialNumber().get(0));
@@ -158,6 +186,10 @@ public class ObjectFactory {
 		return billingData;
 	}
 	
+	/**
+	 * Request all billingdata from the E-meter
+	 * @throws IOException
+	 */
 	public void sendBDRequest() throws IOException{
 		getBillingData().setTrackingID(getAace().getTracker());
 		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
@@ -165,6 +197,11 @@ public class ObjectFactory {
 		getBillingData().request();
 	}
 	
+	/**
+	 * Request the billingdata from the E-meter from a certain point in time
+	 * @param from equals the point in time
+	 * @throws IOException
+	 */
 	public void sendBDRequest(Date from) throws IOException{
 		getBillingData().setTrackingID(getAace().getTracker());
 		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
@@ -172,6 +209,13 @@ public class ObjectFactory {
 		getBillingData().request();
 	}
 	
+	/**
+	 * Send the E-meters billingdata  configuration
+	 * @param enabled - billingdata is enabled/disabled
+	 * @param intervals	- interval in seconds between two records
+	 * @param numbOfInt - number of records to store
+	 * @throws IOException
+	 */
 	public void sendBDConfig(int enabled, int intervals, int numbOfInt) throws IOException{
 		getBillingData().setTrackingID(getAace().getTracker());
 		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
@@ -186,6 +230,10 @@ public class ObjectFactory {
 		return time;
 	}
 	
+	/**
+	 * Force the meter time to the system time
+	 * @throws IOException
+	 */
 	public void sendForceTime() throws IOException{
 		getTime().setTrackingID(getAace().getTracker());
 		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
@@ -193,6 +241,10 @@ public class ObjectFactory {
 		getTime().request();
 	}
 	
+	/**
+	 * Sync the meter time to the system time
+	 * @throws IOException
+	 */
 	public void sendSyncTime() throws IOException{
 		getTime().setTrackingID(getAace().getTracker());
 		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
@@ -200,6 +252,13 @@ public class ObjectFactory {
 		getTime().request();
 	}
 	
+	/**
+	 * Send the timesync configuration
+	 * @param diff - maximum allowed time difference for timesync to take place (in seconds)
+	 * @param trip - maximum SNTP trip time in seconds
+	 * @param retry - maximum number of clock sync retries allowed
+	 * @throws IOException
+	 */
 	public void sendTimeConfig(int diff, int trip, int retry) throws IOException{
 		getTime().setTrackingID(getAace().getTracker());
 		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
@@ -214,6 +273,11 @@ public class ObjectFactory {
 		return acknowledge;
 	}
 	
+	/**
+	 * Send an acknowledgment with for a certain message with a given tracking number
+	 * @param tracker equals the tracking number
+	 * @throws IOException
+	 */
 	public void sendAcknowledge(int tracker) throws IOException{
 		getAcknowledge().setTrackingID(tracker);
 		getAace().setNecessarySerialNumber(getAcknowledge().getSerialNumber());
@@ -228,6 +292,10 @@ public class ObjectFactory {
 		return firmwareVersion;
 	}
 	
+	/**
+	 * Request the firmwareversions of the meter
+	 * @throws IOException
+	 */
 	public void sendFirmwareRequest() throws IOException{
 		getFirmwareVersion().setTrackingID(getAace().getTracker());
 		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
@@ -253,7 +321,15 @@ public class ObjectFactory {
 		this.aace = aace;
 	}
 	
-	public void parseXML(String xml) throws ParserConfigurationException, SAXException, IOException{
+	/**
+	 * Parse the received XML to the corresponding object
+	 * @param xml - the received MeterXML string
+	 * @throws ParserConfigurationException
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws BusinessException 
+	 */
+	public void parseXML(String xml) throws ParserConfigurationException, SAXException, IOException, BusinessException{
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		
 		if(DEBUG >=1)System.out.println(xml);
@@ -265,22 +341,22 @@ public class ObjectFactory {
 			parseElements(topElement);
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
-			throw new ParserConfigurationException("Failed to make a new builder from the documentBuilderfactory" + e.getMessage());
+			throw new ParserConfigurationException("Failed to make a new builder from the documentBuilderfactory" + e.getMessage() + "(Received xml: " + xml + ")");
 		} catch (SAXException e) {
 			e.printStackTrace();
-			throw new SAXException("Could not parse the received xmlString." + e.getMessage());
+			throw new SAXException("Could not parse the received xmlString." + e.getMessage() + "(Received xml: " + xml + ")");
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException(e.getMessage());
+			throw new IOException(e.getMessage() + "(Received xml: " + xml + ")");
 		} catch (DOMException e) {
 			e.printStackTrace();
-			throw new IOException(e.getMessage());
+			throw new BusinessException(e.getMessage() + "(Received xml: " + xml + ")");
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new IOException(e.getMessage());
+			throw new BusinessException(e.getMessage() + "(Received xml: " + xml + ")");
 		} catch (BusinessException e) {
 			e.printStackTrace();
-			throw new IOException(e.getMessage());
+			throw new BusinessException(e.getMessage() + "(Received xml: " + xml + ")");
 		} 
 	}
 	
@@ -310,85 +386,106 @@ public class ObjectFactory {
 		}
 	}
 	
-	private void parseElements(Element element) throws DOMException, IOException, SQLException, BusinessException{
+	private void parseElements(Element element) throws IOException, SQLException, BusinessException{
+		
 		String nodeName = element.getNodeName();
 		setTempTrackingID(-1);	// clear the tracker again
-		if(nodeName.equalsIgnoreCase(XMLTags.mPush)){
-			NodeList nodes = element.getElementsByTagName(XMLTags.meterData);
-			Element md = (Element)nodes.item(0);
-			
-			if(md.getNodeName().equalsIgnoreCase(XMLTags.meterData)){
-				NodeList mdNodeList = md.getChildNodes();
+		
+		try {
+			if(nodeName.equalsIgnoreCase(XMLTags.mPush)){
+				NodeList nodes = element.getElementsByTagName(XMLTags.meterData);
+				Element md = (Element)nodes.item(0);
 				
-				for(int i = 0; i < mdNodeList.getLength(); i++){
-					Element mdElement = (Element)mdNodeList.item(i);
+				if(md.getNodeName().equalsIgnoreCase(XMLTags.meterData)){
+					NodeList mdNodeList = md.getChildNodes();
 					
-					if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.serialNumber)){
-						getAace().setSerialnumbers(mdElement.getTextContent());
-						log(Level.INFO, "Received data from meter with serialnumber " + getAace().getPushedSerialNumber());
-					}
-					
-					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.tracker)){
-						setTempTrackingID(Integer.parseInt(mdElement.getTextContent(), 16));	// add the radius because we receive hex
-					}
-					
-					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.loadPr)){
-						getLoadProfile().setTrackingID(getTempTrackingID());		// need the tracking ID to 'ACK'the UDP packet
-						getLoadProfile().setElement(mdElement);	
-					}
-					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.loadPrAbs)){
-						getLoadProfile().setTrackingID(getTempTrackingID());		// need the tracking ID to 'ACK'the UDP packet
-						getLoadProfile().setElement(mdElement);
-					}
-					
-					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.mbusLP)){
-						getMBLoadProfile().setTrackingID(getTempTrackingID());		// need the tracking ID to 'ACK'the UDP packet
-						getMBLoadProfile().setElement(mdElement);
-					}
-					
-					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.announce)){
-						getAnnouncement().setElement(mdElement);
-					}
+					for(int i = 0; i < mdNodeList.getLength(); i++){
+						Element mdElement = (Element)mdNodeList.item(i);
 						
-					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.curReading)){
-						log(Level.INFO, "Received current readings from meter with serialnumber " + getAace().getPushedSerialNumber());
-						getCurrentReadings().setElement(mdElement);
-					}
-					
-					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.mbusCReading)){
-						log(Level.INFO, "Received current readings from MBus meter with serialnumber " + getAace().getPushedSerialNumber());
-						getMBCurrentReadings().setElement(mdElement);
-					}
-					
-					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.resFirmware)){
-						getFirmwareVersion().setElement(mdElement);
-					}
-					
-					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.billData)){
-						log(Level.INFO, "Received billing data from meter with serialnumber " + getAace().getPushedSerialNumber());
-						getBillingData().setElement(mdElement);
-					}
-					
-//					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.billingConf)){
-//						getBillingData().setConfig(mdElement);
+						if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.serialNumber)){
+							getAace().setSerialnumbers(mdElement.getTextContent());
+						}
+						
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.tracker)){
+							setTempTrackingID(Integer.parseInt(mdElement.getTextContent(), 16));	// add the radius because we receive hex
+						}
+						
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.loadPr)){
+							log(Level.INFO, "Received a loadProfile element.");
+							getLoadProfile().setTrackingID(getTempTrackingID());		// need the tracking ID to 'ACK'the UDP packet
+							getLoadProfile().setElement(mdElement);	
+						}
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.loadPrAbs)){
+							log(Level.INFO, "Received a loadProfile element.");
+							getLoadProfile().setTrackingID(getTempTrackingID());		// need the tracking ID to 'ACK'the UDP packet
+							getLoadProfile().setElement(mdElement);
+						}
+						
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.mbusLP)){
+							log(Level.INFO, "Received an MBus loadProfile element.");
+							getMBLoadProfile().setTrackingID(getTempTrackingID());		// need the tracking ID to 'ACK'the UDP packet
+							getMBLoadProfile().setElement(mdElement);
+						}
+						
+						// TODO extend this functionality
+//					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.announce)){
+//						getAnnouncement().setElement(mdElement);
 //					}
-					
-					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.configHandling)){
-						log(Level.INFO, "Received configuration from meter with serialnumber " + getAace().getPushedSerialNumber());
-						getFullMeterConfig().setElement(mdElement);
-					}
-					
-					// TODO verify timezone Stuff
-					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.meterTime)){
-						getTime().setElement(mdElement);
+							
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.curReading)){
+							log(Level.INFO, "Received current readings from meter.");
+							getCurrentReadings().setElement(mdElement);
+						}
+						
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.mbusCReading)){
+							log(Level.INFO, "Received current readings from MBus meter.");
+							getMBCurrentReadings().setElement(mdElement);
+						}
+						
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.resFirmware)){
+							log(Level.INFO, "Received firmware versions.");
+							getFirmwareVersion().setElement(mdElement);
+						}
+						
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.billData)){
+							log(Level.INFO, "Received billing data from meter.");
+							getBillingData().setTrackingID(getTempTrackingID());		// need the tracking ID to 'ACK'the UDP packet
+							getBillingData().setElement(mdElement);
+						}
+						
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.configHandling)){
+							log(Level.INFO, "Received configuration from meter.");
+							getFullMeterConfig().setElement(mdElement);
+						}
+						
+						// TODO verify timezone Stuff
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.meterTime)){
+							log(Level.INFO, "Received timing parameters.");
+							getTime().setElement(mdElement);
+						}
 					}
 				}
+				else
+					throw new ApplicationException("Unknown tag found in xml responce: " + nodes.item(0).getNodeName());
 			}
 			else
-				throw new ApplicationException("Unknown tag found in xml responce: " + nodes.item(0).getNodeName());
+				throw new ApplicationException("Unknown tag found in xml responce: " + element.getNodeName());
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			throw e;
+		} catch (DOMException e) {
+			e.printStackTrace();
+			throw e;
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw e;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw e;
+		} catch (BusinessException e) {
+			e.printStackTrace();
+			throw e;
 		}
-		else
-			throw new ApplicationException("Unknown tag found in xml responce: " + element.getNodeName());
 	}
 	
 	protected void log(Level level, String msg){

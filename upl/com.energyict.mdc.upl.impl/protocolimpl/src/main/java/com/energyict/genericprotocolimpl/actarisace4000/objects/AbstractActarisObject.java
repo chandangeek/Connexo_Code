@@ -51,12 +51,6 @@ abstract public class AbstractActarisObject {
 	 * @return reqString
 	 */
 	abstract protected String getReqString();
-//	/**
-//	 * Returns the element from the DatagramPacket.
-//	 * Enables you to fill in the individual parameters of the object 
-//	 * @param element
-//	 */
-//	abstract protected void setElement(Element mdElement);
 
 	/**
 	 * @param ObjectFactory of
@@ -77,7 +71,6 @@ abstract public class AbstractActarisObject {
 	 * @throws IOException 
 	 */
 	public void request() throws IOException{
-//		getObjectFactory().getAace().getPacket().sendMessage(getReqString());
 		getObjectFactory().getAace().getOutputStream().write(getReqString().getBytes());
 	}
 

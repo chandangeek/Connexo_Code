@@ -4,9 +4,11 @@
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.logging.Level;
 
 import org.apache.axis.encoding.Base64;
 import org.w3c.dom.DOMException;
@@ -28,7 +30,7 @@ import com.energyict.protocol.ProfileData;
  */
 public class LoadProfile extends AbstractActarisObject {
 	
-	private int DEBUG = 1;
+	private int DEBUG = 0;
 	
 	private String reqString = null;
 	private int trackingID;
@@ -77,6 +79,7 @@ public class LoadProfile extends AbstractActarisObject {
 		String msg = convertDocumentToString(doc);
 		setReqString(msg.substring(msg.indexOf("?>")+2));
 	}
+	
 	/**
 	 * Request the loadProfile from the requested date
 	 * @param from
@@ -233,8 +236,10 @@ public class LoadProfile extends AbstractActarisObject {
 			
 		if(DEBUG >=1)System.out.println(getProfileData());
 		
-		if(getTrackingID() != -1)
+		if(getTrackingID() != -1){
 			getObjectFactory().sendAcknowledge(getTrackingID());
+			getObjectFactory().getAace().getLogger().log(Level.INFO, "Sent loadprofile ACK for tracknr: " + getTrackingID());
+		}
 	}
 
 	public int getLpInterval() {
@@ -252,6 +257,8 @@ public class LoadProfile extends AbstractActarisObject {
 	}
 	
 	private ChannelInfo getDefaultChannelInfo(){
-		return new ChannelInfo(0, "Actaris ACE4000 Channel 1", Unit.get(BaseUnit.WATTHOUR));
+		ChannelInfo ci = new ChannelInfo(0, "Actaris ACE4000 Channel 1", Unit.get(BaseUnit.WATTHOUR));
+		ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
+		return ci;
 	}
 }

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
@@ -23,6 +24,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
 import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.RegisterValue;
@@ -36,7 +38,7 @@ import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
  */
 public class MBCurrentReadings extends AbstractActarisObject {
 	
-	private int DEBUG = 2;
+	private int DEBUG = 0;
 	
 	private int trackingID;
 	private String reqString = null;
@@ -154,7 +156,10 @@ public class MBCurrentReadings extends AbstractActarisObject {
 		
 		if(getMrd().getRegisterValues().size() > 0){
 			try {
-				getObjectFactory().getAace().getMeter().store(mrd);
+//				getObjectFactory().getAace().getMeter().store(mrd);
+				for( int i = 0; i < mbusSerials().size(); i++){
+					mbusDevices().get(mbusSerials().get(i)).store(mrd);
+				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 				getObjectFactory().log(Level.INFO, "Could not store current readings for meter with serialNumber: "
@@ -206,27 +211,36 @@ public class MBCurrentReadings extends AbstractActarisObject {
 					
 					record = (DataRecord) dataRecord;
 					valueInfo = record.getDataRecordHeader().getValueInformationBlock().getValueInformationfieldCoding();
-	
 					
 					if(valueInfo.isTypeUnit() && valueInfo.getDescription().equalsIgnoreCase("Volume")){
 						valueInfo.getObisCodeCreator().setA(ciField72h.getDeviceType().getObisA());
 						obisString = valueInfo.getObisCodeCreator().toString();
 						ObisCode oc = ObisCode.fromString(obisString);
-						register = getObjectFactory().getAace().getMeter().getRegister(oc);
-						if(register != null && register.getReadingAt(getTimeStamp()) == null){
-							RegisterValue value = new RegisterValue(oc, record.getQuantity(), getTimeStamp());
-							value.setRtuRegisterId(register.getId());
-							getMrd().add(value);
+						
+						for( int i = 0; i < mbusSerials().size(); i++){
+							Rtu mbusDevice = mbusDevices().get(mbusSerials().get(i));
+							register = mbusDevice.getRegister(oc);
+							if(register != null && register.getReadingAt(getTimeStamp()) == null){
+								RegisterValue value = new RegisterValue(oc, record.getQuantity(), getTimeStamp());
+								value.setRtuRegisterId(register.getId());
+								getMrd().add(value);
+							}
 						}
 					}
 				}
 	        }
-	        
-			
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			throw new IOException("Failed to parse the RawMBusFrame." + e1.getMessage());
 		}
+	}
+	
+	private List mbusSerials(){
+		return getObjectFactory().getAace().getMBSerialNumber();
+	}
+	
+	private HashMap<String, Rtu> mbusDevices(){
+		return getObjectFactory().getAace().getMbusMetersMap();
 	}
 
 	public Date getTimeStamp() {

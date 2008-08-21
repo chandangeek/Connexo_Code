@@ -6,8 +6,6 @@ package com.energyict.genericprotocolimpl.actarisace4000;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -24,17 +22,16 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.genericprotocolimpl.actarisace4000.objects.ObjectFactory;
-import com.energyict.genericprotocolimpl.actarisace4000.udp.ActarisUDPSocket;
-import com.energyict.genericprotocolimpl.actarisace4000.udp.DPacket;
-import com.energyict.genericprotocolimpl.actarisace4000.udp.PacketBuffer;
-import com.energyict.genericprotocolimpl.actarisace4000.udp.UDPListener;
+import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.mdw.amr.GenericProtocol;
+import com.energyict.mdw.core.AmrJournalEntry;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.CommunicationScheduler;
@@ -45,8 +42,6 @@ import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.shadow.CommunicationProtocolShadow;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.mdw.shadow.RtuTypeShadow;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -55,14 +50,11 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class ActarisACE4000 implements GenericProtocol{
 	
-	private int DEBUG = 1;
+	private int DEBUG = 0;
 	
 	private InputStream 			inputStream;
 	private OutputStream 			outputStream;
 	private Dialer 					dialer;
-	private DPacket 				packet;
-	private PacketBuffer 			buffer;
-	private UDPListener				udpListener;
 	private Rtu						meter;
 	private HashMap<String, Rtu>	mbusMeters;
 	private Logger 					logger;
@@ -71,8 +63,6 @@ public class ActarisACE4000 implements GenericProtocol{
 	private Link 					link;	
 	private Properties				properties;
 	private ObjectFactory			objectFactory;
-	private ActarisUDPSocket		udpSocket;
-	private AMRLogging				amrLogging;
 	
 	private List<String>			mbSerialNumber;
 	private String					pushedSerialNumber;
@@ -83,6 +73,7 @@ public class ActarisACE4000 implements GenericProtocol{
 	private int						tracker;
 	
 	private int oneTimer = 0;
+	private long connectTime = 0;
 	
 	// TODO change the timeOut
 	// TODO change the timeOut
@@ -91,20 +82,11 @@ public class ActarisACE4000 implements GenericProtocol{
 	// TODO change the timeOut
 	// TODO change the timeOut
 	// TODO change the timeOut
-	private int 					timeOut = 30000;	// default timeout of 1min
+	private int 					timeOut = 60000;	// default timeout of 1min
 	
 	public ActarisACE4000(){
 		
 	}
-	
-	public ActarisACE4000(Dialer dialer) throws SocketException, UnknownHostException{
-//		this.dialer = dialer;
-//		this.inputStream = dialer.getInputStream();
-//		this.outputStream = dialer.getOutputStream();
-		this.buffer = new PacketBuffer();
-		this.udpListener = new UDPListener(this);	// start the UDPListener
-	}
-	
 	
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 		this.logger = logger;
@@ -112,6 +94,7 @@ public class ActarisACE4000 implements GenericProtocol{
 		this.scheduler = scheduler;
 		
 		boolean success = true;
+		Exception exception = null;
 		
 		try {
 			//lazy init
@@ -119,18 +102,19 @@ public class ActarisACE4000 implements GenericProtocol{
 			
 			if(scheduler == null){	// we got a message from the COMMSERVER UDP Listener
 				
-				if(DEBUG >= 1)logger.log(Level.ALL, "In the EXECUTE method");
+				logger.log(Level.INFO, " ** A new UDP session is started **");
+				setConnectTime(System.currentTimeMillis());
 				
 				this.inputStream = this.link.getInputStream();
 				this.outputStream = this.link.getOutputStream();
-				this.amrLogging = new AMRLogging(this);
 				
 				setObjectFactory(new ObjectFactory(this));
 				
 				// keep reading until you get no data for one minute
-				
 				long interMessageTimeout = System.currentTimeMillis() + timeOut;
+				
 				while(true){	// this loop controls the responses that we get from our own requests
+					
 					while(true){	// this loop controls the UDP packets pushed from the meter
 						int kar = 0;
 						String msg = "";
@@ -160,24 +144,20 @@ public class ActarisACE4000 implements GenericProtocol{
 						if (((long) (System.currentTimeMillis() - interMessageTimeout)) > 0) {
 							break; // we can leave the loop cause we did not receive a message within the passed minute
 						}
-					}
-//					if(!getObjectFactory().getBillingData().getMap().isEmpty() && getObjectFactory().getBillingData().getInterval() == -1){
-//						// request the configuration from the meter
-//						interMessageTimeout = System.currentTimeMillis() + timeOut;	// keep the session alive
-//						getObjectFactory().sendFullMeterConfigRequest();
-//					}
+					}	// end of UPD listen loop - check if we want to do something
 					
 					if(oneTimer == 0){
 						oneTimer++;
 						Calendar cal = ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT"));
-						cal.add(Calendar.MONTH, -2);
+						cal.add(Calendar.DAY_OF_MONTH, -20);
 						interMessageTimeout = System.currentTimeMillis() + timeOut;	// keep the session alive
 //						getObjectFactory().sendBDConfig(1, 1, 15);
 //						getObjectFactory().sendFullMeterConfigRequest();
 //						getObjectFactory().sendBDRequest(cal.getTime());
-//						getObjectFactory().sendLoadProfileRequest(cal.getTime());
+						getObjectFactory().sendLoadProfileRequest(cal.getTime());
 //						getObjectFactory().sendTimeConfig(4800, 120, 3);
-						getObjectFactory().sendForceTime();
+//						getObjectFactory().sendForceTime();		// TODO this way we can check the time of the meter, but other ways would be better.
+//						getObjectFactory().sendBDRequest();
 					}
 					if (((long) (System.currentTimeMillis() - interMessageTimeout)) > 0) {
 						break; // we can leave the loop cause we did not receive a message within the passed minute
@@ -200,27 +180,11 @@ public class ActarisACE4000 implements GenericProtocol{
 				}
 				if(getObjectFactory().getBillingData().getProfileData().getIntervalDatas().size() > 0){
 					getObjectFactory().getBillingData().getProfileData().sort();
-					getMeter().store(getObjectFactory().getBillingData().getProfileData());
+					getMeter().store(getObjectFactory().getBillingData().getProfileData(), false);
 				}
 				
-				// after getting all the messages, save the necessary data
-//				setPushedSerialnumber("07100516");
-//				setPushedSerialnumber("0505514283927180");
-//				getObjectFactory().sendLoadProfileRequest();
-//				getObjectFactory().setAutoPushConfig();
-//				getObjectFactory().sendMBLoadProfileRequest();
-//				Calendar cal = ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT"));
-//				cal.add(Calendar.DAY_OF_MONTH, -20);
-//				getObjectFactory().sendMBLoadProfileRequest(cal.getTime());
-//				getObjectFactory().sendFullMeterConfigRequest();
-//				getObjectFactory().sendForceTime();
-//				getObjectFactory().sendBDRequest(cal.getTime());
-					
-//				setNecessarySerialNumber("07100516");
-//				Calendar cal = ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT"));
-//				cal.add(Calendar.MONTH, -1);
-//				getObjectFactory().sendBDRequest(cal.getTime());
-//				getObjectFactory().sendMBLoadProfileRequest(cal.getTime());
+				getLogger().log(Level.INFO, "** Closing the UDP session **");
+//				success = true;
 			}
 			
 		} catch (InterruptedException e1) {
@@ -229,41 +193,55 @@ public class ActarisACE4000 implements GenericProtocol{
 			}
 			errorString.append(e1.getMessage());
 			success = false;
+			exception = e1;
 			e1.printStackTrace();
-			throw new IOException(e1.getMessage());
+			throw new BusinessException(e1.getMessage());
 		} catch (ParserConfigurationException e) {
 			if(errorString == null){
 				errorString = new StringBuilder();
 			}
 			errorString.append(e.getMessage());
 			success = false;
+			exception = e;
 			e.printStackTrace();
-			throw new IOException(e.getMessage());
+			throw new BusinessException(e.getMessage());
 		} catch (SAXException e) {
 			if(errorString == null){
 				errorString = new StringBuilder();
 			}
 			errorString.append(e.getMessage());
 			success = false;
+			exception = e;
 			e.printStackTrace();
-			throw new IOException(e.getMessage());
+			throw new BusinessException(e.getMessage());
 		} catch (SQLException e){
 			if(errorString == null){
 				errorString = new StringBuilder();
 			}
 			errorString.append(e.getMessage());
 			success = false;
+			exception = e;
 			e.printStackTrace();
         	// Close the connection after an SQL exception, connection will startup again if requested
         	Environment.getDefault().closeConnection();
-			throw new IOException(e.getMessage());
+			throw new BusinessException(e.getMessage());
+		} catch (IOException e){
+			if(errorString == null){
+				errorString = new StringBuilder();
+			}
+			errorString.append(e.getMessage());
+			success = false;
+			exception = e;
+			throw new BusinessException(e.getMessage());
 		} finally {
-			// add a connectTime to the armJournal
 			try {
-				if(success)
-					getAmrLogging().addSuccessFullLogging();
-				else
-					getAmrLogging().addFailureLogging(errorString);
+				if(success){
+					addSuccessLogging();
+				}
+				else{
+					addFailureLogging(exception, errorString);
+				}
+				
 			} catch (SQLException e) {
 				e.printStackTrace();
 	        	// Close the connection after an SQL exception, connection will startup again if requested
@@ -273,33 +251,53 @@ public class ActarisACE4000 implements GenericProtocol{
 		}
 	}
 	
-	private void validateProperties() throws MissingPropertyException, InvalidPropertyException{
-		
-		// check the required keys - if missing, throw exception
-        Iterator iterator= getRequiredKeys().iterator();
-        while (iterator.hasNext())
-        {
-            String key = (String) iterator.next();
-            if (properties.getProperty(key) == null)
-                throw new MissingPropertyException (key + " key missing");
-        }
-        
-        // check the optional keys - if missing, use default values
-        phoneNumber = meter.getPhoneNumber();
-        
-	}
-
-	private void init() throws IOException {
-		meter = scheduler.getRtu();		// need the meter to get the properties
-		validateProperties();			// read all the necessary properties
-		
-		udpSocket = new ActarisUDPSocket(phoneNumber);
-		packet = new DPacket(this);
-		setObjectFactory(new ObjectFactory(this));
-		
-		tracker = 0;
+	private void setConnectTime(long currentTimeMillis) {
+		this.connectTime = currentTimeMillis;
 	}
 	
+	public long getConnectTime(){
+		return connectTime;
+	}
+
+	private void addFailureLogging(Exception exception, StringBuilder eString) throws SQLException, BusinessException {
+		if(getMeter() != null){
+			Iterator it = getMeter().getCommunicationSchedulers().iterator();
+			while(it.hasNext()){
+				CommunicationScheduler cs = (CommunicationScheduler)it.next();
+				if( !cs.getActive() ){
+					cs.startCommunication();
+					AMRJournalManager amrjm = new AMRJournalManager(getMeter(), cs);
+					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, eString + ": " + exception.toString()));
+					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - getConnectTime())/1000));
+					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
+					amrjm.updateRetrials();
+					break;
+				}
+			}
+		}else{
+			getLogger().log(Level.INFO, "Failed to enter an AMR journal entry.");
+		}
+	}
+	
+	private void addSuccessLogging() throws SQLException, BusinessException {
+		if(getMeter() != null){
+			Iterator it = getMeter().getCommunicationSchedulers().iterator();
+			while(it.hasNext()){
+				CommunicationScheduler cs = (CommunicationScheduler)it.next();
+				if( !cs.getActive() ){
+					cs.startCommunication();
+					AMRJournalManager amrjm = new AMRJournalManager(getMeter(), cs);
+					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - getConnectTime())/1000));
+					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CC_OK));
+					amrjm.updateLastCommunication();
+					break;
+				}
+			}
+		}else{
+			getLogger().log(Level.INFO, "Failed to enter an AMR journal entry.");
+		}
+	}
+
 	public void addProperties(Properties properties) {
 		this.properties = properties;
 	}
@@ -327,22 +325,20 @@ public class ActarisACE4000 implements GenericProtocol{
 //			dialer = DialerFactory.getDirectDialer().newDialer();
 //			dialer.init("COM1");
 //			dialer.connect("", 60000);
-			aace = new ActarisACE4000(dialer);
+//			aace = new ActarisACE4000(dialer);
 			
 //			aace.sendWakeUpSMS();
 //			new UDPListener();
 //			aace.setSimAddressBook();
 			
 //			String message = "<MPull><MD><M>0505514283927180</M><T>0000</T></MD></MPull>";
-			aace.packet = new DPacket(aace);
+//			aace.packet = new DPacket(aace);
 			aace.tracker = 0;
 //			aace.packet.sendMessage(message);
 			
 //			dialer.disConnect();
 			
 			
-		} catch (IOException e) {
-			e.printStackTrace();
 		} finally {
 			try {
 				if(dialer != null){
@@ -351,8 +347,8 @@ public class ActarisACE4000 implements GenericProtocol{
 				}
 				
 				if(aace != null){
-					if(!aace.getUDPListener().getDatagramSocket().isClosed())
-						aace.getUDPListener().getDatagramSocket().close();
+//					if(!aace.getUDPListener().getDatagramSocket().isClosed())
+//						aace.getUDPListener().getDatagramSocket().close();
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -446,14 +442,6 @@ public class ActarisACE4000 implements GenericProtocol{
 		}
 	}
 
-	public PacketBuffer getBuffer() {
-		return buffer;
-	}
-
-	public UDPListener getUDPListener() {
-		return udpListener;
-	}
-
 	public int getTracker() {
 		// TODO use the scheduler ID to track messages
 		if(tracker == 4096)
@@ -468,17 +456,9 @@ public class ActarisACE4000 implements GenericProtocol{
 	protected void setObjectFactory(ObjectFactory objectFactory) {
 		this.objectFactory = objectFactory;
 	}
-
-	public DPacket getPacket() {
-		return packet;
-	}
 	
 	public OutputStream getOutputStream(){
 		return this.outputStream;
-	}
-
-	public ActarisUDPSocket getUdpSocket() {
-		return udpSocket;
 	}
 
 	/**
@@ -486,35 +466,30 @@ public class ActarisACE4000 implements GenericProtocol{
 	 * If we get a serialNumber from the UDPListener, fill in all the serialNumber we can find in the database and
 	 * fill in the necessary Rtu's as well
 	 * @param pushedSerialNumber
-	 * @throws IOException 
+	 * @throws BusinessException 
 	 */
-	public void setSerialnumbers(String pushedSerialNumber) throws IOException{
+	public void setSerialnumbers(String pushedSerialNumber) throws BusinessException{
 		this.pushedSerialNumber = pushedSerialNumber;
 		
 		try {
 			if(meter == null){	// First message cause nothing is filled in yet, Master must be filled in
-//			meter = findMeter(this.pushedSerialNumber);
-//			findSlaveMeters();
 				
 				if(isMasterMeter(getPushedSerialNumber())){
-					// TODO find the slaves
 					findAllSlaveMeters();
 				}
 				else if(isSlaveMeter(getPushedSerialNumber())){
-					// TODO find the master 
 					findMasterMeter();
-					// TODO find all other slaves
 					findAllSlaveMeters();
 				}
 				else
-					throw new IOException("Meter is not found in database, no autodiscovery YET implemented.");
+					throw new ApplicationException("Meter "+ pushedSerialNumber +" is not found in database, no autodiscovery YET implemented.");
+				
+				getLogger().log(Level.INFO, "Received data from meter with serialnumber " + getMasterSerialNumber());
+				
 			}
 		} catch (ConfigurationException e) {
 			e.printStackTrace();
-			throw new IOException(e.getMessage());
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw e;
+			throw new BusinessException(e.getMessage());
 		}
 	}
 	
@@ -532,11 +507,6 @@ public class ActarisACE4000 implements GenericProtocol{
             getLogger().severe( "Multiple meters where found with serial: " + serialNumber );
             throw new ConfigurationException("Multiple meters where found with serial: " + serialNumber);
         }
-//        else{
-//        	getLogger().severe("Meter serialnumber is not found in database.");
-//        	throw new ConfigurationException("Meter serialnumber "+serialNumber+" is not found in database.");
-//        }
-		
 		return false;
 	}
 	
@@ -556,10 +526,6 @@ public class ActarisACE4000 implements GenericProtocol{
             getLogger().severe( "Multiple meters where found with serial: " + serialNumber );
             throw new ConfigurationException("Multiple meters where found with serial: " + serialNumber);
         }
-//        else{
-//        	getLogger().severe("Meter serialnumber is not found in database.");
-//        	throw new ConfigurationException("Meter serialnumber "+serialNumber+" is not found in database.");
-//        }
 		return false;
 	}
 	
@@ -605,7 +571,7 @@ public class ActarisACE4000 implements GenericProtocol{
 	 * No database overkill if we keep on asking the Rtu
 	 * @return the mbusMeters hashMap
 	 */
-	private HashMap<String, Rtu> getMbusMetersMap(){
+	public HashMap<String, Rtu> getMbusMetersMap(){
 		return mbusMeters;
 	}
 	
@@ -661,8 +627,10 @@ public class ActarisACE4000 implements GenericProtocol{
 		if(!getMbusMetersMap().isEmpty()){
 			Rtu mbusSlave = getMbusMetersMap().get(getPushedSerialNumber());
 			
-			if(mbusSlave.getGateway() != null)
+			if(mbusSlave.getGateway() != null){
 				setMasterMeter(mbusSlave.getGateway());
+				setMasterSerialNumber(getMeter().getSerialNumber());
+			}
 			else
 				getLogger().severe("MBus slave meter has no gateway configured so no master meter was found!");
 		}
@@ -673,17 +641,22 @@ public class ActarisACE4000 implements GenericProtocol{
 	private void findAllSlaveMeters(){
 		if(meter != null){
 			List<Rtu> slaves = meter.getDownstreamRtus();
-			Iterator it = slaves.iterator();
-			while(it.hasNext()){
-				if(getMbusMetersMap() == null)
-					mbusMeters = new HashMap<String, Rtu>();
-				
-				Rtu mbus = (Rtu)it.next();
-				if(!getMbusMetersMap().containsKey(mbus.getSerialNumber())){
-					getMbusMetersMap().put(mbus.getSerialNumber(), mbus);
-					// add this one so we can loop through the list for all the serialnumbers
-					getMBSerialNumber().add(mbus.getSerialNumber());
+			if(slaves.size() > 0){
+				Iterator it = slaves.iterator();
+				while(it.hasNext()){
+					if(getMbusMetersMap() == null)
+						mbusMeters = new HashMap<String, Rtu>();
+					
+					Rtu mbus = (Rtu)it.next();
+					if(!getMbusMetersMap().containsKey(mbus.getSerialNumber())){
+						getMbusMetersMap().put(mbus.getSerialNumber(), mbus);
+						// add this one so we can loop through the list for all the serialnumbers
+						getMBSerialNumber().add(mbus.getSerialNumber());
+					}
 				}
+			}
+			else{
+				getLogger().log(Level.INFO, "No slave meters were found on meter " + getMasterSerialNumber());
 			}
 		}
 		else
@@ -705,14 +678,6 @@ public class ActarisACE4000 implements GenericProtocol{
 				createMeter();
 			}
 		}
-	}
-	
-	public AMRLogging getAmrLogging() {
-		return amrLogging;
-	}
-
-	public void setAmrLogging(AMRLogging amrLogging) {
-		this.amrLogging = amrLogging;
 	}
 	
 	//**********************************************************************************************************************
