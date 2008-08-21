@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.CM32;
-
-import com.energyict.protocolimpl.instromet.connection.ReadCommand;
   
 public class CommandFactory {
+	
+	static final int STATUS = 1;
 	
 	private CM32 cm32Protocol;
 	
@@ -10,16 +10,8 @@ public class CommandFactory {
 		this.cm32Protocol = cm32Protocol;
 	}
 	
-	public LoginCommand getLoginCommand(String id, String password) {
-		LoginCommand command = new LoginCommand(cm32Protocol);
-		command.setId(id);
-		command.setPassword(password);
-		return command;
-	}
-	
-	public LogoutCommand getLogoutCommand() {
-		LogoutCommand command = new LogoutCommand(cm32Protocol);
-		return command;
+	public ReadCommand getReadStatusCommand() {
+		return new ReadCommand(cm32Protocol, STATUS);
 	}
 	
 	

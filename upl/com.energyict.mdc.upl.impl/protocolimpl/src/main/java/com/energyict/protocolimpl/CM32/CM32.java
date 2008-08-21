@@ -12,6 +12,7 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.LinkException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dialer.coreimpl.ATDialer;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
@@ -56,20 +57,14 @@ public class CM32 extends AbstractProtocol {
     }
     
 	protected void doConnect() throws IOException {
-		getCM32Connection().wakeUp();
-		String id = getInfoTypeDeviceID();
-		String password = getInfoTypePassword();
+		//getCM32Connection().wakeUp();
 		CommandFactory commandFactory = getCommandFactory();
 		Response response = 
-			commandFactory.getLoginCommand(id, password).invoke();
+			commandFactory.getReadStatusCommand().invoke();
 		//parse response!!!
 	}
 
 	protected void doDisConnect() throws IOException {
-		CommandFactory commandFactory = getCommandFactory();
-		Response response = 
-			commandFactory.getLogoutCommand().invoke();
-		//parse response!!!
 	}
 
 	protected List doGetOptionalKeys() {
@@ -150,10 +145,16 @@ public class CM32 extends AbstractProtocol {
 	           Dialer dialer = new ATDialer();
 	           dialer.init("COM1");
 	           dialer.connect("000441908257470",60000);
+	           dialer.getSerialCommunicationChannel().setParamsAndFlush(1200,
+	                   SerialCommunicationChannel.DATABITS_8,
+	                   SerialCommunicationChannel.PARITY_NONE,
+	                   SerialCommunicationChannel.STOPBITS_1);
 	           
 	           try {
-	               System.out.println("connected, send I");
-	               dialer.getOutputStream().write("Login 111111".getBytes());
+	               System.out.println("connected, start sending");
+	               byte[] data = {0x65, 0x0B, 0x00, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00, 0x00, 0x6F};
+	               dialer.getOutputStream().write(data);
+	               
 	               
 	               while(true) {
 	                  if (dialer.getInputStream().available() != 0) {

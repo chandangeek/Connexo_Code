@@ -86,7 +86,7 @@ public class CM32Connection extends Connection implements ProtocolConnection {
         } 
     }
 	
-	public void wakeUp() throws IOException {
+	/*public void wakeUp() throws IOException {
         int retry=0;
         doWakeUp();
         while(true) {
@@ -111,7 +111,7 @@ public class CM32Connection extends Connection implements ProtocolConnection {
                 throw new NestedIOException(e);
             }
         } 
-    }
+    }*/
 
     
     public Response receiveResponse(Command command) throws IOException {
@@ -140,32 +140,19 @@ public class CM32Connection extends Connection implements ProtocolConnection {
         	outputStream.write((int) data.charAt(i));
         }
 	}
-	
-	protected void writeSpace() {
-		outputStream.write((int)' ');
-	}
-	
-	protected void writeStartCrc() {
-		outputStream.write((int)'{');
-	}
-	
-	protected void writeEndCrc() {
-		outputStream.write((int)'}');
-	}
+
 	
 	private void doSendCommand(Command command) throws ConnectionException,IOException {
 		outputStream.reset();
-		writeCharacters(command.getCommand());
-		List parameters = command.getParameters();
-		for (int i = 0; i < parameters.size(); i++) {
-			writeSpace();
-			writeCharacters((String) parameters.get(i));
-		}
-        writeSpace();
-        writeStartCrc();
-        writeCrc();
-        writeEndCrc();
-        outputStream.write(Connection.CR); 
+		outputStream.write(command.getCM10Identifier());  // see p 5,6,7 CM10 doc
+		outputStream.write((byte) 0x0B); // block size
+		outputStream.write(command.getSourceCode());
+		outputStream.write((byte) 0x00); // source extension
+		outputStream.write(command.getDestionationCode());
+		outputStream.write((byte) 0x00); // destionation extension
+		outputStream.write((byte) 0x00); // protocol type CM10
+		outputStream.write((byte) 0x00); // port (unused)
+		outputStream.write(0x6F); // checksum hardcoded
     } 
 	
 	protected void writeCrc() {
@@ -175,10 +162,10 @@ public class CM32Connection extends Connection implements ProtocolConnection {
         outputStream.write((crc>>8)&0xFF);
 	}
 	
-	private void doWakeUp() throws ConnectionException,IOException {
+	/*private void doWakeUp() throws ConnectionException,IOException {
 		outputStream.reset();
         outputStream.write((byte)0x20);
-    } 
+    } */
 	
 	protected ByteArrayOutputStream getOutputStream() {
 		return this.outputStream;
