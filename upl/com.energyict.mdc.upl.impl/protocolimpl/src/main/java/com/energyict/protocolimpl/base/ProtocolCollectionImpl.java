@@ -125,7 +125,7 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         protocolclasses.add("com.energyict.protocolimpl.edf.trimarancje.Trimaran");protocolnames.add("Trimaran CJE meter");
         protocolclasses.add("com.energyict.protocolimpl.edf.trimaran2p.Trimaran2P");protocolnames.add("Trimaran 2P meter");
         protocolclasses.add("com.energyict.protocolimpl.iec1107.abba230.ABBA230");protocolnames.add("Elster A230 meter");
-        
+        protocolclasses.add("com.energyict.protocolimpl.CM32.CM32");protocolnames.add("CM32 meter");
     }  
     
     public String getProtocolName(int index) throws IOException {
