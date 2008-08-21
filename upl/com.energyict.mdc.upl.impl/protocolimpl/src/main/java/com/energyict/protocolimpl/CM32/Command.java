@@ -10,7 +10,7 @@ public class Command {
 	private boolean read;
 	private boolean isAck = false;
 	private byte[] sourceCode = {0x00, 0x00};
-	private byte[] destionationCode = {0x00, 0x21};
+	private byte[] destionationCode = {0x21, 0x00};
     
     public Command(int activityIdentifier) {
         this.setActivityIdentifier(activityIdentifier);

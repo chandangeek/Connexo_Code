@@ -144,7 +144,7 @@ public class CM32 extends AbstractProtocol {
 	           System.out.println("start DialerTest");
 	           Dialer dialer = new ATDialer();
 	           dialer.init("COM1");
-	           dialer.connect("000441908257470",60000);
+	           dialer.connect("000441908257417",60000);
 	           dialer.getSerialCommunicationChannel().setParamsAndFlush(1200,
 	                   SerialCommunicationChannel.DATABITS_8,
 	                   SerialCommunicationChannel.PARITY_NONE,

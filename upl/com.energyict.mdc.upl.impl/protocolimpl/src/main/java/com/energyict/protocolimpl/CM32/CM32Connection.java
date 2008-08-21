@@ -86,7 +86,7 @@ public class CM32Connection extends Connection implements ProtocolConnection {
         } 
     }
 	
-	/*public void wakeUp() throws IOException {
+	public void wakeUp() throws IOException {
         int retry=0;
         doWakeUp();
         while(true) {
@@ -111,7 +111,7 @@ public class CM32Connection extends Connection implements ProtocolConnection {
                 throw new NestedIOException(e);
             }
         } 
-    }*/
+    }
 
     
     public Response receiveResponse(Command command) throws IOException {
@@ -144,7 +144,8 @@ public class CM32Connection extends Connection implements ProtocolConnection {
 	
 	private void doSendCommand(Command command) throws ConnectionException,IOException {
 		outputStream.reset();
-		outputStream.write(command.getCM10Identifier());  // see p 5,6,7 CM10 doc
+		//outputStream.write(command.getCM10Identifier());  // see p 5,6,7 CM10 doc
+		outputStream.write(0x65);
 		outputStream.write((byte) 0x0B); // block size
 		outputStream.write(command.getSourceCode());
 		outputStream.write((byte) 0x00); // source extension
@@ -162,10 +163,10 @@ public class CM32Connection extends Connection implements ProtocolConnection {
         outputStream.write((crc>>8)&0xFF);
 	}
 	
-	/*private void doWakeUp() throws ConnectionException,IOException {
+	private void doWakeUp() throws ConnectionException,IOException {
 		outputStream.reset();
         outputStream.write((byte)0x20);
-    } */
+    } 
 	
 	protected ByteArrayOutputStream getOutputStream() {
 		return this.outputStream;
