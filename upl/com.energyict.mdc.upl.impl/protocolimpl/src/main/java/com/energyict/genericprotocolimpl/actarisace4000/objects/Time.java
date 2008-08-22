@@ -175,16 +175,17 @@ public class Time extends AbstractActarisObject {
 		setReceiveTime(ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT")).getTimeInMillis());
 		setMeterTime(Long.valueOf(mdElement.getTextContent(), 16));
 		long diff = Math.abs(getMeterTime()*1000 - getReceiveTime()); 
+		getObjectFactory().getAace().getLogger().log(Level.INFO, "MeterTime: " + new Date(getMeterTime()*1000) + " - SystemTime: " + new Date(getReceiveTime()) + " - Difference = " + diff/1000 + "s.");
 		if(diff > minDiff){
-			if(diff < maxDiff)
+			if(diff < maxDiff){
+				getObjectFactory().getAace().getLogger().log(Level.INFO, "TimeDifference between boundry; Sending meter synchronization");
 				getObjectFactory().sendSyncTime();
+			}
 			else{
 				getObjectFactory().getAace().getLogger().severe("No clock sync, time difference exceeds allow maximum: " + diff/1000 + "s.");
 				getObjectFactory().getAace().getLogger().severe("MeterTime: " + new Date(getMeterTime()*1000) + " - SystemTime: " + new Date(getReceiveTime()));
 			}
 			
-		} else{
-			getObjectFactory().getAace().getLogger().log(Level.INFO, "MeterTime: " + new Date(getMeterTime()*1000) + " - SystemTime: " + new Date(getReceiveTime()) + " - Difference = " + diff/1000 + "s.");
 		}
 	}
 

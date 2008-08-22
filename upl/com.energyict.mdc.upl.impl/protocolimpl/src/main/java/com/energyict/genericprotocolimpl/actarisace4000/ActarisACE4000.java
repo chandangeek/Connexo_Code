@@ -150,11 +150,12 @@ public class ActarisACE4000 implements GenericProtocol{
 						oneTimer++;
 						Calendar cal = ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT"));
 						cal.add(Calendar.DAY_OF_MONTH, -20);
-						interMessageTimeout = System.currentTimeMillis() + timeOut;	// keep the session alive
+//						interMessageTimeout = System.currentTimeMillis() + timeOut;	// keep the session alive
+//						getObjectFactory().setAutoPushConfig(1, 530, 600, false);
 //						getObjectFactory().sendBDConfig(1, 1, 15);
 //						getObjectFactory().sendFullMeterConfigRequest();
 //						getObjectFactory().sendBDRequest(cal.getTime());
-						getObjectFactory().sendLoadProfileRequest(cal.getTime());
+//						getObjectFactory().sendLoadProfileRequest(cal.getTime());
 //						getObjectFactory().sendTimeConfig(4800, 120, 3);
 //						getObjectFactory().sendForceTime();		// TODO this way we can check the time of the meter, but other ways would be better.
 //						getObjectFactory().sendBDRequest();

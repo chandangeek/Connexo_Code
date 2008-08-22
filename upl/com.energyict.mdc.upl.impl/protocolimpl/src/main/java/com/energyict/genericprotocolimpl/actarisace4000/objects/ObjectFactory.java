@@ -87,14 +87,17 @@ public class ObjectFactory {
 	}
 	
 	/**
-	 * TODO adjust method to enter the values yourself
 	 * Send xml with the meters autopush config - Startime, Stoptime pushwindow ...
 	 * @throws IOException
+	 * @param enabled - enabled daily push
+	 * @param start - startTime in minutes after midnight
+	 * @param stop - stopTime in minutes after midnight
+	 * @param random - true/false if push can start randomly in pushwindow
 	 */
-	public void setAutoPushConfig() throws IOException{
+	public void setAutoPushConfig(int enabled, int start, int stop, boolean random) throws IOException{
 		getAutoPushConfig().setTrackingID(getAace().getTracker());
 		getAace().setNecessarySerialNumber(getAace().getMasterSerialNumber());
-		getAutoPushConfig().prepareXML(EnableTable.enabled, "A", "78", false);
+		getAutoPushConfig().prepareXML(enabled, start, stop, random);
 		getAutoPushConfig().request();
 	}
 	

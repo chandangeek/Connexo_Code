@@ -42,7 +42,7 @@ public class AutoPushConfig extends AbstractActarisObject {
 		this.trackingID = trackingID;
 	}
 	
-	protected void prepareXML(String enableState, String open, String close, boolean random){
+	protected void prepareXML(int enableState, int open, int close, boolean random){
 		Document doc = createDomDocument();
 		
 		Element root = doc.createElement(XMLTags.mPull);
@@ -61,13 +61,13 @@ public class AutoPushConfig extends AbstractActarisObject {
 		Element ps = doc.createElement(XMLTags.puschSchedule);
 		cf.appendChild(ps);
 		Element enable = doc.createElement(XMLTags.enableState);
-		enable.setTextContent(enableState);
+		enable.setTextContent(Integer.toString(enableState, 16));
 		ps.appendChild(enable);
 		Element tmo = doc.createElement(XMLTags.timeOpen);
-		tmo.setTextContent(open);
+		tmo.setTextContent(Integer.toString(open, 16));
 		ps.appendChild(tmo);
 		Element tmc = doc.createElement(XMLTags.timeClose);
-		tmc.setTextContent(close);
+		tmc.setTextContent(Integer.toString(close, 16));
 		ps.appendChild(tmc);
 		if(random){
 			Element rand = doc.createElement(XMLTags.random);
