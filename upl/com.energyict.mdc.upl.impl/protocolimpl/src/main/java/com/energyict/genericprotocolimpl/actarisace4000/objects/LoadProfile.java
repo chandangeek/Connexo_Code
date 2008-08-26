@@ -199,7 +199,10 @@ public class LoadProfile extends AbstractActarisObject {
 		
 		long timeStamp = (long)(getNumberFromB64(decoded, offset, 4))*1000;
 		intervalCalendar.setTimeInMillis(timeStamp);
-		if(DEBUG >= 1)System.out.println(new Date(timeStamp));
+		if(DEBUG >= 2){
+			System.out.print(timeStamp);
+			System.out.print(" - " + new Date(timeStamp) + " - ");
+		}
 		offset+=4;
 		
 		setLpInterval((getNumberFromB64(decoded, offset, 1))*60);
@@ -223,6 +226,11 @@ public class LoadProfile extends AbstractActarisObject {
 				value = getNumberFromB64(decoded, offset, 4); offset+=4;
 				alarm = getNumberFromB64(decoded, offset, 2); offset+=2;
 				tariff = getNumberFromB64(decoded, offset, 1); offset+=1;
+				
+				if(DEBUG >= 2){
+					System.out.print(value +";");
+				}
+				
 				id = new IntervalData(intervalCalendar.getTime(), 0, 0, tariff);
 				id.addValue(value);
 				intervalCalendar.add(Calendar.SECOND, getLpInterval());

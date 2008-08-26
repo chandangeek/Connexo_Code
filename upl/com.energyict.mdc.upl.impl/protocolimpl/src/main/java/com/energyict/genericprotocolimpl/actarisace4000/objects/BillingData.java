@@ -5,10 +5,13 @@ package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 import org.apache.axis.encoding.Base64;
@@ -86,26 +89,42 @@ public class BillingData extends AbstractActarisObject {
 	}
 	
 	public static void main(String[] args){
-		String str = "SHxmVgAAA9UAAAAAAAAA2AAAAv0AAAAAAAAAAAEB";
-		String str2 = "SJJSAAAAA9UAAAAAAAAA2AAAAv0AAAAAAAAAAAER";
-		String str3 = "1bDUQQAABucAAAAAAAACmAAABE8AAAAAAAAAAAEB";
-		String str4 = "SKywAAAACE8AAAAAAAADBAAABUsAAAAAAAAAAAEA";
-
-
-		ActarisACE4000 aace = new ActarisACE4000();
-		ObjectFactory of = new ObjectFactory(aace);
-		BillingData bd = new BillingData(of);
+		String time;
 		
-		bd.subSet = "TR1234";
-		bd.setTrackingID(-1);
+		if(true){
+		    Date date = new Date();
+			time = "1219449600000";
+			long t = Long.valueOf(time);
+			Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+			cal.setTimeInMillis(t);
+			System.out.println(cal.getTime());
+			Calendar cal2 = Calendar.getInstance();
+			cal2.setTimeInMillis(t);
+			System.out.println(cal2.getTime());
+		}
+		
+		if(false){
+			String str = "SHxmVgAAA9UAAAAAAAAA2AAAAv0AAAAAAAAAAAEB";
+			String str2 = "SJJSAAAAA9UAAAAAAAAA2AAAAv0AAAAAAAAAAAER";
+			String str3 = "1bDUQQAABucAAAAAAAACmAAABE8AAAAAAAAAAAEB";
+			String str4 = "SKywAAAACE8AAAAAAAADBAAABUsAAAAAAAAAAAEA";
+			
+			
+			ActarisACE4000 aace = new ActarisACE4000();
+			ObjectFactory of = new ObjectFactory(aace);
+			BillingData bd = new BillingData(of);
+			
+			bd.subSet = "TR1234";
+			bd.setTrackingID(-1);
 //		bd.setRegisterData(str);
 //		bd.setRegisterData(str2);
-		try {
-			bd.setRegisterData(str4);
-		} catch (IOException e) {
-			e.printStackTrace();
+			try {
+				bd.setRegisterData(str4);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			System.out.println(bd.getProfileData());
 		}
-		System.out.println(bd.getProfileData());
 	}
 	
 	/**
@@ -194,7 +213,7 @@ public class BillingData extends AbstractActarisObject {
 		subSet = mdElement.getAttribute(XMLTags.bdAttr);
 		
 		NodeList list = mdElement.getChildNodes();
-		
+		if(DEBUG >= 2 )System.out.println("Billing:");
 		for(int i = 0; i < list.getLength(); i++){
 			Element element = (Element)list.item(i);
 			
@@ -224,7 +243,10 @@ public class BillingData extends AbstractActarisObject {
 		byte[] decoded = Base64.decode(textContent);
 		if(DEBUG >=1)System.out.println(new String(decoded));
 		long timeStamp = (long)(getNumberFromB64(decoded, offset, 4))*1000;
-		if(DEBUG >= 1)System.out.println(new Date(timeStamp));
+		if(DEBUG >= 2){
+			System.out.print(timeStamp);
+			System.out.print(" - " + new Date(timeStamp) + " - ");
+		}
 		setTimeStamp(new Date(timeStamp));
 		offset+=4;
 		

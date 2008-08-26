@@ -82,7 +82,7 @@ public class ActarisACE4000 implements GenericProtocol{
 	// TODO change the timeOut
 	// TODO change the timeOut
 	// TODO change the timeOut
-	private int 					timeOut = 60000;	// default timeout of 1min
+	private int 					timeOut = 30000;	// default timeout of 1min
 	
 	public ActarisACE4000(){
 		
@@ -102,7 +102,7 @@ public class ActarisACE4000 implements GenericProtocol{
 			
 			if(scheduler == null){	// we got a message from the COMMSERVER UDP Listener
 				
-				logger.log(Level.INFO, " ** A new UDP session is started **");
+				logger.log(Level.INFO, "** A new UDP session is started **");
 				setConnectTime(System.currentTimeMillis());
 				
 				this.inputStream = this.link.getInputStream();
@@ -146,27 +146,29 @@ public class ActarisACE4000 implements GenericProtocol{
 						}
 					}	// end of UPD listen loop - check if we want to do something
 					
-					if(oneTimer == 0){
-						oneTimer++;
-						Calendar cal = ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT"));
-						cal.add(Calendar.DAY_OF_MONTH, -20);
+//					if(oneTimer == 0){
+//						oneTimer++;
+//						Calendar cal = ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT"));
+//						cal.add(Calendar.DAY_OF_MONTH, -1);
 //						interMessageTimeout = System.currentTimeMillis() + timeOut;	// keep the session alive
-//						getObjectFactory().setAutoPushConfig(1, 530, 600, false);
+//						getObjectFactory().sendMBLoadProfileRequest(cal.getTime());
+//						getObjectFactory().setAutoPushConfig(1, 5, 60, false);
 //						getObjectFactory().sendBDConfig(1, 1, 15);
+//						getObjectFactory().sendForceTime();
 //						getObjectFactory().sendFullMeterConfigRequest();
-//						getObjectFactory().sendBDRequest(cal.getTime());
 //						getObjectFactory().sendLoadProfileRequest(cal.getTime());
+//						getObjectFactory().sendBDRequest(cal.getTime());
 //						getObjectFactory().sendTimeConfig(4800, 120, 3);
 //						getObjectFactory().sendForceTime();		// TODO this way we can check the time of the meter, but other ways would be better.
 //						getObjectFactory().sendBDRequest();
-					}
+//					}
 					if (((long) (System.currentTimeMillis() - interMessageTimeout)) > 0) {
 						break; // we can leave the loop cause we did not receive a message within the passed minute
 					}
 				}
 				
 				/**
-				 * If there is valid data in the profile, store it in the database
+				 * If there is valid data in the pro file, store it in the database
 				 */
 				if(getObjectFactory().getLoadProfile().getProfileData().getIntervalDatas().size() > 0){
 					getObjectFactory().getLoadProfile().getProfileData().sort();
@@ -597,12 +599,24 @@ public class ActarisACE4000 implements GenericProtocol{
 		return meter;
 	}
 	
-	private Rtu getMBusMeter(String string) {
-		return (Rtu)getMbusMetersMap().get(string);
+	public CommunicationScheduler getCommScheduler(){
+		return scheduler;
 	}
 	
 	public void setMasterMeter(Rtu meter) {
 		this.meter = meter;
+		setCommunicationScheduler();
+	}
+	
+	private void setCommunicationScheduler(){
+		Iterator it = getMeter().getCommunicationSchedulers().iterator();
+		while(it.hasNext()){
+			CommunicationScheduler cs = (CommunicationScheduler)it.next();
+			if( !cs.getActive() && cs.getDialerFactory().getDialerClassName().equalsIgnoreCase("")){
+				this.scheduler = cs;
+				break;
+			}
+		}
 	}
 	
 	private Rtu findMeter(String serial){

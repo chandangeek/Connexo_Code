@@ -26,6 +26,7 @@ import com.energyict.genericprotocolimpl.actarisace4000.ActarisACE4000;
 import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.mbus.core.CIField72h;
 import com.energyict.protocolimpl.mbus.core.DataRecord;
@@ -37,6 +38,8 @@ import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
 public class MBLoadProfile extends AbstractActarisObject {
 	
 	private int DEBUG = 0;
+	private int STATE_OK = IntervalStateBits.OK;
+	private int STATE_SL = IntervalStateBits.SHORTLONG;
 	
 	private String reqString = null;
 	private int trackingID;
@@ -165,6 +168,13 @@ public class MBLoadProfile extends AbstractActarisObject {
 		long timeStamp = (long)(getNumberFromB64(decoded, offset, 4))*1000;
 		if(DEBUG >= 1)System.out.println(new Date(timeStamp));
 		offset+=4;
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		cal.setTimeInMillis(timeStamp);
+		cal.set(Calendar.SECOND, 0);
+		int state = STATE_OK;
+		if(Math.abs(cal.getTimeInMillis() - timeStamp) > 60000){
+			state = STATE_SL;
+		}
 		
 		//TODO get the timeZone of the meter, if it is null, get a default one
 //		CIField72h ciField72h = new CIField72h(getObjectFactory().getAace().getMeter().getDeviceTimeZone());
@@ -198,7 +208,7 @@ public class MBLoadProfile extends AbstractActarisObject {
 					record = (DataRecord) dataRecord;
 					
 					if(record.getQuantity() != null){
-						id = new IntervalData(new Date(timeStamp), 0);
+						id = new IntervalData(cal.getTime(), state);
 						id.addValue(record.getQuantity().getAmount());
 						getProfileData().addInterval(id);
 					}

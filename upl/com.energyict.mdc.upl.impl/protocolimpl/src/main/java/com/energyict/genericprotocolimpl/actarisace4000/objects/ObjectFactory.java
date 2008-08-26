@@ -283,7 +283,7 @@ public class ObjectFactory {
 	 */
 	public void sendAcknowledge(int tracker) throws IOException{
 		getAcknowledge().setTrackingID(tracker);
-		getAace().setNecessarySerialNumber(getAcknowledge().getSerialNumber());
+		getAace().setNecessarySerialNumber(getAace().getPushedSerialNumber());
 		getAcknowledge().prepareXML();
 		getAcknowledge().request();
 	}

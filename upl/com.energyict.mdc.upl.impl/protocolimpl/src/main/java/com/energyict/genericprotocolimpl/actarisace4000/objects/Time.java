@@ -29,14 +29,21 @@ public class Time extends AbstractActarisObject {
 	
 	private long meterTime;
 	private long receiveTime;
-	private long minDiff = 180000;
-	private long maxDiff = 600000;
+	private long minDiff = -1;
+	private long maxDiff = -1;
 
 	/**
 	 * @param of
 	 */
 	public Time(ObjectFactory of) {
 		super(of);
+		if(getObjectFactory().getAace().getCommScheduler() != null){
+			setMaxDiff(getObjectFactory().getAace().getCommScheduler().getCommunicationProfile().getMaximumClockDifference());
+			setMinDiff(getObjectFactory().getAace().getCommScheduler().getCommunicationProfile().getMinimumClockDifference());
+		}
+		else{
+			getObjectFactory().getAace().getLogger().log(Level.INFO, "No communicationProfile was configured on the meter, time will not be synchronized.");
+		}
 	}
 
 	/* (non-Javadoc)
@@ -126,7 +133,8 @@ public class Time extends AbstractActarisObject {
 		t2.setTextContent(Long.toHexString(getReceiveTime()/1000));
 		ft.appendChild(t2);
 		Element t3 = doc.createElement(XMLTags.time3);
-		t3.setTextContent(Long.toHexString(ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT")).getTimeInMillis()/1000));
+//		t3.setTextContent(Long.toHexString(ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT")).getTimeInMillis()/1000));
+		t3.setTextContent(Long.toHexString(System.currentTimeMillis()/1000));
 		ft.appendChild(t3);
 		
 		String msg = convertDocumentToString(doc);
@@ -172,20 +180,22 @@ public class Time extends AbstractActarisObject {
 	}
 	
 	protected void setElement(Element mdElement) throws IOException{
-		setReceiveTime(ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT")).getTimeInMillis());
-		setMeterTime(Long.valueOf(mdElement.getTextContent(), 16));
-		long diff = Math.abs(getMeterTime()*1000 - getReceiveTime()); 
-		getObjectFactory().getAace().getLogger().log(Level.INFO, "MeterTime: " + new Date(getMeterTime()*1000) + " - SystemTime: " + new Date(getReceiveTime()) + " - Difference = " + diff/1000 + "s.");
-		if(diff > minDiff){
-			if(diff < maxDiff){
-				getObjectFactory().getAace().getLogger().log(Level.INFO, "TimeDifference between boundry; Sending meter synchronization");
-				getObjectFactory().sendSyncTime();
+		if(getMaxDiff() != -1 && getMinDiff() != -1){
+//			setReceiveTime(ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT")).getTimeInMillis());
+			setReceiveTime(System.currentTimeMillis());
+			setMeterTime(Long.valueOf(mdElement.getTextContent(), 16));
+			long diff = Math.abs(getMeterTime()*1000 - getReceiveTime()); 
+			getObjectFactory().getAace().getLogger().log(Level.INFO, "MeterTime: " + new Date(getMeterTime()*1000) + " - SystemTime: " + new Date(getReceiveTime()) + " - Difference = " + diff/1000 + "s.");
+			if(diff > minDiff){
+				if(diff < maxDiff){
+					getObjectFactory().getAace().getLogger().log(Level.INFO, "TimeDifference between boundry; Sending meter time synchronization");
+					getObjectFactory().sendSyncTime();
+				}
+				else{
+					getObjectFactory().getAace().getLogger().severe("No clock sync, time difference exceeds allow maximum: " + diff/1000 + "s.");
+					getObjectFactory().getAace().getLogger().severe("MeterTime: " + new Date(getMeterTime()*1000) + " - SystemTime: " + new Date(getReceiveTime()));
+				}
 			}
-			else{
-				getObjectFactory().getAace().getLogger().severe("No clock sync, time difference exceeds allow maximum: " + diff/1000 + "s.");
-				getObjectFactory().getAace().getLogger().severe("MeterTime: " + new Date(getMeterTime()*1000) + " - SystemTime: " + new Date(getReceiveTime()));
-			}
-			
 		}
 	}
 
@@ -227,4 +237,18 @@ public class Time extends AbstractActarisObject {
 		this.receiveTime = receiveTime;
 	}
 
+	private void setMinDiff(long min){
+		this.minDiff = min;
+	}
+	private void setMaxDiff(long max){
+		this.maxDiff = max;
+	}
+	
+	private long getMinDiff(){
+		return minDiff;
+	}
+	private long getMaxDiff(){
+		return maxDiff;
+	}
+	
 }
