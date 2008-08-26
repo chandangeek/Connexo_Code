@@ -264,8 +264,8 @@ public class Medo implements MeterProtocol{
 	}
 	public ProfileData getProfileData(Date start, Date stop, boolean arg2)
 			throws IOException, UnsupportedException {
-		ProfileData pd=mcf.retrieveProfileData(start, stop, getProfileInterval());
-		if(statusreg.getBatlow()>0){
+		ProfileData pd=mcf.retrieveProfileData(start, stop, getProfileInterval(),arg2);
+		if(statusreg.getBatlow()>0 && arg2){
 			pd.addEvent(new MeterEvent(getTime(),MeterEvent.OTHER,"BATTERY LOW"));
 		}
 

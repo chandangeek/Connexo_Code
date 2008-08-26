@@ -403,7 +403,7 @@ public class MeteorCommunicationsFactory{
 	public short[][] getTotalDemands(Date start, Date stop, int intervaltime) throws IOException{
 		return requestMeterDemands((byte) 0x08,start,stop,intervaltime);
 	}
-	public ProfileData retrieveProfileData(Date start, Date stop, int intervaltime) throws IOException{ 
+	public ProfileData retrieveProfileData(Date start, Date stop, int intervaltime, boolean addevents) throws IOException{ 
 		ProfileData pd = new ProfileData();		
 		IntervalData id = new IntervalData();		// current interval data
 		MeterEvent meterEvent;
@@ -508,8 +508,10 @@ public class MeteorCommunicationsFactory{
 			cal1.setTimeInMillis(millis);
 		}
 		//add meter events
-		for(MeterEvent m:meterEventList){
-			pd.addEvent(m);
+		if(addevents){
+			for(MeterEvent m:meterEventList){
+				pd.addEvent(m);
+			}
 		}
 		// return profileData
 		return pd;
@@ -668,8 +670,11 @@ public class MeteorCommunicationsFactory{
 				return p;
 			}else{
 			// here comes the reply...
-				if(p instanceof MeteorFullPersonalityTable){	
-					p=new MeteorFullPersonalityTable(rawdata);
+				if(p instanceof MeteorFullPersonalityTable){
+					MeteorFullPersonalityTable mfpt=new MeteorFullPersonalityTable();
+					mfpt.setTimezone(timezone);
+					mfpt.processFullPersonalityTable(rawdata);
+					p=mfpt;
 				}else if(p instanceof MeteorExtendedPersonalityTable){	
 					p=new MeteorExtendedPersonalityTable(rawdata);
 				}else if(p instanceof MeteorCLK){

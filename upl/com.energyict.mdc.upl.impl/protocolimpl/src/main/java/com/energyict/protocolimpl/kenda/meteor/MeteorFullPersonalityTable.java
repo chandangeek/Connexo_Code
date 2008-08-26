@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
 import java.util.Calendar;
+import java.util.TimeZone;
 
 public class MeteorFullPersonalityTable extends Parsers implements MeteorCommandAbstract{
 	/*
@@ -31,6 +32,7 @@ public class MeteorFullPersonalityTable extends Parsers implements MeteorCommand
 	protected long personality=0;  // byte signed integer (should be 4 byte unsigned)
 	protected char wdbattlow=0;
 	protected char[] filler=new char[19];
+	private TimeZone timezone;
 		
 	// constructors
 	MeteorFullPersonalityTable(){
@@ -49,7 +51,12 @@ public class MeteorFullPersonalityTable extends Parsers implements MeteorCommand
 	MeteorFullPersonalityTable(char[] c){
 		process(c);		
 	}
-	
+	public void processFullPersonalityTable(byte[] b){
+		process(parseBArraytoCArray(b));
+	}
+	public void processFullPersonalityTable(char[] c){
+		process(c);
+	}
 	private void process(char[] c) {
 		// dumps byte array in the right fields
 		String s = new String(c);
@@ -211,7 +218,7 @@ public class MeteorFullPersonalityTable extends Parsers implements MeteorCommand
 		System.out.println("ds1:             "+NumberToString(ds1));
 		System.out.println("ds2:             "+NumberToString(ds2));
 		// get datum
-		Calendar cal=Calendar.getInstance();
+		Calendar cal=Calendar.getInstance(timezone);
 		cal.set(1970, 0, 1, 0, 0, 0);
 		long secs=(long) Math.floor(cal.getTimeInMillis()/1000)+personality;
 		cal.setTimeInMillis(1000*secs);
@@ -540,5 +547,13 @@ public class MeteorFullPersonalityTable extends Parsers implements MeteorCommand
 	 */
 	public void setFiller(char[] filler) {
 		this.filler = filler;
+	}
+
+	public TimeZone getTimezone() {
+		return timezone;
+	}
+
+	public void setTimezone(TimeZone timezone) {
+		this.timezone = timezone;
 	}
 }

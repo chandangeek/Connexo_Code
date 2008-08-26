@@ -22,7 +22,9 @@ public class MedoRequestReadMeterDemands extends Parsers {
 
 	public MedoRequestReadMeterDemands(Calendar start, Calendar stop,
 			int intervaltime) {
-		// TODO Auto-generated constructor stub
+		long c2=stop.getTimeInMillis();
+		this.stPeriod  = (int) Math.floor(start.getTimeInMillis()/1000);
+		this.noPeriods = (short) Math.floor(((c2-stPeriod)/(1000*intervaltime)));
 	}
 
 	private void processRequest(char[] c) {

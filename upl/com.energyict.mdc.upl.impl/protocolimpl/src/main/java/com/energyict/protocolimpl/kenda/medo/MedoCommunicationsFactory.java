@@ -404,7 +404,7 @@ public class MedoCommunicationsFactory{
 	public short[][] getTotalDemands(Date start, Date stop, int intervaltime) throws IOException{
 		return requestMeterDemands((byte) 0x08,start,stop,intervaltime);
 	}
-	public ProfileData retrieveProfileData(Date start, Date stop, int intervaltime) throws IOException{ 
+	public ProfileData retrieveProfileData(Date start, Date stop, int intervaltime, boolean addevents) throws IOException{ 
 		ProfileData pd = new ProfileData();		
 		IntervalData id = new IntervalData();		// current interval data
 		MeterEvent meterEvent;
@@ -505,8 +505,10 @@ public class MedoCommunicationsFactory{
 			cal1.setTimeInMillis(millis);
 		}
 		//add meter events
-		for(MeterEvent m:meterEventList){
-			pd.addEvent(m);
+		if(addevents){
+			for(MeterEvent m:meterEventList){
+				pd.addEvent(m);
+			}
 		}
 		// return profileData
 		return pd;
