@@ -19,6 +19,7 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.kenda.meteor.MeteorCLK;
 
 public class MedoCommunicationsFactory{
 	/**
@@ -91,6 +92,7 @@ public class MedoCommunicationsFactory{
 	private ProtocolChannelMap channelMap;
 	// first three bits are to be set in BuildIdent method (later)
 	// byte: 8 bit, word 16 bit signed integer, long 32 bit signed integer
+	private TimeZone timezone;
 	
 	public MedoCommunicationsFactory(InputStream inputStream, OutputStream outputStream){// blank constructor for testing purposes only
 		byte[] blank={0,0};
@@ -129,7 +131,7 @@ public class MedoCommunicationsFactory{
 	 */
 	public byte buildIdent(boolean ack, boolean first, boolean last, byte command){
 		// Ack bit, first block bit, last block bit, R/W, 4 bit operation select (last five bits are set by command)
-		if(ack)   {command=(byte) (command | 0x80);}else{command=(byte) (command & 0x7F);} // set or reset ack		
+		if(ack)   {command=(byte) (command | 0x80);}else{command=(byte) (command & 0x7F);} // set or reset ack (ack packet is embedded in the command structure and sent to confirm receive)	
 		if(first) {command=(byte) (command | 0x40);}else{command=(byte) (command & 0xBF);} // set or reset F
 		if(last)  {command=(byte) (command | 0x20);}else{command=(byte) (command & 0xDF);} // set or reset L
 		return command;
@@ -351,9 +353,8 @@ public class MedoCommunicationsFactory{
 		byte[] byteData=new byte[0];
 		boolean ack=false;
 		int pog=this.retries;
-		TimeZone tz = TimeZone.getTimeZone("GMT");
-		Calendar start=Calendar.getInstance(tz);
-		Calendar stop=Calendar.getInstance(tz);
+		Calendar start=Calendar.getInstance(timezone);
+		Calendar stop=Calendar.getInstance(timezone);
 		start.setTime(d1);
 		stop.setTime(d2);
 		MedoRequestReadMeterDemands mrrd;
@@ -414,8 +415,7 @@ public class MedoCommunicationsFactory{
 		long millis=0;
 		int ids=0;
 		// set timezone and calendar object
-		TimeZone tz = TimeZone.getTimeZone("GMT");
-		Calendar cal1 = Calendar.getInstance(tz); 
+		Calendar cal1 = Calendar.getInstance(timezone); 
 		cal1.setTime(start);
 		// retrieve powerFailDetails and add meter events
 		MedoPowerFailDetails mpfd=(MedoPowerFailDetails) transmitData(powerFailDetails, null);
@@ -429,7 +429,7 @@ public class MedoCommunicationsFactory{
 			}
 		}
 		// reset cal1 object
-		cal1 = Calendar.getInstance(tz); // for security reasons , should be not needed
+		cal1 = Calendar.getInstance(timezone); // for security reasons , should be not needed
 		cal1.setTime(start);
         ParseUtils.roundDown2nearestInterval(cal1,intervaltime);
         // get meter data
@@ -668,7 +668,10 @@ public class MedoCommunicationsFactory{
 //				}else if(p instanceof MedoExtendedPersonalityTable){	
 //					p=new MedoExtendedPersonalityTable(rawdata);
 				}else if(p instanceof MedoCLK){
-					p=new MedoCLK(rawdata);
+					MedoCLK c=new MedoCLK();
+					c.setTimeZone(timezone);
+					c.processMedoCLK(rawdata);
+					p = c;						
 				}else if(p instanceof MedoFirmwareVersion){
 					p=new MedoFirmwareVersion(rawdata);
 				}else if(p instanceof MedoStatus){
@@ -714,5 +717,8 @@ public class MedoCommunicationsFactory{
 	}
 	public void setChannelMap(ProtocolChannelMap channelMap) {
 		this.channelMap=channelMap;		
+	}
+	public void setTimeZone(TimeZone timezone) {
+		this.timezone=timezone;
 	}
 }

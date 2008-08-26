@@ -18,6 +18,7 @@ import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.genericprotocolimpl.iskrap2lpc.ProtocolChannelMap;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
@@ -97,6 +98,8 @@ public class Meteor implements MeterProtocol{
 	private MeteorStatus statusreg=null;
 	private ObisCodeMapper ocm;
 	private ProtocolChannelMap channelMap;
+
+	private TimeZone timezone;
 
 	// ident byte
 	// Ack bit, first block bit, last block bit, R/W, 4 bit operation select
@@ -188,7 +191,7 @@ public class Meteor implements MeterProtocol{
 	}
 
 	public Date getTime() throws IOException {		
-		MeteorCLK clk=(MeteorCLK) mcf.transmitData(readRTC, null);;
+		MeteorCLK clk=(MeteorCLK) mcf.transmitData(readRTC, null);
 		return clk.getCalendar().getTime();
 	}
 	public MeteorPowerFailDetails getPowerFailDetails() throws IOException{
@@ -202,9 +205,8 @@ public class Meteor implements MeterProtocol{
 		// the value sent to the meter is added on the RTC value in the meter
 		long gettime, settime;
 		byte result=0;
-		TimeZone tz = TimeZone.getTimeZone("GMT");
-		Calendar cal=Calendar.getInstance(tz);
-		Calendar getCal=Calendar.getInstance(tz);
+		Calendar cal=Calendar.getInstance(timezone);
+		Calendar getCal=Calendar.getInstance(timezone);
 		getCal.setTime(getTime());
 		gettime=getCal.getTimeInMillis();
 		settime=cal.getTimeInMillis();
@@ -237,6 +239,9 @@ public class Meteor implements MeterProtocol{
         // build command factory
 		this.mcf=new MeteorCommunicationsFactory(sourceCode,sourceCodeExt,destinationCode,destinationCodeExt,inputStream,outputStream);
 		// set the timeout and retry (set in the properties method)
+		getPowerFailDetails().printData();
+		this.timezone=arg2;
+		mcf.setTimeZone(timezone);
 		mcf.setRetries(retry);
 		mcf.setTimeOut(timeout);
 	}
@@ -248,6 +253,8 @@ public class Meteor implements MeterProtocol{
 		// set multipliers
 		mcf.setMultipliers(fullperstable.getDialexp(), fullperstable.getDialmlt());
 		statusreg = getMeteorStatus();
+		// flag the events for the profile
+		
 		// channelmap is to be set in the factory
 		mcf.setChannelMap(this.channelMap);
 		// extended personality table contains only meta data and is not implemented
@@ -280,13 +287,16 @@ public class Meteor implements MeterProtocol{
 	}
 	public ProfileData getProfileData(Date fromTime, boolean includeEvents)
 	throws IOException {
-		TimeZone tz = TimeZone.getTimeZone("GMT");
-		Calendar cal=Calendar.getInstance(tz);
+		Calendar cal=Calendar.getInstance(timezone);
 		return getProfileData(fromTime, cal.getTime(), includeEvents);
 	}
 	public ProfileData getProfileData(Date start, Date stop, boolean arg2)
-			throws IOException, UnsupportedException {		
-		return mcf.retrieveProfileData(start, stop, getProfileInterval());
+			throws IOException, UnsupportedException {
+		ProfileData pd=mcf.retrieveProfileData(start, stop, getProfileInterval());
+		if(statusreg.getBatLow()>0){
+			pd.addEvent(new MeterEvent(getTime(),MeterEvent.OTHER,"BATTERY LOW"));
+		}
+		return pd;
 	}
 	public int getProfileInterval() throws UnsupportedException, IOException {
 		if(fullperstable==null){

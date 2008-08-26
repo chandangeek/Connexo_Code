@@ -28,7 +28,14 @@ public class MeteorCLK extends Parsers{
 		TAD=parseBArraytoCArray(rawdata);
 		process();
 	}
-
+	public void processMeteorCLK(byte[] rawdata){
+		TAD=parseBArraytoCArray(rawdata);
+		process();
+	}
+	public void processMeteorCLK(char[] rawdata){
+		TAD=rawdata;
+		process();
+	}
 	private void process(){
 		calendar.set((int) (TAD[5])+2000,(int) (TAD[4])-1,
 				(int) (TAD[3]),(int) (TAD[2]),
@@ -136,6 +143,10 @@ public class MeteorCLK extends Parsers{
 	byte[] parseToByteArray() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public void setTimeZone(TimeZone timezone) {
+		tz=timezone;
 	}
 
 }

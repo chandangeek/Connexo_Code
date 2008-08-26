@@ -17,6 +17,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.genericprotocolimpl.iskrap2lpc.ProtocolChannelMap;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
@@ -84,6 +85,7 @@ public class Medo implements MeterProtocol{
 	private MedoStatus statusreg=null;
 	private ObisCodeMapper ocm;
 	private ProtocolChannelMap channelMap;
+	private TimeZone timezone;
 
 	// ident byte
 	// Ack bit, first block bit, last block bit, R/W, 4 bit operation select
@@ -215,10 +217,12 @@ public class Medo implements MeterProtocol{
 		// set streams
 		this.inputStream = inputStream;
         this.outputStream = outputStream;
+        this.timezone=arg2;
         // build command factory
 		this.mcf=new MedoCommunicationsFactory(sourceCode,sourceCodeExt,destinationCode,destinationCodeExt,inputStream,outputStream);
 		mcf.setRetries(retry);
 		mcf.setTimeOut(timeout);
+		mcf.setTimeZone(timezone);
 	}
 	
 	public void connect() throws IOException {
@@ -259,8 +263,13 @@ public class Medo implements MeterProtocol{
 		return getProfileData(fromTime, cal.getTime(), includeEvents);
 	}
 	public ProfileData getProfileData(Date start, Date stop, boolean arg2)
-			throws IOException, UnsupportedException {		
-		return mcf.retrieveProfileData(start, stop, getProfileInterval());
+			throws IOException, UnsupportedException {
+		ProfileData pd=mcf.retrieveProfileData(start, stop, getProfileInterval());
+		if(statusreg.getBatlow()>0){
+			pd.addEvent(new MeterEvent(getTime(),MeterEvent.OTHER,"BATTERY LOW"));
+		}
+
+		return pd;
 	}
 	public int getProfileInterval() throws UnsupportedException, IOException {
 		if(fullperstable==null){

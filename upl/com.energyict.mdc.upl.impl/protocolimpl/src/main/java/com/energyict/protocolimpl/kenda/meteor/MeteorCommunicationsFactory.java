@@ -91,6 +91,7 @@ public class MeteorCommunicationsFactory{
 	private ProtocolChannelMap channelMap;
 	// first three bits are to be set in BuildIdent method (later)
 	// byte: 8 bit, word 16 bit signed integer, long 32 bit signed integer
+	private TimeZone timezone;
 	
 	public MeteorCommunicationsFactory(InputStream inputStream, OutputStream outputStream){// blank constructor for testing purposes only
 		byte[] blank={0,0};
@@ -351,9 +352,8 @@ public class MeteorCommunicationsFactory{
 		byte[] byteData=new byte[0];
 		boolean ack=false;
 		int pog=this.retries;
-		TimeZone tz = TimeZone.getTimeZone("GMT");
-		Calendar start=Calendar.getInstance(tz);
-		Calendar stop=Calendar.getInstance(tz);
+		Calendar start=Calendar.getInstance(timezone);
+		Calendar stop=Calendar.getInstance(timezone);
 		start.setTime(d1);
 		stop.setTime(d2);
 		MeteorRequestReadMeterDemands mrrd;
@@ -414,8 +414,7 @@ public class MeteorCommunicationsFactory{
 		int ids=0;
 		
 		// set timezone and calendar object
-		TimeZone tz = TimeZone.getTimeZone("GMT");
-		Calendar cal1 = Calendar.getInstance(tz); 
+		Calendar cal1 = Calendar.getInstance(timezone); 
 		cal1.setTime(start);
 		
 		// retrieve powerFailDetails and add meter events
@@ -431,7 +430,7 @@ public class MeteorCommunicationsFactory{
 		}
 		
 		// reset cal1 object
-		cal1 = Calendar.getInstance(tz); // for security reasons , should be not needed
+		cal1 = Calendar.getInstance(timezone); // for security reasons , should be not needed
 		cal1.setTime(start);
         ParseUtils.roundDown2nearestInterval(cal1,intervaltime);
         
@@ -611,7 +610,9 @@ public class MeteorCommunicationsFactory{
 						break;
 					case readRTC:
 						//System.out.println("Get RTC register");
-						p = new MeteorCLK();
+						MeteorCLK c=new MeteorCLK();
+						c.setTimeZone(timezone);
+						p = c;						
 						break;
 					case setRTC:
 						//System.out.println("Set RTC register");
@@ -672,7 +673,10 @@ public class MeteorCommunicationsFactory{
 				}else if(p instanceof MeteorExtendedPersonalityTable){	
 					p=new MeteorExtendedPersonalityTable(rawdata);
 				}else if(p instanceof MeteorCLK){
-					p=new MeteorCLK(rawdata);
+					MeteorCLK c=new MeteorCLK();
+					c.setTimeZone(timezone);
+					c.processMeteorCLK(rawdata);
+					p = c;						
 				}else if(p instanceof MeteorFirmwareVersion){
 					p=new MeteorFirmwareVersion(rawdata);
 				}else if(p instanceof MeteorStatus){
@@ -718,5 +722,8 @@ public class MeteorCommunicationsFactory{
 	}
 	public void setChannelMap(ProtocolChannelMap channelMap) {
 		this.channelMap=channelMap;		
+	}
+	public void setTimeZone(TimeZone timezone) {
+		this.timezone=timezone;
 	}
 }
