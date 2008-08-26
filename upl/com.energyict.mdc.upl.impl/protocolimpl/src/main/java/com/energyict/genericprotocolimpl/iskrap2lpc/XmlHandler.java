@@ -187,6 +187,9 @@ class XmlHandler extends DefaultHandler {
                 String value    = att.getValue("Value");
                 String error    = att.getValue("Error");
                 
+                if(ident.equalsIgnoreCase("0.0.128.101.18"))
+                	System.out.println("");
+                
                 ObisCode oc = null;
                 
                 if( error == null ){
@@ -216,19 +219,6 @@ class XmlHandler extends DefaultHandler {
                     	
                     	String end = ".255";
                     	
-//                    	if( messageEnds.get(0).equals(0) ){
-//                    		end = ".VZ";
-//                    		messageEnds.remove(0);
-//                    	}
-//                    	else if ( messageEnds.get(0).equals(1) ){
-//                    		end = ".VZ-1";
-//                    		messageEnds.remove(0);
-//                    	}
-//                    	else{
-//                    		end = ".255";
-//                    		messageEnds.remove(0);
-//                    	}
-                    		
                     	if (!end.equals(null)){
 	                    	if( ident.split("\\.").length == 3 )
 	                    		oc = ObisCode.fromString( "1.0." + ident + end);
@@ -244,9 +234,17 @@ class XmlHandler extends DefaultHandler {
                 }
                 
                 if( oc != null ) {
+                	
+                	//TODO if obiscode equals firmware dinges - make an other register with a text field filled in!
+                	Date d = (dateTime!=null) ? dateFormat.parse(dateTime) : new Date();
+                	RegisterValue rv;
+//                	if(oc.toString().equalsIgnoreCase("0.0.128.101.18.255") || oc.toString().equalsIgnoreCase("0.0.128.101.28.255")){
+//                		rv = toRegisterTextValue(oc, value, d);
+//                	} else {
+                		rv = toRegisterValue(oc, value, d);
+//                	}
+                		
                     
-                    Date d = (dateTime!=null) ? dateFormat.parse(dateTime) : new Date();
-                    RegisterValue rv = toRegisterValue(oc, value, d);
                     if( rv!=null ) meterReadingData.add(rv);
                     
                     
@@ -433,6 +431,10 @@ class XmlHandler extends DefaultHandler {
         } 
         
     }
+    
+//    private RegisterValue toRegisterTextValue(ObisCode obis, String value, Date time){
+//    	return new RegisterValue(obis, null, null, null, time, time, -1, value);
+//    }
     
     private int toIntervalState(String status){
         int flag = Integer.parseInt(status);

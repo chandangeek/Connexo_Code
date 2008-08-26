@@ -88,6 +88,8 @@ class Constant {
     final static ObisCode mbusSerialObisCode = ObisCode.fromString("0.1.128.50.21.255");
     final static ObisCode powerLimitObisCode = ObisCode.fromString("0.0.128.61.1.255");
     final static ObisCode confChangeObisCode = ObisCode.fromString("0.0.96.2.0.255");
+    final static ObisCode coreFirmware = ObisCode.fromString("0.0.128.101.18.255");
+    final static ObisCode moduleFirmware = ObisCode.fromString("0.0.128.101.28.255");
     
     private SimpleDateFormat fixedDateFormat;
     private SimpleDateFormat dateFormat;

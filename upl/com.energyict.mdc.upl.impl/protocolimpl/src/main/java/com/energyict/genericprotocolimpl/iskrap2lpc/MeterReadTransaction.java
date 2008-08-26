@@ -128,6 +128,8 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
             if (meter != null) {
 
                 XmlHandler dataHandler = new XmlHandler( getLogger(), getChannelMap(meter) );
+                
+                String str = getFirwareVersions(rtuConcentrator, serial, Constant.moduleFirmware);
 
                 // Import profile
                 if( communicationProfile.getReadDemandValues() ) {
@@ -425,8 +427,11 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
             RegisterValue registerValue = (RegisterValue) i.next();
             RtuRegister register = meter.getRegister( registerValue.getObisCode() );
 
-            if( register != null )
-                register.store( registerValue );
+            if( register != null ){
+            	if(register.getReadingAt(registerValue.getReadTime()) == null){
+            		register.store( registerValue );
+            	}
+            }
             else {
                 String obis = registerValue.getObisCode().toString();
                 String msg = "Register " + obis + " not defined on device";
@@ -509,6 +514,11 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
                         	else if(checkOtherObisCodes(oc))
                         		rl.add( new String(oc.getC()+"."+oc.getD()+"."+oc.getE()) );
                         	
+                        	else if(checkFirmwareObisCodes(oc)){
+                        		Date d = new Date(System.currentTimeMillis());
+                        		String fwv = getFirwareVersions(concentrator, serial, oc);
+                        		dataHandler.getMeterReadingData().add(new RegisterValue(oc, null, null, null, d, d, -1, fwv));
+                        	}
                         	else
                         		getLogger().log(Level.INFO, "Register with obisCode " + oc.toString() + " is not supported.");
                      
@@ -642,8 +652,21 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
     		}
     		else if((oc.getD() == 50)&&(oc.getE() == 0)) // ondemand gas
     			return true;
+    		
+//    		else if(oc.getD() == 101){
+//    			if(oc.getE() == 18 || oc.getE() == 28 || oc.getE() == 26)	// firmware versions
+//    				return true;
+//    		}
     	}
     	return false;
+	}
+	
+	private boolean checkFirmwareObisCodes(ObisCode oc){
+		if(oc.getD() == 101){
+			if(oc.getE() == 18 || oc.getE() == 28 || oc.getE() == 26)	// firmware versions
+			return true;
+		}
+		return false;
 	}
 	
     private boolean checkOtherObisCodes(ObisCode oc) {
@@ -784,6 +807,35 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 		String endBefore = Constant.getInstance().getDateFormatFixed().format(cal.getTime());
 		String str = new String( getPort(concentrator).cosemGetRequest(meterID, startBefore, endBefore, Constant.mbusSerialObisCode.toString(), new UnsignedInt(1), new UnsignedInt(2)));
 		return str.substring(2);
+	}
+	
+	private String getFirwareVersions(Rtu concentrator, String meterID, ObisCode oc) throws NumberFormatException, RemoteException, ServiceException{
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.MINUTE, 5);
+		String startBefore = Constant.getInstance().getDateFormatFixed().format(cal.getTime());
+		cal.add(Calendar.MINUTE, 10);
+		String endBefore = Constant.getInstance().getDateFormatFixed().format(cal.getTime());
+		
+		StringBuilder strBuilder = new StringBuilder();
+		byte[] strCore = getPort(concentrator).cosemGetRequest(meterID, startBefore, endBefore, oc.toString(), new UnsignedInt(1), new UnsignedInt(2));
+		for(int i = 2; i < strCore.length; i++){
+			String str = Integer.toHexString(strCore[i]&0xFF);
+			if(str.length() == 1)
+				strBuilder.append("0");
+			strBuilder.append(str);
+		}
+		return strBuilder.toString();
+	}
+	
+	public static void main(String[] args){
+		StringBuilder strBuilder = new StringBuilder();
+		byte[] b = {9, 16, -124, -41, -120, 26, 86, 96, 0, -128, -3, 109, 105, -103, -108, -1, -33, -10};
+		for(int i = 2; i < b.length; i++){
+			strBuilder.append(Integer.toHexString(b[i]&0xFF));
+			strBuilder.append(" ");
+		}
+		
+		System.out.println(strBuilder);
 	}
 	
 	protected Rtu findOrCreate(Rtu concentrator, String serial, int type) throws SQLException, BusinessException, IOException { 
