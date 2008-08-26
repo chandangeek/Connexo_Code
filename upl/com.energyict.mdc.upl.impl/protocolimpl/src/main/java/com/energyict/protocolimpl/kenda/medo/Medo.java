@@ -268,7 +268,6 @@ public class Medo implements MeterProtocol{
 		if(statusreg.getBatlow()>0 && arg2){
 			pd.addEvent(new MeterEvent(getTime(),MeterEvent.OTHER,"BATTERY LOW"));
 		}
-
 		return pd;
 	}
 	public int getProfileInterval() throws UnsupportedException, IOException {

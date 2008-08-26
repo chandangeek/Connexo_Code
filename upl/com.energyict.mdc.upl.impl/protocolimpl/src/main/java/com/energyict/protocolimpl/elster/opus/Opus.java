@@ -115,6 +115,8 @@ public class Opus extends AbstractProtocol{
 	private int numChan=-1;				// number of channels (derived from channel map)
 	private int interval=-1;			// temp value
 	private String firmwareVersion;
+
+	private TimeZone timezone;
 	
 	
 	public Opus(){
@@ -178,6 +180,7 @@ public class Opus extends AbstractProtocol{
 
 	public ProfileData getProfileData(Date fromTime, Date toTime, boolean event) throws IOException, UnsupportedException {
 		OpusGetProfileData ogpd=new OpusGetProfileData();
+		ogpd.setTimeZone(timezone);
 		return ogpd.getProfileData(fromTime, toTime, event, this.channelMap, this.ocf, this.numChan, getProfileInterval(), this.attempts, this.timeOut);
 	}
 	
@@ -203,7 +206,7 @@ public class Opus extends AbstractProtocol{
 	   return registerInfo;
    }   
 
-	public Date getTime() throws IOException  {
+   public Date getTime() throws IOException  {
 		TimeZone tz = TimeZone.getTimeZone("GMT");
 		Calendar cal=Calendar.getInstance(tz);
 		ArrayList<String[]> d=ocf.command(102, attempts, timeOut, null);
@@ -257,6 +260,8 @@ public class Opus extends AbstractProtocol{
 		// set streams
         this.inputStream = inputStream;
         this.outputStream = outputStream;
+        this.timezone=arg2;
+        this.ocf.setTimeZone(this.timezone);
         // build command factory
 		this.ocf=new OpusCommandFactory(this.outstationID,this.oldPassword,this.newPassword,this.inputStream,this.outputStream);
 		

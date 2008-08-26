@@ -64,6 +64,7 @@ public class OpusCommandFactory {
 	private int dateOffset=0;
 	private boolean com121=false;
 	private ProtocolChannelMap channelMap;
+	private TimeZone timezone;
 
 
 	/*
@@ -147,8 +148,7 @@ public class OpusCommandFactory {
 	private ArrayList<String[]> synchronizeOutstation(int attempts, int timeOut) throws IOException{
 		// build calendar object in GMT time
 		Calendar cal;
-		TimeZone tz = TimeZone.getTimeZone("GMT");
-		cal=Calendar.getInstance(tz);
+		cal=Calendar.getInstance(timezone);
 		String[] data=dataArrayBuilder(cal,oldPassword,newPassword); // build data packet
 		return stateMachine3(101,attempts,timeOut,data);
 	}
@@ -877,6 +877,10 @@ public class OpusCommandFactory {
 	public void setChannelMap(ProtocolChannelMap channelMap) {
 		System.out.println("check");
 		this.channelMap = channelMap;
+	}
+
+	public void setTimeZone(TimeZone timezone) {
+		timezone=this.timezone;		
 	}
 
 

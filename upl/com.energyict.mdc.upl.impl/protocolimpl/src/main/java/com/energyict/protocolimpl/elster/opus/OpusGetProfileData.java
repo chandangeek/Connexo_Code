@@ -30,11 +30,12 @@ public class OpusGetProfileData {
 	private OpusCommandFactory ocf; 	// command factory
 	private int profileInterval;	
 	private Calendar checkcal=Calendar.getInstance(); 	// to store data in for the interval data
+	private TimeZone timezone;
 	
 	public ProfileData getProfileData(
 			Date fromTime, 
 			Date toTime,
-			boolean event, 
+			boolean addEvent, 
 			ProtocolChannelMap channelMap, 
 			OpusCommandFactory ocf,
 			int numChan,
@@ -52,9 +53,8 @@ public class OpusGetProfileData {
 		IntervalData previd= new IntervalData();	// previous interval data, is kept for power down and power up flags (are to be set before the occurence of a power down and after a power up)
 		MeterEvent mev; 							// meter event flagging
 		// build calendar objects
-		TimeZone tz = TimeZone.getTimeZone("GMT");
-		Calendar cal1 = Calendar.getInstance(tz);  	// removed getTimeZone()
-		Calendar tempcal=Calendar.getInstance(tz); 	// to store data in for the interval data
+		Calendar cal1 = Calendar.getInstance(timezone);  	// removed getTimeZone()
+		Calendar tempcal=Calendar.getInstance(timezone); 	// to store data in for the interval data
 		// command sequences
 		int command=10, ident=0;// 10 is the value of today...69 of 60 days ago, this is theory (in reality every time a new date is set that does not correspond with the actual date in the meter a new register is opened)
 		long millis=0,temp=0;
@@ -156,26 +156,26 @@ public class OpusGetProfileData {
         							case 999996:
         								id.addEiStatus(IntervalStateBits.CORRUPTED);            					
         								mev=new MeterEvent(tempcal.getTime(), MeterEvent.OTHER,"Data Overflow");
-        								if(firstchan && tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime)){pd.addEvent(mev);}
+        								if(firstchan && tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime) && addEvent){pd.addEvent(mev);}
         								break;
         							case 999997:
         								id.addEiStatus(IntervalStateBits.CORRUPTED);
         								mev=new MeterEvent(tempcal.getTime(), MeterEvent.OTHER,"Fuse Failure Delay");
-        								if(firstchan && tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime)){pd.addEvent(mev);}
+        								if(firstchan && tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime) && addEvent){pd.addEvent(mev);}
         								break;
         							case 999998:
         								id.addEiStatus(IntervalStateBits.CORRUPTED);
         								mev=new MeterEvent(tempcal.getTime(), MeterEvent.OTHER,"Lost Pulse");
-        								if(firstchan && tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime)){pd.addEvent(mev);}
+        								if(firstchan && tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime) && addEvent){pd.addEvent(mev);}
         								break;
         							case 999999:
         								id.addEiStatus(IntervalStateBits.MISSING);
         								if(!powDownFlag){
         									long pdtemp=millis-getProfileInterval()*1000;
-        									Calendar cal=Calendar.getInstance(tz);
+        									Calendar cal=Calendar.getInstance(timezone);
         									cal.setTimeInMillis(pdtemp); // set time one interval back
         									mev=new MeterEvent(cal.getTime(), MeterEvent.POWERDOWN);
-        									if(tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime)){pd.addEvent(mev);}
+        									if(tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime) && addEvent){pd.addEvent(mev);}
         									powDownFlag=true;                					
         								}
         								break;
@@ -183,7 +183,7 @@ public class OpusGetProfileData {
         								// code 0 to 5 not implemented? No information
         								id.addEiStatus(IntervalStateBits.OTHER);
            								mev=new MeterEvent(tempcal.getTime(), MeterEvent.OTHER,"Data Overflow");
-           								if(firstchan && tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime)){pd.addEvent(mev);}
+           								if(firstchan && tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime) && addEvent){pd.addEvent(mev);}
            								break;
         							}
         							firstchan=false;// don't tag other channel recordings in pd
@@ -191,7 +191,7 @@ public class OpusGetProfileData {
         							if(powDownFlag && eventflag){
         								powDownFlag=false;
         								mev=new MeterEvent(tempcal.getTime(), MeterEvent.POWERUP);
-        								if(tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime)){pd.addEvent(mev);}
+        								if(tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime) && addEvent){pd.addEvent(mev);}
         							}
         							eventflag=false;
         							// value is real value
@@ -233,7 +233,7 @@ public class OpusGetProfileData {
    							}
 							id.addEiStatus(IntervalStateBits.MISSING);
 							mev=new MeterEvent(tempcal.getTime(), MeterEvent.OTHER,"No Data");
-							if(firstchan && tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime)){pd.addEvent(mev);}
+							if(firstchan && tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime) && addEvent){pd.addEvent(mev);}
     					}
     				}
     				if(tempcal.getTime().after(fromTime) && tempcal.getTime().before(toTime)){
@@ -287,10 +287,9 @@ public class OpusGetProfileData {
 		int command=10;
 		int dateOffset=0;
 		long now, then;
-		TimeZone tz = TimeZone.getTimeZone("GMT");
-		Calendar calthen=Calendar.getInstance(tz);
+		Calendar calthen=Calendar.getInstance(timezone);
 		calthen.setTime(cal1);
-		Calendar calnow=Calendar.getInstance(tz);
+		Calendar calnow=Calendar.getInstance(timezone);
 		calnow.set(Calendar.HOUR_OF_DAY, 0);
 		calnow.set(Calendar.MINUTE, 0);
 		calnow.set(Calendar.SECOND, 0);
@@ -311,6 +310,11 @@ public class OpusGetProfileData {
 		}
 		this.ocf.setDateOffset(dateOffset); // change offset in factory
 		return command;
+	}
+
+	public void setTimeZone(TimeZone timezone) {
+	    this.timezone=timezone;
+		
 	}
 
 }
