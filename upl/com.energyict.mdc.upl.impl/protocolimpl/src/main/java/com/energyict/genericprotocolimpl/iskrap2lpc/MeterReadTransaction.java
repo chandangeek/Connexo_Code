@@ -816,26 +816,26 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 		cal.add(Calendar.MINUTE, 10);
 		String endBefore = Constant.getInstance().getDateFormatFixed().format(cal.getTime());
 		
-		StringBuilder strBuilder = new StringBuilder();
+		StringBuffer strBuff = new StringBuffer();
 		byte[] strCore = getPort(concentrator).cosemGetRequest(meterID, startBefore, endBefore, oc.toString(), new UnsignedInt(1), new UnsignedInt(2));
 		for(int i = 2; i < strCore.length; i++){
 			String str = Integer.toHexString(strCore[i]&0xFF);
 			if(str.length() == 1)
-				strBuilder.append("0");
-			strBuilder.append(str);
+				strBuff.append("0");
+			strBuff.append(str);
 		}
-		return strBuilder.toString();
+		return strBuff.toString();
 	}
 	
 	public static void main(String[] args){
-		StringBuilder strBuilder = new StringBuilder();
-		byte[] b = {9, 16, -124, -41, -120, 26, 86, 96, 0, -128, -3, 109, 105, -103, -108, -1, -33, -10};
-		for(int i = 2; i < b.length; i++){
-			strBuilder.append(Integer.toHexString(b[i]&0xFF));
-			strBuilder.append(" ");
-		}
-		
-		System.out.println(strBuilder);
+//		StringBuilder strBuilder = new StringBuilder();
+//		byte[] b = {9, 16, -124, -41, -120, 26, 86, 96, 0, -128, -3, 109, 105, -103, -108, -1, -33, -10};
+//		for(int i = 2; i < b.length; i++){
+//			strBuilder.append(Integer.toHexString(b[i]&0xFF));
+//			strBuilder.append(" ");
+//		}
+//		
+//		System.out.println(strBuilder);
 	}
 	
 	protected Rtu findOrCreate(Rtu concentrator, String serial, int type) throws SQLException, BusinessException, IOException { 
