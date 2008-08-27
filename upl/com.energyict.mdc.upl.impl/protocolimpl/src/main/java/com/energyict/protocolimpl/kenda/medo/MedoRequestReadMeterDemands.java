@@ -24,8 +24,8 @@ public class MedoRequestReadMeterDemands extends Parsers {
 			int intervaltime) {
 		int startinterval =  (int) (1+Math.floor((start.get(Calendar.HOUR_OF_DAY)*60+start.get(Calendar.MINUTE))/(intervaltime/60)));
 		int stopinterval =  (int) (1+Math.floor((stop.get(Calendar.HOUR_OF_DAY)*60+stop.get(Calendar.MINUTE))/(intervaltime/60)));
-		this.stPeriod  = ((start.get(Calendar.DAY_OF_YEAR)-1)*intervaltime+startinterval);
-		this.noPeriods = (short) (((stop.get(Calendar.DAY_OF_YEAR)-1)*intervaltime+stopinterval)-stPeriod);
+		this.stPeriod  = ((start.get(Calendar.DAY_OF_YEAR)-1)*((24*60*60)/intervaltime)+startinterval);
+		this.noPeriods = (short) (((stop.get(Calendar.DAY_OF_YEAR)-1)*((24*60*60)/intervaltime)+stopinterval)-stPeriod);
 	}
 
 	private void processRequest(char[] c) {
