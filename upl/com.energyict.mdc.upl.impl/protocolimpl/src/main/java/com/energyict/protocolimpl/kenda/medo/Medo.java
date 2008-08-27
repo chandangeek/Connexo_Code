@@ -259,8 +259,7 @@ public class Medo implements MeterProtocol{
 	}
 	public ProfileData getProfileData(Date fromTime, boolean includeEvents)
 	throws IOException {
-		TimeZone tz = TimeZone.getTimeZone("GMT");
-		Calendar cal=Calendar.getInstance(tz);
+		Calendar cal=Calendar.getInstance(timezone);
 		return getProfileData(fromTime, cal.getTime(), includeEvents);
 	}
 	public ProfileData getProfileData(Date start, Date stop, boolean arg2)
