@@ -376,13 +376,12 @@ public class MedoCommunicationsFactory{
 			}
 			// deal with the data, cut header and checksum
 			for(byte[] bt:br){
-				System.out.println(new String(bt));
-				tel+=bt.length;
+				tel+=bt.length-11;
 			}
 			byteData=new byte[tel];
 			for(byte[] bt:br){
-				for(byte b:bt){
-					byteData[poscount++]=b;					
+				for(int i=10; i<bt.length-1;i++){
+					byteData[poscount++]=bt[i];					
 				}
 			}
 			// parse the data
