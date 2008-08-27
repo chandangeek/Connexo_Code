@@ -176,7 +176,7 @@ public class Medo implements MeterProtocol{
 	}
 	public MedoPowerFailDetails getPowerFailDetails() throws IOException{
 		MedoPowerFailDetails mpfd=(MedoPowerFailDetails) mcf.transmitData(powerFailDetails, null);
-		mpfd.printData();
+		//mpfd.printData();
 		return mpfd;
 	}
 	public void setTime() throws IOException {
@@ -185,9 +185,8 @@ public class Medo implements MeterProtocol{
 		// the value sent to the meter is added on the RTC value in the meter
 		long gettime, settime;
 		byte result=0;
-		TimeZone tz = TimeZone.getTimeZone("GMT");
-		Calendar cal=Calendar.getInstance(tz);
-		Calendar getCal=Calendar.getInstance(tz);
+		Calendar cal=Calendar.getInstance(timezone);
+		Calendar getCal=Calendar.getInstance(timezone);
 		getCal.setTime(getTime());
 		gettime=getCal.getTimeInMillis();
 		settime=cal.getTimeInMillis();
@@ -227,9 +226,11 @@ public class Medo implements MeterProtocol{
 	
 	public void connect() throws IOException {
 		fullperstable = getFullPersonalityTable();
+		fullperstable.printData();
 		// set multipliers
 		mcf.setMultipliers(fullperstable.getDialexp(), fullperstable.getDialmlt());
 		statusreg = getmedoStatus();
+		statusreg.printData();
 		// channelmap is to be set in the factory
 		mcf.setChannelMap(this.channelMap);
 	}

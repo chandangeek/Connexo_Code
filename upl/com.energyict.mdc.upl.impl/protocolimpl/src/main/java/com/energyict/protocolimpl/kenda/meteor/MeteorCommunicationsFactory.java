@@ -340,7 +340,7 @@ public class MeteorCommunicationsFactory{
 			if((br[0][0] & 0x80)==0x80){ack=true;} // get acknowledge
 		}
 		if(!ack){
-			throw new IOException("Data transmission did not succeed, thrown by communicationsFactory->transmitData");
+			throw new IOException("Data transmission did not succeed, thrown by communicationsFactory->trimRTC");
 		}
 	}
 	private short[][] requestMeterDemands(byte command, Date d1, Date d2, int intervaltime) throws IOException{
