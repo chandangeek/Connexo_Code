@@ -386,7 +386,6 @@ public class MeteorCommunicationsFactory{
 			}
 			// parse the data
 			shortData=new short[byteData.length/(numChan*2)][numChan];
-			tel=0;
 			short[] tempshort=Parsers.parseBArraytoSArray(byteData);
 			for(int i=0; i<tempshort.length/numChan; i++){
 				for(int ii=0; ii<numChan; ii++){
