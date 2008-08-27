@@ -20,7 +20,7 @@ public class MedoRequestReadMeterDemands extends Parsers {
 		processRequest(parseBArraytoCArray(b));	
 	}
 
-	public MedoRequestReadMeterDemands(Calendar start, Calendar stop,
+	MedoRequestReadMeterDemands(Calendar start, Calendar stop,
 			int intervaltime) {
 		int startinterval =  (int) (1+Math.floor((start.get(Calendar.HOUR_OF_DAY)*60+start.get(Calendar.MINUTE))/(intervaltime/60)));
 		int stopinterval =  (int) (1+Math.floor((stop.get(Calendar.HOUR_OF_DAY)*60+stop.get(Calendar.MINUTE))/(intervaltime/60)));
