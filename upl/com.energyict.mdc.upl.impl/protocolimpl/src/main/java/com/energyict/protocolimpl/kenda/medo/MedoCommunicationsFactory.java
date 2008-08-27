@@ -19,7 +19,6 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
-import com.energyict.protocolimpl.kenda.meteor.MeteorCLK;
 
 public class MedoCommunicationsFactory{
 	/**
@@ -367,21 +366,27 @@ public class MedoCommunicationsFactory{
 		}
 		while(!ack && pog>0){
 			int tel=0, subcounter=0;
+			int poscount=0;
 			pog--;
 			sendData(bs);
 			// receive ack
-			br=receiveData((byte) (bs[0]& 0x1F));			
+			br=receiveData((byte) (bs[0]& 0x1F));
 			if((br[br.length-1][0]&0x20)==0x20){
 				ack=true;			
 			}
 			// deal with the data, cut header and checksum
 			for(byte[] bt:br){
+				System.out.println(new String(bt));
 				tel+=bt.length;
 			}
 			byteData=new byte[tel];
+			for(byte[] bt:br){
+				for(byte b:bt){
+					byteData[poscount++]=b;					
+				}
+			}
 			// parse the data
 			shortData=new short[byteData.length/(numChan*2)][numChan];
-			tel=0;
 			short[] tempshort=Parsers.parseBArraytoSArray(byteData);
 			for(int i=0; i<tempshort.length/numChan; i++){
 				for(int ii=0; ii<numChan; ii++){

@@ -366,6 +366,7 @@ public class MeteorCommunicationsFactory{
 		}
 		while(!ack && pog>0){
 			int tel=0, subcounter=0;
+			int poscount=0;
 			pog--;
 			sendData(bs);
 			// receive ack
@@ -378,6 +379,11 @@ public class MeteorCommunicationsFactory{
 				tel+=bt.length;
 			}
 			byteData=new byte[tel];
+			for(byte[] bt:br){
+				for(byte b:bt){
+					byteData[poscount++]=b;					
+				}
+			}
 			// parse the data
 			shortData=new short[byteData.length/(numChan*2)][numChan];
 			tel=0;
