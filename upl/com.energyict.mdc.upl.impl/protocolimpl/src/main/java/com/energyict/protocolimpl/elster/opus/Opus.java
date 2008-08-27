@@ -261,9 +261,10 @@ public class Opus extends AbstractProtocol{
         this.inputStream = inputStream;
         this.outputStream = outputStream;
         this.timezone=arg2;
-        this.ocf.setTimeZone(this.timezone);
+        
         // build command factory
 		this.ocf=new OpusCommandFactory(this.outstationID,this.oldPassword,this.newPassword,this.inputStream,this.outputStream);
+        this.ocf.setTimeZone(arg2);
 		
 		if(this.channelMap==null){ // if no setProperties has been called
 			String cs="1";
