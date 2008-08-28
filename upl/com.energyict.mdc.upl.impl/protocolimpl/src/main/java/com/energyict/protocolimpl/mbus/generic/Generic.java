@@ -164,7 +164,7 @@ public class Generic extends MBus {
             Properties properties = new Properties();
             properties.setProperty("ProfileInterval", "60");
             properties.setProperty("SecondaryAddressing", "0");
-            properties.setProperty(MeterProtocol.ADDRESS,"3");
+            properties.setProperty(MeterProtocol.ADDRESS,"2");
             properties.setProperty("SerialNumber","6158629"); //65553712");
             //properties.setProperty("HalfDuplex", "-1");
             // ********************** EictRtuModbus **********************

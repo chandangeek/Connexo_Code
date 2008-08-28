@@ -40,6 +40,7 @@ public class ValueInformationfieldCoding {
     static List primaryVIFs = new ArrayList();
     static List fdVIFEs = new ArrayList();
     static List fbVIFEs = new ArrayList();
+    static List manufacturerVIFEs = new ArrayList();
     static List combinableVIFEs = new ArrayList();
     static {
         
@@ -558,7 +559,7 @@ public class ValueInformationfieldCoding {
     
     static public void main(String[] args) {
         try {
-            System.out.println(ValueInformationfieldCoding.findPrimaryValueInformationfieldCoding(0x27, 02));
+            System.out.println(ValueInformationfieldCoding.findPrimaryValueInformationfieldCoding(255, 2));
         }
         catch(IOException e) {
             e.printStackTrace();

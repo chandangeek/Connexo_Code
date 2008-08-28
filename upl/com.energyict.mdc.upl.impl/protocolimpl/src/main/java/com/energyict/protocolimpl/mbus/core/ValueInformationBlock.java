@@ -27,6 +27,7 @@ public class ValueInformationBlock {
     int padding=0;
     /** Creates a new instance of ValueInformationBlock */
     public ValueInformationBlock(byte[] data, int offset, TimeZone timeZone, int dataField) throws IOException {
+    	
         // plain text VIF
         if ((data[offset] == 0x7C) || (((int)data[offset]&0xff) == 0xFC)) {
             offset++;
@@ -37,22 +38,28 @@ public class ValueInformationBlock {
         else if (((int)data[offset]&0xff) == 0xFB) {
             offset++;
             padding++;
-            setValueInformationfieldCoding(ValueInformationfieldCoding.findFBExtensionValueInformationfieldCoding(data[offset++],dataField));
+            setValueInformationfieldCoding(ValueInformationfieldCoding.findFBExtensionValueInformationfieldCoding((int)data[offset++]&0xff,dataField));
         }
         else if (((int)data[offset]&0xff) == 0xFD) {
             offset++;
             padding++;
-            setValueInformationfieldCoding(ValueInformationfieldCoding.findFDExtensionValueInformationfieldCoding(data[offset++],dataField));
+            setValueInformationfieldCoding(ValueInformationfieldCoding.findFDExtensionValueInformationfieldCoding((int)data[offset++]&0xff,dataField));
         }
+        else if ((data[offset] == 0x7F) || (((int)data[offset]&0xff) == 0xFF)) {
+        	// manufacturer specific
+            offset++;
+            padding++;
+            setValueInformationfieldCoding(ValueInformationfieldCoding.findCombinableExtensionValueInformationfieldCoding((int)data[offset++]&0xff,dataField));
+        }        
         else {
-            setValueInformationfieldCoding(ValueInformationfieldCoding.findPrimaryValueInformationfieldCoding(data[offset++],dataField));
+            setValueInformationfieldCoding(ValueInformationfieldCoding.findPrimaryValueInformationfieldCoding((int)data[offset++]&0xff,dataField));
         }
         
         if (getValueInformationfieldCoding().isCodingExtended()) {
             setValueInformationfieldCodings(new ArrayList());
             ValueInformationfieldCoding v=null;
             do {
-                v = ValueInformationfieldCoding.findCombinableExtensionValueInformationfieldCoding(data[offset++],dataField);
+                v = ValueInformationfieldCoding.findCombinableExtensionValueInformationfieldCoding((int)data[offset++]&0xff,dataField);
                 getValueInformationfieldCodings().add(v);
             } while(v.isCodingExtended());
         }
