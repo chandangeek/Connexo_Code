@@ -235,7 +235,7 @@ public class Meteor implements MeterProtocol{
 			Logger arg3) throws IOException {
 		// set streams
 		this.inputStream = inputStream;
-        this.outputStream = outputStream;
+        this.outputStream = outputStream;        
         // build command factory
 		this.mcf=new MeteorCommunicationsFactory(sourceCode,sourceCodeExt,destinationCode,destinationCodeExt,inputStream,outputStream);
 		// set the timeout and retry (set in the properties method)
