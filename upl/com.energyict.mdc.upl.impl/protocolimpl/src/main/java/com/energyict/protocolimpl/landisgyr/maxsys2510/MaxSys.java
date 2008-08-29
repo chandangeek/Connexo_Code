@@ -82,6 +82,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
     final static String PK_FORCE_DELAY = "ForceDelay";
     final static String PK_READ_UNIT1_SERIALNUMBER = "ReadUnit1SerialNumber";
+    final static String PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE = "ReadProfileDataBeforeConfigChange";
 
     /** Property Default values */
     final static String PD_NODE_ID = "";
@@ -125,6 +126,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     private Firmware firmware;
     
     private boolean readUnit1SerialNumber = false;
+    private boolean readProfileDataBeforeConfigChange = true;
     
     public MaxSys() { }
     
@@ -190,6 +192,9 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         
          readUnit1SerialNumber = 
         	"1".equals(p.getProperty(PK_READ_UNIT1_SERIALNUMBER));
+         readProfileDataBeforeConfigChange = 
+         	!"0".equals(p.getProperty(this.PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE));
+         
     }
 
     /**
@@ -214,6 +219,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         result.add(PK_RETRIES);
         result.add(PK_EXTENDED_LOGGING);
         result.add(PK_READ_UNIT1_SERIALNUMBER);
+        result.add(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE);
         return result;
     }
 
@@ -370,6 +376,12 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
             logger.log(Level.INFO, obisCodeMapper.getDebugLogging() + "\n");
         }
     }
+    
+    public Date getBeginningOfRecording() throws IOException {
+    	TableAddress ta = new TableAddress( this, 2, 30 );
+    	byte[] values = ta.readBytes(6);
+    	return TypeDateTimeRcd.parse(new Assembly(this, new ByteArray(values))).toDate();
+    }
 
     private void validateSerialNumber( ) throws IOException {
     	this.getLogger().info("validateSerialNumber");
@@ -378,7 +390,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
      
         String sn = null;
         
-        // initial implementataion: serialnumber = unit_id3 (this is the default!)
+        // initial implementatation: serialnumber = unit_id3 (this is the default!)
         // implementation for Imserv: serialnumber = unit_id1
         if (!readUnit1SerialNumber) {
         	TableAddress ta = new TableAddress( this, 2, 19 );
@@ -641,7 +653,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         command.setNbls( totalSize & 0x000000FF );
         command.setNbms( totalSize & 0x0000FF00 );
         ByteArray ba = linkLayer.send( command );
-        return Table12.parse( new Assembly( this, ba ), includeEvents, nrIntervals );
+        return Table12.parse( new Assembly( this, ba ), includeEvents, nrIntervals, readProfileDataBeforeConfigChange );
     }
     
     Table13 getTable13() throws IOException {
