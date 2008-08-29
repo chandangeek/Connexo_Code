@@ -95,6 +95,10 @@ public class Medo implements MeterProtocol{
 	private ProtocolChannelMap channelMap;
 	private TimeZone timezone;
 
+	// used for debugging timerequest problem (asking 2 times the time in 1 call is impossible)
+	private boolean timeRequest=false;
+	private int timeoffset=0;
+
 	private int profileDataPointer;
 
 	// ident byte
@@ -179,10 +183,20 @@ public class Medo implements MeterProtocol{
 	}
 
 	public Date getTime() throws IOException {		
-		MedoCLK clk=(MedoCLK) mcf.transmitData(readRTC, null);;
-//		System.out.println("meter    time: " + clk.getCalendar().getTime().toLocaleString());
-//		System.out.println("computer time: " + Calendar.getInstance().getTime().toLocaleString());
-		return clk.getCalendar().getTime();
+		if(!timeRequest){
+			MedoCLK clk=(MedoCLK) mcf.transmitData(readRTC, null);
+			Calendar c=Calendar.getInstance(timezone);
+			timeoffset=(int) (clk.getCalendar().getTimeInMillis()-c.getTimeInMillis());
+			timeRequest=true;
+//			System.out.println("meter    time: " + clk.getCalendar().getTime().toLocaleString());
+//			System.out.println("computer time: " + Calendar.getInstance().getTime().toLocaleString());
+			return clk.getCalendar().getTime();
+		}else{
+			Calendar c=Calendar.getInstance(timezone);
+			long temp=c.getTimeInMillis()+timeoffset;
+			c.setTimeInMillis(temp);			
+			return c.getTime();
+		}
 	}
 	public MedoPowerFailDetails getPowerFailDetails() throws IOException{
 		MedoPowerFailDetails mpfd=(MedoPowerFailDetails) mcf.transmitData(powerFailDetails, null);
@@ -193,23 +207,23 @@ public class Medo implements MeterProtocol{
 		// set time is only possible on commissioning or after loading a new personality table (pg 8)
 		// use only trimmer. 
 		// the value sent to the meter is added on the RTC value in the meter
-//		long gettime, settime;
-//		byte result=0;
-//		Calendar cal=Calendar.getInstance(timezone);
-//		Calendar getCal=Calendar.getInstance(timezone);
-//		getCal.setTime(getTime());
-//		gettime=getCal.getTimeInMillis();
-//		settime=cal.getTimeInMillis();
-//		if(Math.abs(gettime-settime)/1000<59){
-//			// max 59 sec deviation
-//			result=(byte) ((int) ((settime-gettime)/1000)& 0x000000FF);
-//		}else{
-//			result=59;
-//			if(gettime>settime){
-//				result=-59;
-//			}
-//		}
-//		mcf.trimRTC(result);
+		long gettime, settime;
+		byte result=0;
+		Calendar cal=Calendar.getInstance(timezone);
+		Calendar getCal=Calendar.getInstance(timezone);
+		getCal.setTime(getTime());
+		gettime=getCal.getTimeInMillis();
+		settime=cal.getTimeInMillis();
+		if(Math.abs(gettime-settime)/1000<59){
+			// max 59 sec deviation
+			result=(byte) ((int) ((settime-gettime)/1000)& 0x000000FF);
+		}else{
+			result=59;
+			if(gettime>settime){
+				result=-59;
+			}
+		}
+		mcf.trimRTC(result);
 	}
 	public MedoFullPersonalityTable getFullPersonalityTable() throws IOException {
 		MedoFullPersonalityTable mfpt=(MedoFullPersonalityTable) mcf.transmitData(fullPersTableRead, null);;
