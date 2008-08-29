@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import com.energyict.genericprotocolimpl.iskrap2lpc.ProtocolChannelMap;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 public class OpusCommandFactory {

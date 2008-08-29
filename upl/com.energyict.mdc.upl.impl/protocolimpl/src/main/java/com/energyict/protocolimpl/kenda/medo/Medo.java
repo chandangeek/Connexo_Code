@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.genericprotocolimpl.iskrap2lpc.ProtocolChannelMap;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterEvent;

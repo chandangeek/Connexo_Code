@@ -16,7 +16,7 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.genericprotocolimpl.iskrap2lpc.ProtocolChannelMap;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;

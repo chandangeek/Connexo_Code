@@ -14,8 +14,6 @@ import java.util.logging.Logger;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.genericprotocolimpl.iskrap2lpc.ProtocolChannelMap;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterEvent;
@@ -26,9 +24,7 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.base.Encryptor;
-import com.energyict.protocolimpl.base.ProtocolConnection;
-import com.energyict.protocolimpl.kenda.meteor.ObisCodeMapper;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
 public class Meteor implements MeterProtocol{
 	/**
@@ -244,6 +240,7 @@ public class Meteor implements MeterProtocol{
 		mcf.setTimeZone(timezone);
 		mcf.setRetries(retry);
 		mcf.setTimeOut(timeout);
+		//setTime();
 	}
 	
 	public void connect() throws IOException {

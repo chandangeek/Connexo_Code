@@ -11,7 +11,7 @@ import java.util.TimeZone;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
-import com.energyict.genericprotocolimpl.iskrap2lpc.ProtocolChannelMap;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
@@ -370,7 +370,7 @@ public class MeteorCommunicationsFactory{
 			pog--;
 			sendData(bs);
 			// receive ack
-			br=receiveData((byte) (bs[0]& 0x1F));			
+			br=receiveData((byte) (bs[0]& 0x1F));	// timeout?		
 			if((br[br.length-1][0]&0x20)==0x20){
 				ack=true;			
 			}
@@ -378,24 +378,26 @@ public class MeteorCommunicationsFactory{
 			for(byte[] bt:br){
 				tel+=bt.length-11;
 			}
-			byteData=new byte[tel];
-			for(byte[] bt:br){
-				for(int i=10; i<bt.length-1;i++){
-					byteData[poscount++]=bt[i];					
+			if(tel>0){
+				byteData=new byte[tel];
+				for(byte[] bt:br){
+					for(int i=10; i<bt.length-1;i++){
+						byteData[poscount++]=bt[i];					
+					}
 				}
-			}
-			// parse the data
-			shortData=new short[byteData.length/(numChan*2)][numChan];
-			short[] tempshort=Parsers.parseBArraytoSArray(byteData);
-			for(int i=0; i<tempshort.length/numChan; i++){
-				for(int ii=0; ii<numChan; ii++){
-					shortData[i][ii]=tempshort[subcounter];
-					subcounter++;
+				// parse the data
+				shortData=new short[byteData.length/(numChan*2)][numChan];
+				short[] tempshort=Parsers.parseBArraytoSArray(byteData);
+				for(int i=0; i<tempshort.length/numChan; i++){
+					for(int ii=0; ii<numChan; ii++){
+						shortData[i][ii]=tempshort[subcounter];
+						subcounter++;
+					}
 				}
+				// send back ack
+				bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
+				sendData(bs);
 			}
-			// send back ack
-			bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
-			sendData(bs);									
 		}
 		if(!ack){
 			throw new IOException("Data transmission did not succeed, thrown by communicationsFactory->transmitData");
@@ -706,6 +708,7 @@ public class MeteorCommunicationsFactory{
 			return null;
 		}	
 	}
+	
 	public byte getIdent() {
 		return ident;
 	}
@@ -730,10 +733,13 @@ public class MeteorCommunicationsFactory{
 			channelMultipliers[i]=(int) Math.pow(10,(long) dialexp[i])*dialmlt[i];
 		}		
 	}
+	
 	public void setChannelMap(ProtocolChannelMap channelMap) {
-		this.channelMap=channelMap;		
+		this.channelMap=channelMap;
 	}
+	
 	public void setTimeZone(TimeZone timezone) {
 		this.timezone=timezone;
 	}
+
 }
