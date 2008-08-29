@@ -50,6 +50,10 @@ public class Medo implements MeterProtocol{
 	 * <p>
 	 *  Additional classes are implemented mostly to help in the Unit testing.	
 	 * <p>
+	 *  no information on STPERIOD in code 7 can be found, therefore 2 possible implementations 
+	 *  are made, use the properties profileDataPointer to give the starting year of counting
+	 *  to the protocol.
+	 * <p>
 	 *  Initial version:<p>
 	 *  ----------------<p>
 	 *  Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
@@ -64,12 +68,16 @@ public class Medo implements MeterProtocol{
 	 *  @Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
 	 *  @Version:1.01<p>
 	 *  First edit date: 26/08/2008<p>
-	 *  Last edit date: 27/08/2008<p>
-	 *  Comments: Problems in the profile data read solved. In the MedoRequestReadMeterDemands on line 23-29 there will be an adaptation, stperiod number is not yet completely reverse engineered (december last year problem)<p>
-	 *  released for testing: 27/08/2008<p>
+	 *  Last edit date: 29/08/2008<p>
+	 *  Comments: Problems in the profile data read solved. In the MedoRequestReadMeterDemands 
+	 *  on line 23-29 there will be an adaptation, stperiod number is not yet completely reverse 
+	 *  engineered (december last year problem) a flag in the properties has been added<p>
+	 *  released for testing: 29/08/2008<p>
 	 * ---------------------------------------------------------------------------------<p>
 	 *  
 	 */
+	private String protocolVersion="$Date$";
+
 	private OutputStream outputStream;
 	private InputStream inputStream;
 	private MedoCommunicationsFactory mcf;
@@ -86,6 +94,8 @@ public class Medo implements MeterProtocol{
 	private ObisCodeMapper ocm;
 	private ProtocolChannelMap channelMap;
 	private TimeZone timezone;
+
+	private int profileDataPointer;
 
 	// ident byte
 	// Ack bit, first block bit, last block bit, R/W, 4 bit operation select
@@ -165,7 +175,7 @@ public class Medo implements MeterProtocol{
 	}
 
 	public String getProtocolVersion() {
-		return "$Date$";
+		return protocolVersion;
 	}
 
 	public Date getTime() throws IOException {		
@@ -183,23 +193,23 @@ public class Medo implements MeterProtocol{
 		// set time is only possible on commissioning or after loading a new personality table (pg 8)
 		// use only trimmer. 
 		// the value sent to the meter is added on the RTC value in the meter
-		long gettime, settime;
-		byte result=0;
-		Calendar cal=Calendar.getInstance(timezone);
-		Calendar getCal=Calendar.getInstance(timezone);
-		getCal.setTime(getTime());
-		gettime=getCal.getTimeInMillis();
-		settime=cal.getTimeInMillis();
-		if(Math.abs(gettime-settime)/1000<59){
-			// max 59 sec deviation
-			result=(byte) ((int) ((settime-gettime)/1000)& 0x000000FF);
-		}else{
-			result=59;
-			if(gettime>settime){
-				result=-59;
-			}
-		}
-		mcf.trimRTC(result);
+//		long gettime, settime;
+//		byte result=0;
+//		Calendar cal=Calendar.getInstance(timezone);
+//		Calendar getCal=Calendar.getInstance(timezone);
+//		getCal.setTime(getTime());
+//		gettime=getCal.getTimeInMillis();
+//		settime=cal.getTimeInMillis();
+//		if(Math.abs(gettime-settime)/1000<59){
+//			// max 59 sec deviation
+//			result=(byte) ((int) ((settime-gettime)/1000)& 0x000000FF);
+//		}else{
+//			result=59;
+//			if(gettime>settime){
+//				result=-59;
+//			}
+//		}
+//		mcf.trimRTC(result);
 	}
 	public MedoFullPersonalityTable getFullPersonalityTable() throws IOException {
 		MedoFullPersonalityTable mfpt=(MedoFullPersonalityTable) mcf.transmitData(fullPersTableRead, null);;
@@ -222,6 +232,7 @@ public class Medo implements MeterProtocol{
 		mcf.setRetries(retry);
 		mcf.setTimeOut(timeout);
 		mcf.setTimeZone(timezone);
+		mcf.setYearPointer(profileDataPointer);
 	}
 	
 	public void connect() throws IOException {
@@ -293,6 +304,7 @@ public class Medo implements MeterProtocol{
 		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1"));
 		this.timeout=Integer.parseInt(properties.getProperty("TimeOut","10000"));
 		this.retry=Integer.parseInt(properties.getProperty("Retry", "3"));
+		this.profileDataPointer=Integer.parseInt(properties.getProperty("ProfileDataPointerYear", "2008"));
 	}
 	public void setRegister(String arg0, String arg1) throws IOException,
 			NoSuchRegisterException, UnsupportedException {
@@ -304,6 +316,7 @@ public class Medo implements MeterProtocol{
 		ArrayList list = new ArrayList();
 		list.add("TimeOut");
 		list.add("Retry");
+		list.add("ProfileDataPointerYear");
 		return list;
 	}
 	public List getRequiredKeys() {

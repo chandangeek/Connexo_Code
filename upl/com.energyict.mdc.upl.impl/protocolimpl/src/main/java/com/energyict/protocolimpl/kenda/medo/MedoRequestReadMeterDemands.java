@@ -19,14 +19,27 @@ public class MedoRequestReadMeterDemands extends Parsers {
 	MedoRequestReadMeterDemands(byte[] b){
 		processRequest(parseBArraytoCArray(b));	
 	}
-
 	MedoRequestReadMeterDemands(Calendar start, Calendar stop,
-			int intervaltime) {
-		int startinterval =  (int) (1+Math.floor((start.get(Calendar.HOUR_OF_DAY)*60+start.get(Calendar.MINUTE))/(intervaltime/60)));
-		int stopinterval =  (int) (1+Math.floor((stop.get(Calendar.HOUR_OF_DAY)*60+stop.get(Calendar.MINUTE))/(intervaltime/60)));
-		this.stPeriod  = ((start.get(Calendar.DAY_OF_YEAR)-1)*((24*60*60)/intervaltime)+startinterval);
-		this.noPeriods = (short) (((stop.get(Calendar.DAY_OF_YEAR)-1)*((24*60*60)/intervaltime)+stopinterval)-stPeriod);
+			int intervaltime, int year) {
+		Calendar yr=Calendar.getInstance(start.getTimeZone());
+		Calendar yr2=Calendar.getInstance(start.getTimeZone());
+		yr.set(year,0,1,0,0,0);
+		yr.set(Calendar.MILLISECOND, 0);
+		yr2.set(start.get(Calendar.YEAR),0,1,0,0,0);
+		yr2.set(Calendar.MILLISECOND, 0);
+		year=(int) ((yr2.getTimeInMillis()-yr.getTimeInMillis())/(1000*intervaltime)); // number of intervals recorded in the last years between year and now
+		int startinterval = (int) (1+Math.floor((start.get(Calendar.HOUR_OF_DAY)+start.get(Calendar.MINUTE))/(intervaltime/60)));
+		int stopinterval = (int) (1+Math.floor((stop.get(Calendar.HOUR_OF_DAY)+stop.get(Calendar.MINUTE))/(intervaltime/60)));
+		this.stPeriod  = year+((start.get(Calendar.DAY_OF_YEAR)-1)*((24*60*60)/intervaltime)+startinterval);
+		this.noPeriods = (short) (year+((stop.get(Calendar.DAY_OF_YEAR)-1)*((24*60*60)/intervaltime)+stopinterval)-stPeriod);
 	}
+//	MedoRequestReadMeterDemands(Calendar start, Calendar stop,
+//			int intervaltime) {
+//		int startinterval =  (int) (1+Math.floor((start.get(Calendar.HOUR_OF_DAY)*60+start.get(Calendar.MINUTE))/(intervaltime/60)));
+//		int stopinterval =  (int) (1+Math.floor((stop.get(Calendar.HOUR_OF_DAY)*60+stop.get(Calendar.MINUTE))/(intervaltime/60)));
+//		this.stPeriod  = ((start.get(Calendar.DAY_OF_YEAR)-1)*((24*60*60)/intervaltime)+startinterval);
+//		this.noPeriods = (short) (((stop.get(Calendar.DAY_OF_YEAR)-1)*((24*60*60)/intervaltime)+stopinterval)-stPeriod);
+//	}
 
 	private void processRequest(char[] c) {
 		String s = new String(c);

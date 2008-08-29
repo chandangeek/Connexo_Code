@@ -92,6 +92,7 @@ public class MedoCommunicationsFactory{
 	// first three bits are to be set in BuildIdent method (later)
 	// byte: 8 bit, word 16 bit signed integer, long 32 bit signed integer
 	private TimeZone timezone;
+	private int profileDataPointer;
 	
 	public MedoCommunicationsFactory(InputStream inputStream, OutputStream outputStream){// blank constructor for testing purposes only
 		byte[] blank={0,0};
@@ -332,6 +333,7 @@ public class MedoCommunicationsFactory{
 			bs[i]=bs2[i];
 		}
 		bs[10]=b;
+		System.out.println(bs.length);
 		while(!ack && pog>0){
 			pog--;
 			sendData(bs);
@@ -356,8 +358,8 @@ public class MedoCommunicationsFactory{
 		Calendar stop=Calendar.getInstance(timezone);
 		start.setTime(d1);
 		stop.setTime(d2);
-		MedoRequestReadMeterDemands mrrd;
-		mrrd = new MedoRequestReadMeterDemands(start,stop,intervaltime); 
+		MedoRequestReadMeterDemands mrrd;		
+		mrrd = new MedoRequestReadMeterDemands(start,stop,intervaltime,profileDataPointer); 
 		// ready to send
 		data=mrrd.parseToByteArray();
 		for(int i=0; i<bs2.length; i++){
@@ -726,5 +728,8 @@ public class MedoCommunicationsFactory{
 	}
 	public void setTimeZone(TimeZone timezone) {
 		this.timezone=timezone;
+	}
+	public void setYearPointer(int profileDataPointer) {
+		this.profileDataPointer=profileDataPointer;
 	}
 }
