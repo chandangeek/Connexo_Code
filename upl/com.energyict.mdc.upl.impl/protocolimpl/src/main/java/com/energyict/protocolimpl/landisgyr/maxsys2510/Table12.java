@@ -1,10 +1,12 @@
 package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
 import java.util.TimeZone;
 
@@ -31,7 +33,7 @@ class Table12 {
     ProfileData profileData;
     TimeZone timeZone;
     
-    static Table12 parse( Assembly assembly, boolean includeEvents, int nrOfIntervals ) throws IOException{
+    static Table12 parse( Assembly assembly, boolean includeEvents, int nrOfIntervals, boolean readProfileDataBeforeConfigChange) throws IOException{
         Table12 t = new Table12();
 
         MaxSys max = assembly.getMaxSys();
@@ -57,7 +59,7 @@ class Table12 {
 
         t.lastIntlTime  = TypeDateTimeRcd.parse( assembly ).toDate();
         
-        t.parseProfileData(assembly);
+        t.parseProfileData(assembly, readProfileDataBeforeConfigChange, max.getBeginningOfRecording());
         
         if( includeEvents ) {
             Iterator i = assembly.getMaxSys().getTable4().getMeterEvents().iterator();
@@ -66,7 +68,7 @@ class Table12 {
         
             t.profileData.applyEvents(t.intervalMinutes);
         }
-    
+
         return t;
         
     }
@@ -85,7 +87,7 @@ class Table12 {
             int id = i;
             String name = ( code != null ) ? code.getDescription() : "unknown";
             Unit unit = ( code != null ) ? code.getUnit() : Unit.getUndefined();
-            ChannelInfo ci = new ChannelInfo(id, name, unit );
+            ChannelInfo ci = new ChannelInfo(id, name, unit, 0, 0, new BigDecimal(0.005) );
             channelInfo.add( ci );
         }
         
@@ -96,7 +98,8 @@ class Table12 {
             assembly.wordValue();
     }
     
-    void parseProfileData(Assembly assembly) throws IOException{
+    
+    void parseProfileData(Assembly assembly, boolean readProfileDataBeforeConfigChange, Date clipDate) throws IOException{
         profileData = new ProfileData();
         Iterator ci = channelInfo.iterator();
         while( ci.hasNext() ){
@@ -115,7 +118,16 @@ class Table12 {
             // KV_CHANGED, end of interval!
             iCalendar.add( Calendar.MINUTE, (-1*intervalMinutes) ); 
             parseInterval(ba, id);
-            profileData.addInterval(id);
+            
+            if (readProfileDataBeforeConfigChange) 
+            	profileData.addInterval(id);
+            else {
+            	if (id.getEndTime().after(clipDate))
+            		profileData.addInterval(id);
+            }
+            
+            
+            //profileData.addInterval(id);
         }
         profileData.sort();
         
