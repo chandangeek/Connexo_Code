@@ -8,7 +8,7 @@ class TypeStoreChnlCntrlRcd {
     static TypeStoreChnlCntrlRcd parse( Assembly assembly ){
         TypeStoreChnlCntrlRcd rcd = new TypeStoreChnlCntrlRcd();
         rcd.chnlNo = TypeChannelSelectRcd.parse( assembly, 0, 0 );
-        
+        rcd.kePulseValue = assembly.doubleValue();
         return rcd;
     }
     
