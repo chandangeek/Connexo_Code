@@ -11,13 +11,13 @@ public class MeteorCLK extends Parsers{
 	 */
 	private char[] TAD=new char[6];
 	private TimeZone tz;
-	private Calendar calendar;
+	private Calendar calendar=Calendar.getInstance();
 	
 	MeteorCLK(){}
 	
 	MeteorCLK(char[] cs, TimeZone tz){
 		this.tz=tz;
-		calendar=Calendar.getInstance(tz);
+		calendar.setTimeZone(tz);
 		TAD=cs;
 		process();
 	}
@@ -30,7 +30,7 @@ public class MeteorCLK extends Parsers{
 	
 	MeteorCLK(byte[] rawdata, TimeZone tz) {
 		this.tz=tz;
-		calendar=Calendar.getInstance(tz);
+		calendar.setTimeZone(tz);
 		TAD=parseBArraytoCArray(rawdata);
 		process();
 	}

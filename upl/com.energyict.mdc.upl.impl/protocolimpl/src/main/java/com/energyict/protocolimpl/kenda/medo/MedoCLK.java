@@ -11,13 +11,13 @@ public class MedoCLK extends Parsers{
 	 */
 	private char[] TAD=new char[6];
 	private TimeZone tz;
-	private Calendar calendar;
+	private Calendar calendar=Calendar.getInstance();
 	
 	MedoCLK(){}
 	
 	MedoCLK(char[] cs, TimeZone tz){
 		this.tz=tz;
-		calendar=Calendar.getInstance(tz);
+		calendar.setTimeZone(tz);
 		TAD=cs;
 		process();
 	}
@@ -30,7 +30,7 @@ public class MedoCLK extends Parsers{
 	
 	MedoCLK(byte[] rawdata, TimeZone tz) {
 		this.tz=tz;
-		calendar=Calendar.getInstance(tz);
+		calendar.setTimeZone(tz);
 		TAD=parseBArraytoCArray(rawdata);
 		process();
 	}
