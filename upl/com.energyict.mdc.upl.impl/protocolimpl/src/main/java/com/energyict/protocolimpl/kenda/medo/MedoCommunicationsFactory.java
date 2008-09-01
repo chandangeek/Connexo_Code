@@ -226,20 +226,20 @@ public class MedoCommunicationsFactory{
 		byte[] finalBlockSection; // header frame checksum
 		int mod;
 		
-		// calculate number of blocks
+						// calculate number of blocks
 		numOfBlocks=(int) Math.ceil(((double) (block.length-10))/245); // minus 10 to remove the checksum and the header
-		// generate blockProck 2D matrix
+						// generate blockProck 2D matrix
 		if(numOfBlocks==0){numOfBlocks=1;}
 		blockProc = new byte[numOfBlocks][];
 		if (numOfBlocks==1){
 			blockProc[0]=addCheckSum(block); // generate and add checksum
 		}else{
-			// start building ident bits
+							// start building ident bits
 			ident=block[0];
 			if((ident & 0x80) == 0x80){
 				ack=true; 
 			}
-			// adapt first ident using BuildIdent
+							// 	adapt first ident using BuildIdent
 			ident=buildIdent(ack, true, false, (byte) (ident & 0x1F)); // global ident adapted
 			header = buildHeader(ident, 0); // header matrix construction
 			blockSection = new byte[255];
@@ -249,9 +249,9 @@ public class MedoCommunicationsFactory{
 			}
 			finalBlockSection=addCheckSum(blockSection);   // checksum added to block
 			blockProc[0]=finalBlockSection;				   // add frame segment to matrix
-			// first block serialized
+							// first block serialized
 			
-			//adapt ident for center frames
+							//adapt ident for center frames
 			if(numOfBlocks>2){
 				ident=buildIdent(ack, false, false, (byte) (ident & 0x1F)); // change ident (introduce F and L bits)
 				header = buildHeader(ident, 0);										// rebuild header
@@ -265,7 +265,7 @@ public class MedoCommunicationsFactory{
 					blockProc[i]=finalBlockSection;
 				}
 			}
-			// adapt last ident
+							// adapt last ident
 			mod=(block.length-10)-245*(numOfBlocks-1); // last data left over
 			ident=buildIdent(ack, false, true, (byte) (ident & 0x1F));
 			header = buildHeader(ident, (mod+11)%256);
@@ -293,21 +293,21 @@ public class MedoCommunicationsFactory{
 		byte[][] br=new byte[0][0];
 		Parsers pr=null;
 		boolean ack=false;
-		// build command
+						// build command
 		int pog=retries;
 		while(!ack && pog>0){
 			pog--;
-			if(p==null){ // request of data from the meter (11 byte command)
+			if(p==null){ 	// request of data from the meter (11 byte command)
 				bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing		
-			}else{ // writing data to the meter
+			}else{ 			// writing data to the meter
 				bs=p.parseToByteArray();
 			}
 			sendData(bs);
-			// timeout
+							// timeout
 			pr=buildCommand(addCheckSum(bs),p);
 			long interFrameTimeout = System.currentTimeMillis() + this.timeOut;
 			br=receiveData((byte) (bs[0]& 0x1F));
-			// send ack
+							// send ack
 			if((br[br.length-1][0]&0x20)==0x20){
 				ack=true;			
 			}
