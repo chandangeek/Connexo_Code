@@ -414,8 +414,8 @@ public class MedoCommunicationsFactory{
 		ProfileData pd = new ProfileData();		
 		IntervalData id = new IntervalData();		// current interval data
 		MeterEvent meterEvent;
-		ArrayList <MeterEvent> meterEventList = new ArrayList<MeterEvent>();
-		ArrayList <MedoCLK> medoCLK= new ArrayList<MedoCLK>();// meter event flagging parallel matrix
+		ArrayList meterEventList = new ArrayList();
+		ArrayList medoCLK= new ArrayList();// meter event flagging parallel matrix
 		
 		boolean flag=false, powdownflag=false, prevIntervalPowdownflag=false;
 		long millis=0;
@@ -453,7 +453,8 @@ public class MedoCommunicationsFactory{
 			powdownflag=false;
 			flag=false;
 			id=new IntervalData(cal1.getTime());  // add time and date to the interval
-			for(MedoCLK m:medoCLK){ // process event flagging
+			for(int ii=0; ii<medoCLK.size(); ii++){
+				MedoCLK m=(MedoCLK) medoCLK.get(ii);
 				long timeInterval = (cal1.getTimeInMillis()-m.getCalendar().getTimeInMillis());
 				if(timeInterval<intervaltime*1000 && timeInterval>=0){
 					powdownflag=true;
@@ -512,7 +513,8 @@ public class MedoCommunicationsFactory{
 		}
 		//add meter events
 		if(addevents){
-			for(MeterEvent m:meterEventList){
+			for(int ii=0; ii<meterEventList.size(); ii++){
+				MeterEvent m= (MeterEvent) meterEventList.get(ii);
 				pd.addEvent(m);
 			}
 		}
@@ -529,7 +531,7 @@ public class MedoCommunicationsFactory{
 	private byte[][] receiveData(byte ident) throws IOException {
 		int i=0,counter,length;
 		byte[][] data;
-		ArrayList <String> recdat=new ArrayList<String>();
+		ArrayList recdat=new ArrayList();
 		boolean go=true;
 		String s;
 		long interFrameTimeout;
@@ -558,7 +560,8 @@ public class MedoCommunicationsFactory{
 		}
 		data=new byte[recdat.size()][];
 		i=0;
-		for(String str:recdat){
+		for(int ii=0; ii<recdat.size(); ii++){
+			String str= (String) recdat.get(ii);
 			data[i++]=Parsers.parseCArraytoBArray(str.toCharArray());
 		}		
 		return data;

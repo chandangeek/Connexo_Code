@@ -185,7 +185,6 @@ public class MedoReadSavedDialReadings extends Parsers{
 	public void setDialSeOp2(MedoReadDialReadings[] dialSeOp2) {
 		this.dialSeOp2 = dialSeOp2;
 	}
-	@Override
 	byte[] parseToByteArray() {
 		// TODO Auto-generated method stub
 		return null;

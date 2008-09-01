@@ -84,7 +84,6 @@ public class MedoRlytab extends Parsers{
 	public void setWidth(short w){
 		width=w;
 	}
-	@Override
 	byte[] parseToByteArray() {
 		// TODO Auto-generated method stub
 		return null;

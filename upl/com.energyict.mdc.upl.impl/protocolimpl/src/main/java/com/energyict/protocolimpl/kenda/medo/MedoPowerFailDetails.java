@@ -174,7 +174,6 @@ public class MedoPowerFailDetails extends Parsers {
 		this.pffree = pffree;
 	}
 
-	@Override
 	byte[] parseToByteArray() {
 		// TODO Auto-generated method stub
 		return null;

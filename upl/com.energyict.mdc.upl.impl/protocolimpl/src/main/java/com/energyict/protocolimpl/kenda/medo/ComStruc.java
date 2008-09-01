@@ -4,7 +4,7 @@ public class ComStruc {
 	private boolean type;
 	private char[] sequence={};
 	
-	ComStruc(){}
+	public ComStruc(){}
 	
 	ComStruc(char c, char[] cs){
 		type=false;

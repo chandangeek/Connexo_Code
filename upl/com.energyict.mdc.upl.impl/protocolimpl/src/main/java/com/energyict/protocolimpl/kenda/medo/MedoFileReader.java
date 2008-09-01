@@ -9,7 +9,7 @@ public class MedoFileReader {
 	 * File reader, aim is to test the objects properly and start to
 	 * build the command structure in the Medo class
 	 */
-	private ArrayList<ComStruc> commandReply= new ArrayList<ComStruc>();
+	private ArrayList commandReply= new ArrayList();
 	
     MedoFileReader( String directory,String filename) throws IOException {
         FileReader inputStream = null;
@@ -52,7 +52,8 @@ public class MedoFileReader {
             			else if (c>='A' && c<='F'){
             				kar=(char) (kar | ((c-'A'+10) & 0x000F));
             			}
-            			commandReply.get(commandReply.size()-1).addByte(kar);
+            			ComStruc cstr=(ComStruc) commandReply.get(commandReply.size()-1); 
+            			cstr.addByte(kar);
             			tel=0; // next byte
             		}
             	}
@@ -70,7 +71,8 @@ public class MedoFileReader {
 	public ComStruc[] getCommandReply() {
 		ComStruc[] c=new ComStruc[commandReply.size()];
 		int i=0;
-		for (ComStruc cs:commandReply){
+		for(int ii=0; ii<commandReply.size(); ii++){
+			ComStruc cs=(ComStruc) commandReply.get(ii);
 			c[i++]=cs;
 			// prints the hex file content (hex has been read sent to a char value and then back to hex
 			System.out.println(c[i-1].getHexVals());
