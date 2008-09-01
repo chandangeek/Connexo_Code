@@ -876,7 +876,6 @@ public class OpusCommandFactory {
 	}
 
 	public void setChannelMap(ProtocolChannelMap channelMap) {
-		System.out.println("check");
 		this.channelMap = channelMap;
 	}
 
