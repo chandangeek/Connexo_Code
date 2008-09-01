@@ -45,7 +45,7 @@ public class OpusGetProfileData {
 		this.ocf=ocf;
 		this.profileInterval=profileInterval;
 		// put matrix received from the meter into a 2D matrix
-		ArrayList<String[]> data= new ArrayList<String[]>(); // original data list (holds raw data strings)
+		ArrayList data= new ArrayList(); // original data list (holds raw data strings)
 		int[][] datamatrix; // holds raw VALUES, no header info (channels are columns, data sits in the rows)
 		// instantiate the profile and interval data, 
 		ProfileData pd = new ProfileData();		
@@ -99,9 +99,10 @@ public class OpusGetProfileData {
         	if(data.size()>0){// data available test
         		// dump data in 2D matrix
         		datamatrix=processIntervalData(data,numChan,channelMap);
-        		checkcal.set(Integer.parseInt(data.get(0)[4])+2000,
-   					 		 Integer.parseInt(data.get(0)[3])-1,  // java months start counting on month 0
-   					 		 Integer.parseInt(data.get(0)[2]));   // set the checkcal according to the data received
+        		String[] str=(String[]) data.get(0);
+        		checkcal.set(Integer.parseInt(str[4])+2000,
+   					 		 Integer.parseInt(str[3])-1,  // java months start counting on month 0
+   					 		 Integer.parseInt(str[2]));   // set the checkcal according to the data received
         		
         		// make the calendar object for that date
         		tempcal.setTime(cal1.getTime()); 		// set date
@@ -259,14 +260,14 @@ public class OpusGetProfileData {
 		return this.profileInterval;
 	}
 
-	private int[][] processIntervalData(ArrayList<String[]> data,int numChan,ProtocolChannelMap channelMap) throws UnsupportedException, IOException {
+	private int[][] processIntervalData(ArrayList data,int numChan,ProtocolChannelMap channelMap) throws UnsupportedException, IOException {
 		int tel=-1;
 		int channelBody=0;
 		int[][] matrix=new int[(int) (3600*24/getProfileInterval())][numChan];
 		String[] s;				
 		
 		for(int index=1; index<data.size(); index++){
-			s=data.get(index);
+			s=(String[]) data.get(index);
 			if(s[0].charAt(0)=='S' && s[0].charAt(4)=='C'){
 				// this is a channel header
 				tel=Integer.parseInt(s[0].substring(5))-1;

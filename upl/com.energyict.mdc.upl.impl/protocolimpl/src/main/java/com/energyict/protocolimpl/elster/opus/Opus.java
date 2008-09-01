@@ -133,11 +133,13 @@ public class Opus extends AbstractProtocol{
 
 	public void connect() throws IOException {
 		// download final information
-		ArrayList<String[]> s;								// ArrayList to catch data from factory
+		ArrayList s;								// ArrayList to catch data from factory
 		s=ocf.command(121,attempts,timeOut, null);			// factory command
-		this.numChan=Integer.valueOf(s.get(0)[1]);			// set number of channels in this object
-		this.interval=24*3600/Integer.valueOf(s.get(0)[0]);	// set interval in this object
-		this.firmwareVersion=s.get(0)[6];
+		String[] st;
+		st=(String[]) s.get(0);
+		this.numChan=Integer.valueOf(st[1]);			// set number of channels in this object
+		this.interval=24*3600/Integer.valueOf(st[0]);	// set interval in this object
+		this.firmwareVersion=st[6];
 		// set factory globals (IMORTANT)
 		ocf.setNumChan(this.numChan);
 		// make channelmap with all channels enabled
@@ -209,8 +211,8 @@ public class Opus extends AbstractProtocol{
    public Date getTime() throws IOException  {
 		TimeZone tz = TimeZone.getTimeZone("GMT");
 		Calendar cal=Calendar.getInstance(tz);
-		ArrayList<String[]> d=ocf.command(102, attempts, timeOut, null);
-		String[] s=d.get(d.size()-1); // last index
+		ArrayList d=ocf.command(102, attempts, timeOut, null);
+		String[] s= (String[]) d.get(d.size()-1); // last index
 		cal.set(Integer.parseInt(s[5])+2000,
 				Integer.parseInt(s[4])-1, // correction for java date
 				Integer.parseInt(s[3]),

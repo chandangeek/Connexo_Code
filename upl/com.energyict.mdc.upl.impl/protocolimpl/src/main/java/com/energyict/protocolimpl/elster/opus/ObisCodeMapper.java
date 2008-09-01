@@ -20,7 +20,7 @@ public class ObisCodeMapper {
 	private RegisterValue rv;
 	private Quantity q; 
 	private Calendar calendar;
-	private ArrayList <String[]> dataArray;
+	private ArrayList dataArray;
 	
 	public ObisCodeMapper(Opus opus) {
 		this.opus = opus;
@@ -69,10 +69,12 @@ public class ObisCodeMapper {
 		}else{
 			x=(int) Math.floor(channel/8);
 			y=channel%8;
-			readVal = Integer.parseInt(dataArray.get(2+2*x)[y]);
-			calendar.set(Integer.parseInt(dataArray.get(0)[4])+2000,
-						 Integer.parseInt(dataArray.get(0)[3])-1,
-						 Integer.parseInt(dataArray.get(0)[2]));
+			String[] str=(String[]) dataArray.get(2+2*x);
+			readVal = Integer.parseInt(str[y]);
+			str=(String[]) dataArray.get(0);
+			calendar.set(Integer.parseInt(str[4])+2000,
+						 Integer.parseInt(str[3])-1,
+						 Integer.parseInt(str[2]));
 			if(command>3){ // let time as it is on command 3
 				calendar.set(Calendar.HOUR_OF_DAY, 0);
 				calendar.set(Calendar.MINUTE, 	   0);	// reset minutes

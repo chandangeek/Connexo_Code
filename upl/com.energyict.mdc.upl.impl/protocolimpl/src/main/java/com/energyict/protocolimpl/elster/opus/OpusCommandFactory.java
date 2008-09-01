@@ -85,11 +85,12 @@ public class OpusCommandFactory {
 	/*
 	 * 1) Processing of the command (after making an instance of the class)
 	 */
-	public ArrayList<String[]> command(int command, int attempts, int timeOut, Calendar cal) throws IOException{
-		ArrayList<String[]> s=new ArrayList<String[]>();
+	public ArrayList command(int command, int attempts, int timeOut, Calendar cal) throws IOException{
+		ArrayList s=new ArrayList();
 		if(numChan==-1){
 			s=writeReadControlOutstation(attempts, timeOut);
-			this.numChan=Integer.valueOf(s.get(0)[1]);					// set number of channels in this object			
+			String[] str=(String[])s.get(0);
+			this.numChan=Integer.valueOf(str[1]);					// set number of channels in this object			
 		}
 		// maybe good to catch some of the errors here
 		if     (command==3) {s=currentMonthCumulativeReadings(attempts, timeOut, numChan);}
@@ -118,25 +119,25 @@ public class OpusCommandFactory {
 	/*
 	 * 2) array and data builders + State Machine selection
 	 */
-	private ArrayList<String[]> currentMonthCumulativeReadings(int attempts, int timeOut, int numChan) throws IOException {
+	private ArrayList currentMonthCumulativeReadings(int attempts, int timeOut, int numChan) throws IOException {
 		String[] data=dataArrayBuilder("0","0","0","0","0","0",oldPassword,newPassword); // build data packet
 		return stateMachine1(3,attempts,timeOut,numChan,data);
 	}
-	private ArrayList<String[]> previousMonthCumulativeReadings(int attempts, int timeOut, int numChan) throws IOException {
+	private ArrayList previousMonthCumulativeReadings(int attempts, int timeOut, int numChan) throws IOException {
 		String[] data=dataArrayBuilder("0","0","0","0","0","0",oldPassword,newPassword); // build data packet
 		return stateMachine1(4,attempts,timeOut,numChan,data);
 	}
-	private ArrayList<String[]> previousDayCumulativeReadings(int attempts, int timeOut, int numChan) throws IOException {
+	private ArrayList previousDayCumulativeReadings(int attempts, int timeOut, int numChan) throws IOException {
 		String[] data=dataArrayBuilder("0","0","0","0","0","0",oldPassword,newPassword); // build data packet
 		return stateMachine1(5,attempts,timeOut,numChan,data);
 	}
-	private ArrayList<String[]> retrievalOfDailyPeriodData(int commandnr,int attempts, int timeOut, int numChan, int offset, int cap, Calendar cal) throws IOException {
+	private ArrayList retrievalOfDailyPeriodData(int commandnr,int attempts, int timeOut, int numChan, int offset, int cap, Calendar cal) throws IOException {
 		String d=""+offset;
 		String c=""+cap;
 		String[] data=dataArrayBuilder("0",d,c,"0","0","0",oldPassword,newPassword); // build data packet
 		return stateMachine2(commandnr,attempts,timeOut,data,cal);
 	}
-	private ArrayList<String[]> currentDayPeriodData(int attempts,int timeOut, int numChan,int period, int cap) throws IOException {
+	private ArrayList currentDayPeriodData(int attempts,int timeOut, int numChan,int period, int cap) throws IOException {
 		// check 001 thing, comes from log-files
 		String s="000"+period;
 		s=s.substring(s.length()-3); // parse with zeros or cut if necessary
@@ -145,34 +146,34 @@ public class OpusCommandFactory {
 		String[] data=dataArrayBuilder(s,"0",c,"0","0","0",oldPassword,newPassword); // build data packet
 		return stateMachine1(81,attempts,timeOut,numChan,data);
 	}
-	private ArrayList<String[]> synchronizeOutstation(int attempts, int timeOut) throws IOException{
+	private ArrayList synchronizeOutstation(int attempts, int timeOut) throws IOException{
 		// build calendar object in GMT time
 		Calendar cal;
 		cal=Calendar.getInstance(timezone);
 		String[] data=dataArrayBuilder(cal,oldPassword,newPassword); // build data packet
 		return stateMachine3(101,attempts,timeOut,data);
 	}
-	private ArrayList<String[]> fetchTimeDateFromOutstation(int attempts, int timeOut) throws IOException{
+	private ArrayList fetchTimeDateFromOutstation(int attempts, int timeOut) throws IOException{
 		// build calendar object
 		String[] data=dataArrayBuilder("0","0","0","0","0","0",oldPassword,newPassword); // build data packet
 		return stateMachine3(102,attempts,timeOut,data);
 	}
-	private ArrayList<String[]> retrievalDeltaMinAdvance(int attempts,int timeOut, Calendar cal, int numChan) throws IOException {
+	private ArrayList retrievalDeltaMinAdvance(int attempts,int timeOut, Calendar cal, int numChan) throws IOException {
 		// change calendar to 3 min interval number
 		int deltamin=generateDeltamin(cal);
 		String[] data=dataArrayBuilder(""+deltamin,"0","0","0","0","0",oldPassword,newPassword); // build data packet
 		return stateMachine4(111,attempts,timeOut,data,numChan);
 	}
-	private ArrayList<String[]> writeReadControlOutstation(int attempts,int timeOut) throws IOException {
+	private ArrayList writeReadControlOutstation(int attempts,int timeOut) throws IOException {
 		// only read cycles implemented for security reasons
 		String[] data=dataArrayBuilder("48","0","0","0","0","1",oldPassword,newPassword); // build data packet
 		// 48 at position 0 must be there, 1 at position 5 indicates that all values are to be ignored + read operation
 		com121=true;
-		ArrayList<String[]> s=stateMachine3(121,attempts,timeOut,data);
+		ArrayList s=stateMachine3(121,attempts,timeOut,data);
 		com121=false;
 		return s;
 	}
-//	private ArrayList<String[]> identificationData(int attempts, int timeOut) throws IOException {
+//	private ArrayList identificationData(int attempts, int timeOut) throws IOException {
 //		String[] data=dataArrayBuilder("0","0","0","0","0","0",oldPassword,newPassword); // build data packet
 //		return stateMachine3(1,attempts,timeOut,data);
 //	}
@@ -181,9 +182,9 @@ public class OpusCommandFactory {
 	/*
 	 * 3) State Machines, can be dumped in objects!! work with overriding on each state, here it is implemented as methods
 	 */	
-	private ArrayList<String[]> stateMachine1(int commandnr,int attempts, int timeOut, int numChan, String[] data) throws IOException{	
+	private ArrayList stateMachine1(int commandnr,int attempts, int timeOut, int numChan, String[] data) throws IOException{	
 		int attempts1= attempts,attempts2=attempts, attempts3=attempts,attempts4=attempts;  // number of retries
-		ArrayList<String[]> returnedData=new ArrayList<String[]>();		// data stack
+		ArrayList returnedData=new ArrayList();		// data stack
 		boolean temp=true,loop=true; 									// to pass true or false flags from state to state and end the loop
 		OpusBuildPacket sendPacket,receivePacket;  						// packet frameworks for send and receive packets
 		String s="";													// string stack for data reception
@@ -293,9 +294,9 @@ public class OpusCommandFactory {
 		return returnedData;
 	}
 	// second state machine, commands 10-69
-	private ArrayList<String[]> stateMachine2(int commandnr,int attempts, int timeOut, String[] data,Calendar cal) throws IOException{
+	private ArrayList stateMachine2(int commandnr,int attempts, int timeOut, String[] data,Calendar cal) throws IOException{
 		int attempts1= attempts,attempts2=attempts, attempts3=attempts,attempts4=attempts;
-		ArrayList<String[]> returnedData=new ArrayList<String[]>();
+		ArrayList returnedData=new ArrayList();
 		boolean temp=true,loop=true; // to pass true or false flags from state to state
 		OpusBuildPacket sendPacket,receivePacket;
 		String s="";
@@ -461,8 +462,8 @@ public class OpusCommandFactory {
 	}
 	
 	// state machine 3 commands 101 and 102
-	private ArrayList<String[]> stateMachine3(int commandnr,int attempts, int timeOut, String[] data) throws IOException{
-		ArrayList<String[]> returnedData=new ArrayList<String[]>();
+	private ArrayList stateMachine3(int commandnr,int attempts, int timeOut, String[] data) throws IOException{
+		ArrayList returnedData=new ArrayList();
 		int attempts1= attempts, attempts2=attempts;
 		boolean temp=true,loop=true; // to pass true or false flags from state (checksum) to state
 		OpusBuildPacket sendPacket,receivePacket;
@@ -541,8 +542,8 @@ public class OpusCommandFactory {
 		return returnedData;
 	}
 	// state machine 4, connected to command 111
-	private ArrayList<String[]> stateMachine4(int commandnr,int attempts, int timeOut, String[] data,int numChan) throws IOException{
-		ArrayList<String[]> returnedData=new ArrayList<String[]>();
+	private ArrayList stateMachine4(int commandnr,int attempts, int timeOut, String[] data,int numChan) throws IOException{
+		ArrayList returnedData=new ArrayList();
 		int attempts1= attempts, attempts2=attempts, attempts3=attempts, attempts4=attempts*3;
 		boolean temp=true,loop=true; // to pass true or false flags from state (checksum) to state
 		OpusBuildPacket sendPacket,receivePacket;
