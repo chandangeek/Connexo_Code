@@ -515,7 +515,7 @@ public class MeteorCommunicationsFactory{
 				}
 				// add value to profile data
 				if(channelMap.isProtocolChannelEnabled(ii)){	
-					id.addValue(s[i][ii]); // add data to the interval
+					id.addValue(new Integer(s[i][ii])); // add data to the interval
 				}
 			}
 			pd.addInterval(id);

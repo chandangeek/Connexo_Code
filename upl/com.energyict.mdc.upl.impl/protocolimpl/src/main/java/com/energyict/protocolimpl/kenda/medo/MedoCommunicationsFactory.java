@@ -509,7 +509,7 @@ public class MedoCommunicationsFactory{
 				}
 				// add value to profile data
 				if(channelMap.isProtocolChannelEnabled(i)){	
-					id.addValue(s[i][ii]); // add data to the interval
+					id.addValue(new Integer(s[i][ii])); // add data to the interval
 				}
 			}
 			pd.addInterval(id);        		

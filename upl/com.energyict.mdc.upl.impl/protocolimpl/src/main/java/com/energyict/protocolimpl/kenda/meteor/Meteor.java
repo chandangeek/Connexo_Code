@@ -69,7 +69,7 @@ public class Meteor implements MeterProtocol{
 	 * ---------------------------------------------------------------------------------<p>
 	 *  
 	 */
-	private String protocolVersion=protocolVersion="$Date: 2008-07-01 08:35:14 +0200 (di, 01 jul 2008) $";;
+	private String protocolVersion=protocolVersion="$Date: 2008/09/01 09:28:53 $";;
 
 	private OutputStream outputStream;
 	private InputStream inputStream;
