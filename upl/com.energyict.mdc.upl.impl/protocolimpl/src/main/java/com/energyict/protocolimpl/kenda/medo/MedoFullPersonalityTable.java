@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.kenda.medo;
 
+import java.util.TimeZone;
+
 public class MedoFullPersonalityTable extends MedoPartPersonalityTable{
 	protected char tots=0;
 	protected char demper=0;
@@ -10,8 +12,8 @@ public class MedoFullPersonalityTable extends MedoPartPersonalityTable{
 		super();
 	}
 	
-	MedoFullPersonalityTable(byte[] b){
-		super(b);
+	MedoFullPersonalityTable(byte[] b, TimeZone tz){
+		super(b,tz);
 		processSecurePersonalityDetails(parseBArraytoCArray(b));
 	}
 	

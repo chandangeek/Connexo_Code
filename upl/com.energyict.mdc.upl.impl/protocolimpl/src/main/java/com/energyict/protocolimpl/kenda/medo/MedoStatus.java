@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.kenda.medo;
 
+import java.util.TimeZone;
+
 
 public class MedoStatus extends Parsers{
 	// is protected to enable inheritance in METEOR protocol, if not used set private
@@ -44,19 +46,22 @@ public class MedoStatus extends Parsers{
 	protected char iueCNT=0;
 	protected char duCNT=0;
 	protected char ceCNT=0;
+	protected TimeZone tz;
 
 	MedoStatus(){}
 	
-	MedoStatus(byte[] b){
+	MedoStatus(byte[] b, TimeZone tz){
+		this.tz=tz;
 		processStatus(parseBArraytoCArray(b));
 	}
-	MedoStatus(char[] c){
+	MedoStatus(char[] c, TimeZone tz){
+		this.tz=tz;
 		processStatus(c);
 	}
 
 	private void processStatus(char[] c) {
 		String s = new String(c);
-		clk=new MedoCLK(s.substring(0, 6).toCharArray());
+		clk=new MedoCLK(s.substring(0, 6).toCharArray(), tz);
 		totals=s.charAt(6);
 		demCNT=parseCharToInt(s.substring(7, 11).toCharArray());
 		demLyr=parseCharToInt(s.substring(11, 15).toCharArray());

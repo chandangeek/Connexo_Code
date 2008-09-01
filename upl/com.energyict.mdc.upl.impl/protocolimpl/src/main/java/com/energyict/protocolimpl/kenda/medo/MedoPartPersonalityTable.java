@@ -1,5 +1,10 @@
 package com.energyict.protocolimpl.kenda.medo;
 
+import java.util.TimeZone;
+
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
+
 
 public class MedoPartPersonalityTable  extends Parsers{
 	/*
@@ -26,6 +31,8 @@ public class MedoPartPersonalityTable  extends Parsers{
 	protected char rdghr2=0;						// pos 709
 	protected char ptv=0;							// pos 710
 	protected MedoRlytab[] rlytab=new MedoRlytab[8];// pos 711->750
+	protected ProtocolChannelMap meterChannelMap;
+	protected TimeZone tz;
 	
 	// constructors
 	MedoPartPersonalityTable(){
@@ -33,15 +40,18 @@ public class MedoPartPersonalityTable  extends Parsers{
 		for(int i=0; i<750; i++){
 			c[i]=0; 
 		}
+		tz=TimeZone.getTimeZone("GMT");
 		processPersonalityTable(c);
 	}
 	
-	MedoPartPersonalityTable(byte[] b){
+	MedoPartPersonalityTable(byte[] b, TimeZone tz){
+		this.tz=tz;
 		// incoming data, move them into the right position
 		// parse first to char array, then to string
 		processPersonalityTable(parseBArraytoCArray(b));
 	}
-	MedoPartPersonalityTable(char[] c){
+	MedoPartPersonalityTable(char[] c, TimeZone tz){
+		this.tz=tz;
 		processPersonalityTable(c);		
 	}
 	
@@ -75,7 +85,7 @@ public class MedoPartPersonalityTable  extends Parsers{
 			sumtabs[i]=mc;
 		}
 		spare0=s.substring(582,614).toCharArray();
-		comtad=new MedoCLK(s.substring(614, 620).toCharArray());
+		comtad=new MedoCLK(s.substring(614, 620).toCharArray(),tz);
 		spare1=s.substring(620, 707).toCharArray();
 		rdghr1=s.charAt(707);
 		rdghr2=s.charAt(708);
@@ -86,6 +96,16 @@ public class MedoPartPersonalityTable  extends Parsers{
 					s.charAt(712+i*5),
 					parseCharToShort(s.substring(713+i*5,715+i*5).toCharArray()));
 			rlytab[i]=mr;
+		}
+		//iptab processing
+		String strmap="";
+		for(int i=0; i<iptab.length-1; i++){
+			strmap+=iptab[i]+":";
+		}
+		strmap+=iptab[iptab.length-1];
+		try {
+			meterChannelMap=new ProtocolChannelMap(strmap);
+		} catch (InvalidPropertyException e) {
 		}
 	}
 
@@ -439,6 +459,18 @@ public class MedoPartPersonalityTable  extends Parsers{
 	 */
 	public void setRlytab(MedoRlytab[] rlytab) {
 		this.rlytab = rlytab;
+	}
+
+	public ProtocolChannelMap getMeterChannelMap() {
+		return meterChannelMap;
+	}
+
+	public TimeZone getTz() {
+		return tz;
+	}
+
+	public void setTz(TimeZone tz) {
+		this.tz = tz;
 	}
 
 

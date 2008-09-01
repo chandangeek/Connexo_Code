@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.kenda.medo;
 
+import java.util.TimeZone;
+
 
 public class MedoReadSavedDialReadings extends Parsers{
 	/*
@@ -13,6 +15,8 @@ public class MedoReadSavedDialReadings extends Parsers{
 	private MedoReadDialReadings[] dialSeOp1=new MedoReadDialReadings[36];
 	private MedoCLK timeOp2=new MedoCLK();
 	private MedoReadDialReadings[] dialSeOp2=new MedoReadDialReadings[36];
+	private TimeZone tz;
+	
 	
 	MedoReadSavedDialReadings(){
 		MedoReadDialReadings m = new MedoReadDialReadings();
@@ -23,28 +27,30 @@ public class MedoReadSavedDialReadings extends Parsers{
 			dialSeOp2[i]=m;
 		}
 	}	
-	MedoReadSavedDialReadings(char[] c){
+	MedoReadSavedDialReadings(char[] c, TimeZone tz){
+		this.tz=tz;
 		processMedoReadSavedDialReadings(c);
 	}
 
-	MedoReadSavedDialReadings(byte[] b){
+	MedoReadSavedDialReadings(byte[] b, TimeZone tz){
+		this.tz=tz;
 		processMedoReadSavedDialReadings(parseBArraytoCArray(b));
 	}
 	private void processMedoReadSavedDialReadings(char[] c) {
 		String s=new String(c);
-		timHr1=new MedoCLK(s.substring(0,6).toCharArray());
+		timHr1=new MedoCLK(s.substring(0,6).toCharArray(),tz);
 		for(int i=0; i<36; i++){
 			dialShr1[i]=new MedoReadDialReadings(s.substring(6+i*4,10+i*4).toCharArray());
 		}
-		timHr2=new MedoCLK(s.substring(150,156).toCharArray());
+		timHr2=new MedoCLK(s.substring(150,156).toCharArray(),tz);
 		for(int i=0; i<36; i++){
 			dialShr2[i]=new MedoReadDialReadings(s.substring(156+i*4,160+i*4).toCharArray());
 		}
-		timeOp1=new MedoCLK(s.substring(300,306).toCharArray());
+		timeOp1=new MedoCLK(s.substring(300,306).toCharArray(),tz);
 		for(int i=0; i<36; i++){
 			dialSeOp1[i]=new MedoReadDialReadings(s.substring(306+i*4,310+i*4).toCharArray());
 		}
-		timeOp2=new MedoCLK(s.substring(350,356).toCharArray());
+		timeOp2=new MedoCLK(s.substring(350,356).toCharArray(),tz);
 		for(int i=0; i<36; i++){
 			dialSeOp2[i]=new MedoReadDialReadings(s.substring(356+i*4,360+i*4).toCharArray());
 		}

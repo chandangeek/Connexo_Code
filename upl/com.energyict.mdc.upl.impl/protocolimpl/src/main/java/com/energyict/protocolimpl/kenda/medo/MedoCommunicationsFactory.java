@@ -681,7 +681,7 @@ public class MedoCommunicationsFactory{
 			}else{
 			// here comes the reply...
 				if(p instanceof MedoFullPersonalityTable){	
-					p=new MedoFullPersonalityTable(rawdata);
+					p=new MedoFullPersonalityTable(rawdata, timezone);
 //				}else if(p instanceof MedoExtendedPersonalityTable){	
 //					p=new MedoExtendedPersonalityTable(rawdata);
 				}else if(p instanceof MedoCLK){
@@ -692,7 +692,7 @@ public class MedoCommunicationsFactory{
 				}else if(p instanceof MedoFirmwareVersion){
 					p=new MedoFirmwareVersion(rawdata);
 				}else if(p instanceof MedoStatus){
-					p=new MedoStatus(rawdata);
+					p=new MedoStatus(rawdata, timezone);
 				}else if(p instanceof MedoReturnedReadMeterDemands){
 					p=new MedoReturnedReadMeterDemands(rawdata);
 				}else if(p instanceof MedoReadDialReadings){
