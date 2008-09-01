@@ -19,7 +19,6 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
-import com.energyict.protocolimpl.kenda.medo.MedoCLK;
 
 public class MeteorCommunicationsFactory{
 	/**
@@ -194,7 +193,8 @@ public class MeteorCommunicationsFactory{
 		b=new byte[totalLength+10]; //+1 header
 		// put result in a vector
 		int tel=10;
-		for (byte[] bsm: block){
+		for (int ii=0; ii<block.length; ii++){
+			byte[] bsm=block[ii];
 			for(int i=10; i<bsm.length-1; i++){
 				b[tel++]=bsm[i];
 			}
@@ -415,7 +415,6 @@ public class MeteorCommunicationsFactory{
 	public short[][] getTotalDemands(Date start, Date stop, int intervaltime) throws IOException{
 		return requestMeterDemands((byte) 0x08,start,stop,intervaltime);
 	}
-	@SuppressWarnings("unchecked")
 	public ProfileData retrieveProfileData(Date start, Date stop, int intervaltime, boolean addevents) throws IOException{ 
 		ProfileData pd = new ProfileData();		
 		IntervalData id = new IntervalData();		// current interval data

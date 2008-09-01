@@ -194,7 +194,8 @@ public class MedoCommunicationsFactory{
 		b=new byte[totalLength+10]; //+1 header
 		// put result in a vector
 		int tel=10;
-		for (byte[] bsm: block){
+		for (int ii=0; ii<block.length; ii++){
+			byte[] bsm=block[ii];
 			for(int i=10; i<bsm.length-1; i++){
 				b[tel++]=bsm[i];
 			}
