@@ -89,6 +89,7 @@ public class MedoCommunicationsFactory{
 	private int numChan=48; // hardwired to 48 for this meter
 	private int[] channelMultipliers;
 	private ProtocolChannelMap channelMap;
+	private ProtocolChannelMap meterChannelMap;
 	// first three bits are to be set in BuildIdent method (later)
 	// byte: 8 bit, word 16 bit signed integer, long 32 bit signed integer
 	private TimeZone timezone;
@@ -447,7 +448,7 @@ public class MedoCommunicationsFactory{
 		short[][] s=requestMeterDemands((byte) 0x07,cal1.getTime(),stop,intervaltime);
 		// build channel map in profile data
 		for(int i=0; i<s[0].length;i++ ){
-			if(channelMap.isProtocolChannelEnabled(i)){	
+			if(channelMap.isProtocolChannelEnabled(i) && meterChannelMap.isProtocolChannelEnabled(i)){	
 				pd.addChannel(new ChannelInfo(ids, "medo channel "+(i+1), Unit.get(BaseUnit.UNITLESS),0,ids, BigDecimal.valueOf(channelMultipliers[i])));			
 				ids++; // will run parallel with i but is needed in case of a channelmap
 			}
@@ -508,7 +509,7 @@ public class MedoCommunicationsFactory{
 					}
 				}
 				// add value to profile data
-				if(channelMap.isProtocolChannelEnabled(i)){	
+				if(channelMap.isProtocolChannelEnabled(ii) && meterChannelMap.isProtocolChannelEnabled(ii)){	
 					id.addValue(new Integer(s[i][ii])); // add data to the interval
 				}
 			}
@@ -746,5 +747,11 @@ public class MedoCommunicationsFactory{
 	}
 	public void setNumChan(int numChan) {
 		this.numChan = numChan;
+	}
+	public ProtocolChannelMap getMeterChannelMap() {
+		return meterChannelMap;
+	}
+	public void setMeterChannelMap(ProtocolChannelMap meterChannelMap) {
+		this.meterChannelMap = meterChannelMap;
 	}
 }
