@@ -259,6 +259,7 @@ public class Meteor implements MeterProtocol{
 		// flag the events for the profile
 		
 		// channelmap is to be set in the factory
+		mcf.setMeterChannelMap(fullperstable.getMeterChannelMap());
 		mcf.setChannelMap(this.channelMap);
 		// extended personality table contains only meta data and is not implemented
 		// reasons not to implement are

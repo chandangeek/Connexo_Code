@@ -262,7 +262,8 @@ public class Medo implements MeterProtocol{
 			throw new InvalidPropertyException("the meter has less channels available than defined in the properties");
 		}
 
-		// channelmap is to be set in the factory
+		// channelmap is to be set in the factoryµ
+		mcf.setMeterChannelMap(fullperstable.getMeterChannelMap());
 		mcf.setChannelMap(this.channelMap);
 	}
 	
