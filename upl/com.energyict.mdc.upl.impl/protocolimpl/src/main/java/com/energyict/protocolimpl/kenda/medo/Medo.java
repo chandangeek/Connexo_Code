@@ -65,14 +65,22 @@ public class Medo implements MeterProtocol{
 	 *  <p>
 	 *  Revisions<p>
 	 *  ----------------<p> 
-	 *  @Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
-	 *  @Version:1.01<p>
+	 *  Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+	 *  Version:1.01<p>
 	 *  First edit date: 26/08/2008<p>
 	 *  Last edit date: 29/08/2008<p>
 	 *  Comments: Problems in the profile data read solved. In the MedoRequestReadMeterDemands 
 	 *  on line 23-29 there will be an adaptation, stperiod number is not yet completely reverse 
 	 *  engineered (december last year problem) a flag in the properties has been added<p>
 	 *  released for testing: 29/08/2008<p>
+	 *  
+   	 *  @Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+	 *  @Version: 1.02 <p>
+	 *  First edit date: 29/08/2008 PST<p>
+	 *  Last edit date: 1/09/2008  PST<p>
+	 *  Comments: Beta+ ready for testing<p> 
+	 *  Released for testing: 1/09/2008<p>
+
 	 * ---------------------------------------------------------------------------------<p>
 	 *  
 	 */

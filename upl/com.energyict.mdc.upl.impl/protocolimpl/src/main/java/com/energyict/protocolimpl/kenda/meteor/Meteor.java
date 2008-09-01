@@ -60,12 +60,12 @@ public class Meteor implements MeterProtocol{
 	 *  <p>
 	 *  Revisions<p>
 	 *  ----------------<p> 
-	 *  Author: <p>
-	 *  Version:<p>
-	 *  First edit date: <p>
-	 *  Last edit date: <p>
-	 *  Comments:<p>
-	 *  released for testing:<p>
+	 *  @Author: Peter Staelens, ITelegance (peter@Itelegance.com or P.Staelens@EnergyICT.com)<p>
+	 *  @Version: 1.01 <p>
+	 *  First edit date: 26/08/2008 PST<p>
+	 *  Last edit date: 1/09/2008  PST<p>
+	 *  Comments: Beta+ ready for testing<p> 
+	 *  Released for testing: 1/09/2008<p>
 	 * ---------------------------------------------------------------------------------<p>
 	 *  
 	 */
