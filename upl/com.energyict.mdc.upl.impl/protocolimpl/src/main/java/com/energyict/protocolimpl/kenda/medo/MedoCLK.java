@@ -17,29 +17,23 @@ public class MedoCLK extends Parsers{
 	
 	MedoCLK(char[] cs, TimeZone tz){
 		this.tz=tz;
+		calendar=Calendar.getInstance(tz);
 		TAD=cs;
 		process();
 	}
 	
 	MedoCLK(Calendar calendar){
 		this.tz=calendar.getTimeZone();
+		this.calendar=calendar;
 		changeTAD();
 	}
 	
 	MedoCLK(byte[] rawdata, TimeZone tz) {
 		this.tz=tz;
+		calendar=Calendar.getInstance(tz);
 		TAD=parseBArraytoCArray(rawdata);
 		process();
 	}
-	public void processMedoCLK(byte[] rawdata){
-		TAD=parseBArraytoCArray(rawdata);
-		process();
-	}
-	public void processMedoCLK(char[] rawdata){
-		TAD=rawdata;
-		process();
-	}
-
 	private void process(){
 		calendar.set((int) (TAD[5])+2000,(int) (TAD[4])-1,
 				(int) (TAD[3]),(int) (TAD[2]),

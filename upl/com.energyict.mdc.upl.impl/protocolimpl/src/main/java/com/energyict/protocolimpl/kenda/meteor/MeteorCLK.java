@@ -17,26 +17,21 @@ public class MeteorCLK extends Parsers{
 	
 	MeteorCLK(char[] cs, TimeZone tz){
 		this.tz=tz;
+		calendar=Calendar.getInstance(tz);
 		TAD=cs;
 		process();
 	}
 	
 	MeteorCLK(Calendar calendar){
 		this.tz=calendar.getTimeZone();
+		this.calendar=calendar;
 		changeTAD();
 	}
 	
 	MeteorCLK(byte[] rawdata, TimeZone tz) {
 		this.tz=tz;
+		calendar=Calendar.getInstance(tz);
 		TAD=parseBArraytoCArray(rawdata);
-		process();
-	}
-	public void processMeteorCLK(byte[] rawdata){
-		TAD=parseBArraytoCArray(rawdata);
-		process();
-	}
-	public void processMeteorCLK(char[] rawdata){
-		TAD=rawdata;
 		process();
 	}
 	private void process(){
