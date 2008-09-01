@@ -100,8 +100,8 @@ public class Opus extends AbstractProtocol{
 	
 	private ProtocolChannelMap channelMap=null;
 	
-	private final String oldPassword;
-	private final String newPassword;
+	private String oldPassword;
+	private String newPassword;
 	private int outstationID;	
 	
 	private InputStream inputStream;
@@ -239,7 +239,10 @@ public class Opus extends AbstractProtocol{
 		this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress", "000"));
 		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1"));
 		this.timeOut=Integer.parseInt(properties.getProperty("TimeOut","5000"));
-		this.attempts=Integer.parseInt(properties.getProperty("Retry", "3"));		
+		this.attempts=Integer.parseInt(properties.getProperty("Retry", "3"));
+		this.oldPassword=properties.getProperty("oldPassword","--------");
+		this.newPassword=properties.getProperty("newPassword","--------");
+
 	}
 
 	public void updateCache(int arg0, Object arg1) throws SQLException,
@@ -254,6 +257,8 @@ public class Opus extends AbstractProtocol{
 
 	public List getRequiredKeys() {
 		ArrayList list = new ArrayList();
+		list.add("oldPassword");
+		list.add("newPassword");
 		return list;
 	}
 
