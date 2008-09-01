@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
+import java.util.TimeZone;
+
 public class MeteorReadSavedDialReadings extends Parsers{
 	/*
 	 * Read saved dial readings
@@ -12,6 +14,7 @@ public class MeteorReadSavedDialReadings extends Parsers{
 	private MeteorReadDialReadings[] dialSeOp1=new MeteorReadDialReadings[48];
 	private MeteorCLK timeOp2=new MeteorCLK();
 	private MeteorReadDialReadings[] dialSeOp2=new MeteorReadDialReadings[48];
+	private TimeZone tz;
 	
 	MeteorReadSavedDialReadings(){
 		MeteorReadDialReadings m = new MeteorReadDialReadings();
@@ -22,28 +25,30 @@ public class MeteorReadSavedDialReadings extends Parsers{
 			dialSeOp2[i]=m;
 		}
 	}	
-	MeteorReadSavedDialReadings(char[] c){
+	MeteorReadSavedDialReadings(char[] c, TimeZone tz){
+		this.tz=tz;
 		processMeteorReadSavedDialReadings(c);
 	}
 
-	MeteorReadSavedDialReadings(byte[] b){
+	MeteorReadSavedDialReadings(byte[] b, TimeZone tz){
+		this.tz=tz;
 		processMeteorReadSavedDialReadings(parseBArraytoCArray(b));
 	}
 	private void processMeteorReadSavedDialReadings(char[] c) {
 		String s=new String(c);
-		timHr1=new MeteorCLK(s.substring(0,6).toCharArray());
+		timHr1=new MeteorCLK(s.substring(0,6).toCharArray(),tz);
 		for(int i=0; i<36; i++){
 			dialShr1[i]=new MeteorReadDialReadings(s.substring(6+i*4,10+i*4).toCharArray());
 		}
-		timHr2=new MeteorCLK(s.substring(150,156).toCharArray());
+		timHr2=new MeteorCLK(s.substring(150,156).toCharArray(),tz);
 		for(int i=0; i<36; i++){
 			dialShr2[i]=new MeteorReadDialReadings(s.substring(156+i*4,160+i*4).toCharArray());
 		}
-		timeOp1=new MeteorCLK(s.substring(300,306).toCharArray());
+		timeOp1=new MeteorCLK(s.substring(300,306).toCharArray(),tz);
 		for(int i=0; i<36; i++){
 			dialSeOp1[i]=new MeteorReadDialReadings(s.substring(306+i*4,310+i*4).toCharArray());
 		}
-		timeOp2=new MeteorCLK(s.substring(350,356).toCharArray());
+		timeOp2=new MeteorCLK(s.substring(350,356).toCharArray(),tz);
 		for(int i=0; i<36; i++){
 			dialSeOp2[i]=new MeteorReadDialReadings(s.substring(356+i*4,360+i*4).toCharArray());
 		}

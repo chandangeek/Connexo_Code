@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
+import java.util.TimeZone;
+
 public class MeteorPowerFailDetails extends Parsers {
 	private MeteorCLK firstFailure= new MeteorCLK();
 	private MeteorCLK lastRecovery= new MeteorCLK();
@@ -11,6 +13,7 @@ public class MeteorPowerFailDetails extends Parsers {
 	private char[] pffree={0,0,0,0,0,0};  // unused
 	private MeteorCLK timeOp2= new MeteorCLK();
 	private MeteorReadDialReadings dialseOp2=new MeteorReadDialReadings();
+	private TimeZone tz;
 	
 	
 	MeteorPowerFailDetails(){
@@ -19,24 +22,26 @@ public class MeteorPowerFailDetails extends Parsers {
 		}
 	}
 	
-	MeteorPowerFailDetails(char[] c){
+	MeteorPowerFailDetails(char[] c, TimeZone tz){
+		this.tz=tz;
 		process(c);
 	}
 	
-	MeteorPowerFailDetails(byte[] b){
+	MeteorPowerFailDetails(byte[] b, TimeZone tz){
+		this.tz=tz;
 		process(parseBArraytoCArray(b));
 	}
 	
 	private void process(char[] c){
 		String s=new String(c);
-		firstFailure=new MeteorCLK(s.substring(0,6).toCharArray());
-		lastRecovery=new MeteorCLK(s.substring(6,12).toCharArray());
+		firstFailure=new MeteorCLK(s.substring(0,6).toCharArray(),tz);
+		lastRecovery=new MeteorCLK(s.substring(6,12).toCharArray(),tz);
 		dialPf=new MeteorReadDialReadings(s.substring(12,204).toCharArray());
 		perOut=parseCharToLong(s.substring(204, 208).toCharArray());
 		secOut=parseCharToShort(s.substring(208, 210).toCharArray());
 		lpfCNT=parseCharToShort(s.substring(210, 212).toCharArray());
 		for (int i=0; i<14; i++){
-			pfhist[i]=new MeteorCLK(s.substring(212+i*6,212+(i+1)*6).toCharArray());
+			pfhist[i]=new MeteorCLK(s.substring(212+i*6,212+(i+1)*6).toCharArray(),tz);
 		}
 		pffree[0]=c[296];
 		pffree[1]=c[297];

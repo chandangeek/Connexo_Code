@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
+import java.util.TimeZone;
+
 public class MeteorStatus extends Parsers implements MeteorCommandAbstract{
 	// is private to enable inheritance in METEOR protocol, if not used set private
 	/*
@@ -51,19 +53,22 @@ public class MeteorStatus extends Parsers implements MeteorCommandAbstract{
 	private char feCNT=0;
 	private char peCNT=0;
 	private char[] stFiller=new char[12];
+	private TimeZone tz;
 
 	MeteorStatus(){}
 	
-	MeteorStatus(byte[] b){
+	MeteorStatus(byte[] b, TimeZone tz){
+		this.tz=tz;
 		process(parseBArraytoCArray(b));
 	}
-	MeteorStatus(char[] c){
+	MeteorStatus(char[] c, TimeZone tz){
+		this.tz=tz;
 		process(c);
 	}
 
 	private void process(char[] c) {
 		String s = new String(c);
-		clk=new MeteorCLK(s.substring(0, 6).toCharArray());
+		clk=new MeteorCLK(s.substring(0, 6).toCharArray(),tz);
 		statusReads=parseCharToLong(s.substring(6,10).toCharArray());
 		lastCleared=parseCharToLong(s.substring(10,14).toCharArray());
 		demCNT=parseCharToLong(s.substring(14,18).toCharArray());
@@ -801,6 +806,13 @@ public class MeteorStatus extends Parsers implements MeteorCommandAbstract{
 	 */
 	public void setStFiller(char[] stFiller) {
 		this.stFiller = stFiller;
+	}
+	public TimeZone getTz() {
+		return tz;
+	}
+
+	public void setTz(TimeZone tz) {
+		this.tz = tz;
 	}
 
 }

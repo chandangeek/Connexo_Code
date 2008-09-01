@@ -10,12 +10,13 @@ public class MeteorCLK extends Parsers{
 	 * both char and byte can be entered in the methods and constructor
 	 */
 	private char[] TAD=new char[6];
-	private TimeZone tz = TimeZone.getTimeZone("GMT");  // all meter data is in GMT
-	private Calendar calendar=Calendar.getInstance(tz);
+	private TimeZone tz;
+	private Calendar calendar;
 	
 	MeteorCLK(){}
 	
-	MeteorCLK(char[] cs){
+	MeteorCLK(char[] cs, TimeZone tz){
+		setTz(tz);
 		TAD=cs;
 		process();
 	}
@@ -146,6 +147,14 @@ public class MeteorCLK extends Parsers{
 
 	public void setTimeZone(TimeZone timezone) {
 		tz=timezone;
+	}
+	public TimeZone getTz() {
+		return tz;
+	}
+
+	public void setTz(TimeZone tz) {
+		this.tz = tz;
+		calendar=Calendar.getInstance(tz);
 	}
 
 }

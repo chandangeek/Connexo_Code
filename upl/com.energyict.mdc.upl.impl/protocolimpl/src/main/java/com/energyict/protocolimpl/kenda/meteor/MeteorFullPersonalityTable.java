@@ -3,6 +3,9 @@ package com.energyict.protocolimpl.kenda.meteor;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
+
 public class MeteorFullPersonalityTable extends Parsers implements MeteorCommandAbstract{
 	/*
 	 * Implementation of pg 7/16 minus the secure personality details => full expands part
@@ -32,8 +35,10 @@ public class MeteorFullPersonalityTable extends Parsers implements MeteorCommand
 	protected long personality=0;  // byte signed integer (should be 4 byte unsigned)
 	protected char wdbattlow=0;
 	protected char[] filler=new char[19];
-	private TimeZone timezone;
+	protected TimeZone timezone;
+	protected ProtocolChannelMap meterChannelMap;
 	
+
 	// constructors
 	MeteorFullPersonalityTable(){
 		char[] c=new char[821];
@@ -99,6 +104,16 @@ public class MeteorFullPersonalityTable extends Parsers implements MeteorCommand
 		personality=parseCharToLong(s.substring(797, 801).toCharArray());
 		wdbattlow=s.charAt(801);
 		filler=s.substring(802,820).toCharArray();
+		//iptab processing
+		String strmap="";
+		for(int i=0; i<iptab.length-1; i++){
+			strmap+=iptab[i]+":";
+		}
+		strmap+=iptab[iptab.length-1];
+		try {
+			meterChannelMap=new ProtocolChannelMap(strmap);
+		} catch (InvalidPropertyException e) {
+		}
 	}
 
 	// work methods (parsing and serializing)
@@ -556,5 +571,9 @@ public class MeteorFullPersonalityTable extends Parsers implements MeteorCommand
 
 	public void setTimezone(TimeZone timezone) {
 		this.timezone = timezone;
+	}
+
+	public ProtocolChannelMap getMeterChannelMap() {
+		return meterChannelMap;
 	}
 }

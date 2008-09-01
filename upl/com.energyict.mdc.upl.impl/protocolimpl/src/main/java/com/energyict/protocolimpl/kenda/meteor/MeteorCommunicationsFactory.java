@@ -703,14 +703,14 @@ public class MeteorCommunicationsFactory{
 				}else if(p instanceof MeteorFirmwareVersion){
 					p=new MeteorFirmwareVersion(rawdata);
 				}else if(p instanceof MeteorStatus){
-					p=new MeteorStatus(rawdata);
+					p=new MeteorStatus(rawdata,timezone);
 				}else if(p instanceof MeteorReturnedReadMeterDemands){
 					p=new MeteorReturnedReadMeterDemands(rawdata);
 				}else if(p instanceof MeteorReadDialReadings){
 					p=new MeteorReadDialReadings(rawdata);
 				}else if(p instanceof MeteorReadSavedDialReadings){
 				}else if(p instanceof MeteorPowerFailDetails){
-					p=new MeteorPowerFailDetails(rawdata);
+					p=new MeteorPowerFailDetails(rawdata, timezone);
 				}else if(p instanceof MeteorCommissioningCounters){
 				}
 			return p;
