@@ -202,7 +202,7 @@ public class MeteorCommunicationsFactory{
 		// add header
 		ident = block[0][0];
 		ident = buildIdent((ident & 0x80)==0x80,true,true,(byte) ((byte) ident & 0x1F));
-		header= buildHeader(ident,(1+b.length)%256);
+		header= buildHeader(ident,((1+b.length)%256));
 		for(int i=0; i<10; i++){
 			b[i]=header[i];
 		}
