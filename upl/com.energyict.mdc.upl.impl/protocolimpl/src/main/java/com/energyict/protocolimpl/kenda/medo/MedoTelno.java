@@ -41,8 +41,9 @@ public class MedoTelno {
 		}
 	}
 	public String toString(){
-		String s="";
-		for(char c: telno){
+		String s="";		
+		for(int ii=0; ii<telno.length; ii++){
+			char c=telno[ii];
 			s+=(int) c;
 		}
 		return s;

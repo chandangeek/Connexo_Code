@@ -19,6 +19,7 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.kenda.medo.MedoCLK;
 
 public class MeteorCommunicationsFactory{
 	/**
@@ -156,7 +157,8 @@ public class MeteorCommunicationsFactory{
 	public byte[] addCheckSum(byte[] total){
 		int checkSum=0;
 		byte[] totalcheck= new byte[total.length+1];
-		for(byte b:total){
+		for(int ii=0; ii<totalcheck.length; ii++){
+			byte b=total[ii];
 			checkSum=checkSum+(int) b;
 		}
 		totalcheck[total.length]=(byte) (256-(checkSum%256));
@@ -376,12 +378,14 @@ public class MeteorCommunicationsFactory{
 				ack=true;			
 			}
 			// deal with the data, cut header and checksum
-			for(byte[] bt:br){
+			for(int ii=0; ii<br.length; ii++){
+				byte[] bt= br[ii];
 				tel+=bt.length-11;
 			}
 			if(tel>0){
 				byteData=new byte[tel];
-				for(byte[] bt:br){
+				for(int ii=0; ii<br.length; ii++){
+					byte[] bt= br[ii];
 					for(int i=10; i<bt.length-1;i++){
 						byteData[poscount++]=bt[i];					
 					}
@@ -396,7 +400,6 @@ public class MeteorCommunicationsFactory{
 					}
 				}
 				// send back ack
-				System.out.println("this is the poscount " + poscount);
 				bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
 				sendData(bs);
 			}
@@ -430,7 +433,8 @@ public class MeteorCommunicationsFactory{
 		// retrieve powerFailDetails and add meter events
 		MeteorPowerFailDetails mpfd=(MeteorPowerFailDetails) transmitData(powerFailDetails, null);
 		MeteorCLK[] pfhist=mpfd.getPfhist();
-		for(MeteorCLK mclk: pfhist){
+		for(int ii=0; ii<pfhist.length; ii++){
+			MeteorCLK mclk= pfhist[ii];
 			if(mclk.checkValidity()){
 				cal1=mclk.getCalendar();
 				meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERDOWN);
@@ -580,7 +584,8 @@ public class MeteorCommunicationsFactory{
 	 */
 	private void sendData(byte[] bs) throws IOException {
 		byte[][] b=blockProcessing(bs); // cuts up the bs into the frames requested by the meter
-		for(byte[] bp: b){
+		for(int ii=0; ii<b.length; ii++){
+			byte[] bp= b[ii];
 			outputStream.write(bp); // send all frames
 		}
 	}
@@ -747,6 +752,12 @@ public class MeteorCommunicationsFactory{
 	
 	public void setTimeZone(TimeZone timezone) {
 		this.timezone=timezone;
+	}
+	public int getNumChan() {
+		return numChan;
+	}
+	public void setNumChan(int numChan) {
+		this.numChan = numChan;
 	}
 
 	

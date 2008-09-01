@@ -185,7 +185,8 @@ public class MedoPartPersonalityTable  extends Parsers{
 		}
 		System.out.println();
 		System.out.print("sumtabs:           ");
-		for(String s: sumtabs){
+		for(int ii=0; ii<sumtabs.length; ii++){
+			String s=sumtabs[ii];
 			System.out.print(s);
 		}
 		System.out.println();

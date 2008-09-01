@@ -33,7 +33,7 @@ public class MeteorFullPersonalityTable extends Parsers implements MeteorCommand
 	protected char wdbattlow=0;
 	protected char[] filler=new char[19];
 	private TimeZone timezone;
-		
+	
 	// constructors
 	MeteorFullPersonalityTable(){
 		char[] c=new char[821];
@@ -98,7 +98,7 @@ public class MeteorFullPersonalityTable extends Parsers implements MeteorCommand
 		ds2=s.charAt(796);
 		personality=parseCharToLong(s.substring(797, 801).toCharArray());
 		wdbattlow=s.charAt(801);
-		filler=s.substring(802,820).toCharArray();		
+		filler=s.substring(802,820).toCharArray();
 	}
 
 	// work methods (parsing and serializing)
@@ -200,7 +200,8 @@ public class MeteorFullPersonalityTable extends Parsers implements MeteorCommand
 		}
 		System.out.println();
 		System.out.print("sumtabs:           ");
-		for(char c: sumtabs){
+		for(int ii=0; ii<sumtabs.length; ii++){
+			char c=sumtabs[ii];
 			System.out.print(c); // is string
 		}
 		System.out.println();

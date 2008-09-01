@@ -157,7 +157,8 @@ public class MedoCommunicationsFactory{
 	public byte[] addCheckSum(byte[] total){
 		int checkSum=0;
 		byte[] totalcheck= new byte[total.length+1];
-		for(byte b:total){
+		for(int ii=0; ii<totalcheck.length; ii++){
+			byte b=total[ii];
 			checkSum=checkSum+(int) b;
 		}
 		totalcheck[total.length]=(byte) (256-(checkSum%256));
@@ -377,11 +378,13 @@ public class MedoCommunicationsFactory{
 				ack=true;			
 			}
 			// deal with the data, cut header and checksum
-			for(byte[] bt:br){
+			for(int ii=0; ii<br.length; ii++){
+				byte[] bt= br[ii];
 				tel+=bt.length-11;
 			}
 			byteData=new byte[tel];
-			for(byte[] bt:br){
+			for(int ii=0; ii<br.length; ii++){
+				byte[] bt= br[ii];
 				for(int i=10; i<bt.length-1;i++){
 					byteData[poscount++]=bt[i];					
 				}
@@ -426,7 +429,8 @@ public class MedoCommunicationsFactory{
 		// retrieve powerFailDetails and add meter events
 		MedoPowerFailDetails mpfd=(MedoPowerFailDetails) transmitData(powerFailDetails, null);
 		MedoCLK[] pfhist=mpfd.getPfhist();
-		for(MedoCLK mclk: pfhist){
+		for(int ii=0; ii<pfhist.length; ii++){
+			MedoCLK mclk=(MedoCLK) pfhist[ii];
 			if(mclk.checkValidity()){
 				cal1=mclk.getCalendar();
 				meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERDOWN);
@@ -572,7 +576,8 @@ public class MedoCommunicationsFactory{
 	 */
 	private void sendData(byte[] bs) throws IOException {
 		byte[][] b=blockProcessing(bs); // cuts up the bs into the frames requested by the meter
-		for(byte[] bp: b){
+		for(int ii=0; ii<b.length; ii++){
+			byte[] bp= b[ii];
 			outputStream.write(bp); // send all frames
 		}
 	}
@@ -734,5 +739,11 @@ public class MedoCommunicationsFactory{
 	}
 	public void setYearPointer(int profileDataPointer) {
 		this.profileDataPointer=profileDataPointer;
+	}
+	public int getNumChan() {
+		return numChan;
+	}
+	public void setNumChan(int numChan) {
+		this.numChan = numChan;
 	}
 }

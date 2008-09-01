@@ -41,7 +41,8 @@ public class MeteorTelno {
 	}
 	public String toString(){
 		String s="";
-		for(char c: telno){
+		for(int ii=0; ii<telno.length; ii++){
+			char c=telno[ii];
 			s+=(int) c;
 		}
 		return s;

@@ -247,9 +247,12 @@ public class Meteor implements MeterProtocol{
 		// full personality table should be downloaded because some of the registers
 		// are needed in the communicationsfactory
 		fullperstable = getFullPersonalityTable();
+		fullperstable.printData();
 		// set multipliers
 		mcf.setMultipliers(fullperstable.getDialexp(), fullperstable.getDialmlt());
 		statusreg = getMeteorStatus();
+		mcf.setNumChan((int) statusreg.getMtrs());
+		statusreg.printData();
 		// flag the events for the profile
 		
 		// channelmap is to be set in the factory

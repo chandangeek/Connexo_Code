@@ -28,7 +28,8 @@ public class MeteorDialSettings extends Parsers implements MeteorCommandAbstract
 		char[] c=new char[cnt.length*4];
 		char[] temp=new char[4];
 		int tel=0;
-		for(int i: cnt){
+		for(int ii=0;ii<cnt.length; ii++){
+			int i=cnt[ii];
 			temp=parseIntToChar(i);
 			c[tel]=temp[0];
 			c[tel+1]=temp[1];
@@ -41,7 +42,8 @@ public class MeteorDialSettings extends Parsers implements MeteorCommandAbstract
 
 	public void printData() {
 		int tel=0;
-		for(int i:cnt){
+		for(int ii=0; ii<cnt.length; ii++){
+			int i=cnt[ii];
 			System.out.println("cnt"+(tel++)+":          "+i);
 		}
 

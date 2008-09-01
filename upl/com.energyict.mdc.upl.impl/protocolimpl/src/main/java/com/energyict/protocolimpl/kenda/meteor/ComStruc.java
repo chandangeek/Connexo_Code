@@ -24,7 +24,8 @@ public class ComStruc {
 	public byte[] getByteArray(){
 		byte[] b=new byte[sequence.length];
 		int i=0;
-		for(char c:sequence){
+		for(int ii=0; ii<sequence.length; ii++){
+        	char c=sequence[ii];
 			b[i++]=(byte) c;
 		}
 		return b;
@@ -45,7 +46,8 @@ public class ComStruc {
 	}
 	public String getHexVals(){
 		String s="";
-		for(char c:sequence){
+		for(int ii=0; ii<sequence.length; ii++){
+			char c=sequence[ii];
 			Integer integer;
 			integer=new Integer(((int) c));
 			s+=Integer.toHexString(integer).toUpperCase()+" ";

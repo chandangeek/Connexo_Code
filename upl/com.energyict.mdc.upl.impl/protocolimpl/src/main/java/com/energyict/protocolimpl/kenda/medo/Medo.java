@@ -255,6 +255,7 @@ public class Medo implements MeterProtocol{
 		// set multipliers
 		mcf.setMultipliers(fullperstable.getDialexp(), fullperstable.getDialmlt());
 		statusreg = getmedoStatus();
+		mcf.setNumChan((int) statusreg.getMtrs());
 		statusreg.printData();
 		// channelmap is to be set in the factory
 		mcf.setChannelMap(this.channelMap);
