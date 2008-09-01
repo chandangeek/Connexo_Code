@@ -149,7 +149,7 @@ public class OpusGetProfileData {
         						if(datamatrix[i][ii]>999990){
         							// 	value should be zero, because is false
         							if(channelMap.isProtocolChannelEnabled(ii)){
-        								id.addValue(0);
+        								id.addValue(new Integer(0));
         							}
         							// event flagging
         							eventflag=true;    					
@@ -197,7 +197,7 @@ public class OpusGetProfileData {
         							eventflag=false;
         							// value is real value
         							if(channelMap.isProtocolChannelEnabled(ii)){ // skip first if disabled (eventflagging of first channel in case of flagged off is done)
-        								id.addValue(datamatrix[i][ii]);
+        								id.addValue(new Integer(datamatrix[i][ii]));
         							}
         						}// data & flag check
         					}// channel map
@@ -230,7 +230,7 @@ public class OpusGetProfileData {
     						// check value
    							// 	value should be zero, because is false
    							if(channelMap.isProtocolChannelEnabled(ii)){
-   								id.addValue(0);
+   								id.addValue(new Integer(0));
    							}
 							id.addEiStatus(IntervalStateBits.MISSING);
 							mev=new MeterEvent(tempcal.getTime(), MeterEvent.OTHER,"No Data");
