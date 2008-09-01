@@ -686,9 +686,7 @@ public class MedoCommunicationsFactory{
 //				}else if(p instanceof MedoExtendedPersonalityTable){	
 //					p=new MedoExtendedPersonalityTable(rawdata);
 				}else if(p instanceof MedoCLK){
-					MedoCLK c=new MedoCLK();
-					c.setTimeZone(timezone);
-					c.processMedoCLK(rawdata);
+					MedoCLK c=new MedoCLK(rawdata,timezone);
 					p = c;						
 				}else if(p instanceof MedoFirmwareVersion){
 					p=new MedoFirmwareVersion(rawdata);

@@ -16,16 +16,18 @@ public class MedoCLK extends Parsers{
 	MedoCLK(){}
 	
 	MedoCLK(char[] cs, TimeZone tz){
-		setTz(tz);
+		this.tz=tz;
 		TAD=cs;
 		process();
 	}
 	
 	MedoCLK(Calendar calendar){
+		this.tz=calendar.getTimeZone();
 		changeTAD();
 	}
 	
-	public MedoCLK(byte[] rawdata) {
+	MedoCLK(byte[] rawdata, TimeZone tz) {
+		this.tz=tz;
 		TAD=parseBArraytoCArray(rawdata);
 		process();
 	}
@@ -144,13 +146,6 @@ public class MedoCLK extends Parsers{
 	byte[] parseToByteArray() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	public void setTimeZone(TimeZone timezone) {
-		this.tz=timezone;		
-	}
-	public TimeZone getTz() {
-		return tz;
 	}
 
 	public void setTz(TimeZone tz) {

@@ -16,16 +16,18 @@ public class MeteorCLK extends Parsers{
 	MeteorCLK(){}
 	
 	MeteorCLK(char[] cs, TimeZone tz){
-		setTz(tz);
+		this.tz=tz;
 		TAD=cs;
 		process();
 	}
 	
 	MeteorCLK(Calendar calendar){
+		this.tz=calendar.getTimeZone();
 		changeTAD();
 	}
 	
-	public MeteorCLK(byte[] rawdata) {
+	MeteorCLK(byte[] rawdata, TimeZone tz) {
+		this.tz=tz;
 		TAD=parseBArraytoCArray(rawdata);
 		process();
 	}
@@ -143,13 +145,6 @@ public class MeteorCLK extends Parsers{
 	byte[] parseToByteArray() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	public void setTimeZone(TimeZone timezone) {
-		tz=timezone;
-	}
-	public TimeZone getTz() {
-		return tz;
 	}
 
 	public void setTz(TimeZone tz) {

@@ -632,7 +632,6 @@ public class MeteorCommunicationsFactory{
 					case readRTC:
 						//System.out.println("Get RTC register");
 						MeteorCLK c=new MeteorCLK();
-						c.setTimeZone(timezone);
 						p = c;						
 						break;
 					case setRTC:
@@ -697,9 +696,7 @@ public class MeteorCommunicationsFactory{
 				}else if(p instanceof MeteorExtendedPersonalityTable){	
 					p=new MeteorExtendedPersonalityTable(rawdata);
 				}else if(p instanceof MeteorCLK){
-					MeteorCLK c=new MeteorCLK();
-					c.setTimeZone(timezone);
-					c.processMeteorCLK(rawdata);
+					MeteorCLK c=new MeteorCLK(rawdata,timezone);
 					p = c;						
 				}else if(p instanceof MeteorFirmwareVersion){
 					p=new MeteorFirmwareVersion(rawdata);
