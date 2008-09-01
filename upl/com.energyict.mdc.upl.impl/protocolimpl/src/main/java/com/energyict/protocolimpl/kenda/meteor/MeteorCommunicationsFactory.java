@@ -156,7 +156,7 @@ public class MeteorCommunicationsFactory{
 	public byte[] addCheckSum(byte[] total){
 		int checkSum=0;
 		byte[] totalcheck= new byte[total.length+1];
-		for(int ii=0; ii<totalcheck.length; ii++){
+		for(int ii=0; ii<total.length; ii++){
 			byte b=total[ii];
 			checkSum=checkSum+(int) b;
 		}

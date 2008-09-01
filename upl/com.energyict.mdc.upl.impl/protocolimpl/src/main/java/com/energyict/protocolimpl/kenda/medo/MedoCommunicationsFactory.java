@@ -157,7 +157,7 @@ public class MedoCommunicationsFactory{
 	public byte[] addCheckSum(byte[] total){
 		int checkSum=0;
 		byte[] totalcheck= new byte[total.length+1];
-		for(int ii=0; ii<totalcheck.length; ii++){
+		for(int ii=0; ii<total.length; ii++){
 			byte b=total[ii];
 			checkSum=checkSum+(int) b;
 		}
@@ -203,7 +203,7 @@ public class MedoCommunicationsFactory{
 		// add header
 		ident = block[0][0];
 		ident = buildIdent((ident & 0x80)==0x80,true,true,(byte) ((byte) ident & 0x1F));
-		header= buildHeader(ident,((1+b.length)%256));
+		header= buildHeader(ident,(1+b.length)%256);
 		for(int i=0; i<10; i++){
 			b[i]=header[i];
 		}
