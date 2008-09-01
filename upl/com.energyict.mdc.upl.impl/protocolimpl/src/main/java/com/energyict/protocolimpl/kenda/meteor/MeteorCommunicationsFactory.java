@@ -370,7 +370,8 @@ public class MeteorCommunicationsFactory{
 			pog--;
 			sendData(bs);
 			// receive ack
-			br=receiveData((byte) (bs[0]& 0x1F));	// timeout?		
+			br=receiveData((byte) (bs[0]& 0x1F));	// timeout?	
+			System.out.println(br.length+" "+br[0].length);
 			if((br[br.length-1][0]&0x20)==0x20){
 				ack=true;			
 			}
@@ -395,6 +396,7 @@ public class MeteorCommunicationsFactory{
 					}
 				}
 				// send back ack
+				System.out.println("this is the poscount " + poscount);
 				bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
 				sendData(bs);
 			}
@@ -410,12 +412,13 @@ public class MeteorCommunicationsFactory{
 	public short[][] getTotalDemands(Date start, Date stop, int intervaltime) throws IOException{
 		return requestMeterDemands((byte) 0x08,start,stop,intervaltime);
 	}
+	@SuppressWarnings("unchecked")
 	public ProfileData retrieveProfileData(Date start, Date stop, int intervaltime, boolean addevents) throws IOException{ 
 		ProfileData pd = new ProfileData();		
 		IntervalData id = new IntervalData();		// current interval data
 		MeterEvent meterEvent;
-		ArrayList <MeterEvent> meterEventList = new ArrayList<MeterEvent>();
-		ArrayList <MeteorCLK> meteorCLK= new ArrayList<MeteorCLK>();// meter event flagging parallel matrix
+		ArrayList  meterEventList = new ArrayList();
+		ArrayList  meteorCLK= new ArrayList();// meter event flagging parallel matrix
 		boolean flag=false, powdownflag=false, prevIntervalPowdownflag=false;
 		long millis=0;
 		int ids=0;
@@ -443,6 +446,7 @@ public class MeteorCommunicationsFactory{
         
         // get meter data
 		short[][] s=requestMeterDemands((byte) 0x07,cal1.getTime(),stop,intervaltime);
+		//System.out.println(s.length+" "+s[0].length);
 		
 		// build channel map in profile data
 		for(int i=0; i<s[0].length;i++ ){
@@ -457,7 +461,8 @@ public class MeteorCommunicationsFactory{
 			powdownflag=false;
 			flag=false;
 			id=new IntervalData(cal1.getTime());  // add time and date to the interval
-			for(MeteorCLK m:meteorCLK){ // process event flagging
+			for(int ii=0; ii<meteorCLK.size(); ii++){
+				MeteorCLK m=(MeteorCLK) meteorCLK.get(ii);
 				long timeInterval = (cal1.getTimeInMillis()-m.getCalendar().getTimeInMillis());
 				if(timeInterval<intervaltime*1000 && timeInterval>=0){
 					powdownflag=true;
@@ -516,7 +521,8 @@ public class MeteorCommunicationsFactory{
 		}
 		//add meter events
 		if(addevents){
-			for(MeterEvent m:meterEventList){
+			for(int ii=0; ii<meterEventList.size(); ii++){
+				MeterEvent m= (MeterEvent) meterEventList.get(ii);
 				pd.addEvent(m);
 			}
 		}
@@ -533,7 +539,7 @@ public class MeteorCommunicationsFactory{
 	private byte[][] receiveData(byte ident) throws IOException {
 		int i=0,counter,length;
 		byte[][] data;
-		ArrayList <String> recdat=new ArrayList<String>();
+		ArrayList recdat=new ArrayList();
 		boolean go=true;
 		String s;
 		long interFrameTimeout;
@@ -562,7 +568,8 @@ public class MeteorCommunicationsFactory{
 		}
 		data=new byte[recdat.size()][];
 		i=0;
-		for(String str:recdat){
+		for(int ii=0; ii<recdat.size(); ii++){
+			String str= (String) recdat.get(ii);
 			data[i++]=Parsers.parseCArraytoBArray(str.toCharArray());
 		}		
 		return data;

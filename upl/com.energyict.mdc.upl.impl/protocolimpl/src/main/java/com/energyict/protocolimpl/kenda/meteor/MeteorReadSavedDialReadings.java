@@ -184,7 +184,6 @@ public class MeteorReadSavedDialReadings extends Parsers{
 	public void setDialSeOp2(MeteorReadDialReadings[] dialSeOp2) {
 		this.dialSeOp2 = dialSeOp2;
 	}
-	@Override
 	byte[] parseToByteArray() {
 		// TODO Auto-generated method stub
 		return null;

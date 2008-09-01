@@ -51,7 +51,6 @@ public class MeteorReadDialReadings extends Parsers{
 		System.out.print(this.toString());
 		
 	}
-	@Override
 	byte[] parseToByteArray() {
 		// TODO Auto-generated method stub
 		return null;

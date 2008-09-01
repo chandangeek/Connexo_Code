@@ -119,7 +119,6 @@ public class MeteorPowerFailDetails extends Parsers {
 		return pffree;
 	}
 
-	@Override
 	byte[] parseToByteArray() {
 		return null;
 	}
