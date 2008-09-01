@@ -90,7 +90,7 @@ public class OpusCommandFactory {
 		if(numChan==-1){
 			s=writeReadControlOutstation(attempts, timeOut);
 			String[] str=(String[])s.get(0);
-			this.numChan=Integer.valueOf(str[1]);					// set number of channels in this object			
+			this.numChan=Integer.parseInt(str[1]);					// set number of channels in this object			
 		}
 		// maybe good to catch some of the errors here
 		if     (command==3) {s=currentMonthCumulativeReadings(attempts, timeOut, numChan);}
@@ -596,14 +596,14 @@ public class OpusCommandFactory {
 				case 5:
 					if(temp){// check temp in order to have no baud rate problems
 						// deltamin conversion to time
-						if(Integer.valueOf(data[0])==000 || Integer.valueOf(data[0])==999 ){
+						if(Integer.parseInt(data[0])==000 || Integer.parseInt(data[0])==999 ){
 							outputStream.write(EOT);
 							loop=false;							
 						}else{
 							outputStream.write(ACK);
 							state=6;
 						}
-						data=generateTimefromDeltamin(Integer.valueOf(data[0]));
+						data=generateTimefromDeltamin(Integer.parseInt(data[0]));
 						returnedData.add(data);
 					}else{
 						outputStream.write(NAK);

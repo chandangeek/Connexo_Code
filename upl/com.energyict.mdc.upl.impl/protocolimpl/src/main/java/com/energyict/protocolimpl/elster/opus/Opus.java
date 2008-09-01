@@ -137,8 +137,8 @@ public class Opus extends AbstractProtocol{
 		s=ocf.command(121,attempts,timeOut, null);			// factory command
 		String[] st;
 		st=(String[]) s.get(0);
-		this.numChan=Integer.valueOf(st[1]);			// set number of channels in this object
-		this.interval=24*3600/Integer.valueOf(st[0]);	// set interval in this object
+		this.numChan=Integer.parseInt(st[1]);			// set number of channels in this object
+		this.interval=24*3600/Integer.parseInt(st[0]);	// set interval in this object
 		this.firmwareVersion=st[6];
 		// set factory globals (IMORTANT)
 		ocf.setNumChan(this.numChan);

@@ -70,9 +70,9 @@ public class OpusBuildPacket extends Parsers{
 		
 		if(verifyCheckSum(c)){ // checksum is checked on possible validity
 			soh=c[packTel]; // 0 is SOH
-			OSnumber=Integer.valueOf(s.substring(1+packTel, 4+packTel));
-			callNumber=Integer.valueOf(s.substring(4+packTel, 7+packTel));
-			packetNumber=Integer.valueOf(s.substring(7+packTel, 10+packTel));
+			OSnumber=Integer.parseInt(s.substring(1+packTel, 4+packTel));
+			callNumber=Integer.parseInt(s.substring(4+packTel, 7+packTel));
+			packetNumber=Integer.parseInt(s.substring(7+packTel, 10+packTel));
 			while(!(c[counter]=='#' && c[counter+1]=='#')){
 				if(c[counter]=='#'){
 					tel++; // next data sequence (starts at index 0)
@@ -82,7 +82,7 @@ public class OpusBuildPacket extends Parsers{
 				}			
 				counter++;
 			}
-			checkSum=Integer.valueOf(s.substring(s.length()-4, s.length()-1));
+			checkSum=Integer.parseInt(s.substring(s.length()-4, s.length()-1));
 			packetTerminator=c[c.length-1];
 			commandBuilder();
 		}else{
