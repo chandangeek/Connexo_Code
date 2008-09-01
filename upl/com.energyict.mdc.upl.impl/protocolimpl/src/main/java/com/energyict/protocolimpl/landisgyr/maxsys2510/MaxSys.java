@@ -145,6 +145,20 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
 
         if (p.getProperty(MeterProtocol.SERIALNUMBER) != null)
             pSerialNumber = p.getProperty(MeterProtocol.SERIALNUMBER);
+        
+        if (p.getProperty(MeterProtocol.NODEID) != null) {
+        	pNodeId = p.getProperty(MeterProtocol.NODEID);
+        	if (pNodeId.length() == 7)
+        		pNodeId = "3" + pNodeId;
+        	if (pNodeId.length() != 8)
+        		throw new InvalidPropertyException( "NodeId must be a string of 7 or 8 numbers long");
+        	try {
+        		Integer.parseInt(pNodeId);
+        	}
+        	catch (NumberFormatException e) {
+        		throw new InvalidPropertyException( "NodeId: only numbers allowed");
+        	}
+        }
 
         if (p.getProperty(MeterProtocol.PROFILEINTERVAL) != null)
             pProfileInterval = Integer.parseInt(p.getProperty(MeterProtocol.PROFILEINTERVAL));
@@ -222,6 +236,19 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         result.add(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE);
         return result;
     }
+    
+    protected void sendNodeId() throws IOException {
+    	if ((this.pNodeId != null) && !"".equals(pNodeId)) {
+        	XCommand xCommand = commandFactory.createX( nextCrn(), 0x00, 0x0b ); // 0b => slave
+    		byte arg1 = Byte.parseByte(pNodeId.substring(0, 2), 16);     
+    		byte arg2 = Byte.parseByte(pNodeId.substring(2, 4), 16);   
+    		byte arg3 = Byte.parseByte(pNodeId.substring(4, 6), 16);   
+    		byte arg4 = Byte.parseByte(pNodeId.substring(6, 8), 16);   
+    		byte[] arg = {arg1, arg2, arg3, arg4};
+    		xCommand.setArgumnt(arg);
+            linkLayer.send( xCommand );
+    	}
+    }
 
     /*
      * (non-Javadoc)
@@ -240,6 +267,9 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
             commandFactory = new CommandFactory();
             linkLayer = 
                 new LinkLayer( inputStream, outputStream, 0, 0, pRetries, pForceDelay, this);
+            
+            
+            sendNodeId();
             
             obisCodeMapper = new ObisCodeMapper(this);
 
@@ -275,8 +305,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
 
     void connect(int baudRate) throws IOException {
         try {
-
-            linkLayer.send( commandFactory.createX( nextCrn(), 0x00, 0x0e ) );
+        	linkLayer.send( commandFactory.createX( nextCrn(), 0x00, 0x0e ) ); // oe: return unit id
             getTable0();
             
             doExtendedLogging();
@@ -707,8 +736,20 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     }
     
     public static void main(String[] args) throws Exception {
-        
-    	System.out.println(0x80 & 0xC0);
+    	
+    	String pNodeId = "9700130";
+    	pNodeId = "3" + pNodeId;
+		byte arg1 = Byte.parseByte(pNodeId.substring(0, 2), 16);     
+		byte arg2 = Byte.parseByte(pNodeId.substring(2, 4), 16);   
+		byte arg3 = Byte.parseByte(pNodeId.substring(4, 6), 16);   
+		byte arg4 = Byte.parseByte(pNodeId.substring(6, 8), 16);   
+		byte[] arg = {arg1, arg2, arg3, arg4};
+		System.out.println(ProtocolUtils.outputHexString(arg));
+		
+//		int value = 
+		//byte d = (byte)Integer.get
+		//byte b = 0x(int) 
+    	//System.out.println(0x80 & 0xC0);
     	
     	
         /*ialer dialer = null;
