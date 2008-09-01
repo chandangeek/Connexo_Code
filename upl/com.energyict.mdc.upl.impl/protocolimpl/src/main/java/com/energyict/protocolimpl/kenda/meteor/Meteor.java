@@ -252,6 +252,9 @@ public class Meteor implements MeterProtocol{
 		mcf.setMultipliers(fullperstable.getDialexp(), fullperstable.getDialmlt());
 		statusreg = getMeteorStatus();
 		mcf.setNumChan((int) statusreg.getMtrs());
+		if(mcf.getNumChan()<channelMap.getNrOfUsedProtocolChannels()){
+			throw new InvalidPropertyException("the meter has less channels available than defined in the properties");
+		}
 		statusreg.printData();
 		// flag the events for the profile
 		

@@ -257,6 +257,11 @@ public class Medo implements MeterProtocol{
 		statusreg = getmedoStatus();
 		mcf.setNumChan((int) statusreg.getMtrs());
 		statusreg.printData();
+		mcf.setNumChan((int) statusreg.getMtrs());
+		if(mcf.getNumChan()<channelMap.getNrOfUsedProtocolChannels()){
+			throw new InvalidPropertyException("the meter has less channels available than defined in the properties");
+		}
+
 		// channelmap is to be set in the factory
 		mcf.setChannelMap(this.channelMap);
 	}
