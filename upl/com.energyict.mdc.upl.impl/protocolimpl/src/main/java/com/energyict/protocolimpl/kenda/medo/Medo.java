@@ -22,6 +22,7 @@ import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
@@ -89,7 +90,7 @@ public class Medo implements MeterProtocol{
 	private OutputStream outputStream;
 	private InputStream inputStream;
 	private MedoCommunicationsFactory mcf;
-	private int outstationID, retry, timeout;	
+	private int outstationID, retry, timeout, delayAfterConnect;	
 	
 	private byte[] sourceCode;		// Defines central equipment of origin
 	private byte   sourceCodeExt;		// Defines peripheral equipment of origin
@@ -256,6 +257,7 @@ public class Medo implements MeterProtocol{
 	}
 	
 	public void connect() throws IOException {
+		ProtocolUtils.delayProtocol(delayAfterConnect);
 		statusreg = getmedoStatus();
 		// getTime(); // this can be uncommented if the command sequence appears to time out.
 		fullperstable = getFullPersonalityTable();
@@ -331,6 +333,7 @@ public class Medo implements MeterProtocol{
 		this.timeout=Integer.parseInt(properties.getProperty("TimeOut","10000"));
 		this.retry=Integer.parseInt(properties.getProperty("Retry", "3"));
 		this.profileDataPointer=Integer.parseInt(properties.getProperty("ProfileDataPointerYear", "2008"));
+		this.delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "500"));
 	}
 	public void setRegister(String arg0, String arg1) throws IOException,
 			NoSuchRegisterException, UnsupportedException {
@@ -343,6 +346,7 @@ public class Medo implements MeterProtocol{
 		list.add("TimeOut");
 		list.add("Retry");
 		list.add("ProfileDataPointerYear");
+		list.add("DelayAfterConnect");
 		return list;
 	}
 	public List getRequiredKeys() {

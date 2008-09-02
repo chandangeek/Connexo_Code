@@ -21,6 +21,7 @@ import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
@@ -69,13 +70,13 @@ public class Meteor implements MeterProtocol{
 	 * ---------------------------------------------------------------------------------<p>
 	 *  
 	 */
-	private String protocolVersion=protocolVersion="$Date: 2008/09/01 09:28:53 $";;
+	private String protocolVersion="$Date: 2008/09/01 09:28:53 $";;
 
 	private OutputStream outputStream;
 	private InputStream inputStream;
 	private int DEBUG=0;
 	private MeteorCommunicationsFactory mcf;
-	private int outstationID, retry, timeout;	
+	private int outstationID, retry, timeout, delayAfterConnect;	
 	
 	// command descriptions from the datasheet
 	// Header format, at the moment I consider only ident as a variable
@@ -246,6 +247,9 @@ public class Meteor implements MeterProtocol{
 	public void connect() throws IOException {
 		// full personality table should be downloaded because some of the registers
 		// are needed in the communicationsfactory
+		
+		ProtocolUtils.delayProtocol(delayAfterConnect);
+		
 		fullperstable = getFullPersonalityTable();
 		fullperstable.printData();
 		// set multipliers
@@ -325,6 +329,7 @@ public class Meteor implements MeterProtocol{
 		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1"));
 		this.timeout=Integer.parseInt(properties.getProperty("TimeOut","5000"));
 		this.retry=Integer.parseInt(properties.getProperty("Retry", "3"));
+		this.delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "0"));
 	}
 	public void setRegister(String arg0, String arg1) throws IOException,
 			NoSuchRegisterException, UnsupportedException {
@@ -337,6 +342,7 @@ public class Meteor implements MeterProtocol{
 		list.add("TimeOut");
 		list.add("Retry");
 		list.add("ChannelMap");
+		list.add("DelayAfterConnect");
 		return list;
 	}
 	public List getRequiredKeys() {
