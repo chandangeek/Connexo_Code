@@ -258,11 +258,11 @@ public class Medo implements MeterProtocol{
 	}
 	
 	public void connect() throws IOException {
+		statusreg = getmedoStatus();
 		fullperstable = getFullPersonalityTable();
 		fullperstable.printData();
 		// set multipliers
 		mcf.setMultipliers(fullperstable.getDialexp(), fullperstable.getDialmlt());
-		statusreg = getmedoStatus();
 		mcf.setNumChan((int) statusreg.getMtrs());
 		statusreg.printData();
 		mcf.setNumChan((int) statusreg.getMtrs());
