@@ -196,8 +196,6 @@ public class Medo implements MeterProtocol{
 			Calendar c=Calendar.getInstance(timezone);
 			timeoffset=(int) (clk.getCalendar().getTimeInMillis()-c.getTimeInMillis());
 			timeRequest=true;
-//			System.out.println("meter    time: " + clk.getCalendar().getTime().toLocaleString());
-//			System.out.println("computer time: " + Calendar.getInstance().getTime().toLocaleString());
 			return clk.getCalendar().getTime();
 		}else{
 			Calendar c=Calendar.getInstance(timezone);
