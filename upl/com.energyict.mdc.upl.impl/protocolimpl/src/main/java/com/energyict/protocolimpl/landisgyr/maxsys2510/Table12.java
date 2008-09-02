@@ -90,6 +90,13 @@ class Table12 {
             String name = ( code != null ) ? code.getDescription() : "unknown";
             Unit unit = ( code != null ) ? code.getUnit() : Unit.getUndefined();
             ChannelInfo ci = null;
+            
+            //Ke_PULSE_VALUE 9 THRU 16 This value is used as a divisor to
+            //convert a double precision floating
+            //point number representing KWH into a
+            //binary number analogous to pulse
+            //counts.
+            
             if ((unit.getDlmsCode() == BaseUnit.WATTHOUR) ||
                (unit.getDlmsCode() == BaseUnit.VOLTAMPEREREACTIVEHOUR))
             	ci = new ChannelInfo(id, name, unit, 0, 0, 
