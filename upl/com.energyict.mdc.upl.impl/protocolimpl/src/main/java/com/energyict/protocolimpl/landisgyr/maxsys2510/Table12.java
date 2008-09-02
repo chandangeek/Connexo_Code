@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Stack;
 import java.util.TimeZone;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -80,14 +81,21 @@ class Table12 {
     void parseChannelInfo(Assembly assembly) throws IOException {
         channelInfo = new ArrayList();
         MaxSys max = assembly.getMaxSys();
-        Table0 t0 = max.getTable0();        
+        Table0 t0 = max.getTable0();      
+        Table11 t11 = max.getTable11(); 
         for( int i = 0; i < noOfChnls; i ++ ) {
             int umi = assembly.wordValue();
             UnitOfMeasureCode code = UnitOfMeasureCode.get(umi);
             int id = i;
             String name = ( code != null ) ? code.getDescription() : "unknown";
             Unit unit = ( code != null ) ? code.getUnit() : Unit.getUndefined();
-            ChannelInfo ci = new ChannelInfo(id, name, unit, 0, 0, new BigDecimal(0.005) );
+            ChannelInfo ci = null;
+            if ((unit.getDlmsCode() == BaseUnit.WATTHOUR) ||
+               (unit.getDlmsCode() == BaseUnit.VOLTAMPEREREACTIVEHOUR))
+            	ci = new ChannelInfo(id, name, unit, 0, 0, 
+            			new BigDecimal(t11.getTypeStoreCntrlRcd().getChnlCntrl(i).kePulseValue) );
+            else
+            	ci = new ChannelInfo(id, name, unit);
             channelInfo.add( ci );
         }
         
