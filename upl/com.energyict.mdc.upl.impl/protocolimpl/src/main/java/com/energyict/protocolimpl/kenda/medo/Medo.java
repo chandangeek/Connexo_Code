@@ -261,7 +261,6 @@ public class Medo implements MeterProtocol{
 		statusreg = getmedoStatus();
 		// getTime(); // this can be uncommented if the command sequence appears to time out.
 		fullperstable = getFullPersonalityTable();
-		fullperstable.printData();
 		// set multipliers
 		mcf.setMultipliers(fullperstable.getDialexp(), fullperstable.getDialmlt());
 		mcf.setNumChan((int) statusreg.getMtrs());
