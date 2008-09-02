@@ -259,6 +259,7 @@ public class Medo implements MeterProtocol{
 	
 	public void connect() throws IOException {
 		statusreg = getmedoStatus();
+		// getTime(); // this can be uncommented if the command sequence appears to time out.
 		fullperstable = getFullPersonalityTable();
 		fullperstable.printData();
 		// set multipliers
