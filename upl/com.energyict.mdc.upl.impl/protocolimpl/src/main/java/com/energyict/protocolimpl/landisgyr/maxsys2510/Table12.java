@@ -97,8 +97,7 @@ class Table12 {
             //binary number analogous to pulse
             //counts.
             
-            if ((unit.getDlmsCode() == BaseUnit.WATTHOUR) ||
-               (unit.getDlmsCode() == BaseUnit.VOLTAMPEREREACTIVEHOUR))
+            if (unit.getDlmsCode() != BaseUnit.VOLTSQUARE) 
             	ci = new ChannelInfo(id, name, unit, 0, 0, 
             			new BigDecimal(t11.getTypeStoreCntrlRcd().getChnlCntrl(i).kePulseValue) );
             else
