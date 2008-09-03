@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
@@ -65,6 +66,7 @@ public class OpusCommandFactory {
 	private boolean com121=false;
 	private ProtocolChannelMap channelMap;
 	private TimeZone timezone;
+	private int timeOut;
 
 
 	/*
@@ -86,6 +88,7 @@ public class OpusCommandFactory {
 	 * 1) Processing of the command (after making an instance of the class)
 	 */
 	public ArrayList command(int command, int attempts, int timeOut, Calendar cal) throws IOException{
+		this.timeOut=timeOut;
 		ArrayList s=new ArrayList();
 		if(numChan==-1){
 			s=writeReadControlOutstation(attempts, timeOut);
@@ -461,7 +464,7 @@ public class OpusCommandFactory {
 		return returnedData;
 	}
 	
-	// state machine 3 commands 101 and 102
+	// state machine 3 commands 101 and 102, 121
 	private ArrayList stateMachine3(int commandnr,int attempts, int timeOut, String[] data) throws IOException{
 		ArrayList returnedData=new ArrayList();
 		int attempts1= attempts, attempts2=attempts;
@@ -770,7 +773,18 @@ public class OpusCommandFactory {
 		int i=0;
 		String s="";					
 		while(i!=ETX){	// timeout!
-			i=inputStream.read();
+			long interCharacterTimeout = System.currentTimeMillis() + timeOut; // timeout between states
+			boolean test=false;
+			while(System.currentTimeMillis()<interCharacterTimeout){
+				if(inputStream.available()>0 & !test){
+					test=true;
+					i = inputStream.read();
+				}
+				ProtocolUtils.delayProtocol(10);
+			}
+			if(!test){
+	            throw new ProtocolConnectionException("InterCharacter timeout error");
+			}
 			s+=(char) i;
 		}
 		return s;
@@ -787,8 +801,20 @@ public class OpusCommandFactory {
 		return state;
 	}
 	private int acknak(int ACKstate, int NAKstate,int curstate) throws IOException{
-		int state=curstate; // will timeout
-		int i = inputStream.read();
+		int state=curstate; 
+		int i=0x00; // will timeout
+		long interCharacterTimeout = System.currentTimeMillis() + timeOut; // timeout between states
+		boolean test=false;
+		while(System.currentTimeMillis()<interCharacterTimeout){
+			if(inputStream.available()>0 & !test){
+				test=true;
+				i = inputStream.read();
+			}
+			ProtocolUtils.delayProtocol(100);
+		}
+		if(!test){
+            throw new ProtocolConnectionException("InterCharacter timeout error");
+		}
 		if(i==ACK){
 			state=ACKstate;
 		}else if(i==NAK){
@@ -800,7 +826,19 @@ public class OpusCommandFactory {
 
 	private int acknak(int ACKstate, int NAKstate,int curstate, int endtransm) throws IOException{
 		int state=curstate; // will timeout
-		int i = inputStream.read();
+		int i=0x00; // will timeout
+		long interCharacterTimeout = System.currentTimeMillis() + timeOut; // timeout between states
+		boolean test=false;
+		while(System.currentTimeMillis()<interCharacterTimeout){
+			if(inputStream.available()>0 & !test){
+				test=true;
+				i = inputStream.read();
+			}
+			ProtocolUtils.delayProtocol(100);
+		}
+		if(!test){
+            throw new ProtocolConnectionException("Interframe timeout error");
+		}
 		if(i==ACK){
 			state=ACKstate;
 		}else if(i==NAK){
