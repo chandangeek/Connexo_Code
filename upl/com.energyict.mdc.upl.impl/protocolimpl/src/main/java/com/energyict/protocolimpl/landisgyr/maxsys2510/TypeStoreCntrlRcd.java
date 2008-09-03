@@ -50,6 +50,10 @@ class TypeStoreCntrlRcd {
     int getDataSize() {
         return dataSize;
     }
+    
+    public TypeStoreChnlCntrlRcd getChnlCntrl(int i) {
+    	return (TypeStoreChnlCntrlRcd) chnlCntrl.get(i);
+    }
 
     /** binary integral divisor of 60 */
     int getIntvlInMins() {
