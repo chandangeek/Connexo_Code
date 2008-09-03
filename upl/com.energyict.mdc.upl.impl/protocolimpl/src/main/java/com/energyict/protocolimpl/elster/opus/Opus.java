@@ -237,8 +237,8 @@ public class Opus extends AbstractProtocol{
 		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1"));
 		this.timeOut=Integer.parseInt(properties.getProperty("TimeOut","5000"));
 		this.attempts=Integer.parseInt(properties.getProperty("Retry", "3"));
-		this.oldPassword=properties.getProperty("oldPassword","--------");
-		this.newPassword=properties.getProperty("newPassword","--------");
+		this.oldPassword=properties.getProperty("oldPassword");
+		this.newPassword=properties.getProperty("newPassword");
 
 	}
 
