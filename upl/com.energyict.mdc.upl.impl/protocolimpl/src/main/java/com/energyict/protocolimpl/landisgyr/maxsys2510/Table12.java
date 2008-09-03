@@ -98,7 +98,7 @@ class Table12 {
             //counts.
             
             if (unit.getDlmsCode() != BaseUnit.VOLTSQUARE) 
-            	ci = new ChannelInfo(id, name, unit, 0, 0, 
+            	ci = new ChannelInfo(id, name, unit, 0, id, 
             			new BigDecimal(t11.getTypeStoreCntrlRcd().getChnlCntrl(i).kePulseValue) );
             else
             	ci = new ChannelInfo(id, name, unit);
