@@ -151,7 +151,6 @@ public class OpusCommandFactory {
 	}
 	private ArrayList synchronizeOutstation(int attempts, int timeOut) throws IOException{
 		// build calendar object in timezone time
-		System.out.println(timezone.getDisplayName());
 		Calendar cal=Calendar.getInstance(timezone);
 		String[] data=dataArrayBuilder(cal,oldPassword,newPassword); // build data packet
 		return stateMachine3(101,attempts,timeOut,data);

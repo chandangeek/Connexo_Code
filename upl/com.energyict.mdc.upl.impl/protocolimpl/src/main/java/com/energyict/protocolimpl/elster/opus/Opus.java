@@ -279,7 +279,6 @@ public class Opus extends AbstractProtocol{
 		}
 		
 		this.ocf.setChannelMap(this.channelMap); // set the channel map in the factory
-		setTime();
 	}
 
 	protected void doConnect() throws IOException {
