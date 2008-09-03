@@ -120,9 +120,6 @@ public class Opus extends AbstractProtocol{
 	
 	
 	public Opus(){
-		this.oldPassword="--------";
-		this.newPassword="--------";
-		this.outstationID=7; // for testing purposes only!!!!!!!!!!
 	}
 	
 	public Opus(String oldPassword, String newPassword, int outstationID){
