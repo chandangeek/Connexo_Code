@@ -233,7 +233,7 @@ public class Opus extends AbstractProtocol{
 	}
 
 	public void setProperties(Properties properties) throws InvalidPropertyException,	MissingPropertyException {
-		this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress", "000"));
+		this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress"));
 		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1"));
 		this.timeOut=Integer.parseInt(properties.getProperty("TimeOut","5000"));
 		this.attempts=Integer.parseInt(properties.getProperty("Retry", "3"));
@@ -268,7 +268,7 @@ public class Opus extends AbstractProtocol{
         
         // build command factory
 		this.ocf=new OpusCommandFactory(this.outstationID,this.oldPassword,this.newPassword,this.inputStream,this.outputStream);
-        this.ocf.setTimeZone(arg2);
+        this.ocf.setTimeZone(this.timezone);
 		
 		if(this.channelMap==null){ // if no setProperties has been called
 			String cs="1";
@@ -279,6 +279,7 @@ public class Opus extends AbstractProtocol{
 		}
 		
 		this.ocf.setChannelMap(this.channelMap); // set the channel map in the factory
+		setTime();
 	}
 
 	protected void doConnect() throws IOException {

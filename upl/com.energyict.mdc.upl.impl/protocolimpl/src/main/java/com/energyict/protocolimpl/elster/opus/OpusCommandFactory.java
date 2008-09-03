@@ -150,9 +150,9 @@ public class OpusCommandFactory {
 		return stateMachine1(81,attempts,timeOut,numChan,data);
 	}
 	private ArrayList synchronizeOutstation(int attempts, int timeOut) throws IOException{
-		// build calendar object in GMT time
-		Calendar cal;
-		cal=Calendar.getInstance(timezone);
+		// build calendar object in timezone time
+		System.out.println(timezone.getDisplayName());
+		Calendar cal=Calendar.getInstance(timezone);
 		String[] data=dataArrayBuilder(cal,oldPassword,newPassword); // build data packet
 		return stateMachine3(101,attempts,timeOut,data);
 	}
@@ -775,8 +775,8 @@ public class OpusCommandFactory {
 		while(i!=ETX){	// timeout!
 			long interCharacterTimeout = System.currentTimeMillis() + timeOut; // timeout between states
 			boolean test=false;
-			while(System.currentTimeMillis()<interCharacterTimeout){
-				if(inputStream.available()>0 & !test){
+			while(System.currentTimeMillis()<interCharacterTimeout && !test){
+				if(inputStream.available()>0){
 					test=true;
 					i = inputStream.read();
 				}
@@ -805,8 +805,8 @@ public class OpusCommandFactory {
 		int i=0x00; // will timeout
 		long interCharacterTimeout = System.currentTimeMillis() + timeOut; // timeout between states
 		boolean test=false;
-		while(System.currentTimeMillis()<interCharacterTimeout){
-			if(inputStream.available()>0 & !test){
+		while(System.currentTimeMillis()<interCharacterTimeout && !test){
+			if(inputStream.available()>0 ){
 				test=true;
 				i = inputStream.read();
 			}
@@ -829,8 +829,8 @@ public class OpusCommandFactory {
 		int i=0x00; // will timeout
 		long interCharacterTimeout = System.currentTimeMillis() + timeOut; // timeout between states
 		boolean test=false;
-		while(System.currentTimeMillis()<interCharacterTimeout){
-			if(inputStream.available()>0 & !test){
+		while(System.currentTimeMillis()<interCharacterTimeout && !test){
+			if(inputStream.available()>0){
 				test=true;
 				i = inputStream.read();
 			}
@@ -918,7 +918,7 @@ public class OpusCommandFactory {
 	}
 
 	public void setTimeZone(TimeZone timezone) {
-		timezone=this.timezone;		
+		this.timezone=timezone;		
 	}
 
 
