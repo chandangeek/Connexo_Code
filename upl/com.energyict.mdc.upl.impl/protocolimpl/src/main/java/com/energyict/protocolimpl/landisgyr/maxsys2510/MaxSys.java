@@ -270,7 +270,6 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
             
             
             sendNodeId();
-            
             obisCodeMapper = new ObisCodeMapper(this);
 
         } catch (ConnectionException e) {
@@ -595,6 +594,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     Table15 table15;
     Table16 table16;
     Table18 table18;
+    Table41 table41;
     
     
     Table0 getTable0() throws IOException {
@@ -642,6 +642,15 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         return table8;
     }
     
+    Table41 getTable41() throws IOException {
+    	if( table41 == null ){
+            StandardCommand command = commandFactory.createY(nextCrn(), 41);
+            ByteArray ba = linkLayer.send( command );
+            table41 = Table41.parse( this, new Assembly( this, ba ) );
+        }
+        return table41;
+    }
+    
     Table11 getTable11() throws IOException {
         if( table11 == null ){
             StandardCommand command = commandFactory.createY(nextCrn(), 11);
@@ -652,6 +661,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     }    
     
     Table12 getTable12( Date from, boolean includeEvents ) throws IOException {
+    	
         int noOfChnls = getTable11().getTypeStoreCntrlRcd().getNoOfChnls();
         int dataSize = getTable11().getTypeStoreCntrlRcd().getDataSize();
         int intervalMinutes = getTable11().getTypeStoreCntrlRcd().getIntvlInMins();
