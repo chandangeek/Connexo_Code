@@ -17,6 +17,9 @@ import com.energyict.protocol.discover.*;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.iec870.*;
 import com.energyict.protocolimpl.mbus.core.connection.*;
+import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870Frame;
+import com.energyict.protocolimpl.mbus.core.discover.SecondaryAddressDiscover;
+
 import java.util.*;
 import java.io.*;
 
@@ -24,9 +27,9 @@ import java.io.*;
  *
  * @author kvds
  */
-abstract public class MBus extends AbstractProtocol implements Discover {
+abstract public class MBus extends AbstractProtocol implements Discover { 
     
-    final int DEBUG=0;
+    final int DEBUG=1;
     
     abstract protected void doTheConnect() throws IOException;
     abstract protected void doTheDisConnect() throws IOException;
@@ -40,6 +43,10 @@ abstract public class MBus extends AbstractProtocol implements Discover {
     
     int secondaryAddressing;
     
+    int headerManufacturerCode;
+    int headerVersion;
+    int headerMedium;
+    
     /** Creates a new instance of MBus */
     public MBus() {
     }
@@ -50,7 +57,7 @@ abstract public class MBus extends AbstractProtocol implements Discover {
         try {
             
             if ((getInfoTypeDeviceID()==null) || (getInfoTypeDeviceID().compareTo("")==0))
-                getMBusConnection().setRTUAddress(254);
+                getMBusConnection().setRTUAddress(253);
             else
                 getMBusConnection().setRTUAddress(Integer.parseInt(getInfoTypeDeviceID()));
             doTheConnect();
@@ -75,6 +82,22 @@ abstract public class MBus extends AbstractProtocol implements Discover {
         setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty("Retries","2").trim()));
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
         setSecondaryAddressing(Integer.parseInt(properties.getProperty("SecondaryAddressing","0")));
+        
+        String manufCode = properties.getProperty("HeaderManufacturerCode");
+        if (manufCode == null)
+        	setHeaderManufacturerCode(0xFFFF);
+        else {
+        	try {
+        		setHeaderManufacturerCode(Integer.parseInt(manufCode,16));
+        	}
+        	catch(NumberFormatException e) {
+        		// probably ASCII...
+        		setHeaderManufacturerCode(CIField72h.getManufacturerCode(manufCode));
+        	}
+        }
+        setHeaderMedium(Integer.parseInt(properties.getProperty("HeaderMedium","FF"),16));
+        setHeaderVersion(Integer.parseInt(properties.getProperty("HeaderVersion","FF"),16));
+
         doTheValidateProperties(properties);
     }
     
@@ -153,11 +176,24 @@ abstract public class MBus extends AbstractProtocol implements Discover {
         this.registerFactory = registerFactory;
     }
 
+    public List<CIField72h> discoverDeviceSerialNumbers() throws IOException {
+    	
+    	SecondaryAddressDiscover o = new SecondaryAddressDiscover(this);
+    	o.discover();
+    	List<CIField72h> cIField72hs = o.getCIField72hs();
+    	
+    	return cIField72hs;
+    }
+    
+    private String buildSerialId(long id,int manuf,int version,int medium) {
+    	return id+"_"+manuf+"_"+version+"_"+medium;
+    }
+    
     public CIField72h getCIField72h() throws IOException {
         if (cIField72h==null) {
         	ApplicationData frame = getMBusConnection().sendREQ_UD2().getASDU();
         	if (frame == null)
-        		throw new IOException("MBus, Framing error!");
+        		throw new MBusException("MBus, Framing error!");
             cIField72h = (CIField72h)frame.buildAbstractCIFieldObject(getTimeZone());
         }
         return cIField72h;
@@ -167,5 +203,23 @@ abstract public class MBus extends AbstractProtocol implements Discover {
 	}
 	private void setSecondaryAddressing(int secondaryAddressing) {
 		this.secondaryAddressing = secondaryAddressing;
+	}
+	public int getInfoTypeHeaderManufacturerCode() {
+		return headerManufacturerCode;
+	}
+	public void setHeaderManufacturerCode(int headerManufacturerCode) {
+		this.headerManufacturerCode = headerManufacturerCode;
+	}
+	public int getInfoTypeHeaderVersion() {
+		return headerVersion;
+	}
+	public void setHeaderVersion(int headerVersion) {
+		this.headerVersion = headerVersion;
+	}
+	public int getInfoTypeHeaderMedium() {
+		return headerMedium;
+	}
+	public void setHeaderMedium(int headerMedium) {
+		this.headerMedium = headerMedium;
 	}
 }

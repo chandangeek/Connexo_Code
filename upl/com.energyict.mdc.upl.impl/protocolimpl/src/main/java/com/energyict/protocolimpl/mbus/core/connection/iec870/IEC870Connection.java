@@ -77,39 +77,46 @@ public class IEC870Connection extends Connection {
         return sendFrame(type,function,address,-1, asdu,response);
     }
     protected IEC870Frame sendFrame(int type,int function,int address,int length, ApplicationData asdu, boolean response) throws NestedIOException, IEC870ConnectionException, ConnectionException {
+    	return sendFrame(type,function,address,length,asdu,response,false);
+    }
+    protected IEC870Frame sendFrame(int type,int function,int address,int length, ApplicationData asdu, boolean response, boolean discoverResponse) throws NestedIOException, IEC870ConnectionException, ConnectionException {
         int retry=0;
         while(true) {
             try {
+            	if (discoverResponse) 
+            		flushInputStream();
+            	
                 List asdus=null;
                 currentFrameTx = new IEC870Frame(type,function,address,length,asdu);
                 fcb = currentFrameTx.toggleFCB(fcb);
                 if (DEBUG >= 1) printFrame(currentFrameTx);
                 sendRawData(currentFrameTx.getData());
                 if (response) {
-                    return waitForFrame();
+                    return waitForFrame(discoverResponse);
                 }
                 else {
-                    if (waitForFrame().getType() != IEC870Frame.FRAME_SINGLE_CHAR_E5)
+                    if (waitForFrame(discoverResponse).getType() != IEC870Frame.FRAME_SINGLE_CHAR_E5)
                         throw new IEC870ConnectionException("IEC870Connection, sendFrame, no ACK (E5) received");
                     return null;
                 }
             }
             catch(IEC870ConnectionException e) {
+            	
+            	if (discoverResponse) {
+            		throw e;
+            	}
+            	
                 if (retry++ > (retries-1)) {
                     throw new IEC870ConnectionException("IEC870Connection, connectLink, max retries "+MAX_RETRIES_ERROR+" "+e.toString());
                 }
                 else {
                     if (e.getReason() == TIMEOUT_ERROR) {
-                        reSendCurrentFrameTx();
+                    	reSendCurrentFrameTx();
                     }
                 }
             }
         }
     }
-    
-
-    
-
     
     private void reSendCurrentFrameTx() throws NestedIOException, IEC870ConnectionException {
         if (DEBUG >= 1) printFrame(currentFrameTx);
@@ -132,20 +139,40 @@ public class IEC870Connection extends Connection {
      * @return byte array with framedata.
      * @throws IEC870ConnectionException
      */
-    private IEC870Frame waitForFrame() throws IEC870ConnectionException {
-        long lMSTimeoutInterFrame;
+//    private IEC870Frame waitForFrame() throws IEC870ConnectionException {
+//    	return waitForFrame(false);
+//    }
+    
+    final int DISCOVERY_TIMEOUT = 600;
+    private IEC870Frame waitForFrame(boolean discoverResponse) throws IEC870ConnectionException {
+        long lMSTimeoutInterFrame,lMSTimeoutDiscovery=0;
         int state=STATE_WAIT_FOR_START;
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         int kar,count=0,length=0,checksumreceived,checksumcalculated;
         bos.reset();
+        boolean received=false;
         
         lMSTimeoutInterFrame = System.currentTimeMillis() + timeout;
         
+    	if (discoverResponse)
+    		lMSTimeoutDiscovery = System.currentTimeMillis() + DISCOVERY_TIMEOUT;
+        
+    	//System.out.println("KV_DEBUG> 1 "+System.currentTimeMillis());
+    	
         copyEchoBuffer();
+        int nrOfDevices=0;
         
         try {
             while(true) {
                 if ((kar = readIn()) != -1) {
+                	
+                	if (discoverResponse) {
+                		lMSTimeoutDiscovery = System.currentTimeMillis() + DISCOVERY_TIMEOUT;
+                		received=true;
+                	}
+                	
+                	
+                	
                     if (DEBUG >= 2) ProtocolUtils.outputHex( ((int)kar));
                     bos.write(kar);
                     switch(state) {
@@ -163,7 +190,7 @@ public class IEC870Connection extends Connection {
                                 return new IEC870Frame(bos.toByteArray());
                             }
                             else if (kar == IEC870Frame.FRAME_SINGLE_CHAR_E5) {
-                                return new IEC870Frame(bos.toByteArray());
+                           		return new IEC870Frame(bos.toByteArray());
                             }
                             else {
                                 bos.reset();
@@ -222,7 +249,18 @@ public class IEC870Connection extends Connection {
                 if (((long) (System.currentTimeMillis() - lMSTimeoutInterFrame)) > 0) {
                     throw new IEC870ConnectionException("IEC870Connection, waitForFrame, interframe timeout error",TIMEOUT_ERROR);
                 }
+                if ((lMSTimeoutDiscovery>0) && (((long) (System.currentTimeMillis() - lMSTimeoutDiscovery)) > 0)) {
+                	if (received)
+                		throw new IEC870ConnectionException("IEC870Connection, waitForFrame, discoverytimeout but received data...",FRAMING_ERROR);
+                	else {
+                		//System.out.println("KV_DEBUG> 2 "+System.currentTimeMillis());
+                		throw new IEC870ConnectionException("IEC870Connection, waitForFrame, discoverytimeout timeout error",TIMEOUT_ERROR);
+                	}
+                }
             } // while(true)
+        }
+        catch(IEC870ConnectionException e) {
+        	throw e;
         }
         catch(IOException e) {
             throw new IEC870ConnectionException("IEC870Connection, waitForFrame, "+e.getMessage());

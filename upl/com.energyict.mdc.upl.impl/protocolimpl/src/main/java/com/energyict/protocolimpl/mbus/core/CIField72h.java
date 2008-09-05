@@ -48,15 +48,19 @@ public class CIField72h extends AbstractCIField {
         return 0x72;
     }
     
+    public String getDeviceSerialNumberSecundaryAddress() {
+    	return identificationNumber+"_"+Integer.toHexString(manufacturerIdentification)+"_"+Integer.toHexString(version)+"_"+Integer.toHexString(deviceType.getId());
+    }
+    
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("CIField72h:\n");
         strBuff.append("   meter3LetterId="+meter3LetterId+"\n");
         strBuff.append("   accessNumber="+getAccessNumber()+"\n");
-        strBuff.append("   deviceType="+getDeviceType()+"\n");
+        strBuff.append("   deviceType="+getDeviceType()+" (0x"+Integer.toHexString(getDeviceType().getId())+")\n");
         strBuff.append("   identificationNumber="+getIdentificationNumber()+"\n");
-        strBuff.append("   manufacturerIdentification="+getManufacturerIdentification()+"\n");
+        strBuff.append("   manufacturerIdentification="+getManufacturerIdentification()+" (0x"+Integer.toHexString(getManufacturerIdentification())+")\n");
         strBuff.append("   signatureField="+getSignatureField()+"\n");
         strBuff.append("   statusByte="+getStatusByte()+"\n");
         strBuff.append("   version="+getVersion()+"\n");
@@ -92,12 +96,7 @@ public class CIField72h extends AbstractCIField {
         setSignatureField(ProtocolUtils.getIntLE(data,offset,2));
         offset+=2;
         
-        // extract meter3LetterId
-        char[] kars = new char[3];
-        for (int i=0;i<3;i++) {
-            kars[i] = (char)(((getManufacturerIdentification()>>(5*(2-i)))&0x1f) | 0x40);
-        }
-        setMeter3LetterId(new String(kars));
+        setMeter3LetterId(getManufacturer3Letter(getManufacturerIdentification()));
         
         // build the data records
         setDataRecords(new ArrayList());
@@ -185,6 +184,19 @@ public class CIField72h extends AbstractCIField {
         this.dataRecords = dataRecords;
     }
  
+    static public String getManufacturer3Letter(int manufacturerCode) {
+        char[] kars = new char[3];
+        for (int i=0;i<3;i++) {
+            kars[i] = (char)(((manufacturerCode>>(5*(2-i)))&0x1f) | 0x40);
+        }
+    	return new String(kars);
+    }
+    
+    static public int getManufacturerCode(String id) {
+        int val = ((int)id.charAt(0)-64)*32*32+((int)id.charAt(1)-64)*32+((int)id.charAt(2)-64);
+        return val;
+    }
+    
     static public void main(String[] args) {
         try {
              //                            0           1          2          3           4          5        6          7          8           9          10         11          12        13         14          15         16          17       18          19          20
@@ -194,6 +206,10 @@ public class CIField72h extends AbstractCIField {
             CIField72h o = new CIField72h(TimeZone.getTimeZone("ECT"));
             o.parse(data);
             System.out.println(o);
+            
+            
+            System.out.println(CIField72h.getManufacturerCode("___"));
+            System.out.println(CIField72h.getManufacturer3Letter(32767));
         }
         catch(IOException e) {
             e.printStackTrace();

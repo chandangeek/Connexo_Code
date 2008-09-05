@@ -514,12 +514,26 @@ public class ParseUtils {
     	return data;
     }
     
+    
     public static byte[] applyMask(byte[] temp, long mask) {
         for (int i=0;i<temp.length;i++) {
        	 	temp[i] |= (mask >> (8*i));
         }
         return temp;
     }
+    
+    public static byte[] createBCDByteArrayLEWithMask(String val,int nrOfBCDDigits) {
+    	return createBCDByteArrayLEWithMask(Long.parseLong(val,16),nrOfBCDDigits);
+    }
+    public static byte[] createBCDByteArrayLEWithMask(long val,int nrOfBCDDigits) {
+    	int arrayLength = nrOfBCDDigits/2+nrOfBCDDigits%2;
+    	byte[] data = new byte[arrayLength];
+    	for (int i=0;i<arrayLength;i++) {
+    		data[i] = (byte)(val >> (8*i));
+    	}
+    	return data;
+    }
+    
     
     static public void main(String[] argv) {
         try {
@@ -539,11 +553,11 @@ public class ParseUtils {
 //            System.out.println(ParseUtils.getBigInteger(byteBuffer, 2, 3));
 //            System.out.println(ParseUtils.getBigIntegerLE(byteBuffer, 2, 3));
             
-            //System.out.println(ProtocolUtils.outputHexString(applyMask(createBCDByteArrayLE(12345678,8),0xfffffff)));
+            System.out.println(ProtocolUtils.outputHexString(createBCDByteArrayLEWithMask("FFFFFFFF",8)));
      
-        	Calendar cal = Calendar.getInstance();
-        	cal.add(Calendar.DATE, -1);
-        	System.out.println(ParseUtils.getNrOfDays(cal.getTime(), new Date(), TimeZone.getTimeZone("ECT")));
+//        	Calendar cal = Calendar.getInstance();
+//        	cal.add(Calendar.DATE, -1);
+//        	System.out.println(ParseUtils.getNrOfDays(cal.getTime(), new Date(), TimeZone.getTimeZone("ECT")));
         	
 //            Calendar systemTime = ProtocolUtils.getCalendar(TimeZone.getTimeZone("CST"));
 //            Calendar timeUnderTest = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("CST"));

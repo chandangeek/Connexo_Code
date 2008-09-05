@@ -19,11 +19,6 @@ import java.io.*;
 
 
 public class MBusException extends IOException {
-
-  static public final short GENERAL_ERROR=0;  
-  static public final short PARSE_ERROR=1;  
-  static public final short PARSE_LENGTH_ERROR=2;  
-  static public final short WRITE_ERROR=3;  
     
   private short sReason;
 
@@ -44,10 +39,10 @@ public class MBusException extends IOException {
       
   } // public MBusException()
 
-  public MBusException(String str, short sReason)
-  {
-      super(str);
-      this.sReason = sReason;
-
-  } // public MBusException(String str)    
+//  public MBusException(String str, short sReason)
+//  {
+//      super(str);
+//      this.sReason = sReason;
+//
+//  } // public MBusException(String str)    
 }

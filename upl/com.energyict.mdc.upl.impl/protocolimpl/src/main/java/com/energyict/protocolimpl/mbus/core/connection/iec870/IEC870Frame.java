@@ -100,30 +100,15 @@ public class IEC870Frame {
     byte[] data=null;
     //int checksum;
     
-    /** Creates a new instance of IEC870Frame */
-    public IEC870Frame(int function,int address,ApplicationData asdu) throws IEC870ConnectionException {
-        this(FRAME_VARIABLE_LENGTH,function,address,asdu.getData().length+3,asdu);
-    }
-    /** Creates a new instance of IEC870Frame */
-    public IEC870Frame(int function,int address) throws IEC870ConnectionException {
-        this(FRAME_FIXED_LENGTH,function,address,2,null);
-    }
-    /** Creates a new instance of IEC870Frame */
-    public IEC870Frame(int type,int function,int address,int length, ApplicationData asdu) throws IEC870ConnectionException {
-        this.type=type;
-        this.control=function|PRM_PRIMARY;
-        if (CLIENT_CONTROL_FCV[function] == 1)
-            this.control |= FCV_PRIMARY;
-        this.address=address;
-        if (asdu != null) 
-            this.length=asdu.getData().length+3; // + control, address and CI field
-        else
-            this.length=length;
-        this.asdu=asdu;
-    }
-    
+    int nrOfDevices;
+
     /** Creates a new instance of IEC870Frame */
     public IEC870Frame(byte[] data) throws IEC870ConnectionException,IOException {
+    	this(data,1);
+    } // public IEC870Frame(byte[] data)
+    
+    public IEC870Frame(byte[] data,int nrOfDevices) throws IEC870ConnectionException,IOException {
+    	this.nrOfDevices=nrOfDevices;
         this.data=data;
         asdu=null;
         control=-1;
@@ -145,7 +130,31 @@ public class IEC870Frame {
                 
             default: throw new IEC870ConnectionException("Invalid frame format (type) (start character) "+Integer.toHexString(type));
         } // switch(type)
-    } // public IEC870Frame(byte[] data)
+    }
+    
+    /** Creates a new instance of IEC870Frame */
+    public IEC870Frame(int function,int address,ApplicationData asdu) throws IEC870ConnectionException {
+        this(FRAME_VARIABLE_LENGTH,function,address,asdu.getData().length+3,asdu);
+    }
+    /** Creates a new instance of IEC870Frame */
+    public IEC870Frame(int function,int address) throws IEC870ConnectionException {
+        this(FRAME_FIXED_LENGTH,function,address,2,null);
+    }
+    /** Creates a new instance of IEC870Frame */
+    public IEC870Frame(int type,int function,int address,int length, ApplicationData asdu) throws IEC870ConnectionException {
+    	this.nrOfDevices=1;
+        this.type=type;
+        this.control=function|PRM_PRIMARY;
+        if (CLIENT_CONTROL_FCV[function] == 1)
+            this.control |= FCV_PRIMARY;
+        this.address=address;
+        if (asdu != null) 
+            this.length=asdu.getData().length+3; // + control, address and CI field
+        else
+            this.length=length;
+        this.asdu=asdu;
+    }
+    
     
     public boolean toggleFCB(boolean fcb) {
         if ((fcb) || (!isFCV())) {
@@ -344,6 +353,9 @@ public class IEC870Frame {
         }
         
     }
+	public int getNrOfDevices() {
+		return nrOfDevices;
+	}
     
     
 } // public class IEC870Frame
