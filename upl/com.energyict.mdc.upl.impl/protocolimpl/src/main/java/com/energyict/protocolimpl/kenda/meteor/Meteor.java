@@ -26,6 +26,7 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.kenda.medo.MedoStatus;
 
 public class Meteor implements MeterProtocol{
 	/**
@@ -224,7 +225,13 @@ public class Meteor implements MeterProtocol{
 	}
 	
 	public MeteorStatus getMeteorStatus() throws IOException{
-		MeteorStatus statusreg=(MeteorStatus) mcf.transmitData(status,  null);
+		MeteorStatus statusreg;
+		try {
+			statusreg=(MeteorStatus) mcf.transmitData(status,  null);
+		} catch (IOException e) {
+			throw new IOException("Interframe timeout probably caused because no node addresses with "+this.outstationID+" are found");
+		}
+
 		return statusreg;
 	}
 	
@@ -249,12 +256,11 @@ public class Meteor implements MeterProtocol{
 		// are needed in the communicationsfactory
 		
 		ProtocolUtils.delayProtocol(delayAfterConnect);
-		
+		statusreg = getMeteorStatus();		
 		fullperstable = getFullPersonalityTable();
 		fullperstable.printData();
 		// set multipliers
 		mcf.setMultipliers(fullperstable.getDialexp(), fullperstable.getDialmlt());
-		statusreg = getMeteorStatus();
 		mcf.setNumChan((int) statusreg.getMtrs());
 		if(mcf.getNumChan()<channelMap.getNrOfUsedProtocolChannels()){
 			throw new InvalidPropertyException("the meter has less channels available than defined in the properties");
