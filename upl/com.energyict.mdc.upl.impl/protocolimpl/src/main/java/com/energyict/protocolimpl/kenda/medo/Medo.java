@@ -241,7 +241,7 @@ public class Medo implements MeterProtocol{
 		try {
 			statusreg=(MedoStatus) mcf.transmitData(status,  null);
 		} catch (IOException e) {
-			throw new IOException("Interframe timeout probably caused because no node addresses with "+this.outstationID+" are found");
+			throw new IOException(e.getMessage()+ ". Interframe timeout probably caused because no node address "+this.outstationID+" is found");
 		}
 		return statusreg;
 	}

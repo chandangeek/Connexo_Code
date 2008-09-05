@@ -194,7 +194,6 @@ public class Meteor implements MeterProtocol{
 	}
 	public MeteorPowerFailDetails getPowerFailDetails() throws IOException{
 		MeteorPowerFailDetails mpfd=(MeteorPowerFailDetails) mcf.transmitData(powerFailDetails, null);
-		mpfd.printData();
 		return mpfd;
 	}
 	public void setTime() throws IOException {
@@ -228,22 +227,22 @@ public class Meteor implements MeterProtocol{
 		MeteorStatus statusreg;
 		try {
 			statusreg=(MeteorStatus) mcf.transmitData(status,  null);
-		} catch (IOException e) {
-			throw new IOException("Interframe timeout probably caused because no node addresses with "+this.outstationID+" are found");
+		} catch (IOException e) {			
+			throw new IOException(e.getMessage()+". Interframe timeout probably caused because no node address "+this.outstationID+" is found");
 		}
-
+		System.out.println("status");
 		return statusreg;
 	}
 	
-	public void init(InputStream inputStream, OutputStream outputStream, TimeZone arg2,
+	public void init(InputStream inputStream, OutputStream outputStream, TimeZone arg2,			
 			Logger arg3) throws IOException {
+		System.out.println("init");
 		// set streams
 		this.inputStream = inputStream;
         this.outputStream = outputStream;        
         // build command factory
 		this.mcf=new MeteorCommunicationsFactory(sourceCode,sourceCodeExt,destinationCode,destinationCodeExt,inputStream,outputStream);
 		// set the timeout and retry (set in the properties method)
-		getPowerFailDetails().printData();
 		this.timezone=arg2;
 		mcf.setTimeZone(timezone);
 		mcf.setRetries(retry);
