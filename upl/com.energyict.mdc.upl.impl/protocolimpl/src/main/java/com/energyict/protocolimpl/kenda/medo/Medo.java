@@ -327,7 +327,7 @@ public class Medo implements MeterProtocol{
 	}
 	public void setProperties(Properties properties) throws InvalidPropertyException,
 			MissingPropertyException {
-		this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress", "000"));
+		this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress"));
 		this.destinationCode=Parsers.parseCArraytoBArray(Parsers.parseShortToChar((short) outstationID));		
 		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1"));
 		this.timeout=Integer.parseInt(properties.getProperty("TimeOut","10000"));
