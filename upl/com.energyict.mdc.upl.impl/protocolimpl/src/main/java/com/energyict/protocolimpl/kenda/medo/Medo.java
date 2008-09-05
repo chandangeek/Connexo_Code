@@ -14,7 +14,6 @@ import java.util.logging.Logger;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterEvent;
@@ -26,7 +25,7 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.kenda.medo.ObisCodeMapper;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
 public class Medo implements MeterProtocol{
 	/**
@@ -238,7 +237,12 @@ public class Medo implements MeterProtocol{
 	}
 	
 	public MedoStatus getmedoStatus() throws IOException{
-		MedoStatus statusreg=(MedoStatus) mcf.transmitData(status,  null);
+		MedoStatus statusreg;
+		try {
+			statusreg=(MedoStatus) mcf.transmitData(status,  null);
+		} catch (IOException e) {
+			throw new IOException("Interframe timeout probably caused because no node addresses with "+this.outstationID+" are found");
+		}
 		return statusreg;
 	}
 	
