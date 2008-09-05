@@ -698,7 +698,7 @@ public class MedoCommunicationsFactory{
 					p=new MedoReadDialReadings(rawdata);
 				}else if(p instanceof MedoReadSavedDialReadings){
 				}else if(p instanceof MedoPowerFailDetails){
-					p=new MedoPowerFailDetails(rawdata);
+					p=new MedoPowerFailDetails(rawdata, timezone);
 //				}else if(p instanceof medoCommissioningCounters){
 				}
 			return p;

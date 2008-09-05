@@ -25,7 +25,8 @@ public class MedoPowerFailDetails extends Parsers {
 		processMedoPowerFailDetails(c);
 	}
 	
-	MedoPowerFailDetails(byte[] b){
+	MedoPowerFailDetails(byte[] b, TimeZone tz){
+		this.tz=tz;
 		processMedoPowerFailDetails(parseBArraytoCArray(b));
 	}
 	
