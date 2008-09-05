@@ -374,7 +374,7 @@ public class MeteorCommunicationsFactory{
 			sendData(bs);
 			// receive ack
 			br=receiveData((byte) (bs[0]& 0x1F));	// timeout?	
-			System.out.println(br.length+" "+br[0].length);
+			//System.out.println(br.length+" "+br[0].length);
 			if((br[br.length-1][0]&0x20)==0x20){
 				ack=true;			
 			}
@@ -383,6 +383,7 @@ public class MeteorCommunicationsFactory{
 				byte[] bt= br[ii];
 				tel+=bt.length-11;
 			}
+			System.out.println(tel);
 			if(tel>0){
 				byteData=new byte[tel];
 				for(int ii=0; ii<br.length; ii++){
@@ -447,11 +448,11 @@ public class MeteorCommunicationsFactory{
 		cal1 = Calendar.getInstance(timezone); // for security reasons , should be not needed
 		cal1.setTime(start);
         ParseUtils.roundDown2nearestInterval(cal1,intervaltime);
+        // if(cal1...
         
         // get meter data
 		short[][] s=requestMeterDemands((byte) 0x07,cal1.getTime(),stop,intervaltime);
-		//System.out.println(s.length+" "+s[0].length);
-		
+		System.out.println(s.length+" s2 "+s[0].length);
 		// build channel map in profile data
 		for(int i=0; i<s[0].length;i++ ){
 			if(channelMap.isProtocolChannelEnabled(i) && meterChannelMap.isProtocolChannelEnabled(i)){	
@@ -460,7 +461,7 @@ public class MeteorCommunicationsFactory{
 			}
 		}
 		// first block of data can be skipped
-		for(int i=1; i<s.length; i++){
+		for(int i=0; i<s.length; i++){
 			// read first meter for flagging
 			powdownflag=false;
 			flag=false;
@@ -473,10 +474,10 @@ public class MeteorCommunicationsFactory{
 				}
 			}
 			for(int ii=0; ii<s[i].length; ii++){
-				if(s[i][0]<0){ // end or begin of power down (here real data is still available
+				if(s[i][ii]<0){ // end or begin of power down (here real data is still available
 					flag=true;
 					if(!flag){
-						s[i][0]=(short) (0x7FFF & s[i][0]); // mask negative bit
+						s[i][ii]=(short) (0x7FFF & s[i][0]); // mask negative bit
 						// check meter events
 						if(powdownflag){
 							id.addEiStatus(IntervalStateBits.POWERDOWN); // when power down from event register, change in status can only be power down

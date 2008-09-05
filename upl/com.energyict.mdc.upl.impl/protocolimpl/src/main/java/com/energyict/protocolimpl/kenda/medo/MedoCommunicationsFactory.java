@@ -454,7 +454,7 @@ public class MedoCommunicationsFactory{
 			}
 		}
 		// first block of data can be skipped
-		for(int i=1; i<s.length; i++){
+		for(int i=0; i<s.length; i++){
 			// read first meter for flagging
 			powdownflag=false;
 			flag=false;
@@ -467,10 +467,10 @@ public class MedoCommunicationsFactory{
 				}
 			}
 			for(int ii=0; ii<s[i].length; ii++){
-				if(s[i][0]<0){ // end or begin of power down (here real data is still available
+				if(s[i][ii]<0){ // end or begin of power down (here real data is still available
 					flag=true;
 					if(!flag){
-						s[i][0]=(short) (0x7FFF & s[i][0]); // mask negative bit
+						s[i][ii]=(short) (0x7FFF & s[i][ii]); // mask negative bit
 						// check meter events
 						if(powdownflag){
 							id.addEiStatus(IntervalStateBits.POWERDOWN); // when power down from event register, change in status can only be power down
