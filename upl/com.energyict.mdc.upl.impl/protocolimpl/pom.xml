@@ -30,7 +30,7 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdwutils</artifactId>
+            <artifactId>mdwutil</artifactId>
             <version>8.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
