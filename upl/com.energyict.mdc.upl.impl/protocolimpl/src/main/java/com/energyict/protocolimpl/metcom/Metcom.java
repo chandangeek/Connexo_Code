@@ -31,6 +31,7 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
     
     
     private static final int DEBUG = 0;
+    private boolean TESTING = false;
     
     abstract public ProfileData getProfileData(boolean includeEvents) throws IOException;
     abstract public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException;
@@ -68,7 +69,7 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
     //SCTMDumpData dumpData=null;
     List dumpDatas=null; // of type SCTMDumpData
     private int autoBillingPointNrOfDigits;
-	private int timeSetMethod;
+	protected int timeSetMethod;
     
     /** Creates a new instance of Metcom3 */
     public Metcom() {
@@ -177,48 +178,63 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
     }
     
     public void setTime() throws IOException {
-       Calendar calendar=null;
-       calendar = ProtocolUtils.getCalendar(getTimeZone());
-       calendar.add(Calendar.MINUTE,1);
-       calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);           
+    	Calendar calendar=null;
+    	calendar = getTesting()?JUnitTestCode.getCalendar():ProtocolUtils.getCalendar(getTimeZone());
+    	calendar.add(Calendar.MINUTE,1);
+    	calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);           
        doSetTime(calendar);
     }
     
     private void doSetTime(Calendar calendar) throws IOException {
         try {
              SCTMTimeData timeData = new SCTMTimeData(calendar);
-             Date systemDate = ProtocolUtils.getCalendar(getTimeZone()).getTime();
+             Date systemDate = getTesting()?JUnitTestCode.getCalendar().getTime():ProtocolUtils.getCalendar(getTimeZone()).getTime();
              roundTripTime = System.currentTimeMillis();
-             Date meterDate = getTime();
+             Date meterDate = getTesting()?JUnitTestCode.getMeterTime():getTime();
              roundTripTime = System.currentTimeMillis() - roundTripTime;
-//             meterDate = new Date(meterDate.getTime()-roundTripTime);
              
-             
-             if (( getTimeSetMethod() == 0 ) || ((Math.abs(systemDate.getTime()-meterDate.getTime()) > 30000) ) ){
-            	 siemensSCTM.sendRequest(siemensSCTM.SETTIME,timeData.getSETTIMEData());
-				 waitForMinute(calendar);
-				 siemensSCTM.sendRequest(siemensSCTM.SSYNC,null);
+             if (( getTimeSetMethod() == 0 ) || ((getTimeSetMethod() == 1) && (Math.abs(systemDate.getTime()-meterDate.getTime()) > 30000) ) ){
+            	 getLogger().info("SSYNC timeset method applied.");
+            	 if(( getTimeSetMethod() == 1 ) && (Math.abs(systemDate.getTime()-meterDate.getTime()) > 30000) ){
+            		 getLogger().info("MSYNC method is not applied because the timedifference is larger than 30s (" + Math.abs(systemDate.getTime()-meterDate.getTime())/1000 + ").");
+            	 }
+            	 if(getTesting()){
+            		 JUnitTestCode.sendRequest(0);
+            		 JUnitTestCode.waitRoutine();
+            	 } else {
+            		 siemensSCTM.sendRequest(siemensSCTM.SETTIME,timeData.getSETTIMEData());
+            		 waitForMinute(calendar);
+            		 siemensSCTM.sendRequest(siemensSCTM.SSYNC,null);
+            	 }
              }
              
-             else{	// the MSYNC method -> not shown in statusBits
+             else if((getTimeSetMethod() == 1) || (getTimeSetMethod() == 2)){	// the MSYNC method -> not shown in statusBits
                  
+            	 getLogger().info("MSYNC timeset method applied.");
+            	 
                  if (DEBUG == 1) System.out.println("RoundTripTime: " + roundTripTime);
                  
                  calendar.setTime(systemDate);
             	 System.out.println("Difference = " + Math.abs(systemDate.getTime() - meterDate.getTime()) );
-                 if ( meterDate.before(calendar.getTime()) ){
-                	 if (DEBUG == 1) System.out.println("WaitToAdd ...");
-                	 waitForAddition(calendar, meterDate);
+
+                 if(getTesting()){
+                	 JUnitTestCode.sendRequest(1);
+                	 JUnitTestCode.waitRoutine();
                  }
                  else{
-                	 if (DEBUG == 1) System.out.println("WaitToSub ...");
-                	 waitForSubstraction(calendar, meterDate);
+                     if ( meterDate.before(calendar.getTime()) ){
+                    	 if (DEBUG == 1) System.out.println("WaitToAdd ...");
+                    	 waitForAddition(calendar, meterDate);
+                     }
+                     else{
+                    	 if (DEBUG == 1) System.out.println("WaitToSub ...");
+                    	 waitForSubstraction(calendar, meterDate);
+                     }
+                	 siemensSCTM.sendRequest(siemensSCTM.MSYNC, null);
                  }
-                 
-                 siemensSCTM.sendRequest(siemensSCTM.MSYNC, null);
+                	 
                  if(DEBUG == 1)System.out.println("MeterTime: " + getTime().toString());
                  if(DEBUG == 1)System.out.println("SystemTime: " + Calendar.getInstance().getTime().toString());
-               
              }
         }
         catch(SiemensSCTMException e) {
@@ -230,7 +246,7 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
     } // private void doSetTime(Calendar calendar)
     
     private void waitForSubstraction(Calendar calendar, Date meterDate) throws NestedIOException {
-    	Calendar meterCal = Calendar.getInstance(getTimeZone());
+    	Calendar meterCal = getTesting()?JUnitTestCode.getCalendar():Calendar.getInstance(getTimeZone());
     	meterCal.setTime(meterDate);
     	int offSet = 28; //29-1 ; the meter doesn't show his milliseconds, can cause addition when we want substraction
     	int meterSeconds = meterCal.get(Calendar.SECOND);
@@ -240,7 +256,7 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
     		calendar.setTimeInMillis(System.currentTimeMillis());
 		// this should set the meter to the system time
 		delay = ( 59000 - calendar.get(Calendar.SECOND)*1000 + calendar.get(Calendar.MILLISECOND) ) - roundTripTime;
-	}
+    	}
     	
     	else if (meterSeconds >= 29){
     		delay = ((59 - meterSeconds + offSet) * 1000) - roundTripTime;
@@ -294,7 +310,10 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
                 else {
                    Thread.sleep(10000);
                    long elapsedTime = System.currentTimeMillis();
-                   siemensSCTM.sendInit();
+                   if(getTesting())
+                	   JUnitTestCode.sendInit();
+                   else
+                	   siemensSCTM.sendInit();
                    elapsedTime = System.currentTimeMillis() - elapsedTime;
                    delay -= (10000+elapsedTime);
                    if (delay <= 0) break;
@@ -512,7 +531,7 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
      * @return Value of property logger.
      */
     public java.util.logging.Logger getLogger() {
-        return logger;
+        return getTesting()?JUnitTestCode.getLogger():logger;
     }    
 
     /**
@@ -540,6 +559,14 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
     }
 	public int getTimeSetMethod() {
 		return timeSetMethod;
+	}
+	
+	protected void setTesting(boolean b){
+		this.TESTING = b;
+	}
+	
+	public boolean getTesting(){
+		return TESTING;
 	}
  
 }
