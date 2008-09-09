@@ -381,7 +381,7 @@ public class MeteorCommunicationsFactory{
 			// deal with the data, cut header and checksum
 			for(int ii=0; ii<br.length; ii++){
 				byte[] bt= br[ii];
-				tel+=bt.length-11;
+				tel+=(bt.length-11);
 			}
 			System.out.println(tel);
 			if(tel>0){
@@ -475,9 +475,8 @@ public class MeteorCommunicationsFactory{
 			}
 			for(int ii=0; ii<s[i].length; ii++){
 				if(s[i][ii]<0){ // end or begin of power down (here real data is still available
-					flag=true;
+					s[i][ii]=(short) (0x7FFF & s[i][ii]); // mask negative bit
 					if(!flag){
-						s[i][ii]=(short) (0x7FFF & s[i][0]); // mask negative bit
 						// check meter events
 						if(powdownflag){
 							id.addEiStatus(IntervalStateBits.POWERDOWN); // when power down from event register, change in status can only be power down
@@ -489,8 +488,9 @@ public class MeteorCommunicationsFactory{
 							meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERUP);
 							meterEventList.add(meterEvent);
 							prevIntervalPowdownflag=false;
-						}
+					    }
 					}
+					flag=true;
 				}else if(s[i][ii]==0x3FFF){ // power is down (on all lines)
 					s[i][ii]=0;
 					if(!flag){
