@@ -237,8 +237,8 @@ public class Opus extends AbstractProtocol{
 		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1"));
 		this.timeOut=Integer.parseInt(properties.getProperty("TimeOut","5000"));
 		this.attempts=Integer.parseInt(properties.getProperty("Retry", "3"));
-		this.oldPassword=properties.getProperty("oldPassword");
-		this.newPassword=properties.getProperty("newPassword");
+		this.oldPassword=properties.getProperty("Password");
+		this.newPassword=this.oldPassword;
 
 	}
 
@@ -249,13 +249,13 @@ public class Opus extends AbstractProtocol{
 	public List getOptionalKeys() {
 		ArrayList list = new ArrayList();
 		list.add("ChannelMap");
+		list.add("TimeOut");
 		return list;
 	}
 
 	public List getRequiredKeys() {
 		ArrayList list = new ArrayList();
-		list.add("oldPassword");
-		list.add("newPassword");
+		list.add("Password");
 		return list;
 	}
 
