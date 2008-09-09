@@ -328,12 +328,16 @@ public class Medo implements MeterProtocol{
 	public void release() throws IOException {
 	}
 	public void setCache(Object arg0) {
+
 	}
-	public void setProperties(Properties properties) throws InvalidPropertyException,
-			MissingPropertyException {
-		this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress"));
+	public void setProperties(Properties properties) throws InvalidPropertyException  {
+		try {
+			this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress"));
+		} catch (NumberFormatException e) {
+			throw new NumberFormatException("The node address field has not been filled in");
+		}
 		this.destinationCode=Parsers.parseCArraytoBArray(Parsers.parseShortToChar((short) outstationID));		
-		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1"));
+     	this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1"));
 		this.timeout=Integer.parseInt(properties.getProperty("TimeOut","10000"));
 		this.retry=Integer.parseInt(properties.getProperty("Retry", "3"));
 		this.profileDataPointer=Integer.parseInt(properties.getProperty("ProfileDataPointerYear", "2008"));
