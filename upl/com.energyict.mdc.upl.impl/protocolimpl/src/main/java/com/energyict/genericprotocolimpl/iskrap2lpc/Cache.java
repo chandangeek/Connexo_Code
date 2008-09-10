@@ -27,17 +27,20 @@ public class Cache implements Serializable {
 	
 	public ObjectDef[] loadProfileConfig1;
 	public ObjectDef[] loadProfileConfig2;
+	public ObjectDef[] loadProfileConfig3;
+	public ObjectDef[] loadProfileConfig4;
 	
 	public CosemDateTime billingReadTime;
 	public CosemDateTime captureObjReadTime;
 	
 	public Cache() {
-		this(-1, -1, -1, false, null, null, null, null);
+		this(-1, -1, -1, false, null, null, null, null, null, null);
 	}
 	
 	public Cache(int confProgChange, int loadProfilePeriod1,
 			int loadProfilePeriod2, boolean changed,
 			ObjectDef[] loadProfileConfig1, ObjectDef[] loadProfileConfig2,
+			ObjectDef[] loadProfileConfig3, ObjectDef[] loadProfileConfig4,
 			CosemDateTime billingReadTime, CosemDateTime captureObjReadTime) {
 		super();
 		this.confProgChange = confProgChange;
@@ -46,6 +49,8 @@ public class Cache implements Serializable {
 		this.changed = changed;
 		this.loadProfileConfig1 = loadProfileConfig1;
 		this.loadProfileConfig2 = loadProfileConfig2;
+		this.loadProfileConfig3 = loadProfileConfig3;
+		this.loadProfileConfig4 = loadProfileConfig4;
 		this.billingReadTime = billingReadTime;
 		this.captureObjReadTime = captureObjReadTime;
 	}
@@ -92,6 +97,22 @@ public class Cache implements Serializable {
 		this.loadProfileConfig2 = loadProfileConfig2;
 	}
 
+	public ObjectDef[] getLoadProfileConfig3() {
+		return loadProfileConfig3;
+	}
+
+	public void setLoadProfileConfig3(ObjectDef[] loadProfileConfig3) {
+		this.loadProfileConfig3 = loadProfileConfig3;
+	}
+
+	public ObjectDef[] getLoadProfileConfig4() {
+		return loadProfileConfig4;
+	}
+
+	public void setLoadProfileConfig4(ObjectDef[] loadProfileConfig4) {
+		this.loadProfileConfig4 = loadProfileConfig4;
+	}
+	
 	public CosemDateTime getBillingReadTime() {
 		return billingReadTime;
 	}

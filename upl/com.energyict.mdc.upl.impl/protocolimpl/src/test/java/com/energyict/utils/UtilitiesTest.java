@@ -8,6 +8,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 
 import org.junit.After;
@@ -17,6 +18,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.TimeDuration;
+import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
@@ -144,5 +147,47 @@ public class UtilitiesTest {
 			e.printStackTrace();
 		}
 	}
+	
+	@Test
+	public void addChannelTest(){
+		CommunicationProtocol commProtocol;
+		RtuType rtuType;
+		Rtu rtu = null;
+		try {
+			commProtocol = Utilities.createCommunicationProtocol(javaClassName);
+			rtuType = Utilities.createRtuType(commProtocol, testRtu, 6);
+			
+			Utilities.createRtu(rtuType);
+			List result = Utilities.mw().getRtuFactory().findBySerialNumber("99999999");
+			
+			if(result.size() == 1){
+				rtu = (Rtu)result.get(0);
+			}
+			else
+				fail();
+			
+			rtu = Utilities.addChannel(rtu, TimeDuration.SECONDS, 7);
+			rtu = Utilities.addChannel(rtu, TimeDuration.DAYS, 8);
+			rtu = Utilities.addChannel(rtu, TimeDuration.MONTHS, 9);
+			rtu = Utilities.addChannel(rtu, TimeDuration.MINUTES, 10);
+			
+			assertEquals(10, rtu.getShadow().getChannelShadows().size());
+			if(!Utilities.getChannelWithProfileIndex(rtu, 7).getInterval().equals(new TimeDuration(1, TimeDuration.SECONDS)))
+				fail();
+			if(!Utilities.getChannelWithProfileIndex(rtu, 8).getInterval().equals(new TimeDuration(1, TimeDuration.DAYS)))
+				fail();
+			if(!Utilities.getChannelWithProfileIndex(rtu, 9).getInterval().equals(new TimeDuration(1, TimeDuration.MONTHS)))
+				fail();
+			if(!Utilities.getChannelWithProfileIndex(rtu, 10).getInterval().equals(new TimeDuration(1, TimeDuration.MINUTES)))
+				fail();
 
+		} catch (BusinessException e) {
+			fail();
+			e.printStackTrace();
+		} catch (SQLException e) {
+			fail();
+			e.printStackTrace();
+		}
+	}
+	
 }

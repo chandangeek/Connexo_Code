@@ -59,6 +59,9 @@ class Constant {
     /** RtuType */
     final static String RTU_TYPE = "RtuType";
     
+    /** MeterCreateFolder ID */
+    final static String FOLDER_ID = "FolderID";
+    
     /** Error message for a meter error */
     final static String METER_ERROR = 
         "Meter failed, serialnumber meter: ";
@@ -93,18 +96,82 @@ class Constant {
     
     private SimpleDateFormat fixedDateFormat;
     private SimpleDateFormat dateFormat;
+
+	final static int PROFILE_STATUS_DEVICE_DISTURBANCE = 0x1;
+
+	final static int PROFILE_STATUS_RESET_CUMULATION = 0x10;
+
+	final static int PROFILE_STATUS_DEVICE_CLOCK_CHANGED = 0x20;
+
+	final static int PROFILE_STATUS_POWER_RETURNED = 0x40;
+
+	final static int PROFILE_STATUS_POWER_FAILURE = 0x80;
+
+	static final int EVENT_FATAL_ERROR=0x0001;
+
+	static final int EVENT_DEVICE_CLOCK_RESERVE=0x0002;
+
+	static final int EVENT_VALUE_CORRUPT=0x0004;
+
+	static final int EVENT_DAYLIGHT_CHANGE=0x0008;
+
+	static final int EVENT_BILLING_RESET=0x0010;
+
+	static final int EVENT_DEVICE_CLOCK_CHANGED=0x0020;
+
+	static final int EVENT_POWER_RETURNED=0x0040;
+
+	static final int EVENT_POWER_FAILURE=0x0080;
+
+	static final int EVENT_VARIABLE_SET=0x0100;
+
+	static final int EVENT_UNRELIABLE_OPERATING_CONDITIONS=0x0200;
+
+	static final int EVENT_END_OF_UNRELIABLE_OPERATING_CONDITIONS=0x0400;
+
+	static final int EVENT_UNRELIABLE_EXTERNAL_CONTROL=0x0800;
+
+	static final int EVENT_END_OF_UNRELIABLE_EXTERNAL_CONTROL=0x1000;
+
+	static final int EVENT_EVENTLOG_CLEARED=0x2000;
+
+	static final int EVENT_LOADPROFILE_CLEARED=0x4000;
+
+	static final int EVENT_L1_POWER_FAILURE=0x8001;
+
+	static final int EVENT_L2_POWER_FAILURE=0x8002;
+
+	static final int EVENT_L3_POWER_FAILURE=0x8003;
+
+	static final int EVENT_L1_POWER_RETURNED=0x8004;
+
+	static final int EVENT_L2_POWER_RETURNED=0x8005;
+
+	static final int EVENT_L3_POWER_RETURNED=0x8006;
+
+	static final int EVENT_METER_COVER_OPENED=0x8010;
+
+	static final int EVENT_TERMINAL_COVER_OPENED=0x8011;
     
-    final static String conSerialFile 	= "/offlineFiles/iskrap2lpc/ConcentratorSerial.xml";
+    final static String conSerialFile 	= "/offlineFiles/iskrap2lpc/ConcentratorSerial.bin";
     final static String profileConfig1 	= "/offlineFiles/iskrap2lpc/ObjectDefFile1.xml";
     final static String profileConfig2 	= "/offlineFiles/iskrap2lpc/ObjectDefFile2.xml";
-    final static String[] profileFiles 	= {"/offlineFiles/iskrap2lpc/profile0.xml", "/offlineFiles/iskrap2lpc/profile1.xml"};
+    final static String[] profileFiles1	= {"/offlineFiles/iskrap2lpc/profile0.xml", "/offlineFiles/iskrap2lpc/profile1.xml"};
+    final static String[] profileFiles2	= {"/offlineFiles/iskrap2lpc/lp0.xml", "/offlineFiles/iskrap2lpc/lp1.xml"};
     final static String mbusProfile 	= "/offlineFiles/iskrap2lpc/mbus.xml";
     final static String eventsFile 		= "/offlineFiles/iskrap2lpc/events.xml";
     final static String powerDownFile 	= "/offlineFiles/iskrap2lpc/powerFailures.xml";
     final static String dateTimeFile 	= "/offlineFiles/iskrap2lpc/cosemDateTime.xml";
     final static String conEventFile 	= "/offlineFiles/iskrap2lpc/conEvent.xml";
-    final static String mbusSerialFile 	= "/offlineFiles/iskrap2lpc/mbusSerial.xml";
+    final static String mbusSerialFile 	= "/offlineFiles/iskrap2lpc/mbusSerial.bin";
     final static String testFile 		= "/offlineFiles/iskrap2lpc/test.xml";
+    final static String billingDaily 	= "/offlineFiles/iskrap2lpc/daily.xml";
+    final static String billingMonthly  = "/offlineFiles/iskrap2lpc/monthly.xml";
+    final static String dailyfrom0509 	= "/offlineFiles/iskrap2lpc/dailyfrom0509.xml";
+    final static String dailyto0509 	= "/offlineFiles/iskrap2lpc/dailyto0509.xml";
+    final static String monthlyfrom0509 = "/offlineFiles/iskrap2lpc/monthlyfrom0509.xml";
+    final static String monthlyto0509 = "/offlineFiles/iskrap2lpc/monthlyto0509.xml";
+    
     
     static Constant getInstance( ){
         return instance;

@@ -15,8 +15,10 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
@@ -33,6 +35,7 @@ import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.Messaging;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
 /**
  * @author gna
@@ -46,6 +49,8 @@ public class MbusDevice implements Messaging, MeterProtocol{
 	
 	public Rtu	mbus;
 	private Logger logger;
+	private ProtocolChannelMap channelMap = null;
+	private Unit mbusUnit;
 	
 	
 	private static String ONDEMAND = "ONDEMAND";
@@ -61,13 +66,15 @@ public class MbusDevice implements Messaging, MeterProtocol{
 		this.customerID	= customerID;
 		this.mbus = rtu;
 		this.logger = logger;
+		// TODO hardcoded unit
+		this.mbusUnit = Unit.get(BaseUnit.CUBICMETER);
 	}
 
 	public MbusDevice(Rtu rtu) {
-		this.mbus = rtu;
-		this.customerID = null;
-		this.logger = null;
 		this.mbusAddress = -1;
+		this.customerID = null;
+		this.mbus = rtu;
+		this.logger = null;
 	}
 
 	/**
@@ -142,7 +149,7 @@ public class MbusDevice implements Messaging, MeterProtocol{
 	}
 
 	public String getProtocolVersion() {
-		return "$Revision: 1.1 $";
+		return "$Date$";
 	}
 
 	public String getRegister(String name) throws IOException,
@@ -285,45 +292,22 @@ public class MbusDevice implements Messaging, MeterProtocol{
 		return mbus;
 	}
 
-//	public void sendMeterMessages(IskraMx37x iskraMx37x) throws IOException, BusinessException, SQLException {
-//		Iterator mi = mbus.getPendingMessages().iterator();
-//		
-//		while(mi.hasNext()){
-//            RtuMessage msg = (RtuMessage) mi.next();
-//            String contents = msg.getContents();
-//            contents = contents.substring(contents.indexOf("<")+1, contents.indexOf("/>"));
-//            
-//            boolean ondemand 	= contents.equalsIgnoreCase(ONDEMAND);
-//            
-//            if (ondemand){
-//            	Iterator i = mbus.getRtuType().getRtuRegisterSpecs().iterator();
-//            	while(i.hasNext()){
-//                    RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
-//                    ObisCode oc = spec.getObisCode();
-//                   
-//                    RegisterValue rv = iskraMx37x.readRegister(oc);
-//                    
-//                    RtuRegister register = mbus.getRegister( rv.getObisCode() );
-//                    
-//                    if (oc.getF() == 255 ) {
-//        				if (register != null)
-//        					// register.store( rv );
-//        					register.add(rv.getQuantity().getAmount(), rv.getEventTime(), rv.getFromTime(), rv.getToTime(), rv.getReadTime());
-//
-//        				else {
-//        					String obis = rv.getObisCode().toString();
-//        					String errorMsg = "Register " + obis + " not defined on device";
-//        					getLogger().info(errorMsg);
-//        				}
-//        			}
-//            	}
-//            	msg.confirm();
-//            }
-//		}
-//	}
-
 	public Logger getLogger() {
 		return logger;
 	}
 
+	public ProtocolChannelMap getChannelMap() throws InvalidPropertyException, BusinessException {
+    	if (channelMap == null){
+    		String sChannelMap = getRtu().getProperties().getProperty( Constant.CHANNEL_MAP );
+    		if(sChannelMap != null)
+    			channelMap = new ProtocolChannelMap( sChannelMap );
+    		else
+    			throw new BusinessException("No channelmap configured on the meter, meter will not be handled.");
+    	}
+        return channelMap;
+	}
+
+	public Unit getMbusUnit(){
+		return mbusUnit;
+	}
 }

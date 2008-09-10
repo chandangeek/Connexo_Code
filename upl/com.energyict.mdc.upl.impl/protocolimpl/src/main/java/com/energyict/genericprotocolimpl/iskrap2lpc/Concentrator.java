@@ -10,7 +10,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -29,9 +28,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.rpc.ServiceException;
 
-import org.apache.axis.types.UnsignedByte;
 import org.apache.axis.types.UnsignedInt;
-import org.apache.axis.types.UnsignedShort;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -42,17 +39,9 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.genericprotocolimpl.iskrap2lpc.stub.CosemDateTime;
-import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ObjectDef;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.P2LPCSoapPort_PortType;
-import com.energyict.genericprotocolimpl.iskrap2lpc.stub.PeriodicProfileType;
-import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ProfileType;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.WebServiceLocator;
 import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.amr.RtuRegisterSpec;
-import com.energyict.mdw.amrimpl.RtuRegisterReadingImpl;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.MeteringWarehouse;
@@ -61,11 +50,7 @@ import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.coreimpl.RtuImpl;
-import com.energyict.mdw.shadow.RtuShadow;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -107,7 +92,7 @@ public class Concentrator implements Messaging, GenericProtocol {
         if(TESTLOGGING >= 1)getLogger().log(Level.INFO, "TESTLOGGING - 2/ Got the rtu from database");
         String serial = concentrator.getSerialNumber();
         if(TESTLOGGING >= 1)getLogger().log(Level.INFO, "TESTLOGGING - 3/ Got serialNumber form rtu from database");
-        StringBuffer progressLog = new StringBuffer();
+        StringBuffer progressLog = new StringBuffer(); progressLog.append("");	// just for safety
         PPPDialer dialer = null;
 
         try {
@@ -131,20 +116,21 @@ public class Concentrator implements Messaging, GenericProtocol {
             	
             	RtuType type = getRtuType(concentrator);
             	
-            	/* use the meters in the dataBase */
+            	/** use the meters in the dataBase */
             	if(type == null){ 	
             		meters = concentrator.getDownstreamRtus();
             		meters = collectSerialsFromRtuList(meters);
             	}
-            	/* use the auto discovery */ 
+            	/** use the auto discovery */ 
             	else{
+            		/** Only when you want to read a profile or meter registers */
             		if(communicationProfile.getReadMeterReadings()||communicationProfile.getReadDemandValues()){
             			meterList = port(concentrator).getMetersList();
             			meters = collectSerials(meterList);
             		}
             		else{
-            			meters = concentrator.getDownstreamRtus();
-            			meters = collectSerialsFromRtuList(meters);
+            			meters = concentrator.getDownstreamRtus();		// returns a list with RTU's
+            			meters = collectSerialsFromRtuList(meters);		// returns a list with RTU serialnumbers
             		}
             	}
             	
@@ -187,7 +173,7 @@ public class Concentrator implements Messaging, GenericProtocol {
 
         } catch (SQLException thrown) {
         	
-        	// Close the connection after an SQL exception, connection will startup again if requested
+        	/** Close the connection after an SQL exception, connection will startup again if requested */
         	Environment.getDefault().closeConnection();
         	
             /* Single concentrator failed, log and on to next concentrator */
@@ -205,7 +191,16 @@ public class Concentrator implements Messaging, GenericProtocol {
             thrown.printStackTrace();
             
             throw new BusinessException( msg, thrown );
-		} finally {
+		} catch (BusinessException thrown) {
+            
+            /* Single concentrator failed, log and on to next concentrator */
+            String msg = toConcetratorErrorMsg(serial, progressLog);
+            severe(thrown, msg);
+            thrown.printStackTrace();
+        
+            throw new BusinessException( msg, thrown );
+            
+        } finally {
             /** clean up, must simply ALWAYS happen */
             if (useDialUp(concentrator) && dialer != null)
                 dialer.disconnect();
