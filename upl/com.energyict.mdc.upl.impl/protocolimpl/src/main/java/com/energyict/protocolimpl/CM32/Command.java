@@ -10,7 +10,7 @@ public class Command {
 	private boolean read;
 	private boolean isAck = false;
 	private byte[] sourceCode = {0x00, 0x00};
-	private byte[] destionationCode = {0x21, 0x00};
+	private byte[] destinationCode = {0x1A, 0x00};
     
     public Command(int activityIdentifier) {
         this.setActivityIdentifier(activityIdentifier);
@@ -52,12 +52,12 @@ public class Command {
 		this.sourceCode = sourceCode;
 	}
 
-	public byte[] getDestionationCode() {
-		return destionationCode;
+	public byte[] getDestinationCode() {
+		return destinationCode;
 	}
 
-	public void setDestionationCode(byte[] destionationCode) {
-		this.destionationCode = destionationCode;
+	public void setDestinationCode(byte[] destinationCode) {
+		this.destinationCode = destinationCode;
 	}
 	public byte getCM10Identifier() {
 		int singleBlockVal = 32 + 64; // see p7 CM10 doc

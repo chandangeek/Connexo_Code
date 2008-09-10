@@ -2,15 +2,12 @@ package com.energyict.protocolimpl.CM32;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import com.energyict.dialer.connection.Connection;
 
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 public class ResponseReceiver {
 	
-	private static final int DEBUG=0;
 	private static final long TIMEOUT=60000;
 	
 	private final int WAIT_FOR_CM10_ID=0;
@@ -21,74 +18,116 @@ public class ResponseReceiver {
     private final int WAIT_FOR_DESTINATION_EXTENSION=5;
     private final int WAIT_FOR_PROTOCOL_TYPE=6;
     private final int WAIT_FOR_PORT=7;
-    private final int WAIT_FOR_CRC=8;
+    private final int HANDLE_DATA=8;
     
     private CM32Connection cm32Connection;
+    private int blockSize;
+    private int sourceCodeByteCount = 0;
+    private int destCodeByteCount = 0;
+    private boolean isLastFrame = true;
+    private int currentBlockByteCount = 0;
     
     public ResponseReceiver(CM32Connection cm32Connection) {
     	this.cm32Connection = cm32Connection;
     }
     
-    protected void printState(int state) {
+    protected void logState(int state, int kar) {
     	if (state == 0)
-    		System.out.println("WAIT_FOR_CM10_ID");
+    		log("WAIT_FOR_CM10_ID: " + outputHex(kar)  + " currentBlockByteCount: " + currentBlockByteCount);
     	else if (state == 1)
-    		System.out.println("WAIT_FOR_BLOCK_SIZE");
+    		log("WAIT_FOR_BLOCK_SIZE: " + outputHex(kar) + " currentBlockByteCount: " + currentBlockByteCount);
     	else if (state == 2)
-    		System.out.println("WAIT_FOR_SOURCE_CODE");
+    		log("WAIT_FOR_SOURCE_CODE: " + outputHex(kar) + " currentBlockByteCount: " + currentBlockByteCount);
     	else if (state == 3)
-    		System.out.println("WAIT_FOR_SOURCE_EXTENSION");
+    		log("WAIT_FOR_SOURCE_EXTENSION: " + outputHex(kar) + " currentBlockByteCount: " + currentBlockByteCount);
     	else if (state == 4)
-    		System.out.println("WAIT_FOR_DESTINATION_CODE");
+    		log("WAIT_FOR_DESTINATION_CODE: " + outputHex(kar) + " currentBlockByteCount: " + currentBlockByteCount);
     	else if (state == 5)
-    		System.out.println("WAIT_FOR_DESTINATION_EXTENSION");
+    		log("WAIT_FOR_DESTINATION_EXTENSION: " + outputHex(kar) + " currentBlockByteCount: " + currentBlockByteCount);
     	else if (state == 6)
-    		System.out.println("WAIT_FOR_PROTOCOL_TYPE");
+    		log("WAIT_FOR_PROTOCOL_TYPE: " + outputHex(kar) + " currentBlockByteCount: " + currentBlockByteCount);
     	else if (state == 7)
-    		System.out.println("WAIT_FOR_PORT");
+    		log("WAIT_FOR_PORT: " + outputHex(kar) + " currentBlockByteCount: " + currentBlockByteCount);
     	else if (state == 8)
-    		System.out.println("WAIT_FOR_CRC");
+    		log("HANDLE_DATA: " + outputHex(kar) + " currentBlockByteCount: " + currentBlockByteCount);
     	else 
-    		System.out.println( "invalid state = " + state);
+    		log("invalid state = " + state);
     }
+    
+    private void logValue(int kar) {
+    	log(outputHex(kar));
+    }
+    
+    private String outputHex(int bKar) {
+    	StringBuffer buf = new StringBuffer("");
+    	buf.append((char)ProtocolUtils.convertHexLSB(bKar));
+    	buf.append((char)ProtocolUtils.convertHexMSB(bKar));
+    	return buf.toString();
+     }
 
 
     // check for "invalid command response"
 	protected Response receiveResponse(Command command) throws IOException {
-        /*long protocolTimeout = System.currentTimeMillis() + TIMEOUT;
-        ByteArrayOutputStream dataArrayOutputStream = new ByteArrayOutputStream();
-		dataArrayOutputStream.reset();
+        long protocolTimeout = System.currentTimeMillis() + TIMEOUT;
+        ByteArrayOutputStream allDataArrayOutputStream = new ByteArrayOutputStream();
+        allDataArrayOutputStream.reset();
+		ByteArrayOutputStream resultDataArrayOutputStream = new ByteArrayOutputStream();
+		resultDataArrayOutputStream.reset();
 		cm32Connection.echoCancellation();
-		StringBuffer crcRead = new StringBuffer("");
         int kar;
-        int state = WAIT_FOR_START;
+        int state = WAIT_FOR_CM10_ID;
         while (true) {
         	if ((kar = cm32Connection.readNext()) != -1) {
-        		dataArrayOutputStream.write(kar);
-        		if (state == WAIT_FOR_START) {
-        			if ((byte)kar == Connection.STX)
-        				state = WAIT_FOR_DATA;
+        		currentBlockByteCount++;
+            	logState(state, kar);
+        		allDataArrayOutputStream.write(kar);
+        		if (state == WAIT_FOR_CM10_ID) {
+        			handleCM10Id((byte) kar);
+        			state = WAIT_FOR_BLOCK_SIZE;
         		}
-        		else if (state == WAIT_FOR_DATA) {
-        			if ((char)kar == '{') {
-        				state = WAIT_FOR_CRC;
-        			}
+        		else if (state == WAIT_FOR_BLOCK_SIZE) {
+        			state = WAIT_FOR_SOURCE_CODE;
+        			setBlockSize(kar);
         		}
-        		else if (state == WAIT_FOR_CRC) {
-        			crcRead.append((char)kar);
-        			if ((char)kar == '}') {
-        				checkCrc(crcRead.toString(), dataArrayOutputStream);
-        				state = WAIT_FOR_END;
-        			}
+        		else if (state == WAIT_FOR_SOURCE_CODE) {
+        			sourceCodeByteCount++;
+        			if (sourceCodeByteCount == 2)
+        				state = WAIT_FOR_SOURCE_EXTENSION;
         		}
-        		else if (state == WAIT_FOR_END) {
-        			if ((byte)kar == Connection.ETX){
-        				byte[] data = dataArrayOutputStream.toByteArray();
-        				Response response = 
-        					new Response(ProtocolUtils.getSubArray2(data, 1, data.length-1));
-	    				if (DEBUG>=1) 
-	    					System.out.println("IG_DEBUG> CRC OK, response="+response);
-	    				return response;
+        		else if (state == WAIT_FOR_SOURCE_EXTENSION) {
+        			state = WAIT_FOR_DESTINATION_CODE;
+        		}
+        		else if (state == WAIT_FOR_DESTINATION_CODE) {
+        			destCodeByteCount++;
+        			if (destCodeByteCount == 2)
+        				state = WAIT_FOR_DESTINATION_EXTENSION;
+        		}
+        		else if (state == WAIT_FOR_DESTINATION_EXTENSION) {
+        			state = WAIT_FOR_PROTOCOL_TYPE;
+        		}
+        		else if (state == WAIT_FOR_PROTOCOL_TYPE) {
+        			state = WAIT_FOR_PORT;
+        		}
+        		else if (state == WAIT_FOR_PORT) {
+        			state = HANDLE_DATA;
+        		}
+        		else if (state == HANDLE_DATA) {
+        			log ("" + currentBlockByteCount + ", " + blockSize);
+        			if (currentBlockByteCount < blockSize)
+        				resultDataArrayOutputStream.write(kar);
+        			else {
+        				checkCrc((int) kar, allDataArrayOutputStream);
+            			if (isLastFrame) {
+            				byte[] data = resultDataArrayOutputStream.toByteArray();
+            				Response response = new Response(ProtocolUtils.getSubArray2(data, 0, data.length));
+            				log("data = " + ProtocolUtils.outputHexString(response.getData()));
+            				return response;
+            			}
+            			else {
+            				state = WAIT_FOR_CM10_ID;
+            				currentBlockByteCount = 0;
+            				isLastFrame = true;
+            			}
         			}
         		}
         	}
@@ -99,30 +138,42 @@ public class ResponseReceiver {
 	                		cm32Connection.getTimeoutError());
 	            }
         	}
-        }*/
-		return null;
+        }
 	}
 	
-	protected void checkCrc(String crcFound, ByteArrayOutputStream dataArrayOutputStream) throws IOException {
-		int crcValueFound;
-		try {
-			crcValueFound = Integer.parseInt(crcFound);
-		}
-		catch (NumberFormatException e) {
-			throw new IOException("Protocol error: crc value found must be an integer value");
-		}
+	protected void setBlockSize(int kar) {
+		if (kar == 0)
+			blockSize = 256;
+		else
+			blockSize = kar;
+		log("blockSize = " + blockSize);
+	}
+	
+	protected void checkCrc(int crcFound, ByteArrayOutputStream dataArrayOutputStream) throws IOException {
+		log("crcFound = " + crcFound);
 		byte[] data = dataArrayOutputStream.toByteArray();
 		byte[] dataForCrcCalculation = 
-			ProtocolUtils.getSubArray2(data, 1, data.length-6);
-		checkCrc(crcValueFound, dataForCrcCalculation);
+			ProtocolUtils.getSubArray2(data, data.length - blockSize, blockSize - 1);
+		int size = dataForCrcCalculation.length;
+		int crcCalculated = 0;
+		for (int i = 0; i < size; i++) {
+			crcCalculated = crcCalculated + (int) dataForCrcCalculation[i];
+		}
+		crcCalculated = 256 - (crcCalculated % 256);
+		if (crcCalculated != crcFound)
+			throw new IOException("invalid crc");
+		log("crc ok");
 	}
 	
-	// crc calculation to be changed!
-	public void checkCrc(int crcValueFound, byte[] data) throws IOException {
-		int crcCalculated = CRCGenerator.calcCCITTCRCReverse(
-				ProtocolUtils.getSubArray2(data, 0, data.length-2));
-		if (crcValueFound != crcCalculated)
-			throw new IOException("invalid crc");
+	protected void handleCM10Id(byte value) {
+		log("CM10Id = " + value);
+		int blockIdentifier = (int) (value & 0x60);
+		this.isLastFrame = ((blockIdentifier == 64) || (blockIdentifier == 96));
+		log("blockIdentifier = " + blockIdentifier + ", isLastFrame = " + isLastFrame);
+	}
+	
+	protected void log(String logMessage) {
+		this.cm32Connection.getCM32Protocol().getLogger().info(logMessage);
 	}
 
 

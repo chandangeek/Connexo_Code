@@ -57,10 +57,7 @@ public class CM32 extends AbstractProtocol {
     }
     
 	protected void doConnect() throws IOException {
-		//getCM32Connection().wakeUp();
-		CommandFactory commandFactory = getCommandFactory();
-		Response response = 
-			commandFactory.getReadStatusCommand().invoke();
+		
 		//parse response!!!
 	}
 
@@ -93,6 +90,7 @@ public class CM32 extends AbstractProtocol {
     					forcedDelay, 
     					echoCancelling, 
     					halfDuplexController));
+		getCM32Connection().setCM32(this);
         setCommandFactory(new CommandFactory(this));
     	setCM32Profile(new CM32Profile(this));
     	return this.getCM32Connection();
@@ -131,6 +129,11 @@ public class CM32 extends AbstractProtocol {
 
 	public Date getTime() throws IOException {
 		return null;
+		/*CommandFactory commandFactory = getCommandFactory();
+		Response response = 
+			commandFactory.getReadTimeCommand().invoke();
+		TimeTable timeTable = new TimeTable().parse(response.getData());
+		return timeTable.getTime();*/
 	}
 
 	public void setTime() throws IOException {

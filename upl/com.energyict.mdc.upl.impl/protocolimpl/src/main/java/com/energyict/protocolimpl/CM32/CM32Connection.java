@@ -28,6 +28,7 @@ public class CM32Connection extends Connection implements ProtocolConnection {
 	private ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 	private ResponseReceiver responseReceiver;
 	private int nodeAddress = 0;
+	private CM32 cm32Protocol;
 	
 	public CM32Connection(InputStream inputStream,
             OutputStream outputStream,
@@ -41,6 +42,14 @@ public class CM32Connection extends Connection implements ProtocolConnection {
         this.maxRetries=maxRetries;
         this.forcedDelay=forcedDelay;
     }
+	
+	public void setCM32(CM32 cm32Protocol) {
+		this.cm32Protocol = cm32Protocol;
+	}
+	
+	public CM32 getCM32Protocol() {
+		return cm32Protocol;
+	}
 	
 	protected ResponseReceiver getResponseReceiver() {
 		if (responseReceiver == null) {
@@ -86,7 +95,7 @@ public class CM32Connection extends Connection implements ProtocolConnection {
         } 
     }
 	
-	public void wakeUp() throws IOException {
+	/*public void wakeUp() throws IOException {
         int retry=0;
         doWakeUp();
         while(true) {
@@ -111,7 +120,7 @@ public class CM32Connection extends Connection implements ProtocolConnection {
                 throw new NestedIOException(e);
             }
         } 
-    }
+    }*/
 
     
     public Response receiveResponse(Command command) throws IOException {
@@ -144,23 +153,26 @@ public class CM32Connection extends Connection implements ProtocolConnection {
 	
 	private void doSendCommand(Command command) throws ConnectionException,IOException {
 		outputStream.reset();
-		//outputStream.write(command.getCM10Identifier());  // see p 5,6,7 CM10 doc
-		outputStream.write(0x65);
+		outputStream.write(command.getCM10Identifier());  // see p 5,6,7 CM10 doc
 		outputStream.write((byte) 0x0B); // block size
 		outputStream.write(command.getSourceCode());
 		outputStream.write((byte) 0x00); // source extension
-		outputStream.write(command.getDestionationCode());
+		outputStream.write(command.getDestinationCode());
 		outputStream.write((byte) 0x00); // destionation extension
 		outputStream.write((byte) 0x00); // protocol type CM10
 		outputStream.write((byte) 0x00); // port (unused)
-		outputStream.write(0x6F); // checksum hardcoded
+		writeCrc();
     } 
 	
 	protected void writeCrc() {
-		int crc = CRCGenerator.calcCCITTCRCReverse(outputStream.toByteArray());
-        //nt crc = 0;
-        outputStream.write(crc&0xFF);
-        outputStream.write((crc>>8)&0xFF);
+		byte[] data = outputStream.toByteArray();
+		int size = data.length;
+		int sum = 0;
+		for (int i = 0; i < size; i++) {
+			sum = sum + (int) data[i];
+		}
+		int crc = 256 - (sum % 256);
+        outputStream.write(crc);
 	}
 	
 	private void doWakeUp() throws ConnectionException,IOException {
@@ -193,14 +205,5 @@ public class CM32Connection extends Connection implements ProtocolConnection {
 	public void setHHUSignOn(HHUSignOn hhuSignOn) {
 	}
 	
-	public void checkCrc(byte[] data, byte[] crc) throws IOException {
-		int crcValueFound = ProtocolUtils.getIntLE(crc, 0, 2);
-		int crcCalculated = CRCGenerator.calcCCITTCRCReverse(
-				ProtocolUtils.getSubArray2(data, 0, data.length-2));
-		//System.out.println("crcValueFound = " + crcValueFound);
-		//System.out.println("crcCalculated = " + crcCalculated);
-		if (crcValueFound != crcCalculated)
-			throw new IOException("invalid crc");
-	}
 
 }
