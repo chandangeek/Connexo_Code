@@ -569,4 +569,16 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
 		return TESTING;
 	}
  
+	public static void main(String args[]){
+//		30	30	32	30	30	35	36	37	30	31	37	30	2	30	38	30	39	30	39	20	32	31	34	31	35	31	39	3	10
+		byte[] b = {0x30	,0x38	,0x30	,0x39	,0x31	,0x30	,0x20	,0x33	,0x31	,0x34	,0x33	,0x35	,0x35	,0x35};
+		long d = 0;
+		try {
+			d = new SCTMTimeData(b).getDate(TimeZone.getDefault()).getTime();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println(new Date(d));
+	}
 }
