@@ -316,8 +316,16 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     }
 
     public void disconnect() throws IOException {
-    	this.getLogger().info("disconnect");
-        linkLayer.send( commandFactory.createX( nextCrn(), 0x00, 0x10 ), 1);
+    	//this.getLogger().info("disconnect " + pSerialNumber);
+        /*linkLayer.send( commandFactory.createX( nextCrn(), 0x00, 0x10 ), 1);
+        try {
+        	getLogger().info("start sleeping: " + new Date());
+        	Thread.sleep(3000);
+        	getLogger().info("end sleeping: " + new Date());
+        }
+        catch (InterruptedException e) {
+        	e.printStackTrace();
+        }*/
     }
 
     public int getNumberOfChannels() throws UnsupportedException, IOException {
@@ -606,11 +614,11 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     }
     
     Table1 getTable1() throws IOException {
-        if (table1 == null) {
+        //if (table1 == null) {
             StandardCommand command = commandFactory.createY(nextCrn(), 1);
             ByteArray ba = linkLayer.send( command );
             table1 = Table1.parse( new Assembly( this, ba));
-        }
+        //}
         return table1;
     }
     
@@ -790,6 +798,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
             System.out.println("MaxSys, IOException, " + e.getMessage());
             max.disconnect();
         }*/
+		
 
     }
     
