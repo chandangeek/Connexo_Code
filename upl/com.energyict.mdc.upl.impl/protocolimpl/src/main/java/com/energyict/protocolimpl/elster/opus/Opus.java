@@ -32,6 +32,7 @@ import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.kenda.medo.MedoStatus;
 
 public class Opus extends AbstractProtocol{
 	/**
@@ -131,7 +132,11 @@ public class Opus extends AbstractProtocol{
 	public void connect() throws IOException {
 		// download final information
 		ArrayList s;								// ArrayList to catch data from factory
-		s=ocf.command(121,attempts,timeOut, null);			// factory command
+		try {
+			s=ocf.command(121,attempts,timeOut, null);			// factory command
+		} catch (IOException e) {
+			throw new IOException(e.getMessage()+ ". Interframe timeout probably caused because no node address "+this.outstationID+" is found");
+		}
 		String[] st;
 		st=(String[]) s.get(0);
 		this.numChan=Integer.parseInt(st[1]);			// set number of channels in this object
@@ -233,7 +238,11 @@ public class Opus extends AbstractProtocol{
 	}
 
 	public void setProperties(Properties properties) throws InvalidPropertyException,	MissingPropertyException {
-		this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress"));
+		try {
+			this.outstationID = Integer.parseInt(properties.getProperty("NodeAddress"));
+		} catch (NumberFormatException e) {
+			throw new NumberFormatException("The node address field has not been filled in");
+		}
 		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1"));
 		this.timeOut=Integer.parseInt(properties.getProperty("TimeOut","5000"));
 		this.attempts=Integer.parseInt(properties.getProperty("Retry", "3"));
