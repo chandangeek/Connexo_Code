@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
+import java.io.IOException;
+
 class CommandFactory {
 
     /**
@@ -63,7 +65,7 @@ class CommandFactory {
     }
     
     
-    Command parse( ByteArray byteArray ) {
+    Command parse( ByteArray byteArray ) throws IOException {
         
         byte [] c = byteArray.getBytes();
         
@@ -75,8 +77,8 @@ class CommandFactory {
             
             return bc;
         }
-        
-        return null;
+        else
+        	throw new IOException("Communication error: Unexpected answer from the meter");
     }
     
     

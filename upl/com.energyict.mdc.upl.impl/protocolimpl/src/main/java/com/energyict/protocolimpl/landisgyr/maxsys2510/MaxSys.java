@@ -238,15 +238,20 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     }
     
     protected void sendNodeId() throws IOException {
-    	if ((this.pNodeId != null) && !"".equals(pNodeId)) {
-        	XCommand xCommand = commandFactory.createX( nextCrn(), 0x00, 0x0b ); // 0b => slave
-    		byte arg1 = Byte.parseByte(pNodeId.substring(0, 2), 16);     
-    		byte arg2 = Byte.parseByte(pNodeId.substring(2, 4), 16);   
-    		byte arg3 = Byte.parseByte(pNodeId.substring(4, 6), 16);   
-    		byte arg4 = Byte.parseByte(pNodeId.substring(6, 8), 16);   
-    		byte[] arg = {arg1, arg2, arg3, arg4};
-    		xCommand.setArgumnt(arg);
-            linkLayer.send( xCommand );
+    	try {
+	    	if ((this.pNodeId != null) && !"".equals(pNodeId)) {
+	        	XCommand xCommand = commandFactory.createX( nextCrn(), 0x00, 0x0b ); // 0b => slave
+	    		byte arg1 = (byte) Integer.parseInt(pNodeId.substring(0, 2), 16);     
+	    		byte arg2 = (byte) Integer.parseInt(pNodeId.substring(2, 4), 16);   
+	    		byte arg3 = (byte) Integer.parseInt(pNodeId.substring(4, 6), 16);   
+		        byte arg4 = (byte) Integer.parseInt(pNodeId.substring(6, 8), 16);   
+	    		byte[] arg = {arg1, arg2, arg3, arg4};
+	    		xCommand.setArgumnt(arg);
+	            linkLayer.send( xCommand );
+	    	}
+    	}
+    	catch (NumberFormatException e) {
+    		throw new IOException("Invalid node address: " + pNodeId);
     	}
     }
 
@@ -745,12 +750,14 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     
     public static void main(String[] args) throws Exception {
     	
-    	String pNodeId = "9700130";
+    	String pNodeId = "9700189";
     	pNodeId = "3" + pNodeId;
 		byte arg1 = Byte.parseByte(pNodeId.substring(0, 2), 16);     
 		byte arg2 = Byte.parseByte(pNodeId.substring(2, 4), 16);   
 		byte arg3 = Byte.parseByte(pNodeId.substring(4, 6), 16);   
-		byte arg4 = Byte.parseByte(pNodeId.substring(6, 8), 16);   
+
+		byte arg4 = (byte) Integer.parseInt(pNodeId.substring(6, 8), 16); 
+		
 		byte[] arg = {arg1, arg2, arg3, arg4};
 		System.out.println(ProtocolUtils.outputHexString(arg));
 		
