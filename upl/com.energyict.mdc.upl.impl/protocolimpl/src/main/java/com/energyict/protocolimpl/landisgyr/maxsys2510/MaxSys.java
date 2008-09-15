@@ -83,6 +83,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     final static String PK_FORCE_DELAY = "ForceDelay";
     final static String PK_READ_UNIT1_SERIALNUMBER = "ReadUnit1SerialNumber";
     final static String PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE = "ReadProfileDataBeforeConfigChange";
+    final static String PK_COMMAND_DELAY = "CommandDelay";
 
     /** Property Default values */
     final static String PD_NODE_ID = "";
@@ -127,6 +128,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
     
     private boolean readUnit1SerialNumber = false;
     private boolean readProfileDataBeforeConfigChange = true;
+    private int commandDelay = 100;
     
     public MaxSys() { }
     
@@ -209,6 +211,19 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
          readProfileDataBeforeConfigChange = 
          	!"0".equals(p.getProperty(this.PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE));
          
+         if (p.getProperty(this.PK_COMMAND_DELAY) != null) {
+        	 try {
+        		 this.commandDelay = Integer.parseInt(p.getProperty(PK_COMMAND_DELAY));   
+        	 }
+        	 catch (NumberFormatException e) {
+        		 throw new InvalidPropertyException("CommandDelay must be a number");
+        	 }
+         }
+         
+    }
+    
+    public int getCommandDelay() {
+    	return this.commandDelay;
     }
 
     /**
@@ -319,8 +334,18 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
             throw new IOException(nex.getMessage());
         }
     }
+    
+    protected void sleep(int millisec) throws IOException{
+    	try {
+            Thread.sleep(millisec);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            throw new IOException(e.getMessage());
+        }
+    }
 
     public void disconnect() throws IOException {
+    	sleep(4000);
     	//this.getLogger().info("disconnect " + pSerialNumber);
         /*linkLayer.send( commandFactory.createX( nextCrn(), 0x00, 0x10 ), 1);
         try {

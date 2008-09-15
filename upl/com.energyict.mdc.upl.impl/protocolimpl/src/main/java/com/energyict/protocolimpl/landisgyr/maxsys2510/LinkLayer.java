@@ -31,6 +31,7 @@ class LinkLayer extends Connection {
 
     /** Send a StandardCommand */
     ByteArray send(StandardCommand command) throws IOException {
+    	sleep(maxSys.getCommandDelay());
         int nrTry = 0;
 
         while (nrTry < retries) {
@@ -62,15 +63,9 @@ class LinkLayer extends Connection {
                         done = true;
                     }
                 }
-
                 sendRawData(cmdFactory.createAck(0).getBytes());
 
-                try {
-                    Thread.sleep(forceDelay);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    throw new IOException(e.getMessage());
-                }
+                sleep(forceDelay);
 
                 return rslt.trim();
                 
@@ -87,8 +82,19 @@ class LinkLayer extends Connection {
         throw new IOException("Failed to read: communication error");
 
     }
+
+    
+    protected void sleep(int millisec) throws IOException{
+    	try {
+            Thread.sleep(millisec);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            throw new IOException(e.getMessage());
+        }
+    }
     
     ByteArray send( XCommand command, int customRetries ) throws IOException {
+    	sleep(maxSys.getCommandDelay());
         int nrTry = 0;
         while (nrTry < customRetries) {
 
@@ -118,6 +124,7 @@ class LinkLayer extends Connection {
     }
     
     ByteArray send( XCommand command ) throws IOException {
+    	sleep(maxSys.getCommandDelay());
         int nrTry = 0;
         while (nrTry < retries) {
 

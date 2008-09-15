@@ -77,8 +77,9 @@ class CommandFactory {
             
             return bc;
         }
-        else
+        else {
         	throw new IOException("Communication error: Unexpected answer from the meter");
+        }
     }
     
     
