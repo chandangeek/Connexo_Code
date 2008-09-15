@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import com.energyict.cbo.BaseUnit;
@@ -93,7 +94,6 @@ public class MedoCommunicationsFactory{
 	// first three bits are to be set in BuildIdent method (later)
 	// byte: 8 bit, word 16 bit signed integer, long 32 bit signed integer
 	private TimeZone timezone;
-	private int profileDataPointer;
 	
 	public MedoCommunicationsFactory(InputStream inputStream, OutputStream outputStream){// blank constructor for testing purposes only
 		byte[] blank={0,0};
@@ -362,8 +362,9 @@ public class MedoCommunicationsFactory{
 		start.setTime(d1);
 		stop.setTime(d2);
 		MedoRequestReadMeterDemands mrrd;		
-		mrrd = new MedoRequestReadMeterDemands(start,stop,intervaltime,profileDataPointer); 
-		// ready to send
+
+		mrrd = new MedoRequestReadMeterDemands(start,stop,intervaltime); 
+		// 	ready to send
 		data=mrrd.parseToByteArray();
 		for(int i=0; i<bs2.length; i++){
 			bs[i]=bs2[i];
@@ -413,7 +414,9 @@ public class MedoCommunicationsFactory{
 	 * commands to get profile data, contains also flagging
 	 */
 	public short[][] getTotalDemands(Date start, Date stop, int intervaltime) throws IOException{
+		
 		return requestMeterDemands((byte) 0x08,start,stop,intervaltime);
+		
 	}
 	public ProfileData retrieveProfileData(Date start, Date stop, int intervaltime, boolean addevents) throws IOException{ 
 		ProfileData pd = new ProfileData();		
@@ -421,7 +424,7 @@ public class MedoCommunicationsFactory{
 		MeterEvent meterEvent;
 		ArrayList meterEventList = new ArrayList();
 		ArrayList medoCLK= new ArrayList();// meter event flagging parallel matrix
-		
+		short[][] s=new short[0][0];
 		boolean flag=false, powdownflag=false, prevIntervalPowdownflag=false;
 		long millis=0;
 		int ids=0;
@@ -445,7 +448,36 @@ public class MedoCommunicationsFactory{
 		cal1.setTime(start);
         ParseUtils.roundDown2nearestInterval(cal1,intervaltime);
         // get meter data
-		short[][] s=requestMeterDemands((byte) 0x07,cal1.getTime(),stop,intervaltime);
+		
+        Calendar start1=Calendar.getInstance(timezone);
+		Calendar stop1=Calendar.getInstance(timezone);
+		Calendar strt=Calendar.getInstance(timezone);
+		Calendar stp=Calendar.getInstance(timezone);
+		
+        stop1.set(strt.get(Calendar.YEAR), 11, 31, 23, 59, 59);
+		stop1.set(Calendar.MILLISECOND,999);
+		start1.set(stp.get(Calendar.YEAR),0,1,0,0,0);
+		start1.set(Calendar.MILLISECOND,0);
+        
+		if(strt.get(Calendar.YEAR)==stp.get(Calendar.YEAR)){
+        	 s=requestMeterDemands((byte) 0x07,cal1.getTime(),stop,intervaltime);
+        }else{ // december-january
+        	int counter=0;
+        	short[][] s1=requestMeterDemands((byte) 0x07,cal1.getTime(),stop1.getTime(),intervaltime);
+        	short[][] s2=requestMeterDemands((byte) 0x07,start1.getTime(),stop,intervaltime);
+        	
+        	s=new short[s1.length+s2.length][];
+        	
+        	for(int i=0; i<s1.length; i++){
+        		s[counter]=s1[i];
+        		counter++;
+        	}
+        	for(int i=0; i<s2.length; i++){
+        		s[counter]=s2[i];
+        		counter++;   
+        	}
+        	
+        }
 		// build channel map in profile data
 		for(int i=0; i<s[0].length;i++ ){
 			if(channelMap.isProtocolChannelEnabled(i) && meterChannelMap.isProtocolChannelEnabled(i)){	
@@ -736,9 +768,6 @@ public class MedoCommunicationsFactory{
 	}
 	public void setTimeZone(TimeZone timezone) {
 		this.timezone=timezone;
-	}
-	public void setYearPointer(int profileDataPointer) {
-		this.profileDataPointer=profileDataPointer;
 	}
 	public int getNumChan() {
 		return numChan;

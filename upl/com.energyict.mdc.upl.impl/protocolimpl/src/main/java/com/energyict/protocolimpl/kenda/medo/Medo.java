@@ -107,8 +107,6 @@ public class Medo implements MeterProtocol{
 	private boolean timeRequest=false;
 	private int timeoffset=0;
 
-	private int profileDataPointer;
-
 	// ident byte
 	// Ack bit, first block bit, last block bit, R/W, 4 bit operation select
 	
@@ -257,7 +255,6 @@ public class Medo implements MeterProtocol{
 		mcf.setRetries(retry);
 		mcf.setTimeOut(timeout);
 		mcf.setTimeZone(timezone);
-		mcf.setYearPointer(profileDataPointer);
 	}
 	
 	public void connect() throws IOException {
@@ -307,6 +304,7 @@ public class Medo implements MeterProtocol{
 	}
 	public ProfileData getProfileData(Date start, Date stop, boolean arg2)
 			throws IOException, UnsupportedException {
+		
 		ProfileData pd=mcf.retrieveProfileData(start, stop, getProfileInterval(),arg2);
 		if(statusreg.getBatlow()>0 && arg2){
 			pd.addEvent(new MeterEvent(getTime(),MeterEvent.OTHER,"BATTERY LOW"));
@@ -340,7 +338,6 @@ public class Medo implements MeterProtocol{
      	this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1"));
 		this.timeout=Integer.parseInt(properties.getProperty("TimeOut","10000"));
 		this.retry=Integer.parseInt(properties.getProperty("Retry", "3"));
-		this.profileDataPointer=Integer.parseInt(properties.getProperty("ProfileDataPointerYear", "2008"));
 		this.delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "500"));
 	}
 	public void setRegister(String arg0, String arg1) throws IOException,
@@ -353,7 +350,6 @@ public class Medo implements MeterProtocol{
 		ArrayList list = new ArrayList();
 		list.add("TimeOut");
 		list.add("Retry");
-		list.add("ProfileDataPointerYear");
 		list.add("DelayAfterConnect");
 		return list;
 	}
