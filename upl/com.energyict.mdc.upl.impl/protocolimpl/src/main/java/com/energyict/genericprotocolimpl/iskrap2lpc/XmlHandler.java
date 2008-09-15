@@ -246,8 +246,126 @@ class XmlHandler extends DefaultHandler {
             int eventId = Integer.parseInt(status);
             Date time = dateFormat.parse(dateTime);
             
-            if(ident != null)
-            	addMeterEvent(time, MeterEvent.OTHER, ident);
+            if(ident != null){
+            	if( mask(ident, Constant.COM_GSMModemError))
+            		addMeterEvent(time, MeterEvent.OTHER, "Communication failure: GSM modem error.");
+            	if( mask(ident, Constant.COM_OpenPortError))
+            		addMeterEvent(time, MeterEvent.OTHER, "Communication failure: Port open.");
+            	if( mask(ident, Constant.COM_PhyLayerError))
+            		addMeterEvent(time, MeterEvent.OTHER, "Communication failure: Physical layer error.");
+            	if( mask(ident, Constant.COM_PPPConnect))
+            		addMeterEvent(time, MeterEvent.OTHER, "Communication event: PPP connected.");
+            	if( mask(ident, Constant.COM_PPPDisconnect))
+            		addMeterEvent(time, MeterEvent.OTHER, "Communication event: PPP disconnected.");
+            	if( mask(ident, Constant.COM_RASServerError))
+            		addMeterEvent(time, MeterEvent.OTHER, "Communication failure: RAS Server failure.");
+            	if( mask(ident, Constant.NON_Unknown))
+            		addMeterEvent(time, MeterEvent.OTHER, "Event UNKNOWN.");
+            	if( mask(ident, Constant.SYS_Startup))
+            		addMeterEvent(time, MeterEvent.OTHER, "System event: System startup.");
+            	if( mask(ident, Constant.SYS_Exit))
+            		addMeterEvent(time, MeterEvent.OTHER, "System event: System shut down.");
+            	if( mask(ident, Constant.SYS_Restart))
+            		addMeterEvent(time, MeterEvent.OTHER, "System event: System restart.");
+            	if( mask(ident, Constant.SYS_DeviceId))
+            		addMeterEvent(time, MeterEvent.OTHER, "System event: System device ID.");
+            	if( mask(ident, Constant.SYS_ParamsOK))
+            		addMeterEvent(time, MeterEvent.OTHER, "System event: System parameters OK.");
+            	if( mask(ident, Constant.SYS_ConfigOK))
+            		addMeterEvent(time, MeterEvent.OTHER, "System event: System configuration OK.");
+            	if( mask(ident, Constant.SYS_ParamsError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: System parameters ERROR.");
+            	if( mask(ident, Constant.SYS_ConfigError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: System configuration ERROR.");
+            	if( mask(ident, Constant.SYS_ReadingError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: System reading ERROR.");
+            	if( mask(ident, Constant.SYS_ReadingSessionError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: Session reading ERROR.");
+            	if( mask(ident, Constant.SYS_ReadingTransError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: ERROR during transfor readings.");
+            	if( mask(ident, Constant.SYS_DemandReadingError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: System demand reading ERROR.");
+            	if( mask(ident, Constant.SYS_DemandReadingSessionError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: Session demand reading ERROR.");
+            	if( mask(ident, Constant.SYS_DemandReadingTransError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: ERROR during transfor demand readings.");
+            	if( mask(ident, Constant.SYS_DemandReadingXMLOK))
+            		addMeterEvent(time, MeterEvent.OTHER, "System event: XML demand reading OK.");
+            	if( mask(ident, Constant.SYS_DemandReadingXMLError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: XML demand reading ERROR.");
+            	if( mask(ident, Constant.SYS_TariffXMLOK))
+            		addMeterEvent(time, MeterEvent.OTHER, "System event: Tariff xml file OK.");
+            	if( mask(ident, Constant.SYS_TariffXMLError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: Tariff xml file ERROR.");
+            	if( mask(ident, Constant.SYS_DLCMetersXMLError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: DLC meters XML file ERROR.");
+            	if( mask(ident, Constant.SYS_ThreadStartError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: ERROR starting thread.");
+            	if( mask(ident, Constant.SYS_HDLCError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: ERROR in HDLC packets.");
+            	if( mask(ident, Constant.SYS_MemoryError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: Memory ERROR.");
+            	if( mask(ident, Constant.SYS_SerialMetersXMLError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: Serial meters XML ERROR.");
+            	if( mask(ident, Constant.SYS_SaveThreadError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: ERROR during saving thread.");
+            	if( mask(ident, Constant.SYS_TimeSync))
+            		addMeterEvent(time, MeterEvent.OTHER, "System event: Time sync has occured.");
+            	if( mask(ident, Constant.SYS_CodeRed))
+            		addMeterEvent(time, MeterEvent.OTHER, "System event: Code red.");
+            	if( mask(ident, Constant.SYS_UpgradeStart))
+            		addMeterEvent(time, MeterEvent.OTHER, "System event: Upgrade started.");
+            	if( mask(ident, Constant.SYS_UpgradeStartSection))
+            		addMeterEvent(time, MeterEvent.OTHER, "System event: Started a section of the upgrade.");
+            	if( mask(ident, Constant.SYS_UpgradeFileError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: ERROR during file upgrade.");
+            	if( mask(ident, Constant.SYS_UpgradeStartMissing))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: The start of the upgrade is missing.");
+            	if( mask(ident, Constant.SYS_UpgradeFinish))
+            		addMeterEvent(time, MeterEvent.OTHER, "System event: Upgrade is finished.");
+            	if( mask(ident, Constant.SYS_UpgradeFinishSection))
+            		addMeterEvent(time, MeterEvent.OTHER, "System event: Finished a section of the upgrade.");
+            	if( mask(ident, Constant.SYS_KeysFileOK))
+            		addMeterEvent(time, MeterEvent.OTHER, "System event: File containing the keys is OK.");
+            	if( mask(ident, Constant.SYS_KeysFileError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: ERROR in file containing the keys.");
+            	if( mask(ident, Constant.SYS_ResultsFileError))
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: ERROR in file containing the results.");
+            	if( mask(ident, Constant.SYS_UpgradeStartActivate))
+            		addMeterEvent(time, MeterEvent.OTHER, "System event: Upgrading is activeted.");
+            	if( mask(ident, Constant.DLC_AddSubstation))
+            		addMeterEvent(time, MeterEvent.OTHER, "DLC event: DLC meter added a substation.");
+            	if( mask(ident, Constant.DLC_Deinstall))
+            		addMeterEvent(time, MeterEvent.OTHER, "DLC event: Deinstall DLC meter.");
+            	if( mask(ident, Constant.DLC_DoubleAddress))
+            		addMeterEvent(time, MeterEvent.OTHER, "DLC error: DLC meter with double address.");
+            	if( mask(ident, Constant.DLC_GlobalDeinstall))
+            		addMeterEvent(time, MeterEvent.OTHER, "DLC event: Global DLC meter deinstallation.");
+            	if( mask(ident, Constant.DLC_Install))
+            		addMeterEvent(time, MeterEvent.OTHER, "DLC event: DLC meter installed.");
+            	if( mask(ident, Constant.DLC_NetworkError))
+            		addMeterEvent(time, MeterEvent.OTHER, "DLC error: DLC network error.");
+            	if( mask(ident, Constant.DLC_NewAddress))
+            		addMeterEvent(time, MeterEvent.OTHER, "DLC event: DLC meter with new address.");
+            	if( mask(ident, Constant.DLC_SlaveDelete))
+            		addMeterEvent(time, MeterEvent.OTHER, "DLC event: DLC slave deleted.");
+            	if( mask(ident, Constant.DLC_SlaveExists))
+            		addMeterEvent(time, MeterEvent.OTHER, "DLC event: DLC slave exists.");
+            	if( mask(ident, Constant.DLC_SlaveLost))
+            		addMeterEvent(time, MeterEvent.OTHER, "DLC error: DLC slave is lost.");
+            	if( mask(ident, Constant.SUB_SetEncryptionKeyError))
+            		addMeterEvent(time, MeterEvent.OTHER, "SUB error: ERROR during the set of the encryption keys.");
+            	if( mask(ident, Constant.SUB_SetEncryptionKeyOK))
+            		addMeterEvent(time, MeterEvent.OTHER, "SUB event: Encryption keys are set OK.");
+            	if( mask(ident, Constant.SUB_TariffActivateError))
+            		addMeterEvent(time, MeterEvent.OTHER, "SUB error: Error during activation of new tariff.");
+            	if( mask(ident, Constant.SUB_TariffActivateOK))
+            		addMeterEvent(time, MeterEvent.OTHER, "SUB event: Tariff activation OK.");
+            	if( mask(ident, Constant.SUB_TariffWriteError))
+            		addMeterEvent(time, MeterEvent.OTHER, "SUB error: ERROR during the writing of the new tariff.");
+            	if( mask(ident, Constant.SUB_TariffWriteOK))
+            		addMeterEvent(time, MeterEvent.OTHER, "SUB event: Writing of new tariff was OK.");
+            }
             else{
             	if ( mask(eventId, Constant.EVENT_FATAL_ERROR) ){
             		final String msg = "Fatal error.";
@@ -348,7 +466,11 @@ class XmlHandler extends DefaultHandler {
         }
     }
     
-    /** check if event IS mask */
+    private boolean mask(String string1, String string2) {
+		return string1.equalsIgnoreCase(string2);
+	}
+
+	/** check if event IS mask */
     private boolean mask(int event, int mask){
         return event == mask;
     }
@@ -373,7 +495,7 @@ class XmlHandler extends DefaultHandler {
              
             BigDecimal amount = new BigDecimal(value);
             Quantity q = new Quantity(amount, unit);
-            return new RegisterValue(obis, q, null, null, time, time);
+            return new RegisterValue(obis, q, null, null, time, new Date(System.currentTimeMillis()));
             
         } catch (ParseException e) {
             e.printStackTrace();

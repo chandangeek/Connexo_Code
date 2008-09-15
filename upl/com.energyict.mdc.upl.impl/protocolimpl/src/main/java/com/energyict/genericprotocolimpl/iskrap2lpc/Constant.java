@@ -87,6 +87,8 @@ class Constant {
 
     final static String USER = "User";
     final static String PASSWORD = "Password";
+    final static String TESTLOGGING = "TestLogging";
+    final static String DELAY_AFTER_FAIL = "DelayAfterFail";
     
     final static ObisCode mbusSerialObisCode = ObisCode.fromString("0.1.128.50.21.255");
     final static ObisCode powerLimitObisCode = ObisCode.fromString("0.0.128.61.1.255");
@@ -98,59 +100,32 @@ class Constant {
     private SimpleDateFormat dateFormat;
 
 	final static int PROFILE_STATUS_DEVICE_DISTURBANCE = 0x1;
-
 	final static int PROFILE_STATUS_RESET_CUMULATION = 0x10;
-
 	final static int PROFILE_STATUS_DEVICE_CLOCK_CHANGED = 0x20;
-
 	final static int PROFILE_STATUS_POWER_RETURNED = 0x40;
-
 	final static int PROFILE_STATUS_POWER_FAILURE = 0x80;
-
 	static final int EVENT_FATAL_ERROR=0x0001;
-
 	static final int EVENT_DEVICE_CLOCK_RESERVE=0x0002;
-
 	static final int EVENT_VALUE_CORRUPT=0x0004;
-
 	static final int EVENT_DAYLIGHT_CHANGE=0x0008;
-
 	static final int EVENT_BILLING_RESET=0x0010;
-
 	static final int EVENT_DEVICE_CLOCK_CHANGED=0x0020;
-
 	static final int EVENT_POWER_RETURNED=0x0040;
-
 	static final int EVENT_POWER_FAILURE=0x0080;
-
 	static final int EVENT_VARIABLE_SET=0x0100;
-
 	static final int EVENT_UNRELIABLE_OPERATING_CONDITIONS=0x0200;
-
 	static final int EVENT_END_OF_UNRELIABLE_OPERATING_CONDITIONS=0x0400;
-
 	static final int EVENT_UNRELIABLE_EXTERNAL_CONTROL=0x0800;
-
 	static final int EVENT_END_OF_UNRELIABLE_EXTERNAL_CONTROL=0x1000;
-
 	static final int EVENT_EVENTLOG_CLEARED=0x2000;
-
 	static final int EVENT_LOADPROFILE_CLEARED=0x4000;
-
 	static final int EVENT_L1_POWER_FAILURE=0x8001;
-
 	static final int EVENT_L2_POWER_FAILURE=0x8002;
-
 	static final int EVENT_L3_POWER_FAILURE=0x8003;
-
 	static final int EVENT_L1_POWER_RETURNED=0x8004;
-
 	static final int EVENT_L2_POWER_RETURNED=0x8005;
-
 	static final int EVENT_L3_POWER_RETURNED=0x8006;
-
 	static final int EVENT_METER_COVER_OPENED=0x8010;
-
 	static final int EVENT_TERMINAL_COVER_OPENED=0x8011;
     
     final static String conSerialFile 	= "/offlineFiles/iskrap2lpc/ConcentratorSerial.bin";
@@ -171,8 +146,69 @@ class Constant {
     final static String dailyto0509 	= "/offlineFiles/iskrap2lpc/dailyto0509.xml";
     final static String monthlyfrom0509 = "/offlineFiles/iskrap2lpc/monthlyfrom0509.xml";
     final static String monthlyto0509 = "/offlineFiles/iskrap2lpc/monthlyto0509.xml";
+    final static String nullp1 = "/offlineFiles/iskrap2lpc/nullpointerstuff.xml";
+    final static String nullp2 = "/offlineFiles/iskrap2lpc/nullpointerstuff2.xml";
     
-    
+    final static String NON_Unknown = "NON.Unknown";
+    final static String SYS_Startup = "SYS.Startup";
+    final static String SYS_Exit = "SYS.Exit";
+    final static String SYS_Restart = "SYS.Restart";
+    final static String SYS_DeviceId = "SYS.DeviceId";
+    final static String SYS_ParamsOK = "SYS.ParamsOK";
+    final static String SYS_ConfigOK = "SYS.ConfigOK";
+    final static String SYS_ParamsError = "SYS.ParamsError";
+    final static String SYS_ConfigError = "SYS.ConfigError";
+    final static String SYS_ReadingError = "SYS.ReadingError";
+    final static String SYS_ReadingSessionError = "SYS.ReadingSessionError";
+    final static String SYS_ReadingTransError = "SYS.ReadingTransError";
+    final static String SYS_DemandReadingError = "SYS.DemandReadingError";
+    final static String SYS_DemandReadingSessionError = "SYS.DemandReadingSessionError";
+    final static String SYS_DemandReadingTransError = "SYS.DemandReadingTransError";
+    final static String SYS_DemandReadingXMLOK = "SYS.DemandReadingXMLOK";
+    final static String SYS_DemandReadingXMLError = "SYS.DemandReadingXMLError";
+    final static String SYS_TariffXMLOK = "SYS.TariffXMLOK";
+    final static String SYS_TariffXMLError = "SYS.TariffXMLError";
+    final static String SYS_DLCMetersXMLError = "SYS.DLCMetersXMLError";
+    final static String SYS_ThreadStartError = "SYS.ThreadStartError";
+    final static String SYS_HDLCError = "SYS.HDLCError";
+    final static String SYS_MemoryError = "SYS.MemoryError";
+    final static String SYS_SerialMetersXMLError = "SYS.SerialMetersXMLError";
+    final static String SYS_SaveThreadError = "SYS.SaveThreadError";
+    final static String SYS_TimeSync = "SYS.TimeSync";
+    final static String SYS_CodeRed = "SYS.CodeRed";
+    final static String SYS_UpgradeStart = "SYS.UpgradeStart";
+    final static String SYS_UpgradeStartSection = "SYS.UpgradeStartSection";
+    final static String SYS_UpgradeFileError = "SYS.UpgradeFileError";
+    final static String SYS_UpgradeStartMissing = "SYS.UpgradeStartMissing";
+    final static String SYS_UpgradeFinish = "SYS.UpgradeFinish";
+    final static String SYS_UpgradeFinishSection = "SYS.UpgradeFinishSection";
+    final static String SYS_KeysFileOK = "SYS.KeysFileOK";
+    final static String SYS_KeysFileError = "SYS.KeysFileError";
+    final static String SYS_ResultsFileError = "SYS.ResultsFileError";
+    final static String SYS_UpgradeStartActivate = "SYS.UpgradeStartActivate";
+    final static String DLC_Install = "DLC.Install";
+    final static String DLC_Deinstall = "sDLC.Deinstall";
+    final static String DLC_GlobalDeinstall = "DLC.GlobalDeinstall";
+    final static String DLC_DoubleAddress = "DLC.DoubleAddress";
+    final static String DLC_AddSubstation = "DLC.AddSubstation";
+    final static String DLC_NetworkError = "DLC.NetworkError";
+    final static String DLC_NewAddress = "DLC.NewAddress";
+    final static String DLC_SlaveLost = "DLC.SlaveLost";
+    final static String DLC_SlaveDelete = "DLC.SlaveDelete";
+    final static String DLC_SlaveExists = "DLC.SlaveExists";
+    final static String COM_OpenPortError = "COM.OpenPortError";
+    final static String COM_PhyLayerError = "COM.PhyLayerError";
+    final static String COM_GSMModemError = "COM.GSMModemError";
+    final static String COM_RASServerError = "COM.RASServerError";
+    final static String COM_PPPConnect = "COM.PPPConnect";
+    final static String COM_PPPDisconnect = "COM.PPPDisconnect";
+    final static String SUB_TariffWriteOK = "SUB.TariffWriteOK";
+    final static String SUB_TariffWriteError = "SUB.TariffWriteError";
+    final static String SUB_TariffActivateOK = "SUB.TariffActivateOK";
+    final static String SUB_TariffActivateError = "SUB.TariffActivateError";
+    final static String SUB_SetEncryptionKeyOK = "SUB.SetEncryptionKeyOK";
+    final static String SUB_SetEncryptionKeyError = "SUB.SetEncryptionKeyError";
+
     static Constant getInstance( ){
         return instance;
     }

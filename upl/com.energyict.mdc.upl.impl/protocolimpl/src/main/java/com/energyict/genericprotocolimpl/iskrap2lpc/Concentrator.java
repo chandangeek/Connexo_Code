@@ -68,10 +68,14 @@ public class Concentrator implements Messaging, GenericProtocol {
     private boolean DEBUG = false;
     boolean TESTING = false;
     private int TESTLOGGING = 0; 
+    private int delayAfterFail;
+    private int retry;
 
     private Logger 					logger;
     private Properties 				properties;
+    private Connection				connection;
     protected CommunicationProfile 	communicationProfile;	
+    private Rtu						concentrator;
     
     /** RtuType is used for creating new Rtu's */
     private RtuType[] rtuType = {null, null};
@@ -85,10 +89,11 @@ public class Concentrator implements Messaging, GenericProtocol {
     	
         this.logger = logger;
         this.communicationProfile = scheduler.getCommunicationProfile();
+        this.connection = new Connection(this, retry, delayAfterFail);
         
         int meterCount = -1;
         
-        Rtu concentrator = scheduler.getRtu();
+        concentrator = scheduler.getRtu();
         if(TESTLOGGING >= 1)getLogger().log(Level.INFO, "TESTLOGGING - 2/ Got the rtu from database");
         String serial = concentrator.getSerialNumber();
         if(TESTLOGGING >= 1)getLogger().log(Level.INFO, "TESTLOGGING - 3/ Got serialNumber form rtu from database");
@@ -125,7 +130,7 @@ public class Concentrator implements Messaging, GenericProtocol {
             	else{
             		/** Only when you want to read a profile or meter registers */
             		if(communicationProfile.getReadMeterReadings()||communicationProfile.getReadDemandValues()){
-            			meterList = port(concentrator).getMetersList();
+            			meterList = getConnection().getMetersList();
             			meters = collectSerials(meterList);
             		}
             		else{
@@ -226,7 +231,7 @@ public class Concentrator implements Messaging, GenericProtocol {
 				conID = readWithStringBuffer(inFile);
 				return conID;
 			} else {
-				conID = port(concentrator).getConcentratorStatus();
+				conID = getConnection().getConcentratorStatus();
 				if(TESTLOGGING >= 1)getLogger().log(Level.INFO, "TESTLOGGING - SerialNumber = " + conID);
 				return conID.substring(conID.indexOf('"') + 1, conID.indexOf('"',conID.indexOf('"') + 1));
 			}
@@ -255,6 +260,8 @@ public class Concentrator implements Messaging, GenericProtocol {
 			e.printStackTrace();
 			throw new NumberFormatException("Could not convert " + properties.getProperty("TestLogging") + " to an integer");
 		}
+		this.retry = Integer.parseInt(properties.getProperty("Retry", "3"));
+		this.delayAfterFail = Integer.parseInt(properties.getProperty(Constant.DELAY_AFTER_FAIL, "5000"));
     }
 
     public String getProtocolVersion() {
@@ -273,7 +280,8 @@ public class Concentrator implements Messaging, GenericProtocol {
         result.add( Constant.USE_DIAL_UP );
         result.add( Constant.USER );
         result.add( Constant.PASSWORD );
-        result.add("TestLogging");
+        result.add( Constant.TESTLOGGING);
+        result.add( Constant.DELAY_AFTER_FAIL);
         return result;
     }
 
@@ -293,8 +301,9 @@ public class Concentrator implements Messaging, GenericProtocol {
         try {
             
             MeterReadTransaction mrt = new MeterReadTransaction(this, concentrator, serial, communicationProfile);
-            
-            Environment.getDefault().execute(mrt);
+//            
+//            Environment.getDefault().execute(mrt);
+            mrt.doExecute();
             
         } catch (BusinessException thrown) {
             /*
@@ -381,6 +390,9 @@ public class Concentrator implements Messaging, GenericProtocol {
 		}
 	}
     
+	public Connection getConnection(){
+		return this.connection;
+	}
     /** Import a single concentrator. 
      * @throws ServiceException 
      * @throws ParseException 
@@ -411,13 +423,14 @@ public class Concentrator implements Messaging, GenericProtocol {
         	}
         	String from = Constant.getInstance().format(lastLogBookConcentrator);
         	String to = Constant.getInstance().format(new Date());
-        	String conEvents;
+        	String conEvents = null;
             if ( TESTING ){
             	FileReader inFile = new FileReader(Utils.class.getResource(Constant.conEventFile).getFile());
             	conEvents = readWithStringBuffer(inFile);
+            } else{
+            	conEvents = getConnection().getConcentratorEvents(from, to);
             }
-            else
-            	 conEvents = port(concentrator).getConcentratorEvents(from, to);
+
         	XmlHandler dataHandler = new XmlHandler( getLogger(), null );
         	ProfileData pd = new ProfileData();
         	importData(conEvents, dataHandler);
@@ -439,13 +452,14 @@ public class Concentrator implements Messaging, GenericProtocol {
     }
     
     private void setTime(Rtu concentrator) 
-        throws RemoteException, ServiceException, ParseException {
+        throws ServiceException, ParseException, IOException {
         
         /* Don't worry about clock sets over interval boundaries, Iskra
          * will (probably) handle this. 
          */
         
-        String systime = port(concentrator).getConcentratorSystemTime();
+//        String systime = port(concentrator).getConcentratorSystemTime();
+    	String systime = getConnection().getConcentratorSystemTime();
         
         systime = 
             Pattern.compile(":\\d{2}$").matcher(systime).replaceFirst("00");
@@ -469,8 +483,8 @@ public class Concentrator implements Messaging, GenericProtocol {
         
             String d = Constant.getInstance().getDateFormatFixed().format(now);
             
-            port(concentrator).setConcentratorSystemTime(d);
-            port(concentrator).timeSync();
+            getConnection().setConcentratorSystemTime(d);
+            getConnection().timeSync();
             
         }
         
@@ -499,7 +513,7 @@ public class Concentrator implements Messaging, GenericProtocol {
                 	getLogger().severe("Sending new tariff program to concentrator.");
                     String xml = new String(uf.loadFileInByteArray());
                     if(xml.startsWith("<P2LPCTariff>")){
-                    	port(concentrator).setMeterTariffSettings(xml);
+                    	getConnection().setMeterTariffSettings(xml);
                     	success = true;
                     } else {
                     	severe(toErrorMsg(msg) + "UserFile is NOT a tariff file.");
@@ -538,7 +552,7 @@ public class Concentrator implements Messaging, GenericProtocol {
             	}
             	startDate = Constant.getInstance().getDateFormatFixed().format(startCal.getTime());
             	getLogger().severe("Setting the threshold value for metergroup " + uiGrId + ".");
-            	port(concentrator).setCodeRed(startDate, uiDuration, uiGrId);
+            	getConnection().setCodeRed(startDate, uiDuration, uiGrId);
             	success = true;
             }
             
@@ -555,7 +569,7 @@ public class Concentrator implements Messaging, GenericProtocol {
             	}
             	
             	String startDate = Constant.getInstance().getDateFormatFixed().format(startCal.getTime());
-            	port(concentrator).setCodeRed(startDate, uiDuration, uiGrId);
+            	getConnection().setCodeRed(startDate, uiDuration, uiGrId);
             	
             	success = true;
             }
@@ -892,6 +906,10 @@ public class Concentrator implements Messaging, GenericProtocol {
 
 	public int getTESTLOGGING() {
 		return TESTLOGGING;
+	}
+	
+	public Rtu getConcentrator(){
+		return this.concentrator;
 	}
     
 }

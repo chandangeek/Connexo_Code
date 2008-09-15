@@ -30,6 +30,7 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.TimePeriod;
 import com.energyict.cbo.Unit;
+import com.energyict.cpo.Environment;
 import com.energyict.interval.BasicIntervalRecord;
 import com.energyict.interval.IntervalRecord;
 import com.energyict.interval.RawIntervalRecord;
@@ -213,6 +214,8 @@ public class ConcentratorTest{
 			meterReadTransaction.importDailyMonthly(meter, xmlHandler, meter.getSerialNumber());
 			 // do NOT store it, we already do this in the importDailyMonthly method
 			xmlHandler.setDailyMonthlyProfile(false);
+			Environment.getDefault().execute(meterReadTransaction.getStoreObjects());
+			
 			
 			// start the testing
 			Date sep02 = Constant.getInstance().getDateFormat().parse(september02);
@@ -288,6 +291,7 @@ public class ConcentratorTest{
 			meterReadTransaction.setBillingDaily(Constant.dailyto0509);
 			meterReadTransaction.setBillingMonthly(Constant.monthlyto0509);
 			meterReadTransaction.importDailyMonthly(meter, xmlHandler, meter.getSerialNumber());
+			Environment.getDefault().execute(meterReadTransaction.getStoreObjects());
 
 			Date sep05 = Constant.getInstance().getDateFormat().parse(september05);
 			RawIntervalRecord raw0905 = (RawIntervalRecord)meter.getChannel(4).getIntervalData(subDay(sep05), addDay(sep05)).get(0);
@@ -295,9 +299,12 @@ public class ConcentratorTest{
 			assertEquals(new BigDecimal(new BigInteger("122"), 3),raw0905.getValue());
 			assertEquals(sep05, raw0905.getDate());
 			
+			xmlHandler = new XmlHandler(logger, meterReadTransaction.getChannelMap());
+			xmlHandler.setDailyMonthlyProfile(true);
 			meterReadTransaction.setBillingDaily(Constant.dailyfrom0509);
 			meterReadTransaction.setBillingMonthly(Constant.monthlyfrom0509);
 			meterReadTransaction.importDailyMonthly(meter, xmlHandler, meter.getSerialNumber());
+			Environment.getDefault().execute(meterReadTransaction.getStoreObjects());
 			
 			sep05 = Constant.getInstance().getDateFormat().parse(september05);
 			raw0905 = (RawIntervalRecord)meter.getChannel(4).getIntervalData(subDay(sep05), addDay(sep05)).get(0);

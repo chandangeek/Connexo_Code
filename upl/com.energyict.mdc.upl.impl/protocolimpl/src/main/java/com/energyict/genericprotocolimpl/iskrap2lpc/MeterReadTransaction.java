@@ -78,7 +78,7 @@ import com.energyict.protocolimpl.base.ProtocolChannelMap;
  * In several methods you will see an IF-ELSE structure with a TESTING variable, this is only necessary for UnitTesting so we can actually 
  * store meterData in the database, sometimes it is used to set configuration which we normally should have read from the meter.
  */
-class MeterReadTransaction implements Transaction, CacheMechanism {
+class MeterReadTransaction implements CacheMechanism {
 	
 	protected boolean TESTING = false;
 	protected String billingMonthly = "";
@@ -106,27 +106,16 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 	public CosemDateTime billingReadTime;
 	public CosemDateTime captureObjReadTime;
 	
-	/** Contains the channelmap */
 	private ProtocolChannelMap protocolChannelMap = null;
-    
-    /** Concentrator "containing" the meter */
+	private CommunicationProfile 	communicationProfile;
+	private StoreObject storeObject;
     private Rtu rtuConcentrator;
-    
-    /** RTU "containing" the meter */
     private Rtu meter;
-    
-    /** Serial of the meter */
     private String serial;
-    
-    /** Serial of the mbusMeter */
     private String mbusSerial[] = {null, null, null, null};
     private String mSerial;
-
 	private Cache dlmsCache;
 	private boolean initCheck = false;
-	
-	/** the communication profile of the concentrator */
-	private CommunicationProfile 	communicationProfile;	
 	
 	protected MbusDevice[]			mbusDevices = {null, null, null, null};
 	
@@ -136,6 +125,7 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 		this.rtuConcentrator = rtuConcentrator;
         this.serial = serial;
         this.communicationProfile = communicationProfile;
+        this.storeObject = new StoreObject();
         this.dlmsCache = new Cache();
     }
     
@@ -144,7 +134,8 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
      * 
      * @see com.energyict.cpo.Transaction#doExecute()
      */
-    public Object doExecute() throws BusinessException, SQLException {
+    public void doExecute() throws BusinessException, SQLException {
+    	boolean succes = false;
         
     	ProfileData[] pd = {new ProfileData(), new ProfileData()};
     	XmlHandler dataHandler;		// the dataHandler constructs the loadProfile as well as the billing profiles with the given channelMap
@@ -202,42 +193,42 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
                 	}
                 }
                 
-                getLogger().log(Level.INFO, "Meter with serialnumber " + serial + " has completely finished");
+                succes = true;
+                
             }
             
         } catch (ServiceException thrown) {
-            
             getConcentrator().severe( thrown, thrown.getMessage() );
             thrown.printStackTrace();
             throw new BusinessException(thrown); /* roll back */
             
         } catch (NumberFormatException thrown) {
-
 			getConcentrator().severe( thrown, thrown.getMessage() );
             thrown.printStackTrace();
             throw new BusinessException(thrown); /* roll back */
         	
 		} catch (InvalidPropertyException thrown) {
-			
 			getConcentrator().severe( thrown, thrown.getMessage() );
             thrown.printStackTrace();
             throw new BusinessException(thrown); /* roll back */
 	            
 		}  catch (IOException thrown) {
-            
             getConcentrator().severe( thrown, thrown.getMessage() );
             thrown.printStackTrace();
             throw new BusinessException(thrown); /* roll back */
             
         } catch (BusinessException thrown) {
-            
             getConcentrator().severe( thrown, thrown.getMessage() );
             thrown.printStackTrace();
             throw new BusinessException(thrown); /* roll back */
             
+        } finally {
+        	if(succes)
+        		Environment.getDefault().execute(getStoreObjects());
+        	getLogger().log(Level.INFO, "Meter with serialnumber " + serial + " has completely finished");
         }
         
-        return getMeter(); /* return whatever */
+//        return getMeter(); /* return whatever */
         
     }
     
@@ -320,18 +311,27 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
                 	if(TESTING){
                 		FileReader inFile = new FileReader(Utils.class.getResource(getProfileTestName()[i]).getFile());
                 		xml = getConcentrator().readWithStringBuffer(inFile);
+                	} else{
+                		xml = getConnection().getMeterProfile(getMeter().getSerialNumber(), profile, pc.getRegister(), from, to);
                 	}
-                	else xml = getPort(rtuConcentrator).getMeterProfile(getMeter().getSerialNumber(), profile, pc.getRegister(), from, to);
+
             	}
             }
             if(!xml.equalsIgnoreCase("")){
+            	
+            	File file = new File("c://TEST_FILES/SizeTest" + mtr + "_" + i + ".xml");
+            	FileOutputStream fos = new FileOutputStream(file);
+            	ObjectOutputStream oos = new ObjectOutputStream(fos);
+            	oos.writeObject(xml);
+            	oos.close();
+            	fos.close();
+            	
             	dataHandler.setChannelIndex( i );
             	getConcentrator().importData(xml, dataHandler);
             }
             
         }
-        // if complete profile is read, store it!
-        meter.store(dataHandler.getProfileData(), false);
+        
         getLogger().log(Level.INFO, "Done reading PROFILE.");
         
         /*
@@ -350,14 +350,18 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
         		powerFailures = getConcentrator().readWithStringBuffer(inFile);
             }
             else{
-            	events =  getPort(rtuConcentrator).getMeterEvents(mtr, from, to);
-            	powerFailures =  getPort(rtuConcentrator).getMeterPowerFailures(mtr, from, to);
+            	events = getConnection().getMeterEvents(mtr, from, to);
+            	powerFailures = getConnection().getMeterPowerFailures(mtr, from, to);
             }
             getConcentrator().importData(events, dataHandler);
             getConcentrator().importData(powerFailures, dataHandler);
             
             getLogger().log(Level.INFO, "Done reading EVENTS.");
         }
+        
+	        // if complete profile is read, store it!
+//	      meter.store(dataHandler.getProfileData(), false);
+        getStoreObjects().add(meter, dataHandler.getProfileData());
     }
     
     protected void importDailyMonthly(Rtu meter, XmlHandler dataHandler, String serialNumber) throws BusinessException, ServiceException, IOException, SQLException{
@@ -410,9 +414,10 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 							getLogger().log(Level.INFO, "Reading Daily values with registername: " + pc.getRegister());
 							if(TESTING){
 			            		FileReader inFile = new FileReader(Utils.class.getResource(getBillingDaily()).getFile());
+//								FileReader inFile = new FileReader(Utils.class.getResource("/offlineFiles/iskrap2lpc/nullpointerstuff.xml").getFile());
 			            		xml = getConcentrator().readWithStringBuffer(inFile);
 							} else {
-								xml = getPort(rtuConcentrator).getMeterProfile(getMeter().getSerialNumber(), daily, pc.getRegister(), from, to);
+								xml = getConnection().getMeterProfile(getMeter().getSerialNumber(), daily, pc.getRegister(), from, to);
 							}
 						}
 						else
@@ -425,7 +430,7 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 			            		FileReader inFile = new FileReader(Utils.class.getResource(getBillingMonthly()).getFile());
 			            		xml = getConcentrator().readWithStringBuffer(inFile);
 							} else {
-								xml = getPort(rtuConcentrator).getMeterProfile(getMeter().getSerialNumber(), monthly, pc.getRegister(), from, to);
+								xml = getConnection().getMeterProfile(getMeter().getSerialNumber(), monthly, pc.getRegister(), from, to);
 							}
 						}
 						else
@@ -436,7 +441,7 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 
 				if(!xml.equalsIgnoreCase("")){
 					
-//		        	File file = new File("c://TEST_FILES/dailymonthlyfrom05_"+i+".bin");
+//		        	File file = new File("c://TEST_FILES/nullpointerstuff.xml");
 //		        	FileOutputStream fos = new FileOutputStream(file);
 //		        	ObjectOutputStream oos = new ObjectOutputStream(fos);
 //		        	oos.writeObject(xml);
@@ -444,7 +449,8 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 //		        	fos.close();
 					
 					getConcentrator().importData(xml, dataHandler);
-					meter.store(dataHandler.getDailyMonthlyProfile(), false);
+//					meter.store(dataHandler.getDailyMonthlyProfile(), false);
+					getStoreObjects().add(chn, dataHandler.getDailyMonthlyProfile());
 					dataHandler.clearDailyMonthlyProfile();
 				}
 			}
@@ -562,13 +568,13 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 		
         Iterator i = dataHandler.getMeterReadingData().getRegisterValues().iterator();
         while (i.hasNext()) {
-            
             RegisterValue registerValue = (RegisterValue) i.next();
             RtuRegister register = getMeter().getRegister( registerValue.getObisCode() );
 
             if( register != null ){
             	if(register.getReadingAt(registerValue.getReadTime()) == null){
-            		register.store( registerValue );
+//            		register.store( registerValue );
+            		getStoreObjects().add(register, registerValue);
             	}
             }
             else {
@@ -651,11 +657,11 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
     }
     
     
-	private String getFirwareVersions(Rtu concentrator, String meterID, ObisCode oc) throws NumberFormatException, RemoteException, ServiceException{
+	private String getFirwareVersions(Rtu concentrator, String meterID, ObisCode oc) throws NumberFormatException, ServiceException, IOException{
 		String times[] = prepareCosemGetRequest();
 		
 		StringBuffer strBuff = new StringBuffer();
-		byte[] strCore = getPort(concentrator).cosemGetRequest(meterID, times[0], times[1], oc.toString(), new UnsignedInt(1), new UnsignedInt(2));
+		byte[] strCore = getConnection().cosemGetRequest(meterID, times[0], times[1], oc.toString(), new UnsignedInt(1), new UnsignedInt(2));
 		for(int i = 2; i < strCore.length; i++){
 			String str = Integer.toHexString(strCore[i]&0xFF);
 			if(str.length() == 1)
@@ -760,11 +766,6 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
     		getLogger().log(Level.INFO, "New meter will be placed in prototype folder.");
     	}        
         
-        //*************************************************
-        // this moves the new Rtu to the Concentrator folder, else it will be placed in the prototype folder
-        // shadow.setFolderId(gwRtu.getFolderId());
-        //*************************************************
-        
     	shadow.setGatewayId(concentrator.getId());
     	shadow.setLastReading(lastreading);
         return getConcentrator().mw().getRtuFactory().create(shadow);
@@ -780,11 +781,7 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 		return getConcentrator().getLogger();
 	}
 	
-	private P2LPCSoapPort_PortType getPort(Rtu concentrator) throws ServiceException{
-		return getConcentrator().port(concentrator);
-	}
-	
-    private ObjectDef[] getlpConfigObjectDefFromString(String xml) {
+	private ObjectDef[] getlpConfigObjectDefFromString(String xml) {
     	ObjectDef[] od = {null, null, null, null, null, null, null, null, null, null};
     	try {
 			Element topElement = getConcentrator().toDom(xml).getDocumentElement();
@@ -849,19 +846,31 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 		return times;
 	}
 	
+	private Connection getConnection(){
+		return getConcentrator().getConnection();
+	}
+	
+	protected StoreObject getStoreObjects(){
+		return this.storeObject;
+	}
+	
     /*******************************************************************************************
     Message implementation
+     * @throws IOException 
+     * @throws NumberFormatException 
     *******************************************************************************************/
 
-    protected void sendMeterMessages(Rtu concentrator, Rtu rtu, XmlHandler dataHandler) throws BusinessException, SQLException{
+    protected void sendMeterMessages(Rtu concentrator, Rtu rtu, XmlHandler dataHandler) throws BusinessException, SQLException, NumberFormatException, IOException{
     	sendMeterMessages(concentrator, rtu, null, dataHandler);
     }
     
     /** Send Pending RtuMessage to meter. 
      * 	Currently we use the eRtu as a concentrator for the mbusRtu, so the serialNumber is this from the eRtu.
      * 	The messages them are those from the mbus device if this is not NULL.
+     * @throws IOException 
+     * @throws NumberFormatException 
      * */
-    protected void sendMeterMessages(Rtu concentrator, Rtu eRtu, Rtu mbusRtu, XmlHandler dataHandler) throws BusinessException, SQLException {
+    protected void sendMeterMessages(Rtu concentrator, Rtu eRtu, Rtu mbusRtu, XmlHandler dataHandler) throws BusinessException, SQLException, NumberFormatException, IOException {
     
         /* short circuit */
         if( ! communicationProfile.getSendRtuMessage() )
@@ -930,7 +939,7 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
                         	else if(checkFirmwareObisCodes(oc)){
                         		Date d = new Date(System.currentTimeMillis());
                         		String fwv = getFirwareVersions(concentrator, serial, oc);
-                        		dataHandler.getMeterReadingData().add(new RegisterValue(oc, null, null, null, d, d, -1, fwv));
+                        		dataHandler.getMeterReadingData().add(new RegisterValue(oc, null, null, null, d, d, 0, fwv));
                         	}
                         	else
                         		getLogger().log(Level.INFO, "Register with obisCode " + oc.toString() + " is not supported.");
@@ -942,7 +951,7 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
                     }
                     if (DEBUG) System.out.println(rl);
                     String registers [] = (String[]) rl.toArray(new String[0] ); 
-                    String r =  getPort(concentrator).getMeterOnDemandResultsList(serial, registers);
+                    String r = getConnection().getMeterOnDemandResultsList(serial, registers);
                     
                     getConcentrator().importData(r, dataHandler);
                     if (mbusRtu != null)
@@ -954,11 +963,11 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
                 }
                 
                 if (doConnect) {
-                     getPort(concentrator).setMeterDisconnectControl(serial, true);
+                	getConnection().setMeterDisconnectControl(serial, true);
                 }
                 
                 if (doDisconnect) {
-                     getPort(concentrator).setMeterDisconnectControl(serial, false);
+                	getConnection().setMeterDisconnectControl(serial, false);
                 }
                 
                 if (thresholdParameters){
@@ -1006,12 +1015,12 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
                 		String startBefore = Constant.getInstance().getDateFormatFixed().format(cal.getTime());
                 		cal.add(Calendar.MINUTE, 10);
                 		String endBefore = Constant.getInstance().getDateFormatFixed().format(cal.getTime());
-                		 getPort(concentrator).cosemSetRequest(serial, startBefore, endBefore, Constant.powerLimitObisCode.toString(), new UnsignedInt(3), new UnsignedInt(2), contractPowerLimit);
+                		 getConnection().cosemSetRequest(serial, startBefore, endBefore, Constant.powerLimitObisCode.toString(), new UnsignedInt(3), new UnsignedInt(2), contractPowerLimit);
                 	}
                 	
-                	 getPort(concentrator).setMeterCodeRedGroupId(serial, uiGrId);
+                	getConnection().setMeterCodeRedGroupId(serial, uiGrId);
                 	if (!thresholdPL.equalsIgnoreCase(""))
-                		 getPort(concentrator).setMeterCodeRedPowerLimit(serial, crPl);
+                		getConnection().setMeterCodeRedPowerLimit(serial, crPl);
                 }
                 
                 /* These are synchronous calls, so no sent state is ever used */
@@ -1223,9 +1232,9 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 		}
 	}
     
-	private String getMbusSerial(String meterID) throws NumberFormatException, RemoteException, ServiceException {
+	private String getMbusSerial(String meterID) throws NumberFormatException, ServiceException, IOException {
 		String times[] = prepareCosemGetRequest();
-		String str = new String( getPort(rtuConcentrator).cosemGetRequest(meterID, times[0], times[1], Constant.mbusSerialObisCode.toString(), new UnsignedInt(1), new UnsignedInt(2)));
+		String str = new String( getConnection().cosemGetRequest(meterID, times[0], times[1], Constant.mbusSerialObisCode.toString(), new UnsignedInt(1), new UnsignedInt(2)));
 		return str.substring(2);
 	}
 	
@@ -1306,7 +1315,7 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 		}
 	}
 
-	private void collectCache() throws BusinessException {
+	private void collectCache() throws BusinessException, IOException {
 		int iConf;
 		try{
 			if( dlmsCache.getLoadProfileConfig1() != null ){
@@ -1392,7 +1401,7 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 		this.dlmsCache=(Cache)cacheObject;
 	}
 	
-    protected void requestConfigurationParameters(Rtu concentrator, String serial) throws RemoteException, ServiceException {
+    protected void requestConfigurationParameters(Rtu concentrator, String serial) throws ServiceException, IOException {
         String loadProfile1 = "LoadProfile1";
         String loadProfile2 = "LoadProfile2";
         String billingProfile = "BillingProfile";
@@ -1400,19 +1409,19 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
         
 		try {
 			testLogging("TESTLOGGING - Requesting1/ lp period1");
-			this.loadProfilePeriod1 =  getPort(concentrator).getMeterLoadProfilePeriod(serial, new PeriodicProfileType(loadProfile1)).intValue();
+			this.loadProfilePeriod1 = getConnection().getMeterLoadProfilePeriod(serial, new PeriodicProfileType(loadProfile1)).intValue();
 			testLogging("TESTLOGGING - Requesting2/ lp period2");
-			this.loadProfilePeriod2 =  getPort(concentrator).getMeterLoadProfilePeriod(serial, new PeriodicProfileType(loadProfile2)).intValue();
+			this.loadProfilePeriod2 = getConnection().getMeterLoadProfilePeriod(serial, new PeriodicProfileType(loadProfile2)).intValue();
 			testLogging("TESTLOGGING - Requesting3/ lp config1");
-			this.loadProfileConfig1 =  getPort(concentrator).getMeterProfileConfig(serial, new ProfileType(loadProfile1));
+			this.loadProfileConfig1 = getConnection().getMeterProfileConfig(serial, new ProfileType(loadProfile1));
 			testLogging("TESTLOGGING - Requesting4/ lp config2");
-			this.loadProfileConfig2 =  getPort(concentrator).getMeterProfileConfig(serial, new ProfileType(loadProfile2));
+			this.loadProfileConfig2 = getConnection().getMeterProfileConfig(serial, new ProfileType(loadProfile2));
 			testLogging("TESTLOGGING - Requesting5/ lp config3");
-			this.loadProfileConfig3 =  getPort(concentrator).getMeterProfileConfig(serial, new ProfileType(billingProfile));
+			this.loadProfileConfig3 = getConnection().getMeterProfileConfig(serial, new ProfileType(billingProfile));
 			testLogging("TESTLOGGING - Requesting6/ lp config4");
-			this.loadProfileConfig4 =  getPort(concentrator).getMeterProfileConfig(serial, new ProfileType(scheduledProfile));
+			this.loadProfileConfig4 = getConnection().getMeterProfileConfig(serial, new ProfileType(scheduledProfile));
 			testLogging("TESTLOGGING - Requesting7/ billing readTime");
-			this.billingReadTime =  getPort(concentrator).getMeterBillingReadTime(serial);
+			this.billingReadTime = getConnection().getMeterBillingReadTime(serial);
 			
 		} catch (RemoteException e) {
 			getLogger().log(Level.SEVERE, "IskraMx37x: could not retreive configuration parameters, meter will NOT be handled");
@@ -1439,9 +1448,9 @@ class MeterReadTransaction implements Transaction, CacheMechanism {
 		this.loadProfilePeriod2 = loadProfilePeriod2;
 	}
 	
-	protected int requestConfigurationChanges(Rtu concentrator, String serial) throws NumberFormatException, RemoteException, ServiceException {
+	protected int requestConfigurationChanges(Rtu concentrator, String serial) throws NumberFormatException, ServiceException, IOException {
 		String times[] = prepareCosemGetRequest();
-		byte[] byteStrs = getPort(concentrator).cosemGetRequest(serial, times[0], times[1], Constant.confChangeObisCode.toString(), new UnsignedInt(1), new UnsignedInt(2));
+		byte[] byteStrs = getConnection().cosemGetRequest(serial, times[0], times[1], Constant.confChangeObisCode.toString(), new UnsignedInt(1), new UnsignedInt(2));
 		int changes = byteStrs[2]&0xFF;
 		changes = changes + ((byteStrs[1]&0xFF)<<8);
 		return changes;
