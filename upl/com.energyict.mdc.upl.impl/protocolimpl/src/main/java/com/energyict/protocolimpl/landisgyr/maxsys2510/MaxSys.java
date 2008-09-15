@@ -249,6 +249,7 @@ public class MaxSys implements MeterProtocol, RegisterProtocol {
         result.add(PK_EXTENDED_LOGGING);
         result.add(PK_READ_UNIT1_SERIALNUMBER);
         result.add(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE);
+        result.add(PK_COMMAND_DELAY);
         return result;
     }
     
