@@ -183,8 +183,16 @@ public class Opus extends AbstractProtocol{
 	}
 
 	public ProfileData getProfileData(Date fromTime, Date toTime, boolean event) throws IOException, UnsupportedException {
+		Calendar now=Calendar.getInstance(timezone);
+		Calendar endtime=Calendar.getInstance(timezone);
+		endtime.setTime(toTime);
+		long millis=endtime.getTimeInMillis();
+		if(now.getTimeInMillis()-1000*getProfileInterval()<millis){
+			endtime.setTimeInMillis(millis-1000*getProfileInterval());
+			toTime=endtime.getTime();
+		}
 		OpusGetProfileData ogpd=new OpusGetProfileData();
-		ogpd.setTimeZone(timezone);
+		ogpd.setTimeZone(timezone);		
 		return ogpd.getProfileData(fromTime, toTime, event, this.channelMap, this.ocf, this.numChan, getProfileInterval(), this.attempts, this.timeOut);
 	}
 	
