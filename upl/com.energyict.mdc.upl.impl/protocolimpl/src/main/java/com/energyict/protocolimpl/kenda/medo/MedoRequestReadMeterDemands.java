@@ -26,9 +26,11 @@ public class MedoRequestReadMeterDemands extends Parsers {
      	yr2.set(start.get(Calendar.YEAR),0,1,0,0,0);
 		yr2.set(Calendar.MILLISECOND, 0);
 	
-		long c2=stop.getTimeInMillis()-yr2.getTimeInMillis();
-		this.stPeriod  = (int) (Math.floor((start.getTimeInMillis()-yr2.getTimeInMillis())/(1000*intervaltime))*intervaltime);
-		this.noPeriods = (short) (Math.floor(((c2-stPeriod*1000)/(1000*intervaltime)))+1);
+		long c2=(long) Math.floor((stop.getTimeInMillis()-yr2.getTimeInMillis())/(1000*intervaltime));
+		this.stPeriod  = (int) (Math.floor((start.getTimeInMillis()-yr2.getTimeInMillis())/(1000*intervaltime)));
+		this.noPeriods = (short) (c2-stPeriod+1);
+		System.out.println(" stperiod: " + this.stPeriod);
+		System.out.println(" noperiods: " + this.noPeriods);
 
 	}
 //	MedoRequestReadMeterDemands(Calendar start, Calendar stop,
