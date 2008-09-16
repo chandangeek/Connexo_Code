@@ -14,6 +14,11 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	
+	<scm>
+		<developerConnection>scm:svn:http://maven:maven@linux2/svn/labo/protocols/trunk</developerConnection>
+	</scm>
+	
 	<modules>
 		<module>protocolimpl</module>
 		<module>echelon</module>
@@ -42,7 +47,9 @@
 				<version>1.0-beta-2</version>
 			</extension>
 		</extensions>
+		
 	</build>
+	
 	<repositories>
 		<repository>
 			<id>internal</id>
