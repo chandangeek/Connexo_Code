@@ -319,12 +319,12 @@ class MeterReadTransaction implements CacheMechanism {
             }
             if(!xml.equalsIgnoreCase("")){
             	
-            	File file = new File("c://TEST_FILES/SizeTest" + mtr + "_" + i + ".xml");
-            	FileOutputStream fos = new FileOutputStream(file);
-            	ObjectOutputStream oos = new ObjectOutputStream(fos);
-            	oos.writeObject(xml);
-            	oos.close();
-            	fos.close();
+//            	File file = new File("c://TEST_FILES/SizeTest" + mtr + "_" + i + ".xml");
+//            	FileOutputStream fos = new FileOutputStream(file);
+//            	ObjectOutputStream oos = new ObjectOutputStream(fos);
+//            	oos.writeObject(xml);
+//            	oos.close();
+//            	fos.close();
             	
             	dataHandler.setChannelIndex( i );
             	getConcentrator().importData(xml, dataHandler);
