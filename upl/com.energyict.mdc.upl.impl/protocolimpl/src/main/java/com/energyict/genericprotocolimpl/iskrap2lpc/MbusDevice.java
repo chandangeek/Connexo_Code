@@ -38,7 +38,7 @@ import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
 /**
- * @author gna
+ * @author gna 
  *
  */
 public class MbusDevice implements Messaging, MeterProtocol{
