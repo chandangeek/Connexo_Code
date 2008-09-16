@@ -149,7 +149,7 @@ public class MbusDevice implements Messaging, MeterProtocol{
 	}
 
 	public String getProtocolVersion() {
-		return "$Date$";
+		return "$Date: 2008-09-16 09:37:43 +0200 (di, 16 sep 2008) $";
 	}
 
 	public String getRegister(String name) throws IOException,
