@@ -33,7 +33,7 @@ class LinkLayer extends Connection {
 
     /** Send a StandardCommand */
     ByteArray send(StandardCommand command) throws IOException {
-    	maxSys.getLogger().info("new Y command " + command.getTbn());
+    	//maxSys.getLogger().info("new Y command " + command.getTbn());
     	//sleep(maxSys.getCommandDelay());
         int nrTry = 0;
 
@@ -70,8 +70,8 @@ class LinkLayer extends Connection {
                 	//		+ ", " + (new Date().getTime() - before.getTime()));
                     sendRawData(ack);
                     
-                    maxSys.getLogger().info("");
-                    maxSys.getLogger().info("receive block data " + blockNr);
+                    //maxSys.getLogger().info("");
+                    //maxSys.getLogger().info("receive block data " + blockNr);
                     //sleep(50);
                     Command c = cmdFactory.parse(receiveBlockData(267));
                     if (c.isBlockCommand()) {
@@ -85,7 +85,7 @@ class LinkLayer extends Connection {
                 }
                 
                 byte[] lastAck = cmdFactory.createAck(0).getBytes();
-            	maxSys.getLogger().info("X ack sent: 0 " + ProtocolUtils.outputHexString(lastAck));
+            	//maxSys.getLogger().info("X ack sent: 0 " + ProtocolUtils.outputHexString(lastAck));
                 sendRawData(lastAck);
 
                 //sleep(4000);
