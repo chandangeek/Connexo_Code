@@ -748,7 +748,7 @@ class MeterReadTransaction implements CacheMechanism {
         shadow.setSerialNumber(serial);
         
     	String folderExtName = getFolderID(concentrator);
-    	if(!folderExtName.equalsIgnoreCase("")){
+    	if(folderExtName != null){
     		Folder result = getConcentrator().mw().getFolderFactory().findByExternalName(folderExtName);
     		if(result != null){
     			shadow.setFolderId(result.getId());
