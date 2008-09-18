@@ -417,6 +417,7 @@ public class Concentrator implements Messaging, GenericProtocol {
         }
         
         if ( communicationProfile.getReadMeterEvents() ){
+        	getLogger().log(Level.INFO, "Getting events from concentrator with serialnumber: " + concentrator.getSerialNumber());
         	Date lastLogBookConcentrator = concentrator.getLastLogbook();
         	if(lastLogBookConcentrator == null){
         		lastLogBookConcentrator = getClearMidnightDate(concentrator);

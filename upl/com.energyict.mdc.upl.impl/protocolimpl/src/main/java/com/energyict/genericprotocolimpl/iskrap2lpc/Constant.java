@@ -60,7 +60,7 @@ class Constant {
     final static String RTU_TYPE = "RtuType";
     
     /** MeterCreateFolder ID */
-    final static String FOLDER_ID = "FolderID";
+    final static String FOLDER_EXT_NAME = "FolderExtName";
     
     /** Error message for a meter error */
     final static String METER_ERROR = 

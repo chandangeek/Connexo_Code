@@ -698,17 +698,18 @@ class MeterReadTransaction implements CacheMechanism {
     		
         	((Rtu)meterList.get(0)).updateGateway(concentrator);
         	
-        	int folderID = getFolderID(concentrator);
-        	if(folderID != -1){
-        		Folder result = getConcentrator().mw().getFolderFactory().find(folderID);
-        		if(result != null){
-        			((Rtu)meterList.get(0)).moveToFolder(result);
-        		} else {
-        			getLogger().log(Level.INFO, "No folder found with ID: " + folderID + ", new meter will be placed in prototype folder.");
-        		}
-        	} else {
-        		getLogger().log(Level.INFO, "New meter will be placed in prototype folder.");
-        	}
+        	// We may not move the meter if he already exists
+//        	int folderID = getFolderID(concentrator);
+//        	if(folderID != -1){
+//        		Folder result = getConcentrator().mw().getFolderFactory().find(folderID);
+//        		if(result != null){
+//        			((Rtu)meterList.get(0)).moveToFolder(result);
+//        		} else {
+//        			getLogger().log(Level.INFO, "No folder found with ID: " + folderID + ", new meter will be placed in prototype folder.");
+//        		}
+//        	} else {
+//        		getLogger().log(Level.INFO, "New meter will be placed in prototype folder.");
+//        	}
         	
             return (Rtu) meterList.get(0);
         }
@@ -726,17 +727,9 @@ class MeterReadTransaction implements CacheMechanism {
         }
     }
 	
-	private int getFolderID(Rtu concentrator){
-		int folder = -1;
-		String folderid = concentrator.getProperties().getProperty(Constant.FOLDER_ID);
-		if(folderid != null){
-			try {
-				folder = Integer.parseInt(folderid);
-			} catch (NumberFormatException e) {
-				folder = -1;
-			}
-		}
-		return folder;
+	private String getFolderID(Rtu concentrator){
+		String folderid = concentrator.getProperties().getProperty(Constant.FOLDER_EXT_NAME);
+		return folderid;
 	}
 	
 	/** Create a meter for configured RtuType 
@@ -754,13 +747,13 @@ class MeterReadTransaction implements CacheMechanism {
         shadow.setName(serial);
         shadow.setSerialNumber(serial);
         
-    	int folderID = getFolderID(concentrator);
-    	if(folderID != -1){
-    		Folder result = getConcentrator().mw().getFolderFactory().find(folderID);
+    	String folderExtName = getFolderID(concentrator);
+    	if(!folderExtName.equalsIgnoreCase("")){
+    		Folder result = getConcentrator().mw().getFolderFactory().findByExternalName(folderExtName);
     		if(result != null){
-    			shadow.setFolderId(folderID);
+    			shadow.setFolderId(result.getId());
     		} else {
-    			getLogger().log(Level.INFO, "No folder found with ID: " + folderID + ", new meter will be placed in prototype folder.");
+    			getLogger().log(Level.INFO, "No folder found with external name: " + folderExtName + ", new meter will be placed in prototype folder.");
     		}
     	} else {
     		getLogger().log(Level.INFO, "New meter will be placed in prototype folder.");
@@ -1424,13 +1417,13 @@ class MeterReadTransaction implements CacheMechanism {
 			this.billingReadTime = getConnection().getMeterBillingReadTime(serial);
 			
 		} catch (RemoteException e) {
-			getLogger().log(Level.SEVERE, "IskraMx37x: could not retreive configuration parameters, meter will NOT be handled");
+			getLogger().log(Level.SEVERE, "IskraMx37x: could not retrieve configuration parameters, meter will NOT be handled");
 			e.printStackTrace();
-			throw new RemoteException( "No parameters could be retreived.", e );
+			throw new RemoteException( "No parameters could be retrieved.", e );
 		} catch (ServiceException e) {
-			getLogger().log(Level.SEVERE, "IskraMx37x: could not retreive configuration parameters, meter will NOT be handled");
+			getLogger().log(Level.SEVERE, "IskraMx37x: could not retrieve configuration parameters, meter will NOT be handled");
 			e.printStackTrace();
-			throw new ServiceException( "No parameters could be retreived.", e );
+			throw new ServiceException( "No parameters could be retrieved.", e );
 		}
 	}
     
