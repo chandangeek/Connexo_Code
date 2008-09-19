@@ -23,6 +23,8 @@ import com.energyict.protocolimpl.base.*;
 /**
  *
  * @author Koen
+ * 
+ * GN |19-09-2008| Deleted the session timeOuts - When meter fails he retried for about 5 minutes and hardly never recovered from that
  */
 public class TrimeranConnection extends ConnectionV25  implements ProtocolConnection {
     
@@ -128,19 +130,21 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
                 sendFrame(txOutputStream.toByteArray());
                 return getSessionData(len);
             } catch(ConnectionException e) {
-                if (retry++>=(maxRetries-1)) { // maxretries voldoet in een bepaalde voorwaarde aan de sessiontimeout...
-                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
-                }
+//                if (retry++>=(maxRetries-1)) { // maxretries voldoet in een bepaalde voorwaarde aan de sessiontimeout...
+//	            	throw new ProtocolConnectionException("sendCommand() error: "+e.getMessage());
+//                }
                
                 // KV new timeout behaviour
                 if (e.getReason() == TIMEOUT_ERROR) {
                     if (timeoutType==TSE)
-                        throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
+                        throw new ProtocolConnectionException("sendCommand() error: "+e.getMessage());
                 }
                 
                 if ((e.getReason() != ERROR_NAK) && (e.getReason() != TIMEOUT_ERROR))
                     assembleCommand(cmdData); // YES, we must adjust the sequence number!
-                
+                else{
+                	throw new ProtocolConnectionException("sendCommand() error: "+e.getMessage());
+                }
             }
         } // while(true)
     }
