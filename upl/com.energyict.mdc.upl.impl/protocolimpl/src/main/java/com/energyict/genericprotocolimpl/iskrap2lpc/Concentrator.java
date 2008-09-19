@@ -260,7 +260,7 @@ public class Concentrator implements Messaging, GenericProtocol {
 			e.printStackTrace();
 			throw new NumberFormatException("Could not convert " + properties.getProperty("TestLogging") + " to an integer");
 		}
-		this.retry = Integer.parseInt(properties.getProperty("Retry", "3"));
+		this.retry = Integer.parseInt(properties.getProperty("Retries", "3"));
 		this.delayAfterFail = Integer.parseInt(properties.getProperty(Constant.DELAY_AFTER_FAIL, "5000"));
     }
 

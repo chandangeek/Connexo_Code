@@ -637,6 +637,12 @@ class XmlHandler extends DefaultHandler {
         		profileData.addInterval(interval.toIntervalData());
         	}
         	
+        	it = eventList.iterator();
+            while( it.hasNext() ){
+                MeterEvent event = (MeterEvent)it.next();
+                profileData.addEvent( event );
+            }
+        	
         	profileData.sort();
         	return profileData;
         }

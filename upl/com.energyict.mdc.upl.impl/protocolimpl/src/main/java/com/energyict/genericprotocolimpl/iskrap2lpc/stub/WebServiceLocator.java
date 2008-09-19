@@ -53,8 +53,6 @@ public class WebServiceLocator extends org.apache.axis.client.Service implements
     public com.energyict.genericprotocolimpl.iskrap2lpc.stub.P2LPCSoapPort_PortType getP2LPCSoapPort(java.net.URL portAddress) throws javax.xml.rpc.ServiceException {
         try {
             com.energyict.genericprotocolimpl.iskrap2lpc.stub.P2LPCSoapBindingStub _stub = new com.energyict.genericprotocolimpl.iskrap2lpc.stub.P2LPCSoapBindingStub(portAddress, this);
-            // I manually set this timeout
-            _stub.setTimeout(120000);
             _stub.setPortName(getP2LPCSoapPortWSDDServiceName());
             return _stub;
         }
