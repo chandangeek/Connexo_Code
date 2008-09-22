@@ -123,8 +123,10 @@ public class Generic extends MBus {
 	                discoverResult.setProtocolName(DiscoverProtocolInfo.getUnknown().getProtocolName());
 	                discoverResult.setDeviceTypeName(DiscoverProtocolInfo.getUnknown().getDeviceType());
 	                discoverResult.setShortDeviceTypeName(DiscoverProtocolInfo.getUnknown().getShortDeviceType());
-	                discoverResult.setDeviceName(cIField72h.getMeter3LetterId()+" V"+cIField72h.getVersion()+" "+cIField72h.getDeviceType().getShortDescription());
-	                        
+	                String str = cIField72h.getMeter3LetterId()+" V"+cIField72h.getVersion()+" "+cIField72h.getDeviceType().getShortDescription();
+	                discoverResult.setDeviceName(str.replace('.','-').replace('/',' ')); // '.' and '/' are not allowed in EIServer as character in a device name!
+	                
+	                
 	                Iterator it2 = DiscoverProtocolInfo.getSupportedDevicesList().iterator();
 	                while(it2.hasNext()) {
 	                    DiscoverProtocolInfo dpi = (DiscoverProtocolInfo)it2.next();
@@ -190,8 +192,10 @@ public class Generic extends MBus {
             discoverResult.setProtocolName(DiscoverProtocolInfo.getUnknown().getProtocolName());
             discoverResult.setDeviceTypeName(DiscoverProtocolInfo.getUnknown().getDeviceType());
             discoverResult.setShortDeviceTypeName(DiscoverProtocolInfo.getUnknown().getShortDeviceType());
-            discoverResult.setDeviceName(cIField72h.getMeter3LetterId()+" V"+cIField72h.getVersion()+" "+cIField72h.getDeviceType().getShortDescription());
-                    
+            String str = cIField72h.getMeter3LetterId()+" V"+cIField72h.getVersion()+" "+cIField72h.getDeviceType().getShortDescription();
+            discoverResult.setDeviceName(str.replace('.','-').replace('/',' ')); // '.' and '/' are not allowed in EIServer as character in a device name!
+            
+            
             Iterator it = DiscoverProtocolInfo.getSupportedDevicesList().iterator();
             while(it.hasNext()) {
                 DiscoverProtocolInfo dpi = (DiscoverProtocolInfo)it.next();
