@@ -94,10 +94,6 @@
 						<artifactId>jacob</artifactId>
 					</exclusion>
 					<exclusion>
-						<groupId>com.oracle</groupId>
-						<artifactId>ojdbc14</artifactId>
-					</exclusion>
-					<exclusion>
 						<groupId>serialio</groupId>
 						<artifactId>serialio</artifactId>
 					</exclusion>
