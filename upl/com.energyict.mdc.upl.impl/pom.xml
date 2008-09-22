@@ -74,10 +74,6 @@
 						<artifactId>servlet-api</artifactId>
 					</exclusion>
 					<exclusion>
-						<groupId>bsh</groupId>
-						<artifactId>bsh</artifactId>
-					</exclusion>
-					<exclusion>
 						<groupId>jfree</groupId>
 						<artifactId>jcommon</artifactId>
 					</exclusion>
