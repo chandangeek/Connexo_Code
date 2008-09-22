@@ -208,4 +208,5 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         throw new IOException("CosemObjectFactory, getObjectReference, invalid reference type "+protocolLink.getReference());
     }
     
+    
 }

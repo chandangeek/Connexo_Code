@@ -22,14 +22,14 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class Integer16 extends AbstractDataType {
     
-    private int value;
+    private short value;
             
     /** Creates a new instance of Enum */
     public Integer16(byte[] berEncodedData, int offset) throws IOException {
         if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_LONG)
             throw new IOException("Integer16, invalid identifier "+berEncodedData[offset]);
         offset++;
-        setValue((int)ProtocolUtils.getShort(berEncodedData,offset));
+        value = (short)ProtocolUtils.getInt(berEncodedData,offset,2);
         offset+=2;
     }
     
@@ -41,14 +41,18 @@ public class Integer16 extends AbstractDataType {
     }
     
     public Integer16(int value) {
+        this.value=(short)value;
+    }
+    
+    public Integer16(short value) {
         this.value=value;
     }
     
     protected byte[] doGetBEREncodedByteArray() {
         byte[] data = new byte[3];
         data[0] = DLMSCOSEMGlobals.TYPEDESC_LONG;
-        data[1] = (byte)(getValue()/256);
-        data[2] = (byte)(getValue()%256);
+        data[1] = (byte)(((int)value&0xffff)/256);
+        data[2] = (byte)(((int)value&0xffff)%256);
         return data;
     }
     
@@ -71,7 +75,7 @@ public class Integer16 extends AbstractDataType {
         return value;
     }
 
-    public void setValue(int value) {
+    public void setValue(short value) {
         this.value = value;
     }
 

@@ -33,6 +33,10 @@ abstract public class AbstractDataType {
         
     } 
     
+    public int getDecodedSize() {
+    	return size();
+    }
+    
     public byte[] getBEREncodedByteArray() throws IOException {
         return doGetBEREncodedByteArray();
     }
@@ -71,6 +75,9 @@ abstract public class AbstractDataType {
     }
     public Integer64 getInteger64() {
         return (Integer64)this;
+    }
+    public Integer32 getInteger32() {
+        return (Integer32)this;
     }
     public Unsigned8 getUnsigned8() {
         return (Unsigned8)this;

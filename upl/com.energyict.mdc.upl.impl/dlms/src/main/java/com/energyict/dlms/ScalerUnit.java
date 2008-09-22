@@ -6,9 +6,10 @@
 
 package com.energyict.dlms;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
+import java.io.IOException;
+
+import com.energyict.cbo.Unit;
+import com.energyict.dlms.axrdencoding.*;
 
 /**
  *
@@ -19,6 +20,25 @@ public class ScalerUnit
    private int scale;
    private int unit;
 
+
+   public ScalerUnit(AbstractDataType dataType) {
+	   scale = dataType.getStructure().getDataType(0).getInteger8().intValue();
+	   unit = dataType.getStructure().getDataType(1).getTypeEnum().intValue();
+   }
+
+   public AbstractDataType getAbstractDataType() {
+	   Structure structure = new Structure();
+	   structure.addDataType(new Integer8(scale));
+	   structure.addDataType(new TypeEnum(unit));
+	   return structure;
+   }
+   
+   public ScalerUnit(Unit unit) {
+       this.unit = unit.getDlmsCode();
+       this.scale = unit.getScale();
+   }
+   
+   
    public ScalerUnit(int scale,Unit unit) {
        this.unit = unit.getDlmsCode();
        this.scale = scale;
@@ -31,6 +51,8 @@ public class ScalerUnit
       //if (this.scale == 0xff) this.scale=0;
       this.unit = unit;
    }
+   
+   
    
    public ScalerUnit(byte[] buffer) throws IOException {
       this(buffer,0);
@@ -59,4 +81,14 @@ public class ScalerUnit
    public Unit getUnit() {
       return Unit.get(unit,scale);   
    }
+   
+   static public void main(String[] args) {
+	   ScalerUnit o = new ScalerUnit(Unit.get("kWh"));
+	   System.out.println(o);
+	   System.out.println(o.getAbstractDataType());
+	   AbstractDataType o2 = o.getAbstractDataType();
+	   ScalerUnit o3 = new ScalerUnit(o2);
+	   System.out.println(o3.getUnit());
+   }
+   
 } // public class ScalerUnit

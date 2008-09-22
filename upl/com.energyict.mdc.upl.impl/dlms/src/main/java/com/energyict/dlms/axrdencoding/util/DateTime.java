@@ -2,10 +2,9 @@ package com.energyict.dlms.axrdencoding.util;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.TimeZone;
+import java.util.*;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -59,9 +58,30 @@ public class DateTime extends AbstractDataType {
     private Calendar dateTime;
     private int status;
     
-    public DateTime( ) { }
+    public DateTime( ) {
+    }
+
+    public DateTime(TimeZone timeZone) {
+    	dateTime = Calendar.getInstance(timeZone);
+    }
     
-    /* */
+    public DateTime(Calendar dateTime) {
+    	this.dateTime = dateTime;
+    }
+
+    public DateTime(Date date) {
+    	dateTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    	dateTime.setTime(date);
+    }
+    
+    public DateTime(OctetString octetString) throws IOException {
+    	this(octetString.getBEREncodedByteArray());
+    }
+    
+    public DateTime(byte[] berEncodedData) {
+    	this(berEncodedData,0,TimeZone.getTimeZone("GMT"));
+    }
+    
     public DateTime(byte[] berEncodedData, int offset, TimeZone zone) {
         
         
@@ -192,7 +212,7 @@ public class DateTime extends AbstractDataType {
         byte [] ba = new byte [] {
         (byte)0x09, (byte)0x0c, (byte)0x07, (byte)0xD7, (byte)0x0A, 
         (byte)0x16, (byte)0x01, (byte)0x0A, (byte)0x35, (byte)0x0F, 
-        (byte)0xFF, (byte)0x08, (byte)0x00, (byte)0x00
+        (byte)0xFF, (byte)0x08, (byte)0x00, (byte)0x80
         };
         
         
@@ -226,7 +246,7 @@ public class DateTime extends AbstractDataType {
             (byte) (hms),
             0,
             0,
-            0
+            (byte)0x80
         };
         
         for (int i = 0; i < bin.length; i++) {
@@ -235,6 +255,18 @@ public class DateTime extends AbstractDataType {
         System.out.println( bin );
         System.out.println( new DateTime( bin, 0, TimeZone.getDefault() ).getValue().getTime() );
         
+        try {
+	        DateTime dt2 = new DateTime(TimeZone.getTimeZone("ECT"));
+	        System.out.println(ProtocolUtils.outputHexString(dt2.getBEREncodedByteArray()));
+	        byte[] data = dt2.getBEREncodedByteArray();
+	        data[13]=(byte)0x80;
+	        System.out.println(ProtocolUtils.outputHexString(data));
+	        DateTime dt3 = new DateTime(data,0,TimeZone.getTimeZone("ECT"));
+	        System.out.println(dt3.getValue().getTime());
+        }
+        catch(IOException e) {
+        	e.printStackTrace();
+        }
         
     }
     

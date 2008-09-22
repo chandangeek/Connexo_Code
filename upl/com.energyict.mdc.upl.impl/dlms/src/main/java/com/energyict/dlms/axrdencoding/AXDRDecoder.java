@@ -20,16 +20,19 @@ import com.energyict.dlms.DLMSCOSEMGlobals;
  */
 public class AXDRDecoder {
     
-    
     /** Creates a new instance of AXDRDecoder */
     public AXDRDecoder() {
         
     }
     
     static public AbstractDataType decode(byte[] data) throws IOException {
-        AbstractDataType adt = decode(data,0,0);
+    	return decode(data,0,0);
+    }
+    static public AbstractDataType decode(byte[] data,int offset) throws IOException {
+        AbstractDataType adt = decode(data,offset,0);
         return adt;
     }
+    
     static protected AbstractDataType decode(byte[] data,int offset, int level) throws IOException {
         switch(data[offset]) {
             case DLMSCOSEMGlobals.TYPEDESC_NULL:
@@ -42,6 +45,8 @@ public class AXDRDecoder {
                return new Integer8(data,offset);
             case DLMSCOSEMGlobals.TYPEDESC_LONG:
                return new Integer16(data,offset);
+            case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG:
+                return new Integer32(data,offset);
             case DLMSCOSEMGlobals.TYPEDESC_UNSIGNED:
                return new Unsigned8(data,offset); 
             case DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED:

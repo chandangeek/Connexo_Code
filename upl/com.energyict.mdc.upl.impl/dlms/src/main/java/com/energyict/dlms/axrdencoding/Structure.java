@@ -119,7 +119,10 @@ public class Structure extends AbstractDataType {
             s.addDataType(new Structure().addDataType(new Unsigned32(0x7fff)).addDataType(new Unsigned8(128)));
             s.addDataType(new VisibleString("End",20));
             s.addDataType(new Unsigned16(20));
-            s.addDataType(new Integer64(123456789123456789L));
+            s.addDataType(new Integer64(-123456789123456789L));
+            s.addDataType(new Integer32(-1235564));
+            s.addDataType(new Integer8(-12));
+            s.addDataType(new Integer16(1309));
             byte[] data = s.getBEREncodedByteArray();
             System.out.println(ProtocolUtils.outputHexString(data));
             

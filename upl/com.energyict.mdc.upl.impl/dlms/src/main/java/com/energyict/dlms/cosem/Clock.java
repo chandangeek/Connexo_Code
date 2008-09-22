@@ -5,13 +5,16 @@
  */
 
 package com.energyict.dlms.cosem;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
-import com.energyict.protocolimpl.dlms.*;
-import com.energyict.protocol.*;
 import com.energyict.dlms.OctetString;
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author  Koen
@@ -31,11 +34,12 @@ public class Clock extends AbstractCosemObject {
     int dstFlag=-1;
     
     /** Creates a new instance of Clock */
+    public Clock(ProtocolLink protocolLink) {
+        super(protocolLink,new ObjectReference(new byte[]{0,0,1,0,0,(byte)255}));
+    }
     public Clock(ProtocolLink protocolLink,ObjectReference objectReference) {
         super(protocolLink,objectReference);
     }
-    
-    
     
     
     public void setDateTime(OctetString octetString) throws IOException {
@@ -206,5 +210,12 @@ public class Clock extends AbstractCosemObject {
         return CLASSID;
     }
 
+    public void setTimeAttr(DateTime dateTime) throws IOException {
+        write(2, dateTime.getBEREncodedByteArray());
+    }
+    
+    public AbstractDataType getTimeAttr() throws IOException {
+        return AXDRDecoder.decode(getLNResponseData(2));
+    }
     
 }

@@ -60,9 +60,21 @@ public interface DLMSCOSEMGlobals {
     final byte LN_D_CURRENT_AVERAGE_1=4;
     final byte LN_D_TIME_INTEGRAL_1=8;
     final byte LN_D_CURRENT_AVERAGE_5=27; 
+
+    final byte ATTR_DATA_VALUE=2;
     
-    final byte ATTR_DEMAND_REGISTER_SCALER=4;
+    final byte ATTR_REGISTER_VALUE=2;
     final byte ATTR_REGISTER_SCALER=3;
+    
+    final byte ATTR_DEMAND_REGISTER_CURRENT_AVERAGE=2;
+    final byte ATTR_DEMAND_REGISTER_LAST_AVERAGE=3;
+    final byte ATTR_DEMAND_REGISTER_SCALER=4;
+    
+    final byte ATTR_CLOCK_TIME=2;
+    
+    final byte ATTR_PROFILEGENERIC_BUFFER=2;
+    final byte ATTR_PROFILEGENERIC_CAPTUREOBJECTS=3;
+    final byte ATTR_PROFILEGENERIC_CAPTUREPERIOD=4;
     
     // DLMS PDU offsets
     final byte DL_COSEMPDU_OFFSET=0x03;

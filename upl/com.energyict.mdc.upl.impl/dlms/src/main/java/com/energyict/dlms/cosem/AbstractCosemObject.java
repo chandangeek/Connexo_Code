@@ -87,7 +87,10 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
                 responseData = protocolLink.getDLMSConnection().sendRequest(buildSetRequest(getClassId(),objectReference.getLn(),(byte)attribute,data));
             else if (objectReference.isSNReference())
                responseData = protocolLink.getDLMSConnection().sendRequest(buildWriteRequest((short)objectReference.getSn(),attribute,data));
-            return CheckCosemPDUResponseHeader(responseData);
+            if (protocolLink.getDLMSConnection() instanceof AdaptorConnection)
+            	return responseData;
+            else 
+            	return CheckCosemPDUResponseHeader(responseData);
         }
         catch(DataAccessResultException e) {
             throw(e);
@@ -337,6 +340,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
         if (bVal != 0)
         throw new DataAccessResultException((int)bVal&0xFF);
     } // private void evalDataAccessResult(byte bVal) throws IOException
+
     
     private static final byte CONFIRMEDSERVICEERROR_READ_TAG=5;
     private static final byte SERVICEERROR_ACCESS_TAG=5;

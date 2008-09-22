@@ -14,8 +14,7 @@ import com.energyict.protocol.*;
 import com.energyict.cbo.Unit;
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.AbstractCosemObject;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.ScalerUnit;
@@ -115,6 +114,14 @@ public class Register extends AbstractCosemObject implements CosemObject {
     
     public String getText() throws IOException {
         return null;
+    }
+    
+    public void setScalerUnitAttr(Unit unit) throws IOException {
+    	ScalerUnit scalerUnit = new ScalerUnit(unit);
+        write(3, scalerUnit.getAbstractDataType().getBEREncodedByteArray());
+    }
+    public void setValueAttr(AbstractDataType dataType) throws IOException {
+        write(2, dataType.getBEREncodedByteArray());
     }
     
 }

@@ -246,6 +246,15 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
         write(4, val.getBEREncodedByteArray());
     }
     
+    public void setBufferAttr(Array val) throws IOException {
+        write(2, val.getBEREncodedByteArray());
+    }
+    public void setCaptureObjectsAttr(Array val) throws IOException {
+        write(3, val.getBEREncodedByteArray());
+    }
+    public void setCapturePeriodAttr(Unsigned32 val) throws IOException {
+        write(4, val.getBEREncodedByteArray());
+    }
     
 //    public static void main(String[] args) {
 //        

@@ -50,6 +50,9 @@ public class OctetString extends AbstractDataType {
         this(octetStr,octetStr.length,0);
     }
     
+    static public OctetString fromString(String string) {
+        return new OctetString(string.getBytes());
+    }
     static public OctetString fromString(String string, int size) {
         return new OctetString(string.getBytes(), size, 0);
     }
