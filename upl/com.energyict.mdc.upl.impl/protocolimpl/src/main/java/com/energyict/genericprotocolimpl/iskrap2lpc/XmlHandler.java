@@ -24,6 +24,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.ProfileData;
@@ -453,11 +454,11 @@ class XmlHandler extends DefaultHandler {
             	}
             	if ( mask(eventId, Constant.EVENT_METER_COVER_OPENED) ){
             		final String msg = "Event status meter cover opened.";
-            		addMeterEvent(time,MeterEvent.OTHER,msg);
+            		addMeterEvent(time, MeterEvent.COVER_OPENED, msg);
             	}
             	if ( mask(eventId, Constant.EVENT_TERMINAL_COVER_OPENED) ){
             		final String msg = "Event status terminal cover opened.";
-            		addMeterEvent(time,MeterEvent.OTHER,msg);
+            		addMeterEvent(time,MeterEvent.TERMINAL_OPENED,msg);
             	}
             }
         } catch (ParseException e) {
@@ -634,7 +635,16 @@ class XmlHandler extends DefaultHandler {
         	Iterator it = intervalMap.values().iterator();
         	while(it.hasNext()){
         		interval = (Interval)it.next();
-        		profileData.addInterval(interval.toIntervalData());
+        		IntervalData id = interval.toIntervalData();
+        		Iterator valit = id.getValuesIterator();
+        		boolean corrupt = false;
+        		while(valit.hasNext()){
+        			IntervalValue val = (IntervalValue) valit.next();
+        			if(val.getNumber() == null)
+        				corrupt = true;
+        		}
+        		if(!corrupt)
+        			profileData.addInterval(interval.toIntervalData());
         	}
         	
         	it = eventList.iterator();
@@ -761,6 +771,14 @@ class XmlHandler extends DefaultHandler {
 	
 	private Unit getChannelUnit(){
 		return this.channelUnit;
+	}
+	
+	public static void main(String[] args){
+		try{
+			System.out.println("MeterEvent cover opened: " + MeterEvent.COVER_OPENED);
+		} catch (Exception e){
+			System.out.println(e);
+		}
 	}
 
 }

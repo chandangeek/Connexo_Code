@@ -148,6 +148,7 @@ class Constant {
     final static String monthlyto0509 = "/offlineFiles/iskrap2lpc/monthlyto0509.xml";
     final static String nullp1 = "/offlineFiles/iskrap2lpc/nullpointerstuff.xml";
     final static String nullp2 = "/offlineFiles/iskrap2lpc/nullpointerstuff2.xml";
+    final static String[] nullPointerProfile = {"/offlineFiles/iskrap2lpc/NullPointer38547358_0.xml", "/offlineFiles/iskrap2lpc/NullPointer38547358_1.xml"};
     
     final static String NON_Unknown = "NON.Unknown";
     final static String SYS_Startup = "SYS.Startup";

@@ -221,7 +221,7 @@ public class Concentrator implements Messaging, GenericProtocol {
 		return serials;
 	}
 
-	private String checkConcentratorSerial(Rtu concentrator) throws ServiceException, IOException{
+	private String checkConcentratorSerial(Rtu concentrator) throws ServiceException, IOException, BusinessException{
 		String conID = null;
 		getLogger().log(Level.INFO, "Checking concentrator serialnumber.");
 		
@@ -453,7 +453,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     }
     
     private void setTime(Rtu concentrator) 
-        throws ServiceException, ParseException, IOException {
+        throws ServiceException, ParseException, IOException, BusinessException {
         
         /* Don't worry about clock sets over interval boundaries, Iskra
          * will (probably) handle this. 

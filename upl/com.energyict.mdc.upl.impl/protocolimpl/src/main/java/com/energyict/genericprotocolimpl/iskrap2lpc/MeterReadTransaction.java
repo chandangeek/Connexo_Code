@@ -80,6 +80,8 @@ import com.energyict.protocolimpl.base.ProtocolChannelMap;
  */
 class MeterReadTransaction implements CacheMechanism {
 	
+//	1.8.0+9:2.8.0+9:1.8.1+9d:1.8.2+9d:2.8.1+9d:2.8.2+9d:1.8.1+9m:1.8.2+9m:2.8.1+9m:2.8.2+9m
+	
 	protected boolean TESTING = false;
 	protected String billingMonthly = "";
 	protected String billingDaily = "";
@@ -223,9 +225,10 @@ class MeterReadTransaction implements CacheMechanism {
             throw new BusinessException(thrown); /* roll back */
             
         } finally {
-        	if(succes)
+        	if(succes){
         		Environment.getDefault().execute(getStoreObjects());
-        	getLogger().log(Level.INFO, "Meter with serialnumber " + serial + " has completely finished");
+        		getLogger().log(Level.INFO, "Meter with serialnumber " + serial + " has completely finished");
+        	}
         }
         
 //        return getMeter(); /* return whatever */
@@ -318,16 +321,17 @@ class MeterReadTransaction implements CacheMechanism {
             	}
             }
             if(!xml.equalsIgnoreCase("")){
+
+            	dataHandler.setChannelIndex( i );
+            	getConcentrator().importData(xml, dataHandler);
             	
-//            	File file = new File("c://TEST_FILES/SizeTest" + mtr + "_" + i + ".xml");
+//            	File file = new File("c://TEST_FILES/NullPointer" + mtr + "_" + i + ".xml");
 //            	FileOutputStream fos = new FileOutputStream(file);
 //            	ObjectOutputStream oos = new ObjectOutputStream(fos);
 //            	oos.writeObject(xml);
 //            	oos.close();
 //            	fos.close();
             	
-            	dataHandler.setChannelIndex( i );
-            	getConcentrator().importData(xml, dataHandler);
             }
             
         }
@@ -363,8 +367,8 @@ class MeterReadTransaction implements CacheMechanism {
 //	      meter.store(dataHandler.getProfileData(), false);
         getStoreObjects().add(meter, dataHandler.getProfileData());
     }
-    
-    protected void importDailyMonthly(Rtu meter, XmlHandler dataHandler, String serialNumber) throws BusinessException, ServiceException, IOException, SQLException{
+
+	protected void importDailyMonthly(Rtu meter, XmlHandler dataHandler, String serialNumber) throws BusinessException, ServiceException, IOException, SQLException{
     	getLogger().log(Level.INFO, "Reading Daily/Monthly values from meter with serialnumber " + meter.getSerialNumber() + ".");
     	String xml = "";
     	String daily = null;
@@ -657,7 +661,7 @@ class MeterReadTransaction implements CacheMechanism {
     }
     
     
-	private String getFirwareVersions(Rtu concentrator, String meterID, ObisCode oc) throws NumberFormatException, ServiceException, IOException{
+	private String getFirwareVersions(Rtu concentrator, String meterID, ObisCode oc) throws NumberFormatException, ServiceException, IOException, BusinessException{
 		String times[] = prepareCosemGetRequest();
 		
 		StringBuffer strBuff = new StringBuffer();
@@ -796,21 +800,21 @@ class MeterReadTransaction implements CacheMechanism {
 		return od;
 	}
     
-	private boolean lpContainsRegister(ObjectDef[] lp, String register) {
-		for (int i = 0; i< lp.length; i++){
-			if(lp[i]!=null){
-				String instId = lp[i].getInstanceId();
-				if (register.length() == 5){
-					if (instId.indexOf(register) == 4)
-						return true;
-				}
-				else
-					if (instId.indexOf(register.subSequence(0, register.length()).toString()) >= 0)
-						return true;
-			}
-		}
-		return false;
-	}
+//	private boolean lpContainsRegister(ObjectDef[] lp, String register) {
+//		for (int i = 0; i< lp.length; i++){
+//			if(lp[i]!=null){
+//				String instId = lp[i].getInstanceId();
+//				if (register.length() == 5){
+//					if (instId.indexOf(register) == 4)
+//						return true;
+//				}
+//				else
+//					if (instId.indexOf(register.subSequence(0, register.length()).toString()) >= 0)
+//						return true;
+//			}
+//		}
+//		return false;
+//	}
 
 	protected boolean isTESTING() {
 		return TESTING;
@@ -894,8 +898,8 @@ class MeterReadTransaction implements CacheMechanism {
             String contents = msg.getContents();
             
             boolean doReadRegister  = contents.indexOf(Constant.ON_DEMAND) != -1;
-            boolean doConnect       = contents.indexOf(Constant.CONNECT_LOAD) != -1;
             boolean doDisconnect    = contents.indexOf(Constant.DISCONNECT_LOAD) != -1;
+            boolean doConnect       = (contents.indexOf(Constant.CONNECT_LOAD) != -1) && !doDisconnect;
             
             boolean thresholdParameters	= (contents.indexOf(Constant.THRESHOLD_GROUPID) != -1) ||
             									(contents.indexOf(Constant.THRESHOLD_POWERLIMIT) != -1) ||
@@ -966,20 +970,26 @@ class MeterReadTransaction implements CacheMechanism {
                 if (thresholdParameters){
                 	
                 	String groupID = getConcentrator().getMessageValue(contents, Constant.THRESHOLD_GROUPID);
-                	if (groupID.equalsIgnoreCase(""))
+                	if (groupID.equalsIgnoreCase("")){
+                		msg.setFailed();
                 		throw new BusinessException("No groupID was entered.");
+                	}
                 	
                 	String thresholdPL = getConcentrator().getMessageValue(contents, Constant.THRESHOLD_POWERLIMIT);
                 	String contractPL = getConcentrator().getMessageValue(contents, Constant.CONTRACT_POWERLIMIT);
-                	if ( (thresholdPL.equalsIgnoreCase("")) && (contractPL.equalsIgnoreCase("")) )
-                			throw new BusinessException("Neighter contractual nor threshold limit was given.");
+                	if ( (thresholdPL.equalsIgnoreCase("")) && (contractPL.equalsIgnoreCase("")) ){
+                		msg.setFailed();
+                		throw new BusinessException("Neighter contractual nor threshold limit was given.");
+                	}
                 	                	
                 	UnsignedInt uiGrId = new UnsignedInt();
                 	UnsignedInt crPl = new UnsignedInt();
                 	byte[] contractPowerLimit	= new byte[]{DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED,0, 0, 0, 0};
 
-                	if (thresholdPL.equalsIgnoreCase(""))
+                	if (thresholdPL.equalsIgnoreCase("")){
+                		msg.setFailed();
                 		throw new BusinessException("No threshold powerLimit was given.");
+                	}
 
                 	try{
                 		uiGrId.setValue((long)Integer.parseInt(groupID));
@@ -1225,7 +1235,7 @@ class MeterReadTransaction implements CacheMechanism {
 		}
 	}
     
-	private String getMbusSerial(String meterID) throws NumberFormatException, ServiceException, IOException {
+	private String getMbusSerial(String meterID) throws NumberFormatException, ServiceException, IOException, BusinessException {
 		String times[] = prepareCosemGetRequest();
 		String str = new String( getConnection().cosemGetRequest(meterID, times[0], times[1], Constant.mbusSerialObisCode.toString(), new UnsignedInt(1), new UnsignedInt(2)));
 		return str.substring(2);
@@ -1394,7 +1404,7 @@ class MeterReadTransaction implements CacheMechanism {
 		this.dlmsCache=(Cache)cacheObject;
 	}
 	
-    protected void requestConfigurationParameters(Rtu concentrator, String serial) throws ServiceException, IOException {
+    protected void requestConfigurationParameters(Rtu concentrator, String serial) throws ServiceException, IOException, BusinessException {
         String loadProfile1 = "LoadProfile1";
         String loadProfile2 = "LoadProfile2";
         String billingProfile = "BillingProfile";
@@ -1441,7 +1451,7 @@ class MeterReadTransaction implements CacheMechanism {
 		this.loadProfilePeriod2 = loadProfilePeriod2;
 	}
 	
-	protected int requestConfigurationChanges(Rtu concentrator, String serial) throws NumberFormatException, ServiceException, IOException {
+	protected int requestConfigurationChanges(Rtu concentrator, String serial) throws NumberFormatException, ServiceException, IOException, BusinessException {
 		String times[] = prepareCosemGetRequest();
 		byte[] byteStrs = getConnection().cosemGetRequest(serial, times[0], times[1], Constant.confChangeObisCode.toString(), new UnsignedInt(1), new UnsignedInt(2));
 		int changes = byteStrs[2]&0xFF;

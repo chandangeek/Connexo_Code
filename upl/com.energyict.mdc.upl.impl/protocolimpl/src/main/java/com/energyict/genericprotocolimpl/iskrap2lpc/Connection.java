@@ -7,6 +7,7 @@ import javax.xml.rpc.ServiceException;
 
 import org.apache.axis.types.UnsignedInt;
 
+import com.energyict.cbo.BusinessException;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.CosemDateTime;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ObjectDef;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.PeriodicProfileType;
@@ -39,435 +40,487 @@ public class Connection {
 		return this.concentrator;
 	}
 	
-	public String getConcentratorStatus() throws ServiceException, RemoteException, IOException{
+	public String getConcentratorStatus() throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				return getConcentrator().port(getConcentrator().getConcentrator()).getConcentratorStatus();
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 		return null;
 	}
 	
-	public String getMetersList() throws ServiceException, RemoteException, IOException{
+	public String getMetersList() throws ServiceException, BusinessException, IOException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				return getConcentrator().port(getConcentrator().getConcentrator()).getMetersList();
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 		return null;
 	}
 	
-	public String getConcentratorEvents(String from, String to) throws ServiceException, RemoteException, IOException{
+	public String getConcentratorEvents(String from, String to) throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				return getConcentrator().port(getConcentrator().getConcentrator()).getConcentratorEvents(from, to);
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 		return null;
 	}
 	
-	public String getConcentratorSystemTime() throws ServiceException, RemoteException, IOException{
+	public String getConcentratorSystemTime() throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				return getConcentrator().port(getConcentrator().getConcentrator()).getConcentratorSystemTime();
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 		return null;
 	}
 	
-	public void setConcentratorSystemTime(String time) throws ServiceException, RemoteException, IOException{
+	public void setConcentratorSystemTime(String time) throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				getConcentrator().port(getConcentrator().getConcentrator()).setConcentratorSystemTime(time);
+				timeout = 0;
+				break;
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 	}
 	
-	public void timeSync() throws ServiceException, RemoteException, IOException{
+	public void timeSync() throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				getConcentrator().port(getConcentrator().getConcentrator()).timeSync();
+				timeout = 0;
+				break;
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 	}
 	
-	public void setMeterTariffSettings(String xml) throws ServiceException, RemoteException, IOException{
+	public void setMeterTariffSettings(String xml) throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				getConcentrator().port(getConcentrator().getConcentrator()).setMeterTariffSettings(xml);
+				timeout = 0;
+				break;
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 	}
 	
-	public void setCodeRed(String startDate, UnsignedInt duration, UnsignedInt groupId) throws ServiceException, RemoteException, IOException{
+	public void setCodeRed(String startDate, UnsignedInt duration, UnsignedInt groupId) throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				getConcentrator().port(getConcentrator().getConcentrator()).setCodeRed(startDate, duration, groupId);
+				timeout = 0;
+				break;
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 	}
 	
-	public String getMeterProfile(String meterID, String profileID, String registerID, String from, String to) throws ServiceException, RemoteException, IOException{
+	public String getMeterProfile(String meterID, String profileID, String registerID, String from, String to) throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				return getConcentrator().port(getConcentrator().getConcentrator()).getMeterProfile(meterID, profileID, registerID, from, to);
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 		return null;
 	}
 	
-	public String getMeterEvents(String meterID, String from, String to) throws ServiceException, RemoteException, IOException{
+	public String getMeterEvents(String meterID, String from, String to) throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				return getConcentrator().port(getConcentrator().getConcentrator()).getMeterEvents(meterID, from, to);
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 		return null;
 	}
 	
-	public String getMeterPowerFailures(String meterID, String from, String to) throws ServiceException, RemoteException, IOException{
+	public String getMeterPowerFailures(String meterID, String from, String to) throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				return getConcentrator().port(getConcentrator().getConcentrator()).getMeterPowerFailures(meterID, from, to);
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 		return null;
 	}
 	
-	public byte[] cosemGetRequest(String meterID, String startBefore, String endBefore, String instanceId, UnsignedInt classId, UnsignedInt attributeId) throws ServiceException, RemoteException, IOException{
+	public byte[] cosemGetRequest(String meterID, String startBefore, String endBefore, String instanceId, UnsignedInt classId, UnsignedInt attributeId) throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				return getConcentrator().port(getConcentrator().getConcentrator()).cosemGetRequest(meterID, startBefore, endBefore, instanceId, classId, attributeId);
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 		return null;
 	}
 	
-	public String getMeterOnDemandResultsList(String serial, String[] registers) throws ServiceException, RemoteException, IOException{
+	public String getMeterOnDemandResultsList(String serial, String[] registers) throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				return getConcentrator().port(getConcentrator().getConcentrator()).getMeterOnDemandResultsList(serial, registers);
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 		return null;
 	}
 	
-	public void setMeterDisconnectControl(String serial, boolean b) throws ServiceException, RemoteException, IOException{
+	public void setMeterDisconnectControl(String serial, boolean b) throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				getConcentrator().port(getConcentrator().getConcentrator()).setMeterDisconnectControl(serial, b);
+				timeout = 0;
+				break;
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 	}
 	
-	public void cosemSetRequest(String meterID, String startBefore, String endBefore, String instanceId, UnsignedInt classId, UnsignedInt attributeId, byte[] value) throws ServiceException, RemoteException, IOException{
+	public void cosemSetRequest(String meterID, String startBefore, String endBefore, String instanceId, UnsignedInt classId, UnsignedInt attributeId, byte[] value) throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				getConcentrator().port(getConcentrator().getConcentrator()).cosemSetRequest(meterID, startBefore, endBefore, instanceId, classId, attributeId, value);
+				timeout = 0;
+				break;
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 	}
 	
-	public void setMeterCodeRedGroupId(String meterID, UnsignedInt groupID) throws ServiceException, RemoteException, IOException{
+	public void setMeterCodeRedGroupId(String meterID, UnsignedInt groupID) throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				getConcentrator().port(getConcentrator().getConcentrator()).setMeterCodeRedGroupId(meterID, groupID);
+				timeout = 0;
+				break;
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 	}
 	
-	public void setMeterCodeRedPowerLimit(String meterID, UnsignedInt powerLimit) throws ServiceException, RemoteException, IOException{
+	public void setMeterCodeRedPowerLimit(String meterID, UnsignedInt powerLimit) throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				getConcentrator().port(getConcentrator().getConcentrator()).setMeterCodeRedPowerLimit(meterID, powerLimit);
+				timeout = 0;
+				break;
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 	}
 	
-	public UnsignedInt getMeterLoadProfilePeriod(String meterID, PeriodicProfileType profile) throws ServiceException, RemoteException, IOException{
+	public UnsignedInt getMeterLoadProfilePeriod(String meterID, PeriodicProfileType profile) throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				return getConcentrator().port(getConcentrator().getConcentrator()).getMeterLoadProfilePeriod(meterID, profile);
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 		return null;
 	}
 	
-	public ObjectDef[] getMeterProfileConfig(String meterID, ProfileType profile) throws ServiceException, RemoteException, IOException{
+	public ObjectDef[] getMeterProfileConfig(String meterID, ProfileType profile) throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				return getConcentrator().port(getConcentrator().getConcentrator()).getMeterProfileConfig(meterID, profile);
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 		return null;
 	}
 	
-	public CosemDateTime getMeterBillingReadTime(String meterID) throws ServiceException, RemoteException, IOException{
+	public CosemDateTime getMeterBillingReadTime(String meterID) throws ServiceException, RemoteException, IOException, BusinessException{
 		resetTimeOut();
 		while(timeout > 0){
 			try {
 				return getConcentrator().port(getConcentrator().getConcentrator()).getMeterBillingReadTime(meterID);
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
+				checkDefaultErrors(e);
 				timeout--;
 				if(timeout == 0)
 					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
-				ProtocolUtils.delayProtocol(delayAfterRetry);
 				timeout--;
 				if(timeout == 0)
 					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
 		return null;
+	}
+	
+	private void checkDefaultErrors(Exception e) throws RemoteException, ServiceException, BusinessException{
+		if(e.getMessage().equalsIgnoreCase("Demand reading error: Meter disconnected!")){
+			if(e instanceof RemoteException){
+				throw new BusinessException(e.getMessage());
+			} else if (e instanceof ServiceException){
+				throw new BusinessException(e.getMessage());
+			}
+		} else if(e.getMessage().equalsIgnoreCase("Demand reading error: Transaction error!")){
+			if(e instanceof RemoteException){
+				throw new RemoteException(e.getMessage());
+			} else if (e instanceof ServiceException){
+				throw new ServiceException(e.getMessage());
+			}
+		}
 	}
 }
