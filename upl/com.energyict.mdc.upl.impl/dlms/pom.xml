@@ -2,11 +2,8 @@
     
     <modelVersion>4.0.0</modelVersion>
     
-    <groupId>com.energyict</groupId>
     <artifactId>dlms</artifactId>
-    <version>8.1.2-SNAPSHOT</version>
     <name>dlms</name>
-    <url>http://www.energyict.com</url>
     
     <parent>
         <groupId>com.energyict</groupId>
