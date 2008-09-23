@@ -4,6 +4,7 @@
     
     <artifactId>dlms</artifactId>
     <name>dlms</name>
+    <packaging>jar</packaging>
     
     <parent>
         <groupId>com.energyict</groupId>
