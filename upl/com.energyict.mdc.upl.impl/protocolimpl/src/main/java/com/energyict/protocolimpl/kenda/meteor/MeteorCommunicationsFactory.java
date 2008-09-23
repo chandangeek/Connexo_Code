@@ -438,7 +438,11 @@ public class MeteorCommunicationsFactory{
 			MeteorCLK mclk= pfhist[ii];
 			if(mclk.checkValidity() && !lastdata){
 				cal1=mclk.getCalendar();
-				meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERDOWN);
+				if(ii%2==0){
+					meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERDOWN);
+				}else{
+					meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERUP);
+				}
 				meterEventList.add(meterEvent);
 				meteorCLK.add(mclk); // parallel power down matrix
 			}else{
