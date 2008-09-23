@@ -425,7 +425,7 @@ public class MedoCommunicationsFactory{
 		ArrayList meterEventList = new ArrayList();
 		ArrayList medoCLK= new ArrayList();// meter event flagging parallel matrix
 		short[][] s=new short[0][0];
-		boolean flag=false, powdownflag=false, prevIntervalPowdownflag=false;
+		boolean flag=false, powdownflag=false, prevIntervalPowdownflag=false, lastdata=false;
 		long millis=0;
 		int ids=0;
 		// set timezone and calendar object
@@ -436,11 +436,17 @@ public class MedoCommunicationsFactory{
 		MedoCLK[] pfhist=mpfd.getPfhist();
 		for(int ii=0; ii<pfhist.length; ii++){
 			MedoCLK mclk=(MedoCLK) pfhist[ii];
-			if(mclk.checkValidity()){
+			if(mclk.checkValidity() && !lastdata){
 				cal1=mclk.getCalendar();
-				meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERDOWN);
+				if(ii%2==0){
+					meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERDOWN);
+				}else{
+					meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERUP);
+				}
 				meterEventList.add(meterEvent);
 				medoCLK.add(mclk); // parallel power down matrix
+			}else{
+				lastdata=true;
 			}
 		}
 		// reset cal1 object

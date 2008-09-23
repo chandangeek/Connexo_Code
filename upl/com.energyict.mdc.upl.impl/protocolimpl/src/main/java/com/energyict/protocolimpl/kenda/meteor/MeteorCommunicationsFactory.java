@@ -423,7 +423,7 @@ public class MeteorCommunicationsFactory{
 		MeterEvent meterEvent;
 		ArrayList  meterEventList = new ArrayList();
 		ArrayList  meteorCLK= new ArrayList();// meter event flagging parallel matrix
-		boolean flag=false, powdownflag=false, prevIntervalPowdownflag=false;
+		boolean flag=false, powdownflag=false, prevIntervalPowdownflag=false, lastdata=false;
 		long millis=0;
 		int ids=0;
 		
@@ -436,11 +436,13 @@ public class MeteorCommunicationsFactory{
 		MeteorCLK[] pfhist=mpfd.getPfhist();
 		for(int ii=0; ii<pfhist.length; ii++){
 			MeteorCLK mclk= pfhist[ii];
-			if(mclk.checkValidity()){
+			if(mclk.checkValidity() && !lastdata){
 				cal1=mclk.getCalendar();
 				meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERDOWN);
 				meterEventList.add(meterEvent);
 				meteorCLK.add(mclk); // parallel power down matrix
+			}else{
+				lastdata=true;
 			}
 		}
 		
