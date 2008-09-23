@@ -1,6 +1,5 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -12,7 +11,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -22,19 +20,14 @@ import javax.xml.rpc.ServiceException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeDuration;
-import com.energyict.cbo.TimePeriod;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.Environment;
-import com.energyict.interval.BasicIntervalRecord;
-import com.energyict.interval.IntervalRecord;
 import com.energyict.interval.RawIntervalRecord;
-import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
@@ -42,7 +35,6 @@ import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.coreimpl.CommunicationProtocolImpl;
 import com.energyict.mdw.coreimpl.RtuTypeImpl;
 import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.utils.Utilities;
