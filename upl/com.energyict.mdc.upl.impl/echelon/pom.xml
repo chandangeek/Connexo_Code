@@ -3,13 +3,13 @@
     <groupId>com.energyict</groupId>
     <artifactId>echelon</artifactId>
     <packaging>jar</packaging>
-    <version>8.1.4</version>
+    <version>8.1.5-SNAPSHOT</version>
     <name>echelon</name>
     <url>http://www.energyict.com</url>
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>protocols</artifactId>
-        <version>8.1.4</version>
+        <version>8.1.5-SNAPSHOT</version>
     </parent>
     <dependencies>
         <dependency>
@@ -30,7 +30,7 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>protocolimpl</artifactId>
-            <version>8.1.4</version>
+            <version>8.1.5-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>axis</groupId>

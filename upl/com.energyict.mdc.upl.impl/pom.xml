@@ -3,7 +3,7 @@
 	<groupId>com.energyict</groupId>
 	<artifactId>protocols</artifactId>
 	<packaging>pom</packaging>
-	<version>8.1.4</version>
+	<version>8.1.5-SNAPSHOT</version>
 	<name>protocols</name>
 	<dependencies>
 		<dependency>
@@ -302,7 +302,7 @@
 	</parent>
 
 	<scm>
-		<developerConnection>scm:svn:http://maven:maven@linux2/svn/labo/protocols/tags/8.1.4</developerConnection>
+		<developerConnection>scm:svn:http://maven:maven@linux2/svn/labo/protocols/trunk</developerConnection>
 	</scm>
 
 	<modules>
