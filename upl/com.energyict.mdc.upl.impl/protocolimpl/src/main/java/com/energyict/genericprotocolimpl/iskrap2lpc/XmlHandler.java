@@ -777,7 +777,7 @@ class XmlHandler extends DefaultHandler {
 	
 	public static void main(String[] args){
 		try{
-			System.out.println("MeterEvent cover opened: " + MeterEvent.COVER_OPENED);
+//			System.out.println("MeterEvent cover opened: " + MeterEvent.COVER_OPENED);
 		} catch (Exception e){
 			System.out.println(e);
 		}
