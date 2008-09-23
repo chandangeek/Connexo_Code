@@ -68,6 +68,9 @@ public class ResponseReceiver {
 
     // check for "invalid command response"
 	protected Response receiveResponse(Command command) throws IOException {
+		int expectedCM10Id = command.getCM10Identifier();
+		byte[] expectedSourceCode = command.getDestinationCode();
+		byte[] expectedDestinationCode = command.getSourceCode();
         long protocolTimeout = System.currentTimeMillis() + TIMEOUT;
         ByteArrayOutputStream allDataArrayOutputStream = new ByteArrayOutputStream();
         allDataArrayOutputStream.reset();
@@ -82,6 +85,11 @@ public class ResponseReceiver {
             	logState(state, kar);
         		allDataArrayOutputStream.write(kar);
         		if (state == WAIT_FOR_CM10_ID) {
+        			if (kar != expectedCM10Id) {
+        				throw new ProtocolConnectionException(
+        						"Expected CM10 identifier: " + expectedCM10Id 
+        						+ ", CM10 identifier found: " + kar);
+        			}
         			handleCM10Id((byte) kar);
         			state = WAIT_FOR_BLOCK_SIZE;
         		}

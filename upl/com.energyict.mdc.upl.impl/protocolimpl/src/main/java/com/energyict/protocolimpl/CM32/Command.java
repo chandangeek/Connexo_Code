@@ -65,6 +65,15 @@ public class Command {
 		int readVal= (read) ? 0 : 16;
 		return (byte) (activityIdentifier + readVal + singleBlockVal + ackVal);
 	}
+	
+	public Command getAckCommand() {
+		Command command = new Command(this.getActivityIdentifier());
+		command.setDestinationCode(this.getDestinationCode());
+		command.setSourceCode(this.getSourceCode());
+		this.setRead(this.isRead());
+		this.setAck(true);
+		return command;
+	}
     
   
     

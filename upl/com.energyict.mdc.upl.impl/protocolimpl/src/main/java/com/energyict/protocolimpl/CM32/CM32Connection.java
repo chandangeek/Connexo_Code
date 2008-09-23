@@ -75,6 +75,8 @@ public class CM32Connection extends Connection implements ProtocolConnection {
                 sendFrame();
                 Thread.sleep(100); 
                 Response response = receiveResponse(command);
+                // send ack
+                doSendCommand(command.getAckCommand());
                 return response;
             }
             catch(InterruptedException e){

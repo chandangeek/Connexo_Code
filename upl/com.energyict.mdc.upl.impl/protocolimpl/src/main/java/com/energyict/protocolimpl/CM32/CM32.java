@@ -57,8 +57,15 @@ public class CM32 extends AbstractProtocol {
     }
     
 	protected void doConnect() throws IOException {
+		getLogger().info("doConnect");
 		
-		//parse response!!!
+		CommandFactory commandFactory = getCommandFactory();
+		Response response = 
+			commandFactory.getReadTimeCommand().invoke();
+		TimeTable timeTable = new TimeTable(this);
+		timeTable.parse(response.getData());
+		Date time = timeTable.getTime();
+		getLogger().info("time in doConnect: " + time);
 	}
 
 	protected void doDisConnect() throws IOException {
@@ -128,12 +135,15 @@ public class CM32 extends AbstractProtocol {
 	}
 
 	public Date getTime() throws IOException {
-		return null;
-		/*CommandFactory commandFactory = getCommandFactory();
+		getLogger().info("getTime");
+		CommandFactory commandFactory = getCommandFactory();
 		Response response = 
 			commandFactory.getReadTimeCommand().invoke();
-		TimeTable timeTable = new TimeTable().parse(response.getData());
-		return timeTable.getTime();*/
+		TimeTable timeTable = new TimeTable(this);
+		timeTable.parse(response.getData());
+		Date time = timeTable.getTime();
+		getLogger().info("time: " + time);
+		return time;
 	}
 
 	public void setTime() throws IOException {
