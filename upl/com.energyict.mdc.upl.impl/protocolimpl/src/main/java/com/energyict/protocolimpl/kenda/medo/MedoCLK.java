@@ -105,7 +105,7 @@ public class MedoCLK extends Parsers{
 		boolean valid=true;
 		// if day==0 date and hour invalid
 		Calendar now=Calendar.getInstance(tz);
-		if(TAD[3]==0 & now.getTimeInMillis()<calendar.getTimeInMillis()){
+		if(TAD[3]==0 & now.getTimeInMillis()>calendar.getTimeInMillis()){
 			valid=false;
 		}
 		return valid;

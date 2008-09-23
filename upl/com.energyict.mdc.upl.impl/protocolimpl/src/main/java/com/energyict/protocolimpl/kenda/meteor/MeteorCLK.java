@@ -106,7 +106,7 @@ public class MeteorCLK extends Parsers{
 		// if day==0 date and hour invalid
 		// if date>today
 		Calendar now=Calendar.getInstance(tz);
-		if(TAD[3]==0 & now.getTimeInMillis()<calendar.getTimeInMillis()){
+		if(TAD[3]==0 & now.getTimeInMillis()>calendar.getTimeInMillis()){
 			valid=false;
 		}
 		return valid;
