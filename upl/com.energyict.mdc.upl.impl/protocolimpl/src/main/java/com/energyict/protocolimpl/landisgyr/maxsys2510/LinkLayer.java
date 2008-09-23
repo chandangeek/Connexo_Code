@@ -33,7 +33,7 @@ class LinkLayer extends Connection {
 
     /** Send a StandardCommand */
     ByteArray send(StandardCommand command) throws IOException {
-    	//maxSys.getLogger().info("new Y command " + command.getTbn());
+    	maxSys.getLogger().info("new Y command " + command.getTbn());
     	//sleep(maxSys.getCommandDelay());
         int nrTry = 0;
 
@@ -46,13 +46,13 @@ class LinkLayer extends Connection {
                 command.setPassword(maxSys.getPassword());
 
                 sleep(50);
-                //maxSys.getLogger().info("Y sent: " + ProtocolUtils.outputHexString(command.getBytes()));
+                maxSys.getLogger().info("Y sent: " + ProtocolUtils.outputHexString(command.getBytes()));
                 sendRawData(command.getBytes());
                 
                 sleep(50);
                 ByteArray ba = receiveResponse(16);
                 
-                //maxSys.getLogger().info("Y received: " + ProtocolUtils.outputHexString(ba.getBytes()));
+                maxSys.getLogger().info("Y received: " + ProtocolUtils.outputHexString(ba.getBytes()));
                 
                 if ((PASSWORD_ERROR_BIT & ba.getBytes()[6]) == PASSWORD_ERROR_BIT)
                 	throw new IOException("1) Communication error or wrong password: " + ba.toHexaString(true));
@@ -63,15 +63,15 @@ class LinkLayer extends Connection {
 
                 while (!done) {
                 	
-                	//Date before = new Date();
+                	Date before = new Date();
                 	sleep(80);
                 	byte[] ack = cmdFactory.createAck(blockNr).getBytes();
-                	//maxSys.getLogger().info("X ack sent: " + blockNr + ", " + ProtocolUtils.outputHexString(ack)
-                	//		+ ", " + (new Date().getTime() - before.getTime()));
+                	maxSys.getLogger().info("X ack sent: " + blockNr + ", " + ProtocolUtils.outputHexString(ack)
+                			+ ", " + (new Date().getTime() - before.getTime()));
                     sendRawData(ack);
                     
                     //maxSys.getLogger().info("");
-                    //maxSys.getLogger().info("receive block data " + blockNr);
+                    maxSys.getLogger().info("receive block data " + blockNr);
                     //sleep(50);
                     Command c = cmdFactory.parse(receiveBlockData(267));
                     if (c.isBlockCommand()) {
@@ -85,11 +85,11 @@ class LinkLayer extends Connection {
                 }
                 
                 byte[] lastAck = cmdFactory.createAck(0).getBytes();
-            	//maxSys.getLogger().info("X ack sent: 0 " + ProtocolUtils.outputHexString(lastAck));
+            	maxSys.getLogger().info("X ack sent: 0 " + ProtocolUtils.outputHexString(lastAck));
                 sendRawData(lastAck);
 
                 //sleep(4000);
-                sleep(forceDelay);
+                //sleep(forceDelay);
 
                 return rslt.trim();
                 
@@ -99,6 +99,9 @@ class LinkLayer extends Connection {
                 
             } catch (IOException ioe) {
                 throw ioe;
+            }
+            finally {
+            	sleep(forceDelay);
             }
 
         }
@@ -198,7 +201,7 @@ class LinkLayer extends Connection {
         		if (state == WAIT_FOR_STX) {
         			if (aChar == (int)stx) {
         				state = STX_FOUND;
-        				//maxSys.getLogger().info("STX_FOUND");
+        				maxSys.getLogger().info("STX_FOUND");
         			}
         			else
         				maxSys.getLogger().info("unexpected block data answer: " + ProtocolUtils.hex2String(aChar));
@@ -209,7 +212,7 @@ class LinkLayer extends Connection {
         				count = 3;
         				buffer.add(stx);
         				buffer.add(blockIndicator);
-        				//maxSys.getLogger().info("BLOCK_INDICATOR_FOUND");
+        				maxSys.getLogger().info("BLOCK_INDICATOR_FOUND");
         			}
         			else
         				state = WAIT_FOR_STX;
@@ -219,9 +222,9 @@ class LinkLayer extends Connection {
             			//maxSys.getLogger().info("count: " + count + ", " + ProtocolUtils.hex2String(aChar));
         				buffer.add((byte) aChar);
         				if (buffer.size() == 267) {
-        					//Date before = new Date();
-        					//this.maxSys.getLogger().info("return data= " + buffer.toHexaString(true) 
-        					//		+ ", " + (new Date().getTime() - before.getTime()));
+        					Date before = new Date();
+        					this.maxSys.getLogger().info("return data= " + buffer.toHexaString(true) 
+        							+ ", " + (new Date().getTime() - before.getTime()));
             				return buffer;
         				}
         				count++;
@@ -251,7 +254,7 @@ class LinkLayer extends Connection {
         		if (state == WAIT_FOR_STX) {
         			if (aChar == (int)stx) {
         				state = STX_FOUND;
-        				//maxSys.getLogger().info("STX_FOUND");
+        				maxSys.getLogger().info("STX_FOUND");
         			}
         			else
         				maxSys.getLogger().info("unexpected Y response answer: " + ProtocolUtils.hex2String(aChar));
@@ -262,7 +265,7 @@ class LinkLayer extends Connection {
         				count = 3;
         				buffer.add(stx);
         				buffer.add(ack);
-        				//maxSys.getLogger().info("ACK_FOUND");
+        				maxSys.getLogger().info("ACK_FOUND");
         			}
         			else if (aChar == (int) nack) {
         				maxSys.getLogger().info("NACK_FOUND: " + buffer.toHexaString(true));
@@ -277,9 +280,9 @@ class LinkLayer extends Connection {
             			//maxSys.getLogger().info("count: " + count + ", " + ProtocolUtils.hex2String(aChar));
         				buffer.add((byte) aChar);
         				if (buffer.size() == 16) {
-        					/*Date before = new Date();
+        					Date before = new Date();
         					this.maxSys.getLogger().info("return data= " + buffer.toHexaString(true) 
-        							+ ", " + (new Date().getTime() - before.getTime()));*/
+        							+ ", " + (new Date().getTime() - before.getTime()));
             				return buffer;
         				}
         				count++;
