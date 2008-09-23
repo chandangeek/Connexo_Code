@@ -9,7 +9,7 @@ public class MeteorPowerFailDetails extends Parsers {
 	private long perOut=0;
 	private short secOut=0;
 	private short lpfCNT=0;
-	private MeteorCLK[] pfhist= new MeteorCLK[14];
+	private MeteorCLK[] pfhist= new MeteorCLK[16];
 	private char[] pffree={0,0,0,0,0,0};  // unused
 	private MeteorCLK timeOp2= new MeteorCLK();
 	private MeteorReadDialReadings dialseOp2=new MeteorReadDialReadings();
@@ -17,7 +17,7 @@ public class MeteorPowerFailDetails extends Parsers {
 	
 	
 	MeteorPowerFailDetails(){
-		for (int i=0; i<14; i++){
+		for (int i=0; i<16; i++){
 			pfhist[i]=firstFailure; // zeros
 		}
 	}
@@ -40,7 +40,9 @@ public class MeteorPowerFailDetails extends Parsers {
 		perOut=parseCharToLong(s.substring(204, 208).toCharArray());
 		secOut=parseCharToShort(s.substring(208, 210).toCharArray());
 		lpfCNT=parseCharToShort(s.substring(210, 212).toCharArray());
-		for (int i=0; i<14; i++){
+		pfhist[0]=firstFailure;
+		pfhist[1]=lastRecovery;
+		for (int i=2; i<16; i++){
 			pfhist[i]=new MeteorCLK(s.substring(212+i*6,212+(i+1)*6).toCharArray(),tz);
 		}
 		pffree[0]=c[296];

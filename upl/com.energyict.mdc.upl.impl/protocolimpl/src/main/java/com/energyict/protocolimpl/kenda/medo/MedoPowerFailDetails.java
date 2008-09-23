@@ -10,12 +10,12 @@ public class MedoPowerFailDetails extends Parsers {
 	private short perOut=0;
 	private short secOut=0;
 	private short lpfCNT=0;
-	private MedoCLK[] pfhist= new MedoCLK[14];
+	private MedoCLK[] pfhist= new MedoCLK[16];
 	private char[] pffree={0,0,0,0,0,0};  // unused
 	private TimeZone tz;
 	
 	MedoPowerFailDetails(){
-		for (int i=0; i<14; i++){
+		for (int i=0; i<16; i++){
 			pfhist[i]=timPf; // zeros
 		}
 	}
@@ -38,7 +38,9 @@ public class MedoPowerFailDetails extends Parsers {
 		perOut=parseCharToShort(s.substring(156, 158).toCharArray());
 		secOut=parseCharToShort(s.substring(158, 160).toCharArray());
 		lpfCNT=parseCharToShort(s.substring(160, 162).toCharArray());
-		for (int i=0; i<14; i++){
+		pfhist[0]=timPf;
+		pfhist[1]=timPr;
+		for (int i=2; i<16; i++){
 			pfhist[i]=new MedoCLK(s.substring(162+i*6,168+i*6).toCharArray(),tz);
 		}
 		pffree[0]=c[246];
@@ -56,7 +58,7 @@ public class MedoPowerFailDetails extends Parsers {
 		System.out.println("perOut:         "+NumberToString(perOut));
 		System.out.println("secOut:         "+NumberToString(secOut));
 		System.out.println("lpfCNT:         "+NumberToString(lpfCNT));
-		for(int i=0; i<14; i++){
+		for(int i=0; i<16; i++){
 			System.out.println("pfhist           :"+pfhist[i].toString());
 		}
 		System.out.println("pffree:          ");
