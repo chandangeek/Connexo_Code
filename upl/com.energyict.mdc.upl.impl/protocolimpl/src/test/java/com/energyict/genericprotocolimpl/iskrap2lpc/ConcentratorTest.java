@@ -123,7 +123,7 @@ public class ConcentratorTest{
 			for(int i = 0; i < result.size(); i++)
 				((CommunicationProtocolImpl)result.get(0)).delete();
 	}
-	@Ignore
+	
 	@Test
 	public void importProfileTest() {
 		
@@ -182,7 +182,7 @@ public class ConcentratorTest{
 			e.printStackTrace();
 		}
 	}
-	@Ignore
+	
 	@Test
 	public void importDailyMonthlyTest(){
 		try {
@@ -266,7 +266,7 @@ public class ConcentratorTest{
 			fail();
 		}
 	}
-	@Ignore
+	
 	@Test
 	public void importTwoDailyMonthlyProfilesTest(){
 		try {
