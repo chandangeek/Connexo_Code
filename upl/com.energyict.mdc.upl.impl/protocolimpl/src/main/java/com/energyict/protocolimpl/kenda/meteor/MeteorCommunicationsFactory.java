@@ -417,6 +417,20 @@ public class MeteorCommunicationsFactory{
 	public short[][] getTotalDemands(Date start, Date stop, int intervaltime) throws IOException{
 		return requestMeterDemands((byte) 0x08,start,stop,intervaltime);
 	}
+	public short[] retrieveLastProfileData(int intervaltime) throws IOException{
+		short[][] s;
+		short[] sm;
+		Calendar start=Calendar.getInstance(timezone);
+		Calendar stop=Calendar.getInstance(timezone);
+        ParseUtils.roundDown2nearestInterval(start,intervaltime);
+		stop.setTimeInMillis(stop.getTimeInMillis()+intervaltime*1000);
+		s = requestMeterDemands((byte) 0x07,start.getTime(), stop.getTime(), intervaltime);
+		sm= new short[s.length];
+		for(int i=0; i<s.length; i++){
+			sm[i]=s[i][0];
+		}
+		return sm;
+	}
 	public ProfileData retrieveProfileData(Date start, Date stop, int intervaltime, boolean addevents) throws IOException{ 
 		ProfileData pd = new ProfileData();		
 		IntervalData id = new IntervalData();		// current interval data

@@ -32,6 +32,7 @@ public class MedoPowerFailDetails extends Parsers {
 	
 	private void processMedoPowerFailDetails(char[] c){
 		String s=new String(c);
+		int ii;
 		timPf=new MedoCLK(s.substring(0,6).toCharArray(),tz);
 		timPr=new MedoCLK(s.substring(6,12).toCharArray(),tz);
 		dialPf=new MedoReadDialReadings(s.substring(12,156).toCharArray());
@@ -40,8 +41,9 @@ public class MedoPowerFailDetails extends Parsers {
 		lpfCNT=parseCharToShort(s.substring(160, 162).toCharArray());
 		pfhist[0]=timPf;
 		pfhist[1]=timPr;
-		for (int i=2; i<16; i++){
-			pfhist[i]=new MedoCLK(s.substring(162+i*6,168+i*6).toCharArray(),tz);
+		for (int i=0; i<14; i++){
+			ii=i+2;
+			pfhist[ii]=new MedoCLK(s.substring(162+i*6,168+i*6).toCharArray(),tz);
 		}
 		pffree[0]=c[246];
 		pffree[1]=c[247];

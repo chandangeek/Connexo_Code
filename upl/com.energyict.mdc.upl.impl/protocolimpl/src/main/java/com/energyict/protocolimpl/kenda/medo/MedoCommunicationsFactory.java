@@ -418,6 +418,20 @@ public class MedoCommunicationsFactory{
 		return requestMeterDemands((byte) 0x08,start,stop,intervaltime);
 		
 	}
+	public short[] retrieveLastProfileData(int intervaltime) throws IOException{
+		short[][] s;
+		short[] sm;
+		Calendar start=Calendar.getInstance(timezone);
+		Calendar stop=Calendar.getInstance(timezone);
+        ParseUtils.roundDown2nearestInterval(start,intervaltime);
+		stop.setTimeInMillis(stop.getTimeInMillis()+intervaltime*1000);
+		s = requestMeterDemands((byte) 0x07,start.getTime(), stop.getTime(), intervaltime);
+		sm= new short[s.length];
+		for(int i=0; i<s.length; i++){
+			sm[i]=s[i][0];
+		}
+		return sm;
+	}
 	public ProfileData retrieveProfileData(Date start, Date stop, int intervaltime, boolean addevents) throws IOException{ 
 		ProfileData pd = new ProfileData();		
 		IntervalData id = new IntervalData();		// current interval data
@@ -428,14 +442,17 @@ public class MedoCommunicationsFactory{
 		boolean flag=false, powdownflag=false, prevIntervalPowdownflag=false, lastdata=false;
 		long millis=0;
 		int ids=0;
-		// set timezone and calendar object
-		Calendar cal1 = Calendar.getInstance(timezone); 
+		// set timezone and calendar object		
+		Calendar cal1 = Calendar.getInstance(timezone);
+		//Calendar cal2 = Calendar.getInstance(timezone);
 		cal1.setTime(start);
+		//cal2.setTime(stop);
 		// retrieve powerFailDetails and add meter events
 		MedoPowerFailDetails mpfd=(MedoPowerFailDetails) transmitData(powerFailDetails, null);
 		MedoCLK[] pfhist=mpfd.getPfhist();
 		for(int ii=0; ii<pfhist.length; ii++){
 			MedoCLK mclk=(MedoCLK) pfhist[ii];
+			System.out.println(mclk.toString());
 			if(mclk.checkValidity() && !lastdata){
 				cal1=mclk.getCalendar();
 				if(ii%2==0){
