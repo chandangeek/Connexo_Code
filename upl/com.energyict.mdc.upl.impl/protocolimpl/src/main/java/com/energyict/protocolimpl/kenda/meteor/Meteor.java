@@ -23,12 +23,13 @@ import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.kenda.medo.MedoStatus;
 
-public class Meteor implements MeterProtocol{
+public class Meteor implements MeterProtocol, RegisterProtocol{
 	/**
  	 * ---------------------------------------------------------------------------------<p>
 	 * Meteor Protocol description:<p>
