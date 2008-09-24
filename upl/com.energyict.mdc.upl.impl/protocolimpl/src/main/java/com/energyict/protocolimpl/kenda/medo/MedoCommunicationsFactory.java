@@ -426,9 +426,9 @@ public class MedoCommunicationsFactory{
         ParseUtils.roundDown2nearestInterval(start,intervaltime);
 		stop.setTimeInMillis(stop.getTimeInMillis()+intervaltime*1000);
 		s = requestMeterDemands((byte) 0x07,start.getTime(), stop.getTime(), intervaltime);
-		sm= new short[s.length];
-		for(int i=0; i<s.length; i++){
-			sm[i]=s[i][0];
+		sm= new short[s[0].length];
+		for(int i=0; i<s[0].length; i++){
+			sm[i]=s[0][i];
 		}
 		return sm;
 	}

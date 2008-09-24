@@ -23,11 +23,12 @@ import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
-public class Medo implements MeterProtocol{
+public class Medo implements MeterProtocol, RegisterProtocol{
 	/**
  	 * ---------------------------------------------------------------------------------<p>
 	 * Medo Protocol description:<p>

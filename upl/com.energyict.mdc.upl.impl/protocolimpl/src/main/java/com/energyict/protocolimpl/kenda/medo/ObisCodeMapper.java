@@ -30,9 +30,7 @@ public class ObisCodeMapper {
 		if( obisCode.getA()!=1 || 
 				obisCode.getC()!=82 ||
 				obisCode.getD()!=128 ||
-				obisCode.getE()!=0 ||
-				obisCode.getB()>=medo.getNumberOfChannels() ||
-				obisCode.getB()<0){
+				obisCode.getE()!=0){
 				// check validity of the code
 				throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 			}

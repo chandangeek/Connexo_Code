@@ -38,6 +38,7 @@ public class ObisCodeMapper {
 				throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 			}
 		channelVal=meteor.getMcf().retrieveLastProfileData(meteor.getProfileInterval());
+		System.out.println("channelval: "+channelVal.length);
 		q = new Quantity(new BigDecimal(channelVal[obisCode.getB()]), Unit.get(BaseUnit.UNITLESS));
 		reg = new RegisterValue(obisCode, q, null, getTime());				
 		return reg;
