@@ -17,7 +17,7 @@ public class MeteorPowerFailDetails extends Parsers {
 	
 	
 	MeteorPowerFailDetails(){
-		for (int i=0; i<16; i++){
+		for (int i=0; i<14; i++){
 			pfhist[i]=firstFailure; // zeros
 		}
 	}

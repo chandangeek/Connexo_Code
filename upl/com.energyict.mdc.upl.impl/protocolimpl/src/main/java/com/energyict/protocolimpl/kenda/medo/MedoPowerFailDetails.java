@@ -15,7 +15,7 @@ public class MedoPowerFailDetails extends Parsers {
 	private TimeZone tz;
 	
 	MedoPowerFailDetails(){
-		for (int i=0; i<16; i++){
+		for (int i=0; i<14; i++){
 			pfhist[i]=timPf; // zeros
 		}
 	}
