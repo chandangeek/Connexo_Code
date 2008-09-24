@@ -13,7 +13,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.kenda.medo.Medo;
 
 public class ObisCodeMapper {
 	

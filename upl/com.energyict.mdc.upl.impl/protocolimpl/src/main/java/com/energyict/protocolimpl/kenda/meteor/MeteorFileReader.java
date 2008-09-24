@@ -4,8 +4,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.energyict.protocolimpl.kenda.medo.ComStruc;
-
 public class MeteorFileReader {
 	/*
 	 * File reader, aim is to test the objects properly and start to
