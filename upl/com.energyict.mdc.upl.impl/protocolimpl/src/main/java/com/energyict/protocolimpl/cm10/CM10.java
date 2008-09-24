@@ -3,11 +3,13 @@ package com.energyict.protocolimpl.cm10;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.HalfDuplexController;
@@ -17,13 +19,17 @@ import com.energyict.dialer.coreimpl.ATDialer;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.kenda.meteor.Parsers;
 
 public class CM10 extends AbstractProtocol {
 	
@@ -34,10 +40,22 @@ public class CM10 extends AbstractProtocol {
     private RegisterFactory registerFactory;
     
     private StatusTable statusTable;
+    private FullPersonalityTable fullPersonalityTable;
+    
+    private int outstationID, retry, timeout, delayAfterConnect;
+    private ProtocolChannelMap channelMap;
 
     
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getCM10Profile().getProfileData(lastReading,includeEvents);
+    }
+    
+    public int getProfileInterval() throws UnsupportedException, IOException {
+		return 60 * getFullPersonalityTable().getIntervalInMinutes();
+    }
+    
+    public int getOustationId() {
+    	return this.outstationID;
     }
     
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
@@ -53,16 +71,50 @@ public class CM10 extends AbstractProtocol {
     }
     
     protected void validateSerialNumber() throws IOException {
-        boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || 
-            ("".compareTo(getInfoTypeSerialNumber())==0)) return;
+
     }
     
 	protected void doConnect() throws IOException {
 		getLogger().info("doConnect");
-		StatusTable statusTable = getStatusTable();
-		getLogger().info(statusTable.toString());
+		ProtocolUtils.delayProtocol(delayAfterConnect);
+		//getStatusTable();
+		getFullPersonalityTable();
 		getLogger().info("endConnect");
+	}
+	
+	public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+		try{
+			this.outstationID = Integer.parseInt(properties.getProperty("SerialNumber"));
+		} catch (NumberFormatException e) {
+			throw new NumberFormatException("The node address field has not been filled in");
+		}	
+		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1"));
+		this.timeout=Integer.parseInt(properties.getProperty("TimeOut","5000"));
+		this.retry=Integer.parseInt(properties.getProperty("Retry", "3"));
+		this.delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "0"));
+	}
+
+	public List getOptionalKeys() {
+		ArrayList list = new ArrayList();
+		list.add("TimeOut");
+		list.add("Retry");
+		list.add("ChannelMap");
+		list.add("DelayAfterConnect");
+		return list;
+	}
+	
+	public FullPersonalityTable getFullPersonalityTable() throws IOException {
+		if (fullPersonalityTable == null) {
+			getLogger().info("start full personality table");
+			CommandFactory commandFactory = getCommandFactory();
+			Response response = 
+				commandFactory.getReadFullPersonalityTableCommand().invoke();
+			fullPersonalityTable = new FullPersonalityTable(this);
+			fullPersonalityTable.parse(response.getData());
+			getLogger().info(fullPersonalityTable.toString());
+			getLogger().info("end full personality table");
+		}
+		return fullPersonalityTable;
 	}
 
 	public StatusTable getStatusTable() throws IOException {
@@ -73,6 +125,7 @@ public class CM10 extends AbstractProtocol {
 				commandFactory.getReadStatusCommand().invoke();
 			statusTable = new StatusTable(this);
 			statusTable.parse(response.getData());
+			getLogger().info(statusTable.toString());
 			getLogger().info("end getStatus");
 		}
 		return statusTable;

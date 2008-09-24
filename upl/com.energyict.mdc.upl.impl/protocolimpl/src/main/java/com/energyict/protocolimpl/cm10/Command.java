@@ -12,10 +12,18 @@ public class Command {
 	private boolean read;
 	private boolean isAck = false;
 	private byte[] sourceCode = {0x00, 0x00};
-	private byte[] destinationCode = {0x1A, 0x00};
-    
-    public Command(int activityIdentifier) {
+	private byte[] destinationCode = new byte[2]; //= {0x1A, 0x00};
+	
+	private CM10 cm10Protocol;
+	
+	public Command(int activityIdentifier) {
         this.setActivityIdentifier(activityIdentifier);
+	}
+    
+    public Command(int activityIdentifier, int outStationId) {
+        this(activityIdentifier);
+        destinationCode[0] = (byte) outStationId;
+        destinationCode[1] = 0x00;
     }   
     
     public void validate() throws IOException {

@@ -48,13 +48,17 @@ public class ResponseReceiver {
     	else 
     		log("invalid state = " + state);
     }
+    
+    private int getTable(int cm10Id) {
+    	return (int) (cm10Id & 0x0F);
+    }
 
 
     // check for "invalid command response"
 	protected Response receiveResponse(Command command) throws IOException {
 		if (command.isAck())
 			return new Response(new byte[0]);
-		int expectedCM10Id = command.getCM10Identifier();
+		int expectedTable = getTable(command.getCM10Identifier());
         long protocolTimeout = System.currentTimeMillis() + TIMEOUT;
         ByteArrayOutputStream allDataArrayOutputStream = new ByteArrayOutputStream();
         allDataArrayOutputStream.reset();
@@ -77,14 +81,15 @@ public class ResponseReceiver {
             		currentBlockByteCount++;
         		}
         		if (state == WAIT_FOR_CM10_ID) {
-        			if (kar != expectedCM10Id) {
-        				log("Expected CM10 identifier: " + ProtocolUtils.outputHexString(expectedCM10Id ) 
-        						+ ", CM10 identifier found: " + ProtocolUtils.outputHexString(kar));
+        			int tableReceived = getTable(kar);
+        			if (tableReceived != expectedTable) {
+        				log("Invalid CM10 identifier received after sending: " + ProtocolUtils.outputHexString(command.getCM10Identifier() ) 
+        						+ ", CM10 identifier received: " + ProtocolUtils.outputHexString(kar));
         			}
         			else {
         				log("CM10Id = " + ProtocolUtils.outputHexString(kar));
         				int blockIdentifier = (int) (kar & 0x60);
-        				isLastFrame = ((blockIdentifier == 64) || (blockIdentifier == 96));
+        				isLastFrame = ((blockIdentifier == 32) || (blockIdentifier == 96));
         				log("blockIdentifier = " + blockIdentifier + ", isLastFrame = " + isLastFrame);
         				state = WAIT_FOR_BLOCK_SIZE;
         				allDataArrayOutputStream.write(kar);
@@ -136,6 +141,9 @@ public class ResponseReceiver {
             			else {
             				state = WAIT_FOR_CM10_ID;
             				currentBlockByteCount = 0;
+            			    blockSize = 0;
+            			    sourceCodeByteCount = 0;
+            			    destCodeByteCount = 0;
             				isLastFrame = true;
             			}
         			}
@@ -163,6 +171,8 @@ public class ResponseReceiver {
 			crcCalculated = crcCalculated + (int) dataForCrcCalculation[i];
 		}
 		crcCalculated = 256 - (crcCalculated % 256);
+		if (crcCalculated == 256)
+			crcCalculated = 0;
 		if (crcCalculated != crcFound)
 			throw new IOException("invalid crc");
 		log("crc ok");
