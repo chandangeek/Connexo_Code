@@ -13,9 +13,11 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.kenda.medo.Medo;
 
 public class ObisCodeMapper {
 	
+	private Calendar calendar=Calendar.getInstance();
 	private Meteor meteor;
 	
 	public ObisCodeMapper(Meteor meteor) {
@@ -23,6 +25,24 @@ public class ObisCodeMapper {
 	}
 
 	public RegisterValue getRegisterValue(ObisCode obisCode) throws UnsupportedException, NoSuchRegisterException, IOException {
-		throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+		short[] channelVal;
+		RegisterValue reg;
+		Quantity q;
+		if( obisCode.getA()!=1 || 
+				obisCode.getC()!=82 ||
+				obisCode.getD()!=128 ||
+				obisCode.getE()!=0 ||
+				obisCode.getB()>=meteor.getNumberOfChannels() ||
+				obisCode.getB()<0){
+				// check validity of the code
+				throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+			}
+		channelVal=meteor.getMcf().retrieveLastProfileData(meteor.getProfileInterval());
+		q = new Quantity(new BigDecimal(channelVal[obisCode.getB()]), Unit.get(BaseUnit.UNITLESS));
+		reg = new RegisterValue(obisCode, q, null, getTime());				
+		return reg;
+	}
+	private Date getTime() {
+		return calendar.getTime();
 	}
 }
