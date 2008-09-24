@@ -10,7 +10,7 @@ public class MedoPowerFailDetails extends Parsers {
 	private short perOut=0;
 	private short secOut=0;
 	private short lpfCNT=0;
-	private MedoCLK[] pfhist= new MedoCLK[16];
+	private MedoCLK[] pfhist= new MedoCLK[14];
 	private char[] pffree={0,0,0,0,0,0};  // unused
 	private TimeZone tz;
 	
@@ -32,18 +32,14 @@ public class MedoPowerFailDetails extends Parsers {
 	
 	private void processMedoPowerFailDetails(char[] c){
 		String s=new String(c);
-		int ii;
 		timPf=new MedoCLK(s.substring(0,6).toCharArray(),tz);
 		timPr=new MedoCLK(s.substring(6,12).toCharArray(),tz);
 		dialPf=new MedoReadDialReadings(s.substring(12,156).toCharArray());
 		perOut=parseCharToShort(s.substring(156, 158).toCharArray());
 		secOut=parseCharToShort(s.substring(158, 160).toCharArray());
 		lpfCNT=parseCharToShort(s.substring(160, 162).toCharArray());
-		pfhist[0]=timPf;
-		pfhist[1]=timPr;
 		for (int i=0; i<14; i++){
-			ii=i+2;
-			pfhist[ii]=new MedoCLK(s.substring(162+i*6,168+i*6).toCharArray(),tz);
+			pfhist[i]=new MedoCLK(s.substring(164+i*6,170+i*6).toCharArray(),tz);
 		}
 		pffree[0]=c[246];
 		pffree[1]=c[247];
