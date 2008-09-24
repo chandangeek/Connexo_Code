@@ -89,6 +89,7 @@ class Constant {
     final static String PASSWORD = "Password";
     final static String TESTLOGGING = "TestLogging";
     final static String DELAY_AFTER_FAIL = "DelayAfterFail";
+    final static String READING_FILE = "ReadingsFileType";
     
     final static ObisCode mbusSerialObisCode = ObisCode.fromString("0.1.128.50.21.255");
     final static ObisCode powerLimitObisCode = ObisCode.fromString("0.0.128.61.1.255");
@@ -149,6 +150,8 @@ class Constant {
     final static String nullp1 = "/offlineFiles/iskrap2lpc/nullpointerstuff.xml";
     final static String nullp2 = "/offlineFiles/iskrap2lpc/nullpointerstuff2.xml";
     final static String[] nullPointerProfile = {"/offlineFiles/iskrap2lpc/NullPointer38547358_0.xml", "/offlineFiles/iskrap2lpc/NullPointer38547358_1.xml"};
+    final static String dailyResult	= "/offlineFiles/iskrap2lpc/dailyfromPLR.xml";
+    final static String monthlyResult	= "/offlineFiles/iskrap2lpc/monthlyfromPLR.xml";
     
     final static String NON_Unknown = "NON.Unknown";
     final static String SYS_Startup = "SYS.Startup";

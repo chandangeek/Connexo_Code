@@ -69,6 +69,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     boolean TESTING = false;
     private int TESTLOGGING = 0; 
     private int delayAfterFail;
+    private int readingsFileType;
     private int retry;
 
     private Logger 					logger;
@@ -256,12 +257,13 @@ public class Concentrator implements Messaging, GenericProtocol {
         this.properties = properties;
         try {
 			TESTLOGGING = Integer.parseInt(properties.getProperty("TestLogging", "0"));
+			this.retry = Integer.parseInt(properties.getProperty("Retries", "3"));
+			this.delayAfterFail = Integer.parseInt(properties.getProperty(Constant.DELAY_AFTER_FAIL, "5000"));
+			this.readingsFileType = Integer.parseInt(properties.getProperty(Constant.READING_FILE, "0"));
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
-			throw new NumberFormatException("Could not convert " + properties.getProperty("TestLogging") + " to an integer");
+			throw new NumberFormatException("Could not convert one or several custom properties to an integer.");
 		}
-		this.retry = Integer.parseInt(properties.getProperty("Retries", "3"));
-		this.delayAfterFail = Integer.parseInt(properties.getProperty(Constant.DELAY_AFTER_FAIL, "5000"));
     }
 
     public String getProtocolVersion() {
@@ -280,8 +282,9 @@ public class Concentrator implements Messaging, GenericProtocol {
         result.add( Constant.USE_DIAL_UP );
         result.add( Constant.USER );
         result.add( Constant.PASSWORD );
-        result.add( Constant.TESTLOGGING);
-        result.add( Constant.DELAY_AFTER_FAIL);
+        result.add( Constant.TESTLOGGING );
+        result.add( Constant.DELAY_AFTER_FAIL );
+        result.add( Constant.READING_FILE );
         return result;
     }
 
@@ -913,4 +916,7 @@ public class Concentrator implements Messaging, GenericProtocol {
 		return this.concentrator;
 	}
     
+	public int getReadingsFileType(){
+		return this.readingsFileType;
+	}
 }

@@ -75,6 +75,7 @@ class XmlHandler extends DefaultHandler {
     private final static String REGISTER = "Register";
     private final static String EVENT = "Event";
     private final static String POWER_EVENT = "PowerEvent";
+    private final static String METER_RESULTS = "MeterResults";
     
     private final static String VALUE = "Value";
     private final static String DATE_TIME = "DateTime";
@@ -128,6 +129,8 @@ class XmlHandler extends DefaultHandler {
             handleStartEvent(attrbs);
         if( POWER_EVENT.equals(qName) )
             handleStartPowerEvent(attrbs);
+        if (METER_RESULTS.equals(qName))
+        	inProfile = true;
     }
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
@@ -645,7 +648,7 @@ class XmlHandler extends DefaultHandler {
         			if(val.getNumber() == null)
         				corrupt = true;
         		}
-        		if(!corrupt)
+        		if(!corrupt)	// a channel contains a NULL value
         			profileData.addInterval(interval.toIntervalData());
         	}
         	

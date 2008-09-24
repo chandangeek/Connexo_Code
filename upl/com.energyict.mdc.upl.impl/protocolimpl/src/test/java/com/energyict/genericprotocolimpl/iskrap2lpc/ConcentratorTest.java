@@ -20,6 +20,7 @@ import javax.xml.rpc.ServiceException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.energyict.cbo.BaseUnit;
@@ -47,14 +48,18 @@ public class ConcentratorTest{
 	private String jcnIskraMeter = "com.energyict.genericprotocolimpl.iskrap2lpc.Meter";
 	private String testMeter = "TestMeter";
 	
-	private String september02 = "2008-09-02T00:00:00 +0200";
-	private String august31 = "2008-08-31T00:00:00 +0200";
-	private String august29 = "2008-08-29T00:00:00 +0200";
-	private String august28 = "2008-08-28T00:00:00 +0200";
 	private String august01 = "2008-08-01T00:00:00 +0200";
+	private String august28 = "2008-08-28T00:00:00 +0200";
+	private String august29 = "2008-08-29T00:00:00 +0200";
+	private String august31 = "2008-08-31T00:00:00 +0200";
 	private String september01 = "2008-09-01T00:00:00 +0200";
+	private String september02 = "2008-09-02T00:00:00 +0200";
 	private String september05 = "2008-09-05T00:00:00 +0200";
 	private String september06 = "2008-09-06T00:00:00 +0200";
+	private String september21 = "2008-09-21T00:00:00 +0200";
+	private String september22 = "2008-09-22T00:00:00 +0200";
+	private String september23 = "2008-09-23T00:00:00 +0200";
+	private String september24 = "2008-09-24T00:00:00 +0200";
 	
 	private CommunicationProtocol commProtMeter = null;
 	private Concentrator iskraConcentrator;
@@ -118,7 +123,7 @@ public class ConcentratorTest{
 			for(int i = 0; i < result.size(); i++)
 				((CommunicationProtocolImpl)result.get(0)).delete();
 	}
-	
+	@Ignore
 	@Test
 	public void importProfileTest() {
 		
@@ -177,7 +182,7 @@ public class ConcentratorTest{
 			e.printStackTrace();
 		}
 	}
-	
+	@Ignore
 	@Test
 	public void importDailyMonthlyTest(){
 		try {
@@ -261,7 +266,7 @@ public class ConcentratorTest{
 			fail();
 		}
 	}
-	
+	@Ignore
 	@Test
 	public void importTwoDailyMonthlyProfilesTest(){
 		try {
@@ -310,9 +315,83 @@ public class ConcentratorTest{
 			assertEquals(new BigDecimal(new BigInteger("122"), 3),raw0906.getValue());
 			assertEquals(sep06, raw0906.getDate());
 
-			
-			
 			xmlHandler.setDailyMonthlyProfile(false);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			fail();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+			fail();
+		} catch (InvalidPropertyException e) {
+			e.printStackTrace();
+			fail();
+		} catch (ServiceException e) {
+			e.printStackTrace();
+			fail();
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail();
+		} catch (ParseException e) {
+			e.printStackTrace();
+			fail();
+		}
+	}
+	
+	@Test
+	public void importDailyMonthlyFromPLR(){
+		try {
+			String property = "0:0:0:0:1.8.1+9d:1.8.2m";
+			result = Utilities.mw().getRtuFactory().findByName(testMeter);
+			if(result.size() == 0)
+				meter = Utilities.createRtu(rtuTypeMeter, "12345678", 900);
+			else
+				meter = (Rtu)result.get(0);
+			meter = Utilities.addChannel(meter, TimeDuration.DAYS, 5);
+			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 6);
+			
+			meter = Utilities.addPropertyToRtu(meter, "ChannelMap", property);
+			iskraConcentrator.setLogger(logger);
+			meterReadTransaction.setMeter(meter);
+			
+			XmlHandler xmlHandler = new XmlHandler(logger, meterReadTransaction.getChannelMap());
+			xmlHandler.setDailyMonthlyProfile(true);
+			meterReadTransaction.setBillingDaily(Constant.dailyResult);
+			meterReadTransaction.setBillingMonthly(Constant.monthlyResult);
+			meterReadTransaction.importDailyMonthly(meter, xmlHandler, meter.getSerialNumber());
+			Environment.getDefault().execute(meterReadTransaction.getStoreObjects());
+			
+			// checks if the overhead intervals are deleted
+			List intervalCount;
+			intervalCount = meter.getChannel(4).getIntervalData(subDay(Constant.getInstance().getDateFormat().parse(september01)), addDay(Constant.getInstance().getDateFormat().parse(september24)));
+			assertEquals(3, intervalCount.size());
+			intervalCount = meter.getChannel(5).getIntervalData(subDay(Constant.getInstance().getDateFormat().parse(august01)), Constant.getInstance().getDateFormat().parse(september24));
+			assertEquals(2, intervalCount.size());
+			
+			Date sep21 = Constant.getInstance().getDateFormat().parse(september21);
+			RawIntervalRecord raw0921 = (RawIntervalRecord)meter.getChannel(4).getIntervalData(subDay(sep21), addDay(sep21)).get(0);
+			assertEquals(new BigDecimal(new BigInteger("20123"), 3), raw0921.getRawValue());
+			assertEquals(sep21, raw0921.getDate());
+
+			Date sep22 = Constant.getInstance().getDateFormat().parse(september22);
+			RawIntervalRecord raw0922 = (RawIntervalRecord)meter.getChannel(4).getIntervalData(subDay(sep22), addDay(sep22)).get(0);
+			assertEquals(new BigDecimal(new BigInteger("21123"), 3), raw0922.getRawValue());
+			assertEquals(sep22, raw0922.getDate());
+			
+			Date sep24 = Constant.getInstance().getDateFormat().parse(september24);
+			RawIntervalRecord raw0924 = (RawIntervalRecord)meter.getChannel(4).getIntervalData(subDay(sep24), addDay(sep24)).get(0);
+			assertEquals(new BigDecimal(new BigInteger("22123"), 3), raw0924.getRawValue());
+			assertEquals(sep24, raw0924.getDate());
+			
+			Date aug01 = Constant.getInstance().getDateFormat().parse(august01);
+			RawIntervalRecord raw0801 = (RawIntervalRecord)meter.getChannel(5).getIntervalData(subDay(aug01), addDay(aug01)).get(0);
+			assertEquals(new BigDecimal(new BigInteger("5")), raw0801.getRawValue());
+			assertEquals(aug01, raw0801.getDate());
+			
+			Date sep01 = Constant.getInstance().getDateFormat().parse(september01);
+			RawIntervalRecord raw0901 = (RawIntervalRecord)meter.getChannel(5).getIntervalData(subDay(sep01), addDay(sep01)).get(0);
+			assertEquals(new BigDecimal(new BigInteger("10")), raw0901.getRawValue());
+			assertEquals(sep01, raw0901.getDate());
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 			fail();

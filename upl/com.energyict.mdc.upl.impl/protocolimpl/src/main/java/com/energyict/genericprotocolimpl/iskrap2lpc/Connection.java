@@ -232,7 +232,11 @@ public class Connection {
 		resetTimeOut();
 		while(timeout > 0){
 			try {
-				return getConcentrator().port(getConcentrator().getConcentrator()).getMeterProfile(meterID, profileID, registerID, from, to);
+				if(getConcentrator().getReadingsFileType() == 0){
+					return getConcentrator().port(getConcentrator().getConcentrator()).getMeterProfile(meterID, profileID, registerID, from, to);
+				} else if(getConcentrator().getReadingsFileType() == 1){	// get the readings from the result file
+					return getConcentrator().port(getConcentrator().getConcentrator()).getMeterResults(meterID, registerID, from, to);
+				}
 			} catch (RemoteException e) {
 				e.printStackTrace();
 				checkDefaultErrors(e);

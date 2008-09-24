@@ -61,6 +61,7 @@ import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
@@ -454,7 +455,9 @@ class MeterReadTransaction implements CacheMechanism {
 					
 					getConcentrator().importData(xml, dataHandler);
 //					meter.store(dataHandler.getDailyMonthlyProfile(), false);
-					getStoreObjects().add(chn, dataHandler.getDailyMonthlyProfile());
+					ProfileData pd = dataHandler.getDailyMonthlyProfile();
+					pd = sortOutProfileData(pd, pc);
+					getStoreObjects().add(chn, pd);
 					dataHandler.clearDailyMonthlyProfile();
 				}
 			}
@@ -467,6 +470,42 @@ class MeterReadTransaction implements CacheMechanism {
 		}
     }
     
+	private ProfileData sortOutProfileData(ProfileData pd, ProtocolChannel pc) {
+		ProfileData profileData = new ProfileData();
+		profileData.setChannelInfos(pd.getChannelInfos());
+		Iterator it = pd.getIntervalIterator();
+		while(it.hasNext()){
+			IntervalData id = (IntervalData)it.next();
+			if(pc.containsDailyValues()){
+				if(checkDailyBillingTime(id.getEndTime())){
+					profileData.addInterval(id);
+				}
+			} else if(pc.containsMonthlyValues()){
+				if(checkMonthlyBillingTime(id.getEndTime())){
+					profileData.addInterval(id);
+				}				
+			}
+		}
+		profileData.sort();
+		return profileData;
+	}
+	
+	private boolean checkDailyBillingTime(Date date){
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		if(cal.get(Calendar.HOUR)==0 && cal.get(Calendar.MINUTE)==0 && cal.get(Calendar.SECOND)==0 && cal.get(Calendar.MILLISECOND)==0)
+			return true;
+		return false;
+	}
+	
+	private boolean checkMonthlyBillingTime(Date date){
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		if(checkDailyBillingTime(date) && cal.get(Calendar.DAY_OF_MONTH)==1)
+			return true;
+		return false;
+	}
+
 	private Channel getMeterChannelWithIndex(Rtu meter, int profileIndex) {
 		Iterator it = meter.getChannels().iterator();
 		while(it.hasNext()){
@@ -477,96 +516,6 @@ class MeterReadTransaction implements CacheMechanism {
 		return null;
 	}
 
-//	protected void importRegisters(Rtu ctr, Rtu meter, XmlHandler dataHandler) throws ServiceException, IOException, BusinessException{
-//    	importRegisters(ctr, meter, dataHandler, meter.getSerialNumber());
-//    }
-//    
-//	protected void importRegisters(Rtu ctr, Rtu meter, XmlHandler dataHandler, String serialNumb)throws ServiceException, IOException, BusinessException {
-//    	
-//    	String xml = null;
-//    	String mtr = serialNumb;
-//    	String from = Constant.getInstance().format(new Date());
-//        String to = Constant.getInstance().format(new Date());
-//    	
-//    	getLogger().log(Level.INFO, "Reading REGISTERS from meter with serialnumber " + meter.getSerialNumber() + ".");
-//    	
-//    	String daily = null;
-//    	String monthly = null;
-//    	
-//    	int period;
-//    	CosemDateTime cdt;
-//        if ( TESTING ){
-//        	FileReader inFile = new FileReader(Utils.class.getResource(Constant.dateTimeFile).getFile());
-//        	xml = getConcentrator().readWithStringBuffer(inFile);
-//        	period = 3600;
-//        	cdt = getCosemDateTimeFromXmlString(xml);
-//        }
-//        else{
-//        	period = loadProfilePeriod2;
-//        	cdt = billingReadTime;
-//        }
-//        
-//		if ( period == 86400 ){ // Profile contains daily values
-//			daily = "99.2.0";
-//		}
-//		else
-//			daily = null;
-//    	
-//		if ( (cdt.getDayOfMonth().intValue() == 1) && (cdt.getHour().intValue() == 0) && (cdt.getYear().intValue() == 65535) && (cdt.getMonth().intValue() == 255) ){
-//			monthly = "98.1.0";
-//			if (daily == null) daily = "98.2.0";
-//		}
-//		else{
-//			monthly = "98.2.0";
-//			if (daily == null) daily = "98.1.0";
-//		}
-//		
-//        // set registers for the DataHandler
-//        dataHandler.setDailyStr(daily);
-//        dataHandler.setMonthlyStr(monthly);
-//    	
-//        Iterator i = getMeter().getRtuType().getRtuRegisterSpecs().iterator();
-//        while (i.hasNext()) {
-//            
-//            RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
-//            ObisCode oc = spec.getObisCode();
-//            
-//            if((oc.getF()==0)||(oc.getF()==-1)){
-//                String register = oc.toString();
-//                String profile = null;
-//                List registerValues = getConcentrator().mw().getRtuRegisterReadingFactory().findByRegister(meter.getRegister(oc).getId());
-//                Date lastRegisterDate = null;
-//            	if (registerValues.size() != 0){
-//            		lastRegisterDate = getLastRegisterDate(registerValues);
-//            	}else{
-//            		Calendar registerCalendar = Calendar.getInstance();
-//            		registerCalendar.add(Calendar.DAY_OF_MONTH, -10);
-//            		lastRegisterDate = registerCalendar.getTime();
-//            	}
-//                from = Constant.getInstance().format( lastRegisterDate );
-//                if (oc.getF() == 0){
-//                    
-//                    /* historical - daily*/
-//                	profile = daily;
-//                    xml =  getPort(ctr).getMeterProfile(mtr, profile, register, from, to);
-//                    System.out.println(xml);
-//                    getConcentrator().importData(xml, dataHandler);
-//                   
-//                }
-//                
-//                else if (oc.getF() == -1){
-//
-//                	 /* historical - monthly*/
-//                	profile = monthly;
-//                    xml =  getPort(ctr).getMeterProfile(mtr, profile, register, from, to);
-//                    System.out.println(xml);
-//                    getConcentrator().importData(xml, dataHandler);
-//                    
-//                }
-//            }
-//        }
-//        getLogger().log(Level.INFO, "Done reading REGISTERS.");
-//    }
 	
 	protected void handleRegisters(XmlHandler dataHandler, Rtu meter) throws ServiceException, BusinessException, SQLException {
 		
