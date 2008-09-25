@@ -23,6 +23,7 @@ public class CommandFactory {
 		return new ReadCommand(cm10Protocol, TIME);
 	}
 	
+	
 	public ReadCommand getReadFullPersonalityTableCommand() {
 		return new ReadCommand(cm10Protocol, FULL_PERSONALITY_TABLE);
 	}

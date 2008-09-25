@@ -41,6 +41,7 @@ public class CM10 extends AbstractProtocol {
     
     private StatusTable statusTable;
     private FullPersonalityTable fullPersonalityTable;
+    private CurrentDialReadingsTable currentDialReadingsTable;
     
     private int outstationID, retry, timeout, delayAfterConnect;
     private ProtocolChannelMap channelMap;
@@ -78,7 +79,8 @@ public class CM10 extends AbstractProtocol {
 		getLogger().info("doConnect");
 		ProtocolUtils.delayProtocol(delayAfterConnect);
 		//getStatusTable();
-		getFullPersonalityTable();
+		//getFullPersonalityTable();
+		this.getCurrentDialReadingsTable();
 		getLogger().info("endConnect");
 	}
 	
@@ -101,6 +103,20 @@ public class CM10 extends AbstractProtocol {
 		list.add("ChannelMap");
 		list.add("DelayAfterConnect");
 		return list;
+	}
+	
+	public CurrentDialReadingsTable getCurrentDialReadingsTable() throws IOException {
+		if (currentDialReadingsTable == null) {
+			getLogger().info("start currentDialReadingsTable");
+			CommandFactory commandFactory = getCommandFactory();
+			Response response = 
+				commandFactory.getReadCurrentDialReadingsCommand().invoke();
+			currentDialReadingsTable = new CurrentDialReadingsTable(this);
+			currentDialReadingsTable.parse(response.getData());
+			getLogger().info(currentDialReadingsTable.toString());
+			getLogger().info("end currentDialReadingsTable");
+		}
+		return currentDialReadingsTable;
 	}
 	
 	public FullPersonalityTable getFullPersonalityTable() throws IOException {
