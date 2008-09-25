@@ -10,9 +10,11 @@ public class ReadCommand extends AbstractCommand {
 	}
 	
 	protected Command preparebuild() {
-		Command command = new Command(activityCode, this.getCM10Protocol().getOustationId());
+		Command command = new Command(activityCode, this.getCM10Protocol().getOutstationId());
 		command.setRead(true);
+		command.setArguments(getArguments());
 		return command;
 	}
+	
 
 }

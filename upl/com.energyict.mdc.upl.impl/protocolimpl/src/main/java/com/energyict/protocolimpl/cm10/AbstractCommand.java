@@ -6,6 +6,7 @@ import java.io.IOException;
 public abstract class AbstractCommand {
 	
 	private CM10 cm10Protocol;
+	private byte[] arguments;
 	
 	protected Command preparebuild() {
 		throw new RuntimeException("No implementation provided");
@@ -35,6 +36,14 @@ public abstract class AbstractCommand {
         	cm10Protocol.getCM10Connection().sendCommand(command);
         return response;
     }
+
+	public byte[] getArguments() {
+		return arguments;
+	}
+
+	public void setArguments(byte[] arguments) {
+		this.arguments = arguments;
+	}
 
 
 }

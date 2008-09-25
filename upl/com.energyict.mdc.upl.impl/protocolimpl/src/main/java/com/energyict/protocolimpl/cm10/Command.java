@@ -13,11 +13,16 @@ public class Command {
 	private boolean isAck = false;
 	private byte[] sourceCode = {0x00, 0x00};
 	private byte[] destinationCode = new byte[2]; //= {0x1A, 0x00};
+	private byte[] arguments = new byte[0];
 	
 	private CM10 cm10Protocol;
 	
 	public Command(int activityIdentifier) {
         this.setActivityIdentifier(activityIdentifier);
+	}
+	
+	public void setArguments(byte[] arguments) {
+		this.arguments = arguments;
 	}
     
     public Command(int activityIdentifier, int outStationId) {
@@ -87,6 +92,8 @@ public class Command {
 	}
 	
 	public byte[] getBytes() {
+		int size = 11 + arguments.length;
+		
 		byte[] data = new byte[11];
 		data[0] = getCM10Identifier();  // see p 5,6,7 CM10 doc
 		data[1] = 0x0B; // block size
@@ -98,7 +105,14 @@ public class Command {
 		data[7] = 0x00; // destination extension
 		data[8] = 0x00; // protocol type CM10
 		data[9] = 0x00; // port (unused)
-		data[10] = getCrc(ProtocolUtils.getSubArray(data, 0, 10));
+		
+		for (int i = 0; i < arguments.length; i++) {
+			data[10 + i] = arguments[i];
+		}
+		
+		data[size - 1] = getCrc(ProtocolUtils.getSubArray(data, 0, size - 1));
+		
+		
 		return data;
 	}
 	

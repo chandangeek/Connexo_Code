@@ -1,4 +1,6 @@
 package com.energyict.protocolimpl.cm10;
+
+import com.energyict.protocol.ProtocolUtils;
   
 public class CommandFactory {
 	
@@ -32,8 +34,20 @@ public class CommandFactory {
 		return new ReadCommand(cm10Protocol, CURRENT_DIAL_READINGS);
 	}
 	
-	public ReadCommand getReadMeterDemandsCommand() {
-		return new ReadCommand(cm10Protocol, METER_DEMANDS);
+	public ReadCommand getReadMeterDemandsCommand(int stPeriod, int noHHours) {
+		ReadCommand readCommand = new ReadCommand(cm10Protocol, METER_DEMANDS);
+		readCommand.setArguments(getMeterDemandsArguments(stPeriod, noHHours));
+		return readCommand;
+	}
+	
+	protected byte[] getMeterDemandsArguments(int stPeriod, int noHHours) {
+		byte[] args = new byte[4];
+		args[0] = (byte) (stPeriod & 0xFF);
+		args[1] = (byte) ((stPeriod>>8)&0xFF);
+		args[2] = (byte) (noHHours & 0xFF);
+		args[3] = (byte) ((noHHours>>8)&0xFF);
+		cm10Protocol.getLogger().info("args meter demands: " + ProtocolUtils.outputHexString(args));
+		return args;
 	}
 	
 	public ReadCommand getReadAlarmTimesCommandCommand() {

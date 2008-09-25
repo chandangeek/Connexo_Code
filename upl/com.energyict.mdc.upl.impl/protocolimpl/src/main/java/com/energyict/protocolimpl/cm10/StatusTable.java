@@ -73,5 +73,17 @@ public class StatusTable {
 		buf.append("mtrs: " + mtrs).append("\n");
 		return buf.toString();
 	}
+	
+	public int getMostHistoricDemandCount() {
+		return om;
+	}
+	
+	public int getMostRecentDemandCount() {
+		return nm;
+	}
+	
+	public int getNumberOfMeterDemandsStored() {
+		return mCnt;
+	}
 
 }

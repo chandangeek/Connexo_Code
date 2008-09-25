@@ -5,12 +5,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
+import com.energyict.cbo.TimeZoneManager;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.LinkException;
@@ -47,15 +49,20 @@ public class CM10 extends AbstractProtocol {
     private ProtocolChannelMap channelMap;
 
     
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+        return getCM10Profile().getProfileData(from, to, includeEvents);
+    }
+    
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-        return getCM10Profile().getProfileData(lastReading,includeEvents);
+    	Calendar cal=Calendar.getInstance(getTimeZone());
+		return getProfileData(lastReading, cal.getTime(), includeEvents);
     }
     
     public int getProfileInterval() throws UnsupportedException, IOException {
 		return 60 * getFullPersonalityTable().getIntervalInMinutes();
     }
     
-    public int getOustationId() {
+    public int getOutstationId() {
     	return this.outstationID;
     }
     
@@ -78,9 +85,9 @@ public class CM10 extends AbstractProtocol {
 	protected void doConnect() throws IOException {
 		getLogger().info("doConnect");
 		ProtocolUtils.delayProtocol(delayAfterConnect);
-		//getStatusTable();
+		getStatusTable();
 		//getFullPersonalityTable();
-		this.getCurrentDialReadingsTable();
+		//getCurrentDialReadingsTable();
 		getLogger().info("endConnect");
 	}
 	
@@ -236,7 +243,26 @@ public class CM10 extends AbstractProtocol {
 	}
 	
 	public static void main(String[] args) {
-		try {
+		/*Calendar cal = Calendar.getInstance(TimeZoneManager.getTimeZone("GMT"));
+		cal.set(Calendar.MONTH, Calendar.JANUARY);
+		cal.set(Calendar.DATE, 1);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		Date start = cal.getTime();
+		cal = Calendar.getInstance(TimeZoneManager.getTimeZone("GMT"));
+		Date end = cal.getTime();
+		System.out.println((end.getTime() - start.getTime()) / (1000 ));
+		System.out.println((end.getTime() - start.getTime()) / (1000d * 1800d));*/
+		
+		int value = 70;
+		System.out.println(Integer.toHexString(value));
+
+		ProtocolUtils.outputHex(value & 0xFF);
+		ProtocolUtils.outputHex((value>>8)&0xFF);
+		
+		/*try {
 	           int count=0;
 	           System.out.println("start DialerTest");
 	           Dialer dialer = new ATDialer();
@@ -284,7 +310,7 @@ public class CM10 extends AbstractProtocol {
 	        }
 	        catch(IOException e) {
 	            e.printStackTrace();
-	        }
+	        }*/
 	}
 	
 	public CM10Connection getCM10Connection() {
