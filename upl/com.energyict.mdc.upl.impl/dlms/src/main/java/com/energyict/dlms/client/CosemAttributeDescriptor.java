@@ -31,7 +31,7 @@ public class CosemAttributeDescriptor {
 //    public static void main(String[] args) {
 //        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new CosemAttributeDescriptor()));
 //    }
-    
+	
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();

@@ -6,9 +6,10 @@ import java.util.*;
 
 import com.energyict.cbo.*;
 import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.custom.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
@@ -19,19 +20,22 @@ public class CompoundDataBuilder {
 	public CompoundDataBuilder() {
 	}
 
-	private byte[] buildCompoundData(MeterReadingData meterReadingData, ProfileData profileData, int profileInterval, int rtuId) throws IOException {
+	public byte[] buildCompoundData(MeterReadingData meterReadingData, ProfileData profileData, int profileInterval, int databaseID, String serialID) throws IOException {
 		CompoundDataBuilderConnection cosemAPDUBuilder = new CompoundDataBuilderConnection();
 		
 		// set custom object database ID
-		Data data = new Data(cosemAPDUBuilder,new ObjectReference(new byte[]{0,0,96,50,0,0}));
-		data.setValueAttr(new Integer32(rtuId));
+		if (databaseID > 0) {
+			DatabaseIDCustomCosem ack = new DatabaseIDCustomCosem(cosemAPDUBuilder);
+			ack.setFields(databaseID);
+		}
+		else if (serialID != null) {
+			DeviceIDCustomCosem ack = new DeviceIDCustomCosem(cosemAPDUBuilder);
+			ack.setFields(serialID);
+		}
 		
 		// set (report) current clock
 		Clock clock = new Clock(cosemAPDUBuilder);
 		clock.setTimeAttr(new DateTime(TimeZone.getTimeZone("GMT")));
-		
-		
-		
 		
 		if (profileData != null) {
 			if (profileData.getIntervalDatas().size()>0) {
@@ -180,7 +184,7 @@ public class CompoundDataBuilder {
 		meterReadingData.add(new RegisterValue(ObisCode.fromString("1.1.4.8.0.255"),new Quantity(BigDecimal.valueOf(0.1235467000),Unit.get("kvarh")),new Date(new Date().getTime()-10000),new Date(new Date().getTime()-20000),new Date(new Date().getTime()-30000),new Date(new Date().getTime()-40000),103,"test register with id 103"));
 		
 		try {
-			byte[] compoundData = buildCompoundData(meterReadingData,profileData,900, 1234);
+			byte[] compoundData = buildCompoundData(meterReadingData,profileData,900, 1234, null);
 			
 			/// send over https ///
 			

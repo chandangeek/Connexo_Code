@@ -45,10 +45,14 @@ public class AdaptorConnection implements DLMSConnection {
 		return null;
 	}
 	
+	public void reset() {
+		baos.reset();
+	}
+	
 	public byte[] getCompoundData() {
 		byte[] data = null;
 		data = baos.toByteArray();
-		baos=null;
+//		baos=null;
 		return data;
 	}
 

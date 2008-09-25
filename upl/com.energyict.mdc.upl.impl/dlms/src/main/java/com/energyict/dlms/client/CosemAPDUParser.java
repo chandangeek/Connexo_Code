@@ -2,35 +2,33 @@ package com.energyict.dlms.client;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.util.*;
 
 import com.energyict.cbo.*;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.mdw.core.*;
+import com.energyict.dlms.cosem.custom.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
 public class CosemAPDUParser {
 
 	final int DEBUG=1;
-	final boolean DBASE_ACCESS=false;
 	
 	ProfileData profileData=null;
 	MeterReadingData meterReadingData=null;
-	int profileInterval;
+	int profileInterval=-1;
 	Date date=null;
+	
+	AcknowledgeCustomCosem acknowledgeCustomCosem=null;
+	DatabaseIDCustomCosem databaseIDCustomCosem=null;
+	DeviceIDCustomCosem deviceIDCustomCosem=null;
 	
 	public CosemAPDUParser() {
 	}
 
-    public MeteringWarehouse getMeteringWarehouse() {
-        MeteringWarehouse result = MeteringWarehouse.getCurrent();
-        return (result == null) ? new MeteringWarehouseFactory().getBatch() : result;
-    }
+
 	
 	
     public void parse(List<CosemAPDU> apdus) throws IOException {
@@ -39,71 +37,41 @@ public class CosemAPDUParser {
 		if (apdus.isEmpty())
 			throw new IOException("parse, nothing to parse, no CosemAPDUs in parse list...");
     	
-		Rtu device=null;
-		if (DBASE_ACCESS) {
-			device = identifyDevice(apdus.get(index++));
-			if (DEBUG>=1)
-				System.out.println(device);
-		}
-		else index++; // skip identification
+		identifyDevice(apdus.get(index++));
 		
 		if (apdus.size()==1) {
 			// return ACK, this is just a status check if the meter is found...
 		}
 		else
 			// if there are more APDUs, parse them
-			parseContent(device,apdus,index);
-		
-		
-		if (profileData != null) {
-			if (DBASE_ACCESS) {
-				try {
-					device.store(profileData);
-				}
-				catch(BusinessException e) {
-					e.printStackTrace();
-				}
-				catch(SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+			parseContent(apdus,index);
     }
     
-	private Rtu identifyDevice(CosemAPDU apdu) throws IOException {
+	private void identifyDevice(CosemAPDU apdu) throws IOException {
 		if (DEBUG>=1)
 			System.out.println(apdu);
 		
-		if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.96.50.0.0"))) {
+		if (apdu.getCosemAttributeDescriptor().getObis().equals(DatabaseIDCustomCosem.getObisCode())) {
 			// device referenced by database id
-			int dbaseId = apdu.getDataType().getInteger32().intValue();
-			Rtu device = getMeteringWarehouse().getRtuFactory().find(dbaseId);
-			if (device==null)
-				throw new IOException("No Rtu device found with database ID "+dbaseId+"! Cannot continue!");
-			else
-				return device;
+			databaseIDCustomCosem = new DatabaseIDCustomCosem(apdu.getDataType());
 		}
-		else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.96.1.0.255"))) {
+		else if (apdu.getCosemAttributeDescriptor().getObis().equals(DeviceIDCustomCosem.getObisCode())) {
 			// device referenced by serialnumber
-			String serialNumber = apdu.getDataType().getOctetString().stringValue();
-			List<Rtu> devices = getMeteringWarehouse().getRtuFactory().findBySerialNumber(serialNumber);
-			if (devices.size()==0)
-				throw new IOException("No rtu device with the same serialnumber "+serialNumber+" found! Cannot continue!");
-			else if (devices.size()>1)
-				throw new IOException("Multiple rtu devices with the same serialnumber "+serialNumber+" found! Cannot continue!");
-			else
-				return devices.get(0);
+			deviceIDCustomCosem = new DeviceIDCustomCosem(apdu.getDataType());
 		}
-		else throw new IOException("First CosemAPDU in a POST must have the 0.0.96.50.0.0 database ID or 0.0.96.1.0.200 serial number of the device!");
+		else throw new IOException("First CosemAPDU in a POST must have the 0.0.96.50.0.0 database ID or 0.0.96.1.0.255 serial number of the device!");
 	}
 	
-	private void parseContent(Rtu device, List<CosemAPDU> apdus, int index) throws IOException {
+	private void parseContent(List<CosemAPDU> apdus, int index) throws IOException {
 		List<ChannelInfo> channelInfos=null;
 		do {
 			CosemAPDU apdu = apdus.get(index++);
 			if (DEBUG>=1)
 				System.out.println(apdu);
-			if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.1.0.0.255"))) {
+			if (apdu.getCosemAttributeDescriptor().getObis().equals(AcknowledgeCustomCosem.getObisCode())) {
+				acknowledgeCustomCosem = new AcknowledgeCustomCosem(apdu.getDataType());
+			}
+			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.1.0.0.255"))) {
 				date = new DateTime(apdu.getDataType().getOctetString()).getValue().getTime();
 			}
 			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("1.0.99.1.0.255"))) {
@@ -267,6 +235,21 @@ public class CosemAPDUParser {
 
 	public MeterReadingData getMeterReadingData() {
 		return meterReadingData;
+	}
+
+	public AcknowledgeCustomCosem getAcknowledgeCustomCosem() {
+		return acknowledgeCustomCosem;
+	}
+
+	public DatabaseIDCustomCosem getDatabaseIDCustomCosem() {
+		return databaseIDCustomCosem;
+	}
+
+
+
+
+	public DeviceIDCustomCosem getDeviceIDCustomCosem() {
+		return deviceIDCustomCosem;
 	}
 
 }

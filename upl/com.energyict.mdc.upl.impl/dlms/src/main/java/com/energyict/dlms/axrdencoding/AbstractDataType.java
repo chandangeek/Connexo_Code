@@ -51,6 +51,9 @@ abstract public class AbstractDataType {
         return (TypeEnum)this;
     }
     
+    public boolean isStructure() {
+        return this instanceof Structure;
+    }  
     public boolean isUnsigned8() {
         return this instanceof Unsigned8;
     }  
