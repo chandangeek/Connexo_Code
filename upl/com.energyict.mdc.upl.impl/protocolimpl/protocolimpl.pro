@@ -8,7 +8,18 @@
     public static void main(java.lang.String[]);
 }
 
--keepclasseswithmembers public class * implements java.io.Serializable {
+-keepnames class * implements java.io.Serializable
+
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    static final java.io.ObjectStreamField[] serialPersistentFields;
+    !static !transient <fields>;
+    !private <fields>;
+    !private <methods>;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
 }
 
 # Also keep - Enumerations. Keep a method that is required in enumeration
