@@ -13,7 +13,7 @@ public class Command {
 	private boolean isAck = false;
 	private byte[] sourceCode = {0x00, 0x00};
 	private byte[] destinationCode = new byte[2]; //= {0x1A, 0x00};
-	private byte[] arguments = new byte[0];
+	private byte[] arguments;
 	
 	private CM10 cm10Protocol;
 	
@@ -92,11 +92,13 @@ public class Command {
 	}
 	
 	public byte[] getBytes() {
-		int size = 11 + arguments.length;
+		int size = 11;
+		if (arguments != null)
+			size = size + arguments.length;
 		
-		byte[] data = new byte[11];
+		byte[] data = new byte[size];
 		data[0] = getCM10Identifier();  // see p 5,6,7 CM10 doc
-		data[1] = 0x0B; // block size
+		data[1] = (byte) size;
 		data[2] = getSourceCode()[0];
 		data[3] = getSourceCode()[1];
 		data[4] = (byte) 0x00; // source extension
@@ -106,8 +108,10 @@ public class Command {
 		data[8] = 0x00; // protocol type CM10
 		data[9] = 0x00; // port (unused)
 		
-		for (int i = 0; i < arguments.length; i++) {
-			data[10 + i] = arguments[i];
+		if (arguments != null) {
+			for (int i = 0; i < arguments.length; i++) {
+				data[10 + i] = arguments[i];
+			}
 		}
 		
 		data[size - 1] = getCrc(ProtocolUtils.getSubArray(data, 0, size - 1));

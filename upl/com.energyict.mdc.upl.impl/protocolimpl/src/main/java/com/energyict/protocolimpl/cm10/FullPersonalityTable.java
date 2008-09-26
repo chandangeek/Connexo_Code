@@ -71,5 +71,9 @@ public class FullPersonalityTable {
 		buf.append("demper: " + demper).append("\n");
 		return buf.toString();
 	}
+	
+	public int[] getMultipliers() {
+		return null;
+	}
 
 }
