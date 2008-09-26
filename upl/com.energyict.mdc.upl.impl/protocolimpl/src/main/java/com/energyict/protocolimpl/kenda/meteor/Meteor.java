@@ -188,7 +188,6 @@ public class Meteor implements MeterProtocol, RegisterProtocol{
 	public String getProtocolVersion() {
 		return protocolVersion;
 	}
-
 	public Date getTime() throws IOException {		
 		MeteorCLK clk=(MeteorCLK) mcf.transmitData(readRTC, null);
 		return clk.getCalendar().getTime();
@@ -254,7 +253,6 @@ public class Meteor implements MeterProtocol, RegisterProtocol{
 	public void connect() throws IOException {
 		// full personality table should be downloaded because some of the registers
 		// are needed in the communicationsfactory
-		
 		ProtocolUtils.delayProtocol(delayAfterConnect);
 		statusreg = getMeteorStatus();		
 		fullperstable = getFullPersonalityTable();
