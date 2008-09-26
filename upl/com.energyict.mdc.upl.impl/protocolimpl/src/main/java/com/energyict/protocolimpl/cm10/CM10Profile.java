@@ -1,10 +1,14 @@
 package com.energyict.protocolimpl.cm10;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.TimeZoneManager;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.ProfileData;
 
 public class CM10Profile {
@@ -34,21 +38,36 @@ public class CM10Profile {
 			stPeriod = mostHistoricDemandCount;
 			noHHours = noHHours - lessHHToRead;
 		}
-		ProfileData profileData =  getProfileData(stPeriod, noHHours, from);
+		ProfileData profileData = new ProfileData();
+		addChannelInfos(profileData);
+		if (noHHours == 0)
+			return profileData;
+		addChannelData(profileData, stPeriod, noHHours, from);
         return profileData;
 	}
 	
+	protected void addChannelInfos(ProfileData profileData) throws IOException {
+		int numberOfChannels = cm10Protocol.getNumberOfChannels();
+		FullPersonalityTable fullPersonalityTable = cm10Protocol.getFullPersonalityTable();
+		int[] multipliers = fullPersonalityTable.getMultipliers();
+		for (int i = 0; i < numberOfChannels; i++) {
+			ChannelInfo channelInfo = 
+				new ChannelInfo(
+						i, "CM10_"+(i+1), Unit.get(BaseUnit.UNITLESS), 0, i, new BigDecimal(multipliers[i]));
+			profileData.addChannel(channelInfo);			
+		}
+	}
 	
-	protected ProfileData getProfileData(int stPeriod, int noHHours, Date from) throws IOException {
+	
+	protected void addChannelData(ProfileData profileData, int stPeriod, int noHHours, Date from) throws IOException {
 		cm10Protocol.getLogger().info("stPeriod: " + stPeriod);
 		cm10Protocol.getLogger().info("noHHours: " + noHHours);
 		CommandFactory commandFactory = cm10Protocol.getCommandFactory();
 		Response response = 
 			commandFactory.getReadMeterDemandsCommand(stPeriod, noHHours).invoke();
 		MeterDemandsTable meterDemandsTable = new MeterDemandsTable(cm10Protocol);
-		meterDemandsTable.parse(response.getData(), from);
+		meterDemandsTable.parse(response.getData(), profileData, from);
 		cm10Protocol.getLogger().info(meterDemandsTable.toString());
-        return meterDemandsTable.getProfileData();
 	}
 	
 }

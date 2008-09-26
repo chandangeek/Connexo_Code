@@ -17,15 +17,12 @@ import com.energyict.protocol.ProtocolUtils;
 public class MeterDemandsTable {
 	
 	private CM10 cm10Protocol;
-	private ProfileData profileData;
 	
 	public MeterDemandsTable(CM10 cm10Protocol) {
 		this.cm10Protocol = cm10Protocol;
 	}
 	
-	public void parse(byte[] data, Date start) throws IOException {
-		profileData = new ProfileData();
-		addChannelInfos();
+	public void parse(byte[] data, ProfileData profileData, Date start) throws IOException {
 		Calendar cal = Calendar.getInstance(cm10Protocol.getTimeZone());
 		cal.setTime(start);
 		int numberOfChannels = cm10Protocol.getNumberOfChannels();
@@ -42,22 +39,6 @@ public class MeterDemandsTable {
 			}
 			profileData.addInterval(intervalData);
 			i = i + (numberOfChannels * 2); // 2 bytes per channel interval record
-		}
-	}
-	
-	public ProfileData getProfileData() throws IOException {
-		return profileData;
-	}
-	
-	protected void addChannelInfos() throws IOException {
-		int numberOfChannels = cm10Protocol.getNumberOfChannels();
-		FullPersonalityTable fullPersonalityTable = cm10Protocol.getFullPersonalityTable();
-		int[] multipliers = fullPersonalityTable.getMultipliers();
-		for (int i = 0; i < numberOfChannels; i++) {
-			ChannelInfo channelInfo = 
-				new ChannelInfo(
-						i, "CM10_"+(i+1), Unit.get(BaseUnit.UNITLESS), 0, i, new BigDecimal(multipliers[i]));
-			profileData.addChannel(channelInfo);			
 		}
 	}
 
