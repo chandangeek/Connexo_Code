@@ -34,7 +34,7 @@ public class ObisCodeMapper {
 				// check validity of the code
 				throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 			}
-		channelVal=medo.getMcf().retrieveLastProfileData(medo.getProfileInterval());
+		channelVal=medo.getMcf().retrieveLastProfileData(medo.getTime(), medo.getProfileInterval());
 		q = new Quantity(new BigDecimal(channelVal[obisCode.getB()]), Unit.get(BaseUnit.UNITLESS));
 		reg = new RegisterValue(obisCode, q, null, getTime());				
 		return reg;

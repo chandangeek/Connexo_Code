@@ -418,11 +418,13 @@ public class MedoCommunicationsFactory{
 		return requestMeterDemands((byte) 0x08,start,stop,intervaltime);
 		
 	}
-	public short[] retrieveLastProfileData(int intervaltime) throws IOException{
+	public short[] retrieveLastProfileData(Date meterTime,int intervaltime) throws IOException{
 		short[][] s;
 		short[] sm;
 		Calendar start=Calendar.getInstance(timezone);
+		start.setTime(meterTime);
 		Calendar stop=Calendar.getInstance(timezone);
+		stop.setTime(meterTime);
         ParseUtils.roundDown2nearestInterval(start,intervaltime);
 		stop.setTimeInMillis(stop.getTimeInMillis()+intervaltime*1000);
 		s = requestMeterDemands((byte) 0x07,start.getTime(), stop.getTime(), intervaltime);
