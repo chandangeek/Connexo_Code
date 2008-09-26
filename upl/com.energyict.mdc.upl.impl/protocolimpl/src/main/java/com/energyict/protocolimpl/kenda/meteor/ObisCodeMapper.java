@@ -22,9 +22,8 @@ public class ObisCodeMapper {
 	public ObisCodeMapper(Meteor meteor) {
 		this.meteor = meteor;
 	}
-
 	public RegisterValue getRegisterValue(ObisCode obisCode) throws UnsupportedException, NoSuchRegisterException, IOException {
-		short[] channelVal;
+		int[] channelVal;
 		RegisterValue reg;
 		Quantity q;
 		if( obisCode.getA()!=1 || 
@@ -36,7 +35,7 @@ public class ObisCodeMapper {
 				// check validity of the code
 				throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 			}
-		channelVal=meteor.getMcf().retrieveLastProfileData(meteor.getProfileInterval());
+		channelVal=meteor.getMcf().retrieveLastProfileData(meteor.getProfileInterval()); // current meter values
 		System.out.println("channelval: "+channelVal.length);
 		q = new Quantity(new BigDecimal(channelVal[obisCode.getB()]), Unit.get(BaseUnit.UNITLESS));
 		reg = new RegisterValue(obisCode, q, null, getTime());				
@@ -46,3 +45,4 @@ public class ObisCodeMapper {
 		return calendar.getTime();
 	}
 }
+
