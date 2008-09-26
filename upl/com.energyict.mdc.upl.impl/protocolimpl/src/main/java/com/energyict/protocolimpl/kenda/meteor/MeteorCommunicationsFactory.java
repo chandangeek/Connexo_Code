@@ -19,6 +19,7 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.kenda.medo.MedoReadDialReadings;
 
 public class MeteorCommunicationsFactory{
 	/**
@@ -417,20 +418,13 @@ public class MeteorCommunicationsFactory{
 	public short[][] getTotalDemands(Date start, Date stop, int intervaltime) throws IOException{
 		return requestMeterDemands((byte) 0x08,start,stop,intervaltime);
 	}
-	public short[] retrieveLastProfileData(int intervaltime) throws IOException{
-		short[][] s;
-		short[] sm;
-		Calendar start=Calendar.getInstance(timezone);
-		Calendar stop=Calendar.getInstance(timezone);
-        ParseUtils.roundDown2nearestInterval(start,intervaltime);
-		stop.setTimeInMillis(stop.getTimeInMillis()+intervaltime*1000);
-		s = requestMeterDemands((byte) 0x07,start.getTime(), stop.getTime(), intervaltime);
-		sm= new short[s[0].length];
-		for(int i=0; i<s[0].length; i++){
-			sm[i]=s[0][i];
-		}
-		return sm;
+	
+	public int[] retrieveLastProfileData(int intervaltime) throws IOException{
+		MeteorReadDialReadings mrdr;
+		mrdr=(MeteorReadDialReadings) transmitData(readdialReadingCurrent, null);
+		return mrdr.getCnt();
 	}
+	
 	public ProfileData retrieveProfileData(Date start, Date stop, int intervaltime, boolean addevents) throws IOException{ 
 		ProfileData pd = new ProfileData();		
 		IntervalData id = new IntervalData();		// current interval data
