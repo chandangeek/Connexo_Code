@@ -85,7 +85,7 @@ public class CM10 extends AbstractProtocol {
 	protected void doConnect() throws IOException {
 		getLogger().info("doConnect");
 		ProtocolUtils.delayProtocol(delayAfterConnect);
-		getStatusTable();
+		//getStatusTable();
 		//getFullPersonalityTable();
 		//getCurrentDialReadingsTable();
 		getLogger().info("endConnect");

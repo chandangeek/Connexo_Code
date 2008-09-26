@@ -71,17 +71,17 @@ public class CM10Connection extends Connection implements ProtocolConnection {
         while(true) {
             try {
             	// send command
-                sendRawData(command.getBytes());
-                Thread.sleep(100); 
+                sendOut(command.getBytes());
                 // receive response
                 Response response = receiveResponse(command);
                 // send ack
-                sendRawData(command.getAckCommand().getBytes());
+                sendOut(command.getAckCommand().getBytes());
+                outputStream.write(command.getAckCommand().getBytes());
                 return response;
             }
-            catch(InterruptedException e){
+            /*catch(InterruptedException e){
                     throw new NestedIOException(e);
-            }
+            }*/
             catch(ConnectionException e) {
                 if (DEBUG>=1) e.printStackTrace();
                 if (e.getReason() == PROTOCOL_ERROR)

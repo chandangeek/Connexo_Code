@@ -34,20 +34,19 @@ public class CM10Profile {
 			stPeriod = mostHistoricDemandCount;
 			noHHours = noHHours - lessHHToRead;
 		}
-		ProfileData profileData =  getProfileData(stPeriod, noHHours);
-		
+		ProfileData profileData =  getProfileData(stPeriod, noHHours, from);
         return profileData;
 	}
 	
 	
-	protected ProfileData getProfileData(int stPeriod, int noHHours) throws IOException {
+	protected ProfileData getProfileData(int stPeriod, int noHHours, Date from) throws IOException {
 		cm10Protocol.getLogger().info("stPeriod: " + stPeriod);
 		cm10Protocol.getLogger().info("noHHours: " + noHHours);
 		CommandFactory commandFactory = cm10Protocol.getCommandFactory();
 		Response response = 
 			commandFactory.getReadMeterDemandsCommand(stPeriod, noHHours).invoke();
 		MeterDemandsTable meterDemandsTable = new MeterDemandsTable(cm10Protocol);
-		meterDemandsTable.parse(response.getData());
+		meterDemandsTable.parse(response.getData(), from);
 		cm10Protocol.getLogger().info(meterDemandsTable.toString());
         return meterDemandsTable.getProfileData();
 	}

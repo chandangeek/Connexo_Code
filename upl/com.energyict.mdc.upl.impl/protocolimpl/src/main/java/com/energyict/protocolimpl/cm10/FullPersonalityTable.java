@@ -73,7 +73,12 @@ public class FullPersonalityTable {
 	}
 	
 	public int[] getMultipliers() {
-		return null;
+		int[] multipliers = new int[48];
+		for (int i = 0; i < 48; i++) {
+			multipliers[i] = (int) (Math.pow(10, dExp[i]) * dMlt[i]);
+			cm10Protocol.getLogger().info("multiplier " + i + ": " + multipliers[i]);
+		}
+		return multipliers;
 	}
 
 }

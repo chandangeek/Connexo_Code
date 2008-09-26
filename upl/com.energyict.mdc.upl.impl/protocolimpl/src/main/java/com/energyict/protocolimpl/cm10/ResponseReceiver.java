@@ -174,7 +174,7 @@ public class ResponseReceiver {
 		if (crcCalculated == 256)
 			crcCalculated = 0;
 		if (crcCalculated != crcFound)
-			throw new IOException("invalid crc");
+			throw new IOException("invalid crc, value found = " + crcFound + ", value expected = " + crcCalculated);
 		log("crc ok");
 	}
 
