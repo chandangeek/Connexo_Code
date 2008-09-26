@@ -16,10 +16,9 @@ public class MeteorReadDialReadings extends Parsers{
 	MeteorReadDialReadings(char[] c){
 		processMeteorReadDialReadings(c);
 	}
-	
 	private void processMeteorReadDialReadings(char[] c){
 		char[] tempc=new char[4];
-		for(int i=0; i<36; i++){
+		for(int i=0; i<48; i++){
 			tempc[0]=c[(i*4)+0];
 			tempc[1]=c[(i*4)+1];
 			tempc[2]=c[(i*4)+2];
