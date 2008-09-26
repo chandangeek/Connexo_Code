@@ -7,7 +7,7 @@ import com.energyict.protocol.ProtocolUtils;
 public class CurrentDialReadingsTable {
 	
 	private CM10 cm10Protocol;
-	private int dialReadings[] = new int[48];
+	private long dialReadings[] = new long[48];
 	
 	public CurrentDialReadingsTable(CM10 cm10Protocol) {
 		this.cm10Protocol = cm10Protocol;
@@ -15,7 +15,7 @@ public class CurrentDialReadingsTable {
 	
 	public void parse(byte[] data) throws IOException {
 		for (int i = 0; i < 48; i++) {
-			dialReadings[i] = ProtocolUtils.getIntLE(data, i * 3, 3);
+			dialReadings[i] = ProtocolUtils.getLongLE(data, i * 3, 3);
 		}
 	}
 	
