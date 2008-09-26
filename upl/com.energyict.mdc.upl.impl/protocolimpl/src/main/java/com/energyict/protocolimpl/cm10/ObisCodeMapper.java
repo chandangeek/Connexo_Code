@@ -37,8 +37,8 @@ public class ObisCodeMapper {
 				obisCode.getC()!=82 ||
 				obisCode.getD()!=128 ||
 				obisCode.getE()!=0 ||
-				obisCode.getB()>=cm10Protocol.getNumberOfChannels() ||
-				obisCode.getB()<0)
+				obisCode.getB()>cm10Protocol.getNumberOfChannels() ||
+				obisCode.getB()<= 0)
 				throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
     	
     	
@@ -47,7 +47,7 @@ public class ObisCodeMapper {
 		CurrentDialReadingsTable currentDialReadingsTable = cm10Protocol.getCurrentDialReadingsTable();
 		long[] currentDialreadings = currentDialReadingsTable.getValues();
 		Date toTime = currentDialReadingsTable.getToTime();
-		Quantity quantity = new Quantity(new BigDecimal(currentDialreadings[obisCode.getB()]), Unit.get(BaseUnit.UNITLESS));
+		Quantity quantity = new Quantity(new BigDecimal(currentDialreadings[obisCode.getB() - 1]), Unit.get(BaseUnit.UNITLESS));
 		reg = new RegisterValue(obisCode, quantity, null, toTime);				
 		return reg;
     }
