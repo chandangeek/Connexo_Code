@@ -6,6 +6,7 @@ public class CommandFactory {
 	
 	static final int STATUS = 5;
 	static final int TIME = 3;
+	static final int TRIM_TIME = 4;
 	static final int FULL_PERSONALITY_TABLE = 1;
 	static final int CURRENT_DIAL_READINGS = 10;
 	static final int METER_DEMANDS = 7;
@@ -52,6 +53,15 @@ public class CommandFactory {
 	
 	public ReadCommand getReadAlarmTimesCommandCommand() {
 		return new ReadCommand(cm10Protocol, ALARM_TIMES);
+	}
+	
+	public WriteCommand getTrimClockCommand(byte secondsToTrim) {
+		WriteCommand writeCommand = new WriteCommand(cm10Protocol, TRIM_TIME);
+		byte[] args = new byte[1];
+		args[0] = secondsToTrim;
+		cm10Protocol.getLogger().info("args trim time: " + ProtocolUtils.outputHexString(args));
+		writeCommand.setArguments(args);
+		return writeCommand;
 	}
 	
 	

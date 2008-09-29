@@ -238,7 +238,31 @@ public class CM10 extends AbstractProtocol {
 	}
 
 	public void setTime() throws IOException {
-		// TODO Auto-generated method stub
+		// set time is only possible on commissioning or after loading a new personality table 
+		// use only trimmer. 
+		// the value sent to the meter is added on the RTC value in the meter
+		byte result=0;
+		Calendar systemTimeCal=Calendar.getInstance(getTimeZone());
+		Calendar meterTimeCal=Calendar.getInstance(getTimeZone());
+		meterTimeCal.setTime(getTime());
+		long meterTimeInMillis = meterTimeCal.getTimeInMillis();
+		long systemTimeInMilis = systemTimeCal.getTimeInMillis();
+		if(Math.abs((meterTimeInMillis - systemTimeInMilis) / 1000) < 59){
+			// max 59 sec deviation
+			result=(byte) ((int) ((systemTimeInMilis - meterTimeInMillis)/1000)& 0x000000FF);
+		}
+		else{
+			result=59;
+			if(meterTimeInMillis > systemTimeInMilis){
+				result=-59;
+			}
+		}
+		
+		getLogger().info("start Trim Time");
+		CommandFactory commandFactory = getCommandFactory();
+		Response response = 
+			commandFactory.getTrimClockCommand(result).invoke();
+		getLogger().info("end Trim Time");
 		
 	}
 	
