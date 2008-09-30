@@ -38,8 +38,9 @@ public class MaximumDemand extends MainRegister implements Comparable {
     }
     
     private void parse(byte[] data) throws IOException {
-        long shift = (long)ProtocolUtils.getIntLE(data,0,4)&0xFFFFFFFFL;
+        long shift = (long)ProtocolUtils.getInt(data,0,4)&0xFFFFFFFFL;
         setDateTime(ProtocolUtils.getCalendar(timeZone,shift).getTime());
+        
         int rs = ProtocolUtils.getIntLE(data,4,1);
         
         if( rs != 0xff ){

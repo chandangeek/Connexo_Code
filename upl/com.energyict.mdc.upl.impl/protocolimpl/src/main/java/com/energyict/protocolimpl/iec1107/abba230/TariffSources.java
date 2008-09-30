@@ -9,7 +9,7 @@ import com.energyict.protocol.ProtocolUtils;
 
 public class TariffSources {
     
-    private final static int NUMBER_TARIF_REGISTERS = 8;
+    private final static int NUMBER_TARIF_REGISTERS = 16;
     int[] regSource = null;
     
     /** Creates a new instance of TariffSources */

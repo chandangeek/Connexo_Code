@@ -1,5 +1,5 @@
 /*
- * A1140Event.java
+ * AS230Event.java
  *
  * Created on 17 February 2006, 14:26
  *
@@ -64,7 +64,7 @@ public class ABBA230Event {
     
     private ABBA230Event() { }
     
-    /** Creates new A1140Event */
+    /** Creates new AS230Event */
     ABBA230Event(Date date, int meterCode) {
         this.date = date;
         this.meterCode = meterCode;

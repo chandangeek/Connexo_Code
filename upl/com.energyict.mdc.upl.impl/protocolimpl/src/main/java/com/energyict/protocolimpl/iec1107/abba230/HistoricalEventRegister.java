@@ -49,7 +49,7 @@ public class HistoricalEventRegister {
         reverseRunCount = ProtocolUtils.getIntLE(data, 0, 2); 
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 2 + (i*4);
-            shift = (long)ProtocolUtils.getIntLE(data,offset,4)&0xFFFFFFFFL;
+            shift = (long)ProtocolUtils.getInt(data,offset,4)&0xFFFFFFFFL;
             if( shift == 0 ) continue;
             date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
             events.add( new MeterEvent(date, MeterEvent.OTHER, "Reverse Running") );
@@ -58,7 +58,7 @@ public class HistoricalEventRegister {
         phaseFailureCount = ProtocolUtils.getIntLE(data, 14, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 16 + (i*4);
-            shift = (long)ProtocolUtils.getIntLE(data,offset,4)&0xFFFFFFFFL;
+            shift = (long)ProtocolUtils.getInt(data,offset,4)&0xFFFFFFFFL;
             if( shift == 0 ) continue;
             date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
             int phase = ProtocolUtils.getIntLE(data, 28+(1*i), 1 );
@@ -72,7 +72,7 @@ public class HistoricalEventRegister {
         powerFailCount = ProtocolUtils.getIntLE(data, 31, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 33 + (i*4);
-            shift = (long)ProtocolUtils.getIntLE(data,offset,4)&0xFFFFFFFFL;
+            shift = (long)ProtocolUtils.getInt(data,offset,4)&0xFFFFFFFFL;
             if( shift == 0 ) continue;
             date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
             events.add( new MeterEvent(date, MeterEvent.POWERDOWN, "Power down") );
@@ -81,7 +81,7 @@ public class HistoricalEventRegister {
         programmingCount = ProtocolUtils.getIntLE(data, 45, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 47 + (i*4);
-            shift = (long)ProtocolUtils.getIntLE(data,offset,4)&0xFFFFFFFFL;
+            shift = (long)ProtocolUtils.getInt(data,offset,4)&0xFFFFFFFFL;
             if( shift == 0 ) continue;
             date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
             String userName = new String( ProtocolUtils.getSubArray2( data, 62+(12*i), 12 )  ).trim();
@@ -95,7 +95,7 @@ public class HistoricalEventRegister {
         ctRatioCount = ProtocolUtils.getIntLE(data, 98, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 102 + (i*4);
-            shift = (long)ProtocolUtils.getIntLE(data,offset,4)&0xFFFFFFFFL;
+            shift = (long)ProtocolUtils.getInt(data,offset,4)&0xFFFFFFFFL;
             if( shift == 0 ) continue;
             date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
             MeterEvent me = new MeterEvent(date, MeterEvent.CONFIGURATIONCHANGE, "Configuration change");
@@ -105,7 +105,7 @@ public class HistoricalEventRegister {
         billingCount = ProtocolUtils.getIntLE(data, 151, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 153 + (i*4);
-            shift = (long)ProtocolUtils.getIntLE(data,offset,4)&0xFFFFFFFFL;
+            shift = (long)ProtocolUtils.getInt(data,offset,4)&0xFFFFFFFFL;
             if( shift == 0 ) continue;
             date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
             int src = ProtocolUtils.getIntLE(data, 165+(1*i), 1 );
@@ -118,7 +118,7 @@ public class HistoricalEventRegister {
         transientResetCount = ProtocolUtils.getIntLE(data, 168, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 170 + (i*4);
-            shift = (long)ProtocolUtils.getIntLE(data,offset,4)&0xFFFFFFFFL;
+            shift = (long)ProtocolUtils.getInt(data,offset,4)&0xFFFFFFFFL;
             if( shift == 0 ) continue;
             date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
             MeterEvent me = new MeterEvent(date, MeterEvent.CLEAR_DATA, "Transient reset");
@@ -128,7 +128,7 @@ public class HistoricalEventRegister {
         meterErrorCount = ProtocolUtils.getIntLE(data, 182, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 184 + (i*4);
-            shift = (long)ProtocolUtils.getIntLE(data,offset,4)&0xFFFFFFFFL;
+            shift = (long)ProtocolUtils.getInt(data,offset,4)&0xFFFFFFFFL;
             if( shift == 0 ) continue;
             date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
             MeterEvent me = new MeterEvent(date, MeterEvent.FATAL_ERROR, "Meter error");
@@ -138,7 +138,7 @@ public class HistoricalEventRegister {
         terminalCoverCount = ProtocolUtils.getIntLE(data, 196, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 198 + (i*4);
-            shift = (long)ProtocolUtils.getIntLE(data,offset,4)&0xFFFFFFFFL;
+            shift = (long)ProtocolUtils.getInt(data,offset,4)&0xFFFFFFFFL;
             if( shift == 0 ) continue;
             date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
             MeterEvent me = new MeterEvent(date, MeterEvent.OTHER, "Terminal Cover Cumulative Event Count");
@@ -148,7 +148,7 @@ public class HistoricalEventRegister {
         mainCoverCount = ProtocolUtils.getIntLE(data, 210, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 212 + (i*4);
-            shift = (long)ProtocolUtils.getIntLE(data,offset,4)&0xFFFFFFFFL;
+            shift = (long)ProtocolUtils.getInt(data,offset,4)&0xFFFFFFFFL;
             if( shift == 0 ) continue;
             date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
             MeterEvent me = new MeterEvent(date, MeterEvent.OTHER, "Main Cover Cumulative Event Count");
@@ -158,7 +158,7 @@ public class HistoricalEventRegister {
         internalBatteryCount = ProtocolUtils.getIntLE(data, 224, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 226 + (i*4);
-            shift = (long)ProtocolUtils.getIntLE(data,offset,4)&0xFFFFFFFFL;
+            shift = (long)ProtocolUtils.getInt(data,offset,4)&0xFFFFFFFFL;
             if( shift == 0 ) continue;
             date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
             MeterEvent me = new MeterEvent(date, MeterEvent.OTHER, "Internal Battery");
@@ -168,7 +168,7 @@ public class HistoricalEventRegister {
         externalBatteryCount = ProtocolUtils.getIntLE(data, 238, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset =240 + (i*4);
-            shift = (long)ProtocolUtils.getIntLE(data,offset,4)&0xFFFFFFFFL;
+            shift = (long)ProtocolUtils.getInt(data,offset,4)&0xFFFFFFFFL;
             if( shift == 0 ) continue;
             date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
             MeterEvent me = new MeterEvent(date, MeterEvent.OTHER, "External Battery");

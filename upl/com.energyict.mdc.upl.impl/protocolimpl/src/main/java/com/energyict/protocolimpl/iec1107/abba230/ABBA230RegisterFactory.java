@@ -17,8 +17,8 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 public class ABBA230RegisterFactory {
     
-    static public final int MAX_CMD_REGS=4;
-    static public final int MAX_MD_REGS=12;
+    static public final int MAX_CMD_REGS=2;
+    static public final int MAX_MD_REGS=2;
     
     private Map registers = new TreeMap();
     private ProtocolLink protocolLink;
@@ -46,8 +46,9 @@ public class ABBA230RegisterFactory {
     private ABBA230Register cumulativeMaximumDemand2;
     private ABBA230Register cumulativeMaximumDemand3;
     private ABBA230Register custDefRegConfig;
-    private ABBA230Register historicalEvents;
+    //private ABBA230Register historicalEvents;
     private ABBA230Register historicalRegister;
+    private ABBA230Register dailyHistoricalRegister;
     private ABBA230Register historicalSystemStatus;
     private ABBA230Register integrationPeriod;
     private ABBA230Register loadProfile;
@@ -73,7 +74,46 @@ public class ABBA230RegisterFactory {
     private ABBA230Register timeOfUse5;
     private ABBA230Register timeOfUse6;
     private ABBA230Register timeOfUse7;
+    private ABBA230Register timeOfUse8;
+    private ABBA230Register timeOfUse9;
+    private ABBA230Register timeOfUse10;
+    private ABBA230Register timeOfUse11;
+    private ABBA230Register timeOfUse12;
+    private ABBA230Register timeOfUse13;
+    private ABBA230Register timeOfUse14;
+    private ABBA230Register timeOfUse15;
     private ABBA230Register contactorStatus,contactorCloser;
+
+    private ABBA230Register loadProfileDSTConfig;
+    
+    private ABBA230Register overVoltageEventLog;
+    private ABBA230Register underVoltageEventLog;
+    private ABBA230Register programmingEventLog;
+    private ABBA230Register longPowerFailEventLog;
+    private ABBA230Register terminalCoverEventLog;
+    private ABBA230Register mainCoverEventLog;
+    private ABBA230Register magneticTamperEventLog;
+    private ABBA230Register reverserunEventLog;
+    private ABBA230Register powerFailEventLog;
+    private ABBA230Register transientEventLog;
+    private ABBA230Register endOfBillingEventLog;
+    
+    private ABBA230Register contactorOpenOpticalLog;
+    private ABBA230Register contactorOpenModuleLog;
+    private ABBA230Register contactorOpenLoadMonitorLowEventLog;
+    private ABBA230Register contactorOpenLoadMonitorHighEventLog;
+    private ABBA230Register contactorOpenAutoDisconnectEventLog;
+    private ABBA230Register contactorArmOpticalEventLog;
+    private ABBA230Register contactorArmModuleEventLog;
+    private ABBA230Register contactorArmLoadMonitorEventLog;
+    private ABBA230Register contactorArmDisconnectEventLog;
+    private ABBA230Register contactorCloseOpticalEventLog;
+    private ABBA230Register contactorCloseModuleEventLog;
+    private ABBA230Register contactorCloseButtonEventLog;
+    
+    
+    private ABBA230Register meterErrorEventLog;
+    private ABBA230Register batteryVoltageLowEventLog;
     
     /**
      * Creates a new instance of ABBA230RegisterFactory
@@ -180,9 +220,9 @@ public class ABBA230RegisterFactory {
         return custDefRegConfig;
     }
 
-    public ABBA230Register getHistoricalEvents() {
-        return historicalEvents;
-    }
+//    public ABBA230Register getHistoricalEvents() {
+//        return historicalEvents;
+//    }
 
     public ABBA230Register getHistoricalRegister() {
         return historicalRegister;
@@ -317,6 +357,14 @@ public class ABBA230RegisterFactory {
         timeOfUse5 = cr("508", "TimeOfUse5", ABBA230RegisterData.ABBA_REGISTER,40,8,null);
         timeOfUse6 = cr("508", "TimeOfUse6", ABBA230RegisterData.ABBA_REGISTER,48,8,null);
         timeOfUse7 = cr("508", "TimeOfUse7", ABBA230RegisterData.ABBA_REGISTER,56,8,null);
+        timeOfUse8 = cr("508", "TimeOfUse0", ABBA230RegisterData.ABBA_REGISTER,64,8,null);
+        timeOfUse9 = cr("508", "TimeOfUse1", ABBA230RegisterData.ABBA_REGISTER,72,8,null);
+        timeOfUse10 = cr("508", "TimeOfUse2", ABBA230RegisterData.ABBA_REGISTER,80,8,null);
+        timeOfUse11 = cr("508", "TimeOfUse3", ABBA230RegisterData.ABBA_REGISTER,88,8,null);
+        timeOfUse12 = cr("508", "TimeOfUse4", ABBA230RegisterData.ABBA_REGISTER,96,8,null);
+        timeOfUse13 = cr("508", "TimeOfUse5", ABBA230RegisterData.ABBA_REGISTER,104,8,null);
+        timeOfUse14 = cr("508", "TimeOfUse6", ABBA230RegisterData.ABBA_REGISTER,112,8,null);
+        timeOfUse15 = cr("508", "TimeOfUse7", ABBA230RegisterData.ABBA_REGISTER,120,8,null);
         
         cummulativeMaximumDemand = cr("509", "CummulativeMaximumDemand", ABBA230RegisterData.ABBA_BYTEARRAY,0,-1, null );
         cumulativeMaximumDemand0 = cr("509","CumulativeMaximumDemand0", ABBA230RegisterData.ABBA_CMD,0,9,null);
@@ -328,8 +376,38 @@ public class ABBA230RegisterFactory {
         maximumDemand0 = cr( "510", "MaximumDemand0", ABBA230RegisterData.ABBA_MD,0,12,null);
         maximumDemand1 = cr( "510", "MaximumDemand1", ABBA230RegisterData.ABBA_MD,12,12,null);
         
-        historicalRegister = cr("543", "HistoricalRegister", ABBA230RegisterData.ABBA_HISTORICALVALUES,0,457, null);
-        historicalEvents = cr("544", "HistoricalEvents", ABBA230RegisterData.ABBA_HISTORICALEVENTS,0,792, null);
+        historicalRegister = cr("543", "HistoricalRegister", ABBA230RegisterData.ABBA_HISTORICALVALUES,0,302, null);
+        
+        dailyHistoricalRegister = cr("545", "DailyHistoricalRegister", ABBA230RegisterData.ABBA_HISTORICALVALUES,0,302, null);
+        
+
+        // event logs
+        overVoltageEventLog = cr("678", "OverVoltageEventLog", ABBA230RegisterData.ABBA_OVERVOLTAGEEVENTLOG,0,83, null);
+        underVoltageEventLog = cr("679", "UnderVoltageEventLog", ABBA230RegisterData.ABBA_UNDERVOLTAGEEVENTLOG,0,83, null);
+        programmingEventLog = cr("680", "ProgrammingEventLog", ABBA230RegisterData.ABBA_PROGRAMMINGEVENTLOG,0,64+64+45, null);
+        longPowerFailEventLog = cr("685", "LongPowerFailEventLog", ABBA230RegisterData.ABBA_LONGPOWERFAILEVENTLOG,0,83, null);
+        powerFailEventLog = cr("695", "PowerFailEventLog", ABBA230RegisterData.ABBA_POWEREFAILEVENTLOG,0,83, null);
+        terminalCoverEventLog = cr("691", "TerminalCoverEventLog", ABBA230RegisterData.ABBA_TERMINALCOVEREVENTLOG,0,83, null);
+        mainCoverEventLog = cr("692", "MainCoverEventLog", ABBA230RegisterData.ABBA_MAINCOVEREVENTLOG,0,83, null);
+        magneticTamperEventLog = cr("693", "MagneticTamperEventLog", ABBA230RegisterData.ABBA_MAGNETICTAMPEREVENTLOG,0,83, null);
+        reverserunEventLog = cr("694", "ReverserunEventLog", ABBA230RegisterData.ABBA_REVERSERUNEVENTLOG,0,43, null);
+        transientEventLog = cr("696", "TransientEventLog", ABBA230RegisterData.ABBA_TRANSIENTEVENTLOG,0,43, null);
+        endOfBillingEventLog = cr("699", "EndOfBillingEventLog", ABBA230RegisterData.ABBA_ENDOFBILLINGEVENTLOG,0,53, null);
+        contactorOpenOpticalLog = cr("422", "ContactorOpenOpticalLog", ABBA230RegisterData.ABBA_CONTACTOROPENOPTICALLOG,0,53, null);
+        contactorOpenModuleLog = cr("423", "ContactorOpenModuleLog", ABBA230RegisterData.ABBA_CONTACTOROPENMODULELOG,0,53, null);
+        contactorOpenLoadMonitorLowEventLog = cr("424", "ContactorOpenLoadMonitorLowEventLog", ABBA230RegisterData.ABBA_CONTACTORLOADMONITORLOWLOG,0,53, null);
+        contactorOpenLoadMonitorHighEventLog = cr("425", "ContactorOpenLoadMonitorHighEventLog", ABBA230RegisterData.ABBA_CONTACTOROPENLOADMONITORHIGHLOG,0,53, null);
+        contactorOpenAutoDisconnectEventLog = cr("426", "ContactorOpenAutoDisconnectEventLog", ABBA230RegisterData.ABBA_CONTACTOROPENAUTODISCONNECTLOG,0,53, null);
+        contactorArmOpticalEventLog = cr("427", "ContactorArmOpticalEventLog", ABBA230RegisterData.ABBA_CONTACTORARMOPTICALLOG,0,53, null);
+        contactorArmModuleEventLog = cr("428", "ContactorArmModuleEventLog", ABBA230RegisterData.ABBA_CONTACTORARMMODULELOG,0,53, null);
+        contactorArmLoadMonitorEventLog = cr("429", "ContactorArmLoadMonitorEventLog", ABBA230RegisterData.ABBA_CONTACTORARMLOADMONITORLOG,0,53, null);
+        contactorArmDisconnectEventLog = cr("430", "ContactorArmDisconnectEventLog", ABBA230RegisterData.ABBA_CONTACTORARMDISCONNECTLOG,0,53, null);
+        contactorCloseOpticalEventLog = cr("431", "ContactorCloseOpticalEventLog", ABBA230RegisterData.ABBA_CONTACTORCLOSEOPTICALLOG,0,53, null);
+        contactorCloseModuleEventLog = cr("432", "ContactorCloseModuleEventLog", ABBA230RegisterData.ABBA_CONTACTORCLOSEMODULELOG,0,53, null);
+        contactorCloseButtonEventLog = cr("433", "ContactorCloseButtonEventLog", ABBA230RegisterData.ABBA_CONTACTORCLOSEBUTTONLOG,0,53, null);
+        meterErrorEventLog = cr("701", "MeterErrorEventLog", ABBA230RegisterData.ABBA_METERERROREVENTLOG,0,53, null);
+        batteryVoltageLowEventLog = cr("705", "BatteryVoltageLowEventLog", ABBA230RegisterData.ABBA_BATTERYVOLTAGELOWEVENTLOG,0,43, null);
+
         
         loadProfile = cr("550", "LoadProfile", ABBA230RegisterData.ABBA_BYTEARRAY,0,-1, null);
         
@@ -347,7 +425,7 @@ public class ABBA230RegisterFactory {
         
         custDefRegConfig = cr("600", "CustDefRegConfig", ABBA230RegisterData.ABBA_CUSTDEFREGCONFIG,0,4, null);
         
-        tariffSources = cr("667", "TariffSources", ABBA230RegisterData.ABBA_TARIFFSOURCES,0,8, null );
+        tariffSources = cr("667", "TariffSources", ABBA230RegisterData.ABBA_TARIFFSOURCES,0,16, null );
         
         cTPrimaryAndSecundary = cr("616", "CTPrimaryAndSecundary", ABBA230RegisterData.ABBA_STRING,0,-1, null);
         cTPrimary = cr("616", "CTPrimary", ABBA230RegisterData.ABBA_BIGDECIMAL,0,4, Unit.get(BaseUnit.UNITLESS,-2));
@@ -358,6 +436,8 @@ public class ABBA230RegisterFactory {
         
         contactorStatus = cr("411", "ContactorStatus", ABBA230RegisterData.ABBA_HEX,0,1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
         contactorCloser = cr("412", "ContactorCloser", ABBA230RegisterData.ABBA_HEX,0,1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
+        
+        loadProfileDSTConfig = cr("778", "LoadProfileDSTConfig", ABBA230RegisterData.ABBA_HEX,0,1, null);        
         
     }
     
@@ -434,7 +514,7 @@ public class ABBA230RegisterFactory {
                 return register2Retrieve.parse(register2Retrieve.readRegister(register2Retrieve.isCached()));
             }
             // billing point register set
-            else if ((billingPoint>=0) && (billingPoint<=14)) {
+            else if ((billingPoint>=0) && (billingPoint<=11)) {
                 
                 if (HistoricalRegister.has(register2Retrieve.getDataID())) {
                     // retrieve the billing set data
@@ -454,7 +534,29 @@ public class ABBA230RegisterFactory {
                     register2Retrieve = findRegister(name);
                     return register2Retrieve.parse(register2Retrieve.readRegister(register2Retrieve.isCached(),billingPoint));
                 }
+            } 
+            else if ((billingPoint>=12) && (billingPoint<=25)) {
+                
+                if (HistoricalRegister.has(register2Retrieve.getDataID())) {
+                    // retrieve the billing set data
+                    ABBA230Register register = findRegister("DailyHistoricalRegister");
+                    HistoricalRegister historicalValues = (HistoricalRegister)register.parse(register.readRegister(register.isCached(),billingPoint-12));
+                    
+                    // find register within the data
+                    register2Retrieve = findRegister(name);
+                    Object obj = register2Retrieve.parse(historicalValues.getData(register2Retrieve.getDataID()));
+                    try {
+                        ((MainRegister)obj).setHistoricalValues(historicalValues);
+                    } catch(ClassCastException e) {
+                        // absorb
+                    }
+                    return obj;
+                } else {
+                    register2Retrieve = findRegister(name);
+                    return register2Retrieve.parse(register2Retrieve.readRegister(register2Retrieve.isCached(),billingPoint-12));
+                }
             } else throw new IOException("Elster A230, getRegister, invalid billing point "+billingPoint+"!");
+            
         } catch(FlagIEC1107ConnectionException e) {
             throw new IOException("Elster A230, getRegister, "+e.getMessage());
         }
@@ -525,6 +627,142 @@ public class ABBA230RegisterFactory {
 
 	public void setContactorStatus(ABBA230Register contactorStatus) {
 		this.contactorStatus = contactorStatus;
+	}
+
+	public ABBA230Register getTimeOfUse8() {
+		return timeOfUse8;
+	}
+
+	public ABBA230Register getTimeOfUse9() {
+		return timeOfUse9;
+	}
+
+	public ABBA230Register getTimeOfUse10() {
+		return timeOfUse10;
+	}
+
+	public ABBA230Register getTimeOfUse11() {
+		return timeOfUse11;
+	}
+
+	public ABBA230Register getTimeOfUse12() {
+		return timeOfUse12;
+	}
+
+	public ABBA230Register getTimeOfUse13() {
+		return timeOfUse13;
+	}
+
+	public ABBA230Register getTimeOfUse14() {
+		return timeOfUse14;
+	}
+
+	public ABBA230Register getTimeOfUse15() {
+		return timeOfUse15;
+	}
+
+	public ABBA230Register getLoadProfileDSTConfig() {
+		return loadProfileDSTConfig;
+	}
+
+	public ABBA230Register getOverVoltageEventLog() {
+		return overVoltageEventLog;
+	}
+
+	public ABBA230Register getUnderVoltageEventLog() {
+		return underVoltageEventLog;
+	}
+
+	public ABBA230Register getProgrammingEventLog() {
+		return programmingEventLog;
+	}
+
+	public ABBA230Register getLongPowerFailEventLog() {
+		return longPowerFailEventLog;
+	}
+
+	public ABBA230Register getTerminalCoverEventLog() {
+		return terminalCoverEventLog;
+	}
+
+	public ABBA230Register getMainCoverEventLog() {
+		return mainCoverEventLog;
+	}
+
+	public ABBA230Register getMagneticTamperEventLog() {
+		return magneticTamperEventLog;
+	}
+
+	public ABBA230Register getReverserunEventLog() {
+		return reverserunEventLog;
+	}
+
+	public ABBA230Register getPowerFailEventLog() {
+		return powerFailEventLog;
+	}
+
+	public ABBA230Register getTransientEventLog() {
+		return transientEventLog;
+	}
+
+	public ABBA230Register getMeterErrorEventLog() {
+		return meterErrorEventLog;
+	}
+
+	public ABBA230Register getContactorOpenOpticalLog() {
+		return contactorOpenOpticalLog;
+	}
+
+	public ABBA230Register getContactorOpenModuleLog() {
+		return contactorOpenModuleLog;
+	}
+
+	public ABBA230Register getContactorOpenLoadMonitorLowEventLog() {
+		return contactorOpenLoadMonitorLowEventLog;
+	}
+
+	public ABBA230Register getContactorOpenLoadMonitorHighEventLog() {
+		return contactorOpenLoadMonitorHighEventLog;
+	}
+
+	public ABBA230Register getContactorOpenAutoDisconnectEventLog() {
+		return contactorOpenAutoDisconnectEventLog;
+	}
+
+	public ABBA230Register getContactorArmOpticalEventLog() {
+		return contactorArmOpticalEventLog;
+	}
+
+	public ABBA230Register getContactorArmModuleEventLog() {
+		return contactorArmModuleEventLog;
+	}
+
+	public ABBA230Register getContactorArmLoadMonitorEventLog() {
+		return contactorArmLoadMonitorEventLog;
+	}
+
+	public ABBA230Register getContactorArmDisconnectEventLog() {
+		return contactorArmDisconnectEventLog;
+	}
+
+	public ABBA230Register getContactorCloseOpticalEventLog() {
+		return contactorCloseOpticalEventLog;
+	}
+
+	public ABBA230Register getContactorCloseModuleEventLog() {
+		return contactorCloseModuleEventLog;
+	}
+
+	public ABBA230Register getContactorCloseButtonEventLog() {
+		return contactorCloseButtonEventLog;
+	}
+
+	public ABBA230Register getEndOfBillingEventLog() {
+		return endOfBillingEventLog;
+	}
+
+	public ABBA230Register getBatteryVoltageLowEventLog() {
+		return batteryVoltageLowEventLog;
 	}
 
 

@@ -118,7 +118,7 @@ public class ABBA230DataIdentityFactory {
         add("795", 8,ABBA230DataIdentity.NOT_STREAMEABLE);
         add("861", 7,ABBA230DataIdentity.NOT_STREAMEABLE);
         add("507", 128,ABBA230DataIdentity.NOT_STREAMEABLE);
-        add("509", 36,ABBA230DataIdentity.NOT_STREAMEABLE);
+        add("509", 18,ABBA230DataIdentity.NOT_STREAMEABLE);
         add("510", 24,ABBA230DataIdentity.NOT_STREAMEABLE);
         // ct primary and secundary current
         add("616", 6,ABBA230DataIdentity.NOT_STREAMEABLE);
@@ -131,7 +131,9 @@ public class ABBA230DataIdentityFactory {
         // Load profile read data
         add("550", 0,ABBA230DataIdentity.STREAMEABLE);
         // Historical events 
-        add("544", 280,5,ABBA230DataIdentity.STREAMEABLE);
+//        add("544", 5,  280,ABBA230DataIdentity.STREAMEABLE);
+        // Historical events 
+        add("545", 280,5,ABBA230DataIdentity.STREAMEABLE);
         // Meter current system status
         add("724", 4,ABBA230DataIdentity.NOT_STREAMEABLE);
         // (C)MD register sources
@@ -139,14 +141,48 @@ public class ABBA230DataIdentityFactory {
         // Customer defined register 1,2 & 3 configuration
         add("600", 4,ABBA230DataIdentity.NOT_STREAMEABLE);
         // TOU register source
-        add("667", 8,ABBA230DataIdentity.NOT_STREAMEABLE);
+        add("667", 16,ABBA230DataIdentity.NOT_STREAMEABLE);
         // TOU registers
-        add("508", 64,ABBA230DataIdentity.NOT_STREAMEABLE);
+        add("508", 128,ABBA230DataIdentity.NOT_STREAMEABLE);
         // Historical values
-        add("543", 457, 15 ,ABBA230DataIdentity.STREAMEABLE);
+        add("543", 302, 12,ABBA230DataIdentity.STREAMEABLE);
+        // Daily historical values
+        add("545", 302, 14,ABBA230DataIdentity.STREAMEABLE);
         // Configure Load Profile Read By Date
         add("554", 8, ABBA230DataIdentity.NOT_STREAMEABLE );
         
+        add("778", 1, ABBA230DataIdentity.NOT_STREAMEABLE );
+        
+        
+        // event logs
+        add("678", 83,ABBA230DataIdentity.STREAMEABLE); // OverVoltageEventLog
+        add("679", 83,ABBA230DataIdentity.STREAMEABLE); // UnderVoltageEventLog
+        add("680", 64+64+45,ABBA230DataIdentity.STREAMEABLE); // ProgrammingEventLog
+        add("685", 83,ABBA230DataIdentity.STREAMEABLE); // LongPowerFailEventLog
+        add("691", 83,ABBA230DataIdentity.STREAMEABLE); // TerminalCoverEventLog
+        add("692", 83,ABBA230DataIdentity.STREAMEABLE); // MainCoverEventLog
+        add("693", 83,ABBA230DataIdentity.STREAMEABLE); // MagneticTamperEventLog
+        add("694", 43,ABBA230DataIdentity.STREAMEABLE); // ReverserunEventLog
+        add("695", 83,ABBA230DataIdentity.STREAMEABLE); // PowerFailEventLog
+        add("696", 43,ABBA230DataIdentity.STREAMEABLE); // TransientEventLog
+        add("699", 53,ABBA230DataIdentity.STREAMEABLE); // EndOfBillingEventLog
+        
+        add("422", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorOpenOpticalLog
+        add("423", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorOpenModuleLog
+        add("424", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorOpenLoadMonitorLowEventLog
+        add("425", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorOpenLoadMonitorHighEventLog
+        add("426", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorOpenAutoDisconnectEventLog
+        add("427", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorArmOpticalEventLog
+        add("428", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorArmModuleEventLog
+        add("429", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorArmLoadMonitorEventLog
+        add("430", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorArmDisconnectEventLog
+        add("431", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorCloseOpticalEventLog
+        add("432", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorCloseModuleEventLog
+        add("433", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorCloseButtonEventLog
+        
+        
+        add("701", 53,ABBA230DataIdentity.STREAMEABLE); // MeterErrorEventLog
+        add("705", 43,ABBA230DataIdentity.STREAMEABLE); // BatteryVoltageLowEventLog
     }
     
     private void add(String id, int length, boolean streamable ){

@@ -9,6 +9,12 @@ import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.abba230.CustDefRegConfig;
+import com.energyict.protocolimpl.iec1107.abba230.LoadProfileConfigRegister;
+import com.energyict.protocolimpl.iec1107.abba230.MDSources;
+import com.energyict.protocolimpl.iec1107.abba230.SystemStatus;
+import com.energyict.protocolimpl.iec1107.abba230.TariffSources;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.*;
 
 /** @author  Koen */
 
@@ -39,6 +45,34 @@ abstract public class ABBA230RegisterData {
     final static int ABBA_INTEGRATION_PERIOD=22;
     final static int ABBA_LOAD_PROFILE_BY_DATE=23;
     final static int ABBA_LOAD_PROFILE_CONFIG=24;
+    final static int ABBA_OVERVOLTAGEEVENTLOG=25;
+    final static int ABBA_UNDERVOLTAGEEVENTLOG=26;
+    final static int ABBA_PROGRAMMINGEVENTLOG=27;
+    final static int ABBA_LONGPOWERFAILEVENTLOG=28;
+    final static int ABBA_TERMINALCOVEREVENTLOG=29;
+    final static int ABBA_MAINCOVEREVENTLOG=30;
+    final static int ABBA_MAGNETICTAMPEREVENTLOG=31;
+    final static int ABBA_REVERSERUNEVENTLOG=32;
+    final static int ABBA_POWEREFAILEVENTLOG=33;
+    final static int ABBA_TRANSIENTEVENTLOG=34;
+    final static int ABBA_ENDOFBILLINGEVENTLOG=35;
+    final static int ABBA_METERERROREVENTLOG=36;
+    final static int ABBA_BATTERYVOLTAGELOWEVENTLOG=37;
+    
+    
+    final static int ABBA_CONTACTOROPENOPTICALLOG=38;
+    final static int ABBA_CONTACTOROPENMODULELOG=39;
+    final static int ABBA_CONTACTORLOADMONITORLOWLOG=40;
+    final static int ABBA_CONTACTOROPENLOADMONITORHIGHLOG=41;
+    final static int ABBA_CONTACTOROPENAUTODISCONNECTLOG=42;
+    final static int ABBA_CONTACTORARMOPTICALLOG=43;
+    final static int ABBA_CONTACTORARMMODULELOG=44;
+    final static int ABBA_CONTACTORARMLOADMONITORLOG=45;
+    final static int ABBA_CONTACTORARMDISCONNECTLOG=46;
+    final static int ABBA_CONTACTORCLOSEOPTICALLOG=47;
+    final static int ABBA_CONTACTORCLOSEMODULELOG=48;
+    final static int ABBA_CONTACTORCLOSEBUTTONLOG=49;
+    
     
     abstract protected Unit getUnit();
     abstract protected int getType();
@@ -202,7 +236,7 @@ abstract public class ABBA230RegisterData {
                     
                 case ABBA_HISTORICALEVENTS:
                     return new HistoricalEventRegister(data, getProtocolLink().getTimeZone());
-                    
+                
                 case ABBA_SYSTEMSTATUS:
                     return new SystemStatus(data);
                     
@@ -226,7 +260,148 @@ abstract public class ABBA230RegisterData {
                 
                 case ABBA_LOAD_PROFILE_CONFIG: 
                     return new LoadProfileConfigRegister(getRegisterFactory(), data);
+                                        
+                case ABBA_OVERVOLTAGEEVENTLOG: {
+                	OverVoltageEventLog o = new OverVoltageEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
                     
+                case ABBA_UNDERVOLTAGEEVENTLOG: {
+                	UnderVoltageEventLog o = new UnderVoltageEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                	
+                case ABBA_PROGRAMMINGEVENTLOG: {
+                	ProgrammingEventLog o = new ProgrammingEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                	
+                case ABBA_LONGPOWERFAILEVENTLOG: {
+                	LongPowerFailEventLog o = new LongPowerFailEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                	
+                case ABBA_TERMINALCOVEREVENTLOG: {
+                	TerminalCoverEventLog o = new TerminalCoverEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                	
+                case ABBA_MAINCOVEREVENTLOG: {
+                	MainCoverEventLog o = new MainCoverEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                	
+                case ABBA_MAGNETICTAMPEREVENTLOG: {
+                	MagneticTamperEventLog o = new MagneticTamperEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                	
+                case ABBA_REVERSERUNEVENTLOG: {
+                	ReverserunEventLog o = new ReverserunEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                	
+                case ABBA_POWEREFAILEVENTLOG: {
+                	PowerFailEventLog o = new PowerFailEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                
+                case ABBA_TRANSIENTEVENTLOG: {
+                	TransientEventLog o = new TransientEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+
+                case ABBA_ENDOFBILLINGEVENTLOG: {
+                	EndOfBillingEventLog o = new EndOfBillingEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                
+                case ABBA_CONTACTOROPENOPTICALLOG: {
+                	ContactorOpenOpticalEventLog o = new ContactorOpenOpticalEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                case ABBA_CONTACTOROPENMODULELOG: {
+                	ContactorOpenModuleEventLog o = new ContactorOpenModuleEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                case ABBA_CONTACTORLOADMONITORLOWLOG: {
+                	ContactorOpenLoadMonitorLowEventLog o = new ContactorOpenLoadMonitorLowEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                case ABBA_CONTACTOROPENLOADMONITORHIGHLOG: {
+                	ContactorOpenLoadMonitorHighEventLog o = new ContactorOpenLoadMonitorHighEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                case ABBA_CONTACTOROPENAUTODISCONNECTLOG: {
+                	ContactorOpenAutoDisconnectEventLog o = new ContactorOpenAutoDisconnectEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                case ABBA_CONTACTORARMOPTICALLOG: {
+                	ContactorArmOpticalEventLog o = new ContactorArmOpticalEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                
+                case ABBA_CONTACTORARMMODULELOG: {
+                	ContactorArmModuleEventLog o = new ContactorArmModuleEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                case ABBA_CONTACTORARMLOADMONITORLOG: {
+                	ContactorArmLoadMonitorEventLog o = new ContactorArmLoadMonitorEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                case ABBA_CONTACTORARMDISCONNECTLOG: {
+                	ContactorArmDisconnectEventLog o = new ContactorArmDisconnectEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                case ABBA_CONTACTORCLOSEOPTICALLOG: {
+                	ContactorCloseOpticalEventLog o = new ContactorCloseOpticalEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                case ABBA_CONTACTORCLOSEMODULELOG: {
+                	ContactorCloseModuleEventLog o = new ContactorCloseModuleEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                case ABBA_CONTACTORCLOSEBUTTONLOG: {
+                	ContactorCloseButtonEventLog o = new ContactorCloseButtonEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                
+                case ABBA_METERERROREVENTLOG: {
+                	MeterErrorEventLog o = new MeterErrorEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+
+                case ABBA_BATTERYVOLTAGELOWEVENTLOG: {
+                	BatteryVoltageLowEventLog o = new BatteryVoltageLowEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                    
+                
                 default:
                     throw new IOException("ABBA230RegisterData, parse , unknown type " + getType());
             }

@@ -70,11 +70,11 @@ public class ObisCodeMapper {
         
         /** Billing Point Timestamp */
         if (obisCode.toString().startsWith("1.1.0.1.2.")) { 
-            if ((bp >= 0) && (bp < 14)) {
+            if ((bp >= 0) && (bp <= 11)) {
                 if (read) {
                     HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister("HistoricalRegister",bp);
 
-                    Quantity quantity = new Quantity( new BigDecimal( hv.getBillingTrigger() ),Unit.get(255) );
+                    Quantity quantity = new Quantity( new BigDecimal(0),Unit.get(255) );
                     Date eventTime = hv.getBillingDate();
                     Date fromTime = null;
                     Date toTime = hv.getBillingDate();
@@ -85,7 +85,24 @@ public class ObisCodeMapper {
                 } else { 
                     return new RegisterInfo("billing point "+bp+" timestamp");
                 }
-            } else {
+            } 
+            else if ((bp >= 12) && (bp <= 25)) {
+                if (read) {
+                    HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister("DailyHistoricalRegister",bp);
+
+                    Quantity quantity = new Quantity( new BigDecimal(0),Unit.get(255) );
+                    Date eventTime = hv.getBillingDate();
+                    Date fromTime = null;
+                    Date toTime = hv.getBillingDate();
+                    
+                    registerValue = new RegisterValue(obisCode,quantity,eventTime,fromTime,toTime);
+                    
+                    return registerValue;
+                } else { 
+                    return new RegisterInfo("billing point "+bp+" timestamp");
+                }
+            }            
+            else {
                 String msg = "ObisCode "+obisCode.toString()+" is not supported!";
                 throw new NoSuchRegisterException(msg);
             }
@@ -118,6 +135,14 @@ public class ObisCodeMapper {
                 return registerValue;
             } else return new RegisterInfo("SchemeID");
         }
+        else if (obisCode.toString().indexOf("0.0.96.1.0.255") != -1) { // Serial number
+            if (read) {
+            	String sn = (String) rFactory.getRegister("SerialNumber");
+                registerValue = new RegisterValue(obisCode,sn);
+                return registerValue;
+            } else return new RegisterInfo("SchemeID");
+        }
+        
         
         // *********************************************************************************
         // Electricity related ObisRegisters
@@ -150,8 +175,13 @@ public class ObisCodeMapper {
         
         else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
         
-        if( rFactory != null && obisCode.getF() >= 0 && obisCode.getF() <= 14 ) {
+        if( rFactory != null && obisCode.getF() >= 0 && obisCode.getF() <= 11 ) {
             HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister("HistoricalRegister",bp);
+            if( hv.getBillingDate() ==  null )
+                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+        }
+        if( rFactory != null && obisCode.getF() >= 12 && obisCode.getF() <= 25 ) {
+            HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister("DailyHistoricalRegister",bp);
             if( hv.getBillingDate() ==  null )
                 throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
         }
@@ -190,20 +220,11 @@ public class ObisCodeMapper {
             */
             
             if (read) {
-                for (int i=0;i<ABBA230RegisterFactory.MAX_MD_REGS;i+=3) {
-                    List mds = new ArrayList();
-                    for (int j=0;j<3;j++)
-                        mds.add((MaximumDemand)rFactory.getRegister("MaximumDemand"+(i+j),bp));
-                    // sort in accending datetime
-                    MaximumDemand.sortOnDateTime(mds);
+                for (int i=0;i<ABBA230RegisterFactory.MAX_MD_REGS;i++) {
+                    MaximumDemand md = (MaximumDemand)rFactory.getRegister("MaximumDemand"+i,bp);
                     // energytype code match with the maximumdemand register with the most
                     // recent datetime stamp.
-                    MaximumDemand md = (MaximumDemand)mds.get(2);
                     if (md.getRegSource() == EnergyTypeCode.getRegSourceFromObisCCode(obisCode.getC())) {
-                        // Sort in accending quantity. If not all 3 energytype codes are
-                        // the same, an IOException is thrown.
-                        MaximumDemand.sortOnQuantity(mds);
-                        md = (MaximumDemand)mds.get(3 - obisCode.getB()); // B=1 => get(2), B=2 => get(1), B=3 => get(0)
                         if (unit != null) // in case of customer defined registers unit is defined earlier
                             md.setQuantity(new Quantity(md.getQuantity().getAmount(),unit.getFlowUnit()));
                         return md.toRegisterValue(obisCode);
@@ -225,11 +246,16 @@ public class ObisCodeMapper {
                 }
                 if (obisCode.getE() > 0) {
                     
-                    TariffSources ts;
+                    TariffSources ts=null;
                     if (bp == -1) {
                         ts=(TariffSources)rFactory.getRegister("TariffSources");
                     } else {
-                        ts=((HistoricalRegister)rFactory.getRegister( "HistoricalRegister", bp )).getTariffSources();
+                    	if ((bp >= 0) && (bp <= 11)) {
+                    		ts=((HistoricalRegister)rFactory.getRegister( "HistoricalRegister", bp )).getTariffSources();
+                    	}
+                    	else if ((bp >= 12) && (bp <= 25)) {
+                    		ts=((HistoricalRegister)rFactory.getRegister( "DailyHistoricalRegister", bp )).getTariffSources();
+                    	}
                     }
                     
                     registerName = "TimeOfUse"+(obisCode.getE()-1);

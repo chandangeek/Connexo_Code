@@ -2,7 +2,7 @@
  * ABBA230.java
  *
  * <B>Description :</B><BR>
- * Class that implements the Elster A1140 meter protocol.
+ * Class that implements the Elster AS230 meter protocol.
  * <BR>
  * <B>@beginchanges</B><BR>
 FBO|02022006|Initial version
@@ -84,7 +84,7 @@ public class ABBA230 implements
 	
     final static long FORCE_DELAY = 300;
     
-    /** Property keys specific for A140 protocol. */
+    /** Property keys specific for AS230 protocol. */
     final static String PK_TIMEOUT = "Timeout";
     final static String PK_RETRIES = "Retries";
     final static String PK_SECURITY_LEVEL = "SecurityLevel";
@@ -692,19 +692,26 @@ public class ABBA230 implements
         
         logger.info("************************* Extended Logging *************************");
         
-        int [] billingPoint = { 255, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
+        int [] billingPoint = { 255, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ,12,13,14,15,16,17,18,19,20,21,22,23,24,25};
         
         for (int bpi = 0; bpi < billingPoint.length; bpi ++) {
             
-            TariffSources ts;
+            TariffSources ts=null;
             ArrayList tarifRegisters = new ArrayList();
-            if (bpi == 0) {
+            if (billingPoint[bpi] == 255) {
                 ts = (TariffSources)rFactory.getRegister("TariffSources");
             } else {
-                HistoricalRegister hv = (HistoricalRegister)
-                rFactory.getRegister( "HistoricalRegister", billingPoint[bpi] );
-                if( hv.getBillingDate() == null ) continue;
-                ts = hv.getTariffSources();
+            	
+            	if ((billingPoint[bpi]>=0) && (billingPoint[bpi]<=11)) {
+	                HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister( "HistoricalRegister", billingPoint[bpi] );
+	                if( hv.getBillingDate() == null ) continue;
+	                ts = hv.getTariffSources();
+            	}
+            	else if ((billingPoint[bpi]>=12) && (billingPoint[bpi]<=25)) {
+	                HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister( "DailyHistoricalRegister", billingPoint[bpi] );
+	                if( hv.getBillingDate() == null ) continue;
+	                ts = hv.getTariffSources();
+            	}
                 
             }
             
@@ -757,7 +764,7 @@ public class ABBA230 implements
             rslt.append( "\n" );
             
             rslt.append("Cumulative Maximum Demand registers:\n");
-            int [] md = { 0, 1, 2, 3 };
+            int [] md = { 0, 1 };
             for (int i=0;i<md.length;i++) {
                 try {
                     CumulativeMaximumDemand cmd = (CumulativeMaximumDemand)rFactory.getRegister("CumulativeMaximumDemand"+i,billingPoint[bpi]);
@@ -778,35 +785,15 @@ public class ABBA230 implements
             
             rslt.append("Maximum demand registers:\n");
             
-            int [] cmd = { 0, 1, 2, 3 };
+            int [] cmd = { 0, 1 };
             for (int i=0;i<cmd.length;i++) {
                 try {
-                    MaximumDemand mdRegister = (MaximumDemand)rFactory.getRegister("MaximumDemand"+(i*3),billingPoint[bpi]);
+                    MaximumDemand mdRegister = (MaximumDemand)rFactory.getRegister("MaximumDemand"+i,billingPoint[bpi]);
                     int c = EnergyTypeCode.getObisCFromRegSource( mdRegister.getRegSource(), false );
                     if( mdRegister.getQuantity() == null )
                         continue;
                     
                     obisCodeString = "1.1." + c  + ".6.0." + billingPoint[bpi];
-                    obisCode = ObisCode.fromString( obisCodeString );
-                    System.out.println("obisCode " + obisCodeString );
-                    obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));
-                    System.out.println("obisCodeInfo " + obisCodeInfo );
-                    
-                    rslt.append( " " + obisCodeString + ", " + obisCodeInfo +"\n");
-                    if(  pExtendedLogging == 2 )
-                        rslt.append( " " +  rFactory.readRegister( obisCode ).toString() + "\n" );
-                    
-                    obisCodeString = "1.2." + c  + ".6.0." + billingPoint[bpi];
-                    obisCode = ObisCode.fromString( obisCodeString );
-                    System.out.println("obisCode " + obisCodeString );
-                    obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));
-                    System.out.println("obisCodeInfo " + obisCodeInfo );
-                    
-                    rslt.append( " " + obisCodeString + ", " + obisCodeInfo +"\n");
-                    if(  pExtendedLogging == 2 )
-                        rslt.append( " " +  rFactory.readRegister( obisCode ).toString() + "\n" );
-                    
-                    obisCodeString = "1.3." + c  + ".6.0." + billingPoint[bpi];
                     obisCode = ObisCode.fromString( obisCodeString );
                     System.out.println("obisCode " + obisCodeString );
                     obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));

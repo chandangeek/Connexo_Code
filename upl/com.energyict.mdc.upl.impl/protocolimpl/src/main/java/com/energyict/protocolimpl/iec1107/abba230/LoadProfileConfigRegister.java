@@ -75,7 +75,7 @@ public class LoadProfileConfigRegister {
             ABBA230Register r = rFactory.getCummMainImport();
             register.add( r );
             Unit u = r.getUnit().getFlowUnit();
-            channelInfo.add( new ChannelInfo( i, "ELSTERA1140_channel_"+ i, u ) );
+            channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
         }
         
@@ -84,7 +84,7 @@ public class LoadProfileConfigRegister {
             ABBA230Register r = rFactory.getCummMainExport();
             register.add( r );
             Unit u = r.getUnit().getFlowUnit();
-            channelInfo.add( new ChannelInfo( i, "ELSTERA1140_channel_"+ i, u ) );
+            channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
         }        
         
@@ -93,7 +93,7 @@ public class LoadProfileConfigRegister {
             ABBA230Register r =  rFactory.getCummMainQ1();
             register.add( r );
             Unit u = r.getUnit().getFlowUnit();
-            channelInfo.add( new ChannelInfo( i, "ELSTERA1140_channel_"+ i, u ) );
+            channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
         }
         
@@ -102,7 +102,7 @@ public class LoadProfileConfigRegister {
             ABBA230Register r = rFactory.getCummMainQ2();
             register.add( r );
             Unit u = r.getUnit().getFlowUnit();
-            channelInfo.add( new ChannelInfo( i, "ELSTERA1140_channel_"+ i, u ) );
+            channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
         }
         
@@ -111,7 +111,7 @@ public class LoadProfileConfigRegister {
             ABBA230Register r = rFactory.getCummMainQ3();
             register.add( r );
             Unit u = r.getUnit().getFlowUnit();
-            channelInfo.add( new ChannelInfo( i, "ELSTERA1140_channel_"+ i, u ) );
+            channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
         }
         
@@ -120,7 +120,7 @@ public class LoadProfileConfigRegister {
             ABBA230Register r = rFactory.getCummMainQ4();
             register.add( r );
             Unit u = r.getUnit().getFlowUnit();
-            channelInfo.add( new ChannelInfo( i, "ELSTERA1140_channel_"+ i, u ) );
+            channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
         }
         
@@ -129,7 +129,7 @@ public class LoadProfileConfigRegister {
             ABBA230Register r = rFactory.getCummMainVAImport();
             register.add( r );
             Unit u = r.getUnit().getFlowUnit();
-            channelInfo.add( new ChannelInfo( i, "ELSTERA1140_channel_"+ i, u ) );
+            channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
         }
         
@@ -138,7 +138,7 @@ public class LoadProfileConfigRegister {
             ABBA230Register r = rFactory.getCummMainVAExport();
             register.add( r );
             Unit u = r.getUnit().getFlowUnit();
-            channelInfo.add( new ChannelInfo( i, "ELSTERA1140_channel_"+ i, u ) );
+            channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
         }
         if( ( channelMask[0] & 0x40 ) > 0 ) {
@@ -146,7 +146,7 @@ public class LoadProfileConfigRegister {
             ABBA230Register r = rFactory.getCummMainvarhImport();
             register.add( r );
             Unit u = r.getUnit().getFlowUnit();
-            channelInfo.add( new ChannelInfo( i, "ELSTERA1140_channel_"+ i, u ) );
+            channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
         }
         
@@ -156,7 +156,7 @@ public class LoadProfileConfigRegister {
             register.add( r );
             register.add( r );
             Unit u = r.getUnit().getFlowUnit();
-            channelInfo.add( new ChannelInfo( i, "ELSTERA1140_channel_"+ i, u ) );
+            channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
         }
       

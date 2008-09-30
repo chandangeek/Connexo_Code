@@ -1,27 +1,15 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.*;
+import java.util.*;
+import java.util.logging.*;
 
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.*;
 
 /**
- * As example a new A1140 meter with intervals of half an hour.
+ * As example a new AS230 meter with intervals of half an hour.
  *
  * The meter can divide a single interval into several ProfileEntries.
  * For example
@@ -52,23 +40,29 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
  *
  * @author fbl */
         
+
+
 public class ABBA230Profile {
     
     private static final int DEBUG=0;
     
     private final ABBA230RegisterFactory rFactory;
     private final ProtocolLink protocolLink;
-    private final TimeZone timeZone;
+    private TimeZone adjustedTimeZone=null;
     // configuration of the meter
     private LoadProfileConfigRegister meterConfig;
     private Date meterTime = null;
     /** integration period in seconds */
     private int integrationPeriod;
     
-    ABBA230Profile(ProtocolLink protocolLink,ABBA230RegisterFactory abba230RegisterFactory) {
+    ABBA230Profile(ProtocolLink protocolLink,ABBA230RegisterFactory abba230RegisterFactory) throws IOException {
         this.protocolLink = protocolLink;
-        this.timeZone = protocolLink.getTimeZone();
         this.rFactory = abba230RegisterFactory;
+        long val = ((Long)rFactory.getRegister("LoadProfileDSTConfig")).longValue();
+        if (val==0)
+        	adjustedTimeZone = ProtocolUtils.getWinterTimeZone(protocolLink.getTimeZone());
+        else
+        	adjustedTimeZone = protocolLink.getTimeZone();
     }
     
     /** Retrieve the load profile between from and to date.
@@ -80,7 +74,6 @@ public class ABBA230Profile {
      * @return
      */
     ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
-        
         Logger l = protocolLink.getLogger();
         if( l.isLoggable( Level.INFO ) ) {
             String msg = "getProfileData(Date " + from + ", Date "
@@ -147,19 +140,52 @@ public class ABBA230Profile {
         //    data = rFactory.getRegisterRawDataStream("LoadProfile",(int)nrOfBlocks);
         //}
         
-        ProfileData profileData = parse(new ByteArrayInputStream(data), protocolLink.getNumberOfChannels());
+        ProfileData profileData = parse(includeEvents,new ByteArrayInputStream(data), protocolLink.getNumberOfChannels());
         
         if( includeEvents ) {
-            HistoricalEventRegister her = (HistoricalEventRegister)
-            rFactory.getRegister( rFactory.getHistoricalEvents() );
-            Iterator i = her.getEvents().iterator();
-            while( i.hasNext() ) {
-                MeterEvent me = (MeterEvent) i.next();
-                profileData.addEvent(me);
-            }
+        	List<MeterEvent> meterEvents= new ArrayList();
+        	
+        	getMeterEvents(rFactory.getOverVoltageEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getUnderVoltageEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getProgrammingEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getLongPowerFailEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getPowerFailEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getTerminalCoverEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getMainCoverEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getMagneticTamperEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getReverserunEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getTransientEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getEndOfBillingEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getContactorOpenOpticalLog(),meterEvents);
+        	getMeterEvents(rFactory.getContactorOpenModuleLog(),meterEvents);
+        	getMeterEvents(rFactory.getContactorOpenLoadMonitorLowEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getContactorOpenLoadMonitorHighEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getContactorOpenAutoDisconnectEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getContactorArmOpticalEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getContactorArmModuleEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getContactorArmLoadMonitorEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getContactorArmDisconnectEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getContactorCloseOpticalEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getContactorCloseModuleEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getContactorCloseButtonEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getMeterErrorEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getBatteryVoltageLowEventLog(),meterEvents);
+        	
+        	
+        	profileData.setMeterEvents(meterEvents);
         }
         
         return profileData;
+    }
+    
+    private void getMeterEvents(ABBA230Register reg,List<MeterEvent> meterEvents) {
+    	try {
+    		AbstractEventLog o = (AbstractEventLog)rFactory.getRegister( reg );
+    		meterEvents.addAll(o.getMeterEvents());
+    	}
+    	catch(IOException e) {
+    		protocolLink.getLogger().info("No "+reg.getName()+" available");
+    	}
     }
     
     public Date getMeterTime() throws IOException {
@@ -168,7 +194,7 @@ public class ABBA230Profile {
         return meterTime;
     }
     
-    private ProfileData parse(ByteArrayInputStream bai, int nrOfChannels) throws IOException {
+    private ProfileData parse(boolean includeEvents, ByteArrayInputStream bai, int nrOfChannels) throws IOException {
         
         ProfileData profileData = new ProfileData();
         
@@ -221,13 +247,13 @@ public class ABBA230Profile {
                 interval = new Interval( createDate(current.getTime()) );
             }
             
-            if (DEBUG>=1) System.out.println(current.toString(timeZone,e4Dst));
+            if (DEBUG>=1) System.out.println(current.toString(getAdjustedTimeZone(),e4Dst));
             if (DEBUG>=1) System.out.println(interval.toString());
             
             // The opposite check is not possible since the meter local tim
             // dst behaviour can be set NOT to follow DST while
             // the profile data has it's dst flag set.
-            if ((timeZone.useDaylightTime()) && !e4Dst) {
+            if ((getAdjustedTimeZone().useDaylightTime()) && !e4Dst) {
                 String msg = "ABBA230Profile, parse, configured timezone expects profiledata to follow DST, correct first!";
                 throw new IOException( msg );
             }
@@ -285,7 +311,9 @@ public class ABBA230Profile {
         }
         
         iMap.addToProfile(profileData);
-        profileData.applyEvents(e4Integration/60);
+        
+        //if (includeEvents)
+        	profileData.applyEvents(e4Integration/60);
         
         return profileData;
     }
@@ -325,7 +353,7 @@ public class ABBA230Profile {
                     break;
             }
             if( eiCode != -1 && protocolCode != -1 ) {
-                Date date = ProtocolUtils.getCalendar(timeZone,profileEntry.getTime()).getTime();
+                Date date = ProtocolUtils.getCalendar(getAdjustedTimeZone(),profileEntry.getTime()).getTime();
                 MeterEvent me = new MeterEvent(date,eiCode,protocolCode);
                 profileData.addEvent( me );
             }
@@ -334,7 +362,7 @@ public class ABBA230Profile {
     }
     
     Date createDate(long seconds){
-        return ProtocolUtils.getCalendar(timeZone, seconds).getTime();
+        return ProtocolUtils.getCalendar(getAdjustedTimeZone(), seconds).getTime();
     }
     
     private static final int METER_TRANSIENT_RESET=0x01;
@@ -426,7 +454,7 @@ public class ABBA230Profile {
         boolean timeChange = false;
         
         Interval(long seconds){
-            Calendar startC = ProtocolUtils.getCalendar(timeZone, seconds);
+            Calendar startC = ProtocolUtils.getCalendar(getAdjustedTimeZone(), seconds);
             this.startTime = startC.getTime();
             this.endTime = new Date( ((startTime.getTime()/1000) + integrationPeriod)*1000 );
             this.key = startC;
@@ -435,7 +463,7 @@ public class ABBA230Profile {
         Interval(Date startTime) {
             this.startTime = startTime;
             this.endTime = new Date( ((startTime.getTime()/1000) + integrationPeriod)*1000 );
-            this.key = ProtocolUtils.getCalendar(timeZone);
+            this.key = ProtocolUtils.getCalendar(getAdjustedTimeZone());
             this.key.setTime(startTime);
         }
         
@@ -531,5 +559,9 @@ public class ABBA230Profile {
         }
         
     }
+
+	public TimeZone getAdjustedTimeZone() {
+		return adjustedTimeZone;
+	}
     
 }

@@ -79,8 +79,9 @@ public class ABBA230DataIdentity {
                 for( int i = 0; i < getSets(); i ++ ) 
                     dataBlocks[i] = ProtocolUtils.getSubArray2(r,setLength*i, getLength());
             } else {
-                if( dataId.equals( "543" ) )
-                    System.out.println("read( " + dataLength + " , " + set + " )" );
+                //if( dataId.equals( "543" ) )
+                //    System.out.println("read( " + dataLength + " , " + set + " )" );
+                
                 dataBlocks[set] = doReadRawRegister(dataLength,set);
             }
         }
@@ -172,14 +173,16 @@ public class ABBA230DataIdentity {
             dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().sendRawCommandFrame(FlagIEC1107Connection.READ1,strbuff.toString().getBytes());
             byte[] ba = dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().receiveData();
             
-            if (ba.length != (len*2))
-                throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, doReadRawRegister, data length received ("+ba.length+") is different from data length requested ("+(len*2)+") !");
             
             String str = new String(ba);
             if (str.indexOf("ERR") != -1) {
                 String exceptionId = str.substring(str.indexOf("ERR"),str.indexOf("ERR")+4);
                 throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, doReadRawRegister, "+dataIdentityFactory.getMeterExceptionInfo().getExceptionInfo(exceptionId));
             }
+            
+            if (ba.length != (len*2))
+                throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, doReadRawRegister, data length received ("+ba.length+") is different from data length requested ("+(len*2)+") !");
+            
             data.write(ba);
             
             if (((long) (System.currentTimeMillis() - timeout)) > 0) {
