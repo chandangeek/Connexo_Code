@@ -97,7 +97,7 @@ public class CM10 extends AbstractProtocol {
 		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1"));
 		this.timeout=Integer.parseInt(properties.getProperty("TimeOut","5000"));
 		this.retry=Integer.parseInt(properties.getProperty("Retry", "3"));
-		this.delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "500"));
+		this.delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "1000"));
 	}
 
 	public List getOptionalKeys() {

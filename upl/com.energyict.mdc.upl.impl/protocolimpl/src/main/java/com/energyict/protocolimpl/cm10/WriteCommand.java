@@ -11,7 +11,7 @@ public class WriteCommand extends AbstractCommand {
 	
 	protected Command preparebuild() {
 		Command command = new Command(activityCode, this.getCM10Protocol().getOutstationId());
-		command.setRead(true);
+		command.setRead(false);
 		command.setArguments(getArguments());
 		return command;
 	}

@@ -58,15 +58,38 @@ public class CM10Profile {
 		}
 	}
 	
-	
+	//split up the request so we can acknowledge each block the meter sends to prevent 
+	//the meter sending for a long time before the need to acknowledge
 	protected void addChannelData(ProfileData profileData, int stPeriod, int noHHours, Date from) throws IOException {
 		cm10Protocol.getLogger().info("stPeriod: " + stPeriod);
 		cm10Protocol.getLogger().info("noHHours: " + noHHours);
+		int numberOfChannels = cm10Protocol.getNumberOfChannels();
+		int numberOfHHoursToRequestPerBlock = (256 - 11) / numberOfChannels / 2; //(2 bytes per value)
+		int noHHoursRequested = 0;
+		int myStPeriod = stPeriod;
+		int myNoHHours = numberOfHHoursToRequestPerBlock;
 		CommandFactory commandFactory = cm10Protocol.getCommandFactory();
-		Response response = 
-			commandFactory.getReadMeterDemandsCommand(stPeriod, noHHours).invoke();
+		int noHHLeft = noHHours - noHHoursRequested;
+		ByteArray data = new ByteArray();
+		while (noHHLeft > 0) {
+			if (noHHLeft > numberOfHHoursToRequestPerBlock)
+				myNoHHours = numberOfHHoursToRequestPerBlock;
+			else
+				myNoHHours = noHHLeft;
+			
+			cm10Protocol.getLogger().info("getting profiledata: myStPeriod =  " + myStPeriod + ", myNoHHours = " + myNoHHours);
+			Response response = 
+				commandFactory.getReadMeterDemandsCommand(myStPeriod, myNoHHours).invoke();
+			data.add(response.getData());
+			
+			myStPeriod = myStPeriod + myNoHHours;
+			noHHoursRequested = noHHoursRequested + myNoHHours;
+			noHHLeft = noHHours - noHHoursRequested;
+		}
+		
+		
 		MeterDemandsTable meterDemandsTable = new MeterDemandsTable(cm10Protocol);
-		meterDemandsTable.parse(response.getData(), profileData, from);
+		meterDemandsTable.parse(data.getBytes(), profileData, from);
 		cm10Protocol.getLogger().info(meterDemandsTable.toString());
 	}
 	
