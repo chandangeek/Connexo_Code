@@ -85,9 +85,6 @@ public class CM10 extends AbstractProtocol {
 	protected void doConnect() throws IOException {
 		getLogger().info("doConnect");
 		ProtocolUtils.delayProtocol(delayAfterConnect);
-		//getStatusTable();
-		//getFullPersonalityTable();
-		//getCurrentDialReadingsTable();
 		getLogger().info("endConnect");
 	}
 	
@@ -233,7 +230,8 @@ public class CM10 extends AbstractProtocol {
 
 	public Date getTime() throws IOException {
 		Date time = getTimeTable().getTime();
-		getLogger().info("time: " + time);
+		getLogger().info("meter time: " + time);
+		getLogger().info("system time: " + new Date());
 		return time;
 	}
 
