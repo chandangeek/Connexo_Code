@@ -169,13 +169,11 @@ public class ResponseReceiver {
 		int crcCalculated = 0;
 		for (int i = 0; i < size; i++) {
 			crcCalculated = crcCalculated + (int) (dataForCrcCalculation[i] & 0xFF); //make it unsigned!
-			log("1) crcCalculated intermediate: " + crcCalculated + ", " + (int) dataForCrcCalculation[i] + ", " + ProtocolUtils.outputHexString((dataForCrcCalculation[i] & 0xFF)));
+			//log("1) crcCalculated intermediate: " + crcCalculated + ", " + (int) dataForCrcCalculation[i] + ", " + ProtocolUtils.outputHexString((dataForCrcCalculation[i] & 0xFF)));
 		}
 		crcCalculated = 256 - (crcCalculated % 256);
-		log("2) crcCalculated intermediate: " + crcCalculated);
 		if (crcCalculated == 256)
 			crcCalculated = 0;
-		log("3) crcCalculated intermediate: " + crcCalculated);
 		if (crcCalculated != crcFound)
 			throw new IOException("invalid crc, value found = " + crcFound + ", value expected = " + crcCalculated + ", " + ProtocolUtils.outputHexString(dataForCrcCalculation));
 		log("crc ok");
