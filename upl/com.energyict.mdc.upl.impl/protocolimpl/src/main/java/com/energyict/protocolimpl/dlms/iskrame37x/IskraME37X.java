@@ -219,7 +219,6 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
         numberOfChannels = -1;
         configProgramChanges = -1;
         iInterval = 0;
-//        demandScalerUnits = null;
         version = null;
         serialnr = null;
         
@@ -228,18 +227,16 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
             storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
             if (connectionMode == 0)
                 dlmsConnection=new HDLCConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress,iServerUpperMacAddress,addressingMode);
-            else
-                dlmsConnection=new TCPIPConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
+            else{
+            	dlmsConnection=new TCPIPConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerUpperMacAddress);
+            }
             dlmsConnection.setIskraWrapper(1);
             
             if ( rtuType.equalsIgnoreCase("mbus") ){
             	metertype = MBUS;
-//            	demandScalerUnits[metertype] = ;
-//            	loadProfileObisCode = loadProfileObisCode2;
             }
             else{
             	metertype = ELECTRICITY;
-//            	demandScalerUnits[metertype] = new ScalerUnit(0,30);
             }
             
         }
@@ -610,49 +607,28 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
         
     	ProfileData profileData = new ProfileData( );
         DataContainer dataContainer = getCosemObjectFactory().getProfileGeneric(loadProfileObisCode).getBuffer(fromCalendar, ProtocolUtils.getCalendar(getTimeZone()));
-//        int channelId = 0;
         for (int channelId=0;channelId<bNROfChannels;channelId++) {
-//        for (int i = 0; i < capturedObjects.getNROfObjects(); i++){
-        	
-//        	if (capturedObjects.getChannelObject(channelId) != null){
         		if ( !rtuType.equalsIgnoreCase("mbus")){
-                	
-//    	        	if (capturedObjects.getChannelNR(channelId) >= 0){
         			RegisterValue scalerRegister = readRegister(capturedObjects.getProfileDataChannel(channelId));
         				demandScalerUnits[0] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),
         						scalerRegister.getQuantity().getUnit());
-//    	                Unit unit = readRegister(capturedObjects.getProfileDataChannel(channelId)).getQuantity().getUnit();
         				ChannelInfo ci = new ChannelInfo(channelId, "IskraME37x_channel_"+channelId, demandScalerUnits[0].getUnit());
         				ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
     	                profileData.addChannel(ci);
-//    	                channelId++;
-//    	        	}
-    	        	
             	}
             	
-//            	else if ( bytesToObisString(capturedObjects.getLN(channelId)).indexOf("0.1.128.50.0.255") == 0 ){
         		else if ( bytesToObisString(capturedObjects.getProfileDataChannel(channelId).getLN()).indexOf("0.1.128.50.0.255") == 0 ){
             		if ( DEBUG == 1 )System.out.println("We got a MBUS channel");
             		// don't show the events on the mbus meter
             		includeEvents = false;
             		
-//    	        	if (capturedObjects.getChannelNR(channelId) >= 0){
             		RegisterValue scalerRegister = readRegister(capturedObjects.getProfileDataChannel(channelId));
     				demandScalerUnits[1] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),
     						scalerRegister.getQuantity().getUnit());
-//    	                Unit unit = readRegister(capturedObjects.getProfileDataChannel(channelId)).getQuantity().getUnit();
     				ChannelInfo ci2 = new ChannelInfo(channelId, "IskraME37x_channel_"+channelId, demandScalerUnits[1].getUnit());
     				ci2.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
     	            profileData.addChannel(ci2);
-//    	                channelId++;
-//    	        	}
-            		
-//            		mbusDevice[mbusDevicesCount].addChannel(new ChannelInfo(mbusDevicesCount, "IsrkaMx37x_channel_"+mbusDevicesCount, Unit.get(BaseUnit.CUBICMETER)));
-//            		mbusDevice[mbusDevicesCount].findOrCreateMeter();
-//            		mbusDevicesCount++;
             	}
-//        	}
-        	
         }
         
         buildProfileData(bNROfChannels,dataContainer,profileData);
@@ -669,10 +645,6 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
     private String bytesToObisString(byte[] channelLN) {
     	String str = "";
 		for(int i = 0; i < channelLN.length; i++){
-//			if (channelLN[i] < 0)
-//				str = str + Integer.toString(Integer.valueOf(channelLN[i])+256) + "." ;
-//			else
-//				str = str + Integer.toString(Integer.valueOf(channelLN[i])) + ".";
 			if (i>0) str+=".";
 			str += ""+((int)channelLN[i]&0xff);
 		}
@@ -739,130 +711,6 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
         
     } // private void setCalendar(Calendar calendar, DataStructure dataStructure,byte bBitmask)
 
-//    private Calendar parseProfileStartDate(DataStructure dataStructure,Calendar calendar) throws IOException {
-//        if (isNewDate(dataStructure.getStructure(0).getOctetString(0).getArray()))
-//            calendar = setCalendar(calendar,dataStructure.getStructure(0),(byte)0x00);
-//        return calendar;
-//    }
-//    
-//    private Calendar parseProfileStartTime(DataStructure dataStructure,Calendar calendar) throws IOException {
-//        if (isNewTime(dataStructure.getStructure(0).getOctetString(0).getArray()))
-//            calendar = setCalendar(calendar,dataStructure.getStructure(0),(byte)0x00);
-//        return calendar;
-//    }
-    
-//    private boolean isNewDate(byte[] array) {
-//         if ((array[0] != -1) &&
-//             (array[1] != -1) &&
-//             (array[2] != -1) &&
-//             (array[3] != -1))
-//            return true;
-//         else
-//            return false;
-//    }
-//    
-//    private boolean isNewTime(byte[] array) {
-//         if ((array[5] != -1) &&
-//             (array[6] != -1) &&
-//             (array[7] != -1))
-//            return true;
-//         else
-//            return false;
-//    }
-//    
-//    private boolean parseStart(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
-//        calendar = setCalendar(calendar,dataStructure.getStructure(0),(byte)0x01);
-//        if (DEBUG >=1) System.out.print("event: "+calendar.getTime());
-//        if ((dataStructure.getStructure(0).getInteger(1) & EV_ALL_CLOCK_SETTINGS) != 0) { // time set before
-//           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-//                                               (int)MeterEvent.SETCLOCK_AFTER,
-//                                               (int)dataStructure.getStructure(0).getInteger(1)));
-//        }
-//        if ((dataStructure.getStructure(0).getInteger(1) & EV_POWER_FAILURE) != 0) { // power down
-//           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-//                                               (int)MeterEvent.POWERUP,
-//                                               (int)EV_POWER_FAILURE));
-//        }
-//        if ((dataStructure.getStructure(0).getInteger(1) & EV_WATCHDOG_RESET) != 0) { // watchdog
-//           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-//                                               (int)MeterEvent.WATCHDOGRESET,
-//                                               (int)EV_WATCHDOG_RESET));
-//        }
-//        if ((dataStructure.getStructure(0).getInteger(1) & EV_DST) != 0) { // watchdog
-//           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-//                                               (int)MeterEvent.SETCLOCK_AFTER,
-//                                               (int)EV_DST));
-//        }
-//        return true;
-//    }
-//    
-//    private boolean parseEnd(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
-//        calendar = setCalendar(calendar,dataStructure.getStructure(1),(byte)0x01);
-//        if (DEBUG >=1) System.out.print("event: "+calendar.getTime());
-//        
-//        if ((dataStructure.getStructure(1).getInteger(1) & EV_ALL_CLOCK_SETTINGS) != 0) { // time set before
-//           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-//                                               (int)MeterEvent.SETCLOCK_BEFORE,
-//                                               (int)dataStructure.getStructure(1).getInteger(1)));
-//        }
-//        
-//        if ((dataStructure.getStructure(1).getInteger(1) & EV_POWER_FAILURE) != 0) { // power down
-//           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-//                                               (int)MeterEvent.POWERDOWN,
-//                                               (int)EV_POWER_FAILURE));
-//           return true; // KV 16012004
-//        }
-//        
-//        /* No WD event added cause time is set to 00h00'00" */
-//        if ((dataStructure.getStructure(1).getInteger(1) & EV_DST) != 0) { // power down
-//           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-//                                               (int)MeterEvent.SETCLOCK_BEFORE,
-//                                               (int)EV_DST));
-//           return true;
-//        }
-//        
-//        return false;
-//        //return true; // KV 16012004
-//    }
-//    
-//    private boolean parseTime1(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
-//        calendar = setCalendar(calendar,dataStructure.getStructure(2),(byte)0x01);
-//        if (DEBUG >=1) System.out.print("event: "+calendar.getTime());
-//        
-//        if ((dataStructure.getStructure(2).getInteger(1) & EV_ALL_CLOCK_SETTINGS) != 0) { // time set before
-//           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-//                                               (int)MeterEvent.SETCLOCK_BEFORE,
-//                                               (int)dataStructure.getStructure(2).getInteger(1)));
-//        }
-//        
-//        if ((dataStructure.getStructure(2).getInteger(1) & EV_POWER_FAILURE) != 0) {// power down
-//           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-//                                               (int)MeterEvent.POWERDOWN,
-//                                               (int)EV_POWER_FAILURE));
-//        }
-//        return true;
-//    }
-//    
-//    private boolean parseTime2(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
-//        calendar = setCalendar(calendar,dataStructure.getStructure(3),(byte)0x01);
-//        if (DEBUG >=1) System.out.print("event: "+calendar.getTime());
-//        
-//        if ((dataStructure.getStructure(3).getInteger(1) & EV_ALL_CLOCK_SETTINGS) != 0) { // time set before
-//           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-//                                               (int)MeterEvent.SETCLOCK_AFTER,
-//                                               (int)dataStructure.getStructure(3).getInteger(1)));
-//        }
-//        
-//        if ((dataStructure.getStructure(3).getInteger(1) & EV_POWER_FAILURE) != 0) {// power down
-//           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-//                                               (int)MeterEvent.POWERUP,
-//                                               (int)EV_POWER_FAILURE));
-//        }
-//        return true;
-//    }
-    
-    
-    
     // 0.0.1.0.0.255
     private int getProfileClockChannelIndex() throws IOException {
         for (int i=0;i<capturedObjects.getNROfObjects();i++) {
@@ -899,14 +747,6 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
         if (dataContainer.getRoot().element.length == 0)
             throw new IOException("No entries in Load Profile Datacontainer.");
         
-//        if (iRequestTimeZone != 0)
-//            calendar = ProtocolUtils.getCalendar(false,requestTimeZone());
-//        else
-//            calendar = ProtocolUtils.initCalendar(false,timeZone);
-
-        
-        
-        
         for (i=0;i<dataContainer.getRoot().element.length;i++) { // for all retrieved intervals
             try {    
                 calendar = dataContainer.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex()).toCalendar(timeZone);        
@@ -921,22 +761,6 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
                     protocolStatus = dataContainer.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex());   
                 else
                     protocolStatus=0;
-    //            // Start of interval
-    //            if (dataContainer.getRoot().getStructure(i).isStructure(0)) {
-    //                currentAdd = parseStart(dataContainer.getRoot().getStructure(i),calendar,profileData);
-    //            }
-    //            // End of interval
-    //            if (dataContainer.getRoot().getStructure(i).isStructure(1)) {
-    //                currentAdd = parseEnd(dataContainer.getRoot().getStructure(i),calendar,profileData);
-    //            }
-    //            // time1
-    //            if (dataContainer.getRoot().getStructure(i).isStructure(2)) {
-    //                currentAdd = parseTime1(dataContainer.getRoot().getStructure(i),calendar,profileData);
-    //            }
-    //            // Time2
-    //            if (dataContainer.getRoot().getStructure(i).isStructure(3)) {
-    //                currentAdd = parseTime2(dataContainer.getRoot().getStructure(i),calendar,profileData);
-    //            }
 
                 currentIntervalData = getIntervalData(dataContainer.getRoot().getStructure(i), calendar, protocolStatus);
 
@@ -1079,16 +903,6 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
        
        byteTimeBuffer[11]=(byte)(0x80); 
        byteTimeBuffer[12]=(byte)0;
-       
-//       if (isRequestTimeZone()) {
-//           byteTimeBuffer[11]=(byte)(requestTimeZone()>>8); 
-//           byteTimeBuffer[12]=(byte)(requestTimeZone());
-//       }
-//       else {
-//           int rawOffset = (-1) * (getTimeZone().getRawOffset()/1000/60);
-//           byteTimeBuffer[11]=(byte)(rawOffset>>8); 
-//           byteTimeBuffer[12]=(byte)(rawOffset); 
-//       }
        
        if (timeZone.inDaylightTime(calendar.getTime()))
            byteTimeBuffer[13]=(byte)0x80; //0x00;
