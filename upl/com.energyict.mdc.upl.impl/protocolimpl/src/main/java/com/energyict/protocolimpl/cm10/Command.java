@@ -124,7 +124,7 @@ public class Command {
 		int size = data.length;
 		int sum = 0;
 		for (int i = 0; i < size; i++) {
-			sum = sum + (int) data[i];
+			sum = sum + (int) (data[i] & 0xFF); // make it unsigned!
 		}
 		int crc = 256 - (sum % 256);
         return (byte) crc;

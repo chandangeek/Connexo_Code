@@ -19,12 +19,12 @@ public class TimeBuilder {
 	//63 11 21 00 00 00 00 00 00 00 1C 1C 0B 0E 07 08 0B
 	
 	public void parse(byte[] data) {
-		int seconds = (int) data[10];
-		int minutes = (int) data[11];
-		int hours = (int) data[12];
-		int day = (int) data[13];
-		int month = (int) data[14];
-		int year = (int) data[15];
+		int seconds = (int) (data[10] & 0xFF);
+		int minutes = (int) (data[11] & 0xFF);
+		int hours = (int) (data[12] & 0xFF);
+		int day = (int) (data[13] & 0xFF);
+		int month = (int) (data[14] & 0xFF);
+		int year = (int) (data[15] & 0xFF);
 		Calendar cal = Calendar.getInstance(cm10Protocol.getTimeZone());
 		cal.set(Calendar.YEAR, 2000 + year);
 		cal.set(Calendar.MONTH, month - 1);

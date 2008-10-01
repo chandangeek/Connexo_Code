@@ -75,9 +75,9 @@ public class ResponseReceiver {
         int state = WAIT_FOR_CM10_ID;
         while (true) {
         	if ((kar = cm10Connection.readNext()) != -1) {
-            	logState(state, kar, currentBlockByteCount);
+            	//logState(state, kar, currentBlockByteCount);
         		if (state != WAIT_FOR_CM10_ID) {
-        			allDataArrayOutputStream.write(kar);
+        			allDataArrayOutputStream.write((byte) kar);
             		currentBlockByteCount++;
         		}
         		if (state == WAIT_FOR_CM10_ID) {
@@ -92,7 +92,7 @@ public class ResponseReceiver {
         				isLastFrame = ((blockIdentifier == 32) || (blockIdentifier == 96));
         				log("blockIdentifier = " + blockIdentifier + ", isLastFrame = " + isLastFrame);
         				state = WAIT_FOR_BLOCK_SIZE;
-        				allDataArrayOutputStream.write(kar);
+        				allDataArrayOutputStream.write((byte)kar);
         				currentBlockByteCount = 1;
         			}
         		}
@@ -127,9 +127,9 @@ public class ResponseReceiver {
         			state = HANDLE_DATA;
         		}
         		else if (state == HANDLE_DATA) {
-        			log ("" + currentBlockByteCount + ", " + blockSize);
+        			//log ("" + currentBlockByteCount + ", " + blockSize);
         			if (currentBlockByteCount < blockSize)
-        				resultDataArrayOutputStream.write(kar);
+        				resultDataArrayOutputStream.write((byte)kar);
         			else {
         				checkCrc((int) kar, allDataArrayOutputStream, blockSize);
             			if (isLastFrame) {
@@ -168,13 +168,16 @@ public class ResponseReceiver {
 		int size = dataForCrcCalculation.length;
 		int crcCalculated = 0;
 		for (int i = 0; i < size; i++) {
-			crcCalculated = crcCalculated + (int) dataForCrcCalculation[i];
+			crcCalculated = crcCalculated + (int) (dataForCrcCalculation[i] & 0xFF); //make it unsigned!
+			log("1) crcCalculated intermediate: " + crcCalculated + ", " + (int) dataForCrcCalculation[i] + ", " + ProtocolUtils.outputHexString((dataForCrcCalculation[i] & 0xFF)));
 		}
 		crcCalculated = 256 - (crcCalculated % 256);
+		log("2) crcCalculated intermediate: " + crcCalculated);
 		if (crcCalculated == 256)
 			crcCalculated = 0;
+		log("3) crcCalculated intermediate: " + crcCalculated);
 		if (crcCalculated != crcFound)
-			throw new IOException("invalid crc, value found = " + crcFound + ", value expected = " + crcCalculated);
+			throw new IOException("invalid crc, value found = " + crcFound + ", value expected = " + crcCalculated + ", " + ProtocolUtils.outputHexString(dataForCrcCalculation));
 		log("crc ok");
 	}
 
