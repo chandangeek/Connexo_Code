@@ -897,7 +897,7 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
         if (DEBUG >=1) dataContainer.printDataContainer();
         
         if (dataContainer.getRoot().element.length == 0)
-           throw new IOException("No entries in object list.");
+            throw new IOException("No entries in Load Profile Datacontainer.");
         
 //        if (iRequestTimeZone != 0)
 //            calendar = ProtocolUtils.getCalendar(false,requestTimeZone());
