@@ -129,8 +129,10 @@ class XmlHandler extends DefaultHandler {
             handleStartEvent(attrbs);
         if( POWER_EVENT.equals(qName) )
             handleStartPowerEvent(attrbs);
-        if (METER_RESULTS.equals(qName))
-        	inProfile = true;
+        if (METER_RESULTS.equals(qName)){
+        	if(dailyMonthlyProfile)
+        		inProfile = true;
+        }
     }
 
     public void endElement(String uri, String localName, String qName) throws SAXException {

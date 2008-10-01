@@ -326,7 +326,7 @@ class MeterReadTransaction implements CacheMechanism {
             	dataHandler.setChannelIndex( i );
             	getConcentrator().importData(xml, dataHandler);
             	
-//            	File file = new File("c://TEST_FILES/NullPointer" + mtr + "_" + i + ".xml");
+//            	File file = new File("c://TEST_FILES/NULL2509Profile_" + mtr + "_" + i + ".xml");
 //            	FileOutputStream fos = new FileOutputStream(file);
 //            	ObjectOutputStream oos = new ObjectOutputStream(fos);
 //            	oos.writeObject(xml);
@@ -446,7 +446,7 @@ class MeterReadTransaction implements CacheMechanism {
 
 				if(!xml.equalsIgnoreCase("")){
 					
-//		        	File file = new File("c://TEST_FILES/nullpointerstuff.xml");
+//		        	File file = new File("c://TEST_FILES/NULLChannel_" + chn.getId() + ".xml");
 //		        	FileOutputStream fos = new FileOutputStream(file);
 //		        	ObjectOutputStream oos = new ObjectOutputStream(fos);
 //		        	oos.writeObject(xml);
@@ -522,7 +522,7 @@ class MeterReadTransaction implements CacheMechanism {
         Iterator i = dataHandler.getMeterReadingData().getRegisterValues().iterator();
         while (i.hasNext()) {
             RegisterValue registerValue = (RegisterValue) i.next();
-            RtuRegister register = getMeter().getRegister( registerValue.getObisCode() );
+            RtuRegister register = meter.getRegister( registerValue.getObisCode() );
 
             if( register != null ){
             	if(register.getReadingAt(registerValue.getReadTime()) == null){
