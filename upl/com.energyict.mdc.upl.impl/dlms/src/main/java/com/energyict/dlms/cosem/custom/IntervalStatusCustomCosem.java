@@ -1,20 +1,14 @@
 package com.energyict.dlms.cosem.custom;
 
 import java.io.IOException;
+import java.util.Date;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 
-public class AcknowledgeCustomCosem extends Data {
-
-	static public final int SUCCESS=0;
-	static public final int FAILURE=1;
-	static public final int NO_VALID_DBASE_REFERENCE=2;
-	
-	// ... add new returncodes here...
-	
+public class IntervalStatusCustomCosem extends Data {
 
 	AbstractDataType dataType=null;
 	
@@ -28,21 +22,21 @@ public class AcknowledgeCustomCosem extends Data {
 	
 	public String toString() {
 		try {
-			return "AcknowledgeCustomCosem: code="+getCode()+", message="+getMessage();
+			return "ClockCustomCosem: date="+getDate();
 		}
 		catch(IOException e) {
-			return "AcknowledgeCustomCosem: not able to evaluate because of "+e.toString();
+			return "ClockCustomCosem: not able to evaluate because of "+e.toString();
 		}
 	}
 	
-	static final byte[] LN=new byte[]{0,0,96,100,0,0};
+	static final byte[] LN=new byte[]{0,0,96,60,0,0};
 	
-	public AcknowledgeCustomCosem(AbstractDataType dataType) {
+	public IntervalStatusCustomCosem(AbstractDataType dataType) {
 		super(null,new ObjectReference(LN));
 		this.dataType=dataType;
 	}
 	
-	public AcknowledgeCustomCosem(ProtocolLink protocolLink) {
+	public IntervalStatusCustomCosem(ProtocolLink protocolLink) {
 		super(protocolLink,new ObjectReference(LN));
     }
     
@@ -54,31 +48,14 @@ public class AcknowledgeCustomCosem extends Data {
         return AbstractCosemObject.CLASSID_DATA;
     }
 
-    public void setFields(int code, String message) throws IOException {
-    	if (message==null) {
-    		setValueAttr(new Integer8(code));
-    	}
-    	else {
-    		Structure structure = new Structure();
-    		structure.addDataType(new Integer8(code));
-    		structure.addDataType(OctetString.fromString(message));
-    		setValueAttr(structure);
-    	}
+    public void setFields(int status) throws IOException {
+		setValueAttr(new Unsigned32(status));
     }
     
-	public int getCode() throws IOException {
-		if (getValueAttr().isStructure())
-			return getValueAttr().getStructure().getDataType(0).intValue();
-		else
-			return getValueAttr().intValue();
+	public int getDate() throws IOException {
+		return getValueAttr().intValue();
 	}
 	
-	public String getMessage() throws IOException {
-		if (getValueAttr().isStructure())
-			return getValueAttr().getStructure().getDataType(1).getOctetString().stringValue();
-		else
-			return null;
-	}
     public AbstractDataType getValueAttr() throws IOException {
     	if (dataType == null)
     		dataType = super.getValueAttr();
@@ -88,5 +65,6 @@ public class AcknowledgeCustomCosem extends Data {
     public void setValueAttr(AbstractDataType val) throws IOException {
     	dataType = val;
     	super.setValueAttr(dataType);
-    }	
+    }
+	
 }

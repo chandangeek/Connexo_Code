@@ -14,6 +14,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
 /**
  *
@@ -33,14 +34,19 @@ public class Clock extends AbstractCosemObject {
     int dsEnabled=-1;
     int dstFlag=-1;
     
+    static final byte[] LN=new byte[]{0,0,1,0,0,(byte)255};
+    
     /** Creates a new instance of Clock */
     public Clock(ProtocolLink protocolLink) {
-        super(protocolLink,new ObjectReference(new byte[]{0,0,1,0,0,(byte)255}));
+        super(protocolLink,new ObjectReference(LN));
     }
     public Clock(ProtocolLink protocolLink,ObjectReference objectReference) {
         super(protocolLink,objectReference);
     }
     
+	static public ObisCode getObisCode() {
+		return ObisCode.fromByteArray(LN) ;
+	}    
     
     public void setDateTime(OctetString octetString) throws IOException {
         byte[] data = {0x09,0x0C};

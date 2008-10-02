@@ -54,13 +54,21 @@ public class DatabaseIDCustomCosem extends Data {
     }
 
     public void setFields(int databaseID) throws IOException {
-  		setValueAttr(new Integer32(databaseID));
+		setValueAttr(new Integer32(databaseID));
     }
     
 	public int getDatabaseID() throws IOException {
-		if (dataType == null)
-			dataType = getValueAttr();
-		return dataType.intValue();
+		return getValueAttr().intValue();
 	}
 	
+    public AbstractDataType getValueAttr() throws IOException {
+    	if (dataType == null)
+    		dataType = super.getValueAttr();
+    	return dataType;
+    }
+    
+    public void setValueAttr(AbstractDataType val) throws IOException {
+    	dataType = val;
+    	super.setValueAttr(dataType);
+    }	
 }

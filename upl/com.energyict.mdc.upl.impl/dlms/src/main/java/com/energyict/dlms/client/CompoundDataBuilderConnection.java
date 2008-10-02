@@ -36,6 +36,18 @@ public class CompoundDataBuilderConnection implements ProtocolLink {
 		return null;
 	}
 
+	public void reset() {
+		if (connection != null)
+			connection.reset();
+	}
+	
+	public byte[] getCompoundData() {
+		if (connection != null)
+			return connection.getCompoundData();
+		else
+			return null;
+	}
+	
 	public AdaptorConnection getAdaptorConnection() {
 		return (AdaptorConnection)connection;
 	}

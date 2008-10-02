@@ -28,6 +28,8 @@ public class Data extends AbstractCosemObject implements CosemObject {
     public final int DEBUG=0;
     static public final int CLASSID=1;
     
+    
+    
     /** Creates a new instance of Data */
     public Data(ProtocolLink protocolLink,ObjectReference objectReference) {
         super(protocolLink,objectReference);

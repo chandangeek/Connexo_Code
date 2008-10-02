@@ -9,10 +9,6 @@ import com.energyict.obis.ObisCode;
 
 public class DeviceIDCustomCosem extends Data {
 
-	static public final int SUCCESS=0;
-	static public final int FAILURE=1;
-	// ... add new returncodes here...
-	
 
 	AbstractDataType dataType=null;
 	
@@ -54,13 +50,21 @@ public class DeviceIDCustomCosem extends Data {
     }
 
     public void setFields(String serialId) throws IOException {
-  		setValueAttr(OctetString.fromString(serialId));
+		setValueAttr(OctetString.fromString(serialId));
     }
     
 	public String getSerialID() throws IOException {
-		if (dataType == null)
-			dataType = getValueAttr();
-		return dataType.getOctetString().stringValue();
+		return getValueAttr().getOctetString().stringValue();
 	}
 	
+    public AbstractDataType getValueAttr() throws IOException {
+    	if (dataType == null)
+    		dataType = super.getValueAttr();
+    	return dataType;
+    }
+    
+    public void setValueAttr(AbstractDataType val) throws IOException {
+    	dataType = val;
+    	super.setValueAttr(dataType);
+    }	
 }

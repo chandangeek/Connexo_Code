@@ -113,7 +113,7 @@ public class NumberFormat {
     	}
     	else {
     		// code exponent as signed byte first byte of octetstring
-    		// code value in 1,2,3 or 4 bytes in octetstring
+    		// code value in 1..8 bytes in octetstring
     		// tricky...
     		byte[] data = temp.getBEREncodedByteArray();
     		// and now replace encoding byte with exponent!
@@ -151,7 +151,8 @@ public class NumberFormat {
 		
 		
 		try {
-			NumberFormat o = new NumberFormat(new BigDecimal("2772123123123300078"));
+			//NumberFormat o = new NumberFormat(new BigDecimal("2772123123.123300078"));
+			NumberFormat o = new NumberFormat(new BigDecimal("12345678.0002"));
 			System.out.println(o);
 			System.out.println(ProtocolUtils.outputHexString(o.toAbstractDataType().getBEREncodedByteArray()));
 			System.out.println(o.toAbstractDataType());

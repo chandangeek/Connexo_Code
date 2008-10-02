@@ -37,22 +37,44 @@ public class CompoundDataBuilder {
 		Clock clock = new Clock(cosemAPDUBuilder);
 		clock.setTimeAttr(new DateTime(TimeZone.getTimeZone("GMT")));
 		
+//		ClockCustomCosem o2 = new ClockCustomCosem(cosemAPDUBuilder);
+//		o2.setFields(new Date());
+		
+		
 		if (profileData != null) {
 			if (profileData.getIntervalDatas().size()>0) {
+				
+				// scan intervals if there are channel specific interval status flags...
+				Map<Integer,ObisCode> channelStatusFlags=new HashMap();
+				for (int i=0;i<profileData.getIntervalDatas().size();i++) {
+					IntervalData ivd = (IntervalData)profileData.getIntervalDatas().get(i);
+					for (int t=0;t<ivd.getValueCount();t++) {
+						if (((IntervalValue)ivd.getIntervalValues().get(t)).getEiStatus() != 0)
+							channelStatusFlags.put(Integer.valueOf(t),ObisCode.fromString("0.0.96.60."+(t+1)+".0"));
+					}
+				}
+				
+				
 				ProfileGeneric profileGeneric = new ProfileGeneric(cosemAPDUBuilder,new ObjectReference(ObisCode.fromString("1.0.99.1.0.255").getLN()));
 				
 				// set load profile object capture objects attribute
 				ProfileGenericCaptureObjectsBuilder pgcob = new ProfileGenericCaptureObjectsBuilder();
-				pgcob.add(DLMSCOSEMGlobals.ICID_CLOCK, ObisCode.fromString("0.0.1.0.0.255").getLN(),DLMSCOSEMGlobals.ATTR_CLOCK_TIME);
+				//pgcob.add(DLMSCOSEMGlobals.ICID_CLOCK, ObisCode.fromString("0.0.1.0.0.255").getLN(),DLMSCOSEMGlobals.ATTR_CLOCK_TIME);
+				pgcob.add(DLMSCOSEMGlobals.ICID_DATA, ObisCode.fromString("0.0.96.101.0.0").getLN(),DLMSCOSEMGlobals.ATTR_DATA_VALUE);
 				pgcob.add(DLMSCOSEMGlobals.ICID_DATA, ObisCode.fromString("0.0.96.60.0.0").getLN(),DLMSCOSEMGlobals.ATTR_DATA_VALUE);
 				for (int i=0;i<profileData.getChannelInfos().size();i++) {
-					profileData.getChannel(i).getName();
-					ObisCode obisCode = ObisCode.fromString(profileData.getChannel(i).getName());
+					
+					ObisCode obisCode = channelStatusFlags.get(Integer.valueOf(i));
+					if (obisCode != null)
+						pgcob.add(DLMSCOSEMGlobals.ICID_DATA, obisCode.getLN(),DLMSCOSEMGlobals.ATTR_DATA_VALUE);
+					
+					
 					// if time integrals from start of measurements (origin)
-					if (ParseUtils.isObisCodeCumulative(obisCode))
+					if (ParseUtils.isObisCodeCumulative(ObisCode.fromString(profileData.getChannel(i).getName())))
 						pgcob.add(DLMSCOSEMGlobals.ICID_REGISTER, ObisCode.fromString(profileData.getChannel(i).getName()).getLN(),DLMSCOSEMGlobals.ATTR_REGISTER_VALUE);
 					else
 						pgcob.add(DLMSCOSEMGlobals.ICID_DEMAND_REGISTER, ObisCode.fromString(profileData.getChannel(i).getName()).getLN(),DLMSCOSEMGlobals.ATTR_DEMAND_REGISTER_LAST_AVERAGE);
+					
 				}
 				profileGeneric.setCaptureObjectsAttr(pgcob.getCaptureObjectsArray());
 		
@@ -69,7 +91,7 @@ public class CompoundDataBuilder {
 				// set load profile object buffer
 				ProfileGenericBufferBuilder pgbb = new ProfileGenericBufferBuilder();
 				for (int i=0;i<profileData.getIntervalDatas().size();i++) {
-					pgbb.addInterval(profileData.getIntervalData(i));
+					pgbb.addInterval(profileData.getIntervalData(i),channelStatusFlags);
 				}
 				profileGeneric.setBufferAttr(pgbb.getBufferArray());
 				
