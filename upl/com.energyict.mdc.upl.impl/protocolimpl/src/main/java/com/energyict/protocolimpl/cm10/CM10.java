@@ -85,6 +85,13 @@ public class CM10 extends AbstractProtocol {
 	protected void doConnect() throws IOException {
 		getLogger().info("doConnect");
 		ProtocolUtils.delayProtocol(delayAfterConnect);
+		/*getStatusTable();
+		getLogger().info("start read mem direct");
+		CommandFactory commandFactory = getCommandFactory();
+		Response response = 
+			commandFactory.getReadMemoryDirectCommand().invoke();
+		this.getLogger().info("memory direct: " + ProtocolUtils.outputHexString(response.getData()));
+		getLogger().info("end read mem direct");*/
 		getLogger().info("endConnect");
 	}
 	
