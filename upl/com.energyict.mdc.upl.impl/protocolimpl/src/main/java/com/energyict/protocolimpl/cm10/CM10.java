@@ -35,6 +35,8 @@ import com.energyict.protocolimpl.kenda.meteor.Parsers;
 
 public class CM10 extends AbstractProtocol {
 	
+	final static String IS_C10_METER = "CM_10_meter";
+	
 	private CM10Connection cm10Connection = null;
 	private CM10Profile cm10Profile = null;
     private CommandFactory commandFactory=null;
@@ -47,6 +49,8 @@ public class CM10 extends AbstractProtocol {
     
     private int outstationID, retry, timeout, delayAfterConnect;
     private ProtocolChannelMap channelMap;
+    
+    private boolean isCM10Meter;
 
     
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
@@ -85,13 +89,6 @@ public class CM10 extends AbstractProtocol {
 	protected void doConnect() throws IOException {
 		getLogger().info("doConnect");
 		ProtocolUtils.delayProtocol(delayAfterConnect);
-		/*getStatusTable();
-		getLogger().info("start read mem direct");
-		CommandFactory commandFactory = getCommandFactory();
-		Response response = 
-			commandFactory.getReadMemoryDirectCommand().invoke();
-		this.getLogger().info("memory direct: " + ProtocolUtils.outputHexString(response.getData()));
-		getLogger().info("end read mem direct");*/
 		getLogger().info("endConnect");
 	}
 	
@@ -105,6 +102,7 @@ public class CM10 extends AbstractProtocol {
 		this.timeout=Integer.parseInt(properties.getProperty("TimeOut","5000"));
 		this.retry=Integer.parseInt(properties.getProperty("Retry", "3"));
 		this.delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "1000"));
+		this.isCM10Meter = !"0".equals(properties.getProperty("CM_10_meter"));
 	}
 
 	public List getOptionalKeys() {
@@ -113,6 +111,7 @@ public class CM10 extends AbstractProtocol {
 		list.add("Retry");
 		list.add("ChannelMap");
 		list.add("DelayAfterConnect");
+		list.add(IS_C10_METER);
 		return list;
 	}
 	
@@ -227,8 +226,18 @@ public class CM10 extends AbstractProtocol {
 	}
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
-		// TODO Auto-generated method stub
-		return null;
+		if (!isCM10Meter) {
+			return "CM32 (firmware version not available)";
+		}
+		else {
+			getLogger().info("start read mem direct");
+			CommandFactory commandFactory = getCommandFactory();
+			Response response = 
+				commandFactory.getReadMemoryDirectCommand().invoke();
+			this.getLogger().info("memory direct: " + ProtocolUtils.outputHexString(response.getData()));
+			getLogger().info("end read mem direct");
+			return "CM10_" + new String(response.getData());
+		}
 	}
 
 	public String getProtocolVersion() {
