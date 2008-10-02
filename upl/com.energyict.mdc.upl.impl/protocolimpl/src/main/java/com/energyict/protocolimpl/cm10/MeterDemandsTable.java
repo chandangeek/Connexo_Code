@@ -35,7 +35,7 @@ public class MeterDemandsTable {
 			for (int j = 0; j < numberOfChannels; j++) {
 				BigDecimal value = new BigDecimal(ProtocolUtils.getLongLE(data, i + (j * 2), 2));
 				intervalData.addValue(value);
-				cm10Protocol.getLogger().info("channel " + j + ": " + cal.getTime() + ": " + value);
+				//cm10Protocol.getLogger().info("channel " + j + ": " + cal.getTime() + ": " + value);
 			}
 			profileData.addInterval(intervalData);
 			i = i + (numberOfChannels * 2); // 2 bytes per channel interval record

@@ -86,4 +86,8 @@ public class StatusTable {
 		return mCnt;
 	}
 
+	public int getNumberOfDemandPeriodsPreviousYear() {
+		return demTyr;
+	}
+	
 }

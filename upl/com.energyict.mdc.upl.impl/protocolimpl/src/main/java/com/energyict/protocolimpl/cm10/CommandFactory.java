@@ -11,6 +11,7 @@ public class CommandFactory {
 	static final int CURRENT_DIAL_READINGS = 10;
 	static final int METER_DEMANDS = 7;
 	static final int ALARM_TIMES = 15;
+	static final int MEMORY_DIRECT = 14;
 	
 	private CM10 cm10Protocol;
 	
@@ -24,6 +25,17 @@ public class CommandFactory {
 	
 	public ReadCommand getReadTimeCommand() {
 		return new ReadCommand(cm10Protocol, TIME);
+	}
+	
+	public ReadCommand getReadMemoryDirectCommand() {
+		ReadCommand readCommand = new ReadCommand(cm10Protocol, MEMORY_DIRECT);
+		byte[] args = new byte[4];
+		args[0] = 0x2F;
+		args[1] = 0x00;
+		args[2] = (byte) (65 & 0xFF);
+		args[3] = (byte) ((65>>8)&0xFF);
+		readCommand.setArguments(args);
+		return readCommand;
 	}
 	
 	
@@ -47,7 +59,7 @@ public class CommandFactory {
 		args[1] = (byte) ((stPeriod>>8)&0xFF);
 		args[2] = (byte) (noHHours & 0xFF);
 		args[3] = (byte) ((noHHours>>8)&0xFF);
-		cm10Protocol.getLogger().info("args meter demands: " + ProtocolUtils.outputHexString(args));
+		//cm10Protocol.getLogger().info("args meter demands: " + ProtocolUtils.outputHexString(args));
 		return args;
 	}
 	

@@ -135,7 +135,7 @@ public class ResponseReceiver {
             			if (isLastFrame) {
             				byte[] data = resultDataArrayOutputStream.toByteArray();
             				Response response = new Response(ProtocolUtils.getSubArray2(data, 0, data.length));
-            				log("data = " + ProtocolUtils.outputHexString(response.getData()));
+            				//log("data = " + ProtocolUtils.outputHexString(response.getData()));
             				return response;
             			}
             			else {
