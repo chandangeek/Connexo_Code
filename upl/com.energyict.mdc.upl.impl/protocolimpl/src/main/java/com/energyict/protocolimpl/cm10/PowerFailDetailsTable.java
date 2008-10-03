@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.cm10;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.energyict.protocol.ProtocolUtils;
@@ -39,7 +40,8 @@ public class PowerFailDetailsTable {
 		for (int i = 0; i < 12; i++) {
 			PowerFailEntry entry = new PowerFailEntry(cm10Protocol);
 			entry.parse(ProtocolUtils.getSubArray(data, offset, offset + 5));
-			recentPf.add(entry);
+			if (entry.isValid()) 
+				recentPf.add(entry);
 			offset = offset + 6;
 		}
 		
@@ -47,7 +49,8 @@ public class PowerFailDetailsTable {
 		for (int i = 0; i < 3; i++) {
 			PowerFailEntry entry = new PowerFailEntry(cm10Protocol);
 			entry.parse(ProtocolUtils.getSubArray(data, offset, offset + 5));
-			longestPf.add(entry);
+			if (entry.isValid()) 
+				longestPf.add(entry);
 			offset = offset + 6;
 		}
 	}
@@ -75,6 +78,20 @@ public class PowerFailDetailsTable {
 		}
 
 		return buf.toString();
+	}
+	
+	public boolean isAffected(Date date) {
+		for (int i = 0; i < recentPf.size(); i++) {
+			PowerFailEntry entry = (PowerFailEntry) recentPf.get(i);
+			if (entry.isAffected(date))
+				return true;
+		}
+		for (int i = 0; i < longestPf.size(); i++) {
+			PowerFailEntry entry = (PowerFailEntry) longestPf.get(i);
+			if (entry.isAffected(date))
+				return true;
+		}
+		return false;
 	}
 
 }
