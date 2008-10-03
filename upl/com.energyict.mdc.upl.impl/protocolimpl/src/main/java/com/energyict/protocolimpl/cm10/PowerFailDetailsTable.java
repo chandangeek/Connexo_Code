@@ -1,5 +1,9 @@
 package com.energyict.protocolimpl.cm10;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.energyict.protocol.ProtocolUtils;
 
 public class PowerFailDetailsTable {
@@ -12,8 +16,8 @@ public class PowerFailDetailsTable {
 	private byte[] hrOut;
 	private byte[] secOut;
 	private byte[] lpfCnt;
-	private byte[] recentPf;
-	private byte[] longestPf;
+	private List recentPf = new ArrayList();
+	private List longestPf = new ArrayList();
 	
 	
 	public PowerFailDetailsTable(CM10 cm10Protocol) {
@@ -22,7 +26,7 @@ public class PowerFailDetailsTable {
 	
 
 
-	public void parse(byte[] data) {
+	public void parse(byte[] data) throws IOException {
 		cm10Protocol.getLogger().info("length events: " + data.length);
 		timPf =ProtocolUtils.getSubArray(data, 0, 5);
 		timPr =ProtocolUtils.getSubArray(data, 6, 11);
@@ -30,8 +34,22 @@ public class PowerFailDetailsTable {
 		hrOut =ProtocolUtils.getSubArray(data, 156, 157);
 		secOut =ProtocolUtils.getSubArray(data, 158, 159);
 		lpfCnt =ProtocolUtils.getSubArray(data, 160, 161);
-		recentPf =ProtocolUtils.getSubArray(data, 162, 233);
-		longestPf =ProtocolUtils.getSubArray(data, 234, 251);
+		
+		int offset = 162;
+		for (int i = 0; i < 12; i++) {
+			PowerFailEntry entry = new PowerFailEntry(cm10Protocol);
+			entry.parse(ProtocolUtils.getSubArray(data, offset, offset + 5));
+			recentPf.add(entry);
+			offset = offset + 6;
+		}
+		
+		offset = 234;
+		for (int i = 0; i < 3; i++) {
+			PowerFailEntry entry = new PowerFailEntry(cm10Protocol);
+			entry.parse(ProtocolUtils.getSubArray(data, offset, offset + 5));
+			longestPf.add(entry);
+			offset = offset + 6;
+		}
 	}
 	
 	public String toString() {
@@ -41,9 +59,21 @@ public class PowerFailDetailsTable {
 		buf.append("dialStructure = " + ProtocolUtils.outputHexString(dialStructure)).append("\n");
 		buf.append("hrOut = " + ProtocolUtils.outputHexString(hrOut)).append("\n");
 		buf.append("secOut = " + ProtocolUtils.outputHexString(secOut)).append("\n");
-		buf.append("lpfCnt = " + ProtocolUtils.outputHexString(lpfCnt)).append("\n");
-		buf.append("recentPf = " + ProtocolUtils.outputHexString(recentPf)).append("\n");
-		buf.append("longestPf = " + ProtocolUtils.outputHexString(longestPf)).append("\n");
+		buf.append("lpfCnt = " + ProtocolUtils.outputHexString(lpfCnt)).append("\n\n");
+		
+		buf.append("most recent power failures:\n");
+		for (int i = 0; i < recentPf.size(); i++) {
+			PowerFailEntry entry = (PowerFailEntry) recentPf.get(i);
+			buf.append(i).append(": ").append(entry.toString()).append("\n");
+			
+		}
+		
+		buf.append("longest power failures:\n");
+		for (int i = 0; i < longestPf.size(); i++) {
+			PowerFailEntry entry = (PowerFailEntry) longestPf.get(i);
+			buf.append(i).append(": ").append(entry.toString()).append("\n");
+		}
+
 		return buf.toString();
 	}
 
