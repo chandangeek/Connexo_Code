@@ -31,7 +31,7 @@ public class PowerFailDetailsTable {
 		secOut =ProtocolUtils.getSubArray(data, 158, 159);
 		lpfCnt =ProtocolUtils.getSubArray(data, 160, 161);
 		recentPf =ProtocolUtils.getSubArray(data, 162, 233);
-		longestPf =ProtocolUtils.getSubArray(data, 234, 242);
+		longestPf =ProtocolUtils.getSubArray(data, 234, 251);
 	}
 	
 	public String toString() {

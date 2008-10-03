@@ -75,7 +75,8 @@ public class CM10Connection extends Connection implements ProtocolConnection {
                 // receive response
                 Response response = receiveResponse(command);
                 // send ack
-                sendOut(command.getAckCommand().getBytes());
+                if (command.sendAckAfterThisCommand()) // for testing power fail details
+                	sendOut(command.getAckCommand().getBytes());
                 outputStream.write(command.getAckCommand().getBytes());
                 return response;
             }

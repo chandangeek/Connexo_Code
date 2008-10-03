@@ -14,6 +14,7 @@ public class Command {
 	private byte[] sourceCode = {0x00, 0x00};
 	private byte[] destinationCode = new byte[2]; //= {0x1A, 0x00};
 	private byte[] arguments;
+	private boolean sendAckAfterThisCommand = true; // only for testing power fail details which are erased after ack
 	
 	private CM10 cm10Protocol;
 	
@@ -33,6 +34,14 @@ public class Command {
     
     public void validate() throws IOException {
 
+    }
+    
+    public void setSendAckAfterThisCommand(boolean value) {
+    	sendAckAfterThisCommand = value;
+    }
+    
+    public boolean sendAckAfterThisCommand() {
+    	return sendAckAfterThisCommand;
     }
 
 	public int getActivityIdentifier() {
