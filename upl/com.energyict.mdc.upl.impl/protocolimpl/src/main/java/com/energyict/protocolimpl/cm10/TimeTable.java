@@ -30,6 +30,7 @@ public class TimeTable {
         c.set( Calendar.HOUR_OF_DAY, hour);
         c.set( Calendar.MINUTE, min);
         c.set( Calendar.SECOND, sec);
+        c.set(Calendar.MILLISECOND, 0);
         this.time = c.getTime();
 	}
 	

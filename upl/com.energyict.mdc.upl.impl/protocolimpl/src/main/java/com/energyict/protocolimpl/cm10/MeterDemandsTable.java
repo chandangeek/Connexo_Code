@@ -11,6 +11,7 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 
@@ -34,7 +35,11 @@ public class MeterDemandsTable {
 			IntervalData intervalData = new IntervalData(cal.getTime()); 
 			for (int j = 0; j < numberOfChannels; j++) {
 				BigDecimal value = new BigDecimal(ProtocolUtils.getLongLE(data, i + (j * 2), 2));
-				intervalData.addValue(value);
+				if (value.equals(new BigDecimal(16383))) {
+					intervalData.addValue(0, IntervalStateBits.MISSING, IntervalStateBits.MISSING);
+				}
+				else
+					intervalData.addValue(value);
 				//cm10Protocol.getLogger().info("channel " + j + ": " + cal.getTime() + ": " + value);
 			}
 			profileData.addInterval(intervalData);

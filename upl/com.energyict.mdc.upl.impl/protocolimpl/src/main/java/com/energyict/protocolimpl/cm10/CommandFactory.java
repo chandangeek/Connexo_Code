@@ -41,7 +41,9 @@ public class CommandFactory {
 	
 	
 	public ReadCommand getReadPowerFailDetailsCommand() {
-		return new ReadCommand(cm10Protocol, POWER_FAIL_DETAILS);
+		ReadCommand readCommand = new ReadCommand(cm10Protocol, POWER_FAIL_DETAILS);
+		readCommand.sendAck(false);
+		return readCommand;
 	}
 	
 	public ReadCommand getReadFullPersonalityTableCommand() {
