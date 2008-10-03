@@ -265,13 +265,14 @@ public class OpusCommandFactory {
 				case 14:
 					if(temp){
 						outputStream.write(ACK);
-						returnedData.add(data);
 						numChan-=8;// decrement number of channels
 						state=15;
 						if(numChan>0){// loop not yet passed
 							state=11;
 							attempts3++;
 							attempts4++;
+						}else{
+							returnedData.add(data);
 						}
 					}else{
 						outputStream.write(NAK);
