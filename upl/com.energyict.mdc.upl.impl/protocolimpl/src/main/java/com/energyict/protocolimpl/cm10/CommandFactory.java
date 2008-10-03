@@ -12,6 +12,7 @@ public class CommandFactory {
 	static final int METER_DEMANDS = 7;
 	static final int ALARM_TIMES = 15;
 	static final int MEMORY_DIRECT = 14;
+	static final int POWER_FAIL_DETAILS = 12;
 	
 	private CM10 cm10Protocol;
 	
@@ -38,6 +39,10 @@ public class CommandFactory {
 		return readCommand;
 	}
 	
+	
+	public ReadCommand getReadPowerFailDetailsCommand() {
+		return new ReadCommand(cm10Protocol, POWER_FAIL_DETAILS);
+	}
 	
 	public ReadCommand getReadFullPersonalityTableCommand() {
 		return new ReadCommand(cm10Protocol, FULL_PERSONALITY_TABLE);

@@ -83,7 +83,7 @@ public class ResponseReceiver {
         		if (state == WAIT_FOR_CM10_ID) {
         			int tableReceived = getTable(kar);
         			if (tableReceived != expectedTable) {
-        				log("Invalid CM10 identifier received after sending: " + ProtocolUtils.outputHexString(command.getCM10Identifier() ) 
+        				throw new InvalidCommandException("Invalid CM10 identifier received after sending: " + ProtocolUtils.outputHexString(command.getCM10Identifier() ) 
         						+ ", CM10 identifier received: " + ProtocolUtils.outputHexString(kar));
         			}
         			else {

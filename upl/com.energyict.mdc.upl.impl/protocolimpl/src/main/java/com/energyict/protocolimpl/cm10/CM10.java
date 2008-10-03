@@ -31,6 +31,7 @@ import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.kenda.meteor.Parsers;
 
 public class CM10 extends AbstractProtocol {
@@ -230,13 +231,18 @@ public class CM10 extends AbstractProtocol {
 			return "CM32 (firmware version not available)";
 		}
 		else {
-			getLogger().info("start read mem direct");
-			CommandFactory commandFactory = getCommandFactory();
-			Response response = 
-				commandFactory.getReadMemoryDirectCommand().invoke();
-			this.getLogger().info("memory direct: " + ProtocolUtils.outputHexString(response.getData()));
-			getLogger().info("end read mem direct");
-			return "CM10_" + new String(response.getData());
+			try {
+				getLogger().info("start read mem direct");
+				CommandFactory commandFactory = getCommandFactory();
+				Response response = 
+					commandFactory.getReadMemoryDirectCommand().invoke();
+				this.getLogger().info("memory direct: " + ProtocolUtils.outputHexString(response.getData()));
+				getLogger().info("end read mem direct");
+				return "CM10_" + new String(response.getData());
+			}
+			catch (InvalidCommandException e) {
+				throw new IOException("Check property '" + IS_C10_METER + "'!, This meter is no CM10 meter.");
+			}
 		}
 	}
 

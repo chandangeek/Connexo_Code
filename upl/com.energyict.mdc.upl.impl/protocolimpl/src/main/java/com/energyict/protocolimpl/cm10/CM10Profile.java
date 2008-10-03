@@ -10,6 +10,7 @@ import com.energyict.cbo.TimeZoneManager;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 
 public class CM10Profile {
 	
@@ -20,6 +21,18 @@ public class CM10Profile {
     }
 	
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
+		
+		cm10Protocol.getLogger().info("start EVENTS");
+		CommandFactory commandFactory = cm10Protocol.getCommandFactory();
+		Response response = 
+			commandFactory.getReadPowerFailDetailsCommand().invoke();
+		cm10Protocol.getLogger().info("EVENTS: " + ProtocolUtils.outputHexString(response.getData()));
+		PowerFailDetailsTable powerFailDetailsTable = new PowerFailDetailsTable(cm10Protocol);
+		powerFailDetailsTable.parse(response.getData());
+		cm10Protocol.getLogger().info(powerFailDetailsTable.toString());
+		cm10Protocol.getLogger().info("end EVENTS");
+		
+		
 		cm10Protocol.getLogger().info("from: " + from);
 		from = roundDown2nearestInterval(from);
 		Date dateOfMostHistoricDemandValue = getDateOfMostHistoricDemandValue();
@@ -130,6 +143,9 @@ public class CM10Profile {
 		MeterDemandsTable meterDemandsTable = new MeterDemandsTable(cm10Protocol);
 		meterDemandsTable.parse(data.getBytes(), profileData, from);
 		cm10Protocol.getLogger().info(meterDemandsTable.toString());
+		
+		
+
 	}
 	
 }
