@@ -57,7 +57,7 @@ public class UtilitiesTest {
 	public void tearDown() throws Exception {
 		
 		// first delete the device
-		List result = Utilities.mw().getRtuFactory().findByName(testRtu);
+		List result = Utilities.mw().getRtuFactory().findByName("99999999");
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
 				((Rtu)result.get(0)).delete();
@@ -142,7 +142,7 @@ public class UtilitiesTest {
 			result = Utilities.mw().getRtuFactory().findBySerialNumber("99999999");
 			
 			if(result.size() == 1){
-				assertEquals(testRtu, ((RtuImpl)result.get(0)).getShadow().getName());
+				assertEquals("99999999", ((RtuImpl)result.get(0)).getShadow().getName());
 				assertEquals(6, ((RtuImpl)result.get(0)).getShadow().getChannelShadows().size());
 			}
 			else
