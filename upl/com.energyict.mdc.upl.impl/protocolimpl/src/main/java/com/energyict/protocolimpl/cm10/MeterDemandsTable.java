@@ -23,7 +23,7 @@ public class MeterDemandsTable {
 		this.cm10Protocol = cm10Protocol;
 	}
 	
-	public void parse(byte[] data, ProfileData profileData, Date start) throws IOException {
+	public void parse(byte[] data, ProfileData profileData, Date start, PowerFailDetailsTable powerFailDetailsTable) throws IOException {
 		Calendar cal = Calendar.getInstance(cm10Protocol.getTimeZone());
 		cal.setTime(start);
 		int numberOfChannels = cm10Protocol.getNumberOfChannels();
@@ -32,15 +32,22 @@ public class MeterDemandsTable {
 		int length = data.length;
 		while (i < length) {
 			cal.add(Calendar.SECOND, intervalInSeconds);
-			IntervalData intervalData = new IntervalData(cal.getTime()); 
+			Date endOfInterval = cal.getTime();
+			IntervalData intervalData = new IntervalData(endOfInterval); 
 			for (int j = 0; j < numberOfChannels; j++) {
 				BigDecimal value = new BigDecimal(ProtocolUtils.getLongLE(data, i + (j * 2), 2));
 				if (value.equals(new BigDecimal(16383))) {
 					intervalData.addValue(0, IntervalStateBits.MISSING, IntervalStateBits.MISSING);
 				}
-				else
+				else if (powerFailDetailsTable.isPowerDown(endOfInterval)) {
+					intervalData.addValue(value, IntervalStateBits.POWERDOWN, IntervalStateBits.POWERDOWN);
+				}
+				else if (powerFailDetailsTable.isPowerDown(endOfInterval)) {
+					intervalData.addValue(value, IntervalStateBits.POWERUP, IntervalStateBits.POWERUP);
+				}
+				else {
 					intervalData.addValue(value);
-				//cm10Protocol.getLogger().info("channel " + j + ": " + cal.getTime() + ": " + value);
+				}
 			}
 			profileData.addInterval(intervalData);
 			i = i + (numberOfChannels * 2); // 2 bytes per channel interval record

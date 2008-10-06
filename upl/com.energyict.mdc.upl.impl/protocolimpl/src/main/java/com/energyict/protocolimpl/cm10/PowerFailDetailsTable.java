@@ -2,6 +2,8 @@ package com.energyict.protocolimpl.cm10;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -80,18 +82,68 @@ public class PowerFailDetailsTable {
 		return buf.toString();
 	}
 	
-	public boolean isAffected(Date date) {
+	public boolean isPowerUp(Date endOfInterval) throws IOException {
+		Calendar cal = Calendar.getInstance(cm10Protocol.getTimeZone());
+		cal.add(Calendar.SECOND, cm10Protocol.getProfileInterval());
+		Date startOfInterval = cal.getTime();
 		for (int i = 0; i < recentPf.size(); i++) {
 			PowerFailEntry entry = (PowerFailEntry) recentPf.get(i);
-			if (entry.isAffected(date))
+			if (entry.isPowerUpInterval(startOfInterval, endOfInterval));
 				return true;
 		}
 		for (int i = 0; i < longestPf.size(); i++) {
 			PowerFailEntry entry = (PowerFailEntry) longestPf.get(i);
-			if (entry.isAffected(date))
+			if (entry.isPowerUpInterval(startOfInterval, endOfInterval));
 				return true;
 		}
 		return false;
 	}
+	
+	public boolean isPowerDown(Date endOfInterval) throws IOException {
+		Calendar cal = Calendar.getInstance(cm10Protocol.getTimeZone());
+		cal.add(Calendar.SECOND, cm10Protocol.getProfileInterval());
+		Date startOfInterval = cal.getTime();
+		for (int i = 0; i < recentPf.size(); i++) {
+			PowerFailEntry entry = (PowerFailEntry) recentPf.get(i);
+			if (entry.isPowerDownInterval(startOfInterval, endOfInterval));
+				return true;
+		}
+		for (int i = 0; i < longestPf.size(); i++) {
+			PowerFailEntry entry = (PowerFailEntry) longestPf.get(i);
+			if (entry.isPowerDownInterval(startOfInterval, endOfInterval));
+				return true;
+		}
+		return false;
+	}
+	
+	public List getEvents() {
+		List events = new ArrayList();
+		int size = recentPf.size();
+		for (int i = 0; i < size; i++) {
+			PowerFailEntry entry = (PowerFailEntry) recentPf.get(i);
+			if (entry.isValid())
+				events.add(entry);
+		}
+		size = longestPf.size();
+		for (int i = 0; i < size; i++) {
+			PowerFailEntry entry = (PowerFailEntry) longestPf.get(i);
+			if ((entry.isValid()) && (!contains(events, entry)))
+				events.add(entry);
+		}
+		Collections.sort(events);
+		return events;
+	}
+	
+	protected boolean contains(List events, PowerFailEntry entry) {
+		int size = events.size();
+		for (int i = 0; i < size; i++) {
+			PowerFailEntry entryInEvents = (PowerFailEntry) events.get(i);
+			if (entryInEvents.equals(entry))
+				return true;
+		}
+		return false;
+	}
+	
+	
 
 }

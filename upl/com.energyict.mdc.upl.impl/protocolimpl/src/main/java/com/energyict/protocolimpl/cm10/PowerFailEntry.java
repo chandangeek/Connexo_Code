@@ -6,8 +6,12 @@ import java.util.Date;
 
 import com.energyict.protocol.ProtocolUtils;
 
-public class PowerFailEntry {
+public class PowerFailEntry implements Comparable {
 	
+	public int compareTo(Object arg0) {
+		return startTime.compareTo(((PowerFailEntry) arg0).getStartTime());
+	}
+
 	private CM10 cm10Protocol;
 	private Date startTime;
 	private Date endTime;
@@ -70,12 +74,29 @@ public class PowerFailEntry {
 		return this.endTime;
 	}
 	
-	public boolean isAffected(Date date) {
-		return ((!startTime.after(date)) && (!endTime.before(date)));
+	public boolean isPowerDownInterval(Date startOfInterval, Date endOfInterval) {
+		return ((startTime.after(startOfInterval)) && (!startTime.after(endOfInterval)));
+	}
+	
+	public boolean isPowerUpInterval(Date startOfInterval, Date endOfInterval) {
+		return ((endTime.after(startOfInterval)) && (!endTime.after(endOfInterval)));
 	}
 
 	public String toString() {
 		return "startTime = " + startTime + ", endTime = "  + endTime + ", duration = " + duration + " seconds";
+	}
+	
+	public boolean equals(Object o) {
+		if (o instanceof PowerFailEntry) {
+			PowerFailEntry entry = (PowerFailEntry) o;
+			return ((entry.getStartTime().equals(this.getStartTime())) &&
+			        (entry.getDuration() == this.getDuration()));
+		}
+		return false;
+	}
+	
+	public int getDuration() {
+		return this.duration;
 	}
 	
 	

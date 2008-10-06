@@ -21,18 +21,6 @@ public class CM10Profile {
     }
 	
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
-		
-		cm10Protocol.getLogger().info("start EVENTS");
-		CommandFactory commandFactory = cm10Protocol.getCommandFactory();
-		Response response = 
-			commandFactory.getReadPowerFailDetailsCommand().invoke();
-		cm10Protocol.getLogger().info("EVENTS: " + ProtocolUtils.outputHexString(response.getData()));
-		PowerFailDetailsTable powerFailDetailsTable = new PowerFailDetailsTable(cm10Protocol);
-		powerFailDetailsTable.parse(response.getData());
-		cm10Protocol.getLogger().info(powerFailDetailsTable.toString());
-		cm10Protocol.getLogger().info("end EVENTS");
-		
-		
 		cm10Protocol.getLogger().info("from: " + from);
 		from = roundDown2nearestInterval(from);
 		Date dateOfMostHistoricDemandValue = getDateOfMostHistoricDemandValue();
@@ -56,8 +44,27 @@ public class CM10Profile {
 		addChannelInfos(profileData);
 		if (noHHours == 0)
 			return profileData;
-		addChannelData(profileData, stPeriod, noHHours, from);
+		PowerFailDetailsTable powerFailDetailsTable = getPowerFailDetailsTable();
+		addChannelData(profileData, stPeriod, noHHours, from, powerFailDetailsTable);
+		addEvents(profileData, powerFailDetailsTable);
         return profileData;
+	}
+	
+	protected void addEvents(ProfileData profileData, PowerFailDetailsTable powerFailDetailsTable) {
+		
+	}
+	
+	protected PowerFailDetailsTable getPowerFailDetailsTable() throws IOException {
+		cm10Protocol.getLogger().info("start EVENTS");
+		CommandFactory commandFactory = cm10Protocol.getCommandFactory();
+		Response response = 
+			commandFactory.getReadPowerFailDetailsCommand().invoke();
+		cm10Protocol.getLogger().info("EVENTS: " + ProtocolUtils.outputHexString(response.getData()));
+		PowerFailDetailsTable powerFailDetailsTable = new PowerFailDetailsTable(cm10Protocol);
+		powerFailDetailsTable.parse(response.getData());
+		cm10Protocol.getLogger().info(powerFailDetailsTable.toString());
+		cm10Protocol.getLogger().info("end EVENTS");
+		return powerFailDetailsTable;
 	}
 	
 	protected Date roundDown2nearestInterval(Date from) throws IOException {
@@ -89,15 +96,6 @@ public class CM10Profile {
 			return cal.getTime();
 	}
 	
-	/*protected boolean stPeriodAndMostHistoricInSameYear(int stPeriod, int mostHistoric, int yearCountLastYear, int currentCount) {
-		boolean mostHistoricInThisYear = true;
-		boolean stPeriodInThisYear = true;
-		if (mostHistoric > currentCount)
-			mostHistoricInThisYear = (mostHistoric < currentCount)
-		if (stPeriod > currentCount)
-			
-	}*/
-	
 	protected void addChannelInfos(ProfileData profileData) throws IOException {
 		int numberOfChannels = cm10Protocol.getNumberOfChannels();
 		FullPersonalityTable fullPersonalityTable = cm10Protocol.getFullPersonalityTable();
@@ -112,7 +110,7 @@ public class CM10Profile {
 	
 	//split up the request so we can acknowledge each block the meter sends to prevent 
 	//the meter sending for a long time before the need to acknowledge
-	protected void addChannelData(ProfileData profileData, int stPeriod, int noHHours, Date from) throws IOException {
+	protected void addChannelData(ProfileData profileData, int stPeriod, int noHHours, Date from, PowerFailDetailsTable powerFailDetailsTable) throws IOException {
 		cm10Protocol.getLogger().info("stPeriod: " + stPeriod);
 		cm10Protocol.getLogger().info("noHHours: " + noHHours);
 		int numberOfChannels = cm10Protocol.getNumberOfChannels();
@@ -141,7 +139,7 @@ public class CM10Profile {
 		
 		
 		MeterDemandsTable meterDemandsTable = new MeterDemandsTable(cm10Protocol);
-		meterDemandsTable.parse(data.getBytes(), profileData, from);
+		meterDemandsTable.parse(data.getBytes(), profileData, from, powerFailDetailsTable);
 		cm10Protocol.getLogger().info(meterDemandsTable.toString());
 		
 		
