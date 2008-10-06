@@ -525,11 +525,18 @@ public class ConcentratorTest{
 	}
 	
 	private void mbusAfter() throws BusinessException, SQLException{
-		// first delete all the mbusMeters
-		List result = Utilities.mw().getRtuFactory().findByType((RtuType)Utilities.mw().getRtuTypeFactory().findByName("mbusMeter").get(0));
-		if (result.size() > 0){
-			for(int j = 0; j < result.size(); j++)
-				((Rtu)result.get(j)).delete();
+		
+		List result = Utilities.mw().getRtuTypeFactory().findByName("mbusMeter");
+		if(result.size() > 0){
+			RtuType rtuType = (RtuType)result.get(0);
+			
+			// first delete all the mbusMeters
+			result = Utilities.mw().getRtuFactory().findByType(rtuType);
+			if (result.size() > 0){
+				for(int j = 0; j < result.size(); j++)
+					((Rtu)result.get(j)).delete();
+			}
+			
 		}
 		
 		// then the deviceType
