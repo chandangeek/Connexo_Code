@@ -84,16 +84,17 @@ public class PowerFailDetailsTable {
 	
 	public boolean isPowerUp(Date endOfInterval) throws IOException {
 		Calendar cal = Calendar.getInstance(cm10Protocol.getTimeZone());
+		cal.setTime(endOfInterval);
 		cal.add(Calendar.SECOND, cm10Protocol.getProfileInterval());
 		Date startOfInterval = cal.getTime();
 		for (int i = 0; i < recentPf.size(); i++) {
 			PowerFailEntry entry = (PowerFailEntry) recentPf.get(i);
-			if (entry.isPowerUpInterval(startOfInterval, endOfInterval));
+			if (entry.isPowerUpInterval(startOfInterval, endOfInterval))
 				return true;
 		}
 		for (int i = 0; i < longestPf.size(); i++) {
 			PowerFailEntry entry = (PowerFailEntry) longestPf.get(i);
-			if (entry.isPowerUpInterval(startOfInterval, endOfInterval));
+			if (entry.isPowerUpInterval(startOfInterval, endOfInterval))
 				return true;
 		}
 		return false;
@@ -101,16 +102,17 @@ public class PowerFailDetailsTable {
 	
 	public boolean isPowerDown(Date endOfInterval) throws IOException {
 		Calendar cal = Calendar.getInstance(cm10Protocol.getTimeZone());
-		cal.add(Calendar.SECOND, cm10Protocol.getProfileInterval());
+		cal.setTime(endOfInterval);
+		cal.add(Calendar.SECOND, - cm10Protocol.getProfileInterval());
 		Date startOfInterval = cal.getTime();
 		for (int i = 0; i < recentPf.size(); i++) {
 			PowerFailEntry entry = (PowerFailEntry) recentPf.get(i);
-			if (entry.isPowerDownInterval(startOfInterval, endOfInterval));
+			if (entry.isPowerDownInterval(startOfInterval, endOfInterval))
 				return true;
 		}
 		for (int i = 0; i < longestPf.size(); i++) {
 			PowerFailEntry entry = (PowerFailEntry) longestPf.get(i);
-			if (entry.isPowerDownInterval(startOfInterval, endOfInterval));
+			if (entry.isPowerDownInterval(startOfInterval, endOfInterval))
 				return true;
 		}
 		return false;

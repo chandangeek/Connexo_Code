@@ -47,6 +47,7 @@ public class CM10 extends AbstractProtocol {
     private StatusTable statusTable;
     private FullPersonalityTable fullPersonalityTable;
     private CurrentDialReadingsTable currentDialReadingsTable;
+    private PowerFailDetailsTable powerFailDetailsTable;
     
     private int outstationID, retry, timeout, delayAfterConnect;
     private ProtocolChannelMap channelMap;
@@ -114,6 +115,21 @@ public class CM10 extends AbstractProtocol {
 		list.add("DelayAfterConnect");
 		list.add(IS_C10_METER);
 		return list;
+	}
+	
+	public PowerFailDetailsTable getPowerFailDetailsTable() throws IOException {
+		if (powerFailDetailsTable == null) {
+			getLogger().info("start EVENTS");
+			CommandFactory commandFactory = getCommandFactory();
+			Response response = 
+				commandFactory.getReadPowerFailDetailsCommand().invoke();
+			getLogger().info("EVENTS: " + ProtocolUtils.outputHexString(response.getData()));
+			powerFailDetailsTable = new PowerFailDetailsTable(this);
+			powerFailDetailsTable.parse(response.getData());
+			getLogger().info(powerFailDetailsTable.toString());
+			getLogger().info("end EVENTS");
+		}
+		return powerFailDetailsTable;
 	}
 	
 	public CurrentDialReadingsTable getCurrentDialReadingsTable() throws IOException {

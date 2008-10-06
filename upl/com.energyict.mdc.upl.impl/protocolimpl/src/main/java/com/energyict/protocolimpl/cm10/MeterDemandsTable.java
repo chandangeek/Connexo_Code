@@ -23,7 +23,8 @@ public class MeterDemandsTable {
 		this.cm10Protocol = cm10Protocol;
 	}
 	
-	public void parse(byte[] data, ProfileData profileData, Date start, PowerFailDetailsTable powerFailDetailsTable) throws IOException {
+	public void parse(byte[] data, ProfileData profileData, Date start) throws IOException {
+		PowerFailDetailsTable powerFailDetailsTable = cm10Protocol.getPowerFailDetailsTable();
 		Calendar cal = Calendar.getInstance(cm10Protocol.getTimeZone());
 		cal.setTime(start);
 		int numberOfChannels = cm10Protocol.getNumberOfChannels();
@@ -34,16 +35,23 @@ public class MeterDemandsTable {
 			cal.add(Calendar.SECOND, intervalInSeconds);
 			Date endOfInterval = cal.getTime();
 			IntervalData intervalData = new IntervalData(endOfInterval); 
+			boolean powerUp = powerFailDetailsTable.isPowerUp(endOfInterval);
+			boolean powerDown = powerFailDetailsTable.isPowerDown(endOfInterval);;
 			for (int j = 0; j < numberOfChannels; j++) {
 				BigDecimal value = new BigDecimal(ProtocolUtils.getLongLE(data, i + (j * 2), 2));
 				if (value.equals(new BigDecimal(16383))) {
 					intervalData.addValue(0, IntervalStateBits.MISSING, IntervalStateBits.MISSING);
+					cm10Protocol.getLogger().info(endOfInterval + ", MISSING");
 				}
-				else if (powerFailDetailsTable.isPowerDown(endOfInterval)) {
-					intervalData.addValue(value, IntervalStateBits.POWERDOWN, IntervalStateBits.POWERDOWN);
-				}
-				else if (powerFailDetailsTable.isPowerDown(endOfInterval)) {
-					intervalData.addValue(value, IntervalStateBits.POWERUP, IntervalStateBits.POWERUP);
+				else if (powerUp || powerDown) {
+					if (powerDown) {
+						intervalData.addValue(value, IntervalStateBits.POWERDOWN, IntervalStateBits.POWERDOWN);
+						cm10Protocol.getLogger().info(endOfInterval + ", POWERDOWN");
+					}
+					if (powerUp) {
+						intervalData.addValue(value, IntervalStateBits.POWERUP, IntervalStateBits.POWERUP);
+						cm10Protocol.getLogger().info(endOfInterval + ", POWERUP");
+					}
 				}
 				else {
 					intervalData.addValue(value);

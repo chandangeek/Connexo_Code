@@ -2,13 +2,16 @@ package com.energyict.protocolimpl.cm10;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.TimeZoneManager;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 
@@ -44,28 +47,26 @@ public class CM10Profile {
 		addChannelInfos(profileData);
 		if (noHHours == 0)
 			return profileData;
-		PowerFailDetailsTable powerFailDetailsTable = getPowerFailDetailsTable();
-		addChannelData(profileData, stPeriod, noHHours, from, powerFailDetailsTable);
-		addEvents(profileData, powerFailDetailsTable);
+		addChannelData(profileData, stPeriod, noHHours, from);
+		if (includeEvents)
+			addEvents(profileData);
         return profileData;
 	}
 	
-	protected void addEvents(ProfileData profileData, PowerFailDetailsTable powerFailDetailsTable) {
-		
+	protected void addEvents(ProfileData profileData) throws IOException {
+		PowerFailDetailsTable powerFailDetailsTable = cm10Protocol.getPowerFailDetailsTable();
+		List events = new ArrayList();
+		List powerEvents = powerFailDetailsTable.getEvents();
+		int size = 0;
+		for (int i = 0; i < size; i++) {
+			PowerFailEntry entry = (PowerFailEntry) powerEvents.get(i);
+			events.add(new MeterEvent(entry.getStartTime(),MeterEvent.POWERDOWN));
+			cm10Protocol.getLogger().info("POWERDOWN " + entry.getStartTime());
+			events.add(new MeterEvent(entry.getEndTime(),MeterEvent.POWERUP));
+			cm10Protocol.getLogger().info("POWERUP " + entry.getEndTime());
+		}
 	}
-	
-	protected PowerFailDetailsTable getPowerFailDetailsTable() throws IOException {
-		cm10Protocol.getLogger().info("start EVENTS");
-		CommandFactory commandFactory = cm10Protocol.getCommandFactory();
-		Response response = 
-			commandFactory.getReadPowerFailDetailsCommand().invoke();
-		cm10Protocol.getLogger().info("EVENTS: " + ProtocolUtils.outputHexString(response.getData()));
-		PowerFailDetailsTable powerFailDetailsTable = new PowerFailDetailsTable(cm10Protocol);
-		powerFailDetailsTable.parse(response.getData());
-		cm10Protocol.getLogger().info(powerFailDetailsTable.toString());
-		cm10Protocol.getLogger().info("end EVENTS");
-		return powerFailDetailsTable;
-	}
+
 	
 	protected Date roundDown2nearestInterval(Date from) throws IOException {
 		Calendar cal = Calendar.getInstance(cm10Protocol.getTimeZone());
@@ -110,7 +111,7 @@ public class CM10Profile {
 	
 	//split up the request so we can acknowledge each block the meter sends to prevent 
 	//the meter sending for a long time before the need to acknowledge
-	protected void addChannelData(ProfileData profileData, int stPeriod, int noHHours, Date from, PowerFailDetailsTable powerFailDetailsTable) throws IOException {
+	protected void addChannelData(ProfileData profileData, int stPeriod, int noHHours, Date from) throws IOException {
 		cm10Protocol.getLogger().info("stPeriod: " + stPeriod);
 		cm10Protocol.getLogger().info("noHHours: " + noHHours);
 		int numberOfChannels = cm10Protocol.getNumberOfChannels();
@@ -139,7 +140,7 @@ public class CM10Profile {
 		
 		
 		MeterDemandsTable meterDemandsTable = new MeterDemandsTable(cm10Protocol);
-		meterDemandsTable.parse(data.getBytes(), profileData, from, powerFailDetailsTable);
+		meterDemandsTable.parse(data.getBytes(), profileData, from);
 		cm10Protocol.getLogger().info(meterDemandsTable.toString());
 		
 		
