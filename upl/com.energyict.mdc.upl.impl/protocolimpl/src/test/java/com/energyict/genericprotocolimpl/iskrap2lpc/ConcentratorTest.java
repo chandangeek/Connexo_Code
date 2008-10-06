@@ -115,19 +115,19 @@ public class ConcentratorTest{
 		List result = Utilities.mw().getRtuFactory().findByName("12345678");
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
-				((Rtu)result.get(0)).delete();
+				((Rtu)result.get(i)).delete();
 		
 		// then the deviceType
 		result = Utilities.mw().getRtuTypeFactory().findByName(testMeter);
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
-				((RtuTypeImpl)result.get(0)).delete();
+				((RtuTypeImpl)result.get(i)).delete();
 		
 		// then the communication profile
 		result = Utilities.mw().getCommunicationProtocolFactory().findByName(jcnIskraMeter);
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
-				((CommunicationProtocolImpl)result.get(0)).delete();
+				((CommunicationProtocolImpl)result.get(i)).delete();
 	}
 
 	@Test
