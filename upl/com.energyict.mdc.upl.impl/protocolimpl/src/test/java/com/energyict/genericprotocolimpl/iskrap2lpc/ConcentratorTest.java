@@ -536,7 +536,12 @@ public class ConcentratorTest{
 				for(int j = 0; j < result.size(); j++)
 					((Rtu)result.get(j)).delete();
 			}
-			
+		}
+		
+		// delete all meters with the name "mbusMeter"
+		result = Utilities.mw().getRtuFactory().findByName("mbusMeter");
+		for(int k = 0; k < result.size(); k++){
+			((Rtu)result.get(k)).delete();
 		}
 		
 		// then the deviceType
