@@ -31,7 +31,7 @@ public class ObisCodeMapper {
 			obisCode.getC()!=0 ||
 			obisCode.getD()!=7 ||
 			obisCode.getE()!=0 ||
-			obisCode.getB()>=opus.getNumberOfChannels() ||
+			obisCode.getB()>opus.getNumberOfChannels() ||
 			obisCode.getB()<0){
 			// check validity of the code
 			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
