@@ -123,14 +123,23 @@ public class UtilitiesTest {
 	
 	@Test
 	public void createRtuTest(){
-		CommunicationProtocol commProtocol;
+		CommunicationProtocol commProtocol = null;
 		RtuType rtuType;
 		try {
-			commProtocol = Utilities.createCommunicationProtocol(javaClassName);
+			
+			List result = Utilities.mw().getCommunicationProtocolFactory().findAll();
+			for(int i = 0; i < result.size(); i++){
+				if(((CommunicationProtocol)result.get(i)).getJavaClassName().equalsIgnoreCase(javaClassName)){
+					commProtocol = (CommunicationProtocol)result.get(i);
+					break;
+				}
+			}
+			if(commProtocol == null)
+				commProtocol = Utilities.createCommunicationProtocol(javaClassName);
 			rtuType = Utilities.createRtuType(commProtocol, testRtu, 6);
 			
 			Utilities.createRtu(rtuType);
-			List result = Utilities.mw().getRtuFactory().findBySerialNumber("99999999");
+			result = Utilities.mw().getRtuFactory().findBySerialNumber("99999999");
 			
 			if(result.size() == 1){
 				assertEquals(testRtu, ((RtuImpl)result.get(0)).getShadow().getName());

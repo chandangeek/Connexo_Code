@@ -104,8 +104,8 @@ public class Utilities {
 	public static Rtu createRtu(RtuType rtuType, String serial, int interval) throws SQLException, BusinessException{
 		final RtuShadow rtuShadow = rtuType.newRtuShadow();
 		rtuShadow.setRtuTypeId(rtuType.getId());
-		rtuShadow.setName(rtuType.getName());
-		rtuShadow.setExternalName(rtuType.getName());
+		rtuShadow.setName(serial);
+		rtuShadow.setExternalName(serial);
 		rtuShadow.setIntervalInSeconds(interval);
 		rtuShadow.setSerialNumber(serial);
 		Rtu rtu = mw().getRtuFactory().create(rtuShadow);

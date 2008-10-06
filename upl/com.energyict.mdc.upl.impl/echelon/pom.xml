@@ -3,7 +3,6 @@
     <groupId>com.energyict</groupId>
     <artifactId>echelon</artifactId>
     <packaging>jar</packaging>
-    <version>8.1.6-SNAPSHOT</version>
     <name>echelon</name>
     <url>http://www.energyict.com</url>
     <parent>
@@ -15,17 +14,17 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdw</artifactId>
-            <version>8.0.0-SNAPSHOT</version>
+            <version>${eiserver.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdwswing</artifactId>
-            <version>8.0.0-SNAPSHOT</version>
+            <version>${eiserver.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdwutils</artifactId>
-            <version>8.0.0-SNAPSHOT</version>
+            <artifactId>mdwutil</artifactId>
+            <version>${eiserver.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
