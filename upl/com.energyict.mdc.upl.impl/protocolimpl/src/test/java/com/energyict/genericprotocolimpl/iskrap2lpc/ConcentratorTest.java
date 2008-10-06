@@ -133,6 +133,8 @@ public class ConcentratorTest{
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
 				((CommunicationProtocolImpl)result.get(i)).delete();
+		
+		mbusAfter();
 	}
 
 	@Test
@@ -534,13 +536,13 @@ public class ConcentratorTest{
 		result = Utilities.mw().getRtuTypeFactory().findByName("mbusMeter");
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
-				((RtuTypeImpl)result.get(0)).delete();
+				((RtuTypeImpl)result.get(i)).delete();
 		
 		// then the communication profile
 		result = Utilities.mw().getCommunicationProtocolFactory().findByName(jcnMbusMeter);
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
-				((CommunicationProtocolImpl)result.get(0)).delete();
+				((CommunicationProtocolImpl)result.get(i)).delete();
 	}
 	
 	@Test
