@@ -111,14 +111,14 @@ public class ConcentratorTest{
 
 	@After
 	public void tearDown() throws Exception {
-		// first delete the device
-		List result = Utilities.mw().getRtuFactory().findByName("12345678");
+		// first delete all the device
+		List result = Utilities.mw().getRtuFactory().findAll();
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
 				((Rtu)result.get(i)).delete();
 		
 		// then the deviceType
-		result = Utilities.mw().getRtuTypeFactory().findByName(testMeter);
+		result = Utilities.mw().getRtuTypeFactory().findAll();
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++){
 				List refMeters = Utilities.mw().getRtuFactory().findByType((RtuType)result.get(i));
@@ -129,7 +129,7 @@ public class ConcentratorTest{
 			}
 		
 		// then the communication profile
-		result = Utilities.mw().getCommunicationProtocolFactory().findByName(jcnIskraMeter);
+		result = Utilities.mw().getCommunicationProtocolFactory().findAll();
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
 				((CommunicationProtocolImpl)result.get(i)).delete();
@@ -526,7 +526,7 @@ public class ConcentratorTest{
 	
 	private void mbusAfter() throws BusinessException, SQLException{
 		
-		List result = Utilities.mw().getRtuTypeFactory().findByName("mbusMeter");
+		List result = Utilities.mw().getRtuTypeFactory().findAll();
 		if(result.size() > 0){
 			RtuType rtuType = (RtuType)result.get(0);
 			
@@ -539,19 +539,19 @@ public class ConcentratorTest{
 		}
 		
 		// delete all meters with the name "mbusMeter"
-		result = Utilities.mw().getRtuFactory().findByName("mbusMeter");
+		result = Utilities.mw().getRtuFactory().findAll();
 		for(int k = 0; k < result.size(); k++){
 			((Rtu)result.get(k)).delete();
 		}
 		
 		// then the deviceType
-		result = Utilities.mw().getRtuTypeFactory().findByName("mbusMeter");
+		result = Utilities.mw().getRtuTypeFactory().findAll();
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
 				((RtuTypeImpl)result.get(i)).delete();
 		
 		// then the communication profile
-		result = Utilities.mw().getCommunicationProtocolFactory().findByName(jcnMbusMeter);
+		result = Utilities.mw().getCommunicationProtocolFactory().findAll();
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
 				((CommunicationProtocolImpl)result.get(i)).delete();

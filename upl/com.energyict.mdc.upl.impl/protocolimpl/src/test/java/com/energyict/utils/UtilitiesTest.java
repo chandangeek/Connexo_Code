@@ -56,20 +56,20 @@ public class UtilitiesTest {
 	@After
 	public void tearDown() throws Exception {
 		
-		// first delete the device
-		List result = Utilities.mw().getRtuFactory().findByName("99999999");
+		// first delete all the device
+		List result = Utilities.mw().getRtuFactory().findAll();
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
 				((Rtu)result.get(0)).delete();
 		
-		// then the deviceType
-		result = Utilities.mw().getRtuTypeFactory().findByName(testRtu);
+		// then all the deviceType
+		result = Utilities.mw().getRtuTypeFactory().findAll();
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
 				((RtuTypeImpl)result.get(0)).delete();
 		
-		// then the communication profile
-		result = Utilities.mw().getCommunicationProtocolFactory().findByName(javaClassName);
+		// then all the communication profile
+		result = Utilities.mw().getCommunicationProtocolFactory().findAll();
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
 				((CommunicationProtocolImpl)result.get(0)).delete();
