@@ -42,7 +42,7 @@ public class CommandFactory {
 	
 	public ReadCommand getReadPowerFailDetailsCommand() {
 		ReadCommand readCommand = new ReadCommand(cm10Protocol, POWER_FAIL_DETAILS);
-		readCommand.sendAck(false);
+		//readCommand.sendAck(false);
 		return readCommand;
 	}
 	

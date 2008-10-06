@@ -45,24 +45,23 @@ public class CM10Profile {
 		int stPeriod = (int) ((from.getTime() - startOfYear.getTime()) / (1000 * 1800)) + 1;
 		ProfileData profileData = new ProfileData();
 		addChannelInfos(profileData);
+		if (includeEvents)
+			addEvents(profileData);
 		if (noHHours == 0)
 			return profileData;
 		addChannelData(profileData, stPeriod, noHHours, from);
-		if (includeEvents)
-			addEvents(profileData);
         return profileData;
 	}
 	
 	protected void addEvents(ProfileData profileData) throws IOException {
 		PowerFailDetailsTable powerFailDetailsTable = cm10Protocol.getPowerFailDetailsTable();
-		List events = new ArrayList();
 		List powerEvents = powerFailDetailsTable.getEvents();
-		int size = 0;
+		int size = powerEvents.size();
 		for (int i = 0; i < size; i++) {
 			PowerFailEntry entry = (PowerFailEntry) powerEvents.get(i);
-			events.add(new MeterEvent(entry.getStartTime(),MeterEvent.POWERDOWN));
+			profileData.addEvent(new MeterEvent(entry.getStartTime(),MeterEvent.POWERDOWN));
 			cm10Protocol.getLogger().info("POWERDOWN " + entry.getStartTime());
-			events.add(new MeterEvent(entry.getEndTime(),MeterEvent.POWERUP));
+			profileData.addEvent(new MeterEvent(entry.getEndTime(),MeterEvent.POWERUP));
 			cm10Protocol.getLogger().info("POWERUP " + entry.getEndTime());
 		}
 	}

@@ -85,7 +85,7 @@ public class PowerFailDetailsTable {
 	public boolean isPowerUp(Date endOfInterval) throws IOException {
 		Calendar cal = Calendar.getInstance(cm10Protocol.getTimeZone());
 		cal.setTime(endOfInterval);
-		cal.add(Calendar.SECOND, cm10Protocol.getProfileInterval());
+		cal.add(Calendar.SECOND, - cm10Protocol.getProfileInterval());
 		Date startOfInterval = cal.getTime();
 		for (int i = 0; i < recentPf.size(); i++) {
 			PowerFailEntry entry = (PowerFailEntry) recentPf.get(i);
