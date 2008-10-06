@@ -87,10 +87,10 @@ public class ResponseReceiver {
         						+ ", CM10 identifier received: " + ProtocolUtils.outputHexString(kar));
         			}
         			else {
-        				log("CM10Id = " + ProtocolUtils.outputHexString(kar));
+        				//log("CM10Id = " + ProtocolUtils.outputHexString(kar));
         				int blockIdentifier = (int) (kar & 0x60);
         				isLastFrame = ((blockIdentifier == 32) || (blockIdentifier == 96));
-        				log("blockIdentifier = " + blockIdentifier + ", isLastFrame = " + isLastFrame);
+        				//log("blockIdentifier = " + blockIdentifier + ", isLastFrame = " + isLastFrame);
         				state = WAIT_FOR_BLOCK_SIZE;
         				allDataArrayOutputStream.write((byte)kar);
         				currentBlockByteCount = 1;
@@ -102,7 +102,7 @@ public class ResponseReceiver {
         				blockSize = 256;
         			else
         				blockSize = kar;
-        			log("blockSize = " + blockSize);
+        			//log("blockSize = " + blockSize);
         		}
         		else if (state == WAIT_FOR_SOURCE_CODE) {
         			sourceCodeByteCount++;
@@ -161,7 +161,7 @@ public class ResponseReceiver {
 
 	
 	protected void checkCrc(int crcFound, ByteArrayOutputStream dataArrayOutputStream, int blockSize) throws IOException {
-		log("crcFound = " + crcFound);
+		//log("crcFound = " + crcFound);
 		byte[] data = dataArrayOutputStream.toByteArray();
 		byte[] dataForCrcCalculation = 
 			ProtocolUtils.getSubArray2(data, data.length - blockSize, blockSize - 1);
@@ -176,7 +176,7 @@ public class ResponseReceiver {
 			crcCalculated = 0;
 		if (crcCalculated != crcFound)
 			throw new IOException("invalid crc, value found = " + crcFound + ", value expected = " + crcCalculated + ", " + ProtocolUtils.outputHexString(dataForCrcCalculation));
-		log("crc ok");
+		//log("crc ok");
 	}
 
 	

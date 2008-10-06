@@ -30,8 +30,8 @@ public class CM10Profile {
 		cm10Protocol.getLogger().info("dateOfMostHistoricDemandValue: " + dateOfMostHistoricDemandValue);
 		cm10Protocol.getLogger().info("from rounded down: " + from);
 		cm10Protocol.getLogger().info("to: " + to);
-		if (from.before(dateOfMostHistoricDemandValue))
-			from = dateOfMostHistoricDemandValue;
+		//if (from.before(dateOfMostHistoricDemandValue))
+			//from = dateOfMostHistoricDemandValue;
 		Calendar cal = Calendar.getInstance(cm10Protocol.getTimeZone());
 		cal.setTime(from);
 		cal.set(Calendar.MONTH, Calendar.JANUARY);
