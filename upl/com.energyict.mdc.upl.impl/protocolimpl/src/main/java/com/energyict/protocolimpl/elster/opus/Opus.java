@@ -144,7 +144,7 @@ public class Opus extends AbstractProtocol{
 		this.firmwareVersion=st[6];
 		// set factory globals (IMORTANT)
 		ocf.setNumChan(this.numChan);
-		if(numChan<channelMap.getNrOfProtocolChannels()){throw new IOException("You defined more channels than channels available on the instrument");}
+		if(numChan<channelMap.getNrOfProtocolChannels()){throw new IOException("You defined more channels than channels ("+channelMap.getNrOfProtocolChannels()+") available on the instrument("+numChan+")");}
 		// make channelmap with all channels enabled
 		// end of download
 		// change numChan to the real numChan derived from the channelMap
