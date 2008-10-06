@@ -91,7 +91,16 @@ class Constant {
     final static String DELAY_AFTER_FAIL = "DelayAfterFail";
     final static String READING_FILE = "ReadingsFileType";
     
-    final static ObisCode mbusSerialObisCode = ObisCode.fromString("0.1.128.50.21.255");
+    final static ObisCode mbusSerialObisCode[] = {ObisCode.fromString("0.1.128.50.21.255"),
+    												ObisCode.fromString("0.2.128.50.21.255"),
+    												ObisCode.fromString("0.3.128.50.21.255"),
+    												ObisCode.fromString("0.4.128.50.21.255")};
+    
+    final static ObisCode mbusAddressObisCode[] = {ObisCode.fromString("0.1.128.50.20.255"),
+													ObisCode.fromString("0.2.128.50.20.255"),
+													ObisCode.fromString("0.3.128.50.20.255"),
+													ObisCode.fromString("0.4.128.50.20.255")};
+    
     final static ObisCode powerLimitObisCode = ObisCode.fromString("0.0.128.61.1.255");
     final static ObisCode confChangeObisCode = ObisCode.fromString("0.0.96.2.0.255");
     final static ObisCode coreFirmware = ObisCode.fromString("0.0.128.101.18.255");
@@ -152,6 +161,7 @@ class Constant {
     final static String[] nullPointerProfile = {"/offlineFiles/iskrap2lpc/NullPointer38547358_0.xml", "/offlineFiles/iskrap2lpc/NullPointer38547358_1.xml"};
     final static String dailyResult		= "/offlineFiles/iskrap2lpc/dailyfromPLR.xml";
     final static String monthlyResult	= "/offlineFiles/iskrap2lpc/monthlyfromPLR.xml";
+    final static String oneMonthlyValue = "/offlineFiles/iskrap2lpc/oneMonthlyValue.xml";
     
     final static String NON_Unknown = "NON.Unknown";
     final static String SYS_Startup = "SYS.Startup";

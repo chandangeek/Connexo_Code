@@ -80,6 +80,54 @@ public class ParseUtils {
             throw new IOException("ProtocolUtils, getBCD2IntLE, ArrayIndexOutOfBoundsException, "+e.getMessage());
         }
         return val;
-    }        
+    }      
+    
+    /**
+     * Checks if a string can be parsed to an integer
+     * @param str - the String to check
+     * @return true or false
+     */
+    public static boolean isInteger(String str){
+    	try {
+			Integer.parseInt(str);
+			return true;
+		} catch (NumberFormatException e) {
+			return false;
+		}
+    }
+    /**
+     * Build up a stringbuffer containing the hex values from the byteArray.
+     * Adds zero to the left if necessary.
+     * ex:
+     * b = {7, 1, 67, 7};
+     * strByff.toString() = "07014307";
+     * @param b - the byteArray containing the ascii chars
+     * @return
+     */
+    public static String decimalByteToString(byte[] b){
+		StringBuffer strBuff = new StringBuffer();
+		for(int i = 0; i < b.length; i++){
+			String str = Integer.toHexString(b[i]&0xFF);
+			if(str.length() == 1)
+				strBuff.append("0");
+			strBuff.append(str);
+		}
+		return strBuff.toString();
+    }
+    
+    
+    /**
+     * Checks if all the elements in the byteArray can be converted to valid chars.
+     * Only decimals and the complete upper- and lower alphabet is allowed
+     * @param b - the given byteArray
+     * @return true or false
+     */
+    public static boolean checkIfAllAreChars(byte[] b){
+    	for(int i = 0; i < b.length; i++){
+    		if(!(b[i] >= 48 && b[i] <= 57) && !(b[i] >= 65 && b[i] <= 90) && !(b[i] >= 97 && b[i] <= 122))
+    			return false;
+    	}
+    	return true;
+    }
         
 }

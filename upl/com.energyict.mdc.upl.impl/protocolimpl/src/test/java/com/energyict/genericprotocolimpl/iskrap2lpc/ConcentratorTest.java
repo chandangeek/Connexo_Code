@@ -25,11 +25,14 @@ import org.junit.Test;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.Quantity;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.Environment;
 import com.energyict.interval.RawIntervalRecord;
+import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.CommunicationProtocol;
+import com.energyict.mdw.core.IntervalDataStorer;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuType;
@@ -46,6 +49,7 @@ public class ConcentratorTest{
 	
 	private String jcnConcentrator = "com.energyict.genericprotocolimpl.iskrap2lpc.Concentrator";
 	private String jcnIskraMeter = "com.energyict.genericprotocolimpl.iskrap2lpc.Meter";
+	private String jcnMbusMeter = "com.energyict.genericprotocolimpl.iskrap2lpc.MbusDevice";
 	private String testMeter = "TestMeter";
 	
 	private String august01 = "2008-08-01T00:00:00 +0200";
@@ -60,11 +64,13 @@ public class ConcentratorTest{
 	private String september22 = "2008-09-22T00:00:00 +0200";
 	private String september23 = "2008-09-23T00:00:00 +0200";
 	private String september24 = "2008-09-24T00:00:00 +0200";
+	private String october01 = "2008-10-01T00:00:00 +0200";
 	
 	private CommunicationProtocol commProtMeter = null;
 	private Concentrator iskraConcentrator;
 	private MeterReadTransaction meterReadTransaction;
 	private Rtu meter;
+	private Rtu mbusRtu[] = {null, null, null, null, null};
 	private RtuType rtuTypeMeter = null;
 	
 	private List result = new ArrayList();
@@ -73,7 +79,7 @@ public class ConcentratorTest{
 	public static void setUpOnce() {
 		Utilities.createEnvironment();
 		MeteringWarehouse.createBatchContext(false);
-		logger = Logger.global;
+		logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 	}
 	
 	@Before
@@ -106,7 +112,7 @@ public class ConcentratorTest{
 	@After
 	public void tearDown() throws Exception {
 		// first delete the device
-		List result = Utilities.mw().getRtuFactory().findByName(testMeter);
+		List result = Utilities.mw().getRtuFactory().findByName("12345678");
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
 				((Rtu)result.get(0)).delete();
@@ -123,7 +129,7 @@ public class ConcentratorTest{
 			for(int i = 0; i < result.size(); i++)
 				((CommunicationProtocolImpl)result.get(0)).delete();
 	}
-	
+
 	@Test
 	public void importProfileTest() {
 		
@@ -151,11 +157,8 @@ public class ConcentratorTest{
 			meterReadTransaction.setProfileTestName(Constant.profileFiles1);
 			meterReadTransaction.importProfile(meter, xmlHandler, false);
 			
-//			assertEquals(2, xmlHandler.getProfileData().length);
 			assertEquals(Unit.get("kWh"), ((ChannelInfo)xmlHandler.getProfileData().getChannelInfos().get(0)).getUnit());
 			assertEquals("channel 0  1.0.1.8.0.255", ((ChannelInfo)xmlHandler.getProfileData().getChannelInfos().get(0)).getName());
-//			assertEquals(Unit.get("m3"), ((ChannelInfo)xmlHandler.getProfileData().getChannelInfos().get(0)).getUnit());
-//			assertEquals("MBUS", ((ChannelInfo)xmlHandler.getProfileData().getChannelInfos().get(0)).getName());
 			assertEquals(newDate(17, 4, 2008, 9, 45, 0), xmlHandler.getProfileData().getIntervalData(0).getEndTime());
 			assertEquals(firstNumber, ((IntervalValue)xmlHandler.getProfileData().getIntervalData(0).getIntervalValues().get(0)).getNumber().doubleValue());
 			assertEquals(newDate(22, 4, 2008, 15, 45, 0), xmlHandler.getProfileData().getIntervalData(504).getEndTime());
@@ -182,7 +185,7 @@ public class ConcentratorTest{
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Test
 	public void importDailyMonthlyTest(){
 		try {
@@ -266,7 +269,7 @@ public class ConcentratorTest{
 			fail();
 		}
 	}
-	
+
 	@Test
 	public void importTwoDailyMonthlyProfilesTest(){
 		try {
@@ -336,7 +339,7 @@ public class ConcentratorTest{
 			fail();
 		}
 	}
-	
+
 	@Test
 	public void importDailyMonthlyFromPLR(){
 		try {
@@ -410,6 +413,201 @@ public class ConcentratorTest{
 		} catch (ParseException e) {
 			e.printStackTrace();
 			fail();
+		}
+	}
+
+	@Test
+	public void singelMonthlyValueTest(){
+		try {
+			String property = "0:0:0:0:1.8.1+9m";
+			result = Utilities.mw().getRtuFactory().findByName(testMeter);
+			if(result.size() == 0)
+				meter = Utilities.createRtu(rtuTypeMeter, "12345678", 900);
+			else
+				meter = (Rtu)result.get(0);
+			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 5);
+			
+			meter = Utilities.addPropertyToRtu(meter, "ChannelMap", property);
+			iskraConcentrator.setLogger(logger);
+			meterReadTransaction.setMeter(meter);
+			
+			XmlHandler xmlHandler = new XmlHandler(logger, meterReadTransaction.getChannelMap());
+			xmlHandler.setDailyMonthlyProfile(true);
+			meterReadTransaction.setBillingMonthly(Constant.oneMonthlyValue);
+			meterReadTransaction.importDailyMonthly(meter, xmlHandler, meter.getSerialNumber());
+			Environment.getDefault().execute(meterReadTransaction.getStoreObjects());
+			
+			Date oct01 = Constant.getInstance().getDateFormat().parse(october01);
+			RawIntervalRecord raw1001 = (RawIntervalRecord)meter.getChannel(4).getIntervalData(subDay(oct01), addDay(oct01)).get(0);
+			assertEquals(new BigDecimal(new BigInteger("25263"), 3), raw1001.getRawValue());
+			assertEquals(oct01, raw1001.getDate());
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			fail();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+			fail();
+		} catch (InvalidPropertyException e) {
+			e.printStackTrace();
+			fail();
+		} catch (ServiceException e) {
+			e.printStackTrace();
+			fail();
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail();
+		} catch (ParseException e) {
+			e.printStackTrace();
+			fail();
+		}
+	}
+	
+	@Test
+	public void mutlipleSingleStores(){
+		try {
+			String property = "0:0:0:0:1.8.1+9m";
+			result = Utilities.mw().getRtuFactory().findByName(testMeter);
+			if(result.size() == 0)
+				meter = Utilities.createRtu(rtuTypeMeter, "12345678", 900);
+			else
+				meter = (Rtu)result.get(0);
+			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 5);
+			
+			meter = Utilities.addPropertyToRtu(meter, "ChannelMap", property);
+			iskraConcentrator.setLogger(logger);
+			meterReadTransaction.setMeter(meter);
+			
+			XmlHandler xmlHandler = new XmlHandler(logger, meterReadTransaction.getChannelMap());
+			xmlHandler.setDailyMonthlyProfile(true);
+			meterReadTransaction.setBillingMonthly(Constant.billingMonthly);
+			meterReadTransaction.importDailyMonthly(meter, xmlHandler, meter.getSerialNumber());
+			Environment.getDefault().execute(meterReadTransaction.getStoreObjects());
+			
+			xmlHandler = new XmlHandler(logger, meterReadTransaction.getChannelMap());
+			xmlHandler.setDailyMonthlyProfile(true);
+			meterReadTransaction.setBillingMonthly(Constant.oneMonthlyValue);
+			meterReadTransaction.importDailyMonthly(meter, xmlHandler, meter.getSerialNumber());
+			Environment.getDefault().execute(meterReadTransaction.getStoreObjects());
+			
+			Date oct01 = Constant.getInstance().getDateFormat().parse(october01);
+			Date aug01 = Constant.getInstance().getDateFormat().parse(august01);
+			RawIntervalRecord raw1001 = (RawIntervalRecord)meter.getChannel(4).getIntervalData(subDay(oct01), addDay(oct01)).get(0);
+			assertEquals(new BigDecimal(new BigInteger("25263"), 3), raw1001.getRawValue());
+			assertEquals(oct01, raw1001.getDate());
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			fail();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+			fail();
+		} catch (InvalidPropertyException e) {
+			e.printStackTrace();
+			fail();
+		} catch (ServiceException e) {
+			e.printStackTrace();
+			fail();
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail();
+		} catch (ParseException e) {
+			e.printStackTrace();
+			fail();
+		}
+	}
+	
+	private void mbusAfter() throws BusinessException, SQLException{
+		// first delete all the mbusMeters
+		List result = Utilities.mw().getRtuFactory().findByType((RtuType)Utilities.mw().getRtuTypeFactory().findByName("mbusMeter").get(0));
+		if (result.size() > 0){
+			for(int j = 0; j < result.size(); j++)
+				((Rtu)result.get(j)).delete();
+		}
+		
+		// then the deviceType
+		result = Utilities.mw().getRtuTypeFactory().findByName("mbusMeter");
+		if (result.size() > 0)
+			for(int i = 0; i < result.size(); i++)
+				((RtuTypeImpl)result.get(0)).delete();
+		
+		// then the communication profile
+		result = Utilities.mw().getCommunicationProtocolFactory().findByName(jcnMbusMeter);
+		if (result.size() > 0)
+			for(int i = 0; i < result.size(); i++)
+				((CommunicationProtocolImpl)result.get(0)).delete();
+	}
+	
+	@Test
+	public void mbusTest() throws BusinessException, SQLException{
+		try{
+			
+			String property = "0:0:0:0:1.8.1+9m";
+			result = Utilities.mw().getRtuFactory().findByName(testMeter);
+			if(result.size() == 0)
+				meter = Utilities.createRtu(rtuTypeMeter, "12345678", 900);
+			else
+				meter = (Rtu)result.get(0);
+			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 5);
+			
+			meter = Utilities.addPropertyToRtu(meter, "ChannelMap", property);
+			iskraConcentrator.setLogger(logger);
+			meterReadTransaction.setMeter(meter);
+			
+			/** MBus installation part */
+			// find out if the communication profile exists, if not, create it
+			result = Utilities.mw().getCommunicationProtocolFactory().findAll();
+			commProtMeter = null;
+			for(int i = 0; i < result.size(); i++){
+				if(((CommunicationProtocol)result.get(i)).getJavaClassName().equalsIgnoreCase(jcnMbusMeter)){
+					commProtMeter = (CommunicationProtocol)result.get(i);
+					break;
+				}
+			}
+			if(commProtMeter == null)
+				commProtMeter = Utilities.createCommunicationProtocol(jcnMbusMeter);
+			
+			// find out if there is an rtuType defined with this testName, if not, create it
+			result = Utilities.mw().getRtuTypeFactory().findByName("mbusMeter");
+			if(result.size() == 0)
+				rtuTypeMeter = Utilities.createRtuType(commProtMeter, "mbusMeter", 4);
+			else
+				rtuTypeMeter = (RtuType)result.get(0);
+			
+			for(int i = 0; i < 4; i++){
+				result = Utilities.mw().getRtuFactory().findByName("mbusMeter"+i);
+				if(result.size() == 0)
+					mbusRtu[i] = Utilities.createRtu(rtuTypeMeter, ""+i+i+i+i, 3600);
+				else 
+					mbusRtu[i] = (Rtu)result.get(0);
+				mbusRtu[i] = Utilities.addChannel(mbusRtu[i], TimeDuration.DAYS, 5);
+				mbusRtu[i] = Utilities.addPropertyToRtu(mbusRtu[i], "ChannelMap", "1:1:1:1:0.1.128.50.0d");
+				mbusRtu[i].updateGateway(meter);
+			}
+			
+			meterReadTransaction.checkMbusDevices();
+			
+			for(int i = 0; i < 4; i++){
+				MbusDevice mbd = meterReadTransaction.mbusDevices[i];
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			fail();
+		} catch (BusinessException e) {
+			e.printStackTrace();
+			fail();
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			fail();
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail();
+		} catch (ServiceException e) {
+			e.printStackTrace();
+			fail();
+		} finally {
+			mbusAfter();
 		}
 	}
 	

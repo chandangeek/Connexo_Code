@@ -1,8 +1,6 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,7 +12,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -42,10 +39,10 @@ import com.energyict.cpo.SqlBuilder;
 import com.energyict.cpo.Transaction;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.ScalerUnit;
+import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.iskrap2lpc.Concentrator.XmlException;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.CosemDateTime;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ObjectDef;
-import com.energyict.genericprotocolimpl.iskrap2lpc.stub.P2LPCSoapPort_PortType;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.PeriodicProfileType;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ProfileType;
 import com.energyict.mdw.amr.RtuRegister;
@@ -64,6 +61,7 @@ import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.ProtocolChannel;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
@@ -91,6 +89,7 @@ class MeterReadTransaction implements CacheMechanism {
     
     static final int ELECTRICITY 	= 0x00;
     static final int MBUS 			= 0x01;
+    static final int MBUS_MAX		= 0x04;
 	
     /**
 	 * a private instance of the concentrator class
@@ -140,12 +139,11 @@ class MeterReadTransaction implements CacheMechanism {
     public void doExecute() throws BusinessException, SQLException {
     	boolean succes = false;
         
-    	ProfileData[] pd = {new ProfileData(), new ProfileData()};
     	XmlHandler dataHandler;		// the dataHandler constructs the loadProfile as well as the billing profiles with the given channelMap
     	
         try {
         	
-        	meter = findOrCreate(rtuConcentrator, serial, ELECTRICITY);
+        	meter = findOrCreate(rtuConcentrator, serial);
             if (getMeter() != null) {
             	
 //            	doTheCheckMethods();	// enable this for quick cache reading
@@ -157,10 +155,14 @@ class MeterReadTransaction implements CacheMechanism {
                 	dataHandler.setChannelUnit(Unit.get(BaseUnit.WATTHOUR, 3));
                 	importProfile(meter, dataHandler, communicationProfile.getReadMeterEvents());
                 	if(mbusCheck()){
-                		dataHandler = new XmlHandler( getLogger(), mbusDevices[0].getChannelMap() );
-                		dataHandler.setChannelUnit(mbusDevices[0].getMbusUnit());
-                		importProfile(mbusDevices[0].getRtu(), dataHandler, false);	//MBus device does not have events
-                		dataHandler.clearChannelUnit();
+                		for(int k = 0; k < MBUS_MAX; k++){
+                			if(mbusDevices[k] != null){
+                				dataHandler = new XmlHandler( getLogger(), mbusDevices[k].getChannelMap() );
+                				dataHandler.setChannelUnit(mbusDevices[k].getMbusUnit());
+                				importProfile(mbusDevices[k].getRtu(), dataHandler, false);	//MBus device does not have events
+                				dataHandler.clearChannelUnit();
+                			}
+                		}
                 	}
                 }
                 
@@ -173,12 +175,16 @@ class MeterReadTransaction implements CacheMechanism {
                 	importDailyMonthly(getMeter(), dataHandler, serial);
                 	dataHandler.setDailyMonthlyProfile(false);
                 	if(mbusCheck()){
-                		dataHandler = new XmlHandler(getLogger(), mbusDevices[0].getChannelMap());
-                    	dataHandler.setDailyMonthlyProfile(true);
-                    	dataHandler.setChannelUnit(mbusDevices[0].getMbusUnit());
-                    	importDailyMonthly(mbusDevices[0].getRtu(), dataHandler, serial);
-                    	dataHandler.setDailyMonthlyProfile(false);
-                    	dataHandler.clearChannelUnit();
+                		for(int m = 0; m < MBUS_MAX; m++){
+                			if(mbusDevices[m] != null){
+	                			dataHandler = new XmlHandler(getLogger(), mbusDevices[m].getChannelMap());
+	                			dataHandler.setDailyMonthlyProfile(true);
+	                			dataHandler.setChannelUnit(mbusDevices[m].getMbusUnit());
+	                			importDailyMonthly(mbusDevices[m].getRtu(), dataHandler, serial);
+	                			dataHandler.setDailyMonthlyProfile(false);
+	                			dataHandler.clearChannelUnit();
+                			}
+                		}
                 	}
                 }
                 
@@ -190,9 +196,13 @@ class MeterReadTransaction implements CacheMechanism {
                 	dataHandler = new XmlHandler( getLogger(), getChannelMap() );
                 	sendMeterMessages(rtuConcentrator, getMeter(), dataHandler);
                 	if(mbusCheck()){
-                    	if ( mbusDevices[0].getRtu().getMessages().size() != 0 ){
-                    		sendMeterMessages(rtuConcentrator, getMeter(), mbusDevices[0].getRtu(), dataHandler);
-                    	}
+                		for(int n = 0; n < MBUS_MAX; n++){
+                			if(mbusDevices[n] != null){
+	                			if ( mbusDevices[n].getRtu().getMessages().size() != 0 ){
+	                				sendMeterMessages(rtuConcentrator, getMeter(), mbusDevices[n].getRtu(), dataHandler);
+	                			}
+                			}
+                		}
                 	}
                 }
                 
@@ -270,7 +280,6 @@ class MeterReadTransaction implements CacheMechanism {
         
         ObjectDef[] lp1 = null;
         ObjectDef[] lp2 = null;
-        ObjectDef[] loadProfileDef = null;
         int lpPeriod1 = -1;
         int lpPeriod2 = -1;
         if ( TESTING ){
@@ -291,11 +300,9 @@ class MeterReadTransaction implements CacheMechanism {
         }
         
         if(meter.getIntervalInSeconds() == lpPeriod1){
-        	loadProfileDef = lp1;
         	profile = lpString1;
         }
         else if(meter.getIntervalInSeconds() == lpPeriod2){
-        	loadProfileDef = lp2;
         	profile = lpString2;
         }
         else {
@@ -316,6 +323,7 @@ class MeterReadTransaction implements CacheMechanism {
                 		FileReader inFile = new FileReader(Utils.class.getResource(getProfileTestName()[i]).getFile());
                 		xml = getConcentrator().readWithStringBuffer(inFile);
                 	} else{
+                		getLogger().log(Level.INFO, "Retrieving profiledata from " + from + " to " + to);
                 		xml = getConnection().getMeterProfile(getMeter().getSerialNumber(), profile, pc.getRegister(), from, to);
                 	}
 
@@ -355,6 +363,7 @@ class MeterReadTransaction implements CacheMechanism {
         		powerFailures = getConcentrator().readWithStringBuffer(inFile);
             }
             else{
+            	getLogger().log(Level.INFO, "Retrieving events from " + from + " to " + to);
             	events = getConnection().getMeterEvents(mtr, from, to);
             	powerFailures = getConnection().getMeterPowerFailures(mtr, from, to);
             }
@@ -416,7 +425,7 @@ class MeterReadTransaction implements CacheMechanism {
 					from = Constant.getInstance().format( getLastChannelReading(chn) );
 					if(pc.containsDailyValues()){
 						if(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS){
-							getLogger().log(Level.INFO, "Reading Daily values with registername: " + pc.getRegister());
+							getLogger().log(Level.INFO, "Reading Daily values with registername: " + pc.getRegister() + " from " + from + " to " + to);
 							if(TESTING){
 			            		FileReader inFile = new FileReader(Utils.class.getResource(getBillingDaily()).getFile());
 //								FileReader inFile = new FileReader(Utils.class.getResource("/offlineFiles/iskrap2lpc/nullpointerstuff.xml").getFile());
@@ -430,7 +439,7 @@ class MeterReadTransaction implements CacheMechanism {
 					}
 					else if(pc.containsMonthlyValues()){
 						if(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS){
-							getLogger().log(Level.INFO, "Reading Monthly values with registername: " + pc.getRegister());
+							getLogger().log(Level.INFO, "Reading Monthly values with registername: " + pc.getRegister()  + " from " + from + " to " + to);
 							if(TESTING){
 			            		FileReader inFile = new FileReader(Utils.class.getResource(getBillingMonthly()).getFile());
 			            		xml = getConcentrator().readWithStringBuffer(inFile);
@@ -526,7 +535,6 @@ class MeterReadTransaction implements CacheMechanism {
 
             if( register != null ){
             	if(register.getReadingAt(registerValue.getReadTime()) == null){
-//            		register.store( registerValue );
             		getStoreObjects().add(register, registerValue);
             	}
             }
@@ -610,40 +618,31 @@ class MeterReadTransaction implements CacheMechanism {
     }
     
     
-	private String getFirwareVersions(Rtu concentrator, String meterID, ObisCode oc) throws NumberFormatException, ServiceException, IOException, BusinessException{
+	private String getFirmwareVersions(Rtu concentrator, String meterID, ObisCode oc) throws NumberFormatException, ServiceException, IOException, BusinessException{
 		String times[] = prepareCosemGetRequest();
 		
-		StringBuffer strBuff = new StringBuffer();
 		byte[] strCore = getConnection().cosemGetRequest(meterID, times[0], times[1], oc.toString(), new UnsignedInt(1), new UnsignedInt(2));
-		for(int i = 2; i < strCore.length; i++){
-			String str = Integer.toHexString(strCore[i]&0xFF);
-			if(str.length() == 1)
-				strBuff.append("0");
-			strBuff.append(str);
-		}
-		return strBuff.toString();
+//		for(int i = 2; i < strCore.length; i++){
+//			String str = Integer.toHexString(strCore[i]&0xFF);
+//			if(str.length() == 1)
+//				strBuff.append("0");
+//			strBuff.append(str);
+//		}
+//		return strBuff.toString();
+		byte[] convertStr = new byte[strCore.length-2];
+		System.arraycopy(strCore, 2, convertStr, 0, 2);
+		return ParseUtils.decimalByteToString(convertStr);
 	}
 	
 	public static void main(String[] args){
-//		StringBuilder strBuilder = new StringBuilder();
-//		byte[] b = {9, 16, -124, -41, -120, 26, 86, 96, 0, -128, -3, 109, 105, -103, -108, -1, -33, -10};
-//		for(int i = 2; i < b.length; i++){
-//			strBuilder.append(Integer.toHexString(b[i]&0xFF));
-//			strBuilder.append(" ");
-//		}
-//		
-//		System.out.println(strBuilder);
 		
-		byte[] b = {2, 2, 15, 0, 22, 30};
-		try {
-			ScalerUnit su = new ScalerUnit(b);
-			System.out.println(su);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		byte[] b1 = {50, 56, 48, 48, 52, 48, 48, 48, 55, 51, 51, 48, 50, 55, 53, 48, 55};
+		byte[] b2 = {7, 1, 67, 7};
+		System.out.println("b1 = " + ParseUtils.checkIfAllAreChars(b1));
+		System.out.println("b2 = " + ParseUtils.checkIfAllAreChars(b2));
 	}
 	
-	protected Rtu findOrCreate(Rtu concentrator, String serial, int type) throws SQLException, BusinessException, IOException { 
+	protected Rtu findOrCreate(Rtu concentrator, String serial) throws SQLException, BusinessException, IOException { 
         
         List meterList = getConcentrator().mw().getRtuFactory().findBySerialNumber(serial);
 
@@ -651,20 +650,7 @@ class MeterReadTransaction implements CacheMechanism {
     		
         	((Rtu)meterList.get(0)).updateGateway(concentrator);
         	
-        	// We may not move the meter if he already exists
-//        	int folderID = getFolderID(concentrator);
-//        	if(folderID != -1){
-//        		Folder result = getConcentrator().mw().getFolderFactory().find(folderID);
-//        		if(result != null){
-//        			((Rtu)meterList.get(0)).moveToFolder(result);
-//        		} else {
-//        			getLogger().log(Level.INFO, "No folder found with ID: " + folderID + ", new meter will be placed in prototype folder.");
-//        		}
-//        	} else {
-//        		getLogger().log(Level.INFO, "New meter will be placed in prototype folder.");
-//        	}
-        	
-            return (Rtu) meterList.get(0);
+      	    return (Rtu) meterList.get(0);
         }
         
         else if( meterList.size() > 1 ) {
@@ -748,22 +734,6 @@ class MeterReadTransaction implements CacheMechanism {
     	
 		return od;
 	}
-    
-//	private boolean lpContainsRegister(ObjectDef[] lp, String register) {
-//		for (int i = 0; i< lp.length; i++){
-//			if(lp[i]!=null){
-//				String instId = lp[i].getInstanceId();
-//				if (register.length() == 5){
-//					if (instId.indexOf(register) == 4)
-//						return true;
-//				}
-//				else
-//					if (instId.indexOf(register.subSequence(0, register.length()).toString()) >= 0)
-//						return true;
-//			}
-//		}
-//		return false;
-//	}
 
 	protected boolean isTESTING() {
 		return TESTING;
@@ -884,7 +854,7 @@ class MeterReadTransaction implements CacheMechanism {
                         	
                         	else if(checkFirmwareObisCodes(oc)){
                         		Date d = new Date(System.currentTimeMillis());
-                        		String fwv = getFirwareVersions(concentrator, serial, oc);
+                        		String fwv = getFirmwareVersions(concentrator, serial, oc);
                         		dataHandler.getMeterReadingData().add(new RegisterValue(oc, null, null, null, d, d, 0, fwv));
                         	}
                         	else
@@ -1139,37 +1109,43 @@ class MeterReadTransaction implements CacheMechanism {
 	}
     
     private boolean mbusCheck(){
-        if ( mbusDevices[0] != null ){
-        	if(mbusSerial[0].equalsIgnoreCase(mSerial)){
-            	if(mbusDevices[0].getRtu() != null){
-            		return true;
-            	}
-        	}
-        	else
-            	getLogger().log(Level.CONFIG, "MBus serialnumber in EIServer(" + mbusSerial[0] + ") didn't match serialnumber in meter(" + mSerial+ ")");
-        }
+    	for(int i = 0; i < MBUS_MAX; i++){
+    		if ( mbusDevices[0] != null ){
+    			if(mbusDevices[0].getRtu() != null){
+    				return true;
+    			}
+    			else
+    				getLogger().log(Level.CONFIG, "MBus serialnumber in EIServer(" + mbusSerial[0] + ") didn't match serialnumber in meter(" + mSerial+ ")");
+    		}
+    	}
     	return false;
     }
     
-    private void checkMbusDevices() throws IOException, NumberFormatException, ServiceException, SQLException, BusinessException {
-		if ((getMeter().getDownstreamRtus().size() > 0) || (concentrator.getRtuType(getMeter()) != null)){
-			if ( concentrator.TESTING ){
-				FileReader inFile = new FileReader(Utils.class.getResource(Constant.mbusSerialFile).getFile());
-				mSerial = concentrator.readWithStringBuffer(inFile);
-			}
-			else{
-				getLogger().log(Level.INFO, "Checking mbus configuration.");
-				mSerial = getMbusSerial(serial);
-			}
-			
-			if (( concentrator.getRtuType(getMeter()) != null ) && (getMeter().getDownstreamRtus().size() == 0)){
-				mbusDevices[0] = new MbusDevice(1, mSerial, findOrCreate(getMeter(), mSerial, MBUS), getLogger());	
-			}
-			fillInMbusSerials(getMeter().getDownstreamRtus());
-			
-			if(!(( concentrator.getRtuType(getMeter()) != null ) && (getMeter().getDownstreamRtus().size() == 0)))
-				mbusDevices[0] = new MbusDevice(1, mbusSerial[0], findOrCreate(getMeter(), mbusSerial[0], MBUS), getLogger());
-		}
+    protected void checkMbusDevices() throws IOException, NumberFormatException, ServiceException, SQLException, BusinessException {
+    	getLogger().log(Level.INFO, "Checking mbus configuration.");
+    	RtuType rtuType = concentrator.getRtuType(getMeter());
+    	int mbusAddress = 0;
+    	// if the meters exist in the database and there is no RtuType anymore then just fill in the mbusDevices classes
+    	if( rtuType == null){
+    		fillInMbusSerials(getMeter().getDownstreamRtus());
+    		for(int i = 0; i < mbusSerial.length; i++){
+    			if(mbusSerial[i] != null)
+    				mbusDevices[i] = new MbusDevice(i+1, mbusSerial[i], findOrCreate(getMeter(), mbusSerial[i]), getLogger());
+    		}
+    	}
+    	
+    	// if you configure an RtuType then we assume that you want to check if the meters are still there
+    	else{
+    		for(int i = 0; i < MBUS_MAX; i++){
+    			mbusAddress = getMbusAddress(Constant.mbusAddressObisCode[i].toString());
+    			if(mbusAddress > 0){
+    				mSerial = getMbusSerial(Constant.mbusSerialObisCode[i].toString());
+    				if(!mSerial.equalsIgnoreCase(""))
+    					mbusDevices[i] = new MbusDevice(mbusAddress, mSerial, findOrCreate(getMeter(), mSerial), getLogger());
+    			}
+    		}
+    		fillInMbusSerials(getMeter().getDownstreamRtus());
+    	}
 	}
     
 	private void fillInMbusSerials(List downstreamRtus) {
@@ -1184,10 +1160,30 @@ class MeterReadTransaction implements CacheMechanism {
 		}
 	}
     
-	private String getMbusSerial(String meterID) throws NumberFormatException, ServiceException, IOException, BusinessException {
+	private String getMbusSerial(String obisCode) throws NumberFormatException, ServiceException, IOException, BusinessException {
 		String times[] = prepareCosemGetRequest();
-		String str = new String( getConnection().cosemGetRequest(meterID, times[0], times[1], Constant.mbusSerialObisCode.toString(), new UnsignedInt(1), new UnsignedInt(2)));
-		return str.substring(2);
+//		String str = new String( getConnection().cosemGetRequest(serial, times[0], times[1], obisCode, new UnsignedInt(1), new UnsignedInt(2)));
+		
+		byte[] bStr = getConnection().cosemGetRequest(serial, times[0], times[1], obisCode, new UnsignedInt(1), new UnsignedInt(2));
+		byte[] parseStr = new byte[bStr.length-2];
+		System.arraycopy(bStr, 2, parseStr, 0, bStr.length-2);
+		String str;
+		if(ParseUtils.checkIfAllAreChars(parseStr))
+			str = new String(parseStr);
+		else
+			str = ParseUtils.decimalByteToString(parseStr);
+		return str;
+	}
+	
+	private int getMbusAddress(String obisCode) throws NumberFormatException, RemoteException, ServiceException, IOException, BusinessException{
+		String times[] = prepareCosemGetRequest();
+//		String str = new String(getConnection().cosemGetRequest(serial, times[0], times[1], obisCode, new UnsignedInt(1), new UnsignedInt(2)));
+//		if(isInteger(str))
+//			return Integer.parseInt(str.substring(2));
+//		else
+//			return 0;
+		byte[] b = getConnection().cosemGetRequest(serial, times[0], times[1], obisCode, new UnsignedInt(1), new UnsignedInt(2));
+		return b[1];
 	}
 	
 	private void saveConfiguration() throws BusinessException, SQLException {

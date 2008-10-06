@@ -525,6 +525,12 @@ public class Connection {
 			} else if (e instanceof ServiceException){
 				throw new ServiceException(e.getMessage());
 			}
+		} else if(e.getMessage().equalsIgnoreCase("Demand reading error: Meter does not exists!")){
+			if(e instanceof RemoteException){
+				throw new RemoteException(e.getMessage());
+			} else if (e instanceof ServiceException){
+				throw new ServiceException(e.getMessage());
+			}
 		}
 	}
 }
