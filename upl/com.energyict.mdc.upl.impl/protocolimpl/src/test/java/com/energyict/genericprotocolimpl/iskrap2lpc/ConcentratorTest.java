@@ -79,7 +79,7 @@ public class ConcentratorTest{
 	public static void setUpOnce() {
 		Utilities.createEnvironment();
 		MeteringWarehouse.createBatchContext(false);
-		logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+		logger = Logger.getLogger("global");
 	}
 	
 	@Before
