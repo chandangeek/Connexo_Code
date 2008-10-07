@@ -419,7 +419,7 @@ public class OpusCommandFactory {
 					}else{
 						state=acknack(temp,9,7);
 					}
-					if(state==9 && !ERROR_FLAG){returnedData.add(data);}  // data passed ack frame, retries not included
+					if(state==9){returnedData.add(data);}  // data passed ack frame, retries not included
 					break;
 				case 9:
 					s=getStringArray();
@@ -432,7 +432,7 @@ public class OpusCommandFactory {
 					break;
 				case 10:
 					state=acknack(temp,11,9);
-					if(state==11 && !ERROR_FLAG){returnedData.add(data);}
+					if(state==11){returnedData.add(data);}
 					break;
 				case 11:
 					// last packet of 1 channel, go to 12 or 7 if not last channel
@@ -440,13 +440,14 @@ public class OpusCommandFactory {
 					if(datanr<numData){
 						state=9;
 					}
+					//TODO If meter channel exceeds and we request data from before the config change, then we do not know what the meter will return.
+					//TODO It can be that the meter will only return the channels that he contains so we can add zerro's in the dataList
 					if(channr==numChan && datanr>=numData){// last channel move to next state
 						state=12;
 					}
 					break;
 				case 12:
 					state=debugChannelBug(); // dirty solution
-					interFrameTimeout = System.currentTimeMillis() + timeOut; // timeout between states reset
 //					i=inputStream.read();
 //					if(i==EOT){
 //						state=13;
