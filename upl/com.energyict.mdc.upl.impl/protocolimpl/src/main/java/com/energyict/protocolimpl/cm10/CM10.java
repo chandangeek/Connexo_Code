@@ -109,7 +109,6 @@ public class CM10 extends AbstractProtocol {
 		ArrayList list = new ArrayList();
 		list.add("TimeOut");
 		list.add("Retry");
-		list.add("ChannelMap");
 		list.add("DelayAfterConnect");
 		list.add(IS_C10_METER);
 		return list;
