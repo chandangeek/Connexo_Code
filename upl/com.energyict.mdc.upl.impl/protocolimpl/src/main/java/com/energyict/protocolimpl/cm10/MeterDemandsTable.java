@@ -52,7 +52,7 @@ public class MeterDemandsTable {
 				if (value.equals(new BigDecimal(16383))) {
 					intervalData.addEiStatus(IntervalStateBits.MISSING);
 					intervalData.addProtocolStatus(IntervalStateBits.MISSING);
-					intervalData.addValue(0);
+					intervalData.addValue(new BigDecimal(0));
 					//cm10Protocol.getLogger().info(endOfInterval + ", MISSING");
 				}
 				else {
