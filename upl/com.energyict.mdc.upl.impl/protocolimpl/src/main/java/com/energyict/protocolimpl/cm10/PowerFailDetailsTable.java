@@ -30,7 +30,7 @@ public class PowerFailDetailsTable {
 
 
 	public void parse(byte[] data) throws IOException {
-		cm10Protocol.getLogger().info("length events: " + data.length);
+		//cm10Protocol.getLogger().info("length events: " + data.length);
 		timPf =ProtocolUtils.getSubArray(data, 0, 5);
 		timPr =ProtocolUtils.getSubArray(data, 6, 11);
 		dialStructure =ProtocolUtils.getSubArray(data, 12, 155);

@@ -89,9 +89,9 @@ public class CM10 extends AbstractProtocol {
     }
     
 	protected void doConnect() throws IOException {
-		getLogger().info("doConnect");
+		//getLogger().info("doConnect");
 		ProtocolUtils.delayProtocol(delayAfterConnect);
-		getLogger().info("endConnect");
+		//getLogger().info("endConnect");
 	}
 	
 	public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
@@ -119,69 +119,69 @@ public class CM10 extends AbstractProtocol {
 	
 	public PowerFailDetailsTable getPowerFailDetailsTable() throws IOException {
 		if (powerFailDetailsTable == null) {
-			getLogger().info("start EVENTS");
+			getLogger().info("read power fail details");
 			CommandFactory commandFactory = getCommandFactory();
 			Response response = 
 				commandFactory.getReadPowerFailDetailsCommand().invoke();
-			getLogger().info("EVENTS: " + ProtocolUtils.outputHexString(response.getData()));
+			//getLogger().info("EVENTS: " + ProtocolUtils.outputHexString(response.getData()));
 			powerFailDetailsTable = new PowerFailDetailsTable(this);
 			powerFailDetailsTable.parse(response.getData());
-			getLogger().info(powerFailDetailsTable.toString());
-			getLogger().info("end EVENTS");
+			//getLogger().info(powerFailDetailsTable.toString());
+			//getLogger().info("end EVENTS");
 		}
 		return powerFailDetailsTable;
 	}
 	
 	public CurrentDialReadingsTable getCurrentDialReadingsTable() throws IOException {
 		if (currentDialReadingsTable == null) {
-			getLogger().info("start currentDialReadingsTable");
+			getLogger().info("read current dial readings");
 			CommandFactory commandFactory = getCommandFactory();
 			Response response = 
 				commandFactory.getReadCurrentDialReadingsCommand().invoke();
 			currentDialReadingsTable = new CurrentDialReadingsTable(this);
 			currentDialReadingsTable.parse(response.getData());
-			getLogger().info(currentDialReadingsTable.toString());
-			getLogger().info("end currentDialReadingsTable");
+			//getLogger().info(currentDialReadingsTable.toString());
+			//getLogger().info("end currentDialReadingsTable");
 		}
 		return currentDialReadingsTable;
 	}
 	
 	public FullPersonalityTable getFullPersonalityTable() throws IOException {
 		if (fullPersonalityTable == null) {
-			getLogger().info("start full personality table");
+			getLogger().info("read full personality table");
 			CommandFactory commandFactory = getCommandFactory();
 			Response response = 
 				commandFactory.getReadFullPersonalityTableCommand().invoke();
 			fullPersonalityTable = new FullPersonalityTable(this);
 			fullPersonalityTable.parse(response.getData());
-			getLogger().info(fullPersonalityTable.toString());
-			getLogger().info("end full personality table");
+			//getLogger().info(fullPersonalityTable.toString());
+			//getLogger().info("end full personality table");
 		}
 		return fullPersonalityTable;
 	}
 
 	public StatusTable getStatusTable() throws IOException {
 		if (statusTable == null) {
-			getLogger().info("start getStatus");
+			getLogger().info("read status");
 			CommandFactory commandFactory = getCommandFactory();
 			Response response = 
 				commandFactory.getReadStatusCommand().invoke();
 			statusTable = new StatusTable(this);
 			statusTable.parse(response.getData());
-			getLogger().info(statusTable.toString());
-			getLogger().info("end getStatus");
+			//getLogger().info(statusTable.toString());
+			//getLogger().info("end getStatus");
 		}
 		return statusTable;
 	}
 	
 	public TimeTable getTimeTable() throws IOException {
-		getLogger().info("start getTime");
+		getLogger().info("read meter time");
 		CommandFactory commandFactory = getCommandFactory();
 		Response response = 
 			commandFactory.getReadTimeCommand().invoke();
 		TimeTable timeTable = new TimeTable(this);
 		timeTable.parse(response.getData());
-		getLogger().info("end getTime");
+		//getLogger().info("end getTime");
 		return timeTable;
 	}
 	
@@ -248,7 +248,7 @@ public class CM10 extends AbstractProtocol {
 		}
 		else {
 			try {
-				getLogger().info("start read mem direct");
+				getLogger().info("read memory direct");
 				CommandFactory commandFactory = getCommandFactory();
 				Response response = 
 					commandFactory.getReadMemoryDirectCommand().invoke();
@@ -268,8 +268,8 @@ public class CM10 extends AbstractProtocol {
 
 	public Date getTime() throws IOException {
 		Date time = getTimeTable().getTime();
-		getLogger().info("meter time: " + time);
-		getLogger().info("system time: " + new Date());
+		//getLogger().info("meter time: " + time);
+		//getLogger().info("system time: " + new Date());
 		return time;
 	}
 
@@ -294,11 +294,11 @@ public class CM10 extends AbstractProtocol {
 			}
 		}
 		
-		getLogger().info("start Trim Time");
+		getLogger().info("send trim time");
 		CommandFactory commandFactory = getCommandFactory();
 		Response response = 
 			commandFactory.getTrimClockCommand(result).invoke();
-		getLogger().info("end Trim Time");
+		//getLogger().info("end Trim Time");
 		
 	}
 	

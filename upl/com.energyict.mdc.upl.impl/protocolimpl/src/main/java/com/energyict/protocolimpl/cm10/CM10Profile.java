@@ -24,12 +24,12 @@ public class CM10Profile {
     }
 	
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
-		cm10Protocol.getLogger().info("from: " + from);
+		//cm10Protocol.getLogger().info("from: " + from);
 		from = roundDown2nearestInterval(from);
-		Date dateOfMostHistoricDemandValue = getDateOfMostHistoricDemandValue();
-		cm10Protocol.getLogger().info("dateOfMostHistoricDemandValue: " + dateOfMostHistoricDemandValue);
-		cm10Protocol.getLogger().info("from rounded down: " + from);
-		cm10Protocol.getLogger().info("to: " + to);
+		//Date dateOfMostHistoricDemandValue = getDateOfMostHistoricDemandValue();
+		//cm10Protocol.getLogger().info("dateOfMostHistoricDemandValue: " + dateOfMostHistoricDemandValue);
+		//cm10Protocol.getLogger().info("from rounded down: " + from);
+		//cm10Protocol.getLogger().info("to: " + to);
 		//if (from.before(dateOfMostHistoricDemandValue))
 			//from = dateOfMostHistoricDemandValue;
 		Calendar cal = Calendar.getInstance(cm10Protocol.getTimeZone());
@@ -60,9 +60,9 @@ public class CM10Profile {
 		for (int i = 0; i < size; i++) {
 			PowerFailEntry entry = (PowerFailEntry) powerEvents.get(i);
 			profileData.addEvent(new MeterEvent(entry.getStartTime(),MeterEvent.POWERDOWN));
-			cm10Protocol.getLogger().info("POWERDOWN " + entry.getStartTime());
+			//cm10Protocol.getLogger().info("POWERDOWN " + entry.getStartTime());
 			profileData.addEvent(new MeterEvent(entry.getEndTime(),MeterEvent.POWERUP));
-			cm10Protocol.getLogger().info("POWERUP " + entry.getEndTime());
+			//cm10Protocol.getLogger().info("POWERUP " + entry.getEndTime());
 		}
 	}
 
@@ -111,8 +111,8 @@ public class CM10Profile {
 	//split up the request so we can acknowledge each block the meter sends to prevent 
 	//the meter sending for a long time before the need to acknowledge
 	protected void addChannelData(ProfileData profileData, int stPeriod, int noHHours, Date from) throws IOException {
-		cm10Protocol.getLogger().info("stPeriod: " + stPeriod);
-		cm10Protocol.getLogger().info("noHHours: " + noHHours);
+		//cm10Protocol.getLogger().info("stPeriod: " + stPeriod);
+		//cm10Protocol.getLogger().info("noHHours: " + noHHours);
 		int numberOfChannels = cm10Protocol.getNumberOfChannels();
 		int numberOfHHoursToRequestPerBlock = (256 - 11) / numberOfChannels / 2; //(2 bytes per value)
 		int noHHoursRequested = 0;
@@ -140,7 +140,7 @@ public class CM10Profile {
 		
 		MeterDemandsTable meterDemandsTable = new MeterDemandsTable(cm10Protocol);
 		meterDemandsTable.parse(data.getBytes(), profileData, from);
-		cm10Protocol.getLogger().info(meterDemandsTable.toString());
+		//cm10Protocol.getLogger().info(meterDemandsTable.toString());
 		
 		
 
