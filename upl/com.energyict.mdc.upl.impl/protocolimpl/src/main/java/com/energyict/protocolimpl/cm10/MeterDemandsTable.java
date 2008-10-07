@@ -40,18 +40,20 @@ public class MeterDemandsTable {
 			if (powerDown) {
 				intervalData.addEiStatus(IntervalStateBits.POWERDOWN);
 				intervalData.addProtocolStatus(IntervalStateBits.POWERDOWN);
-				cm10Protocol.getLogger().info(endOfInterval + ", POWERDOWN");
+				//cm10Protocol.getLogger().info(endOfInterval + ", POWERDOWN");
 			}
 			if (powerUp) {
 				intervalData.addEiStatus(IntervalStateBits.POWERUP);
 				intervalData.addProtocolStatus(IntervalStateBits.POWERUP);
-				cm10Protocol.getLogger().info(endOfInterval + ", POWERUP");
+				//cm10Protocol.getLogger().info(endOfInterval + ", POWERUP");
 			}
 			for (int j = 0; j < numberOfChannels; j++) {
 				BigDecimal value = new BigDecimal(ProtocolUtils.getLongLE(data, i + (j * 2), 2));
 				if (value.equals(new BigDecimal(16383))) {
-					intervalData.addValue(0, IntervalStateBits.MISSING, IntervalStateBits.MISSING);
-					cm10Protocol.getLogger().info(endOfInterval + ", MISSING");
+					intervalData.addEiStatus(IntervalStateBits.MISSING);
+					intervalData.addProtocolStatus(IntervalStateBits.MISSING);
+					intervalData.addValue(0);
+					//cm10Protocol.getLogger().info(endOfInterval + ", MISSING");
 				}
 				else {
 					intervalData.addValue(value);
