@@ -50,7 +50,6 @@ public class CM10 extends AbstractProtocol {
     private PowerFailDetailsTable powerFailDetailsTable;
     
     private int outstationID, retry, timeout, delayAfterConnect;
-    private ProtocolChannelMap channelMap;
     
     private boolean isCM10Meter;
 
@@ -100,7 +99,6 @@ public class CM10 extends AbstractProtocol {
 		} catch (NumberFormatException e) {
 			throw new NumberFormatException("The node address field has not been filled in");
 		}	
-		this.channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1"));
 		this.timeout=Integer.parseInt(properties.getProperty("TimeOut","5000"));
 		this.retry=Integer.parseInt(properties.getProperty("Retry", "3"));
 		this.delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "1000"));
