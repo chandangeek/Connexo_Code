@@ -28,6 +28,7 @@ public class StatusTable {
 	private int mCnt;
 	private int mnsCnt;
 	private int mtrs; // number of channels
+	private int batLow;
 	
 	public int getNumberOfChannels() {
 		return mtrs;
@@ -51,6 +52,8 @@ public class StatusTable {
 		mCnt = ProtocolUtils.getIntLE(data, 31, 2);
 		mnsCnt = ProtocolUtils.getIntLE(data, 33, 2);
 		mtrs = data[35];
+		batLow = data[data.length - 12];
+		cm10Protocol.getLogger().info("bat low: " + batLow);
 	}
 	
 	public String toString() {
@@ -72,6 +75,10 @@ public class StatusTable {
 		buf.append("mnsCnt: " + mnsCnt).append("\n");
 		buf.append("mtrs: " + mtrs).append("\n");
 		return buf.toString();
+	}
+	
+	public boolean isBatteryLow() {
+		return batLow > 0;
 	}
 	
 	public int getMostHistoricDemandCount() {

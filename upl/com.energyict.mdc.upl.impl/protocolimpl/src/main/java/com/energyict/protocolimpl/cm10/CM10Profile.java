@@ -64,6 +64,11 @@ public class CM10Profile {
 			profileData.addEvent(new MeterEvent(entry.getEndTime(),MeterEvent.POWERUP));
 			//cm10Protocol.getLogger().info("POWERUP " + entry.getEndTime());
 		}
+		//add battery low event
+		StatusTable statusTable = cm10Protocol.getStatusTable();
+		if(statusTable.isBatteryLow()) {
+			profileData.addEvent(new MeterEvent(cm10Protocol.getTime(),MeterEvent.OTHER,"BATTERY LOW"));
+		}
 	}
 
 	
