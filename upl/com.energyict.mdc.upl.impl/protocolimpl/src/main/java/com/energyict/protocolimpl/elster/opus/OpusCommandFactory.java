@@ -49,6 +49,9 @@ public class OpusCommandFactory {
 	private static final char ACK =0x0006;  // acknowledge
 	private static final char CR  =0x000D;  // carriage return
 	private static final char NAK =0x0021;  // negative acknowledge
+	
+	private boolean	ERROR_FLAG=false;
+
 
 	/*
 	 * private Attributes
@@ -299,6 +302,7 @@ public class OpusCommandFactory {
 	// second state machine, commands 10-69
 	private ArrayList stateMachine2(int commandnr,int attempts, int timeOut, String[] data,Calendar cal) throws IOException{
 		int attempts1= attempts,attempts2=attempts, attempts3=attempts,attempts4=attempts;
+		ERROR_FLAG=false;
 		ArrayList returnedData=new ArrayList();
 		boolean temp=true,loop=true; // to pass true or false flags from state to state
 		OpusBuildPacket sendPacket,receivePacket;
@@ -362,15 +366,7 @@ public class OpusCommandFactory {
 					break;
 				case 5:
 				case 6:
-					// date check implemented in the datasheet, should not be implemented
-					//if(day==cal.get(Calendar.DAY_OF_MONTH) && month==cal.get(Calendar.MONTH)+1 &&	year==cal.get(Calendar.YEAR)){
-						state=detectUnstable(data,temp,7,4,13);
-					//	System.out.println("date correct"+day+" "+month+" "+year+" "+cal.getTime().toLocaleString());
-					//}else{
-					//	outputStream.write(EOT); // date not correct
-					//	System.out.println("date not correct"+day+" "+month+" "+year+" "+cal.getTime().toLocaleString());
-					//	state=13;
-					//}
+					state=detectUnstable(data,temp,7,4,13);
 					if(state==7){returnedData.add(data);}  // data passed ack frame
 					break;
 				case 7:
@@ -387,7 +383,7 @@ public class OpusCommandFactory {
 					state=8;
 					break;
 				case 8:
-					/*
+					/*/BUG
 					 * TODO: here the exceeding channel problem of the OPUS should be solved
 					 * TODO: This channel problem should be solved in the FIRMWARE!!
 					 * 
@@ -400,7 +396,7 @@ public class OpusCommandFactory {
 					 * all channels stored in that register not using the previously transferred number
 					 * of channels. 
 					 * 
-					 * Solution: scan all channels by using ENQ and count number of headers, close with a timeout
+					 * Possible solution: scan all channels by using ENQ and count number of headers, close with a timeout
 					 */
 					boolean checkLastChan=false;
 					if(enq==0x1 && temp){ // status ok & checksum ok		
@@ -423,7 +419,7 @@ public class OpusCommandFactory {
 					}else{
 						state=acknack(temp,9,7);
 					}
-					if(state==9){returnedData.add(data);}  // data passed ack frame, retries not included
+					if(state==9 && !ERROR_FLAG){returnedData.add(data);}  // data passed ack frame, retries not included
 					break;
 				case 9:
 					s=getStringArray();
@@ -436,7 +432,7 @@ public class OpusCommandFactory {
 					break;
 				case 10:
 					state=acknack(temp,11,9);
-					if(state==11){returnedData.add(data);}
+					if(state==11 && !ERROR_FLAG){returnedData.add(data);}
 					break;
 				case 11:
 					// last packet of 1 channel, go to 12 or 7 if not last channel
@@ -449,10 +445,12 @@ public class OpusCommandFactory {
 					}
 					break;
 				case 12:
-					i=inputStream.read();
-					if(i==EOT){
-						state=13;
-					}
+					state=debugChannelBug(); // dirty solution
+					interFrameTimeout = System.currentTimeMillis() + timeOut; // timeout between states reset
+//					i=inputStream.read();
+//					if(i==EOT){
+//						state=13;
+//					}
 					break;
 				case 13:
 					outputStream.write(CR);
@@ -768,7 +766,35 @@ public class OpusCommandFactory {
 			state=acknack(temp,i,j);
 		}			
 		return state;
-	}	
+	}
+	private int debugChannelBug() throws IOException {
+		int i=0;
+		String s="";					
+		while(i!=EOT && i!=ETX){
+			long interCharacterTimeout = System.currentTimeMillis() + timeOut; // timeout between states
+			boolean test=false;
+			while(System.currentTimeMillis()<interCharacterTimeout && !test){
+				if(inputStream.available()>0){
+					test=true;
+					i = inputStream.read();
+				}
+				//ProtocolUtils.delayProtocol(10);
+			}
+			if(!test){
+				System.out.println(s);
+	            throw new ProtocolConnectionException("InterCharacter timeout error");
+			}
+			s+=(char) i;
+		}
+		if(i==EOT){
+			ERROR_FLAG=false;
+			return 13;
+		}else{
+			ERROR_FLAG=true;
+			outputStream.write(ACK);
+			return 12; // give reply
+		}
+	}
 	private String getStringArray() throws IOException {
 		int i=0;
 		String s="";					
