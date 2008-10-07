@@ -53,7 +53,7 @@ public class StatusTable {
 		mnsCnt = ProtocolUtils.getIntLE(data, 33, 2);
 		mtrs = data[35];
 		batLow = data[data.length - 12];
-		cm10Protocol.getLogger().info("bat low: " + batLow);
+		//cm10Protocol.getLogger().info("bat low: " + batLow);
 	}
 	
 	public String toString() {
