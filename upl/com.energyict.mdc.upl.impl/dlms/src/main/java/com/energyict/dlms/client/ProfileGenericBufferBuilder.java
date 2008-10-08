@@ -14,6 +14,7 @@ import com.energyict.protocol.*;
 public class ProfileGenericBufferBuilder {
 	
 	Array bufferArray=null;
+	Structure bufferStructure;
 	
 	public ProfileGenericBufferBuilder() {
 		reset();
@@ -24,8 +25,10 @@ public class ProfileGenericBufferBuilder {
 	}
 	
 	public void addRegisterValue(RegisterValue registerValue) throws IOException {
-		if (bufferArray==null)
-			bufferArray = new Array();
+		if (bufferStructure==null)
+			bufferStructure = new Structure();
+		
+
 		Structure structure = new Structure();
 	/*
 	    ObisCode obisCode; // as support for the toString()
@@ -51,7 +54,7 @@ public class ProfileGenericBufferBuilder {
 		entry.addDataType(OctetString.fromString(registerValue.getText()));
 		structure.addDataType(entry);
 		
-		bufferArray.addDataType(structure);
+		bufferStructure.addDataType(structure);
 	}
 	
 	public void addAbstractDataType(AbstractDataType dataType) throws IOException {
@@ -112,6 +115,10 @@ public class ProfileGenericBufferBuilder {
 	}
 	
 	public Array getBufferArray() {
+		if ((bufferStructure != null) && (bufferArray==null)) {
+			bufferArray = new Array();
+			bufferArray.addDataType(bufferStructure);
+		}
 		return bufferArray;
 	}
 

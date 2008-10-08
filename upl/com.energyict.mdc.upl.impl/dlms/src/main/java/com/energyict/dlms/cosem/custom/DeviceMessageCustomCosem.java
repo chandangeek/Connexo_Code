@@ -7,6 +7,7 @@ import java.util.Date;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.client.CompoundDataBuilderConnection;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 
@@ -42,15 +43,26 @@ public class DeviceMessageCustomCosem extends Data {
 		}
     }	
 	
+    public boolean isConfirmed() throws IOException {
+    	return getMessageState() == CONFIRMED;
+    }
+    public boolean isFailed() throws IOException {
+    	return getMessageState() == FAILED;
+    }
+    
     public static void main(String[] args) {
         System.out.println(ToStringBuilder.genCode(new DeviceMessageCustomCosem(new Unsigned32(5))));
     }	
 	
-	static final byte[] LN=new byte[]{0,0,96,110,1,0};
+	static final byte[] LN=new byte[]{0,0,96,110,0,0};
 	
 	public DeviceMessageCustomCosem(AbstractDataType dataType) {
 		super(null,new ObjectReference(LN));
 		this.dataType=dataType;
+	}
+	
+	public DeviceMessageCustomCosem() {
+		super(new CompoundDataBuilderConnection(),new ObjectReference(LN));
 	}
 	
 	public DeviceMessageCustomCosem(ProtocolLink protocolLink) {
@@ -69,35 +81,57 @@ public class DeviceMessageCustomCosem extends Data {
 		Structure structure = new Structure();
 		structure.addDataType(new Integer32(messageDatabaseId));
 		structure.addDataType(contents==null?new NullData():OctetString.fromString(contents));
-		structure.addDataType(new Unsigned32(releaseDate.getTime()/1000));
+		structure.addDataType(releaseDate==null?null:new Unsigned32(releaseDate.getTime()/1000));
 		structure.addDataType(new Integer32(userId));
 		structure.addDataType(trackingId==null?new NullData():OctetString.fromString(trackingId));
 		structure.addDataType(new Integer8(messageState));
 		setValueAttr(structure);
     }
     
+    public void setFieldsStateResponse(int messageDatabaseId,int messageState) throws IOException {
+		Structure structure = new Structure();
+		structure.addDataType(new Integer32(messageDatabaseId));
+		structure.addDataType(new Integer8(messageState));
+		setValueAttr(structure);
+    }    
+    
     public int getMessageDatabaseId() throws IOException {
 		return getValueAttr().getStructure().getDataType(0).intValue();
     }
     
     public String getContents() throws IOException {
-		return getValueAttr().getStructure().getDataType(1).isOctetString()?dataType.getStructure().getDataType(1).getOctetString().stringValue():null;
+    	if (getValueAttr().getStructure().nrOfDataTypes()==2)
+    		return null;
+    	else
+    		return getValueAttr().getStructure().getDataType(1).isOctetString()?dataType.getStructure().getDataType(1).getOctetString().stringValue():null;
     }
     
     public Date getReleaseDate() throws IOException {
-		return new Date(getValueAttr().getStructure().getDataType(2).longValue()*1000);
+    	if (getValueAttr().getStructure().nrOfDataTypes()==2)
+    		return null;
+    	else
+    		return new Date(getValueAttr().getStructure().getDataType(2).longValue()*1000);
     }
     
     public int getUserId() throws IOException {
-		return getValueAttr().getStructure().getDataType(3).intValue();
+    	if (getValueAttr().getStructure().nrOfDataTypes()==2)
+    		return 0;
+    	else
+    		return getValueAttr().getStructure().getDataType(3).intValue();
     }
     
     public String getTrackingId() throws IOException {
-		return getValueAttr().getStructure().getDataType(4).isOctetString()?dataType.getStructure().getDataType(4).getOctetString().stringValue():null;
+    	if (getValueAttr().getStructure().nrOfDataTypes()==2)
+    		return null;
+    	else
+    		return getValueAttr().getStructure().getDataType(4).isOctetString()?dataType.getStructure().getDataType(4).getOctetString().stringValue():null;
     }
     
     public int getMessageState() throws IOException {
-		return getValueAttr().getStructure().getDataType(5).intValue();
+    	if (getValueAttr().getStructure().nrOfDataTypes()==2)
+    		return getValueAttr().getStructure().getDataType(1).intValue();
+    	else
+    		return getValueAttr().getStructure().getDataType(5).intValue();
     }
 
     public AbstractDataType getValueAttr() throws IOException {

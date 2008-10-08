@@ -18,7 +18,7 @@ public class DeviceCustomCosem extends Data {
 	// in case of message null, only a integer8 (byte) is send in the data value
 	// in case of message, a struct is coded in the data value containing a integer8 (byte) and a octetstring with the message
 	
-	static final byte[] LN=new byte[]{0,0,96,111,0,0};
+	static final byte[] LN=new byte[]{0,0,96,120,0,0};
 	
 	public DeviceCustomCosem(AbstractDataType dataType) {
 		super(null,new ObjectReference(LN));

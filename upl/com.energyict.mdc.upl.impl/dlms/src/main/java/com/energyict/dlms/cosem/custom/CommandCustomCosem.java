@@ -7,42 +7,24 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 
-public class AcknowledgeCustomCosem extends Data {
+public class CommandCustomCosem extends Data {
 
-	static public final int SUCCESS=0;
-	static public final int FAILURE=1;
-	static public final int NO_VALID_DBASE_REFERENCE=2;
+	static public final int BOOT=0;
+	static public final int POST=1;
+	static public final int DEPLOY=2;
 	
 	// ... add new returncodes here...
-	
 
 	AbstractDataType dataType=null;
 	
-	// in case of message null, only a integer8 (byte) is send in the data value
-	// in case of message, a struct is coded in the data value containing a integer8 (byte) and a octetstring with the message
-
-//	public AcknowledgeCustomCosem() {
-//		CompoundDataBuilderConnection cosemAPDUBuilder = new CompoundDataBuilderConnection();
-//		this(cosemAPDUBuilder);
-//	}
+	static final byte[] LN=new byte[]{0,0,96,100,1,0};
 	
-	public String toString() {
-		try {
-			return "AcknowledgeCustomCosem: "+(getCode()==SUCCESS?"SUCCESS":"code="+getCode()+", message="+getMessage());
-		}
-		catch(IOException e) {
-			return "AcknowledgeCustomCosem: not able to evaluate because of "+e.toString();
-		}
-	}
-	
-	static final byte[] LN=new byte[]{0,0,96,100,0,0};
-	
-	public AcknowledgeCustomCosem(AbstractDataType dataType) {
+	public CommandCustomCosem(AbstractDataType dataType) {
 		super(null,new ObjectReference(LN));
 		this.dataType=dataType;
 	}
 	
-	public AcknowledgeCustomCosem(ProtocolLink protocolLink) {
+	public CommandCustomCosem(ProtocolLink protocolLink) {
 		super(protocolLink,new ObjectReference(LN));
     }
     
@@ -65,6 +47,30 @@ public class AcknowledgeCustomCosem extends Data {
     		setValueAttr(structure);
     	}
     }
+    
+    public void boot() throws IOException {
+   		setValueAttr(new Integer8(BOOT));
+    }
+    
+    public void post() throws IOException {
+   		setValueAttr(new Integer8(POST));
+    }
+    
+    public void deploy() throws IOException {
+   		setValueAttr(new Integer8(DEPLOY));
+    }
+    
+    public boolean isBoot() throws IOException {
+   		return getCode() == BOOT;
+    }
+    
+    public boolean isPost() throws IOException {
+   		return getCode() == POST;
+    }    
+    
+    public boolean isDeploy() throws IOException {
+   		return getCode() == DEPLOY;
+    }    
     
 	public int getCode() throws IOException {
 		if (getValueAttr().isStructure())

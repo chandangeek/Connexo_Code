@@ -47,6 +47,14 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
         this.protocolLink=protocolLink;
     }
     
+    public byte[] getCompoundData() {
+    	AdaptorConnection conn = (AdaptorConnection)protocolLink.getDLMSConnection();
+    	if (conn!=null)
+    		return conn.getCompoundData();
+    	else 
+    		return null;
+    }
+    
     protected long getLongData(int attribute) throws IOException {
         try {
             byte[] responseData=null;

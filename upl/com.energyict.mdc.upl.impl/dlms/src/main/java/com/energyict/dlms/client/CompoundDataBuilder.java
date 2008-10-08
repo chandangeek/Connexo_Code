@@ -55,7 +55,7 @@ public class CompoundDataBuilder {
 				}
 				
 				
-				ProfileGeneric profileGeneric = new ProfileGeneric(cosemAPDUBuilder,new ObjectReference(ObisCode.fromString("1.0.99.1.0.255").getLN()));
+				ProfileGeneric profileGeneric = new ProfileGeneric(cosemAPDUBuilder,new ObjectReference(ObisCode.fromString("0.0.99.1.0.255").getLN()));
 				
 				// set load profile object capture objects attribute
 				ProfileGenericCaptureObjectsBuilder pgcob = new ProfileGenericCaptureObjectsBuilder();
@@ -99,7 +99,7 @@ public class CompoundDataBuilder {
 	
 			if (profileData.getMeterEvents().size()>0) {
 				// set event log capture objects
-				ProfileGeneric profileGenericEventLog = new ProfileGeneric(cosemAPDUBuilder,new ObjectReference(ObisCode.fromString("1.0.99.98.0.255").getLN()));
+				ProfileGeneric profileGenericEventLog = new ProfileGeneric(cosemAPDUBuilder,new ObjectReference(ObisCode.fromString("0.0.99.98.0.255").getLN()));
 				
 				ProfileGenericCaptureObjectsBuilder pgcob = new ProfileGenericCaptureObjectsBuilder();
 				pgcob.add(DLMSCOSEMGlobals.ICID_CLOCK, ObisCode.fromString("0.0.1.0.0.255").getLN(),DLMSCOSEMGlobals.ATTR_CLOCK_TIME);
@@ -119,7 +119,7 @@ public class CompoundDataBuilder {
 		
 		if (meterReadingData != null) {
 			if (meterReadingData.getRegisterValues().size() > 0) {
-				ProfileGeneric profileGenericRegisterValues = new ProfileGeneric(cosemAPDUBuilder,new ObjectReference(ObisCode.fromString("1.0.99.96.0.255").getLN()));
+				ProfileGeneric profileGenericRegisterValues = new ProfileGeneric(cosemAPDUBuilder,new ObjectReference(ObisCode.fromString("0.0.99.96.0.255").getLN()));
 				
 				ProfileGenericCaptureObjectsBuilder pgcob = new ProfileGenericCaptureObjectsBuilder();
 				for (int i=0;i<meterReadingData.getRegisterValues().size();i++) {
@@ -157,82 +157,82 @@ public class CompoundDataBuilder {
 	
 	
 	
-	private void testEnd2End() {
-		
-		ProfileData profileData = new ProfileData();
-		profileData.addChannel(new ChannelInfo(0,"1.1.1.27.0.255",Unit.get("kW")));
-		profileData.addChannel(new ChannelInfo(1,"1.1.2.27.0.255",Unit.get("kW")));
-		profileData.addChannel(new ChannelInfo(2,"1.1.3.27.0.255",Unit.get("kvar")));
-		profileData.addChannel(new ChannelInfo(3,"1.1.4.27.0.255",Unit.get("kvar")));
-		
-		List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
-		intervalValues.add(new IntervalValue(new BigDecimal("0.123456"),0,0));
-		intervalValues.add(new IntervalValue(new BigDecimal("456000"),0,0));
-		intervalValues.add(new IntervalValue(new BigDecimal("103.123456"),0,0));
-		intervalValues.add(new IntervalValue(new BigDecimal("4056.9987"),0,0));
-		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.MINUTE, 15);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-		profileData.addInterval(new IntervalData(cal.getTime(),2,0,0,intervalValues));
-		
-		intervalValues = new ArrayList<IntervalValue>();
-		intervalValues.add(new IntervalValue(new BigDecimal("56.78"),0,0));
-		intervalValues.add(new IntervalValue(new BigDecimal("6.987"),0,0));
-		intervalValues.add(new IntervalValue(new BigDecimal("0"),0,0));
-		intervalValues.add(new IntervalValue(new BigDecimal("60.987"),0,0));
-		cal.set(Calendar.MINUTE, 30);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-		profileData.addInterval(new IntervalData(cal.getTime(),0,0,0,intervalValues));		
-		
-		intervalValues = new ArrayList<IntervalValue>();
-		intervalValues.add(new IntervalValue(new BigDecimal("456"),0,0));
-		intervalValues.add(new IntervalValue(new BigDecimal("9994.97"),0,0));
-		intervalValues.add(new IntervalValue(new BigDecimal("4056"),0,0));
-		intervalValues.add(new IntervalValue(new BigDecimal("90994.97"),0,0));
-		cal.set(Calendar.MINUTE, 45);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-		profileData.addInterval(new IntervalData(cal.getTime(),1,0,0,intervalValues));
-		
-		profileData.addEvent(new MeterEvent(new Date(),MeterEvent.METER_ALARM,"test meter alarm"));
-		profileData.addEvent(new MeterEvent(new Date(new Date().getTime()+10000),MeterEvent.METER_ALARM,"test meter alarm2"));
-		
-		MeterReadingData meterReadingData = new MeterReadingData();
-		meterReadingData.add(new RegisterValue(ObisCode.fromString("1.1.1.8.0.255"),new Quantity(BigDecimal.valueOf(1234000),Unit.get("kWh")),new Date(new Date().getTime()-10000),new Date(new Date().getTime()-20000),new Date(new Date().getTime()-30000),new Date(new Date().getTime()-40000),100,"test register with id 100"));
-		meterReadingData.add(new RegisterValue(ObisCode.fromString("1.1.2.8.0.255"),new Quantity(BigDecimal.valueOf(12345.456),Unit.get("kWh")),new Date(new Date().getTime()-10000),new Date(new Date().getTime()-20000),new Date(new Date().getTime()-30000),new Date(new Date().getTime()-40000),101,"test register with id 101"));
-		meterReadingData.add(new RegisterValue(ObisCode.fromString("1.1.3.8.0.255"),new Quantity(BigDecimal.valueOf(0),Unit.get("kvarh")),new Date(new Date().getTime()-10000),new Date(new Date().getTime()-20000),new Date(new Date().getTime()-30000),new Date(new Date().getTime()-40000),102,"test register with id 102"));
-		meterReadingData.add(new RegisterValue(ObisCode.fromString("1.1.4.8.0.255"),new Quantity(BigDecimal.valueOf(0.1235467000),Unit.get("kvarh")),new Date(new Date().getTime()-10000),new Date(new Date().getTime()-20000),new Date(new Date().getTime()-30000),new Date(new Date().getTime()-40000),103,"test register with id 103"));
-		
-		try {
-			byte[] compoundData = buildCompoundData(meterReadingData,profileData,900, 1234, null);
-			
-			/// send over https ///
-			
-			CompoundDataParser o1 = new CompoundDataParser();
-			o1.parse(compoundData);
-			CosemAPDUParser o2 = new CosemAPDUParser();
-			o2.parse(o1.getApdus());
-			System.out.println(o2.getDate()); 
-			System.out.println(o2.getProfileInterval()); 
-			System.out.println(o2.getProfileData());
-			System.out.println(o2.getMeterReadingData());
-			
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	} // private void testEnd2End()
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		CompoundDataBuilder o = new CompoundDataBuilder();
-		o.testEnd2End();
-	}
+//	private void testEnd2End() {
+//		
+//		ProfileData profileData = new ProfileData();
+//		profileData.addChannel(new ChannelInfo(0,"1.1.1.27.0.255",Unit.get("kW")));
+//		profileData.addChannel(new ChannelInfo(1,"1.1.2.27.0.255",Unit.get("kW")));
+//		profileData.addChannel(new ChannelInfo(2,"1.1.3.27.0.255",Unit.get("kvar")));
+//		profileData.addChannel(new ChannelInfo(3,"1.1.4.27.0.255",Unit.get("kvar")));
+//		
+//		List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
+//		intervalValues.add(new IntervalValue(new BigDecimal("0.123456"),0,0));
+//		intervalValues.add(new IntervalValue(new BigDecimal("456000"),0,0));
+//		intervalValues.add(new IntervalValue(new BigDecimal("103.123456"),0,0));
+//		intervalValues.add(new IntervalValue(new BigDecimal("4056.9987"),0,0));
+//		Calendar cal = Calendar.getInstance();
+//		cal.set(Calendar.MINUTE, 15);
+//		cal.set(Calendar.SECOND, 0);
+//		cal.set(Calendar.MILLISECOND, 0);
+//		profileData.addInterval(new IntervalData(cal.getTime(),2,0,0,intervalValues));
+//		
+//		intervalValues = new ArrayList<IntervalValue>();
+//		intervalValues.add(new IntervalValue(new BigDecimal("56.78"),0,0));
+//		intervalValues.add(new IntervalValue(new BigDecimal("6.987"),0,0));
+//		intervalValues.add(new IntervalValue(new BigDecimal("0"),0,0));
+//		intervalValues.add(new IntervalValue(new BigDecimal("60.987"),0,0));
+//		cal.set(Calendar.MINUTE, 30);
+//		cal.set(Calendar.SECOND, 0);
+//		cal.set(Calendar.MILLISECOND, 0);
+//		profileData.addInterval(new IntervalData(cal.getTime(),0,0,0,intervalValues));		
+//		
+//		intervalValues = new ArrayList<IntervalValue>();
+//		intervalValues.add(new IntervalValue(new BigDecimal("456"),0,0));
+//		intervalValues.add(new IntervalValue(new BigDecimal("9994.97"),0,0));
+//		intervalValues.add(new IntervalValue(new BigDecimal("4056"),0,0));
+//		intervalValues.add(new IntervalValue(new BigDecimal("90994.97"),0,0));
+//		cal.set(Calendar.MINUTE, 45);
+//		cal.set(Calendar.SECOND, 0);
+//		cal.set(Calendar.MILLISECOND, 0);
+//		profileData.addInterval(new IntervalData(cal.getTime(),1,0,0,intervalValues));
+//		
+//		profileData.addEvent(new MeterEvent(new Date(),MeterEvent.METER_ALARM,"test meter alarm"));
+//		profileData.addEvent(new MeterEvent(new Date(new Date().getTime()+10000),MeterEvent.METER_ALARM,"test meter alarm2"));
+//		
+//		MeterReadingData meterReadingData = new MeterReadingData();
+//		meterReadingData.add(new RegisterValue(ObisCode.fromString("1.1.1.8.0.255"),new Quantity(BigDecimal.valueOf(1234000),Unit.get("kWh")),new Date(new Date().getTime()-10000),new Date(new Date().getTime()-20000),new Date(new Date().getTime()-30000),new Date(new Date().getTime()-40000),100,"test register with id 100"));
+//		meterReadingData.add(new RegisterValue(ObisCode.fromString("1.1.2.8.0.255"),new Quantity(BigDecimal.valueOf(12345.456),Unit.get("kWh")),new Date(new Date().getTime()-10000),new Date(new Date().getTime()-20000),new Date(new Date().getTime()-30000),new Date(new Date().getTime()-40000),101,"test register with id 101"));
+//		meterReadingData.add(new RegisterValue(ObisCode.fromString("1.1.3.8.0.255"),new Quantity(BigDecimal.valueOf(0),Unit.get("kvarh")),new Date(new Date().getTime()-10000),new Date(new Date().getTime()-20000),new Date(new Date().getTime()-30000),new Date(new Date().getTime()-40000),102,"test register with id 102"));
+//		meterReadingData.add(new RegisterValue(ObisCode.fromString("1.1.4.8.0.255"),new Quantity(BigDecimal.valueOf(0.1235467000),Unit.get("kvarh")),new Date(new Date().getTime()-10000),new Date(new Date().getTime()-20000),new Date(new Date().getTime()-30000),new Date(new Date().getTime()-40000),103,"test register with id 103"));
+//		
+//		try {
+//			byte[] compoundData = buildCompoundData(meterReadingData,profileData,900, 1234, null);
+//			
+//			/// send over https ///
+//			
+//			CompoundDataParser o1 = new CompoundDataParser();
+//			o1.parse(compoundData);
+//			CosemAPDUParser o2 = new CosemAPDUParser();
+//			o2.parse(o1.getApdus());
+//			System.out.println(o2.getDate()); 
+//			System.out.println(o2.getProfileInterval()); 
+//			System.out.println(o2.getProfileData());
+//			System.out.println(o2.getMeterReadingData());
+//			
+//			
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//	} // private void testEnd2End()
+//	
+//	/**
+//	 * @param args
+//	 */
+//	public static void main(String[] args) {
+//		CompoundDataBuilder o = new CompoundDataBuilder();
+//		o.testEnd2End();
+//	}
 
 }

@@ -15,7 +15,7 @@ import com.energyict.protocol.*;
 
 public class CosemAPDUParser {
 
-	final int DEBUG=1;
+	final int DEBUG=0;
 	
 	private ProfileData profileData=null;
 	private MeterReadingData meterReadingData=null;
@@ -23,6 +23,7 @@ public class CosemAPDUParser {
 	private Date previousEndTime=null;
 	private Date date=null;
 	private AcknowledgeCustomCosem acknowledgeCustomCosem=null;
+	private CommandCustomCosem commandCustomCosem=null;
 	private DatabaseIDCustomCosem databaseIDCustomCosem=null;
 	private DeviceIDCustomCosem deviceIDCustomCosem=null;
 	private DeviceIdentification deviceIdentification=null;
@@ -30,6 +31,7 @@ public class CosemAPDUParser {
 	private List<ObisCode> eventLogCapturedObjects = null;
 	private List<ObisCode> meterReadingsCapturedObjects = null;
 	private List<DeviceMessageCustomCosem> deviceMessageCustomCosems = null;
+	private DeviceCustomCosem deviceCustomCosem = null;
 	
 	public CosemAPDUParser() {
 	}
@@ -42,7 +44,9 @@ public class CosemAPDUParser {
 		date=null;
 		deviceIdentification=null;
 		acknowledgeCustomCosem=null;
+		commandCustomCosem=null;
 		deviceMessageCustomCosems = null;
+		deviceCustomCosem = null;
 		
 		// local
 		previousEndTime=null;
@@ -127,160 +131,40 @@ public class CosemAPDUParser {
 					deviceMessageCustomCosems = new ArrayList();
 				deviceMessageCustomCosems.add(new DeviceMessageCustomCosem(apdu.getDataType()));
 			}
+			else if (apdu.getCosemAttributeDescriptor().getObis().equals(DeviceCustomCosem.getObisCode())) {
+				deviceCustomCosem = new DeviceCustomCosem(apdu.getDataType());
+			}
 			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ClockCustomCosem.getObisCode())) {
 				date = new ClockCustomCosem(apdu.getDataType()).getDate();
 			}
 			else if (apdu.getCosemAttributeDescriptor().getObis().equals(AcknowledgeCustomCosem.getObisCode())) {
 				acknowledgeCustomCosem = new AcknowledgeCustomCosem(apdu.getDataType());
 			}
+			else if (apdu.getCosemAttributeDescriptor().getObis().equals(CommandCustomCosem.getObisCode())) {
+				commandCustomCosem = new CommandCustomCosem(apdu.getDataType());
+			}
 			else if (apdu.getCosemAttributeDescriptor().getObis().equals(Clock.getObisCode())) {
 				date = new DateTime(apdu.getDataType().getOctetString()).getValue().getTime();
 			}
-			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("1.0.99.1.0.255"))) {
-				if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_CAPTUREOBJECTS) {
-					channelInfos = buildChannelInfos(apdu);
-					if (profileData==null)
-						profileData = new ProfileData();
-					profileData.setChannelInfos(channelInfos);
-				}
-				else if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_CAPTUREPERIOD) {
-					profileInterval = apdu.getDataType().intValue();
-				}
-				else if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_BUFFER) {
-					Array buffer = apdu.getDataType().getArray();
-					if (channelInfos == null) {
-						channelInfos = buildChannelInfos(buffer.nrOfDataTypes()-2);
-						if (profileData==null)
-							profileData = new ProfileData();
-						profileData.setChannelInfos(channelInfos);
-					}
-					
-					List<IntervalData> intervalDatas = new ArrayList();
-					
-					for (int i=0;i<buffer.nrOfDataTypes();i++) {
-						Structure entry = buffer.getDataType(i).getStructure();
-						Date endTime=null;
-						int eiStatus=0;
-						List<IntervalValue> intervalValues = new ArrayList();
-						if (loadProfileCapturedObjects==null) { // in case of short format...
-							endTime = buildDate(entry.getDataType(0));
-							eiStatus = entry.getDataType(1).intValue();
-							for (int channelId=0;channelId<(entry.nrOfDataTypes()-2);channelId++) {
-								NumberFormat o = new NumberFormat(entry.getDataType(channelId+2));
-								intervalValues.add(new IntervalValue(o.toBigDecimal(),0,0));
-							}
-							intervalDatas.add(new IntervalData(endTime,eiStatus,0,0,intervalValues));
-						}
-						else {
-							Map<Integer,Integer> channelsStatus=null;
-							for (int entryIndex=0;entryIndex<entry.nrOfDataTypes();entryIndex++) {
-								// get captured object obis code 
-								ObisCode obisCode = loadProfileCapturedObjects.get(Integer.valueOf(entryIndex));
-								if (channelsStatus == null) 
-									channelsStatus = new HashMap();
-								
-								// is channel value?
-								if (!ParseUtils.isObisCodeAbstract(obisCode)) {
-									// channel value
-									NumberFormat o = new NumberFormat(entry.getDataType(entryIndex));
-									intervalValues.add(new IntervalValue(o.toBigDecimal(),0,0));
-								}
-								// is custom cosem clock object? 0.0.96.101.0.0 OR cosem clock object? 0.0.1.0.0.255
-								else if ((obisCode.equals(ClockCustomCosem.getObisCode())) || (obisCode.equals(Clock.getObisCode()))) { 
-									endTime = buildDate(entry.getDataType(entryIndex));
-								}
-								else if (obisCode.equals(IntervalStatusCustomCosem.getObisCode())) { // global interval status flags
-									eiStatus = entry.getDataType(entryIndex).intValue();
-								}
-								else if (ParseUtils.isObisCodeChannelIntervalStatus(obisCode)) { // channel specific interval status flags
-									channelsStatus.put(Integer.valueOf(obisCode.getE()-1),Integer.valueOf(entry.getDataType(entryIndex).intValue()));
-								}
-								
-							} // for (int entryIndex=0;i<entry.nrOfDataTypes();entryIndex++)
-							
-							List<IntervalValue> intervalValues2 = new ArrayList();
-							for(int channelId=0;channelId<intervalValues.size();channelId++) {
-								Integer channelStatus = channelsStatus.get(Integer.valueOf(channelId));
-								if (channelStatus != null)
-									intervalValues2.add(new IntervalValue(intervalValues.get(channelId).getNumber(),0,channelStatus.intValue()));
-								else
-									intervalValues2.add(new IntervalValue(intervalValues.get(channelId).getNumber(),0,0));
-							}
-							
-							if (endTime==null) {
-								endTime = new Date(previousEndTime.getTime()+profileInterval*1000);
-							}
-							intervalDatas.add(new IntervalData(endTime,eiStatus,0,0,intervalValues2));
-							previousEndTime = endTime;
-						}
-					}
-					profileData.setIntervalDatas(intervalDatas);
-				}
+			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.99.1.0.255"))) {
+				if (profileData==null)
+					profileData = new ProfileData();
+				buildIntervalData(apdu,channelInfos);
 			} // load profile
-			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("1.0.99.98.0.255"))) {
-				if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_CAPTUREOBJECTS) {
-					// absorb
-				}
-				else if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_BUFFER) {
-					Array buffer = apdu.getDataType().getArray();
-					List<MeterEvent> meterEvents = new ArrayList();
-					for (int i=0;i<buffer.nrOfDataTypes();i++) {
-						Structure entry = buffer.getDataType(i).getStructure();
-						Date date = buildDate(entry.getDataType(0));
-						Structure eventEntry = entry.getDataType(1).getStructure();
-						int eiCode = eventEntry.getDataType(0).intValue();
-						int protocolCode = eventEntry.getDataType(1).intValue();
-						String message = eventEntry.getDataType(2).getOctetString().stringValue();
-						meterEvents.add(new MeterEvent(date,eiCode,protocolCode,message));
-					}
-					profileData.setMeterEvents(meterEvents);
-				}
+			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.99.98.0.255"))) {
+				if (profileData==null)
+					profileData = new ProfileData();
+				buildEventLog(apdu);
 			}
-			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("1.0.99.96.0.255"))) { // meterreadings
-				if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_CAPTUREOBJECTS) {
-					// absorb
-					
-				}
-				else if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_BUFFER) {
-					Array buffer = apdu.getDataType().getArray();
-					for (int i=0;i<buffer.nrOfDataTypes();i++) {
-						
-						Structure structure = buffer.getDataType(i).getStructure();
-						// logical name
-						ObisCode obisCode = ObisCode.fromByteArray(structure.getDataType(0).getOctetString().getOctetStr());
-						
-						// value
-						Structure entry = structure.getDataType(1).getStructure();
-						int rtuRegisterId = entry.getDataType(0).getUnsigned32().intValue();
-						Number number = new NumberFormat(entry.getDataType(1)).toBigDecimal();
-						Unit unit = new ScalerUnit(entry.getDataType(2).getStructure()).getUnit();
-						
-						Date readTime = buildDate(entry.getDataType(3));
-						Date fromTime = buildDate(entry.getDataType(4));
-						Date toTime = buildDate(entry.getDataType(5));
-						Date eventTime = buildDate(entry.getDataType(6));
-						
-						String text = entry.getDataType(7).getOctetString().stringValue();
-						
-						RegisterValue registerValue = new RegisterValue(obisCode,new Quantity(number,unit),eventTime,fromTime,toTime,readTime,rtuRegisterId,text);
-						if (meterReadingData==null)
-							meterReadingData = new MeterReadingData();
-						meterReadingData.add(registerValue);
-					}
-				}
+			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.99.96.0.255"))) { // meterreadings
+				if (meterReadingData==null)
+					meterReadingData = new MeterReadingData();
+				buildMeterReadingData(apdu);
 			}
-			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("1.0.99.95.0.255"))) { // messages
-				if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_CAPTUREOBJECTS) {
-					// absorb
-				}
-				else if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_BUFFER) {
-					Array buffer = apdu.getDataType().getArray();
-					for (int i=0;i<buffer.nrOfDataTypes();i++) {
-						if (deviceMessageCustomCosems==null)
-							deviceMessageCustomCosems = new ArrayList();
-						deviceMessageCustomCosems.add(new DeviceMessageCustomCosem(buffer.getDataType(i)));
-					}
-				}
+			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.99.95.0.255"))) { // messages
+				if (deviceMessageCustomCosems==null)
+					deviceMessageCustomCosems = new ArrayList();
+				buildMessages(apdu);
 			}
 			else {
 				if ((apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_REGISTER_SCALER) &&
@@ -296,6 +180,152 @@ public class CosemAPDUParser {
 		
 	} // private void parseContent(Iterator<CosemAPDU> it) throws IOException {
 	
+	private void buildMessages(CosemAPDU apdu) throws IOException {
+		if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_CAPTUREOBJECTS) {
+			// absorb
+		}
+		else if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_BUFFER) {
+			Array buffer = apdu.getDataType().getArray();
+			for (int i=0;i<buffer.nrOfDataTypes();i++) {
+				deviceMessageCustomCosems.add(new DeviceMessageCustomCosem(buffer.getDataType(i)));
+			}
+		}		
+	} // private void buildMessages(CosemAPDU apdu) throws IOException
+	
+	private void buildMeterReadingData(CosemAPDU apdu) throws IOException {
+		
+		if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_CAPTUREOBJECTS) {
+			// absorb
+			// contains an array with all register descriptions in the buffer 
+			
+		}
+		else if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_BUFFER) {
+			// array only containing 1 element with  a structure of all registersz in capture objects
+			Array bufferArray = apdu.getDataType().getArray();
+			Structure bufferStructure = bufferArray.getDataType(0).getStructure();
+			for (int i=0;i<bufferStructure.nrOfDataTypes();i++) {
+				
+				Structure structure = bufferStructure.getDataType(i).getStructure();
+				// logical name
+				ObisCode obisCode = ObisCode.fromByteArray(structure.getDataType(0).getOctetString().getOctetStr());
+				
+				// value
+				Structure entry = structure.getDataType(1).getStructure();
+				int rtuRegisterId = entry.getDataType(0).getUnsigned32().intValue();
+				Number number = new NumberFormat(entry.getDataType(1)).toBigDecimal();
+				Unit unit = new ScalerUnit(entry.getDataType(2).getStructure()).getUnit();
+				
+				Date readTime = buildDate(entry.getDataType(3));
+				Date fromTime = buildDate(entry.getDataType(4));
+				Date toTime = buildDate(entry.getDataType(5));
+				Date eventTime = buildDate(entry.getDataType(6));
+				
+				String text = entry.getDataType(7).getOctetString().stringValue();
+				
+				RegisterValue registerValue = new RegisterValue(obisCode,new Quantity(number,unit),eventTime,fromTime,toTime,readTime,rtuRegisterId,text);
+				meterReadingData.add(registerValue);
+			}
+		}
+	} // private void buildMeterReadingData(CosemAPDU apdu) throws IOException
+	
+	private void buildEventLog(CosemAPDU apdu) throws IOException {
+		if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_CAPTUREOBJECTS) {
+			// absorb
+		}
+		else if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_BUFFER) {
+			Array buffer = apdu.getDataType().getArray();
+			List<MeterEvent> meterEvents = new ArrayList();
+			for (int i=0;i<buffer.nrOfDataTypes();i++) {
+				Structure entry = buffer.getDataType(i).getStructure();
+				Date date = buildDate(entry.getDataType(0));
+				Structure eventEntry = entry.getDataType(1).getStructure();
+				int eiCode = eventEntry.getDataType(0).intValue();
+				int protocolCode = eventEntry.getDataType(1).intValue();
+				String message = eventEntry.getDataType(2).getOctetString().stringValue();
+				meterEvents.add(new MeterEvent(date,eiCode,protocolCode,message));
+			}
+			profileData.setMeterEvents(meterEvents);
+		}
+	} // private void buildEventLog(CosemAPDU apdu) throws IOException
+	
+	private void buildIntervalData(CosemAPDU apdu,List<ChannelInfo> channelInfos) throws IOException {
+		if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_CAPTUREOBJECTS) {
+			channelInfos = buildChannelInfos(apdu);
+			profileData.setChannelInfos(channelInfos);
+		}
+		else if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_CAPTUREPERIOD) {
+			profileInterval = apdu.getDataType().intValue();
+		}
+		else if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_BUFFER) {
+			Array buffer = apdu.getDataType().getArray();
+			if (channelInfos == null) {
+				channelInfos = buildChannelInfos(buffer.nrOfDataTypes()-2);
+				profileData.setChannelInfos(channelInfos);
+			}
+			
+			List<IntervalData> intervalDatas = new ArrayList();
+			
+			for (int i=0;i<buffer.nrOfDataTypes();i++) {
+				Structure entry = buffer.getDataType(i).getStructure();
+				Date endTime=null;
+				int eiStatus=0;
+				List<IntervalValue> intervalValues = new ArrayList();
+				if (loadProfileCapturedObjects==null) { // in case of short format...
+					endTime = buildDate(entry.getDataType(0));
+					eiStatus = entry.getDataType(1).intValue();
+					for (int channelId=0;channelId<(entry.nrOfDataTypes()-2);channelId++) {
+						NumberFormat o = new NumberFormat(entry.getDataType(channelId+2));
+						intervalValues.add(new IntervalValue(o.toBigDecimal(),0,0));
+					}
+					intervalDatas.add(new IntervalData(endTime,eiStatus,0,0,intervalValues));
+				}
+				else {
+					Map<Integer,Integer> channelsStatus=null;
+					for (int entryIndex=0;entryIndex<entry.nrOfDataTypes();entryIndex++) {
+						// get captured object obis code 
+						ObisCode obisCode = loadProfileCapturedObjects.get(Integer.valueOf(entryIndex));
+						if (channelsStatus == null) 
+							channelsStatus = new HashMap();
+						
+						// is channel value?
+						if (!ParseUtils.isObisCodeAbstract(obisCode)) {
+							// channel value
+							NumberFormat o = new NumberFormat(entry.getDataType(entryIndex));
+							intervalValues.add(new IntervalValue(o.toBigDecimal(),0,0));
+						}
+						// is custom cosem clock object? 0.0.96.101.0.0 OR cosem clock object? 0.0.1.0.0.255
+						else if ((obisCode.equals(ClockCustomCosem.getObisCode())) || (obisCode.equals(Clock.getObisCode()))) { 
+							endTime = buildDate(entry.getDataType(entryIndex));
+						}
+						else if (obisCode.equals(IntervalStatusCustomCosem.getObisCode())) { // global interval status flags
+							eiStatus = entry.getDataType(entryIndex).intValue();
+						}
+						else if (ParseUtils.isObisCodeChannelIntervalStatus(obisCode)) { // channel specific interval status flags
+							channelsStatus.put(Integer.valueOf(obisCode.getE()-1),Integer.valueOf(entry.getDataType(entryIndex).intValue()));
+						}
+						
+					} // for (int entryIndex=0;i<entry.nrOfDataTypes();entryIndex++)
+					
+					List<IntervalValue> intervalValues2 = new ArrayList();
+					for(int channelId=0;channelId<intervalValues.size();channelId++) {
+						Integer channelStatus = channelsStatus.get(Integer.valueOf(channelId));
+						if (channelStatus != null)
+							intervalValues2.add(new IntervalValue(intervalValues.get(channelId).getNumber(),0,channelStatus.intValue()));
+						else
+							intervalValues2.add(new IntervalValue(intervalValues.get(channelId).getNumber(),0,0));
+					}
+					
+					if (endTime==null) {
+						endTime = new Date(previousEndTime.getTime()+profileInterval*1000);
+					}
+					intervalDatas.add(new IntervalData(endTime,eiStatus,0,0,intervalValues2));
+					previousEndTime = endTime;
+				}
+			}
+			profileData.setIntervalDatas(intervalDatas);
+		}
+	} // private void buildIntervalData(CosemAPDU apdu,List<ChannelInfo> channelInfos) throws IOException
+	
 	private Date buildDate(AbstractDataType dataType) throws IOException {
 		Date date;
 		if (dataType.isOctetString())
@@ -303,7 +333,7 @@ public class CosemAPDUParser {
 		else
 			date = new Date(dataType.longValue()*1000);
 		return date;
-	}
+	} // private Date buildDate(AbstractDataType dataType) throws IOException
 	
 	private void findAndAdjustChannelInfoUnit(CosemAPDU apdu,List<ChannelInfo> channelInfos) {
 		if (channelInfos != null) {
@@ -314,7 +344,7 @@ public class CosemAPDUParser {
 				}
 			}
 		}
-	}
+	} // private void findAndAdjustChannelInfoUnit(CosemAPDU apdu,List<ChannelInfo> channelInfos)
 
 	private List<ChannelInfo> buildChannelInfos(int nrOfChannels) {
 		List<ChannelInfo> channelInfos = new ArrayList();
@@ -323,7 +353,7 @@ public class CosemAPDUParser {
 			channelInfos.add(chi);
 		}
 		return channelInfos;
-	}
+	} // private List<ChannelInfo> buildChannelInfos(int nrOfChannels)
 	
 	private List<ChannelInfo> buildChannelInfos(CosemAPDU apdu) {
 		List<ChannelInfo> channelInfos = new ArrayList();
@@ -353,7 +383,7 @@ public class CosemAPDUParser {
 			}
 		}
 		return channelInfos;
-	}
+	} // private List<ChannelInfo> buildChannelInfos(CosemAPDU apdu)
 	
 	
 	
@@ -390,6 +420,14 @@ public class CosemAPDUParser {
 	}
 	public DeviceIdentification getDeviceIdentification() {
 		return deviceIdentification;
+	}
+
+	public DeviceCustomCosem getDeviceCustomCosem() {
+		return deviceCustomCosem;
+	}
+
+	public CommandCustomCosem getCommandCustomCosem() {
+		return commandCustomCosem;
 	}
 
 }
