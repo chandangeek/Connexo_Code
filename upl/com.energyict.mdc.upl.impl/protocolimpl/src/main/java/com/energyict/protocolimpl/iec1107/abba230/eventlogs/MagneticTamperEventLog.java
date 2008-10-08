@@ -25,6 +25,8 @@ public class MagneticTamperEventLog extends AbstractEventLog {
         	if (timeStampPair[i].getStartDate()!=null) {
         		addMeterEvent(new MeterEvent(timeStampPair[i].getStartDate(), MeterEvent.OTHER, "magnetic tamper start"+" ("+count+")"));
         		addMeterEvent(new MeterEvent(timeStampPair[i].getEndDate(), MeterEvent.OTHER, "magnetic tamper end"+" ("+count+")"));
+        		//addMeterEvent(new MeterEvent(timeStampPair[i].getStartDate(), MeterEvent.TAMPER, "magnetic tamper start"+" ("+count+")"));
+        		//addMeterEvent(new MeterEvent(timeStampPair[i].getEndDate(), MeterEvent.TAMPER, "magnetic tamper end"+" ("+count+")"));
         	}
         }
 

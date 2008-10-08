@@ -25,6 +25,8 @@ public class TerminalCoverEventLog extends AbstractEventLog {
         	if (timeStampPair[i].getStartDate()!=null) {
         		addMeterEvent(new MeterEvent(timeStampPair[i].getStartDate(), MeterEvent.OTHER, "start of terminal cover tamper"+" ("+count+")"));
         		addMeterEvent(new MeterEvent(timeStampPair[i].getEndDate(), MeterEvent.OTHER, "end of terminal cover tamper"+" ("+count+")"));
+        		//addMeterEvent(new MeterEvent(timeStampPair[i].getStartDate(), MeterEvent.TERMINAL_OPENED, "start of terminal cover tamper"+" ("+count+")"));
+        		//addMeterEvent(new MeterEvent(timeStampPair[i].getEndDate(), MeterEvent.TERMINAL_OPENED, "end of terminal cover tamper"+" ("+count+")"));
         	}
         }
 
