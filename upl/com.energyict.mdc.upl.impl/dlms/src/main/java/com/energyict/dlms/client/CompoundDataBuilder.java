@@ -33,6 +33,8 @@ public class CompoundDataBuilder {
 			ack.setFields(serialID);
 		}
 		
+		//SelectDevice
+		
 		// set (report) current clock
 		Clock clock = new Clock(cosemAPDUBuilder);
 		clock.setTimeAttr(new DateTime(TimeZone.getTimeZone("GMT")));
