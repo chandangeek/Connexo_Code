@@ -305,14 +305,14 @@ public class MedoCommunicationsFactory{
 			sendData(bs);
 							// timeout
 			pr=buildCommand(addCheckSum(bs),p);
-			long interFrameTimeout = System.currentTimeMillis() + this.timeOut;
+			long interFrameTimeout = System.currentTimeMillis() + this.timeOut*100;
 			br=receiveData((byte) (bs[0]& 0x1F));
 							// send ack
 			if((br[br.length-1][0]&0x20)==0x20){
 				ack=true;			
 			}
 	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {	        	
-	            //throw new ProtocolConnectionException("Interframe timeout error");
+	            throw new ProtocolConnectionException("Interframe timeout error");
 	        }
 			bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
 			sendData(bs);			
