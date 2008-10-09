@@ -27,6 +27,7 @@ public class Structure extends AbstractDataType {
     
     List dataTypes;
     private int offsetBegin,offsetEnd;
+    int autoIndex=0;
     
     /** Creates a new instance of Structure */
     public Structure() {
@@ -52,7 +53,16 @@ public class Structure extends AbstractDataType {
         
     }
     
+    public AbstractDataType getNextDataType() {
+        return (AbstractDataType)dataTypes.get(autoIndex++);    
+    }
+    
+    public AbstractDataType getDataType() {
+        return (AbstractDataType)dataTypes.get(autoIndex==0?0:autoIndex-1);    
+    }
+    
     public AbstractDataType getDataType(int index) {
+    	autoIndex=index+1;
         return (AbstractDataType)dataTypes.get(index);    
     }
     public int nrOfDataTypes() {

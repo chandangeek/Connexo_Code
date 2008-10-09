@@ -15,7 +15,7 @@ import com.energyict.protocol.*;
 
 public class CosemAPDUParser {
 
-	final int DEBUG=0;
+	final int DEBUG=1;
 	
 	private ProfileData profileData=null;
 	private MeterReadingData meterReadingData=null;
@@ -32,6 +32,7 @@ public class CosemAPDUParser {
 	private List<ObisCode> meterReadingsCapturedObjects = null;
 	private List<DeviceMessageCustomCosem> deviceMessageCustomCosems = null;
 	private DeviceCustomCosem deviceCustomCosem = null;
+	private DeployDataCustomCosem deployDataCustomCosem=null;
 	
 	public CosemAPDUParser() {
 	}
@@ -47,6 +48,7 @@ public class CosemAPDUParser {
 		commandCustomCosem=null;
 		deviceMessageCustomCosems = null;
 		deviceCustomCosem = null;
+		deployDataCustomCosem = null;
 		
 		// local
 		previousEndTime=null;
@@ -71,10 +73,10 @@ public class CosemAPDUParser {
     	
 		identifyDevice(it);
 		
-		if (apdus.size()==1) {
-			// return ACK, this is just a status check if the meter is found...
-		}
-		else
+//		if (apdus.size()==1) {
+//			// return ACK, this is just a status check if the meter is found...
+//		}
+//		else
 			// if there are more APDUs, parse them
 			parseContent(it);
     }
@@ -130,6 +132,9 @@ public class CosemAPDUParser {
 				if (deviceMessageCustomCosems==null)
 					deviceMessageCustomCosems = new ArrayList();
 				deviceMessageCustomCosems.add(new DeviceMessageCustomCosem(apdu.getDataType()));
+			}
+			else if (apdu.getCosemAttributeDescriptor().getObis().equals(DeployDataCustomCosem.getObisCode())) {
+				deployDataCustomCosem = new DeployDataCustomCosem(apdu.getDataType());
 			}
 			else if (apdu.getCosemAttributeDescriptor().getObis().equals(DeviceCustomCosem.getObisCode())) {
 				deviceCustomCosem = new DeviceCustomCosem(apdu.getDataType());
@@ -428,6 +433,10 @@ public class CosemAPDUParser {
 
 	public CommandCustomCosem getCommandCustomCosem() {
 		return commandCustomCosem;
+	}
+
+	public DeployDataCustomCosem getDeployDataCustomCosem() {
+		return deployDataCustomCosem;
 	}
 
 }

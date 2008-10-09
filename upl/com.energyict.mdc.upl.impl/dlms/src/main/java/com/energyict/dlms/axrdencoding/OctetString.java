@@ -52,7 +52,7 @@ public class OctetString extends AbstractDataType {
     
     static public OctetString fromString(String string) {
     	if (string==null)
-    		return new OctetString(null);
+    		return new OctetString(new byte[]{});
     	else
     		return new OctetString(string.getBytes());
     }

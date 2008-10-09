@@ -63,6 +63,12 @@ abstract public class AbstractDataType {
     public boolean isOctetString() {
         return this instanceof OctetString;
     }  
+    public boolean isNullData() {
+        return this instanceof NullData;
+    }  
+    public boolean isArray() {
+        return this instanceof Array;
+    }  
     
     public VisibleString getVisibleString() {
         return (VisibleString)this;
