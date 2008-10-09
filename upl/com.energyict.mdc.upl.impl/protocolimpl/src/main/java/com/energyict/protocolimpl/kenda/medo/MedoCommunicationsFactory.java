@@ -312,7 +312,7 @@ public class MedoCommunicationsFactory{
 				ack=true;			
 			}
 	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {	        	
-	            throw new ProtocolConnectionException("Interframe timeout error");
+	            //throw new ProtocolConnectionException("Interframe timeout error");
 	        }
 			bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
 			sendData(bs);			
