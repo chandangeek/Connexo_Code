@@ -39,6 +39,7 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
+import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.P2LPCSoapPort_PortType;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.WebServiceLocator;
 import com.energyict.mdw.amr.GenericProtocol;
@@ -76,6 +77,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     private Properties 				properties;
     private Connection				connection;
     protected CommunicationProfile 	communicationProfile;	
+    private CommunicationScheduler 	communicationScheduler;
     private Rtu						concentrator;
     
     /** RtuType is used for creating new Rtu's */
@@ -89,7 +91,8 @@ public class Concentrator implements Messaging, GenericProtocol {
     	if(TESTLOGGING >= 1)logger.log(Level.INFO, "TESTLOGGING - 1/ Started the execute method.");
     	
         this.logger = logger;
-        this.communicationProfile = scheduler.getCommunicationProfile();
+        this.communicationScheduler = scheduler;
+        this.communicationProfile = communicationScheduler.getCommunicationProfile();
         this.connection = new Connection(this, retry, delayAfterFail);
         
         int meterCount = -1;
@@ -317,6 +320,10 @@ public class Concentrator implements Messaging, GenericProtocol {
             thrown.printStackTrace();
             
         } catch (SQLException thrown) {
+        	
+        	/** Close the connection after an SQL exception, connection will startup again if requested */
+        	Environment.getDefault().closeConnection();
+        	
             /*
              * A single MeterReadTransaction failed: log and try next meter.
              */
@@ -499,12 +506,12 @@ public class Concentrator implements Messaging, GenericProtocol {
             throws BusinessException, SQLException {
     	String contents = msg.getContents();
         boolean success = false;
-        boolean tou = contents.indexOf(Constant.TOU_SCHEDULE) != -1;
-        boolean applyThreshold = (contents.indexOf(Constant.APPLY_THRESHOLD) != -1) ||
-        					(contents.indexOf(Constant.THRESHOLD_STARTDT) != -1) ||
-        					(contents.indexOf(Constant.THRESHOLD_STOPDT) != -1) || 
-        					(contents.indexOf(Constant.THRESHOLD_GROUPID) != -1);
-        boolean clearThreshold = contents.indexOf(Constant.CLEAR_THRESHOLD) != -1;
+        boolean tou = contents.indexOf(RtuMessageConstant.TOU_SCHEDULE) != -1;
+        boolean applyThreshold = (contents.indexOf(RtuMessageConstant.APPLY_THRESHOLD) != -1) ||
+        					(contents.indexOf(RtuMessageConstant.THRESHOLD_STARTDT) != -1) ||
+        					(contents.indexOf(RtuMessageConstant.THRESHOLD_STOPDT) != -1) || 
+        					(contents.indexOf(RtuMessageConstant.THRESHOLD_GROUPID) != -1);
+        boolean clearThreshold = contents.indexOf(RtuMessageConstant.CLEAR_THRESHOLD) != -1;
         
         try {
             
@@ -530,14 +537,14 @@ public class Concentrator implements Messaging, GenericProtocol {
             }
             
             if (applyThreshold ){
-            	String groupID = getMessageValue(contents, Constant.THRESHOLD_GROUPID);
+            	String groupID = getMessageValue(contents, RtuMessageConstant.THRESHOLD_GROUPID);
             	if (groupID.equalsIgnoreCase(""))
             		throw new BusinessException("No groupID was entered.");
             	
             	UnsignedInt uiDuration = new UnsignedInt();
             	UnsignedInt uiGrId = new UnsignedInt();
-            	String startDate = getMessageValue(contents, Constant.THRESHOLD_STARTDT);
-            	String stopDate = getMessageValue(contents, Constant.THRESHOLD_STOPDT);
+            	String startDate = getMessageValue(contents, RtuMessageConstant.THRESHOLD_STARTDT);
+            	String stopDate = getMessageValue(contents, RtuMessageConstant.THRESHOLD_STOPDT);
             	Calendar stopCal;
             	Calendar startCal = (startDate.equalsIgnoreCase(""))?Calendar.getInstance():getCalendarFromString(startDate);
             	if (stopDate.equalsIgnoreCase("")){
@@ -566,7 +573,7 @@ public class Concentrator implements Messaging, GenericProtocol {
         		UnsignedInt uiGrId = new UnsignedInt();
             	try{
             		getLogger().severe("Clearing the threshold value, max. consumption will be the contractual level again.");
-                	uiGrId.setValue((long)Integer.parseInt(getMessageValue(contents, Constant.CLEAR_THRESHOLD)));
+                	uiGrId.setValue((long)Integer.parseInt(getMessageValue(contents, RtuMessageConstant.CLEAR_THRESHOLD)));
             	}
             	catch(NumberFormatException e){
             		throw new BusinessException("Invalid groupID for the stop threshold message.");
@@ -598,8 +605,8 @@ public class Concentrator implements Messaging, GenericProtocol {
     }
     
 	protected int getTouFileId(String contents) throws BusinessException {
-		int startIndex = 2 + Constant.TOU_SCHEDULE.length();  // <TOU>
-		int endIndex = contents.indexOf("</" + Constant.TOU_SCHEDULE );
+		int startIndex = 2 + RtuMessageConstant.TOU_SCHEDULE.length();  // <TOU>
+		int endIndex = contents.indexOf("</" + RtuMessageConstant.TOU_SCHEDULE );
 		String value = contents.substring(startIndex, endIndex);
 		try {
 			return Integer.parseInt(value);
@@ -800,13 +807,13 @@ public class Concentrator implements Messaging, GenericProtocol {
         MessageCategorySpec cat = new MessageCategorySpec("Actions");
         MessageSpec msgSpec = null;
         
-        msgSpec = addBasicMsg("Set new tariff program", Constant.TOU_SCHEDULE, !ADVANCED);
+        msgSpec = addBasicMsg("Set new tariff program", RtuMessageConstant.TOU_SCHEDULE, !ADVANCED);
         cat.addMessageSpec(msgSpec);
         
-        msgSpec = addThresholdMsg("Apply threshold", Constant.APPLY_THRESHOLD, !ADVANCED);
+        msgSpec = addThresholdMsg("Apply threshold", RtuMessageConstant.APPLY_THRESHOLD, !ADVANCED);
         cat.addMessageSpec(msgSpec);
         
-        msgSpec = addClearThresholdMsg("Clear threshold", Constant.CLEAR_THRESHOLD, !ADVANCED);
+        msgSpec = addClearThresholdMsg("Clear threshold", RtuMessageConstant.CLEAR_THRESHOLD, !ADVANCED);
         cat.addMessageSpec(msgSpec);
 
         theCategories.add(cat);
@@ -816,13 +823,13 @@ public class Concentrator implements Messaging, GenericProtocol {
     
     private MessageSpec addThresholdMsg(String keyId, String tagName, boolean advanced){
     	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(Constant.THRESHOLD_GROUPID);
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.THRESHOLD_GROUPID);
         tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
-        tagSpec = new MessageTagSpec(Constant.THRESHOLD_STARTDT);
+        tagSpec = new MessageTagSpec(RtuMessageConstant.THRESHOLD_STARTDT);
         tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
-        tagSpec = new MessageTagSpec(Constant.THRESHOLD_STOPDT);
+        tagSpec = new MessageTagSpec(RtuMessageConstant.THRESHOLD_STOPDT);
         tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -830,7 +837,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     
     private MessageSpec addClearThresholdMsg(String keyId, String tagName, boolean advanced){
     	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(Constant.CLEAR_THRESHOLD);
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.CLEAR_THRESHOLD);
         tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -918,5 +925,9 @@ public class Concentrator implements Messaging, GenericProtocol {
     
 	public int getReadingsFileType(){
 		return this.readingsFileType;
+	}
+	
+	public CommunicationScheduler getCommunicationScheduler(){
+		return this.communicationScheduler;
 	}
 }

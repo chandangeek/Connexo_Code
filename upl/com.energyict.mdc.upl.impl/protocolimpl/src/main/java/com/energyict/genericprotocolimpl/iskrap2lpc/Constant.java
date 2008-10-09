@@ -21,36 +21,8 @@ class Constant {
     /** property key for Group external name */
     final static String SOCKET_TIMEOUT = "Socket Timeout";
     
-    /** RtuMessage tag for reading on demand registers */
-    final static String ON_DEMAND = "onDemand";
-    
-    /** RtuMessage tag for connecting load */
-    final static String CONNECT_LOAD = "connectLoad";
-    /** RtuMessage tag for disconnecting load */
-    final static String DISCONNECT_LOAD = "disconnectLoad";
-    
-    /** RtuMessage tag for threshold parameters */
-    final static String THRESHOLD_PARAMETERS = "thresholdParameters";
-    final static String THRESHOLD_GROUPID = "Threshold GroupId *";
-    final static String THRESHOLD_POWERLIMIT = "Threshold PowerLimit (W)";
-    final static String CONTRACT_POWERLIMIT = "Contractual PowerLimit (W)";
-    final static String APPLY_THRESHOLD	= "Apply threshold";
-    final static String CLEAR_THRESHOLD	= "Clear threshold - groupID";
-    final static String THRESHOLD_STARTDT = "StartDate (dd/mm/yyyy HH:MM:SS)";
-    final static String THRESHOLD_STOPDT = "EndDate (dd/mm/yyyy HH:MM:SS)";
-    
-    /** RtuMessage tag for connecting load */
-    final static String LOAD_CONTROL_ON = "loadControlOn";
-    /** RtuMessage tag for disconnecting load */
-    final static String LOAD_CONTROL_OFF = "loadControlOff";
-    
-    /** RtuMessage tag for reading profile data */
-    final static String READ_PROFILE = "<readProfile/>";
-    
     /** RtuMessage tag for time sync */
     final static String  TIME_SYNC = "timeSync";
-    /** RtuMessage tag for tou schedule */
-    final static String  TOU_SCHEDULE = "UserFile ID of tariff program";
 //    /** RtuMessage tag for user file id */
 //    final static String USER_FILE_ID = "userFileId";  
 
@@ -100,6 +72,11 @@ class Constant {
 													ObisCode.fromString("0.2.128.50.20.255"),
 													ObisCode.fromString("0.3.128.50.20.255"),
 													ObisCode.fromString("0.4.128.50.20.255")};
+    
+    final static ObisCode mbusVIFObisCode[] = {ObisCode.fromString("0.1.128.50.30.255"),
+													ObisCode.fromString("0.2.128.50.30.255"),
+													ObisCode.fromString("0.3.128.50.30.255"),
+													ObisCode.fromString("0.4.128.50.30.255")};
     
     final static ObisCode powerLimitObisCode = ObisCode.fromString("0.0.128.61.1.255");
     final static ObisCode confChangeObisCode = ObisCode.fromString("0.0.96.2.0.255");

@@ -112,24 +112,20 @@ public class ConcentratorTest{
 	@After
 	public void tearDown() throws Exception {
 		// first delete all the device
-		List result = Utilities.mw().getRtuFactory().findAll();
+		List result = Utilities.mw().getRtuFactory().findByName("12345678");
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
 				((Rtu)result.get(i)).delete();
 		
 		// then the deviceType
-		result = Utilities.mw().getRtuTypeFactory().findAll();
+		result = Utilities.mw().getRtuTypeFactory().findByName(testMeter);
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++){
-				List refMeters = Utilities.mw().getRtuFactory().findByType((RtuType)result.get(i));
-				for(int k = 0; k < refMeters.size(); k++){
-					((Rtu)refMeters.get(k)).delete();	
-				}
 				((RtuTypeImpl)result.get(i)).delete();
 			}
 		
 		// then the communication profile
-		result = Utilities.mw().getCommunicationProtocolFactory().findAll();
+		result = Utilities.mw().getCommunicationProtocolFactory().findByName(jcnIskraMeter);
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
 				((CommunicationProtocolImpl)result.get(i)).delete();
@@ -137,6 +133,7 @@ public class ConcentratorTest{
 		mbusAfter();
 	}
 
+	@Ignore
 	@Test
 	public void importProfileTest() {
 		
@@ -193,6 +190,7 @@ public class ConcentratorTest{
 		}
 	}
 
+	@Ignore
 	@Test
 	public void importDailyMonthlyTest(){
 		try {
@@ -277,6 +275,7 @@ public class ConcentratorTest{
 		}
 	}
 
+	@Ignore
 	@Test
 	public void importTwoDailyMonthlyProfilesTest(){
 		try {
@@ -347,6 +346,7 @@ public class ConcentratorTest{
 		}
 	}
 
+	@Ignore
 	@Test
 	public void importDailyMonthlyFromPLR(){
 		try {
@@ -423,6 +423,7 @@ public class ConcentratorTest{
 		}
 	}
 
+	@Ignore
 	@Test
 	public void singelMonthlyValueTest(){
 		try {
@@ -470,6 +471,7 @@ public class ConcentratorTest{
 		}
 	}
 	
+	@Ignore
 	@Test
 	public void mutlipleSingleStores(){
 		try {
@@ -526,38 +528,48 @@ public class ConcentratorTest{
 	
 	private void mbusAfter() throws BusinessException, SQLException{
 		
-		List result = Utilities.mw().getRtuTypeFactory().findAll();
+		result = Utilities.mw().getRtuFactory().findByName("0000");
 		if(result.size() > 0){
-			RtuType rtuType = (RtuType)result.get(0);
-			
-			// first delete all the mbusMeters
-			result = Utilities.mw().getRtuFactory().findByType(rtuType);
+			if (result.size() > 0){
+				for(int j = 0; j < result.size(); j++)
+					((Rtu)result.get(j)).delete();
+			}
+		}
+		result = Utilities.mw().getRtuFactory().findByName("1111");
+		if(result.size() > 0){
+			if (result.size() > 0){
+				for(int j = 0; j < result.size(); j++)
+					((Rtu)result.get(j)).delete();
+			}
+		}
+		result = Utilities.mw().getRtuFactory().findByName("2222");
+		if(result.size() > 0){
+			if (result.size() > 0){
+				for(int j = 0; j < result.size(); j++)
+					((Rtu)result.get(j)).delete();
+			}
+		}
+		result = Utilities.mw().getRtuFactory().findByName("3333");
+		if(result.size() > 0){
 			if (result.size() > 0){
 				for(int j = 0; j < result.size(); j++)
 					((Rtu)result.get(j)).delete();
 			}
 		}
 		
-		// delete all meters with the name "mbusMeter"
-		result = Utilities.mw().getRtuFactory().findAll();
-		for(int k = 0; k < result.size(); k++){
-			((Rtu)result.get(k)).delete();
-		}
-		
 		// then the deviceType
-		result = Utilities.mw().getRtuTypeFactory().findAll();
+		result = Utilities.mw().getRtuTypeFactory().findByName("mbusMeter");
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
 				((RtuTypeImpl)result.get(i)).delete();
 		
 		// then the communication profile
-		result = Utilities.mw().getCommunicationProtocolFactory().findAll();
+		result = Utilities.mw().getCommunicationProtocolFactory().findByName(jcnMbusMeter);
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
 				((CommunicationProtocolImpl)result.get(i)).delete();
 	}
 	
-	@Ignore
 	@Test
 	public void mbusTest() throws BusinessException, SQLException{
 		try{
@@ -595,21 +607,21 @@ public class ConcentratorTest{
 				rtuTypeMeter = (RtuType)result.get(0);
 			
 			for(int i = 0; i < 4; i++){
-				result = Utilities.mw().getRtuFactory().findByName("mbusMeter"+i);
+				result = Utilities.mw().getRtuFactory().findByName(""+i+i+i+i);
 				if(result.size() == 0)
 					mbusRtu[i] = Utilities.createRtu(rtuTypeMeter, ""+i+i+i+i, 3600);
 				else 
 					mbusRtu[i] = (Rtu)result.get(0);
 				mbusRtu[i] = Utilities.addChannel(mbusRtu[i], TimeDuration.DAYS, 5);
-				mbusRtu[i] = Utilities.addPropertyToRtu(mbusRtu[i], "ChannelMap", "1:1:1:1:0.1.128.50.0d");
+				mbusRtu[i] = Utilities.addPropertyToRtu(mbusRtu[i], "ChannelMap", "1:1:1:1:0."+(i+1)+".128.50.0d");
 				mbusRtu[i].updateGateway(meter);
 			}
 			
-			meterReadTransaction.checkMbusDevices();
+//			meterReadTransaction.checkMbusDevices();
 			
-			for(int i = 0; i < 4; i++){
-				MbusDevice mbd = meterReadTransaction.mbusDevices[i];
-			}
+//			for(int i = 0; i < 4; i++){
+//				MbusDevice mbd = meterReadTransaction.mbusDevices[i];
+//			}
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -618,12 +630,6 @@ public class ConcentratorTest{
 			e.printStackTrace();
 			fail();
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
-			fail();
-		} catch (IOException e) {
-			e.printStackTrace();
-			fail();
-		} catch (ServiceException e) {
 			e.printStackTrace();
 			fail();
 		} finally {

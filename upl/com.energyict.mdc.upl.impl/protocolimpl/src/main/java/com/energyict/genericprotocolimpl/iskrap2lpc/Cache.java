@@ -4,7 +4,9 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
 import java.io.Serializable;
+import java.util.logging.Logger;
 
+import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.CosemDateTime;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ObjectDef;
 
@@ -17,7 +19,7 @@ public class Cache implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1234;
+	private static final long serialVersionUID = 12345L;
 	
 	public int confProgChange;
 	public int loadProfilePeriod1;
@@ -32,16 +34,25 @@ public class Cache implements Serializable {
 	
 	public CosemDateTime billingReadTime;
 	public CosemDateTime captureObjReadTime;
+
+	private int mbusCount;
+	private int[] mbusPhysicalAddress;
+	private String[] mbusCustomerID;
+	private long[] mbusAddress;
+	private Unit[] mbusUnit;
 	
 	public Cache() {
-		this(-1, -1, -1, false, null, null, null, null, null, null);
+		this(-1, -1, -1, false, null, null, null, null, null, null, 0, new int[MeterReadTransaction.MBUS_MAX], new String[MeterReadTransaction.MBUS_MAX],
+				new long[MeterReadTransaction.MBUS_MAX], new Unit[MeterReadTransaction.MBUS_MAX]);
 	}
 	
 	public Cache(int confProgChange, int loadProfilePeriod1,
 			int loadProfilePeriod2, boolean changed,
 			ObjectDef[] loadProfileConfig1, ObjectDef[] loadProfileConfig2,
 			ObjectDef[] loadProfileConfig3, ObjectDef[] loadProfileConfig4,
-			CosemDateTime billingReadTime, CosemDateTime captureObjReadTime) {
+			CosemDateTime billingReadTime, CosemDateTime captureObjReadTime,
+			int mbusCount, int[] mbusPhysicalAddress, String[] mbusCustomerID,
+			long[] mbusAddress, Unit[] mbusUnit) {
 		super();
 		this.confProgChange = confProgChange;
 		this.loadProfilePeriod1 = loadProfilePeriod1;
@@ -53,6 +64,11 @@ public class Cache implements Serializable {
 		this.loadProfileConfig4 = loadProfileConfig4;
 		this.billingReadTime = billingReadTime;
 		this.captureObjReadTime = captureObjReadTime;
+		this.mbusCount = mbusCount;
+		this.mbusPhysicalAddress = mbusPhysicalAddress;
+		this.mbusCustomerID = mbusCustomerID;
+		this.mbusAddress = mbusAddress;
+		this.mbusUnit = mbusUnit;
 	}
 	
 
@@ -137,5 +153,58 @@ public class Cache implements Serializable {
 		this.changed = changed;
 	}
 
+	public void setMbusParameters(MbusDevice[] mbusDevices) {
+		mbusCount = 0;
+		for(int i = 0; i < MeterReadTransaction.MBUS_MAX; i++){
+			if(mbusDevices[i] != null){
+				setPhysicalAddress(mbusDevices[i].getPhysicalAddress(), i);
+				setCustomerID(mbusDevices[i].getCustomerID(), i);
+				setMbusAddress(mbusDevices[i].getMbusAddress(), i);
+				setMbusUnit(mbusDevices[i].getMbusUnit(), i);
+				mbusCount++;
+			} else {
+				setPhysicalAddress(-1, i);
+				setCustomerID(null, i);
+				setMbusAddress(-1, i);
+				setMbusUnit(null, i);
+			}
+		}
+	}
+
+	private void setMbusUnit(Unit mbusUnit, int i) {
+		this.mbusUnit[i] = mbusUnit;
+	}
+
+	private void setMbusAddress(long mbusAddress, int i) {
+		this.mbusAddress[i] = mbusAddress;
+	}
+
+	private void setCustomerID(String customerID, int i) {
+		this.mbusCustomerID[i] = customerID;
+	}
+
+	private void setPhysicalAddress(int physicalAddress, int i) {
+		this.mbusPhysicalAddress[i] = physicalAddress; 
+	}
+
+	public int getMbusDeviceCount() {
+		return this.mbusCount;
+	}
+
+	public int getPhysicalAddress(int i) {
+		return mbusPhysicalAddress[i];
+	}
+
+	public String getCustomerID(int i) {
+		return mbusCustomerID[i];
+	}
+
+	public long getMbusAddress(int i) {
+		return mbusAddress[i];
+	}
+
+	public Unit getUnit(int i) {
+		return mbusUnit[i];
+	}
 
 }

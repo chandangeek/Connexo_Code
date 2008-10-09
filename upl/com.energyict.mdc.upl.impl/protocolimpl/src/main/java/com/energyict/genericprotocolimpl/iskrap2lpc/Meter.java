@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
 import com.energyict.cbo.*;
+import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 
@@ -19,16 +20,16 @@ public class Meter implements Messaging, MeterProtocol {
         MessageCategorySpec cat = new MessageCategorySpec("Actions");
         MessageSpec msgSpec = null;
         
-        msgSpec = addBasicMsg("Read on demand", Constant.ON_DEMAND, !ADVANCED);
+        msgSpec = addBasicMsg("Read on demand", RtuMessageConstant.READ_ON_DEMAND, !ADVANCED);
         cat.addMessageSpec(msgSpec);
         
-        msgSpec = addBasicMsg("Connect", Constant.CONNECT_LOAD, !ADVANCED);
+        msgSpec = addBasicMsg("Connect", RtuMessageConstant.CONNECT_LOAD, !ADVANCED);
         cat.addMessageSpec(msgSpec);
         
-        msgSpec = addBasicMsg("Disconnect", Constant.DISCONNECT_LOAD, !ADVANCED);
+        msgSpec = addBasicMsg("Disconnect", RtuMessageConstant.DISCONNECT_LOAD, !ADVANCED);
         cat.addMessageSpec(msgSpec);
         
-        msgSpec = addThresholdParameters("Threshold parameters", Constant.THRESHOLD_PARAMETERS, !ADVANCED);
+        msgSpec = addThresholdParameters("Threshold parameters", RtuMessageConstant.THRESHOLD_PARAMETERS, !ADVANCED);
         cat.addMessageSpec(msgSpec);
         
         theCategories.add(cat);
@@ -48,13 +49,13 @@ public class Meter implements Messaging, MeterProtocol {
     
     private MessageSpec addThresholdParameters(String keyId, String tagName, boolean advanced){
     	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(Constant.THRESHOLD_GROUPID);
+        MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.THRESHOLD_GROUPID);
         tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
-        tagSpec = new MessageTagSpec(Constant.THRESHOLD_POWERLIMIT);
+        tagSpec = new MessageTagSpec(RtuMessageConstant.THRESHOLD_POWERLIMIT);
         tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
-        tagSpec = new MessageTagSpec(Constant.CONTRACT_POWERLIMIT);
+        tagSpec = new MessageTagSpec(RtuMessageConstant.CONTRACT_POWERLIMIT);
         tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
         return msgSpec;

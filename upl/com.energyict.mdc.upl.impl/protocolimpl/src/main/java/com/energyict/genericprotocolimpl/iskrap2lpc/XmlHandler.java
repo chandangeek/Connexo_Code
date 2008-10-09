@@ -459,13 +459,13 @@ class XmlHandler extends DefaultHandler {
             	}
             	if ( mask(eventId, Constant.EVENT_METER_COVER_OPENED) ){
             		final String msg = "Event status meter cover opened.";
-//            		addMeterEvent(time, MeterEvent.COVER_OPENED, msg);	// Only in later version of EISERVER
-            		addMeterEvent(time, MeterEvent.OTHER, msg);
+            		addMeterEvent(time, MeterEvent.COVER_OPENED, msg);	// Only in later version of EISERVER
+//            		addMeterEvent(time, MeterEvent.OTHER, msg);
             	}
             	if ( mask(eventId, Constant.EVENT_TERMINAL_COVER_OPENED) ){
             		final String msg = "Event status terminal cover opened.";
-//            		addMeterEvent(time,MeterEvent.TERMINAL_OPENED,msg);	// Only in later version of EISERVER
-            		addMeterEvent(time, MeterEvent.OTHER, msg);
+            		addMeterEvent(time,MeterEvent.TERMINAL_OPENED,msg);	// Only in later version of EISERVER
+//            		addMeterEvent(time, MeterEvent.OTHER, msg);
             	}
             }
         } catch (ParseException e) {
