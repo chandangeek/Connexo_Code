@@ -570,6 +570,7 @@ public class ConcentratorTest{
 				((CommunicationProtocolImpl)result.get(i)).delete();
 	}
 	
+	@Ignore
 	@Test
 	public void mbusTest() throws BusinessException, SQLException{
 		try{
