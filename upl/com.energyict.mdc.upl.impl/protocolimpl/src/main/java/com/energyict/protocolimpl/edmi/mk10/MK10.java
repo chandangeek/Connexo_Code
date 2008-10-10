@@ -1,12 +1,3 @@
-/*
- * SDKSampleProtocol.java
- *
- * Created on 13 juni 2007, 11:30
- *
- * To change this template, choose Tools | Options and locate the template under
- * the Source Creation and Management node. Right-click the template and choose
- * Open. You can then make changes to the template in the Source Editor.
- */
 
 package com.energyict.protocolimpl.edmi.mk10;
 
@@ -22,15 +13,15 @@ import java.util.*;
 
 /**
  *
- * @author kvds
- * com.energyict.protocolimpl.sdksample.SDKSampleProtocol
+ * @author jme
+ * com.energyict.protocolimpl.edmi.mk10.MK10
  */
 public class MK10 extends AbstractProtocol implements MessageProtocol  {
     
     MK10Connection connection;
     private int sDKSampleProperty;
     
-    /** Creates a new instance of SDKSampleProtocol */
+    /** Creates a new instance of MK10 */
     public MK10() {
     }
      
@@ -220,8 +211,7 @@ public class MK10 extends AbstractProtocol implements MessageProtocol  {
     }
     public String getProtocolVersion() {
         //getLogger().info("call getProtocolVersion()");
-        return "$Revision: 1.5 $";
-        //return "SDK Sample protocol version";  
+        return "$Revision: 1.5 $";  
     }
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         getLogger().info("call getFirmwareVersion()");
@@ -236,4 +226,5 @@ public class MK10 extends AbstractProtocol implements MessageProtocol  {
     public void setSDKSampleProperty(int sDKSampleProperty) {
         this.sDKSampleProperty = sDKSampleProperty;
     }
+    
 }

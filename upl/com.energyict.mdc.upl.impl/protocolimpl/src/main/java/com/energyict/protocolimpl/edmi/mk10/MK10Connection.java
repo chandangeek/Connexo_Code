@@ -1,12 +1,3 @@
-/*
- * SDKSampleProtocolConnection.java
- *
- * Created on 13 juni 2007, 11:42
- *
- * To change this template, choose Tools | Options and locate the template under
- * the Source Creation and Management node. Right-click the template and choose
- * Open. You can then make changes to the template in the Source Editor.
- */
 
 package com.energyict.protocolimpl.edmi.mk10;
 
@@ -19,7 +10,7 @@ import java.util.logging.*;
 
 /**
  *
- * @author kvds
+ * @author jme
  */
 public class MK10Connection extends Connection implements ProtocolConnection {
     
