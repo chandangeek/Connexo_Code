@@ -56,6 +56,8 @@ public class MK10Connection extends Connection implements ProtocolConnection {
     }
     public MeterType connectMAC(String strID,String strPassword,int securityLevel,String nodeId) throws IOException, ProtocolConnectionException {
         logger.info("call connection class connectMAC(...)");
+        byte[] ba = new byte[] {0x02, 0x0F, 0x0F, 0x0F, 0x0F, 0x03};
+        sendOut(ba);
         return null;
     }
     public byte[] dataReadout(String strID,String nodeId) throws NestedIOException, ProtocolConnectionException {
