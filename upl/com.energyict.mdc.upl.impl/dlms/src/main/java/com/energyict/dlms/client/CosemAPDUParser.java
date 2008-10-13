@@ -33,6 +33,8 @@ public class CosemAPDUParser {
 	private List<DeviceMessageCustomCosem> deviceMessageCustomCosems = null;
 	private DeviceCustomCosem deviceCustomCosem = null;
 	private DeployDataCustomCosem deployDataCustomCosem=null;
+	private List<DeviceChannelName> deviceChannelNames=null;
+	
 	
 	public CosemAPDUParser() {
 	}
@@ -49,6 +51,7 @@ public class CosemAPDUParser {
 		deviceMessageCustomCosems = null;
 		deviceCustomCosem = null;
 		deployDataCustomCosem = null;
+		deviceChannelNames = null;
 		
 		// local
 		previousEndTime=null;
@@ -114,6 +117,11 @@ public class CosemAPDUParser {
 		}
 	}
 	
+	private boolean isDeviceChannelNameObject(ObisCode obisCode) {
+		return ((obisCode.getA()==0) && (obisCode.getB()==0) && (obisCode.getC()==96) && (obisCode.getD()==121) && (obisCode.getF()==255));
+			
+	}
+	
 	private void parseContent(Iterator<CosemAPDU> it) throws IOException {
 		List<ChannelInfo> channelInfos=null;
 		while(it.hasNext()) {
@@ -127,8 +135,14 @@ public class CosemAPDUParser {
 				// do not remove apdu and break loop!
 				break;
 			}
-			
-			if (apdu.getCosemAttributeDescriptor().getObis().equals(DeviceMessageCustomCosem.getObisCode())) {
+			else if (isDeviceChannelNameObject(apdu.getCosemAttributeDescriptor().getObis())) {
+				if (deviceChannelNames==null)
+					deviceChannelNames = new ArrayList();
+				Structure s = apdu.getDataType().getStructure();
+				DeviceChannelName dcn = new DeviceChannelName(apdu.getCosemAttributeDescriptor().getObis().getE(),s.getOctetString().stringValue());
+				deviceChannelNames.add(dcn);
+			}
+			else if (apdu.getCosemAttributeDescriptor().getObis().equals(DeviceMessageCustomCosem.getObisCode())) {
 				if (deviceMessageCustomCosems==null)
 					deviceMessageCustomCosems = new ArrayList();
 				deviceMessageCustomCosems.add(new DeviceMessageCustomCosem(apdu.getDataType()));
@@ -437,6 +451,10 @@ public class CosemAPDUParser {
 
 	public DeployDataCustomCosem getDeployDataCustomCosem() {
 		return deployDataCustomCosem;
+	}
+
+	public List<DeviceChannelName> getDeviceChannelNames() {
+		return deviceChannelNames;
 	}
 
 }

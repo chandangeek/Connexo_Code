@@ -14,6 +14,7 @@ public class CommandCustomCosem extends Data {
 	static public final int DEPLOY=2;
 	static public final int EXIST=3;
 	static public final int SYNCMESSAGES=4;
+	static public final int UPDATEDEVICE=5;
 	
 	// ... add new returncodes here...
 
@@ -62,6 +63,10 @@ public class CommandCustomCosem extends Data {
    		setValueAttr(new Integer8(SYNCMESSAGES));
     }
     
+    public void updateDevice() throws IOException {
+   		setValueAttr(new Integer8(UPDATEDEVICE));
+    }
+    
     public void post() throws IOException {
    		setValueAttr(new Integer8(POST));
     }
@@ -88,6 +93,10 @@ public class CommandCustomCosem extends Data {
     
     public boolean isDeploy() throws IOException {
    		return getCode() == DEPLOY;
+    }
+    
+    public boolean isUpdateDevice() throws IOException {
+   		return getCode() == UPDATEDEVICE;
     }    
     
 	public int getCode() throws IOException {
