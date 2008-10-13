@@ -18,7 +18,7 @@ import java.io.*;
  * @author Koen
  */
 public class S4SConfiguration extends AbstractCommand {
-    /*
+    /*s
 bit    
 0 Binary Register is in AXL configuration, if set
 1 Binary Register is in AX configuration, if set
