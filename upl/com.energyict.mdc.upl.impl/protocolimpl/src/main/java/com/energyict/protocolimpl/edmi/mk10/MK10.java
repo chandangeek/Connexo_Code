@@ -1,230 +1,399 @@
+/*
+ * MK6.java
+ *
+ * Created on 17 maart 2006, 10:54
+ *
+ * To change this template, choose Tools | Options and locate the template under
+ * the Source Creation and Management node. Right-click the template and choose
+ * Open. You can then make changes to the template in the Source Editor.
+ */
 
 package com.energyict.protocolimpl.edmi.mk10;
 
-import com.energyict.cbo.*;
-import com.energyict.dialer.core.*;
 import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.edmi.mk10.loadsurvey.*;
+import com.energyict.protocolimpl.edmi.mk10.loadsurvey.ExtensionFactory;
+import com.energyict.protocolimpl.edmi.mk10.registermapping.*;
 import java.io.*;
-import java.math.*;
 import java.util.*;
+import java.util.logging.*;
+        
+import com.energyict.dialer.core.*;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.*;
+
+import com.energyict.protocolimpl.edmi.mk10.command.*;
+import com.energyict.protocolimpl.edmi.mk10.core.*;
 
 /**
  *
- * @author jme
- * com.energyict.protocolimpl.edmi.mk10.MK10
+ * @author  Koen
+ * @beginchanges
+KV|17052006|Check for duplicates
+KV|14112007|Fix to use the correct first record timestamp 
+ * @endchanges
  */
-public class MK10 extends AbstractProtocol implements MessageProtocol  {
+public class MK10 extends AbstractProtocol {
     
-    MK10Connection connection;
-    private int sDKSampleProperty;
+    private static final int DEBUG=0;
+    
+    private MK10Connection mk10Connection=null;
+    private CommandFactory commandFactory=null;
+    private ObisCodeFactory obisCodeFactory=null;
+    MK10Profile mk10Profile=null;
+    
+    private String eventLogName;
+
+    private String loadSurveyName;
+    
+    private int statusFlagChannel;
     
     /** Creates a new instance of MK10 */
     public MK10() {
-    }
-     
-    /*******************************************************************************************
-     M e s s a g e P r o t o c o l  i n t e r f a c e 
-     *******************************************************************************************/
-    // message protocol
-    public void applyMessages(List messageEntries) throws IOException {
-        Iterator it = messageEntries.iterator();
-        while(it.hasNext()) {
-            MessageEntry messageEntry = (MessageEntry)it.next();
-            System.out.println(messageEntry);
-        }
-    }
-    
-    public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-        System.out.println(messageEntry);
-        //return MessageResult.createSuccess(messageEntry);
-        //messageEntry.setTrackingId("sampleTrackingId");
-        return MessageResult.createSuccess(messageEntry);
-        //return MessageResult.createQueued(messageEntry);
-        //return MessageResult.createFailed(messageEntry);
-        //return MessageResult.createUnknown(messageEntry);
-    }
-    
-    
-    public List getMessageCategories() {
-        List theCategories = new ArrayList();
-        // General Parameters
-        MessageCategorySpec cat = new MessageCategorySpec("sampleCategoryName");
-        MessageSpec msgSpec = addBasicMsg("sampleId", "SAMPLETAG", false);
-        cat.addMessageSpec(msgSpec);
-        theCategories.add(cat);
-        return theCategories;
-    }
-    
-    private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
-        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        tagSpec.add(new MessageValueSpec());
-        msgSpec.add(tagSpec);
-        return msgSpec;
-    }
-    
-    public String writeMessage(Message msg) {
-        return msg.write(this);
-    }
-    public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
-        
-        // a. Opening tag
-        buf.append("<");
-        buf.append( msgTag.getName() );
-        
-        // b. Attributes
-        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
-            MessageAttribute att = (MessageAttribute)it.next();
-            if (att.getValue()==null || att.getValue().length()==0)
-                continue;
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
-        }
-        buf.append(">");
-        
-        // c. sub elements
-        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
-            MessageElement elt = (MessageElement)it.next();
-            if (elt.isTag())
-                buf.append( writeTag((MessageTag)elt) );
-            else if (elt.isValue()) {
-                String value = writeValue((MessageValue)elt);
-                if (value==null || value.length()==0)
-                    return "";
-                buf.append(value);
-            }
-        }
-        
-        // d. Closing tag
-        buf.append("</");
-        buf.append( msgTag.getName() );
-        buf.append(">");
-        
-        return buf.toString();    
-    }
-    
-    public String writeValue(MessageValue value) {
-        return value.getValue();
+       
     }
     
     protected void doConnect() throws IOException {
-        getLogger().info("call abstract method doConnect()");      
-        getLogger().info("--> at that point, we have a communicationlink with the meter (modem, direct, optical, ip, ...)");     
-        getLogger().info("--> here the login and other authentication and setup should be done");     
+        getCommandFactory().enterCommandLineMode();
+        getCommandFactory().logon(getInfoTypeDeviceID(),getInfoTypePassword());
     }
     
     protected void doDisConnect() throws IOException {
-        getLogger().info("call abstract method doDisConnect()");        
-        getLogger().info("--> here the logoff should be done");     
-        getLogger().info("--> after that point, we will close the communicationlink with the meter");     
+        getCommandFactory().exitCommandLineMode();
     }
     
-    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-        
-        getLogger().info("call overrided method getProfileData("+lastReading+","+includeEvents+")");  
-        getLogger().info("--> here we read the profiledata from the meter and construct a profiledata object");  
-        
-        ProfileData pd = new ProfileData();
-        
-        pd.addChannel(new ChannelInfo(0,0, "SDK sample channel 1", Unit.get("kWh")));
-        pd.addChannel(new ChannelInfo(1,1, "SDK sample channel 2", Unit.get("kvarh")));
-        
-        Calendar cal = Calendar.getInstance(getTimeZone());
-        cal.setTime(lastReading);
-        if (getProfileInterval()<=0)
-            throw new IOException("load profile interval must be > 0 sec. (is "+getProfileInterval()+")");
-        ParseUtils.roundDown2nearestInterval(cal,getProfileInterval());
-        Date now = new Date();
-        while(cal.getTime().before(now)) { 
-           IntervalData id = new IntervalData(cal.getTime());
-           
-           id.addValue(new BigDecimal(10000+Math.round(Math.random()*100)));
-           id.addValue(new BigDecimal(1000+Math.round(Math.random()*10)));
-           pd.addInterval(id);
-           cal.add(Calendar.SECOND, getProfileInterval());
-        }
-        
-        pd.addEvent(new MeterEvent(now,MeterEvent.APPLICATION_ALERT_START, "SDK Sample"));
-        return pd;
+    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+        setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.NODEID,"1"));
+        setEventLogName(properties.getProperty("EventLogName","Event Log"));
+        setLoadSurveyName(properties.getProperty("LoadSurveyName","Load_Survey"));
+        setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
+        setStatusFlagChannel(Integer.parseInt(properties.getProperty("StatusFlagChannel","0").trim()));
     }
     
-    protected String getRegistersInfo(int extendedLogging) throws IOException {
-        getLogger().info("call overrided method getRegistersInfo("+extendedLogging+")");
-        getLogger().info("--> You can provide info about meter register configuration here. If the ExtendedLogging property is set, that info will be logged.");
-        return "1.1.1.8.1.255 Active Import energy";
+    public int getProfileInterval() throws UnsupportedException, IOException { 
+        return mk10Profile.getProfileInterval();
+    }
+    
+    public int getNumberOfChannels() throws UnsupportedException, IOException {
+        return mk10Profile.getNumberOfChannels();
+    }    
+    
+    protected List doGetOptionalKeys() {
+        List result = new ArrayList();
+        result.add("EventLogName");
+        result.add("LoadSurveyName");
+        result.add("StatusFlagChannel");
+        return result;
+    }
+    
+    protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
+        mk10Connection = new MK10Connection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber());
+        commandFactory = new CommandFactory(this);
+        mk10Profile = new MK10Profile(this);
+        return getMk10Connection();
+    }
+    public Date getTime() throws IOException {
+        TimeInfo ti = new TimeInfo(this);
+        return ti.getTime();
+    }
+    
+    public void setTime() throws IOException {
+        TimeInfo ti = new TimeInfo(this);
+        ti.setTime();
+    }
+    
+    public String getProtocolVersion() {
+        return "$Revision: 1.7 $";
+    }
+    
+    public String getFirmwareVersion() throws IOException, UnsupportedException {
+        return "Equipment model id:"+getCommandFactory().getReadCommand(0xF000).getRegister().getString()+"\n"+ // Equipment model id
+               "Software revision:"+getCommandFactory().getReadCommand(0xF003).getRegister().getString()+"\n"+ // software version
+               "Last version nr:"+getCommandFactory().getReadCommand(0xFC18).getRegister().getString()+"\n"+ // last version number
+               "Last revision nr:"+getCommandFactory().getReadCommand(0xFC19).getRegister().getString()+"\n"+ // last revision number
+               "Software revision nr:"+getCommandFactory().getReadCommand(0xF090).getRegister().getString()+"\n"+ // software revision number
+               "Serial number:"+getSerialNumber(); // serial number
+    }
+    
+    public String getSerialNumber() throws IOException {
+        return getCommandFactory().getReadCommand(0xF002).getRegister().getString(); // Serial number
+    }
+    
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+        return mk10Profile.getProfileData(from, to, includeEvents);
     }
     
     
     /*******************************************************************************************
      R e g i s t e r P r o t o c o l  i n t e r f a c e 
      *******************************************************************************************/
-    public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        //getLogger().info("call overrided method translateRegister()");
-        return new RegisterInfo(obisCode.getDescription());
-    }
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        getLogger().info("call overrided method readRegister("+obisCode+")");
-        getLogger().info("--> request the register from the meter here");
-        if (obisCode.equals(ObisCode.fromString("1.1.1.8.0.255")))
-            return new RegisterValue(obisCode,new Quantity(new BigDecimal("1234687.64"),Unit.get("kWh")));
-        throw new NoSuchRegisterException("Register "+obisCode+" not supported!");
+        ObisCodeMapper ocm = new ObisCodeMapper(this);
+        return ocm.getRegisterValue(obisCode);
     }
     
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        // Override or add new properties here e.g. below
-        setSDKSampleProperty(Integer.parseInt(properties.getProperty("SDKSampleProperty", "123")));
+    public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
+        return ObisCodeMapper.getRegisterInfo(obisCode);
+    }    
+    
+    protected String getRegistersInfo(int extendedLogging) throws IOException {
+        return getObicCodeFactory().getRegisterInfoDescription();
     }
     
-    protected List doGetOptionalKeys() {
-        List list = new ArrayList();
-        //add new properties here, e.g. below
-        list.add("SDKSampleProperty");
-        return list;
-    }
-    protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
-        getLogger().info("call doInit(...)");
-        getLogger().info("--> construct the ProtocolConnection and all other object here");
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        // TODO code application logic here
+        MK10 mk10 = new MK10();
+        Dialer dialer=null;
+        try {
+            
+// direct rs232 connection
+            dialer =DialerFactory.getDirectDialer().newDialer();
+            dialer.init("COM1");
+            dialer.connect("",60000); 
+            
+// setup the properties (see AbstractProtocol for default properties)
+// protocol specific properties can be added by implementing doValidateProperties(..)
+            Properties properties = new Properties();
+            //properties.setProperty("SecurityLevel","2");
+            properties.setProperty(MeterProtocol.PASSWORD,"22222222");
+            properties.setProperty(MeterProtocol.ADDRESS,"RETAILR");
+            
+            properties.setProperty("ProfileInterval", "900");
+            //properties.setProperty(MeterProtocol.NODEID,"1234");
+//            properties.setProperty("SerialNumber","204006174"); // multidrop + serial number check...
+//            properties.setProperty("HalfDuplex", "50");
+            //properties.setProperty("Retries", "0");
+            
+// transfer the properties to the protocol
+            mk10.setProperties(properties);    
+            
+// depending on the dialer, set the initial (pre-connect) communication parameters            
+            dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
+                                                                     SerialCommunicationChannel.DATABITS_8,
+                                                                     SerialCommunicationChannel.PARITY_NONE,
+                                                                     SerialCommunicationChannel.STOPBITS_1);
+// initialize the protocol
+            mk10.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
+            
+// if optical head dialer, enable the HHU signon mechanism
+            if (DialerMarker.hasOpticalMarker(dialer))
+                ((HHUEnabler)mk10).enableHHUSignOn(dialer.getSerialCommunicationChannel());
+            
+            System.out.println("*********************** connect() ***********************");
+            
+// connect to the meter            
+            mk10.connect();
+            
+//            System.out.println(mk10.getCommandFactory().getInformationCommand(0xE397));
+            // energy
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0xE097));
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0xE093));
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0xE397));
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0xE497));
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0xE393));
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0xE493));
+            
+            // instantaneous
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0xE000));
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0xE033));
+
+            // tou
+//            System.out.println("TOU channel types");
+//            for (int i=0;i<=0xB;i++)
+//                System.out.println(mk10.getCommandFactory().getReadCommand(0xF790+i));
+            
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0x0000));
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0x0100));
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0x0200));
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0x0300));
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0x0400));
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0x0500));
+//            
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0x1000));
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0x1100));
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0x1200));
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0x1300));
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0x1400));
+//            System.out.println(mk10.getCommandFactory().getReadCommand(0x1500));
+//
+//            System.out.println(DateTimeBuilder.getDateFromSecondsSince1996(TimeZone.getTimeZone("ECT"),mk10.getCommandFactory().getReadCommand(0x8000).getRegister().getBigDecimal().intValue()));
+//            System.out.println(DateTimeBuilder.getDateFromSecondsSince1996(TimeZone.getTimeZone("ECT"),mk10.getCommandFactory().getReadCommand(0x8100).getRegister().getBigDecimal().intValue()));
+//            System.out.println(DateTimeBuilder.getDateFromSecondsSince1996(TimeZone.getTimeZone("ECT"),mk10.getCommandFactory().getReadCommand(0x8200).getRegister().getBigDecimal().intValue()));
+//            System.out.println(DateTimeBuilder.getDateFromSecondsSince1996(TimeZone.getTimeZone("ECT"),mk10.getCommandFactory().getReadCommand(0x8300).getRegister().getBigDecimal().intValue()));
+//            System.out.println(DateTimeBuilder.getDateFromSecondsSince1996(TimeZone.getTimeZone("ECT"),mk10.getCommandFactory().getReadCommand(0x8400).getRegister().getBigDecimal().intValue()));
+//            System.out.println(DateTimeBuilder.getDateFromSecondsSince1996(TimeZone.getTimeZone("ECT"),mk10.getCommandFactory().getReadCommand(0x8500).getRegister().getBigDecimal().intValue()));
+//            
+            
+
+//            System.out.println(mk10.getSerialNumber());
+//            System.out.println(mk10.getFirmwareVersion());
+            
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.1.2.0.255")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.1.8.0.0")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.1.2.0.0")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.1.9.0.255")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.1.16.0.255")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.1.9.0.0")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.1.16.0.0")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.3.8.0.255")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.3.2.0.255")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.3.8.0.0")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.3.2.0.0")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.3.9.0.255")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.3.16.0.255")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.3.9.0.0")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.3.16.0.0")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.8.0.255")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.2.0.255")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.8.0.0")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.2.0.0")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.9.0.255")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.16.0.255")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.9.0.0")));
+//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.16.0.0")));
+
+            
+//            System.out.println(mk10.getSerialNumber());
+            
+//            System.out.println(mk10.getFirmwareVersion());
+//            System.out.println("Meter:  "+mk10.getTime());
+//            System.out.println("System: "+new Date());
+            
+            //mk10.setTime();
+            
+//System.out.println(mk10.getCommandFactory().getReadCommand(0x2F000));  
+//{
+//    for (int i=0;i<10;i++) {
+//    System.out.println("Extension "+i+" name: "+mk10.getCommandFactory().getReadCommand(0x20000+i));            
+//    System.out.println("Extension "+i+" registerid: "+mk10.getCommandFactory().getReadCommand(0x21000+i));               
+//    System.out.println("Extension "+i+" size: "+mk10.getCommandFactory().getReadCommand(0x22000+i));          
+//    System.out.println("Extension "+i+" usage: "+mk10.getCommandFactory().getReadCommand(0x23000+i));             
+//    }
+//}
+
+// load profile ID 3
+int regId=0x00A00000; //0x03000000;   //0x03200000;          
+
+            
+//System.out.println("Load profile:");            
+//System.out.println("Nr of channels: "+mk10.getCommandFactory().getReadCommand(0x5F012+regId));            
+//System.out.println("Nr of entries: "+mk10.getCommandFactory().getReadCommand(0x5F013+regId));               
+//System.out.println("Interval: "+mk10.getCommandFactory().getReadCommand(0x5F014+regId));             
+//System.out.println("Widest channel: "+mk10.getCommandFactory().getReadCommand(0x5F019+regId));              
+//System.out.println("Registers stored in the channels:");
+//int nrOfChannels = mk10.getCommandFactory().getReadCommand(0x5F012+regId).getRegister().getBigDecimal().intValue();
+//for (int channel=0;channel<nrOfChannels;channel++) {
+//   System.out.println("channel="+channel+" register: "+mk10.getCommandFactory().getReadCommand(0x5E000+channel+regId));              
+//   System.out.println("channel="+channel+" size: "+mk10.getCommandFactory().getReadCommand(0x5E100+channel+regId));                
+//   System.out.println("channel="+channel+" type: "+mk10.getCommandFactory().getReadCommand(0x5E200+channel+regId));               
+//   System.out.println("channel="+channel+" unit: "+mk10.getCommandFactory().getReadCommand(0x5E300+channel+regId));               
+//   System.out.println("channel="+channel+" name: "+mk10.getCommandFactory().getReadCommand(0x5E400+channel+regId));             
+//   System.out.println("channel="+channel+" record offset: "+mk10.getCommandFactory().getReadCommand(0x5E500+channel+regId));             
+//}
+//
+//
+//System.out.println("Start of load survey: "+mk10.getCommandFactory().getReadCommand(0x5F020+regId));    
+//System.out.println("Current Entry nr in load profile: "+mk10.getCommandFactory().getReadCommand(0x5F021+regId));    
+
+Calendar cal = ProtocolUtils.getCalendar(mk10.getTimeZone());
+//cal.set(Calendar.DAY_OF_MONTH,31);
+//cal.set(Calendar.HOUR_OF_DAY,14);
+//cal.set(Calendar.MINUTE,40);
+//cal.set(Calendar.SECOND,0);
+//System.out.println(cal.getTime());
+//System.out.println(mk10.getCommandFactory().getFileAccessInfoCommand(0x5F008+regId));    
+//System.out.println("FW: "+mk10.getCommandFactory().getFileAccessSearchForwardCommand(0x5F008+regId, cal.getTime()));
+////System.out.println("BW: "+mk10.getCommandFactory().getFileAccessSearchBackwardCommand(0x5F008+regId, 0, cal.getTime()));
+//System.out.println("FW: "+mk10.getCommandFactory().getFileAccessReadCommand(0x5F008+regId, 0, 2, 26, 10));
+//
+//
+//
+//System.out.println("LOAD PROFILE");
+//regId=0x03000000;
+//cal = ProtocolUtils.getCalendar(mk10.getTimeZone());
+//cal.set(Calendar.DAY_OF_MONTH,31);
+//cal.set(Calendar.HOUR_OF_DAY,8);
+//cal.set(Calendar.MINUTE,5);
+//cal.set(Calendar.SECOND,0);
+//System.out.println(cal.getTime());
+//System.out.println(mk10.getCommandFactory().getFileAccessInfoCommand(0x5F008+regId));    
+//System.out.println("FW: "+mk10.getCommandFactory().getFileAccessSearchForwardCommand(0x5F008+regId, cal.getTime()));
+//System.out.println("BW: "+mk10.getCommandFactory().getFileAccessSearchBackwardCommand(0x5F008+regId, 0, cal.getTime()));
+//System.out.println("FW: "+mk10.getCommandFactory().getFileAccessReadCommand(0x5F008+regId, 513, 1, 0, 22));
+//
+
+//System.out.println(mk10.getCommandFactory().getReadCommand(0x0325F012));
+
+//ExtensionFactory ef = ExtensionFactory.getExtensionFactory(mk10.getCommandFactory());
+//LoadSurvey ls = ef.findLoadSurvey("Event Log"); //"Load_Survey1");
+//System.out.println(ls);
+//Calendar from = Calendar.getInstance();
+////from.add(Calendar.DAY_OF_MONTH,-3);
+//from.add(Calendar.HOUR_OF_DAY,-8);
+//LoadSurveyData lsd = ls.readFile(from.getTime());
+//System.out.println(lsd);
+
+
+Calendar from = Calendar.getInstance();
+from.add(Calendar.DAY_OF_MONTH,-3);
+System.out.println(mk10.getProfileData(from.getTime(),null,true));
+
+            mk10.disconnect();
+            
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
         
-        connection = new MK10Connection(inputStream,outputStream,timeoutProperty,protocolRetriesProperty,forcedDelay,echoCancelling,protocolCompatible,encryptor,getLogger());
-        return connection;
-    }
-    
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
-        getLogger().info("call overrided method getNumberOfChannels() (return 2 as sample)");
-        getLogger().info("--> report the nr of load profile channels in the meter here");
-        return 2;
-    }
-    
-    public Date getTime() throws IOException {
-        getLogger().info("call getTime() (if time is different from system time taken into account the properties, setTime will be called) ");
-        getLogger().info("--> request the metertime here");
-        long currenttime = new Date().getTime();
-        return new Date(currenttime-(1000*15));
-    }
-    public void setTime() throws IOException {
-        getLogger().info("call setTime() (this method is called automatically when needed)");
-        getLogger().info("--> sync the metertime with the systemtime here");
-    }
-    public String getProtocolVersion() {
-        //getLogger().info("call getProtocolVersion()");
-        return "$Revision: 1.5 $";  
-    }
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
-        getLogger().info("call getFirmwareVersion()");
-        getLogger().info("--> report the firmware version and other important meterinfo here");
-        return "SDK Sample firmware version";
+        
     }
 
-    public int getSDKSampleProperty() {
-        return sDKSampleProperty;
+    public TimeZone getTimeZone() {
+        return ProtocolUtils.getWinterTimeZone(super.getTimeZone());
+    }    
+    
+    public MK10Connection getMk10Connection() {
+        return mk10Connection;
     }
 
-    public void setSDKSampleProperty(int sDKSampleProperty) {
-        this.sDKSampleProperty = sDKSampleProperty;
+    public CommandFactory getCommandFactory() {
+        return commandFactory;
     }
-    
+
+    public ObisCodeFactory getObicCodeFactory() throws IOException {
+        if (obisCodeFactory==null)
+            obisCodeFactory = new ObisCodeFactory(this);
+        return obisCodeFactory;
+    }
+
+    public String getEventLogName() {
+        return eventLogName;
+    }
+
+    private void setEventLogName(String eventLogName) {
+        this.eventLogName = eventLogName;
+    }
+
+    public String getLoadSurveyName() {
+        return loadSurveyName;
+    }
+
+    private void setLoadSurveyName(String loadSurveyName) {
+        this.loadSurveyName = loadSurveyName;
+    }
+
+    public boolean isStatusFlagChannel() {
+        return statusFlagChannel==1;
+    }
+
+    public void setStatusFlagChannel(int statusFlagChannel) {
+        this.statusFlagChannel = statusFlagChannel;
+    }
+
+
+
 }
