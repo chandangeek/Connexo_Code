@@ -23,11 +23,9 @@ public class MainCoverEventLog extends AbstractEventLog {
         	timeStampPair[i] = new TimeStampPair(data,offset,getTimeZone());
         	offset+=TimeStampPair.size();
         	if (timeStampPair[i].getStartDate()!=null) {
-        		addMeterEvent(new MeterEvent(timeStampPair[i].getStartDate(), MeterEvent.OTHER, "main cover opened"+" ("+count+")"));
-        		addMeterEvent(new MeterEvent(timeStampPair[i].getEndDate(), MeterEvent.OTHER, "main cover closed"+" ("+count+")"));
-        		//addMeterEvent(new MeterEvent(timeStampPair[i].getStartDate(), MeterEvent.COVER_OPENED, "main cover opened"+" ("+count+")"));
-        		//addMeterEvent(new MeterEvent(timeStampPair[i].getEndDate(), MeterEvent.COVER_OPENED, "main cover closed"+" ("+count+")"));
-        	}
+        		addMeterEvent(new MeterEvent(timeStampPair[i].getStartDate(), MeterEvent.COVER_OPENED, "main cover opened"+" ("+count+")"));
+        		addMeterEvent(new MeterEvent(timeStampPair[i].getEndDate(), MeterEvent.COVER_OPENED, "main cover closed"+" ("+count+")"));
+        	} 
         }
 
 	}

@@ -23,9 +23,8 @@ public class ReverserunEventLog extends AbstractEventLog {
     		long shift = (long)ProtocolUtils.getInt(data,offset,4)&0xFFFFFFFFL; offset+=4;
     		if (shift>0) {
 	    		date[i] = ProtocolUtils.getCalendar(timeZone,shift).getTime();
-	            addMeterEvent(new MeterEvent(date[i], MeterEvent.OTHER, "reverse run"+" ("+count+")"));
-	            //addMeterEvent(new MeterEvent(date[i], MeterEvent.REVERSE_RUN, "reverse run"+" ("+count+")"));
-    		}
+	            addMeterEvent(new MeterEvent(date[i], MeterEvent.REVERSE_RUN, "reverse run"+" ("+count+")"));
+    		} 
         }
 
 	}
