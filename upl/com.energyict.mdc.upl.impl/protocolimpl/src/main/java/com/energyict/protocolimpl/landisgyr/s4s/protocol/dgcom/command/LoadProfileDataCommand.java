@@ -123,7 +123,7 @@ RXS4 32k 122k
         
         setChannelInfos(new ArrayList());
         for (int channel=0; channel<getCommandFactory().getLoadProfileAndSeasonChangeOptionsCommand().getNrOfActiveChannels(); channel++) {
-           ChannelInfo channelInfo = new ChannelInfo(channel,"L&G S4 channel "+channel,getCommandFactory().getLoadProfileAndSeasonChangeOptionsCommand().getLoadProfileChannelUnit(channel));    
+           ChannelInfo channelInfo = new ChannelInfo(channel,"L&G S4s channel "+channel,getCommandFactory().getLoadProfileAndSeasonChangeOptionsCommand().getLoadProfileChannelUnit(channel));    
            if (getCommandFactory().getLoadProfileMetricSelectionRXCommand().isEnergy(channel))
                channelInfo.setMultiplier(getCommandFactory().getLoadProfileAndSeasonChangeOptionsCommand().getLoadProfileChannelMultiplier(channel));
            getChannelInfos().add(channelInfo);        
@@ -354,7 +354,7 @@ RXS4 32k 122k
     }
     
     private Calendar getDateStamp(int value) throws IOException {
-        Calendar cal = ProtocolUtils.getCalendar(getCommandFactory().getS4().getTimeZone());
+        Calendar cal = ProtocolUtils.getCalendar(getCommandFactory().getS4s().getTimeZone());
         cal.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex((byte)(value&0xFF)));
         cal.set(Calendar.MONTH,(ProtocolUtils.BCD2hex((byte)((value>>8)&0x1F)))-1);
         

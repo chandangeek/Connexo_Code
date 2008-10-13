@@ -66,7 +66,7 @@ public class CurrentSeasonTOUDemandDataRXCommand extends AbstractCommand {
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         for (int i=0;i<MAX_RATES;i++) {
-            getMaximumKWtimestampsRates()[i] = Utils.getTimestampwwhhddYYDDMM(data,offset, getCommandFactory().getS4().getTimeZone());
+            getMaximumKWtimestampsRates()[i] = Utils.getTimestampwwhhddYYDDMM(data,offset, getCommandFactory().getS4s().getTimeZone());
             offset+=6;
         }
         for (int i=0;i<MAX_RATES;i++) {
@@ -74,7 +74,7 @@ public class CurrentSeasonTOUDemandDataRXCommand extends AbstractCommand {
             offset+=2;
         }
         for (int i=0;i<MAX_RATES;i++) {
-            getMaximumKMtimestampsRates()[i] = Utils.getTimestampwwhhddYYDDMM(data,offset, getCommandFactory().getS4().getTimeZone());
+            getMaximumKMtimestampsRates()[i] = Utils.getTimestampwwhhddYYDDMM(data,offset, getCommandFactory().getS4s().getTimeZone());
             offset+=6;
         }
         for (int i=0;i<MAX_RATES;i++) {

@@ -38,7 +38,7 @@ public class TimeCommand extends AbstractCommand {
         else {
             // set time
             byte[] data = new byte[]{(byte)0x21,0,0,0,0,0,0,0,0};
-            Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getS4().getTimeZone());
+            Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getS4s().getTimeZone());
             cal.setTime(getTime());
             data[1] = ProtocolUtils.hex2BCD(cal.get(Calendar.SECOND));
             data[2] = ProtocolUtils.hex2BCD(cal.get(Calendar.MINUTE));
@@ -50,7 +50,7 @@ public class TimeCommand extends AbstractCommand {
     }
     
     protected void parse(byte[] data) throws IOException {
-        Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getS4().getTimeZone());
+        Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getS4s().getTimeZone());
         cal.set(Calendar.SECOND,ProtocolUtils.BCD2hex(data[0]));
         cal.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[1]));
         cal.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(data[2]));

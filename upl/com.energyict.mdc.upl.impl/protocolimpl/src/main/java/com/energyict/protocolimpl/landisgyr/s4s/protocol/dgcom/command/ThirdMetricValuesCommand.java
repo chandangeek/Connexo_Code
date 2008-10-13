@@ -54,7 +54,7 @@ public class ThirdMetricValuesCommand extends AbstractCommand {
     
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
-        setMaxkM3Timestamp(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone())); offset+=6;
+        setMaxkM3Timestamp(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone())); offset+=6;
         setMaxkM3InPulses(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
         setPowerFactorAtMaxkM3((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2;
         setCoincidentkM3InPulses(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;

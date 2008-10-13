@@ -86,13 +86,13 @@ public class PreviousSeasonDemandDataCommand extends AbstractCommand {
         int offset=0;
         
         setPreviousSeasonCumulativeKWInPulses(ParseUtils.getBCD2LongLE(data, offset, 6));offset+=6;
-        setPreviousSeasonTimestampMaximumKW(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()));offset+=6;
+        setPreviousSeasonTimestampMaximumKW(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()));offset+=6;
         setPreviousSeasonMaximumKWInPulses(ProtocolUtils.getIntLE(data,offset,2));offset+=2;
         setCurrentSeasonCumulativeKWInPulses(ParseUtils.getBCD2LongLE(data, offset, 6));offset+=6;
         
         if (getCommandFactory().getFirmwareVersionCommand().isRX()) {
             setPreviousSeasonCumulativeKMInPulses(ParseUtils.getBCD2LongLE(data, offset, 6));offset+=6;
-            setPreviousSeasonTimestampMaximumKM(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()));offset+=6;
+            setPreviousSeasonTimestampMaximumKM(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()));offset+=6;
             setPreviousSeasonMaximumKMInPulses(ProtocolUtils.getIntLE(data,offset,2));offset+=2;
             setCurrentSeasonCumulativeKMInPulses(ParseUtils.getBCD2LongLE(data, offset, 6));offset+=6;
 
@@ -105,7 +105,7 @@ public class PreviousSeasonDemandDataCommand extends AbstractCommand {
         }
         
         if ((getCommandFactory().getFirmwareVersionCommand().isRX()) && (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00)) {
-            setPreviousSeasonTimestampMaximumKM3(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()));offset+=6;
+            setPreviousSeasonTimestampMaximumKM3(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()));offset+=6;
             setPreviousSeasonMaximumKM3InPulses(ProtocolUtils.getIntLE(data,offset,2));offset+=2;
             setPowerFactorAtPreviousSeasonMaxKM3((int)ParseUtils.getBCD2LongLE(data, offset, 2));offset+=2;
             setCoincidentKM3AtPreviousSeasonMaxBillingDemandInPulses(ProtocolUtils.getIntLE(data,offset,2));offset+=2;

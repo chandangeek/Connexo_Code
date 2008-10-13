@@ -38,7 +38,7 @@ public class DateCommand extends AbstractCommand {
         else {
             // set date
             byte[] data = new byte[]{(byte)0x22,0,0,0,0,0,0,0,0};
-            Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getS4().getTimeZone());
+            Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getS4s().getTimeZone());
             cal.setTime(getDate());
             data[1] = ProtocolUtils.hex2BCD(cal.get(Calendar.DAY_OF_WEEK));
             data[2] = ProtocolUtils.hex2BCD(cal.get(Calendar.YEAR)%100);
@@ -51,7 +51,7 @@ public class DateCommand extends AbstractCommand {
     }
     
     protected void parse(byte[] data) throws IOException {
-        Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getS4().getTimeZone());
+        Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getS4s().getTimeZone());
         // data[0] weekday
         int year = ProtocolUtils.BCD2hex(data[1]);
         cal.set(Calendar.YEAR,year>50?1900+year:2000+year);

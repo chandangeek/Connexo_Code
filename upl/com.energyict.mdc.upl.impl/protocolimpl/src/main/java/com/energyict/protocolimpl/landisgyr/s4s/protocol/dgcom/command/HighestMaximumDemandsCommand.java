@@ -104,27 +104,27 @@ public class HighestMaximumDemandsCommand extends AbstractCommand {
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         
-        getMaxDemandTimestamps()[0] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()); offset+=6;
+        getMaxDemandTimestamps()[0] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()); offset+=6;
         getMaxDemands()[0] = ProtocolUtils.getIntLE(data,offset, 2);offset+=2;
         for (int i=1;i<NR_OF_MAX_DEMANDS;i++) {
-            getMaxDemandTimestamps()[i] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()); offset+=6;
+            getMaxDemandTimestamps()[i] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()); offset+=6;
             getMaxDemands()[i] = ProtocolUtils.getIntLE(data,offset, 2);offset+=2;
         }
         if (getCommandFactory().getFirmwareVersionCommand().isRX()) {
             for (int i=0;i<NR_OF_MAX_DEMANDS;i++) {
                 getMaxDemandCoincidents()[i] = ProtocolUtils.getIntLE(data,offset, 2);offset+=2;
             }
-            setMaxkWTimestamp(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone())); offset+=6;
+            setMaxkWTimestamp(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone())); offset+=6;
             setMaxkWInPulses(ProtocolUtils.getIntLE(data,offset, 2));offset+=2;
             setPowerFactorAtMaxkW((int)ParseUtils.getBCD2LongLE(data,offset, 2));offset+=2;
-            setMaxkMTimestamp(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone())); offset+=6;
+            setMaxkMTimestamp(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone())); offset+=6;
             setMaxkMInPulses(ProtocolUtils.getIntLE(data,offset, 2));offset+=2;
             setPowerFactorAtMaxkM((int)ParseUtils.getBCD2LongLE(data,offset, 2));offset+=2;
         }
         
         if ((getCommandFactory().getFirmwareVersionCommand().isRX()) && (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00)) {
             for (int i=0;i<NR_OF_MAX_DEMANDS;i++) {
-                getNonBillingMetricMaxDemandTimestamps()[i] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()); offset+=6;
+                getNonBillingMetricMaxDemandTimestamps()[i] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()); offset+=6;
                 getNonBillingMetricMaxDemands()[i] = ProtocolUtils.getIntLE(data,offset, 2);offset+=2;
             }
         }

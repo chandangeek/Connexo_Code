@@ -210,9 +210,9 @@ public class PreviousSeasonTOUDataRXCommand extends AbstractCommand {
         
         setTotalNrOfDemandResets((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2; 
         setNumberOfOpticalDemandResets((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2; 
-        setTimestampOfLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone())); offset+=6;
+        setTimestampOfLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone())); offset+=6;
         setTotalKWHInPulsesAtLastDemandReset(ParseUtils.getBCD2LongLE(data, offset, 6)); offset+=6;
-        setTimestampOfMaximumKWAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone())); offset+=6;
+        setTimestampOfMaximumKWAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone())); offset+=6;
         setMaximumKWInPulsesAtLastDemandReset(ProtocolUtils.getIntLE(data, offset, 2)); offset+=2; 
 
         for (int i=0;i<NR_OF_RATES;i++) {
@@ -220,19 +220,19 @@ public class PreviousSeasonTOUDataRXCommand extends AbstractCommand {
             offset+=6;
         }
         setTotalKMHInPulsesAtLastDemandReset(ParseUtils.getBCD2LongLE(data, offset, 6)); offset+=6;
-        setTimestampOfMaximumKMAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone())); offset+=6;
+        setTimestampOfMaximumKMAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone())); offset+=6;
         setMaximumKMInPulsesAtLastDemandReset(ProtocolUtils.getIntLE(data, offset, 2)); offset+=2; 
 
         setAveragePowerFactorAtLastDemandReset((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2; 
-        setTimestampOfWorstPowerFactorAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone())); offset+=6;
+        setTimestampOfWorstPowerFactorAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone())); offset+=6;
         setKWAtWorstPowerFactorInPulsesAtLastDemandReset(ProtocolUtils.getIntLE(data, offset, 2)); offset+=2; 
         setWorstPowerFactorAtLastDemandReset((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2;
-        setTimestampOfWorstPowerFactorSinceLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone())); offset+=6;
+        setTimestampOfWorstPowerFactorSinceLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone())); offset+=6;
         setKWAtWorstPowerFactorSinceLastDemandReset(ProtocolUtils.getIntLE(data, offset, 2)); offset+=2; 
         setWorstPowerFactorSinceLastDemandReset((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2;
         setAveragePowerFactorSinceLastDemandReset((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2;
         for (int i=0;i<NR_OF_RATES;i++) {
-            getTimestampMaximumKWRate()[i] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone());
+            getTimestampMaximumKWRate()[i] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone());
             offset+=6;
         }
         for (int i=0;i<NR_OF_RATES;i++) {
@@ -240,7 +240,7 @@ public class PreviousSeasonTOUDataRXCommand extends AbstractCommand {
             offset+=2; 
         }
         for (int i=0;i<NR_OF_RATES;i++) {
-            getTimestampMaximumKMRate()[i] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone());
+            getTimestampMaximumKMRate()[i] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone());
             offset+=6;
         }
         for (int i=0;i<NR_OF_RATES;i++) {
@@ -273,7 +273,7 @@ public class PreviousSeasonTOUDataRXCommand extends AbstractCommand {
 
             // 5 highest max demands
             for (int i=0;i<NR_OF_MAX_DEMANDS;i++) {
-                getTimestampMaximumDemand()[i] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone());
+                getTimestampMaximumDemand()[i] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone());
                 offset+=6;
                 getMaximumDemandInPulses()[i] = ProtocolUtils.getIntLE(data, offset, 2); 
                 offset+=2; 
@@ -283,16 +283,16 @@ public class PreviousSeasonTOUDataRXCommand extends AbstractCommand {
                 offset+=2; 
             }
 
-            setTimestampOfMaximumKW(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone())); offset+=6;
+            setTimestampOfMaximumKW(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone())); offset+=6;
             setMaximumKWInPulses(ProtocolUtils.getIntLE(data, offset, 2)); offset+=2; 
             setPowerFactorAtMaximumKW((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2;
 
-            timestampOfMaximumKM = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()); offset+=6;
+            timestampOfMaximumKM = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()); offset+=6;
             int maximumKMInPulses = ProtocolUtils.getIntLE(data, offset, 2); offset+=2; 
             int powerFactorAtMaximumKM = (int)ParseUtils.getBCD2LongLE(data, offset, 2); offset+=2;
             
             for (int i=0;i<NR_OF_MAX_DEMANDS;i++) {
-                getTimestampMaximumDemandNonBillingMetric()[i] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone());
+                getTimestampMaximumDemandNonBillingMetric()[i] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone());
                 offset+=6;
                 getMaximumDemandInPulsesNonBillingMetric()[i] = ProtocolUtils.getIntLE(data, offset, 2); 
                 offset+=2; 

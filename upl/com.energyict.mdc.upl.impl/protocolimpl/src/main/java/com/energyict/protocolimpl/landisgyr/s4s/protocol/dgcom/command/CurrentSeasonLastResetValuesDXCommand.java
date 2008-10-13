@@ -52,7 +52,7 @@ public class CurrentSeasonLastResetValuesDXCommand extends AbstractCommand {
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setTotalKWHInPulsesAtLastDemandReset(ParseUtils.getBCD2LongLE(data, offset, 6));offset+=6;
-        setTimestampMaxDemandAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()));offset+=6;
+        setTimestampMaxDemandAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()));offset+=6;
         setMaxKWInPulsesAtLastDemandReset(ProtocolUtils.getIntLE(data, offset, 2));offset+=2;
     }
 

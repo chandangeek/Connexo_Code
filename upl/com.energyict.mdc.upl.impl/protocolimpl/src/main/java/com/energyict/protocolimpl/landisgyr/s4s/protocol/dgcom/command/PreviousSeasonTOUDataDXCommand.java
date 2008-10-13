@@ -71,10 +71,10 @@ public class PreviousSeasonTOUDataDXCommand extends AbstractCommand {
         
         setNrOfDemandResets((int) ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2;
         
-        setTimestampLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone())); offset+=6;
+        setTimestampLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone())); offset+=6;
         
         for(int i =0;i<NR_OF_RATES;i++) {
-            getTimestampMaximumDemand()[i] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()); 
+            getTimestampMaximumDemand()[i] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()); 
             offset+=6;
         }
         

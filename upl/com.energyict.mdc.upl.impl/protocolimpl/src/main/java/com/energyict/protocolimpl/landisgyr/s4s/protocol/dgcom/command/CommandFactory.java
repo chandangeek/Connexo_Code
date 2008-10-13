@@ -23,7 +23,7 @@ public class CommandFactory {
     
     private S4s s4s;
     FirmwareVersionCommand fvc=null;
-    S4SConfiguration s4config=null;
+    S4sConfiguration s4sconfig=null;
     TOUAndLoadProfileOptions tOUAndLoadProfileOptions=null;
     DeviceIDExtendedCommand deviceIDExtendedCommand=null;
     SerialNumberCommand serialNumberCommand=null;
@@ -147,12 +147,12 @@ public class CommandFactory {
         return tOUAndLoadProfileOptions;
     }  
     
-    public S4SConfiguration getS4Configuration() throws IOException {
-        if (s4config==null) {
-            s4config = new S4SConfiguration(this);
-            s4config.invoke();
+    public S4sConfiguration getS4sConfiguration() throws IOException {
+        if (s4sconfig==null) {
+            s4sconfig = new S4sConfiguration(this);
+            s4sconfig.invoke();
         }
-        return s4config;
+        return s4sconfig;
     }  
     
     public FirmwareVersionCommand getFirmwareVersionCommand() throws IOException {
@@ -322,10 +322,10 @@ public class CommandFactory {
         DateCommand dc = new DateCommand(this);
         dc.invoke();
         
-        Calendar calTime = ProtocolUtils.getCleanCalendar(getS4().getTimeZone());
+        Calendar calTime = ProtocolUtils.getCleanCalendar(getS4s().getTimeZone());
         calTime.setTime(tc.getTime()); 
 
-        Calendar calDate = ProtocolUtils.getCleanCalendar(getS4().getTimeZone());
+        Calendar calDate = ProtocolUtils.getCleanCalendar(getS4s().getTimeZone());
         calDate.setTime(dc.getDate());
         
         calDate.set(Calendar.SECOND,calTime.get(Calendar.SECOND));
@@ -336,9 +336,9 @@ public class CommandFactory {
     }
     
     public void setTime() throws IOException {
-        Calendar cal = ProtocolUtils.getCalendar(getS4().getTimeZone());
-        cal.add(Calendar.MILLISECOND, getS4().getInfoTypeRoundtripCorrection());
-//        unlock(getS4().getInfoTypePassword());
+        Calendar cal = ProtocolUtils.getCalendar(getS4s().getTimeZone());
+        cal.add(Calendar.MILLISECOND, getS4s().getInfoTypeRoundtripCorrection());
+//        unlock(getS4s().getInfoTypePassword());
         DateCommand dc = new DateCommand(this);
         dc.setDate(cal.getTime());
         dc.invoke();
@@ -347,12 +347,12 @@ public class CommandFactory {
         tc.invoke();
     }
     
-    public S4 getS4() {
+    public S4s getS4s() {
         return s4s;
     }
 
-    private void setS4(S4 s4) {
-        this.s4s = s4;
+    private void setS4s(S4s s4s) {
+        this.s4s = s4s;
     }
     
     

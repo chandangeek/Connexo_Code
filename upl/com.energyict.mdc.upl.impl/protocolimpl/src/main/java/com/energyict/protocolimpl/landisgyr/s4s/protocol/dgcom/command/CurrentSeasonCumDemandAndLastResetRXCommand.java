@@ -95,10 +95,10 @@ public class CurrentSeasonCumDemandAndLastResetRXCommand extends AbstractCommand
         }
         setTotalNrOfDemandResets(ProtocolUtils.getIntLE(data,offset,2));offset+=2; //(int)ParseUtils.getBCD2LongLE(data,offset,2));offset+=2;
         setNumberOfOpticalDemandResets((int)ParseUtils.getBCD2LongLE(data,offset,2));offset+=2;
-        setTimeStampOfLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()));offset+=6;
+        setTimeStampOfLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()));offset+=6;
         setTotalKWHInPulsesAtLastDemandReset(ParseUtils.getBCD2LongLE(data, offset, 6));offset+=6;
     
-        setTimeStampOfMaxKWAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()));offset+=6;
+        setTimeStampOfMaxKWAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()));offset+=6;
         setMaxKWInPulsesAtLastDemandReset(ProtocolUtils.getIntLE(data,offset,2));offset+=2;
     
         for (int i=0;i<NR_OF_RATES;i++) {
@@ -106,14 +106,14 @@ public class CurrentSeasonCumDemandAndLastResetRXCommand extends AbstractCommand
             offset+=6;
         }
         setTotalKMHInPulsesAtLastDemandReset(ParseUtils.getBCD2LongLE(data, offset, 6));offset+=6;
-        setTimeStampOfMaxKMAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()));offset+=6;
+        setTimeStampOfMaxKMAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()));offset+=6;
         setMaxKMInPulsesAtLastDemandReset(ProtocolUtils.getIntLE(data,offset,2));offset+=2;
 
         setAveragePowerFactorAtLastDemandReset((int)ParseUtils.getBCD2LongLE(data,offset,2));offset+=2;
-        setTimeStampOfWorstPowerFactorAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()));offset+=6;
+        setTimeStampOfWorstPowerFactorAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()));offset+=6;
         setKWAtWorstPowerFactorInPulsesAtLastDemandReset(ProtocolUtils.getIntLE(data,offset,2));offset+=2;
         setWorstPowerFactorAtLastDemandReset((int)ParseUtils.getBCD2LongLE(data,offset,2));offset+=2;
-        setTimeStampOfWorstPowerFactorSinceLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()));offset+=6;
+        setTimeStampOfWorstPowerFactorSinceLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()));offset+=6;
         setKWAtWorstPowerFactorSinceLastDemandReset(ProtocolUtils.getIntLE(data,offset,2));offset+=2;
         setWorstPowerFactorSinceLastDemandReset((int)ParseUtils.getBCD2LongLE(data,offset,2));offset+=2;        
     }

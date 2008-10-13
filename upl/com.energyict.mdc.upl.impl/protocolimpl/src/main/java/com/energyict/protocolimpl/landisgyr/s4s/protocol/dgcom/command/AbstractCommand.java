@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.*;
+import com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.*;
 import java.io.*;
 
 /**
@@ -36,18 +36,18 @@ abstract public class AbstractCommand {
         byte[] data = prepareBuild();
         
         if (!(this instanceof UnlockCommand)) {
-            if (getCommandFactory().getS4().getInfoTypeSecurityLevel()>0) {
-                getCommandFactory().unlock(getCommandFactory().getS4().getInfoTypePassword());
+            if (getCommandFactory().getS4s().getInfoTypeSecurityLevel()>0) {
+                getCommandFactory().unlock(getCommandFactory().getS4s().getInfoTypePassword());
             }
             else {
                 if ((this instanceof DateCommand) || (this instanceof TimeCommand)) {
                     if (!isResponseData())
-                        getCommandFactory().unlock(getCommandFactory().getS4().getInfoTypePassword());
+                        getCommandFactory().unlock(getCommandFactory().getS4s().getInfoTypePassword());
                 }
             }
         }
         
-        ResponseData rd = getCommandFactory().getS4().getDgcomConnection().sendCommand(data, isResponseData(),size);
+        ResponseData rd = getCommandFactory().getS4s().getDgcomConnection().sendCommand(data, isResponseData(),size);
         if (isResponseData())
             parse(rd.getData());
     }

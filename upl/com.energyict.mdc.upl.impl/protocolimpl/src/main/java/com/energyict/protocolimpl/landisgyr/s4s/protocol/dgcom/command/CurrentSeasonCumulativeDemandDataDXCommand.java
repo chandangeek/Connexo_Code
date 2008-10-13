@@ -58,7 +58,7 @@ public class CurrentSeasonCumulativeDemandDataDXCommand extends AbstractCommand 
         }
         setNrOfDemandResets(ProtocolUtils.getIntLE(data,offset,2));
         offset+=2;
-        setLastDemandResetTimeStamp(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()));
+        setLastDemandResetTimeStamp(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()));
     }
 
     public long[] getCumulativeDemandRatesInPulses() {

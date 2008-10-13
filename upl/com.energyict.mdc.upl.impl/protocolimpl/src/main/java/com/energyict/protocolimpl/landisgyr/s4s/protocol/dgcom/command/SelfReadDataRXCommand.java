@@ -77,7 +77,7 @@ public class SelfReadDataRXCommand extends AbstractCommand {
     }
     
     private void parseTimestamp(byte[] data, int offset) throws IOException {
-        Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getS4().getTimeZone());
+        Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getS4s().getTimeZone());
         cal.set(Calendar.SECOND,ProtocolUtils.BCD2hex(data[offset]));
         cal.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[offset+1]));
         cal.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(data[offset+2]));
