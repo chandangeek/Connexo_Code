@@ -19,22 +19,22 @@ import java.io.*;
  */
 public class RegisterMapperFactory {
     
-    S4 s4;
+    S4s s4s;
     RegisterMapper registerMapper=null;        
     
     /** Creates a new instance of RegisterMapperFactory */
-    public RegisterMapperFactory(S4 s4) {
-        this.s4=s4;
+    public RegisterMapperFactory(S4s s4s) {
+        this.s4s=s4s;
     }
     
     
     public RegisterMapper getRegisterMapper() throws IOException {
         if (registerMapper == null) {
-            if (s4.getCommandFactory().getFirmwareVersionCommand().isRX()) {
-                registerMapper = new RegisterMapperRX(s4);
+            if (s4s.getCommandFactory().getFirmwareVersionCommand().isRX()) {
+                registerMapper = new RegisterMapperRX(s4s);
             }
-            else if (s4.getCommandFactory().getFirmwareVersionCommand().isDX()) {
-                registerMapper =new RegisterMapperDX(s4);
+            else if (s4s.getCommandFactory().getFirmwareVersionCommand().isDX()) {
+                registerMapper =new RegisterMapperDX(s4s);
             }
         }
         return registerMapper;

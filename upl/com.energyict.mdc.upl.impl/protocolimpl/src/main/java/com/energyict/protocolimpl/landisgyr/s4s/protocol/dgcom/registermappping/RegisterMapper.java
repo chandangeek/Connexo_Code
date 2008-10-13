@@ -12,7 +12,7 @@ package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.registermappping
 
 import com.energyict.obis.*;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.*;
+import com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.*;
 import java.io.*;
 import java.util.*;
 
@@ -25,16 +25,16 @@ abstract public class RegisterMapper {
     abstract protected void buildRegisterValues(int billingPoint) throws IOException;
     abstract protected String getBillingExtensionDescription() throws IOException;
     
-    S4 s4;
+    S4s s4s;
     List registers;
     
     boolean current;
     boolean[] selfread;
     private int nrOfBillingPeriods;
             
-    public RegisterMapper(S4 s4) throws IOException {
-        this.s4=s4;
-        setNrOfBillingPeriods(s4.getCommandFactory().getSelfReadConfigurationCommand().getNrOfSelfReadsToStore());
+    public RegisterMapper(S4s s4s) throws IOException {
+        this.s4s=s4s;
+        setNrOfBillingPeriods(s4s.getCommandFactory().getSelfReadConfigurationCommand().getNrOfSelfReadsToStore());
         registers = new ArrayList();
         current=false;
         selfread = new boolean[getNrOfBillingPeriods()];
