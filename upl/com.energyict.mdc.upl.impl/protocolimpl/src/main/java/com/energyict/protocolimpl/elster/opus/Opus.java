@@ -236,7 +236,7 @@ public class Opus extends AbstractProtocol{
 	}
 	public void setTime() throws IOException {
 		// time and date are read in the factory
-		//ocf.command(101, attempts, timeOut, null);
+		ocf.command(101, attempts, timeOut, null);
 	}
 
 	public void initializeDevice() throws IOException, UnsupportedException {
