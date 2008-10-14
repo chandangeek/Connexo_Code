@@ -70,6 +70,7 @@ public class OpusCommandFactory {
 	private ProtocolChannelMap channelMap;
 	private TimeZone timezone;
 	private int timeOut;
+	private boolean realtimeout=false;
 
 
 	/*
@@ -138,10 +139,19 @@ public class OpusCommandFactory {
 		return stateMachine1(5,attempts,timeOut,numChan,data);
 	}
 	private ArrayList retrievalOfDailyPeriodData(int commandnr,int attempts, int timeOut, int numChan, int offset, int cap, Calendar cal) throws IOException {
+		realtimeout=true;						// FIRMWARE BUG tool 
+		ArrayList aL=new ArrayList();
 		String d=""+offset;
 		String c=""+cap;
 		String[] data=dataArrayBuilder("0",d,c,"0","0","0",oldPassword,newPassword); // build data packet
-		return stateMachine2(commandnr,attempts,timeOut,data,cal);
+		try{									// catch firmware bug if number of channels is less then number of channels defined in frame 1 
+			aL = stateMachine2(commandnr,attempts,timeOut,data,cal, aL);
+		}catch(IOException e){
+			if(realtimeout){
+				throw e;
+			}
+		}
+		return aL;
 	}
 	private ArrayList currentDayPeriodData(int attempts,int timeOut, int numChan,int period, int cap) throws IOException {
 		// check 001 thing, comes from log-files
@@ -300,10 +310,10 @@ public class OpusCommandFactory {
 		return returnedData;
 	}
 	// second state machine, commands 10-69
-	private ArrayList stateMachine2(int commandnr,int attempts, int timeOut, String[] data,Calendar cal) throws IOException{
+	private ArrayList stateMachine2(int commandnr,int attempts, int timeOut, String[] data,Calendar cal, ArrayList returnedData) throws IOException{
 		int attempts1= attempts,attempts2=attempts, attempts3=attempts,attempts4=attempts;
 		ERROR_FLAG=false;
-		ArrayList returnedData=new ArrayList();
+		//ArrayList returnedData=new ArrayList();
 		boolean temp=true,loop=true; // to pass true or false flags from state to state
 		OpusBuildPacket sendPacket,receivePacket;
 		String s="";
@@ -344,6 +354,7 @@ public class OpusCommandFactory {
 					state=acknak(3,1,2);
 					break;
 				case 3:
+					realtimeout=false;
 					outputStream.write(STX);
 					state=4;
 					break;
