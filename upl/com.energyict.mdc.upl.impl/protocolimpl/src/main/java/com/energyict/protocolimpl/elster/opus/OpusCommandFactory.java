@@ -92,18 +92,18 @@ public class OpusCommandFactory {
 	 * 1) Processing of the command (after making an instance of the class)
 	 */
 	public ArrayList command(int command, int attempts, int timeOut, Calendar cal) throws IOException{
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		this.timeOut=timeOut;
 		ArrayList s=new ArrayList();
 		if(numChan==-1){
 			s=writeReadControlOutstation(attempts, timeOut);
 			String[] str=(String[])s.get(0);
 			this.numChan=Integer.parseInt(str[1]);					// set number of channels in this object			
+		}
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		// maybe good to catch some of the errors here
 		if     (command==3) {s=currentMonthCumulativeReadings(attempts, timeOut, numChan);}
