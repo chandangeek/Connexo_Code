@@ -132,11 +132,16 @@ public class Opus extends AbstractProtocol{
 	public void connect() throws IOException {
 		// download final information
 		ArrayList s;								// ArrayList to catch data from factory
+		boolean trybool=true;
 		try {
+			System.out.println("here we try");
 			s=ocf.command(121,attempts,timeOut, null);			// factory command
+			trybool=false;
 		} catch (IOException e) {
-			throw new IOException(e.getMessage()+ ". Interframe timeout probably caused because no node address "+this.outstationID+" is found");
+			System.out.println("here we throw");
+			throw new IOException(e.getMessage());//+ ". Interframe timeout probably caused because no node address "+this.outstationID+" is found");
 		}
+		System.out.println("here we are");
 		String[] st;
 		st=(String[]) s.get(0);
 		this.numChan=Integer.parseInt(st[1]);			// set number of channels in this object
@@ -234,7 +239,7 @@ public class Opus extends AbstractProtocol{
 	}
 	public void setTime() throws IOException {
 		// time and date are read in the factory
-		ocf.command(101, attempts, timeOut, null);
+		//ocf.command(101, attempts, timeOut, null);
 	}
 
 	public void initializeDevice() throws IOException, UnsupportedException {
