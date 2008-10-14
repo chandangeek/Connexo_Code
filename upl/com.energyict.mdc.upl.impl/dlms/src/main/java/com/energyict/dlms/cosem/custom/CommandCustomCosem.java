@@ -15,6 +15,7 @@ public class CommandCustomCosem extends Data {
 	static public final int EXIST=3;
 	static public final int SYNCMESSAGES=4;
 	static public final int UPDATEDEVICE=5;
+	static public final int LOOKUPRESOURCES=6;
 	
 	// ... add new returncodes here...
 
@@ -66,6 +67,9 @@ public class CommandCustomCosem extends Data {
     public void updateDevice() throws IOException {
    		setValueAttr(new Integer8(UPDATEDEVICE));
     }
+    public void lookupResources() throws IOException {
+   		setValueAttr(new Integer8(LOOKUPRESOURCES));
+    }
     
     public void post() throws IOException {
    		setValueAttr(new Integer8(POST));
@@ -97,6 +101,9 @@ public class CommandCustomCosem extends Data {
     
     public boolean isUpdateDevice() throws IOException {
    		return getCode() == UPDATEDEVICE;
+    }    
+    public boolean isLookupResources() throws IOException {
+   		return getCode() == LOOKUPRESOURCES;
     }    
     
 	public int getCode() throws IOException {

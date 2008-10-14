@@ -63,6 +63,9 @@ abstract public class AbstractDataType {
     public boolean isOctetString() {
         return this instanceof OctetString;
     }  
+    public boolean isInteger32() {
+        return this instanceof Integer32;
+    }  
     public boolean isNullData() {
         return this instanceof NullData;
     }  

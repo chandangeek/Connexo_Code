@@ -34,7 +34,7 @@ public class CosemAPDUParser {
 	private DeviceCustomCosem deviceCustomCosem = null;
 	private DeployDataCustomCosem deployDataCustomCosem=null;
 	private List<DeviceChannelName> deviceChannelNames=null;
-	
+	private LookupResourcesCustomCosem lookupResourcesCustomCosem=null;
 	
 	public CosemAPDUParser() {
 	}
@@ -52,6 +52,7 @@ public class CosemAPDUParser {
 		deviceCustomCosem = null;
 		deployDataCustomCosem = null;
 		deviceChannelNames = null;
+		lookupResourcesCustomCosem = null;
 		
 		// local
 		previousEndTime=null;
@@ -118,7 +119,7 @@ public class CosemAPDUParser {
 	}
 	
 	private boolean isDeviceChannelNameObject(ObisCode obisCode) {
-		return ((obisCode.getA()==0) && (obisCode.getB()==0) && (obisCode.getC()==96) && (obisCode.getD()==121) && (obisCode.getF()==255));
+		return ((obisCode.getA()==0) && (obisCode.getB()==0) && (obisCode.getC()==96) && (obisCode.getD()==121) && (obisCode.getF()==0));
 			
 	}
 	
@@ -139,8 +140,12 @@ public class CosemAPDUParser {
 				if (deviceChannelNames==null)
 					deviceChannelNames = new ArrayList();
 				Structure s = apdu.getDataType().getStructure();
-				DeviceChannelName dcn = new DeviceChannelName(apdu.getCosemAttributeDescriptor().getObis().getE(),s.getOctetString().stringValue());
+				
+				DeviceChannelName dcn = new DeviceChannelName(apdu.getCosemAttributeDescriptor().getObis().getE(),s.getDataType(0).getOctetString().stringValue());
 				deviceChannelNames.add(dcn);
+			}
+			else if (apdu.getCosemAttributeDescriptor().getObis().equals(LookupResourcesCustomCosem.getObisCode())) {
+				lookupResourcesCustomCosem = new LookupResourcesCustomCosem(apdu.getDataType());
 			}
 			else if (apdu.getCosemAttributeDescriptor().getObis().equals(DeviceMessageCustomCosem.getObisCode())) {
 				if (deviceMessageCustomCosems==null)
@@ -455,6 +460,10 @@ public class CosemAPDUParser {
 
 	public List<DeviceChannelName> getDeviceChannelNames() {
 		return deviceChannelNames;
+	}
+
+	public LookupResourcesCustomCosem getLookupResourcesCustomCosem() {
+		return lookupResourcesCustomCosem;
 	}
 
 }
