@@ -70,7 +70,7 @@ public class OpusCommandFactory {
 	private ProtocolChannelMap channelMap;
 	private TimeZone timezone;
 	private int timeOut;
-	private boolean realtimeout=false, firsttimecall=true;
+	private boolean realtimeout=false;
 
 
 	/*
@@ -92,7 +92,6 @@ public class OpusCommandFactory {
 	 * 1) Processing of the command (after making an instance of the class)
 	 */
 	public ArrayList command(int command, int attempts, int timeOut, Calendar cal) throws IOException{
-		System.out.println("this is a command");
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
@@ -106,11 +105,6 @@ public class OpusCommandFactory {
 			String[] str=(String[])s.get(0);
 			this.numChan=Integer.parseInt(str[1]);					// set number of channels in this object			
 		}
-		if(firsttimecall && command==121){  // 121 has to be done first in the connect!!
-			firsttimecall=false;
-			return s;
-		}
-		firsttimecall=false;
 		// maybe good to catch some of the errors here
 		if     (command==3) {s=currentMonthCumulativeReadings(attempts, timeOut, numChan);}
 		else if(command==4) {s=previousMonthCumulativeReadings(attempts, timeOut, numChan);}
@@ -196,7 +190,6 @@ public class OpusCommandFactory {
 		String[] data=dataArrayBuilder("48","0","0","0","0","1",oldPassword,newPassword); // build data packet
 		// 48 at position 0 must be there, 1 at position 5 indicates that all values are to be ignored + read operation
 		com121=true;
-		System.out.println("writeReadControlOS");
 		ArrayList s=stateMachine3(121,attempts,timeOut,data);
 		com121=false;
 		return s;
@@ -502,7 +495,6 @@ public class OpusCommandFactory {
 		// build time and date data package
 		interFrameTimeout = System.currentTimeMillis() + timeOut; // timeout between states
 		
-		System.out.println("state 3");
 		while(loop){			
 			// time out check
 	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {	        	
