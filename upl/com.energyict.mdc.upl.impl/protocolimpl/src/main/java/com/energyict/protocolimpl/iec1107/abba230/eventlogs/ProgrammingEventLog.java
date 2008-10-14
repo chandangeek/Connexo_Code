@@ -42,7 +42,7 @@ public class ProgrammingEventLog extends AbstractEventLog {
         for(int i=0;i<MAX_ENTRIES;i++) {
         	programmerEventLogEntries[i] = new ProgrammerEventLogEntry(data,offset, getTimeZone());
         	offset+=ProgrammerEventLogEntry.size();
-        	System.out.println(programmerEventLogEntries[i]);
+        	//System.out.println(programmerEventLogEntries[i]);
         	addMeterEvent(new MeterEvent(programmerEventLogEntries[i].getTimeStampIndex(), MeterEvent.CONFIGURATIONCHANGE,programmerEventLogEntries[i].getProgrammerIndex()+" ("+count+")"));
         }
 	}
