@@ -774,7 +774,7 @@ public class MedoCommunicationsFactory{
 	public void setMultipliers(char[] dialexp, char[] dialmlt) {
 		channelMultipliers=new int[numChan];
 		for(int i=0; i<numChan; i++){
-			channelMultipliers[i]=(int) Math.pow(10,(long) dialexp[i])*dialmlt[i];
+			channelMultipliers[i]=1; //(int) Math.pow(10,(long) dialexp[i])*dialmlt[i];  // CHANGE HERE THE MULTIPLIERS
 		}		
 	}
 	public void setChannelMap(ProtocolChannelMap channelMap) {
