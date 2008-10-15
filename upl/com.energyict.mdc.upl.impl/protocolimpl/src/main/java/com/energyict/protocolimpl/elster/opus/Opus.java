@@ -132,12 +132,10 @@ public class Opus extends AbstractProtocol{
 	public void connect() throws IOException {
 		// download final information
 		ArrayList s;								// ArrayList to catch data from factory
-		boolean trybool=true;
 		try {
 			s=ocf.command(121,attempts,timeOut, null);			// factory command
-			trybool=false;
 		} catch (IOException e) {
-			throw new IOException(e.getMessage());//+ ". Interframe timeout probably caused because no node address "+this.outstationID+" is found");
+			throw new IOException(e.getMessage()+ ". Interframe timeout probably caused because no node address "+this.outstationID+" is found");
 		}
 		String[] st;
 		st=(String[]) s.get(0);
@@ -170,7 +168,7 @@ public class Opus extends AbstractProtocol{
 	public int getNumberOfChannels() throws UnsupportedException, IOException {
         if (this.channelMap.getNrOfProtocolChannels() == -1)
             throw new IOException("getNumberOfChannels(), ChannelMap property not given. Cannot determine the nr of channels...");
-		return this.channelMap.getNrOfUsedProtocolChannels();
+		return this.channelMap.getNrOfProtocolChannels();
 	}
 
 	public ProfileData getProfileData(boolean includeEvents) throws IOException {

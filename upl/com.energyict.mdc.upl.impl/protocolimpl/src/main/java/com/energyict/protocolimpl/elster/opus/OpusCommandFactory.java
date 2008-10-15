@@ -19,7 +19,10 @@ public class OpusCommandFactory {
 	 * 1) command number is used to call the correct method
 	 * 2) method generates the data sequence needed for the transmission
 	 * 3) the correct state machine connected to the command is selected and the connection is made
-	 * 
+	 * <p>
+	 * BUGREPORT: solution to firmware bug: changes have to be made in STATE 7 in statemachine 2, the receive probably
+	 * 			  receives a EOT, catch it there and set state to 13.  (Not a very nice solution)
+	 * <p>
 	 * -> the return is a data array (List)
 	 *  <p>
 	 *  Initial version:<p>
