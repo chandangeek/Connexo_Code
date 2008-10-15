@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
 import com.energyict.protocolimpl.edmi.mk10.loadsurvey.*;
+
 import java.io.*;
 import java.util.*;
 
@@ -23,33 +24,26 @@ import com.energyict.protocol.*;
 public class MK10Profile {
     
     private final int DEBUG=0;
+
     MK10 mk10;
     LoadSurvey loadSurvey=null;
     LoadSurvey eventLog=null;
-    ExtensionFactory extensionFactory=null;
     
     /** Creates a new instance of MK10ProfileData */
     public MK10Profile(MK10 mk10) {
         this.mk10=mk10;
     }
-    
-    private ExtensionFactory getExtensionFactory() throws IOException {
-        if (extensionFactory == null) {
-            extensionFactory = new ExtensionFactory(mk10.getCommandFactory());
-        }
-        return extensionFactory;
-    }
-    
+        
     private LoadSurvey getLoadSurvey() throws IOException {
-        if (loadSurvey==null) {
-            loadSurvey = getExtensionFactory().findLoadSurvey(mk10.getLoadSurveyName());
+    	if (loadSurvey==null) {
+    		loadSurvey = new LoadSurvey(mk10.getCommandFactory(), mk10.getLoadSurveyNumber());            
         }
         return loadSurvey;
-   }
+    }
     
     private LoadSurvey getEventLog() throws IOException {
         if (eventLog==null) {
-            eventLog = getExtensionFactory().findLoadSurvey(mk10.getEventLogName());
+            //TODO AANVULLEN
         }
         return eventLog;
     }

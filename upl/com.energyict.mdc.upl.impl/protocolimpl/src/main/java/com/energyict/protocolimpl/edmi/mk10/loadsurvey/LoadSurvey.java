@@ -12,6 +12,7 @@ package com.energyict.protocolimpl.edmi.mk10.loadsurvey;
 
 import com.energyict.protocolimpl.edmi.mk10.core.*;
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 import com.energyict.protocolimpl.edmi.mk10.command.*;
@@ -21,9 +22,11 @@ import com.energyict.protocolimpl.edmi.mk10.command.*;
  */
 public class LoadSurvey {
     
+    private static final int BASE_REGISTER_ID = 0xD800;
+
     private CommandFactory commandFactory;
+    private int LoadSurveyNumber;
     private int registerId;
-    
     private int nrOfChannels;
     private LoadSurveyChannel[] loadSurveyChannels;
     private int profileInterval;
@@ -33,9 +36,10 @@ public class LoadSurvey {
     private Date startTime;
     
     /** Creates a new instance of LoadSurvey */
-    public LoadSurvey(CommandFactory commandFactory, int registerId) throws IOException {
+    public LoadSurvey(CommandFactory commandFactory, int LoadSurveyNumber) throws IOException {
         this.setCommandFactory(commandFactory);
-        this.setRegisterId(registerId);
+        this.setLoadSurveyNumber(LoadSurveyNumber);
+        this.genRegisterId();
         init();
     }
 
@@ -61,36 +65,47 @@ public class LoadSurvey {
     }  
     
     private void init() throws IOException {
-        setNrOfChannels(getCommandFactory().getReadCommand(registerId).getRegister().getBigDecimal().intValue()+1); // steeds 1 extra channel with the status! Number of load survey channels, excluding the 0 channel.
-        
+        // Channels and Interval are in the same register (Base registerId + 6)
+    	// Number of channels -> Bit 0 to 5
+    	// Interval           -> Bit 6 to 11 (The interval is stored in minutes)
+    	int ChannelsIntervalRegister = getCommandFactory().getReadCommand(registerId + 6).getRegister().getBigDecimal().intValue();
+    	int channels = (ChannelsIntervalRegister & 0x001F);
+    	int interval = ((ChannelsIntervalRegister & 0x0FC0) >> 6) * 60;
+    	
+        long firstentry = getCommandFactory().getReadCommand(registerId + 2).getRegister().getBigDecimal().longValue();
+        long lastentry = getCommandFactory().getReadCommand(registerId + 3).getRegister().getBigDecimal().longValue();
 
-        //setProfileInterval(getCommandFactory().getReadCommand((registerId<<16)|0x5F014).getRegister().getBigDecimal().intValue()); // Seconds between readings, for fixed interval load surveys.
-        //setNrOfEntries(getCommandFactory().getReadCommand((registerId<<16)|0x5F013).getRegister().getBigDecimal().intValue()); // Max nr of entries in the load survey
-        //setEntryWidth(getCommandFactory().getReadCommand((registerId<<16)|0x5F018).getRegister().getBigDecimal().intValue()); // The total entry width (including checksum/status word). This is the sum of the channel widths plus 2.
-        //setLoadSurveyChannels(new LoadSurveyChannel[getNrOfChannels()]);
-        //storedEntries = getCommandFactory().getReadCommand((registerId<<16)|0x5F021).getRegister().getBigDecimal().intValue();  // Holds the number of entries in the load survey. This is
-                                                                                                                                //stored as a long, and MOD can be used with ‘number of
-                                                                                                                                //entries’ to find the current pointer into the load survey. This
-                                                                                                                                //gives a continuous register number, useful when reading non
-                                                                                                                                //fixed interval load surveys. If the number is bigger than
-                                                                                                                                //‘number of entries’ the load survey is full and is wrapping.
-        //startTime =  getCommandFactory().getReadCommand((registerId<<16)|0x5F020).getRegister().getDate(); // The first time that was stored in the survey ever.
+    	setNrOfChannels(channels + 1); 	// Always 1 additional channel with the status! Number of load survey channels, excluding the 0 channel.
+        setProfileInterval(interval); 	// Seconds between readings, for fixed interval load surveys.        
+        setStoredEntries(lastentry-firstentry);
+        setLoadSurveyChannels(new LoadSurveyChannel[getNrOfChannels()]);
+        setStartTime(getCommandFactory().getReadCommand(registerId).getRegister().getDate()); // The first time that was stored in the survey ever.
+
+        setNrOfEntries(0xFFFF); // Max nr of entries in the load survey. The MK10 meter only supports 32 entries per channel.
+        setEntryWidth(3); // The total entry width (including checksum/status word). This is the sum of the channel widths plus 2.        
        
-/*
+
         for (int channel = 0; channel <  getLoadSurveyChannels().length; channel++) {
             LoadSurveyChannel lsc = new LoadSurveyChannel();
-            lsc.setName(getCommandFactory().getReadCommand((registerId<<16)|0x5E400|channel).getRegister().getString());
-            lsc.setOffset(getCommandFactory().getReadCommand((registerId<<16)|0x5E500|channel).getRegister().getBigDecimal().intValue());
-            lsc.setRegister(getCommandFactory().getReadCommand((registerId<<16)|0x5E000|channel).getRegister().getBigDecimal().intValue());
-            lsc.setScaling(getCommandFactory().getReadCommand((registerId<<16)|0x5E600|channel).getRegister().getBigDecimal().intValue());
-            lsc.setScalingFactor(getCommandFactory().getReadCommand((registerId<<16)|0x5E800|channel).getRegister().getBigDecimal());
-            lsc.setType(getCommandFactory().getReadCommand((registerId<<16)|0x5E200|channel).getRegister().getBigDecimal().intValue());
-            RegisterUnitParser rup = new RegisterUnitParser();
-            lsc.setUnit(rup.parse((char)getCommandFactory().getReadCommand((registerId<<16)|0x5E300|channel).getRegister().getBigDecimal().intValue()));
-            lsc.setWidth(getCommandFactory().getReadCommand((registerId<<16)|0x5E100|channel).getRegister().getBigDecimal().intValue());
+            int ChannelDef = getCommandFactory().
+									  getReadCommand((BASE_REGISTER_ID + channel + (0x0020 * getLoadSurveyNumber()))).
+									  getRegister().
+									  getBigDecimal().
+									  intValue(); 
+
+        	ChannelTypeParser ctp = new ChannelTypeParser(ChannelDef);
+
+        	
+            lsc.setName("CH" + String.valueOf(channel));
+            lsc.setScaling(ctp.getDecimalPointScaling());
+            lsc.setScalingFactor(ctp.getScalingFactor());
+            lsc.setType(ctp.getType());
+            lsc.setUnit(ctp.getUnit());
+
+            //lsc.setWidth(getCommandFactory().getReadCommand((registerId<<16)|0x5E100|channel).getRegister().getBigDecimal().intValue());
             getLoadSurveyChannels()[channel]=lsc;
         }
-*/
+
         
     }
     
@@ -107,12 +122,20 @@ public class LoadSurvey {
         this.commandFactory = commandFactory;
     }
 
-    public int getRegisterId() {
+    public int getLoadSurveyNumber() {
+		return LoadSurveyNumber;
+	}
+
+	public void setLoadSurveyNumber(int loadSurveyNumber) {
+		LoadSurveyNumber = loadSurveyNumber;
+	}
+
+	public int getRegisterId() {
         return registerId;
     }
 
-    private void setRegisterId(int registerId) {
-        this.registerId = registerId;
+    private void genRegisterId() {
+        this.registerId = BASE_REGISTER_ID + getLoadSurveyNumber();
     }
 
     public int getNrOfChannels() {

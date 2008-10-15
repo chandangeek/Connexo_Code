@@ -23,12 +23,10 @@ import com.energyict.cbo.*;
  */
 public class LoadSurveyChannel {
     
-    private int register;
     private int width;
     private int type; // internal data type
     private Unit unit;
     private String name;
-    private int offset;
     private int scaling;
     private BigDecimal scalingFactor;
     
@@ -43,8 +41,6 @@ public class LoadSurveyChannel {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("LoadSurveyChannel:\n");
         strBuff.append("   name="+getName()+"\n");
-        strBuff.append("   offset="+getOffset()+"\n");
-        strBuff.append("   register="+getRegister()+"\n");
         strBuff.append("   scaling="+getScaling()+"\n");
         strBuff.append("   scalingFactor="+getScalingFactor()+"\n");
         strBuff.append("   type="+getType()+"\n");
@@ -53,14 +49,8 @@ public class LoadSurveyChannel {
         return strBuff.toString();
     }
 
-    public int getRegister() {
-        return register;
-    }
 
    
-    public void setRegister(int register) {
-        this.register = register;
-    }
 
     public int getWidth() {
         return width;
@@ -92,14 +82,6 @@ public class LoadSurveyChannel {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public int getOffset() {
-        return offset;
-    }
-
-    public void setOffset(int offset) {
-        this.offset = offset;
     }
 
     public int getScaling() {

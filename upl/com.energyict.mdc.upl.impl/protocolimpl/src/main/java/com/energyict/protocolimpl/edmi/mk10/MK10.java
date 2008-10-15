@@ -12,11 +12,15 @@ package com.energyict.protocolimpl.edmi.mk10;
 
 import com.energyict.obis.*;
 import com.energyict.protocolimpl.edmi.mk10.loadsurvey.*;
-import com.energyict.protocolimpl.edmi.mk10.loadsurvey.ExtensionFactory;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.*;
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
+
+import org.hibernate.PropertyNotFoundException;
+import org.hibernate.PropertyValueException;
+
+import sun.security.action.GetLongAction;
         
 import com.energyict.dialer.core.*;
 import com.energyict.protocol.*;
@@ -24,6 +28,7 @@ import com.energyict.protocolimpl.base.*;
 
 import com.energyict.protocolimpl.edmi.mk10.command.*;
 import com.energyict.protocolimpl.edmi.mk10.core.*;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 
 /**
  *
@@ -35,8 +40,7 @@ KV|14112007|Fix to use the correct first record timestamp
  */
 public class MK10 extends AbstractProtocol {
     
-    private static final int DEBUG=1;
-    
+    private static final int DEBUG=1;    
     private MK10Connection mk10Connection=null;
     private CommandFactory commandFactory=null;
     private ObisCodeFactory obisCodeFactory=null;
@@ -44,8 +48,7 @@ public class MK10 extends AbstractProtocol {
     
     private String eventLogName;
 
-    private String loadSurveyName;
-    
+    private int loadSurveyNumber;
     private int statusFlagChannel;
     
     /** Creates a new instance of MK10 */
@@ -68,7 +71,8 @@ public class MK10 extends AbstractProtocol {
         sendDebug("doValidateProperties()");
         setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.NODEID,"1"));
         setEventLogName(properties.getProperty("EventLogName","Event Log"));
-        setLoadSurveyName(properties.getProperty("LoadSurveyName","Load_Survey"));
+        validateLoadSurveyNumber(properties.getProperty("LoadSurveyNumber"));
+        setLoadSurveyNumber(Integer.parseInt(properties.getProperty("LoadSurveyNumber").trim())-1);
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
         setStatusFlagChannel(Integer.parseInt(properties.getProperty("StatusFlagChannel","0").trim()));
     }
@@ -87,7 +91,7 @@ public class MK10 extends AbstractProtocol {
         sendDebug("doGetOptionalKeys()");
         List result = new ArrayList();
         result.add("EventLogName");
-        result.add("LoadSurveyName");
+        result.add("LoadSurveyNumber");
         result.add("StatusFlagChannel");
         return result;
     }
@@ -120,10 +124,9 @@ public class MK10 extends AbstractProtocol {
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         sendDebug("getFirmwareVersion()");
         return "Equipment model id:"+getCommandFactory().getReadCommand(0xF000).getRegister().getString()+"\n"+ // Equipment model id
-               "Software revision:"+getCommandFactory().getReadCommand(0xF003).getRegister().getString()+"\n"+ // software version
-               "Last version nr:"+getCommandFactory().getReadCommand(0xFC18).getRegister().getString()+"\n"+ // last version number
-               "Last revision nr:"+getCommandFactory().getReadCommand(0xFC19).getRegister().getString()+"\n"+ // last revision number
-               "Software revision nr:"+getCommandFactory().getReadCommand(0xF090).getRegister().getString()+"\n"+ // software revision number
+               "Software version:"+getCommandFactory().getReadCommand(0xF003).getRegister().getString()+"\n"+ // Software version
+               "Software revision:"+getCommandFactory().getReadCommand(0xF090).getRegister().getString()+"\n"+ // Software revision
+               "Bootloader revision:"+getCommandFactory().getReadCommand(0xF091).getRegister().getString()+"\n"+ // Software revision
                "Serial number:"+getSerialNumber(); // serial number
     }
     
@@ -176,8 +179,8 @@ public class MK10 extends AbstractProtocol {
             properties.setProperty("SerialNumber","206332371");
             properties.setProperty(MeterProtocol.ADDRESS,"EDMI");
             properties.setProperty(MeterProtocol.PASSWORD,"IMDEIMDE");
-            properties.setProperty("ProfileInterval", "900");
-            properties.setProperty("LoadSurveyName", "LoadSurvey1");
+            properties.setProperty("ProfileInterval", "1800");
+            properties.setProperty("LoadSurveyNumber", "1");
             
             //properties.setProperty(MeterProtocol.NODEID,"1234");
 //            properties.setProperty("HalfDuplex", "50");
@@ -201,8 +204,11 @@ public class MK10 extends AbstractProtocol {
                         
 // connect to the meter            
             mk10.connect();
-            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0xD800).toString());
-            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0xF530).toString());
+            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0xD800).toString());            
+            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0xE002).toString());
+            mk10.sendDebug("Number of channels: " + String.valueOf(mk10.getNumberOfChannels()));
+            mk10.sendDebug("Profile interval:   " + String.valueOf(mk10.getProfileInterval()));
+            //mk10.sendDebug(mk10.getFirmwareVersion());
             mk10.disconnect();
             int i = 2;
             
@@ -401,15 +407,22 @@ System.out.println(mk10.getProfileData(from.getTime(),null,true));
         sendDebug("setEventLogName(): " + this.eventLogName);
     }
 
-    public String getLoadSurveyName() {
-        return loadSurveyName;
+    public int getLoadSurveyNumber() {
+        return loadSurveyNumber;
     }
 
-    private void setLoadSurveyName(String loadSurveyName) {
-        this.loadSurveyName = loadSurveyName;
-        sendDebug("setLoadSurveyName(): " + this.loadSurveyName);
+    private void setLoadSurveyNumber(int loadSurveyNr) {
+        this.loadSurveyNumber = loadSurveyNr;
+        sendDebug("setLoadSurveyNumber(): " + String.valueOf(this.loadSurveyNumber));
     }
 
+    private void validateLoadSurveyNumber(String value) throws MissingPropertyException, InvalidPropertyException {
+    	if (value == null)
+    		throw new MissingPropertyException("No LoadSurveyNumber property found! Must be 1 or 2 for the EDMI MK10 meter.");
+    	if (!value.trim().equalsIgnoreCase("1") && !value.trim().equalsIgnoreCase("2")) 
+    		throw new InvalidPropertyException("Wrong LoadSurveyNumber value: " + value + "! Must be 1 or 2 for the EDMI MK10 meter.");
+    }
+    
     public boolean isStatusFlagChannel() {
         return statusFlagChannel==1;
     }

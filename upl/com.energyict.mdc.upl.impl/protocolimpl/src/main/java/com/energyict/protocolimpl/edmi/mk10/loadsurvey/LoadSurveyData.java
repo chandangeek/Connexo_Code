@@ -124,7 +124,8 @@ public class LoadSurveyData {
     }
     
     private byte[] getData(int intervalIndex, int channelIndex) throws IOException {
-        int offset = intervalIndex * loadSurvey.getEntryWidth() + loadSurvey.getLoadSurveyChannels()[channelIndex].getOffset();
+        //TODO AANPASSEN !!!!!!!!!!!!!!!
+    	int offset = intervalIndex * loadSurvey.getEntryWidth() + loadSurvey.getLoadSurveyChannels()[channelIndex].getOffset();
         return ProtocolUtils.getSubArray2(getData(), offset, loadSurvey.getLoadSurveyChannels()[channelIndex].getWidth());
     }
     
