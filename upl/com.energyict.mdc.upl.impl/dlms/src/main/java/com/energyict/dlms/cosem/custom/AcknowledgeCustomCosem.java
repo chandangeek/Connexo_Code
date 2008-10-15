@@ -12,6 +12,8 @@ public class AcknowledgeCustomCosem extends Data {
 	static public final int SUCCESS=0;
 	static public final int FAILURE=1;
 	static public final int NO_VALID_DBASE_REFERENCE=2;
+	static public final int DEVICE_NOT_EXIST=3;
+	
 	
 	// ... add new returncodes here...
 	
@@ -48,6 +50,14 @@ public class AcknowledgeCustomCosem extends Data {
     
 	static public ObisCode getObisCode() {
 		return ObisCode.fromByteArray(LN) ;
+	}
+	
+	public boolean isSuccess() throws IOException {
+		return getCode()==SUCCESS;
+	}
+	
+	public boolean isDeviceNotFound() throws IOException {
+		return getCode()==DEVICE_NOT_EXIST;
 	}
 	
     protected int getClassId() {
