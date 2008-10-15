@@ -101,6 +101,15 @@ public class CM10Profile {
 			return cal.getTime();
 	}
 	
+	
+	
+	//Demands: This is the fundamental data required by DCs. 
+	//Each demand value stored in the outstation is simply a count of pulses 
+	//received on that channel over a demand period. To derive actual energy you 
+	//multiply by the UPP factor - as you rightly say. This factor, although stored 
+	//in a CM-32 is not readable using CM10 protocol. It has been normal for the DC 
+	//system to maintain a data base of mulipliers for each channel, for each outstation.
+
 	protected void addChannelInfos(ProfileData profileData) throws IOException {
 		int numberOfChannels = cm10Protocol.getNumberOfChannels();
 		FullPersonalityTable fullPersonalityTable = cm10Protocol.getFullPersonalityTable();
@@ -108,7 +117,7 @@ public class CM10Profile {
 		for (int i = 0; i < numberOfChannels; i++) {
 			ChannelInfo channelInfo = 
 				new ChannelInfo(
-						i, "CM10_"+(i+1), Unit.get(BaseUnit.UNITLESS), 0, i, new BigDecimal(multipliers[i]));
+						i, "CM10_"+(i+1), Unit.get(BaseUnit.UNITLESS)); //, 0, i, new BigDecimal(multipliers[i]));
 			profileData.addChannel(channelInfo);			
 		}
 	}
