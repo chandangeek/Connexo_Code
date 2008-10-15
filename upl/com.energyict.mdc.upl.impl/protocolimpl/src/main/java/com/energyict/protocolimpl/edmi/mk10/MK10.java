@@ -35,7 +35,7 @@ KV|14112007|Fix to use the correct first record timestamp
  */
 public class MK10 extends AbstractProtocol {
     
-    private static final int DEBUG=0;
+    private static final int DEBUG=1;
     
     private MK10Connection mk10Connection=null;
     private CommandFactory commandFactory=null;
@@ -54,15 +54,18 @@ public class MK10 extends AbstractProtocol {
     }
     
     protected void doConnect() throws IOException {
-        getCommandFactory().enterCommandLineMode();
+        sendDebug("doConnect()");
+    	getCommandFactory().enterCommandLineMode();
         getCommandFactory().logon(getInfoTypeDeviceID(),getInfoTypePassword());
     }
     
     protected void doDisConnect() throws IOException {
+        sendDebug("doDisConnect()");
         getCommandFactory().exitCommandLineMode();
     }
     
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+        sendDebug("doValidateProperties()");
         setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.NODEID,"1"));
         setEventLogName(properties.getProperty("EventLogName","Event Log"));
         setLoadSurveyName(properties.getProperty("LoadSurveyName","Load_Survey"));
@@ -71,14 +74,17 @@ public class MK10 extends AbstractProtocol {
     }
     
     public int getProfileInterval() throws UnsupportedException, IOException { 
+        sendDebug("getProfileInterval()");
         return mk10Profile.getProfileInterval();
     }
     
     public int getNumberOfChannels() throws UnsupportedException, IOException {
+        sendDebug("getNumberOfChannels()");
         return mk10Profile.getNumberOfChannels();
     }    
     
     protected List doGetOptionalKeys() {
+        sendDebug("doGetOptionalKeys()");
         List result = new ArrayList();
         result.add("EventLogName");
         result.add("LoadSurveyName");
@@ -87,26 +93,32 @@ public class MK10 extends AbstractProtocol {
     }
     
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
+        sendDebug("doInit()");
         mk10Connection = new MK10Connection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber());
         commandFactory = new CommandFactory(this);
         mk10Profile = new MK10Profile(this);
+
         return getMk10Connection();
     }
     public Date getTime() throws IOException {
+        sendDebug("getTime()");
         TimeInfo ti = new TimeInfo(this);
         return ti.getTime();
     }
     
     public void setTime() throws IOException {
+        sendDebug("setTime()");
         TimeInfo ti = new TimeInfo(this);
         ti.setTime();
     }
     
     public String getProtocolVersion() {
+        sendDebug("getProtocolVersion()");
         return "$Revision: 1.7 $";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
+        sendDebug("getFirmwareVersion()");
         return "Equipment model id:"+getCommandFactory().getReadCommand(0xF000).getRegister().getString()+"\n"+ // Equipment model id
                "Software revision:"+getCommandFactory().getReadCommand(0xF003).getRegister().getString()+"\n"+ // software version
                "Last version nr:"+getCommandFactory().getReadCommand(0xFC18).getRegister().getString()+"\n"+ // last version number
@@ -116,10 +128,12 @@ public class MK10 extends AbstractProtocol {
     }
     
     public String getSerialNumber() throws IOException {
+        sendDebug("getSerialNumber()");
         return getCommandFactory().getReadCommand(0xF002).getRegister().getString(); // Serial number
     }
     
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+        sendDebug("getProfileData()");
         return mk10Profile.getProfileData(from, to, includeEvents);
     }
     
@@ -137,6 +151,7 @@ public class MK10 extends AbstractProtocol {
     }    
     
     protected String getRegistersInfo(int extendedLogging) throws IOException {
+        sendDebug("getRegistersInfo()");
         return getObicCodeFactory().getRegisterInfoDescription();
     }
     
@@ -157,13 +172,14 @@ public class MK10 extends AbstractProtocol {
 // setup the properties (see AbstractProtocol for default properties)
 // protocol specific properties can be added by implementing doValidateProperties(..)
             Properties properties = new Properties();
-            //properties.setProperty("SecurityLevel","2");
-            properties.setProperty(MeterProtocol.PASSWORD,"22222222");
-            properties.setProperty(MeterProtocol.ADDRESS,"RETAILR");
-            
+
+            properties.setProperty("SerialNumber","206332371");
+            properties.setProperty(MeterProtocol.ADDRESS,"EDMI");
+            properties.setProperty(MeterProtocol.PASSWORD,"IMDEIMDE");
             properties.setProperty("ProfileInterval", "900");
+            properties.setProperty("LoadSurveyName", "LoadSurvey1");
+            
             //properties.setProperty(MeterProtocol.NODEID,"1234");
-//            properties.setProperty("SerialNumber","204006174"); // multidrop + serial number check...
 //            properties.setProperty("HalfDuplex", "50");
             //properties.setProperty("Retries", "0");
             
@@ -176,17 +192,23 @@ public class MK10 extends AbstractProtocol {
                                                                      SerialCommunicationChannel.PARITY_NONE,
                                                                      SerialCommunicationChannel.STOPBITS_1);
 // initialize the protocol
-            mk10.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
+            //mk10.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("logger"));
+            mk10.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"), null);
             
 // if optical head dialer, enable the HHU signon mechanism
             if (DialerMarker.hasOpticalMarker(dialer))
                 ((HHUEnabler)mk10).enableHHUSignOn(dialer.getSerialCommunicationChannel());
-            
-            System.out.println("*********************** connect() ***********************");
-            
+                        
 // connect to the meter            
             mk10.connect();
+            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0xD800).toString());
+            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0xF530).toString());
+            mk10.disconnect();
+            int i = 2;
             
+            if (i==2) {
+            	return;
+            }
 //            System.out.println(mk10.getCommandFactory().getInformationCommand(0xE397));
             // energy
 //            System.out.println(mk10.getCommandFactory().getReadCommand(0xE097));
@@ -375,7 +397,8 @@ System.out.println(mk10.getProfileData(from.getTime(),null,true));
     }
 
     private void setEventLogName(String eventLogName) {
-        this.eventLogName = eventLogName;
+    	this.eventLogName = eventLogName;
+        sendDebug("setEventLogName(): " + this.eventLogName);
     }
 
     public String getLoadSurveyName() {
@@ -384,6 +407,7 @@ System.out.println(mk10.getProfileData(from.getTime(),null,true));
 
     private void setLoadSurveyName(String loadSurveyName) {
         this.loadSurveyName = loadSurveyName;
+        sendDebug("setLoadSurveyName(): " + this.loadSurveyName);
     }
 
     public boolean isStatusFlagChannel() {
@@ -392,8 +416,20 @@ System.out.println(mk10.getProfileData(from.getTime(),null,true));
 
     public void setStatusFlagChannel(int statusFlagChannel) {
         this.statusFlagChannel = statusFlagChannel;
+        sendDebug("setStatusFlagChannel(): " + String.valueOf(statusFlagChannel));
     }
 
-
+    public void sendDebug(String str){
+        if (DEBUG == 1) {
+        	str = " **** DEBUG > " + str;
+        	Logger log = getLogger();
+        	if (log != null) {
+            	getLogger().info(str);
+        	} 
+        	else {
+            	System.out.println(str);
+        	}
+        }
+    }
 
 }

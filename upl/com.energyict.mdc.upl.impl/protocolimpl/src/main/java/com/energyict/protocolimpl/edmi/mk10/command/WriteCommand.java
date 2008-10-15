@@ -46,14 +46,27 @@ public class WriteCommand extends AbstractCommand {
     private final char COMMAND='N'; // 'W'
     
     protected byte[] prepareBuild() {  
-        byte[] data2 = new byte[getData().length+1+4];
-        data2[0] = COMMAND;
-        data2[1]=(byte)(getRegisterId()>>24);
-        data2[2]=(byte)(getRegisterId()>>16);
-        data2[3]=(byte)(getRegisterId()>>8);
-        data2[4]=(byte)getRegisterId();
-        System.arraycopy(getData(),0,data2,5,getData().length);
-        return data2;
+    	byte[] data2;
+    	
+    	if (COMMAND == 'N') {
+	    	data2 = new byte[getData().length+1+4];
+	        data2[0] = 'N';
+	        data2[1]=(byte)(getRegisterId()>>24);
+	        data2[2]=(byte)(getRegisterId()>>16);
+	        data2[3]=(byte)(getRegisterId()>>8);
+	        data2[4]=(byte)getRegisterId();
+	        System.arraycopy(getData(),0,data2,5,getData().length);
+    	}
+
+    	if (COMMAND == 'W') {
+	    	data2 = new byte[getData().length+1+2];
+	        data2[0] = 'W';
+	        data2[1]=(byte)(getRegisterId()>>8);
+	        data2[2]=(byte)getRegisterId();
+	        System.arraycopy(getData(),0,data2,5,getData().length);
+    	}
+
+    	return data2;
     }
     
     protected void parse(byte[] rawData) throws IOException {

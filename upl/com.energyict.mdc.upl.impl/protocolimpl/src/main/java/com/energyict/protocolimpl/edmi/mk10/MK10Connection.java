@@ -36,9 +36,8 @@ public class MK10Connection extends Connection  implements ProtocolConnection {
     
     long sourceId;
     long destinationId=-1;
-    int sequenceNr=0xFFFE; // initial sequencenumber
+    int sequenceNr=0x7FFF; // initial sequencenumber
     long forcedDelay;
-    
     
     /** Creates a new instance of AlphaConnection */
     public MK10Connection(InputStream inputStream,
@@ -110,7 +109,7 @@ public class MK10Connection extends Connection  implements ProtocolConnection {
     } // public void sendCommand(byte[] cmdData) throws ConnectionException
     
     private void genSequenceNr() {
-        if ((sequenceNr==0) || (sequenceNr==0xFFFF)) sequenceNr=1;
+        if ((sequenceNr==0) || (sequenceNr>=0x7FFF)) sequenceNr=1;
         else sequenceNr++;
     }
     
@@ -141,7 +140,6 @@ public class MK10Connection extends Connection  implements ProtocolConnection {
     }
     
     private void sendFrame() throws ConnectionException {
-        
         sendOut(txOutputStream.toByteArray());
     }
     
@@ -152,10 +150,16 @@ public class MK10Connection extends Connection  implements ProtocolConnection {
         byte[] cmdData=rawData;
         byte[] txFrame=null;
         if (isExtendedCommunication()) {  // multidrop...
-            if (rawData==null)
-               cmdData = getExtendedCommandHeader();
-            else
-               cmdData = ProtocolUtils.concatByteArrays(getExtendedCommandHeader(),rawData);
+            // rawData is null when sending the EnterCommandline command
+        	// The EnterCommandline command has no data so it's impossible to use a extended command.
+        	// An extended command without actual data will return a <CAN><WRONG_LENGTH> message.
+        	if (rawData==null){
+            	//cmdData = getExtendedCommandHeader();
+                cmdData = null;
+        	}
+        	else {
+                cmdData = ProtocolUtils.concatByteArrays(getExtendedCommandHeader(),rawData);
+        	}
         }
         if ((cmdData!=null) && (cmdData.length>0)) {
             txFrame = new byte[cmdData.length+1+2]; // [STX][cmdData array bytes][CRC 16 bit]
@@ -219,15 +223,24 @@ public class MK10Connection extends Connection  implements ProtocolConnection {
                             // Calc CRC
                             byte[] rxFrame = allDataArrayOutputStream.toByteArray();
                             if (CRCGenerator.ccittCRC(rxFrame)==0) {
-                                // OK
-//System.out.println("rxFrame = "+ProtocolUtils.outputHexString(rxFrame));    
-                                if (isExtendedCommunication()) {
-                                   int rxSequenceNr = (((int)rxFrame[10]&0xFF)<<8) | ((int)rxFrame[11]&0xFF);
-                                   if (rxSequenceNr != sequenceNr)
-                                       throw new ProtocolConnectionException("receiveFrame() rxSequenceNr("+rxSequenceNr+") != sequenceNr("+sequenceNr+")",PROTOCOL_ERROR);
-                                   else
-                                       return new ResponseData(ProtocolUtils.getSubArray(rxFrame,12, rxFrame.length-3));
-                                }
+
+                            	// The EnterCommandline command doesn't support extended packages. 
+                            	// The response will be a normal package even if isExtendedCommunication() returns true
+                            	// so we have to check the length of the package to see if it's a real extended package.
+                            	// A extended package always contains the following fields and length
+                            	//		<Destination_ID> 	4 bytes
+                            	//		<Source_ID> 		4 bytes
+                            	//		<Sequencenumber> 	2 bytes
+                            	// So an extended package is always bigger than 10 bytes
+
+                            	if (isExtendedCommunication() & (rxFrame.length > 10)) {
+                            		int rxSequenceNr = (((int)rxFrame[10]&0xFF)<<8) | ((int)rxFrame[11]&0xFF);
+                            		if (rxSequenceNr != sequenceNr) {
+                            			throw new ProtocolConnectionException("receiveFrame() rxSequenceNr("+rxSequenceNr+") != sequenceNr("+sequenceNr+")",PROTOCOL_ERROR);
+                            		} else {
+                            			return new ResponseData(ProtocolUtils.getSubArray(rxFrame,12, rxFrame.length-3));
+                            		}
+                            	}
                                 else
                                    return new ResponseData(ProtocolUtils.getSubArray(rxFrame,1, rxFrame.length-3)); 
                             }

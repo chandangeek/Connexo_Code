@@ -31,13 +31,28 @@ public class ExtensionFactory {
     }
     
     private void init() throws IOException {
-        nrOfLoadedExtensions = commandFactory.getReadCommand(0x0002F001).getRegister().getBigDecimal().intValue();
-        setExtensions(new Extension[nrOfLoadedExtensions]);
-        for (int extension = 0;extension < getNrOfLoadedExtensions(); extension++) {
-            String name = commandFactory.getReadCommand(0x00020000+extension).getRegister().getString();
-            int registerId = commandFactory.getReadCommand(0x00021000+extension).getRegister().getBigDecimal().intValue();
-            getExtensions()[extension] = new Extension(registerId,name);
-        }
+
+		// There are 7 profiles available
+    	// 	* SystemLog
+    	//	* AccesLog
+    	//  * TamperLog
+    	//  * DiagnosticsLog
+    	//	* SagSwell
+    	//	* LoadSurvey1
+    	//	* LoadSurvey2
+
+    	nrOfLoadedExtensions = 7;
+		setExtensions(new Extension[nrOfLoadedExtensions]);
+
+		//TODO Aanpassen
+		getExtensions()[0] = new Extension(0x0000,"SystemLog");
+		getExtensions()[1] = new Extension(0x0000,"AccesLog");
+		getExtensions()[2] = new Extension(0x0000,"TamperLog");
+		getExtensions()[3] = new Extension(0x0000,"DiagnosticsLog");
+		getExtensions()[4] = new Extension(0x0000,"SagSwell");
+		getExtensions()[5] = new Extension(0xD800,"LoadSurvey1");
+		getExtensions()[6] = new Extension(0xD801,"LoadSurvey2");
+
     }
 
     public int getNrOfLoadedExtensions() {

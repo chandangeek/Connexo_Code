@@ -61,19 +61,22 @@ public class LoadSurvey {
     }  
     
     private void init() throws IOException {
-        setNrOfChannels(getCommandFactory().getReadCommand((registerId<<16)|0x5F012).getRegister().getBigDecimal().intValue()+1); // steeds 1 extra channel with the status! Number of load survey channels, excluding the 0 channel.
-        setProfileInterval(getCommandFactory().getReadCommand((registerId<<16)|0x5F014).getRegister().getBigDecimal().intValue()); // Seconds between readings, for fixed interval load surveys.
-        setNrOfEntries(getCommandFactory().getReadCommand((registerId<<16)|0x5F013).getRegister().getBigDecimal().intValue()); // Max nr of entries in the load survey
-        setEntryWidth(getCommandFactory().getReadCommand((registerId<<16)|0x5F018).getRegister().getBigDecimal().intValue()); // The total entry width (including checksum/status word). This is the sum of the channel widths plus 2.
-        setLoadSurveyChannels(new LoadSurveyChannel[getNrOfChannels()]);
-        storedEntries = getCommandFactory().getReadCommand((registerId<<16)|0x5F021).getRegister().getBigDecimal().intValue();  // Holds the number of entries in the load survey. This is
+        setNrOfChannels(getCommandFactory().getReadCommand(registerId).getRegister().getBigDecimal().intValue()+1); // steeds 1 extra channel with the status! Number of load survey channels, excluding the 0 channel.
+        
+
+        //setProfileInterval(getCommandFactory().getReadCommand((registerId<<16)|0x5F014).getRegister().getBigDecimal().intValue()); // Seconds between readings, for fixed interval load surveys.
+        //setNrOfEntries(getCommandFactory().getReadCommand((registerId<<16)|0x5F013).getRegister().getBigDecimal().intValue()); // Max nr of entries in the load survey
+        //setEntryWidth(getCommandFactory().getReadCommand((registerId<<16)|0x5F018).getRegister().getBigDecimal().intValue()); // The total entry width (including checksum/status word). This is the sum of the channel widths plus 2.
+        //setLoadSurveyChannels(new LoadSurveyChannel[getNrOfChannels()]);
+        //storedEntries = getCommandFactory().getReadCommand((registerId<<16)|0x5F021).getRegister().getBigDecimal().intValue();  // Holds the number of entries in the load survey. This is
                                                                                                                                 //stored as a long, and MOD can be used with ‘number of
                                                                                                                                 //entries’ to find the current pointer into the load survey. This
                                                                                                                                 //gives a continuous register number, useful when reading non
                                                                                                                                 //fixed interval load surveys. If the number is bigger than
                                                                                                                                 //‘number of entries’ the load survey is full and is wrapping.
-        startTime =  getCommandFactory().getReadCommand((registerId<<16)|0x5F020).getRegister().getDate(); // The first time that was stored in the survey ever.
+        //startTime =  getCommandFactory().getReadCommand((registerId<<16)|0x5F020).getRegister().getDate(); // The first time that was stored in the survey ever.
        
+/*
         for (int channel = 0; channel <  getLoadSurveyChannels().length; channel++) {
             LoadSurveyChannel lsc = new LoadSurveyChannel();
             lsc.setName(getCommandFactory().getReadCommand((registerId<<16)|0x5E400|channel).getRegister().getString());
@@ -87,6 +90,8 @@ public class LoadSurvey {
             lsc.setWidth(getCommandFactory().getReadCommand((registerId<<16)|0x5E100|channel).getRegister().getBigDecimal().intValue());
             getLoadSurveyChannels()[channel]=lsc;
         }
+*/
+        
     }
     
     public LoadSurveyData readFile(Date from) throws IOException {

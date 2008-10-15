@@ -52,7 +52,7 @@ public class ReadCommand extends AbstractCommand {
     // Following the EDMI protocoldescription,R and M command should behave the same. Means all accepting 4 bytes as command.
     // However, only the M command seems to behave like that
     // Also, the EZiView software uses the M command
-    private final char COMMAND='M'; // 'R'
+    private final char COMMAND='R'; // 'M'
     
     protected byte[] prepareBuild() {
        

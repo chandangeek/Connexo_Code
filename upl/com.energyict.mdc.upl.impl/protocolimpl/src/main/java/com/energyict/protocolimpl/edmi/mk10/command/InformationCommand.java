@@ -41,7 +41,7 @@ public class InformationCommand extends AbstractCommand {
         return strBuff.toString();
     }
     
-    private final char COMMAND='O'; // 'I'
+    private final char COMMAND='I'; // 'O'
     
     protected byte[] prepareBuild() {
         if (COMMAND == 'I') {
