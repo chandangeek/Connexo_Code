@@ -10,6 +10,8 @@
 
 package com.energyict.protocolimpl.edmi.mk10.loadsurvey;
 
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.mk10.core.*;
 import java.io.*;
 import java.math.BigDecimal;
@@ -75,38 +77,47 @@ public class LoadSurvey {
         long firstentry = getCommandFactory().getReadCommand(registerId + 2).getRegister().getBigDecimal().longValue();
         long lastentry = getCommandFactory().getReadCommand(registerId + 3).getRegister().getBigDecimal().longValue();
 
-    	setNrOfChannels(channels + 1); 	// Always 1 additional channel with the status! Number of load survey channels, excluding the 0 channel.
-        setProfileInterval(interval); 	// Seconds between readings, for fixed interval load surveys.        
+    	setNrOfChannels(channels + 1); 					// Always 1 additional channel with the status! Number of load survey channels, excluding the 0 channel.
+        setProfileInterval(interval); 					// Seconds between readings, for fixed interval load surveys.        
         setStoredEntries(lastentry-firstentry);
         setLoadSurveyChannels(new LoadSurveyChannel[getNrOfChannels()]);
-        setStartTime(getCommandFactory().getReadCommand(registerId).getRegister().getDate()); // The first time that was stored in the survey ever.
+        setStartTime(getCommandFactory().getReadCommand(registerId + 0x00B0).getRegister().getDate()); // The first time that was stored in the survey ever.
 
-        setNrOfEntries(0xFFFF); // Max nr of entries in the load survey. The MK10 meter only supports 32 entries per channel.
-        setEntryWidth(3); // The total entry width (including checksum/status word). This is the sum of the channel widths plus 2.        
+        setNrOfEntries(0xFFFF); 						// Max nr of entries in the load survey. The MK10 meter only supports 32 entries per channel.
+        setEntryWidth((getNrOfChannels() * 2) - 1); 	// The total entry width (including status word). This is the sum of the channel widths minus 1 for the status width.
        
-
         for (int channel = 0; channel <  getLoadSurveyChannels().length; channel++) {
             LoadSurveyChannel lsc = new LoadSurveyChannel();
-            int ChannelDef = getCommandFactory().
-									  getReadCommand((BASE_REGISTER_ID + channel + (0x0020 * getLoadSurveyNumber()))).
-									  getRegister().
-									  getBigDecimal().
-									  intValue(); 
-
-        	ChannelTypeParser ctp = new ChannelTypeParser(ChannelDef);
-
+            
+            if ((channel+1) == nrOfChannels) { 
+            	lsc.setName("Status channel"); //Last channel in loadsurvey is statuschannel.
+            	lsc.setScaling(0);
+            	lsc.setScalingFactor(new BigDecimal(0));
+            	lsc.setUnit(Unit.get(""));
+            	lsc.setType('C');
+            	lsc.setWidth(1);
+            } 
+            else {
+            	int tempreg = (BASE_REGISTER_ID + 0x0040 + channel + (0x0020 * getLoadSurveyNumber()));
+            	int ChannelDef = getCommandFactory().
+				 				 getReadCommand(tempreg).
+				 				 getRegister().
+				 				 getBigDecimal().
+				 				 intValue(); 
+                String registeridstr = "0x" + ProtocolUtils.buildStringHex(tempreg, 4);
+                this.commandFactory.getMk10().sendDebug("Channel " + String.valueOf(channel) + " RegisterID: " + registeridstr + " Value: 0x" + ProtocolUtils.buildStringHex(ChannelDef, 4));
         	
-            lsc.setName("CH" + String.valueOf(channel));
-            lsc.setScaling(ctp.getDecimalPointScaling());
-            lsc.setScalingFactor(ctp.getScalingFactor());
-            lsc.setType(ctp.getType());
-            lsc.setUnit(ctp.getUnit());
-
-            //lsc.setWidth(getCommandFactory().getReadCommand((registerId<<16)|0x5E100|channel).getRegister().getBigDecimal().intValue());
+	            ChannelTypeParser ctp = new ChannelTypeParser(ChannelDef);
+	        	
+	            lsc.setName(ctp.getName());
+	            lsc.setScaling(ctp.getDecimalPointScaling());
+	            lsc.setScalingFactor(ctp.getScalingFactor());
+	            lsc.setType(ctp.getType());
+	            lsc.setUnit(ctp.getUnit());
+	            lsc.setWidth(2);
+            }
             getLoadSurveyChannels()[channel]=lsc;
-        }
-
-        
+        }        
     }
     
     public LoadSurveyData readFile(Date from) throws IOException {

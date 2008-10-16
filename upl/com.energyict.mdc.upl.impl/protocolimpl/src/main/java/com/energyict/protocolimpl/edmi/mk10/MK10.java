@@ -204,10 +204,16 @@ public class MK10 extends AbstractProtocol {
                         
 // connect to the meter            
             mk10.connect();
-            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0xD800).toString());            
-            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0xE002).toString());
-            mk10.sendDebug("Number of channels: " + String.valueOf(mk10.getNumberOfChannels()));
-            mk10.sendDebug("Profile interval:   " + String.valueOf(mk10.getProfileInterval()));
+            //mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0xD800).toString());            
+            //mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0xE002).toString());
+            //mk10.sendDebug("Number of channels: " + String.valueOf(mk10.getNumberOfChannels()));
+            //mk10.sendDebug("Profile interval:   " + String.valueOf(mk10.getProfileInterval()));
+            //System.out.println(mk10.mk10Profile.loadSurvey.toString());
+
+            mk10.sendDebug("\n");
+            mk10.sendDebug(mk10.commandFactory.getReadCommand(0xD8B0).getRegister().getDate().toString()); // The first time that was stored in the survey ever.                        
+            //mk10.sendDebug(mk10.commandFactory.getFileAccessReadCommand('0', 0x00, 0x00000000, 0xFFFF).toString());
+            mk10.sendDebug("\n");
             //mk10.sendDebug(mk10.getFirmwareVersion());
             mk10.disconnect();
             int i = 2;

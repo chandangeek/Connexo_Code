@@ -43,7 +43,7 @@ public class WriteCommand extends AbstractCommand {
 //        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new ReadCommand(null)));
 //    }
      
-    private final char COMMAND='N'; // 'W'
+    private final char COMMAND='W'; // 'W'
     
     protected byte[] prepareBuild() {  
     	byte[] data2;
@@ -63,7 +63,7 @@ public class WriteCommand extends AbstractCommand {
 	        data2[0] = 'W';
 	        data2[1]=(byte)(getRegisterId()>>8);
 	        data2[2]=(byte)getRegisterId();
-	        System.arraycopy(getData(),0,data2,5,getData().length);
+	        System.arraycopy(getData(),0,data2,3,getData().length);
     	}
 
     	return data2;

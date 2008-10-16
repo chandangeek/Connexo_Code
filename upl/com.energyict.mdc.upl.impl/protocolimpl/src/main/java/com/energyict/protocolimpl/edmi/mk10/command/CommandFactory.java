@@ -98,48 +98,12 @@ public class CommandFactory {
         wc.invoke();
     }
     
-    public FileAccessInfoCommand getFileAccessInfoCommand(int registerId) throws IOException {
-        if (DEBUG>=1) System.out.println("KV_DEBUG> getFileAccessInfoCommand(registerId=0x"+Integer.toHexString(registerId));        
-        FileAccessInfoCommand faic = new FileAccessInfoCommand(this);
-        faic.setRegisterId(registerId);
-        faic.invoke();
-        if (DEBUG>=1) System.out.println("KV_DEBUG> getFileAccessInfoCommand()="+faic);
-        return faic;
-    }
-    
-    public FileAccessSearchCommand getFileAccessSearchForwardCommand(int registerId, Date date) throws IOException {
-        FileAccessInfoCommand faic = getFileAccessInfoCommand(registerId);
-        return getFileAccessSearchCommand(registerId, faic.getStartRecord(), date, 1);
-    }
-    
-    public FileAccessSearchCommand getFileAccessSearchForwardCommand(int registerId, long startRecord, Date date) throws IOException {
-        return getFileAccessSearchCommand(registerId, startRecord, date, 1);
-    }
-    
-    public FileAccessSearchCommand getFileAccessSearchBackwardCommand(int registerId, long startRecord, Date date) throws IOException {
-        return getFileAccessSearchCommand(registerId, startRecord, date, 0);
-    }
-    
-    public FileAccessSearchCommand getFileAccessSearchCommand(int registerId, long startRecord, Date date, int direction) throws IOException {
-        if (DEBUG>=1) System.out.println("KV_DEBUG> getFileAccessSearchCommand(registerId=0x"+Integer.toHexString(registerId)+", startRecord="+startRecord+", date="+date+", direction="+direction+")");        
-        FileAccessSearchCommand fasc = new FileAccessSearchCommand(this);
-        fasc.setRegisterId(registerId);
-        fasc.setStartRecord(startRecord);
-        fasc.setDate(date);
-        fasc.setDirection(direction);
-        fasc.invoke();
-        if (DEBUG>=1) System.out.println("KV_DEBUG> getFileAccessSearchCommand()="+fasc);
-        return fasc;
-    }
-    
-    public FileAccessReadCommand getFileAccessReadCommand(int registerId, long startRecord, int numberOfRecords, int recordOffset, int recordSize) throws IOException {
-        if (DEBUG>=1) System.out.println("KV_DEBUG> getFileAccessReadCommand(registerId=0x"+Integer.toHexString(registerId)+", startRecord="+startRecord+", numberOfRecords="+numberOfRecords+", recordOffset="+recordOffset+", recordSize"+recordSize+")");        
+    public FileAccessReadCommand getFileAccessReadCommand(int surveyLog, int Options, long startrecord, int numberofrecords) throws IOException {
         FileAccessReadCommand farc = new FileAccessReadCommand(this);
-        farc.setRegisterId(registerId);
-        farc.setStartRecord(startRecord);
-        farc.setNumberOfRecords(numberOfRecords);
-        farc.setRecordOffset(recordOffset);
-        farc.setRecordSize(recordSize);
+        farc.setSurveyLog(surveyLog);
+        farc.setOptions(Options);
+        farc.setStartRecord(startrecord);
+        farc.setNumberOfRecords(numberofrecords);
         farc.invoke();
         if (DEBUG>=1) System.out.println("KV_DEBUG> getFileAccessReadCommand()="+farc);
         return farc;
