@@ -7,7 +7,7 @@ import java.util.*;
 import com.energyict.cbo.*;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.*;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.custom.*;
 import com.energyict.obis.ObisCode;
@@ -15,7 +15,7 @@ import com.energyict.protocol.*;
 
 public class CosemAPDUParser {
 
-	final int DEBUG=1;
+	final int DEBUG=0;
 	
 	private ProfileData profileData=null;
 	private MeterReadingData meterReadingData=null;
@@ -35,6 +35,7 @@ public class CosemAPDUParser {
 	private DeployDataCustomCosem deployDataCustomCosem=null;
 	private List<DeviceChannelName> deviceChannelNames=null;
 	private LookupResourcesCustomCosem lookupResourcesCustomCosem=null;
+	private TaskStatusCustomCosem taskStatusCustomCosem=null;
 	
 	public CosemAPDUParser() {
 	}
@@ -53,6 +54,7 @@ public class CosemAPDUParser {
 		deployDataCustomCosem = null;
 		deviceChannelNames = null;
 		lookupResourcesCustomCosem = null;
+		taskStatusCustomCosem = null;
 		
 		// local
 		previousEndTime=null;
@@ -143,6 +145,9 @@ public class CosemAPDUParser {
 				
 				DeviceChannelName dcn = new DeviceChannelName(apdu.getCosemAttributeDescriptor().getObis().getE(),s.getDataType(0).getOctetString().stringValue());
 				deviceChannelNames.add(dcn);
+			}
+			else if (apdu.getCosemAttributeDescriptor().getObis().equals(TaskStatusCustomCosem.getObisCode())) {
+				taskStatusCustomCosem = new TaskStatusCustomCosem(apdu.getDataType());
 			}
 			else if (apdu.getCosemAttributeDescriptor().getObis().equals(LookupResourcesCustomCosem.getObisCode())) {
 				lookupResourcesCustomCosem = new LookupResourcesCustomCosem(apdu.getDataType());
@@ -355,7 +360,7 @@ public class CosemAPDUParser {
 		if (dataType.isOctetString())
 			date = new DateTime(dataType.getOctetString()).getValue().getTime();
 		else
-			date = new Date(dataType.longValue()*1000);
+			date = AXDRDate.decode(dataType);
 		return date;
 	} // private Date buildDate(AbstractDataType dataType) throws IOException
 	
@@ -464,6 +469,10 @@ public class CosemAPDUParser {
 
 	public LookupResourcesCustomCosem getLookupResourcesCustomCosem() {
 		return lookupResourcesCustomCosem;
+	}
+
+	public TaskStatusCustomCosem getTaskStatusCustomCosem() {
+		return taskStatusCustomCosem;
 	}
 
 }

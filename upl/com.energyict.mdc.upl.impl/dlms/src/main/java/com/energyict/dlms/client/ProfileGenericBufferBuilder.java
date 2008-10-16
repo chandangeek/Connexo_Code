@@ -3,11 +3,9 @@ package com.energyict.dlms.client;
 import java.io.IOException;
 import java.util.*;
 
-import com.energyict.cbo.Quantity;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.custom.DeviceMessageCustomCosem;
+import com.energyict.dlms.axrdencoding.util.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
@@ -47,10 +45,10 @@ public class ProfileGenericBufferBuilder {
 		entry.addDataType(new Unsigned32(registerValue.getRtuRegisterId()));
 		entry.addDataType(new NumberFormat(registerValue.getQuantity().getAmount()).toAbstractDataType());
 		entry.addDataType(new ScalerUnit(registerValue.getQuantity().getUnit()).getAbstractDataType());
-		entry.addDataType(new DateTime(registerValue.getReadTime()));
-		entry.addDataType(new DateTime(registerValue.getFromTime()));
-		entry.addDataType(new DateTime(registerValue.getToTime()));
-		entry.addDataType(new DateTime(registerValue.getEventTime()));
+		entry.addDataType(AXDRDate.encode(registerValue.getReadTime()));
+		entry.addDataType(AXDRDate.encode(registerValue.getFromTime()));
+		entry.addDataType(AXDRDate.encode(registerValue.getToTime()));
+		entry.addDataType(AXDRDate.encode(registerValue.getEventTime()));
 		entry.addDataType(OctetString.fromString(registerValue.getText()));
 		structure.addDataType(entry);
 		

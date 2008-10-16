@@ -28,31 +28,23 @@ public class DeviceMessageCustomCosem extends Data {
 	
     public String toString() {
         // Generated code by ToStringBuilder
-        try {
-	        StringBuffer strBuff = new StringBuffer();
-	        strBuff.append("DeviceMessageCustomCosem:\n");
-			strBuff.append("   contents="+getContents()+"\n");
-	        strBuff.append("   messageDatabaseId="+getMessageDatabaseId()+"\n");
-	        strBuff.append("   messageState="+getMessageState()+"\n");
-	        strBuff.append("   releaseDate="+getReleaseDate()+"\n");
-	        strBuff.append("   trackingId="+getTrackingId()+"\n");
-	        strBuff.append("   userId="+getUserId()+"\n");
-	        return strBuff.toString();
-		} catch (IOException e) {
-			return "DeviceMessageCustomCosem: not able to evaluate because of "+e.toString();
-		}
+        StringBuffer strBuff = new StringBuffer();
+        strBuff.append("DeviceMessageCustomCosem:\n");
+		strBuff.append("   contents="+getContents()+"\n");
+        strBuff.append("   messageDatabaseId="+getMessageDatabaseId()+"\n");
+        strBuff.append("   messageState="+getMessageState()+"\n");
+        strBuff.append("   releaseDate="+getReleaseDate()+"\n");
+        strBuff.append("   trackingId="+getTrackingId()+"\n");
+        strBuff.append("   userId="+getUserId()+"\n");
+        return strBuff.toString();
     }	
 	
-    public boolean isConfirmed() throws IOException {
+    public boolean isConfirmed() { // throws IOException {
     	return getMessageState() == CONFIRMED;
     }
-    public boolean isFailed() throws IOException {
+    public boolean isFailed() { // throws IOException {
     	return getMessageState() == FAILED;
     }
-    
-    public static void main(String[] args) {
-        System.out.println(ToStringBuilder.genCode(new DeviceMessageCustomCosem(new Unsigned32(5))));
-    }	
 	
 	static final byte[] LN=new byte[]{0,0,96,110,0,0};
 	
@@ -95,48 +87,48 @@ public class DeviceMessageCustomCosem extends Data {
 		setValueAttr(structure);
     }    
     
-    public int getMessageDatabaseId() throws IOException {
+    public int getMessageDatabaseId() { // throws IOException {
 		return getValueAttr().getStructure().getDataType(0).intValue();
     }
     
-    public String getContents() throws IOException {
+    public String getContents() { // throws IOException {
     	if (getValueAttr().getStructure().nrOfDataTypes()==2)
     		return null;
     	else
     		return getValueAttr().getStructure().getDataType(1).isOctetString()?dataType.getStructure().getDataType(1).getOctetString().stringValue():null;
     }
     
-    public Date getReleaseDate() throws IOException {
+    public Date getReleaseDate() { // throws IOException {
     	if (getValueAttr().getStructure().nrOfDataTypes()==2)
     		return null;
     	else
     		return new Date(getValueAttr().getStructure().getDataType(2).longValue()*1000);
     }
     
-    public int getUserId() throws IOException {
+    public int getUserId() { // throws IOException {
     	if (getValueAttr().getStructure().nrOfDataTypes()==2)
     		return 0;
     	else
     		return getValueAttr().getStructure().getDataType(3).intValue();
     }
     
-    public String getTrackingId() throws IOException {
+    public String getTrackingId() { // throws IOException {
     	if (getValueAttr().getStructure().nrOfDataTypes()==2)
     		return null;
     	else
     		return getValueAttr().getStructure().getDataType(4).isOctetString()?dataType.getStructure().getDataType(4).getOctetString().stringValue():null;
     }
     
-    public int getMessageState() throws IOException {
+    public int getMessageState() { // throws IOException {
     	if (getValueAttr().getStructure().nrOfDataTypes()==2)
     		return getValueAttr().getStructure().getDataType(1).intValue();
     	else
     		return getValueAttr().getStructure().getDataType(5).intValue();
     }
 
-    public AbstractDataType getValueAttr() throws IOException {
-    	if (dataType == null)
-    		dataType = super.getValueAttr();
+    public AbstractDataType getValueAttr() { //throws IOException {
+//    	if (dataType == null)
+//    		dataType = super.getValueAttr();
     	return dataType;
     }
     
