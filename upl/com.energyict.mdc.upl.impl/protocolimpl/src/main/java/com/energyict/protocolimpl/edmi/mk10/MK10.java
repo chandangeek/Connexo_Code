@@ -1,5 +1,5 @@
 /*
- * MK6.java
+ * MK0.java
  *
  * Created on 17 maart 2006, 10:54
  *
@@ -10,25 +10,19 @@
 
 package com.energyict.protocolimpl.edmi.mk10;
 
-import com.energyict.obis.*;
-import com.energyict.protocolimpl.edmi.mk10.loadsurvey.*;
-import com.energyict.protocolimpl.edmi.mk10.registermapping.*;
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import org.hibernate.PropertyNotFoundException;
-import org.hibernate.PropertyValueException;
-
-import sun.security.action.GetLongAction;
-        
 import com.energyict.dialer.core.*;
+import com.energyict.obis.*;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
 
 import com.energyict.protocolimpl.edmi.mk10.command.*;
 import com.energyict.protocolimpl.edmi.mk10.core.*;
-import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.edmi.mk10.loadsurvey.*;
+import com.energyict.protocolimpl.edmi.mk10.registermapping.*;
 
 /**
  *
