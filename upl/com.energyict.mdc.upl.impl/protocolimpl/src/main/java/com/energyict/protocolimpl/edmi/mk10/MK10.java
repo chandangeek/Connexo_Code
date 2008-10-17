@@ -1,5 +1,5 @@
 /*
- * MK0.java
+ * MK10.java
  *
  * Created on 17 maart 2006, 10:54
  *
@@ -34,7 +34,7 @@ KV|14112007|Fix to use the correct first record timestamp
  */
 public class MK10 extends AbstractProtocol {
     
-    private static final int DEBUG=1;    
+    private static final int DEBUG=1;
     private MK10Connection mk10Connection=null;
     private CommandFactory commandFactory=null;
     private ObisCodeFactory obisCodeFactory=null;
@@ -209,12 +209,6 @@ public class MK10 extends AbstractProtocol {
             //mk10.sendDebug(mk10.commandFactory.getFileAccessReadCommand('0', 0x00, 0x00000000, 0xFFFF).toString());
             mk10.sendDebug("\n");
             //mk10.sendDebug(mk10.getFirmwareVersion());
-            mk10.disconnect();
-            int i = 2;
-            
-            if (i==2) {
-            	return;
-            }
 //            System.out.println(mk10.getCommandFactory().getInformationCommand(0xE397));
             // energy
 //            System.out.println(mk10.getCommandFactory().getReadCommand(0xE097));
@@ -284,6 +278,8 @@ public class MK10 extends AbstractProtocol {
 //            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.9.0.0")));
 //            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.16.0.0")));
 
+            mk10.disconnect();
+            int i = 2; if (i==2) return;
             
 //            System.out.println(mk10.getSerialNumber());
             

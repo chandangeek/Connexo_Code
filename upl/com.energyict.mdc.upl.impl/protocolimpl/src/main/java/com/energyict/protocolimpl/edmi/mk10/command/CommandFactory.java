@@ -100,7 +100,7 @@ public class CommandFactory {
     
     public FileAccessReadCommand getFileAccessReadCommand(int surveyLog, int Options, long startrecord, int numberofrecords) throws IOException {
         FileAccessReadCommand farc = new FileAccessReadCommand(this);
-        farc.setSurveyLog(surveyLog);
+        farc.setSurveyLog(surveyLog + 0x30);
         farc.setOptions(Options);
         farc.setStartRecord(startrecord);
         farc.setNumberOfRecords(numberofrecords);
@@ -108,5 +108,16 @@ public class CommandFactory {
         if (DEBUG>=1) System.out.println("KV_DEBUG> getFileAccessReadCommand()="+farc);
         return farc;
     }
-    
+
+    public FileAccessReadCommand getFileAccessReadCommand(int surveyLog, long startrecord, int numberofrecords) throws IOException {
+        FileAccessReadCommand farc = new FileAccessReadCommand(this);
+        farc.setSurveyLog(surveyLog + 0x30);
+        farc.setOptions(0x00);
+        farc.setStartRecord(startrecord);
+        farc.setNumberOfRecords(numberofrecords);
+        farc.invoke();
+        if (DEBUG>=1) System.out.println("KV_DEBUG> getFileAccessReadCommand()="+farc);
+        return farc;
+    }
+
 }

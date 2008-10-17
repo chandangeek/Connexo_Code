@@ -27,8 +27,8 @@ public class LoadSurveyChannel {
     private int type; // internal data type
     private Unit unit;
     private String name;
-    private int scaling;
-    private BigDecimal scalingFactor;
+    private int scaling; // DecimalPointScaling (place of the decimal point)
+    private BigDecimal scalingFactor; // ScalingFactor (k, M, G, ...)
     
     
     

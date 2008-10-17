@@ -80,20 +80,11 @@ public class MK10Profile {
     
     private List buildChannelInfos(LoadSurveyData loadSurveyData) {
         List channelInfos = new ArrayList();
-        if (mk10.isStatusFlagChannel()) {
-            for (int channel=0; channel<loadSurveyData.getLoadSurvey().getNrOfChannels(); channel++) {
-               ChannelInfo channelInfo = new ChannelInfo(channel,"EDMI MK10 channel "+channel,loadSurveyData.getLoadSurvey().getLoadSurveyChannels()[channel].getUnit());    
-               channelInfo.setMultiplier(loadSurveyData.getLoadSurvey().getLoadSurveyChannels()[channel].getScalingFactor());
-               channelInfos.add(channelInfo);        
-            } // for (int channel=0; channel<loadSurveyData.getLoadSurvey().getNrOfChannels(); channel++)
-        }
-        else {
-            for (int channel=1; channel<loadSurveyData.getLoadSurvey().getNrOfChannels(); channel++) {
-               ChannelInfo channelInfo = new ChannelInfo(channel-1,"EDMI MK10 channel "+(channel-1),loadSurveyData.getLoadSurvey().getLoadSurveyChannels()[channel].getUnit());    
-               channelInfo.setMultiplier(loadSurveyData.getLoadSurvey().getLoadSurveyChannels()[channel].getScalingFactor());
-               channelInfos.add(channelInfo);        
-            } // for (int channel=1; channel<loadSurveyData.getLoadSurvey().getNrOfChannels(); channel++)
-        }
+        for (int channel=0; channel<loadSurveyData.getLoadSurvey().getNrOfChannels(); channel++) {
+        	ChannelInfo channelInfo = new ChannelInfo(channel,"EDMI MK10 channel "+channel,loadSurveyData.getLoadSurvey().getLoadSurveyChannels()[channel].getUnit());    
+        	channelInfo.setMultiplier(loadSurveyData.getLoadSurvey().getLoadSurveyChannels()[channel].getScalingFactor());
+        	channelInfos.add(channelInfo);        
+        } // for (int channel=0; channel<loadSurveyData.getLoadSurvey().getNrOfChannels(); channel++)
         return channelInfos;
     } // private List buildChannelInfos(LoadSurveyData loadSurveyData) 
     
@@ -103,16 +94,16 @@ public class MK10Profile {
         cal.setTime(loadSurveyData.getFirstTimeStamp());
         for (int interval=0; interval<loadSurveyData.getNumberOfRecords(); interval++) {
             IntervalData intervalData= new IntervalData(new Date(cal.getTime().getTime()));
-            for (int channel=0; channel<loadSurveyData.getLoadSurvey().getNrOfChannels(); channel++) {
-                if (channel==0) {
+            for (int channel=0; channel<loadSurveyData.getLoadSurvey().getNrOfChannels() ; channel++) {
+                if (channel == loadSurveyData.getLoadSurvey().getNrOfChannels()-1 ) {
                     int protocolStatus=loadSurveyData.getChannelValues(interval)[0].getBigDecimal().intValue();
                     int eiStatus=mapProtocolStatus2EiStatus(protocolStatus);
                     intervalData.setEiStatus(eiStatus);
                     intervalData.setProtocolStatus(protocolStatus);
                 }
-                if (((channel==0) && (mk10.isStatusFlagChannel())) || (channel>0)) {
+//                if (((channel==0) && (mk10.isStatusFlagChannel())) || (channel>0)) {
                    intervalData.addValue(loadSurveyData.getChannelValues(interval)[channel].getBigDecimal());
-                }
+//                }
             } // for (int channel=1; channel<loadSurveyData.getLoadSurvey().getNrOfChannels(); channel++)
             intervalDatas.add(intervalData);
             cal.add(Calendar.SECOND,loadSurveyData.getLoadSurvey().getProfileInterval());

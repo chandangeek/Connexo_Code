@@ -17,6 +17,7 @@ import java.math.*;
 import java.util.*;
 
 import com.energyict.protocolimpl.edmi.mk10.command.*;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.remoteprocedures.SetSourceId;
 
 /**
  *
@@ -24,7 +25,8 @@ import com.energyict.protocolimpl.edmi.mk10.command.*;
  */
 public class LoadSurveyData {
     
-    private final int DEBUG=0;
+    private final int DEBUG=1;
+    private final int READBUFFER = 0xFF;
     
     private LoadSurvey loadSurvey;
     
@@ -40,58 +42,48 @@ public class LoadSurveyData {
     
     
     private void init(Date from) throws IOException {
+        FileAccessReadCommand farc;
+        long startRecord;
+
+        long first = getLoadSurvey().getFirstEntry();
+        Date firstdate = getLoadSurvey().getStartTime();
+        long interval = getLoadSurvey().getProfileInterval();
+        long seconds_div = (from.getTime() - firstdate.getTime()) / 1000;
+        int records = 0;
         
         if (DEBUG>=1) System.out.println("KV_DEBUG> LoadSurveyData, init() getLoadSurvey()="+getLoadSurvey());
         
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteArrayOutputStream.reset();
         
-        
-        	loadSurvey.getCommandFactory().getMk10().sendDebug("From date:         " + from.toString());
-        	loadSurvey.getCommandFactory().getMk10().sendDebug("Survey start date: " + getLoadSurvey().getStartTime().toString());
+        if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("From date:             " + from.toGMTString());
+        if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("Survey start date:     " + firstdate.toGMTString());
+        if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("Survey first entry:    " + first);
+        if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("Survey entry interval: " + interval);
+        if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("seconds_div:           " + seconds_div);
 
-//        FileAccessReadCommand fasc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(registerId, startRecord, numberOfRecords, recordOffset, recordSize);
-//        long startRecord = fasc.getStartRecord();
-//        int records = 0;
-//        
-//        
-//        FileAccessReadCommand farc=null;
-//        
-//        // KV_TO_DO Int  The EDMI meter crashes when ist calculates to high buffer.
-//        int nrOfRecords2Request = 2013 / getLoadSurvey().getEntryWidth();
-//        do {
-////            if (DEBUG>=1) System.out.println("KV_DEBUG> FR startRecord "+startRecord+", getLoadSurvey().getNrOfEntries() "+getLoadSurvey().getNrOfEntries()+" actual "+nrOfRecords2Request+", 0, getLoadSurvey().getEntryWidth() "+getLoadSurvey().getEntryWidth());
-////            farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand((getLoadSurvey().getRegisterId()<<16)|0x5F008, startRecord, getLoadSurvey().getNrOfEntries(), 0, getLoadSurvey().getEntryWidth());
-//            farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand((getLoadSurvey().getRegisterId()<<16)|0x5F008, startRecord, nrOfRecords2Request, 0, getLoadSurvey().getEntryWidth());
-//            if (DEBUG>=1) System.out.println("KV_DEBUG> FR response startRecord "+farc.getStartRecord()+", farc.getNumberOfRecords() "+farc.getNumberOfRecords()+", farc.getRecordOffset() "+farc.getRecordOffset()+", farc.getRecordSize() "+farc.getRecordSize());
-//            records += farc.getNumberOfRecords();
-//            startRecord = farc.getStartRecord()+farc.getNumberOfRecords();
-//            byteArrayOutputStream.write(farc.getData(),0,farc.getData().length);
-//            
-//        }  while((getLoadSurvey().getStoredEntries()  - (farc.getStartRecord() + farc.getNumberOfRecords())) > 0);
-//        
-//        
-//        setNumberOfRecords(records);
-//        setData(byteArrayOutputStream.toByteArray());
-//
-//        // set first record timestamp...
-//        
-//        Calendar cal = ProtocolUtils.getCleanCalendar(getLoadSurvey().getCommandFactory().getMk10().getTimeZone());
-//        if (getLoadSurvey().isEventLog()) {
-//            setFirstTimeStamp(getChannelValues(0)[1].getDate());
-//        }
-//        else {
-//            cal.setTime(getLoadSurvey().getStartTime());
-//            if (DEBUG>=1) System.out.println("KV_DEBUG> getLoadSurvey().getStoredEntries()="+getLoadSurvey().getStoredEntries()+", getNumberOfRecords()="+getNumberOfRecords());
-//            if (DEBUG>=1) System.out.println("KV_DEBUG> load survey start timestamp ="+cal.getTime());
-//            cal.add(Calendar.SECOND,(int)(getLoadSurvey().getStoredEntries() - getNumberOfRecords())*getLoadSurvey().getProfileInterval());
-//            setFirstTimeStamp(fasc.getDate()); // ;cal.getTime());
-//            
-////if (!com.energyict.cbo.Utils.areEqual(cal.getTime(), fasc.getDate()))
-////    System.out.println(cal.getTime()+" (calculated) != "+fasc.getDate()+" (from search in file)");
-//            
-//        }
-//        if (DEBUG>=1) System.out.println("KV_DEBUG> first entry timestamp ="+getFirstTimeStamp());
+        if (seconds_div < 0) startRecord = first;
+        	else startRecord = first + (seconds_div / interval) + 1;
+        
+        farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(getLoadSurvey().getLoadSurveyNumber(), startRecord, 0x0001);
+        startRecord = farc.getStartRecord();
+               
+        do {
+            farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(getLoadSurvey().getLoadSurveyNumber(), startRecord, READBUFFER);
+            startRecord += farc.getNumberOfRecords();
+            records += farc.getNumberOfRecords();
+            byteArrayOutputStream.write(farc.getData(),0,farc.getData().length);
+            if (DEBUG>=1) getLoadSurvey().getCommandFactory().getMk10().sendDebug(farc.toString());        	
+        } while((getLoadSurvey().getStoredEntries()  - (farc.getStartRecord() + farc.getNumberOfRecords())) > 0);
+        
+        setNumberOfRecords(records);
+        setData(byteArrayOutputStream.toByteArray());
+
+        Calendar cal = ProtocolUtils.getCleanCalendar(getLoadSurvey().getCommandFactory().getMk10().getTimeZone());
+        cal.setTime(getLoadSurvey().getStartTime());
+        cal.add(Calendar.SECOND,(int)(getLoadSurvey().getStoredEntries() - getNumberOfRecords() * interval));
+        setFirstTimeStamp(cal.getTime());
+
     } // private void init(Date from) throws IOException
 
     public String toString() {
@@ -128,17 +120,22 @@ public class LoadSurveyData {
     }
     
     private byte[] getData(int intervalIndex, int channelIndex) throws IOException {
-        //TODO AANPASSEN !!!!!!!!!!!!!!!
-    	int offset = 0;
-        return ProtocolUtils.getSubArray2(getData(), offset, loadSurvey.getLoadSurveyChannels()[channelIndex].getWidth());
+    	int offset = (intervalIndex * getLoadSurvey().getEntryWidth()) + (channelIndex * 2);
+        return ProtocolUtils.getSubArray2(getData(), offset, getLoadSurvey().getLoadSurveyChannels()[channelIndex].getWidth());
     }
     
     public AbstractRegisterType[] getChannelValues(int intervalIndex) throws IOException {
         AbstractRegisterType[] channelValues = new AbstractRegisterType[loadSurvey.getNrOfChannels()];
         RegisterTypeParser rtp = new RegisterTypeParser(loadSurvey.getCommandFactory().getMk10().getTimeZone());
+        AbstractRegisterType channelValue;
         for (int channel=0;channel<loadSurvey.getNrOfChannels();channel++) {
-            AbstractRegisterType channelValue = rtp.parse2Internal((char)loadSurvey.getLoadSurveyChannels()[channel].getType(), getData(intervalIndex, channel));
-            channelValues[channel] = channelValue;
+            char chan_type = (char)loadSurvey.getLoadSurveyChannels()[channel].getType();
+        	int chan_scaler = loadSurvey.getLoadSurveyChannels()[channel].getScaling();
+            
+            if ((channel+1) == loadSurvey.getNrOfChannels()) channelValue = rtp.parse2Internal('C', getData(intervalIndex, channel));
+            	else channelValue = rtp.parseFromRaw(chan_type, getData(intervalIndex, channel), chan_scaler);
+
+        	channelValues[channel] = channelValue;
         }
         return channelValues;
     }

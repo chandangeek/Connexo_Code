@@ -36,6 +36,23 @@ public class RegisterTypeParser {
         return parse(type,data, false);
     }
     
+    public AbstractRegisterType parseFromRaw(char type, byte[] data) throws IOException {
+    	return this.parseFromRaw(type, data, 0);
+    }
+
+    public AbstractRegisterType parseFromRaw(char type, byte[] data, int chan_scaler) throws IOException {
+    	switch(type) {
+        	case 'F': // Float
+        		byte[] bta = {0x00,0x00,0x00,0x00};
+        		RegisterTypeFloat rt = new RegisterTypeFloat(bta);
+        	    float fv = (float)ProtocolUtils.getShort(data,0); 
+        		rt.setValue(fv / (10^chan_scaler));
+        		return rt;
+        	default:
+        		return null;
+    	}
+    }
+
     private AbstractRegisterType parse(char type, byte[] data, boolean external) throws IOException {
         
         // The MK10 doesn't support as much register types as the MK6 does. Unused register types are commented out.

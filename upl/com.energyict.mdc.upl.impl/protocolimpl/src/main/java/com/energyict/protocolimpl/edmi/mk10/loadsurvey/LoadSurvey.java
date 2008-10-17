@@ -35,6 +35,8 @@ public class LoadSurvey {
     private int nrOfEntries;
     private int entryWidth;
     private long storedEntries;
+    private long firstEntry;
+    private long lastEntry;
     private Date startTime;
     
     /** Creates a new instance of LoadSurvey */
@@ -74,12 +76,12 @@ public class LoadSurvey {
     	int channels = (ChannelsIntervalRegister & 0x001F);
     	int interval = ((ChannelsIntervalRegister & 0x0FC0) >> 6) * 60;
     	
-        long firstentry = getCommandFactory().getReadCommand(registerId + 2).getRegister().getBigDecimal().longValue();
-        long lastentry = getCommandFactory().getReadCommand(registerId + 3).getRegister().getBigDecimal().longValue();
+        setFirstEntry(getCommandFactory().getReadCommand(registerId + 2).getRegister().getBigDecimal().longValue());
+        setLastEntry(getCommandFactory().getReadCommand(registerId + 4).getRegister().getBigDecimal().longValue());
+        setStoredEntries(getLastEntry() - getFirstEntry());
 
     	setNrOfChannels(channels + 1); 					// Always 1 additional channel with the status! Number of load survey channels, excluding the 0 channel.
         setProfileInterval(interval); 					// Seconds between readings, for fixed interval load surveys.        
-        setStoredEntries(lastentry-firstentry);
         setLoadSurveyChannels(new LoadSurveyChannel[getNrOfChannels()]);
         setStartTime(getCommandFactory().getReadCommand(registerId + 0x00B0).getRegister().getDate()); // The first time that was stored in the survey ever.
 
@@ -125,7 +127,23 @@ public class LoadSurvey {
         return lsd;
     }
     
-    public CommandFactory getCommandFactory() {
+    public long getFirstEntry() {
+		return firstEntry;
+	}
+
+	public void setFirstEntry(long firstEntry) {
+		this.firstEntry = firstEntry;
+	}
+
+	public long getLastEntry() {
+		return lastEntry;
+	}
+
+	public void setLastEntry(long lastEntry) {
+		this.lastEntry = lastEntry;
+	}
+
+	public CommandFactory getCommandFactory() {
         return commandFactory;
     }
 
@@ -204,9 +222,5 @@ public class LoadSurvey {
     public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
-    
-    
-    
-    
     
 }
