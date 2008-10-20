@@ -29,11 +29,10 @@ public class ChannelTypeParser {
 	
 	public ChannelTypeParser(int ChannelDef) {
 		this.DecimalPointScaling = (ChannelDef & 0x7000) >> 12;
-    	this.ScalingFactor = (ChannelDef & 0x0C00) >> 10;
-    	this.ScalingFactor = (ChannelDef & 0x0C00) >> 10;
     	int regvalue = ChannelDef & 0x000F;
     	int regfunction = (ChannelDef & 0x00F0) >> 4;
-
+    	int scaling = (ChannelDef & 0x0C00) >> 10;
+    	
     	Boolean isEnergy = false;
     	Boolean isPulse = false;
     	Boolean isCycle = false;
@@ -100,68 +99,70 @@ public class ChannelTypeParser {
         }
         
         if (isEnergy) {
+        	this.ScalingFactor = 1;
             switch(regvalue) {
             case 0x00:
-            	this.unit = rup.parse('X'); // Channel value base unit is Wh
+            	this.unit = Unit.get(BaseUnit.WATTHOUR, scaling * 3); // Channel value base unit is Wh
                 this.Name = this.Name + " A phase " + this.unit.toString();
             	break;
             case 0x01:
-                this.unit = rup.parse('X'); // Channel value base unit is Wh
+            	this.unit = Unit.get(BaseUnit.WATTHOUR, scaling * 3); // Channel value base unit is Wh
                 this.Name = this.Name + " B phase " + this.unit.toString();
             	break;
             case 0x02:
-                this.unit = rup.parse('X'); // Channel value base unit is Wh
+            	this.unit = Unit.get(BaseUnit.WATTHOUR, scaling * 3); // Channel value base unit is Wh
                 this.Name = this.Name + " C phase " + this.unit.toString();
             	break;
             case 0x03:
-                this.unit = rup.parse('X'); // Channel value base unit is Wh
+            	this.unit = Unit.get(BaseUnit.WATTHOUR, scaling * 3); // Channel value base unit is Wh
                 this.Name = this.Name + " Total  " + this.unit.toString();
             	break;
             case 0x04: 
-                this.unit = rup.parse('Y'); // Channel value base unit is varh
+            	this.unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, scaling * 3); // Channel value base unit is varh
                 this.Name = this.Name + " A phase " + this.unit.toString();
             	break;
             case 0x05: 
-                this.unit = rup.parse('Y'); // Channel value base unit is varh
+            	this.unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, scaling * 3); // Channel value base unit is varh
                 this.Name = this.Name + " B phase " + this.unit.toString();
             	break;
             case 0x06: 
-                this.unit = rup.parse('Y'); // Channel value base unit is varh
+            	this.unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, scaling * 3); // Channel value base unit is varh
                 this.Name = this.Name + " C phase " + this.unit.toString();
             	break;
             case 0x07: 
-                this.unit = rup.parse('Y'); // Channel value base unit is varh
+            	this.unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, scaling * 3); // Channel value base unit is varh
                 this.Name = this.Name + " Total " + this.unit.toString();
             	break;
             case 0x08: 
-                this.unit = rup.parse('Z'); // Channel value base unit is Vah
+            	this.unit = Unit.get(BaseUnit.VOLTAMPEREHOUR, scaling * 3); // Channel value base unit is Vah
                 this.Name = this.Name + " A phase " + this.unit.toString();
             	break;
             case 0x09: 
-                this.unit = rup.parse('Z'); // Channel value base unit is Vah
+            	this.unit = Unit.get(BaseUnit.VOLTAMPEREHOUR, scaling * 3); // Channel value base unit is Vah
                 this.Name = this.Name + " B phase " + this.unit.toString();
             	break;
             case 0x0A: 
-                this.unit = rup.parse('Z'); // Channel value base unit is Vah
+            	this.unit = Unit.get(BaseUnit.VOLTAMPEREHOUR, scaling * 3); // Channel value base unit is Vah
                 this.Name = this.Name + " C phase " + this.unit.toString();
             	break;
             case 0x0B:
-                this.unit = rup.parse('Z'); // Channel value base unit is Vah
+            	this.unit = Unit.get(BaseUnit.VOLTAMPEREHOUR, scaling * 3); // Channel value base unit is Vah
                 this.Name = this.Name + " Total " + this.unit.toString();
             	break;
             default: 
-                this.unit = rup.parse('N'); // Channel base unit unknown (reserved). No base unit
+                this.unit = Unit.get(BaseUnit.UNITLESS, scaling * 3); // Channel base unit unknown (reserved). No base unit
             } // End of switch(regvalue)
         } // End of if(isEnergy)
 
     	if(isTesting) {
+    		this.ScalingFactor = 1;
             switch(regvalue) {
             case 0x00:
-                this.unit = rup.parse('X'); // Channel value base unit is Wh
+            	this.unit = Unit.get(BaseUnit.WATTHOUR, scaling * 3); // Channel value base unit is Wh
                 this.Name = this.Name + " Test Power source in " + this.unit.toString();
             	break;
             case 0x01:
-            	this.unit = Unit.get(BaseUnit.KELVIN); // Channel value base unit is Wh
+            	this.unit = Unit.get(BaseUnit.KELVIN, scaling * 3); // Channel value base unit is Kelvin
                 this.Name = this.Name + " Temperature in " + this.unit.toString();
             	break;
             default:
@@ -170,7 +171,8 @@ public class ChannelTypeParser {
     	} // End of if(isTesting)
         
     	if(isPulse || isCycle || isReserved) {
-            this.unit = rup.parse('N'); // Channel base unit unknown (reserved). No base unit
+            this.ScalingFactor = 10^scaling;
+    		this.unit = Unit.get(BaseUnit.UNITLESS); // Channel base unit unknown (reserved). No base unit
     	}
         
     	this.Type = 'F';

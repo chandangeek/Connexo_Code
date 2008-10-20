@@ -47,16 +47,18 @@ public class MK10Profile {
         }
         return eventLog;
     }
-    
+
+    // TODO OK
     public int getProfileInterval() throws IOException {
         return getLoadSurvey().getProfileInterval();
     }
     
+    // TODO OK
     public int getNumberOfChannels() throws IOException {
-        return getLoadSurvey().getNrOfChannels();
+        return getLoadSurvey().getNrOfChannels() - 1;
     }
     
-    
+    // TODO
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
         ProfileData profileData=new ProfileData();
         
@@ -80,7 +82,7 @@ public class MK10Profile {
     
     private List buildChannelInfos(LoadSurveyData loadSurveyData) {
         List channelInfos = new ArrayList();
-        for (int channel=0; channel<loadSurveyData.getLoadSurvey().getNrOfChannels(); channel++) {
+        for (int channel=0; channel<loadSurveyData.getLoadSurvey().getNrOfChannels() - 1; channel++) {
         	ChannelInfo channelInfo = new ChannelInfo(channel,"EDMI MK10 channel "+channel,loadSurveyData.getLoadSurvey().getLoadSurveyChannels()[channel].getUnit());    
         	channelInfo.setMultiplier(loadSurveyData.getLoadSurvey().getLoadSurveyChannels()[channel].getScalingFactor());
         	channelInfos.add(channelInfo);        
@@ -96,7 +98,7 @@ public class MK10Profile {
             IntervalData intervalData= new IntervalData(new Date(cal.getTime().getTime()));
             for (int channel=0; channel<loadSurveyData.getLoadSurvey().getNrOfChannels() ; channel++) {
                 if (channel == loadSurveyData.getLoadSurvey().getNrOfChannels()-1 ) {
-                    int protocolStatus=loadSurveyData.getChannelValues(interval)[0].getBigDecimal().intValue();
+                    int protocolStatus=loadSurveyData.getChannelValues(interval)[channel].getBigDecimal().intValue();
                     int eiStatus=mapProtocolStatus2EiStatus(protocolStatus);
                     intervalData.setEiStatus(eiStatus);
                     intervalData.setProtocolStatus(protocolStatus);
@@ -113,24 +115,23 @@ public class MK10Profile {
         
     } // private List buildIntervalDatas(LoadSurveyData loadSurveyData) 
 
-    private final int ERROR_READING_REGISTER=0x0001;
-    private final int MISSING_DATA=0x0002; 
+    private final int ABSENT_READING=0x0001;
+    private final int INCOMPLETE_INTERVAL=0x0002; 
     private final int POWER_FAILED_DURING_INTERVAL=0x0004;
-    private final int INCOMPLETE_INTERVAL=0x0008;
-    private final int DST_IN_EFFECT=0x0010;
-    private final int CALIBRATION_LOST=0x0020;
-    private final int SVFRM_FAILURE=0x0040;
-    private final int EFA_FAILURE_USER_FLAG=0x0080;
-    private final int DATA_CHECKSUM_ERROR=0x0100;
-            
+    private final int EFA_1=0x0008;
+    private final int EFA_2=0x0010;
+    private final int EFA_3=0x0020;            
     
     private int mapProtocolStatus2EiStatus(int protocolStatus) {
         int eiStatus=0;
         
-        if ((protocolStatus & ERROR_READING_REGISTER) == ERROR_READING_REGISTER) {
-            eiStatus |= IntervalStateBits.CORRUPTED;
+        // ABSENT_READING is inverse. 
+        // Bit is 1 when normal reading
+        // Bit is 0 when absent reading
+        if ((protocolStatus & ABSENT_READING) != ABSENT_READING) {
+            eiStatus |= IntervalStateBits.MISSING;
         }
-        if ((protocolStatus & MISSING_DATA) == MISSING_DATA) {
+        if ((protocolStatus & INCOMPLETE_INTERVAL) == INCOMPLETE_INTERVAL) {
             eiStatus |= IntervalStateBits.MISSING;
         }
         if ((protocolStatus & POWER_FAILED_DURING_INTERVAL) == POWER_FAILED_DURING_INTERVAL) {
@@ -139,16 +140,13 @@ public class MK10Profile {
         if ((protocolStatus & INCOMPLETE_INTERVAL) == INCOMPLETE_INTERVAL) {
             eiStatus |= IntervalStateBits.SHORTLONG;
         }
-        if ((protocolStatus & CALIBRATION_LOST) == CALIBRATION_LOST) {
+        if ((protocolStatus & EFA_1) == EFA_1) {
             eiStatus |= IntervalStateBits.OTHER;
         }
-        if ((protocolStatus & SVFRM_FAILURE) == SVFRM_FAILURE) {
+        if ((protocolStatus & EFA_2) == EFA_2) {
             eiStatus |= IntervalStateBits.OTHER;
         }
-        if ((protocolStatus & EFA_FAILURE_USER_FLAG) == EFA_FAILURE_USER_FLAG) {
-            eiStatus |= IntervalStateBits.OTHER;
-        }
-        if ((protocolStatus & DATA_CHECKSUM_ERROR) == DATA_CHECKSUM_ERROR) {
+        if ((protocolStatus & EFA_3) == EFA_3) {
             eiStatus |= IntervalStateBits.OTHER;
         }
         

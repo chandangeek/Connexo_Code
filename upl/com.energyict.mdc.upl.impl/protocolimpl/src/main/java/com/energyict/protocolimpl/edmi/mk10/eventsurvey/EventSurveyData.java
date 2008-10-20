@@ -8,7 +8,7 @@
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-package com.energyict.protocolimpl.edmi.mk10.loadsurvey;
+package com.energyict.protocolimpl.edmi.mk10.eventsurvey;
 
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.edmi.mk10.core.*;
@@ -23,19 +23,19 @@ import com.energyict.protocolimpl.itron.quantum1000.minidlms.remoteprocedures.Se
  *
  * @author koen
  */
-public class LoadSurveyData {
+public class EventSurveyData {
     
     private final int DEBUG=1;
     private final int READBUFFER = 0xFF;
     
-    private LoadSurvey loadSurvey;
+    private EventSurvey loadSurvey;
     
     private byte[] data;
     private Date firstTimeStamp;
     private int numberOfRecords;
     
     /** Creates a new instance of LoadSurveyData */
-    public LoadSurveyData(LoadSurvey loadSurvey,Date from) throws IOException {
+    public EventSurveyData(EventSurvey loadSurvey,Date from) throws IOException {
         this.setLoadSurvey(loadSurvey);
         init(from);
     }
@@ -139,11 +139,11 @@ public class LoadSurveyData {
         return channelValues;
     }
     
-    public LoadSurvey getLoadSurvey() {
+    public EventSurvey getLoadSurvey() {
         return loadSurvey;
     }
 
-    public void setLoadSurvey(LoadSurvey loadSurvey) {
+    public void setLoadSurvey(EventSurvey loadSurvey) {
         this.loadSurvey = loadSurvey;
     }
 

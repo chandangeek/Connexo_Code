@@ -11,7 +11,11 @@
 package com.energyict.protocolimpl.edmi.mk10.core;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
+
+import sun.security.util.BigInt;
 
 import com.energyict.protocol.*;
 
@@ -43,10 +47,13 @@ public class RegisterTypeParser {
     public AbstractRegisterType parseFromRaw(char type, byte[] data, int chan_scaler) throws IOException {
     	switch(type) {
         	case 'F': // Float
-        		byte[] bta = {0x00,0x00,0x00,0x00};
+        		byte [] bta = {0x00 ,0x00 ,0x00, 0x00};
+        		int highvalue = (int) data[0];
+        		int lowvalue = (int) data[0];
+        		double value = data[0] + (data[1] / 100);
+        		BigDecimal bi = new BigDecimal(value);
         		RegisterTypeFloat rt = new RegisterTypeFloat(bta);
-        	    float fv = (float)ProtocolUtils.getShort(data,0); 
-        		rt.setValue(fv / (10^chan_scaler));
+        	    rt.setValue(bi.movePointLeft(chan_scaler).floatValue());
         		return rt;
         	default:
         		return null;
