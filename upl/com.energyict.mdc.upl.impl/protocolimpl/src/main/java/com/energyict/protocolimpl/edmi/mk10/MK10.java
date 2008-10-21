@@ -21,6 +21,7 @@ import com.energyict.protocolimpl.base.*;
 
 import com.energyict.protocolimpl.edmi.mk10.command.*;
 import com.energyict.protocolimpl.edmi.mk10.core.*;
+import com.energyict.protocolimpl.edmi.mk10.eventsurvey.Event;
 import com.energyict.protocolimpl.edmi.mk10.loadsurvey.*;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.*;
 
@@ -156,7 +157,6 @@ public class MK10 extends AbstractProtocol {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
         MK10 mk10 = new MK10();
         Dialer dialer=null;
         try {
@@ -205,9 +205,11 @@ public class MK10 extends AbstractProtocol {
             //System.out.println(mk10.mk10Profile.loadSurvey.toString());
 
             mk10.sendDebug("\n");
-            mk10.sendDebug(mk10.commandFactory.getReadCommand(0xD8B0).getRegister().getDate().toString()); // The first time that was stored in the survey ever.                        
-            //mk10.sendDebug(mk10.commandFactory.getFileAccessReadCommand('0', 0x00, 0x00000000, 0xFFFF).toString());
+            //mk10.mk10Profile.get
             mk10.sendDebug("\n");
+            Event e = new Event(new Date(), 0x3001, 1);
+            mk10.sendDebug(e.toString());
+            
             //mk10.sendDebug(mk10.getFirmwareVersion());
 //            System.out.println(mk10.getCommandFactory().getInformationCommand(0xE397));
             // energy

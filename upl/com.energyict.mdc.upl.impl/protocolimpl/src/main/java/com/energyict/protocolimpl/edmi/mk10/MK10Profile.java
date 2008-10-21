@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
 import com.energyict.protocolimpl.edmi.mk10.loadsurvey.*;
+import com.energyict.protocolimpl.edmi.mk10.eventsurvey.*;
 
 import java.io.*;
 import java.util.*;
@@ -27,7 +28,7 @@ public class MK10Profile {
 
     MK10 mk10;
     LoadSurvey loadSurvey=null;
-    LoadSurvey eventLog=null;
+    EventSurvey eventLog=null;
     
     /** Creates a new instance of MK10ProfileData */
     public MK10Profile(MK10 mk10) {
@@ -41,9 +42,9 @@ public class MK10Profile {
         return loadSurvey;
     }
     
-    private LoadSurvey getEventLog() throws IOException {
+    private EventSurvey getEventLog() throws IOException {
         if (eventLog==null) {
-            //TODO AANVULLEN
+        	eventLog = new EventSurvey(mk10.getCommandFactory());            
         }
         return eventLog;
     }
@@ -71,7 +72,7 @@ public class MK10Profile {
         
         if (includeEvents) {
             if (DEBUG>=1) System.out.println("KV_DEBUG> "+getEventLog());
-            LoadSurveyData eventLogData = getEventLog().readFile(from);
+            LinkedHashSet eventLogData = getEventLog().readFile(from);
             if (DEBUG>=1) System.out.println("KV_DEBUG> "+eventLogData);
             profileData.setMeterEvents(buildMeterEvents(eventLogData));
             profileData.applyEvents(loadSurvey.getProfileInterval()/60);
@@ -154,17 +155,37 @@ public class MK10Profile {
     }
     
     
-    private List buildMeterEvents(LoadSurveyData eventLogData) throws IOException {
+    private List buildMeterEvents(LinkedHashSet eventLogData) throws IOException {
+        Calendar cal = ProtocolUtils.getCleanCalendar(this.mk10.getTimeZone());
         List meterEvents = new ArrayList();
-        for (int interval=0; interval<eventLogData.getNumberOfRecords(); interval++) {
-            Date date = eventLogData.getChannelValues(interval)[1].getDate();
-            String message = eventLogData.getChannelValues(interval)[2].getString();
-            MeterEvent me = new MeterEvent(date,mapEventLogMessage2MeterEventEICode(message),message);
-            meterEvents.add(me);
-        } // for (int interval=0; interval<loadSurveyData.getNumberOfRecords(); interval++)
+        MeterEvent me;
+     	Iterator it = eventLogData.iterator();
+		while(it.hasNext()) {
+            Event event = (Event) it.next();
+            String message = event.getEventDescription();
+            Date eventdate = event.getEventDate();
+            while (duplicateDate(meterEvents, eventdate)) {
+                cal.setTime(eventdate);
+                cal.add(Calendar.SECOND, 1);
+            	eventdate = cal.getTime();
+			}
+            me = new MeterEvent(eventdate, mapEventLogMessage2MeterEventEICode(message),message);
+        	meterEvents.add(me);
+        } 
         return meterEvents;
     } // private List buildMeterEvents(LoadSurveyData eventLogData) 
  
+    private boolean duplicateDate(List melist, Date date) {
+    	Iterator it = melist.iterator();
+    	while(it.hasNext()) {
+    		MeterEvent me = (MeterEvent) it.next();
+    		if (me.getTime().equals(date)) {
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
     private int mapEventLogMessage2MeterEventEICode(String message) {
         
         if (message.indexOf("Power Off")>=0)
