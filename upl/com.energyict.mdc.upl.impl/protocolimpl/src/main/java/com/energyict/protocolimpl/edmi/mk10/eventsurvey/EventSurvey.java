@@ -78,7 +78,13 @@ public class EventSurvey {
     		Date eventdate = DateTimeBuilder.getDateFromSecondsSince1996(tz, eventtime);
     		Event event = new Event(eventdate, eventcode, eventlognr);
     		ptr += 6;
-    		set.add(event);
+
+    		// Filter the user logon/logoff events to prevent unused events
+    		// Every time the mk10 protocol connects, it generates at least two events
+    		// in the log (Logon and logoff)
+    		if ((eventcode & 0xFFF0) != 0x2080) {
+        		set.add(event);
+    		}
     	}
     	return set;
     }

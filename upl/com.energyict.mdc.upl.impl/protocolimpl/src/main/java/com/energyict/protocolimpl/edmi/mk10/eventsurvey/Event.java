@@ -115,7 +115,11 @@ public class Event {
 					case 0x0001: return "Manual billing reset occured from the billing reset button.";
 					default: return "Manual billing reset occured on port 0x" + ProtocolUtils.buildStringHex((eventtype & 0x0030)>>4, 2);
 				}
-			case 0x6000: return "Voltage change start.";
+			case 0x6000: 
+				switch (eventtype & 0x0800) {
+				case 0x0080: return "Voltage surge change start.";
+				case 0x0000: return "Voltage sag change start.";
+				}
 			case 0x7000: return "Voltage change end. The eventtime is the duration of the voltage change instead of date/time time !!!";
 			case 0x8000: return "Reserved event.";
 			case 0x9000: return "Reserved event.";

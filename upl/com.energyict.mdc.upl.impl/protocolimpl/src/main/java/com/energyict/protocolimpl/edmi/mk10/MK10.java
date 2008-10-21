@@ -207,8 +207,6 @@ public class MK10 extends AbstractProtocol {
             mk10.sendDebug("\n");
             //mk10.mk10Profile.get
             mk10.sendDebug("\n");
-            Event e = new Event(new Date(), 0x3001, 1);
-            mk10.sendDebug(e.toString());
             
             //mk10.sendDebug(mk10.getFirmwareVersion());
 //            System.out.println(mk10.getCommandFactory().getInformationCommand(0xE397));
