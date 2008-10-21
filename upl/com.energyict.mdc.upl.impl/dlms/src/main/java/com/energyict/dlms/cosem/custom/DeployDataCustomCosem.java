@@ -69,19 +69,20 @@ public class DeployDataCustomCosem extends Data {
 				drStructure.addDataType(AXDRString.encode(dr.getDeviceName()));
 				drArray.addDataType(drStructure);
 			}
-			setValueAttr(drArray);
+			structure.addDataType(drArray);
+			setValueAttr(structure);
     	}
     }    
     
     public String getRtuPlusServerSerialNumber() throws IOException {
     	if (rtuPlusServerSerialNumber == null)
-    		rtuPlusServerSerialNumber = getValueAttr().getStructure().getDataType(0).getOctetString().stringValue();
+    		rtuPlusServerSerialNumber = AXDRString.decode(getValueAttr().getStructure().getDataType(0));
     	return rtuPlusServerSerialNumber;
     }
     
     public String getRtuPlusServerDeviceType() throws IOException {
     	if (rtuPlusServerDeviceType == null)
-    		rtuPlusServerDeviceType = getValueAttr().getStructure().getDataType(1).getOctetString().stringValue();
+    		rtuPlusServerDeviceType = AXDRString.decode(getValueAttr().getStructure().getDataType(1));
     	return rtuPlusServerDeviceType;
     }
     

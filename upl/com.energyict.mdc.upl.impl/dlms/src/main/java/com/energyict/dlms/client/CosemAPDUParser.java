@@ -287,10 +287,10 @@ public class CosemAPDUParser {
 		}
 		else if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_BUFFER) {
 			Array buffer = apdu.getDataType().getArray();
-			if (channelInfos == null) {
-				channelInfos = buildChannelInfos(buffer.nrOfDataTypes()-2);
-				profileData.setChannelInfos(channelInfos);
-			}
+//			if (channelInfos == null) {
+//				channelInfos = buildChannelInfos(buffer.nrOfDataTypes()-2);
+//				profileData.setChannelInfos(channelInfos);
+//			}
 			
 			List<IntervalData> intervalDatas = new ArrayList();
 			
@@ -300,6 +300,10 @@ public class CosemAPDUParser {
 				int eiStatus=0;
 				List<IntervalValue> intervalValues = new ArrayList();
 				if (loadProfileCapturedObjects==null) { // in case of short format...
+					if (channelInfos == null) {
+						channelInfos = buildChannelInfos(entry.nrOfDataTypes()-2);
+						profileData.setChannelInfos(channelInfos);
+					}
 					endTime = buildDate(entry.getDataType(0));
 					eiStatus = entry.getDataType(1).intValue();
 					for (int channelId=0;channelId<(entry.nrOfDataTypes()-2);channelId++) {
