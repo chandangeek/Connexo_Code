@@ -264,6 +264,7 @@ public class CosemAPDUParser {
 		else if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_BUFFER) {
 			Array buffer = apdu.getDataType().getArray();
 			List<MeterEvent> meterEvents = new ArrayList();
+			int trickyMilliSeconds=1000;
 			for (int i=0;i<buffer.nrOfDataTypes();i++) {
 				Structure entry = buffer.getDataType(i).getStructure();
 				Date date = buildDate(entry.getDataType(0));
@@ -271,6 +272,12 @@ public class CosemAPDUParser {
 				int eiCode = eventEntry.getDataType(0).intValue();
 				int protocolCode = eventEntry.getDataType(1).intValue();
 				String message = eventEntry.getDataType(2).getOctetString().stringValue();
+				if ((eiCode==MeterEvent.CONFIGURATIONCHANGE) ||
+					(eiCode==MeterEvent.OTHER))	{
+					date = new Date(date.getTime()+trickyMilliSeconds);
+					trickyMilliSeconds+=1000;
+				}
+				
 				meterEvents.add(new MeterEvent(date,eiCode,protocolCode,message));
 			}
 			profileData.setMeterEvents(meterEvents);

@@ -33,7 +33,8 @@ public class OctetString extends AbstractDataType {
         if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING)
             throw new IOException("OctetString, invalid identifier "+berEncodedData[offset]);
         offset++;
-        size = berEncodedData[offset++];
+        size = (int)DLMSUtils.getAXDRLength(berEncodedData,offset);
+        offset+=DLMSUtils.getAXDRLengthOffset(berEncodedData, offset);
         setOctetStr(ProtocolUtils.getSubArray2(berEncodedData,offset, size));
         offset+=size;
         offsetEnd = offset;

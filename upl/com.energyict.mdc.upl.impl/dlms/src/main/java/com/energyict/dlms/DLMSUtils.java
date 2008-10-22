@@ -55,7 +55,9 @@ public class DLMSUtils implements DLMSCOSEMGlobals {
     
     
     static public void main(String[] args) {
-        System.out.println(ProtocolUtils.outputHexString(getAXDRLengthEncoding(0x7F)));
+        byte[] data = new byte[]{(byte)0x21,(byte)0xFF};
+        System.out.println(getAXDRLengthOffset(data,0));
+        System.out.println(getAXDRLength(data,0));
     }
     
     public static int getAXDRLengthOffset(byte[] byteBuffer,int iOffset)

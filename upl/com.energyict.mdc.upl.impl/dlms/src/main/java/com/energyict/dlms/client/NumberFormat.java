@@ -48,21 +48,30 @@ public class NumberFormat {
 	}
 	
 	private void parse(Number number) throws IOException {
-		String val = number.toString().replace(".","");
-		try {
-			value = Long.parseLong(val);
+		
+		String strNotation = number.toString();
+		int ePos = strNotation.indexOf("E");
+		if (ePos>=0) {
+			exponent = Integer.parseInt(strNotation.substring(ePos+1));
+			value = Long.parseLong(strNotation.substring(0,ePos));
 		}
-		catch(NumberFormatException e) {
-			throw new IOException("Cannot parse "+val+" to long value!");
-		}
-		if (value != 0) {
-			String[] vals = number.toString().split("\\.");
-			if (vals.length==2) {
-				exponent = vals[1].length()*(-1);
+		else {
+			String val = strNotation.replace(".","");
+			try {
+				value = Long.parseLong(val);
 			}
-			int exponent2=findPosExponent(value);
-			value /= (long)Math.pow(10,exponent2);
-			exponent+=exponent2;
+			catch(NumberFormatException e) {
+				throw new IOException("Cannot parse "+val+" to long value!");
+			}
+			if (value != 0) {
+				String[] vals = number.toString().split("\\.");
+				if (vals.length==2) {
+					exponent = vals[1].length()*(-1);
+				}
+				int exponent2=findPosExponent(value);
+				value /= (long)Math.pow(10,exponent2);
+				exponent+=exponent2;
+			}
 		}
 	}
 	
@@ -151,8 +160,10 @@ public class NumberFormat {
 		
 		
 		try {
-			//NumberFormat o = new NumberFormat(new BigDecimal("2772123123.123300078"));
-			NumberFormat o = new NumberFormat(new BigDecimal("12345678.0002"));
+			//NumberFormat o = new NumberFormat(new BigDecimal("0E-9"));
+			BigDecimal bd = new BigDecimal("122");
+			NumberFormat o = new NumberFormat(bd);
+			//NumberFormat o = new NumberFormat(new BigDecimal("12345678.0002"));
 			System.out.println(o);
 			System.out.println(ProtocolUtils.outputHexString(o.toAbstractDataType().getBEREncodedByteArray()));
 			System.out.println(o.toAbstractDataType());
