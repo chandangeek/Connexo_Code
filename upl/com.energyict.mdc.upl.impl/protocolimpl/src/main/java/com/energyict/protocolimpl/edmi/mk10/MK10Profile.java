@@ -24,7 +24,7 @@ import com.energyict.protocol.*;
  */
 public class MK10Profile {
     
-    private final int DEBUG=0;
+    private final int DEBUG=1;
 
     MK10 mk10;
     LoadSurvey loadSurvey=null;
