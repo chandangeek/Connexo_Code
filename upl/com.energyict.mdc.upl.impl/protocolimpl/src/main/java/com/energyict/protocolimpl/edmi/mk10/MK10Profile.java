@@ -92,20 +92,18 @@ public class MK10Profile {
     } // private List buildChannelInfos(LoadSurveyData loadSurveyData) 
     
     private List buildIntervalDatas(LoadSurveyData loadSurveyData) throws IOException {
+        int infochannel = loadSurveyData.getLoadSurvey().getNrOfChannels()-1;
         List intervalDatas = new ArrayList();
         Calendar cal = ProtocolUtils.getCleanCalendar(mk10.getTimeZone());
         cal.setTime(loadSurveyData.getFirstTimeStamp());
         for (int interval=0; interval<loadSurveyData.getNumberOfRecords(); interval++) {
             IntervalData intervalData= new IntervalData(new Date(cal.getTime().getTime()));
-            for (int channel=0; channel<loadSurveyData.getLoadSurvey().getNrOfChannels() ; channel++) {
-                if (channel == loadSurveyData.getLoadSurvey().getNrOfChannels()-1 ) {
-                    int protocolStatus=loadSurveyData.getChannelValues(interval)[channel].getBigDecimal().intValue();
+            for (int channel=0; channel<loadSurveyData.getLoadSurvey().getNrOfChannels()-1 ; channel++) {
+                    int protocolStatus=loadSurveyData.getChannelValues(interval)[infochannel].getBigDecimal().intValue();
                     int eiStatus=mapProtocolStatus2EiStatus(protocolStatus);
                     intervalData.setEiStatus(eiStatus);
                     intervalData.setProtocolStatus(protocolStatus);
-                }
-//                if (((channel==0) && (mk10.isStatusFlagChannel())) || (channel>0)) {
-                   intervalData.addValue(loadSurveyData.getChannelValues(interval)[channel].getBigDecimal());
+                    intervalData.addValue(loadSurveyData.getChannelValues(interval)[channel].getBigDecimal());
 //                }
             } // for (int channel=1; channel<loadSurveyData.getLoadSurvey().getNrOfChannels(); channel++)
             intervalDatas.add(intervalData);
@@ -116,6 +114,38 @@ public class MK10Profile {
         
     } // private List buildIntervalDatas(LoadSurveyData loadSurveyData) 
 
+    
+    private List buildMeterEvents(LinkedHashSet eventLogData) throws IOException {
+        Calendar cal = ProtocolUtils.getCleanCalendar(mk10.getTimeZone());
+        List meterEvents = new ArrayList();
+        MeterEvent me;
+     	Iterator it = eventLogData.iterator();
+		while(it.hasNext()) {
+            Event event = (Event) it.next();
+            String message = event.getEventDescription();
+            Date eventdate = event.getEventDate();
+            while (duplicateDate(meterEvents, eventdate)) {
+                cal.setTime(eventdate);
+                cal.add(Calendar.SECOND, 1);
+            	eventdate = cal.getTime();
+			}
+            me = new MeterEvent(eventdate, mapEventLogMessage2MeterEventEICode(message),message);
+        	meterEvents.add(me);
+        } 
+        return meterEvents;
+    } // private List buildMeterEvents(LoadSurveyData eventLogData) 
+ 
+    private boolean duplicateDate(List melist, Date date) {
+    	Iterator it = melist.iterator();
+    	while(it.hasNext()) {
+    		MeterEvent me = (MeterEvent) it.next();
+    		if (me.getTime().equals(date)) {
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
     private final int ABSENT_READING=0x0001;
     private final int INCOMPLETE_INTERVAL=0x0002; 
     private final int POWER_FAILED_DURING_INTERVAL=0x0004;
@@ -152,38 +182,6 @@ public class MK10Profile {
         }
         
         return eiStatus;
-    }
-    
-    
-    private List buildMeterEvents(LinkedHashSet eventLogData) throws IOException {
-        Calendar cal = ProtocolUtils.getCleanCalendar(this.mk10.getTimeZone());
-        List meterEvents = new ArrayList();
-        MeterEvent me;
-     	Iterator it = eventLogData.iterator();
-		while(it.hasNext()) {
-            Event event = (Event) it.next();
-            String message = event.getEventDescription();
-            Date eventdate = event.getEventDate();
-            while (duplicateDate(meterEvents, eventdate)) {
-                cal.setTime(eventdate);
-                cal.add(Calendar.SECOND, 1);
-            	eventdate = cal.getTime();
-			}
-            me = new MeterEvent(eventdate, mapEventLogMessage2MeterEventEICode(message),message);
-        	meterEvents.add(me);
-        } 
-        return meterEvents;
-    } // private List buildMeterEvents(LoadSurveyData eventLogData) 
- 
-    private boolean duplicateDate(List melist, Date date) {
-    	Iterator it = melist.iterator();
-    	while(it.hasNext()) {
-    		MeterEvent me = (MeterEvent) it.next();
-    		if (me.getTime().equals(date)) {
-    			return true;
-    		}
-    	}
-    	return false;
     }
     
     private int mapEventLogMessage2MeterEventEICode(String message) {

@@ -68,6 +68,7 @@ public class EventSurvey {
     private Set getEventData(byte[] data_in, int eventlognr) throws IOException {
     	Set set = new HashSet();
 		TimeZone tz = this.commandFactory.getMk10().getTimeZone();
+        Calendar cal = ProtocolUtils.getCleanCalendar(tz);
     	set.clear();
     	
     	int ptr = 0;
@@ -76,6 +77,12 @@ public class EventSurvey {
 			int eventcode = ProtocolUtils.getIntLE(eventcodebytes, 0, 2);
     		int eventtime = ProtocolUtils.getIntLE(data_in, ptr + 2, 4);
     		Date eventdate = DateTimeBuilder.getDateFromSecondsSince1996(tz, eventtime);
+    		
+//            cal.setTime(getLoadSurvey().getStartTime());
+//            cal.add(Calendar.SECOND,(int)(((getLoadSurvey().getStoredEntries() - 1) - getNumberOfRecords()) * interval));
+//            setFirstTimeStamp(cal.getTime());
+
+    		
     		Event event = new Event(eventdate, eventcode, eventlognr);
     		ptr += 6;
 

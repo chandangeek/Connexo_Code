@@ -18,13 +18,14 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import com.energyict.protocolimpl.edmi.mk10.command.*;
+import com.energyict.protocolimpl.edmi.mk10.registermapping.*;
 /**
  *
  * @author koen
  */
 public class LoadSurvey {
     
-    private static final int BASE_REGISTER_ID = 0xD800;
+    private static final int BASE_REGISTER_ID = MK10Register.SURVEY1_STARTDATE;
 
     private CommandFactory commandFactory;
     private int LoadSurveyNumber;

@@ -81,7 +81,7 @@ public class LoadSurveyData {
 
         Calendar cal = ProtocolUtils.getCleanCalendar(getLoadSurvey().getCommandFactory().getMk10().getTimeZone());
         cal.setTime(getLoadSurvey().getStartTime());
-        cal.add(Calendar.SECOND,(int)(((getLoadSurvey().getStoredEntries() - 1) - getNumberOfRecords()) * interval));
+        //cal.add(Calendar.SECOND,(int)(((getLoadSurvey().getStoredEntries() - 1) - getNumberOfRecords()) * interval));
         setFirstTimeStamp(cal.getTime());
 
     } // private void init(Date from) throws IOException

@@ -41,10 +41,9 @@ public class MK10 extends AbstractProtocol {
     private ObisCodeFactory obisCodeFactory=null;
     MK10Profile mk10Profile=null;
     
-    private String eventLogName;
-
     private int loadSurveyNumber;
-    private int statusFlagChannel;
+//	private String eventLogName;
+//	private int statusFlagChannel;
     
     /** Creates a new instance of MK10 */
     public MK10() {
@@ -62,14 +61,22 @@ public class MK10 extends AbstractProtocol {
         getCommandFactory().exitCommandLineMode();
     }
     
-    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+	// TODO This method is never read. 
+    // The protocol can't verify the serial number because the correct serial number is needed to communicate with the device
+    protected void validateSerialNumber() throws IOException {
+        sendDebug("doValidateProperties()");
+        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
+        String sn = getSerialNumber();
+        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
+        throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
+	}
+
+	protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         sendDebug("doValidateProperties()");
         setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.NODEID,"1"));
-        setEventLogName(properties.getProperty("EventLogName","Event Log"));
         validateLoadSurveyNumber(properties.getProperty("LoadSurveyNumber"));
         setLoadSurveyNumber(Integer.parseInt(properties.getProperty("LoadSurveyNumber").trim())-1);
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
-        setStatusFlagChannel(Integer.parseInt(properties.getProperty("StatusFlagChannel","0").trim()));
     }
     
     public int getProfileInterval() throws UnsupportedException, IOException { 
@@ -77,6 +84,7 @@ public class MK10 extends AbstractProtocol {
         return mk10Profile.getProfileInterval();
     }
     
+    // TODO ok
     public int getNumberOfChannels() throws UnsupportedException, IOException {
         sendDebug("getNumberOfChannels()");
         return mk10Profile.getNumberOfChannels();
@@ -85,9 +93,7 @@ public class MK10 extends AbstractProtocol {
     protected List doGetOptionalKeys() {
         sendDebug("doGetOptionalKeys()");
         List result = new ArrayList();
-        result.add("EventLogName");
         result.add("LoadSurveyNumber");
-        result.add("StatusFlagChannel");
         return result;
     }
     
@@ -116,20 +122,22 @@ public class MK10 extends AbstractProtocol {
         return "$Revision: 1.7 $";
     }
     
+    // TODO OK
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         sendDebug("getFirmwareVersion()");
-        return "Equipment model id:"+getCommandFactory().getReadCommand(0xF000).getRegister().getString()+"\n"+ // Equipment model id
-               "Software version:"+getCommandFactory().getReadCommand(0xF003).getRegister().getString()+"\n"+ // Software version
-               "Software revision:"+getCommandFactory().getReadCommand(0xF090).getRegister().getString()+"\n"+ // Software revision
-               "Bootloader revision:"+getCommandFactory().getReadCommand(0xF091).getRegister().getString()+"\n"+ // Software revision
+        return "Equipment model id:"+getCommandFactory().getReadCommand(MK10Register.SYSTEM_MODEL_ID).getRegister().getString()+"\n"+ // Equipment model id
+               "Software version:"+getCommandFactory().getReadCommand(MK10Register.SYSTEM_SOFTWARE_VERSION).getRegister().getString()+"\n"+ // Software version
+               "Software revision:"+getCommandFactory().getReadCommand(MK10Register.SYSTEM_SOFTWARE_REVISION).getRegister().getString()+"\n"+ // Software revision
+               "Bootloader revision:"+getCommandFactory().getReadCommand(MK10Register.SYSTEM_BOOTLOADER_REVISION).getRegister().getString()+"\n"+ // Software revision
                "Serial number:"+getSerialNumber(); // serial number
     }
     
+    // TODO OK
     public String getSerialNumber() throws IOException {
-        sendDebug("getSerialNumber()");
-        return getCommandFactory().getReadCommand(0xF002).getRegister().getString(); // Serial number
+        return getCommandFactory().getReadCommand(MK10Register.SYSTEM_SERIALNUMBER).getRegister().getString(); // Serial number
     }
     
+    // TODO OK
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
         sendDebug("getProfileData()");
         return mk10Profile.getProfileData(from, to, includeEvents);
@@ -161,13 +169,13 @@ public class MK10 extends AbstractProtocol {
         Dialer dialer=null;
         try {
             
-// direct rs232 connection
+        	// direct rs232 connection
             dialer =DialerFactory.getDirectDialer().newDialer();
             dialer.init("COM1");
             dialer.connect("",60000); 
             
-// setup the properties (see AbstractProtocol for default properties)
-// protocol specific properties can be added by implementing doValidateProperties(..)
+			// setup the properties (see AbstractProtocol for default properties)
+			// protocol specific properties can be added by implementing doValidateProperties(..)
             Properties properties = new Properties();
 
             properties.setProperty("SerialNumber","206332371");
@@ -177,27 +185,26 @@ public class MK10 extends AbstractProtocol {
             properties.setProperty("LoadSurveyNumber", "1");
             
             //properties.setProperty(MeterProtocol.NODEID,"1234");
-//            properties.setProperty("HalfDuplex", "50");
+            //properties.setProperty("HalfDuplex", "50");
             //properties.setProperty("Retries", "0");
             
-// transfer the properties to the protocol
+            //transfer the properties to the protocol
             mk10.setProperties(properties);    
             
-// depending on the dialer, set the initial (pre-connect) communication parameters            
+            // depending on the dialer, set the initial (pre-connect) communication parameters            
             dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
                                                                      SerialCommunicationChannel.DATABITS_8,
                                                                      SerialCommunicationChannel.PARITY_NONE,
                                                                      SerialCommunicationChannel.STOPBITS_1);
-// initialize the protocol
-            //mk10.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("logger"));
+            // initialize the protocol
             mk10.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"), null);
             
-// if optical head dialer, enable the HHU signon mechanism
+            // if optical head dialer, enable the HHU signon mechanism
             if (DialerMarker.hasOpticalMarker(dialer))
                 ((HHUEnabler)mk10).enableHHUSignOn(dialer.getSerialCommunicationChannel());
                         
-// connect to the meter            
-            mk10.connect();
+            mk10.connect(); // connect to the meter            
+
             //mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0xD800).toString());            
             //mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0xE002).toString());
             //mk10.sendDebug("Number of channels: " + String.valueOf(mk10.getNumberOfChannels()));
@@ -207,6 +214,13 @@ public class MK10 extends AbstractProtocol {
             mk10.sendDebug("\n");
             //mk10.mk10Profile.get
             mk10.sendDebug("\n");
+
+            mk10.disconnect();
+            
+        } 
+        catch (Exception e) {}
+        return;
+
             
             //mk10.sendDebug(mk10.getFirmwareVersion());
 //            System.out.println(mk10.getCommandFactory().getInformationCommand(0xE397));
@@ -278,8 +292,6 @@ public class MK10 extends AbstractProtocol {
 //            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.9.0.0")));
 //            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.16.0.0")));
 
-            mk10.disconnect();
-            int i = 2; if (i==2) return;
             
 //            System.out.println(mk10.getSerialNumber());
             
@@ -300,7 +312,6 @@ public class MK10 extends AbstractProtocol {
 //}
 
 // load profile ID 3
-int regId=0x00A00000; //0x03000000;   //0x03200000;          
 
             
 //System.out.println("Load profile:");            
@@ -323,7 +334,6 @@ int regId=0x00A00000; //0x03000000;   //0x03200000;
 //System.out.println("Start of load survey: "+mk10.getCommandFactory().getReadCommand(0x5F020+regId));    
 //System.out.println("Current Entry nr in load profile: "+mk10.getCommandFactory().getReadCommand(0x5F021+regId));    
 
-Calendar cal = ProtocolUtils.getCalendar(mk10.getTimeZone());
 //cal.set(Calendar.DAY_OF_MONTH,31);
 //cal.set(Calendar.HOUR_OF_DAY,14);
 //cal.set(Calendar.MINUTE,40);
@@ -361,18 +371,6 @@ Calendar cal = ProtocolUtils.getCalendar(mk10.getTimeZone());
 //LoadSurveyData lsd = ls.readFile(from.getTime());
 //System.out.println(lsd);
 
-
-Calendar from = Calendar.getInstance();
-from.add(Calendar.DAY_OF_MONTH,-3);
-System.out.println(mk10.getProfileData(from.getTime(),null,true));
-
-            mk10.disconnect();
-            
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        
         
     }
 
@@ -394,15 +392,6 @@ System.out.println(mk10.getProfileData(from.getTime(),null,true));
         return obisCodeFactory;
     }
 
-    public String getEventLogName() {
-        return eventLogName;
-    }
-
-    private void setEventLogName(String eventLogName) {
-    	this.eventLogName = eventLogName;
-        sendDebug("setEventLogName(): " + this.eventLogName);
-    }
-
     public int getLoadSurveyNumber() {
         return loadSurveyNumber;
     }
@@ -419,15 +408,6 @@ System.out.println(mk10.getProfileData(from.getTime(),null,true));
     		throw new InvalidPropertyException("Wrong LoadSurveyNumber value: " + value + "! Must be 1 or 2 for the EDMI MK10 meter.");
     }
     
-    public boolean isStatusFlagChannel() {
-        return statusFlagChannel==1;
-    }
-
-    public void setStatusFlagChannel(int statusFlagChannel) {
-        this.statusFlagChannel = statusFlagChannel;
-        sendDebug("setStatusFlagChannel(): " + String.valueOf(statusFlagChannel));
-    }
-
     public void sendDebug(String str){
         if (DEBUG == 1) {
         	str = " **** DEBUG > " + str;
