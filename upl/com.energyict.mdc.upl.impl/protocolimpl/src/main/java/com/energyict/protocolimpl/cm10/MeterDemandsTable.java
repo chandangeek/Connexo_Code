@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import com.energyict.cbo.BaseUnit;
@@ -62,6 +63,29 @@ public class MeterDemandsTable {
 			profileData.addInterval(intervalData);
 			i = i + (numberOfChannels * 2); // 2 bytes per channel interval record
 		}
+
+		// meter reports missing in the future => remove them!!!
+		int numberOfMissingValuesToRemove = numberOfMissingValuesToRemove(profileData);
+		cm10Protocol.getLogger().info("numberOfMissingValuesToRemove: "  + numberOfMissingValuesToRemove);
+		List intervalDatas = profileData.getIntervalDatas();
+		for (int j = 0; j < numberOfMissingValuesToRemove; j++) {
+			intervalDatas.remove(intervalDatas.size() - 1);  // remove last value
+		}
+		
+	}
+	
+	protected int numberOfMissingValuesToRemove(ProfileData profileData) {
+		int count = 0; 
+		List intervalDatas = profileData.getIntervalDatas();
+		int size = intervalDatas.size();
+		for (int i = (size - 1); i >= 0; i--) {
+			IntervalData intervalData = (IntervalData) intervalDatas.get(i);
+			if ((intervalData.getProtocolStatus() & IntervalStateBits.MISSING) > 0)
+				count++;
+			else
+				return count;
+		}
+		return count;
 	}
 
 }

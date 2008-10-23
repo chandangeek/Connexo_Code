@@ -19,6 +19,8 @@ public class FullPersonalityTable {
 	private int[] dMlt = new int[48]; // multipliers = dMlt * dExp
 	private int[] dDiv = new int[48];
 	private int demper; // interval
+	private int[] upiMultFactor = new int[48];
+	private int[] upiDivFactor = new int[48];
 	
 	
 	public FullPersonalityTable(CM10 cm10Protocol) {
@@ -43,6 +45,18 @@ public class FullPersonalityTable {
 		startIndex = startIndex + 48;
 		for (int i = 0; i < 48; i++) 
 			dMlt[i] = data[startIndex + i];
+		startIndex = startIndex + 48;
+		
+		for (int i = 0; i < 48; i++) {
+			dDiv[i] = ProtocolUtils.getIntLE(data, startIndex + (i * 2), 2);
+		}
+		
+		startIndex = startIndex + 96;
+		for (int i = 0; i < 48; i++) {
+			upiMultFactor[i] = data[startIndex + (2 * i)];
+			upiDivFactor[i] = data[startIndex + (2 * i) + 1];
+		}
+		
 		demper = data[data.length - 3 - 1];
 	}
 	
@@ -67,6 +81,15 @@ public class FullPersonalityTable {
 		
 		for (int i = 0; i < 48; i++)
 			buf.append("dMlt " + i + ": " + dMlt[i]).append("\n");
+		
+		for (int i = 0; i < 48; i++)
+			buf.append("dDiv " + i + ": " + dDiv[i]).append("\n");
+		
+		for (int i = 0; i < 48; i++)
+			buf.append("upiMultFactor " + i + ": " + upiMultFactor[i]).append("\n");
+		
+		for (int i = 0; i < 48; i++)
+			buf.append("upiDivFactor " + i + ": " + upiDivFactor[i]).append("\n");
 		
 		buf.append("demper: " + demper).append("\n");
 		return buf.toString();

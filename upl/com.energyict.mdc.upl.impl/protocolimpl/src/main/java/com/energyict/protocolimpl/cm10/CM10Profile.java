@@ -117,7 +117,7 @@ public class CM10Profile {
 		for (int i = 0; i < numberOfChannels; i++) {
 			ChannelInfo channelInfo = 
 				new ChannelInfo(
-						i, "CM10_"+(i+1), Unit.get(BaseUnit.UNITLESS)); //, 0, i, new BigDecimal(multipliers[i]));
+						i, "CM10_"+(i+1), Unit.get(BaseUnit.UNITLESS), 0, i, new BigDecimal(1)); // multipliers[i]
 			profileData.addChannel(channelInfo);			
 		}
 	}
