@@ -60,9 +60,6 @@ public class EventSurvey {
         		eventset[lognr].addAll(getEventData(farc.getData(), lognr));
         	} while (firstentry < lastentry);
         }
-    	// FIXME DEBUG plaats !!!!!
-    	int intmap = 0;
-    	if (intmap != 0) {intmap = 3;}
     }
     
     private Set getEventData(byte[] data_in, int eventlognr) throws IOException {
@@ -77,11 +74,6 @@ public class EventSurvey {
 			int eventcode = ProtocolUtils.getIntLE(eventcodebytes, 0, 2);
     		int eventtime = ProtocolUtils.getIntLE(data_in, ptr + 2, 4);
     		Date eventdate = DateTimeBuilder.getDateFromSecondsSince1996(tz, eventtime);
-    		
-//            cal.setTime(getLoadSurvey().getStartTime());
-//            cal.add(Calendar.SECOND,(int)(((getLoadSurvey().getStoredEntries() - 1) - getNumberOfRecords()) * interval));
-//            setFirstTimeStamp(cal.getTime());
-
     		
     		Event event = new Event(eventdate, eventcode, eventlognr);
     		ptr += 6;

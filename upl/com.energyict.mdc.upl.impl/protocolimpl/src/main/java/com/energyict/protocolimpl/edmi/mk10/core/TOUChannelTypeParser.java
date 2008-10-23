@@ -29,7 +29,7 @@ public class TOUChannelTypeParser {
 	private Boolean channelenabled = true;
 	
 	public TOUChannelTypeParser(int ChannelDef) {
-		this.DecimalPointScaling = (ChannelDef & 0x7000) >> 12;
+		this.DecimalPointScaling = (ChannelDef & 0x7000) >> 13;
     	int regvalue = ChannelDef & 0x000F;
     	int regfunction = (ChannelDef & 0x00F0) >> 4;
     	int scaling = (ChannelDef & 0x0C00) >> 10;
@@ -40,7 +40,11 @@ public class TOUChannelTypeParser {
     	Boolean isReserved = false;
     	Boolean isTesting = false;
     	
-        RegisterUnitParser rup = new RegisterUnitParser();
+    	if ((ChannelDef & 0x00FF) == 0x00FF) {
+    		channelenabled = false;
+    	}
+        
+    	RegisterUnitParser rup = new RegisterUnitParser();
 
         switch(regfunction) {
         case 0x00:
@@ -150,9 +154,6 @@ public class TOUChannelTypeParser {
             	this.unit = Unit.get(BaseUnit.VOLTAMPEREHOUR, scaling * 3); // Channel value base unit is Vah
                 this.Name = this.Name + " Total " + this.unit.toString();
             	break;
-            case 0xFF:
-            	this.channelenabled = false;
-                this.unit = Unit.get(BaseUnit.UNITLESS, scaling * 3); // Channel base unit unknown (reserved). No base unit
             default: 
                 this.unit = Unit.get(BaseUnit.UNITLESS, scaling * 3); // Channel base unit unknown (reserved). No base unit
             } // End of switch(regvalue)

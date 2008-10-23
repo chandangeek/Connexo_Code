@@ -135,6 +135,7 @@ public class MK10Profile {
             me = new MeterEvent(eventdate, mapEventLogMessage2MeterEventEICode(message),message);
         	meterEvents.add(me);
         } 
+		
         return meterEvents;
     } // private List buildMeterEvents(LoadSurveyData eventLogData) 
  

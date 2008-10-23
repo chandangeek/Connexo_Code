@@ -40,6 +40,10 @@ public class SurveyChannelTypeParser {
     	Boolean isReserved = false;
     	Boolean isTesting = false;
     	
+    	if ((ChannelDef & 0x00FF) == 0x00FF) {
+    		channelenabled = false;
+    	}
+    	
         RegisterUnitParser rup = new RegisterUnitParser();
 
         switch(regfunction) {
@@ -150,9 +154,6 @@ public class SurveyChannelTypeParser {
             	this.unit = Unit.get(BaseUnit.VOLTAMPEREHOUR, scaling * 3); // Channel value base unit is Vah
                 this.Name = this.Name + " Total " + this.unit.toString();
             	break;
-            case 0xFF:
-            	this.channelenabled = false;
-                this.unit = Unit.get(BaseUnit.UNITLESS, scaling * 3); // Channel base unit unknown (reserved). No base unit
             default: 
                 this.unit = Unit.get(BaseUnit.UNITLESS, scaling * 3); // Channel base unit unknown (reserved). No base unit
             } // End of switch(regvalue)
