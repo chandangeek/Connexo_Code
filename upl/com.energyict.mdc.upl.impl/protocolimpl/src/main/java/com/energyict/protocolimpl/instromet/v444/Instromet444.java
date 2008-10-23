@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -38,6 +39,7 @@ public class Instromet444 extends InstrometProtocol {
     private ObisCodeMapper obisCodeMapper = new ObisCodeMapper(this);
     private RegisterFactory registerFactory;
     private List wrapValues = new ArrayList();
+    private int iRoundtripCorrection;
 	
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getInstromet444Profile().getProfileData(lastReading,includeEvents);
@@ -53,6 +55,10 @@ public class Instromet444 extends InstrometProtocol {
 	
 	public TableFactory getTableFactory() {
 		return tableFactory;
+	}
+	
+	public int getRoundtripCorrection() {
+		return this.iRoundtripCorrection;
 	}
 	
 	protected void setWrapValues() throws IOException {
@@ -95,6 +101,8 @@ public class Instromet444 extends InstrometProtocol {
     	setInstromet444Profile(new Instromet444Profile(this));
     	tableFactory = new TableFactory(this);
     	setWrapValues();
+    	iRoundtripCorrection=getInfoTypeRoundtripCorrection();
+    	
     }
     
     public List getWrapValues() {
@@ -164,7 +172,10 @@ public class Instromet444 extends InstrometProtocol {
 	}
 
 	public Date getTime() throws IOException {
-		return getTableFactory().getCorrectorInformationTable().getTime();
+		Calendar cal = Calendar.getInstance(getTimeZone());
+		cal.setTime(getTableFactory().getCorrectorInformationTable().getTime());
+		cal.add(Calendar.MILLISECOND, -iRoundtripCorrection);
+		return cal.getTime();
 	}
 
 	public void setTime() throws IOException {

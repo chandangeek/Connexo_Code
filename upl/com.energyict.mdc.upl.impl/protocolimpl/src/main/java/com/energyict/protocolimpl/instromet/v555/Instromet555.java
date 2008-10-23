@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.instromet.v555;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -31,10 +32,15 @@ public class Instromet555 extends InstrometProtocol {
     private ObisCodeMapper obisCodeMapper = new ObisCodeMapper(this);
     private RegisterFactory registerFactory;
     private List wrapValues = new ArrayList();
+    private int iRoundtripCorrection;
 	
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getInstromet555Profile().getProfileData(lastReading,includeEvents);
     }
+	
+	public int getRoundtripCorrection() {
+		return this.iRoundtripCorrection;
+	}
 	
 	public RegisterFactory getRegisterFactory() throws IOException {
         if (registerFactory == null) {
@@ -88,6 +94,7 @@ public class Instromet555 extends InstrometProtocol {
     	setInstromet555Profile(new Instromet555Profile(this));
     	tableFactory = new TableFactory(this);
     	setWrapValues();
+    	iRoundtripCorrection=getInfoTypeRoundtripCorrection();
     }
     
     public List getWrapValues() {
@@ -157,7 +164,10 @@ public class Instromet555 extends InstrometProtocol {
 	}
 
 	public Date getTime() throws IOException {
-		return getTableFactory().getCorrectorInformationTable().getTime();
+		Calendar cal = Calendar.getInstance(getTimeZone());
+		cal.setTime(getTableFactory().getCorrectorInformationTable().getTime());
+		cal.add(Calendar.MILLISECOND, -iRoundtripCorrection);
+		return cal.getTime();
 	}
 
 	public void setTime() throws IOException {

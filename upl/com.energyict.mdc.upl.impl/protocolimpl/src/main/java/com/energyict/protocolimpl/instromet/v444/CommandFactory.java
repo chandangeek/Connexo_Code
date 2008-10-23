@@ -83,6 +83,9 @@ public class CommandFactory {
 		int startAddress = 28;
 		byte[] data = new byte[7];
 		Calendar cal = Calendar.getInstance(instromet444.getTimeZone());
+		
+		cal.add(Calendar.MILLISECOND,this.instromet444.getRoundtripCorrection());     
+		
 		int year = cal.get(Calendar.YEAR) - 2000;
 		int month = cal.get(Calendar.MONTH) + 1;
 		int day = cal.get(Calendar.DATE);
