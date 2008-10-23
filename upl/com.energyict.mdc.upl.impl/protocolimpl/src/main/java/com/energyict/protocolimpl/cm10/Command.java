@@ -28,8 +28,8 @@ public class Command {
     
     public Command(int activityIdentifier, int outStationId) {
         this(activityIdentifier);
-        destinationCode[0] = (byte) outStationId;
-        destinationCode[1] = 0x00;
+        destinationCode[0] = (byte) (outStationId & 0xFF);
+        destinationCode[1] = (byte) ((outStationId>>8) & 0xFF);
     }   
     
     public void validate() throws IOException {
