@@ -85,7 +85,6 @@ public class EventSurvey {
     		switch (eventcode & 0xFFF0) {
 				case 0x2000: break;
 				case 0x2080: break;
-				case 0xB300: break; 
 				default: set.add(event); break;
 			}
     	}

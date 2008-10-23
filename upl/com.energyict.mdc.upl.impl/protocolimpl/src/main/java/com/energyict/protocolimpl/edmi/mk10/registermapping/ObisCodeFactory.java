@@ -14,6 +14,7 @@ import com.energyict.cbo.*;
 import com.energyict.obis.*;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.edmi.mk10.command.*;
+import com.energyict.protocolimpl.edmi.mk10.core.*;
 import java.io.*;
 import java.util.*;
 import com.energyict.protocolimpl.edmi.mk10.*;
@@ -42,46 +43,44 @@ public class ObisCodeFactory {
     
     // tou period
     private final int PERIOD_CURRENT=0;
-    private final int PERIOD_PREVIOUS1=2;
-    private final int PERIOD_BILLING_TOTAL=4;
-    private final int PERIOD_TOTAL=6;
+    private final int PERIOD_PREVIOUS1=1;
+    private final int PERIOD_BILLING_TOTAL=14;
+    private final int PERIOD_TOTAL=15;
     
     // tou channel
     private final int CHANNEL_START=0;
-    private final int CHANNEL_NR_OF_CHANNELS=12;
+    private final int CHANNEL_NR_OF_CHANNELS=6;
     
     // tou register function
     private final int RATE_UNIFIED=0;
-    private final int RATE_START=0;
-    private final int RATE_NR_OF_RATES=8;
-    
+    private final int RATE_START=1;
     
     public void initTOURegisterInfos() throws IOException {
         touRegisterInfos = new ArrayList();
+        TOUChannelTypeParser tou_ctp = null;
+        
         for (int channel=CHANNEL_START;channel<CHANNEL_NR_OF_CHANNELS;channel++) {
-        	RegisterInf ri = null;            
         	int c_definitions = mk10.getCommandFactory().getReadCommand(MK10Register.TOU_CHANNEL_DEFINITIONS + channel).getRegister().getBigDecimal().intValue();
-        	int source_def = c_definitions & 0x00FF;
-        	if (source_def != 0x00FF) {
-        		ri = RegisterFactory.getRegisterInf(0xFFFF); // get external register!
-        	}
-        	else {
-        		ri = null;
-        	}
         	
-            if (ri!=null) {
-                // energy tou registers
-                addTOURegisters(TYPE_ENERGY, channel, PERIOD_CURRENT, ri.getObisCField(), "Energy "+ri.getDescription()+" Current period");
-                addTOURegisters(TYPE_ENERGY, channel, PERIOD_PREVIOUS1, ri.getObisCField(), "Energy "+ri.getDescription()+" Previous period");
-                addTOURegisters(TYPE_ENERGY, channel, PERIOD_BILLING_TOTAL, ri.getObisCField(), "Energy "+ri.getDescription()+" Billing total period");
-                addTOURegisters(TYPE_ENERGY, channel, PERIOD_TOTAL, ri.getObisCField(), "Energy "+ri.getDescription()+" Total period");
+        	tou_ctp = new TOUChannelTypeParser(c_definitions);
+        	
+        	if (tou_ctp.isChannel() && (tou_ctp.getObisCField()>0)) {
+
+        		this.mk10.sendDebug(" *************************************** TOU CHANNEL: " + channel + " Rates: " + tou_ctp.getRates());
+        		
+        		// energy tou registers
+                addTOURegisters(TYPE_ENERGY, channel, PERIOD_CURRENT, tou_ctp.getObisCField(), "Energy "+tou_ctp.getName()+" Current period", tou_ctp.getRates());
+                addTOURegisters(TYPE_ENERGY, channel, PERIOD_PREVIOUS1, tou_ctp.getObisCField(), "Energy "+tou_ctp.getName()+" Previous period", tou_ctp.getRates());
+                addTOURegisters(TYPE_ENERGY, channel, PERIOD_BILLING_TOTAL, tou_ctp.getObisCField(), "Energy "+tou_ctp.getName()+" Billing total period", tou_ctp.getRates());
+                addTOURegisters(TYPE_ENERGY, channel, PERIOD_TOTAL, tou_ctp.getObisCField(), "Energy "+tou_ctp.getName()+" Total period", tou_ctp.getRates());
                 
                 // max demand registers
-                addTOURegisters(TYPE_MAX_DEMAND, channel, PERIOD_CURRENT, ri.getObisCField(), "Max demand "+ri.getDescription()+" Current period");
-                addTOURegisters(TYPE_MAX_DEMAND, channel, PERIOD_PREVIOUS1, ri.getObisCField(), "Max demand "+ri.getDescription()+" Previous period");
-                addTOURegisters(TYPE_MAX_DEMAND, channel, PERIOD_BILLING_TOTAL, ri.getObisCField(), "Max demand "+ri.getDescription()+" Billing totalent period");
-                addTOURegisters(TYPE_MAX_DEMAND, channel, PERIOD_TOTAL, ri.getObisCField(), "Max demand "+ri.getDescription()+" Total period");
-            }
+                addTOURegisters(TYPE_MAX_DEMAND, channel, PERIOD_CURRENT, tou_ctp.getObisCField(), "Max demand "+tou_ctp.getName()+" Current period", tou_ctp.getRates());
+                addTOURegisters(TYPE_MAX_DEMAND, channel, PERIOD_PREVIOUS1, tou_ctp.getObisCField(), "Max demand "+tou_ctp.getName()+" Previous period", tou_ctp.getRates());
+                addTOURegisters(TYPE_MAX_DEMAND, channel, PERIOD_BILLING_TOTAL, tou_ctp.getObisCField(), "Max demand "+tou_ctp.getName()+" Billing totalent period", tou_ctp.getRates());
+                addTOURegisters(TYPE_MAX_DEMAND, channel, PERIOD_TOTAL, tou_ctp.getObisCField(), "Max demand "+tou_ctp.getName()+" Total period", tou_ctp.getRates());
+
+        	}
         }
     }
     
@@ -105,10 +104,10 @@ public class ObisCodeFactory {
         period &= 0x000F;
         channel &= 0x001F;
         rate &= 0x000F;
-        return (type << 13) | ( period << 9) | (channel << 8) | rate;
+        return (type << 13) | ( period << 9) | (channel << 5) | rate;
     }
     
-    private void addTOURegisters(int type, int channel, int period, int cField, String description) {
+    private void addTOURegisters(int type, int channel, int period, int cField, String description, int numberofrates) {
         
         boolean timeOfMaxDemand=false;
         boolean billingTimestampFrom=false;
@@ -180,9 +179,9 @@ public class ObisCodeFactory {
             
         } // switch(period)
         
-        touRegisterInfos.add(new TOURegisterInfo(new ObisCode(1,1,cField,dField,0,eField), buildEdmiEnergyRegisterId(type, channel, period, RATE_UNIFIED), "EDMI descr: "+description+" total",timeOfMaxDemand,billingTimestampFrom,billingTimestampTo));
-        for (int rate=RATE_START;rate<RATE_NR_OF_RATES;rate++) {
-            touRegisterInfos.add(new TOURegisterInfo(new ObisCode(1,1,cField,dField,rate+1,eField), buildEdmiEnergyRegisterId(type, channel, period, rate), "EDMI descr: "+description+" rate "+rate,timeOfMaxDemand,billingTimestampFrom,billingTimestampTo));
+        touRegisterInfos.add(new TOURegisterInfo(new ObisCode(1,1,cField,dField,0,eField), buildEdmiEnergyRegisterId(type, channel, period, RATE_UNIFIED), "EDMI descr: "+description+" total",timeOfMaxDemand,billingTimestampFrom));
+        for (int rate=RATE_START;rate<=numberofrates;rate++) {
+            touRegisterInfos.add(new TOURegisterInfo(new ObisCode(1,1,cField,dField,rate+1,eField), buildEdmiEnergyRegisterId(type, channel, period, rate), "EDMI descr: "+description+" rate "+rate,timeOfMaxDemand,billingTimestampFrom));
         }
     }
     
@@ -202,7 +201,8 @@ public class ObisCodeFactory {
         while(it.hasNext()) {
             TOURegisterInfo touri = (TOURegisterInfo)it.next();
             if (touri.getObisCode().equals(obisCode)) {
-                return touri.getEdmiEnergyRegisterId();
+                this.mk10.sendDebug("  ------------------------------" + touri.getEdmiEnergyRegisterId() );
+            	return touri.getEdmiEnergyRegisterId();
             }
         }
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
@@ -221,27 +221,20 @@ public class ObisCodeFactory {
     
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
         TOURegisterInfo touri = findTOURegisterInfo(obisCode);
+        this.mk10.sendDebug("----------------------------------------" + touri.getEdmiEnergyRegisterId());
         ReadCommand rc = mk10.getCommandFactory().getReadCommand(touri.getEdmiEnergyRegisterId());
         
-        Date from=null;
         Date to=null;
         
-        if (touri.isBillingTimestampFrom() && touri.isBillingTimestampTo()) {
-            from = getBillingInfo().getFromDate();
+        if (touri.isBillingTimestampTo()) {
             to = getBillingInfo().getToDate();
-        }
-        if (touri.isBillingTimestampFrom() && !touri.isBillingTimestampTo()) {
-            from = getBillingInfo().getToDate(); // !!!!!!
-        }
-        if (!touri.isBillingTimestampFrom() && touri.isBillingTimestampTo()) {
-            to = getBillingInfo().getToDate(); // !!!!!!
         }
         
         if (touri.isTimeOfMaxDemand()) {
             Date eventDate = mk10.getCommandFactory().getReadCommand(touri.getEdmiEnergyRegisterId() - 0x1000 + 0x8000).getRegister().getDate();
-            return new RegisterValue(obisCode,new Quantity(rc.getRegister().getBigDecimal(),rc.getUnit()),eventDate,from,to);
+            return new RegisterValue(obisCode,new Quantity(rc.getRegister().getBigDecimal(),rc.getUnit()),eventDate,null,to);
         } else {
-            return new RegisterValue(obisCode,new Quantity(rc.getRegister().getBigDecimal(),rc.getUnit()),null,from,to);
+            return new RegisterValue(obisCode,new Quantity(rc.getRegister().getBigDecimal(),rc.getUnit()),null,null,to);
         }
     }
 

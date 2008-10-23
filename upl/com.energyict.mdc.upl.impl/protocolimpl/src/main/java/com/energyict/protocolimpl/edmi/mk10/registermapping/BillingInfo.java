@@ -26,7 +26,6 @@ public class BillingInfo {
     
     private int nrOfBillingResets;
     private Date toDate;
-    private Date fromDate;
     /** Creates a new instance of BillingInfo */
     public BillingInfo(CommandFactory commandFactory) throws IOException {
         this.setCommandFactory(commandFactory);
@@ -34,14 +33,13 @@ public class BillingInfo {
     }
 
     public String toString() {
-        return "BillingInfo: nrOfBillingResets="+nrOfBillingResets+", toDate="+toDate+", fromDate="+fromDate;
+        return "BillingInfo: nrOfBillingResets="+nrOfBillingResets+", toDate="+toDate;
     }
     
 
     private void init() throws IOException {
-        setNrOfBillingResets(getCommandFactory().getReadCommand(0xF032).getRegister().getBigDecimal().intValue());
-        setToDate(getCommandFactory().getReadCommand(0xFC00).getRegister().getDate());
-        setFromDate(getNrOfBillingResets()>=2?getCommandFactory().getReadCommand(0xFC01).getRegister().getDate():null);
+        setNrOfBillingResets(getCommandFactory().getReadCommand(0x6001).getRegister().getBigDecimal().intValue());
+        setToDate(getCommandFactory().getReadCommand(0x6000).getRegister().getDate());
     }
 
     public CommandFactory getCommandFactory() {
@@ -67,19 +65,5 @@ public class BillingInfo {
     private void setToDate(Date toDate) {
         this.toDate = toDate;
     }
-
-    public Date getFromDate() {
-        return fromDate;
-    }
-
-    private void setFromDate(Date fromDate) {
-        this.fromDate = fromDate;
-    }
-    
-    
-    
-    
-    
-    
     
 }

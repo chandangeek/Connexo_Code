@@ -23,20 +23,16 @@ public class TOURegisterInfo {
     private int edmiEnergyRegisterId;
     private String description;
     private boolean timeOfMaxDemand;
-    private boolean billingTimestampFrom;   
     private boolean billingTimestampTo;   
     
     /** Creates a new instance of ObisCodeInfo */
-    public TOURegisterInfo(ObisCode obisCode, int edmiEnergyRegisterId, String description, boolean timeOfMaxDemand, boolean billingTimestampFrom, boolean billingTimestampTo) {
+    public TOURegisterInfo(ObisCode obisCode, int edmiEnergyRegisterId, String description, boolean timeOfMaxDemand, boolean billingTimestampTo) {
         this.obisCode=obisCode;
         this.setEdmiEnergyRegisterId(edmiEnergyRegisterId);
         this.setDescription(description);
         this.setTimeOfMaxDemand(timeOfMaxDemand);
-        this.billingTimestampFrom=billingTimestampFrom;
         this.billingTimestampTo=billingTimestampTo;
     }
-
-    
     
     public ObisCode getObisCode() {
         return obisCode;
@@ -70,14 +66,6 @@ public class TOURegisterInfo {
         this.timeOfMaxDemand = timeOfMaxDemand;
     }
 
-    public boolean isBillingTimestampFrom() {
-        return billingTimestampFrom;
-    }
-
-    public void setBillingTimestampFrom(boolean billingTimestampFrom) {
-        this.billingTimestampFrom = billingTimestampFrom;
-    }
-
     public boolean isBillingTimestampTo() {
         return billingTimestampTo;
     }
@@ -85,7 +73,5 @@ public class TOURegisterInfo {
     public void setBillingTimestampTo(boolean billingTimestampTo) {
         this.billingTimestampTo = billingTimestampTo;
     }
-
- 
     
 }

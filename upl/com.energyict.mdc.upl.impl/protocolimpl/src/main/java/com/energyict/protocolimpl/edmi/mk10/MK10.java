@@ -21,7 +21,7 @@ import com.energyict.protocolimpl.base.*;
 
 import com.energyict.protocolimpl.edmi.mk10.command.*;
 import com.energyict.protocolimpl.edmi.mk10.core.*;
-import com.energyict.protocolimpl.edmi.mk10.eventsurvey.Event;
+import com.energyict.protocolimpl.edmi.mk10.eventsurvey.*;
 import com.energyict.protocolimpl.edmi.mk10.loadsurvey.*;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.*;
 
@@ -35,7 +35,7 @@ KV|14112007|Fix to use the correct first record timestamp
  */
 public class MK10 extends AbstractProtocol {
     
-    private static final int DEBUG=1;
+    private static final int DEBUG=0;
     private MK10Connection mk10Connection=null;
     private CommandFactory commandFactory=null;
     private ObisCodeFactory obisCodeFactory=null;
@@ -213,16 +213,28 @@ public class MK10 extends AbstractProtocol {
 
             mk10.sendDebug("\n");
             //mk10.mk10Profile.get
-            ObisCode o = new ObisCode(1,0,0,4,2,255); 
-            mk10.sendDebug(o.toString());
-            mk10.sendDebug(o.getDescription());
-            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0x0000).toString());
-            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0x0010).toString());
-            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0x0020).toString());
-            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0x0030).toString());
-            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0x0040).toString());
-            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0x0050).toString());
-            mk10.sendDebug("\n");
+            
+            TOUChannelTypeParser tou_ctp;
+            int tou_def;
+            
+            for (int i = 0; i < 0x1F; i++) {
+                tou_def = mk10.getCommandFactory().getReadCommand(0xD880 + i).getRegister().getBigDecimal().intValue();            
+                tou_ctp = new TOUChannelTypeParser(tou_def);
+                if (tou_ctp.getObisCField() > 0) {
+                	mk10.sendDebug(tou_ctp.getName() + "  " + tou_ctp.getObisCField());
+                }
+			}
+            
+//            ObisCode o = new ObisCode(1,0,0,4,2,255); 
+//            mk10.sendDebug(o.toString());
+//            mk10.sendDebug(o.getDescription());
+//            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0x0000).toString());
+//            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0x0010).toString());
+//            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0x0020).toString());
+//            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0x0030).toString());
+//            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0x0040).toString());
+//            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0x0050).toString());
+//            mk10.sendDebug("\n");
 
             mk10.disconnect();
             
