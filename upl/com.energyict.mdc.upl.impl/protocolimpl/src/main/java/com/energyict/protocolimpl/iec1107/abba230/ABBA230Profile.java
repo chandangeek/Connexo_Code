@@ -59,7 +59,7 @@ public class ABBA230Profile {
         this.protocolLink = protocolLink;
         this.rFactory = abba230RegisterFactory;
         long val = ((Long)rFactory.getRegister("LoadProfileDSTConfig")).longValue();
-        if (val==0)
+        if ((val&0x01)==0)
         	adjustedTimeZone = ProtocolUtils.getWinterTimeZone(protocolLink.getTimeZone());
         else
         	adjustedTimeZone = protocolLink.getTimeZone();

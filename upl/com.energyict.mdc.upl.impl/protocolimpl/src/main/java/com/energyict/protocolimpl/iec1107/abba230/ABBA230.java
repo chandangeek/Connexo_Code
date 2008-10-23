@@ -696,24 +696,24 @@ public class ABBA230 implements
         
         for (int bpi = 0; bpi < billingPoint.length; bpi ++) {
             
-            TariffSources ts=null;
+            TariffSources ts = (TariffSources)rFactory.getRegister("TariffSources");
             ArrayList tarifRegisters = new ArrayList();
-            if (billingPoint[bpi] == 255) {
-                ts = (TariffSources)rFactory.getRegister("TariffSources");
-            } else {
-            	
-            	if ((billingPoint[bpi]>=0) && (billingPoint[bpi]<=11)) {
-	                HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister( "HistoricalRegister", billingPoint[bpi] );
-	                if( hv.getBillingDate() == null ) continue;
-	                ts = hv.getTariffSources();
-            	}
-            	else if ((billingPoint[bpi]>=12) && (billingPoint[bpi]<=25)) {
-	                HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister( "DailyHistoricalRegister", billingPoint[bpi] );
-	                if( hv.getBillingDate() == null ) continue;
-	                ts = hv.getTariffSources();
-            	}
-                
-            }
+//            if (billingPoint[bpi] == 255) {
+//                ts = (TariffSources)rFactory.getRegister("TariffSources");
+//            } else {
+//            	
+//            	if ((billingPoint[bpi]>=0) && (billingPoint[bpi]<=11)) {
+//	                HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister( "HistoricalRegister", billingPoint[bpi] );
+//	                if( hv.getBillingDate() == null ) continue;
+//	                ts = hv.getTariffSources();
+//            	}
+//            	else if ((billingPoint[bpi]>=12) && (billingPoint[bpi]<=25)) {
+//	                HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister( "DailyHistoricalRegister", billingPoint[bpi] );
+//	                if( hv.getBillingDate() == null ) continue;
+//	                ts = hv.getTariffSources();
+//            	}
+//                
+//            }
             
             rslt.append( "Billing point: " + billingPoint[bpi] + "\n" );
             

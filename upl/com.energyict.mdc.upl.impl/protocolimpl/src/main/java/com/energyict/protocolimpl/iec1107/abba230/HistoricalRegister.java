@@ -7,6 +7,8 @@ import java.util.Map;
 
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.abba1140.TariffSources;
+
 import java.util.TimeZone;
 
 /** @author fbo */
@@ -27,8 +29,6 @@ public class HistoricalRegister {
     private byte[] ba510;
     
     private Date billingDate;
-//    private int billingTrigger;
-    private TariffSources tariffSources;
     
     Map map = new HashMap();
     
@@ -67,6 +67,8 @@ public class HistoricalRegister {
         if(shift != 0)
             billingDate = ProtocolUtils.getCalendar(tz,shift).getTime();
         
+        //tariffSources = new TariffSources(ba667);
+        
         map.put("507", ba507);
         map.put("508", ba508);
         map.put("509", ba509);
@@ -83,20 +85,10 @@ public class HistoricalRegister {
         return billingDate;
     }
     
-//    public int getBillingTrigger() {
-//        return billingTrigger;
-//    }
-    
-    public TariffSources getTariffSources(){
-        return tariffSources;
-    }
-    
     public String toString() {
         return new StringBuffer( )
         .append( "HistoricalRegister[\n" )
         .append( " end date:" + billingDate + "\n" )
-        //.append( " billing trigger: " + billingTrigger + "\n" )
-        .append( tariffSources.toString() + "\n" )
         .append( "]" )
         .toString();
     }

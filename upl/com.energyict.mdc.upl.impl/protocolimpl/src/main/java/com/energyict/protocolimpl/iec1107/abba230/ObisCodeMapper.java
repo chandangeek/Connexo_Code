@@ -246,17 +246,17 @@ public class ObisCodeMapper {
                 }
                 if (obisCode.getE() > 0) {
                     
-                    TariffSources ts=null;
-                    if (bp == -1) {
-                        ts=(TariffSources)rFactory.getRegister("TariffSources");
-                    } else {
-                    	if ((bp >= 0) && (bp <= 11)) {
-                    		ts=((HistoricalRegister)rFactory.getRegister( "HistoricalRegister", bp )).getTariffSources();
-                    	}
-                    	else if ((bp >= 12) && (bp <= 25)) {
-                    		ts=((HistoricalRegister)rFactory.getRegister( "DailyHistoricalRegister", bp )).getTariffSources();
-                    	}
-                    }
+                    TariffSources ts=(TariffSources)rFactory.getRegister("TariffSources");
+//                    if (bp == -1) {
+//                        ts=(TariffSources)rFactory.getRegister("TariffSources");
+//                    } else {
+//                    	if ((bp >= 0) && (bp <= 11)) {
+//                    		ts=((HistoricalRegister)rFactory.getRegister( "HistoricalRegister", bp )).getTariffSources();
+//                    	}
+//                    	else if ((bp >= 12) && (bp <= 25)) {
+//                    		ts=((HistoricalRegister)rFactory.getRegister( "DailyHistoricalRegister", bp )).getTariffSources();
+//                    	}
+//                    }
                     
                     registerName = "TimeOfUse"+(obisCode.getE()-1);
                     MainRegister mr = (MainRegister)rFactory.getRegister(registerName,bp);
