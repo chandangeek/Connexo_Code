@@ -19,15 +19,16 @@ import com.energyict.cbo.Unit;
  * @author jme
  *
  */
-public class ChannelTypeParser {
+public class SurveyChannelTypeParser {
 
 	private int DecimalPointScaling;
 	private int ScalingFactor;
 	private int Type;
 	private String Name;
 	private Unit unit; 
+	private boolean channelenabled = true;
 	
-	public ChannelTypeParser(int ChannelDef) {
+	public SurveyChannelTypeParser(int ChannelDef) {
 		this.DecimalPointScaling = (ChannelDef & 0x7000) >> 12;
     	int regvalue = ChannelDef & 0x000F;
     	int regfunction = (ChannelDef & 0x00F0) >> 4;
@@ -149,6 +150,9 @@ public class ChannelTypeParser {
             	this.unit = Unit.get(BaseUnit.VOLTAMPEREHOUR, scaling * 3); // Channel value base unit is Vah
                 this.Name = this.Name + " Total " + this.unit.toString();
             	break;
+            case 0xFF:
+            	this.channelenabled = false;
+                this.unit = Unit.get(BaseUnit.UNITLESS, scaling * 3); // Channel base unit unknown (reserved). No base unit
             default: 
                 this.unit = Unit.get(BaseUnit.UNITLESS, scaling * 3); // Channel base unit unknown (reserved). No base unit
             } // End of switch(regvalue)
@@ -190,6 +194,10 @@ public class ChannelTypeParser {
 	public int getType() {
 		return Type;
 	}	
+
+	public boolean isChannel(){
+		return channelenabled;
+	}
 
 	public Unit getUnit() {
 		return unit;

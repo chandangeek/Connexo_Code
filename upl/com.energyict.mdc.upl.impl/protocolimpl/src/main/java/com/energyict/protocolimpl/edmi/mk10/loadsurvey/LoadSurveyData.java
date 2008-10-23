@@ -56,17 +56,21 @@ public class LoadSurveyData {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteArrayOutputStream.reset();
         
-        if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("From date:             " + from.toGMTString());
+        if (seconds_div < 0) startRecord = first;
+    		else startRecord = first + (seconds_div / interval) + 1;
+    
+
+    	if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("From date:             " + from.toGMTString());
         if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("Survey start date:     " + firstdate.toGMTString());
         if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("Survey first entry:    " + first);
         if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("Survey entry interval: " + interval);
         if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("seconds_div:           " + seconds_div);
+        if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("startRecord:           " + startRecord);
 
-        if (seconds_div < 0) startRecord = first;
-        	else startRecord = first + (seconds_div / interval) + 1;
-        
         farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(getLoadSurvey().getLoadSurveyNumber(), startRecord, 0x0001);
         startRecord = farc.getStartRecord();
+
+        if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("new startRecord:       " + startRecord);
                
         do {
             farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(getLoadSurvey().getLoadSurveyNumber(), startRecord, READBUFFER);
@@ -81,7 +85,7 @@ public class LoadSurveyData {
 
         Calendar cal = ProtocolUtils.getCleanCalendar(getLoadSurvey().getCommandFactory().getMk10().getTimeZone());
         cal.setTime(getLoadSurvey().getStartTime());
-        //cal.add(Calendar.SECOND,(int)(((getLoadSurvey().getStoredEntries() - 1) - getNumberOfRecords()) * interval));
+        cal.add(Calendar.SECOND,(int)((getLoadSurvey().getStoredEntries() - (getNumberOfRecords() - 1)) * interval));
         setFirstTimeStamp(cal.getTime());
 
     } // private void init(Date from) throws IOException

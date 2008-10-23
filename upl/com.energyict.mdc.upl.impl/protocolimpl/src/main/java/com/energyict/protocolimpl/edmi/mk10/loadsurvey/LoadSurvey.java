@@ -110,7 +110,7 @@ public class LoadSurvey {
                 String registeridstr = "0x" + ProtocolUtils.buildStringHex(tempreg, 4);
                 this.commandFactory.getMk10().sendDebug("Channel " + String.valueOf(channel) + " RegisterID: " + registeridstr + " Value: 0x" + ProtocolUtils.buildStringHex(ChannelDef, 4));
         	
-	            ChannelTypeParser ctp = new ChannelTypeParser(ChannelDef);
+	            SurveyChannelTypeParser ctp = new SurveyChannelTypeParser(ChannelDef);
 	        	
 	            lsc.setName(ctp.getName());
 	            lsc.setScaling(ctp.getDecimalPointScaling());

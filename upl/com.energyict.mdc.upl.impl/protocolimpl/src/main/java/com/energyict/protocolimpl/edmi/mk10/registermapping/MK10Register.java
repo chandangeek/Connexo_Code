@@ -12,4 +12,6 @@ public final class MK10Register {
 	
 	public static final int SURVEY1_STARTDATE = 0xD800;
 	
+	public static final int TOU_CHANNEL_DEFINITIONS = 0xD880;
+	
 }

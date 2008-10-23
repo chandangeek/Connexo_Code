@@ -63,6 +63,9 @@ public class MK10Profile {
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
         ProfileData profileData=new ProfileData();
         
+        if (DEBUG>=1) System.out.println("KV_DEBUG> From: "+from.toString());
+        if (DEBUG>=1) System.out.println("KV_DEBUG> includeEvents: "+includeEvents);
+        if (DEBUG>=1) System.out.println("");
         if (DEBUG>=1) System.out.println("KV_DEBUG> "+getLoadSurvey());
         LoadSurveyData loadSurveyData = getLoadSurvey().readFile(from);
         if (DEBUG>=1) System.out.println("KV_DEBUG> "+loadSurveyData);

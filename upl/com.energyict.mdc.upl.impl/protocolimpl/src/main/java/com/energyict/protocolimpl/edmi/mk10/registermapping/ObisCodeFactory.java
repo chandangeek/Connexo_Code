@@ -37,7 +37,7 @@ public class ObisCodeFactory {
     // tou register type
     private final int TYPE_ENERGY=0;
     private final int TYPE_MAX_DEMAND=1;
-    private final int TYPE_TIME_OF_MAX_DEMAND=8;
+    private final int TYPE_TIME_OF_MAX_DEMAND=2;
     
     
     // tou period
@@ -51,7 +51,7 @@ public class ObisCodeFactory {
     private final int CHANNEL_NR_OF_CHANNELS=12;
     
     // tou register function
-    private final int RATE_UNIFIED=9;
+    private final int RATE_UNIFIED=0;
     private final int RATE_START=0;
     private final int RATE_NR_OF_RATES=8;
     
@@ -59,9 +59,16 @@ public class ObisCodeFactory {
     public void initTOURegisterInfos() throws IOException {
         touRegisterInfos = new ArrayList();
         for (int channel=CHANNEL_START;channel<CHANNEL_NR_OF_CHANNELS;channel++) {
-            int edmiEnergyRegisterId = mk10.getCommandFactory().getReadCommand(0xF780+channel).getRegister().getBigDecimal().intValue();
-            RegisterInf ri = RegisterFactory.getRegisterInf(edmiEnergyRegisterId&0xFFFF); // get external register!
-            
+        	RegisterInf ri = null;            
+        	int c_definitions = mk10.getCommandFactory().getReadCommand(MK10Register.TOU_CHANNEL_DEFINITIONS + channel).getRegister().getBigDecimal().intValue();
+        	int source_def = c_definitions & 0x00FF;
+        	if (source_def != 0x00FF) {
+        		ri = RegisterFactory.getRegisterInf(0xFFFF); // get external register!
+        	}
+        	else {
+        		ri = null;
+        	}
+        	
             if (ri!=null) {
                 // energy tou registers
                 addTOURegisters(TYPE_ENERGY, channel, PERIOD_CURRENT, ri.getObisCField(), "Energy "+ri.getDescription()+" Current period");
@@ -78,8 +85,27 @@ public class ObisCodeFactory {
         }
     }
     
-    private int buildEdmiEnergyRegisterId(int type, int channel, int period, int function) {
-        return (type << 12) | (channel << 8) | ( period << 4) | function;
+    
+    // The TOU registerid for the EDMI MK10 is of the following format: 0x0000 => 0aab bbbc cccc dddd
+    //	aa		=>	type of data
+    //					0 = accumulated
+    //					1 = maximum demand value
+    //					3 = time of maximum demand
+    //	bbbb	=>	specified period
+    //					0 = current period
+    //					1-13 = previous periods
+    //					14 = billing total
+    //					15 = total
+    //	ccccc	=>	TOU channel
+    //	dddd	=>	rate number
+    //					0 = unified rate
+    //					1-8 = specified rate
+    private int buildEdmiEnergyRegisterId(int type, int channel, int period, int rate) {
+        type &= 0x0003;
+        period &= 0x000F;
+        channel &= 0x001F;
+        rate &= 0x000F;
+        return (type << 13) | ( period << 9) | (channel << 8) | rate;
     }
     
     private void addTOURegisters(int type, int channel, int period, int cField, String description) {

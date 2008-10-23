@@ -36,7 +36,9 @@ public class ObisCodeMapper {
     }
     
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
-        RegisterValue registerValue=null;
+        
+    	this.mk10.sendDebug(" MK10 OBISCODE REQUEST:  " + obisCode.toString() + " - " + obisCode.getDescription());
+    	RegisterValue registerValue=null;
         int billingPoint=-1;
         
         // obis F code

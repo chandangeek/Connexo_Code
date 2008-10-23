@@ -89,9 +89,11 @@ public class EventSurvey {
     		// Filter the user logon/logoff events to prevent unused events
     		// Every time the mk10 protocol connects, it generates at least two events
     		// in the log (Logon and logoff)
-    		switch (eventcode & 0xF0F0) {
+
+    		switch (eventcode & 0xFFF0) {
 				case 0x2000: break;
 				case 0x2080: break;
+				case 0xB300: break; 
 				default: set.add(event); break;
 			}
     	}

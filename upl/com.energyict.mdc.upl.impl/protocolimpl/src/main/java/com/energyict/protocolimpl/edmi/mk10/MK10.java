@@ -213,12 +213,23 @@ public class MK10 extends AbstractProtocol {
 
             mk10.sendDebug("\n");
             //mk10.mk10Profile.get
+            ObisCode o = new ObisCode(1,0,0,4,2,255); 
+            mk10.sendDebug(o.toString());
+            mk10.sendDebug(o.getDescription());
+            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0x0000).toString());
+            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0x0010).toString());
+            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0x0020).toString());
+            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0x0030).toString());
+            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0x0040).toString());
+            mk10.sendDebug(mk10.getCommandFactory().getReadCommand(0x0050).toString());
             mk10.sendDebug("\n");
 
             mk10.disconnect();
             
         } 
-        catch (Exception e) {}
+        catch (Exception e) {
+        	mk10.sendDebug(e.toString());
+        }
         return;
 
             
