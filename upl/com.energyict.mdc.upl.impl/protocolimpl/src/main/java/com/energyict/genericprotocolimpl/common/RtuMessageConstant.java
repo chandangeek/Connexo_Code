@@ -32,4 +32,7 @@ public class RtuMessageConstant {
     /** RtuMessage tag for disconnecting load */
     public final static String LOAD_CONTROL_OFF = "loadControlOff";
     
+    /** RtuMessage tag for changing the repeater mode of a PLC meter */
+    public final static String REPEATER_MODE = "Repeater mode";
+    
 }

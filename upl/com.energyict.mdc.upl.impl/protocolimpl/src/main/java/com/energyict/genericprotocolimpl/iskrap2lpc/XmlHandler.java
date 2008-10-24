@@ -76,6 +76,8 @@ class XmlHandler extends DefaultHandler {
     private final static String EVENT = "Event";
     private final static String POWER_EVENT = "PowerEvent";
     private final static String METER_RESULTS = "MeterResults";
+    private final static String METER_STATUS = "MeterStatus";
+    private final static String ACTIVITY_CALENDAR = "ActivityCalendar";
     
     private final static String VALUE = "Value";
     private final static String DATE_TIME = "DateTime";
@@ -97,6 +99,10 @@ class XmlHandler extends DefaultHandler {
     private Logger logger;
     
     private ProtocolChannelMap channelMap;
+    
+    private String 	activeCalendarName = "";
+    private boolean	activeCalendarBool = false;
+    private Date	activeCalendarDate = null;
     
     /* index of the channel to store interval data into (if encountered) */
     private int currentChannelIndex = 0;
@@ -130,14 +136,36 @@ class XmlHandler extends DefaultHandler {
         if( POWER_EVENT.equals(qName) )
             handleStartPowerEvent(attrbs);
         if (METER_RESULTS.equals(qName)){
+        	activeCalendarBool = false;
         	if(dailyMonthlyProfile)
         		inProfile = true;
+        }
+        if(METER_STATUS.equals(qName)){
+        	activeCalendarBool = true;
+        }
+        if(ACTIVITY_CALENDAR.equals(qName)){
+        	handleActivityCalendar(attrbs);
         }
     }
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if( PROFILE.equals(qName) )
             handleEndProfile( );
+    }
+    
+    private void handleActivityCalendar(Attributes attrbs){
+    	// TODO partially handled the activityCalendar, only needed the activityCalendarName for now ...
+    	try {
+			if(attrbs.getValue("CalendarNameActive") != null){
+				this.activeCalendarName = attrbs.getValue("CalendarNameActive");
+				String dateTime = attrbs.getValue("DateTime");
+				this.activeCalendarDate = (dateTime!=null) ? dateFormat.parse(dateTime) : new Date();
+			}
+		} catch (ParseException e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+            e.printStackTrace();
+            throw new ApplicationException(e);
+		}
     }
 
     private void handleStartProfile(Attributes attrbs) {
@@ -151,95 +179,97 @@ class XmlHandler extends DefaultHandler {
     }
     
     private void handleStartRegister(Attributes att) {
-        try {
-            
-            if( ! inProfile ) {
-                
-                /* register data */
-                String ident    = att.getValue("Ident");
-                String dateTime = att.getValue("DateTime");
-                String value    = att.getValue("Value");
-                String error    = att.getValue("Error");
-                
-                if(ident.equalsIgnoreCase("0.0.128.101.18"))
-                	System.out.println("");
-                
-                ObisCode oc = null;
-                
-                if( error == null ){
-                    if (profileDuration == DAILY){
-                    	
-                    	if( ident.split("\\.").length == 3 )
-                    		oc = ObisCode.fromString( "1.0." + ident + ".VZ");
-                      
-                    	if( ident.split("\\.").length == 5 )
-                    		oc = ObisCode.fromString( ident + ".VZ");
-	                      
-	                    if( ident.split("\\.").length ==  6 )                
-	                    	oc = ObisCode.fromString( ident );
-                    }
-                    else if ( profileDuration == MONTHLY ){
-                    	if( ident.split("\\.").length == 3 )
-                    		oc = ObisCode.fromString( "1.0." + ident + ".VZ-1");
-                      
-                    	if( ident.split("\\.").length == 5 )
-                    		oc = ObisCode.fromString( ident + ".VZ-1");
-	                      
-	                    if( ident.split("\\.").length ==  6 )                
-	                    	oc = ObisCode.fromString( ident );
-                    }
-                    
-                    if (checkOndemands){
-                    	
-                    	String end = ".255";
-                    	
-                    	if (!end.equals(null)){
-	                    	if( ident.split("\\.").length == 3 )
-	                    		oc = ObisCode.fromString( "1.0." + ident + end);
-	                      
-	                    	if( ident.split("\\.").length == 5 )
-	                    		oc = ObisCode.fromString( ident + end);
-		                      
-		                    if( ident.split("\\.").length ==  6 )                
-		                    	oc = ObisCode.fromString( ident );
-                    	}
-                    }
-                }
-                
-                if( oc != null ) {
-                	
-                	Date d = (dateTime!=null) ? dateFormat.parse(dateTime) : new Date();
-                	RegisterValue rv;
-            		rv = toRegisterValue(oc, value, d);
-                    
-                    if( rv!=null )
-                    	meterReadingData.add(rv);
-                    
-                } else {
-                    String msg = "Code: " + ident + " not supported ";
-                    if( error != null ) msg += "msg: [" + error + "]";
-                    logger.log(Level.INFO, msg);
-                }
-            } else {
-                /* profile data */
-                String valueString      = att.getValue(VALUE);
-                String dateTimeString   = att.getValue(DATE_TIME);
-                String statusString     = att.getValue(STATUS);
-                
-                BigDecimal value = new BigDecimal(valueString);
-                
-                Date time = dateFormat.parse(dateTimeString);
-                int intervalStatus = toIntervalState(statusString);
-                
-                int pStatus = Integer.parseInt(statusString);
-                
-                profile.add(time, value, intervalStatus, pStatus);
-            }
-        } catch (ParseException e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
-            e.printStackTrace();
-            throw new ApplicationException(e);
-        } 
+    	if(!activeCalendarBool){
+    		try {
+    			
+    			if( ! inProfile ) {
+    				
+    				/* register data */
+    				String ident    = att.getValue("Ident");
+    				String dateTime = att.getValue("DateTime");
+    				String value    = att.getValue("Value");
+    				String error    = att.getValue("Error");
+    				
+    				if(ident.equalsIgnoreCase("0.0.128.101.18"))
+    					System.out.println("");
+    				
+    				ObisCode oc = null;
+    				
+    				if( error == null ){
+    					if (profileDuration == DAILY){
+    						
+    						if( ident.split("\\.").length == 3 )
+    							oc = ObisCode.fromString( "1.0." + ident + ".VZ");
+    						
+    						if( ident.split("\\.").length == 5 )
+    							oc = ObisCode.fromString( ident + ".VZ");
+    						
+    						if( ident.split("\\.").length ==  6 )                
+    							oc = ObisCode.fromString( ident );
+    					}
+    					else if ( profileDuration == MONTHLY ){
+    						if( ident.split("\\.").length == 3 )
+    							oc = ObisCode.fromString( "1.0." + ident + ".VZ-1");
+    						
+    						if( ident.split("\\.").length == 5 )
+    							oc = ObisCode.fromString( ident + ".VZ-1");
+    						
+    						if( ident.split("\\.").length ==  6 )                
+    							oc = ObisCode.fromString( ident );
+    					}
+    					
+    					if (checkOndemands){
+    						
+    						String end = ".255";
+    						
+    						if (!end.equals(null)){
+    							if( ident.split("\\.").length == 3 )
+    								oc = ObisCode.fromString( "1.0." + ident + end);
+    							
+    							if( ident.split("\\.").length == 5 )
+    								oc = ObisCode.fromString( ident + end);
+    							
+    							if( ident.split("\\.").length ==  6 )                
+    								oc = ObisCode.fromString( ident );
+    						}
+    					}
+    				}
+    				
+    				if( oc != null ) {
+    					
+    					Date d = (dateTime!=null) ? dateFormat.parse(dateTime) : new Date();
+    					RegisterValue rv;
+    					rv = toRegisterValue(oc, value, d);
+    					
+    					if( rv!=null )
+    						meterReadingData.add(rv);
+    					
+    				} else {
+    					String msg = "Code: " + ident + " not supported ";
+    					if( error != null ) msg += "msg: [" + error + "]";
+    					logger.log(Level.INFO, msg);
+    				}
+    			} else {
+    				/* profile data */
+    				String valueString      = att.getValue(VALUE);
+    				String dateTimeString   = att.getValue(DATE_TIME);
+    				String statusString     = att.getValue(STATUS);
+    				
+    				BigDecimal value = new BigDecimal(valueString);
+    				
+    				Date time = dateFormat.parse(dateTimeString);
+    				int intervalStatus = toIntervalState(statusString);
+    				
+    				int pStatus = Integer.parseInt(statusString);
+    				
+    				profile.add(time, value, intervalStatus, pStatus);
+    			}
+    		} catch (ParseException e) {
+    			logger.log(Level.SEVERE, e.getMessage(), e);
+    			e.printStackTrace();
+    			throw new ApplicationException(e);
+    		} 
+    	}
     }
     
     private void handleStartEvent(Attributes attrbs) {
@@ -778,6 +808,13 @@ class XmlHandler extends DefaultHandler {
 	
 	private Unit getChannelUnit(){
 		return this.channelUnit;
+	}
+	
+	public String getActiveCalendar(){
+		return this.activeCalendarName;
+	}
+	public Date getActiveCalendarDate(){
+		return this.activeCalendarDate;
 	}
 	
 	public static void main(String[] args){

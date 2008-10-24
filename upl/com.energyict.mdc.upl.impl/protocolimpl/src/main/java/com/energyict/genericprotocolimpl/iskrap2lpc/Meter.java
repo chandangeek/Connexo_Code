@@ -18,6 +18,8 @@ public class Meter implements Messaging, MeterProtocol {
         List theCategories = new ArrayList();
         // Action Parameters
         MessageCategorySpec cat = new MessageCategorySpec("Actions");
+        MessageCategorySpec cat2 = new MessageCategorySpec("DLC communication");
+        
         MessageSpec msgSpec = null;
         
         msgSpec = addBasicMsg("Read on demand", RtuMessageConstant.READ_ON_DEMAND, !ADVANCED);
@@ -32,12 +34,25 @@ public class Meter implements Messaging, MeterProtocol {
         msgSpec = addThresholdParameters("Threshold parameters", RtuMessageConstant.THRESHOLD_PARAMETERS, !ADVANCED);
         cat.addMessageSpec(msgSpec);
         
+        msgSpec = addRepeaterMode("Repeater mode", RtuMessageConstant.REPEATER_MODE, !ADVANCED);
+        cat2.addMessageSpec(msgSpec);
+        
         theCategories.add(cat);
+        theCategories.add(cat2);
         return theCategories;
     }
     
     public String writeMessage(Message msg) {
         return msg.write(this);
+    }
+    
+    private MessageSpec addRepeaterMode(String keyId, String tagName, boolean advanced){
+    	// TODO can we allow only the 0 - 1 - and 2
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+    	MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+    	tagSpec.add(new MessageValueSpec());
+    	msgSpec.add(tagSpec);
+    	return msgSpec;
     }
     
     private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {

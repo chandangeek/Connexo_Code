@@ -28,6 +28,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
 import com.energyict.cbo.Utils;
+import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.mdw.amr.GenericProtocol;
@@ -66,6 +67,7 @@ public class MbusDevice implements Messaging, GenericProtocol{
 	
 	private long mbusAddress	= -1;		// this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
 	private int physicalAddress = -1;		// this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
+	private int medium = 15;				// value of an unknown medium
 	
 	private String customerID;
 	
@@ -82,23 +84,28 @@ public class MbusDevice implements Messaging, GenericProtocol{
 	public MbusDevice() {
 	}
 
-	public MbusDevice(Rtu rtu) {
-		this(-1, null, rtu, null);
-	}
-
-	public MbusDevice(long address, String customerID, Rtu rtu, Logger logger) {
-		this(address, 1, customerID, rtu, Unit.get(BaseUnit.CUBICMETER), logger);
-	}
-
-	public MbusDevice(long address, int physicalAddress, String customerID, Rtu rtu, Unit unit, Logger logger){
-		this.mbusAddress = address;
-		this.physicalAddress = physicalAddress;
-		this.customerID = customerID;
+//	public MbusDevice(Rtu rtu) {
+//		this(-1, null, rtu, null);
+//	}
+//
+//	public MbusDevice(long address, String customerID, Rtu rtu, Logger logger) {
+//		this(address, 1, customerID, rtu, Unit.get(BaseUnit.CUBICMETER), logger);
+//	}
+//
+//	public MbusDevice(long address, int physicalAddress, String customerID, Rtu rtu, Unit unit, Logger logger){
+//		this(address, physicalAddress, customerID, 15, rtu, unit, logger);
+//	}
+	
+	public MbusDevice(long mbusAddress, int phyAddress, String serial, int mbusMedium, Rtu rtu, Unit unit, Logger logger) {
+		this.mbusAddress = mbusAddress;
+		this.physicalAddress = phyAddress;
+		this.customerID = serial;
+		this.medium = mbusMedium;
 		this.mbus = rtu;
 		this.mbusUnit = unit;
 		this.logger = logger;
 	}
-	
+
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 		CommunicationProfile commProfile = scheduler.getCommunicationProfile();
 		try {
@@ -307,6 +314,10 @@ public class MbusDevice implements Messaging, GenericProtocol{
 				getLogger().log(Level.INFO, "Message " + contents + " has failed.");
 				e.printStackTrace();
 				msg.setFailed();
+				
+	        	/** Close the connection after an SQL exception, connection will startup again if requested */
+	        	Environment.getDefault().closeConnection();
+				
 			} catch (InvalidPropertyException e) {
 				/** should go to the next message */
 				getLogger().log(Level.INFO, "Message " + contents + " has failed. Failure is caused by an invalid property.");
@@ -455,6 +466,10 @@ public class MbusDevice implements Messaging, GenericProtocol{
 
 	public Unit getMbusUnit(){
 		return mbusUnit;
+	}
+	
+	public int getMbusMedium(){
+		return medium;
 	}
 	
 	public int getPhysicalAddress(){

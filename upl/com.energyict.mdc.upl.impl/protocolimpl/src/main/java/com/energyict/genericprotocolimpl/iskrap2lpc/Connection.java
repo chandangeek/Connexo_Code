@@ -63,6 +63,29 @@ public class Connection {
 		return null;
 	}
 	
+	public String getMeterStatus(String meterID) throws ServiceException, BusinessException, IOException{
+		resetTimeOut();
+		while(timeout > 0){
+			try {
+				return getConcentrator().port(getConcentrator().getConcentrator()).getMeterStatus(meterID);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				checkDefaultErrors(e);
+				timeout--;
+				if(timeout == 0)
+					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
+			} catch (ServiceException e) {
+				e.printStackTrace();
+				timeout--;
+				if(timeout == 0)
+					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
+			}
+		}
+		return null;
+	}
+	
 	public String getMetersList() throws ServiceException, BusinessException, IOException{
 		resetTimeOut();
 		while(timeout > 0){
@@ -526,6 +549,18 @@ public class Connection {
 				throw new ServiceException(e.getMessage());
 			}
 		} else if(e.getMessage().equalsIgnoreCase("Demand reading error: Meter does not exists!")){
+			if(e instanceof RemoteException){
+				throw new RemoteException(e.getMessage());
+			} else if (e instanceof ServiceException){
+				throw new ServiceException(e.getMessage());
+			}
+		} else if(e.getMessage().equalsIgnoreCase("Demand reading error: Access failed (object-unavailable)!")){
+			if(e instanceof RemoteException){
+				throw new RemoteException(e.getMessage());
+			} else if (e instanceof ServiceException){
+				throw new ServiceException(e.getMessage());
+			}
+		} else if(e.getMessage().equalsIgnoreCase("Demand reading error: Unable to start demand reading (connect error)!")){
 			if(e instanceof RemoteException){
 				throw new RemoteException(e.getMessage());
 			} else if (e instanceof ServiceException){

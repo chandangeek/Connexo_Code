@@ -71,7 +71,7 @@ public class GenericCache {
 				return null;
 			}
 
-			private void updateCacheContent() throws SQLException {
+			private void createOrUpdateDeviceCache() throws SQLException {
 				SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ?");
 				builder.bindInt(meter.getId());
 				PreparedStatement stmnt = builder.getStatement(Environment.getDefault().getConnection());		
@@ -93,7 +93,7 @@ public class GenericCache {
 				}
 			}
 
-			private void createOrUpdateDeviceCache() throws SQLException {
+			private void updateCacheContent() throws SQLException {
 				SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ? for update");
 				builder.bindInt(meter.getId());
 				PreparedStatement stmnt = builder.getStatement(Environment.getDefault().getConnection());		

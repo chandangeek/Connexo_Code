@@ -19,7 +19,7 @@ public class Cache implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 12345L;
+	private static final long serialVersionUID = 123456L;
 	
 	public int confProgChange;
 	public int loadProfilePeriod1;
@@ -37,12 +37,13 @@ public class Cache implements Serializable {
 
 	private int mbusCount;
 	private int[] mbusPhysicalAddress;
+	private int[] mbusMedium;
 	private String[] mbusCustomerID;
 	private long[] mbusAddress;
 	private Unit[] mbusUnit;
 	
 	public Cache() {
-		this(-1, -1, -1, false, null, null, null, null, null, null, 0, new int[MeterReadTransaction.MBUS_MAX], new String[MeterReadTransaction.MBUS_MAX],
+		this(-1, -1, -1, false, null, null, null, null, null, null, 0, new int[MeterReadTransaction.MBUS_MAX], new int[MeterReadTransaction.MBUS_MAX], new String[MeterReadTransaction.MBUS_MAX],
 				new long[MeterReadTransaction.MBUS_MAX], new Unit[MeterReadTransaction.MBUS_MAX]);
 	}
 	
@@ -51,7 +52,7 @@ public class Cache implements Serializable {
 			ObjectDef[] loadProfileConfig1, ObjectDef[] loadProfileConfig2,
 			ObjectDef[] loadProfileConfig3, ObjectDef[] loadProfileConfig4,
 			CosemDateTime billingReadTime, CosemDateTime captureObjReadTime,
-			int mbusCount, int[] mbusPhysicalAddress, String[] mbusCustomerID,
+			int mbusCount, int[] mbusPhysicalAddress, int[] mbusMedium, String[] mbusCustomerID,
 			long[] mbusAddress, Unit[] mbusUnit) {
 		super();
 		this.confProgChange = confProgChange;
@@ -66,6 +67,7 @@ public class Cache implements Serializable {
 		this.captureObjReadTime = captureObjReadTime;
 		this.mbusCount = mbusCount;
 		this.mbusPhysicalAddress = mbusPhysicalAddress;
+		this.mbusMedium = mbusMedium;
 		this.mbusCustomerID = mbusCustomerID;
 		this.mbusAddress = mbusAddress;
 		this.mbusUnit = mbusUnit;
@@ -161,12 +163,14 @@ public class Cache implements Serializable {
 				setCustomerID(mbusDevices[i].getCustomerID(), i);
 				setMbusAddress(mbusDevices[i].getMbusAddress(), i);
 				setMbusUnit(mbusDevices[i].getMbusUnit(), i);
+				setMbusMedium(mbusDevices[i].getMbusMedium(), i);
 				mbusCount++;
 			} else {
 				setPhysicalAddress(-1, i);
 				setCustomerID(null, i);
 				setMbusAddress(-1, i);
 				setMbusUnit(null, i);
+				setMbusMedium(15, i);
 			}
 		}
 	}
@@ -206,5 +210,12 @@ public class Cache implements Serializable {
 	public Unit getUnit(int i) {
 		return mbusUnit[i];
 	}
+	
+	private void setMbusMedium(int medium, int i){
+		this.mbusMedium[i] = medium;
+	}
 
+	public int getMbusMedium(int i){
+		return this.mbusMedium[i];
+	}
 }

@@ -412,7 +412,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     	getLogger().log(Level.INFO, "Handling the concentrator with serialnumber: " + concentrator.getSerialNumber());
         
         if( communicationProfile.getWriteClock() ) {
-            setTime(concentrator);
+            setTime();
         }
         
         /* short circuit */
@@ -462,7 +462,7 @@ public class Concentrator implements Messaging, GenericProtocol {
 		return tempCalendar.getTime();
     }
     
-    private void setTime(Rtu concentrator) 
+    private void setTime() 
         throws ServiceException, ParseException, IOException, BusinessException {
         
         /* Don't worry about clock sets over interval boundaries, Iskra
@@ -506,12 +506,12 @@ public class Concentrator implements Messaging, GenericProtocol {
             throws BusinessException, SQLException {
     	String contents = msg.getContents();
         boolean success = false;
-        boolean tou = contents.indexOf(RtuMessageConstant.TOU_SCHEDULE) != -1;
-        boolean applyThreshold = (contents.indexOf(RtuMessageConstant.APPLY_THRESHOLD) != -1) ||
-        					(contents.indexOf(RtuMessageConstant.THRESHOLD_STARTDT) != -1) ||
-        					(contents.indexOf(RtuMessageConstant.THRESHOLD_STOPDT) != -1) || 
-        					(contents.indexOf(RtuMessageConstant.THRESHOLD_GROUPID) != -1);
-        boolean clearThreshold = contents.indexOf(RtuMessageConstant.CLEAR_THRESHOLD) != -1;
+        boolean tou = contents.toLowerCase().indexOf(RtuMessageConstant.TOU_SCHEDULE.toLowerCase()) != -1;
+        boolean applyThreshold = (contents.toLowerCase().indexOf(RtuMessageConstant.APPLY_THRESHOLD.toLowerCase()) != -1) ||
+        					(contents.toLowerCase().indexOf(RtuMessageConstant.THRESHOLD_STARTDT.toLowerCase()) != -1) ||
+        					(contents.toLowerCase().indexOf(RtuMessageConstant.THRESHOLD_STOPDT.toLowerCase()) != -1) || 
+        					(contents.toLowerCase().indexOf(RtuMessageConstant.THRESHOLD_GROUPID.toLowerCase()) != -1);
+        boolean clearThreshold = contents.toLowerCase().indexOf(RtuMessageConstant.CLEAR_THRESHOLD.toLowerCase()) != -1;
         
         try {
             
@@ -536,7 +536,7 @@ public class Concentrator implements Messaging, GenericProtocol {
                 
             }
             
-            if (applyThreshold ){
+            else if (applyThreshold ){
             	String groupID = getMessageValue(contents, RtuMessageConstant.THRESHOLD_GROUPID);
             	if (groupID.equalsIgnoreCase(""))
             		throw new BusinessException("No groupID was entered.");
@@ -567,7 +567,7 @@ public class Concentrator implements Messaging, GenericProtocol {
             	success = true;
             }
             
-            if (clearThreshold){
+            else if (clearThreshold){
         		Calendar startCal = Calendar.getInstance();
         		UnsignedInt uiDuration = new UnsignedInt(0);
         		UnsignedInt uiGrId = new UnsignedInt();
@@ -584,6 +584,9 @@ public class Concentrator implements Messaging, GenericProtocol {
             	
             	success = true;
             }
+            else {
+            	success = false;
+            }
             
         /* A single RtuMessage failed: log and try next msg. */
         } catch (NumberFormatException thrown) {
@@ -596,10 +599,14 @@ public class Concentrator implements Messaging, GenericProtocol {
             severe(thrown, toErrorMsg(serial, msg));
             thrown.printStackTrace();
         } finally {
-            if (success)
+            if (success){
                 msg.confirm();
-            else
-                msg.setFailed();
+                getLogger().log(Level.INFO, "Current message " + contents + " has finished.");
+            }
+            else{
+            	msg.setFailed();
+            	getLogger().log(Level.INFO, "Current message " + contents + " has failed.");
+            }
         }
         
     }
@@ -667,7 +674,7 @@ public class Concentrator implements Messaging, GenericProtocol {
             if (rtuType == null)
          	   throw new IOException("Iskra Mx37x, No rtutype defined with name '" + type + "'");
             if (rtuType.getPrototypeRtu() == null)
-         	   throw new IOException("Iskra Mx37x, rtutype '" + type + "' has not prototype rtu");
+         	   throw new IOException("Iskra Mx37x, rtutype '" + type + "' has no prototype rtu");
             return rtuType;
     	}
     	else{

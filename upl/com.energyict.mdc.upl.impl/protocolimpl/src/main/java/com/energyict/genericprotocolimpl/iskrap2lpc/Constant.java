@@ -78,10 +78,18 @@ class Constant {
 													ObisCode.fromString("0.3.128.50.30.255"),
 													ObisCode.fromString("0.4.128.50.30.255")};
     
+    final static ObisCode mbusMediumObisCode[] = {ObisCode.fromString("0.1.128.50.23.255"),
+													ObisCode.fromString("0.2.128.50.23.255"),
+													ObisCode.fromString("0.3.128.50.23.255"),
+													ObisCode.fromString("0.4.128.50.23.255")};
+    
+    
     final static ObisCode powerLimitObisCode = ObisCode.fromString("0.0.128.61.1.255");
     final static ObisCode confChangeObisCode = ObisCode.fromString("0.0.96.2.0.255");
     final static ObisCode coreFirmware = ObisCode.fromString("0.0.128.101.18.255");
     final static ObisCode moduleFirmware = ObisCode.fromString("0.0.128.101.28.255");
+    final static ObisCode activeCalendarName = ObisCode.fromString("0.0.13.0.0.255");
+    final static ObisCode dlcRepeaterMode = ObisCode.fromString("0.0.128.0.1.255");
     
     private SimpleDateFormat fixedDateFormat;
     private SimpleDateFormat dateFormat;
