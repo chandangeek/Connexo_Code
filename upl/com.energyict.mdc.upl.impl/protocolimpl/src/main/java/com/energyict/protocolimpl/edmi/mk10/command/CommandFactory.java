@@ -105,7 +105,7 @@ public class CommandFactory {
         farc.setStartRecord(startrecord);
         farc.setNumberOfRecords(numberofrecords);
         farc.invoke();
-        if (DEBUG>=1) System.out.println("KV_DEBUG> getFileAccessReadCommand()="+farc);
+        if (DEBUG>=1) mk10.sendDebug("KV_DEBUG> getFileAccessReadCommand()="+farc);
         return farc;
     }
 
@@ -116,7 +116,7 @@ public class CommandFactory {
         farc.setStartRecord(startrecord);
         farc.setNumberOfRecords(numberofrecords);
         farc.invoke();
-        if (DEBUG>=1) System.out.println("KV_DEBUG> getFileAccessReadCommand()="+farc);
+        if (DEBUG>=1) mk10.sendDebug("KV_DEBUG> getFileAccessReadCommand()="+farc);
         return farc;
     }
 

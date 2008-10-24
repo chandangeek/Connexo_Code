@@ -24,7 +24,7 @@ import java.math.*;
  */
 public class ObisCodeMapper {
     
-    static final int DEBUG = 0;
+    private static final int DEBUG = 0;
 	MK10 mk10;
             
     /** Creates a new instance of ObisCodeMapper */

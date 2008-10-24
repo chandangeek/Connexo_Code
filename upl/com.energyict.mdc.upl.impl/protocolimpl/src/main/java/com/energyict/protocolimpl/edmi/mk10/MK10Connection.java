@@ -1,13 +1,3 @@
-/*
- * MK10Connection.java
- *
- * Created on 20 maart 2006, 10:04
- *
- * To change this template, choose Tools | Options and locate the template under
- * the Source Creation and Management node. Right-click the template and choose
- * Open. You can then make changes to the template in the Source Editor.
- */
-
 package com.energyict.protocolimpl.edmi.mk10;
 
 import com.energyict.cbo.*;
@@ -22,7 +12,7 @@ import com.energyict.protocolimpl.edmi.mk10.core.ResponseData;
 
 /**
  *
- * @author koen
+ * @author jme
  */
 public class MK10Connection extends Connection  implements ProtocolConnection {
     

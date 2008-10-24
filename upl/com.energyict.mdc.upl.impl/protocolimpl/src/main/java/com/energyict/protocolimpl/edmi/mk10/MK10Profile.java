@@ -24,7 +24,7 @@ import com.energyict.protocol.*;
  */
 public class MK10Profile {
     
-    private final int DEBUG=1;
+    private final int DEBUG=0;
 
     MK10 mk10;
     LoadSurvey loadSurvey=null;
@@ -49,17 +49,14 @@ public class MK10Profile {
         return eventLog;
     }
 
-    // TODO OK
     public int getProfileInterval() throws IOException {
         return getLoadSurvey().getProfileInterval();
     }
     
-    // TODO OK
     public int getNumberOfChannels() throws IOException {
         return getLoadSurvey().getNrOfChannels() - 1;
     }
     
-    // TODO
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
         ProfileData profileData=new ProfileData();
         
@@ -107,6 +104,7 @@ public class MK10Profile {
                     intervalData.setEiStatus(eiStatus);
                     intervalData.setProtocolStatus(protocolStatus);
                     intervalData.addValue(loadSurveyData.getChannelValues(interval)[channel].getBigDecimal());
+
 //                }
             } // for (int channel=1; channel<loadSurveyData.getLoadSurvey().getNrOfChannels(); channel++)
             intervalDatas.add(intervalData);

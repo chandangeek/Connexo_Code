@@ -25,7 +25,7 @@ import com.energyict.protocolimpl.itron.quantum1000.minidlms.remoteprocedures.Se
  */
 public class LoadSurveyData {
     
-    private final int DEBUG=1;
+    private final int DEBUG=0;
     private final int READBUFFER = 0xFF;
     
     private LoadSurvey loadSurvey;

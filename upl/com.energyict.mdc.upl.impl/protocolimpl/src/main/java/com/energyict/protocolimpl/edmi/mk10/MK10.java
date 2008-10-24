@@ -1,12 +1,3 @@
-/*
- * MK10.java
- *
- * Created on 17 maart 2006, 10:54
- *
- * To change this template, choose Tools | Options and locate the template under
- * the Source Creation and Management node. Right-click the template and choose
- * Open. You can then make changes to the template in the Source Editor.
- */
 
 package com.energyict.protocolimpl.edmi.mk10;
 
@@ -26,28 +17,19 @@ import com.energyict.protocolimpl.edmi.mk10.loadsurvey.*;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.*;
 
 /**
- *
- * @author  Koen
- * @beginchanges
-KV|17052006|Check for duplicates
-KV|14112007|Fix to use the correct first record timestamp 
- * @endchanges
+ * @author  jme
  */
 public class MK10 extends AbstractProtocol {
     
-    private static final int DEBUG=2;
+    private static final int DEBUG=0;
     private MK10Connection mk10Connection=null;
     private CommandFactory commandFactory=null;
     private ObisCodeFactory obisCodeFactory=null;
     MK10Profile mk10Profile=null;
-    
     private int loadSurveyNumber;
-//	private String eventLogName;
-//	private int statusFlagChannel;
     
     /** Creates a new instance of MK10 */
     public MK10() {
-       
     }
     
     protected void doConnect() throws IOException {
@@ -61,7 +43,7 @@ public class MK10 extends AbstractProtocol {
         getCommandFactory().exitCommandLineMode();
     }
     
-	// TODO This method is never read. 
+	// This method is never used. 
     // The protocol can't verify the serial number because the correct serial number is needed to communicate with the device
     protected void validateSerialNumber() throws IOException {
         sendDebug("doValidateProperties()");
@@ -84,7 +66,6 @@ public class MK10 extends AbstractProtocol {
         return mk10Profile.getProfileInterval();
     }
     
-    // TODO ok
     public int getNumberOfChannels() throws UnsupportedException, IOException {
         sendDebug("getNumberOfChannels()");
         return mk10Profile.getNumberOfChannels();
@@ -122,7 +103,6 @@ public class MK10 extends AbstractProtocol {
         return "$Revision: 1.7 $";
     }
     
-    // TODO OK
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         sendDebug("getFirmwareVersion()");
         return "Equipment model id:"+getCommandFactory().getReadCommand(MK10Register.SYSTEM_MODEL_ID).getRegister().getString()+"\n"+ // Equipment model id
@@ -132,21 +112,15 @@ public class MK10 extends AbstractProtocol {
                "Serial number:"+getSerialNumber(); // serial number
     }
     
-    // TODO OK
     public String getSerialNumber() throws IOException {
         return getCommandFactory().getReadCommand(MK10Register.SYSTEM_SERIALNUMBER).getRegister().getString(); // Serial number
     }
     
-    // TODO OK
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
         sendDebug("getProfileData()");
         return mk10Profile.getProfileData(from, to, includeEvents);
     }
     
-    
-    /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e 
-     *******************************************************************************************/
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(this);
         return ocm.getRegisterValue(obisCode);

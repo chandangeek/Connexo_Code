@@ -34,7 +34,7 @@ public class TimeInfo {
         this.mk10=mk10;
     }
     
-// Not used for the mopment. All reported times are standard time!    
+// Not used for the moment. All reported times are standard time!    
 //    public void verifyTimeZone() throws IOException {
 //        if (mk10.getCommandFactory().getReadCommand(DST_USED).getRegister().getBigDecimal().intValue()==0) {
 //            return ProtocolUtils.getWinterTimeZone(mk10.getTimeZone());

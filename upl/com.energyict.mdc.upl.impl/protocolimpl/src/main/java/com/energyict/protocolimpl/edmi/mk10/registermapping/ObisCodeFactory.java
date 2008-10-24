@@ -25,7 +25,7 @@ import com.energyict.protocolimpl.edmi.mk10.*;
  * @author koen
  */
 public class ObisCodeFactory {
-    static final int DEBUG = 1;
+    static final int DEBUG = 0;
     MK10 mk10;
     List touRegisterInfos;
     private BillingInfo billingInfo=null;
@@ -274,7 +274,7 @@ public class ObisCodeFactory {
     public BillingInfo getBillingInfo() throws IOException {
         if (billingInfo==null) {
             billingInfo = new BillingInfo(mk10.getCommandFactory());
-//            System.out.println("KV_DEBUG> "+billingInfo);
+            if (DEBUG == 1) System.out.println("KV_DEBUG> "+billingInfo);
         }
         return billingInfo;
     }
