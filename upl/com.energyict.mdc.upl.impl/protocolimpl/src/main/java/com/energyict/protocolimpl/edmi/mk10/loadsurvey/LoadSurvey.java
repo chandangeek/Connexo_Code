@@ -13,6 +13,7 @@ package com.energyict.protocolimpl.edmi.mk10.loadsurvey;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.mk10.core.*;
+
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
@@ -26,7 +27,8 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.*;
 public class LoadSurvey {
     
     private static final int BASE_REGISTER_ID = MK10Register.SURVEY1_STARTDATE;
-
+    private static final int DEBUG = 0;
+    
     private CommandFactory commandFactory;
     private int LoadSurveyNumber;
     private int registerId;
@@ -108,7 +110,7 @@ public class LoadSurvey {
 				 				 getBigDecimal().
 				 				 intValue(); 
                 String registeridstr = "0x" + ProtocolUtils.buildStringHex(tempreg, 4);
-                this.commandFactory.getMk10().sendDebug("Channel " + String.valueOf(channel) + " RegisterID: " + registeridstr + " Value: 0x" + ProtocolUtils.buildStringHex(ChannelDef, 4));
+                if (DEBUG == 1) this.commandFactory.getMk10().sendDebug("Channel " + String.valueOf(channel) + " RegisterID: " + registeridstr + " Value: 0x" + ProtocolUtils.buildStringHex(ChannelDef, 4));
         	
 	            SurveyChannelTypeParser ctp = new SurveyChannelTypeParser(ChannelDef);
 	        	

@@ -127,12 +127,13 @@ public class MK10Profile {
             Event event = (Event) it.next();
             String message = event.getEventDescription();
             Date eventdate = event.getEventDate();
+            int eventcode = event.getEventCode();
             while (duplicateDate(meterEvents, eventdate)) {
                 cal.setTime(eventdate);
                 cal.add(Calendar.SECOND, 1);
             	eventdate = cal.getTime();
 			}
-            me = new MeterEvent(eventdate, mapEventLogMessage2MeterEventEICode(message),message);
+            me = new MeterEvent(eventdate, mapEventLogMessage2MeterEventEICode(message), eventcode, message);
         	meterEvents.add(me);
         } 
 		

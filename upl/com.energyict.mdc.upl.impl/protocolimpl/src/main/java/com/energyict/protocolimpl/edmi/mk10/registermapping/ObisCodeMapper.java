@@ -24,7 +24,8 @@ import java.math.*;
  */
 public class ObisCodeMapper {
     
-    MK10 mk10;
+    static final int DEBUG = 0;
+	MK10 mk10;
             
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(MK10 mk10) {
@@ -37,7 +38,7 @@ public class ObisCodeMapper {
     
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
         
-    	this.mk10.sendDebug(" MK10 OBISCODE REQUEST:  " + obisCode.toString() + " - " + obisCode.getDescription());
+    	if (DEBUG == 1) this.mk10.sendDebug(" MK10 OBISCODE REQUEST:  " + obisCode.toString() + " - " + obisCode.getDescription());
     	RegisterValue registerValue=null;
         int billingPoint=-1;
         

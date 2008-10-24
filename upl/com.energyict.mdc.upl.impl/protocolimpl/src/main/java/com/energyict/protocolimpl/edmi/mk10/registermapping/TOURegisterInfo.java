@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.edmi.mk10.registermapping;
 
+import com.energyict.cbo.*;
 import com.energyict.obis.*;
 import com.energyict.protocolimpl.edmi.mk10.*;
 
@@ -23,15 +24,19 @@ public class TOURegisterInfo {
     private int edmiEnergyRegisterId;
     private String description;
     private boolean timeOfMaxDemand;
-    private boolean billingTimestampTo;   
+    private boolean billingTimestampTo;
+    private int decimalPoint;
+    private Unit unit;
     
     /** Creates a new instance of ObisCodeInfo */
-    public TOURegisterInfo(ObisCode obisCode, int edmiEnergyRegisterId, String description, boolean timeOfMaxDemand, boolean billingTimestampTo) {
+    public TOURegisterInfo(ObisCode obisCode, int edmiEnergyRegisterId, String description, boolean timeOfMaxDemand, boolean billingTimestampTo, int decimal, Unit unit) {
         this.obisCode=obisCode;
         this.setEdmiEnergyRegisterId(edmiEnergyRegisterId);
         this.setDescription(description);
         this.setTimeOfMaxDemand(timeOfMaxDemand);
         this.billingTimestampTo=billingTimestampTo;
+        this.decimalPoint = decimal;
+        this.unit = unit;
     }
     
     public ObisCode getObisCode() {
@@ -70,8 +75,24 @@ public class TOURegisterInfo {
         return billingTimestampTo;
     }
 
-    public void setBillingTimestampTo(boolean billingTimestampTo) {
+    public int getDecimalPoint() {
+		return decimalPoint;
+	}
+
+	public void setDecimalPoint(int decimalPoint) {
+		this.decimalPoint = decimalPoint;
+	}
+
+	public void setBillingTimestampTo(boolean billingTimestampTo) {
         this.billingTimestampTo = billingTimestampTo;
     }
+
+	public Unit getUnit() {
+		return unit;
+	}
+
+	public void setUnit(Unit unit) {
+		this.unit = unit;
+	}
     
 }

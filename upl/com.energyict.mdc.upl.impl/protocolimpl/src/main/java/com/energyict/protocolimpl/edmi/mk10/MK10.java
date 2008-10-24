@@ -35,7 +35,7 @@ KV|14112007|Fix to use the correct first record timestamp
  */
 public class MK10 extends AbstractProtocol {
     
-    private static final int DEBUG=0;
+    private static final int DEBUG=2;
     private MK10Connection mk10Connection=null;
     private CommandFactory commandFactory=null;
     private ObisCodeFactory obisCodeFactory=null;
@@ -163,8 +163,9 @@ public class MK10 extends AbstractProtocol {
     
     /**
      * @param args the command line arguments
+     * @throws Exception 
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         MK10 mk10 = new MK10();
         Dialer dialer=null;
         try {
@@ -217,14 +218,75 @@ public class MK10 extends AbstractProtocol {
             TOUChannelTypeParser tou_ctp;
             int tou_def;
             
-            for (int i = 0; i < 0x1F; i++) {
-                tou_def = mk10.getCommandFactory().getReadCommand(0xD880 + i).getRegister().getBigDecimal().intValue();            
-                tou_ctp = new TOUChannelTypeParser(tou_def);
-                if (tou_ctp.getObisCField() > 0) {
-                	mk10.sendDebug(tou_ctp.getName() + "  " + tou_ctp.getObisCField());
-                }
-			}
+//            for (int i = 0; i < 0x1F; i++) {
+//                tou_def = mk10.getCommandFactory().getReadCommand(0xD880 + i).getRegister().getBigDecimal().intValue();            
+//                tou_ctp = new TOUChannelTypeParser(tou_def);
+//                if (tou_ctp.getObisCField() > 0) {
+//                	mk10.sendDebug(tou_ctp.getName() + "  " + tou_ctp.getObisCField());
+//                }
+//			}
             
+            ObisCode testobis;
+            
+            int alow= 1;
+            int ahigh = 1;
+            int blow= 1;
+            int bhigh = 1;
+            int clow= 0;
+            int chigh = 4;
+            int dlow= 0;
+            int dhigh = 255;
+            int elow= 0;
+            int ehigh = 255;
+            int flow= 0;
+            int fhigh = 255;
+            
+            for (int a = alow; a <= ahigh; a++) {
+                for (int b = blow; b <= bhigh; b++) {
+                    for (int c = clow; c <= chigh; c++) {
+                        mk10.sendDebug("Testing obiscode: " + a + "." + b + "." + c + ".x.x.x");
+                        for (int d = dlow; d <= dhigh; d++) {
+                        	for (int e = elow; e <= ehigh; e++) {
+                                for (int f = flow; f <= fhigh; f++) {
+                    				testobis = new ObisCode(a,b,c,d,e,f);
+                    				try {
+										mk10.sendDebug("Obiscode result: " + mk10.readRegister(testobis).toString() + "\n   Obis description -> " + testobis.getDescription());
+									} catch (Exception ex) {
+										if (ex.getMessage().indexOf("NOT_LOGGED_IN") >= 0) {
+											mk10.disconnect();
+											mk10.connect();
+										} 
+										else {
+											if (ex.getMessage().indexOf("not supported") <= -1) {
+												ex.printStackTrace(); 
+											} //if
+										} //else
+									} // catch
+                    			} // for f
+                			} // for e
+            			} // for d
+        			} // for c
+    			} // for b
+			} // for a
+            
+//            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.1.8.0.255")).toString());
+//            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.1.2.0.255")).toString());
+//            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.1.8.0.0")).toString());
+//            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.1.2.0.0")).toString());
+//            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.1.9.0.255")).toString());
+//            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.1.16.0.255")).toString());
+//            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.1.9.0.0")).toString());
+//            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.1.16.0.0")).toString());
+//            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.3.8.0.255")).toString());
+//            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.3.2.0.255")).toString());
+//            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.3.8.0.0")).toString());
+//            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.3.2.0.0")).toString());
+//            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.3.9.0.255")).toString());
+//            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.3.16.0.255")).toString());
+//            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.3.9.0.0")).toString());
+//            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.3.16.0.0")).toString());
+
+
 //            ObisCode o = new ObisCode(1,0,0,4,2,255); 
 //            mk10.sendDebug(o.toString());
 //            mk10.sendDebug(o.getDescription());
@@ -240,7 +302,7 @@ public class MK10 extends AbstractProtocol {
             
         } 
         catch (Exception e) {
-        	mk10.sendDebug(e.toString());
+        	throw e;
         }
         return;
 
@@ -290,30 +352,6 @@ public class MK10 extends AbstractProtocol {
 //            System.out.println(mk10.getSerialNumber());
 //            System.out.println(mk10.getFirmwareVersion());
             
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.1.2.0.255")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.1.8.0.0")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.1.2.0.0")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.1.9.0.255")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.1.16.0.255")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.1.9.0.0")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.1.16.0.0")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.3.8.0.255")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.3.2.0.255")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.3.8.0.0")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.3.2.0.0")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.3.9.0.255")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.3.16.0.255")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.3.9.0.0")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.3.16.0.0")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.8.0.255")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.2.0.255")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.8.0.0")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.2.0.0")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.9.0.255")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.16.0.255")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.9.0.0")));
-//            System.out.println(mk10.readRegister(ObisCode.fromString("1.1.9.16.0.0")));
 
             
 //            System.out.println(mk10.getSerialNumber());
@@ -432,7 +470,7 @@ public class MK10 extends AbstractProtocol {
     }
     
     public void sendDebug(String str){
-        if (DEBUG == 1) {
+        if (DEBUG >= 1) {
         	str = " **** DEBUG > " + str;
         	Logger log = getLogger();
         	if (log != null) {
