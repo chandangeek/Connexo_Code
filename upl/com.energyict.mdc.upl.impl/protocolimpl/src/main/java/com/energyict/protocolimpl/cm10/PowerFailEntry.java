@@ -22,7 +22,7 @@ public class PowerFailEntry implements Comparable {
 		this.cm10Protocol = cm10Protocol;
 	}
 	
-	public void parse(byte[] data) throws IOException {
+	public void parse(byte[] data, Calendar now) throws IOException {
 		Calendar c = ProtocolUtils.getCalendar(cm10Protocol.getTimeZone());
 		int currentDay = c.get(Calendar.DATE);
 		
@@ -36,12 +36,6 @@ public class PowerFailEntry implements Comparable {
 		int sec = data[0];
 		int min = data[1];
 		int hour = data[2];
-
-		
-		boolean eventInPreviousMonth = false;
-		if (day > currentDay)
-			eventInPreviousMonth = true;
-			
 		
 		duration = ProtocolUtils.getIntLE(data, 4, 2);
 
@@ -50,7 +44,8 @@ public class PowerFailEntry implements Comparable {
         c.set( Calendar.MINUTE, min);
         c.set( Calendar.SECOND, sec);
         c.set(Calendar.MILLISECOND, 0);
-        if (eventInPreviousMonth)
+        
+        if (c.after(now))
         	c.add(Calendar.MONTH, -1);
         
         this.startTime = c.getTime();

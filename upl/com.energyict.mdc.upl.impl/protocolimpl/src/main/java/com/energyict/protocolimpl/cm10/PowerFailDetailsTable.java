@@ -28,9 +28,10 @@ public class PowerFailDetailsTable {
 	}
 	
 
+	
 
 	public void parse(byte[] data) throws IOException {
-		//cm10Protocol.getLogger().info("length events: " + data.length);
+		cm10Protocol.getLogger().info("length events: " + data.length);
 		timPf =ProtocolUtils.getSubArray(data, 0, 5);
 		timPr =ProtocolUtils.getSubArray(data, 6, 11);
 		dialStructure =ProtocolUtils.getSubArray(data, 12, 155);
@@ -38,10 +39,13 @@ public class PowerFailDetailsTable {
 		secOut =ProtocolUtils.getSubArray(data, 158, 159);
 		lpfCnt =ProtocolUtils.getSubArray(data, 160, 161);
 		
+        Calendar now = ProtocolUtils.getCalendar(cm10Protocol.getTimeZone());
+        now.setTime(cm10Protocol.getTime());
+		
 		int offset = 162;
 		for (int i = 0; i < 12; i++) {
 			PowerFailEntry entry = new PowerFailEntry(cm10Protocol);
-			entry.parse(ProtocolUtils.getSubArray(data, offset, offset + 5));
+			entry.parse(ProtocolUtils.getSubArray(data, offset, offset + 5), now);
 			if (entry.isValid()) 
 				recentPf.add(entry);
 			offset = offset + 6;
@@ -50,7 +54,7 @@ public class PowerFailDetailsTable {
 		offset = 234;
 		for (int i = 0; i < 3; i++) {
 			PowerFailEntry entry = new PowerFailEntry(cm10Protocol);
-			entry.parse(ProtocolUtils.getSubArray(data, offset, offset + 5));
+			entry.parse(ProtocolUtils.getSubArray(data, offset, offset + 5), now);
 			if (entry.isValid()) 
 				longestPf.add(entry);
 			offset = offset + 6;
