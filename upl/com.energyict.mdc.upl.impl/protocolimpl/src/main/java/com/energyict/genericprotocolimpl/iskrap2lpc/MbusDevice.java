@@ -490,7 +490,7 @@ public class MbusDevice implements Messaging, GenericProtocol{
 	}
 
 	public String getVersion() {
-		return "$Date: 2008-09-16 09:37:43 +0200 (di, 16 sep 2008) $";
+		return "$Date$";
 	}
 
 	public List getOptionalKeys() {
