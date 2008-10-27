@@ -21,7 +21,7 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.*;
  */
 public class MK10 extends AbstractProtocol {
     
-    private static final int DEBUG=0;
+    private static final int DEBUG=1;
     private MK10Connection mk10Connection=null;
     private CommandFactory commandFactory=null;
     private ObisCodeFactory obisCodeFactory=null;
@@ -100,7 +100,7 @@ public class MK10 extends AbstractProtocol {
     
     public String getProtocolVersion() {
         sendDebug("getProtocolVersion()");
-        return "$Revision: 1.7 $";
+        return "$Revision: 1.0 $";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -200,48 +200,48 @@ public class MK10 extends AbstractProtocol {
 //                }
 //			}
             
-            ObisCode testobis;
-            
-            int alow= 1;
-            int ahigh = 1;
-            int blow= 1;
-            int bhigh = 1;
-            int clow= 0;
-            int chigh = 4;
-            int dlow= 0;
-            int dhigh = 255;
-            int elow= 0;
-            int ehigh = 255;
-            int flow= 0;
-            int fhigh = 255;
-            
-            for (int a = alow; a <= ahigh; a++) {
-                for (int b = blow; b <= bhigh; b++) {
-                    for (int c = clow; c <= chigh; c++) {
-                        mk10.sendDebug("Testing obiscode: " + a + "." + b + "." + c + ".x.x.x");
-                        for (int d = dlow; d <= dhigh; d++) {
-                        	for (int e = elow; e <= ehigh; e++) {
-                                for (int f = flow; f <= fhigh; f++) {
-                    				testobis = new ObisCode(a,b,c,d,e,f);
-                    				try {
-										mk10.sendDebug("Obiscode result: " + mk10.readRegister(testobis).toString() + "\n   Obis description -> " + testobis.getDescription());
-									} catch (Exception ex) {
-										if (ex.getMessage().indexOf("NOT_LOGGED_IN") >= 0) {
-											mk10.disconnect();
-											mk10.connect();
-										} 
-										else {
-											if (ex.getMessage().indexOf("not supported") <= -1) {
-												ex.printStackTrace(); 
-											} //if
-										} //else
-									} // catch
-                    			} // for f
-                			} // for e
-            			} // for d
-        			} // for c
-    			} // for b
-			} // for a
+//            ObisCode testobis;
+//            
+//            int alow= 1;
+//            int ahigh = 1;
+//            int blow= 1;
+//            int bhigh = 1;
+//            int clow= 0;
+//            int chigh = 4;
+//            int dlow= 0;
+//            int dhigh = 255;
+//            int elow= 0;
+//            int ehigh = 255;
+//            int flow= 0;
+//            int fhigh = 255;
+//            
+//            for (int a = alow; a <= ahigh; a++) {
+//                for (int b = blow; b <= bhigh; b++) {
+//                    for (int c = clow; c <= chigh; c++) {
+//                        mk10.sendDebug("Testing obiscode: " + a + "." + b + "." + c + ".x.x.x");
+//                        for (int d = dlow; d <= dhigh; d++) {
+//                        	for (int e = elow; e <= ehigh; e++) {
+//                                for (int f = flow; f <= fhigh; f++) {
+//                    				testobis = new ObisCode(a,b,c,d,e,f);
+//                    				try {
+//										mk10.sendDebug("Obiscode result: " + mk10.readRegister(testobis).toString() + "\n   Obis description -> " + testobis.getDescription());
+//									} catch (Exception ex) {
+//										if (ex.getMessage().indexOf("NOT_LOGGED_IN") >= 0) {
+//											mk10.disconnect();
+//											mk10.connect();
+//										} 
+//										else {
+//											if (ex.getMessage().indexOf("not supported") <= -1) {
+//												ex.printStackTrace(); 
+//											} //if
+//										} //else
+//									} // catch
+//                    			} // for f
+//                			} // for e
+//            			} // for d
+//        			} // for c
+//    			} // for b
+//			} // for a
             
 //            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.1.8.0.255")).toString());
 //            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.1.2.0.255")).toString());
@@ -259,6 +259,8 @@ public class MK10 extends AbstractProtocol {
 //            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.3.16.0.255")).toString());
 //            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.3.9.0.0")).toString());
 //            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.3.16.0.0")).toString());
+
+            mk10.sendDebug(mk10.readRegister(ObisCode.fromString("1.1.2.16.0.255")).toString()); // active max period 2
 
 
 //            ObisCode o = new ObisCode(1,0,0,4,2,255); 

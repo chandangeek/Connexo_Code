@@ -249,14 +249,12 @@ public class ObisCodeFactory {
         }
         
         if (touri.isTimeOfMaxDemand()) {
-            Date eventDate = doValidateDate(mk10.getCommandFactory().getReadCommand(touri.getEdmiEnergyRegisterId()).getRegister().getDate());
+            Date eventDate = doValidateDate(mk10.getCommandFactory().getReadCommand(touri.getEdmiMaxDemandRegisterId()).getRegister().getDate());
             registervalue = rc.getRegister().getBigDecimal().movePointLeft(dp);
-            return new RegisterValue(obisCode,new Quantity(registervalue,unit),eventDate,null,to);
-            //return new RegisterValue(obisCode,new Quantity(registervalue,rc.getUnit()),eventDate,null,to);
+            return new RegisterValue(obisCode,new Quantity(registervalue,unit),eventDate,null,null);
         } else {
             registervalue = rc.getRegister().getBigDecimal().movePointLeft(dp);
         	return new RegisterValue(obisCode,new Quantity(registervalue,unit),null,null,to);
-        	//return new RegisterValue(obisCode,new Quantity(registervalue,rc.getUnit()),null,null,to);
         }
     }
 
@@ -264,6 +262,7 @@ public class ObisCodeFactory {
     // The MK10 meter returns 1 January 1996 00:00 when the time is invalid.
     // 820450800000L = 1 Jan 1996 00:00:00,000
     private Date doValidateDate(Date date) {
+    	if (date==null) return null;
     	if (date.compareTo(new Date(820450800000L)) == 0) {
         	return null;
         } else {

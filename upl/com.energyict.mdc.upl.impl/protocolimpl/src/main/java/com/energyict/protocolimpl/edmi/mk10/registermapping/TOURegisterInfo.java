@@ -22,6 +22,7 @@ public class TOURegisterInfo {
     
     private ObisCode obisCode;
     private int edmiEnergyRegisterId;
+    private int edmiMaxDemandRegisterId;
     private String description;
     private boolean timeOfMaxDemand;
     private boolean billingTimestampTo;
@@ -93,6 +94,25 @@ public class TOURegisterInfo {
 
 	public void setUnit(Unit unit) {
 		this.unit = unit;
+	}
+
+	// Register address is of the following format:
+	// 0aab bbbc cccc dddd
+	// aa = the type of data.
+	// 		aa = 0 > accumulated energy
+	//		aa = 1 > mac demand
+	//		aa = 2 > time of max demand
+
+	// Set bits aa to 2 to get the time of maxdemand register, 
+	// else return a invalid register to generate a "CAN register not found" error when read.  
+	public int getEdmiMaxDemandRegisterId() {
+		if (this.isTimeOfMaxDemand()) {
+			this.edmiMaxDemandRegisterId = (this.edmiEnergyRegisterId & 0x9FFF) | 0x4000;
+		}
+		else {
+			this.edmiMaxDemandRegisterId = 0xFFFF;
+		}
+		return edmiMaxDemandRegisterId;
 	}
     
 }
