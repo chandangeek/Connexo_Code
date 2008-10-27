@@ -29,4 +29,15 @@ public class ParseUtils {
 		return newArray;
 	}
 	
+	static public boolean isObisCode(String code) {
+		try {
+			ObisCode o = ObisCode.fromString(code);
+			return true;
+		}
+		catch(IllegalArgumentException e) {
+			return false;
+		}
+	}
+	
+
 }
