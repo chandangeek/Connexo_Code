@@ -9,10 +9,16 @@ import com.energyict.obis.ObisCode;
 
 public class AcknowledgeCustomCosem extends Data {
 
+	// SUCCESS CODES
 	static public final int SUCCESS=0;
-	static public final int FAILURE=1;
-	static public final int NO_VALID_DBASE_REFERENCE=2;
-	static public final int DEVICE_NOT_EXIST=3;
+	static public final int VERSION=1;
+	
+	
+	// ERROR CODES
+	static public final int FAILURE=100;
+	static public final int NO_VALID_DBASE_REFERENCE=101;
+	static public final int DEVICE_NOT_EXIST=102;
+	
 	
 	
 	// ... add new returncodes here...
@@ -54,6 +60,10 @@ public class AcknowledgeCustomCosem extends Data {
 	
 	public boolean isSuccess() throws IOException {
 		return getCode()==SUCCESS;
+	}
+	
+	public boolean isVersion() throws IOException {
+		return getCode()==VERSION;
 	}
 	
 	public boolean isDeviceNotFound() throws IOException {

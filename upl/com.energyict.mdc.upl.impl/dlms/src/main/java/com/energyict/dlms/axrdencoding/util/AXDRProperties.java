@@ -7,8 +7,9 @@ import com.energyict.dlms.axrdencoding.*;
 
 public class AXDRProperties {
 
-	static public Structure encode(Properties properties) throws IOException {
-		Structure structure = new Structure();
+	static public Array encode(Properties properties) throws IOException {
+		Array array = new Array();
+		//Structure structure = new Structure();
 		
 		Enumeration e = properties.keys();
 		while(e.hasMoreElements()) {
@@ -24,18 +25,19 @@ public class AXDRProperties {
 			else throw new IOException("Invalid key type for "+key.getClass().getName());
 			
 			keyValue.addDataType(OctetString.fromString(value));
-			structure.addDataType(keyValue);
+			array.addDataType(keyValue);
 		}
 		
-		return structure;
+		return array;
 	}
 	
 	static public Properties decode(AbstractDataType dataType) {
 		Properties properties = new Properties();
 		
-		Structure structure = dataType.getStructure();
-		for (int i=0;i<structure.nrOfDataTypes();i++) {
-			Structure keyValue = structure.getDataType(i).getStructure();
+		//Structure structure = dataType.getStructure();
+		Array array = dataType.getArray();
+		for (int i=0;i<array.nrOfDataTypes();i++) {
+			Structure keyValue = array.getDataType(i).getStructure();
 			Object key=null;
 			if (keyValue.getDataType(0).isOctetString())
 				key = keyValue.getDataType(0).getOctetString().stringValue();
@@ -58,9 +60,9 @@ public class AXDRProperties {
 		properties.put("test4", "testvalue");
 		
 		try {
-			Structure structure = encode(properties);
-			System.out.println(structure);
-			System.out.println(decode(structure));
+			Array array = encode(properties);
+			System.out.println(array);
+			System.out.println(decode(array));
 		}
 		catch(IOException e) {
 			e.printStackTrace();

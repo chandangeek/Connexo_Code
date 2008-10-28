@@ -209,58 +209,58 @@ public class DateTime extends AbstractDataType {
     
     public static void main(String[] args) {
         
-        byte [] ba = new byte [] {
-        (byte)0x09, (byte)0x0c, (byte)0x07, (byte)0xD7, (byte)0x0A, 
-        (byte)0x16, (byte)0x01, (byte)0x0A, (byte)0x35, (byte)0x0F, 
-        (byte)0xFF, (byte)0x08, (byte)0x00, (byte)0x80
-        };
-        
-        
-        DateTime dt = new DateTime( ba, 0, TimeZone.getDefault() );
-        System.out.println( "" + dt.getValue().getTime() );
-        
-        Calendar v = dt.getValue();
-
-        int year        = v.get(Calendar.YEAR);
-        int month       = v.get(Calendar.MONTH);
-        int dayOfMonth  = v.get(Calendar.DAY_OF_MONTH);
-        int dayOfWeek   = v.get(Calendar.DAY_OF_WEEK);
-        int hour        = v.get(Calendar.HOUR);
-        int minute      = v.get(Calendar.MINUTE);
-        int second      = v.get(Calendar.SECOND);
-        int hms         = v.get(Calendar.MILLISECOND) / 10;
-        
-        byte [] bin =
-            
-        {   
-            (byte) 0x09,
-            (byte) 0x0c,
-            (byte) ((year & 0Xff00 ) >> 8),
-            (byte) (year & 0X00ff),
-            (byte) (month + 1),
-            (byte) (dayOfMonth),
-            (byte) (dayOfWeek - 1),
-            (byte) (hour),
-            (byte) (minute),
-            (byte) (second),
-            (byte) (hms),
-            0,
-            0,
-            (byte)0x80
-        };
-        
-        for (int i = 0; i < bin.length; i++) {
-            System.out.print( Integer.toHexString( bin[i] ) + " " );
-        }
-        System.out.println( bin );
-        System.out.println( new DateTime( bin, 0, TimeZone.getDefault() ).getValue().getTime() );
-        
+//        byte [] ba = new byte [] {
+//        (byte)0x09, (byte)0x0c, (byte)0x07, (byte)0xD7, (byte)0x0A, 
+//        (byte)0x16, (byte)0x01, (byte)0x0A, (byte)0x35, (byte)0x0F, 
+//        (byte)0xFF, (byte)0x08, (byte)0x00, (byte)0x80
+//        };
+//        
+//        
+//        DateTime dt = new DateTime( ba, 0, TimeZone.getDefault() );
+//        System.out.println( "" + dt.getValue().getTime() );
+//        
+//        Calendar v = dt.getValue();
+//
+//        int year        = v.get(Calendar.YEAR);
+//        int month       = v.get(Calendar.MONTH);
+//        int dayOfMonth  = v.get(Calendar.DAY_OF_MONTH);
+//        int dayOfWeek   = v.get(Calendar.DAY_OF_WEEK);
+//        int hour        = v.get(Calendar.HOUR);
+//        int minute      = v.get(Calendar.MINUTE);
+//        int second      = v.get(Calendar.SECOND);
+//        int hms         = v.get(Calendar.MILLISECOND) / 10;
+//        
+//        byte [] bin =
+//            
+//        {   
+//            (byte) 0x09,
+//            (byte) 0x0c,
+//            (byte) ((year & 0Xff00 ) >> 8),
+//            (byte) (year & 0X00ff),
+//            (byte) (month + 1),
+//            (byte) (dayOfMonth),
+//            (byte) (dayOfWeek - 1),
+//            (byte) (hour),
+//            (byte) (minute),
+//            (byte) (second),
+//            (byte) (hms),
+//            0,
+//            0,
+//            (byte)0x80
+//        };
+//        
+//        for (int i = 0; i < bin.length; i++) {
+//            System.out.print( Integer.toHexString( bin[i] ) + " " );
+//        }
+//        System.out.println( bin );
+//        System.out.println( new DateTime( bin, 0, TimeZone.getDefault() ).getValue().getTime() );
+//        
         try {
-	        DateTime dt2 = new DateTime(TimeZone.getTimeZone("ECT"));
+        	Calendar cal = Calendar.getInstance();
+        	cal.add(Calendar.DATE, -1);
+	        DateTime dt2 = new DateTime(cal); //TimeZone.getTimeZone("ECT"));
 	        System.out.println(ProtocolUtils.outputHexString(dt2.getBEREncodedByteArray()));
 	        byte[] data = dt2.getBEREncodedByteArray();
-	        data[13]=(byte)0x80;
-	        System.out.println(ProtocolUtils.outputHexString(data));
 	        DateTime dt3 = new DateTime(data,0,TimeZone.getTimeZone("ECT"));
 	        System.out.println(dt3.getValue().getTime());
         }

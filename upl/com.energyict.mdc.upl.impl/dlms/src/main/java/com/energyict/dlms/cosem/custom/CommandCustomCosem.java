@@ -41,17 +41,7 @@ public class CommandCustomCosem extends Data {
         return AbstractCosemObject.CLASSID_DATA;
     }
 
-    public void setFields(int code, String message) throws IOException {
-    	if (message==null) {
-    		setValueAttr(new Integer8(code));
-    	}
-    	else {
-    		Structure structure = new Structure();
-    		structure.addDataType(new Integer8(code));
-    		structure.addDataType(OctetString.fromString(message));
-    		setValueAttr(structure);
-    	}
-    }
+
     
     public void boot() throws IOException {
    		setValueAttr(new Integer8(BOOT));
