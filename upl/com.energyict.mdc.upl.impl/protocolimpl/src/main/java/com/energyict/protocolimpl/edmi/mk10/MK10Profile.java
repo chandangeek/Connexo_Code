@@ -201,12 +201,12 @@ public class MK10Profile {
         if (lc.indexOf("failure")>=0) return MeterEvent.HARDWARE_ERROR;
         if (lc.indexOf("phase")>=0) return MeterEvent.PHASE_FAILURE;
         if (lc.indexOf("asymetric")>=0) return MeterEvent.METER_ALARM;
-        if (lc.indexOf("reverse")>=0) return MeterEvent.REVERSE_RUN;
+        if (lc.indexOf("reverse")>=0) return MeterEvent.OTHER;
         if (lc.indexOf("overflow")>=0) return MeterEvent.REGISTER_OVERFLOW;
         if (lc.indexOf("setup change")>=0) return MeterEvent.CONFIGURATIONCHANGE;
         if (lc.indexOf("system time changed to")>=0) return MeterEvent.SETCLOCK_BEFORE;
         if (lc.indexOf("system time changed from")>=0) return MeterEvent.SETCLOCK_AFTER;
-        if (lc.indexOf("tamper")>=0) return MeterEvent.TAMPER;
+        if (lc.indexOf("tamper")>=0) return MeterEvent.OTHER;
         return MeterEvent.OTHER;
     }
 }

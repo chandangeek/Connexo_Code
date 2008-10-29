@@ -29,7 +29,7 @@ public class TOUChannelTypeParser {
 
 	private String Name;
 	private Unit unit; 
-	private Boolean channelenabled = true;
+	private boolean channelenabled = true;
 	
 	public TOUChannelTypeParser(int ChannelDef) {
 		this.DecimalPointScaling = (ChannelDef & 0xE000) >> 13;
@@ -38,11 +38,11 @@ public class TOUChannelTypeParser {
     	int regfunction = (ChannelDef & 0x00F0) >> 4;
     	int scaling = (ChannelDef & 0x1800) >> 11;
     	
-    	Boolean isEnergy = false;
-    	Boolean isPulse = false;
-    	Boolean isCycle = false;
-    	Boolean isReserved = false;
-    	Boolean isTesting = false;
+    	boolean isEnergy = false;
+    	boolean isPulse = false;
+    	boolean isCycle = false;
+    	boolean isReserved = false;
+    	boolean isTesting = false;
     	
     	if ((ChannelDef & 0x00FF) == 0x00FF) {
     		channelenabled = false;
