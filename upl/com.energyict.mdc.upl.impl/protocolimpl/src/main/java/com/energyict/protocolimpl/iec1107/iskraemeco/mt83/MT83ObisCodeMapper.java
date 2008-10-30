@@ -25,12 +25,12 @@ import com.energyict.protocolimpl.iec1107.vdew.DateValuePair;
  * @author  Koen
  */
 public class MT83ObisCodeMapper {
-    MT83Registry iskraEmecoRegistry;
+    MT83Registry mT83Registry;
     RegisterConfig regs;
     
     /** Creates a new instance of ObisCodeMapper */
-    public MT83ObisCodeMapper(MT83Registry iskraEmecoRegistry, TimeZone timeZone, RegisterConfig regs) {
-        this.iskraEmecoRegistry=iskraEmecoRegistry;
+    public MT83ObisCodeMapper(MT83Registry mT83Registry, TimeZone timeZone, RegisterConfig regs) {
+        this.mT83Registry=mT83Registry;
         this.regs=regs;
     }
     
@@ -45,7 +45,7 @@ public class MT83ObisCodeMapper {
     
     private int getBillingResetCounter(RegisterConfig regs) throws IOException {
         String strReg = regs.getMeterRegisterCode(ObisCode.fromString("1.0.0.1.0.255"));
-        return ((Integer)iskraEmecoRegistry.getRegister(strReg+" INTEGER")).intValue();
+        return ((Integer)mT83Registry.getRegister(strReg+" INTEGER")).intValue();
     }
     
     private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException {
@@ -85,10 +85,10 @@ public class MT83ObisCodeMapper {
                     ObisCode ocBillingDate = ObisCode.fromString("1.1.0.1.2.255");
                     String strRegBillingDate = regs.getMeterRegisterCode(ocBillingDate);
                     strRegBillingDate = strRegBillingDate+"*"+(VZ-billingPoint);
-                    billingDate = ((DateValuePair)iskraEmecoRegistry.getRegister(strRegBillingDate+" DATE_VALUE_PAIR")).getDate();
+                    billingDate = ((DateValuePair)mT83Registry.getRegister(strRegBillingDate+" DATE_VALUE_PAIR")).getDate();
                 }
                 
-                DateValuePair dvp = (DateValuePair)iskraEmecoRegistry.getRegister(strReg+" DATE_VALUE_PAIR");
+                DateValuePair dvp = (DateValuePair)mT83Registry.getRegister(strReg+" DATE_VALUE_PAIR");
                 
                 Unit obisCodeUnit=obisCode.getUnitElectricity(0);
                 if (obisCodeUnit.getDlmsCode() != 255)
@@ -101,7 +101,7 @@ public class MT83ObisCodeMapper {
                    return registerValue;
                 }
                 else {
-                   String strValue = (String)iskraEmecoRegistry.getRegister(strReg+" STRING");
+                   String strValue = (String)mT83Registry.getRegister(strReg+" STRING");
                    registerValue = new RegisterValue(obisCode,strValue);
                    return registerValue;
                 }

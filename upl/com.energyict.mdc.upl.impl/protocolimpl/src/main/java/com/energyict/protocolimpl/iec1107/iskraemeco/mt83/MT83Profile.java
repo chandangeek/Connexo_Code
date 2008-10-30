@@ -1,5 +1,5 @@
 /*
- * IskraEmecoProfile.java
+ * MT83Profile.java
  *
  * Created on 12 mei 2003, 15:00
  */
@@ -25,7 +25,7 @@ public class MT83Profile extends VDEWProfile {
     
     private static final int DEBUG=0;
     
-    /** Creates a new instance of IskraEmecoProfile */
+    /** Creates a new instance of MT83Profile */
     public MT83Profile(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink, AbstractVDEWRegistry abstractVDEWRegistry) {
         super(meterExceptionInfo,protocolLink,abstractVDEWRegistry);
     }
@@ -234,7 +234,7 @@ public class MT83Profile extends VDEWProfile {
             calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
             profileData = new ProfileData();
             for (t=0;t<nrOfChannels;t++) {
-                ChannelInfo chi = new ChannelInfo(t,"iskraEmeco_channel_"+t,Unit.get(""));
+                ChannelInfo chi = new ChannelInfo(t,"MT83_channel_"+t,Unit.get(""));
                 Channel channel = getProtocolLink().getChannelMap().getChannel(t);
                 if (channel.isCumul()) {
                    chi.setCumulativeWrapValue(channel.getWrapAroundValue());
@@ -342,4 +342,4 @@ public class MT83Profile extends VDEWProfile {
         }
     }
     
-} // IskraEmecoProfile
+} // MT83Profile

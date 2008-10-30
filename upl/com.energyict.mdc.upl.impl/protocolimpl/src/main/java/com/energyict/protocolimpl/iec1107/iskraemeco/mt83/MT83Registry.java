@@ -1,5 +1,5 @@
 /*
- * IskraEmecoRegister.java
+ * MT83Register.java
  *
  * Created on 16 juni 2003, 16:35
  */
@@ -23,7 +23,7 @@ import com.energyict.protocol.MeterExceptionInfo;
  */
 public class MT83Registry extends AbstractVDEWRegistry {
     
-    /** Creates a new instance of IskraEmecoRegister */
+    /** Creates a new instance of MT83Register */
     public MT83Registry(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink) {
         super(meterExceptionInfo,protocolLink);
     }

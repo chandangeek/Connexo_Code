@@ -1,5 +1,5 @@
 /*
- * IskraEmeco.java
+ * MT83.java
  *
  * Created on 8 mei 2003, 17:56
  */
@@ -35,7 +35,7 @@ import com.energyict.dialer.connection.HHUSignOn;
  * @author   Koenraad Vanderschaeve
  * <P>
  * <B>Description :</B><BR>
- * Class that implements the Iskra MT83 meter IEC1107 protocol.
+ * Class that implements the MT83 meter IEC1107 protocol.
  * <BR>
  * <B>@beginchanges</B><BR>
 KV|29012004|Changed serial number and device id behaviour
@@ -72,8 +72,8 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     int readCurrentDay;
     
     FlagIEC1107Connection flagIEC1107Connection=null;
-    MT83Registry iskraEmecoRegistry=null;
-    MT83Profile iskraEmecoProfile=null;
+    MT83Registry mt83Registry=null;
+    MT83Profile mt83Profile=null;
     RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
 
     byte[] dataReadout=null;
@@ -104,12 +104,12 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     
     
     private ProfileData doGetProfileData(Calendar fromCalendar,Calendar toCalendar,boolean includeEvents) throws IOException {
-        return getIskraEmecoProfile().getProfileData(fromCalendar,toCalendar,getNumberOfChannels(),1,includeEvents,isReadCurrentDay());
+        return getMT83Profile().getProfileData(fromCalendar,toCalendar,getNumberOfChannels(),1,includeEvents,isReadCurrentDay());
     }
     
     // Only for debugging
     public ProfileData getProfileData(Calendar from,Calendar to) throws IOException {
-        return getIskraEmecoProfile().getProfileData(from,
+        return getMT83Profile().getProfileData(from,
         to,
         getNumberOfChannels(),
         1,
@@ -118,10 +118,10 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     
     public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
         try {
-            return (Quantity)getIskraEmecoRegistry().getRegister(name);
+            return (Quantity)getMT83Registry().getRegister(name);
         }
         catch(ClassCastException e) {
-            throw new IOException("IskraEmeco, getMeterReading, register "+name+" is not type Quantity");
+            throw new IOException("MT83, getMeterReading, register "+name+" is not type Quantity");
         }
     }
     public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
@@ -130,11 +130,11 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
             ISKRAEMECO_METERREADINGS = MT83_METERREADINGS_DEFAULT;
             
             if (channelId >= getNumberOfChannels())
-                throw new IOException("IskraEmeco, getMeterReading, invalid channelId, "+channelId);
-            return (Quantity)getIskraEmecoRegistry().getRegister(ISKRAEMECO_METERREADINGS[channelId]);
+                throw new IOException("MT83, getMeterReading, invalid channelId, "+channelId);
+            return (Quantity)getMT83Registry().getRegister(ISKRAEMECO_METERREADINGS[channelId]);
         }
         catch(ClassCastException e) {
-            throw new IOException("IskraEmeco, getMeterReading, register "+ISKRAEMECO_METERREADINGS[channelId]+" ("+channelId+") is not type Quantity");
+            throw new IOException("MT83, getMeterReading, register "+ISKRAEMECO_METERREADINGS[channelId]+" ("+channelId+") is not type Quantity");
         }
     }
     
@@ -147,12 +147,12 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);
         Date date = calendar.getTime();
-        getIskraEmecoRegistry().setRegister("TimeDateWrite",date);
-        //getIskraEmecoRegistry().setRegister("0.9.2",date);
+        getMT83Registry().setRegister("TimeDateWrite",date);
+        //getMT83Registry().setRegister("0.9.2",date);
     } // public void setTime() throws IOException
     
     public Date getTime() throws IOException {
-        Date date =  (Date)getIskraEmecoRegistry().getRegister("TimeDateReadOnly");
+        Date date =  (Date)getMT83Registry().getRegister("TimeDateReadOnly");
         return new Date(date.getTime()-iRoundtripCorrection);
     }
     
@@ -217,7 +217,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
      * @throws NoSuchRegisterException <br>
      */
     public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
-        return ProtocolUtils.obj2String(getIskraEmecoRegistry().getRegister(name));
+        return ProtocolUtils.obj2String(getMT83Registry().getRegister(name));
     }
     
     /** this implementation throws UnsupportedException. Subclasses may override
@@ -228,7 +228,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
      * @throws UnsupportedException <br>
      */
     public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
-        getIskraEmecoRegistry().setRegister(name,value);
+        getMT83Registry().setRegister(name,value);
     }
     
     /** this implementation throws UnsupportedException. Subclasses may override
@@ -270,10 +270,10 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     
     public String getFirmwareVersion() throws IOException,UnsupportedException {
         try {
-            return((String)getIskraEmecoRegistry().getRegister("software revision number"));
+            return((String)getMT83Registry().getRegister("software revision number"));
         }
         catch(IOException e) {
-            throw new IOException("IskraEmeco, getFirmwareVersion, "+e.getMessage());
+            throw new IOException("MT83, getFirmwareVersion, "+e.getMessage());
         }
     } // public String getFirmwareVersion()
     
@@ -288,8 +288,8 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         this.logger = logger;
         try {
             flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible);
-            iskraEmecoRegistry = new MT83Registry(this,this);
-            iskraEmecoProfile = new MT83Profile(this,this,iskraEmecoRegistry);
+            mt83Registry = new MT83Registry(this,this);
+            mt83Profile = new MT83Profile(this,this,mt83Registry);
         }
         catch(ConnectionException e) {
             logger.severe("ABBA1500: init(...), "+e.getMessage());
@@ -325,7 +325,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     private void validateSerialNumber() throws IOException {
         boolean check = true;
         if ((serialNumber == null) || ("".compareTo(serialNumber)==0)) return;
-        String sn = (String)getIskraEmecoRegistry().getRegister("meter serial number");
+        String sn = (String)getMT83Registry().getRegister("meter serial number");
         if (sn.compareTo(serialNumber) == 0) return;
         throw new IOException("SerialNiumber mismatch! meter sn="+sn+", configured sn="+serialNumber);
     }
@@ -345,18 +345,18 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     }
     
     public int getProfileInterval() throws UnsupportedException, IOException {
-        Object obj = getIskraEmecoRegistry().getRegister("Profile Interval");
+        Object obj = getMT83Registry().getRegister("Profile Interval");
         if (obj == null)
             return iProfileInterval;
         else
             return ProtocolUtils.obj2int(obj)*60;
     }
     
-    private MT83Registry getIskraEmecoRegistry() {
-        return iskraEmecoRegistry;
+    private MT83Registry getMT83Registry() {
+        return mt83Registry;
     }
-    private MT83Profile getIskraEmecoProfile() {
-        return iskraEmecoProfile;
+    private MT83Profile getMT83Profile() {
+        return mt83Profile;
     }
     
     
@@ -490,7 +490,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         return MT83ObisCodeMapper.getRegisterInfo(obisCode);
     }
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        MT83ObisCodeMapper ocm = new MT83ObisCodeMapper(getIskraEmecoRegistry(),getTimeZone(),regs);
+        MT83ObisCodeMapper ocm = new MT83ObisCodeMapper(getMT83Registry(),getTimeZone(),regs);
         return ocm.getRegisterValue(obisCode);
     }
     
@@ -505,4 +505,4 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     public boolean isReadCurrentDay() {
         return readCurrentDay==1;
     }    
-} // public class IskraEmeco implements MeterProtocol {
+} // public class MT83 implements MeterProtocol {
