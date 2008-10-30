@@ -131,6 +131,7 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         protocolclasses.add("com.energyict.protocolimpl.kenda.medo.Medo");protocolnames.add("Kenda Medo meter");
         protocolclasses.add("com.energyict.protocolimpl.cm10.CM10");protocolnames.add("CM10 meter");
         protocolclasses.add("com.energyict.protocolimpl.edmi.mk10.MK10");protocolnames.add("EDMI MK10-4 meter");
+        protocolclasses.add("com.energyict.protocolimpl.iec1107.iskraemeco.mt83.MT83");protocolnames.add("IskraEmeco MT83x meter");
     }  
     
     public String getProtocolName(int index) throws IOException {
