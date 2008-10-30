@@ -16,7 +16,6 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocolimpl.siemens7ED62.SCTMDumpData;
 import com.energyict.protocolimpl.customerconfig.*;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.vdew.DateValuePair;

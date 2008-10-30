@@ -12,23 +12,19 @@ package com.energyict.protocolimpl.iec1107.iskraemeco.mt83;
 
 import java.io.*;
 import java.util.*;
-import java.math.*;
-
-import com.energyict.protocol.*;
 import java.util.logging.*;
-import com.energyict.cbo.*;
 
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.vdew.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dialer.core.*;
+import com.energyict.cbo.*;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.customerconfig.*;
-import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocolimpl.base.*;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 
 /**
  * @version  1.0
@@ -504,5 +500,14 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     
     public boolean isReadCurrentDay() {
         return readCurrentDay==1;
-    }    
+    }   
+    
+    public static void sendDebug(String message, int debuglvl) {
+    	if (debuglvl == 1) sendDebug(message);
+    }
+    
+    private static void sendDebug(String message) {
+    	if (DEBUG == 1) System.out.println(" ######## DEBUG ####### > " + message);
+    }
+    
 } // public class MT83 implements MeterProtocol {
