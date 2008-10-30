@@ -34,6 +34,9 @@ public class ParseUtils {
 			ObisCode o = ObisCode.fromString(code);
 			return true;
 		}
+		catch(NumberFormatException e) {
+			return false;
+		}
 		catch(IllegalArgumentException e) {
 			return false;
 		}

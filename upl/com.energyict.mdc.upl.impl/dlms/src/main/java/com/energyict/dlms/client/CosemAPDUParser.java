@@ -321,9 +321,12 @@ public class CosemAPDUParser {
 				}
 				else {
 					Map<Integer,Integer> channelsStatus=null;
-					for (int entryIndex=0;entryIndex<entry.nrOfDataTypes();entryIndex++) {
+//					for (int entryIndex=0;entryIndex<entry.nrOfDataTypes();entryIndex++) {
+					for (int entryIndex=0;entryIndex<loadProfileCapturedObjects.size();entryIndex++) {
 						// get captured object obis code 
-						ObisCode obisCode = loadProfileCapturedObjects.get(Integer.valueOf(entryIndex));
+						
+						ObisCode obisCode = loadProfileCapturedObjects.get(entryIndex);
+						
 						if (channelsStatus == null) 
 							channelsStatus = new HashMap();
 						
@@ -344,7 +347,7 @@ public class CosemAPDUParser {
 							channelsStatus.put(Integer.valueOf(obisCode.getE()-1),Integer.valueOf(entry.getDataType(entryIndex).intValue()));
 						}
 						
-					} // for (int entryIndex=0;i<entry.nrOfDataTypes();entryIndex++)
+					} // for (int entryIndex=0;i<loadProfileCapturedObjects.size();entryIndex++)
 					
 					List<IntervalValue> intervalValues2 = new ArrayList();
 					for(int channelId=0;channelId<intervalValues.size();channelId++) {
@@ -400,7 +403,7 @@ public class CosemAPDUParser {
 		int channelId=0;
 		Array captureObjects = apdu.getDataType().getArray();
 		for(int i=0;i<captureObjects.nrOfDataTypes();i++) {
-			
+		
 			AbstractDataType dataType = captureObjects.getDataType(i);
 			if (dataType==null)
 				break;
