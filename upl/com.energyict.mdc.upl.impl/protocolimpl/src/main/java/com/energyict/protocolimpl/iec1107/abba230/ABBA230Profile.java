@@ -171,8 +171,7 @@ public class ABBA230Profile {
         	getMeterEvents(rFactory.getMeterErrorEventLog(),meterEvents);
         	getMeterEvents(rFactory.getBatteryVoltageLowEventLog(),meterEvents);
         	
-        	
-        	profileData.setMeterEvents(meterEvents);
+       		profileData.setMeterEvents(meterEvents);
         }
         
         return profileData;
@@ -184,7 +183,11 @@ public class ABBA230Profile {
     		meterEvents.addAll(o.getMeterEvents());
     	}
     	catch(IOException e) {
+    		//e.printStackTrace();
     		protocolLink.getLogger().info("No "+reg.getName()+" available");
+    	}
+    	catch(NullPointerException e) {
+    		e.printStackTrace();
     	}
     }
     

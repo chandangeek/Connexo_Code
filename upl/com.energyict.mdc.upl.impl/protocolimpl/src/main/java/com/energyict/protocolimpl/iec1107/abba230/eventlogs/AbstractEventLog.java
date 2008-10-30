@@ -19,7 +19,8 @@ abstract public class AbstractEventLog {
 	}
 
 	protected void addMeterEvent(MeterEvent meterEvent) {
-		meterEvents.add(meterEvent);
+		if (meterEvent.getTime() != null)
+			meterEvents.add(meterEvent);
 	}
 
 	public List<MeterEvent> getMeterEvents() {
