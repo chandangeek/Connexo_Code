@@ -34,10 +34,10 @@ public class TableFactory {
     }
 	
 	public CorrectorInformationTable getCorrectorInformationTable() throws IOException {
-        if (correctorInformationTable==null) {
+        //if (correctorInformationTable==null) {
         	correctorInformationTable = new CorrectorInformationTable(this);
         	correctorInformationTable.build();
-        }
+        //}
         return correctorInformationTable;
     }   
 	
