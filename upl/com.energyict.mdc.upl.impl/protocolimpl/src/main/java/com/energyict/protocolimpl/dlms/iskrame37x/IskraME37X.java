@@ -22,6 +22,7 @@ import com.energyict.cbo.*;
 import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.*;
+import com.energyict.dlms.client.ParseUtils;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -613,8 +614,10 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
         				demandScalerUnits[0] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),
         						scalerRegister.getQuantity().getUnit());
         				ChannelInfo ci = new ChannelInfo(channelId, "IskraME37x_channel_"+channelId, demandScalerUnits[0].getUnit());
-        				ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
-    	                profileData.addChannel(ci);
+        				if(ParseUtils.isObisCodeCumulative(capturedObjects.getProfileDataChannel(channelId))){
+        					ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
+        				}
+        				profileData.addChannel(ci);
             	}
             	
         		else if ( bytesToObisString(capturedObjects.getProfileDataChannel(channelId).getLN()).indexOf("0.1.128.50.0.255") == 0 ){
