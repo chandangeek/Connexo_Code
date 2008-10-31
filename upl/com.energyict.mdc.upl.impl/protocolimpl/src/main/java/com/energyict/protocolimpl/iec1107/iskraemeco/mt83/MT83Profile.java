@@ -1,5 +1,5 @@
 /*
- * MT83Profile.java
+ * IskraEmecoProfile.java
  *
  * Created on 12 mei 2003, 15:00
  */
@@ -12,10 +12,7 @@ import com.energyict.cbo.*;
 import java.math.*;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.register.*;
-import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.profile.*;
-
-import com.energyict.protocolimpl.iec1107.vdew.VDEWLogbook;
+import com.energyict.protocolimpl.iec1107.vdew.*;
 
 /**
  *
@@ -24,13 +21,13 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWLogbook;
  * KV 17022004 extended with MeterExceptionInfo
  * KV 17022004 bugfix, logcodes hex
  */
-public class MT83Profile extends AbstractMT83Profile {
+public class MT83Profile extends VDEWProfile {
     
     private static final int DEBUG=0;
     
-    /** Creates a new instance of MT83Profile */
-    public MT83Profile(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink, AbstractMT83Registry AbstractMT83Registry) {
-        super(meterExceptionInfo,protocolLink,AbstractMT83Registry);
+    /** Creates a new instance of IskraEmecoProfile */
+    public MT83Profile(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink, AbstractVDEWRegistry abstractVDEWRegistry) {
+        super(meterExceptionInfo,protocolLink,abstractVDEWRegistry);
     }
     
     public ProfileData getProfileData(Calendar fromCalendar, Calendar toCalendar, int nrOfChannels, int profileId, boolean includeEvents, boolean readCurrentDay) throws IOException {
@@ -237,7 +234,7 @@ public class MT83Profile extends AbstractMT83Profile {
             calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
             profileData = new ProfileData();
             for (t=0;t<nrOfChannels;t++) {
-                ChannelInfo chi = new ChannelInfo(t,"MT83_channel_"+t,Unit.get(""));
+                ChannelInfo chi = new ChannelInfo(t,"iskraEmeco_channel_"+t,Unit.get(""));
                 Channel channel = getProtocolLink().getChannelMap().getChannel(t);
                 if (channel.isCumul()) {
                    chi.setCumulativeWrapValue(channel.getWrapAroundValue());
@@ -345,4 +342,4 @@ public class MT83Profile extends AbstractMT83Profile {
         }
     }
     
-} // MT83Profile
+} // IskraEmecoProfile

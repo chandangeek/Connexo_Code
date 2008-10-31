@@ -4,7 +4,7 @@
  * Created on 8 mei 2003, 18:12
  */
 
-package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.register;
+package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;
 
 import java.io.*;
 import java.util.*;
@@ -12,14 +12,12 @@ import com.energyict.cbo.*;
 import java.math.*;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.vdew.DateValuePair;
-
 
 /**
  *
  * @author  Koen
  */
-abstract public class MT83RegisterDataParse {
+abstract public class VDEWRegisterDataParse {
     
     static public final int MODE_WINTERTIME=0;
     static public final int MODE_SUMMERTIME=1;
@@ -50,7 +48,7 @@ abstract public class MT83RegisterDataParse {
     abstract protected int getLength();
     
     /** Creates a new instance of VDEWRegisterDataParse */
-    public MT83RegisterDataParse() {
+    public VDEWRegisterDataParse() {
     }
     
     // ********************************* build data to set ***********************************

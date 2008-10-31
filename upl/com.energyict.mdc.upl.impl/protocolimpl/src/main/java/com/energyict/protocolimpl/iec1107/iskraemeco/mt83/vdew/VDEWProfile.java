@@ -4,7 +4,7 @@
  * Created on 12 mei 2003, 9:55
  */
 
-package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.profile;
+package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;
 
 import java.io.*;
 import java.util.*;
@@ -12,38 +12,32 @@ import com.energyict.cbo.*;
 import java.math.*;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.register.*;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.base.ParseUtils;
-
-import com.energyict.protocolimpl.iec1107.vdew.VDEWProfileHeader;
-import com.energyict.protocolimpl.iec1107.vdew.VDEWException;
-import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
-
 /**
  *
  * @author  Koen
  * changes:
  * KV 17022004 extended with MeterExceptionInfo
  */
-abstract public class AbstractMT83Profile { 
+abstract public class VDEWProfile { 
     
     private static final int DEBUG=0;
     
     private ProtocolLink protocolLink=null;
-    private AbstractMT83Registry abstractMT83Registry=null;
+    private AbstractVDEWRegistry abstractVDEWRegistry=null;
     private VDEWProfileHeader vdewProfileHeader=null;
     private MeterExceptionInfo meterExceptionInfo=null; // KV 17022004
     private boolean keepStatus;
     
     /** Creates a new instance of VDEWProfile */
-    public AbstractMT83Profile(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink,AbstractMT83Registry abstractMT83Registry) {
-        this(meterExceptionInfo, protocolLink, abstractMT83Registry, true);
+    public VDEWProfile(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink,AbstractVDEWRegistry abstractVDEWRegistry) {
+        this(meterExceptionInfo, protocolLink, abstractVDEWRegistry, true);
     }
-    public AbstractMT83Profile(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink,AbstractMT83Registry abstractMT83Registry, boolean keepStatus) {
+    public VDEWProfile(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink,AbstractVDEWRegistry abstractVDEWRegistry, boolean keepStatus) {
         this.protocolLink = protocolLink;
         this.meterExceptionInfo=meterExceptionInfo;
-        this.abstractMT83Registry = abstractMT83Registry;
+        this.abstractVDEWRegistry = abstractVDEWRegistry;
         this.keepStatus = keepStatus;
     }
     
@@ -83,7 +77,7 @@ abstract public class AbstractMT83Profile {
         try {
             protocolLink.getFlagIEC1107Connection().sendRawCommandFrame(FlagIEC1107Connection.READ6,data);
             byte[] rawprofile = protocolLink.getFlagIEC1107Connection().receiveRawData();
-            abstractMT83Registry.validateData(rawprofile);
+            abstractVDEWRegistry.validateData(rawprofile);
             return rawprofile;
         }
         catch(FlagIEC1107ConnectionException e) {
@@ -636,8 +630,8 @@ abstract public class AbstractMT83Profile {
     /***************************************************************
      ******************** GETTER & SETTER METHODS ******************
      ***************************************************************/
-    protected AbstractMT83Registry getAbstractMT83Registry() {
-        return abstractMT83Registry;   
+    protected AbstractVDEWRegistry getAbstractVDEWRegistry() {
+        return abstractVDEWRegistry;   
     }
     
     protected ProtocolLink getProtocolLink() {
