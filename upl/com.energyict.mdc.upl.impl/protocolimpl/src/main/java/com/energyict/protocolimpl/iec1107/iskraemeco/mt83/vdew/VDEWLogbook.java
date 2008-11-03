@@ -71,7 +71,7 @@ public class VDEWLogbook {
             if (DEBUG>=1) System.out.println(str);
             if (str.indexOf("ER") != -1) {
                if (getMeterExceptionInfo() != null) {
-                  String exceptionId = str.substring(str.indexOf("ER"),str.indexOf("ER")+4);
+                  String exceptionId = "ER" + str.substring(str.indexOf("ER") + 3,str.indexOf("ER")+5);
                   throw new FlagIEC1107ConnectionException("VDEWLogbook, readRawLogbookData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(exceptionId));                    
                }
                else throw new FlagIEC1107ConnectionException("VDEWLogbook, readRawLogbookData, error received ("+str+")");

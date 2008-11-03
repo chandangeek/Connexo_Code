@@ -103,7 +103,13 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     
     
     private ProfileData doGetProfileData(Calendar fromCalendar,Calendar toCalendar,boolean includeEvents) throws IOException {
-        return getIskraEmecoProfile().getProfileData(fromCalendar,toCalendar,getNumberOfChannels(),1,includeEvents,isReadCurrentDay());
+		ProfileData mt83profile = getIskraEmecoProfile().getProfileData(fromCalendar,
+				toCalendar, getNumberOfChannels(), 1, includeEvents,
+				isReadCurrentDay());
+		
+		mt83profile.applyEvents(getProfileInterval()/60);
+		
+		return mt83profile;
     }
     
     // Only for debugging
@@ -479,12 +485,17 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         return readCurrentDay==1;
     }
     
-    public void sendDebug(String message, int debuglvl) {
-    	if ((debuglvl > 0) && (DEBUG > 0 )) {
+    private void sendDebug(String message, int debuglvl) {
     		Logger log = getLogger();
+    		sendDebug(message, debuglvl, log);
+    }
+
+    public static void sendDebug(String message, int debuglvl, Logger log) {
+    	if ((debuglvl > 0) && (DEBUG > 0 )) {
     		message = " ##### DEBUG [" + new Date().toString() + "] ######## > " + message;
     		System.out.println(message);
     		if (log != null) log.info(message);
     	}
     }
+
 } // public class IskraEmeco implements MeterProtocol {
