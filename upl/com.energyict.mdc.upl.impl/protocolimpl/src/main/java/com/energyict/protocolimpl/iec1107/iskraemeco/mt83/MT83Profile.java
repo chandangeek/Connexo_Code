@@ -263,7 +263,7 @@ public class MT83Profile extends VDEWProfile {
                     i=gotoNextOpenBracket(responseData,i+1);
                     bNROfValues = ProtocolUtils.bcd2nibble(responseData,i+1);
                     if (bNROfValues > nrOfChannels)
-                        throw new IOException("buildProfileData() error, mismatch between nrOfChannels and profile columns! Adjust the ChannelMap!");
+                        throw new IOException("buildProfileData() error, mismatch between nrOfChannels (" + nrOfChannels + ") and profile columns (" + bNROfValues + ")! Adjust the ChannelMap!");
                     
                     List channels=new ArrayList();
                     for (t=0;t<bNROfValues;t++) {
