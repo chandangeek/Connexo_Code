@@ -9,8 +9,6 @@ package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;
 import java.io.*;
 import java.util.*;
 import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
 import com.energyict.protocolimpl.iec1107.*;
 
 /**
@@ -232,7 +230,9 @@ public class VDEWRegister extends VDEWRegisterDataParse {
                     abstractVDEWRegistry.validateData(data);
                 }
                 else {
-                    data = getProtocolLink().getFlagIEC1107Connection().receiveData();
+                    data = getProtocolLink().getFlagIEC1107Connection().receiveRawData();
+                    abstractVDEWRegistry.validateData(data);
+                    data = getProtocolLink().getFlagIEC1107Connection().parseDataBetweenBrackets(data);
                     abstractVDEWRegistry.validateData(data);
                 }
                 ba.write(data);

@@ -37,7 +37,7 @@ abstract public class VDEWRegisterDataParse {
     public final static int VDEW_DATE_VALUE_PAIR=11; // DateValuePair (XXXXX...)(YYMMDDHHMM)
     public final static int VDEW_GMTDATESTRING=12; // write
     public final static int VDEW_GMTTIMESTRING=13; // write
-    public final static int VDEW_DATE_TIME=14; // YYMMDDHHMMSS
+    public final static int VDEW_DATETIME=14; // YYMMDDHHMMSS
     
     
     abstract protected Unit getUnit();
@@ -72,7 +72,7 @@ abstract public class VDEWRegisterDataParse {
             case VDEW_DATE_S_TIME:
                 return buildDateSTime((Date)object);
                 
-            case VDEW_DATE_TIME:
+            case VDEW_DATETIME:
                 return buildDateTime((Date)object);
                 
             case VDEW_TIMEDATE_FERRANTI:
@@ -206,6 +206,9 @@ abstract public class VDEWRegisterDataParse {
                 case VDEW_DATE_VALUE_PAIR:
                     return parseDateValuePair(data);
                     
+                case VDEW_DATETIME:
+                    return parseDateTimeYYMMDDHHMMSS(data);
+
                 default:
                     throw new IOException("VDEWRegisterDataParse, parse , unknown type "+getType());
             }
@@ -313,6 +316,20 @@ abstract public class VDEWRegisterDataParse {
         calendar.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex(data[2]));
         calendar.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(data[3]));
         calendar.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[4]));
+        return calendar.getTime();
+    }
+    
+    
+    private Date parseDateTimeYYMMDDHHMMSS(byte[] rawdata) throws IOException {
+        byte[] data = ProtocolUtils.convert2ascii(rawdata);
+        Calendar calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
+        calendar.clear();
+        calendar.set(Calendar.YEAR,ProtocolUtils.BCD2hex(data[0])+2000);
+        calendar.set(Calendar.MONTH,ProtocolUtils.BCD2hex(data[1])-1);
+        calendar.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex(data[2]));
+        calendar.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(data[3]));
+        calendar.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[4]));
+        calendar.set(Calendar.SECOND,ProtocolUtils.BCD2hex(data[5]));
         return calendar.getTime();
     }
     

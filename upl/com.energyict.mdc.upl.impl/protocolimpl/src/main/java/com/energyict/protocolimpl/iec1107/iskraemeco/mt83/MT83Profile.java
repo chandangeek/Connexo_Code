@@ -12,7 +12,7 @@ import com.energyict.cbo.*;
 import java.math.*;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.vdew.*;
+import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.*;
 
 /**
  *

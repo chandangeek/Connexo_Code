@@ -47,7 +47,7 @@ KV|30032005|Handle StringOutOfBoundException in IEC1107 connection layer
  */
 public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExceptionInfo, RegisterProtocol {
     
-    private static final byte DEBUG=0;
+    private static final byte DEBUG=1;
     
     private static final String[] ISKRAEMECO_METERREADINGS_DEFAULT = {"Total Energy A+","Total Energy R1","Total Energy R4"};
     
@@ -146,12 +146,14 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);
         Date date = calendar.getTime();
-        getIskraEmecoRegistry().setRegister("TimeDateWrite",date);
+        getIskraEmecoRegistry().setRegister(MT83Registry.TIME_AND_DATE_READWRITE,date);
         //getIskraEmecoRegistry().setRegister("0.9.2",date);
     } // public void setTime() throws IOException
     
     public Date getTime() throws IOException {
-        Date date =  (Date)getIskraEmecoRegistry().getRegister("TimeDateReadOnly");
+        Date date =  (Date)getIskraEmecoRegistry().getRegister(MT83Registry.TIME_AND_DATE_READONLY);
+        sendDebug("getTime() Local time: " + new Date() + " GMT: " + new Date().toGMTString() + " TimeZone: " + getTimeZone().getID(), DEBUG);
+        sendDebug("getTime() result: METER: " + date.toString() + " GMT: " + date.toGMTString() + " METER-ROUNDTRIP: " + new Date(date.getTime()-iRoundtripCorrection).toString(), DEBUG);
         return new Date(date.getTime()-iRoundtripCorrection);
     }
     
@@ -269,7 +271,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     
     public String getFirmwareVersion() throws IOException,UnsupportedException {
         try {
-            return((String)getIskraEmecoRegistry().getRegister("software revision number"));
+            return((String)getIskraEmecoRegistry().getRegister(MT83Registry.SOFTWARE_REVISION));
         }
         catch(IOException e) {
             throw new IOException("IskraEmeco, getFirmwareVersion, "+e.getMessage());
@@ -287,6 +289,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         this.logger = logger;
         try {
             flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible);
+            flagIEC1107Connection.setErrorSignature("ER");
             iskraEmecoRegistry = new MT83Registry(this,this);
             iskraEmecoProfile = new MT83Profile(this,this,iskraEmecoRegistry);
         }
@@ -324,7 +327,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     private void validateSerialNumber() throws IOException {
         boolean check = true;
         if ((serialNumber == null) || ("".compareTo(serialNumber)==0)) return;
-        String sn = (String)getIskraEmecoRegistry().getRegister("meter serial number");
+        String sn = (String)getIskraEmecoRegistry().getRegister(MT83Registry.SERIAL);
         if (sn.compareTo(serialNumber) == 0) return;
         throw new IOException("SerialNiumber mismatch! meter sn="+sn+", configured sn="+serialNumber);
     }
@@ -344,7 +347,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     }
     
     public int getProfileInterval() throws UnsupportedException, IOException {
-        Object obj = getIskraEmecoRegistry().getRegister("Profile Interval");
+        Object obj = getIskraEmecoRegistry().getRegister(MT83Registry.PROFILE_INTERVAL);
         if (obj == null)
             return iProfileInterval;
         else
@@ -427,47 +430,18 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     // KV 17022004 implementation of MeterExceptionInfo
     static Map exceptionInfoMap = new HashMap();
     static {
-           exceptionInfoMap.put("ER01","Unknown command");
-           exceptionInfoMap.put("ER02","Invalid command");
-           exceptionInfoMap.put("ER03","Command format failure");
-           exceptionInfoMap.put("ER04","Read-only code");
-           exceptionInfoMap.put("ER05","Write-only code");
-           exceptionInfoMap.put("ER06","Command => no R/W allowed");
-           exceptionInfoMap.put("ER07","Access denied");
-           exceptionInfoMap.put("ER08","Non R3 variable");
-           exceptionInfoMap.put("ER09","Variable is not command");
-           exceptionInfoMap.put("ER10","Command not executed");
-           exceptionInfoMap.put("ER11","Code format error");
-           exceptionInfoMap.put("ER12","Non data-read-out variable");
-           exceptionInfoMap.put("ER13","Variable without unit");
-           exceptionInfoMap.put("ER14","Wrong previous values index");
-           exceptionInfoMap.put("ER15","Code without offset");
-           exceptionInfoMap.put("ER16","Wrong offset or number of elements");
-           exceptionInfoMap.put("ER17","No value for write");
-           exceptionInfoMap.put("ER18","Array index too high");
-           exceptionInfoMap.put("ER19","Wrong offset format or field length");
-           exceptionInfoMap.put("ER20","No response from master");
-           exceptionInfoMap.put("ER21","Invalid character in R3 blocks");
-           exceptionInfoMap.put("ER22","Variable without previous values");
-           exceptionInfoMap.put("ER23","Code does not exist");
-           exceptionInfoMap.put("ER24","Invalid variable subtag");
-           exceptionInfoMap.put("ER25","Non-existing register");
-           exceptionInfoMap.put("ER26","EE write failure");
-           exceptionInfoMap.put("ER27","Invalid value");
-           exceptionInfoMap.put("ER28","Invalid time");
-           exceptionInfoMap.put("ER29","Previous value not valid");
-           exceptionInfoMap.put("ER30","Previous value empty");
-           exceptionInfoMap.put("ER36","MD reset lockout active - comm.");
-           exceptionInfoMap.put("ER37","Load profile value not valid");
-           exceptionInfoMap.put("ER38","Load profile is empty (no values)");
-           exceptionInfoMap.put("ER39","No load profile function in the meter");
-           exceptionInfoMap.put("ER40","Non-existing channel of load profile");
-           exceptionInfoMap.put("ER41","Load profile start time > end time");
-           exceptionInfoMap.put("ER43","Error in time format");
-           exceptionInfoMap.put("ER44","Invalid data-read-out");
-           exceptionInfoMap.put("ER47","Meter not in auto-scroll mode");
-           exceptionInfoMap.put("ER49","Error on cumulative maximum");
-           exceptionInfoMap.put("ER53","Non R5 variable");
+           exceptionInfoMap.put("ER01","IEC1107_ERROR_NOTFOUND");
+           exceptionInfoMap.put("ER02","IEC1107_NOTIMPLEMENTED");
+           exceptionInfoMap.put("ER03","IEC1107_BADPARAMETER");
+           exceptionInfoMap.put("ER04","IEC1107_BADINDEX");
+           exceptionInfoMap.put("ER05","IEC1107_BADVALUE");
+           exceptionInfoMap.put("ER06","IEC1107_BADCOMMAND");
+           exceptionInfoMap.put("ER07","IEC1107_NOTAUTHORISED");
+           exceptionInfoMap.put("ER08","IEC1107_NODATA");
+           exceptionInfoMap.put("ER09","IEC1107_NORESOURCE");
+           exceptionInfoMap.put("ER10","IEC1107_DEVICEERROR");
+           exceptionInfoMap.put("ER11","IEC1107_BADADDRESS");
+           exceptionInfoMap.put("ER12","IEC1107_UNKNOWN");
     }
 
     public String getExceptionInfo(String id) {
@@ -503,5 +477,14 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     
     public boolean isReadCurrentDay() {
         return readCurrentDay==1;
-    }    
+    }
+    
+    public void sendDebug(String message, int debuglvl) {
+    	if ((debuglvl > 0) && (DEBUG > 0 )) {
+    		Logger log = getLogger();
+    		message = " ##### DEBUG [" + new Date().toString() + "] ######## > " + message;
+    		System.out.println(message);
+    		if (log != null) log.info(message);
+    	}
+    }
 } // public class IskraEmeco implements MeterProtocol {

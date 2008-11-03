@@ -185,46 +185,14 @@ public abstract class AbstractVDEWRegistry {
     }
     
     public void validateData(String str) throws IOException {
-        // Pure VDEW
-        if (str.indexOf("(ERROR)") != -1) {
-            if (getMeterExceptionInfo() != null) {
-               str=ProtocolUtils.stripBrackets(str);
-               throw new VDEWException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(str));                    
-            }
-            else throw new VDEWException("AbstractVDEWRegister, validateData, error received ("+str+")");
-        }
-        // Pure VDEW
-        else if ((str.indexOf("ERROR") != -1) && ((str.indexOf("ERROR")+"ERROR".length()) == str.length()))  {
-            if (getMeterExceptionInfo() != null) {
-               str=ProtocolUtils.stripBrackets(str);
-               throw new VDEWException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(str));                    
-            }
-            else throw new VDEWException("AbstractVDEWRegister, validateData, error received ("+str+")");
-        }
-        // Ferranti protocol
-        else if (str.indexOf("#") != -1) {
-            if (getMeterExceptionInfo() != null) {
-               str=ProtocolUtils.stripBrackets(str);
-               throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(str));                    
-            }
-            else throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+")");
-        }
-        // A1500 protocol
-        else if (str.indexOf("ERROR") != -1) {
-            if (getMeterExceptionInfo() != null)
-               throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(str));                    
-            else 
-               throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+")");
-        }
-        // Iskra EMECO protocol
-        else if (str.indexOf("ER") != -1) {
-            if (getMeterExceptionInfo() != null) {
-               String exceptionId = str.substring(str.indexOf("ER"),str.indexOf("ER")+4);
-               throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(exceptionId));                    
-            }
-            else throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+")");
-        }
-        
+    	// Iskra EMECO protocol
+    	if (str.indexOf("ER") != -1) {
+    		if (getMeterExceptionInfo() != null) {
+    			String exceptionId = "ER" + str.substring(str.indexOf("ER") + 3,str.indexOf("ER")+5);
+    			throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(exceptionId));                    
+    		}
+    		else throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+")");
+    	}
     }    
     
     /**
