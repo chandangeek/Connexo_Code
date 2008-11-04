@@ -87,6 +87,34 @@ public class ABBA230DataIdentity {
         }
         return dataBlocks[set];
     }
+    /** Read this DataIdentity
+     * @param cached 
+     * @param dataLength 
+     * @param set index to start the reading from 
+     * @throws com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException 
+     * @throws java.io.IOException 
+     * @return 
+     */
+    byte[] read2(boolean cached,int dataLength, int set) throws FlagIEC1107ConnectionException,IOException {
+        if ((!cached) || (dataBlocks[set] == null)) {
+            boolean useIec1107 = dataIdentityFactory.getProtocolLink().isIEC1107Compatible();
+            if( streameable && !useIec1107 ) {
+                int nr256Sets = ( (dataLength/256) + ( ( (dataLength%256) > 0 ) ? 1 : 0  ) ); 
+                int setLength = nr256Sets * 256;
+                int nrBlocks = nr256Sets * getSets();
+                
+                byte [] r = doReadRawRegisterStream( cached, nrBlocks );
+                for( int i = 0; i < getSets(); i ++ ) 
+                    dataBlocks[i] = ProtocolUtils.getSubArray2(r,setLength*i, getLength());
+            } else {
+                //if( dataId.equals( "543" ) )
+                //    System.out.println("read( " + dataLength + " , " + set + " )" );
+                
+                dataBlocks[set] = doReadRawRegister2(dataLength,set);
+            }
+        }
+        return dataBlocks[set];
+    }
     
     /** Read register as Stream.
      * @param cached 
@@ -195,6 +223,46 @@ public class ABBA230DataIdentity {
         return dataBlock;
     }
     
+    private byte[] doReadRawRegister2(int dataLen,int set) throws FlagIEC1107ConnectionException,IOException {
+        byte[] dataBlock=null;
+        long timeout = System.currentTimeMillis() + AUTHENTICATE_REARM; // After 4,5 min, do authentication before continue! otherwise we can receive ERR5, password timeout!
+        if (dataLen <= 0) throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, doReadRawRegister, wrong dataLength ("+dataLen+")!");
+        ByteArrayOutputStream data = new ByteArrayOutputStream();
+        int packetid = ((dataLen/64) + ((dataLen%64)==0?0:1)) * set + 1; // calculate packetid
+        int dataLength=dataLen;
+        while (dataLength > 0) {
+            int len = ((dataLength/64)>0) ? 64: dataLength%64;
+            dataLength-=64;
+            StringBuffer strbuff = new StringBuffer();
+            strbuff.append(dataId);
+            strbuff.append(buildPacketID(packetid++,3));
+            strbuff.append('(');
+            strbuff.append(buildPacketID(len,2));
+            strbuff.append(')');
+            dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().sendRawCommandFrame(FlagIEC1107Connection.READ1,strbuff.toString().getBytes());
+            byte[] ba = dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().receiveData();
+            
+            
+            String str = new String(ba);
+            if (str.indexOf("ERR") != -1) {
+                String exceptionId = str.substring(str.indexOf("ERR"),str.indexOf("ERR")+4);
+                throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, doReadRawRegister, "+dataIdentityFactory.getMeterExceptionInfo().getExceptionInfo(exceptionId));
+            }
+            
+            if (ba.length != (len*2))
+                throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, doReadRawRegister, data length received ("+ba.length+") is different from data length requested ("+(len*2)+") !");
+            
+            data.write(ba);
+            
+            if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+                timeout = System.currentTimeMillis() + AUTHENTICATE_REARM; // arm again...
+                dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().authenticate();
+            }
+            
+        } // while (dataLength > 0)
+        dataBlock = ProtocolUtils.convert2ascii(data.toByteArray());
+        return dataBlock;
+    }    
     private String buildPacketID(int packetID,int length) {
         String str=Integer.toHexString(packetID);
         StringBuffer strbuff = new StringBuffer();

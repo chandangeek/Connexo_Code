@@ -21,11 +21,19 @@ public class EnergyTypeCode {
         list.add(new EnergyTypeCode(3,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),6,"reactive Q2"));  
         list.add(new EnergyTypeCode(4,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),7,"reactive Q3"));  
         list.add(new EnergyTypeCode(5,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),8,"reactive Q4"));  
-        list.add(new EnergyTypeCode(6,Unit.get(BaseUnit.VOLTAMPEREHOUR,-3),9,"import apparent"));  
-        list.add(new EnergyTypeCode(7,Unit.get(BaseUnit.VOLTAMPEREHOUR,-3),10,"export apparent"));  
+        list.add(new EnergyTypeCode(6,Unit.get(BaseUnit.VOLTAMPEREHOUR,-3),9,"apparent"));  
+        //list.add(new EnergyTypeCode(7,Unit.get(BaseUnit.VOLTAMPEREHOUR,-3),10,"export apparent"));  
+
+        list.add(new EnergyTypeCode(7,Unit.get(""),130,"reserved"));  
+        list.add(new EnergyTypeCode(8,Unit.get(""),131,"reserved"));  
+        list.add(new EnergyTypeCode(9,Unit.get(""),132,"reserved"));  
+        list.add(new EnergyTypeCode(0xA,Unit.get(""),133,"reserved"));  
+        list.add(new EnergyTypeCode(0xB,Unit.get(""),134,"reserved"));  
+        list.add(new EnergyTypeCode(0xC,Unit.get(""),135,"reserved"));  
+        list.add(new EnergyTypeCode(0xD,Unit.get(""),136,"reserved"));  
         
-        list.add(new EnergyTypeCode(14,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),3,"reactive import"));  
-        list.add(new EnergyTypeCode(15,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),4,"reactive export"));  
+        list.add(new EnergyTypeCode(0xE,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),3,"reactive import"));  
+        list.add(new EnergyTypeCode(0xF,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3),4,"reactive export"));  
     }
     
     int regSource;

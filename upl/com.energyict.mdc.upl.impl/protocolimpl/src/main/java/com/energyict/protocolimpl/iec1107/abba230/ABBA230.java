@@ -77,9 +77,11 @@ public class ABBA230 implements
         MeterProtocol, ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo,
         RegisterProtocol, MessageProtocol, EventMapper {
     
-    private static String CONNECT 			= "CONNECT";
-    private static String DISCONNECT 		= "DISCONNECT";
-    private static String TARIFFPROGRAM 		= "TARIFFPROGRAM";
+    private static String CONNECT 			= "Connect load";
+    private static String DISCONNECT 		= "Disconnect load";
+    private static String ARM 			= "Arm meter";
+    private static String TARIFFPROGRAM 		= "Upload Meter Scheme";
+    private static String FIRMWAREPROGRAM 		= "Upgrade Meter Firmware";
 	
 	
     final static long FORCE_DELAY = 300;
@@ -183,6 +185,10 @@ public class ABBA230 implements
             if (pSecurityLevel != 0) {
                 if ("".equals(pPassword)) {
                     String msg = "Password field is empty! correct first!";
+                    throw new InvalidPropertyException(msg);
+                }
+                if (pPassword==null) {
+                    String msg = "Password must be filled in!, correct first!";
                     throw new InvalidPropertyException(msg);
                 }
                 if (pPassword.length()!=8) {
@@ -380,7 +386,7 @@ public class ABBA230 implements
     }
     
     /* (non-Javadoc)
-     * @see com.energyict.protocol.MeterProtocol#getFirmwareVersion()
+     * @see com.energyict.protocol.MeterProtocol#getFirmwareVersion() 
      */
     public String getFirmwareVersion() throws IOException,UnsupportedException {
         String str="unknown";
@@ -391,18 +397,7 @@ public class ABBA230 implements
         return str;
     }
     
-    /* (non-Javadoc)
-     * @see com.energyict.protocol.MeterProtocol#setRegister(java.lang.String, java.lang.String)
-     */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
 
-//    	if (name.compareTo("TARIFFPROGRAM")==0) {
-//    		logger.info("setRegister "+name);
-//			TariffSaxParser o = new TariffSaxParser(rFactory.getABBA230DataIdentityFactory());
-//			o.start(value);
-//    	}
-    	
-    }
     
     /* (non-Javadoc)
      * @see com.energyict.protocol.MeterProtocol#release()
@@ -642,9 +637,82 @@ public class ABBA230 implements
     }
     
     /* (non-Javadoc)
+     * @see com.energyict.protocol.MeterProtocol#setRegister(java.lang.String, java.lang.String)
+     */
+    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+
+    	if (name.compareTo("FIRMWAREPROGRAM")==0) {
+    		
+    		
+        	ABBA230DataIdentity di = new ABBA230DataIdentity("002", 1, 1, false, rFactory.getABBA230DataIdentityFactory());
+        	di.writeRawRegister(1,"1");
+    		
+    		
+    		//logger.info("setRegister "+name);
+			//FirmwareSaxParser o = new FirmwareSaxParser(rFactory.getABBA230DataIdentityFactory());
+			//o.start("C:/Documents and Settings/kvds/My Documents/projecten/ESB/firmware.xml",true);
+    	}
+    	
+    }    
+    
+    private void blankCheck() throws IOException {
+    	ABBA230DataIdentity di = new ABBA230DataIdentity("002", 1, 1, false, rFactory.getABBA230DataIdentityFactory());
+    	for (int set=0;set<64;set++) {
+    		int retries = 0;
+    		while(true) {
+				try {
+		    		byte[] data = di.read(false,1,set);
+		    		if (data[0] == 0)
+		    			di.writeRawRegister(set,"1");
+		    		break;
+				} catch (FlagIEC1107ConnectionException e) {
+					if (retries++>=1)
+						throw e;
+					e.printStackTrace();
+				} catch (IOException e) {
+					if (retries++>=1)
+						throw e;
+					e.printStackTrace();
+				}
+    		}
+    	}
+    }
+    
+    private void programFirmware(String firmwareXMLData) {
+		FirmwareSaxParser o = new FirmwareSaxParser(rFactory.getABBA230DataIdentityFactory());
+		o.start(firmwareXMLData,false); 
+    }
+    
+    private void activate() throws IOException {
+    	ABBA230DataIdentity di = new ABBA230DataIdentity("005", 1, 1, false, rFactory.getABBA230DataIdentityFactory());
+    	int retries = 0;
+    	while(true) {
+	    	try {
+				di.writeRawRegister(0,"0");
+				break;
+			} catch (FlagIEC1107ConnectionException e) {
+				if (retries++>=1)
+					throw e;
+				e.printStackTrace();
+			} catch (IOException e) {
+				if (retries++>=1)
+					throw e;
+				e.printStackTrace();
+			}
+    	}
+    }
+    
+    /* (non-Javadoc)
      * @see com.energyict.protocol.MeterProtocol#getRegister(java.lang.String)
      */
     public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    	
+    	//rFactory.getRegister("BlankCheck");
+    	
+    	//byte[] data = rFactory.getABBA230DataIdentityFactory().getDataIdentity("002", false, 1, 0);
+    	
+//    	ABBA230DataIdentity di = new ABBA230DataIdentity("002", 1, 1, false, rFactory.getABBA230DataIdentityFactory());
+//    	byte[] data = di.read(false,1,0);
     	
 /*    	
     	long val = ((Long)rFactory.getRegister("ContactorStatus")).longValue();
@@ -795,9 +863,9 @@ public class ABBA230 implements
                     
                     obisCodeString = "1.1." + c  + ".6.0." + billingPoint[bpi];
                     obisCode = ObisCode.fromString( obisCodeString );
-                    System.out.println("obisCode " + obisCodeString );
+                    //System.out.println("obisCode " + obisCodeString );
                     obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));
-                    System.out.println("obisCodeInfo " + obisCodeInfo );
+                    //System.out.println("obisCodeInfo " + obisCodeInfo );
                     
                     rslt.append( " " + obisCodeString + ", " + obisCodeInfo +"\n");
                     if(  pExtendedLogging == 2 )
@@ -849,13 +917,16 @@ public class ABBA230 implements
         List theCategories = new ArrayList();
         MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
         
-        MessageSpec msgSpec = addBasicMsg("Disconnect meter", DISCONNECT, false);
+        MessageSpec msgSpec = addBasicMsg(DISCONNECT, DISCONNECT, false);
         cat.addMessageSpec(msgSpec);
         
-        msgSpec = addBasicMsg("Connect meter", CONNECT, false);
+        msgSpec = addBasicMsg(CONNECT, CONNECT, false);
         cat.addMessageSpec(msgSpec);
         
-        msgSpec = addBasicMsg("Program TOU tables", TARIFFPROGRAM, false);
+        msgSpec = addBasicMsg(TARIFFPROGRAM, TARIFFPROGRAM, false);
+        cat.addMessageSpec(msgSpec);
+        
+        msgSpec = addBasicMsg(FIRMWAREPROGRAM, FIRMWAREPROGRAM, true);
         cat.addMessageSpec(msgSpec);
         
         theCategories.add(cat);
@@ -967,25 +1038,40 @@ public class ABBA230 implements
 				logger.info("************************* DISCONNECT CONTACTOR *************************");
 		    	long val = ((Long)rFactory.getRegister("ContactorStatus")).longValue();
 		    	if (val == 0) {
-		    		
-		        	rFactory.setRegister("ContactorStatus",new byte[]{1});
+		        	rFactory.setRegister("ContactorStatus",new byte[]{1}); // open the contactor
 		    	}
 			}
 			else if (messageEntry.getContent().indexOf("<"+CONNECT)>=0) {
 				logger.info("************************* CONNECT CONTACTOR *************************");
 		    	long val = ((Long)rFactory.getRegister("ContactorStatus")).longValue();
 		    	if (val == 1) {
-		        	rFactory.setRegister("ContactorStatus",new byte[]{0});
-		        	rFactory.setRegister("ContactorCloser",new byte[]{0});
+		        	rFactory.setRegister("ContactorStatus",new byte[]{0}); // arm the contactor for closing
+		        	rFactory.setRegister("ContactorCloser",new byte[]{0}); // close the armed contactor
+		    	}
+			}
+			else if (messageEntry.getContent().indexOf("<"+ARM)>=0) {
+				logger.info("************************* ARM CONTACTOR *************************");
+		    	long val = ((Long)rFactory.getRegister("ContactorStatus")).longValue();
+		    	if (val == 1) {
+		        	rFactory.setRegister("ContactorStatus",new byte[]{0}); // arm the contactor for closing
 		    	}
 			}
 			else if (messageEntry.getContent().indexOf("<"+TARIFFPROGRAM)>=0) {
 				logger.info("************************* PROGRAM TARIFF *************************");
-				int start = messageEntry.getContent().indexOf("TARIFFPROGRAM")+"TARIFFPROGRAM".length()+1;
-				int end = messageEntry.getContent().lastIndexOf("TARIFFPROGRAM")-2;
+				int start = messageEntry.getContent().indexOf(TARIFFPROGRAM)+TARIFFPROGRAM.length()+1;
+				int end = messageEntry.getContent().lastIndexOf(TARIFFPROGRAM)-2;
 				String tariffXMLData = messageEntry.getContent().substring(start,end);
 				TariffSaxParser o = new TariffSaxParser(rFactory.getABBA230DataIdentityFactory());
 				o.start(tariffXMLData,false); // KV_TO_DO if we have the expanded content, no file reference...
+			}
+			else if (messageEntry.getContent().indexOf("<"+FIRMWAREPROGRAM)>=0) {
+				logger.info("************************* FIRMWARE UPGRADE *************************");
+				int start = messageEntry.getContent().indexOf(FIRMWAREPROGRAM)+FIRMWAREPROGRAM.length()+1;
+				int end = messageEntry.getContent().lastIndexOf(FIRMWAREPROGRAM)-2;
+				String firmwareXMLData = messageEntry.getContent().substring(start,end);
+				blankCheck();
+				programFirmware(firmwareXMLData);
+				activate();
 			}
 			return MessageResult.createSuccess(messageEntry);
 		}
@@ -993,6 +1079,8 @@ public class ABBA230 implements
 			return MessageResult.createFailed(messageEntry);
 		}
 	}
+	
+	
 	
 	
 }

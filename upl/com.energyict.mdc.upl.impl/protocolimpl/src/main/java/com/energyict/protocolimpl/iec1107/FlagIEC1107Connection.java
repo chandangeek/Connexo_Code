@@ -317,8 +317,10 @@ public class FlagIEC1107Connection extends Connection {
             catch (FlagIEC1107ConnectionException e) {
                 if (e.getReason() == SECURITYLEVEL_ERROR) // KV 06072004
                     throw e;
+                else if (e.getReason() == TIMEOUT_ERROR)  // KV 03112008
+                	throw new FlagIEC1107ConnectionException("Authentication response timeout after ("+iMaxRetries+") retries! Possibly wrong password!, "+e.getMessage());
                 else if (iRetries++ >=iMaxRetries)
-                    throw new FlagIEC1107ConnectionException("Authentication error! Possibly wrong password! (error iMaxRetries), "+e.getMessage());
+                    throw new FlagIEC1107ConnectionException("Authentication error after ("+iMaxRetries+") retries! Possibly wrong password!, "+e.getMessage());
                 else {
                     sendBreak();
                     delay(DELAY_AFTER_BREAK);
@@ -360,6 +362,8 @@ public class FlagIEC1107Connection extends Connection {
         catch (FlagIEC1107ConnectionException e) {
             if (e.getReason() == SECURITYLEVEL_ERROR) // KV 06072004
                 throw e;
+            else if (e.getReason() == TIMEOUT_ERROR) // KV 03112008
+            	throw e;
             else if (iRetries++ >=iMaxRetries)
                 throw new FlagIEC1107ConnectionException("Authentication error! Possibly wrong password! (error iMaxRetries), "+e.getMessage());
             else {

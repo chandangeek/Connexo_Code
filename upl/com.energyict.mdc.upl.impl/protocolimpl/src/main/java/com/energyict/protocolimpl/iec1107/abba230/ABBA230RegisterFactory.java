@@ -357,14 +357,14 @@ public class ABBA230RegisterFactory {
         timeOfUse5 = cr("508", "TimeOfUse5", ABBA230RegisterData.ABBA_REGISTER,40,8,null);
         timeOfUse6 = cr("508", "TimeOfUse6", ABBA230RegisterData.ABBA_REGISTER,48,8,null);
         timeOfUse7 = cr("508", "TimeOfUse7", ABBA230RegisterData.ABBA_REGISTER,56,8,null);
-        timeOfUse8 = cr("508", "TimeOfUse0", ABBA230RegisterData.ABBA_REGISTER,64,8,null);
-        timeOfUse9 = cr("508", "TimeOfUse1", ABBA230RegisterData.ABBA_REGISTER,72,8,null);
-        timeOfUse10 = cr("508", "TimeOfUse2", ABBA230RegisterData.ABBA_REGISTER,80,8,null);
-        timeOfUse11 = cr("508", "TimeOfUse3", ABBA230RegisterData.ABBA_REGISTER,88,8,null);
-        timeOfUse12 = cr("508", "TimeOfUse4", ABBA230RegisterData.ABBA_REGISTER,96,8,null);
-        timeOfUse13 = cr("508", "TimeOfUse5", ABBA230RegisterData.ABBA_REGISTER,104,8,null);
-        timeOfUse14 = cr("508", "TimeOfUse6", ABBA230RegisterData.ABBA_REGISTER,112,8,null);
-        timeOfUse15 = cr("508", "TimeOfUse7", ABBA230RegisterData.ABBA_REGISTER,120,8,null);
+        timeOfUse8 = cr("508", "TimeOfUse8", ABBA230RegisterData.ABBA_REGISTER,64,8,null);
+        timeOfUse9 = cr("508", "TimeOfUse9", ABBA230RegisterData.ABBA_REGISTER,72,8,null);
+        timeOfUse10 = cr("508", "TimeOfUse10", ABBA230RegisterData.ABBA_REGISTER,80,8,null);
+        timeOfUse11 = cr("508", "TimeOfUse11", ABBA230RegisterData.ABBA_REGISTER,88,8,null);
+        timeOfUse12 = cr("508", "TimeOfUse12", ABBA230RegisterData.ABBA_REGISTER,96,8,null);
+        timeOfUse13 = cr("508", "TimeOfUse13", ABBA230RegisterData.ABBA_REGISTER,104,8,null);
+        timeOfUse14 = cr("508", "TimeOfUse14", ABBA230RegisterData.ABBA_REGISTER,112,8,null);
+        timeOfUse15 = cr("508", "TimeOfUse15", ABBA230RegisterData.ABBA_REGISTER,120,8,null);
         
         cummulativeMaximumDemand = cr("509", "CummulativeMaximumDemand", ABBA230RegisterData.ABBA_BYTEARRAY,0,-1, null );
         cumulativeMaximumDemand0 = cr("509","CumulativeMaximumDemand0", ABBA230RegisterData.ABBA_CMD,0,9,null);
@@ -437,8 +437,7 @@ public class ABBA230RegisterFactory {
         contactorStatus = cr("411", "ContactorStatus", ABBA230RegisterData.ABBA_HEX,0,1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
         contactorCloser = cr("412", "ContactorCloser", ABBA230RegisterData.ABBA_HEX,0,1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
         
-        loadProfileDSTConfig = cr("778", "LoadProfileDSTConfig", ABBA230RegisterData.ABBA_HEX,0,1, null);        
-        
+        loadProfileDSTConfig = cr("778", "LoadProfileDSTConfig", ABBA230RegisterData.ABBA_HEX,0,1, null);
     }
     
     /** factory method for ABBARegisters */

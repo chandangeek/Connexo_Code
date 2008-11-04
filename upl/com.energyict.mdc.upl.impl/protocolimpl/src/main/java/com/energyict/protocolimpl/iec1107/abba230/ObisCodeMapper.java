@@ -240,7 +240,7 @@ public class ObisCodeMapper {
             
             if (read) {
                 // fbl: bugfix 9/10/2006 extra check on e field.
-                if( obisCode.getE() > 8 ){
+                if( obisCode.getE() > 16 ){
                     String msg = "ObisCode "+obisCode.toString()+" is not supported!";
                     throw new NoSuchRegisterException(msg);
                 }
