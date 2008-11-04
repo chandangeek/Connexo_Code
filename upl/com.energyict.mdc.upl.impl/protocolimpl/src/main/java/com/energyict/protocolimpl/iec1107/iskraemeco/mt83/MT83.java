@@ -272,7 +272,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.21 $";
+        return "$Revision: 1.0 $";
     }
     
     public String getFirmwareVersion() throws IOException,UnsupportedException {

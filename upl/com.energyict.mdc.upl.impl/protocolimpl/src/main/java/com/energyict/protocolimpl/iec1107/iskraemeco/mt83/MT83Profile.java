@@ -274,7 +274,7 @@ public class MT83Profile extends VDEWProfile {
                     calendar = parseDateTime(responseData,i+1);
                     i=gotoNextOpenBracket(responseData,i+1);
                     status = Integer.parseInt(parseFindString(responseData,i),16);
-                    //eiStatus = parseStatus2IntervalStatus(status);
+                    eiStatus = MT83CodeMapper.mapInterval2EiStatus(status);
                     
                     MT83.sendDebug("Status: " + status + " EIStatus: " + eiStatus, DEBUG, getProtocolLink().getLogger());                    
                     
@@ -352,15 +352,19 @@ public class MT83Profile extends VDEWProfile {
                 i=gotoNextOpenBracket(logBook,i);
                 i++;
                 status = Integer.parseInt(parseFindString(logBook,i-1),16);
-                eventtype = (MT83EventType)MT83LogbookCodeMapper.LogBookEvent.get(status);
+                eventtype = (MT83EventType)MT83CodeMapper.LogBookEvent.get(status);
                 if (eventtype == null) eventtype = new MT83EventType("Unknown event", MeterEvent.OTHER);
 
-				profileData.addEvent(new MeterEvent(new Date(
+                profileData.addEvent(new MeterEvent(new Date(
 						((Calendar) calendar.clone()).getTime().getTime()),
 						eventtype.getEventCode(),
 						status & 0xFFFF, 
 						eventtype.getMessage()));
             } // while(true) {
+            
+            // Check on duplicate event dates/time. Commserver overwrites events with the same timestamp.
+            profileData.setMeterEvents(ProtocolUtils.checkOnOverlappingEvents(profileData.getMeterEvents()));
+            
         }
         catch(IOException e) {
             throw new IOException("addLogbookEvents> "+e.getMessage());

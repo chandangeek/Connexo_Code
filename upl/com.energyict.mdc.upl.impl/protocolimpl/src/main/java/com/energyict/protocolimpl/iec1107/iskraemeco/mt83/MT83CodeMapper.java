@@ -5,7 +5,7 @@ import java.util.*;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 
-public final class MT83LogbookCodeMapper {
+public final class MT83CodeMapper {
 	public static Map LogBookEvent = new HashMap();
 
 	static {
@@ -122,6 +122,48 @@ public final class MT83LogbookCodeMapper {
 		// but the meter uses them in the logfiles !!! Mapped to the MT173 logbook events.
 		LogBookEvent.put(0x0010, new MT83EventType("Billing reset", 0)); 
 	
+	}
+	
+	public static final int STATUS_ERROR = 0x01;
+	public static final int STATUS_RTC_BATTERY_DISCHARGED = 0x02;
+	public static final int STATUS_INVALID_CHECKSUM = 0x04;
+	public static final int STATUS_DST_SEASON_CHANGE = 0x08;
+	public static final int STATUS_MASTER_DEVICE_RESET = 0x10;
+	public static final int STATUS_RTC_SET = 0x20;
+	public static final int STATUS_POWER_UP = 0x40;
+	public static final int STATUS_POWER_DOWN = 0x80;
+	
+	public static int mapInterval2EiStatus(int statuscode) {
+		int eistatus = 0;
+		
+		if ((statuscode & STATUS_ERROR) != 0) {
+			eistatus |= IntervalData.DEVICE_ERROR; 
+		}
+		if ((statuscode & STATUS_RTC_BATTERY_DISCHARGED) != 0) {
+			eistatus |= IntervalData.BATTERY_LOW; 
+		}
+		if ((statuscode & STATUS_INVALID_CHECKSUM) != 0) {
+			eistatus |= IntervalData.CORRUPTED; 
+		}
+		if ((statuscode & STATUS_DST_SEASON_CHANGE) != 0) {
+			eistatus |= IntervalData.CONFIGURATIONCHANGE; 
+			eistatus |= IntervalData.SHORTLONG; 
+		}
+		if ((statuscode & STATUS_MASTER_DEVICE_RESET) != 0) {
+			eistatus |= IntervalData.OTHER; 
+		}
+		if ((statuscode & STATUS_RTC_SET) != 0) {
+			eistatus |= IntervalData.CONFIGURATIONCHANGE; 
+			eistatus |= IntervalData.SHORTLONG; 
+		}
+		if ((statuscode & STATUS_POWER_UP) != 0) {
+			eistatus |= IntervalData.SHORTLONG; 
+		}
+		if ((statuscode & STATUS_POWER_DOWN) != 0) {
+			eistatus |= IntervalData.SHORTLONG; 
+		}
+		
+		return eistatus;
 	}
 	
 }
