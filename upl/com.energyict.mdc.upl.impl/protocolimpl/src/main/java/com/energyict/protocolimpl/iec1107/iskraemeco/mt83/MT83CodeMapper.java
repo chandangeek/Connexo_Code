@@ -6,23 +6,51 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 
 public final class MT83CodeMapper {
+
+    public static Map exceptionInfoMap = new HashMap();
+    static {
+           exceptionInfoMap.put("ER01","IEC1107_ERROR_NOTFOUND");
+           exceptionInfoMap.put("ER02","IEC1107_NOTIMPLEMENTED");
+           exceptionInfoMap.put("ER03","IEC1107_BADPARAMETER");
+           exceptionInfoMap.put("ER04","IEC1107_BADINDEX");
+           exceptionInfoMap.put("ER05","IEC1107_BADVALUE");
+           exceptionInfoMap.put("ER06","IEC1107_BADCOMMAND");
+           exceptionInfoMap.put("ER07","IEC1107_NOTAUTHORISED");
+           exceptionInfoMap.put("ER08","IEC1107_NODATA");
+           exceptionInfoMap.put("ER09","IEC1107_NORESOURCE");
+           exceptionInfoMap.put("ER10","IEC1107_DEVICEERROR");
+           exceptionInfoMap.put("ER11","IEC1107_BADADDRESS");
+           exceptionInfoMap.put("ER12","IEC1107_UNKNOWN");
+    }
+
+	
 	public static Map LogBookEvent = new HashMap();
-
 	static {
-		LogBookEvent.put(0x0080, new MT83EventType("Power down", MeterEvent.POWERDOWN));
-		LogBookEvent.put(0x0040, new MT83EventType("Power up", MeterEvent.POWERUP));
 
-		LogBookEvent.put(0x8102, new MT83EventType("Voltage down phase L1", MeterEvent.PHASE_FAILURE ));
-		LogBookEvent.put(0x8103, new MT83EventType("Voltage down phase L2", MeterEvent.PHASE_FAILURE));
-		LogBookEvent.put(0x8104, new MT83EventType("Voltage down phase L3", MeterEvent.PHASE_FAILURE));
+
+		LogBookEvent.put(0x0001, new MT83EventType("Device disturbance", MeterEvent.HARDWARE_ERROR));
+		LogBookEvent.put(0x0008, new MT83EventType("DST", MeterEvent.CONFIGURATIONCHANGE));
+
+		LogBookEvent.put(0x0010, new MT83EventType("Billing reset", MeterEvent.BILLING_ACTION)); // NOT documented in MT83 specifications, but used by the meter.
+		
+		LogBookEvent.put(0x0020, new MT83EventType("RTC Set", MeterEvent.SETCLOCK));
+		LogBookEvent.put(0x0040, new MT83EventType("Power up", MeterEvent.POWERUP));
+		LogBookEvent.put(0x0080, new MT83EventType("Power down", MeterEvent.POWERDOWN));
+
+		LogBookEvent.put(0x2000, new MT83EventType("Log-Book erased", MeterEvent.CLEAR_DATA));
+		LogBookEvent.put(0x4000, new MT83EventType("Load-Profile erased", MeterEvent.CLEAR_DATA));
+		
+		LogBookEvent.put(0x8102, new MT83EventType("Voltage down phase L1", MeterEvent.POWERDOWN ));
+		LogBookEvent.put(0x8103, new MT83EventType("Voltage down phase L2", MeterEvent.POWERDOWN));
+		LogBookEvent.put(0x8104, new MT83EventType("Voltage down phase L3", MeterEvent.POWERDOWN));
 
 		LogBookEvent.put(0x8105, new MT83EventType("Under-voltage phase L1", MeterEvent.VOLTAGE_SAG));
 		LogBookEvent.put(0x8106, new MT83EventType("Under-voltage phase L2", MeterEvent.VOLTAGE_SAG));
 		LogBookEvent.put(0x8107, new MT83EventType("Under-voltage phase L3", MeterEvent.VOLTAGE_SAG));
 
-		LogBookEvent.put(0x8108, new MT83EventType("Voltage normal phase L1", MeterEvent.POWERUP));
-		LogBookEvent.put(0x8109, new MT83EventType("Voltage normal phase L2", MeterEvent.POWERUP));
-		LogBookEvent.put(0x810A, new MT83EventType("Voltage normal phase L3", MeterEvent.POWERUP));
+		LogBookEvent.put(0x8108, new MT83EventType("Voltage normal phase L1", MeterEvent.APPLICATION_ALERT_STOP));
+		LogBookEvent.put(0x8109, new MT83EventType("Voltage normal phase L2", MeterEvent.APPLICATION_ALERT_STOP));
+		LogBookEvent.put(0x810A, new MT83EventType("Voltage normal phase L3", MeterEvent.APPLICATION_ALERT_STOP));
 
 		LogBookEvent.put(0x810B, new MT83EventType("Over-voltage phase L1", MeterEvent.VOLTAGE_SWELL));
 		LogBookEvent.put(0x810C, new MT83EventType("Over-voltage phase L2", MeterEvent.VOLTAGE_SWELL));
@@ -32,13 +60,7 @@ public final class MT83CodeMapper {
 
 		LogBookEvent.put(0x810F, new MT83EventType("RTC sync start", MeterEvent.SETCLOCK_BEFORE));
 		LogBookEvent.put(0x8110, new MT83EventType("RTC sync end", MeterEvent.SETCLOCK_AFTER));
-		LogBookEvent.put(0x0020, new MT83EventType("RTC Set", MeterEvent.SETCLOCK));
-		LogBookEvent.put(0x0008, new MT83EventType("DST", MeterEvent.CONFIGURATIONCHANGE));
 		
-		LogBookEvent.put(0x2000, new MT83EventType("Log-Book erased", MeterEvent.CLEAR_DATA));
-		LogBookEvent.put(0x4000, new MT83EventType("Load-Profile erased", MeterEvent.CLEAR_DATA));
-
-		LogBookEvent.put(0x0001, new MT83EventType("Device disturbance", MeterEvent.HARDWARE_ERROR));
 		LogBookEvent.put(0x8117, new MT83EventType("Parameters changed", MeterEvent.CONFIGURATIONCHANGE));
 		LogBookEvent.put(0x8118, new MT83EventType("Watch dog", MeterEvent.WATCHDOGRESET));
 
@@ -117,11 +139,7 @@ public final class MT83CodeMapper {
 		LogBookEvent.put(0x8155, new MT83EventType("Current without Voltage L1 - end", MeterEvent.APPLICATION_ALERT_STOP));
 		LogBookEvent.put(0x8156, new MT83EventType("Current without Voltage L2 - end", MeterEvent.APPLICATION_ALERT_STOP));
 		LogBookEvent.put(0x8157, new MT83EventType("Current without Voltage L3 - end", MeterEvent.APPLICATION_ALERT_STOP));
-		
-		// The following logbook events are NOT documented in the MT83 specifications, 
-		// but the meter uses them in the logfiles !!! Mapped to the MT173 logbook events.
-		LogBookEvent.put(0x0010, new MT83EventType("Billing reset", 0)); 
-	
+			
 	}
 	
 	public static final int STATUS_ERROR = 0x01;

@@ -433,29 +433,14 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     public void release() throws IOException {
     }
     
-    // KV 17022004 implementation of MeterExceptionInfo
-    static Map exceptionInfoMap = new HashMap();
-    static {
-           exceptionInfoMap.put("ER01","IEC1107_ERROR_NOTFOUND");
-           exceptionInfoMap.put("ER02","IEC1107_NOTIMPLEMENTED");
-           exceptionInfoMap.put("ER03","IEC1107_BADPARAMETER");
-           exceptionInfoMap.put("ER04","IEC1107_BADINDEX");
-           exceptionInfoMap.put("ER05","IEC1107_BADVALUE");
-           exceptionInfoMap.put("ER06","IEC1107_BADCOMMAND");
-           exceptionInfoMap.put("ER07","IEC1107_NOTAUTHORISED");
-           exceptionInfoMap.put("ER08","IEC1107_NODATA");
-           exceptionInfoMap.put("ER09","IEC1107_NORESOURCE");
-           exceptionInfoMap.put("ER10","IEC1107_DEVICEERROR");
-           exceptionInfoMap.put("ER11","IEC1107_BADADDRESS");
-           exceptionInfoMap.put("ER12","IEC1107_UNKNOWN");
-    }
 
     public String getExceptionInfo(String id) {
-        String exceptionInfo = (String)exceptionInfoMap.get(id);
-        if (exceptionInfo != null)
-           return id+", "+exceptionInfo;
-        else
-           return "No meter specific exception info for "+id; 
+    	String exceptionInfo = (String) MT83CodeMapper.exceptionInfoMap.get(id);
+    	if (exceptionInfo != null)
+    		exceptionInfo = id + ", " + exceptionInfo;
+    	else
+    		exceptionInfo = "No meter specific exception info for " + id;
+    	return exceptionInfo;
     }
     
     public Logger getLogger() {
