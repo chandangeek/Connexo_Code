@@ -108,6 +108,14 @@ public class ABBA230DataIdentityFactory {
             throw new IOException("ABBA230DataIdentityFactory, setDataIdentity, "+e.getMessage());
         }
     }
+    void setDataIdentityHex(String dataID, int packet, String value) throws IOException {
+        try {
+            ABBA230DataIdentity rawRegister = new ABBA230DataIdentity(dataID,this);
+            rawRegister.writeRawRegisterHex(packet,value);
+        } catch(FlagIEC1107ConnectionException e) {
+            throw new IOException("ABBA230DataIdentityFactory, setDataIdentity, "+e.getMessage());
+        }
+    }
     
     private void initRegisters() {
         
@@ -132,8 +140,8 @@ public class ABBA230DataIdentityFactory {
         add("550", 0,ABBA230DataIdentity.STREAMEABLE);
         // Historical events 
 //        add("544", 5,  280,ABBA230DataIdentity.STREAMEABLE);
-        // Historical events 
-        add("545", 280,5,ABBA230DataIdentity.STREAMEABLE);
+//        // Historical events 
+//        add("545", 280,5,ABBA230DataIdentity.STREAMEABLE);
         // Meter current system status
         add("724", 4,ABBA230DataIdentity.NOT_STREAMEABLE);
         // (C)MD register sources
@@ -183,6 +191,7 @@ public class ABBA230DataIdentityFactory {
         
         add("701", 53,ABBA230DataIdentity.STREAMEABLE); // MeterErrorEventLog
         add("705", 43,ABBA230DataIdentity.STREAMEABLE); // BatteryVoltageLowEventLog
+        add("998", 12,2,ABBA230DataIdentity.STREAMEABLE); // BatteryVoltageLowEventLog
     }
     
     private void add(String id, int length, boolean streamable ){

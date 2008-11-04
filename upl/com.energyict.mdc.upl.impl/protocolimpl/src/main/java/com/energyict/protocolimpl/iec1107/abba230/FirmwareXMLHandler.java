@@ -37,16 +37,37 @@ public class FirmwareXMLHandler extends DefaultHandler {
 				System.out.print(attributes.getQName(i)+"="+attributes.getValue(i)+" ");
 		}
 		if (abba230DataIdentityFactory!=null) {
-			try {
-				if ((attributes.getLength()==3) && 
-					(attributes.getQName(0).compareTo("id")==0) &&
-					(attributes.getQName(1).compareTo("packet")==0) &&
-					(attributes.getQName(2).compareTo("data")==0)) {
-					abba230DataIdentityFactory.setDataIdentity(attributes.getValue(0), Integer.parseInt(attributes.getValue(1),16), attributes.getValue(2));
+			if ((attributes.getLength()==3) && 
+				(attributes.getQName(0).compareTo("id")==0) &&
+				(attributes.getQName(1).compareTo("packet")==0) &&
+				(attributes.getQName(2).compareTo("data")==0)) {
+				
+				int retry=0;
+				while(true) {
+					try {
+						abba230DataIdentityFactory.setDataIdentityHex(attributes.getValue(0), Integer.parseInt(attributes.getValue(1),16), attributes.getValue(2));
+						break;
+					}
+					catch(IOException e) {
+						if (e.getMessage().indexOf("ERR6")>=0) {
+							if (retry++>=2) {
+								throw new SAXException("Fail after 1 retry, ",e);
+							}
+							else {
+								try {
+									Thread.sleep(1000);
+								}
+								catch(InterruptedException ex) {
+									// absorb
+								}
+								if (DEBUG>=1)
+									System.out.println("ERR6 received, retry...");
+							}
+						}
+						else
+							throw new SAXException(e);
+					}
 				}
-			}
-			catch(IOException e) {
-				throw new SAXException(e);
 			}
 		}
 		if (DEBUG>=1)

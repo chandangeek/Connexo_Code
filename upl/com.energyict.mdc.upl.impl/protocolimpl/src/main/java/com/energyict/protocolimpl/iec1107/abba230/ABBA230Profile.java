@@ -106,7 +106,7 @@ public class ABBA230Profile {
 //
 //        rFactory.setRegister("LoadProfileSet",new Long(nrOfDaysToRetrieve));
         
-        return doGetProfileData(includeEvents);
+        return doGetProfileData(includeEvents,from);
     }
     
     /** Retrieve the complete load profile.
@@ -125,10 +125,10 @@ public class ABBA230Profile {
         /* by writing the value FFFF to register 551, the complete load profile is read */
         rFactory.setRegister("LoadProfileSet",new Long(0xFFFF));
         
-        return doGetProfileData(includeEvents);
+        return doGetProfileData(includeEvents,null);
     }
     
-    private ProfileData doGetProfileData( boolean includeEvents ) throws IOException {
+    private ProfileData doGetProfileData( boolean includeEvents,Date from ) throws IOException {
         byte[] data;
         
         // the use of stream mode requires a write to the 551 identity. Now we use the 554 identity deading load profile from - to
@@ -171,10 +171,22 @@ public class ABBA230Profile {
         	getMeterEvents(rFactory.getMeterErrorEventLog(),meterEvents);
         	getMeterEvents(rFactory.getBatteryVoltageLowEventLog(),meterEvents);
         	
-       		profileData.setMeterEvents(meterEvents);
+       		profileData.setMeterEvents(truncate(meterEvents,from));
         }
         
         return profileData;
+    }
+    
+    private List<MeterEvent> truncate(List<MeterEvent> meterEvents,Date from) {
+    	if (from == null)
+    		return meterEvents;
+    	Iterator<MeterEvent> it = meterEvents.iterator();
+    	while(it.hasNext()) {
+    		MeterEvent meterEvent = it.next();
+    		if (meterEvent.getTime().before(from))
+    			it.remove();
+    	}
+    	return meterEvents;
     }
     
     private void getMeterEvents(ABBA230Register reg,List<MeterEvent> meterEvents) {

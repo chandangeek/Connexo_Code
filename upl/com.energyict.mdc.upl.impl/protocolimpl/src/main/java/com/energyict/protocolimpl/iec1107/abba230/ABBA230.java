@@ -17,9 +17,7 @@ entries occur twice or more they need an SL flag.
 
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -77,12 +75,19 @@ public class ABBA230 implements
         MeterProtocol, ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo,
         RegisterProtocol, MessageProtocol, EventMapper {
     
-    private static String CONNECT 			= "Connect load";
-    private static String DISCONNECT 		= "Disconnect load";
-    private static String ARM 			= "Arm meter";
-    private static String TARIFFPROGRAM 		= "Upload Meter Scheme";
-    private static String FIRMWAREPROGRAM 		= "Upgrade Meter Firmware";
+	boolean firmwareUpgrade=false;
 	
+    private static String CONNECT 			= "ConnectLoad";
+    private static String DISCONNECT 		= "DisconnectLoad";
+    private static String ARM 			= "ArmMeter";
+    private static String TARIFFPROGRAM 		= "UploadMeterScheme";
+    private static String FIRMWAREPROGRAM 		= "UpgradeMeterFirmware";
+	
+    private static String CONNECT_DISPLAY 			= "Connect Load";
+    private static String DISCONNECT_DISPLAY 		= "Disconnect Load";
+    private static String ARM_DISPLAY 			= "Arm Meter";
+    private static String TARIFFPROGRAM_DISPLAY 		= "Upload Meter Scheme";
+    private static String FIRMWAREPROGRAM_DISPLAY 		= "Upgrade Meter Firmware";
 	
     final static long FORCE_DELAY = 300;
     
@@ -321,7 +326,8 @@ public class ABBA230 implements
      */
     public void disconnect() throws NestedIOException {
         try {
-            getFlagIEC1107Connection().disconnectMAC();
+        	if (!firmwareUpgrade)
+        		getFlagIEC1107Connection().disconnectMAC();
         } catch(FlagIEC1107ConnectionException e) {
             logger.severe("disconnect() error, "+e.getMessage());
         }
@@ -463,7 +469,7 @@ public class ABBA230 implements
         return false;
     }
     
-    /* ________ Impelement interface HHUEnabler ___________ */
+    /* ________ Implement interface HHUEnabler ___________ */
     
     /* (non-Javadoc)
      * @see com.energyict.protocol.HHUEnabler#enableHHUSignOn(com.energyict.dialer.core.SerialCommunicationChannel)
@@ -640,30 +646,30 @@ public class ABBA230 implements
      * @see com.energyict.protocol.MeterProtocol#setRegister(java.lang.String, java.lang.String)
      */
     public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
-
-    	if (name.compareTo("FIRMWAREPROGRAM")==0) {
-    		
-    		
-        	ABBA230DataIdentity di = new ABBA230DataIdentity("002", 1, 1, false, rFactory.getABBA230DataIdentityFactory());
-        	di.writeRawRegister(1,"1");
-    		
-    		
-    		//logger.info("setRegister "+name);
-			//FirmwareSaxParser o = new FirmwareSaxParser(rFactory.getABBA230DataIdentityFactory());
-			//o.start("C:/Documents and Settings/kvds/My Documents/projecten/ESB/firmware.xml",true);
-    	}
+//    	if (name.compareTo("FIRMWAREPROGRAM")==0) {
+//    		blankCheck();
+//    		File file = new File("C:/Documents and Settings/kvds/My Documents/projecten/ESB/ce6531fw.xml");
+//    		byte[] data = new byte[(int)file.length()];
+//    		FileInputStream fis = new FileInputStream(file);
+//    		fis.read(data);
+//    		fis.close();
+//    		programFirmware(new String(data));
+//    		activate();
+//    		firmwareUpgrade=true;
+//    	}
     	
+    	throw new UnsupportedException();
     }    
     
     private void blankCheck() throws IOException {
-    	ABBA230DataIdentity di = new ABBA230DataIdentity("002", 1, 1, false, rFactory.getABBA230DataIdentityFactory());
+    	ABBA230DataIdentity di = new ABBA230DataIdentity("002", 1, 64, false, rFactory.getABBA230DataIdentityFactory());
     	for (int set=0;set<64;set++) {
     		int retries = 0;
     		while(true) {
 				try {
 		    		byte[] data = di.read(false,1,set);
 		    		if (data[0] == 0)
-		    			di.writeRawRegister(set,"1");
+		    			di.writeRawRegister(set+1,"1");
 		    		break;
 				} catch (FlagIEC1107ConnectionException e) {
 					if (retries++>=1)
@@ -688,7 +694,7 @@ public class ABBA230 implements
     	int retries = 0;
     	while(true) {
 	    	try {
-				di.writeRawRegister(0,"0");
+				di.writeRawRegister(1,"0");
 				break;
 			} catch (FlagIEC1107ConnectionException e) {
 				if (retries++>=1)
@@ -917,16 +923,19 @@ public class ABBA230 implements
         List theCategories = new ArrayList();
         MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
         
-        MessageSpec msgSpec = addBasicMsg(DISCONNECT, DISCONNECT, false);
+        MessageSpec msgSpec = addBasicMsg(DISCONNECT_DISPLAY, DISCONNECT, false);
         cat.addMessageSpec(msgSpec);
         
-        msgSpec = addBasicMsg(CONNECT, CONNECT, false);
+        msgSpec = addBasicMsg(ARM_DISPLAY, ARM, false);
         cat.addMessageSpec(msgSpec);
         
-        msgSpec = addBasicMsg(TARIFFPROGRAM, TARIFFPROGRAM, false);
+        msgSpec = addBasicMsg(CONNECT_DISPLAY, CONNECT, false);
         cat.addMessageSpec(msgSpec);
         
-        msgSpec = addBasicMsg(FIRMWAREPROGRAM, FIRMWAREPROGRAM, true);
+        msgSpec = addBasicMsg(TARIFFPROGRAM_DISPLAY, TARIFFPROGRAM, false);
+        cat.addMessageSpec(msgSpec);
+        
+        msgSpec = addBasicMsg(FIRMWAREPROGRAM_DISPLAY, FIRMWAREPROGRAM, true);
         cat.addMessageSpec(msgSpec);
         
         theCategories.add(cat);
@@ -1062,7 +1071,7 @@ public class ABBA230 implements
 				int end = messageEntry.getContent().lastIndexOf(TARIFFPROGRAM)-2;
 				String tariffXMLData = messageEntry.getContent().substring(start,end);
 				TariffSaxParser o = new TariffSaxParser(rFactory.getABBA230DataIdentityFactory());
-				o.start(tariffXMLData,false); // KV_TO_DO if we have the expanded content, no file reference...
+				o.start(tariffXMLData,false); 
 			}
 			else if (messageEntry.getContent().indexOf("<"+FIRMWAREPROGRAM)>=0) {
 				logger.info("************************* FIRMWARE UPGRADE *************************");
@@ -1070,8 +1079,18 @@ public class ABBA230 implements
 				int end = messageEntry.getContent().lastIndexOf(FIRMWAREPROGRAM)-2;
 				String firmwareXMLData = messageEntry.getContent().substring(start,end);
 				blankCheck();
+				
+//	    		File file = new File("C:/Documents and Settings/kvds/My Documents/projecten/ESB/sphasefw.xml");
+//	    		byte[] data = new byte[(int)file.length()];
+//	    		FileInputStream fis = new FileInputStream(file);
+//	    		fis.read(data);
+//	    		fis.close();
+//	    		programFirmware(new String(data));
+				
 				programFirmware(firmwareXMLData);
+				
 				activate();
+				firmwareUpgrade=true;
 			}
 			return MessageResult.createSuccess(messageEntry);
 		}

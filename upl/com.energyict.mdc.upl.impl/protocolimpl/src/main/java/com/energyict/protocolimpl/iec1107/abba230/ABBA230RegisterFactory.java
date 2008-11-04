@@ -114,6 +114,8 @@ public class ABBA230RegisterFactory {
     
     private ABBA230Register meterErrorEventLog;
     private ABBA230Register batteryVoltageLowEventLog;
+    private ABBA230Register dspFWVersion;
+    private ABBA230Register applFWVersion;
     
     /**
      * Creates a new instance of ABBA230RegisterFactory
@@ -438,6 +440,9 @@ public class ABBA230RegisterFactory {
         contactorCloser = cr("412", "ContactorCloser", ABBA230RegisterData.ABBA_HEX,0,1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
         
         loadProfileDSTConfig = cr("778", "LoadProfileDSTConfig", ABBA230RegisterData.ABBA_HEX,0,1, null);
+        
+        
+        
     }
     
     /** factory method for ABBARegisters */

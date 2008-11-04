@@ -8,18 +8,12 @@ package com.energyict.protocolimpl.iec1107.abba230;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.logging.*;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.cbo.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.energyict.protocol.*;
 
 /** @author Koen */
 
@@ -141,6 +135,20 @@ public class ObisCodeMapper {
                 registerValue = new RegisterValue(obisCode,sn);
                 return registerValue;
             } else return new RegisterInfo("SchemeID");
+        }
+        else if (obisCode.toString().indexOf("0.0.96.51.0.255") != -1) { // APPL firmware version
+            if (read) {
+            	String sn = new String(rFactory.getABBA230DataIdentityFactory().getDataIdentity("998",false, 12, 0)).trim();            	
+                registerValue = new RegisterValue(obisCode,sn);
+                return registerValue;
+            } else return new RegisterInfo("APPLFWVersion");
+        }
+        else if (obisCode.toString().indexOf("0.0.96.52.0.255") != -1) { // DSP firmware version
+            if (read) {
+            	String sn = new String(rFactory.getABBA230DataIdentityFactory().getDataIdentity("998",false, 12, 1)).trim();            	
+                registerValue = new RegisterValue(obisCode,sn);
+                return registerValue;
+            } else return new RegisterInfo("DSPFWVersion");
         }
         
         
