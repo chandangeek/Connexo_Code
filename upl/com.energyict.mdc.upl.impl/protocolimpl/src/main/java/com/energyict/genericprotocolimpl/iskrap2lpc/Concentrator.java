@@ -72,6 +72,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     private int delayAfterFail;
     private int readingsFileType;
     private int retry;
+    private String tempSerialnumber = "99999999";
 
     private Logger 					logger;
     private Properties 				properties;
@@ -150,9 +151,14 @@ public class Concentrator implements Messaging, GenericProtocol {
                 Iterator im = meters.iterator();
                 while (im.hasNext()) {
                     String meterSerial = (String) im.next();
-                    handleMeter(concentrator, meterSerial);
-                    progressLog.append(meterSerial + " ");
-                    getLogger().log(Level.INFO, "" + --meterCount + " meter(s) to go.");
+                    if(!meterSerial.equalsIgnoreCase(tempSerialnumber)){
+                    	handleMeter(concentrator, meterSerial);
+                    	progressLog.append(meterSerial + " ");
+                    	getLogger().log(Level.INFO, "" + --meterCount + " meter(s) to go.");
+                    } else {
+                    	getLogger().log(Level.INFO, "Temporary serialnumber 99999999 is ignored.");
+                    	--meterCount;
+                    }
                 }
                 
                 handleConcentrator(concentrator);

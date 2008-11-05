@@ -669,7 +669,7 @@ class MeterReadTransaction implements CacheMechanism {
 	protected Date getLastChannelReading(Channel chn){
 		Date result = chn.getLastReading();
 		if(result == null){
-			result = getClearLastYearDate(chn.getRtu());
+			result = getClearLastMonthDate(chn.getRtu());
 		}
 		return result;
 	}
@@ -682,7 +682,7 @@ class MeterReadTransaction implements CacheMechanism {
     protected Date getLastReading(Rtu rtu) {
         Date result = rtu.getLastReading();
         if( result == null )
-        	result = getClearLastYearDate(rtu);
+        	result = getClearLastMonthDate(rtu);
         return result;
     }
     
@@ -694,7 +694,7 @@ class MeterReadTransaction implements CacheMechanism {
     protected Date getLastLogboog(Rtu rtu) {
         Date result = rtu.getLastLogbook();
         if( result == null ) 
-        	result = getClearLastYearDate(rtu);
+        	result = getClearLastMonthDate(rtu);
         return result;
     }
     
@@ -703,9 +703,9 @@ class MeterReadTransaction implements CacheMechanism {
      * @param rtu
      * @return the current date minus a year at midnight.
      */
-    private Date getClearLastYearDate(Rtu rtu){
+    private Date getClearLastMonthDate(Rtu rtu){
    		Calendar tempCalendar = Calendar.getInstance(rtu.getDeviceTimeZone());
-   		tempCalendar.add(Calendar.YEAR, -1);
+   		tempCalendar.add(Calendar.MONTH, -1);
 		tempCalendar.set(Calendar.HOUR_OF_DAY, 0 );
 		tempCalendar.set(Calendar.MINUTE, 0 );
 		tempCalendar.set(Calendar.SECOND, 0 );
@@ -743,7 +743,7 @@ class MeterReadTransaction implements CacheMechanism {
 		String times[] = prepareCosemGetRequest();
 		byte[] strCore = getConnection().cosemGetRequest(meterID, times[0], times[1], oc.toString(), new UnsignedInt(1), new UnsignedInt(2));
 		byte[] convertStr = new byte[strCore.length-2];
-		System.arraycopy(strCore, 2, convertStr, 0, 2);
+		System.arraycopy(strCore, 2, convertStr, 0, convertStr.length);
 		return ParseUtils.decimalByteToString(convertStr);
 	}
 	
