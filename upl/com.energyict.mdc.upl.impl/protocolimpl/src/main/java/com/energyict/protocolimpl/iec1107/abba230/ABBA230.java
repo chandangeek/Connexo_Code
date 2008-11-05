@@ -344,13 +344,13 @@ public class ABBA230 implements
         calendar.add(Calendar.MILLISECOND,pRoundTripCorrection);
         getFlagIEC1107Connection().authenticate();
         rFactory.setRegister("TimeDate",calendar.getTime());
-    }
+    } 
     
     /* (non-Javadoc)
      * @see com.energyict.protocol.MeterProtocol#getProtocolVersion()
      */
     public String getProtocolVersion() {
-    	return "$Date$"+" - "+"$Revision: 29006 $"; 
+    	return "$Date$"+" - "+"$Revision$"; 
     	
     	//return "$Date$";
     }
