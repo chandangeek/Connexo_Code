@@ -350,10 +350,21 @@ public class ABBA230 implements
      * @see com.energyict.protocol.MeterProtocol#getProtocolVersion()
      */
     public String getProtocolVersion() {
-    	return "$Revision$"+" - "+"$Date$"; 
+    	String rev = "$Revision$"+" - "+"$Date$";
+    	
+    	String manipulated = "Revision "+rev.substring(rev.indexOf("$Revision: ")+"$Revision: ".length(), rev.indexOf("$ -"))
+    						+"at "
+    						 +rev.substring(rev.indexOf("$Date: ")+"$Date: ".length(), rev.indexOf("$Date: ")+"$Date: ".length()+19);
+    	return manipulated; 
     	
     	//return "$Date$";
     }
+    
+    static public void main(String[] args) {
+    	ABBA230 o = new ABBA230();
+    	System.out.println(o.getProtocolVersion());
+    }
+    
     
     /* (non-Javadoc)
      * @see com.energyict.protocol.MeterProtocol#getFirmwareVersion() 
