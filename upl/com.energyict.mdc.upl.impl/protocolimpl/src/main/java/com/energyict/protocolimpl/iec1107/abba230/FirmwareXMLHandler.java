@@ -6,6 +6,9 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.energyict.cbo.NestedIOException;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+
 public class FirmwareXMLHandler extends DefaultHandler {
 
 	final int DEBUG=1;
@@ -55,10 +58,9 @@ public class FirmwareXMLHandler extends DefaultHandler {
 							}
 							else {
 								try {
-									Thread.sleep(1000);
-								}
-								catch(InterruptedException ex) {
-									// absorb
+									abba230DataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().authenticate();
+								} catch (IOException e1) {
+									e1.printStackTrace();
 								}
 								if (DEBUG>=1)
 									System.out.println("ERR6 received, retry...");

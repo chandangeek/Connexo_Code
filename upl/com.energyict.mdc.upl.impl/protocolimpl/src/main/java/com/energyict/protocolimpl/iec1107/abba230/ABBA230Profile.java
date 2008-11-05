@@ -171,13 +171,27 @@ public class ABBA230Profile {
         	getMeterEvents(rFactory.getMeterErrorEventLog(),meterEvents);
         	getMeterEvents(rFactory.getBatteryVoltageLowEventLog(),meterEvents);
         	
-       		profileData.setMeterEvents(truncate(meterEvents,from));
+       		profileData.setMeterEvents(truncateMeterEvents(meterEvents,from));
         }
+        
+        profileData.setIntervalDatas(truncateIntervalDatas(profileData.getIntervalDatas(),from));
         
         return profileData;
     }
     
-    private List<MeterEvent> truncate(List<MeterEvent> meterEvents,Date from) {
+    private List<IntervalData> truncateIntervalDatas(List<IntervalData> intervalDatas,Date from) {
+    	if (from == null)
+    		return intervalDatas;
+    	Iterator<IntervalData> it = intervalDatas.iterator();
+    	while(it.hasNext()) {
+    		IntervalData intervalData = it.next();
+    		if (intervalData.getEndTime().before(from))
+    			it.remove();
+    	}
+    	return intervalDatas;
+    }    
+    
+    private List<MeterEvent> truncateMeterEvents(List<MeterEvent> meterEvents,Date from) {
     	if (from == null)
     		return meterEvents;
     	Iterator<MeterEvent> it = meterEvents.iterator();
