@@ -350,9 +350,9 @@ public class ABBA230 implements
      * @see com.energyict.protocol.MeterProtocol#getProtocolVersion()
      */
     public String getProtocolVersion() {
-    	return "$Date$"+" - "+"$Revision$";
+    	return "$Date$"+" - "+"$Revision: 29006 $"; 
     	
-    	//return "$Date: 2008-11-04 17:22:51 +0100 (di, 04 nov 2008) $";
+    	//return "$Date$";
     }
     
     /* (non-Javadoc)
