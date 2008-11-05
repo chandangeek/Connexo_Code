@@ -11,7 +11,7 @@ import com.energyict.protocol.ProtocolUtils;
 
 /** @author  Koen */
 
-public class ABBA230ProfileEntry {
+public class ABBA230ProfileEntry { 
     
     // type attribute:
     // markers
