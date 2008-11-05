@@ -234,7 +234,7 @@ public class MT83Profile extends VDEWProfile {
 
     private void verifyChannelMap(ChannelMap channelMap) throws IOException {
         if (!getProtocolLink().getChannelMap().hasEqualRegisters(channelMap)) 
-            throw new IOException("verifyChannelMap() profile channelmap registers ("+channelMap.getChannelRegisterMap()+") different from configuration channelmap registers ("+getProtocolLink().getChannelMap().getChannelRegisterMap()+")");
+            throw new InvalidPropertyException("verifyChannelMap() profile channelmap registers ("+channelMap.getChannelRegisterMap()+") different from given configuration channelmap registers ("+getProtocolLink().getChannelMap().getChannelRegisterMap()+")");
     }
     
     ProfileData buildProfileData(byte[] responseData, int nrOfChannels) throws IOException {
@@ -248,7 +248,7 @@ public class MT83Profile extends VDEWProfile {
         int t;
         
         
-        if (DEBUG>=1) MT83.sendDebug(responseData.toString(), DEBUG, getProtocolLink().getLogger());
+        if (DEBUG>=1) MT83.sendDebug(responseData.toString(), DEBUG);
         
         
         // We suppose that the profile contains nr of channels!!
@@ -276,7 +276,7 @@ public class MT83Profile extends VDEWProfile {
                     status = Integer.parseInt(parseFindString(responseData,i),16);
                     eiStatus = MT83CodeMapper.mapInterval2EiStatus(status);
                     
-                    MT83.sendDebug("Status: " + status + " EIStatus: " + eiStatus, DEBUG, getProtocolLink().getLogger());                    
+                    MT83.sendDebug("Status: " + status + " EIStatus: " + eiStatus, DEBUG);                    
                     
                     i=gotoNextOpenBracket(responseData,i+1);
                     bInterval = (byte)Integer.parseInt(parseFindString(responseData,i));

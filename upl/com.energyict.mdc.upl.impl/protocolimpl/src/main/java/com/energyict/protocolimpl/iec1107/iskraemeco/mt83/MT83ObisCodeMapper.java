@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 import com.energyict.obis.*;
 import com.energyict.protocol.*;
 import com.energyict.cbo.*;
-import com.energyict.protocolimpl.customerconfig.*;
+import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig.*;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.*;
 
 /**
@@ -21,7 +21,9 @@ import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.*;
  * @author  Koen
  */
 public class MT83ObisCodeMapper {
-    MT83Registry iskraEmecoRegistry;
+    private static final int DEBUG = 1;
+	
+	MT83Registry iskraEmecoRegistry;
     RegisterConfig regs;
     
     /** Creates a new instance of ObisCodeMapper */
@@ -57,7 +59,7 @@ public class MT83ObisCodeMapper {
             billingPoint = obisCode.getF()*-1;
         else if (obisCode.getF() == 255)
             billingPoint = -1;
-        else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+        else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported! (1) ");
         
         ObisCode oc = new ObisCode(obisCode.getA(),obisCode.getB(),obisCode.getC(),obisCode.getD(),obisCode.getE(),255);
         
@@ -68,10 +70,11 @@ public class MT83ObisCodeMapper {
                strReg = (obisCode.getC()==255?"":obisCode.getC()+".")+(obisCode.getD()==255?"":obisCode.getD()+".")+(obisCode.getE()==255?"":obisCode.getE()+"");
             }
             else
-               strReg = regs.getMeterRegisterCode(oc);
+               strReg = obisCode.toString();
+            	//strReg = regs.getMeterRegisterCode(oc);
             
             if (strReg == null) 
-                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported! (2) ");
             try {
                 Date billingDate=null;
                 if (billingPoint != -1) {
@@ -104,7 +107,8 @@ public class MT83ObisCodeMapper {
                 
             }
             catch(IOException e) {
-                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported! "+e.toString());
+                MT83.sendDebug(e.getMessage(), DEBUG);
+            	throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported! (3) "+e.toString());
             }
         }
         else {

@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.*;
 import com.energyict.cbo.*;
 import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.MT83;
 
 /**
  *
@@ -25,6 +26,8 @@ public class VDEWRegister extends VDEWRegisterDataParse {
     
     static public final boolean WRITEABLE=true;
     static public final boolean NOT_WRITEABLE=false;
+    
+    private static final int DEBUG = 1;
     
     private String objectId;
     private int type;
@@ -223,6 +226,7 @@ public class VDEWRegister extends VDEWRegisterDataParse {
             StringTokenizer st = new StringTokenizer(getObjectID()," ");
             while(st.countTokens() > 0) {
                 String token = st.nextToken()+"()";
+                MT83.sendDebug("doReadRawRegister()" + token, DEBUG);
                 getProtocolLink().getFlagIEC1107Connection().sendRawCommandFrame(getReadCommand(),token.getBytes());
                 byte[] data = null;
                 if (getType() == VDEW_DATE_VALUE_PAIR) {

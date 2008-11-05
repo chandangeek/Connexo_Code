@@ -16,14 +16,16 @@ import java.math.*;
 
 import com.energyict.protocol.*;
 import java.util.logging.*;
+
+import sun.security.action.GetLongAction;
+
 import com.energyict.cbo.*;
 
 import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig.*;
 import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dialer.core.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.customerconfig.*;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -51,6 +53,9 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     
     private static final String[] ISKRAEMECO_METERREADINGS_DEFAULT = {"Total Energy A+","Total Energy R1","Total Energy R4"};
     
+    private static final int LOADPROFILES_FIRST = 1;
+    private static final int LOADPROFILES_LAST = 5;
+    
     private String strID;
     private String strPassword;
     private String serialNumber;
@@ -66,20 +71,21 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     private int extendedLogging;
     
     private TimeZone timeZone;
-    private Logger logger;
+    private static Logger logger;
     
     int readCurrentDay;
+    int loadProfileNumber;
     
     FlagIEC1107Connection flagIEC1107Connection=null;
     MT83Registry iskraEmecoRegistry=null;
     MT83Profile iskraEmecoProfile=null;
-    RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
+    RegisterConfig regs = new MT83RegisterConfig(); // we should use an infotype property to determine the registerset
 
     byte[] dataReadout=null;
     
-    /** Creates a new instance of ABBA1500, empty constructor*/
+    /** Creates a new instance of MT83, empty constructor*/
     public MT83() {
-    } // public IskraEmeco()
+    } // public MT83()
     
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCalendar(timeZone);
@@ -104,7 +110,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     
     private ProfileData doGetProfileData(Calendar fromCalendar,Calendar toCalendar,boolean includeEvents) throws IOException {
 		ProfileData mt83profile = getIskraEmecoProfile().getProfileData(fromCalendar,
-				toCalendar, getNumberOfChannels(), 1, includeEvents,
+				toCalendar, getNumberOfChannels(), loadProfileNumber, includeEvents,
 				isReadCurrentDay());
 		
 		mt83profile.applyEvents(getProfileInterval()/60);
@@ -206,9 +212,19 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
             iEchoCancelling=Integer.parseInt(properties.getProperty("EchoCancelling","0").trim());
             iIEC1107Compatible=Integer.parseInt(properties.getProperty("IEC1107Compatible","1").trim());
             iProfileInterval=Integer.parseInt(properties.getProperty("ProfileInterval","3600").trim());
-            channelMap = new ChannelMap(properties.getProperty("ChannelMap","1.5:5.5:8.5"));
+            channelMap = new ChannelMap(properties.getProperty("ChannelMap","1.5:2.5:5.5:6.5:7.5:8.5").trim());
             extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0").trim()); 
-            readCurrentDay = Integer.parseInt(properties.getProperty("ReadCurrentDay","0"));
+            readCurrentDay = Integer.parseInt(properties.getProperty("ReadCurrentDay","0").trim());
+            loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber","1").trim());
+            
+            if ((loadProfileNumber < LOADPROFILES_FIRST) || (loadProfileNumber > LOADPROFILES_LAST)) {
+            	String exceptionmessage = "";
+            	exceptionmessage += "LoadProfileNumber cannot be " + loadProfileNumber + "! ";
+            	exceptionmessage += "LoadProfileNumber can be " + LOADPROFILES_FIRST + " to " + LOADPROFILES_LAST + " ";
+            	exceptionmessage += "for the MT83x protocol.";
+            	throw new InvalidPropertyException(exceptionmessage);
+            }
+            
         }
         catch (NumberFormatException e) {
             throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());
@@ -224,7 +240,8 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
      * @throws NoSuchRegisterException <br>
      */
     public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
-        return ProtocolUtils.obj2String(getIskraEmecoRegistry().getRegister(name));
+        sendDebug("getRegister(): name = " + name, DEBUG);
+    	return ProtocolUtils.obj2String(getIskraEmecoRegistry().getRegister(name));
     }
     
     /** this implementation throws UnsupportedException. Subclasses may override
@@ -235,6 +252,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
      * @throws UnsupportedException <br>
      */
     public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+        sendDebug("setRegister(): name = " + name + " value = " + value, DEBUG);
         getIskraEmecoRegistry().setRegister(name,value);
     }
     
@@ -267,7 +285,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         result.add("ChannelMap");
         result.add("ExtendedLogging");
         result.add("ReadCurrentDay");
-        
+        result.add("LoadProfileNumber");
         return result;
     }
     
@@ -454,8 +472,17 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         return MT83ObisCodeMapper.getRegisterInfo(obisCode);
     }
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        MT83ObisCodeMapper ocm = new MT83ObisCodeMapper(getIskraEmecoRegistry(),getTimeZone(),regs);
-        return ocm.getRegisterValue(obisCode);
+    	RegisterValue regvalue;
+    	sendDebug("readRegister() obiscode = "  + obisCode.toString(), DEBUG);
+    	MT83ObisCodeMapper ocm = new MT83ObisCodeMapper(getIskraEmecoRegistry(),getTimeZone(),regs);
+
+    	try {
+			regvalue = ocm.getRegisterValue(obisCode);
+		} catch (IOException e) {
+			sendDebug(e.getMessage(), DEBUG);
+			throw e;
+		}
+		return regvalue;
     }
     
     public int getNrOfRetries() {
@@ -470,16 +497,11 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         return readCurrentDay==1;
     }
     
-    private void sendDebug(String message, int debuglvl) {
-    		Logger log = getLogger();
-    		sendDebug(message, debuglvl, log);
-    }
-
-    public static void sendDebug(String message, int debuglvl, Logger log) {
+    public static void sendDebug(String message, int debuglvl) {
     	if ((debuglvl > 0) && (DEBUG > 0 )) {
     		message = " ##### DEBUG [" + new Date().toString() + "] ######## > " + message;
     		System.out.println(message);
-    		if (log != null) log.info(message);
+    		if (logger != null) logger.info(message);
     	}
     }
 
