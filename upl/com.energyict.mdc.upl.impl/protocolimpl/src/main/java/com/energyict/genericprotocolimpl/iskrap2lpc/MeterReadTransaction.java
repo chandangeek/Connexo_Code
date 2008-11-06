@@ -338,16 +338,6 @@ class MeterReadTransaction implements CacheMechanism {
         	lpPeriod2 = loadProfilePeriod2;
         }
         
-        if(meter.getIntervalInSeconds() == lpPeriod1){
-        	profile = lpString1;
-        }
-        else if(meter.getIntervalInSeconds() == lpPeriod2){
-        	profile = lpString2;
-        }
-        else {
-        	getLogger().log(Level.SEVERE, "Interval didn't match - ProfileInterval EIServer: " + getMeter().getIntervalInSeconds());
-        	throw new BusinessException("Interval didn't match");
-        }
         Channel chn;
         for( int i = 0; i < dataHandler.getChannelMap().getNrOfProtocolChannels(); i ++ ) {
         
@@ -357,6 +347,18 @@ class MeterReadTransaction implements CacheMechanism {
             if(chn != null){
             	from = Constant.getInstance().format( getLastChannelReading(chn) );
             	if(!pc.containsDailyValues() && !pc.containsMonthlyValues()){
+            		
+                    if(chn.getIntervalInSeconds() == lpPeriod1){
+                    	profile = lpString1;
+                    }
+                    else if(chn.getIntervalInSeconds() == lpPeriod2){
+                    	profile = lpString2;
+                    }
+                    else {
+                    	getLogger().log(Level.SEVERE, "Interval didn't match for channel \"" + chn + "\" - ProfileInterval EIServer: " + chn.getIntervalInSeconds());
+                    	throw new BusinessException("Interval didn't match");
+                    }
+            		
             		dataHandler.setProfileChannelIndex(i);
                 	if(TESTING){
                 		FileReader inFile = new FileReader(Utils.class.getResource(getProfileTestName()[i]).getFile());

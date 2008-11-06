@@ -148,14 +148,6 @@ public class MbusDevice implements Messaging, GenericProtocol{
 		String from = "";
 		String to = Constant.getInstance().format(new Date());
 		String register = "";
-		if(getRtu().getIntervalInSeconds() == mrt.loadProfilePeriod1){
-			profile = "99.1.0";
-		} else if (getRtu().getIntervalInSeconds() == mrt.loadProfilePeriod2){
-			profile = "99.2.0";
-		} else {
-        	getLogger().log(Level.SEVERE, "Interval didn't match - ProfileInterval EIServer: " + getRtu().getIntervalInSeconds());
-        	throw new BusinessException("Interval didn't match");
-        }
 		
         Channel chn;
         for( int i = 0; i < dataHandler.getChannelMap().getNrOfProtocolChannels(); i ++ ) {
@@ -167,6 +159,16 @@ public class MbusDevice implements Messaging, GenericProtocol{
             if(chn != null){
             	from = Constant.getInstance().format( mrt.getLastChannelReading(chn) );
             	if(!pc.containsDailyValues() && !pc.containsMonthlyValues()){
+            		
+            		if(chn.getIntervalInSeconds() == mrt.loadProfilePeriod1){
+            			profile = "99.1.0";
+            		} else if (chn.getIntervalInSeconds() == mrt.loadProfilePeriod2){
+            			profile = "99.2.0";
+            		} else {
+                    	getLogger().log(Level.SEVERE, "Interval didn't match for channel \"" + chn + "\" - ProfileInterval EIServer: " + chn.getIntervalInSeconds());
+                    	throw new BusinessException("Interval didn't match");
+                    }
+            		
             		dataHandler.setProfileChannelIndex(i);
                 	if(mrt.TESTING){
 //                		FileReader inFile = new FileReader(Utils.class.getResource(getProfileTestName()[i]).getFile());
