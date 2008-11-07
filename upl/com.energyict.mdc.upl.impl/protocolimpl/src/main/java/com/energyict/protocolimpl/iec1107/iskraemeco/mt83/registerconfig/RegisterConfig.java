@@ -38,22 +38,10 @@ public abstract class RegisterConfig {
             return false;
     }
     
-    // changes for manufacturer obis codes KV 01092005!
     public String getMeterRegisterCode(ObisCode oc) {
-        
-        // KV 020606 special cases where we build the ediscode using C..E field of the OBIS code 
-        if (oc.getA() == 255) {
-            return (oc.getC()==255?"":""+oc.getC()+".")+(oc.getD()==255?"":""+oc.getD()+".")+(oc.getE()==255?"":""+oc.getE());
-        }
-        
         Register register = (Register)getRegisterMap().get(oc);
-        if (register != null) {
-            return register.getName();
-        }
-        if (isManufacturerSpecific(oc))
-            return Integer.toString(oc.getB())+(oc.getE()==0?"":"."+Integer.toString(oc.getE()))+(oc.getF()==0?"":"."+Integer.toString(oc.getF()));
-        else
-            return oc.toString();
+        if (register == null) return null;
+        return oc.toString();
     }
     
     // changes for manufacturer obis codes KV 01092005!
@@ -78,8 +66,8 @@ public abstract class RegisterConfig {
         StringBuffer strBuff = new StringBuffer();
         Iterator it = getRegisterMap().keySet().iterator();
         while(it.hasNext()) {
-            ObisCode oc = (ObisCode)it.next();
-            strBuff.append(oc+" "+oc.getDescription()+"\n");
+        	ObisCode oc = (ObisCode)it.next();
+        	strBuff.append(oc+" "+((Register)getRegisterMap().get(oc)).getName()+"\n");
         }
         return strBuff.toString();
     }
