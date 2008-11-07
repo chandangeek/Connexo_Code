@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocol;
@@ -224,13 +225,23 @@ public class Meteor implements MeterProtocol, RegisterProtocol{
 	}
 	
 	public MeteorStatus getMeteorStatus() throws IOException{
-		MeteorStatus statusreg;
-		try {
-			statusreg=(MeteorStatus) mcf.transmitData(status,  null);
-		} catch (IOException e) {			
-			throw new IOException(e.getMessage()+". Error probably caused because no node address "+this.outstationID+" is found");
-		} catch (ArrayIndexOutOfBoundsException e){
-			throw new IOException(e.getMessage()+". Error probably caused because no node address "+this.outstationID+" is found");			
+		MeteorStatus statusreg=null;
+		boolean ack=false;
+		int pog=this.retry;
+		Exception except= new Exception();
+		
+		while(!ack && pog > 0){
+			pog--;
+			try {
+				statusreg=(MeteorStatus) mcf.transmitData(status,  null);
+				ack=true;
+			} catch (Exception e) {
+				except=e;
+				ack=false;
+			}
+		}
+		if(!ack){
+			throw new IOException(except.getMessage()+". Error probably caused because no node address "+this.outstationID+" is found");
 		}
 		System.out.println("status");
 		return statusreg;
@@ -256,11 +267,12 @@ public class Meteor implements MeterProtocol, RegisterProtocol{
 		// full personality table should be downloaded because some of the registers
 		// are needed in the communicationsfactory
 		ProtocolUtils.delayProtocol(delayAfterConnect);
-		statusreg = getMeteorStatus();		
+		statusreg = getMeteorStatus();	
+		statusreg.printData();
 		fullperstable = getFullPersonalityTable();
 		fullperstable.printData();
 		// set multipliers
-		mcf.setMultipliers(fullperstable.getDialexp(), fullperstable.getDialmlt());
+		mcf.setMultipliers(fullperstable.getDialexp(), fullperstable.getDialdiv());
 		mcf.setNumChan((int) statusreg.getMtrs());
 		if(mcf.getNumChan()<channelMap.getNrOfUsedProtocolChannels()){
 			throw new InvalidPropertyException("the meter has less channels available than defined in the properties");
@@ -304,9 +316,44 @@ public class Meteor implements MeterProtocol, RegisterProtocol{
 		Calendar cal=Calendar.getInstance(timezone);
 		return getProfileData(fromTime, cal.getTime(), includeEvents);
 	}
-	public ProfileData getProfileData(Date start, Date stop, boolean arg2)
-			throws IOException, UnsupportedException {
-		ProfileData pd=mcf.retrieveProfileData(start, stop, getProfileInterval(),arg2);
+	public ProfileData getProfileData(Date start, Date stop, boolean arg2) throws IOException, UnsupportedException {
+		long dataInc=24*3600*1000;
+		int retry=this.retry;
+		boolean firstentry=true;
+		Calendar st=Calendar.getInstance(timezone);
+		st.setTime(start);
+		Calendar stp=Calendar.getInstance(timezone);
+		stp.setTime(stop);		
+		long startint=st.getTimeInMillis();
+		long stopint=stp.getTimeInMillis();
+		ProfileData pd = new ProfileData();
+		ProfileData pdtemp = new ProfileData();
+
+		while(startint<stopint){			
+			st.setTimeInMillis(startint);
+			if(startint+dataInc<stopint){
+				stp.setTimeInMillis(startint+dataInc);
+			}else{
+				stp.setTimeInMillis(stopint);
+			}
+			
+			pdtemp=mcf.retrieveProfileData(st.getTime(), stp.getTime(), getProfileInterval(),arg2);
+
+			if(firstentry){
+				firstentry=false;
+				for(int i=0 ; i<pdtemp.getNumberOfChannels(); i++){  // deep copy of pdtemp
+					pd.addChannel(pdtemp.getChannel(i));
+				}
+			}
+			for(int i=0 ; i<pdtemp.getNumberOfIntervals(); i++){
+				pd.addInterval(pdtemp.getIntervalData(i));
+			}
+			for(int i=0 ; i<pdtemp.getNumberOfEvents(); i++){
+				pd.addEvent(pdtemp.getEvent(i));
+			}
+			startint+=dataInc;
+		}
+		//pd.getIntervalDatas().get(x)
 		if(statusreg.getBatLow()>0 && arg2){
 			pd.addEvent(new MeterEvent(getTime(),MeterEvent.OTHER,"BATTERY LOW"));
 		}

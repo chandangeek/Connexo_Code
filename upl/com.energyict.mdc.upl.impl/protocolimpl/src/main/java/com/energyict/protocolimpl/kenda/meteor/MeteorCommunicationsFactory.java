@@ -291,36 +291,42 @@ public class MeteorCommunicationsFactory{
 	public Parsers transmitData(byte command, Parsers p) throws IOException{
 		byte[] bs=new byte[0];
 		byte[][] br=new byte[0][0];
-		Parsers pr=null;
+		Parsers pr=null, pr2=null;
 		boolean ack=false;
 		// build command
 		int pog=retries;
 		while(!ack && pog>0){
 			pog--;
-			if(p==null){ // request of data from the meter (11 byte command)
-				bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing		
-			}else{ // writing data to the meter
-				bs=p.parseToByteArray();
+			try{
+				if(p==null){ // request of data from the meter (11 byte command)
+					bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing		
+				}else{ // writing data to the meter
+					bs=p.parseToByteArray();
+				}
+				sendData(bs);
+				// timeout
+				pr=buildCommand(addCheckSum(bs),p);
+				long interFrameTimeout = System.currentTimeMillis() + this.timeOut*10;
+				br=receiveData((byte) (bs[0]& 0x1F));
+				// send ack
+				if((br[br.length-1][0]&0x20)==0x20){
+					ack=true;			
+				}
+				if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {	        	
+					throw new ProtocolConnectionException("Interframe timeout error");
+				}
+				pr2=buildCommand(blockMerging(br),pr);
+			}catch(Exception e){
+				ack=false;
+			}finally{
+				bs=buildHeader(buildIdent(true, true,true,command), 11);	// checksum added in blockprocessing
+				sendData(bs);
 			}
-			sendData(bs);
-			// timeout
-			pr=buildCommand(addCheckSum(bs),p);
-			long interFrameTimeout = System.currentTimeMillis() + this.timeOut*100;
-			br=receiveData((byte) (bs[0]& 0x1F));
-			// send ack
-			if((br[br.length-1][0]&0x20)==0x20){
-				ack=true;			
-			}
-	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {	        	
-	            throw new ProtocolConnectionException("Interframe timeout error");
-	        }
-			bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
-			sendData(bs);			
 		}
-		if(!ack){
+		if(pog==0){
 			throw new IOException("Data transmission did not succeed, thrown by communicationsFactory->transmitData");
 		}
-		return buildCommand(blockMerging(br),pr);
+		return pr2;
 	}
 	/*
 	 * specific requests and sets for the meter
@@ -338,12 +344,16 @@ public class MeteorCommunicationsFactory{
 		bs[10]=b;
 		while(!ack && pog>0){
 			pog--;
-			sendData(bs);
-			// receive ack
-			br=receiveData((byte) (bs[0]& 0x1F));
-			if((br[0][0] & 0x80)==0x80){ack=true;} // get acknowledge
+			try{
+				sendData(bs);
+				// receive ack
+				br=receiveData((byte) (bs[0]& 0x1F));
+				if((br[0][0] & 0x80)==0x80){ack=true;} // get acknowledge
+		    }catch(Exception e){
+			   ack=false;		
+      	    }
 		}
-		if(!ack){
+		if(pog==0){
 			throw new IOException("Data transmission did not succeed, thrown by communicationsFactory->trimRTC");
 		}
 	}
@@ -372,6 +382,8 @@ public class MeteorCommunicationsFactory{
 			int tel=0, subcounter=0;
 			int poscount=0;
 			pog--;
+
+			try{
 			sendData(bs);
 			// receive ack
 			br=receiveData((byte) (bs[0]& 0x1F));	// timeout?	
@@ -381,16 +393,20 @@ public class MeteorCommunicationsFactory{
 			}
 			// deal with the data, cut header and checksum
 			for(int ii=0; ii<br.length; ii++){
-				byte[] bt= br[ii];
-				tel+=(bt.length-11);
+				tel+=(br[ii].length-11);
 			}
 			System.out.println(tel);
 			if(tel>0){
 				byteData=new byte[tel];
 				for(int ii=0; ii<br.length; ii++){
-					byte[] bt= br[ii];
-					for(int i=10; i<bt.length-1;i++){
-						byteData[poscount++]=bt[i];					
+					for(int i=10; i<br[ii].length-1;i++){
+						if(poscount<byteData.length){
+							byteData[poscount]=br[ii][i];
+						}else{
+							System.out.println("error detected " +poscount);
+							throw(new IOException("error detected in data transmission: retry"));
+						}
+						poscount++;						
 					}
 				}
 				// parse the data
@@ -406,8 +422,11 @@ public class MeteorCommunicationsFactory{
 				bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
 				sendData(bs);
 			}
+			}catch(Exception e){
+				ack=false;		
+		    }
 		}
-		if(!ack){
+		if(pog==0){
 			throw new IOException("Data transmission did not succeed, thrown by communicationsFactory->transmitData");
 		}
 		return shortData;
@@ -431,119 +450,130 @@ public class MeteorCommunicationsFactory{
 		MeterEvent meterEvent;
 		ArrayList  meterEventList = new ArrayList();
 		ArrayList  meteorCLK= new ArrayList();// meter event flagging parallel matrix
-		boolean flag=false, powdownflag=false, prevIntervalPowdownflag=false, lastdata=false;
+		boolean flag=false, powdownflag=false, prevIntervalPowdownflag=false, lastdata=false, ack=false;
 		long millis=0;
-		int ids=0;
+		int ids=0, pog=this.retries;
 		
 		// set timezone and calendar object
 		Calendar cal1 = Calendar.getInstance(timezone); 
 		cal1.setTime(start);
 		
-		// retrieve powerFailDetails and add meter events
-		MeteorPowerFailDetails mpfd=(MeteorPowerFailDetails) transmitData(powerFailDetails, null);
-		MeteorCLK[] pfhist=mpfd.getPfhist();
-		for(int ii=0; ii<pfhist.length; ii++){
-			MeteorCLK mclk= pfhist[ii];
-			if(mclk.checkValidity() && !lastdata){
-				cal1=mclk.getCalendar();
-				if(ii%2==0){
-					meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERDOWN);
+		while(!ack && pog>0){
+			pog--;
+			try{
+				// 	retrieve powerFailDetails and add meter events
+			MeteorPowerFailDetails mpfd=(MeteorPowerFailDetails) transmitData(powerFailDetails, null);
+			MeteorCLK[] pfhist=mpfd.getPfhist();
+			for(int ii=0; ii<pfhist.length; ii++){
+				MeteorCLK mclk= pfhist[ii];
+				if(mclk.checkValidity() && !lastdata){
+					cal1=mclk.getCalendar();
+					if(ii%2==0){
+						meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERDOWN);
+					}else{
+						meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERUP);
+					}
+					meterEventList.add(meterEvent);
+					meteorCLK.add(mclk); // parallel power down matrix
 				}else{
-					meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERUP);
+					lastdata=true;
 				}
-				meterEventList.add(meterEvent);
-				meteorCLK.add(mclk); // parallel power down matrix
-			}else{
-				lastdata=true;
 			}
-		}
 		
-		// reset cal1 object
-		cal1 = Calendar.getInstance(timezone); // for security reasons , should be not needed
-		cal1.setTime(start);
-        ParseUtils.roundDown2nearestInterval(cal1,intervaltime);
-        // if(cal1...
+			// reset cal1 object
+			cal1 = Calendar.getInstance(timezone); // for security reasons , should be not needed
+			cal1.setTime(start);
+			ParseUtils.roundDown2nearestInterval(cal1,intervaltime);
+			// if(cal1...
         
-        // get meter data
-		short[][] s=requestMeterDemands((byte) 0x07,cal1.getTime(),stop,intervaltime);
-		System.out.println(s.length+" s2 "+s[0].length);
-		// build channel map in profile data
-		for(int i=0; i<s[0].length;i++ ){
-			if(channelMap.isProtocolChannelEnabled(i) && meterChannelMap.isProtocolChannelEnabled(i)){	
-				pd.addChannel(new ChannelInfo(ids, "Meteor channel "+(i+1), Unit.get(BaseUnit.UNITLESS),0,ids, BigDecimal.valueOf(channelMultipliers[i])));			
-				ids++; // will run parallel with i but is needed in case of a channelmap
-			}
-		}
-		// first block of data can be skipped
-		for(int i=0; i<s.length; i++){
-			// read first meter for flagging
-			powdownflag=false;
-			flag=false;
-			id=new IntervalData(cal1.getTime());  // add time and date to the interval
-			for(int ii=0; ii<meteorCLK.size(); ii++){
-				MeteorCLK m=(MeteorCLK) meteorCLK.get(ii);
-				long timeInterval = (cal1.getTimeInMillis()-m.getCalendar().getTimeInMillis());
-				if(timeInterval<intervaltime*1000 && timeInterval>=0){
-					powdownflag=true;
+			// get meter data
+			short[][] s=requestMeterDemands((byte) 0x07,cal1.getTime(),stop,intervaltime);
+			System.out.println(s.length+" s2 "+s[0].length);
+			// build channel map in profile data
+			for(int i=0; i<s[0].length;i++ ){
+				if(channelMap.isProtocolChannelEnabled(i) && meterChannelMap.isProtocolChannelEnabled(i)){	
+					pd.addChannel(new ChannelInfo(ids, "Meteor channel "+(i+1), Unit.get(BaseUnit.UNITLESS),0,ids, BigDecimal.valueOf(channelMultipliers[i])));			
+					ids++; // will run parallel with i but is needed in case of a channelmap
 				}
 			}
-			for(int ii=0; ii<s[i].length; ii++){
-				if(s[i][ii]<0){ // end or begin of power down (here real data is still available
-					s[i][ii]=(short) (0x7FFF & s[i][ii]); // mask negative bit
-					if(!flag){
-						// check meter events
-						if(powdownflag){
-							id.addEiStatus(IntervalStateBits.POWERDOWN); // when power down from event register, change in status can only be power down
-							meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERDOWN);
-							meterEventList.add(meterEvent);
+			// first block of data can be skipped
+			for(int i=0; i<s.length; i++){
+				// read first meter for flagging
+				powdownflag=false;
+				flag=false;
+				id=new IntervalData(cal1.getTime());  // add time and date to the interval
+				for(int ii=0; ii<meteorCLK.size(); ii++){
+					MeteorCLK m=(MeteorCLK) meteorCLK.get(ii);
+					long timeInterval = (cal1.getTimeInMillis()-m.getCalendar().getTimeInMillis());
+					if(timeInterval<intervaltime*1000 && timeInterval>=0){
+						powdownflag=true;
+					}
+				}
+				for(int ii=0; ii<s[i].length; ii++){
+					if(s[i][ii]<0){ // end or begin of power down (here real data is still available
+						s[i][ii]=(short) (0x7FFF & s[i][ii]); // mask negative bit
+						if(!flag){
+							// check meter events
+							if(powdownflag){
+								id.addEiStatus(IntervalStateBits.POWERDOWN); // when power down from event register, change in status can only be power down
+								meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERDOWN);
+								meterEventList.add(meterEvent);
+								prevIntervalPowdownflag=true;
+							}else{
+								id.addEiStatus(IntervalStateBits.POWERUP); // no power down in event register, so this must be a power up
+								meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERUP);
+								meterEventList.add(meterEvent);
+								prevIntervalPowdownflag=false;
+							}
+						}
+						flag=true;
+					}else if(s[i][ii]==0x3FFF){ // power is down (on all lines)
+						s[i][ii]=0;
+						if(!flag){
+							flag=true;
 							prevIntervalPowdownflag=true;
-						}else{
-							id.addEiStatus(IntervalStateBits.POWERUP); // no power down in event register, so this must be a power up
+							if(powdownflag){
+								id.addEiStatus(IntervalStateBits.POWERDOWN); // when power down from event register, change in status can only be power down
+								meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERDOWN);
+								meterEventList.add(meterEvent);
+								prevIntervalPowdownflag=true;
+							}else{
+								id.addEiStatus(IntervalStateBits.MISSING);							
+							}
+						}					
+					}else{
+						// boundary condition
+						if(prevIntervalPowdownflag && !flag){ // previous interval was power down and no negative value has been detected (boundary condition)
+							prevIntervalPowdownflag=false;
+							flag=true;
+							id.addEiStatus(IntervalStateBits.POWERUP);
 							meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERUP);
 							meterEventList.add(meterEvent);
-							prevIntervalPowdownflag=false;
-					    }
-					}
-					flag=true;
-				}else if(s[i][ii]==0x3FFF){ // power is down (on all lines)
-					s[i][ii]=0;
-					if(!flag){
-						flag=true;
-						prevIntervalPowdownflag=true;
-						if(powdownflag){
-							id.addEiStatus(IntervalStateBits.POWERDOWN); // when power down from event register, change in status can only be power down
-							meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERDOWN);
-							meterEventList.add(meterEvent);
-							prevIntervalPowdownflag=true;
-						}else{
-							id.addEiStatus(IntervalStateBits.MISSING);							
 						}
-					}					
-				}else{
-					// boundary condition
-					if(prevIntervalPowdownflag && !flag){ // previous interval was power down and no negative value has been detected (boundary condition)
-						prevIntervalPowdownflag=false;
-						flag=true;
-						id.addEiStatus(IntervalStateBits.POWERUP);
-						meterEvent=new MeterEvent(cal1.getTime(),MeterEvent.POWERUP);
-						meterEventList.add(meterEvent);
+					}
+					// add value to profile data
+					if(channelMap.isProtocolChannelEnabled(ii) && meterChannelMap.isProtocolChannelEnabled(ii)){	
+						id.addValue(new Integer(s[i][ii])); // add data to the interval
 					}
 				}
-				// add value to profile data
-				if(channelMap.isProtocolChannelEnabled(ii) && meterChannelMap.isProtocolChannelEnabled(ii)){	
-					id.addValue(new Integer(s[i][ii])); // add data to the interval
+				pd.addInterval(id);
+				millis=cal1.getTimeInMillis()+1000*intervaltime; // increment for next interval
+				cal1.setTimeInMillis(millis);
+			}
+			//add meter events
+			if(addevents){
+				for(int ii=0; ii<meterEventList.size(); ii++){
+					MeterEvent m= (MeterEvent) meterEventList.get(ii);
+					pd.addEvent(m);
 				}
 			}
-			pd.addInterval(id);
-			millis=cal1.getTimeInMillis()+1000*intervaltime; // increment for next interval
-			cal1.setTimeInMillis(millis);
-		}
-		//add meter events
-		if(addevents){
-			for(int ii=0; ii<meterEventList.size(); ii++){
-				MeterEvent m= (MeterEvent) meterEventList.get(ii);
-				pd.addEvent(m);
+			ack=true;
+			}catch(Exception e){
+				ack=false;
 			}
+		}
+		if(pog==0){
+			throw new IOException("Data transmission did not succeed, thrown by communicationsFactory->retrieveProfileData");
 		}
 		// return profileData
 		return pd;
@@ -565,14 +595,12 @@ public class MeteorCommunicationsFactory{
 			// time out check
 		while(go){
 			interFrameTimeout = System.currentTimeMillis() + this.timeOut;
-	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {	        	
-	            throw new ProtocolConnectionException("Interframe timeout error");
-	        }
 			counter=0;
 			length=11;
 			s="";
 			while(counter<length){	// timeout!
 				i=inputStream.read();
+				//System.out.println("hangs here: " + counter);
 				s+=(char) i;
 				if(counter==1){// block length byte
 					length=i;
@@ -580,6 +608,9 @@ public class MeteorCommunicationsFactory{
 				}
 				counter++;
 			}
+	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {	        	
+	            throw new ProtocolConnectionException("Interframe timeout error");
+	        }
 			if((s.charAt(0) & 0x0020)==0x20){ // check ident on last block to transmit
 				go=false;
 			}
@@ -599,6 +630,11 @@ public class MeteorCommunicationsFactory{
 	 */
 	private void sendData(byte[] bs) throws IOException {
 		byte[][] b=blockProcessing(bs); // cuts up the bs into the frames requested by the meter
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		for(int ii=0; ii<b.length; ii++){
 			byte[] bp= b[ii];
 			outputStream.write(bp); // send all frames
@@ -751,10 +787,10 @@ public class MeteorCommunicationsFactory{
 	public void setTimeOut(long timeOut) {
 		this.timeOut = timeOut;
 	}
-	public void setMultipliers(char[] dialexp, char[] dialmlt) {
+	public void setMultipliers(char[] dialexp, short[] dialdiv) {
 		channelMultipliers=new int[numChan];
 		for(int i=0; i<numChan; i++){
-			channelMultipliers[i]=1; //(int) Math.pow(10,(long) dialexp[i])*dialmlt[i];  // CHANGE HERE FOR MULTIPLIERS
+			channelMultipliers[i]=(int) Math.pow(10,(long) dialexp[i])/dialdiv[i]; //(int) Math.pow(10,(long) dialexp[i])*dialmlt[i];  // CHANGE HERE FOR MULTIPLIERS
 		}		
 	}
 	
