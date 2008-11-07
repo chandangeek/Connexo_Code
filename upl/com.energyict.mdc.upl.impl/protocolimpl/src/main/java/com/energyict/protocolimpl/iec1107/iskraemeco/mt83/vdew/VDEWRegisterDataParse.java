@@ -11,7 +11,9 @@ import java.util.*;
 import com.energyict.cbo.*;
 import java.math.*;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.edmi.mk10.MK10;
 import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.MT83;
 
 /**
  *
@@ -19,7 +21,9 @@ import com.energyict.protocolimpl.iec1107.*;
  */
 abstract public class VDEWRegisterDataParse {
     
-    static public final int MODE_WINTERTIME=0;
+    private static final int DEBUG = 1;
+	
+	static public final int MODE_WINTERTIME=0;
     static public final int MODE_SUMMERTIME=1;
     static public final int MODE_UTCTIME=2;
     
@@ -38,6 +42,7 @@ abstract public class VDEWRegisterDataParse {
     public final static int VDEW_GMTDATESTRING=12; // write
     public final static int VDEW_GMTTIMESTRING=13; // write
     public final static int VDEW_DATETIME=14; // YYMMDDHHMMSS
+    public final static int VDEW_DATETIME_NOSEC = 15; //YYMMDDHHMM
     
     
     abstract protected Unit getUnit();
@@ -208,6 +213,9 @@ abstract public class VDEWRegisterDataParse {
                     
                 case VDEW_DATETIME:
                     return parseDateTimeYYMMDDHHMMSS(data);
+                    
+                case VDEW_DATETIME_NOSEC:
+                	return parseDateYYMMDDHHMM(data);
 
                 default:
                     throw new IOException("VDEWRegisterDataParse, parse , unknown type "+getType());
@@ -224,6 +232,8 @@ abstract public class VDEWRegisterDataParse {
         int count=0;
         BigDecimal value = null;
         Date date = null;
+        Unit unit = Unit.getUndefined();
+        
         // format is (number)(YYMMDDHHMM)
         for(int i=0;i<rawdata.length;i++) {
             if (rawdata[i] == '(') {
@@ -232,16 +242,41 @@ abstract public class VDEWRegisterDataParse {
             else if (rawdata[i] == ')') {
                 if (count==0) {
                     try {
-                       value = new BigDecimal(strBuff.toString());
+                       if (strBuff.toString().length() > 0){
+                       	value = new BigDecimal(strBuff.toString());
+                       } else {
+                    	   value = null;
+                       }
                     }
                     catch(NumberFormatException e) {
-                       value = null; 
+                    	
+                    	// Iskra adds unit to the value: ex (0000.23 kVA)(081105163000)
+                    	// so we need to check if there's a valid value followed by a space
+                    	
+                    	if (strBuff.toString().indexOf(" ") > 0){
+                    		try {
+                                value = new BigDecimal(strBuff.toString().substring(0, strBuff.toString().indexOf(" ")));
+                                String unitacronym = strBuff.toString().substring(strBuff.toString().indexOf(" "));
+                                if (unitacronym != null){
+                                	unitacronym = unitacronym.trim();
+                                	if (unitacronym.equalsIgnoreCase("deg")) unitacronym = "°";
+                                	unit = Unit.get(unitacronym);
+                                	MT83.sendDebug("VDEWRegisterDataParse(): unitacronym = " + unitacronym + " Unit.get() = " + unit, DEBUG);
+                                	if (unit == null) unit = Unit.getUndefined(); 
+                                }
+                    		} catch (NumberFormatException ee) {
+                    			value = null;
+                    		}
+                    	} else {
+                    		value = null;
+                    	}
+ 
                     }
                     strBuff=null;
                     count++;
                 }
                 else if (count==1) {
-                    date = parseDateYYMMDDHHMM(strBuff.toString().getBytes());
+                    date = parseDateTimeYYMMDDHHMMSS(strBuff.toString().getBytes());
                     break;
                 }
             }
@@ -250,7 +285,7 @@ abstract public class VDEWRegisterDataParse {
                     strBuff.append((char)rawdata[i]);
             }
         }
-        return new DateValuePair(date,value);
+        return new DateValuePair(date,value, unit);
     } // private DateValuePair parseDateValuePair(byte[] rawdata) throws IOException
     
     private Integer parseInteger(byte[] rawdata) throws IOException {

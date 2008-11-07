@@ -53,7 +53,7 @@ public abstract class RegisterConfig {
         if (isManufacturerSpecific(oc))
             return Integer.toString(oc.getB())+(oc.getE()==0?"":"."+Integer.toString(oc.getE()))+(oc.getF()==0?"":"."+Integer.toString(oc.getF()));
         else
-            return null;
+            return oc.toString();
     }
     
     // changes for manufacturer obis codes KV 01092005!

@@ -22,6 +22,8 @@ import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.*;
  */
 public class MT83ObisCodeMapper {
     private static final int DEBUG = 1;
+    
+    private static final Date JAN2008 = new Date(946681200000L);
 	
 	MT83Registry iskraEmecoRegistry;
     RegisterConfig regs;
@@ -42,69 +44,79 @@ public class MT83ObisCodeMapper {
     }
     
     private int getBillingResetCounter(RegisterConfig regs) throws IOException {
-        String strReg = regs.getMeterRegisterCode(ObisCode.fromString("1.0.0.1.0.255"));
-        return ((Integer)iskraEmecoRegistry.getRegister(strReg+" INTEGER")).intValue();
+        //String strReg = regs.getMeterRegisterCode(ObisCode.fromString("1.0.0.1.0.255"));
+    	//return ((Integer)iskraEmecoRegistry.getRegister(strReg+" INTEGER")).intValue();
+    	return ((Integer)iskraEmecoRegistry.getRegister(MT83Registry.BILLING_RESET_COUNTER)).intValue();
     }
     
     private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException {
         RegisterValue registerValue=null;
-        String registerName=null;
-        Unit unit = null;
         int billingPoint=-1;
+        
+        String billingDateRegister;
+        Date eventDate = null;
+        Date fromDate = null;
+        Date toDate = null;
         
         // obis F code
         if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
             billingPoint = obisCode.getF();
-        else if ((obisCode.getF()  <=0) && (obisCode.getF() >= -99))
+        else if ((obisCode.getF() <= 0) && (obisCode.getF() >= -99))
             billingPoint = obisCode.getF()*-1;
         else if (obisCode.getF() == 255)
             billingPoint = -1;
         else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported! (1) ");
         
-        ObisCode oc = new ObisCode(obisCode.getA(),obisCode.getB(),obisCode.getC(),obisCode.getD(),obisCode.getE(),255);
+        ObisCode oc = obisCode;
+        //ObisCode oc = new ObisCode(obisCode.getA(),obisCode.getB(),obisCode.getC(),obisCode.getD(),obisCode.getE(),255);
         
         
         if (read) {
             String strReg=null;
-            if (obisCode.getB() == 2) {
-               strReg = (obisCode.getC()==255?"":obisCode.getC()+".")+(obisCode.getD()==255?"":obisCode.getD()+".")+(obisCode.getE()==255?"":obisCode.getE()+"");
-            }
-            else
-               strReg = obisCode.toString();
-            	//strReg = regs.getMeterRegisterCode(oc);
-            
+            strReg = obisCode.toString();
+
             if (strReg == null) 
                 throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported! (2) ");
             try {
-                Date billingDate=null;
+                
                 if (billingPoint != -1) {
-                    int VZ = getBillingResetCounter(regs);
-                    strReg = strReg+"*"+(VZ-billingPoint);
-                    // get billingpoint timestamp
-                    ObisCode ocBillingDate = ObisCode.fromString("1.1.0.1.2.255");
-                    String strRegBillingDate = regs.getMeterRegisterCode(ocBillingDate);
-                    strRegBillingDate = strRegBillingDate+"*"+(VZ-billingPoint);
-                    billingDate = ((DateValuePair)iskraEmecoRegistry.getRegister(strRegBillingDate+" DATE_VALUE_PAIR")).getDate();
+                    int VZ = getBillingResetCounter(regs);                    
+                    //strReg = strReg+"*"+(VZ-billingPoint);
+                    MT83.sendDebug("doGetregister(): Billingpoint = " + billingPoint + " - getBillingResetCounter = " + VZ + " - strReg = " + strReg, DEBUG);
+
+                    ObisCode billingStartObis = ObisCode.fromString(MT83Registry.BILLING_DATE_START);
+                    billingDateRegister = new ObisCode(billingStartObis.getA(), billingStartObis.getB(), billingStartObis.getC(), billingStartObis.getD(), billingStartObis.getE(), billingStartObis.getF() + obisCode.getF()).toString();
+                    toDate = ((Date)iskraEmecoRegistry.getRegister(billingDateRegister.toString()));
+
+                    if (obisCode.getF() > 1) {
+                        billingDateRegister = new ObisCode(billingStartObis.getA(), billingStartObis.getB(), billingStartObis.getC(), billingStartObis.getD(), billingStartObis.getE(), billingStartObis.getF() + (obisCode.getF() - 1)).toString();
+                        fromDate = ((Date)iskraEmecoRegistry.getRegister(billingDateRegister.toString()));
+                    }
+                    
+                    if (toDate.equals(JAN2008) || fromDate.equals(JAN2008)) {
+                    	fromDate = null;
+                    	toDate = null;
+                    }
                 }
                 
                 DateValuePair dvp = (DateValuePair)iskraEmecoRegistry.getRegister(strReg+" DATE_VALUE_PAIR");
-                
-                Unit obisCodeUnit=obisCode.getUnitElectricity(0);
-                if (obisCodeUnit.getDlmsCode() != 255)
-                    obisCodeUnit = obisCode.getUnitElectricity(regs.getScaler());
+                Unit obisCodeUnit = dvp.getUnit(); 
+                if (!obisCode.getUnitElectricity(0).getBaseUnit().toString().equalsIgnoreCase(obisCodeUnit.getBaseUnit().toString())) {
+                	if (!obisCodeUnit.isUndefined()) throw new NoSuchRegisterException("Unit of the obiscode (" + obisCode.getUnitElectricity(0).getBaseUnit() +") doesn't match the unit of the register received from the meter (" + obisCodeUnit.getBaseUnit() + ")");
+                	obisCodeUnit = obisCode.getUnitElectricity(0);
+                	if (obisCodeUnit.getDlmsCode() != 255)
+                        obisCodeUnit = obisCode.getUnitElectricity(regs.getScaler());
+                }
                 
                 Quantity quantity = new Quantity(dvp.getValue(),obisCodeUnit);
                 if (quantity.getAmount() != null) {
-                   Date date=dvp.getDate();
-                   registerValue = new RegisterValue(obisCode, quantity, date , billingDate);
-                   return registerValue;
-                }
-                else {
+                	eventDate = dvp.getDate();
+                	registerValue = new RegisterValue(obisCode, quantity, eventDate, fromDate, toDate);
+                } else {
                    String strValue = (String)iskraEmecoRegistry.getRegister(strReg+" STRING");
                    registerValue = new RegisterValue(obisCode,strValue);
-                   return registerValue;
                 }
-                
+                return registerValue;
             }
             catch(IOException e) {
                 MT83.sendDebug(e.getMessage(), DEBUG);

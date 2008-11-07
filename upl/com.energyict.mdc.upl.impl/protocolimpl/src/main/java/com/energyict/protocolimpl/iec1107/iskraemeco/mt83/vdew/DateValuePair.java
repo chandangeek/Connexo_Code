@@ -10,6 +10,8 @@ import java.io.*;
 import java.util.*;
 import java.math.BigDecimal;
 
+import com.energyict.cbo.Unit;
+
 /**
  *
  * @author  Koen
@@ -19,10 +21,13 @@ public class DateValuePair {
     
     Date date;
     BigDecimal value;
+    Unit unit;
+    
     /** Creates a new instance of DateValuePair */
-    public DateValuePair(Date date,BigDecimal value) {
+    public DateValuePair(Date date,BigDecimal value, Unit unit) {
         this.date = date;
         this.value = value;
+        this.unit = unit;
     }
     
     /**
@@ -57,7 +62,15 @@ public class DateValuePair {
         this.date = date;
     }
     
-    public String toString() {
+    public Unit getUnit() {
+		return unit;
+	}
+
+	public void setUnit(Unit unit) {
+		this.unit = unit;
+	}
+
+	public String toString() {
         return getValue()+", "+getDate();
     }
 }
