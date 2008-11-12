@@ -357,9 +357,6 @@ public class ABBA230 implements
     	return manipulated; 
     }
     
- 
-    
-    
     /* (non-Javadoc)
      * @see com.energyict.protocol.MeterProtocol#getFirmwareVersion() 
      */

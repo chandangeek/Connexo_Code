@@ -266,7 +266,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
         readRequestArray[1] = (byte)0xE6; // Source_LSAP
         readRequestArray[2] = 0x00; // LLC_Quality
         readRequestArray[DL_COSEMPDU_OFFSET] = COSEM_GETREQUEST;
-        readRequestArray[DL_COSEMPDU_OFFSET+1] = 0x02; // get request normal
+        readRequestArray[DL_COSEMPDU_OFFSET+1] = COSEM_GETREQUEST_NEXT; // get request next
         readRequestArray[DL_COSEMPDU_OFFSET+2] = (byte)0x81; //invoke id and priority
         readRequestArray[DL_COSEMPDU_OFFSET+3] = (byte)(iBlockNumber>>24);
         readRequestArray[DL_COSEMPDU_OFFSET+4] = (byte)(iBlockNumber>>16);

@@ -29,6 +29,10 @@ public class DataRecordHeader {
     public DataRecordHeader(byte[] data, int offset, TimeZone timeZone) throws IOException {
         setDataInformationBlock(new DataInformationBlock(data, offset, timeZone));
         offset+=getDataInformationBlock().size();
+        
+        // We could leave out this condition !isTYPE_NODATA() but then, there is a VIF that does not contain any data!
+        // Therefor, it is better not to include an "empty" VIF and just skip that Data Record Header.
+        // In the CIField72 class, an offset skip of 1 byte is added to skip the VIF! in case of isTYPE_NODATA()
         if (!dataInformationBlock.getDataInformationfield().getDataFieldCoding().isTYPE_NODATA()) {
             if (dataInformationBlock.getDataInformationfield().getDataFieldCoding().isTYPE_SPECIALFUNCTIONS()) {
                 valueInformationBlock = null;

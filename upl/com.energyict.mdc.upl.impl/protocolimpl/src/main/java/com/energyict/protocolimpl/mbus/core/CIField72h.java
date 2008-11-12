@@ -104,7 +104,12 @@ public class CIField72h extends AbstractCIField {
             DataRecord dataRecord = new DataRecord(data,offset,timeZone);
             getDataRecords().add(dataRecord);
             offset+=dataRecord.size();
+
             
+            // KV 12112008 In case of NODATA!
+            if (dataRecord.getDataRecordHeader().getDataInformationBlock().getDataInformationfield().getDataFieldCoding().isTYPE_NODATA())
+            	offset++;
+            	
             // break when encountering manufacturer specific data structure...
             if (dataRecord.getDataRecordHeader().getDataInformationBlock().getDataInformationfield().getDataFieldCoding().isTYPE_SPECIALFUNCTIONS())
                 break;
