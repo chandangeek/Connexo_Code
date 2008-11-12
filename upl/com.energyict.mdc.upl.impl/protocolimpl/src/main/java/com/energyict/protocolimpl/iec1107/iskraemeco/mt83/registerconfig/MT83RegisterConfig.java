@@ -54,7 +54,7 @@ public class MT83RegisterConfig extends RegisterConfig {
     	addToMap("1.0.53.7.0.255");
     	addToMap("1.0.73.7.0.255");
 
-    	// Frequency all phases Instantaneous value 
+    	// Frequency all phases Instantaneous value (Hz)
     	addToMap("1.0.14.7.0.255");
 
     	// Active power+ all phases rate 1 Maximum using measurement period 1 in billing period xx (0 to 15)

@@ -136,17 +136,18 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         }
     }
     public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
-        String[] ISKRAEMECO_METERREADINGS=null;
-        try {
-            ISKRAEMECO_METERREADINGS = ISKRAEMECO_METERREADINGS_DEFAULT;
-            
-            if (channelId >= getNumberOfChannels())
-                throw new IOException("IskraEmeco, getMeterReading, invalid channelId, "+channelId);
-            return (Quantity)getIskraEmecoRegistry().getRegister(ISKRAEMECO_METERREADINGS[channelId]);
-        }
-        catch(ClassCastException e) {
-            throw new IOException("IskraEmeco, getMeterReading, register "+ISKRAEMECO_METERREADINGS[channelId]+" ("+channelId+") is not type Quantity");
-        }
+//        String[] ISKRAEMECO_METERREADINGS=null;
+//        try {
+//            ISKRAEMECO_METERREADINGS = ISKRAEMECO_METERREADINGS_DEFAULT;
+//            
+//            if (channelId >= getNumberOfChannels())
+//                throw new IOException("IskraEmeco, getMeterReading, invalid channelId, "+channelId);
+//            return (Quantity)getIskraEmecoRegistry().getRegister(ISKRAEMECO_METERREADINGS[channelId]);
+//        }
+//        catch(ClassCastException e) {
+//            throw new IOException("IskraEmeco, getMeterReading, register "+ISKRAEMECO_METERREADINGS[channelId]+" ("+channelId+") is not type Quantity");
+//        }
+    	throw new UnsupportedException("getMeterReading() is not supported !!");
     }
     
     /**
@@ -159,13 +160,11 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);
         Date date = calendar.getTime();
         getIskraEmecoRegistry().setRegister(MT83Registry.TIME_AND_DATE_READWRITE,date);
-        //getIskraEmecoRegistry().setRegister("0.9.2",date);
     } // public void setTime() throws IOException
     
     public Date getTime() throws IOException {
         Date date =  (Date)getIskraEmecoRegistry().getRegister(MT83Registry.TIME_AND_DATE_READONLY);
-        sendDebug("getTime() Local time: " + new Date() + " GMT: " + new Date().toGMTString() + " TimeZone: " + getTimeZone().getID(), DEBUG);
-        sendDebug("getTime() result: METER: " + date.toString() + " GMT: " + date.toGMTString() + " METER-ROUNDTRIP: " + new Date(date.getTime()-iRoundtripCorrection).toString(), DEBUG);
+        sendDebug("getTime() result: METER: " + date.toString() + " METER-ROUNDTRIP: " + new Date(date.getTime()-iRoundtripCorrection).toString(), DEBUG);
         return new Date(date.getTime()-iRoundtripCorrection);
     }
     
@@ -295,7 +294,12 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     
     public String getFirmwareVersion() throws IOException,UnsupportedException {
         try {
-            return((String)getIskraEmecoRegistry().getRegister(MT83Registry.SOFTWARE_REVISION));
+            String fwversion = ""; 
+        	fwversion += "Version: " + (String)getIskraEmecoRegistry().getRegister(MT83Registry.SOFTWARE_REVISION) + " - ";
+        	fwversion += "Device date: " + (String)getIskraEmecoRegistry().getRegister(MT83Registry.SOFTWARE_DATE) + " - ";
+        	fwversion += "Device Type: " + (String)getIskraEmecoRegistry().getRegister(MT83Registry.DEVICE_TYPE) + " - ";
+        	
+        	return fwversion;
         }
         catch(IOException e) {
             throw new IOException("IskraEmeco, getFirmwareVersion, "+e.getMessage());

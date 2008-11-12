@@ -25,13 +25,19 @@ public class MT83Registry extends AbstractVDEWRegistry {
     
 	public static final String SERIAL = "MeterSerialNumber";
 	public static final String SOFTWARE_REVISION = "SoftwareRevisionNumber";
+	public static final String SOFTWARE_DATE = "SoftwareDate";
+	public static final String DEVICE_TYPE = "DeviceType";
+
 	public static final String PROFILE_INTERVAL = "ProfileInterval";
 
 	public static final String TIME_AND_DATE_STRING = "TimeDateString";
 	public static final String TIME_AND_DATE_READWRITE = "TimeDateReadWrite";
 	public static final String TIME_AND_DATE_READONLY = "TimeDateReadOnly";
+	public static final String TIME_READONLY = "TimeReadOnly";
+	public static final String DATE_READONLY = "DateReadOnly";
 	
 	public static final String BILLING_RESET_COUNTER = "BillingResetCounter";
+	
 	public static final String BILLING_DATE_START = "1.0.0.1.2.0";
 	public static final String BILLING_DATE_1 = "1.0.0.1.2.1";
 	public static final String BILLING_DATE_2 = "1.0.0.1.2.2";
@@ -65,19 +71,28 @@ public class MT83Registry extends AbstractVDEWRegistry {
 		final int INTEGER = VDEWRegisterDataParse.VDEW_INTEGER;
 		final int DATETIME = VDEWRegisterDataParse.VDEW_DATETIME;
 		final int DATETIME_NOSEC = VDEWRegisterDataParse.VDEW_DATETIME_NOSEC;
-		
+		final int TIME_HHMMSS = VDEWRegisterDataParse.VDEW_TIME_HHMMSS;
+		final int DATE_YYMMDD = VDEWRegisterDataParse.VDEW_DATE_YYMMDD;
 
 		// when READ5 is invoked on 11 and 12, SHHMMSS and SYYMMDD are returned S = seasonal info 0=normal, 1=DST, 2=UTC
         // when READ1 is invoked on 11 and 12, HHMMSS and YYMMDD are returned
 
-        registers.put(SERIAL, newReg("1-0:0.0.0*255", STRING, false, null, READ1, null));
-        registers.put(SOFTWARE_REVISION, newReg("0.2.0", STRING, false, null, READ1, null));
-        registers.put(PROFILE_INTERVAL, newReg("0.8.5", INTEGER, false, null, READ1, null));
+        registers.put(SERIAL, newReg("1.0.0.0.0.255", STRING, false, null, READ1, null));
+        registers.put(SOFTWARE_REVISION, newReg("1.0.0.2.0.255", STRING, false, null, READ1, null));
+        registers.put(SOFTWARE_DATE, newReg("0.0.96.1.3.255", STRING, false, null, READ1, null));
+        registers.put(DEVICE_TYPE, newReg("0.0.96.1.1.255", STRING, false, null, READ1, null));
 
-        registers.put(TIME_AND_DATE_STRING, newReg("0.9.4", STRING, false, null, READ1, null));
-        registers.put(TIME_AND_DATE_READONLY, newReg("0.9.4", DATETIME, false, null, READ1, null));
-        registers.put(TIME_AND_DATE_READWRITE, newReg("0.9.4",DATETIME, true, null, READ1, WRITE1));
+        
+        registers.put(PROFILE_INTERVAL, newReg("1.0.0.8.5.255", INTEGER, false, null, READ1, null));
 
+        registers.put(TIME_AND_DATE_STRING, newReg("1.0.0.9.4.255", STRING, false, null, READ1, null));
+        registers.put(TIME_AND_DATE_READONLY, newReg("1.0.0.9.4.255", DATETIME, false, null, READ1, null));
+        registers.put(TIME_AND_DATE_READWRITE, newReg("1.0.0.9.4.255",DATETIME, true, null, READ1, WRITE1));
+
+        registers.put(TIME_READONLY, newReg("1.0.0.9.1.255", TIME_HHMMSS, false, null, READ1, null));
+        registers.put(DATE_READONLY, newReg("1.0.0.9.2.255",DATE_YYMMDD, true, null, READ1, WRITE1));
+        
+        
         registers.put(BILLING_RESET_COUNTER, newReg("1.0.0.1.0.255", INTEGER, false, null, READ1, null));
         
         registers.put(BILLING_DATE_1, newReg("1.0.0.1.2.1", DATETIME_NOSEC, false, null, READ1, null)); 
@@ -96,10 +111,6 @@ public class MT83Registry extends AbstractVDEWRegistry {
         registers.put(BILLING_DATE_14, newReg("1.0.0.1.2.14", DATETIME_NOSEC, false, null, READ1, null));
         registers.put(BILLING_DATE_15, newReg("1.0.0.1.2.15", DATETIME_NOSEC, false, null, READ1, null));
         
-//      registers.put("Total Energy A+", new VDEWRegister("20",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,Unit.get("kWh"),VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED,FlagIEC1107Connection.READ1));
-//      registers.put("Total Energy R1", new VDEWRegister("22",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,Unit.get("kvarh"),VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED,FlagIEC1107Connection.READ1));
-//      registers.put("Total Energy R4", new VDEWRegister("23",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,Unit.get("kvarh"),VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED,FlagIEC1107Connection.READ1));
-
     }
         
     private VDEWRegister newReg(String registerID_in, int dataType, boolean isWritable, Unit unit, byte[] readCommand, byte[] writeCommand) {
