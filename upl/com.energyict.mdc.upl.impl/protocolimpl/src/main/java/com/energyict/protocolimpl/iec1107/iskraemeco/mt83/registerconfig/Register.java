@@ -6,11 +6,6 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.obis.ObisCode;
-
 
 /**
  *

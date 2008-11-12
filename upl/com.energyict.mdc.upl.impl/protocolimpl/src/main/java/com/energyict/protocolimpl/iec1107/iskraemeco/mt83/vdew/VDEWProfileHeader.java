@@ -7,7 +7,6 @@
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;
 
 import java.io.*;
-import java.util.*;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 

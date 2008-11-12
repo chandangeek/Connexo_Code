@@ -11,7 +11,6 @@ import java.util.*;
 import com.energyict.cbo.*;
 import java.math.*;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.edmi.mk10.MK10;
 import com.energyict.protocolimpl.iec1107.*;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.MT83;
 

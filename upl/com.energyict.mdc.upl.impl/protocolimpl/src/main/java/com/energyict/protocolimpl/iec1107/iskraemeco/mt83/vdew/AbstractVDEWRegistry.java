@@ -8,8 +8,6 @@ package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;
 
 import java.io.*;
 import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.iec1107.*;
 

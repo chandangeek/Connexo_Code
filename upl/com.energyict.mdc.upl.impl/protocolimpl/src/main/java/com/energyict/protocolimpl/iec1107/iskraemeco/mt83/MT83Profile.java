@@ -1,5 +1,5 @@
 /*
- * IskraEmecoProfile.java
+ * MT83Profile.java
  *
  * Created on 12 mei 2003, 15:00
  */
@@ -11,6 +11,8 @@ import java.util.*;
 import com.energyict.cbo.*;
 import java.math.*;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.ProtocolChannel;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.*;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.*;
 
@@ -25,7 +27,7 @@ public class MT83Profile extends VDEWProfile {
     
     private static final int DEBUG=1;
     
-    /** Creates a new instance of IskraEmecoProfile */
+    /** Creates a new instance of MT83Profile */
     public MT83Profile(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink, AbstractVDEWRegistry abstractVDEWRegistry) {
         super(meterExceptionInfo,protocolLink,abstractVDEWRegistry);
     }
@@ -60,7 +62,7 @@ public class MT83Profile extends VDEWProfile {
         } else {
         	profileData = new ProfileData();
         	for (int i = 0; i < nrOfChannels; i++) 
-        		profileData.addChannel(new ChannelInfo(i,"iskraEmeco_channel_"+i,Unit.get("")));
+        		profileData.addChannel(new ChannelInfo(i,"mt83_channel_"+i,Unit.get("")));
         }
     	
         if (logbook != null) addLogbookEvents(logbook,profileData);
@@ -232,8 +234,8 @@ public class MT83Profile extends VDEWProfile {
 //        
 //    } // private void mapStatus2IntervalStatus(long lLogCode)
 
-    private void verifyChannelMap(ChannelMap channelMap) throws IOException {
-        if (!getProtocolLink().getChannelMap().hasEqualRegisters(channelMap)) 
+    private void verifyChannelMap(ProtocolChannelMap channelMap) throws IOException {
+        if (!getProtocolLink().getProtocolChannelMap().hasEqualRegisters(channelMap)) 
             throw new InvalidPropertyException("verifyChannelMap() profile channelmap registers ("+channelMap.getChannelRegisterMap()+") different from given configuration channelmap registers ("+getProtocolLink().getChannelMap().getChannelRegisterMap()+")");
     }
     
@@ -256,8 +258,8 @@ public class MT83Profile extends VDEWProfile {
             calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
             profileData = new ProfileData();
             for (t=0;t<nrOfChannels;t++) {
-                ChannelInfo chi = new ChannelInfo(t,"iskraEmeco_channel_"+t,Unit.get(""));
-                Channel channel = getProtocolLink().getChannelMap().getChannel(t);
+                ChannelInfo chi = new ChannelInfo(t,"mt83_channel_"+t,Unit.get(""));
+                ProtocolChannel channel = getProtocolLink().getProtocolChannelMap().getProtocolChannel(t);
                 if (channel.isCumul()) {
                    chi.setCumulativeWrapValue(channel.getWrapAroundValue());
                 }
@@ -289,14 +291,14 @@ public class MT83Profile extends VDEWProfile {
                     for (t=0;t<bNROfValues;t++) {
                         i=gotoNextOpenBracket(responseData,i+1);
                         // add channel to list
-                        channels.add(new Channel(parseFindString(responseData,i)));
+                        channels.add(new ProtocolChannel(parseFindString(responseData,i)));
                         
                         i=gotoNextOpenBracket(responseData,i+1);
                         // set channel unit
                         ((ChannelInfo)profileData.getChannel(t)).setUnit(Unit.get(parseFindString(responseData,i)));
                     }
                     
-                    verifyChannelMap(new ChannelMap(channels));
+                    verifyChannelMap(new ProtocolChannelMap(channels));
                     
                     i= gotoNextCR(responseData,i+1);
                 }
@@ -371,4 +373,4 @@ public class MT83Profile extends VDEWProfile {
         }
     }
     
-} // IskraEmecoProfile
+} // MT83Profile

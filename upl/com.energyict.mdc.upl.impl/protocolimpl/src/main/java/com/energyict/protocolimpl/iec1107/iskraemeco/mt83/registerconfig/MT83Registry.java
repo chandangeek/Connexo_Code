@@ -1,16 +1,12 @@
 /*
- * IskraEmecoRegister.java
+ * MK10Register.java
  *
  * Created on 16 juni 2003, 16:35
  */
 
-package com.energyict.protocolimpl.iec1107.iskraemeco.mt83;
+package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig;
 
-import java.io.*;
-import java.util.*;
 import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
 import com.energyict.protocolimpl.iec1107.*;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.*;
 import com.energyict.protocol.MeterExceptionInfo;
@@ -55,7 +51,7 @@ public class MT83Registry extends AbstractVDEWRegistry {
 	public static final String BILLING_DATE_14 = "1.0.0.1.2.14";
 	public static final String BILLING_DATE_15 = "1.0.0.1.2.15";
 		
-    /** Creates a new instance of IskraEmecoRegister */
+    /** Creates a new instance of MK10Register */
     public MT83Registry(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink) {
         super(meterExceptionInfo,protocolLink);
     }

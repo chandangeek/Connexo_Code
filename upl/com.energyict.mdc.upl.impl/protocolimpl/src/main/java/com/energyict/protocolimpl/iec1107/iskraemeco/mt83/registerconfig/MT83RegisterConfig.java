@@ -6,7 +6,6 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig;
 
-import java.io.*;
 import java.util.*;
 
 import com.energyict.obis.ObisCode;
@@ -19,6 +18,7 @@ import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.MT83;
 public class MT83RegisterConfig extends RegisterConfig {
     
     final public int SCALER=3;
+    private static final int DEBUG = 0;  
     
     /** Creates a new instance of EDPRegisters */
     public MT83RegisterConfig() {
@@ -26,10 +26,6 @@ public class MT83RegisterConfig extends RegisterConfig {
     }
     
     protected void initRegisterMap() {
-//        map.put(ObisCode.fromString("1.1.9.8.0.255"),new Register("50",-1)); 
-//        map.put(ObisCode.fromString("1.1.9.6.0.255"),new Register("52",0)); 
-//        
-
     	
     	addToMap("0.0.96.1.0.255", "Serial", 1, 0, 1);
     	addToMap("0.0.97.97.0.255", "Errorcode", 2, 0, 1);
@@ -61,63 +57,70 @@ public class MT83RegisterConfig extends RegisterConfig {
     	addToMap("1.1.1.6.1.255");
     	addToMap("1.1.1.6.1.0", 6, 0, 15);
 
-    	// FIXME -----------------------------------------------------------------
-    	addToMap("1.2.5.6.1.255");
-    	addToMap("1.2.5.6.1.0", 6, 0, 15);
+    	// Active power+ all phases Time integral from start of measurement to billing point xx in billing period xx (0 to 15)
+    	addToMap("1.1.1.8.0.255");
+    	addToMap("1.1.1.8.0.0", 6, 0, 15);
 
-    	// FIXME -----------------------------------------------------------------
-    	addToMap("1.2.5.6.2.255");
-    	addToMap("1.2.5.6.2.0", 6, 0, 15);
-    	
-    	// FIXME -----------------------------------------------------------------
-    	addToMap("1.2.8.6.1.255");
-    	addToMap("1.2.8.6.1.0", 6, 0, 15);
-    	
-    	// FIXME -----------------------------------------------------------------
-    	addToMap("1.2.8.6.2.255");
-    	addToMap("1.2.8.6.2.0", 6, 0, 15);
-    	
-    	// FIXME -----------------------------------------------------------------
+    	// Active power+ all phases rate 1 Time integral from start of measurement to billing point xx in billing period xx (0 to 15)
     	addToMap("1.1.1.8.1.255");
     	addToMap("1.1.1.8.1.0", 6, 0, 15);
     	
-    	// FIXME -----------------------------------------------------------------
+    	// Active power+ all phases rate 2 Time integral from start of measurement to billing point xx in billing period xx (0 to 15)
     	addToMap("1.1.1.8.2.255");
     	addToMap("1.1.1.8.2.0", 6, 0, 15);
     	
-    	// FIXME -----------------------------------------------------------------
+    	// Active power+ all phases rate 3 Time integral from start of measurement to billing point xx in billing period xx (0 to 15)
     	addToMap("1.1.1.8.3.255");
     	addToMap("1.1.1.8.3.0", 6, 0, 15);
+
+    	// Reactive power QI all phases rate 1 Maximum using measurement period 1 in billing period xx (0 to 15)
+    	addToMap("1.2.5.6.1.255");
+    	addToMap("1.2.5.6.1.0", 6, 0, 15);
+
+    	// Reactive power QI all phases rate 2 Maximum using measurement period 1 in billing period xx (0 to 15)
+    	addToMap("1.2.5.6.2.255");
+    	addToMap("1.2.5.6.2.0", 6, 0, 15);
     	
-    	// FIXME -----------------------------------------------------------------
+    	// Reactive power QIV all phases rate 1 Maximum using measurement period 1 in billing period xx (0 to 15)
+    	addToMap("1.2.8.6.1.255");
+    	addToMap("1.2.8.6.1.0", 6, 0, 15);
+    	
+    	// Reactive power QIV all phases rate 2 Maximum using measurement period 1 in billing period xx (0 to 15)
+    	addToMap("1.2.8.6.2.255");
+    	addToMap("1.2.8.6.2.0", 6, 0, 15);
+    	
+    	// Reactive power QI all phases rate 1 Time integral from start of measurement to billing point xx in billing period xx	(0 to 15)
     	addToMap("1.2.5.8.1.255");
     	addToMap("1.2.5.8.1.0", 6, 0, 15);
     	
-    	// FIXME -----------------------------------------------------------------
+    	// Reactive power QI all phases rate 2 Time integral from start of measurement to billing point xx in billing period xx	(0 to 15)
     	addToMap("1.2.5.8.2.255");
     	addToMap("1.2.5.8.2.0", 6, 0, 15);
     	
-    	// FIXME -----------------------------------------------------------------
+    	// Reactive power QIV all phases rate 1 Time integral from start of measurement to billing point xx in billing period xx (0 to 15)
     	addToMap("1.2.8.8.1.255");
     	addToMap("1.2.8.8.1.0", 6, 0, 15);
     	
-    	// FIXME -----------------------------------------------------------------
+    	// Reactive power QIV all phases rate 2 Time integral from start of measurement to billing point xx in billing period xx (0 to 15)
     	addToMap("1.2.8.8.2.255");
     	addToMap("1.2.8.8.2.0", 6, 0, 15);
     	
-    	// FIXME -----------------------------------------------------------------
-    	addToMap("1.1.1.8.0.255");
-    	addToMap("1.1.1.8.0.0", 6, 0, 15);
-    	
-    	// FIXME -----------------------------------------------------------------
+    	// Reactive power QI all phases Time integral from start of measurement to billing point xx in billing period xx (0 to 15)
     	addToMap("1.2.5.8.0.255");
     	addToMap("1.2.5.8.0.0", 6, 0, 15);
     	
-    	// FIXME -----------------------------------------------------------------
+    	// Reactive power QIV all phases Time integral from start of measurement to billing point xx in billing period xx (0 to 15)
     	addToMap("1.2.8.8.0.255");
     	addToMap("1.2.8.8.0.0", 6, 0, 15);
     	
+    	// CT numerator
+    	addToMap("1.0.0.4.2.255");
     	
+    	// VT numerator
+    	addToMap("1.0.0.4.3.255");
+    	
+    	// Programming ID
+    	addToMap("1.2.0.0.1.255", "[Iskra specific] Programming ID");
     	
 //        // cumulative maximum demand registers
 //        map.put(ObisCode.fromString("1.1.1.2.0.255"),new Register("2",-1));
@@ -265,7 +268,7 @@ public class MT83RegisterConfig extends RegisterConfig {
 	}
     
     private void addToMap(String obisString, String description) {
-    	if (map.get(ObisCode.fromString(obisString)) != null) MT83.sendDebug(" !!!!!!!!! DUPLICATE ENTRY !!!!!!!!! " + obisString, 1);
+    	if (map.get(ObisCode.fromString(obisString)) != null) MT83.sendDebug(" !!!!!!!!! DUPLICATE ENTRY !!!!!!!!! " + obisString, DEBUG);
     	map.put(ObisCode.fromString(obisString),new Register(description, 0)); 
     }
 

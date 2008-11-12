@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83;
 
-import com.energyict.protocol.ProtocolUtils;
-
 public class MT83EventType {
 	int eventCode;
 	String message;
