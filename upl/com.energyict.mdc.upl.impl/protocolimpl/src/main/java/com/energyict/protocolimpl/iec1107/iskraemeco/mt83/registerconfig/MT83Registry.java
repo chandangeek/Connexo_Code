@@ -1,7 +1,6 @@
 /*
  * MK10Register.java
  *
- * Created on 16 juni 2003, 16:35
  */
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig;
@@ -13,9 +12,7 @@ import com.energyict.protocol.MeterExceptionInfo;
 
 /**
  *
- * @author  Koen
- * changes:
- * KV 17022004 extended with MeterExceptionInfo
+ * @author  jme
  */
 public class MT83Registry extends AbstractVDEWRegistry {
     

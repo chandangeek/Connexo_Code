@@ -1,7 +1,6 @@
 /*
  * RegisterMapping.java
  *
- * Created on 18 oktober 2004, 16:42
  */
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig;
