@@ -7,6 +7,7 @@ package com.energyict.protocolimpl.iec1107.iskraemeco.mt83;
 
 import java.io.*;
 import java.util.*;
+
 import com.energyict.cbo.*;
 import java.math.*;
 import com.energyict.protocol.*;
@@ -262,7 +263,7 @@ public class MT83Profile extends VDEWProfile {
             } // while(true) {
             
             // Check on duplicate event dates/time. CommServer overwrites events with the same timestamp.
-            profileData.setMeterEvents(ProtocolUtils.checkOnOverlappingEvents(profileData.getMeterEvents()));
+            profileData.setMeterEvents(checkOnOverlappingEvents(profileData.getMeterEvents()));
             
         }
         catch(IOException e) {
@@ -270,4 +271,27 @@ public class MT83Profile extends VDEWProfile {
         }
     }
     
+    public static List checkOnOverlappingEvents(List meterEvents) {
+    	Map eventsMap = new HashMap();
+        int size = meterEvents.size();
+	    for (int i = 0; i < size; i++) {
+	    	MeterEvent event = (MeterEvent) meterEvents.get(i);
+	    	Date time = event.getTime();
+	    	MeterEvent eventInMap = (MeterEvent) eventsMap.get(time);
+	    	while (eventInMap != null) {
+	    		time.setTime(time.getTime() + 1000); // add one second
+				eventInMap = (MeterEvent) eventsMap.get(time);
+	    	}
+	    	MeterEvent newMeterEvent= 
+	    		new MeterEvent(time, event.getEiCode(), event.getProtocolCode(),event.getMessage());
+    		eventsMap.put(time, newMeterEvent);
+	    }
+	    Iterator it = eventsMap.values().iterator();
+		List result = new ArrayList();
+	    while (it.hasNext()) 
+	        result.add((MeterEvent) it.next());
+		return result;
+    }
+    
 } // MT83Profile
+
