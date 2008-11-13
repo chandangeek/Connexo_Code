@@ -1,7 +1,6 @@
 /*
  * MT83Profile.java
  *
- * Created on 12 mei 2003, 15:00
  */
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83;
@@ -18,10 +17,7 @@ import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.*;
 
 /**
  *
- * @author  Koen
- * changes:
- * KV 17022004 extended with MeterExceptionInfo
- * KV 17022004 bugfix, logcodes hex
+ * @author  jme
  */
 public class MT83Profile extends VDEWProfile {
     
@@ -146,94 +142,6 @@ public class MT83Profile extends VDEWProfile {
         return new String(strparse);
     } // private String parseFindString(byte[] data,int iOffset)
     
-    
-    //private static final int LOGGER_CLEARED = 0x4000;
-    //private static final int LOGBOOK_CLEARED = 0x2000;
-    //private static final int WATCHDOG = 0x0600;
-    //private static final int CPU_ERROR = 0x0400;
-    //private static final int PARAMETER_SETTING = 0x0100;
-    // This status flag info is taken from a metercom profile data log.
-//    private static final int POWER_FAILURE = 0x80;
-//    private static final int POWER_RECOVERY = 0x40;
-//    private static final int DEVICE_CLOCK_SET = 0x20;
-//    private static final int DEVICE_RESET = 0x10;
-//    private static final int SEASONAL_SWITCHOVER = 0x08;
-//    private static final int DISTURBED_MEASURE = 0x04;
-//    private static final int RUNNING_RESERVE_EXHAUSTED = 0x02;
-//    private static final int FATAL_DEVICE_ERROR = 0x01;
-    
-//    private long mapLogCodes2MeterEvent(long lLogCode) {
-//        // Phase errors...
-//        if ((lLogCode >= 0x111) && (lLogCode<=0x303)) {
-//            return MeterEvent.METER_ALARM;
-//        }
-//        
-//        if ((lLogCode >= 0x81) && (lLogCode<=0x83)) {
-//            return MeterEvent.METER_ALARM;
-//        }
-//        
-//        if ((lLogCode >= 0x41) && (lLogCode<=0x43)) {
-//            return MeterEvent.METER_ALARM;
-//        }
-//        
-//        switch((int)lLogCode) {
-//            //case PARAMETER_SETTING:
-//            //    return(MeterEvent.CONFIGURATIONCHANGE);
-//                
-//            case DEVICE_CLOCK_SET:
-//                return(MeterEvent.SETCLOCK);
-//                
-//            //case WATCHDOG:
-//            //    return(MeterEvent.WATCHDOGRESET);
-//                
-//            case FATAL_DEVICE_ERROR:
-//                return(MeterEvent.FATAL_ERROR);
-//            //case CPU_ERROR:    
-//            //    return(MeterEvent.HARDWARE_ERROR);
-//            case POWER_FAILURE:
-//                return(MeterEvent.POWERDOWN);
-//            case POWER_RECOVERY:
-//                return(MeterEvent.POWERUP);
-//
-//            //case LOGGER_CLEARED:
-//            //    return MeterEvent.CLEAR_DATA;
-//                
-//            case DEVICE_RESET:
-//            //case LOGBOOK_CLEARED:
-//            case SEASONAL_SWITCHOVER:
-//            case DISTURBED_MEASURE:
-//            case RUNNING_RESERVE_EXHAUSTED:
-//            default:
-//                return MeterEvent.OTHER;
-//                
-//        } // switch(lLogCode)
-//        
-//    } // private void mapLogCodes2MeterEvent(long lLogCode)
-    
-//    private long mapStatus2IntervalStatus(long lLogCode) {
-//                
-//        switch((int)lLogCode) {
-//            case DISTURBED_MEASURE:
-//                return IntervalData.CORRUPTED;
-//
-//            //case PARAMETER_SETTING:
-//            //    return IntervalData.CONFIGURATIONCHANGE;
-//                
-//            case DEVICE_CLOCK_SET:
-//                return IntervalData.SHORTLONG;
-//                
-//            case POWER_FAILURE:
-//                return IntervalData.POWERDOWN;
-//                
-//            case POWER_RECOVERY:
-//                return IntervalData.POWERUP;
-//                
-//        } // switch(lLogCode)
-//        
-//        return 0;
-//        
-//    } // private void mapStatus2IntervalStatus(long lLogCode)
-
     private void verifyChannelMap(ProtocolChannelMap channelMap) throws IOException {
         if (!getProtocolLink().getProtocolChannelMap().hasEqualRegisters(channelMap)) 
             throw new InvalidPropertyException("verifyChannelMap() profile channelmap registers ("+channelMap.getChannelRegisterMap()+") different from given configuration channelmap registers ("+getProtocolLink().getChannelMap().getChannelRegisterMap()+")");
@@ -328,18 +236,7 @@ public class MT83Profile extends VDEWProfile {
         
         return profileData;
     } // ProfileData buildProfileData(byte[] responseData) throws IOException
-    
-//    private int parseStatus2IntervalStatus(int status) {
-//        int t,eiStatus=0;
-//        status &= (SEASONAL_SWITCHOVER^0xFFFF);
-//        for (t=0;t<16;t++) {
-//            if ((status & (0x01<<t)) != 0) {
-//                eiStatus |= (int)mapStatus2IntervalStatus((long)(status&(0x01<<t))&0xFF);
-//            }
-//        }
-//        return eiStatus;
-//    }
-    
+        
     private void addLogbookEvents(byte[] logBook, ProfileData profileData) throws IOException {
         MT83EventType eventtype = null;
         Calendar calendar;
@@ -364,7 +261,7 @@ public class MT83Profile extends VDEWProfile {
 						eventtype.getMessage()));
             } // while(true) {
             
-            // Check on duplicate event dates/time. Commserver overwrites events with the same timestamp.
+            // Check on duplicate event dates/time. CommServer overwrites events with the same timestamp.
             profileData.setMeterEvents(ProtocolUtils.checkOnOverlappingEvents(profileData.getMeterEvents()));
             
         }

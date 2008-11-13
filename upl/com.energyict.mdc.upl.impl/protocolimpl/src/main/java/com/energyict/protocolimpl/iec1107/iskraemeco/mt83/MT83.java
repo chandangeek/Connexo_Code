@@ -1,13 +1,3 @@
-/*
- * MT83.java
- *
- * Created on 8 mei 2003, 17:56
- */
-
-/*
- *  Changes:
- *  KV 15022005 Changed RegisterConfig to allow B field obiscodes != 1 
- */
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83;
 
 import java.io.*;
@@ -30,23 +20,14 @@ import com.energyict.dialer.connection.HHUSignOn;
  * @author   Koenraad Vanderschaeve
  * <P>
  * <B>Description :</B><BR>
- * Class that implements the Iskra meter IEC1107 protocol.
+ * Class that implements the Iskra MT83 meter IEC1107 protocol.
  * <BR>
- * <B>@beginchanges</B><BR>
-KV|29012004|Changed serial number and device id behaviour
-KV|17022004| extended with MeterExceptionInfo
-KV|23032005|Changed header to be compatible with protocol version tool
-KV|30032005|Improved registerreading, configuration data
-KV|30032005|Handle StringOutOfBoundException in IEC1107 connection layer
- * @endchanges
  *
  */
 public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExceptionInfo, RegisterProtocol {
     
     private static final byte DEBUG=0;
-    
-    private static final String[] MT83_METERREADINGS_DEFAULT = {"Total Energy A+","Total Energy R1","Total Energy R4"};
-    
+        
     private static final int LOADPROFILES_FIRST = 1;
     private static final int LOADPROFILES_LAST = 2;
     
@@ -480,10 +461,10 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     }
     
     public static void sendDebug(String message, int debuglvl) {
-    	if ((debuglvl > 0) && (DEBUG > 0 )) {
-    		message = " ##### DEBUG [" + new Date().toString() + "] ######## > " + message;
-    		System.out.println(message);
-    		if (logger != null) logger.info(message);
+		message = " ##### DEBUG [" + new Date().toString() + "] ######## > " + message;
+		System.out.println(message);
+    	if ((debuglvl > 0) && (DEBUG > 0 ) && (logger != null)) {
+    		logger.info(message);
     	}
     }
 

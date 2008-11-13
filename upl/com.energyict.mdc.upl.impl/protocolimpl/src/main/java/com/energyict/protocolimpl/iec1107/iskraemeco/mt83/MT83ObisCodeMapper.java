@@ -1,7 +1,6 @@
 /*
  * ObisCodeMapper.java
  *
- * Created on 15 juli 2004, 8:49
  */
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83;
@@ -16,7 +15,7 @@ import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.*;
 
 /**
  *
- * @author  Koen
+ * @author  jme
  */
 public class MT83ObisCodeMapper {
 	private static final int DEBUG = 0;

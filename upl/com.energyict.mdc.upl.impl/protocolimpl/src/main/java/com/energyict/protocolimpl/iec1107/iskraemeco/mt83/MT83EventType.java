@@ -20,6 +20,4 @@ public class MT83EventType {
 		return this.message;
 	}
 	
-	
-	
 }

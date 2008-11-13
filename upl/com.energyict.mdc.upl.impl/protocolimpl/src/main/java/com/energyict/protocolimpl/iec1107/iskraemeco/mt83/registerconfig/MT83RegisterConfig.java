@@ -89,6 +89,10 @@ public class MT83RegisterConfig extends RegisterConfig {
     	addToMap("1.2.8.6.2.255");
     	addToMap("1.2.8.6.2.0", 6, 0, 15);
     	
+    	// Reactive power QI all phases Time integral from start of measurement to billing point xx in billing period xx (0 to 15)
+    	addToMap("1.2.5.8.0.255");
+    	addToMap("1.2.5.8.0.0", 6, 0, 15);
+
     	// Reactive power QI all phases rate 1 Time integral from start of measurement to billing point xx in billing period xx	(0 to 15)
     	addToMap("1.2.5.8.1.255");
     	addToMap("1.2.5.8.1.0", 6, 0, 15);
@@ -97,6 +101,10 @@ public class MT83RegisterConfig extends RegisterConfig {
     	addToMap("1.2.5.8.2.255");
     	addToMap("1.2.5.8.2.0", 6, 0, 15);
     	
+    	// Reactive power QIV all phases Time integral from start of measurement to billing point xx in billing period xx (0 to 15)
+    	addToMap("1.2.8.8.0.255");
+    	addToMap("1.2.8.8.0.0", 6, 0, 15);
+    	
     	// Reactive power QIV all phases rate 1 Time integral from start of measurement to billing point xx in billing period xx (0 to 15)
     	addToMap("1.2.8.8.1.255");
     	addToMap("1.2.8.8.1.0", 6, 0, 15);
@@ -104,15 +112,7 @@ public class MT83RegisterConfig extends RegisterConfig {
     	// Reactive power QIV all phases rate 2 Time integral from start of measurement to billing point xx in billing period xx (0 to 15)
     	addToMap("1.2.8.8.2.255");
     	addToMap("1.2.8.8.2.0", 6, 0, 15);
-    	
-    	// Reactive power QI all phases Time integral from start of measurement to billing point xx in billing period xx (0 to 15)
-    	addToMap("1.2.5.8.0.255");
-    	addToMap("1.2.5.8.0.0", 6, 0, 15);
-    	
-    	// Reactive power QIV all phases Time integral from start of measurement to billing point xx in billing period xx (0 to 15)
-    	addToMap("1.2.8.8.0.255");
-    	addToMap("1.2.8.8.0.0", 6, 0, 15);
-    	
+    	    	
     	// CT numerator
     	addToMap("1.0.0.4.2.255");
     	
@@ -121,7 +121,7 @@ public class MT83RegisterConfig extends RegisterConfig {
     	
     	// Programming ID
     	addToMap("1.2.0.0.1.255", "[Iskra specific] Programming ID");
-    	
+    	    	
 //        // cumulative maximum demand registers
 //        map.put(ObisCode.fromString("1.1.1.2.0.255"),new Register("2",-1));
 //        map.put(ObisCode.fromString("1.1.5.2.0.255"),new Register("32",-1));
@@ -268,7 +268,6 @@ public class MT83RegisterConfig extends RegisterConfig {
 	}
     
     private void addToMap(String obisString, String description) {
-    	if (map.get(ObisCode.fromString(obisString)) != null) MT83.sendDebug(" !!!!!!!!! DUPLICATE ENTRY !!!!!!!!! " + obisString, DEBUG);
     	map.put(ObisCode.fromString(obisString),new Register(description, 0)); 
     }
 

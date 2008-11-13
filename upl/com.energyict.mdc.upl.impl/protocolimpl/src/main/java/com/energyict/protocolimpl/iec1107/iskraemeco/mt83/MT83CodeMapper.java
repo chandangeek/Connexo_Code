@@ -164,14 +164,12 @@ public final class MT83CodeMapper {
 			eistatus |= IntervalData.CORRUPTED; 
 		}
 		if ((statuscode & STATUS_DST_SEASON_CHANGE) != 0) {
-			eistatus |= IntervalData.CONFIGURATIONCHANGE; 
 			eistatus |= IntervalData.SHORTLONG; 
 		}
 		if ((statuscode & STATUS_MASTER_DEVICE_RESET) != 0) {
 			eistatus |= IntervalData.OTHER; 
 		}
 		if ((statuscode & STATUS_RTC_SET) != 0) {
-			eistatus |= IntervalData.CONFIGURATIONCHANGE; 
 			eistatus |= IntervalData.SHORTLONG; 
 		}
 		if ((statuscode & STATUS_POWER_UP) != 0) {
