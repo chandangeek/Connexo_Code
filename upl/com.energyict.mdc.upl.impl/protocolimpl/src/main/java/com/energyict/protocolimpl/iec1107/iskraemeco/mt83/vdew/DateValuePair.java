@@ -1,7 +1,6 @@
 /*
  * DateValuePair.java
  *
- * Created on 21 oktober 2004, 15:52
  */
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;

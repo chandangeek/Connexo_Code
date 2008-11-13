@@ -1,7 +1,6 @@
 /*
  * VDEWLogbook.java
  *
- * Created on 12 september 2003, 14:03
  */
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;

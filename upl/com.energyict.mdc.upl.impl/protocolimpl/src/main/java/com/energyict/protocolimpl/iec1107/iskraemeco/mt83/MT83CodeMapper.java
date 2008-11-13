@@ -5,6 +5,10 @@ import java.util.*;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 
+/**
+*
+* @author  jme
+*/
 public final class MT83CodeMapper {
 
     public static Map exceptionInfoMap = new HashMap();

@@ -1,7 +1,6 @@
 /*
  * VDEWRegisterDataParse.java
  *
- * Created on 8 mei 2003, 18:12
  */
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;

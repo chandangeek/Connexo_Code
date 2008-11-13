@@ -1,7 +1,6 @@
 /*
  * ProfileHeader.java
  *
- * Created on 4 januari 2005, 15:18
  */
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;

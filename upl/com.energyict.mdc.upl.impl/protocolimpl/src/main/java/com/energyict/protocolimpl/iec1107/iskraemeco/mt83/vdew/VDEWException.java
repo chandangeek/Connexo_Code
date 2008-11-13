@@ -1,7 +1,6 @@
 /*
  * VDEWException.java
  *
- * Created on 4 oktober 2002, 16:01
  */
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;

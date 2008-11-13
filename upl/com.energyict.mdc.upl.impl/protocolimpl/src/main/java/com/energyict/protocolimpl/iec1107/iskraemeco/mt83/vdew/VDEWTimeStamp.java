@@ -1,7 +1,6 @@
 /*
  * VDEWTimeStamp.java
  *
- * Created on 10 januari 2005, 13:59
  */
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;

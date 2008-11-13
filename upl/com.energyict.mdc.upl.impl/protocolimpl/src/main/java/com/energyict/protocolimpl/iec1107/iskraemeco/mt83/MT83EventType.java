@@ -1,5 +1,9 @@
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83;
 
+/**
+*
+* @author  jme
+*/
 public class MT83EventType {
 	int eventCode;
 	String message;

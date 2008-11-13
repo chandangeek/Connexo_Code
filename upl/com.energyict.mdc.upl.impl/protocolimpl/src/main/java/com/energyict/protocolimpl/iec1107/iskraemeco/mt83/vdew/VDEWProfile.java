@@ -1,7 +1,6 @@
 /*
  * VDEWProfile.java
  *
- * Created on 12 mei 2003, 9:55
  */
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;

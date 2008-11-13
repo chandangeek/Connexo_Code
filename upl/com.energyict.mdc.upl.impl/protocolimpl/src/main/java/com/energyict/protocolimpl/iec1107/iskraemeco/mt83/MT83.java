@@ -16,9 +16,8 @@ import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.connection.HHUSignOn;
 
 /**
- * @version  1.0
- * @author   Koenraad Vanderschaeve
- * <P>
+ * @author  jme
+ * 
  * <B>Description :</B><BR>
  * Class that implements the Iskra MT83 meter IEC1107 protocol.
  * <BR>
