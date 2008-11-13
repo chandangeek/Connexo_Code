@@ -139,13 +139,23 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			success = true;
 			
 		} catch (DLMSConnectionException e) {
-			disConnect();
+			try {
+				disConnect();
+			} catch (DLMSConnectionException e1) {
+				e1.printStackTrace();
+				new BusinessException(e1);
+			}
 			e.printStackTrace();
 		} finally{
 			prepareForCacheSaving();
 			GenericCache.stopCacheMechanism(getWebRtu(), dlmsCache);
 			if(success){
-				disConnect();
+				try {
+					disConnect();
+				} catch (DLMSConnectionException e) {
+					e.printStackTrace();
+					new BusinessException(e);
+				}
 			}
 			
 		}
@@ -266,8 +276,9 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	/**
 	 * After every communication, we close the connection to the meter.
 	 * @throws IOException
+	 * @throws DLMSConnectionException 
 	 */
-	private void disConnect() throws IOException{
+	private void disConnect() throws IOException, DLMSConnectionException{
 		try {
 			aarq.disConnect();
 			getDLMSConnection().disconnectMAC();
@@ -276,7 +287,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			throw new IOException();
 		} catch (DLMSConnectionException e) {
 			e.printStackTrace();
-			throw new IOException("Failed to access the dlmsConnection", e.getCause());
+			throw new DLMSConnectionException("Failed to access the dlmsConnection");
 		}
 	}
 	
@@ -486,7 +497,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				this.dlmsCache.setGenericProfiles(this.genericProfiles);
 			} catch (IOException e) {
 				e.printStackTrace();
-				throw new IOException("Failed to read the genericProfile " + oc, e.getCause());
+				throw new IOException("Failed to read the genericProfile " + oc);
 			}
 		}
 		return this.genericProfiles.get(oc);

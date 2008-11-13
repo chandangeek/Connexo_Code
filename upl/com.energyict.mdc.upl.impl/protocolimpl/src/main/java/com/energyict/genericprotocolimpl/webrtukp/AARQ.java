@@ -313,7 +313,7 @@ public class AARQ {
 			byte[] responseData = dlmsConnection.sendRequest(rlrq_APDU);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Failed to succesfully disconnect.", e.getCause());
+			throw new IOException("Failed to succesfully disconnect.");
 		}
 	}
 
