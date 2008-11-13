@@ -216,10 +216,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException(e);
+			throw new IOException(e.getMessage());
 		} catch (DLMSConnectionException e) {
 			e.printStackTrace();
-			throw new IOException(e);
+			throw new IOException(e.getMessage());
 		}
 	}
 	
@@ -276,7 +276,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			throw new IOException();
 		} catch (DLMSConnectionException e) {
 			e.printStackTrace();
-			throw new IOException("Failed to access the dlmsConnection", e);
+			throw new IOException("Failed to access the dlmsConnection", e.getCause());
 		}
 	}
 	
@@ -486,7 +486,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				this.dlmsCache.setGenericProfiles(this.genericProfiles);
 			} catch (IOException e) {
 				e.printStackTrace();
-				throw new IOException("Failed to read the genericProfile " + oc, e);
+				throw new IOException("Failed to read the genericProfile " + oc, e.getCause());
 			}
 		}
 		return this.genericProfiles.get(oc);
