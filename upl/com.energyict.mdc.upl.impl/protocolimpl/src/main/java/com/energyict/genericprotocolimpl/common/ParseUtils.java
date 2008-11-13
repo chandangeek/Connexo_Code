@@ -10,8 +10,11 @@
 
 package com.energyict.genericprotocolimpl.common;
 
+import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.*;
 import java.io.*;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
@@ -130,4 +133,18 @@ public class ParseUtils {
     	return true;
     }
         
+    /**
+     * Create a midnight date from one month ago
+     * @param rtu
+     * @return
+     */
+	public static Date getClearLastMonthDate(Rtu rtu) {
+   		Calendar tempCalendar = Calendar.getInstance(rtu.getDeviceTimeZone());
+   		tempCalendar.add(Calendar.MONTH, -1);
+		tempCalendar.set(Calendar.HOUR_OF_DAY, 0 );
+		tempCalendar.set(Calendar.MINUTE, 0 );
+		tempCalendar.set(Calendar.SECOND, 0 );
+		tempCalendar.set(Calendar.MILLISECOND, 0 );
+		return tempCalendar.getTime();
+	}
 }

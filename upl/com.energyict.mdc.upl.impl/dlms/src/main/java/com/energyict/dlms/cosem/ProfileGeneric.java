@@ -140,6 +140,29 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
         return captureObjects;
     }
     
+    /**
+     * Check whether the generic profile has already read his captured objects
+     * @return
+     */
+    public boolean containsCapturedObjects(){
+    	return this.captureObjects==null?false:true;
+    }
+    
+    public int getNumberOfProfileChannels() throws IOException{
+    	int count = 0;
+    	try {
+			for(int i = 0; i < getCaptureObjectsAsUniversalObjects().length; i++){
+				if(getCaptureObjectsAsUniversalObjects()[i].isCapturedObjectNotAbstract()){
+					count++;
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Could not calculate the number of channgels");
+		}
+		return count;
+    }
+    
     private byte[] getCapturedObjectsResponseData() throws IOException {
         if (capturedObjectsResponseData == null)
              capturedObjectsResponseData = getResponseData(PROFILE_GENERIC_CAPTURE_OBJECTS);
