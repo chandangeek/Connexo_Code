@@ -67,13 +67,13 @@ public final class MT83CodeMapper {
 		LogBookEvent.put(new Integer(0x8117), new MT83EventType("Parameters changed", MeterEvent.CONFIGURATIONCHANGE));
 		LogBookEvent.put(new Integer(0x8118), new MT83EventType("Watch dog", MeterEvent.WATCHDOGRESET));
 
-		LogBookEvent.put(new Integer(0x8119), new MT83EventType("Fraud start", MeterEvent.TAMPER));
-		LogBookEvent.put(new Integer(0x811A), new MT83EventType("Fraud end", MeterEvent.TAMPER));
+		LogBookEvent.put(new Integer(0x8119), new MT83EventType("Fraud start", MeterEvent.OTHER));
+		LogBookEvent.put(new Integer(0x811A), new MT83EventType("Fraud end", MeterEvent.OTHER));
 
-		LogBookEvent.put(new Integer(0x811B), new MT83EventType("Terminal cover opened", MeterEvent.TERMINAL_OPENED));
-		LogBookEvent.put(new Integer(0x811C), new MT83EventType("Terminal cover closed", MeterEvent.TERMINAL_OPENED));
-		LogBookEvent.put(new Integer(0x811D), new MT83EventType("Main cover opened", MeterEvent.COVER_OPENED));
-		LogBookEvent.put(new Integer(0x811E), new MT83EventType("Main cover closed", MeterEvent.COVER_OPENED));
+		LogBookEvent.put(new Integer(0x811B), new MT83EventType("Terminal cover opened", MeterEvent.OTHER));
+		LogBookEvent.put(new Integer(0x811C), new MT83EventType("Terminal cover closed", MeterEvent.OTHER));
+		LogBookEvent.put(new Integer(0x811D), new MT83EventType("Main cover opened", MeterEvent.OTHER));
+		LogBookEvent.put(new Integer(0x811E), new MT83EventType("Main cover closed", MeterEvent.OTHER));
 
 		LogBookEvent.put(new Integer(0x811F), new MT83EventType("Master reset", MeterEvent.OTHER));
 
@@ -117,7 +117,7 @@ public final class MT83CodeMapper {
 		LogBookEvent.put(new Integer(0x813F), new MT83EventType("Contract4 parameter changed", MeterEvent.CONFIGURATIONCHANGE));
 		LogBookEvent.put(new Integer(0x8140), new MT83EventType("Contract4 billing reset", MeterEvent.BILLING_ACTION));
 
-		LogBookEvent.put(new Integer(0x8141), new MT83EventType("Reverse power flow", MeterEvent.REVERSE_RUN));
+		LogBookEvent.put(new Integer(0x8141), new MT83EventType("Reverse power flow", MeterEvent.OTHER));
 		LogBookEvent.put(new Integer(0x8142), new MT83EventType("Breaker failure", MeterEvent.OTHER));
 		LogBookEvent.put(new Integer(0x8143), new MT83EventType("Invalid password", MeterEvent.OTHER));
 		LogBookEvent.put(new Integer(0x8144), new MT83EventType("Corrupted SMS", MeterEvent.OTHER));
@@ -132,7 +132,7 @@ public final class MT83CodeMapper {
 		LogBookEvent.put(new Integer(0x814D), new MT83EventType("Meter removal", MeterEvent.HARDWARE_ERROR));
 		LogBookEvent.put(new Integer(0x814E), new MT83EventType("Full Technical Log Book", MeterEvent.OTHER));
 		LogBookEvent.put(new Integer(0x814F), new MT83EventType("Unable to send SMS alarm", MeterEvent.PROGRAM_FLOW_ERROR));
-		LogBookEvent.put(new Integer(0x8150), new MT83EventType("Intrusion reset", MeterEvent.TAMPER));
+		LogBookEvent.put(new Integer(0x8150), new MT83EventType("Intrusion reset", MeterEvent.OTHER));
 		LogBookEvent.put(new Integer(0x8151), new MT83EventType("Previous values reset", MeterEvent.CLEAR_DATA));
 
 		LogBookEvent.put(new Integer(0x8152), new MT83EventType("Current without Voltage L1 - start", MeterEvent.APPLICATION_ALERT_START));
