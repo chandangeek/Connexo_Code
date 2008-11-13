@@ -496,7 +496,8 @@ public class MbusDevice implements Messaging, GenericProtocol{
 	}
 
 	public List getOptionalKeys() {
-		return null;
+		ArrayList result = new ArrayList();
+		return result;
 	}
 
 	public List getRequiredKeys() {
