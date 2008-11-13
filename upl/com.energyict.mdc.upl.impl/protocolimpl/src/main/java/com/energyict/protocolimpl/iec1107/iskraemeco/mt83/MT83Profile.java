@@ -238,7 +238,7 @@ public class MT83Profile extends VDEWProfile {
     } // ProfileData buildProfileData(byte[] responseData) throws IOException
         
     private void addLogbookEvents(byte[] logBook, ProfileData profileData) throws IOException {
-        MT83EventType eventtype = null;
+        MT83EventType eventtype = new MT83EventType("", 0);
         Calendar calendar;
         int status=0;
         try {
@@ -250,7 +250,7 @@ public class MT83Profile extends VDEWProfile {
                 calendar = parseLogbookDateTime(logBook,i);
                 i=gotoNextOpenBracket(logBook,i);
                 i++;
-                status = Integer.parseInt(parseFindString(logBook,i-1),16);
+                status = (int)Integer.parseInt(parseFindString(logBook,i-1),16);
                 eventtype = (MT83EventType)MT83CodeMapper.LogBookEvent.get(status);
                 if (eventtype == null) eventtype = new MT83EventType("Unknown event", MeterEvent.OTHER);
 
