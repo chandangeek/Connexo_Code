@@ -31,9 +31,10 @@ public final class MT83CodeMapper {
 	public static Map LogBookEvent = new HashMap();
 	static {
 
-
-		LogBookEvent.put(0x0001, new MT83EventType("Device disturbance", MeterEvent.HARDWARE_ERROR));
-		LogBookEvent.put(0x0008, new MT83EventType("DST", MeterEvent.CONFIGURATIONCHANGE));
+		MT83EventType testType = new MT83EventType("DST", MeterEvent.CONFIGURATIONCHANGE);
+		LogBookEvent.put(0x0001, (MT83EventType)new MT83EventType("Device disturbance", MeterEvent.HARDWARE_ERROR));
+//		LogBookEvent.put(0x0008, new MT83EventType("DST", MeterEvent.CONFIGURATIONCHANGE));
+		LogBookEvent.put(0x0008, testType);
 
 		LogBookEvent.put(0x0010, new MT83EventType("Billing reset", MeterEvent.BILLING_ACTION)); // NOT documented in MT83 specifications, but used by the meter.
 		
