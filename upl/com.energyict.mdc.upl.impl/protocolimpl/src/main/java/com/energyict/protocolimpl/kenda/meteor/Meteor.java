@@ -14,6 +14,8 @@ import java.util.logging.Logger;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
+import com.energyict.dialer.core.DialerCarrierException;
+import com.energyict.dialer.core.DialerException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.InvalidPropertyException;
@@ -238,6 +240,9 @@ public class Meteor implements MeterProtocol, RegisterProtocol{
 			} catch (Exception e) {
 				except=e;
 				ack=false;
+				if(e instanceof DialerCarrierException){
+					throw new IOException ("NO CARRIER received");
+				}
 			}
 		}
 		if(!ack){

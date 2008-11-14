@@ -587,6 +587,8 @@ public class MedoCommunicationsFactory{
 		boolean go=true;
 		String s;
 		long interFrameTimeout;
+		int errorCounter=0;
+
 			// time out check
 		while(go){
 			interFrameTimeout = System.currentTimeMillis() + this.timeOut;
@@ -599,6 +601,10 @@ public class MedoCommunicationsFactory{
 			while(counter<length){	// timeout!
 				i=inputStream.read();
 				s+=(char) i;
+				if(i==-1){errorCounter++;}
+				if(errorCounter>5){
+		            throw new ProtocolConnectionException("InterCharacter timeout error");
+				}
 				if(counter==1){// block length byte
 					length=i;
 					if(i==0){length=256;} // modulus

@@ -11,6 +11,7 @@ import java.util.TimeZone;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
+import com.energyict.dialer.core.DialerException;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -318,6 +319,9 @@ public class MeteorCommunicationsFactory{
 				pr2=buildCommand(blockMerging(br),pr);
 			}catch(Exception e){
 				ack=false;
+				if(e instanceof ProtocolConnectionException){
+					throw new IOException ("NO CARRIER received");
+				}
 			}finally{
 				bs=buildHeader(buildIdent(true, true,true,command), 11);	// checksum added in blockprocessing
 				sendData(bs);
@@ -350,7 +354,10 @@ public class MeteorCommunicationsFactory{
 				br=receiveData((byte) (bs[0]& 0x1F));
 				if((br[0][0] & 0x80)==0x80){ack=true;} // get acknowledge
 		    }catch(Exception e){
-			   ack=false;		
+			   ack=false;
+				if(e instanceof ProtocolConnectionException){
+					throw new IOException ("NO CARRIER received");
+				}
       	    }
 		}
 		if(pog==0){
@@ -424,6 +431,9 @@ public class MeteorCommunicationsFactory{
 			}
 			}catch(Exception e){
 				ack=false;		
+				if(e instanceof ProtocolConnectionException){
+					throw new IOException ("NO CARRIER received");
+				}
 		    }
 		}
 		if(pog==0){
@@ -570,6 +580,9 @@ public class MeteorCommunicationsFactory{
 			ack=true;
 			}catch(Exception e){
 				ack=false;
+				if(e instanceof ProtocolConnectionException){
+					throw new IOException ("NO CARRIER received");
+				}
 			}
 		}
 		if(pog==0){
@@ -591,6 +604,7 @@ public class MeteorCommunicationsFactory{
 		ArrayList recdat=new ArrayList();
 		boolean go=true;
 		String s;
+		int errorCounter=0;
 		long interFrameTimeout;
 			// time out check
 		while(go){
@@ -600,7 +614,10 @@ public class MeteorCommunicationsFactory{
 			s="";
 			while(counter<length){	// timeout!
 				i=inputStream.read();
-				//System.out.println("hangs here: " + counter);
+				if(i==-1){errorCounter++;}
+				if(errorCounter>5){
+		            throw new ProtocolConnectionException("InterCharacter timeout error");
+				}
 				s+=(char) i;
 				if(counter==1){// block length byte
 					length=i;
