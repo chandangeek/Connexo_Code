@@ -17,12 +17,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.OctetString;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
@@ -35,6 +37,8 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.GenericCache;
+import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
+import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.CommunicationProfile;
@@ -66,6 +70,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	private Cache					dlmsCache; 
 	private MbusDevice[]			mbusDevices;
 	private Clock					deviceClock;
+	private StoreObject				storeObject;
 	
 	private HashMap<ObisCode, ProfileGeneric> 				genericProfiles;
 	
@@ -111,9 +116,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			init(link.getInputStream(), link.getOutputStream());
 			connect();
 			
-			if(this.commProfile.getWriteClock()){
-				// TODO set the clock of the meter
-			}
+			verifyAndWriteClock();
 			
 			if(this.commProfile.getReadDemandValues()){
 				// TODO read the meterProfile
@@ -152,12 +155,12 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			if(success){
 				try {
 					disConnect();
+					Environment.getDefault().execute(getStoreObject());
 				} catch (DLMSConnectionException e) {
 					e.printStackTrace();
 					new BusinessException(e);
 				}
 			}
-			
 		}
 	}
 	
@@ -186,19 +189,18 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	private void init(InputStream is, OutputStream os) throws IOException, DLMSConnectionException{
 		this.cosemObjectFactory	= new CosemObjectFactory((ProtocolLink)this);
 		
-		
 		this.dlmsConnection = (this.connectionMode == 0)?
 					new HDLCConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode):
 					new TCPIPConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress);
 		
-		this.dlmsMeterConfig = DLMSMeterConfig.getInstance();
+		this.dlmsMeterConfig = DLMSMeterConfig.getInstance(Constant.MANUFACTURER);
 		this.webRtuKP = this.scheduler.getRtu();
-//		this.dlmsCache = new Cache();
 		// if we get a serialVersion mix-up we should set the dlmsCache to NULL so the cache is read from the meter
 		// TODO need to catch this.
 		this.dlmsCache = (Cache)GenericCache.startCacheMechanism(getWebRtu());
 		this.mbusDevices = new MbusDevice[Constant.MaxMbusMeters];
 		this.genericProfiles = new HashMap<ObisCode, ProfileGeneric>();
+		this.storeObject = new StoreObject();
 	}
 
 	/**
@@ -219,6 +221,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			
 			// do some checks to know you are connected to the correct meter
 			verifyMeterSerialNumber();
+			log(Level.INFO, "FirmwareVersion: " + getFirmWareVersion());
 			
 			if(this.extendedLogging >= 1){
 				log(Level.INFO, getRegistersInfo());
@@ -230,6 +233,15 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		} catch (DLMSConnectionException e) {
 			e.printStackTrace();
 			throw new IOException(e.getMessage());
+		}
+	}
+	
+	private String getFirmWareVersion() throws IOException{
+		try {
+			return getCosemObjectFactory().getGenericRead(getMeterConfig().getVersionObject()).getString();
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Could not fetch the firmwareVersion.");
 		}
 	}
 	
@@ -404,6 +416,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				profileData.applyEvents(getProfileInterval()/60);
 			}
 			
+			getStoreObject().add(getWebRtu(), profileData);
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -447,7 +461,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	
 	private IntervalData getIntervalData(DataStructure ds, Calendar cal, int status, ProfileGeneric pg)throws IOException{
 		
-		IntervalData id = new IntervalData(cal.getTime(), status);
+		IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
 		
 		try {
 			for(int i = 0; i < pg.getNumberOfProfileChannels(); i++){
@@ -480,8 +494,9 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	private int getProfileStatusChannelIndex(ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjectsAsUniversalObjects().length; i++){
-//			if(pg.getCaptureObjectsAsUniversalObjects()[i].equals(getMeterConfig().getChannelObject(i).))
-				//TODO check the obisCode of the statusField
+				if(pg.getCaptureObjectsAsUniversalObjects()[i].equals(getMeterConfig().getStatusObject().getObisCode())){
+					return i;
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -578,6 +593,50 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	
 	private Calendar getToCalendar(){
 		return ProtocolUtils.getCalendar(getTimeZone());
+	}
+	
+	private void verifyAndWriteClock() throws IOException{
+		try {
+			Date meterTime = getTime();
+			Date now = new Date();
+			
+			long diff = Math.abs(now.getTime()-meterTime.getTime())/1000;
+			
+			log(Level.INFO, "Difference between metertime(" + meterTime + ") and systemtime(" + now + ") is " + diff + "s.");
+			if(this.commProfile.getWriteClock()){
+				if( (diff < this.commProfile.getMaximumClockDifference()) && (diff > this.commProfile.getMinimumClockDifference()) ){
+					log(Level.INFO, "Metertime will be set to systemtime: " + now);
+					setClock(now);
+				}
+			} else {
+				log(Level.INFO, "WriteClock is disabled, metertime will not be set.");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw e;
+		}
+		
+	}
+	
+	private Date getTime() throws IOException{
+		try {
+			Date meterTime;
+			Clock clock = getCosemObjectFactory().getClock();
+			meterTime = clock.getDateTime();
+			return meterTime;
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Could not retrieve the Clock object.");
+		}
+	}
+	
+	private void setClock(Date time) throws IOException{
+		try {
+			getCosemObjectFactory().getClock().setDateTime(new OctetString(time.toString().getBytes()));
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Could not set the Clock object.");
+		}
 	}
 	
 	/**
@@ -706,6 +765,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	
 	protected CosemObjectFactory getCosemObjectFactory() {
 		return cosemObjectFactory;
+	}
+	
+	public StoreObject getStoreObject(){
+		return this.storeObject;
 	}
 	
 	/**

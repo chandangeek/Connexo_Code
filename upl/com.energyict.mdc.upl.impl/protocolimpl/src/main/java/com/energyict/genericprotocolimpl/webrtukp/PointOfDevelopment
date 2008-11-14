@@ -1,0 +1,6 @@
+All eventLogs are added in the DLMSConfig class, use them in the general getEvent method when you read the profile.
+
+ToDo:
+- obisCodeMapper
+- messages
+- write UnitTests

@@ -46,14 +46,51 @@ public class DLMSConfig {
             new DLMSConfig("LGZ",1,1,0,0,2,0,255),
             new DLMSConfig("EIT",1,1,0,0,2,0,255),
             new DLMSConfig("EMO",1,0,0,96,1,2,255),      
-            new DLMSConfig("SLB",1,0,0,142,1,1,255)
+            new DLMSConfig("SLB",1,0,0,142,1,1,255),
+            new DLMSConfig("WKP",1,1,0,0,2,0,255)
+    };
+    
+    final static private DLMSConfig[] status = {
+    		new DLMSConfig("WKP",1,0,0,96,10,1,255)
+    };
+    
+    final static private DLMSConfig[] dailyProfile = {
+    		new DLMSConfig("WKP",7,1,0,99,2,0,255)
+    };
+    
+    final static private DLMSConfig[] monthlyProfile = {
+		new DLMSConfig("WKP",7,0,0,98,1,0,255)
+    };
+    
+    final static private DLMSConfig[] controlLog = {
+		new DLMSConfig("WKP",7,0,0,99,98,2,255)
+    };
+    
+    final static private DLMSConfig[] powerFailureLog = {
+		new DLMSConfig("WKP",7,1,0,99,97,0,255)
+    };
+    
+    final static private DLMSConfig[] fraudDetectionLog = {
+		new DLMSConfig("WKP",7,0,0,99,98,1,255)
+    };
+    
+    final static private DLMSConfig[] mbusEventLog = {
+		new DLMSConfig("WKP",7,0,0,99,98,3,255)
+    };
+    
+    final static private DLMSConfig[] mbusControlLog = {
+		new DLMSConfig("WKP",7,0,1,24,5,0,255),
+		new DLMSConfig("WKP",7,0,2,24,5,0,255),
+		new DLMSConfig("WKP",7,0,3,24,5,0,255),
+		new DLMSConfig("WKP",7,0,4,24,5,0,255)
     };
     
     final static private DLMSConfig[] serialNumber = {
             new DLMSConfig("LGZ",1,1,0,0,0,0,255),
             new DLMSConfig("EMO",1,1,0,0,0,0,255),
             new DLMSConfig("SLB",1,0,0,96,1,255,255),    
-            new DLMSConfig("ISK",1,0,0,96,1,0,255)
+            new DLMSConfig("ISK",1,0,0,96,1,0,255),
+            new DLMSConfig("WKP",1,0,0,96,1,0,255)
     };
      
     final static private DLMSConfig[] meterReading = {
@@ -386,6 +423,25 @@ public class DLMSConfig {
        throw new IOException("DLMSConfig, getVersionObject, not found in objectlist (IOL)!");      
 
     }
+    
+    /*
+     *  Find in objectList a matching DLMSConfig object with a status DLMSConfig objects
+     *  @param UniversalObject[] objectList
+     *  @return UniversalObject the matching objectList
+     */
+    protected UniversalObject getStatusObject(UniversalObject[] objectList, String manuf) throws IOException {
+    	if (objectList == null) throw new IOException("DLMSConfig, getStatusObject, objectlist empty!");
+    	for(int t = 0; t < status.length; t++){
+    		if((manuf != null) && (status[t].getManuf().compareTo(manuf) != 0)) continue;
+    		for(int i = 0; i < objectList.length; i++){
+    			if(objectList[i].equals(status[t])){
+    				return objectList[i];
+    			}
+    		}
+    	}
+    	throw new IOException("DLMSConfig, getStatusObject, not found in objectlist (IOL)");
+    }
+    
     /*
      *  Find in objectList a matching DLMSConfig object with a serialNumber DLMSConfig object
      *  @param UniversalObject[] objectList
@@ -430,6 +486,32 @@ public class DLMSConfig {
        throw new IOException("DLMSConfig, getProfileObject, not found in objectlist (IOL)!");      
     }
 
+
+    protected UniversalObject getDailyProfileObject(UniversalObject[] objectList, String manuf) throws IOException {
+    	if (objectList == null) throw new IOException("DLMSConfig, getDailyProfileObject, objectlist empty!");
+    	for(int t = 0; t < dailyProfile.length; t++){
+			if((manuf != null) && (dailyProfile[t].getManuf().compareTo(manuf) != 0)) continue;
+			for(int i = 0; i < objectList.length; i++){
+				if(objectList[i].equals(dailyProfile[t])){
+					return objectList[i];
+				}
+			}
+		}
+		throw new IOException("DLMSConfig, getDailyProfileObject, not found in objectlist (IOL)");
+    }
+    
+    protected UniversalObject getMonthlyProfileObject(UniversalObject[] objectList, String manuf) throws IOException {
+    	if (objectList == null) throw new IOException("DLMSConfig, getMonthlyProfileObject, objectlist empty!");
+    	for(int t = 0; t < monthlyProfile.length; t++){
+			if((manuf != null) && (monthlyProfile[t].getManuf().compareTo(manuf) != 0)) continue;
+			for(int i = 0; i < objectList.length; i++){
+				if(objectList[i].equals(monthlyProfile[t])){
+					return objectList[i];
+				}
+			}
+		}
+		throw new IOException("DLMSConfig, getMonthlyObject, not found in objectlist (IOL)");
+    }
     
     /*
      *  Find in objectList a matching DLMSConfig object with the eventLog DLMSConfig objects
@@ -442,6 +524,74 @@ public class DLMSConfig {
            if (objectList[i].equals(eventLog)) return objectList[i];
        }
        throw new IOException("DLMSConfig, getEventLogObject, not found in objectlist (IOL)!");      
+    }
+    
+    protected UniversalObject getControlLog(UniversalObject[] objectList, String manuf) throws IOException{
+    	if (objectList == null) throw new IOException("DLMSConfig, getControlLogObject, objectlist empty!");
+    	for(int t = 0; t < controlLog.length; t++){
+			if((manuf != null) && (controlLog[t].getManuf().compareTo(manuf) != 0)) continue;
+			for(int i = 0; i < objectList.length; i++){
+				if(objectList[i].equals(controlLog[t])){
+					return objectList[i];
+				}
+			}
+		}
+		throw new IOException("DLMSConfig, getControlLogObject, not found in objectlist (IOL)");
+    }
+    
+    protected UniversalObject getPowerFailureLog(UniversalObject[] objectList, String manuf) throws IOException{
+    	if (objectList == null) throw new IOException("DLMSConfig, getPowerFailureObject, objectlist empty!");
+    	for(int t = 0; t < powerFailureLog.length; t++){
+			if((manuf != null) && (powerFailureLog[t].getManuf().compareTo(manuf) != 0)) continue;
+			for(int i = 0; i < objectList.length; i++){
+				if(objectList[i].equals(powerFailureLog[t])){
+					return objectList[i];
+				}
+			}
+		}
+		throw new IOException("DLMSConfig, getPowerFailureObject, not found in objectlist (IOL");
+    }
+    
+    protected UniversalObject getFraudDetectionLog(UniversalObject[] objectList, String manuf) throws IOException{
+    	if (objectList == null) throw new IOException("DLMSConfig, getFraudDetectionLogObject, objectlist empty!");
+    	for(int t = 0; t < fraudDetectionLog.length; t++){
+			if((manuf != null) && (fraudDetectionLog[t].getManuf().compareTo(manuf) != 0)) continue;
+			for(int i = 0; i < objectList.length; i++){
+				if(objectList[i].equals(fraudDetectionLog[t])){
+					return objectList[i];
+				}
+			}
+		}
+		throw new IOException("DLMSConfig, getFraudDetectionLogObject, not found in objectlist (IOL)");
+    }
+    
+    protected UniversalObject getMbusEventLog(UniversalObject[] objectList, String manuf) throws IOException{
+    	if (objectList == null) throw new IOException("DLMSConfig, getControlLogObject, objectlist empty!");
+    	for(int t = 0; t < mbusEventLog.length; t++){
+			if((manuf != null) && (mbusEventLog[t].getManuf().compareTo(manuf) != 0)) continue;
+			for(int i = 0; i < objectList.length; i++){
+				if(objectList[i].equals(mbusEventLog[t])){
+					return objectList[i];
+				}
+			}
+		}
+		throw new IOException("DLMSConfig, getControlLogObject, not found in objectlist (IOL)");
+    }
+    
+    protected UniversalObject getMbusControlLog(UniversalObject[] objectList, String manuf, int channel) throws IOException{
+    	int count = 0;
+    	if (objectList == null) throw new IOException("DLMSConfig, getMbusControlLog, objectlist empty!");
+    	for(int t = 0; t < mbusControlLog.length; t++){
+			if((manuf != null) && (mbusControlLog[t].getManuf().compareTo(manuf) != 0)) continue;
+			if(count++ == channel){
+				for(int i = 0; i < objectList.length; i++){
+					if(objectList[i].equals(mbusControlLog[t])){
+						return objectList[i];
+					}
+				}
+			}
+		}
+		throw new IOException("DLMSConfig, getMbusControlLog, not found in objectlist (IOL)");
     }
     
     /*

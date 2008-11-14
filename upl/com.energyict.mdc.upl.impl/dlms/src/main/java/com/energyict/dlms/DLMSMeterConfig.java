@@ -117,8 +117,20 @@ public class DLMSMeterConfig {
        return config.getProfileObject(IOL);    
     }
     
+    public UniversalObject getDailyProfileObject() throws IOException {
+    	return config.getDailyProfileObject(IOL,manuf);
+    }
+    
+    public UniversalObject getMonthlyProfileObject() throws IOException {
+    	return config.getMonthlyProfileObject(IOL,manuf);
+    }
+    
     public UniversalObject getClockObject() throws IOException {
        return config.getClockObject(IOL);    
+    }
+    
+    public UniversalObject getStatusObject() throws IOException {
+    	return config.getStatusObject(IOL,manuf);
     }
     
     public UniversalObject getConfigObject() throws IOException {
