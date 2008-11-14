@@ -9,6 +9,7 @@
 KV|11042007|Initial version
 KV|23072007|Work around due to a bug in the meter to allow requesting more then 1 day of load profile for data compression meters
 GN|03032008|Added external MBus functionality
+GN|07112008|Only read the MBus unit when mbus is enabled, older meters don't have the MBus register...
  * @endchanges
  */
 package com.energyict.protocolimpl.dlms.iskrame37x;  
@@ -22,7 +23,6 @@ import com.energyict.cbo.*;
 import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.*;
-import com.energyict.dlms.client.ParseUtils;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -614,7 +614,7 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
         				demandScalerUnits[0] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),
         						scalerRegister.getQuantity().getUnit());
         				ChannelInfo ci = new ChannelInfo(channelId, "IskraME37x_channel_"+channelId, demandScalerUnits[0].getUnit());
-        				if(ParseUtils.isObisCodeCumulative(capturedObjects.getProfileDataChannel(channelId))){
+        				if(isObisCodeCumulative(capturedObjects.getProfileDataChannel(channelId))){
         					ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
         				}
         				profileData.addChannel(ci);
@@ -644,6 +644,11 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
         
         return profileData;
     }
+    
+	public boolean isObisCodeCumulative(ObisCode obisCode) {
+		// no abstract code AND d field time integral 1, 7 or 8 These time integrals specify values from first start of measurement (origin) 
+		return (obisCode.getA()!=0) && (obisCode.getC()!=0) && ((obisCode.getD()==8) || (obisCode.getD()==17) || (obisCode.getD()==18));
+	}
     
     private String bytesToObisString(byte[] channelLN) {
     	String str = "";
@@ -1036,11 +1041,12 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
                     if (extendedLogging >= 1) 
                        logger.info(getRegistersInfo(extendedLogging));
                     
-	                if ( demandScalerUnits[MBUS].getUnitCode() == 0 ){
-	                	RegisterValue scalerRegister = readRegister(mbusScalerUnit);
-	                	demandScalerUnits[MBUS] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),scalerRegister.getQuantity().getUnit());
-	                }
-                    
+                    if(metertype == MBUS){
+		                if ( demandScalerUnits[MBUS].getUnitCode() == 0 ){
+		                	RegisterValue scalerRegister = readRegister(mbusScalerUnit);
+		                	demandScalerUnits[MBUS] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),scalerRegister.getQuantity().getUnit());
+		                }
+                    }
                 }
                 catch(IOException e) {
                     throw new IOException("connect() error, "+e.getMessage());
@@ -1089,9 +1095,12 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
        try {
           if (dlmsConnection != null){
         	  
-        	  byte[] responseData = getDLMSConnection().sendRequest(rlrq_APDU);
+        	  
+        	  //TODO commenting this can cause multidropped meters to fail ...
+        	  
+//        	  byte[] responseData = getDLMSConnection().sendRequest(rlrq_APDU);
 //              CheckAARE(responseData);
-              if (DEBUG >= 1) ProtocolUtils.printResponseData(responseData);
+//              if (DEBUG >= 1) ProtocolUtils.printResponseData(responseData);
         	  
         	  getDLMSConnection().disconnectMAC();
           }
@@ -1551,5 +1560,7 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
 		else
 			return demandScalerUnits[MBUS];
 	}
+	
+
     
 } // public class DLMSProtocolLN extends MeterProtocol
