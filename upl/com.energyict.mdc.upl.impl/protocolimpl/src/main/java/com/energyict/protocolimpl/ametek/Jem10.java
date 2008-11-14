@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.HalfDuplexController;
@@ -333,7 +335,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 			throw new IOException("load profile interval must be > 0 sec. (is "+getProfileInterval()+")");
 
 		for(int i=0; i<channelCount; i++)
-			pd.addChannel(new ChannelInfo(i,i, null, null));
+			pd.addChannel(new ChannelInfo(i,i, "JemStarChannel_"+i, Unit.get(BaseUnit.UNITLESS)));
 
 
 	}

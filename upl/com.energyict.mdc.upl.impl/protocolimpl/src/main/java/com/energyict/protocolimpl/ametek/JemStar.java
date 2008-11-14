@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
@@ -212,7 +213,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 			throw new IOException("load profile interval must be > 0 sec. (is "+getProfileInterval()+")");
 
 		for(int i=0; i<channelCount; i++)
-			pd.addChannel(new ChannelInfo(i,i, null, null));
+			pd.addChannel(new ChannelInfo(i,i, "JemStarChannel_"+i, Unit.get(BaseUnit.UNITLESS)));
 
 	}
 
