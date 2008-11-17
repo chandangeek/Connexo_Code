@@ -31,12 +31,14 @@ public class TOUChannelTypeParser {
 	private Unit unit; 
 	private boolean channelenabled = true;
 	
+	private int scaling;
+	
 	public TOUChannelTypeParser(int ChannelDef) {
 		this.DecimalPointScaling = (ChannelDef & 0xE000) >> 13;
     	this.Rates = ((ChannelDef & 0x0700) >> 8) + 1;
+    	this.scaling = (ChannelDef & 0x1800) >> 11;
 		int regvalue = ChannelDef & 0x000F;
     	int regfunction = (ChannelDef & 0x00F0) >> 4;
-    	int scaling = (ChannelDef & 0x1800) >> 11;
     	
     	boolean isEnergy = false;
     	boolean isPulse = false;
@@ -246,6 +248,10 @@ public class TOUChannelTypeParser {
 
 	public int getDecimalPointScaling() {
 		return DecimalPointScaling;
+	}
+
+	public int getScaling() {
+		return scaling;
 	}
 
 	public BigDecimal getScalingFactor() {

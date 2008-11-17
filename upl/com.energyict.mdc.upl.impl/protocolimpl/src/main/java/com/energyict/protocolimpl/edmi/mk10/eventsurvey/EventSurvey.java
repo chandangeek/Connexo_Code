@@ -82,8 +82,8 @@ public class EventSurvey {
     		// Every time the mk10 protocol connects, it generates at least two events
     		// in the log (Logon and logoff)
 
-    		switch (eventcode & 0xFFF0) {
-				case 0x2000: break;
+    		switch (eventcode & 0xFFE0) {
+    			case 0x2000: break;
 				case 0x2080: break;
 				default: set.add(event); break;
 			}

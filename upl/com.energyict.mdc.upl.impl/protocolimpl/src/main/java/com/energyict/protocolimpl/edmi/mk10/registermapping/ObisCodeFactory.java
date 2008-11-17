@@ -15,6 +15,7 @@ import com.energyict.obis.*;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.edmi.mk10.command.*;
 import com.energyict.protocolimpl.edmi.mk10.core.*;
+
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
@@ -73,6 +74,15 @@ public class ObisCodeFactory {
                 int dps = tou_ctp.getDecimalPointScaling();
         		Unit unit = tou_ctp.getUnit();
                 
+        		System.out.println(	"###### initTOURegisterInfos()" +
+        							" - c_definitions: " + c_definitions +
+        							" - obisc: " + obisc +
+        							" - rates: " + rates +
+        							" - dps: " + dps +
+        							" - unit: " + unit.toString() +
+        							" - unit.scaler: " + tou_ctp.getScaling()
+        		);
+        		
                 String name1 = "Energy "+tou_ctp.getName()+" Current period";
                 String name2 = "Energy "+tou_ctp.getName()+" Previous period";
                 String name3 = "Energy "+tou_ctp.getName()+" Billing total period";
@@ -253,7 +263,7 @@ public class ObisCodeFactory {
             registervalue = rc.getRegister().getBigDecimal().movePointLeft(dp);
             return new RegisterValue(obisCode,new Quantity(registervalue,unit),eventDate,null,null);
         } else {
-            registervalue = rc.getRegister().getBigDecimal().movePointLeft(dp);
+        	registervalue = rc.getRegister().getBigDecimal().movePointLeft(dp);
         	return new RegisterValue(obisCode,new Quantity(registervalue,unit),null,null,to);
         }
     }

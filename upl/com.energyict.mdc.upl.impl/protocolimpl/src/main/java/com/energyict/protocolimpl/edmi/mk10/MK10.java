@@ -18,6 +18,13 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.*;
 
 /**
  * @author  jme
+ * 
+ * Changes:
+ * 
+ * 17/11/2008 -> Fixed meter event bugs (wrong mappings from event number to description string)
+ * 17/11/2008 -> Fixed bug in load profile raw data conversion (negative units & overflow)
+ * 17/11/2008 -> Fixed bug in load profile (start date <-> first entry) first entry can be different from 0 !!!
+ * 
  */
 public class MK10 extends AbstractProtocol {
     

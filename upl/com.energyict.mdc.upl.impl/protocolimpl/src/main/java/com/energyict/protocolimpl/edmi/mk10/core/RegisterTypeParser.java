@@ -48,13 +48,24 @@ public class RegisterTypeParser {
     	switch(type) {
         	case 'F': // Float
         		byte [] bta = {0x00 ,0x00 ,0x00, 0x00};
-        		int highvalue = (int) data[0];
-        		int lowvalue = (int) data[0];
-        		double value = data[0] + (data[1] / 100);
+        		int highvalue = ((int) data[1]) & 0x00FF;
+        		int lowvalue = ((int) data[0]) & 0x00FF;
+        		double value = lowvalue + (highvalue * 256);
         		BigDecimal bi = new BigDecimal(value);
         		RegisterTypeFloat rt = new RegisterTypeFloat(bta);
         	    rt.setValue(bi.movePointLeft(chan_scaler).floatValue());
-        		return rt;
+
+        	    System.out.println(	" #### parseFromRaw() Type: " + type + 
+						" data: " + ProtocolUtils.getResponseData(data) + 
+						" chan_scaler: 0x" + ProtocolUtils.buildStringHex(chan_scaler, 4) +
+						" lowvalue: " + lowvalue +
+						" highvalue: " + highvalue +
+						" highvalue * 256: " + (highvalue * 256) +
+						" Value: " + value +
+						" Result: " + rt.getValue()
+        	    );
+
+        	    return rt;
         	default:
         		return null;
     	}
