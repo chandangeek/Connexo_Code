@@ -25,7 +25,8 @@ import com.energyict.protocol.*;
  */
 public class RegisterTypeParser {
     
-    TimeZone timeZone;
+    private static final int DEBUG = 0;
+	TimeZone timeZone;
             
     /** Creates a new instance of Registertypes */
     public RegisterTypeParser(TimeZone timeZone) {
@@ -55,7 +56,8 @@ public class RegisterTypeParser {
         		RegisterTypeFloat rt = new RegisterTypeFloat(bta);
         	    rt.setValue(bi.movePointLeft(chan_scaler).floatValue());
 
-        	    System.out.println(	" #### parseFromRaw() Type: " + type + 
+        	    if (DEBUG >= 1) {
+        	    	System.out.println(	" #### parseFromRaw() Type: " + type + 
 						" data: " + ProtocolUtils.getResponseData(data) + 
 						" chan_scaler: 0x" + ProtocolUtils.buildStringHex(chan_scaler, 4) +
 						" lowvalue: " + lowvalue +
@@ -63,7 +65,8 @@ public class RegisterTypeParser {
 						" highvalue * 256: " + (highvalue * 256) +
 						" Value: " + value +
 						" Result: " + rt.getValue()
-        	    );
+        	    	);
+        	    }
 
         	    return rt;
         	default:

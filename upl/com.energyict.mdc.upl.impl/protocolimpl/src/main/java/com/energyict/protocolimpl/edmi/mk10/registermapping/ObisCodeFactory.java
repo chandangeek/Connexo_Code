@@ -74,14 +74,16 @@ public class ObisCodeFactory {
                 int dps = tou_ctp.getDecimalPointScaling();
         		Unit unit = tou_ctp.getUnit();
                 
-        		System.out.println(	"###### initTOURegisterInfos()" +
-        							" - c_definitions: " + c_definitions +
-        							" - obisc: " + obisc +
-        							" - rates: " + rates +
-        							" - dps: " + dps +
-        							" - unit: " + unit.toString() +
-        							" - unit.scaler: " + tou_ctp.getScaling()
-        		);
+        		if (DEBUG >= 1) {
+	        		System.out.println(	"###### initTOURegisterInfos()" +
+	        							" - c_definitions: " + c_definitions +
+	        							" - obisc: " + obisc +
+	        							" - rates: " + rates +
+	        							" - dps: " + dps +
+	        							" - unit: " + unit.toString() +
+	        							" - unit.scaler: " + tou_ctp.getScaling()
+	        		);
+        		}
         		
                 String name1 = "Energy "+tou_ctp.getName()+" Current period";
                 String name2 = "Energy "+tou_ctp.getName()+" Previous period";

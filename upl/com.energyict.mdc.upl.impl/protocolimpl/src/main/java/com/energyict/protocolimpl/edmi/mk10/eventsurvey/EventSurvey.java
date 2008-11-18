@@ -71,7 +71,7 @@ public class EventSurvey {
     	int ptr = 0;
 		while (ptr<data_in.length){
     		byte[] eventcodebytes = ProtocolUtils.getSubArray2(data_in, ptr, 2);
-			int eventcode = ProtocolUtils.getIntLE(eventcodebytes, 0, 2);
+			int eventcode = ProtocolUtils.getIntLE(eventcodebytes, 0, 2) & 0x0000FFFF;
     		int eventtime = ProtocolUtils.getIntLE(data_in, ptr + 2, 4);
     		Date eventdate = DateTimeBuilder.getDateFromSecondsSince1996(tz, eventtime);
     		

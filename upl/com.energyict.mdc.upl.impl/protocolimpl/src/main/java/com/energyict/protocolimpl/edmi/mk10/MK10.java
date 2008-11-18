@@ -28,7 +28,7 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.*;
  */
 public class MK10 extends AbstractProtocol {
     
-    private static final int DEBUG=1;
+    private static final int DEBUG=0;
     private MK10Connection mk10Connection=null;
     private CommandFactory commandFactory=null;
     private ObisCodeFactory obisCodeFactory=null;
