@@ -807,7 +807,7 @@ public class MeteorCommunicationsFactory{
 	public void setMultipliers(char[] dialexp, short[] dialdiv) {
 		channelMultipliers=new int[numChan];
 		for(int i=0; i<numChan; i++){
-			channelMultipliers[i]=(int) Math.pow(10,(long) dialexp[i])/dialdiv[i]; //(int) Math.pow(10,(long) dialexp[i])*dialmlt[i];  // CHANGE HERE FOR MULTIPLIERS
+			channelMultipliers[i]=(int) Math.pow(10,(long) (-1*dialexp[i])); //(int) Math.pow(10,(long) dialexp[i])*dialmlt[i];  // CHANGE HERE FOR MULTIPLIERS
 		}		
 	}
 	
