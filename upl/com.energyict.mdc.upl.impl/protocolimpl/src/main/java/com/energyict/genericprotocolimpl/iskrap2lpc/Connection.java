@@ -568,4 +568,98 @@ public class Connection {
 			}
 		}
 	}
+
+	public int getFileSize(String fileName) throws ServiceException, BusinessException, IOException {
+		resetTimeOut();
+		while(timeout > 0){
+			try {
+				return getConcentrator().port(getConcentrator().getConcentrator()).getFileSize(fileName).intValue();
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				checkDefaultErrors(e);
+				timeout--;
+				if(timeout == 0)
+					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
+			} catch (ServiceException e) {
+				e.printStackTrace();
+				timeout--;
+				if(timeout == 0)
+					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
+			}
+		}
+		return 0;
+	}
+
+	public byte[] downloadFileChunk(String fileName, int i, int fileSize) throws ServiceException, BusinessException, IOException {
+		resetTimeOut();
+		while(timeout > 0){
+			try {
+				return getConcentrator().port(getConcentrator().getConcentrator()).downloadFileChunk(fileName, new UnsignedInt(i), new UnsignedInt(fileSize));
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				checkDefaultErrors(e);
+				timeout--;
+				if(timeout == 0)
+					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
+			} catch (ServiceException e) {
+				e.printStackTrace();
+				timeout--;
+				if(timeout == 0)
+					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
+			}
+		}
+		return null;
+	}
+
+	public void uploadFileChunk(String fileName, int i, boolean b, byte[] data) throws ServiceException, BusinessException, IOException {
+		resetTimeOut();
+		while(timeout > 0){
+			try {
+				getConcentrator().port(getConcentrator().getConcentrator()).uploadFileChunk(fileName, new UnsignedInt(i), b, data);
+				timeout = 0;
+				break;
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				checkDefaultErrors(e);
+				timeout--;
+				if(timeout == 0)
+					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
+			} catch (ServiceException e) {
+				e.printStackTrace();
+				timeout--;
+				if(timeout == 0)
+					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
+			}
+		}
+	}
+	
+	public void upgradeMeters(String fileName, String[] meters) throws ServiceException, BusinessException, IOException {
+		resetTimeOut();
+		while(timeout > 0){
+			try {
+				getConcentrator().port(getConcentrator().getConcentrator()).upgradeMeters(fileName, meters);
+				timeout = 0;
+				break;
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				checkDefaultErrors(e);
+				timeout--;
+				if(timeout == 0)
+					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
+			} catch (ServiceException e) {
+				e.printStackTrace();
+				timeout--;
+				if(timeout == 0)
+					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
+			}
+		}
+	}
 }

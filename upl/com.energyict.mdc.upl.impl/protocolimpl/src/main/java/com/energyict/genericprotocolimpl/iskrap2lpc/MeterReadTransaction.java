@@ -142,6 +142,7 @@ class MeterReadTransaction implements CacheMechanism {
 //            	doTheCheckMethods();	// enable this for quick cache reading
             	
 //            	readDLCMode();
+//            	readValveState();
             	
                 // Import profile
                 if( communicationProfile.getReadDemandValues() ) {
@@ -205,6 +206,32 @@ class MeterReadTransaction implements CacheMechanism {
         		getLogger().log(Level.INFO, "Meter with serialnumber " + serial + " has completely finished");
         	}
         }
+    }
+    
+    /**
+     * Only for testing
+     */
+    private void readValveState(){
+    	String[] times = prepareCosemGetRequest();
+    	try {
+			byte[] b = getConnection().cosemGetRequest(serial, times[0], times[1], Constant.valveState.toString(), new UnsignedInt(1), new UnsignedInt(2));
+			System.out.println("ValveState:");
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     /**
@@ -1032,7 +1059,7 @@ class MeterReadTransaction implements CacheMechanism {
 	 * - the first date means that the request has to be made before this date.
 	 * - the second date means that the request has to be ended before this date.
 	 */
-	private String[] prepareCosemGetRequest(){
+	public String[] prepareCosemGetRequest(){
 		String times[] = {"", ""};
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.MINUTE, 5);
@@ -1103,7 +1130,9 @@ class MeterReadTransaction implements CacheMechanism {
             boolean thresholdParameters	= (contents.toLowerCase().indexOf(RtuMessageConstant.THRESHOLD_GROUPID.toLowerCase()) != -1) ||
             									(contents.toLowerCase().indexOf(RtuMessageConstant.THRESHOLD_POWERLIMIT.toLowerCase()) != -1) ||
             									(contents.toLowerCase().indexOf(RtuMessageConstant.CONTRACT_POWERLIMIT.toLowerCase()) != -1);
+            
             boolean changeRepeaterMode = contents.toLowerCase().indexOf(RtuMessageConstant.REPEATER_MODE.toLowerCase()) != -1;
+            boolean changePLCFrequency = contents.toLowerCase().indexOf(RtuMessageConstant.CHANGE_PLC_FREQUENCY.toLowerCase()) != -1;
             
             /* A single message failure must not stop the other msgs. */
             try {
@@ -1141,10 +1170,15 @@ class MeterReadTransaction implements CacheMechanism {
                         	}
                         	
                         	else if(oc.toString().equalsIgnoreCase(Constant.activeCalendarName.toString())){
-                        		String meterStatus = getConnection().getMeterStatus(serial);
-                        		getConcentrator().importData(meterStatus, dataHandler);
-                        		dataHandler.getMeterReadingData().add(new RegisterValue(oc, null, null, null, dataHandler.getActiveCalendarDate(),
-                        				new Date(System.currentTimeMillis()), 0, dataHandler.getActiveCalendar()));
+//                        		String meterStatus = getConnection().getMeterStatus(serial);
+//                        		getConcentrator().importData(meterStatus, dataHandler);
+//                        		dataHandler.getMeterReadingData().add(new RegisterValue(oc, null, null, null, dataHandler.getActiveCalendarDate(),
+//                        				new Date(System.currentTimeMillis()), 0, dataHandler.getActiveCalendar()));
+                        		
+                        		String calendarName = getCalendarName(serial, oc);
+                        		Date meterTime = getTime();
+                        		Date d = new Date(System.currentTimeMillis());
+                        		dataHandler.getMeterReadingData().add(new RegisterValue(oc, null, null, null, meterTime, d, 0, calendarName));
                         	}
                         	else
                         		getLogger().log(Level.INFO, "Register with obisCode " + oc.toString() + " is not supported.");
@@ -1155,10 +1189,14 @@ class MeterReadTransaction implements CacheMechanism {
                         
                     }
                     if (DEBUG) System.out.println(rl);
-                    String registers [] = (String[]) rl.toArray(new String[0] ); 
-                    String r = getConnection().getMeterOnDemandResultsList(serial, registers);
+                    String registers [];
+                    String r = null;
+                    if(rl.size() > 0){
+                    	registers= (String[]) rl.toArray(new String[0] ); 
+                    	r = getConnection().getMeterOnDemandResultsList(serial, registers);
+                    	getConcentrator().importData(r, dataHandler);
+                    }
                     
-                    getConcentrator().importData(r, dataHandler);
                     if (mbusRtu != null)
                     	handleRegisters(dataHandler, mbusRtu);
                     else
@@ -1254,6 +1292,21 @@ class MeterReadTransaction implements CacheMechanism {
                 	}
                 }
                 
+                else if(changePLCFrequency){
+                	String value = getConcentrator().getMessageValue(contents, RtuMessageConstant.CHANGE_PLC_FREQUENCY);
+                	if(!(value.equalsIgnoreCase("0")||value.equalsIgnoreCase("1")||value.equalsIgnoreCase("2")||value.equalsIgnoreCase("3")||value.equalsIgnoreCase("4"))){
+                		msg.setFailed();
+                		getLogger().log(Level.INFO, value + " is not a valid entry for the current message (" + contents + ").");
+                	} else {
+                		byte[] freq = new byte[]{DLMSCOSEMGlobals.TYPEDESC_UNSIGNED, 0};
+                		freq[1] = (byte)Integer.parseInt(value);
+                		String[] times = prepareCosemGetRequest();		// it is a setRequest, but its the same 
+                		getConnection().cosemSetRequest(serial, times[0], times[1], Constant.dlcCarrierFrequency.toString(), new UnsignedInt(1), new UnsignedInt(2), freq);
+                		msg.confirm();
+                		getLogger().log(Level.INFO, "Current message " + contents + " has finished.");
+                	}
+                }
+                
                 else {
                 	msg.setFailed();
                 	getLogger().log(Level.INFO, "Current message " + contents + " has failed.");
@@ -1272,7 +1325,15 @@ class MeterReadTransaction implements CacheMechanism {
         getLogger().log(Level.INFO, "Done handling messages.");
     }
     
-    /**
+    private String getCalendarName(String meterID, ObisCode oc) throws NumberFormatException, RemoteException, ServiceException, IOException, BusinessException {
+		String times[] = prepareCosemGetRequest();
+		byte[] strCore = getConnection().cosemGetRequest(meterID, times[0], times[1], oc.toString(), new UnsignedInt(20), new UnsignedInt(2));
+		byte[] convertStr = new byte[strCore.length-2];
+		System.arraycopy(strCore, 2, convertStr, 0, convertStr.length);
+		return Integer.toString(convertStr[0]&0xFF);
+	}
+
+	/**
      * Checks is the obiscode is a manufacturer specific
      * @param oc
      * @return

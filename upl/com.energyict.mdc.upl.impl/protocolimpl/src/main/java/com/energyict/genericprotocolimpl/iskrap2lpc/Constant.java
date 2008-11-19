@@ -48,6 +48,20 @@ class Constant {
     final static String NO_AUTODISCOVERY =
         "Meter serialnumber is not found in database and no rtuType is configured so no automatic meter creation.";
     
+    /** Frequency adjustment xml tags */
+    final static String DLC = "DLC";
+    final static String mark = "FreqChannelMark";
+    final static String space = "FreqChannelSpace";
+    final static String band = "FreqBand";
+    
+    final static String p2lpcFileName = "\\Storage Card\\P2LPC.xml";
+    
+    final static String restart = "P2LPCrestart";
+    final static String restartFileName = "P2LPCrestart.txt";
+    final static String upgradeZipName = "\\Storage Card\\P2LPCFiles\\P2LPCUpgrade.zip";
+//    final static String firmwareBinFile = "\\Storage Card\\P2LPCFiles\\Firmwarebinfile.bin";
+    final static String firmwareBinFile = "\\Storage Card\\P2LPCFiles\\test.zip";
+    
     /** ftp related properties */
     
     /** property key for ftp user */
@@ -62,6 +76,7 @@ class Constant {
     final static String TESTLOGGING = "TestLogging";
     final static String DELAY_AFTER_FAIL = "DelayAfterFail";
     final static String READING_FILE = "ReadingsFileType";
+    
     
     final static ObisCode mbusSerialObisCode[] = {ObisCode.fromString("0.1.128.50.21.255"),
     												ObisCode.fromString("0.2.128.50.21.255"),
@@ -90,6 +105,9 @@ class Constant {
     final static ObisCode moduleFirmware = ObisCode.fromString("0.0.128.101.28.255");
     final static ObisCode activeCalendarName = ObisCode.fromString("0.0.13.0.0.255");
     final static ObisCode dlcRepeaterMode = ObisCode.fromString("0.0.128.0.1.255");
+    final static ObisCode dlcCarrierFrequency = ObisCode.fromString("0.0.128.0.2.255");
+    
+    final static ObisCode valveState = ObisCode.fromString("0.0.128.30.31.255");
     
     private SimpleDateFormat fixedDateFormat;
     private SimpleDateFormat dateFormat;

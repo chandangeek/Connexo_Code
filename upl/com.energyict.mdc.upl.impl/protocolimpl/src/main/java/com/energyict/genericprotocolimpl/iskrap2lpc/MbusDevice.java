@@ -22,6 +22,8 @@ import java.util.logging.Logger;
 
 import javax.xml.rpc.ServiceException;
 
+import org.apache.axis.types.UnsignedInt;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
@@ -30,6 +32,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
+import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
@@ -272,6 +275,8 @@ public class MbusDevice implements Messaging, GenericProtocol{
 			String contents = msg.getContents();
 			
 			boolean doReadOnDemand = (contents.toLowerCase()).indexOf(RtuMessageConstant.READ_ON_DEMAND.toLowerCase()) != -1;
+			boolean doDisconnect = contents.toLowerCase().indexOf(RtuMessageConstant.DISCONNECT_LOAD.toLowerCase()) != -1;
+			boolean doConnect       = (contents.toLowerCase().indexOf(RtuMessageConstant.CONNECT_LOAD.toLowerCase()) != -1) && !doDisconnect;
 			
 			try {
 				if(doReadOnDemand){
@@ -303,6 +308,26 @@ public class MbusDevice implements Messaging, GenericProtocol{
 					
 					msg.confirm();
 					getLogger().log(Level.INFO, "Current message " + contents + " has finished.");
+				} else if(doDisconnect){
+					//TODO test this, physicalAddress can also be mbusAddress
+					String[] times = mrt.prepareCosemGetRequest();
+					ObisCode oc = Constant.valveState;
+					ObisCode instance = ObisCode.fromString(oc.getA()+"."+getPhysicalAddress()+"."+oc.getC()+
+							"."+oc.getD()+"."+oc.getE()+"."+oc.getF());
+					byte[] b = new byte[]{DLMSCOSEMGlobals.TYPEDESC_BOOLEAN, 0x00};
+					mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], instance.toString(), new UnsignedInt(1), new UnsignedInt(2), b);
+					msg.confirm();
+					getLogger().log(Level.INFO, "Current message" + contents + " has finished.");
+				} else if(doConnect){
+					//TODO test this, physicalAddress can also be mbusAddress
+					String[] times = mrt.prepareCosemGetRequest();
+					ObisCode oc = Constant.valveState;
+					ObisCode instance = ObisCode.fromString(oc.getA()+"."+getPhysicalAddress()+"."+oc.getC()+
+							"."+oc.getD()+"."+oc.getE()+"."+oc.getF());
+					byte[] b = new byte[]{DLMSCOSEMGlobals.TYPEDESC_BOOLEAN, 0x01};
+					mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], instance.toString(), new UnsignedInt(1), new UnsignedInt(2), b);
+					msg.confirm();
+					getLogger().log(Level.INFO, "Current message" + contents + " has finished.");
 				} else {
 					msg.setFailed();
 				}
@@ -380,11 +405,10 @@ public class MbusDevice implements Messaging, GenericProtocol{
         
         MessageSpec msgSpec = addBasicMsg("ReadOnDemand", RtuMessageConstant.READ_ON_DEMAND, false);
         cat.addMessageSpec(msgSpec);
-        
-//        MessageSpec msgSpec = addBasicMsg("Disconnect meter", DISCONNECT, false);
-//        cat.addMessageSpec(msgSpec);
-//        msgSpec = addBasicMsg("Connect meter", CONNECT, false);
-//        cat.addMessageSpec(msgSpec);
+        msgSpec = addBasicMsg("Disconnect meter", RtuMessageConstant.DISCONNECT_LOAD, false);
+        cat.addMessageSpec(msgSpec);
+        msgSpec = addBasicMsg("Connect meter", RtuMessageConstant.CONNECT_LOAD, false);
+        cat.addMessageSpec(msgSpec);
         
         theCategories.add(cat);
         

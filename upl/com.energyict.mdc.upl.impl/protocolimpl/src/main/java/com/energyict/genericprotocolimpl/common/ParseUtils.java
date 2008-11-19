@@ -147,4 +147,14 @@ public class ParseUtils {
 		tempCalendar.set(Calendar.MILLISECOND, 0 );
 		return tempCalendar.getTime();
 	}
+	
+	public static void main(String[] args){
+		byte[] b = {-46};
+		
+		String str = decimalByteToString(b);
+		String str2 = Integer.toString(b[0]&0xFF);
+		System.out.println(str);
+		System.out.println(str2);
+		
+	}
 }

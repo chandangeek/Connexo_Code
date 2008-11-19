@@ -33,6 +33,16 @@ public class RtuMessageConstant {
     public final static String LOAD_CONTROL_OFF = "loadControlOff";
     
     /** RtuMessage tag for changing the repeater mode of a PLC meter */
-    public final static String REPEATER_MODE = "Repeater mode";
+    public final static String REPEATER_MODE = "repeaterMode";
+    
+    /** RtuMessage tag for changing the PLC frequency of the meter */
+    public final static String CHANGE_PLC_FREQUENCY = "changePLCFreq";
+    public final static String FREQUENCY_MARK = "Frequency mark";
+    public final static String FREQUENCY_SPACE = "Frequency space";
+    
+    /** RtuMessage tag for upgrading the meters firmware */
+    public final static String FIRMWARE_UPGRADE = "firmwareUpgrade";
+    public final static String FIRMWARE = "UserFile ID of firmware bin file";
+    public final static String FIRMWARE_METERS = "GroupID of meters to receive new firmware";
     
 }

@@ -37,6 +37,9 @@ public class Meter implements Messaging, MeterProtocol {
         msgSpec = addRepeaterMode("Repeater mode", RtuMessageConstant.REPEATER_MODE, !ADVANCED);
         cat2.addMessageSpec(msgSpec);
         
+        msgSpec = addPLCFreqChange("Change PLC Frequency", RtuMessageConstant.CHANGE_PLC_FREQUENCY, !ADVANCED);
+        cat2.addMessageSpec(msgSpec);
+        
         theCategories.add(cat);
         theCategories.add(cat2);
         return theCategories;
@@ -48,6 +51,15 @@ public class Meter implements Messaging, MeterProtocol {
     
     private MessageSpec addRepeaterMode(String keyId, String tagName, boolean advanced){
     	// TODO can we allow only the 0 - 1 - and 2
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+    	MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+    	tagSpec.add(new MessageValueSpec());
+    	msgSpec.add(tagSpec);
+    	return msgSpec;
+    }
+    
+    private MessageSpec addPLCFreqChange(String keyId, String tagName, boolean advanced){
+    	// TODO can we allow only the 0-1-2-3 or 4
     	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
     	MessageTagSpec tagSpec = new MessageTagSpec(tagName);
     	tagSpec.add(new MessageValueSpec());

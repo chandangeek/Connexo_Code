@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -21,16 +22,26 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.rpc.ServiceException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.axis.types.UnsignedInt;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -39,23 +50,33 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
+import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.P2LPCSoapPort_PortType;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.WebServiceLocator;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.Group;
+import com.energyict.mdw.core.GroupFactory;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.RtuMessageFactory;
 import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.coreimpl.GroupFactoryImpl;
+import com.energyict.mdw.coreimpl.GroupImpl;
 import com.energyict.mdw.coreimpl.RtuImpl;
+import com.energyict.mdw.coreimpl.RtuMessageFactoryImpl;
+import com.energyict.mdw.coreimpl.RtuMessageImpl;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageElementSpec;
 import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageTagSpec;
@@ -63,6 +84,8 @@ import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.tcpip.PPPDialer;
+import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
+import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderImpl;
 
 public class Concentrator implements Messaging, GenericProtocol {
     
@@ -518,6 +541,9 @@ public class Concentrator implements Messaging, GenericProtocol {
         					(contents.toLowerCase().indexOf(RtuMessageConstant.THRESHOLD_STOPDT.toLowerCase()) != -1) || 
         					(contents.toLowerCase().indexOf(RtuMessageConstant.THRESHOLD_GROUPID.toLowerCase()) != -1);
         boolean clearThreshold = contents.toLowerCase().indexOf(RtuMessageConstant.CLEAR_THRESHOLD.toLowerCase()) != -1;
+        boolean changePLCFrequency = (contents.toLowerCase().indexOf(RtuMessageConstant.FREQUENCY_MARK.toLowerCase()) != -1) ||
+        						(contents.toLowerCase().indexOf(RtuMessageConstant.FREQUENCY_SPACE.toLowerCase()) != -1);
+        boolean upgradeFirmware = contents.toLowerCase().indexOf(RtuMessageConstant.FIRMWARE.toLowerCase()) != -1;
         
         try {
             
@@ -542,7 +568,99 @@ public class Concentrator implements Messaging, GenericProtocol {
                 
             }
             
-            else if (applyThreshold ){
+            else if (changePLCFrequency){
+            	String mark = getMessageValue(contents, RtuMessageConstant.FREQUENCY_MARK);
+            	String space = getMessageValue(contents, RtuMessageConstant.FREQUENCY_SPACE);
+            	
+            	if(!(ParseUtils.isInteger(mark) && ParseUtils.isInteger(space))){
+            		msg.setFailed();
+            		getLogger().log(Level.INFO, "Not a valid entry for the current Concentrator message (" + contents + ").");
+            	} else {
+            		int fileSize = getConnection().getFileSize(Constant.p2lpcFileName);
+            		byte[] fileChunk = getConnection().downloadFileChunk(Constant.p2lpcFileName, 0, fileSize);
+            		System.out.println(new String(fileChunk));
+            		
+            		try {
+            			Document doc = toDom(new String(fileChunk));
+						NodeList nl = doc.getElementsByTagName(Constant.DLC);
+						if(nl.getLength() == 1){
+							Element e = (Element)nl.item(0);
+				            e.setAttribute(Constant.mark, mark);	// default value
+				            e.setAttribute(Constant.space, space);	// default value
+
+				            
+				            String xmlString = FileUtils.convertFromDocToString(doc);
+				            
+				            getConnection().uploadFileChunk(Constant.p2lpcFileName, 0, true, xmlString.getBytes());
+				            
+				            byte[] restartBytes = FileUtils.convertStringToZippedBytes(Constant.restart, Constant.restartFileName);
+				            getConnection().uploadFileChunk(Constant.upgradeZipName, 0, true, restartBytes);
+				            
+				            getLogger().log(Level.INFO, "Concentrator will RESTART!");
+				            
+				            success = true;
+				            
+						} else {
+							throw new IOException("P2LPC.xml does not contain a DLC tag.");
+						}
+						
+						
+					} catch (XmlException e) {
+						e.printStackTrace();
+						throw new IOException("Failed to parse the P2LPC.xml file.");
+					}
+            		
+            	}
+            } else if (upgradeFirmware){
+            	
+            	//TODO
+            	String userFileID = getMessageValue(contents, RtuMessageConstant.FIRMWARE);
+            	String groupID = getMessageValue(contents, RtuMessageConstant.FIRMWARE_METERS);
+            	
+            	if(!ParseUtils.isInteger(userFileID) || !ParseUtils.isInteger(groupID)){
+            		msg.setFailed();
+            		getLogger().log(Level.INFO, "Not a valid entry for the current Concentrator message (" + contents + ").");
+            	} else {
+            		
+            		Group gr = mw().getGroupFactory().find(Integer.parseInt(groupID));
+            		if(gr != null){
+            			if(gr.getObjectType() == mw().getRtuFactory().getId()){
+            				//TODO
+            				UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
+            				byte[] b = uf.loadFileInByteArray();
+            				if(b.length == 0){
+            					msg.setFailed();
+            					getLogger().log(Level.INFO, "The binary file is empty.");
+            				} else {
+            					List<Rtu> meters = gr.getMembers();
+            					if(meters.size() > 0){
+            						String[] meterSerials = new String[gr.getMembers().size()];
+            						Iterator<Rtu> it = meters.iterator();
+            						for(int i = 0; i < meterSerials.length; i++){
+            							meterSerials[i] = it.next().getSerialNumber();
+            						}
+            						//TODO upload the bin file
+            						getConnection().uploadFileChunk(Constant.firmwareBinFile, 0, true, b);
+            						//TODO upgrade the meter
+            						getConnection().upgradeMeters(Constant.firmwareBinFile, meterSerials);
+            						
+            						success = true;
+            					} else {
+            						msg.setFailed();
+            						getLogger().log(Level.INFO, "There are no meters in the group " + gr.getFullName());
+            					}
+            				}
+            			} else {
+            				msg.setFailed();
+                			getLogger().log(Level.INFO, "Objects in group '"+ gr.getFullName() +"'are not of the type Rtu.");
+            			}
+            		} else {
+            			msg.setFailed();
+            			getLogger().log(Level.INFO, "No valid group with id " + groupID);
+            		}
+            	}
+            	
+            } else if (applyThreshold ){
             	String groupID = getMessageValue(contents, RtuMessageConstant.THRESHOLD_GROUPID);
             	if (groupID.equalsIgnoreCase(""))
             		throw new BusinessException("No groupID was entered.");
@@ -828,10 +946,38 @@ public class Concentrator implements Messaging, GenericProtocol {
         
         msgSpec = addClearThresholdMsg("Clear threshold", RtuMessageConstant.CLEAR_THRESHOLD, !ADVANCED);
         cat.addMessageSpec(msgSpec);
+        
+        msgSpec = addPLCFreqChange("Change PLC Frequency", RtuMessageConstant.CHANGE_PLC_FREQUENCY, !ADVANCED);
+        cat.addMessageSpec(msgSpec);
+        
+        msgSpec = addFirmWare("Upgrade the meters firmware", RtuMessageConstant.FIRMWARE_UPGRADE, !ADVANCED);
+        cat.addMessageSpec(msgSpec);
 
         theCategories.add(cat);
         return theCategories;
         
+    }
+    
+    private MessageSpec addFirmWare(String keyId, String tagName, boolean advanced){
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+    	MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.FIRMWARE);
+    	tagSpec.add(new MessageValueSpec());
+    	msgSpec.add(tagSpec);
+    	tagSpec = new MessageTagSpec(RtuMessageConstant.FIRMWARE_METERS);
+    	tagSpec.add(new MessageValueSpec());
+    	msgSpec.add(tagSpec);
+    	return msgSpec;
+    }
+    
+    private MessageSpec addPLCFreqChange(String keyId, String tagName, boolean advanced){
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+    	MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.FREQUENCY_MARK);
+    	tagSpec.add(new MessageValueSpec());
+    	msgSpec.add(tagSpec);
+    	tagSpec = new MessageTagSpec(RtuMessageConstant.FREQUENCY_SPACE);
+    	tagSpec.add(new MessageValueSpec());
+    	msgSpec.add(tagSpec);
+    	return msgSpec;
     }
     
     private MessageSpec addThresholdMsg(String keyId, String tagName, boolean advanced){
