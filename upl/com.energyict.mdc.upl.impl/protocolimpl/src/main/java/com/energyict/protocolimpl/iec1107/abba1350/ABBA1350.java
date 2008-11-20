@@ -1,38 +1,37 @@
 package com.energyict.protocolimpl.iec1107.abba1350;
 
 import java.io.*;
+import java.math.*;
 import java.sql.SQLException;
 import java.util.*;
-import java.math.*;
-
-import com.energyict.protocol.*;
-
 import java.util.logging.*;
-import com.energyict.cbo.*;
 
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.vdew.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.cbo.*;
+import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.VDEWRegister;
+import com.energyict.protocolimpl.iec1107.vdew.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.connection.HHUSignOn;
 
 /**
  * @version 1.0
  * @author Koenraad Vanderschaeve
  * @author fbl
+ * @author jme
  * @beginchanges 
+ * 18-11-2008 jme > Implemented MessageProtocol to support messages. Messages for new Switch Point Clock data from alphaSET 3.0
  * @endchanges
  */
 public class ABBA1350 
     implements  MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, 
-                RegisterProtocol {
+                RegisterProtocol, MessageProtocol {
     
-    private final static boolean DEBUG = false;
-    
+    private final static int DEBUG = 1;
+        
     private String strID;
     private String strPassword;
     private int iIEC1107TimeoutProperty;
@@ -56,6 +55,7 @@ public class ABBA1350
     private FlagIEC1107Connection flagIEC1107Connection = null;
     private ABBA1350Registry abba1350Registry = null;
     private ABBA1350Profile abba1350Profile = null;
+    private ABBA1350Messages abba1350Messages = new ABBA1350Messages(this);
     
     private byte[] dataReadout = null;
     private int [] billingCount;
@@ -119,7 +119,7 @@ public class ABBA1350
     } // public void setTime() throws IOException
     
     public Date getTime() throws IOException {
-        Date date = (Date) getAbba1350Registry().getRegister("TimeDate");
+    	Date date = (Date) getAbba1350Registry().getRegister("TimeDate");
         return new Date(date.getTime() - iRoundtripCorrection);
     }
 
@@ -298,7 +298,11 @@ public class ABBA1350
             return getProtocolChannelMap().getNrOfProtocolChannels();
     }
     
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getISecurityLevel() {
+		return iSecurityLevel;
+	}
+
+	public int getProfileInterval() throws UnsupportedException, IOException {
         if (requestHeader == 1)
             return getAbba1350Profile().getProfileHeader().getProfileInterval();
         else
@@ -630,7 +634,7 @@ public class ABBA1350
             String obis = (String)i.next();
             ObisCode oc = ObisCode.fromString(obis);
             
-            if( DEBUG ) {
+            if(DEBUG >= 1) {
                 try {
                     rslt.append( translateRegister(oc) + "\n" );
                     rslt.append( readRegister(oc) + "\n" );
@@ -676,15 +680,67 @@ public class ABBA1350
     int getBillingCount() throws IOException{
         if( billingCount == null ){
         
-            String data = new String( read("0.1.0") );            
-            int start = data.indexOf('(') + 1;
+            String data;
+			try {
+				data = new String( read("0.1.0") );
+			} catch (NoSuchRegisterException e) {
+				if (!isDataReadout()) throw e;
+				data = "()";
+			}
+            
+			int start = data.indexOf('(') + 1;
             int stop = data.indexOf(')');
             String v = data.substring( start, stop );
             
-            billingCount = new int [] { Integer.parseInt(v) };
-            
+            try {
+				billingCount = new int [] { Integer.parseInt(v) };
+			} catch (NumberFormatException e) {
+				billingCount = new int [] {0};
+			}
+			
         }
         return billingCount[0];
     }
+
+    /**
+     * Implementation of methods in MessageProtocol
+     */
     
+	public void applyMessages(List messageEntries) throws IOException {
+        abba1350Messages.applyMessages(messageEntries);
+	}
+
+	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
+		return abba1350Messages.queryMessage(messageEntry);
+	}
+	
+	public List getMessageCategories() {
+		return abba1350Messages.getMessageCategories();
+	}
+
+	public String writeMessage(Message msg) {
+		return abba1350Messages.writeMessage(msg);
+	}
+
+	public String writeTag(MessageTag tag) {
+        return abba1350Messages.writeTag(tag);    
+	}
+
+	public String writeValue(MessageValue value) {
+		return abba1350Messages.writeValue(value);
+	}
+	  
+    public void sendDebug(String str){
+        if (DEBUG >= 1) {
+        	str = "######## DEBUG > " + str + "\n";
+        	Logger log = getLogger();
+        	if (log != null) {
+            	getLogger().info(str);
+        	} 
+        	else {
+            	System.out.println(str);
+        	}
+        }
+    }
+
 } 
