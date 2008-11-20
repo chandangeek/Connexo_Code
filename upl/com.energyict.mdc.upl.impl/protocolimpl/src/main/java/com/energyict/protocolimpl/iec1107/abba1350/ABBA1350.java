@@ -12,7 +12,6 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.VDEWRegister;
 import com.energyict.protocolimpl.iec1107.vdew.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.obis.ObisCode;

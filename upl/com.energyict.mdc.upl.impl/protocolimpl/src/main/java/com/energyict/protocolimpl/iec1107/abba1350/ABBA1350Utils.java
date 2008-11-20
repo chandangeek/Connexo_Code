@@ -6,8 +6,6 @@
  */
 package com.energyict.protocolimpl.iec1107.abba1350;
 
-import com.energyict.protocol.MessageEntry;
-
 /**
  * @author jme
  *
