@@ -31,21 +31,9 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 public class ABBA1350Messages {
 	
 	private static final int DEBUG = 1; 
-	
-    private static String UPLOAD_SPC = "SPC_DATA";
-    private static String UPLOAD_SPCU = "SPCU_DATA";
-
-    private static String UPLOAD_SPC_DISPLAY = "Upload 'Switch Point Clock' settings (Class 4)";
-    private static String UPLOAD_SPCU_DISPLAY = "Upload 'Switch Point Clock Update' settings (Class 32)";
-    
-    private static final int UPLOAD_SPC_LENGTH = 285 * 2;
-    private static final int UPLOAD_SPCU_LENGTH = 285 * 2;
-    
-    private static final int UPLOAD_SPC_CLASSNR = 4;
-    private static final int UPLOAD_SPCU_CLASSNR = 34;
-    
-
 	private ABBA1350 abba1350 = null;
+    private static final ABBA1350MessageType SPC = new ABBA1350MessageType("SPC_DATA", 4, 285 * 2, "Upload 'Switch Point Clock' settings (Class 4)");
+    private static final ABBA1350MessageType SPCU = new ABBA1350MessageType("SPCU_DATA", 34, 285 * 2, "Upload 'Switch Point Clock Update' settings (Class 32)");
 	
 	public ABBA1350Messages(ABBA1350 abba1350) {
 		this.abba1350 = abba1350;
@@ -59,8 +47,8 @@ public class ABBA1350Messages {
 		List theCategories = new ArrayList();
         MessageCategorySpec cat = new MessageCategorySpec("'Switch Point Clock' Messages");
         
-        cat.addMessageSpec(addBasicMsg(UPLOAD_SPC_DISPLAY, UPLOAD_SPC, false));
-        cat.addMessageSpec(addBasicMsg(UPLOAD_SPCU_DISPLAY, UPLOAD_SPCU, false));
+        cat.addMessageSpec(addBasicMsg(SPC, false));
+        cat.addMessageSpec(addBasicMsg(SPCU, false));
         
         theCategories.add(cat);
         return theCategories;
@@ -81,14 +69,14 @@ public class ABBA1350Messages {
 		sendDebug("queryMessage(MessageEntry messageEntry)");
 
 		try {
-			if (isThisMessage(messageEntry, UPLOAD_SPC)) {
-				sendDebug("************************* " + UPLOAD_SPC_DISPLAY + " *************************");
-				writeClassSettings(messageEntry, UPLOAD_SPC, UPLOAD_SPC_DISPLAY, UPLOAD_SPC_CLASSNR, UPLOAD_SPC_LENGTH);
+			if (isThisMessage(messageEntry, SPC)) {
+				sendDebug("************************* " + SPC.getDisplayName() + " *************************");
+				writeClassSettings(messageEntry, SPC);
 				return MessageResult.createSuccess(messageEntry);
 			}
-			else if (isThisMessage(messageEntry, UPLOAD_SPCU)) {
-				sendDebug("************************* " + UPLOAD_SPCU_DISPLAY + " *************************");
-				writeClassSettings(messageEntry, UPLOAD_SPCU, UPLOAD_SPCU_DISPLAY, UPLOAD_SPCU_CLASSNR, UPLOAD_SPCU_LENGTH);
+			else if (isThisMessage(messageEntry, SPCU)) {
+				sendDebug("************************* " + SPCU + " *************************");
+				writeClassSettings(messageEntry, SPCU);
 				return MessageResult.createSuccess(messageEntry);
 			}
 
@@ -155,15 +143,15 @@ public class ABBA1350Messages {
 	
 	
 
-    private static MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
-        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+    private static MessageSpec addBasicMsg(ABBA1350MessageType abba1350MessageType, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(abba1350MessageType.getDisplayName(), advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(abba1350MessageType.getTagName());
         msgSpec.add(tagSpec);
         return msgSpec;
     }
 	
 
-	private void writeClassSettings(MessageEntry messageEntry, String messageName, String messageDisplayName, int messageClassNumber, int messageLength) throws IOException {
+	private void writeClassSettings(MessageEntry messageEntry, ABBA1350MessageType messageType) throws IOException {
 		final byte[] WRITE1 = FlagIEC1107Connection.WRITE1;
 		final int MAX_PACKETSIZE = 48;
 		
@@ -175,12 +163,12 @@ public class ABBA1350Messages {
 		int offset = 0;
 		int length = 0;
 
-		if (abba1350.getISecurityLevel() < 1) throw new IOException("Message " + messageDisplayName + " needs at least security level 1. Current level: " + abba1350.getISecurityLevel());
+		if (abba1350.getISecurityLevel() < 1) throw new IOException("Message " + messageType.getDisplayName() + " needs at least security level 1. Current level: " + abba1350.getISecurityLevel());
 		
-		String message = ABBA1350Utils.getXMLAttributeValue(messageName, messageEntry.getContent());
+		String message = ABBA1350Utils.getXMLAttributeValue(messageType.getTagName(), messageEntry.getContent());
 		message = ABBA1350Utils.cleanAttributeValue(message);
 		sendDebug("Cleaned attribute value: " + message);
-		if (message.length() != messageLength) throw new IOException("Wrong length !!! Length should be " + messageLength + " but was " + message.length());
+		if (message.length() != messageType.getLength()) throw new IOException("Wrong length !!! Length should be " + messageType.getLength() + " but was " + message.length());
 		if (!ABBA1350Utils.containsOnlyTheseCharacters(message.toUpperCase(), "0123456789ABCDEF")) throw new IOException("Invalid characters in message. Only the following characters are allowed: '0123456789ABCDEFabcdef'");
 		
 		do {
@@ -191,12 +179,12 @@ public class ABBA1350Messages {
 			length = rawdata.length() / 2;
 			offset = first / 2;
 			
-			iec1107Command = "C" + ProtocolUtils.buildStringHex(messageClassNumber, 2);
+			iec1107Command = "C" + ProtocolUtils.buildStringHex(messageType.getClassnr(), 2);
 			iec1107Command += ProtocolUtils.buildStringHex(length, 4);
 			iec1107Command += ProtocolUtils.buildStringHex(offset, 4);
 			iec1107Command += "(" + rawdata + ")";
 			
-			sendDebug(	" classNumber: " + ProtocolUtils.buildStringHex(messageClassNumber, 2) + 
+			sendDebug(	" classNumber: " + ProtocolUtils.buildStringHex(messageType.getClassnr(), 2) + 
 						" First: " + ProtocolUtils.buildStringHex(first, 4) + 
 						" Last: " + ProtocolUtils.buildStringHex(last, 4) + 
 						" Offset: " + ProtocolUtils.buildStringHex(offset, 4) + 
@@ -212,8 +200,8 @@ public class ABBA1350Messages {
 
 	}
 	
-	private static boolean isThisMessage(MessageEntry messageEntry, String tag) {
-		return (ABBA1350Utils.getXMLAttributeValue(tag, messageEntry.getContent()) != null);
+	private static boolean isThisMessage(MessageEntry messageEntry, ABBA1350MessageType messagetype) {
+		return (ABBA1350Utils.getXMLAttributeValue(messagetype.getTagName(), messageEntry.getContent()) != null);
 	}
 
 	private void sendDebug(String string) {
