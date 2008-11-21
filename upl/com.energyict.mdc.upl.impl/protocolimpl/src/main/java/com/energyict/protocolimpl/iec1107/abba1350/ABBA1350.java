@@ -23,6 +23,7 @@ import com.energyict.obis.ObisCode;
  * @author jme
  * @beginchanges 
  * 18-11-2008 jme > Implemented MessageProtocol to support messages. Messages for new Switch Point Clock data from alphaSET 3.0
+ * 20-11-2008 jme > Added check for serial number match
  * @endchanges
  */
 public class ABBA1350 
@@ -38,6 +39,7 @@ public class ABBA1350
     private int iRoundtripCorrection;
     private int iSecurityLevel;
     private String nodeId;
+	private String serialNumber;
     private int iEchoCancelling;
     private int profileInterval;
     private ChannelMap channelMap;
@@ -58,6 +60,7 @@ public class ABBA1350
     
     private byte[] dataReadout = null;
     private int [] billingCount;
+
     
     /** Creates a new instance of ABBA1350, empty constructor */
     public ABBA1350() {
@@ -150,8 +153,9 @@ public class ABBA1350
                 if (properties.getProperty(key) == null)
                     throw new MissingPropertyException(key + " key missing");
             }
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
+            strID = properties.getProperty(MeterProtocol.ADDRESS, "");
             strPassword = properties.getProperty(MeterProtocol.PASSWORD);
+            serialNumber=properties.getProperty(MeterProtocol.SERIALNUMBER);
             iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
             iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
@@ -233,7 +237,31 @@ public class ABBA1350
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
-        return ("Unknown");
+    	String fw = "";
+    	String hw = "";
+    	String dev = "";
+    	String fwdev = "";
+
+    	if (iSecurityLevel < 1) return "Unknown (SecurityLevel to low)";
+    	
+    	fwdev = (String)getAbba1350Registry().getRegister("Firmware");
+    	hw = (String)getAbba1350Registry().getRegister("Hardware");
+    	if ((fwdev != null) && (fwdev.length() >= 30)) {
+        	fw = fwdev.substring(0, 10);
+        	dev = fwdev.substring(10, 30);
+        	fw = new String(ProtocolUtils.convert2ascii(fw.getBytes())).trim();
+        	dev = new String(ProtocolUtils.convert2ascii(dev.getBytes())).trim();
+    	} else {
+    		fw = "Unknown";
+    		dev = "Unknown";
+    	}
+    	if (hw != null) {
+        	hw = new String(ProtocolUtils.convert2ascii(hw.getBytes())).trim();
+    	} else {
+    		hw = "Unknown"; 
+    	}
+
+    	return " FirmwareNumber: " + fw + " DeviceType: " + dev + " HardwareKey: " + hw;
     } // public String getFirmwareVersion()
     
     /**
@@ -262,22 +290,24 @@ public class ABBA1350
     public void connect() throws IOException {
         try {
             if ((getFlagIEC1107Connection().getHhuSignOn() == null) && (isDataReadout())) {
-
                 dataReadout = flagIEC1107Connection.dataReadout(strID, nodeId);
                 flagIEC1107Connection.disconnectMAC();
-
             }
             
             flagIEC1107Connection.connectMAC(strID, strPassword, iSecurityLevel, nodeId);
-            
-            if ((getFlagIEC1107Connection().getHhuSignOn() != null) && (isDataReadout()))
-                dataReadout = getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
+            validateSerialNumber();
+
+            if ((getFlagIEC1107Connection().getHhuSignOn() != null) && (isDataReadout())) {
+            	dataReadout = getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
+            }
+
         } catch (FlagIEC1107ConnectionException e) {
             throw new IOException(e.getMessage());
         }
         
         initObis();
         
+        if (extendedLogging >= 2) getMeterInfo();
         if (extendedLogging >= 1) getRegistersInfo();
         
     }
@@ -649,6 +679,26 @@ public class ABBA1350
         logger.info(rslt.toString());
     }
     
+    private void getMeterInfo() throws IOException {
+    	String returnString = "";
+    	if (iSecurityLevel < 1) {
+    		returnString = "Set the SecurityLevel > 0 to show more information about the meter.\n";
+    	} else {
+    		returnString += " Meter ID1: " + new String(ProtocolUtils.convert2ascii(((String)getAbba1350Registry().getRegister("ID1")).getBytes())) + "\n";
+    		returnString += " Meter ID2: " + new String(ProtocolUtils.convert2ascii(((String)getAbba1350Registry().getRegister("ID2")).getBytes())) + "\n";
+    		returnString += " Meter ID3: " + new String(ProtocolUtils.convert2ascii(((String)getAbba1350Registry().getRegister("ID3")).getBytes())) + "\n";
+    		returnString += " Meter ID4: " + new String(ProtocolUtils.convert2ascii(((String)getAbba1350Registry().getRegister("ID4")).getBytes())) + "\n";
+    		returnString += " Meter ID5: " + new String(ProtocolUtils.convert2ascii(((String)getAbba1350Registry().getRegister("ID5")).getBytes())) + "\n";
+    		returnString += " Meter ID6: " + new String(ProtocolUtils.convert2ascii(((String)getAbba1350Registry().getRegister("ID6")).getBytes())) + "\n";
+
+    		returnString += " Meter IEC1107 ID:" + new String(ProtocolUtils.convert2ascii(((String)getAbba1350Registry().getRegister("IEC1107_ID")).getBytes())) + "\n";
+    		returnString += " Meter IECII07 address (optical):    " + new String(ProtocolUtils.convert2ascii(((String)getAbba1350Registry().getRegister("IEC1107_ADDRESS_OP")).getBytes())) + "\n";
+    		returnString += " Meter IECII07 address (electrical): " + new String(ProtocolUtils.convert2ascii(((String)getAbba1350Registry().getRegister("IEC1107_ADDRESS_EL")).getBytes())) + "\n";
+
+    	}
+        logger.info(returnString);
+    }
+
     // ********************************************************************************************************
     // implementation of the HHUEnabler interface
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
@@ -701,6 +751,13 @@ public class ABBA1350
         return billingCount[0];
     }
 
+    protected void validateSerialNumber() throws IOException {
+        if ((serialNumber == null) || ("".compareTo(serialNumber)==0)) return;
+        String sn = (String)getAbba1350Registry().getRegister("Serial");
+        if (sn.compareTo(serialNumber) == 0) return;
+        throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+serialNumber);
+    }
+    
     /**
      * Implementation of methods in MessageProtocol
      */

@@ -30,6 +30,21 @@ public class ABBA1350Registry extends AbstractVDEWRegistry {
     // KV TO_DO change OBIS B value to control channel id
     protected void initRegisters() {
         String obisB = Integer.toString(getRegisterSet());
+        registers.put("Serial", new VDEWRegister("1-1:0.0.0",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED));
+        registers.put("Firmware", new VDEWRegister("C0800000000",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ3));
+        registers.put("Hardware", new VDEWRegister("C06001E0000",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ3));
+
+        registers.put("ID1", new VDEWRegister("C0100080004",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ3));
+        registers.put("ID2", new VDEWRegister("C010008000C",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ3));
+        registers.put("ID3", new VDEWRegister("C0100080014",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ3));
+        registers.put("ID4", new VDEWRegister("C0100080050",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ3));
+        registers.put("ID5", new VDEWRegister("C0100080058",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ3));
+        registers.put("ID6", new VDEWRegister("C0100080060",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ3));
+        
+        registers.put("IEC1107_ID", new VDEWRegister("C010010001C",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ3));
+        registers.put("IEC1107_ADDRESS_OP", new VDEWRegister("C010010002C",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ3));
+        registers.put("IEC1107_ADDRESS_EL", new VDEWRegister("C010010003C",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ3));
+
         registers.put("Vb", new VDEWRegister("7-"+obisB+":23.2.0*101",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED));
         registers.put("Vm", new VDEWRegister("7-"+obisB+":23.0.0*101",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED));
         registers.put("quality/status code", new VDEWRegister("7-"+obisB+":97.97.0*101",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED));
