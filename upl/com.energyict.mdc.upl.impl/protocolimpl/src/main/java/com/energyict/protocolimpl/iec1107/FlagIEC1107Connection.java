@@ -308,6 +308,24 @@ public class FlagIEC1107Connection extends Connection {
                     else
                         authenticationData = buildData(strPass);
                 }
+                
+                else if (iSecurityLevel == 3) {
+                    byte[] key = receiveData();
+                    authenticationCommand = LOGON_PROCEDURE_2;
+                    
+                    // Elster specific, security level 3 sends P2(0000000000000000) first and after that i
+                    authenticationData = buildData("0000000000000000");
+                    authenticate();
+                    
+                    if (encryptor != null) {
+                        if (key.length == 0)
+                            throw new FlagIEC1107ConnectionException("FlagIEC1107Connection: Security issue error, P0 argument is empty ("+new String(key)+")",SECURITYLEVEL_ERROR);
+                        authenticationData = buildData(encryptor.encrypt(strPass, new String(key)));
+                    }
+                    else
+                        authenticationData = buildData(strPass);
+                }
+                
                 else throw new FlagIEC1107ConnectionException("FlagIEC1107Connection: invalid SecurityLevel",SECURITYLEVEL_ERROR);
                 
                 authenticate();

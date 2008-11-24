@@ -148,7 +148,7 @@ public class ABBA230 implements
                 pExtendedLogging = Integer.parseInt(p.getProperty(PK_EXTENDED_LOGGING));
             
             
-            pSecurityLevel = Integer.parseInt(p.getProperty("SecurityLevel","2").trim());
+            pSecurityLevel = Integer.parseInt(p.getProperty("SecurityLevel","3").trim());
             if (pSecurityLevel != 0) {
                 if ("".equals(pPassword)) {
                     String msg = "Password field is empty! correct first!";
@@ -261,6 +261,7 @@ public class ABBA230 implements
     public void connect(int baudrate) throws IOException {
         try {
             getFlagIEC1107Connection().connectMAC(pAddress,pPassword,pSecurityLevel,pNodeId,baudrate);
+            
             rFactory = new ABBA230RegisterFactory((ProtocolLink)this,(MeterExceptionInfo)this);
             profile=new ABBA230Profile(this,rFactory);
             
