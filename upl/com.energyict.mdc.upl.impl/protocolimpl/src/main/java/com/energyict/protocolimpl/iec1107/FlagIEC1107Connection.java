@@ -74,7 +74,7 @@ public class FlagIEC1107Connection extends Connection {
     private static final int STATE_SIGNON=0;
     private static final int STATE_PROGRAMMINGMODE=1;
     
-    private int state=STATE_SIGNON;
+    private int sessionState=STATE_SIGNON;
     private String errorSignature = "ERR";
     
     private boolean addCRLF=false;
@@ -217,7 +217,7 @@ public class FlagIEC1107Connection extends Connection {
                     meterType = hhuSignOn.signOn(strIdentConfig,meterID,baudrate);
                 boolFlagIEC1107Connected=true;
                 prepareAuthentication(strPass);
-                state = STATE_PROGRAMMINGMODE;
+                sessionState = STATE_PROGRAMMINGMODE;
                 return meterType;
             }
             catch(FlagIEC1107ConnectionException e) {
@@ -644,7 +644,7 @@ public class FlagIEC1107Connection extends Connection {
                         }
                         // KV 27102004
                         if ((byte)iNewKar == NAK) {
-                            if (state != STATE_SIGNON)
+                            if (sessionState != STATE_SIGNON)
                                 throw new FlagIEC1107ConnectionException("doReceiveData() NAK received",NAK_RECEIVED);
                             else
                                 throw new NestedIOException(new IOException("Probably wrong password! (NAK received)"));
@@ -687,6 +687,11 @@ public class FlagIEC1107Connection extends Connection {
                             if (end) {
                                 byte[] responseData = resultArrayOutputStream.toByteArray();
                                 if (new String(responseData).compareTo("B0")==0) {
+                                	
+                                	 // KV 24112008
+                                	 if (sessionState == STATE_SIGNON)
+                                		 return responseData;
+                                	
                                      if (connectCount++ >= 10)
                                          throw new FlagIEC1107ConnectionException("connectMAC(), max nr of reconnects reached!",PROTOCOL_ERROR);
                                     txBuffer2 = new byte[getTxBuffer().length];
