@@ -31,6 +31,9 @@ public class ABBA1350
                 RegisterProtocol, MessageProtocol {
     
     private final static int DEBUG = 1;
+
+	private static final int MIN_LOADPROFILE = 1;
+	private static final int MAX_LOADPROFILE = 2;
         
     private String strID;
     private String strPassword;
@@ -47,6 +50,7 @@ public class ABBA1350
     private ProtocolChannelMap protocolChannelMap = null;
     private int scaler;
     private int dataReadoutRequest;
+	private int loadProfileNumber;
     
     private TimeZone timeZone;
     private Logger logger;
@@ -60,7 +64,6 @@ public class ABBA1350
     
     private byte[] dataReadout = null;
     private int [] billingCount;
-
     
     /** Creates a new instance of ABBA1350, empty constructor */
     public ABBA1350() {
@@ -73,12 +76,12 @@ public class ABBA1350
     }
     
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-        return getAbba1350Profile().getProfileData(lastReading, includeEvents);
+        return getAbba1350Profile().getProfileData(lastReading, includeEvents, loadProfileNumber);
     }
     
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException,
             UnsupportedException {
-        return getAbba1350Profile().getProfileData(from, to, includeEvents);
+        return getAbba1350Profile().getProfileData(from, to, includeEvents, loadProfileNumber);
     }
     
     public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
@@ -170,10 +173,15 @@ public class ABBA1350
             dataReadoutRequest = Integer.parseInt(properties.getProperty("DataReadout", "0").trim());
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
             vdewCompatible = Integer.parseInt(properties.getProperty("VDEWCompatible", "0").trim());
+            loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber", "1"));
+                        
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "
                     + e.getMessage());
         }
+        
+        if ((loadProfileNumber < MIN_LOADPROFILE) || (loadProfileNumber > MAX_LOADPROFILE)) 
+        	throw new InvalidPropertyException("Invalid loadProfileNumber (" + loadProfileNumber + "). Minimum value: " + MIN_LOADPROFILE + " Maximum value: " + MAX_LOADPROFILE); 
         
     }
     
@@ -219,6 +227,7 @@ public class ABBA1350
      */
     public List getOptionalKeys() {
         List result = new ArrayList();
+        result.add("LoadProfileNumber");
         result.add("Timeout");
         result.add("Retries");
         result.add("SecurityLevel");
@@ -322,7 +331,7 @@ public class ABBA1350
     
     public int getNumberOfChannels() throws UnsupportedException, IOException {
         if (requestHeader == 1)
-            return getAbba1350Profile().getProfileHeader().getNrOfChannels();
+            return getAbba1350Profile().getProfileHeader(loadProfileNumber).getNrOfChannels();
         else
             return getProtocolChannelMap().getNrOfProtocolChannels();
     }
@@ -333,7 +342,7 @@ public class ABBA1350
 
 	public int getProfileInterval() throws UnsupportedException, IOException {
         if (requestHeader == 1)
-            return getAbba1350Profile().getProfileHeader().getProfileInterval();
+            return getAbba1350Profile().getProfileHeader(loadProfileNumber).getProfileInterval();
         else
             return profileInterval;
     }

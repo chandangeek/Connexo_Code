@@ -14,7 +14,7 @@ import java.util.List;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageElement;
@@ -32,7 +32,7 @@ public class ABBA1350Messages {
 	
 	private static final int DEBUG = 1; 
 	private ABBA1350 abba1350 = null;
-    private static final ABBA1350MessageType SPC = new ABBA1350MessageType("SPC_DATA", 4, 285 * 2, "Upload 'Switch Point Clock' settings (Class 4)");
+    private static final ABBA1350MessageType SPC_MESSAGE = new ABBA1350MessageType("SPC_DATA", 4, 285 * 2, "Upload 'Switch Point Clock' settings (Class 4)");
     private static final ABBA1350MessageType SPCU = new ABBA1350MessageType("SPCU_DATA", 34, 285 * 2, "Upload 'Switch Point Clock Update' settings (Class 32)");
 	
 	public ABBA1350Messages(ABBA1350 abba1350) {
@@ -47,7 +47,7 @@ public class ABBA1350Messages {
 		List theCategories = new ArrayList();
         MessageCategorySpec cat = new MessageCategorySpec("'Switch Point Clock' Messages");
         
-        cat.addMessageSpec(addBasicMsg(SPC, false));
+        cat.addMessageSpec(addBasicMsg(SPC_MESSAGE, false));
         cat.addMessageSpec(addBasicMsg(SPCU, false));
         
         theCategories.add(cat);
@@ -69,9 +69,9 @@ public class ABBA1350Messages {
 		sendDebug("queryMessage(MessageEntry messageEntry)");
 
 		try {
-			if (isThisMessage(messageEntry, SPC)) {
-				sendDebug("************************* " + SPC.getDisplayName() + " *************************");
-				writeClassSettings(messageEntry, SPC);
+			if (isThisMessage(messageEntry, SPC_MESSAGE)) {
+				sendDebug("************************* " + SPC_MESSAGE.getDisplayName() + " *************************");
+				writeClassSettings(messageEntry, SPC_MESSAGE);
 				return MessageResult.createSuccess(messageEntry);
 			}
 			else if (isThisMessage(messageEntry, SPCU)) {

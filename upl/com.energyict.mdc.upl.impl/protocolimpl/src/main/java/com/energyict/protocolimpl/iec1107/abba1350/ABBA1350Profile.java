@@ -15,6 +15,7 @@ import com.energyict.protocol.*;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWProfileHeader;
 
 /**
  *
@@ -25,16 +26,18 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
 
 public class ABBA1350Profile extends VDEWProfile {
     
+	private ABBA1350ProfileHeader abba1350ProfileHeader = null;
+	
     /** Creates a new instance of ABBA1500Profile */
     public ABBA1350Profile(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink, AbstractVDEWRegistry abstractVDEWRegistry) {
         super(meterExceptionInfo,protocolLink,abstractVDEWRegistry,false);
     }
     
-    public ProfileData getProfileData(Date lastReading,boolean includeEvents) throws IOException {
+    public ProfileData getProfileData(Date lastReading,boolean includeEvents, int profileNumber) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         fromCalendar.setTime(lastReading);
         
-        ProfileData profileData =  doGetProfileData(fromCalendar,ProtocolUtils.getCalendar(getProtocolLink().getTimeZone()),1);
+        ProfileData profileData =  doGetProfileData(fromCalendar,ProtocolUtils.getCalendar(getProtocolLink().getTimeZone()), profileNumber);
         if (includeEvents) {
            List meterEvents = doGetLogBook(fromCalendar,ProtocolUtils.getCalendar(getProtocolLink().getTimeZone())); 
            profileData.getMeterEvents().addAll(meterEvents);
@@ -45,13 +48,13 @@ public class ABBA1350Profile extends VDEWProfile {
         return profileData;
     }
     
-    public ProfileData getProfileData(Date fromReading, Date toReading, boolean includeEvents) throws IOException {
+    public ProfileData getProfileData(Date fromReading, Date toReading, boolean includeEvents, int profileNumber) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         fromCalendar.setTime(fromReading);
         Calendar toCalendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         toCalendar.setTime(toReading);
         
-        ProfileData profileData =  doGetProfileData(fromCalendar,toCalendar,1);
+        ProfileData profileData =  doGetProfileData(fromCalendar,toCalendar, profileNumber);
         if (includeEvents) {
            List meterEvents = doGetLogBook(fromCalendar,toCalendar); 
            profileData.getMeterEvents().addAll(meterEvents);
@@ -60,6 +63,13 @@ public class ABBA1350Profile extends VDEWProfile {
         
         profileData.applyEvents(getProtocolLink().getProfileInterval()/60);
         return profileData;
+    }
+    
+    public ABBA1350ProfileHeader getProfileHeader(int profileNumber) throws IOException {
+    	if (abba1350ProfileHeader == null) {
+    		abba1350ProfileHeader = new ABBA1350ProfileHeader(getProtocolLink().getFlagIEC1107Connection(), profileNumber);
+    	}
+    	return abba1350ProfileHeader;
     }
     
     /* Overrides VDEWProfile#getMeterEvent().
