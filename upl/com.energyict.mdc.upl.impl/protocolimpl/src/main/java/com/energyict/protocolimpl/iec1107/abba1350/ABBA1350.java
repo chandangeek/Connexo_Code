@@ -63,7 +63,7 @@ public class ABBA1350
     private ABBA1350Registry abba1350Registry = null;
     private ABBA1350Profile abba1350Profile = null;
     private ABBA1350Messages abba1350Messages = new ABBA1350Messages(this);
-    private ABBA1350ObisCodeMapper abba1350ObisCodeMapper = null;
+    private ABBA1350ObisCodeMapper abba1350ObisCodeMapper = new ABBA1350ObisCodeMapper(this);
     
     private byte[] dataReadout = null;
     private int [] billingCount;
@@ -302,7 +302,7 @@ public class ABBA1350
     public void connect() throws IOException {
         try {
             if ((getFlagIEC1107Connection().getHhuSignOn() == null) && (isDataReadout())) {
-                dataReadout = flagIEC1107Connection.dataReadout(strID, nodeId);
+                dataReadout = cleanDataReadout(flagIEC1107Connection.dataReadout(strID, nodeId));
                 flagIEC1107Connection.disconnectMAC();
             }
             
@@ -310,14 +310,14 @@ public class ABBA1350
             validateSerialNumber();
 
             if ((getFlagIEC1107Connection().getHhuSignOn() != null) && (isDataReadout())) {
-            	dataReadout = getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
+            	dataReadout = cleanDataReadout(getFlagIEC1107Connection().getHhuSignOn().getDataReadout());
             }
 
         } catch (FlagIEC1107ConnectionException e) {
             throw new IOException(e.getMessage());
         }
         
-        abba1350ObisCodeMapper = new ABBA1350ObisCodeMapper(this);
+
         abba1350ObisCodeMapper.initObis();
         
         if (extendedLogging >= 2) getMeterInfo();
@@ -325,7 +325,19 @@ public class ABBA1350
         
     }
     
-    public void disconnect() throws IOException {
+    private byte[] cleanDataReadout(byte[] dro) {
+    	if (DEBUG >= 1) sendDebug("cleanDataReadout()  INPUT dro = " + new String(dro));
+    	
+    	for (int i = 0; i < dro.length; i++) {
+    		if (((i+3) < dro.length) && (dro[i] == '&')) {
+	    		if (dro[i+3] == '(') dro[i] = '*';
+			}
+		}
+    	if (DEBUG >= 1) sendDebug("cleanDataReadout() OUTPUT dro = " + new String(dro));
+    	return dro;
+	}
+
+	public void disconnect() throws IOException {
         try {
             flagIEC1107Connection.disconnectMAC();
         } catch (FlagIEC1107ConnectionException e) {
@@ -492,12 +504,15 @@ public class ABBA1350
         byte[] data;
         if (!isDataReadout()) {
             String name = edisNotation + "(;)";
+            sendDebug("Requesting read(): edisNotation = " + edisNotation);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             byteArrayOutputStream.write(name.getBytes());
             flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream
                     .toByteArray());
             data = flagIEC1107Connection.receiveRawData();
         } else {
+            edisNotation = "1-1:" + edisNotation;
+            sendDebug("Requesting read(): edisNotation = " + edisNotation);
             DataDumpParser ddp = new DataDumpParser(getDataReadout());
             data = ddp.getRegisterStrValue(edisNotation).getBytes();
         }
@@ -523,7 +538,7 @@ public class ABBA1350
             String obis = (String)i.next();
             ObisCode oc = ObisCode.fromString(obis);
             
-            if(DEBUG >= 1) {
+            if(DEBUG >= 2) {
                 try {
                     rslt.append( translateRegister(oc) + "\n" );
                     rslt.append( readRegister(oc) + "\n" );
@@ -587,27 +602,34 @@ public class ABBA1350
     }
     
     int getBillingCount() throws IOException{
-        if( billingCount == null ){
-        
-            String data;
-			try {
-				data = new String( read("0.1.0") );
-			} catch (NoSuchRegisterException e) {
-				if (!isDataReadout()) throw e;
-				data = "()";
-			}
-            
-			int start = data.indexOf('(') + 1;
-            int stop = data.indexOf(')');
-            String v = data.substring( start, stop );
-            
-            try {
-				billingCount = new int [] { Integer.parseInt(v) };
-			} catch (NumberFormatException e) {
-				billingCount = new int [] {0};
-			}
-			
-        }
+    	if( billingCount == null ){
+
+    		if (isDataReadout()) {
+                DataDumpParser ddp = new DataDumpParser(getDataReadout());
+                billingCount = new int [] {ddp.getBillingCounter()};
+    		} else {
+
+    			String data;
+    			try {
+    				data = new String( read("0.1.0") );
+    			} catch (NoSuchRegisterException e) {
+    				if (!isDataReadout()) throw e;
+    				data = "()";
+    			}
+
+    			int start = data.indexOf('(') + 1;
+    			int stop = data.indexOf(')');
+    			String v = data.substring( start, stop );
+
+    			try {
+    				billingCount = new int [] { Integer.parseInt(v) };
+    			} catch (NumberFormatException e) {
+    				billingCount = new int [] {0}; 
+    				sendDebug("Unable to read billingCounter. Defaulting to 0!");
+    			}
+    		}
+
+    	}
         return billingCount[0];
     }
 
@@ -645,7 +667,14 @@ public class ABBA1350
 	public String writeValue(MessageValue value) {
 		return abba1350Messages.writeValue(value);
 	}
-	  
+
+	public static void main(String[] args) throws IOException {
+		ABBA1350 abba = new ABBA1350();
+		abba.connect();
+		
+		
+	}
+	
     public void sendDebug(String str){
         if (DEBUG >= 1) {
         	str = "######## DEBUG > " + str + "\n";

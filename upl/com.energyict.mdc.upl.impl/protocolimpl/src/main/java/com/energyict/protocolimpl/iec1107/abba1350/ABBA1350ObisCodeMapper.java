@@ -25,6 +25,9 @@ public class ABBA1350ObisCodeMapper {
         {
             
             obisMap.put( "1.1.0.1.2.255", "Date and time (0.9.1 0.9.2)" );
+            //obisMap.put("", "");
+            
+            
             
             obisMap.put( "1.1.1.2.0.255", "+P, cumulative maximum, M0 (1.2.0)" );
 
