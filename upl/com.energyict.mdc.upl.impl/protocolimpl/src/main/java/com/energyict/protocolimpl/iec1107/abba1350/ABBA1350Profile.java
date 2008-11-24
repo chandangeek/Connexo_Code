@@ -72,6 +72,11 @@ public class ABBA1350Profile extends VDEWProfile {
     	return abba1350ProfileHeader;
     }
     
+    // override the default getProfileHeader() to prevent bypass of the new getProfileHeader(int profileNumber) method
+    public VDEWProfileHeader getProfileHeader() throws IOException {
+    	throw new IOException("Internal protocol error. Method getProfileHeader() not supported. No spport for loadProfileNumber");
+    }
+    
     /* Overrides VDEWProfile#getMeterEvent().
      * 
      * Difference: 

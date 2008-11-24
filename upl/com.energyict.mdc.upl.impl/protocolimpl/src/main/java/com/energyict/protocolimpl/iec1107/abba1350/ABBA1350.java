@@ -61,6 +61,7 @@ public class ABBA1350
     private ABBA1350Registry abba1350Registry = null;
     private ABBA1350Profile abba1350Profile = null;
     private ABBA1350Messages abba1350Messages = new ABBA1350Messages(this);
+    private ABBA1350ObisCodeMapper abba1350ObisCodeMapper = null;
     
     private byte[] dataReadout = null;
     private int [] billingCount;
@@ -314,7 +315,8 @@ public class ABBA1350
             throw new IOException(e.getMessage());
         }
         
-        initObis();
+        abba1350ObisCodeMapper = new ABBA1350ObisCodeMapper(this);
+        abba1350ObisCodeMapper.initObis();
         
         if (extendedLogging >= 2) getMeterInfo();
         if (extendedLogging >= 1) getRegistersInfo();
@@ -506,168 +508,15 @@ public class ABBA1350
     }
     
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return new RegisterInfo("" + obisMap.get(obisCode.toString()));
+        return new RegisterInfo("" + abba1350ObisCodeMapper.getObisMap().get(obisCode.toString()));
     }
 
-    LinkedHashMap obisMap = new LinkedHashMap();
     
-    void initObis( ) throws IOException { 
-        {
-            
-            obisMap.put( "1.1.0.1.2.255", "Date and time (0.9.1 0.9.2)" );
-            
-            obisMap.put( "1.1.1.2.0.255", "+P, cumulative maximum, M0 (1.2.0)" );
-
-            String obis = "1.1.1.2.0.VZ";
-            String dscr = "+P, cumulative maximum, M0 (1.2.0*"; 
-            
-            for( int i = 0; i < getBillingCount(); i ++ ) {
-                String bpOString = obis;
-                if( i > 0 ) bpOString = bpOString + "-" + i;
-                String bpDscr = dscr + (getBillingCount() - i) + ")";
-                obisMap.put(bpOString, bpDscr);
-            }
-            
-            obisMap.put( "1.1.1.6.0.255", "+P, maximum, M0 (1.6.0)" );
-            
-            obis = "1.1.1.6.0.VZ";
-            dscr = "+P, maximum, M0 (1.6.0*"; 
-            
-            for( int i = 0; i < getBillingCount(); i ++ ) {
-                String bpOString = obis;
-                if( i > 0 ) bpOString = bpOString + "-" + i;
-                String bpDscr = dscr + (getBillingCount() - i) + ")";
-                obisMap.put(bpOString, bpDscr);
-            }
-            
-            obisMap.put( "1.1.1.8.1.255", "+A, Time integral 1, T1 (1.8.1)" );
-            
-            obis = "1.1.1.8.1.VZ";
-            dscr = "+A, Time integral 1, T1 (1.8.1*"; 
-            
-            for( int i = 0; i < getBillingCount(); i ++ ) {
-                String bpOString = obis;
-                if( i > 0 ) bpOString = bpOString + "-" + i;
-                String bpDscr = dscr + (getBillingCount() - i) + ")";
-                obisMap.put(bpOString, bpDscr);
-            }
-            
-            obisMap.put( "1.1.1.8.2.255", "+A, Time integral 1, T2 (1.8.2)" );
-            
-            obis = "1.1.1.8.2.VZ";
-            dscr = "+A, Time integral 1, T1 (1.8.2*"; 
-            
-            for( int i = 0; i < getBillingCount(); i ++ ) {
-                String bpOString = obis;
-                if( i > 0 ) bpOString = bpOString + "-" + i;
-                String bpDscr = dscr + (getBillingCount() - i) + ")";
-                obisMap.put(bpOString, bpDscr);
-            }
-            
-            obisMap.put( "1.1.2.2.0.255",   "-P, cumulative maximum, M0 (2.2.0)" );
-            
-            obis = "1.1.2.2.0.VZ";
-            dscr = "-P, cumulative maximum, M0 (2.2.0*"; 
-            
-            for( int i = 0; i < getBillingCount(); i ++ ) {
-                String bpOString = obis;
-                if( i > 0 ) bpOString = bpOString + "-" + i;
-                String bpDscr = dscr + (getBillingCount() - i) + ")";
-                obisMap.put(bpOString, bpDscr);
-            }
-            
-            obisMap.put( "1.1.2.6.0.255", "-P, maximum, M0 (2.6.0)" );
-            
-            obis = "1.1.2.6.0.VZ";
-            dscr = "-P, maximum, M0 (2.6.0*"; 
-            
-            for( int i = 0; i < getBillingCount(); i ++ ) {
-                String bpOString = obis;
-                if( i > 0 ) bpOString = bpOString + "-" + i;
-                String bpDscr = dscr + (getBillingCount() - i) + ")";
-                obisMap.put(bpOString, bpDscr);
-            }
-            
-            obisMap.put( "1.1.2.8.1.255", "-A, Time integral 1, T1 (2.8.1)" );
-
-            obis = "1.1.2.8.1.VZ";
-            dscr = "-A, Time integral 1, T1 (2.8.1*"; 
-            
-            for( int i = 0; i < getBillingCount(); i ++ ) {
-                String bpOString = obis;
-                if( i > 0 ) bpOString = bpOString + "-" + i;
-                String bpDscr = dscr + (getBillingCount() - i) + ")";
-                obisMap.put(bpOString, bpDscr);
-            }
-            
-            obisMap.put( "1.1.2.8.2.255", "-A, Time integral 1, T2 (2.8.2)" );
-
-            obis = "1.1.2.8.2.VZ";
-            dscr = "-A, Time integral 1, T2 (2.8.2*"; 
-            
-            for( int i = 0; i < getBillingCount(); i ++ ) {
-                String bpOString = obis;
-                if( i > 0 ) bpOString = bpOString + "-" + i;
-                String bpDscr = dscr + (getBillingCount() - i) + ")";
-                obisMap.put(bpOString, bpDscr);
-            }
-            
-            obisMap.put( "1.1.3.8.1.255", "+R, Time integral 1, T1 (3.8.1)" );
-
-            obis = "1.1.3.8.1.VZ";
-            dscr = "+R, Time integral 1, T1 (3.8.1*"; 
-            
-            for( int i = 0; i < getBillingCount(); i ++ ) {
-                String bpOString = obis;
-                if( i > 0 ) bpOString = bpOString + "-" + i;
-                String bpDscr = dscr + (getBillingCount() - i) + ")";
-                obisMap.put(bpOString, bpDscr);
-            }
-            
-            obisMap.put( "1.1.3.8.2.255", "+R, Time integral 1, T2 (3.8.2)" );
-
-            obis = "1.1.3.8.2.VZ";
-            dscr = "+R, Time integral 1, T2 (3.8.2*"; 
-            
-            for( int i = 0; i < getBillingCount(); i ++ ) {
-                String bpOString = obis;
-                if( i > 0 ) bpOString = bpOString + "-" + i;
-                String bpDscr = dscr + (getBillingCount() - i) + ")";
-                obisMap.put(bpOString, bpDscr);
-            }
-            
-            obisMap.put( "1.1.4.8.1.255", "-R, Time integral 1, T1 (4.8.1)" );
-
-            obis = "1.1.4.8.1.VZ";
-            dscr = "-R, Time integral 1, T1 (4.8.1*"; 
-            
-            for( int i = 0; i < getBillingCount(); i ++ ) {
-                String bpOString = obis;
-                if( i > 0 ) bpOString = bpOString + "-" + i;
-                String bpDscr = dscr + (getBillingCount() - i) + ")";
-                obisMap.put(bpOString, bpDscr);
-            }
-
-            
-            obisMap.put( "1.1.4.8.2.255", "-R, Time integral 1, T2 (4.8.2)" );
-
-            obis = "1.1.4.8.2.VZ";
-            dscr = "-R, Time integral 1, T2 (4.8.2*"; 
-            
-            for( int i = 0; i < getBillingCount(); i ++ ) {
-                String bpOString = obis;
-                if( i > 0 ) bpOString = bpOString + "-" + i;
-                String bpDscr = dscr + (getBillingCount() - i) + ")";
-                obisMap.put(bpOString, bpDscr);
-            }
-
-        }
-    };
     
     private void getRegistersInfo() throws IOException {
         StringBuffer rslt = new StringBuffer();
         
-        Iterator i = obisMap.keySet().iterator();
+        Iterator i = abba1350ObisCodeMapper.getObisMap().keySet().iterator();
         while(i.hasNext()){
             String obis = (String)i.next();
             ObisCode oc = ObisCode.fromString(obis);
