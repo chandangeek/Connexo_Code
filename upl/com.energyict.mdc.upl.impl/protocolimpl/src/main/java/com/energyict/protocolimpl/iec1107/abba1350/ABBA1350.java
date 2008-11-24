@@ -24,6 +24,8 @@ import com.energyict.obis.ObisCode;
  * @beginchanges 
  * 18-11-2008 jme > Implemented MessageProtocol to support messages. Messages for new Switch Point Clock data from alphaSET 3.0
  * 20-11-2008 jme > Added check for serial number match
+ * 24-11-2008 jme > Added firmware version and hardware key readout
+ * 24-11-2008 jme > Added support for power Quality readout (P.02)
  * @endchanges
  */
 public class ABBA1350 
