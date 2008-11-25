@@ -8,7 +8,7 @@ import java.util.logging.*;
 
 import com.energyict.cbo.*;
 import com.energyict.dialer.connection.*;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dialer.core.*;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.iec1107.*;
@@ -291,7 +291,7 @@ public class ABBA1350
             abba1350Profile = new ABBA1350Profile(this, this, abba1350Registry);
             
         } catch (ConnectionException e) {
-            logger.severe("ABBA1350: init(...), " + e.getMessage());
+        	if (logger != null) logger.severe("ABBA1350: init(...), " + e.getMessage());
         }
         
     }
@@ -326,14 +326,14 @@ public class ABBA1350
     }
     
     private byte[] cleanDataReadout(byte[] dro) {
-    	if (DEBUG >= 1) sendDebug("cleanDataReadout()  INPUT dro = " + new String(dro));
+    	if (DEBUG >= 1) sendDebug("cleanDataReadout()  INPUT dro = " + new String(dro), 2);
     	
     	for (int i = 0; i < dro.length; i++) {
     		if (((i+3) < dro.length) && (dro[i] == '&')) {
 	    		if (dro[i+3] == '(') dro[i] = '*';
 			}
 		}
-    	if (DEBUG >= 1) sendDebug("cleanDataReadout() OUTPUT dro = " + new String(dro));
+    	if (DEBUG >= 1) sendDebug("cleanDataReadout() OUTPUT dro = " + new String(dro), 2);
     	return dro;
 	}
 
@@ -504,7 +504,7 @@ public class ABBA1350
         byte[] data;
         if (!isDataReadout()) {
             String name = edisNotation + "(;)";
-            sendDebug("Requesting read(): edisNotation = " + edisNotation);
+            sendDebug("Requesting read(): edisNotation = " + edisNotation, 2);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             byteArrayOutputStream.write(name.getBytes());
             flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream
@@ -512,14 +512,14 @@ public class ABBA1350
             data = flagIEC1107Connection.receiveRawData();
         } else {
             edisNotation = "1-1:" + edisNotation;
-            sendDebug("Requesting read(): edisNotation = " + edisNotation);
+            sendDebug("Requesting read(): edisNotation = " + edisNotation, 2);
             DataDumpParser ddp = new DataDumpParser(getDataReadout());
             data = ddp.getRegisterStrValue(edisNotation).getBytes();
         }
         return data;
     }
 
-    Quantity readTime( ) throws IOException {
+	Quantity readTime( ) throws IOException {
         Long seconds = new Long(getTime().getTime() / 1000);
         return new Quantity( seconds, Unit.get(BaseUnit.SECOND) );
     }
@@ -551,7 +551,7 @@ public class ABBA1350
             
         }
         
-        logger.info(rslt.toString());
+        if (logger != null) logger.info(rslt.toString());
     }
     
     private void getMeterInfo() throws IOException {
@@ -571,7 +571,7 @@ public class ABBA1350
     		returnString += " Meter IECII07 address (electrical): " + new String(ProtocolUtils.convert2ascii(((String)getAbba1350Registry().getRegister("IEC1107_ADDRESS_EL")).getBytes())) + "\n";
 
     	}
-        logger.info(returnString);
+    	if (logger != null) logger.info(returnString);
     }
 
     // ********************************************************************************************************
@@ -670,11 +670,106 @@ public class ABBA1350
 
 	public static void main(String[] args) throws IOException {
 		ABBA1350 abba = new ABBA1350();
-		abba.connect();
 		
-		
+        Dialer dialer=null;
+        try {
+            
+        	// direct rs232 connection
+            dialer = DialerFactory.getOpticalDialer().newDialer();
+            dialer.init("COM1");
+            dialer.connect();
+            
+			// setup the properties (see AbstractProtocol for default properties)
+			// protocol specific properties can be added by implementing doValidateProperties(..)
+            Properties properties = new Properties();
+
+            properties.setProperty("ChannelMap", "0:0:0:0:0:0");
+            properties.setProperty(MeterProtocol.CORRECTTIME, "0");
+            properties.setProperty("DataReadout", "0");
+            properties.setProperty("ExtendedLogging", "1");
+            properties.setProperty("LoadProfileNumber", "2");
+            properties.setProperty(MeterProtocol.PASSWORD,"00000000");
+            properties.setProperty(MeterProtocol.PROFILEINTERVAL, "600");
+            properties.setProperty("RequestHeader", "0");
+            properties.setProperty("SecurityLevel", "1");
+            properties.setProperty("Timeout", "3000");
+            properties.setProperty("VDEWCompatible", "1");
+            
+            
+            
+//            iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
+//            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
+//            iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
+//            iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
+//            nodeId = properties.getProperty(MeterProtocol.NODEID, "");
+//            iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
+//            profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
+//            channelMap = new ChannelMap(properties.getProperty("ChannelMap", "0"));
+//            requestHeader = Integer.parseInt(properties.getProperty("RequestHeader", "1").trim());
+//            protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0:0:0:0:0:0"));
+//            scaler = Integer.parseInt(properties.getProperty("Scaler", "0").trim());
+//            dataReadoutRequest = Integer.parseInt(properties.getProperty("DataReadout", "0").trim());
+//            extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
+//            vdewCompatible = Integer.parseInt(properties.getProperty("VDEWCompatible", "0").trim());
+//            loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber", "1"));
+
+            
+            //transfer the properties to the protocol
+            abba.setProperties(properties);    
+            
+            // depending on the dialer, set the initial (pre-connect) communication parameters            
+//            dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
+//                                                                     SerialCommunicationChannel.DATABITS_7,
+//                                                                     SerialCommunicationChannel.PARITY_NONE,
+//                                                                     SerialCommunicationChannel.STOPBITS_1);
+            // initialize the protocol
+            abba.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"), null);
+            
+            // if optical head dialer, enable the HHU signon mechanism
+            if (DialerMarker.hasOpticalMarker(dialer))
+                ((HHUEnabler)abba).enableHHUSignOn(dialer.getSerialCommunicationChannel());
+                        
+            abba.connect(); // connect to the meter
+            
+//            int aEnd = 16;
+//            int bEnd = 16;
+//            int cEnd = 16;
+//            
+//            for (int a = 0; a < aEnd; a++) {
+//                for (int b = 0; b < bEnd; b++) {
+//                    for (int c = 0; c < cEnd; c++) {
+//                    	if ((a > 9) || (b > 9) || (c > 9)) {
+//                    		String reg = 	ProtocolUtils.buildStringHex(a, 1).toUpperCase() + "." + 
+//                    		ProtocolUtils.buildStringHex(b, 1).toUpperCase() + "." + 
+//                    		ProtocolUtils.buildStringHex(c, 1).toUpperCase();
+//
+//                    		String result = new String(abba.read(reg));
+//                    		if (!result.equalsIgnoreCase(reg + "()")) abba.sendDebug(result);
+//                    	}
+//                    }
+            //                }
+            //			}
+
+
+            int aEnd = 200;
+            String startString = "1.6.0.99";
+
+            for (int a = 0; a < aEnd; a++) {
+            	String reg = startString + ProtocolUtils.buildStringHex(a, 2).toUpperCase();
+            	String result = new String(abba.read(reg));
+            	if (!result.equalsIgnoreCase(reg + "()")) abba.sendDebug(" Reading register " + reg + ": " + result);
+            }
+
+
+            abba.disconnect();
+            dialer.disConnect();
+            
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+
 	}
-	
+
     public void sendDebug(String str){
         if (DEBUG >= 1) {
         	str = "######## DEBUG > " + str + "\n";
@@ -686,6 +781,10 @@ public class ABBA1350
             	System.out.println(str);
         	}
         }
+    }
+
+    private void sendDebug(String string, int i) {
+    	if (DEBUG >= i) sendDebug(string);
     }
 
 } 
