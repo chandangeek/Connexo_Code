@@ -171,7 +171,7 @@ public class ABBA1350
             profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
             channelMap = new ChannelMap(properties.getProperty("ChannelMap", "0"));
             requestHeader = Integer.parseInt(properties.getProperty("RequestHeader", "1").trim());
-            protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0,0,0,0"));
+            protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0:0:0:0:0:0"));
             scaler = Integer.parseInt(properties.getProperty("Scaler", "0").trim());
             dataReadoutRequest = Integer.parseInt(properties.getProperty("DataReadout", "0").trim());
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
