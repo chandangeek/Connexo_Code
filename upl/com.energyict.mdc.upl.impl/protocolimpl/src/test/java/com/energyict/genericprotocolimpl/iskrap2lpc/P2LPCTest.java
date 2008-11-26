@@ -68,7 +68,7 @@ public class P2LPCTest {
 	public void setUp() throws BusinessException, SQLException{
 		iskraConcentrator = new Concentrator();
 		iskraConcentrator.setLogger(logger);
-		connection = new TestConnection(iskraConcentrator);
+		connection = new TConnection(iskraConcentrator);
 		iskraConcentrator.setConnection(connection);
 		meterReadTransaction = new MeterReadTransaction(iskraConcentrator, null, "12121212", null);
 		
@@ -105,6 +105,7 @@ public class P2LPCTest {
 		result.addAll(Utilities.mw().getCommunicationProfileFactory().findByName(Utilities.COMMPROFILE_READDEMANDVALUES));
 		result.addAll(Utilities.mw().getGroupFactory().findByName(Utilities.EMPTY_GROUP));
 		result.addAll(Utilities.mw().getUserFileFactory().findByName(Utilities.EMPTY_USERFILE));
+		result.addAll(Utilities.mw().getModemPoolFactory().findByName(Utilities.DUMMY_MODEMPOOL));
 		
 		if(result.size() > 0){
 			for(int i = 0; i < result.size(); i++){
@@ -233,7 +234,7 @@ public class P2LPCTest {
 			}
 
 			RtuMessage rtum = (RtuMessage) (Utilities.mw().getRtuMessageFactory().findByRtu(meter).get(0));
-			assertEquals(TestConnection.COSEMSETREQUEST, TestConnection.getConnectionEvents().get(0));
+			assertEquals(TConnection.COSEMSETREQUEST, TConnection.getConnectionEvents().get(0));
 			assertTrue(rtum.isConfirmed());
 			
 		} catch (BusinessException e) {
@@ -286,25 +287,25 @@ public class P2LPCTest {
 				pendingMessageID = ((RtuMessage)concentrator.getPendingMessages().get(0)).getId();
 				
 				// the response contains no DLC tag, message should fail
-				TestConnection.setByteArrayResponse(new byte[]{0x3C, 0x53, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x3E, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21, 0x3C, 0x2F, 0x53, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x3E});
+				TConnection.setByteArrayResponse(new byte[]{0x3C, 0x53, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x3E, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21, 0x3C, 0x2F, 0x53, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x3E});
 				iskraConcentrator.handleConcentrator(concentrator);
 				RtuMessage rtum = getJustExecutedPendingMessage(Utilities.mw().getRtuMessageFactory().findByRtu(concentrator), pendingMessageID);
 				assertTrue(rtum.isFailed());
-				assertEquals(TestConnection.GETFILESIZE, TestConnection.getConnectionEvents().get(0));
-				assertEquals(TestConnection.DOWNLOADFILECHUNK, TestConnection.getConnectionEvents().get(1));
+				assertEquals(TConnection.GETFILESIZE, TConnection.getConnectionEvents().get(0));
+				assertEquals(TConnection.DOWNLOADFILECHUNK, TConnection.getConnectionEvents().get(1));
 				
 				rms.setState(rmt);
 				concentrator.createMessage(rms);
 				pendingMessageID = ((RtuMessage)concentrator.getPendingMessages().get(0)).getId();
 				// the response contains a DLC tag, message should succeed
-				TestConnection.setByteArrayResponse(new byte[]{0x3C, 0x44, 0x4C, 0x43, 0x3E, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21, 0x3C, 0x2F, 0x44, 0x4C, 0x43, 0x3E});
+				TConnection.setByteArrayResponse(new byte[]{0x3C, 0x44, 0x4C, 0x43, 0x3E, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21, 0x3C, 0x2F, 0x44, 0x4C, 0x43, 0x3E});
 				iskraConcentrator.handleConcentrator(concentrator);
 				rtum = getJustExecutedPendingMessage(Utilities.mw().getRtuMessageFactory().findByRtu(concentrator), pendingMessageID);
 				assertTrue(rtum.isConfirmed());
-				assertEquals(TestConnection.GETFILESIZE, TestConnection.getConnectionEvents().get(2));
-				assertEquals(TestConnection.DOWNLOADFILECHUNK, TestConnection.getConnectionEvents().get(3));
-				assertEquals(TestConnection.UPLOADFILECHUNK, TestConnection.getConnectionEvents().get(4));
-				assertEquals(TestConnection.UPLOADFILECHUNK, TestConnection.getConnectionEvents().get(5));
+				assertEquals(TConnection.GETFILESIZE, TConnection.getConnectionEvents().get(2));
+				assertEquals(TConnection.DOWNLOADFILECHUNK, TConnection.getConnectionEvents().get(3));
+				assertEquals(TConnection.UPLOADFILECHUNK, TConnection.getConnectionEvents().get(4));
+				assertEquals(TConnection.UPLOADFILECHUNK, TConnection.getConnectionEvents().get(5));
 				
 				rms.setState(rmt);
 				rms.setContents("<Frequency mark>66</Frequency mark><Frequency space>TEXT75</Frequency space>");
@@ -314,7 +315,7 @@ public class P2LPCTest {
 				iskraConcentrator.handleConcentrator(concentrator);
 				rtum = getJustExecutedPendingMessage(Utilities.mw().getRtuMessageFactory().findByRtu(concentrator), pendingMessageID);
 				assertTrue(rtum.isFailed());
-				assertEquals(6, TestConnection.getConnectionEvents().size());
+				assertEquals(6, TConnection.getConnectionEvents().size());
 				
 				
 			} else {

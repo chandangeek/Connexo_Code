@@ -29,6 +29,7 @@ import com.energyict.mdw.core.CommunicationSchedulerFactory;
 import com.energyict.mdw.core.Group;
 import com.energyict.mdw.core.MdwAttributeType;
 import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.ModemPool;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.core.SearchFilter;
@@ -41,6 +42,7 @@ import com.energyict.mdw.shadow.CommunicationProfileShadow;
 import com.energyict.mdw.shadow.CommunicationProtocolShadow;
 import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
 import com.energyict.mdw.shadow.GroupShadow;
+import com.energyict.mdw.shadow.ModemPoolShadow;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.mdw.shadow.RtuTypeShadow;
 import com.energyict.mdw.shadow.UserFileShadow;
@@ -62,6 +64,7 @@ public class Utilities {
 	
 	public static String EMPTY_GROUP = "emptyGroup";
 	public static String EMPTY_USERFILE = "emptyUserFile";
+	public static String DUMMY_MODEMPOOL = "dummyModemPool";
 	
 	public static void createEnvironment() {
     	try {
@@ -243,8 +246,9 @@ public class Utilities {
 		CommunicationSchedulerShadow css = new CommunicationSchedulerShadow();
 		css.setCommunicationProfile(createCommunicationProfile(type));
 		css.setRtuId(rtu.getId());
-		css.setModemPoolId(1);	//héhé
-		List schedulerShadows = new ArrayList(1);
+		css.setModemPoolId(9);	//héhé
+		ModemPool mp = createDummyModemPool();
+		List schedulerShadows = new ArrayList(mp.getId());
 		schedulerShadows.add(css);
 		RtuShadow rtuShadow = rtu.getShadow();
 		rtuShadow.setCommunicationSchedulerShadows(schedulerShadows);
@@ -263,5 +267,16 @@ public class Utilities {
 		ufs.setName(EMPTY_USERFILE);
 		ufs.setExtension("bin");
 		return mw().getUserFileFactory().create(ufs);
+	}
+	
+	public static ModemPool createDummyModemPool() throws SQLException, BusinessException{
+		List<ModemPool> result = mw().getModemPoolFactory().findByName(DUMMY_MODEMPOOL);
+		if(result.size() == 0){
+			ModemPoolShadow mps = new ModemPoolShadow();
+			mps.setName(DUMMY_MODEMPOOL);
+			return mw().getModemPoolFactory().create(mps);
+		} else {
+			return result.get(0);
+		}
 	}
 }

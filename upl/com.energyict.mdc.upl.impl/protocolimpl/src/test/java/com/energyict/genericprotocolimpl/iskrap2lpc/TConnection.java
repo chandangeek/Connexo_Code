@@ -15,7 +15,7 @@ import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ObjectDef;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.PeriodicProfileType;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ProfileType;
 
-public class TestConnection implements Connection{
+public class TConnection implements Connection{
 	
 	private int timeout;
 	private int retry;
@@ -32,14 +32,15 @@ public class TestConnection implements Connection{
 	private static byte[] byteArrayResponse;
 
 	// TestClass should have Zero argument constructor ...
-	public TestConnection(){
+	public TConnection(){
+		super();
 	}
 	
-	public TestConnection(Concentrator concentrator){
+	public TConnection(Concentrator concentrator){
 		this(concentrator, 3, 5000);
 	}
 	
-	public TestConnection(Concentrator concentrator, int retry, int delayAfterRetry){
+	public TConnection(Concentrator concentrator, int retry, int delayAfterRetry){
 		this.concentrator = concentrator;
 		this.retry = retry;
 		this.delayAfterRetry = delayAfterRetry;
@@ -67,8 +68,6 @@ public class TestConnection implements Connection{
 			throws ServiceException, BusinessException, IOException {
 		
 		getConnectionEvents().add(DOWNLOADFILECHUNK);
-//		byte[] b = new byte[]{0x3C, 0x53, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x3E, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21, 0x3C, 0x2F, 0x53, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x3E};
-//		return b;
 		return getByteArrayResponse();
 	}
 
@@ -228,6 +227,6 @@ public class TestConnection implements Connection{
 	}
 	
 	private byte[] getByteArrayResponse(){
-		return TestConnection.byteArrayResponse;
+		return TConnection.byteArrayResponse;
 	}
 }
