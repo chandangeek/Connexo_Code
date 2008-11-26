@@ -246,8 +246,8 @@ public class Utilities {
 		CommunicationSchedulerShadow css = new CommunicationSchedulerShadow();
 		css.setCommunicationProfile(createCommunicationProfile(type));
 		css.setRtuId(rtu.getId());
-		css.setModemPoolId(9);	//héhé
 		ModemPool mp = createDummyModemPool();
+		css.setModemPoolId(mp.getId());
 		List schedulerShadows = new ArrayList(mp.getId());
 		schedulerShadows.add(css);
 		RtuShadow rtuShadow = rtu.getShadow();
