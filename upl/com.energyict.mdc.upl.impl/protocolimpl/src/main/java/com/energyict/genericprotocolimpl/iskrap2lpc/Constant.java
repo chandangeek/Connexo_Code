@@ -77,6 +77,10 @@ class Constant {
     final static String TESTLOGGING = "TestLogging";
     final static String DELAY_AFTER_FAIL = "DelayAfterFail";
     final static String READING_FILE = "ReadingsFileType";
+    final static String LP_ELECTRICITY = "ElectricityLoadProfile";
+    final static String LP_MBUS = "MbusLoadProfile";
+    final static String LP_DAILY = "DailyLoadProfile";
+    final static String LP_MONTHLY = "MonthlyLoadProfile";
     
     
     final static ObisCode mbusSerialObisCode[] = {ObisCode.fromString("0.1.128.50.21.255"),

@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -22,26 +21,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.rpc.ServiceException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.apache.axis.types.UnsignedInt;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -58,25 +47,17 @@ import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Group;
-import com.energyict.mdw.core.GroupFactory;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.core.RtuMessageFactory;
 import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.coreimpl.GroupFactoryImpl;
-import com.energyict.mdw.coreimpl.GroupImpl;
 import com.energyict.mdw.coreimpl.RtuImpl;
-import com.energyict.mdw.coreimpl.RtuMessageFactoryImpl;
-import com.energyict.mdw.coreimpl.RtuMessageImpl;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageElementSpec;
 import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageTagSpec;
@@ -84,8 +65,6 @@ import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.tcpip.PPPDialer;
-import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
-import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderImpl;
 
 public class Concentrator implements Messaging, GenericProtocol {
     
@@ -96,6 +75,10 @@ public class Concentrator implements Messaging, GenericProtocol {
     private int readingsFileType;
     private int retry;
     private String tempSerialnumber = "99999999";
+	private String lpDaily;
+    private String lpMonthly;
+    private String lpElectricity;
+    private String lpMbus;
 
     private Logger 					logger;
     private Properties 				properties;
@@ -103,9 +86,6 @@ public class Concentrator implements Messaging, GenericProtocol {
     protected CommunicationProfile 	communicationProfile;	
     private CommunicationScheduler 	communicationScheduler;
     private Rtu						concentrator;
-    
-    /** RtuType is used for creating new Rtu's */
-    private RtuType[] rtuType = {null, null};
     
     private final static boolean ADVANCED = true;
     
@@ -147,6 +127,7 @@ public class Concentrator implements Messaging, GenericProtocol {
             
             if(serial.equalsIgnoreCase(conSerial)){
             	
+            	// get the prototype 
             	RtuType type = getRtuType(concentrator);
             	
             	/** use the meters in the dataBase */
@@ -292,6 +273,10 @@ public class Concentrator implements Messaging, GenericProtocol {
 			this.retry = Integer.parseInt(properties.getProperty("Retries", "3"));
 			this.delayAfterFail = Integer.parseInt(properties.getProperty(Constant.DELAY_AFTER_FAIL, "5000"));
 			this.readingsFileType = Integer.parseInt(properties.getProperty(Constant.READING_FILE, "0"));
+			this.lpDaily = properties.getProperty(Constant.LP_DAILY, "");
+			this.lpElectricity = properties.getProperty(Constant.LP_ELECTRICITY, "");
+			this.lpMbus = properties.getProperty(Constant.LP_MBUS, "");
+			this.lpMonthly = properties.getProperty(Constant.LP_MONTHLY, "");
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
 			throw new NumberFormatException("Could not convert one or several custom properties to an integer.");
@@ -317,6 +302,10 @@ public class Concentrator implements Messaging, GenericProtocol {
         result.add( Constant.TESTLOGGING );
         result.add( Constant.DELAY_AFTER_FAIL );
         result.add( Constant.READING_FILE );
+        result.add( Constant.LP_DAILY);
+        result.add( Constant.LP_ELECTRICITY);
+        result.add( Constant.LP_MBUS);
+        result.add( Constant.LP_MONTHLY);
         return result;
     }
 
@@ -1122,5 +1111,21 @@ public class Concentrator implements Messaging, GenericProtocol {
 	
 	protected void setCommunicationProfile(CommunicationProfile communicationProfile){
 		this.communicationProfile = communicationProfile;
+	}
+	
+    protected String getLpDaily() {
+		return lpDaily;
+	}
+
+	protected String getLpMonthly() {
+		return lpMonthly;
+	}
+
+	protected String getLpElectricity() {
+		return lpElectricity;
+	}
+
+	protected String getLpMbus() {
+		return lpMbus;
 	}
 }

@@ -87,18 +87,6 @@ public class MbusDevice implements Messaging, GenericProtocol{
 	public MbusDevice() {
 	}
 
-//	public MbusDevice(Rtu rtu) {
-//		this(-1, null, rtu, null);
-//	}
-//
-//	public MbusDevice(long address, String customerID, Rtu rtu, Logger logger) {
-//		this(address, 1, customerID, rtu, Unit.get(BaseUnit.CUBICMETER), logger);
-//	}
-//
-//	public MbusDevice(long address, int physicalAddress, String customerID, Rtu rtu, Unit unit, Logger logger){
-//		this(address, physicalAddress, customerID, 15, rtu, unit, logger);
-//	}
-	
 	public MbusDevice(long mbusAddress, int phyAddress, String serial, int mbusMedium, Rtu rtu, Unit unit, Logger logger) {
 		this.mbusAddress = mbusAddress;
 		this.physicalAddress = phyAddress;
@@ -163,14 +151,20 @@ public class MbusDevice implements Messaging, GenericProtocol{
             	from = Constant.getInstance().format( mrt.getLastChannelReading(chn) );
             	if(!pc.containsDailyValues() && !pc.containsMonthlyValues()){
             		
-            		if(chn.getIntervalInSeconds() == mrt.loadProfilePeriod1){
-            			profile = "99.1.0";
-            		} else if (chn.getIntervalInSeconds() == mrt.loadProfilePeriod2){
-            			profile = "99.2.0";
+            		if(mrt.useParameters()){
+            			profile = mrt.getConcentrator().getLpMbus();
             		} else {
-                    	getLogger().log(Level.SEVERE, "Interval didn't match for channel \"" + chn + "\" - ProfileInterval EIServer: " + chn.getIntervalInSeconds());
-                    	throw new BusinessException("Interval didn't match");
-                    }
+            			
+            			if(chn.getIntervalInSeconds() == mrt.loadProfilePeriod1){
+            				profile = "99.1.0";
+            			} else if (chn.getIntervalInSeconds() == mrt.loadProfilePeriod2){
+            				profile = "99.2.0";
+            			} else {
+            				getLogger().log(Level.SEVERE, "Interval didn't match for channel \"" + chn + "\" - ProfileInterval EIServer: " + chn.getIntervalInSeconds());
+            				throw new BusinessException("Interval didn't match");
+            			}
+            			
+            		}
             		
             		dataHandler.setProfileChannelIndex(i);
                 	if(mrt.TESTING){
@@ -200,17 +194,27 @@ public class MbusDevice implements Messaging, GenericProtocol{
 		String register = "";
 		String from = "";
 		String to = Constant.getInstance().format(new Date());
-		if ( mrt.loadProfilePeriod2 == 86400 ){ 
-			daily = "99.2.0";
-		}else
-			daily = null;
-    	
-		if ( (mrt.billingReadTime.getDayOfMonth().intValue() == 1) && (mrt.billingReadTime.getHour().intValue() == 0) && (mrt.billingReadTime.getYear().intValue() == 65535) && (mrt.billingReadTime.getMonth().intValue() == 255) ){
-			monthly = "98.1.0";
-			if (daily == null) daily = "98.2.0";
-		}else{
-			monthly = "98.2.0";
-			if (daily == null) daily = "98.1.0";
+		
+		if (mrt.useParameters()) {
+			
+			daily = mrt.getConcentrator().getLpDaily();
+			monthly = mrt.getConcentrator().getLpMonthly();
+			
+		} else {
+			
+			if ( mrt.loadProfilePeriod2 == 86400 ){ 
+				daily = "99.2.0";
+			}else
+				daily = null;
+			
+			if ( (mrt.billingReadTime.getDayOfMonth().intValue() == 1) && (mrt.billingReadTime.getHour().intValue() == 0) && (mrt.billingReadTime.getYear().intValue() == 65535) && (mrt.billingReadTime.getMonth().intValue() == 255) ){
+				monthly = "98.1.0";
+				if (daily == null) daily = "98.2.0";
+			}else{
+				monthly = "98.2.0";
+				if (daily == null) daily = "98.1.0";
+			}
+			
 		}
 		
 		Channel chn;

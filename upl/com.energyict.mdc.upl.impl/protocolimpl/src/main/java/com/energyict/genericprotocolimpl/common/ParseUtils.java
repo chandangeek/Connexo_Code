@@ -148,13 +148,21 @@ public class ParseUtils {
 		return tempCalendar.getTime();
 	}
 	
+	public static int countEqualSignsInString(String str, String sign){
+		int count  = 0;
+		byte[] strByte = str.getBytes();
+		byte[] signByte = sign.getBytes();
+		for(int i = 0; i < strByte.length; i++){
+			if(strByte[i] == signByte[0]){
+				count++;
+			}
+		}
+		return count;
+	}
+	
 	public static void main(String[] args){
-		byte[] b = {-46};
-		
-		String str = decimalByteToString(b);
-		String str2 = Integer.toString(b[0]&0xFF);
-		System.out.println(str);
-		System.out.println(str2);
-		
+		String str = "99.1.0";
+		String sgn = ".";
+		System.out.println(countEqualSignsInString(str, sgn));
 	}
 }

@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public class Meter implements Messaging, MeterProtocol {
     
     private final static boolean ADVANCED = true;
-    
+     
     public List getMessageCategories() {
         List theCategories = new ArrayList();
         // Action Parameters

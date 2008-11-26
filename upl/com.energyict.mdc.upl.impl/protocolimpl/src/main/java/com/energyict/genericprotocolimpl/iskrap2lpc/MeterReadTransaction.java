@@ -46,7 +46,6 @@ import com.energyict.mdw.core.Folder;
 import com.energyict.mdw.core.Lookup;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.core.RtuMessageListener;
 import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
@@ -109,6 +108,7 @@ class MeterReadTransaction implements CacheMechanism {
 	private Cache dlmsCache;
 	private boolean initCheck = false;
 	private boolean forcedMbusCheck = false;
+	private boolean useParameters = false;
 	
 	protected MbusDevice[] mbusDevices = {null, null, null, null};
 	private String[] requestedMbusSerials = {"", "", "", ""};
@@ -401,16 +401,22 @@ class MeterReadTransaction implements CacheMechanism {
             	from = Constant.getInstance().format( getLastChannelReading(chn) );
             	if(!pc.containsDailyValues() && !pc.containsMonthlyValues()){
             		
-                    if(chn.getIntervalInSeconds() == lpPeriod1){
-                    	profile = lpString1;
-                    }
-                    else if(chn.getIntervalInSeconds() == lpPeriod2){
-                    	profile = lpString2;
-                    }
-                    else {
-                    	getLogger().log(Level.SEVERE, "Interval didn't match for channel \"" + chn + "\" - ProfileInterval EIServer: " + chn.getIntervalInSeconds());
-                    	throw new BusinessException("Interval didn't match");
-                    }
+            		if(useParameters){
+            			profile = getConcentrator().getLpElectricity();
+            		} else {
+            			
+            			if(chn.getIntervalInSeconds() == lpPeriod1){
+            				profile = lpString1;
+            			}
+            			else if(chn.getIntervalInSeconds() == lpPeriod2){
+            				profile = lpString2;
+            			}
+            			else {
+            				getLogger().log(Level.SEVERE, "Interval didn't match for channel \"" + chn + "\" - ProfileInterval EIServer: " + chn.getIntervalInSeconds());
+            				throw new BusinessException("Interval didn't match");
+            			}
+            			
+            		}
             		
             		dataHandler.setProfileChannelIndex(i);
                 	if(TESTING){
@@ -500,18 +506,28 @@ class MeterReadTransaction implements CacheMechanism {
     		daily = "98.2.0";
     		monthly = "98.1.0";
     	} else {
-    		if ( period == 86400 ){ 
-    			daily = "99.2.0";
-    		}else
-    			daily = null;
-        	
-    		if ( (cdt.getDayOfMonth().intValue() == 1) && (cdt.getHour().intValue() == 0) && (cdt.getYear().intValue() == 65535) && (cdt.getMonth().intValue() == 255) ){
-    			monthly = "98.1.0";
-    			if (daily == null) daily = "98.2.0";
-    		}else{
-    			monthly = "98.2.0";
-    			if (daily == null) daily = "98.1.0";
-    		}
+    		
+    		if (useParameters) {
+    			
+				daily = getConcentrator().getLpDaily();
+				monthly = getConcentrator().getLpMonthly();
+				
+			} else {
+				
+				if ( period == 86400 ){ 
+					daily = "99.2.0";
+				}else
+					daily = null;
+				
+				if ( (cdt.getDayOfMonth().intValue() == 1) && (cdt.getHour().intValue() == 0) && (cdt.getYear().intValue() == 65535) && (cdt.getMonth().intValue() == 255) ){
+					monthly = "98.1.0";
+					if (daily == null) daily = "98.2.0";
+				}else{
+					monthly = "98.2.0";
+					if (daily == null) daily = "98.1.0";
+				}
+				
+			}
     	}
 		
 		try {
@@ -1471,20 +1487,103 @@ class MeterReadTransaction implements CacheMechanism {
 	 * We get the cached blob from the database, store it in the dlmsCache object, see if we need to update the cache, store it afterwards.
 	 */
     private void doTheCheckMethods() throws NumberFormatException, IOException, ServiceException, SQLException, BusinessException{
+    	
+    	/**
+    	 * Original implementation but changed this to use the optional parameters.$
+    	 * Commented this part for when the change must be undone (created 26/11/2008)
+    	 */
+//    	if(!initCheck){
+//    		try {
+//    			testLogging("TESTLOGGING - Start the cache mechanism.");
+//    			dlmsCache = (Cache)GenericCache.startCacheMechanism(meter);
+//    		} catch (FileNotFoundException e) {
+//    			e.printStackTrace();	// absorb - The transaction may NOT fail, if the file is not found, then make one.
+//    		} catch (IOException e) {
+//    			e.printStackTrace();
+//    		} 
+//    		
+//    		collectCache();
+//    		saveConfiguration();
+//    		initCheck = true;
+//    	}
+    	
     	if(!initCheck){
-    		try {
+    		try{
     			testLogging("TESTLOGGING - Start the cache mechanism.");
     			dlmsCache = (Cache)GenericCache.startCacheMechanism(meter);
-    		} catch (FileNotFoundException e) {
-    			e.printStackTrace();	// absorb - The transaction may NOT fail, if the file is not found, then make one.
+    			
+    			if(validConfigurationProperties()){
+    				if(dlmsCache == null){
+    					useParameters = true;
+    					doMbusParameterCheck();
+    				} else {
+    					setCachedObjects();
+    				}
+    				initCheck = true;
+    			} else {
+    				collectCache();
+    				saveConfiguration();
+    				initCheck = true;
+    			}
+    			
+    		} catch (FileNotFoundException e){
+    			
+    			if(validConfigurationProperties()){
+    				useParameters = true;
+    				doMbusParameterCheck();
+    			} else {
+    				throw new BusinessException("Cache file is empty and not all config parameters are entered. Meter will not be handled.");
+    			}
+    			
     		} catch (IOException e) {
     			e.printStackTrace();
-    		} 
-    		
-    		collectCache();
-    		saveConfiguration();
-    		initCheck = true;
+    			throw new IOException(e.getMessage());
+    		}
     	}
+    }
+    
+    private void doMbusParameterCheck(){
+    	List<Rtu> slaveMeters = meter.getDownstreamRtus();
+    	if(slaveMeters.size() > 0){
+    		for(int i = 0; i < slaveMeters.size(); i++){
+    			Rtu mbus = slaveMeters.get(i);
+    			int nodeAddress = 0;
+				try {
+					nodeAddress = Integer.parseInt(mbus.getNodeAddress());
+					if((nodeAddress >=1) && (nodeAddress <= 4)){
+						mbusDevices[i] = new MbusDevice(0, nodeAddress, mbus.getSerialNumber(), 0, mbus, Unit.get(BaseUnit.UNITLESS), getLogger());
+					} else {
+						getLogger().log(Level.INFO, "NodeAddress of meter " + mbus.getSerialNumber() + " is not valid.");
+					}
+				} catch (NumberFormatException e) {
+					getLogger().log(Level.INFO,"NodeAddress of meter " + mbus.getSerialNumber() + " is not a number.");
+					e.printStackTrace();
+				}
+    		}
+    	}
+    }
+    
+    private boolean validConfigurationProperties() throws IOException{
+    	if(!getConcentrator().getLpDaily().equalsIgnoreCase("")
+    			&&!getConcentrator().getLpElectricity().equalsIgnoreCase("")
+    			&&!getConcentrator().getLpMbus().equalsIgnoreCase("")
+    			&&!getConcentrator().getLpMonthly().equalsIgnoreCase("")){
+    		if(ParseUtils.countEqualSignsInString(getConcentrator().getLpDaily(), ".") != 2)
+    			throw new IOException("Property DailyLoadProfile is not valid.");
+    		
+    		if(ParseUtils.countEqualSignsInString(getConcentrator().getLpMonthly(), ".") != 2)
+    			throw new IOException("Property MonthlyLoadProfile is not valid.");
+    		
+    		if(ParseUtils.countEqualSignsInString(getConcentrator().getLpElectricity(), ".") != 2)
+    			throw new IOException("Property ElectricityLoadProfile is not valid.");
+    		
+    		if(ParseUtils.countEqualSignsInString(getConcentrator().getLpMbus(), ".") != 2)
+    			throw new IOException("Property MBusLoadProfile is not valid.");
+    		
+    		return true;
+    		
+    	}
+    	return false;
     }
     
     /**
@@ -1497,16 +1596,50 @@ class MeterReadTransaction implements CacheMechanism {
      * @throws ServiceException
      */
     private void doTheMbusCheckMethods() throws NumberFormatException, SQLException, BusinessException, IOException, ServiceException{
-		try {
-			testLogging("TESTLOGGING - Verifying MBus meters.");
-			dlmsCache = (Cache)GenericCache.startCacheMechanism(meter);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();	// absorb - The transaction may NOT fail, if the file is not found, then make one.
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
-		
-		setCachedObjects();
+    	
+    	/**
+    	 * Original implementation but changed this to use the optional parameters.$
+    	 * Commented this part for when the change must be undone (created 26/11/2008)
+    	 */
+    	
+//		try {
+//			testLogging("TESTLOGGING - Verifying MBus meters.");
+//			dlmsCache = (Cache)GenericCache.startCacheMechanism(meter);
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();	// absorb - The transaction may NOT fail, if the file is not found, then make one.
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} 
+//		
+//		setCachedObjects();
+    	
+    	try{
+    		testLogging("TESTLOGGING - Verifying MBus meters.");
+    		dlmsCache = (Cache)GenericCache.startCacheMechanism(meter);
+    		if(validConfigurationProperties()){
+    			if(dlmsCache == null){
+    				useParameters = true;
+    				doMbusParameterCheck();
+    			} else {
+    				setCachedObjects();
+    			}
+    			initCheck = true;
+    		} else {
+    			setCachedObjects();
+    			initCheck = true;
+    		}
+    		
+    	} catch (FileNotFoundException e){
+    		if(validConfigurationProperties()){
+    			useParameters = true;
+    			doMbusParameterCheck();
+    		} else {
+				throw new BusinessException("Cache file is empty and not all config parameters are entered. Meter will not be handled.");
+			}
+    	} catch (IOException e){
+    		e.printStackTrace();
+    		throw new IOException(e.getMessage());
+    	}
     }
     
     /**
@@ -1514,16 +1647,18 @@ class MeterReadTransaction implements CacheMechanism {
      * @return true or false
      */
     private boolean mbusCheck(){
-    	for(int i = 0; i < MBUS_MAX; i++){
-    		if ( mbusDevices[0] != null ){
-    			if(mbusDevices[0].getRtu() != null){
-    				return true;
-    			}
-    			else
-    				getLogger().log(Level.CONFIG, "MBus serialnumber in EIServer(" + mbusDevices[0].getCustomerID() + ") didn't match serialnumber in meter(" + mSerial+ ")");
-    		}
-    	}
-    	return false;
+
+		for(int i = 0; i < MBUS_MAX; i++){
+			if ( mbusDevices[0] != null ){
+				if(mbusDevices[0].getRtu() != null){
+					return true;
+				}
+				else
+					getLogger().log(Level.CONFIG, "MBus serialnumber in EIServer(" + mbusDevices[0].getCustomerID() + ") didn't match serialnumber in meter(" + mSerial+ ")");
+			}
+		}
+		return false;
+	
     }
     
     /**
@@ -1642,8 +1777,8 @@ class MeterReadTransaction implements CacheMechanism {
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	private void collectCache() throws BusinessException, IOException, SQLException {
 		int iConf;
+		private void collectCache() throws BusinessException, IOException, SQLException {
 		try{
 			if( (dlmsCache != null) && (dlmsCache.getLoadProfileConfig1() != null) ){
 				testLogging("TESTLOGGING - Collect1/ cache file is not empty");
@@ -1900,6 +2035,10 @@ class MeterReadTransaction implements CacheMechanism {
 			}
 		}
 		return changes;
+	}
+	
+	public boolean useParameters(){
+		return this.useParameters;
 	}
 	
 }
