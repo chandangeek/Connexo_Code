@@ -117,7 +117,7 @@ public class Concentrator implements Messaging, GenericProtocol {
         this.logger = logger;
         this.communicationScheduler = scheduler;
         this.communicationProfile = communicationScheduler.getCommunicationProfile();
-        this.connection = new Connection(this, retry, delayAfterFail);
+        this.connection = new RealTimeConnection(this, retry, delayAfterFail);
         
         int meterCount = -1;
         
@@ -432,11 +432,17 @@ public class Concentrator implements Messaging, GenericProtocol {
 	public Connection getConnection(){
 		return this.connection;
 	}
-    /** Import a single concentrator. 
+	
+	protected void setConnection(Connection connection){
+		this.connection = connection;
+	}
+    /** 
+     * Import a single concentrator. 
      * @throws ServiceException 
      * @throws ParseException 
-     * @throws IOException */
-    private void handleConcentrator(Rtu concentrator) throws BusinessException, SQLException, ServiceException, ParseException, IOException {
+     * @throws IOException 
+     * */
+    protected void handleConcentrator(Rtu concentrator) throws BusinessException, SQLException, ServiceException, ParseException, IOException {
     	
     	getLogger().log(Level.INFO, "Handling the concentrator with serialnumber: " + concentrator.getSerialNumber());
         
@@ -585,6 +591,17 @@ public class Concentrator implements Messaging, GenericProtocol {
 						NodeList nl = doc.getElementsByTagName(Constant.DLC);
 						if(nl.getLength() == 1){
 							Element e = (Element)nl.item(0);
+							
+							/**
+							 * There are different parameters to be set in the concentrator and the meter to change both there plc frequencies.
+							 * ______________________________________________________________________________________
+							 * |Mark(concentrator)	|Space(concentrator)	|Freq channel - 0.0.128.0.2.255 (meter)	|
+							 * |	66				|	75					|	4									|
+							 * |	72				|	64					|	3									|
+							 * --------------------------------------------------------------------------------------
+							 * 
+							 * There are other possibilities but these result in a good quality signal.
+							 */
 				            e.setAttribute(Constant.mark, mark);	// default value
 				            e.setAttribute(Constant.space, space);	// default value
 
@@ -613,7 +630,6 @@ public class Concentrator implements Messaging, GenericProtocol {
             	}
             } else if (upgradeFirmware){
             	
-            	//TODO
             	String userFileID = getMessageValue(contents, RtuMessageConstant.FIRMWARE);
             	String groupID = getMessageValue(contents, RtuMessageConstant.FIRMWARE_METERS);
             	
@@ -625,30 +641,44 @@ public class Concentrator implements Messaging, GenericProtocol {
             		Group gr = mw().getGroupFactory().find(Integer.parseInt(groupID));
             		if(gr != null){
             			if(gr.getObjectType() == mw().getRtuFactory().getId()){
-            				//TODO
             				UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
-            				byte[] b = uf.loadFileInByteArray();
-            				if(b.length == 0){
+            				if(!(uf instanceof UserFile )){
             					msg.setFailed();
-            					getLogger().log(Level.INFO, "The binary file is empty.");
+            					getLogger().log(Level.INFO, "Not a valid entry for the userfileID " + userFileID);
             				} else {
-            					List<Rtu> meters = gr.getMembers();
-            					if(meters.size() > 0){
-            						String[] meterSerials = new String[gr.getMembers().size()];
-            						Iterator<Rtu> it = meters.iterator();
-            						for(int i = 0; i < meterSerials.length; i++){
-            							meterSerials[i] = it.next().getSerialNumber();
-            						}
-            						//TODO upload the bin file
-            						getConnection().uploadFileChunk(Constant.firmwareBinFile, 0, true, b);
-            						//TODO upgrade the meter
-            						getConnection().upgradeMeters(Constant.firmwareBinFile, meterSerials);
-            						
-            						success = true;
-            					} else {
-            						msg.setFailed();
-            						getLogger().log(Level.INFO, "There are no meters in the group " + gr.getFullName());
-            					}
+	            				byte[] b = uf.loadFileInByteArray();
+	            				if(b.length == 0){
+	            					msg.setFailed();
+	            					getLogger().log(Level.INFO, "The binary file is empty.");
+	            				} else {
+	            					List<Rtu> meters = gr.getMembers();
+	            					if(meters.size() > 0){
+	            						String[] meterSerials = new String[gr.getMembers().size()];
+	            						Iterator<Rtu> it = meters.iterator();
+	            						for(int i = 0; i < meterSerials.length; i++){
+	            							meterSerials[i] = it.next().getSerialNumber();
+	            						}
+	            						byte[] upload = new byte[Constant.MAX_UPLOAD];
+	            						int length = Constant.MAX_UPLOAD;
+	            						boolean last = false;
+	            						for(int i = 0; i <= b.length/Constant.MAX_UPLOAD; i++){
+	            							if(i == b.length/Constant.MAX_UPLOAD){
+	            								last = true;
+	            								length = b.length - i*Constant.MAX_UPLOAD;
+	            								upload = new byte[length];
+	            							}
+	            							System.arraycopy(b, i*Constant.MAX_UPLOAD, upload, 0, length);
+	            							getConnection().uploadFileChunk(Constant.firmwareBinFile, i*Constant.MAX_UPLOAD, last, upload);
+	            							
+	            						}
+	            						getConnection().upgradeMeters(Constant.firmwareBinFile, meterSerials);
+	            						
+	            						success = true;
+	            					} else {
+	            						msg.setFailed();
+	            						getLogger().log(Level.INFO, "There are no meters in the group " + gr.getFullName());
+	            					}
+	            				}
             				}
             			} else {
             				msg.setFailed();
@@ -1088,5 +1118,9 @@ public class Concentrator implements Messaging, GenericProtocol {
 	
 	public CommunicationScheduler getCommunicationScheduler(){
 		return this.communicationScheduler;
+	}
+	
+	protected void setCommunicationProfile(CommunicationProfile communicationProfile){
+		this.communicationProfile = communicationProfile;
 	}
 }

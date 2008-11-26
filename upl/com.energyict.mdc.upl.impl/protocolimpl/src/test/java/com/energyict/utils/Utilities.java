@@ -2,7 +2,9 @@ package com.energyict.utils;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 import com.energyict.cbo.ApplicationException;
@@ -10,22 +12,56 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Utils;
+import com.energyict.cpo.AspectFilter;
+import com.energyict.cpo.AspectMapping;
+import com.energyict.cpo.CompositeAspectFilter;
 import com.energyict.cpo.Environment;
+import com.energyict.cpo.SimpleAspectFilter;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdw.core.Channel;
+import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationProtocol;
+import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.CommunicationSchedulerFactory;
+import com.energyict.mdw.core.Group;
+import com.energyict.mdw.core.MdwAttributeType;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuType;
+import com.energyict.mdw.core.SearchFilter;
+import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.coreimpl.CommunicationProfileImpl;
+import com.energyict.mdw.coreimpl.CommunicationSchedulerFactoryImpl;
+import com.energyict.mdw.coreimpl.CommunicationSchedulerImpl;
 import com.energyict.mdw.shadow.ChannelShadow;
+import com.energyict.mdw.shadow.CommunicationProfileShadow;
 import com.energyict.mdw.shadow.CommunicationProtocolShadow;
+import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
+import com.energyict.mdw.shadow.GroupShadow;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.mdw.shadow.RtuTypeShadow;
+import com.energyict.mdw.shadow.UserFileShadow;
 
 public class Utilities {
+	
+	/**
+	 * ReadMeterReadings, ReadMeterEvents, ReadDemandValues, SendRtuMessage
+	 */
+	public static String COMMPROFILE_ALL = "all";
+	/**
+	 * ReadDemandValues
+	 */
+	public static String COMMPROFILE_READDEMANDVALUES = "readDemandValues";
+	/**
+	 * SendRtuMessage
+	 */
+	public static String COMMPROFILE_SENDRTUMESSAGE = "sendRtuMessage";
+	
+	public static String EMPTY_GROUP = "emptyGroup";
+	public static String EMPTY_USERFILE = "emptyUserFile";
 	
 	public static void createEnvironment() {
     	try {
@@ -178,5 +214,54 @@ public class Utilities {
 				return chn;
 		}
 		return null;
+	}
+
+	public static CommunicationProfile createCommunicationProfile(String type) throws SQLException, BusinessException{
+		CommunicationProfileShadow cps = new CommunicationProfileShadow();
+		if(type.equals(COMMPROFILE_ALL)){
+			cps.setName(COMMPROFILE_ALL);
+			cps.setReadAllDemandValues(true);
+			cps.setReadDemandValues(true);
+			cps.setReadMeterEvents(true);
+			cps.setReadMeterReadings(true);
+			cps.setSendRtuMessage(true);
+			cps.setStoreData(true);
+		} else if(type.equals(COMMPROFILE_SENDRTUMESSAGE)){
+			cps.setName(COMMPROFILE_SENDRTUMESSAGE);
+			cps.setSendRtuMessage(true);
+			cps.setStoreData(true);
+		} else if(type.equals(COMMPROFILE_READDEMANDVALUES)){
+			cps.setName(COMMPROFILE_READDEMANDVALUES);
+			cps.setReadDemandValues(true);
+			cps.setStoreData(true);
+		}
+		return mw().getCommunicationProfileFactory().create(cps);
+		
+	}
+	
+	public static void createCommunicationScheduler(Rtu rtu, String type) throws SQLException, BusinessException {
+		CommunicationSchedulerShadow css = new CommunicationSchedulerShadow();
+		css.setCommunicationProfile(createCommunicationProfile(type));
+		css.setRtuId(rtu.getId());
+		css.setModemPoolId(1);	//héhé
+		List schedulerShadows = new ArrayList(1);
+		schedulerShadows.add(css);
+		RtuShadow rtuShadow = rtu.getShadow();
+		rtuShadow.setCommunicationSchedulerShadows(schedulerShadows);
+		rtu.update(rtuShadow);
+	}
+	
+	public static Group createEmptyRtuGroup() throws SQLException, BusinessException{
+		GroupShadow grs = new GroupShadow();
+		grs.setName(EMPTY_GROUP);
+		grs.setObjectType(mw().getRtuFactory().getId());
+		return mw().getGroupFactory().create(grs);
+	}
+
+	public static UserFile createEmptyUserFile() throws SQLException, BusinessException {
+		UserFileShadow ufs = new UserFileShadow();
+		ufs.setName(EMPTY_USERFILE);
+		ufs.setExtension("bin");
+		return mw().getUserFileFactory().create(ufs);
 	}
 }

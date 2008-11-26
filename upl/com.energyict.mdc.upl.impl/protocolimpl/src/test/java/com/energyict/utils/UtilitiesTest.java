@@ -21,6 +21,7 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.CommunicationProtocol;
+import com.energyict.mdw.core.Group;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuType;
@@ -198,5 +199,4 @@ public class UtilitiesTest {
 			e.printStackTrace();
 		}
 	}
-	
 }

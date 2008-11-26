@@ -59,8 +59,9 @@ class Constant {
     final static String restart = "P2LPCrestart";
     final static String restartFileName = "P2LPCrestart.txt";
     final static String upgradeZipName = "\\Storage Card\\P2LPCFiles\\P2LPCUpgrade.zip";
-//    final static String firmwareBinFile = "\\Storage Card\\P2LPCFiles\\Firmwarebinfile.bin";
-    final static String firmwareBinFile = "\\Storage Card\\P2LPCFiles\\test.zip";
+    final static String firmwareBinFile = "\\Storage Card\\P2LPCFiles\\Firmwarebinfile.bin";
+//    final static String firmwareBinFile = "\\Storage Card\\P2LPCFiles\\test.bin";
+    final static int MAX_UPLOAD = 1024*10;
     
     /** ftp related properties */
     

@@ -140,7 +140,7 @@ class MeterReadTransaction implements CacheMechanism {
             if (getMeter() != null) {
             	
 //            	doTheCheckMethods();	// enable this for quick cache reading
-            	
+//            	readRawMbusFrame();
 //            	readDLCMode();
 //            	readValveState();
             	
@@ -206,6 +206,32 @@ class MeterReadTransaction implements CacheMechanism {
         		getLogger().log(Level.INFO, "Meter with serialnumber " + serial + " has completely finished");
         	}
         }
+    }
+    
+    /**
+     * Only for testing
+     */
+    private void readRawMbusFrame(){
+    	String[] times = prepareCosemGetRequest();
+    	try {
+			byte[] b = getConnection().cosemGetRequest(serial, times[0], times[1], "0.2.128.50.0.255", new UnsignedInt(4), new UnsignedInt(0));
+			System.out.println("cosemGetRequest:");
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     /**
@@ -1314,11 +1340,11 @@ class MeterReadTransaction implements CacheMechanism {
                 
             } catch (RemoteException re) {
                 msg.setFailed();
-                getLogger().log(Level.INFO, "Current message " + contents + " has failed.");
+                getLogger().log(Level.INFO, "Current message " + contents + " has failed. (" + re.getMessage() + ")");
                 re.printStackTrace();
             } catch (ServiceException se) {
                 msg.setFailed();
-                getLogger().log(Level.INFO, "Current message " + contents + " has failed.");
+                getLogger().log(Level.INFO, "Current message " + contents + " has failed. (" + se.getMessage() + ")");
                 se.printStackTrace();
             }
         }

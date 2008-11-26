@@ -124,7 +124,7 @@ public class ConcentratorTest{
 				((RtuTypeImpl)result.get(i)).delete();
 			}
 		
-		// then the communication profile
+		// then the communication protocol
 		result = Utilities.mw().getCommunicationProtocolFactory().findByName(jcnIskraMeter);
 		if (result.size() > 0)
 			for(int i = 0; i < result.size(); i++)
@@ -133,7 +133,6 @@ public class ConcentratorTest{
 		mbusAfter();
 	}
 
-	@Ignore
 	@Test
 	public void importProfileTest() {
 		
@@ -190,7 +189,6 @@ public class ConcentratorTest{
 		}
 	}
 
-	@Ignore
 	@Test
 	public void importDailyMonthlyTest(){
 		try {
@@ -275,7 +273,6 @@ public class ConcentratorTest{
 		}
 	}
 
-	@Ignore
 	@Test
 	public void importTwoDailyMonthlyProfilesTest(){
 		try {
@@ -346,7 +343,6 @@ public class ConcentratorTest{
 		}
 	}
 
-	@Ignore
 	@Test
 	public void importDailyMonthlyFromPLR(){
 		try {
@@ -423,7 +419,6 @@ public class ConcentratorTest{
 		}
 	}
 
-	@Ignore
 	@Test
 	public void singelMonthlyValueTest(){
 		try {
@@ -471,7 +466,6 @@ public class ConcentratorTest{
 		}
 	}
 	
-	@Ignore
 	@Test
 	public void mutlipleSingleStores(){
 		try {
