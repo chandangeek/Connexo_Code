@@ -341,46 +341,46 @@
 
 	</build>
 
-	<repositories>
-		<repository>
-			<id>internal</id>
-			<name>Archiva Managed Internal Repository</name>
-			<url>
-				http://linux2.eict.local:8080/archiva/repository/internal/
-			</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>snapshots</id>
-			<name>Archiva Managed Snapshot Repository</name>
-			<url>
-				http://linux2.eict.local:8080/archiva/repository/snapshots/
-			</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
+    <!-- Repositories specification. -->
+    <repositories>
+        <repository>
+            <id>eict-public-snapshots</id>
+            <name>EnergyICT snapshots repository group</name>
+            <url>http://linux2.eict.local:8081/nexus/content/groups/public-snapshots/
+            </url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        
+        <repository>
+            <id>eict-public</id>
+            <name>EnergyICT public repository group</name>
+            <url>http://linux2.eict.local:8081/nexus/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    
 	<distributionManagement>
-		<repository>
-			<id>internal</id>
-			<url>
-				dav:http://linux2.eict.local:8080/archiva/repository/internal/
-			</url>
-		</repository>
-		<snapshotRepository>
-			<id>snapshots</id>
-			<url>
-				dav:http://linux2.eict.local:8080/archiva/repository/snapshots/
-			</url>
-		</snapshotRepository>
+        <repository>
+            <id>eict-releases</id>
+            <name>EnergyICT releases repository</name>
+            <url>http://linux2.eict.local:8081/nexus/content/repositories/releases/</url>
+    	</repository>
+    	
+    	<snapshotRepository>
+            <id>eict-snapshots</id>
+            <name>EnergyICT snapshots repository</name>
+            <url>http://linux2.eict.local:8081/nexus/content/repositories/snapshots/</url>
+            <uniqueVersion>false</uniqueVersion>
+    	</snapshotRepository>
 	</distributionManagement>
 </project>
