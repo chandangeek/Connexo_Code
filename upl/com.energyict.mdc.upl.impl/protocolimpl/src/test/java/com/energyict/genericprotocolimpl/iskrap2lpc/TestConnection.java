@@ -30,6 +30,10 @@ public class TestConnection implements Connection{
 	public static String UPLOADFILECHUNK = "UploadFileChunk";
 	
 	private static byte[] byteArrayResponse;
+
+	// TestClass should have Zero argument constructor ...
+	public TestConnection(){
+	}
 	
 	public TestConnection(Concentrator concentrator){
 		this(concentrator, 3, 5000);

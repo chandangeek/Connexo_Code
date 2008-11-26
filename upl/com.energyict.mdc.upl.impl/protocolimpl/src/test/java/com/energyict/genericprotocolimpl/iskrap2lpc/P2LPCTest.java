@@ -174,6 +174,8 @@ public class P2LPCTest {
 				iskraConcentrator.handleConcentrator(concentrator);
 				rtum = getJustExecutedPendingMessage(Utilities.mw().getRtuMessageFactory().findByRtu(concentrator), pendingMessageID);
 				assertTrue(rtum.isFailed()); 	// the length of the userFile is empty
+				
+				//TODO complete the test so the message can succeed
 			}
 			
 			
