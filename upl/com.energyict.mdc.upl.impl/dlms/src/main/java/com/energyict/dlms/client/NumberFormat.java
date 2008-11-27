@@ -161,7 +161,7 @@ public class NumberFormat {
 		
 		try {
 			//NumberFormat o = new NumberFormat(new BigDecimal("0E-9"));
-			BigDecimal bd = new BigDecimal("122");
+			BigDecimal bd = new BigDecimal("-1234.1234");
 			NumberFormat o = new NumberFormat(bd);
 			//NumberFormat o = new NumberFormat(new BigDecimal("12345678.0002"));
 			System.out.println(o);

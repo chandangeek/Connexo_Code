@@ -178,7 +178,7 @@ public class CosemAPDUParser {
 			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.99.1.0.255"))) {
 				if (profileData==null)
 					profileData = new ProfileData();
-				buildIntervalData(apdu,channelInfos);
+				channelInfos = buildIntervalData(apdu,channelInfos);
 			} // load profile
 			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.99.98.0.255"))) {
 				if (profileData==null)
@@ -284,7 +284,7 @@ public class CosemAPDUParser {
 		}
 	} // private void buildEventLog(CosemAPDU apdu) throws IOException
 	
-	private void buildIntervalData(CosemAPDU apdu,List<ChannelInfo> channelInfos) throws IOException {
+	private List<ChannelInfo> buildIntervalData(CosemAPDU apdu,List<ChannelInfo> channelInfos) throws IOException {
 		if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_CAPTUREOBJECTS) {
 			channelInfos = buildChannelInfos(apdu);
 			profileData.setChannelInfos(channelInfos);
@@ -367,6 +367,9 @@ public class CosemAPDUParser {
 			}
 			profileData.setIntervalDatas(intervalDatas);
 		}
+		
+		return channelInfos;
+		
 	} // private void buildIntervalData(CosemAPDU apdu,List<ChannelInfo> channelInfos) throws IOException
 	
 	private Date buildDate(AbstractDataType dataType) throws IOException {
