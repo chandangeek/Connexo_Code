@@ -26,13 +26,14 @@ import com.energyict.obis.ObisCode;
  * 20-11-2008 jme > Added check for serial number match
  * 24-11-2008 jme > Added firmware version and hardware key readout
  * 24-11-2008 jme > Added support for power Quality readout (P.02)
+ * 27-11-2008 jme > Added support for register readout from 
  * @endchanges
  */
 public class ABBA1350 
 implements  MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, 
 RegisterProtocol, MessageProtocol {
 
-	private final static int DEBUG = 1;
+	private final static int DEBUG = 0;
 
 	private static final int MIN_LOADPROFILE = 1;
 	private static final int MAX_LOADPROFILE = 2;
@@ -68,6 +69,8 @@ RegisterProtocol, MessageProtocol {
 	private byte[] dataReadout = null;
 	private int [] billingCount;
 	private String firmwareVersion = null;
+	private Date meterDate = null;
+	private String meterSerial = null;
 
 	/** Creates a new instance of ABBA1350, empty constructor */
 	public ABBA1350() {
@@ -130,8 +133,10 @@ RegisterProtocol, MessageProtocol {
 	} // public void setTime() throws IOException
 
 	public Date getTime() throws IOException {
-		Date date = (Date) getAbba1350Registry().getRegister("TimeDate");
-		return new Date(date.getTime() - iRoundtripCorrection);
+		sendDebug("getTime request !!!", 2);
+		//if (this.meterDate == null) 
+			this.meterDate = (Date) getAbba1350Registry().getRegister("TimeDate");
+		return new Date(this.meterDate.getTime() - iRoundtripCorrection);
 	}
 
 
@@ -191,7 +196,7 @@ RegisterProtocol, MessageProtocol {
 
 	}
 
-	private boolean isDataReadout() {
+	protected boolean isDataReadout() {
 		return (dataReadoutRequest == 1);
 	}
 
@@ -253,8 +258,7 @@ RegisterProtocol, MessageProtocol {
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
 		if (this.firmwareVersion == null) {
-			if (iSecurityLevel < 1) return "Unknown (SecurityLevel to low)";
-			this.firmwareVersion = readSpecialRegister(ABBA1350ObisCodeMapper.FIRMWARE);
+			this.firmwareVersion = (String)getAbba1350Registry().getRegister(abba1350Registry.FIRMWAREID);
 		}
 		return this.firmwareVersion;
 	} // public String getFirmwareVersion()
@@ -290,7 +294,6 @@ RegisterProtocol, MessageProtocol {
 			}
 
 			flagIEC1107Connection.connectMAC(strID, strPassword, iSecurityLevel, nodeId);
-			validateSerialNumber();
 
 			if ((getFlagIEC1107Connection().getHhuSignOn() != null) && (isDataReadout())) {
 				dataReadout = cleanDataReadout(getFlagIEC1107Connection().getHhuSignOn().getDataReadout());
@@ -301,6 +304,7 @@ RegisterProtocol, MessageProtocol {
 		}
 
 
+		validateSerialNumber();
 		abba1350ObisCodeMapper.initObis();
 
 		if (extendedLogging >= 2) getMeterInfo();
@@ -429,10 +433,12 @@ RegisterProtocol, MessageProtocol {
 
 		try {
 
+			sendDebug("readRegister() obis: " + obis.toString(), 2); 
 			// it is not possible to translate the following edis code in this way
 			if( "1.1.0.1.2.255".equals(obis.toString())) return new RegisterValue(obis, readTime());
 
-			if( "1.1.0.0.0.255".equals(obis.toString())) return new RegisterValue(obis, readSpecialRegister((String)abba1350ObisCodeMapper.getObisMap().get(obis.toString())));
+			if( "1.1.0.0.0.255".equals(obis.toString())) return new RegisterValue(obis, getMeterSerial());
+			if( "1.1.0.2.0.255".equals(obis.toString())) return new RegisterValue(obis, getFirmwareVersion());
 
 			if( "1.1.0.0.1.255".equals(obis.toString())) return new RegisterValue(obis, readSpecialRegister((String)abba1350ObisCodeMapper.getObisMap().get(obis.toString())));
 			if( "1.1.0.0.2.255".equals(obis.toString())) return new RegisterValue(obis, readSpecialRegister((String)abba1350ObisCodeMapper.getObisMap().get(obis.toString())));
@@ -443,7 +449,7 @@ RegisterProtocol, MessageProtocol {
 			if( "1.1.0.0.7.255".equals(obis.toString())) return new RegisterValue(obis, readSpecialRegister((String)abba1350ObisCodeMapper.getObisMap().get(obis.toString())));
 			if( "1.1.0.0.8.255".equals(obis.toString())) return new RegisterValue(obis, readSpecialRegister((String)abba1350ObisCodeMapper.getObisMap().get(obis.toString())));
 			if( "1.1.0.0.9.255".equals(obis.toString())) return new RegisterValue(obis, readSpecialRegister((String)abba1350ObisCodeMapper.getObisMap().get(obis.toString())));
-			if( "1.1.0.0.10.255".equals(obis.toString())) return new RegisterValue(obis, getFirmwareVersion());
+			if( "1.1.0.0.10.255".equals(obis.toString())) return new RegisterValue(obis, readSpecialRegister((String)abba1350ObisCodeMapper.getObisMap().get(obis.toString())));
 
 			String fs = "";
 			if( obis.getF() != 255 ) {
@@ -451,11 +457,31 @@ RegisterProtocol, MessageProtocol {
 				fs = "*" + ProtocolUtils.buildStringDecimal(f, 2);
 			}
 			String edis = obis.getC() + "." + obis.getD() + "." + obis.getE() + fs;
-			byte[] data = read(edis);
+			byte[] data;
+			try {
+				data = read(edis);
+			} catch (IOException e1) {
+				if (DEBUG >= 3) e1.printStackTrace();
+				throw e1;
+			}
 
+			sendDebug("Readregister Edis: " + edis + " Data: " + new String(data), 3);
+			
 			DataParser dp = new DataParser(getTimeZone());
-			BigDecimal bd = new BigDecimal(dp.parseBetweenBrackets(data, 0, 0));
+			String temp = dp.parseBetweenBrackets(data, 0, 0);
+			Unit readUnit = null; 
+			if (temp.indexOf('*') != -1) {
+				readUnit = Unit.get(temp.substring(temp.indexOf('*') + 1));
+				temp = temp.substring(0, temp.indexOf('*'));
+				sendDebug("ReadUnit: " + readUnit, 3);
+			}
+
+			sendDebug("Readregister Edis: " + edis + " Data: " + new String(data) + " temp: " + temp, 3);
+			
+			BigDecimal bd = new BigDecimal(temp);
 			Date date = null;
+
+			sendDebug("Readregister Edis: " + edis + " bd: " + bd, 3);
 
 			try {
 
@@ -469,23 +495,42 @@ RegisterProtocol, MessageProtocol {
 				date = vts.getCalendar().getTime();
 
 			} catch (DataParseException e) {
-				// absorb
+				if (DEBUG >= 3) e.printStackTrace();
+			} catch (NoSuchRegisterException e) {
+				if (DEBUG >= 3) e.printStackTrace();
+				return new RegisterValue(obis, null, null, null);
 			}
 
-			Quantity q = new Quantity(bd, obis.getUnitElectricity(scaler));
+			Quantity q = null;
+			if (obis.getUnitElectricity(scaler).isUndefined()) {
+				q = new Quantity(bd, obis.getUnitElectricity(0));
+			} else {
+				if (readUnit != null) {
+					if (!readUnit.equals(obis.getUnitElectricity(scaler))) {
+						sendDebug("Warning: Unit from obiscode is different from register Unit in meter!!!");
+						getLogger().info("Warning: Unit from obiscode is different from register Unit in meter!!!");
+					}
+				} 
+				q = new Quantity(bd, obis.getUnitElectricity(scaler));
+			}
+			
 			return new RegisterValue(obis, q, date, null);
 
 		} catch (NoSuchRegisterException e) {
 			String m = "ObisCode " + obis.toString() + " is not supported!";
+			if (DEBUG >= 3) e.printStackTrace();
 			throw new NoSuchRegisterException(m);
 		} catch (FlagIEC1107ConnectionException e) {
 			String m = "getMeterReading() error, " + e.getMessage();
+			if (DEBUG >= 3) e.printStackTrace();
 			throw new IOException(m);
 		} catch (IOException e) {
 			String m = "getMeterReading() error, " + e.getMessage();
+			if (DEBUG >= 3) e.printStackTrace();
 			throw new IOException(m);
 		} catch (NumberFormatException e) {
 			String m = "ObisCode " + obis.toString() + " is not supported!";
+			if (DEBUG >= 3) e.printStackTrace();
 			throw new NoSuchRegisterException(m);
 		}
 
@@ -502,8 +547,7 @@ RegisterProtocol, MessageProtocol {
 					.toByteArray());
 			data = flagIEC1107Connection.receiveRawData();
 		} else {
-			edisNotation = "1-1:" + edisNotation;
-			sendDebug("Requesting read(): edisNotation = " + edisNotation, 2);
+			sendDebug("Requesting read(): edisNotation = " + edisNotation + " dataReadOut: " + getDataReadout().length, 2);
 			DataDumpParser ddp = new DataDumpParser(getDataReadout());
 			data = ddp.getRegisterStrValue(edisNotation).getBytes();
 		}
@@ -517,7 +561,9 @@ RegisterProtocol, MessageProtocol {
 
 	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
 		sendDebug(" translateRegister(): " + obisCode.toString(), 2);
-		return new RegisterInfo("" + abba1350ObisCodeMapper.getObisMap().get(obisCode.toString()));
+		String reginfo = (String) abba1350ObisCodeMapper.getObisMap().get(obisCode.toString());
+		if (reginfo == null) reginfo = obisCode.getDescription();
+		return new RegisterInfo("" + reginfo);
 	}
 
 
@@ -530,7 +576,7 @@ RegisterProtocol, MessageProtocol {
 			String obis = (String)i.next();
 			ObisCode oc = ObisCode.fromString(obis);
 
-			if(DEBUG >= 2) {
+			if(DEBUG >= 5) {
 				try {
 					rslt.append( translateRegister(oc) + "\n" );
 					rslt.append( readRegister(oc) + "\n" );
@@ -597,6 +643,7 @@ RegisterProtocol, MessageProtocol {
 		if( billingCount == null ){
 
 			if (isDataReadout()) {
+				sendDebug("Requesting getBillingCount() dataReadOut: " + getDataReadout().length, 2);
 				DataDumpParser ddp = new DataDumpParser(getDataReadout());
 				billingCount = new int [] {ddp.getBillingCounter()};
 			} else {
@@ -625,11 +672,17 @@ RegisterProtocol, MessageProtocol {
 		return billingCount[0];
 	}
 
+	private String getMeterSerial() throws IOException {
+		if (this.meterSerial == null) {
+			 this.meterSerial = (String)getAbba1350Registry().getRegister(abba1350Registry.SERIAL);
+		}
+		return this.meterSerial;
+	}
+	
 	protected void validateSerialNumber() throws IOException {
 		if ((serialNumber == null) || ("".compareTo(serialNumber)==0)) return;
-		String sn = readSpecialRegister(ABBA1350ObisCodeMapper.SERIAL);
-		if (sn.compareTo(serialNumber) == 0) return;
-		throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+serialNumber);
+		if (serialNumber.compareTo(getMeterSerial()) == 0) return;
+		throw new IOException("SerialNumber mismatch! meter sn="+getMeterSerial()+", configured sn="+serialNumber);
 	}
 
 	/**
@@ -675,8 +728,6 @@ RegisterProtocol, MessageProtocol {
 	}
 
 	private String readSpecialRegister(String registerName) throws IOException {
-		if (registerName.equals(ABBA1350ObisCodeMapper.SERIAL)) return (String)getAbba1350Registry().getRegister(ABBA1350Registry.SERIAL);
-
 		if (registerName.equals(ABBA1350ObisCodeMapper.ID1)) return new String(ProtocolUtils.convert2ascii(((String)getAbba1350Registry().getRegister(ABBA1350Registry.ID1)).getBytes()));
 		if (registerName.equals(ABBA1350ObisCodeMapper.ID2)) return new String(ProtocolUtils.convert2ascii(((String)getAbba1350Registry().getRegister(ABBA1350Registry.ID2)).getBytes()));
 		if (registerName.equals(ABBA1350ObisCodeMapper.ID3)) return new String(ProtocolUtils.convert2ascii(((String)getAbba1350Registry().getRegister(ABBA1350Registry.ID3)).getBytes()));
@@ -687,6 +738,7 @@ RegisterProtocol, MessageProtocol {
 		if (registerName.equals(ABBA1350ObisCodeMapper.IEC1107_ID)) return new String(ProtocolUtils.convert2ascii(((String)getAbba1350Registry().getRegister(ABBA1350Registry.IEC1107_ID)).getBytes()));
 		if (registerName.equals(ABBA1350ObisCodeMapper.IEC1107_ADDRESS_OP)) return new String(ProtocolUtils.convert2ascii(((String)getAbba1350Registry().getRegister(ABBA1350Registry.IEC1107_ADDRESS_OP)).getBytes()));
 		if (registerName.equals(ABBA1350ObisCodeMapper.IEC1107_ADDRESS_EL)) return new String(ProtocolUtils.convert2ascii(((String)getAbba1350Registry().getRegister(ABBA1350Registry.IEC1107_ADDRESS_EL)).getBytes()));
+		if (registerName.equals(ABBA1350ObisCodeMapper.FIRMWAREID)) return getFirmwareVersion();
 
 		if (registerName.equals(ABBA1350ObisCodeMapper.FIRMWARE)) {
 			String fw = "";
@@ -694,6 +746,7 @@ RegisterProtocol, MessageProtocol {
 			String dev = "";
 			String fwdev = "";
 			
+			if (iSecurityLevel < 1) return "Unknown (SecurityLevel to low)";
 			fwdev = (String)getAbba1350Registry().getRegister(ABBA1350Registry.FIRMWARE);
 			hw = (String)getAbba1350Registry().getRegister(ABBA1350Registry.HARDWARE);
 			

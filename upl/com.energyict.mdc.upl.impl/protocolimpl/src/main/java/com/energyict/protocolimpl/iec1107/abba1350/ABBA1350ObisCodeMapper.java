@@ -23,7 +23,9 @@ public class ABBA1350ObisCodeMapper {
 	public static final String ID6 = "Device ID6";
 	public static final String SERIAL = "Device Serial number";
 	public static final String FIRMWARE = "Device  Firmware/Hardware information";
+	public static final String FIRMWAREID = "Firmware version ID";
 	public static final String DATETIME = "Date and time (0.9.1 0.9.2)";
+	public static final String BILLINGCOUNTER = "Billing counter";
 	
 	public static final String IEC1107_ID = "Device IEC1107_ID";
 	public static final String IEC1107_ADDRESS_OP = "Device IEC1107_ADDRESS_OP (optical)";
@@ -41,7 +43,10 @@ public class ABBA1350ObisCodeMapper {
 
     void initObisUnconnected() {
 
+        obisMap.put("1.1.0.1.0.255", BILLINGCOUNTER);
     	obisMap.put( "1.1.0.1.2.255", DATETIME );
+
+        obisMap.put("1.1.0.2.0.255", FIRMWAREID);
 
         obisMap.put("1.1.0.0.0.255", SERIAL);
         obisMap.put("1.1.0.0.1.255", ID1);
@@ -56,7 +61,6 @@ public class ABBA1350ObisCodeMapper {
         obisMap.put("1.1.0.0.9.255", IEC1107_ADDRESS_EL);
         
         obisMap.put("1.1.0.0.10.255", FIRMWARE);
-        
 
     }
     
