@@ -49,7 +49,8 @@ public class ABBA1350Utils {
 		char chr;
 		for (int i = 0; i < characterlist.length(); i++) {
 			chr = characterlist.charAt(i);
-			if (inputstring.contains(String.valueOf(chr))) return true;
+			//if (inputstring.contains(String.valueOf(chr))) return true;
+			if (inputstring.indexOf(String.valueOf(chr)) != -1) return true;
 		}
 		return false;
 	}
@@ -58,7 +59,8 @@ public class ABBA1350Utils {
 		char chr;
 		for (int i = 0; i < inputstring.length(); i++) {
 			chr = inputstring.charAt(i);
-			if (!characterlist.contains(String.valueOf(chr))) return false;
+			//if (!characterlist.contains(String.valueOf(chr))) return false;
+			if (inputstring.indexOf(String.valueOf(chr)) == -1) return false;
 		}
 		return true;
 	}
