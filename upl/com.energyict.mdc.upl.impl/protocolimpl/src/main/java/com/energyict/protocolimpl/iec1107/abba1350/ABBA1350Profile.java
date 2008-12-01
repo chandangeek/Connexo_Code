@@ -7,15 +7,19 @@
 package com.energyict.protocolimpl.iec1107.abba1350;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWProfileHeader;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
 
 /**
  *
@@ -26,6 +30,19 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWProfileHeader;
 
 public class ABBA1350Profile extends VDEWProfile {
     
+	private static final int REVERSE_POWER 				= 0x00000800;
+	private static final int INPUT_EVENT1 				= 0x00001000;
+	private static final int INPUT_EVENT2 				= 0x00008000;
+	private static final int CHANGE_OF_IMPULSECONSTANT 	= 0x00010000;
+	private static final int TERMINAL_COVER_OPENED 		= 0x00020000;
+	private static final int MAIN_COVER_OPENED 			= 0x00040000;
+	private static final int WRONG_PASSWORD_USED		= 0x00080000;
+	private static final int PLUS_A_STORED				= 0x00100000;
+	private static final int L1_MISSING					= 0x00200000;
+	private static final int L2_MISSING					= 0x00400000;
+	private static final int L3_MISSING					= 0x00800000;
+	
+	
 	private ABBA1350ProfileHeader abba1350ProfileHeader = null;
 	
     /** Creates a new instance of ABBA1500Profile */
@@ -39,9 +56,23 @@ public class ABBA1350Profile extends VDEWProfile {
         
         ProfileData profileData =  doGetProfileData(fromCalendar,ProtocolUtils.getCalendar(getProtocolLink().getTimeZone()), profileNumber);
         if (includeEvents) {
-           List meterEvents = doGetLogBook(fromCalendar,ProtocolUtils.getCalendar(getProtocolLink().getTimeZone())); 
-           profileData.getMeterEvents().addAll(meterEvents);
-           profileData.sort();
+        	List meterEvents = doGetLogBook(fromCalendar,ProtocolUtils.getCalendar(getProtocolLink().getTimeZone()));
+        	for (Iterator iterator = meterEvents.iterator(); iterator.hasNext();) {
+        		MeterEvent meterEventItem = (MeterEvent) iterator.next();
+        		int deviceCode = meterEventItem.getProtocolCode();
+        		int eiServerCode = mapEvent2EiEvent(deviceCode);
+        		String message = mapEvent2Message(deviceCode);
+        		MeterEvent newMeterEvent = 
+        			new MeterEvent(
+        					meterEventItem.getTime(),
+        					eiServerCode, 
+        					deviceCode,
+        					message
+        			);
+        		meterEvents = ProtocolUtils.checkOnOverlappingEvents(meterEvents);
+        		profileData.getMeterEvents().add(newMeterEvent);
+        	}
+        	profileData.sort();
         }
         
         profileData.applyEvents(getProtocolLink().getProfileInterval()/60);
@@ -56,16 +87,31 @@ public class ABBA1350Profile extends VDEWProfile {
         
         ProfileData profileData =  doGetProfileData(fromCalendar,toCalendar, profileNumber);
         if (includeEvents) {
-           List meterEvents = doGetLogBook(fromCalendar,toCalendar); 
-           profileData.getMeterEvents().addAll(meterEvents);
-           profileData.sort();
+        	List meterEvents = doGetLogBook(fromCalendar,toCalendar);
+        	for (Iterator iterator = meterEvents.iterator(); iterator.hasNext();) {
+        		MeterEvent meterEventItem = (MeterEvent) iterator.next();
+        		int deviceCode = meterEventItem.getProtocolCode();
+        		int eiServerCode = mapEvent2EiEvent(deviceCode);
+        		String message = mapEvent2Message(deviceCode);
+        		MeterEvent newMeterEvent = 
+        			new MeterEvent(
+        					meterEventItem.getTime(),
+        					eiServerCode, 
+        					deviceCode,
+        					message
+        			);
+        		meterEvents = ProtocolUtils.checkOnOverlappingEvents(meterEvents);
+        		profileData.getMeterEvents().add(newMeterEvent);
+        	}
+        	profileData.sort();
         }
         
         profileData.applyEvents(getProtocolLink().getProfileInterval()/60);
         return profileData;
     }
     
-    public ABBA1350ProfileHeader getProfileHeader(int profileNumber) throws IOException {
+
+	public ABBA1350ProfileHeader getProfileHeader(int profileNumber) throws IOException {
     	if (abba1350ProfileHeader == null) {
     		abba1350ProfileHeader = new ABBA1350ProfileHeader(getProtocolLink().getFlagIEC1107Connection(), profileNumber);
     	}
@@ -74,7 +120,7 @@ public class ABBA1350Profile extends VDEWProfile {
     
     // override the default getProfileHeader() to prevent bypass of the new getProfileHeader(int profileNumber) method
     public VDEWProfileHeader getProfileHeader() throws IOException {
-    	throw new IOException("Internal protocol error. Method getProfileHeader() not supported. No spport for loadProfileNumber");
+    	throw new IOException("Internal protocol error. Method getProfileHeader() not supported. No support for loadProfileNumber");
     }
     
     /* Overrides VDEWProfile#getMeterEvent().
@@ -85,29 +131,58 @@ public class ABBA1350Profile extends VDEWProfile {
      * (non-Javadoc)
      * @see VDEWProfile#getMeterEvent(Date, long, String)
      */
-    protected MeterEvent getMeterEvent(Date date, long logcode, String msg) {
+    protected MeterEvent getMeterEvent(Date date, int logcode, String msg) {
         return new MeterEvent(date,getMeterEvent(logcode),(int)logcode);
     }
     
-    private int getMeterEvent(long logcode){
-        switch((int)logcode) {
-            case CLEAR_LOADPROFILE:             return MeterEvent.CLEAR_DATA;
-            case CLEAR_LOGBOOK:                 return MeterEvent.CLEAR_DATA;
-            case END_OF_ERROR:                  return MeterEvent.METER_ALARM;
-            case BEGIN_OF_ERROR:                return MeterEvent.METER_ALARM;
-            case VARIABLE_SET:                  return MeterEvent.CONFIGURATIONCHANGE;
-            case DEVICE_CLOCK_SET_INCORRECT:    return MeterEvent.SETCLOCK;
-            case SEASONAL_SWITCHOVER:           return MeterEvent.OTHER;
-            case FATAL_DEVICE_ERROR:            return MeterEvent.FATAL_ERROR;
-            case DISTURBED_MEASURE:             return MeterEvent.OTHER;
-            case POWER_FAILURE:                 return MeterEvent.POWERDOWN;
-            case POWER_RECOVERY:                return MeterEvent.POWERUP;
-            case DEVICE_RESET:                  return MeterEvent.MAXIMUM_DEMAND_RESET;
+    private int getMeterEvent(int logcode){
+        System.out.println("getMeterEvent: " + logcode);
+    	switch(logcode) {
+    		case FATAL_DEVICE_ERROR:            return MeterEvent.FATAL_ERROR;
             case RUNNING_RESERVE_EXHAUSTED:     return MeterEvent.OTHER;
+            case DISTURBED_MEASURE:             return MeterEvent.OTHER;
+            case SEASONAL_SWITCHOVER:           return MeterEvent.OTHER;
+            
+            case DEVICE_RESET:                  return MeterEvent.MAXIMUM_DEMAND_RESET;
+            case DEVICE_CLOCK_SET_INCORRECT:    return MeterEvent.SETCLOCK;
+            case POWER_RECOVERY:                return MeterEvent.POWERUP;
+            case POWER_FAILURE:                 return MeterEvent.POWERDOWN;
+            
+            case VARIABLE_SET:                  return MeterEvent.CONFIGURATIONCHANGE;
+            case BEGIN_OF_ERROR:                return MeterEvent.METER_ALARM;
+            case END_OF_ERROR:                  return MeterEvent.METER_ALARM;
+            case REVERSE_POWER:					return MeterEvent.OTHER;
+            
+            case INPUT_EVENT1:					return MeterEvent.OTHER;
+            case CLEAR_LOGBOOK:                 return MeterEvent.CLEAR_DATA;
+            case CLEAR_LOADPROFILE:             return MeterEvent.CLEAR_DATA;
+            case INPUT_EVENT2:					return MeterEvent.OTHER;
+            
+            case CHANGE_OF_IMPULSECONSTANT:		return MeterEvent.CONFIGURATIONCHANGE;
+            case TERMINAL_COVER_OPENED:			return MeterEvent.OTHER;
+            case MAIN_COVER_OPENED:				return MeterEvent.OTHER;
+            case WRONG_PASSWORD_USED:			return MeterEvent.OTHER;
+            
+            case PLUS_A_STORED:					return MeterEvent.OTHER;
+            case L1_MISSING:					return MeterEvent.PHASE_FAILURE;
+            case L2_MISSING:					return MeterEvent.PHASE_FAILURE;
+            case L3_MISSING:					return MeterEvent.PHASE_FAILURE;
+            
             default:                            return MeterEvent.OTHER;
         } 
         
     }
+    
+    private int mapEvent2EiEvent(int deviceEventCode) {
+        int eiEventCode = 0;
+    	for (int t=0; t<24; t++) {
+            int logBit = (deviceEventCode & (0x0001<<t)); 
+            if (logBit != 0) {
+            	eiEventCode |= getMeterEvent(logBit);
+            }
+         }
+        return eiEventCode;
+	}
     
     /* Overrides VDEWProfile#mapStatus2IntervalStateBits().
      * 
@@ -136,6 +211,141 @@ public class ABBA1350Profile extends VDEWProfile {
         } 
         
     } 
+
+    private String mapEvent2Message(int deviceCode) {
+    	switch((int)deviceCode) {
+    	case FATAL_DEVICE_ERROR:            return "Fatal device error";
+    	case RUNNING_RESERVE_EXHAUSTED:     return "Running reserve exhaused";
+    	case DISTURBED_MEASURE:             return "Measuring value disturbed";
+    	case SEASONAL_SWITCHOVER:           return "Seasonal switchover (summer/winter time)";
+
+    	case DEVICE_RESET:                  return "Demand reset";
+    	case DEVICE_CLOCK_SET_INCORRECT:    return "Change of internal clock";
+    	case POWER_RECOVERY:                return "Power up";
+    	case POWER_FAILURE:                 return "Power down (3 phase)";
+
+    	case VARIABLE_SET:                  return "Parameter changed";
+    	case BEGIN_OF_ERROR:                return "Error conditions: Fatal or non fatal error";
+    	case END_OF_ERROR:                  return "End of error conditions";
+    	case REVERSE_POWER:					return "Reverse power detected";
+
+    	case INPUT_EVENT1:					return "Input event 1 detected";
+    	case CLEAR_LOGBOOK:                 return "Reset of logfile";
+    	case CLEAR_LOADPROFILE:             return "Reset of loadprofile";
+    	case INPUT_EVENT2:					return "Input event 2 detected";
+
+    	case CHANGE_OF_IMPULSECONSTANT:		return "Change of impulse constant";
+    	case TERMINAL_COVER_OPENED:			return "Terminal cover was opened";
+    	case MAIN_COVER_OPENED:				return "Main cover was opened";
+    	case WRONG_PASSWORD_USED:			return "Wrong password was used";
+
+    	case PLUS_A_STORED:					return "+A has been stored";
+    	case L1_MISSING:					return "Phase L1 is missing";
+    	case L2_MISSING:					return "Phase L2 is missing";
+    	case L3_MISSING:					return "Phase L3 is missing";
+
+    	default:                            return "Unknown event: " + deviceCode;
+    	}
+    }
+  
+    //----------------------------------------------------------------------------------------------------------------------
+    
+    protected List buildMeterEvents(byte[] responseData) throws IOException {
+        
+        List meterEvents = new ArrayList();
+        int t;
+        Calendar calendar=null;
+        DataParser dp = new DataParser(getProtocolLink().getTimeZone());
+        
+        try {
+            VDEWTimeStamp vts = new VDEWTimeStamp(getProtocolLink().getTimeZone());
+            int i=0;
+            while(true) {
+                if (responseData[i] == 'P') {
+                   i+=4; // skip P.01
+                   i=gotoNextOpenBracket(responseData,i);
+                   
+                   // geen entries in logbook
+                   if (dp.parseBetweenBrackets(responseData,i).compareTo("ERROR") == 0)
+                       return meterEvents;
+                       
+                   
+                   // P.98 (ZSTs13)(Status)()(nrofentries)(KZ1)()..(KZz)()(Element1)..(Elementz)
+                   //         0        1    2      3(eg 2)  4   5    6   7    8           9  
+                   vts.parse(dp.parseBetweenBrackets(responseData,i,0));
+                   calendar = (Calendar)vts.getCalendar().clone();
+                   
+                   long status = Long.parseLong(dp.parseBetweenBrackets(responseData,i,1),16);
+                   
+                   // KV 02112005
+                   if (((status&SEASONAL_SWITCHOVER)==SEASONAL_SWITCHOVER) && 
+                         (vts.getMode()==VDEWTimeStamp.MODE_SUMMERTIME) && 
+                         (!getProtocolLink().getTimeZone().inDaylightTime(calendar.getTime())) &&  
+                         ((status&DEVICE_CLOCK_SET_INCORRECT)==DEVICE_CLOCK_SET_INCORRECT)) {
+                       calendar.add(Calendar.MILLISECOND,-1*getProtocolLink().getTimeZone().getDSTSavings());
+                   }
+                   
+                   
+                   // See A1500 dproduct description on page 45 for the explenation of the 16 statusbits.
+                   // Use status to parse the meterevents. Lower statusbyte of meterevents is the same as
+                   // the intervalstatus byte. So, therefor, we omit the reading of the logbook
+                   
+                   for (t=0;t<24;t++) {
+                      String msg = null;
+                      long logBit = (status & (long)(0x0001<<t)); 
+                      if (logBit != 0) {
+                           if ((logBit == DEVICE_CLOCK_SET_INCORRECT) || (logBit == SEASONAL_SWITCHOVER)) {
+                              String datePart = dp.parseBetweenBrackets(responseData,i,8);
+                              String timePart = dp.parseBetweenBrackets(responseData,i,9);
+                              vts.parse(datePart,timePart);
+                              msg = vts.getCalendar().getTime().toString();  
+                           }
+                           meterEvents.add(getMeterEvent(new Date(calendar.getTime().getTime()),(int)logBit,msg));
+                      }
+                   }
+                   
+                   
+                   i= gotoNextCR(responseData,i+1);
+                }
+                else if ((responseData[i] == '\r') || (responseData[i] == '\n')) {
+                    i+=1; // skip 
+                }
+                else {
+                   i= gotoNextCR(responseData,i+1);
+                }
+
+                if (i>=responseData.length) {
+                    break;
+                }
+
+            } // while(true)
+        }
+        catch(IOException e) {
+           throw new IOException("buildProfileData> "+e.getMessage());
+        }
+
+        return meterEvents;
+        
+    } // private List buildMeterEvents(byte[] responseData)    
+
+    private int gotoNextOpenBracket(byte[] responseData,int i) {
+        while(true) {
+            if (responseData[i] == '(') break;
+            i++;
+            if (i>=responseData.length) break;
+        }
+        return i;
+    }
+
+    private int gotoNextCR(byte[] responseData,int i) {
+        while(true) {
+            if (responseData[i] == '\r') break;
+            i++;
+            if (i>=responseData.length) break;
+        }
+        return i;
+    }
+
     
 } 
 
