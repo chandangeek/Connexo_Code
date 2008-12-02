@@ -171,7 +171,8 @@ public class ABBA230Profile {
         	getMeterEvents(rFactory.getMeterErrorEventLog(),meterEvents);
         	getMeterEvents(rFactory.getBatteryVoltageLowEventLog(),meterEvents);
         	
-       		profileData.setMeterEvents(truncateMeterEvents(meterEvents,from));
+        	profileData.getMeterEvents().addAll(truncateMeterEvents(meterEvents,from));
+       		//profileData.setMeterEvents(truncateMeterEvents(meterEvents,from));
         }
         
         profileData.setIntervalDatas(truncateIntervalDatas(profileData.getIntervalDatas(),from));

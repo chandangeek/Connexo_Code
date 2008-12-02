@@ -32,6 +32,12 @@ import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.iec1107.*;
 
 /** @author  fbo */
+/*
+ * Changes by KV
+ * 25112008 changed authentication mechanism with new security level
+ * 02122008 add intervalstate bits to logbook
+ * 
+ */
 
 public class ABBA230 implements
         MeterProtocol, ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo,
