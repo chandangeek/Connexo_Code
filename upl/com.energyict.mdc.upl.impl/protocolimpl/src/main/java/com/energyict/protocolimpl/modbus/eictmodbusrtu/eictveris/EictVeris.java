@@ -89,6 +89,9 @@ public class EictVeris extends Modbus implements MessageProtocol {
     }
     
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
+    	
+    	getLogger().info("MessageEntry: "+messageEntry.getContent());
+    	
         return MessageResult.createSuccess(messageEntry);
         //messageEntry.setTrackingId("tracking ID for "+messageEntry.);
         //return MessageResult.createQueued(messageEntry);
@@ -100,7 +103,7 @@ public class EictVeris extends Modbus implements MessageProtocol {
     public List getMessageCategories() {
         List theCategories = new ArrayList();
         // General Parameters
-        MessageCategorySpec cat = new MessageCategorySpec("PM800Messages");
+        MessageCategorySpec cat = new MessageCategorySpec("EICTVeris");
         MessageSpec msgSpec = addBasicMsg("Disconnect meter", "DISCONNECT", false);
         cat.addMessageSpec(msgSpec);
         msgSpec = addBasicMsg("Connect meter", "CONNECT", false);
