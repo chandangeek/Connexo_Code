@@ -12,7 +12,9 @@ public class AcknowledgeCustomCosem extends Data {
 	// SUCCESS CODES
 	static public final int SUCCESS=0;
 	static public final int VERSION=1;
+	static public final int MESSAGES=2;
 	
+	static public final String[] positiveAcks = new String[]{"SUCCESS","VERSION","MESSAGES"};
 	
 	// ERROR CODES
 	static public final int FAILURE=100;
@@ -36,7 +38,8 @@ public class AcknowledgeCustomCosem extends Data {
 	
 	public String toString() {
 		try {
-			return "AcknowledgeCustomCosem: "+(getCode()==SUCCESS?"SUCCESS":"code="+getCode()+", message="+getMessage());
+			//return "AcknowledgeCustomCosem: "+(getCode()==SUCCESS?"SUCCESS":"code="+getCode()+", message="+getMessage());
+			return "AcknowledgeCustomCosem: "+((getCode()<100)?""+positiveAcks[getCode()]:"code="+getCode()+", message="+getMessage());
 		}
 		catch(IOException e) {
 			return "AcknowledgeCustomCosem: not able to evaluate because of "+e.toString();
@@ -60,6 +63,10 @@ public class AcknowledgeCustomCosem extends Data {
 	
 	public boolean isSuccess() throws IOException {
 		return getCode()==SUCCESS;
+	}
+	
+	public boolean isMessages() throws IOException {
+		return getCode()==MESSAGES;
 	}
 	
 	public boolean isVersion() throws IOException {
