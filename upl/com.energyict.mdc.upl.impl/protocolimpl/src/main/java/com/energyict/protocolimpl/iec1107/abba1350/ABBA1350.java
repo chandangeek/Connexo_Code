@@ -59,6 +59,7 @@ RegisterProtocol, MessageProtocol {
 	private Logger logger;
 	private int extendedLogging;
 	private int vdewCompatible;
+	private int failOnUnitMismatch = 0;
 
 	private FlagIEC1107Connection flagIEC1107Connection = null;
 	private ABBA1350Registry abba1350Registry = null;
@@ -185,11 +186,15 @@ RegisterProtocol, MessageProtocol {
 			extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
 			vdewCompatible = Integer.parseInt(properties.getProperty("VDEWCompatible", "0").trim());
 			loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber", "1"));
+			//failOnUnitMismatch = Integer.parseInt(properties.getProperty("FailOnUnitMismatch", "0"));
 
 		} catch (NumberFormatException e) {
 			throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "
 					+ e.getMessage());
 		}
+		
+//		if ((failOnUnitMismatch < 0) || (loadProfileNumber > 1)) 
+//			throw new InvalidPropertyException("Invalid value for failOnUnitMismatch (" + failOnUnitMismatch + ") This property can only be 1 (to enable) or 0 (to disable). "); 
 
 		if ((loadProfileNumber < MIN_LOADPROFILE) || (loadProfileNumber > MAX_LOADPROFILE)) 
 			throw new InvalidPropertyException("Invalid loadProfileNumber (" + loadProfileNumber + "). Minimum value: " + MIN_LOADPROFILE + " Maximum value: " + MAX_LOADPROFILE); 
@@ -249,6 +254,7 @@ RegisterProtocol, MessageProtocol {
 		result.add("DataReadout");
 		result.add("ExtendedLogging");
 		result.add("VDEWCompatible");
+		//result.add("FailOnUnitMismatch");
 		return result;
 	}
 
@@ -507,8 +513,13 @@ RegisterProtocol, MessageProtocol {
 			} else {
 				if (readUnit != null) {
 					if (!readUnit.equals(obis.getUnitElectricity(scaler))) {
-						sendDebug("Warning: Unit from obiscode is different from register Unit in meter!!!");
-						getLogger().info("Warning: Unit from obiscode is different from register Unit in meter!!!");
+						String message = "Unit or scaler from obiscode is different from register Unit in meter!!! ";
+						message += " (Unit from meter: " + readUnit;
+						message += " -  Unit from obiscode: " + obis.getUnitElectricity(scaler) + ")\n";
+						
+						sendDebug(message);
+						getLogger().info(message);
+						if (failOnUnitMismatch == 1) throw new InvalidPropertyException(message);
 					}
 				} 
 				q = new Quantity(bd, obis.getUnitElectricity(scaler));
@@ -520,6 +531,10 @@ RegisterProtocol, MessageProtocol {
 			String m = "ObisCode " + obis.toString() + " is not supported!";
 			if (DEBUG >= 3) e.printStackTrace();
 			throw new NoSuchRegisterException(m);
+		} catch (InvalidPropertyException e) {
+			String m = "getMeterReading() error, " + e.getMessage();
+			if (DEBUG >= 3) e.printStackTrace();
+			throw new InvalidPropertyException(m);
 		} catch (FlagIEC1107ConnectionException e) {
 			String m = "getMeterReading() error, " + e.getMessage();
 			if (DEBUG >= 3) e.printStackTrace();

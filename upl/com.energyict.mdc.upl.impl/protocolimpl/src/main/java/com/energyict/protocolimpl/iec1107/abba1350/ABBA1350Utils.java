@@ -12,6 +12,8 @@ package com.energyict.protocolimpl.iec1107.abba1350;
  */
 public class ABBA1350Utils {
 
+	private static final int DEBUG = 0;
+	
 	public static String getXMLAttributeValue(String attribute, String xmlstring) {
 		return getXMLAttributeValue(attribute, xmlstring, true);
 	}

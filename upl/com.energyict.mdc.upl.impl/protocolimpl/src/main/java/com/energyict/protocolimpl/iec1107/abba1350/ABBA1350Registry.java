@@ -21,6 +21,8 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWRegisterDataParse;
  */
 public class ABBA1350Registry extends AbstractVDEWRegistry {
     
+	private static final int DEBUG = 0;
+
 	public static final String ID1 = "ID1";
 	public static final String ID2 = "ID2";
 	public static final String ID3 = "ID3";

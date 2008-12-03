@@ -8,14 +8,10 @@ package com.energyict.protocolimpl.iec1107.abba1350;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
-import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
+import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.base.ParseUtils;
@@ -34,7 +30,7 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
 
 public class ABBA1350Profile extends VDEWProfile {
     
-	private static final int DEBUG = 1;
+	private static final int DEBUG = 0;
 	
 	private static final int REVERSE_POWER 				= 0x00000800;
 	private static final int INPUT_EVENT1 				= 0x00001000;
@@ -51,6 +47,9 @@ public class ABBA1350Profile extends VDEWProfile {
 	
 	private ABBA1350ProfileHeader abba1350ProfileHeader = null;
 	private static final boolean keepStatus = false;
+
+	private static final int POWERQUALITY_PROFILE = 2;
+	private int loadProfileNumber;
 	
     /** Creates a new instance of ABBA1500Profile */
     public ABBA1350Profile(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink, AbstractVDEWRegistry abstractVDEWRegistry) {
@@ -58,10 +57,11 @@ public class ABBA1350Profile extends VDEWProfile {
     }
     
     public ProfileData getProfileData(Date lastReading,boolean includeEvents, int profileNumber) throws IOException {
-        Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
+        this.loadProfileNumber = profileNumber;
+    	Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         fromCalendar.setTime(lastReading);
         
-        ProfileData profileData =  doGetProfileData(fromCalendar,ProtocolUtils.getCalendar(getProtocolLink().getTimeZone()), profileNumber);
+        ProfileData profileData =  doGetProfileData(fromCalendar,ProtocolUtils.getCalendar(getProtocolLink().getTimeZone()), this.loadProfileNumber);
         if (includeEvents) {
         	List meterEvents = doGetLogBook(fromCalendar,ProtocolUtils.getCalendar(getProtocolLink().getTimeZone()));
         	for (Iterator iterator = meterEvents.iterator(); iterator.hasNext();) {
@@ -87,12 +87,13 @@ public class ABBA1350Profile extends VDEWProfile {
     }
     
     public ProfileData getProfileData(Date fromReading, Date toReading, boolean includeEvents, int profileNumber) throws IOException {
+        this.loadProfileNumber = profileNumber;
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         fromCalendar.setTime(fromReading);
         Calendar toCalendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         toCalendar.setTime(toReading);
         
-        ProfileData profileData =  doGetProfileData(fromCalendar,toCalendar, profileNumber);
+        ProfileData profileData =  doGetProfileData(fromCalendar,toCalendar, this.loadProfileNumber);
         if (includeEvents) {
         	List meterEvents = doGetLogBook(fromCalendar,toCalendar);
         	for (Iterator iterator = meterEvents.iterator(); iterator.hasNext();) {
@@ -119,8 +120,9 @@ public class ABBA1350Profile extends VDEWProfile {
     
 
 	public ABBA1350ProfileHeader getProfileHeader(int profileNumber) throws IOException {
+        this.loadProfileNumber = profileNumber;
     	if (abba1350ProfileHeader == null) {
-    		abba1350ProfileHeader = new ABBA1350ProfileHeader(getProtocolLink().getFlagIEC1107Connection(), profileNumber);
+    		abba1350ProfileHeader = new ABBA1350ProfileHeader(getProtocolLink().getFlagIEC1107Connection(), this.loadProfileNumber);
     	}
     	return abba1350ProfileHeader;
     }
@@ -143,7 +145,7 @@ public class ABBA1350Profile extends VDEWProfile {
     }
     
     private int getMeterEvent(int logcode){
-        System.out.println("getMeterEvent: " + logcode);
+        if (DEBUG >= 1) System.out.println("getMeterEvent: " + logcode);
     	switch(logcode) {
     		case FATAL_DEVICE_ERROR:            return MeterEvent.FATAL_ERROR;
             case RUNNING_RESERVE_EXHAUSTED:     return MeterEvent.OTHER;
@@ -258,9 +260,8 @@ public class ABBA1350Profile extends VDEWProfile {
     // Override buildProfileData from VDEWProfile to fix duplicate entries in same interval
     // The original function adds the two values. We need to take the average.
     protected ProfileData buildProfileData(byte[] responseData) throws IOException {
-        ProfileData profileData;
+    	ProfileData profileData;
         Calendar calendar=null;
-        Calendar tempCalendar=null;
         byte bStatus=0;
         byte bNROfValues=0;
         int profileInterval=0;
@@ -288,9 +289,15 @@ public class ABBA1350Profile extends VDEWProfile {
                    if (dp.parseBetweenBrackets(responseData,i).compareTo("ERROR") == 0)
                        throw new IOException("No entries in object list.");
                    
+                   //--------------------------------------------------------
+                   // Data part 1: Read timestamp from loadprofile
+                   //--------------------------------------------------------
                    vts.parse(dp.parseBetweenBrackets(responseData,i));
                    calendar = vts.getCalendar();
                    
+                   //--------------------------------------------------------
+                   // Data part 2: Read status from loadprofile
+                   //--------------------------------------------------------
                    i=gotoNextOpenBracket(responseData,i+1);
                    bStatus =  parseIntervalStatus(responseData, i);
                    
@@ -312,28 +319,36 @@ public class ABBA1350Profile extends VDEWProfile {
                    if (!ParseUtils.isOnIntervalBoundary(calendar,getProtocolLink().getProfileInterval())) {
                        partialInterval=true;
                        // roundup to the first interval boundary
-                       tempCalendar = calendar; // Copy calendar to temp variable to keep the original value of the date/time stamp
                        ParseUtils.roundUp2nearestInterval(calendar,getProtocolLink().getProfileInterval());
                    }
                    else {
                        partialInterval=false;
                    }
                    
+                   //--------------------------------------------------------
+                   // Data part 3: Read profile interval from loadprofile
+                   //--------------------------------------------------------
                    i=gotoNextOpenBracket(responseData,i+1);
                    profileInterval = Integer.parseInt(dp.parseBetweenBrackets(responseData,i));
                    if ((profileInterval*60) != getProtocolLink().getProfileInterval())
                       throw new IOException("buildProfileData() error, mismatch between configured profileinterval ("+getProtocolLink().getProfileInterval()+") and meter profileinterval ("+(profileInterval*60)+")!");
                        
+                   //--------------------------------------------------------
+                   // Data part 4: Read number of channels from loadprofile
+                   //--------------------------------------------------------
                    i=gotoNextOpenBracket(responseData,i+1);
                    // KV 06092005 K&P
                    //bNROfValues = ProtocolUtils.bcd2nibble(responseData,i+1);
                    bNROfValues = (byte)Integer.parseInt(dp.parseBetweenBrackets(responseData,i));
                    
-                   units = new Unit[bNROfValues];
                    if (bNROfValues > getProtocolLink().getNumberOfChannels()) 
-                      throw new IOException("buildProfileData() error, mismatch between configured nrOfChannels ("+getProtocolLink().getNumberOfChannels()+") and meter profile nrOfChannels ("+bNROfValues+")!");
-                   
-                   // get the units
+                       throw new IOException("buildProfileData() error, mismatch between configured nrOfChannels ("+getProtocolLink().getNumberOfChannels()+") and meter profile nrOfChannels ("+bNROfValues+")!");
+
+                   //--------------------------------------------------------
+                   // Data part 5 + 6: Read the channel units 
+                   // and ediscodes from loadprofile
+                   //--------------------------------------------------------
+                   units = new Unit[bNROfValues];
                    edisCodes = new String[bNROfValues];
                    for (t=0;t<bNROfValues;t++) {// skip all obis codes
                       i=gotoNextOpenBracket(responseData,i+1);
@@ -342,6 +357,10 @@ public class ABBA1350Profile extends VDEWProfile {
                       units[t] = Unit.get(dp.parseBetweenBrackets(responseData,i));
                    }
                    
+                   //--------------------------------------------------------
+                   // On first run, build the channelinfo using the ediscodes
+                   // and the units in the loadprofile header.
+                   //--------------------------------------------------------
                    // KV 06092005 K&P changes
                    if (!buildChannelInfos) {
                        int id=0;
@@ -374,13 +393,19 @@ public class ABBA1350Profile extends VDEWProfile {
                        buildChannelInfos = true;
                    }
                    
+                   // skip data until next CR
                    i= gotoNextCR(responseData,i+1);
                 }
                 else if ((responseData[i] == '\r') || (responseData[i] == '\n')) {
-                    i+=1; // skip 
+                    i+=1; // skip additional CR's or LF's 
                 }
                 else {
-                  // Fill profileData     
+                    //------------------------------------------------------------
+                    // Data at responseData[i] is channel data: 
+                	// eg (027.012)(000.103)(014.847)(005.123)
+                    //------------------------------------------------------------
+
+                	// Fill profileData     
                   IntervalData intervalData = new IntervalData(new Date(calendar.getTime().getTime()),eiCode,bStatus);
                     
                   if (!keepStatus) eiCode=0;
@@ -408,7 +433,6 @@ public class ABBA1350Profile extends VDEWProfile {
                           if (intervalData.getEndTime().getTime() == intervalDataSave.getEndTime().getTime()) {
                              if (DEBUG >= 1) System.out.println("KV_DEBUG> partialInterval, add partialInterval to currentInterval");
                              intervalData = addIntervalData(intervalDataSave,intervalData, units); // add intervals together to avoid double interval values...
-                             
                           }
                           else {
                              if (DEBUG >= 1) System.out.println("KV_DEBUG> partialInterval, save partialInterval to profiledata and assign currentInterval to partialInterval");
@@ -568,32 +592,33 @@ public class ABBA1350Profile extends VDEWProfile {
     	int currentCount = currentIntervalData.getValueCount();
     	IntervalData intervalData = new IntervalData(currentIntervalData.getEndTime());
 
+    	if (this.loadProfileNumber == POWERQUALITY_PROFILE) {
+    		for (int i=0;i<currentCount;i++) {
+    			Unit unit =  unitlist[i];
+    			BigDecimal val1 = (BigDecimal)currentIntervalData.get(i);
+    			BigDecimal val2 = (BigDecimal)cumulatedIntervalData.get(i);
 
-//        int i;
-//        for (i=0;i<currentCount;i++) {
-//            BigDecimal val1 = (BigDecimal)currentIntervalData.get(i);
-//            BigDecimal val2 = (BigDecimal)cumulatedIntervalData.get(i);
-//            intervalData.addValue(val1.add(val2));
-//        }
-//        return intervalData;
-
-    	for (int i=0;i<currentCount;i++) {
-    		Unit unit =  unitlist[i];
-    		BigDecimal val1 = (BigDecimal)currentIntervalData.get(i);
-    		BigDecimal val2 = (BigDecimal)cumulatedIntervalData.get(i);
-
-    		if ((unit != null) && (unit.isVolumeUnit())) {
+    			if ((unit != null) && (unit.isVolumeUnit())) {
+    				intervalData.addValue(val1.add(val2));
+    				if (DEBUG >= 1) 
+    					System.out.println("Interval data added: val1: " + val1 + " val2: " + val2 + " Result: " + val1.add(val2));
+    			} else {
+    				intervalData.addValue((val1.add(val2)).divide(new BigDecimal((int)2), BigDecimal.ROUND_HALF_UP));
+    				if (DEBUG >= 1) 
+    					System.out.println("Interval data divided: val1: " + val1 + " val2: " + val2 + " Result: " + val1.add(val2).divide(new BigDecimal((int)2), BigDecimal.ROUND_HALF_UP));
+    			} 
+    		}
+    	} else {
+    		int i;
+    		for (i=0;i<currentCount;i++) {
+    			BigDecimal val1 = (BigDecimal)currentIntervalData.get(i);
+    			BigDecimal val2 = (BigDecimal)cumulatedIntervalData.get(i);
     			intervalData.addValue(val1.add(val2));
-    			if (DEBUG >= 1) System.out.println("Interval data added: val1: " + val1 + " val2: " + val2 + " Result: " + val1.add(val2));
-    		} else {
-    			intervalData.addValue((val1.add(val2)).divide(new BigDecimal((int)2), BigDecimal.ROUND_HALF_UP));
-    			if (DEBUG >= 1) System.out.println("Interval data divided: val1: " + val1 + " val2: " + val2 + " Result: " + val1.add(val2).divide(new BigDecimal((int)2), BigDecimal.ROUND_HALF_UP));
-    		} 
+    		}
+    		return intervalData;
     	}
 
     	return intervalData;
 
     }    
-
-    
 } 

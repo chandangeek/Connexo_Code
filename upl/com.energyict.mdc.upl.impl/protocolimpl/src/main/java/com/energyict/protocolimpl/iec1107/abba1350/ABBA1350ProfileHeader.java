@@ -15,7 +15,9 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
  */
 public class ABBA1350ProfileHeader {
     
-    int profileInterval;
+	private static final int DEBUG = 0;
+
+	int profileInterval;
     int nrOfChannels;
     
     /** Creates a new instance of ProfileHeader */

@@ -30,7 +30,8 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
  */
 public class ABBA1350Messages {
 	
-	private static final int DEBUG = 1; 
+	private static final int DEBUG = 0;
+	
 	private ABBA1350 abba1350 = null;
     private static final ABBA1350MessageType SPC_MESSAGE = new ABBA1350MessageType("SPC_DATA", 4, 285 * 2, "Upload 'Switch Point Clock' settings (Class 4)");
     private static final ABBA1350MessageType SPCU = new ABBA1350MessageType("SPCU_DATA", 34, 285 * 2, "Upload 'Switch Point Clock Update' settings (Class 32)");

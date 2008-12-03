@@ -15,6 +15,8 @@ import java.util.LinkedHashMap;
  */
 public class ABBA1350ObisCodeMapper {
     
+	private static final int DEBUG = 0;
+
 	public static final String ID1 = "Device ID1";
 	public static final String ID2 = "Device ID2";
 	public static final String ID3 = "Device ID3";
