@@ -66,29 +66,49 @@ public class MT83ObisCodeMapper {
 
 		String strReg=null;
 		strReg = regs.getMeterRegisterCode(obisCode);
-
+		
 		if (strReg == null) 
 			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported! (2) ");
 		try {
 
 			if (billingPoint != -1) {
 
+				int VZ = getBillingResetCounter(regs);
+				int obisF = (VZ - Math.abs(obisCode.getF()));
+				if ((obisF < 1) || (obisF > VZ)) throw new IOException("Invalid historical register! VZ = " + VZ + " Requested = " + obisCode.getF());
+				
+				
+				MT83.sendDebug("Changing obiscode from " + obisCode.toString(), DEBUG);
+				
+				obisCode = ObisCode.fromString(strReg);
+				strReg = (new ObisCode(obisCode.getA(), obisCode.getB(), obisCode.getC(), obisCode.getD(), obisCode.getE(), obisF)).toString();
+ 
+				MT83.sendDebug("Changing obiscode " + obisCode.toString() + " to [" + strReg + "]", DEBUG);
+
 				if (DEBUG == 1) {
-					MT83.sendDebug("doGetregister(): Billingpoint = " + billingPoint + " - getBillingResetCounter = " + getBillingResetCounter(regs) + " - strReg = " + strReg, DEBUG);
+					MT83.sendDebug("doGetregister(): Billingpoint = " + billingPoint + " - getBillingResetCounter = " + VZ + " - strReg = " + strReg, DEBUG);
 				}
 
 				ObisCode billingStartObis = ObisCode.fromString(MT83Registry.BILLING_DATE_START);
-				billingDateRegister = new ObisCode(billingStartObis.getA(), billingStartObis.getB(), billingStartObis.getC(), billingStartObis.getD(), billingStartObis.getE(), billingStartObis.getF() + obisCode.getF()).toString();
+				billingDateRegister = new ObisCode(billingStartObis.getA(), billingStartObis.getB(), billingStartObis.getC(), billingStartObis.getD(), billingStartObis.getE(), billingStartObis.getF() + ObisCode.fromString(strReg).getF()).toString();
+				
+				MT83.sendDebug("Reading toDate from obis: " + billingDateRegister.toString(), DEBUG);
+				
 				toDate = ((Date)mt83Registry.getRegister(billingDateRegister.toString()));
 
-				billingDateRegister = new ObisCode(billingStartObis.getA(), billingStartObis.getB(), billingStartObis.getC(), billingStartObis.getD(), billingStartObis.getE(), billingStartObis.getF() + (obisCode.getF() + 1)).toString();
+				billingDateRegister = new ObisCode(billingStartObis.getA(), billingStartObis.getB(), billingStartObis.getC(), billingStartObis.getD(), billingStartObis.getE(), billingStartObis.getF() + (ObisCode.fromString(strReg).getF() + 1)).toString();
+
+				MT83.sendDebug("Reading fromDate from obis: " + billingDateRegister.toString() + "\n", DEBUG);
+				
 				try {
 					fromDate = ((Date)mt83Registry.getRegister(billingDateRegister.toString()));
 				} catch (Exception e) {
+					MT83.sendDebug("fromDate does not exist. [" + billingDateRegister + "]", DEBUG);
 					fromDate = null;
 				}
 			}
 
+			MT83.sendDebug("Reading register: Obis = " + obisCode.toString() + " Edis: " + strReg, 0);
 			DateValuePair dvp = (DateValuePair)mt83Registry.getRegister(strReg+" DATE_VALUE_PAIR");
 			Unit obisCodeUnit = dvp.getUnit(); 
 			if (!obisCode.getUnitElectricity(0).getBaseUnit().toString().equalsIgnoreCase(obisCodeUnit.getBaseUnit().toString())) {
