@@ -47,6 +47,8 @@ RegisterProtocol, MessageProtocol {
 	private String nodeId;
 	private String serialNumber;
 	private int iEchoCancelling;
+	private int iForceDelay;
+
 	private int profileInterval;
 	private ChannelMap channelMap;
 	private int requestHeader;
@@ -177,6 +179,7 @@ RegisterProtocol, MessageProtocol {
 			iSecurityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
 			nodeId = properties.getProperty(MeterProtocol.NODEID, "");
 			iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
+			iForceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "0").trim());
 			profileInterval = Integer.parseInt(properties.getProperty("ProfileInterval", "3600").trim());
 			channelMap = new ChannelMap(properties.getProperty("ChannelMap", "0"));
 			requestHeader = Integer.parseInt(properties.getProperty("RequestHeader", "1").trim());
@@ -254,6 +257,7 @@ RegisterProtocol, MessageProtocol {
 		result.add("DataReadout");
 		result.add("ExtendedLogging");
 		result.add("VDEWCompatible");
+		result.add("ForceDelay");
 		//result.add("FailOnUnitMismatch");
 		return result;
 	}
@@ -279,7 +283,7 @@ RegisterProtocol, MessageProtocol {
 
 		try {
 			flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, iIEC1107TimeoutProperty,
-					iProtocolRetriesProperty, 0, iEchoCancelling, 1);
+					iProtocolRetriesProperty, iForceDelay, iEchoCancelling, 1);
 			abba1350Registry = new ABBA1350Registry(this, this);
 			abba1350Profile = new ABBA1350Profile(this, this, abba1350Registry);
 
