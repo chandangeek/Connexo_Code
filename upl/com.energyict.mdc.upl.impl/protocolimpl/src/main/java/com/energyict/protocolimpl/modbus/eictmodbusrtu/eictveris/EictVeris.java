@@ -84,7 +84,7 @@ public class EictVeris extends Modbus implements MessageProtocol {
         Iterator it = messageEntries.iterator();
         while(it.hasNext()) {
             MessageEntry messageEntry = (MessageEntry)it.next();
-            System.out.println(messageEntry);
+            //System.out.println(messageEntry);
         }
     }
     
