@@ -35,10 +35,10 @@ public class CosemAttributeDescriptor {
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
-        strBuff.append("CosemAttributeDescriptor:\n");
-        strBuff.append("   attributeId="+getAttributeId()+"\n");
-        strBuff.append("   classId="+getClassId()+"\n");
-        strBuff.append("   obis="+getObis()+"\n");
+        strBuff.append("CosemAttributeDescriptor: ");
+        strBuff.append(" attributeId="+getAttributeId());
+        strBuff.append(" classId="+getClassId());
+        strBuff.append(" obis="+getObis());
         return strBuff.toString();
     }	
 	public int getClassId() {

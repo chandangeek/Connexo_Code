@@ -23,11 +23,11 @@ public class CosemAPDU {
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
-        strBuff.append("CosemAPDU:\n");
-        strBuff.append("   cosemAPDUService=0x"+Integer.toHexString(getCosemAPDUService())+"\n");
-        strBuff.append("   cosemAttributeDescriptor="+getCosemAttributeDescriptor()+"\n");
-        strBuff.append("   dataType="+getDataType()+"\n");
-        strBuff.append("   invokeAndPriority=0x"+Integer.toHexString(getInvokeAndPriority())+"\n");
+        strBuff.append("CosemAPDU:");
+        strBuff.append(" cosemAPDUService=0x"+Integer.toHexString(getCosemAPDUService()));
+        strBuff.append(" "+getCosemAttributeDescriptor());
+        strBuff.append(" invokeAndPriority=0x"+Integer.toHexString(getInvokeAndPriority()));
+        strBuff.append(" dataType="+getDataType());
         return strBuff.toString();
     }
 	

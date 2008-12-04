@@ -93,7 +93,7 @@ public class CosemAPDUParser {
 		while(it.hasNext()) {
 			CosemAPDU apdu = it.next();
 			if (DEBUG>=1)
-				System.out.println(apdu);
+				System.out.print("identifyDevice "+apdu);
 			
 			if (apdu.getCosemAttributeDescriptor().getObis().equals(DatabaseIDCustomCosem.getObisCode())) {
 				// device referenced by database id
@@ -129,16 +129,17 @@ public class CosemAPDUParser {
 		List<ChannelInfo> channelInfos=null;
 		while(it.hasNext()) {
 			CosemAPDU apdu = it.next();
-			if (DEBUG>=1)
-				System.out.println(apdu);
-			
 			
 			if ((apdu.getCosemAttributeDescriptor().getObis().equals(DatabaseIDCustomCosem.getObisCode())) ||
 				(apdu.getCosemAttributeDescriptor().getObis().equals(DeviceIDCustomCosem.getObisCode()))) {
 				// do not remove apdu and break loop!
 				break;
 			}
-			else if (isDeviceChannelNameObject(apdu.getCosemAttributeDescriptor().getObis())) {
+			
+			if (DEBUG>=1)
+				System.out.print("parseContent "+apdu);
+			
+			if (isDeviceChannelNameObject(apdu.getCosemAttributeDescriptor().getObis())) {
 				if (deviceChannelNames==null)
 					deviceChannelNames = new ArrayList();
 				Structure s = apdu.getDataType().getStructure();
