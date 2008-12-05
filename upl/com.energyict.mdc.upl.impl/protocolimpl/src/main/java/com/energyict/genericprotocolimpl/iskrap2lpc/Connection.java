@@ -109,5 +109,13 @@ public interface Connection {
 
 	public abstract void upgradeMeters(String fileName, String[] meters)
 			throws ServiceException, BusinessException, IOException;
+	
+	public abstract void copyFile(String sourceFile, String destinationFile, boolean overwrite)
+			throws ServiceException, BusinessException, IOException;
 
+	public abstract String getMeterResults(String meterID, String registerID, String from, String to)
+			throws ServiceException, BusinessException, IOException;
+	
+	public abstract String[] getFiles(String dir, String filter)
+			throws ServiceException, BusinessException, IOException;
 }

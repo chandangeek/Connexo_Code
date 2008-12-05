@@ -34,6 +34,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Utils;
@@ -367,7 +368,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     }
     
     /** Generic data import procedure. All imported data is in one xml format. */
-    protected void importData(String data, XmlHandler dataHandler) 
+    protected void importData(String data, DefaultHandler dataHandler) 
         throws BusinessException {
         
         try {
@@ -571,8 +572,8 @@ public class Concentrator implements Messaging, GenericProtocol {
             		msg.setFailed();
             		getLogger().log(Level.INFO, "Not a valid entry for the current Concentrator message (" + contents + ").");
             	} else {
-            		int fileSize = getConnection().getFileSize(Constant.p2lpcFileName);
-            		byte[] fileChunk = getConnection().downloadFileChunk(Constant.p2lpcFileName, 0, fileSize);
+            		int fileSize = getConnection().getFileSize(Constant.p2lpcCorrectFileName);
+            		byte[] fileChunk = getConnection().downloadFileChunk(Constant.p2lpcCorrectFileName, 0, fileSize);
             		System.out.println(new String(fileChunk));
             		
             		try {
@@ -597,7 +598,13 @@ public class Concentrator implements Messaging, GenericProtocol {
 				            
 				            String xmlString = FileUtils.convertFromDocToString(doc);
 				            
-				            getConnection().uploadFileChunk(Constant.p2lpcFileName, 0, true, xmlString.getBytes());
+				            /**
+				             * First we upload the P2LPC.tmp file to the concentrator. Due to the low connection it is possible that the concentrator
+				             * will pick up the file before it is completely uploaded, so that is why the temp name is used for.
+				             * Afterwards we just change the name to P2LPC.xml and the concentrator can do his job with it.
+				             */
+				            getConnection().uploadFileChunk(Constant.p2lpcTempFileName, 0, true, xmlString.getBytes());
+				            getConnection().copyFile(Constant.p2lpcTempFileName, Constant.p2lpcCorrectFileName, true);
 				            
 				            byte[] restartBytes = FileUtils.convertStringToZippedBytes(Constant.restart, Constant.restartFileName);
 				            getConnection().uploadFileChunk(Constant.upgradeZipName, 0, true, restartBytes);

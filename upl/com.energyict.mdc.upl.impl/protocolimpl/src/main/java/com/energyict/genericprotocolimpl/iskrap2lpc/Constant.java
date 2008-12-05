@@ -5,7 +5,7 @@ import java.util.*;
 
 import com.energyict.obis.ObisCode;
 
-class Constant {
+public class Constant {
     
     private final static Constant instance = new Constant( );
     
@@ -54,12 +54,13 @@ class Constant {
     final static String space = "FreqChannelSpace";
     final static String band = "FreqBand";
     
-    final static String p2lpcFileName = "\\Storage Card\\P2LPC.xml";
-    
+    final static String p2lpcTempFileName = "\\Storage Card\\P2LPC.tmp";
+    final static String p2lpcCorrectFileName = "\\Storage Card\\P2LPC.xml";
     final static String restart = "P2LPCrestart";
     final static String restartFileName = "P2LPCrestart.txt";
     final static String upgradeZipName = "\\Storage Card\\P2LPCFiles\\P2LPCUpgrade.zip";
     final static String firmwareBinFile = "\\Storage Card\\P2LPCFiles\\Firmwarebinfile.bin";
+    final static String defaultDirectory = "\\Storage Card\\P2LPCFiles\\";
 //    final static String firmwareBinFile = "\\Storage Card\\P2LPCFiles\\test.bin";
     final static int MAX_UPLOAD = 1024*10;
     
@@ -117,34 +118,34 @@ class Constant {
     private SimpleDateFormat fixedDateFormat;
     private SimpleDateFormat dateFormat;
 
-	final static int PROFILE_STATUS_DEVICE_DISTURBANCE = 0x1;
-	final static int PROFILE_STATUS_RESET_CUMULATION = 0x10;
-	final static int PROFILE_STATUS_DEVICE_CLOCK_CHANGED = 0x20;
-	final static int PROFILE_STATUS_POWER_RETURNED = 0x40;
-	final static int PROFILE_STATUS_POWER_FAILURE = 0x80;
-	static final int EVENT_FATAL_ERROR=0x0001;
-	static final int EVENT_DEVICE_CLOCK_RESERVE=0x0002;
-	static final int EVENT_VALUE_CORRUPT=0x0004;
-	static final int EVENT_DAYLIGHT_CHANGE=0x0008;
-	static final int EVENT_BILLING_RESET=0x0010;
-	static final int EVENT_DEVICE_CLOCK_CHANGED=0x0020;
-	static final int EVENT_POWER_RETURNED=0x0040;
-	static final int EVENT_POWER_FAILURE=0x0080;
-	static final int EVENT_VARIABLE_SET=0x0100;
-	static final int EVENT_UNRELIABLE_OPERATING_CONDITIONS=0x0200;
-	static final int EVENT_END_OF_UNRELIABLE_OPERATING_CONDITIONS=0x0400;
-	static final int EVENT_UNRELIABLE_EXTERNAL_CONTROL=0x0800;
-	static final int EVENT_END_OF_UNRELIABLE_EXTERNAL_CONTROL=0x1000;
-	static final int EVENT_EVENTLOG_CLEARED=0x2000;
-	static final int EVENT_LOADPROFILE_CLEARED=0x4000;
-	static final int EVENT_L1_POWER_FAILURE=0x8001;
-	static final int EVENT_L2_POWER_FAILURE=0x8002;
-	static final int EVENT_L3_POWER_FAILURE=0x8003;
-	static final int EVENT_L1_POWER_RETURNED=0x8004;
-	static final int EVENT_L2_POWER_RETURNED=0x8005;
-	static final int EVENT_L3_POWER_RETURNED=0x8006;
-	static final int EVENT_METER_COVER_OPENED=0x8010;
-	static final int EVENT_TERMINAL_COVER_OPENED=0x8011;
+	public final static int PROFILE_STATUS_DEVICE_DISTURBANCE = 0x1;
+	public final static int PROFILE_STATUS_RESET_CUMULATION = 0x10;
+	public final static int PROFILE_STATUS_DEVICE_CLOCK_CHANGED = 0x20;
+	public final static int PROFILE_STATUS_POWER_RETURNED = 0x40;
+	public final static int PROFILE_STATUS_POWER_FAILURE = 0x80;
+	public static final int EVENT_FATAL_ERROR=0x0001;
+	public static final int EVENT_DEVICE_CLOCK_RESERVE=0x0002;
+	public static final int EVENT_VALUE_CORRUPT=0x0004;
+	public static final int EVENT_DAYLIGHT_CHANGE=0x0008;
+	public static final int EVENT_BILLING_RESET=0x0010;
+	public static final int EVENT_DEVICE_CLOCK_CHANGED=0x0020;
+	public static final int EVENT_POWER_RETURNED=0x0040;
+	public static final int EVENT_POWER_FAILURE=0x0080;
+	public static final int EVENT_VARIABLE_SET=0x0100;
+	public static final int EVENT_UNRELIABLE_OPERATING_CONDITIONS=0x0200;
+	public static final int EVENT_END_OF_UNRELIABLE_OPERATING_CONDITIONS=0x0400;
+	public static final int EVENT_UNRELIABLE_EXTERNAL_CONTROL=0x0800;
+	public static final int EVENT_END_OF_UNRELIABLE_EXTERNAL_CONTROL=0x1000;
+	public static final int EVENT_EVENTLOG_CLEARED=0x2000;
+	public static final int EVENT_LOADPROFILE_CLEARED=0x4000;
+	public static final int EVENT_L1_POWER_FAILURE=0x8001;
+	public static final int EVENT_L2_POWER_FAILURE=0x8002;
+	public static final int EVENT_L3_POWER_FAILURE=0x8003;
+	public static final int EVENT_L1_POWER_RETURNED=0x8004;
+	public static final int EVENT_L2_POWER_RETURNED=0x8005;
+	public static final int EVENT_L3_POWER_RETURNED=0x8006;
+	public static final int EVENT_METER_COVER_OPENED=0x8010;
+	public static final int EVENT_TERMINAL_COVER_OPENED=0x8011;
     
     final static String conSerialFile 	= "/offlineFiles/iskrap2lpc/ConcentratorSerial.bin";
     final static String profileConfig1 	= "/offlineFiles/iskrap2lpc/ObjectDefFile1.xml";
@@ -231,7 +232,7 @@ class Constant {
     final static String SUB_SetEncryptionKeyOK = "SUB.SetEncryptionKeyOK";
     final static String SUB_SetEncryptionKeyError = "SUB.SetEncryptionKeyError";
 
-    static Constant getInstance( ){
+    public static Constant getInstance( ){
         return instance;
     }
 
@@ -249,7 +250,7 @@ class Constant {
      * 
      * */
     
-    SimpleDateFormat getDateFormatFixed( ) {
+    public SimpleDateFormat getDateFormatFixed( ) {
         if( fixedDateFormat == null ) {
             fixedDateFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss'Z'" );
             fixedDateFormat.setTimeZone( TimeZone.getTimeZone("GMT" ) );

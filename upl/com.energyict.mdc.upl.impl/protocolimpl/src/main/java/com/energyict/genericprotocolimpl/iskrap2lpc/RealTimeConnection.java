@@ -70,25 +70,25 @@ public class RealTimeConnection implements Connection {
 	 * @see com.energyict.genericprotocolimpl.iskrap2lpc.ConnectionInterface#getMeterStatus(java.lang.String)
 	 */
 	public String getMeterStatus(String meterID) throws ServiceException, BusinessException, IOException{
-		resetTimeOut();
-		while(timeout > 0){
-			try {
-				return getConcentrator().port(getConcentrator().getConcentrator()).getMeterStatus(meterID);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-				checkDefaultErrors(e);
-				timeout--;
-				if(timeout == 0)
-					throw new RemoteException(e.getMessage());
-				ProtocolUtils.delayProtocol(delayAfterRetry);
-			} catch (ServiceException e) {
-				e.printStackTrace();
-				timeout--;
-				if(timeout == 0)
-					throw new ServiceException(e.getMessage());
-				ProtocolUtils.delayProtocol(delayAfterRetry);
-			}
-		}
+//		resetTimeOut();
+//		while(timeout > 0){
+//			try {
+//				return getConcentrator().port(getConcentrator().getConcentrator()).getMeterStatus(meterID);
+//			} catch (RemoteException e) {
+//				e.printStackTrace();
+//				checkDefaultErrors(e);
+//				timeout--;
+//				if(timeout == 0)
+//					throw new RemoteException(e.getMessage());
+//				ProtocolUtils.delayProtocol(delayAfterRetry);
+//			} catch (ServiceException e) {
+//				e.printStackTrace();
+//				timeout--;
+//				if(timeout == 0)
+//					throw new ServiceException(e.getMessage());
+//				ProtocolUtils.delayProtocol(delayAfterRetry);
+//			}
+//		}
 		return null;
 	}
 	
@@ -736,5 +736,77 @@ public class RealTimeConnection implements Connection {
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
+	}
+
+	public void copyFile(String sourceFile, String destinationFile,
+			boolean overwrite) throws ServiceException, BusinessException,
+			IOException {
+		resetTimeOut();
+		while(timeout > 0){
+			try{
+				getConcentrator().port(getConcentrator().getConcentrator()).copyFile(sourceFile, destinationFile, overwrite);
+				timeout = 0;
+				break;
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				checkDefaultErrors(e);
+				timeout--;
+				if(timeout == 0)
+					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
+			} catch (ServiceException e) {
+				e.printStackTrace();
+				timeout--;
+				if(timeout == 0)
+					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
+			}
+		}
+	}
+
+	public String getMeterResults(String meterID, String registerID, String from, String to) throws ServiceException, BusinessException, IOException {
+		resetTimeOut();
+		while(timeout > 0){
+			try {
+				return getConcentrator().port(getConcentrator().getConcentrator()).getMeterResults(meterID, registerID, from, to);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				checkDefaultErrors(e);
+				timeout--;
+				if(timeout == 0)
+					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
+			} catch (ServiceException e) {
+				e.printStackTrace();
+				timeout--;
+				if(timeout == 0)
+					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
+			}
+		}
+		return null;
+	}
+
+	public String[] getFiles(String dir, String filter) throws ServiceException, BusinessException, IOException {
+		resetTimeOut();
+		while(timeout > 0){
+			try {
+				return getConcentrator().port(getConcentrator().getConcentrator()).getFiles(dir, filter);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				checkDefaultErrors(e);
+				timeout--;
+				if(timeout == 0)
+					throw new RemoteException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
+			} catch (ServiceException e) {
+				e.printStackTrace();
+				timeout--;
+				if(timeout == 0)
+					throw new ServiceException(e.getMessage());
+				ProtocolUtils.delayProtocol(delayAfterRetry);
+			}
+		}
+		return null;
 	}
 }
