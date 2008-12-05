@@ -3,6 +3,7 @@ package com.energyict.utils;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -278,5 +279,21 @@ public class Utilities {
 		} else {
 			return result.get(0);
 		}
+	}
+	
+	public static void changeLastReading(Rtu meter, Date date) throws SQLException, BusinessException{
+		RtuShadow rs = meter.getShadow();
+		rs.setLastReading(date);
+		meter.update(rs);
+	}
+	
+	public static void changeLastReading(Rtu meter, Date date, int[] channels) throws SQLException, BusinessException{
+		RtuShadow rs = meter.getShadow();
+		for(int i = 0; i < channels.length; i++){
+			if(rs.getChannelShadow(i) != null){
+				rs.getChannelShadow(i).setLastReading(date);
+			}
+		}
+		meter.update(rs);
 	}
 }
