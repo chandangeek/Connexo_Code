@@ -229,4 +229,24 @@ public class TConnection implements Connection{
 	private byte[] getByteArrayResponse(){
 		return TConnection.byteArrayResponse;
 	}
+
+	public void copyFile(String sourceFile, String destinationFile,
+			boolean overwrite) throws ServiceException, BusinessException,
+			IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public String getMeterResults(String meterID, String registerID,
+			String from, String to) throws ServiceException, BusinessException,
+			IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String[] getFiles(String dir, String filter)
+			throws ServiceException, BusinessException, IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
