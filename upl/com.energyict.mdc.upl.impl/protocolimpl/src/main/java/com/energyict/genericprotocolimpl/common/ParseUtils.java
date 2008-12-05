@@ -132,6 +132,14 @@ public class ParseUtils {
     	}
     	return true;
     }
+    
+    public static boolean checkIfAllAreDecimalChars(byte[] b){
+    	for(int i = 0; i < b.length; i++){
+    		if(!(b[i] >= 48 && b[i] <= 57))
+    			return false;
+    	}
+    	return true;
+    }
         
     /**
      * Create a midnight date from one month ago

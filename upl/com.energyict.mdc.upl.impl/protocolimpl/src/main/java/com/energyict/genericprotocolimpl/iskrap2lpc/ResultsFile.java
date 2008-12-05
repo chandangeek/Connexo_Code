@@ -6,6 +6,7 @@ import java.util.Calendar;
 import javax.xml.rpc.ServiceException;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.iskrap2lpc.handlers.ResultsFileHandler;
 
 public class ResultsFile {
@@ -43,7 +44,7 @@ public class ResultsFile {
 			throw new BusinessException(e);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException(e);
+			throw new IOException();
 		}
 	}
 	
@@ -75,7 +76,7 @@ public class ResultsFile {
 			throw new BusinessException(e);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException(e);
+			throw new IOException();
 		}
 	}
 
@@ -84,7 +85,22 @@ public class ResultsFile {
 	}
 
 	public void setCustomerID(int i, String value) {
-		this.serialNumbers[i] = value;
+//		if(ParseUtils.checkIfAllAreChars(parseStr))
+//		str = new String(parseStr);
+//	else
+//		str = ParseUtils.decimalByteToString(parseStr);
+//	return str;
+		
+		//TODO can be that the watermeter returns an different serialnumber then expected
+		byte[] b = value.getBytes();
+		String str = "";
+		if(ParseUtils.checkIfAllAreChars(b)){
+			str = new String(b);
+		} else{
+			str = ParseUtils.decimalByteToString(b);
+		}
+//		return str;
+		this.serialNumbers[i] = str;
 	}
 
 	public void setMedium(int i, String value) {

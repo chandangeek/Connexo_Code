@@ -1890,7 +1890,8 @@ public class MeterReadTransaction implements CacheMechanism {
 	
 	private Unit getMbusVIF(int channel) throws ServiceException, BusinessException, IOException{
 		String vifResult = getResultsFile().getVIF(channel);
-		ValueInformationfieldCoding vif = ValueInformationfieldCoding.findPrimaryValueInformationfieldCoding(Integer.parseInt(vifResult), -1);
+		ValueInformationfieldCoding vif = ValueInformationfieldCoding.findPrimaryValueInformationfieldCoding(Integer.parseInt(vifResult, 16), -1);
+//		ValueInformationfieldCoding vif = ValueInformationfieldCoding.findPrimaryValueInformationfieldCoding(0x13, -1);
 		return vif.getUnit();
 	}
 	

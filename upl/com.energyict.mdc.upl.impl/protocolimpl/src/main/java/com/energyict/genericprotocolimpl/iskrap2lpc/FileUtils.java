@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.zip.ZipEntry;
@@ -94,7 +95,8 @@ public class FileUtils {
 		}
 		if(size == -1){
 			size = 10*1024;
-		}
+		} 
+		int trala;
 		byte[] b = new byte[(int)size];
 		int n;
 		if(zipEntry != null){
@@ -102,9 +104,13 @@ public class FileUtils {
 //			while((n=zis.read(b)) > -1){
 //				baos.write(n);
 //			}
-			zis.read(b);
+//			zis.read(b);
+			while((n=zis.read(b,0,b.length)) > -1){
+//				System.out.println(new String(b));
+				baos.write(b, 0, n);
+			}
 		}
-		return new String(b);
+		return baos.toString();
 	}
 	
 	public static void main(String[] args){

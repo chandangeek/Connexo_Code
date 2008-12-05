@@ -58,7 +58,7 @@ public class ResultsFileHandler extends DefaultHandler {
 			}
 		} catch (ParseException e) {
 			e.printStackTrace();
-			throw new IOException("Could not parse the received date", e);
+			throw new IOException("Could not parse the received date");
 		}
 		
 	}
