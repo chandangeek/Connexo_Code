@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -132,7 +133,7 @@ public class ConcentratorTest{
 		
 		mbusAfter();
 	}
-
+	@Ignore
 	@Test
 	public void importProfileTest() {
 		
@@ -171,6 +172,32 @@ public class ConcentratorTest{
 			assertEquals(lastNumber, ((IntervalValue)xmlHandler.getProfileData().getIntervalData(xmlHandler.getProfileData().
 					getIntervalDatas().size()-1).getIntervalValues().get(0)).getNumber().doubleValue());
 			
+			Environment.getDefault().execute(meterReadTransaction.getStoreObjects());
+			
+			System.out.println("Rtu: " + meter.getLastReading());
+			System.out.println("Channel 0: " + meter.getChannel(0).getLastReading());
+			Date d = Constant.getInstance().getDateFormat().parse("2008-04-17T07:45:00 +0000");
+			int[] channels = {0, 1};
+			Utilities.changeLastReading(meter, d);
+			Utilities.changeLastReading(meter, d, channels);
+			System.out.println("Rtu: " + meter.getLastReading());
+			System.out.println("Channel 0: " + meter.getChannel(0).getLastReading());
+			
+			
+			meterReadTransaction = new MeterReadTransaction(iskraConcentrator, null, null, null);
+			meterReadTransaction.setTESTING(true);
+			meterReadTransaction.setMeter(meter);
+			xmlHandler = new XmlHandler(logger, meterReadTransaction.getChannelMap());
+			xmlHandler.setChannelUnit(Unit.get(BaseUnit.WATTHOUR, 3));
+			meterReadTransaction.setProfileTestName(Constant.profileFiles1);
+			meterReadTransaction.importProfile(meter, xmlHandler, false);
+			
+			Environment.getDefault().execute(meterReadTransaction.getStoreObjects());
+			
+			System.out.println("Rtu: " + meter.getLastReading());
+			System.out.println("Channel 0: " + meter.getChannel(0).getLastReading());
+			
+			
 		} catch (InvalidPropertyException e) {
 			fail();
 			e.printStackTrace();
@@ -186,9 +213,13 @@ public class ConcentratorTest{
 		} catch (SQLException e) {
 			fail();
 			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
+			fail();
 		}
 	}
 
+	@Ignore
 	@Test
 	public void importDailyMonthlyTest(){
 		try {
@@ -273,6 +304,7 @@ public class ConcentratorTest{
 		}
 	}
 
+	@Ignore
 	@Test
 	public void importTwoDailyMonthlyProfilesTest(){
 		try {
@@ -343,6 +375,7 @@ public class ConcentratorTest{
 		}
 	}
 
+	@Ignore
 	@Test
 	public void importDailyMonthlyFromPLR(){
 		try {
@@ -419,6 +452,7 @@ public class ConcentratorTest{
 		}
 	}
 
+	@Ignore
 	@Test
 	public void singelMonthlyValueTest(){
 		try {
@@ -466,6 +500,7 @@ public class ConcentratorTest{
 		}
 	}
 	
+	@Ignore
 	@Test
 	public void mutlipleSingleStores(){
 		try {
