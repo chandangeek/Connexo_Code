@@ -116,7 +116,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public GenericWrite getGenericWrite(ObisCode obisCode,int attr) throws IOException {
         return getGenericWrite(obisCode,attr,-1);
     }
-    private GenericWrite getGenericWrite(ObisCode obisCode,int attr, int classId) throws IOException {
+    public GenericWrite getGenericWrite(ObisCode obisCode,int attr, int classId) throws IOException {
         return new GenericWrite(protocolLink,getObjectReference(obisCode,classId),attr);
     }
     
