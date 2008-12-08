@@ -4,11 +4,16 @@
  * Created on 4-dec-2008, 15:00:50 by jme
  * 
  */
+
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.discover.*;
 import com.energyict.protocolimpl.modbus.core.*;
@@ -19,23 +24,49 @@ import com.energyict.protocolimpl.modbus.core.*;
  *
  */
 public class UNIFLO1200 extends Modbus {
-
-    //ModbusConnection modbusConnection;
-    //private MultiplierFactory multiplierFactory=null;
-    
     private static final int DEBUG = 1;
 
 	public String getProtocolVersion() {
-		sendDebug("getProtocolVersion()", 5);
         return "$Revision: 1.2 $";
     }
 
 	public Date getTime() throws IOException {
-		return getRegisterFactory().findRegister(RegisterFactory.TIME).dateValue();
-		//return new Date(5345678910112L);
+		return getRegisterFactory().findRegister(RegisterFactory.REG_TIME).dateValue();
 	}
 	
-    protected void doTheConnect() throws IOException {
+	public String getFirmwareVersion() throws IOException, UnsupportedException {
+		return (String) getRegisterFactory().findRegister(RegisterFactory.REG_DEVICE_TYPE).value();
+	}
+	
+	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+        try {
+        	String parserName = getRegisterFactory().findRegister(obisCode).getParser();
+        	
+        	AbstractRegister hr = getRegisterFactory().findRegister(obisCode);
+        	Object result = hr.value();
+
+        	sendDebug(hr.getUnit().toString(), 0);
+        	
+        	Class rc = result.getClass();
+
+        	sendDebug("Result class type: " + result.getClass().getName(), 0);
+        	
+        	if (rc == String.class)	return new RegisterValue(obisCode, (String)result);
+        	else if (rc == Date.class) return new RegisterValue(obisCode, (Date)result);
+        	else if (rc == Quantity.class) return new RegisterValue(obisCode, (Quantity)result);
+        	else if (rc == Integer.class) return new RegisterValue(obisCode, new Quantity(new BigDecimal((Integer)result), Unit.get("")));
+        	else return new RegisterValue(obisCode, result.toString());
+        	
+        }
+        catch(ModbusException e) {
+            if ((e.getExceptionCode()==0x02) && (e.getFunctionErrorCode()==0x83))
+                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+            else
+                throw e;
+        }
+	}
+	
+	protected void doTheConnect() throws IOException {
 		sendDebug("doTheConnect()", 5);
 		// TODO Auto-generated method stub
 		
@@ -73,7 +104,7 @@ public class UNIFLO1200 extends Modbus {
     public void sendDebug(String message, int debuglvl) {
 		message = " ##### DEBUG [" + new Date().toString() + "] ######## > " + message;
 		System.out.println(message);
-    	if ((debuglvl >= DEBUG) && (getLogger() != null)) {
+    	if ((debuglvl <= DEBUG) && (getLogger() != null)) {
     		getLogger().info(message);
     		System.out.println(message);
     	}
