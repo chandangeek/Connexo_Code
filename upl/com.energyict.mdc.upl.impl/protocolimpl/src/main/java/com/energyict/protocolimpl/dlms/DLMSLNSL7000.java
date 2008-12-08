@@ -55,7 +55,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
 
 public class DLMSLNSL7000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
-    private static final byte DEBUG=2;  // KV 16012004 changed all DEBUG values  
+    private static final byte DEBUG=0;  // KV 16012004 changed all DEBUG values  
     
     private static final byte[] profileLN={0,0,99,1,0,(byte)255}; 
     private static final int iNROfIntervals = 50000;
