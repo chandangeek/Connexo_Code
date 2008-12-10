@@ -20,7 +20,27 @@ import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.messaging.*;
 
-public class SmartMeteringSampleProtocol extends AbstractProtocol implements ConnectMessaging, DisconnectMessaging, CosemAttributeMessaging, CosemMethodMessaging, TimeOfUseMessaging{
+public class SmartMeteringSampleProtocol extends AbstractProtocol implements Messaging, ConnectMessaging, DisconnectMessaging, CosemAttributeMessaging, CosemMethodMessaging, TimeOfUseMessaging{
+
+	public List getMessageCategories() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String writeMessage(Message msg) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String writeTag(MessageTag tag) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String writeValue(MessageValue value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	protected void doConnect() throws IOException {
 	}
