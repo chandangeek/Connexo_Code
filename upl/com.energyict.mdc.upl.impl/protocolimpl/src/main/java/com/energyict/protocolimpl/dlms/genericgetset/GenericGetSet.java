@@ -466,7 +466,8 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
            int i;
            DataContainer dataContainer = null;
            try {
-               ProfileGeneric profileGeneric = getCosemObjectFactory().getLoadProfile().getProfileGeneric();
+               //ProfileGeneric profileGeneric = getCosemObjectFactory().getLoadProfile().getProfileGeneric();
+               ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("1.0.99."+loadProfile+".0.255"));
                meterConfig.setCapturedObjectList(profileGeneric.getCaptureObjectsAsUniversalObjects());               
                dataContainer = profileGeneric.getCaptureObjectsAsDataContainer();
                
@@ -518,9 +519,13 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
     	try {
     		
 	        if (iInterval == 0) {
-	           byte[] LN = {0,0,(byte)99,0,(byte)loadProfile,(byte)255};
-	           DataContainer dataContainer = doRequestAttribute((short)1,LN, (byte)2);
-	           iInterval = dataContainer.getRoot().getInteger(0) * 60;
+	        	
+	           ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("1.0.99."+loadProfile+".0.255"));
+	           iInterval = profileGeneric.getCapturePeriod()*60;
+	        	
+	           //byte[] LN = {1,0,(byte)99,(byte)loadProfile,0,(byte)255};
+	           //DataContainer dataContainer = doRequestAttribute((short)1,LN, (byte)2);
+	           //iInterval = dataContainer.getRoot().getInteger(0) * 60;
 	        }
 	        return iInterval;
     	}
@@ -556,7 +561,7 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
     private ProfileData doGetDemandValues(Calendar fromCalendar, byte bNROfChannels,  boolean includeEvents) throws IOException {
         
         ProfileData profileData = new ProfileData();
-        DataContainer dataContainer = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getBuffer(fromCalendar);
+        DataContainer dataContainer = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("1.0.99."+loadProfile+".0.255")).getBuffer(fromCalendar);
         ScalerUnit[] scalerunit = new ScalerUnit[bNROfChannels];
         
         for (int i=0;i<bNROfChannels;i++) {
