@@ -36,7 +36,7 @@ import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.*;
 
 public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
-    private static final byte DEBUG=2;  // KV 16012004 changed all DEBUG values  
+    private static final byte DEBUG=0;  // KV 16012004 changed all DEBUG values  
     
     private static final byte[] profileLN={0,0,99,1,0,(byte)255}; 
     private static final int iNROfIntervals = 50000;
@@ -62,6 +62,7 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
     private int iServerUpperMacAddress;
     private int iServerLowerMacAddress;
     private String firmwareVersion;
+    private int loadProfile=1;
     
     //private boolean boolAbort=false;
     
@@ -128,6 +129,8 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
                 dlmsConnection=new HDLCConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress,iServerUpperMacAddress,addressingMode);
             else
                 dlmsConnection=new TCPIPConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
+            
+            getDLMSConnection().setIskraWrapper(1);
         }
         catch(DLMSConnectionException e) {
            //logger.severe ("dlms: Device clock is outside tolerance window. Setting clock");
@@ -171,7 +174,7 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
     (byte)0x5F,(byte)0x04,(byte)0x00,(byte)0x00,(byte)0x10,(byte)0x1D, // proposed conformance
     (byte)0x21,(byte)0x34};
     
-    byte[] aarqlowestlevel={
+    byte[] aarqlowestlevelOld={
     (byte)0xE6,(byte)0xE6,(byte)0x00,
     (byte)0x60, // AARQ
     (byte)0x1C, // bytes to follow
@@ -182,6 +185,19 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
     (byte)0x06,  // dlms version nr
     (byte)0x5F,(byte)0x04,(byte)0x00,(byte)0x00,(byte)0x10,(byte)0x1D, // proposed conformance
     (byte)0xFF,(byte)0xFF};
+    
+    byte[] aarqlowestlevel={
+    (byte)0xE6,(byte)0xE6,(byte)0x00,
+    (byte)0x60, // AARQ
+    (byte)0x1D, // bytes to follow
+    (byte)0xA1,(byte)0x09,(byte)0x06,(byte)0x07,(byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x01,(byte)0x01, //application context name , LN no ciphering
+    (byte)0xBE,(byte)0x10,(byte)0x04,(byte)0x0e,
+    (byte)0x01, // initiate request
+    (byte)0x00,(byte)0x00,(byte)0x00, // unused parameters
+    (byte)0x06,  // dlms version nr
+    (byte)0x5F,(byte)0x1F,(byte)0x04,(byte)0x00,(byte)0x00,(byte)0x7E,(byte)0x1F, // proposed conformance
+    (byte)0x04,(byte)0xb0};
+    
     
     private byte[] getLowLevelSecurity() {
        if ("1.7".compareTo(firmwareVersion) == 0) {
@@ -247,6 +263,7 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
     
     private void doRequestApplAssoc(byte[] aarq) throws IOException {
        byte[] responseData;
+       
        responseData = getDLMSConnection().sendRequest(aarq);
        CheckAARE(responseData);
        if (DEBUG >= 2) ProtocolUtils.printResponseData(responseData);
@@ -496,12 +513,20 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
  * @exception IOException
  */
     public int getProfileInterval() throws IOException,UnsupportedException{
-        if (iInterval == 0) {
-           byte[] LN = {0,0,(byte)136,0,1,(byte)255};
-           DataContainer dataContainer = doRequestAttribute((short)1,LN, (byte)2);
-           iInterval = dataContainer.getRoot().getInteger(0) * 60;
-        }
-        return iInterval;
+    	if (loadProfile==0)
+    		return 0;
+    	try {
+    		
+	        if (iInterval == 0) {
+	           byte[] LN = {0,0,(byte)99,0,(byte)loadProfile,(byte)255};
+	           DataContainer dataContainer = doRequestAttribute((short)1,LN, (byte)2);
+	           iInterval = dataContainer.getRoot().getInteger(0) * 60;
+	        }
+	        return iInterval;
+    	}
+    	catch(IOException e) {
+    		return 0;
+    	}
     }
     
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
@@ -994,10 +1019,11 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
                             iConf = requestConfigurationProgramChanges();
                         }
                         catch(IOException e) {
-                            iConf=-1;
-                            logger.severe("DLMSZMD: Configuration change count not accessible, request object list.");
-                            requestObjectList();
-                            dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
+                            iConf=0; //-1;
+                            // KV_TO_DO temporary hardcode confchange to 0 and left out requesting objectlist from the exception
+//                            logger.severe("DLMSZMD: Configuration change count not accessible, request object list.");
+//                            requestObjectList();
+//                            dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
                         }
 
                         if (iConf != dlmsCache.getConfProgChange()) {
@@ -1012,17 +1038,24 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
                         }
                     }
                     else { // Cache not exist
-                        logger.info("DLMSZMD: Cache does not exist, request object list.");
+                        logger.info("GenericGetSet: Cache does not exist, request object list.");
                         requestObjectList();
-                        try {
-                            iConf = requestConfigurationProgramChanges();
+                        //try {
+                            try {
+                            	iConf = requestConfigurationProgramChanges();
+                            }
+                            catch(IOException e) {
+                            	// KV_TO_DO temporary catch this exception 
+                                iConf=0;
+                            }
                           
                             dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
                             dlmsCache.setConfProgChange(iConf);  // set new configuration program change
-                        }
-                        catch(IOException e) {
-                            iConf=-1;
-                        }
+//                        }
+//                        catch(IOException ex) {
+//                        	// KV_TO_DO 
+//                            iConf=-1;
+//                        }
                     }
                     
                     if (!verifyMeterID()) 
@@ -1230,6 +1263,7 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
         return "$Revision: 1.39 $";
     }
     public String getFirmwareVersion() throws IOException,UnsupportedException {
+    	try {
         if (version == null) {
            StringBuffer strbuff=new StringBuffer(); 
            try {
@@ -1247,6 +1281,10 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
            }
         }
         return version;
+    	}
+    	catch(IOException e) {
+    		return e.getMessage();
+    	}
     }
     
     /** this implementation calls <code> validateProperties </code>
@@ -1299,6 +1337,7 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
             extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0"));  
             addressingMode=Integer.parseInt(properties.getProperty("AddressingMode","-1"));  
             connectionMode = Integer.parseInt(properties.getProperty("Connection","0")); // 0=HDLC, 1= TCP/IP
+            loadProfile = Integer.parseInt(properties.getProperty("LoadProfile","1")); // 1..4
             
         }
         catch (NumberFormatException e) {
@@ -1399,7 +1438,8 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
         result.add("ServerLowerMacAddress");
         result.add("ExtendedLogging");
         result.add("AddressingMode");
-        
+        result.add("Connection");        
+        result.add("LoadProfile");
         return result;
     }
     

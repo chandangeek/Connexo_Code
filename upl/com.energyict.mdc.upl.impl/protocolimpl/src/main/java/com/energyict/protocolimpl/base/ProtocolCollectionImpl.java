@@ -132,6 +132,7 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         protocolclasses.add("com.energyict.protocolimpl.cm10.CM10");protocolnames.add("CM10 meter");
         protocolclasses.add("com.energyict.protocolimpl.edmi.mk10.MK10");protocolnames.add("EDMI MK10-4 meter");
         protocolclasses.add("com.energyict.protocolimpl.iec1107.iskraemeco.mt83.MT83");protocolnames.add("IskraEmeco MT83x meter");
+        protocolclasses.add("com.energyict.protocolimpl.dlms.genericgetset.GenericGetSet");protocolnames.add("Kamstrup Z3 (test)");
     }  
     
     public String getProtocolName(int index) throws IOException {
