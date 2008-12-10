@@ -17,6 +17,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.discover.*;
 import com.energyict.protocolimpl.modbus.core.*;
+import com.sun.xml.internal.ws.client.SenderException;
 
 
 /**
@@ -39,24 +40,54 @@ public class UNIFLO1200 extends Modbus {
 	}
 	
 	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        try {
+        	Unit returnUnit = null;
+        	String returnText = null;
+        	Date returnEventTime = null;
+        	Date returnFromTime = null;
+        	Date returnToTime = null;
+        	Date returnReadTime = null;
+        	Quantity returnQuantity = null;
+        	int returnRtuRegisterID = 0;
+        	
+		try {
         	String parserName = getRegisterFactory().findRegister(obisCode).getParser();
         	
         	AbstractRegister hr = getRegisterFactory().findRegister(obisCode);
-        	Object result = hr.value();
 
-        	sendDebug(hr.getUnit().toString(), 0);
-        	
+        	sendDebug("Result obiscode:         " + obisCode, 0);
+        	sendDebug("Result register address: " + ProtocolUtils.buildStringHex(hr.getReg(), 4), 0);
+        	sendDebug("Result register range:   " +ProtocolUtils.buildStringHex(hr.getRange(), 4), 0);
+
+        	returnUnit = hr.getUnit();
+        	returnRtuRegisterID = hr.getReg();
+        	Object result = hr.value();
         	Class rc = result.getClass();
 
-        	sendDebug("Result class type: " + result.getClass().getName(), 0);
+        	sendDebug("Result class type: " + result.getClass().getName() + "\n\n", 0);
         	
-        	if (rc == String.class)	return new RegisterValue(obisCode, (String)result);
-        	else if (rc == Date.class) return new RegisterValue(obisCode, (Date)result);
-        	else if (rc == Quantity.class) return new RegisterValue(obisCode, (Quantity)result);
-        	else if (rc == Integer.class) return new RegisterValue(obisCode, new Quantity(new BigDecimal((Integer)result), Unit.get("")));
-        	else return new RegisterValue(obisCode, result.toString());
+        	if (rc == String.class)	{
+        		returnText = (String)result;
+        	}
+        	else if (rc == Date.class) {
+        		returnEventTime = (Date)result;
+        		returnQuantity = new Quantity(returnEventTime.getTime(), returnUnit);
+        		returnText = returnEventTime.toString();
+        	}
+        	else if (rc == Quantity.class) {
+        		returnQuantity = (Quantity)result;
+        		returnQuantity.convertTo(returnUnit, true);
+        	}
+        	else if (rc == BigDecimal.class) {
+        		returnQuantity = new Quantity((BigDecimal)result, returnUnit);
+        	}
+        	else if (rc == Integer.class) {
+        		returnQuantity = new Quantity(new BigDecimal((Integer)result), returnUnit);
+        	}
+        	else {
+        		returnText = result.toString();
+        	}
         	
+        	return new RegisterValue(obisCode, returnQuantity, returnEventTime, returnFromTime, returnToTime, returnReadTime, returnRtuRegisterID, returnText);
         }
         catch(ModbusException e) {
             if ((e.getExceptionCode()==0x02) && (e.getFunctionErrorCode()==0x83))
@@ -109,5 +140,28 @@ public class UNIFLO1200 extends Modbus {
     		System.out.println(message);
     	}
     }
+    
+    public static void main(String[] args) {
+		try {
+			UNIFLO1200Registers ufl_reg = new UNIFLO1200Registers(UNIFLO1200Registers.UNIFLO1200_FW_28);
+		
+			for (int i = 0; i < 255; i++) {
+				System.out.println(
+						" DEBUG" + 
+						" First: " + ProtocolUtils.buildStringHex(ufl_reg.getAbsAddr(i), 8) +
+						" Changed: " + ProtocolUtils.buildStringHex(ufl_reg.getWordAddr(i), 4) +
+						" Original: " + ProtocolUtils.buildStringHex(i, 4) +
+						" Divided: " + ProtocolUtils.buildStringHex(i/2, 4)
+					);
+			}
+		
+		
+		
+		
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 }

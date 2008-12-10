@@ -8,6 +8,8 @@ package com.energyict.protocolimpl.modbus.flonidan.uniflo1200;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -20,6 +22,8 @@ import com.energyict.protocolimpl.modbus.core.Parser;
  *
  */
 public class UNIFLO1200Parsers {
+	
+	private static final int DEBUG = 1;
 	private TimeZone tz = null;
 	
     public static final String PARSER_UINT8		= "UINT8_Parser"; 		// 1 byte
@@ -40,7 +44,7 @@ public class UNIFLO1200Parsers {
     public static final String PARSER_DATABLOCK	= "DATABLOCK_Parser";	// x bytes (Data block of bytes. Length is unknown)
     public static final String PARSER_STRING 	= "String_Parser";		// x chars (Data block of chars, Length is unknown)
     
-    public static final int LENGTH_UINT8		= 1; 		// 1 byte
+    public static final int LENGTH_UINT8		= 2; 		// 1 byte
     public static final int LENGTH_UINT16		= 1; 		// 2 bytes (word)
     public static final int LENGTH_UINT32		= 2; 		// 4 bytes (long)
     public static final int LENGTH_REAL32		= 2; 		// 4 bytes (single)
@@ -65,7 +69,7 @@ public class UNIFLO1200Parsers {
 	}
 
     class BigDecimalParser implements Parser {
-        public Object val(int[] values, AbstractRegister register) throws IOException {
+        public BigDecimal val(int[] values, AbstractRegister register) throws IOException {
             BigDecimal bd = null;
             if( values.length == 1 ) {
                 bd = new BigDecimal( values[0] );
@@ -103,7 +107,7 @@ public class UNIFLO1200Parsers {
         }
     }
 
-    class Str22Parser implements Parser {
+    class STR22Parser implements Parser {
         public String val(int[] values, AbstractRegister register) {
             String result = "";
             for (int i = 0; i < LENGTH_STR22; i++) {
@@ -114,7 +118,7 @@ public class UNIFLO1200Parsers {
         }
     }
 
-    class Str29Parser implements Parser {
+    class STR29Parser implements Parser {
         public String val(int[] values, AbstractRegister register) {
             String result = "";
             for (int i = 0; i < LENGTH_STR29; i++) {
@@ -127,11 +131,73 @@ public class UNIFLO1200Parsers {
     
     class UINT8Parser implements Parser {
         public Integer val(int[] values, AbstractRegister register) {
-        	Integer returnValue = values[0];
-        	returnValue &= 0x0000FFFF;
+        	Integer returnValue =
+        		((values[0] & 0x0000FF00) >> 8);
         	return returnValue;
         }
     }
 
-	
+    class UINT16Parser implements Parser {
+        public Integer val(int[] values, AbstractRegister register) {
+        	Integer returnValue =
+        		((values[0] & 0x0000FF00) >> 8) +
+        		((values[0] & 0x000000FF) << 8);
+        	return returnValue;
+        }
+    }
+
+    class REAL32Parser implements Parser {
+        public BigDecimal val(int[] values, AbstractRegister register) {
+        	int fractionalPart;
+        	BigDecimal returnValue;
+
+        	fractionalPart = 
+        		((values[0] & 0x0000FF00) >> 8) +
+				((values[0] & 0x000000FF) << 8) +
+				((values[1] & 0x0000FF00) << 8) +
+				((values[1] & 0x000000FF) << 24);
+
+        	returnValue = new BigDecimal(Float.intBitsToFloat(fractionalPart));
+        	
+        	return returnValue;
+        }
+    }
+
+    class INTREALParser implements Parser {
+        public BigDecimal val(int[] values, AbstractRegister register) {
+        	BigDecimal returnValue;
+        	int intPart;
+        	int fractionalPart;
+        	
+        	intPart = 
+        		((values[0] & 0x0000FF00) >> 8) +
+				((values[0] & 0x000000FF) << 8) +
+				((values[1] & 0x0000FF00) << 8) +
+				((values[1] & 0x000000FF) << 24);
+
+        	fractionalPart = 
+        		((values[2] & 0x0000FF00) >> 8) +
+				((values[2] & 0x000000FF) << 8) +
+				((values[3] & 0x0000FF00) << 8) +
+				((values[3] & 0x000000FF) << 24);
+        	
+        	returnValue = new BigDecimal(intPart);
+        	returnValue = returnValue.add(new BigDecimal(Float.intBitsToFloat(fractionalPart)));
+
+        	if (DEBUG >= 1) System.out.print("\n\n");
+        	if (DEBUG >= 1) System.out.println("values[0] = " + ProtocolUtils.buildStringHex(values[0] & 0x0000FFFF, 4));
+        	if (DEBUG >= 1) System.out.println("values[1] = " + ProtocolUtils.buildStringHex(values[1] & 0x0000FFFF, 4));
+        	if (DEBUG >= 1) System.out.println("values[2] = " + ProtocolUtils.buildStringHex(values[2] & 0x0000FFFF, 4));
+        	if (DEBUG >= 1) System.out.println("values[3] = " + ProtocolUtils.buildStringHex(values[3] & 0x0000FFFF, 4));
+        	if (DEBUG >= 1) System.out.println("");
+        	if (DEBUG >= 1) System.out.println("INTREALParser intPart:        " + intPart);
+        	if (DEBUG >= 1) System.out.println("INTREALParser fractionalPart: " + fractionalPart);
+        	if (DEBUG >= 1) System.out.println("INTREALParser intBitsToFloat: " + Float.intBitsToFloat(fractionalPart));
+        	if (DEBUG >= 1) System.out.println("INTREALParser returnValue:    " + returnValue);
+        	if (DEBUG >= 1) System.out.print("\n\n");
+        	
+        	return returnValue;
+        }
+    }
+
 }
