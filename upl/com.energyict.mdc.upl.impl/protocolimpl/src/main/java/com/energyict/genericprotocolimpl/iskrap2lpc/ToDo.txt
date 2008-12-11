@@ -1,3 +1,2 @@
-Need an Iskra concentrator from EDP.
-Test it if it is only for daily or also for monthly values
-Adjust the release not from the Concentrator with the property "ReadingsFileType"
+Make the custom loadprofile properties required keys.
+Check the serialnumber of the WaterMeter again ...

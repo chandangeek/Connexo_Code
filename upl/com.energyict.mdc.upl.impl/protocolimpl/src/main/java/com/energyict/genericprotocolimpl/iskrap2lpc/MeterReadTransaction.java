@@ -1923,6 +1923,9 @@ public class MeterReadTransaction implements CacheMechanism {
 		int iConf;
 		private void collectCache() throws BusinessException, IOException, SQLException {
 		try{
+			
+			useParameters = true;
+			
 			if( (dlmsCache != null) && (dlmsCache.getLoadProfilePeriod1() != 0) ){
 				testLogging("TESTLOGGING - Collect1/ cache file is not empty");
 				setCachedObjects();
