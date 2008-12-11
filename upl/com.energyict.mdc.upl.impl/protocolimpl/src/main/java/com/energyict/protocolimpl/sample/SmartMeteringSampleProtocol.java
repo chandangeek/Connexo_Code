@@ -22,6 +22,21 @@ import com.energyict.protocol.messaging.*;
 
 public class SmartMeteringSampleProtocol extends AbstractProtocol implements Messaging, ConnectMessaging, DisconnectMessaging, CosemAttributeMessaging, CosemMethodMessaging, TimeOfUseMessaging{
 
+	public List getCosemClasses() {
+		List classes = new ArrayList();
+		CosemClass data = new CosemClass(1, "Data");
+		data.addAttribute(new CosemAttribute(1, "Logical name", CosemDataType.STRING_TYPE));
+		data.addAttribute(new CosemAttribute(1, "Value", CosemDataType.INTEGER_TYPE));
+		classes.add(data);
+		CosemClass register = new CosemClass(3, "Register");
+		register.addAttribute(new CosemAttribute(1, "Logical name", CosemDataType.STRING_TYPE));
+		register.addAttribute(new CosemAttribute(1, "Value", CosemDataType.INTEGER_TYPE));
+		CosemMethod reset = new CosemMethod(1, "Reset");
+		reset.addParameter(new CosemParameter(CosemDataType.INTEGER_TYPE));
+		classes.add(register);
+		return classes;
+	}
+
 	public List getMessageCategories() {
 		// TODO Auto-generated method stub
 		return null;
@@ -80,19 +95,6 @@ public class SmartMeteringSampleProtocol extends AbstractProtocol implements Mes
 	public void setTime() throws IOException {
 	}
 	
-	
-	public int getNumberOfParameters(int classId, ObisCode logicalName) {
-		return 2;
-	}
-	
-	public ValueFactory getType(int classId, ObisCode logicalName, int parameterId) {
-		if (parameterId == 0)
-			return new com.energyict.dynamicattributes.StringFactory();
-		else if (parameterId == 1)
-			return new com.energyict.dynamicattributes.BigDecimalFactory();
-		else
-			throw new ApplicationException("Only 2 parameters");
-	}
 
 	public boolean needsName() {
 		return true;
