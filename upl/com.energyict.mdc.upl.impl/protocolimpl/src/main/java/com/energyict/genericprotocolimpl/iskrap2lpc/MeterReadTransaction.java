@@ -1820,7 +1820,7 @@ public class MeterReadTransaction implements CacheMechanism {
      * @throws IOException
      * @throws BusinessException
      */
-	private String getMbusSerial(String obisCode) throws NumberFormatException, ServiceException, IOException, BusinessException {
+	private String getMbusSerial(ObisCode obisCode) throws NumberFormatException, ServiceException, IOException, BusinessException {
 		/**
 		 * This is the implementation that results in getting the data out of the meter over PLC, NOT WANTED.
 		 */
@@ -1840,9 +1840,7 @@ public class MeterReadTransaction implements CacheMechanism {
 		 * we will get no data from it.
 		 */
 		
-		
-		
-		return null;
+		return getResultsFile().getSerialNumbers(obisCode.getB()-1);
 		
 	}
 	
@@ -1926,7 +1924,8 @@ public class MeterReadTransaction implements CacheMechanism {
 			
 			useParameters = true;
 			
-			if( (dlmsCache != null) && (dlmsCache.getLoadProfilePeriod1() != 0) ){
+//			if( (dlmsCache != null) && (dlmsCache.getLoadProfilePeriod1() != 0) ){
+			if(dlmsCache != null ){
 				testLogging("TESTLOGGING - Collect1/ cache file is not empty");
 				setCachedObjects();
 				
@@ -2233,7 +2232,33 @@ public class MeterReadTransaction implements CacheMechanism {
 		//TODO change this please!
 //		return changes;
 //		return dlmsCache.getConfProgChange();
-		return Integer.parseInt(getResultsFile().getConfigChange());
+//		return Integer.parseInt(getResultsFile().getConfigChange());
+		int changes = Integer.parseInt(getResultsFile().getConfigChange());
+		
+		// check if the customerID from the meter matches the customerID from the cache
+		for(int i = 0; i < MBUS_MAX; i++){
+			String customerID = dlmsCache.getCustomerID(i);
+			String meterCustomerID;
+			if(!requestedMbusSerials[i].equalsIgnoreCase("")){
+				meterCustomerID = requestedMbusSerials[i];
+			} else { 
+				meterCustomerID = getMbusSerial(Constant.mbusSerialObisCode[i]);
+				requestedMbusSerials[i] = meterCustomerID;
+			}
+			if(customerID != null){
+				if(!customerID.equalsIgnoreCase(meterCustomerID)){
+					forcedMbusCheck = true;
+					break;
+				}
+			} else {
+				if(!meterCustomerID.equalsIgnoreCase("")){
+					forcedMbusCheck = true;
+					break;
+				}
+			}
+		}
+		
+		return changes;
 	}
 	
 	public boolean useParameters(){
