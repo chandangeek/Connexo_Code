@@ -26,14 +26,33 @@ public class SmartMeteringSampleProtocol extends AbstractProtocol implements Mes
 		List classes = new ArrayList();
 		CosemClass data = new CosemClass(1, "Data");
 		data.addAttribute(new CosemAttribute(1, "Logical name", CosemDataType.STRING_TYPE));
-		data.addAttribute(new CosemAttribute(1, "Value", CosemDataType.INTEGER_TYPE));
+		data.addAttribute(new CosemAttribute(2, "Value", CosemDataType.INTEGER_TYPE));
 		classes.add(data);
 		CosemClass register = new CosemClass(3, "Register");
 		register.addAttribute(new CosemAttribute(1, "Logical name", CosemDataType.STRING_TYPE));
-		register.addAttribute(new CosemAttribute(1, "Value", CosemDataType.INTEGER_TYPE));
+		register.addAttribute(new CosemAttribute(2, "Value", CosemDataType.INTEGER_TYPE));
+		register.addAttribute(new CosemAttribute(3, "Scaler Unit", CosemDataType.OTHER_TYPE));
 		CosemMethod reset = new CosemMethod(1, "Reset");
 		reset.addParameter(new CosemParameter(CosemDataType.INTEGER_TYPE));
+		data.addMethod(reset);
 		classes.add(register);
+		CosemClass demandRegister = new CosemClass(5, "Demand Register");
+		demandRegister.addAttribute(new CosemAttribute(1, "Logical name", CosemDataType.STRING_TYPE));
+		demandRegister.addAttribute(new CosemAttribute(2, "Current average value", CosemDataType.INTEGER_TYPE));
+		demandRegister.addAttribute(new CosemAttribute(3, "Last average value", CosemDataType.INTEGER_TYPE));
+		demandRegister.addAttribute(new CosemAttribute(4, "Scaler Unit", CosemDataType.OTHER_TYPE));
+		demandRegister.addAttribute(new CosemAttribute(5, "Status", CosemDataType.INTEGER_TYPE));
+		demandRegister.addAttribute(new CosemAttribute(6, "Capture time", CosemDataType.DATE_TYPE));
+		demandRegister.addAttribute(new CosemAttribute(7, "Start time current", CosemDataType.DATE_TYPE));
+		demandRegister.addAttribute(new CosemAttribute(8, "Period", CosemDataType.INTEGER_TYPE));
+		demandRegister.addAttribute(new CosemAttribute(9, "Number of periods", CosemDataType.INTEGER_TYPE));
+		CosemMethod reset2 = new CosemMethod(1, "Reset");
+		reset2.addParameter(new CosemParameter(CosemDataType.INTEGER_TYPE));
+		data.addMethod(reset2);
+		CosemMethod nextPeriod = new CosemMethod(1, "Next period");
+		nextPeriod.addParameter(new CosemParameter(CosemDataType.INTEGER_TYPE));
+		data.addMethod(nextPeriod);
+		classes.add(demandRegister);
 		return classes;
 	}
 
