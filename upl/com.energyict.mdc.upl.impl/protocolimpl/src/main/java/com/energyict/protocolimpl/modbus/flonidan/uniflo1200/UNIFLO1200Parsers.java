@@ -44,7 +44,7 @@ public class UNIFLO1200Parsers {
     public static final String PARSER_DATABLOCK	= "DATABLOCK_Parser";	// x bytes (Data block of bytes. Length is unknown)
     public static final String PARSER_STRING 	= "String_Parser";		// x chars (Data block of chars, Length is unknown)
     
-    public static final int LENGTH_UINT8		= 2; 		// 1 byte
+    public static final int LENGTH_UINT8		= 1; 		// 1 byte
     public static final int LENGTH_UINT16		= 1; 		// 2 bytes (word)
     public static final int LENGTH_UINT32		= 2; 		// 4 bytes (long)
     public static final int LENGTH_REAL32		= 2; 		// 4 bytes (single)
@@ -142,6 +142,17 @@ public class UNIFLO1200Parsers {
         	Integer returnValue =
         		((values[0] & 0x0000FF00) >> 8) +
         		((values[0] & 0x000000FF) << 8);
+        	return returnValue;
+        }
+    }
+
+    class UINT32Parser implements Parser {
+        public Integer val(int[] values, AbstractRegister register) {
+        	Integer returnValue =
+        		((values[0] & 0x0000FF00) >> 8) +
+				((values[0] & 0x000000FF) << 8) +
+				((values[1] & 0x0000FF00) << 8) +
+				((values[1] & 0x000000FF) << 24);
         	return returnValue;
         }
     }

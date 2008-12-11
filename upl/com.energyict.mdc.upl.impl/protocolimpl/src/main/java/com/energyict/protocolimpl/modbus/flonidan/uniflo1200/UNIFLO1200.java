@@ -155,9 +155,6 @@ public class UNIFLO1200 extends Modbus {
 					);
 			}
 		
-		
-		
-		
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

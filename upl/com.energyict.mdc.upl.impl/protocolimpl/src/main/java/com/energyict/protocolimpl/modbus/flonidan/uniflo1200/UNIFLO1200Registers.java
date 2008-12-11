@@ -15,8 +15,6 @@ import com.energyict.cbo.Unit;
  *
  */
 public class UNIFLO1200Registers {
-
-
 	private static final int MIN_INDEX = 0;
 	private static final int MAX_INDEX = 255;
 
@@ -116,45 +114,36 @@ public class UNIFLO1200Registers {
 		private static final int ABSOLUTE_ADDRESSES[] = {0x00000000};
 		private static final String UNITS[] = {""};
 	}
-
-
 	
 	public static class V28 {
+
 		public static final int ZA 						= 0;
 		public static final int SLAVE_ADDRESS			= 1;
 		public static final int TIME 					= 2;
 		public static final int ZB	 					= 3;
 		public static final int TEMP_CORR_TABEL 		= 4;
 		public static final int BATTERY_REMAINING		= 5;
-		
 		public static final int INT_LOG_POWER_AVG		= 6;
 		public static final int INT_LOG_TEMP_AVG		= 7;
 		public static final int INT_LOG_PRESS_AVG		= 8;
 		public static final int INT_LOG_CORR_FLOW_AVG	= 9;
 		public static final int INT_LOG_CONV_FLOW_AVG	= 10;
-
 		public static final int DAILY_LOG_POWER_AVG		= 11;
 		public static final int DAILY_LOG_TEMP_AVG		= 12;
 		public static final int DAILY_LOG_PRESS_AVG		= 13;
 		public static final int DAILY_LOG_CORR_FLOW_AVG	= 14;
 		public static final int DAILY_LOG_CONV_FLOW_AVG	= 15;
-		
 		public static final int CONFIG_CRC				= 16;
 		public static final int LOG_LINE_CRC			= 17;
-
 		public static final int PULSE_OUT_REG1			= 18;
 		public static final int PULSE_OUT_REG2			= 19;
 		public static final int PULSE_OUT_DIV_FACTOR1	= 20;
 		public static final int PULSE_OUT_DIV_FACTOR2	= 21;
-
 		public static final int NR_POWERUPS				= 22;
-
 		public static final int PRESS_AD_COUNT			= 23;
 		public static final int TEMP_AD_COUNT			= 24;
-
 		public static final int PSENS_TEMP_AD_COUNT		= 25;
 		public static final int PULSEOUT_PERIOD_TIME	= 26;
-
 		public static final int HEAT_VALUE				= 27;
 		public static final int DISPLAY_SETUP_TABLE		= 28;
 		public static final int OPERATOR_ID				= 29;
@@ -168,20 +157,223 @@ public class UNIFLO1200Registers {
 		public static final int TEMPERATURE				= 37;
 		public static final int CONVERSION_FACTOR		= 38;
 		public static final int PULSE_VALUE				= 39;
-
 		public static final int FLOW_CORRECTED			= 40;
 		public static final int FLOW_CONVERTED			= 41;
 		public static final int VOLUME_CORRECTED		= 42;
 		public static final int VOLUME_CONVERTED		= 43;
-		
+		public static final int VOLUME_CORRECTED_I		= 44;
+		public static final int VOLUME_CORRECTED_D		= 45;
+		public static final int VOLUME_CONVERTED_I		= 46;
+		public static final int VOLUME_CONVERTED_D		= 47;
+		public static final int ALARM_SETUP_TABLE		= 48;
+		public static final int FLOWSTOP_AFTER			= 49;
+		public static final int PRESS_LOW_LIMIT			= 50;
+		public static final int PRESS_HIGH_LIMIT		= 51;
+		public static final int TEMP_LOW_LIMIT			= 52;
+		public static final int TEMP_HIGH_LIMIT			= 53;
+		public static final int FLOW_CORR_LOW_LIMIT		= 54;
+		public static final int FLOW_CORR_HIGH_LIMIT	= 55;
+		public static final int POWER_HIGH_LIMIT		= 56;
+		public static final int FALLBACK_PRESS			= 57;
+		public static final int FALLBACK_TEMP			= 58;
 		public static final int TURN_OFF_DIAPLAY_AFTER	= 59; 
-
+		public static final int BASE_PRESS				= 60;
+		public static final int BASE_TEMP				= 61;
+		public static final int MAX_PRESS				= 62;
+		public static final int MIN_PRESS				= 63;
+		public static final int MAX_TEMP				= 64;
+		public static final int MIN_TEMP				= 65;
+		public static final int ALARM_STATUS_TABLE		= 66;
+		public static final int ALARM_COUNT_TABLE		= 67;
+		public static final int POWER					= 68;
+		public static final int SET_ALARM_REG			= 69;
+		public static final int PRESS_MANUF_TYPE		= 70;
+		public static final int PRESS_SENS_STYLE		= 71;
+		public static final int PRESS_SENS_RANGE		= 72;
+		public static final int PRESS_SERIAL			= 73;
+		public static final int PRESS_DAYOF_CALIB		= 74;
+		public static final int PRESS_MONTHOF_CALIB		= 75;
+		public static final int PRESS_YEAROF_CALIB		= 76;
+		public static final int PRESS_SIGN_AT_1BAR		= 77;
+		public static final int PRESS_SIGN_AT_FS		= 78;
+		public static final int PRESS_TEMP_SIGN			= 79;
+		public static final int RESET_ALARM				= 80;
+		public static final int CLEAR_ALARM				= 81;
+		public static final int AD_AMPLIFY				= 82;
+		public static final int CLEAR_CONFIG_LOG		= 83;
+		public static final int LOCK_GAS_TABLE			= 84;
+		public static final int UNLOCK_GAS_TABLE		= 85;
+		public static final int UPDATE_CORR_TABLE		= 86;
+		public static final int UPDATE_GAS_DATA			= 87;
+		public static final int MAKE_SNAPSHOT			= 88;
+		public static final int PULSE_OUT1_ENABLE		= 89;
+		public static final int PULSE_OUT2_ENABLE		= 90;
+		public static final int MENU_FILE				= 91;
+		public static final int INTERVAL_LOG_EEPROM		= 92;
+		public static final int GRAPH_DISP_GAIN			= 93;
+		public static final int GRAPH_DISP_CONTRAST		= 94;
 		public static final int ENERGY					= 95;
+		public static final int ENERGY_I				= 96;
+		public static final int ENERGY_D				= 97;
+		public static final int OPTION_CARD_CHANGED		= 98;
+		public static final int TEMP_SENS_SOURCE		= 99;
+		public static final int PRESS_SENS_SOURCE		= 100;
+		public static final int ALARM_ACTIVE_1_32		= 101;
+		public static final int ALARM_ACTIVE_33_64		= 102;
+		public static final int ALARM_ACTIVE_65_96		= 103;
+		public static final int ALARM_REG_1_32			= 104;
+		public static final int ALARM_REG_33_64			= 105;
+		public static final int ALARM_REG_65_96			= 106;
+		public static final int IO_TABLE				= 107;
 		public static final int VOLUME_MEASURED			= 108;
+		public static final int PRESS_SENS_CRC			= 109;
+		public static final int INTERVAL_LOG_REG		= 110;
+		public static final int HOUR_LOG_24_REG			= 111;
+		public static final int SNAPSHOT_LOG_REG		= 112;
+		public static final int ALARM_TRIGGERED_LOG_REG	= 113;
+		public static final int SW_VERSION_TYPE			= 114;
+		public static final int INSTALLATION_NR			= 115;
+		public static final int METER_NR				= 116;
+		public static final int METER_SIZE				= 117;
+		public static final int COSTUMER				= 118;
+		public static final int DATE_OF_INSTALLATION	= 119;
+		public static final int METER_INDEX				= 120;
+		public static final int PROJECT_NO				= 121;
+		public static final int SERIAL_NUMBER			= 122;
+		public static final int FLOW_SENSOR				= 123;
+		public static final int TEMP_SENSOR				= 124;
+		public static final int INTERVAL_LOG_SIZE		= 125;
+		public static final int HOUR_24_LOG_SIZE		= 126;
+		public static final int SNAPSHOT_LOG_SIZE		= 127;
+		public static final int ALARM_TRIG_LOG_SIZE		= 128;
+		public static final int INTERVAL_LOG_WIDTH		= 129;
+		public static final int HOUR_24_LOG_WIDTH		= 130;
+		public static final int SNAPSHOT_LOG_WIDTH		= 131;
+		public static final int ALARM_TRIG_LOG_WIDTH	= 132;
+		public static final int FLOW_MEASURED			= 133;
+		public static final int METHANE					= 134;
+		public static final int NITROGEN				= 135;
+		public static final int CO2						= 136;
+		public static final int ETHANE					= 137;
+		public static final int PROPANE					= 138;
+		public static final int WATER					= 139;
+		public static final int HYDRG_SUL				= 140;
+		public static final int HYDROGEN				= 141;
+		public static final int CARBON_MONOXIDE			= 142;
+		public static final int OXYGEN					= 143;
+		public static final int I_BUTANE				= 144;
+		public static final int N_BUTANE				= 145;
+		public static final int I_PETANE				= 146;
+		public static final int N_PETANE				= 147;
+		public static final int N_HEXANE				= 148;
+		public static final int N_HEPTANE				= 149;
+		public static final int N_OCTANE				= 150;
+		public static final int N_NOCTANE				= 151;
+		public static final int N_DECANE				= 152;
+		public static final int HELIUM					= 153;
+		public static final int ARGON					= 154;
+		public static final int GAS_CALC_FORMULA		= 155;
+		public static final int GAS_COMPOSITION			= 156;
+		public static final int GAS_COMP_REV_TIME		= 157;
+		public static final int DENSITY					= 158;
+		public static final int GAS_CONV_TABLE			= 159;
+		public static final int PASSWORD_LVL_3			= 160;
+		public static final int PASSWORD_LVL_2			= 161;
+		public static final int PASSWORD_LVL_1			= 162;
+		public static final int LOG_REORGANIZE_BITS		= 163;
+		public static final int CORRECTION_FACTOR		= 164;
+		public static final int OPTION_BOARD_SW_VERSION	= 165;
+		public static final int OPTION_BOARD_SERIAL		= 166;
+		public static final int HF_CARD_TYPE			= 167;
+		public static final int SN_TABLE				= 168;
+		public static final int TEMPERATURE_CODE		= 169;
+		public static final int INTERVAL_LOG_TEMP_MIN	= 170;
+		public static final int INTERVAL_LOG_TEMP_MAX	= 171;
+		public static final int INTERVAL_LOG_PRESS_MIN	= 172;
+		public static final int INTERVAL_LOG_PRESS_MAX	= 173;
+		public static final int INTER_LOG_FLOW_CORR_MIN	= 174;
+		public static final int INTER_LOG_FLOW_CORR_MAX	= 175;
+		public static final int INTER_LOG_FLOW_CONV_MIN	= 176;
+		public static final int INTER_LOG_FLOW_CONV_MAX	= 177;
+		public static final int DAILY_LOG_TEMP_MIN		= 178;
+		public static final int DAILY_LOG_TEMP_MAX		= 179;
+		public static final int DAILY_LOG_PRESS_MIN		= 180;
+		public static final int DAILY_LOG_PRESS_MAX		= 181;
+		public static final int DAILY_LOG_FLOW_CORR_MIN	= 182;
+		public static final int DAILY_LOG_FLOW_CORR_MAX	= 183;
+		public static final int DAILY_LOG_FLOW_CONV_MIN	= 184;
+		public static final int DAILY_LOG_FLOW_CONV_MAX	= 185;
+		public static final int INTERVAL_LOG_POWER_MIN	= 186;
+		public static final int INTERVAL_LOG_POWER_MAX	= 187;
+		public static final int DAILY_LOG_POWER_MIN		= 188;
+		public static final int DAILY_LOG_POWER_MAX		= 189;
+		public static final int VOL_MEASURED_I			= 190;
+		public static final int VOL_MEASURED_D			= 191;
+		public static final int VOLUME_AT_ERROR_VAL		= 192;
+		public static final int VOLUME_AT_ERROR_I		= 193;
+		public static final int VOLUME_AT_ERROR_D		= 194;
+		public static final int SUPERIOR_HEAT_VALUE		= 195;
+		public static final int C6PLUS_VALUE			= 196;
+		public static final int C6_PLUS_ENABLED			= 197;
+		public static final int AD_PRESS_OFFSET			= 198;
+		public static final int AD_PRESS_TEMP_OFFSET	= 199;
+		public static final int VOLUME_AT_ERROR			= 200;
+		public static final int TZ_MODE					= 201;
+		public static final int TZ_PRESSURE				= 202;
+		public static final int MENU_AND_ALARM_TXT		= 203;
+		public static final int NUMBER_OF_SLAVE_UNITS	= 204;
+		public static final int UPDATE_EEPROM			= 205;
+		public static final int NAME_OF_ALARM_FILE		= 206;
+		public static final int NOT_USED				= 207;
+		public static final int LOCK_GRAPH_DISPLAY		= 208;
+		public static final int UNLOCK_GRAPH_DISPLAY	= 209;
+		public static final int VOLUME_CONTROL_I		= 210;
+		public static final int VOLUME_CONTROL_D		= 211;
+		public static final int CONSUMP_ACTUAL_HOUR_I	= 212;
+		public static final int CONSUMP_ACTUAL_HOUR_D	= 213;
+		public static final int MAX_HOUR_CONSUMP_TIME	= 214;
+		public static final int MAX_HOUR_CONSUMP_I		= 215;
+		public static final int MAX_HOUR_CONSUMP_D		= 216;
+		public static final int MAX2_HOUR_CONSUMP_TIME	= 217;
+		public static final int MAX2_HOUR_CONSUMP_I		= 218;
+		public static final int MAX2_HOUR_CONSUMP_D		= 219;
+		public static final int MAX3_HOUR_CONSUMP_TIME	= 220;
+		public static final int MAX3_HOUR_CONSUMP_I		= 221;
+		public static final int MAX3_HOUR_CONSUMP_D		= 222;
+		public static final int PRESS_CALIB_OPERATOR	= 223;
+		public static final int TEMP_CALIB_OPERATOR		= 224;
+		public static final int EVENT_LOG_INDEX			= 225;
+		public static final int ALARM_LOG_INDEX			= 226;
+		public static final int LOG_INTERVAL			= 227;
+		public static final int INTERVAL_OF_MEASUREMENT	= 228;
+		public static final int DAILY_LOG_TIME_HOUR		= 229;
+		public static final int DAILY_LOG_TIME_MIN		= 230;
+		public static final int INTERVAL_LOG_INDEX		= 231;
+		public static final int DAILY_LOG_INDEX			= 232;
+		public static final int SNAPSHOT_LOG_INDEX		= 233;
+		public static final int ALARM_TRIG_LOG_INDEX	= 234;
+		public static final int DISPLAY_TIME			= 235;
+		public static final int MAX_PULSE_ERROR			= 236;
+		public static final int PRESS_SENS_CHANGED		= 237;
+		public static final int TEMP_SENS_CHANGED		= 238;
+		public static final int MONTH_LOG_WIDTH			= 239;
+		public static final int MONTH_LOG_SIZE			= 240;
+		public static final int MONTH_LOG_REGISTER		= 241;
+		public static final int MONTH_LOG_INDEX			= 242;
+		public static final int DISPLAY_TEST			= 243;
+		public static final int FW_ADDR_RANGE_OK		= 244;
+		public static final int FW_UPDATE_START			= 245;
+		public static final int FW_UPDATE_END			= 246;
+		public static final int FW_UPDATE_CANCEL		= 247;
+		public static final int PROGRAM_CRC				= 248;
+		public static final int TEMP_CALIB_TABLE		= 249;
+		public static final int PRESS_CALIB_TABLE		= 250;
+		public static final int FORCE_MEASUREMENT		= 251;
+		public static final int PRESS_CALIB_TIME		= 252;
+		public static final int TEMP_CALIB_TIME			= 253;
+		public static final int CONVERSION_TABLE_CRC	= 254;
+		public static final int CONV_TABLE_DLL_VERSION	= 255;
 		
-		public static final int VER_TYPE				= 114;
-		
-
 		private static final int ABSOLUTE_ADDRESSES[] = {
 			0x573000B0,   // 0    Za                              R       1R   Za                                                                          Za
 			0x03000001,   // 1    SlaveAdr                                1    Modbus slave address                                                        Modbus address
