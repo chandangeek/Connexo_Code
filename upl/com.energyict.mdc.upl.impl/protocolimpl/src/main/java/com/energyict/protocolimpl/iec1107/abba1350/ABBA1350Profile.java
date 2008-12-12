@@ -11,8 +11,13 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
@@ -76,7 +81,7 @@ public class ABBA1350Profile extends VDEWProfile {
         					deviceCode,
         					message
         			);
-        		meterEvents = ProtocolUtils.checkOnOverlappingEvents(meterEvents);
+        		meterEvents = checkOnOverlappingEvents(meterEvents);
         		profileData.getMeterEvents().add(newMeterEvent);
         	}
         	profileData.sort();
@@ -85,6 +90,29 @@ public class ABBA1350Profile extends VDEWProfile {
         profileData.applyEvents(getProtocolLink().getProfileInterval()/60);
         return profileData;
     }
+    
+    public static List checkOnOverlappingEvents(List meterEvents) {
+    	Map eventsMap = new HashMap();
+        int size = meterEvents.size();
+	    for (int i = 0; i < size; i++) {
+	    	MeterEvent event = (MeterEvent) meterEvents.get(i);
+	    	Date time = event.getTime();
+	    	MeterEvent eventInMap = (MeterEvent) eventsMap.get(time);
+	    	while (eventInMap != null) {
+	    		time.setTime(time.getTime() + 1000); // add one second
+				eventInMap = (MeterEvent) eventsMap.get(time);
+	    	}
+	    	MeterEvent newMeterEvent= 
+	    		new MeterEvent(time, event.getEiCode(), event.getProtocolCode(),event.getMessage());
+    		eventsMap.put(time, newMeterEvent);
+	    }
+	    Iterator it = eventsMap.values().iterator();
+		List result = new ArrayList();
+	    while (it.hasNext()) 
+	        result.add((MeterEvent) it.next());
+		return result;
+    }
+
     
     public ProfileData getProfileData(Date fromReading, Date toReading, boolean includeEvents, int profileNumber) throws IOException {
         this.loadProfileNumber = profileNumber;
@@ -108,7 +136,7 @@ public class ABBA1350Profile extends VDEWProfile {
         					deviceCode,
         					message
         			);
-        		meterEvents = ProtocolUtils.checkOnOverlappingEvents(meterEvents);
+        		meterEvents = checkOnOverlappingEvents(meterEvents);
         		profileData.getMeterEvents().add(newMeterEvent);
         	}
         	profileData.sort();
