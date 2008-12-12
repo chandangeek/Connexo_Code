@@ -20,7 +20,7 @@ import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.messaging.*;
 
-public class SmartMeteringSampleProtocol extends AbstractProtocol implements Messaging, ConnectMessaging, DisconnectMessaging, CosemAttributeMessaging, CosemMethodMessaging, TimeOfUseMessaging{
+public class SmartMeteringSampleProtocol extends AbstractProtocol implements Messaging, FirmwareUpdateMessaging, ConnectMessaging, DisconnectMessaging, CosemAttributeMessaging, CosemMethodMessaging, TimeOfUseMessaging{
 
 	public List getCosemClasses() {
 		List classes = new ArrayList();
@@ -145,6 +145,18 @@ public class SmartMeteringSampleProtocol extends AbstractProtocol implements Mes
 
 	public ConnectMessageBuilder getConnectMessageBuilder() {
 		return new ConnectMessageBuilder();
+	}
+	
+	public boolean supportsUrls() {
+		return true;
+	}
+	
+	public boolean supportsUserFilesForFirmwareUpdate() {
+		return true;
+	}
+	
+	public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
+		return new FirmwareUpdateMessageBuilder();
 	}
 
 	
