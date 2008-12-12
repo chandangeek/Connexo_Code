@@ -12,6 +12,8 @@ import java.util.*;
 import java.math.*;
 
 import com.energyict.protocol.*;
+import com.energyict.protocol.tools.InputStreamDecorator;
+
 import java.util.logging.*;
 import com.energyict.cbo.*;
 
@@ -30,10 +32,12 @@ import com.energyict.dialer.core.*;
  * Class that implements the ABB A1500 Alpha meter protocol. This class implements the MeterProtocol interface.
  * <BR>
  * <B>@beginchanges</B><BR>
-KV|27092002|Initial version
-KV|31102002|Reengineered to MeterProtocol interface
-KV|23032005|Changed header to be compatible with protocol version tool
-KV|30032005|Handle StringOutOfBoundException in IEC1107 connection layer
+KV |27092002|Initial version
+KV|31102002| Reengineered to MeterProtocol interface
+KV|23032005| Changed header to be compatible with protocol version tool
+KV|30032005| Handle StringOutOfBoundException in IEC1107 connection layer
+JME|30032005|Added support for software 7E1 communication: Added parity bit to outputStream, stripped parity bit from inputStream
+
  * @endchanges
  */
 public class Kamstrup implements MeterProtocol, ProtocolLink, RegisterProtocol { //,CommunicationParameters {
@@ -56,6 +60,7 @@ public class Kamstrup implements MeterProtocol, ProtocolLink, RegisterProtocol {
     private int iEchoCancelling;
     private int iIEC1107Compatible;
     private int iProfileInterval;
+    private int software7E1;
 
     private TimeZone timeZone;
     private Logger logger;
@@ -203,6 +208,7 @@ public class Kamstrup implements MeterProtocol, ProtocolLink, RegisterProtocol {
             iIEC1107Compatible=Integer.parseInt(properties.getProperty("IEC1107Compatible","1").trim());
             iProfileInterval=Integer.parseInt(properties.getProperty("ProfileInterval","3600").trim());
             extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0").trim());
+            software7E1=Integer.parseInt(properties.getProperty("Software7E1","0").trim());
         }
         catch (NumberFormatException e) {
            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
@@ -259,7 +265,7 @@ public class Kamstrup implements MeterProtocol, ProtocolLink, RegisterProtocol {
         result.add("EchoCancelling");
         result.add("IEC1107Compatible");
         result.add("ExtendedLogging");
-        
+        result.add("Software7E1");
         return result;
     }
 
@@ -288,8 +294,16 @@ public class Kamstrup implements MeterProtocol, ProtocolLink, RegisterProtocol {
         this.logger = logger;     
         
         try {
-           flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible);
-           kamstrupRegistry = new KamstrupRegistry(this);
+           
+        	if (isSoftware7E1()) {
+        		Software7E1InputStream softIn = new Software7E1InputStream(inputStream);
+        		Software7E1OutputStream softOut = new Software7E1OutputStream(outputStream);
+        		flagIEC1107Connection=new FlagIEC1107Connection(softIn,softOut,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible);
+        	} else {
+            	flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible);
+        	}
+           
+        	kamstrupRegistry = new KamstrupRegistry(this);
            kamstrupProfile = new KamstrupProfile(this,kamstrupRegistry);
         }
         catch(ConnectionException e) {
@@ -298,7 +312,11 @@ public class Kamstrup implements MeterProtocol, ProtocolLink, RegisterProtocol {
         
     } // public void init(InputStream inputStream,OutputStream outputStream,TimeZone timeZone,Logger logger)
     
-    /**
+    private boolean isSoftware7E1() {
+		return (software7E1 == 1);
+	}
+
+	/**
      * @throws IOException  */    
     public void connect() throws IOException {
        try {

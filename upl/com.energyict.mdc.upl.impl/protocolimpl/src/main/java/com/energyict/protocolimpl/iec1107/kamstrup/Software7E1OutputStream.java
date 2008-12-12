@@ -2,22 +2,39 @@ package com.energyict.protocolimpl.iec1107.kamstrup;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import com.energyict.protocol.tools.OutputStreamDecorator;
 
-public class Software7E1OutputStream extends OutputStream {
-	OutputStream out = null;
-	
+public class Software7E1OutputStream extends OutputStreamDecorator {
 
-	public Software7E1OutputStream(OutputStream out) {
-		this.out = out;
+	private static final int BITMASK = 0x0000007F;
+	private static final int CHARMASK = 0x000000FF;
+
+	public Software7E1OutputStream(OutputStream stream) {
+		super(stream);
+	}
+
+	public void write(byte[] b, int off, int len) throws IOException {
+		byte [] outputBytes = b;
+		for (int i = 0; i < outputBytes.length; i++) {
+			outputBytes[i] = (byte)(generateE17(outputBytes[i]) & CHARMASK);
+		}
+		super.write(b, off, len);
+	}
+
+	public void write(byte[] b) throws IOException {
+		byte [] outputBytes = b;
+		for (int i = 0; i < outputBytes.length; i++) {
+			outputBytes[i] = (byte)(generateE17(outputBytes[i]) & CHARMASK);
+		}
+		super.write(outputBytes);
 	}
 
 	public void write(int b) throws IOException {
-		//out.write(generateE17(b));
-		out.write(b & 0x7F);
+		super.write(generateE17(b));
 	}
-	
+
 	private static int generateE17(int input) {
-		int inputValue = input & 0x7F;
+		int inputValue = input & BITMASK;
 	    return inputValue | parityTable[inputValue]; 
 	}
 	
