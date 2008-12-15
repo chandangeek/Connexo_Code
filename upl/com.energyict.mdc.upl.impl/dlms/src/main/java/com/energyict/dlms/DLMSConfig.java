@@ -51,7 +51,8 @@ public class DLMSConfig {
     };
     
     final static private DLMSConfig[] status = {
-    		new DLMSConfig("WKP",1,0,0,96,10,1,255)
+    		new DLMSConfig("WKP",1,0,0,96,10,1,255),
+    		new DLMSConfig("ISK",1,1,0,96,240,0,255)
     };
     
     final static private DLMSConfig[] dailyProfile = {

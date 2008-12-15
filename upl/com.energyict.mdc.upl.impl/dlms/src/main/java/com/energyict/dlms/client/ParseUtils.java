@@ -16,6 +16,11 @@ public class ParseUtils {
 		return (obisCode.getA()==0) && (obisCode.getB()==0) && (obisCode.getC()==96) && (obisCode.getD()==60) && (obisCode.getE()>0) && (obisCode.getF()==0);
 	}
 	
+	static public boolean isElectricityObisCode(ObisCode obisCode){
+		if ((obisCode.getA() == 1) && (obisCode.getB() >= 0) && (obisCode.getB() <= 64)) return true;
+        else return false;
+	}
+	
 	static public byte[] concatArray(byte[] array1, byte[] array2) {
 		if ((array1==null) && (array2==null))
 			return null;
