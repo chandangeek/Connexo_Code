@@ -17,12 +17,18 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.rpc.ServiceException;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
+import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
 import com.energyict.mdw.core.AmrJournalEntry;
+import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
@@ -49,16 +55,20 @@ import com.energyict.protocol.messaging.Messaging;
  * @author gna
  *
  */
-public class MbusDevice implements Messaging, MeterProtocol{
+public class MbusDevice implements Messaging, GenericProtocol{
 	
-	private long mbusAddress	= -1;
+	private int mbusAddress	= -1;
+	private int physicalAddress = -1;
+	private int medium = 15;
 	
 	private String customerID;
 	private String rtuType;
+	private Unit mbusUnit;
 	
 	public Rtu	mbus;
 	private Logger logger;
 	
+	private IskraMx37x iskra;
 	
 	private static String ONDEMAND = "ONDEMAND";
 
@@ -68,7 +78,7 @@ public class MbusDevice implements Messaging, MeterProtocol{
 	public MbusDevice() {
 	}
 
-	public MbusDevice(long address, String customerID, Rtu rtu, Logger logger) throws InvalidPropertyException, MissingPropertyException {
+	public MbusDevice(int address, String customerID, Rtu rtu, Logger logger) throws InvalidPropertyException, MissingPropertyException {
 		this.mbusAddress = address;
 		this.customerID	= customerID;
 		this.mbus = rtu;
@@ -76,132 +86,58 @@ public class MbusDevice implements Messaging, MeterProtocol{
 		setProperties(mbus.getProperties());
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+	public MbusDevice(int mbusAddress, int phyAddress, String serial, int mbusMedium, Rtu rtu, Unit unit, Logger logger) {
+		this.mbusAddress = mbusAddress;
+		this.physicalAddress = phyAddress;
+		this.customerID = serial;
+		this.medium = mbusMedium;
+		this.mbus = rtu;
+		this.mbusUnit = unit;
+		this.logger = logger;
 	}
+	
 
-	public void connect() throws IOException {
-		// TODO Auto-generated method stub
+	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
+		CommunicationProfile commProfile = scheduler.getCommunicationProfile();
+		// import profile
+		if(commProfile.getReadDemandValues()){
+			MbusProfile mp = new MbusProfile(this);
+			mp.getProfile(iskra.getMbusLoadProfile());
+		}
 		
-	}
-
-	public void disconnect() throws IOException {
-		// TODO Auto-generated method stub
+		// import Daily/Monthly registers
+		if(commProfile.getReadMeterReadings()){
+			MbusDailyMonthly mdm = new MbusDailyMonthly(this);
+			mdm.getDailyValues(iskra.getDailyLoadProfile());
+			mdm.getMonthlyValues(iskra.getMonthlyLoadProfile());
+		}
 		
+		// send RtuMessages
+		if(commProfile.getSendRtuMessage()){
+			sendMeterMessages();
+		}
 	}
 
-	public Object fetchCache(int rtuid) throws SQLException, BusinessException {
-		// TODO Auto-generated method stub
-		return null;
+	public void addProperties(Properties properties) {
+		try {
+			setProperties(properties);
+		} catch (InvalidPropertyException e) {
+			e.printStackTrace();
+		} catch (MissingPropertyException e) {
+			e.printStackTrace();
+		}
 	}
 
-	public Object getCache() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
-		throw new UnsupportedException();
-	}
-
-	public Quantity getMeterReading(int channelId) throws UnsupportedException,
-			IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public Quantity getMeterReading(String name) throws UnsupportedException,
-			IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public int getNumberOfChannels() throws UnsupportedException, IOException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	public ProfileData getProfileData(boolean includeEvents) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public ProfileData getProfileData(Date lastReading, boolean includeEvents)
-			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents)
-			throws IOException, UnsupportedException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public int getProfileInterval() throws UnsupportedException, IOException {
-		// TODO Auto-generated method stub
-		return 0;
+	public String getVersion() {
+		return getProtocolVersion();
 	}
 
 	public String getProtocolVersion() {
-		return "$Revision: 1.2 $";
-	}
-
-	public String getRegister(String name) throws IOException,
-			UnsupportedException, NoSuchRegisterException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public Date getTime() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public void init(InputStream inputStream, OutputStream outputStream,
-			TimeZone timeZone, Logger logger) throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void initializeDevice() throws IOException, UnsupportedException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void release() throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void setCache(Object cacheObject) {
-		// TODO Auto-generated method stub
-		
+		return "$Date$";
 	}
 
 	public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
 		rtuType = properties.getProperty("RtuType","mbus");
-	}
-
-	public void setRegister(String name, String value) throws IOException,
-			NoSuchRegisterException, UnsupportedException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void setTime() throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void updateCache(int rtuid, Object cacheObject) throws SQLException,
-			BusinessException {
-		// TODO Auto-generated method stub
-		
 	}
 
 	public List getOptionalKeys() {
@@ -289,7 +225,7 @@ public class MbusDevice implements Messaging, MeterProtocol{
 		return mbus;
 	}
 
-	public void sendMeterMessages(IskraMx37x iskraMx37x) throws IOException, BusinessException, SQLException {
+	public void sendMeterMessages() throws IOException, BusinessException, SQLException {
 		Iterator mi = mbus.getPendingMessages().iterator();
 		
 		while(mi.hasNext()){
@@ -314,7 +250,7 @@ public class MbusDevice implements Messaging, MeterProtocol{
 	                    if (register != null){
 	                    	
 	                    	if (oc.getF() == 255){
-	                        	RegisterValue rv = iskraMx37x.readRegister(oc);
+	                        	RegisterValue rv = iskra.readRegister(oc);
 	                        	rv.setRtuRegisterId(register.getId());
 	                        	
 	                        	MeterReadingData meterReadingData = new MeterReadingData();
@@ -361,6 +297,20 @@ public class MbusDevice implements Messaging, MeterProtocol{
 		}
 		getLogger().severe(e.toString());
 	}
+	
+	public boolean isIskraMbusObisCode(ObisCode oc){
+		if ((oc.getA() == 0) && (oc.getC() == 128) && (oc.getD() == 50)){
+			if((oc.getB() >= 1) && (oc.getB() <= 4)){
+				if(((oc.getE() >= 0) && (oc.getE() <= 3)) ||
+						((oc.getE() >= 20) && (oc.getE() <= 25)) ||
+						((oc.getE() >= 30) && (oc.getE() <= 33))){
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
 
 	public Logger getLogger() {
 		return logger;
@@ -370,4 +320,55 @@ public class MbusDevice implements Messaging, MeterProtocol{
 		return rtuType;
 	}
 
+	public int getMbusAddress() {
+		return mbusAddress;
+	}
+
+	public void setMbusAddress(int mbusAddress) {
+		this.mbusAddress = mbusAddress;
+	}
+
+	public int getPhysicalAddress() {
+		return physicalAddress;
+	}
+
+	public void setPhysicalAddress(int physicalAddress) {
+		this.physicalAddress = physicalAddress;
+	}
+
+	public int getMedium() {
+		return medium;
+	}
+
+	public void setMedium(int medium) {
+		this.medium = medium;
+	}
+
+	public String getCustomerID() {
+		return customerID;
+	}
+
+	public void setCustomerID(String customerID) {
+		this.customerID = customerID;
+	}
+
+	public Unit getMbusUnit() {
+		return mbusUnit;
+	}
+
+	public void setMbusUnit(Unit mbusUnit) {
+		this.mbusUnit = mbusUnit;
+	}
+
+	public void setMbus(Rtu mbus) {
+		this.mbus = mbus;
+	}
+
+	public void setIskraDevice(IskraMx37x iskraMx37x) {
+		this.iskra = iskraMx37x;
+	}
+	
+	public IskraMx37x getIskraDevice(){
+		return this.iskra;
+	}
 }

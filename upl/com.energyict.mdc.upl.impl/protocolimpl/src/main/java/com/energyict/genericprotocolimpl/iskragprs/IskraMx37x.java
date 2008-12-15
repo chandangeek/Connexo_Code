@@ -4,16 +4,10 @@
 package com.energyict.genericprotocolimpl.iskragprs;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.sql.Blob;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.text.ParseException;
@@ -30,11 +24,9 @@ import java.util.logging.Logger;
 import javax.xml.rpc.ServiceException;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.DatabaseException;
+import com.energyict.cbo.Unit;
 import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
-import com.energyict.cpo.SqlBuilder;
-import com.energyict.cpo.Transaction;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
@@ -48,6 +40,7 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.client.ParseUtils;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
@@ -56,6 +49,8 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
+import com.energyict.genericprotocolimpl.common.GenericCache;
+import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
 import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
 import com.energyict.mdw.amr.GenericProtocol;
@@ -63,6 +58,7 @@ import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
 import com.energyict.mdw.amrimpl.RtuRegisterReadingImpl;
 import com.energyict.mdw.core.AmrJournalEntry;
+import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.MeteringWarehouse;
@@ -96,6 +92,7 @@ import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
 import com.energyict.protocolimpl.dlms.HDLCConnection;
+import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
 
 /**
  * @author gna
@@ -143,6 +140,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	private int deviation = -1;
 	
 	private long maxValue = -1;
+	private boolean forcedMbusCheck = false;
 	
     private String strID;
 	private String strPassword;
@@ -167,8 +165,22 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private ObisCode status 				= 	ObisCode.fromString("1.0.96.240.0.255");
     private ObisCode endOfBilling			=	ObisCode.fromString("0.0.15.0.0.255");
     private ObisCode endOfCapturedObjects	=	ObisCode.fromString("0.0.15.1.0.255");
-    private ObisCode mbusPrimaryAddress		= 	ObisCode.fromString("0.1.128.50.20.255");
-    private ObisCode mbusCustomerID			= 	ObisCode.fromString("0.1.128.50.21.255");
+    private ObisCode[] mbusPrimaryAddress	= 	{ObisCode.fromString("0.1.128.50.20.255"),
+    											ObisCode.fromString("0.2.128.50.20.255"),
+    											ObisCode.fromString("0.3.128.50.20.255"),
+    											ObisCode.fromString("0.4.128.50.20.255")};
+    private ObisCode[] mbusCustomerID		= 	{ObisCode.fromString("0.1.128.50.21.255"),
+    											ObisCode.fromString("0.2.128.50.21.255"),
+    											ObisCode.fromString("0.3.128.50.21.255"),
+    											ObisCode.fromString("0.4.128.50.21.255")};
+    private ObisCode[] mbusUnit				=	{ObisCode.fromString("0.1.128.50.30.255"),
+												ObisCode.fromString("0.2.128.50.30.255"),
+												ObisCode.fromString("0.3.128.50.30.255"),
+												ObisCode.fromString("0.4.128.50.30.255")};
+    private ObisCode[] mbusMedium			=	{ObisCode.fromString("0.1.128.50.23.255"),
+												ObisCode.fromString("0.2.128.50.23.255"),
+												ObisCode.fromString("0.3.128.50.23.255"),
+												ObisCode.fromString("0.4.128.50.23.255")};
     private ObisCode crGroupID				= 	ObisCode.fromString("0.0.128.62.0.255");
     private ObisCode crStartDate			= 	ObisCode.fromString("0.0.128.62.1.255");
     private ObisCode crDuration				= 	ObisCode.fromString("0.0.128.62.2.255");
@@ -182,27 +194,28 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     
     private ArrayList monthlyProfilConfig	= new ArrayList(20);
     
-    private static String CONNECT 			= "CONNECT";
-    private static String DISCONNECT 		= "DISCONNECT";
-    private static String ONDEMAND 			= "ONDEMAND";
-    private static String THRESHOLD_PARAMETERS = "thresholdParameters";
-    private static String THRESHOLD_GROUPID = "Threshold GroupId *";
-    private static String PARAMETER_GROUPID = "Parameter GroupId *";
-    private static String CL_THRES_GROUPID  = "Clear threshold GroupId *";
-    private static String THRESHOLD 		= "THRESHOLD";
-    private static String THRESHOLD_CLEAR	= "THRESHOLD_CLEAR";
-    private static String CONPOWERLIMIT		= "Contractual Power Limit (W)";
-    private static String THRESHOLD_LIMIT 	= "Threshold Power Limit (W)";
-    private static String THRESHOLD_STARTDT	= "StartDate (dd/mm/yyyy HH:MM:SS)";
-    private static String THRESHOLD_STOPDT	= "EndDate (dd/mm/yyyy HH:MM:SS)";
+//    private static String CONNECT 			= "CONNECT";
+//    private static String DISCONNECT 		= "DISCONNECT";
+//    private static String ONDEMAND 			= "ONDEMAND";
+//    private static String THRESHOLD_PARAMETERS = "thresholdParameters";
+//    private static String THRESHOLD_GROUPID = "Threshold GroupId *";
+//    private static String PARAMETER_GROUPID = "Parameter GroupId *";
+//    private static String CL_THRES_GROUPID  = "Clear threshold GroupId *";
+//    private static String THRESHOLD 		= "THRESHOLD";
+//    private static String THRESHOLD_CLEAR	= "THRESHOLD_CLEAR";
+//    private static String CONPOWERLIMIT		= "Contractual Power Limit (W)";
+//    private static String THRESHOLD_LIMIT 	= "Threshold Power Limit (W)";
+//    private static String THRESHOLD_STARTDT	= "StartDate (dd/mm/yyyy HH:MM:SS)";
+//    private static String THRESHOLD_STOPDT	= "EndDate (dd/mm/yyyy HH:MM:SS)";
 
     private static final int ELECTRICITY 	= 0x00;
     private static final int MBUS 			= 0x01;
+    public static final int MBUS_MAX		= 0x04;
     
-    private final static String CONNECT_LOAD 	= "connectLoad";
-    private final static String DISCONNECT_LOAD = "disconnectLoad";
+//    private final static String CONNECT_LOAD 	= "connectLoad";
+//    private final static String DISCONNECT_LOAD = "disconnectLoad";
     private final static String RTU_TYPE 		= "RtuType";
-    private final static String TOU 			= "UserFile ID of tariff program";
+//    private final static String TOU 			= "UserFile ID of tariff program";
     
 //    private List messages = new ArrayList(9);
     
@@ -265,10 +278,19 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         try {
         	connect();
         	
+        	/**
+        	 * TODO Just To TEST TODO
+        	 */
+//        	doTheCheckMethods();
+//        	handleMbusMeters();
+//        	DailyMonthly dm = new DailyMonthly(this);
+//        	dm.getDailyValues(dailyObisCode);
+//        	dm.getMonthlyValues(monthlyObisCode);
+        	
         	lastReading = rtu.getLastReading();
         	if(lastReading == null)
         		lastReading = getClearMidnightDate();
-        	
+        	    	
         	// Set clock ... if necessary
         	if( communicationProfile.getWriteClock() ) {
         		setTime();
@@ -279,71 +301,128 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     			doTheCheckMethods();
     			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + rtu.getSerialNumber());
     			getProfileData(lastReading, true, loadProfileObisCode);
-    			if(mbusDevices[0] != null){
-    				// no events on the MBus meters
-    				getLogger().log(Level.INFO, "Getting loadProfile for MBus device with serialnumber: " + mbusDevices[0].getMbus().getSerialNumber());
-    				Date lastMbusReading = mbusDevices[0].getMbus().getLastReading();
-    				if(lastMbusReading == null)
-    					lastMbusReading = getClearMidnightDate();
-    				getProfileData(lastMbusReading, false, mbusLProfileObisCode[0]);
-    			}
     		}
     		else if( (communicationProfile.getReadDemandValues()) && !(communicationProfile.getReadMeterEvents()) ){
     			doTheCheckMethods();
     			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + rtu.getSerialNumber());
     			getProfileData(lastReading, false, loadProfileObisCode);
-    			if (mbusDevices[0] != null){
-    				getLogger().log(Level.INFO, "Getting loadProfile for MBus device with serialnumber: " + mbusDevices[0].getMbus().getSerialNumber());
-    				Date lastMbusReading = mbusDevices[0].getMbus().getLastReading();
-    				if(lastMbusReading == null)
-    					lastMbusReading = getClearMidnightDate();
-    				getProfileData(lastMbusReading, false, mbusLProfileObisCode[0]);
-    			}
     		}
     		
     		// Read registers ... if necessary
+    		/**
+    		 * Here we are assuming that the daily and monthly values should be read.
+    		 * In future it can be that this doesn't work for all customers, then we should implement a SmartMeterProperty to indicate whether you
+    		 * want to read the actual registers or the daily/monthly registers ...
+    		 */
     		if( communicationProfile.getReadMeterReadings() ) {
     			doTheCheckMethods();
-    			getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + rtu.getSerialNumber());
-    			getRegisters(ELECTRICITY);
-    			if (mbusDevices[0] != null){
-	    			getLogger().log(Level.INFO, "Getting registers for MBus device with serialnumber: " + mbusDevices[0].getMbus().getSerialNumber());
-	    			getRegisters(MBUS);
-    			}
+//    			getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + rtu.getSerialNumber());
+//    			getRegisters(ELECTRICITY);
+    			
+    			getLogger().log(Level.INFO, "Getting daily and monthly values for meter with serialnumber: " + rtu.getSerialNumber());
+    			DailyMonthly dm = new DailyMonthly(this);
+            	dm.getDailyValues(dailyObisCode);
+            	dm.getMonthlyValues(monthlyObisCode);
     		}
-    		
+
     		// Send messages ... if there are messages
     		if( communicationProfile.getSendRtuMessage() ){
-    			if(!initCheck){			// otherwise the MBus messages will not be executed
-    				checkMbusDevices();
-    			}
     			sendMeterMessages();
-    			if (mbusDevices[0] != null){
-    				mbusDevices[0].sendMeterMessages(this);
-    			}
+    		}
+    		
+    		// Handle the MBus meters
+    		if(mbusCheck()){
+    			getLogger().log(Level.INFO, "Starting to handle the MBus meters.");
+    			handleMbusMeters();
     		}
     		
     		if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Stopping the cache mechanism, saving to disk.");
-    		
-    		stopCacheMechanism();
+    		GenericCache.stopCacheMechanism(rtu, dlmsCache);
     		disConnect();
     		
     		getLogger().log(Level.INFO, "Meter with serialnumber " + rtu.getSerialNumber() + " has completely finished.");
         	
-		} catch (ServiceException e) {
-			stopCacheMechanism();
-			disConnect();
-			e.printStackTrace();
-		} catch (ParseException e) {
-			stopCacheMechanism();
-			disConnect();
-			e.printStackTrace();
 		} catch (DLMSConnectionException e) {
-			stopCacheMechanism();
 			disConnect();
 			e.printStackTrace();
+			throw new BusinessException(e);
+		} catch (ServiceException e) {
+			e.printStackTrace();
+			disConnect();
+			throw new BusinessException(e);
+		} catch (ParseException e) {
+			e.printStackTrace();
+			disConnect();
+			throw new BusinessException(e);
+		} catch (SQLException e){
+			e.printStackTrace();
+			disConnect();
+			
+			/** Close the connection after an SQL exception, connection will startup again if requested */
+        	Environment.getDefault().closeConnection();
+        
+			
+			throw new BusinessException(e);
+		}
+		finally {
+			if(dlmsCache.getObjectList() != null){
+				GenericCache.stopCacheMechanism(rtu, dlmsCache);
+			}
 		}
 	}
+	
+    /**
+     * Checks if there is in fact an MBus meter configured on the E-meter
+     * @return true or false
+     */
+    private boolean mbusCheck(){
+
+		for(int i = 0; i < MBUS_MAX; i++){
+			if ( mbusDevices[0] != null ){
+				if(mbusDevices[0].getMbus() != null){
+					return true;
+				}
+			}
+		}
+		return false;
+	
+    }
+    
+    private void handleMbusMeters(){
+    	for(int i = 0; i < MBUS_MAX; i++){
+    		if(mbusDevices[i] != null){
+    			try {
+    				mbusDevices[i].setIskraDevice(this);
+					mbusDevices[i].execute(scheduler, null, null);
+				} catch (BusinessException e) {
+		            /*
+		             * A single MBusMeter failed: log and try next MBusMeter.
+		             */
+					e.printStackTrace();
+					getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
+					
+				} catch (SQLException e) {
+					
+		        	/** Close the connection after an SQL exception, connection will startup again if requested */
+		        	Environment.getDefault().closeConnection();
+					
+		            /*
+		             * A single MBusMeter failed: log and try next MBusMeter.
+		             */
+					e.printStackTrace();
+					getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
+					
+				} catch (IOException e) {
+		            /*
+		             * A single MBusMeter failed: log and try next MBusMeter.
+		             */
+					e.printStackTrace();
+					getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
+					
+				}
+    		}
+    	}
+    }
 	
 	private Date getClearMidnightDate(){
    		Calendar tempCalendar = Calendar.getInstance(getTimeZone());
@@ -357,7 +436,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	private void doTheCheckMethods() throws IOException, SQLException, BusinessException{
     	if(!initCheck){
 //    		collectCache();
-        	checkMbusDevices();
+//        	checkMbusDevices();
         	checkConfiguration();
 //        	stopCacheMechanism();
     		initCheck = true;
@@ -416,15 +495,19 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 			dailyObisCode = genericProfile4;
 		} else if (dlmsCache.getGenericInterval2() == 84600){
 			dailyObisCode = genericProfile2;
-		} else
-			throw new IOException("Iskra Mx37x, checkConfiguration, no dailyProfile configured for meter " + strID);
+		} else{
+//			throw new IOException("Iskra Mx37x, checkConfiguration, no dailyProfile configured for meter " + strID);
+			getLogger().log(Level.INFO, "Iskra Mx37x, checkConfiguration, no dailyProfile configured for meter " + strID);
+		}
 		
 		if (isMonthlyArray(new Array(dlmsCache.getGenericInterval3(),0,0))){
 			monthlyObisCode = genericProfile3;
 		} else if (isMonthlyArray(new Array(dlmsCache.getGenericInterval4(),0,0))){
 			monthlyObisCode = genericProfile4;
-		} else
-			throw new IOException("Iskra Mx37x, checkConfiguration, no monthlyProfile configured for meter " + strID);
+		} else{
+//			throw new IOException("Iskra Mx37x, checkConfiguration, no monthlyProfile configured for meter " + strID);
+			getLogger().log(Level.INFO, "Iskra Mx37x, checkConfiguration, no monthlyProfile configured for meter " + strID);
+		}
 
 		if(dlmsCache.getMonthlyProfileConfig() == null){
 			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Reading Monthly captured Objects");
@@ -478,45 +561,58 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	}
 
 	private void checkMbusDevices() throws IOException, SQLException, BusinessException {
-		
-		String customerID = "";
-		
-		if(this.rtu.getDownstreamRtus().size() > 0){
-			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: RTU has a known MBUS device, checking MBUS serialnumber.");
-			customerID = getCosemObjectFactory().getData(mbusCustomerID).getString();
-			if(((Rtu)rtu.getDownstreamRtus().get(0)).getSerialNumber().equals(customerID)){		// serialNumber mismatch
-				mbusDevices[0] = new MbusDevice(1, customerID, ((Rtu)rtu.getDownstreamRtus().get(0)), logger); // the "1" represents the address
-			}
-			else
-				getLogger().log(Level.SEVERE, "Mbus serialnumber mismatch; serial in EIServer: " + ((Rtu)rtu.getDownstreamRtus().get(0)).getSerialNumber() +
-						", serial in Meter: " + customerID);
-		}
-		else{
-			if(getProperty(RTU_TYPE) != null){
-				if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: RTU has no MBUS device, checking for new MBUS devices.");
-				long pAddress1 = getCosemObjectFactory().getCosemObject(mbusPrimaryAddress).getValue();
-				if ( pAddress1 != 0){
-					customerID = getCosemObjectFactory().getData(mbusCustomerID).getString();
-					Rtu mbus = findOrCreateNewMbusDevice(pAddress1, customerID);
-					if (mbus != null) {
-					mbusDevices[0] = new MbusDevice(pAddress1, customerID, mbus, logger);
-					getLogger().log(Level.INFO, 
-							"Meter with serialnumber: " + mbus.getSerialNumber() + 
-							" has an MBus device with serialnumber: " + customerID);
-					}
+		String mSerial = "";
+		for(int i = 0; i < MBUS_MAX; i++){
+			int mbusAddress = (int)getCosemObjectFactory().getCosemObject(mbusPrimaryAddress[i]).getValue();
+			if(mbusAddress > 0){
+				mSerial = getMbusSerial(mbusCustomerID[i]);
+				Unit mUnit = getMbusUnit(mbusUnit[i]);
+				int mMedium = (int)getCosemObjectFactory().getCosemObject(mbusMedium[i]).getValue();
+				if(!mSerial.equals("")){
+					mbusDevices[i] = new MbusDevice(mbusAddress, i, mSerial, mMedium, findOrCreateNewMbusDevice(mbusAddress, mSerial), mUnit, getLogger());
+				} else {
+					mbusDevices[i] = null;
 				}
+			} else {
+				mbusDevices[i] = null;
 			}
 		}
 		
-		if(mbusDevices[0] != null){
-			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: RTU has MBUS device, checking the MBUS UNIT.");
-			if (demandScalerUnits[MBUS].getUnitCode() == 255) {		// which is unitless
-				RegisterValue scalerRegister = readRegister(mbusScalerUnit);
-				demandScalerUnits[MBUS] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(), scalerRegister.getQuantity().getUnit());
-			}
-			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: MBUS unit = " + demandScalerUnits[MBUS]);
+		updateMbusDevices(rtu.getDownstreamRtus());
+	}
+	
+	private void updateMbusDevices(List<Rtu> downstreamRtus) throws SQLException, BusinessException{
+		Iterator<Rtu> it = downstreamRtus.iterator();
+		int count = 0;
+		boolean delete = true;
+		while(it.hasNext()){
+			Rtu mbus = it.next();
+			delete = true;
+			for(int i = 0; i < mbusDevices.length; i++){
+    			if(mbusDevices[i] != null){
+    				if(mbus.getSerialNumber().equalsIgnoreCase(mbusDevices[i].getCustomerID())){
+    					delete = false;
+    				}
+    			}
+    		}
+    		if(delete){
+//    			mbus.updateGateway(null);	 // you can do this in the latest build of EIServer
+    			RtuShadow shadow = mbus.getShadow();
+    			shadow.setGatewayId(0);
+    			mbus.update(shadow);
+    		}
 		}
-		// TODO complete this if there are more than one Mbus devices on the meters
+	}
+
+	private Unit getMbusUnit(ObisCode obisCode) throws IOException {
+		try {
+			String vifResult = Integer.toString((int)getCosemObjectFactory().getData(obisCode).getData()[2], 16);
+			ValueInformationfieldCoding vif = ValueInformationfieldCoding.findPrimaryValueInformationfieldCoding(Integer.parseInt(vifResult, 16), -1);
+			return vif.getUnit();
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Could not retrieve the MBus Unit");
+		}
 	}
 
 	private Rtu findOrCreateNewMbusDevice(long address1, String customerID) throws SQLException, BusinessException, IOException {
@@ -601,14 +697,15 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		}
 	}
 
-	private void connect() throws IOException, DLMSConnectionException {
+	private void connect() throws IOException, DLMSConnectionException, SQLException, BusinessException {
 			getDLMSConnection().connectMAC();
 			secureConnection = new SecureConnection(iSecurityLevelProperty,
 					firmwareVersion, strPassword, getDLMSConnection());
-//			collectCache();
 			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Starting the Cache mechanism(checking if cache exists, reading cache if it doesn't exist)");
 			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Starting the Cache mechanism does not mean saving to disk.");
-			startCacheMechanism(this);
+			Object temp = GenericCache.startCacheMechanism(rtu);
+			dlmsCache = (temp == null)?new Cache():(Cache)temp;
+			collectCache();
 			if(meterConfig.getCapturedObjectList() == null)
 				meterConfig.setInstantiatedObjectList(dlmsCache.getObjectList());
 			if (!verifyMeterID())
@@ -630,170 +727,41 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 			}
 	}
 	
-	public void startCacheMechanism(Object fileSource) throws FileNotFoundException, IOException {
-
-		SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ? ");
-        builder.bindInt(rtu.getId());
-        PreparedStatement stmnt;
-		try {
-			stmnt = builder.getStatement(Environment.getDefault().getConnection());
-
-	        try {
-	              InputStream in = null;
-	              ResultSet resultSet = stmnt.executeQuery();
-	              try {
-	            	  if (resultSet.next()) {
-	            		  Blob blob = resultSet.getBlob(1);
-	            		  if (blob.length() > 0) {
-	            			  in = blob.getBinaryStream();
-	            			  ObjectInputStream ois = new ObjectInputStream(in);
-	            			  try {
-	            				  dlmsCache = (Cache)ois.readObject();
-	            			  } catch (ClassNotFoundException e) {
-	            				  e.printStackTrace();
-	            			  } finally {
-	            				  ois.close();
-	            			  }
-	            		  }
-	            	  }
-	                   else {
-	                	   collectCache();
-	                   }
-	              } finally {
-	                   resultSet.close();
-	              }
-	        } finally {
-	              stmnt.close();
-        }
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		}	
-
-	}
-
-//	public void stopCacheMechanism() {
-//        File file = new File(((CacheMechanism) source).getFileName());
-//        ObjectOutputStream oos;
-//		try {
-//			oos = new ObjectOutputStream(new FileOutputStream(file));
-//			oos.writeObject(((CacheMechanism) source).getCache());
-//	        oos.close();
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//	}
-	
-//	protected void updateBlob() throws SQLException {
-	
-	protected void stopCacheMechanism() throws SQLException, BusinessException {
-		Transaction tr = new Transaction() {
-			public Object doExecute() throws SQLException, BusinessException {
-				createOrUpdateDeviceCache();		// TODO get back to first version
-				updateCacheContent();				// TODO get back to first version - without the for update
-				return null;
+	private void mbusMeterDeletionCheck() throws SQLException, BusinessException, IOException{
+		for(int i = 0; i < dlmsCache.getMbusCount(); i++){
+			if(rtuExists(dlmsCache.getMbusCustomerID(i))){
+				mbusDevices[i] = new MbusDevice((int)dlmsCache.getMbusAddress(i), dlmsCache.getMbusPhysicalAddress(i), dlmsCache.getMbusCustomerID(i),
+						dlmsCache.getMbusMedium(i), findOrCreateNewMbusDevice(dlmsCache.getMbusAddress(i), dlmsCache.getMbusCustomerID(i)), dlmsCache.getMbusUnit(i), getLogger());
+			} else {
+				forcedMbusCheck = true;
+				break;
 			}
-		};
-		MeteringWarehouse.getCurrent().execute(tr);
-	}
-	
-	private void updateCacheContent() throws SQLException {
-		SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ? for update");
-		builder.bindInt(rtu.getId());
-		PreparedStatement stmnt = builder.getStatement(Environment.getDefault().getConnection());		
-		try {
-			ResultSet rs = stmnt.executeQuery();
-			if (!rs.next()) {
-				throw new SQLException("Record not found");
-			}
-			try {
-				java.sql.Blob blob = (java.sql.Blob) rs.getBlob(1);
-				ObjectOutputStream out = new ObjectOutputStream(blob.setBinaryStream(0L));
-				out.writeObject(dlmsCache);
-				out.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				rs.close();
-			}
-		} finally {
-			stmnt.close();
-		}
-	}
-
-	private void createOrUpdateDeviceCache() throws SQLException {
-		SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ?");
-		builder.bindInt(rtu.getId());
-		PreparedStatement stmnt = builder.getStatement(Environment.getDefault().getConnection());		
-		try {
-			ResultSet rs = stmnt.executeQuery();
-			if (!rs.next()) {
-				builder = new SqlBuilder("insert into eisdevicecache (rtuid, content, mod_date) values (?,empty_blob(),sysdate)");
-				builder.bindInt(rtu.getId());
-				PreparedStatement insertStmnt = builder.getStatement(Environment.getDefault().getConnection());
-				try {
-					insertStmnt.executeUpdate();
-				}
-				finally {
-					insertStmnt.close();
-				}
-			}
-		} finally {
-			stmnt.close();
 		}
 	}
 	
-//	private void createOrUpdateDeviceCache() throws SQLException {
-//		SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ?");
-//		builder.bindInt(rtu.getId());
-//		PreparedStatement stmnt = builder.getStatement(Environment.getDefault().getConnection());		
-//		try {
-//			ResultSet rs = stmnt.executeQuery();
-//			if (!rs.next()) {
-//				builder = new SqlBuilder("insert into eisdevicecache (rtuid, content, mod_date) values (?,empty_blob(),sysdate)");
-//				builder.bindInt(rtu.getId());
-//				PreparedStatement insertStmnt = builder.getStatement(Environment.getDefault().getConnection());
-//				try {
-//					insertStmnt.executeQuery();
-//				}
-//				finally {
-//					insertStmnt.close();
-//				}
-//				builder = new SqlBuilder("select content from eisdevicecache where rtuid = ? for update");
-//				builder.bindInt(rtu.getId());
-//				PreparedStatement selectStmnt = builder.getStatement(Environment.getDefault().getConnection());
-//				try {
-//					rs = selectStmnt.executeQuery();
-//					if(rs.getConcurrency() == ResultSet.CONCUR_READ_ONLY)
-//						System.out.println("ResultSet non-updatable");
-//					else if(rs.getConcurrency() == ResultSet.CONCUR_UPDATABLE)
-//						System.out.println("ResultSet updatable");
-//				} finally {
-//					selectStmnt.close();
-//				}
-//			}
-//			try {
-//				java.sql.Blob blob = (java.sql.Blob) rs.getBlob(1);
-//				ObjectOutputStream out = new ObjectOutputStream(blob.setBinaryStream(0L));
-//				out.writeObject(dlmsCache);
-//				out.close();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			} finally {
-//				rs.close();
-//			}
-//
-//		} finally {
-//			stmnt.close();
-//		}
-//	}
+	/**
+	 * Checks if the Rtu with the serialnumber exists in database
+	 * @param serial
+	 * @return true or false
+	 */
+	protected boolean rtuExists(String serial){
+		List meterList = mw().getRtuFactory().findBySerialNumber(serial);
+		if(meterList.size() == 1)
+			return true;
+		else if (meterList.size() == 0)
+			return false;
+		else{	// should never get here, no multiple serialNumbers can be allowed
+			getLogger().severe(toDuplicateSerialsErrorMsg(serial));
+		}
+		return false;
+	}
 	
-	private void collectCache() throws IOException {
+	private void collectCache() throws IOException, SQLException, BusinessException {
         int iConf;
         
         if (dlmsCache.getObjectList() != null) {
             meterConfig.setInstantiatedObjectList(dlmsCache.getObjectList());
+            mbusMeterDeletionCheck();
             
             try {
                 iConf = requestConfigurationProgramChanges();
@@ -803,18 +771,23 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
                 iConf=-1;
                 logger.severe("Iskra Mx37x: Configuration change is not accessible, request object list...");
                 requestObjectList();
+                checkMbusDevices();		
                 dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
                 dlmsCache.setConfProgChange(iConf);  // set new configuration program change
+                dlmsCache.setMbusParameters(mbusDevices);
             }
 
-            if (iConf != dlmsCache.getConfProgChange()) {
+            if ((iConf != dlmsCache.getConfProgChange()) || forcedMbusCheck) {
                 
             	if (DEBUG>=1) System.out.println("iConf="+iConf+", dlmsCache.getConfProgChange()="+dlmsCache.getConfProgChange());    
                 
             	logger.severe("Iskra Mx37x: Configuration changed, request object list...");
                 requestObjectList();	// request object list again from rtu
+                checkMbusDevices();		
                 dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
                 dlmsCache.setConfProgChange(iConf);  // set new configuration program change
+                dlmsCache.setMbusParameters(mbusDevices);
+                
                 
                 if (DEBUG>=1) System.out.println("after requesting objectlist (conf changed)... iConf="+iConf+", dlmsCache.getConfProgChange()="+dlmsCache.getConfProgChange());  
             }
@@ -823,11 +796,14 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         else { // Cache not exist
             logger.info("Iskra Mx37x: Cache does not exist, request object list.");
             requestObjectList();
+            checkMbusDevices();		
             try {
                 iConf = requestConfigurationProgramChanges();
               
                 dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
                 dlmsCache.setConfProgChange(iConf);  // set new configuration program change
+                dlmsCache.setMbusParameters(mbusDevices);
+                
                 if (DEBUG>=1) System.out.println("after requesting objectlist... iConf="+iConf+", dlmsCache.getConfProgChange()="+dlmsCache.getConfProgChange());  
             }
             catch(IOException e) {
@@ -835,6 +811,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             }
         }
 	}
+	
 	
     public Date getTime() throws IOException {
         Clock clock = getCosemObjectFactory().getClock();
@@ -918,89 +895,89 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		return byteStartDateBuffer;
 	}
 	
-	private void getRegisters(int deviceType) throws UnsupportedException, NoSuchRegisterException, IOException, SQLException, BusinessException {
-		
-		Rtu nRtu = null;
-		
-		if(deviceType == ELECTRICITY)
-			nRtu = rtu;
-		else if (deviceType == MBUS)
-			nRtu = mbusDevices[0].getMbus();
-		
-        Iterator i = nRtu.getRtuType().getRtuRegisterSpecs().iterator();
-        while (i.hasNext()) {
-        	
-            RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
-            ObisCode oc = spec.getObisCode();
-            RtuRegister register = nRtu.getRegister( oc );
-            MeterReadingData meterReadingData = new MeterReadingData();
-            
-            if (register != null){
-            	
-            	if (oc.getF() != 255){
-            		RegisterValue startRegVal = null;
-            		if (oc.getF() == 0)
-            			ocm.setDaily();
-            		else if (oc.getF() == -1)
-            			ocm.setMonthly();
-            		
-            		Date lastRegisterDate = null;
-            		Calendar registerCalendar = Calendar.getInstance(getTimeZone());
-            		Calendar systemCalendar = Calendar.getInstance(getTimeZone());
-                	List registerValues = mw().getRtuRegisterReadingFactory().findByRegister(register.getId());
-                	
-                	if (registerValues.size() != 0){
-                		lastRegisterDate = getLastRegisterDate(registerValues);
-                		registerCalendar.setTime(lastRegisterDate);
-                	}else{
-                		registerCalendar.add(Calendar.MONTH, -1);
-                		lastRegisterDate = registerCalendar.getTime();
-                	}
-            		
-            		int previousCount = getDayDifferenc(systemCalendar, registerCalendar);
-            		
-            		for (int j = previousCount; j >= 0; j--){
-            			ObisCode previousOc = new ObisCode(oc.getA(), oc.getB(), oc.getC(), oc.getD(), oc.getE(), 0-j, true);
-            			RegisterValue rv = readRegister(previousOc);
-            			if ((rv != null)&&(rv.getToTime().after(lastRegisterDate))){
-            				if (DEBUG >= 1)System.out.println(rv.getToTime() + " " + rv.getQuantity());
-            				startRegVal = new RegisterValue(oc, rv.getQuantity(),rv.getEventTime(), rv.getFromTime(), rv.getToTime(), rv.getToTime(), register.getId()); 
-            				meterReadingData.add(startRegVal);
-            			}
-            		}
-            			
-            		if (oc.getF() == 0)
-            			ocm.clearDaily();
-            		else if (oc.getF() == -1)
-            			ocm.clearMonthly();
-                }
-            }
-			else {
-				String obis = oc.toString();
-				String msg = "Register " + obis + " not defined on device";
-				getLogger().info(msg);
-			}
-            
-    		if(meterReadingData.getRegisterValues().size() != 0)
-    			nRtu.store(meterReadingData);
-        }
-	}
+//	private void getRegisters(int deviceType) throws UnsupportedException, NoSuchRegisterException, IOException, SQLException, BusinessException {
+//		
+//		Rtu nRtu = null;
+//		
+//		if(deviceType == ELECTRICITY)
+//			nRtu = rtu;
+//		else if (deviceType == MBUS)
+//			nRtu = mbusDevices[0].getMbus();
+//		
+//        Iterator i = nRtu.getRtuType().getRtuRegisterSpecs().iterator();
+//        while (i.hasNext()) {
+//        	
+//            RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
+//            ObisCode oc = spec.getObisCode();
+//            RtuRegister register = nRtu.getRegister( oc );
+//            MeterReadingData meterReadingData = new MeterReadingData();
+//            
+//            if (register != null){
+//            	
+//            	if (oc.getF() != 255){
+//            		RegisterValue startRegVal = null;
+//            		if (oc.getF() == 0)
+//            			ocm.setDaily();
+//            		else if (oc.getF() == -1)
+//            			ocm.setMonthly();
+//            		
+//            		Date lastRegisterDate = null;
+//            		Calendar registerCalendar = Calendar.getInstance(getTimeZone());
+//            		Calendar systemCalendar = Calendar.getInstance(getTimeZone());
+//                	List registerValues = mw().getRtuRegisterReadingFactory().findByRegister(register.getId());
+//                	
+//                	if (registerValues.size() != 0){
+//                		lastRegisterDate = getLastRegisterDate(registerValues);
+//                		registerCalendar.setTime(lastRegisterDate);
+//                	}else{
+//                		registerCalendar.add(Calendar.MONTH, -1);
+//                		lastRegisterDate = registerCalendar.getTime();
+//                	}
+//            		
+//            		int previousCount = getDayDifferenc(systemCalendar, registerCalendar);
+//            		
+//            		for (int j = previousCount; j >= 0; j--){
+//            			ObisCode previousOc = new ObisCode(oc.getA(), oc.getB(), oc.getC(), oc.getD(), oc.getE(), 0-j, true);
+//            			RegisterValue rv = readRegister(previousOc);
+//            			if ((rv != null)&&(rv.getToTime().after(lastRegisterDate))){
+//            				if (DEBUG >= 1)System.out.println(rv.getToTime() + " " + rv.getQuantity());
+//            				startRegVal = new RegisterValue(oc, rv.getQuantity(),rv.getEventTime(), rv.getFromTime(), rv.getToTime(), rv.getToTime(), register.getId()); 
+//            				meterReadingData.add(startRegVal);
+//            			}
+//            		}
+//            			
+//            		if (oc.getF() == 0)
+//            			ocm.clearDaily();
+//            		else if (oc.getF() == -1)
+//            			ocm.clearMonthly();
+//                }
+//            }
+//			else {
+//				String obis = oc.toString();
+//				String msg = "Register " + obis + " not defined on device";
+//				getLogger().info(msg);
+//			}
+//            
+//    		if(meterReadingData.getRegisterValues().size() != 0)
+//    			nRtu.store(meterReadingData);
+//        }
+//	}
 	
-    private int getDayDifferenc(Calendar systemCalendar, Calendar registerCalendar) {
-		long diff = Math.abs(systemCalendar.getTimeInMillis() - registerCalendar.getTimeInMillis());
-		return (int) (diff/(1000*60*60*24));
-	}
-
-	private Date getLastRegisterDate(List registerValues) {
-    	Date lastDate = ((RtuRegisterReadingImpl) registerValues.get(0)).getToTime();
-    	Iterator it = registerValues.iterator();
-    	while(it.hasNext()){
-    		Date dateRrri = ((RtuRegisterReadingImpl)it.next()).getToTime();
-    		if (dateRrri.after(lastDate))
-    			lastDate = dateRrri;
-    	}
-    	return lastDate;
-	}
+//    private int getDayDifferenc(Calendar systemCalendar, Calendar registerCalendar) {
+//		long diff = Math.abs(systemCalendar.getTimeInMillis() - registerCalendar.getTimeInMillis());
+//		return (int) (diff/(1000*60*60*24));
+//	}
+//
+//	private Date getLastRegisterDate(List registerValues) {
+//    	Date lastDate = ((RtuRegisterReadingImpl) registerValues.get(0)).getToTime();
+//    	Iterator it = registerValues.iterator();
+//    	while(it.hasNext()){
+//    		Date dateRrri = ((RtuRegisterReadingImpl)it.next()).getToTime();
+//    		if (dateRrri.after(lastDate))
+//    			lastDate = dateRrri;
+//    	}
+//    	return lastDate;
+//	}
 
 	public ProfileData getProfileData(Date lastReading,boolean includeEvents, ObisCode lProfileObisCode) throws IOException, SQLException, BusinessException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
@@ -1032,7 +1009,11 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     			RegisterValue scalerRegister = readRegister(getCapturedObjects(profileObisCode).getProfileDataChannel(channelId));
 				demandScalerUnits[0] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),scalerRegister.getQuantity().getUnit());
 				ChannelInfo ci = new ChannelInfo(channelId, "IskraMx37x_channel_"+channelId, demandScalerUnits[0].getUnit());
-				ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
+				// TODO Test if this change works, it works for the UPL meters but test it for ESSENT!
+				// TODO
+				if(ParseUtils.isObisCodeCumulative(getCapturedObjects(profileObisCode).getProfileDataChannel(channelId))){
+					ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
+				}
                 profileData.addChannel(ci);
         	}
             	
@@ -1145,16 +1126,11 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
                 if (currentAdd) {
                     profileData.addInterval(currentIntervalData);
                 }
-
                 previousIntervalData=currentIntervalData;
                 previousAdd=currentAdd;
-                
             } // if (calendar != null)
-            
         } // for (i=0;i<dataContainer.getRoot().element.length;i++) // for all retrieved intervals
-
         if (DEBUG>=1) System.out.println(profileData);
-        
     }
     
     private IntervalData getIntervalData(DataStructure dataStructure,Calendar calendar,int protocolStatus, ObisCode profileObisCode) throws UnsupportedException, IOException {
@@ -1162,13 +1138,45 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         IntervalData intervalData = new IntervalData(new Date(((Calendar)calendar.clone()).getTime().getTime()),map(protocolStatus),protocolStatus);
         
         for (int t=0;t<getCapturedObjects(profileObisCode).getNROfChannels();t++){
-        	
-                if (getCapturedObjects(profileObisCode).isChannelData(getObjectNumber(t, profileObisCode)))
-                    intervalData.addValue(new Integer(dataStructure.getInteger(getObjectNumber(t, profileObisCode) + dataContainerOffset)));
+            if (getCapturedObjects(profileObisCode).isChannelData(getObjectNumber(t, profileObisCode)))
+                intervalData.addValue(new Integer(dataStructure.getInteger(getObjectNumber(t, profileObisCode) + dataContainerOffset)));
         }
-        	
         return intervalData;
     }
+    
+	
+//	private int getProfileStatusChannelIndex(ProfileGeneric pg) throws IOException{
+//		try {
+//			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
+//				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getStatusObject().getObisCode())){
+//					return i;
+//				}
+//			}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			throw new IOException("Could not retrieve the index of the profileData's status attribute.");
+//		}
+//		return -1;
+//	}
+	
+	public Calendar getToCalendar(){
+		return ProtocolUtils.getCalendar(getTimeZone());
+	}
+	
+	/**
+	 * @param channel
+	 * @return a Calendar object from the lastReading of the given channel, if the date is NULL,
+	 * a date from one month ago is created at midnight.
+	 */
+	public Calendar getFromCalendar(Channel channel){
+		Date lastReading = channel.getLastReading();
+		if(lastReading == null){
+			lastReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(channel.getRtu());
+		}
+		Calendar cal = ProtocolUtils.getCleanCalendar(getTimeZone());
+		cal.setTime(lastReading);
+		return cal;
+	}
     
     private int getObjectNumber(int t, ObisCode profileObisCode) throws IOException {
 		for(int i = 0; i < getCapturedObjects(profileObisCode).getNROfObjects(); i++){
@@ -1389,8 +1397,46 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     public int requestConfigurationProgramChanges() throws IOException {
         if (configProgramChanges == -1)
            configProgramChanges = (int)getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode()).getValue();
+        
+        // check if the customerID from the meter matches the customerID from the cache
+        String meterCustomerID;
+        String customerID;
+        for(int i = 0; i < MBUS_MAX; i++){
+        	customerID = dlmsCache.getMbusCustomerID(i);
+        	meterCustomerID = getMbusSerial(mbusCustomerID[i]);
+        	if(customerID != null){
+        		if(!customerID.equalsIgnoreCase(meterCustomerID)){
+        			forcedMbusCheck = true;
+        			break;
+        		}
+        	} else {
+        		if(!meterCustomerID.equals("")){
+        			forcedMbusCheck = true;
+        			break;
+        		}
+        	}
+        }
+        
         return configProgramChanges;
-    } 
+    }
+    
+    private String getMbusSerial(ObisCode oc) throws IOException{
+    	try {
+			String str = "";
+			byte[] data = getCosemObjectFactory().getData(oc).getData();
+			byte[] parseStr = new byte[data.length - 2];
+			System.arraycopy(data, 2, parseStr, 0, parseStr.length);
+			if(com.energyict.genericprotocolimpl.common.ParseUtils.checkIfAllAreChars(parseStr)){
+				str = new String(parseStr);
+			} else{
+				str = com.energyict.genericprotocolimpl.common.ParseUtils.decimalByteToString(parseStr);
+			}
+			return str;
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Could not retrieve the MBus serialNumber");
+		}
+    }
 
     private void requestObjectList() throws IOException {
         meterConfig.setInstantiatedObjectList(getCosemObjectFactory().getAssociationLN().getBuffer());
@@ -1456,7 +1502,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	}
 
 	public String getVersion() {
-		return "$Revision: 1.4 $";
+		return "$Date$";
 	}
 
 	public List getOptionalKeys() {
@@ -1559,14 +1605,14 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             	contents = contents.substring(0, contents.length()-1);
             BigDecimal breakerState = null;
             
-            boolean disconnect 	= contents.equalsIgnoreCase(DISCONNECT);
-            boolean connect 	= contents.equalsIgnoreCase(CONNECT);
-            boolean ondemand 	= contents.equalsIgnoreCase(ONDEMAND);
-            boolean threshpars  = contents.equalsIgnoreCase(PARAMETER_GROUPID);
-            boolean threshold  	= contents.equalsIgnoreCase(THRESHOLD_GROUPID);
-            boolean thresholdcl = contents.equalsIgnoreCase(CL_THRES_GROUPID);
-            boolean falsemsg	= contents.equalsIgnoreCase(THRESHOLD_STARTDT) || contents.equalsIgnoreCase(THRESHOLD_STOPDT);
-            boolean tou			= contents.equalsIgnoreCase(TOU);
+            boolean disconnect 	= contents.equalsIgnoreCase(RtuMessageConstant.DISCONNECT_LOAD);
+            boolean connect 	= contents.equalsIgnoreCase(RtuMessageConstant.CONNECT_LOAD);
+            boolean ondemand 	= contents.equalsIgnoreCase(RtuMessageConstant.READ_ON_DEMAND);
+            boolean threshpars  = contents.equalsIgnoreCase(RtuMessageConstant.PARAMETER_GROUPID);
+            boolean threshold  	= contents.equalsIgnoreCase(RtuMessageConstant.THRESHOLD_GROUPID);
+            boolean thresholdcl = contents.equalsIgnoreCase(RtuMessageConstant.CLEAR_THRESHOLD);
+            boolean falsemsg	= contents.equalsIgnoreCase(RtuMessageConstant.THRESHOLD_STARTDT) || contents.equalsIgnoreCase(RtuMessageConstant.THRESHOLD_STOPDT);
+            boolean tou			= contents.equalsIgnoreCase(RtuMessageConstant.TOU_SCHEDULE);
             
             if (falsemsg){
             	msg.setFailed();
@@ -1595,14 +1641,14 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         		switch(breakerState.intValue()){
         		
         		case 0: {
-        			if ( contents.indexOf(DISCONNECT) != -1 )
+        			if ( contents.indexOf(RtuMessageConstant.DISCONNECT_LOAD) != -1 )
         				msg.confirm();
         			else 
         	            msg.setFailed();          
         		}break;
         		
         		case 1: {
-        			if ( contents.indexOf(CONNECT) != -1 )
+        			if ( contents.indexOf(RtuMessageConstant.CONNECT_LOAD) != -1 )
         				msg.confirm();
         			else 
         				msg.setFailed();    
@@ -1640,7 +1686,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		String description = "Clear threshold for meter with serialnumber: " + rtu.getSerialNumber();
 		try{
 			
-			String groupID = getMessageValue(msg.getContents(), CL_THRES_GROUPID);
+			String groupID = getMessageValue(msg.getContents(), RtuMessageConstant.CLEAR_THRESHOLD);
 			if(groupID.equalsIgnoreCase(""))
 				throw new BusinessException("No groupID was entered.");
 			
@@ -1686,7 +1732,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		String description = "Setting threshold value for meter with serialnumber: " + rtu.getSerialNumber();
 		try{
 			
-			String groupID = getMessageValue(msg.getContents(), THRESHOLD_GROUPID);
+			String groupID = getMessageValue(msg.getContents(), RtuMessageConstant.THRESHOLD_GROUPID);
 			if(groupID.equalsIgnoreCase(""))
 				throw new BusinessException("No groupID was entered.");
 			
@@ -1706,8 +1752,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	    	Calendar startCal = null; 
 	    	Calendar stopCal = null;
 			
-        	startDate = getMessageValue(msg.getContents(), THRESHOLD_STARTDT);
-        	stopDate = getMessageValue(msg.getContents(), THRESHOLD_STOPDT);
+        	startDate = getMessageValue(msg.getContents(), RtuMessageConstant.THRESHOLD_STARTDT);
+        	stopDate = getMessageValue(msg.getContents(), RtuMessageConstant.THRESHOLD_STOPDT);
         	startCal = (startDate.equalsIgnoreCase(""))?Calendar.getInstance(getTimeZone()):getCalendarFromString(startDate);
         	if (stopDate.equalsIgnoreCase("")){
         		stopCal = Calendar.getInstance();
@@ -1740,12 +1786,12 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		String description = "Sending threshold configuration for meter with serialnumber: " + rtu.getSerialNumber();
 		try {
 			
-			String groupID = getMessageValue(msg.getContents(), PARAMETER_GROUPID);
+			String groupID = getMessageValue(msg.getContents(), RtuMessageConstant.PARAMETER_GROUPID);
 			if(groupID.equalsIgnoreCase(""))
 				throw new BusinessException("No groupID was entered.");
 			
-			String thresholdPL = getMessageValue(msg.getContents(), THRESHOLD_LIMIT);
-			String contractPL = getMessageValue(msg.getContents(), CONPOWERLIMIT);
+			String thresholdPL = getMessageValue(msg.getContents(), RtuMessageConstant.THRESHOLD_POWERLIMIT);
+			String contractPL = getMessageValue(msg.getContents(), RtuMessageConstant.CONTRACT_POWERLIMIT);
         	if ( (thresholdPL.equalsIgnoreCase("")) && (contractPL.equalsIgnoreCase("")) )
     			throw new BusinessException("Neighter contractual nor threshold limit was given.");
         	
@@ -1891,8 +1937,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	}
 	
 	protected int getTouFileId(String contents) throws BusinessException {
-		int startIndex = 2 + TOU.length();  // <TOU>
-		int endIndex = contents.indexOf("</" + TOU + ">");
+		int startIndex = 2 + RtuMessageConstant.TOU_SCHEDULE.length();  // <TOU>
+		int endIndex = contents.indexOf("</" + RtuMessageConstant.TOU_SCHEDULE + ">");
 		String value = contents.substring(startIndex, endIndex);
 		try {
 			return Integer.parseInt(value);
@@ -1935,19 +1981,19 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
         MessageCategorySpec cat2 = new MessageCategorySpec("ThresholdMessages");
         
-        MessageSpec msgSpec = addBasicMsg("Disconnect meter", DISCONNECT, false);
+        MessageSpec msgSpec = addBasicMsg("Disconnect meter", RtuMessageConstant.DISCONNECT_LOAD, false);
         cat.addMessageSpec(msgSpec);
-        msgSpec = addBasicMsg("Connect meter", CONNECT, false);
+        msgSpec = addBasicMsg("Connect meter", RtuMessageConstant.CONNECT_LOAD, false);
         cat.addMessageSpec(msgSpec);
-        msgSpec = addBasicMsg("ReadOnDemand", ONDEMAND, false);
+        msgSpec = addBasicMsg("ReadOnDemand", RtuMessageConstant.READ_ON_DEMAND, false);
         cat.addMessageSpec(msgSpec);
-        msgSpec = addTouMessage("Set new tariff program", TOU, false);
+        msgSpec = addTouMessage("Set new tariff program", RtuMessageConstant.TOU_SCHEDULE, false);
         cat.addMessageSpec(msgSpec);
-        msgSpec = addThresholdParameters("Threshold parameters", THRESHOLD_PARAMETERS, false);
+        msgSpec = addThresholdParameters("Threshold parameters", RtuMessageConstant.THRESHOLD_PARAMETERS, false);
         cat2.addMessageSpec(msgSpec);
-        msgSpec = addThresholdMessage("Apply Threshold", THRESHOLD, false);
+        msgSpec = addThresholdMessage("Apply Threshold", RtuMessageConstant.APPLY_THRESHOLD, false);
         cat2.addMessageSpec(msgSpec);
-        msgSpec = addClearThresholdMessage("Clear Threshold", THRESHOLD_CLEAR, false);
+        msgSpec = addClearThresholdMessage("Clear Threshold", RtuMessageConstant.CLEAR_THRESHOLD, false);
         cat2.addMessageSpec(msgSpec);
         
         theCategories.add(cat);
@@ -1957,7 +2003,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
 	private MessageSpec addClearThresholdMessage(String keyId, String tagName, boolean advanced) {
     	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-	    MessageTagSpec tagSpec = new MessageTagSpec(CL_THRES_GROUPID);
+	    MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.CLEAR_THRESHOLD);
 	    tagSpec.add(new MessageValueSpec());
 	    msgSpec.add(tagSpec);
 		return msgSpec;
@@ -1965,13 +2011,13 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
 	private MessageSpec addThresholdParameters(String keyId, String tagName, boolean advanced){
     	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-	    MessageTagSpec tagSpec = new MessageTagSpec(PARAMETER_GROUPID);
+	    MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.PARAMETER_GROUPID);
 	    tagSpec.add(new MessageValueSpec());
 	    msgSpec.add(tagSpec);
-	    tagSpec = new MessageTagSpec(THRESHOLD_LIMIT);
+	    tagSpec = new MessageTagSpec(RtuMessageConstant.THRESHOLD_POWERLIMIT);
 	    tagSpec.add(new MessageValueSpec());
 	    msgSpec.add(tagSpec);
-	    tagSpec = new MessageTagSpec(CONPOWERLIMIT);
+	    tagSpec = new MessageTagSpec(RtuMessageConstant.CONTRACT_POWERLIMIT);
 	    tagSpec.add(new MessageValueSpec());
 	    msgSpec.add(tagSpec);
 		return msgSpec;
@@ -2043,16 +2089,32 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
 	private MessageSpec addThresholdMessage(String keyId, String tagName, boolean advanced) {
     	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-    	MessageTagSpec tagSpec = new MessageTagSpec(THRESHOLD_GROUPID);
+    	MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.THRESHOLD_GROUPID);
     	tagSpec.add(new MessageValueSpec());
     	msgSpec.add(tagSpec);
-        tagSpec = new MessageTagSpec(THRESHOLD_STARTDT);
+        tagSpec = new MessageTagSpec(RtuMessageConstant.THRESHOLD_STARTDT);
         tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
-        tagSpec = new MessageTagSpec(THRESHOLD_STOPDT);
+        tagSpec = new MessageTagSpec(RtuMessageConstant.THRESHOLD_STOPDT);
         tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
         return msgSpec;
 	}
 
+	public Rtu getMeter() {
+		return this.rtu;
+	}
+	
+	public ObisCode getMbusLoadProfile(){
+		return mbusLProfileObisCode[0];
+	}
+
+	public ObisCode getDailyLoadProfile() {
+		return dailyObisCode;
+	}
+
+	public ObisCode getMonthlyLoadProfile() {
+		return monthlyObisCode;
+	}
+	
 }

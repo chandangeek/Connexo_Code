@@ -20,6 +20,7 @@ public class RtuMessageConstant {
     /** RtuMessage tag for threshold parameters */
     public final static String THRESHOLD_PARAMETERS = "thresholdParameters";
     public final static String THRESHOLD_GROUPID = "Threshold GroupId *";
+    public final static String PARAMETER_GROUPID = "Parameter GroupId *";
     public final static String THRESHOLD_POWERLIMIT = "Threshold PowerLimit (W)";
     public final static String CONTRACT_POWERLIMIT = "Contractual PowerLimit (W)";
     public final static String APPLY_THRESHOLD	= "Apply threshold";
