@@ -59,11 +59,11 @@ public class TOUChannelTypeParser {
         	break;
         case 0x01:
             isEnergy = true;
-            this.Name = "export ";
+            this.Name = "import "; // import and export conform with IEC and not ANSI
             break;
         case 0x02:
             isEnergy = true;
-            this.Name = "import ";
+            this.Name = "export "; // import and export conform with IEC and not ANSI
             break;
         case 0x03:
             isEnergy = true;

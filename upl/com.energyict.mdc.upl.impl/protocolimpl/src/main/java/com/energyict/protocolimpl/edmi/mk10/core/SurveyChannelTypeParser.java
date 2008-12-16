@@ -53,11 +53,11 @@ public class SurveyChannelTypeParser {
         	break;
         case 0x01:
             isEnergy = true;
-            this.Name = "Export";
+            this.Name = "Import"; // import and export conform with IEC and not ANSI
             break;
         case 0x02:
             isEnergy = true;
-            this.Name = "Import";
+            this.Name = "Export"; // import and export conform with IEC and not ANSI
             break;
         case 0x03:
             isEnergy = true;
