@@ -1,1 +1,4 @@
 - MBUSScalerUnit
+- Cleanup code
+- Add extra logging when reading profiledata
+- Create MBus device adhv LookupTable

@@ -24,30 +24,39 @@ import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
+import com.energyict.genericprotocolimpl.webrtukp.Events;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 
-public class MbusProfile {
+public class ElectricityProfile {
 	
-	private MbusDevice mbusDevice;
+//    private final int PROFILE_STATUS_DEVICE_DISTURBANCE=0x01;
+//    private final int PROFILE_STATUS_RESET_CUMULATION=0x10;
+//    private final int PROFILE_STATUS_DEVICE_CLOCK_CHANGED=0x20;
+//    private final int PROFILE_STATUS_POWER_RETURNED=0x40;
+//    private final int PROFILE_STATUS_POWER_FAILURE=0x80;
 	
-	public MbusProfile(){
+	private IskraMx37x iskramx37x;
+	
+	public ElectricityProfile(){
 	}
 	
-	public MbusProfile(MbusDevice mbusDevice){
-		this.mbusDevice = mbusDevice;
+	public ElectricityProfile(IskraMx37x iskra){
+		this.iskramx37x = iskra;
 	}
 	
-	public void getProfile(ObisCode mbusProfile) throws IOException, SQLException, BusinessException{
+	public void getProfile(ObisCode electricityProfile, boolean events) throws IOException, SQLException, BusinessException{
 		ProfileData profileData = new ProfileData( );
 		ProfileGeneric genericProfile;
 		try {
-			genericProfile = getCosemObjectFactory().getProfileGeneric(mbusProfile);
-			List<ChannelInfo> channelInfos = getMbusChannelInfos(genericProfile);
+			genericProfile = getCosemObjectFactory().getProfileGeneric(electricityProfile);
+			List<ChannelInfo> channelInfos = getChannelInfos(genericProfile);
 			
 			profileData.setChannelInfos(channelInfos);
 			Calendar fromCalendar = null;
@@ -64,10 +73,26 @@ public class MbusProfile {
 					}
 				}
 			}
-			this.mbusDevice.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+			
+			iskramx37x.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
 			profileData.sort();
+			
+			if(events){
+				Date lastLogReading = iskramx37x.getMeter().getLastLogbook();
+				if(lastLogReading == null){
+					lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(iskramx37x.getMeter());
+				}
+				Calendar fromCal = ProtocolUtils.getCleanCalendar(getTimeZone());
+				fromCal.setTime(lastLogReading);
+				iskramx37x.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + iskramx37x.getSerialNumber() + ".");
+				DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, iskramx37x.getToCalendar());
+				Logbook logbook = new Logbook(getTimeZone());
+				profileData.getMeterEvents().addAll(logbook.getMeterEvents(dcEvent));
+				profileData.applyEvents(iskramx37x.getMeter().getIntervalInSeconds()/60);
+			}
+			
 			getMeter().store(profileData, false);
 			
 		} catch (IOException e) {
@@ -82,28 +107,28 @@ public class MbusProfile {
 		}
 	}
 
-	private List<ChannelInfo> getMbusChannelInfos(ProfileGeneric profile) throws IOException {
+	private List<ChannelInfo> getChannelInfos(ProfileGeneric profile) throws IOException {
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		ChannelInfo ci = null;
 		int index = 0;
 		try{
 			for(int i = 0; i < profile.getCaptureObjects().size(); i++){
 				
-				if(mbusDevice.isIskraMbusObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){ // make a channel out of it
+				if(ParseUtils.isElectricityObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode()) 
+						&& !isProfileStatusObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){ // make a channel out of it
 					CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
 					ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
-					if(su != null) {
-						ci = new ChannelInfo(index, getProfileChannelNumber(index+1), "IskraMx372_MBus_"+index, su.getUnit());
+					if(su != null){
+						ci = new ChannelInfo(index, getProfileChannelNumber(index+1), "IskraMx372_"+index, su.getUnit());
 					} else {
-						ci = new ChannelInfo(index, getProfileChannelNumber(index+1), "IskraMx372_MBus_"+index, Unit.get(BaseUnit.UNITLESS));
+						ci = new ChannelInfo(index, getProfileChannelNumber(index+1), "IskraMx372_"+index, Unit.get(BaseUnit.UNITLESS));
 					}
 					
 					index++;
-					// We do not do the check because we know it is a cumulative value
-//					if(ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())){
+					if(ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())){
 						//TODO need to check the wrapValue
 						ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
-//					}
+					}
 					channelInfos.add(ci);
 				}
 				
@@ -160,13 +185,18 @@ public class MbusProfile {
 			if(dc.getRoot().getStructure(i).isOctetString(0)){
 				cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
 			} else {
-				//TODO get the interval of the meter itself
-//				cal.add(Calendar.SECOND, 3600);
 				if(cal != null){
-					cal.add(Calendar.SECOND, mbusDevice.getMbus().getIntervalInSeconds());
+					cal.add(Calendar.SECOND, iskramx37x.getMeter().getIntervalInSeconds());
 				}
 			}
-			if(cal != null){				
+			if(cal != null){		
+				
+				if(getProfileStatusChannelIndex(pg) != -1){
+					profileStatus = dc.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex(pg));
+				} else {
+					profileStatus = 0;
+				}
+				
 				currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg);
 				if(currentInterval != null){
 					pd.addInterval(currentInterval);
@@ -175,13 +205,42 @@ public class MbusProfile {
 		}
 	}
 	
+//    private int map(int protocolStatus) {
+//        
+//        int eiStatus=0;
+//        
+//        if ((protocolStatus & PROFILE_STATUS_DEVICE_DISTURBANCE) == PROFILE_STATUS_DEVICE_DISTURBANCE) {
+//            eiStatus |= IntervalStateBits.DEVICE_ERROR; 
+//        }
+//        if ((protocolStatus & PROFILE_STATUS_RESET_CUMULATION) == PROFILE_STATUS_RESET_CUMULATION) {
+//            eiStatus |= IntervalStateBits.OTHER; 
+//        } 
+//        if ((protocolStatus & PROFILE_STATUS_DEVICE_CLOCK_CHANGED) == PROFILE_STATUS_DEVICE_CLOCK_CHANGED) {
+//            eiStatus |= IntervalStateBits.SHORTLONG; 
+//        } 
+//        if ((protocolStatus & PROFILE_STATUS_POWER_RETURNED) == PROFILE_STATUS_POWER_RETURNED) {
+//            eiStatus |= IntervalStateBits.POWERUP; 
+//        } 
+//        if ((protocolStatus & PROFILE_STATUS_POWER_FAILURE) == PROFILE_STATUS_POWER_FAILURE) {
+//            eiStatus |= IntervalStateBits.POWERDOWN; 
+//        } 
+//        
+//        return eiStatus;
+//        
+//    }
+	
+	private boolean isProfileStatusObisCode(ObisCode oc) throws IOException{
+		return oc.equals(getMeterConfig().getStatusObject().getObisCode());
+	}
+	
 	private IntervalData getIntervalData(DataStructure ds, Calendar cal, int status, ProfileGeneric pg)throws IOException{
 		
 		IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
 		
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
-				if(mbusDevice.isIskraMbusObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
+				if(ParseUtils.isElectricityObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())
+						&& !isProfileStatusObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
 					id.addValue(new Integer(ds.getInteger(i)));
 				}
 			}
@@ -191,6 +250,20 @@ public class MbusProfile {
 		}
 		
 		return id;
+	}
+	
+	private int getProfileStatusChannelIndex(ProfileGeneric pg) throws IOException{
+		try {
+			for(int i = 0; i < pg.getCaptureObjectsAsUniversalObjects().length; i++){
+				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getStatusObject().getObisCode())){
+					return i;
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Could not retrieve the index of the profileData's status attribute.");
+		}
+		return -1;
 	}
 	
 	private int getProfileClockChannelIndex(ProfileGeneric pg) throws IOException{
@@ -208,26 +281,26 @@ public class MbusProfile {
 	}
 
 	private CosemObjectFactory getCosemObjectFactory(){
-		return this.mbusDevice.getIskraDevice().getCosemObjectFactory();
+		return this.iskramx37x.getCosemObjectFactory();
 	}
 	
 	private Rtu getMeter(){
-		return this.mbusDevice.getMbus();
+		return this.iskramx37x.getMeter();
 	}
 	
 	private Calendar getToCalendar(){
-		return this.mbusDevice.getIskraDevice().getToCalendar();
+		return this.iskramx37x.getToCalendar();
 	}
 	
 	private Calendar getFromCalendar(Channel channel){
-		return this.mbusDevice.getIskraDevice().getFromCalendar(channel);
+		return this.iskramx37x.getFromCalendar(channel);
 	}
 	
 	private DLMSMeterConfig getMeterConfig(){
-		return this.mbusDevice.getIskraDevice().getMeterConfig();
+		return this.iskramx37x.getMeterConfig();
 	}
 	
 	private TimeZone getTimeZone(){
-		return this.mbusDevice.getIskraDevice().getTimeZone();
+		return this.iskramx37x.getTimeZone();
 	}
 }

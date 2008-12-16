@@ -34,17 +34,17 @@ import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.client.ParseUtils;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.StoredValues;
@@ -56,7 +56,6 @@ import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
-import com.energyict.mdw.amrimpl.RtuRegisterReadingImpl;
 import com.energyict.mdw.core.AmrJournalEntry;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.CommunicationProfile;
@@ -69,17 +68,13 @@ import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -119,7 +114,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private CapturedObjects[] 		capturedObjects = {null, null, null, null, null};	// max. 5 (1E-meter + 4MBus-meters)
     private MbusDevice[]			mbusDevices = {null, null, null, null};				// max. 4 MBus meters
     public static ScalerUnit[] 		demandScalerUnits = {new ScalerUnit(0,30), new ScalerUnit(0,255), new ScalerUnit(0,255), new ScalerUnit(0,255), new ScalerUnit(0,255)};
-    private CommunicationScheduler scheduler;
+    private CommunicationScheduler 	scheduler;
     
     private int iHDLCTimeoutProperty;
     private int iProtocolRetriesProperty;
@@ -148,7 +143,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	private String nodeId;
 	private String serialNumber;
 	private String rtuType;
-	private String version;
 	private String serialnr = null;
 	private String devID = null;
 	
@@ -159,7 +153,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private ObisCode loadProfileObisCode97 	= 	ObisCode.fromString("1.0.99.97.0.255");
     private ObisCode breakerObisCode 		= 	ObisCode.fromString("0.0.128.30.21.255");
     private ObisCode eventLogObisCode 		= 	ObisCode.fromString("1.0.99.98.0.255");
-    private ObisCode mbusScalerUnit 		=	ObisCode.fromString("0.1.128.50.0.255");
+//    private ObisCode mbusScalerUnit 		=	ObisCode.fromString("0.1.128.50.0.255");
     private ObisCode deviceLogicalName		= 	ObisCode.fromString("0.0.42.0.0.255");
     private ObisCode clock					=	ObisCode.fromString("0.0.1.0.0.255");
     private ObisCode status 				= 	ObisCode.fromString("1.0.96.240.0.255");
@@ -194,30 +188,11 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     
     private ArrayList monthlyProfilConfig	= new ArrayList(20);
     
-//    private static String CONNECT 			= "CONNECT";
-//    private static String DISCONNECT 		= "DISCONNECT";
-//    private static String ONDEMAND 			= "ONDEMAND";
-//    private static String THRESHOLD_PARAMETERS = "thresholdParameters";
-//    private static String THRESHOLD_GROUPID = "Threshold GroupId *";
-//    private static String PARAMETER_GROUPID = "Parameter GroupId *";
-//    private static String CL_THRES_GROUPID  = "Clear threshold GroupId *";
-//    private static String THRESHOLD 		= "THRESHOLD";
-//    private static String THRESHOLD_CLEAR	= "THRESHOLD_CLEAR";
-//    private static String CONPOWERLIMIT		= "Contractual Power Limit (W)";
-//    private static String THRESHOLD_LIMIT 	= "Threshold Power Limit (W)";
-//    private static String THRESHOLD_STARTDT	= "StartDate (dd/mm/yyyy HH:MM:SS)";
-//    private static String THRESHOLD_STOPDT	= "EndDate (dd/mm/yyyy HH:MM:SS)";
-
     private static final int ELECTRICITY 	= 0x00;
     private static final int MBUS 			= 0x01;
     public static final int MBUS_MAX		= 0x04;
     
-//    private final static String CONNECT_LOAD 	= "connectLoad";
-//    private final static String DISCONNECT_LOAD = "disconnectLoad";
     private final static String RTU_TYPE 		= "RtuType";
-//    private final static String TOU 			= "UserFile ID of tariff program";
-    
-//    private List messages = new ArrayList(9);
     
     private byte[] connectMsg 				= new byte[] { DLMSCOSEMGlobals.TYPEDESC_UNSIGNED, 0x01 };
     private byte[] disconnectMsg 			= new byte[] { DLMSCOSEMGlobals.TYPEDESC_UNSIGNED, 0x00 };
@@ -227,12 +202,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private byte[] crMeterGroupIDMsg 		= new byte[] { DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED, 0, 0 };
     private byte[] crGroupIDMsg 			= new byte[] { DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED, 0, 0 };
     
-    private final int PROFILE_STATUS_DEVICE_DISTURBANCE=0x01;
-    private final int PROFILE_STATUS_RESET_CUMULATION=0x10;
-    private final int PROFILE_STATUS_DEVICE_CLOCK_CHANGED=0x20;
-    private final int PROFILE_STATUS_POWER_RETURNED=0x40;
-    private final int PROFILE_STATUS_POWER_FAILURE=0x80;
-
     private final static String DUPLICATE_SERIALS =
         "Multiple meters where found with serial: {0}.  Data will not be read.";
 
@@ -273,7 +242,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		rtu = scheduler.getRtu();
 		validateProperties();
 		init(link.getInputStream(),link.getOutputStream());
-		Date lastReading;
 		
         try {
         	connect();
@@ -286,10 +254,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 //        	DailyMonthly dm = new DailyMonthly(this);
 //        	dm.getDailyValues(dailyObisCode);
 //        	dm.getMonthlyValues(monthlyObisCode);
-        	
-        	lastReading = rtu.getLastReading();
-        	if(lastReading == null)
-        		lastReading = getClearMidnightDate();
         	    	
         	// Set clock ... if necessary
         	if( communicationProfile.getWriteClock() ) {
@@ -300,12 +264,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     		if( (communicationProfile.getReadDemandValues()) && (communicationProfile.getReadMeterEvents()) ){
     			doTheCheckMethods();
     			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + rtu.getSerialNumber());
-    			getProfileData(lastReading, true, loadProfileObisCode);
-    		}
-    		else if( (communicationProfile.getReadDemandValues()) && !(communicationProfile.getReadMeterEvents()) ){
-    			doTheCheckMethods();
-    			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + rtu.getSerialNumber());
-    			getProfileData(lastReading, false, loadProfileObisCode);
+    			ElectricityProfile ep = new ElectricityProfile(this);
+    			ep.getProfile(loadProfileObisCode, communicationProfile.getReadMeterEvents());
     		}
     		
     		// Read registers ... if necessary
@@ -316,8 +276,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     		 */
     		if( communicationProfile.getReadMeterReadings() ) {
     			doTheCheckMethods();
-//    			getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + rtu.getSerialNumber());
-//    			getRegisters(ELECTRICITY);
     			
     			getLogger().log(Level.INFO, "Getting daily and monthly values for meter with serialnumber: " + rtu.getSerialNumber());
     			DailyMonthly dm = new DailyMonthly(this);
@@ -435,10 +393,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	
 	private void doTheCheckMethods() throws IOException, SQLException, BusinessException{
     	if(!initCheck){
-//    		collectCache();
-//        	checkMbusDevices();
         	checkConfiguration();
-//        	stopCacheMechanism();
     		initCheck = true;
     	}
 	}
@@ -450,7 +405,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
 	private void checkConfiguration() throws IOException {
 		
-		getLogger().log(Level.INFO, "Reading configuration");
+//		getLogger().log(Level.INFO, "Reading configuration");
 		
 		byte[] dailyByte = {0, 0, 0, 0, -1, -1, -1, -1, -1};
 		byte[] monthlyByte = {0, 0, 0, 0, -1, -1, -1, 1, -1};
@@ -496,7 +451,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		} else if (dlmsCache.getGenericInterval2() == 84600){
 			dailyObisCode = genericProfile2;
 		} else{
-//			throw new IOException("Iskra Mx37x, checkConfiguration, no dailyProfile configured for meter " + strID);
 			getLogger().log(Level.INFO, "Iskra Mx37x, checkConfiguration, no dailyProfile configured for meter " + strID);
 		}
 		
@@ -505,7 +459,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		} else if (isMonthlyArray(new Array(dlmsCache.getGenericInterval4(),0,0))){
 			monthlyObisCode = genericProfile4;
 		} else{
-//			throw new IOException("Iskra Mx37x, checkConfiguration, no monthlyProfile configured for meter " + strID);
 			getLogger().log(Level.INFO, "Iskra Mx37x, checkConfiguration, no monthlyProfile configured for meter " + strID);
 		}
 
@@ -758,6 +711,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	
 	private void collectCache() throws IOException, SQLException, BusinessException {
         int iConf;
+        getLogger().log(Level.INFO, "Reading configuration");
         
         if (dlmsCache.getObjectList() != null) {
             meterConfig.setInstantiatedObjectList(dlmsCache.getObjectList());
@@ -811,7 +765,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             }
         }
 	}
-	
 	
     public Date getTime() throws IOException {
         Clock clock = getCosemObjectFactory().getClock();
@@ -895,270 +848,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		return byteStartDateBuffer;
 	}
 	
-//	private void getRegisters(int deviceType) throws UnsupportedException, NoSuchRegisterException, IOException, SQLException, BusinessException {
-//		
-//		Rtu nRtu = null;
-//		
-//		if(deviceType == ELECTRICITY)
-//			nRtu = rtu;
-//		else if (deviceType == MBUS)
-//			nRtu = mbusDevices[0].getMbus();
-//		
-//        Iterator i = nRtu.getRtuType().getRtuRegisterSpecs().iterator();
-//        while (i.hasNext()) {
-//        	
-//            RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
-//            ObisCode oc = spec.getObisCode();
-//            RtuRegister register = nRtu.getRegister( oc );
-//            MeterReadingData meterReadingData = new MeterReadingData();
-//            
-//            if (register != null){
-//            	
-//            	if (oc.getF() != 255){
-//            		RegisterValue startRegVal = null;
-//            		if (oc.getF() == 0)
-//            			ocm.setDaily();
-//            		else if (oc.getF() == -1)
-//            			ocm.setMonthly();
-//            		
-//            		Date lastRegisterDate = null;
-//            		Calendar registerCalendar = Calendar.getInstance(getTimeZone());
-//            		Calendar systemCalendar = Calendar.getInstance(getTimeZone());
-//                	List registerValues = mw().getRtuRegisterReadingFactory().findByRegister(register.getId());
-//                	
-//                	if (registerValues.size() != 0){
-//                		lastRegisterDate = getLastRegisterDate(registerValues);
-//                		registerCalendar.setTime(lastRegisterDate);
-//                	}else{
-//                		registerCalendar.add(Calendar.MONTH, -1);
-//                		lastRegisterDate = registerCalendar.getTime();
-//                	}
-//            		
-//            		int previousCount = getDayDifferenc(systemCalendar, registerCalendar);
-//            		
-//            		for (int j = previousCount; j >= 0; j--){
-//            			ObisCode previousOc = new ObisCode(oc.getA(), oc.getB(), oc.getC(), oc.getD(), oc.getE(), 0-j, true);
-//            			RegisterValue rv = readRegister(previousOc);
-//            			if ((rv != null)&&(rv.getToTime().after(lastRegisterDate))){
-//            				if (DEBUG >= 1)System.out.println(rv.getToTime() + " " + rv.getQuantity());
-//            				startRegVal = new RegisterValue(oc, rv.getQuantity(),rv.getEventTime(), rv.getFromTime(), rv.getToTime(), rv.getToTime(), register.getId()); 
-//            				meterReadingData.add(startRegVal);
-//            			}
-//            		}
-//            			
-//            		if (oc.getF() == 0)
-//            			ocm.clearDaily();
-//            		else if (oc.getF() == -1)
-//            			ocm.clearMonthly();
-//                }
-//            }
-//			else {
-//				String obis = oc.toString();
-//				String msg = "Register " + obis + " not defined on device";
-//				getLogger().info(msg);
-//			}
-//            
-//    		if(meterReadingData.getRegisterValues().size() != 0)
-//    			nRtu.store(meterReadingData);
-//        }
-//	}
-	
-//    private int getDayDifferenc(Calendar systemCalendar, Calendar registerCalendar) {
-//		long diff = Math.abs(systemCalendar.getTimeInMillis() - registerCalendar.getTimeInMillis());
-//		return (int) (diff/(1000*60*60*24));
-//	}
-//
-//	private Date getLastRegisterDate(List registerValues) {
-//    	Date lastDate = ((RtuRegisterReadingImpl) registerValues.get(0)).getToTime();
-//    	Iterator it = registerValues.iterator();
-//    	while(it.hasNext()){
-//    		Date dateRrri = ((RtuRegisterReadingImpl)it.next()).getToTime();
-//    		if (dateRrri.after(lastDate))
-//    			lastDate = dateRrri;
-//    	}
-//    	return lastDate;
-//	}
-
-	public ProfileData getProfileData(Date lastReading,boolean includeEvents, ObisCode lProfileObisCode) throws IOException, SQLException, BusinessException {
-        Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
-        fromCalendar.setTime(lastReading);
-        return doGetProfileData(fromCalendar,ProtocolUtils.getCalendar(getTimeZone()),includeEvents, lProfileObisCode);
-    }
-    
-    private ProfileData doGetProfileData(Calendar fromCalendar,Calendar toCalendar,boolean includeEvents, ObisCode lProfileObisCode) throws IOException, SQLException, BusinessException {
-        byte bNROfChannels = (byte)getNumberOfChannels(lProfileObisCode);
-        return doGetDemandValues(fromCalendar, bNROfChannels, includeEvents, lProfileObisCode);
-    }
-    
-    private ProfileData doGetDemandValues(Calendar fromCalendar, byte bNROfChannels,  boolean includeEvents, ObisCode profileObisCode) throws IOException, SQLException, BusinessException {
-        
-    	String nRtuType = null;
-    	
-    	if (profileObisCode.equals(loadProfileObisCode))
-    		nRtuType = rtuType;
-    	else if (profileObisCode.equals(mbusLProfileObisCode[0]))
-    		nRtuType = mbusDevices[0].getRtuType();
-    	
-    	ProfileData profileData = new ProfileData( );
-    	if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Getting LoadProfile buffer from Generic Profile: " + profileObisCode.toString());
-    	if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Last reading = " + fromCalendar.getTime());
-        DataContainer dataContainer = getCosemObjectFactory().getProfileGeneric(profileObisCode).getBuffer(fromCalendar, ProtocolUtils.getCalendar(getTimeZone()));
-        for (int channelId=0;channelId<bNROfChannels;channelId++) {
-    		if ( !nRtuType.equalsIgnoreCase("mbus")){
-    			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Adding electricity meter channel " + channelId);
-    			RegisterValue scalerRegister = readRegister(getCapturedObjects(profileObisCode).getProfileDataChannel(channelId));
-				demandScalerUnits[0] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),scalerRegister.getQuantity().getUnit());
-				ChannelInfo ci = new ChannelInfo(channelId, "IskraMx37x_channel_"+channelId, demandScalerUnits[0].getUnit());
-				// TODO Test if this change works, it works for the UPL meters but test it for ESSENT!
-				// TODO
-				if(ParseUtils.isObisCodeCumulative(getCapturedObjects(profileObisCode).getProfileDataChannel(channelId))){
-					ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
-				}
-                profileData.addChannel(ci);
-        	}
-            	
-    		else if ( bytesToObisString(getCapturedObjects(profileObisCode).getProfileDataChannel(channelId).getLN()).indexOf("0.1.128.50.0.255") == 0 ){
-        		// don't show the events on the mbus meter
-    			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Adding MBUS meter channel " + channelId);
-        		includeEvents = false;
-        		RegisterValue scalerRegister = readRegister(getCapturedObjects(profileObisCode).getProfileDataChannel(channelId));
-				demandScalerUnits[1] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),scalerRegister.getQuantity().getUnit());
-				ChannelInfo ci2 = new ChannelInfo(channelId, "IskraMx37x_channel_"+channelId, demandScalerUnits[1].getUnit());
-				ci2.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
-	            profileData.addChannel(ci2);
-        	}
-        }
-        
-        buildProfileData(bNROfChannels,dataContainer,profileData,profileObisCode);
-        
-        if (includeEvents) {
-        	Calendar eventCalendar = Calendar.getInstance(getTimeZone());
-        	Date lastLogBookTime = rtu.getLastLogbook();
-        	if(lastLogBookTime == null){
-        		lastLogBookTime = getClearMidnightDate();
-        	}
-        	eventCalendar.setTime(lastLogBookTime);
-            profileData.getMeterEvents().addAll(getLogbookData(eventCalendar, ProtocolUtils.getCalendar(getTimeZone())));
-            // Apply the events to the channel statusvalues
-            profileData.applyEvents(getProfileInterval(profileObisCode)/60); 
-        }
-        
-    	if (profileObisCode.equals(loadProfileObisCode))
-    		rtu.store(profileData);
-    	else if (profileObisCode.equals(mbusLProfileObisCode[0]))
-    		mbusDevices[0].getMbus().store(profileData);
-        
-        return profileData;
-    }
-    
-	private List getLogbookData(Calendar fromCalendar,Calendar toCalendar) throws IOException {
-        Logbook logbook = new Logbook(getTimeZone());
-        return logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(eventLogObisCode).getBuffer(fromCalendar, toCalendar));
-    }
-	
-    public int getProfileInterval(ObisCode profileObisCode) throws IOException,UnsupportedException{
-    	
-    	int item = -1;
-    	
-    	if (profileObisCode.equals(loadProfileObisCode))
-    		item = 0;
-    	else if (profileObisCode.equals(mbusLProfileObisCode[0]))
-    		item = 1;
-    	
-        if (iInterval[item] == -1) {
-        	if (profileObisCode.equals(loadProfileObisCode)){
-        		if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Getting electricity meter profile interval.");
-        	}
-        	else if (profileObisCode.equals(mbusLProfileObisCode[0])){
-        		if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Getting MBUS meter profile interval.");
-        	}
-           iInterval[item] = getCosemObjectFactory().getProfileGeneric(profileObisCode).getCapturePeriod();
-        }
-        return iInterval[item];
-    }
-    
-    private void buildProfileData(byte bNROfChannels, DataContainer dataContainer,ProfileData profileData, ObisCode profileObisCode)  throws IOException
-    {
-        Calendar calendar=null,calendarEV=null;
-        int i,t,protocolStatus=0;
-        boolean currentAdd=true,previousAdd=true;
-        IntervalData previousIntervalData=null,currentIntervalData;
-
-        if (DEBUG >=1) dataContainer.printDataContainer();
-        
-        if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Parsing LoadProfile.");
-        if(TESTLOGGING == 2) getLogger().log(Level.INFO, "GN - TESTLOG: Content of LoadProfile DataContainer:");
-        if(TESTLOGGING == 2) getLogger().log(Level.INFO, dataContainer.toString());
-        
-        
-        if (dataContainer.getRoot().element.length == 0)
-           throw new IOException("No entries in Load Profile Datacontainer.");
-        
-        for (i=0;i<dataContainer.getRoot().element.length;i++) { // for all retrieved intervals
-            try {    
-                calendar = dataContainer.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(profileObisCode)).toCalendar(getTimeZone());        
-            }
-            catch(ClassCastException e) {
-                // absorb
-                if (DEBUG>=1)  System.out.println ("DEBUG> buildProfileData, ClassCastException ,"+e.toString());
-                if (calendar != null) calendar.add(calendar.MINUTE,(getProfileInterval(profileObisCode)/60));
-            }
-            if (calendar != null) {
-                if (getProfileStatusChannelIndex(profileObisCode)!=-1)
-                    protocolStatus = dataContainer.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex(profileObisCode));   
-                else
-                    protocolStatus=0;
-
-                currentIntervalData = getIntervalData(dataContainer.getRoot().getStructure(i), calendar, protocolStatus, profileObisCode);
-
-                // KV 16012004
-                if (DEBUG >=1) { 
-                    dataContainer.getRoot().getStructure(i).print();
-                    System.out.println();
-                }
-
-                if (currentAdd & !previousAdd) {
-                   if (DEBUG>=1) System.out.println ("add intervals together...");
-                   currentIntervalData = addIntervalData(currentIntervalData,previousIntervalData);
-                }
-
-                // Add interval data...
-                if (currentAdd) {
-                    profileData.addInterval(currentIntervalData);
-                }
-                previousIntervalData=currentIntervalData;
-                previousAdd=currentAdd;
-            } // if (calendar != null)
-        } // for (i=0;i<dataContainer.getRoot().element.length;i++) // for all retrieved intervals
-        if (DEBUG>=1) System.out.println(profileData);
-    }
-    
-    private IntervalData getIntervalData(DataStructure dataStructure,Calendar calendar,int protocolStatus, ObisCode profileObisCode) throws UnsupportedException, IOException {
-        // Add interval data...
-        IntervalData intervalData = new IntervalData(new Date(((Calendar)calendar.clone()).getTime().getTime()),map(protocolStatus),protocolStatus);
-        
-        for (int t=0;t<getCapturedObjects(profileObisCode).getNROfChannels();t++){
-            if (getCapturedObjects(profileObisCode).isChannelData(getObjectNumber(t, profileObisCode)))
-                intervalData.addValue(new Integer(dataStructure.getInteger(getObjectNumber(t, profileObisCode) + dataContainerOffset)));
-        }
-        return intervalData;
-    }
-    
-	
-//	private int getProfileStatusChannelIndex(ProfileGeneric pg) throws IOException{
-//		try {
-//			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
-//				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getStatusObject().getObisCode())){
-//					return i;
-//				}
-//			}
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//			throw new IOException("Could not retrieve the index of the profileData's status attribute.");
-//		}
-//		return -1;
-//	}
-	
 	public Calendar getToCalendar(){
 		return ProtocolUtils.getCalendar(getTimeZone());
 	}
@@ -1178,159 +867,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		return cal;
 	}
     
-    private int getObjectNumber(int t, ObisCode profileObisCode) throws IOException {
-		for(int i = 0; i < getCapturedObjects(profileObisCode).getNROfObjects(); i++){
-			if ( getCapturedObjects(profileObisCode).getChannelNR(i) == t)
-				return i;
-		}
-		throw new UnsupportedException();
-	}
-    
-    private int map(int protocolStatus) {
-        
-        int eiStatus=0;
-        
-        if ((protocolStatus & PROFILE_STATUS_DEVICE_DISTURBANCE) == PROFILE_STATUS_DEVICE_DISTURBANCE) {
-            eiStatus |= IntervalStateBits.DEVICE_ERROR; 
-        }
-        if ((protocolStatus & PROFILE_STATUS_RESET_CUMULATION) == PROFILE_STATUS_RESET_CUMULATION) {
-            eiStatus |= IntervalStateBits.OTHER; 
-        } 
-        if ((protocolStatus & PROFILE_STATUS_DEVICE_CLOCK_CHANGED) == PROFILE_STATUS_DEVICE_CLOCK_CHANGED) {
-            eiStatus |= IntervalStateBits.SHORTLONG; 
-        } 
-        if ((protocolStatus & PROFILE_STATUS_POWER_RETURNED) == PROFILE_STATUS_POWER_RETURNED) {
-            eiStatus |= IntervalStateBits.POWERUP; 
-        } 
-        if ((protocolStatus & PROFILE_STATUS_POWER_FAILURE) == PROFILE_STATUS_POWER_FAILURE) {
-            eiStatus |= IntervalStateBits.POWERDOWN; 
-        } 
-        
-        return eiStatus;
-        
-    }
-    
-    private IntervalData addIntervalData(IntervalData currentIntervalData,IntervalData previousIntervalData) {
-        int currentCount = currentIntervalData.getValueCount();
-        IntervalData intervalData = new IntervalData(currentIntervalData.getEndTime(),currentIntervalData.getEiStatus(),currentIntervalData.getProtocolStatus());
-        int current,i;
-        for (i=0;i<currentCount;i++) {
-            current = ((Number)currentIntervalData.get(i)).intValue()+((Number)previousIntervalData.get(i)).intValue();
-            intervalData.addValue(new Integer(current));
-        }
-        return intervalData;
-    }
-    
-    private int getProfileClockChannelIndex(ObisCode profileObisCode) throws IOException {
-        for (int i=0;i<getCapturedObjects(profileObisCode).getNROfObjects();i++) {
-            if (!getCapturedObjects(profileObisCode).isChannelData(i)) {
-                if (ObisCode.fromByteArray(getCapturedObjects(profileObisCode).getLN(i)).equals(clock))
-                    return i;
-            }
-        }
-        throw new IOException("Iskra Mx37x, no clock channel found in captureobjects!");
-    }
-    
-    private int getProfileStatusChannelIndex(ObisCode profileObisCode) throws UnsupportedException, IOException {
-        for (int i=0;i<getCapturedObjects(profileObisCode).getNROfObjects();i++) {
-            if (!getCapturedObjects(profileObisCode).isChannelData(i)) {
-                if (ObisCode.fromByteArray(getCapturedObjects(profileObisCode).getLN(i)).equals(status))
-                    return i;
-            }
-        }
-        return -1;
-    }
-    
-    public int getNumberOfChannels(ObisCode profileObisCode) throws UnsupportedException, IOException {
-    	
-    	int item = -1;
-    	
-    	if (profileObisCode.equals(loadProfileObisCode))
-    		item = 0;
-    	else if (profileObisCode.equals(mbusLProfileObisCode[0]))
-    		item = 1;
-    	
-        if (numberOfChannels[item] == -1) {
-        	if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Getting channel count.");
-            numberOfChannels[item] = getCapturedObjects(profileObisCode).getNROfChannels();
-        }
-        return numberOfChannels[item];
-    }
-    
-    private CapturedObjects getCapturedObjects(ObisCode profileObisCode)  throws UnsupportedException, IOException {
-    	
-    	int item = -1;
-    	
-    	if (profileObisCode.equals(loadProfileObisCode))
-    		item = 0;
-    	else if (profileObisCode.equals(mbusLProfileObisCode[0]))
-    		item = 1;
-    	
-        if (capturedObjects[item] == null) {
-           int i;
-           int j = 0;
-           DataContainer dataContainer = null;
-           try {
-               ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(profileObisCode);
-               meterConfig.setCapturedObjectList(profileGeneric.getCaptureObjectsAsUniversalObjects());               
-               dataContainer = profileGeneric.getCaptureObjectsAsDataContainer();
-               
-               capturedObjects[item] = new CapturedObjects(dataContainer.getRoot().element.length);
-               for (i=0;i<dataContainer.getRoot().element.length;i++) {
-            	   
-            	   if ( i >= 2){
-            		   
-            		   if ( rtuType.equalsIgnoreCase("mbus") ){
-                		   if ( bytesToObisString(dataContainer.getRoot().getStructure(i).getOctetString(1).getArray()).indexOf("0.1.128.50.0.255") == 0 ){
-                               capturedObjects[item].add(j,
-                                       dataContainer.getRoot().getStructure(i).getInteger(0),
-                                       dataContainer.getRoot().getStructure(i).getOctetString(1).getArray(),
-                                       dataContainer.getRoot().getStructure(i).getInteger(2));
-                               if (dataContainerOffset== -1) dataContainerOffset  = i - 2;
-                               j++;
-                		   }
-                	   }
-                	   else{
-                		   if ( bytesToObisString(dataContainer.getRoot().getStructure(i).getOctetString(1).getArray()).indexOf("0.1.128.50.0.255") != 0 ){
-                               capturedObjects[item].add(j,
-                                       dataContainer.getRoot().getStructure(i).getInteger(0),
-                                       dataContainer.getRoot().getStructure(i).getOctetString(1).getArray(),
-                                       dataContainer.getRoot().getStructure(i).getInteger(2));
-                               if (dataContainerOffset== -1) dataContainerOffset  = i - 2;
-                               j++;
-                		   }
-                	   }
-            	   }
-            	   
-            	   else{
-                       capturedObjects[item].add(j,
-                               dataContainer.getRoot().getStructure(i).getInteger(0),
-                               dataContainer.getRoot().getStructure(i).getOctetString(1).getArray(),
-                               dataContainer.getRoot().getStructure(i).getInteger(2));
-                       j++;
-            	   }
-               }
-           }
-           catch (java.lang.ClassCastException e) {
-               System.out.println("Error retrieving object: "+e.getMessage());   
-           }
-           catch(java.lang.ArrayIndexOutOfBoundsException e) {
-               System.out.println("Index error: "+e.getMessage());   
-           }
-           
-        } 
-        return capturedObjects[item];
-    }
-    
-    private String bytesToObisString(byte[] channelLN) {
-    	String str = "";
-		for(int i = 0; i < channelLN.length; i++){
-			if (i>0) str+=".";
-				str += ""+((int)channelLN[i]&0xff);
-		}
-		return str;
-	}
-	
     private boolean verifyMeterID() throws IOException {
         if ((strID == null) || ("".compareTo(strID)==0) || (strID.compareTo(getDeviceAddress()) == 0))
             return true;
@@ -2116,5 +1652,4 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	public ObisCode getMonthlyLoadProfile() {
 		return monthlyObisCode;
 	}
-	
 }

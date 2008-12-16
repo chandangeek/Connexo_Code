@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeDuration;
@@ -59,7 +60,7 @@ public class DailyMonthly {
 					}
 				}
 			}
-			
+			iskramx37x.getLogger().log(Level.INFO, "Reading Daily values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
 			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
@@ -131,6 +132,7 @@ public class DailyMonthly {
 				}
 			}
 			
+			iskramx37x.getLogger().log(Level.INFO, "Reading Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
 			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
