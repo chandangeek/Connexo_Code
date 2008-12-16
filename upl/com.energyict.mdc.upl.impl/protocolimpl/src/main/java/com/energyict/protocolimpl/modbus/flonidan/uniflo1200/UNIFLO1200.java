@@ -8,17 +8,12 @@
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.*;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.discover.*;
 import com.energyict.protocolimpl.modbus.core.*;
-import com.sun.xml.internal.ws.client.SenderException;
-
 
 /**
  * @author jme
@@ -31,6 +26,17 @@ public class UNIFLO1200 extends Modbus {
         return "$Revision: 1.2 $";
     }
 
+	public void setTime() throws IOException {
+		byte[] b = new byte[6];
+		Calendar cal = ProtocolUtils.getCleanCalendar(gettimeZone());
+		b = UNIFLO1200Parsers.buildTimeDate(cal);
+		try {
+			getRegisterFactory().findRegister(RegisterFactory.REG_TIME).getWriteMultipleRegisters(b);
+		} catch (IOException e) {
+			throw new ProtocolException("Unable to set time. Possibly wrong password. Exception message: " + e.getMessage());
+		}
+	}
+
 	public Date getTime() throws IOException {
 		return getRegisterFactory().findRegister(RegisterFactory.REG_TIME).dateValue();
 	}
@@ -40,67 +46,13 @@ public class UNIFLO1200 extends Modbus {
 	}
 	
 	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        	Unit returnUnit = null;
-        	String returnText = null;
-        	Date returnEventTime = null;
-        	Date returnFromTime = null;
-        	Date returnToTime = null;
-        	Date returnReadTime = null;
-        	Quantity returnQuantity = null;
-        	int returnRtuRegisterID = 0;
-        	
-		try {
-        	String parserName = getRegisterFactory().findRegister(obisCode).getParser();
-        	
-        	AbstractRegister hr = getRegisterFactory().findRegister(obisCode);
-
-        	sendDebug("Result obiscode:         " + obisCode, 0);
-        	sendDebug("Result register address: " + ProtocolUtils.buildStringHex(hr.getReg(), 4), 0);
-        	sendDebug("Result register range:   " +ProtocolUtils.buildStringHex(hr.getRange(), 4), 0);
-
-        	returnUnit = hr.getUnit();
-        	returnRtuRegisterID = hr.getReg();
-        	Object result = hr.value();
-        	Class rc = result.getClass();
-
-        	sendDebug("Result class type: " + result.getClass().getName() + "\n\n", 0);
-        	
-        	if (rc == String.class)	{
-        		returnText = (String)result;
-        	}
-        	else if (rc == Date.class) {
-        		returnEventTime = (Date)result;
-        		returnQuantity = new Quantity(returnEventTime.getTime(), returnUnit);
-        		returnText = returnEventTime.toString();
-        	}
-        	else if (rc == Quantity.class) {
-        		returnQuantity = (Quantity)result;
-        		returnQuantity.convertTo(returnUnit, true);
-        	}
-        	else if (rc == BigDecimal.class) {
-        		returnQuantity = new Quantity((BigDecimal)result, returnUnit);
-        	}
-        	else if (rc == Integer.class) {
-        		returnQuantity = new Quantity(new BigDecimal((Integer)result), returnUnit);
-        	}
-        	else {
-        		returnText = result.toString();
-        	}
-        	
-        	return new RegisterValue(obisCode, returnQuantity, returnEventTime, returnFromTime, returnToTime, returnReadTime, returnRtuRegisterID, returnText);
-        }
-        catch(ModbusException e) {
-            if ((e.getExceptionCode()==0x02) && (e.getFunctionErrorCode()==0x83))
-                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-            else
-                throw e;
-        }
+		return ((RegisterFactory)getRegisterFactory()).readRegister(obisCode);
 	}
 	
 	protected void doTheConnect() throws IOException {
 		sendDebug("doTheConnect()", 5);
-		// TODO Auto-generated method stub
-		
+		byte[] b = getInfoTypePassword().getBytes();
+		getRegisterFactory().findRegister(RegisterFactory.REG_LOGIN).getWriteMultipleRegisters(b);
 	}
 
 	protected void doTheDisConnect() throws IOException {
@@ -131,6 +83,20 @@ public class UNIFLO1200 extends Modbus {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+    protected String getRegistersInfo(int extendedLogging) throws IOException {
+    	StringBuffer strBuff = new StringBuffer();
+    	if (extendedLogging==1) {
+    		Iterator it = ((RegisterFactory)getRegisterFactory()).getRegisters().iterator();
+    		while (it.hasNext()) {
+    			AbstractRegister ar = (AbstractRegister)it.next();
+    			if (ar.getObisCode()!=null)
+    				strBuff.append(ar.toString() + "\n");
+    		}
+    	}
+    	return strBuff.toString();
+    }
+
 	
     public void sendDebug(String message, int debuglvl) {
 		message = " ##### DEBUG [" + new Date().toString() + "] ######## > " + message;

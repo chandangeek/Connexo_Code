@@ -8,19 +8,25 @@ package com.energyict.protocolimpl.modbus.flonidan.uniflo1200;
 
 import java.io.IOException;
 
-import com.energyict.cbo.Unit;
-
 /**
  * @author jme
  *
  */
 public class UNIFLO1200Registers {
 	private static final int MIN_INDEX = 0;
-	private static final int MAX_INDEX = 255;
+	private static final int MAX_INDEX = 276;
 
     public static final int UNIFLO1200_FW_25 = 25;
     public static final int UNIFLO1200_FW_28 = 28;
 
+	public static final String OPTION_GAS_CALC_FORMULA[] = {
+		"AGA NX-19 MOD CORR",
+		"AGA 8",
+		"SGERG 88",
+		"Z/Zb",
+		"AGA NX-19 MOD HER/WOL"
+	};
+    
     private int fwVersion = 0;
 	
 	public UNIFLO1200Registers(int uniflo1200_fw_version) throws IOException {
@@ -46,6 +52,16 @@ public class UNIFLO1200Registers {
 	public int getDataType(int addressIndex) throws IOException {
 		int absoluteAddress = getAbsAddr(addressIndex);
 		return (absoluteAddress & 0x00F00000) >> 20;
+	}
+	
+	public int getDecimals(int addressIndex) throws IOException {
+		int absoluteAddress = getAbsAddr(addressIndex);
+		return (absoluteAddress & 0x70000000)>>28;
+	}
+
+	public int getSlaveID(int addressIndex) throws IOException {
+		int absoluteAddress = getAbsAddr(addressIndex);
+		return (absoluteAddress & 0x000F0000)>>16;
 	}
 	
 	public String getParser(int addressIndex) throws IOException {
@@ -187,7 +203,7 @@ public class UNIFLO1200Registers {
 		public static final int ALARM_COUNT_TABLE		= 67;
 		public static final int POWER					= 68;
 		public static final int SET_ALARM_REG			= 69;
-		public static final int PRESS_MANUF_TYPE		= 70;
+		public static final int PRESS_SENSOR			= 70;
 		public static final int PRESS_SENS_STYLE		= 71;
 		public static final int PRESS_SENS_RANGE		= 72;
 		public static final int PRESS_SERIAL			= 73;
@@ -231,7 +247,7 @@ public class UNIFLO1200Registers {
 		public static final int HOUR_LOG_24_REG			= 111;
 		public static final int SNAPSHOT_LOG_REG		= 112;
 		public static final int ALARM_TRIGGERED_LOG_REG	= 113;
-		public static final int SW_VERSION_TYPE			= 114;
+		public static final int FW_VERSION_TYPE			= 114;
 		public static final int INSTALLATION_NR			= 115;
 		public static final int METER_NR				= 116;
 		public static final int METER_SIZE				= 117;
@@ -373,6 +389,29 @@ public class UNIFLO1200Registers {
 		public static final int TEMP_CALIB_TIME			= 253;
 		public static final int CONVERSION_TABLE_CRC	= 254;
 		public static final int CONV_TABLE_DLL_VERSION	= 255;
+		
+		public static final int WR_RESET_ALARM			= 256;
+		public static final int WR_CLEAR_ALARM			= 257;
+		public static final int WR_CLEAR_CONFIG_LOG		= 258;
+		public static final int WR_LOCK_GAS_TABLE		= 259;
+		public static final int WR_UNLOCK_GAS_TABLE		= 260;
+		public static final int WR_UPDATE_CORR_TABLE	= 261;
+		public static final int WR_UPDATE_GAS_DATA		= 262;
+		public static final int WR_MAKE_SNAPSHOT		= 263;
+		public static final int WR_UPDATE_EEPROM		= 264;
+		public static final int WR_LOCK_GRAPH_DISP		= 265;
+		public static final int WR_UNLOCK_GRAPH_DISP	= 266;
+		public static final int WR_DISPLAY_TEST			= 267;
+		public static final int WR_FW_UPDATE_START		= 268;
+		public static final int WR_FW_UPDATE_END		= 269;
+		public static final int WR_FW_UPDATE_CANCEL		= 270;
+		public static final int WR_FORCE_MEASUREMENT	= 271;
+		public static final int WR_PRESS_SENS_CHANGE 	= 272;
+		public static final int WR_TEMP_SENS_CHANGE 	= 273;
+		public static final int WR_SET_PASS				= 274;
+		public static final int WR_SET_OPERATOR_ID		= 275;
+		public static final int WR_ADJUST_TIME			= 276;
+
 		
 		private static final int ABSOLUTE_ADDRESSES[] = {
 			0x573000B0,   // 0    Za                              R       1R   Za                                                                          Za
@@ -630,7 +669,28 @@ public class UNIFLO1200Registers {
 			0x0F501CDA,   // 252  PresureCalTime                          1    Pressure calibration time                                                   Press. cal. Time
 			0x0F501CE0,   // 253  TempCalTime                             1    Temperature calibration time                                                Temp. cal. Time
 			0xFA101CEE,   // 254  ConvTableChecksum                       1R   Conversion table checksum                                                   Conv. table chksum
-			0xFA101CF0,   // 255  ConvTableDLLChecksum                    1R   DLL checksum                                                                DLL checksum
+			0xFA101CF0,   // 255  ConvTableDLLChecksum                    1R                                                                               DLL checksum
+			0x00101E04,   // 256                                                                                                                                          
+			0x00101E06,   // 257                                                                                                                                         
+			0x00101E0A,   // 258                                                                                                                                        
+			0x00101E0C,   // 259                                                                                                                                       
+			0x00101E0E,   // 260                                                                                                                                         
+			0x00101E10,   // 261                                                                                                                                        
+			0x00101E12,   // 262                                                                                                                                        
+			0x00101E14,   // 263                                                                                                                                      
+			0x00101E08,   // 264                                                                                                                                       
+			0x00001E16,   // 265                                                                                                                                         
+			0x00001E18,   // 266                                                                                                                                       
+			0x00001E1A,   // 267                                                                                                                                         
+			0x00101E1C,   // 268                                                                                                                                                
+			0x00101E1E,   // 269                                                                                                                                               
+			0x00101E20,   // 270                                                                                                                                               
+			0x00101E22,   // 271                                                                                                                                               
+			0x00101F00,   // 272                                                                                                                                               
+			0x00101F02,   // 273                                                                                                                                               
+			0x00F01E00,   // 274                                                                                                                                               
+			0x00F01E02,   // 275                                                                                                                                               
+			0x00101E24,   // 276                                                                                                                                               
 		};
 
 		private static final String UNITS[] = {
@@ -771,27 +831,27 @@ public class UNIFLO1200Registers {
 			"",      // 131  SnapshotBredde                  R            No. of log points
 			"",      // 132  AlarmAktBredde                  R            No. of log points
 			"m3/h",  // 133  FlowUnCorr           m3/h               1R0 1Flow measured                                                               Flow meas.
-			"",      // 134  Methan                          R       1    Methane                                                                     Methane
-			"",      // 135  Nitrogen                        R       1    Nitrogen                                                                    Nitrogen
-			"",      // 136  CarbonDioxide                   R       1    CO2                                                                         CO2
-			"",      // 137  Ethan                           R       1    Ethane                                                                      Ethane
-			"",      // 138  Propan                          R       1    Propane                                                                     Propane
-			"",      // 139  Water                           R       1    Water                                                                       Water
-			"",      // 140  HydrogenSylfide                 R       1    Hydrg. Sul.                                                                 Hydrg. Sul.
-			"",      // 111  Hydrogen                        R       1    Hydrogen                                                                    Hydrogen
-			"",      // 142  CarbonMonoxide                  R       1    Carb. mo.                                                                   Carb. mo.
-			"",      // 143  Oxygen                          R       1    Oxygen                                                                      Oxygen
-			"",      // 144  iButan                          R       1    i-Butane                                                                    i-Butane
-			"",      // 145  nButan                          R       1    n-Butane                                                                    n-Butane
-			"",      // 146  iPentan                         R       1    i-Pentane                                                                   i-Pentane
-			"",      // 147  nPentan                         R       1    n-Pentane                                                                   n-Pentane
-			"",      // 148  nHexan                          R       1    n-Hexane                                                                    n-Hexane
-			"",      // 149  nHeptan                         R       1    n-Heptane                                                                   n-Heptane
-			"",      // 150  nOctan                          R       1    n-Octane                                                                    n-Octane
-			"",      // 151  nNontan                         R       1    n-Nonane                                                                    n-Nonane
-			"",      // 152  nDecan                          R       1    n-Decane                                                                    n-Decane
-			"",      // 153  Helium                          R       1    Helium                                                                      Helium
-			"",      // 154  Argon                           R       1    Argon                                                                       Argon
+			"mol%",  // 134  Methan                          R       1    Methane                                                                     Methane
+			"mol%",  // 135  Nitrogen                        R       1    Nitrogen                                                                    Nitrogen
+			"mol%",  // 136  CarbonDioxide                   R       1    CO2                                                                         CO2
+			"mol%",  // 137  Ethan                           R       1    Ethane                                                                      Ethane
+			"mol%",  // 138  Propan                          R       1    Propane                                                                     Propane
+			"mol%",  // 139  Water                           R       1    Water                                                                       Water
+			"mol%",  // 140  HydrogenSylfide                 R       1    Hydrg. Sul.                                                                 Hydrg. Sul.
+			"mol%",  // 111  Hydrogen                        R       1    Hydrogen                                                                    Hydrogen
+			"mol%",  // 142  CarbonMonoxide                  R       1    Carb. mo.                                                                   Carb. mo.
+			"mol%",  // 143  Oxygen                          R       1    Oxygen                                                                      Oxygen
+			"mol%",  // 144  iButan                          R       1    i-Butane                                                                    i-Butane
+			"mol%",  // 145  nButan                          R       1    n-Butane                                                                    n-Butane
+			"mol%",  // 146  iPentan                         R       1    i-Pentane                                                                   i-Pentane
+			"mol%",  // 147  nPentan                         R       1    n-Pentane                                                                   n-Pentane
+			"mol%",  // 148  nHexan                          R       1    n-Hexane                                                                    n-Hexane
+			"mol%",  // 149  nHeptan                         R       1    n-Heptane                                                                   n-Heptane
+			"mol%",  // 150  nOctan                          R       1    n-Octane                                                                    n-Octane
+			"mol%",  // 151  nNontan                         R       1    n-Nonane                                                                    n-Nonane
+			"mol%",  // 152  nDecan                          R       1    n-Decane                                                                    n-Decane
+			"mol%",  // 153  Helium                          R       1    Helium                                                                      Helium
+			"mol%",  // 154  Argon                           R       1    Argon                                                                       Argon
 			"",      // 155  BeregningsMetode                R       1    Formular                                                                    Formular
 			"",      // 156  GasComp                         R       1    Gas composition                                                             Gas comp.
 			"",      // 157  RevTime                         R       1R   Time of rev.                                                                Comp. rev.
@@ -893,6 +953,28 @@ public class UNIFLO1200Registers {
 			"",      // 253  TempCalTime                             1    Temperature calibration time                                                Temp. cal. Time
 			"",      // 254  ConvTableChecksum                       1R   Conversion table checksum                                                   Conv. table chksum
 			"",      // 255  ConvTableDLLChecksum                    1R   DLL checksum                                                                DLL checksum
+			"",      // 256                                                                                                                                         
+			"",      // 257                                                                                                                                         
+			"",      // 258                                                                                                                                        
+			"",      // 259                                                                                                                                       
+			"",      // 260                                                                                                                                         
+			"",      // 261                                                                                                                                        
+			"",      // 262                                                                                                                                        
+			"",      // 263                                                                                                                                      
+			"",      // 264                                                                                                                                       
+			"",      // 265                                                                                                                                         
+			"",      // 266                                                                                                                                       
+			"",      // 267                                                                                                                                         
+			"",      // 268                                                                                                                                                
+			"",      // 269                                                                                                                                               
+			"",      // 270                                                                                                                                               
+			"",      // 271                                                                                                                                               
+			"",      // 272                                                                                                                                               
+			"",      // 273                                                                                                                                               
+			"",      // 274                                                                                                                                               
+			"",      // 275                                                                                                                                               
+			"",      // 276                                                                                                                                               
+
 		};
 
 	

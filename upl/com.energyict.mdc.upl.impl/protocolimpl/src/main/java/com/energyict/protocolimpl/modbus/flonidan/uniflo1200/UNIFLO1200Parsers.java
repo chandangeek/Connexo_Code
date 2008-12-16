@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 import com.energyict.protocol.ProtocolUtils;
@@ -43,6 +44,7 @@ public class UNIFLO1200Parsers {
     public static final String PARSER_STR8		= "STR8_Parser";		// 8 chars
     public static final String PARSER_DATABLOCK	= "DATABLOCK_Parser";	// x bytes (Data block of bytes. Length is unknown)
     public static final String PARSER_STRING 	= "String_Parser";		// x chars (Data block of chars, Length is unknown)
+	public static final String PARSER_GAS_FORM	= "GAS_FORMULA_Parser"; // convert option byte to used conversion type string (AGA8, ...) 
     
     public static final int LENGTH_UINT8		= 1; 		// 1 byte
     public static final int LENGTH_UINT16		= 1; 		// 2 bytes (word)
@@ -52,13 +54,27 @@ public class UNIFLO1200Parsers {
     public static final int LENGTH_TIME			= 3;		// 6 bytes (yymmddhhmmss)
     public static final int LENGTH_STR22		= 11;		// 22 chars
     public static final int LENGTH_OPTION		= 1;		// 1 byte (list index)
-    public static final int LENGTH_LOC_PTR		= 2;		// 2 bytes (location pointer)
+    public static final int LENGTH_LOC_PTR		= 1;		// 2 bytes (location pointer)
     public static final int LENGTH_STR29		= 15;		// 29 chars
     public static final int LENGTH_STR1			= 1;		// 1 char
     public static final int LENGTH_UINT160		= 1;		// 2 bytes (word, reverse data storing) 
     public static final int LENGTH_UINT320		= 2;		// 4 bytes (long, reverse data storing) 
     public static final int LENGTH_REAL320		= 2;		// 4 bytes (single, reverse data storing) 
     public static final int LENGTH_STR8			= 4;		// 8 chars
+//	public static final int LENGTH_GAS_FORM		= 1; 		// convert option byte to used conversion type string (AGA8, ...) 
+    
+    public static byte[] buildTimeDate(Calendar cal) {
+    	byte[] b = new byte[6];
+    	
+    	b[0] = (byte) ((cal.get(Calendar.MONTH) + 1) & 0x000000FF);
+    	b[1] = (byte) ((cal.get(Calendar.YEAR) - 2000) & 0x000000FF);
+    	b[2] = (byte) (cal.get(Calendar.HOUR_OF_DAY) & 0x000000FF);
+    	b[3] = (byte) (cal.get(Calendar.DAY_OF_MONTH) & 0x000000FF);
+    	b[4] = (byte) (cal.get(Calendar.SECOND) & 0x000000FF);
+    	b[5] = (byte) (cal.get(Calendar.MINUTE) & 0x000000FF);
+
+    	return b;
+    }
     
     public UNIFLO1200Parsers(TimeZone timezone) {
     	this.tz = timezone;
@@ -110,7 +126,7 @@ public class UNIFLO1200Parsers {
     class STR22Parser implements Parser {
         public String val(int[] values, AbstractRegister register) {
             String result = "";
-            for (int i = 0; i < LENGTH_STR22; i++) {
+            for (int i = 0; i < 11; i++) {
 				result += (char)((values[i] & 0x0000FF00) >> 8); 
 				result += (char)(values[i] & 0x000000FF); 
 			}
@@ -118,12 +134,18 @@ public class UNIFLO1200Parsers {
         }
     }
 
+    class STR1Parser implements Parser {
+        public String val(int[] values, AbstractRegister register) {
+            return "" + (char)((values[0] & 0x0000FF00) >> 8); 
+        }
+    }
+
     class STR29Parser implements Parser {
         public String val(int[] values, AbstractRegister register) {
             String result = "";
-            for (int i = 0; i < LENGTH_STR29; i++) {
+            for (int i = 0; i < 15; i++) {
 				result += (char)((values[i] & 0x0000FF00) >> 8); 
-				result += (char)(values[i] & 0x000000FF); 
+				if (i != 14) result += (char)(values[i] & 0x000000FF); 
 			}
         	return result;
         }
@@ -157,6 +179,27 @@ public class UNIFLO1200Parsers {
         }
     }
 
+    class UINT160Parser implements Parser {
+        public Integer val(int[] values, AbstractRegister register) {
+        	Integer returnValue =
+        		((values[0] & 0x0000FF00) >> 8) +
+        		((values[0] & 0x000000FF) << 8);
+        	return returnValue;
+        }
+    }
+
+    class UINT320Parser implements Parser {
+        public Integer val(int[] values, AbstractRegister register) {
+        	Integer returnValue =
+        		((values[0] & 0x0000FF00) >> 8) +
+				((values[0] & 0x000000FF) << 8) +
+				((values[1] & 0x0000FF00) << 8) +
+				((values[1] & 0x000000FF) << 24);
+        	return returnValue;
+        }
+    }
+
+    
     class REAL32Parser implements Parser {
         public BigDecimal val(int[] values, AbstractRegister register) {
         	int fractionalPart;
@@ -169,7 +212,7 @@ public class UNIFLO1200Parsers {
 				((values[1] & 0x000000FF) << 24);
 
         	returnValue = new BigDecimal(Float.intBitsToFloat(fractionalPart));
-        	
+
         	return returnValue;
         }
     }
@@ -194,21 +237,15 @@ public class UNIFLO1200Parsers {
         	
         	returnValue = new BigDecimal(intPart);
         	returnValue = returnValue.add(new BigDecimal(Float.intBitsToFloat(fractionalPart)));
-
-        	if (DEBUG >= 1) System.out.print("\n\n");
-        	if (DEBUG >= 1) System.out.println("values[0] = " + ProtocolUtils.buildStringHex(values[0] & 0x0000FFFF, 4));
-        	if (DEBUG >= 1) System.out.println("values[1] = " + ProtocolUtils.buildStringHex(values[1] & 0x0000FFFF, 4));
-        	if (DEBUG >= 1) System.out.println("values[2] = " + ProtocolUtils.buildStringHex(values[2] & 0x0000FFFF, 4));
-        	if (DEBUG >= 1) System.out.println("values[3] = " + ProtocolUtils.buildStringHex(values[3] & 0x0000FFFF, 4));
-        	if (DEBUG >= 1) System.out.println("");
-        	if (DEBUG >= 1) System.out.println("INTREALParser intPart:        " + intPart);
-        	if (DEBUG >= 1) System.out.println("INTREALParser fractionalPart: " + fractionalPart);
-        	if (DEBUG >= 1) System.out.println("INTREALParser intBitsToFloat: " + Float.intBitsToFloat(fractionalPart));
-        	if (DEBUG >= 1) System.out.println("INTREALParser returnValue:    " + returnValue);
-        	if (DEBUG >= 1) System.out.print("\n\n");
         	
         	return returnValue;
         }
     }
 
+    class GasFormulaParser implements Parser {
+    	public String val(int[] values, AbstractRegister register) {
+    		Integer returnValue = (values[0] & 0x0000FF00) >> 8;
+    		return UNIFLO1200Registers.OPTION_GAS_CALC_FORMULA[returnValue];
+    	}
+    }
 }
