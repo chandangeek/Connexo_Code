@@ -4,7 +4,7 @@
  * Created on 15-dec-2008, 11:40:55 by jme
  * 
  */
-package com.energyict.protocolimpl.modbus.flonidan.uniflo1200;
+package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register;
 
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
@@ -47,6 +47,11 @@ public class UNIFLO1200HoldingRegister extends HoldingRegister {
 			Unit unit, String name, int slaveID) {
 		super(reg, range, obisCode, unit, name);
 		this.slaveID = slaveID;
+	}
+
+	public UNIFLO1200HoldingRegister(int registerAddress, int numberOfWords, String registerName, int slaveID) {
+		super(registerAddress, numberOfWords, registerName);
+		setSlaveID(slaveID);
 	}
 
 	public void setSlaveID(int slaveID) {

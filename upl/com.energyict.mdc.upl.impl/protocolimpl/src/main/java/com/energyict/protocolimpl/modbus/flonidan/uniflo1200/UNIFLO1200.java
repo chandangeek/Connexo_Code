@@ -14,14 +14,23 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.discover.*;
 import com.energyict.protocolimpl.modbus.core.*;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.loadprofile.UNIFLO1200Profile;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.RegisterFactory;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200Parsers;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200Registers;
 
 /**
  * @author jme
  *
  */
-public class UNIFLO1200 extends Modbus {
-    private static final int DEBUG = 1;
 
+public class UNIFLO1200 extends Modbus {
+    
+	private static final int DEBUG = 0;
+
+	private int secLvl = 0;
+	private UNIFLO1200Profile loadProfile; 
+	
 	public String getProtocolVersion() {
         return "$Revision: 1.2 $";
     }
@@ -29,12 +38,35 @@ public class UNIFLO1200 extends Modbus {
 	public void setTime() throws IOException {
 		byte[] b = new byte[6];
 		Calendar cal = ProtocolUtils.getCleanCalendar(gettimeZone());
+		cal.setTime(new Date());
 		b = UNIFLO1200Parsers.buildTimeDate(cal);
+		
 		try {
 			getRegisterFactory().findRegister(RegisterFactory.REG_TIME).getWriteMultipleRegisters(b);
 		} catch (IOException e) {
 			throw new ProtocolException("Unable to set time. Possibly wrong password. Exception message: " + e.getMessage());
 		}
+				
+	}
+
+//	public ProfileData getProfileData(boolean includeEvents) throws IOException {
+//		// TODO Auto-generated method stub
+//		return super.getProfileData(includeEvents);
+//	}
+//
+//	public ProfileData getProfileData(Date lastReading, boolean includeEvents)
+//			throws IOException {
+//		// TODO Auto-generated method stub
+//		return super.getProfileData(lastReading, includeEvents);
+//	}
+
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+		return getLoadProfile().getProfileData(from, to, includeEvents);
+	}
+
+	public int getProfileInterval() throws UnsupportedException, IOException {
+		sendDebug("getProfileInterval()", 5);
+		return getLoadProfile().getProfileInterval();
 	}
 
 	public Date getTime() throws IOException {
@@ -51,8 +83,22 @@ public class UNIFLO1200 extends Modbus {
 	
 	protected void doTheConnect() throws IOException {
 		sendDebug("doTheConnect()", 5);
-		byte[] b = getInfoTypePassword().getBytes();
-		getRegisterFactory().findRegister(RegisterFactory.REG_LOGIN).getWriteMultipleRegisters(b);
+		String password = getInfoTypePassword();
+		sendDebug(password, 5);
+
+		if (password != null) {
+			byte[] b = password.getBytes();
+			getRegisterFactory().findRegister(RegisterFactory.REG_LOGIN).getWriteMultipleRegisters(b);
+		}
+		
+		setSecLvl((Integer)getRegisterFactory().findRegister(RegisterFactory.REG_ACTUAL_SECLEVEL).value());		
+
+		if (getInfoTypeSecurityLevel() != getSecLvl())
+			throw new InvalidPropertyException("SecurityLevel mismatch [" + getInfoTypeSecurityLevel() + " != " + getSecLvl() + "]: Reason may be wrong password or hardware lock.");
+		
+		sendDebug("Actual security lvl: " + getSecLvl(), 0);
+		setLoadProfile(new UNIFLO1200Profile(this));
+		
 	}
 
 	protected void doTheDisConnect() throws IOException {
@@ -69,6 +115,11 @@ public class UNIFLO1200 extends Modbus {
 
 	protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 		sendDebug("doTheValidateProperties()", 5);
+
+		if (getInfoTypePassword() != null) {
+			if (getInfoTypePassword().length() > 8) throw new InvalidPropertyException("Password to long! Max length is 8 characters.");
+			while (getInfoTypePassword().length() < 8) setInfoTypePassword(getInfoTypePassword() + " ");
+		}
 		// TODO Auto-generated method stub
 		
 	}
@@ -97,17 +148,23 @@ public class UNIFLO1200 extends Modbus {
     	return strBuff.toString();
     }
 
-	
-    public void sendDebug(String message, int debuglvl) {
-		message = " ##### DEBUG [" + new Date().toString() + "] ######## > " + message;
-		System.out.println(message);
-    	if ((debuglvl <= DEBUG) && (getLogger() != null)) {
-    		getLogger().info(message);
-    		System.out.println(message);
-    	}
-    }
+	public int getSecLvl() {
+		return secLvl;
+	}
+
+	public void setSecLvl(int secLvl) {
+		this.secLvl = secLvl;
+	}
     
-    public static void main(String[] args) {
+    public UNIFLO1200Profile getLoadProfile() {
+		return loadProfile;
+	}
+
+	public void setLoadProfile(UNIFLO1200Profile loadProfile) {
+		this.loadProfile = loadProfile;
+	}
+
+	public static void main(String[] args) {
 		try {
 			UNIFLO1200Registers ufl_reg = new UNIFLO1200Registers(UNIFLO1200Registers.UNIFLO1200_FW_28);
 		
@@ -127,4 +184,18 @@ public class UNIFLO1200 extends Modbus {
 		}
 	}
 
+    public void sendDebug(String message, int debuglvl) {
+		if (DEBUG == 0) {
+	    	message = " [" + new Date().toString() + "] > " + message;
+		} else {
+	    	message = " ##### DEBUG [" + new Date().toString() + "] ######## > " + message;
+		}
+		System.out.println(message);
+    	if ((debuglvl <= DEBUG) && (getLogger() != null)) {
+    		getLogger().info(message);
+    		System.out.println(message);
+    	}
+    }
+    
+    
 }

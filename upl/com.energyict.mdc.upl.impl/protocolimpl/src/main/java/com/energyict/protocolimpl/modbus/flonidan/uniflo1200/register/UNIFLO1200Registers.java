@@ -4,7 +4,7 @@
  * Created on 8-dec-2008, 13:37:23 by jme
  * 
  */
-package com.energyict.protocolimpl.modbus.flonidan.uniflo1200;
+package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register;
 
 import java.io.IOException;
 
@@ -688,7 +688,7 @@ public class UNIFLO1200Registers {
 			0x00101E22,   // 271                                                                                                                                               
 			0x00101F00,   // 272                                                                                                                                               
 			0x00101F02,   // 273                                                                                                                                               
-			0x00F01E00,   // 274                                                                                                                                               
+			0x00E01E00,   // 274                                                                                                                                               
 			0x00F01E02,   // 275                                                                                                                                               
 			0x00101E24,   // 276                                                                                                                                               
 		};

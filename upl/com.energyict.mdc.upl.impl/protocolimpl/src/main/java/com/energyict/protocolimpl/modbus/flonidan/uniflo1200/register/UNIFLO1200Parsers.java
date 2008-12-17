@@ -4,14 +4,11 @@
  * Created on 8-dec-2008, 15:23:58 by jme
  * 
  */
-package com.energyict.protocolimpl.modbus.flonidan.uniflo1200;
+package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 import com.energyict.protocol.ProtocolUtils;
@@ -66,12 +63,12 @@ public class UNIFLO1200Parsers {
     public static byte[] buildTimeDate(Calendar cal) {
     	byte[] b = new byte[6];
     	
-    	b[0] = (byte) ((cal.get(Calendar.MONTH) + 1) & 0x000000FF);
-    	b[1] = (byte) ((cal.get(Calendar.YEAR) - 2000) & 0x000000FF);
-    	b[2] = (byte) (cal.get(Calendar.HOUR_OF_DAY) & 0x000000FF);
-    	b[3] = (byte) (cal.get(Calendar.DAY_OF_MONTH) & 0x000000FF);
-    	b[4] = (byte) (cal.get(Calendar.SECOND) & 0x000000FF);
-    	b[5] = (byte) (cal.get(Calendar.MINUTE) & 0x000000FF);
+    	b[0] = (byte) ((cal.get(Calendar.YEAR) - 2000) & 0x000000FF);
+    	b[1] = (byte) ((cal.get(Calendar.MONTH) + 1) & 0x000000FF);
+    	b[2] = (byte) (cal.get(Calendar.DAY_OF_MONTH) & 0x000000FF);
+    	b[3] = (byte) (cal.get(Calendar.HOUR_OF_DAY) & 0x000000FF);
+    	b[4] = (byte) (cal.get(Calendar.MINUTE) & 0x000000FF);
+    	b[5] = (byte) (cal.get(Calendar.SECOND) & 0x000000FF);
 
     	return b;
     }
@@ -84,7 +81,7 @@ public class UNIFLO1200Parsers {
 		return tz;
 	}
 
-    class BigDecimalParser implements Parser {
+	public class BigDecimalParser implements Parser {
         public BigDecimal val(int[] values, AbstractRegister register) throws IOException {
             BigDecimal bd = null;
             if( values.length == 1 ) {
@@ -93,13 +90,12 @@ public class UNIFLO1200Parsers {
                 bd = new BigDecimal( (values[0]<<16)+values[1] );
             }
             
-//            bd = bd.movePointRight( getScaleForObis( register.getObisCode() ) );
             bd = bd.setScale(6, BigDecimal.ROUND_HALF_UP);
             return bd;
         }
     }
     
-    class TimeParser implements Parser {
+    public class TimeParser implements Parser {
 		public Object val(int[] values, AbstractRegister register) throws IOException {
 			Calendar cal = ProtocolUtils.getCalendar(getTZ());
 			cal.set(Calendar.SECOND, 		(values[2] & 0x000000FF));
@@ -112,7 +108,7 @@ public class UNIFLO1200Parsers {
 		}
     }
     
-    class StringParser implements Parser {
+    public class StringParser implements Parser {
         public String val(int[] values, AbstractRegister register) {
             String result = "";
         	for (int i = 0; i < values.length; i++) {
@@ -123,7 +119,7 @@ public class UNIFLO1200Parsers {
         }
     }
 
-    class STR22Parser implements Parser {
+    public class STR22Parser implements Parser {
         public String val(int[] values, AbstractRegister register) {
             String result = "";
             for (int i = 0; i < 11; i++) {
@@ -134,13 +130,13 @@ public class UNIFLO1200Parsers {
         }
     }
 
-    class STR1Parser implements Parser {
+    public class STR1Parser implements Parser {
         public String val(int[] values, AbstractRegister register) {
             return "" + (char)((values[0] & 0x0000FF00) >> 8); 
         }
     }
 
-    class STR29Parser implements Parser {
+    public class STR29Parser implements Parser {
         public String val(int[] values, AbstractRegister register) {
             String result = "";
             for (int i = 0; i < 15; i++) {
@@ -151,7 +147,7 @@ public class UNIFLO1200Parsers {
         }
     }
     
-    class UINT8Parser implements Parser {
+    public class UINT8Parser implements Parser {
         public Integer val(int[] values, AbstractRegister register) {
         	Integer returnValue =
         		((values[0] & 0x0000FF00) >> 8);
@@ -159,7 +155,7 @@ public class UNIFLO1200Parsers {
         }
     }
 
-    class UINT16Parser implements Parser {
+    public class UINT16Parser implements Parser {
         public Integer val(int[] values, AbstractRegister register) {
         	Integer returnValue =
         		((values[0] & 0x0000FF00) >> 8) +
@@ -168,7 +164,7 @@ public class UNIFLO1200Parsers {
         }
     }
 
-    class UINT32Parser implements Parser {
+    public class UINT32Parser implements Parser {
         public Integer val(int[] values, AbstractRegister register) {
         	Integer returnValue =
         		((values[0] & 0x0000FF00) >> 8) +
@@ -179,7 +175,7 @@ public class UNIFLO1200Parsers {
         }
     }
 
-    class UINT160Parser implements Parser {
+    public class UINT160Parser implements Parser {
         public Integer val(int[] values, AbstractRegister register) {
         	Integer returnValue =
         		((values[0] & 0x0000FF00) >> 8) +
@@ -188,7 +184,7 @@ public class UNIFLO1200Parsers {
         }
     }
 
-    class UINT320Parser implements Parser {
+    public class UINT320Parser implements Parser {
         public Integer val(int[] values, AbstractRegister register) {
         	Integer returnValue =
         		((values[0] & 0x0000FF00) >> 8) +
@@ -200,7 +196,7 @@ public class UNIFLO1200Parsers {
     }
 
     
-    class REAL32Parser implements Parser {
+    public class REAL32Parser implements Parser {
         public BigDecimal val(int[] values, AbstractRegister register) {
         	int fractionalPart;
         	BigDecimal returnValue;
@@ -217,7 +213,7 @@ public class UNIFLO1200Parsers {
         }
     }
 
-    class INTREALParser implements Parser {
+    public class INTREALParser implements Parser {
         public BigDecimal val(int[] values, AbstractRegister register) {
         	BigDecimal returnValue;
         	int intPart;
@@ -242,7 +238,7 @@ public class UNIFLO1200Parsers {
         }
     }
 
-    class GasFormulaParser implements Parser {
+    public class GasFormulaParser implements Parser {
     	public String val(int[] values, AbstractRegister register) {
     		Integer returnValue = (values[0] & 0x0000FF00) >> 8;
     		return UNIFLO1200Registers.OPTION_GAS_CALC_FORMULA[returnValue];

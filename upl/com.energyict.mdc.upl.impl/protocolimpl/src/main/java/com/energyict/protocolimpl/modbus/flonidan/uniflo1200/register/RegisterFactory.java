@@ -5,21 +5,18 @@
  * 
  */
 
-package com.energyict.protocolimpl.modbus.flonidan.uniflo1200;
+package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 
-import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.modbus.core.*;
-import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 
 /**
  *
@@ -33,7 +30,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
 	public static final String REG_TIME 				= "Time";						// meter time and date
     public static final String REG_DEVICE_TYPE			= "Device type";				// device type string 
     public static final String REG_LOGIN				= "Login";						// register to write password to during login
-
+    public static final String REG_ACTUAL_SECLEVEL		= "ActualSecurityLevel";		// the actual security level after logon
 
     /** Creates a new instance of RegisterFactory */
     public RegisterFactory(Modbus modBus) {
@@ -116,8 +113,13 @@ public class RegisterFactory extends AbstractRegisterFactory {
     	
         	setZeroBased(false); // this means that reg2read = reg-1
         
-        	getRegisters().add(new UNIFLO1200HoldingRegister(UNIFLO1200Registers.V28.WR_SET_PASS, 0, REG_LOGIN));
+        	// unmapped registers, only for internal use
+        	add(UNIFLO1200Registers.V28.WR_SET_PASS, null, REG_LOGIN);
+        	add(UNIFLO1200Registers.V28.ACTUAL_SECLEVEL, null, REG_ACTUAL_SECLEVEL);
+        	//getRegisters().add(new UNIFLO1200HoldingRegister(fwRegisters.getWordAddr(UNIFLO1200Registers.V28.WR_SET_PASS), 4, REG_LOGIN));
+        	//getRegisters().add(new UNIFLO1200HoldingRegister(fwRegisters.getWordAddr(UNIFLO1200Registers.V28.ACTUAL_SECLEVEL), 4, REG_ACTUAL_SECLEVEL));
 
+        	// registers mapped to obiscode
         	add(UNIFLO1200Registers.V28.TIME, "7.0.0.1.2.255", REG_TIME);
         	add(UNIFLO1200Registers.V28.FW_VERSION_TYPE, "7.0.0.2.1.255", REG_DEVICE_TYPE);
         	
@@ -204,12 +206,18 @@ public class RegisterFactory extends AbstractRegisterFactory {
     }
 
     private void add(int registerIndex, int numberOfWords, String obisString, String unitString, String registerName, String parserString) throws IOException {
-    	ObisCode obis = ObisCode.fromString(obisString);
+    	UNIFLO1200HoldingRegister hr;
     	Unit unit = Unit.get(unitString);
     	int registerAddress = fwRegisters.getWordAddr(registerIndex);
     	int slaveID = fwRegisters.getSlaveID(registerIndex);
+
+    	if (obisString == null) {
+        	hr = new UNIFLO1200HoldingRegister(registerAddress, numberOfWords, registerName, slaveID);
+    	} else {
+        	ObisCode obis = ObisCode.fromString(obisString);
+        	hr = new UNIFLO1200HoldingRegister(registerAddress, numberOfWords, obis, unit, registerName, slaveID);
+    	}
     	
-    	UNIFLO1200HoldingRegister hr = new UNIFLO1200HoldingRegister(registerAddress, numberOfWords, obis, unit, registerName, slaveID);
     	hr.setScale(fwRegisters.getDecimals(registerIndex));
     	hr.setParser(parserString);
     	getRegisters().add(hr);
@@ -219,7 +227,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
         return ObisCode.fromString( obis );
     }
     
-    protected List getRegisters() {
+    public List getRegisters() {
         return super.getRegisters();
     }
 
