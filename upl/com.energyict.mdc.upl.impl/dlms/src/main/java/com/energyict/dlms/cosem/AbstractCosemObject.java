@@ -331,12 +331,12 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
             return writeRequestArray;
         }
         else {
-            writeRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR]=0;
+            writeRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR]=1;
             // Concatenate 2 byte arrays into requestData.
             byte[] requestData = new byte[writeRequestArray.length+data.length];
             for (i=0;i<ACTIONREQUEST_DATA_SIZE;i++)
                 requestData[i] = writeRequestArray[i];
-            for (i=GETREQUEST_DATA_SIZE;i<requestData.length;i++)
+            for (i=ACTIONREQUEST_DATA_SIZE;i<requestData.length;i++)
                 requestData[i] = data[i-(ACTIONREQUEST_DATA_SIZE)];
             return requestData;
         }
