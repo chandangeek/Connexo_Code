@@ -25,6 +25,7 @@ import com.energyict.dialer.core.HalfDuplexController;
  *      KV 18032004 add ChannelMap
  *      KV 13122004 test for password == null
  *      GN 03042008 Added the MSYNC
+ *      GN 17122008	Added timeSetMethod 3
  */
 abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
 
@@ -65,6 +66,7 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
     private boolean removePowerOutageIntervals;
     private int forcedDelay;
     private int intervalStatusBehaviour;
+    private int maxDelay = 30;
     
     //SCTMDumpData dumpData=null;
     List dumpDatas=null; // of type SCTMDumpData
@@ -148,8 +150,6 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
             return doGetRegister(name);
     }
     
-
-    
     private String doGetRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
         try {
             byte[] data = siemensSCTM.sendRequest(siemensSCTM.TABENQ1,name.getBytes());
@@ -187,6 +187,21 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
     
     private void doSetTime(Calendar calendar) throws IOException {
         try {
+        	
+        	//If timeSet is method 3, then first readout the Maximum set in seconds, otherwise timecalculation will be incorrect
+        	if(getTimeSetMethod() == 3){
+        		byte[] delayRequest = new byte[]{0x37, 0x30, 0x34, 0x30, 0x30};
+        		byte[] data = siemensSCTM.sendRequest(siemensSCTM.TABENQ1, delayRequest);
+        		//TODO Test this
+        		if(data != null){
+        			maxDelay = Integer.parseInt(new String(data).trim());
+        		} else {
+        			maxDelay = 30;
+        		}
+        	} else {
+        		maxDelay = 30;
+        	}
+        	
              SCTMTimeData timeData = new SCTMTimeData(calendar);
              Date systemDate = getTesting()?JUnitTestCode.getCalendar().getTime():ProtocolUtils.getCalendar(getTimeZone()).getTime();
              roundTripTime = System.currentTimeMillis();
@@ -208,9 +223,9 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
             	 }
              }
              
-             else if((getTimeSetMethod() == 1) || (getTimeSetMethod() == 2)){	// the MSYNC method -> not shown in statusBits
+             else if((getTimeSetMethod() == 1) || (getTimeSetMethod() == 2) || (getTimeSetMethod() == 3)){	// the MSYNC method -> not shown in statusBits
                  
-            	 getLogger().info("MSYNC timeset method applied.");
+            	 getLogger().info("MSYNC timeset method " + getTimeSetMethod() + " applied.");
             	 
                  if (DEBUG == 1) System.out.println("RoundTripTime: " + roundTripTime);
                  
@@ -248,22 +263,27 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
     private void waitForSubstraction(Calendar calendar, Date meterDate) throws NestedIOException {
     	Calendar meterCal = getTesting()?JUnitTestCode.getCalendar():Calendar.getInstance(getTimeZone());
     	meterCal.setTime(meterDate);
-    	int offSet = 28; //29-1 ; the meter doesn't show his milliseconds, can cause addition when we want substraction
+    	int offSet = 28; //29-1 ; the meter doesn't show his milliseconds, can cause addition when we want subtraction
     	int meterSeconds = meterCal.get(Calendar.SECOND);
     	long delay = -1;
     	
-    	if ( (meterCal.getTimeInMillis() - calendar.getTimeInMillis()) < 29000){
+    	if ( (meterCal.getTimeInMillis() - calendar.getTimeInMillis()) < maxDelay*1000){
     		calendar.setTimeInMillis(System.currentTimeMillis());
-		// this should set the meter to the system time
-		delay = ( 59000 - calendar.get(Calendar.SECOND)*1000 + calendar.get(Calendar.MILLISECOND) ) - roundTripTime;
+			// this should set the meter to the system time
+			delay = ( 59000 - calendar.get(Calendar.SECOND)*1000 + calendar.get(Calendar.MILLISECOND) ) - roundTripTime;
     	}
     	
-    	else if (meterSeconds >= 29){
-    		delay = ((59 - meterSeconds + offSet) * 1000) - roundTripTime;
-    	}
+//    	else if (meterSeconds >= 29){
+//    		delay = ((59 - meterSeconds + offSet) * 1000) - roundTripTime;
+//    	}
+//    	
+//    	else{
+//    		delay = ((offSet - meterCal.get(Calendar.SECOND)) * 1000) - roundTripTime;
+//    	}
     	
     	else{
-    		delay = ((offSet - meterCal.get(Calendar.SECOND)) * 1000) - roundTripTime;
+    		// we do minus 2000 to be sure we do not ADD!
+    		delay = (59000 - maxDelay*1000-2000 + meterSeconds*1000) - roundTripTime;
     	}
     	
     	if (DEBUG == 1) System.out.println("SystemTime: " + calendar.getTime().toString() + " ** MeterTime: " + meterDate.toString() + " ** Delay: " + delay);
@@ -276,20 +296,29 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
     	meterCal.setTime(meterDate);
     	int meterSeconds = meterCal.get(Calendar.SECOND);
     	long delay = -1;
-    	
-    	if ( (calendar.getTimeInMillis() - meterCal.getTimeInMillis()) < 29000){
-    		calendar.setTimeInMillis(System.currentTimeMillis());
-    		// this should set the meter to the system time
+    	if(DEBUG == 1) System.out.println(calendar.getTime() + " " + meterCal.getTime());
+    	if(DEBUG == 1) System.out.println("cal-meter: " + (calendar.getTimeInMillis() - meterCal.getTimeInMillis()));
+    	if(DEBUG == 1) System.out.println("MaxDelay: " + maxDelay*1000);
+		if ( (calendar.getTimeInMillis() - meterCal.getTimeInMillis()) < maxDelay*1000){
+			calendar.setTimeInMillis(System.currentTimeMillis());
+			// this should set the meter to the system time
 			delay = ( 59000 - calendar.get(Calendar.SECOND)*1000 + calendar.get(Calendar.MILLISECOND) )  - roundTripTime;
-    	}
+		}
+		
+//		else if (meterSeconds >= 29){
+//			delay = ((59 - meterSeconds + 30)*1000);
+//		}
+//		
+//		else{
+//			delay = ((30 - meterCal.get(Calendar.SECOND)) * 1000) - roundTripTime;
+//		}
     	
-    	else if (meterSeconds >= 29){
-    		delay = ((59 - meterSeconds + 30)*1000);
-    	}
-    	
-    	else{
-    		delay = ((30 - meterCal.get(Calendar.SECOND)) * 1000) - roundTripTime;
-    	}
+		else {
+			delay = (59000 - maxDelay*1000 - meterSeconds*1000) - roundTripTime;
+			if( delay < 0){
+				delay += 60;
+			}
+		}
     	
     	if (DEBUG == 1) System.out.println("SystemTime: " + calendar.getTime().toString() + " ** MeterTime: " + meterDate.toString() + " ** Delay: " + delay);
     	waitRoutine(delay);    	
@@ -301,21 +330,25 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
     } // private void waitForMinute(Calendar calendar)
 
     private void waitRoutine(long delay) throws NestedIOException {
+    	int waiting = (maxDelay<10000)?maxDelay:10000;
         while(delay>0) {
             try {
-                if ((delay+roundTripTime) < 10000) {
+            	if(DEBUG == 1)System.out.println(new Date(System.currentTimeMillis()));
+                if ((delay+roundTripTime) < waiting) {
                     Thread.sleep(delay);
+                    if(DEBUG == 1)System.out.println(new Date(System.currentTimeMillis()));
                     break;
                 }
                 else {
-                   Thread.sleep(10000);
+                   Thread.sleep(waiting);
+                   if(DEBUG == 1)System.out.println(new Date(System.currentTimeMillis()));
                    long elapsedTime = System.currentTimeMillis();
                    if(getTesting())
                 	   JUnitTestCode.sendInit();
                    else
                 	   siemensSCTM.sendInit();
                    elapsedTime = System.currentTimeMillis() - elapsedTime;
-                   delay -= (10000+elapsedTime);
+                   delay -= (waiting+elapsedTime);
                    if (delay <= 0) break;
                 }
             }
@@ -576,7 +609,6 @@ abstract public class Metcom implements MeterProtocol, HalfDuplexEnabler {
 		try {
 			d = new SCTMTimeData(b).getDate(TimeZone.getDefault()).getTime();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		System.out.println(new Date(d));

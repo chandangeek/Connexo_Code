@@ -76,6 +76,7 @@ public class Metcom3FAF extends Metcom3 {
            List datas = new ArrayList();
            byte[] profileid = new byte[2];
            byte[] data;
+           byte[] last = {0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39, 0x39};
            
            for (int i=0;i<getChannelMap().getNrOfBuffers();i++) {
                
@@ -86,6 +87,19 @@ public class Metcom3FAF extends Metcom3 {
            
            for (int i=0;i<getChannelMap().getNrOfBuffers();i++) {
                if (getChannelMap().useBuffer(i)) {
+            	   
+            	   byte[] lastPeriod = new byte[12];
+            	   lastPeriod[0] = 0x30;
+            	   lastPeriod[1] = (byte)(0x30+(byte)i+1);
+            	   System.arraycopy(last, 0, lastPeriod, 2, 10);
+            	   byte[] latestResult = getSCTMConnection().sendRequest(SiemensSCTM.BUFENQ1, lastPeriod);
+            	   int profileSize = latestResult.length - 10 - 4; //the ten stands for the two dates, the 4 for the status
+            	   BufferStructure bs = (BufferStructure) bufferStructures.get(0);
+            	   int digits = (bs.getNrOfDecades()==-1?4:bs.getNrOfDecades());
+            	   if((profileSize/(digits+2)) != bs.getNrOfChannels()){ // the +2 is for the flags
+            		   throw new IOException("Profiledatabuffer "+i+" is misconfigured. ChannelMap has " + bs.getNrOfChannels() + ", meter has " + profileSize/(digits+2) + " channels configured.");
+            	   }
+            	   
                    profileid[0] = 0x30;
                    profileid[1] = (byte)(0x30+(byte)i+1);
                    baos.reset();
