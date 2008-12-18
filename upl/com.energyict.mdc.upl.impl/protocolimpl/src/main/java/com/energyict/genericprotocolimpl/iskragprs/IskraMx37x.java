@@ -53,6 +53,7 @@ import com.energyict.genericprotocolimpl.common.GenericCache;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
 import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
+import com.energyict.genericprotocolimpl.iskrap2lpc.Constant;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
@@ -60,6 +61,7 @@ import com.energyict.mdw.core.AmrJournalEntry;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.Folder;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
@@ -204,6 +206,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     
     private final static String DUPLICATE_SERIALS =
         "Multiple meters where found with serial: {0}.  Data will not be read.";
+    private final static String FOLDER_EXT_NAME = "FolderExtName";
 
 	/**
 	 * 
@@ -593,9 +596,30 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     	shadow.setName(customerID);
         shadow.setSerialNumber(customerID);
 
+        String folderExtName = getFolderID();
+    	if(folderExtName != null){
+    		Folder result = mw().getFolderFactory().findByExternalName(folderExtName);
+    		if(result != null){
+    			shadow.setFolderId(result.getId());
+    		} else {
+    			getLogger().log(Level.INFO, "No folder found with external name: " + folderExtName + ", new meter will be placed in prototype folder.");
+    		}
+    	} else {
+    		getLogger().log(Level.INFO, "New meter will be placed in prototype folder.");
+    	}    
+    	
     	shadow.setGatewayId(rtu.getId());
     	shadow.setLastReading(lastreading);
         return mw().getRtuFactory().create(shadow);
+	}
+    
+	/**
+	 * @param concentrator
+	 * @return the folderID of the given rtu
+	 */
+	private String getFolderID(){
+		String folderid = getProperty(FOLDER_EXT_NAME);
+		return folderid;
 	}
 
 	private RtuType getRtuType() throws IOException {
@@ -1058,6 +1082,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         result.add("Connection");
         result.add("RtuType");
         result.add("TestLogging");
+        result.add("FolderExtName");
         return result;
 	}
 

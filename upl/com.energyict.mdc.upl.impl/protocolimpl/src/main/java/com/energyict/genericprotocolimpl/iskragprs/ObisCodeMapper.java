@@ -19,6 +19,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.Register;
+import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
@@ -151,6 +152,16 @@ public class ObisCodeMapper {
             } // // billing point timestamp
             
             // *********************************************************************************
+            
+            if(obisCode.toString().indexOf("0.0.13.0.0.255") != -1){
+            	registerValue = new RegisterValue(obisCode,
+            			null,
+            			null, null, null, new Date(), 0,
+            			new String(cof[DAILY].getActivityCalendar(obisCode).readCalendarNameActive().toBigDecimal().toString()));
+//            	registerValue = new RegisterValue(obisCode, );
+            	return registerValue;
+            }
+            
             // Abstract ObisRegisters
             if ((obisCode.getA() == 0) && (obisCode.getB() == 0)) {
                 
@@ -173,7 +184,15 @@ public class ObisCodeMapper {
 	            	return registerValue;
 	            }
 	            
-
+	            else if(obisCode.getD() == 101){
+	            	if(obisCode.getE() == 18 || obisCode.getE() == 28){	// firware versions(Core/Module)
+	            		registerValue = new RegisterValue(obisCode, null, 
+	            				null, null, null, new Date(), 0, ParseUtils.decimalByteToString(cof[DAILY].getData(obisCode).getDataContainer().getRoot().getOctetString(0).getArray()));
+	            		return registerValue;
+	            		
+	            	}
+	            } 
+	            
                 Date billingDate = null;
                 Date captureTime = null;
 				try {
