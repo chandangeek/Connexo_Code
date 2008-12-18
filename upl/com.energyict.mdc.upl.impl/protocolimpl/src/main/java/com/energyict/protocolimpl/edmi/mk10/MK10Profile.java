@@ -165,9 +165,13 @@ public class MK10Profile {
         if ((protocolStatus & ABSENT_READING) != ABSENT_READING) {
             eiStatus |= IntervalStateBits.MISSING;
         }
-        if ((protocolStatus & INCOMPLETE_INTERVAL) == INCOMPLETE_INTERVAL) {
-            eiStatus |= IntervalStateBits.MISSING;
-        }
+        
+        // jme : 18-12-2008 Removed MISSING flag when only incomplete interval
+        
+//		if ((protocolStatus & INCOMPLETE_INTERVAL) == INCOMPLETE_INTERVAL) {
+//			eiStatus |= IntervalStateBits.MISSING;
+//		}
+        
         if ((protocolStatus & POWER_FAILED_DURING_INTERVAL) == POWER_FAILED_DURING_INTERVAL) {
             eiStatus |= IntervalStateBits.POWERDOWN;
         }
