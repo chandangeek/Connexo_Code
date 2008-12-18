@@ -42,30 +42,34 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         Iterator it = messageEntries.iterator();
         while(it.hasNext()) {
             MessageEntry messageEntry = (MessageEntry)it.next();
-            System.out.println(messageEntry);
+            //System.out.println(messageEntry);
         }
     }
     
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-        System.out.println(messageEntry);
-        //return MessageResult.createSuccess(messageEntry);
-        //messageEntry.setTrackingId("sampleTrackingId");
+    	
+    	getLogger().info("MessageEntry: "+messageEntry.getContent());
+    	
         return MessageResult.createSuccess(messageEntry);
+        //messageEntry.setTrackingId("tracking ID for "+messageEntry.);
         //return MessageResult.createQueued(messageEntry);
         //return MessageResult.createFailed(messageEntry);
         //return MessageResult.createUnknown(messageEntry);
     }
     
-    
     public List getMessageCategories() {
         List theCategories = new ArrayList();
         // General Parameters
-        MessageCategorySpec cat = new MessageCategorySpec("sampleCategoryName");
-        MessageSpec msgSpec = addBasicMsg("sampleId", "SAMPLETAG", false);
+        MessageCategorySpec cat = new MessageCategorySpec("SAMPLE");
+        MessageSpec msgSpec = addBasicMsg("Disconnect meter", "DISCONNECT", false);
+        cat.addMessageSpec(msgSpec);
+        msgSpec = addBasicMsg("Connect meter", "CONNECT", false);
+        cat.addMessageSpec(msgSpec);
+        msgSpec = addBasicMsg("Limit current to 6A", "LIMITCURRENT6A", false);
         cat.addMessageSpec(msgSpec);
         theCategories.add(cat);
         return theCategories;
-    }
+    }    
     
     private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -118,8 +122,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     
     public String writeValue(MessageValue value) {
         return value.getValue();
-    }
-    
+    }    
     protected void doConnect() throws IOException {
         getLogger().info("call abstract method doConnect()");      
         getLogger().info("--> at that point, we have a communicationlink with the meter (modem, direct, optical, ip, ...)");     

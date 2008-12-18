@@ -30,7 +30,9 @@ import com.energyict.cbo.*;
 import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
+import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.*;
@@ -1161,7 +1163,7 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
      */
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         StringBuffer strBuff = new StringBuffer();
-        Iterator it;
+        //Iterator it;
         
         // all total and rate values...
         strBuff.append("********************* All instantiated objects in the meter *********************\n");
@@ -1169,31 +1171,37 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
             UniversalObject uo = getMeterConfig().getInstantiatedObjectList()[i];
             strBuff.append(uo.getObisCode().toString()+" "+uo.getObisCode().getDescription()+"\n");
         }
+        strBuff.append(getSerialNumber()+"\n");
+        strBuff.append(AXDRDecoder.decode(getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.1.1.255")).getData()).toString()+"\n"); // utility equipment identifier
         
-        strBuff.append(getAllTotalEnergies(false));
-        strBuff.append(getAllEnergyRates(false));
-        strBuff.append(getAllDemandRegisterInfos(false));
-        strBuff.append(getAllMaximumDemandRegisterInfos(false));
-        strBuff.append(getAllCumulativeMaximumDemandRegisterInfos(false));
         
-        // all billing points values...
-        strBuff.append("********************* Objects captured into billing points *********************\n");
-        strBuff.append("The SL7000 has 18 billingpoints for most electricity related registers registers.\n");
-        strBuff.append("For more specific rfegisters like instantaneous values etc, refer to the manufacturers.\n");
-
-        strBuff.append(getAllTotalEnergies(true));
-        strBuff.append(getAllEnergyRates(true));
-        strBuff.append(getAllDemandRegisterInfos(true));
-        strBuff.append(getAllMaximumDemandRegisterInfos(true));
-        strBuff.append(getAllCumulativeMaximumDemandRegisterInfos(true));
         
-        strBuff.append("********************* Objects captured into load profile *********************\n");
-        it = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjects().iterator();
-        while(it.hasNext()) {
-            CapturedObject capturedObject = (CapturedObject)it.next();
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString()+" "+capturedObject.getLogicalName().getObisCode().getDescription()+" (load profile)\n");
-        }
         
+        
+//        strBuff.append(getAllTotalEnergies(false));
+//        strBuff.append(getAllEnergyRates(false));
+//        strBuff.append(getAllDemandRegisterInfos(false));
+//        strBuff.append(getAllMaximumDemandRegisterInfos(false));
+//        strBuff.append(getAllCumulativeMaximumDemandRegisterInfos(false));
+//        
+//        // all billing points values...
+//        strBuff.append("********************* Objects captured into billing points *********************\n");
+//        strBuff.append("The SL7000 has 18 billingpoints for most electricity related registers registers.\n");
+//        strBuff.append("For more specific rfegisters like instantaneous values etc, refer to the manufacturers.\n");
+//
+//        strBuff.append(getAllTotalEnergies(true));
+//        strBuff.append(getAllEnergyRates(true));
+//        strBuff.append(getAllDemandRegisterInfos(true));
+//        strBuff.append(getAllMaximumDemandRegisterInfos(true));
+//        strBuff.append(getAllCumulativeMaximumDemandRegisterInfos(true));
+//        
+//        strBuff.append("********************* Objects captured into load profile *********************\n");
+//        it = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjects().iterator();
+//        while(it.hasNext()) {
+//            CapturedObject capturedObject = (CapturedObject)it.next();
+//            strBuff.append(capturedObject.getLogicalName().getObisCode().toString()+" "+capturedObject.getLogicalName().getObisCode().getDescription()+" (load profile)\n");
+//        }
+//        
         return strBuff.toString();
     }
     
@@ -1258,8 +1266,7 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
     
     public String getSerialNumber() throws IOException {
         if (serialnr==null) {
-            UniversalObject uo = meterConfig.getSerialNumberObject();
-            serialnr = getCosemObjectFactory().getGenericRead(uo).getString();
+        	serialnr = AXDRDecoder.decode(getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.1.0.255")).getData()).getOctetString().stringValue();
         }
         return serialnr;
     } // public String getSerialNumber() throws IOException  
