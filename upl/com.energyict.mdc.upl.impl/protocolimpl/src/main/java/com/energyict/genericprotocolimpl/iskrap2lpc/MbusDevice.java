@@ -42,6 +42,7 @@ import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
@@ -87,7 +88,7 @@ public class MbusDevice implements Messaging, GenericProtocol{
 	public MbusDevice() {
 	}
 
-	public MbusDevice(long mbusAddress, int phyAddress, String serial, int mbusMedium, Rtu rtu, Unit unit, Logger logger) {
+	public MbusDevice(long mbusAddress, int phyAddress, String serial, int mbusMedium, Rtu rtu, Unit unit, Logger logger) throws SQLException, BusinessException {
 		this.mbusAddress = mbusAddress;
 		this.physicalAddress = phyAddress;
 		this.customerID = serial;
@@ -95,6 +96,7 @@ public class MbusDevice implements Messaging, GenericProtocol{
 		this.mbus = rtu;
 		this.mbusUnit = unit;
 		this.logger = logger;
+		updateNodeAddress();
 	}
 
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
@@ -536,5 +538,19 @@ public class MbusDevice implements Messaging, GenericProtocol{
 
 	public void setMeterReadTransaction(MeterReadTransaction meterReadTransaction) {
 		this.mrt = meterReadTransaction;
+	}
+	
+	private void updateNodeAddress() throws SQLException, BusinessException{
+		RtuShadow shadow = mbus.getShadow();
+		shadow.setNodeAddress(Integer.toString(this.physicalAddress));
+		try {
+			mbus.update(shadow);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new SQLException("Could not update NodeAddress of Mbus device.");
+		} catch (BusinessException e) {
+			e.printStackTrace();
+			throw new BusinessException("Could not update NodeAddress of Mbus device.");
+		}
 	}
 }

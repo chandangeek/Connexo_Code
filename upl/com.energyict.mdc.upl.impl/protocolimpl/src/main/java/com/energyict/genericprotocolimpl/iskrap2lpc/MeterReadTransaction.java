@@ -1541,7 +1541,7 @@ public class MeterReadTransaction implements CacheMechanism {
 	 */
 	private boolean checkFirmwareObisCodes(ObisCode oc){
 		if(oc.getD() == 101){
-			if(oc.getE() == 18 || oc.getE() == 28 || oc.getE() == 26)	// firmware versions
+			if(oc.getE() == 18 || oc.getE() == 28)	// firmware versions
 			return true;
 		}
 		return false;
@@ -1659,26 +1659,26 @@ public class MeterReadTransaction implements CacheMechanism {
 //    	}
     }
     
-    private void doMbusParameterCheck(){
-    	List<Rtu> slaveMeters = meter.getDownstreamRtus();
-    	if(slaveMeters.size() > 0){
-    		for(int i = 0; i < slaveMeters.size(); i++){
-    			Rtu mbus = slaveMeters.get(i);
-    			int nodeAddress = 0;
-				try {
-					nodeAddress = Integer.parseInt(mbus.getNodeAddress());
-					if((nodeAddress >=1) && (nodeAddress <= 4)){
-						mbusDevices[i] = new MbusDevice(0, nodeAddress, mbus.getSerialNumber(), 0, mbus, Unit.get(BaseUnit.UNITLESS), getLogger());
-					} else {
-						getLogger().log(Level.INFO, "NodeAddress of meter " + mbus.getSerialNumber() + " is not valid.");
-					}
-				} catch (NumberFormatException e) {
-					getLogger().log(Level.INFO,"NodeAddress of meter " + mbus.getSerialNumber() + " is not a number.");
-					e.printStackTrace();
-				}
-    		}
-    	}
-    }
+//    private void doMbusParameterCheck(){
+//    	List<Rtu> slaveMeters = meter.getDownstreamRtus();
+//    	if(slaveMeters.size() > 0){
+//    		for(int i = 0; i < slaveMeters.size(); i++){
+//    			Rtu mbus = slaveMeters.get(i);
+//    			int nodeAddress = 0;
+//				try {
+//					nodeAddress = Integer.parseInt(mbus.getNodeAddress());
+//					if((nodeAddress >=1) && (nodeAddress <= 4)){
+//						mbusDevices[i] = new MbusDevice(0, nodeAddress, mbus.getSerialNumber(), 0, mbus, Unit.get(BaseUnit.UNITLESS), getLogger());
+//					} else {
+//						getLogger().log(Level.INFO, "NodeAddress of meter " + mbus.getSerialNumber() + " is not valid.");
+//					}
+//				} catch (NumberFormatException e) {
+//					getLogger().log(Level.INFO,"NodeAddress of meter " + mbus.getSerialNumber() + " is not a number.");
+//					e.printStackTrace();
+//				}
+//    		}
+//    	}
+//    }
     
     private boolean validConfigurationProperties() throws IOException{
     	if(!getConcentrator().getLpDaily().equalsIgnoreCase("")

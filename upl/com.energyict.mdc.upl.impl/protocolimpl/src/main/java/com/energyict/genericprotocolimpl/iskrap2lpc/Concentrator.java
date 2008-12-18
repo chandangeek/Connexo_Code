@@ -582,6 +582,7 @@ public class Concentrator implements Messaging, GenericProtocol {
 						if(nl.getLength() == 1){
 							Element e = (Element)nl.item(0);
 							
+							
 							/**
 							 * There are different parameters to be set in the concentrator and the meter to change both there plc frequencies.
 							 * ______________________________________________________________________________________
