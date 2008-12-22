@@ -4,7 +4,7 @@
  * Created on 8-dec-2008, 15:23:58 by jme
  * 
  */
-package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register;
+package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -14,6 +14,7 @@ import java.util.TimeZone;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.Parser;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200Registers;
 
 /**
  * @author jme
@@ -42,6 +43,7 @@ public class UNIFLO1200Parsers {
     public static final String PARSER_DATABLOCK	= "DATABLOCK_Parser";	// x bytes (Data block of bytes. Length is unknown)
     public static final String PARSER_STRING 	= "String_Parser";		// x chars (Data block of chars, Length is unknown)
 	public static final String PARSER_GAS_FORM	= "GAS_FORMULA_Parser"; // convert option byte to used conversion type string (AGA8, ...) 
+	public static final String PARSER_INTERVAL 	= "INTERVAL_Parser";	// convert option byte to log interval time in seconds
     
     public static final int LENGTH_UINT8		= 1; 		// 1 byte
     public static final int LENGTH_UINT16		= 1; 		// 2 bytes (word)
@@ -238,10 +240,29 @@ public class UNIFLO1200Parsers {
         }
     }
 
+    public class DATABLOCKParser implements Parser {
+		public Object val(int[] values, AbstractRegister register) throws IOException {
+			byte[] b = new byte[values.length * 2];
+			for (int i = 0; i < values.length; i++) {
+        		b[i*2] = (byte) ((values[i] & 0x0000FF00) >> 8);
+        		b[(i*2)+1] = (byte) (values[i] & 0x000000FF);
+			}
+			return b;
+		}
+    }
+    
     public class GasFormulaParser implements Parser {
     	public String val(int[] values, AbstractRegister register) {
     		Integer returnValue = (values[0] & 0x0000FF00) >> 8;
     		return UNIFLO1200Registers.OPTION_GAS_CALC_FORMULA[returnValue];
     	}
     }
+
+    public class IntervalParser implements Parser {
+    	public Integer val(int[] values, AbstractRegister register) {
+    		Integer returnValue = (values[0] & 0x000000FF);
+    		return UNIFLO1200Registers.OPTION_LOG_INTERVAL[returnValue];
+    	}
+    }
+
 }

@@ -15,8 +15,8 @@ import com.energyict.protocol.*;
 import com.energyict.protocol.discover.*;
 import com.energyict.protocolimpl.modbus.core.*;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.loadprofile.UNIFLO1200Profile;
-import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.RegisterFactory;
-import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200Parsers;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200Parsers;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200Registers;
 
 /**
@@ -26,14 +26,26 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200
 
 public class UNIFLO1200 extends Modbus {
     
-	private static final int DEBUG = 0;
+	private static final int DEBUG = 10;
+
+	private static final int MIN_LOADPROFILE_NUMBER = 1;
+	private static final int MAX_LOADPROFILE_NUMBER = 3;
 
 	private int secLvl = 0;
 	private UNIFLO1200Profile loadProfile; 
+	private int loadProfileNumber;
 	
 	public String getProtocolVersion() {
         return "$Revision: 1.2 $";
     }
+
+	public int getLoadProfileNumber() {
+		return loadProfileNumber;
+	}
+
+	public void setLoadProfileNumber(int loadProfileNumber) {
+		this.loadProfileNumber = loadProfileNumber;
+	}
 
 	public void setTime() throws IOException {
 		byte[] b = new byte[6];
@@ -42,7 +54,7 @@ public class UNIFLO1200 extends Modbus {
 		b = UNIFLO1200Parsers.buildTimeDate(cal);
 		
 		try {
-			getRegisterFactory().findRegister(RegisterFactory.REG_TIME).getWriteMultipleRegisters(b);
+			getRegisterFactory().findRegister(UNIFLO1200RegisterFactory.REG_TIME).getWriteMultipleRegisters(b);
 		} catch (IOException e) {
 			throw new ProtocolException("Unable to set time. Possibly wrong password. Exception message: " + e.getMessage());
 		}
@@ -60,6 +72,14 @@ public class UNIFLO1200 extends Modbus {
 //		return super.getProfileData(lastReading, includeEvents);
 //	}
 
+	protected void validateSerialNumber() throws IOException {
+		if (getInfoTypeSerialNumber() == null) return;
+		String serialNumber = (String) getRegisterFactory().findRegister(UNIFLO1200RegisterFactory.REG_SERIAL_NUMBER).value();
+		serialNumber = serialNumber.trim();
+		if (!getInfoTypeSerialNumber().equalsIgnoreCase(serialNumber)) 
+			throw new InvalidPropertyException("SerialNumber [" + getInfoTypeSerialNumber() + "] doesn't match the serialnumber of the device [" + serialNumber + "] !!!");
+	}
+	
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
 		return getLoadProfile().getProfileData(from, to, includeEvents);
 	}
@@ -69,16 +89,20 @@ public class UNIFLO1200 extends Modbus {
 		return getLoadProfile().getProfileInterval();
 	}
 
+	public int getNumberOfChannels() throws UnsupportedException, IOException {
+		return getLoadProfile().getNumberOfChannels();
+	}
+	
 	public Date getTime() throws IOException {
-		return getRegisterFactory().findRegister(RegisterFactory.REG_TIME).dateValue();
+		return getRegisterFactory().findRegister(UNIFLO1200RegisterFactory.REG_TIME).dateValue();
 	}
 	
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
-		return (String) getRegisterFactory().findRegister(RegisterFactory.REG_DEVICE_TYPE).value();
+		return (String) getRegisterFactory().findRegister(UNIFLO1200RegisterFactory.REG_DEVICE_TYPE).value();
 	}
 	
 	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-		return ((RegisterFactory)getRegisterFactory()).readRegister(obisCode);
+		return ((UNIFLO1200RegisterFactory)getRegisterFactory()).readRegister(obisCode);
 	}
 	
 	protected void doTheConnect() throws IOException {
@@ -88,10 +112,10 @@ public class UNIFLO1200 extends Modbus {
 
 		if (password != null) {
 			byte[] b = password.getBytes();
-			getRegisterFactory().findRegister(RegisterFactory.REG_LOGIN).getWriteMultipleRegisters(b);
+			getRegisterFactory().findRegister(UNIFLO1200RegisterFactory.REG_LOGIN).getWriteMultipleRegisters(b);
 		}
 		
-		setSecLvl((Integer)getRegisterFactory().findRegister(RegisterFactory.REG_ACTUAL_SECLEVEL).value());		
+		setSecLvl((Integer)getRegisterFactory().findRegister(UNIFLO1200RegisterFactory.REG_ACTUAL_SECLEVEL).value());		
 
 		if (getInfoTypeSecurityLevel() != getSecLvl())
 			throw new InvalidPropertyException("SecurityLevel mismatch [" + getInfoTypeSecurityLevel() + " != " + getSecLvl() + "]: Reason may be wrong password or hardware lock.");
@@ -108,25 +132,33 @@ public class UNIFLO1200 extends Modbus {
 	}
 
 	protected List doTheGetOptionalKeys() {
-		sendDebug("doTheGetOptionalKeys()", 5);
-		// TODO Auto-generated method stub
-		return null;
+		sendDebug("doTheGetOptionalKeys()", 0);
+        List result = new ArrayList();
+        result.add("LoadProfileNumber");
+		return result;
 	}
 
 	protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 		sendDebug("doTheValidateProperties()", 5);
 
+        setLoadProfileNumber(Integer.parseInt(properties.getProperty("LoadProfileNumber","1").trim()));
+        
+        if ((getLoadProfileNumber() > MAX_LOADPROFILE_NUMBER) || (getLoadProfileNumber() < MIN_LOADPROFILE_NUMBER))
+        	throw new InvalidPropertyException(
+        			"Invalid loadProfileNumber (" + getLoadProfileNumber() + ")! " +
+        			"Valid values are: '1' for INTERVAL_LOG, '2' for 24_HOUR_LOG or '3' for MONTH_LOG."
+        			);
+    		
 		if (getInfoTypePassword() != null) {
-			if (getInfoTypePassword().length() > 8) throw new InvalidPropertyException("Password to long! Max length is 8 characters.");
+			if (getInfoTypePassword().length() > 8) 
+				throw new InvalidPropertyException("Password to long! Max length is 8 characters.");
 			while (getInfoTypePassword().length() < 8) setInfoTypePassword(getInfoTypePassword() + " ");
 		}
-		// TODO Auto-generated method stub
-		
 	}
 
 	protected void initRegisterFactory() {
 		sendDebug("initRegisterFactory()", 5);
-        setRegisterFactory(new RegisterFactory(this));
+        setRegisterFactory(new UNIFLO1200RegisterFactory(this));
 	}
 
 	public DiscoverResult discover(DiscoverTools discoverTools) {
@@ -138,7 +170,7 @@ public class UNIFLO1200 extends Modbus {
     protected String getRegistersInfo(int extendedLogging) throws IOException {
     	StringBuffer strBuff = new StringBuffer();
     	if (extendedLogging==1) {
-    		Iterator it = ((RegisterFactory)getRegisterFactory()).getRegisters().iterator();
+    		Iterator it = ((UNIFLO1200RegisterFactory)getRegisterFactory()).getRegisters().iterator();
     		while (it.hasNext()) {
     			AbstractRegister ar = (AbstractRegister)it.next();
     			if (ar.getObisCode()!=null)

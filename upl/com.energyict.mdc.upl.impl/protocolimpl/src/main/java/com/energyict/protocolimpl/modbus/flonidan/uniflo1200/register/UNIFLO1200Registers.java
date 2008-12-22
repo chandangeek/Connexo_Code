@@ -8,6 +8,10 @@ package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register;
 
 import java.io.IOException;
 
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200Parsers;
+
 /**
  * @author jme
  *
@@ -16,8 +20,9 @@ public class UNIFLO1200Registers {
 	private static final int MIN_INDEX = 0;
 	private static final int MAX_INDEX = 276;
 
-    public static final int UNIFLO1200_FW_25 = 25;
-    public static final int UNIFLO1200_FW_28 = 28;
+    public static final int UNIFLO1200_FW_25 		= 25;
+    public static final int UNIFLO1200_FW_28 		= 28;
+	public static final int OPTION_LOG_INTERVAL[] 	= {0, 60, 120, 300, 900, 1800, 3600, 7200, 14400};
 
 	public static final String OPTION_GAS_CALC_FORMULA[] = {
 		"AGA NX-19 MOD CORR",
@@ -27,7 +32,8 @@ public class UNIFLO1200Registers {
 		"AGA NX-19 MOD HER/WOL"
 	};
     
-    private int fwVersion = 0;
+
+	private int fwVersion = 0;
 	
 	public UNIFLO1200Registers(int uniflo1200_fw_version) throws IOException {
 		switch (uniflo1200_fw_version) {
@@ -61,7 +67,14 @@ public class UNIFLO1200Registers {
 
 	public int getSlaveID(int addressIndex) throws IOException {
 		int absoluteAddress = getAbsAddr(addressIndex);
-		return (absoluteAddress & 0x000F0000)>>16;
+		int returnValue = (absoluteAddress & 0x000F0000)>>16;
+		if (returnValue > 8) 
+			throw new ProtocolException(
+					"Invalid slaveId: " + returnValue +
+					" addressIndex: " + addressIndex +
+					" absoluteAddress: 0x" + ProtocolUtils.buildStringHex(absoluteAddress, 8)
+					);
+		return returnValue;
 	}
 	
 	public String getParser(int addressIndex) throws IOException {
@@ -105,6 +118,12 @@ public class UNIFLO1200Registers {
 			case 0x0C: return UNIFLO1200Parsers.LENGTH_UINT320;
 			case 0x0D: return UNIFLO1200Parsers.LENGTH_REAL320;
 			case 0x0E: return UNIFLO1200Parsers.LENGTH_STR8;
+			case 0x0F: 
+				try {
+					return Integer.parseInt(getUnitString(addressIndex)) / 2;
+				} catch (NumberFormatException e) {
+					return 0; 
+				}
 			default: throw new IOException("Unknown datatype length for dataType: " + dataType + " for firmware version " + fwVersion);
 		}
 	}
@@ -244,7 +263,7 @@ public class UNIFLO1200Registers {
 		public static final int VOLUME_MEASURED			= 108;
 		public static final int PRESS_SENS_CRC			= 109;
 		public static final int INTERVAL_LOG_REG		= 110;
-		public static final int HOUR_LOG_24_REG			= 111;
+		public static final int DAILY_LOG_REG			= 111;
 		public static final int SNAPSHOT_LOG_REG		= 112;
 		public static final int ALARM_TRIGGERED_LOG_REG	= 113;
 		public static final int FW_VERSION_TYPE			= 114;
@@ -259,11 +278,11 @@ public class UNIFLO1200Registers {
 		public static final int FLOW_SENSOR				= 123;
 		public static final int TEMP_SENSOR				= 124;
 		public static final int INTERVAL_LOG_SIZE		= 125;
-		public static final int HOUR_24_LOG_SIZE		= 126;
+		public static final int DAILY_LOG_SIZE			= 126;
 		public static final int SNAPSHOT_LOG_SIZE		= 127;
 		public static final int ALARM_TRIG_LOG_SIZE		= 128;
 		public static final int INTERVAL_LOG_WIDTH		= 129;
-		public static final int HOUR_24_LOG_WIDTH		= 130;
+		public static final int DAILY_LOG_WIDTH			= 130;
 		public static final int SNAPSHOT_LOG_WIDTH		= 131;
 		public static final int ALARM_TRIG_LOG_WIDTH	= 132;
 		public static final int FLOW_MEASURED			= 133;
@@ -374,7 +393,7 @@ public class UNIFLO1200Registers {
 		public static final int TEMP_SENS_CHANGED		= 238;
 		public static final int MONTH_LOG_WIDTH			= 239;
 		public static final int MONTH_LOG_SIZE			= 240;
-		public static final int MONTH_LOG_REGISTER		= 241;
+		public static final int MONTH_LOG_REG			= 241;
 		public static final int MONTH_LOG_INDEX			= 242;
 		public static final int DISPLAY_TEST			= 243;
 		public static final int FW_ADDR_RANGE_OK		= 244;
@@ -698,7 +717,7 @@ public class UNIFLO1200Registers {
 			"",      // 1    SlaveAdr                                1    Modbus slave address                                                        Modbus address
 			"s",     // 2    Time                            T       1    Uniflo time                                                                 Time
 			"",      // 3    Zb2                             R       1R   Zb                                                                          Zb
-			"",      // 4    TempCorrTabel        112                     Temperatur correction tabel
+			"112",   // 4    TempCorrTabel        112                     Temperatur correction tabel
 			"d",     // 5    Bat                  Days      U        1    Battery remaining                                                           Bat. remaining
 			"MJ",    // 6    IEnergyFAvg          MJ        U0        R1  Average power.
 			"°C",    // 7    ITempAvg             °C         0        R1  Average temp.
@@ -722,7 +741,7 @@ public class UNIFLO1200Registers {
 			"",      // 25   ADSensortemp                             R3  Pressure sensor A-count
 			"",      // 26   PulsOutTid                      R            Pulse output period length
 			"MJ/Nm3",// 27   BassisEnergi         MJ/nm3    UR       1    Heat value                                                                  Heat value
-			"",      // 28   DisplaySetupTable    18         R            Display setup table
+			"18",    // 28   DisplaySetupTable    18         R            Display setup table
 			"",      // 29   Operator                                     Operator ID 4 char
 			"",      // 30   EventLog                                     Eventlog (200 logninger)
 			"",      // 31   Password                                 R   Actual secure level
@@ -745,7 +764,7 @@ public class UNIFLO1200Registers {
 			"m3",    // 45   VolCorrF             m3                 1 0  Vol. corr. dec.                                                             Vol. corr. dec
 			"Nm3",   // 46   VolConvI             Nm3       U        1 01 Vol. conv.                                                                  Vol. conv.
 			"Nm3",   // 47   VolConvF             Nm3       U        1 0  Vol. conv. dec.                                                             Vol. conv. dec
-			"",      // 48   AlarmSetupTable      192        R            Alarm setup table
+			"192",   // 48   AlarmSetupTable      192        R            Alarm setup table
 			"s",     // 49   Flowstop             seconds   UR            Flowstop after                                      10          600
 			"bar",   // 50   TrykMin              BarA      UR       1    Pressure low limit                                  0.6         80          Press. low limit
 			"bar",   // 51   TrykMax              BarA      UR       1    Pressure high limit                                 0.6         80          Press. high limit
@@ -763,8 +782,8 @@ public class UNIFLO1200Registers {
 			"bar",   // 63   MinPress             BarA      UR            Pressure range                                      0.6         80
 			"°C",    // 64   MaxTemp              °C         R            Temperature range                                   -40         70
 			"°C",    // 65   MinTemp              °C         R            Temperature range                                   -40         70
-			"",      // 66   AlarmTable           12                      Alarm table
-			"",      // 67   AlarmCntTable        96         0            Alarm cnt table
+			"12",    // 66   AlarmTable           12                      Alarm table
+			"96",    // 67   AlarmCntTable        96         0            Alarm cnt table
 			"MJ/h",  // 68   EnergiFlow           MJ/h      U        1R0 1Power                                                                       Power
 			"",      // 69   Alarmset                                     Set alarm reg in uniflo
 			"",      // 70   TDeviceID                                R   Manufacture and type                                                        P. Sens. type
@@ -804,13 +823,13 @@ public class UNIFLO1200Registers {
 			"",      // 104  Alarm reg. 1-32                          R0  Alarm reg. 1-32
 			"",      // 105  Alarm reg. 33-64                         R0  Alarm reg. 33-64
 			"",      // 106  Alarm reg. 64-96                         R0  Alarm reg. 64-96
-			"",      // 107  IOTabel              10                  R   I/O - tabel
+			"10",    // 107  IOTabel              10                  R   I/O - tabel
 			"m3",    // 108  VolMeasured          m3                      Volume measured                                     0           99999999
 			"",      // 109  TChecksum                                R   Pressure sensor check sum
-			"",      // 110  IntvalLogreg         20         R            Interval log registre
-			"",      // 111  DagsLogreg           20         R            24 hour log registre
-			"",      // 112  Snapshotreg          20         R            Snapshot log registre
-			"",      // 113  AlarmAktLogreg       20         R            Alarm triggered log registre
+			"20",    // 110  IntvalLogreg         20         R            Interval log registre
+			"20",    // 111  DagsLogreg           20         R            24 hour log registre
+			"20",    // 112  Snapshotreg          20         R            Snapshot log registre
+			"20",    // 113  AlarmAktLogreg       20         R            Alarm triggered log registre
 			"",      // 114  VerTyp                                  1R   Uniflo type and version                                                     Type/version
 			"",      // 115  Installation                    R       1    Installation no.                                                            Installation no.
 			"",      // 116  Maalernr                        R       1    Meter no.                                                                   Meter no.
@@ -856,16 +875,16 @@ public class UNIFLO1200Registers {
 			"",      // 156  GasComp                         R       1    Gas composition                                                             Gas comp.
 			"",      // 157  RevTime                         R       1R   Time of rev.                                                                Comp. rev.
 			"",      // 158  Density                         R       1    Density (rel.)                                      0.1         2           Density rel.
-			"",      // 159  Gastabel             800        R            Gas correction tabel
+			"800",   // 159  Gastabel             800        R            Gas correction tabel
 			"",      // 160  Password3                       R            Password level 3
 			"",      // 161  Password2                       R            Password level 2
 			"",      // 162  Password1                       R            Password level 1
 			"",      // 163  LogReOrg                        R            Display mode
 			"",      // 164  KorrF                                   1R0 1Corrections factor                                                          Corr. fact.
-			"",      // 165  IOVersion            14                  R   IO version
-			"",      // 166  IOSerienr            28                  R   IO serienr
+			"14",    // 165  IOVersion            14                  R   IO version
+			"28",    // 166  IOSerienr            28                  R   IO serienr
 			"",      // 167  HFCard                                   R   HF/Puls subtype
-			"",      // 168  SNTabel              40                  R   I/O - tabel
+			"40",    // 168  SNTabel              40                  R   I/O - tabel
 			"",      // 169  TempStregkode                           1    Temperture code                                                             Temperture code
 			"°C",    // 170  ITempMin             °C         0        R1  Min. temp.
 			"°C",    // 171  ITempMax             °C         0        R1  Max. temp.
@@ -900,7 +919,7 @@ public class UNIFLO1200Registers {
 			"",      // 200 256  CountVmAtError                  R            Count Vm at Error
 			"",      // 201 257  TZMode                          R            Corrector Type
 			"bar",   // 202 258  TZTryk               bar A     UR            Pressure [bar A]                                    0.6         80
-			"",      // 203 259  Menu/Alarm           31768                   Menu og alarm text for grafisk display
+			"31768", // 203 259  Menu/Alarm           31768                   Menu og alarm text for grafisk display
 			"",      // 204 260  NoOfSlaves                              0    Number of slaves                                                            Number of slaves
 			"",      // 205 261  OpdataerEEProm                               Opdater EEProm
 			"",      // 206 262  Alarmfile                       R            Alarm text file
@@ -924,7 +943,7 @@ public class UNIFLO1200Registers {
 			"",      // 224  TempCalOP                               1    Temperature calibration operator                                            Temp. cal. op.
 			"",      // 225  EventlogIdx                              R   Indexpointer for Event log
 			"",      // 226  AlarmlogIdx                              R   Indexpointer for Alarmlog log
-			"",      // 227  IntervallogState                R            Log interval
+			"s",     // 227  IntervallogState                R            Log interval
 			"s",     // 228  MaalInterval         Sec.      UR       1    Interval of measurement                             0           254         Cycl. of meas.
 			"",      // 229  DagslogTime                     R            Time of Day                                         0           24
 			"",      // 230  DagslogMin                      R            Time of Day                                         0           60
@@ -938,7 +957,7 @@ public class UNIFLO1200Registers {
 			"",      // 238  ChangeTempSensor                             Temperature sensor is change
 			"",      // 239  MonthBredde                     R            No. of log points
 			"",      // 240  MonthDyb                        R            No. of logs
-			"",      // 241  MonthLogreg          20         R            Month log registre
+			"20",    // 241  MonthLogreg          20         R            Month log registre
 			"",      // 242  MonthlogIdx                              R   Indexpointer for Month log
 			"",      // 243  Disptest                                     Display test
 			"",      // 244  FirmwareUpdate                               Firmware update
@@ -946,8 +965,8 @@ public class UNIFLO1200Registers {
 			"",      // 246  FUPDATEEND                                   Firmware update end
 			"",      // 247  FUPDATECANCEL                                Firmware update cancel
 			"",      // 248  PRGChecksum                             1R   Program checksum                                                            Prg. chksum
-			"",      // 249  TempCorr             30                      Temperature calibretion tabel
-			"",      // 250  PressCorr            60                      Pressure calibretion tabel
+			"30",    // 249  TempCorr             30                      Temperature calibretion tabel
+			"60",    // 250  PressCorr            60                      Pressure calibretion tabel
 			"",      // 251  ForceMesurement                              Force measurment
 			"",      // 252  PresureCalTime                          1    Pressure calibration time                                                   Press. cal. Time
 			"",      // 253  TempCalTime                             1    Temperature calibration time                                                Temp. cal. Time

@@ -6,9 +6,23 @@
  */
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register;
 
+import java.io.IOException;
+import java.util.Date;
+
+import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
+import com.energyict.protocolimpl.modbus.core.functioncode.ReadDeviceIdentification;
+import com.energyict.protocolimpl.modbus.core.functioncode.ReadHoldingRegistersRequest;
+import com.energyict.protocolimpl.modbus.core.functioncode.ReadInputRegistersRequest;
+import com.energyict.protocolimpl.modbus.core.functioncode.ReportSlaveId;
+import com.energyict.protocolimpl.modbus.core.functioncode.WriteMultipleRegisters;
+import com.energyict.protocolimpl.modbus.core.functioncode.WriteSingleRegister;
 
 /**
  * @author jme
@@ -16,52 +30,122 @@ import com.energyict.protocolimpl.modbus.core.HoldingRegister;
  */
 public class UNIFLO1200HoldingRegister extends HoldingRegister {
 	private int slaveID = 0;
+	private int baseSlaveID = 0;
+	private ModbusConnection modbusConnection = null;
 	
-	public UNIFLO1200HoldingRegister(int reg, int range, ObisCode obisCode,	String name) {
-		super(reg, range, obisCode, name);
-	}
-
-	public UNIFLO1200HoldingRegister(int reg, int range, ObisCode obisCode,
-			Unit unit, String name) {
-		super(reg, range, obisCode, unit, name);
-	}
-
-	public UNIFLO1200HoldingRegister(int reg, int range, ObisCode obisCode,
-			Unit unit) {
-		super(reg, range, obisCode, unit);
-	}
-
-	public UNIFLO1200HoldingRegister(int reg, int range, ObisCode obisCode) {
-		super(reg, range, obisCode);
-	}
-
-	public UNIFLO1200HoldingRegister(int reg, int range, String name) {
-		super(reg, range, name);
-	}
-
-	public UNIFLO1200HoldingRegister(int reg, int range) {
-		super(reg, range);
-	}
-
-	public UNIFLO1200HoldingRegister(int reg, int range, ObisCode obisCode,
-			Unit unit, String name, int slaveID) {
+	public UNIFLO1200HoldingRegister(int reg, int range, ObisCode obisCode,	Unit unit, String name, int slaveID, ModbusConnection modbusConnection) {
 		super(reg, range, obisCode, unit, name);
 		this.slaveID = slaveID;
+		this.modbusConnection = modbusConnection;
+		if (getModbusConnection() != null) this.baseSlaveID = getModbusConnection().getAddress();
 	}
 
-	public UNIFLO1200HoldingRegister(int registerAddress, int numberOfWords, String registerName, int slaveID) {
+	public UNIFLO1200HoldingRegister(int registerAddress, int numberOfWords, String registerName, int slaveID, ModbusConnection modbusConnection) {
 		super(registerAddress, numberOfWords, registerName);
-		setSlaveID(slaveID);
-	}
-
-	public void setSlaveID(int slaveID) {
 		this.slaveID = slaveID;
+		this.modbusConnection = modbusConnection;
+    	if (getModbusConnection() != null) this.baseSlaveID = getModbusConnection().getAddress();
 	}
 
 	public int getSlaveID() {
 		return slaveID;
 	}
 
+    private int getBaseSlaveID() {
+    	return baseSlaveID;
+	}
 
+	private ModbusConnection getModbusConnection() {
+		return modbusConnection;
+	}
+
+	private void defaultSlaveID() {
+		getModbusConnection().setAddress(getBaseSlaveID());
+	}
+
+	private void activateSlaveID() {
+		getModbusConnection().setAddress(getBaseSlaveID() + getSlaveID());
+	}
+
+	public Date dateValue() throws IOException {
+		activateSlaveID();
+		Date returnValue = super.dateValue();
+		defaultSlaveID();
+		return returnValue;
+	}
+
+	public ReadHoldingRegistersRequest getReadHoldingRegistersRequest()	throws IOException {
+		activateSlaveID();
+		ReadHoldingRegistersRequest returnValue = super.getReadHoldingRegistersRequest();
+		defaultSlaveID();
+		return returnValue;
+	}
+
+	public ReadInputRegistersRequest getReadInputRegistersRequest()	throws IOException {
+		activateSlaveID();
+		ReadInputRegistersRequest returnValue = super.getReadInputRegistersRequest();
+		defaultSlaveID();
+		return returnValue;
+	}
+
+	public WriteMultipleRegisters getWriteMultipleRegisters(byte[] registerValues) throws IOException {
+		activateSlaveID();
+		WriteMultipleRegisters returnValue = super.getWriteMultipleRegisters(registerValues);
+		defaultSlaveID();
+		return returnValue;
+	}
+
+	public WriteSingleRegister getWriteSingleRegister(int writeRegisterValue) throws IOException {
+		activateSlaveID();
+		WriteSingleRegister returnValue = super.getWriteSingleRegister(writeRegisterValue);
+		defaultSlaveID();
+		return returnValue;
+	}
+
+	public Object objectValueWithParser(String key) throws IOException {
+		activateSlaveID();
+		Object returnValue = super.objectValueWithParser(key);
+		defaultSlaveID();
+		return returnValue;
+	}
+
+	public Quantity quantityValue() throws IOException {
+		activateSlaveID();
+		Quantity returnValue = super.quantityValue();
+		defaultSlaveID();
+		return returnValue;
+	}
+
+	public Quantity quantityValueWithParser(String key) throws IOException {
+		activateSlaveID();
+		Quantity returnValue = super.quantityValueWithParser(key);
+		defaultSlaveID();
+		return returnValue;
+	}
+
+	public RegisterValue registerValue(String key) throws IOException {
+		activateSlaveID();
+		RegisterValue returnValue = super.registerValue(key);
+		defaultSlaveID();
+		return returnValue;
+	}
+
+	public String toString() {
+		return super.toString() + ", slaveIDOffset="+getSlaveID() + ", parser=" + getParser();
+	}
+
+	public Object value() throws IOException {
+		activateSlaveID();
+		Object returnValue = super.value();
+		defaultSlaveID();
+		return returnValue;
+	}
+
+	public int[] values() throws IOException {
+		activateSlaveID();
+		int[] returnValue = super.values();
+		defaultSlaveID();
+		return returnValue;
+	}
 	
 }
