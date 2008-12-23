@@ -47,10 +47,24 @@ public class UNIFLO1200HoldingRegister extends HoldingRegister {
     	if (getModbusConnection() != null) this.baseSlaveID = getModbusConnection().getAddress();
 	}
 
+	public UNIFLO1200HoldingRegister(int registerAddress, int numberOfWords, String registerName, ModbusConnection modbusConnection) {
+		super(registerAddress, numberOfWords, registerName);
+		this.modbusConnection = modbusConnection;
+    	if (getModbusConnection() != null) this.baseSlaveID = getModbusConnection().getAddress();
+    	genSlaveID();
+	}
+
 	public int getSlaveID() {
 		return slaveID;
 	}
 
+	public void genSlaveID() {
+		this.slaveID = (getReg() & 0x000F0000) >> 16;
+		setReg(getReg() - (getReg() & 0x000F0000));
+		setReg(getReg()/2);
+		return;
+	}
+	
     private int getBaseSlaveID() {
     	return baseSlaveID;
 	}

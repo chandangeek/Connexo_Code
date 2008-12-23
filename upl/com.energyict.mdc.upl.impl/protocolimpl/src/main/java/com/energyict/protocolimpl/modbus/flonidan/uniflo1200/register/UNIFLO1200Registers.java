@@ -17,13 +17,13 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200P
  *
  */
 public class UNIFLO1200Registers {
-	private static final int MIN_INDEX = 0;
-	private static final int MAX_INDEX = 276;
-
+	private static final int MIN_INDEX 				= 0;
+	private static final int MAX_INDEX 				= 276;
     public static final int UNIFLO1200_FW_25 		= 25;
     public static final int UNIFLO1200_FW_28 		= 28;
 	public static final int OPTION_LOG_INTERVAL[] 	= {0, 60, 120, 300, 900, 1800, 3600, 7200, 14400};
 
+	
 	public static final String OPTION_GAS_CALC_FORMULA[] = {
 		"AGA NX-19 MOD CORR",
 		"AGA 8",
@@ -32,7 +32,6 @@ public class UNIFLO1200Registers {
 		"AGA NX-19 MOD HER/WOL"
 	};
     
-
 	private int fwVersion = 0;
 	
 	public UNIFLO1200Registers(int uniflo1200_fw_version) throws IOException {
@@ -51,6 +50,30 @@ public class UNIFLO1200Registers {
 		switch (this.fwVersion) {
 			case UNIFLO1200_FW_25: return V25.UNITS[addressIndex];
 			case UNIFLO1200_FW_28: return V28.UNITS[addressIndex];
+			default: throw new IOException("Unknown firmwareversion: " + this.fwVersion);
+		}
+	}
+	
+	public int getIntervalLogStartAddress() throws IOException {
+		switch (this.fwVersion) {
+			case UNIFLO1200_FW_25: return V25.INTERVAL_LOG_STARTADDRESS;
+			case UNIFLO1200_FW_28: return V28.INTERVAL_LOG_STARTADDRESS;
+			default: throw new IOException("Unknown firmwareversion: " + this.fwVersion);
+		}
+	}
+
+	public int getDailyLogStartAddress() throws IOException {
+		switch (this.fwVersion) {
+			case UNIFLO1200_FW_25: return V25.DAILY_LOG_STARTADDRESS;
+			case UNIFLO1200_FW_28: return V28.DAILY_LOG_STARTADDRESS;
+			default: throw new IOException("Unknown firmwareversion: " + this.fwVersion);
+		}
+	}
+	
+	public int getMonthLogStartAddress() throws IOException {
+		switch (this.fwVersion) {
+			case UNIFLO1200_FW_25: return V25.MONTH_LOG_STARTADDRESS;
+			case UNIFLO1200_FW_28: return V28.MONTH_LOG_STARTADDRESS;
 			default: throw new IOException("Unknown firmwareversion: " + this.fwVersion);
 		}
 	}
@@ -145,12 +168,21 @@ public class UNIFLO1200Registers {
 	}
 
 	public static class V25 {
-		public static final int EMPTY					= 0;
-		private static final int ABSOLUTE_ADDRESSES[] = {0x00000000};
-		private static final String UNITS[] = {""};
+		public static final int EMPTY						= 0;
+		private static final int ABSOLUTE_ADDRESSES[] 		= {0x00000000};
+		private static final String UNITS[] 				= {""};
+
+		public static final int INTERVAL_LOG_STARTADDRESS 	= 0;
+		public static final int DAILY_LOG_STARTADDRESS 		= 0;
+		public static final int MONTH_LOG_STARTADDRESS 		= 0;
+
 	}
 	
 	public static class V28 {
+
+		public static final int INTERVAL_LOG_STARTADDRESS 	= 0x0FFE0;
+		public static final int DAILY_LOG_STARTADDRESS 		= 0x04000;
+		public static final int MONTH_LOG_STARTADDRESS 		= 0x07000;
 
 		public static final int ZA 						= 0;
 		public static final int SLAVE_ADDRESS			= 1;

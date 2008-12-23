@@ -26,7 +26,7 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200
 
 public class UNIFLO1200 extends Modbus {
     
-	private static final int DEBUG = 10;
+	private static final int DEBUG = 1;
 
 	private static final int MIN_LOADPROFILE_NUMBER = 1;
 	private static final int MAX_LOADPROFILE_NUMBER = 3;

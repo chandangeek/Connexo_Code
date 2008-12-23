@@ -23,6 +23,7 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200
 public class UNIFLO1200Parsers {
 	
 	private static final int DEBUG = 1;
+	private static final int DECIMALS = -1;
 	private TimeZone tz = null;
 	
     public static final String PARSER_UINT8		= "UINT8_Parser"; 		// 1 byte
@@ -92,7 +93,7 @@ public class UNIFLO1200Parsers {
                 bd = new BigDecimal( (values[0]<<16)+values[1] );
             }
             
-            bd = bd.setScale(6, BigDecimal.ROUND_HALF_UP);
+            if (DECIMALS > -1) bd = bd.setScale(DECIMALS, BigDecimal.ROUND_HALF_UP);
             return bd;
         }
     }
@@ -100,6 +101,7 @@ public class UNIFLO1200Parsers {
     public class TimeParser implements Parser {
 		public Object val(int[] values, AbstractRegister register) throws IOException {
 			Calendar cal = ProtocolUtils.getCalendar(getTZ());
+			cal.set(Calendar.MILLISECOND, 	0x00000000);
 			cal.set(Calendar.SECOND, 		(values[2] & 0x000000FF));
 			cal.set(Calendar.MINUTE, 		(values[2] & 0x0000FF00) >> 8);
 			cal.set(Calendar.HOUR_OF_DAY, 	(values[1] & 0x000000FF));
@@ -210,6 +212,7 @@ public class UNIFLO1200Parsers {
 				((values[1] & 0x000000FF) << 24);
 
         	returnValue = new BigDecimal(Float.intBitsToFloat(fractionalPart));
+        	if (DECIMALS > -1) returnValue = returnValue.setScale(DECIMALS, BigDecimal.ROUND_HALF_UP);
 
         	return returnValue;
         }
@@ -235,6 +238,7 @@ public class UNIFLO1200Parsers {
         	
         	returnValue = new BigDecimal(intPart);
         	returnValue = returnValue.add(new BigDecimal(Float.intBitsToFloat(fractionalPart)));
+        	if (DECIMALS > -1) returnValue = returnValue.setScale(DECIMALS, BigDecimal.ROUND_HALF_UP);
         	
         	return returnValue;
         }

@@ -7,14 +7,14 @@
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.loadprofile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200ProfileInfoParser;
-import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200HoldingRegister;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;
 
 /**
  * @author jme
@@ -23,20 +23,15 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200
 public class UNIFLO1200ProfileInfo {
 
 	private static final int DEBUG 			= 1;
-	private static final int INTERVALLOG 	= 1;
-	private static final int DAILYLOG 		= 2;
-	private static final int MONTHLOG 		= 3;
-
+	
 	private UNIFLO1200Profile loadProfile;
+	private UNIFLO1200ProfileInfoParser profileInfoParser;
 
 	private int numberOfChannels;
+	private int logStartAddress;
 	private int profileInterval;
 	private List channelInfos;
 
-	private UNIFLO1200ProfileInfoParser profileInfoParser;
-
-	
-	
 	public UNIFLO1200ProfileInfo(UNIFLO1200Profile profile) throws IOException {
 		this.loadProfile = profile;
 		init();
@@ -51,23 +46,36 @@ public class UNIFLO1200ProfileInfo {
 		int profileNumber = getLoadProfileNumber();
 		
 		switch (profileNumber) {
-		case INTERVALLOG: 
+		case UNIFLO1200Profile.INTERVALLOG: 
 			this.profileInterval = 				
 				(Integer) getLoadProfile()
 				.getUniflo1200()
 				.getRegisterFactory()
 				.findRegister(UNIFLO1200RegisterFactory.REG_INTERVAL)
 				.value();
+			this.logStartAddress = 
+				((UNIFLO1200RegisterFactory)getLoadProfile().getUniflo1200().getRegisterFactory())
+				.getFwRegisters()
+				.getIntervalLogStartAddress();
 			break;
-		case DAILYLOG:
+		case UNIFLO1200Profile.DAILYLOG:
 			this.profileInterval = 3600 * 24; // 24 hour = 86400 seconds
+			this.logStartAddress = 
+				((UNIFLO1200RegisterFactory)getLoadProfile().getUniflo1200().getRegisterFactory())
+				.getFwRegisters()
+				.getDailyLogStartAddress();
 			break;
-		case MONTHLOG: 
+		case UNIFLO1200Profile.MONTHLOG: 
 			this.profileInterval = 3600 * 24 * 30; // 1 month = around 2592000 seconds
+			this.logStartAddress = 
+				((UNIFLO1200RegisterFactory)getLoadProfile().getUniflo1200().getRegisterFactory())
+				.getFwRegisters()
+				.getMonthLogStartAddress();
 			break;
 		default:
 			throw new ProtocolException("UNIFLO1200ProfileInfo.init(), Invalid loadProfileNumber: " + loadProfile + "!");
 		}
+		
 		
 		System.out.println(this);
 		
@@ -75,6 +83,15 @@ public class UNIFLO1200ProfileInfo {
 
 	public List getChannelInfos() {
 		return channelInfos;
+	}
+	
+	public int getLastLogAddress() {
+		int returnValue;
+		
+		returnValue = getLogStartAddress() + 32;
+		returnValue += getProfileInfoParser().getLogIdxValue() * (getProfileInfoParser().getNumberOfLogPoints()*4 + 6);
+		
+		return returnValue;
 	}
 	
 	private void initProfileInfoParser() throws IOException {
@@ -87,7 +104,7 @@ public class UNIFLO1200ProfileInfo {
 		int profileNumber = getLoadProfileNumber();
 		
 		switch (profileNumber) {
-		case INTERVALLOG: 
+		case UNIFLO1200Profile.INTERVALLOG: 
 			logIdxReg = 
 				(UNIFLO1200HoldingRegister) getLoadProfile()
 				.getUniflo1200()
@@ -115,7 +132,7 @@ public class UNIFLO1200ProfileInfo {
 				.findRegister(UNIFLO1200RegisterFactory.REG_INTERVAL_LOG_EEPROM);
 			break;
 		
-		case DAILYLOG: 
+		case UNIFLO1200Profile.DAILYLOG: 
 			logIdxReg = 
 				(UNIFLO1200HoldingRegister) getLoadProfile()
 				.getUniflo1200()
@@ -139,7 +156,7 @@ public class UNIFLO1200ProfileInfo {
 			logEepromReg = null; 
 			break;
 		
-		case MONTHLOG: 
+		case UNIFLO1200Profile.MONTHLOG: 
 			logIdxReg = 
 				(UNIFLO1200HoldingRegister) getLoadProfile()
 				.getUniflo1200()
@@ -171,7 +188,7 @@ public class UNIFLO1200ProfileInfo {
 
 	}
 
-	private int getLoadProfileNumber() {
+	public int getLoadProfileNumber() {
 		return getLoadProfile().getLoadProfileNumber();
 	}
 
@@ -191,14 +208,35 @@ public class UNIFLO1200ProfileInfo {
 		return numberOfChannels;
 	}
 
+	public int getLogStartAddress() {
+		return logStartAddress;
+	}
+
+	public int getLogIndex() {
+		return getProfileInfoParser().getLogIdxValue();
+	}
+	
+	public List getChannelRegisters() throws IOException {
+		return getProfileInfoParser().buildChannelRegisters();
+	}
+	
 	public String toString() {
 		String message = 
 			"UNIFLO1200ProfileInfo: \r\n" +
-			"   loadProfileNr    = " + getLoadProfileNumber() + "\r\n" +
-			"   numberOfChannels = " + getNumberOfChannels() + "\r\n";
-
-		if (DEBUG != 0) 
-			message += "   DEBUG            = " + DEBUG + "\r\n";
+			"   DEBUG              = " + DEBUG + "\r\n" +
+			"   loadProfileNr      = " + getLoadProfileNumber() + "\r\n" +
+			"   profileInterval    = " + getProfileInterval() + " seconds\r\n" +
+			"   numberOfChannels   = " + getNumberOfChannels() + "\r\n" +
+			"   getNrOfLogPoints   = " + getNumberOfLogPoints() + "\r\n" +
+			"   getNumberOfLogs    = " + getNumberOfLogs() + "\r\n" +
+			"   getLogIdxValue     = " + getProfileInfoParser().getLogIdxValue() + "\r\n" +
+			"   getLogSizeValue    = " + getProfileInfoParser().getLogSizeValue() + "\r\n" +
+			"   getLogWidthValue   = " + getProfileInfoParser().getLogWidthValue() + "\r\n" +
+			"   getLogEepromValue  = " + getProfileInfoParser().getLogEepromValue() + "\r\n" +
+			"   getLogInfoValue    = " + ProtocolUtils.outputHexString(getProfileInfoParser().getLogInfoValue()) + "\r\n" +
+			"   getLogStartAddress = 0x" + ProtocolUtils.buildStringHex(getLogStartAddress(), 8) + "\r\n" +
+			"   getLastLogAddress  = 0x" + ProtocolUtils.buildStringHex(getLastLogAddress(), 8) + "\r\n" +
+			"\r\n";
 		
 		message += "   channelInfos:\r\n";
 		for (int i = 0; i < channelInfos.size(); i++) {
@@ -207,10 +245,18 @@ public class UNIFLO1200ProfileInfo {
 			message += "channelID = " + chi.getChannelId();
 			message += ", channelName = " + chi.getName();
 			message += ", channelUnit = " + chi.getUnit();
-			message += ", profileInterval = " + getProfileInterval();
 			message += "\r\n";
 		}
 		
 		return message;
 	}
+
+	public int getNumberOfLogPoints() {
+		return getProfileInfoParser().getNumberOfLogPoints();
+	}
+
+	public int getNumberOfLogs() {
+		return getProfileInfoParser().getNumberOfLogs();
+	}
+
 }
