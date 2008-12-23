@@ -4,7 +4,7 @@
  * Created on 22-dec-2008, 10:20:00 by jme
  * 
  */
-package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.loadprofile;
+package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.events;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,8 +14,11 @@ import java.util.List;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200EventDataParser;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200Parsers;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200ProfileDataParser;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.UNIFLO1200Profile;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.loadprofile.UNIFLO1200ProfileInfo;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200HoldingRegister;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;
 
@@ -23,7 +26,7 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200
  * @author jme
  *
  */
-public class UNIFLO1200ProfileData {
+public class UNIFLO1200EventData {
 
 	private static final int DEBUG 			= 1;
 	private static final int PROFILE_SIZE 	= 46;
@@ -35,7 +38,7 @@ public class UNIFLO1200ProfileData {
 	 * Constructors
 	 */
 
-	public UNIFLO1200ProfileData(UNIFLO1200Profile loadProfile) throws IOException {
+	public UNIFLO1200EventData(UNIFLO1200Profile loadProfile) throws IOException {
 		this.loadProfile = loadProfile;
 	}
 
@@ -74,7 +77,7 @@ public class UNIFLO1200ProfileData {
 		this.intervalDatas = new ArrayList();
 
 		UNIFLO1200HoldingRegister register;
-		UNIFLO1200ProfileDataParser profileDataParser = new UNIFLO1200ProfileDataParser(this);
+		UNIFLO1200EventDataParser profileDataParser = new UNIFLO1200EventDataParser(this);
 		final int base = getProfileInfo().getLogStartAddress();
 		final int nolp = getProfileInfo().getNumberOfLogPoints();
 		final int nol = getProfileInfo().getNumberOfLogs();

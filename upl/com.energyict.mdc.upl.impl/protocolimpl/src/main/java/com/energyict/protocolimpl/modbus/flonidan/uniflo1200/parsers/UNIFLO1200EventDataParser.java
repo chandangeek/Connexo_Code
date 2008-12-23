@@ -14,6 +14,7 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.Parser;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.UNIFLO1200;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.events.UNIFLO1200EventData;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.loadprofile.UNIFLO1200ProfileData;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.loadprofile.UNIFLO1200ProfileInfo;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200HoldingRegister;
@@ -23,10 +24,10 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200
  * @author jme
  *
  */
-public class UNIFLO1200ProfileDataParser {
+public class UNIFLO1200EventDataParser {
 
 	private static final int DEBUG = 0;
-	private UNIFLO1200ProfileData profileData;
+	private UNIFLO1200EventData eventData;
 	private Date timeValue;
 	private Number[] channelNumbers;
 	
@@ -35,24 +36,24 @@ public class UNIFLO1200ProfileDataParser {
 	 * Constructors
 	 */
 	
-	public UNIFLO1200ProfileDataParser(UNIFLO1200ProfileData profileData) {
-		this.profileData = profileData;
+	public UNIFLO1200EventDataParser(UNIFLO1200EventData eventData) {
+		this.eventData = eventData;
 	}
 
 	/*
 	 * Private getters, setters and methods
 	 */
 
-	private UNIFLO1200ProfileData getProfileData() {
-		return profileData;
+	private UNIFLO1200EventData getEventData() {
+		return eventData;
 	}
 
 	private UNIFLO1200ProfileInfo getProfileInfo() {
-		return getProfileData().getLoadProfile().getProfileInfo();
+		return getEventData().getLoadProfile().getProfileInfo();
 	}
 	
 	private int getNumberOfChannels() {
-		return getProfileData().getLoadProfile().getNumberOfChannels();
+		return getEventData().getLoadProfile().getNumberOfChannels();
 	}
 	
 	private Parser getParser(UNIFLO1200HoldingRegister reg) throws IOException {
@@ -68,7 +69,7 @@ public class UNIFLO1200ProfileDataParser {
 	}
 	
 	private UNIFLO1200 getUniflo1200() {
-		return getProfileData().getLoadProfile().getUniflo1200();
+		return getEventData().getLoadProfile().getUniflo1200();
 	}
 	
 	private int[] parseByteArray2IntArray(byte[] rawData) {

@@ -12,6 +12,7 @@ import java.util.List;
 
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.events.UNIFLO1200EventInfo;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.loadprofile.UNIFLO1200ProfileInfo;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200HoldingRegister;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;
@@ -21,7 +22,7 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200
  * @author jme
  *
  */
-public class UNIFLO1200ProfileInfoParser {
+public class UNIFLO1200EventInfoParser {
 
 	private UNIFLO1200HoldingRegister logIdxReg = null;
 	private UNIFLO1200HoldingRegister logInfoReg = null;
@@ -29,7 +30,7 @@ public class UNIFLO1200ProfileInfoParser {
 	private UNIFLO1200HoldingRegister logWidthReg = null;
 	private UNIFLO1200HoldingRegister logEepromReg = null;
 
-	private UNIFLO1200ProfileInfo profileInfo = null; 
+	private UNIFLO1200EventInfo profileInfo = null; 
 
 	private byte[] logInfoValue;
 	private int logIdxValue;
@@ -41,14 +42,14 @@ public class UNIFLO1200ProfileInfoParser {
 	 * Constructors
 	 */
 
-	public UNIFLO1200ProfileInfoParser(UNIFLO1200HoldingRegister logIdxReg,
+	public UNIFLO1200EventInfoParser(UNIFLO1200HoldingRegister logIdxReg,
 			UNIFLO1200HoldingRegister logInfoReg,
 			UNIFLO1200HoldingRegister logSizeReg,
 			UNIFLO1200HoldingRegister logWidthReg,
 			UNIFLO1200HoldingRegister logEepromReg,
-			UNIFLO1200ProfileInfo profileInfo) throws IOException {
+			UNIFLO1200EventInfo eventInfo) throws IOException {
 		
-		this.profileInfo = profileInfo;
+		this.profileInfo = eventInfo;
 		
 		this.logIdxReg = logIdxReg;
 		this.logInfoReg = logInfoReg;
@@ -64,7 +65,7 @@ public class UNIFLO1200ProfileInfoParser {
 	 * Private getters, setters and methods
 	 */
 	
-	private UNIFLO1200ProfileInfo getProfileInfo() {
+	private UNIFLO1200EventInfo getProfileInfo() {
 		return profileInfo;
 	}
 	

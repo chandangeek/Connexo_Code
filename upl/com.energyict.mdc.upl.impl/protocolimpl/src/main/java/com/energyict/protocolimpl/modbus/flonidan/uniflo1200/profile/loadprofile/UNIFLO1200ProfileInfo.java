@@ -4,7 +4,7 @@
  * Created on 17-dec-2008, 09:48:01 by jme
  * 
  */
-package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.loadprofile;
+package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.loadprofile;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,6 +13,7 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200ProfileInfoParser;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.UNIFLO1200Profile;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200HoldingRegister;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;
 
