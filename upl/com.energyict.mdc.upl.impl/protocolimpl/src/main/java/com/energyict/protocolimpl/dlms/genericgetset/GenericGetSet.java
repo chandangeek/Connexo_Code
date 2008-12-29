@@ -567,7 +567,8 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
         ScalerUnit[] scalerunit = new ScalerUnit[bNROfChannels];
         
         for (int i=0;i<bNROfChannels;i++) {
-           scalerunit[i] = getMeterDemandRegisterScalerUnit(i); 
+           //scalerunit[i] = getMeterDemandRegisterScalerUnit(i);
+           scalerunit[i] = new ScalerUnit(Unit.get("")); //getMeterDemandRegisterScalerUnit(i);
            profileData.addChannel(new ChannelInfo(i,
                                                   "dlmsSL7000_channel_"+i,
                                                   scalerunit[i].getUnit()));
