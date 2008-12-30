@@ -10,6 +10,7 @@ package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import com.energyict.cbo.Quantity;
@@ -51,6 +52,8 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
     public static final String REG_DAILY_LOG_INDEX 		= "Daily_Log_INDEX";
     public static final String REG_DAILY_LOG_SIZE 		= "Daily_Log_SIZE";
     public static final String REG_DAILY_LOG_WIDTH 		= "Daily_Log_WIDTH";
+
+    public static final String REG_ALARM_LOG_INDEX 		= "Alarm_Log_INDEX";
     public static final String REG_INTERVAL				= "Interval_Time";
     
     /** Creates a new instance of RegisterFactory */
@@ -143,7 +146,9 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
         	add(UNIFLO1200Registers.V28.MONTH_LOG_SIZE, null, REG_MONTH_LOG_SIZE);
         	add(UNIFLO1200Registers.V28.MONTH_LOG_WIDTH, null, REG_MONTH_LOG_WIDTH);
 
-			add(UNIFLO1200Registers.V28.LOG_INTERVAL, fwRegisters.getDataLength(UNIFLO1200Registers.V28.LOG_INTERVAL), 
+        	add(UNIFLO1200Registers.V28.ALARM_LOG_INDEX, null, REG_ALARM_LOG_INDEX);
+
+        	add(UNIFLO1200Registers.V28.LOG_INTERVAL, fwRegisters.getDataLength(UNIFLO1200Registers.V28.LOG_INTERVAL), 
 					"1.1.1.1.1.1", fwRegisters.getUnitString(UNIFLO1200Registers.V28.LOG_INTERVAL),	
 					REG_INTERVAL, UNIFLO1200Parsers.PARSER_INTERVAL);
 
@@ -222,7 +227,11 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
         } catch (IOException e) {
 			e.printStackTrace();
 		}
-        
+
+        for (Iterator iterator = getRegisters().iterator(); iterator.hasNext();) {
+			UNIFLO1200HoldingRegister reg = (UNIFLO1200HoldingRegister) iterator.next();
+			reg.fixParser();
+		}
     }
     
 
@@ -250,6 +259,7 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
     	
     	hr.setScale(fwRegisters.getDecimals(registerIndex));
     	hr.setParser(parserString);
+    	hr.setOddAddress(fwRegisters.isOddAddr(registerIndex));
     	getRegisters().add(hr);
     }
     
@@ -292,6 +302,9 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
         getParserFactory().addParser(UNIFLO1200Parsers.PARSER_REAL32, up.new REAL32Parser());
         getParserFactory().addParser(UNIFLO1200Parsers.PARSER_INTREAL, up.new INTREALParser());
         getParserFactory().addParser(UNIFLO1200Parsers.PARSER_DATABLOCK, up.new DATABLOCKParser());
+
+        getParserFactory().addParser(UNIFLO1200Parsers.PARSER_UINT8_SWP, up.new UINT8SwappedParser());
+        getParserFactory().addParser(UNIFLO1200Parsers.PARSER_STR1_SWP, up.new STR1SwappedParser());
 
     } 
 

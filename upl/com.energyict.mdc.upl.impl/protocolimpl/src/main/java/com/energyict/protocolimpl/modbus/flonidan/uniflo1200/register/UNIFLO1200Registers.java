@@ -62,6 +62,14 @@ public class UNIFLO1200Registers {
 		}
 	}
 
+	public int getEventLogStartAddress() throws IOException {
+		switch (this.fwVersion) {
+			case UNIFLO1200_FW_25: return V25.EVENT_LOG_STARTADDRESS;
+			case UNIFLO1200_FW_28: return V28.EVENT_LOG_STARTADDRESS;
+			default: throw new IOException("Unknown firmwareversion: " + this.fwVersion);
+		}
+	}
+
 	public int getDailyLogStartAddress() throws IOException {
 		switch (this.fwVersion) {
 			case UNIFLO1200_FW_25: return V25.DAILY_LOG_STARTADDRESS;
@@ -156,6 +164,11 @@ public class UNIFLO1200Registers {
 		return absoluteAddress / 0x02;
 	}
 		
+	public boolean isOddAddr(int addressIndex) throws IOException {
+		int absoluteAddress = getAbsAddr(addressIndex) & 0x0000FFFF;
+		return ((absoluteAddress % 2) != 0);
+	}
+
 	public int getAbsAddr(int addressIndex) throws IOException {
 		if ((addressIndex > MAX_INDEX) || (addressIndex < MIN_INDEX)) 
 			throw new IOException("getWordAddr() addressIndex wrong value: " + addressIndex + ". Valid value: " + MIN_INDEX + " to " + MAX_INDEX);
@@ -175,6 +188,7 @@ public class UNIFLO1200Registers {
 		public static final int INTERVAL_LOG_STARTADDRESS 	= 0;
 		public static final int DAILY_LOG_STARTADDRESS 		= 0;
 		public static final int MONTH_LOG_STARTADDRESS 		= 0;
+		public static final int EVENT_LOG_STARTADDRESS		= 0;
 
 	}
 	
@@ -183,7 +197,8 @@ public class UNIFLO1200Registers {
 		public static final int INTERVAL_LOG_STARTADDRESS 	= 0x0FFE0;
 		public static final int DAILY_LOG_STARTADDRESS 		= 0x04000;
 		public static final int MONTH_LOG_STARTADDRESS 		= 0x07000;
-
+		public static final int EVENT_LOG_STARTADDRESS		= 0x011A0;
+		
 		public static final int ZA 						= 0;
 		public static final int SLAVE_ADDRESS			= 1;
 		public static final int TIME 					= 2;

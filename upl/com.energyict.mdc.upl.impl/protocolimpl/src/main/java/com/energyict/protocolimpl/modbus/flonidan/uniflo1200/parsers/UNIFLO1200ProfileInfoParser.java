@@ -129,7 +129,7 @@ public class UNIFLO1200ProfileInfoParser {
 
 			reg = new UNIFLO1200HoldingRegister(offset, numberOfWords, channelName, 0, null);
 			reg.setParser(channelParser);
-			offset += numberOfWords;
+			offset += numberOfWords / 2; // TODO
 			channelRegisters.add(reg);
 		}
 		

@@ -45,7 +45,9 @@ public class UNIFLO1200Parsers {
     public static final String PARSER_STRING 	= "String_Parser";		// x chars (Data block of chars, Length is unknown)
 	public static final String PARSER_GAS_FORM	= "GAS_FORMULA_Parser"; // convert option byte to used conversion type string (AGA8, ...) 
 	public static final String PARSER_INTERVAL 	= "INTERVAL_Parser";	// convert option byte to log interval time in seconds
-    
+	public static final String PARSER_UINT8_SWP = "UNINT8_SWAP_Parser";
+	public static final String PARSER_STR1_SWP 	= "STR1_SWAP_Parser";
+
     public static final int LENGTH_UINT8		= 1; 		// 1 byte
     public static final int LENGTH_UINT16		= 1; 		// 2 bytes (word)
     public static final int LENGTH_UINT32		= 2; 		// 4 bytes (long)
@@ -140,6 +142,12 @@ public class UNIFLO1200Parsers {
         }
     }
 
+    public class STR1SwappedParser implements Parser {
+        public String val(int[] values, AbstractRegister register) {
+            return "" + (char)((values[0] & 0x000000FF)); 
+        }
+    }
+    
     public class STR29Parser implements Parser {
         public String val(int[] values, AbstractRegister register) {
             String result = "";
@@ -155,6 +163,14 @@ public class UNIFLO1200Parsers {
         public Integer val(int[] values, AbstractRegister register) {
         	Integer returnValue =
         		((values[0] & 0x0000FF00) >> 8);
+        	return returnValue;
+        }
+    }
+
+    public class UINT8SwappedParser implements Parser {
+        public Integer val(int[] values, AbstractRegister register) {
+        	Integer returnValue =
+        		(values[0] & 0x000000FF);
         	return returnValue;
         }
     }

@@ -9,16 +9,17 @@ package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.events;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200EventDataParser;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200Parsers;
-import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200ProfileDataParser;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.UNIFLO1200Profile;
-import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.loadprofile.UNIFLO1200ProfileInfo;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200HoldingRegister;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;
 
@@ -29,10 +30,13 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200
 public class UNIFLO1200EventData {
 
 	private static final int DEBUG 			= 1;
-	private static final int PROFILE_SIZE 	= 46;
+	private static final int EVENT_SIZE 	= 5;
 	
 	private UNIFLO1200Profile loadProfile;
-	private List intervalDatas;
+	
+	private int alarmIdx;
+	private List eventDatas;
+	private int eventLogStartAddress;
 
 	/*
 	 * Constructors
@@ -40,11 +44,25 @@ public class UNIFLO1200EventData {
 
 	public UNIFLO1200EventData(UNIFLO1200Profile loadProfile) throws IOException {
 		this.loadProfile = loadProfile;
+		init();
 	}
 
 	/*
 	 * Private getters, setters and methods
 	 */
+
+	private void init() throws IOException {
+		this.eventLogStartAddress = getRegisterFactory().getFwRegisters().getEventLogStartAddress();
+		
+		UNIFLO1200HoldingRegister alarmIdxReg = 
+			(UNIFLO1200HoldingRegister) getLoadProfile()
+			.getUniflo1200()
+			.getRegisterFactory()
+			.findRegister(UNIFLO1200RegisterFactory.REG_ALARM_LOG_INDEX);
+
+		this.alarmIdx = (Integer) alarmIdxReg.value(); 
+		
+	}
 
 	private ModbusConnection getModBusConnection() {
 		return getLoadProfile().getUniflo1200().getModbusConnection();
@@ -53,123 +71,137 @@ public class UNIFLO1200EventData {
 	private UNIFLO1200RegisterFactory getRegisterFactory() {
 		return (UNIFLO1200RegisterFactory) getLoadProfile().getUniflo1200().getRegisterFactory();
 	}
-
-	private UNIFLO1200ProfileInfo getProfileInfo() {
-		return getLoadProfile().getProfileInfo();
+	
+	private int getAlarmIdx() {
+		return alarmIdx;
 	}
 	
-	private int buildLogAddress(int start, int numberOfLogPoints, int idx) {
+	private int getEventLogStartAddress() throws IOException {
+		return eventLogStartAddress;
+	}
+	
+	private int buildEventAddress(int start, int idx) throws IOException {
 		int returnValue;
-		returnValue = start + 32 + idx*(numberOfLogPoints*4 + 6);
+		returnValue = start + idx*10;
 		return returnValue;
-
 	}
 		
+    private static List checkOnOverlappingEvents(List meterEvents) {
+    	Map eventsMap = new HashMap();
+        int size = meterEvents.size();
+	    for (int i = 0; i < size; i++) {
+	    	MeterEvent event = (MeterEvent) meterEvents.get(i);
+	    	Date time = event.getTime();
+	    	MeterEvent eventInMap = (MeterEvent) eventsMap.get(time);
+	    	while (eventInMap != null) {
+	    		time.setTime(time.getTime() + 1000); // add one second
+				eventInMap = (MeterEvent) eventsMap.get(time);
+	    	}
+	    	MeterEvent newMeterEvent= 
+	    		new MeterEvent(time, event.getEiCode(), event.getProtocolCode(),event.getMessage());
+    		eventsMap.put(time, newMeterEvent);
+	    }
+	    Iterator it = eventsMap.values().iterator();
+		List result = new ArrayList();
+	    while (it.hasNext()) 
+	        result.add((MeterEvent) it.next());
+		return result;
+    }
+
 	/*
 	 * Public methods
 	 */
 
-	public List buildIntervalDatas(Date from, Date to) throws IOException {
+	public void debugMemDump() throws IOException {
+		byte[] dataBlock;
+		int ptr;
+
+		UNIFLO1200HoldingRegister register;
+		UNIFLO1200EventDataParser eventDataParser = new UNIFLO1200EventDataParser(this);
+		final int base = getEventLogStartAddress();
+		final int nol = 100;
+		final int idx = getAlarmIdx();
+		
+		Date intervalTime = new Date(1);
+		int eiEventCode;
+		int logType;
+		String description;
+		
+		ptr = 0;
+		
+		System.out.println("alarmIdx = " + getAlarmIdx());
+		
+		do {
+			register = new UNIFLO1200HoldingRegister(buildEventAddress(base, ptr), EVENT_SIZE, "Temp", getModBusConnection());
+			register.setRegisterFactory(getRegisterFactory());
+			dataBlock = (byte[]) register.objectValueWithParser(UNIFLO1200Parsers.PARSER_DATABLOCK);
+			eventDataParser.parseData(dataBlock);
+			
+			intervalTime = eventDataParser.getTime();
+			description = eventDataParser.getDescription();
+			logType = eventDataParser.getLogType();
+			eiEventCode = eventDataParser.getEiserverEventCode();
+			
+			System.out.print("logIdx = " + ptr + " address: " + buildEventAddress(base, ptr) + " ");
+			System.out.print(intervalTime + " ");
+			System.out.print("EISEventCode = " + eiEventCode + " ");
+			System.out.print("LogType = " + logType + " ");
+			System.out.print("\t" + ProtocolUtils.outputHexString(dataBlock) + " ");
+			System.out.print(description + " ");
+			System.out.println();
+			
+			ptr++;
+			
+			if (ptr > nol) break;
+			
+		} while(true);
+
+	}
+
+    
+	public List buildEventDatas(Date from, Date to) throws IOException {
+		this.eventDatas = new ArrayList();
 		byte[] dataBlock;
 		int ptr;
 		int div;
-		IntervalData intervalData;
-		this.intervalDatas = new ArrayList();
-
+		final int base = getEventLogStartAddress();
+		final int nol = 100;
+		final int idx = getAlarmIdx();
 		UNIFLO1200HoldingRegister register;
-		UNIFLO1200EventDataParser profileDataParser = new UNIFLO1200EventDataParser(this);
-		final int base = getProfileInfo().getLogStartAddress();
-		final int nolp = getProfileInfo().getNumberOfLogPoints();
-		final int nol = getProfileInfo().getNumberOfLogs();
-		final int idx = getProfileInfo().getLoadProfile().getProfileInfo().getLogIndex();
+		UNIFLO1200EventDataParser eventDataParser = new UNIFLO1200EventDataParser(this);
+		
+		Date intervalTime = new Date(1);
+		int eiEventCode;
+		int logType;
+		String description;
 
 		Date firstTime;
 		Date lastTime;
 		Date previousTime = new Date(0);
-		Date intervalTime = new Date(1);
 		
-		register = new UNIFLO1200HoldingRegister(buildLogAddress(base, nolp, idx-1), 6, "TempStartDate", getModBusConnection());
+		register = new UNIFLO1200HoldingRegister(buildEventAddress(base, idx-1), 6, "TempEventStartDate", getModBusConnection());
 		register.setRegisterFactory(getRegisterFactory());
 		lastTime = (Date) register.objectValueWithParser(UNIFLO1200Parsers.PARSER_TIME);
 
-		if (to == null) {
-			div = 0;
-		} else {
-			div = (int)((lastTime.getTime() - to.getTime()) / 1000) / getProfileInfo().getProfileInterval();
-		}
-
-		if (DEBUG >= 1) System.out.println("div: " + div);
-
-		if (div <= 0) {
-			ptr = idx - 1;
-		} else {
-			ptr = idx - div;
-			if (ptr < 0) {
-				ptr += nol;
-				if (ptr <= idx) return intervalDatas;
-			}
-		}
+		if (from.compareTo(lastTime) > 0) return this.eventDatas;
+		
+		ptr = idx - 1;
 		
 		do {
-			register = new UNIFLO1200HoldingRegister(buildLogAddress(base, nolp, ptr), 6, "TempStartDate", getModBusConnection());
-			register.setRegisterFactory(getRegisterFactory());
-			firstTime = (Date) register.objectValueWithParser(UNIFLO1200Parsers.PARSER_TIME);
-			if (DEBUG >= 1) System.out.println("Searching matching 'to' interval [" + to + "] <> [" + firstTime + "] ...");
-			
-			if (firstTime.compareTo(lastTime) > 0) {
-				if (DEBUG >= 1) System.out.println("firstTime = " + firstTime +	" lastTime = " + lastTime +	"  firstTime.compareTo(lastTime) = " + firstTime.compareTo(lastTime));
-				return intervalDatas;
-			}
-			
-			if (firstTime.compareTo(to) <= 0) {
-				if (DEBUG >= 1)	System.out.println("firstTime = " + firstTime + " to = " + to +	"  firstTime.compareTo(to) = " + firstTime.compareTo(to));
-				break;
-			}
-			
-			if (--ptr < 0) {
-				ptr = nol - 1;
-				if (DEBUG >= 1) System.out.println("ptr < 0,  ptr = nol - 1 = " + ptr);
-			}
-			
-		} while(true);
 
-		if (DEBUG >= 1) System.out.println("First date: " + firstTime);
-		if (DEBUG >= 1) System.out.println("Last date:  " + lastTime);
-		
-		do {
-			register = new UNIFLO1200HoldingRegister(buildLogAddress(base, nolp, ptr), PROFILE_SIZE, "Temp", getModBusConnection());
+			register = new UNIFLO1200HoldingRegister(buildEventAddress(base, ptr), EVENT_SIZE, "TempEvent", getModBusConnection());
 			register.setRegisterFactory(getRegisterFactory());
 			dataBlock = (byte[]) register.objectValueWithParser(UNIFLO1200Parsers.PARSER_DATABLOCK);
-			profileDataParser.parseData(dataBlock);
+			eventDataParser.parseData(dataBlock);
+
+
+			if (--ptr < 0) ptr = 99;
 			
-			intervalTime = profileDataParser.getTime();
-			
-			if (intervalTime.compareTo(lastTime) > 0) break;
-			if (intervalTime.compareTo(from) <= 0) break;
-			
-			intervalData = new IntervalData(intervalTime);
-			for (int j = 0; j < getProfileInfo().getNumberOfChannels(); j++) {
-				intervalData.addValue(profileDataParser.getNumber(j));
-			}
-			
-			if (!previousTime.equals(intervalTime)) {
-				intervalDatas.add(intervalData);
-			} else {
-				if (DEBUG >= 1) System.out.println("WARNING: Duplicate log entry for time " + previousTime + " !!!");
-			}
-			
-			previousTime = intervalTime;
-			
-			if (DEBUG >= 1) System.out.print("logIdx = " + ptr + " address: " + buildLogAddress(base, nolp, ptr) + " ");
-			if (DEBUG >= 1) System.out.print(intervalTime + " ");
-			if (DEBUG >= 1) System.out.print(ProtocolUtils.outputHexString(dataBlock));
-			if (DEBUG >= 1) System.out.println();
-			
-			if (--ptr < 0) ptr = nol - 1;
+			break;
 			
 		} while(true);
 		
-		return intervalDatas;
+		return checkOnOverlappingEvents(eventDatas);
 	}
 
 	/*

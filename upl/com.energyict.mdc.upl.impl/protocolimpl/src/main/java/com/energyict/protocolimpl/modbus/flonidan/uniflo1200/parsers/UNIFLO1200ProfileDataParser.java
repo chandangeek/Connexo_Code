@@ -72,7 +72,7 @@ public class UNIFLO1200ProfileDataParser {
 	}
 	
 	private int[] parseByteArray2IntArray(byte[] rawData) {
-		int[] returnValue = new int[rawData.length / 2];
+		int[] returnValue = new int[(rawData.length / 2)];
 		for (int i = 0; i < returnValue.length; i++) {
 			returnValue[i] = (rawData[i*2] & 0x000000FF) << 8;
 			returnValue[i] += rawData[(i*2) + 1] & 0x000000FF;
@@ -95,15 +95,7 @@ public class UNIFLO1200ProfileDataParser {
 
 	public void parseData(byte[] rawData) throws IOException {
 		List registers = getProfileInfo().getChannelRegisters();
-		int[] intData = parseByteArray2IntArray(rawData);
-		
-//		String message = "";
-//		for (int i = 0; i < intData.length; i++) {
-//			message += "  " + ProtocolUtils.buildStringHex(intData[i], 4);
-//		}
-//
-//		System.out.println("int[] = " + message);
-		
+		int[] intData = parseByteArray2IntArray(rawData);		
 		int noc = getNumberOfChannels();
 		
 		this.channelNumbers = new Number[noc];

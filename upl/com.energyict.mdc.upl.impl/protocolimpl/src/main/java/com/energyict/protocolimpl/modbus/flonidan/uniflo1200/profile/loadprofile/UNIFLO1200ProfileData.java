@@ -6,7 +6,10 @@
  */
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.loadprofile;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,7 +30,7 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200
 public class UNIFLO1200ProfileData {
 
 	private static final int DEBUG 			= 1;
-	private static final int PROFILE_SIZE 	= 46;
+	private static final int PROFILE_SIZE 	= 23;
 	
 	private UNIFLO1200Profile loadProfile;
 	private List intervalDatas;
@@ -67,6 +70,54 @@ public class UNIFLO1200ProfileData {
 	 * Public methods
 	 */
 
+	public void debugMemDump() throws IOException {
+		byte[] dataBlock;
+		int ptr;
+
+		UNIFLO1200HoldingRegister register;
+		UNIFLO1200ProfileDataParser profileDataParser = new UNIFLO1200ProfileDataParser(this);
+		final int base = getProfileInfo().getLogStartAddress();
+		final int nolp = getProfileInfo().getNumberOfLogPoints();
+		final int nol = getProfileInfo().getNumberOfLogs();
+
+		Date intervalTime = new Date(1);
+
+		redirectSystemOutput();
+		
+		ptr = 0;
+		
+		do {
+			register = new UNIFLO1200HoldingRegister(buildLogAddress(base, nolp, ptr), PROFILE_SIZE, "Temp", getModBusConnection());
+			register.setRegisterFactory(getRegisterFactory());
+			dataBlock = (byte[]) register.objectValueWithParser(UNIFLO1200Parsers.PARSER_DATABLOCK);
+			profileDataParser.parseData(dataBlock);
+			
+			intervalTime = profileDataParser.getTime();
+			
+			System.out.print("logIdx = " + ptr + " address: " + buildLogAddress(base, nolp, ptr) + " ");
+			System.out.print(intervalTime + " ");
+			System.out.print(ProtocolUtils.outputHexString(dataBlock));
+			System.out.println();
+			
+			
+			
+			ptr++;
+			
+			if (ptr > nol) break;
+			
+		} while(true);
+
+	}
+	
+	private void redirectSystemOutput(){
+        
+        try{
+            File file  = new File("C:/SYSOUT.txt");
+            PrintStream printStream = new PrintStream(new FileOutputStream(file));
+            System.setOut(printStream);            
+        }catch(Exception e){}         
+        
+}
 	public List buildIntervalDatas(Date from, Date to) throws IOException {
 		byte[] dataBlock;
 		int ptr;
@@ -142,8 +193,14 @@ public class UNIFLO1200ProfileData {
 			
 			intervalTime = profileDataParser.getTime();
 			
-			if (intervalTime.compareTo(lastTime) > 0) break;
-			if (intervalTime.compareTo(from) <= 0) break;
+			if (intervalTime.compareTo(lastTime) > 0) {
+				if (DEBUG >= 1) System.out.println("BREAK: intervalTime.compareTo(lastTime) > 0 = " + intervalTime.compareTo(lastTime) + " intervalTime = " + intervalTime + " lastTime = " + lastTime + " ptr = " + ptr);
+				break;
+			}
+			if (intervalTime.compareTo(from) <= 0) {
+				if (DEBUG >= 1) System.out.println("BREAK: intervalTime.compareTo(from) <= 0 = " + intervalTime.compareTo(from) + " intervalTime = " + intervalTime + " from = " + from + " ptr = " + ptr);
+				break;
+			}
 			
 			intervalData = new IntervalData(intervalTime);
 			for (int j = 0; j < getProfileInfo().getNumberOfChannels(); j++) {

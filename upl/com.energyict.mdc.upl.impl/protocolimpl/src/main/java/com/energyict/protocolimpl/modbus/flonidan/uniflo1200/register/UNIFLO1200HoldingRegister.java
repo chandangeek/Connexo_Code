@@ -23,6 +23,7 @@ import com.energyict.protocolimpl.modbus.core.functioncode.ReadInputRegistersReq
 import com.energyict.protocolimpl.modbus.core.functioncode.ReportSlaveId;
 import com.energyict.protocolimpl.modbus.core.functioncode.WriteMultipleRegisters;
 import com.energyict.protocolimpl.modbus.core.functioncode.WriteSingleRegister;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200Parsers;
 
 /**
  * @author jme
@@ -32,6 +33,7 @@ public class UNIFLO1200HoldingRegister extends HoldingRegister {
 	private int slaveID = 0;
 	private int baseSlaveID = 0;
 	private ModbusConnection modbusConnection = null;
+	private boolean oddAddress;
 	
 	public UNIFLO1200HoldingRegister(int reg, int range, ObisCode obisCode,	Unit unit, String name, int slaveID, ModbusConnection modbusConnection) {
 		super(reg, range, obisCode, unit, name);
@@ -80,7 +82,28 @@ public class UNIFLO1200HoldingRegister extends HoldingRegister {
 	private void activateSlaveID() {
 		getModbusConnection().setAddress(getBaseSlaveID() + getSlaveID());
 	}
+	
+	public void fixParser() {
+		if (isOddAddress()) {
+			if (getParser().equalsIgnoreCase(UNIFLO1200Parsers.PARSER_UINT8)) {
+				setParser(UNIFLO1200Parsers.PARSER_UINT8_SWP);
+				return;
+			}
+			if (getParser().equalsIgnoreCase(UNIFLO1200Parsers.PARSER_STR1)) {
+				setParser(UNIFLO1200Parsers.PARSER_STR1_SWP);
+				return;
+			}
+		}
+	}
 
+	public boolean isOddAddress(){
+		return oddAddress;
+	}
+	
+	public void setOddAddress(boolean isOddAddress) {
+		this.oddAddress = isOddAddress;
+	}
+	
 	public Date dateValue() throws IOException {
 		activateSlaveID();
 		Date returnValue = super.dateValue();
