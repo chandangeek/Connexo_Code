@@ -23,6 +23,10 @@ import com.energyict.protocol.discover.Discover;
 /**
  *
  * @author Koen
+ * 
+ * Changes:
+ * 02/01/2009|JME - Added call to doTheGetOptionalKeys() in method doGetOptionalKeys() to read the optional keys from the abstract method, implemented by the protocol who's is extending Modbus
+ * 
  */
 abstract public class Modbus extends AbstractProtocol implements Discover {
     
@@ -106,6 +110,9 @@ abstract public class Modbus extends AbstractProtocol implements Discover {
         result.add("PhysicalLayer");
         result.add("RegisterOrderFixedPoint");
         result.add("RegisterOrderFloatingPoint");
+        
+        List optionalKeys = doTheGetOptionalKeys();
+        if (optionalKeys != null) result.addAll(optionalKeys);
         
         return result;
     }
