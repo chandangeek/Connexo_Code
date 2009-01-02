@@ -37,6 +37,7 @@ public class UNIFLO1200EventDataParser {
 	private byte[] rawData;
 	private String description;
 	private int eiserverEventCode;
+	private boolean timeChanged;
 	
 	/*
 	 * Constructors
@@ -155,8 +156,8 @@ public class UNIFLO1200EventDataParser {
 		}
 		
 	}
-	
-	private int getEisCode(int logType) {
+		
+	private int getEisCode(int logType, boolean state) {
 		
 		switch (logType) {
 			case 0:  return MeterEvent.OTHER; 									// Tamper alarm; //FIXME: Change event to TAMPER
@@ -166,7 +167,11 @@ public class UNIFLO1200EventDataParser {
 			case 4:  return MeterEvent.PROGRAM_FLOW_ERROR; 						// Pulse count error;
 			case 5:  return MeterEvent.HARDWARE_ERROR; 							// Pressure sensor error;
 			case 6:  return MeterEvent.OTHER; 									// Door alarm; //FIXME: Change event to DOOROPENED
-			case 7:  return MeterEvent.PHASE_FAILURE;							// Mains power error;
+			
+			case 7:  															// Mains power error. 
+				if (state) return MeterEvent.POWERUP;							//    * State OFF  --> Power UP 
+					else return MeterEvent.POWERDOWN;							//    * State ON   --> Power DOWN
+			
 			case 8:  return MeterEvent.REGISTER_OVERFLOW;						// Temperature low limit;
 			case 9:  return MeterEvent.REGISTER_OVERFLOW;						// Temperature high limit;
 			case 10: return MeterEvent.REGISTER_OVERFLOW; 						// Pressure low limit;
@@ -295,16 +300,18 @@ public class UNIFLO1200EventDataParser {
 	 */
 
 	public void parseData(byte[] rawData) throws IOException {
-		List registers = getProfileInfo().getChannelRegisters();
+		//List registers = getProfileInfo().getChannelRegisters();
 		int[] intData = parseByteArray2IntArray(rawData);
 				
 		this.rawData = rawData;
 		this.time = (Date) getParser(UNIFLO1200Parsers.PARSER_TIME).val(intData, null);
 		this.logType = ((int)rawData[6]) & 0x000000FF;
-		this.status = (rawData[8] == 0);
+		this.status = (rawData[8] != 0);
 		
 		this.description = getLogTypeName(getLogType()) + " Alarm: " + ((getStatus() == true)?"ON":"OFF");
-		this.eiserverEventCode = getEisCode(getLogType());
+		this.eiserverEventCode = getEisCode(getLogType(), getStatus());
+		
+		this.timeChanged = (getLogType() == 25);
 		
 	}
 	
@@ -336,4 +343,8 @@ public class UNIFLO1200EventDataParser {
 		return eiserverEventCode;
 	}
 
+	public boolean isTimeChanged() {
+		return timeChanged;
+	}
+	
 }

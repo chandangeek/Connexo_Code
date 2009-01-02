@@ -177,7 +177,7 @@ public class UNIFLO1200EventData {
 
 		Date firstTime;
 		Date lastTime;
-		Date previousTime = new Date(0);
+		Date previousTime = new Date(Long.MAX_VALUE);
 		
 		register = new UNIFLO1200HoldingRegister(buildEventAddress(base, idx-1), 6, "TempEventStartDate", getModBusConnection());
 		register.setRegisterFactory(getRegisterFactory());
@@ -194,11 +194,39 @@ public class UNIFLO1200EventData {
 			dataBlock = (byte[]) register.objectValueWithParser(UNIFLO1200Parsers.PARSER_DATABLOCK);
 			eventDataParser.parseData(dataBlock);
 
+			if (previousTime.before(eventDataParser.getTime()) && (!eventDataParser.isTimeChanged())) {
+				System.out.println(
+						" break: previousTime.after(eventDataParser.getTime()) = " + previousTime.after(eventDataParser.getTime()) + 
+						" previousTime = " + previousTime +
+						" eventDataParser.getTime() = " + eventDataParser.getTime()
+					);
+				break;
+			}
+			
+			if (from.after(eventDataParser.getTime())) {
+				System.out.println(
+						" break: from.after(eventDataParser.getTime()) = " + from.after(eventDataParser.getTime()) + 
+						" from = " + from +
+						" eventDataParser.getTime() = " + eventDataParser.getTime()
+					);
+				break;
+			}
+
+			previousTime = eventDataParser.getTime();
+			
+			MeterEvent event = new MeterEvent(
+					eventDataParser.getTime(), 
+					eventDataParser.getEiserverEventCode(), 
+					eventDataParser.getLogType(), 
+					eventDataParser.getDescription()
+			);
+
+			System.out.println("Events: ptr = " + ptr + " event = " + event.toString());
+			
+			if (!to.before(eventDataParser.getTime())) this.eventDatas.add(event);
 
 			if (--ptr < 0) ptr = 99;
-			
-			break;
-			
+						
 		} while(true);
 		
 		return checkOnOverlappingEvents(eventDatas);

@@ -151,7 +151,7 @@ public class UNIFLO1200Registers {
 			case 0x0E: return UNIFLO1200Parsers.LENGTH_STR8;
 			case 0x0F: 
 				try {
-					return Integer.parseInt(getUnitString(addressIndex)) / 2;
+					return Integer.parseInt(getUnitString(addressIndex));
 				} catch (NumberFormatException e) {
 					return 0; 
 				}

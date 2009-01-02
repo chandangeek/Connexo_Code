@@ -68,14 +68,14 @@ public class UNIFLO1200Profile {
 		ProfileData pd = new ProfileData();
 		if (to == null) to = new Date(Long.MAX_VALUE);
 		pd.setChannelInfos(getProfileInfo().getChannelInfos());
-//		pd.setIntervalDatas(getProfileData().buildIntervalDatas(from, to));
+		pd.setIntervalDatas(getProfileData().buildIntervalDatas(from, to));
 
-		//getProfileData().debugMemDump();
-		getEventData().debugMemDump();
+//		getProfileData().debugMemDump();
+//		getEventData().debugMemDump();
 		
 		if (includeEvents) {
 			pd.setMeterEvents(getEventData().buildEventDatas(from, to));
-//			pd.applyEvents(getProfileInterval() / 60);
+			pd.applyEvents(getProfileInterval() / 60);
 		}
 		
 		return pd;

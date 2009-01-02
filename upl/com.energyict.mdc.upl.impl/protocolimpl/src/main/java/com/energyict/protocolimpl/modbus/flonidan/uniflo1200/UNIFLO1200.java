@@ -48,7 +48,7 @@ public class UNIFLO1200 extends Modbus {
 	}
 
 	public void setTime() throws IOException {
-		byte[] b = new byte[6];
+		byte[] b;
 		Calendar cal = ProtocolUtils.getCleanCalendar(gettimeZone());
 		cal.setTime(new Date());
 		b = UNIFLO1200Parsers.buildTimeDate(cal);

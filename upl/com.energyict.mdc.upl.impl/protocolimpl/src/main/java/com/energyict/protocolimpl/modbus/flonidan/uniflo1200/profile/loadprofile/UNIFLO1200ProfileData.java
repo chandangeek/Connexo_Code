@@ -29,8 +29,8 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200
  */
 public class UNIFLO1200ProfileData {
 
-	private static final int DEBUG 			= 1;
-	private static final int PROFILE_SIZE 	= 23;
+	private static final int DEBUG 				= 1;
+	private static final int CHANNEL_MAX_LENGTH = 2; 	// Maximum number of words of a single channel. Max value is 4 bytes = 2 words
 	
 	private UNIFLO1200Profile loadProfile;
 	private List intervalDatas;
@@ -80,14 +80,15 @@ public class UNIFLO1200ProfileData {
 		final int nolp = getProfileInfo().getNumberOfLogPoints();
 		final int nol = getProfileInfo().getNumberOfLogs();
 
-		Date intervalTime = new Date(1);
+		Date intervalTime;
 
 		redirectSystemOutput();
 		
 		ptr = 0;
 		
 		do {
-			register = new UNIFLO1200HoldingRegister(buildLogAddress(base, nolp, ptr), PROFILE_SIZE, "Temp", getModBusConnection());
+			int profileSize = ((getProfileInfo().getNumberOfChannels() * CHANNEL_MAX_LENGTH) + UNIFLO1200Parsers.LENGTH_TIME) * 2;
+			register = new UNIFLO1200HoldingRegister(buildLogAddress(base, nolp, ptr), profileSize, "Temp", getModBusConnection());
 			register.setRegisterFactory(getRegisterFactory());
 			dataBlock = (byte[]) register.objectValueWithParser(UNIFLO1200Parsers.PARSER_DATABLOCK);
 			profileDataParser.parseData(dataBlock);
@@ -98,8 +99,6 @@ public class UNIFLO1200ProfileData {
 			System.out.print(intervalTime + " ");
 			System.out.print(ProtocolUtils.outputHexString(dataBlock));
 			System.out.println();
-			
-			
 			
 			ptr++;
 			
@@ -135,7 +134,7 @@ public class UNIFLO1200ProfileData {
 		Date firstTime;
 		Date lastTime;
 		Date previousTime = new Date(0);
-		Date intervalTime = new Date(1);
+		Date intervalTime;
 		
 		register = new UNIFLO1200HoldingRegister(buildLogAddress(base, nolp, idx-1), 6, "TempStartDate", getModBusConnection());
 		register.setRegisterFactory(getRegisterFactory());
@@ -186,7 +185,8 @@ public class UNIFLO1200ProfileData {
 		if (DEBUG >= 1) System.out.println("Last date:  " + lastTime);
 		
 		do {
-			register = new UNIFLO1200HoldingRegister(buildLogAddress(base, nolp, ptr), PROFILE_SIZE, "Temp", getModBusConnection());
+			int profileSize = ((getProfileInfo().getNumberOfChannels() * CHANNEL_MAX_LENGTH) + UNIFLO1200Parsers.LENGTH_TIME);
+			register = new UNIFLO1200HoldingRegister(buildLogAddress(base, nolp, ptr), profileSize, "Temp", getModBusConnection());
 			register.setRegisterFactory(getRegisterFactory());
 			dataBlock = (byte[]) register.objectValueWithParser(UNIFLO1200Parsers.PARSER_DATABLOCK);
 			profileDataParser.parseData(dataBlock);

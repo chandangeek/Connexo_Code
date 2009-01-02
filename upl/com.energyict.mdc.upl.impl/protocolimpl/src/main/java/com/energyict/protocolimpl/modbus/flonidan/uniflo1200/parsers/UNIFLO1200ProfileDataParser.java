@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.Parser;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.UNIFLO1200;
@@ -88,6 +87,13 @@ public class UNIFLO1200ProfileDataParser {
         return subArray;
     }    
 
+    private String printIntArray(int[] intArray) {
+		String returnValue = "";
+    	for (int i = 0; i < intArray.length; i++) {
+    		returnValue += "$$"+ProtocolUtils.buildStringHex(intArray[i], 4);
+		}
+    	return returnValue;
+    }
 	
 	/*
 	 * Public methods
@@ -98,6 +104,11 @@ public class UNIFLO1200ProfileDataParser {
 		int[] intData = parseByteArray2IntArray(rawData);		
 		int noc = getNumberOfChannels();
 		
+		System.out.println("RawData = " + ProtocolUtils.outputHexString(rawData));
+		System.out.println("IntData = " + printIntArray(intData));
+		
+		
+		
 		this.channelNumbers = new Number[noc];
 		this.timeValue = (Date) getParser(UNIFLO1200Parsers.PARSER_TIME).val(intData, null);
 	
@@ -105,7 +116,8 @@ public class UNIFLO1200ProfileDataParser {
 			UNIFLO1200HoldingRegister reg = (UNIFLO1200HoldingRegister) registers.get(i);
 			registers.get(i);
 			try {
-				channelNumbers[i] = (Number) getParser(reg).val(getSubArray(intData, reg.getReg(), reg.getRange()), null);
+				int[] subArray = getSubArray(intData, reg.getReg(), reg.getRange());
+				channelNumbers[i] = (Number) getParser(reg).val(subArray, null);
 			} catch (NumberFormatException e) {
 				channelNumbers[i] = 0;
 			}
