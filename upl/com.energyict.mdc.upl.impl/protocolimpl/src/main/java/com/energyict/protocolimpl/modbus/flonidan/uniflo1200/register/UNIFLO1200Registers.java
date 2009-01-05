@@ -19,7 +19,8 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200P
 public class UNIFLO1200Registers {
 	private static final int MIN_INDEX 				= 0;
 	private static final int MAX_INDEX 				= 276;
-    public static final int UNIFLO1200_FW_25 		= 25;
+    private static final int DEBUG					= 0;
+	public static final int UNIFLO1200_FW_25 		= 25;
     public static final int UNIFLO1200_FW_28 		= 28;
 	public static final int OPTION_LOG_INTERVAL[] 	= {0, 60, 120, 300, 900, 1800, 3600, 7200, 14400};
 
@@ -108,6 +109,18 @@ public class UNIFLO1200Registers {
 		return returnValue;
 	}
 	
+	public String getAddressName(int addressIndex) throws IOException {
+		if ((addressIndex > MAX_INDEX) || (addressIndex < MIN_INDEX)) 
+			throw new IOException("getAddressName() addressIndex wrong value: " + addressIndex + ". Valid value: " + MIN_INDEX + " to " + MAX_INDEX);
+
+		switch (this.fwVersion) {
+			case UNIFLO1200_FW_25: return V25.REGISTER_NAME[addressIndex];
+			case UNIFLO1200_FW_28: return V28.REGISTER_NAME[addressIndex];
+			default: throw new IOException("Unknown firmwareversion: " + this.fwVersion);
+		}
+	}
+
+	
 	public String getParser(int addressIndex) throws IOException {
 		int dataType = getDataType(addressIndex);
 		switch (dataType) {
@@ -181,9 +194,9 @@ public class UNIFLO1200Registers {
 	}
 
 	public static class V25 {
-		public static final int EMPTY						= 0;
 		private static final int ABSOLUTE_ADDRESSES[] 		= {0x00000000};
 		private static final String UNITS[] 				= {""};
+		private static final String[] REGISTER_NAME 		= {""};
 
 		public static final int INTERVAL_LOG_STARTADDRESS 	= 0;
 		public static final int DAILY_LOG_STARTADDRESS 		= 0;
@@ -478,6 +491,285 @@ public class UNIFLO1200Registers {
 		public static final int WR_SET_OPERATOR_ID		= 275;
 		public static final int WR_ADJUST_TIME			= 276;
 
+		private static final String REGISTER_NAME[] = {
+			"Za",      								// 0    Za                              R       1R   Za                                                                          Za
+			"Slave address",      					// 1    SlaveAdr                                1    Modbus slave address                                                        Modbus address
+			"Time",     							// 2    Time                            T       1    Uniflo time                                                                 Time
+			"Zb",      								// 3    Zb2                             R       1R   Zb                                                                          Zb
+			"Temperature Correction table",   		// 4    TempCorrTabel        112                     Temperatur correction tabel
+			"Battery remaining",     				// 5    Bat                  Days      U        1    Battery remaining                                                           Bat. remaining
+			"Interval log power average",    		// 6    IEnergyFAvg          MJ        U0        R1  Average power.
+			"Interval log temperature average",		// 7    ITempAvg             °C         0        R1  Average temp.
+			"Interval log pressure average",   		// 8    ITrykAvg             BarA      U0        R1  Average Press.
+			"Interval log corrected flow average",  // 9    IFlowUAvg            m3/h       0        R1  Avg. flow corr.
+			"Interval log converted flow average", 	// 10   IFlowKAvg            Nm3/h     U0        R1  Avg. flow conv.
+			"Daily log power average",    			// 11   DEnergyFAvg          MJ        U0        R2  Average power.
+			"Daily log temperature average",    	// 12   DTempAvg             °C         0        R2  Average temp.
+			"Daily log pressure average",   		// 13   DTrykAvg             BarA      U0        R2  Average Press.
+			"Daily log corrected flow average",  	// 14   DFlowUAvg            m3/h       0        R2  Avg. flow corr.
+			"Daily log converted flow average", 	// 15   DFlowKAvg            Nm3/h     U0        R2  Avg. flow conv.
+			"Configuration checksum",      			// 16   ConfigChecksum                          1R   Configuration checksum                                                      Config. checksum
+			"Log line checksum",      				// 17   LogChecksum                              R0  Log line checksum
+			"Pulse out register 1",      			// 18   PulsoutReg1                     R            Pulse output 1
+			"Pulse out register 2",      			// 19   PulsoutReg2                     R            Pulse output 2
+			"Pulse out diversion factor 1",      	// 20   PulsDiv1                        R            Division faktor for puls 1
+			"Pulse out diversion factor 2",      	// 21   PulsDiv2                        R            Division faktor for puls 2
+			"Numbers of powerups",      			// 22   Powerup                                      Numbers of  powerup
+			"Pressure AD-count",      				// 23   ADtryk                                   R3  Pressure AD-count
+			"Temperature AD-count",      			// 24   ADtemp                                   R3  Temperature AD-count
+			"Pressure sensortemperature AD-Count",	// 25   ADSensortemp                             R3  Pressure sensor A-count
+			"Pulse output period cycle time", 		// 26   PulsOutTid                      R            Pulse output period length
+			"Heat value",							// 27   BassisEnergi         MJ/nm3    UR       1    Heat value                                                                  Heat value
+			"Display setup table",   				// 28   DisplaySetupTable    18         R            Display setup table
+			"Operator ID",    						// 29   Operator                                     Operator ID 4 char
+			"Event log",      						// 30   EventLog                                     Eventlog (200 logninger)
+			"Actual security level",      			// 31   Password                                 R   Actual secure level
+			"Volume control",    					// 32   VolCtrl              m3                      Vol. control                                        0           99999999
+			"System data",      					// 33   SystemData                                   SystemData                                                                  Temp type
+			"Pulse check every",      				// 34   PulsCheckPulser      pulses    UR            Pulse check every
+			"Alarm log",     						// 35   AlarmLog                                     Alarmlog (100 logninger)
+			"Pressure",   							// 36   Pressure             bar A     U        1R0 1Pressure                                                                    Pressure
+			"Temperature",    						// 37   Temperature          °C                 1R0 1Temperature                                                                 Temperature
+			"Conversion factor",      				// 38   Korr                                    1R0 1Conversion factor                                                           Conv. factor
+			"Pulse value",    						// 39   Pulsvalue            m3/pulse  UR       1    Value of pulse                                      0           99999999    Pulse Value
+			"Flow corrected",  						// 40   FlowCorr             m3/h               1R0 1Flow corrected                                                              Flow corr.
+			"Flow converted", 						// 41   FlowConv             Nm3/h     U        1R0 1Flow conv.                                                                  Flow conv.
+			"Volume corrected",    					// 42   VolCorr              m3                      Vol. corrected                                      0           99999999
+			"Volume converted",   					// 43   VolConv              Nm3       U             Vol. converted                                      0           99999999
+			"Volume corrected Integer part",    	// 44   VolCorrI             m3                 1 01 Vol. corrected                                                              Vol. corr.
+			"Volume corrected decimal part",    	// 45   VolCorrF             m3                 1 0  Vol. corr. dec.                                                             Vol. corr. dec
+			"Volume converted Integer part",   		// 46   VolConvI             Nm3       U        1 01 Vol. conv.                                                                  Vol. conv.
+			"Volume converted decimal part",  		// 47   VolConvF             Nm3       U        1 0  Vol. conv. dec.                                                             Vol. conv. dec
+			"Alarm setup table",   					// 48   AlarmSetupTable      192        R            Alarm setup table
+			"Flowstop after",     					// 49   Flowstop             seconds   UR            Flowstop after                                      10          600
+			"Pressure low limit",   				// 50   TrykMin              BarA      UR       1    Pressure low limit                                  0.6         80          Press. low limit
+			"Pressure high limit",   				// 51   TrykMax              BarA      UR       1    Pressure high limit                                 0.6         80          Press. high limit
+			"Temperature low limit",    			// 52   TempMin              °C         R       1    Temperature low limit                               -40         70          Temp. low limit
+			"Temperature high limit",    			// 53   TempMax              °C         R       1    Temperature high limit                              -40         70          Temp. high limit
+			"Flow corrected high limit",  			// 54   FlowCorrMax          m3/h       R       1    Flow high limit                                     0           99999999    Flow high limit
+			"Flow converted high limit", 			// 55   FlowConvMax          Nm3/h     UR       1    Conv. flow high limit                               0           99999999    Conv. flow high limit
+			"Power high limit",  					// 56   EnergiMax            MJ/h      UR       1    Power high limit                                    0           99999999    Power high limit
+			"Fallback pressure",  					// 57   TrykVFejl            BarA      UR            Fallback press. used on error                       0.6         80
+			"Fallback temperature",    				// 58   TempVFejl            °C         R            Fallback temp. used on error                        -40         70
+			"Turn off display after",     			// 59   DispOffTime          Sec.      UR            Turn off display after                              4           240
+			"Base pressure",  					 	// 60   Pb                   BarA      UR       1 1  Base pressure                                       0.6         80          Base press.
+			"Base temperature",    					// 61   Tb                   °C         R       1 1  Base temperature                                    -40         70          Base temp.
+			"Max pressure",   						// 62   MaxPress             BarA      UR            Pressure range                                      0.6         80
+			"Min pressure",   						// 63   MinPress             BarA      UR            Pressure range                                      0.6         80
+			"Max temperature",    					// 64   MaxTemp              °C         R            Temperature range                                   -40         70
+			"Min temperature",    					// 65   MinTemp              °C         R            Temperature range                                   -40         70
+			"Alarm status table",    				// 66   AlarmTable           12                      Alarm table
+			"Alarm count table",    				// 67   AlarmCntTable        96         0            Alarm cnt table
+			"Power",  								// 68   EnergiFlow           MJ/h      U        1R0 1Power                                                                       Power
+			"Set alarm reg.",      					// 69   Alarmset                                     Set alarm reg in uniflo
+			"Set alarm reg.",      					// 70   TDeviceID                                R   Manufacture and type                                                        P. Sens. type
+			"Pressure sensor style",     			// 71   TPStyle                                  R   Tryksensor Pressure style
+			"Pressure sensor range",      			// 72   TPressRange                             1R   Range [bar]                                                                 Range [bar]
+			"Pressure serial number",      			// 73   TSerialno                               1R   Serial no.                                                                  P. sens no.
+			"Pressure day of calibration",      	// 74   TCalibDay                                R   Date of calibration                                2
+			"Pressure month of calibration",      	// 75   TCalibMonth                              R   Date of calibration                                2
+			"Pressure day of calibration",      	// 76   TCalibYear                               R   Date of calibration                                2
+			"Pressure signal at 1 bar",      		// 77   TPres1Bar                                R   Tryksensor Pressure signal at 1 bar at 20 deg. C
+			"Pressure signal at FS",      			// 78   TPresFS                                  R   Tryksensor Pressure signal FS at 20 deg. C
+			"Pressure temperaturesignal",      		// 79   TTemp                                    R   Tryksensor temperature signal at 20 deg. C
+			"Reset Alarm",      					// 80   ResetAlarm                                   Reset alarm
+			"Clear Alarm",      					// 81   ClrAlarm                                     Clear alarm
+			"AD amplify",      						// 82   ADAmp                                        AD amplify
+			"Clear configuration log",      		// 83   ClrEvent                                     Delete configuration log
+			"Lock gas table",      					// 84   LockTable                                    Lock correction table
+			"Unlock gas table",      				// 85   UnLockTable                                  UnLock correction table
+			"Update correction table",      		// 86   OpdateCorrTable                              Update correction table
+			"Update Gas Data",      				// 87   OpdateGasData                                Update Gas data
+			"Make Snapshot",      					// 88   Snapshot                                     Make a snapshot in Uniflo
+			"Pulse out 1 enable",      				// 89   PulsOut1En                      R            Puls out 1 enable
+			"Pulse out 2 enable",      				// 90   PulsOut2En                      R            Puls out 2 enable
+			"Menu File",      						// 91   Menufile                        R            Menu file
+			"Interval log EEPROM",      			// 92   IntvAntal                                R   x
+			"Graphic display gain",      			// 93   GSetup                                       Graphic display gain setup
+			"Graphic display contrast",      		// 94   CSetup                                       Graphic display contrast setup
+			"Energy",    							// 95   Energi               MJ        U             Energy                                              0           99999999
+			"Energy integer part",    				// 96   EnergiI              MJ        U        1 01 Energy                                                                      Energy
+			"Energy decimal part",    				// 97   EnergiF              MJ        U        1 0  Energy dec.                                                                 Energy dec.
+			"Option Card changed",      			// 98   OptionCH                                     Options kort changed
+			"Temperature sensorsource",      		// 99   TempSource                      R            Temperatur sensor sourse
+			"Pressure sensor source",      			// 100  PresSource                      R            Pressure sensor source
+			"Alarm active 1-32",      				// 101  Alarm active 1-32                        R0  Alarm active 1-32
+			"Alarm active 33-64",      				// 102  Alarm active 33-64                       R0  Alarm active 33-64
+			"Alarm active 64-96",      				// 103  Alarm active 64-96                       R0  Alarm active 64-96
+			"Alarm reg. 1-32",      				// 104  Alarm reg. 1-32                          R0  Alarm reg. 1-32
+			"Alarm reg. 33-64",      				// 105  Alarm reg. 33-64                         R0  Alarm reg. 33-64
+			"Alarm reg. 64-96",      				// 106  Alarm reg. 64-96                         R0  Alarm reg. 64-96
+			"I/O table",    						// 107  IOTabel              10                  R   I/O - tabel
+			"Volume measured",    					// 108  VolMeasured          m3                      Volume measured                                     0           99999999
+			"Pressure sensor checksum",      		// 109  TChecksum                                R   Pressure sensor check sum
+			"Interval log register",    			// 110  IntvalLogreg         20         R            Interval log registre
+			"24 hour log register",    				// 111  DagsLogreg           20         R            24 hour log registre
+			"Snap shot log register",    			// 112  Snapshotreg          20         R            Snapshot log registre
+			"Alarm triggered log register",    		// 113  AlarmAktLogreg       20         R            Alarm triggered log registre
+			"SW Version and type",      			// 114  VerTyp                                  1R   Uniflo type and version                                                     Type/version
+			"Installation number",      			// 115  Installation                    R       1    Installation no.                                                            Installation no.
+			"Meter number",      					// 116  Maalernr                        R       1    Meter no.                                                                   Meter no.
+			"Meter size",      						// 117  MaalerSize                      R       1    Meter size                                                                  Meter size
+			"Customer",      						// 118  Kunde                           R       1    Customer                                                                    Customer
+			"Date of installation",     	 		// 119  Installationsdato               R       1    Date of installation                                                        Installation date
+			"Meter index",      					// 120  Counter                         R       1    Meter index                                                                 Meter index
+			"Project no.",      					// 121  Sag                             R       1    Project no.                                                                 Project no.
+			"Serial number",      					// 122  Serienr                         R       1    Uniflo serial no.                                                           Serial no.
+			"Flow sensor",      					// 123  Flowmaaler                      R       1    Manufacture and type                                                        Flow type
+			"Temperature sensor",     	 			// 124  Tempmaaler                      R       1    Manufacture and type                                                        Temp type
+			"Interval log size",      				// 125  IntvalLogDyb                    R            No. of logs
+			"24 hour log size",      				// 126  DagsLogDyb                      R            No. of logs
+			"Snap shot log size",      				// 127  SnapshotDyb                     R            No. of logs
+			"Alarm triggered log size",      		// 128  AlarmAktDyb                     R            No. of logs
+			"Interval log width",      				// 129  IntvalLogBredde                 R            No. of log points
+			"24 hour log width",      				// 130  DagslogBredde                   R            No. of log points
+			"Snap shot log width",      			// 131  SnapshotBredde                  R            No. of log points
+			"Alarm triggered log width",      		// 132  AlarmAktBredde                  R            No. of log points
+			"Flow measured",  						// 133  FlowUnCorr           m3/h               1R0 1Flow measured                                                               Flow meas.
+			"Methane",  							// 134  Methan                          R       1    Methane                                                                     Methane
+			"Nitrogen",  							// 135  Nitrogen                        R       1    Nitrogen                                                                    Nitrogen
+			"CO2",  								// 136  CarbonDioxide                   R       1    CO2                                                                         CO2
+			"Ethane",  								// 137  Ethan                           R       1    Ethane                                                                      Ethane
+			"Propane",  							// 138  Propan                          R       1    Propane                                                                     Propane
+			"Water",  								// 139  Water                           R       1    Water                                                                       Water
+			"Hydrg. Sul.",  						// 140  HydrogenSylfide                 R       1    Hydrg. Sul.                                                                 Hydrg. Sul.
+			"Hydrogen",  							// 111  Hydrogen                        R       1    Hydrogen                                                                    Hydrogen
+			"Carbon monoxide",  					// 142  CarbonMonoxide                  R       1    Carb. mo.                                                                   Carb. mo.
+			"Oxygen",  								// 143  Oxygen                          R       1    Oxygen                                                                      Oxygen
+			"i-Butane",  							// 144  iButan                          R       1    i-Butane                                                                    i-Butane
+			"n-Butane",  							// 145  nButan                          R       1    n-Butane                                                                    n-Butane
+			"i-Pentane",  							// 146  iPentan                         R       1    i-Pentane                                                                   i-Pentane
+			"n-Pentane",  							// 147  nPentan                         R       1    n-Pentane                                                                   n-Pentane
+			"n-Hexane",  							// 148  nHexan                          R       1    n-Hexane                                                                    n-Hexane
+			"n-Heptane",  							// 149  nHeptan                         R       1    n-Heptane                                                                   n-Heptane
+			"n-Octane",  							// 150  nOctan                          R       1    n-Octane                                                                    n-Octane
+			"n-Nonane",  							// 151  nNontan                         R       1    n-Nonane                                                                    n-Nonane
+			"n-Decane",  							// 152  nDecan                          R       1    n-Decane                                                                    n-Decane
+			"Helium",  								// 153  Helium                          R       1    Helium                                                                      Helium
+			"Argon",  								// 154  Argon                           R       1    Argon                                                                       Argon
+			"Gas calculation formula",      		// 155  BeregningsMetode                R       1    Formular                                                                    Formular
+			"Gas composition",      				// 156  GasComp                         R       1    Gas composition                                                             Gas comp.
+			"Gas composition revisiontime",      	// 157  RevTime                         R       1R   Time of rev.                                                                Comp. rev.
+			"Density",      						// 158  Density                         R       1    Density (rel.)                                      0.1         2           Density rel.
+			"Gas conversion table",   				// 159  Gastabel             800        R            Gas correction tabel
+			"Password level 3",      				// 160  Password3                       R            Password level 3
+			"Password level 2",      				// 161  Password2                       R            Password level 2
+			"Password level 1",      				// 162  Password1                       R            Password level 1
+			"Log reorganize bits",      			// 163  LogReOrg                        R            Display mode
+			"Correction factor",      				// 164  KorrF                                   1R0 1Corrections factor                                                          Corr. fact.
+			"Option board SW version",    			// 165  IOVersion            14                  R   IO version
+			"Option board serial number",    		// 166  IOSerienr            28                  R   IO serienr
+			"HF Card type",      					// 167  HFCard                                   R   HF/Puls subtype
+			"SN Table",    							// 168  SNTabel              40                  R   I/O - tabel
+			"Temperature code",      				// 169  TempStregkode                           1    Temperture code                                                             Temperture code
+			"Interval log temperature min.",    	// 170  ITempMin             °C         0        R1  Min. temp.
+			"Interval log temperature max.",    	// 171  ITempMax             °C         0        R1  Max. temp.
+			"Interval log pressure min.",   		// 172  ITrykMin             BarA      U0        R1  Min. Press.
+			"Interval log pressure max.",   		// 173  ITrykMax             BarA      U0        R1  Max. Press.
+			"Interval log Flow corrected min.",  	// 174  IFlowUMin            m3/h       0        R1  Min. flow corr.
+			"Interval log Flow corrected max.",  	// 175  IFlowUMax            m3/h       0        R1  Max. flow corr.
+			"Interval log Flow converted min.", 	// 176  IFlowKMin            Nm3/h     U0        R1  Min. flow conv.
+			"Interval log Flow converted max.", 	// 177  IFlowKMax            Nm3/h     U0        R1  Max. flow conv.
+			"Daily log temperature min.",    		// 178  DTempMin             °C         0        R2  Min. temp.
+			"Daily log temperature max.",    		// 179  DTempMax             °C         0        R2  Max. temp.
+			"Daily log pressure min.",   			// 180  DTrykMin             BarA      U0        R2  Min. Press.
+			"Daily log pressure max.",   			// 181  DTrykMax             BarA      U0        R2  Max. Press.
+			"Daily log Flow corrected max",  		// 182  DFlowUMin            m3/h       0        R2  Min. flow corr.
+			"Daily log Flow corrected max.", 	 	// 183  DFlowUMax            m3/h       0        R2  Max. flow corr.
+			"Daily log Flow converted min.",	 	// 184  DFlowKMin            Nm3/h     U0        R2  Min. flow conv.
+			"Daily log Flow converted max.", 		// 185  DFlowKMax            Nm3/h     U0        R2  Max. flow conv.
+			"Interval log Power min.",    			// 186  IEnergyFMin          MJ        U0        R1  Min. power
+			"Interval log Power max.",    			// 187  IEnergyFMax          MJ        U0        R1  Max. power
+			"Daily log Power min.",    				// 188  DEnergyFMin          MJ        U0        R2  Min. power
+			"Daily log Power max.",   	 			// 189  DEnergyFMax          MJ        U0        R2  Max. power
+			"Volume measured integer part",    		// 190  VolMeasuredI         m3                 1 01 Vol. measured                                                               Vol. meas.
+			"Volume measured decimal part",    		// 191  VolMeasuredF         m3                 1 0  Vol. measured dec.                                                          Vol. meas. dec
+			"Volume at error",    					// 192  VolErr               m3                      Vol. meas. at error                                 0           99999999
+			"Volume at error integer part",    		// 193  VolErrI              m3                 1 01 Vol. meas. at error                                                         Vol. err.
+			"Volume at error decimal part",    		// 194  VolErrF              m3                 1 0  Vol. meas. at err. dec.                                                     Vol. err. dec
+			"Superior heat value",					// 195  Heatvalue            MJ/nm3    UR       1    Superior heat value                                 19          48          S. heat value
+			"C6+ value",      						// 196  C6Value                         R       1    C6+ value                                                                   C6+ value
+			"C6+ enabled",     	 					// 197  C6Enable                        R       1    C6+                                                                         C6+ enable
+			"AD pressure offset",      				// 198  ADTrykOffset                                 AD pressure offset                                  -128        127
+			"AD pressure temperature offset",      	// 199  ADTempTrykOffset                             AD pressure temperature offset                      -128        127
+			"Volume at error",      				// 200 256  CountVmAtError                  R            Count Vm at Error
+			"TZ Mode",      						// 201 257  TZMode                          R            Corrector Type
+			"TZ pressure",   						// 202 258  TZTryk               bar A     UR            Pressure [bar A]                                    0.6         80
+			"Menu and alarm text", 					// 203 259  Menu/Alarm           31768                   Menu og alarm text for grafisk display
+			"Number of slave units",      			// 204 260  NoOfSlaves                              0    Number of slaves                                                            Number of slaves
+			"Update EEPROM",      					// 205 261  OpdataerEEProm                               Opdater EEProm
+			"Name of alarmfile",      				// 206 262  Alarmfile                       R            Alarm text file
+			"Not used",      						// 207 263  No output                                   1No output
+			"Lock graphic display",      			// 208 264  LockDisp                                     Lock graphic display
+			"Unlock graphic display",      			// 209 265  UnLockDisp                                   UnLock graphic display
+			"Volume control integer part",    		// 210 266  VolCtrlI             m3                 1 01 Vol. control                                                                Vol. ctrl.
+			"Volume control decimal part",    		// 211 267  VolCtrlF             m3                 1 0  Vol. control dec.                                                           Vol. ctrl. dec
+			"Consumption actual hour, int. part",	// 212  VolHourI             m3                 1R0  Current hour incr.                                                          Hour incr. 
+			"Consumption actual hour, dec. part",	// 213  VolHourF             m3                 1R0  Current incr. dec.                                                          Hour incr. dec
+			"1. Max hour consumption time",      	// 214  MaxTime                                 1R0  1.Max hour incr. time                                                       1. Max incr. time
+			"1. Max time consumption, int. part",  	// 215  MaxVolI              m3                 1R0  1.Max hour incr.                                                            1. Max incr. 
+			"1. Max time consumption, dec. part",  	// 216  MaxVolF              m3                 1R0  1.Max hour incr. dec.                                                       1. Max incr. dec
+			"2. Max hour consumption time",      	// 217  MaxTime2                                1R0  2.Max hour incr. time                                                       2. Max time
+			"2. Max time consumption, int. part",   // 218  MaxVolI2             m3                 1R0  2.max hour incr.                                                            2. Max incr.
+			"2. Max time consumption, dec. part",   // 219  MaxVolF2             m3                 1R0  2.max hour incr. dec.                                                       2. Max incr. dec
+			"3. Max hour consumption time",      	// 220  MaxTime3                                1R0  3.Max hour incr. time                                                       3. Max time
+			"3. Max time consumption, int. part",   // 221  MaxVolI3             m3                 1R0  3.max hour incr.                                                            3. Max incr.
+			"3. Max time consumption, dec. part",   // 222  MaxVolF3             m3                 1R0  3.max hour incr. dec.                                                       3. Max incr. dec
+			"Pressure calibration operator",		// 223  PresureCalOP                            1    Pressure calibration operator                                               Press. cal. op.
+			"Temperature calibration operator",		// 224  TempCalOP                               1    Temperature calibration operator                                            Temp. cal. op.
+			"Event log index",      				// 225  EventlogIdx                              R   Indexpointer for Event log
+			"Alarm log index",      				// 226  AlarmlogIdx                              R   Indexpointer for Alarmlog log
+			"Log interval",     					// 227  IntervallogState                R            Log interval
+			"Interval of measurement",     			// 228  MaalInterval         Sec.      UR       1    Interval of measurement                             0           254         Cycl. of meas.
+			"Daily log time Hour",      			// 229  DagslogTime                     R            Time of Day                                         0           24
+			"Daily log time Hour",      			// 230  DagslogMin                      R            Time of Day                                         0           60
+			"Interval log index",      				// 231  IntervallogIdx                               Indexpointer for interval log
+			"Daily log index",      				// 232  DagslogIdx                               R   Indexpointer for dagslog
+			"Snapshot log index",      				// 233  SnapshotlogIdx                           R   Indexpointer for snapshot log
+			"Alarm triggered log index",      		// 234  AlarmtriglogIdx                          R   Indexpointer for alarmaktiveret log
+			"Display time",     					// 235  DispTime             Sec.      UR            Change to display 1 after
+			"Max pulse error",      				// 236  MaxpulsError                    R            Max. pulse error
+			"Pressure sensor is changed",      		// 237  ChangePressSensor                            Pressure sensor is change
+			"Temperature sensor ischanged",      	// 238  ChangeTempSensor                             Temperature sensor is change
+			"Month log width",      				// 239  MonthBredde                     R            No. of log points
+			"Month log size",      					// 240  MonthDyb                        R            No. of logs
+			"Month log register",    				// 241  MonthLogreg          20         R            Month log registre
+			"Month log index",      				// 242  MonthlogIdx                              R   Indexpointer for Month log
+			"Display test",      					// 243  Disptest                                     Display test
+			"Firmware address range OK",      		// 244  FirmwareUpdate                               Firmware update
+			"Firmware update start",      			// 245  FUPDATESTART                                 Firmware update start
+			"Firmware update end",      			// 246  FUPDATEEND                                   Firmware update end
+			"Firmware update cancel",      			// 247  FUPDATECANCEL                                Firmware update cancel
+			"Program checksum",      				// 248  PRGChecksum                             1R   Program checksum                                                            Prg. chksum
+			"Temperature calibrationtable",    		// 249  TempCorr             30                      Temperature calibretion tabel
+			"Pressure calibration table",    		// 250  PressCorr            60                      Pressure calibretion tabel
+			"Force measurement",      				// 251  ForceMesurement                              Force measurment
+			"Pressure calibration time",      		// 252  PresureCalTime                          1    Pressure calibration time                                                   Press. cal. Time
+			"Temperature calibrationtime",      	// 253  TempCalTime                             1    Temperature calibration time                                                Temp. cal. Time
+			"Conversion tablechecksum",      		// 254  ConvTableChecksum                       1R   Conversion table checksum                                                   Conv. table chksum
+			"Conversion table DLL version",      	// 255  ConvTableDLLChecksum                    1R   DLL checksum                                                                DLL checksum
+			"",      								// 256                                                                                                                                         
+			"",      								// 257                                                                                                                                         
+			"",      								// 258                                                                                                                                        
+			"",      								// 259                                                                                                                                       
+			"",      								// 260                                                                                                                                         
+			"",      								// 261                                                                                                                                        
+			"",      								// 262                                                                                                                                        
+			"",     								// 263                                                                                                                                      
+			"",      								// 264                                                                                                                                       
+			"",      								// 265                                                                                                                                         
+			"",      								// 266                                                                                                                                       
+			"",      								// 267                                                                                                                                         
+			"",      								// 268                                                                                                                                                
+			"",      								// 269                                                                                                                                               
+			"",      								// 270                                                                                                                                               
+			"",      								// 271                                                                                                                                               
+			"",      								// 272                                                                                                                                               
+			"",      								// 273                                                                                                                                               
+			"",      								// 274                                                                                                                                               
+			"",      								// 275                                                                                                                                               
+			"",      								// 276                                                                                                                                               
+		};
 		
 		private static final int ABSOLUTE_ADDRESSES[] = {
 			0x573000B0,   // 0    Za                              R       1R   Za                                                                          Za

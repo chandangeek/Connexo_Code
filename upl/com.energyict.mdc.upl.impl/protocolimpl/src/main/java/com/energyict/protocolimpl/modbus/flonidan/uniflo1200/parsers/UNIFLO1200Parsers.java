@@ -22,9 +22,9 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200
  */
 public class UNIFLO1200Parsers {
 	
-	private static final int DEBUG = 1;
-	private static final int DECIMALS = -1;
-	private TimeZone tz = null;
+	private static final int DEBUG 				= 0;
+	private static final int DECIMALS 			= -1;
+	private TimeZone tz 						= null;
 	
     public static final String PARSER_UINT8		= "UINT8_Parser"; 		// 1 byte
     public static final String PARSER_UINT16	= "UINT16_Parser"; 		// 2 bytes (word)

@@ -29,7 +29,7 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200
  */
 public class UNIFLO1200ProfileData {
 
-	private static final int DEBUG 				= 1;
+	private static final int DEBUG 				= 0;
 	private static final int CHANNEL_MAX_LENGTH = 2; 	// Maximum number of words of a single channel. Max value is 4 bytes = 2 words
 	
 	private UNIFLO1200Profile loadProfile;

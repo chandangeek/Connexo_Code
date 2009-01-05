@@ -23,7 +23,7 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200
  */
 public class UNIFLO1200ProfileInfo {
 
-	private static final int DEBUG 			= 1;
+	private static final int DEBUG = 0;
 	
 	private UNIFLO1200Profile loadProfile;
 	private UNIFLO1200ProfileInfoParser profileInfoParser;
@@ -78,7 +78,7 @@ public class UNIFLO1200ProfileInfo {
 		}
 		
 		
-		System.out.println(this);
+		if (DEBUG >= 1) System.out.println(this);
 		
 	}
 

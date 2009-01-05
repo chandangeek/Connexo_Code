@@ -30,9 +30,11 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200P
  *
  */
 public class UNIFLO1200HoldingRegister extends HoldingRegister {
-	private int slaveID = 0;
-	private int baseSlaveID = 0;
-	private ModbusConnection modbusConnection = null;
+
+	private static final int DEBUG 				= 0;
+	private int slaveID 						= 0;
+	private int baseSlaveID 					= 0;
+	private ModbusConnection modbusConnection 	= null;
 	private boolean oddAddress;
 	
 	public UNIFLO1200HoldingRegister(int reg, int range, ObisCode obisCode,	Unit unit, String name, int slaveID, ModbusConnection modbusConnection) {

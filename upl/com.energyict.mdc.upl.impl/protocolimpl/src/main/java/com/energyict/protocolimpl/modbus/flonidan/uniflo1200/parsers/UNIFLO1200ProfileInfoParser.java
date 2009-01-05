@@ -23,13 +23,15 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200
  */
 public class UNIFLO1200ProfileInfoParser {
 
-	private UNIFLO1200HoldingRegister logIdxReg = null;
-	private UNIFLO1200HoldingRegister logInfoReg = null;
-	private UNIFLO1200HoldingRegister logSizeReg = null;
-	private UNIFLO1200HoldingRegister logWidthReg = null;
-	private UNIFLO1200HoldingRegister logEepromReg = null;
+	public static final int DEBUG					= 0;
 
-	private UNIFLO1200ProfileInfo profileInfo = null; 
+	private UNIFLO1200HoldingRegister logIdxReg 	= null;
+	private UNIFLO1200HoldingRegister logInfoReg 	= null;
+	private UNIFLO1200HoldingRegister logSizeReg 	= null;
+	private UNIFLO1200HoldingRegister logWidthReg 	= null;
+	private UNIFLO1200HoldingRegister logEepromReg 	= null;
+
+	private UNIFLO1200ProfileInfo profileInfo 		= null; 
 
 	private byte[] logInfoValue;
 	private int logIdxValue;
@@ -102,7 +104,7 @@ public class UNIFLO1200ProfileInfoParser {
 		
 		for (int channelIndex = 0; channelIndex < numberOfChannels; channelIndex++) {
 			int channelRegisterID = logInfoValue[channelIndex] & 0x000000FF;
-			String channelName = "Channel " + channelIndex;
+			String channelName = "CH" + channelIndex + " [" + getUNIFLO1200Registers().getAddressName(channelRegisterID) + "]";
 			Unit channelUnit = Unit.get(getUNIFLO1200Registers().getUnitString(channelRegisterID));
 			if (channelUnit == null) channelUnit = Unit.get("");
 			channelInfos.add(new ChannelInfo(channelIndex, channelName, channelUnit));

@@ -29,7 +29,7 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200
  */
 public class UNIFLO1200EventData {
 
-	private static final int DEBUG 			= 1;
+	private static final int DEBUG 			= 0;
 	private static final int EVENT_SIZE 	= 5;
 	
 	private UNIFLO1200Profile loadProfile;
@@ -142,6 +142,7 @@ public class UNIFLO1200EventData {
 			logType = eventDataParser.getLogType();
 			eiEventCode = eventDataParser.getEiserverEventCode();
 			
+
 			System.out.print("logIdx = " + ptr + " address: " + buildEventAddress(base, ptr) + " ");
 			System.out.print(intervalTime + " ");
 			System.out.print("EISEventCode = " + eiEventCode + " ");
@@ -195,7 +196,7 @@ public class UNIFLO1200EventData {
 			eventDataParser.parseData(dataBlock);
 
 			if (previousTime.before(eventDataParser.getTime()) && (!eventDataParser.isTimeChanged())) {
-				System.out.println(
+				if (DEBUG >= 1) System.out.println(
 						" break: previousTime.after(eventDataParser.getTime()) = " + previousTime.after(eventDataParser.getTime()) + 
 						" previousTime = " + previousTime +
 						" eventDataParser.getTime() = " + eventDataParser.getTime()
@@ -204,7 +205,7 @@ public class UNIFLO1200EventData {
 			}
 			
 			if (from.after(eventDataParser.getTime())) {
-				System.out.println(
+				if (DEBUG >= 1) System.out.println(
 						" break: from.after(eventDataParser.getTime()) = " + from.after(eventDataParser.getTime()) + 
 						" from = " + from +
 						" eventDataParser.getTime() = " + eventDataParser.getTime()
@@ -221,7 +222,7 @@ public class UNIFLO1200EventData {
 					eventDataParser.getDescription()
 			);
 
-			System.out.println("Events: ptr = " + ptr + " event = " + event.toString());
+			if (DEBUG >= 1) System.out.println("Events: ptr = " + ptr + " event = " + event.toString());
 			
 			if (!to.before(eventDataParser.getTime())) this.eventDatas.add(event);
 

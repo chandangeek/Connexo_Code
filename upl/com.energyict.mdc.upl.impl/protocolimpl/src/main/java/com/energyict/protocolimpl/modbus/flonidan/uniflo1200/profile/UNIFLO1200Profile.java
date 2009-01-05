@@ -23,8 +23,7 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.loadprofile
  */
 public class UNIFLO1200Profile {
 
-	public static final int DEBUG			= 1;
-	
+	public static final int DEBUG			= 0;
 	public static final int INTERVALLOG 	= 1;
 	public static final int DAILYLOG 		= 2;
 	public static final int MONTHLOG 		= 3;

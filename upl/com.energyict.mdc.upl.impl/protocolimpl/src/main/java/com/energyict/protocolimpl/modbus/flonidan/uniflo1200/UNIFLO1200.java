@@ -26,7 +26,7 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200
 
 public class UNIFLO1200 extends Modbus {
     
-	private static final int DEBUG = 1;
+	private static final int DEBUG = 0;
 
 	private static final int MIN_LOADPROFILE_NUMBER = 1;
 	private static final int MAX_LOADPROFILE_NUMBER = 3;
@@ -60,17 +60,6 @@ public class UNIFLO1200 extends Modbus {
 		}
 				
 	}
-
-//	public ProfileData getProfileData(boolean includeEvents) throws IOException {
-//		// TODO Auto-generated method stub
-//		return super.getProfileData(includeEvents);
-//	}
-//
-//	public ProfileData getProfileData(Date lastReading, boolean includeEvents)
-//			throws IOException {
-//		// TODO Auto-generated method stub
-//		return super.getProfileData(lastReading, includeEvents);
-//	}
 
 	protected void validateSerialNumber() throws IOException {
 		if (getInfoTypeSerialNumber() == null) return;
@@ -120,19 +109,17 @@ public class UNIFLO1200 extends Modbus {
 		if (getInfoTypeSecurityLevel() != getSecLvl())
 			throw new InvalidPropertyException("SecurityLevel mismatch [" + getInfoTypeSecurityLevel() + " != " + getSecLvl() + "]: Reason may be wrong password or hardware lock.");
 		
-		sendDebug("Actual security lvl: " + getSecLvl(), 0);
+		sendDebug("Actual security lvl: " + getSecLvl(), 2);
 		setLoadProfile(new UNIFLO1200Profile(this));
 		
 	}
 
 	protected void doTheDisConnect() throws IOException {
 		sendDebug("doTheDisConnect()", 5);
-		// TODO Auto-generated method stub
-		
 	}
 
 	protected List doTheGetOptionalKeys() {
-		sendDebug("doTheGetOptionalKeys()", 0);
+		sendDebug("doTheGetOptionalKeys()", 5);
         List result = new ArrayList();
         result.add("LoadProfileNumber");
 		return result;
@@ -163,7 +150,6 @@ public class UNIFLO1200 extends Modbus {
 
 	public DiscoverResult discover(DiscoverTools discoverTools) {
 		sendDebug("discover()", 5);
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
@@ -211,7 +197,6 @@ public class UNIFLO1200 extends Modbus {
 			}
 		
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -222,7 +207,6 @@ public class UNIFLO1200 extends Modbus {
 		} else {
 	    	message = " ##### DEBUG [" + new Date().toString() + "] ######## > " + message;
 		}
-		System.out.println(message);
     	if ((debuglvl <= DEBUG) && (getLogger() != null)) {
     		getLogger().info(message);
     		System.out.println(message);

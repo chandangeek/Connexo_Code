@@ -29,7 +29,8 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200P
  */
 public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
     
-	private UNIFLO1200Registers fwRegisters = null;
+	private static final int DEBUG 						= 0;
+	private UNIFLO1200Registers fwRegisters 			= null;
     
 	public static final String REG_TIME 				= "Time";						// meter time and date
     public static final String REG_DEVICE_TYPE			= "Device type";				// device type string 
@@ -84,7 +85,7 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
         	Object result = hr.value();
         	Class rc = result.getClass();
         	
-        	System.out.println("Result class type: " + result.getClass().getName());
+        	if (DEBUG >= 1) System.out.println("Result class type: " + result.getClass().getName());
             
         	if (rc == String.class)	{
         		returnText = (String)result;
@@ -158,63 +159,68 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
         	
         	add(UNIFLO1200Registers.V28.SERIAL_NUMBER, "7.0.96.50.1.255", REG_SERIAL_NUMBER);
 
-        	add(UNIFLO1200Registers.V28.PRESS_SERIAL, "7.0.0.2.11.255", "Temperature sensor serial");
-        	add(UNIFLO1200Registers.V28.PRESS_SENSOR, "7.0.0.2.11.0", "Pressure sensor type");
-        	add(UNIFLO1200Registers.V28.TEMP_SENSOR, "7.0.0.2.12.255", "Temperature sensor type");
-        	add(UNIFLO1200Registers.V28.FLOW_SENSOR, "7.0.0.2.13.255", "Flow sensor type");
-        	add(UNIFLO1200Registers.V28.ZA, "7.0.53.2.0.255", "Za (Actual supercompressibilitifactor)");
-			add(UNIFLO1200Registers.V28.ZB, "7.0.53.11.0.255", "Zb (Base supercompressibilitifactor)");
-			add(UNIFLO1200Registers.V28.BATTERY_REMAINING, "0.1.96.6.0.255", "Battery remaining days");
+        	add(UNIFLO1200Registers.V28.PRESS_SERIAL, "7.0.0.2.11.255");
+        	add(UNIFLO1200Registers.V28.PRESS_SENSOR, "7.0.0.2.11.0");
+        	add(UNIFLO1200Registers.V28.TEMP_SENSOR, "7.0.0.2.12.255");
+        	add(UNIFLO1200Registers.V28.FLOW_SENSOR, "7.0.0.2.13.255");
+        	add(UNIFLO1200Registers.V28.ZA, "7.0.53.2.0.255");
+			add(UNIFLO1200Registers.V28.ZB, "7.0.53.11.0.255");
+			add(UNIFLO1200Registers.V28.BATTERY_REMAINING, "0.1.96.6.0.255");
 			
-			add(UNIFLO1200Registers.V28.TEMPERATURE, "7.0.41.0.0.255", "Temperature (current value)");
-			add(UNIFLO1200Registers.V28.FALLBACK_TEMP, "7.0.41.3.0.255", "Fallback temperature");
+			add(UNIFLO1200Registers.V28.TEMPERATURE, "7.0.41.0.0.255");
+			add(UNIFLO1200Registers.V28.FALLBACK_TEMP, "7.0.41.3.0.255");
 
-			add(UNIFLO1200Registers.V28.PRESSURE, "7.0.42.0.0.255", "Pressure (current value)");
-			add(UNIFLO1200Registers.V28.FALLBACK_PRESS, "7.0.42.3.0.255", "Fallback pressure");
+			add(UNIFLO1200Registers.V28.PRESSURE, "7.0.42.0.0.255");
+			add(UNIFLO1200Registers.V28.FALLBACK_PRESS, "7.0.42.3.0.255");
         	
-			add(UNIFLO1200Registers.V28.CONVERSION_FACTOR, "7.0.52.0.0.255", "Conversion factor");
-			add(UNIFLO1200Registers.V28.CORRECTION_FACTOR, "7.0.51.0.0.255", "Correction factor");
+			add(UNIFLO1200Registers.V28.CONVERSION_FACTOR, "7.0.52.0.0.255");
+			add(UNIFLO1200Registers.V28.CORRECTION_FACTOR, "7.0.51.0.0.255");
 
-			add(UNIFLO1200Registers.V28.GAS_CALC_FORMULA, fwRegisters.getDataLength(UNIFLO1200Registers.V28.GAS_CALC_FORMULA), 
-					"7.0.53.12.0.255", fwRegisters.getUnitString(UNIFLO1200Registers.V28.GAS_CALC_FORMULA),	
-					"Gas calculation formula", UNIFLO1200Parsers.PARSER_GAS_FORM);
+			add(
+				UNIFLO1200Registers.V28.GAS_CALC_FORMULA, 
+				fwRegisters.getDataLength(UNIFLO1200Registers.V28.GAS_CALC_FORMULA), 
+				"7.0.53.12.0.255", 
+				fwRegisters.getUnitString(UNIFLO1200Registers.V28.GAS_CALC_FORMULA),	
+				fwRegisters.getAddressName(UNIFLO1200Registers.V28.GAS_CALC_FORMULA), 
+				UNIFLO1200Parsers.PARSER_GAS_FORM
+			);
 			
-			add(UNIFLO1200Registers.V28.FLOW_MEASURED, "7.0.43.0.0.255", "Flow measured");
-			add(UNIFLO1200Registers.V28.FLOW_CORRECTED, "7.0.43.1.0.255", "Flow corrected");
-			add(UNIFLO1200Registers.V28.FLOW_CONVERTED, "7.0.43.2.0.255", "Flow converted");
+			add(UNIFLO1200Registers.V28.FLOW_MEASURED, "7.0.43.0.0.255");
+			add(UNIFLO1200Registers.V28.FLOW_CORRECTED, "7.0.43.1.0.255");
+			add(UNIFLO1200Registers.V28.FLOW_CONVERTED, "7.0.43.2.0.255");
 
-			add(UNIFLO1200Registers.V28.DENSITY, "7.0.45.0.0.255", "Density");
+			add(UNIFLO1200Registers.V28.DENSITY, "7.0.45.0.0.255");
 			
-			add(UNIFLO1200Registers.V28.VOLUME_MEASURED, "7.0.0.3.0.255", "Volume measured");
-			add(UNIFLO1200Registers.V28.VOLUME_CORRECTED, "7.0.96.50.0.255", "Volume corrected");
-			add(UNIFLO1200Registers.V28.VOLUME_CONVERTED, "7.0.0.3.3.255", "Volume converted");
+			add(UNIFLO1200Registers.V28.VOLUME_MEASURED, "7.0.0.3.0.255");
+			add(UNIFLO1200Registers.V28.VOLUME_CORRECTED, "7.0.96.50.0.255");
+			add(UNIFLO1200Registers.V28.VOLUME_CONVERTED, "7.0.0.3.3.255");
 			
-			add(UNIFLO1200Registers.V28.TEMP_LOW_LIMIT, "7.0.0.5.11.255", "Temperature low limit");
-			add(UNIFLO1200Registers.V28.TEMP_HIGH_LIMIT, "7.0.0.5.12.255", "Temperature high limit");
-			add(UNIFLO1200Registers.V28.PRESS_LOW_LIMIT, "7.0.0.5.13.255", "Pressure low limit");
-			add(UNIFLO1200Registers.V28.PRESS_HIGH_LIMIT, "7.0.0.5.14.255", "Pressure high limit");
+			add(UNIFLO1200Registers.V28.TEMP_LOW_LIMIT, "7.0.0.5.11.255");
+			add(UNIFLO1200Registers.V28.TEMP_HIGH_LIMIT, "7.0.0.5.12.255");
+			add(UNIFLO1200Registers.V28.PRESS_LOW_LIMIT, "7.0.0.5.13.255");
+			add(UNIFLO1200Registers.V28.PRESS_HIGH_LIMIT, "7.0.0.5.14.255");
 			
-			add(UNIFLO1200Registers.V28.METHANE, "7.0.98.1.0.255", "METHANE");
-			add(UNIFLO1200Registers.V28.NITROGEN, "7.0.98.1.1.255", "NITROGEN");
-			add(UNIFLO1200Registers.V28.CO2, "7.0.98.1.2.255", "CO2");
-			add(UNIFLO1200Registers.V28.ETHANE, "7.0.98.1.3.255", "ETHANE");
-			add(UNIFLO1200Registers.V28.PROPANE, "7.0.98.1.4.255", "PROPANE");
-			add(UNIFLO1200Registers.V28.WATER, "7.0.98.1.5.255", "WATER");
-			add(UNIFLO1200Registers.V28.HYDRG_SUL, "7.0.98.1.6.255", "HYDRG_SUL");
-			add(UNIFLO1200Registers.V28.HYDROGEN, "7.0.98.1.7.255", "HYDROGEN");
-			add(UNIFLO1200Registers.V28.CARBON_MONOXIDE, "7.0.98.1.8.255", "CARBON_MONOXIDE");
-			add(UNIFLO1200Registers.V28.OXYGEN, "7.0.98.1.9.255", "OXYGEN");
-			add(UNIFLO1200Registers.V28.I_BUTANE, "7.0.98.1.10.255", "I_BUTANE");
-			add(UNIFLO1200Registers.V28.N_BUTANE, "7.0.98.1.11.255", "N_BUTANE");
-			add(UNIFLO1200Registers.V28.I_PETANE, "7.0.98.1.12.255", "I_PETANE");
-			add(UNIFLO1200Registers.V28.N_PETANE, "7.0.98.1.13.255", "N_PETANE");
-			add(UNIFLO1200Registers.V28.N_HEXANE, "7.0.98.1.14.255", "N_HEXANE");
-			add(UNIFLO1200Registers.V28.N_HEPTANE, "7.0.98.1.15.255", "N_HEPTANE");
-			add(UNIFLO1200Registers.V28.N_NOCTANE, "7.0.98.1.16.255", "N_NOCTANE");
-			add(UNIFLO1200Registers.V28.N_OCTANE, "7.0.98.1.17.255", "N_OCTANE");
-			add(UNIFLO1200Registers.V28.N_DECANE, "7.0.98.1.18.255", "N_DECANE");
-			add(UNIFLO1200Registers.V28.HELIUM, "7.0.98.1.19.255", "HELIUM");
-			add(UNIFLO1200Registers.V28.ARGON, "7.0.98.1.20.255", "ARGON");
+			add(UNIFLO1200Registers.V28.METHANE, "7.0.98.1.0.255");
+			add(UNIFLO1200Registers.V28.NITROGEN, "7.0.98.1.1.255");
+			add(UNIFLO1200Registers.V28.CO2, "7.0.98.1.2.255");
+			add(UNIFLO1200Registers.V28.ETHANE, "7.0.98.1.3.255");
+			add(UNIFLO1200Registers.V28.PROPANE, "7.0.98.1.4.255");
+			add(UNIFLO1200Registers.V28.WATER, "7.0.98.1.5.255");
+			add(UNIFLO1200Registers.V28.HYDRG_SUL, "7.0.98.1.6.255");
+			add(UNIFLO1200Registers.V28.HYDROGEN, "7.0.98.1.7.255");
+			add(UNIFLO1200Registers.V28.CARBON_MONOXIDE, "7.0.98.1.8.255");
+			add(UNIFLO1200Registers.V28.OXYGEN, "7.0.98.1.9.255");
+			add(UNIFLO1200Registers.V28.I_BUTANE, "7.0.98.1.10.255");
+			add(UNIFLO1200Registers.V28.N_BUTANE, "7.0.98.1.11.255");
+			add(UNIFLO1200Registers.V28.I_PETANE, "7.0.98.1.12.255");
+			add(UNIFLO1200Registers.V28.N_PETANE, "7.0.98.1.13.255");
+			add(UNIFLO1200Registers.V28.N_HEXANE, "7.0.98.1.14.255");
+			add(UNIFLO1200Registers.V28.N_HEPTANE, "7.0.98.1.15.255");
+			add(UNIFLO1200Registers.V28.N_NOCTANE, "7.0.98.1.16.255");
+			add(UNIFLO1200Registers.V28.N_OCTANE, "7.0.98.1.17.255");
+			add(UNIFLO1200Registers.V28.N_DECANE, "7.0.98.1.18.255");
+			add(UNIFLO1200Registers.V28.HELIUM, "7.0.98.1.19.255");
+			add(UNIFLO1200Registers.V28.ARGON, "7.0.98.1.20.255");
 
 //			add(UNIFLO1200Registers.V28.TURN_OFF_DIAPLAY_AFTER, "0.0.0.0.0.2", "", REG_TURN_OFF_DISP_AFTER);
 			
@@ -235,6 +241,14 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
     }
     
 
+	private void add(int registerIndex, String obisString) throws IOException {
+		this.add(
+				registerIndex, 
+				obisString, 
+				fwRegisters.getAddressName(registerIndex)		
+		);
+	}
+	
     private void add(int registerIndex, String obisString, String registerName) throws IOException {
     	this.add(	
     			registerIndex, 
