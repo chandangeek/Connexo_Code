@@ -23,6 +23,7 @@ import java.text.*;
 public class ABBA1500Profile extends VDEWProfile {
     
     private static final int DEBUG=0;
+	private String fwVersion = "";
     
     /** Creates a new instance of ABBA1500Profile */
     public ABBA1500Profile(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink, AbstractVDEWRegistry abstractVDEWRegistry) {
@@ -40,8 +41,14 @@ public class ABBA1500Profile extends VDEWProfile {
            profileData.getMeterEvents().addAll(meterEvents);
            profileData.sort();
         }
-        
+                
         profileData.applyEvents(getProtocolLink().getProfileInterval()/60);
+        
+        // JME: filter flags for firmware 3.02
+        if (getFirmwareVersion().equalsIgnoreCase("3.02")) {
+            profileData = filterDisturbedIntervalFlag(profileData);
+        }
+
         return profileData;
     }
     
@@ -57,10 +64,54 @@ public class ABBA1500Profile extends VDEWProfile {
            profileData.getMeterEvents().addAll(meterEvents);
            profileData.sort();
         }
-        
+                        
         profileData.applyEvents(getProtocolLink().getProfileInterval()/60);
+
+        // JME: filter flags for firmware 3.02
+        if (getFirmwareVersion().equalsIgnoreCase("3.02")) {
+            profileData = filterDisturbedIntervalFlag(profileData);
+        }
+        
         return profileData;
     }
-    
+
+	public void setFirmwareVersion(String firmwareVersion) {
+		this.fwVersion  = firmwareVersion;
+	}
+
+	private String getFirmwareVersion() {
+		return this.fwVersion;
+	}
+	
+	private ProfileData filterDisturbedIntervalFlag(ProfileData profileData) {
+		ProfileData pd = profileData; 
+		int numberOfIntervals = pd.getNumberOfIntervals();
+		int numberOfChannels = pd.getNumberOfChannels();
+		
+		for (int i = 0; i < numberOfIntervals; i++) {
+
+			//General statusFlags for all channels
+			int statusFlags = pd.getIntervalData(i).getEiStatus();
+			if (isEiStatusFlagSet(statusFlags, IntervalData.CORRUPTED) && (isEiStatusFlagSet(statusFlags, IntervalData.POWERUP) || isEiStatusFlagSet(statusFlags, IntervalData.POWERDOWN))) {
+				pd.getIntervalData(i).setEiStatus(statusFlags & (~IntervalData.CORRUPTED));
+			}
+
+			//statusFlags for all specific channel
+			for (int j = 0; j < numberOfChannels; j++) {
+				statusFlags = pd.getIntervalData(i).getEiStatus(j);
+				if (isEiStatusFlagSet(statusFlags, IntervalData.CORRUPTED) && (isEiStatusFlagSet(statusFlags, IntervalData.POWERUP) || isEiStatusFlagSet(statusFlags, IntervalData.POWERDOWN))) {
+					pd.getIntervalData(i).setEiStatus(j, statusFlags & (~IntervalData.CORRUPTED));
+				}
+			}
+			
+		}
+		
+		return profileData;
+	}
+	
+	private boolean isEiStatusFlagSet(int statusFlags, int eiFlag) {
+		return ((statusFlags & eiFlag) == eiFlag);
+	}
+		
 } // ABBA1500Profile
 

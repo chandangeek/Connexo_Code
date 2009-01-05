@@ -39,11 +39,15 @@ KV|16112007|Add workaround due to a meterbug (DataReadoutRequest=2)
 KV|13122007|Avoid index out of bound exception and retry for datareadout reception
 KV|17012008|Add forced delay as property and add reconnect to connection layer in case of break received during protocolsession
 GN|25032008|Added roundTripTime to correct the readout time when retries have occurred
+JME|05012009|Added filter for CORRUPTED flag when PU or PD for firmware 3.02
+JME|05012009|Added eventTime to billingPointRegister (Obiscode = 1.1.0.1.0.255) to get the last billing reset time.
+
+
  * @endchanges
  */
 public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol {
     
-    static private final byte DEBUG=0;
+    static private final byte DEBUG = 0;
 
     private String strID;
     private String strPassword;
@@ -68,6 +72,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
     private Logger logger;
     private int extendedLogging;
     private int vdewCompatible;
+    private String iFirmwareVersion = "";
     
     FlagIEC1107Connection flagIEC1107Connection=null;
     ABBA1500Registry abba1500Registry=null;
@@ -203,6 +208,11 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
             vdewCompatible=Integer.parseInt(properties.getProperty("VDEWCompatible","1").trim());
             forcedDelay=Integer.parseInt(properties.getProperty("ForcedDelay","0").trim());
             serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
+            iFirmwareVersion = properties.getProperty("FirmwareVersion", "3.03").trim();
+            
+            if (!iFirmwareVersion.equalsIgnoreCase("3.03") && !iFirmwareVersion.equalsIgnoreCase("3.02"))
+            	throw new InvalidPropertyException("Invalid value for FirmwareVersion: " + iFirmwareVersion + "! Valid FirmwareVersion values are '3.02' and '3.03'.");
+            
         }
         catch (NumberFormatException e) {
            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
@@ -276,6 +286,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
         result.add("ExtendedLogging");
         result.add("VDEWCompatible");
         result.add("ForcedDelay");
+        result.add("FirmwareVersion");
         return result;
     }
 
@@ -302,6 +313,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
            flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,forcedDelay,iEchoCancelling,iIEC1107Compatible);
            abba1500Registry = new ABBA1500Registry(this,this);
            abba1500Profile = new ABBA1500Profile(this,this,abba1500Registry);
+           abba1500Profile.setFirmwareVersion(getIFirmwareVersion());
         }
         catch(ConnectionException e) {
            logger.severe ("ABBA1500: init(...), "+e.getMessage());
@@ -490,27 +502,56 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
             
             // read the non billing register to reuse the unit in case of billingpoints...
             try {
-                doReadRegister(new ObisCode(obisCode.getA(),obisCode.getB(),obisCode.getC(),obisCode.getD(),obisCode.getE(),255),false); 
+            	doReadRegister(new ObisCode(obisCode.getA(),obisCode.getB(),obisCode.getC(),obisCode.getD(),obisCode.getE(),255),false); 
             }
             catch(NoSuchRegisterException e) {
-                // absorb if not exist...
+            	// absorb if not exist...
             }
-            
+
             // read the billing point timestamp
             try {
-                doReadRegister(new ObisCode(1,1,0,1,2,billingPoint-VZ),true); 
+            	doReadRegister(new ObisCode(1,1,0,1,2,billingPoint-VZ),true);
             }
             catch(NoSuchRegisterException e) {
-                // absorb if not exist...
+            	// absorb if not exist...
             }
             
         } // if (obisCode.getF() != 255)
+
+        
+        // JME:	Special case for obiscode == 1.1.0.1.0.255 (billing point): 
+        //		Read the date of the billing reset and apply it to the billingPointRegister as eventTime
+        if (obisCode.toString().equalsIgnoreCase("1.1.0.1.0.255")) {
+        	RegisterValue billingPointRegister = doReadRegister(ObisCode.fromString("1.1.0.1.0.255"), false);
+        	int billingPoint = billingPointRegister.getQuantity().intValue();
+
+        	RegisterValue reg_date = null;
+        	try {
+        		reg_date = doReadRegister(new ObisCode(1,1,0,1,2,billingPoint),true);
+        		if (reg_date != null) {
+        			billingPointRegister = new RegisterValue(
+        					billingPointRegister.getObisCode(), 
+        					billingPointRegister.getQuantity(), 
+        					reg_date.getToTime(), // eventTime from billing point
+        					billingPointRegister.getFromTime(), 
+        					billingPointRegister.getToTime(), 
+        					billingPointRegister.getReadTime(), 
+        					billingPointRegister.getRtuRegisterId(), 
+        					billingPointRegister.getText()
+        			);
+        		}
+        	} catch (NoSuchRegisterException e) {
+        		// absorb if not exist...
+        	} 
+
+        	return billingPointRegister;
+        }
         
         return doReadRegister(obisCode, false); 
     }    
     
     private RegisterValue doReadRegister(ObisCode obisCode,boolean billingTimestamp) throws IOException {
-        RegisterValue registerValue =  findRegisterValue(obisCode);
+    	RegisterValue registerValue =  findRegisterValue(obisCode);
         if (registerValue == null) {
             if (billingTimestamp)
                 registerValue = doTheReadBillingRegisterTimestamp(obisCode); 
@@ -712,5 +753,9 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
     public com.energyict.protocolimpl.iec1107.abba1500.ABBA1500Profile getAbba1500Profile() {
         return abba1500Profile;
     }
+
+	public String getIFirmwareVersion() {
+		return iFirmwareVersion;
+	}
     
 } // public class ABBA1500 implements MeterProtocol {
