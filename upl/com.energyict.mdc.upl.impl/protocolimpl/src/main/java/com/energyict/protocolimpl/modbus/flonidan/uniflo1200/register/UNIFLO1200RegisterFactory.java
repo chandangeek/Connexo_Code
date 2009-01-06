@@ -221,6 +221,30 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
 			add(UNIFLO1200Registers.V28.N_DECANE, "7.0.98.1.18.255");
 			add(UNIFLO1200Registers.V28.HELIUM, "7.0.98.1.19.255");
 			add(UNIFLO1200Registers.V28.ARGON, "7.0.98.1.20.255");
+			
+
+			// The following registers were removed from the obismapping because they contain garbage in the meter.
+			// They are used as temporary registers for the average calculations
+			
+//			add(UNIFLO1200Registers.V28.INT_LOG_POWER_AVG, "7.0.0.8.3.1");
+//			add(UNIFLO1200Registers.V28.INT_LOG_TEMP_AVG, "7.0.0.8.3.2");
+//			add(UNIFLO1200Registers.V28.INT_LOG_PRESS_AVG, "7.0.0.8.3.3");
+//			add(UNIFLO1200Registers.V28.INT_LOG_CORR_FLOW_AVG, "7.0.0.8.3.4");
+//			add(UNIFLO1200Registers.V28.INT_LOG_CONV_FLOW_AVG, "7.0.0.8.3.5");
+//			
+//			add(UNIFLO1200Registers.V28.DAILY_LOG_POWER_AVG, "7.0.0.8.4.1");
+//			add(UNIFLO1200Registers.V28.DAILY_LOG_TEMP_AVG, "7.0.0.8.4.2");
+//			add(UNIFLO1200Registers.V28.DAILY_LOG_PRESS_AVG, "7.0.0.8.4.3");
+//			add(UNIFLO1200Registers.V28.DAILY_LOG_CORR_FLOW_AVG, "7.0.0.8.4.4");
+//			add(UNIFLO1200Registers.V28.DAILY_LOG_CONV_FLOW_AVG, "7.0.0.8.4.5");
+
+			
+			
+			if (DEBUG >= 1) {
+				for (int i = 0; i < 255; i++) {
+					if (i != 244) add(i, new ObisCode(7, 128, 0, 0, 0, i).toString());
+				}
+			}
 
 //			add(UNIFLO1200Registers.V28.TURN_OFF_DIAPLAY_AFTER, "0.0.0.0.0.2", "", REG_TURN_OFF_DISP_AFTER);
 			
@@ -321,7 +345,6 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
         getParserFactory().addParser(UNIFLO1200Parsers.PARSER_STR1_SWP, up.new STR1SwappedParser());
 
     } 
-
 
 } 
 

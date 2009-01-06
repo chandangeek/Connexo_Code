@@ -159,8 +159,12 @@ public class UNIFLO1200 extends Modbus {
     		Iterator it = ((UNIFLO1200RegisterFactory)getRegisterFactory()).getRegisters().iterator();
     		while (it.hasNext()) {
     			AbstractRegister ar = (AbstractRegister)it.next();
-    			if (ar.getObisCode()!=null)
-    				strBuff.append(ar.toString() + "\n");
+    			if (ar.getObisCode()!=null) {
+    				strBuff.append(ar.getObisCode().toString() + ", ");
+    				strBuff.append("unit = " + ar.getUnit() + ", ");
+    				strBuff.append("name = " + ar.getName());
+    				strBuff.append("\n");
+    			}
     		}
     	}
     	return strBuff.toString();
@@ -184,19 +188,15 @@ public class UNIFLO1200 extends Modbus {
 
 	public static void main(String[] args) {
 		try {
-			UNIFLO1200Registers ufl_reg = new UNIFLO1200Registers(UNIFLO1200Registers.UNIFLO1200_FW_28);
-		
-			for (int i = 0; i < 255; i++) {
-				System.out.println(
-						" DEBUG" + 
-						" First: " + ProtocolUtils.buildStringHex(ufl_reg.getAbsAddr(i), 8) +
-						" Changed: " + ProtocolUtils.buildStringHex(ufl_reg.getWordAddr(i), 4) +
-						" Original: " + ProtocolUtils.buildStringHex(i, 4) +
-						" Divided: " + ProtocolUtils.buildStringHex(i/2, 4)
-					);
-			}
-		
-		} catch (IOException e) {
+
+			UNIFLO1200Parsers uflp = new UNIFLO1200Parsers(null);
+			
+			int[] values = {1,0};
+			UNIFLO1200Parsers.REAL32Parser parser = uflp.new REAL32Parser();
+			System.out.println("Result: " + parser.val(values, null));
+			
+			
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
