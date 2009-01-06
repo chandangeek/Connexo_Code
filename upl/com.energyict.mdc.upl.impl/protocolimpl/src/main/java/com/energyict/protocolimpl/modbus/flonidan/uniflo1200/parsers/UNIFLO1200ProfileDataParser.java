@@ -104,10 +104,10 @@ public class UNIFLO1200ProfileDataParser {
 		int[] intData = parseByteArray2IntArray(rawData);		
 		int noc = getNumberOfChannels();
 		
-		System.out.println("RawData = " + ProtocolUtils.outputHexString(rawData));
-		System.out.println("IntData = " + printIntArray(intData));
-		
-		
+		if (DEBUG >= 1) {
+			System.out.println("RawData = " + ProtocolUtils.outputHexString(rawData));
+			System.out.println("IntData = " + printIntArray(intData));
+		}
 		
 		this.channelNumbers = new Number[noc];
 		this.timeValue = (Date) getParser(UNIFLO1200Parsers.PARSER_TIME).val(intData, null);
