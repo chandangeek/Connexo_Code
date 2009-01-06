@@ -337,7 +337,7 @@ public class GenericModbusDiscover extends Modbus implements MessageProtocol {
             else
                 discoverTools = new DiscoverTools(args[1]); //"/dev/ttyXR0";
             discoverTools.setProperties(genericModbusDiscover.getProperties(5));
-            discoverTools.setAddress(5);
+            discoverTools.setAddress(1);
             discoverTools.init();
             discoverTools.connect();
             

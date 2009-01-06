@@ -32,6 +32,7 @@ public class DiscoverProtocolInfo {
         list.add(new DiscoverProtocolInfo(0,"veris h8076","com.energyict.protocolimpl.modbus.veris.hawkeye.Hawkeye","PNP Veris Hawkeye h8076"));
         list.add(new DiscoverProtocolInfo(0,"veris h80","com.energyict.protocolimpl.modbus.veris.hawkeye.Hawkeye","PNP Veris Hawkeye h80xx"));
         list.add(new DiscoverProtocolInfo(1,"square d;15210","com.energyict.protocolimpl.modbus.squared.pm800.PM800","PNP SquareD PM800 15210"));
+        list.add(new DiscoverProtocolInfo(1,"square d;15211","com.energyict.protocolimpl.modbus.squared.pm800.PM800","PNP SquareD PM820 15211"));
         // meter model register
         list.add(new DiscoverProtocolInfo(2,"1350","com.energyict.protocolimpl.modbus.northerndesign.cube350.Cube350","PNP Northerndesign EnergyICT")); 
         list.add(new DiscoverProtocolInfo(1,"Merlin Gerin;PM750","com.energyict.protocolimpl.modbus.squared.pm750.PM750","PNP Merlin Gerin PM750"));

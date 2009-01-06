@@ -234,7 +234,7 @@ public class PM800 extends Modbus implements MessageProtocol {
 				Properties properties = new Properties();
 				properties.setProperty("ProfileInterval", "900");
 				// properties.setProperty(MeterProtocol.NODEID,"0");
-				properties.setProperty(MeterProtocol.ADDRESS, "6");
+				properties.setProperty(MeterProtocol.ADDRESS, "1");
 				properties.setProperty("Timeout", "2000");
 
 	            int ift;
