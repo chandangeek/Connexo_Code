@@ -139,12 +139,12 @@ public class UNIFLO1200ProfileInfoParser {
 	}
 	
 	public void updateLogInfoRegisters() throws IOException {
-		this.logIdxValue = (Integer) getLogIdxReg().value();
+		this.logIdxValue = ((Integer) getLogIdxReg().value()).intValue();
 		this.logInfoValue = (byte[]) getLogInfoReg().value();
-		this.logSizeValue = (Integer) getLogSizeReg().value();
-		this.logWidthValue = (Integer) getLogWidthReg().value();
+		this.logSizeValue = ((Integer) getLogSizeReg().value()).intValue();
+		this.logWidthValue = ((Integer) getLogWidthReg().value()).intValue();
 		if (getLogEepromReg() != null) {
-			this.logEepromValue = (Integer) getLogEepromReg().value();
+			this.logEepromValue = ((Integer) getLogEepromReg().value()).intValue();
 		} else {
 			this.logEepromValue = 1;
 		}

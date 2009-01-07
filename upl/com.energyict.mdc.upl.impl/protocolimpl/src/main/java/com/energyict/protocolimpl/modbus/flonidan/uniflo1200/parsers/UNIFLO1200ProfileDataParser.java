@@ -119,7 +119,7 @@ public class UNIFLO1200ProfileDataParser {
 				int[] subArray = getSubArray(intData, reg.getReg(), reg.getRange());
 				channelNumbers[i] = (Number) getParser(reg).val(subArray, null);
 			} catch (NumberFormatException e) {
-				channelNumbers[i] = 0;
+				channelNumbers[i] = new Integer(0);
 			}
 		}
 	}

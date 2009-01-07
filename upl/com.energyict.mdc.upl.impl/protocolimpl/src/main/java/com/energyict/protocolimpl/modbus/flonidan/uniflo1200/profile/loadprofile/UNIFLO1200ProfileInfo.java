@@ -49,11 +49,11 @@ public class UNIFLO1200ProfileInfo {
 		switch (profileNumber) {
 		case UNIFLO1200Profile.INTERVALLOG: 
 			this.profileInterval = 				
-				(Integer) getLoadProfile()
+				((Integer) getLoadProfile()
 				.getUniflo1200()
 				.getRegisterFactory()
 				.findRegister(UNIFLO1200RegisterFactory.REG_INTERVAL)
-				.value();
+				.value()).intValue();
 			this.logStartAddress = 
 				((UNIFLO1200RegisterFactory)getLoadProfile().getUniflo1200().getRegisterFactory())
 				.getFwRegisters()

@@ -87,7 +87,7 @@ public class UNIFLO1200Parsers {
 	}
 
 	public class BigDecimalParser implements Parser {
-        public BigDecimal val(int[] values, AbstractRegister register) throws IOException {
+        public Object val(int[] values, AbstractRegister register) throws IOException {
             BigDecimal bd = null;
             if( values.length == 1 ) {
                 bd = new BigDecimal( values[0] );
@@ -115,7 +115,7 @@ public class UNIFLO1200Parsers {
     }
     
     public class StringParser implements Parser {
-        public String val(int[] values, AbstractRegister register) {
+        public Object val(int[] values, AbstractRegister register) {
             String result = "";
         	for (int i = 0; i < values.length; i++) {
 				result += (char)((values[i] & 0x0000FF00) >> 8); 
@@ -126,7 +126,7 @@ public class UNIFLO1200Parsers {
     }
 
     public class STR22Parser implements Parser {
-        public String val(int[] values, AbstractRegister register) {
+        public Object val(int[] values, AbstractRegister register) {
             String result = "";
             for (int i = 0; i < 11; i++) {
 				result += (char)((values[i] & 0x0000FF00) >> 8); 
@@ -137,19 +137,19 @@ public class UNIFLO1200Parsers {
     }
 
     public class STR1Parser implements Parser {
-        public String val(int[] values, AbstractRegister register) {
+        public Object val(int[] values, AbstractRegister register) {
             return "" + (char)((values[0] & 0x0000FF00) >> 8); 
         }
     }
 
     public class STR1SwappedParser implements Parser {
-        public String val(int[] values, AbstractRegister register) {
+        public Object val(int[] values, AbstractRegister register) {
             return "" + (char)((values[0] & 0x000000FF)); 
         }
     }
     
     public class STR29Parser implements Parser {
-        public String val(int[] values, AbstractRegister register) {
+        public Object val(int[] values, AbstractRegister register) {
             String result = "";
             for (int i = 0; i < 15; i++) {
 				result += (char)((values[i] & 0x0000FF00) >> 8); 
@@ -160,64 +160,72 @@ public class UNIFLO1200Parsers {
     }
     
     public class UINT8Parser implements Parser {
-        public Integer val(int[] values, AbstractRegister register) {
-        	Integer returnValue =
-        		((values[0] & 0x0000FF00) >> 8);
+        public Object val(int[] values, AbstractRegister register) {
+        	Integer returnValue = 
+        		new Integer(((values[0] & 0x0000FF00) >> 8));
         	return returnValue;
         }
     }
 
     public class UINT8SwappedParser implements Parser {
-        public Integer val(int[] values, AbstractRegister register) {
+        public Object val(int[] values, AbstractRegister register) {
         	Integer returnValue =
-        		(values[0] & 0x000000FF);
+        		new Integer((values[0] & 0x000000FF));
         	return returnValue;
         }
     }
 
     public class UINT16Parser implements Parser {
-        public Integer val(int[] values, AbstractRegister register) {
+        public Object val(int[] values, AbstractRegister register) {
         	Integer returnValue =
-        		((values[0] & 0x0000FF00) >> 8) +
-        		((values[0] & 0x000000FF) << 8);
+        		new Integer(
+        				((values[0] & 0x0000FF00) >> 8) +
+        				((values[0] & 0x000000FF) << 8)
+        		);
         	return returnValue;
         }
     }
 
     public class UINT32Parser implements Parser {
-        public Integer val(int[] values, AbstractRegister register) {
+        public Object val(int[] values, AbstractRegister register) {
         	Integer returnValue =
-        		((values[0] & 0x0000FF00) >> 8) +
-				((values[0] & 0x000000FF) << 8) +
-				((values[1] & 0x0000FF00) << 8) +
-				((values[1] & 0x000000FF) << 24);
+        		new Integer(
+        				((values[0] & 0x0000FF00) >> 8) +
+        				((values[0] & 0x000000FF) << 8) +
+        				((values[1] & 0x0000FF00) << 8) +
+        				((values[1] & 0x000000FF) << 24)
+        		);
         	return returnValue;
         }
     }
 
     public class UINT160Parser implements Parser {
-        public Integer val(int[] values, AbstractRegister register) {
+        public Object val(int[] values, AbstractRegister register) {
         	Integer returnValue =
-        		((values[0] & 0x0000FF00) >> 8) +
-        		((values[0] & 0x000000FF) << 8);
+        		new Integer(
+        				((values[0] & 0x0000FF00) >> 8) +
+        				((values[0] & 0x000000FF) << 8)
+        		);
         	return returnValue;
         }
     }
 
     public class UINT320Parser implements Parser {
-        public Integer val(int[] values, AbstractRegister register) {
+        public Object val(int[] values, AbstractRegister register) {
         	Integer returnValue =
-        		((values[0] & 0x0000FF00) >> 8) +
-				((values[0] & 0x000000FF) << 8) +
-				((values[1] & 0x0000FF00) << 8) +
-				((values[1] & 0x000000FF) << 24);
+        		new Integer(
+        				((values[0] & 0x0000FF00) >> 8) +
+        				((values[0] & 0x000000FF) << 8) +
+        				((values[1] & 0x0000FF00) << 8) +
+        				((values[1] & 0x000000FF) << 24)
+				);
         	return returnValue;
         }
     }
 
     
     public class REAL32Parser implements Parser {
-        public BigDecimal val(int[] values, AbstractRegister register) {
+        public Object val(int[] values, AbstractRegister register) {
         	int fractionalPart;
         	BigDecimal returnValue;
 
@@ -235,7 +243,7 @@ public class UNIFLO1200Parsers {
     }
 
     public class INTREALParser implements Parser {
-        public BigDecimal val(int[] values, AbstractRegister register) {
+        public Object val(int[] values, AbstractRegister register) {
         	BigDecimal returnValue;
         	int intPart;
         	int fractionalPart;
@@ -272,16 +280,16 @@ public class UNIFLO1200Parsers {
     }
     
     public class GasFormulaParser implements Parser {
-    	public String val(int[] values, AbstractRegister register) {
-    		Integer returnValue = (values[0] & 0x0000FF00) >> 8;
-    		return UNIFLO1200Registers.OPTION_GAS_CALC_FORMULA[returnValue];
+    	public Object val(int[] values, AbstractRegister register) {
+    		int returnValue = (values[0] & 0x0000FF00) >> 8;
+    		return new Integer(UNIFLO1200Registers.OPTION_GAS_CALC_FORMULA[returnValue]);
     	}
     }
 
     public class IntervalParser implements Parser {
-    	public Integer val(int[] values, AbstractRegister register) {
-    		Integer returnValue = (values[0] & 0x000000FF);
-    		return UNIFLO1200Registers.OPTION_LOG_INTERVAL[returnValue];
+    	public Object val(int[] values, AbstractRegister register) {
+    		int returnValue = (values[0] & 0x000000FF);
+    		return new Integer(UNIFLO1200Registers.OPTION_LOG_INTERVAL[returnValue]);
     	}
     }
 

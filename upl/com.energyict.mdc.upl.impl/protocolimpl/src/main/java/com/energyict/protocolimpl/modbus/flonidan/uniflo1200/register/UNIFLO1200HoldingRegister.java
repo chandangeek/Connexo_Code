@@ -112,7 +112,7 @@ public class UNIFLO1200HoldingRegister extends HoldingRegister {
 		defaultSlaveID();
 		return returnValue;
 	}
-
+	
 	public ReadHoldingRegistersRequest getReadHoldingRegistersRequest()	throws IOException {
 		activateSlaveID();
 		ReadHoldingRegistersRequest returnValue = super.getReadHoldingRegistersRequest();

@@ -60,7 +60,7 @@ public class UNIFLO1200EventData {
 			.getRegisterFactory()
 			.findRegister(UNIFLO1200RegisterFactory.REG_ALARM_LOG_INDEX);
 
-		this.alarmIdx = (Integer) alarmIdxReg.value(); 
+		this.alarmIdx = ((Integer) alarmIdxReg.value()).intValue(); 
 		
 	}
 

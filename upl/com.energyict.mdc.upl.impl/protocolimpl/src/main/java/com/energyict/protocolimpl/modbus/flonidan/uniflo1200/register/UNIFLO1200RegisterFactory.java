@@ -17,7 +17,6 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
 import com.energyict.protocolimpl.modbus.core.Modbus;
@@ -93,7 +92,7 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
         	}
         	else if (rc == Date.class) {
         		returnEventTime = (Date)result;
-        		returnQuantity = new Quantity(returnEventTime.getTime(), returnUnit);
+        		returnQuantity = new Quantity(new Long(returnEventTime.getTime()), returnUnit);
         		returnText = returnEventTime.toString();
         	}
         	else if (rc == Quantity.class) {
@@ -105,7 +104,7 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
         		returnQuantity = new Quantity((BigDecimal)value, returnUnit);
         	}
         	else if (rc == Integer.class) {
-        		returnQuantity = new Quantity(new BigDecimal((Integer)result), returnUnit);
+        		returnQuantity = new Quantity((Integer)result, returnUnit);
         	}
         	else {
         		returnText = result.toString();

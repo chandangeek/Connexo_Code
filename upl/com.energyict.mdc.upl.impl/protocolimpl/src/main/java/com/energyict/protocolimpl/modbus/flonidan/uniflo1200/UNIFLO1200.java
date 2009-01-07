@@ -104,7 +104,7 @@ public class UNIFLO1200 extends Modbus {
 			getRegisterFactory().findRegister(UNIFLO1200RegisterFactory.REG_LOGIN).getWriteMultipleRegisters(b);
 		}
 		
-		setSecLvl((Integer)getRegisterFactory().findRegister(UNIFLO1200RegisterFactory.REG_ACTUAL_SECLEVEL).value());		
+		setSecLvl(((Integer)getRegisterFactory().findRegister(UNIFLO1200RegisterFactory.REG_ACTUAL_SECLEVEL).value()).intValue());		
 
 		if (getInfoTypeSecurityLevel() != getSecLvl())
 			throw new InvalidPropertyException("SecurityLevel mismatch [" + getInfoTypeSecurityLevel() + " != " + getSecLvl() + "]: Reason may be wrong password or hardware lock.");
