@@ -83,6 +83,7 @@ public class AARQ {
 	private void doRequestApplicationAssociation(byte[] aarq) throws IOException {
 		byte[] responseData;
 		responseData = this.dlmsConnection.sendRequest(aarq);
+		CheckAARE(responseData);
 		
 	}
 
@@ -315,6 +316,26 @@ public class AARQ {
 			e.printStackTrace();
 			throw new IOException("Failed to succesfully disconnect.");
 		}
+	}
+	
+	public static void main(String[] args){
+//		000100010010002b6129a1090607
+//		60857405080101a203020100a305a103
+//		020100be10040e0800065f1f04000010
+//		1802000007
+		
+		byte[] response = new byte[]{0x00, 0x01, 0x00, 0x01, 0x00, 0x10, 0x00, 0x2b, 0x61, 0x29, (byte)0xa1, 0x09, 0x06, 0x07, 0x60, (byte)0x85, 0x74,
+				0x05, 0x08, 0x01, 0x01, (byte)0xa2, 0x03, 0x02, 0x01, 0x00, (byte)0xa3, 0x05, (byte)0xa1, 0x03, 0x02, 0x01, 0x00, (byte)0xbe, 0x10, 0x04, 0x0e, 
+				0x08, 0x00, 0x06, 0x5f, 0x1f, 0x04, 0x00, 0x00, 0x10, 0x18, 0x02, 0x00, 0x00, 0x07};
+		
+		AARQ aarq = new AARQ();
+		try {
+			aarq.CheckAARE(response);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 }

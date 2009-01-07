@@ -10,9 +10,14 @@
 
 package com.energyict.genericprotocolimpl.common;
 
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dlms.cosem.Register;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.*;
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -156,6 +161,12 @@ public class ParseUtils {
 		return tempCalendar.getTime();
 	}
 	
+	/**
+	 * ex: "1.0.0.8.1.255" has 5 dots '.'
+	 * @param str - the complete string
+	 * @param sign - the string to count
+	 * @return
+	 */
 	public static int countEqualSignsInString(String str, String sign){
 		int count  = 0;
 		byte[] strByte = str.getBytes();
@@ -166,6 +177,29 @@ public class ParseUtils {
 			}
 		}
 		return count;
+	}
+	
+	/**
+	 * Convert a DLMS register to a quantity
+	 * @param register
+	 * @return the quantity from the register
+	 * @throws IOException
+	 */
+	public static Quantity registerToQuantity(Register register) throws IOException{
+		try {
+			if(register.getScalerUnit() != null){
+				if(register.getScalerUnit().getUnit() != null){
+					return new Quantity(BigDecimal.valueOf(register.getValue()), register.getScalerUnit().getUnit());
+				} else {
+					return new Quantity(BigDecimal.valueOf(register.getValue()), Unit.get(BaseUnit.UNITLESS));
+				}
+			} else {
+				return new Quantity(BigDecimal.valueOf(register.getValue()), Unit.get(BaseUnit.UNITLESS));
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException(e.getMessage());
+		}
 	}
 	
 	public static void main(String[] args){
