@@ -96,7 +96,7 @@ public class DLMSMeterConfig {
     public int getClockSN() throws IOException {
        return config.getClockSN(IOL);    
     }
-    
+
     public int getConfigSN() throws IOException {
        return config.getConfigSN(IOL,manuf);   
     }
@@ -108,6 +108,9 @@ public class DLMSMeterConfig {
        return config.getSerialNumberSN(IOL,manuf);    
     }
 
+	public int getIPv4SetupSN() throws IOException {
+		return config.getIPv4SetupSN(IOL);
+	}
     
     public UniversalObject getEventLogObject() throws IOException {
        return config.getEventLogObject(IOL);    
@@ -143,6 +146,10 @@ public class DLMSMeterConfig {
 
     public UniversalObject getSerialNumberObject() throws IOException {
        return config.getSerialNumberObject(IOL,manuf);    
+    }
+    
+    public UniversalObject getIPv4SetupObject() throws IOException {
+    	return config.getIPv4SetupObject(IOL);
     }
     
     public UniversalObject getObject(DLMSObis dlmsObis) throws IOException {
@@ -238,5 +245,14 @@ public class DLMSMeterConfig {
         catch(Exception e) {
             e.printStackTrace();
         }
-    }        
+    }
+
+	public UniversalObject getMbusDisconnectControl(int physicalAddress) throws IOException {
+		return config.getMbusDisconnectControl(IOL, manuf, physicalAddress);
+	}        
+	
+	public UniversalObject getMbusDisconnectControlState(int physicalAddress) throws IOException {
+		return config.getMbusDisconnectControlState(IOL, manuf, physicalAddress);
+	}
+
 }

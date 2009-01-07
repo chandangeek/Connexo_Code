@@ -155,13 +155,17 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new DemandRegister(protocolLink,getObjectReference(obisCode));
     }
     
-    
     public AssociationLN getAssociationLN() {
         return new AssociationLN(protocolLink,new ObjectReference(ASSOC_LN_OBJECT_LN));
     }
     public AssociationSN getAssociationSN() {
         return new AssociationSN(protocolLink,new ObjectReference(ASSOC_SN_OBJECT));
     }
+    
+    public IPv4Setup getIPv4Setup() throws IOException {
+    	return new IPv4Setup(protocolLink, getObjectReference(IPV4_SETUP, protocolLink.getMeterConfig().getIPv4SetupSN()));
+    }
+    
 
     public CosemObject getCosemObject(ObisCode obisCode) throws IOException {
         if (obisCode.getF() != 255) {

@@ -34,12 +34,15 @@ public class DLMSConfig {
     final static private DLMSConfig historicValues =  new DLMSConfig("",7,0,-1,98,1,-1,126);
     final static private DLMSConfig resetCounter =  new DLMSConfig("",3,1,0,0,1,0,255);
     
+    final static private DLMSConfig ipv4Setup = new DLMSConfig("",42,0,0,25,1,0,255);
+    
     final static private DLMSConfig[] configchange = {
             new DLMSConfig("LGZ",3,0,0,96,2,0,255),
             new DLMSConfig("EIT",3,0,0,96,2,0,255),
             new DLMSConfig("ISK",1,0,0,96,2,0,255),
             new DLMSConfig("EMO",1,1,0,0,2,1,255),
-            new DLMSConfig("SLB",4,0,0,96,2,0,255)
+            new DLMSConfig("SLB",4,0,0,96,2,0,255),
+            new DLMSConfig("WKP",1,0,0,96,2,0,255)
     };
     
     final static private DLMSConfig[] version = {
@@ -84,6 +87,24 @@ public class DLMSConfig {
 		new DLMSConfig("WKP",7,0,2,24,5,0,255),
 		new DLMSConfig("WKP",7,0,3,24,5,0,255),
 		new DLMSConfig("WKP",7,0,4,24,5,0,255)
+    };
+    
+    final static private DLMSConfig[] mbusDisconnectControl = {
+		new DLMSConfig("WKP",7,0,1,24,4,0,255),
+		new DLMSConfig("WKP",7,0,2,24,4,0,255),
+		new DLMSConfig("WKP",7,0,3,24,4,0,255),
+		new DLMSConfig("WKP",7,0,4,24,4,0,255),
+		new DLMSConfig("ISK",7,0,1,128,30,30,255),
+		new DLMSConfig("ISK",7,0,2,128,30,30,255),
+		new DLMSConfig("ISK",7,0,3,128,30,30,255),
+		new DLMSConfig("ISK",7,0,4,128,30,30,255)
+    };
+    
+    final static private DLMSConfig[] mbusDisconnectControlState = {
+    	new DLMSConfig("ISK",7,0,1,128,30,31,255),
+		new DLMSConfig("ISK",7,0,2,128,30,31,255),
+		new DLMSConfig("ISK",7,0,3,128,30,31,255),
+		new DLMSConfig("ISK",7,0,4,128,30,31,255)
     };
     
     final static private DLMSConfig[] serialNumber = {
@@ -272,6 +293,11 @@ public class DLMSConfig {
     protected DLMSConfig getResetCounter() {
         return resetCounter;
     }
+    
+    protected DLMSConfig getIPv4Setup() {
+    	return ipv4Setup;
+    }
+    
     /*
      *  Find in objectList a matching DLMSConfig object with a configchange DLMSConfig object
      *  @param UniversalObject[] objectList
@@ -595,6 +621,38 @@ public class DLMSConfig {
 		throw new IOException("DLMSConfig, getMbusControlLog, not found in objectlist (IOL)");
     }
     
+    protected UniversalObject getMbusDisconnectControl(UniversalObject[] objectList, String manuf, int channel) throws IOException{
+    	int count = 0;
+    	if (objectList == null) throw new IOException("DLMSConfig, getMbusDisconnectControl, objectlist empty!");
+    	for(int t = 0; t < mbusDisconnectControl.length; t++){
+			if((manuf != null) && (mbusDisconnectControl[t].getManuf().compareTo(manuf) != 0)) continue;
+			if(count++ == channel){
+				for(int i = 0; i < objectList.length; i++){
+					if(objectList[i].equals(mbusDisconnectControl[t])){
+						return objectList[i];
+					}
+				}
+			}
+		}
+		throw new IOException("DLMSConfig, getMbusDisconnectControl, not found in objectlist (IOL)");
+    }
+    
+    protected UniversalObject getMbusDisconnectControlState(UniversalObject[] objectList, String manuf, int channel) throws IOException{
+    	int count = 0;
+    	if (objectList == null) throw new IOException("DLMSConfig, getMbusDisconnectControlState, objectlist empty!");
+    	for(int t = 0; t < mbusDisconnectControlState.length; t++){
+			if((manuf != null) && (mbusDisconnectControlState[t].getManuf().compareTo(manuf) != 0)) continue;
+			if(count++ == channel){
+				for(int i = 0; i < objectList.length; i++){
+					if(objectList[i].equals(mbusDisconnectControlState[t])){
+						return objectList[i];
+					}
+				}
+			}
+		}
+		throw new IOException("DLMSConfig, getMbusDisconnectControlState, not found in objectlist (IOL)");
+    }
+    
     /*
      *  Find in objectList a matching DLMSConfig object with the historicValues DLMSConfig objects
      *  @param UniversalObject[] objectList
@@ -681,6 +739,22 @@ public class DLMSConfig {
                this.getClassID();
     }
     
+	public UniversalObject getIPv4SetupObject(UniversalObject[] objectList) throws IOException {
+	       if (objectList == null) throw new IOException("DLMSConfig, ipv4SetupObject, objectlist empty!");
+	       for (int i=0;i<objectList.length;i++) {
+	           if (objectList[i].equals(ipv4Setup)) return objectList[i];
+	       }
+	       throw new IOException("DLMSConfig, ipv4SetupObject, not found in objectlist (IOL)!");  
+	}
+
+	public int getIPv4SetupSN(UniversalObject[] objectList) throws IOException {
+		if (objectList == null) throw new IOException("DLMSConfig, ipv4Setup, objectlist empty!");
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(ipv4Setup)) return objectList[i].getBaseName();
+		}
+		return 0;  
+	}   
+    
     public static void main(String[] args)
     {
         DLMSConfig config = DLMSConfig.getInstance();
@@ -688,7 +762,6 @@ public class DLMSConfig {
         
         System.out.println(config.getClock().toString());
         
-    }    
-    
-    
+    }
+
 }
