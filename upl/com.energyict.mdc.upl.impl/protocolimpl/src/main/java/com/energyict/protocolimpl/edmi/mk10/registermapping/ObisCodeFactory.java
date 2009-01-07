@@ -51,7 +51,7 @@ public class ObisCodeFactory {
     
     // tou channel
     private final int CHANNEL_START=0;
-    private final int CHANNEL_NR_OF_CHANNELS=6;
+    private final int CHANNEL_NR_OF_CHANNELS=16;
     
     // tou register function
     private final int RATE_UNIFIED=0;

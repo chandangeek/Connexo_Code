@@ -55,7 +55,7 @@ public class TOUChannelTypeParser {
         switch(regfunction) {
         case 0x00:
             isEnergy = true;
-        	this.Name = "all ";
+        	this.Name = "abs ";
         	break;
         case 0x01:
             isEnergy = true;
@@ -201,6 +201,7 @@ public class TOUChannelTypeParser {
         if (name.indexOf("active") != -1) {
         	if (name.indexOf("import") != -1) obisc = 1; 
            	if (name.indexOf("export") != -1) obisc = 2;
+        	if (name.indexOf("abs") != -1) obisc = 128;
            	if (name.indexOf("q1") != -1) obisc = 17;
            	if (name.indexOf("q2") != -1) obisc = 18;
             if (name.indexOf("q3") != -1) obisc = 19;
@@ -209,6 +210,7 @@ public class TOUChannelTypeParser {
         if (name.indexOf("reactive") != -1) {
         	if (name.indexOf("import") != -1) obisc = 3; 
            	if (name.indexOf("export") != -1) obisc = 4;
+        	if (name.indexOf("abs") != -1) obisc = 129;
            	if (name.indexOf("q1") != -1) obisc = 5;
            	if (name.indexOf("q2") != -1) obisc = 6;
             if (name.indexOf("q3") != -1) obisc = 7;
@@ -217,6 +219,7 @@ public class TOUChannelTypeParser {
         if (name.indexOf("apparent") != -1) {
         	if (name.indexOf("import") != -1) obisc = 9; 
            	if (name.indexOf("export") != -1) obisc = 10;
+        	if (name.indexOf("abs") != -1) obisc = 130;
            	if (name.indexOf("q1") != -1) obisc = 138;
            	if (name.indexOf("q2") != -1) obisc = 134;
             if (name.indexOf("q3") != -1) obisc = 142;
