@@ -282,7 +282,7 @@ public class UNIFLO1200Parsers {
     public class GasFormulaParser implements Parser {
     	public Object val(int[] values, AbstractRegister register) {
     		int returnValue = (values[0] & 0x0000FF00) >> 8;
-    		return new Integer(UNIFLO1200Registers.OPTION_GAS_CALC_FORMULA[returnValue]);
+    		return UNIFLO1200Registers.OPTION_GAS_CALC_FORMULA[returnValue];
     	}
     }
 
