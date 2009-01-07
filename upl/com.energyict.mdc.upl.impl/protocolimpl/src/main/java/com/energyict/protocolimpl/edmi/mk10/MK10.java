@@ -26,6 +26,7 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.*;
  * 17/11/2008 -> Fixed bug in load profile (start date <-> first entry) first entry can be different from 0 !!!
  * 16/12/2008 -> Switched export/import for registers and load surveys according IEC and not ANSI
  * 18/12/2008 -> Removed MISSING flag when only incomplete interval and no missing data
+ * 07/01/2009 -> Added register readings for Abs values 
  */
 public class MK10 extends AbstractProtocol {
     
