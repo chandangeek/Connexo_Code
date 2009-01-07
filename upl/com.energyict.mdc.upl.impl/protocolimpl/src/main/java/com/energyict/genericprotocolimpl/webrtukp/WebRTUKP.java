@@ -248,9 +248,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		} catch (DLMSConnectionException e) {
 			e.printStackTrace();
 			throw new IOException(e.getMessage());
-		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new SQLException(e);
 		} catch (BusinessException e) {
 			e.printStackTrace();
 			throw new BusinessException(e);
@@ -276,6 +273,9 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not set the IP address.");
+		} catch (SQLException e){
+			e.printStackTrace();
+			throw new SQLException("Could not update the IP address.");
 		}
 	}
 	
