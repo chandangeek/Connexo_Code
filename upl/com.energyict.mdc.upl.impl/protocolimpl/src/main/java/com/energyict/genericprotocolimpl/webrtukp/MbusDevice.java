@@ -115,7 +115,7 @@ public class MbusDevice implements GenericProtocol{
 			verifySerialNumber();
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException(e);
+			throw new IOException(e.getMessage());
 		}
 		
 		// import profile
