@@ -52,7 +52,7 @@ public class MK10Push implements GenericProtocol {
 	 */
 
 	public String getVersion() {
-		return "$Date: 2009-01-08 13:02:10 +0200 (di, 26 aug 2008) $";
+		return "$Date$";
 	}
 
 	public List getOptionalKeys() {
