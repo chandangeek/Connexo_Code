@@ -510,7 +510,7 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
     
 
 /**
- * Method that requests the recorder interval in min.
+ * Method that requests the recorder interval in sec.
  * Hardcoded for SL7000 meter to 15 min.
  * @return Remote meter 'recorder interval' in min.
  * @exception IOException
@@ -523,7 +523,7 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
 	        if (iInterval == 0) {
 	        	
 	           ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("1.0.99."+loadProfile+".0.255"));
-	           iInterval = profileGeneric.getCapturePeriod()*60;
+	           iInterval = profileGeneric.getCapturePeriod();
 	        	
 	           //byte[] LN = {1,0,(byte)99,(byte)loadProfile,0,(byte)255};
 	           //DataContainer dataContainer = doRequestAttribute((short)1,LN, (byte)2);
@@ -563,7 +563,7 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
     private ProfileData doGetDemandValues(Calendar fromCalendar, byte bNROfChannels,  boolean includeEvents) throws IOException {
         
         ProfileData profileData = new ProfileData();
-        DataContainer dataContainer = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("1.0.99."+loadProfile+".0.255")).getBuffer(fromCalendar);
+        DataContainer dataContainer = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("1.0.99."+loadProfile+".0.255")).getBuffer(fromCalendar,Calendar.getInstance());
         ScalerUnit[] scalerunit = new ScalerUnit[bNROfChannels];
         
         for (int i=0;i<bNROfChannels;i++) {
@@ -799,69 +799,12 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
         else
             calendar = ProtocolUtils.initCalendar(false,timeZone);
 
-        //if (DEBUG >=1) dataContainer.printDataContainer();
+        if (DEBUG >=1) dataContainer.printDataContainer();
+        //dataContainer.printDataContainer();
         
         for (i=0;i<dataContainer.getRoot().element.length;i++) { // for all retrieved intervals
-            
-            
-            if (dataContainer.getRoot().getStructure(i).isStructure(0)) {
-                calendar = parseProfileStartDate(dataContainer.getRoot().getStructure(i),calendar); // new date?
-                calendar = parseProfileStartTime(dataContainer.getRoot().getStructure(i),calendar); // new time?
-                if (DEBUG >=1) System.out.println("new calendar reference: "+calendar.getTime());
-            }
-            
-            
-            // Start of interval
-            if (dataContainer.getRoot().getStructure(i).isStructure(0)) {
-                currentAdd = parseStart(dataContainer.getRoot().getStructure(i),calendar,profileData);
-            }
-            // End of interval
-            if (dataContainer.getRoot().getStructure(i).isStructure(1)) {
-                currentAdd = parseEnd(dataContainer.getRoot().getStructure(i),calendar,profileData);
-            }
-            // time1
-            if (dataContainer.getRoot().getStructure(i).isStructure(2)) {
-                currentAdd = parseTime1(dataContainer.getRoot().getStructure(i),calendar,profileData);
-            }
-            // Time2
-            if (dataContainer.getRoot().getStructure(i).isStructure(3)) {
-                currentAdd = parseTime2(dataContainer.getRoot().getStructure(i),calendar,profileData);
-            }
-
-            // KV 16012004
-            //calendar.add(calendar.MINUTE,(getProfileInterval()/60));
-            //profileData.addInterval(getIntervalData(dataContainer.getRoot().getStructure(i), calendar));
-            
-            
-            
-            // Adjust calendar for interval with profile interval period
-            if (currentAdd) {
-                calendar.add(calendar.MINUTE,(getProfileInterval()/60));
-            }
-            
-            currentIntervalData = getIntervalData(dataContainer.getRoot().getStructure(i), calendar);
-
-            
-            // KV 16012004
-            if (DEBUG >=1) { 
-                dataContainer.getRoot().getStructure(i).print();
-                System.out.println();
-            }
-            
-            if (currentAdd & !previousAdd) {
-               if (DEBUG>=1) System.out.println ("add intervals together...");
-               currentIntervalData = addIntervalData(currentIntervalData,previousIntervalData);
-            }
-            
-            
-            // Add interval data...
-            if (currentAdd) {
-                profileData.addInterval(currentIntervalData);
-            }
-            
-            previousIntervalData=currentIntervalData;
-            previousAdd=currentAdd;
-            
+            calendar = setCalendar(calendar,dataContainer.getRoot().getStructure(i),(byte)0x00);
+            profileData.addInterval(getIntervalData(dataContainer.getRoot().getStructure(i), calendar));
         } // for (i=0;i<dataContainer.getRoot().element.length;i++) // for all retrieved intervals
 
     } // private void buildProfileData(byte bNROfChannels, DataContainer dataContainer)  throws IOException
@@ -923,19 +866,9 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
  * This method sets the time/date in the remote meter equal to the system time/date of the machine where this object resides.
  * @exception IOException
  */
-    public void setTime() throws IOException
-    {
-       Calendar calendar=null;
-       if (iRequestTimeZone != 0)
-           calendar = ProtocolUtils.getCalendar(false,requestTimeZone());
-       else
-           calendar = ProtocolUtils.initCalendar(false,timeZone);
+    public void setTime() throws IOException {
+       Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
        calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);           
-       doSetTime(calendar);
-    } // public void setTime() throws IOException
-
-    private void doSetTime(Calendar calendar) throws IOException
-    {
        byte[] byteTimeBuffer = new byte[14];
 
        byteTimeBuffer[0]=TYPEDESC_OCTET_STRING;
@@ -959,7 +892,7 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
        
        getCosemObjectFactory().writeObject(ObisCode.fromString("0.0.1.0.0.255"),8,2, byteTimeBuffer);
         
-    } // private void doSetTime(Calendar calendar)
+    } // public void setTime() throws IOException
     
     public Date getTime() throws IOException {
         Clock clock = getCosemObjectFactory().getClock();
@@ -1276,28 +1209,10 @@ public class GenericGetSet implements DLMSCOSEMGlobals, MeterProtocol, HHUEnable
         return "$Revision: 1.39 $";
     }
     public String getFirmwareVersion() throws IOException,UnsupportedException {
-    	try {
         if (version == null) {
-           StringBuffer strbuff=new StringBuffer(); 
-           try {
-               UniversalObject uo = meterConfig.getVersionObject();
-               DataContainer dataContainer = getCosemObjectFactory().getGenericRead(uo).getDataContainer();
-               /* 020211011104 --> structure, 2 elements, 1 en 4 --> 1.4 
-                  Voor de root moet je geen structure opvragen! */
-               strbuff.append(String.valueOf(dataContainer.getRoot().getInteger(0)));
-               strbuff.append(".");
-               strbuff.append(String.valueOf(dataContainer.getRoot().getInteger(1)));
-               version=strbuff.toString();
-           }
-           catch(IOException e) {
-               throw new IOException("DLMSLNSL7000, getFirmwareVersion, Error, "+e.getMessage());   
-           }
-        }
+           version = AXDRDecoder.decode(getCosemObjectFactory().getData(ObisCode.fromString("1.0.0.2.0.255")).getData()).getOctetString().stringValue();
+    	}
         return version;
-    	}
-    	catch(IOException e) {
-    		return e.getMessage();
-    	}
     }
     
     /** this implementation calls <code> validateProperties </code>

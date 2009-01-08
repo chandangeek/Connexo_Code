@@ -37,6 +37,7 @@ public class DiscoverProtocolInfo {
         list.add(new DiscoverProtocolInfo(2,"1350","com.energyict.protocolimpl.modbus.northerndesign.cube350.Cube350","PNP Northerndesign EnergyICT")); 
         list.add(new DiscoverProtocolInfo(1,"Merlin Gerin;PM750","com.energyict.protocolimpl.modbus.squared.pm750.PM750","PNP Merlin Gerin PM750"));
         list.add(new DiscoverProtocolInfo(0,"PM750 Power Meter","com.energyict.protocolimpl.modbus.squared.pm750.PM750","PNP Merlin Gerin PM750"));
+        list.add(new DiscoverProtocolInfo(0,"PM750","com.energyict.protocolimpl.modbus.squared.pm750.PM750","PNP SquareD PM750"));
         
         // product id register
         list.add(new DiscoverProtocolInfo(2,"200","com.energyict.protocolimpl.modbus.cutlerhammer.iq200.IQ200","PNP Cutler Hammer IQ200"));
