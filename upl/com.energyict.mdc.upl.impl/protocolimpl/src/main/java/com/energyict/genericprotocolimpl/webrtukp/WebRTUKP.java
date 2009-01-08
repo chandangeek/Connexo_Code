@@ -130,7 +130,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			init(link.getInputStream(), link.getOutputStream());
 			connect();
 			
-			readFromMeter("0.1.24.1.0.255");
+//			readFromMeter("0.1.24.1.0.255");
 			
 //			hasMBusMeters();
 //			handleMbusMeters();
