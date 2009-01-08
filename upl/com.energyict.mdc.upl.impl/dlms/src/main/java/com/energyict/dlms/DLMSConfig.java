@@ -114,6 +114,20 @@ public class DLMSConfig {
             new DLMSConfig("ISK",1,0,0,96,1,0,255),
             new DLMSConfig("WKP",1,0,0,96,1,0,255)
     };
+    
+    final static private DLMSConfig[] mbusSerialNumber = {
+    		new DLMSConfig("WKP",1,0,1,96,1,0,255),
+    		new DLMSConfig("WKP",1,0,2,96,1,0,255),
+    		new DLMSConfig("WKP",1,0,3,96,1,0,255),
+    		new DLMSConfig("WKP",1,0,4,96,1,0,255)
+    };
+    
+    final static private DLMSConfig[] mbusProfile = {
+    		new DLMSConfig("WKP",7,0,1,24,3,0,255),
+    		new DLMSConfig("WKP",7,0,2,24,3,0,255),
+    		new DLMSConfig("WKP",7,0,3,24,3,0,255),
+    		new DLMSConfig("WKP",7,0,4,24,3,0,255)
+    };
      
     final static private DLMSConfig[] meterReading = {
             new DLMSConfig("LGZ",3,1,1,1,8,0,255),
@@ -653,6 +667,38 @@ public class DLMSConfig {
 		throw new IOException("DLMSConfig, getMbusDisconnectControlState, not found in objectlist (IOL)");
     }
     
+    protected UniversalObject getMbusSerialNumber(UniversalObject[] objectList, String manuf, int channel) throws IOException{
+    	int count = 0;
+    	if (objectList == null) throw new IOException("DLMSConfig, getMbusSerialNumber, objectlist empty!");
+    	for(int t = 0; t < mbusSerialNumber.length; t++){
+			if((manuf != null) && (mbusSerialNumber[t].getManuf().compareTo(manuf) != 0)) continue;
+			if(count++ == channel){
+				for(int i = 0; i < objectList.length; i++){
+					if(objectList[i].equals(mbusSerialNumber[t])){
+						return objectList[i];
+					}
+				}
+			}
+		}
+		throw new IOException("DLMSConfig, getMbusSerialNumber, not found in objectlist (IOL)");
+    }
+    
+	public UniversalObject getMbusProfile(UniversalObject[] objectList, String manuf, int channel) throws IOException {
+    	int count = 0;
+    	if (objectList == null) throw new IOException("DLMSConfig, getMbusProfile, objectlist empty!");
+    	for(int t = 0; t < mbusProfile.length; t++){
+			if((manuf != null) && (mbusProfile[t].getManuf().compareTo(manuf) != 0)) continue;
+			if(count++ == channel){
+				for(int i = 0; i < objectList.length; i++){
+					if(objectList[i].equals(mbusProfile[t])){
+						return objectList[i];
+					}
+				}
+			}
+		}
+		throw new IOException("DLMSConfig, getMbusSerialNumber, not found in objectlist (IOL)");
+	}
+    
     /*
      *  Find in objectList a matching DLMSConfig object with the historicValues DLMSConfig objects
      *  @param UniversalObject[] objectList
@@ -728,7 +774,7 @@ public class DLMSConfig {
        //}
        throw new IOException("DLMSConfig, getMeterReadingObject("+id+","+deviceId+"), not found in objectlist (IOL)!");      
     }
-    
+   
     public String toString() {
         return this.getLNA()+"."+
                this.getLNB()+"."+

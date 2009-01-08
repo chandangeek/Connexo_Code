@@ -4,7 +4,7 @@ import com.energyict.obis.ObisCode;
 
 public class Constant {
 
-	final static int MaxMbusMeters = 255;
+	final static int MaxMbusMeters = 4;
 	
 	final static String MANUFACTURER = "WKP";
 	

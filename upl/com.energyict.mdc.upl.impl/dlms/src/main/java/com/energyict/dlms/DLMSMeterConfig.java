@@ -255,4 +255,11 @@ public class DLMSMeterConfig {
 		return config.getMbusDisconnectControlState(IOL, manuf, physicalAddress);
 	}
 
+	public UniversalObject getMbusSerialNumber(int physicalAddress) throws IOException {
+		return config.getMbusSerialNumber(IOL, manuf, physicalAddress);
+	}
+
+	public UniversalObject getMbusProfile(int physicalAddress) throws IOException {
+		return config.getMbusProfile(IOL, manuf, physicalAddress);
+	}
 }

@@ -46,8 +46,12 @@ public class MbusProfile {
 	public void getProfile(ObisCode mbusProfile) throws IOException, SQLException, BusinessException{
 		ProfileData profileData = new ProfileData( );
 		ProfileGeneric genericProfile;
+		
+		// TODO verify profileInterval
+		
 		try {
-			genericProfile = getCosemObjectFactory().getProfileGeneric(mbusProfile);
+//			genericProfile = getCosemObjectFactory().getProfileGeneric(mbusProfile);
+			genericProfile = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusProfile(this.mbusDevice.getPhysicalAddress()).getObisCode());
 			List<ChannelInfo> channelInfos = getMbusChannelInfos(genericProfile);
 			
 			profileData.setChannelInfos(channelInfos);
@@ -95,9 +99,10 @@ public class MbusProfile {
 				
 				// Normally the mbusData is in a separate profile
 //				if(mbusDevice.isIskraMbusObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){ // make a channel out of it
+				if(isMbusRegisterObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
 					CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
 					ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
-					if(su != null) {
+					if((su != null) && (su.getUnitCode() != 0)) {
 						ci = new ChannelInfo(index, getProfileChannelNumber(index+1), "WebRtuKP_MBus_"+index, su.getUnit());
 					} else {
 						ci = new ChannelInfo(index, getProfileChannelNumber(index+1), "WebRtuKP_MBus_"+index, Unit.get(BaseUnit.UNITLESS));
@@ -110,7 +115,7 @@ public class MbusProfile {
 						ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
 //					}
 					channelInfos.add(ci);
-//				}
+				}
 				
 			}
 		} catch (IOException e) {
@@ -118,6 +123,14 @@ public class MbusProfile {
 			throw new IOException("Failed to build the channelInfos." + e);
 		}
 		return channelInfos;
+	}
+	
+	private boolean isMbusRegisterObisCode(ObisCode oc){
+		if((oc.getC() == 24) && (oc.getD() == 2) && (oc.getB() >=1) && (oc.getB() <= 4) && (oc.getE() >= 1) && (oc.getE() <= 4) ){
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	
@@ -157,26 +170,35 @@ public class MbusProfile {
 		Calendar cal = null;
 		IntervalData currentInterval = null;
 		int profileStatus = 0;
-		if(dc.getRoot().getElements().length == 0){
-			throw new IOException("No entries in loadprofile datacontainer.");
-		}
+		if(dc.getRoot().getElements().length != 0){
+//			throw new IOException("No entries in loadprofile datacontainer.");
 		
-		for(int i = 0; i < dc.getRoot().getElements().length; i++){
-			if(dc.getRoot().getStructure(i).isOctetString(0)){
-				cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
-			} else {
-				//TODO get the interval of the meter itself
-//				cal.add(Calendar.SECOND, 3600);
-				if(cal != null){
-					cal.add(Calendar.SECOND, mbusDevice.getMbus().getIntervalInSeconds());
+			for(int i = 0; i < dc.getRoot().getElements().length; i++){
+				if(dc.getRoot().getStructure(i).isOctetString(0)){
+					cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
+				} else {
+					//TODO get the interval of the meter itself
+	//				cal.add(Calendar.SECOND, 3600);
+					if(cal != null){
+						cal.add(Calendar.SECOND, mbusDevice.getMbus().getIntervalInSeconds());
+					}
+				}
+				if(cal != null){		
+					
+					if(getProfileStatusChannelIndex(pg) != -1){
+						profileStatus = dc.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex(pg));
+					} else {
+						profileStatus = 0;
+					}
+					
+					currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg);
+					if(currentInterval != null){
+						pd.addInterval(currentInterval);
+					}
 				}
 			}
-			if(cal != null){				
-				currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg);
-				if(currentInterval != null){
-					pd.addInterval(currentInterval);
-				}
-			}
+		} else {
+			mbusDevice.getLogger().info("No entries in MbusLoadProfile");
 		}
 	}
 	
@@ -186,9 +208,9 @@ public class MbusProfile {
 		
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
-//				if(mbusDevice.isIskraMbusObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
+				if(isMbusRegisterObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
 					id.addValue(new Integer(ds.getInteger(i)));
-//				}
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -212,6 +234,20 @@ public class MbusProfile {
 		return -1;
 	}
 
+	private int getProfileStatusChannelIndex(ProfileGeneric pg) throws IOException{
+		try {
+			for(int i = 0; i < pg.getCaptureObjectsAsUniversalObjects().length; i++){
+				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(ObisCode.fromString("0.0.96.10.1.255"))){
+					return i;
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Could not retrieve the index of the profileData's status attribute.");
+		}
+		return -1;
+	}
+	
 	private CosemObjectFactory getCosemObjectFactory(){
 		return this.mbusDevice.getWebRTU().getCosemObjectFactory();
 	}

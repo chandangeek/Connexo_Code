@@ -15,6 +15,7 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
@@ -25,30 +26,27 @@ import com.energyict.dlms.OctetString;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.SAPAssignment;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.GenericCache;
 import com.energyict.genericprotocolimpl.common.StoreObject;
-import com.energyict.genericprotocolimpl.webrtukp.profiles.DailyMonthly;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.ElectricityProfile;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
@@ -57,6 +55,16 @@ import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.HDLCConnection;
+
+/**
+ * 
+ * @author gna
+ * |08012009| First complete draft containing:
+ * 					- LoadProfile E-meter
+ * 					- Registers E-meter
+ * 					- LoadProfile Mbus-meter
+ * 					- Registers Mbus-meter
+ */
 
 public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 
@@ -122,11 +130,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			init(link.getInputStream(), link.getOutputStream());
 			connect();
 			
-			// For testing purposes
-			// fill in an obiscode
-//			readFromMeter("1.0.1.8.0.255");
-			// to try the profileObject
-//			getProfileData();
+//			readFromMeter("0.2.96.1.0.255");
+			
+//			hasMBusMeters();
+//			handleMbusMeters();
 			
 			verifyAndWriteClock();
 			
@@ -145,12 +152,14 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
     		 * want to read the actual registers or the daily/monthly registers ...
     		 */
 			if(this.commProfile.getReadMeterReadings()){
+				
 				// TODO read the daily/Monthly values
 //				getLogger().log(Level.INFO, "Getting daily and monthly values for meter with serialnumber: " + webRtuKP.getSerialNumber());
-				// TODO Just first Test method
 //				DailyMonthly dm = new DailyMonthly(this);
 //				dm.getDailyValues(Constant.dailyObisCode);
 //				dm.getMonthlyValues(Constant.monthlyObisCode);
+				
+				getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + webRtuKP.getSerialNumber());
 				doReadRegisters();
 			}
 			
@@ -160,7 +169,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			}
 			
 			if(hasMBusMeters()){
-				// TODO handle the MBus Slave meters
 				getLogger().log(Level.INFO, "Starting to handle the MBus meters.");
 				handleMbusMeters();
 			}
@@ -184,6 +192,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			Environment.getDefault().execute(getStoreObject());
 			if(success){
 				disConnect();
+				getLogger().info("Meter " + this.serialNumber + " has completely finished.");
 			}
 		}
 	}
@@ -299,6 +308,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				if(mbusDevices[i] != null){
 					mbusDevices[i].setWebRtu(this);
 					mbusDevices[i].execute(scheduler, null, null);
+					getLogger().info("MbusDevice " + i + " has finished." );
 				}
 			} catch (BusinessException e) {
 				
@@ -325,7 +335,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	             * A single MBusMeter failed: log and try next MBusMeter.
 	             */
 				e.printStackTrace();
-				getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
+				getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed. [" + e.getMessage() + "]" );
 				
 			}
 		}
@@ -336,7 +346,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	 * @throws IOException
 	 */
 	private void doReadRegisters() throws IOException{
-//		MeterReadingData mrd = new MeterReadingData();
 		Iterator<RtuRegister> it = getMeter().getRegisters().iterator();
 		ObisCode oc = null;
 		RegisterValue rv;
@@ -351,37 +360,13 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				if(rr.getReadingAt(rv.getReadTime()) == null){
 					getStoreObject().add(rr, rv);
 				}
-				
-//				mrd.add(rv);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException(e.getMessage());
 		}
-//		handleRegisters(mrd);
 	}
 	
-//	/**
-//	 * Preparing the registerValues to be stored on the meter
-//	 * @param mrd
-//	 */
-//	private void handleRegisters(MeterReadingData mrd){
-//		Iterator<RegisterValue> it = mrd.getRegisterValues().iterator();
-//		RegisterValue rv;
-//		RtuRegister rr;
-//		while(it.hasNext()){
-//			rv = it.next();
-//			rr = getMeter().getRegister(rv.getObisCode());
-//			if(rr != null){
-//				if(rr.getReadingAt(rv.getReadTime()) == null){
-//					getStoreObject().add(rr, rv);
-//				}
-//			} else {
-//				getLogger().info("Register " + rv.getObisCode().toString() + " not defined on device");
-//			}
-//		}
-//	}
-
 	/**
 	 * TestMethod to read a certain obisCode from the meter
 	 * @param name - the Obiscode in String format
@@ -389,8 +374,11 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	 */
 	private void readFromMeter(String name) throws IOException{
 		try {
-			CosemObject cobj = getCosemObjectFactory().getCosemObject(ObisCode.fromString(name));
-			long value = cobj.getValue();
+//			CosemObject cobj = getCosemObjectFactory().getCosemObject(ObisCode.fromString(name));
+//			cobj.getText();
+//			long value = cobj.getValue();
+			String value = "";
+			getCosemObjectFactory().getGenericRead(getMeterConfig().getMbusSerialNumber(0)).getString();
 			System.out.println("Value: " + value);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -424,7 +412,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	public String getSerialNumber() throws IOException{
 		try {
 			return getCosemObjectFactory().getGenericRead(getMeterConfig().getSerialNumberObject()).getString();
-//			return "";
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not retrieve the serialnumber of the meter." + e);
@@ -614,7 +601,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	private void verifyAndWriteClock() throws IOException{
 		try {
 			Date meterTime = getTime();
-			Date now = new Date();
+			Date now = Calendar.getInstance(getTimeZone()).getTime();
 			
 			long diff = Math.abs(now.getTime()-meterTime.getTime())/1000;
 			
@@ -662,16 +649,40 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		return this.webRtuKP;
 	}
 	
-	private boolean hasMBusMeters(){
+	private boolean hasMBusMeters() throws SQLException, BusinessException, IOException{
+
+		String serialMbus = "";
+		Rtu mbus;
+		List<Rtu> slaves = getMeter().getDownstreamRtus();
+		Iterator<Rtu> it = slaves.iterator();
+		int count = 0;
+		while(it.hasNext()){
+			try {
+				mbus = it.next();
+				serialMbus = mbus.getSerialNumber();
+//				serialMbus = getCosemObjectFactory().getGenericRead(getMeterConfig().getMbusSerialNumber(count)).getString();
+				this.mbusDevices[count++] = new MbusDevice(serialMbus, mbus, getLogger());
+			} catch (ApplicationException e) {
+				// catch and go to next slave
+				e.printStackTrace();
+			}
+		}
+		
     	for(int i = 0; i < Constant.MaxMbusMeters; i++){
-    		if ( mbusDevice(i) != null ){
-    			if(isValidMbusMeter(i)){
-    				return true;
-    			}
-    		}
+			if ( mbusDevice(i) != null ){
+				if(isValidMbusMeter(i)){
+					return true;
+				}
+			}
     	}
+		
     	return false;
 	}
+	
+	/** Short notation for MeteringWarehouse.getCurrent() */
+    private MeteringWarehouse mw() {
+        return MeteringWarehouse.getCurrent();
+    }
 	
 	private boolean isValidMbusMeter(int i){
 		return mbusDevice(i).isValid();

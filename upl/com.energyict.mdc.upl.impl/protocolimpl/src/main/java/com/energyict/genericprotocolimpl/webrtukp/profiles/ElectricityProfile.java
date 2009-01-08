@@ -50,9 +50,12 @@ public class ElectricityProfile {
 	public void getProfile(ObisCode electricityProfile, boolean events) throws IOException, SQLException, BusinessException{
 		ProfileData profileData = new ProfileData( );
 		ProfileGeneric genericProfile;
+		
 		try {
 			genericProfile = getCosemObjectFactory().getProfileGeneric(electricityProfile);
 			List<ChannelInfo> channelInfos = getChannelInfos(genericProfile);
+			//TODO
+			verifyProfileInterval(genericProfile, channelInfos);
 			
 			profileData.setChannelInfos(channelInfos);
 			Calendar fromCalendar = null;
@@ -71,7 +74,9 @@ public class ElectricityProfile {
 			}
 			
 			webrtu.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+			//TODO change back to From/To
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
+//			DataContainer dc = genericProfile.getBuffer(fromCalendar);
 			buildProfileData(dc, profileData, genericProfile);
 			profileData.sort();
 			
@@ -105,6 +110,19 @@ public class ElectricityProfile {
 		}
 	}
 
+	private void verifyProfileInterval(ProfileGeneric genericProfile, List<ChannelInfo> channelInfos) throws IOException{
+		Iterator<ChannelInfo> it = channelInfos.iterator();
+		while(it.hasNext()){
+			ChannelInfo ci = it.next();
+			if(getMeter().getChannel(ci.getChannelId()).getIntervalInSeconds() != genericProfile.getCapturePeriod()){
+				throw new IOException("Interval mismatch, EIServer: " + getMeter().getIntervalInSeconds() + "s - Meter: " + genericProfile.getCapturePeriod() + "s.");
+			}
+		}
+//		if(getMeter().getIntervalInSeconds() != genericProfile.getCapturePeriod()){
+//			throw new IOException("Interval mismatch, EIServer: " + getMeter().getIntervalInSeconds() + "s - Meter: " + genericProfile.getCapturePeriod() + "s.");
+//		}
+	}
+	
 	private List<ChannelInfo> getChannelInfos(ProfileGeneric profile) throws IOException {
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		ChannelInfo ci = null;
@@ -116,7 +134,7 @@ public class ElectricityProfile {
 						&& !isProfileStatusObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){ // make a channel out of it
 					CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
 					ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
-					if(su != null){
+					if((su != null) && (su.getUnitCode() != 0)){
 						ci = new ChannelInfo(index, getProfileChannelNumber(index+1), "WebRtuKP_"+index, su.getUnit());
 					} else {
 						ci = new ChannelInfo(index, getProfileChannelNumber(index+1), "WebRtuKP_"+index, Unit.get(BaseUnit.UNITLESS));
@@ -138,7 +156,6 @@ public class ElectricityProfile {
 		return channelInfos;
 	}
 
-	
 	/**
 	 * Read the given object and return the scalerUnit
 	 * @param oc
@@ -175,7 +192,7 @@ public class ElectricityProfile {
 		Calendar cal = null;
 		IntervalData currentInterval = null;
 		int profileStatus = 0;
-		if(dc.getRoot().getElements().length == 0){
+		if(dc.getRoot().getElements().length != 0){
 //			throw new IOException("No entries in loadprofile datacontainer.");
 //		}
 		

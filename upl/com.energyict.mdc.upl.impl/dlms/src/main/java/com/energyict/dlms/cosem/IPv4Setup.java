@@ -24,8 +24,8 @@ public class IPv4Setup extends AbstractCosemObject{
 	private Unsigned32 subnetMask = null;			
 	private Unsigned32 gatewayIPAddress = null;		
 	private boolean useDHCPFlag = true;				//TODO
-	private Unsigned32 primaryDNSAddress = null;	//TODO
-	private Unsigned32 secondaryDNSAddress = null;	//TODO
+	private Unsigned32 primaryDNSAddress = null;	
+	private Unsigned32 secondaryDNSAddress = null;	
 	
 
 	/** Creates a new instance of IPv4Setup */
@@ -188,9 +188,72 @@ public class IPv4Setup extends AbstractCosemObject{
 		writeGatewayIPAddress(new Unsigned32(gatewayByte, 0));
 	}
 	
-//	public boolean readDHCPFlag() throws IOException {
-//		if(this.useDHCPFlag =){
-//			
-//		}
-//	}
+	public Unsigned32 readPrimaryDNSAddress() throws IOException {
+		if(this.primaryDNSAddress == null){
+			this.primaryDNSAddress = new Unsigned32(getLNResponseData(9), 0);
+		}
+		return this.primaryDNSAddress;
+	}
+	
+	public String getPrimaryDNSAddress() throws IOException{
+	   	StringBuilder builder = new StringBuilder();
+    	for(int i = 1; i < readPrimaryDNSAddress().getBEREncodedByteArray().length; i++){
+    		if(i != 1){
+    			builder.append(".");
+    		}
+    		builder.append(Integer.toString(readPrimaryDNSAddress().getBEREncodedByteArray()[i]&0xff));
+    	}
+    	return builder.toString();
+	}
+	
+	public void writePrimaryDNSAddress(Unsigned32 primaryDNSAddress) throws IOException{
+		write(9, primaryDNSAddress.getBEREncodedByteArray());
+		this.primaryDNSAddress = primaryDNSAddress;
+	}
+	
+	public void setPrimaryDNSAddress(String primaryDNSAddress) throws IOException {
+		int pointer = 0;
+		byte[] primaryDNSByte = new byte[5];
+		primaryDNSByte[0] = TYPEDESC_DOUBLE_LONG_UNSIGNED;
+		for(int i = 1; i < primaryDNSByte.length; i++){
+			primaryDNSByte[i] = (byte)Integer.parseInt(primaryDNSAddress.substring(pointer, (primaryDNSAddress.indexOf(".", pointer) == -1)?primaryDNSAddress.length():primaryDNSAddress.indexOf(".", pointer)));
+			pointer = primaryDNSAddress.indexOf(".", pointer) + 1;
+		}
+		writePrimaryDNSAddress(new Unsigned32(primaryDNSByte, 0));
+	}
+	
+	public Unsigned32 readSecondaryDNSAddress() throws IOException {
+		if(this.secondaryDNSAddress == null){
+			this.secondaryDNSAddress = new Unsigned32(getLNResponseData(10), 0);
+		}
+		return this.secondaryDNSAddress;
+	}
+	
+	public String getSecondaryDNSAddress() throws IOException{
+	   	StringBuilder builder = new StringBuilder();
+    	for(int i = 1; i < readSecondaryDNSAddress().getBEREncodedByteArray().length; i++){
+    		if(i != 1){
+    			builder.append(".");
+    		}
+    		builder.append(Integer.toString(readSecondaryDNSAddress().getBEREncodedByteArray()[i]&0xff));
+    	}
+    	return builder.toString();
+	}
+	
+	public void writeSecondaryDNSAddress(Unsigned32 secondaryDNSAddress) throws IOException{
+		write(10, secondaryDNSAddress.getBEREncodedByteArray());
+		this.secondaryDNSAddress = secondaryDNSAddress;
+	}
+	
+	public void setSecondaryDNSAddress(String secondaryDNSAddress) throws IOException {
+		int pointer = 0;
+		byte[] secondaryDNSByte = new byte[5];
+		secondaryDNSByte[0] = TYPEDESC_DOUBLE_LONG_UNSIGNED;
+		for(int i = 1; i < secondaryDNSByte.length; i++){
+			secondaryDNSByte[i] = (byte)Integer.parseInt(secondaryDNSAddress.substring(pointer, (secondaryDNSAddress.indexOf(".", pointer) == -1)?secondaryDNSAddress.length():secondaryDNSAddress.indexOf(".", pointer)));
+			pointer = secondaryDNSAddress.indexOf(".", pointer) + 1;
+		}
+		writePrimaryDNSAddress(new Unsigned32(secondaryDNSByte, 0));
+	}
+	
 }
