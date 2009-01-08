@@ -562,7 +562,7 @@ public class UNIFLO1200Registers {
 			"Alarm count table",    				// 67   AlarmCntTable        96         0            Alarm cnt table
 			"Power",  								// 68   EnergiFlow           MJ/h      U        1R0 1Power                                                                       Power
 			"Set alarm reg.",      					// 69   Alarmset                                     Set alarm reg in uniflo
-			"Set alarm reg.",      					// 70   TDeviceID                                R   Manufacture and type                                                        P. Sens. type
+			"Pressure Manufacture and type",		// 70   TDeviceID                                R   Manufacture and type                                                        P. Sens. type
 			"Pressure sensor style",     			// 71   TPStyle                                  R   Tryksensor Pressure style
 			"Pressure sensor range",      			// 72   TPressRange                             1R   Range [bar]                                                                 Range [bar]
 			"Pressure serial number",      			// 73   TSerialno                               1R   Serial no.                                                                  P. sens no.
