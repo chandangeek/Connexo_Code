@@ -64,13 +64,16 @@ public class ElectricityProfile {
 			
 			for (int i = 0; i < getMeter().getChannels().size(); i++) {
 				Channel chn = getMeter().getChannel(i);
-				if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
-						!(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
+				
+				//TODO this does not work with the 7.5 version
+				
+//				if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
+//						!(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
 					channelCalendar = getFromCalendar(getMeter().getChannel(i));
 					if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
 						fromCalendar = channelCalendar;
 					}
-				}
+//				}
 			}
 			
 			webrtu.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
@@ -174,13 +177,16 @@ public class ElectricityProfile {
 	private int getProfileChannelNumber(int index){
 		int channelIndex = 0;
 		for(int i = 0; i < getMeter().getChannels().size(); i++){
-		if(!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
-				!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
+			
+			//TODO does not work with the 7.5 version
+			
+//		if(!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
+//				!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
 			channelIndex++;
 			if(channelIndex == index){
 				return getMeter().getChannel(i).getLoadProfileIndex() -1;
 			}
-		}
+//		}
 	}
 		return -1;
 	}

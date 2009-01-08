@@ -13,7 +13,7 @@ import java.util.logging.Level;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.TimeDuration;
+//import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
@@ -61,13 +61,16 @@ public class MbusProfile {
 			
 			for (int i = 0; i < getMeter().getChannels().size(); i++) {
 				Channel chn = getMeter().getChannel(i);
-				if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
-						!(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
+				
+				// TODO does not work with the 7.5
+				
+//				if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
+//						!(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
 					channelCalendar = getFromCalendar(getMeter().getChannel(i));
 					if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
 						fromCalendar = channelCalendar;
 					}
-				}
+//				}
 			}
 			this.mbusDevice.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
@@ -152,13 +155,16 @@ public class MbusProfile {
 	private int getProfileChannelNumber(int index){
 		int channelIndex = 0;
 		for(int i = 0; i < getMeter().getChannels().size(); i++){
-		if(!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
-				!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
+			
+			//TODO does not work with the 7.5
+			
+//		if(!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
+//				!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
 			channelIndex++;
 			if(channelIndex == index){
 				return getMeter().getChannel(i).getLoadProfileIndex() -1;
 			}
-		}
+//		}
 	}
 		return -1;
 	}

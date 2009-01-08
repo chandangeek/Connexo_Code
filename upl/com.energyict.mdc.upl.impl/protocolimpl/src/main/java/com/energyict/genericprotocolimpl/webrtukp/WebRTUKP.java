@@ -130,7 +130,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			init(link.getInputStream(), link.getOutputStream());
 			connect();
 			
-//			readFromMeter("0.2.96.1.0.255");
+			readFromMeter("0.1.24.1.0.255");
 			
 //			hasMBusMeters();
 //			handleMbusMeters();
@@ -374,12 +374,13 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	 */
 	private void readFromMeter(String name) throws IOException{
 		try {
-//			CosemObject cobj = getCosemObjectFactory().getCosemObject(ObisCode.fromString(name));
-//			cobj.getText();
-//			long value = cobj.getValue();
-			String value = "";
-			getCosemObjectFactory().getGenericRead(getMeterConfig().getMbusSerialNumber(0)).getString();
-			System.out.println("Value: " + value);
+			CosemObject cobj = getCosemObjectFactory().getCosemObject(ObisCode.fromString(name));
+			cobj.getText();
+			long value = cobj.getValue();
+			
+//			String value = "";
+//			getCosemObjectFactory().getGenericRead(getMeterConfig().getMbusSerialNumber(0)).getString();
+//			System.out.println("Value: " + value);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Reading of object has failed!");
@@ -660,7 +661,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			try {
 				mbus = it.next();
 				serialMbus = mbus.getSerialNumber();
-//				serialMbus = getCosemObjectFactory().getGenericRead(getMeterConfig().getMbusSerialNumber(count)).getString();
 				this.mbusDevices[count++] = new MbusDevice(serialMbus, mbus, getLogger());
 			} catch (ApplicationException e) {
 				// catch and go to next slave
@@ -798,7 +798,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	/**
 	 * Messages
 	 */
-	
 	private void sendMeterMessages() {
 		// TODO Auto-generated method stub
 		Iterator<RtuMessage> it = getMeter().getPendingMessages().iterator();
@@ -823,4 +822,5 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
 }
