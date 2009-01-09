@@ -41,7 +41,7 @@ public class DiscoverProtocolInfo {
         
         // product id register
         list.add(new DiscoverProtocolInfo(2,"200","com.energyict.protocolimpl.modbus.cutlerhammer.iq200.IQ200","PNP Cutler Hammer IQ200"));
-        list.add(new DiscoverProtocolInfo(2,"604504064","com.energyict.protocolimpl.modbus.cutlerhammer.iq230.IQ230","PNP Cutler Hammer IQ230"));
+        list.add(new DiscoverProtocolInfo(2,"604504064","com.energyict.protocolimpl.modbus.cutlerhammer.iq230.IQ230","PNP Cutler Hammer IQ230"));  
         
         // slot info of the meter 000000 000001 0000ff 010000 010001 0100ff ff0000 ff0001 ff00ff       
         //list.add(new DiscoverProtocolInfo(2,"0;1;255;65536;65537;65791;16711680;16711681;16711935","com.energyict.protocolimpl.modbus.socomec.a20.A20","PNP Socomec Diris A20"));
