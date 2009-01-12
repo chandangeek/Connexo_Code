@@ -188,7 +188,7 @@ public class ParseUtils {
 	public static Quantity registerToQuantity(Register register) throws IOException{
 		try {
 			if(register.getScalerUnit() != null){
-				if(register.getScalerUnit().getUnit() != null){
+				if(register.getScalerUnit().getUnitCode() != 0){
 					return new Quantity(BigDecimal.valueOf(register.getValue()), register.getScalerUnit().getUnit());
 				} else {
 					return new Quantity(BigDecimal.valueOf(register.getValue()), Unit.get(BaseUnit.UNITLESS));

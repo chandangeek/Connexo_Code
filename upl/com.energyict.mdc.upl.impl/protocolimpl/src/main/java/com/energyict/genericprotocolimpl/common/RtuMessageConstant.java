@@ -7,6 +7,8 @@ public class RtuMessageConstant {
     public final static String CONNECT_LOAD = "connectLoad";
     /** RtuMessage tag for disconnecting load */
     public final static String DISCONNECT_LOAD = "disconnectLoad";
+    /** RtuMessage tag to indicate the digital output to apply the connectControl*/
+    public final static String DIGITAL_OUTPUT = "Digital_output";
     
     /** RtuMessage tag for reading profile data */
     public final static String READ_PROFILE = "readProfile";
@@ -45,5 +47,18 @@ public class RtuMessageConstant {
     public final static String FIRMWARE_UPGRADE = "firmwareUpgrade";
     public final static String FIRMWARE = "UserFile ID of firmware bin file";
     public final static String FIRMWARE_METERS = "GroupID of meters to receive new firmware";
+    
+    /** RtuMessage tag for prepaid functionality */
+    public final static String SET_PREPAID = "Set Prepaid credit";
+    public final static String ADD_PREPAID = "Add Prepaid credit";
+    public final static String READ_PREPAID = "Read Prepaid credit";
+    
+    /** RtuMessage tags for load limiting */
+	public static final String LOAD_LIMIT_ENABLE = "Enable load limiting";
+	public static final String LOAD_LIMIT_DISALBE = "Disable load limitng";
+	public static final String LOAD_LIMIT_PARAMETERS = "Parameters load limiting";
+	public static final String LOAD_LIMIT_READ_FREQUENCY = "Read_frequency";
+	public static final String LOAD_LIMIT_THRESHOLD = "Threshold";
+	public static final String LOAD_LIMIT_DURATION = "Duration";
     
 }
