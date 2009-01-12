@@ -31,6 +31,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Integer16;
 import com.energyict.dlms.axrdencoding.Integer32;
@@ -40,6 +41,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.util.AXDRBoolean;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
@@ -410,11 +412,15 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
         MessageCategorySpec catLoadLimit = new MessageCategorySpec("Load Limiting");
         
         // Prepaid related messages
-        MessageSpec msgSpec = addObisCodeMsg("Set prepaid credit", RtuMessageConstant.SET_PREPAID, false);
+        MessageSpec msgSpec = addConfigurePrepaid("Configure prepaid functionality", RtuMessageConstant.PREPAID_CONFIGURED, false);
         catPrePaid.addMessageSpec(msgSpec);
-        msgSpec = addObisCodeMsg("Add prepaid credit", RtuMessageConstant.ADD_PREPAID, false);
+        msgSpec = addBudgetMsg("Add prepaid credit", RtuMessageConstant.PREPAID_ADD, false);
         catPrePaid.addMessageSpec(msgSpec);
-        msgSpec = addReadObisCodeMsg("Read prepaid credit", RtuMessageConstant.READ_PREPAID, false);
+        msgSpec = addNoValueMsg("Read prepaid credit", RtuMessageConstant.PREPAID_READ, false);
+        catPrePaid.addMessageSpec(msgSpec);
+        msgSpec = addNoValueMsg("Enable prepaid functionality", RtuMessageConstant.PREPAID_ENABLE, false);
+        catPrePaid.addMessageSpec(msgSpec);
+        msgSpec = addNoValueMsg("Disable prepaid functionality", RtuMessageConstant.PREPAID_DISABLE, false);
         catPrePaid.addMessageSpec(msgSpec);
         
         // Disconnect related messages
@@ -424,17 +430,54 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
         catConnectControl.addMessageSpec(msgSpec);
         
         // Load Limiting releated messages
-        msgSpec = addConnectControlLimiting("Enable load limiting", RtuMessageConstant.LOAD_LIMIT_ENABLE, false);
+        msgSpec = addNoValueMsg("Enable load limiting", RtuMessageConstant.LOAD_LIMIT_ENABLE, false);
         catLoadLimit.addMessageSpec(msgSpec);
-        msgSpec = addConnectControlLimiting("Disable load limiting", RtuMessageConstant.LOAD_LIMIT_DISALBE, false);
+        msgSpec = addNoValueMsg("Disable load limiting", RtuMessageConstant.LOAD_LIMIT_DISALBE, false);
         catLoadLimit.addMessageSpec(msgSpec);
-        msgSpec = addParametersLoadLimit("Parameters load limiting", RtuMessageConstant.LOAD_LIMIT_PARAMETERS, false);
+        msgSpec = addParametersLoadLimit("Configure load limiting", RtuMessageConstant.LOAD_LIMIT_CONFIGURE, false);
         catLoadLimit.addMessageSpec(msgSpec);
         
         theCategories.add(catPrePaid);
         theCategories.add(catConnectControl);
         theCategories.add(catLoadLimit);
         return theCategories;
+	}
+	
+	private MessageSpec addBudgetMsg(String keyId, String tagName, boolean advanced){
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.PREPAID_BUDGET, true);
+        tagSpec.add(msgVal);
+        tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+	
+	private MessageSpec addNoValueMsg(String keyId, String tagName, boolean advanced){
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        return msgSpec;
+	}
+	
+	private MessageSpec addConfigurePrepaid(String keyId, String tagName, boolean advanced){
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        tagSpec.add(msgVal);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.PREPAID_BUDGET, true);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.PREPAID_THRESHOLD, true);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.PREPAID_READ_FREQUENCY, true);
+        tagSpec.add(msgAttrSpec);
+        for(int i = 1; i < 9; i++){
+        	msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.PREPAID_MULTIPLIER+i, true);
+        	tagSpec.add(msgAttrSpec);
+        }
+        msgSpec.add(tagSpec);
+        return msgSpec;
 	}
 	
     private MessageSpec addParametersLoadLimit(String keyId, String tagName, boolean advanced) {
@@ -453,10 +496,10 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
         return msgSpec;
 	}
 
-	private MessageSpec addConnectControlLimiting(String keyId, String tagName, boolean advanced) {
-        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        return msgSpec;
-	}
+//	private MessageSpec addConnectControlLimiting(String keyId, String tagName, boolean advanced) {
+//        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+//        return msgSpec;
+//	}
 
 	private MessageSpec addConnectControlMsg(String keyId, String tagName, boolean advanced) {
     	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -470,36 +513,36 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
         return msgSpec;
     }
 	
-    private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
-        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        tagSpec.add(new MessageValueSpec());
-        msgSpec.add(tagSpec);
-        return msgSpec;
-    }
-	
-    private MessageSpec addReadObisCodeMsg(String keyId, String tagName, boolean advanced){
-    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec("ObjectName", true);
-        tagSpec.add(msgVal);
-        tagSpec.add(msgAttrSpec);
-        msgSpec.add(tagSpec);
-        return msgSpec;
-    }
-    
-	private MessageSpec addObisCodeMsg(String keyId, String tagName, boolean advanced){
-        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec("ObjectName", true);
-        tagSpec.add(msgVal);
-        tagSpec.add(msgAttrSpec);
-        msgSpec.add(tagSpec);
-        return msgSpec;
-	}
+//    private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
+//        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+//        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+//        tagSpec.add(new MessageValueSpec());
+//        msgSpec.add(tagSpec);
+//        return msgSpec;
+//    }
+//	
+//    private MessageSpec addReadObisCodeMsg(String keyId, String tagName, boolean advanced){
+//    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+//        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+//        MessageValueSpec msgVal = new MessageValueSpec();
+//        msgVal.setValue(" ");
+//        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec("ObjectName", true);
+//        tagSpec.add(msgVal);
+//        tagSpec.add(msgAttrSpec);
+//        msgSpec.add(tagSpec);
+//        return msgSpec;
+//    }
+//    
+//	private MessageSpec addObisCodeMsg(String keyId, String tagName, boolean advanced){
+//        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+//        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+//        MessageValueSpec msgVal = new MessageValueSpec();
+//        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec("ObjectName", true);
+//        tagSpec.add(msgVal);
+//        tagSpec.add(msgAttrSpec);
+//        msgSpec.add(tagSpec);
+//        return msgSpec;
+//	}
 
 	public String writeTag(MessageTag msgTag) {
         StringBuffer buf = new StringBuffer();
@@ -558,14 +601,20 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 				String content = me.getContent();
 				importMessage(content, messageHandler);
 				
-				boolean disConnect 	= messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
-				boolean connect 	= messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
+				boolean disConnect 				= messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
+				boolean connect 				= messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
+				boolean prepaidConfiguration 	= messageHandler.getType().equals(RtuMessageConstant.PREPAID_CONFIGURED);
+				boolean prepaidAdd				= messageHandler.getType().equals(RtuMessageConstant.PREPAID_ADD);
+				boolean prepaidEnable			= messageHandler.getType().equals(RtuMessageConstant.PREPAID_ENABLE);
+				boolean prepaidDisable			= messageHandler.getType().equals(RtuMessageConstant.PREPAID_DISABLE);
+				boolean prepaidRead				= messageHandler.getType().equals(RtuMessageConstant.PREPAID_READ);
 				
 				if(disConnect){
 					String digOut = messageHandler.getResult();
 					if(digOut.equals("1") || digOut.equals("2")){
 						
 						//TODO complete
+						getCosemObjectFactory().getGenericWrite(Constant.digitalOutput[Integer.parseInt(digOut) - 1], 2).write(AXDRBoolean.encode(false).getBEREncodedByteArray());
 						
 					} else {
 						String error = "Connect message does not contain a valid digital output.";
@@ -577,6 +626,7 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 					if(digOut.equals("1") || digOut.equals("2")){
 						
 //						TODO complete
+						getCosemObjectFactory().getGenericWrite(Constant.digitalOutput[Integer.parseInt(digOut) - 1], 2).write(AXDRBoolean.encode(true).getBEREncodedByteArray());
 						
 					} else {
 						String error = "Connect message does not contain a valid digital output.";
@@ -617,6 +667,10 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 	
 	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 		
+		/**
+		 * TODO check if we can just set the messages to true, or that we have to check if the value is indeed sent to the meter
+		 */
+		
 		try {
 			MessageHandler messageHandler = new MessageHandler();
 			String content = messageEntry.getContent();
@@ -635,14 +689,33 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 					
 				} else {
 					
-					//TODO complete the result
+					boolean axdrBoolean = (getCosemObjectFactory().getGenericRead(Constant.digitalOutput[Integer.parseInt(digOut) - 1], 2).getResponseData()[1] == 1)?true:false;
+					if(axdrBoolean == false){
+						MessageResult.createSuccess(messageEntry);
+					} else {
+						MessageResult.createFailed(messageEntry);
+					}
 					
 				}
 					
 				
 			} else if(connect){
-				// TODO complete the message
-				
+				String digOut = messageHandler.getResult();
+				if(!digOut.equals("1") && !digOut.equals("2")){
+					
+					String error = "Connect message does not contain a valid digital output.";
+					MessageResult.createFailed(messageEntry);
+					throw new IOException(error);
+					
+				} else {
+					
+					boolean axdrBoolean = (getCosemObjectFactory().getGenericRead(Constant.digitalOutput[Integer.parseInt(digOut) - 1], 2).getResponseData()[1] == 1)?true:false;
+					if(axdrBoolean == true){
+						MessageResult.createSuccess(messageEntry);
+					} else {
+						MessageResult.createFailed(messageEntry);
+					}
+				}				
 			}
 		} catch (BusinessException e) {
 			e.printStackTrace();

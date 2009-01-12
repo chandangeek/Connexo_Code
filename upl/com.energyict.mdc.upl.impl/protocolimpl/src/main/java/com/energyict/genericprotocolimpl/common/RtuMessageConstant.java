@@ -49,14 +49,21 @@ public class RtuMessageConstant {
     public final static String FIRMWARE_METERS = "GroupID of meters to receive new firmware";
     
     /** RtuMessage tag for prepaid functionality */
-    public final static String SET_PREPAID = "Set Prepaid credit";
-    public final static String ADD_PREPAID = "Add Prepaid credit";
-    public final static String READ_PREPAID = "Read Prepaid credit";
+    public final static String PREPAID_CONFIGURED = "Configure Prepaid functionality";
+    public final static String PREPAID_ADD = "Add Prepaid credit";
+    public final static String PREPAID_READ = "Read Prepaid credit";
+    public final static String PREPAID_ENABLE = "Enable Prepaid functionality";
+    public final static String PREPAID_DISABLE = "Disable Prepaid functionality";
+    public final static String PREPAID_BUDGET = "Budget(kWh)";
+    public final static String PREPAID_THRESHOLD = "Threshold(kWh)";
+    public final static String PREPAID_MULTIPLIER = "Multiplier_tariff_";
+    public final static String PREPAID_READ_FREQUENCY = "Read_frequency";
+    
     
     /** RtuMessage tags for load limiting */
 	public static final String LOAD_LIMIT_ENABLE = "Enable load limiting";
 	public static final String LOAD_LIMIT_DISALBE = "Disable load limitng";
-	public static final String LOAD_LIMIT_PARAMETERS = "Parameters load limiting";
+	public static final String LOAD_LIMIT_CONFIGURE = "Configure load limiting";
 	public static final String LOAD_LIMIT_READ_FREQUENCY = "Read_frequency";
 	public static final String LOAD_LIMIT_THRESHOLD = "Threshold";
 	public static final String LOAD_LIMIT_DURATION = "Duration";
