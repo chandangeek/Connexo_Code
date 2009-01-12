@@ -112,7 +112,7 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 			
 		} catch (DLMSConnectionException e) {
 			e.printStackTrace();
-			throw new IOException(e);
+			throw new IOException(e.getMessage());
 		}
 	
 	}
@@ -131,7 +131,7 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 			
 		} catch (DLMSConnectionException e) {
 			e.printStackTrace();
-			throw new IOException(e);
+			throw new IOException(e.getMessage());
 		}
 	}
 
@@ -140,7 +140,7 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 			getDLMSConnection().disconnectMAC();
 		} catch (DLMSConnectionException e) {
 			e.printStackTrace();
-			throw new IOException(e);
+			throw new IOException(e.getMessage());
 		}
 	}
 
@@ -586,7 +586,7 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 				}
 			} catch (BusinessException e) {
 				e.printStackTrace();
-				throw new IOException(e);
+				throw new IOException(e.getMessage());
 			}
 			
 		}
@@ -646,7 +646,7 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 			}
 		} catch (BusinessException e) {
 			e.printStackTrace();
-			throw new IOException(e);
+			throw new IOException(e.getMessage());
 		}
 		
 		return MessageResult.createFailed(messageEntry);
