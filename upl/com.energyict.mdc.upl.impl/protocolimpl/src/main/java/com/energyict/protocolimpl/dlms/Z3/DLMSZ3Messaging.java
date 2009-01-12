@@ -29,6 +29,7 @@ import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Integer16;
@@ -201,8 +202,9 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 	// not supported
 	public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
 //		throw new UnsupportedException();
-		
-		return getCosemObjectFactory().getGenericRead(ObisCode.fromString(name), 2).getString();
+		return Long.toString(getCosemObjectFactory().getRegister(ObisCode.fromString(name)).getValue());
+//		getCosemObjectFactory().getData(ObisCode.fromString(name)).getString();
+//		return getCosemObjectFactory().getGenericRead(ObisCode.fromString(name), 2).getString();
 	}
 
 	public Date getTime() throws IOException {
@@ -252,7 +254,7 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 	public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
 //		throw new UnsupportedException();
 		String type = value.substring(0, value.indexOf(" "));
-		String dataStr = value.substring(value.indexOf(" "), value.length());
+		String dataStr = value.substring(value.indexOf(" ")+1, value.length());
 		
 		int typeInt = 0;
 		
@@ -657,17 +659,21 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 
 	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
 		// TODO Auto-generated method stub
+		String value = "";
+		if(obisCode.getC() == 96){
+			value = Long.toString(getCosemObjectFactory().getRegister(obisCode).getValue());
+		} else if(obisCode.getB() == 129){
+			value = Long.toString(getCosemObjectFactory().getData(obisCode).getValue());
+		}
 		
-		
-		RegisterValue rv = new RegisterValue(obisCode);
-		getRegister(obisCode.toString());
-//		getRegister("1.0.1.8.1.255");
+//		String value = getRegister(obisCode.toString());
+		RegisterValue rv = new RegisterValue(obisCode, value);
+//		getRegister("0.129.0.0.1.255");
 		
 		return rv;
 	}
 
 	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return new RegisterInfo("RegisterInfo");
 	}
 }
