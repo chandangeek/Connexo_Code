@@ -39,7 +39,17 @@ public interface Constant {
 	public final static ScalerUnit prepaidMultiplierScalerUnit = new ScalerUnit(1, Unit.get(BaseUnit.UNITLESS)); //Just unitless
 	
 	public final static ObisCode prepaidReadFrequencyObisCode = ObisCode.fromString("1.0.96.51.16.255"); 	
-	public final static ScalerUnit prepaidReadFrequencyScalerUnit = new ScalerUnit(1, Unit.get(BaseUnit.MINUTE)); //min
-		
-
+	public final static ScalerUnit prepaidReadFrequencyScalerUnit = new ScalerUnit(1, Unit.get(BaseUnit.MINUTE)); //minutes
+	
+	public final static ObisCode loadLimitStateObisCode = ObisCode.fromString("1.0.96.51.30.255");
+	
+	public final static ObisCode loadLimitReadFrequencyObisCode = ObisCode.fromString("1.0.96.51.31.255");
+	public final static ScalerUnit loadLimitReadFrequencyScalerUnit = new ScalerUnit(1, Unit.get(BaseUnit.MINUTE));	//minutes
+	
+	public final static ObisCode loadLimitThresholdObisCode = ObisCode.fromString("1.0.96.51.32.255");
+	public final static ScalerUnit loadLimitThresholdScalerUnit = new ScalerUnit(3, Unit.get(BaseUnit.WATT));	//kW
+	
+	public final static ObisCode loadLimitDurationObisCode = ObisCode.fromString("1.0.96.51.33.255");
+	public final static ScalerUnit loadLimitDurationScalerUnit = new ScalerUnit(1, Unit.get(BaseUnit.MINUTE)); 	// minutes
+	
 }

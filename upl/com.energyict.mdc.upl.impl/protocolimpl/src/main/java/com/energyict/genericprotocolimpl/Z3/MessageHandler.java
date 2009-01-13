@@ -21,6 +21,7 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.CONNECT_LOAD.equals(qName)){
 			setType(RtuMessageConstant.CONNECT_LOAD);
 			handleDisconnectAttributes(attrbs);
+			
 		} else if(RtuMessageConstant.PREPAID_CONFIGURED.equals(qName)){
 			setType(RtuMessageConstant.PREPAID_CONFIGURED);
 			handlePrepaidConfiguration(attrbs);
@@ -33,12 +34,16 @@ public class MessageHandler extends DefaultHandler{
 			setType(RtuMessageConstant.PREPAID_ENABLE);
 		} else if(RtuMessageConstant.PREPAID_READ.equals(qName)){
 			setType(RtuMessageConstant.PREPAID_READ);
+			
+		} else if(RtuMessageConstant.LOAD_LIMIT_CONFIGURE.equals(qName)){
+			setType(RtuMessageConstant.LOAD_LIMIT_CONFIGURE);
+			handleLoadLimitConfiguration(attrbs);
+		} else if(RtuMessageConstant.LOAD_LIMIT_ENABLE.equals(qName)){
+			setType(RtuMessageConstant.LOAD_LIMIT_ENABLE);
+		} else if(RtuMessageConstant.LOAD_LIMIT_DISALBE.equals(qName)){
+			setType(RtuMessageConstant.LOAD_LIMIT_DISALBE);
 		}
 		
-	}
-	
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		 
 	}
 	
 	private void setType(String type){
@@ -100,6 +105,34 @@ public class MessageHandler extends DefaultHandler{
 	
 	public String getMultiplier(int register){
 		return this.multiplier[register];
+	}
+	
+	/***************************************************************************************/
+	
+	
+	/**********************************************
+	 * LoadLimit related methods
+	 **********************************************/
+	private String llreadFrequency = "";
+	private String llThreshold = "";
+	private String llDuration = "";
+	
+	private void handleLoadLimitConfiguration(Attributes attrbs){
+		this.llreadFrequency = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_READ_FREQUENCY);
+		this.llThreshold = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_THRESHOLD);
+		this.llDuration = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_DISALBE);
+	}
+	
+	public String getLLReadFrequency(){
+		return this.llreadFrequency;
+	}
+	
+	public String getLLThreshold(){
+		return this.llThreshold;
+	}
+	
+	public String getLLDuration(){
+		return this.llDuration;
 	}
 	
 	/***************************************************************************************/

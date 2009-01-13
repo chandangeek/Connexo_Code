@@ -21,10 +21,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
@@ -34,10 +31,6 @@ import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Integer16;
 import com.energyict.dlms.axrdencoding.Integer32;
 import com.energyict.dlms.axrdencoding.Integer64;
@@ -50,7 +43,6 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.AXDRBoolean;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
@@ -64,14 +56,10 @@ import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
@@ -99,15 +87,11 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 	private int clientMacAddress;
 	private int serverLowerMacAddress;
 	private int serverUpperMacAddress;
-	private int requestTimeZone;
 	private int timeout;
 	private int forceDelay;
 	private int retries;
 	private int addressingMode;
-	private int extendedLogging;
 	private String password;
-	private String serialNumber;
-	
 	
 	private CosemObjectFactory 		cosemObjectFactory;
 	private CommunicationProfile 	commProfile;
@@ -130,10 +114,15 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 			if(commProfile.getSendRtuMessage()){
 				List messageEntries = rtu.getPendingMessages();
 				applyMessages(messageEntries);
-				//TODO
-//				queryMessage(messageEntries);
 			}
 			
+			if(commProfile.getReadDemandValues()){
+				log(Level.INFO, "Reading demand values is not supported.");
+			}
+			
+			if(commProfile.getReadMeterReadings()){
+				log(Level.INFO, "Reading meter readings is not supported.");
+			}
 			
 		} catch (IOException e){
 			e.printStackTrace();
@@ -234,19 +223,16 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
         }
         
         this.password = properties.getProperty(MeterProtocol.PASSWORD, "");
-        this.serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
         this.securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "0"));
         this.connectionMode = Integer.parseInt(properties.getProperty("ConnectionMode", "1"));
         this.clientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16"));
         this.serverLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "1"));
         this.serverUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "17"));
-        this.requestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0"));
         // if HDLC set default timeout to 10s, if TCPIP set default timeout to 60s
         this.timeout = Integer.parseInt(properties.getProperty("Timeout", (this.connectionMode==0)?"10000":"60000"));
         this.forceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "100"));
         this.retries = Integer.parseInt(properties.getProperty("Retries", "3"));
         this.addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "2"));
-        this.extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
 	}
 
 	// not supported
@@ -402,7 +388,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
         msgSpec = addConnectControlMsg("Connect", RtuMessageConstant.CONNECT_LOAD, false);
         catConnectControl.addMessageSpec(msgSpec);
         
-        // Load Limiting releated messages
+        // Load Limiting related messages
         msgSpec = addNoValueMsg("Enable load limiting", RtuMessageConstant.LOAD_LIMIT_ENABLE, false);
         catLoadLimit.addMessageSpec(msgSpec);
         msgSpec = addNoValueMsg("Disable load limiting", RtuMessageConstant.LOAD_LIMIT_DISALBE, false);
@@ -529,8 +515,6 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 	}
 
 	public void applyMessages(List rtuMessages) throws IOException, BusinessException, SQLException {
-		// TODO Auto-generated method stub
-		
 		MessageHandler messageHandler = new MessageHandler();
 		
 		Iterator it = rtuMessages.iterator();
@@ -549,6 +533,9 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 				boolean prepaidEnable			= messageHandler.getType().equals(RtuMessageConstant.PREPAID_ENABLE);
 				boolean prepaidDisable			= messageHandler.getType().equals(RtuMessageConstant.PREPAID_DISABLE);
 				boolean prepaidRead				= messageHandler.getType().equals(RtuMessageConstant.PREPAID_READ);
+				boolean loadLimitConfiguration	= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_CONFIGURE);
+				boolean loadLimitEnable			= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_ENABLE);
+				boolean loadLimitDisable		= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_DISALBE);
 				
 				success = false;
 				
@@ -603,65 +590,21 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 					// TODO TEST THIS 
 					
 					// The Budget register
-					try {
-						Structure structBudget = new Structure();
-						structBudget.addDataType(OctetString.fromString(prepaidSetBudgetObisCode.toString()));	// do not know if this is necessary
-						structBudget.addDataType(new Integer32(Integer.parseInt(messageHandler.getBudget())));
-						structBudget.addDataType(new Integer8(prepaidBudgetScalerUnit.getScaler()));
-						structBudget.addDataType(new TypeEnum(prepaidBudgetScalerUnit.getUnit().getDlmsCode()));
-						getCosemObjectFactory().getGenericWrite(prepaidSetBudgetObisCode, 0).write(structBudget.getBEREncodedByteArray());
-					} catch (NumberFormatException e) {
-						e.printStackTrace();
-						rm.setFailed();
-						log(Level.INFO, "RtuMessage " + rm + " has a non numeric budget value.");
-					}
-					
+					writeRegisterStructure(rm, prepaidSetBudgetObisCode, prepaidBudgetScalerUnit, messageHandler.getBudget());
 					
 					// The Threshold register
-					try {
-						Structure structThreshold = new Structure();
-						structThreshold.addDataType(OctetString.fromString(prepaidThresholdObisCode.toString()));
-						structThreshold.addDataType(new Integer32(Integer.parseInt(messageHandler.getThreshold())));
-						structThreshold.addDataType(new Integer8(prepaidThresholdScalerUnit.getScaler()));
-						structThreshold.addDataType(new TypeEnum(prepaidThresholdScalerUnit.getUnit().getDlmsCode()));
-						getCosemObjectFactory().getGenericWrite(prepaidThresholdObisCode, 0).write(structThreshold.getBEREncodedByteArray());
-					} catch (NumberFormatException e) {
-						e.printStackTrace();
-						rm.setFailed();
-						log(Level.INFO, "RtuMessage " + rm + " has a non numeric threshold value.");
-					}
+					writeRegisterStructure(rm, prepaidThresholdObisCode, prepaidThresholdScalerUnit, messageHandler.getThreshold());
 					
 					// The ReadFrequency register
-					try {
-						Structure structReadFreq = new Structure();
-						structReadFreq.addDataType(OctetString.fromString(prepaidReadFrequencyObisCode.toString()));
-						structReadFreq.addDataType(new Integer32(Integer.parseInt(messageHandler.getReadFrequency())));
-						structReadFreq.addDataType(new Integer8(prepaidReadFrequencyScalerUnit.getScaler()));
-						structReadFreq.addDataType(new TypeEnum(prepaidReadFrequencyScalerUnit.getUnit().getDlmsCode()));
-						getCosemObjectFactory().getGenericWrite(prepaidReadFrequencyObisCode, 0).write(structReadFreq.getBEREncodedByteArray());
-					} catch (NumberFormatException e) {
-						e.printStackTrace();
-						rm.setFailed();
-						log(Level.INFO, "RtuMessage " + rm + " has a non numeric readFrequency value.");
-					}
+					writeRegisterStructure(rm, prepaidReadFrequencyObisCode, prepaidReadFrequencyScalerUnit, messageHandler.getReadFrequency());
+					
 					
 					// The Multiplier registers
-					Structure structMultiplier[] = new Structure[8];
 					for(int i = 0; i < 8; i++){
-						try {
-							structMultiplier[i].addDataType(OctetString.fromString(prepaidMultiplierObisCode[i].toString()));
-							structMultiplier[i].addDataType(new Integer32(Integer.parseInt(messageHandler.getMultiplier(i))));
-							structMultiplier[i].addDataType(new Integer8(prepaidMultiplierScalerUnit.getScaler()));
-							structMultiplier[i].addDataType(new TypeEnum(prepaidMultiplierScalerUnit.getUnit().getDlmsCode()));
-							getCosemObjectFactory().getGenericWrite(prepaidMultiplierObisCode[i], 0).write(structMultiplier[i].getBEREncodedByteArray());
-						} catch (NumberFormatException e) {
-							e.printStackTrace();
-							rm.setFailed();
-							log(Level.INFO, "RtuMessage " + rm + " has a non numeric multiplier[" + i + "] value.");
-						}
+						writeRegisterStructure(rm, prepaidMultiplierObisCode[i], prepaidMultiplierScalerUnit, messageHandler.getMultiplier(i));
 					}
 					
-					// TODO enable the prepaid functionality
+					// Enabling the prepaid configuration
 					getCosemObjectFactory().getGenericWrite(prepaidStateObisCode, 2).write(AXDRBoolean.encode(true).getBEREncodedByteArray());
 					
 					success = true;
@@ -672,21 +615,11 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 					 * Note: after the configuration setting we also enable the prepaid configuration!
 					 */
 					
-					// TODO complete the message
-					try {
-						Structure structAdd = new Structure();
-						structAdd.addDataType(OctetString.fromString(prepaidAddBudgetObisCode.toString()));	// do not know if this is necessary
-						structAdd.addDataType(new Integer32(Integer.parseInt(messageHandler.getBudget())));
-						structAdd.addDataType(new Integer8(prepaidBudgetScalerUnit.getScaler()));
-						structAdd.addDataType(new TypeEnum(prepaidBudgetScalerUnit.getUnit().getDlmsCode()));
-						getCosemObjectFactory().getGenericWrite(prepaidAddBudgetObisCode, 0).write(structAdd.getBEREncodedByteArray());
-					} catch (NumberFormatException e) {
-						e.printStackTrace();
-						rm.setFailed();
-						log(Level.INFO, "RtuMessage " + rm + " has a non numeric budget value.");
-					}
+					// TODO TEST THIS
+					writeRegisterStructure(rm, prepaidAddBudgetObisCode, prepaidBudgetScalerUnit, messageHandler.getBudget());
+
 					
-					// TODO enable the prepaid functionality
+					// Enabling the prepaid configuration					
 					getCosemObjectFactory().getGenericWrite(prepaidStateObisCode, 2).write(AXDRBoolean.encode(true).getBEREncodedByteArray());
 					
 					success = true;
@@ -726,11 +659,44 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 						throw new IOException("Could not store the budget register." + e.getMessage());
 					}
 					
+				} else if(loadLimitConfiguration){
+				
+					/**
+					 * Note: after the configuration setting we also enable the prepaid configuration!
+					 */
+					
+					// TODO TEST THIS
+					
+					// The Threshold register
+					writeRegisterStructure(rm, loadLimitThresholdObisCode, loadLimitThresholdScalerUnit, messageHandler.getLLThreshold());
+					
+					// The ReadFrequency register
+					writeRegisterStructure(rm, loadLimitReadFrequencyObisCode, loadLimitReadFrequencyScalerUnit, messageHandler.getLLReadFrequency());
+					
+					// The Duration register
+					writeRegisterStructure(rm, loadLimitDurationObisCode, loadLimitDurationScalerUnit, messageHandler.getLLDuration());
+
+					
+					// Enabling the loadLimit configuration					
+					getCosemObjectFactory().getGenericWrite(loadLimitStateObisCode, 2).write(AXDRBoolean.encode(true).getBEREncodedByteArray());
+					
+					success = true;
+					
+				} else if(loadLimitEnable){
+				
+					// TODO TEST THIS
+					getCosemObjectFactory().getGenericWrite(loadLimitStateObisCode, 2).write(AXDRBoolean.encode(true).getBEREncodedByteArray());
+					success = true;
+					
+				} else if(loadLimitDisable){
+					
+					// TODO TEST THIS
+					getCosemObjectFactory().getGenericWrite(loadLimitStateObisCode, 2).write(AXDRBoolean.encode(false).getBEREncodedByteArray());
+					success = true;
+					
 				} else {
 					success = false;
 				}
-				
-//				success = true;
 				
 			} catch (BusinessException e) {
 				e.printStackTrace();
@@ -739,6 +705,9 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 				e.printStackTrace();
 				log(Level.INFO, "Message " + rm.displayString() + " hase failed. " + e.getMessage());
 			} catch (IOException e){
+				e.printStackTrace();
+				log(Level.INFO, "Message " + rm.displayString() + " hase failed. " + e.getMessage());
+			} catch (NumberFormatException e){
 				e.printStackTrace();
 				log(Level.INFO, "Message " + rm.displayString() + " hase failed. " + e.getMessage());
 			} finally {
@@ -751,64 +720,20 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 		}
 	}
 	
-	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-		
-		/**
-		 * TODO check if we can just set the messages to true, or that we have to check if the value is indeed sent to the meter
-		 */
-		
+	private void writeRegisterStructure(RtuMessage rm, ObisCode oc, ScalerUnit su, String value) throws IOException, BusinessException, SQLException{
 		try {
-			MessageHandler messageHandler = new MessageHandler();
-			String content = messageEntry.getContent();
-			importMessage(content, messageHandler);
-			
-			boolean disConnect 	= messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
-			boolean connect 	= messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
-			
-			if(disConnect){
-				String digOut = messageHandler.getResult();
-				if(!digOut.equals("1") && !digOut.equals("2")){
-					
-					String error = "Disconnect message does not contain a valid digital output.";
-					MessageResult.createFailed(messageEntry);
-					throw new IOException(error);
-					
-				} else {
-					
-					boolean axdrBoolean = (getCosemObjectFactory().getGenericRead(digitalOutputObisCode[Integer.parseInt(digOut) - 1], 2).getResponseData()[1] == 1)?true:false;
-					if(axdrBoolean == false){
-						MessageResult.createSuccess(messageEntry);
-					} else {
-						MessageResult.createFailed(messageEntry);
-					}
-					
-				}
-					
-			} else if(connect){
-				String digOut = messageHandler.getResult();
-				if(!digOut.equals("1") && !digOut.equals("2")){
-					
-					String error = "Connect message does not contain a valid digital output.";
-					MessageResult.createFailed(messageEntry);
-					throw new IOException(error);
-					
-				} else {
-					
-					boolean axdrBoolean = (getCosemObjectFactory().getGenericRead(digitalOutputObisCode[Integer.parseInt(digOut) - 1], 2).getResponseData()[1] == 1)?true:false;
-					if(axdrBoolean == true){
-						MessageResult.createSuccess(messageEntry);
-					} else {
-						MessageResult.createFailed(messageEntry);
-					}
-				}				
-			}
-		} catch (BusinessException e) {
+			Structure struct = new Structure();
+			struct.addDataType(OctetString.fromString(oc.toString()));	// do not know if this is necessary
+			struct.addDataType(new Integer32(Integer.parseInt(value)));
+			struct.addDataType(new Integer8(su.getScaler()));
+			struct.addDataType(new TypeEnum(su.getUnit().getDlmsCode()));
+			getCosemObjectFactory().getGenericWrite(oc, 0).write(struct.getBEREncodedByteArray());
+		} catch (NumberFormatException e) {
 			e.printStackTrace();
-			throw new IOException(e.getMessage());
+//			rm.setFailed();
+			log(Level.INFO, "RtuMessage " + rm + " has a non numeric value.");
+			throw new NumberFormatException(e.getMessage());
 		}
-		
-		return MessageResult.createFailed(messageEntry);
-		
 	}
 	
 	private void importMessage(String message, DefaultHandler handler) throws BusinessException{
