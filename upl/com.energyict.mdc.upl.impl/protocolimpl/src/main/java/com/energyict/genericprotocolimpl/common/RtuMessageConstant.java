@@ -49,21 +49,21 @@ public class RtuMessageConstant {
     public final static String FIRMWARE_METERS = "GroupID of meters to receive new firmware";
     
     /** RtuMessage tag for prepaid functionality */
-    public final static String PREPAID_CONFIGURED = "Configure Prepaid functionality";
-    public final static String PREPAID_ADD = "Add Prepaid credit";
-    public final static String PREPAID_READ = "Read Prepaid credit";
-    public final static String PREPAID_ENABLE = "Enable Prepaid functionality";
-    public final static String PREPAID_DISABLE = "Disable Prepaid functionality";
-    public final static String PREPAID_BUDGET = "Budget(kWh)";
-    public final static String PREPAID_THRESHOLD = "Threshold(kWh)";
+    public final static String PREPAID_CONFIGURED = "Configure_Prepaid_functionality";
+    public final static String PREPAID_ADD = "Add_Prepaid_credit";
+    public final static String PREPAID_READ = "Read_Prepaid_credit";
+    public final static String PREPAID_ENABLE = "Enable_Prepaid_functionality";
+    public final static String PREPAID_DISABLE = "Disable_Prepaid_functionality";
+    public final static String PREPAID_BUDGET = "Budget";
+    public final static String PREPAID_THRESHOLD = "Threshold";
     public final static String PREPAID_MULTIPLIER = "Multiplier_tariff_";
     public final static String PREPAID_READ_FREQUENCY = "Read_frequency";
     
     
     /** RtuMessage tags for load limiting */
-	public static final String LOAD_LIMIT_ENABLE = "Enable load limiting";
-	public static final String LOAD_LIMIT_DISALBE = "Disable load limitng";
-	public static final String LOAD_LIMIT_CONFIGURE = "Configure load limiting";
+	public static final String LOAD_LIMIT_ENABLE = "Enable_load_limiting";
+	public static final String LOAD_LIMIT_DISALBE = "Disable_load_limitng";
+	public static final String LOAD_LIMIT_CONFIGURE = "Configure_load_limiting";
 	public static final String LOAD_LIMIT_READ_FREQUENCY = "Read_frequency";
 	public static final String LOAD_LIMIT_THRESHOLD = "Threshold";
 	public static final String LOAD_LIMIT_DURATION = "Duration";
