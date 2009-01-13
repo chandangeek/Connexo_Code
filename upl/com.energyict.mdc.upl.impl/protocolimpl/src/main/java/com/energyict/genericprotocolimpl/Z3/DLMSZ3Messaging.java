@@ -695,27 +695,31 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 					
 					try {
 						// Read the complete register (value and scalerUnit)
-						DataContainer dc = getCosemObjectFactory().getGenericRead(prepaidSetBudgetObisCode, 0).getDataContainer();
-						if(dc.getRoot().getElements().length > 0){
-							for(int i = 0; i < dc.getRoot().getElements().length; i++){
-								if(dc.getRoot().getStructure(i).getOctetString(0).toString().equals(prepaidSetBudgetObisCode.toString())){
-									RtuRegister rr = getMeter().getRegister(prepaidSetBudgetObisCode);
-									if(rr != null){
-										Register register = getCosemObjectFactory().getRegister(prepaidSetBudgetObisCode);
-										RegisterValue rv = new RegisterValue(prepaidSetBudgetObisCode, ParseUtils.registerToQuantity(register));
-										MeterReadingData mrd = new MeterReadingData();
-										mrd.add(rv);
-										getMeter().store(mrd);
-									} else {
-										throw new IOException("No RtuRegister with the prepaidBudgetObisCode (" + prepaidSetBudgetObisCode + ")");
+						RtuRegister rr = getMeter().getRegister(prepaidSetBudgetObisCode);
+						if(rr != null){
+							
+							DataContainer dc = getCosemObjectFactory().getGenericRead(prepaidSetBudgetObisCode, 0).getDataContainer();
+							if(dc.getRoot().getElements().length > 0){
+								for(int i = 0; i < dc.getRoot().getElements().length; i++){
+									if(dc.getRoot().getStructure(i).getOctetString(0).toString().equals(prepaidSetBudgetObisCode.toString())){
+
+											Register register = getCosemObjectFactory().getRegister(prepaidSetBudgetObisCode);
+											RegisterValue rv = new RegisterValue(prepaidSetBudgetObisCode, ParseUtils.registerToQuantity(register));
+											MeterReadingData mrd = new MeterReadingData();
+											mrd.add(rv);
+											getMeter().store(mrd);
+
 									}
 								}
+							} else {
+								throw new IOException("Could not read the budget registers.");
 							}
+							
+							success = true;
+							
 						} else {
-							throw new IOException("Could not read the budget registers.");
+							throw new IOException("No RtuRegister with the prepaidBudgetObisCode (" + prepaidSetBudgetObisCode + ")");
 						}
-						
-						success = true;
 						
 					} catch (SQLException e) {
 						e.printStackTrace();
