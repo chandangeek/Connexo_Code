@@ -4,7 +4,7 @@
  * Created on 13-jan-2009, 10:02:05 by jme
  * 
  */
-package com.energyict.genericprotocolimpl.edmi.mk10;
+package com.energyict.genericprotocolimpl.edmi.mk10.parsers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

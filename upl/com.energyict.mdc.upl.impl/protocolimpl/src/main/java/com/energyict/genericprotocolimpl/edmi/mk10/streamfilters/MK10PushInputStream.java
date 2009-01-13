@@ -1,10 +1,11 @@
-package com.energyict.genericprotocolimpl.edmi.mk10;
+package com.energyict.genericprotocolimpl.edmi.mk10.streamfilters;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.energyict.genericprotocolimpl.edmi.mk10.parsers.MK10InputStreamParser;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.tools.InputStreamDecorator;
 
