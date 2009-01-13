@@ -83,6 +83,10 @@ public class MK10Push implements GenericProtocol {
 		return logger;
 	}
 
+	private Link getLink() {
+		return link;
+	}
+	
 	private long getConnectTime() {
 		return connectTime;
 	}
@@ -94,11 +98,7 @@ public class MK10Push implements GenericProtocol {
 	private void setDisconnectTime(long disconnectTime) {
 		this.disconnectTime = disconnectTime;
 	}
-	
-	private Link getLink() {
-		return link;
-	}
-	
+		
 	private InputStream getInputStream() {
 		return inputStream;
 	}
@@ -114,11 +114,7 @@ public class MK10Push implements GenericProtocol {
 	private MK10PushOutputStream getMk10PushOutputStream() {
 		return mk10PushOutputStream;
 	}
-	
-	private CommunicationScheduler getScheduler() {
-		return scheduler;
-	}
-	
+		
 	private MK10 getMk10Protocol() {
 		return mk10Protocol;
 	}
@@ -204,38 +200,6 @@ public class MK10Push implements GenericProtocol {
 		getProperties().put(MeterProtocol.NODEID, getMeter().getNodeAddress());
 		getProperties().put(MeterProtocol.SERIALNUMBER, getMeter().getSerialNumber());
 		
-//      	  setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.NODEID,"1"));
-//            setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","10000").trim()));
-//            setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty("Retries","5").trim()));
-//            roundtripCorrection=Integer.parseInt(properties.getProperty("RoundtripCorrection","0").trim());
-//            securityLevel=Integer.parseInt(properties.getProperty("SecurityLevel","1").trim());
-
-//            echoCancelling=Integer.parseInt(properties.getProperty("EchoCancelling","0").trim());
-//            protocolCompatible=Integer.parseInt(properties.getProperty("ProtocolCompatible","1").trim());
-//            extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0").trim());
-//            channelMap = properties.getProperty("ChannelMap");
-//            if (channelMap != null) 
-//               protocolChannelMap = new ProtocolChannelMap(channelMap);
-//            profileInterval=Integer.parseInt(properties.getProperty("ProfileInterval","900").trim());
-//            requestHeader = Integer.parseInt(properties.getProperty("RequestHeader","0").trim());
-//            scaler = Integer.parseInt(properties.getProperty("Scaler","0").trim());
-//            setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","300").trim()));
-//            halfDuplex=Integer.parseInt(properties.getProperty("HalfDuplex","0").trim());
-//            setDtrBehaviour(Integer.parseInt(properties.getProperty("DTRBehaviour","2").trim()));
-//            
-//            adjustChannelMultiplier = new BigDecimal(properties.getProperty("AdjustChannelMultiplier","1").trim());
-//            adjustRegisterMultiplier = new BigDecimal(properties.getProperty("AdjustRegisterMultiplier","1").trim());
-//            
-//            sendDebug("doValidateProperties()");
-//            validateLoadSurveyNumber(properties.getProperty("LoadSurveyNumber"));
-//            setLoadSurveyNumber(Integer.parseInt(properties.getProperty("LoadSurveyNumber").trim())-1);
-//            setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
-//
-//            
-//            doValidateProperties(properties);
-//        }
-		
-		properties.list(System.out);
 		getMk10Protocol().setPushProtocol(true);
 		getMk10Protocol().setProperties(getProperties());
 		getMk10Protocol().init(getMk10PushInputStream(), getMk10PushOutputStream(), getTimezone(), getLogger());
@@ -251,8 +215,8 @@ public class MK10Push implements GenericProtocol {
 		this.link = link;
 		this.logger = logger;
 
-		this.inputStream = link.getInputStream();
-		this.outputStream = link.getOutputStream();
+		this.inputStream = getLink().getInputStream();
+		this.outputStream = getLink().getOutputStream();
 		this.mk10PushInputStream = new MK10PushInputStream(getInputStream());
 		this.mk10PushOutputStream = new MK10PushOutputStream(getOutputStream());
 		
@@ -330,8 +294,6 @@ public class MK10Push implements GenericProtocol {
 		//TODO aanpassen
 	}
 	
-	
-	
 	/*
 	 * Private debugging methods
 	 */
@@ -365,10 +327,7 @@ public class MK10Push implements GenericProtocol {
 			while (in.available() > 0) {
 				System.out.println("** in.read() = " + in.read() + " **");
 			}
-			
-//			System.out.println("** inFile.available() = " + inFile.available() + " **");
-//			System.out.println("** in.available()     = " + in.available() + " **");
-			
+						
             byte[] tempBuffer = new byte[] {
             		(byte)0x8F, (byte)0x50, (byte)0xFF, (byte)0xE0, 
             		(byte)0x0C, (byte)0x4C, (byte)0x61, (byte)0xD3, 
