@@ -128,6 +128,10 @@ public class DLMSConfig {
     		new DLMSConfig("WKP",7,0,3,24,3,0,255),
     		new DLMSConfig("WKP",7,0,4,24,3,0,255)
     };
+    
+    final static private DLMSConfig[] xmlConfig = {
+    		new DLMSConfig("WKP",1,0,129,0,0,0,255)
+    };
      
     final static private DLMSConfig[] meterReading = {
             new DLMSConfig("LGZ",3,1,1,1,8,0,255),
@@ -696,7 +700,20 @@ public class DLMSConfig {
 				}
 			}
 		}
-		throw new IOException("DLMSConfig, getMbusSerialNumber, not found in objectlist (IOL)");
+		throw new IOException("DLMSConfig, getMbusProfile, not found in objectlist (IOL)");
+	}
+	
+	public UniversalObject getXMLConfig(UniversalObject[] objectList, String manuf) throws IOException {
+    	if (objectList == null) throw new IOException("DLMSConfig, getXMLConfig, objectlist empty!");
+    	for(int t = 0; t < xmlConfig.length; t++){
+			if((manuf != null) && (xmlConfig[t].getManuf().compareTo(manuf) != 0)) continue;
+			for(int i = 0; i < objectList.length; i++){
+				if(objectList[i].equals(xmlConfig[t])){
+					return objectList[i];
+				}
+			}
+		}
+		throw new IOException("DLMSConfig, getXMLConfig, not found in objectlist (IOL)");
 	}
     
     /*

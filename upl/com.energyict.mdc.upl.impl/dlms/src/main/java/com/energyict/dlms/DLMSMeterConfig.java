@@ -262,4 +262,9 @@ public class DLMSMeterConfig {
 	public UniversalObject getMbusProfile(int physicalAddress) throws IOException {
 		return config.getMbusProfile(IOL, manuf, physicalAddress);
 	}
+
+	public UniversalObject getXMLConfig() throws IOException {
+	       return config.getXMLConfig(IOL,manuf);    
+	}
+	
 }
