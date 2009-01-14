@@ -59,7 +59,6 @@ public class RtuMessageConstant {
     public final static String PREPAID_MULTIPLIER = "Multiplier_tariff_";
     public final static String PREPAID_READ_FREQUENCY = "Read_frequency";
     
-    
     /** RtuMessage tags for load limiting */
 	public static final String LOAD_LIMIT_ENABLE = "Enable_load_limiting";
 	public static final String LOAD_LIMIT_DISALBE = "Disable_load_limitng";
@@ -67,5 +66,8 @@ public class RtuMessageConstant {
 	public static final String LOAD_LIMIT_READ_FREQUENCY = "Read_frequency";
 	public static final String LOAD_LIMIT_THRESHOLD = "Threshold";
 	public static final String LOAD_LIMIT_DURATION = "Duration";
+	
+	/** RtuMessage tags for XMLConfig */
+	public static final String XMLCONFIG = "XMLConfig";
     
 }
