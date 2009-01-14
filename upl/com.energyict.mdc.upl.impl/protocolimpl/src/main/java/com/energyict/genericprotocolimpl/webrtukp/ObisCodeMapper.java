@@ -34,12 +34,13 @@ public class ObisCodeMapper {
 //        else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 		
     	//Electricity related ObisRegisters
-    	if ((obisCode.getA() == 1) && ((obisCode.getB() == 0) || (obisCode.getB() <= 4))){
+    	if ((obisCode.getA() == 1) && ((obisCode.getB() == 0) || (obisCode.getB() == 128)) && (obisCode.getC() >=1) && (obisCode.getC() <= 2) 
+    			&& (obisCode.getD() == 8) && (obisCode.getE() >=0) && (obisCode.getE() <=4) && (obisCode.getF() == 255)){
     		// cumulative values, indexes
-    		if ((obisCode.getD() == 8) && ((obisCode.getC() == 1) || (obisCode.getC() == 2))) {
+//    		if ((obisCode.getD() == 8) && ((obisCode.getC() == 1) || (obisCode.getC() == 2))) {
     			Register register = cof.getRegister(obisCode);
     			return new RegisterValue(obisCode, ParseUtils.registerToQuantity(register));
-    		}
+//    		}
     	}
 		return rv;
 	}

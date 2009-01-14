@@ -1,5 +1,6 @@
 package com.energyict.genericprotocolimpl.webrtukp;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,6 +15,13 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
@@ -34,6 +42,7 @@ import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.GenericCache;
+import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.ElectricityProfile;
 import com.energyict.mdw.amr.GenericProtocol;
@@ -51,8 +60,14 @@ import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.HDLCConnection;
 
@@ -130,7 +145,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			init(link.getInputStream(), link.getOutputStream());
 			connect();
 			
-//			readFromMeter("0.1.24.1.0.255");
+//			readFromMeter("1.0.1.7.0.255");
 			
 //			hasMBusMeters();
 //			handleMbusMeters();
@@ -164,7 +179,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			}
 			
 			if(this.commProfile.getSendRtuMessage()){
-				// TODO send the meter messages
 				sendMeterMessages();
 			}
 			
@@ -187,7 +201,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			
 			throw new BusinessException(e);
 		} finally{
-			prepareForCacheSaving();
+//			prepareForCacheSaving();
 			GenericCache.stopCacheMechanism(getMeter(), dlmsCache);
 			Environment.getDefault().execute(getStoreObject());
 			if(success){
@@ -241,6 +255,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			}
 			
 			// do some checks to know you are connected to the correct meter
+			//TODO set it back to uncomment!
 			verifyMeterSerialNumber();
 			log(Level.INFO, "FirmwareVersion: " + getFirmWareVersion());
 			
@@ -513,16 +528,16 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	protected void setCachedObjects(){
 		//TODO complete the method
 		getMeterConfig().setInstantiatedObjectList(this.dlmsCache.getObjectList());
-		this.genericProfiles = this.dlmsCache.getGenericProfiles();
+//		this.genericProfiles = this.dlmsCache.getGenericProfiles();
 	}
 	
-	/**
-	 * Set variable objects in the cached object
-	 */
-	private void prepareForCacheSaving(){
-		//TODO complete the method if there are other objects to save
-		this.dlmsCache.setGenericProfiles(this.genericProfiles);
-	}
+//	/**
+//	 * Set variable objects in the cached object
+//	 */
+//	private void prepareForCacheSaving(){
+//		//TODO complete the method if there are other objects to save
+//		this.dlmsCache.setGenericProfiles(this.genericProfiles);
+//	}
 	
 	/**
 	 * Read the number of configuration changes in the meter
@@ -797,30 +812,154 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	
 	/**
 	 * Messages
+	 * @throws SQLException 
+	 * @throws BusinessException 
 	 */
-	private void sendMeterMessages() {
-		// TODO Auto-generated method stub
+	private void sendMeterMessages() throws BusinessException, SQLException {
+
+		MessageHandler messageHandler = new MessageHandler();
+		
 		Iterator<RtuMessage> it = getMeter().getPendingMessages().iterator();
+		RtuMessage rm = null;
+		boolean success = false;
+		while(it.hasNext()){
+			
+			try {
+				rm = (RtuMessage)it.next();
+				String content = rm.getContents();
+				importMessage(content, messageHandler);
+				
+				boolean xmlConfig		= messageHandler.getType().equals(RtuMessageConstant.XMLCONFIG);
+				
+				if(xmlConfig){
+					
+					//TODO TEST THIS
+					String xmlConfigStr = getMessageValue(content, RtuMessageConstant.XMLCONFIG);
+					
+					getCosemObjectFactory().getData(getMeterConfig().getXMLConfig().getObisCode()).setValueAttr(com.energyict.dlms.axrdencoding.OctetString.fromString(xmlConfigStr));
+					
+					success = true;
+					
+				} else {
+					success = false;
+				}
+				
+			} catch (BusinessException e) {
+				e.printStackTrace();
+				log(Level.INFO, "Message " + rm.displayString() + " hase failed. " + e.getMessage());
+			} catch (IOException e) {
+				e.printStackTrace();
+				log(Level.INFO, "Message " + rm.displayString() + " hase failed. " + e.getMessage());
+			} finally {
+				if(success){
+					rm.confirm();
+				} else {
+					rm.setFailed();
+				}
+			}
+			
+		}
+	}
+	
+	private String getMessageValue(String msgStr, String str) {
+		try {
+			return msgStr.substring(msgStr.indexOf(str + ">") + str.length()
+					+ 1, msgStr.indexOf("</" + str));
+		} catch (Exception e) {
+			return "";
+		}
+	}
+	
+	private void importMessage(String message, DefaultHandler handler) throws BusinessException{
+        try {
+            
+            byte[] bai = message.getBytes();
+            InputStream i = (InputStream) new ByteArrayInputStream(bai);
+            
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
+            saxParser.parse(i, handler);
+            
+        } catch (ParserConfigurationException thrown) {
+            thrown.printStackTrace();
+            throw new BusinessException(thrown);
+        } catch (SAXException thrown) {
+            thrown.printStackTrace();
+            throw new BusinessException(thrown);
+        } catch (IOException thrown) {
+            thrown.printStackTrace();
+            throw new BusinessException(thrown);
+        }
 	}
 
 	public List getMessageCategories() {
-		// TODO Auto-generated method stub
-		return null;
+		List categories = new ArrayList();
+		MessageCategorySpec catXMLConfig = new MessageCategorySpec("XMLConfig");
+		
+		// XMLConfig releated messages
+		MessageSpec msgSpec = addDefaultValueMsg("XMLConfig", RtuMessageConstant.XMLCONFIG, false);
+		catXMLConfig.addMessageSpec(msgSpec);
+		
+		categories.add(catXMLConfig);
+		return categories;
+	}
+
+	private MessageSpec addDefaultValueMsg(String keyId, String tagName, boolean advanced){
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        tagSpec.add(msgVal);
+        msgSpec.add(tagSpec);
+        return msgSpec;
 	}
 
 	public String writeMessage(Message msg) {
-		// TODO Auto-generated method stub
-		return null;
+		return msg.write(this);
 	}
 
-	public String writeTag(MessageTag tag) {
-		// TODO Auto-generated method stub
-		return null;
+	public String writeTag(MessageTag msgTag) {
+        StringBuffer buf = new StringBuffer();
+        
+        // a. Opening tag
+        buf.append("<");
+        buf.append(msgTag.getName());
+        
+        // b. Attributes
+        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
+            MessageAttribute att = (MessageAttribute) it.next();
+            if (att.getValue() == null || att.getValue().length() == 0)
+                continue;
+            buf.append(" ").append(att.getSpec().getName());
+            buf.append("=").append('"').append(att.getValue()).append('"');
+        }
+        if (msgTag.getSubElements().isEmpty()) {
+            buf.append("/>");
+            return buf.toString();
+        }
+        buf.append(">");
+        // c. sub elements
+        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
+            MessageElement elt = (MessageElement) it.next();
+            if (elt.isTag())
+                buf.append(writeTag((MessageTag) elt));
+            else if (elt.isValue()) {
+                String value = writeValue((MessageValue) elt);
+                if (value == null || value.length() == 0)
+                    return "";
+                buf.append(value);
+            }
+        }
+        
+        // d. Closing tag
+        buf.append("</");
+        buf.append(msgTag.getName());
+        buf.append(">");
+        
+        return buf.toString();
 	}
 
-	public String writeValue(MessageValue value) {
-		// TODO Auto-generated method stub
-		return null;
+	public String writeValue(MessageValue msgValue) {
+		return msgValue.getValue();
 	}
 	
 }

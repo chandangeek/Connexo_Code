@@ -54,7 +54,6 @@ public class ElectricityProfile {
 		try {
 			genericProfile = getCosemObjectFactory().getProfileGeneric(electricityProfile);
 			List<ChannelInfo> channelInfos = getChannelInfos(genericProfile);
-			//TODO
 			verifyProfileInterval(genericProfile, channelInfos);
 			
 			profileData.setChannelInfos(channelInfos);
@@ -133,7 +132,7 @@ public class ElectricityProfile {
 		try{
 			for(int i = 0; i < profile.getCaptureObjects().size(); i++){
 				
-				if(ParseUtils.isElectricityObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode()) 
+				if(isKampstrupElectricityObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode()) 
 						&& !isProfileStatusObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){ // make a channel out of it
 					CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
 					ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
@@ -167,7 +166,8 @@ public class ElectricityProfile {
 	 */
 	private ScalerUnit getMeterDemandRegisterScalerUnit(ObisCode oc) throws IOException{
 		try {
-			return getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
+			return getCosemObjectFactory().getRegister(oc).getScalerUnit();
+//			return getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not get the scalerunit from object '" + oc + "'.");
@@ -193,14 +193,11 @@ public class ElectricityProfile {
 	
 	private void buildProfileData(DataContainer dc, ProfileData pd, ProfileGeneric pg) throws IOException{
 		
-		//TODO check how this reacts with the profile.
 		
 		Calendar cal = null;
 		IntervalData currentInterval = null;
 		int profileStatus = 0;
 		if(dc.getRoot().getElements().length != 0){
-//			throw new IOException("No entries in loadprofile datacontainer.");
-//		}
 		
 			for(int i = 0; i < dc.getRoot().getElements().length; i++){
 				
@@ -270,7 +267,7 @@ public class ElectricityProfile {
 		
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
-				if(ParseUtils.isElectricityObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())
+				if(isKampstrupElectricityObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())
 						&& !isProfileStatusObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
 					id.addValue(new Integer(ds.getInteger(i)));
 				}
@@ -281,6 +278,11 @@ public class ElectricityProfile {
 		}
 		
 		return id;
+	}
+	
+	private boolean isKampstrupElectricityObisCode(ObisCode obisCode){
+		if ((obisCode.getA() == 1) && (((obisCode.getB() >= 0) && (obisCode.getB() <= 64)) || (obisCode.getB() == 128)) ) return true;
+        else return false;
 	}
 	
 	private int getProfileStatusChannelIndex(ProfileGeneric pg) throws IOException{
