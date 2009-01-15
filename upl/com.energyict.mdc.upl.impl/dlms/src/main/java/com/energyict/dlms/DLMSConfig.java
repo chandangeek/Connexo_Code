@@ -55,6 +55,7 @@ public class DLMSConfig {
     
     final static private DLMSConfig[] status = {
     		new DLMSConfig("WKP",1,0,0,96,10,1,255),
+//    		new DLMSConfig("WKP",1,0,0,96,10,0,255),
     		new DLMSConfig("ISK",1,1,0,96,240,0,255)
     };
     
@@ -120,6 +121,13 @@ public class DLMSConfig {
     		new DLMSConfig("WKP",1,0,2,96,1,0,255),
     		new DLMSConfig("WKP",1,0,3,96,1,0,255),
     		new DLMSConfig("WKP",1,0,4,96,1,0,255)
+    };
+    
+    final static private DLMSConfig[] mbusStatus = {
+    		new DLMSConfig("WKP",1,0,1,96,10,3,255),
+    		new DLMSConfig("WKP",1,0,2,96,10,3,255),
+    		new DLMSConfig("WKP",1,0,3,96,10,3,255),
+    		new DLMSConfig("WKP",1,0,4,96,10,3,255)
     };
     
     final static private DLMSConfig[] mbusProfile = {
@@ -685,6 +693,22 @@ public class DLMSConfig {
 			}
 		}
 		throw new IOException("DLMSConfig, getMbusSerialNumber, not found in objectlist (IOL)");
+    }
+    
+    protected UniversalObject getMbusStatusObject(UniversalObject[] objectList, String manuf, int channel) throws IOException{
+    	int count = 0;
+    	if (objectList == null) throw new IOException("DLMSConfig, getMbusStatusObject, objectlist empty!");
+    	for(int t = 0; t < mbusStatus.length; t++){
+			if((manuf != null) && (mbusStatus[t].getManuf().compareTo(manuf) != 0)) continue;
+			if(count++ == channel){
+				for(int i = 0; i < objectList.length; i++){
+					if(objectList[i].equals(mbusStatus[t])){
+						return objectList[i];
+					}
+				}
+			}
+		}
+		throw new IOException("DLMSConfig, getMbusStatusObject, not found in objectlist (IOL)");
     }
     
 	public UniversalObject getMbusProfile(UniversalObject[] objectList, String manuf, int channel) throws IOException {
