@@ -9,7 +9,6 @@ package com.energyict.genericprotocolimpl.edmi.mk10.parsers;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.CRCGenerator;
 
@@ -20,6 +19,8 @@ import com.energyict.protocolimpl.base.CRCGenerator;
 public class MK10InputStreamParser {
 
 	private static final int DEBUG			= 1;
+	private static final long DEBUG_DELAY 	= 0;
+	
 	private static final int CRC_LENGTH 	= 2;
 	private static final int BYTEMASK		= 0x000000FF;
 
@@ -52,7 +53,7 @@ public class MK10InputStreamParser {
 	 * Private getters, setters and methods
 	 */
 
-	private byte[] getBytesCharStuffing(byte[] inputBytes) throws ProtocolException {
+	private byte[] getBytesCharStuffing(byte[] inputBytes) {
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
 		for (int i = 0; i < inputBytes.length; i++) {
@@ -142,8 +143,12 @@ public class MK10InputStreamParser {
 		returnBytes = ProtocolUtils.concatByteArrays(new byte[] {STX}, returnBytes);	// add STX to start of frame
 		returnBytes = ProtocolUtils.concatByteArrays(returnBytes, new byte[] {ETX});	// append ETX to end of frame 
 		
-		if (DEBUG >= 1) System.out.println(" ######## Data = " + ProtocolUtils.getResponseData(returnBytes));
+		if (DEBUG >= 1) {
+			try {Thread.sleep(DEBUG_DELAY);} 
+			catch (InterruptedException e) {e.printStackTrace();}
+		}
 
+		
 		return returnBytes;
 	}
 

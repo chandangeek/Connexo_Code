@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.energyict.genericprotocolimpl.edmi.mk10.parsers.MK10InputStreamParser;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.tools.InputStreamDecorator;
 
@@ -31,11 +32,11 @@ public class MK10PushInputStream extends InputStreamDecorator {
 	}
 
 	public int read(byte[] b, int off, int len) throws IOException {
-		throw new IOException("Not implemented !!!!");
+		throw new ProtocolException("Not implemented !!!!");
 	}
 
 	public int read(byte[] b) throws IOException {
-		throw new IOException("Not implemented !!!!");
+		throw new ProtocolException("Not implemented !!!!");
 	}
 
 	public int available() throws IOException {

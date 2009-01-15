@@ -50,6 +50,8 @@ public class MK10Push implements GenericProtocol {
 
 	private static final int DEBUG 				= 0;
 	
+	private static final int BYTE_MASK			= 0x000000FF;
+	
 	private Logger logger 						= null;
 	private long connectTime					= 0;
 	private long disconnectTime					= 0;
@@ -206,6 +208,15 @@ public class MK10Push implements GenericProtocol {
 
 	}
 
+	private void doReadMeter(Rtu rtu) throws IOException {
+		this.timezone = getMeter().getTimeZone();
+		initMk10Protocol(rtu);
+		mk10Protocol.connect();
+		
+		
+		
+	}
+
 	/*
 	 * Public methods
 	 */
@@ -236,7 +247,7 @@ public class MK10Push implements GenericProtocol {
 
 				while(inputStream.available() > 0){
 					kar = inputStream.read();
-					buffer.write(kar & 0x000000FF);
+					buffer.write(kar & BYTE_MASK);
 				}
 
 				MK10InputStreamParser inputParser = new MK10InputStreamParser();
@@ -247,13 +258,13 @@ public class MK10Push implements GenericProtocol {
 					sendDebug("** Received message from device with serial: " + inputParser.getSerial() + " **", 0);
 					this.meter = findMatchingMeter(String.valueOf(serial));
 					if (getMeter() == null) throw new NotFoundException("RTU with callerID [" + getSerial() + "] not found.");
-					this.timezone = getMeter().getTimeZone();
-					initMk10Protocol(getMeter());
-					getMk10Protocol().connect();
+					doReadMeter(getMeter());
 				} else {
 					throw new ProtocolException("Received invalid data: " + inputParser.toString());
 				}
 
+			} else {
+				throw new ProtocolException("scheduler != null. Execute must be triggered by UDP listener and not by CommunicationScheduler.");
 			}
 
 		} catch (ProtocolException e) {

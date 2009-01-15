@@ -1,43 +1,54 @@
 package com.energyict.genericprotocolimpl.edmi.mk10.streamfilters;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.genericprotocolimpl.edmi.mk10.parsers.MK10OutputStreamParser;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.tools.OutputStreamDecorator;
 
 public class MK10PushOutputStream extends OutputStreamDecorator {
 
-	private static final int DEBUG 			= 0;
-	private static final int BUFFER_SIZE 	= 1024;
+	private static final int DEBUG 				= 0;
+	private static final int BYTEMASK 			= 0x000000FF;
 
-	private static final byte STX			= 0x02;
-	private static final byte ETX			= 0x03;
-	
-	private ByteBuffer buffer 				= ByteBuffer.allocate(BUFFER_SIZE);
-	private boolean bufferEmpty				= true;
-	private int bufferSize					= 0;
-	
+	private ByteArrayOutputStream bufferOut 	= new ByteArrayOutputStream();
+
 	public MK10PushOutputStream(OutputStream stream) {
 		super(stream);
 	}
 
 	public void write(byte[] b, int off, int len) throws IOException {
-		throw new ProtocolException("Not implemented !!!");
+		bufferOut.write(b, off, len);
+		updateBuffer();
 	}
 
 	public void write(byte[] b) throws IOException {
-		throw new ProtocolException("Not implemented !!!");
+		bufferOut.write(b);
+		updateBuffer();
 	}
 
 	public void write(int b) throws IOException {
-		throw new ProtocolException("Not implemented !!!");
+		bufferOut.write(b);
+		updateBuffer();
 	}
 
-	private void writeNextPacket() throws IOException {
-
+	private void updateBuffer() throws IOException {
+		MK10OutputStreamParser outputParser = new MK10OutputStreamParser();
+		bufferOut.flush();
+		outputParser.parse(bufferOut.toByteArray());
+		
+		if (outputParser.isValidPacket()) {
+			 getStream().write(outputParser.getValidPacket());
+			 getStream().flush();
+			 
+			 if (DEBUG >= 1)
+				System.out.println(" OutputData = " + ProtocolUtils.getResponseData(bufferOut.toByteArray()));
+			 
+			 bufferOut.reset();
+		}
 	}
 	
 }
