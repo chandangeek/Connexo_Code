@@ -453,6 +453,10 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
         tagSpec.add(msgAttrSpec);
         msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_DURATION, true);
         tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_D1_INVERT, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_D2_INVERT, false);
+        tagSpec.add(msgAttrSpec);
         msgSpec.add(tagSpec);
         return msgSpec;
 	}
@@ -590,18 +594,23 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 					// TODO TEST THIS 
 					
 					// The Budget register
-					writeRegisterStructure(rm, prepaidSetBudgetObisCode, prepaidBudgetScalerUnit, messageHandler.getBudget());
+//					writeRegisterStructure(rm, prepaidSetBudgetObisCode, prepaidBudgetScalerUnit, messageHandler.getBudget());
+					getCosemObjectFactory().getGenericWrite(prepaidSetBudgetObisCode, 2).write(new Unsigned32(Long.valueOf(messageHandler.getBudget())).getBEREncodedByteArray());
 					
 					// The Threshold register
-					writeRegisterStructure(rm, prepaidThresholdObisCode, prepaidThresholdScalerUnit, messageHandler.getThreshold());
+//					writeRegisterStructure(rm, prepaidThresholdObisCode, prepaidThresholdScalerUnit, messageHandler.getThreshold());
+					getCosemObjectFactory().getGenericWrite(prepaidThresholdObisCode, 2).write(new Unsigned32(Long.valueOf(messageHandler.getThreshold())).getBEREncodedByteArray());
 					
 					// The ReadFrequency register
-					writeRegisterStructure(rm, prepaidReadFrequencyObisCode, prepaidReadFrequencyScalerUnit, messageHandler.getReadFrequency());
+//					writeRegisterStructure(rm, prepaidReadFrequencyObisCode, prepaidReadFrequencyScalerUnit, messageHandler.getReadFrequency());
+					getCosemObjectFactory().getGenericWrite(prepaidReadFrequencyObisCode, 2).write(new Unsigned32(Long.valueOf(messageHandler.getReadFrequency())).getBEREncodedByteArray());
 					
 					
 					// The Multiplier registers
 					for(int i = 0; i < 8; i++){
-						writeRegisterStructure(rm, prepaidMultiplierObisCode[i], prepaidMultiplierScalerUnit, messageHandler.getMultiplier(i));
+//						writeRegisterStructure(rm, prepaidMultiplierObisCode[i], prepaidMultiplierScalerUnit, messageHandler.getMultiplier(i));
+						getCosemObjectFactory().getGenericWrite(prepaidMultiplierObisCode[i], 2).write(new Integer32(Integer.valueOf(messageHandler.getMultiplier(i))).getBEREncodedByteArray());
+
 					}
 					
 					// Enabling the prepaid configuration
@@ -616,7 +625,8 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 					 */
 					
 					// TODO TEST THIS
-					writeRegisterStructure(rm, prepaidAddBudgetObisCode, prepaidBudgetScalerUnit, messageHandler.getBudget());
+//					writeRegisterStructure(rm, prepaidAddBudgetObisCode, prepaidBudgetScalerUnit, messageHandler.getBudget());
+					getCosemObjectFactory().getGenericWrite(prepaidAddBudgetObisCode, 2).write(new Unsigned32(Long.valueOf(messageHandler.getBudget())).getBEREncodedByteArray());
 
 					
 					// Enabling the prepaid configuration					
@@ -668,14 +678,26 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 					// TODO TEST THIS
 					
 					// The Threshold register
-					writeRegisterStructure(rm, loadLimitThresholdObisCode, loadLimitThresholdScalerUnit, messageHandler.getLLThreshold());
+//					writeRegisterStructure(rm, loadLimitThresholdObisCode, loadLimitThresholdScalerUnit, messageHandler.getLLThreshold());
+					getCosemObjectFactory().getGenericWrite(loadLimitThresholdObisCode, 2).write(new Unsigned32(Long.valueOf(messageHandler.getLLThreshold())).getBEREncodedByteArray());
 					
 					// The ReadFrequency register
-					writeRegisterStructure(rm, loadLimitReadFrequencyObisCode, loadLimitReadFrequencyScalerUnit, messageHandler.getLLReadFrequency());
+//					writeRegisterStructure(rm, loadLimitReadFrequencyObisCode, loadLimitReadFrequencyScalerUnit, messageHandler.getLLReadFrequency());
+					getCosemObjectFactory().getGenericWrite(loadLimitReadFrequencyObisCode, 2).write(new Unsigned32(Long.valueOf(messageHandler.getLLReadFrequency())).getBEREncodedByteArray());
+
 					
 					// The Duration register
-					writeRegisterStructure(rm, loadLimitDurationObisCode, loadLimitDurationScalerUnit, messageHandler.getLLDuration());
+//					writeRegisterStructure(rm, loadLimitDurationObisCode, loadLimitDurationScalerUnit, messageHandler.getLLDuration());
+					getCosemObjectFactory().getGenericWrite(loadLimitDurationObisCode, 2).write(new Unsigned32(Long.valueOf(messageHandler.getLLDuration())).getBEREncodedByteArray());
 
+
+					getCosemObjectFactory().getGenericWrite(loadLimitOutputLogicObisCode[0],2).write(new Integer8(Integer.parseInt(messageHandler.getLLD1Invert())).getBEREncodedByteArray());
+					if(!messageHandler.getLLD1Invert().equalsIgnoreCase("")){
+					}
+					
+					if(!messageHandler.getLLD1Invert().equalsIgnoreCase("")){
+						getCosemObjectFactory().getGenericWrite(loadLimitOutputLogicObisCode[1],2).write(new Integer8(Integer.parseInt(messageHandler.getLLD2Invert())).getBEREncodedByteArray());
+					}
 					
 					// Enabling the loadLimit configuration					
 					getCosemObjectFactory().getGenericWrite(loadLimitStateObisCode, 2).write(AXDRBoolean.encode(true).getBEREncodedByteArray());
@@ -720,21 +742,21 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 		}
 	}
 	
-	private void writeRegisterStructure(RtuMessage rm, ObisCode oc, ScalerUnit su, String value) throws IOException, BusinessException, SQLException{
-		try {
-			Structure struct = new Structure();
-			struct.addDataType(OctetString.fromString(oc.toString()));	// do not know if this is necessary
-			struct.addDataType(new Integer32(Integer.parseInt(value)));
-			struct.addDataType(new Integer8(su.getScaler()));
-			struct.addDataType(new TypeEnum(su.getUnit().getDlmsCode()));
-			getCosemObjectFactory().getGenericWrite(oc, 0).write(struct.getBEREncodedByteArray());
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-//			rm.setFailed();
-			log(Level.INFO, "RtuMessage " + rm + " has a non numeric value.");
-			throw new NumberFormatException(e.getMessage());
-		}
-	}
+//	private void writeRegisterStructure(RtuMessage rm, ObisCode oc, ScalerUnit su, String value) throws IOException, BusinessException, SQLException{
+//		try {
+//			Structure struct = new Structure();
+//			struct.addDataType(OctetString.fromString(oc.toString()));	
+//			struct.addDataType(new Integer32(Integer.parseInt(value)));
+//			struct.addDataType(new Integer8(su.getScaler()));
+//			struct.addDataType(new TypeEnum(su.getUnit().getDlmsCode()));
+//			getCosemObjectFactory().getGenericWrite(oc, 0).write(struct.getBEREncodedByteArray());
+//		} catch (NumberFormatException e) {
+//			e.printStackTrace();
+////			rm.setFailed();
+//			log(Level.INFO, "RtuMessage " + rm + " has a non numeric value.");
+//			throw new NumberFormatException(e.getMessage());
+//		}
+//	}
 	
 	private void importMessage(String message, DefaultHandler handler) throws BusinessException{
         try {

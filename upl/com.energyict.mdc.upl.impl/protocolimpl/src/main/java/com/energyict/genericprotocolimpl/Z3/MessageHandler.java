@@ -116,11 +116,15 @@ public class MessageHandler extends DefaultHandler{
 	private String llreadFrequency = "";
 	private String llThreshold = "";
 	private String llDuration = "";
+	private String llD1Invert = "";
+	private String llD2Invert = "";
 	
 	private void handleLoadLimitConfiguration(Attributes attrbs){
 		this.llreadFrequency = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_READ_FREQUENCY);
 		this.llThreshold = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_THRESHOLD);
 		this.llDuration = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_DISALBE);
+		this.llD1Invert = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_D1_INVERT);
+		this.llD2Invert = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_D2_INVERT);
 	}
 	
 	public String getLLReadFrequency(){
@@ -135,5 +139,12 @@ public class MessageHandler extends DefaultHandler{
 		return this.llDuration;
 	}
 	
+	public String getLLD1Invert(){
+		return this.llD1Invert;
+	}
+	
+	public String getLLD2Invert(){
+		return this.llD2Invert;
+	}
 	/***************************************************************************************/
 }
