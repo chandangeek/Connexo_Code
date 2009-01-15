@@ -87,11 +87,15 @@ public class ElectricityProfile {
 				if(lastLogReading == null){
 					lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(webrtu.getMeter());
 				}
+				//TODO
 				Calendar fromCal = ProtocolUtils.getCleanCalendar(getTimeZone());
+//				Calendar fromCal = ProtocolUtils.getCleanCalendar(getMeterTimeZone());
 				fromCal.setTime(lastLogReading);
 				webrtu.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + webrtu.getSerialNumber() + ".");
 				DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
+				//TODO
 				Logbook logbook = new Logbook(getTimeZone());
+//				Logbook logbook = new Logbook(getMeterTimeZone());
 				profileData.getMeterEvents().addAll(logbook.getMeterEvents(dcEvent));
 				profileData.applyEvents(webrtu.getMeter().getIntervalInSeconds()/60);
 			}
@@ -209,6 +213,8 @@ public class ElectricityProfile {
 				
 				if(dc.getRoot().getStructure(i).isOctetString(0)){
 					cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
+					//TODO
+//					cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getMeterTimeZone());
 				} else {
 					if(cal != null){
 						cal.add(Calendar.SECOND, webrtu.getMeter().getIntervalInSeconds());
@@ -333,7 +339,11 @@ public class ElectricityProfile {
 		return this.webrtu.getMeterConfig();
 	}
 	
-	private TimeZone getTimeZone(){
+//	private TimeZone getMeterTimeZone() throws IOException{
+//		return this.webrtu.getMeterTimeZone();
+//	}
+	
+	private TimeZone getTimeZone() throws IOException{
 		return this.webrtu.getTimeZone();
 	}
 }

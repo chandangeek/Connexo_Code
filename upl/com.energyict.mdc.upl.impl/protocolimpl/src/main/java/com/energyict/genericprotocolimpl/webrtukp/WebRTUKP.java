@@ -34,6 +34,7 @@ import com.energyict.dlms.OctetString;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObject;
@@ -621,7 +622,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			
 			long diff = Math.abs(now.getTime()-meterTime.getTime())/1000;
 			
-			log(Level.INFO, "Difference between metertime(" + meterTime + ") and systemtime(" + now + ") is " + diff + "ms.");
+			log(Level.INFO, "Difference between metertime(" + meterTime + ") and systemtime(" + now + ") is " + diff + "s.");
 			if(this.commProfile.getWriteClock()){
 				if( (diff < this.commProfile.getMaximumClockDifference()) && (diff > this.commProfile.getMinimumClockDifference()) ){
 					log(Level.INFO, "Metertime will be set to systemtime: " + now);
@@ -640,8 +641,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	private Date getTime() throws IOException{
 		try {
 			Date meterTime;
-			Clock clock = getCosemObjectFactory().getClock();
-			meterTime = clock.getDateTime();
+			this.deviceClock = getCosemObjectFactory().getClock();
+			meterTime = deviceClock.getDateTime();
 			return meterTime;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -651,11 +652,16 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	
 	private void setClock(Date time) throws IOException{
 		try {
-			getCosemObjectFactory().getClock().setDateTime(new OctetString(time.toString().getBytes()));
+//			getCosemObjectFactory().getClock().setDateTime(new OctetString(time.toString().getBytes()));
+			getCosemObjectFactory().getClock().setTimeAttr(new DateTime(time));
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not set the Clock object.");
 		}
+	}
+	
+	private Clock getDeviceClock(){
+		return this.deviceClock;
 	}
 	
 	/**
@@ -795,9 +801,19 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	}
 
 	public TimeZone getTimeZone() {
-		return getMeter().getTimeZone();
+		return getMeter().getDeviceTimeZone();
 	}
 
+	public TimeZone getMeterTimeZone() throws IOException{
+		if(getDeviceClock() != null){
+			return TimeZone.getTimeZone(Integer.toString(getDeviceClock().getTimeZone()));
+		}
+		else {
+			getTime();		//dummy to get the device DLMS clock
+			return TimeZone.getTimeZone(Integer.toString(getDeviceClock().getTimeZone()));
+		}
+	}
+	
 	public boolean isRequestTimeZone() {
 		return (this.requestTimeZone==1)?true:false;
 	}
