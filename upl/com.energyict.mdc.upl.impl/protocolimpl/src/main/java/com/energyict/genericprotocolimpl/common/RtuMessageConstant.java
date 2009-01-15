@@ -66,6 +66,8 @@ public class RtuMessageConstant {
 	public static final String LOAD_LIMIT_READ_FREQUENCY = "Read_frequency";
 	public static final String LOAD_LIMIT_THRESHOLD = "Threshold";
 	public static final String LOAD_LIMIT_DURATION = "Duration";
+	public static final String LOAD_LIMIT_D1_INVERT = "Digital_Output1_Invert";
+	public static final String LOAD_LIMIT_D2_INVERT = "Digital_Output2_Invert";
 	
 	/** RtuMessage tags for XMLConfig */
 	public static final String XMLCONFIG = "XMLConfig";
