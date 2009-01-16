@@ -196,10 +196,10 @@ public class MK10 extends AbstractProtocol {
     
     public void sendDebug(String str){
         if (DEBUG >= 1) {
-        	str = " **** DEBUG > " + str;
+        	str = " [MK10] > " + str;
         	Logger log = getLogger();
         	if (log != null) {
-            	getLogger().info(str);
+            	getLogger().info(str + "\n");
         	} 
         	else {
             	System.out.println(str);
