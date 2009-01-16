@@ -19,12 +19,12 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
+import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.edmi.mk10.parsers.MK10InputStreamParser;
@@ -36,7 +36,7 @@ import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.mdw.core.Rtu;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.CRCGenerator;
@@ -55,15 +55,9 @@ public class MK10Push implements GenericProtocol {
 	private Logger logger 						= null;
 	private long connectTime					= 0;
 	private long disconnectTime					= 0;
-	private CommunicationScheduler scheduler 	= null;
 	private Link link							= null;
-	private long timeOut						= 10 * 1000;
-	private Rtu meter							= null;
-	private int serial							= 0;
-	private TimeZone timezone					= null;
-	private MK10 mk10Protocol					= new MK10();
-	private Properties properties				= null;
-	
+	private MK10ProtocolExecuter MK10Executor	= null;
+	private StringBuilder errorString			= new StringBuilder();
 	
 	private InputStream inputStream				= null;
 	private OutputStream outputStream			= null;
@@ -80,15 +74,7 @@ public class MK10Push implements GenericProtocol {
 	/*
 	 * Private getters, setters and methods
 	 */
-	
-	private Logger getLogger() {
-		return logger;
-	}
-
-	private Link getLink() {
-		return link;
-	}
-	
+		
 	private long getConnectTime() {
 		return connectTime;
 	}
@@ -117,20 +103,12 @@ public class MK10Push implements GenericProtocol {
 		return mk10PushOutputStream;
 	}
 		
-	private MK10 getMk10Protocol() {
-		return mk10Protocol;
-	}
-	
 	private Rtu getMeter() {
-		return meter;
+		return getMK10Executor().getMeter();
 	}
 	
-	private int getSerial() {
-		return serial;
-	}
-	
-	private TimeZone getTimezone() {
-		return timezone;
+	public MK10ProtocolExecuter getMK10Executor() {
+		return MK10Executor;
 	}
 	
 	public MeteringWarehouse mw() {
@@ -139,6 +117,8 @@ public class MK10Push implements GenericProtocol {
 	}
 
 	private void addFailureLogging(Exception exception, StringBuilder eString) throws SQLException, BusinessException {
+		sendDebug("** addFailureLogging **", 0);
+		if (1 == 1) return; // FIXME: remove debugging code
 		if(getMeter() != null){
 			Iterator it = getMeter().getCommunicationSchedulers().iterator();
 			while(it.hasNext()){
@@ -150,6 +130,7 @@ public class MK10Push implements GenericProtocol {
 					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - getConnectTime())/1000));
 					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
 					amrjm.updateRetrials();
+					sendDebug("** updateRetrials **", 0);
 					break;
 				}
 			}
@@ -159,6 +140,8 @@ public class MK10Push implements GenericProtocol {
 	}
 	
 	private void addSuccessLogging() throws SQLException, BusinessException {
+		sendDebug("** addSuccessLogging **", 0);
+		if (1 == 1) return; // FIXME: remove debugging code
 		if(getMeter() != null){
 			Iterator it = getMeter().getCommunicationSchedulers().iterator();
 			while(it.hasNext()){
@@ -169,6 +152,7 @@ public class MK10Push implements GenericProtocol {
 					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - getConnectTime())/1000));
 					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CC_OK));
 					amrjm.updateLastCommunication();
+					sendDebug("** updateLastCommunication **", 0);
 					break;
 				}
 			}
@@ -177,10 +161,6 @@ public class MK10Push implements GenericProtocol {
 		}
 	}
 
-	private Properties getProperties() {
-		return properties;
-	}
-	
 	private Rtu findMatchingMeter(String serial) {
 		Rtu rtu = null;
 		List meterList = mw().getRtuFactory().findByDialHomeId(serial);
@@ -188,121 +168,142 @@ public class MK10Push implements GenericProtocol {
 			rtu = (Rtu) meterList.get(0);
 		} else return null;
 
-		sendDebug("** " + rtu.getCommunicationSchedulers() + " **", 0);
+		//sendDebug("** " + rtu.getCommunicationSchedulers() + " **", 0);
 		
 		return rtu;
 	}
 	
 	private void initMk10Protocol(Rtu rtu) throws IOException {
 
-		this.properties = rtu.getProperties();
-		
-		getProperties().put(MeterProtocol.ADDRESS, getMeter().getDeviceId());
-		getProperties().put(MeterProtocol.PASSWORD, getMeter().getPassword());
-		getProperties().put(MeterProtocol.NODEID, getMeter().getNodeAddress());
-		getProperties().put(MeterProtocol.SERIALNUMBER, getMeter().getSerialNumber());
-		
-		getMk10Protocol().setPushProtocol(true);
-		getMk10Protocol().setProperties(getProperties());
-		getMk10Protocol().init(getMk10PushInputStream(), getMk10PushOutputStream(), getTimezone(), getLogger());
+//		this.properties = rtu.getProperties();
+//		
+//		getProperties().put(MeterProtocol.ADDRESS, getMeter().getDeviceId());
+//		getProperties().put(MeterProtocol.PASSWORD, getMeter().getPassword());
+//		getProperties().put(MeterProtocol.NODEID, getMeter().getNodeAddress());
+//		getProperties().put(MeterProtocol.SERIALNUMBER, getMeter().getSerialNumber());
+//		
+//		getMk10Protocol().setPushProtocol(true);
+//		getMk10Protocol().setProperties(getProperties());
+//		getMk10Protocol().init(getMk10PushInputStream(), getMk10PushOutputStream(), getTimezone(), getLogger());
 
 	}
 
-	private void doReadMeter(Rtu rtu) throws IOException {
-		this.timezone = getMeter().getTimeZone();
-		initMk10Protocol(rtu);
-		mk10Protocol.connect();
-		
-		
-		
-	}
+	private Rtu waitForPushMeter() throws IOException, BusinessException {
+		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		MK10InputStreamParser inputParser = new MK10InputStreamParser();
 
+		while(inputStream.available() > 0) {
+			buffer.write(inputStream.read() & BYTE_MASK);
+		}
+
+		inputParser.parse(buffer.toByteArray());
+		if(!inputParser.isPushPacket()) throw new ProtocolException("Received invalid data: " + inputParser.toString());
+		sendDebug("** Received message from device with serial: " + inputParser.getSerial() + " **", 0);
+		
+		Rtu pushDevice = findMatchingMeter(inputParser.getSerialAsString());
+		
+		if (pushDevice == null) throw new BusinessException("RTU with callerID [" + inputParser.getSerial() + "] not found.");
+
+		return pushDevice; 
+	}
+	
 	/*
 	 * Public methods
 	 */
 	
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-		this.scheduler = scheduler;
+		boolean success = true;
+		Exception exception = null;
+
 		this.link = link;
 		this.logger = logger;
-
 		this.inputStream = getLink().getInputStream();
 		this.outputStream = getLink().getOutputStream();
 		this.mk10PushInputStream = new MK10PushInputStream(getInputStream());
 		this.mk10PushOutputStream = new MK10PushOutputStream(getOutputStream());
-		
+		this.MK10Executor = new MK10ProtocolExecuter(this);
 		this.connectTime = System.currentTimeMillis();
-
-		
-		sendDebug("** A new UDP session is started **", 0);
-		sendDebug("** ConnectionTime: [" + getConnectTime() + "] **", 0);
-
-		
+				
 		try {
 
-			if(scheduler == null){	// we got a message from the COMMSERVER UDP Listener
+			// Check if we got a message from the COMMSERVER UDP Listener
+			if(scheduler != null) throw new ProtocolException("scheduler != null. Execute must be triggered by UDP listener.");	
+			
+			sendDebug("** A new UDP session is started **", 0);
+			sendDebug("** ConnectionTime: [" + getConnectTime() + "] **", 0);
 
-				int kar = 0;
-				ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
-				while(inputStream.available() > 0){
-					kar = inputStream.read();
-					buffer.write(kar & BYTE_MASK);
-				}
-
-				MK10InputStreamParser inputParser = new MK10InputStreamParser();
-				inputParser.parse(buffer.toByteArray());
-
-				if (inputParser.isPushPacket()) {
-					this.serial = inputParser.getSerial();
-					sendDebug("** Received message from device with serial: " + inputParser.getSerial() + " **", 0);
-					this.meter = findMatchingMeter(String.valueOf(serial));
-					if (getMeter() == null) throw new NotFoundException("RTU with callerID [" + getSerial() + "] not found.");
-					doReadMeter(getMeter());
-				} else {
-					throw new ProtocolException("Received invalid data: " + inputParser.toString());
-				}
-
-			} else {
-				throw new ProtocolException("scheduler != null. Execute must be triggered by UDP listener and not by CommunicationScheduler.");
-			}
-
+			Rtu pushDevice = waitForPushMeter();
+			getMK10Executor().setMeter(pushDevice);
+			getMK10Executor().doMeterProtocol();
+			
+			throw new ProtocolException("Generated dummy exception: 123 test");
+			
 		} catch (ProtocolException e) {
 			// TODO enter exceptionhandling here
 			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 0);
-		} catch (NotFoundException e) {
+			errorString.append(e.getMessage());
+			success = false;
+			exception = e;
+			e.printStackTrace();
+			//throw new BusinessException(e.getMessage());
+		} catch (IOException e) {
 			// TODO enter exceptionhandling here
 			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 0);
+			errorString.append(e.getMessage());
+			success = false;
+			exception = e;
+			e.printStackTrace();
+			//throw new BusinessException(e.getMessage());
+		} catch (BusinessException e) {
+			// TODO enter exceptionhandling here
+			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 0);
+			errorString.append(e.getMessage());
+			success = false;
+			exception = e;
+			e.printStackTrace();
+			//throw new BusinessException(e.getMessage());
+		} finally {
+			
+			setDisconnectTime(System.currentTimeMillis());
+			
+			sendDebug("** DisconnectTime: [" + getDisconnectTime() + "] **", 0);
+			sendDebug("** Connection ended after " + (getDisconnectTime() - getConnectTime()) + " ms **", 0);
+			sendDebug("** Closing the UDP session **", 0);
+			try {Thread.sleep(2000);} catch (InterruptedException e) {};
+
+			try {
+				if(success)	addSuccessLogging();
+					else addFailureLogging(exception, errorString);
+			} catch (SQLException e) {
+				sendDebug("** SQLException **", 0);
+				e.printStackTrace();
+				// Close the connection after an SQL exception, connection will startup again if requested
+				Environment.getDefault().closeConnection();
+				throw e;
+			}
 		}
-		
-		setDisconnectTime(System.currentTimeMillis());
-		sendDebug("** DisconnectTime: [" + getDisconnectTime() + "] **", 0);
-		sendDebug("** Connection ended after " + (getDisconnectTime() - getConnectTime()) + " ms **", 0);
-		sendDebug("** Closing the UDP session **", 0);
-		
+				
 	}
 
 	/*
 	 * Public getters and setters
 	 */
 
+	protected Logger getLogger() {
+		return logger;
+	}
+
+	protected Link getLink() {
+		return link;
+	}
+
 	public String getVersion() {
         return "$Revision: 1.1 $";
 	}
 
-	public List getOptionalKeys() {
-		ArrayList list = new ArrayList();
-		list.addAll(getMk10Protocol().getOptionalKeys());
-		return list;
-	}
-
-	public List getRequiredKeys() {
-		ArrayList list = new ArrayList();
-		return list;
-	}
-
 	public void addProperties(Properties properties) {
-		//TODO aanpassen
+		sendDebug("** addProperties **", 0);
+		getMK10Executor().addProperties(properties);
 	}
 	
 	/*
@@ -360,6 +361,18 @@ public class MK10Push implements GenericProtocol {
 		}
 		
 
+	}
+
+	public List getOptionalKeys() {
+		ArrayList list = new ArrayList();
+		list.addAll(getMK10Executor().getOptionalKeys());
+		return list;
+	}
+
+	public List getRequiredKeys() {
+		ArrayList list = new ArrayList();
+		list.addAll(getMK10Executor().getRequiredKeys());
+		return list;
 	}
 	
 }

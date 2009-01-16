@@ -16,7 +16,7 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class MK10OutputStreamParser {
 
-	private static final int DEBUG			= 1;
+	private static final int DEBUG			= 0;
 	private static final long DEBUG_DELAY 	= 0;
 	
 	private static final byte STX			= 0x02;
@@ -100,7 +100,7 @@ public class MK10OutputStreamParser {
 		String message = "MK10OutputStreamParser";
 		message += ", valid = " + isValidPacket();
 		message += ", bytes = " + ProtocolUtils.getResponseData(getBytes());
-		if (isValidPacket()) message += ", validPacket = " + getValidPacket();
+		if (isValidPacket()) message += ", validPacket = " + ProtocolUtils.getResponseData(getValidPacket());
 		return message;
 	}
 	

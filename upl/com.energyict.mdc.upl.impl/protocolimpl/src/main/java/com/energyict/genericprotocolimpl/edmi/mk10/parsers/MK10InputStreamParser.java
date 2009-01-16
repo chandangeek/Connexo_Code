@@ -18,7 +18,7 @@ import com.energyict.protocolimpl.base.CRCGenerator;
  */
 public class MK10InputStreamParser {
 
-	private static final int DEBUG			= 1;
+	private static final int DEBUG			= 0;
 	private static final long DEBUG_DELAY 	= 0;
 	
 	private static final int CRC_LENGTH 	= 2;
@@ -178,6 +178,10 @@ public class MK10InputStreamParser {
 	
 	public int getSerial() {
 		return serial;
+	}
+	
+	public String getSerialAsString() {
+		return String.valueOf(serial);
 	}
 	
 }
