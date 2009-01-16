@@ -56,7 +56,7 @@ public class MK10Push implements GenericProtocol {
 	private long connectTime					= 0;
 	private long disconnectTime					= 0;
 	private Link link							= null;
-	private MK10ProtocolExecuter MK10Executor	= null;
+	private MK10ProtocolExecuter MK10Executor	= new MK10ProtocolExecuter(this);
 	private StringBuilder errorString			= new StringBuilder();
 	
 	private InputStream inputStream				= null;
@@ -94,15 +94,7 @@ public class MK10Push implements GenericProtocol {
 	private OutputStream getOutputStream() {
 		return outputStream;
 	}
-	
-	private MK10PushInputStream getMk10PushInputStream() {
-		return mk10PushInputStream;
-	}
-	
-	private MK10PushOutputStream getMk10PushOutputStream() {
-		return mk10PushOutputStream;
-	}
-		
+			
 	private Rtu getMeter() {
 		return getMK10Executor().getMeter();
 	}
@@ -221,7 +213,6 @@ public class MK10Push implements GenericProtocol {
 		this.outputStream = getLink().getOutputStream();
 		this.mk10PushInputStream = new MK10PushInputStream(getInputStream());
 		this.mk10PushOutputStream = new MK10PushOutputStream(getOutputStream());
-		this.MK10Executor = new MK10ProtocolExecuter(this);
 		this.connectTime = System.currentTimeMillis();
 				
 		try {
@@ -364,13 +355,13 @@ public class MK10Push implements GenericProtocol {
 	}
 
 	public List getOptionalKeys() {
-		ArrayList list = new ArrayList();
+		ArrayList list = new ArrayList(0);
 		list.addAll(getMK10Executor().getOptionalKeys());
 		return list;
 	}
 
 	public List getRequiredKeys() {
-		ArrayList list = new ArrayList();
+		ArrayList list = new ArrayList(0);
 		list.addAll(getMK10Executor().getRequiredKeys());
 		return list;
 	}
