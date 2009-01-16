@@ -103,14 +103,12 @@ public class MK10DemandValuesExecuter {
     
 	public ProfileData getReadDemandValues() throws IOException, BusinessException {
 
-	    // KV 06042007
-	    // adjust lastreading with extraIntervals property and adjust lastreading against 'grey zone' at DST transitions
-	    if (getExtraIntervals() > 0)
-	        validatedLastReading = validateLastReading(new Date(getExecuter().getMeter().getLastReading().getTime() - getExtraIntervals() * getExecuter().getMk10Protocol().getInfoTypeProfileInterval() * 1000), getExecuter().getMeter().getTimeZone());
-	    else
-	        validatedLastReading = validateLastReading(getExecuter().getMeter().getLastReading(), getExecuter().getMeter().getTimeZone());
-
-	    Date now = new Date(); //Calendar.getInstance().getTime();
+	    if (getExtraIntervals() > 0) {
+	    	this.validatedLastReading = validateLastReading(new Date(getExecuter().getMeter().getLastReading().getTime() - getExtraIntervals() * getExecuter().getMk10Protocol().getInfoTypeProfileInterval() * 1000), getExecuter().getMeter().getTimeZone());
+	    } else {
+	    	this.validatedLastReading = validateLastReading(getExecuter().getMeter().getLastReading(), getExecuter().getMeter().getTimeZone());
+	    }
+	    this.now = new Date(); //Calendar.getInstance().getTime();
 		
 		// Partial data read
     	getExecuter().log(Level.INFO,	"retrieve interval data from " + (new java.util.Date(validatedLastReading.getTime())) +	" to " + now);
@@ -125,7 +123,13 @@ public class MK10DemandValuesExecuter {
 	}
 	
 	public ProfileData getReadAllDemandValues() throws IOException, BusinessException {
-        return getExecuter().getMk10Protocol().getProfileData(getExecuter().getCommunicationProfile().getReadMeterEvents());
+	    if (getExtraIntervals() > 0) {
+	    	this.validatedLastReading = validateLastReading(new Date(getExecuter().getMeter().getLastReading().getTime() - getExtraIntervals() * getExecuter().getMk10Protocol().getInfoTypeProfileInterval() * 1000), getExecuter().getMeter().getTimeZone());
+	    } else {
+	    	this.validatedLastReading = validateLastReading(getExecuter().getMeter().getLastReading(), getExecuter().getMeter().getTimeZone());
+	    }
+	    this.now = new Date(); //Calendar.getInstance().getTime();
+	    return getExecuter().getMk10Protocol().getProfileData(getExecuter().getCommunicationProfile().getReadMeterEvents());
 	}
 	
 	/*
