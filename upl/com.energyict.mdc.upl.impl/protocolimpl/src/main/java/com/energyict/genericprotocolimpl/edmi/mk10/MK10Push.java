@@ -27,6 +27,7 @@ import com.energyict.cbo.NotFoundException;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
+import com.energyict.genericprotocolimpl.edmi.mk10.executer.MK10ProtocolExecuter;
 import com.energyict.genericprotocolimpl.edmi.mk10.parsers.MK10InputStreamParser;
 import com.energyict.genericprotocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
 import com.energyict.genericprotocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
@@ -280,11 +281,11 @@ public class MK10Push implements GenericProtocol {
 	 * Public getters and setters
 	 */
 
-	protected Logger getLogger() {
+	public Logger getLogger() {
 		return logger;
 	}
 
-	protected Link getLink() {
+	public Link getLink() {
 		return link;
 	}
 
