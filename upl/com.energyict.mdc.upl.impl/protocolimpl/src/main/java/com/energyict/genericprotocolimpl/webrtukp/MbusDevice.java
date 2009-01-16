@@ -62,7 +62,6 @@ public class MbusDevice implements GenericProtocol{
 	}
 	
 	private void verifySerialNumber() throws IOException{
-		//TODO complete code
 		//TODO resolve NULLPOINTER
 		String serial;
 		String eiSerial = getMbus().getSerialNumber();
@@ -78,17 +77,6 @@ public class MbusDevice implements GenericProtocol{
 	}
 
 	private void updatePhysicalAddressWithNodeAddress() throws SQLException, BusinessException, IOException{
-//		RtuShadow shadow = mbus.getShadow();
-//		shadow.setNodeAddress(Integer.toString(this.physicalAddress));
-//		try {
-//			mbus.update(shadow);
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//			throw new SQLException("Could not update NodeAddress of Mbus device.");
-//		} catch (BusinessException e) {
-//			e.printStackTrace();
-//			throw new BusinessException("Could not update NodeAddress of Mbus device.");
-//		}
 		
 		this.physicalAddress = Integer.parseInt(getMbus().getNodeAddress()) - 1;
 		if(this.physicalAddress < 0 || this.physicalAddress > 3)

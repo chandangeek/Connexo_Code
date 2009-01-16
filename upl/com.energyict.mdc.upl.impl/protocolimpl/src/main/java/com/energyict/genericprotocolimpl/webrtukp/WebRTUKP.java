@@ -25,15 +25,16 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.NotFoundException;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.OctetString;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
@@ -70,7 +71,10 @@ import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.messaging.Messaging;
+import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.HDLCConnection;
+import com.energyict.protocolimpl.dlms.RtuDLMS;
+import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 
 /**
  * 
@@ -92,16 +96,16 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	private Logger					logger;
 	private CommunicationScheduler	scheduler;
 	private Rtu						webRtuKP;
-	private Cache					dlmsCache; 
+//	private Cache					dlmsCache;
+	
+	// this cache object is supported by 7.5
+	private DLMSCache 				dlmsCache=new DLMSCache();	     
+	
 	private MbusDevice[]			mbusDevices;
 	private Clock					deviceClock;
 	private StoreObject				storeObject;
 	private ObisCodeMapper			ocm;
 	
-	
-	// Can be used to store the genericProfiles so the capturedObjects does not need to be read out each time ...
-	// Not used yet, but needs some small changes to implement
-	private HashMap<ObisCode, ProfileGeneric> 				genericProfiles;
 	
 	/**
 	 * Properties
@@ -157,8 +161,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + webRtuKP.getSerialNumber());
 				ElectricityProfile ep = new ElectricityProfile(this);
 				
-				//TODO change it back to the commProfile
-//				ep.getProfile(Constant.loadProfileObisCode, this.commProfile.getReadMeterEvents());
+				
+//				TODO ep.getProfile(Constant.loadProfileObisCode, this.commProfile.getReadMeterEvents());
 				ep.getProfile(Constant.loadProfileObisCode, false);
 			}
 			
@@ -202,8 +206,11 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			
 			throw new BusinessException(e);
 		} finally{
-//			prepareForCacheSaving();
-			GenericCache.stopCacheMechanism(getMeter(), dlmsCache);
+			
+//			GenericCache.stopCacheMechanism(getMeter(), dlmsCache);
+
+			// This cacheobject is supported by the 7.5
+			updateCache(getMeter().getId(), dlmsCache);
 			Environment.getDefault().execute(getStoreObject());
 			if(success){
 				disConnect();
@@ -218,8 +225,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	 * @param os - the outputStream to work with
 	 * @throws IOException - can be cause by the TCPIPConnection
 	 * @throws DLMSConnectionException - could not create a dlmsconnection
+	 * @throws BusinessException 
+	 * @throws SQLException 
 	 */
-	private void init(InputStream is, OutputStream os) throws IOException, DLMSConnectionException{
+	private void init(InputStream is, OutputStream os) throws IOException, DLMSConnectionException, SQLException, BusinessException{
 		this.cosemObjectFactory	= new CosemObjectFactory((ProtocolLink)this);
 		
 		this.dlmsConnection = (this.connectionMode == 0)?
@@ -227,11 +236,15 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					new TCPIPConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress);
 		
 		this.dlmsMeterConfig = DLMSMeterConfig.getInstance(Constant.MANUFACTURER);
+		
 		// if we get a serialVersion mix-up we should set the dlmsCache to NULL so the cache is read from the meter
-		Object tempCache = GenericCache.startCacheMechanism(getMeter());
-		this.dlmsCache = (tempCache == null)?new Cache():(Cache)tempCache;
+//		Object tempCache = GenericCache.startCacheMechanism(getMeter());
+//		this.dlmsCache = (tempCache == null)?new Cache():(Cache)tempCache;
+		
+		// this cacheobject is supported by the 7.5
+		this.dlmsCache = (DLMSCache)fetchCache(getMeter().getId());
+		
 		this.mbusDevices = new MbusDevice[Constant.MaxMbusMeters];
-		this.genericProfiles = new HashMap<ObisCode, ProfileGeneric>();
 		this.storeObject = new StoreObject();
 	}
 
@@ -248,7 +261,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			getDLMSConnection().setIskraWrapper(1);
 			aarq = new AARQ(this.securityLevel, this.password, getDLMSConnection());
 			
-			// objectList etc...
+			// objectList
 			checkCacheObjects();
 			
 			if(getMeterConfig().getInstantiatedObjectList() == null){	// should never do this
@@ -256,7 +269,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			}
 			
 			// do some checks to know you are connected to the correct meter
-			//TODO set it back to uncomment!
 			verifyMeterSerialNumber();
 			log(Level.INFO, "FirmwareVersion: " + getFirmWareVersion());
 			
@@ -485,27 +497,30 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		// TODO complete the method
 		
 		int configNumber;
-		if(dlmsCache != null){		// the dlmsCache exists
+		if(dlmsCache.getObjectList() != null){		// the dlmsCache exists
 			setCachedObjects();
 			
 			try {
 				log(Level.INFO, "Checking the configuration parameters.");
 				configNumber = requestConfigurationChanges();
-				dlmsCache.setConfProfChange(configNumber);
+//				dlmsCache.setConfProfChange(configNumber);
+//				dlmsCache.setConfProgChange(configNumber);
 			} catch (IOException e) {
 				e.printStackTrace();
 				configNumber = -1;
 				log(Level.SEVERE, "Config change parameter could not be retrieved, configuration is forced to be read.");
 				requestConfiguration();
 				dlmsCache.saveObjectList(getMeterConfig().getInstantiatedObjectList());
-				dlmsCache.setConfProfChange(configNumber);
+//				dlmsCache.setConfProfChange(configNumber);
+				dlmsCache.setConfProgChange(configNumber);
 			}
 			
-			if(dlmsCache.isChanged()){
+			if(dlmsCache.getConfProgChange() != configNumber){
 				log(Level.INFO,"Meter configuration has changed, configuration is forced to be read.");
 				requestConfiguration();
 				dlmsCache.saveObjectList(getMeterConfig().getInstantiatedObjectList());
-				dlmsCache.setConfProfChange(configNumber);
+//				dlmsCache.setConfProfChange(configNumber);
+				dlmsCache.setConfProgChange(configNumber);
 			}
 			
 		} else {		// cache does not exist
@@ -514,7 +529,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			try {
 				configNumber = requestConfigurationChanges();
 				dlmsCache.saveObjectList(getMeterConfig().getInstantiatedObjectList());
-				dlmsCache.setConfProfChange(configNumber);
+//				dlmsCache.setConfProfChange(configNumber);
+				dlmsCache.setConfProgChange(configNumber);
 			} catch (IOException e) {
 				e.printStackTrace();
 				configNumber=-1;
@@ -558,27 +574,14 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	 * Request all the configuration parameters out of the meter.
 	 */
 	private void requestConfiguration(){
-		//TODO complete the method with everything you need
-		dlmsCache = new Cache();	// delete all possible data in the cache object
+		
+		dlmsCache = new DLMSCache();   
 		// get the complete objectlist from the meter
 		try {
 			getMeterConfig().setInstantiatedObjectList(getCosemObjectFactory().getAssociationLN().getBuffer());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	protected ProfileGeneric getProfileGeneric(ObisCode oc) throws IOException{
-		if(!this.genericProfiles.containsKey(oc)){
-			try {
-				this.genericProfiles.put(oc, getCosemObjectFactory().getProfileGeneric(oc));
-				this.dlmsCache.setGenericProfiles(this.genericProfiles);
-			} catch (IOException e) {
-				e.printStackTrace();
-				throw new IOException("Failed to read the genericProfile " + oc);
-			}
-		}
-		return this.genericProfiles.get(oc);
 	}
 	
 	/**
@@ -652,7 +655,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	
 	private void setClock(Date time) throws IOException{
 		try {
-//			getCosemObjectFactory().getClock().setDateTime(new OctetString(time.toString().getBytes()));
 			getCosemObjectFactory().getClock().setTimeAttr(new DateTime(time));
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -852,7 +854,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					//TODO TEST THIS
 					String xmlConfigStr = getMessageValue(content, RtuMessageConstant.XMLCONFIG);
 					
-					getCosemObjectFactory().getData(getMeterConfig().getXMLConfig().getObisCode()).setValueAttr(com.energyict.dlms.axrdencoding.OctetString.fromString(xmlConfigStr));
+					getCosemObjectFactory().getData(getMeterConfig().getXMLConfig().getObisCode()).setValueAttr(OctetString.fromString(xmlConfigStr));
 					
 					success = true;
 					
@@ -977,5 +979,40 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	public String writeValue(MessageValue msgValue) {
 		return msgValue.getValue();
 	}
+	
+	
+	/** EIServer 7.5 Cache mechanism, only the DLMSCache is in that database, the 8.x has a DEVICECACHE ... */
+	
+    public void setCache(Object cacheObject) {
+        this.dlmsCache=(DLMSCache)cacheObject;
+    }
+    public Object getCache() {
+        return dlmsCache;
+    }
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+        if (rtuid != 0) {
+            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
+            RtuDLMS rtu = new RtuDLMS(rtuid);
+            try {
+               return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
+            }
+            catch(NotFoundException e) {
+               return new DLMSCache(null,-1);  
+            }
+        }
+        else throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+    } 
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException,com.energyict.cbo.BusinessException {
+        if (rtuid != 0) {
+            DLMSCache dc = (DLMSCache)cacheObject;
+            if (dc.isChanged()) {
+                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
+                RtuDLMS rtu = new RtuDLMS(rtuid);
+                rtuCache.saveObjectList(dc.getObjectList());
+                rtu.setConfProgChange(dc.getConfProgChange());
+            }
+        }
+        else throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+    }
 	
 }

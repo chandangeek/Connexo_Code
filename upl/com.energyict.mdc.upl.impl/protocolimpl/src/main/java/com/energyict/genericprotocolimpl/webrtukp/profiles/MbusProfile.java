@@ -47,10 +47,8 @@ public class MbusProfile {
 		ProfileData profileData = new ProfileData( );
 		ProfileGeneric genericProfile;
 		
-		// TODO verify profileInterval
 		
 		try {
-//			genericProfile = getCosemObjectFactory().getProfileGeneric(mbusProfile);
 			genericProfile = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusProfile(this.mbusDevice.getPhysicalAddress()).getObisCode());
 			List<ChannelInfo> channelInfos = getMbusChannelInfos(genericProfile);
 			
@@ -78,18 +76,11 @@ public class MbusProfile {
 			profileData.sort();
 			
 			// We save the profileData to a tempObject so we can store everything at the end of the communication
-//			getMeter().store(profileData, false);
 			mbusDevice.getWebRTU().getStoreObject().add(getMeter(), profileData);
 			
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException(e.getMessage());
-//		} catch (SQLException e){
-//			e.printStackTrace();
-//			throw new SQLException(e.getMessage());
-//		} catch (BusinessException e){
-//			e.printStackTrace();
-//			throw new BusinessException(e.getMessage());
 		}
 	}
 
@@ -101,7 +92,6 @@ public class MbusProfile {
 			for(int i = 0; i < profile.getCaptureObjects().size(); i++){
 				
 				// Normally the mbusData is in a separate profile
-//				if(mbusDevice.isIskraMbusObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){ // make a channel out of it
 				if(isMbusRegisterObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
 					CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
 					ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
@@ -113,10 +103,8 @@ public class MbusProfile {
 					
 					index++;
 					// We do not do the check because we know it is a cumulative value
-//					if(ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())){
-						//TODO need to check the wrapValue
-						ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
-//					}
+					//TODO need to check the wrapValue
+					ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
 					channelInfos.add(ci);
 				}
 				
@@ -171,20 +159,15 @@ public class MbusProfile {
 	
 	private void buildProfileData(DataContainer dc, ProfileData pd, ProfileGeneric pg) throws IOException{
 		
-		//TODO check how this reacts with the profile.
-		
 		Calendar cal = null;
 		IntervalData currentInterval = null;
 		int profileStatus = 0;
 		if(dc.getRoot().getElements().length != 0){
-//			throw new IOException("No entries in loadprofile datacontainer.");
 		
 			for(int i = 0; i < dc.getRoot().getElements().length; i++){
 				if(dc.getRoot().getStructure(i).isOctetString(0)){
 					cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
 				} else {
-					//TODO get the interval of the meter itself
-	//				cal.add(Calendar.SECOND, 3600);
 					if(cal != null){
 						cal.add(Calendar.SECOND, mbusDevice.getMbus().getIntervalInSeconds());
 					}
@@ -243,7 +226,6 @@ public class MbusProfile {
 	private int getProfileStatusChannelIndex(ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjectsAsUniversalObjects().length; i++){
-//				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(ObisCode.fromString("0.0.96.10.1.255"))){
 				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getMbusStatusObject(this.mbusDevice.getPhysicalAddress()).getObisCode())){
 					return i;
 				}

@@ -87,15 +87,12 @@ public class ElectricityProfile {
 				if(lastLogReading == null){
 					lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(webrtu.getMeter());
 				}
-				//TODO
 				Calendar fromCal = ProtocolUtils.getCleanCalendar(getTimeZone());
-//				Calendar fromCal = ProtocolUtils.getCleanCalendar(getMeterTimeZone());
 				fromCal.setTime(lastLogReading);
 				webrtu.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + webrtu.getSerialNumber() + ".");
 				DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
 				//TODO
 				Logbook logbook = new Logbook(getTimeZone());
-//				Logbook logbook = new Logbook(getMeterTimeZone());
 				profileData.getMeterEvents().addAll(logbook.getMeterEvents(dcEvent));
 				profileData.applyEvents(webrtu.getMeter().getIntervalInSeconds()/60);
 			}
@@ -107,12 +104,6 @@ public class ElectricityProfile {
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException(e.getMessage());
-//		} catch (SQLException e){
-//			e.printStackTrace();
-//			throw new SQLException(e.getMessage());
-//		} catch (BusinessException e){
-//			e.printStackTrace();
-//			throw new BusinessException(e.getMessage());
 		}
 	}
 
@@ -124,9 +115,6 @@ public class ElectricityProfile {
 				throw new IOException("Interval mismatch, EIServer: " + getMeter().getIntervalInSeconds() + "s - Meter: " + genericProfile.getCapturePeriod() + "s.");
 			}
 		}
-//		if(getMeter().getIntervalInSeconds() != genericProfile.getCapturePeriod()){
-//			throw new IOException("Interval mismatch, EIServer: " + getMeter().getIntervalInSeconds() + "s - Meter: " + genericProfile.getCapturePeriod() + "s.");
-//		}
 	}
 	
 	private List<ChannelInfo> getChannelInfos(ProfileGeneric profile) throws IOException {
@@ -171,7 +159,6 @@ public class ElectricityProfile {
 	private ScalerUnit getMeterDemandRegisterScalerUnit(ObisCode oc) throws IOException{
 		try {
 			return getCosemObjectFactory().getRegister(oc).getScalerUnit();
-//			return getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not get the scalerunit from object '" + oc + "'.");
@@ -213,8 +200,6 @@ public class ElectricityProfile {
 				
 				if(dc.getRoot().getStructure(i).isOctetString(0)){
 					cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
-					//TODO
-//					cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getMeterTimeZone());
 				} else {
 					if(cal != null){
 						cal.add(Calendar.SECOND, webrtu.getMeter().getIntervalInSeconds());
@@ -239,32 +224,7 @@ public class ElectricityProfile {
 		}
 	}
 	
-//    private int map(int protocolStatus) {
-//        
-//        int eiStatus=0;
-//        
-//        if ((protocolStatus & PROFILE_STATUS_DEVICE_DISTURBANCE) == PROFILE_STATUS_DEVICE_DISTURBANCE) {
-//            eiStatus |= IntervalStateBits.DEVICE_ERROR; 
-//        }
-//        if ((protocolStatus & PROFILE_STATUS_RESET_CUMULATION) == PROFILE_STATUS_RESET_CUMULATION) {
-//            eiStatus |= IntervalStateBits.OTHER; 
-//        } 
-//        if ((protocolStatus & PROFILE_STATUS_DEVICE_CLOCK_CHANGED) == PROFILE_STATUS_DEVICE_CLOCK_CHANGED) {
-//            eiStatus |= IntervalStateBits.SHORTLONG; 
-//        } 
-//        if ((protocolStatus & PROFILE_STATUS_POWER_RETURNED) == PROFILE_STATUS_POWER_RETURNED) {
-//            eiStatus |= IntervalStateBits.POWERUP; 
-//        } 
-//        if ((protocolStatus & PROFILE_STATUS_POWER_FAILURE) == PROFILE_STATUS_POWER_FAILURE) {
-//            eiStatus |= IntervalStateBits.POWERDOWN; 
-//        } 
-//        
-//        return eiStatus;
-//        
-//    }
-	
 	private boolean isProfileStatusObisCode(ObisCode oc) throws IOException{
-//		return oc.equals(ObisCode.fromString("0.0.96.10.1.255"));
 		return oc.equals(getMeterConfig().getStatusObject().getObisCode());
 	}
 	
@@ -295,7 +255,6 @@ public class ElectricityProfile {
 	private int getProfileStatusChannelIndex(ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjectsAsUniversalObjects().length; i++){
-//				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(ObisCode.fromString("0.0.96.10.1.255"))){
 				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getStatusObject().getObisCode())){
 					return i;
 				}
@@ -340,10 +299,6 @@ public class ElectricityProfile {
 	private DLMSMeterConfig getMeterConfig(){
 		return this.webrtu.getMeterConfig();
 	}
-	
-//	private TimeZone getMeterTimeZone() throws IOException{
-//		return this.webrtu.getMeterTimeZone();
-//	}
 	
 	private TimeZone getTimeZone() throws IOException{
 		return this.webrtu.getTimeZone();
