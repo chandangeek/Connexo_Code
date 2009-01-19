@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.protocol.ProtocolUtils;
 
 public class BooleanObject extends AbstractDataType{
 	
@@ -12,6 +13,14 @@ public class BooleanObject extends AbstractDataType{
 	public BooleanObject(boolean state){
 		this.state = state;
 	}
+	
+    /** Creates a new instance of Enum */
+    public BooleanObject(byte[] berEncodedData, int offset) throws IOException {
+        if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_BOOLEAN)
+            throw new IOException("BooleanObject, invalid identifier "+berEncodedData[offset]);
+        offset++;
+        setState(berEncodedData[offset]==0xff?true:false);
+    }
 
     public String toString() {
         StringBuffer strBuffTab = new StringBuffer();
@@ -22,6 +31,10 @@ public class BooleanObject extends AbstractDataType{
 	
     public boolean getState(){
     	return this.state;
+    }
+    
+    private void setState(boolean state){
+    	this.state = state;
     }
     
 	protected byte[] doGetBEREncodedByteArray() throws IOException {
