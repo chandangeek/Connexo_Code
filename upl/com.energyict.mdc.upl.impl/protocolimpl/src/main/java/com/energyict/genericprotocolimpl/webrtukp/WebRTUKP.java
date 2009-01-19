@@ -211,6 +211,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 
 			// This cacheobject is supported by the 7.5
 			updateCache(getMeter().getId(), dlmsCache);
+			
 			Environment.getDefault().execute(getStoreObject());
 			if(success){
 				disConnect();
@@ -242,7 +243,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 //		this.dlmsCache = (tempCache == null)?new Cache():(Cache)tempCache;
 		
 		// this cacheobject is supported by the 7.5
-		this.dlmsCache = (DLMSCache)fetchCache(getMeter().getId());
+//		this.dlmsCache = (DLMSCache)fetchCache(getMeter().getId());
+		setCache(fetchCache(getMeter().getId()));
 		
 		this.mbusDevices = new MbusDevice[Constant.MaxMbusMeters];
 		this.storeObject = new StoreObject();

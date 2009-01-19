@@ -12,6 +12,8 @@ import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author  Koen
+ * 
+ * |GNA| 19012009 - Added a valid description for Abstract objects that have no description, otherwise these are not stored correctly in database
  */
 public class DLMSUtils implements DLMSCOSEMGlobals {
     
@@ -530,6 +532,8 @@ public class DLMSUtils implements DLMSCOSEMGlobals {
           else if (C == 127) str += " Inactive object";
           
           else if ((C >= 128) && (C<=255)) str += " ???, manufacturer specific"; 
+          
+          else str += " ???, Unknown description";
           
       }
       else
