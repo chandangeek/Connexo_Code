@@ -26,7 +26,7 @@ import com.energyict.protocolimpl.edmi.mk10.*;
  * @author koen
  */
 public class ObisCodeFactory {
-    static final int DEBUG = 1;
+    static final int DEBUG = 0;
     MK10 mk10;
     List touRegisterInfos;
     private BillingInfo billingInfo=null;
