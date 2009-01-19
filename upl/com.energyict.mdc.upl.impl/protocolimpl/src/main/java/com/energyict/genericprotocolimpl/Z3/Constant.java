@@ -21,7 +21,7 @@ public interface Constant {
 	// Enable or disable this state to activate the prepaid functionality
 	public final static ObisCode prepaidStateObisCode = ObisCode.fromString("1.0.96.51.17.255");	// BOOLEAN
 	
-	public final static ObisCode prepaidSetBudgetObisCode = ObisCode.fromString("1.0.96.51.18.255");	// Unsigned32		
+	public final static ObisCode prepaidSetBudgetObisCode = ObisCode.fromString("1.0.96.51.18.255");	// Signed32		
 	public final static ObisCode prepaidAddBudgetObisCode = ObisCode.fromString("1.0.96.51.19.255");	// Unsigned32
 //	public final static ScalerUnit prepaidBudgetScalerUnit = new ScalerUnit(3, Unit.get(BaseUnit.WATTHOUR)); //kWh
 	

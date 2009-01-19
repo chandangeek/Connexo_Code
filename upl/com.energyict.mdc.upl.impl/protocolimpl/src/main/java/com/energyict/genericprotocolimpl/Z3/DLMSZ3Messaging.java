@@ -518,6 +518,13 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 		return msgValue.getValue();
 	}
 
+	private byte[] getAXDRBooleanByte(boolean state){
+        byte[] data = new byte[2];
+        data[0] = DLMSCOSEMGlobals.TYPEDESC_LONG;
+        data[1] = (byte)(state?0xff:0x00);
+        return data;
+	}
+	
 	public void applyMessages(List rtuMessages) throws IOException, BusinessException, SQLException {
 		MessageHandler messageHandler = new MessageHandler();
 		
@@ -549,7 +556,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 					String digOut = messageHandler.getResult();
 					if(digOut.equals("1") || digOut.equals("2")){
 						//TODO TEST THIS
-						getCosemObjectFactory().getGenericWrite(digitalOutputObisCode[Integer.parseInt(digOut) - 1], 2).write(AXDRBoolean.encode(false).getBEREncodedByteArray());
+						getCosemObjectFactory().getGenericWrite(digitalOutputObisCode[Integer.parseInt(digOut) - 1], 2).write(getAXDRBooleanByte(false));
 						success = true;
 						
 					} else {
@@ -564,7 +571,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 					String digOut = messageHandler.getResult();
 					if(digOut.equals("1") || digOut.equals("2")){
 						//TODO TEST THIS
-						getCosemObjectFactory().getGenericWrite(digitalOutputObisCode[Integer.parseInt(digOut) - 1], 2).write(AXDRBoolean.encode(true).getBEREncodedByteArray());
+						getCosemObjectFactory().getGenericWrite(digitalOutputObisCode[Integer.parseInt(digOut) - 1], 2).write(getAXDRBooleanByte(true));
 						success = true;
 						
 					} else {
@@ -576,13 +583,13 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 				} else if(prepaidEnable){
 					
 					// TODO TEST THIS
-					getCosemObjectFactory().getGenericWrite(prepaidStateObisCode, 2).write(AXDRBoolean.encode(true).getBEREncodedByteArray());
+					getCosemObjectFactory().getGenericWrite(prepaidStateObisCode, 2).write(getAXDRBooleanByte(true));
 					success = true;
 					
 				} else if(prepaidDisable){
 					
 					// TODO TEST THIS
-					getCosemObjectFactory().getGenericWrite(prepaidStateObisCode, 2).write(AXDRBoolean.encode(false).getBEREncodedByteArray());
+					getCosemObjectFactory().getGenericWrite(prepaidStateObisCode, 2).write(getAXDRBooleanByte(false));
 					success = true;
 					
 				} else if(prepaidConfiguration){
@@ -595,7 +602,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 					
 					// The Budget register
 //					writeRegisterStructure(rm, prepaidSetBudgetObisCode, prepaidBudgetScalerUnit, messageHandler.getBudget());
-					getCosemObjectFactory().getGenericWrite(prepaidSetBudgetObisCode, 2).write(new Unsigned32(Long.valueOf(messageHandler.getBudget())).getBEREncodedByteArray());
+					getCosemObjectFactory().getGenericWrite(prepaidSetBudgetObisCode, 2).write(new Integer32(Integer.valueOf(messageHandler.getBudget())).getBEREncodedByteArray());
 					
 					// The Threshold register
 //					writeRegisterStructure(rm, prepaidThresholdObisCode, prepaidThresholdScalerUnit, messageHandler.getThreshold());
@@ -614,7 +621,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 					}
 					
 					// Enabling the prepaid configuration
-					getCosemObjectFactory().getGenericWrite(prepaidStateObisCode, 2).write(AXDRBoolean.encode(true).getBEREncodedByteArray());
+					getCosemObjectFactory().getGenericWrite(prepaidStateObisCode, 2).write(getAXDRBooleanByte(true));
 					
 					success = true;
 					
@@ -630,7 +637,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 
 					
 					// Enabling the prepaid configuration					
-					getCosemObjectFactory().getGenericWrite(prepaidStateObisCode, 2).write(AXDRBoolean.encode(true).getBEREncodedByteArray());
+					getCosemObjectFactory().getGenericWrite(prepaidStateObisCode, 2).write(getAXDRBooleanByte(true));
 					
 					success = true;
 					
@@ -700,20 +707,20 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 					}
 					
 					// Enabling the loadLimit configuration					
-					getCosemObjectFactory().getGenericWrite(loadLimitStateObisCode, 2).write(AXDRBoolean.encode(true).getBEREncodedByteArray());
+					getCosemObjectFactory().getGenericWrite(loadLimitStateObisCode, 2).write(getAXDRBooleanByte(true));
 					
 					success = true;
 					
 				} else if(loadLimitEnable){
 				
 					// TODO TEST THIS
-					getCosemObjectFactory().getGenericWrite(loadLimitStateObisCode, 2).write(AXDRBoolean.encode(true).getBEREncodedByteArray());
+					getCosemObjectFactory().getGenericWrite(loadLimitStateObisCode, 2).write(getAXDRBooleanByte(true));
 					success = true;
 					
 				} else if(loadLimitDisable){
 					
 					// TODO TEST THIS
-					getCosemObjectFactory().getGenericWrite(loadLimitStateObisCode, 2).write(AXDRBoolean.encode(false).getBEREncodedByteArray());
+					getCosemObjectFactory().getGenericWrite(loadLimitStateObisCode, 2).write(getAXDRBooleanByte(false));
 					success = true;
 					
 				} else {
