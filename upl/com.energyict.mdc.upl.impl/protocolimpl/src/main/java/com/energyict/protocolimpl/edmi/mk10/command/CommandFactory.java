@@ -10,19 +10,19 @@
 
 package com.energyict.protocolimpl.edmi.mk10.command;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 
-import com.energyict.protocolimpl.edmi.mk10.*;
+import com.energyict.protocolimpl.edmi.mk10.MK10;
 
 
 /**
  *
- * @author koen
+ * @author koen, jme
  */
 public class CommandFactory {
     
     private final int DEBUG=0;
+    private final RegisterInfo regInfo = new RegisterInfo();
     
     private MK10 mk10;
             
@@ -30,7 +30,6 @@ public class CommandFactory {
     public CommandFactory(MK10 mk10) {
         this.mk10=mk10;
     }
-
     
     public String toString() {
         return "CommandFactory";
@@ -64,7 +63,11 @@ public class CommandFactory {
         ic.setRegisterId(registerId);
         while(true) {
             try {
-                ic.invoke();
+                if (useHardCodedInfo() && isInfoHardCoded(registerId)) {
+                	ic.parse(this.regInfo.getInfoResponse(registerId));
+                } else {
+                	ic.invoke();
+                }
                 return ic;
             }
             catch(CommandResponseException e) {
@@ -120,4 +123,12 @@ public class CommandFactory {
         return farc;
     }
 
+    private boolean isInfoHardCoded(int registerId) {
+    	return this.regInfo.isInfoHardCoded(registerId);
+    }
+    
+    private boolean useHardCodedInfo() {
+    	return getMk10().useHardCodedInfo();
+    }
+    
 }
