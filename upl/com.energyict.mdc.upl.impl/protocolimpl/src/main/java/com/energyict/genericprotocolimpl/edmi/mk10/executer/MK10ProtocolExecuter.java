@@ -38,7 +38,7 @@ import com.energyict.protocolimpl.edmi.mk10.MK10;
  */
 public class MK10ProtocolExecuter {
 
-	private static final int DEBUG 					= 1;
+	private static final int DEBUG 					= 0;
 
 	public static final byte STATUS_OK 				= 0;
 	public static final byte STATUS_PROTOCOLERROR 	= 1;

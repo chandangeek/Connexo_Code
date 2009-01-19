@@ -10,9 +10,8 @@ import com.energyict.protocol.tools.OutputStreamDecorator;
 
 public class MK10PushOutputStream extends OutputStreamDecorator {
 
-	private static final int DEBUG 				= 0;
-
-	private ByteArrayOutputStream bufferOut 	= new ByteArrayOutputStream();
+	private static final int DEBUG 			= 0;
+	private ByteArrayOutputStream bufferOut = new ByteArrayOutputStream();
 
 	public MK10PushOutputStream(OutputStream stream) {
 		super(stream);
