@@ -38,7 +38,7 @@ import com.energyict.protocolimpl.edmi.mk10.MK10;
  */
 public class MK10ProtocolExecuter {
 
-	private static final int DEBUG 					= 0;
+	private static final int DEBUG 					= 1;
 
 	public static final byte STATUS_OK 				= 0;
 	public static final byte STATUS_PROTOCOLERROR 	= 1;
@@ -51,12 +51,12 @@ public class MK10ProtocolExecuter {
 	private Properties properties	= new Properties();
     private List journal 			= new ArrayList();
     
-    private int completionCode				= 0;
-    private String completionErrorString 	= NO_ERROR;
+    private int completionCode				= AmrJournalEntry.CC_OK;
+    private String completionErrorString 	= "";
 
     private MeterReadingData meterReadingData	= null;
     private ProfileData meterProfileData		= null;
-    private MeterUsageData meterUsageData			= null;
+    private MeterUsageData meterUsageData		= null;
 
 	/*
 	 * Constructors
@@ -103,7 +103,8 @@ public class MK10ProtocolExecuter {
     }
     
     public void adjustCompletionCode(int cc) {
-        if (this.completionCode == AmrJournalEntry.CC_OK)
+    	if (DEBUG >= 1)	System.out.println(" ### adjustCompletionCode(), CC = " + cc);
+    	if (this.completionCode == AmrJournalEntry.CC_OK)
             this.completionCode = cc;
     }
 	

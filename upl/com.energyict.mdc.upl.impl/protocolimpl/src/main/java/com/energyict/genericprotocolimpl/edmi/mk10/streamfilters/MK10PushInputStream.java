@@ -12,7 +12,7 @@ import com.energyict.protocol.tools.InputStreamDecorator;
 
 public class MK10PushInputStream extends InputStreamDecorator {
 
-	private static final int DEBUG 				= 1;
+	private static final int DEBUG 				= 0;
 	private static final int BYTEMASK 			= 0x000000FF;
 
 	private byte[] packetBuffer					= new byte[0];
@@ -66,6 +66,8 @@ public class MK10PushInputStream extends InputStreamDecorator {
 	}
 
 	private void updateInputStream() throws IOException {
+		if (DEBUG >= 1)	System.out.println("** updateInputStream() **");
+
 		byte[] tempBuffer = new byte[bufferIn.available()];
 		MK10InputStreamParser streamParser = new MK10InputStreamParser();
 		streamParser.parse(bufferOut.toByteArray());

@@ -1,6 +1,5 @@
 package com.energyict.genericprotocolimpl.edmi.mk10.streamfilters;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -12,7 +11,6 @@ import com.energyict.protocol.tools.OutputStreamDecorator;
 public class MK10PushOutputStream extends OutputStreamDecorator {
 
 	private static final int DEBUG 				= 0;
-	private static final int BYTEMASK 			= 0x000000FF;
 
 	private ByteArrayOutputStream bufferOut 	= new ByteArrayOutputStream();
 

@@ -159,10 +159,4 @@ public class MK10ClockExecuter {
         return false;
     }
 
-  	/*
-	 * Public getters and setters
-	 */
-
-	// TODO Auto-generated Public getters and setters stub
-
 }

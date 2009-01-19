@@ -40,7 +40,6 @@ public class MK10OutputStreamParser {
 	/*
 	 * Private getters, setters and methods
 	 */
-
 	
 	private byte[] getBytesWithoutStuffing(byte[] bytes){
 		ByteArrayOutputStream returnBytes = new ByteArrayOutputStream();

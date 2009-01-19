@@ -23,7 +23,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NotFoundException;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
@@ -37,11 +36,11 @@ import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
+import com.energyict.protocol.MeterReadingData;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.CRCGenerator;
-import com.energyict.protocolimpl.edmi.mk10.MK10;
 
 /**
  * @author jme
@@ -109,9 +108,15 @@ public class MK10Push implements GenericProtocol {
 		return (result == null) ? new MeteringWarehouseFactory().getBatch() : result;
 	}
 
-	private void addFailureLogging(Exception exception, StringBuilder eString) throws SQLException, BusinessException {
-		sendDebug("** addFailureLogging **", 0);
-		if (1 == 1) return; // FIXME: remove debugging code
+	public StringBuilder getErrorString() {
+		return errorString;
+	}
+	
+	private void addLogging(int completionCode, String completionMessage, List journal, boolean success) throws SQLException, BusinessException {
+		sendDebug("** addLogging **", 2);
+		
+		if (!success && (completionCode == AmrJournalEntry.CC_OK)) completionCode = AmrJournalEntry.CC_PROTOCOLERROR;
+		
 		if(getMeter() != null){
 			Iterator it = getMeter().getCommunicationSchedulers().iterator();
 			while(it.hasNext()){
@@ -119,11 +124,18 @@ public class MK10Push implements GenericProtocol {
 				if( !cs.getActive() ){
 					cs.startCommunication();
 					AMRJournalManager amrjm = new AMRJournalManager(getMeter(), cs);
-					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, eString + ": " + exception.toString()));
+					amrjm.journal(new AmrJournalEntry(completionCode));
 					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - getConnectTime())/1000));
-					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
-					amrjm.updateRetrials();
-					sendDebug("** updateRetrials **", 0);
+
+					for (int i = 0; i < journal.size(); i++) {
+						AmrJournalEntry amrJournalEntry = (AmrJournalEntry) journal.get(i);
+						amrjm.journal(amrJournalEntry);
+					}
+					
+					if (!success) amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, completionMessage + ", " + getErrorString()));
+					
+					amrjm.updateLastCommunication();
+					sendDebug("** updateLastCommunication **", 3);
 					break;
 				}
 			}
@@ -132,28 +144,6 @@ public class MK10Push implements GenericProtocol {
 		}
 	}
 	
-	private void addSuccessLogging() throws SQLException, BusinessException {
-		sendDebug("** addSuccessLogging **", 0);
-		if (1 == 1) return; // FIXME: remove debugging code
-		if(getMeter() != null){
-			Iterator it = getMeter().getCommunicationSchedulers().iterator();
-			while(it.hasNext()){
-				CommunicationScheduler cs = (CommunicationScheduler)it.next();
-				if( !cs.getActive() ){
-					cs.startCommunication();
-					AMRJournalManager amrjm = new AMRJournalManager(getMeter(), cs);
-					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - getConnectTime())/1000));
-					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CC_OK));
-					amrjm.updateLastCommunication();
-					sendDebug("** updateLastCommunication **", 0);
-					break;
-				}
-			}
-		}else{
-			getLogger().log(Level.INFO, "Failed to enter an AMR journal entry.");
-		}
-	}
-
 	private Rtu findMatchingMeter(String serial) {
 		Rtu rtu = null;
 		List meterList = mw().getRtuFactory().findByDialHomeId(serial);
@@ -161,8 +151,6 @@ public class MK10Push implements GenericProtocol {
 			rtu = (Rtu) meterList.get(0);
 		} else return null;
 
-		//sendDebug("** " + rtu.getCommunicationSchedulers() + " **", 0);
-		
 		return rtu;
 	}
 	
@@ -200,6 +188,11 @@ public class MK10Push implements GenericProtocol {
 		return pushDevice; 
 	}
 	
+	private void storeMeterData(MeterReadingData meterReadingData, ProfileData meterProfileData) throws SQLException, BusinessException {
+		getMeter().store(meterReadingData);
+		getMeter().store(meterProfileData);
+	}
+	
 	/*
 	 * Public methods
 	 */
@@ -228,32 +221,36 @@ public class MK10Push implements GenericProtocol {
 			getMK10Executor().setMeter(pushDevice);
 			getMK10Executor().doMeterProtocol();
 			
-			throw new ProtocolException("Generated dummy exception: 123 test");
+			storeMeterData(getMK10Executor().getMeterReadingData(), getMK10Executor().getMeterProfileData());
 			
 		} catch (ProtocolException e) {
-			// TODO enter exceptionhandling here
-			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 0);
+			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
 			errorString.append(e.getMessage());
 			success = false;
 			exception = e;
 			e.printStackTrace();
-			//throw new BusinessException(e.getMessage());
+			throw new BusinessException(e.getMessage());
 		} catch (IOException e) {
-			// TODO enter exceptionhandling here
-			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 0);
+			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
 			errorString.append(e.getMessage());
 			success = false;
 			exception = e;
 			e.printStackTrace();
-			//throw new BusinessException(e.getMessage());
+			throw new BusinessException(e.getMessage());
+		} catch (SQLException e) {
+			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
+			errorString.append(e.getMessage());
+			success = false;
+			exception = e;
+			e.printStackTrace();
+			throw new BusinessException(e.getMessage());
 		} catch (BusinessException e) {
-			// TODO enter exceptionhandling here
-			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 0);
+			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
 			errorString.append(e.getMessage());
 			success = false;
 			exception = e;
 			e.printStackTrace();
-			//throw new BusinessException(e.getMessage());
+			throw new BusinessException(e.getMessage());
 		} finally {
 			
 			setDisconnectTime(System.currentTimeMillis());
@@ -262,12 +259,16 @@ public class MK10Push implements GenericProtocol {
 			sendDebug("** Connection ended after " + (getDisconnectTime() - getConnectTime()) + " ms **", 0);
 			sendDebug("** Closing the UDP session **", 0);
 			try {Thread.sleep(2000);} catch (InterruptedException e) {};
-
+			
 			try {
-				if(success)	addSuccessLogging();
-					else addFailureLogging(exception, errorString);
+				addLogging(
+						getMK10Executor().getCompletionCode(), 
+						getMK10Executor().getCompletionErrorString(), 
+						getMK10Executor().getJournal(),
+						success
+				);
 			} catch (SQLException e) {
-				sendDebug("** SQLException **", 0);
+				sendDebug("** SQLException **", 1);
 				e.printStackTrace();
 				// Close the connection after an SQL exception, connection will startup again if requested
 				Environment.getDefault().closeConnection();
@@ -294,7 +295,7 @@ public class MK10Push implements GenericProtocol {
 	}
 
 	public void addProperties(Properties properties) {
-		sendDebug("** addProperties **", 0);
+		sendDebug("** addProperties **", 2);
 		getMK10Executor().addProperties(properties);
 	}
 	
@@ -305,8 +306,7 @@ public class MK10Push implements GenericProtocol {
 	public void sendDebug(String message, int debuglvl) {
 		String returnMessage = "";
 		if (DEBUG == 0) {
-			returnMessage += " [" + new Date().toString();
-			returnMessage += "] > " + message;
+			returnMessage += " [MK10Push] > " + message;
 		} else {
 			returnMessage += " ##### DEBUG [";
 			returnMessage += new Date().getTime();

@@ -56,7 +56,7 @@ public class MK10MeterReadingExecuter {
                 registerValue = new RegisterValue(obisCode);
                 strBuff.append(obisCode.toString());
             }
-            registerValue.setRtuRegisterId(rtuRegister.getId()); // TODO: getId == RtuRegisterId ?????
+            registerValue.setRtuRegisterId(rtuRegister.getId()); // FIXME: getId == RtuRegisterId ?????
             if (mrd == null) mrd = new MeterReadingData();
             mrd.add(registerValue);
 
@@ -70,11 +70,5 @@ public class MK10MeterReadingExecuter {
 
         return mrd;
     }
-
-	/*
-	 * Public getters and setters
-	 */
-
-	// TODO Auto-generated Public getters and setters stub
 
 }
