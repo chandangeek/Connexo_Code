@@ -33,7 +33,17 @@ public class MK10InputStreamParser {
 
 	private static final byte PUSH_START	= (byte)0x8F;
 	private static final int PUSH_LENGTH	= 24;
-	private static final int SERIAL_OFFSET	= 4;
+	
+	private static final byte EXT_START		= 'E';
+	private static final byte INFO_START	= 'I';
+	private static final byte READ_START	= 'R';
+	
+	private static final int EXT_MIN_LENGTH		= 12 + CRC_LENGTH;
+	private static final int INFO_MIN_LENGTH	= 6 + CRC_LENGTH;
+	private static final int READ_MIN_LENGTH	= 4 + CRC_LENGTH;
+
+	private static final int EXT_DATA_OFFSET	= 11;
+	private static final int SERIAL_OFFSET		= 4;
 
 	private byte[] bytes					= null;
 	private boolean validPacket				= false;
@@ -79,6 +89,24 @@ public class MK10InputStreamParser {
 		return byteBuffer;
 	}
 
+	private boolean validatePacket(byte[] bts) {
+		switch (bts[0]) {
+		case PUSH_START: 
+			if (bts.length != PUSH_LENGTH) return false;
+			return true;
+		case INFO_START: 
+			if (bts.length < INFO_MIN_LENGTH) return false;
+			return true;
+		case EXT_START: 
+			if (bts.length < EXT_MIN_LENGTH) return false;
+			return validatePacket(ProtocolUtils.getSubArray(bts, EXT_DATA_OFFSET));
+		case READ_START: 
+			if (bts.length < READ_MIN_LENGTH) return false;
+			return true;
+		default: return true;
+		}
+	}
+
 	/*
 	 * Public methods
 	 */
@@ -93,7 +121,7 @@ public class MK10InputStreamParser {
 			this.crcData = 
 				(((int)bytes[getLength() - 1]) & BYTEMASK) +  
 				((((int)bytes[getLength() - 2]) & BYTEMASK) * 256);
-			this.validPacket = (getCrcCalc() == getCrcData());
+			this.validPacket = (getCrcCalc() == getCrcData()) && validatePacket(bytes);
 			this.pushPacket = ((bytes[0] == PUSH_START) && (bytes.length == PUSH_LENGTH)) && isValidPacket(); 
 		} else {
 			this.validPacket = false;
@@ -112,10 +140,10 @@ public class MK10InputStreamParser {
 			this.serial = 0;
 		}
 		
-		if ((DEBUG >= 1) && isValidPacket()) System.out.println("MK10InputStreamParser.parse(): " + this.toString());
+		if ((DEBUG >= 2) && isValidPacket()) System.out.println("MK10InputStreamParser.parse(): " + this.toString());
 		
 	}
-	
+		
 	public String toString() {
 		String returnValue = "";
 		returnValue += "length = " + getLength() + ", ";
@@ -144,6 +172,12 @@ public class MK10InputStreamParser {
 		returnBytes = ProtocolUtils.concatByteArrays(returnBytes, new byte[] {ETX});	// append ETX to end of frame 
 		
 		if (DEBUG >= 1) {
+			System.out.println();
+			System.out.println(" Input data   = " + ProtocolUtils.getResponseData(getBytes()));
+			System.out.println(" Valid packet = " + ProtocolUtils.getResponseData(returnBytes));
+		}
+
+		if (DEBUG >= 3) {
 			try {Thread.sleep(DEBUG_DELAY);} 
 			catch (InterruptedException e) {e.printStackTrace();}
 		}

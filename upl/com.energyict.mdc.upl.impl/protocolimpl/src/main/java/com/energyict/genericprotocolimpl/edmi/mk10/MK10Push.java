@@ -251,6 +251,13 @@ public class MK10Push implements GenericProtocol {
 			exception = e;
 			e.printStackTrace();
 			throw new BusinessException(e.getMessage());
+		} catch (Exception e) {
+			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
+			errorString.append(e.getMessage());
+			success = false;
+			exception = e;
+			e.printStackTrace();
+			throw new BusinessException(e.getMessage());
 		} finally {
 			
 			setDisconnectTime(System.currentTimeMillis());
