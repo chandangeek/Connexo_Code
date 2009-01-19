@@ -26,7 +26,7 @@ import com.energyict.protocolimpl.edmi.mk10.*;
  * @author koen
  */
 public class ObisCodeFactory {
-    static final int DEBUG = 0;
+    static final int DEBUG = 1;
     MK10 mk10;
     List touRegisterInfos;
     private BillingInfo billingInfo=null;
@@ -70,7 +70,7 @@ public class ObisCodeFactory {
         		
         		// energy tou registers
                 int obisc = tou_ctp.getObisCField();
-                int rates = tou_ctp.getRates();
+                int rates = tou_ctp.getRates() + 1; // Total amount of rates + unified rate
                 int dps = tou_ctp.getDecimalPointScaling();
         		Unit unit = tou_ctp.getUnit();
                 

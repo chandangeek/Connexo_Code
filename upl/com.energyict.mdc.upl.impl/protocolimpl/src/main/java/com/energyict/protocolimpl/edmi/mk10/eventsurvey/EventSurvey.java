@@ -10,22 +10,27 @@
 
 package com.energyict.protocolimpl.edmi.mk10.eventsurvey;
 
-import com.energyict.cbo.Unit;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.TimeZone;
+
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.edmi.mk10.core.*;
-
-import java.io.*;
-import java.math.BigDecimal;
-import java.util.*;
-
-import com.energyict.protocolimpl.edmi.mk10.command.*;
+import com.energyict.protocolimpl.edmi.mk10.command.CommandFactory;
+import com.energyict.protocolimpl.edmi.mk10.command.FileAccessReadCommand;
+import com.energyict.protocolimpl.edmi.mk10.core.DateTimeBuilder;
 /**
  *
  * @author koen
  */
 public class EventSurvey {
     
-    private static final int BASE_REGISTER_ID = 0xD810;
+    private static final int DEBUG 				= 0;
+	private static final int BASE_REGISTER_ID 	= 0xD810;
 
     private CommandFactory commandFactory;
     private int registerId = BASE_REGISTER_ID;
@@ -33,9 +38,9 @@ public class EventSurvey {
     
     /** Creates a new instance of EventSurvey */
     public EventSurvey(CommandFactory commandFactory) throws IOException {
-        this.setCommandFactory(commandFactory);
-        registerId = BASE_REGISTER_ID;
-        init();
+	        this.setCommandFactory(commandFactory);
+	        registerId = BASE_REGISTER_ID;
+			init();
     }
 
     public String toString() {
@@ -46,6 +51,7 @@ public class EventSurvey {
     }
     
     private void init() throws IOException {
+    	if (DEBUG >= 1) getCommandFactory().getMk10().sendDebug("EventSurvey, init();");
     	for (int lognr = 0; lognr <  5; lognr++) {
     		FileAccessReadCommand farc;
     		eventset[lognr] = new LinkedHashSet();
@@ -53,12 +59,16 @@ public class EventSurvey {
     		
         	long firstentry = getCommandFactory().getReadCommand(registerId + 0x0005 + lognr).getRegister().getBigDecimal().longValue();
         	long lastentry = getCommandFactory().getReadCommand(registerId + 0x000A + lognr).getRegister().getBigDecimal().longValue();
+
+        	if (DEBUG >= 1) getCommandFactory().getMk10().sendDebug(" lognr = " + lognr);
+        	if (DEBUG >= 1) getCommandFactory().getMk10().sendDebug(" firstentry = " + firstentry);
+        	if (DEBUG >= 1) getCommandFactory().getMk10().sendDebug(" lastentry = " + lastentry);
         	
-        	do {
+    		 while (firstentry < lastentry) {
         		farc = this.getCommandFactory().getFileAccessReadCommand(lognr + 2, firstentry, 0xFFFF);
         		firstentry = farc.getStartRecord() + farc.getNumberOfRecords(); 
         		eventset[lognr].addAll(getEventData(farc.getData(), lognr));
-        	} while (firstentry < lastentry);
+        	};
         }
     }
     

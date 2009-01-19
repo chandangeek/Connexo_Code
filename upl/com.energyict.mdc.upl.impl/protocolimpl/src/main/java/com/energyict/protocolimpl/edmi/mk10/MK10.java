@@ -42,16 +42,18 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper;
  * 18/12/2008 -> Removed MISSING flag when only incomplete interval and no missing data
  * 07/01/2009 -> Added register readings for Abs values 
  * 13/01/2009 -> Minor changes to support push protocol
+ * 19/01/2009 -> Fixed issue with events. Do not read events when firstentry > lastentry
+ * 19/01/2009 -> Fixed issue with registers (rates). Rate can be 0 for unified rate and 1 to 8 (and not 1 to 7 !!!).
  */
 public class MK10 extends AbstractProtocol {
     
-    private static final int DEBUG=10;
-    private MK10Connection mk10Connection=null;
-    private CommandFactory commandFactory=null;
-    private ObisCodeFactory obisCodeFactory=null;
-    MK10Profile mk10Profile=null;
-    private int loadSurveyNumber;
-    private boolean pushProtocol;
+    private static final int DEBUG			= 0;
+    private MK10Connection mk10Connection	= null;
+    private CommandFactory commandFactory	= null;
+    private ObisCodeFactory obisCodeFactory	= null;
+    MK10Profile mk10Profile					= null;
+    private int loadSurveyNumber			= 0;
+    private boolean pushProtocol			= false;
     
     /** Creates a new instance of MK10 */
     public MK10() {
