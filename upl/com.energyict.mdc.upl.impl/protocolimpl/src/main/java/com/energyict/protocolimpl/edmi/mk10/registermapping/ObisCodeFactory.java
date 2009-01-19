@@ -18,6 +18,7 @@ import com.energyict.protocolimpl.edmi.mk10.core.*;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.*;
 import com.energyict.protocolimpl.edmi.mk10.*;
 
@@ -263,9 +264,11 @@ public class ObisCodeFactory {
         if (touri.isTimeOfMaxDemand()) {
             Date eventDate = doValidateDate(mk10.getCommandFactory().getReadCommand(touri.getEdmiMaxDemandRegisterId()).getRegister().getDate());
             registervalue = rc.getRegister().getBigDecimal().movePointLeft(dp);
+            registervalue = registervalue.setScale(1, BigDecimal.ROUND_HALF_UP); //FIXME rounding ???
             return new RegisterValue(obisCode,new Quantity(registervalue,unit),eventDate,null,null);
         } else {
         	registervalue = rc.getRegister().getBigDecimal().movePointLeft(dp);
+            registervalue = registervalue.setScale(1, BigDecimal.ROUND_HALF_UP); //FIXME rounding ???
         	return new RegisterValue(obisCode,new Quantity(registervalue,unit),null,null,to);
         }
     }
