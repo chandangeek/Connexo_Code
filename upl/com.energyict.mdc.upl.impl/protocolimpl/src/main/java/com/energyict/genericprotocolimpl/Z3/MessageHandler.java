@@ -122,7 +122,7 @@ public class MessageHandler extends DefaultHandler{
 	private void handleLoadLimitConfiguration(Attributes attrbs){
 		this.llreadFrequency = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_READ_FREQUENCY);
 		this.llThreshold = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_THRESHOLD);
-		this.llDuration = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_DISALBE);
+		this.llDuration = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_DURATION);
 		this.llD1Invert = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_D1_INVERT);
 		this.llD2Invert = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_D2_INVERT);
 	}

@@ -557,7 +557,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 					String digOut = messageHandler.getResult();
 					if(digOut.equals("1") || digOut.equals("2")){
 						//TODO TEST THIS
-						getCosemObjectFactory().getRegister(digitalOutputObisCode[Integer.parseInt(digOut) - 1]).setValueAttr(new BooleanObject(false));
+						getCosemObjectFactory().getData(digitalOutputObisCode[Integer.parseInt(digOut) - 1]).setValueAttr(new BooleanObject(false));
 						success = true;
 						
 					} else {
@@ -572,7 +572,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 					String digOut = messageHandler.getResult();
 					if(digOut.equals("1") || digOut.equals("2")){
 						//TODO TEST THIS
-						getCosemObjectFactory().getRegister(digitalOutputObisCode[Integer.parseInt(digOut) - 1]).setValueAttr(new BooleanObject(true));
+						getCosemObjectFactory().getData(digitalOutputObisCode[Integer.parseInt(digOut) - 1]).setValueAttr(new BooleanObject(true));
 						success = true;
 						
 					} else {
@@ -707,12 +707,14 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 
 					if(!messageHandler.getLLD1Invert().equalsIgnoreCase("")){
 //						getCosemObjectFactory().getGenericWrite(loadLimitOutputLogicObisCode[0],2).write(new Integer8(Integer.parseInt(messageHandler.getLLD1Invert())).getBEREncodedByteArray());
-						getCosemObjectFactory().getRegister(loadLimitOutputLogicObisCode[0]).setValueAttr(new Integer8(Integer.parseInt(messageHandler.getLLD1Invert())));
+//						getCosemObjectFactory().getRegister(loadLimitOutputLogicObisCode[0]).setValueAttr(new Integer8(Integer.parseInt(messageHandler.getLLD1Invert())));
+						getCosemObjectFactory().getRegister(loadLimitOutputLogicObisCode[0]).setValueAttr(new BooleanObject(messageHandler.getLLD1Invert().equals(Integer.toString(1))));
 					}
 					
 					if(!messageHandler.getLLD1Invert().equalsIgnoreCase("")){
 //						getCosemObjectFactory().getGenericWrite(loadLimitOutputLogicObisCode[1],2).write(new Integer8(Integer.parseInt(messageHandler.getLLD2Invert())).getBEREncodedByteArray());
-						getCosemObjectFactory().getRegister(loadLimitOutputLogicObisCode[1]).setValueAttr(new Integer8(Integer.parseInt(messageHandler.getLLD2Invert())));
+//						getCosemObjectFactory().getRegister(loadLimitOutputLogicObisCode[1]).setValueAttr(new Integer8(Integer.parseInt(messageHandler.getLLD2Invert())));
+						getCosemObjectFactory().getRegister(loadLimitOutputLogicObisCode[1]).setValueAttr(new BooleanObject(messageHandler.getLLD1Invert().equals(Integer.toString(1))));
 					}
 					
 					// Enabling the loadLimit configuration					
