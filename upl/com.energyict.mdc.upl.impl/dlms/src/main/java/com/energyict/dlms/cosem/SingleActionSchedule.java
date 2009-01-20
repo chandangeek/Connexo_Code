@@ -22,7 +22,6 @@ public class SingleActionSchedule extends AbstractCosemObject{
 		super(protocolLink, objectReference);
 	}
 
-	@Override
 	protected int getClassId() {
 		return AbstractCosemObject.CLASSID_SINGLE_ACTION_SCHEDULE;
 	}
