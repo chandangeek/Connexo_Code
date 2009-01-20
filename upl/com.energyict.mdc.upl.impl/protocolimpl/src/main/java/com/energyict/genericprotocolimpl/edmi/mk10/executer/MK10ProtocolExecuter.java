@@ -122,6 +122,9 @@ public class MK10ProtocolExecuter {
 		this.properties.put(MeterProtocol.NODEID, getMeter().getNodeAddress());
 		this.properties.put(MeterProtocol.ADDRESS, getMeter().getDeviceId());
 		this.properties.put(MeterProtocol.PASSWORD, getMeter().getPassword());
+		this.properties.put(MeterProtocol.PROFILEINTERVAL, String.valueOf(getMeter().getIntervalInSeconds()));
+		
+		if (DEBUG >= 2)	properties.list(System.out);
 		
 	}
 

@@ -63,13 +63,14 @@ public class MK10Push implements GenericProtocol {
 	private OutputStream outputStream			= null;
 	MK10PushInputStream mk10PushInputStream 	= null;
 	MK10PushOutputStream mk10PushOutputStream	= null;
-
 	
 	/*
 	 * Constructors
 	 */
 
-	public MK10Push() {}
+	public MK10Push() {
+		errorString.append("");
+	}
 
 	/*
 	 * Private getters, setters and methods
@@ -108,14 +109,24 @@ public class MK10Push implements GenericProtocol {
 		return (result == null) ? new MeteringWarehouseFactory().getBatch() : result;
 	}
 
-	public StringBuilder getErrorString() {
-		return errorString;
+	public String getErrorString() {
+		if (errorString == null) return "";
+		String returnValue = errorString.toString();
+		if (returnValue == null) return "";
+		return returnValue;
 	}
 	
-	private void addLogging(int completionCode, String completionMessage, List journal, boolean success) throws SQLException, BusinessException {
+	private void addLogging(int completionCode, String completionMessage, List journal, boolean success, Exception exception) throws SQLException, BusinessException {
 		sendDebug("** addLogging **", 2);
 		
-		if (!success && (completionCode == AmrJournalEntry.CC_OK)) completionCode = AmrJournalEntry.CC_PROTOCOLERROR;
+		// check if there was an protocol or timeout error
+		if (!success && (completionCode == AmrJournalEntry.CC_OK)) {
+			if (exception.getMessage().contains("timeout")) {
+				completionCode = AmrJournalEntry.CC_IOERROR;
+			} else {
+				completionCode = AmrJournalEntry.CC_PROTOCOLERROR;
+			}
+		}
 		
 		if(getMeter() != null){
 			Iterator it = getMeter().getCommunicationSchedulers().iterator();
@@ -132,10 +143,17 @@ public class MK10Push implements GenericProtocol {
 						amrjm.journal(amrJournalEntry);
 					}
 					
-					if (!success) amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, completionMessage + ", " + getErrorString()));
+					if (getErrorString().length() > 0) amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, getErrorString()));
+					if (completionMessage.length() > 0) amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, completionMessage));
+					if (exception != null) amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, "Exception: " + exception.toString()));
 					
-					amrjm.updateLastCommunication();
-					sendDebug("** updateLastCommunication **", 3);
+					if (completionCode == AmrJournalEntry.CC_OK) {
+						sendDebug("** updateLastCommunication **", 3);
+						amrjm.updateLastCommunication();
+					} else {
+						sendDebug("** updateRetrials **", 3);
+						amrjm.updateRetrials();
+					}
 					break;
 				}
 			}
@@ -177,7 +195,7 @@ public class MK10Push implements GenericProtocol {
 			buffer.write(inputStream.read() & BYTE_MASK);
 		}
 
-		inputParser.parse(buffer.toByteArray());
+		inputParser.parse(buffer.toByteArray(), true);
 		if(!inputParser.isPushPacket()) throw new ProtocolException("Received invalid data: " + inputParser.toString());
 		sendDebug("** Received message from device with serial: " + inputParser.getSerial() + " **", 0);
 		
@@ -189,8 +207,13 @@ public class MK10Push implements GenericProtocol {
 	}
 	
 	private void storeMeterData(MeterReadingData meterReadingData, ProfileData meterProfileData) throws SQLException, BusinessException {
-		getMeter().store(meterReadingData);
-		getMeter().store(meterProfileData);
+		
+		if (DEBUG >= 2) System.out.println("storeMeterData()");
+		if (DEBUG >= 2) System.out.println(" meterReadingData = " + meterReadingData);
+		if (DEBUG >= 2) System.out.println(" meterProfileData = " + meterProfileData);
+		
+		if (meterReadingData != null) getMeter().store(meterReadingData);
+		if (meterProfileData != null) getMeter().store(meterProfileData);
 	}
 	
 	/*
@@ -220,7 +243,6 @@ public class MK10Push implements GenericProtocol {
 			Rtu pushDevice = waitForPushMeter();
 			getMK10Executor().setMeter(pushDevice);
 			getMK10Executor().doMeterProtocol();
-			
 			storeMeterData(getMK10Executor().getMeterReadingData(), getMK10Executor().getMeterProfileData());
 			
 		} catch (ProtocolException e) {
@@ -265,22 +287,26 @@ public class MK10Push implements GenericProtocol {
 			sendDebug("** DisconnectTime: [" + getDisconnectTime() + "] **", 0);
 			sendDebug("** Connection ended after " + (getDisconnectTime() - getConnectTime()) + " ms **", 0);
 			sendDebug("** Closing the UDP session **", 0);
-			try {Thread.sleep(2000);} catch (InterruptedException e) {};
-			
+
+			try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();};
+						
 			try {
+				if (DEBUG >= 1)	System.out.println("addLogging()");
 				addLogging(
 						getMK10Executor().getCompletionCode(), 
 						getMK10Executor().getCompletionErrorString(), 
 						getMK10Executor().getJournal(),
-						success
+						success,
+						exception
 				);
+				if (DEBUG >= 1)	System.out.println("addLogging() ended");
 			} catch (SQLException e) {
 				sendDebug("** SQLException **", 1);
 				e.printStackTrace();
 				// Close the connection after an SQL exception, connection will startup again if requested
 				Environment.getDefault().closeConnection();
 				throw e;
-			}
+			}			
 		}
 				
 	}
@@ -329,30 +355,41 @@ public class MK10Push implements GenericProtocol {
 
 	public static void main(String[] args) {
 		try {
-			FileInputStream inFile		= new FileInputStream("C:\\debug\\raw_data.raw");
+			FileInputStream inFile		= new FileInputStream("C:\\debug\\packet.raw");
 			FileOutputStream outFile	= new FileOutputStream("C:\\debug\\packet_out_1.hex");
 		
 			MK10PushInputStream in 		= new MK10PushInputStream(inFile);
 			MK10PushOutputStream out 	= new MK10PushOutputStream(outFile);
 
-			while (in.available() > 0) {
-				System.out.println("** in.read() = " + in.read() + " **");
-			}
-						
-            byte[] tempBuffer = new byte[] {
-            		(byte)0x8F, (byte)0x50, (byte)0xFF, (byte)0xE0, 
-            		(byte)0x0C, (byte)0x4C, (byte)0x61, (byte)0xD3, 
-            		(byte)0x18, (byte)0x80, (byte)0x0F, (byte)0xE7, 
-            		(byte)0x18, (byte)0x7C, (byte)0x71, (byte)0x18, 
-            		(byte)0x01, (byte)0x1E, (byte)0x00, (byte)0x00, 
-            		(byte)0x40, (byte)0x00 
-            };
-            
-			int crc = CRCGenerator.ccittCRC(tempBuffer, tempBuffer.length);
+			ByteArrayOutputStream fileBuffer = new ByteArrayOutputStream();
 
+			int crc = 0;
+			
+			while (inFile.available() > 0) {
+				fileBuffer.write(inFile.read());
+			}
+			
+			
+			
+			
+//            byte[] tempBuffer = new byte[] {
+//            		(byte)0x8F, (byte)0x50, (byte)0xFF, (byte)0xE0, 
+//            		(byte)0x0C, (byte)0x4C, (byte)0x61, (byte)0xD3, 
+//            		(byte)0x18, (byte)0x80, (byte)0x0F, (byte)0xE7, 
+//            		(byte)0x18, (byte)0x7C, (byte)0x71, (byte)0x18, 
+//            		(byte)0x01, (byte)0x1E, (byte)0x00, (byte)0x00, 
+//            		(byte)0x40, (byte)0x00 
+//            };
+            
+            byte [] tempBuffer = fileBuffer.toByteArray();
+            
+			crc = CRCGenerator.ccittCRC(tempBuffer, tempBuffer.length - 3);
 			System.out.println("** CRC = " + crc + " [" + ProtocolUtils.buildStringHex(crc, 4) + "]" + " **");
 
+			crc = CRCGenerator.ccittCRC(tempBuffer, tempBuffer.length - 2);
+			System.out.println("** CRC = " + crc + " [" + ProtocolUtils.buildStringHex(crc, 4) + "]" + " **");
 			
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

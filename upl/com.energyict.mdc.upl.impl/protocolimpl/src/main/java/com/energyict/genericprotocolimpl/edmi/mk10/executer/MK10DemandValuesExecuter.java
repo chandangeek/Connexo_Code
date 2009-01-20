@@ -74,6 +74,7 @@ public class MK10DemandValuesExecuter {
 
     public Date validateLastReading(Date lastReading, TimeZone timeZone) {
         Date testdate;
+        if (lastReading == null) lastReading = new Date(0L);
         if (timeZone.inDaylightTime(lastReading)) {
             testdate = new Date(lastReading.getTime() + 3600000);
             if (timeZone.inDaylightTime(testdate))

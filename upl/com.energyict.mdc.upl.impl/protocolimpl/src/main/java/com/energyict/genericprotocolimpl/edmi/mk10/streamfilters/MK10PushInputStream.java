@@ -59,18 +59,23 @@ public class MK10PushInputStream extends InputStreamDecorator {
 				//bufferOut.flush();
 			}
 
-			streamParser.parse(bufferOut.toByteArray());
+			streamParser.parse(bufferOut.toByteArray(), isLastByte());
 			if (streamParser.isValidPacket()) updateInputStream();
 
 		}
 	}
 
+	private boolean isLastByte() throws IOException {
+		boolean returnValue = (super.getStream().available() > 0);
+		return !returnValue;
+	}
+	
 	private void updateInputStream() throws IOException {
 		if (DEBUG >= 1)	System.out.println("** updateInputStream() **");
 
 		byte[] tempBuffer = new byte[bufferIn.available()];
 		MK10InputStreamParser streamParser = new MK10InputStreamParser();
-		streamParser.parse(bufferOut.toByteArray());
+		int length = streamParser.parse(bufferOut.toByteArray(), isLastByte());
 		bufferIn.read(tempBuffer);
 
 		if (streamParser.isPushPacket()) {

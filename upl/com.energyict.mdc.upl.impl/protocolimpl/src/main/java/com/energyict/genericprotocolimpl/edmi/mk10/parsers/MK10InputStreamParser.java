@@ -37,10 +37,12 @@ public class MK10InputStreamParser {
 	private static final byte EXT_START		= 'E';
 	private static final byte INFO_START	= 'I';
 	private static final byte READ_START	= 'R';
+	private static final byte FARC_START	= 'F';
 	
 	private static final int EXT_MIN_LENGTH		= 12 + CRC_LENGTH;
 	private static final int INFO_MIN_LENGTH	= 6 + CRC_LENGTH;
 	private static final int READ_MIN_LENGTH	= 4 + CRC_LENGTH;
+	private static final int FARC_MIN_LENGTH	= 10 + CRC_LENGTH;
 
 	private static final int EXT_DATA_OFFSET	= 11;
 	private static final int SERIAL_OFFSET		= 4;
@@ -103,6 +105,9 @@ public class MK10InputStreamParser {
 		case READ_START: 
 			if (bts.length < READ_MIN_LENGTH) return false;
 			return true;
+		case FARC_START: 
+			if (bts.length < FARC_MIN_LENGTH) return false;
+			return true;
 		default: return true;
 		}
 	}
@@ -111,7 +116,10 @@ public class MK10InputStreamParser {
 	 * Public methods
 	 */
 
-	public void parse(byte[] bytes) {
+	public int parse(byte[] bytes, boolean isLastByte) {
+		boolean valid = false;
+		boolean push = false;
+		
 		if (bytes == null) throw new NullPointerException("Invalid argument: bytes cannot be null;");
 		this.bytes = bytes;
 		this.length = getBytes().length;
@@ -121,8 +129,27 @@ public class MK10InputStreamParser {
 			this.crcData = 
 				(((int)bytes[getLength() - 1]) & BYTEMASK) +  
 				((((int)bytes[getLength() - 2]) & BYTEMASK) * 256);
-			this.validPacket = (getCrcCalc() == getCrcData()) && validatePacket(bytes);
-			this.pushPacket = ((bytes[0] == PUSH_START) && (bytes.length == PUSH_LENGTH)) && isValidPacket(); 
+			
+			valid = (getCrcCalc() == getCrcData()) && validatePacket(bytes);
+			push = ((bytes[0] == PUSH_START) && (bytes.length == PUSH_LENGTH)) && valid; 
+
+			if (push) { 					// Packet is push packet so it doesn't matter there are still bytes in the input stream  
+				this.validPacket = true;
+				this.pushPacket = true;
+			} else {
+				if (isLastByte) {
+					if (valid) {
+						this.validPacket = true;
+						this.pushPacket = false;
+					} else {
+						this.validPacket = searchPacket(getBytes());
+						this.pushPacket = false;
+					}
+				} else {
+					this.validPacket = false;
+					this.pushPacket = false;
+				}
+			}
 		} else {
 			this.validPacket = false;
 			this.pushPacket = false;
@@ -142,8 +169,26 @@ public class MK10InputStreamParser {
 		
 		if ((DEBUG >= 2) && isValidPacket()) System.out.println("MK10InputStreamParser.parse(): " + this.toString());
 		
+		return getBytes().length;
 	}
 		
+	private boolean searchPacket(byte[] bts) {
+		boolean valid = false;
+		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		
+		for (int i = 0; i < bts.length; i++) {
+			buffer.write(bts[i]);
+			if (buffer.toByteArray().length > CRC_LENGTH) {
+				int tempCrcCalc = CRCGenerator.ccittCRC(buffer.toByteArray(), buffer.toByteArray().length - CRC_LENGTH);
+				int tempCrcData = (((int)bytes[getLength() - 1]) & BYTEMASK) + ((((int)bytes[getLength() - 2]) & BYTEMASK) * 256);
+				if ((tempCrcCalc == tempCrcData) && validatePacket(buffer.toByteArray())) valid = true;
+			}
+		}
+		
+		if (valid) this.bytes = buffer.toByteArray();
+		return valid;
+	}
+
 	public String toString() {
 		String returnValue = "";
 		returnValue += "length = " + getLength() + ", ";
