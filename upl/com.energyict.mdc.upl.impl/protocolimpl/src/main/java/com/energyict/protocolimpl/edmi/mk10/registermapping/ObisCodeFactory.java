@@ -19,6 +19,7 @@ import com.energyict.protocolimpl.edmi.mk10.core.*;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.*;
 import com.energyict.protocolimpl.edmi.mk10.*;
 
@@ -256,19 +257,26 @@ public class ObisCodeFactory {
         Date to=null;
         int dp = touri.getDecimalPoint();
         Unit unit = touri.getUnit();
+        int scaler = unit.getScale();
         
         if (touri.isBillingTimestampTo()) {
             to = doValidateDate(getBillingInfo().getToDate());
         }
         
-        if (touri.isTimeOfMaxDemand()) {
+        if (DEBUG >= 1) {
+        	System.out.println();
+        	System.out.println("rc.getRegister().getBigDecimal().floatValue " + rc.getRegister().getBigDecimal().floatValue());
+        	System.out.println(" decimal point = " + dp);
+        }
+        
+    	registervalue = rc.getRegister().getBigDecimal();
+    	registervalue = registervalue.movePointLeft(scaler);
+    	registervalue = registervalue.setScale(dp, BigDecimal.ROUND_HALF_UP);
+
+    	if (touri.isTimeOfMaxDemand()) {
             Date eventDate = doValidateDate(mk10.getCommandFactory().getReadCommand(touri.getEdmiMaxDemandRegisterId()).getRegister().getDate());
-            registervalue = rc.getRegister().getBigDecimal().movePointLeft(dp);
-            registervalue = registervalue.setScale(1, BigDecimal.ROUND_HALF_UP); //FIXME rounding ???
             return new RegisterValue(obisCode,new Quantity(registervalue,unit),eventDate,null,null);
         } else {
-        	registervalue = rc.getRegister().getBigDecimal().movePointLeft(dp);
-            registervalue = registervalue.setScale(1, BigDecimal.ROUND_HALF_UP); //FIXME rounding ???
         	return new RegisterValue(obisCode,new Quantity(registervalue,unit),null,null,to);
         }
     }

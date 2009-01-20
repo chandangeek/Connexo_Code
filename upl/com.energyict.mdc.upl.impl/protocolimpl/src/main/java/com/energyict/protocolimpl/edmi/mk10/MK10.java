@@ -45,6 +45,7 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper;
  * 19/01/2009 -> Fixed issue with events. Do not read events when firstentry > lastentry
  * 19/01/2009 -> Fixed issue with registers (rates). Rate can be 0 for unified rate and 1 to 8 (and not 1 to 7 !!!).
  * 19/01/2009 -> Hard coded some information for the most used registers.
+ * 20/01/2009 -> Fixed register scaling and decimal point.
  */
 public class MK10 extends AbstractProtocol {
     
