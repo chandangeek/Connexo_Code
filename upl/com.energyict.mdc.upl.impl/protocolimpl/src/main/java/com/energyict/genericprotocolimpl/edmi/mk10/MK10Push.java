@@ -57,7 +57,7 @@ public class MK10Push implements GenericProtocol {
 	private long disconnectTime					= 0;
 	private Link link							= null;
 	private MK10ProtocolExecuter MK10Executor	= new MK10ProtocolExecuter(this);
-	private StringBuilder errorString			= new StringBuilder();
+	private String errorString					= "";
 	
 	private InputStream inputStream				= null;
 	private OutputStream outputStream			= null;
@@ -69,7 +69,6 @@ public class MK10Push implements GenericProtocol {
 	 */
 
 	public MK10Push() {
-		errorString.append("");
 	}
 
 	/*
@@ -249,35 +248,35 @@ public class MK10Push implements GenericProtocol {
 			
 		} catch (ProtocolException e) {
 			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
-			errorString.append(e.getMessage());
+			errorString += e.getMessage();
 			success = false;
 			exception = e;
 			e.printStackTrace();
 			throw new BusinessException(e.getMessage());
 		} catch (IOException e) {
 			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
-			errorString.append(e.getMessage());
+			errorString += e.getMessage();
 			success = false;
 			exception = e;
 			e.printStackTrace();
 			throw new BusinessException(e.getMessage());
 		} catch (SQLException e) {
 			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
-			errorString.append(e.getMessage());
+			errorString += e.getMessage();
 			success = false;
 			exception = e;
 			e.printStackTrace();
 			throw new BusinessException(e.getMessage());
 		} catch (BusinessException e) {
 			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
-			errorString.append(e.getMessage());
+			errorString += e.getMessage();
 			success = false;
 			exception = e;
 			e.printStackTrace();
 			throw new BusinessException(e.getMessage());
 		} catch (Exception e) {
 			sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
-			errorString.append(e.getMessage());
+			errorString += e.getMessage();
 			success = false;
 			exception = e;
 			e.printStackTrace();
