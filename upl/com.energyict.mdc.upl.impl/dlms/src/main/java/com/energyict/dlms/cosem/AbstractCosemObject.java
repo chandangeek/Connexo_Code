@@ -12,9 +12,6 @@ import com.energyict.protocolimpl.dlms.*;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.*;
-import com.energyict.dlms.ReceiveBuffer;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.UniversalObject;
 /**
  *
  * @author  Koen
@@ -351,7 +348,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
     } // private void evalDataAccessResult(byte bVal) throws IOException
 
     
-    private static final byte CONFIRMEDSERVICEERROR_READ_TAG=5;
     private static final byte SERVICEERROR_ACCESS_TAG=5;
     private static final byte ACCESS_AUTHORIZATION=1;
     private static final byte READRESPONSE_DATAACCESSERROR_TAG=1;
@@ -379,16 +375,34 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
                 } //break; //COSEM_READRESPONSE, COSEM_WRITERESPONSE
                 
                 case COSEM_CONFIRMEDSERVICEERROR: {
-                    if ((responseData[DL_COSEMPDU_OFFSET+1] == CONFIRMEDSERVICEERROR_READ_TAG) &&
-                    (responseData[DL_COSEMPDU_OFFSET+2] == SERVICEERROR_ACCESS_TAG) &&
-                    (responseData[DL_COSEMPDU_OFFSET+3] == ACCESS_AUTHORIZATION)) {
-                        throw new IOException("Access denied through authorization!");
+//                    if ((responseData[DL_COSEMPDU_OFFSET+1] == CONFIRMEDSERVICEERROR_READ_TAG) &&
+//                    (responseData[DL_COSEMPDU_OFFSET+2] == SERVICEERROR_ACCESS_TAG) &&
+//                    (responseData[DL_COSEMPDU_OFFSET+3] == ACCESS_AUTHORIZATION)) {
+//                        throw new IOException("Access denied through authorization!");
+//                    }
+//                    else {
+//                        throw new IOException("Unknown service error, "+responseData[DL_COSEMPDU_OFFSET+1]+
+//                        responseData[DL_COSEMPDU_OFFSET+2]+
+//                        responseData[DL_COSEMPDU_OFFSET+3]);
+//                    }
+                    
+                    switch(responseData[DL_COSEMPDU_OFFSET+1]){
+                    case CONFIRMEDSERVICEERROR_INITIATEERROR_TAG:{
+                    	throw new IOException("Confirmed Service Error - 'Initiate error' - Reason: " + getServiceError(responseData[DL_COSEMPDU_OFFSET+2],responseData[DL_COSEMPDU_OFFSET+3]));
                     }
-                    else {
-                        throw new IOException("Unknown service error, "+responseData[DL_COSEMPDU_OFFSET+1]+
-                        responseData[DL_COSEMPDU_OFFSET+2]+
-                        responseData[DL_COSEMPDU_OFFSET+3]);
+                    case CONFIRMEDSERVICEERROR_READ_TAG:{
+                    	throw new IOException("Confirmed Service Error - 'Read error' - Reason: " + getServiceError(responseData[DL_COSEMPDU_OFFSET+2],responseData[DL_COSEMPDU_OFFSET+3]));
                     }
+                    case CONFIRMEDSERVICEERROR_WRITE_TAG:{
+                    	throw new IOException("Confirmed Service Error - 'Write error' - Reason: " + getServiceError(responseData[DL_COSEMPDU_OFFSET+2],responseData[DL_COSEMPDU_OFFSET+3]));
+                    }
+                    default:{
+                      throw new IOException("Unknown service error, "+responseData[DL_COSEMPDU_OFFSET+1]+
+                      responseData[DL_COSEMPDU_OFFSET+2]+
+                      responseData[DL_COSEMPDU_OFFSET+3]);
+                    }
+                    }
+                    
                     
                 } // !!! break !!! COSEM_CONFIRMEDSERVICEERROR
                 
@@ -529,7 +543,105 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
         
     } // byte[] CheckCosemPDUResponseHeader(byte[] responseData) throws IOException
     
-    private byte[] getBufferRangeDescriptor(Calendar fromCalendar, Calendar toCalendar) {
+    private String getServiceError(byte b, byte c) {
+    	switch(b){
+    	case 0:{ // Application-reference
+    		switch(c){
+    		case 0 : return "Application-reference - Other";
+    		case 1 : return "Application-reference - Time out since request sent";
+    		case 2 : return "Application-reference - Peer AEi not reachable";
+    		case 3 : return "Application-reference - Addressing trouble";
+    		case 4 : return "Application-reference - Application-context incompatibility";
+    		case 5 : return "Application-reference - Error at the local or distant equipment";
+    		case 6 : return "Application-reference - Error detected by the deciphering function";
+    		}; break ;
+    	}
+    	case 1:{ // Hardware-resource
+    		switch(c){
+    		case 0 : return "Hardware-resource - Other";
+    		case 1 : return "Hardware-resource - Memory unavailable";
+    		case 2 : return "Hardware-resource - Processor-resource unavailable";
+    		case 3 : return "Hardware-resource - Mass-storage unavailable";
+    		case 4 : return "Hardware-resource - Other resource unavailable";
+    		}; break ;
+    	}
+    	case 2:{ // VDE-State-error
+    		switch(c){
+    		case 0 : return "VDE-State-error - Other";
+    		case 1 : return "VDE-State-error - No DLMS context";
+    		case 2 : return "VDE-State-error - Loading data-set";
+    		case 3 : return "VDE-State-error - Status nochange";
+    		case 4 : return "VDE-State-error - Status inoperable";
+    		}; break ;
+    	}
+    	case 3:{ // Service
+    		switch(c){
+    		case 0: return "Service - Other";
+    		case 1: return "Service - PDU size to long";
+    		case 2: return "Service - Service unsupported";
+    		}; break ;
+    	}
+    	case 4:{ // Definition
+    		switch(c){
+    		case 0: return "Definition - Other";
+    		case 1: return "Definition - Object undefined";
+    		case 2: return "Definition - Object class inconsistent";
+    		case 3: return "Definition - Object attribute inconsistent";
+    		}; break ;
+    	}
+    	case 5:{ // Access
+    		switch(c){
+    		case 0: return "Access - Other";
+    		case 1: return "Access - Scope of access violated";
+    		case 2: return "Access - Object access violated";
+    		case 3: return "Access - Hardware-fault";
+    		case 4: return "Access - Object unavailable";
+    		}; break ;
+    	}
+    	case 6:{ // Initiate
+    		switch(c){
+    		case 0: return "Initiate - Other";
+    		case 1: return "Initiate - DLMS version too low";
+    		case 2: return "Initiate - Incompatible conformance";
+    		case 3: return "Initiate - PDU size too short";
+    		case 4: return "Initiate - Refused by the VDE Handler";
+    		}; break ;
+    	}
+    	case 7:{ // Load-Data-Set
+    		switch(c){
+    		case 0: return "Load-Data-Set - Other";
+    		case 1: return "Load-Data-Set - Primitive out of sequence";
+    		case 2: return "Load-Data-Set - Not loadable";
+    		case 3: return "Load-Data-Set - Evaluated data set size too large";
+    		case 4: return "Load-Data-Set - Proposed segment not awaited";
+    		case 5: return "Load-Data-Set - Segment interpretation error";
+    		case 6: return "Load-Data-Set - Segment storage error";
+    		case 7: return "Load-Data-Set - Data set not in correct state for uploading";
+    		}; break ;
+    	}
+    	case 8:{ // Change scope
+    		return "Change Scope";
+    	}
+    	case 9:{ // Task
+    		switch(c){
+    		case 0: return "Task - Other";
+    		case 1: return "Task - Remote control parameter set to FALSE";
+    		case 2: return "Task - TI in stopped state";
+    		case 3: return "Task - TI in running state";
+    		case 4: return "Task - TI in unusable state";
+    		}; break ;
+    	}
+    	case 10:{ // Other
+    		return "Other";
+    	}
+    	default:{
+    		return "Other";
+    	}
+    	}
+		return "";
+	}
+
+	private byte[] getBufferRangeDescriptor(Calendar fromCalendar, Calendar toCalendar) {
         if (toCalendar == null)
            return getBufferRangeDescriptorSL7000(fromCalendar);
         else if (protocolLink.getMeterConfig().isActarisPLCC())
