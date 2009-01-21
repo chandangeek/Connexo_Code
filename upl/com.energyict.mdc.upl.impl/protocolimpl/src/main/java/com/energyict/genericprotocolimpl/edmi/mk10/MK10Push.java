@@ -121,10 +121,12 @@ public class MK10Push implements GenericProtocol {
 		
 		// check if there was an protocol or timeout error
 		if (!success && (completionCode == AmrJournalEntry.CC_OK)) {
-			if (exception.getMessage().contains("timeout")) {
-				completionCode = AmrJournalEntry.CC_IOERROR;
-			} else {
-				completionCode = AmrJournalEntry.CC_PROTOCOLERROR;
+			if (exception != null) {
+				if (exception.getMessage().contains("timeout")) {
+					completionCode = AmrJournalEntry.CC_IOERROR;
+				} else {
+					completionCode = AmrJournalEntry.CC_PROTOCOLERROR;
+				}
 			}
 		}
 		

@@ -21,6 +21,7 @@ import com.energyict.genericprotocolimpl.edmi.mk10.streamfilters.MK10PushInputSt
 import com.energyict.genericprotocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
 import com.energyict.mdw.core.AmrJournalEntry;
 import com.energyict.mdw.core.CommunicationProfile;
+import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
@@ -115,14 +116,19 @@ public class MK10ProtocolExecuter {
 
     
 	private void readMeterProperties() {
-		this.properties.putAll(getMeter().getProtocol().getProperties());
-		this.properties.putAll(getMeter().getProperties());
+		if (this.properties == null) this.properties = new Properties();
+		
+		CommunicationProtocol protocol = getMeter().getProtocol();
+		if (protocol != null) {
+			if (protocol.getProperties() != null) this.properties.putAll(protocol.getProperties());
+		}
+		if (getMeter().getProperties() != null) this.properties.putAll(getMeter().getProperties());
 				
-		this.properties.put(MeterProtocol.SERIALNUMBER, getMeter().getSerialNumber());
-		this.properties.put(MeterProtocol.NODEID, getMeter().getNodeAddress());
-		this.properties.put(MeterProtocol.ADDRESS, getMeter().getDeviceId());
-		this.properties.put(MeterProtocol.PASSWORD, getMeter().getPassword());
-		this.properties.put(MeterProtocol.PROFILEINTERVAL, String.valueOf(getMeter().getIntervalInSeconds()));
+		if (getMeter().getSerialNumber() != null) this.properties.put(MeterProtocol.SERIALNUMBER, getMeter().getSerialNumber());
+		if (getMeter().getNodeAddress() != null) this.properties.put(MeterProtocol.NODEID, getMeter().getNodeAddress());
+		if (getMeter().getDeviceId() != null) this.properties.put(MeterProtocol.ADDRESS, getMeter().getDeviceId());
+		if (getMeter().getPassword() != null) this.properties.put(MeterProtocol.PASSWORD, getMeter().getPassword());
+		if (String.valueOf(getMeter().getIntervalInSeconds()) != null) this.properties.put(MeterProtocol.PROFILEINTERVAL, String.valueOf(getMeter().getIntervalInSeconds()));
 		
 		if (DEBUG >= 2)	properties.list(System.out);
 		
