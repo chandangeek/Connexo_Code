@@ -258,3 +258,4 @@
 	*;
 }
 
+-keepnames class com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging
