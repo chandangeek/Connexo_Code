@@ -33,7 +33,6 @@ public class IPv4Setup extends AbstractCosemObject{
 		super(protocolLink, objectReference);
 	}
 
-	@Override
 	protected int getClassId() {
 		return AbstractCosemObject.CLASSID_IPV4SETUP;
 	}
@@ -58,7 +57,7 @@ public class IPv4Setup extends AbstractCosemObject{
 	}
 	
 	public String getIPAddress() throws NumberFormatException, IOException{
-	   	StringBuilder builder = new StringBuilder();
+	   	StringBuffer builder = new StringBuffer();
     	for(int i = 1; i < readIPAddress().getBEREncodedByteArray().length; i++){
     		if(i != 1){
     			builder.append(".");
@@ -128,7 +127,7 @@ public class IPv4Setup extends AbstractCosemObject{
 	}
 	
 	public String getSubnetMask() throws IOException{
-	   	StringBuilder builder = new StringBuilder();
+	   	StringBuffer builder = new StringBuffer();
     	for(int i = 1; i < readSubnetMask().getBEREncodedByteArray().length; i++){
     		if(i != 1){
     			builder.append(".");
@@ -162,7 +161,7 @@ public class IPv4Setup extends AbstractCosemObject{
 	}
 	
 	public String getGatewayIPAddress() throws IOException{
-	   	StringBuilder builder = new StringBuilder();
+	   	StringBuffer builder = new StringBuffer();
     	for(int i = 1; i < readGatewayIPAddress().getBEREncodedByteArray().length; i++){
     		if(i != 1){
     			builder.append(".");
@@ -196,7 +195,7 @@ public class IPv4Setup extends AbstractCosemObject{
 	}
 	
 	public String getPrimaryDNSAddress() throws IOException{
-	   	StringBuilder builder = new StringBuilder();
+	   	StringBuffer builder = new StringBuffer();
     	for(int i = 1; i < readPrimaryDNSAddress().getBEREncodedByteArray().length; i++){
     		if(i != 1){
     			builder.append(".");
@@ -230,7 +229,7 @@ public class IPv4Setup extends AbstractCosemObject{
 	}
 	
 	public String getSecondaryDNSAddress() throws IOException{
-	   	StringBuilder builder = new StringBuilder();
+	   	StringBuffer builder = new StringBuffer();
     	for(int i = 1; i < readSecondaryDNSAddress().getBEREncodedByteArray().length; i++){
     		if(i != 1){
     			builder.append(".");

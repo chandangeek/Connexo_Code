@@ -95,6 +95,7 @@ public interface DLMSCOSEMGlobals {
     final byte[] LOAD_PROFILE_LN={0,0,99,1,0,(byte)255}; //    
     final byte[] LOGBOOK_PROFILE_LN={0,0,99,98,0,(byte)255};
     final byte[] IPV4_SETUP = {0,0,25,1,0,(byte)255};
+    final byte[] P3IMAGE_TRANSFER = {0,0,44,0,0,(byte)255};
     
     //********************************************************************************************************
     // Reserved SN logical name constants, should be filled in when requesting the object list first.

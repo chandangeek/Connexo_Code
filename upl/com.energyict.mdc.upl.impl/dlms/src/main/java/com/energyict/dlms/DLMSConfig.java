@@ -36,6 +36,10 @@ public class DLMSConfig {
     
     final static private DLMSConfig ipv4Setup = new DLMSConfig("",42,0,0,25,1,0,255);
     
+    final static private DLMSConfig p3ImageTransfer = new DLMSConfig("",18,0,0,44,0,0,255);
+    
+    final static private DLMSConfig imageActivationSchedule = new DLMSConfig("",22,0,0,15,0,2,255);
+    
     final static private DLMSConfig[] configchange = {
             new DLMSConfig("LGZ",3,0,0,96,2,0,255),
             new DLMSConfig("EIT",3,0,0,96,2,0,255),
@@ -833,6 +837,14 @@ public class DLMSConfig {
 	       }
 	       throw new IOException("DLMSConfig, ipv4SetupObject, not found in objectlist (IOL)!");  
 	}
+	
+	public UniversalObject getImageActivationSchedule(UniversalObject[] objectList) throws IOException {
+	       if (objectList == null) throw new IOException("DLMSConfig, imageActivationSchedule, objectlist empty!");
+	       for (int i=0;i<objectList.length;i++) {
+	           if (objectList[i].equals(imageActivationSchedule)) return objectList[i];
+	       }
+	       throw new IOException("DLMSConfig, imageActivationSchedule, not found in objectlist (IOL)!");  
+	}
 
 	public int getIPv4SetupSN(UniversalObject[] objectList) throws IOException {
 		if (objectList == null) throw new IOException("DLMSConfig, ipv4Setup, objectlist empty!");
@@ -841,14 +853,30 @@ public class DLMSConfig {
 		}
 		return 0;  
 	}   
-    
-    public static void main(String[] args)
-    {
-        DLMSConfig config = DLMSConfig.getInstance();
-        System.out.println("DLMS configuration");
-        
-        System.out.println(config.getClock().toString());
-        
-    }
+	
+	public UniversalObject getP3ImageTransfer(UniversalObject[] objectList) throws IOException {
+	       if (objectList == null) throw new IOException("DLMSConfig, P3ImageTransfer, objectlist empty!");
+	       for (int i=0;i<objectList.length;i++) {
+	           if (objectList[i].equals(p3ImageTransfer)) return objectList[i];
+	       }
+	       throw new IOException("DLMSConfig, P3ImageTransfer, not found in objectlist (IOL)!");  
+	}   
+	
 
+	public int getP3ImageTransferSN(UniversalObject[] objectList) throws IOException {
+		if (objectList == null) throw new IOException("DLMSConfig, P3ImageTransfer, objectlist empty!");
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(p3ImageTransfer)) return objectList[i].getBaseName();
+		}
+		return 0;  
+	}
+
+	public static void main(String[] args)
+	{
+		DLMSConfig config = DLMSConfig.getInstance();
+		System.out.println("DLMS configuration");
+		
+		System.out.println(config.getClock().toString());
+		
+	}
 }

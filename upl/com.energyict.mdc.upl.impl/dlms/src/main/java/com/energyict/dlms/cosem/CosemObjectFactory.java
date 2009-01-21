@@ -166,6 +166,13 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     	return new IPv4Setup(protocolLink, getObjectReference(IPV4_SETUP, protocolLink.getMeterConfig().getIPv4SetupSN()));
     }
     
+    public P3ImageTransfer getP3ImageTransfer() throws IOException {
+    	return new P3ImageTransfer(protocolLink, getObjectReference(P3IMAGE_TRANSFER, protocolLink.getMeterConfig().getP3ImageTransferSN()));
+    }
+    
+    public P3ImageTransfer getP3ImageTransfer(ObisCode obisCode) throws IOException{
+    	return new P3ImageTransfer(protocolLink, getObjectReference(obisCode));
+    }
 
     public CosemObject getCosemObject(ObisCode obisCode) throws IOException {
         if (obisCode.getF() != 255) {
@@ -211,6 +218,5 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
             return new ObjectReference(sn);
         throw new IOException("CosemObjectFactory, getObjectReference, invalid reference type "+protocolLink.getReference());
     }
-    
     
 }

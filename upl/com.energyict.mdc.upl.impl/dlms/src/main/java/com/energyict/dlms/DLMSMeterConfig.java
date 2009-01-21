@@ -111,6 +111,10 @@ public class DLMSMeterConfig {
 	public int getIPv4SetupSN() throws IOException {
 		return config.getIPv4SetupSN(IOL);
 	}
+	
+	public int getP3ImageTransferSN() throws IOException {
+		return config.getP3ImageTransferSN(IOL);
+	}
     
     public UniversalObject getEventLogObject() throws IOException {
        return config.getEventLogObject(IOL);    
@@ -266,9 +270,17 @@ public class DLMSMeterConfig {
 	public UniversalObject getXMLConfig() throws IOException {
 	       return config.getXMLConfig(IOL,manuf);    
 	}
+	
+	public UniversalObject getImageActivationSchedule() throws IOException{
+		return config.getImageActivationSchedule(IOL);
+	}
 
 	public UniversalObject getMbusStatusObject(int physicalAddress) throws IOException{
 		return config.getMbusStatusObject(IOL, manuf, physicalAddress);
+	}
+	
+	public UniversalObject getP3ImageTransfer() throws IOException{
+		return config.getP3ImageTransfer(IOL);
 	}
 	
 }

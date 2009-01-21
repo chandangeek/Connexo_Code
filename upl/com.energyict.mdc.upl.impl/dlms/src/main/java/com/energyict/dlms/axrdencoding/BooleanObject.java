@@ -19,7 +19,7 @@ public class BooleanObject extends AbstractDataType{
         if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_BOOLEAN)
             throw new IOException("BooleanObject, invalid identifier "+berEncodedData[offset]);
         offset++;
-        setState(berEncodedData[offset]==0xff?true:false);
+        setState(berEncodedData[offset]==0x00?false:true);
     }
 
     public String toString() {
