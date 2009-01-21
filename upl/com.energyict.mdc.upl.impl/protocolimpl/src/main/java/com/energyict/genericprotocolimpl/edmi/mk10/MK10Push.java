@@ -165,18 +165,13 @@ public class MK10Push implements GenericProtocol {
 	
 	private Rtu findMatchingMeter(String serial) {
 		if (serial == null) return null;
-		List meterList = mw().getRtuFactory().findBySerialNumber(serial);
+		List meterList = mw().getRtuFactory().findByDialHomeId(serial);
 		
-		for (int i = 0; i < meterList.size(); i++) {
-			Rtu tempMeter = (Rtu) meterList.get(i);
-			if (tempMeter.getDialHomeId() != null){
-				if (tempMeter.getDialHomeId().trim().equalsIgnoreCase(serial.trim())) {
-					return (Rtu) meterList.get(i);
-				}
-			}
+		if (meterList.size() == 1) {
+			return (Rtu) meterList.get(0);
+		} else {
+			return null;
 		}
-		
-		return null;
 	}
 	
 	private void initMk10Protocol(Rtu rtu) throws IOException {
