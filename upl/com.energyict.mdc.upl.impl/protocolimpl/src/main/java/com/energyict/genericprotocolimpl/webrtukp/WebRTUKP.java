@@ -984,8 +984,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		
 		// TODO function may not be implemented in latest release
 		// Firmware related messages
-		msgSpec = addFirmwareMsg("Upgrade Firmware", RtuMessageConstant.FIRMWARE_UPGRADE, false);
-		catFirmware.addMessageSpec(msgSpec);
+//		msgSpec = addFirmwareMsg("Upgrade Firmware", RtuMessageConstant.FIRMWARE_UPGRADE, false);
+//		catFirmware.addMessageSpec(msgSpec);
 		
 		categories.add(catXMLConfig);
 		categories.add(catFirmware);
