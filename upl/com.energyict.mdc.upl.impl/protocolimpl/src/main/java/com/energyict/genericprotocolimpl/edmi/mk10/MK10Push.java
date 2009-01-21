@@ -121,7 +121,7 @@ public class MK10Push implements GenericProtocol {
 		// check if there was an protocol or timeout error
 		if (!success && (completionCode == AmrJournalEntry.CC_OK)) {
 			if (exception != null) {
-				if (exception.getMessage().contains("timeout")) {
+				if (exception.getMessage().indexOf("timeout") != -1) {
 					completionCode = AmrJournalEntry.CC_IOERROR;
 				} else {
 					completionCode = AmrJournalEntry.CC_PROTOCOLERROR;
@@ -165,7 +165,15 @@ public class MK10Push implements GenericProtocol {
 	
 	private Rtu findMatchingMeter(String serial) {
 		Rtu rtu = null;
-		List meterList = mw().getRtuFactory().findByDialHomeId(serial);
+		List meterList = mw().getRtuFactory().findBySerialNumber(serial);
+		
+		for (int i = 0; i < meterList.size(); i++) {
+			Rtu tempMeter = (Rtu) meterList.get(i);
+			if (tempMeter.getDialHomeId() != null){
+				if (!tempMeter.getDialHomeId().equalsIgnoreCase(serial)) meterList.remove(i);
+			}
+		}
+		
 		if (meterList.size() == 1) {
 			rtu = (Rtu) meterList.get(0);
 		} else return null;
