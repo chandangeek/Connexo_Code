@@ -46,6 +46,7 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper;
  * 19/01/2009 -> Fixed issue with registers (rates). Rate can be 0 for unified rate and 1 to 8 (and not 1 to 7 !!!).
  * 19/01/2009 -> Hard coded some information for the most used registers.
  * 20/01/2009 -> Fixed register scaling and decimal point.
+ * 21/01/2009 -> Added custom property to disable log-off after communication to prevent modem disconnect.
  */
 public class MK10 extends AbstractProtocol {
     
@@ -58,6 +59,7 @@ public class MK10 extends AbstractProtocol {
     MK10Profile mk10Profile						= null;
     private int loadSurveyNumber				= 0;
     private boolean pushProtocol				= false;
+    private boolean logOffDisabled				= true;
     
     /** Creates a new instance of MK10 */
     public MK10() {
@@ -71,7 +73,11 @@ public class MK10 extends AbstractProtocol {
     
     protected void doDisConnect() throws IOException {
         sendDebug("doDisConnect()");
-        getCommandFactory().exitCommandLineMode();
+        if (!isLogOffDisabled()) {
+        	getCommandFactory().exitCommandLineMode();
+        } else {
+            sendDebug("logOffDisabled = " + isLogOffDisabled() + " Ignoring disconnect call.");
+        }
     }
     
 	// This method is never used. 
@@ -90,6 +96,7 @@ public class MK10 extends AbstractProtocol {
         validateLoadSurveyNumber(properties.getProperty("LoadSurveyNumber"));
         setLoadSurveyNumber(Integer.parseInt(properties.getProperty("LoadSurveyNumber").trim())-1);
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
+        setLogOffDisabled(Integer.parseInt(properties.getProperty("DisableLogOff","0").trim()));
     }
     
     public int getProfileInterval() throws UnsupportedException, IOException { 
@@ -106,6 +113,7 @@ public class MK10 extends AbstractProtocol {
         sendDebug("doGetOptionalKeys()");
         List result = new ArrayList();
         result.add("LoadSurveyNumber");
+        result.add("DisableLogOff");
         return result;
     }
     
@@ -225,4 +233,11 @@ public class MK10 extends AbstractProtocol {
 		this.pushProtocol = pushProtocol;
 	}
     
+    public boolean isLogOffDisabled() {
+		return logOffDisabled;
+	}
+    
+    public void setLogOffDisabled(int logOffDisabled ) {
+		this.logOffDisabled = (logOffDisabled == 1);
+	}
 }
