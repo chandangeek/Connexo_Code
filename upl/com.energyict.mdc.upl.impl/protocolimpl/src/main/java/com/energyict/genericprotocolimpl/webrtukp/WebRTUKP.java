@@ -34,6 +34,7 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.CapturedObject;
@@ -41,9 +42,12 @@ import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.IPv4Setup;
+import com.energyict.dlms.cosem.P3ImageTransfer;
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.GenericCache;
+import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.ElectricityProfile;
@@ -55,14 +59,18 @@ import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageElement;
 import com.energyict.protocol.messaging.MessageSpec;
@@ -850,13 +858,45 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				importMessage(content, messageHandler);
 				
 				boolean xmlConfig		= messageHandler.getType().equals(RtuMessageConstant.XMLCONFIG);
+				boolean firmware		= messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPGRADE);
 				
 				if(xmlConfig){
 					
 					//TODO TEST THIS
 					String xmlConfigStr = getMessageValue(content, RtuMessageConstant.XMLCONFIG);
 					
+					// TODO You probably should use a getRegister() ...
 					getCosemObjectFactory().getData(getMeterConfig().getXMLConfig().getObisCode()).setValueAttr(OctetString.fromString(xmlConfigStr));
+					
+					success = true;
+					
+				} else if(firmware){
+					
+					// TODO Complete message
+					String userFileID = messageHandler.getUserFileId();
+					
+					if(!ParseUtils.isInteger(userFileID)){
+						String str = "Not a valid entry for the current meter message (" + content + ").";
+	            		throw new IOException(str);
+					} 
+					UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
+					if(!(uf instanceof UserFile )){
+						String str = "Not a valid entry for the userfileID " + userFileID;
+						throw new IOException(str);
+					}
+					
+					byte[] imageData = uf.loadFileInByteArray();
+					P3ImageTransfer p3it = getCosemObjectFactory().getP3ImageTransfer();
+					p3it.upgrade(imageData);
+					
+					if(messageHandler.activateNow()){
+						p3it.activateAndRetryImage();
+					} else if(!messageHandler.getActivationDate().equalsIgnoreCase("")){
+						SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+						String strDate = messageHandler.getActivationDate();
+						Array dateArray = convertStringToDateTimeArray(strDate);
+						sas.writeExecutionTime(dateArray);
+					}
 					
 					success = true;
 					
@@ -870,6 +910,9 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			} catch (IOException e) {
 				e.printStackTrace();
 				log(Level.INFO, "Message " + rm.displayString() + " hase failed. " + e.getMessage());
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				log(Level.INFO, "Message " + rm.displayString() + " hase failed. " + e.getMessage());
 			} finally {
 				if(success){
 					rm.confirm();
@@ -879,6 +922,29 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			}
 			
 		}
+	}
+	
+	private Array convertStringToDateTimeArray(String strDate) {
+		OctetString date = null;
+		byte[] dateBytes = new byte[5];
+		dateBytes[0] = (byte) ((Integer.parseInt(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" "))) >> 8)&0xFF);
+		dateBytes[1] = (byte) (Integer.parseInt(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" ")))&0xFF);
+		dateBytes[2] = (byte) ((Integer.parseInt(strDate.substring(strDate.indexOf("/") + 1, strDate.lastIndexOf("/"))))&0xFF);
+		dateBytes[3] = (byte) (Integer.parseInt(strDate.substring(0, strDate.indexOf("/")))&0xFF);
+		dateBytes[4] = (byte)0xFF;
+		date = new OctetString(dateBytes);
+		
+		OctetString time = null;
+		byte[] timeBytes = new byte[4];
+		timeBytes[0] = (byte) (Integer.parseInt(strDate.substring(strDate.indexOf(" ") + 1, strDate.indexOf(":")))&0xFF);
+		timeBytes[1] = (byte) (Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":")))&0xFF);
+		timeBytes[2] = (byte) 0x00;
+		timeBytes[3] = (byte) 0x00;
+		
+		Array dateTimeArray = new Array();
+		dateTimeArray.addDataType(date);
+		dateTimeArray.addDataType(time);
+		return dateTimeArray;
 	}
 	
 	private String getMessageValue(String msgStr, String str) {
@@ -915,14 +981,37 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	public List getMessageCategories() {
 		List categories = new ArrayList();
 		MessageCategorySpec catXMLConfig = new MessageCategorySpec("XMLConfig");
+		MessageCategorySpec catFirmware = new MessageCategorySpec("Firmware");
 		
-		// XMLConfig releated messages
+		// XMLConfig related messages
 		MessageSpec msgSpec = addDefaultValueMsg("XMLConfig", RtuMessageConstant.XMLCONFIG, false);
 		catXMLConfig.addMessageSpec(msgSpec);
 		
+		// TODO function may not be implemented in latest release
+		// Firmware related messages
+		msgSpec = addFirmwareMsg("Upgrade Firmware", RtuMessageConstant.FIRMWARE_UPGRADE, false);
+		catFirmware.addMessageSpec(msgSpec);
+		
 		categories.add(catXMLConfig);
+		categories.add(catFirmware);
 		return categories;
 	}
+	
+    private MessageSpec addFirmwareMsg(String keyId, String tagName, boolean advanced){
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        tagSpec.add(msgVal);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.FIRMWARE, true);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.FIRMWARE_ACTIVATE_NOW, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE, false);
+        tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+    	return msgSpec;
+    }
 
 	private MessageSpec addDefaultValueMsg(String keyId, String tagName, boolean advanced){
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -1016,5 +1105,5 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
         }
         else throw new com.energyict.cbo.BusinessException("invalid RtuId!");
     }
-	
+
 }

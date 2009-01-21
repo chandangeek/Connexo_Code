@@ -3,6 +3,10 @@
  */
 package com.energyict.genericprotocolimpl.webrtukp;
 
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -24,10 +28,13 @@ public class MessageHandler extends DefaultHandler{
 	public void startElement(String uri, String lName, String qName, Attributes attrbs) throws SAXException {
 		if(RtuMessageConstant.XMLCONFIG.equals(qName)){
 			setType(RtuMessageConstant.XMLCONFIG);
+		} else if(RtuMessageConstant.FIRMWARE_UPGRADE.equals(qName)){
+			setType(RtuMessageConstant.FIRMWARE_UPGRADE);
+			handleFirmWareUpgrade(attrbs);
 		}
 	}
-	
-    public void characters (char buf [], int offset, int length) throws SAXException {
+
+	public void characters (char buf [], int offset, int length) throws SAXException {
 //    	System.out.println(new String(buf, offset, length));
     }
 	
@@ -43,5 +50,59 @@ public class MessageHandler extends DefaultHandler{
 	 * XMLConfig Related messages
 	 **********************************************/
 	
+	/**********************************************/
 	
+	/**********************************************
+	 * FirmwareUpgrade Related messages
+	 **********************************************/
+	private String userfileId;
+	private String activateNow;
+	private String activationDate;
+	
+    private void handleFirmWareUpgrade(Attributes attrbs) {
+    	this.userfileId = attrbs.getValue(RtuMessageConstant.FIRMWARE);
+    	this.activateNow = attrbs.getValue(RtuMessageConstant.FIRMWARE_ACTIVATE_NOW);
+    	this.activationDate = attrbs.getValue(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE);
+	}
+	
+	public String getUserFileId(){
+		return this.userfileId;
+	}
+	
+	public String getActivateNow(){
+		return this.activateNow;
+	}
+	
+	public boolean activateNow(){
+		return this.activateNow.equals("1");
+	}
+	
+	public String getActivationDate(){
+		return this.activationDate;
+	}
+	
+	public Date activationDate() throws IOException{
+		return getCalendarFromString(getActivationDate()).getTime();
+	}
+	
+	private Calendar getCalendarFromString(String strDate) throws IOException{
+		Calendar cal = null;
+		try {
+			cal = Calendar.getInstance();
+			cal.set(Calendar.DATE, Integer.parseInt(strDate.substring(0, strDate.indexOf("/"))));
+			cal.set(Calendar.MONTH, (Integer.parseInt(strDate.substring(strDate.indexOf("/") + 1, strDate.lastIndexOf("/")))) - 1);
+			cal.set(Calendar.YEAR, Integer.parseInt(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" "))));
+			
+			cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(strDate.substring(strDate.indexOf(" ") + 1, strDate.indexOf(":"))));
+			cal.set(Calendar.MINUTE, Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":"))));
+			cal.set(Calendar.SECOND, Integer.parseInt(strDate.substring(strDate.lastIndexOf(":") + 1, strDate.length())));
+			cal.clear(Calendar.MILLISECOND);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			throw new IOException("Dateformat was not correct.");
+		}
+		return cal;
+	}
+	
+	/**********************************************/
 }

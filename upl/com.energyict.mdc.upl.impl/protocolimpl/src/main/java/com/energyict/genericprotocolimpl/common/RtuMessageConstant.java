@@ -44,9 +44,11 @@ public class RtuMessageConstant {
     public final static String FREQUENCY_SPACE = "Frequency space";
     
     /** RtuMessage tag for upgrading the meters firmware */
-    public final static String FIRMWARE_UPGRADE = "firmwareUpgrade";
-    public final static String FIRMWARE = "UserFile ID of firmware bin file";
+    public final static String FIRMWARE_UPGRADE = "FirmwareUpgrade";
+    public final static String FIRMWARE = "UserFileID";
     public final static String FIRMWARE_METERS = "GroupID of meters to receive new firmware";
+	public static final String FIRMWARE_ACTIVATE_NOW = "Activate_now";
+	public static final String FIRMWARE_ACTIVATE_DATE = "Activation_date";
     
     /** RtuMessage tag for prepaid functionality */
     public final static String PREPAID_CONFIGURED = "Configure_Prepaid_functionality";
