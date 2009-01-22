@@ -17,13 +17,15 @@ import java.io.*;
 /**
  *
  * @author Koen
+ * Changes:
+ * GNA |22012009| Made the safety timer customizable
  */
 public class Transport6205651 {
     
     final int DEBUG=0;
     
     Connection62056 connection;
-    final long TIMEOUT=300000; // safety timer
+    private long TIMEOUT=300000; // safety timer
     
     
     // states
@@ -56,6 +58,7 @@ public class Transport6205651 {
     /** Creates a new instance of Transport6205651 */
     public Transport6205651(Connection62056 connection) {
         this.connection=connection;
+        this.TIMEOUT = this.connection.getSafetyTimeout();
     }
     
     public void initTransport() {

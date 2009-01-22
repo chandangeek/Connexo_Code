@@ -22,6 +22,8 @@ import com.energyict.protocolimpl.base.*;
 /**
  *
  * @author Koen
+ * Changes:
+ * GNA|22012009| Added a safetyTimeout to use in the transportLayer. If communication fails, then the communication time can be customized
  */
 public class Connection62056 extends Connection  implements ProtocolConnection {
     
@@ -31,6 +33,7 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
     InputStream inputStream;
     OutputStream outputStream;
     int timeout;
+    int safetyTimeout;
     int maxRetries;
     long forcedDelay;
     int echoCancelling;
@@ -80,7 +83,20 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
     } // EZ7Connection(...)
     
     
-    public void initProtocolLayers() {
+    public Connection62056(InputStream inputStream,
+			OutputStream outputStream, int timeoutProperty,
+			int protocolRetriesProperty, int forcedDelay, int echoCancelling,
+			HalfDuplexController halfDuplexController,
+			String infoTypeSerialNumber, int infoTypeSecurityLevel,
+			int infoTypeHalfDuplex, int timeout, int sourceTransportAddress,
+			int destinationTransportAddress, int delayAfterConnect,
+			int safetyTimeout) throws ConnectionException {
+    	this(inputStream, outputStream, timeout, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, infoTypeSerialNumber, infoTypeSecurityLevel, infoTypeHalfDuplex, safetyTimeout, sourceTransportAddress, destinationTransportAddress, delayAfterConnect);
+    	this.safetyTimeout = safetyTimeout;
+	}
+
+
+	public void initProtocolLayers() {
         setPhysical6205641(new Physical6205641(this));
         getPhysical6205641().initPhysical();
         setDatalink6205641(new Datalink6205641(this));
@@ -226,5 +242,8 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
         this.layerManager = layerManager;
     }
 
+    public int getSafetyTimeout(){
+    	return this.safetyTimeout;
+    }
         
 }

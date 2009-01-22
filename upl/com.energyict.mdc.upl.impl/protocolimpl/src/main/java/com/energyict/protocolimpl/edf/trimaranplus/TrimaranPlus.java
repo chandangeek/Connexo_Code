@@ -48,7 +48,9 @@ import com.energyict.protocolimpl.edf.trimaranplus.core.VDEType;
 /**
  *@beginchanges
 	KV|23052007|Bugfix to avoid looping in CourbeCharge object when retrieving more then the bufferspace in the meter
-	GN|19052008|Added a delayAfterConnect parameter to avoid gms failures
+	GNA|19052008|Added a delayAfterConnect parameter to avoid gms failures
+	GNA|22012009|Added a customizable safetyTimeout for the transportlayer.
+				Default this was 300s so every failing communication took 5min.
  *@endchanges
  */
 
@@ -56,6 +58,7 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
     
     
     private int t1Timeout;
+    private int safetyTimeout;
     private Connection62056 connection62056;
     private APSEPDUFactory aPSEFactory;
     private DLMSPDUFactory dLMSPDUFactory;
@@ -114,6 +117,8 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
         getAPSEParameters().setProposedAppCtxName(Integer.parseInt(properties.getProperty("ProposedAppCtxName","0").trim())); // APSE proposed App context name, default 0
         setInfoTypePassword(properties.getProperty(MeterProtocol.PASSWORD,"0000000000000000"));
         
+        this.safetyTimeout = Integer.parseInt(properties.getProperty("SafetyTimeOut", "300000")); // Safety timeout in the transport layer
+        
         if(Integer.parseInt(properties.getProperty("DelayAfterConnect", "0")) == 1)
         	delayAfterConnect = 6000;
         else 
@@ -138,6 +143,7 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
         list.add("CallingPhysicalAddress");
         list.add("ProposedAppCtxName");
         list.add("DelayAfterConnect");
+        list.add("SafetyTimeOut");
         //list.add("VDEType");
         return list;
     }
@@ -147,7 +153,8 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
         setAPSEFactory(new APSEPDUFactory(this,getAPSEParameters()));
         setDLMSPDUFactory(new DLMSPDUFactory(this));
         setTrimaranObjectFactory(new TrimaranObjectFactory(this));
-        setConnection62056(new Connection62056(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber(),getInfoTypeSecurityLevel(),getInfoTypeHalfDuplex(),getT1Timeout(), getSourceTransportAddress(), getDestinationTransportAddress(), getDelayAfterConnect())); 
+//        setConnection62056(new Connection62056(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber(),getInfoTypeSecurityLevel(),getInfoTypeHalfDuplex(),getT1Timeout(), getSourceTransportAddress(), getDestinationTransportAddress(), getDelayAfterConnect()));
+        setConnection62056(new Connection62056(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber(),getInfoTypeSecurityLevel(),getInfoTypeHalfDuplex(),getT1Timeout(), getSourceTransportAddress(), getDestinationTransportAddress(), getDelayAfterConnect(), this.safetyTimeout));
         getConnection62056().initProtocolLayers();
         trimaranPlusProfile = new TrimaranPlusProfile(this);
         
