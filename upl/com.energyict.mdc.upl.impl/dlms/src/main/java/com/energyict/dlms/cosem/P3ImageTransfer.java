@@ -18,6 +18,8 @@ public class P3ImageTransfer extends AbstractCosemObject implements CosemObject{
 	static public boolean DEBUG = true;
 	static public final int CLASSID = 18;
 	static private int delay = 3000;
+	private int maxBlockRetryCount = 3;
+	private int maxTotalRetryCount = 500;
 
 	/** Attributes */
 	private Unsigned32 imageMaxBlockSize = null;	// holds the max size of the imageblocks to be sent to the server(meter)
@@ -72,7 +74,7 @@ public class P3ImageTransfer extends AbstractCosemObject implements CosemObject{
 			
 			// Step1: Get the maximum image block size
 			// and calculate the amount of blocks in one step
-			this.blockCount = (int)(this.size.getValue()/getMaxImageBlockSize().getValue()) + 1;
+			this.blockCount = (int)(this.size.getValue()/getMaxImageBlockSize().getValue()) + (((this.size.getValue()%getMaxImageBlockSize().getValue())==0)?0:1);
 			if(DEBUG)System.out.println("ImageTrans: Maximum block size is: " + getMaxImageBlockSize() + 
 					", Number of blocks: " + blockCount + ".");
 			
@@ -112,7 +114,7 @@ public class P3ImageTransfer extends AbstractCosemObject implements CosemObject{
 		byte[] octetStringData = null;
 		OctetString os = null;
 		for(int i = 0; i < blockCount; i++){
-			if(i < blockCount-1){
+			if(i < blockCount -1){
 				octetStringData = new byte[(int)getMaxImageBlockSize().getValue()];
 				System.arraycopy(this.data, (int)(i*getMaxImageBlockSize().getValue()), octetStringData, 0, 
 						(int)getMaxImageBlockSize().getValue());
@@ -138,8 +140,24 @@ public class P3ImageTransfer extends AbstractCosemObject implements CosemObject{
 	private void checkAndSendMissingBlocks() throws IOException{
 		byte[] octetStringData = null;
 		OctetString os = null;
-		while(readFirstMissingBlock().getValue() <= this.blockCount){
-			if (getFirstMissingBlock().getValue() < this.blockCount) {
+		long previousMissingBlock = -1;
+		int retryBlock = 0;
+		int totalRetry = 0;
+		while(readFirstMissingBlock().getValue() < this.blockCount){
+			
+			if(DEBUG)System.out.println("ImageTrans: First Missing block is " + getFirstMissingBlock().getValue());
+			
+			if(previousMissingBlock == getFirstMissingBlock().getValue()){
+				if(retryBlock++ == this.maxBlockRetryCount){
+					throw new IOException("Exceeding the maximum retry for block " + getFirstMissingBlock().getValue() + ", Image transfer is canceled.");
+				} else if(totalRetry++ == this.maxTotalRetryCount){
+					throw new IOException("Exceeding the total maximum retry count, Image transfer is canceled.");
+				}
+			} else {
+				previousMissingBlock = getFirstMissingBlock().getValue();
+			}
+			
+			if (getFirstMissingBlock().getValue() < this.blockCount -1) {
 				octetStringData = new byte[(int)getMaxImageBlockSize().getValue()];
 				System.arraycopy(this.data, (int)(getFirstMissingBlock().getValue()*getMaxImageBlockSize().getValue()), octetStringData, 0, 
 						(int)getMaxImageBlockSize().getValue());
@@ -324,12 +342,14 @@ public class P3ImageTransfer extends AbstractCosemObject implements CosemObject{
 	 * @param imageData
 	 * @throws IOException
 	 */
-	public void writeImageBlock(Structure imageStruct) throws IOException{
+	public void writeImageBlock(Structure imageStruct){
 		try {
 			write(ATTRB_IMAGE_BLOCK_TRANSFER, imageStruct.getBEREncodedByteArray());
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not write the current image block with offset " + imageStruct.getDataType(1).getUnsigned32().getValue() + "." + e.getMessage());
+//			throw new IOException("Could not write the current image block with offset " + imageStruct.getDataType(0).getUnsigned32().getValue() + "." + e.getMessage());
+			// Catch and go to the next!
+			if(DEBUG)System.out.println("ImageTrans: Write block " + imageStruct.getDataType(0).getUnsigned32().getValue() + " has failed.");
 		}
 	}
 	
