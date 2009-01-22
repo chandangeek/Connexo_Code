@@ -144,9 +144,15 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 			
 			this.cosemObjectFactory	= new CosemObjectFactory((ProtocolLink)this);
 			
-			this.dlmsConnection = (this.connectionMode == 0)?
-					new HDLCConnection(inputStream, outputStream, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode):
-					new TCPIPConnection(inputStream, outputStream, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress);
+//			this.dlmsConnection = (this.connectionMode == 0)?
+//					new HDLCConnection(inputStream, outputStream, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode):
+//					new TCPIPConnection(inputStream, outputStream, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress);
+			
+			if(this.connectionMode == 0){
+				this.dlmsConnection = new HDLCConnection(inputStream, outputStream, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode);
+			} else {
+				this.dlmsConnection = new TCPIPConnection(inputStream, outputStream, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress);
+			}
 					
 			this.dlmsMeterConfig = DLMSMeterConfig.getInstance("EZ3");
 			
@@ -215,10 +221,10 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 
 	public void setProperties(Properties properties)
 			throws InvalidPropertyException, MissingPropertyException {
-        Iterator<String> iterator= getRequiredKeys().iterator();
+        Iterator iterator= getRequiredKeys().iterator();
         while (iterator.hasNext())
         {
-            String key = iterator.next();
+            String key = (String)iterator.next();
             if (properties.getProperty(key) == null)
                 throw new MissingPropertyException (key + " key missing");
         }
@@ -604,24 +610,24 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 					
 					// The Budget register
 //					getCosemObjectFactory().getGenericWrite(prepaidSetBudgetObisCode, 2).write(new Integer32(Integer.valueOf(messageHandler.getBudget())).getBEREncodedByteArray());
-					getCosemObjectFactory().getRegister(prepaidSetBudgetObisCode).setValueAttr(new Integer32(Integer.valueOf(messageHandler.getBudget())));
+					getCosemObjectFactory().getRegister(prepaidSetBudgetObisCode).setValueAttr(new Integer32(Integer.valueOf(messageHandler.getBudget()).intValue()));
 					
 					// The Threshold register
 //					writeRegisterStructure(rm, prepaidThresholdObisCode, prepaidThresholdScalerUnit, messageHandler.getThreshold());
 //					getCosemObjectFactory().getGenericWrite(prepaidThresholdObisCode, 2).write(new Unsigned32(Long.valueOf(messageHandler.getThreshold())).getBEREncodedByteArray());
-					getCosemObjectFactory().getRegister(prepaidThresholdObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getThreshold())));
+					getCosemObjectFactory().getRegister(prepaidThresholdObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getThreshold()).longValue()));
 					
 					// The ReadFrequency register
 //					writeRegisterStructure(rm, prepaidReadFrequencyObisCode, prepaidReadFrequencyScalerUnit, messageHandler.getReadFrequency());
 //					getCosemObjectFactory().getGenericWrite(prepaidReadFrequencyObisCode, 2).write(new Unsigned32(Long.valueOf(messageHandler.getReadFrequency())).getBEREncodedByteArray());
-					getCosemObjectFactory().getRegister(prepaidReadFrequencyObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getReadFrequency())));
+					getCosemObjectFactory().getRegister(prepaidReadFrequencyObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getReadFrequency()).longValue()));
 					
 					
 					// The Multiplier registers
 					for(int i = 0; i < 8; i++){
 //						writeRegisterStructure(rm, prepaidMultiplierObisCode[i], prepaidMultiplierScalerUnit, messageHandler.getMultiplier(i));
 //						getCosemObjectFactory().getGenericWrite(prepaidMultiplierObisCode[i], 2).write(new Integer32(Integer.valueOf(messageHandler.getMultiplier(i))).getBEREncodedByteArray());
-						getCosemObjectFactory().getRegister(prepaidMultiplierObisCode[i]).setValueAttr(new Integer32(Integer.valueOf(messageHandler.getMultiplier(i))));
+						getCosemObjectFactory().getRegister(prepaidMultiplierObisCode[i]).setValueAttr(new Integer32(Integer.valueOf(messageHandler.getMultiplier(i)).intValue()));
 					}
 					
 					// Enabling the prepaid configuration
@@ -638,7 +644,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 					// TODO TEST THIS
 //					writeRegisterStructure(rm, prepaidAddBudgetObisCode, prepaidBudgetScalerUnit, messageHandler.getBudget());
 //					getCosemObjectFactory().getGenericWrite(prepaidAddBudgetObisCode, 2).write(new Unsigned32(Long.valueOf(messageHandler.getBudget())).getBEREncodedByteArray());
-					getCosemObjectFactory().getRegister(prepaidAddBudgetObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getBudget())));
+					getCosemObjectFactory().getRegister(prepaidAddBudgetObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getBudget()).longValue()));
 					
 					// Enabling the prepaid configuration					
 					getCosemObjectFactory().getRegister(prepaidStateObisCode).setValueAttr(new BooleanObject(true));
@@ -691,18 +697,18 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 					// The Threshold register
 //					writeRegisterStructure(rm, loadLimitThresholdObisCode, loadLimitThresholdScalerUnit, messageHandler.getLLThreshold());
 //					getCosemObjectFactory().getGenericWrite(loadLimitThresholdObisCode, 2).write(new Unsigned32(Long.valueOf(messageHandler.getLLThreshold())).getBEREncodedByteArray());
-					getCosemObjectFactory().getRegister(loadLimitThresholdObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getLLThreshold())));
+					getCosemObjectFactory().getRegister(loadLimitThresholdObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getLLThreshold()).longValue()));
 					
 					// The ReadFrequency register
 //					writeRegisterStructure(rm, loadLimitReadFrequencyObisCode, loadLimitReadFrequencyScalerUnit, messageHandler.getLLReadFrequency());
 //					getCosemObjectFactory().getGenericWrite(loadLimitReadFrequencyObisCode, 2).write(new Unsigned32(Long.valueOf(messageHandler.getLLReadFrequency())).getBEREncodedByteArray());
-					getCosemObjectFactory().getRegister(loadLimitReadFrequencyObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getLLReadFrequency())));
+					getCosemObjectFactory().getRegister(loadLimitReadFrequencyObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getLLReadFrequency()).longValue()));
 
 					
 					// The Duration register
 //					writeRegisterStructure(rm, loadLimitDurationObisCode, loadLimitDurationScalerUnit, messageHandler.getLLDuration());
 //					getCosemObjectFactory().getGenericWrite(loadLimitDurationObisCode, 2).write(new Unsigned32(Long.valueOf(messageHandler.getLLDuration())).getBEREncodedByteArray());
-					getCosemObjectFactory().getRegister(loadLimitDurationObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getLLDuration())));
+					getCosemObjectFactory().getRegister(loadLimitDurationObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getLLDuration()).longValue()));
 
 
 					if(!messageHandler.getLLD1Invert().equalsIgnoreCase("")){
