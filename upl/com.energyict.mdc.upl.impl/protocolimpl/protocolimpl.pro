@@ -258,4 +258,8 @@
 	*;
 }
 
+-keep public class com.energyict.protocolimpl.base.* {
+	*;
+}
+
 -keepnames class com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging
