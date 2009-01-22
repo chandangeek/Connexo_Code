@@ -24,8 +24,11 @@ import com.energyict.dialer.core.HalfDuplexController;
  *      KV 06072004 Add delayAndFlush(2000) to disconnect
  *                  Check for password != null if security level higher then 0 is requested
  *                  Add security level cause...
- *      KV 27102004 Make more robust against marginal comminication quality
- *      KV 21122004 Cearify exception messages and add state to control NAK
+ *      KV 27102004 Make more robust against marginal communication quality
+ *      KV 21122004 Clarify exception messages and add state to control NAK
+ *      JM 22012009 Added method to disconnect meter without sending a break command to
+ *      			prevent communication timeouts or non responding devices with 
+ *      			Elster meters (ABBA1350, ABBA1500, ...)
  */
 public class FlagIEC1107Connection extends Connection {
     
@@ -137,6 +140,30 @@ public class FlagIEC1107Connection extends Connection {
         iProtocolTimeout=iTimeout;
         boolFlagIEC1107Connected=false;
     } // public FlagIEC1107Connection(...)
+    
+    /**
+     * Set the FlagIEC1107 connection as disconnected without sending a break to the device.
+     * @throws NestedIOException 
+     * @throws ConnectionException 
+     */
+    public void disconnectMACWithoutBreak() throws ConnectionException, NestedIOException {
+        if (boolFlagIEC1107Connected==true) {
+            try {
+                delayAndFlush(DELAY_AFTER_BREAK); // KV 06072004
+                boolFlagIEC1107Connected=false;
+                return;
+            }
+            catch(ConnectionException e) {
+                try {
+                    flushInputStream();
+                }
+                catch(ConnectionException ex) {
+                    throw new FlagIEC1107ConnectionException("disconnectMAC() error, ConnectionException, "+e.getMessage()+", ConnectionException, "+ex.getMessage());
+                }
+                throw new FlagIEC1107ConnectionException("disconnectMAC() error, ConnectionException, "+e.getMessage());
+            }
+        } // if (boolFlagIEC1107Connected==true)
+	}
     
     /**
      * Method that requests a MAC disconnect for the IEC1107 layer.
