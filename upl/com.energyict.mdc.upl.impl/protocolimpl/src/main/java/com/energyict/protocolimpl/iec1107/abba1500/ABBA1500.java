@@ -41,7 +41,7 @@ KV|17012008|Add forced delay as property and add reconnect to connection layer i
 GN|25032008|Added roundTripTime to correct the readout time when retries have occurred
 JME|05012009|Added filter for CORRUPTED flag when PU or PD for firmware 3.02
 JME|05012009|Added eventTime to billingPointRegister (Obiscode = 1.1.0.1.0.255) to get the last billing reset time.
-
+JME|22012009|Removed break command after dataReadout, to prevent non responding meter issues.
 
  * @endchanges
  */
@@ -327,13 +327,8 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
        try {
           if ((getFlagIEC1107Connection().getHhuSignOn() == null) && (getDataReadoutRequest()==1)) {
               dataReadout = flagIEC1107Connection.dataReadout(strID,nodeId);
-              flagIEC1107Connection.disconnectMAC();
-              try {
-                  Thread.sleep(2000);
-              }
-              catch(InterruptedException e) {
-                  throw new NestedIOException(e); 
-              }
+				// ABBA1500 doesn't respond after sending a break in dataReadoutMode, so disconnect without sending break
+				flagIEC1107Connection.disconnectMACWithoutBreak();  
           }
           
           flagIEC1107Connection.connectMAC(strID,strPassword,iSecurityLevel,nodeId);

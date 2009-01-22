@@ -27,6 +27,7 @@ import com.energyict.obis.ObisCode;
  * 24-11-2008 jme > Added firmware version and hardware key readout
  * 24-11-2008 jme > Added support for power Quality readout (P.02)
  * 27-11-2008 jme > Added support for register readout from 
+ * 22-01-2009 jme > Removed break command after dataReadout, to prevent non responding meter issues.
  * @endchanges
  */
 public class ABBA1350 
@@ -300,9 +301,10 @@ RegisterProtocol, MessageProtocol {
 		try {
 			if ((getFlagIEC1107Connection().getHhuSignOn() == null) && (isDataReadout())) {
 				dataReadout = cleanDataReadout(flagIEC1107Connection.dataReadout(strID, nodeId));
-				flagIEC1107Connection.disconnectMAC();
+				// ABBA1350 doesn't respond after sending a break in dataReadoutMode, so disconnect without sending break
+				flagIEC1107Connection.disconnectMACWithoutBreak();  
 			}
-
+			
 			flagIEC1107Connection.connectMAC(strID, strPassword, iSecurityLevel, nodeId);
 
 			if ((getFlagIEC1107Connection().getHhuSignOn() != null) && (isDataReadout())) {
