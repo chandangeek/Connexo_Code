@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -49,6 +50,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Register;
@@ -107,40 +109,6 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 	private Clock					clock;
 	private Rtu						rtu;
 	private TimeZone				timeZone;
-	
-
-//	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-//		
-//		this.commProfile = scheduler.getCommunicationProfile();
-//		this.rtu = scheduler.getRtu();
-//		
-//		try {
-//			init(link.getInputStream(), link.getOutputStream(), scheduler.getRtu().getDeviceTimeZone(), logger);
-//			connect();
-//			
-//			if(commProfile.getSendRtuMessage()){
-//				List messageEntries = rtu.getPendingMessages();
-//				applyMessages(messageEntries);
-//			}
-//			
-//			if(commProfile.getReadDemandValues()){
-//				log(Level.INFO, "Reading demand values is not supported.");
-//			}
-//			
-//			if(commProfile.getReadMeterReadings()){
-//				log(Level.INFO, "Reading meter readings is not supported.");
-//			}
-//			
-//		} catch (IOException e){
-//			e.printStackTrace();
-//			throw new IOException(e.getMessage());
-//		} finally {
-//			// means we got a connection
-//			if(aarq != null){
-//				disconnect();
-//			}
-//		}
-//	}
 	
 	public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
 		
@@ -214,12 +182,23 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 //		getCosemObjectFactory().getData(ObisCode.fromString(name)).getString();
 //		return getCosemObjectFactory().getGenericRead(ObisCode.fromString(name), 2).getString();
 	}
-
-	public Date getTime() throws IOException {
-		this.clock = getCosemObjectFactory().getClock(ObisCode.fromString("0.0.1.0.0.255"));
-		return clock.getDateTime();
+	
+	private Clock getClock() throws IOException{
+		if(this.clock == null){
+			this.clock = getCosemObjectFactory().getClock(ObisCode.fromString("0.0.1.0.0.255"));
+		}
+		return this.clock;
 	}
 
+	public Date getTime() throws IOException {
+		return getClock().getDateTime();
+	}
+
+	public void setTime() throws IOException {
+		DateTime dateTime = new DateTime(Calendar.getInstance(getTimeZone()));
+		getClock().setTimeAttr(dateTime);
+	}
+	
 	public void setProperties(Properties properties)
 			throws InvalidPropertyException, MissingPropertyException {
         Iterator iterator= getRequiredKeys().iterator();
@@ -318,13 +297,7 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 			};break;
 				
 			}
-			
 		}
-		
-	}
-
-	public void setTime() throws IOException {
-		
 	}
 
 	public List getOptionalKeys() {
@@ -358,6 +331,7 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 	
 	public String getProtocolVersion() {
 		return "$Date: 2009-01-19 16:26:22 +0100 (ma, 19 jan 2009) $";
+//		return "$Revision$";
 	}
 	
 	public Logger getLogger() {
