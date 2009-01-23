@@ -59,7 +59,6 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
-import com.energyict.genericprotocolimpl.webrtukp.AARQ;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
@@ -101,6 +100,7 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 	private int forceDelay;
 	private int retries;
 	private int addressingMode;
+	private int requestTimeZone;
 	private String password;
 	
 	private CosemObjectFactory 		cosemObjectFactory;
@@ -223,6 +223,7 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
         this.forceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "100"));
         this.retries = Integer.parseInt(properties.getProperty("Retries", "3"));
         this.addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "2"));
+        this.requestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0"));
 	}
 
 	// not supported
@@ -717,11 +718,17 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 	}
 
 	public TimeZone getTimeZone() {
-		return this.timeZone;
+		try {
+			return isRequestTimeZone()?TimeZone.getTimeZone(Integer.toString(getClock().getTimeZone())):this.timeZone;
+		} catch (IOException e) {
+			e.printStackTrace();
+			getLogger().log(Level.INFO, "Could not verify meterTimeZone so EIServer timeZone is used.");
+			return this.timeZone;
+		}
 	}
 
 	public boolean isRequestTimeZone() {
-		return false;
+		return (this.requestTimeZone==1)?true:false;
 	}
 
 	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
