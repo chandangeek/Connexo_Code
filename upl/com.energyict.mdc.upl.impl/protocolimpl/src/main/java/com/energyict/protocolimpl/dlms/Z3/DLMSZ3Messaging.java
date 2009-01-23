@@ -192,7 +192,7 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 		}
 		return this.clock;
 	}
-
+	
 	public Date getTime() throws IOException {
 		return getClock().getDateTime();
 	}
@@ -617,11 +617,11 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 				// The Duration register
 				getCosemObjectFactory().getRegister(loadLimitDurationObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getLLDuration()).longValue()));
 
-				if(!messageHandler.getLLD1Invert().equalsIgnoreCase("")){
+				if(messageHandler.getLLD1Invert() != null){
 					getCosemObjectFactory().getRegister(loadLimitOutputLogicObisCode[0]).setValueAttr(new BooleanObject(messageHandler.getLLD1Invert().equals(Integer.toString(1))));
 				}
 				
-				if(!messageHandler.getLLD1Invert().equalsIgnoreCase("")){
+				if(messageHandler.getLLD1Invert() != null){
 					getCosemObjectFactory().getRegister(loadLimitOutputLogicObisCode[1]).setValueAttr(new BooleanObject(messageHandler.getLLD1Invert().equals(Integer.toString(1))));
 				}
 				
