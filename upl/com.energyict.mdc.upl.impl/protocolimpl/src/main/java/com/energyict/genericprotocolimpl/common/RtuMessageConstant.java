@@ -75,6 +75,7 @@ public class RtuMessageConstant {
 	public static final String XMLCONFIG = "XMLConfig";
 	
 	/** RtuMessage tags for P1 port messages */
+	// Check if this is in the new jar
 	public static final String P1TEXTMESSAGE = "Message_text_to_P1_port";
 	public static final String P1CODEMESSAGE = "Message_code_to_P1_port";
 	public static final String P1TEXT = "Text";

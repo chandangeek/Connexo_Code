@@ -858,9 +858,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				
 				boolean xmlConfig		= messageHandler.getType().equals(RtuMessageConstant.XMLCONFIG);
 				boolean firmware		= messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPGRADE);
+				// Check if this is in the new jar
 				boolean p1Text 			= messageHandler.getType().equals(RtuMessageConstant.P1TEXTMESSAGE);
 				boolean p1Code 			= messageHandler.getType().equals(RtuMessageConstant.P1CODEMESSAGE);
-				
+				 
 				if(xmlConfig){
 					
 					//TODO TEST THIS
