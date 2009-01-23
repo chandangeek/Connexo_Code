@@ -6,6 +6,9 @@ package com.energyict.protocolimpl.dlms.Z3;
  * This protocol is a copy of the generic one.
  * The message getBudget is deleted and replaced by the standard registers readout.
  * 
+ * Changes:
+ * GNA|22012009| Changed the default profileInterval to 900s instead of 0s because you can not select 0s as an interval.
+ *
  */
 
 import java.io.ByteArrayInputStream;
@@ -759,7 +762,7 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 	}
 
 	public int getProfileInterval() throws UnsupportedException, IOException {
-		return 0;
+		return 900;
 	}
 
 	public void initializeDevice() throws IOException, UnsupportedException {
