@@ -915,6 +915,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					Data dataCode = getCosemObjectFactory().getData(getMeterConfig().getConsumerMessageText().getObisCode());
 					dataCode.setValueAttr(OctetString.fromString(messageHandler.getP1Text()));
 					
+					success = true;
+					
 				} else {
 					success = false;
 				}
@@ -1024,7 +1026,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
         MessageValueSpec msgVal = new MessageValueSpec();
         msgVal.setValue(" ");
         tagSpec.add(msgVal);
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.P1CODE, true);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.P1CODE, false);
         tagSpec.add(msgAttrSpec);
         msgSpec.add(tagSpec);
     	return msgSpec;
@@ -1036,7 +1038,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
         MessageValueSpec msgVal = new MessageValueSpec();
         msgVal.setValue(" ");
         tagSpec.add(msgVal);
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.P1TEXT, true);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.P1TEXT, false);
         tagSpec.add(msgAttrSpec);
         msgSpec.add(tagSpec);
     	return msgSpec;
