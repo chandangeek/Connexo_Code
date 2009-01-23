@@ -75,8 +75,8 @@ public class RtuMessageConstant {
 	public static final String XMLCONFIG = "XMLConfig";
 	
 	/** RtuMessage tags for P1 port messages */
-	public static final String P1TEXTMESSAGE = "Message text to P1 port";
-	public static final String P1CODEMESSAGE = "Message code to P1 port";
+	public static final String P1TEXTMESSAGE = "Message_text_to_P1_port";
+	public static final String P1CODEMESSAGE = "Message_code_to_P1_port";
 	public static final String P1TEXT = "Text";
 	public static final String P1CODE = "Code";
 	

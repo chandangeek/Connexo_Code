@@ -119,11 +119,11 @@ public class MessageHandler extends DefaultHandler{
 	private String code;
 	private String text;
 
-	private void handleP1Text(Attributes attrbs) {
+	private void handleP1Code(Attributes attrbs) {
 		this.code = attrbs.getValue(RtuMessageConstant.P1CODE);
 	}
 
-	private void handleP1Code(Attributes attrbs) {
+	private void handleP1Text(Attributes attrbs) {
 		this.text = attrbs.getValue(RtuMessageConstant.P1TEXT);		
 	}
 	
