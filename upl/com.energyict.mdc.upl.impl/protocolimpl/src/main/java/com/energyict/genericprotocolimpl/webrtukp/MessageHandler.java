@@ -31,6 +31,12 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.FIRMWARE_UPGRADE.equals(qName)){
 			setType(RtuMessageConstant.FIRMWARE_UPGRADE);
 			handleFirmWareUpgrade(attrbs);
+		} else if(RtuMessageConstant.P1CODEMESSAGE.equals(qName)){
+			setType(RtuMessageConstant.P1CODEMESSAGE);
+			handleP1Code(attrbs);
+		} else if(RtuMessageConstant.P1TEXTMESSAGE.equals(qName)){
+			setType(RtuMessageConstant.P1TEXTMESSAGE);
+			handleP1Text(attrbs);
 		}
 	}
 
@@ -49,8 +55,8 @@ public class MessageHandler extends DefaultHandler{
 	/**********************************************
 	 * XMLConfig Related messages
 	 **********************************************/
-	
 	/**********************************************/
+	
 	
 	/**********************************************
 	 * FirmwareUpgrade Related messages
@@ -104,5 +110,29 @@ public class MessageHandler extends DefaultHandler{
 		return cal;
 	}
 	
+	/**********************************************/
+	
+	
+	/**********************************************
+	 * P1 port Related messages
+	 **********************************************/
+	private String code;
+	private String text;
+
+	private void handleP1Text(Attributes attrbs) {
+		this.code = attrbs.getValue(RtuMessageConstant.P1CODE);
+	}
+
+	private void handleP1Code(Attributes attrbs) {
+		this.text = attrbs.getValue(RtuMessageConstant.P1TEXT);		
+	}
+	
+	public String getP1Code(){
+		return this.code;
+	}
+	
+	public String getP1Text(){
+		return this.text;
+	}
 	/**********************************************/
 }

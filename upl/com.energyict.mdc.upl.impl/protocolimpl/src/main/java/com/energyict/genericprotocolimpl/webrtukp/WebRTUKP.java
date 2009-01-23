@@ -40,6 +40,7 @@ import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.P3ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
@@ -87,6 +88,9 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
  * 					- Registers E-meter
  * 					- LoadProfile Mbus-meter
  * 					- Registers Mbus-meter
+ * Changes:
+ * GNA |20012009| Added the imageTransfer message, here we use the P3ImageTransfer object
+ * GNA |22012009| Added the Consumer messages over the P1 port 
  */
 
 public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
@@ -854,6 +858,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				
 				boolean xmlConfig		= messageHandler.getType().equals(RtuMessageConstant.XMLCONFIG);
 				boolean firmware		= messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPGRADE);
+				boolean p1Text 			= messageHandler.getType().equals(RtuMessageConstant.P1TEXTMESSAGE);
+				boolean p1Code 			= messageHandler.getType().equals(RtuMessageConstant.P1CODEMESSAGE);
 				
 				if(xmlConfig){
 					
@@ -895,6 +901,19 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					
 					success = true;
 					
+				} else if(p1Code){
+					
+					Data dataCode = getCosemObjectFactory().getData(getMeterConfig().getConsumerMessageCode().getObisCode());
+					dataCode.setValueAttr(OctetString.fromString(messageHandler.getP1Code()));
+					
+					success = true;
+					
+					
+				} else if(p1Text){
+					
+					Data dataCode = getCosemObjectFactory().getData(getMeterConfig().getConsumerMessageText().getObisCode());
+					dataCode.setValueAttr(OctetString.fromString(messageHandler.getP1Text()));
+					
 				} else {
 					success = false;
 				}
@@ -915,7 +934,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					rm.setFailed();
 				}
 			}
-			
 		}
 	}
 	
@@ -977,22 +995,53 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		List categories = new ArrayList();
 		MessageCategorySpec catXMLConfig = new MessageCategorySpec("XMLConfig");
 		MessageCategorySpec catFirmware = new MessageCategorySpec("Firmware");
+		MessageCategorySpec catP1Messages = new MessageCategorySpec("Consumer messages to P1");
 		
 		// XMLConfig related messages
 		MessageSpec msgSpec = addDefaultValueMsg("XMLConfig", RtuMessageConstant.XMLCONFIG, false);
 		catXMLConfig.addMessageSpec(msgSpec);
 		
-		// TODO function may not be implemented in latest release
 		// Firmware related messages
-//		msgSpec = addFirmwareMsg("Upgrade Firmware", RtuMessageConstant.FIRMWARE_UPGRADE, false);
-//		catFirmware.addMessageSpec(msgSpec);
+		msgSpec = addFirmwareMsg("Upgrade Firmware", RtuMessageConstant.FIRMWARE_UPGRADE, false);
+		catFirmware.addMessageSpec(msgSpec);
+		
+		// Consumer messages to P1 related messages
+		msgSpec = addP1Text("Consumer message Text to port P1", RtuMessageConstant.P1TEXTMESSAGE, false);
+		catP1Messages.addMessageSpec(msgSpec);
+		msgSpec = addP1Code("Consumer message Code to port P1", RtuMessageConstant.P1CODEMESSAGE, false);
+		catP1Messages.addMessageSpec(msgSpec);
 		
 		categories.add(catXMLConfig);
 		categories.add(catFirmware);
+		categories.add(catP1Messages);
 		return categories;
 	}
 	
-    private MessageSpec addFirmwareMsg(String keyId, String tagName, boolean advanced){
+    private MessageSpec addP1Code(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        tagSpec.add(msgVal);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.P1CODE, true);
+        tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+    	return msgSpec;
+	}
+
+	private MessageSpec addP1Text(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        tagSpec.add(msgVal);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.P1TEXT, true);
+        tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+    	return msgSpec;
+	}
+
+	private MessageSpec addFirmwareMsg(String keyId, String tagName, boolean advanced){
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         MessageValueSpec msgVal = new MessageValueSpec();
