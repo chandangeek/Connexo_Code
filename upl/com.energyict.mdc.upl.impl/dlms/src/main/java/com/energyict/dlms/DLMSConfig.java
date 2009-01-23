@@ -33,12 +33,12 @@ public class DLMSConfig {
     final static private DLMSConfig eventLog =  new DLMSConfig("",7,1,-1,99,98,-1,-1);
     final static private DLMSConfig historicValues =  new DLMSConfig("",7,0,-1,98,1,-1,126);
     final static private DLMSConfig resetCounter =  new DLMSConfig("",3,1,0,0,1,0,255);
-    
     final static private DLMSConfig ipv4Setup = new DLMSConfig("",42,0,0,25,1,0,255);
-    
     final static private DLMSConfig p3ImageTransfer = new DLMSConfig("",18,0,0,44,0,0,255);
-    
     final static private DLMSConfig imageActivationSchedule = new DLMSConfig("",22,0,0,15,0,2,255);
+    final static private DLMSConfig consumerMessageText = new DLMSConfig("",1,0,0,96,13,0,255);
+    final static private DLMSConfig consumerMessageCode = new DLMSConfig("",1,0,0,96,13,1,255);
+    
     
     final static private DLMSConfig[] configchange = {
             new DLMSConfig("LGZ",3,0,0,96,2,0,255),
@@ -878,5 +878,37 @@ public class DLMSConfig {
 		
 		System.out.println(config.getClock().toString());
 		
+	}
+
+	public UniversalObject getConsumerMessageText(UniversalObject[] objectList) throws IOException {
+		if (objectList == null) throw new IOException("DLMSConfig, ConsumerMessageText, objectlist empty!");
+	    for (int i=0;i<objectList.length;i++) {
+	    	if (objectList[i].equals(consumerMessageText)) return objectList[i];
+	    }
+	    throw new IOException("DLMSConfig, ConsumerMessageText, not found in objectlist (IOL)!");  
+	}
+	
+	public int getConsumerMessageTextSN(UniversalObject[] objectList) throws IOException {
+		if (objectList == null) throw new IOException("DLMSConfig, ConsumerMessageText, objectlist empty!");
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(consumerMessageText)) return objectList[i].getBaseName();
+		}
+		return 0;  
+	}
+
+	public UniversalObject getConsumerMessageCode(UniversalObject[] objectList) throws IOException {
+		if (objectList == null) throw new IOException("DLMSConfig, ConsumerMessageCode, objectlist empty!");
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(consumerMessageCode)) return objectList[i];
+		}
+		throw new IOException("DLMSConfig, ConsumerMessageCode, not found in objectlist (IOL)!");  
+	}
+	
+	public int getConsumerMessageCodeSN(UniversalObject[] objectList) throws IOException {
+		if (objectList == null) throw new IOException("DLMSConfig, ConsumerMessageCode, objectlist empty!");
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(consumerMessageCode)) return objectList[i].getBaseName();
+		}
+		return 0;  
 	}
 }

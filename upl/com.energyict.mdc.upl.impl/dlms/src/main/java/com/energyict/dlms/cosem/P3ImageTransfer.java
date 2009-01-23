@@ -13,6 +13,13 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 
+/**
+ * 
+ * @author gna
+ * The P3ImageTransfer Object is created from the DSMR P3 Companion Standard and it is slightly different from the 
+ * ImageTransfer Object in the draft of the BlueBook_V9. So remember, this object is NOT completely DLMS compliant.
+ */
+
 public class P3ImageTransfer extends AbstractCosemObject implements CosemObject{
 
 	static public boolean DEBUG = true;
@@ -95,6 +102,7 @@ public class P3ImageTransfer extends AbstractCosemObject implements CosemObject{
 			
 			// Step6: Check image before activation
 			// Skip this step
+			// This step is done in the ProtocolCode!
 			
 			// Step7: Activate image
 			// Will be done automatically?
@@ -301,7 +309,7 @@ public class P3ImageTransfer extends AbstractCosemObject implements CosemObject{
 			int retry = 3;
 			while(retry > 0){
 				try{
-					invoke(IMAGE_VERIFICTION, new Unsigned16(0).getBEREncodedByteArray());
+					invoke(IMAGE_VERIFICATION_ACTIVATION, new Unsigned16(0).getBEREncodedByteArray());
 					retry = 0;
 				} catch (DataAccessResultException e) {
 					if(e.getDataAccessResult() == 2){ //"Temporary failure"

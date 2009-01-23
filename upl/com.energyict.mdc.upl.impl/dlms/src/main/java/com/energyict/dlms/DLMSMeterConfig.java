@@ -268,7 +268,7 @@ public class DLMSMeterConfig {
 	}
 
 	public UniversalObject getXMLConfig() throws IOException {
-	       return config.getXMLConfig(IOL,manuf);    
+		return config.getXMLConfig(IOL,manuf);    
 	}
 	
 	public UniversalObject getImageActivationSchedule() throws IOException{
@@ -281,6 +281,14 @@ public class DLMSMeterConfig {
 	
 	public UniversalObject getP3ImageTransfer() throws IOException{
 		return config.getP3ImageTransfer(IOL);
+	}
+
+	public UniversalObject getConsumerMessageText() throws IOException {
+		return config.getConsumerMessageText(IOL);
+	}
+
+	public UniversalObject getConsumerMessageCode() throws IOException {
+		return config.getConsumerMessageCode(IOL);
 	}
 	
 }
