@@ -22,9 +22,9 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
  * ImageTransfer Object in the draft of the BlueBook_V9. So remember, this object is NOT completely DLMS compliant.
  */
 
-public class P3ImageTransfer extends AbstractCosemObject implements CosemObject{
+public class P3ImageTransfer extends AbstractCosemObject{
 
-	static public boolean DEBUG = true;
+	static public boolean DEBUG = false;
 	static public final int CLASSID = 18;
 	static private int delay = 3000;
 	private int maxBlockRetryCount = 3;
@@ -105,10 +105,9 @@ public class P3ImageTransfer extends AbstractCosemObject implements CosemObject{
 			
 			// Step6: Check image before activation
 			// Skip this step
-			// This step is done in the ProtocolCode!
 			
 			// Step7: Activate image
-			// Will be done automatically?
+			// This step is done in the ProtocolCode!
 			
 			
 		} else {
@@ -419,34 +418,6 @@ public class P3ImageTransfer extends AbstractCosemObject implements CosemObject{
 	 */
 	public Unsigned32 getFirstMissingBlock(){
 		return this.firstMissingBlockOffset;
-	}
-
-	public Date getBillingDate() throws IOException {
-		return null;
-	}
-
-	public Date getCaptureTime() throws IOException {
-		return null;
-	}
-
-	public Quantity getQuantityValue() throws IOException {
-		return null;
-	}
-
-	public int getResetCounter() {
-		return 0;
-	}
-
-	public ScalerUnit getScalerUnit() throws IOException {
-		return null;
-	}
-
-	public String getText() throws IOException {
-		return null;
-	}
-
-	public long getValue() throws IOException {
-		return 0;
 	}
 
 }

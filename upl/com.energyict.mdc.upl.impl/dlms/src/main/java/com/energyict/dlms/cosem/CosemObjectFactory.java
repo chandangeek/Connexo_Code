@@ -173,6 +173,14 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public P3ImageTransfer getP3ImageTransfer(ObisCode obisCode) throws IOException{
     	return new P3ImageTransfer(protocolLink, getObjectReference(obisCode));
     }
+    
+    public Disconnector getDisconnector() throws IOException {
+    	return new Disconnector(protocolLink, getObjectReference(DISCONNECTOR, protocolLink.getMeterConfig().getDisconnectorSN()));
+    }
+    
+    public Disconnector getDisconnector(ObisCode obisCode) throws IOException{
+    	return new Disconnector(protocolLink, getObjectReference(obisCode));
+    }
 
     public CosemObject getCosemObject(ObisCode obisCode) throws IOException {
         if (obisCode.getF() != 255) {
