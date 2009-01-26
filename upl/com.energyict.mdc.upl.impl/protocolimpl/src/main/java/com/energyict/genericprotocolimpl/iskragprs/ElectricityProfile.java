@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
+import sun.security.action.GetLongAction;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeDuration;
@@ -177,31 +179,32 @@ public class ElectricityProfile {
 		Calendar cal = null;
 		IntervalData currentInterval = null;
 		int profileStatus = 0;
-		if(dc.getRoot().getElements().length == 0){
-			throw new IOException("No entries in loadprofile datacontainer.");
-		}
+		if(dc.getRoot().getElements().length != 0){
 		
-		for(int i = 0; i < dc.getRoot().getElements().length; i++){
-			if(dc.getRoot().getStructure(i).isOctetString(0)){
-				cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
-			} else {
-				if(cal != null){
-					cal.add(Calendar.SECOND, iskramx37x.getMeter().getIntervalInSeconds());
-				}
-			}
-			if(cal != null){		
-				
-				if(getProfileStatusChannelIndex(pg) != -1){
-					profileStatus = dc.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex(pg));
+			for(int i = 0; i < dc.getRoot().getElements().length; i++){
+				if(dc.getRoot().getStructure(i).isOctetString(0)){
+					cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
 				} else {
-					profileStatus = 0;
+					if(cal != null){
+						cal.add(Calendar.SECOND, iskramx37x.getMeter().getIntervalInSeconds());
+					}
 				}
-				
-				currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg);
-				if(currentInterval != null){
-					pd.addInterval(currentInterval);
+				if(cal != null){		
+					
+					if(getProfileStatusChannelIndex(pg) != -1){
+						profileStatus = dc.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex(pg));
+					} else {
+						profileStatus = 0;
+					}
+					
+					currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg);
+					if(currentInterval != null){
+						pd.addInterval(currentInterval);
+					}
 				}
 			}
+		} else {
+			this.iskramx37x.getLogger().log(Level.INFO, "No entries in LoadProfile");
 		}
 	}
 	

@@ -29,6 +29,13 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
 
+/**
+ * 
+ * @author gna
+ * Changes:
+ * GNA |23012009| When no there are no entries in the loadprofile, no error is thrown, just logging info.
+ */
+
 public class MbusDailyMonthly {
 	
 	private MbusDevice mbusDevice;
@@ -244,17 +251,18 @@ public class MbusDailyMonthly {
 		IntervalData currentInterval = null;
 		int profileStatus = 0;
 		if(dc.getRoot().getElements().length == 0){
-			throw new IOException("No entries in loadprofile datacontainer.");
-		}
 		
-		for(int i = 0; i < dc.getRoot().getElements().length; i++){
-			cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
-			if(cal != null){				
-				currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg);
-				if(currentInterval != null){
-					pd.addInterval(currentInterval);
+			for(int i = 0; i < dc.getRoot().getElements().length; i++){
+				cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
+				if(cal != null){				
+					currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg);
+					if(currentInterval != null){
+						pd.addInterval(currentInterval);
+					}
 				}
 			}
+		} else {
+			this.mbusDevice.getLogger().log(Level.INFO, "No entries in LoadProfile");
 		}
 	}
 	
