@@ -20,12 +20,15 @@ import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author kvds
+ * Changes:
+ * GNA |26012009| Added and changed some functions to make fixed OctetStrings. Size is not returned in the encodedData
  */
 public class OctetString extends AbstractDataType {
     
     private byte[] octetStr;
     int size;
     private int offsetBegin,offsetEnd;
+    private boolean fixed;
             
     /** Creates a new instance of OctetString */
     public OctetString(byte[] berEncodedData, int offset) throws IOException {
@@ -38,6 +41,20 @@ public class OctetString extends AbstractDataType {
         setOctetStr(ProtocolUtils.getSubArray2(berEncodedData,offset, size));
         offset+=size;
         offsetEnd = offset;
+        this.fixed = false;
+    }
+    
+    /** Create a new instance of a fixed OctetString */
+    public OctetString(byte[] berEncodedData, int offset, boolean fixed) throws IOException {
+        offsetBegin = offset;
+        if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING)
+            throw new IOException("OctetString, invalid identifier "+berEncodedData[offset]);
+        size = berEncodedData.length-1;
+        offset+=DLMSUtils.getAXDRLengthOffset(berEncodedData, offset);
+        setOctetStr(ProtocolUtils.getSubArray2(berEncodedData,offset, size));
+        offset+=size;
+        offsetEnd = offset;
+        this.fixed = fixed;
     }
     
     public String toString() {
@@ -47,8 +64,20 @@ public class OctetString extends AbstractDataType {
         return strBuffTab.toString()+"OctetString="+ProtocolUtils.outputHexString(getOctetStr())+"\n";
     }
     
+    /**
+     * Create a variable length OctetString
+     * @param octetStr
+     */
     public OctetString(byte[] octetStr) {
         this(octetStr,octetStr.length,0);
+    }
+    /**
+     * It is possible to create a fixed length OctetString
+     * @param octetStr
+     * @param fixed a boolean to indicate whether it is fixed or not
+     */
+    public OctetString(byte[] octetStr, boolean fixed){
+    	this(octetStr, octetStr.length, (fixed?1:0));
     }
     
     static public OctetString fromString(String string) {
@@ -63,10 +92,14 @@ public class OctetString extends AbstractDataType {
     static public OctetString fromByteArray(byte[] byteArray, int size) {
         return new OctetString(byteArray, size, 0);
     }
+    static public OctetString fromString(String string, int size, boolean fixed){
+    	return new OctetString(string.getBytes(), size, (fixed?1:0));
+    }
     
     private OctetString(byte[] octetStr, int size, int dummy) {
         this.setOctetStr(octetStr);
         this.size=size;
+        this.fixed = (dummy == 1);
     }
     
     public String stringValue() {
@@ -74,8 +107,13 @@ public class OctetString extends AbstractDataType {
     }
     
     protected byte[] doGetBEREncodedByteArray() {
-        
-        byte[] encodedLength = DLMSUtils.getAXDRLengthEncoding(size);
+    
+    	byte[] encodedLength;
+    	if(this.fixed){
+    		encodedLength = new byte[0];
+    	} else {
+    		encodedLength = DLMSUtils.getAXDRLengthEncoding(size);
+    	}
         byte[] data = new byte[size+1+encodedLength.length];
         data[0] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
         for (int i=0;i<encodedLength.length;i++)
@@ -95,9 +133,13 @@ public class OctetString extends AbstractDataType {
     
     static public void main(String[]  artgs) {
         try {
-           OctetString v = new OctetString(new byte[]{DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING,0x02,(byte)'A',(byte)'B',(byte)'C'}, 0);
+           OctetString v = new OctetString(new byte[]{DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING,0x03,(byte)'A',(byte)'B',(byte)'C'}, 0);
            System.out.println(v);
            v = new OctetString(new byte[]{1,2,3,4,5,6},6, 0);
+           System.out.println(ProtocolUtils.outputHexString(v.getBEREncodedByteArray()));
+           v = new OctetString(new byte[]{1,2,3,4,5,6}, 6, 1);
+           System.out.println(ProtocolUtils.outputHexString(v.getBEREncodedByteArray()));
+           v = new OctetString(new byte[]{DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING,1,2,3,4,5,6}, 0, true);
            System.out.println(ProtocolUtils.outputHexString(v.getBEREncodedByteArray()));
         }
         catch(IOException e) {
