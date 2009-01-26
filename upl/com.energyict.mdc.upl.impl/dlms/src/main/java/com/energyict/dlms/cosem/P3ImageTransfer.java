@@ -1,8 +1,10 @@
 package com.energyict.dlms.cosem;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.util.Date;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
@@ -29,7 +31,7 @@ public class P3ImageTransfer extends AbstractCosemObject implements CosemObject{
 	private int maxTotalRetryCount = 500;
 
 	/** Attributes */
-	private Unsigned32 imageMaxBlockSize = null;	// holds the max size of the imageblocks to be sent to the server(meter)
+	private Unsigned32 imageMaxBlockSize = null; // holds the max size of the imageblocks to be sent to the server(meter)
 	private Structure imageBlockTransfer = null; // contains the block data
 	private BitString imageMissingBlocks = null; // Each bit provides information about the individual image blocks
 	private Unsigned32 firstMissingBlockOffset = null; // provides offset of the first missing block
@@ -90,6 +92,7 @@ public class P3ImageTransfer extends AbstractCosemObject implements CosemObject{
 			initiateImageTransfer();
 			if(DEBUG)System.out.println("ImageTrans: Initialize success.");
 			
+			
 			// Step3: Transfer image blocks
 			transferImageBlocks();
 			
@@ -146,6 +149,7 @@ public class P3ImageTransfer extends AbstractCosemObject implements CosemObject{
 	 * @throws IOException
 	 */
 	private void checkAndSendMissingBlocks() throws IOException{
+		
 		byte[] octetStringData = null;
 		OctetString os = null;
 		long previousMissingBlock = -1;
@@ -348,14 +352,20 @@ public class P3ImageTransfer extends AbstractCosemObject implements CosemObject{
 	 * Write one image block 'imageData' with offset 'blockOffset' to the meter
 	 * @param blockOffset
 	 * @param imageData
+	 * @throws IOException 
 	 * @throws IOException
 	 */
-	public void writeImageBlock(Structure imageStruct){
+	public void writeImageBlock(Structure imageStruct) throws IOException{
 		try {
 			write(ATTRB_IMAGE_BLOCK_TRANSFER, imageStruct.getBEREncodedByteArray());
+		} catch (DataAccessResultException e){
+			e.printStackTrace();
+			// catch and go to the next
 		} catch (IOException e) {
 			e.printStackTrace();
-//			throw new IOException("Could not write the current image block with offset " + imageStruct.getDataType(0).getUnsigned32().getValue() + "." + e.getMessage());
+			if(e.getMessage().indexOf("Connection reset by peer: socket write error") > -1){
+				throw new IOException(e.getMessage());
+			}
 			// Catch and go to the next!
 			if(DEBUG)System.out.println("ImageTrans: Write block " + imageStruct.getDataType(0).getUnsigned32().getValue() + " has failed.");
 		}
