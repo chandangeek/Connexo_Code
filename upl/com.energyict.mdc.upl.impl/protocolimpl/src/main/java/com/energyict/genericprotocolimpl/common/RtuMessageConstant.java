@@ -9,6 +9,8 @@ public class RtuMessageConstant {
     public final static String DISCONNECT_LOAD = "disconnectLoad";
     /** RtuMessage tag to indicate the digital output to apply the connectControl*/
     public final static String DIGITAL_OUTPUT = "Digital_output";
+    /** RtuMessage tag to indicate the date of the connect/disconnect */
+	public static final String DISCONNECT_CONTROL_ACTIVATE_DATE = "Activation_date";
     
     /** RtuMessage tag for reading profile data */
     public final static String READ_PROFILE = "readProfile";
@@ -75,7 +77,6 @@ public class RtuMessageConstant {
 	public static final String XMLCONFIG = "XMLConfig";
 	
 	/** RtuMessage tags for P1 port messages */
-	// Check if this is in the new jar
 	public static final String P1TEXTMESSAGE = "Message_text_to_P1_port";
 	public static final String P1CODEMESSAGE = "Message_code_to_P1_port";
 	public static final String P1TEXT = "Text";
