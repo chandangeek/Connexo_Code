@@ -339,7 +339,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			Array dateArray = convertStringToDateTimeArray(strDate);
 			sas.writeExecutionTime(dateArray);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -511,7 +510,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	 * @throws IOException 
 	 */
 	private void checkCacheObjects() throws IOException{
-		// TODO complete the method
 		
 		int configNumber;
 		if(dlmsCache.getObjectList() != null){		// the dlmsCache exists
@@ -520,15 +518,12 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			try {
 				log(Level.INFO, "Checking the configuration parameters.");
 				configNumber = requestConfigurationChanges();
-//				dlmsCache.setConfProfChange(configNumber);
-//				dlmsCache.setConfProgChange(configNumber);
 			} catch (IOException e) {
 				e.printStackTrace();
 				configNumber = -1;
 				log(Level.SEVERE, "Config change parameter could not be retrieved, configuration is forced to be read.");
 				requestConfiguration();
 				dlmsCache.saveObjectList(getMeterConfig().getInstantiatedObjectList());
-//				dlmsCache.setConfProfChange(configNumber);
 				dlmsCache.setConfProgChange(configNumber);
 			}
 			
@@ -536,7 +531,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				log(Level.INFO,"Meter configuration has changed, configuration is forced to be read.");
 				requestConfiguration();
 				dlmsCache.saveObjectList(getMeterConfig().getInstantiatedObjectList());
-//				dlmsCache.setConfProfChange(configNumber);
 				dlmsCache.setConfProgChange(configNumber);
 			}
 			
@@ -546,7 +540,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			try {
 				configNumber = requestConfigurationChanges();
 				dlmsCache.saveObjectList(getMeterConfig().getInstantiatedObjectList());
-//				dlmsCache.setConfProfChange(configNumber);
 				dlmsCache.setConfProgChange(configNumber);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -560,18 +553,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	 * NOTE: do NOT mix this with the CAPTURED_OBJECTS
 	 */
 	protected void setCachedObjects(){
-		//TODO complete the method
 		getMeterConfig().setInstantiatedObjectList(this.dlmsCache.getObjectList());
-//		this.genericProfiles = this.dlmsCache.getGenericProfiles();
 	}
-	
-//	/**
-//	 * Set variable objects in the cached object
-//	 */
-//	private void prepareForCacheSaving(){
-//		//TODO complete the method if there are other objects to save
-//		this.dlmsCache.setGenericProfiles(this.genericProfiles);
-//	}
 	
 	/**
 	 * Read the number of configuration changes in the meter
@@ -873,17 +856,14 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				 
 				if(xmlConfig){
 					
-					//TODO TEST THIS
 					String xmlConfigStr = getMessageValue(content, RtuMessageConstant.XMLCONFIG);
 					
-					// TODO You probably should use a getRegister() ...
 					getCosemObjectFactory().getData(getMeterConfig().getXMLConfig().getObisCode()).setValueAttr(OctetString.fromString(xmlConfigStr));
 					
 					success = true;
 					
 				} else if(firmware){
 					
-					// TODO Complete message
 					String userFileID = messageHandler.getUserFileId();
 					
 					if(!ParseUtils.isInteger(userFileID)){
