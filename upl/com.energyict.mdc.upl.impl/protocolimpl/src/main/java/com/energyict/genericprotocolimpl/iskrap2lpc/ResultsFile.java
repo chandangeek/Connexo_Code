@@ -9,6 +9,12 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.iskrap2lpc.handlers.ResultsFileHandler;
 
+/**
+ * @author gna
+ * Changes:
+ * GNA|05012009| - getExactFileName needs additional zeros when month was smaller then 10
+ */
+
 public class ResultsFile {
 
 	private MeterReadTransaction mrt;
@@ -53,13 +59,18 @@ public class ResultsFile {
 			Calendar cal = Calendar.getInstance(); 
 			int month = cal.get(Calendar.MONTH)+1;
 			int year = cal.get(Calendar.YEAR);
-			String filter = "*" + mrt.getMeter().getSerialNumber() + "_"+year + month + ".plez";
+			String filter = "*" + mrt.getMeter().getSerialNumber() + "_"+year + ((month < 10)?"0"+month:month) + ".plez";
+//			String filter = "*";
 			String[] files = mrt.getConnection().getFiles(Constant.defaultDirectory, filter);
 			
 			// Tricky, it can be in the beginning of the month that the file is not on the concentrator yet, so we get the one from last month.
 			if(files.length == 0){	
 				month--;
-				filter = "*" + mrt.getMeter().getSerialNumber() + "_"+year + month + ".plez";
+				if (month == 0){
+					month = 12;
+					year--;
+				}
+				filter = "*" + mrt.getMeter().getSerialNumber() + "_"+year + ((month < 10)?"0"+month:month) + ".plez";
 				files = mrt.getConnection().getFiles(Constant.defaultDirectory, filter);
 			}
 			
