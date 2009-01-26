@@ -26,6 +26,7 @@ import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cpo.Environment;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
@@ -156,6 +157,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			
 			init(link.getInputStream(), link.getOutputStream());
 			connect();
+			
+//			doSomeTestCalls();
 			
 //			readFromMeter("1.0.1.7.0.255");
 			
@@ -329,11 +332,17 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	 * Just to test some objects
 	 */
 	private void doSomeTestCalls(){
-//		try {
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		try {
+			SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+			Array executionTime = sas.getExecutionTime();
+			System.out.println(executionTime);
+//			String strDate = "26/01/2009 09:30:00";
+//			Array dateArray = convertStringToDateTimeArray(strDate);
+//			sas.writeExecutionTime(dateArray);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -907,6 +916,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					Data dataCode = getCosemObjectFactory().getData(getMeterConfig().getConsumerMessageCode().getObisCode());
 					dataCode.setValueAttr(OctetString.fromString(messageHandler.getP1Code()));
 					
+					
+					
 					success = true;
 					
 					
@@ -922,6 +933,9 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				}
 				
 			} catch (BusinessException e) {
+				e.printStackTrace();
+				log(Level.INFO, "Message " + rm.displayString() + " hase failed. " + e.getMessage());
+			} catch (ConnectionException e){
 				e.printStackTrace();
 				log(Level.INFO, "Message " + rm.displayString() + " hase failed. " + e.getMessage());
 			} catch (IOException e) {
@@ -956,6 +970,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		timeBytes[1] = (byte) (Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":")))&0xFF);
 		timeBytes[2] = (byte) 0x00;
 		timeBytes[3] = (byte) 0x00;
+		time = new OctetString(timeBytes);
 		
 		Array dateTimeArray = new Array();
 		dateTimeArray.addDataType(date);

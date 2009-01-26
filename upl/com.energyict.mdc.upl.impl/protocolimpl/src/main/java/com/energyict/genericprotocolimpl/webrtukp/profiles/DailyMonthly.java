@@ -251,18 +251,18 @@ public class DailyMonthly {
 		Calendar cal = null;
 		IntervalData currentInterval = null;
 		int profileStatus = 0;
-		if(dc.getRoot().getElements().length == 0){
-			throw new IOException("No entries in loadprofile datacontainer.");
-		}
-		
-		for(int i = 0; i < dc.getRoot().getElements().length; i++){
-			cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
-			if(cal != null){				
-				currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg);
-				if(currentInterval != null){
-					pd.addInterval(currentInterval);
+		if(dc.getRoot().getElements().length != 0){
+			for(int i = 0; i < dc.getRoot().getElements().length; i++){
+				cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
+				if(cal != null){				
+					currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg);
+					if(currentInterval != null){
+						pd.addInterval(currentInterval);
+					}
 				}
 			}
+		} else {
+			webrtu.getLogger().info("No entries in LoadProfile");
 		}
 	}
 	

@@ -79,8 +79,14 @@ public class MessageHandler extends DefaultHandler{
 		return this.activateNow;
 	}
 	
+	
+	// Need to test again!
 	public boolean activateNow(){
-		return this.activateNow.equals("1");
+		if(this.activateNow != null){
+			return this.activateNow.equals("1");
+		} else {
+			return false;
+		}
 	}
 	
 	public String getActivationDate(){
