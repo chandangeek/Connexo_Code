@@ -36,8 +36,10 @@ public class DLMSConfig {
     final static private DLMSConfig ipv4Setup = new DLMSConfig("",42,0,0,25,1,0,255);
     final static private DLMSConfig p3ImageTransfer = new DLMSConfig("",18,0,0,44,0,0,255);
     final static private DLMSConfig imageActivationSchedule = new DLMSConfig("",22,0,0,15,0,2,255);
+    final static private DLMSConfig disconnectControlSchedule = new DLMSConfig("",22,0,0,15,0,1,255);
     final static private DLMSConfig consumerMessageText = new DLMSConfig("",1,0,0,96,13,0,255);
     final static private DLMSConfig consumerMessageCode = new DLMSConfig("",1,0,0,96,13,1,255);
+    final static private DLMSConfig disconnector = new DLMSConfig("",70,0,0,96,3,10,255);
     
     
     final static private DLMSConfig[] configchange = {
@@ -839,11 +841,11 @@ public class DLMSConfig {
 	}
 	
 	public UniversalObject getImageActivationSchedule(UniversalObject[] objectList) throws IOException {
-	       if (objectList == null) throw new IOException("DLMSConfig, imageActivationSchedule, objectlist empty!");
-	       for (int i=0;i<objectList.length;i++) {
-	           if (objectList[i].equals(imageActivationSchedule)) return objectList[i];
-	       }
-	       throw new IOException("DLMSConfig, imageActivationSchedule, not found in objectlist (IOL)!");  
+       if (objectList == null) throw new IOException("DLMSConfig, imageActivationSchedule, objectlist empty!");
+       for (int i=0;i<objectList.length;i++) {
+           if (objectList[i].equals(imageActivationSchedule)) return objectList[i];
+       }
+       throw new IOException("DLMSConfig, imageActivationSchedule, not found in objectlist (IOL)!");  
 	}
 
 	public int getIPv4SetupSN(UniversalObject[] objectList) throws IOException {
@@ -910,5 +912,29 @@ public class DLMSConfig {
 			if (objectList[i].equals(consumerMessageCode)) return objectList[i].getBaseName();
 		}
 		return 0;  
+	}
+
+	public UniversalObject getDisconnector(UniversalObject[] objectList) throws IOException {
+		if (objectList == null) throw new IOException("DLMSConfig, Disconnector, objectlist empty!");
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(disconnector)) return objectList[i];
+		}
+		throw new IOException("DLMSConfig, Disconnector, not found in objectlist (IOL)!");  
+	}
+
+	public int getDisconnectorSN(UniversalObject[] objectList) throws IOException {
+		if (objectList == null) throw new IOException("DLMSConfig, Disconnector, objectlist empty!");
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(disconnector)) return objectList[i].getBaseName();
+		}
+		return 0;  
+	}
+
+	public UniversalObject getDisconnectControlSchedule(UniversalObject[] objectList) throws IOException {
+	   if (objectList == null) throw new IOException("DLMSConfig, DisconnectSchedule, objectlist empty!");
+	   for (int i=0;i<objectList.length;i++) {
+	       if (objectList[i].equals(disconnectControlSchedule)) return objectList[i];
+	   }
+	   throw new IOException("DLMSConfig, DisconnectSchedule, not found in objectlist (IOL)!");  
 	}
 }

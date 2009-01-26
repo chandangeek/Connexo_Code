@@ -115,7 +115,10 @@ public class DLMSMeterConfig {
 	public int getP3ImageTransferSN() throws IOException {
 		return config.getP3ImageTransferSN(IOL);
 	}
-    
+
+	public int getDisconnectorSN() throws IOException{
+		return config.getDisconnectorSN(IOL);
+	}
     public UniversalObject getEventLogObject() throws IOException {
        return config.getEventLogObject(IOL);    
     }
@@ -274,6 +277,10 @@ public class DLMSMeterConfig {
 	public UniversalObject getImageActivationSchedule() throws IOException{
 		return config.getImageActivationSchedule(IOL);
 	}
+	
+	public UniversalObject getDisconnectControlSchedule() throws IOException{
+		return config.getDisconnectControlSchedule(IOL);
+	}
 
 	public UniversalObject getMbusStatusObject(int physicalAddress) throws IOException{
 		return config.getMbusStatusObject(IOL, manuf, physicalAddress);
@@ -291,4 +298,7 @@ public class DLMSMeterConfig {
 		return config.getConsumerMessageCode(IOL);
 	}
 	
+	public UniversalObject getDisconnector() throws IOException{
+		return config.getDisconnector(IOL);
+	}
 }
