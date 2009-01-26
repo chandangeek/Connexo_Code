@@ -971,8 +971,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		time = new OctetString(timeBytes, true);
 		
 		Array dateTimeArray = new Array();
-		dateTimeArray.addDataType(date);
 		dateTimeArray.addDataType(time);
+		dateTimeArray.addDataType(date);
 		return dateTimeArray;
 	}
 	
