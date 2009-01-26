@@ -37,6 +37,12 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.P1TEXTMESSAGE.equals(qName)){
 			setType(RtuMessageConstant.P1TEXTMESSAGE);
 			handleP1Text(attrbs);
+		} else if(RtuMessageConstant.CONNECT_LOAD.equals(qName)){
+			setType(RtuMessageConstant.CONNECT_LOAD);
+			handleConnectLoad(attrbs);
+		} else if(RtuMessageConstant.DISCONNECT_LOAD.equals(qName)){
+			setType(RtuMessageConstant.DISCONNECT_LOAD);
+			handleDisconnectLoad(attrbs);
 		}
 	}
 
@@ -139,6 +145,35 @@ public class MessageHandler extends DefaultHandler{
 	
 	public String getP1Text(){
 		return this.text;
+	}
+	/**********************************************/
+	
+	/**********************************************
+	 * Disconnect Control Related messages
+	 **********************************************/
+	private String connectDate;
+	private String disconnectDate;
+	
+	private void handleConnectLoad(Attributes attrbs){
+		this.connectDate = attrbs.getValue(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE);
+	}
+	
+	private void handleDisconnectLoad(Attributes attrbs){
+		this.disconnectDate = attrbs.getValue(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE);
+	}
+	
+	public String getConnectDate(){
+		if(this.connectDate == null){
+			this.connectDate = "";
+		}
+		return this.connectDate;
+	}
+	
+	public String getDisconnectDate(){
+		if(this.disconnectDate == null){
+			this.disconnectDate = "";
+		}
+		return this.disconnectDate;
 	}
 	/**********************************************/
 }

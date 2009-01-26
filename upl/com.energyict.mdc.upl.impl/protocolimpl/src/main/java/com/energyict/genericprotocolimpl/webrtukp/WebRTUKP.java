@@ -42,6 +42,7 @@ import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.P3ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
@@ -865,9 +866,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				
 				boolean xmlConfig		= messageHandler.getType().equals(RtuMessageConstant.XMLCONFIG);
 				boolean firmware		= messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPGRADE);
-				// Check if this is in the new jar
 				boolean p1Text 			= messageHandler.getType().equals(RtuMessageConstant.P1TEXTMESSAGE);
 				boolean p1Code 			= messageHandler.getType().equals(RtuMessageConstant.P1CODEMESSAGE);
+				boolean connect			= messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
+				boolean disconnect		= messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
 				 
 				if(xmlConfig){
 					
@@ -914,8 +916,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					Data dataCode = getCosemObjectFactory().getData(getMeterConfig().getConsumerMessageCode().getObisCode());
 					dataCode.setValueAttr(OctetString.fromString(messageHandler.getP1Code()));
 					
-					
-					
 					success = true;
 					
 					
@@ -926,6 +926,30 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					
 					success = true;
 					
+				} else if(connect){
+					
+					if(!messageHandler.getConnectDate().equals("")){	// use the disconnectControlScheduler
+						Array executionTimeArray = convertStringToDateTimeArray(messageHandler.getConnectDate());
+						SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
+						
+						//TODO complete 
+						
+					} else {
+						Disconnector connector = getCosemObjectFactory().getDisconnector();
+						connector.remoteReconnect();
+					}
+					
+					success = true;
+				} else if(disconnect){
+					
+					if(!messageHandler.getDisconnectDate().equals("")){ // use the disconnectControlScheduler
+						//TODO complete
+					} else {
+						Disconnector disconnector = getCosemObjectFactory().getDisconnector();
+						disconnector.remoteDisconnect();
+					}
+					
+					success = true;
 				} else {
 					success = false;
 				}
@@ -1012,6 +1036,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		MessageCategorySpec catXMLConfig = new MessageCategorySpec("XMLConfig");
 		MessageCategorySpec catFirmware = new MessageCategorySpec("Firmware");
 		MessageCategorySpec catP1Messages = new MessageCategorySpec("Consumer messages to P1");
+		MessageCategorySpec catDisconnect = new MessageCategorySpec("Disconnect Control");
 		
 		// XMLConfig related messages
 		MessageSpec msgSpec = addDefaultValueMsg("XMLConfig", RtuMessageConstant.XMLCONFIG, false);
@@ -1027,13 +1052,32 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		msgSpec = addP1Code("Consumer message Code to port P1", RtuMessageConstant.P1CODEMESSAGE, false);
 		catP1Messages.addMessageSpec(msgSpec);
 		
+		// Disconnect control related messages
+		msgSpec = addConnectControl("Disconnect", RtuMessageConstant.DISCONNECT_LOAD, false);
+		catDisconnect.addMessageSpec(msgSpec);
+		msgSpec = addConnectControl("Connect", RtuMessageConstant.CONNECT_LOAD, false);
+		catDisconnect.addMessageSpec(msgSpec);
+		
 		categories.add(catXMLConfig);
 		categories.add(catFirmware);
 		categories.add(catP1Messages);
+		categories.add(catDisconnect);
 		return categories;
 	}
 	
-    private MessageSpec addP1Code(String keyId, String tagName, boolean advanced) {
+    private MessageSpec addConnectControl(String keyId, String tagName, boolean advanced) {
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, true);
+        tagSpec.add(msgVal);
+        tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+
+	private MessageSpec addP1Code(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         MessageValueSpec msgVal = new MessageValueSpec();
