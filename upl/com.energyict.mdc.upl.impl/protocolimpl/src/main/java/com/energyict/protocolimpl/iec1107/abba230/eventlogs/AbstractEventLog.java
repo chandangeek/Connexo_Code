@@ -8,7 +8,7 @@ import com.energyict.protocol.MeterEvent;
 abstract public class AbstractEventLog {
     
 	TimeZone timeZone;
-	List<MeterEvent> meterEvents=new ArrayList();
+	List meterEvents=new ArrayList();
 	
 	public AbstractEventLog(TimeZone timeZone) throws IOException {
         this.timeZone=timeZone;
@@ -23,7 +23,7 @@ abstract public class AbstractEventLog {
 			meterEvents.add(meterEvent);
 	}
 
-	public List<MeterEvent> getMeterEvents() {
+	public List getMeterEvents() {
 		return meterEvents;
 	}
 }

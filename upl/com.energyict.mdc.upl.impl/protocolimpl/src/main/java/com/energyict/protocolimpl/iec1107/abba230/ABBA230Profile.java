@@ -38,7 +38,9 @@ import com.energyict.protocolimpl.iec1107.abba230.eventlogs.*;
  * will return the Interval wich encloses that date.
  *
  *
- * @author fbl */
+ * @author fbl 
+ * 
+ */
         
 
 
@@ -143,7 +145,7 @@ public class ABBA230Profile {
         ProfileData profileData = parse(includeEvents,new ByteArrayInputStream(data), protocolLink.getNumberOfChannels());
         
         if( includeEvents ) {
-        	List<MeterEvent> meterEvents= new ArrayList();
+        	List meterEvents= new ArrayList();
         	
         	getMeterEvents(rFactory.getOverVoltageEventLog(),meterEvents);
         	getMeterEvents(rFactory.getUnderVoltageEventLog(),meterEvents);
@@ -180,31 +182,31 @@ public class ABBA230Profile {
         return profileData;
     }
     
-    private List<IntervalData> truncateIntervalDatas(List<IntervalData> intervalDatas,Date from) {
+    private List truncateIntervalDatas(List intervalDatas,Date from) {
     	if (from == null)
     		return intervalDatas;
-    	Iterator<IntervalData> it = intervalDatas.iterator();
+    	Iterator it = intervalDatas.iterator();
     	while(it.hasNext()) {
-    		IntervalData intervalData = it.next();
+    		IntervalData intervalData = (IntervalData) it.next();
     		if (intervalData.getEndTime().before(from))
     			it.remove();
     	}
     	return intervalDatas;
     }    
     
-    private List<MeterEvent> truncateMeterEvents(List<MeterEvent> meterEvents,Date from) {
+    private List truncateMeterEvents(List meterEvents,Date from) {
     	if (from == null)
     		return meterEvents;
-    	Iterator<MeterEvent> it = meterEvents.iterator();
+    	Iterator it = meterEvents.iterator();
     	while(it.hasNext()) {
-    		MeterEvent meterEvent = it.next();
+    		MeterEvent meterEvent = (MeterEvent) it.next();
     		if (meterEvent.getTime().before(from))
     			it.remove();
     	}
     	return meterEvents;
     }
     
-    private void getMeterEvents(ABBA230Register reg,List<MeterEvent> meterEvents) {
+    private void getMeterEvents(ABBA230Register reg,List meterEvents) {
     	try {
     		AbstractEventLog o = (AbstractEventLog)rFactory.getRegister( reg );
     		meterEvents.addAll(o.getMeterEvents());

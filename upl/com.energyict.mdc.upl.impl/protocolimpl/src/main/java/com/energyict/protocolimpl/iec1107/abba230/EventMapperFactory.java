@@ -11,7 +11,7 @@ public class EventMapperFactory {
 
 	
 	
-	static List<MeterEventMapEntry> entries = new ArrayList();
+	static List entries = new ArrayList();
 	static {
 		// TSystemStatus4 not needed!
 		
@@ -39,13 +39,13 @@ public class EventMapperFactory {
 		entries.add(new MeterEventMapEntry(16,6,MeterEvent.HARDWARE_ERROR,"RTC failed to initialise"));
 	}
 	
-	public List<MeterEvent> getMeterEvents(String eventString) throws IOException{
+	public List getMeterEvents(String eventString) throws IOException{
 		
 		long ms = new Date().getTime();
 		if (eventString.length() != 42)
 			throw new IOException("EventMapperFactory, getMeterEvents, event string has wrong length! ("+eventString+")");
 		
-		List<MeterEvent> meterEvents = new ArrayList();
+		List meterEvents = new ArrayList();
 		
 		for (int statusId=0;statusId<21;statusId++) {
 			String s = eventString.substring(statusId*2, (statusId*2+2));
@@ -64,10 +64,10 @@ public class EventMapperFactory {
 
 	private MeterEvent getMeterEvent(int statusId, int bitId, Date date) {
 		
-		Iterator<MeterEventMapEntry> it = entries.iterator();
+		Iterator it = entries.iterator();
 		
 		while(it.hasNext()) {
-			MeterEventMapEntry m = it.next();
+			MeterEventMapEntry m = (MeterEventMapEntry) it.next();
 			if ((m.getStatusId()==statusId) && (m.getBitId() == bitId)) {
 				return new MeterEvent(date,m.getMeterEventCode(),m.getDescription());
 			}
@@ -79,7 +79,7 @@ public class EventMapperFactory {
 	public static void main(String[] args) {
 		EventMapperFactory o = new EventMapperFactory();
 		try {
-			Iterator<MeterEvent> it = o.getMeterEvents("000000000055550100000000000000ff0000000000").iterator();
+			Iterator it = o.getMeterEvents("000000000055550100000000000000ff0000000000").iterator();
 			while(it.hasNext()) {
 				
 				System.out.println(it.next());

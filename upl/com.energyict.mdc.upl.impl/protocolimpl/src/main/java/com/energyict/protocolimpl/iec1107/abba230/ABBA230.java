@@ -33,9 +33,10 @@ import com.energyict.protocolimpl.iec1107.*;
 
 /** @author  fbo */
 /*
- * Changes by KV
- * 25112008 changed authentication mechanism with new security level
- * 02122008 add intervalstate bits to logbook
+ * 
+ * KV	25112008 	Changed authentication mechanism with new security level
+ * KV	02122008 	Add intervalstate bits to logbook
+ * JME	23012009	Fixed Java 1.5 <=> 1.4 issues to port from 8.1 to 7.5, 7.3 or 7.1
  * 
  */
 
@@ -47,15 +48,15 @@ public class ABBA230 implements
 	
     private static String CONNECT 			= "ConnectLoad";
     private static String DISCONNECT 		= "DisconnectLoad";
-    private static String ARM 			= "ArmMeter";
-    private static String TARIFFPROGRAM 		= "UploadMeterScheme";
-    private static String FIRMWAREPROGRAM 		= "UpgradeMeterFirmware";
+    private static String ARM 				= "ArmMeter";
+    private static String TARIFFPROGRAM 	= "UploadMeterScheme";
+    private static String FIRMWAREPROGRAM 	= "UpgradeMeterFirmware";
 	
     private static String CONNECT_DISPLAY 			= "Connect Load";
     private static String DISCONNECT_DISPLAY 		= "Disconnect Load";
-    private static String ARM_DISPLAY 			= "Arm Meter";
-    private static String TARIFFPROGRAM_DISPLAY 		= "Upload Meter Scheme";
-    private static String FIRMWAREPROGRAM_DISPLAY 		= "Upgrade Meter Firmware";
+    private static String ARM_DISPLAY 				= "Arm Meter";
+    private static String TARIFFPROGRAM_DISPLAY 	= "Upload Meter Scheme";
+    private static String FIRMWAREPROGRAM_DISPLAY 	= "Upgrade Meter Firmware";
 	
     final static long FORCE_DELAY = 300;
     
