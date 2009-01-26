@@ -334,11 +334,9 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	private void doSomeTestCalls(){
 		try {
 			SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
-			Array executionTime = sas.getExecutionTime();
-			System.out.println(executionTime);
-//			String strDate = "26/01/2009 09:30:00";
-//			Array dateArray = convertStringToDateTimeArray(strDate);
-//			sas.writeExecutionTime(dateArray);
+			String strDate = "26/01/2009 10:45:00";
+			Array dateArray = convertStringToDateTimeArray(strDate);
+			sas.writeExecutionTime(dateArray);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -962,7 +960,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		dateBytes[2] = (byte) ((Integer.parseInt(strDate.substring(strDate.indexOf("/") + 1, strDate.lastIndexOf("/"))))&0xFF);
 		dateBytes[3] = (byte) (Integer.parseInt(strDate.substring(0, strDate.indexOf("/")))&0xFF);
 		dateBytes[4] = (byte)0xFF;
-		date = new OctetString(dateBytes);
+		date = new OctetString(dateBytes, true);
 		
 		OctetString time = null;
 		byte[] timeBytes = new byte[4];
@@ -970,7 +968,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		timeBytes[1] = (byte) (Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":")))&0xFF);
 		timeBytes[2] = (byte) 0x00;
 		timeBytes[3] = (byte) 0x00;
-		time = new OctetString(timeBytes);
+		time = new OctetString(timeBytes, true);
 		
 		Array dateTimeArray = new Array();
 		dateTimeArray.addDataType(date);
