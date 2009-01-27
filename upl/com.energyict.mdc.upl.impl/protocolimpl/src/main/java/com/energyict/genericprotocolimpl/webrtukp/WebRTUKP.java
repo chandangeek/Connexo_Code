@@ -1096,7 +1096,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         MessageValueSpec msgVal = new MessageValueSpec();
         msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, true);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, false);
         tagSpec.add(msgVal);
         tagSpec.add(msgAttrSpec);
         msgSpec.add(tagSpec);
