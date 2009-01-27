@@ -119,6 +119,11 @@ public class DLMSMeterConfig {
 	public int getDisconnectorSN() throws IOException{
 		return config.getDisconnectorSN(IOL);
 	}
+	
+	public int getDisconnectorScriptTableSN() throws IOException{
+		return config.getDisconnectorScriptTableSN(IOL);
+	}
+	
     public UniversalObject getEventLogObject() throws IOException {
        return config.getEventLogObject(IOL);    
     }
@@ -299,6 +304,10 @@ public class DLMSMeterConfig {
 	}
 	
 	public UniversalObject getDisconnector() throws IOException{
+		return config.getDisconnector(IOL);
+	}
+	
+	public UniversalObject getDisconnectorScriptTable() throws IOException{
 		return config.getDisconnector(IOL);
 	}
 }

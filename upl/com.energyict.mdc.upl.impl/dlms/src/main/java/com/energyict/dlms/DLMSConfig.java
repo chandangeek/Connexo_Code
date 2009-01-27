@@ -40,6 +40,7 @@ public class DLMSConfig {
     final static private DLMSConfig consumerMessageText = new DLMSConfig("",1,0,0,96,13,0,255);
     final static private DLMSConfig consumerMessageCode = new DLMSConfig("",1,0,0,96,13,1,255);
     final static private DLMSConfig disconnector = new DLMSConfig("",70,0,0,96,3,10,255);
+    final static private DLMSConfig disconnectorScriptTable = new DLMSConfig("",9,0,0,10,0,106,255);
     
     
     final static private DLMSConfig[] configchange = {
@@ -923,7 +924,7 @@ public class DLMSConfig {
 	}
 
 	public int getDisconnectorSN(UniversalObject[] objectList) throws IOException {
-		if (objectList == null) throw new IOException("DLMSConfig, Disconnector, objectlist empty!");
+		if (objectList == null) throw new IOException("DLMSConfig, DisconnectorSN, objectlist empty!");
 		for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(disconnector)) return objectList[i].getBaseName();
 		}
@@ -936,5 +937,21 @@ public class DLMSConfig {
 	       if (objectList[i].equals(disconnectControlSchedule)) return objectList[i];
 	   }
 	   throw new IOException("DLMSConfig, DisconnectSchedule, not found in objectlist (IOL)!");  
+	}
+	
+	public UniversalObject getDisconnectorScriptTable(UniversalObject[] objectList) throws IOException {
+		if (objectList == null) throw new IOException("DLMSConfig, DisconnectorScriptTable, objectlist empty!");
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(disconnectorScriptTable)) return objectList[i];
+		}
+		throw new IOException("DLMSConfig, DisconnectorScriptTable, not found in objectlist (IOL)!");  
+	}
+
+	public int getDisconnectorScriptTableSN(UniversalObject[] objectList) throws IOException {
+		if (objectList == null) throw new IOException("DLMSConfig, DisconnectorScriptTableSN, objectlist empty!");
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(disconnectorScriptTable)) return objectList[i].getBaseName();
+		}
+		return 0;  
 	}
 }
