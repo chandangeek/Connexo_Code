@@ -24,7 +24,7 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 
 public class P3ImageTransfer extends AbstractCosemObject{
 
-	static public boolean DEBUG = false;
+	static public boolean DEBUG = true;
 	static public final int CLASSID = 18;
 	static private int delay = 3000;
 	private int maxBlockRetryCount = 3;
@@ -95,6 +95,7 @@ public class P3ImageTransfer extends AbstractCosemObject{
 			
 			// Step3: Transfer image blocks
 			transferImageBlocks();
+			if(DEBUG)System.out.println("ImageTrans: Transfered " + this.blockCount + " blocks.");
 			
 			// Step4: Check completeness of the image and transfer missing blocks
 			checkAndSendMissingBlocks();
