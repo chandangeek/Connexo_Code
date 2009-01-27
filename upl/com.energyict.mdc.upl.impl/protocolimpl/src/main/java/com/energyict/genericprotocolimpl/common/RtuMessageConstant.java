@@ -72,6 +72,7 @@ public class RtuMessageConstant {
 	public static final String LOAD_LIMIT_DURATION = "Duration";
 	public static final String LOAD_LIMIT_D1_INVERT = "Digital_Output1_Invert";
 	public static final String LOAD_LIMIT_D2_INVERT = "Digital_Output2_Invert";
+	public static final String LOAD_LIMIT_ACTIVATE_NOW = "Activate_now";
 	
 	/** RtuMessage tags for XMLConfig */
 	public static final String XMLCONFIG = "XMLConfig";
