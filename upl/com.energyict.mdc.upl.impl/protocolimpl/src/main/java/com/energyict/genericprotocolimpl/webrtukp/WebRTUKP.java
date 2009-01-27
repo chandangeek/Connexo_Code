@@ -36,6 +36,8 @@ import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
@@ -45,6 +47,7 @@ import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.P3ImageTransfer;
+import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
@@ -93,9 +96,12 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
  * Changes:
  * GNA |20012009| Added the imageTransfer message, here we use the P3ImageTransfer object
  * GNA |22012009| Added the Consumer messages over the P1 port 
+ * GNA |27012009| Added the Disconnect Control message
  */
 
 public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
+	
+	private boolean DEBUG = true; // TODO set it to false if you release
 
 	private CosemObjectFactory 		cosemObjectFactory;
 	private DLMSConnection 			dlmsConnection;
@@ -335,7 +341,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	private void doSomeTestCalls(){
 		try {
 			SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
-			String strDate = "26/01/2009 10:45:00";
+			String strDate = "27/01/2009 07:45:00";
 			Array dateArray = convertStringToDateTimeArray(strDate);
 			sas.writeExecutionTime(dateArray);
 		} catch (IOException e) {
@@ -856,6 +862,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				 
 				if(xmlConfig){
 					
+					log(Level.INFO, "Handling message " + rm.displayString() + ": XmlConfig");
+					
 					String xmlConfigStr = getMessageValue(content, RtuMessageConstant.XMLCONFIG);
 					
 					getCosemObjectFactory().getData(getMeterConfig().getXMLConfig().getObisCode()).setValueAttr(OctetString.fromString(xmlConfigStr));
@@ -864,7 +872,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					
 				} else if(firmware){
 					
+					log(Level.INFO, "Handling message " + rm.displayString() + ": Firmware upgrade");
+					
 					String userFileID = messageHandler.getUserFileId();
+					if(DEBUG)System.out.println("UserFileID: " + userFileID);
 					
 					if(!ParseUtils.isInteger(userFileID)){
 						String str = "Not a valid entry for the current meter message (" + content + ").";
@@ -879,19 +890,25 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					byte[] imageData = uf.loadFileInByteArray();
 					P3ImageTransfer p3it = getCosemObjectFactory().getP3ImageTransfer();
 					p3it.upgrade(imageData);
-					
+					if(DEBUG)System.out.println("UserFile is send to the device.");
 					if(messageHandler.activateNow()){
+						if(DEBUG)System.out.println("Start the activateNow.");
 						p3it.activateAndRetryImage();
+						if(DEBUG)System.out.println("ActivateNow complete.");
 					} else if(!messageHandler.getActivationDate().equalsIgnoreCase("")){
 						SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
 						String strDate = messageHandler.getActivationDate();
 						Array dateArray = convertStringToDateTimeArray(strDate);
+						if(DEBUG)System.out.println("Write the executionTime");
 						sas.writeExecutionTime(dateArray);
+						if(DEBUG)System.out.println("ExecutionTime sent...");
 					}
 					
 					success = true;
 					
 				} else if(p1Code){
+					
+					log(Level.INFO, "Handling message " + rm.displayString() + ": Consumer message Code");
 					
 					Data dataCode = getCosemObjectFactory().getData(getMeterConfig().getConsumerMessageCode().getObisCode());
 					dataCode.setValueAttr(OctetString.fromString(messageHandler.getP1Code()));
@@ -901,6 +918,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					
 				} else if(p1Text){
 					
+					log(Level.INFO, "Handling message " + rm.displayString() + ": Consumer message Text");
+					
 					Data dataCode = getCosemObjectFactory().getData(getMeterConfig().getConsumerMessageText().getObisCode());
 					dataCode.setValueAttr(OctetString.fromString(messageHandler.getP1Text()));
 					
@@ -908,13 +927,24 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					
 				} else if(connect){
 					
+					log(Level.INFO, "Handling message " + rm.displayString() + ": Connect");
+					
 					if(!messageHandler.getConnectDate().equals("")){	// use the disconnectControlScheduler
+						
+						//TODO TEST THIS! 
 						Array executionTimeArray = convertStringToDateTimeArray(messageHandler.getConnectDate());
 						SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
 						
-						//TODO complete 
+						ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getDisconnectorScriptTable().getObisCode());
+						byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn(); 
+						Structure scriptStruct = new Structure();
+						scriptStruct.addDataType(new OctetString(scriptLogicalName));
+						scriptStruct.addDataType(new Unsigned16(2)); 	// method '2' is the 'remote_connect' method
 						
-					} else {
+						sasConnect.writeExecutedScript(scriptStruct);
+						sasConnect.writeExecutionTime(executionTimeArray);
+						
+					} else {	// immediate connect
 						Disconnector connector = getCosemObjectFactory().getDisconnector();
 						connector.remoteReconnect();
 					}
@@ -922,9 +952,24 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					success = true;
 				} else if(disconnect){
 					
+					log(Level.INFO, "Handling message " + rm.displayString() + ": Disconnect");
+					
 					if(!messageHandler.getDisconnectDate().equals("")){ // use the disconnectControlScheduler
-						//TODO complete
-					} else {
+						
+						//TODO TEST THIS! 
+						Array executionTimeArray = convertStringToDateTimeArray(messageHandler.getConnectDate());
+						SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
+						
+						ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getDisconnectorScriptTable().getObisCode());
+						byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn(); 
+						Structure scriptStruct = new Structure();
+						scriptStruct.addDataType(new OctetString(scriptLogicalName));
+						scriptStruct.addDataType(new Unsigned16(1));	// method '1' is the 'remote_disconnect' method
+						
+						sasDisconnect.writeExecutedScript(scriptStruct);
+						sasDisconnect.writeExecutionTime(executionTimeArray);
+						
+					} else { 	// immediate disconnect
 						Disconnector disconnector = getCosemObjectFactory().getDisconnector();
 						disconnector.remoteDisconnect();
 					}
@@ -936,19 +981,20 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				
 			} catch (BusinessException e) {
 				e.printStackTrace();
-				log(Level.INFO, "Message " + rm.displayString() + " hase failed. " + e.getMessage());
+				log(Level.INFO, "Message " + rm.displayString() + " has failed. " + e.getMessage());
 			} catch (ConnectionException e){
 				e.printStackTrace();
-				log(Level.INFO, "Message " + rm.displayString() + " hase failed. " + e.getMessage());
+				log(Level.INFO, "Message " + rm.displayString() + " has failed. " + e.getMessage());
 			} catch (IOException e) {
 				e.printStackTrace();
-				log(Level.INFO, "Message " + rm.displayString() + " hase failed. " + e.getMessage());
+				log(Level.INFO, "Message " + rm.displayString() + " has failed. " + e.getMessage());
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-				log(Level.INFO, "Message " + rm.displayString() + " hase failed. " + e.getMessage());
+				log(Level.INFO, "Message " + rm.displayString() + " has failed. " + e.getMessage());
 			} finally {
 				if(success){
 					rm.confirm();
+					log(Level.INFO, "Message " + rm.displayString() + " has finished.");
 				} else {
 					rm.setFailed();
 				}
