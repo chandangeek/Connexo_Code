@@ -51,12 +51,14 @@ public class ABBA230 implements
     private static String ARM 				= "ArmMeter";
     private static String TARIFFPROGRAM 	= "UploadMeterScheme";
     private static String FIRMWAREPROGRAM 	= "UpgradeMeterFirmware";
+    private static String MDRESET			= "MDReset";
 	
     private static String CONNECT_DISPLAY 			= "Connect Load";
     private static String DISCONNECT_DISPLAY 		= "Disconnect Load";
     private static String ARM_DISPLAY 				= "Arm Meter";
     private static String TARIFFPROGRAM_DISPLAY 	= "Upload Meter Scheme";
     private static String FIRMWAREPROGRAM_DISPLAY 	= "Upgrade Meter Firmware";
+	private static String REGISTERRESET_DISPLAY 	= "Reset registers";
 	
     final static long FORCE_DELAY = 300;
     
@@ -682,6 +684,15 @@ public class ABBA230 implements
     	}
     }
     
+    private void doMDReset() {
+    	
+    	try {
+			rFactory.setRegister("ResetRegister",new byte[]{1});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+    
     /* (non-Javadoc)
      * @see com.energyict.protocol.MeterProtocol#getRegister(java.lang.String)
      */
@@ -909,6 +920,9 @@ public class ABBA230 implements
         msgSpec = addBasicMsg(TARIFFPROGRAM_DISPLAY, TARIFFPROGRAM, false);
         cat.addMessageSpec(msgSpec);
         
+        msgSpec = addBasicMsg(REGISTERRESET_DISPLAY, MDRESET, false);
+        cat.addMessageSpec(msgSpec);
+
         msgSpec = addBasicMsg(FIRMWAREPROGRAM_DISPLAY, FIRMWAREPROGRAM, true);
         cat.addMessageSpec(msgSpec);
         
@@ -1065,6 +1079,15 @@ public class ABBA230 implements
 				
 				activate();
 				firmwareUpgrade=true;
+			}
+			else if (messageEntry.getContent().indexOf("<"+MDRESET)>=0) {
+				logger.info("************************* MD RESET *************************");
+				int start = messageEntry.getContent().indexOf(MDRESET)+MDRESET.length()+1;
+				int end = messageEntry.getContent().lastIndexOf(MDRESET)-2;
+				String mdresetXMLData = messageEntry.getContent().substring(start,end);
+				
+				doMDReset();
+				
 			}
 			return MessageResult.createSuccess(messageEntry);
 		}

@@ -119,6 +119,8 @@ public class ABBA230DataIdentityFactory {
     
     private void initRegisters() {
         
+        add("099", 1,ABBA230DataIdentity.NOT_STREAMEABLE);
+
         add("411", 1,ABBA230DataIdentity.NOT_STREAMEABLE);
         add("412", 1,ABBA230DataIdentity.NOT_STREAMEABLE);
         

@@ -84,6 +84,9 @@ public class ABBA230RegisterFactory {
     private ABBA230Register timeOfUse15;
     private ABBA230Register contactorStatus,contactorCloser;
 
+    private ABBA230Register resetRegister;
+    private ABBA230Register endOfBillingPeriod;
+    
     private ABBA230Register loadProfileDSTConfig;
     
     private ABBA230Register overVoltageEventLog;
@@ -438,9 +441,11 @@ public class ABBA230RegisterFactory {
         
         contactorStatus = cr("411", "ContactorStatus", ABBA230RegisterData.ABBA_HEX,0,1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
         contactorCloser = cr("412", "ContactorCloser", ABBA230RegisterData.ABBA_HEX,0,1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
+
+        resetRegister = cr("099", "ResetRegister", ABBA230RegisterData.ABBA_HEX, 0, 1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
+        endOfBillingPeriod = cr("655", "EndOfBillingPeriod", ABBA230RegisterData.ABBA_HEX, 0, 1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
         
         loadProfileDSTConfig = cr("778", "LoadProfileDSTConfig", ABBA230RegisterData.ABBA_HEX,0,1, null);
-        
         
         
     }
@@ -491,7 +496,6 @@ public class ABBA230RegisterFactory {
             throw new IOException("Elster A230, setRegister, "+e.getMessage());
         }
     }
-    
     
     public ABBA230Register getABBA230Register(String name) throws IOException {
         return findRegister(name);
