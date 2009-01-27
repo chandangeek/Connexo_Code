@@ -413,14 +413,14 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
         MessageValueSpec msgVal = new MessageValueSpec();
         msgVal.setValue(" ");
         tagSpec.add(msgVal);
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.PREPAID_BUDGET, true);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.PREPAID_BUDGET, false);
         tagSpec.add(msgAttrSpec);
         msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.PREPAID_THRESHOLD, true);
         tagSpec.add(msgAttrSpec);
         msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.PREPAID_READ_FREQUENCY, true);
         tagSpec.add(msgAttrSpec);
         for(int i = 1; i < 9; i++){
-        	msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.PREPAID_MULTIPLIER+i, true);
+        	msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.PREPAID_MULTIPLIER+i, false);
         	tagSpec.add(msgAttrSpec);
         }
         msgSpec.add(tagSpec);
@@ -442,6 +442,8 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
         msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_D1_INVERT, false);
         tagSpec.add(msgAttrSpec);
         msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_D2_INVERT, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_ACTIVATE_NOW, false);
         tagSpec.add(msgAttrSpec);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -571,7 +573,9 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 				 */
 				
 				// The Budget register
-				getCosemObjectFactory().getRegister(prepaidSetBudgetObisCode).setValueAttr(new Integer32(Integer.valueOf(messageHandler.getBudget()).intValue()));
+				if(messageHandler.getBudget() != null){
+					getCosemObjectFactory().getRegister(prepaidSetBudgetObisCode).setValueAttr(new Integer32(Integer.valueOf(messageHandler.getBudget()).intValue()));
+				}
 				
 				// The Threshold register
 				getCosemObjectFactory().getRegister(prepaidThresholdObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getThreshold()).longValue()));
@@ -581,7 +585,9 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 				
 				// The Multiplier registers
 				for(int i = 0; i < 8; i++){
-					getCosemObjectFactory().getRegister(prepaidMultiplierObisCode[i]).setValueAttr(new Integer32(Integer.valueOf(messageHandler.getMultiplier(i)).intValue()));
+					if(messageHandler.getMultiplier(i) != null){
+						getCosemObjectFactory().getRegister(prepaidMultiplierObisCode[i]).setValueAttr(new Integer32(Integer.valueOf(messageHandler.getMultiplier(i)).intValue()));
+					}
 				}
 				
 				// Enabling the prepaid configuration
@@ -604,10 +610,6 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 				
 			} else if(loadLimitConfiguration){
 			
-				/**
-				 * Note: after the configuration setting we also enable the prepaid configuration!
-				 */
-				
 				// The Threshold register
 				getCosemObjectFactory().getRegister(loadLimitThresholdObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getLLThreshold()).longValue()));
 				
@@ -618,15 +620,31 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 				getCosemObjectFactory().getRegister(loadLimitDurationObisCode).setValueAttr(new Unsigned32(Long.valueOf(messageHandler.getLLDuration()).longValue()));
 
 				if(messageHandler.getLLD1Invert() != null){
-					getCosemObjectFactory().getRegister(loadLimitOutputLogicObisCode[0]).setValueAttr(new BooleanObject(messageHandler.getLLD1Invert().equals(Integer.toString(1))));
+					if(messageHandler.getLLD1Invert().equalsIgnoreCase("1") || messageHandler.getLLD1Invert().equalsIgnoreCase("0")){
+						getCosemObjectFactory().getRegister(loadLimitOutputLogicObisCode[0]).setValueAttr(new BooleanObject(messageHandler.getLLD1Invert().equals(Integer.toString(1))));
+					} else {
+						String error = "Configure LoadLimit message does not contain a valid digital output inverter (1): " + messageHandler.getLLD1Invert() + ", only 1(true) or 0(false) alowed.";
+						log(Level.INFO, error);
+					}
 				}
 				
-				if(messageHandler.getLLD1Invert() != null){
-					getCosemObjectFactory().getRegister(loadLimitOutputLogicObisCode[1]).setValueAttr(new BooleanObject(messageHandler.getLLD1Invert().equals(Integer.toString(1))));
+				if(messageHandler.getLLD2Invert() != null){
+					if(messageHandler.getLLD2Invert().equalsIgnoreCase("1") || messageHandler.getLLD2Invert().equalsIgnoreCase("0")){
+						getCosemObjectFactory().getRegister(loadLimitOutputLogicObisCode[1]).setValueAttr(new BooleanObject(messageHandler.getLLD2Invert().equals(Integer.toString(1))));
+					} else {
+						String error = "Configure LoadLimit message does not contain a valid digital output inverter (2): " + messageHandler.getLLD2Invert() + ", only 1(true) or 0(false) alowed.";
+						log(Level.INFO, error);
+					}
 				}
 				
-				// Enabling the loadLimit configuration					
-				getCosemObjectFactory().getRegister(loadLimitStateObisCode).setValueAttr(new BooleanObject(true));
+				if(messageHandler.getActivateNow() != null){
+					if(messageHandler.getActivateNow().equalsIgnoreCase("1") || messageHandler.getActivateNow().equalsIgnoreCase("0")){
+						getCosemObjectFactory().getRegister(loadLimitStateObisCode).setValueAttr(new BooleanObject(messageHandler.getActivateNow().equals(Integer.toString(1))));
+					} else {
+						String error = "Configure LoadLimit message does not contain a valid activateNow value: " + messageHandler.getActivateNow() + ", only 1(true) or 0(false) alowed.";
+						log(Level.INFO, error);
+					}
+				}
 				
 				success = true;
 				

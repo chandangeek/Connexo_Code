@@ -118,6 +118,7 @@ public class MessageHandler extends DefaultHandler{
 	private String llDuration = "";
 	private String llD1Invert = "";
 	private String llD2Invert = "";
+	private String llActivateNow = "";
 	
 	private void handleLoadLimitConfiguration(Attributes attrbs){
 		this.llreadFrequency = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_READ_FREQUENCY);
@@ -125,6 +126,7 @@ public class MessageHandler extends DefaultHandler{
 		this.llDuration = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_DURATION);
 		this.llD1Invert = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_D1_INVERT);
 		this.llD2Invert = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_D2_INVERT);
+		this.llActivateNow = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_ACTIVATE_NOW);
 	}
 	
 	public String getLLReadFrequency(){
@@ -145,6 +147,10 @@ public class MessageHandler extends DefaultHandler{
 	
 	public String getLLD2Invert(){
 		return this.llD2Invert;
+	}
+	
+	public String getActivateNow(){
+		return this.llActivateNow;
 	}
 	/***************************************************************************************/
 }
