@@ -40,8 +40,8 @@ public class MessageHandler extends DefaultHandler{
 			handleLoadLimitConfiguration(attrbs);
 		} else if(RtuMessageConstant.LOAD_LIMIT_ENABLE.equals(qName)){
 			setType(RtuMessageConstant.LOAD_LIMIT_ENABLE);
-		} else if(RtuMessageConstant.LOAD_LIMIT_DISALBE.equals(qName)){
-			setType(RtuMessageConstant.LOAD_LIMIT_DISALBE);
+		} else if(RtuMessageConstant.LOAD_LIMIT_DISABLE.equals(qName)){
+			setType(RtuMessageConstant.LOAD_LIMIT_DISABLE);
 		}
 		
 	}
