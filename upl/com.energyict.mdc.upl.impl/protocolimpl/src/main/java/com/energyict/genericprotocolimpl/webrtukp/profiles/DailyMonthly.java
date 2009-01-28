@@ -67,18 +67,11 @@ public class DailyMonthly {
 			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
 			
 			// We save the profileData to a tempObject so we can store everything at the end of the communication
-//			getMeter().store(pd, false);
 			webrtu.getStoreObject().add(getMeter(), pd);
 			
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException(e.getMessage());
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//			throw new SQLException(e.getMessage());
-//		} catch (BusinessException e) {
-//			e.printStackTrace();
-//			throw new BusinessException(e.getMessage());
 		}
 		
 	}
@@ -142,18 +135,11 @@ public class DailyMonthly {
 			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
 			
 			// We save the profileData to a tempObject so we can store everything at the end of the communication
-//			getMeter().store(pd, false);
 			webrtu.getStoreObject().add(getMeter(), pd);
 			
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException(e.getMessage());
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//			throw new SQLException(e.getMessage());
-//		} catch (BusinessException e) {
-//			e.printStackTrace();
-//			throw new BusinessException(e.getMessage());
 		}
 	}
 	

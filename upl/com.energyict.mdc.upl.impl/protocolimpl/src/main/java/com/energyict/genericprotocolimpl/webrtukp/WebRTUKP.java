@@ -64,11 +64,11 @@ import com.energyict.dlms.cosem.P3ImageTransfer;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.dlms.cosem.Limiter.EmergencyProfile;
 import com.energyict.dlms.cosem.Limiter.ValueDefinitionType;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.StoreObject;
+import com.energyict.genericprotocolimpl.webrtukp.profiles.DailyMonthly;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.ElectricityProfile;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
@@ -115,7 +115,7 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
  * GNA |20012009| Added the imageTransfer message, here we use the P3ImageTransfer object
  * GNA |22012009| Added the Consumer messages over the P1 port 
  * GNA |27012009| Added the Disconnect Control message
- * GNA |28012009| Implemented the Loadlimit messages
+ * GNA |28012009| Implemented the Loadlimit messages - Enabled the daily/Monthly code
  */
 
 public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
@@ -208,11 +208,11 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
     		 */
 			if(this.commProfile.getReadMeterReadings()){
 				
-				// TODO read the daily/Monthly values
-//				getLogger().log(Level.INFO, "Getting daily and monthly values for meter with serialnumber: " + webRtuKP.getSerialNumber());
-//				DailyMonthly dm = new DailyMonthly(this);
-//				dm.getDailyValues(Constant.dailyObisCode);
-//				dm.getMonthlyValues(Constant.monthlyObisCode);
+				//TODO Test this
+				getLogger().log(Level.INFO, "Getting daily and monthly values for meter with serialnumber: " + webRtuKP.getSerialNumber());
+				DailyMonthly dm = new DailyMonthly(this);
+				dm.getDailyValues(getMeterConfig().getDailyProfileObject().getObisCode());
+				dm.getMonthlyValues(getMeterConfig().getMonthlyProfileObject().getObisCode());
 				
 				getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + webRtuKP.getSerialNumber());
 				doReadRegisters();
@@ -884,7 +884,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		Iterator<RtuMessage> it = getMeter().getPendingMessages().iterator();
 		RtuMessage rm = null;
 		boolean success = false;
-		byte theMonitoredAttributeType = 6;	//TODO set it back to -1
+		byte theMonitoredAttributeType = -1;
 		while(it.hasNext()){
 			
 			try {
@@ -1018,6 +1018,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					
 					success = true;
 				} else if (llClear){
+					
+					//TODO Test this
 					Limiter clearLLimiter = getCosemObjectFactory().getLimiter();
 					
 					// set the normal threshold duration to null
@@ -1034,6 +1036,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					success = true;
 				} else if (llConfig){
 					
+					//TODO Test this
 					Limiter loadLimiter = getCosemObjectFactory().getLimiter();
 					
 					if(theMonitoredAttributeType == -1){	// check for the type of the monitored value
@@ -1112,6 +1115,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					
 					success = true;
 				} else if (llSetGrId){
+					
+					//TODO Test this
 					Limiter epdiLimiter = getCosemObjectFactory().getLimiter();
 					try {
 						Lookup lut = mw().getLookupFactory().find(Integer.parseInt(messageHandler.getEpGroupIdListLookupTableId()));
