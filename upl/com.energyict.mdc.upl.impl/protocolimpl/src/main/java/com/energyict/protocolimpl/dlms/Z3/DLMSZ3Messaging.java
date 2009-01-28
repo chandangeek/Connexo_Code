@@ -377,7 +377,7 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
         // Load Limiting related messages
         msgSpec = addNoValueMsg("Enable load limiting", RtuMessageConstant.LOAD_LIMIT_ENABLE, false);
         catLoadLimit.addMessageSpec(msgSpec);
-        msgSpec = addNoValueMsg("Disable load limiting", RtuMessageConstant.LOAD_LIMIT_DISALBE, false);
+        msgSpec = addNoValueMsg("Disable load limiting", RtuMessageConstant.LOAD_LIMIT_DISABLE, false);
         catLoadLimit.addMessageSpec(msgSpec);
         msgSpec = addParametersLoadLimit("Configure load limiting", RtuMessageConstant.LOAD_LIMIT_CONFIGURE, false);
         catLoadLimit.addMessageSpec(msgSpec);
@@ -528,7 +528,7 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 			boolean prepaidDisable			= messageHandler.getType().equals(RtuMessageConstant.PREPAID_DISABLE);
 			boolean loadLimitConfiguration	= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_CONFIGURE);
 			boolean loadLimitEnable			= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_ENABLE);
-			boolean loadLimitDisable		= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_DISALBE);
+			boolean loadLimitDisable		= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_DISABLE);
 			
 			if(disConnect){
 				
