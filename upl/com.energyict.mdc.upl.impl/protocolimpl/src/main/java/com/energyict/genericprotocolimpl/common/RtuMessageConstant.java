@@ -65,7 +65,7 @@ public class RtuMessageConstant {
     
     /** RtuMessage tags for load limiting */
 	public static final String LOAD_LIMIT_ENABLE = "Enable_load_limiting";
-	public static final String LOAD_LIMIT_DISALBE = "Disable_load_limitng";
+	public static final String LOAD_LIMIT_DISABLE = "Disable_load_limitng";
 	public static final String LOAD_LIMIT_CONFIGURE = "Configure_load_limiting";
 	public static final String LOAD_LIMIT_READ_FREQUENCY = "Read_frequency";
 	public static final String LOAD_LIMIT_THRESHOLD = "Threshold";
@@ -73,6 +73,15 @@ public class RtuMessageConstant {
 	public static final String LOAD_LIMIT_D1_INVERT = "Digital_Output1_Invert";
 	public static final String LOAD_LIMIT_D2_INVERT = "Digital_Output2_Invert";
 	public static final String LOAD_LIMIT_ACTIVATE_NOW = "Activate_now";
+	public static final String LOAD_LIMIT_NORMAL_THRESHOLD = "Normal_Threshold";
+	public static final String LOAD_LIMIT_EMERGENCY_THRESHOLD = "Emergency_Threshold";
+	public static final String LOAD_LIMIT_EMERGENCY_PROFILE = "Emergency_Profile";
+	public static final String LOAD_LIMIT_EP_PROFILE_ID = "EP_Profile_Id";
+	public static final String LOAD_LIMIT_EP_ACTIVATION_TIME = "EP_Activation_Time";
+	public static final String LOAD_LIMIT_EP_DURATION = "EP_Duration";
+	public static final String LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST = "EP_GroupIds";
+	public static final String LOAD_LIMIT_EP_GRID_LOOKUP_ID = "Lookup_Table_ID";
+	public static final String LOAD_LIMIT_MIN_OVER_THRESHOLD_DURATION = "Over_Threshold_Duration";
 	
 	/** RtuMessage tags for XMLConfig */
 	public static final String XMLCONFIG = "XMLConfig";
