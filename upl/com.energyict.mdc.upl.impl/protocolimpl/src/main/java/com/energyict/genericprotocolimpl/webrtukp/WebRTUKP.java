@@ -28,16 +28,29 @@ import com.energyict.cbo.NotFoundException;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
+import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Integer16;
+import com.energyict.dlms.axrdencoding.Integer32;
+import com.energyict.dlms.axrdencoding.Integer64;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.NullData;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
@@ -46,10 +59,13 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.IPv4Setup;
+import com.energyict.dlms.cosem.Limiter;
 import com.energyict.dlms.cosem.P3ImageTransfer;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.cosem.Limiter.EmergencyProfile;
+import com.energyict.dlms.cosem.Limiter.ValueDefinitionType;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.StoreObject;
@@ -59,6 +75,8 @@ import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.Lookup;
+import com.energyict.mdw.core.LookupEntry;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
@@ -97,6 +115,7 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
  * GNA |20012009| Added the imageTransfer message, here we use the P3ImageTransfer object
  * GNA |22012009| Added the Consumer messages over the P1 port 
  * GNA |27012009| Added the Disconnect Control message
+ * GNA |28012009| Implemented the Loadlimit messages
  */
 
 public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
@@ -111,7 +130,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	private Logger					logger;
 	private CommunicationScheduler	scheduler;
 	private Rtu						webRtuKP;
-//	private Cache					dlmsCache;
 	
 	// this cache object is supported by 7.5
 	private DLMSCache 				dlmsCache=new DLMSCache();	     
@@ -255,12 +273,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		
 		this.dlmsMeterConfig = DLMSMeterConfig.getInstance(Constant.MANUFACTURER);
 		
-		// if we get a serialVersion mix-up we should set the dlmsCache to NULL so the cache is read from the meter
-//		Object tempCache = GenericCache.startCacheMechanism(getMeter());
-//		this.dlmsCache = (tempCache == null)?new Cache():(Cache)tempCache;
-		
 		// this cacheobject is supported by the 7.5
-//		this.dlmsCache = (DLMSCache)fetchCache(getMeter().getId());
 		setCache(fetchCache(getMeter().getId()));
 		
 		this.mbusDevices = new MbusDevice[Constant.MaxMbusMeters];
@@ -686,11 +699,15 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		List<Rtu> slaves = getMeter().getDownstreamRtus();
 		Iterator<Rtu> it = slaves.iterator();
 		int count = 0;
+		int mbusChannel;
 		while(it.hasNext()){
+			mbusChannel = -1;
 			try {
 				mbus = it.next();
 				serialMbus = mbus.getSerialNumber();
-				this.mbusDevices[count++] = new MbusDevice(serialMbus, mbus, getLogger());
+				mbusChannel = checkSerialForMbusChannel(serialMbus);
+//				this.mbusDevices[count++] = new MbusDevice(serialMbus, mbus, getLogger());
+				this.mbusDevices[count++] = new MbusDevice(serialMbus, mbusChannel, mbus, getLogger());
 			} catch (ApplicationException e) {
 				// catch and go to next slave
 				e.printStackTrace();
@@ -708,6 +725,27 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
     	return false;
 	}
 	
+	/**
+	 * Method to check which mbusSerialnumber is on which channel ...
+	 * @param serialMbus
+	 * @return the channel corresponding with the serialnumber
+	 */
+	private int checkSerialForMbusChannel(String serialMbus) {
+		String slaveSerial = "";
+		for(int i = 0; i < Constant.MaxMbusMeters; i++){
+			try {
+				slaveSerial = getCosemObjectFactory().getGenericRead(getMeterConfig().getMbusSerialNumber(i)).getString();
+				if(slaveSerial.equalsIgnoreCase(serialMbus)){
+					return i;
+				}
+			} catch (IOException e) {
+				e.printStackTrace();	// catch and go to next
+				log(Level.INFO, "Could not retrieve the mbusSerialNumber for channel " + (i+1));
+			}
+		}
+		return -1;
+	}
+
 	/** Short notation for MeteringWarehouse.getCurrent() */
     private MeteringWarehouse mw() {
         return MeteringWarehouse.getCurrent();
@@ -846,6 +884,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		Iterator<RtuMessage> it = getMeter().getPendingMessages().iterator();
 		RtuMessage rm = null;
 		boolean success = false;
+		byte theMonitoredAttributeType = 6;	//TODO set it back to -1
 		while(it.hasNext()){
 			
 			try {
@@ -859,7 +898,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				boolean p1Code 			= messageHandler.getType().equals(RtuMessageConstant.P1CODEMESSAGE);
 				boolean connect			= messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
 				boolean disconnect		= messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
-				 
+				boolean llConfig		= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_CONFIGURE);
+				boolean llClear			= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_DISABLE);
+				boolean llSetGrId		= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST);
+				
 				if(xmlConfig){
 					
 					log(Level.INFO, "Handling message " + rm.displayString() + ": XmlConfig");
@@ -975,6 +1017,121 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					}
 					
 					success = true;
+				} else if (llClear){
+					Limiter clearLLimiter = getCosemObjectFactory().getLimiter();
+					
+					// set the normal threshold duration to null
+					clearLLimiter.writeThresholdNormal(new NullData());
+					// set the emergency threshold duration to null
+					clearLLimiter.writeThresholdEmergency(new NullData());
+					// erase the emergency profile
+					Structure emptyStruct = new Structure();
+					emptyStruct.addDataType(new NullData());
+					emptyStruct.addDataType(new NullData());
+					emptyStruct.addDataType(new NullData());
+					clearLLimiter.writeEmergencyProfile(clearLLimiter.new EmergencyProfile(emptyStruct.getBEREncodedByteArray(), 0, 0));
+					
+					success = true;
+				} else if (llConfig){
+					
+					Limiter loadLimiter = getCosemObjectFactory().getLimiter();
+					
+					if(theMonitoredAttributeType == -1){	// check for the type of the monitored value
+						ValueDefinitionType valueDefinitionType = loadLimiter.getMonitoredValue();
+						theMonitoredAttributeType = getCosemObjectFactory().getGenericRead(valueDefinitionType.getObisCode(), 
+								valueDefinitionType.getAttributeIndex().getValue()).getResponseData()[0];
+					}
+					
+					// Write the normalThreshold
+					if(messageHandler.getNormalThreshold() != null){
+						try {
+							loadLimiter.writeThresholdNormal(convertToMonitoredType(theMonitoredAttributeType, messageHandler.getNormalThreshold()));
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+							log(Level.INFO, "Could not pars the normalThreshold value to an integer.");
+							throw new IOException("Could not pars the normalThreshold value to an integer." + e.getMessage());
+						}
+					}
+					
+					// Write the emergencyThreshold
+					if(messageHandler.getEmergencyThreshold() != null){
+						try{
+							loadLimiter.writeThresholdEmergency(convertToMonitoredType(theMonitoredAttributeType, messageHandler.getEmergencyThreshold()));
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+							log(Level.INFO, "Could not pars the emergencyThreshold value to an integer.");
+							throw new IOException("Could not pars the emergencyThreshold value to an integer." + e.getMessage());
+						}
+					}
+					
+					// Write the minimumOverThresholdDuration
+					if(messageHandler.getOverThresholdDurtion() != null){
+						try{
+							loadLimiter.writeMinOverThresholdDuration(new Unsigned32(Integer.parseInt(messageHandler.getOverThresholdDurtion())));
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+							log(Level.INFO, "Could not pars the minimum over threshold duration value to an integer.");
+							throw new IOException("Could not pars the minimum over threshold duration value to an integer." + e.getMessage());
+						}
+					}
+					
+					// Construct the emergencyProfile
+					Structure emergencyProfile = new Structure();
+					if(messageHandler.getEpProfileId() != null){	// The EmergencyProfileID
+						try {
+							emergencyProfile.addDataType(new Unsigned16(Integer.parseInt(messageHandler.getEpProfileId())));
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+							log(Level.INFO, "Could not pars the emergency profile id value to an integer.");
+							throw new IOException("Could not pars the emergency profile id value to an integer." + e.getMessage());
+						}
+					}
+					if(messageHandler.getEpActivationTime() != null){	// The EmergencyProfileActivationTime
+						try{
+							emergencyProfile.addDataType(new OctetString(convertStringToDateTimeOctetString(messageHandler.getActivationDate()).getBEREncodedByteArray()));
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+							log(Level.INFO, "Could not pars the emergency profile activationTime value to a valid date.");
+							throw new IOException("Could not pars the emergency profile activationTime value to a valid date." + e.getMessage());
+						}
+					}
+					if(messageHandler.getEpDuration() != null){		// The EmergencyProfileDuration
+						try{
+							emergencyProfile.addDataType(new Unsigned32(Integer.parseInt(messageHandler.getEpDuration())));
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+							log(Level.INFO, "Could not pars the emergency profile duration value to an integer.");
+							throw new IOException("Could not pars the emergency profile duration value to an integer." + e.getMessage());
+						}
+					}
+					if(emergencyProfile.nrOfDataTypes() != 3){	// If all three ellements are correct, then send it, otherwise throw error
+						throw new IOException("The complete emergecy profile must be filled in before sending it to the meter.");
+					} else {
+						loadLimiter.writeEmergencyProfile(loadLimiter.new EmergencyProfile(emergencyProfile.getBEREncodedByteArray(), 0, 0));
+					}
+					
+					success = true;
+				} else if (llSetGrId){
+					Limiter epdiLimiter = getCosemObjectFactory().getLimiter();
+					try {
+						Lookup lut = mw().getLookupFactory().find(Integer.parseInt(messageHandler.getEpGroupIdListLookupTableId()));
+						if(lut == null){
+							throw new IOException("No lookuptable defined with id '" + messageHandler.getEpGroupIdListLookupTableId() + "'");
+						} else {
+							Iterator entriesIt = lut.getEntries().iterator();
+							Array idArray = new Array();
+							while(entriesIt.hasNext()){
+								LookupEntry lue = (LookupEntry)entriesIt.next();
+								idArray.addDataType(new Unsigned16(lue.getKey()));
+							}
+							epdiLimiter.writeEmergencyProfileGroupIdList(idArray);
+						}
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+						throw new IOException("The given lookupTable id is not a valid entry.");
+					}
+					
+					success = true;
 				} else {
 					success = false;
 				}
@@ -1000,6 +1157,44 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				}
 			}
 		}
+	}
+
+	private AbstractDataType convertToMonitoredType(byte theMonitoredAttributeType, String value) throws IOException {
+		try {
+			switch(theMonitoredAttributeType){
+			case DLMSCOSEMGlobals.TYPEDESC_NULL:{return new NullData();}
+			case DLMSCOSEMGlobals.TYPEDESC_BOOLEAN:{return new BooleanObject(value.equalsIgnoreCase("1"));}
+			case DLMSCOSEMGlobals.TYPEDESC_BITSTRING:{return new BitString(Integer.parseInt(value));}              
+			case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG:{return new Integer32(Integer.parseInt(value));}
+			case DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED:{return new Unsigned32(Integer.parseInt(value));}
+			case DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING:{return OctetString.fromString(value);}
+			case DLMSCOSEMGlobals.TYPEDESC_VISIBLE_STRING:{return new VisibleString(value);}
+			case DLMSCOSEMGlobals.TYPEDESC_INTEGER:{return new Integer8(Integer.parseInt(value));}
+			case DLMSCOSEMGlobals.TYPEDESC_LONG:{return new Integer16(Integer.parseInt(value));}
+			case DLMSCOSEMGlobals.TYPEDESC_UNSIGNED:{return new Unsigned8(Integer.parseInt(value));}
+			case DLMSCOSEMGlobals.TYPEDESC_LONG_UNSIGNED:{return new Unsigned16(Integer.parseInt(value));}
+			case DLMSCOSEMGlobals.TYPEDESC_LONG64:{return new Integer64(Integer.parseInt(value));}
+			case DLMSCOSEMGlobals.TYPEDESC_ENUM:{return new TypeEnum(Integer.parseInt(value));}
+			default:    
+			    throw new IOException("convertToMonitoredtype error, unknown type.");
+			}
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			throw new NumberFormatException();
+		}
+	}
+
+	private DateTime convertStringToDateTimeOctetString(String strDate) throws IOException{
+		DateTime dateTime = null;
+		Calendar cal = Calendar.getInstance(getMeterTimeZone());
+		cal.set(Integer.parseInt(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" ")))&0xFF,
+				Integer.parseInt(strDate.substring(strDate.indexOf("/") + 1, strDate.lastIndexOf("/")))&0xFF,
+				Integer.parseInt(strDate.substring(0, strDate.indexOf("/")))&0xFF,
+				Integer.parseInt(strDate.substring(strDate.indexOf(" ") + 1, strDate.indexOf(":")))&0xFF,
+				Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":")))&0xFF,
+				Integer.parseInt(strDate.substring(strDate.lastIndexOf(":") + 1, strDate.length()))&0xFF);
+		dateTime = new DateTime(cal);
+		return dateTime;
 	}
 	
 	private Array convertStringToDateTimeArray(String strDate) {
@@ -1035,7 +1230,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		}
 	}
 	
-	private void importMessage(String message, DefaultHandler handler) throws BusinessException{
+	public void importMessage(String message, DefaultHandler handler) throws BusinessException{
         try {
             
             byte[] bai = message.getBytes();
@@ -1063,6 +1258,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		MessageCategorySpec catFirmware = new MessageCategorySpec("Firmware");
 		MessageCategorySpec catP1Messages = new MessageCategorySpec("Consumer messages to P1");
 		MessageCategorySpec catDisconnect = new MessageCategorySpec("Disconnect Control");
+		MessageCategorySpec catLoadLimit = new MessageCategorySpec("LoadLimit");
 		
 		// XMLConfig related messages
 		MessageSpec msgSpec = addDefaultValueMsg("XMLConfig", RtuMessageConstant.XMLCONFIG, false);
@@ -1084,14 +1280,67 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		msgSpec = addConnectControl("Connect", RtuMessageConstant.CONNECT_LOAD, false);
 		catDisconnect.addMessageSpec(msgSpec);
 		
+		// LoadLimit related messages
+		msgSpec = addConfigureLL("Configure Loadlimiting parameters", RtuMessageConstant.LOAD_LIMIT_CONFIGURE, false);
+		catLoadLimit.addMessageSpec(msgSpec);
+		msgSpec = addNoValueMsg("Clear the Loadlimit configuration", RtuMessageConstant.LOAD_LIMIT_DISABLE, false);
+		catLoadLimit.addMessageSpec(msgSpec);
+		msgSpec = addGroupIdsLL("Set emergency profile group id's", RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST, false);
+		catLoadLimit.addMessageSpec(msgSpec);
+		
 		categories.add(catXMLConfig);
 		categories.add(catFirmware);
 		categories.add(catP1Messages);
 		categories.add(catDisconnect);
+		categories.add(catLoadLimit);
 		return categories;
 	}
 	
-    private MessageSpec addConnectControl(String keyId, String tagName, boolean advanced) {
+	private MessageSpec addNoValueMsg(String keyId, String tagName, boolean advanced){
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+	
+    private MessageSpec addGroupIdsLL(String keyId, String tagName, boolean advanced) {
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_EP_GRID_LOOKUP_ID, true);
+        tagSpec.add(msgVal);
+        tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+
+	private MessageSpec addConfigureLL(String keyId, String tagName, boolean advanced) {
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_NORMAL_THRESHOLD, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_THRESHOLD, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_MIN_OVER_THRESHOLD_DURATION, false);
+        tagSpec.add(msgAttrSpec);
+        MessageTagSpec profileTagSpec = new MessageTagSpec("Emergency_Profile");
+        profileTagSpec.add(msgVal);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_EP_PROFILE_ID, false);
+        profileTagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_EP_ACTIVATION_TIME, false);
+        profileTagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_EP_DURATION, false);
+        profileTagSpec.add(msgAttrSpec);
+        tagSpec.add(msgVal);
+        tagSpec.add(profileTagSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+
+	private MessageSpec addConnectControl(String keyId, String tagName, boolean advanced) {
     	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         MessageValueSpec msgVal = new MessageValueSpec();

@@ -43,6 +43,16 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.DISCONNECT_LOAD.equals(qName)){
 			setType(RtuMessageConstant.DISCONNECT_LOAD);
 			handleDisconnectLoad(attrbs);
+		} else if(RtuMessageConstant.LOAD_LIMIT_CONFIGURE.equals(qName)){
+			setType(RtuMessageConstant.LOAD_LIMIT_CONFIGURE);
+			handleLoadLimitConfiguration(attrbs);
+		} else if(RtuMessageConstant.LOAD_LIMIT_DISABLE.equals(qName)){
+			setType(RtuMessageConstant.LOAD_LIMIT_DISABLE);
+		} else if(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST.equals(qName)){
+			setType(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST);
+			handleLoadLimitEPGroupIDList(attrbs);
+		} else if(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE.equals(qName)){
+			handleLoadLimitEmergencyProfile(attrbs);
 		}
 	}
 
@@ -174,6 +184,65 @@ public class MessageHandler extends DefaultHandler{
 			this.disconnectDate = "";
 		}
 		return this.disconnectDate;
+	}
+	/**********************************************/
+
+	
+	/**********************************************
+	 * LoadLimit Related messages
+	 **********************************************/
+	private String normalThreshold = "";
+	private String emergencyThreshold = "";
+	private String overThresholdDurtion = "";
+	private String epProfileId = "";
+	private String epActivationTime = "";
+	private String epDuration = "";
+	private String epGroupIdListLookupTableId = "";
+	
+	private void handleLoadLimitEPGroupIDList(Attributes attrbs) {
+		this.epGroupIdListLookupTableId = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_EP_GRID_LOOKUP_ID);
+
+	}
+
+	private void handleLoadLimitConfiguration(Attributes attrbs) {
+		this.normalThreshold = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_NORMAL_THRESHOLD);
+		this.emergencyThreshold = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_THRESHOLD);
+		this.overThresholdDurtion = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_MIN_OVER_THRESHOLD_DURATION);
+	}
+	
+
+	private void handleLoadLimitEmergencyProfile(Attributes attrbs) {
+		this.epProfileId = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_EP_PROFILE_ID);
+		this.epActivationTime = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_EP_ACTIVATION_TIME);
+		this.epDuration = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_EP_DURATION);
+	}
+	
+	public String getNormalThreshold() {
+		return normalThreshold;
+	}
+
+	public String getEmergencyThreshold() {
+		return emergencyThreshold;
+	}
+
+	public String getOverThresholdDurtion() {
+		return overThresholdDurtion;
+	}
+
+	public String getEpProfileId() {
+		return epProfileId;
+	}
+
+	public String getEpActivationTime() {
+		return epActivationTime;
+	}
+
+	public String getEpDuration() {
+		return epDuration;
+	}
+
+	public String getEpGroupIdListLookupTableId() {
+		return epGroupIdListLookupTableId;
 	}
 	/**********************************************/
 }
