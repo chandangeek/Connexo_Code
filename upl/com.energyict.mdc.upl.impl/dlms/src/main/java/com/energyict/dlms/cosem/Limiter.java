@@ -15,6 +15,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.obis.ObisCode;
 
 /**
  * @author gna
@@ -436,6 +437,13 @@ public class Limiter extends AbstractCosemObject{
 		public OctetString getLogicalName(){
 			return (OctetString) getDataType(ITEM_LOGICAL_NAME);
 		}
+		
+		public ObisCode getObisCode(){
+			OctetString ln = getLogicalName();
+			String strOc = ""+ln.getOctetStr()[0]+"."+ln.getOctetStr()[1]+"."+ln.getOctetStr()[2]+"."+ln.getOctetStr()[3]+"."
+							+ln.getOctetStr()[4]+"."+ln.getOctetStr()[5];
+			return ObisCode.fromString(strOc);
+			}
 		
 		public Integer8 getAttributeIndex(){
 			return (Integer8) getDataType(ITEM_ATTRIBUTE_INDEX);

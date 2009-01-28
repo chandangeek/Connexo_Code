@@ -182,6 +182,9 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     	return new Disconnector(protocolLink, getObjectReference(obisCode));
     }
 
+	public Limiter getLimiter() throws IOException{
+		return new Limiter(protocolLink, getObjectReference(LIMITER, protocolLink.getMeterConfig().getLimiterSN()));
+	}
     public CosemObject getCosemObject(ObisCode obisCode) throws IOException {
         if (obisCode.getF() != 255) {
             return getStoredValues().getHistoricalValue(obisCode);
@@ -226,5 +229,5 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
             return new ObjectReference(sn);
         throw new IOException("CosemObjectFactory, getObjectReference, invalid reference type "+protocolLink.getReference());
     }
-    
+
 }

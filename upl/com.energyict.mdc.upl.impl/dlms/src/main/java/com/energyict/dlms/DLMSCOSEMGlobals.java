@@ -97,6 +97,7 @@ public interface DLMSCOSEMGlobals {
     final byte[] IPV4_SETUP = {0,0,25,1,0,(byte)255};
     final byte[] P3IMAGE_TRANSFER = {0,0,44,0,0,(byte)255};
     final byte[] DISCONNECTOR = {0,0,96,3,10,(byte)255};
+    final byte[] LIMITER = {0,0,17,0,0,(byte)255};
     
     //********************************************************************************************************
     // Reserved SN logical name constants, should be filled in when requesting the object list first.

@@ -123,6 +123,10 @@ public class DLMSMeterConfig {
 	public int getDisconnectorScriptTableSN() throws IOException{
 		return config.getDisconnectorScriptTableSN(IOL);
 	}
+
+	public int getLimiterSN() throws IOException{
+		return config.getLimiterSN(IOL);
+	}
 	
     public UniversalObject getEventLogObject() throws IOException {
        return config.getEventLogObject(IOL);    
@@ -260,7 +264,7 @@ public class DLMSMeterConfig {
     }
 
 	public UniversalObject getMbusDisconnectControl(int physicalAddress) throws IOException {
-		return config.getMbusDisconnectControl(IOL, manuf, physicalAddress);
+		return config.getMbusDisconnector(IOL, manuf, physicalAddress);
 	}        
 	
 	public UniversalObject getMbusDisconnectControlState(int physicalAddress) throws IOException {
@@ -309,5 +313,9 @@ public class DLMSMeterConfig {
 	
 	public UniversalObject getDisconnectorScriptTable() throws IOException{
 		return config.getDisconnector(IOL);
+	}
+	
+	public UniversalObject getLimiter() throws IOException{
+		return config.getLimiter(IOL);
 	}
 }

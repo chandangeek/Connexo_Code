@@ -41,6 +41,7 @@ public class DLMSConfig {
     final static private DLMSConfig consumerMessageCode = new DLMSConfig("",1,0,0,96,13,1,255);
     final static private DLMSConfig disconnector = new DLMSConfig("",70,0,0,96,3,10,255);
     final static private DLMSConfig disconnectorScriptTable = new DLMSConfig("",9,0,0,10,0,106,255);
+    final static private DLMSConfig limiter = new DLMSConfig("", 71,0,0,17,0,0,255);
     
     
     final static private DLMSConfig[] configchange = {
@@ -97,15 +98,15 @@ public class DLMSConfig {
 		new DLMSConfig("WKP",7,0,4,24,5,0,255)
     };
     
-    final static private DLMSConfig[] mbusDisconnectControl = {
-		new DLMSConfig("WKP",7,0,1,24,4,0,255),
-		new DLMSConfig("WKP",7,0,2,24,4,0,255),
-		new DLMSConfig("WKP",7,0,3,24,4,0,255),
-		new DLMSConfig("WKP",7,0,4,24,4,0,255),
-		new DLMSConfig("ISK",7,0,1,128,30,30,255),
-		new DLMSConfig("ISK",7,0,2,128,30,30,255),
-		new DLMSConfig("ISK",7,0,3,128,30,30,255),
-		new DLMSConfig("ISK",7,0,4,128,30,30,255)
+    final static private DLMSConfig[] mbusDisconnector = {
+		new DLMSConfig("WKP",70,0,1,24,4,0,255),
+		new DLMSConfig("WKP",70,0,2,24,4,0,255),
+		new DLMSConfig("WKP",70,0,3,24,4,0,255),
+		new DLMSConfig("WKP",70,0,4,24,4,0,255),
+		new DLMSConfig("ISK",70,0,1,128,30,30,255),
+		new DLMSConfig("ISK",70,0,2,128,30,30,255),
+		new DLMSConfig("ISK",70,0,3,128,30,30,255),
+		new DLMSConfig("ISK",70,0,4,128,30,30,255)
     };
     
     final static private DLMSConfig[] mbusDisconnectControlState = {
@@ -654,14 +655,14 @@ public class DLMSConfig {
 		throw new IOException("DLMSConfig, getMbusControlLog, not found in objectlist (IOL)");
     }
     
-    protected UniversalObject getMbusDisconnectControl(UniversalObject[] objectList, String manuf, int channel) throws IOException{
+    protected UniversalObject getMbusDisconnector(UniversalObject[] objectList, String manuf, int channel) throws IOException{
     	int count = 0;
     	if (objectList == null) throw new IOException("DLMSConfig, getMbusDisconnectControl, objectlist empty!");
-    	for(int t = 0; t < mbusDisconnectControl.length; t++){
-			if((manuf != null) && (mbusDisconnectControl[t].getManuf().compareTo(manuf) != 0)) continue;
+    	for(int t = 0; t < mbusDisconnector.length; t++){
+			if((manuf != null) && (mbusDisconnector[t].getManuf().compareTo(manuf) != 0)) continue;
 			if(count++ == channel){
 				for(int i = 0; i < objectList.length; i++){
-					if(objectList[i].equals(mbusDisconnectControl[t])){
+					if(objectList[i].equals(mbusDisconnector[t])){
 						return objectList[i];
 					}
 				}
@@ -951,6 +952,22 @@ public class DLMSConfig {
 		if (objectList == null) throw new IOException("DLMSConfig, DisconnectorScriptTableSN, objectlist empty!");
 		for (int i=0;i<objectList.length;i++) {
 			if (objectList[i].equals(disconnectorScriptTable)) return objectList[i].getBaseName();
+		}
+		return 0;  
+	}
+
+	public UniversalObject getLimiter(UniversalObject[] objectList) throws IOException {
+		if (objectList == null) throw new IOException("DLMSConfig, Limiter, objectlist empty!");
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(limiter)) return objectList[i];
+		}
+		throw new IOException("DLMSConfig, Limiter, not found in objectlist (IOL)!");  
+	}
+
+	public int getLimiterSN(UniversalObject[] objectList) throws IOException {
+		if (objectList == null) throw new IOException("DLMSConfig, Limiter, objectlist empty!");
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(limiter)) return objectList[i].getBaseName();
 		}
 		return 0;  
 	}
