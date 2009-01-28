@@ -12,21 +12,44 @@ import java.util.logging.Logger;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Unit;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.MbusProfile;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
-public class MbusDevice implements GenericProtocol{
+/**
+ * @author gna
+ * Changes:
+ * GNA |27012009| Instead of using the nodeAddress as channelnumber we search for the channelnumber by looking at the mbusSerialNumbers
+ * GNA |28012009| Added the connect/disconnect messages. There is an option to enter an activationDate but there is no Object description for the
+ * 					Mbus disconnect controller yet ...
+ */
+
+public class MbusDevice implements GenericProtocol, Messaging{
 	
 	private long mbusAddress	= -1;		// this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
 	private int physicalAddress = -1;		// this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
@@ -49,6 +72,10 @@ public class MbusDevice implements GenericProtocol{
 		this(0, 0, serial, 15, mbusRtu, Unit.get(BaseUnit.UNITLESS), logger);
 	}
 	
+	public MbusDevice(String serial, int physicalAddress, Rtu mbusRtu, Logger logger) throws SQLException, BusinessException, IOException{
+		this(0, physicalAddress, serial, 15, mbusRtu, Unit.get(BaseUnit.UNITLESS), logger);
+	}
+	
 	public MbusDevice(long mbusAddress, int phyaddress, String serial, int medium, Rtu mbusRtu, Unit mbusUnit, Logger logger) throws SQLException, BusinessException, IOException{
 		this.mbusAddress = mbusAddress;
 		this.physicalAddress = phyaddress;
@@ -58,7 +85,7 @@ public class MbusDevice implements GenericProtocol{
 		this.mbus = mbusRtu;
 		this.logger = logger;
 		this.valid = true;
-		updatePhysicalAddressWithNodeAddress();
+//		updatePhysicalAddressWithNodeAddress();
 	}
 	
 	private void verifySerialNumber() throws IOException{
@@ -121,7 +148,7 @@ public class MbusDevice implements GenericProtocol{
 		
 		// send rtuMessages
 		if(commProfile.getSendRtuMessage()){
-			
+			sendMeterMessages();
 		}
 	}
 	
@@ -134,7 +161,7 @@ public class MbusDevice implements GenericProtocol{
 			while(it.hasNext()){
 				rr = it.next();
 				oc = rr.getRtuRegisterSpec().getObisCode();
-				rv = readRegister(adjustToMbusChannelObisCod(oc));
+				rv = readRegister(adjustToMbusChannelObisCode(oc));
 				rv.setRtuRegisterId(rr.getId());
 				
 				if(rr.getReadingAt(rv.getReadTime()) == null){
@@ -147,7 +174,81 @@ public class MbusDevice implements GenericProtocol{
 		}
 	}
 	
-	private ObisCode adjustToMbusChannelObisCod(ObisCode oc) {
+	private void sendMeterMessages() throws BusinessException, SQLException {
+		MessageHandler messageHandler = new MessageHandler();
+		
+		Iterator<RtuMessage> it = getMbus().getPendingMessages().iterator();
+		RtuMessage rm = null;
+		boolean success = false;
+		while(it.hasNext()){
+			try {
+				
+				rm = (RtuMessage)it.next();
+				String content = rm.getContents();
+				getWebRTU().importMessage(content, messageHandler);
+				
+				boolean connect			= messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
+				boolean disconnect		= messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
+				
+				if(connect){
+					
+					getLogger().log(Level.INFO, "Handling MbusMessage " + rm.displayString() + ": Connect");
+
+					if(!messageHandler.getConnectDate().equals("")){	// use the disconnectControlScheduler
+						
+						getLogger().log(Level.INFO, "Although an activationData is filled in, the connect is immediatly applied (Missing MbusDisconnect scheduler.)");
+						Disconnector connector = getWebRTU().getCosemObjectFactory().getDisconnector(getWebRTU().getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode());
+						connector.remoteReconnect();
+						
+					} else { // immediate connect
+						Disconnector connector = getWebRTU().getCosemObjectFactory().getDisconnector(getWebRTU().getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode());
+						connector.remoteReconnect();
+					}
+					
+					success = true;
+					
+				} else if(disconnect){
+					
+					getLogger().log(Level.INFO, "Handling MbusMessage " + rm.displayString() + ": Disconnect");
+					
+					if(!messageHandler.getDisconnectDate().equals("")){	// use the disconnectControlScheduler
+						
+						getLogger().log(Level.INFO, "Although an activationData is filled in, the disconnect is immediatly applied (Missing MbusDisconnect scheduler.)");
+						Disconnector connector = getWebRTU().getCosemObjectFactory().getDisconnector(getWebRTU().getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode());
+						connector.remoteDisconnect();
+						
+					} else { // immediate disconnect
+						Disconnector connector = getWebRTU().getCosemObjectFactory().getDisconnector(getWebRTU().getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode());
+						connector.remoteDisconnect();
+					}
+					
+					success = true;
+				} else {
+					
+					success = false;
+				}
+				
+			} catch (BusinessException e) {
+				e.printStackTrace();
+				getLogger().log(Level.INFO, "Message " + rm.displayString() + " has failed. " + e.getMessage());
+			} catch (ConnectionException e){
+				e.printStackTrace();
+				getLogger().log(Level.INFO, "Message " + rm.displayString() + " has failed. " + e.getMessage());
+			} catch (IOException e) {
+				e.printStackTrace();
+				getLogger().log(Level.INFO, "Message " + rm.displayString() + " has failed. " + e.getMessage());
+			} finally {
+				if(success){
+					rm.confirm();
+					getLogger().log(Level.INFO, "Message " + rm.displayString() + " has finished.");
+				} else {
+					rm.setFailed();
+				}
+			}
+		}
+	}
+	
+	private ObisCode adjustToMbusChannelObisCode(ObisCode oc) {
 		return new ObisCode(oc.getA(), getPhysicalAddress()+1, oc.getC(), oc.getD(), oc.getE(), oc.getF());
 	}
 
@@ -187,6 +288,81 @@ public class MbusDevice implements GenericProtocol{
 	
 	public WebRTUKP getWebRTU(){
 		return this.webRtu;
+	}
+
+	public List getMessageCategories() {
+		List categories = new ArrayList();
+		MessageCategorySpec catDisconnect = new MessageCategorySpec("Disconnect Control");
+		
+		// Disconnect control related messages
+		MessageSpec msgSpec = addConnectControl("Disconnect", RtuMessageConstant.DISCONNECT_LOAD, false);
+		catDisconnect.addMessageSpec(msgSpec);
+		msgSpec = addConnectControl("Connect", RtuMessageConstant.CONNECT_LOAD, false);
+		catDisconnect.addMessageSpec(msgSpec);
+		
+		categories.add(catDisconnect);
+		return categories;
+	}
+
+	private MessageSpec addConnectControl(String keyId, String tagName, boolean advanced) {
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, false);
+        tagSpec.add(msgVal);
+        tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+	
+	public String writeMessage(Message msg) {
+		return msg.write(this);
+	}
+
+	public String writeTag(MessageTag msgTag) {
+		StringBuffer buf = new StringBuffer();
+        
+        // a. Opening tag
+        buf.append("<");
+        buf.append(msgTag.getName());
+        
+        // b. Attributes
+        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
+            MessageAttribute att = (MessageAttribute) it.next();
+            if (att.getValue() == null || att.getValue().length() == 0)
+                continue;
+            buf.append(" ").append(att.getSpec().getName());
+            buf.append("=").append('"').append(att.getValue()).append('"');
+        }
+        if (msgTag.getSubElements().isEmpty()) {
+            buf.append("/>");
+            return buf.toString();
+        }
+        buf.append(">");
+        // c. sub elements
+        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
+            MessageElement elt = (MessageElement) it.next();
+            if (elt.isTag())
+                buf.append(writeTag((MessageTag) elt));
+            else if (elt.isValue()) {
+                String value = writeValue((MessageValue) elt);
+                if (value == null || value.length() == 0)
+                    return "";
+                buf.append(value);
+            }
+        }
+        
+        // d. Closing tag
+        buf.append("</");
+        buf.append(msgTag.getName());
+        buf.append(">");
+        
+        return buf.toString();
+	}
+
+	public String writeValue(MessageValue msgValue) {
+		return msgValue.getValue();
 	}
 
 }
