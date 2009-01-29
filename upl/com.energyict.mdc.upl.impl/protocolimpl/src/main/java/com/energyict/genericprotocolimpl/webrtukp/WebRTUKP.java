@@ -155,8 +155,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	private int retries;
 	private int addressingMode;
 	private int extendedLogging;
+	private int maxMbusDevices;
 	private String password;
 	private String serialNumber;
+	private String manufacturer;
 	
 	/**
 	 * This method handles the complete WebRTU. The Rtu acts as an Electricity meter. The E-meter itself can have several MBus meters
@@ -196,8 +198,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + webRtuKP.getSerialNumber());
 				ElectricityProfile ep = new ElectricityProfile(this);
 				
-				
-				ep.getProfile(Constant.loadProfileObisCode, this.commProfile.getReadMeterEvents());
+				ep.getProfile(getMeterConfig().getProfileObject().getObisCode(), this.commProfile.getReadMeterEvents());
+//				ep.getProfile(Constant.loadProfileObisCode, this.commProfile.getReadMeterEvents());
 //				ep.getProfile(Constant.loadProfileObisCode, false);
 			}
 			
@@ -271,12 +273,12 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					new HDLCConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode):
 					new TCPIPConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress);
 		
-		this.dlmsMeterConfig = DLMSMeterConfig.getInstance(Constant.MANUFACTURER);
+		this.dlmsMeterConfig = DLMSMeterConfig.getInstance(this.manufacturer);
 		
 		// this cacheobject is supported by the 7.5
 		setCache(fetchCache(getMeter().getId()));
 		
-		this.mbusDevices = new MbusDevice[Constant.MaxMbusMeters];
+		this.mbusDevices = new MbusDevice[this.maxMbusDevices];
 		this.storeObject = new StoreObject();
 	}
 
@@ -366,7 +368,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	 * Handles all the MBus devices like a separate device
 	 */
 	private void handleMbusMeters(){
-		for(int i = 0; i < Constant.MaxMbusMeters; i++){
+		for(int i = 0; i < this.maxMbusDevices; i++){
 			try {
 				if(mbusDevices[i] != null){
 					mbusDevices[i].setWebRtu(this);
@@ -714,7 +716,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			}
 		}
 		
-    	for(int i = 0; i < Constant.MaxMbusMeters; i++){
+    	for(int i = 0; i < this.maxMbusDevices; i++){
 			if ( mbusDevice(i) != null ){
 				if(isValidMbusMeter(i)){
 					return true;
@@ -732,7 +734,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	 */
 	private int checkSerialForMbusChannel(String serialMbus) {
 		String slaveSerial = "";
-		for(int i = 0; i < Constant.MaxMbusMeters; i++){
+		for(int i = 0; i < this.maxMbusDevices; i++){
 			try {
 				slaveSerial = getCosemObjectFactory().getGenericRead(getMeterConfig().getMbusSerialNumber(i)).getString();
 				if(slaveSerial.equalsIgnoreCase(serialMbus)){
@@ -782,6 +784,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
         this.retries = Integer.parseInt(properties.getProperty("Retries", "3"));
         this.addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "2"));
         this.extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
+        this.manufacturer = properties.getProperty("Manufacturer", "WKP");
+        this.maxMbusDevices = Integer.parseInt(properties.getProperty("MaxMbusDevices", "4"));
 	}
 	
 	public void addProperties(Properties properties) {
@@ -810,6 +814,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
         result.add("RtuType");
         result.add("TestLogging");
         result.add("ForceDelay");
+        result.add("Manufacturer");
+        result.add("MaxMbusDevices");
 		return result;
 	}
 

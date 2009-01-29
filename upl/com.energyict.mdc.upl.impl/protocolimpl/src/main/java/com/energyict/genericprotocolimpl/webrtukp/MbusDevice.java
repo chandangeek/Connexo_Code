@@ -137,7 +137,7 @@ public class MbusDevice implements GenericProtocol, Messaging{
 		if(commProfile.getReadDemandValues()){
 			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMbus().getSerialNumber());
 			MbusProfile mp = new MbusProfile(this);
-			mp.getProfile(Constant.mbusProfileObisCode, commProfile.getReadMeterEvents());
+			mp.getProfile(getWebRTU().getMeterConfig().getMbusProfile(getPhysicalAddress()).getObisCode(), commProfile.getReadMeterEvents());
 		}
 		
 		// import daily/monthly
