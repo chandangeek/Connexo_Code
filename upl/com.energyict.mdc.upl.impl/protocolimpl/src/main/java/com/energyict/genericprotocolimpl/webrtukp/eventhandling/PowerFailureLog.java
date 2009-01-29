@@ -1,7 +1,6 @@
-package com.energyict.genericprotocolimpl.webrtukp;
+package com.energyict.genericprotocolimpl.webrtukp.eventhandling;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -9,15 +8,14 @@ import java.util.TimeZone;
 import com.energyict.dlms.DataContainer;
 import com.energyict.protocol.MeterEvent;
 
-public class Events {
+public class PowerFailureLog {
 	
 	private TimeZone timeZone;
-	private Calendar calendar;
 	private DataContainer dcEvents;
 	
-	public Events(TimeZone timeZone, Calendar fromCalendar, DataContainer dc){
+	// Power failure log
+	public PowerFailureLog(TimeZone timeZone, DataContainer dc){
 		this.timeZone = timeZone;
-		this.calendar = fromCalendar;
 		this.dcEvents = dc;
 	}
 	
@@ -26,25 +24,22 @@ public class Events {
 		int size = this.dcEvents.getRoot().getNrOfElements();
 		Date eventTimeStamp = null;
 		for(int i = 0; i <= (size-1); i++){
-			int eventId = (int)this.dcEvents.getRoot().getStructure(i).getValue(1);
+			int duration = (int)this.dcEvents.getRoot().getStructure(i).getValue(1);
 			if(isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))){
 				eventTimeStamp = dcEvents.getRoot().getStructure(i).getOctetString(0).toDate(this.timeZone);
 			}
 			if(eventTimeStamp != null){
-				buildMeterEvent(meterEvents, eventTimeStamp, eventId);
+				buildMeterEvent(meterEvents, eventTimeStamp, duration);
 			}
 		}
 		return meterEvents;
 	}
 
-	private void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
-		// TODO Auto-generated method stub
-		
+	private void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int duration) {
+		meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.PHASE_FAILURE, "Duration of power failure: " + duration));
 	}
 
 	private boolean isOctetString(Object element) {
 		return (element instanceof com.energyict.dlms.OctetString)?true:false;
 	}
-	
-
 }

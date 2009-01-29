@@ -24,15 +24,17 @@ import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
-import com.energyict.genericprotocolimpl.webrtukp.Events;
-import com.energyict.genericprotocolimpl.webrtukp.Logbook;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
+import com.energyict.genericprotocolimpl.webrtukp.eventhandling.DisconnectControlLog;
+import com.energyict.genericprotocolimpl.webrtukp.eventhandling.EventsLog;
+import com.energyict.genericprotocolimpl.webrtukp.eventhandling.FraudDetectionLog;
+import com.energyict.genericprotocolimpl.webrtukp.eventhandling.MbusLog;
+import com.energyict.genericprotocolimpl.webrtukp.eventhandling.PowerFailureLog;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 
@@ -66,19 +68,17 @@ public class ElectricityProfile {
 				
 				//TODO this does not work with the 7.5 version
 				
-//				if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
-//						!(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
+				if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
+						!(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
 					channelCalendar = getFromCalendar(getMeter().getChannel(i));
 					if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
 						fromCalendar = channelCalendar;
 					}
-//				}
+				}
 			}
 			
 			webrtu.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
-			//TODO change back to From/To
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
-//			DataContainer dc = genericProfile.getBuffer(fromCalendar);
 			buildProfileData(dc, profileData, genericProfile);
 			profileData.sort();
 			
@@ -91,14 +91,27 @@ public class ElectricityProfile {
 				fromCal.setTime(lastLogReading);
 				webrtu.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + webrtu.getSerialNumber() + ".");
 				DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
-				//TODO
-				Logbook logbook = new Logbook(getTimeZone());
-				profileData.getMeterEvents().addAll(logbook.getMeterEvents(dcEvent));
+				DataContainer dcControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getControlLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
+				DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
+				DataContainer dcFraudDetection = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getFraudDetectionLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
+				DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
+				
+				EventsLog standardEvents = new EventsLog(getTimeZone(), dcEvent); 
+				FraudDetectionLog fraudDetectionEvents = new FraudDetectionLog(getTimeZone(), dcFraudDetection);
+				DisconnectControlLog disconnectControl = new DisconnectControlLog(getTimeZone(), dcControlLog);
+				MbusLog mbusLogs = new MbusLog(getTimeZone(), dcMbusEventLog);
+				PowerFailureLog powerFailure = new PowerFailureLog(getTimeZone(), dcPowerFailure);
+				
+				profileData.getMeterEvents().addAll(standardEvents.getMeterEvents());
+				profileData.getMeterEvents().addAll(fraudDetectionEvents.getMeterEvents());
+				profileData.getMeterEvents().addAll(disconnectControl.getMeterEvents());
+				profileData.getMeterEvents().addAll(mbusLogs.getMeterEvents());
+				profileData.getMeterEvents().addAll(powerFailure.getMeterEvents());
+				
 				profileData.applyEvents(webrtu.getMeter().getIntervalInSeconds()/60);
 			}
 			
 			// We save the profileData to a tempObject so we can store everything at the end of the communication
-//			getMeter().store(profileData, false);
 			webrtu.getStoreObject().add(getMeter(), profileData);
 			
 		} catch (IOException e) {
@@ -169,15 +182,15 @@ public class ElectricityProfile {
 		int channelIndex = 0;
 		for(int i = 0; i < getMeter().getChannels().size(); i++){
 			
-			//TODO does not work with the 7.5 version
+			//TODO does not work with the 7.5 version, only in the 8.X
 			
-//		if(!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
-//				!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
+		if(!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
+				!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
 			channelIndex++;
 			if(channelIndex == index){
 				return getMeter().getChannel(i).getLoadProfileIndex() -1;
 			}
-//		}
+		}
 	}
 		return -1;
 	}

@@ -6,20 +6,18 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
-//import com.energyict.cbo.TimeDuration;
+import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.client.ParseUtils;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
@@ -31,6 +29,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 
 public class MbusProfile {
 	
@@ -43,7 +42,7 @@ public class MbusProfile {
 		this.mbusDevice = mbusDevice;
 	}
 	
-	public void getProfile(ObisCode mbusProfile) throws IOException, SQLException, BusinessException{
+	public void getProfile(ObisCode mbusProfile, boolean events) throws IOException, SQLException, BusinessException{
 		ProfileData profileData = new ProfileData( );
 		ProfileGeneric genericProfile;
 		
@@ -62,18 +61,29 @@ public class MbusProfile {
 				
 				// TODO does not work with the 7.5
 				
-//				if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
-//						!(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
+				if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
+						!(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
 					channelCalendar = getFromCalendar(getMeter().getChannel(i));
 					if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
 						fromCalendar = channelCalendar;
 					}
-//				}
+				}
 			}
 			this.mbusDevice.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
 			profileData.sort();
+			
+			if(events){
+				Date lastLogReading = getMeter().getLastLogbook();
+				if(lastLogReading == null){
+					lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getMeter());
+				}
+				Calendar fromCal = ProtocolUtils.getCleanCalendar(getTimeZone());
+				fromCal.setTime(lastLogReading);
+				mbusDevice.getLogger().log(Level.INFO, "Reading EVENTS from Mbus meter with serialnumber " + mbusDevice.getCustomerID() + ".");
+				DataContainer mbusLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusControlLog(mbusDevice.getPhysicalAddress()).getObisCode()).getBuffer(fromCal, mbusDevice.getWebRTU().getToCalendar());
+			}
 			
 			// We save the profileData to a tempObject so we can store everything at the end of the communication
 			mbusDevice.getWebRTU().getStoreObject().add(getMeter(), profileData);
@@ -144,15 +154,15 @@ public class MbusProfile {
 		int channelIndex = 0;
 		for(int i = 0; i < getMeter().getChannels().size(); i++){
 			
-			//TODO does not work with the 7.5
+			//TODO does not work with the 7.5, only in the 8.X
 			
-//		if(!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
-//				!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
+		if(!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
+				!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
 			channelIndex++;
 			if(channelIndex == index){
 				return getMeter().getChannel(i).getLoadProfileIndex() -1;
 			}
-//		}
+		}
 	}
 		return -1;
 	}

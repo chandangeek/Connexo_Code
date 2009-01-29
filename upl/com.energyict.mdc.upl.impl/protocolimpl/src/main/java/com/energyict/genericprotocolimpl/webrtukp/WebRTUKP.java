@@ -197,8 +197,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				ElectricityProfile ep = new ElectricityProfile(this);
 				
 				
-//				TODO ep.getProfile(Constant.loadProfileObisCode, this.commProfile.getReadMeterEvents());
-				ep.getProfile(Constant.loadProfileObisCode, false);
+				ep.getProfile(Constant.loadProfileObisCode, this.commProfile.getReadMeterEvents());
+//				ep.getProfile(Constant.loadProfileObisCode, false);
 			}
 			
     		/**
