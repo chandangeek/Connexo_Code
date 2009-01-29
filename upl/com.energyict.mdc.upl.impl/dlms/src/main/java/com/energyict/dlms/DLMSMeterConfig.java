@@ -132,6 +132,22 @@ public class DLMSMeterConfig {
        return config.getEventLogObject(IOL);    
     }
     
+    public UniversalObject getControlLogObject() throws IOException {
+        return config.getControlLog(IOL, manuf);    
+    }
+    
+    public UniversalObject getPowerFailureLogObject() throws IOException {
+        return config.getPowerFailureLog(IOL, manuf);    
+    }
+    
+    public UniversalObject getFraudDetectionLogObject() throws IOException {
+        return config.getFraudDetectionLog(IOL, manuf);    
+    }
+    
+    public UniversalObject getMbusEventLogObject() throws IOException {
+        return config.getMbusEventLog(IOL, manuf);    
+    }
+    
     public UniversalObject getProfileObject() throws IOException {
        return config.getProfileObject(IOL);    
     }
@@ -265,7 +281,11 @@ public class DLMSMeterConfig {
 
 	public UniversalObject getMbusDisconnectControl(int physicalAddress) throws IOException {
 		return config.getMbusDisconnector(IOL, manuf, physicalAddress);
-	}        
+	}
+	
+	public UniversalObject getMbusControlLog(int physicalAddress) throws IOException {
+		return config.getMbusControlLog(IOL, manuf, physicalAddress);
+	}	
 	
 	public UniversalObject getMbusDisconnectControlState(int physicalAddress) throws IOException {
 		return config.getMbusDisconnectControlState(IOL, manuf, physicalAddress);
