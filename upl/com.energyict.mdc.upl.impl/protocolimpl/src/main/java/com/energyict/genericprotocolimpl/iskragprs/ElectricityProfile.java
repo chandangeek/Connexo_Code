@@ -6,12 +6,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
-
-import sun.security.action.GetLongAction;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
@@ -26,16 +23,20 @@ import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
-import com.energyict.genericprotocolimpl.webrtukp.Events;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 
+/**
+ * 
+ * @author gna
+ * Changes:
+ * GNA |29012009| When the ScalerUnit is (0, 0) then return a Unitless scalerUnit, otherwise you get errors.
+ */
 public class ElectricityProfile {
 	
 //    private final int PROFILE_STATUS_DEVICE_DISTURBANCE=0x01;
@@ -151,7 +152,11 @@ public class ElectricityProfile {
 	 */
 	private ScalerUnit getMeterDemandRegisterScalerUnit(ObisCode oc) throws IOException{
 		try {
-			return getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
+			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
+			if( su.getUnitCode() == 0){
+				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
+			}
+			return su;
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not get the scalerunit from object '" + oc + "'.");
