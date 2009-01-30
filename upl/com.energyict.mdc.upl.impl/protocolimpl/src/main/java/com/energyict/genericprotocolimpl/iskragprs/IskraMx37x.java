@@ -53,7 +53,6 @@ import com.energyict.genericprotocolimpl.common.GenericCache;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
 import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
-import com.energyict.genericprotocolimpl.iskrap2lpc.Constant;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
