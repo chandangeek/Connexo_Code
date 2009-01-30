@@ -7,11 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.genericprotocolimpl.iskrap2lpc.MeterReadTransaction;
+import com.energyict.dlms.UniversalObject;
 
 /**
  * @author kvd
