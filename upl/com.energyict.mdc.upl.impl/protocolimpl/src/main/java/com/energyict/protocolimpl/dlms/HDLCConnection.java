@@ -96,7 +96,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
     private short sMaxTXIFSize;
 
     // Raw frames without HDLC_FLAG!
-    private static final int MAX_BUFFER_SIZE=256;
+    private static final int MAX_BUFFER_SIZE=512;
     private byte[] txFrame = new byte[MAX_BUFFER_SIZE];
     private byte[] rxFrame = new byte[MAX_BUFFER_SIZE];
 
