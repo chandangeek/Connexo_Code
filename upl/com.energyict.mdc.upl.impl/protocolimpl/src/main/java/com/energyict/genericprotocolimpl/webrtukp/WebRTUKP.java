@@ -309,8 +309,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			}
 			
 			// do some checks to know you are connected to the correct meter
-//			//TODO
-//			verifyMeterSerialNumber();
+			verifyMeterSerialNumber();
 			log(Level.INFO, "FirmwareVersion: " + getFirmWareVersion());
 			
 			// for incoming IP-calls
