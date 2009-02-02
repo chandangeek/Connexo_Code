@@ -134,6 +134,7 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         protocolclasses.add("com.energyict.protocolimpl.iec1107.iskraemeco.mt83.MT83");protocolnames.add("IskraEmeco MT83x meter");
         protocolclasses.add("com.energyict.protocolimpl.dlms.genericgetset.GenericGetSet");protocolnames.add("Kamstrup Z3 (test)");
         protocolclasses.add("com.energyict.protocolimpl.modbus.flonidan.uniflo1200.UNIFLO1200");protocolnames.add("Flonidan UNIFLO 1200 PTZ Modbus meter");
+        protocolclasses.add("com.energyict.protocolimpl.dlms.elster.ek2xx.EK2xx");protocolnames.add("DLMS Elster Instromet EK2xx");
 //        protocolclasses.add("com.energyict.genericprotocolimpl.Z3.DLMSZ3Messaging");protocolnames.add("DLMS Z3 Messaging");
     }  
     
