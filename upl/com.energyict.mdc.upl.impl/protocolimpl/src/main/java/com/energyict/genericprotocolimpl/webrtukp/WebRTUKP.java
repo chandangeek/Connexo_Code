@@ -116,6 +116,7 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
  * GNA |22012009| Added the Consumer messages over the P1 port 
  * GNA |27012009| Added the Disconnect Control message
  * GNA |28012009| Implemented the Loadlimit messages - Enabled the daily/Monthly code
+ * GNA |02022009| Added the forceClock functionality
  */
 
 public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
@@ -138,7 +139,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	private Clock					deviceClock;
 	private StoreObject				storeObject;
 	private ObisCodeMapper			ocm;
-	
 	
 	/**
 	 * Properties
@@ -191,8 +191,14 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			
 //			hasMBusMeters();
 //			handleMbusMeters();
-			
-			verifyAndWriteClock();
+        	// Set clock or Force clock... if necessary
+        	if( this.commProfile.getForceClock() ){
+        		Date currentTime = Calendar.getInstance(getTimeZone()).getTime();
+        		getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + currentTime);
+        		forceClock(currentTime);
+        	}else {
+        		verifyAndWriteClock();
+        	}
 			
 			if(this.commProfile.getReadDemandValues()){
 				getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + webRtuKP.getSerialNumber());
@@ -303,7 +309,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			}
 			
 			// do some checks to know you are connected to the correct meter
-			verifyMeterSerialNumber();
+//			//TODO
+//			verifyMeterSerialNumber();
 			log(Level.INFO, "FirmwareVersion: " + getFirmWareVersion());
 			
 			// for incoming IP-calls
@@ -662,6 +669,15 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		
 	}
 	
+	private void forceClock(Date currentTime) throws IOException{
+		try {
+			getCosemObjectFactory().getClock().setTimeAttr(new DateTime(currentTime));
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Could not force to set the Clock object.");
+		}
+	}
+	
 	private Date getTime() throws IOException{
 		try {
 			Date meterTime;
@@ -1005,7 +1021,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					if(!messageHandler.getDisconnectDate().equals("")){ // use the disconnectControlScheduler
 						
 						//TODO TEST THIS! 
-						Array executionTimeArray = convertStringToDateTimeArray(messageHandler.getConnectDate());
+						Array executionTimeArray = convertStringToDateTimeArray(messageHandler.getDisconnectDate());
 						SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
 						
 						ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getDisconnectorScriptTable().getObisCode());

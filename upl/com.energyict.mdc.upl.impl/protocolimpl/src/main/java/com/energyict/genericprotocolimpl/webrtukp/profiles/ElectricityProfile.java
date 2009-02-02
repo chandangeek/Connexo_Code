@@ -40,6 +40,8 @@ import com.energyict.protocol.ProtocolUtils;
 
 public class ElectricityProfile {
 	
+	private boolean DEBUG = true;	// TODO set it back to false
+	
 	private WebRTUKP webrtu;
 	
 	public ElectricityProfile(){
