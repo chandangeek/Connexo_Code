@@ -419,8 +419,8 @@ public class Limiter extends AbstractCosemObject{
 	
 	public class ValueDefinitionType extends Structure{
 		static private final int ITEM_CLASS_ID = 0;
-		static private final int ITEM_LOGICAL_NAME = 0;
-		static private final int ITEM_ATTRIBUTE_INDEX = 0;
+		static private final int ITEM_LOGICAL_NAME = 1;
+		static private final int ITEM_ATTRIBUTE_INDEX = 2;
 		
 		public ValueDefinitionType(){
 			super();
