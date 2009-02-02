@@ -16,6 +16,8 @@ import com.energyict.protocol.*;
 /**
  *
  * @author  Koen
+ * Changes:
+ * GNA|02022009| Added the activatePassiveCalendar method
  */
 public class ActivityCalendar extends AbstractCosemObject {
     
@@ -30,6 +32,7 @@ public class ActivityCalendar extends AbstractCosemObject {
     private Array dayProfileTablePassive=null;
             
     private OctetString activatePassiveCalendarTime=null;
+    private static int ACTIVATE_PASSIVE_CALENDAR = 1;
     
     /** Creates a new instance of Data */
     public ActivityCalendar(ProtocolLink protocolLink,ObjectReference objectReference) {
@@ -138,4 +141,12 @@ public class ActivityCalendar extends AbstractCosemObject {
         }
         return activatePassiveCalendarTime;
     }
+
+    /**
+     * Trigger the 'activatePassiveCalendar' method
+     * @throws IOException
+     */
+	public void activateNow() throws IOException {
+		invoke(ACTIVATE_PASSIVE_CALENDAR, new Integer8(0).getBEREncodedByteArray());
+	}
 }
