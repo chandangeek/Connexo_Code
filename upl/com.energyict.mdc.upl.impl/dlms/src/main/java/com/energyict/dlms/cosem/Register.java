@@ -23,6 +23,8 @@ import com.energyict.dlms.ProtocolLink;
 /**
  *
  * @author  Koen
+ * Changes:
+ * GNA |03022009| Added method to get an attributes abstractDataType
  */
 public class Register extends AbstractCosemObject implements CosemObject {
     public final int DEBUG=0;
@@ -124,4 +126,7 @@ public class Register extends AbstractCosemObject implements CosemObject {
         write(2, dataType.getBEREncodedByteArray());
     }
     
+    public AbstractDataType getAttrbAbstractDataType(int attribute) throws IOException{
+    	return AXDRDecoder.decode(getLNResponseData(attribute));
+    }
 }

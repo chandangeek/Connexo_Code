@@ -10,6 +10,8 @@ import java.util.*;
 
 import com.energyict.protocolimpl.dlms.*;
 import com.energyict.protocol.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.OctetString;
@@ -19,6 +21,8 @@ import com.energyict.dlms.ProtocolLink;
 /**
  *
  * @author  Koen
+ * Changes:
+ * GNA |03022009| Added method to get an attributes abstractDataType
  */
 public class ExtendedRegister extends Register implements CosemObject {
     public final int DEBUG=0;
@@ -100,6 +104,10 @@ public class ExtendedRegister extends Register implements CosemObject {
                 return null; //"This extended register status field is R/W denied";
             throw e;
         }
+    }
+    
+    public AbstractDataType getAttrbAbstractDataType(int attribute) throws IOException{
+    	return AXDRDecoder.decode(getLNResponseData(attribute));
     }
     
 }

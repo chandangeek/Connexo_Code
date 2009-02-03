@@ -13,6 +13,8 @@ import java.math.BigDecimal;
 import com.energyict.protocolimpl.dlms.*;
 import com.energyict.protocol.*;
 import com.energyict.cbo.Quantity;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.AbstractCosemObject;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.Clock;
@@ -25,6 +27,8 @@ import com.energyict.dlms.ProtocolLink;
 /**
  *
  * @author  Koen
+ * Changes:
+ * GNA |03022009| Added method to get an attributes abstractDataType
  */
 public class DemandRegister extends AbstractCosemObject implements CosemObject {
     public final int DEBUG=0;
@@ -182,6 +186,10 @@ public class DemandRegister extends AbstractCosemObject implements CosemObject {
     
     protected int getClassId() {
         return CLASSID;
+    }
+    
+    public AbstractDataType getAttrbAbstractDataType(int attribute) throws IOException{
+    	return AXDRDecoder.decode(getLNResponseData(attribute));
     }
     
 }
