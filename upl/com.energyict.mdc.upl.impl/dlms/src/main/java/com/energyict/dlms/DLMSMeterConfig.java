@@ -332,7 +332,7 @@ public class DLMSMeterConfig {
 	}
 	
 	public UniversalObject getDisconnectorScriptTable() throws IOException{
-		return config.getDisconnector(IOL);
+		return config.getDisconnectorScriptTable(IOL);
 	}
 	
 	public UniversalObject getLimiter() throws IOException{
