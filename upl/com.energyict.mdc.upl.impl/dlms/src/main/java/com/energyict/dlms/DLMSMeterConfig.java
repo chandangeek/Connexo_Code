@@ -129,7 +129,7 @@ public class DLMSMeterConfig {
 	}
 	
     public UniversalObject getEventLogObject() throws IOException {
-       return config.getEventLogObject(IOL);    
+       return config.getEventLogObject(IOL, manuf);    
     }
     
     public UniversalObject getControlLogObject() throws IOException {

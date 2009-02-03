@@ -30,7 +30,7 @@ public class DLMSConfig {
     final static private DLMSConfig profile =  new DLMSConfig("",7,1,-1,99,1,-1,-1);
     
     // 18082004
-    final static private DLMSConfig eventLog =  new DLMSConfig("",7,1,-1,99,98,-1,-1);
+//    final static private DLMSConfig eventLog =  new DLMSConfig("",7,1,-1,99,98,-1,-1);
     final static private DLMSConfig historicValues =  new DLMSConfig("",7,0,-1,98,1,-1,126);
     final static private DLMSConfig resetCounter =  new DLMSConfig("",3,1,0,0,1,0,255);
     final static private DLMSConfig ipv4Setup = new DLMSConfig("",42,0,0,25,1,0,255);
@@ -51,6 +51,15 @@ public class DLMSConfig {
             new DLMSConfig("EMO",1,1,0,0,2,1,255),
             new DLMSConfig("SLB",4,0,0,96,2,0,255),
             new DLMSConfig("WKP",1,0,0,96,2,0,255)
+    };
+    
+    final static private DLMSConfig[] eventLog = {
+        new DLMSConfig("LGZ",7,1,-1,99,98,-1,-1),
+        new DLMSConfig("EIT",7,1,-1,99,98,-1,-1),
+        new DLMSConfig("ISK",7,1,-1,99,98,-1,-1),
+        new DLMSConfig("EMO",7,1,-1,99,98,-1,-1),
+        new DLMSConfig("SLB",7,1,-1,99,98,-1,-1),
+        new DLMSConfig("WKP",7,-1,-1,99,98,-1,-1)
     };
     
     final static private DLMSConfig[] version = {
@@ -316,8 +325,17 @@ public class DLMSConfig {
         return profile;
     }
     
-    protected DLMSConfig getEventLog() {
-        return eventLog;
+    protected DLMSConfig getEventLog(UniversalObject[] objectList,String manuf) throws IOException {
+        if (objectList == null) throw new IOException("DLMSConfig, getEventLog, objectlist empty!");
+        for (int t=0;t<eventLog.length;t++) {
+            // if manuf != null, use it in the search for DLMSConfig object! 
+            if ((manuf != null) && (eventLog[t].getManuf().compareTo(manuf) != 0)) continue;
+            for (int i=0;i<objectList.length;i++) {
+                if (objectList[i].equals(eventLog[t])) return eventLog[t];
+            }
+        }
+        throw new IOException("DLMSConfig, getEventLog, not found in objectlist (IOL)!");    
+//        return eventLog;
     }
     
     protected DLMSConfig getHistoricValues() {
@@ -579,12 +597,17 @@ public class DLMSConfig {
      *  @param UniversalObject[] objectList
      *  @return UniversalObject the matching objectList
      */
-    protected UniversalObject getEventLogObject(UniversalObject[] objectList) throws IOException {
-       if (objectList == null) throw new IOException("DLMSConfig, getEventLogObject, objectlist empty!");
-       for (int i=0;i<objectList.length;i++) {
-           if (objectList[i].equals(eventLog)) return objectList[i];
-       }
-       throw new IOException("DLMSConfig, getEventLogObject, not found in objectlist (IOL)!");      
+    protected UniversalObject getEventLogObject(UniversalObject[] objectList, String manuf) throws IOException {
+    	if (objectList == null) throw new IOException("DLMSConfig, getEventLogObject, objectlist empty!");
+    	for(int t = 0; t < eventLog.length; t++){
+			if((manuf != null) && (eventLog[t].getManuf().compareTo(manuf) != 0)) continue;
+			for(int i = 0; i < objectList.length; i++){
+				if(objectList[i].equals(eventLog[t])){
+					return objectList[i];
+				}
+			}
+		}
+		throw new IOException("DLMSConfig, getEventLogObject, not found in objectlist (IOL)");    
     }
     
     protected UniversalObject getControlLog(UniversalObject[] objectList, String manuf) throws IOException{
