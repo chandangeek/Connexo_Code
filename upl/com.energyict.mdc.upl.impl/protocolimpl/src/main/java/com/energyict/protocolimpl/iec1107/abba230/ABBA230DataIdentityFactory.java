@@ -145,7 +145,8 @@ public class ABBA230DataIdentityFactory {
 //        // Historical events 
 //        add("545", 280,5,ABBA230DataIdentity.STREAMEABLE);
         // Meter current system status
-        add("724", 4,ABBA230DataIdentity.NOT_STREAMEABLE);
+        add("724", 10,ABBA230DataIdentity.NOT_STREAMEABLE);
+        
         // (C)MD register sources
         add("668", 8,ABBA230DataIdentity.NOT_STREAMEABLE);
         // Customer defined register 1,2 & 3 configuration

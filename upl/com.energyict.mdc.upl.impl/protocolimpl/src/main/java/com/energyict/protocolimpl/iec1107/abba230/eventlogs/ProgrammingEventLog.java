@@ -7,7 +7,7 @@ import com.energyict.protocol.*;
 
 public class ProgrammingEventLog extends AbstractEventLog {
 
-	final int DEBUG=1;
+	final int DEBUG=0;
 	
 	int mostRecent;
 	int count;

@@ -63,7 +63,7 @@ public class ABBA230RegisterFactory {
     private ABBA230Register maximumDemand1;
     private ABBA230Register schemeID;
     private ABBA230Register serialNumber;
-    private ABBA230Register systemStatus;
+    private ABBA230Register systemStatusDataIdentity;
     private ABBA230Register tariffSources;
     private ABBA230Register timeDate;
     private ABBA230Register timeOfUse0;
@@ -119,6 +119,8 @@ public class ABBA230RegisterFactory {
     private ABBA230Register batteryVoltageLowEventLog;
     private ABBA230Register dspFWVersion;
     private ABBA230Register applFWVersion;
+    
+    SystemStatus systemStatus=null;
     
     /**
      * Creates a new instance of ABBA230RegisterFactory
@@ -285,10 +287,6 @@ public class ABBA230RegisterFactory {
         return serialNumber;
     }
 
-    public ABBA230Register getSystemStatus() {
-        return systemStatus;
-    }
-
     public ABBA230Register getTariffSources() {
         return tariffSources;
     }
@@ -426,7 +424,7 @@ public class ABBA230RegisterFactory {
         loadProfileReadByDate = cr("554", "LoadProfileReadByDate", ABBA230RegisterData.ABBA_LOAD_PROFILE_BY_DATE,0, 2, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
         loadProfileByDate64Blocks = cr("554", "LoadProfileByDate64Blocks", ABBA230RegisterData.ABBA_HEX,0,2, null);
         
-        systemStatus = cr("724", "SystemStatus", ABBA230RegisterData.ABBA_SYSTEMSTATUS,0,4, null);
+        systemStatusDataIdentity = cr("724", "SystemStatus", ABBA230RegisterData.ABBA_SYSTEMSTATUS,0,10, null);
         
         custDefRegConfig = cr("600", "CustDefRegConfig", ABBA230RegisterData.ABBA_CUSTDEFREGCONFIG,0,4, null);
         
@@ -773,6 +771,11 @@ public class ABBA230RegisterFactory {
 		return batteryVoltageLowEventLog;
 	}
 
-
+    public SystemStatus getSystemStatus() throws IOException {
+    	if (systemStatus==null) {
+    		systemStatus = (SystemStatus)getRegister("SystemStatus");
+    	}
+    	return systemStatus;
+    }
     
 }

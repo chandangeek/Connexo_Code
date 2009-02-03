@@ -1,4 +1,4 @@
-/*
+/* 
  * ABBA230.java
  *
  * <B>Description :</B><BR>
@@ -17,8 +17,8 @@ entries occur twice or more they need an SL flag.
 
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import java.io.*;
-import java.util.*;
+import java.io.*; 
+import java.util.*; 
 import java.util.logging.*;
 
 import com.energyict.cbo.*;
@@ -28,7 +28,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.base.*; 
 import com.energyict.protocolimpl.iec1107.*;
 
 /** @author  fbo */
@@ -44,6 +44,8 @@ public class ABBA230 implements
         MeterProtocol, ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo,
         RegisterProtocol, MessageProtocol, EventMapper {
     
+	final int DEBUG=0;
+	
 	boolean firmwareUpgrade=false;
 	
     private static String CONNECT 			= "ConnectLoad";
@@ -622,30 +624,58 @@ public class ABBA230 implements
      * @see com.energyict.protocol.MeterProtocol#setRegister(java.lang.String, java.lang.String)
      */
     public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
-//    	if (name.compareTo("FIRMWAREPROGRAM")==0) {
-//    		blankCheck();
-//    		File file = new File("C:/Documents and Settings/kvds/My Documents/projecten/ESB/ce6531fw.xml");
-//    		byte[] data = new byte[(int)file.length()];
-//    		FileInputStream fis = new FileInputStream(file);
-//    		fis.read(data);
-//    		fis.close();
-//    		programFirmware(new String(data));
-//    		activate();
-//    		firmwareUpgrade=true;
-//    	}
+    	if (name.compareTo("FIRMWAREPROGRAM")==0) {
+    		try {
+	    		blankCheck();
+	    		File file = new File(value);
+	    		byte[] data = new byte[(int)file.length()];
+	    		FileInputStream fis = new FileInputStream(file);
+	    		fis.read(data);
+	    		fis.close();
+	    		programFirmware(new String(data));
+	    		activate();
+	    		//firmwareUpgrade=true;
+	    		try {
+        		   Thread.sleep(20000);
+	    		   disconnect();
+	    		}
+	    		catch(Exception e) {
+	    			System.out.println(e.getMessage());
+	    		}
+	    		connect();
+	    		
+    		}
+    		catch(Exception e) {
+    			e.printStackTrace();
+    		}
+    	}
     	
     	throw new UnsupportedException();
     }    
     
+    
     private void blankCheck() throws IOException {
+    	long timeout=0;
+    	final int AUTHENTICATE_REARM_FIRMWARE=60000; 
     	ABBA230DataIdentity di = new ABBA230DataIdentity("002", 1, 64, false, rFactory.getABBA230DataIdentityFactory());
     	for (int set=0;set<64;set++) {
     		int retries = 0;
     		while(true) {
 				try {
+					
+		            if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+		                timeout = System.currentTimeMillis() + AUTHENTICATE_REARM_FIRMWARE; // arm again...
+		    			if (DEBUG>=1) System.out.println("Authenticate...");
+		                getFlagIEC1107Connection().authenticate();
+		            }		
+					
+		            if (DEBUG>=1) System.out.println("Blankcheck set "+set);
 		    		byte[] data = di.read(false,1,set);
-		    		if (data[0] == 0)
-		    			di.writeRawRegister(set+1,"1");
+		    		if (data[0] == 0) {
+		    			if (DEBUG>=1) System.out.println("Erase set "+set);
+		    			di.writeRawRegisterHex(set+1,"1");
+		    			
+		    		}
 		    		break;
 				} catch (FlagIEC1107ConnectionException e) {
 					if (retries++>=1)

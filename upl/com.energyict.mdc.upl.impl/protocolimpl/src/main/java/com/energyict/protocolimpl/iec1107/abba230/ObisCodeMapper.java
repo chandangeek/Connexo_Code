@@ -19,6 +19,8 @@ import com.energyict.protocol.*;
 
 public class ObisCodeMapper {
     
+	SystemStatus systemStatus=null;
+	
     private ABBA230RegisterFactory rFactory;
     
     /** Creates a new instance of ObisCodeMapping */
@@ -104,11 +106,35 @@ public class ObisCodeMapper {
         /** Current System Status */
         else if (obisCode.toString().startsWith("0.0.96.50.0.255") ) { 
             if (read) {
-                SystemStatus ss = (SystemStatus)rFactory.getRegister("SystemStatus");
-                registerValue = new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(ss.getValue()),Unit.get(255)));
+                registerValue = new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(rFactory.getSystemStatus().getValue()),Unit.get(255)));
                 return registerValue;
             } else {
                 return new RegisterInfo("Current System Status (32 bit word)");
+            }
+        } else if (obisCode.toString().startsWith("0.0.96.53.") ) { 
+            if (read) {
+                if ((obisCode.getE()>=0) && (obisCode.getE()<=9)) {
+                	if (obisCode.getF() == 255)
+                		registerValue = new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(rFactory.getSystemStatus().getSystemStatus(obisCode.getE())),Unit.get(255)));
+                	else {
+                		if ((obisCode.getF()>=0) && (obisCode.getF()<=7)) {
+                			
+                			int val = rFactory.getSystemStatus().getSystemStatus(obisCode.getE());
+                			val = (val & (1<<obisCode.getF()))==0?0:1;
+                			registerValue = new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(val),Unit.get(255)));
+                		}
+                	}
+                }
+                return registerValue;
+            } else {
+            	if (obisCode.getF() == 255)
+            		return new RegisterInfo("Current SystemStatus"+obisCode.getE()+" (1 byte)");
+            	else {
+            		if ((obisCode.getF()>=0) && (obisCode.getF()<=7)) {
+            			return new RegisterInfo("Current SystemStatus"+obisCode.getE()+" bit "+obisCode.getF());
+            			
+            		}
+            	}
             }
         } else if ((obisCode.toString().indexOf("1.1.0.4.2.255") != -1) || (obisCode.toString().indexOf("1.0.0.4.2.255") != -1)) { 
             if (read) {
@@ -309,5 +335,7 @@ public class ObisCodeMapper {
             return new RegisterInfo(obisTranslation.toString());
         
     }
+    
+
     
 }
