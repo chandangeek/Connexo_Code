@@ -11,8 +11,10 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeDuration;
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
@@ -144,18 +146,25 @@ public class DailyMonthly {
 	}
 	
 	/**
-	 * Read the given object and return the scalerUnit
+	 * Read the given object and return the scalerUnit.
+	 * If the unit is 0(not a valid value) then return a unitLess scalerUnit.
+	 * If you can not read the scalerUnit, then return a unitLess scalerUnit.
 	 * @param oc
 	 * @return
 	 * @throws IOException
 	 */
 	private ScalerUnit getMeterDemandRegisterScalerUnit(ObisCode oc) throws IOException{
 		try {
-			return getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
+			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
+			if( su.getUnitCode() == 0){
+				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
+			}
+			return su;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not get the scalerunit from object '" + oc + "'.");
+			webrtu.getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
 		}
+		return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
 	}
 	
 	private ProfileData sortOutProfiledate(ProfileData profileData, int timeDuration) {

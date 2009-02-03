@@ -97,6 +97,7 @@ public class ElectricityProfile {
 				DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
 				DataContainer dcFraudDetection = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getFraudDetectionLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
 				DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
+//				DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer();
 				
 				EventsLog standardEvents = new EventsLog(getTimeZone(), dcEvent); 
 				FraudDetectionLog fraudDetectionEvents = new FraudDetectionLog(getTimeZone(), dcFraudDetection);
@@ -166,18 +167,25 @@ public class ElectricityProfile {
 	}
 
 	/**
-	 * Read the given object and return the scalerUnit
+	 * Read the given object and return the scalerUnit.
+	 * If the unit is 0(not a valid value) then return a unitLess scalerUnit.
+	 * If you can not read the scalerUnit, then return a unitLess scalerUnit.
 	 * @param oc
 	 * @return
 	 * @throws IOException
 	 */
 	private ScalerUnit getMeterDemandRegisterScalerUnit(ObisCode oc) throws IOException{
 		try {
-			return getCosemObjectFactory().getRegister(oc).getScalerUnit();
+			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
+			if( su.getUnitCode() == 0){
+				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
+			}
+			return su;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not get the scalerunit from object '" + oc + "'.");
+			webrtu.getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
 		}
+		return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
 	}
 	
 	private int getProfileChannelNumber(int index){
