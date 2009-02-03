@@ -308,6 +308,19 @@ public class Limiter extends AbstractCosemObject{
 		}
 	}
 	
+	public void writeEmergencyProfile(byte[] berEncodedByteArray) throws IOException{
+		try{
+			write(ATTRB_EMERGENCY_PROFILE, berEncodedByteArray);
+			this.emergencyProfile = new EmergencyProfile();
+			this.emergencyProfile.addDataType(new Unsigned16(berEncodedByteArray,2));
+			this.emergencyProfile.addDataType(new OctetString(berEncodedByteArray, 5, true));
+			this.emergencyProfile.addDataType(new Unsigned32(berEncodedByteArray, 17));
+		} catch(IOException e){
+			e.printStackTrace();
+			throw new IOException("Could not write the emergencyProfile structure." + e.getMessage());
+		}
+	}
+	
 	/**
 	 * Retrieve the current emergecyProfileGroupIdList from the device
 	 * @return
@@ -460,6 +473,12 @@ public class Limiter extends AbstractCosemObject{
 			super();
 		}
 		
+		public void setStructure(byte[] berEncodedByteArray) {
+			//TODO complete
+//			super();
+//			this.addDataType(dataType)
+		}
+
 		public EmergencyProfile(byte[] berEncodedData, int offset, int level) throws IOException{
 			super(berEncodedData, offset, level);
 		}
