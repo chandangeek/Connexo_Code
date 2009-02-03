@@ -441,7 +441,7 @@ public class Limiter extends AbstractCosemObject{
 		public ObisCode getObisCode(){
 			OctetString ln = getLogicalName();
 			String strOc = ""+ln.getOctetStr()[0]+"."+ln.getOctetStr()[1]+"."+ln.getOctetStr()[2]+"."+ln.getOctetStr()[3]+"."
-							+ln.getOctetStr()[4]+"."+ln.getOctetStr()[5];
+							+ln.getOctetStr()[4]+"."+(ln.getOctetStr()[5]&0xFF);
 			return ObisCode.fromString(strOc);
 			}
 		
