@@ -994,7 +994,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					
 					if(!messageHandler.getConnectDate().equals("")){	// use the disconnectControlScheduler
 						
-						//TODO TEST THIS! 
 						Array executionTimeArray = convertStringToDateTimeArray(messageHandler.getConnectDate());
 						SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
 						
@@ -1226,7 +1225,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		return dateTime;
 	}
 	
-	private Array convertStringToDateTimeArray(String strDate) {
+	private Array convertStringToDateTimeArray(String strDate) throws IOException {
 		OctetString date = null;
 		byte[] dateBytes = new byte[5];
 		dateBytes[0] = (byte) ((Integer.parseInt(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" "))) >> 8)&0xFF);
@@ -1235,11 +1234,17 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		dateBytes[3] = (byte) (Integer.parseInt(strDate.substring(0, strDate.indexOf("/")))&0xFF);
 		dateBytes[4] = (byte)0xFF;
 		date = new OctetString(dateBytes, true);
-		
+		int deviation = getMeter().getTimeZone().getOffset(Calendar.getInstance(getMeterTimeZone()).getTimeInMillis())/3600000;
+		Calendar cal = Calendar.getInstance(getMeterTimeZone());
+		cal.set((dateBytes[0]<<8)+(dateBytes[1]&0xff), dateBytes[2], dateBytes[3],
+				(Integer.parseInt(strDate.substring(strDate.indexOf(" ") + 1, strDate.indexOf(":")))&0xFF) - deviation,
+				(Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":")))&0xFF), 0);
 		OctetString time = null;
 		byte[] timeBytes = new byte[4];
-		timeBytes[0] = (byte) (Integer.parseInt(strDate.substring(strDate.indexOf(" ") + 1, strDate.indexOf(":")))&0xFF);
-		timeBytes[1] = (byte) (Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":")))&0xFF);
+//		timeBytes[0] = (byte) (Integer.parseInt(strDate.substring(strDate.indexOf(" ") + 1, strDate.indexOf(":")))&0xFF);
+		timeBytes[0] = (byte) cal.get(Calendar.HOUR_OF_DAY);
+//		timeBytes[1] = (byte) (Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":")))&0xFF);
+		timeBytes[1] = (byte) cal.get(Calendar.MINUTE);
 		timeBytes[2] = (byte) 0x00;
 		timeBytes[3] = (byte) 0x00;
 		time = new OctetString(timeBytes, true);
