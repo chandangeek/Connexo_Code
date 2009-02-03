@@ -1062,8 +1062,11 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					
 					if(theMonitoredAttributeType == -1){	// check for the type of the monitored value
 						ValueDefinitionType valueDefinitionType = loadLimiter.getMonitoredValue();
-						theMonitoredAttributeType = getCosemObjectFactory().getGenericRead(valueDefinitionType.getObisCode(), 
-								valueDefinitionType.getAttributeIndex().getValue()).getResponseData()[0];
+//						theMonitoredAttributeType = getCosemObjectFactory().getGenericRead(valueDefinitionType.getObisCode(), valueDefinitionType.getAttributeIndex().getValue()).getResponseData()[0];
+						theMonitoredAttributeType = (byte)getCosemObjectFactory().getCosemObject(valueDefinitionType.getObisCode()).getValue();
+//						getCosemObjectFactory().getGenericRead(valueDefinitionType.getObisCode(), valueDefinitionType.getAttributeIndex().getValue(), valueDefinitionType.getClassId().getValue()).getValue();
+//						getCosemObjectFactory().getRegister(valueDefinitionType.getObisCode()).getValue();
+//						getCosemObjectFactory().getCosemObject(valueDefinitionType.getObisCode()).getValue();
 					}
 					
 					// Write the normalThreshold
@@ -1112,7 +1115,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					}
 					if(messageHandler.getEpActivationTime() != null){	// The EmergencyProfileActivationTime
 						try{
-							emergencyProfile.addDataType(new OctetString(convertStringToDateTimeOctetString(messageHandler.getActivationDate()).getBEREncodedByteArray()));
+							emergencyProfile.addDataType(new OctetString(convertStringToDateTimeOctetString(messageHandler.getEpActivationTime()).getBEREncodedByteArray()));
 						} catch (NumberFormatException e) {
 							e.printStackTrace();
 							log(Level.INFO, "Could not pars the emergency profile activationTime value to a valid date.");
@@ -1128,7 +1131,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 							throw new IOException("Could not pars the emergency profile duration value to an integer." + e.getMessage());
 						}
 					}
-					if(emergencyProfile.nrOfDataTypes() != 3){	// If all three ellements are correct, then send it, otherwise throw error
+					if(emergencyProfile.nrOfDataTypes() != 3){	// If all three elements are correct, then send it, otherwise throw error
 						throw new IOException("The complete emergecy profile must be filled in before sending it to the meter.");
 					} else {
 						loadLimiter.writeEmergencyProfile(loadLimiter.new EmergencyProfile(emergencyProfile.getBEREncodedByteArray(), 0, 0));
@@ -1212,9 +1215,9 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 
 	private DateTime convertStringToDateTimeOctetString(String strDate) throws IOException{
 		DateTime dateTime = null;
-		Calendar cal = Calendar.getInstance(getMeterTimeZone());
-		cal.set(Integer.parseInt(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" ")))&0xFF,
-				Integer.parseInt(strDate.substring(strDate.indexOf("/") + 1, strDate.lastIndexOf("/")))&0xFF,
+		Calendar cal = Calendar.getInstance(getMeter().getTimeZone());
+		cal.set(Integer.parseInt(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" ")))&0xFFFF,
+				(Integer.parseInt(strDate.substring(strDate.indexOf("/") + 1, strDate.lastIndexOf("/")))&0xFF) -1,
 				Integer.parseInt(strDate.substring(0, strDate.indexOf("/")))&0xFF,
 				Integer.parseInt(strDate.substring(strDate.indexOf(" ") + 1, strDate.indexOf(":")))&0xFF,
 				Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":")))&0xFF,
