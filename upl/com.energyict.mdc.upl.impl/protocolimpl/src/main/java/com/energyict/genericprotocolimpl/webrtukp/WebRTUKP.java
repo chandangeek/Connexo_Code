@@ -240,6 +240,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		} catch (DLMSConnectionException e) {
 			e.printStackTrace();
 			disConnect();
+		} catch (ClassCastException e){
+			// mostely programmers fault if you get here ...
+			e.printStackTrace();
+			disConnect();
 		} catch (SQLException e){
 			e.printStackTrace();
 			disConnect();
@@ -1112,9 +1116,16 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 							throw new IOException("Could not pars the emergency profile id value to an integer." + e.getMessage());
 						}
 					}
+					/**
+					 * Here we do some dirty work. The dateTime DLMS object sets the size of the octetString while according to the A-XDR encoding this is not necessary.
+					 * So we copy the BEREncodedDataArray and cut the two first bytes off ...
+					 */
 					if(messageHandler.getEpActivationTime() != null){	// The EmergencyProfileActivationTime
 						try{
-							emergencyProfile.addDataType(new OctetString(convertStringToDateTimeOctetString(messageHandler.getEpActivationTime()).getBEREncodedByteArray()));
+							byte[] wrong = convertStringToDateTimeOctetString(messageHandler.getEpActivationTime()).getBEREncodedByteArray();
+							byte[] right = new byte[wrong.length-2];
+							System.arraycopy(wrong, 2, right, 0, right.length);
+							emergencyProfile.addDataType(new OctetString(right, true));
 						} catch (NumberFormatException e) {
 							e.printStackTrace();
 							log(Level.INFO, "Could not pars the emergency profile activationTime value to a valid date.");
@@ -1133,7 +1144,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					if(emergencyProfile.nrOfDataTypes() != 3){	// If all three elements are correct, then send it, otherwise throw error
 						throw new IOException("The complete emergecy profile must be filled in before sending it to the meter.");
 					} else {
-						loadLimiter.writeEmergencyProfile(loadLimiter.new EmergencyProfile(emergencyProfile.getBEREncodedByteArray(), 0, 0));
+//						loadLimiter.writeEmergencyProfile(loadLimiter.new EmergencyProfile(emergencyProfile.getBEREncodedByteArray(), 0, 0));
+						loadLimiter.writeEmergencyProfile(emergencyProfile.getBEREncodedByteArray());
 					}
 					
 					success = true;
