@@ -35,6 +35,7 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BitString;
@@ -51,16 +52,21 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.VisibleString;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DemandRegister;
 import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.Limiter;
 import com.energyict.dlms.cosem.P3ImageTransfer;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
@@ -510,6 +516,20 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			    CapturedObject capturedObject = it.next();
 			    strBuilder.append(capturedObject.getLogicalName().getObisCode().toString()+" "+capturedObject.getLogicalName().getObisCode().getDescription()+" (load profile)\n");
 			}
+			
+			strBuilder.append("********************* Objects captured into daily load profile *********************\n");
+			Iterator<CapturedObject> it2 = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getDailyProfileObject().getObisCode()).getCaptureObjects().iterator();
+			while(it2.hasNext()) {
+			    CapturedObject capturedObject = it2.next();
+			    strBuilder.append(capturedObject.getLogicalName().getObisCode().toString()+" "+capturedObject.getLogicalName().getObisCode().getDescription()+" (load profile)\n");
+			}
+			
+//			strBuilder.append("********************* Objects captured into monthly load profile *********************\n");
+//			Iterator<CapturedObject> it3 = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMonthlyProfileObject().getObisCode()).getCaptureObjects().iterator();
+//			while(it3.hasNext()) {
+//			    CapturedObject capturedObject = it3.next();
+//			    strBuilder.append(capturedObject.getLogicalName().getObisCode().toString()+" "+capturedObject.getLogicalName().getObisCode().getDescription()+" (load profile)\n");
+//			}
 			
 			return strBuilder.toString();
 		} catch (IOException e) {
@@ -1022,7 +1042,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					
 					if(!messageHandler.getDisconnectDate().equals("")){ // use the disconnectControlScheduler
 						
-						//TODO TEST THIS! 
 						Array executionTimeArray = convertStringToDateTimeArray(messageHandler.getDisconnectDate());
 						SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
 						
@@ -1043,7 +1062,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					success = true;
 				} else if (llClear){
 					
-					//TODO Test this
 					Limiter clearLLimiter = getCosemObjectFactory().getLimiter();
 					
 					// set the normal threshold duration to null
@@ -1062,11 +1080,15 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					
 					//TODO Test this
 					Limiter loadLimiter = getCosemObjectFactory().getLimiter();
+//					ValueDefinitionType valueDefinitionType = loadLimiter.getMonitoredValue();
+					
 					
 					if(theMonitoredAttributeType == -1){	// check for the type of the monitored value
 						ValueDefinitionType valueDefinitionType = loadLimiter.getMonitoredValue();
+						theMonitoredAttributeType = getMonitoredAttributeType(valueDefinitionType);
 //						theMonitoredAttributeType = getCosemObjectFactory().getGenericRead(valueDefinitionType.getObisCode(), valueDefinitionType.getAttributeIndex().getValue()).getResponseData()[0];
-						theMonitoredAttributeType = (byte)getCosemObjectFactory().getCosemObject(valueDefinitionType.getObisCode()).getValue();
+//						theMonitoredAttributeType = AXDRDecoder.decode(getCosemObjectFactory().getCosemObject(valueDefinitionType.getObisCode()).);
+//						getCosemObjectFactory().
 //						getCosemObjectFactory().getGenericRead(valueDefinitionType.getObisCode(), valueDefinitionType.getAttributeIndex().getValue(), valueDefinitionType.getClassId().getValue()).getValue();
 //						getCosemObjectFactory().getRegister(valueDefinitionType.getObisCode()).getValue();
 //						getCosemObjectFactory().getCosemObject(valueDefinitionType.getObisCode()).getValue();
@@ -1116,16 +1138,12 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 							throw new IOException("Could not pars the emergency profile id value to an integer." + e.getMessage());
 						}
 					}
-					/**
-					 * Here we do some dirty work. The dateTime DLMS object sets the size of the octetString while according to the A-XDR encoding this is not necessary.
-					 * So we copy the BEREncodedDataArray and cut the two first bytes off ...
-					 */
 					if(messageHandler.getEpActivationTime() != null){	// The EmergencyProfileActivationTime
 						try{
-							byte[] wrong = convertStringToDateTimeOctetString(messageHandler.getEpActivationTime()).getBEREncodedByteArray();
-							byte[] right = new byte[wrong.length-2];
-							System.arraycopy(wrong, 2, right, 0, right.length);
-							emergencyProfile.addDataType(new OctetString(right, true));
+//							byte[] wrong = convertStringToDateTimeOctetString(messageHandler.getEpActivationTime()).getBEREncodedByteArray();
+//							byte[] right = new byte[wrong.length-2];
+//							System.arraycopy(wrong, 2, right, 0, right.length);
+							emergencyProfile.addDataType(new OctetString(convertStringToDateTimeOctetString(messageHandler.getEpActivationTime()).getBEREncodedByteArray(), 0, true));
 						} catch (NumberFormatException e) {
 							e.printStackTrace();
 							log(Level.INFO, "Could not pars the emergency profile activationTime value to a valid date.");
@@ -1151,7 +1169,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					success = true;
 				} else if (llSetGrId){
 					
-					//TODO Test this
 					Limiter epdiLimiter = getCosemObjectFactory().getLimiter();
 					try {
 						Lookup lut = mw().getLookupFactory().find(Integer.parseInt(messageHandler.getEpGroupIdListLookupTableId()));
@@ -1199,6 +1216,39 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		}
 	}
 
+	/**
+	 * Get the monitoredAttributeType
+	 * @param vdt
+	 * @return the abstractDataType of the monitored attribute
+	 * @throws IOException
+	 */
+	private byte getMonitoredAttributeType(ValueDefinitionType vdt) throws IOException{ 
+		
+      if (getMeterConfig().getClassId(vdt.getObisCode()) == Register.CLASSID){
+    	  return getCosemObjectFactory().getRegister(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];
+      } else if (getMeterConfig().getClassId(vdt.getObisCode()) == ExtendedRegister.CLASSID){
+    	  return getCosemObjectFactory().getExtendedRegister(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];
+      }else if (getMeterConfig().getClassId(vdt.getObisCode()) == DemandRegister.CLASSID){
+    	  return getCosemObjectFactory().getDemandRegister(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];
+      }else if (getMeterConfig().getClassId(vdt.getObisCode()) == Data.CLASSID){
+    	  return getCosemObjectFactory().getData(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];
+      } else{
+    	  throw new IOException("WebRtuKP, getMonitoredAttributeType, invalid classID " + getMeterConfig().getClassId(vdt.getObisCode())+" for obisCode "+vdt.getObisCode().toString()) ;
+      }
+//   
+//      return new Data(protocolLink,getObjectReference(vdt.getObisCode()));
+//   else if (protocolLink.getMeterConfig().getClassId(vdt.getObisCode()) == ProfileGeneric.CLASSID)
+//      return new ProfileGeneric(protocolLink,getObjectReference(obisCode));
+//   
+	}
+	
+	/**
+	 * Convert the value to write to the Limiter object to the correct monitored value type ...
+	 * @param theMonitoredAttributeType
+	 * @param value
+	 * @return
+	 * @throws IOException
+	 */
 	private AbstractDataType convertToMonitoredType(byte theMonitoredAttributeType, String value) throws IOException {
 		try {
 			switch(theMonitoredAttributeType){
@@ -1224,8 +1274,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		}
 	}
 
-	private DateTime convertStringToDateTimeOctetString(String strDate) throws IOException{
-		DateTime dateTime = null;
+	private AXDRDateTime convertStringToDateTimeOctetString(String strDate) throws IOException{
+		AXDRDateTime dateTime = null;
 		Calendar cal = Calendar.getInstance(getMeter().getTimeZone());
 		cal.set(Integer.parseInt(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" ")))&0xFFFF,
 				(Integer.parseInt(strDate.substring(strDate.indexOf("/") + 1, strDate.lastIndexOf("/")))&0xFF) -1,
@@ -1233,7 +1283,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				Integer.parseInt(strDate.substring(strDate.indexOf(" ") + 1, strDate.indexOf(":")))&0xFF,
 				Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":")))&0xFF,
 				Integer.parseInt(strDate.substring(strDate.lastIndexOf(":") + 1, strDate.length()))&0xFF);
-		dateTime = new DateTime(cal);
+		dateTime = new AXDRDateTime(cal);
 		return dateTime;
 	}
 	
