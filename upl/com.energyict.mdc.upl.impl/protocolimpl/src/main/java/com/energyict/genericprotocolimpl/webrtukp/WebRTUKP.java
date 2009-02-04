@@ -1287,7 +1287,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		return dateTime;
 	}
 	
-	private Array convertStringToDateTimeArray(String strDate) throws IOException {
+	public Array convertStringToDateTimeArray(String strDate) throws IOException {
 		OctetString date = null;
 		byte[] dateBytes = new byte[5];
 		dateBytes[0] = (byte) ((Integer.parseInt(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" "))) >> 8)&0xFF);

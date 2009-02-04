@@ -14,7 +14,15 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.MbusProfile;
 import com.energyict.mdw.amr.GenericProtocol;
@@ -93,7 +101,7 @@ public class MbusDevice implements GenericProtocol, Messaging{
 		String serial;
 		String eiSerial = getMbus().getSerialNumber();
 		try {
-			 serial = webRtu.getCosemObjectFactory().getGenericRead(webRtu.getMeterConfig().getMbusSerialNumber(physicalAddress)).getString();
+			 serial = getCosemObjectFactory().getGenericRead(getMeterConfig().getMbusSerialNumber(physicalAddress)).getString();
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not retrieve the serialnumber of meter " + eiSerial + e);
@@ -101,6 +109,14 @@ public class MbusDevice implements GenericProtocol, Messaging{
 		if(!eiSerial.equals(serial)){
 			throw new IOException("Wrong serialnumber, EIServer settings: " + eiSerial + " - Meter settings: " + serial);
 		}
+	}
+	
+	private CosemObjectFactory getCosemObjectFactory(){
+		return getWebRTU().getCosemObjectFactory();
+	}
+	
+	private DLMSMeterConfig getMeterConfig(){
+		return getWebRTU().getMeterConfig();
 	}
 
 	private void updatePhysicalAddressWithNodeAddress() throws SQLException, BusinessException, IOException{
@@ -196,12 +212,20 @@ public class MbusDevice implements GenericProtocol, Messaging{
 
 					if(!messageHandler.getConnectDate().equals("")){	// use the disconnectControlScheduler
 						
-						getLogger().log(Level.INFO, "Although an activationData is filled in, the connect is immediatly applied (Missing MbusDisconnect scheduler.)");
-						Disconnector connector = getWebRTU().getCosemObjectFactory().getDisconnector(getWebRTU().getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode());
-						connector.remoteReconnect();
+						Array executionTimeArray = getWebRTU().convertStringToDateTimeArray(messageHandler.getConnectDate());
+						SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getPhysicalAddress()).getObisCode());
+						
+						ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getPhysicalAddress()).getObisCode());
+						byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn(); 
+						Structure scriptStruct = new Structure();
+						scriptStruct.addDataType(new OctetString(scriptLogicalName));
+						scriptStruct.addDataType(new Unsigned16(2)); 	// method '2' is the 'remote_connect' method
+						
+						sasConnect.writeExecutedScript(scriptStruct);
+						sasConnect.writeExecutionTime(executionTimeArray);
 						
 					} else { // immediate connect
-						Disconnector connector = getWebRTU().getCosemObjectFactory().getDisconnector(getWebRTU().getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode());
+						Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode());
 						connector.remoteReconnect();
 					}
 					
@@ -213,12 +237,20 @@ public class MbusDevice implements GenericProtocol, Messaging{
 					
 					if(!messageHandler.getDisconnectDate().equals("")){	// use the disconnectControlScheduler
 						
-						getLogger().log(Level.INFO, "Although an activationData is filled in, the disconnect is immediatly applied (Missing MbusDisconnect scheduler.)");
-						Disconnector connector = getWebRTU().getCosemObjectFactory().getDisconnector(getWebRTU().getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode());
-						connector.remoteDisconnect();
+						Array executionTimeArray = getWebRTU().convertStringToDateTimeArray(messageHandler.getDisconnectDate());
+						SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getPhysicalAddress()).getObisCode());
+						
+						ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getPhysicalAddress()).getObisCode());
+						byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn(); 
+						Structure scriptStruct = new Structure();
+						scriptStruct.addDataType(new OctetString(scriptLogicalName));
+						scriptStruct.addDataType(new Unsigned16(1));	// method '1' is the 'remote_disconnect' method
+						
+						sasDisconnect.writeExecutedScript(scriptStruct);
+						sasDisconnect.writeExecutionTime(executionTimeArray);
 						
 					} else { // immediate disconnect
-						Disconnector connector = getWebRTU().getCosemObjectFactory().getDisconnector(getWebRTU().getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode());
+						Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode());
 						connector.remoteDisconnect();
 					}
 					
@@ -254,7 +286,7 @@ public class MbusDevice implements GenericProtocol, Messaging{
 
 	private RegisterValue readRegister(ObisCode oc) throws IOException{
 		if(this.mocm == null){
-			this.mocm = new MbusObisCodeMapper(getWebRTU().getCosemObjectFactory());
+			this.mocm = new MbusObisCodeMapper(getCosemObjectFactory());
 		}
 		return mocm.getRegisterValue(oc);
 	}
