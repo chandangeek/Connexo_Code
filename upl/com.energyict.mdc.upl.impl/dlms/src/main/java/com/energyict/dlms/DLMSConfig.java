@@ -77,7 +77,7 @@ public class DLMSConfig {
     };
     
     final static private DLMSConfig[] dailyProfile = {
-    		new DLMSConfig("WKP",7,1,0,99,2,0,255)
+    		new DLMSConfig("WKP",7,0,0,99,2,0,255)
     };
     
     final static private DLMSConfig[] monthlyProfile = {
@@ -123,6 +123,20 @@ public class DLMSConfig {
 		new DLMSConfig("ISK",7,0,2,128,30,31,255),
 		new DLMSConfig("ISK",7,0,3,128,30,31,255),
 		new DLMSConfig("ISK",7,0,4,128,30,31,255)
+    };
+    
+    final static private DLMSConfig[] mbusDisconnectControlSchedule = {
+    	new DLMSConfig("WKP",22,0,1,24,6,0,255),
+    	new DLMSConfig("WKP",22,0,2,24,6,0,255),
+    	new DLMSConfig("WKP",22,0,3,24,6,0,255),
+    	new DLMSConfig("WKP",22,0,4,24,6,0,255)
+    };
+    
+    final static private DLMSConfig[] mbusDisconnectorScriptTable = {
+    	new DLMSConfig("WKP",9,0,1,24,7,0,255),
+    	new DLMSConfig("WKP",9,0,2,24,7,0,255),
+    	new DLMSConfig("WKP",9,0,3,24,7,0,255),
+    	new DLMSConfig("WKP",9,0,4,24,7,0,255)
     };
     
     final static private DLMSConfig[] serialNumber = {
@@ -756,6 +770,38 @@ public class DLMSConfig {
 			}
 		}
 		throw new IOException("DLMSConfig, getMbusProfile, not found in objectlist (IOL)");
+	}
+	
+	public UniversalObject getMbusDisconnectControlSchedule(UniversalObject[] objectList, String manuf, int channel) throws IOException {
+    	int count = 0;
+    	if (objectList == null) throw new IOException("DLMSConfig, getMbusDisconnectControlSchedule, objectlist empty!");
+    	for(int t = 0; t < mbusDisconnectControlSchedule.length; t++){
+			if((manuf != null) && (mbusDisconnectControlSchedule[t].getManuf().compareTo(manuf) != 0)) continue;
+			if(count++ == channel){
+				for(int i = 0; i < objectList.length; i++){
+					if(objectList[i].equals(mbusDisconnectControlSchedule[t])){
+						return objectList[i];
+					}
+				}
+			}
+		}
+		throw new IOException("DLMSConfig, getMbusDisconnectControlSchedule, not found in objectlist (IOL)");
+	}
+	
+	public UniversalObject getMbusDisconnectorScriptTable(UniversalObject[] objectList, String manuf, int channel) throws IOException {
+    	int count = 0;
+    	if (objectList == null) throw new IOException("DLMSConfig, getMbusDisconnectorScriptTable, objectlist empty!");
+    	for(int t = 0; t < mbusDisconnectorScriptTable.length; t++){
+			if((manuf != null) && (mbusDisconnectorScriptTable[t].getManuf().compareTo(manuf) != 0)) continue;
+			if(count++ == channel){
+				for(int i = 0; i < objectList.length; i++){
+					if(objectList[i].equals(mbusDisconnectorScriptTable[t])){
+						return objectList[i];
+					}
+				}
+			}
+		}
+		throw new IOException("DLMSConfig, getMbusDisconnectorScriptTable, not found in objectlist (IOL)");
 	}
 	
 	public UniversalObject getXMLConfig(UniversalObject[] objectList, String manuf) throws IOException {

@@ -335,6 +335,14 @@ public class DLMSMeterConfig {
 		return config.getDisconnectorScriptTable(IOL);
 	}
 	
+	public UniversalObject getMbusDisconnectorScriptTable(int physicalAddress) throws IOException {
+		return config.getMbusDisconnectorScriptTable(IOL, manuf, physicalAddress);
+	}
+	
+	public UniversalObject getMbusDisconnectControlSchedule(int physicalAddress) throws IOException {
+		return config.getMbusDisconnectControlSchedule(IOL, manuf, physicalAddress);
+	}
+	
 	public UniversalObject getLimiter() throws IOException{
 		return config.getLimiter(IOL);
 	}
