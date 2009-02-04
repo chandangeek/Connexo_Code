@@ -16,6 +16,10 @@ import java.math.BigDecimal;
 /**
  *
  * @author kvds
+ * 
+ * changes:
+ * jme	|04022009|	Added isUnsigned32() method.
+ * 
  */
 abstract public class AbstractDataType {
     
@@ -72,6 +76,9 @@ abstract public class AbstractDataType {
     public boolean isArray() {
         return this instanceof Array;
     }  
+    public boolean isUnsigned32() {
+    	return this instanceof Unsigned32;
+    }
     
     public VisibleString getVisibleString() {
         return (VisibleString)this;
