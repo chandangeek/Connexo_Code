@@ -1,12 +1,10 @@
 package com.energyict.genericprotocolimpl.iskragprs;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.util.Calendar;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -15,7 +13,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.energyict.cbo.ApplicationException;
@@ -29,12 +26,28 @@ import com.energyict.genericprotocolimpl.common.tou.SpecialDay;
 import com.energyict.genericprotocolimpl.common.tou.WeekProfile;
 import com.energyict.protocol.ProtocolUtils;
 
+/**
+ * 
+ * @author igh
+ * 
+ * Changes:
+ * GNA |02022009| Made some changes related to the TimeZone. The deviation bytes in the dateTime must be used otherwise everything is assumed
+ * 					to be in GMT.
+ *
+ */
+
 public class IskraActivityCalendarReader implements com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader {
 
 	private ActivityCalendar activityCalendar;
+	private TimeZone deviceTimeZone;
+	private TimeZone localTimeZone;
+	private int deviation;
 	
-	public IskraActivityCalendarReader(ActivityCalendar activityCalendar) {
+	public IskraActivityCalendarReader(ActivityCalendar activityCalendar, TimeZone deviceTimeZone, TimeZone localTimeZone) {
 		this.activityCalendar = activityCalendar;
+		this.deviceTimeZone = deviceTimeZone;
+		this.localTimeZone = localTimeZone;
+		this.deviation = this.localTimeZone.getOffset(Calendar.getInstance(this.deviceTimeZone).getTimeInMillis())/60000;
 	}
 	
 	public void read(InputStream stream) {
@@ -53,7 +66,7 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 		}
 	}
 	
-	protected void read(Element element){
+	protected void read(Element element) throws IOException{
 		String nodeName = element.getNodeName();
 		if ("P2LPCTariff".equals(nodeName)){
 			readActivityCalendar(element);
@@ -62,7 +75,7 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 			throw new ApplicationException("Unknown tag found in xml userfile: " + element.getNodeName());
 	}
 	
-	protected void readActivityCalendar(Element element){
+	protected void readActivityCalendar(Element element) throws IOException{
 		readCalendarName(element);
 		readSeasons(element);
 		readWeeks(element);
@@ -180,7 +193,7 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 		}
 	}
 	
-	protected void readCalendarName(Element element){
+	protected void readCalendarName(Element element) throws IOException{
 		NodeList names = element.getElementsByTagName("Calendar");
 		//System.out.println(names.getLength());
 		if (names.getLength() != 0){
@@ -209,8 +222,9 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 		}
 	}
 	
-	protected CosemCalendar getActivateTime(String value) {
+	protected CosemCalendar getActivateTime(String value) throws IOException {
 		try {
+			
 			int index = value.indexOf('.');
 			int day = Integer.parseInt(value.substring(0, index));
 			value = value.substring(index + 1);
@@ -224,6 +238,7 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 			int minutes = Integer.parseInt(value.substring(3, 5));
 			int seconds = Integer.parseInt(value.substring(6, 8));
 			//System.out.println("seconds = " + seconds);
+			
 			byte[] bytes = new byte[12];
 			bytes[0]= (byte) (year >> 8);
 			bytes[1] = (byte) year;
@@ -234,8 +249,8 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 			bytes[6]= (byte) minutes;
 			bytes[7]= (byte) seconds;
 			bytes[8]= (byte) 0x00;
-			bytes[9]= (byte) 0x00;
-			bytes[10]= (byte) 0x00;
+			bytes[9]= (byte) ((this.deviation>>8)&0xFF);
+			bytes[10]= (byte) (this.deviation&0xFF);
 			bytes[11]= (byte) 0x00;
 			return new CosemCalendar(new OctetString(bytes));
 		}
@@ -276,6 +291,7 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 			value = value.substring(index + 1);
 			index = value.indexOf(' ');
 			int year = Integer.parseInt(value.substring(0, index));
+			
 			byte[] bytes = new byte[12];
 			bytes[0]= (byte) (year >> 8);
 			bytes[1] = (byte) year;
@@ -296,9 +312,11 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 			value = value.substring(index + 1);
 			index = value.indexOf(':');
 			int min = Integer.parseInt(value.substring(0, index));
+			
+			
 			byte[] bytes = new byte[4];
-			bytes[0]= (byte) hour;  //hour
-			bytes[1]= (byte) min;	//min
+			bytes[0] = (byte) hour;
+			bytes[1] = (byte) min;
 			bytes[2]= (byte) 0x00;
 			bytes[3]= (byte) 0x00;
 			return bytes;
@@ -318,19 +336,26 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 			value = value.substring(index + 1);
 			index = value.indexOf(' ');
 			int year = Integer.parseInt(value.substring(0, index));
+			value = value.substring(index + 1);
+			index = value.indexOf(' ');
+			int dayOfWeek = Integer.parseInt(value.substring(0, index));
+			value = value.substring(index + 1);
+			int hours = Integer.parseInt(value.substring(0, 2));
+			int minutes = Integer.parseInt(value.substring(3, 5));
+			int seconds = Integer.parseInt(value.substring(6, 8));
+			
 			byte[] bytes = new byte[12];
 			bytes[0]= (byte) (year >> 8);
 			bytes[1] = (byte) year;
 			bytes[2]= (byte) month;	//month
 			bytes[3]= (byte) day;		//day
-			bytes[4]= (byte) 0xFF;
-			bytes[5]= (byte) 0x00;
-			bytes[6]= (byte) 0x00;
-			bytes[7]= (byte) 0x00;
+			bytes[4]= (byte) dayOfWeek;
+			bytes[5] = (byte) hours;
+			bytes[6] = (byte) minutes;
+			bytes[7] = (byte) seconds;
 			bytes[8]= (byte) 0x00;
-//			bytes[9]= (byte) 0x00;
-			bytes[9]= (byte) 0x80;
-			bytes[10]= (byte) 0x00;
+			bytes[9]= (byte) ((this.deviation>>8)&0xFF);
+			bytes[10]= (byte) (this.deviation&0xFF);
 			bytes[11]= (byte) 0x00;
 			return bytes;
 		}
@@ -339,10 +364,28 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 		}
 	}
 	
+	private TimeZone getTimeZone(){
+		return this.deviceTimeZone;
+	}
+	
 	public static void main(String args[]) throws Exception {
-		InputStream stream = new FileInputStream(new File("C:/Iskra/tariff.xml"));
-		IskraActivityCalendarReader reader = new IskraActivityCalendarReader(new ActivityCalendar());
-		reader.read(stream);
+		
+		int t = TimeZone.getTimeZone("Europe/Brussels").getOffset(Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTimeInMillis())/3600000;
+		System.out.println(t);
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		Calendar cal2 = Calendar.getInstance(TimeZone.getTimeZone("Europe/Brussels"));
+		
+		
+		
+		System.out.println("GMT: " + cal.get(Calendar.HOUR_OF_DAY));
+		System.out.println("GMT offset in minutes; " + cal.getTimeZone().getRawOffset());
+		System.out.println("Europe: " + cal.get(Calendar.HOUR_OF_DAY));
+		System.out.println("Europe offset in minutes: " + cal2.getTimeZone().getRawOffset());
+		System.out.println("Europe offset: " + cal2.getTimeZone().useDaylightTime());
+		
+//		InputStream stream = new FileInputStream(new File("C:/Iskra/tariff.xml"));
+//		IskraActivityCalendarReader reader = new IskraActivityCalendarReader(new ActivityCalendar(), null);
+//		reader.read(stream);
 		
 		/*CosemCalendar cal = new CosemCalendar(new OctetString("7:d7:c:5:4:e:35:e:0:80:0:0:"));
 		
@@ -377,11 +420,6 @@ public class IskraActivityCalendarReader implements com.energyict.genericprotoco
 		System.out.println(cal.getCalendar().getTime() + ", " + ProtocolUtils.outputHexString(cal.getOctetString().getOctets()));
 		System.out.println(cal2.getCalendar().getTime() + ", " + ProtocolUtils.outputHexString(cal2.getOctetString().getOctets()));
 		System.out.println(cosemCalendar.getCalendar().getTime() + ", " + ProtocolUtils.outputHexString(cosemCalendar.getOctetString().getOctets()));
-		
-
-		
-		
-
 		
 		CosemCalendar cal3 = new CosemCalendar(new OctetString(bytes2));
 		System.out.println(cal3.getCalendar().getTime() + ", " + ProtocolUtils.outputHexString(cal3.getOctetString().getOctets()));
