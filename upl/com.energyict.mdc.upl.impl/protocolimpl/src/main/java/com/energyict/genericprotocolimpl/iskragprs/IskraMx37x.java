@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 
 import javax.xml.rpc.ServiceException;
 
+import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Unit;
 import com.energyict.cbo.Utils;
@@ -39,15 +40,16 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.GenericRead;
-import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.GPRSModemSetup;
+import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.common.GenericCache;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
@@ -69,11 +71,9 @@ import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
@@ -86,13 +86,15 @@ import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.messaging.Messaging;
-import com.energyict.protocolimpl.dlms.CapturedObjects;
 import com.energyict.protocolimpl.dlms.HDLCConnection;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
 
 /**
  * @author gna
  *
+ * Changes:
+ * GNA |29012009| Added force clock
+ * GNA |02022009| Mad some changes to the sendTOU message. No activationDate is immediate activation using the Object method
  */
 public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism, Messaging{
 	
@@ -108,11 +110,10 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private CosemObjectFactory 		cosemObjectFactory;
     private SecureConnection		secureConnection;
     private Rtu                    	rtu;
+    private Clock					clock;
     private Cache 					dlmsCache;
     private DLMSMeterConfig 		meterConfig;
-    private Object 					source;
     private ObisCodeMapper 			ocm = null;
-    private CapturedObjects[] 		capturedObjects = {null, null, null, null, null};	// max. 5 (1E-meter + 4MBus-meters)
     private MbusDevice[]			mbusDevices = {null, null, null, null};				// max. 4 MBus meters
     public static ScalerUnit[] 		demandScalerUnits = {new ScalerUnit(0,30), new ScalerUnit(0,255), new ScalerUnit(0,255), new ScalerUnit(0,255), new ScalerUnit(0,255)};
     private CommunicationScheduler 	scheduler;
@@ -128,14 +129,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	private int extendedLogging;
 	private int addressingMode;
 	private int connectionMode;
-	private int numberOfChannels[] = {-1, -1, -1, -1, -1};
 	private int configProgramChanges;
-	private int iInterval[] = {-1, -1, -1, -1, -1};
-	private int metertype;
-	private int dataContainerOffset = -1;
-	private int deviation = -1;
 	
-	private long maxValue = -1;
 	private boolean forcedMbusCheck = false;
 	
     private String strID;
@@ -156,7 +151,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private ObisCode eventLogObisCode 		= 	ObisCode.fromString("1.0.99.98.0.255");
 //    private ObisCode mbusScalerUnit 		=	ObisCode.fromString("0.1.128.50.0.255");
     private ObisCode deviceLogicalName		= 	ObisCode.fromString("0.0.42.0.0.255");
-    private ObisCode clock					=	ObisCode.fromString("0.0.1.0.0.255");
     private ObisCode status 				= 	ObisCode.fromString("1.0.96.240.0.255");
     private ObisCode endOfBilling			=	ObisCode.fromString("0.0.15.0.0.255");
     private ObisCode endOfCapturedObjects	=	ObisCode.fromString("0.0.15.1.0.255");
@@ -251,14 +245,18 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         	/**
         	 * TODO Just To TEST TODO
         	 */
+//        	justATestMethod();
 //        	doTheCheckMethods();
 //        	handleMbusMeters();
 //        	DailyMonthly dm = new DailyMonthly(this);
 //        	dm.getDailyValues(dailyObisCode);
 //        	dm.getMonthlyValues(monthlyObisCode);
         	    	
-        	// Set clock ... if necessary
-        	if( communicationProfile.getWriteClock() ) {
+        	// Set clock or Force clock... if necessary
+        	if( communicationProfile.getForceClock() ){
+        		getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + Calendar.getInstance(getTimeZone()).getTime());
+        		setTimeClock();
+        	}else if( communicationProfile.getWriteClock() ) {
         		setTime();
         	}
         	
@@ -331,15 +329,48 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		}
 	}
 	
-    /**
+    private void justATestMethod() {
+    	try {
+//			PPPSetup pppSetup = getCosemObjectFactory().getPPPSetup();
+//			
+//			PPPAuthenticationType pppat = pppSetup.getPPPAuthenticationType();
+//			System.out.println("PPP Username: " + pppSetup.getPPPAuthenticationType().getUsername().toString());
+//			System.out.println("PPP Password: " + pppSetup.getPPPAuthenticationType().getPassword().toString());
+//			
+//			String newUsername = "essent";
+//			String newPassword = "essentPassword";
+//			
+//			pppat.setUserName(newUsername);
+//			pppat.setPassWord(newPassword);
+//			
+//			pppSetup.writePPPAuthenticationType(pppat);
+    		
+    		GPRSModemSetup gprsSetup = getCosemObjectFactory().getGPRSModemSetup();
+    		
+    		System.out.println(gprsSetup.getAPN().stringValue());
+    		System.out.println(gprsSetup.getPinCod().getValue());
+    		System.out.println(gprsSetup.getQualityOfService());
+    		System.out.println(gprsSetup.getTheDefaultQualityOfService());
+    		System.out.println(gprsSetup.getRequestedQualityOfService());
+    		
+    		gprsSetup.writeAPN("testAPN");
+			
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    	
+	}
+
+	/**
      * Checks if there is in fact an MBus meter configured on the E-meter
      * @return true or false
      */
     private boolean mbusCheck(){
 
 		for(int i = 0; i < MBUS_MAX; i++){
-			if ( mbusDevices[0] != null ){
-				if(mbusDevices[0].getMbus() != null){
+			if ( mbusDevices[i] != null ){
+				if(mbusDevices[i].getMbus() != null){
 					return true;
 				}
 			}
@@ -517,22 +548,28 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
 	private void checkMbusDevices() throws IOException, SQLException, BusinessException {
 		String mSerial = "";
-		for(int i = 0; i < MBUS_MAX; i++){
-			int mbusAddress = (int)getCosemObjectFactory().getCosemObject(mbusPrimaryAddress[i]).getValue();
-			if(mbusAddress > 0){
-				mSerial = getMbusSerial(mbusCustomerID[i]);
-				Unit mUnit = getMbusUnit(mbusUnit[i]);
-				int mMedium = (int)getCosemObjectFactory().getCosemObject(mbusMedium[i]).getValue();
-				if(!mSerial.equals("")){
-					mbusDevices[i] = new MbusDevice(mbusAddress, i, mSerial, mMedium, findOrCreateNewMbusDevice(mbusAddress, mSerial), mUnit, getLogger());
+		if(!((getMeter().getDownstreamRtus().size() == 0) && (getRtuType() == null))){
+			for(int i = 0; i < MBUS_MAX; i++){
+				int mbusAddress = (int)getCosemObjectFactory().getCosemObject(mbusPrimaryAddress[i]).getValue();
+				if(mbusAddress > 0){
+					mSerial = getMbusSerial(mbusCustomerID[i]);
+					if(!mSerial.equals("")){
+						Unit mUnit = getMbusUnit(mbusUnit[i]);
+						int mMedium = (int)getCosemObjectFactory().getCosemObject(mbusMedium[i]).getValue();
+						Rtu mbusRtu = findOrCreateNewMbusDevice(mSerial);
+						if(mbusRtu != null){
+							mbusDevices[i] = new MbusDevice(mbusAddress, i, mSerial, mMedium, mbusRtu, mUnit, getLogger());
+						} else {
+							mbusDevices[i] = null;
+						}
+					} else {
+						mbusDevices[i] = null;
+					}
 				} else {
 					mbusDevices[i] = null;
 				}
-			} else {
-				mbusDevices[i] = null;
 			}
 		}
-		
 		updateMbusDevices(rtu.getDownstreamRtus());
 	}
 	
@@ -570,7 +607,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		}
 	}
 
-	private Rtu findOrCreateNewMbusDevice(long address1, String customerID) throws SQLException, BusinessException, IOException {
+	private Rtu findOrCreateNewMbusDevice(String customerID) throws SQLException, BusinessException, IOException {
 		List mbusList = mw().getRtuFactory().findBySerialNumber(customerID);
 		if( mbusList.size() == 1 ) {
 			((Rtu)mbusList.get(0)).updateGateway(rtu);
@@ -654,17 +691,12 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		meterConfig 		=	DLMSMeterConfig.getInstance("ISK");
 		ocm					= 	new ObisCodeMapper(getCosemObjectFactory());
 		
-		if (rtuType.equalsIgnoreCase("mbus"))
-			metertype = MBUS;
-		else
-			metertype = ELECTRICITY;
-		
 		try {
-			//		dlmsConnection = new TCPIPConnection(is, os, getTimeout(), 0, 0, 17, 16);
-			if (connectionMode == 0)
+			if (connectionMode == 0){
 				dlmsConnection = new HDLCConnection(is, os,	iHDLCTimeoutProperty, 100, iProtocolRetriesProperty,iClientMacAddress, iServerLowerMacAddress,iServerUpperMacAddress, addressingMode);
-			else
+			} else {
 				dlmsConnection = new TCPIPConnection(is, os, iHDLCTimeoutProperty, 100, iProtocolRetriesProperty,iClientMacAddress, iServerLowerMacAddress);
+			}
 			
 			dlmsConnection.setIskraWrapper(1);
 			
@@ -704,13 +736,15 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	}
 	
 	private void mbusMeterDeletionCheck() throws SQLException, BusinessException, IOException{
-		for(int i = 0; i < dlmsCache.getMbusCount(); i++){
-			if(rtuExists(dlmsCache.getMbusCustomerID(i))){
-				mbusDevices[i] = new MbusDevice((int)dlmsCache.getMbusAddress(i), dlmsCache.getMbusPhysicalAddress(i), dlmsCache.getMbusCustomerID(i),
-						dlmsCache.getMbusMedium(i), findOrCreateNewMbusDevice(dlmsCache.getMbusAddress(i), dlmsCache.getMbusCustomerID(i)), dlmsCache.getMbusUnit(i), getLogger());
-			} else {
-				forcedMbusCheck = true;
-				break;
+		if(!((getMeter().getDownstreamRtus().size() == 0) && (getRtuType() == null))){
+			for(int i = 0; i < dlmsCache.getMbusCount(); i++){
+				if(rtuExists(dlmsCache.getMbusCustomerID(i))){
+					mbusDevices[i] = new MbusDevice((int)dlmsCache.getMbusAddress(i), dlmsCache.getMbusPhysicalAddress(i), dlmsCache.getMbusCustomerID(i),
+							dlmsCache.getMbusMedium(i), findOrCreateNewMbusDevice(dlmsCache.getMbusCustomerID(i)), dlmsCache.getMbusUnit(i), getLogger());
+				} else {
+					forcedMbusCheck = true;
+					break;
+				}
 			}
 		}
 	}
@@ -754,19 +788,21 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
                 dlmsCache.setMbusParameters(mbusDevices);
             }
 
-            if ((iConf != dlmsCache.getConfProgChange()) || forcedMbusCheck) {
+            if ((iConf != dlmsCache.getConfProgChange())) {
                 
             	if (DEBUG>=1) System.out.println("iConf="+iConf+", dlmsCache.getConfProgChange()="+dlmsCache.getConfProgChange());    
                 
             	logger.severe("Iskra Mx37x: Configuration changed, request object list...");
                 requestObjectList();	// request object list again from rtu
-                checkMbusDevices();		
                 dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
                 dlmsCache.setConfProgChange(iConf);  // set new configuration program change
                 dlmsCache.setMbusParameters(mbusDevices);
                 
                 
                 if (DEBUG>=1) System.out.println("after requesting objectlist (conf changed)... iConf="+iConf+", dlmsCache.getConfProgChange()="+dlmsCache.getConfProgChange());  
+            }
+            if(forcedMbusCheck){	// you do not need to read the whole cache if you just changed the mbus meters
+            	checkMbusDevices();		
             }
         }
         
@@ -789,10 +825,15 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         }
 	}
 	
+	private Clock getClock() throws IOException{
+		if(this.clock == null){
+			this.clock = getCosemObjectFactory().getClock();
+		}
+		return this.clock;
+	}
+	
     public Date getTime() throws IOException {
-        Clock clock = getCosemObjectFactory().getClock();
-        Date date = clock.getDateTime();
-        return date;
+        return getClock().getDateTime();
     }
 	
     private void setTime() throws ServiceException, ParseException, IOException {
@@ -820,28 +861,30 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     
     public void setTimeClock() throws IOException
     {
-       Calendar calendar=null;
-       if (iRequestTimeZone != 0)
-           calendar = ProtocolUtils.getCalendar(false,requestTimeZone());
-       else
-           calendar = ProtocolUtils.initCalendar(false,getTimeZone());
-       calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);           
-       doSetTime(calendar);
+//       Calendar calendar=null;
+//       if (iRequestTimeZone != 0)
+//           calendar = ProtocolUtils.getCalendar(false,requestTimeZone());
+//       else
+//           calendar = ProtocolUtils.initCalendar(false,getTimeZone());
+//       calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);           
+//       doSetTime(calendar);
+    	doSetTime(Calendar.getInstance(getTimeZone()));
     }
     
-    public int requestTimeZone() throws IOException {
-        if (deviation == -1) { 
-            Clock clock = getCosemObjectFactory().getClock();
-            deviation = clock.getTimeZone();
-        }
-        return (deviation);
-     }
+//    public int requestTimeZone() throws IOException {
+//        if (deviation == -1) { 
+//            Clock clock = getCosemObjectFactory().getClock();
+//            deviation = clock.getTimeZone();
+//        }
+//        return (deviation);
+//     }
     
     private void doSetTime(Calendar calendar) throws IOException
     {
-    	byte[] byteTimeBuffer = createByteDate(calendar);
-       
-       getCosemObjectFactory().writeObject(clock,8,2, byteTimeBuffer);
+//    	byte[] byteTimeBuffer = createByteDate(calendar);
+//       
+//       getCosemObjectFactory().writeObject(clockObisCode,8,2, byteTimeBuffer);
+    	getClock().setTimeAttr(new DateTime(calendar));
     }
     
 	private byte[] createByteDate(Calendar calendar) {
@@ -958,20 +1001,22 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
            configProgramChanges = (int)getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode()).getValue();
         
         // check if the customerID from the meter matches the customerID from the cache
-        String meterCustomerID;
-        String customerID;
-        for(int i = 0; i < MBUS_MAX; i++){
-        	customerID = dlmsCache.getMbusCustomerID(i);
-        	meterCustomerID = getMbusSerial(mbusCustomerID[i]);
-        	if(customerID != null){
-        		if(!customerID.equalsIgnoreCase(meterCustomerID)){
-        			forcedMbusCheck = true;
-        			break;
-        		}
-        	} else {
-        		if(!meterCustomerID.equals("")){
-        			forcedMbusCheck = true;
-        			break;
+        if(!((getMeter().getDownstreamRtus().size() == 0) && (getRtuType() == null))){
+        	String meterCustomerID;
+        	String customerID;
+        	for(int i = 0; i < MBUS_MAX; i++){
+        		customerID = dlmsCache.getMbusCustomerID(i);
+        		meterCustomerID = getMbusSerial(mbusCustomerID[i]);
+        		if(customerID != null){
+        			if(!customerID.equalsIgnoreCase(meterCustomerID)){
+        				forcedMbusCheck = true;
+        				break;
+        			}
+        		} else {
+        			if(!meterCustomerID.equals("")){
+        				forcedMbusCheck = true;
+        				break;
+        			}
         		}
         	}
         }
@@ -1117,11 +1162,17 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	}
 
 	public TimeZone getTimeZone() {
-		return rtu.getTimeZone();
+		try {
+			return isRequestTimeZone()?TimeZone.getTimeZone(Integer.toString(getClock().getTimeZone())):rtu.getDeviceTimeZone();
+		} catch (IOException e) {
+			e.printStackTrace();
+			getLogger().log(Level.INFO, "Could not verify meterTimeZone so EIServer timeZone is used.");
+			return rtu.getDeviceTimeZone();
+		}
 	}
 
 	public boolean isRequestTimeZone() {
-		return false;
+		return (this.iRequestTimeZone==1)?true:false;
 	}
 
 	public CosemObjectFactory getCosemObjectFactory() {
@@ -1173,6 +1224,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             boolean thresholdcl = contents.equalsIgnoreCase(RtuMessageConstant.CLEAR_THRESHOLD);
             boolean falsemsg	= contents.equalsIgnoreCase(RtuMessageConstant.THRESHOLD_STARTDT) || contents.equalsIgnoreCase(RtuMessageConstant.THRESHOLD_STOPDT);
             boolean tou			= contents.equalsIgnoreCase(RtuMessageConstant.TOU_SCHEDULE);
+            boolean apnUnPw		= contents.equalsIgnoreCase(RtuMessageConstant.GPRS_APN) ||
+            							contents.equalsIgnoreCase(RtuMessageConstant.GPRS_USERNAME) ||
+            							contents.equalsIgnoreCase(RtuMessageConstant.GPRS_PASSWORD);
             
             if (falsemsg){
             	msg.setFailed();
@@ -1239,7 +1293,42 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             if (thresholdcl){
             	clearThreshold(msg);
             }
+            
+            if(apnUnPw){
+            	changeApnUserNamePassword(msg);
+            }
 		}
+	}
+	
+	private void changeApnUserNamePassword(RtuMessage msg) throws BusinessException, SQLException {
+		String description = "Changing apn/username/password for meter with serialnumber: " + rtu.getSerialNumber();
+		
+			try {
+				String apn = getMessageValue(msg.getContents(), RtuMessageConstant.GPRS_APN);
+				if(apn.equalsIgnoreCase("")){
+					throw new ApplicationException("APN value is required for message " + msg.displayString());
+				}
+				String userName = getMessageValue(msg.getContents(), RtuMessageConstant.GPRS_USERNAME);
+				String pass = getMessageValue(msg.getContents(), RtuMessageConstant.GPRS_PASSWORD);
+				
+				PPPAuthenticationType pppat = getCosemObjectFactory().getPPPSetup().new PPPAuthenticationType();
+				pppat.setAuthenticationType(PPPSetup.LCPOptionsType.AUTH_PAP);
+				pppat.setUserName(userName);
+				pppat.setPassWord(pass);
+				
+				getCosemObjectFactory().getPPPSetup().writePPPAuthenticationType(pppat);
+				
+				getCosemObjectFactory().getGPRSModemSetup().writeAPN(apn);
+				
+				msg.confirm();
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				fail(e, msg, description);
+			}
+			
+			
+		
 	}
 	
 	private void clearThreshold(RtuMessage msg) throws BusinessException, SQLException {
@@ -1455,7 +1544,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	    
 	    	com.energyict.genericprotocolimpl.common.tou.ActivityCalendar calendarData = 
 	    		new com.energyict.genericprotocolimpl.common.tou.ActivityCalendar();
-	    	ActivityCalendarReader reader = new IskraActivityCalendarReader(calendarData);
+	    	ActivityCalendarReader reader = new IskraActivityCalendarReader(calendarData, getTimeZone(), getMeter().getTimeZone());
 	    	calendarData.setReader(reader);
 	    	calendarData.read(new ByteArrayInputStream(userFile.loadFileInByteArray()));
 	    	CosemActivityCalendarBuilder builder = new 
@@ -1465,8 +1554,11 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	        activityCalendar.writeSeasonProfilePassive(builder.seasonProfilePassive());
 	        activityCalendar.writeWeekProfileTablePassive(builder.weekProfileTablePassive());
 	        activityCalendar.writeDayProfileTablePassive(builder.dayProfileTablePassive());
-	        if (calendarData.getActivatePassiveCalendarTime() != null)
+	        if (calendarData.getActivatePassiveCalendarTime() != null){
 	        	activityCalendar.writeActivatePassiveCalendarTime(builder.activatePassiveCalendarTime());
+	        } else {
+	        	activityCalendar.activateNow();
+	        }
 	        
 	        // check if xml file contains special days
 	        int newSpecialDays = calendarData.getSpecialDays().size();
@@ -1555,6 +1647,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         cat2.addMessageSpec(msgSpec);
         msgSpec = addClearThresholdMessage("Clear Threshold", RtuMessageConstant.CLEAR_THRESHOLD, false);
         cat2.addMessageSpec(msgSpec);
+        msgSpec = addGPRSModemSetup("Change GPRS Modem setup", RtuMessageConstant.GPRS_MODEM_SETUP, false);
+        cat.addMessageSpec(msgSpec);
         
         theCategories.add(cat);
         theCategories.add(cat2);
@@ -1567,6 +1661,20 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	    tagSpec.add(new MessageValueSpec());
 	    msgSpec.add(tagSpec);
 		return msgSpec;
+	}
+	
+	private MessageSpec addGPRSModemSetup(String keyId, String tagName, boolean advanced){
+		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.GPRS_APN);
+		tagSpec.add(new MessageValueSpec());
+		msgSpec.add(tagSpec);
+		tagSpec = new MessageTagSpec(RtuMessageConstant.GPRS_USERNAME);
+	    tagSpec.add(new MessageValueSpec());
+	    msgSpec.add(tagSpec);
+		tagSpec = new MessageTagSpec(RtuMessageConstant.GPRS_PASSWORD);
+	    tagSpec.add(new MessageValueSpec());
+	    msgSpec.add(tagSpec);
+	    return msgSpec;
 	}
 
 	private MessageSpec addThresholdParameters(String keyId, String tagName, boolean advanced){
@@ -1665,8 +1773,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		return this.rtu;
 	}
 	
-	public ObisCode getMbusLoadProfile(){
-		return mbusLProfileObisCode[0];
+	public ObisCode getMbusLoadProfile(int address){
+		return mbusLProfileObisCode[address];
 	}
 
 	public ObisCode getDailyLoadProfile() {
