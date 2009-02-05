@@ -11,8 +11,10 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeDuration;
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
@@ -34,6 +36,7 @@ import com.energyict.protocol.ProfileData;
  * @author gna
  * Changes:
  * GNA |23012009| When no there are no entries in the loadprofile, no error is thrown, just logging info.
+ * GNA |29012009| When the ScalerUnit is (0, 0) then return a Unitless scalerUnit, otherwise you get errors.
  */
 
 public class DailyMonthly {
@@ -54,7 +57,7 @@ public class DailyMonthly {
 			List<ChannelInfo> channelInfos = getDailyMonthlyChannelInfos(genericProfile, TimeDuration.DAYS);
 			
 			profileData.setChannelInfos(channelInfos);
-			Calendar fromCalendar = null;
+			Calendar fromCalendar = Calendar.getInstance(getTimeZone());
 			Calendar channelCalendar = null;
 			Calendar toCalendar = getToCalendar();
 			for (int i = 0; i < getMeter().getChannels().size(); i++) {
@@ -125,7 +128,7 @@ public class DailyMonthly {
 			List<ChannelInfo> channelInfos = getDailyMonthlyChannelInfos(genericProfile, TimeDuration.MONTHS);
 			
 			profileData.setChannelInfos(channelInfos);
-			Calendar fromCalendar = null;
+			Calendar fromCalendar = Calendar.getInstance(getTimeZone());
 			Calendar channelCalendar = null;
 			Calendar toCalendar = getToCalendar();
 			for (int i = 0; i < getMeter().getChannels().size(); i++) {
@@ -165,7 +168,11 @@ public class DailyMonthly {
 	 */
 	private ScalerUnit getMeterDemandRegisterScalerUnit(ObisCode oc) throws IOException{
 		try {
-			return getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
+			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
+			if( su.getUnitCode() == 0){
+				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
+			}
+			return su;
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not get the scalerunit from object '" + oc + "'.");
