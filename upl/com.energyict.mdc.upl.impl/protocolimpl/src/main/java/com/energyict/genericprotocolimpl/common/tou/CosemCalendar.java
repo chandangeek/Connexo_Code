@@ -35,8 +35,8 @@ public class CosemCalendar {
 		octetString[6]= (byte)((timestamp.get(Calendar.MINUTE))& 0xFF);
 		octetString[7]= (byte)((timestamp.get(Calendar.SECOND))& 0xFF);
 		octetString[8]= 0;
-		octetString[9]= (byte)0x80;
-		octetString[10]= 0;
+		octetString[9]= (byte)(((timestamp.getTimeZone().getRawOffset()/60000)>>8)&0xFF);
+		octetString[10]= (byte)((timestamp.getTimeZone().getRawOffset()/60000)&0xFF);
 		octetString[11]= (byte)(((daylightSavingTimeActive) ? DAYLIGHTSAVINGSTIMEACTIVEVALUE : 0) & 0xFF);
 		calendar = new OctetString(octetString);
 	}

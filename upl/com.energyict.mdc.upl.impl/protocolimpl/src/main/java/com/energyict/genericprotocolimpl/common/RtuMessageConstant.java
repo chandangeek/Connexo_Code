@@ -92,4 +92,10 @@ public class RtuMessageConstant {
 	public static final String P1TEXT = "Text";
 	public static final String P1CODE = "Code";
 	
+	/** RtuMessage tags for the GPRS modem setup message */
+	public static final String GPRS_MODEM_SETUP = "GPRS modem setup";
+	public static final String GPRS_APN = "APN";
+	public static final String GPRS_USERNAME = "Username";
+	public static final String GPRS_PASSWORD = "Password";
+	
 }
