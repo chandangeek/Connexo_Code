@@ -74,6 +74,11 @@ public class Meteor implements MeterProtocol, RegisterProtocol{
 	 *  Released for testing: 1/09/2008<p>
 	 * ---------------------------------------------------------------------------------<p>
 	 *  
+	 *  Changes:
+	 *  JME	|05022009|	Fixed timing issues that prevented some meters to readout the load profile data.
+ 	 *						-> Fixed by changing the receive interframe timeout to 3 times the timeout. 
+ 	 *						-> Lowered the interframe retries to prevent huge call times when meter hangs.
+	 *  
 	 */
 	private String protocolVersion="$Date: 2008/09/01 09:28:53 $";;
 

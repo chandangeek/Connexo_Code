@@ -53,10 +53,19 @@ public class MeteorCommunicationsFactory{
 	 *  Last edit date: <p>
 	 *  Comments:<p>
 	 *  released for testing:<p>
+	 *  
+	 *  changes:
+	 *  JME	|05022009|	Fixed timing issues that prevented some meters to readout the load profile data.
+ 	 *						-> Fixed by changing the receive interframe timeout to 3 times the timeout. 
+ 	 *						-> Lowered the interframe retries to prevent huge call times when meter hangs.
+	 *  
 	 * ---------------------------------------------------------------------------------<p>
 	 */	
 	// command descriptions from the datasheet
 	// Header format, at the moment I consider only ident as a variable
+	
+	private static final int RECEIVE_RETRIES	=	3;
+	
 	private byte   ident;					// see ident format listed below
 	private final byte[] sourceCode;		// Defines central equipment of origin
 	private final byte   sourceCodeExt;		// Defines peripheral equipment of origin
@@ -320,7 +329,7 @@ public class MeteorCommunicationsFactory{
 			}catch(Exception e){
 				ack=false;
 				if(e instanceof ProtocolConnectionException){
-					throw new IOException ("NO CARRIER received");
+					throw new IOException (e.getMessage() + ". Possibly NO CARRIER received");
 				}
 			}finally{
 				bs=buildHeader(buildIdent(true, true,true,command), 11);	// checksum added in blockprocessing
@@ -608,14 +617,14 @@ public class MeteorCommunicationsFactory{
 		long interFrameTimeout;
 			// time out check
 		while(go){
-			interFrameTimeout = System.currentTimeMillis() + this.timeOut;
+			interFrameTimeout = System.currentTimeMillis() + this.timeOut * 3;
 			counter=0;
 			length=11;
 			s="";
 			while(counter<length){	// timeout!
 				i=inputStream.read();
 				if(i==-1){errorCounter++;}
-				if(errorCounter>5){
+				if(errorCounter>RECEIVE_RETRIES){
 		            throw new ProtocolConnectionException("InterCharacter timeout error");
 				}
 				s+=(char) i;
