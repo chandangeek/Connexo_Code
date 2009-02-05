@@ -57,7 +57,7 @@ public class ComStruc {
 			char c=sequence[ii];
 			Integer integer;
 			integer=new Integer(((int) c));
-			s+=Integer.toHexString(integer).toUpperCase()+" ";
+//			s+=Integer.toHexString(integer).toUpperCase()+" "; //FIXME: Commented out to prevent build errors (1.4 <-> 1.5) Only debug code
 		}
 		return s;
 	}
