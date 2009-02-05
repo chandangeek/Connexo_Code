@@ -185,6 +185,15 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 	public Limiter getLimiter() throws IOException{
 		return new Limiter(protocolLink, getObjectReference(LIMITER, protocolLink.getMeterConfig().getLimiterSN()));
 	}
+	
+	public PPPSetup getPPPSetup() throws IOException{
+		return new PPPSetup(protocolLink, getObjectReference(PPPSETUP, protocolLink.getMeterConfig().getPPPSetupSN()));
+	}
+	
+	public GPRSModemSetup getGPRSModemSetup() throws IOException{
+		return new GPRSModemSetup(protocolLink, getObjectReference(GPRSMODEMSETUP, protocolLink.getMeterConfig().getGPRSModemSetupSN()));
+	}
+	
     public CosemObject getCosemObject(ObisCode obisCode) throws IOException {
         if (obisCode.getF() != 255) {
             return getStoredValues().getHistoricalValue(obisCode);
