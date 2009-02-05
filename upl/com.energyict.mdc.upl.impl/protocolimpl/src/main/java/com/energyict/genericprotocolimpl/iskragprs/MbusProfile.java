@@ -36,6 +36,7 @@ import com.energyict.protocol.ProfileData;
  * @author gna
  * Changes:
  * GNA |23012009| When no there are no entries in the loadprofile, no error is thrown, just logging info.
+ * GNA |29012009| When the ScalerUnit is (0, 0) then return a Unitless scalerUnit, otherwise you get errors.
  */
 
 public class MbusProfile {
@@ -57,7 +58,7 @@ public class MbusProfile {
 			List<ChannelInfo> channelInfos = getMbusChannelInfos(genericProfile);
 			
 			profileData.setChannelInfos(channelInfos);
-			Calendar fromCalendar = null;
+			Calendar fromCalendar = Calendar.getInstance(mbusDevice.getIskraDevice().getTimeZone());
 			Calendar channelCalendar = null;
 			Calendar toCalendar = getToCalendar();
 			
@@ -131,7 +132,11 @@ public class MbusProfile {
 	 */
 	private ScalerUnit getMeterDemandRegisterScalerUnit(ObisCode oc) throws IOException{
 		try {
-			return getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
+			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
+			if( su.getUnitCode() == 0){
+				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
+			}
+			return su;
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not get the scalerunit from object '" + oc + "'.");
@@ -159,7 +164,7 @@ public class MbusProfile {
 		Calendar cal = null;
 		IntervalData currentInterval = null;
 		int profileStatus = 0;
-		if(dc.getRoot().getElements().length == 0){
+		if(dc.getRoot().getElements().length != 0){
 		
 			for(int i = 0; i < dc.getRoot().getElements().length; i++){
 				if(dc.getRoot().getStructure(i).isOctetString(0)){
