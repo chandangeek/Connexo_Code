@@ -23,7 +23,9 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.Link;
+import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
+import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
@@ -56,9 +58,9 @@ import com.energyict.protocol.messaging.Messaging;
  *
  */
 public class MbusDevice implements Messaging, GenericProtocol{
-	
-	private int mbusAddress	= -1;
-	private int physicalAddress = -1;
+		
+	private int mbusAddress	= -1;		// this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
+	private int physicalAddress = -1;	// this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
 	private int medium = 15;
 	
 	private String customerID;
@@ -70,8 +72,6 @@ public class MbusDevice implements Messaging, GenericProtocol{
 	
 	private IskraMx37x iskra;
 	
-	private static String ONDEMAND = "ONDEMAND";
-
 	/**
 	 * 
 	 */
@@ -83,10 +83,12 @@ public class MbusDevice implements Messaging, GenericProtocol{
 		this.customerID	= customerID;
 		this.mbus = rtu;
 		this.logger = logger;
-		setProperties(mbus.getProperties());
+		if(mbus != null){
+			setProperties(mbus.getProperties());
+		}
 	}
 
-	public MbusDevice(int mbusAddress, int phyAddress, String serial, int mbusMedium, Rtu rtu, Unit unit, Logger logger) {
+	public MbusDevice(int mbusAddress, int phyAddress, String serial, int mbusMedium, Rtu rtu, Unit unit, Logger logger) throws InvalidPropertyException, MissingPropertyException {
 		this.mbusAddress = mbusAddress;
 		this.physicalAddress = phyAddress;
 		this.customerID = serial;
@@ -94,6 +96,9 @@ public class MbusDevice implements Messaging, GenericProtocol{
 		this.mbus = rtu;
 		this.mbusUnit = unit;
 		this.logger = logger;
+		if(mbus != null){
+			setProperties(mbus.getProperties());
+		}
 	}
 	
 
@@ -102,7 +107,7 @@ public class MbusDevice implements Messaging, GenericProtocol{
 		// import profile
 		if(commProfile.getReadDemandValues()){
 			MbusProfile mp = new MbusProfile(this);
-			mp.getProfile(iskra.getMbusLoadProfile());
+			mp.getProfile(iskra.getMbusLoadProfile(getPhysicalAddress()));
 		}
 		
 		// import Daily/Monthly registers
@@ -152,12 +157,11 @@ public class MbusDevice implements Messaging, GenericProtocol{
         List theCategories = new ArrayList();
         MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
         
-        MessageSpec msgSpec = addBasicMsg("ReadOnDemand", ONDEMAND, false);
+        MessageSpec msgSpec = addBasicMsg("ReadOnDemand", RtuMessageConstant.READ_ON_DEMAND, false);
         cat.addMessageSpec(msgSpec);
-        
-//        MessageSpec msgSpec = addBasicMsg("Disconnect meter", DISCONNECT, false);
+//        msgSpec = addBasicMsg("Disconnect meter", RtuMessageConstant.DISCONNECT_LOAD, false);
 //        cat.addMessageSpec(msgSpec);
-//        msgSpec = addBasicMsg("Connect meter", CONNECT, false);
+//        msgSpec = addBasicMsg("Connect meter", RtuMessageConstant.CONNECT_LOAD, false);
 //        cat.addMessageSpec(msgSpec);
         
         theCategories.add(cat);
@@ -233,48 +237,71 @@ public class MbusDevice implements Messaging, GenericProtocol{
             String contents = msg.getContents();
             contents = contents.substring(contents.indexOf("<")+1, contents.indexOf("/>"));
             
-            boolean ondemand 	= contents.equalsIgnoreCase(ONDEMAND);
-            
-            if (ondemand){
-            	String description = 
-            		"Getting ondemand registers for MBus device with serailnumber: " + getMbus().getSerialNumber();
-            	try {
-	            	getLogger().log(Level.INFO, description);
-	            	Iterator i = mbus.getRtuType().getRtuRegisterSpecs().iterator();
-	                while (i.hasNext()) {
-	                	
-	                    RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
-	                    ObisCode oc = spec.getObisCode();
-	                    RtuRegister register = mbus.getRegister( oc );
-	                    
-	                    if (register != null){
-	                    	
-	                    	if (oc.getF() == 255){
-	                        	RegisterValue rv = iskra.readRegister(oc);
-	                        	rv.setRtuRegisterId(register.getId());
-	                        	
-	                        	MeterReadingData meterReadingData = new MeterReadingData();
-	                        	meterReadingData.add(rv);
-	                        	mbus.store(meterReadingData);
-	                        	
-	        					/*register.add(rv.getQuantity().getAmount(), rv
-	        							.getEventTime(), rv.getFromTime(), rv.getToTime(),
-	        							rv.getReadTime());*/
-	                        }
-	                    	
-	                    }
-	        			else {
-	        				String obis = oc.toString();
-	        				String msgError = "Register " + obis + " not defined on device";
-	        				getLogger().info(msgError);
-	        			}
-	                }
-	            	msg.confirm();
-            	}
-            	catch (Exception e) {
-        			fail(e, msg, description);
-            	}
-            }
+            boolean ondemand 		= contents.equalsIgnoreCase(RtuMessageConstant.READ_ON_DEMAND);
+			boolean doDisconnect 	= contents.toLowerCase().indexOf(RtuMessageConstant.DISCONNECT_LOAD.toLowerCase()) != -1;
+			boolean doConnect       = (contents.toLowerCase().indexOf(RtuMessageConstant.CONNECT_LOAD.toLowerCase()) != -1) && !doDisconnect;
+			
+            String description = "Getting ondemand registers for MBus device with serailnumber: " + getMbus().getSerialNumber();
+            try {
+				if (ondemand){
+					getLogger().log(Level.INFO, description);
+					Iterator i = mbus.getRtuType().getRtuRegisterSpecs().iterator();
+				    while (i.hasNext()) {
+				    	
+				        RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
+				        ObisCode oc = spec.getObisCode();
+				        RtuRegister register = mbus.getRegister( oc );
+				        
+				        if (register != null){
+				        	
+				        	if (oc.getF() == 255){
+				            	RegisterValue rv = iskra.readRegister(oc);
+				            	rv.setRtuRegisterId(register.getId());
+				            	
+				            	MeterReadingData meterReadingData = new MeterReadingData();
+				            	meterReadingData.add(rv);
+				            	mbus.store(meterReadingData);
+				            	
+								/*register.add(rv.getQuantity().getAmount(), rv
+										.getEventTime(), rv.getFromTime(), rv.getToTime(),
+										rv.getReadTime());*/
+				            }
+				        }
+						else {
+							String obis = oc.toString();
+							String msgError = "Register " + obis + " not defined on device";
+							getLogger().info(msgError);
+						}
+				    }
+					msg.confirm();
+				} else if(doDisconnect){
+					//TODO Test this
+					byte[] data = new byte[]{DLMSCOSEMGlobals.TYPEDESC_BOOLEAN, 0x00};
+					iskra.getCosemObjectFactory().getGenericWrite(iskra.getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode(), 2).write(data);
+					
+					//TODO Testing
+					String state = iskra.getCosemObjectFactory().getGenericRead(iskra.getMeterConfig().getMbusDisconnectControlState(getPhysicalAddress()).getObisCode(), 2).getString();
+					System.out.println(state);
+					
+					msg.confirm();
+				} else if(doConnect){
+					// TODO Test this
+					byte[] data = new byte[]{DLMSCOSEMGlobals.TYPEDESC_BOOLEAN, 0x01};
+					iskra.getCosemObjectFactory().getGenericWrite(iskra.getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode(), 2).write(data);
+
+					//TODO Testing
+					String state = iskra.getCosemObjectFactory().getGenericRead(iskra.getMeterConfig().getMbusDisconnectControlState(getPhysicalAddress()).getObisCode(), 2).getString();
+					System.out.println(state);
+					
+					msg.confirm();
+				
+				}else {
+					msg.setFailed();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				fail(e, msg, description);
+			}
 		}
 	}
 	
@@ -300,7 +327,8 @@ public class MbusDevice implements Messaging, GenericProtocol{
 	
 	public boolean isIskraMbusObisCode(ObisCode oc){
 		if ((oc.getA() == 0) && (oc.getC() == 128) && (oc.getD() == 50)){
-			if((oc.getB() >= 1) && (oc.getB() <= 4)){
+//			if((oc.getB() >= 1) && (oc.getB() <= 4)){
+			if(oc.getB() == (getPhysicalAddress()+1)){
 				if(((oc.getE() >= 0) && (oc.getE() <= 3)) ||
 						((oc.getE() >= 20) && (oc.getE() <= 25)) ||
 						((oc.getE() >= 30) && (oc.getE() <= 33))){
