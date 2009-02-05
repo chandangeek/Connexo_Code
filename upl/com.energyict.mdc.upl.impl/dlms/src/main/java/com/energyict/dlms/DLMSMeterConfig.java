@@ -128,6 +128,14 @@ public class DLMSMeterConfig {
 		return config.getLimiterSN(IOL);
 	}
 	
+	public int getPPPSetupSN() throws IOException{
+		return config.getPPPSetupSN(IOL);
+	}
+	
+	public int getGPRSModemSetupSN() throws IOException{
+		return config.getGPRSModemSetupSN(IOL);
+	}
+	
     public UniversalObject getEventLogObject() throws IOException {
        return config.getEventLogObject(IOL, manuf);    
     }
@@ -346,4 +354,5 @@ public class DLMSMeterConfig {
 	public UniversalObject getLimiter() throws IOException{
 		return config.getLimiter(IOL);
 	}
+
 }

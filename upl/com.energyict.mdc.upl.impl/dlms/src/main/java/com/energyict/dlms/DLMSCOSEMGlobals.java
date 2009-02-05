@@ -98,6 +98,8 @@ public interface DLMSCOSEMGlobals {
     final byte[] P3IMAGE_TRANSFER = {0,0,44,0,0,(byte)255};
     final byte[] DISCONNECTOR = {0,0,96,3,10,(byte)255};
     final byte[] LIMITER = {0,0,17,0,0,(byte)255};
+    final byte[] PPPSETUP = {0,0,25,3,0,(byte)255};
+    final byte[] GPRSMODEMSETUP = {0,0,25,4,0,(byte)255};
     
     //********************************************************************************************************
     // Reserved SN logical name constants, should be filled in when requesting the object list first.

@@ -42,6 +42,8 @@ public class DLMSConfig {
     final static private DLMSConfig disconnector = new DLMSConfig("",70,0,0,96,3,10,255);
     final static private DLMSConfig disconnectorScriptTable = new DLMSConfig("",9,0,0,10,0,106,255);
     final static private DLMSConfig limiter = new DLMSConfig("", 71,0,0,17,0,0,255);
+    final static private DLMSConfig pppSetup = new DLMSConfig("", 44,0,0,25,3,0,255);
+    final static private DLMSConfig gprsModemSetup = new DLMSConfig("", 45,0,0,25,4,0,255);
     
     
     final static private DLMSConfig[] configchange = {
@@ -1040,4 +1042,21 @@ public class DLMSConfig {
 		}
 		return 0;  
 	}
+
+	public int getPPPSetupSN(UniversalObject[] objectList) throws IOException{
+		if (objectList == null) throw new IOException("DLMSConfig, PPPSetup, objectlist empty!");
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(pppSetup)) return objectList[i].getBaseName();
+		}
+		return 0;  
+	}
+	
+	public int getGPRSModemSetupSN(UniversalObject[] objectList) throws IOException{
+		if (objectList == null) throw new IOException("DLMSConfig, GPRSModemSetup, objectlist empty!");
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(gprsModemSetup)) return objectList[i].getBaseName();
+		}
+		return 0;  
+	}
+
 }
