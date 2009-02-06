@@ -15,21 +15,24 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdw</artifactId>
             <version>${eiserver.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdwswing</artifactId>
             <version>${eiserver.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdwutil</artifactId>
             <version>${eiserver.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>protocolimpl</artifactId>
-            <version>8.1.18-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>axis</groupId>

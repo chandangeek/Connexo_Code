@@ -3,7 +3,7 @@
 	<groupId>com.energyict</groupId>
 	<artifactId>protocols</artifactId>
 	<packaging>pom</packaging>
-	<version>8.1.18-SNAPSHOT</version>
+	<version>8.1.17</version>
 	<name>protocols</name>
 	<dependencies>
 		<dependency>
@@ -306,7 +306,7 @@
 	</parent>
 
 	<scm>
-		<developerConnection>scm:svn:http://maven:maven@linux2/svn/labo/protocols/trunk</developerConnection>
+		<developerConnection>scm:svn:http://maven:maven@linux2/svn/labo/protocols/tags/protocols-8.1.17</developerConnection>
 	</scm>
 
 	<modules>
@@ -330,6 +330,15 @@
 					<target>1.5</target>
 				</configuration>
 			</plugin>
+			
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptors>
+                        <descriptor>assembly/assembly.xml</descriptor>
+                    </descriptors>
+                </configuration>
+            </plugin>
 		</plugins>
 		<extensions>
 			<extension>

@@ -14,6 +14,7 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdw</artifactId>
             <version>${eiserver.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
         	<groupId>serialio</groupId>
@@ -29,6 +30,7 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdwutil</artifactId>
             <version>${eiserver.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>axis</groupId>
