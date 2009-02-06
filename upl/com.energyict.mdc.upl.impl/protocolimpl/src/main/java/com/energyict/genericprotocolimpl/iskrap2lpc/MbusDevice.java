@@ -151,29 +151,30 @@ public class MbusDevice implements Messaging, GenericProtocol{
             	from = Constant.getInstance().format( mrt.getLastChannelReading(chn) );
             	if(!pc.containsDailyValues() && !pc.containsMonthlyValues()){
             		
-            		if(mrt.useParameters()){
+//            		if(mrt.useParameters()){
             			profile = mrt.getConcentrator().getLpMbus();
-            		} else {
-            			
-            			if(chn.getIntervalInSeconds() == mrt.loadProfilePeriod1){
-            				profile = "99.1.0";
-            			} else if (chn.getIntervalInSeconds() == mrt.loadProfilePeriod2){
-            				profile = "99.2.0";
-            			} else {
-            				getLogger().log(Level.SEVERE, "Interval didn't match for channel \"" + chn + "\" - ProfileInterval EIServer: " + chn.getIntervalInSeconds());
-            				throw new BusinessException("Interval didn't match");
-            			}
-            			
-            		}
+//            		} else {
+//            			
+//            			if(chn.getIntervalInSeconds() == mrt.loadProfilePeriod1){
+//            				profile = "99.1.0";
+//            			} else if (chn.getIntervalInSeconds() == mrt.loadProfilePeriod2){
+//            				profile = "99.2.0";
+//            			}
+//            			else {
+//            				getLogger().log(Level.SEVERE, "Interval didn't match for channel \"" + chn + "\" - ProfileInterval EIServer: " + chn.getIntervalInSeconds());
+//            				throw new BusinessException("Interval didn't match");
+//            			}
+//            			
+//            		}
             		
             		dataHandler.setProfileChannelIndex(i);
-                	if(mrt.TESTING){
-//                		FileReader inFile = new FileReader(Utils.class.getResource(getProfileTestName()[i]).getFile());
-//                		xml = getConcentrator().readWithStringBuffer(inFile);
-                	} else{
+//                	if(mrt.TESTING){
+////                		FileReader inFile = new FileReader(Utils.class.getResource(getProfileTestName()[i]).getFile());
+////                		xml = getConcentrator().readWithStringBuffer(inFile);
+//                	} else{
                 		getLogger().log(Level.INFO, "Retrieving profiledata from " + from + " to " + to);
                 		xml = mrt.getConnection().getMeterProfile(mrt.getMeter().getSerialNumber(), profile, register, from, to);
-                	}
+//                	}
             	}
             }
             if(!xml.equalsIgnoreCase("")){
@@ -195,27 +196,27 @@ public class MbusDevice implements Messaging, GenericProtocol{
 		String from = "";
 		String to = Constant.getInstance().format(new Date());
 		
-		if (mrt.useParameters()) {
-			
+//		if (mrt.useParameters()) {
+//			
 			daily = mrt.getConcentrator().getLpDaily();
 			monthly = mrt.getConcentrator().getLpMonthly();
-			
-		} else {
-			
-			if ( mrt.loadProfilePeriod2 == 86400 ){ 
-				daily = "99.2.0";
-			}else
-				daily = null;
-			
-			if ( (mrt.billingReadTime.getDayOfMonth().intValue() == 1) && (mrt.billingReadTime.getHour().intValue() == 0) && (mrt.billingReadTime.getYear().intValue() == 65535) && (mrt.billingReadTime.getMonth().intValue() == 255) ){
-				monthly = "98.1.0";
-				if (daily == null) daily = "98.2.0";
-			}else{
-				monthly = "98.2.0";
-				if (daily == null) daily = "98.1.0";
-			}
-			
-		}
+//			
+//		} else {
+//			
+//			if ( mrt.loadProfilePeriod2 == 86400 ){ 
+//				daily = "99.2.0";
+//			}else
+//				daily = null;
+//			
+//			if ( (mrt.billingReadTime.getDayOfMonth().intValue() == 1) && (mrt.billingReadTime.getHour().intValue() == 0) && (mrt.billingReadTime.getYear().intValue() == 65535) && (mrt.billingReadTime.getMonth().intValue() == 255) ){
+//				monthly = "98.1.0";
+//				if (daily == null) daily = "98.2.0";
+//			}else{
+//				monthly = "98.2.0";
+//				if (daily == null) daily = "98.1.0";
+//			}
+//			
+//		}
 		
 		Channel chn;
 		ProtocolChannel pc;
@@ -231,13 +232,13 @@ public class MbusDevice implements Messaging, GenericProtocol{
 				if(pc.containsDailyValues()){
 					if(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS){
 						getLogger().log(Level.INFO, "Reading Daily values with registername: " + pc.getRegister() + " from " + from + " to " + to);
-						if(mrt.TESTING){
-//		            		FileReader inFile = new FileReader(Utils.class.getResource(mrt.getBillingDaily()).getFile());
-//							FileReader inFile = new FileReader(Utils.class.getResource("/offlineFiles/iskrap2lpc/nullpointerstuff.xml").getFile());
-//		            		xml = getConcentrator().readWithStringBuffer(inFile);
-						} else {
+//						if(mrt.TESTING){
+////		            		FileReader inFile = new FileReader(Utils.class.getResource(mrt.getBillingDaily()).getFile());
+////							FileReader inFile = new FileReader(Utils.class.getResource("/offlineFiles/iskrap2lpc/nullpointerstuff.xml").getFile());
+////		            		xml = getConcentrator().readWithStringBuffer(inFile);
+//						} else {
 							xml = mrt.getConnection().getMeterProfile(mrt.getMeter().getSerialNumber(), daily, register, from, to);
-						}
+//						}
 					}
 					else
 						throw new IOException("Channelconfiguration of channel \"" + chn + "\" is different from the channelMap");
@@ -245,12 +246,12 @@ public class MbusDevice implements Messaging, GenericProtocol{
 				else if(pc.containsMonthlyValues()){
 					if(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS){
 						getLogger().log(Level.INFO, "Reading Monthly values with registername: " + pc.getRegister()  + " from " + from + " to " + to);
-						if(mrt.TESTING){
-//		            		FileReader inFile = new FileReader(Utils.class.getResource(mrt.getBillingMonthly()).getFile());
-//		            		xml = getConcentrator().readWithStringBuffer(inFile);
-						} else {
+//						if(mrt.TESTING){
+////		            		FileReader inFile = new FileReader(Utils.class.getResource(mrt.getBillingMonthly()).getFile());
+////		            		xml = getConcentrator().readWithStringBuffer(inFile);
+//						} else {
 							xml = mrt.getConnection().getMeterProfile(mrt.getMeter().getSerialNumber(), monthly, register, from, to);
-						}
+//						}
 					}
 					else
 						throw new IOException("Channelconfiguration of channel \"" + chn + "\" is different from the channelMap");
@@ -409,10 +410,10 @@ public class MbusDevice implements Messaging, GenericProtocol{
         
         MessageSpec msgSpec = addBasicMsg("ReadOnDemand", RtuMessageConstant.READ_ON_DEMAND, false);
         cat.addMessageSpec(msgSpec);
-        msgSpec = addBasicMsg("Disconnect meter", RtuMessageConstant.DISCONNECT_LOAD, false);
-        cat.addMessageSpec(msgSpec);
-        msgSpec = addBasicMsg("Connect meter", RtuMessageConstant.CONNECT_LOAD, false);
-        cat.addMessageSpec(msgSpec);
+//        msgSpec = addBasicMsg("Disconnect meter", RtuMessageConstant.DISCONNECT_LOAD, false);
+//        cat.addMessageSpec(msgSpec);
+//        msgSpec = addBasicMsg("Connect meter", RtuMessageConstant.CONNECT_LOAD, false);
+//        cat.addMessageSpec(msgSpec);
         
         theCategories.add(cat);
         

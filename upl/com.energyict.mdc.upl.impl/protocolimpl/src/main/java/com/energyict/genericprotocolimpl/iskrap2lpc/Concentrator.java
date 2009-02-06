@@ -136,14 +136,14 @@ public class Concentrator implements Messaging, GenericProtocol {
             		meters = concentrator.getDownstreamRtus();
             		meters = collectSerialsFromRtuList(meters);
             	}
-            	/** use the auto discovery */ 
+            	/** use the auto discovery - which means create all the meters if they don't exist */ 
             	else{
             		/** Only when you want to read a profile or meter registers */
             		if(communicationProfile.getReadMeterReadings()||communicationProfile.getReadDemandValues()){
             			meterList = getConnection().getMetersList();
             			meters = collectSerials(meterList);
             		}
-            		else{
+            		else{	/** But if you only want to write the clock or send messages, use the downStreamRtu's */
             			meters = concentrator.getDownstreamRtus();		// returns a list with RTU's
             			meters = collectSerialsFromRtuList(meters);		// returns a list with RTU serialnumbers
             		}
@@ -326,8 +326,6 @@ public class Concentrator implements Messaging, GenericProtocol {
         try {
             
             MeterReadTransaction mrt = new MeterReadTransaction(this, concentrator, serial, communicationProfile);
-//            
-//            Environment.getDefault().execute(mrt);
             mrt.doExecute();
             
         } catch (BusinessException thrown) {
