@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>protocolimpl</artifactId>
-            <version>8.1.16-SNAPSHOT</version>
+            <version>8.1.17-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>axis</groupId>
