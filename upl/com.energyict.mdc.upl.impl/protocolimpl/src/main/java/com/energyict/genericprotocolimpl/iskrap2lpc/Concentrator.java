@@ -520,7 +520,7 @@ public class Concentrator implements Messaging, GenericProtocol {
             String d = Constant.getInstance().getDateFormatFixed().format(now);
             
             getConnection().setConcentratorSystemTime(d);
-            getConnection().timeSync();
+//            getConnection().timeSync();
             
         }
         
