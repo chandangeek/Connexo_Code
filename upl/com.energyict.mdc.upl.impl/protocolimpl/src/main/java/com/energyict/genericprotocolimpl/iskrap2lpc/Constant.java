@@ -113,6 +113,7 @@ public class Constant {
     final static ObisCode dlcRepeaterMode = ObisCode.fromString("0.0.128.0.1.255");
     final static ObisCode dlcCarrierFrequency = ObisCode.fromString("0.0.128.0.2.255");
     
+    final static ObisCode valveControl = ObisCode.fromString("0.0.128.30.30.255"); 
     final static ObisCode valveState = ObisCode.fromString("0.0.128.30.31.255");
     
     private SimpleDateFormat fixedDateFormat;
