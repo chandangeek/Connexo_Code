@@ -74,7 +74,6 @@ class XmlHandler extends DefaultHandler {
     private final static String PROFILE = "Profile";
     private final static String REGISTER = "Register";
     private final static String EVENT = "Event";
-    private final static String ERROR = "Error";
     private final static String POWER_EVENT = "PowerEvent";
     private final static String METER_RESULTS = "MeterResults";
     private final static String METER_STATUS = "MeterStatus";
@@ -115,8 +114,7 @@ class XmlHandler extends DefaultHandler {
     private List eventList = new ArrayList();
 	private boolean checkOndemands;
 	private Unit channelUnit = null;
-	private boolean profileNotComplete = true;
-	private Date lastAddedDate;
+	
     
     public XmlHandler(Logger logger, ProtocolChannelMap channelMap) {
         this.logger = logger;
@@ -148,17 +146,6 @@ class XmlHandler extends DefaultHandler {
         if(ACTIVITY_CALENDAR.equals(qName)){
         	handleActivityCalendar(attrbs);
         }
-        if(ERROR.equals(qName)){
-        	profileNotComplete = false;
-        }
-    }
-    
-    public boolean isProfileComplete(){
-    	return profileNotComplete;
-    }
-    
-    public void setProfileComplete(boolean state){
-    	this.profileNotComplete = state;
     }
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
@@ -276,7 +263,6 @@ class XmlHandler extends DefaultHandler {
     				int pStatus = Integer.parseInt(statusString);
     				
     				profile.add(time, value, intervalStatus, pStatus);
-    				lastAddedDate = time;
     			}
     		} catch (ParseException e) {
     			logger.log(Level.SEVERE, e.getMessage(), e);
@@ -284,10 +270,6 @@ class XmlHandler extends DefaultHandler {
     			throw new ApplicationException(e);
     		} 
     	}
-    }
-    
-    public Date getLastAddedDate(){
-    	return this.lastAddedDate;
     }
     
     private void handleStartEvent(Attributes attrbs) {

@@ -322,7 +322,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     
     /** Import a single meter */
     private void handleMeter( Rtu concentrator, String serial ) {
-         
+        
         try {
             
             MeterReadTransaction mrt = new MeterReadTransaction(this, concentrator, serial, communicationProfile);
@@ -520,7 +520,7 @@ public class Concentrator implements Messaging, GenericProtocol {
             String d = Constant.getInstance().getDateFormatFixed().format(now);
             
             getConnection().setConcentratorSystemTime(d);
-//            getConnection().timeSync();
+            getConnection().timeSync();
             
         }
         

@@ -42,7 +42,6 @@ import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
@@ -88,7 +87,7 @@ public class MbusDevice implements Messaging, GenericProtocol{
 	public MbusDevice() {
 	}
 
-	public MbusDevice(long mbusAddress, int phyAddress, String serial, int mbusMedium, Rtu rtu, Unit unit, Logger logger) throws SQLException, BusinessException {
+	public MbusDevice(long mbusAddress, int phyAddress, String serial, int mbusMedium, Rtu rtu, Unit unit, Logger logger) {
 		this.mbusAddress = mbusAddress;
 		this.physicalAddress = phyAddress;
 		this.customerID = serial;
@@ -96,7 +95,6 @@ public class MbusDevice implements Messaging, GenericProtocol{
 		this.mbus = rtu;
 		this.mbusUnit = unit;
 		this.logger = logger;
-		updateNodeAddress();
 	}
 
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
@@ -121,7 +119,7 @@ public class MbusDevice implements Messaging, GenericProtocol{
 			// send RtuMessages
 			if(commProfile.getSendRtuMessage()){
 				dataHandler = initDatahandler();
-				if ( getRtu().getPendingMessages().size() != 0 ){
+				if ( getRtu().getMessages().size() != 0 ){
     				sendMeterMessages(mrt.getMeter());
     			}
 			}
@@ -286,9 +284,11 @@ public class MbusDevice implements Messaging, GenericProtocol{
 			
 			try {
 				if(doReadOnDemand){
+					
 					dataHandler = initDatahandler();
 					List registerList = new ArrayList();
 					Iterator it = getRtu().getRtuType().getRtuRegisterSpecs().iterator();
+					
 					while(it.hasNext()){
 						RtuRegisterSpec spec = (RtuRegisterSpec) it.next();
 						ObisCode oc = ObisCode.fromString(modifyObisCodeToChannelNumber(spec.getRegisterMapping().getObisCode().toString()));
@@ -303,6 +303,7 @@ public class MbusDevice implements Messaging, GenericProtocol{
 							dataHandler.setProfileDuration(-1);
 						}
 					}
+					
 					String registers[] = (String[])registerList.toArray(new String[0]);
 					String r = mrt.getConnection().getMeterOnDemandResultsList(eMeter.toString(), registers);
 					
@@ -311,34 +312,16 @@ public class MbusDevice implements Messaging, GenericProtocol{
 					
 					msg.confirm();
 					getLogger().log(Level.INFO, "Current message " + contents + " has finished.");
-					
 				} else if(doDisconnect){
-					
-					// BASIC Concept: I guess ... 
-					// Set the valveControl to a specific mbusAddress, and then set the valve state to open or closed.
-					
 					//TODO test this, physicalAddress can also be mbusAddress
 					String[] times = mrt.prepareCosemGetRequest();
-					ObisCode oc = Constant.valveControl;
+					ObisCode oc = Constant.valveState;
 					ObisCode instance = ObisCode.fromString(oc.getA()+"."+getPhysicalAddress()+"."+oc.getC()+
 							"."+oc.getD()+"."+oc.getE()+"."+oc.getF());
-					byte[] b = new byte[]{DLMSCOSEMGlobals.TYPEDESC_UNSIGNED, 0x1};
+					byte[] b = new byte[]{DLMSCOSEMGlobals.TYPEDESC_BOOLEAN, 0x00};
 					mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], instance.toString(), new UnsignedInt(1), new UnsignedInt(2), b);
-//					byte[] state = mrt.getConnection().cosemGetRequest(eMeter.toString(), times[0], times[1], instance.toString(), new UnsignedInt(1), new UnsignedInt(2));
-
-					// TODO Testing
-					times = mrt.prepareCosemGetRequest();
-					oc = Constant.valveState;
-					instance = ObisCode.fromString(oc.getA()+"."+getPhysicalAddress()+"."+oc.getC()+
-							"."+oc.getD()+"."+oc.getE()+"."+oc.getF());
-					b = new byte[]{DLMSCOSEMGlobals.TYPEDESC_UNSIGNED, 0x00};
-					mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], instance.toString(), new UnsignedInt(1), new UnsignedInt(2), b);
-					byte[] state = mrt.getConnection().cosemGetRequest(eMeter.toString(), times[0], times[1], instance.toString(), new UnsignedInt(1), new UnsignedInt(2));
-					System.out.println(state[0] + " " + state[1]);
-					
 					msg.confirm();
 					getLogger().log(Level.INFO, "Current message" + contents + " has finished.");
-					
 				} else if(doConnect){
 					//TODO test this, physicalAddress can also be mbusAddress
 					String[] times = mrt.prepareCosemGetRequest();
@@ -347,15 +330,6 @@ public class MbusDevice implements Messaging, GenericProtocol{
 							"."+oc.getD()+"."+oc.getE()+"."+oc.getF());
 					byte[] b = new byte[]{DLMSCOSEMGlobals.TYPEDESC_BOOLEAN, 0x01};
 					mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], instance.toString(), new UnsignedInt(1), new UnsignedInt(2), b);
-					
-					// TODO Testing
-					times = mrt.prepareCosemGetRequest();
-					oc = Constant.valveState;
-					instance = ObisCode.fromString(oc.getA()+"."+getPhysicalAddress()+"."+oc.getC()+
-							"."+oc.getD()+"."+oc.getE()+"."+oc.getF());
-					byte[] state = mrt.getConnection().cosemGetRequest(eMeter.toString(), times[0], times[1], instance.toString(), new UnsignedInt(1), new UnsignedInt(2));
-					System.out.println(state[0] + " " + state[1]);
-					
 					msg.confirm();
 					getLogger().log(Level.INFO, "Current message" + contents + " has finished.");
 				} else {
@@ -562,19 +536,5 @@ public class MbusDevice implements Messaging, GenericProtocol{
 
 	public void setMeterReadTransaction(MeterReadTransaction meterReadTransaction) {
 		this.mrt = meterReadTransaction;
-	}
-	
-	private void updateNodeAddress() throws SQLException, BusinessException{
-		RtuShadow shadow = mbus.getShadow();
-		shadow.setNodeAddress(Integer.toString(this.physicalAddress));
-		try {
-			mbus.update(shadow);
-		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new SQLException("Could not update NodeAddress of Mbus device.");
-		} catch (BusinessException e) {
-			e.printStackTrace();
-			throw new BusinessException("Could not update NodeAddress of Mbus device.");
-		}
 	}
 }
