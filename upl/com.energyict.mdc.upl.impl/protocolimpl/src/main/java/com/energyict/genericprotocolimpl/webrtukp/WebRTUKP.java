@@ -102,8 +102,6 @@ import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.messaging.Messaging;
-import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocol.messaging.TimeOfUseMessaging;
 import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.HDLCConnection;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
@@ -125,7 +123,7 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
  * GNA |02022009| Added the forceClock functionality
  */
 
-public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, TimeOfUseMessaging{
+public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	
 	private boolean DEBUG = true; // TODO set it to false if you release
 
@@ -1565,22 +1563,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, TimeO
 
 	public String writeValue(MessageValue msgValue) {
 		return msgValue.getValue();
-	}
-
-	public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
-		return new TimeOfUseMessageBuilder();
-	}
-
-	public boolean needsName() {
-		return true;
-	}
-
-	public boolean supportsCodeTables() {
-		return true;
-	}
-
-	public boolean supportsUserFiles() {
-		return true;
 	}
 	
 	/** EIServer 7.5 Cache mechanism, only the DLMSCache is in that database, the 8.x has a EISDEVICECACHE ... */
