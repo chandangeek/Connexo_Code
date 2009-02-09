@@ -35,7 +35,8 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
     List captureObjects=null; // of type CaptureObject
     int capturePeriod=-1;
     int profileEntries=-1;
-
+    int entriesInUse=-1;
+    
     byte[] capturedObjectsResponseData=null;
     byte[] bufferResponseData=null;
     
@@ -191,6 +192,13 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
         return profileEntries;
     }
  
+    public int getEntriesInUse() throws IOException {
+        if (entriesInUse==-1) {
+        	entriesInUse = (int)getLongData(PROFILE_GENERIC_ENTRIES_IN_USE);
+         }
+         return entriesInUse;
+	}
+    
     protected int getClassId() {
         return CLASSID;
     }
