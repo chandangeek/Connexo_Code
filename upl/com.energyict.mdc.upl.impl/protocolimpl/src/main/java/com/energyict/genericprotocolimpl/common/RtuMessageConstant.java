@@ -19,7 +19,13 @@ public class RtuMessageConstant {
     public final static String READ_ON_DEMAND = "onDemand";
     
     /** RtuMessage tag for tou schedule */
-    public final static String  TOU_SCHEDULE = "UserFile ID of tariff program";
+    public final static String TOU_SCHEDULE = "UserFile ID of tariff program";
+    public final static String TOU_ACTIVITY_CAL = "Activity_Calendar";
+    public final static String TOU_ACTIVITY_NAME = "Calendar_Name";
+    public final static String TOU_ACTIVITY_CODE_TABLE = "Code_Table";
+    public final static String TOU_ACTIVITY_USER_FILE = "Userfile";
+    public final static String TOU_ACTIVITY_DATE = "Activation_Date";
+    
     
     /** RtuMessage tag for threshold parameters */
     public final static String THRESHOLD_PARAMETERS = "thresholdParameters";

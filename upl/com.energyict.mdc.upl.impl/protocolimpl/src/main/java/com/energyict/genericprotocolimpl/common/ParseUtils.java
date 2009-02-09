@@ -16,10 +16,12 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.*;
+
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 
 /**
  *
@@ -201,6 +203,17 @@ public class ParseUtils {
 			throw new IOException(e.getMessage());
 		}
 	}
+	
+    public static void validateProfileData(ProfileData profileData, Date date) {
+        Iterator it = profileData.getIntervalDatas().iterator();
+        while (it.hasNext()) {
+            IntervalData ivdt = (IntervalData) it.next();
+            if (ivdt.getEndTime().after(date)) {
+                //System.out.println("KV_DEBUG> remove "+ivdt);
+                it.remove();
+            }
+        }
+    }
 	
 	public static void main(String[] args){
 		String str = "99.1.0";

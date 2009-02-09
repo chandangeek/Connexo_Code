@@ -16,6 +16,18 @@ import com.energyict.mdw.coreimpl.RtuImpl;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
 
+	/**
+ 	 * It is possible to store three different objects:
+	 * If you want to store:
+	 * 	- profileData -> use the RTU as the key
+	 * 	- channelData -> use the Channel as the key
+	 *  - registerData -> use the RtuRegister as the key
+	 *  Changes:
+	 *  GNA|09022009| You can use profileData as the key because you can only have the same key once. If you store the 15min values with the RTU and the daily/monthly values witht the
+	 * 	RTU then you overwrite the previous value of it. ProfileData will be unique
+	 * @author gna
+	 *
+	 */
 public class StoreObject implements Transaction {
 	private HashMap storeObjects;
 	
@@ -35,6 +47,8 @@ public class StoreObject implements Transaction {
 				(((Channel)key).getRtu()).store((ProfileData) entry.getValue(), false);
 			} else if(key instanceof RtuRegisterImpl){
 				((RtuRegister) key).store((RegisterValue) entry.getValue());
+			} else if(key instanceof ProfileData){
+				((Rtu)entry.getValue()).store((ProfileData)key, false);
 			}
 		}
 		
@@ -42,15 +56,26 @@ public class StoreObject implements Transaction {
 	}
 	
 	/**
-	 * It is possible to store three different objects:
-	 * If you want to store:
-	 * 	- profileData -> use the RTU as the key
-	 * 	- channelData -> use the Channel as the key
-	 *  - registerData -> use the RtuRegister as the key
 	 * @param key
 	 * @param value
 	 */
 	public void add(Object key, Object value){
 		storeObjects.put(key, value);
+	}
+	
+	public void add(Rtu rtu, ProfileData pd){
+		storeObjects.put(rtu, pd);
+	}
+	
+	public void add(Channel channel, ProfileData pd){
+		storeObjects.put(channel, pd);
+	}
+	
+	public void add(RtuRegisterImpl registerImpl, RegisterValue registerValue){
+		storeObjects.put(registerImpl, registerValue);
+	}
+	
+	public void add(ProfileData pd, Rtu rtu){
+		storeObjects.put(pd, rtu);
 	}
 }
