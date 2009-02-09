@@ -1,11 +1,7 @@
 package com.energyict.protocolimpl.dlms.elster.ek2xx;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProtocolUtils;
-import com.sun.xml.internal.bind.v2.util.FatalAdapter;
 
 public class EK2xxEvents {
 

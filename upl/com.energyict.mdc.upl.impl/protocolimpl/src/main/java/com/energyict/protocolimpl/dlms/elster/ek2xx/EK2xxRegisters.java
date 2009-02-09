@@ -5,7 +5,6 @@ import java.util.Map;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterInfo;
 
 public class EK2xxRegisters {
 

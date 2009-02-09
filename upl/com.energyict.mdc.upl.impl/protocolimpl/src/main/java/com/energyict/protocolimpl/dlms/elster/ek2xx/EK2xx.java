@@ -25,7 +25,6 @@ import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
@@ -53,7 +52,6 @@ import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.HDLCConnection;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
-import com.energyict.protocolimpl.dlms.flex.Logbook;
 
 public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, RegisterProtocol {
 	
