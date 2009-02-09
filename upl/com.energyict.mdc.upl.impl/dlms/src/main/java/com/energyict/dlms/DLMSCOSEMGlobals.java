@@ -135,6 +135,7 @@ public interface DLMSCOSEMGlobals {
     
     // PROFILE_GENERIC
     final short PROFILE_GENERIC_CAPTURE_PERIOD=(short)24; // attr4
+    final short	PROFILE_GENERIC_ENTRIES_IN_USE=(short)48; // attr7
     final short PROFILE_GENERIC_PROFILE_ENTRIES=(short)56; // attr8
     final short PROFILE_GENERIC_CAPTURE_OBJECTS=(short)16; // attr3
     final short PROFILE_GENERIC_BUFFER=(short)8; // attr2
