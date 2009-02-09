@@ -906,7 +906,9 @@ public class HDLCConnection extends Connection implements DLMSConnection {
                     lastHDLCFrame = hdlcFrame;
                     
                     // Send RR frame
-                    if (NR == hdlcFrame.NS) receiveBuffer.addArray(hdlcFrame.InformationBuffer);
+                    if (NR == hdlcFrame.NS) {
+                    	if (hdlcFrame.InformationBuffer != null) receiveBuffer.addArray(hdlcFrame.InformationBuffer);
+                    }
                     else {
                         if (DEBUG >= 1) System.out.println("KV_DEBUG> NR != hdlcFrame.NS, received frame not added to receivebuffer...");
                     }
