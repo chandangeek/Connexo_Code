@@ -1,9 +1,33 @@
 package com.energyict.protocolimpl.dlms.elster.ek2xx;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProtocolUtils;
+import com.sun.xml.internal.bind.v2.util.FatalAdapter;
 
 public class EK2xxEvents {
 
+	private static final int RESTART_FLAG			= 0x00000001;	// 1
+	private static final int UNKNOWN1_FLAG			= 0x00000002;	// 2
+	private static final int DATA_RESTORED_FLAG		= 0x00000004;	// 3
+	private static final int POWERSUPPLY_FLAG		= 0x00000008;	// 4
+	private static final int DATA_ERROR_FLAG		= 0x00000010;	// 5 
+	private static final int UNKNOWN2_FLAG			= 0x00000020;	// 6
+	private static final int UNKNOWN3_FLAG			= 0x00000040;	// 7
+	private static final int SETTINGS_ERROR_FLAG	= 0x00000080;	// 8
+	private static final int BATTERY_LIVE_FLAG		= 0x00000100;	// 9
+	private static final int REPAIR_MODE_FLAG		= 0x00000200;	// 10
+	private static final int CLOCK_FLAG				= 0x00000400;	// 11
+	private static final int UNKNOWN4_FLAG			= 0x00000800;	// 12
+	private static final int DATA_TRANSMISSION_FLAG	= 0x00001000;	// 13
+	private static final int REMOTE_CLOCK_FLAG		= 0x00002000;	// 14
+	private static final int BATTERY_MODE_FLAG		= 0x00004000;	// 15
+	private static final int DIAPLAY_DST_FLAG		= 0x00008000;	// 16
+	
+//	16=The displayed time is daylight saving time
+	
 	public static String getEventDescription(int protocolCode) {
 
 		if (protocolCode == 0x00001) return "Message 1 disappears from status 1 (Alarm)";
@@ -858,4 +882,44 @@ public class EK2xxEvents {
 		return "Unknown event: 0x" + ProtocolUtils.buildStringHex(protocolCode, 8);
 	}
 
+	public static String getStatusDescription(int statusCode) {
+		int code = statusCode >> 8; 
+		String returnValue = "";
+		
+		if ((code & RESTART_FLAG) != 0) 			returnValue += "Restart of the device. ";
+		if ((code & DATA_RESTORED_FLAG) != 0) 		returnValue += "Data (clock, counter reading) has been restored. ";
+		if ((code & POWERSUPPLY_FLAG) != 0) 		returnValue += "Internal power supply too less. ";
+		if ((code & DATA_ERROR_FLAG) != 0) 			returnValue += "Fatal data error. ";
+		if ((code & SETTINGS_ERROR_FLAG) != 0) 		returnValue += "Settings error. ";
+		if ((code & BATTERY_LIVE_FLAG) != 0) 		returnValue += "Battery life time end. ";
+		if ((code & REPAIR_MODE_FLAG) != 0) 		returnValue += "Repair mode switched on. ";
+		if ((code & CLOCK_FLAG) != 0) 				returnValue += "Clock not justified. ";
+		if ((code & DATA_TRANSMISSION_FLAG) != 0) 	returnValue += "Data transmission running. ";
+		if ((code & REMOTE_CLOCK_FLAG) != 0) 		returnValue += "Remote clock setting active. ";
+		if ((code & BATTERY_MODE_FLAG) != 0) 		returnValue += "Device in battery powered mode. ";
+		if ((code & DIAPLAY_DST_FLAG) != 0) 		returnValue += "The displayed time is daylight saving time. ";
+		
+		return returnValue;
+	}
+	
+	public static int getEiIntervalStatus(int statusCode) {
+		int code = statusCode >> 8; 
+		int returnCode = IntervalData.OK;
+		
+		if ((code & RESTART_FLAG) != 0) 			returnCode |= IntervalData.POWERUP | IntervalData.POWERDOWN;
+		if ((code & DATA_RESTORED_FLAG) != 0) 		returnCode |= IntervalData.DEVICE_ERROR;
+		if ((code & POWERSUPPLY_FLAG) != 0) 		returnCode |= IntervalData.BATTERY_LOW;
+		if ((code & DATA_ERROR_FLAG) != 0) 			returnCode |= IntervalData.CORRUPTED;
+		if ((code & SETTINGS_ERROR_FLAG) != 0) 		returnCode |= IntervalData.DEVICE_ERROR;
+		if ((code & BATTERY_LIVE_FLAG) != 0) 		returnCode |= IntervalData.BATTERY_LOW;
+		if ((code & REPAIR_MODE_FLAG) != 0) 		returnCode |= IntervalData.OTHER;
+		if ((code & CLOCK_FLAG) != 0) 				returnCode |= IntervalData.BADTIME;
+//		if ((code & DATA_TRANSMISSION_FLAG) != 0) 	returnCode |= IntervalData.OTHER;
+		if ((code & REMOTE_CLOCK_FLAG) != 0) 		returnCode |= IntervalData.SHORTLONG;
+		if ((code & BATTERY_MODE_FLAG) != 0) 		returnCode |= IntervalData.PHASEFAILURE;
+//		if ((code & DIAPLAY_DST_FLAG) != 0) 		returnCode |= IntervalData.OTHER;
+
+		return returnCode;
+	}
+	
 }

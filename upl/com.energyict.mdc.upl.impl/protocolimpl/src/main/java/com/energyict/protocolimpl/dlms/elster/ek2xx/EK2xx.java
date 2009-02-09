@@ -3,7 +3,6 @@ package com.energyict.protocolimpl.dlms.elster.ek2xx;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -17,16 +16,44 @@ import java.util.logging.Logger;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.*;
-import com.energyict.dlms.cosem.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.dlms.*;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.dlms.CapturedObjects;
+import com.energyict.protocolimpl.dlms.DLMSCache;
+import com.energyict.protocolimpl.dlms.HDLCConnection;
+import com.energyict.protocolimpl.dlms.RtuDLMS;
+import com.energyict.protocolimpl.dlms.RtuDLMSCache;
+import com.energyict.protocolimpl.dlms.flex.Logbook;
 
 public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, RegisterProtocol {
 	
@@ -51,6 +78,7 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
     private int iInterval=-1;
     private int iNROfIntervals=-1;
     private int extendedLogging;
+    private int profileInterval = -1;
     
     //private boolean boolAbort=false;
     
@@ -66,7 +94,9 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
     private DLMSMeterConfig meterConfig 	= null;
     private EK2xxAarq ek2xxAarq 			= null;
     private EK2xxRegisters ek2xxRegisters	= null;
-    
+    private EK2xxProfile ek2xxProfile		= null;
+    private int numberOfChannels 			= -1;
+
     // Added for MeterProtocol interface implementation
     private Logger logger=null;
     private TimeZone timeZone=null;
@@ -75,10 +105,8 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
     // filled in when getTime is invoked!
     private int dstFlag; // -1=unknown, 0=not set, 1=set
     int addressingMode;
-    int connectionMode;        
+    int connectionMode;
 
-	
-	
 	/*
 	 * Constructors
 	 */
@@ -87,6 +115,7 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
 		this.meterConfig = DLMSMeterConfig.getInstance(getDeviceID());
 		this.ek2xxAarq = new EK2xxAarq(this);
 		this.ek2xxRegisters = new EK2xxRegisters();
+		this.ek2xxProfile = new EK2xxProfile(this);
 	}
 
 	/*
@@ -95,6 +124,10 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
 
 	private String getDeviceID() {
 		return DEVICE_ID;
+	}
+	
+	private EK2xxProfile getEk2xxProfile() {
+		return ek2xxProfile;
 	}
 	
 	public EK2xxRegisters getEk2xxRegisters() {
@@ -157,15 +190,21 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
             throw new InvalidPropertyException("EK2xx, validateProperties, NumberFormatException, "+e.getMessage());
         }
     }
-
-	public int getNumberOfChannels() throws UnsupportedException, IOException {
-		return 1;
-	}
 	
 	public int getProfileInterval() throws UnsupportedException, IOException {
-		return 1800;
+		if (this.profileInterval == -1) {
+			this.profileInterval = (int) (getCosemObjectFactory().getData(EK2xxRegisters.PROFILE_INTERVAL).getValue() & 0xEFFFFFFF);
+		}
+		return profileInterval;
 	}
 	
+    public int getNumberOfChannels() throws UnsupportedException, IOException {
+        if (numberOfChannels == -1) {
+            numberOfChannels = getCapturedObjects().getNROfChannels();
+        }
+        return numberOfChannels;
+    } // public int getNumberOfChannels() throws IOException
+
 	public void disconnect() throws IOException {
         try {
             if (getDLMSConnection() != null) getDLMSConnection().disconnectMAC();
@@ -222,21 +261,44 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
         meterConfig.setInstantiatedObjectList(getCosemObjectFactory().getAssociationSN().getBuffer());
     } // public void requestObjectList() throws IOException
 
-    protected String getRegistersInfo(int extendedLogging) throws IOException {
+    protected String getRegistersInfo(int extendedLogging) {
         StringBuffer strBuff = new StringBuffer();
+        String regInfo = "";
         if (extendedLogging < 1) return "";
 
         try {
-			Iterator it;
-			        
 			strBuff.append("********************* All instantiated objects in the meter *********************\n");
 			for (int i=0;i<getMeterConfig().getInstantiatedObjectList().length;i++) {
 			    UniversalObject uo = getMeterConfig().getInstantiatedObjectList()[i];
-			    strBuff.append(uo.getObisCode().toString()+" "+uo.getObisCode().getDescription()+"\n");
+			    ObisCode obis = uo.getObisCode();
+				regInfo = obis.toString() + " = " + translateRegister(obis).toString();
+				strBuff.append(regInfo + "\n");
 			}
 			strBuff.append("*********************************************************************************\n");
-			
-		} catch (Exception e) {
+			for (int i=0;i<getMeterConfig().getInstantiatedObjectList().length;i++) {
+			    UniversalObject uo = getMeterConfig().getInstantiatedObjectList()[i];
+			    ObisCode obis = uo.getObisCode();
+			    if (getEk2xxRegisters().isProfileObject(obis)) {
+			    	ProfileGeneric profile = getCosemObjectFactory().getProfileGeneric(obis);
+			    	
+			    	strBuff.append(
+			    			"profile generic = " + profile.toString() + "\n"	+
+			    			"\t" + "obisCode = " + obis.toString() + "\n" +
+			    			"\t" + "getCapturePeriod = " + profile.getCapturePeriod() + "\n" +
+			    			"\t" + "getNumberOfProfileChannels = " + profile.getNumberOfProfileChannels() + "\n" +
+			    			"\t" + "getProfileEntries = " + profile.getProfileEntries() + "\n" +
+			    			"\t" + "getResetCounter = " + profile.getResetCounter() + "\n" +
+			    			"\t" + "getScalerUnit = " + profile.getScalerUnit() + "\n" +
+			    			"\t" + "containsCapturedObjects = " + profile.containsCapturedObjects() + "\n"+
+							"\t" + "getEntriesInUse = " + profile.getEntriesInUse() + "\n"
+
+			    	);
+			    	
+			    }
+			}
+			strBuff.append("*********************************************************************************\n\n");
+
+        } catch (Exception e) {
 			e.printStackTrace();
 		}
         
@@ -258,8 +320,7 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
 	}
     
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
-        UniversalObject uo = meterConfig.getVersionObject();
-        return getCosemObjectFactory().getGenericRead(uo.getBaseName(),uo.getValueAttributeOffset()).getString();
+        return getCosemObjectFactory().getData(EK2xxRegisters.SOFTWARE_VERSION).getString();
 	}
 
 	public Quantity getMeterReading(int channelId) throws UnsupportedException,	IOException {
@@ -271,17 +332,89 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
 	}
 
 	public ProfileData getProfileData(boolean includeEvents) throws IOException {
-		throw new UnsupportedException("getProfileData() not suported!");
+        Calendar calendar = Calendar.getInstance(getTimeZone());
+        calendar.add(Calendar.MONTH,-2);
+        return getProfileData(calendar.getTime(),includeEvents);
 	}
 
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-		throw new UnsupportedException("getProfileData() not suported!");
+		Calendar calendar = Calendar.getInstance(getTimeZone());
+		return getProfileData(lastReading, calendar.getTime(), includeEvents);
 	}
 
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
-		throw new UnsupportedException("getProfileData() not suported!");
+		Date now = new Date();
+		if (to.compareTo(now) >= 0) {
+			System.out.println("now = " + now);
+			System.out.println("now = " + to);
+			to = now; 
+		}
+		
+		List dataContainers = new ArrayList(0);
+		ProfileData profileData = new ProfileData();
+		DataContainer dc;
+		Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
+		Calendar toCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
+		Calendar fromDate_ptr = ProtocolUtils.getCleanCalendar(getTimeZone());
+		Calendar toDate_ptr = ProtocolUtils.getCleanCalendar(getTimeZone());
+		Date profileDate = null;
+		boolean lastRead = false;
+		boolean dataReceived = false;
+		
+		ek2xxProfile.setGenerateEvents(includeEvents);
+		
+		fromCalendar.setTime(from);
+		toCalendar.setTime(to);
+		
+		toDate_ptr.setTime(toCalendar.getTime());
+		fromDate_ptr.setTime(toCalendar.getTime());
+
+		do {
+			fromDate_ptr.add(Calendar.HOUR, -24);
+			if (fromDate_ptr.getTime().compareTo(fromCalendar.getTime()) <= 0) fromDate_ptr.setTime(fromCalendar.getTime());
+
+			if (DEBUG >= 1) System.out.println(" ################ fromDate_ptr = " + fromDate_ptr.getTime().toString());
+			if (DEBUG >= 1) System.out.println(" ################ toDate_ptr   = " + toDate_ptr.getTime().toString());
+			if (DEBUG >= 1) System.out.println(" ################ fromCalendar = " + fromCalendar.getTime().toString());
+			if (DEBUG >= 1) System.out.println(" ################ toCalendar   = " + toCalendar.getTime().toString());
+
+			dc = getCosemObjectFactory().getProfileGeneric(EK2xxRegisters.PROFILE).getBuffer(fromDate_ptr, toDate_ptr);
+			profileDate = ek2xxProfile.getDateFromDataContainer(dc);
+			
+			System.out.println(" ####################################### profileDate = " + profileDate);
+			
+			if (profileDate == null) {
+				if (dataReceived == true) lastRead = true;
+			} else {
+				System.out.println(" ####################################### profileDate = " + profileDate);
+				dataContainers.add(dc);
+				dataReceived = true;	
+			}
+
+			toDate_ptr.setTime(fromDate_ptr.getTime());
+
+		} while ((fromDate_ptr.getTime().compareTo(fromCalendar.getTime()) > 0 ) && !lastRead);
+
+		ek2xxProfile.parseDataContainers(dataContainers);
+		profileData.setChannelInfos(ek2xxProfile.getChannelInfos());
+		profileData.getIntervalDatas().addAll(ek2xxProfile.getIntervalDatas());
+
+		if (includeEvents){
+			List meterEvents = ek2xxProfile.getMeterEvents();
+			meterEvents = ProtocolUtils.checkOnOverlappingEvents(meterEvents);
+			profileData.getMeterEvents().addAll(meterEvents);
+		}
+
+//		profileData.sort();
+//		if (includeEvents) profileData.applyEvents(getProfileInterval());
+		
+		return profileData;
 	}
 
+    private CapturedObjects getCapturedObjects()  throws UnsupportedException, IOException {
+        return getEk2xxProfile().getCapturedObjects();
+    } // private CapturedObjects getCapturedObjects()  throws UnsupportedException, IOException
+	
 	public String getProtocolVersion() {
 		return "$Revision: 1.0$";
 	}
@@ -291,7 +424,7 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
 	}
 
 	public Date getTime() throws IOException {
-        Clock clock = getCosemObjectFactory().getClock();
+        Clock clock = getCosemObjectFactory().getClock(EK2xxRegisters.CLOCK);
         Date date = clock.getDateTime();
         dstFlag = clock.getDstFlag();
         return date;
@@ -337,8 +470,55 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
 	}
 
 	public void setTime() throws IOException {
-		throw new UnsupportedException("setTime() not suported!");
+	       Calendar calendar=null;
+	       if (iRequestTimeZone != 0) {
+	           calendar = ProtocolUtils.getCalendar(getTimeZone());
+	       }
+	       else {
+	    	   calendar = ProtocolUtils.initCalendar(false,timeZone);
+	       }
+	       calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);           
+	       doSetTime(calendar);
+
+		//		DateTime nowDateTime = new DateTime(new Date());
+		//		getCosemObjectFactory().getClock(EK2xxRegisters.CLOCK).setTimeAttr(nowDateTime);
+		//		throw new UnsupportedException("setTime() not suported!");
 	}
+
+	private void doSetTime(Calendar calendar) throws IOException
+	{
+		byte[] byteTimeBuffer = new byte[15];
+
+		byteTimeBuffer[0]=1;
+		byteTimeBuffer[1]=TYPEDESC_OCTET_STRING;
+		byteTimeBuffer[2]=12; // length
+		byteTimeBuffer[3]=(byte)(calendar.get(calendar.YEAR) >> 8);
+		byteTimeBuffer[4]=(byte)calendar.get(calendar.YEAR);
+		byteTimeBuffer[5]=(byte)(calendar.get(calendar.MONTH)+1);
+		byteTimeBuffer[6]=(byte)calendar.get(calendar.DAY_OF_MONTH);
+		byte bDOW = (byte)calendar.get(calendar.DAY_OF_WEEK);
+		byteTimeBuffer[7]=bDOW--==1?(byte)7:bDOW;
+		byteTimeBuffer[8]=(byte)calendar.get(calendar.HOUR_OF_DAY);
+		byteTimeBuffer[9]=(byte)calendar.get(calendar.MINUTE);
+		byteTimeBuffer[10]=(byte)calendar.get(calendar.SECOND);
+		byteTimeBuffer[11]=(byte)0xFF;
+		byteTimeBuffer[12]=(byte)0x80;
+		byteTimeBuffer[13]=0x00;
+
+		if (isRequestTimeZone()) { 
+			if (dstFlag == 0) byteTimeBuffer[14]=0x00;
+				else if (dstFlag == 1) byteTimeBuffer[14]=(byte)0x80;
+				else throw new IOException("doSetTime(), dst flag is unknown! setTime() before getTime()!");
+		}
+		else {
+			if (getTimeZone().inDaylightTime(calendar.getTime())) byteTimeBuffer[14]=(byte)0x80;
+				else byteTimeBuffer[14]=0x00;
+		}
+
+		getCosemObjectFactory().getGenericWrite((short)meterConfig.getClockSN(),TIME_TIME).write(byteTimeBuffer);
+
+	} // private void doSetTime(Calendar calendar)
+
 
 	/*
 	 * Public methods
@@ -423,38 +603,88 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
 	}
 
 	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-		System.out.println(" ### readRegister(ObisCode obisCode), obisCode = " + obisCode);
-		Register reg = getCosemObjectFactory().getRegister(obisCode);
-		byte[] data = getCosemObjectFactory().getData(obisCode).getData();
-		
-		System.out.println("Obiscode = " + obisCode.toString() + " data = " + ProtocolUtils.getResponseData(data));
-		
-		Date readTime = reg.getCaptureTime(); 
-		Date toTime = reg.getBillingDate();
-		Quantity value = null;
-		String text = null;
-		
-		try {
-			value = reg.getQuantityValue();
-		} catch (Exception e) {
-			text = reg.getText();
+
+		/*
+		 * Obiscode refers to an DLMS DATA OBJECT
+		 */
+		if (getEk2xxRegisters().isDataObject(obisCode)) {
+
+			Data data = getCosemObjectFactory().getData(obisCode);
+			AbstractDataType valueAttr = data.getValueAttr();
+			
+			if (DEBUG >= 1) 
+				System.out.println("ObisCode = " + obisCode + " value = " + valueAttr.toString());
+
+			if (valueAttr.isOctetString()) 
+				return new RegisterValue(obisCode, data.getString());
+			if (valueAttr.isUnsigned32()) {
+				return new RegisterValue(obisCode, data.getQuantityValue());
+			}			
+
+		}
+
+		/*
+		 *  Obiscode refers to an DLMS CLOCK OBJECT
+		 */
+		if (getEk2xxRegisters().isClockObject(obisCode)) {
+			Clock clockObject = getCosemObjectFactory().getClock(obisCode);
+			Date rtuDateTime = clockObject.getDateTime();
+			Calendar cal = ProtocolUtils.getCalendar(getTimeZone());
+			cal.setTime(rtuDateTime);
+			return new RegisterValue(obisCode, cal.getTime().toString());
 		}
 		
-		//		System.out.println(reg.toString());
-//		
-//		BigDecimal value = new BigDecimal(reg.getValue());
-//		Quantity quantity = new Quantity(value, null);
-//		
-//		Date readTime = new Date();
-		if (value != null) {
-			return new RegisterValue(obisCode, value, readTime, null, toTime, new Date());
-		} else {
-			return new RegisterValue(obisCode, text);
+		/*
+		 *  Obiscode refers to an DLMS REGISTER OBJECT
+		 */
+		if (getEk2xxRegisters().isRegisterObject(obisCode)) {
+			Register reg = getCosemObjectFactory().getRegister(obisCode);
+			Date readTime = reg.getCaptureTime(); 
+			Date toTime = reg.getBillingDate();
+			Quantity value = null;
+			String text = null;
+			
+			try {
+				value = reg.getQuantityValue();
+			} catch (Exception e) {
+				text = reg.getText();
+			}
+
+			if (value != null) {
+				return new RegisterValue(obisCode, value, readTime, null, toTime, new Date());
+			} else {
+				return new RegisterValue(obisCode, text);
+			}
+			
 		}
+
+		/*
+		 * Obiscode refers to an DLMS PROFILE GENERIC OBJECT
+		 */
+		if (getEk2xxRegisters().isProfileObject(obisCode)) {
+			ProfileGeneric pg = getCosemObjectFactory().getProfileGeneric(obisCode);
+			if (DEBUG >= 1) {
+				System.out.println(
+						"profile generic = " + pg.toString() + "\n"	+
+						"obisCode = " + obisCode.toString() + "\n" +
+						"getCapturePeriod = " + pg.getCapturePeriod() + "\n" +
+						"getNumberOfProfileChannels = " + pg.getNumberOfProfileChannels() + "\n" +
+						"getProfileEntries = " + pg.getProfileEntries() + "\n" +
+						"getResetCounter = " + pg.getResetCounter() + "\n" +
+						"getScalerUnit = " + pg.getScalerUnit() + "\n"
+				);
+			}
+		}
+		
+		throw new NoSuchRegisterException(obisCode.toString() + " is not supported.");
+
 	}
 
 	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-		return getEk2xxRegisters().getRegisterInfo(obisCode);
+		String regType = getEk2xxRegisters().getObjectType(obisCode);
+		String regName = getEk2xxRegisters().getObjectName(obisCode);
+		RegisterInfo regInfo = new RegisterInfo(regName + " - Type: " + regType);
+		return regInfo;
 	}
 
 	public void setCache(Object cacheObject) {}
