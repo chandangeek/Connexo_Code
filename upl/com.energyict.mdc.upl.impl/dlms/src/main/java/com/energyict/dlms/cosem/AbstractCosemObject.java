@@ -54,7 +54,8 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
     }
     
     protected long getLongData(int attribute) throws IOException {
-        try {
+        if (DEBUG >= 1) System.out.println("DEBUG: Entering AbstractCosemObject, getLongData(attribute)");
+    	try {
             byte[] responseData=null;
             if (objectReference.isLNReference())
                responseData = protocolLink.getDLMSConnection().sendRequest(buildGetRequest(getClassId(),objectReference.getLn(),DLMSUtils.attrSN2LN(attribute),null));
@@ -127,7 +128,8 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
     }
     
     protected byte[] getResponseData(int attribute,Calendar from,Calendar to) throws IOException {
-        try {
+        if (DEBUG >= 1) System.out.println("DEBUG: Entering AbstractCosemObject, getResponseData(attribute, from, to)");
+    	try {
             byte[] responseData=null;
             if (objectReference.isLNReference()) {
 //               System.out.println("KV_DEBUG> LN "+objectReference+", attr"+DLMSUtils.attrSN2LN(attribute)); 
@@ -153,7 +155,8 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
     }
     
     private byte[] buildReadRequest(int iObj, int iAttr, byte[] byteSelectiveBuffer) {
-        // Simple request data Array
+        if (DEBUG >= 1) System.out.println("DEBUG: Entering AbstractCosemObject, buildReadRequest(iObj, iAttr, byteSelectiveBuffer)");
+    	// Simple request data Array
         
         // KV_DEBUG
         // System.out.println("****************************** object SN: 0x"+Integer.toHexString(iObj+iAttr));
@@ -180,9 +183,11 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
                 requestData[i] = readRequestArray[i];
             for (i=READREQUEST_DATA_SIZE;i<requestData.length;i++)
                 requestData[i] = byteSelectiveBuffer[i-READREQUEST_DATA_SIZE];
+            if (DEBUG >= 1) System.out.println("DEBUG: Exiting AbstractCosemObject, buildReadRequest(iObj, iAttr, byteSelectiveBuffer)");
             return requestData;
         }
         else {
+            if (DEBUG >= 1) System.out.println("DEBUG: Exiting AbstractCosemObject, buildReadRequest(iObj, iAttr, byteSelectiveBuffer)");
             return readRequestArray;
         }
     } // protected byte[] buildReadRequest(int iObj, int iAttr, byte[] byteSelectiveBuffer)
@@ -219,7 +224,8 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
     
     
     private byte[] buildGetRequest(int classId,byte[] LN,byte bAttr, byte[] byteSelectiveBuffer) {
-        // Simple request data Array
+        if (DEBUG >= 1) System.out.println("DEBUG: Entering AbstractCosemObject, buildGetRequest(classId, LN, bAttr, byteSelectiveBuffer)");
+    	// Simple request data Array
         byte[] readRequestArray = new byte[GETREQUEST_DATA_SIZE];
         int i;
         
