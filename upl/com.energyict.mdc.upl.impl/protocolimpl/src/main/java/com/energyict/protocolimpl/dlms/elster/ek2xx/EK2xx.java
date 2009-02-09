@@ -57,7 +57,7 @@ import com.energyict.protocolimpl.dlms.flex.Logbook;
 
 public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, RegisterProtocol {
 	
-	private static final int DEBUG 			= 1;
+	private static final int DEBUG 			= 0;
 	private static final String DEVICE_ID 	= "ELS"; 
 
     protected String strID;
@@ -75,8 +75,6 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
     protected int iRequestClockObject;
     protected String nodeId;
     private String serialNumber;
-    private int iInterval=-1;
-    private int iNROfIntervals=-1;
     private int extendedLogging;
     private int profileInterval = -1;
     
@@ -86,11 +84,7 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
     CosemObjectFactory cosemObjectFactory=null;
     StoredValuesImpl storedValuesImpl=null;
     
-    // lazy initializing
-    private int iNumberOfChannels=-1;
-    private int iMeterTimeZoneOffset=255;
-    private int iConfigProgramChange=-1;
-    
+    // lazy initializing    
     private DLMSMeterConfig meterConfig 	= null;
     private EK2xxAarq ek2xxAarq 			= null;
     private EK2xxRegisters ek2xxRegisters	= null;
@@ -130,11 +124,11 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
 		return ek2xxProfile;
 	}
 	
-	public EK2xxRegisters getEk2xxRegisters() {
+	 EK2xxRegisters getEk2xxRegisters() {
 		return ek2xxRegisters;
 	}
 	
-    public void requestSAP() throws IOException {
+    private void requestSAP() throws IOException {
         String devID =  (String)getCosemObjectFactory().getSAPAssignment().getLogicalDeviceNames().get(0);
         if ((strID != null) && ("".compareTo(strID) != 0)) {
             if (strID.compareTo(devID) != 0) {
@@ -174,8 +168,8 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
             iRequestTimeZone=Integer.parseInt(properties.getProperty("RequestTimeZone","0").trim());
             iRequestClockObject=Integer.parseInt(properties.getProperty("RequestClockObject","0").trim());
             iRoundtripCorrection=Integer.parseInt(properties.getProperty("RoundtripCorrection","0").trim());
-            iSecurityLevelProperty=Integer.parseInt(properties.getProperty("SecurityLevel","1").trim());
-            iClientMacAddress=Integer.parseInt(properties.getProperty("ClientMacAddress","32").trim());
+            iSecurityLevelProperty=Integer.parseInt(properties.getProperty("SecurityLevel","0").trim());
+            iClientMacAddress=Integer.parseInt(properties.getProperty("ClientMacAddress","16").trim());
             iServerUpperMacAddress=Integer.parseInt(properties.getProperty("ServerUpperMacAddress","1").trim());
             iServerLowerMacAddress=Integer.parseInt(properties.getProperty("ServerLowerMacAddress","0").trim());
             
@@ -230,36 +224,24 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
 					+ e.getMessage());
 		}
 
-		validateSerialNumber(); // KV 19012004
+		validateSerialNumber();
 
-	} // public void connect() throws IOException
+	}
 
-    private void validateSerialNumber() throws IOException {
-        boolean check = true;
-        if ((serialNumber == null) || ("".compareTo(serialNumber)==0)) return;
-        String sn = (String)getSerialNumber();
-        if ((sn != null) && (sn.compareTo(serialNumber) == 0)) return;
-        throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+serialNumber);
-    }
+    private void validateSerialNumber() throws IOException {}
 	
     private String getSerialNumber() throws IOException {
         UniversalObject uo = meterConfig.getSerialNumberObject();
         return getCosemObjectFactory().getGenericRead(uo.getBaseName(),uo.getValueAttributeOffset()).getString();
-    } // public String getSerialNumber()   
+    }
     
     public CosemObjectFactory getCosemObjectFactory() {
         return cosemObjectFactory;
     }    
     
-    public int requestConfigurationProgramChanges() throws IOException {
-        if (iConfigProgramChange == -1)
-           iConfigProgramChange = (int)getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode()).getValue();
-        return iConfigProgramChange;
-    } // public int requestConfigurationProgramChanges() throws IOException
-
     private void requestObjectList() throws IOException {
         meterConfig.setInstantiatedObjectList(getCosemObjectFactory().getAssociationSN().getBuffer());
-    } // public void requestObjectList() throws IOException
+    }
 
     protected String getRegistersInfo(int extendedLogging) {
         StringBuffer strBuff = new StringBuffer();
@@ -344,11 +326,7 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
 
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
 		Date now = new Date();
-		if (to.compareTo(now) >= 0) {
-			System.out.println("now = " + now);
-			System.out.println("now = " + to);
-			to = now; 
-		}
+		if (to.compareTo(now) >= 0) to = now;
 		
 		List dataContainers = new ArrayList(0);
 		ProfileData profileData = new ProfileData();
@@ -381,12 +359,9 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
 			dc = getCosemObjectFactory().getProfileGeneric(EK2xxRegisters.PROFILE).getBuffer(fromDate_ptr, toDate_ptr);
 			profileDate = ek2xxProfile.getDateFromDataContainer(dc);
 			
-			System.out.println(" ####################################### profileDate = " + profileDate);
-			
 			if (profileDate == null) {
 				if (dataReceived == true) lastRead = true;
 			} else {
-				System.out.println(" ####################################### profileDate = " + profileDate);
 				dataContainers.add(dc);
 				dataReceived = true;	
 			}
@@ -401,13 +376,9 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
 
 		if (includeEvents){
 			List meterEvents = ek2xxProfile.getMeterEvents();
-			meterEvents = ProtocolUtils.checkOnOverlappingEvents(meterEvents);
 			profileData.getMeterEvents().addAll(meterEvents);
 		}
 
-//		profileData.sort();
-//		if (includeEvents) profileData.applyEvents(getProfileInterval());
-		
 		return profileData;
 	}
 
@@ -436,9 +407,6 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
         this.logger = logger;
         
         dstFlag=-1;
-        iNumberOfChannels = -1; // Lazy initializing
-        iMeterTimeZoneOffset = 255; // Lazy initializing
-        iConfigProgramChange = -1; // Lazy initializing
         
         try {
             cosemObjectFactory = new CosemObjectFactory(this);
@@ -450,12 +418,8 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
                 dlmsConnection=new TCPIPConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
         }
         catch(DLMSConnectionException e) {
-            //logger.severe ("DLMSZMD: init(...), "+e.getMessage());
             throw new IOException(e.getMessage());
         }
-        
-        iInterval=-1;
-        iNROfIntervals=-1;
         
 	}
 
@@ -473,16 +437,11 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
 	       Calendar calendar=null;
 	       if (iRequestTimeZone != 0) {
 	           calendar = ProtocolUtils.getCalendar(getTimeZone());
-	       }
-	       else {
+	       } else {
 	    	   calendar = ProtocolUtils.initCalendar(false,timeZone);
 	       }
 	       calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);           
 	       doSetTime(calendar);
-
-		//		DateTime nowDateTime = new DateTime(new Date());
-		//		getCosemObjectFactory().getClock(EK2xxRegisters.CLOCK).setTimeAttr(nowDateTime);
-		//		throw new UnsupportedException("setTime() not suported!");
 	}
 
 	private void doSetTime(Calendar calendar) throws IOException

@@ -84,11 +84,17 @@ public class EK2xxProfile {
             ParseUtils.roundUp2nearestInterval(calendar,getEk2xx().getProfileInterval());
         }
 
+        IntervalData intervalDataTemp = findIntervalData(timeStamp);
+        if (intervalDataTemp != null) {
+        	eiIntStatus |= intervalDataTemp.getEiStatus();
+        	deleteIntervalData(timeStamp);
+        }
+        
         IntervalData intervalData = new IntervalData(calendar.getTime(), eiIntStatus, meterIntStatus);
 		intervalData.addValues(numbers);
-		
+
 		getIntervalDatas().add(intervalData);
-		
+
 		if (generateEvents) {
 			if (meterIntStatus != STATUS_OK) {
 				logbook.addMeterEvent(timeStamp, MeterEvent.OTHER, meterIntStatus, EK2xxEvents.getStatusDescription(meterIntStatus));
@@ -97,6 +103,21 @@ public class EK2xxProfile {
 		
 	}
 
+	private IntervalData findIntervalData(Date timestamp) {
+		for (int i = 0; i < getIntervalDatas().size(); i++) {
+			IntervalData id = (IntervalData) getIntervalDatas().get(i);
+			if (id.getEndTime().compareTo(timestamp) == 0) return id;
+		}
+		return null;
+	}
+	
+	private void deleteIntervalData(Date timestamp) {
+		for (int i = 0; i < getIntervalDatas().size(); i++) {
+			IntervalData id = (IntervalData) getIntervalDatas().get(i);
+			if (id.getEndTime().compareTo(timestamp) == 0) getIntervalDatas().remove(i);
+		}
+	}
+	
 	/*
 	 * Public methods
 	 */
