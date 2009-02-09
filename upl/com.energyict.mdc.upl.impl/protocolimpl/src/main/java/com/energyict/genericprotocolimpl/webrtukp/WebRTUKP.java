@@ -91,6 +91,9 @@ import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.AdvancedMessaging;
+import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageAttributeSpec;
@@ -102,6 +105,8 @@ import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.messaging.Messaging;
+import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
+import com.energyict.protocol.messaging.TimeOfUseMessaging;
 import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.HDLCConnection;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
@@ -123,7 +128,7 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
  * GNA |02022009| Added the forceClock functionality
  */
 
-public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
+public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, TimeOfUseMessaging{
 	
 	private boolean DEBUG = true; // TODO set it to false if you release
 
@@ -209,8 +214,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				ElectricityProfile ep = new ElectricityProfile(this);
 				
 				ep.getProfile(getMeterConfig().getProfileObject().getObisCode(), this.commProfile.getReadMeterEvents());
-//				ep.getProfile(Constant.loadProfileObisCode, this.commProfile.getReadMeterEvents());
-//				ep.getProfile(Constant.loadProfileObisCode, false);
 			}
 			
     		/**
@@ -245,7 +248,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			e.printStackTrace();
 			disConnect();
 		} catch (ClassCastException e){
-			// mostely programmers fault if you get here ...
+			// Mostly programmers fault if you get here ...
 			e.printStackTrace();
 			disConnect();
 		} catch (SQLException e){
@@ -1353,6 +1356,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		MessageCategorySpec catP1Messages = new MessageCategorySpec("Consumer messages to P1");
 		MessageCategorySpec catDisconnect = new MessageCategorySpec("Disconnect Control");
 		MessageCategorySpec catLoadLimit = new MessageCategorySpec("LoadLimit");
+		MessageCategorySpec catActivityCal = new MessageCategorySpec("ActivityCalendar");
 		
 		// XMLConfig related messages
 		MessageSpec msgSpec = addDefaultValueMsg("XMLConfig", RtuMessageConstant.XMLCONFIG, false);
@@ -1382,11 +1386,16 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		msgSpec = addGroupIdsLL("Set emergency profile group id's", RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST, false);
 		catLoadLimit.addMessageSpec(msgSpec);
 		
+		// Activity Calendar related messages
+		msgSpec = addTimeOfUse("Select the Activity Calendar", RtuMessageConstant.TOU_ACTIVITY_CAL, false);
+		catActivityCal.addMessageSpec(msgSpec);
+		
 		categories.add(catXMLConfig);
 		categories.add(catFirmware);
 		categories.add(catP1Messages);
 		categories.add(catDisconnect);
 		categories.add(catLoadLimit);
+		categories.add(catActivityCal);
 		return categories;
 	}
 	
@@ -1495,6 +1504,23 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
         return msgSpec;
 	}
 
+	private MessageSpec addTimeOfUse(String keyId, String tagName, boolean advanced) {
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        tagSpec.add(msgVal);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.TOU_ACTIVITY_NAME, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.TOU_ACTIVITY_DATE, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.TOU_ACTIVITY_USER_FILE, false);
+        tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
 	public String writeMessage(Message msg) {
 		return msg.write(this);
 	}
@@ -1543,9 +1569,24 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	public String writeValue(MessageValue msgValue) {
 		return msgValue.getValue();
 	}
+
+	public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
+		return new TimeOfUseMessageBuilder();
+	}
+
+	public boolean needsName() {
+		return true;
+	}
+
+	public boolean supportsCodeTables() {
+		return true;
+	}
+
+	public boolean supportsUserFiles() {
+		return true;
+	}
 	
-	
-	/** EIServer 7.5 Cache mechanism, only the DLMSCache is in that database, the 8.x has a DEVICECACHE ... */
+	/** EIServer 7.5 Cache mechanism, only the DLMSCache is in that database, the 8.x has a EISDEVICECACHE ... */
 	
     public void setCache(Object cacheObject) {
         this.dlmsCache=(DLMSCache)cacheObject;

@@ -19,10 +19,10 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.client.ParseUtils;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.DisconnectControlLog;
@@ -82,6 +82,7 @@ public class ElectricityProfile {
 			webrtu.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
+			ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 			profileData.sort();
 			
 			if(events){
@@ -151,7 +152,7 @@ public class ElectricityProfile {
 					}
 					
 					index++;
-					if(ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())){
+					if(com.energyict.dlms.client.ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())){
 						//TODO need to check the wrapValue
 						ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
 					}

@@ -19,10 +19,10 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.client.ParseUtils;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.mdw.core.Channel;
@@ -66,10 +66,12 @@ public class DailyMonthly {
 			webrtu.getLogger().log(Level.INFO, "Reading Daily values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
+			ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
 			
 			// We save the profileData to a tempObject so we can store everything at the end of the communication
-			webrtu.getStoreObject().add(getMeter(), pd);
+//			webrtu.getStoreObject().add(getMeter(), pd);
+			webrtu.getStoreObject().add(pd, getMeter());
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -85,7 +87,7 @@ public class DailyMonthly {
 		try{
 			for(int i = 0; i < profile.getCaptureObjects().size(); i++){
 				
-				if(ParseUtils.isElectricityObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){ // make a channel out of it
+				if(com.energyict.dlms.client.ParseUtils.isElectricityObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){ // make a channel out of it
 					CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
 					ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
 					if(timeDuration == TimeDuration.DAYS){
@@ -95,7 +97,7 @@ public class DailyMonthly {
 					}
 					
 					index++;
-					if(ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())){
+					if(com.energyict.dlms.client.ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())){
 						//TODO need to check the wrapValue
 						ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
 					}
@@ -134,10 +136,12 @@ public class DailyMonthly {
 			webrtu.getLogger().log(Level.INFO, "Reading Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
+			ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
 			
 			// We save the profileData to a tempObject so we can store everything at the end of the communication
-			webrtu.getStoreObject().add(getMeter(), pd);
+//			webrtu.getStoreObject().add(getMeter(), pd);
+			webrtu.getStoreObject().add(pd, getMeter());
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -267,7 +271,7 @@ public class DailyMonthly {
 		
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
-				if(ParseUtils.isElectricityObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
+				if(com.energyict.dlms.client.ParseUtils.isElectricityObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
 					id.addValue(new Integer(ds.getInteger(i)));
 				}
 			}

@@ -21,6 +21,7 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
 import com.energyict.genericprotocolimpl.webrtukp.MbusDevice;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.MbusControlLog;
@@ -73,6 +74,7 @@ public class MbusProfile {
 			this.mbusDevice.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
+			ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 			profileData.sort();
 			
 			if(events){
