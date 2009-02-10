@@ -79,7 +79,7 @@ public class DLMSConfig {
     };
     
     final static private DLMSConfig[] dailyProfile = {
-    		new DLMSConfig("WKP",7,0,0,99,2,0,255)
+    		new DLMSConfig("WKP",7,1,0,99,2,0,255)
     };
     
     final static private DLMSConfig[] monthlyProfile = {

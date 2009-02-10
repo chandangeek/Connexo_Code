@@ -210,7 +210,7 @@ public class Limiter extends AbstractCosemObject{
 	 */
 	public void writeThresholdEmergency(AbstractDataType thresholdEmergency) throws IOException{
 		try{
-			write(ATTRB_THRESHOLD_EMERGENCY, thresholdNormal.getBEREncodedByteArray());
+			write(ATTRB_THRESHOLD_EMERGENCY, thresholdEmergency.getBEREncodedByteArray());
 			this.thresholdEmergency = thresholdEmergency;
 		} catch (IOException e){
 			e.printStackTrace();
