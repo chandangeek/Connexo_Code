@@ -80,11 +80,13 @@ public class EK2xxProfile {
 		int meterIntStatus = ds.getInteger(1);
 		int eiIntStatus = EK2xxEvents.getEiIntervalStatus(meterIntStatus);
 		
-		System.out.println(
-				" timeStamp = " + timeStamp +
-				" meterIntStatus = " + ProtocolUtils.buildStringHex(meterIntStatus, 8) +
-				" eiIntStatus = " + ProtocolUtils.buildStringHex(eiIntStatus, 8)
-		);
+		if (DEBUG >= 1) {
+			System.out.println(
+					" timeStamp = " + timeStamp +
+					" meterIntStatus = " + ProtocolUtils.buildStringHex(meterIntStatus, 8) +
+					" eiIntStatus = " + ProtocolUtils.buildStringHex(eiIntStatus, 8)
+			);
+		}
 		
         if (!ParseUtils.isOnIntervalBoundary(calendar,getEk2xx().getProfileInterval())) {
     		if (generateEvents) {
