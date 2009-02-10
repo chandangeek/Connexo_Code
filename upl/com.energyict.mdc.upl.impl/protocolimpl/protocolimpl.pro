@@ -263,3 +263,5 @@
 }
 
 -keepnames class com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging
+
+-keepnames class com.energyict.protocolimpl.dlms.elster.ek2xx.EK2xx
