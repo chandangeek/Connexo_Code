@@ -77,6 +77,7 @@ import com.energyict.genericprotocolimpl.webrtukp.profiles.ElectricityProfile;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.Channel;
+import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Lookup;
@@ -942,6 +943,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				boolean llConfig		= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_CONFIGURE);
 				boolean llClear			= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_DISABLE);
 				boolean llSetGrId		= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST);
+				boolean touCalendar		= messageHandler.getType().equals(RtuMessageConstant.TOU_ACTIVITY_CAL);
 				
 				if(xmlConfig){
 					
@@ -1076,18 +1078,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					
 					//TODO Test this
 					Limiter loadLimiter = getCosemObjectFactory().getLimiter();
-//					ValueDefinitionType valueDefinitionType = loadLimiter.getMonitoredValue();
-					
 					
 					if(theMonitoredAttributeType == -1){	// check for the type of the monitored value
 						ValueDefinitionType valueDefinitionType = loadLimiter.getMonitoredValue();
 						theMonitoredAttributeType = getMonitoredAttributeType(valueDefinitionType);
-//						theMonitoredAttributeType = getCosemObjectFactory().getGenericRead(valueDefinitionType.getObisCode(), valueDefinitionType.getAttributeIndex().getValue()).getResponseData()[0];
-//						theMonitoredAttributeType = AXDRDecoder.decode(getCosemObjectFactory().getCosemObject(valueDefinitionType.getObisCode()).);
-//						getCosemObjectFactory().
-//						getCosemObjectFactory().getGenericRead(valueDefinitionType.getObisCode(), valueDefinitionType.getAttributeIndex().getValue(), valueDefinitionType.getClassId().getValue()).getValue();
-//						getCosemObjectFactory().getRegister(valueDefinitionType.getObisCode()).getValue();
-//						getCosemObjectFactory().getCosemObject(valueDefinitionType.getObisCode()).getValue();
 					}
 					
 					// Write the normalThreshold
@@ -1136,9 +1130,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					}
 					if(messageHandler.getEpActivationTime() != null){	// The EmergencyProfileActivationTime
 						try{
-//							byte[] wrong = convertStringToDateTimeOctetString(messageHandler.getEpActivationTime()).getBEREncodedByteArray();
-//							byte[] right = new byte[wrong.length-2];
-//							System.arraycopy(wrong, 2, right, 0, right.length);
 							emergencyProfile.addDataType(new OctetString(convertStringToDateTimeOctetString(messageHandler.getEpActivationTime()).getBEREncodedByteArray(), 0, true));
 						} catch (NumberFormatException e) {
 							e.printStackTrace();
@@ -1158,7 +1149,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					if(emergencyProfile.nrOfDataTypes() != 3){	// If all three elements are correct, then send it, otherwise throw error
 						throw new IOException("The complete emergecy profile must be filled in before sending it to the meter.");
 					} else {
-//						loadLimiter.writeEmergencyProfile(loadLimiter.new EmergencyProfile(emergencyProfile.getBEREncodedByteArray(), 0, 0));
 						loadLimiter.writeEmergencyProfile(emergencyProfile.getBEREncodedByteArray());
 					}
 					
@@ -1185,6 +1175,38 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					}
 					
 					success = true;
+				} else if(touCalendar){
+					String name = messageHandler.getTOUCalendarName();
+					String activateDate = messageHandler.getTOUActivationDate();
+					String codeTable = messageHandler.getTOUCodeTable();
+					String userFile = messageHandler.getTOUUserFile();
+					
+					if((codeTable == null) &&(userFile == null)){
+						throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
+					} else if((codeTable != null) &&(userFile != null)){
+						throw new IOException("CodeTable-ID AND UserFile-ID can not be both filled in.");
+					}
+					
+					if(codeTable != null){
+						
+						Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
+						if(ct == null){
+							ct.getCalendars();
+							throw new IOException("No CodeTable defined with id '" + codeTable + "'");
+						} else {
+							
+						}
+						
+					} else if(userFile != null){
+						
+					} else {
+						// should never get here 
+						throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
+					}
+					
+					
+					success = true;
+					
 				} else {
 					success = false;
 				}

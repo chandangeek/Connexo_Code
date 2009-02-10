@@ -53,6 +53,9 @@ public class MessageHandler extends DefaultHandler{
 			handleLoadLimitEPGroupIDList(attrbs);
 		} else if(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE.equals(qName)){
 			handleLoadLimitEmergencyProfile(attrbs);
+		} else if(RtuMessageConstant.TOU_ACTIVITY_CAL.equals(qName)){
+			setType(RtuMessageConstant.TOU_ACTIVITY_CAL);
+			handleTOUMessage(attrbs);
 		}
 	}
 
@@ -245,4 +248,37 @@ public class MessageHandler extends DefaultHandler{
 		return epGroupIdListLookupTableId;
 	}
 	/**********************************************/
+
+	
+	/**********************************************
+	 * Activity Calendar Related messages
+	 **********************************************/
+	
+	private String touActivationDate = "";
+	private String touCalendarName = "";
+	private String touCodeTable = "";
+	private String touUserFile = "";
+	
+	private void handleTOUMessage(Attributes attrbs){
+		this.touActivationDate = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_DATE);
+		this.touCalendarName = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_NAME);
+		this.touCodeTable = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE);
+		this.touUserFile = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_USER_FILE);
+	}
+	
+	public String getTOUActivationDate(){
+		return this.touActivationDate;
+	}
+	
+	public String getTOUCalendarName(){
+		return this.touCalendarName;
+	}
+	
+	public String getTOUCodeTable(){
+		return this.touCodeTable;
+	}
+	
+	public String getTOUUserFile(){
+		return this.touUserFile;
+	}
 }
