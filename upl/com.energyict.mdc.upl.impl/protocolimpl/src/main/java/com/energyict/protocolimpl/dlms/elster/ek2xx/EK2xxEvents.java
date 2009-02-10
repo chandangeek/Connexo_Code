@@ -879,41 +879,60 @@ public class EK2xxEvents {
 	}
 
 	public static String getStatusDescription(int statusCode) {
-		int code = statusCode >> 8; 
 		String returnValue = "";
 		
-		if ((code & RESTART_FLAG) != 0) 			returnValue += "Restart of the device. ";
-		if ((code & DATA_RESTORED_FLAG) != 0) 		returnValue += "Data (clock, counter reading) has been restored. ";
-		if ((code & POWERSUPPLY_FLAG) != 0) 		returnValue += "Internal power supply too less. ";
-		if ((code & DATA_ERROR_FLAG) != 0) 			returnValue += "Fatal data error. ";
-		if ((code & SETTINGS_ERROR_FLAG) != 0) 		returnValue += "Settings error. ";
-		if ((code & BATTERY_LIVE_FLAG) != 0) 		returnValue += "Battery life time end. ";
-		if ((code & REPAIR_MODE_FLAG) != 0) 		returnValue += "Repair mode switched on. ";
-		if ((code & CLOCK_FLAG) != 0) 				returnValue += "Clock not justified. ";
-		if ((code & DATA_TRANSMISSION_FLAG) != 0) 	returnValue += "Data transmission running. ";
-		if ((code & REMOTE_CLOCK_FLAG) != 0) 		returnValue += "Remote clock setting active. ";
-		if ((code & BATTERY_MODE_FLAG) != 0) 		returnValue += "Device in battery powered mode. ";
-		if ((code & DIAPLAY_DST_FLAG) != 0) 		returnValue += "The displayed time is daylight saving time. ";
+		if ((statusCode & RESTART_FLAG) != 0) 			returnValue += "Restart of the device. ";
+		if ((statusCode & DATA_RESTORED_FLAG) != 0) 	returnValue += "Data (clock, counter reading) has been restored. ";
+		if ((statusCode & POWERSUPPLY_FLAG) != 0) 		returnValue += "Internal power supply too less. ";
+		if ((statusCode & DATA_ERROR_FLAG) != 0) 		returnValue += "Fatal data error. ";
+		if ((statusCode & SETTINGS_ERROR_FLAG) != 0) 	returnValue += "Settings error. ";
+		if ((statusCode & BATTERY_LIVE_FLAG) != 0) 		returnValue += "Battery life time end. ";
+		if ((statusCode & REPAIR_MODE_FLAG) != 0) 		returnValue += "Repair mode switched on. ";
+		if ((statusCode & CLOCK_FLAG) != 0) 			returnValue += "Clock not justified. ";
+		if ((statusCode & DATA_TRANSMISSION_FLAG) != 0) returnValue += "Data transmission running. ";
+		if ((statusCode & REMOTE_CLOCK_FLAG) != 0) 		returnValue += "Remote clock setting active. ";
+		if ((statusCode & BATTERY_MODE_FLAG) != 0) 		returnValue += "Device in battery powered mode. ";
+		if ((statusCode & DIAPLAY_DST_FLAG) != 0) 		returnValue += "The displayed time is daylight saving time. ";
 		
+		returnValue += " Ast3 = ";
+		if (statusCode == 0) returnValue += "0";
+		for (int j = 0; j < 32; j++) {
+			if ((statusCode & (1<<j)) == (1<<j))	returnValue += (j+1) + ";"; 
+		}
+		
+		returnValue += " [0x" + ProtocolUtils.buildStringHex(statusCode, 8) + "]";
+		
+		
+//		System.out.println(
+//				" code = " + code + " - " + ProtocolUtils.buildStringHex(code, 16) + 
+//				" statusCode = " + statusCode + " - " + ProtocolUtils.buildStringHex(statusCode, 16) + 
+//				" returnValue = " + returnValue
+//		);
+
 		return returnValue;
 	}
 	
 	public static int getEiIntervalStatus(int statusCode) {
-		int code = statusCode >> 8; 
 		int returnCode = IntervalData.OK;
 		
-		if ((code & RESTART_FLAG) != 0) 			returnCode |= IntervalData.POWERUP | IntervalData.POWERDOWN;
-		if ((code & DATA_RESTORED_FLAG) != 0) 		returnCode |= IntervalData.DEVICE_ERROR;
-		if ((code & POWERSUPPLY_FLAG) != 0) 		returnCode |= IntervalData.BATTERY_LOW;
-		if ((code & DATA_ERROR_FLAG) != 0) 			returnCode |= IntervalData.CORRUPTED;
-		if ((code & SETTINGS_ERROR_FLAG) != 0) 		returnCode |= IntervalData.DEVICE_ERROR;
-		if ((code & BATTERY_LIVE_FLAG) != 0) 		returnCode |= IntervalData.BATTERY_LOW;
-		if ((code & REPAIR_MODE_FLAG) != 0) 		returnCode |= IntervalData.OTHER;
-		if ((code & CLOCK_FLAG) != 0) 				returnCode |= IntervalData.BADTIME;
-//		if ((code & DATA_TRANSMISSION_FLAG) != 0) 	returnCode |= IntervalData.OTHER;
-		if ((code & REMOTE_CLOCK_FLAG) != 0) 		returnCode |= IntervalData.SHORTLONG;
-		if ((code & BATTERY_MODE_FLAG) != 0) 		returnCode |= IntervalData.PHASEFAILURE;
-//		if ((code & DIAPLAY_DST_FLAG) != 0) 		returnCode |= IntervalData.OTHER;
+		if ((statusCode & RESTART_FLAG) != 0) 			returnCode |= IntervalData.POWERUP | IntervalData.POWERDOWN;
+		if ((statusCode & DATA_RESTORED_FLAG) != 0) 	returnCode |= IntervalData.DEVICE_ERROR;
+		if ((statusCode & POWERSUPPLY_FLAG) != 0) 		returnCode |= IntervalData.BATTERY_LOW;
+		if ((statusCode & DATA_ERROR_FLAG) != 0) 		returnCode |= IntervalData.CORRUPTED;
+		if ((statusCode & SETTINGS_ERROR_FLAG) != 0) 	returnCode |= IntervalData.DEVICE_ERROR;
+		if ((statusCode & BATTERY_LIVE_FLAG) != 0) 		returnCode |= IntervalData.BATTERY_LOW;
+		if ((statusCode & REPAIR_MODE_FLAG) != 0) 		returnCode |= IntervalData.OTHER;
+		if ((statusCode & CLOCK_FLAG) != 0) 			returnCode |= IntervalData.BADTIME;
+		if ((statusCode & DATA_TRANSMISSION_FLAG) != 0) returnCode |= IntervalData.OTHER;
+		if ((statusCode & REMOTE_CLOCK_FLAG) != 0) 		returnCode |= IntervalData.SHORTLONG;
+		if ((statusCode & BATTERY_MODE_FLAG) != 0) 		returnCode |= IntervalData.PHASEFAILURE;
+		if ((statusCode & DIAPLAY_DST_FLAG) != 0) 		returnCode |= IntervalData.OTHER;
+
+//		System.out.println(
+//				" code = " + code + " - " + ProtocolUtils.buildStringHex(code, 16) + 
+//				" statusCode = " + statusCode + " - " + ProtocolUtils.buildStringHex(statusCode, 16) + 
+//				" returnValue = " + returnCode
+//		);
 
 		return returnCode;
 	}

@@ -80,7 +80,16 @@ public class EK2xxProfile {
 		int meterIntStatus = ds.getInteger(1);
 		int eiIntStatus = EK2xxEvents.getEiIntervalStatus(meterIntStatus);
 		
+		System.out.println(
+				" timeStamp = " + timeStamp +
+				" meterIntStatus = " + ProtocolUtils.buildStringHex(meterIntStatus, 8) +
+				" eiIntStatus = " + ProtocolUtils.buildStringHex(eiIntStatus, 8)
+		);
+		
         if (!ParseUtils.isOnIntervalBoundary(calendar,getEk2xx().getProfileInterval())) {
+    		if (generateEvents) {
+    			logbook.addMeterEvent(timeStamp, MeterEvent.OTHER, meterIntStatus, EK2xxEvents.getStatusDescription(meterIntStatus));
+    		}
             ParseUtils.roundUp2nearestInterval(calendar,getEk2xx().getProfileInterval());
         }
 
@@ -95,12 +104,6 @@ public class EK2xxProfile {
 
 		getIntervalDatas().add(intervalData);
 
-		if (generateEvents) {
-			if (meterIntStatus != STATUS_OK) {
-				logbook.addMeterEvent(timeStamp, MeterEvent.OTHER, meterIntStatus, EK2xxEvents.getStatusDescription(meterIntStatus));
-			}
-		}
-		
 	}
 
 	private IntervalData findIntervalData(Date timestamp) {
