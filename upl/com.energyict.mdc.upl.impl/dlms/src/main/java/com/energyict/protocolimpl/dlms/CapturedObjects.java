@@ -16,6 +16,12 @@ import com.energyict.protocol.*;
  *
  * @author  Koen
  */
+
+/**
+ * @deprecated  As of 11022009, replaced by
+ * com.energyict.dlms.cosem.CaptureObjectsHelper 
+ * 
+ */
 public class CapturedObjects implements DLMSCOSEMGlobals
 {
    LNObject[] lnObject;
@@ -36,15 +42,15 @@ public class CapturedObjects implements DLMSCOSEMGlobals
    }
    public int getType(int iIndex)
    {
-       return lnObject[iIndex].bType;
+       return lnObject[iIndex].getType();
    }
    public boolean isChannelData(int iIndex)
    {
-       return (lnObject[iIndex].bType==CHANNEL_DATA);
+       return (lnObject[iIndex].getType()==CHANNEL_DATA);
    }
    public byte[] getLN(int iIndex)
    {
-       return lnObject[iIndex].ln;
+       return lnObject[iIndex].getLogicalName();
    }
    
    public ObisCode getProfileDataChannel(int channelId) throws IOException {
@@ -52,7 +58,7 @@ public class CapturedObjects implements DLMSCOSEMGlobals
        for(int i=0;i<getNROfObjects();i++) {
            if (isChannelData(i)) {
                if (id == channelId)
-                   return new ObisCode(lnObject[i].ln[0]&0xff,lnObject[i].ln[1]&0xff,lnObject[i].ln[2]&0xff,lnObject[i].ln[3]&0xff,lnObject[i].ln[4]&0xff,lnObject[i].ln[5]&0xff);
+                   return new ObisCode(lnObject[i].getLogicalName()[0]&0xff,lnObject[i].getLogicalName()[1]&0xff,lnObject[i].getLogicalName()[2]&0xff,lnObject[i].getLogicalName()[3]&0xff,lnObject[i].getLogicalName()[4]&0xff,lnObject[i].getLogicalName()[5]&0xff);
                id++;
            }
        }
@@ -64,7 +70,7 @@ public class CapturedObjects implements DLMSCOSEMGlobals
    {
        for(int i=0;i<getNROfObjects();i++)
        {
-          if (lnObject[i].iChannelNR == iChannelNR) return lnObject[i].ln;  
+          if (lnObject[i].getChannelId() == iChannelNR) return lnObject[i].getLogicalName();  
        }
 
        throw new java.lang.ArrayIndexOutOfBoundsException("CaptureObjects getChannelLN error!");
@@ -74,16 +80,16 @@ public class CapturedObjects implements DLMSCOSEMGlobals
    {
        for(int i=0;i<getNROfObjects();i++)
        {
-          if (lnObject[i].iChannelNR == iChannelNR) return lnObject[i];  
+          if (lnObject[i].getChannelId() == iChannelNR) return lnObject[i];  
        }
        throw new java.lang.ArrayIndexOutOfBoundsException("CaptureObjects getChannelObject error!");
    }
 
-   public int getChannelNR(int iIndex)
+   public int getChannelNR(int index)
    {
-       if (iIndex < lnObject.length)
+       if (index < lnObject.length)
        {
-          return lnObject[iIndex].iChannelNR;
+          return lnObject[index].getChannelId();
        }
        else throw new java.lang.ArrayIndexOutOfBoundsException("CaptureObjects class add error!");
    }
@@ -119,25 +125,6 @@ public class CapturedObjects implements DLMSCOSEMGlobals
        }
        else throw new java.lang.ArrayIndexOutOfBoundsException("CaptureObjects class add error!");
    }
-
-   class LNObject
-   {
-       //int iIC;
-       //int iAttr;
-       byte[] ln;
-       byte bType;
-       int iChannelNR;
-
-       public LNObject(int iIC, byte[] ln, int iAttr, byte bType,int iChannelNR)
-       {
-          //this.iIC = iIC;
-          //this.iAttr = iAttr;
-          this.bType = bType;
-          this.ln = (byte[])ln.clone();
-          this.iChannelNR = iChannelNR;
-       }
-
-   } // class LNObject
-
+ 
 } // class CapturedObjects 
 

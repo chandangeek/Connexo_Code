@@ -141,6 +141,10 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
         return captureObjects;
     }
     
+    public CapturedObjectsHelper getCaptureObjectsHelper() throws IOException {
+    	return new CapturedObjectsHelper(getCaptureObjects());
+    }
+    
     /**
      * Check whether the generic profile has already read his captured objects
      * @return
