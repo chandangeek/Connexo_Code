@@ -19,6 +19,7 @@
 	KV|31032005|Handle DataContainerException
 	GN|25042008|Missing hour values with a profileInterval of 10min
 	GN|04022009|Added the possibility to make a request with a from/to date. The request must be in the form: 0.0.99.1.0.255:7:2-01/02/2009 00:00:00-04/02/2009 12:00:00
+	KV|11022009|Cleanup and refactored as NTA compatible EICT Z3 protocol
  * @endchanges
  */
 package com.energyict.protocolimpl.dlms.eictz3;
@@ -31,46 +32,37 @@ import com.energyict.cbo.*;
 import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.*;
-import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.*;
+import com.energyict.protocolimpl.dlms.Z3.AARQ;
 
 public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
-    private static final byte DEBUG=0;  // KV 16012004 changed all DEBUG values  
+    private static final byte DEBUG=1;  // KV 16012004 changed all DEBUG values  
     
-    private static final byte[] profileLN={0,0,99,1,0,(byte)255}; 
-    private static final int iNROfIntervals = 50000;
-
-    private int iInterval=0;
     private ScalerUnit[] demandScalerUnits=null;
     String version=null;
     String serialnr=null;
     String nodeId;    
-    
 
     private String strID=null;
     private String strPassword=null;
     private String serialNumber=null;
     
-    private int iHDLCTimeoutProperty;
-    private int iProtocolRetriesProperty;
-//    private int iDelayAfterFailProperty;
-    private int iSecurityLevelProperty;
-    private int iRequestTimeZone;
-    private int iRoundtripCorrection; 
-    private int iClientMacAddress;
-    private int iServerUpperMacAddress;
-    private int iServerLowerMacAddress;
+    private int hDLCTimeoutProperty;
+    private int protocolRetriesProperty;
+    private int securityLevel;
+    private int requestTimeZone;
+    private int roundtripCorrection; 
+    private int clientMacAddress;
+    private int serverUpperMacAddress;
+    private int serverLowerMacAddress;
     private String firmwareVersion;
-    private int loadProfile=1;
-    
-    //private boolean boolAbort=false;
+    private String loadProfileObisCode;
     
     CapturedObjects capturedObjects=null;
-    
     DLMSConnection dlmsConnection=null;
     CosemObjectFactory cosemObjectFactory=null;
     StoredValuesImpl storedValuesImpl=null;
@@ -78,27 +70,24 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
     ObisCodeMapper ocm=null;
     
     // Lazy initializing
-    int numberOfChannels=-1;
-    int configProgramChanges=-1;
-
+    private int numberOfChannels=-1;
+    private int configProgramChanges=-1;
+    private int profileInterval=-1;
+    
     // DLMS PDU offsets
     private static final byte DL_COSEMPDU_DATA_OFFSET=0x07;
 
     // Added for MeterProtocol interface implementation
     private Logger logger=null;
     private TimeZone timeZone=null;
-//    private Properties properties=null;
-
-    // filled in when getTime is invoked!
-//    private int dstFlag; // -1=unknown, 0=not set, 1=set
     
-    private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("SLB");
+    private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("ECT");
     private DLMSCache dlmsCache=new DLMSCache();     
     private int extendedLogging;
     int addressingMode;
     int connectionMode;
     
-    /** Creates a new instance of DLMSLNSL7000, empty constructor*/
+    /** Creates a new instance of EictZ3, empty constructor*/
     public EictZ3()
     {
     } // public EictZ3(...)
@@ -117,10 +106,6 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         this.timeZone = timeZone;
         this.logger = logger;     
         
-        // lazy initializing
-        numberOfChannels = -1;
-        configProgramChanges = -1;
-        iInterval = 0;
         demandScalerUnits = null;
         version = null;
         serialnr = null;
@@ -129,9 +114,9 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
             cosemObjectFactory = new CosemObjectFactory(this);
             storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
             if (connectionMode == 0)
-                dlmsConnection=new HDLCConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress,iServerUpperMacAddress,addressingMode);
+                dlmsConnection=new HDLCConnection(inputStream,outputStream,hDLCTimeoutProperty,100,protocolRetriesProperty,clientMacAddress,serverLowerMacAddress,serverUpperMacAddress,addressingMode);
             else
-                dlmsConnection=new TCPIPConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
+                dlmsConnection=new TCPIPConnection(inputStream,outputStream,hDLCTimeoutProperty,100,protocolRetriesProperty,clientMacAddress,serverLowerMacAddress);
             
             getDLMSConnection().setIskraWrapper(1);
         }
@@ -143,325 +128,6 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
     }
     
     
-    byte[] aarqlowlevel17={
-    (byte)0xE6,(byte)0xE6,(byte)0x00,
-    (byte)0x60, // AARQ
-    (byte)0x37, // bytes to follow
-    (byte)0xA1,(byte)0x09,(byte)0x06,(byte)0x07,(byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x01,(byte)0x01, //application context name , LN no ciphering
-    (byte)0xAA,(byte)0x02,(byte)0x07,(byte)0x80, // ACSE requirements
-    (byte)0xAB,(byte)0x09,(byte)0x06,(byte)0x07,(byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x02,(byte)0x01};
-    //(byte)0xAC,(byte)0x0A,(byte)0x04}; //,(byte)0x08,(byte)0x41,(byte)0x42,(byte)0x43,(byte)0x44,(byte)0x45,(byte)0x46,(byte)0x47,(byte)0x48,
-    
-    byte[] aarqlowlevel17_2={
-    (byte)0xBE,(byte)0x0F,(byte)0x04,(byte)0x0D,
-    (byte)0x01, // initiate request
-    (byte)0x00,(byte)0x00,(byte)0x00, // unused parameters
-    (byte)0x06,  // dlms version nr
-    (byte)0x5F,(byte)0x04,(byte)0x00,(byte)0x00,(byte)0x10,(byte)0x1D, // proposed conformance
-    (byte)0x21,(byte)0x34};
-     
-    byte[] aarqlowlevelANY={
-    (byte)0xE6,(byte)0xE6,(byte)0x00,
-    (byte)0x60, // AARQ
-    (byte)0x35, // bytes to follow
-    (byte)0xA1,(byte)0x09,(byte)0x06,(byte)0x07,
-    (byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x01,(byte)0x01, //application context name , LN no ciphering
-    (byte)0x8A,(byte)0x02,(byte)0x07,(byte)0x80, // ACSE requirements
-    (byte)0x8B,(byte)0x07,(byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x02,(byte)0x01};
-    //(byte)0xAC}; //,(byte)0x0A,(byte)0x80}; //,(byte)0x08,(byte)0x41,(byte)0x42,(byte)0x43,(byte)0x44,(byte)0x45,(byte)0x46,(byte)0x47,(byte)0x48,
-    
-    byte[] aarqlowlevelANY_2={(byte)0xBE,(byte)0x0F,(byte)0x04,(byte)0x0D,
-    (byte)0x01, // initiate request
-    (byte)0x00,(byte)0x00,(byte)0x00, // unused parameters
-    (byte)0x06,  // dlms version nr
-    (byte)0x5F,(byte)0x04,(byte)0x00,(byte)0x00,(byte)0x10,(byte)0x1D, // proposed conformance
-    (byte)0x21,(byte)0x34};
-    
-    byte[] aarqlowestlevelOld={
-    (byte)0xE6,(byte)0xE6,(byte)0x00,
-    (byte)0x60, // AARQ
-    (byte)0x1C, // bytes to follow
-    (byte)0xA1,(byte)0x09,(byte)0x06,(byte)0x07,(byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x01,(byte)0x01, //application context name , LN no ciphering
-    (byte)0xBE,(byte)0x0F,(byte)0x04,(byte)0x0D,
-    (byte)0x01, // initiate request
-    (byte)0x00,(byte)0x00,(byte)0x00, // unused parameters
-    (byte)0x06,  // dlms version nr
-    (byte)0x5F,(byte)0x04,(byte)0x00,(byte)0x00,(byte)0x10,(byte)0x1D, // proposed conformance
-    (byte)0xFF,(byte)0xFF};
-    
-    byte[] aarqlowestlevel={
-    (byte)0xE6,(byte)0xE6,(byte)0x00,
-    (byte)0x60, // AARQ
-    (byte)0x1D, // bytes to follow
-    (byte)0xA1,(byte)0x09,(byte)0x06,(byte)0x07,(byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x01,(byte)0x01, //application context name , LN no ciphering
-    (byte)0xBE,(byte)0x10,(byte)0x04,(byte)0x0e,
-    (byte)0x01, // initiate request
-    (byte)0x00,(byte)0x00,(byte)0x00, // unused parameters
-    (byte)0x06,  // dlms version nr
-    (byte)0x5F,(byte)0x1F,(byte)0x04,(byte)0x00,(byte)0x00,(byte)0x7E,(byte)0x1F, // proposed conformance
-    (byte)0x04,(byte)0xb0};
-    
-    
-    private byte[] getLowLevelSecurity() {
-       if ("1.7".compareTo(firmwareVersion) == 0) {
-            return buildaarq(aarqlowlevel17,aarqlowlevel17_2);
-       }
-       else {
-           return buildaarq(aarqlowlevelANY,aarqlowlevelANY_2);
-       }
-    }
-    
-    private byte[] buildaarq(byte[] aarq1,byte[] aarq2) {
-       byte[] aarq=null; 
-       int i,t=0;
-       // prepare aarq buffer
-       aarq = new byte[3+aarq1.length+1+strPassword.length()+aarq2.length];
-       // copy aarq1 to aarq buffer
-       for (i=0;i<aarq1.length;i++)
-           aarq[t++] = aarq1[i];
-       
-       // calling authentification
-       aarq[t++] = (byte)0xAC; // calling authentification tag
-       aarq[t++] = (byte)(strPassword.length()+2); // length to follow
-       aarq[t++] = (byte)0x80; // tag representation
-       // copy password to aarq buffer
-       aarq[t++] = (byte)strPassword.length();
-       for (i=0;i<strPassword.length();i++)
-           aarq[t++] = (byte)strPassword.charAt(i);
-       
-       
-       // copy in aarq2 to aarq buffer
-       for (i=0;i<aarq2.length;i++)
-           aarq[t++] = aarq2[i];
-       
-       aarq[4] = (byte)(((int)aarq.length&0xFF)-5); // Total length of frame - headerlength
-       
-       return aarq;
-    }
-    
- /**
- * Method to request the Application Association Establishment for a DLMS session.
- * @exception IOException
- */
-    public void requestApplAssoc() throws IOException {
-       byte[] aarq;
-       aarq = getLowLevelSecurity();
-       doRequestApplAssoc(aarq);
-    } // public void requestApplAssoc() throws IOException
-    
-    private void requestApplAssoc(int iLevel) throws IOException {
-       byte[] aarq;
-       if (iLevel == 0) {
-           aarq = aarqlowestlevel;
-       }
-       else if (iLevel == 1) {
-           aarq = getLowLevelSecurity();
-       }
-       else {
-           aarq = getLowLevelSecurity();
-       }
-       doRequestApplAssoc(aarq);
-       
-    } // public void requestApplAssoc(int iLevel) throws IOException
-    
-    private void doRequestApplAssoc(byte[] aarq) throws IOException {
-       byte[] responseData;
-       
-       responseData = getDLMSConnection().sendRequest(aarq);
-       CheckAARE(responseData);
-       if (DEBUG >= 2) ProtocolUtils.printResponseData(responseData);
-
-    } // public void doRequestApplAssoc(int iLevel) throws IOException
-    
-    private static final byte AARE_APPLICATION_CONTEXT_NAME = (byte)0xA1;
-    private static final byte AARE_RESULT = (byte)0xA2;
-    private static final byte AARE_RESULT_SOURCE_DIAGNOSTIC = (byte)0xA3;
-    private static final byte AARE_USER_INFORMATION = (byte)0xBE;
-
-    private static final byte AARE_TAG=0x61;
-
-    private static final byte ACSE_SERVICE_USER = (byte)0xA1;
-    private static final byte ACSE_SERVICE_PROVIDER = (byte)0xA2;
-    
-    private static final byte DLMS_PDU_INITIATE_RESPONSE = (byte)0x08;
-    private static final byte DLMS_PDU_CONFIRMED_SERVICE_ERROR = (byte)0x0E;
-    
-    private void CheckAARE(byte[] responseData) throws IOException
-    {
-       int i;
-       int iLength;
-       String strResultSourceDiagnostics="";
-       InitiateResponse initiateResponse=new InitiateResponse(); 
-       
-       i=0;
-       while(true)
-       {
-          if (responseData[i] == AARE_TAG)
-          {
-             i+=2; // skip tag & length
-             while(true)
-             {
-                if (responseData[i] == AARE_APPLICATION_CONTEXT_NAME)
-                {
-                   i++; // skip tag
-                   i += responseData[i]; // skip length + data
-                } // if (responseData[i] == AARE_APPLICATION_CONTEXT_NAME)
-                
-                else if (responseData[i] == AARE_RESULT)
-                {
-                   i++; // skip tag
-                   if ((responseData[i] == 3) &&
-                       (responseData[i+1] == 2) &&
-                       (responseData[i+2] == 1) &&
-                       (responseData[i+3] == 0))
-                   {
-                      // Result OK
-                      return;
-                   }
-                   i += responseData[i]; // skip length + data
-                } // else if (responseData[i] == AARE_RESULT)
-                
-                else if (responseData[i] == AARE_RESULT_SOURCE_DIAGNOSTIC)
-                {
-                     i++; // skip tag
-                     if (responseData[i] == 5) // check length
-                     {
-                         if (responseData[i+1] == ACSE_SERVICE_USER)
-                         {
-                             if ((responseData[i+2] == 3) &&
-                                 (responseData[i+3] == 2) &&
-                                 (responseData[i+4] == 1))
-                             {
-                                 if (responseData[i+5] == 0x00)
-                                    strResultSourceDiagnostics += ", ACSE_SERVICE_USER";
-                                 else if (responseData[i+5] == 0x01)
-                                     strResultSourceDiagnostics += ", ACSE_SERVICE_USER, no reason given";
-                                 else if (responseData[i+5] == 0x02)
-                                    strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Application Context Name Not Supported";
-                                 else if (responseData[i+5] == 0x0B)
-                                    strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Not Recognised";
-                                 else if (responseData[i+5] == 0x0C)
-                                    strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Required";
-                                 else if (responseData[i+5] == 0x0D)
-                                    strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Failure";
-                                 else if (responseData[i+5] == 0x0E)
-                                    strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Required";
-                                 else throw new IOException("Application Association Establishment failed, ACSE_SERVICE_USER, unknown result!");
-                             }
-                             else
-                             {
-                                 throw new IOException("Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_USER,  wrong tag");
-                             }
-                         } // if (responseData[i+1] == ACSE_SERVICE_USER)
-                         else if (responseData[i+1] == ACSE_SERVICE_PROVIDER)
-                         {
-                             if ((responseData[i+2] == 3) &&
-                                 (responseData[i+3] == 2) &&
-                                 (responseData[i+4] == 1))
-                             {
-                                 if (responseData[i+5] == 0x00)
-                                    strResultSourceDiagnostics +=", ACSE_SERVICE_PROVIDER!";
-                                 else if (responseData[i+5] == 0x01)
-                                    strResultSourceDiagnostics +=", ACSE_SERVICE_PROVIDER, No Reason Given!";
-                                 else if (responseData[i+5] == 0x02)
-                                    strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER, No Common ACSE Version!";
-                                 else throw new IOException("Application Association Establishment Failed, ACSE_SERVICE_PROVIDER, unknown result");
-                             }
-                             else throw new IOException("Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_PROVIDER,  wrong tag");
-                         } // else if (responseData[i+1] == ACSE_SERVICE_PROVIDER)
-                         else throw new IOException("Application Association Establishment Failed, result_source_diagnostic,  wrong tag");
-                     }
-                     else
-                     {
-                         throw new IOException("Application Association Establishment Failed, result_source_diagnostic, wrong length");
-                     }
-
-                     i += responseData[i]; // skip length + data
-                } // else if (responseData[i] == AARE_RESULT_SOURCE_DIAGNOSTIC)
-                
-                else if (responseData[i] == AARE_USER_INFORMATION)
-                {
-                   i++; // skip tag
-                   if (responseData[i+2] > 0) { // length of octet string
-                       if (DLMS_PDU_INITIATE_RESPONSE == responseData[i+3]) {
-                           initiateResponse.bNegotiatedQualityOfService=responseData[i+4];
-                           initiateResponse.bNegotiatedDLMSVersionNR=responseData[i+5];
-                           initiateResponse.lNegotiatedConformance=(ProtocolUtils.getInt(responseData,i+8)&0x00FFFFFF); // conformance has only 3 bytes, 24 bit
-                           initiateResponse.sServerMaxReceivePduSize=ProtocolUtils.getShort(responseData,i+12);
-                           initiateResponse.sVAAName=ProtocolUtils.getShort(responseData,i+14);
-                           /*
-                           System.out.println(initiateResponse.bNegotiatedDLMSVersionNR + " "+
-                                              initiateResponse.bNegotiatedQualityOfService + " "+
-                                              initiateResponse.lNegotiatedConformance + " "+
-                                              initiateResponse.sServerMaxReceivePduSize + " " +
-                                              initiateResponse.sVAAName);
-                           */
-
-                       }
-                       else if (DLMS_PDU_CONFIRMED_SERVICE_ERROR == responseData[i+3]) 
-                       {
-                           if (0x01 == responseData[i+4])
-                               strResultSourceDiagnostics += ", InitiateError";
-                           else if (0x02 == responseData[i+4])
-                               strResultSourceDiagnostics += ", getStatus";
-                           else if (0x03 == responseData[i+4])
-                               strResultSourceDiagnostics += ", getNameList";
-                           else if (0x13 == responseData[i+4])
-                               strResultSourceDiagnostics += ", terminateUpload";
-                           else throw new IOException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown ConfirmedServiceError choice");
-
-                           if (0x06 != responseData[i+5])
-                               strResultSourceDiagnostics += ", No ServiceError tag";
-
-                           if (0x00 == responseData[i+6])
-                               strResultSourceDiagnostics += "";
-                           else if (0x01 == responseData[i+6])
-                               strResultSourceDiagnostics += ", DLMS version too low";
-                           else if (0x02 == responseData[i+6])
-                               strResultSourceDiagnostics += ", Incompatible conformance";
-                           else if (0x03 == responseData[i+6])
-                               strResultSourceDiagnostics = ", pdu size too short";
-                           else if (0x04 == responseData[i+6])
-                               strResultSourceDiagnostics = ", refused by the VDE handler";
-                           else throw new IOException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons ");
-                       }
-                       else
-                       {
-                           throw new IOException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons!");
-                       }
-                       
-                   } // if (responseData[i+2] > 0) --> length of the octet string
-                   
-                   i += responseData[i]; // skip length + data
-                } // else if (responseData[i] == AARE_USER_INFORMATION)
-                else
-                {
-                   i++; // skip tag
-                   // Very tricky, suppose we receive a length > 128 because of corrupted data,
-                   // then if we keep byte, it is signed and we can enter a LOOP because length will
-                   // be subtracted from i!!!
-                   i += (((int)responseData[i])&0x000000FF); // skip length + data
-                }
-
-                if (i++ >= (responseData.length-1))
-                {
-                    i=(responseData.length-1);
-                    break;
-                }
-             } // while(true)
-          
-          } // if (responseData[i] == AARE_TAG)
-          
-          if (i++ >= (responseData.length-1))
-          {
-              i=(responseData.length-1);
-              break;
-          }
-       } // while(true)
-
-       throw new IOException("Application Association Establishment Failed"+strResultSourceDiagnostics);
-
-    } // void CheckAARE(byte[] responseData) throws IOException
     
     private CapturedObjects getCapturedObjects()  throws UnsupportedException, IOException {
         if (capturedObjects == null) {
@@ -469,10 +135,12 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
            int i;
            DataContainer dataContainer = null;
            try {
-               //ProfileGeneric profileGeneric = getCosemObjectFactory().getLoadProfile().getProfileGeneric();
-               ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("1.0.99."+loadProfile+".0.255"));
+               ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString(loadProfileObisCode));
                meterConfig.setCapturedObjectList(profileGeneric.getCaptureObjectsAsUniversalObjects());               
                dataContainer = profileGeneric.getCaptureObjectsAsDataContainer();
+               //List captureObjects = profileGeneric.getCaptureObjects();
+               
+               if (DEBUG>=1) dataContainer.printDataContainer();
                
                capturedObjects = new CapturedObjects(dataContainer.getRoot().element.length);
                for (i=0;i<dataContainer.getRoot().element.length;i++) {
@@ -517,20 +185,12 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
  * @exception IOException
  */
     public int getProfileInterval() throws IOException,UnsupportedException{
-    	if (loadProfile==0)
-    		return 0;
     	try {
-    		
-	        if (iInterval == 0) {
-	        	
-	           ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("1.0.99."+loadProfile+".0.255"));
-	           iInterval = profileGeneric.getCapturePeriod();
-	        	
-	           //byte[] LN = {1,0,(byte)99,(byte)loadProfile,0,(byte)255};
-	           //DataContainer dataContainer = doRequestAttribute((short)1,LN, (byte)2);
-	           //iInterval = dataContainer.getRoot().getInteger(0) * 60;
+	        if (profileInterval == -1) {
+	           ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString(loadProfileObisCode));
+	           profileInterval = profileGeneric.getCapturePeriod();
 	        }
-	        return iInterval;
+	        return profileInterval;
     	}
     	catch(IOException e) {
     		return 0;
@@ -538,9 +198,10 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
     }
     
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
-        int iNROfIntervals = getNROfIntervals();
-        Calendar fromCalendar = ProtocolUtils.getCalendar(timeZone);
-        fromCalendar.add(Calendar.MINUTE,(-1)*iNROfIntervals*(getProfileInterval()/60));
+        Calendar fromCalendar = ProtocolUtils.getCleanCalendar(timeZone);
+        fromCalendar.set(Calendar.YEAR,2009);        
+        fromCalendar.set(Calendar.MONTH,0);
+        fromCalendar.set(Calendar.DATE,1);
         return doGetProfileData(fromCalendar,ProtocolUtils.getCalendar(timeZone),includeEvents);
     }
 
@@ -564,14 +225,14 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
     private ProfileData doGetDemandValues(Calendar fromCalendar, byte bNROfChannels,  boolean includeEvents) throws IOException {
         
         ProfileData profileData = new ProfileData();
-        DataContainer dataContainer = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("1.0.99."+loadProfile+".0.255")).getBuffer(fromCalendar,Calendar.getInstance());
+        DataContainer dataContainer = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString(loadProfileObisCode)).getBuffer(fromCalendar,Calendar.getInstance());
         ScalerUnit[] scalerunit = new ScalerUnit[bNROfChannels];
         
         for (int i=0;i<bNROfChannels;i++) {
            //scalerunit[i] = getMeterDemandRegisterScalerUnit(i);
            scalerunit[i] = new ScalerUnit(Unit.get("")); //getMeterDemandRegisterScalerUnit(i);
            profileData.addChannel(new ChannelInfo(i,
-                                                  "dlmsSL7000_channel_"+i,
+                                                  "EictZ3_channel_"+i,
                                                   scalerunit[i].getUnit()));
         }
         buildProfileData(bNROfChannels,dataContainer,profileData,scalerunit);
@@ -581,7 +242,6 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
             // Apply the events to the channel statusvalues
             profileData.applyEvents(getProfileInterval()/60); 
         }
-        
         
         return profileData;
     }
@@ -795,7 +455,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         if (dataContainer.getRoot().element.length == 0)
            throw new IOException("No entries in object list.");
         
-        if (iRequestTimeZone != 0)
+        if (requestTimeZone != 0)
             calendar = ProtocolUtils.getCalendar(false,requestTimeZone());
         else
             calendar = ProtocolUtils.initCalendar(false,timeZone);
@@ -839,10 +499,17 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         throw new UnsupportedException();
     } 
      
-     private ScalerUnit getMeterDemandRegisterScalerUnit(int iChannelNR) throws IOException {
-        if (iChannelNR < getNumberOfChannels()) {
+     private ScalerUnit getMeterDemandRegisterScalerUnit(int channelId) throws IOException {
+        if (channelId < getNumberOfChannels()) {
             if (demandScalerUnits == null) {
                 demandScalerUnits = new ScalerUnit[getNumberOfChannels()];
+                
+                ObisCode obisCode = getCapturedObjects().getProfileDataChannel(channelId);
+                if (getCapturedObjects().getChannelObject(channelId).getClassId() == DLMSCOSEMGlobals.ICID_REGISTER) {
+                	
+                }
+                //getCosemObjectFactory().get 
+                
                 byte[] LN = {0,0,99,(byte)128,1,(byte)255}; 
                 DataContainer dataContainer = doRequestAttribute((short)7, LN,  (byte) 2);    
                 
@@ -853,23 +520,18 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
                 }
             }
             
-            return demandScalerUnits[iChannelNR];
+            return demandScalerUnits[channelId];
         }
-        else throw new IOException("getMeterDemandRegisterScalerUnit, invalid channelid ("+iChannelNR+")");
+        else throw new IOException("getMeterDemandRegisterScalerUnit, invalid channelid ("+channelId+")");
      }
      
-    private int getNROfIntervals() throws IOException
-    {
-        // TODO fix amound for the moment
-        return iNROfIntervals;    
-    } // private int getNROfIntervals() throws IOException
 /**
  * This method sets the time/date in the remote meter equal to the system time/date of the machine where this object resides.
  * @exception IOException
  */
     public void setTime() throws IOException {
        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-       calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);           
+       calendar.add(Calendar.MILLISECOND,roundtripCorrection);           
        byte[] byteTimeBuffer = new byte[14];
 
        byteTimeBuffer[0]=TYPEDESC_OCTET_STRING;
@@ -945,7 +607,8 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
             throw new IOException(e.getMessage());
         }
         try {
-            requestApplAssoc(iSecurityLevelProperty);
+        	
+        	AARQ aarq = new AARQ(securityLevel,strPassword,getDLMSConnection());
 
             try {
     
@@ -982,22 +645,16 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
                     else { // Cache not exist
                         logger.info("GenericGetSet: Cache does not exist, request object list.");
                         requestObjectList();
-                        //try {
-                            try {
-                            	iConf = requestConfigurationProgramChanges();
-                            }
-                            catch(IOException e) {
-                            	// KV_TO_DO temporary catch this exception 
-                                iConf=0;
-                            }
-                          
-                            dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
-                            dlmsCache.setConfProgChange(iConf);  // set new configuration program change
-//                        }
-//                        catch(IOException ex) {
-//                        	// KV_TO_DO 
-//                            iConf=-1;
-//                        }
+                        try {
+                        	iConf = requestConfigurationProgramChanges();
+                        }
+                        catch(IOException e) {
+                        	// KV_TO_DO temporary catch this exception 
+                            iConf=0;
+                        }
+                      
+                        dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
+                        dlmsCache.setConfProgChange(iConf);  // set new configuration program change
                     }
                     
                     if (!verifyMeterID()) 
@@ -1028,79 +685,12 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         validateSerialNumber(); // KV 19012004
         
     } // public void connect() throws IOException
-
-    
-    private String getAllMaximumDemandRegisterInfos(boolean billingPoint) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
-        Iterator it;
-        // All maximum demands (profile generic objects)
-        List allMaximumDemandProfiles = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.98.133.6.255")).getCaptureObjects();
-        it = allMaximumDemandProfiles.iterator();
-        while(it.hasNext()) {
-            CapturedObject capturedObjectMDProfile = (CapturedObject)it.next();
-            // get the first of the list of captured objects
-            List allMaximumDemands = getCosemObjectFactory().getProfileGeneric(capturedObjectMDProfile.getLogicalName().getObisCode()).getCaptureObjects();
-            CapturedObject capturedObject = (CapturedObject)allMaximumDemands.get(0);
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString()+" "+capturedObject.getLogicalName().getObisCode().getDescription()+(billingPoint?" (billing point)\n":"\n"));
-        }
-        return strBuff.toString();
-    }
-    private String getAllDemandRegisterInfos(boolean billingPoint) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
-        Iterator it;
-        // All demands 
-        it = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.98.133.5.255")).getCaptureObjects().iterator();
-        while(it.hasNext()) {
-            CapturedObject capturedObject = (CapturedObject)it.next();
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString()+" "+capturedObject.getLogicalName().getObisCode().getDescription()+(billingPoint?" (billing point)\n":"\n"));
-        }
-        return strBuff.toString();
-    }
-    private String getAllCumulativeMaximumDemandRegisterInfos(boolean billingPoint) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
-        Iterator it;
-        // All cumulative maximum demands
-        it = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.98.133.90.255")).getCaptureObjects().iterator();
-        while(it.hasNext()) {
-            CapturedObject capturedObject = (CapturedObject)it.next();
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString()+" "+capturedObject.getLogicalName().getObisCode().getDescription()+(billingPoint?" (billing point)\n":"\n"));
-        }
-        return strBuff.toString();
-    }
-    
-    private String getAllEnergyRates(boolean billingPoint) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
-        Iterator it;
-        // All energy rates
-        it = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("255.255.98.133.1.255")).getCaptureObjects().iterator();
-        while(it.hasNext()) {
-            CapturedObject capturedObject = (CapturedObject)it.next();
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString()+" "+capturedObject.getLogicalName().getObisCode().getDescription()+(billingPoint?" (billing point)\n":"\n"));
-        }
-        return strBuff.toString();
-    }
-    
-    private String getAllTotalEnergies(boolean billingPoint) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
-        Iterator it;
-        // All total energies
-        it = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("255.255.98.133.2.255")).getCaptureObjects().iterator();
-        while(it.hasNext()) {
-            CapturedObject capturedObject = (CapturedObject)it.next();
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString()+" "+capturedObject.getLogicalName().getObisCode().getDescription()+(billingPoint?" (billing point)\n":"\n"));
-        }
-        return strBuff.toString();
-    }
-    
     
     /*
      *  extendedLogging = 1 current set of logical addresses, extendedLogging = 2..17 historical set 1..16
      */
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         StringBuffer strBuff = new StringBuffer();
-        //Iterator it;
-        
-        // all total and rate values...
         strBuff.append("********************* All instantiated objects in the meter *********************\n");
         for (int i=0;i<getMeterConfig().getInstantiatedObjectList().length;i++) {
             UniversalObject uo = getMeterConfig().getInstantiatedObjectList()[i];
@@ -1108,39 +698,8 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         }
         strBuff.append(getSerialNumber()+"\n");
         strBuff.append(AXDRDecoder.decode(getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.1.1.255")).getData()).toString()+"\n"); // utility equipment identifier
-        
-        
-        
-        
-        
-//        strBuff.append(getAllTotalEnergies(false));
-//        strBuff.append(getAllEnergyRates(false));
-//        strBuff.append(getAllDemandRegisterInfos(false));
-//        strBuff.append(getAllMaximumDemandRegisterInfos(false));
-//        strBuff.append(getAllCumulativeMaximumDemandRegisterInfos(false));
-//        
-//        // all billing points values...
-//        strBuff.append("********************* Objects captured into billing points *********************\n");
-//        strBuff.append("The SL7000 has 18 billingpoints for most electricity related registers registers.\n");
-//        strBuff.append("For more specific rfegisters like instantaneous values etc, refer to the manufacturers.\n");
-//
-//        strBuff.append(getAllTotalEnergies(true));
-//        strBuff.append(getAllEnergyRates(true));
-//        strBuff.append(getAllDemandRegisterInfos(true));
-//        strBuff.append(getAllMaximumDemandRegisterInfos(true));
-//        strBuff.append(getAllCumulativeMaximumDemandRegisterInfos(true));
-//        
-//        strBuff.append("********************* Objects captured into load profile *********************\n");
-//        it = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjects().iterator();
-//        while(it.hasNext()) {
-//            CapturedObject capturedObject = (CapturedObject)it.next();
-//            strBuff.append(capturedObject.getLogicalName().getObisCode().toString()+" "+capturedObject.getLogicalName().getObisCode().getDescription()+" (load profile)\n");
-//        }
-//        
         return strBuff.toString();
     }
-    
-    
     
     public void disconnect() throws IOException {
        try {
@@ -1150,24 +709,6 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
           logger.severe("DLMSLN: disconnect(), "+e.getMessage());
        }
     } // public void disconnect() throws IOException
-
-    class InitiateResponse
-    {
-       protected byte bNegotiatedQualityOfService;
-       protected byte bNegotiatedDLMSVersionNR;
-       protected long lNegotiatedConformance;
-       protected short sServerMaxReceivePduSize;
-       protected short sVAAName;
-        
-       InitiateResponse()
-       {
-           bNegotiatedQualityOfService=0;
-           bNegotiatedDLMSVersionNR=0;
-           lNegotiatedConformance=0;
-           sServerMaxReceivePduSize=0;
-           sVAAName=0;
-       }
-    }
     
     /**
      * This method requests for the COSEM object list in the remote meter. A list is byuild with LN and SN references.
@@ -1178,9 +719,6 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         meterConfig.setInstantiatedObjectList(getCosemObjectFactory().getAssociationLN().getBuffer());
     } // public void requestObjectList() throws IOException
 
-    
-
-    
     public String requestAttribute(short sIC,byte[] LN,byte bAttr) throws IOException {
         return doRequestAttribute(sIC,LN, bAttr).print2strDataContainer();
     } // public String requestAttribute(short sIC,byte[] LN,byte bAttr ) throws IOException
@@ -1249,16 +787,16 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
             if ((strID != null) && (strID.length()>16)) throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
             strPassword = properties.getProperty(MeterProtocol.PASSWORD);
             //if (strPassword.length()!=8) throw new InvalidPropertyException("Password must be exact 8 characters.");
-            iHDLCTimeoutProperty=Integer.parseInt(properties.getProperty("Timeout","10000").trim());
-            iProtocolRetriesProperty=Integer.parseInt(properties.getProperty("Retries","5").trim());
+            hDLCTimeoutProperty=Integer.parseInt(properties.getProperty("Timeout","10000").trim());
+            protocolRetriesProperty=Integer.parseInt(properties.getProperty("Retries","5").trim());
             //iDelayAfterFailProperty=Integer.parseInt(properties.getProperty("DelayAfterfail","3000").trim());
-            iSecurityLevelProperty=Integer.parseInt(properties.getProperty("SecurityLevel","1").trim());
-            iRequestTimeZone=Integer.parseInt(properties.getProperty("RequestTimeZone","0").trim());
-            iRoundtripCorrection=Integer.parseInt(properties.getProperty("RoundtripCorrection","0").trim());
+            securityLevel=Integer.parseInt(properties.getProperty("SecurityLevel","1").trim());
+            requestTimeZone=Integer.parseInt(properties.getProperty("RequestTimeZone","0").trim());
+            roundtripCorrection=Integer.parseInt(properties.getProperty("RoundtripCorrection","0").trim());
             
-            iClientMacAddress=Integer.parseInt(properties.getProperty("ClientMacAddress","1").trim());
-            iServerUpperMacAddress=Integer.parseInt(properties.getProperty("ServerUpperMacAddress","17").trim());
-            iServerLowerMacAddress=Integer.parseInt(properties.getProperty("ServerLowerMacAddress","17").trim());
+            clientMacAddress=Integer.parseInt(properties.getProperty("ClientMacAddress","1").trim());
+            serverUpperMacAddress=Integer.parseInt(properties.getProperty("iServerUpperMacAddress","17").trim());
+            serverLowerMacAddress=Integer.parseInt(properties.getProperty("ServerLowerMacAddress","17").trim());
             firmwareVersion=properties.getProperty("FirmwareVersion","ANY");
             nodeId=properties.getProperty(MeterProtocol.NODEID,"");
             // KV 19012004 get the serialNumber
@@ -1266,7 +804,9 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
             extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0"));  
             addressingMode=Integer.parseInt(properties.getProperty("AddressingMode","-1"));  
             connectionMode = Integer.parseInt(properties.getProperty("Connection","0")); // 0=HDLC, 1= TCP/IP
-            loadProfile = Integer.parseInt(properties.getProperty("LoadProfile","1")); // 1..4
+            
+            //default obis code is the obiscode for the elec meter attached to the uart2 port
+            loadProfileObisCode = properties.getProperty("LoadProfileObisCode","1.0.99.1.0.255");
             
         }
         catch (NumberFormatException e) {
@@ -1371,7 +911,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
      * @return a list of strings
      */    
     public List getRequiredKeys() {
-        List result = new ArrayList(0);
+        List result = new ArrayList();
         
         return result; 
     }
@@ -1380,7 +920,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
      * @return a list of strings
      */    
     public List getOptionalKeys() {
-        List result = new ArrayList(9);
+        List result = new ArrayList();
         result.add("Timeout");
         result.add("Retries");
         result.add("DelayAfterFail");
@@ -1388,12 +928,12 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         result.add("FirmwareVersion");
         result.add("SecurityLevel");
         result.add("ClientMacAddress");
-        result.add("ServerUpperMacAddress");
+        result.add("iServerUpperMacAddress");
         result.add("ServerLowerMacAddress");
         result.add("ExtendedLogging");
         result.add("AddressingMode");
         result.add("Connection");        
-        result.add("LoadProfile");
+        result.add("LoadProfileObisCode");
         return result;
     }
     
@@ -1443,7 +983,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
     }
     public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn = 
-              (HHUSignOn)new IEC1107HHUConnection(commChannel,iHDLCTimeoutProperty,iProtocolRetriesProperty,300,0);
+              (HHUSignOn)new IEC1107HHUConnection(commChannel,hDLCTimeoutProperty,protocolRetriesProperty,300,0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
@@ -1466,7 +1006,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
     }
     
     public int getRoundTripCorrection() {
-        return iRoundtripCorrection;
+        return roundtripCorrection;
     }
     
     public TimeZone getTimeZone() {
@@ -1474,7 +1014,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
     }
     
     public boolean isRequestTimeZone() {
-        return (iRequestTimeZone != 0);
+        return (requestTimeZone != 0);
     }
     
     /**
@@ -1489,7 +1029,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         
         
         Calendar calendar = Calendar.getInstance();
-        return calendar.get(Calendar.YEAR)+"_"+(calendar.get(Calendar.MONTH)+1)+"_"+calendar.get(Calendar.DAY_OF_MONTH)+"_"+strID+"_"+strPassword+"_"+serialNumber+"_"+iServerUpperMacAddress+"_DLMSSL7000.cache";
+        return calendar.get(Calendar.YEAR)+"_"+(calendar.get(Calendar.MONTH)+1)+"_"+calendar.get(Calendar.DAY_OF_MONTH)+"_"+strID+"_"+strPassword+"_"+serialNumber+"_"+serverUpperMacAddress+"_DLMSSL7000.cache";
     }    
     
     public StoredValues getStoredValues() {
