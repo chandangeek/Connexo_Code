@@ -265,3 +265,5 @@
 -keepnames class com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging
 
 -keepnames class com.energyict.protocolimpl.dlms.elster.ek2xx.EK2xx
+
+-keepnames class com.energyict.protocolimpl.modbus.enerdis.enerium200.Enerium200
