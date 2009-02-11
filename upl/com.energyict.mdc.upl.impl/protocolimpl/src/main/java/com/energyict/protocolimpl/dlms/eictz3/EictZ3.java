@@ -18,6 +18,7 @@
 	KV|23032005|Changed header to be compatible with protocol version tool
 	KV|31032005|Handle DataContainerException
 	GN|25042008|Missing hour values with a profileInterval of 10min
+	GN|04022009|Added the possibility to make a request with a from/to date. The request must be in the form: 0.0.99.1.0.255:7:2-01/02/2009 00:00:00-04/02/2009 12:00:00
  * @endchanges
  */
 package com.energyict.protocolimpl.dlms.eictz3;
@@ -100,7 +101,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
     /** Creates a new instance of DLMSLNSL7000, empty constructor*/
     public EictZ3()
     {
-    } // public DLMSLNSL7000(...)
+    } // public EictZ3(...)
 
     public DLMSConnection getDLMSConnection() {
        return dlmsConnection;
@@ -1169,7 +1170,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
     }
     
     /**
-     * This method requests for the COSEM object list in the remote meter. A list is build with LN and SN references.
+     * This method requests for the COSEM object list in the remote meter. A list is byuild with LN and SN references.
      * This method must be executed before other request methods.
      * @exception IOException
      */
@@ -1292,14 +1293,39 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
             classSpecified=true;
         DLMSObis ln = new DLMSObis(name);
         if (ln.isLogicalName()) {
-            if (classSpecified)
-               return requestAttribute(ln.getDLMSClass(),ln.getLN(), (byte)ln.getOffset());
-            else {
+            if (classSpecified){
+            	return requestAttribute(ln.getDLMSClass(),ln.getLN(), (byte)ln.getOffset());
+            } else {
                UniversalObject uo = getMeterConfig().getObject(ln);
                return getCosemObjectFactory().getGenericRead(uo).getDataContainer().print2strDataContainer();
             }
+        } else if(name.indexOf("-") >= 0){	// you get a from/to
+			DLMSObis ln2 = new DLMSObis(name.substring(0, name.indexOf("-")));
+			if(ln2.isLogicalName()){
+				String from = name.substring(name.indexOf("-")+1, name.indexOf("-", name.indexOf("-")+1));
+				String to = name.substring(name.indexOf(from) + from.length() +1);
+				if(ln2.getDLMSClass() == 7){
+					return getCosemObjectFactory().getProfileGeneric(getMeterConfig().getObject(ln2).getObisCode()).getBuffer(convertStringToCalendar(from), convertStringToCalendar(to)).print2strDataContainer();
+				} else{
+					throw new NoSuchRegisterException("GenericGetSet,getRegister, register "+name+" is not a profile.");
+				}
+			} else {
+				throw new NoSuchRegisterException("GenericGetSet,getRegister, register "+name+" does not exist.");
+			}
+        }else{
+        	throw new NoSuchRegisterException("GenericGetSet,getRegister, register "+name+" does not exist.");
         }
-        else throw new NoSuchRegisterException("DLMSLNSL7000,getRegister, register "+name+" does not exist.");
+    }
+    
+    private Calendar convertStringToCalendar(String strDate){
+		Calendar cal = Calendar.getInstance(getTimeZone());
+		cal.set(Integer.parseInt(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" ")))&0xFFFF,
+				(Integer.parseInt(strDate.substring(strDate.indexOf("/") + 1, strDate.lastIndexOf("/")))&0xFF) -1,
+				Integer.parseInt(strDate.substring(0, strDate.indexOf("/")))&0xFF,
+				Integer.parseInt(strDate.substring(strDate.indexOf(" ") + 1, strDate.indexOf(":")))&0xFF,
+				Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":")))&0xFF,
+				Integer.parseInt(strDate.substring(strDate.lastIndexOf(":") + 1, strDate.length()))&0xFF);
+		return cal;
     }
     
     /** this implementation throws UnsupportedException. Subclasses may override
