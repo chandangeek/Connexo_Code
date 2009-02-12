@@ -1,5 +1,10 @@
 package com.energyict.protocolimpl.dlms;
 
+/**
+ * @deprecated  As of 11022009, replaced by
+ * com.energyict.dlms.cosem.CaptureObject 
+ * 
+ */
 public class LNObject {
 	
     int classId;

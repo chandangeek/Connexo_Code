@@ -41,6 +41,8 @@ public interface DLMSCOSEMGlobals {
     final short ICID_PROFILE_GENERIC=7;
     final short ICID_SAP=0x0011;
     final short ICID_LNREG=0x0003;
+    final short ICID_DISCONNECT_CONTROL=70;
+    
     
     final byte LN_A=0;
     final byte LN_B=1;

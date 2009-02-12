@@ -20,7 +20,14 @@ import com.energyict.protocolimpl.dlms.*;
 public class DLMSMeterConfig {
 
     private UniversalObject[] IOL=null;
+    
+    /**
+     * @deprecated  As of 12022009
+     * Getter for property COL.
+     * @return Value of property COL.
+     */    
     private UniversalObject[] COL=null;
+    
     String manuf;
     static private DLMSConfig config = DLMSConfig.getInstance();
     
@@ -56,6 +63,14 @@ public class DLMSMeterConfig {
     /** Creates a new instance of DLMSMeterConfig */
     private DLMSMeterConfig(String manuf) {
         this.manuf = manuf;
+    }
+    
+    public UniversalObject findObject(ObisCode obisCode) throws IOException {
+        if (IOL == null) throw new IOException("DLMSMeterConfig, getSN, IOL empty!");
+        for (int i=0;i<IOL.length;i++) {
+            if (IOL[i].equals(obisCode)) return IOL[i];
+        }
+       throw new NoSuchRegisterException("DLMSMeterConfig, findObject, "+obisCode.toString()+" not found in meter's instantiated object list!");
     }
     
     public int getSN(ObisCode obisCode) throws IOException {
@@ -204,6 +219,9 @@ public class DLMSMeterConfig {
        return config.getMeterReadingObject(IOL,id,deviceId);  
     }
     
+    /**
+     * @deprecated  As of 12022009
+     */    
     public UniversalObject getChannelObject(int id) throws IOException {
        int count=0;
        for (int i=0;i<COL.length;i++) {
@@ -217,6 +235,9 @@ public class DLMSMeterConfig {
     }
     
     
+    /**
+     * @deprecated  As of 12022009
+     */    
     public UniversalObject getMeterDemandObject(int id) throws IOException {
        int count=0;
        for (int i=0;i<COL.length;i++) {
@@ -234,15 +255,12 @@ public class DLMSMeterConfig {
        throw new IOException("DLMSMeterConfig, getMeterDemandObject("+id+"), not found in objectlist (IOL)!");      
     }    
     
+    /**
+     * @deprecated  As of 12022009
+     */    
     public int getNumberOfChannels() throws IOException {
        int count=0;
        for (int i=0;i<COL.length;i++) {
-           
-           //System.out.println("KV_DEBUG> "+COL[i].toStringCo());
-           
-           
-           // Changed KV 23022007 to allow also gas and water captured objects
-           // if (COL[i].isCapturedObjectElectricity()) {
            if (COL[i].isCapturedObjectNotAbstract()) {
                count++;
            }
@@ -263,30 +281,21 @@ public class DLMSMeterConfig {
     }    
     
     /**
+     * @deprecated  As of 12022009
      * Getter for property COL.
      * @return Value of property COL.
      */
     public UniversalObject[] getCapturedObjectList() {
         return this.COL;
     }    
-    
+    /**
+     * @deprecated  As of 12022009, use COSEM class com.energyict.dlms.cosem.ProfileGeneric and com.energyict.dlms.cosem.CaptureObjectsHelper 
+     * 
+     */
     public void setCapturedObjectList(UniversalObject[] COL) {
         this.COL=COL;
     }  
-    
-    public static void main(String[] args)
-    {
-        try {
-        DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance();
-        System.out.println("DLMS meter configuration");
-        
-        System.out.println(meterConfig.getClockSN());
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
+ 
 	public UniversalObject getMbusDisconnectControl(int physicalAddress) throws IOException {
 		return config.getMbusDisconnector(IOL, manuf, physicalAddress);
 	}
