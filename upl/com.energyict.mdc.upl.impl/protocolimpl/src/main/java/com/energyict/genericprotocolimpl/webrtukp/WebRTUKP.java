@@ -8,8 +8,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -53,6 +56,7 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObject;
@@ -78,6 +82,9 @@ import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Code;
+import com.energyict.mdw.core.CodeCalendar;
+import com.energyict.mdw.core.CodeDayType;
+import com.energyict.mdw.core.CodeDayTypeDef;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Lookup;
@@ -85,6 +92,8 @@ import com.energyict.mdw.core.LookupEntry;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.Season;
+import com.energyict.mdw.core.SeasonSet;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
@@ -1076,7 +1085,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					success = true;
 				} else if (llConfig){
 					
-					//TODO Test this
 					Limiter loadLimiter = getCosemObjectFactory().getLimiter();
 					
 					if(theMonitoredAttributeType == -1){	// check for the type of the monitored value
@@ -1189,11 +1197,161 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					
 					if(codeTable != null){
 						
+						//TODO special days
+						
 						Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
 						if(ct == null){
-							ct.getCalendars();
 							throw new IOException("No CodeTable defined with id '" + codeTable + "'");
 						} else {
+//							SeasonSet ss = ct.getSeasonSet();
+							List calendars = ct.getCalendars();
+							Array seasonArray = new Array();
+							Array weekArray = new Array();
+							HashMap seasonsProfile = new HashMap();
+							ArrayList seasonsP = new ArrayList();
+							
+//							int specialDaysId = -1;
+							
+//							Iterator itSS = ss.getSeasons().iterator();
+//							while(itSS.hasNext()){
+//								Season s = (Season)itSS.next();
+//								if(s.getName().equalsIgnoreCase("SpecialDays")){
+//									specialDaysId = s.getId();
+//								}
+//							}
+							
+							Iterator itr = calendars.iterator();
+							while(itr.hasNext()){ 
+								CodeCalendar cc = (CodeCalendar)itr.next();
+								int seasonId = cc.getSeason();
+//								if(seasonId != specialDaysId){
+									OctetString os = new OctetString(new byte[]{(byte) ((cc.getYear()==-1)?0xff:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xff:(cc.getYear())&0xFF), 
+											(byte) ((cc.getMonth()==-1)?0xFF:(cc.getMonth()-1)), (byte) cc.getDay(), (byte) 0xFF, 0, 0, 0, 0, (byte) 0x80, 0, 0}, true );
+									seasonsProfile.put(os, seasonId);
+//								}
+							}
+
+							seasonsP = getSortedList(seasonsProfile);
+							
+							int weekCount = 0;
+							Iterator seasonsPIt = seasonsP.iterator();
+							while(seasonsPIt.hasNext()){
+								Structure entry = (Structure)seasonsPIt.next();
+								OctetString dateTime = (OctetString)entry.getDataType(0);
+								Structure seasonStruct = new Structure();
+								int seasonProfileNameId = ((Unsigned8)entry.getDataType(1)).getValue();
+								if(!seasonArrayExists(seasonProfileNameId, seasonArray)){
+									
+									String weekProfileName = "Week" + weekCount++;
+									seasonStruct.addDataType(OctetString.fromString(Integer.toString(seasonProfileNameId)));	// the seasonProfileName is the DB id of the season
+									seasonStruct.addDataType(dateTime);
+									seasonStruct.addDataType(OctetString.fromString(weekProfileName));
+									seasonArray.addDataType(seasonStruct);		// TODO you have to sort the items by date ...
+									if(!weekArrayExists(weekProfileName, weekArray)){
+										Structure weekStruct = new Structure();
+										Iterator sIt = calendars.iterator();
+										CodeDayType dayTypes[] = {null, null, null, null, null, null, null};
+										CodeDayType any = null;
+										while(sIt.hasNext()){
+											CodeCalendar codeCal = (CodeCalendar)sIt.next();
+											if(codeCal.getSeason() == seasonProfileNameId){
+												switch(codeCal.getDayOfWeek()){
+												case 1: {
+													if(dayTypes[0] != null){
+														if(dayTypes[0] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
+													}else{dayTypes[0] = codeCal.getDayType();}}break;
+												case 2: {
+													if(dayTypes[1] != null){
+														if(dayTypes[1] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
+													}else{dayTypes[1] = codeCal.getDayType();}}break;
+												case 3: {
+													if(dayTypes[2] != null){
+														if(dayTypes[2] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
+													}else{dayTypes[2] = codeCal.getDayType();}}break;
+												case 4: {
+													if(dayTypes[3] != null){
+														if(dayTypes[3] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
+													}else{dayTypes[3] = codeCal.getDayType();}}break;
+												case 5: {
+													if(dayTypes[4] != null){
+														if(dayTypes[4] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
+													}else{dayTypes[4] = codeCal.getDayType();}}break;
+												case 6: {
+													if(dayTypes[5] != null){
+														if(dayTypes[5] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
+													}else{dayTypes[5] = codeCal.getDayType();}}break;
+												case 7: {
+													if(dayTypes[6] != null){
+														if(dayTypes[6] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
+													}else{dayTypes[6] = codeCal.getDayType();}}break;
+												case -1: {
+													if(any != null){
+														if(any != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
+													}else{any = codeCal.getDayType();}}break;
+												default: throw new IOException("Undefined daytype code received.");
+												}
+											}
+										}
+										
+										weekStruct.addDataType(OctetString.fromString(weekProfileName));
+										for(int i = 0; i < dayTypes.length; i++){
+											if(dayTypes[i] != null){
+												weekStruct.addDataType(new Unsigned8(dayTypes[i].getId()));
+											} else if(any != null){
+												weekStruct.addDataType(new Unsigned8(any.getId()));
+											} else {
+												throw new IOException("Not all dayId's are correctly filled in.");
+											}
+										}
+										weekArray.addDataType(weekStruct);
+										
+									}
+								}
+							}
+							Array dayArray = new Array();
+							List dayProfiles = ct.getDayTypesOfCalendar();
+							Iterator dayIt = dayProfiles.iterator();
+							while(dayIt.hasNext()){
+								CodeDayType cdt = (CodeDayType)dayIt.next();
+								Structure schedule = new Structure();
+								List definitions = cdt.getDefinitions();
+								Array daySchedules = new Array();
+								for(int i = 0; i < definitions.size(); i++){
+									Structure def = new Structure();
+									CodeDayTypeDef cdtd = (CodeDayTypeDef)definitions.get(i);
+									int tStamp = cdtd.getTstampFrom();
+									int hour = tStamp/10000;
+									int min = (tStamp-hour*10000)/100;
+									int sec = tStamp-(hour*10000)-(min*100);
+									OctetString tstampOs = new OctetString(new byte[]{(byte)hour, (byte)min, (byte)sec, 0}, true);
+									Unsigned16 selector = new Unsigned16(cdtd.getCodeValue());
+									def.addDataType(tstampOs);
+//									TODO def.addDataType(new OctetString(getMeterConfig().getTariffScriptTable().getLNArray()));
+									def.addDataType(new OctetString(new byte[]{0,0,10,0,(byte)100,0,(byte)255}));
+									def.addDataType(selector);
+									daySchedules.addDataType(def);
+								}
+								schedule.addDataType(new Unsigned8(cdt.getId()));
+								schedule.addDataType(daySchedules);
+								dayArray.addDataType(schedule);
+							}
+							
+							ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
+							
+							if(DEBUG)System.out.println(seasonArray);
+							if(DEBUG)System.out.println(weekArray);
+							if(DEBUG)System.out.println(dayArray);
+
+							ac.writeSeasonProfilePassive(seasonArray);
+							ac.writeWeekProfileTablePassive(weekArray);
+							ac.writeDayProfileTablePassive(dayArray);
+							
+							if(name != null){
+								ac.writeCalendarNamePassive(OctetString.fromString(name));
+							} 
+							if(activateDate != null){
+								ac.writeActivatePassiveCalendarTime(new OctetString(convertStringToDateTimeOctetString(activateDate).getBEREncodedByteArray(), 0, true));
+							}
 							
 						}
 						
@@ -1203,7 +1361,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 						// should never get here 
 						throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
 					}
-					
 					
 					success = true;
 					
@@ -1234,6 +1391,56 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		}
 	}
 
+	private ArrayList getSortedList(HashMap seasonsProfile) throws IOException {
+		LinkedList list = new LinkedList();
+		Structure struct;
+		Iterator it = seasonsProfile.entrySet().iterator();
+		boolean check;
+		while(it.hasNext()){
+			Map.Entry entry = (Map.Entry)it.next();
+			AXDRDateTime dt = new AXDRDateTime((OctetString)entry.getKey());
+			check = false;
+			for(int i = 0; i < list.size(); i++){
+				if(dt.getValue().getTime().before((new AXDRDateTime((OctetString)((Structure)list.get(i)).getDataType(0))).getValue().getTime())){
+					struct = new Structure();
+					struct.addDataType((OctetString)entry.getKey());
+					struct.addDataType(new Unsigned8((Integer)entry.getValue()));
+					list.add(i, struct);
+					check = true;
+					break;
+				}
+			}
+			if(!check){
+				struct = new Structure();
+				struct.addDataType((OctetString)entry.getKey());
+				struct.addDataType(new Unsigned8((Integer)entry.getValue()));
+				list.add(struct);
+			}
+		}
+		
+		return new ArrayList(list);
+	}
+
+	private boolean seasonArrayExists(int seasonProfileNameId, Array seasonArray) {
+		for(int i = 0; i < seasonArray.nrOfDataTypes(); i++){
+			Structure struct = (Structure)seasonArray.getDataType(i);
+			if(new String(((OctetString)struct.getDataType(0)).getOctetStr()).equalsIgnoreCase(Integer.toString(seasonProfileNameId))){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean weekArrayExists(String weekProfileName, Array weekArray) {
+		for(int i = 0; i < weekArray.nrOfDataTypes(); i++){
+			Structure struct = (Structure)weekArray.getDataType(i);
+			if(new String(((OctetString)struct.getDataType(0)).getOctetStr()).equalsIgnoreCase(weekProfileName)){
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Get the monitoredAttributeType
 	 * @param vdt
@@ -1253,11 +1460,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
       } else{
     	  throw new IOException("WebRtuKP, getMonitoredAttributeType, invalid classID " + getMeterConfig().getClassId(vdt.getObisCode())+" for obisCode "+vdt.getObisCode().toString()) ;
       }
-//   
-//      return new Data(protocolLink,getObjectReference(vdt.getObisCode()));
-//   else if (protocolLink.getMeterConfig().getClassId(vdt.getObisCode()) == ProfileGeneric.CLASSID)
-//      return new ProfileGeneric(protocolLink,getObjectReference(obisCode));
-//   
 	}
 	
 	/**
