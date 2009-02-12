@@ -42,7 +42,7 @@ import com.energyict.protocolimpl.dlms.Z3.AARQ;
 public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
     private static final byte DEBUG=1;  // KV 16012004 changed all DEBUG values  
     
-    private ScalerUnit[] demandScalerUnits=null;
+    
     String version=null;
     String serialnr=null;
     String nodeId;    
@@ -62,7 +62,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
     private String firmwareVersion;
     private String loadProfileObisCode;
     
-    CapturedObjects capturedObjects=null;
+    
     DLMSConnection dlmsConnection=null;
     CosemObjectFactory cosemObjectFactory=null;
     StoredValuesImpl storedValuesImpl=null;
@@ -73,6 +73,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
     private int numberOfChannels=-1;
     private int configProgramChanges=-1;
     private int profileInterval=-1;
+    CapturedObjectsHelper capturedObjectsHelper=null;
     
     // DLMS PDU offsets
     private static final byte DL_COSEMPDU_DATA_OFFSET=0x07;
@@ -106,10 +107,6 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         this.timeZone = timeZone;
         this.logger = logger;     
         
-        demandScalerUnits = null;
-        version = null;
-        serialnr = null;
-        
         try {
             cosemObjectFactory = new CosemObjectFactory(this);
             storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
@@ -129,45 +126,19 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
     
     
     
-    private CapturedObjects getCapturedObjects()  throws UnsupportedException, IOException {
-        if (capturedObjects == null) {
-           byte[] responseData;
-           int i;
-           DataContainer dataContainer = null;
-           try {
-               ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString(loadProfileObisCode));
-               meterConfig.setCapturedObjectList(profileGeneric.getCaptureObjectsAsUniversalObjects());               
-               dataContainer = profileGeneric.getCaptureObjectsAsDataContainer();
-               //List captureObjects = profileGeneric.getCaptureObjects();
-               
-               if (DEBUG>=1) dataContainer.printDataContainer();
-               
-               capturedObjects = new CapturedObjects(dataContainer.getRoot().element.length);
-               for (i=0;i<dataContainer.getRoot().element.length;i++) {
-                  capturedObjects.add(i,
-                                      dataContainer.getRoot().getStructure(i).getInteger(0),
-                                      dataContainer.getRoot().getStructure(i).getOctetString(1).getArray(),
-                                      dataContainer.getRoot().getStructure(i).getInteger(2));
-               }
-           }
-           catch (java.lang.ClassCastException e) {
-               System.out.println("Error retrieving object: "+e.getMessage());   
-           }
-           catch(java.lang.ArrayIndexOutOfBoundsException e) {
-               System.out.println("Index error: "+e.getMessage());   
-           }
-           
+    private CapturedObjectsHelper getCapturedObjectsHelper()  throws UnsupportedException, IOException {
+        if (capturedObjectsHelper == null) {
+           ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString(loadProfileObisCode));
+           capturedObjectsHelper = profileGeneric.getCaptureObjectsHelper();
         } // if (capturedObjects == null) 
-        
-        return capturedObjects;
-        
-    } // private CapturedObjects getCapturedObjects()  throws UnsupportedException, IOException
+        return capturedObjectsHelper;
+    } // private CapturedObjectsHelper getCapturedObjectsHelper()  throws UnsupportedException, IOException {
     
     
     public int getNumberOfChannels() throws UnsupportedException, IOException {
     	try {
 	        if (numberOfChannels == -1) {
-	            numberOfChannels = getCapturedObjects().getNROfChannels();
+	            numberOfChannels = getCapturedObjectsHelper().getNrOfchannels();
 	        }
 	        return numberOfChannels;
     	}
@@ -226,16 +197,12 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         
         ProfileData profileData = new ProfileData();
         DataContainer dataContainer = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString(loadProfileObisCode)).getBuffer(fromCalendar,Calendar.getInstance());
-        ScalerUnit[] scalerunit = new ScalerUnit[bNROfChannels];
         
         for (int i=0;i<bNROfChannels;i++) {
-           //scalerunit[i] = getMeterDemandRegisterScalerUnit(i);
-           scalerunit[i] = new ScalerUnit(Unit.get("")); //getMeterDemandRegisterScalerUnit(i);
-           profileData.addChannel(new ChannelInfo(i,
-                                                  "EictZ3_channel_"+i,
-                                                  scalerunit[i].getUnit()));
+       	   ScalerUnit scalerunit = getRegisterScalerUnit(i);
+           profileData.addChannel(new ChannelInfo(i,"EictZ3_channel_"+i,scalerunit.getUnit()));
         }
-        buildProfileData(bNROfChannels,dataContainer,profileData,scalerunit);
+        buildProfileData(bNROfChannels,dataContainer,profileData);
         
         if (includeEvents) {
             profileData.getMeterEvents().addAll(getLogbookData());
@@ -444,7 +411,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         return true;
     }
     
-    private void buildProfileData(byte bNROfChannels, DataContainer dataContainer,ProfileData profileData,ScalerUnit[] scalerunit)  throws IOException
+    private void buildProfileData(byte bNROfChannels, DataContainer dataContainer,ProfileData profileData)  throws IOException
     {
         byte bDOW;
         Calendar calendar=null,calendarEV=null;
@@ -481,12 +448,68 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         }
         return intervalData;
     }
+    /*
+     * VDEW status flags
+     *
+     */
+    
+    // appears only in the logbook
+    protected static final int CLEAR_LOADPROFILE = 0x4000;
+    protected static final int CLEAR_LOGBOOK = 0x2000;
+    protected static final int END_OF_ERROR = 0x0400;
+    protected static final int BEGIN_OF_ERROR = 0x0200;    
+    protected static final int VARIABLE_SET = 0x0100;    
+    
+    // appears in the logbook and the intervalstatus
+    protected static final int POWER_FAILURE = 0x0080;
+    protected static final int POWER_RECOVERY = 0x0040;
+    protected static final int DEVICE_CLOCK_SET_INCORRECT = 0x0020;  // Changed KV 12062003
+    protected static final int DEVICE_RESET = 0x0010;
+    protected static final int SEASONAL_SWITCHOVER = 0x0008;
+    protected static final int DISTURBED_MEASURE = 0x0004;
+    protected static final int RUNNING_RESERVE_EXHAUSTED = 0x0002;
+    protected static final int FATAL_DEVICE_ERROR = 0x0001;
+    
+    private int map2IntervalStateBits(int protocolStatus) {
+    	int eiStatus=0;
+    		
+		if ((protocolStatus&CLEAR_LOADPROFILE) != 0)
+			eiStatus |= IntervalStateBits.OTHER; 
+		if ((protocolStatus&CLEAR_LOGBOOK) != 0)
+			eiStatus |= IntervalStateBits.OTHER; 
+		if ((protocolStatus&END_OF_ERROR) != 0)
+			eiStatus |= IntervalStateBits.OTHER; 
+		if ((protocolStatus&BEGIN_OF_ERROR) != 0)
+			eiStatus |= IntervalStateBits.OTHER; 
+		if ((protocolStatus&VARIABLE_SET) != 0)
+			eiStatus |= IntervalStateBits.CONFIGURATIONCHANGE; 
+		if ((protocolStatus&DEVICE_CLOCK_SET_INCORRECT) != 0)
+			eiStatus |= IntervalStateBits.SHORTLONG; 
+		if ((protocolStatus&SEASONAL_SWITCHOVER) != 0)
+			eiStatus |= IntervalStateBits.SHORTLONG; 
+		if ((protocolStatus&FATAL_DEVICE_ERROR) != 0)
+			eiStatus |= IntervalStateBits.OTHER; 
+		if ((protocolStatus&DISTURBED_MEASURE) != 0)
+			eiStatus |= IntervalStateBits.CORRUPTED; 
+		if ((protocolStatus&POWER_FAILURE) != 0)
+			eiStatus |= IntervalStateBits.POWERDOWN; 
+		if ((protocolStatus&POWER_RECOVERY) != 0)
+			eiStatus |= IntervalStateBits.POWERUP; 
+		if ((protocolStatus&DEVICE_RESET) != 0)
+			eiStatus |= IntervalStateBits.OTHER; 
+		if ((protocolStatus&RUNNING_RESERVE_EXHAUSTED) != 0)
+			eiStatus |= IntervalStateBits.OTHER; 
+    	return eiStatus;
+    } // private void map2IntervalStateBits(int protocolStatus)
     
     private IntervalData getIntervalData(DataStructure dataStructure,Calendar calendar) throws UnsupportedException, IOException {
         // Add interval data...
-        IntervalData intervalData = new IntervalData(new Date(((Calendar)calendar.clone()).getTime().getTime()));
-        for (int t=0;t<getCapturedObjects().getNROfObjects();t++)
-            if (getCapturedObjects().isChannelData(t))
+    	int eiStatus=map2IntervalStateBits(dataStructure.getInteger(1));
+    	int protocolStatus=dataStructure.getInteger(1);
+        IntervalData intervalData = new IntervalData(new Date(((Calendar)calendar.clone()).getTime().getTime()),eiStatus,protocolStatus);
+        
+        for (int t=0;t<getCapturedObjectsHelper().getNrOfCapturedObjects();t++)
+            if (getCapturedObjectsHelper().isChannelData(t))
                 intervalData.addValue(new Integer(dataStructure.getInteger(t)));
         return intervalData;
     }
@@ -499,30 +522,17 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         throw new UnsupportedException();
     } 
      
-     private ScalerUnit getMeterDemandRegisterScalerUnit(int channelId) throws IOException {
-        if (channelId < getNumberOfChannels()) {
-            if (demandScalerUnits == null) {
-                demandScalerUnits = new ScalerUnit[getNumberOfChannels()];
-                
-                ObisCode obisCode = getCapturedObjects().getProfileDataChannel(channelId);
-                if (getCapturedObjects().getChannelObject(channelId).getClassId() == DLMSCOSEMGlobals.ICID_REGISTER) {
-                	
-                }
-                //getCosemObjectFactory().get 
-                
-                byte[] LN = {0,0,99,(byte)128,1,(byte)255}; 
-                DataContainer dataContainer = doRequestAttribute((short)7, LN,  (byte) 2);    
-                
-                for(int i=0;i<getNumberOfChannels();i++) {
-                   int scale = dataContainer.getRoot().getStructure(0).getStructure(i*2+1).getInteger(0);
-                   int unit = dataContainer.getRoot().getStructure(0).getStructure(i*2+1).getInteger(1);
-                   demandScalerUnits[i] = new ScalerUnit(scale,unit);
-                }
-            }
-            
-            return demandScalerUnits[channelId];
+     private ScalerUnit getRegisterScalerUnit(int channelId) throws IOException {
+        if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSCOSEMGlobals.ICID_REGISTER) {
+        	return getCosemObjectFactory().getRegister(getCapturedObjectsHelper().getProfileDataChannelObisCode(channelId)).getScalerUnit();
         }
-        else throw new IOException("getMeterDemandRegisterScalerUnit, invalid channelid ("+channelId+")");
+        else if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSCOSEMGlobals.ICID_DEMAND_REGISTER) {
+        	return getCosemObjectFactory().getDemandRegister(getCapturedObjectsHelper().getProfileDataChannelObisCode(channelId)).getScalerUnit();
+        }
+        else if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSCOSEMGlobals.ICID_EXTENDED_REGISTER) {
+        	return getCosemObjectFactory().getExtendedRegister(getCapturedObjectsHelper().getProfileDataChannelObisCode(channelId)).getScalerUnit();
+        }
+        else throw new IOException("EictZ3, getRegisterScalerUnit(), invalid channelId, "+channelId);
      }
      
 /**
@@ -694,10 +704,10 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         strBuff.append("********************* All instantiated objects in the meter *********************\n");
         for (int i=0;i<getMeterConfig().getInstantiatedObjectList().length;i++) {
             UniversalObject uo = getMeterConfig().getInstantiatedObjectList()[i];
-            strBuff.append(uo.getObisCode().toString()+" "+uo.getObisCode().getDescription()+"\n");
+            strBuff.append(uo.toString()+" "+uo.getObisCode().getDescription()+"\n");
         }
-        strBuff.append(getSerialNumber()+"\n");
-        strBuff.append(AXDRDecoder.decode(getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.1.1.255")).getData()).toString()+"\n"); // utility equipment identifier
+        //strBuff.append(getSerialNumber()+"\n");
+        //strBuff.append(AXDRDecoder.decode(getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.1.1.255")).getData()).toString()+"\n"); // utility equipment identifier
         return strBuff.toString();
     }
     
@@ -1037,6 +1047,25 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
     }
     
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+    	
+    	
+    	UniversalObject uo = getMeterConfig().findObject(obisCode);
+    	if (uo.getClassID() == DLMSCOSEMGlobals.ICID_REGISTER) {
+    		Register register = getCosemObjectFactory().getRegister(obisCode);
+    		return new RegisterValue(obisCode,register.getQuantityValue());
+    	}
+    	else if (uo.getClassID() == DLMSCOSEMGlobals.ICID_DEMAND_REGISTER) {
+    		DemandRegister register = getCosemObjectFactory().getDemandRegister(obisCode);
+    		return new RegisterValue(obisCode,register.getQuantityValue());
+    	}
+    	else if (uo.getClassID() == DLMSCOSEMGlobals.ICID_EXTENDED_REGISTER) {
+    		ExtendedRegister register = getCosemObjectFactory().getExtendedRegister(obisCode);
+    		return new RegisterValue(obisCode,register.getQuantityValue());
+    	}
+    	else if (uo.getClassID() == DLMSCOSEMGlobals.ICID_DISCONNECT_CONTROL) {
+    		Disconnector register = getCosemObjectFactory().getDisconnector(obisCode);
+    		return new RegisterValue(obisCode,""+register.getState());
+    	}
         if (ocm == null)
             ocm = new ObisCodeMapper(getCosemObjectFactory());
         return ocm.getRegisterValue(obisCode);
