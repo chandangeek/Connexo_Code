@@ -343,6 +343,14 @@ public class DLMSMeterConfig {
 		return config.getDisconnectorScriptTable(IOL);
 	}
 	
+	public UniversalObject getTariffScriptTable() throws IOException{
+		return config.getTariffScriptTable(IOL);
+	}
+	
+	public UniversalObject getActivityCalendar() throws IOException{
+		return config.getActivityCalendar(IOL);
+	}
+	
 	public UniversalObject getMbusDisconnectorScriptTable(int physicalAddress) throws IOException {
 		return config.getMbusDisconnectorScriptTable(IOL, manuf, physicalAddress);
 	}

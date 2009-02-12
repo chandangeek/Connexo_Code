@@ -44,6 +44,8 @@ public class DLMSConfig {
     final static private DLMSConfig limiter = new DLMSConfig("", 71,0,0,17,0,0,255);
     final static private DLMSConfig pppSetup = new DLMSConfig("", 44,0,0,25,3,0,255);
     final static private DLMSConfig gprsModemSetup = new DLMSConfig("", 45,0,0,25,4,0,255);
+    final static private DLMSConfig tariffScriptTable = new DLMSConfig("",9,0,0,10,0,100,255);
+    final static private DLMSConfig activityCalendar = new DLMSConfig("",20,0,0,13,0,0,255);
     
     
     final static private DLMSConfig[] configchange = {
@@ -1017,6 +1019,22 @@ public class DLMSConfig {
 			if (objectList[i].equals(disconnectorScriptTable)) return objectList[i];
 		}
 		throw new IOException("DLMSConfig, DisconnectorScriptTable, not found in objectlist (IOL)!");  
+	}
+	
+	public UniversalObject getTariffScriptTable(UniversalObject[] objectList) throws IOException {
+		if (objectList == null) throw new IOException("DLMSConfig, getTariffScriptTable, objectlist empty!");
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(tariffScriptTable)) return objectList[i];
+		}
+		throw new IOException("DLMSConfig, getTariffScriptTable, not found in objectlist (IOL)!");  
+	}
+	
+	public UniversalObject getActivityCalendar(UniversalObject[] objectList) throws IOException {
+		if (objectList == null) throw new IOException("DLMSConfig, getActivityCalendar, objectlist empty!");
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(activityCalendar)) return objectList[i];
+		}
+		throw new IOException("DLMSConfig, getActivityCalendar, not found in objectlist (IOL)!");  
 	}
 
 	public int getDisconnectorScriptTableSN(UniversalObject[] objectList) throws IOException {
