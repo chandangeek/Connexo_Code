@@ -70,7 +70,7 @@ public class DailyMonthly {
 					}
 				}
 			}
-			iskramx37x.getLogger().log(Level.INFO, "Reading Daily values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+			iskramx37x.getLogger().log(Level.INFO, "Meter " + this.iskramx37x.getMeter().getSerialNumber() + ": Reading Daily values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
 			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
@@ -142,7 +142,7 @@ public class DailyMonthly {
 				}
 			}
 			
-			iskramx37x.getLogger().log(Level.INFO, "Reading Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+			iskramx37x.getLogger().log(Level.INFO, "Meter " + this.iskramx37x.getMeter().getSerialNumber() + ": Reading Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
 			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);

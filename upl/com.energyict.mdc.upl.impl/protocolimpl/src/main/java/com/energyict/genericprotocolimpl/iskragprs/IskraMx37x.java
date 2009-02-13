@@ -21,8 +21,6 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.rpc.ServiceException;
-
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Unit;
@@ -304,10 +302,10 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 			disConnect();
 			e.printStackTrace();
 			throw new BusinessException(e);
-		} catch (ServiceException e) {
-			e.printStackTrace();
-			disConnect();
-			throw new BusinessException(e);
+//		} catch (ServiceException e) {
+//			e.printStackTrace();
+//			disConnect();
+//			throw new BusinessException(e);
 		} catch (ParseException e) {
 			e.printStackTrace();
 			disConnect();
@@ -466,7 +464,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		else if (rtu.getIntervalInSeconds() == dlmsCache.getGenericInterval2())
 			loadProfileObisCode = genericProfile2;
 		
-		for (int i = 0; i < mbusCount(); i++){
+		for (int i = 0; i < MBUS_MAX; i++){
 			if (mbusDevices[i] != null){
 				if (mbusDevices[i].getMbus().getIntervalInSeconds() == dlmsCache.getGenericInterval1()){
 					mbusLProfileObisCode[i] = genericProfile1;
@@ -836,7 +834,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         return getClock().getDateTime();
     }
 	
-    private void setTime() throws ServiceException, ParseException, IOException {
+    private void setTime() throws ParseException, IOException {
         
         /* Don't worry about clock sets over interval boundaries, Iskra
          * will (probably) handle this. 

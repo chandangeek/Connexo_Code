@@ -77,7 +77,7 @@ public class ElectricityProfile {
 				}
 			}
 			
-			iskramx37x.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+			iskramx37x.getLogger().log(Level.INFO, "Meter " + this.iskramx37x.getMeter().getSerialNumber() + ": Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
 			profileData.sort();
@@ -89,7 +89,7 @@ public class ElectricityProfile {
 				}
 				Calendar fromCal = ProtocolUtils.getCleanCalendar(getTimeZone());
 				fromCal.setTime(lastLogReading);
-				iskramx37x.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + iskramx37x.getSerialNumber() + ".");
+				iskramx37x.getLogger().log(Level.INFO, "Meter " + this.iskramx37x.getMeter().getSerialNumber() + ": Reading EVENTS from meter with serialnumber " + iskramx37x.getSerialNumber() + ".");
 				DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, iskramx37x.getToCalendar());
 				Logbook logbook = new Logbook(getTimeZone());
 				profileData.getMeterEvents().addAll(logbook.getMeterEvents(dcEvent));

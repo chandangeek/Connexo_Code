@@ -68,7 +68,7 @@ public class MbusDailyMonthly {
 				}
 			}
 			
-			this.mbusDevice.getLogger().log(Level.INFO, "Reading Daily values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+			this.mbusDevice.getLogger().log(Level.INFO, "Mbus " + this.mbusDevice.getCustomerID() + ": Reading Daily values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
 			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
@@ -141,7 +141,7 @@ public class MbusDailyMonthly {
 				}
 			}
 			
-			this.mbusDevice.getLogger().log(Level.INFO, "Reading Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+			this.mbusDevice.getLogger().log(Level.INFO, "Mbus " + this.mbusDevice.getCustomerID() + ": Reading Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
 			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);

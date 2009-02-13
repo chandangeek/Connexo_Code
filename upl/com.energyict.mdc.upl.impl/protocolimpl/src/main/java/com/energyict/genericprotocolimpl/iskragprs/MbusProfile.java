@@ -72,7 +72,7 @@ public class MbusProfile {
 					}
 				}
 			}
-			this.mbusDevice.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+			this.mbusDevice.getLogger().log(Level.INFO, "Mbus " + this.mbusDevice.getCustomerID() + ": Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
 			profileData.sort();
