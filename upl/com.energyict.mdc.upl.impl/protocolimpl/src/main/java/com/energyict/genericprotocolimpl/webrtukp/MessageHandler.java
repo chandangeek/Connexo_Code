@@ -56,6 +56,9 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.TOU_ACTIVITY_CAL.equals(qName)){
 			setType(RtuMessageConstant.TOU_ACTIVITY_CAL);
 			handleTOUMessage(attrbs);
+		} else if(RtuMessageConstant.TOU_SPECIAL_DAYS.equals(qName)){
+			setType(RtuMessageConstant.TOU_SPECIAL_DAYS);
+			handleSpecialDays(attrbs);
 		}
 	}
 
@@ -258,12 +261,17 @@ public class MessageHandler extends DefaultHandler{
 	private String touCalendarName = "";
 	private String touCodeTable = "";
 	private String touUserFile = "";
+	private String touSpecialDaysCodeTable = "";
 	
 	private void handleTOUMessage(Attributes attrbs){
 		this.touActivationDate = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_DATE);
 		this.touCalendarName = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_NAME);
 		this.touCodeTable = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE);
 		this.touUserFile = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_USER_FILE);
+	}
+
+	private void handleSpecialDays(Attributes attrbs) {
+		this.touSpecialDaysCodeTable = attrbs.getValue(RtuMessageConstant.TOU_SPECIAL_DAYS_CODE_TABLE);
 	}
 	
 	public String getTOUActivationDate(){
@@ -280,5 +288,9 @@ public class MessageHandler extends DefaultHandler{
 	
 	public String getTOUUserFile(){
 		return this.touUserFile;
+	}
+	
+	public String getSpecialDaysCodeTable(){
+		return this.touSpecialDaysCodeTable;
 	}
 }

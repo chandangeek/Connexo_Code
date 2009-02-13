@@ -71,6 +71,7 @@ import com.energyict.dlms.cosem.P3ImageTransfer;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.cosem.Limiter.ValueDefinitionType;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
@@ -129,6 +130,7 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
  * GNA |27012009| Added the Disconnect Control message
  * GNA |28012009| Implemented the Loadlimit messages - Enabled the daily/Monthly code
  * GNA |02022009| Added the forceClock functionality
+ * GNA |12022009| Added ActivityCalendar and SpecialDays as rtu message
  */
 
 public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
@@ -951,6 +953,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				boolean llClear			= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_DISABLE);
 				boolean llSetGrId		= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST);
 				boolean touCalendar		= messageHandler.getType().equals(RtuMessageConstant.TOU_ACTIVITY_CAL);
+				boolean touSpecialDays 	= messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS);
 				
 				if(xmlConfig){
 					
@@ -1181,6 +1184,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					}
 					
 					success = true;
+					
 				} else if(touCalendar){
 					String name = messageHandler.getTOUCalendarName();
 					String activateDate = messageHandler.getTOUActivationDate();
@@ -1195,38 +1199,23 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					
 					if(codeTable != null){
 						
-						//TODO special days
-						
 						Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
 						if(ct == null){
 							throw new IOException("No CodeTable defined with id '" + codeTable + "'");
 						} else {
-//							SeasonSet ss = ct.getSeasonSet();
 							List calendars = ct.getCalendars();
 							Array seasonArray = new Array();
 							Array weekArray = new Array();
 							HashMap seasonsProfile = new HashMap();
 							ArrayList seasonsP = new ArrayList();
 							
-//							int specialDaysId = -1;
-							
-//							Iterator itSS = ss.getSeasons().iterator();
-//							while(itSS.hasNext()){
-//								Season s = (Season)itSS.next();
-//								if(s.getName().equalsIgnoreCase("SpecialDays")){
-//									specialDaysId = s.getId();
-//								}
-//							}
-							
 							Iterator itr = calendars.iterator();
 							while(itr.hasNext()){ 
 								CodeCalendar cc = (CodeCalendar)itr.next();
 								int seasonId = cc.getSeason();
-//								if(seasonId != specialDaysId){
 									OctetString os = new OctetString(new byte[]{(byte) ((cc.getYear()==-1)?0xff:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xff:(cc.getYear())&0xFF), 
-											(byte) ((cc.getMonth()==-1)?0xFF:(cc.getMonth()-1)), (byte) cc.getDay(), (byte) 0xFF, 0, 0, 0, 0, (byte) 0x80, 0, 0}, true );
+											(byte) ((cc.getMonth()==-1)?0xFF:(cc.getMonth()-1)), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()), (byte) 0xFF, 0, 0, 0, 0, (byte) 0x80, 0, 0}, true );
 									seasonsProfile.put(os, seasonId);
-//								}
 							}
 
 							seasonsP = getSortedList(seasonsProfile);
@@ -1354,7 +1343,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 						}
 						
 					} else if(userFile != null){
-						
+						//TODO
 					} else {
 						// should never get here 
 						throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
@@ -1362,6 +1351,40 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					
 					success = true;
 					
+				} else if(touSpecialDays){
+					String codeTable = messageHandler.getSpecialDaysCodeTable();
+					
+					if(codeTable == null){
+						throw new IOException("CodeTalbe-ID can not be empty.");
+					} else {
+						
+						Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
+						if(ct == null){
+							throw new IOException("No CodeTable defined with id '" + codeTable + "'");
+						} else {
+
+							List calendars = ct.getCalendars();
+
+							SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
+							
+							for(int i = 0; i < calendars.size(); i++){
+								CodeCalendar cc = (CodeCalendar)calendars.get(i);
+								if(cc.getSeason() == 0){
+									OctetString os = new OctetString(new byte[]{(byte) ((cc.getYear()==-1)?0xff:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xff:(cc.getYear())&0xFF), 
+											(byte) ((cc.getMonth()==-1)?0xFF:(cc.getMonth()-1)), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()),
+											(byte) ((cc.getDayOfWeek()==-1)?0xFF:cc.getDayOfWeek())}, true );
+									Unsigned8 dayType = new Unsigned8(cc.getDayType().getId());
+									Structure struct = new Structure();
+									struct.addDataType(new Unsigned16(i));
+									struct.addDataType(os);
+									struct.addDataType(dayType);
+									sdt.insert(struct);
+								}
+							}
+							
+							success = true;
+						}
+					}
 				} else {
 					success = false;
 				}
@@ -1606,6 +1629,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		// Activity Calendar related messages
 		msgSpec = addTimeOfUse("Select the Activity Calendar", RtuMessageConstant.TOU_ACTIVITY_CAL, false);
 		catActivityCal.addMessageSpec(msgSpec);
+		msgSpec = addSpecialDays("Select the Special days Calendar", RtuMessageConstant.TOU_SPECIAL_DAYS, false);
+		catActivityCal.addMessageSpec(msgSpec);
 		
 		categories.add(catXMLConfig);
 		categories.add(catFirmware);
@@ -1616,6 +1641,18 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		return categories;
 	}
 	
+	private MessageSpec addSpecialDays(String keyId, String tagName, boolean advanced) {
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        tagSpec.add(msgVal);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.TOU_SPECIAL_DAYS_CODE_TABLE, false);
+        tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+
 	private MessageSpec addNoValueMsg(String keyId, String tagName, boolean advanced){
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
