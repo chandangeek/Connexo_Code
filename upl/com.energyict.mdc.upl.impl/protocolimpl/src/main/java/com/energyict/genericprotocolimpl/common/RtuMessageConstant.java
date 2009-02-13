@@ -105,4 +105,10 @@ public class RtuMessageConstant {
 	public static final String GPRS_USERNAME = "Username";
 	public static final String GPRS_PASSWORD = "Password";
 	
+	/** RtuMessage tags for MBus setup */
+	public static final String MBUS_DECOMMISSION = "Decommission";
+	public static final String MBUS_ENCRYPTION_KEYS = "Set_Encryption_keys";
+	public static final String MBUS_OPEN_KEY = "Open_Key_Value";
+	public static final String MBUS_TRANSFER_KEY = "Transfer_Key_Value";
+	
 }
