@@ -46,6 +46,7 @@ public class DLMSConfig {
     final static private DLMSConfig gprsModemSetup = new DLMSConfig("", 45,0,0,25,4,0,255);
     final static private DLMSConfig tariffScriptTable = new DLMSConfig("",9,0,0,10,0,100,255);
     final static private DLMSConfig activityCalendar = new DLMSConfig("",20,0,0,13,0,0,255);
+    final static private DLMSConfig specialDays = new DLMSConfig("",11,0,0,11,0,0,255);
     
     
     final static private DLMSConfig[] configchange = {
@@ -1035,6 +1036,14 @@ public class DLMSConfig {
 			if (objectList[i].equals(activityCalendar)) return objectList[i];
 		}
 		throw new IOException("DLMSConfig, getActivityCalendar, not found in objectlist (IOL)!");  
+	}
+	
+	public UniversalObject getSpecialDaysTable(UniversalObject[] objectList) throws IOException{
+		if (objectList == null) throw new IOException("DLMSConfig, getSpecialDaysTable, objectlist empty!");
+		for (int i=0;i<objectList.length;i++) {
+			if (objectList[i].equals(specialDays)) return objectList[i];
+		}
+		throw new IOException("DLMSConfig, getSpecialDaysTable, not found in objectlist (IOL)!");  
 	}
 
 	public int getDisconnectorScriptTableSN(UniversalObject[] objectList) throws IOException {

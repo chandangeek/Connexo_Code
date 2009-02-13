@@ -372,4 +372,8 @@ public class DLMSMeterConfig {
 		return config.getLimiter(IOL);
 	}
 
+	public UniversalObject getSpecialDaysTable() throws IOException{
+		return config.getSpecialDaysTable(IOL);
+	}
+
 }
