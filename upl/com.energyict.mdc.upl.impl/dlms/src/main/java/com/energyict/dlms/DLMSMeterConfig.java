@@ -376,4 +376,7 @@ public class DLMSMeterConfig {
 		return config.getSpecialDaysTable(IOL);
 	}
 
+	public UniversalObject getMbusClient(int physicalAddress) throws IOException{
+		return config.getMbusClient(IOL, manuf, physicalAddress);
+	}
 }

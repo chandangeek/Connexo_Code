@@ -173,6 +173,13 @@ public class DLMSConfig {
     		new DLMSConfig("WKP",7,0,4,24,3,0,255)
     };
     
+    final static private DLMSConfig[] mbusClient = {
+    		new DLMSConfig("WKP",72,0,1,24,1,0,255),
+    		new DLMSConfig("WKP",72,0,2,24,1,0,255),
+    		new DLMSConfig("WKP",72,0,3,24,1,0,255),
+    		new DLMSConfig("WKP",72,0,4,24,1,0,255),
+    };
+    
     final static private DLMSConfig[] xmlConfig = {
     		new DLMSConfig("WKP",1,0,129,0,0,0,255)
     };
@@ -791,6 +798,22 @@ public class DLMSConfig {
 			}
 		}
 		throw new IOException("DLMSConfig, getMbusDisconnectControlSchedule, not found in objectlist (IOL)");
+	}
+	
+	public UniversalObject getMbusClient(UniversalObject[] objectList, String manuf, int channel) throws IOException {
+    	int count = 0;
+    	if (objectList == null) throw new IOException("DLMSConfig, getMbusClient, objectlist empty!");
+    	for(int t = 0; t < mbusClient.length; t++){
+			if((manuf != null) && (mbusClient[t].getManuf().compareTo(manuf) != 0)) continue;
+			if(count++ == channel){
+				for(int i = 0; i < objectList.length; i++){
+					if(objectList[i].equals(mbusClient[t])){
+						return objectList[i];
+					}
+				}
+			}
+		}
+		throw new IOException("DLMSConfig, getMbusClient, not found in objectlist (IOL)");
 	}
 	
 	public UniversalObject getMbusDisconnectorScriptTable(UniversalObject[] objectList, String manuf, int channel) throws IOException {

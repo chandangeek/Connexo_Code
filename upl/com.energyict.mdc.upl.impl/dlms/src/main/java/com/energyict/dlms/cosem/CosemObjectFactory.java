@@ -181,6 +181,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public Disconnector getDisconnector(ObisCode obisCode) throws IOException{
     	return new Disconnector(protocolLink, getObjectReference(obisCode));
     }
+    
+	public MBusClient getMbusClient(ObisCode obisCode) throws IOException{
+		return new MBusClient(protocolLink, getObjectReference(obisCode));
+	}
 
 	public Limiter getLimiter() throws IOException{
 		return new Limiter(protocolLink, getObjectReference(LIMITER, protocolLink.getMeterConfig().getLimiterSN()));
