@@ -261,10 +261,10 @@ public class MbusDevice implements GenericProtocol, Messaging{
 					MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getPhysicalAddress()).getObisCode());
 					
 					if(openKey == null){
-						mbusClient.setEncryptionKey(null);
+						mbusClient.setEncryptionKey("");
 					} else if(transferKey != null){
-						mbusClient.setEncryptionKey(openKey);
-						mbusClient.setTransportKey(transferKey);
+						mbusClient.setEncryptionKey(convertStringToByte(openKey));
+						mbusClient.setTransportKey(convertStringToByte(transferKey));
 					} else {
 						throw new IOException("Transfer key may not be empty when setting the encryption keys.");
 					}
@@ -295,6 +295,20 @@ public class MbusDevice implements GenericProtocol, Messaging{
 		}
 	}
 	
+	private byte[] convertStringToByte(String string) throws IOException {
+		try {
+			byte[] b = new byte[string.length()/2];
+			int offset = 0;
+			for(int i = 0; i < b.length; i++){
+				b[i] = (byte)Integer.parseInt(string.substring(offset, offset+=2));
+			}
+			return b;
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			throw new IOException("String " + string + " can not be formatted to byteArray");
+		}
+	}
+
 	private ObisCode adjustToMbusChannelObisCode(ObisCode oc) {
 		return new ObisCode(oc.getA(), getPhysicalAddress()+1, oc.getC(), oc.getD(), oc.getE(), oc.getF());
 	}
@@ -441,4 +455,13 @@ public class MbusDevice implements GenericProtocol, Messaging{
 		return msgValue.getValue();
 	}
 
+	public static void main(String args[]){
+		MbusDevice md = new MbusDevice();
+		String string = "12345678";
+		try {
+			System.out.println(md.convertStringToByte(string));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

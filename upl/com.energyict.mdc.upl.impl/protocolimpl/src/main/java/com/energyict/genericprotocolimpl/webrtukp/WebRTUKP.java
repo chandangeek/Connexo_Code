@@ -1203,6 +1203,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 						if(ct == null){
 							throw new IOException("No CodeTable defined with id '" + codeTable + "'");
 						} else {
+							
 							List calendars = ct.getCalendars();
 							Array seasonArray = new Array();
 							Array weekArray = new Array();
@@ -1344,6 +1345,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 						
 					} else if(userFile != null){
 						//TODO
+						throw new IOException("ActivityCalendar by userfile is not supported yet.");
 					} else {
 						// should never get here 
 						throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
