@@ -21,6 +21,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
@@ -31,10 +32,7 @@ import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
@@ -94,11 +92,9 @@ public class MbusDevice implements GenericProtocol, Messaging{
 		this.mbus = mbusRtu;
 		this.logger = logger;
 		this.valid = true;
-//		updatePhysicalAddressWithNodeAddress();
 	}
 	
 	private void verifySerialNumber() throws IOException{
-		//TODO resolve NULLPOINTER
 		String serial;
 		String eiSerial = getMbus().getSerialNumber();
 		try {
@@ -118,13 +114,6 @@ public class MbusDevice implements GenericProtocol, Messaging{
 	
 	private DLMSMeterConfig getMeterConfig(){
 		return getWebRTU().getMeterConfig();
-	}
-
-	private void updatePhysicalAddressWithNodeAddress() throws SQLException, BusinessException, IOException{
-		
-		this.physicalAddress = Integer.parseInt(getMbus().getNodeAddress()) - 1;
-		if(this.physicalAddress < 0 || this.physicalAddress > 3)
-			throw new IOException("NodeAddress must be between 1 - 4, here value is " + (this.physicalAddress+1));
 	}
 	
 	public boolean isValid() {
@@ -206,6 +195,8 @@ public class MbusDevice implements GenericProtocol, Messaging{
 				
 				boolean connect			= messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
 				boolean disconnect		= messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
+				boolean decommission 	= messageHandler.getType().equals(RtuMessageConstant.MBUS_DECOMMISSION);
+				boolean mbusEncryption 	= messageHandler.getType().equals(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
 				
 				if(connect){
 					
@@ -256,9 +247,32 @@ public class MbusDevice implements GenericProtocol, Messaging{
 					}
 					
 					success = true;
-				} else {
+				} else if(decommission){
 					
+					MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getPhysicalAddress()).getObisCode());
+					mbusClient.deinstallSlave();
+					
+					success = true;
+				} else if(mbusEncryption){
+					
+					String openKey = messageHandler.getOpenKey();
+					String transferKey = messageHandler.getTransferKey();
+					
+					MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getPhysicalAddress()).getObisCode());
+					
+					if(openKey == null){
+						mbusClient.setEncryptionKey(null);
+					} else if(transferKey != null){
+						mbusClient.setEncryptionKey(openKey);
+						mbusClient.setTransportKey(transferKey);
+					} else {
+						throw new IOException("Transfer key may not be empty when setting the encryption keys.");
+					}
+					
+					success = true;
+				} else {	// unknown message
 					success = false;
+					throw new IOException("Unknown message");
 				}
 				
 			} catch (BusinessException e) {
@@ -326,6 +340,7 @@ public class MbusDevice implements GenericProtocol, Messaging{
 	public List getMessageCategories() {
 		List categories = new ArrayList();
 		MessageCategorySpec catDisconnect = new MessageCategorySpec("Disconnect Control");
+		MessageCategorySpec catMbusSetup = new MessageCategorySpec("Mbus setup");
 		
 		// Disconnect control related messages
 		MessageSpec msgSpec = addConnectControl("Disconnect", RtuMessageConstant.DISCONNECT_LOAD, false);
@@ -333,7 +348,14 @@ public class MbusDevice implements GenericProtocol, Messaging{
 		msgSpec = addConnectControl("Connect", RtuMessageConstant.CONNECT_LOAD, false);
 		catDisconnect.addMessageSpec(msgSpec);
 		
+		// Mbus setup related messages
+		msgSpec = addNoValueMsg("Decommission", RtuMessageConstant.MBUS_DECOMMISSION, false);
+		catMbusSetup.addMessageSpec(msgSpec);
+		msgSpec = addEncryptionkeys("Set Encryption keys", RtuMessageConstant.MBUS_ENCRYPTION_KEYS, false);
+		catMbusSetup.addMessageSpec(msgSpec);
+		
 		categories.add(catDisconnect);
+		categories.add(catMbusSetup);
 		return categories;
 	}
 
@@ -345,6 +367,27 @@ public class MbusDevice implements GenericProtocol, Messaging{
         MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, false);
         tagSpec.add(msgVal);
         tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+	
+	private MessageSpec addNoValueMsg(String keyId, String tagName, boolean advanced){
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+	
+	private MessageSpec addEncryptionkeys(String keyId, String tagName, boolean advanced) {
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.MBUS_OPEN_KEY, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.MBUS_TRANSFER_KEY, false);
+        tagSpec.add(msgAttrSpec);
+        tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
 	}

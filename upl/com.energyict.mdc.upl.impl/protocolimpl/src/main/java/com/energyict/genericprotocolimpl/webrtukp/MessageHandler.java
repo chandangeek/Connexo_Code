@@ -59,6 +59,11 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.TOU_SPECIAL_DAYS.equals(qName)){
 			setType(RtuMessageConstant.TOU_SPECIAL_DAYS);
 			handleSpecialDays(attrbs);
+		} else if(RtuMessageConstant.MBUS_DECOMMISSION.equals(qName)){
+			setType(RtuMessageConstant.MBUS_DECOMMISSION);
+		} else if(RtuMessageConstant.MBUS_ENCRYPTION_KEYS.equals(qName)){
+			setType(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
+			handleMbusEncryptionKeys(attrbs);
 		}
 	}
 
@@ -293,4 +298,26 @@ public class MessageHandler extends DefaultHandler{
 	public String getSpecialDaysCodeTable(){
 		return this.touSpecialDaysCodeTable;
 	}
+	/**********************************************/
+	
+	/**********************************************
+	 * Mbus encryption keys Related messages
+	 **********************************************/
+	private String openKey = "";
+	private String transferKey = "";
+	
+	private void handleMbusEncryptionKeys(Attributes attrbs){
+		this.openKey = attrbs.getValue(RtuMessageConstant.MBUS_OPEN_KEY);
+		this.transferKey = attrbs.getValue(RtuMessageConstant.MBUS_TRANSFER_KEY);
+	}
+	
+	public String getOpenKey(){
+		return this.openKey;
+	}
+	
+	public String getTransferKey(){
+		return this.transferKey;
+	}
+	
+	/**********************************************/
 }
