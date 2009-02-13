@@ -31,7 +31,8 @@ public class RegisterFactory extends AbstractRegisterFactory {
 	private static final String METERINFO_PARSER	= "METERINFO_PARSER";
 	
 	public HoldingRegister meterInfo;
-	public HoldingRegister writeTime;
+	public HoldingRegister writeFunctionReg;
+	public HoldingRegister readProfileReg;
 	
     /** Creates a new instance of RegisterFactory */
     public RegisterFactory(Modbus modBus) {
@@ -40,15 +41,17 @@ public class RegisterFactory extends AbstractRegisterFactory {
     
     protected void init() {
 
+    	setZeroBased(false); // this means that reg2read = reg-1
+
     	meterInfo = (HoldingRegister) new HoldingRegister(0x0000, 0x001E).setParser(METERINFO_PARSER);
     	meterInfo.setRegisterFactory(this);
     	
-    	writeTime = new HoldingRegister(0xD000, 0x0003);
-    	writeTime.setRegisterFactory(this);
+    	writeFunctionReg = new HoldingRegister(0xD000, 0x0000);
+    	writeFunctionReg.setRegisterFactory(this);
     	
-    	// options
-        setZeroBased(false); // this means that reg2read = reg-1
-        
+    	readProfileReg = new HoldingRegister(0x2300, 0x0000);
+    	readProfileReg.setRegisterFactory(this);
+
     }
     
     private TimeZone getTimeZone() {

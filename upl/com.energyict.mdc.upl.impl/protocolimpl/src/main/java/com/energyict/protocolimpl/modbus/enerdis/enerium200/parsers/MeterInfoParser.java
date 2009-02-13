@@ -9,13 +9,14 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.Parser;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.MeterInfo;
+import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
 
 public class MeterInfoParser implements Parser {
 
 	private static final int DEBUG = 0;
 	
-	private static final int SERIAL_OFFSET	= 43;
-	private static final int SERIAL_LENGTH	= 8;
+	private static final int SERIAL_OFFSET	= 42;
+	private static final int SERIAL_LENGTH	= 10;
 	private static final int TIME_OFFSET 	= 30;
 	private static final int TIME_LENGTH 	= 4;
 	
@@ -45,20 +46,6 @@ public class MeterInfoParser implements Parser {
     	return bytesToString(ProtocolUtils.getSubArray2(rawData, SERIAL_OFFSET, SERIAL_LENGTH));
     }
     
-	private Date parseTime(byte[] rawData) {
-		Calendar cal = ProtocolUtils.getCleanCalendar(timeZone);
-		long secondsSince1970GMT = 0;
-
-		for (int i = 0; i < TIME_LENGTH; i++) {
-			long value = ((long)rawData[TIME_OFFSET+i]) & 0x00FF; 
-			secondsSince1970GMT += value << ((TIME_LENGTH - (i+1)) * 8);
-		}
-		
-		cal.setTime(new Date(secondsSince1970GMT * 1000));
-		cal.add(Calendar.HOUR, -1);
-		return cal.getTime();
-	}
-
 	private String parseVersion(byte[] rawData) {
 		return "AANPASSEN";
 	}
@@ -68,20 +55,14 @@ public class MeterInfoParser implements Parser {
 	 */
 
 	public MeterInfo val(int[] values, AbstractRegister register) throws IOException {
-		String serialNumber;
-		Date time;
-		String version;
-		byte[] rawData;
+		byte[] rawData = Utils.intArrayToByteArray(values);
+		TimeDateParser td_parser = new TimeDateParser(timeZone);
 		
-		rawData = new byte[values.length * 2];
-		for (int i = 0; i < values.length; i++) {
-			rawData[i*2] 		= (byte) ((values[i] & 0x0000FF00) >> 8);
-			rawData[(i*2) + 1] 	= (byte) (values[i] & 0x000000FF);
-		}
+		String serialNumber = parseSerialNumber(rawData);
+		String version = parseVersion(rawData);
+		Date time = td_parser.parseTime(ProtocolUtils.getSubArray2(rawData, TIME_OFFSET, TIME_LENGTH));
 		
-		serialNumber = parseSerialNumber(rawData);
-		version = parseVersion(rawData);
-		time = parseTime(rawData);
+		if (serialNumber != null) serialNumber = serialNumber.trim(); 
 		
 		return new MeterInfo(serialNumber, time, version, rawData);
 	}

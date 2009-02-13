@@ -2,25 +2,41 @@ package com.energyict.protocolimpl.modbus.enerdis.enerium200;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
-import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.MeterInfo;
+import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
+import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.TimeDateParser;
+import com.energyict.protocolimpl.modbus.enerdis.enerium200.profile.Profile;
 
 public class Enerium200 extends Modbus {
 
 	private static final int DEBUG 	= 0;
+
+	private static final int NUMBER_OF_CHANNELS = 8;
 	
 	private MeterInfo meterInfo 	= null;
+	private Profile profile 		= null;
+	
+	/*
+	 * Constructors
+	 */
+
+	public Enerium200() {}
+	
+
+	/*
+	 * Abstract methods from ModBus class  
+	 */
 	
 	protected void doTheConnect() throws IOException {
 
@@ -49,16 +65,9 @@ public class Enerium200 extends Modbus {
 	public DiscoverResult discover(DiscoverTools discoverTools) {
 		DiscoverResult discover = new DiscoverResult();
 		
-		
 		return discover;
 	}
 
-	/*
-	 * Constructors
-	 */
-
-
-	
 	/*
 	 * Private getters, setters and methods
 	 */
@@ -67,14 +76,11 @@ public class Enerium200 extends Modbus {
 		return (RegisterFactory) super.getRegisterFactory();
 	}
 	
-    int[] readRawValue(int address, int length)  throws IOException {
-        
-        HoldingRegister r = new HoldingRegister(address, length);
-        r.setRegisterFactory(getRegisterFactory());
-        return r.getReadHoldingRegistersRequest().getRegisters();
-    
-    }
-
+	public Profile getProfile() throws IOException {
+		if (this.profile == null) this.profile = new Profile(this);
+		return this.profile;
+	}
+	
 	/*
 	 * Public methods
 	 */
@@ -84,20 +90,8 @@ public class Enerium200 extends Modbus {
     }
 
     public void setTime() throws IOException {
-    	byte[] rawClock = new byte[6];
-    	Calendar cal = ProtocolUtils.getCleanGMTCalendar();
-    	cal.setTime(new Date());
-    	cal.add(Calendar.HOUR, 1);
-    	long date = cal.getTimeInMillis() / 1000;
-    	
-    	rawClock[0] = (byte) (0x01);
-    	rawClock[1] = (byte) (0x04);
-    	rawClock[2] = (byte)((date & 0x000000FF000000L) >> 24);
-    	rawClock[3] = (byte)((date & 0x00000000FF0000L) >> 16);
-    	rawClock[4] = (byte)((date & 0x0000000000FF00L) >> 8);
-    	rawClock[5] = (byte)((date & 0x000000000000FFL) >> 0);
-    	
-    	getRegisterFactory().writeTime.getWriteMultipleRegisters(rawClock);
+    	byte[] rawDate = TimeDateParser.getBytesFromDate(new Date());
+    	Utils.writeRawByteValues(getRegisterFactory().writeFunctionReg.getReg(), Utils.SETCLOCK , rawDate, this);
     }
     
     private String getSerialNumber() throws IOException {
@@ -111,13 +105,33 @@ public class Enerium200 extends Modbus {
        throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
     }
     
+    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    	return NUMBER_OF_CHANNELS;
+    }
+    
+    public int getProfileInterval() throws UnsupportedException, IOException {
+    	return getProfile().getProfileInterval();
+    }
+    
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    	ProfileData profileData = new ProfileData();
+
+    	if (to == null) to = new Date();
+    	
+    	profileData.setChannelInfos(getProfile().getChannelInfos());
+    	profileData.setIntervalDatas(getProfile().getIntervalDatas(from, to));
+    	
+    	return profileData;
+    }
+    
 	/*
 	 * Public getters and setters
 	 */
 
     private MeterInfo getMeterInfo() throws IOException {
 		if (this.meterInfo == null) {
-	    	meterInfo = (MeterInfo) getRegisterFactory().meterInfo.value(); meterInfo.printInfo();
+	    	meterInfo = (MeterInfo) getRegisterFactory().meterInfo.value();
+	    	meterInfo.printInfo();
 		}
 		return meterInfo;
 	}
