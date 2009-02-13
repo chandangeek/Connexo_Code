@@ -25,7 +25,8 @@ public class RtuMessageConstant {
     public final static String TOU_ACTIVITY_CODE_TABLE = "Code_Table";
     public final static String TOU_ACTIVITY_USER_FILE = "Userfile";
     public final static String TOU_ACTIVITY_DATE = "Activation_Date";
-    
+    public final static String TOU_SPECIAL_DAYS = "Special_Days";
+    public final static String TOU_SPECIAL_DAYS_CODE_TABLE = "Code_Table";
     
     /** RtuMessage tag for threshold parameters */
     public final static String THRESHOLD_PARAMETERS = "thresholdParameters";
