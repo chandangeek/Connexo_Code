@@ -40,7 +40,7 @@ import com.energyict.protocolimpl.dlms.*;
 import com.energyict.protocolimpl.dlms.Z3.AARQ;
 
 public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
-    private static final byte DEBUG=1;  // KV 16012004 changed all DEBUG values  
+    private static final byte DEBUG=0;  // KV 16012004 changed all DEBUG values  
     
     
     String version=null;
@@ -61,7 +61,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
     private int serverLowerMacAddress;
     private String firmwareVersion;
     private String loadProfileObisCode;
-    
+    private int fullLogbook;
     
     DLMSConnection dlmsConnection=null;
     CosemObjectFactory cosemObjectFactory=null;
@@ -205,7 +205,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         buildProfileData(bNROfChannels,dataContainer,profileData);
         
         if (includeEvents) {
-            profileData.getMeterEvents().addAll(getLogbookData());
+            profileData.getMeterEvents().addAll(getLogbookData(fromCalendar));
             // Apply the events to the channel statusvalues
             profileData.applyEvents(getProfileInterval()/60); 
         }
@@ -214,10 +214,47 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
     }
     
     
+/*    
+    {{  0  ,  0    ,  99  ,  98 ,  0   ,  255  },  7   ,  1  ,  STD_EVLOG ,&getEventLog                   , PUBLICACCESS },           ///< Std Event Log
+    {{  0  ,  0    ,  99  ,  98 ,  1   ,  255  },  7   ,  1  ,  FRAUD_EVLOG ,&getEventLog                 , PUBLICACCESS },           ///< Faud Event Log
+    {{  0  ,  0    ,  99  ,  98 ,  2   ,  255  },  7   ,  0  ,  DISCONNECT_CTRL_EVLOG ,&getEventLog       , PUBLICACCESS },           ///< Control Log
+    {{  0  ,  0    ,  99  ,  98 ,  3   ,  255  },  7   ,  0  ,  MBUS_EVLOG ,&getEventLog                  , PUBLICACCESS },           ///< Mbus Event Log
+    {{  0  ,  1    ,  24  ,  5  ,  0   ,  255  },  7  ,   1 , MBUS_CTRL_EVLOG1 ,&getEventLog              , PUBLICACCESS },
+    {{  0  ,  2    ,  24  ,  5  ,  0   ,  255  },  7   ,  1 ,   MBUS_CTRL_EVLOG2       , &getEventLog     , PUBLICACCESS },           ///<  Mbus Control Log Channel 2
+    {{  0  ,  3    ,  24  ,  5  ,  0   ,  255  },  7   ,  1 ,   MBUS_CTRL_EVLOG3       , &getEventLog     , PUBLICACCESS },           ///<  Mbus Control Log Channel 2
+    {{  0  ,  4    ,  24  ,  5  ,  0   ,  255  },  7   ,  1  ,  MBUS_CTRL_EVLOG4  ,&getEventLog           , PUBLICACCESS },           ///<  Mbus Control Log Channel 4
+    {{  1  ,  0    ,  99  , 97  ,  0   ,  255  },  7  ,  0  ,  POWER_FAIL_LOG ,&getEventLog               , PUBLICACCESS },           ///<  Power fail Log
+*/    
     
-    private List getLogbookData() throws IOException {
+    private List getLogbookData(Calendar from) throws IOException {
+        List meterEvents = new ArrayList();
+        if (DEBUG>=1) getCosemObjectFactory().getProfileGeneric(ObisCode.fromByteArray(LOGBOOK_PROFILE_LN)).getBuffer().printDataContainer();
         Logbook logbook = new Logbook(timeZone);
-        return logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromByteArray(LOGBOOK_PROFILE_LN)).getBuffer());
+        Calendar to = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        if (fullLogbook == 0) {
+	        meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromByteArray(LOGBOOK_PROFILE_LN)).readBufferAttr(from,to)));
+	        meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.1.255")).readBufferAttr(from,to)));
+	        meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.2.255")).readBufferAttr(from,to)));
+	        meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.3.255")).readBufferAttr(from,to)));
+	        meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.1.24.5.0.255")).readBufferAttr(from,to)));
+	        meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.2.24.5.0.255")).readBufferAttr(from,to)));
+	        meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.3.24.5.0.255")).readBufferAttr(from,to)));
+	        meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.4.24.5.0.255")).readBufferAttr(from,to)));
+	        meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("1.0.99.97.0.255")).readBufferAttr(from,to)));
+        }
+        else {
+	        meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromByteArray(LOGBOOK_PROFILE_LN)).readBufferAttr()));
+	        meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.1.255")).readBufferAttr()));
+	        meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.2.255")).readBufferAttr()));
+	        meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.3.255")).readBufferAttr()));
+	        meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.1.24.5.0.255")).readBufferAttr()));
+	        meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.2.24.5.0.255")).readBufferAttr()));
+	        meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.3.24.5.0.255")).readBufferAttr()));
+	        meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.4.24.5.0.255")).readBufferAttr()));
+	        meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("1.0.99.97.0.255")).readBufferAttr()));
+        }
+        Collections.sort(meterEvents);
+        return meterEvents;
     }
     
     
@@ -274,142 +311,6 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         return calendar;
         
     } // private void setCalendar(Calendar calendar, DataStructure dataStructure,byte bBitmask)
-
-    // status bitstring has 6 used bits
-    private static final int EV_WATCHDOG_RESET=0x04;
-    private static final int EV_DST=0x08;
-    //private static final int EV_EXTERNAL_CLOCK_SYNC=0x10;
-    //private static final int EV_CLOCK_SETTINGS=0x20;
-    private static final int EV_ALL_CLOCK_SETTINGS=0x30;
-    private static final int EV_POWER_FAILURE=0x40;
-    private static final int EV_START_OF_MEASUREMENT=0x80;
-
-    private Calendar parseProfileStartDate(DataStructure dataStructure,Calendar calendar) throws IOException {
-        if (isNewDate(dataStructure.getStructure(0).getOctetString(0).getArray()))
-            calendar = setCalendar(calendar,dataStructure.getStructure(0),(byte)0x00);
-        return calendar;
-    }
-    
-    private Calendar parseProfileStartTime(DataStructure dataStructure,Calendar calendar) throws IOException {
-        if (isNewTime(dataStructure.getStructure(0).getOctetString(0).getArray()))
-            calendar = setCalendar(calendar,dataStructure.getStructure(0),(byte)0x00);
-        return calendar;
-    }
-    
-    private boolean isNewDate(byte[] array) {
-         if ((array[0] != -1) &&
-             (array[1] != -1) &&
-             (array[2] != -1) &&
-             (array[3] != -1))
-            return true;
-         else
-            return false;
-    }
-    
-    private boolean isNewTime(byte[] array) {
-         if ((array[5] != -1) &&
-             (array[6] != -1) &&
-             (array[7] != -1))
-            return true;
-         else
-            return false;
-    }
-    
-    private boolean parseStart(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
-        calendar = setCalendar(calendar,dataStructure.getStructure(0),(byte)0x01);
-        if (DEBUG >=1) System.out.print("event: "+calendar.getTime());
-        if ((dataStructure.getStructure(0).getInteger(1) & EV_ALL_CLOCK_SETTINGS) != 0) { // time set before
-           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-                                               (int)MeterEvent.SETCLOCK_AFTER,
-                                               (int)dataStructure.getStructure(0).getInteger(1)));
-        }
-        if ((dataStructure.getStructure(0).getInteger(1) & EV_POWER_FAILURE) != 0) { // power down
-           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-                                               (int)MeterEvent.POWERUP,
-                                               (int)EV_POWER_FAILURE));
-        }
-        if ((dataStructure.getStructure(0).getInteger(1) & EV_WATCHDOG_RESET) != 0) { // watchdog
-           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-                                               (int)MeterEvent.WATCHDOGRESET,
-                                               (int)EV_WATCHDOG_RESET));
-        }
-        if ((dataStructure.getStructure(0).getInteger(1) & EV_DST) != 0) { // watchdog
-           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-                                               (int)MeterEvent.SETCLOCK_AFTER,
-                                               (int)EV_DST));
-        }
-        return true;
-    }
-    
-    private boolean parseEnd(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
-//        calendar = setCalendar(calendar,dataStructure.getStructure(1),(byte)0x01);
-        Calendar endIntervalCal = setCalendar(calendar,dataStructure.getStructure(1), (byte)0x01);
-        if (DEBUG >=1) System.out.print("event: "+calendar.getTime());
-        
-        if ((dataStructure.getStructure(1).getInteger(1) & EV_ALL_CLOCK_SETTINGS) != 0) { // time set before
-           profileData.addEvent(new MeterEvent(new Date(((Calendar)endIntervalCal.clone()).getTime().getTime()),
-                                               (int)MeterEvent.SETCLOCK_BEFORE,
-                                               (int)dataStructure.getStructure(1).getInteger(1)));
-        }
-        
-        if ((dataStructure.getStructure(1).getInteger(1) & EV_POWER_FAILURE) != 0) { // power down
-           profileData.addEvent(new MeterEvent(new Date(((Calendar)endIntervalCal.clone()).getTime().getTime()),
-                                               (int)MeterEvent.POWERDOWN,
-                                               (int)EV_POWER_FAILURE));
-           return true; // KV 16012004
-        }
-        
-        /* No WD event added cause time is set to 00h00'00" */
-        if ((dataStructure.getStructure(1).getInteger(1) & EV_DST) != 0) { // power down
-           profileData.addEvent(new MeterEvent(new Date(((Calendar)endIntervalCal.clone()).getTime().getTime()),
-                                               (int)MeterEvent.SETCLOCK_BEFORE,
-                                               (int)EV_DST));
-           return true;
-        }
-        
-        if ( (getProfileInterval()*1000) - (endIntervalCal.getTimeInMillis() - calendar.getTimeInMillis()) == 1000 ){
-        	return true;	//GN 25042008 special case ...
-        }
-        
-        return false;
-//        return true; // KV 16012004
-    }
-    
-    private boolean parseTime1(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
-        calendar = setCalendar(calendar,dataStructure.getStructure(2),(byte)0x01);
-        if (DEBUG >=1) System.out.print("event: "+calendar.getTime());
-        
-        if ((dataStructure.getStructure(2).getInteger(1) & EV_ALL_CLOCK_SETTINGS) != 0) { // time set before
-           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-                                               (int)MeterEvent.SETCLOCK_BEFORE,
-                                               (int)dataStructure.getStructure(2).getInteger(1)));
-        }
-        
-        if ((dataStructure.getStructure(2).getInteger(1) & EV_POWER_FAILURE) != 0) {// power down
-           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-                                               (int)MeterEvent.POWERDOWN,
-                                               (int)EV_POWER_FAILURE));
-        }
-        return true;
-    }
-    
-    private boolean parseTime2(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
-        calendar = setCalendar(calendar,dataStructure.getStructure(3),(byte)0x01);
-        if (DEBUG >=1) System.out.print("event: "+calendar.getTime());
-        
-        if ((dataStructure.getStructure(3).getInteger(1) & EV_ALL_CLOCK_SETTINGS) != 0) { // time set before
-           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-                                               (int)MeterEvent.SETCLOCK_AFTER,
-                                               (int)dataStructure.getStructure(3).getInteger(1)));
-        }
-        
-        if ((dataStructure.getStructure(3).getInteger(1) & EV_POWER_FAILURE) != 0) {// power down
-           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-                                               (int)MeterEvent.POWERUP,
-                                               (int)EV_POWER_FAILURE));
-        }
-        return true;
-    }
     
     private void buildProfileData(byte bNROfChannels, DataContainer dataContainer,ProfileData profileData)  throws IOException
     {
@@ -817,6 +718,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
             
             //default obis code is the obiscode for the elec meter attached to the uart2 port
             loadProfileObisCode = properties.getProperty("LoadProfileObisCode","1.0.99.1.0.255");
+            fullLogbook = Integer.parseInt(properties.getProperty("FullLogbook","0"));              
             
         }
         catch (NumberFormatException e) {
@@ -944,6 +846,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         result.add("AddressingMode");
         result.add("Connection");        
         result.add("LoadProfileObisCode");
+        result.add("FullLogbook");
         return result;
     }
     
