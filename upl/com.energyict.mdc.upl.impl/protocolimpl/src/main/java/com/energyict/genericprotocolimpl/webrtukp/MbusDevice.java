@@ -300,7 +300,7 @@ public class MbusDevice implements GenericProtocol, Messaging{
 			byte[] b = new byte[string.length()/2];
 			int offset = 0;
 			for(int i = 0; i < b.length; i++){
-				b[i] = (byte)Integer.parseInt(string.substring(offset, offset+=2));
+				b[i] = (byte) Integer.parseInt(string.substring(offset, offset+=2),16);
 			}
 			return b;
 		} catch (NumberFormatException e) {
@@ -457,7 +457,7 @@ public class MbusDevice implements GenericProtocol, Messaging{
 
 	public static void main(String args[]){
 		MbusDevice md = new MbusDevice();
-		String string = "12345678";
+		String string = "123456781AFF";
 		try {
 			System.out.println(md.convertStringToByte(string));
 		} catch (IOException e) {
