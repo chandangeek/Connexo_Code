@@ -105,7 +105,7 @@ public class MBusClient extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void setEncryptionKey(byte[] openKey) throws IOException {
-		invoke(METHOD_SET_ENCRYPTION_KEY, openKey);
+		invoke(METHOD_SET_ENCRYPTION_KEY, new OctetString(openKey).getBEREncodedByteArray());
 	}
 	
 	/**
@@ -125,6 +125,6 @@ public class MBusClient extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void setTransportKey(byte[] encryptedkey) throws IOException {
-		invoke(METHOD_TRANSFER_KEY, encryptedkey);
+		invoke(METHOD_TRANSFER_KEY, new OctetString(encryptedkey).getBEREncodedByteArray());
 	}
 }
