@@ -9,7 +9,6 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ToStringBuilder;
 import com.energyict.protocolimpl.modbus.core.Modbus;
-import com.energyict.protocolimpl.modbus.enerdis.enerium200.Enerium200;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.TimeDateParser;
 

@@ -1,9 +1,7 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.profile;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.energyict.protocol.ProtocolException;

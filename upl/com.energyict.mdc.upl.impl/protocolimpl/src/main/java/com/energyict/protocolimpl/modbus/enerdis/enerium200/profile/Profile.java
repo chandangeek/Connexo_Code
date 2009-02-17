@@ -168,6 +168,7 @@ public class Profile {
 			);
 
 		
+		List ivList = new ArrayList(0);
 		IntervalData idReturn = new IntervalData(id1.getEndTime());
 
 		for (int i = 0; i < id1.getValueCount(); i++) {
@@ -190,9 +191,10 @@ public class Profile {
 			int ps = ps1 | ps2;
 			
 			IntervalValue iv = new IntervalValue(val, ps, eis);
-			idReturn.addValue(val);
+			ivList.add(iv);
 		}
 		
+		idReturn.setIntervalValues(ivList);
 		
 		return idReturn;
 	}

@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers;
 
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
