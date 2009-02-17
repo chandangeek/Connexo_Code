@@ -4,7 +4,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
@@ -99,5 +101,12 @@ public class Utils {
     		cal.setTime(date);
     		return cal;
     }
+
+	public static List sortIntervalDatas(List intervalDatas) {
+		ProfileData pd = new ProfileData();
+		pd.setIntervalDatas(intervalDatas);
+		pd.sort();
+		return pd.getIntervalDatas();
+	}
     
 }

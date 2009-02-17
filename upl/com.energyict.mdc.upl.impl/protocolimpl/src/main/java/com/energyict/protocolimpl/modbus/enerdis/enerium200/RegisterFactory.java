@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.TimeZone;
 
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
@@ -41,7 +43,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
     
     protected void init() {
 
-    	setZeroBased(false); // this means that reg2read = reg-1
+    	setZeroBased(false);
 
     	meterInfo = (HoldingRegister) new HoldingRegister(0x0000, 0x001E).setParser(METERINFO_PARSER);
     	meterInfo.setRegisterFactory(this);
@@ -52,6 +54,8 @@ public class RegisterFactory extends AbstractRegisterFactory {
     	readProfileReg = new HoldingRegister(0x2300, 0x0000);
     	readProfileReg.setRegisterFactory(this);
 
+    	getRegisters().add(new HoldingRegister(0x0500, 2, ObisCode.fromString("1.1.1.1.1.1"), Unit.get(""), ""));
+    	
     }
     
     private TimeZone getTimeZone() {

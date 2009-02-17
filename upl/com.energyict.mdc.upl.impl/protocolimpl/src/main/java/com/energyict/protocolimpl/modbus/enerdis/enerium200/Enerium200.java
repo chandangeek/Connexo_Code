@@ -115,12 +115,20 @@ public class Enerium200 extends Modbus {
     
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
     	ProfileData profileData = new ProfileData();
-
+    	List channelInfos = new ArrayList(0); 
+    	List intervalDatas = new ArrayList(0); 
+    	List meterEvents = new ArrayList(0); 
+    	
     	if (to == null) to = new Date();
     	
-    	profileData.setChannelInfos(getProfile().getChannelInfos());
-    	profileData.setIntervalDatas(getProfile().getIntervalDatas(from, to));
+    	channelInfos = getProfile().getChannelInfos();
+    	intervalDatas = getProfile().getIntervalDatas(from, to);
+    	if (includeEvents) meterEvents = getProfile().createEvents(intervalDatas);
     	
+    	profileData.setChannelInfos(channelInfos);
+    	profileData.setIntervalDatas(intervalDatas);
+    	profileData.setMeterEvents(meterEvents);
+
     	return profileData;
     }
     

@@ -135,9 +135,12 @@ public class ProfileInfoEntry {
 	}
 	public boolean isChannelEnabled(int channelId) throws ProtocolException {
 		if ((channelId >= MAX_CHANNELS) || (channelId < 0)) throw new ProtocolException("ProfileInfoEntry.isChannelEnabled(): channelId is out of size: " + channelId);
+		channelId = 7 - channelId;
 		return ((getChannels() & (1<<channelId)) != 0);
 	}
-	
+	public Modbus getModBus() {
+		return modBus;
+	}
 	
 	public void setEntryID(int entryID) {
 		this.entryID = entryID;
@@ -161,18 +164,17 @@ public class ProfileInfoEntry {
 	
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
-        strBuff.append("ProfileInfoEntry: ");
-        strBuff.append(" entryID=" + ProtocolUtils.buildStringHex(getEntryID(), 8));
-        strBuff.append(" channels=" + ProtocolUtils.buildStringHex(getChannels(), 8));
+        strBuff.append("ProfileInfoEntry:");
+        strBuff.append(" entryID=" + ProtocolUtils.buildStringHex(getEntryID(), 4));
+        strBuff.append(" channels=" + ProtocolUtils.buildStringHex(getChannels(), 4));
         strBuff.append(" nrChannels=" + getNumberOfchannels());
-        strBuff.append(" interval=" + ProtocolUtils.buildStringHex(getInterval(), 8));
+        strBuff.append(" interval=" + ProtocolUtils.buildStringHex(getInterval(), 4));
         strBuff.append(" startTime=" + getStartTime());
         strBuff.append(" endTime=" + getEndTime());
         strBuff.append(" startOnBound=" + isStartOnBoundary());
         strBuff.append(" endOnBound=" + isEndOnBoundary());
-        strBuff.append(" entries=" + getEntries());
         strBuff.append(" entryBytes=" + getEntryBytes());
-        strBuff.append("\n");
+        strBuff.append(" entries=" + getEntries());
         return strBuff.toString();
     }
 	

@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.modbus.enerdis.enerium200.profile;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.energyict.protocol.ProtocolException;
@@ -12,7 +13,7 @@ import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
 
 public class ProfileInfo {
 
-	private static final int DEBUG 						= 0;
+	private static final int DEBUG 						= 1;
 	private static final int PROFILEINFOENTRIES			= 32;
 	private static final int PROFILEINFOENTRY_LENGTH	= 16;
 	
@@ -55,6 +56,11 @@ public class ProfileInfo {
 		for (int i = 0; i < PROFILEINFOENTRIES; i++) {
 			byte[] tempData = ProtocolUtils.getSubArray2(byteArray, i * PROFILEINFOENTRY_LENGTH, PROFILEINFOENTRY_LENGTH);
 			profileEntries.add(new ProfileInfoEntry(tempData, this.modBus));
+		}
+		
+		for (int i = 0; i < profileEntries.size(); i++) {
+			ProfileInfoEntry b = (ProfileInfoEntry) profileEntries.get(i);
+			if (DEBUG >= 1) System.out.println(b.toString());
 		}
 		
 	}
