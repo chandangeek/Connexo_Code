@@ -19,7 +19,6 @@ import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
-import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 public class Profile {
 
