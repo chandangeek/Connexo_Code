@@ -437,7 +437,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
                             i++; // skip tag
                             i++; // skip invoke id & priority
                             
-                            boolLastBlock = (responseData[i] == 0x01);
+                            boolLastBlock = (responseData[i] != 0x00);
                             i++; // skip lastblock
                             iBlockNumber = ProtocolUtils.getInt(responseData,i);
                             i+=4; // skip iBlockNumber
