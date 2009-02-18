@@ -19,6 +19,8 @@ public class MeterInfoParser implements Parser {
 	private static final int TIME_OFFSET 	= 30;
 	private static final int TIME_LENGTH 	= 4;
 	
+	public static final String PARSER_NAME = "MeterInfoParser";
+	
 	private TimeZone timeZone 		= null;
 
 	/*

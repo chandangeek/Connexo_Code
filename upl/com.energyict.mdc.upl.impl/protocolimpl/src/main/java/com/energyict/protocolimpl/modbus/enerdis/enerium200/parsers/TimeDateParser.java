@@ -15,7 +15,9 @@ public class TimeDateParser  implements Parser {
 
 	private static final int DEBUG 	= 0;
 	private TimeZone timeZone 		= null;
-	
+
+	public static final String PARSER_NAME = "TimeDateParser";
+
 	public TimeDateParser(TimeZone timeZone) {
 		this.timeZone = timeZone;
 	}
