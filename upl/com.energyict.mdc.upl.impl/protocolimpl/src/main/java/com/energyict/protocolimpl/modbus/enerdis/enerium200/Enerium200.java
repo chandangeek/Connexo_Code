@@ -122,9 +122,9 @@ public class Enerium200 extends Modbus {
     	if (to == null) to = new Date();
     	
     	channelInfos = getProfile().getChannelInfos();
-    	intervalDatas = getProfile().getIntervalDatas(from, to);
+    	intervalDatas = getProfile().getIntervalDatas(from, to, includeEvents);
     	if (includeEvents) {
-    		meterEvents = getProfile().createEvents(intervalDatas);
+    		meterEvents = getProfile().getMeterEvents();
     	}
     	
     	profileData.setChannelInfos(channelInfos);
@@ -132,7 +132,7 @@ public class Enerium200 extends Modbus {
     	profileData.setMeterEvents(meterEvents);
 
     	if (includeEvents) {
-    		profileData.applyEvents(getProfileInterval());
+    		profileData.applyEvents(getProfileInterval() / 60);
     	}
     	
     	return profileData;

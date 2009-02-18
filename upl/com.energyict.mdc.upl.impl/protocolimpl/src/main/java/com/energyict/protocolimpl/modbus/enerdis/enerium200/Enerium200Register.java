@@ -27,24 +27,62 @@ public class Enerium200Register {
 	 * Constructors
 	 */
 
-	// TODO Auto-generated Constructors stub
-
-	/*
-	 * Private getters, setters and methods
-	 */
-
-	// TODO Auto-generated Private getters, setters and methods stub
-
-	/*
-	 * Public methods
-	 */
-
-	// TODO Auto-generated Public methods stub
+	public Enerium200Register(int address, int size, ObisCode obisCode,	Unit unit, String name, int scaler, int type) {
+		this.address = address;
+		this.size = size;
+		this.obisCode = obisCode;
+		this.unit = unit;
+		this.name = name;
+		this.scaler = scaler;
+		this.type = type;
+	}
 
 	/*
 	 * Public getters and setters
 	 */
 
-	// TODO Auto-generated Public getters and setters stub
+	public int getAddress() {
+		return address;
+	}
+	public int getSize() {
+		return size;
+	}
+	public Unit getUnit() {
+		return unit;
+	}
+	public String getName() {
+		return name;
+	}
+	public ObisCode getObisCode() {
+		return obisCode;
+	}
+	public int getScaler() {
+		return scaler;
+	}
+	public int getType() {
+		return type;
+	}
+
+	public void setAddress(int address) {
+		this.address = address;
+	}
+	public void setSize(int size) {
+		this.size = size;
+	}
+	public void setUnit(Unit unit) {
+		this.unit = unit;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public void setObisCode(ObisCode obisCode) {
+		this.obisCode = obisCode;
+	}
+	public void setScaler(int scaler) {
+		this.scaler = scaler;
+	}
+	public void setType(int type) {
+		this.type = type;
+	}
 
 }

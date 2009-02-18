@@ -31,6 +31,7 @@ public class Profile {
 
 	private ProfileInfo profileInfo = null;
 	private List profileParts		= null;
+	private List meterEvents		= null;
 	private Modbus modBus			= null;
 	
 	/*
@@ -66,7 +67,7 @@ public class Profile {
 		return channelInfos;
 	}
 
-	public List getIntervalDatas(Date from, Date to) throws IOException {
+	public List getIntervalDatas(Date from, Date to, boolean generateEvents) throws IOException {
 		List intervalDatas = new ArrayList(0);
 		for (int i = 0; i < profileParts.size(); i++) {
 			ProfilePart pp = (ProfilePart) profileParts.get(i);
@@ -75,10 +76,18 @@ public class Profile {
 			}
 		}
 		
+		if (generateEvents) {
+			this.meterEvents = createEvents(intervalDatas);
+		}
+		
 		return filterIntervals(intervalDatas);
 	}
 	
-	public List createEvents(List intervalDatas) {
+	public List getMeterEvents() {
+		return meterEvents;
+	}
+	
+	private List createEvents(List intervalDatas) {
 		List meterEvents = new ArrayList(0);
 		ProfileData profileData = new ProfileData();
 
@@ -94,38 +103,51 @@ public class Profile {
 		
 		for (int i = 0; i < intervalDatas.size(); i++) {
 			IntervalData id = (IntervalData) intervalDatas.get(i);
-			int protocolStatus = (id.getProtocolStatus(i) >> 42) & 0x01F;
+			int protocolStatus = (id.getProtocolStatus() >> 26) & 0x0F;
+			MeterEvent me = null;
 
+			System.out.println("Events: " + id.getEndTime() + " status = " + ProtocolUtils.buildStringHex(protocolStatus, 8) + " original = " + ProtocolUtils.buildStringHex(id.getProtocolStatus(), 8));
+			
 			if (protocolStatus != 0x00) {
 				String eventMessage = "";
 				int eisCode = MeterEvent.OTHER;
+				boolean matchedStatus = false;
 				
 				if ((protocolStatus & SETTINGS_CHANGE) != 0) {
-					eventMessage += "Change of settings. ";
+					eventMessage = "Change of settings. ";
 					eisCode = MeterEvent.CONFIGURATIONCHANGE;
-					id.setEiStatus(i, IntervalData.CONFIGURATIONCHANGE);
+					id.setEiStatus(IntervalData.CONFIGURATIONCHANGE);
+					me = new MeterEvent(id.getEndTime(), eisCode, protocolStatus, eventMessage);
+					meterEvents.add(me);
+					matchedStatus = true;
 				}
 
 				if ((protocolStatus & POWER_FAIL) != 0) {
-					eventMessage += "Auxiliary power interruption. ";
+					eventMessage = "Auxiliary power interruption. ";
 					eisCode = MeterEvent.POWERDOWN;
-					id.setEiStatus(i, IntervalData.POWERDOWN | IntervalData.POWERUP);
+					id.setEiStatus(IntervalData.POWERDOWN | IntervalData.POWERUP);
+					me = new MeterEvent(id.getEndTime(), eisCode, protocolStatus, eventMessage);
+					meterEvents.add(me);
+					matchedStatus = true;
 				}
 
 				if ((protocolStatus & TIME_SET) != 0) {
-					eventMessage += "Change of time. ";
+					eventMessage = "Change of time. ";
 					eisCode = MeterEvent.SETCLOCK;
-					id.setEiStatus(i, IntervalData.SHORTLONG);
+					id.setEiStatus(IntervalData.SHORTLONG);
+					me = new MeterEvent(id.getEndTime(), eisCode, protocolStatus, eventMessage);
+					meterEvents.add(me);
+					matchedStatus = true;
 				}
 
-				if (eventMessage.length() == 0) {
-					eventMessage += "Unknown event: 0x" + ProtocolUtils.buildStringHex(id.getProtocolStatus(i), 8);
+				if (!matchedStatus) {
+					eventMessage = "Unknown event: 0x" + ProtocolUtils.buildStringHex(id.getProtocolStatus(i), 8);
 					eisCode = MeterEvent.OTHER;
-					id.setEiStatus(i, IntervalData.OTHER);
+					id.setEiStatus(IntervalData.OTHER);
+					me = new MeterEvent(id.getEndTime(), eisCode, protocolStatus, eventMessage);
+					meterEvents.add(me);
 				}
 
-				MeterEvent me = new MeterEvent(id.getEndTime(), eisCode, protocolStatus);
-				meterEvents.add(me);
 			}
 		
 		}
