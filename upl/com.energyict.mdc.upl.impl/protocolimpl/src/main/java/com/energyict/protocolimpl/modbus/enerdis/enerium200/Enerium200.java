@@ -123,12 +123,18 @@ public class Enerium200 extends Modbus {
     	
     	channelInfos = getProfile().getChannelInfos();
     	intervalDatas = getProfile().getIntervalDatas(from, to);
-    	if (includeEvents) meterEvents = getProfile().createEvents(intervalDatas);
+    	if (includeEvents) {
+    		meterEvents = getProfile().createEvents(intervalDatas);
+    	}
     	
     	profileData.setChannelInfos(channelInfos);
     	profileData.setIntervalDatas(intervalDatas);
     	profileData.setMeterEvents(meterEvents);
 
+    	if (includeEvents) {
+    		profileData.applyEvents(getProfileInterval());
+    	}
+    	
     	return profileData;
     }
     

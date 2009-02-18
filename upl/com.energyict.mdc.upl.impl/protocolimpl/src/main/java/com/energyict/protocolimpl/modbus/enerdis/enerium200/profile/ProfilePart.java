@@ -19,7 +19,7 @@ public class ProfilePart {
 	private static final int DEBUG 		= 0;
 	
 	//FIXME: Used for debugging should be cleaned up 
-	private static final int READ_EXTRA	= 5;
+	private static final int READ_EXTRA	= 1;
 	private static final int MAX_READ_PERIOD 	= 12;  
 	
 	private ProfileInfoEntry profileInfoEntry 	= null;
