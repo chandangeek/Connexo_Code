@@ -11,7 +11,7 @@ public class MeterInfo {
 	private String serialNumber 	= null;
 	private String version			= null;
 	private Date time				= null;
-	private Date readTime				= null;
+	private Date readTime			= null;
 	private byte[] rawData			= null;
 	
 	/*

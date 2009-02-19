@@ -10,7 +10,7 @@ import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.TimeDatePars
 
 public class ProfilePartEntry {
 
-	private static final int DEBUG = 1;
+	private static final int DEBUG = 0;
 
 	private static final int MAX_CHANNELS 		= 8;
 

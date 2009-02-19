@@ -11,7 +11,7 @@ import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
 
 public class ProfileInfo {
 
-	private static final int DEBUG 						= 1;
+	private static final int DEBUG 						= 0;
 	private static final int PROFILEINFOENTRIES			= 32;
 	private static final int PROFILEINFOENTRY_LENGTH	= 16;
 	

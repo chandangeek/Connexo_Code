@@ -147,7 +147,6 @@ public class Enerium200 extends Modbus {
     private MeterInfo getMeterInfo() throws IOException {
 		if (this.meterInfo == null) {
 	    	meterInfo = (MeterInfo) getRegisterFactory().meterInfo.value();
-	    	meterInfo.printInfo();
 		}
 		return meterInfo;
 	}

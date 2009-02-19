@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.Parser;
 
@@ -14,7 +15,12 @@ public class SignedParser implements Parser {
 	public static final String PARSER_NAME = "SignedParser";
 	
 	public Object val(int[] values, AbstractRegister register) throws IOException {
-		int value = values[1] + (values[0] * (256 * 256));
+		int value = 0;
+		switch (values.length) {
+			case 1:	value = values[0]; break;
+			case 2:	value = values[1] + (values[0] * (256 * 256)); break;
+			default: throw new ProtocolException(PARSER_NAME + ".val(): Error while parsing register. Wrong data length: " + values.length);
+		}
 		BigDecimal bd = new BigDecimal(value, new MathContext(0));
 		return bd;
 	}

@@ -23,7 +23,7 @@ import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
 
 public class Profile {
 
-	private static final int DEBUG = 1;
+	private static final int DEBUG = 0;
 
 	private static final int SETTINGS_CHANGE 	= 0x001 | 0x010;
 	private static final int TIME_SET 			= 0x002;
@@ -106,7 +106,7 @@ public class Profile {
 			int protocolStatus = (id.getProtocolStatus() >> 26) & 0x0F;
 			MeterEvent me = null;
 
-			System.out.println("Events: " + id.getEndTime() + " status = " + ProtocolUtils.buildStringHex(protocolStatus, 8) + " original = " + ProtocolUtils.buildStringHex(id.getProtocolStatus(), 8));
+			if (DEBUG >= 1) System.out.println("Events: " + id.getEndTime() + " status = " + ProtocolUtils.buildStringHex(protocolStatus, 8) + " original = " + ProtocolUtils.buildStringHex(id.getProtocolStatus(), 8));
 			
 			if (protocolStatus != 0x00) {
 				String eventMessage = "";
