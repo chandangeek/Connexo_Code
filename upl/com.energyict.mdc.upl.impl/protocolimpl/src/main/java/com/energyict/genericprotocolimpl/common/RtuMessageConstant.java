@@ -11,6 +11,9 @@ public class RtuMessageConstant {
     public final static String DIGITAL_OUTPUT = "Digital_output";
     /** RtuMessage tag to indicate the date of the connect/disconnect */
 	public static final String DISCONNECT_CONTROL_ACTIVATE_DATE = "Activation_date";
+	/** RtuMessage tag to indicate the connect control mode */
+	public static final String CONNECT_CONTROL_MODE = "Connect_control_mode";
+	public static final String CONNECT_MODE = "Mode";
     
     /** RtuMessage tag for reading profile data */
     public final static String READ_PROFILE = "readProfile";
@@ -26,6 +29,8 @@ public class RtuMessageConstant {
     public final static String TOU_ACTIVITY_USER_FILE = "Userfile";
     public final static String TOU_ACTIVITY_DATE = "Activation_Date";
     public final static String TOU_SPECIAL_DAYS = "Special_Days";
+    public final static String TOU_SPECIAL_DAYS_DELETE = "Special_Days_Delete";
+    public final static String TOU_SPECIAL_DAYS_DELETE_ENTRY = "Delete_entry";
     public final static String TOU_SPECIAL_DAYS_CODE_TABLE = "Code_Table";
     
     /** RtuMessage tag for threshold parameters */
@@ -110,5 +115,7 @@ public class RtuMessageConstant {
 	public static final String MBUS_ENCRYPTION_KEYS = "Set_Encryption_keys";
 	public static final String MBUS_OPEN_KEY = "Open_Key_Value";
 	public static final String MBUS_TRANSFER_KEY = "Transfer_Key_Value";
+	public static final String MBUS_INSTALL = "Mbus_Install";
+	public static final String MBUS_REMOVE = "Mbus_Remove";
 	
 }
