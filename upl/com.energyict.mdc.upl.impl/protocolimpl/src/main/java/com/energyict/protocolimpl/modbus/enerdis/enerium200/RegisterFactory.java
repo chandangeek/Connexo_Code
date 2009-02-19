@@ -47,27 +47,9 @@ public class RegisterFactory extends AbstractRegisterFactory {
 	public HoldingRegister meterInfo;
 	public HoldingRegister writeFunctionReg;
 	public HoldingRegister readProfileReg;
-	public List enerium200Registers;
+	public static List enerium200Registers;
 	
-    /** Creates a new instance of RegisterFactory */
-    public RegisterFactory(Modbus modBus) {
-        super(modBus);
-    }
-    
-    protected void init() {
-
-    	
-    	setZeroBased(false);
-
-    	meterInfo = (HoldingRegister) new HoldingRegister(0x0000, 0x001E).setParser(MeterInfoParser.PARSER_NAME);
-    	meterInfo.setRegisterFactory(this);
-    	
-    	writeFunctionReg = new HoldingRegister(0xD000, 0x0000);
-    	writeFunctionReg.setRegisterFactory(this);
-    	
-    	readProfileReg = new HoldingRegister(0x2300, 0x0000);
-    	readProfileReg.setRegisterFactory(this);
-
+	static {
     	addReg(0x0500, 2, "1.1.32.7.0.255", "V", "V1 (First measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
     	addReg(0x0502, 2, "1.1.52.7.0.255", "V", "V2 (First measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
     	addReg(0x0504, 2, "1.1.72.7.0.255", "V", "V3 (First measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
@@ -125,9 +107,32 @@ public class RegisterFactory extends AbstractRegisterFactory {
     	addReg(0x0A1E, 4, "1.1.9.8.0.255", "VAh", "Receiver apparent energy", 1, Enerium200Register.NON_SIGNED);
     	addReg(0x0A22, 4, "1.1.10.8.0.255", "VAh", "Generator apparent energy", 1, Enerium200Register.NON_SIGNED);
 
+	}
+	
+	
+	/** Creates a new instance of RegisterFactory */
+    public RegisterFactory(Modbus modBus) {
+        super(modBus);
     }
     
-    private void addReg(int address, int size, String obisCode, String unit, String name, int scaler, int type) {
+    protected void init() {
+
+    	
+    	setZeroBased(false);
+
+    	meterInfo = (HoldingRegister) new HoldingRegister(0x0000, 0x001E).setParser(MeterInfoParser.PARSER_NAME);
+    	meterInfo.setRegisterFactory(this);
+    	
+    	writeFunctionReg = new HoldingRegister(0xD000, 0x0000);
+    	writeFunctionReg.setRegisterFactory(this);
+    	
+    	readProfileReg = new HoldingRegister(0x2300, 0x0000);
+    	readProfileReg.setRegisterFactory(this);
+
+
+    }
+    
+    private static void addReg(int address, int size, String obisCode, String unit, String name, int scaler, int type) {
     	if (enerium200Registers == null) enerium200Registers = new ArrayList(0);
     	name = "[" + ProtocolUtils.buildStringHex(address, 4).toUpperCase() + "h] " + name;
     	Enerium200Register eneriumReg = new Enerium200Register(address, size, ObisCode.fromString(obisCode), Unit.get(unit), name, scaler, type);
@@ -163,7 +168,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
     	return getModBus().gettimeZone();
     }
     
-    private List getEnerium200Registers() {
+    public List getEnerium200Registers() {
 		return enerium200Registers;
 	}
     

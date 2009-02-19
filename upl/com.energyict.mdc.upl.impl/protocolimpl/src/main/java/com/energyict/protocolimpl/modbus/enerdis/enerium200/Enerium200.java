@@ -54,9 +54,25 @@ public class Enerium200 extends Modbus {
 	}
 
 	protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-		// TODO Auto-generated method stub
+	
+	try {
+		getRegistersInfo(1);
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
 	}
 
+	protected String getRegistersInfo(int extendedLogging) throws IOException {
+		String returnValue = "\n******************* Extended logging *******************\n";
+		for (int i = 0; i < RegisterFactory.enerium200Registers.size(); i++) {
+			Enerium200Register er = (Enerium200Register) RegisterFactory.enerium200Registers.get(i);
+			returnValue += er.toString() + "\n";
+		}
+		returnValue += "********************************************************\n";
+		return returnValue;
+	}
+	
 	protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
         getRegisterFactory().setZeroBased(false);
