@@ -86,7 +86,9 @@ public class Enerium200 extends Modbus {
 	 */
 
     public Date getTime() throws IOException {
-    	return getMeterInfo().getTime();
+    	long timeDiff = new Date().getTime() - getMeterInfo().getReadTime().getTime();
+    	Date correctedTime = new Date(getMeterInfo().getMeterTime().getTime() + timeDiff);
+    	return correctedTime;
     }
 
     public void setTime() throws IOException {

@@ -11,6 +11,7 @@ public class MeterInfo {
 	private String serialNumber 	= null;
 	private String version			= null;
 	private Date time				= null;
+	private Date readTime				= null;
 	private byte[] rawData			= null;
 	
 	/*
@@ -22,6 +23,7 @@ public class MeterInfo {
 		this.time = time;
 		this.version = version;
 		this.rawData = rawData;
+		this.readTime = new Date();
 	}
 	
 	public MeterInfo(String serialNumber, Date time, String version) {
@@ -31,12 +33,6 @@ public class MeterInfo {
 	}
 
 	/*
-	 * Private getters, setters and methods
-	 */
-
-	
-	
-	/*
 	 * Public methods
 	 */
 
@@ -44,7 +40,7 @@ public class MeterInfo {
 		StringBuffer strBuff = new StringBuffer();
 		strBuff.append("MeterInfo:\n");
 		strBuff.append("   serialNumber="+getSerialNumber()+"\n");
-		strBuff.append("   time="+getTime()+"\n");
+		strBuff.append("   time="+getMeterTime()+"\n");
 		strBuff.append("   version="+getVersion()+"\n");
 		strBuff.append("   rawData="+ProtocolUtils.getResponseData(rawData));
 		strBuff.append("\n");
@@ -65,8 +61,11 @@ public class MeterInfo {
 	public String getVersion() {
 		return version;
 	}
-	public Date getTime() {
+	public Date getMeterTime() {
 		return time;
+	}
+	public Date getReadTime() {
+		return readTime;
 	}
 	public byte[] getRawData() {
 		return rawData;
@@ -81,8 +80,6 @@ public class MeterInfo {
 	public void setTime(Date time) {
 		this.time = time;
 	}
-
-
 
 	public void setRawData(byte[] rawData) {
 		this.rawData = rawData;
