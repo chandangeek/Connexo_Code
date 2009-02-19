@@ -1429,7 +1429,11 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 											(byte) ((cc.getDayOfWeek()==-1)?0xFF:cc.getDayOfWeek())}, true );
 									Unsigned8 dayType = new Unsigned8(cc.getDayType().getId());
 									Structure struct = new Structure();
-									struct.addDataType(new Unsigned16(i));
+									AXDRDateTime dt = new AXDRDateTime(new byte[]{(byte)0x09, (byte) ((cc.getYear()==-1)?0x07:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xB2:(cc.getYear())&0xFF), 
+											(byte) ((cc.getMonth()==-1)?0xFF:cc.getMonth()), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()),
+											(byte) ((cc.getDayOfWeek()==-1)?0xFF:cc.getDayOfWeek()), 0, 0, 0, 0, 0, 0, 0});	
+									long days = dt.getValue().getTimeInMillis()/1000/60/60/24;
+									struct.addDataType(new Unsigned16((int)days));
 									struct.addDataType(os);
 									struct.addDataType(dayType);
 									sdt.insert(struct);
