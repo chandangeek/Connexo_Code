@@ -1447,6 +1447,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 						e.printStackTrace();
 						throw new IOException("Delete index is not a valid entry");
 					}
+					
+					success = false;
 				} else {
 					success = false;
 				}
