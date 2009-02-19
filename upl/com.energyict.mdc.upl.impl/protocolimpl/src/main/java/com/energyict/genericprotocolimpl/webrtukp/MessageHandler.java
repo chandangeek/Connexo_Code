@@ -43,6 +43,9 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.DISCONNECT_LOAD.equals(qName)){
 			setType(RtuMessageConstant.DISCONNECT_LOAD);
 			handleDisconnectLoad(attrbs);
+		} else if(RtuMessageConstant.CONNECT_CONTROL_MODE.equals(qName)){
+			setType(RtuMessageConstant.CONNECT_CONTROL_MODE);
+			handleConnectControlMode(attrbs);
 		} else if(RtuMessageConstant.LOAD_LIMIT_CONFIGURE.equals(qName)){
 			setType(RtuMessageConstant.LOAD_LIMIT_CONFIGURE);
 			handleLoadLimitConfiguration(attrbs);
@@ -59,6 +62,9 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.TOU_SPECIAL_DAYS.equals(qName)){
 			setType(RtuMessageConstant.TOU_SPECIAL_DAYS);
 			handleSpecialDays(attrbs);
+		}else if(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE.equals(qName)){
+			setType(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE);
+			handleSpecialDaysDelete(attrbs);
 		} else if(RtuMessageConstant.MBUS_DECOMMISSION.equals(qName)){
 			setType(RtuMessageConstant.MBUS_DECOMMISSION);
 		} else if(RtuMessageConstant.MBUS_ENCRYPTION_KEYS.equals(qName)){
@@ -174,6 +180,7 @@ public class MessageHandler extends DefaultHandler{
 	 **********************************************/
 	private String connectDate;
 	private String disconnectDate;
+	private String mode;
 	
 	private void handleConnectLoad(Attributes attrbs){
 		this.connectDate = attrbs.getValue(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE);
@@ -181,6 +188,14 @@ public class MessageHandler extends DefaultHandler{
 	
 	private void handleDisconnectLoad(Attributes attrbs){
 		this.disconnectDate = attrbs.getValue(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE);
+	}
+	
+	private void handleConnectControlMode(Attributes attrbs){
+		this.mode = attrbs.getValue(RtuMessageConstant.CONNECT_MODE);
+	}
+	
+	public String getConnectControlMode(){
+		return this.mode;
 	}
 	
 	public String getConnectDate(){
@@ -267,6 +282,7 @@ public class MessageHandler extends DefaultHandler{
 	private String touCodeTable = "";
 	private String touUserFile = "";
 	private String touSpecialDaysCodeTable = "";
+	private String deleteEntry = "";
 	
 	private void handleTOUMessage(Attributes attrbs){
 		this.touActivationDate = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_DATE);
@@ -277,6 +293,10 @@ public class MessageHandler extends DefaultHandler{
 
 	private void handleSpecialDays(Attributes attrbs) {
 		this.touSpecialDaysCodeTable = attrbs.getValue(RtuMessageConstant.TOU_SPECIAL_DAYS_CODE_TABLE);
+	}
+	
+	private void handleSpecialDaysDelete(Attributes attrbs){
+		this.deleteEntry = attrbs.getValue(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE_ENTRY);
 	}
 	
 	public String getTOUActivationDate(){
@@ -297,6 +317,10 @@ public class MessageHandler extends DefaultHandler{
 	
 	public String getSpecialDaysCodeTable(){
 		return this.touSpecialDaysCodeTable;
+	}
+	
+	public String getSpecialDayDeleteEntry(){
+		return this.deleteEntry;
 	}
 	/**********************************************/
 	

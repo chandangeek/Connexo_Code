@@ -18,6 +18,7 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Disconnector;
@@ -54,6 +55,8 @@ import com.energyict.protocolimpl.base.ProtocolChannelMap;
  * GNA |28012009| Added the connect/disconnect messages. There is an option to enter an activationDate but there is no Object description for the
  * 					Mbus disconnect controller yet ...
  * GNA |04022009| Mbus connect/disconnect can be applied with a scheduler. We use 0.x.24.6.0.255 as the ControlScheduler and 0.x.24.7.0.255 as ScriptTable
+ * GNA |19022009| Added a message to change to connectMode of the disconnectorObject;
+ * 					Changed all messageEntrys in date-form to a UnixTime entry; 
  */
 
 public class MbusDevice implements GenericProtocol, Messaging{
@@ -195,6 +198,7 @@ public class MbusDevice implements GenericProtocol, Messaging{
 				
 				boolean connect			= messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
 				boolean disconnect		= messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
+				boolean connectMode		= messageHandler.getType().equals(RtuMessageConstant.CONNECT_CONTROL_MODE);
 				boolean decommission 	= messageHandler.getType().equals(RtuMessageConstant.MBUS_DECOMMISSION);
 				boolean mbusEncryption 	= messageHandler.getType().equals(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
 				
@@ -204,7 +208,7 @@ public class MbusDevice implements GenericProtocol, Messaging{
 
 					if(!messageHandler.getConnectDate().equals("")){	// use the disconnectControlScheduler
 						
-						Array executionTimeArray = getWebRTU().convertStringToDateTimeArray(messageHandler.getConnectDate());
+						Array executionTimeArray = getWebRTU().convertUnixToDateTimeArray(messageHandler.getConnectDate());
 						SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getPhysicalAddress()).getObisCode());
 						
 						ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getPhysicalAddress()).getObisCode());
@@ -229,7 +233,7 @@ public class MbusDevice implements GenericProtocol, Messaging{
 					
 					if(!messageHandler.getDisconnectDate().equals("")){	// use the disconnectControlScheduler
 						
-						Array executionTimeArray = getWebRTU().convertStringToDateTimeArray(messageHandler.getDisconnectDate());
+						Array executionTimeArray = getWebRTU().convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
 						SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getPhysicalAddress()).getObisCode());
 						
 						ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getPhysicalAddress()).getObisCode());
@@ -247,13 +251,44 @@ public class MbusDevice implements GenericProtocol, Messaging{
 					}
 					
 					success = true;
+				} else if(connectMode){
+					
+					getLogger().log(Level.INFO, "Handling message " + rm.displayString() + ": ConnectControl mode");
+					String mode = messageHandler.getConnectControlMode();
+					
+					if(mode != null){
+						try {
+							int modeInt = Integer.parseInt(mode);
+							
+							if((modeInt >=0) && (modeInt <=6)){
+								Disconnector connectorMode = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode());
+								connectorMode.writeControlMode(new TypeEnum(modeInt));
+								
+							} else {
+								throw new IOException("Mode is not a valid entry for message " + rm.displayString() + ", value must be between 0 and 6");
+							}
+							
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+							throw new IOException("Mode is not a valid entry for message " + rm.displayString());
+						}
+					} else {
+						// should never get to the else, can't leave message empty 
+						throw new IOException("Message " + rm.displayString() + " can not be empty");
+					}
+					
+					success = true;
 				} else if(decommission){
+					
+					getLogger().log(Level.INFO, "Handling MbusMessage " + rm.displayString() + ": Decommission MBus device");
 					
 					MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getPhysicalAddress()).getObisCode());
 					mbusClient.deinstallSlave();
 					
 					success = true;
 				} else if(mbusEncryption){
+					
+					getLogger().log(Level.INFO, "Handling MbusMessage " + rm.displayString() + ": Set encryption keys");
 					
 					String openKey = messageHandler.getOpenKey();
 					String transferKey = messageHandler.getTransferKey();
@@ -361,6 +396,8 @@ public class MbusDevice implements GenericProtocol, Messaging{
 		catDisconnect.addMessageSpec(msgSpec);
 		msgSpec = addConnectControl("Connect", RtuMessageConstant.CONNECT_LOAD, false);
 		catDisconnect.addMessageSpec(msgSpec);
+		msgSpec = addConnectControlMode("ConnectControl mode", RtuMessageConstant.CONNECT_CONTROL_MODE, false);
+		catDisconnect.addMessageSpec(msgSpec);
 		
 		// Mbus setup related messages
 		msgSpec = addNoValueMsg("Decommission", RtuMessageConstant.MBUS_DECOMMISSION, false);
@@ -379,6 +416,18 @@ public class MbusDevice implements GenericProtocol, Messaging{
         MessageValueSpec msgVal = new MessageValueSpec();
         msgVal.setValue(" ");
         MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, false);
+        tagSpec.add(msgVal);
+        tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+	
+	private MessageSpec addConnectControlMode(String keyId, String tagName, boolean advanced) {
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.CONNECT_MODE, true);
         tagSpec.add(msgVal);
         tagSpec.add(msgAttrSpec);
         msgSpec.add(tagSpec);

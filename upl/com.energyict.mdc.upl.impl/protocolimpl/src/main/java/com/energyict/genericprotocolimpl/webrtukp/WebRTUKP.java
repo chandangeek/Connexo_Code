@@ -131,6 +131,10 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
  * GNA |28012009| Implemented the Loadlimit messages - Enabled the daily/Monthly code
  * GNA |02022009| Added the forceClock functionality
  * GNA |12022009| Added ActivityCalendar and SpecialDays as rtu message
+ * GNA |17022009| Bug in hasMbusMeters(), if serialnumber is not found -> log and go next
+ * GNA |19022009| Changed all messageEntrys in date-form to a UnixTime entry; 
+ * 					Added a message to change to connectMode of the disconnectorObject;
+ * 					Fixed bugs in the ActivityCalendar object; Added an entry delete of the specialDays
  */
 
 public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
@@ -379,7 +383,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		try {
 			SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
 			String strDate = "27/01/2009 07:45:00";
-			Array dateArray = convertStringToDateTimeArray(strDate);
+			Array dateArray = convertUnixToDateTimeArray(strDate);
 			sas.writeExecutionTime(dateArray);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -754,7 +758,11 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				serialMbus = mbus.getSerialNumber();
 				mbusChannel = checkSerialForMbusChannel(serialMbus);
 //				this.mbusDevices[count++] = new MbusDevice(serialMbus, mbus, getLogger());
-				this.mbusDevices[count++] = new MbusDevice(serialMbus, mbusChannel, mbus, getLogger());
+				if(mbusChannel != -1){
+					this.mbusDevices[count++] = new MbusDevice(serialMbus, mbusChannel, mbus, getLogger());
+				} else {
+					getLogger().log(Level.INFO, "Mbusmeter with serialnumber " + serialMbus + " is not found on E-meter " + this.serialNumber);
+				}
 			} catch (ApplicationException e) {
 				// catch and go to next slave
 				e.printStackTrace();
@@ -949,11 +957,13 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 				boolean p1Code 			= messageHandler.getType().equals(RtuMessageConstant.P1CODEMESSAGE);
 				boolean connect			= messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
 				boolean disconnect		= messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
+				boolean connectMode		= messageHandler.getType().equals(RtuMessageConstant.CONNECT_CONTROL_MODE);
 				boolean llConfig		= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_CONFIGURE);
 				boolean llClear			= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_DISABLE);
 				boolean llSetGrId		= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST);
 				boolean touCalendar		= messageHandler.getType().equals(RtuMessageConstant.TOU_ACTIVITY_CAL);
 				boolean touSpecialDays 	= messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS);
+				boolean specialDelEntry	= messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE);
 				
 				if(xmlConfig){
 					
@@ -993,7 +1003,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					} else if(!messageHandler.getActivationDate().equalsIgnoreCase("")){
 						SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
 						String strDate = messageHandler.getActivationDate();
-						Array dateArray = convertStringToDateTimeArray(strDate);
+						Array dateArray = convertUnixToDateTimeArray(strDate);
 						if(DEBUG)System.out.println("Write the executionTime");
 						sas.writeExecutionTime(dateArray);
 						if(DEBUG)System.out.println("ExecutionTime sent...");
@@ -1026,7 +1036,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					
 					if(!messageHandler.getConnectDate().equals("")){	// use the disconnectControlScheduler
 						
-						Array executionTimeArray = convertStringToDateTimeArray(messageHandler.getConnectDate());
+						Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
 						SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
 						
 						ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getDisconnectorScriptTable().getObisCode());
@@ -1050,7 +1060,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					
 					if(!messageHandler.getDisconnectDate().equals("")){ // use the disconnectControlScheduler
 						
-						Array executionTimeArray = convertStringToDateTimeArray(messageHandler.getDisconnectDate());
+						Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
 						SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
 						
 						ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getDisconnectorScriptTable().getObisCode());
@@ -1068,7 +1078,36 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					}
 					
 					success = true;
+				} else if(connectMode){
+					
+					log(Level.INFO, "Handling message " + rm.displayString() + ": ConnectControl mode");
+					String mode = messageHandler.getConnectControlMode();
+					
+					if(mode != null){
+						try {
+							int modeInt = Integer.parseInt(mode);
+							
+							if((modeInt >=0) && (modeInt <=6)){
+								Disconnector connectorMode = getCosemObjectFactory().getDisconnector();
+								connectorMode.writeControlMode(new TypeEnum(modeInt));
+								
+							} else {
+								throw new IOException("Mode is not a valid entry for message " + rm.displayString() + ", value must be between 0 and 6");
+							}
+							
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+							throw new IOException("Mode is not a valid entry for message " + rm.displayString());
+						}
+					} else {
+						// should never get to the else, can't leave message empty 
+						throw new IOException("Message " + rm.displayString() + " can not be empty");
+					}
+					
+					success = true;
 				} else if (llClear){
+					
+					log(Level.INFO, "Handling message " + rm.displayString() + ": Clear LoadLimit configuration");
 					
 					Limiter clearLLimiter = getCosemObjectFactory().getLimiter();
 					
@@ -1085,6 +1124,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					
 					success = true;
 				} else if (llConfig){
+					
+					log(Level.INFO, "Handling message " + rm.displayString() + ": Set LoadLimit configuration");
 					
 					Limiter loadLimiter = getCosemObjectFactory().getLimiter();
 					
@@ -1139,7 +1180,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					}
 					if(messageHandler.getEpActivationTime() != null){	// The EmergencyProfileActivationTime
 						try{
-							emergencyProfile.addDataType(new OctetString(convertStringToDateTimeOctetString(messageHandler.getEpActivationTime()).getBEREncodedByteArray(), 0, true));
+//							emergencyProfile.addDataType(new OctetString(convertStringToDateTimeOctetString(messageHandler.getEpActivationTime()).getBEREncodedByteArray(), 0, true));
+							emergencyProfile.addDataType(new OctetString(convertUnixToGMTDateTime(messageHandler.getEpActivationTime()).getBEREncodedByteArray(), 0, true));
 						} catch (NumberFormatException e) {
 							e.printStackTrace();
 							log(Level.INFO, "Could not pars the emergency profile activationTime value to a valid date.");
@@ -1164,6 +1206,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					success = true;
 				} else if (llSetGrId){
 					
+					log(Level.INFO, "Handling message " + rm.displayString() + ": Set LoadLimit EmergencyProfile group ID's");
+					
 					Limiter epdiLimiter = getCosemObjectFactory().getLimiter();
 					try {
 						Lookup lut = mw().getLookupFactory().find(Integer.parseInt(messageHandler.getEpGroupIdListLookupTableId()));
@@ -1186,6 +1230,9 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					success = true;
 					
 				} else if(touCalendar){
+					
+					log(Level.INFO, "Handling message " + rm.displayString() + ": Set Activity calendar");
+					
 					String name = messageHandler.getTOUCalendarName();
 					String activateDate = messageHandler.getTOUActivationDate();
 					String codeTable = messageHandler.getTOUCodeTable();
@@ -1214,9 +1261,11 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 							while(itr.hasNext()){ 
 								CodeCalendar cc = (CodeCalendar)itr.next();
 								int seasonId = cc.getSeason();
+								if(seasonId != 0){
 									OctetString os = new OctetString(new byte[]{(byte) ((cc.getYear()==-1)?0xff:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xff:(cc.getYear())&0xFF), 
-											(byte) ((cc.getMonth()==-1)?0xFF:(cc.getMonth()-1)), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()), (byte) 0xFF, 0, 0, 0, 0, (byte) 0x80, 0, 0}, true );
+											(byte) ((cc.getMonth()==-1)?0xFF:cc.getMonth()), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()), (byte) 0xFF, 0, 0, 0, 0, (byte) 0x80, 0, 0}, true );
 									seasonsProfile.put(os, seasonId);
+								}
 							}
 
 							seasonsP = getSortedList(seasonsProfile);
@@ -1315,7 +1364,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 									Unsigned16 selector = new Unsigned16(cdtd.getCodeValue());
 									def.addDataType(tstampOs);
 //									TODO def.addDataType(new OctetString(getMeterConfig().getTariffScriptTable().getLNArray()));
-									def.addDataType(new OctetString(new byte[]{0,0,10,0,(byte)100,0,(byte)255}));
+									def.addDataType(new OctetString(new byte[]{0,0,10,0,(byte)100,(byte)255}));
 									def.addDataType(selector);
 									daySchedules.addDataType(def);
 								}
@@ -1338,13 +1387,13 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 								ac.writeCalendarNamePassive(OctetString.fromString(name));
 							} 
 							if(activateDate != null){
-								ac.writeActivatePassiveCalendarTime(new OctetString(convertStringToDateTimeOctetString(activateDate).getBEREncodedByteArray(), 0, true));
+//								ac.writeActivatePassiveCalendarTime(new OctetString(convertStringToDateTimeOctetString(activateDate).getBEREncodedByteArray(), 0, true));
+								ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activateDate).getBEREncodedByteArray(), 0, true));
 							}
 							
 						}
 						
 					} else if(userFile != null){
-						//TODO
 						throw new IOException("ActivityCalendar by userfile is not supported yet.");
 					} else {
 						// should never get here 
@@ -1354,6 +1403,9 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					success = true;
 					
 				} else if(touSpecialDays){
+					
+					log(Level.INFO, "Handling message " + rm.displayString() + ": Set Special Days table");
+					
 					String codeTable = messageHandler.getSpecialDaysCodeTable();
 					
 					if(codeTable == null){
@@ -1373,7 +1425,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 								CodeCalendar cc = (CodeCalendar)calendars.get(i);
 								if(cc.getSeason() == 0){
 									OctetString os = new OctetString(new byte[]{(byte) ((cc.getYear()==-1)?0xff:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xff:(cc.getYear())&0xFF), 
-											(byte) ((cc.getMonth()==-1)?0xFF:(cc.getMonth()-1)), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()),
+											(byte) ((cc.getMonth()==-1)?0xFF:cc.getMonth()), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()),
 											(byte) ((cc.getDayOfWeek()==-1)?0xFF:cc.getDayOfWeek())}, true );
 									Unsigned8 dayType = new Unsigned8(cc.getDayType().getId());
 									Structure struct = new Structure();
@@ -1386,6 +1438,14 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 							
 							success = true;
 						}
+					}
+				} else if(specialDelEntry){
+					try {
+						SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
+						sdt.delete(Integer.parseInt(messageHandler.getSpecialDayDeleteEntry()));
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+						throw new IOException("Delete index is not a valid entry");
 					}
 				} else {
 					success = false;
@@ -1516,7 +1576,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			throw new NumberFormatException();
 		}
 	}
-
+	@Deprecated
 	private AXDRDateTime convertStringToDateTimeOctetString(String strDate) throws IOException{
 		AXDRDateTime dateTime = null;
 		Calendar cal = Calendar.getInstance(getMeter().getTimeZone());
@@ -1530,6 +1590,48 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		return dateTime;
 	}
 	
+	private AXDRDateTime convertUnixToGMTDateTime(String time) throws IOException{
+		try {
+			AXDRDateTime dateTime = null;
+			Calendar cal = Calendar.getInstance(getTimeZone());
+			cal.setTimeInMillis(Long.parseLong(time)*1000);
+			dateTime = new AXDRDateTime(cal);
+			return dateTime;
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			throw new IOException("Could not parse " + time + " to a long value");
+		}
+	}
+	
+	public Array convertUnixToDateTimeArray(String strDate) throws IOException {
+		try {
+			Calendar cal = Calendar.getInstance(getTimeZone());
+			cal.setTimeInMillis(Long.parseLong(strDate)*1000);
+			byte[] dateBytes = new byte[5];
+			dateBytes[0] = (byte) ((cal.get(Calendar.YEAR) >> 8)&0xFF);
+			dateBytes[1] = (byte) (cal.get(Calendar.YEAR) &0xFF);
+			dateBytes[2] = (byte) ((cal.get(Calendar.MONTH)&0xFF) +1 );	
+			dateBytes[3] = (byte) (cal.get(Calendar.DAY_OF_MONTH)&0xFF);
+			dateBytes[4] = (byte)0xFF;
+			OctetString date = new OctetString(dateBytes, true);
+			byte[] timeBytes = new byte[4];
+			timeBytes[0] = (byte) cal.get(Calendar.HOUR_OF_DAY);
+			timeBytes[1] = (byte) cal.get(Calendar.MINUTE);
+			timeBytes[2] = (byte) 0x00;
+			timeBytes[3] = (byte) 0x00;
+			OctetString time = new OctetString(timeBytes, true);
+			
+			Array dateTimeArray = new Array();
+			dateTimeArray.addDataType(time);
+			dateTimeArray.addDataType(date);
+			return dateTimeArray;
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			throw new IOException("Could not parse " + strDate + " to a long value");
+		}
+	}
+	
+	@Deprecated
 	public Array convertStringToDateTimeArray(String strDate) throws IOException {
 		OctetString date = null;
 		byte[] dateBytes = new byte[5];
@@ -1619,6 +1721,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		catDisconnect.addMessageSpec(msgSpec);
 		msgSpec = addConnectControl("Connect", RtuMessageConstant.CONNECT_LOAD, false);
 		catDisconnect.addMessageSpec(msgSpec);
+		msgSpec = addConnectControlMode("ConnectControl mode", RtuMessageConstant.CONNECT_CONTROL_MODE, false);
+		catDisconnect.addMessageSpec(msgSpec);
 		
 		// LoadLimit related messages
 		msgSpec = addConfigureLL("Configure Loadlimiting parameters", RtuMessageConstant.LOAD_LIMIT_CONFIGURE, false);
@@ -1632,6 +1736,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		msgSpec = addTimeOfUse("Select the Activity Calendar", RtuMessageConstant.TOU_ACTIVITY_CAL, false);
 		catActivityCal.addMessageSpec(msgSpec);
 		msgSpec = addSpecialDays("Select the Special days Calendar", RtuMessageConstant.TOU_SPECIAL_DAYS, false);
+		catActivityCal.addMessageSpec(msgSpec);
+		msgSpec = addSpecialDaysDelete("Delete Special Day entry", RtuMessageConstant.TOU_SPECIAL_DAYS, false);
 		catActivityCal.addMessageSpec(msgSpec);
 		
 		categories.add(catXMLConfig);
@@ -1650,6 +1756,18 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
         msgVal.setValue(" ");
         tagSpec.add(msgVal);
         MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.TOU_SPECIAL_DAYS_CODE_TABLE, false);
+        tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+	
+	private MessageSpec addSpecialDaysDelete(String keyId, String tagName, boolean advanced) {
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        tagSpec.add(msgVal);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE_ENTRY, true);
         tagSpec.add(msgAttrSpec);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -1705,6 +1823,18 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
         MessageValueSpec msgVal = new MessageValueSpec();
         msgVal.setValue(" ");
         MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, false);
+        tagSpec.add(msgVal);
+        tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+	
+	private MessageSpec addConnectControlMode(String keyId, String tagName, boolean advanced) {
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.CONNECT_MODE, true);
         tagSpec.add(msgVal);
         tagSpec.add(msgAttrSpec);
         msgSpec.add(tagSpec);
