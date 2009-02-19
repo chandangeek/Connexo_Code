@@ -1071,7 +1071,7 @@ public class ABBA230 implements
 			else if (messageEntry.getContent().indexOf("<"+CONNECT)>=0) {
 				logger.info("************************* CONNECT CONTACTOR *************************");
 		    	long val = ((Long)rFactory.getRegister("ContactorStatus")).longValue();
-		    	if (val == 1) {
+		    	if (val > 0) {
 		        	rFactory.setRegister("ContactorStatus",new byte[]{0}); // arm the contactor for closing
 		        	rFactory.setRegister("ContactorCloser",new byte[]{0}); // close the armed contactor
 		    	}
