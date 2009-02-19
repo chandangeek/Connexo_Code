@@ -20,7 +20,7 @@ import com.energyict.protocolimpl.modbus.enerdis.enerium200.profile.Profile;
 
 public class Enerium200 extends Modbus {
 
-	private static final int DEBUG 	= 0;
+	private static final int DEBUG 	= 1;
 
 	private static final int NUMBER_OF_CHANNELS = 8;
 	

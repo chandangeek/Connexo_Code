@@ -18,12 +18,20 @@ import java.util.TimeZone;
 
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.Parser;
+import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.F15Parser;
+import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.F39Parser;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.MeterInfoParser;
+import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.Non_SignedParser;
+import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.Non_Signed_1000_Parser;
+import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.Non_Signed_1_10000_Parser;
+import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.Non_Signed_1_100_Parser;
+import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.SignedParser;
 
 /**
  *
@@ -32,7 +40,6 @@ import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.MeterInfoPar
 public class RegisterFactory extends AbstractRegisterFactory {
     
 	private static final int MODBUS_MAX_LENGTH		= 0x007D;
-	private static final String METERINFO_PARSER	= "METERINFO_PARSER";
 	
 	public HoldingRegister meterInfo;
 	public HoldingRegister writeFunctionReg;
@@ -49,7 +56,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
     	
     	setZeroBased(false);
 
-    	meterInfo = (HoldingRegister) new HoldingRegister(0x0000, 0x001E).setParser(METERINFO_PARSER);
+    	meterInfo = (HoldingRegister) new HoldingRegister(0x0000, 0x001E).setParser(MeterInfoParser.PARSER_NAME);
     	meterInfo.setRegisterFactory(this);
     	
     	writeFunctionReg = new HoldingRegister(0xD000, 0x0000);
@@ -91,16 +98,43 @@ public class RegisterFactory extends AbstractRegisterFactory {
     	
 	}
     
+    public AbstractRegister findRegister(ObisCode obisCode) throws IOException {
+    	for (int i = 0; i < getEnerium200Registers().size(); i++) {
+			Enerium200Register er = (Enerium200Register) getEnerium200Registers().get(i);
+			if (er.getObisCode().equals(obisCode)) {
+				HoldingRegister hr = new HoldingRegister(er.getAddress(), er.getSize(), er.getObisCode(), er.getUnit(), er.getName());
+				hr.setRegisterFactory(this);
+				hr.setScale(er.getScaler());
+				switch (er.getType()) {
+					case Enerium200Register.F15					: hr.setParser(F15Parser.PARSER_NAME); break;
+					case Enerium200Register.F39					: hr.setParser(F39Parser.PARSER_NAME); break;
+					case Enerium200Register.NON_SIGNED			: hr.setParser(Non_SignedParser.PARSER_NAME); break;
+					case Enerium200Register.NON_SIGNED_1000		: hr.setParser(Non_Signed_1000_Parser.PARSER_NAME); break;
+					case Enerium200Register.NON_SIGNED_1_100	: hr.setParser(Non_Signed_1_100_Parser.PARSER_NAME); break;
+					case Enerium200Register.NON_SIGNED_1_10000	: hr.setParser(Non_Signed_1_10000_Parser.PARSER_NAME); break;
+					case Enerium200Register.SIGNED				: hr.setParser(SignedParser.PARSER_NAME); break;
+				}
+				return hr;
+			}
+		}
+        throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+    }
+    
     private TimeZone getTimeZone() {
     	return getModBus().gettimeZone();
     }
+    
+    private List getEnerium200Registers() {
+		return enerium200Registers;
+	}
     
     protected void initParsers() {
         // BigDecimal parser
         getParserFactory().addBigDecimalParser(new Parser() {
             public Object val(int[] values, AbstractRegister register) throws IOException {
                 BigDecimal bd = new BigDecimal(""+values[0]);
-                return bd.multiply(getModBus().getRegisterMultiplier(register.getReg()));
+                return bd;
+//                return bd.multiply(getModBus().getRegisterMultiplier(register.getReg()));
             }
         });
         
@@ -108,7 +142,8 @@ public class RegisterFactory extends AbstractRegisterFactory {
             public Object val(int[] values, AbstractRegister register) throws IOException {
                 long val=(values[1]<<16)+values[0];
                 BigDecimal bd = new BigDecimal(""+val);
-                return bd.multiply(getModBus().getRegisterMultiplier(register.getReg()));
+                return bd;
+//                return bd.multiply(getModBus().getRegisterMultiplier(register.getReg()));
             }
         });
         
@@ -125,7 +160,11 @@ public class RegisterFactory extends AbstractRegisterFactory {
             }
         });
 
-        getParserFactory().addParser(METERINFO_PARSER, new MeterInfoParser(getTimeZone()));
+        getParserFactory().addParser(MeterInfoParser.PARSER_NAME, new MeterInfoParser(getTimeZone()));
+        getParserFactory().addParser(Non_Signed_1_100_Parser.PARSER_NAME, new Non_Signed_1_100_Parser());
+        getParserFactory().addParser(Non_Signed_1_10000_Parser.PARSER_NAME, new Non_Signed_1_10000_Parser());
+        getParserFactory().addParser(SignedParser.PARSER_NAME, new SignedParser());
+        getParserFactory().addParser(Non_SignedParser.PARSER_NAME, new Non_SignedParser());
         
     } //private void initParsers()
     
