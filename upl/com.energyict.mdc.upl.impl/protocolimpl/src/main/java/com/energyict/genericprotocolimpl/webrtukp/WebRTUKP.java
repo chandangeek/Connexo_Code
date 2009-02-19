@@ -1737,7 +1737,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		catActivityCal.addMessageSpec(msgSpec);
 		msgSpec = addSpecialDays("Select the Special days Calendar", RtuMessageConstant.TOU_SPECIAL_DAYS, false);
 		catActivityCal.addMessageSpec(msgSpec);
-		msgSpec = addSpecialDaysDelete("Delete Special Day entry", RtuMessageConstant.TOU_SPECIAL_DAYS, false);
+		msgSpec = addSpecialDaysDelete("Delete Special Day entry", RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE, false);
 		catActivityCal.addMessageSpec(msgSpec);
 		
 		categories.add(catXMLConfig);
