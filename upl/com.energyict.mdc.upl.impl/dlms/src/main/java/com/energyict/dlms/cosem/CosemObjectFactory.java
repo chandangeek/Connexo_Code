@@ -120,6 +120,14 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new GenericWrite(protocolLink,getObjectReference(obisCode,classId),attr);
     }
     
+    public GenericInvoke getGenericInvoke(int baseObject, int method){
+    	return new GenericInvoke(protocolLink, new ObjectReference(baseObject), method);
+    }
+    public GenericInvoke getGenericInvoke(ObisCode obisCode, int classId, int method) throws IOException{
+    	return new GenericInvoke(protocolLink, getObjectReference(obisCode, classId), method);
+    }
+    
+    
     public ProfileGeneric getProfileGeneric(ObisCode obisCode) throws IOException {
         return new ProfileGeneric(protocolLink,getObjectReference(obisCode));
     }

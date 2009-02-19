@@ -116,18 +116,14 @@ public class DLMSConfig {
 		new DLMSConfig("WKP",70,0,1,24,4,0,255),
 		new DLMSConfig("WKP",70,0,2,24,4,0,255),
 		new DLMSConfig("WKP",70,0,3,24,4,0,255),
-		new DLMSConfig("WKP",70,0,4,24,4,0,255),
-		new DLMSConfig("ISK",70,0,1,128,30,30,255),
-		new DLMSConfig("ISK",70,0,2,128,30,30,255),
-		new DLMSConfig("ISK",70,0,3,128,30,30,255),
-		new DLMSConfig("ISK",70,0,4,128,30,30,255)
+		new DLMSConfig("WKP",70,0,4,24,4,0,255)
     };
     
     final static private DLMSConfig[] mbusDisconnectControlState = {
-    	new DLMSConfig("ISK",7,0,1,128,30,31,255),
-		new DLMSConfig("ISK",7,0,2,128,30,31,255),
-		new DLMSConfig("ISK",7,0,3,128,30,31,255),
-		new DLMSConfig("ISK",7,0,4,128,30,31,255)
+//    	new DLMSConfig("ISK",7,0,1,128,30,31,255),
+//		new DLMSConfig("ISK",7,0,2,128,30,31,255),
+//		new DLMSConfig("ISK",7,0,3,128,30,31,255),
+//		new DLMSConfig("ISK",7,0,4,128,30,31,255)
     };
     
     final static private DLMSConfig[] mbusDisconnectControlSchedule = {
