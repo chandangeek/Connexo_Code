@@ -97,6 +97,10 @@ public class Enerium200 extends Modbus {
 		return this.profile;
 	}
 	
+	public String getProtocolVersion() {
+		return "$Date$";
+	}
+	
 	/*
 	 * Public methods
 	 */
@@ -114,6 +118,10 @@ public class Enerium200 extends Modbus {
     
     private String getSerialNumber() throws IOException {
     	return getMeterInfo().getSerialNumber();
+    }
+    
+    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    	return "Enerium 200 " + getMeterInfo().getVersion();
     }
     
     protected void validateSerialNumber() throws IOException {
