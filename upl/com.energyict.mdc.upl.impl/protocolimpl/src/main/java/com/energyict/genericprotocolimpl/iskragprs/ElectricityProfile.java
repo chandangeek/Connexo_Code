@@ -91,7 +91,7 @@ public class ElectricityProfile {
 				fromCal.setTime(lastLogReading);
 				iskramx37x.getLogger().log(Level.INFO, "Meter " + this.iskramx37x.getMeter().getSerialNumber() + ": Reading EVENTS from meter with serialnumber " + iskramx37x.getSerialNumber() + ".");
 				DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, iskramx37x.getToCalendar());
-				Logbook logbook = new Logbook(getTimeZone());
+				Logbook logbook = new Logbook(getTimeZone(), iskramx37x.getLogger());
 				profileData.getMeterEvents().addAll(logbook.getMeterEvents(dcEvent));
 				profileData.applyEvents(iskramx37x.getMeter().getIntervalInSeconds()/60);
 			}
