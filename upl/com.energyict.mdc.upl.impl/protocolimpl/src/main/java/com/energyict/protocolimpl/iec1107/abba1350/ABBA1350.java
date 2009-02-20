@@ -28,7 +28,7 @@ import com.energyict.obis.ObisCode;
  * 24-11-2008 jme > Added support for power Quality readout (P.02)
  * 27-11-2008 jme > Added support for register readout from 
  * 22-01-2009 jme > Removed break command after dataReadout, to prevent non responding meter issues.
- * 20-02-2009 jme > Added timestamp of demand reset to registers as toTime.
+ * 20-02-2009 jme > Added timestamp of billing point to registers as toTime.
  * @endchanges
  */
 public class ABBA1350 
