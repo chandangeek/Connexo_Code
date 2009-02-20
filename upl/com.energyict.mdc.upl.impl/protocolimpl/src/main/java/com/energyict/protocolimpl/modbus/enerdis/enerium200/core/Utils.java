@@ -109,4 +109,8 @@ public class Utils {
 		return pd.getIntervalDatas();
 	}
     
+	public static long intToLongUnsigned(int value) {
+		return ((long)value) & 0x00000000FFFFFFFF;
+	}
+	
 }

@@ -7,6 +7,7 @@ import java.math.MathContext;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.Parser;
+import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
 
 public class Non_Signed_1_100_Parser implements Parser {
 
@@ -17,8 +18,8 @@ public class Non_Signed_1_100_Parser implements Parser {
 	public Object val(int[] values, AbstractRegister register) throws IOException {
 		long value = 0;
 		switch (values.length) {
-			case 1:	value = values[0]; break;
-			case 2:	value = values[1] + (values[0] * (256 * 256)); break;
+			case 1:	value = Utils.intToLongUnsigned(values[0]); break;
+			case 2:	value = Utils.intToLongUnsigned(values[1]) + (Utils.intToLongUnsigned(values[0]) * (256 * 256)); break;
 			default: throw new ProtocolException(PARSER_NAME + ".val(): Error while parsing register. Wrong data length: " + values.length);
 		}
 		BigDecimal bd = new BigDecimal(value, new MathContext(0));

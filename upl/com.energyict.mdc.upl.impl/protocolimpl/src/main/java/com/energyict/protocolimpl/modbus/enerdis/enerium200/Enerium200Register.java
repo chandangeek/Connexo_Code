@@ -96,7 +96,7 @@ public class Enerium200Register {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("Enerium200Register:");
         strBuff.append(" obisCode="+getObisCode());
-        strBuff.append(" name="+getName());
+        strBuff.append("\t name="+getName());
         strBuff.append(" unit="+getUnit());
         strBuff.append(" scaler="+getScaler());
         strBuff.append(" address="+getAddress());

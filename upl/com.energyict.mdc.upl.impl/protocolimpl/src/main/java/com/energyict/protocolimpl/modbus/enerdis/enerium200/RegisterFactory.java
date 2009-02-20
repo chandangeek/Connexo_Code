@@ -106,6 +106,54 @@ public class RegisterFactory extends AbstractRegisterFactory {
     	addReg(0x0A1A, 4, "1.1.8.8.0.255", "varh", "Q4 reactive energy", 1, Enerium200Register.NON_SIGNED);
     	addReg(0x0A1E, 4, "1.1.9.8.0.255", "VAh", "Receiver apparent energy", 1, Enerium200Register.NON_SIGNED);
     	addReg(0x0A22, 4, "1.1.10.8.0.255", "VAh", "Generator apparent energy", 1, Enerium200Register.NON_SIGNED);
+    	
+    	addReg(0x0900, 2, "1.1.32.4.0.255", "V", "V1 (Average)", 1, Enerium200Register.NON_SIGNED_1_100);
+    	addReg(0x0902, 2, "1.1.52.4.0.255", "V", "V2 (Average)", 1, Enerium200Register.NON_SIGNED_1_100);
+    	addReg(0x0904, 2, "1.1.72.4.0.255", "V", "V3 (Average)", 1, Enerium200Register.NON_SIGNED_1_100);
+
+    	addReg(0x0906, 2, "1.1.12.4.0.255", "V", "Vt (Average)", 1, Enerium200Register.NON_SIGNED_1_100);
+    	addReg(0x0908, 2, "1.1.129.4.0.255", "V", "U12 (Average)", 1, Enerium200Register.NON_SIGNED_1_100);
+    	addReg(0x090A, 2, "1.1.130.4.0.255", "V", "U23 (Average)", 1, Enerium200Register.NON_SIGNED_1_100);
+    	addReg(0x090C, 2, "1.1.131.4.0.255", "V", "U31 (Average)", 1, Enerium200Register.NON_SIGNED_1_100);
+
+    	addReg(0x090E, 2, "1.1.31.4.0.255", "A", "I1 (Average)", 1, Enerium200Register.NON_SIGNED_1_10000);
+    	addReg(0x0910, 2, "1.1.51.4.0.255", "A", "I2 (Average)", 1, Enerium200Register.NON_SIGNED_1_10000);
+    	addReg(0x0912, 2, "1.1.71.4.0.255", "A", "I3 (Average)", 1, Enerium200Register.NON_SIGNED_1_10000);
+    	addReg(0x0914, 2, "1.1.91.4.0.255", "A", "In (Average)", 1, Enerium200Register.NON_SIGNED_1_10000);
+
+    	addReg(0x0916, 2, "1.1.21.4.0.255", "W", "P1 receiver (Average)", 1, Enerium200Register.NON_SIGNED);
+    	addReg(0x0918, 2, "1.1.22.4.0.255", "W", "P1 generator (Average)", 1, Enerium200Register.NON_SIGNED);
+    	addReg(0x091A, 2, "1.1.41.4.0.255", "W", "P2 receiver (Average)", 1, Enerium200Register.NON_SIGNED);
+    	addReg(0x091C, 2, "1.1.42.4.0.255", "W", "P2 generator (Average)", 1, Enerium200Register.NON_SIGNED);
+    	addReg(0x091E, 2, "1.1.61.4.0.255", "W", "P3 receiver (Average)", 1, Enerium200Register.NON_SIGNED);
+    	addReg(0x0920, 2, "1.1.62.4.0.255", "W", "P3 generator (Average)", 1, Enerium200Register.NON_SIGNED);
+    	addReg(0x0922, 2, "1.1.1.4.0.255", "W", "Pt receiver (Average)", 1, Enerium200Register.NON_SIGNED);
+    	addReg(0x0924, 2, "1.1.2.4.0.255", "W", "Pt generator (Average)", 1, Enerium200Register.NON_SIGNED);
+
+    	addReg(0x0926, 2, "1.1.23.4.0.255", "var", "Q1 receiver (Average)", 1, Enerium200Register.SIGNED);
+    	addReg(0x0928, 2, "1.1.24.4.0.255", "var", "Q1 generator (Average)", 1, Enerium200Register.SIGNED);
+    	addReg(0x092A, 2, "1.1.43.4.0.255", "var", "Q2 receiver (Average)", 1, Enerium200Register.SIGNED);
+    	addReg(0x092C, 2, "1.1.44.4.0.255", "var", "Q2 generator (Average)", 1, Enerium200Register.SIGNED);
+    	addReg(0x092E, 2, "1.1.63.4.0.255", "var", "Q3 receiver (Average)", 1, Enerium200Register.SIGNED);
+    	addReg(0x0930, 2, "1.1.64.4.0.255", "var", "Q3 generator (Average)", 1, Enerium200Register.SIGNED);
+    	addReg(0x0932, 2, "1.1.3.4.0.255", "var", "Qt receiver (Average)", 1, Enerium200Register.SIGNED);
+    	addReg(0x0934, 2, "1.1.4.4.0.255", "var", "Qt generator (Average)", 1, Enerium200Register.SIGNED);
+
+    	addReg(0x0936, 2, "1.1.29.4.0.255", "VA", "S1 (Average)", 1, Enerium200Register.NON_SIGNED);
+    	addReg(0x0938, 2, "1.1.49.4.0.255", "VA", "S2 (Average)", 1, Enerium200Register.NON_SIGNED);
+    	addReg(0x093A, 2, "1.1.69.4.0.255", "VA", "S3 (Average)", 1, Enerium200Register.NON_SIGNED);
+    	addReg(0x093C, 2, "1.1.9.4.0.255", "VA", "Sn (Average)", 1, Enerium200Register.NON_SIGNED);
+    	
+    	addReg(0x0959, 1, "1.1.132.4.0.255", "", "Crest factor V1 (Average)", 1, Enerium200Register.NON_SIGNED_1_10000);
+    	addReg(0x095A, 1, "1.1.133.4.0.255", "", "Crest factor V2 (Average)", 1, Enerium200Register.NON_SIGNED_1_10000);
+    	addReg(0x095B, 1, "1.1.134.4.0.255", "", "Crest factor V3 (Average)", 1, Enerium200Register.NON_SIGNED_1_10000);
+    	addReg(0x095C, 1, "1.1.135.4.0.255", "", "Crest factor I1 (Average)", 1, Enerium200Register.NON_SIGNED_1_10000);
+    	addReg(0x095D, 1, "1.1.136.4.0.255", "", "Crest factor I2 (Average)", 1, Enerium200Register.NON_SIGNED_1_10000);
+    	addReg(0x095E, 1, "1.1.137.4.0.255", "", "Crest factor I3 (Average)", 1, Enerium200Register.NON_SIGNED_1_10000);
+
+    	addReg(0x0958, 1, "1.1.138.4.0.255", "%", "Voltage imbalance (Average)", 1, Enerium200Register.SIGNED_1_100);
+
+    	addReg(0x094E, 1, "1.1.14.4.0.255", "Hz", "Frequency (Average)", 1, Enerium200Register.NON_SIGNED_1_100);
 
 	}
 	
