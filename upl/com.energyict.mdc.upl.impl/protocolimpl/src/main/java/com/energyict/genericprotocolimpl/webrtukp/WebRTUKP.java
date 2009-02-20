@@ -183,6 +183,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	private String password;
 	private String serialNumber;
 	private String manufacturer;
+	private String deviceId;
 	
 	/**
 	 * This method handles the complete WebRTU. The Rtu acts as an Electricity meter. The E-meter itself can have several MBus meters
@@ -303,10 +304,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
     public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn =
         (HHUSignOn)new IEC1107HHUConnection(commChannel, this.timeout, this.retries, 300, 0);
-        hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
-        hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
+        hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
+        hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
-        getDLMSConnection().setHHUSignOn(hhuSignOn, "");
+        getDLMSConnection().setHHUSignOn(hhuSignOn, this.deviceId);
     }
     /**
      * Getter for the data readout
@@ -329,7 +330,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		this.cosemObjectFactory	= new CosemObjectFactory((ProtocolLink)this);
 		
 		this.dlmsConnection = (this.connectionMode == 0)?
-					new HDLCConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode):
+					new KP_HDLCConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode):
 					new TCPIPConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress);
 		
 					
@@ -356,6 +357,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	private void connect() throws IOException, SQLException, BusinessException{
 		try {
 			getDLMSConnection().connectMAC();
+			log(Level.INFO, "Sign On procedure done.");
 			getDLMSConnection().setIskraWrapper(1);
 			aarq = new AARQ(this.securityLevel, this.password, getDLMSConnection());
 			
@@ -861,18 +863,28 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
                 throw new MissingPropertyException (key + " key missing");
         }
         
-        this.password = properties.getProperty(MeterProtocol.PASSWORD, "");
-        this.serialNumber = getMeter().getSerialNumber();
+		if(getMeter().getDeviceId() != null){
+			this.deviceId = getMeter().getDeviceId();
+		} else { 
+			this.deviceId = "!"; 
+		}
+		if(getMeter().getPassword() != null){
+			this.password = getMeter().getPassword();
+		} else {
+			this.password = "";
+		}
+        
+        this.serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
         this.securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "0"));
         this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "1"));
         this.clientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16"));
         this.serverLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "1"));
         this.serverUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "17"));
         this.requestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0"));
-        // if HDLC set default timeout to 10s, if TCPIP set default timeout to 60s
-        this.timeout = Integer.parseInt(properties.getProperty("Timeout", (this.connectionMode==0)?"10000":"60000"));
+        // if HDLC set default timeout to 15s, if TCPIP set default timeout to 60s
+        this.timeout = Integer.parseInt(properties.getProperty("Timeout", (this.connectionMode==0)?"15000":"60000"));	// set the HDLC timeout to 15000 for the WebRTU KP
         this.forceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "100"));
-        this.retries = Integer.parseInt(properties.getProperty("Retries", "3"));
+        this.retries = Integer.parseInt(properties.getProperty("Retries", "3"));	
         this.addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "2"));
         this.extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
         this.manufacturer = properties.getProperty("Manufacturer", "WKP");
