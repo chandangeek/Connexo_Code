@@ -30,7 +30,11 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.DialerMarker;
 import com.energyict.dialer.core.Link;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
@@ -96,6 +100,7 @@ import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProtocolUtils;
@@ -137,7 +142,7 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
  * 					Fixed bugs in the ActivityCalendar object; Added an entry delete of the specialDays
  */
 
-public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
+public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEnabler{
 	
 	private boolean DEBUG = true; // TODO set it to false if you release
 
@@ -148,6 +153,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 	private CommunicationProfile	commProfile;
 	private Logger					logger;
 	private CommunicationScheduler	scheduler;
+	private Link					link;
 	private Rtu						webRtuKP;
 	
 	// this cache object is supported by 7.5
@@ -195,8 +201,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		this.logger = logger;
 		this.commProfile = this.scheduler.getCommunicationProfile();
 		this.webRtuKP = this.scheduler.getRtu();
+		this.link = link;
 		
 		validateProperties();
+		
 		
 		try {
 			
@@ -283,6 +291,31 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 		}
 	}
 	
+    public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
+        enableHHUSignOn(commChannel,false);
+    }
+    /**
+     * Used by the framework
+     * @param commChannel communication channel object
+     * @param datareadout enable or disable data readout
+     * @throws com.energyict.dialer.connection.ConnectionException thrown when a connection exception happens
+     */
+    public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
+        HHUSignOn hhuSignOn =
+        (HHUSignOn)new IEC1107HHUConnection(commChannel, this.timeout, this.retries, 300, 0);
+        hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
+        hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
+        hhuSignOn.enableDataReadout(datareadout);
+        getDLMSConnection().setHHUSignOn(hhuSignOn, "");
+    }
+    /**
+     * Getter for the data readout
+     * @return byte[] with data readout
+     */
+    public byte[] getHHUDataReadout() {
+        return getDLMSConnection().getHhuSignOn().getDataReadout();
+    }
+	
 	/**
 	 * Initializing global objects
 	 * @param is - the inputStream to work with
@@ -299,6 +332,11 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 					new HDLCConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode):
 					new TCPIPConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress);
 		
+					
+		if (DialerMarker.hasOpticalMarker(this.link)){
+			((HHUEnabler)this).enableHHUSignOn(this.link.getSerialCommunicationChannel());
+		}			
+					
 		this.dlmsMeterConfig = DLMSMeterConfig.getInstance(this.manufacturer);
 		
 		// this cacheobject is supported by the 7.5
@@ -826,7 +864,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
         this.password = properties.getProperty(MeterProtocol.PASSWORD, "");
         this.serialNumber = getMeter().getSerialNumber();
         this.securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "0"));
-        this.connectionMode = Integer.parseInt(properties.getProperty("ConnectionMode", "1"));
+        this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "1"));
         this.clientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16"));
         this.serverLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "1"));
         this.serverUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "17"));
@@ -1619,13 +1657,13 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging{
 			dateBytes[2] = (byte) ((cal.get(Calendar.MONTH)&0xFF) +1 );	
 			dateBytes[3] = (byte) (cal.get(Calendar.DAY_OF_MONTH)&0xFF);
 			dateBytes[4] = (byte)0xFF;
-			OctetString date = new OctetString(dateBytes, true);
+			OctetString date = new OctetString(dateBytes);
 			byte[] timeBytes = new byte[4];
 			timeBytes[0] = (byte) cal.get(Calendar.HOUR_OF_DAY);
 			timeBytes[1] = (byte) cal.get(Calendar.MINUTE);
 			timeBytes[2] = (byte) 0x00;
 			timeBytes[3] = (byte) 0x00;
-			OctetString time = new OctetString(timeBytes, true);
+			OctetString time = new OctetString(timeBytes);
 			
 			Array dateTimeArray = new Array();
 			dateTimeArray.addDataType(time);
