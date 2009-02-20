@@ -149,7 +149,7 @@ public class AXDRDateTime extends AbstractDataType {
         return 
             new byte [] {   
                 (byte) 0x09,
-//                (byte) 0x0c,	// fixed octetString, no need for giving the length
+                (byte) 0x0c,	// fixed octetString, no need for giving the length
                 (byte) ((year & 0Xff00 ) >> 8),
                 (byte) (year & 0X00ff),
                 (byte) (month + 1),
