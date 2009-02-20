@@ -28,6 +28,7 @@ import com.energyict.obis.ObisCode;
  * 24-11-2008 jme > Added support for power Quality readout (P.02)
  * 27-11-2008 jme > Added support for register readout from 
  * 22-01-2009 jme > Removed break command after dataReadout, to prevent non responding meter issues.
+ * 20-02-2009 jme > Added timestamp of demand reset to registers as toTime.
  * @endchanges
  */
 public class ABBA1350 
@@ -442,6 +443,13 @@ RegisterProtocol, MessageProtocol {
 
 	/* Translate the obis codes to edis codes, and read */ 
 	public RegisterValue readRegister(ObisCode obis) throws IOException {
+		DataParser dp = new DataParser(getTimeZone());
+		Date eventTime = null;
+		Date toTime = null;
+		String fs = "";
+		String toTimeString = "";
+		byte[] data;
+		byte[] timeStampData;
 
 		try {
 
@@ -463,13 +471,11 @@ RegisterProtocol, MessageProtocol {
 			if( "1.1.0.0.9.255".equals(obis.toString())) return new RegisterValue(obis, readSpecialRegister((String)abba1350ObisCodeMapper.getObisMap().get(obis.toString())));
 			if( "1.1.0.0.10.255".equals(obis.toString())) return new RegisterValue(obis, readSpecialRegister((String)abba1350ObisCodeMapper.getObisMap().get(obis.toString())));
 
-			String fs = "";
 			if( obis.getF() != 255 ) {
 				int f = getBillingCount() - Math.abs(obis.getF());
 				fs = "*" + ProtocolUtils.buildStringDecimal(f, 2);
 			}
 			String edis = obis.getC() + "." + obis.getD() + "." + obis.getE() + fs;
-			byte[] data;
 			try {
 				data = read(edis);
 			} catch (IOException e1) {
@@ -477,9 +483,23 @@ RegisterProtocol, MessageProtocol {
 				throw e1;
 			}
 
-			sendDebug("Readregister Edis: " + edis + " Data: " + new String(data), 3);
+			// try to read the time stamp, and us it as the register toTime.
+			try {
+				String billingPoint = "";
+				if ("1.1.0.1.0.255".equalsIgnoreCase(obis.toString())) {
+					billingPoint = "*" + ProtocolUtils.buildStringDecimal(getBillingCount(), 2);
+				} else {
+					billingPoint = fs;
+				}
+				VDEWTimeStamp vts = new VDEWTimeStamp(getTimeZone());
+				timeStampData = read("0.1.2" + billingPoint);
+				toTimeString = dp.parseBetweenBrackets(timeStampData); 
+				vts.parse(toTimeString);
+				toTime = vts.getCalendar().getTime();
+			} catch (Exception e) {}
 			
-			DataParser dp = new DataParser(getTimeZone());
+
+			// read and parse the value an the unit ()if exists) of the register
 			String temp = dp.parseBetweenBrackets(data, 0, 0);
 			Unit readUnit = null; 
 			if (temp.indexOf('*') != -1) {
@@ -488,24 +508,16 @@ RegisterProtocol, MessageProtocol {
 				sendDebug("ReadUnit: " + readUnit, 3);
 			}
 
-			sendDebug("Readregister Edis: " + edis + " Data: " + new String(data) + " temp: " + temp, 3);
-			
 			BigDecimal bd = new BigDecimal(temp);
-			Date date = null;
 
-			sendDebug("Readregister Edis: " + edis + " bd: " + bd, 3);
-
+			// Read the eventTime (timestamp after the register data)
 			try {
-
 				String dString = dp.parseBetweenBrackets(data, 0, 1);
-
 				if( "0000000000".equals(dString) ) 
 					throw new NoSuchRegisterException();
-
 				VDEWTimeStamp vts = new VDEWTimeStamp(getTimeZone());
 				vts.parse(dString);
-				date = vts.getCalendar().getTime();
-
+				eventTime = vts.getCalendar().getTime();
 			} catch (DataParseException e) {
 				if (DEBUG >= 3) e.printStackTrace();
 			} catch (NoSuchRegisterException e) {
@@ -531,7 +543,7 @@ RegisterProtocol, MessageProtocol {
 				q = new Quantity(bd, obis.getUnitElectricity(scaler));
 			}
 			
-			return new RegisterValue(obis, q, date, null);
+			return new RegisterValue(obis, q, eventTime, toTime);
 
 		} catch (NoSuchRegisterException e) {
 			String m = "ObisCode " + obis.toString() + " is not supported!";
