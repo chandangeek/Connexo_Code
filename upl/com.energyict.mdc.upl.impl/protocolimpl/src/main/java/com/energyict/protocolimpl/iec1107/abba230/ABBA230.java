@@ -37,6 +37,7 @@ import com.energyict.protocolimpl.iec1107.*;
  * KV	25112008 	Changed authentication mechanism with new security level
  * KV	02122008 	Add intervalstate bits to logbook
  * JME	23012009	Fixed Java 1.5 <=> 1.4 issues to port from 8.1 to 7.5, 7.3 or 7.1
+ * JME	20022009	Implemented Billing reset message
  * 
  */
 
@@ -53,14 +54,14 @@ public class ABBA230 implements
     private static String ARM 				= "ArmMeter";
     private static String TARIFFPROGRAM 	= "UploadMeterScheme";
     private static String FIRMWAREPROGRAM 	= "UpgradeMeterFirmware";
-    private static String MDRESET			= "MDReset";
+    private static String BILLINGRESET		= "BillingReset";
 	
     private static String CONNECT_DISPLAY 			= "Connect Load";
     private static String DISCONNECT_DISPLAY 		= "Disconnect Load";
     private static String ARM_DISPLAY 				= "Arm Meter";
     private static String TARIFFPROGRAM_DISPLAY 	= "Upload Meter Scheme";
     private static String FIRMWAREPROGRAM_DISPLAY 	= "Upgrade Meter Firmware";
-	private static String REGISTERRESET_DISPLAY 	= "Reset registers";
+	private static String BILLINGRESET_DISPLAY 		= "Billing reset";
 	
     final static long FORCE_DELAY = 300;
     
@@ -714,13 +715,8 @@ public class ABBA230 implements
     	}
     }
     
-    private void doMDReset() {
-    	
-    	try {
-			rFactory.setRegister("ResetRegister",new byte[]{1});
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+    private void doBillingReset() throws IOException {
+			rFactory.setRegister("EndOfBillingPeriod",new byte[]{1});
 	}
     
     /* (non-Javadoc)
@@ -950,7 +946,7 @@ public class ABBA230 implements
         msgSpec = addBasicMsg(TARIFFPROGRAM_DISPLAY, TARIFFPROGRAM, false);
         cat.addMessageSpec(msgSpec);
         
-        msgSpec = addBasicMsg(REGISTERRESET_DISPLAY, MDRESET, false);
+        msgSpec = addBasicMsg(BILLINGRESET_DISPLAY, BILLINGRESET, false);
         cat.addMessageSpec(msgSpec);
 
         msgSpec = addBasicMsg(FIRMWAREPROGRAM_DISPLAY, FIRMWAREPROGRAM, true);
@@ -1110,13 +1106,17 @@ public class ABBA230 implements
 				activate();
 				firmwareUpgrade=true;
 			}
-			else if (messageEntry.getContent().indexOf("<"+MDRESET)>=0) {
+			else if (messageEntry.getContent().indexOf("<"+BILLINGRESET)>=0) {
 				logger.info("************************* MD RESET *************************");
-				int start = messageEntry.getContent().indexOf(MDRESET)+MDRESET.length()+1;
-				int end = messageEntry.getContent().lastIndexOf(MDRESET)-2;
+				int start = messageEntry.getContent().indexOf(BILLINGRESET)+BILLINGRESET.length()+1;
+				int end = messageEntry.getContent().lastIndexOf(BILLINGRESET)-2;
 				String mdresetXMLData = messageEntry.getContent().substring(start,end);
 				
-				doMDReset();
+				try {
+					doBillingReset();
+				} catch (Exception e) {
+					return MessageResult.createFailed(messageEntry);
+				}
 				
 			}
 			return MessageResult.createSuccess(messageEntry);
