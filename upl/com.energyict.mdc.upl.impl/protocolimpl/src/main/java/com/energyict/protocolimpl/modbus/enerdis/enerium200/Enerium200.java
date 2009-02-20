@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Properties;
 
 import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.UnsupportedException;
@@ -55,6 +56,12 @@ public class Enerium200 extends Modbus {
 
 	protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 	
+		try {
+			Integer.parseInt(getInfoTypeDeviceID());
+		} catch (Exception e) {
+			setInfoTypeDeviceID("1");
+		}
+		
 	try {
 		getRegistersInfo(1);
 	} catch (IOException e) {
