@@ -57,7 +57,7 @@ public class Logbook {
 	/** Creates a new instance of Logbook */
 	public Logbook(TimeZone timeZone) {
 		this.timeZone = timeZone;
-		this.logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+		this.logger = Logger.getAnonymousLogger();
 	}
 	
 	public Logbook(TimeZone timeZone, Logger logger) {
