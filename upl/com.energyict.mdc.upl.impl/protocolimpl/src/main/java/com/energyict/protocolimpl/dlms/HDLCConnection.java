@@ -193,6 +193,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
     private byte ISIZE=(byte)0x80;
     
     private long lForceDelay;
+    int informationFieldSize=-1;
 
 /**
      * Class constructor.
@@ -214,6 +215,31 @@ public class HDLCConnection extends Connection implements DLMSConnection {
                           int iServerUpperMacAddress,
                           int addressingMode) throws DLMSConnectionException, ConnectionException
     {
+        
+
+    	this(inputStream,outputStream,iTimeout,lForceDelay,iMaxRetries,iClientMacAddress,iServerLowerMacAddress,iServerUpperMacAddress,addressingMode,-1);
+    } // public HDLCConnection(...)
+    
+    /**
+     * Class constructor.
+     * @param inputStream InputStream for the active connection, e.g. established with ATDialer.
+     * @param outputStream OutputStream for the active connection, e.g. established with ATDialer.
+     * @param iTimeout Time in ms. for a request to wait for a response before returning an timeout error.
+     * @param bAddressingMode Client addressing mode used by HDLC (1=1-byte addressing, 4=4-byte addressing).
+     * @param lForceDelay Force delay (in ms) before each frame send (e.g. SL7000 meter needs at lease 100 ms.).
+     * @exception DLMSConnectionException
+     */
+    public HDLCConnection(InputStream inputStream,
+                          OutputStream outputStream,
+                          int iTimeout,
+                          //byte bAddressingMode,
+                          long lForceDelay,
+                          int iMaxRetries,
+                          int iClientMacAddress, 
+                          int iServerLowerMacAddress,
+                          int iServerUpperMacAddress,
+                          int addressingMode, int informationFieldSize) throws DLMSConnectionException, ConnectionException
+    {
         super(inputStream, outputStream);
         this.iMaxRetries = iMaxRetries;
         boolAbort = false;
@@ -229,8 +255,9 @@ public class HDLCConnection extends Connection implements DLMSConnection {
         this.iServerLowerMacAddress=iServerLowerMacAddress;
         getAddressingMode(addressingMode);
         setProtocolParams();
+        this.informationFieldSize=informationFieldSize;
     } // public HDLCConnection(...)
-
+    
     private void getAddressingMode(int addressingMode) throws DLMSConnectionException {
         
         
@@ -298,8 +325,8 @@ public class HDLCConnection extends Connection implements DLMSConnection {
                                  (byte)0x81,(byte)0x80,0x12,
                                  // Changing the MAX information field size does not seems to
                                  // change the secondary device behaviour.
-                                 0x05,0x01,ISIZE,
-                                 0x06,0x01,ISIZE,
+                                 0x05,0x01,informationFieldSize==-1?ISIZE:(byte)informationFieldSize,
+                                 0x06,0x01,informationFieldSize==-1?ISIZE:(byte)informationFieldSize,
                                  0x07,0x04,0x00,0x00,0x00,0x01,
                                  0x08,0x04,0x00,0x00,0x00,0x01,
                                  0x00,0x00}; // Frame CRC
@@ -907,7 +934,8 @@ public class HDLCConnection extends Connection implements DLMSConnection {
                     
                     // Send RR frame
                     if (NR == hdlcFrame.NS) {
-                    	if (hdlcFrame.InformationBuffer != null) receiveBuffer.addArray(hdlcFrame.InformationBuffer);
+                    	if (hdlcFrame.InformationBuffer != null) 
+                    		receiveBuffer.addArray(hdlcFrame.InformationBuffer);
                     }
                     else {
                         if (DEBUG >= 1) System.out.println("KV_DEBUG> NR != hdlcFrame.NS, received frame not added to receivebuffer...");
@@ -915,16 +943,19 @@ public class HDLCConnection extends Connection implements DLMSConnection {
                     
                     NR = (byte)(hdlcFrame.NS+1);
                     if (NR > 7) NR=0;
-                    sFrameFormat=(short)(HEADER_SIZE | HDLC_FRAME_TYPE3);
-                    txFrame[FRAME_FORMAT_MSB] = (byte)((sFrameFormat >> 8)&0x00FF);
-                    txFrame[FRAME_FORMAT_LSB] = (byte)(sFrameFormat &0x00FF);
-                    txFrame = buildAddressingScheme(txFrame);
-                    txFrame[FRAME_CONTROL] = (byte)(RR | (NR<<5) | HDLC_FRAME_CONTROL_PF_BIT);
                     
-                    calcCRC(txFrame);
-                    sendFrame(txFrame);
-                    
-                    bState=STATE_WAIT_FOR_RR_FRAME;
+                    // Change to compatible with Kamstrup
+                    //if ((hdlcFrame.sFrameFormat & HDLC_FRAME_S_BIT) != 0) {
+	                    sFrameFormat=(short)(HEADER_SIZE | HDLC_FRAME_TYPE3);
+	                    txFrame[FRAME_FORMAT_MSB] = (byte)((sFrameFormat >> 8)&0x00FF);
+	                    txFrame[FRAME_FORMAT_LSB] = (byte)(sFrameFormat &0x00FF);
+	                    txFrame = buildAddressingScheme(txFrame);
+	                    txFrame[FRAME_CONTROL] = (byte)(RR | (NR<<5) | HDLC_FRAME_CONTROL_PF_BIT);
+	                    
+	                    calcCRC(txFrame);
+	                    sendFrame(txFrame);
+	                    bState=STATE_WAIT_FOR_RR_FRAME;
+                    //}
                 }
                 else if (hdlcFrame.bControl == RR) {
                     bState=STATE_WAIT_FOR_I_FRAME;
