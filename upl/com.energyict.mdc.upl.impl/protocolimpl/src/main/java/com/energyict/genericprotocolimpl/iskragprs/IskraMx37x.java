@@ -38,12 +38,12 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.GPRSModemSetup;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.StoredValues;
@@ -93,6 +93,7 @@ import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
  * Changes:
  * GNA |29012009| Added force clock
  * GNA |02022009| Mad some changes to the sendTOU message. No activationDate is immediate activation using the Object method
+ * GNA |23022009| Added mbus install/remove/dataretrieval messages
  */
 public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism, Messaging{
 	
@@ -343,16 +344,17 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 //			
 //			pppSetup.writePPPAuthenticationType(pppat);
     		
-    		GPRSModemSetup gprsSetup = getCosemObjectFactory().getGPRSModemSetup();
-    		
-    		System.out.println(gprsSetup.getAPN().stringValue());
-    		System.out.println(gprsSetup.getPinCod().getValue());
-    		System.out.println(gprsSetup.getQualityOfService());
-    		System.out.println(gprsSetup.getTheDefaultQualityOfService());
-    		System.out.println(gprsSetup.getRequestedQualityOfService());
-    		
-    		gprsSetup.writeAPN("testAPN");
+//    		GPRSModemSetup gprsSetup = getCosemObjectFactory().getGPRSModemSetup();
+//    		
+//    		System.out.println(gprsSetup.getAPN().stringValue());
+//    		System.out.println(gprsSetup.getPinCod().getValue());
+//    		System.out.println(gprsSetup.getQualityOfService());
+//    		System.out.println(gprsSetup.getTheDefaultQualityOfService());
+//    		System.out.println(gprsSetup.getRequestedQualityOfService());
+//    		
+//    		gprsSetup.writeAPN("testAPN");
 			
+    		getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.128.255"), 9, 1).invoke(new Unsigned16(4).getBEREncodedByteArray());
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -1225,6 +1227,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             boolean apnUnPw		= contents.equalsIgnoreCase(RtuMessageConstant.GPRS_APN) ||
             							contents.equalsIgnoreCase(RtuMessageConstant.GPRS_USERNAME) ||
             							contents.equalsIgnoreCase(RtuMessageConstant.GPRS_PASSWORD);
+            boolean mbusInstall = contents.equalsIgnoreCase(RtuMessageConstant.MBUS_INSTALL);
+            boolean mbusInstDR	= contents.equalsIgnoreCase(RtuMessageConstant.MBUS_INSTALL_DATAREADOUT);
+            boolean mbusRemove 	= contents.equalsIgnoreCase(RtuMessageConstant.MBUS_REMOVE);
             
             if (falsemsg){
             	msg.setFailed();
@@ -1273,27 +1278,41 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         		}
             }
 
-			if(tou) {
+            else if(tou) {
 				sendActivityCalendar(contents,msg);
 			}
-            if (ondemand) {
+            else if (ondemand) {
             	onDemand(rtu,msg);
             }
             
-            if (threshpars){
+            else if (threshpars){
             	thresholdParameters(msg);
             }
             
-            if (threshold){
+            else if (threshold){
             	applyThresholdValue(msg);
             }
             
-            if (thresholdcl){
+            else if (thresholdcl){
             	clearThreshold(msg);
             }
             
-            if(apnUnPw){
+            else if(apnUnPw){
             	changeApnUserNamePassword(msg);
+            }
+            
+            else if(mbusInstall){
+            	getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.128.255"), 9, 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
+            	msg.confirm();
+            }
+            else if(mbusRemove){
+            	getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.129.255"), 9, 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
+            	msg.confirm();
+            }
+            else if(mbusInstDR){
+            	//TODO complete
+            	getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.130.255"), 9, 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
+            	msg.confirm();
             }
 		}
 	}
@@ -1617,7 +1636,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		
 	}
 
-	private String getMessageValue(String msgStr, String str) {
+	public String getMessageValue(String msgStr, String str) {
 		try {
 			return msgStr.substring(msgStr.indexOf(str + ">") + str.length()
 					+ 1, msgStr.indexOf("</" + str));
@@ -1630,6 +1649,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         List theCategories = new ArrayList();
         MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
         MessageCategorySpec cat2 = new MessageCategorySpec("ThresholdMessages");
+        MessageCategorySpec catMbus = new MessageCategorySpec("MBus messages");
         
         MessageSpec msgSpec = addBasicMsg("Disconnect meter", RtuMessageConstant.DISCONNECT_LOAD, false);
         cat.addMessageSpec(msgSpec);
@@ -1639,17 +1659,25 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         cat.addMessageSpec(msgSpec);
         msgSpec = addTouMessage("Set new tariff program", RtuMessageConstant.TOU_SCHEDULE, false);
         cat.addMessageSpec(msgSpec);
+        msgSpec = addGPRSModemSetup("Change GPRS Modem setup", RtuMessageConstant.GPRS_MODEM_SETUP, false);
+        cat.addMessageSpec(msgSpec);
+        
         msgSpec = addThresholdParameters("Threshold parameters", RtuMessageConstant.THRESHOLD_PARAMETERS, false);
         cat2.addMessageSpec(msgSpec);
         msgSpec = addThresholdMessage("Apply Threshold", RtuMessageConstant.APPLY_THRESHOLD, false);
         cat2.addMessageSpec(msgSpec);
         msgSpec = addClearThresholdMessage("Clear Threshold", RtuMessageConstant.CLEAR_THRESHOLD, false);
         cat2.addMessageSpec(msgSpec);
-        msgSpec = addGPRSModemSetup("Change GPRS Modem setup", RtuMessageConstant.GPRS_MODEM_SETUP, false);
-        cat.addMessageSpec(msgSpec);
-        
+
+        msgSpec = addBasicMsg("Install MBus device", RtuMessageConstant.MBUS_INSTALL, false);
+        catMbus.addMessageSpec(msgSpec);
+        msgSpec = addBasicMsg("Remove MBus device", RtuMessageConstant.MBUS_REMOVE, false);
+        catMbus.addMessageSpec(msgSpec);
+        msgSpec = addBasicMsg("Install-DataReadout Mbus device", RtuMessageConstant.MBUS_INSTALL_DATAREADOUT, false);
+        catMbus.addMessageSpec(msgSpec);
         theCategories.add(cat);
         theCategories.add(cat2);
+        theCategories.add(catMbus);
         return theCategories;
 	}
 
@@ -1752,7 +1780,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         msgSpec.add(tagSpec);
         return msgSpec;
     }
-
+    
 	private MessageSpec addThresholdMessage(String keyId, String tagName, boolean advanced) {
     	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
     	MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.THRESHOLD_GROUPID);
