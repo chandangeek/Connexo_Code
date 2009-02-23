@@ -86,7 +86,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
     
     private boolean boolAbort=false;
     private int iProtocolTimeout;
-    private int SNRMType = 0;
+    protected int SNRMType = 0;
 
     // HDLC parameters
     // Only windowsize of 1 is accepted
@@ -107,7 +107,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
     // Sequence numbering
     private byte NR;
     private byte NS;
-    private boolean boolHDLCConnected;
+    protected boolean boolHDLCConnected;
     private HDLCFrame lastHDLCFrame;
 
     // Return (bit) values for the waitForHDLCFrameStateMachine()
@@ -293,7 +293,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
        }
     } // private void setProtocolParams()
     
-    private byte[] macSNRMFrame={(byte)SNRM|(byte)HDLC_FRAME_CONTROL_PF_BIT,
+    protected byte[] macSNRMFrame={(byte)SNRM|(byte)HDLC_FRAME_CONTROL_PF_BIT,
                                  0x00,0x00, // Header CRC
                                  (byte)0x81,(byte)0x80,0x12,
                                  // Changing the MAX information field size does not seems to
@@ -306,7 +306,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
     
 //    private byte[] flexSNRMFrame={(byte) 0x93, (byte) 0x00, (byte) 0x00};
   
-    private byte[] flexSNRMFrame = {(byte)SNRM|(byte)HDLC_FRAME_CONTROL_PF_BIT,
+    protected byte[] flexSNRMFrame = {(byte)SNRM|(byte)HDLC_FRAME_CONTROL_PF_BIT,
             0x00,0x00, // Header CRC
             (byte)0x81,(byte)0x80,0x12,
             // Changing the MAX information field size does not seems to
@@ -317,7 +317,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
             0x08,0x04,0x00,0x00,0x00,0x01,
             0x00,0x00}; // Frame CRC
        
-   private byte[] buildFrame(byte[] macFrame)
+   protected byte[] buildFrame(byte[] macFrame)
    {
       short sSize=(short)(macFrame.length+HEADER_SIZE-3);
       short sFrameFormat=(short)(sSize | HDLC_FRAME_TYPE3);
@@ -389,7 +389,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
        return strbuff.toString();
     }
     
-    private void doConnectMAC(byte[] macFrame) throws NestedIOException,DLMSConnectionException {
+    protected void doConnectMAC(byte[] macFrame) throws NestedIOException,DLMSConnectionException {
        HDLCFrame hdlcFrame;
        byte bResult;
        int i;
@@ -1043,8 +1043,8 @@ public class HDLCConnection extends Connection implements DLMSConnection {
     } // private unsigned short CalcCRC()
 
     // KV 18092003
-    HHUSignOn hhuSignOn=null;
-    String meterId="";
+    protected HHUSignOn hhuSignOn=null;
+    protected String meterId="";
     public void setHHUSignOn(HHUSignOn hhuSignOn,String meterId) {
         this.hhuSignOn=hhuSignOn;
         this.meterId=meterId;
