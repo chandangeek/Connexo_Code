@@ -3,11 +3,7 @@
  */
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -15,8 +11,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.StringTokenizer;
-import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,15 +18,13 @@ import javax.xml.rpc.ServiceException;
 
 import org.apache.axis.types.UnsignedInt;
 
-import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Quantity;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
-import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
@@ -44,12 +36,8 @@ import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -65,6 +53,8 @@ import com.energyict.protocolimpl.base.ProtocolChannelMap;
 /**
  * @author gna 
  *
+ * Changes:
+ * GNA |23022009| Added connect/Disconnect mbus device messages
  */
 public class MbusDevice implements Messaging, GenericProtocol{
 	
@@ -73,6 +63,9 @@ public class MbusDevice implements Messaging, GenericProtocol{
 	private int medium = 15;				// value of an unknown medium
 	
 	private String customerID;
+	
+	private ObisCode valveState = ObisCode.fromString("0.0.128.30.31.255");
+	private ObisCode valveControl = ObisCode.fromString("0.0.128.30.30.255");
 	
 	public Rtu	mbus;
 	private Logger logger;
@@ -314,23 +307,25 @@ public class MbusDevice implements Messaging, GenericProtocol{
 					msg.confirm();
 					getLogger().log(Level.INFO, "Current message " + contents + " has finished.");
 				} else if(doDisconnect){
-					//TODO test this, physicalAddress can also be mbusAddress
 					String[] times = mrt.prepareCosemGetRequest();
-					ObisCode oc = Constant.valveState;
-					ObisCode instance = ObisCode.fromString(oc.getA()+"."+getPhysicalAddress()+"."+oc.getC()+
-							"."+oc.getD()+"."+oc.getE()+"."+oc.getF());
-					byte[] b = new byte[]{DLMSCOSEMGlobals.TYPEDESC_BOOLEAN, 0x00};
-					mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], instance.toString(), new UnsignedInt(1), new UnsignedInt(2), b);
+					
+					Unsigned8 channel = new Unsigned8(getPhysicalAddress()+1);
+					mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], valveControl.toString(), new UnsignedInt(1), new UnsignedInt(2), channel.getBEREncodedByteArray());
+					
+					Unsigned8 state = new Unsigned8(0);
+					mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], valveState.toString(), new UnsignedInt(1), new UnsignedInt(2), state.getBEREncodedByteArray());
+					
 					msg.confirm();
 					getLogger().log(Level.INFO, "Current message" + contents + " has finished.");
 				} else if(doConnect){
-					//TODO test this, physicalAddress can also be mbusAddress
 					String[] times = mrt.prepareCosemGetRequest();
-					ObisCode oc = Constant.valveState;
-					ObisCode instance = ObisCode.fromString(oc.getA()+"."+getPhysicalAddress()+"."+oc.getC()+
-							"."+oc.getD()+"."+oc.getE()+"."+oc.getF());
-					byte[] b = new byte[]{DLMSCOSEMGlobals.TYPEDESC_BOOLEAN, 0x01};
-					mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], instance.toString(), new UnsignedInt(1), new UnsignedInt(2), b);
+					
+					Unsigned8 channel = new Unsigned8(getPhysicalAddress()+1);
+					mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], valveControl.toString(), new UnsignedInt(1), new UnsignedInt(2), channel.getBEREncodedByteArray());
+					
+					Unsigned8 state = new Unsigned8(1);
+					mrt.getConnection().cosemSetRequest(eMeter.toString(), times[0], times[1], valveState.toString(), new UnsignedInt(1), new UnsignedInt(2), state.getBEREncodedByteArray());
+					
 					msg.confirm();
 					getLogger().log(Level.INFO, "Current message" + contents + " has finished.");
 				} else {
@@ -410,10 +405,10 @@ public class MbusDevice implements Messaging, GenericProtocol{
         
         MessageSpec msgSpec = addBasicMsg("ReadOnDemand", RtuMessageConstant.READ_ON_DEMAND, false);
         cat.addMessageSpec(msgSpec);
-//        msgSpec = addBasicMsg("Disconnect meter", RtuMessageConstant.DISCONNECT_LOAD, false);
-//        cat.addMessageSpec(msgSpec);
-//        msgSpec = addBasicMsg("Connect meter", RtuMessageConstant.CONNECT_LOAD, false);
-//        cat.addMessageSpec(msgSpec);
+        msgSpec = addBasicMsg("Disconnect meter", RtuMessageConstant.DISCONNECT_LOAD, false);
+        cat.addMessageSpec(msgSpec);
+        msgSpec = addBasicMsg("Connect meter", RtuMessageConstant.CONNECT_LOAD, false);
+        cat.addMessageSpec(msgSpec);
         
         theCategories.add(cat);
         
