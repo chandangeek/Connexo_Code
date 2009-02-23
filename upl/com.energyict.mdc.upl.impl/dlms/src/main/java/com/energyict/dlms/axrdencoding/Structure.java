@@ -138,7 +138,11 @@ public class Structure extends AbstractDataType {
             
             System.out.println(AXDRDecoder.decode(data));
             
-            
+            System.out.println(s.nrOfDataTypes());
+            System.out.println(s.getDataType(0));
+            System.out.println(s.getDataType(1));
+            System.out.println(s.getDataType(9));
+            System.out.println(s.getDataType(10));
         }
         catch(IOException e) {
             e.printStackTrace();

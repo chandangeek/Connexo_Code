@@ -2,13 +2,14 @@ package com.energyict.dlms.client;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.util.*;
 
 import com.energyict.cbo.*;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.*;
-import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.custom.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -36,6 +37,8 @@ public class CosemAPDUParser {
 	private List<DeviceChannelName> deviceChannelNames=null;
 	private LookupResourcesCustomCosem lookupResourcesCustomCosem=null;
 	private TaskStatusCustomCosem taskStatusCustomCosem=null;
+	private String ipAddress="";
+	
 	
 	public CosemAPDUParser() {
 	}
@@ -175,6 +178,15 @@ public class CosemAPDUParser {
 			}
 			else if (apdu.getCosemAttributeDescriptor().getObis().equals(Clock.getObisCode())) {
 				date = new DateTime(apdu.getDataType().getOctetString()).getValue().getTime();
+			}
+			else if (apdu.getCosemAttributeDescriptor().getObis().equals(IPv4Setup.getObisCode())) {
+				if (apdu.getCosemAttributeDescriptor().getAttributeId() == 3) { // IP_Address
+					long ipAddressLong = apdu.getDataType().getUnsigned32().longValue();
+					ipAddress = ""+((ipAddressLong>>24)&0xff)+"."+
+										  ((ipAddressLong>>16)&0xff)+"."+  
+										  ((ipAddressLong>>8)&0xff)+"."+  
+										  ((ipAddressLong)&0xff);  
+				}
 			}
 			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.99.1.0.255"))) {
 				if (profileData==null)
@@ -491,6 +503,10 @@ public class CosemAPDUParser {
 
 	public TaskStatusCustomCosem getTaskStatusCustomCosem() {
 		return taskStatusCustomCosem;
+	}
+
+	public String getIpAddress() {
+		return ipAddress;
 	}
 
 }

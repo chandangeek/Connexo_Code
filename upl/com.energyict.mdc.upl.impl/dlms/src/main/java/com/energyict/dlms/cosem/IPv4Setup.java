@@ -10,6 +10,7 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.obis.ObisCode;
 
 /**
  * @author gna
@@ -28,11 +29,20 @@ public class IPv4Setup extends AbstractCosemObject{
 	private Unsigned32 secondaryDNSAddress = null;	
 	
 
-	/** Creates a new instance of IPv4Setup */
+	static final byte[] LN=new byte[]{0,0,25,1,0,(byte)255};
+	
+	public IPv4Setup(ProtocolLink protocolLink) {
+        super(protocolLink,new ObjectReference(LN));
+    }
+    
 	public IPv4Setup(ProtocolLink protocolLink, ObjectReference objectReference) {
 		super(protocolLink, objectReference);
 	}
 
+	static public ObisCode getObisCode() {
+		return ObisCode.fromByteArray(LN) ;
+	}  
+	
 	protected int getClassId() {
 		return AbstractCosemObject.CLASSID_IPV4SETUP;
 	}
