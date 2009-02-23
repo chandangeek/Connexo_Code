@@ -87,6 +87,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
     private int extendedLogging;
     int addressingMode;
     int connectionMode;
+    int informationFieldSize;
     
     /** Creates a new instance of EictZ3, empty constructor*/
     public EictZ3()
@@ -111,7 +112,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
             cosemObjectFactory = new CosemObjectFactory(this);
             storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
             if (connectionMode == 0)
-                dlmsConnection=new HDLCConnection(inputStream,outputStream,hDLCTimeoutProperty,100,protocolRetriesProperty,clientMacAddress,serverLowerMacAddress,serverUpperMacAddress,addressingMode);
+                dlmsConnection=new HDLCConnection(inputStream,outputStream,hDLCTimeoutProperty,100,protocolRetriesProperty,clientMacAddress,serverLowerMacAddress,serverUpperMacAddress,addressingMode,informationFieldSize);
             else
                 dlmsConnection=new TCPIPConnection(inputStream,outputStream,hDLCTimeoutProperty,100,protocolRetriesProperty,clientMacAddress,serverLowerMacAddress);
             
@@ -719,7 +720,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
             //default obis code is the obiscode for the elec meter attached to the uart2 port
             loadProfileObisCode = properties.getProperty("LoadProfileObisCode","1.0.99.1.0.255");
             fullLogbook = Integer.parseInt(properties.getProperty("FullLogbook","0"));              
-            
+            informationFieldSize = Integer.parseInt(properties.getProperty("InformationFieldSize","-1"));
         }
         catch (NumberFormatException e) {
            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
@@ -847,6 +848,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         result.add("Connection");        
         result.add("LoadProfileObisCode");
         result.add("FullLogbook");
+        result.add("InformationFieldSize");
         return result;
     }
     
