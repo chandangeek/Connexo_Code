@@ -125,6 +125,18 @@ public class ParseUtils {
 		return strBuff.toString();
     }
     
+    public static byte[] hexStringToByteArray(String str){
+    	byte[] data = new byte[str.length()/2];
+    	int offset = 0;
+    	int endOffset = 2;
+    	for(int i = 0; i < data.length; i++){
+    		data[i] = (byte)Integer.parseInt(str.substring(offset, endOffset), 16);
+    		offset = endOffset;
+    		endOffset += 2;
+    	}
+    	return data;
+    }
+   
     
     /**
      * Checks if all the elements in the byteArray can be converted to valid chars.
@@ -216,8 +228,11 @@ public class ParseUtils {
     }
 	
 	public static void main(String[] args){
-		String str = "99.1.0";
-		String sgn = ".";
-		System.out.println(countEqualSignsInString(str, sgn));
+//		String str = "99.1.0";
+//		String sgn = ".";
+//		System.out.println(countEqualSignsInString(str, sgn));
+		
+		String str = "1300000000000001";
+		System.out.println(ParseUtils.hexStringToByteArray(str));
 	}
 }
