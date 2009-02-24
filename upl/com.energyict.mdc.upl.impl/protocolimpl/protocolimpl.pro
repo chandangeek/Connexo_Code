@@ -268,4 +268,6 @@
 
 -keepnames class com.energyict.protocolimpl.dlms.HDLCConnection
 
+-keepnames class com.energyict.protocolimpl.dlms.HDLCConnection.HDLCFrame
+
 -keepnames class com.energyict.protocolimpl.modbus.enerdis.enerium200.Enerium200
