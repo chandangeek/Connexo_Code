@@ -864,18 +864,23 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
                 throw new MissingPropertyException (key + " key missing");
         }
         
-		if(getMeter().getDeviceId() != null){
+		if(getMeter().getDeviceId() != ""){
 			this.deviceId = getMeter().getDeviceId();
 		} else { 
 			this.deviceId = "!"; 
 		}
-		if(getMeter().getPassword() != null){
+		if(getMeter().getPassword() != ""){
 			this.password = getMeter().getPassword();
 		} else {
 			this.password = "";
 		}
+		if(getMeter().getSerialNumber() != ""){
+			this.serialNumber = getMeter().getSerialNumber();
+		} else {
+			this.serialNumber = "";
+		}
         
-        this.serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
+//        this.serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
         this.securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "0"));
         this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "1"));
         this.clientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16"));
@@ -1314,7 +1319,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 								int seasonId = cc.getSeason();
 								if(seasonId != 0){
 									OctetString os = new OctetString(new byte[]{(byte) ((cc.getYear()==-1)?0xff:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xff:(cc.getYear())&0xFF), 
-											(byte) ((cc.getMonth()==-1)?0xFF:cc.getMonth()), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()), (byte) 0xFF, 0, 0, 0, 0, (byte) 0x80, 0, 0}, true );
+											(byte) ((cc.getMonth()==-1)?0xFF:cc.getMonth()), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()), (byte) 0xFF, 0, 0, 0, 0, (byte) 0x80, 0, 0});
 									seasonsProfile.put(os, seasonId);
 								}
 							}
@@ -1411,7 +1416,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 									int hour = tStamp/10000;
 									int min = (tStamp-hour*10000)/100;
 									int sec = tStamp-(hour*10000)-(min*100);
-									OctetString tstampOs = new OctetString(new byte[]{(byte)hour, (byte)min, (byte)sec, 0}, true);
+									OctetString tstampOs = new OctetString(new byte[]{(byte)hour, (byte)min, (byte)sec, 0});
 									Unsigned16 selector = new Unsigned16(cdtd.getCodeValue());
 									def.addDataType(tstampOs);
 //									TODO def.addDataType(new OctetString(getMeterConfig().getTariffScriptTable().getLNArray()));
@@ -1435,11 +1440,14 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 							ac.writeDayProfileTablePassive(dayArray);
 							
 							if(name != null){
+								if(name.length() > 8){
+									name = name.substring(0, 8);
+								}
 								ac.writeCalendarNamePassive(OctetString.fromString(name));
 							} 
 							if(activateDate != null){
 //								ac.writeActivatePassiveCalendarTime(new OctetString(convertStringToDateTimeOctetString(activateDate).getBEREncodedByteArray(), 0, true));
-								ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activateDate).getBEREncodedByteArray(), 0, true));
+								ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activateDate).getBEREncodedByteArray(), 0));
 							}
 							
 						}
@@ -1477,7 +1485,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 								if(cc.getSeason() == 0){
 									OctetString os = new OctetString(new byte[]{(byte) ((cc.getYear()==-1)?0xff:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xff:(cc.getYear())&0xFF), 
 											(byte) ((cc.getMonth()==-1)?0xFF:cc.getMonth()), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()),
-											(byte) ((cc.getDayOfWeek()==-1)?0xFF:cc.getDayOfWeek())}, true );
+											(byte) ((cc.getDayOfWeek()==-1)?0xFF:cc.getDayOfWeek())});
 									Unsigned8 dayType = new Unsigned8(cc.getDayType().getId());
 									Structure struct = new Structure();
 									AXDRDateTime dt = new AXDRDateTime(new byte[]{(byte)0x09, (byte) ((cc.getYear()==-1)?0x07:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xB2:(cc.getYear())&0xFF), 
