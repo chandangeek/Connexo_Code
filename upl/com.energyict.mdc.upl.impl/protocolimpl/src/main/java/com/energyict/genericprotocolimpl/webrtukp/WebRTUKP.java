@@ -1511,7 +1511,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 						throw new IOException("Delete index is not a valid entry");
 					}
 					
-					success = false;
+					success = true;
 				} else {
 					success = false;
 				}
