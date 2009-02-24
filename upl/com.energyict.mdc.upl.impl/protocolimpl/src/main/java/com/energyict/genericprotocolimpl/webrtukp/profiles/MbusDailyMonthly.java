@@ -47,7 +47,7 @@ public class MbusDailyMonthly {
 		ProfileGeneric genericProfile;
 		
 		try {
-			genericProfile = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusProfile(this.mbusDevice.getPhysicalAddress()).getObisCode());
+			genericProfile = getCosemObjectFactory().getProfileGeneric(mbusProfile);
 			List<ChannelInfo> channelInfos = getMonthlyChannelInfos(genericProfile, TimeDuration.MONTHS);
 			
 			profileData.setChannelInfos(channelInfos);
