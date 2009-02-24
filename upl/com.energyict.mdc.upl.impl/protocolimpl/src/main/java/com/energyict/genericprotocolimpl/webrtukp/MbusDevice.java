@@ -26,6 +26,7 @@ import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.webrtukp.profiles.MbusDailyMonthly;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.MbusProfile;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
@@ -151,6 +152,9 @@ public class MbusDevice implements GenericProtocol, Messaging{
 		
 		// import daily/monthly
 		if(commProfile.getReadMeterReadings()){
+			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMbus().getSerialNumber());
+			MbusDailyMonthly mdm = new MbusDailyMonthly(this);
+			mdm.getMonthlyProfile(getMeterConfig().getMonthlyProfileObject().getObisCode());
 			getLogger().log(Level.INFO, "Getting registers from Mbus meter " + (getPhysicalAddress()+1));
 			doReadRegisters();
 		}
