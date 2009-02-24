@@ -266,8 +266,4 @@
 
 -keepnames class com.energyict.protocolimpl.dlms.elster.ek2xx.EK2xx
 
--keepnames class com.energyict.protocolimpl.dlms.HDLCConnection
-
--keepnames class com.energyict.genericprotocolimpl.webrtukp.KP_HDLCConnection
-
 -keepnames class com.energyict.protocolimpl.modbus.enerdis.enerium200.Enerium200
