@@ -1084,7 +1084,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
         return hhuSignOn;   
     }
     
-    public class HDLCFrame {
+    class HDLCFrame {
        public HDLCFrame(byte[] byteReceiveBuffer) throws DLMSConnectionException
        {
           int i;
