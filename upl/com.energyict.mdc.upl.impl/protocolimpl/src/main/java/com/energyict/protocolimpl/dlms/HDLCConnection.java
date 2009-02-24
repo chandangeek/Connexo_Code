@@ -1,18 +1,18 @@
 package com.energyict.protocolimpl.dlms;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
 import com.energyict.cbo.NestedIOException;
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.ReceiveBuffer;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 /**
  * @version  1.0
  * @author   Koenraad Vanderschaeve
@@ -171,24 +171,24 @@ public class HDLCConnection extends Connection implements DLMSConnection {
 
     private static final byte CRC_SIZE=2;
     
-    private byte HEADER_SIZE=7;
+    private static byte HEADER_SIZE=7;
 
     
-    private byte FRAME_FORMAT_MSB=0;
-    private byte FRAME_FORMAT_LSB=1;
-    private byte FRAME_DESTINATION=2;
-    private byte FRAME_SOURCE=3;
-    private byte FRAME_HEADER_CRC_MSB=5;
-    private byte FRAME_HEADER_CRC_LSB=6;
-    private byte FRAME_CONTROL=4;
-    private byte FRAME_INFORMATION_FIELD=7;
+    private static final byte FRAME_FORMAT_MSB=0;
+    private static final byte FRAME_FORMAT_LSB=1;
+    private static final byte FRAME_DESTINATION=2;
+    private static final byte FRAME_SOURCE=3;
+    private static final byte FRAME_HEADER_CRC_MSB=5;
+    private static final byte FRAME_HEADER_CRC_LSB=6;
+    private static final byte FRAME_CONTROL=4;
+    private static final byte FRAME_INFORMATION_FIELD=7;
 
     // HDLC addressing modes
     public static final byte CLIENT_ADDRESSING_DEFAULT=-1;
     public static final byte CLIENT_ADDRESSING_1BYTE=1;
     public static final byte CLIENT_ADDRESSING_2BYTE=2;
     public static final byte CLIENT_ADDRESSING_4BYTE=4;
-    private byte bAddressingMode;
+    private static byte bAddressingMode = 1;
 
     private byte ISIZE=(byte)0x80;
     
@@ -281,42 +281,60 @@ public class HDLCConnection extends Connection implements DLMSConnection {
         if (iServerUpperMacAddress == 0) throw new DLMSConnectionException("HDLCConnection, getAddressingMode, unknown addressing scheme, server upper addres = 0");
     }
     
+    private static final byte[] addressing1b = new byte[]{0,1,2,3,4,5,6,7,7,(byte)0xF8};
+    private static final byte[] addressing2b = new byte[]{0,1,2,4,5,6,7,8,8,(byte)0x80};
+    private static final byte[] addressing4b = new byte[]{0,1,2,6,7,8,9,10,10,(byte)0x80};
+    private static byte[] protocolParameters = null;
+    private static final byte frameFormatMSB = 0;
+    private static final byte frameFormatLSB = 1;
+    private static final byte frameDestination = 2;
+    private static final byte frameSource = 3;
+    private static final byte frameControl = 4;
+    private static final byte frameHeaderCRCMSB = 5;
+    private static final byte frameHeaderCRCLSB = 6;
+    private static final byte frameInformationField = 7;
+    private static final byte headerSize = 8;
+    private static final byte iSize = 9;
+    
     private void setProtocolParams() {
        if (bAddressingMode == CLIENT_ADDRESSING_1BYTE) {
-           FRAME_FORMAT_MSB=0;
-           FRAME_FORMAT_LSB=1;
-           FRAME_DESTINATION=2;
-           FRAME_SOURCE=3;
-           FRAME_CONTROL=4;
-           FRAME_HEADER_CRC_MSB=5;
-           FRAME_HEADER_CRC_LSB=6;
-           FRAME_INFORMATION_FIELD=7;
-           HEADER_SIZE=7;
-           ISIZE=(byte)0xF8;
+//           FRAME_FORMAT_MSB=0;
+//           FRAME_FORMAT_LSB=1;
+//           FRAME_DESTINATION=2;
+//           FRAME_SOURCE=3;
+//           FRAME_CONTROL=4;
+//           FRAME_HEADER_CRC_MSB=5;
+//           FRAME_HEADER_CRC_LSB=6;
+//           FRAME_INFORMATION_FIELD=7;
+//           HEADER_SIZE=7;
+//           ISIZE=(byte)0xF8;
+    	   protocolParameters = addressing1b;
        }
        else if (bAddressingMode == CLIENT_ADDRESSING_2BYTE) {
-           FRAME_FORMAT_MSB=0;
-           FRAME_FORMAT_LSB=1;
-           FRAME_DESTINATION=2; // 2 3
-           FRAME_SOURCE=4; 
-           FRAME_CONTROL=5;
-           FRAME_HEADER_CRC_MSB=6;
-           FRAME_HEADER_CRC_LSB=7;
-           FRAME_INFORMATION_FIELD=8;
-           HEADER_SIZE=8;
-           ISIZE=(byte)0x80; // Otherwise, error (DM) from SL7000
+//           FRAME_FORMAT_MSB=0;
+//           FRAME_FORMAT_LSB=1;
+//           FRAME_DESTINATION=2; // 2 3
+//           FRAME_SOURCE=4; 
+//           FRAME_CONTROL=5;
+//           FRAME_HEADER_CRC_MSB=6;
+//           FRAME_HEADER_CRC_LSB=7;
+//           FRAME_INFORMATION_FIELD=8;
+//           HEADER_SIZE=8;
+//           ISIZE=(byte)0x80; // Otherwise, error (DM) from SL7000
+    	   protocolParameters = addressing2b;
        }
        else if (bAddressingMode == CLIENT_ADDRESSING_4BYTE) {
-           FRAME_FORMAT_MSB=0;
-           FRAME_FORMAT_LSB=1;
-           FRAME_DESTINATION=2; // 2 3 4 5
-           FRAME_SOURCE=6;  
-           FRAME_CONTROL=7;  
-           FRAME_HEADER_CRC_MSB=8; 
-           FRAME_HEADER_CRC_LSB=9; 
-           FRAME_INFORMATION_FIELD=10;
-           HEADER_SIZE=10;
-           ISIZE=(byte)0x80; // Otherwise, error (DM) from SL7000
+//           FRAME_FORMAT_MSB=0;
+//           FRAME_FORMAT_LSB=1;
+//           FRAME_DESTINATION=2; // 2 3 4 5
+//           FRAME_SOURCE=6;  
+//           FRAME_CONTROL=7;  
+//           FRAME_HEADER_CRC_MSB=8; 
+//           FRAME_HEADER_CRC_LSB=9; 
+//           FRAME_INFORMATION_FIELD=10;
+//           HEADER_SIZE=10;
+//           ISIZE=(byte)0x80; // Otherwise, error (DM) from SL7000
+    	   protocolParameters = addressing4b;
        }
     } // private void setProtocolParams()
     
@@ -1084,17 +1102,17 @@ public class HDLCConnection extends Connection implements DLMSConnection {
         return hhuSignOn;   
     }
     
-    class HDLCFrame {
+    static class HDLCFrame {
        public HDLCFrame(byte[] byteReceiveBuffer) throws DLMSConnectionException
        {
           int i;
 
-          sLength =(short)((((short)byteReceiveBuffer[FRAME_FORMAT_MSB]&0x0007)<<8) |
-                            ((short)byteReceiveBuffer[FRAME_FORMAT_LSB]&0x00FF));
+          sLength =(short)((((short)byteReceiveBuffer[protocolParameters[frameFormatMSB]]&0x0007)<<8) |
+                            ((short)byteReceiveBuffer[protocolParameters[frameFormatLSB]]&0x00FF));
 
 
-          sFrameFormat =(short)((((short)byteReceiveBuffer[FRAME_FORMAT_MSB]&0x00FF)<<8) |
-                                ((short)byteReceiveBuffer[FRAME_FORMAT_LSB]&0x00FF));
+          sFrameFormat =(short)((((short)byteReceiveBuffer[protocolParameters[frameFormatMSB]]&0x00FF)<<8) |
+                                ((short)byteReceiveBuffer[protocolParameters[frameFormatLSB]]&0x00FF));
 
           if (sLength >= (HEADER_SIZE+2))
           {
@@ -1105,29 +1123,29 @@ public class HDLCConnection extends Connection implements DLMSConnection {
           }
           else InformationBuffer = null;
 
-          bFrameType=(byte)((byteReceiveBuffer[FRAME_FORMAT_MSB]>>4)&0x0F);
+          bFrameType=(byte)((byteReceiveBuffer[protocolParameters[frameFormatMSB]]>>4)&0x0F);
 
-          boolControlPFBit = ((byteReceiveBuffer[FRAME_CONTROL] & HDLC_FRAME_CONTROL_PF_BIT)!=0);
+          boolControlPFBit = ((byteReceiveBuffer[protocolParameters[frameControl]] & HDLC_FRAME_CONTROL_PF_BIT)!=0);
 
           // Mask out the PF bit
-          byteReceiveBuffer[FRAME_CONTROL] &= (HDLC_FRAME_CONTROL_PF_BIT^0xFF);
+          byteReceiveBuffer[protocolParameters[frameControl]] &= (HDLC_FRAME_CONTROL_PF_BIT^0xFF);
 
-          if ((byteReceiveBuffer[FRAME_CONTROL]&I_MASK) == I) bControl = I;
-          else if ((byteReceiveBuffer[FRAME_CONTROL]&RR_MASK) == RR) bControl = RR;
-          else if ((byteReceiveBuffer[FRAME_CONTROL]&RNR_MASK) == RNR) bControl = RNR;
-          else bControl = byteReceiveBuffer[FRAME_CONTROL];
+          if ((byteReceiveBuffer[protocolParameters[frameControl]]&I_MASK) == I) bControl = I;
+          else if ((byteReceiveBuffer[protocolParameters[frameControl]]&RR_MASK) == RR) bControl = RR;
+          else if ((byteReceiveBuffer[protocolParameters[frameControl]]&RNR_MASK) == RNR) bControl = RNR;
+          else bControl = byteReceiveBuffer[protocolParameters[frameControl]];
 
 
           NR=0;
           NS=0;
           if (bControl == I)
           {
-             NR=(byte)((byteReceiveBuffer[FRAME_CONTROL]&0xE0)>>5);
-             NS=(byte)((byteReceiveBuffer[FRAME_CONTROL]&0x0E)>>1);
+             NR=(byte)((byteReceiveBuffer[protocolParameters[frameControl]]&0xE0)>>5);
+             NS=(byte)((byteReceiveBuffer[protocolParameters[frameControl]]&0x0E)>>1);
           }
           else if ((bControl == RR) || (bControl == RNR))
           {
-             NR=(byte)((byteReceiveBuffer[FRAME_CONTROL]&0xE0)>>5);
+             NR=(byte)((byteReceiveBuffer[protocolParameters[frameControl]]&0xE0)>>5);
           }
 
           bDestination=0;
@@ -1135,14 +1153,14 @@ public class HDLCConnection extends Connection implements DLMSConnection {
 
           // Only 1 byte address fields are supported
           if (bAddressingMode == CLIENT_ADDRESSING_1BYTE)
-             if ((byteReceiveBuffer[FRAME_DESTINATION] & 0x01)==0) throw new DLMSConnectionException("HDLCFrame> Frame destination address error");
+             if ((byteReceiveBuffer[protocolParameters[frameDestination]] & 0x01)==0) throw new DLMSConnectionException("HDLCFrame> Frame destination address error");
           else if (bAddressingMode == CLIENT_ADDRESSING_2BYTE)
-             if ((byteReceiveBuffer[FRAME_DESTINATION+1] & 0x01)==0) throw new DLMSConnectionException("HDLCFrame> Frame destination address error");
+             if ((byteReceiveBuffer[protocolParameters[frameDestination]+1] & 0x01)==0) throw new DLMSConnectionException("HDLCFrame> Frame destination address error");
           else if (bAddressingMode == CLIENT_ADDRESSING_4BYTE)
-             if ((byteReceiveBuffer[FRAME_DESTINATION+3] & 0x01)==0) throw new DLMSConnectionException("HDLCFrame> Frame destination address error");
-          bDestination=(byte)(byteReceiveBuffer[FRAME_DESTINATION]>>1);
-          if ((byteReceiveBuffer[FRAME_SOURCE] & 0x01)==0) throw new DLMSConnectionException("HDLCFrame> Frame source address error");
-          bSource=(byte)(byteReceiveBuffer[FRAME_SOURCE]>>1);
+             if ((byteReceiveBuffer[protocolParameters[frameDestination]+3] & 0x01)==0) throw new DLMSConnectionException("HDLCFrame> Frame destination address error");
+          bDestination=(byte)(byteReceiveBuffer[protocolParameters[frameDestination]]>>1);
+          if ((byteReceiveBuffer[protocolParameters[frameControl]] & 0x01)==0) throw new DLMSConnectionException("HDLCFrame> Frame source address error");
+          bSource=(byte)(byteReceiveBuffer[protocolParameters[frameControl]]>>1);
  
        }
 
