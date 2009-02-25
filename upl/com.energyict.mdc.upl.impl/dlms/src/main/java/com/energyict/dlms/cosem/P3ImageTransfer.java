@@ -1,13 +1,9 @@
 package com.energyict.dlms.cosem;
 
 import java.io.IOException;
-import java.net.SocketException;
-import java.util.Date;
+import java.util.logging.Level;
 
-import com.energyict.cbo.NestedIOException;
-import com.energyict.cbo.Quantity;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -29,6 +25,8 @@ public class P3ImageTransfer extends AbstractCosemObject{
 	static private int delay = 3000;
 	private int maxBlockRetryCount = 3;
 	private int maxTotalRetryCount = 500;
+	
+	private ProtocolLink protocolLink;
 
 	/** Attributes */
 	private Unsigned32 imageMaxBlockSize = null; // holds the max size of the imageblocks to be sent to the server(meter)
@@ -61,6 +59,7 @@ public class P3ImageTransfer extends AbstractCosemObject{
 	
 	public P3ImageTransfer(ProtocolLink protocolLink, ObjectReference objectReference) {
 		super(protocolLink, objectReference);
+		this.protocolLink = protocolLink;
 	}
 
 	protected int getClassId() {
@@ -140,6 +139,11 @@ public class P3ImageTransfer extends AbstractCosemObject{
 			this.imageBlockTransfer.addDataType(new Unsigned32(i));
 			this.imageBlockTransfer.addDataType(os);
 			writeImageBlock(this.imageBlockTransfer);
+			
+			if(i % 50 == 0){ // i is multiple of 50
+				this.protocolLink.getLogger().log(Level.INFO, "ImageTransfer: " + i + " of " + blockCount + " blocks are send to the device");
+			}
+			
 			if(DEBUG)System.out.println("ImageTrans: Write block " + i + " success.");
 		}
 	}
