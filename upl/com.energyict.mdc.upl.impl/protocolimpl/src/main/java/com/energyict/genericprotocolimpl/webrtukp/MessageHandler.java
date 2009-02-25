@@ -70,6 +70,9 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.MBUS_ENCRYPTION_KEYS.equals(qName)){
 			setType(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
 			handleMbusEncryptionKeys(attrbs);
+		} else if(RtuMessageConstant.SET_TIME.equals(qName)){
+			setType(RtuMessageConstant.SET_TIME);
+			handleSetTime(attrbs);
 		}
 	}
 
@@ -343,5 +346,19 @@ public class MessageHandler extends DefaultHandler{
 		return this.transferKey;
 	}
 	
+	/**********************************************/
+	
+	/**********************************************
+	 * SetTime Related messages
+	 **********************************************/
+	private String epochTime = "";
+	
+	private void handleSetTime(Attributes attrbs){
+		this.epochTime = attrbs.getValue(RtuMessageConstant.SET_TIME_VALUE);
+	}
+	
+	public String getEpochTime(){
+		return this.epochTime;
+	}
 	/**********************************************/
 }

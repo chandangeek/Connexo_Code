@@ -239,7 +239,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
     		 */
 			if(this.commProfile.getReadMeterReadings()){
 				
-				//TODO Test this
 				getLogger().log(Level.INFO, "Getting daily and monthly values for meter with serialnumber: " + webRtuKP.getSerialNumber());
 				DailyMonthly dm = new DailyMonthly(this);
 				dm.getDailyValues(getMeterConfig().getDailyProfileObject().getObisCode());
@@ -356,7 +355,9 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	private void connect() throws IOException, SQLException, BusinessException{
 		try {
 			getDLMSConnection().connectMAC();
-			log(Level.INFO, "Sign On procedure done.");
+			if(this.connectionMode == 0){
+					log(Level.INFO, "Sign On procedure done.");
+			}
 			getDLMSConnection().setIskraWrapper(1);
 			aarq = new AARQ(this.securityLevel, this.password, getDLMSConnection());
 			
@@ -1018,6 +1019,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				boolean touCalendar		= messageHandler.getType().equals(RtuMessageConstant.TOU_ACTIVITY_CAL);
 				boolean touSpecialDays 	= messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS);
 				boolean specialDelEntry	= messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE);
+				boolean setTime			= messageHandler.getType().equals(RtuMessageConstant.SET_TIME);
 				
 				if(xmlConfig){
 					
@@ -1251,7 +1253,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 							throw new IOException("Could not pars the emergency profile duration value to an integer." + e.getMessage());
 						}
 					}
-					if(emergencyProfile.nrOfDataTypes() != 3){	// If all three elements are correct, then send it, otherwise throw error
+					if((emergencyProfile.nrOfDataTypes() > 0) && (emergencyProfile.nrOfDataTypes() != 3)){	// If all three elements are correct, then send it, otherwise throw error
 						throw new IOException("The complete emergecy profile must be filled in before sending it to the meter.");
 					} else {
 						loadLimiter.writeEmergencyProfile(emergencyProfile.getBEREncodedByteArray());
@@ -1337,7 +1339,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 									seasonStruct.addDataType(OctetString.fromString(Integer.toString(seasonProfileNameId)));	// the seasonProfileName is the DB id of the season
 									seasonStruct.addDataType(dateTime);
 									seasonStruct.addDataType(OctetString.fromString(weekProfileName));
-									seasonArray.addDataType(seasonStruct);		// TODO you have to sort the items by date ...
+									seasonArray.addDataType(seasonStruct);
 									if(!weekArrayExists(weekProfileName, weekArray)){
 										Structure weekStruct = new Structure();
 										Iterator sIt = calendars.iterator();
@@ -1417,8 +1419,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 									OctetString tstampOs = new OctetString(new byte[]{(byte)hour, (byte)min, (byte)sec, 0});
 									Unsigned16 selector = new Unsigned16(cdtd.getCodeValue());
 									def.addDataType(tstampOs);
-//									TODO def.addDataType(new OctetString(getMeterConfig().getTariffScriptTable().getLNArray()));
-									def.addDataType(new OctetString(new byte[]{0,0,10,0,(byte)100,(byte)255}));
+									def.addDataType(new OctetString(getMeterConfig().getTariffScriptTable().getLNArray()));
+//									def.addDataType(new OctetString(new byte[]{0,0,10,0,(byte)100,(byte)255}));
 									def.addDataType(selector);
 									daySchedules.addDataType(def);
 								}
@@ -1475,6 +1477,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 						} else {
 
 							List calendars = ct.getCalendars();
+							Array sdArray = new Array();
 
 							SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
 							
@@ -1493,8 +1496,13 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 									struct.addDataType(new Unsigned16((int)days));
 									struct.addDataType(os);
 									struct.addDataType(dayType);
-									sdt.insert(struct);
+//									sdt.insert(struct);
+									sdArray.addDataType(struct);
 								}
+							}
+							
+							if(sdArray.nrOfDataTypes() != 0){
+								sdt.writeSpecialDays(sdArray);
 							}
 							
 							success = true;
@@ -1510,6 +1518,13 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 					}
 					
 					success = true;
+				} else if(setTime){
+					
+					String epochTime = messageHandler.getEpochTime();
+					log(Level.INFO, "Handling message " + rm.displayString() + ": Setting the device time to: " + convertUnixToGMTDateTime(epochTime).getValue().getTime());
+					forceClock(convertUnixToGMTDateTime(epochTime).getValue().getTime());
+					success = true;
+					
 				} else {
 					success = false;
 				}
@@ -1764,6 +1779,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		MessageCategorySpec catDisconnect = new MessageCategorySpec("Disconnect Control");
 		MessageCategorySpec catLoadLimit = new MessageCategorySpec("LoadLimit");
 		MessageCategorySpec catActivityCal = new MessageCategorySpec("ActivityCalendar");
+		MessageCategorySpec catTime = new MessageCategorySpec("Time");
 		
 		// XMLConfig related messages
 		MessageSpec msgSpec = addDefaultValueMsg("XMLConfig", RtuMessageConstant.XMLCONFIG, false);
@@ -1803,12 +1819,17 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		msgSpec = addSpecialDaysDelete("Delete Special Day entry", RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE, false);
 		catActivityCal.addMessageSpec(msgSpec);
 		
+		// Time related messages
+		msgSpec = addTimeMessage("Set the meterTime to a specific time", RtuMessageConstant.SET_TIME, false);
+		catTime.addMessageSpec(msgSpec);
+		
 		categories.add(catXMLConfig);
 		categories.add(catFirmware);
 		categories.add(catP1Messages);
 		categories.add(catDisconnect);
 		categories.add(catLoadLimit);
 		categories.add(catActivityCal);
+		categories.add(catTime);
 		return categories;
 	}
 	
@@ -1876,6 +1897,18 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         profileTagSpec.add(msgAttrSpec);
         tagSpec.add(msgVal);
         tagSpec.add(profileTagSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+	
+	private MessageSpec addTimeMessage(String keyId, String tagName, boolean advanced) {
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.SET_TIME_VALUE, true);
+        tagSpec.add(msgVal);
+        tagSpec.add(msgAttrSpec);
         msgSpec.add(tagSpec);
         return msgSpec;
 	}
