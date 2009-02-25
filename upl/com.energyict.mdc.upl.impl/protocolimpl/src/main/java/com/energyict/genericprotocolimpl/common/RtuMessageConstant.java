@@ -120,5 +120,7 @@ public class RtuMessageConstant {
 	public static final String MBUS_SET_VIF = "Mbus_Set_VIF";
 	public static final String MBUS_INSTALL_DATAREADOUT = "Mbus_DataReadout";
 	
-	
+	/** RtuMessage tags for time set */
+	public static final String SET_TIME = "Set_Time";
+	public static final String SET_TIME_VALUE = "Time_Value";
 }
