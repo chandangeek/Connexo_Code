@@ -11,7 +11,7 @@ public class IntegerParser  implements Parser {
 
 	public static final String PARSER_NAME = "IntegerParser";
 
-	public Integer val(int[] values, AbstractRegister register) throws IOException {
+	public Object val(int[] values, AbstractRegister register) throws IOException {
 		return new Integer(0);
 	}
 	

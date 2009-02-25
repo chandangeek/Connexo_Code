@@ -2,9 +2,7 @@ package com.energyict.protocolimpl.modbus.enerdis.enerium200.profile;
 
 import java.util.Date;
 
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.TimeDateParser;
 
@@ -67,11 +65,11 @@ public class ProfilePartEntry {
 			if (getProfileInfoEntry().isChannelEnabled(i)) {
 				byte[] rawChannelValue = ProtocolUtils.getSubArray2(singleProfileEntry, (channelPos * CHANNEL_LENGTH) + CHANNEL_OFFSET,	CHANNEL_LENGTH); 
 				int channelValue = ProtocolUtils.getInt(rawChannelValue);
-				intervalData.addValue(channelValue);
+				intervalData.addValue(new Integer(channelValue));
 				intervalData.setEiStatus(i, IntervalData.OK);
 				channelPos++;
 			} else {
-				intervalData.addValue(0);
+				intervalData.addValue(new Integer(0));
 				intervalData.setEiStatus(i, IntervalData.MISSING);
 			}
 		}

@@ -62,7 +62,7 @@ public class MeterInfoParser implements Parser {
 	 * Public methods
 	 */
 
-	public MeterInfo val(int[] values, AbstractRegister register) throws IOException {
+	public Object val(int[] values, AbstractRegister register) throws IOException {
 		byte[] rawData = Utils.intArrayToByteArray(values);
 		TimeDateParser td_parser = new TimeDateParser(timeZone);
 		

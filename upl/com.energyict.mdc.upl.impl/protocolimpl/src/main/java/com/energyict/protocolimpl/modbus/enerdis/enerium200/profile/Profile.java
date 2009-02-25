@@ -267,7 +267,8 @@ public class Profile {
 			
 			Number val1 = iv1.getNumber();
 			Number val2 = iv2.getNumber();
-			Number val = val1.intValue() + val2.intValue();
+//			Number val = (Number)(val1.intValue() + val2.intValue());
+			int val = val1.intValue() + val2.intValue();
 
 			int eis1 = iv1.getEiStatus();
 			int eis2 = iv2.getEiStatus();
@@ -281,7 +282,7 @@ public class Profile {
 			
 			idReturn.setProtocolStatus(ps);
 			
-			IntervalValue iv = new IntervalValue(val, ps, eis);
+			IntervalValue iv = new IntervalValue(new Integer(val), ps, eis);
 			ivList.add(iv);
 		}
 		

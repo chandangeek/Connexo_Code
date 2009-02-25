@@ -22,7 +22,7 @@ public class TimeDateParser  implements Parser {
 		this.timeZone = timeZone;
 	}
 	
-	public Date val(int[] values, AbstractRegister register) throws IOException {
+	public Object val(int[] values, AbstractRegister register) throws IOException {
 		byte[] rawData = Utils.intArrayToByteArray(values); 
 		
 		if (rawData.length != 4) {

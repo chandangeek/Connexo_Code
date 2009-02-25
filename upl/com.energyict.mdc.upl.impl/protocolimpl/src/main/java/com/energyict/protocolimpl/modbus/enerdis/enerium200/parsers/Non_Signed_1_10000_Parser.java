@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.MathContext;
+import java.math.BigInteger;
 
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
@@ -31,8 +31,9 @@ public class Non_Signed_1_10000_Parser implements Parser {
 			case 2:	value = Utils.intToLongUnsigned(values[1]) + (Utils.intToLongUnsigned(values[0]) * (256 * 256)); break;
 			default: throw new ProtocolException(PARSER_NAME + ".val(): Error while parsing register. Wrong data length: " + values.length);
 		}
-		BigDecimal bd = new BigDecimal(value, new MathContext(0));
-		bd = bd.movePointLeft(4);
+//		BigDecimal bd = new BigDecimal(value, new MathContext(0));
+//		bd = bd.movePointLeft(4);
+		BigDecimal bd = new BigDecimal(new BigInteger(Long.toString(value)), 4);
 		if (DEBUG >= 1) System.out.println(" " + bd.toString());
 		return bd;
 	}

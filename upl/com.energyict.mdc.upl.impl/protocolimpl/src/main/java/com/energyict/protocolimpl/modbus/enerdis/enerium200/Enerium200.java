@@ -95,8 +95,8 @@ public class Enerium200 extends Modbus {
 	 * Private getters, setters and methods
 	 */
 
-	public RegisterFactory getRegisterFactory() {
-		return (RegisterFactory) super.getRegisterFactory();
+	public RegisterFactory getRegFactory() {
+		return (RegisterFactory)getRegisterFactory();
 	}
 	
 	public Profile getProfile() throws IOException {
@@ -120,7 +120,7 @@ public class Enerium200 extends Modbus {
 
     public void setTime() throws IOException {
     	byte[] rawDate = TimeDateParser.getBytesFromDate(new Date());
-    	Utils.writeRawByteValues(getRegisterFactory().writeFunctionReg.getReg(), Utils.SETCLOCK , rawDate, this);
+    	Utils.writeRawByteValues(getRegFactory().writeFunctionReg.getReg(), Utils.SETCLOCK , rawDate, this);
     }
     
     private String getSerialNumber() throws IOException {
@@ -177,7 +177,7 @@ public class Enerium200 extends Modbus {
 
     private MeterInfo getMeterInfo() throws IOException {
 		if (this.meterInfo == null) {
-	    	meterInfo = (MeterInfo) getRegisterFactory().meterInfo.value();
+	    	meterInfo = (MeterInfo) getRegFactory().meterInfo.value();
 		}
 		return meterInfo;
 	}
