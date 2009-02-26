@@ -17,16 +17,25 @@ import com.energyict.cbo.Unit;
 
 /**
  * @author jme
- *
+ * Changes:
+ * GNA |26022009| Added the units for instantaneous values
  */
 public class SurveyChannelTypeParser {
 
 	private int DecimalPointScaling;
 	private int ScalingFactor;
 	private int Type;
+	private int instantType;
 	private String Name;
 	private Unit unit; 
 	private boolean channelenabled = true;
+	private boolean instant = false;
+	
+	private final static int VOLTS = 0;
+	private final static int AMPS = 1;
+	private final static int POWER = 2;
+	private final static int ANGLE = 3;
+	private final static int FREQ = 4;
 	
 	public SurveyChannelTypeParser(int ChannelDef) {
 		this.DecimalPointScaling = (ChannelDef & 0x7000) >> 12;
@@ -36,9 +45,10 @@ public class SurveyChannelTypeParser {
     	
     	boolean isEnergy = false;
     	boolean isPulse = false;
-    	boolean isCycle = false;
+    	boolean isInstantaneous = false;
     	boolean isReserved = false;
     	boolean isTesting = false;
+    	
     	
     	if ((ChannelDef & 0x00FF) == 0x00FF) {
     		channelenabled = false;
@@ -80,11 +90,11 @@ public class SurveyChannelTypeParser {
             this.Name = "Pulsing input " + String.valueOf(regvalue);
             break;
         case 0x08: case 0x09:
-        	isCycle = true;
+        	isInstantaneous = true;
             this.Name = "5 cycle readings";
             break;
         case 0x0A: case 0x0B:
-        	isCycle = true;
+        	isInstantaneous = true;
             this.Name = "5 cycle readings, frequency compensated";
             break;
         case 0x0C: case 0x0D:
@@ -175,7 +185,104 @@ public class SurveyChannelTypeParser {
             } // End of switch(regvalue)
     	} // End of if(isTesting)
         
-    	if(isPulse || isCycle || isReserved) {
+    	
+    	if(isInstantaneous){
+        	this.ScalingFactor = 1;
+        	this.instant = true;
+        	regvalue = regvalue + (regfunction << 4)&0x1F;
+        	
+            switch(regvalue) {
+            case 0x00:
+            case 0x01:
+            case 0x02:
+            	this.unit = Unit.get(BaseUnit.AMPERE); // Channel value base unit is current ABC
+                this.Name = this.Name + " Min/Max/Inst/Avg " + this.unit.toString();
+                this.instantType = this.AMPS;
+            	break;
+            case 0x03:
+            case 0x04:
+            case 0x05:
+            	this.unit = Unit.get(BaseUnit.VOLT); // Channel value base unit is voltage ABC
+                this.Name = this.Name + " Min/Max/Inst/Avg " + this.unit.toString();
+                this.instantType = this.VOLTS;
+            	break;
+            case 0x06:
+            case 0x07:
+            case 0x08:
+            	this.unit = Unit.get(BaseUnit.WATT); // Channel value base unit is watt ABC
+                this.Name = this.Name + " Min/Max/Inst/Avg " + this.unit.toString();
+                this.instantType = this.POWER;
+            	break;
+            case 0x09:
+            case 0x0A:
+            case 0x0B:
+            	this.unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVE); // Channel value base unit is var ABC
+                this.Name = this.Name + " Min/Max/Inst/Avg " + this.unit.toString();
+                this.instantType = this.POWER;
+            	break;
+            case 0x0C:
+            case 0x0D:
+            case 0x0E:
+            	this.unit = Unit.get(BaseUnit.VOLTAMPERE); // Channel value base unit is VA ABC
+                this.Name = this.Name + " Min/Max/Inst/Avg " + this.unit.toString();
+                this.instantType = this.POWER;
+            	break;
+            case 0x0F:
+            	this.unit = Unit.get(BaseUnit.HERTZ); // Channel value base unit is frequency
+                this.Name = this.Name + " Min/Max/Inst/Avg " + this.unit.toString();
+                this.instantType = this.FREQ;
+            	break;
+            case 0x10:
+            	this.unit = Unit.get(BaseUnit.AMPERE); // Channel value base unit is current ABC average
+                this.Name = this.Name + " Min/Max/Inst/Avg " + this.unit.toString();
+                this.instantType = this.AMPS;
+            	break;
+            case 0x11:
+            	this.unit = Unit.get(BaseUnit.VOLT); // Channel value base unit is voltage ABC average
+                this.Name = this.Name + " Min/Max/Inst/Avg " + this.unit.toString();
+                this.instantType = this.VOLTS;
+            	break;
+            case 0x12:
+            	this.unit = Unit.get(BaseUnit.WATT); // Channel value base unit is watt sum
+                this.Name = this.Name + " Min/Max/Inst/Avg " + this.unit.toString();
+                this.instantType = this.POWER;
+            	break;
+            case 0x13:
+            	this.unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVE); // Channel value base unit is var sum
+                this.Name = this.Name + " Min/Max/Inst/Avg " + this.unit.toString();
+                this.instantType = this.POWER;
+            	break;
+            case 0x14:
+            	this.unit = Unit.get(BaseUnit.VOLTAMPERE); // Channel value base unit is VA sum
+                this.Name = this.Name + " Min/Max/Inst/Avg " + this.unit.toString();
+                this.instantType = this.POWER;
+            	break;
+            case 0x15:
+            case 0x16:
+            case 0x17:
+            	this.unit = Unit.get(BaseUnit.DEGREE); // Channel value base unit is angles ABC
+                this.Name = this.Name + " Min/Max/Inst/Avg " + this.unit.toString();
+                this.instantType = this.ANGLE;
+            	break;
+            case 0x18:
+            	this.unit = Unit.get(BaseUnit.DEGREE); // Channel value base unit is Voltage angle A-B
+                this.Name = this.Name + " Min/Max/Inst/Avg " + this.unit.toString();
+                this.instantType = this.ANGLE;
+            	break;
+            case 0x19:
+            	this.unit = Unit.get(BaseUnit.DEGREE); // Channel value base unit is Voltage angle A-C
+                this.Name = this.Name + " Min/Max/Inst/Avg " + this.unit.toString();
+                this.instantType = this.ANGLE;
+            	break;
+            default:
+            	this.unit = Unit.get(BaseUnit.UNITLESS); // Channel value base unit is default
+	            this.Name = this.Name + " Min/Max/Inst/Avg " + this.unit.toString();
+	            this.instantType = this.POWER;	// it's a choice ...
+	        	break;
+            }
+    	}
+    	
+    	if(isPulse || isReserved) {
             this.ScalingFactor = 10^scaling;
     		this.unit = Unit.get(BaseUnit.UNITLESS); // Channel base unit unknown (reserved). No base unit
     	}
@@ -207,4 +314,12 @@ public class SurveyChannelTypeParser {
 	public String getName() {
 		return Name;
 	}	
+	
+	public boolean isInstantaneous(){
+		return this.instant;
+	}
+
+	public int getInstantaneousType(){
+		return this.instantType;
+	}
 }

@@ -23,6 +23,8 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.*;
 /**
  *
  * @author koen
+ * Changes:
+ * GNA |26022009| Added the extra scaler for instantaneous values
  */
 public class LoadSurvey {
     
@@ -115,11 +117,25 @@ public class LoadSurvey {
 	            SurveyChannelTypeParser ctp = new SurveyChannelTypeParser(ChannelDef);
 	        	
 	            lsc.setName(ctp.getName());
-	            lsc.setScaling(ctp.getDecimalPointScaling());
-	            lsc.setScalingFactor(ctp.getScalingFactor());
 	            lsc.setType(ctp.getType());
+	            lsc.setScaling(ctp.getDecimalPointScaling());
 	            lsc.setUnit(ctp.getUnit());
 	            lsc.setWidth(2);
+	            
+	            if(ctp.isInstantaneous()){
+	            	tempreg = (BASE_REGISTER_ID + (0x0008 + ctp.getInstantaneousType()));
+	            	BigDecimal bdScalingFactor = getCommandFactory().getReadCommand(tempreg).getRegister().getBigDecimal();
+	            	lsc.setScalingFactor(bdScalingFactor);
+	            } else {
+	            	lsc.setScalingFactor(ctp.getScalingFactor());
+	            }
+	            
+//	            ReadCommand scaleD808 = getCommandFactory().getReadCommand(0xD808);
+//	            ReadCommand scaleD809 = getCommandFactory().getReadCommand(0xD809);
+//	            ReadCommand scaleD80A = getCommandFactory().getReadCommand(0xD80A);
+//	            ReadCommand scaleD80B = getCommandFactory().getReadCommand(0xD80B);
+//	            ReadCommand scaleD80C = getCommandFactory().getReadCommand(0xD80C);
+////	            int scalingFactor = getCommandFactory().getReadCommand(0xD808).getRegister().getBigDecimal().
             }
             getLoadSurveyChannels()[channel]=lsc;
         }        
