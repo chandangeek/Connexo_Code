@@ -123,7 +123,7 @@ public class MbusDailyMonthly {
 		
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
-				if(com.energyict.dlms.client.ParseUtils.isElectricityObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
+				if(isMbusRegisterObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
 					id.addValue(new Integer(ds.getInteger(i)));
 				}
 			}
