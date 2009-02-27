@@ -42,6 +42,8 @@ import com.energyict.protocolimpl.dlms.Z3.AARQ;
 public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
     private static final byte DEBUG=0;  // KV 16012004 changed all DEBUG values  
     
+    /** The maximum APDU size property name. */
+    private static final String PROPNAME_MAX_APDU_SIZE = "MaxAPDUSize";
     
     String version=null;
     String serialnr=null;
@@ -88,6 +90,9 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
     int addressingMode;
     int connectionMode;
     int informationFieldSize;
+    
+    /** The maximum APDU size. */
+    private int maximumAPDUSize = -1;
     
     /** Creates a new instance of EictZ3, empty constructor*/
     public EictZ3()
@@ -520,7 +525,13 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         }
         try {
         	
-        	AARQ aarq = new AARQ(securityLevel,strPassword,getDLMSConnection());
+        	AARQ aarq = null;
+        	
+        	if (this.maximumAPDUSize == -1) {
+        		aarq = new AARQ(securityLevel,strPassword,getDLMSConnection());
+        	} else {
+        		aarq = new AARQ(this.securityLevel, this.strPassword, this.getDLMSConnection(), this.maximumAPDUSize);
+        	}
 
             try {
     
@@ -721,7 +732,13 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
             loadProfileObisCode = properties.getProperty("LoadProfileObisCode","1.0.99.1.0.255");
             fullLogbook = Integer.parseInt(properties.getProperty("FullLogbook","0"));              
             informationFieldSize = Integer.parseInt(properties.getProperty("InformationFieldSize","-1"));
-        }
+            
+            try {
+            	this.maximumAPDUSize = Integer.parseInt(properties.getProperty(PROPNAME_MAX_APDU_SIZE, "-1"));
+            } catch (NumberFormatException e) {
+            	this.maximumAPDUSize = -1;
+            }
+        } 
         catch (NumberFormatException e) {
            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
         }
@@ -849,6 +866,8 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
         result.add("LoadProfileObisCode");
         result.add("FullLogbook");
         result.add("InformationFieldSize");
+        result.add(PROPNAME_MAX_APDU_SIZE);
+        
         return result;
     }
     

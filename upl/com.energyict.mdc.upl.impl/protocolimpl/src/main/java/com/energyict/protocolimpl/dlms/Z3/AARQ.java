@@ -2,13 +2,24 @@ package com.energyict.protocolimpl.dlms.Z3;
 
 import java.io.IOException;
 
+import javax.swing.DefaultListSelectionModel;
+
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.protocol.ProtocolUtils;
 
 public class AARQ {
 	
+	/** The default APDU size. */
+	private static final int DEFAULT_APDU_SIZE = 1200;
+	
+	/** The password used. */
 	private String password;
+	
+	/** The DLMS connection to write the AARQ on. */
 	private DLMSConnection dlmsConnection;
+	
+	/** The maximum APDU size, defaults to 1200. */
+	private int maximumAPDUSize = 1200;
 	
 	/**
 	 * Examples of AARQ APDU's are available in GreenBook "11. AARQ and AARE encoding examples"
@@ -24,7 +35,7 @@ public class AARQ {
 		    (byte)0x06,  // dlms version nr (xDLMS)
 		    (byte)0x5F,(byte)0x1F,(byte)0x04,(byte)0x00,(byte)0x00,(byte)0x7E,(byte)0x1F, // proposed conformance
 		    (byte)0x04,(byte)0xB0}; //client-max-received-pdu-size
-	
+    
     byte[] aarqlowlevel={
 		    (byte)0xE6,(byte)0xE6,(byte)0x00,
 		    (byte)0x60, // AARQ
@@ -38,7 +49,8 @@ public class AARQ {
 		    (byte)0x00,(byte)0x00,(byte)0x00, // unused parameters
 		    (byte)0x06,  // dlms version nr
 		    (byte)0x5F,(byte)0x1F,(byte)0x04,(byte)0x00,(byte)0x00,(byte)0x7E,(byte)0x1F, // proposed conformance
-		    (byte)0x04,(byte)0xB0};//client-max-received-pdu-size
+		    (byte)0x04,(byte)0xB0};
+		    //client-max-received-pdu-size
     
 	byte[] rlrq_APDU={
 			(byte)0xE6, (byte)0xE6, (byte)0x00,
@@ -59,11 +71,54 @@ public class AARQ {
     	
     }
     
+    /**
+     * Creates and executes an AARQ, using the default APDU size {@link #DEFAULT_APDU_SIZE}.
+     * 
+     * @param 	securityLevel		The security level.
+     * @param 	password			The password.
+     * @param 	dlmsConnection		The DLMS connection.
+     * 
+     * @throws	IOException			If an error occurs during the AARQ execution.
+     */
     public AARQ(int securityLevel, String password, DLMSConnection dlmsConnection) throws IOException{
+    	this(securityLevel, password, dlmsConnection, DEFAULT_APDU_SIZE);
+    }
+    
+    /**
+     * Create a new association request. Allows for the setting of the maximum APDU size. 
+     * 
+     * @param 	securityLevel		The security level.
+     * @param 	password			The password.
+     * @param 	connection			The connection to use.
+     * @param	maximumAPDUSize		The maximum size of the APDU to negotiate.
+     * 
+     * @throws 	IOException			If the AARQ request fails.
+     */
+    public AARQ(final int securityLevel, final String password, final DLMSConnection connection, final int maximumAPDUSize) throws IOException {
     	this.password = password;
-    	this.dlmsConnection = dlmsConnection;
+    	this.dlmsConnection = connection;
+    	this.maximumAPDUSize = maximumAPDUSize;
     	
-    	requestApplicationAssociation(securityLevel);
+    	this.updateAPDUSize(maximumAPDUSize);
+    	
+    	// FIXME: Constructors should never do anything but initialize the object.
+    	this.requestApplicationAssociation(securityLevel);
+    }
+    
+    /**
+     * Updates the APDU size for this AARQ. It actually updates the static structures. We should probably just create the AARQ
+     * instead of having this static data.
+     * 
+     * @param 	apduSize		The APDU size.
+     */
+    private final void updateAPDUSize(final int apduSize) {
+    	final byte apduSizeLSB = (byte)(apduSize & 0xFF);
+    	final byte apduSizeMSB = (byte)(apduSize >> 8);
+    	
+    	this.aarqNoAuthentication[this.aarqNoAuthentication.length - 1] = apduSizeLSB;
+    	this.aarqNoAuthentication[this.aarqNoAuthentication.length - 2] = apduSizeMSB;
+    	this.aarqlowlevel2[this.aarqlowlevel2.length - 1] = apduSizeLSB;
+    	this.aarqlowlevel2[this.aarqlowlevel2.length - 2] = apduSizeMSB;
     }
 
 	private void requestApplicationAssociation(int securityLevel) throws IOException {
@@ -124,6 +179,7 @@ public class AARQ {
 	
     private void CheckAARE(byte[] responseData) throws IOException
     {
+    	System.out.println(responseData.length);
        int i;
 //       int iLength;
        String strResultSourceDiagnostics="";
@@ -324,13 +380,17 @@ public class AARQ {
 //		020100be10040e0800065f1f04000010
 //		1802000007
 		
-		byte[] response = new byte[]{0x00, 0x01, 0x00, 0x01, 0x00, 0x10, 0x00, 0x2b, 0x61, 0x29, (byte)0xa1, 0x09, 0x06, 0x07, 0x60, (byte)0x85, 0x74,
+		/*byte[] response = new byte[]{0x00, 0x01, 0x00, 0x01, 0x00, 0x10, 0x00, 0x2b, 0x61, 0x29, (byte)0xa1, 0x09, 0x06, 0x07, 0x60, (byte)0x85, 0x74,
 				0x05, 0x08, 0x01, 0x01, (byte)0xa2, 0x03, 0x02, 0x01, 0x00, (byte)0xa3, 0x05, (byte)0xa1, 0x03, 0x02, 0x01, 0x00, (byte)0xbe, 0x10, 0x04, 0x0e, 
-				0x08, 0x00, 0x06, 0x5f, 0x1f, 0x04, 0x00, 0x00, 0x10, 0x18, 0x02, 0x00, 0x00, 0x07};
+				0x08, 0x00, 0x06, 0x5f, 0x1f, 0x04, 0x00, 0x00, 0x10, 0x18, 0x02, 0x00, 0x00, 0x07};*/
+		final byte[] resp = new byte[] {
+				0x00, 0x01, 0x00, 0x01, 0x00, 0x10, 0x00, 0x2b, 0x61, 0x29, (byte)0xa1, 0x09, 0x06, 0x07, 0x60, (byte)0x85, 0x74, 0x05, 0x08, 0x01, 0x01, (byte)0xa2, 0x03, 0x02, 0x01, 0x00, (byte)0xa3, 0x05, (byte)0xa1, 0x03, 0x02, 0x01, 0x00, (byte)0xbe, 0x10, 0x04, 0x0e, 0x08, 0x00, 0x06, 0x5f, 0x1f, 0x04, 0x00, 0x00, 0x10, 0x19, 0x02, 0x00, 0x00, 0x07	
+		};
+		
 		
 		AARQ aarq = new AARQ();
 		try {
-			aarq.CheckAARE(response);
+			aarq.CheckAARE(resp);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
