@@ -1256,7 +1256,9 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 					if((emergencyProfile.nrOfDataTypes() > 0) && (emergencyProfile.nrOfDataTypes() != 3)){	// If all three elements are correct, then send it, otherwise throw error
 						throw new IOException("The complete emergecy profile must be filled in before sending it to the meter.");
 					} else {
-						loadLimiter.writeEmergencyProfile(emergencyProfile.getBEREncodedByteArray());
+						if(emergencyProfile.nrOfDataTypes() > 0){
+							loadLimiter.writeEmergencyProfile(emergencyProfile.getBEREncodedByteArray());
+						}
 					}
 					
 					success = true;
