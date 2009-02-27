@@ -220,8 +220,6 @@
 
 -keepnames class com.energyict.genericprotocolimpl.actarisace4000.ActarisACE4000
 
--keepnames class com.energyict.protocolimpl.dlms.genericgetset.GenericGetSet
-
 -keepnames class com.energyict.protocolimpl.sdksample.SDKSampleProtocol
 
 -keepnames class com.energyict.genericprotocolimpl.webrtukp.WebRTUKP
