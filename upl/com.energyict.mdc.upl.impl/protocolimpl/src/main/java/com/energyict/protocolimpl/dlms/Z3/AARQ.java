@@ -2,8 +2,6 @@ package com.energyict.protocolimpl.dlms.Z3;
 
 import java.io.IOException;
 
-import javax.swing.DefaultListSelectionModel;
-
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.protocol.ProtocolUtils;
 
@@ -17,9 +15,6 @@ public class AARQ {
 	
 	/** The DLMS connection to write the AARQ on. */
 	private DLMSConnection dlmsConnection;
-	
-	/** The maximum APDU size, defaults to 1200. */
-	private int maximumAPDUSize = 1200;
 	
 	/**
 	 * Examples of AARQ APDU's are available in GreenBook "11. AARQ and AARE encoding examples"
@@ -97,7 +92,6 @@ public class AARQ {
     public AARQ(final int securityLevel, final String password, final DLMSConnection connection, final int maximumAPDUSize) throws IOException {
     	this.password = password;
     	this.dlmsConnection = connection;
-    	this.maximumAPDUSize = maximumAPDUSize;
     	
     	this.updateAPDUSize(maximumAPDUSize);
     	
