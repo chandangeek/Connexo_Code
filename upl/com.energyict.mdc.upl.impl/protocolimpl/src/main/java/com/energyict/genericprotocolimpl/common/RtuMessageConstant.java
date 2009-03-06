@@ -123,4 +123,11 @@ public class RtuMessageConstant {
 	/** RtuMessage tags for time set */
 	public static final String SET_TIME = "Set_Time";
 	public static final String SET_TIME_VALUE = "Time_Value";
+	
+	/** RtuMessage tags for Wakeup configuration */
+	public static final String WAKEUP_INACT_TIMEOUT = "Inactivity timeout";
+	public static final String WAKEUP_ADD_WHITELIST = "Phonenumber to add";
+	public static final String WAKEUP_DELETE_WHITELIST = "Phonenumber to delete";
+	public static final String WAKEUP_CLEAR_WHITELIST = "Clear whiteList";
+	public static final String WAKEUP_GENERAL_RESTRICTION = "General restriction";
 }
