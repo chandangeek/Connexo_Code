@@ -206,6 +206,14 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 		return new GPRSModemSetup(protocolLink, getObjectReference(GPRSMODEMSETUP, protocolLink.getMeterConfig().getGPRSModemSetupSN()));
 	}
 	
+	public TCPUDPSetup getTCPUDPSetup() throws IOException{
+		return  new TCPUDPSetup(protocolLink);
+	}
+	
+	public AutoConnect getAutoConnect() throws IOException {
+		return new AutoConnect(protocolLink);
+	}
+	
     public CosemObject getCosemObject(ObisCode obisCode) throws IOException {
         if (obisCode.getF() != 255) {
             return getStoredValues().getHistoricalValue(obisCode);
