@@ -53,11 +53,20 @@
          	<version>${eiserver.version}</version>
          	<scope>test</scope>
          </dependency>
-         
          <dependency>
          	<groupId>com.energyict</groupId>
          	<artifactId>dlms</artifactId>
          	<version>${project.version}</version>
+         </dependency>
+         <dependency>
+         	<groupId>org.hibernate</groupId>
+			<artifactId>hibernate</artifactId>
+			<version>3.2.1.ga</version>
+         </dependency>
+		<dependency>
+         	<groupId>c3p0</groupId>
+			<artifactId>c3p0</artifactId>
+			<version>0.9.1.2</version>
          </dependency>
     </dependencies>
     <build>
