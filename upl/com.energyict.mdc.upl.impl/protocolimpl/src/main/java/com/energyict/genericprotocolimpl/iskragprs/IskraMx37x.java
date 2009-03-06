@@ -26,7 +26,9 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Unit;
 import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
+import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
@@ -38,21 +40,29 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.AutoConnect;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.cosem.TCPUDPSetup;
 import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.common.GenericCache;
+import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
 import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
+import com.energyict.genericprotocolimpl.iskragprs.csd.CSDCall;
+import com.energyict.genericprotocolimpl.iskragprs.csd.CSDCaller;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
@@ -129,6 +139,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	private int addressingMode;
 	private int connectionMode;
 	private int configProgramChanges;
+	private int csdCall;
 	
 	private boolean forcedMbusCheck = false;
 	
@@ -147,10 +158,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private ObisCode genericProfile4 		=	ObisCode.fromString("1.0.98.2.0.255");		// mostly considered as daily or monthly profile
     private ObisCode loadProfileObisCode97 	= 	ObisCode.fromString("1.0.99.97.0.255");
     private ObisCode breakerObisCode 		= 	ObisCode.fromString("0.0.128.30.21.255");
-    private ObisCode eventLogObisCode 		= 	ObisCode.fromString("1.0.99.98.0.255");
-//    private ObisCode mbusScalerUnit 		=	ObisCode.fromString("0.1.128.50.0.255");
     private ObisCode deviceLogicalName		= 	ObisCode.fromString("0.0.42.0.0.255");
-    private ObisCode status 				= 	ObisCode.fromString("1.0.96.240.0.255");
     private ObisCode endOfBilling			=	ObisCode.fromString("0.0.15.0.0.255");
     private ObisCode endOfCapturedObjects	=	ObisCode.fromString("0.0.15.1.0.255");
     private ObisCode[] mbusPrimaryAddress	= 	{ObisCode.fromString("0.1.128.50.20.255"),
@@ -211,124 +219,204 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	 */
 	public static void main(String[] args) {
 		
-		String startDate = new String("18/04/2008 11:39:40");
-		
-    	Calendar cal = Calendar.getInstance();
-    	Date date = new Date();
-    	
-    	cal.set(Calendar.DATE, Integer.parseInt(startDate.substring(0, startDate.indexOf("/"))));
-    	cal.set(Calendar.MONTH, (Integer.parseInt(startDate.substring(startDate.indexOf("/") + 1, startDate.lastIndexOf("/")))) - 1);
-    	cal.set(Calendar.YEAR, Integer.parseInt(startDate.substring(startDate.lastIndexOf("/") + 1, startDate.indexOf(" "))));
-    	
-    	cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(startDate.substring(startDate.indexOf(" ") + 1, startDate.indexOf(":"))));
-    	cal.set(Calendar.MINUTE, Integer.parseInt(startDate.substring(startDate.indexOf(":") + 1, startDate.lastIndexOf(":"))));
-    	cal.set(Calendar.SECOND, Integer.parseInt(startDate.substring(startDate.lastIndexOf(":") + 1, startDate.length())));
-    	
-    	System.out.println(cal.getTime());
+//		String startDate = new String("18/04/2008 11:39:40");
+//		
+//    	Calendar cal = Calendar.getInstance();
+//    	Date date = new Date();
+//    	
+//    	cal.set(Calendar.DATE, Integer.parseInt(startDate.substring(0, startDate.indexOf("/"))));
+//    	cal.set(Calendar.MONTH, (Integer.parseInt(startDate.substring(startDate.indexOf("/") + 1, startDate.lastIndexOf("/")))) - 1);
+//    	cal.set(Calendar.YEAR, Integer.parseInt(startDate.substring(startDate.lastIndexOf("/") + 1, startDate.indexOf(" "))));
+//    	
+//    	cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(startDate.substring(startDate.indexOf(" ") + 1, startDate.indexOf(":"))));
+//    	cal.set(Calendar.MINUTE, Integer.parseInt(startDate.substring(startDate.indexOf(":") + 1, startDate.lastIndexOf(":"))));
+//    	cal.set(Calendar.SECOND, Integer.parseInt(startDate.substring(startDate.lastIndexOf(":") + 1, startDate.length())));
+//    	
+//    	System.out.println(cal.getTime());
+		IskraMx37x instance = new IskraMx37x();
+		byte[] list = new byte[]{1,2,3,4,5,6,7,8};
+		try {
+			byte[] list2 = instance.shiftRestrictionList(1, list, 0);
+			list2 = instance.shiftRestrictionList(5, list2, 1);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("");
 		
 	}
 
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-		this.logger = logger;
-		this.communicationProfile = scheduler.getCommunicationProfile();
-		this.link = link;
-		this.scheduler = scheduler;
+		
+		String ipAddress = null;
 		
 		rtu = scheduler.getRtu();
 		validateProperties();
-		init(link.getInputStream(),link.getOutputStream());
 		
-        try {
-        	connect();
-        	
-        	/**
-        	 * TODO Just To TEST TODO
-        	 */
+		
+		// if it is a CSD scheduler, we just have to make a call
+		if(scheduler.displayString().toLowerCase().indexOf("csd") > 0){
+
+			if(!scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer")){
+				throw new IOException("Only NoDialer is allowed as csd dialers.");
+			}
+			
+			if(this.csdCall != 0){
+				CSDCall call = new CSDCall(link);
+				call.doCall(rtu.getPhoneNumber());
+				logger.log(Level.INFO, "Made a successful call.");
+				
+			} else {
+				throw new IOException("CSDCall can not be executed if the csdProperty is not enabled");
+			}
+			
+			
+		} else {	// else we do a regular data readout
+
+			this.logger = logger;
+			this.communicationProfile = scheduler.getCommunicationProfile();
+			this.link = link;
+			this.scheduler = scheduler;
+			if(this.csdCall != 0){
+				
+				if(!this.scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer")){
+					throw new IOException("Only NoDialer is allowed for csd calls.");
+				}
+				
+				CSDCaller caller = new CSDCaller(rtu);
+				ipAddress = caller.doWakeUp();
+				if(!ipAddress.equalsIgnoreCase("")){
+					this.rtu.updateIpAddress(ipAddress);
+					ipAddress = checkIPAddressForPortNumber(ipAddress);
+					getLogger().log(Level.INFO, "IPAddress " + ipAddress + " found for meter with serialnumber " + this.serialNumber);
+					
+					this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
+					this.link.getStreamConnection().open();
+					getLogger().log(Level.INFO, "Connected to " + ipAddress);
+				} else {
+					throw new ConnectionException("CSD Wakeup call failed.");
+				}
+			}			
+			
+			init(this.link.getInputStream(),this.link.getOutputStream());
+			
+			try {
+				connect();
+				
+				/**
+				 * TODO Just To TEST TODO
+				 */
 //        	justATestMethod();
 //        	doTheCheckMethods();
 //        	handleMbusMeters();
 //        	DailyMonthly dm = new DailyMonthly(this);
 //        	dm.getDailyValues(dailyObisCode);
 //        	dm.getMonthlyValues(monthlyObisCode);
-        	    	
-        	// Set clock or Force clock... if necessary
-        	if( communicationProfile.getForceClock() ){
-        		getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + Calendar.getInstance(getTimeZone()).getTime());
-        		setTimeClock();
-        	}else if( communicationProfile.getWriteClock() ) {
-        		setTime();
-        	}
-        	
-        	// Read profiles and events ... if necessary
-    		if( (communicationProfile.getReadDemandValues()) && (communicationProfile.getReadMeterEvents()) ){
-    			doTheCheckMethods();
-    			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + rtu.getSerialNumber());
-    			ElectricityProfile ep = new ElectricityProfile(this);
-    			ep.getProfile(loadProfileObisCode, communicationProfile.getReadMeterEvents());
-    		}
-    		
-    		// Read registers ... if necessary
-    		/**
-    		 * Here we are assuming that the daily and monthly values should be read.
-    		 * In future it can be that this doesn't work for all customers, then we should implement a SmartMeterProperty to indicate whether you
-    		 * want to read the actual registers or the daily/monthly registers ...
-    		 */
-    		if( communicationProfile.getReadMeterReadings() ) {
-    			doTheCheckMethods();
-    			
-    			getLogger().log(Level.INFO, "Getting daily and monthly values for meter with serialnumber: " + rtu.getSerialNumber());
-    			DailyMonthly dm = new DailyMonthly(this);
-            	dm.getDailyValues(dailyObisCode);
-            	dm.getMonthlyValues(monthlyObisCode);
-    		}
-
-    		// Send messages ... if there are messages
-    		if( communicationProfile.getSendRtuMessage() ){
-    			sendMeterMessages();
-    		}
-    		
-    		// Handle the MBus meters
-    		if(mbusCheck()){
-    			getLogger().log(Level.INFO, "Starting to handle the MBus meters.");
-    			handleMbusMeters();
-    		}
-    		
-    		if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Stopping the cache mechanism, saving to disk.");
-    		GenericCache.stopCacheMechanism(rtu, dlmsCache);
-    		disConnect();
-    		
-    		getLogger().log(Level.INFO, "Meter with serialnumber " + rtu.getSerialNumber() + " has completely finished.");
-        	
-		} catch (DLMSConnectionException e) {
-			disConnect();
-			e.printStackTrace();
-			throw new BusinessException(e);
-//		} catch (ServiceException e) {
-//			e.printStackTrace();
-//			disConnect();
-//			throw new BusinessException(e);
-		} catch (ParseException e) {
-			e.printStackTrace();
-			disConnect();
-			throw new BusinessException(e);
-		} catch (SQLException e){
-			e.printStackTrace();
-			disConnect();
-			
-			/** Close the connection after an SQL exception, connection will startup again if requested */
-        	Environment.getDefault().closeConnection();
-        
-			
-			throw new BusinessException(e);
-		}
-		finally {
-			if(dlmsCache.getObjectList() != null){
+				
+				// Set clock or Force clock... if necessary
+				if( communicationProfile.getForceClock() ){
+					getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + Calendar.getInstance(getTimeZone()).getTime());
+					setTimeClock();
+				}else if( communicationProfile.getWriteClock() ) {
+					setTime();
+				}
+				
+				// Read profiles and events ... if necessary
+				if( (communicationProfile.getReadDemandValues()) && (communicationProfile.getReadMeterEvents()) ){
+					doTheCheckMethods();
+					getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + rtu.getSerialNumber());
+					ElectricityProfile ep = new ElectricityProfile(this);
+					ep.getProfile(loadProfileObisCode, communicationProfile.getReadMeterEvents());
+				}
+				
+				// Read registers ... if necessary
+				/**
+				 * Here we are assuming that the daily and monthly values should be read.
+				 * In future it can be that this doesn't work for all customers, then we should implement a SmartMeterProperty to indicate whether you
+				 * want to read the actual registers or the daily/monthly registers ...
+				 */
+				if( communicationProfile.getReadMeterReadings() ) {
+					doTheCheckMethods();
+					
+					getLogger().log(Level.INFO, "Getting daily and monthly values for meter with serialnumber: " + rtu.getSerialNumber());
+					DailyMonthly dm = new DailyMonthly(this);
+					dm.getDailyValues(dailyObisCode);
+					dm.getMonthlyValues(monthlyObisCode);
+				}
+				
+				// Send messages ... if there are messages
+				if( communicationProfile.getSendRtuMessage() ){
+					sendMeterMessages();
+				}
+				
+				// Handle the MBus meters
+				if(mbusCheck()){
+					getLogger().log(Level.INFO, "Starting to handle the MBus meters.");
+					handleMbusMeters();
+				}
+				
+				if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Stopping the cache mechanism, saving to disk.");
 				GenericCache.stopCacheMechanism(rtu, dlmsCache);
+				disConnect();
+				
+				getLogger().log(Level.INFO, "Meter with serialnumber " + rtu.getSerialNumber() + " has completely finished.");
+			} catch (DLMSConnectionException e) {
+				disConnect();
+				e.printStackTrace();
+				throw new BusinessException(e);
+			} catch (ParseException e) {
+				e.printStackTrace();
+				disConnect();
+				throw new BusinessException(e);
+			} catch (SQLException e){
+				e.printStackTrace();
+				disConnect();
+				
+				/** Close the connection after an SQL exception, connection will startup again if requested */
+				Environment.getDefault().closeConnection();
+				throw new BusinessException(e);
+			} catch (BusinessException e){
+				e.printStackTrace();
+				disConnect();
+				throw new BusinessException(e);
+			} finally {
+				if(dlmsCache.getObjectList() != null){
+					GenericCache.stopCacheMechanism(rtu, dlmsCache);
+				}
 			}
 		}
 	}
-	
-    private void justATestMethod() {
+
+	/**
+	 * If the received IP address doesn't contain a portnumber, then put one in it
+	 * @param ipAddress
+	 * @return
+	 */
+    private String checkIPAddressForPortNumber(String ipAddress) {
+    	if(!ipAddress.contains(":")){
+    		StringBuffer strBuff = new StringBuffer();
+    		strBuff.append(ipAddress);
+    		strBuff.append(":");
+    		strBuff.append(getPortNumber());
+    		return strBuff.toString();
+    	}
+		return ipAddress;
+	}
+    
+    /**
+     * Look if there is a portnumber given with the property IpPortNumber, else use the default 2048
+     * @return
+     */
+    private String getPortNumber(){
+    	String port = getMeter().getProperties().getProperty("IpPortNumber");
+    	if(port != null){
+    		return port; 
+    	} else {
+    		return "2048";	// default port number
+    	}
+    }
+
+	private void justATestMethod() {
     	try {
 //			PPPSetup pppSetup = getCosemObjectFactory().getPPPSetup();
 //			
@@ -861,13 +949,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     
     public void setTimeClock() throws IOException
     {
-//       Calendar calendar=null;
-//       if (iRequestTimeZone != 0)
-//           calendar = ProtocolUtils.getCalendar(false,requestTimeZone());
-//       else
-//           calendar = ProtocolUtils.initCalendar(false,getTimeZone());
-//       calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);           
-//       doSetTime(calendar);
     	doSetTime(Calendar.getInstance(getTimeZone()));
     }
     
@@ -881,9 +962,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     
     private void doSetTime(Calendar calendar) throws IOException
     {
-//    	byte[] byteTimeBuffer = createByteDate(calendar);
-//       
-//       getCosemObjectFactory().writeObject(clockObisCode,8,2, byteTimeBuffer);
     	getClock().setTimeAttr(new DateTime(calendar));
     }
     
@@ -1090,6 +1168,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             connectionMode = Integer.parseInt(properties.getProperty("Connection","1")); // 0=HDLC, 1= TCP/IP
             rtuType = properties.getProperty("RtuType","");
             TESTLOGGING = Integer.parseInt(properties.getProperty("TestLogging" , "0"));
+            csdCall = Integer.parseInt(properties.getProperty("CsdCall", "0"));
             	 
             if (Integer.parseInt(properties.getProperty("LoadProfileId","1")) == 1)
                 loadProfileObisCode = genericProfile1;
@@ -1110,7 +1189,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	}
 
 	public List getOptionalKeys() {
-        List result = new ArrayList(16);
+        List result = new ArrayList(21);
         result.add("Timeout");
         result.add("Retries");
         result.add("DelayAfterFail");
@@ -1127,6 +1206,12 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         result.add("RtuType");
         result.add("TestLogging");
         result.add("FolderExtName");
+        result.add("CsdCall");			// enable the csd call functionality
+        result.add("PollTimeOut");		// timeout for polling the radius database
+        result.add("IpPortNumber");		// portnumber for iskra meter (default 2048)
+        result.add("CsdCallTimeOut");	// timeout between triggering the csd schedule and actually doing the schedule
+        result.add("CsdPollFrequency"); // seconds between 2 request to the radius server
+        result.add("FixedIpAddress");	// us the filled in ip address for csd calls
         return result;
 	}
 
@@ -1157,7 +1242,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	}
 
 	public StoredValues getStoredValues() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -1230,6 +1314,11 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             boolean mbusInstall = contents.equalsIgnoreCase(RtuMessageConstant.MBUS_INSTALL);
             boolean mbusInstDR	= contents.equalsIgnoreCase(RtuMessageConstant.MBUS_INSTALL_DATAREADOUT);
             boolean mbusRemove 	= contents.equalsIgnoreCase(RtuMessageConstant.MBUS_REMOVE);
+            boolean wuChangeTimeOut = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_INACT_TIMEOUT);
+            boolean wuAddWhiteList = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
+            boolean wuDeleteWhiteList = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_DELETE_WHITELIST);
+            boolean wuGeneralRestrict = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_GENERAL_RESTRICTION);
+            boolean wuClearWhiteList = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_CLEAR_WHITELIST);
             
             if (falsemsg){
             	msg.setFailed();
@@ -1310,17 +1399,162 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             	msg.confirm();
             }
             else if(mbusInstDR){
-            	//TODO complete
             	getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.130.255"), 9, 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
             	msg.confirm();
+            }
+            else if(wuAddWhiteList){	// TODO test
+            	addPhoneToWhiteList(msg);
+            }
+            else if(wuDeleteWhiteList){	// TODO test
+            	deletePhoneFromWhiteList(msg);
+            }
+            else if(wuChangeTimeOut){	// TODO test
+            	changeInactivityTimeout(msg);
+            }
+            else if(wuGeneralRestrict){	// TODO test
+            	changeGeneralPhoneRestriction(msg);
+            }
+            else if(wuClearWhiteList){
+            	clearWhiteList(msg);
+            }
+            else {
+            	msg.setFailed();
             }
 		}
 	}
 	
+	private void clearWhiteList(RtuMessage msg) throws BusinessException, SQLException {
+		String description = "Clear whitelist for meter with serialnumber: " + rtu.getSerialNumber();
+		
+		try {
+			getLogger().log(Level.INFO, description);
+			AutoConnect autoConnect = getCosemObjectFactory().getAutoConnect();
+			autoConnect.clearWhiteList();
+			
+			byte[] b = new byte[]{(byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff
+					, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff};
+			getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.20.255"), 2, 1).write(new OctetString(b).getBEREncodedByteArray());
+			
+			msg.confirm();
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e, msg, description);
+		}
+	}
+	
+	private void changeGeneralPhoneRestriction(RtuMessage msg) throws BusinessException, SQLException {
+		String description = "Changing Incomming calls general restriction for meter with serialnumber: " + rtu.getSerialNumber();
+		
+		try {
+			getLogger().log(Level.INFO, description);
+			String restriction = getMessageValue(msg.getContents(), RtuMessageConstant.WAKEUP_GENERAL_RESTRICTION);
+			if(!ParseUtils.isInteger(restriction)){
+				throw new NumberFormatException("Value for timeout is not a number.");
+			} else {
+				Unsigned8 restrict = new Unsigned8(Integer.valueOf(restriction));
+				getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.21.255"), 2, 1).write(restrict.getBEREncodedByteArray());
+				msg.confirm();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e, msg, description);
+		}
+	}
+
+	private void changeInactivityTimeout(RtuMessage msg) throws BusinessException, SQLException {
+		String description = "Changing inactivity timeout for meter with serialnumber: " + rtu.getSerialNumber();
+		
+		try {
+			getLogger().log(Level.INFO, description);
+			String timeout = getMessageValue(msg.getContents(), RtuMessageConstant.WAKEUP_INACT_TIMEOUT);
+			if(!ParseUtils.isInteger(timeout)){
+				throw new NumberFormatException("Value for timeout is not a number.");
+			} else {
+				TCPUDPSetup tcpUdpSetup = getCosemObjectFactory().getTCPUDPSetup();
+				tcpUdpSetup.writeInactivityTimeout(Integer.parseInt(timeout));
+				msg.confirm();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e, msg, description);
+		}
+	}
+
+	private void deletePhoneFromWhiteList(RtuMessage msg) throws BusinessException, SQLException {
+		String description = "Delete number from whitelist for meter with serialnumber: " + rtu.getSerialNumber();
+		
+		try {
+			getLogger().log(Level.INFO, description);
+			String number = getMessageValue(msg.getContents(), RtuMessageConstant.WAKEUP_DELETE_WHITELIST);
+			
+			// first we get the index of the number and change the restriction of that one ...
+			AutoConnect autoConnect = getCosemObjectFactory().getAutoConnect();
+			Array list = autoConnect.getDestinationList();
+			byte[] restrictionList = null;
+			int index = -1;
+			int alreadyShifted = 0;
+			for(int i = 0; i < list.nrOfDataTypes(); i++){
+				if(java.util.Arrays.equals(list.getDataType(i).getBEREncodedByteArray(), OctetString.fromString(number).getBEREncodedByteArray())){
+					index = i;
+					restrictionList = shiftRestrictionList(i, restrictionList, alreadyShifted);
+					alreadyShifted++;
+				}
+			}
+			
+			if(index != -1){
+				
+				getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.20.255"), 2, 1).write(new OctetString(restrictionList).getBEREncodedByteArray());
+				
+				autoConnect.deleteFromDestinationList(number);
+				msg.confirm();
+			} else {
+				throw new ApplicationException("Can't delete " + number + " from phone list because it is not in the list.");
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e, msg, description);
+		}
+	}
+	
+	private byte[] shiftRestrictionList(int index, byte[] restrictionList, int offset) throws IOException{
+		if(restrictionList == null){
+			restrictionList = getCosemObjectFactory().getData(ObisCode.fromString("0.0.128.20.20.255")).getValueAttr().getOctetString().getOctetStr();
+		}
+		byte[] temp = new byte[restrictionList.length];
+		System.arraycopy(restrictionList, 0, temp, 0,(index-offset));
+		System.arraycopy(restrictionList, (index+1-offset), temp, (index-offset), restrictionList.length-(index+1-offset));
+		temp[restrictionList.length-1] = (byte)0xff;
+		return temp;
+	}
+
+	private void addPhoneToWhiteList(RtuMessage msg) throws BusinessException, SQLException {
+		String description = "Add number from whitelist for meter with serialnumber: " + rtu.getSerialNumber();
+		
+		try {
+			getLogger().log(Level.INFO, description);
+			String number = getMessageValue(msg.getContents(), RtuMessageConstant.WAKEUP_ADD_WHITELIST);
+			AutoConnect autoConnect = getCosemObjectFactory().getAutoConnect();
+			autoConnect.addNumberToDestinationList(number);
+			
+			int index = autoConnect.getDestinationList().nrOfDataTypes() - 1;
+			
+			byte[] os = getCosemObjectFactory().getData(ObisCode.fromString("0.0.128.20.20.255")).getValueAttr().getOctetString().getOctetStr();
+			os[index] = (byte)0x03;
+			getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.20.255"), 2, 1).write(new OctetString(os).getBEREncodedByteArray());
+			
+			msg.confirm();
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e, msg, description);
+		}
+	}
+
 	private void changeApnUserNamePassword(RtuMessage msg) throws BusinessException, SQLException {
 		String description = "Changing apn/username/password for meter with serialnumber: " + rtu.getSerialNumber();
 		
 			try {
+				getLogger().log(Level.INFO, description);
 				String apn = getMessageValue(msg.getContents(), RtuMessageConstant.GPRS_APN);
 				if(apn.equalsIgnoreCase("")){
 					throw new ApplicationException("APN value is required for message " + msg.displayString());
@@ -1344,14 +1578,12 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 				fail(e, msg, description);
 			}
 			
-			
-		
 	}
 	
 	private void clearThreshold(RtuMessage msg) throws BusinessException, SQLException {
 		String description = "Clear threshold for meter with serialnumber: " + rtu.getSerialNumber();
 		try{
-			
+			getLogger().log(Level.INFO, description);
 			String groupID = getMessageValue(msg.getContents(), RtuMessageConstant.CLEAR_THRESHOLD);
 			if(groupID.equalsIgnoreCase(""))
 				throw new BusinessException("No groupID was entered.");
@@ -1397,7 +1629,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	private void applyThresholdValue(RtuMessage msg) throws BusinessException, SQLException {
 		String description = "Setting threshold value for meter with serialnumber: " + rtu.getSerialNumber();
 		try{
-			
+			getLogger().log(Level.INFO, description);
 			String groupID = getMessageValue(msg.getContents(), RtuMessageConstant.THRESHOLD_GROUPID);
 			if(groupID.equalsIgnoreCase(""))
 				throw new BusinessException("No groupID was entered.");
@@ -1451,7 +1683,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	private void thresholdParameters(RtuMessage msg) throws BusinessException, SQLException {
 		String description = "Sending threshold configuration for meter with serialnumber: " + rtu.getSerialNumber();
 		try {
-			
+			getLogger().log(Level.INFO, description);
 			String groupID = getMessageValue(msg.getContents(), RtuMessageConstant.PARAMETER_GROUPID);
 			if(groupID.equalsIgnoreCase(""))
 				throw new BusinessException("No groupID was entered.");
@@ -1650,6 +1882,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
         MessageCategorySpec cat2 = new MessageCategorySpec("ThresholdMessages");
         MessageCategorySpec catMbus = new MessageCategorySpec("MBus messages");
+        MessageCategorySpec catWakeUp = new MessageCategorySpec("Wakeup configuration");
         
         MessageSpec msgSpec = addBasicMsg("Disconnect meter", RtuMessageConstant.DISCONNECT_LOAD, false);
         cat.addMessageSpec(msgSpec);
@@ -1675,10 +1908,33 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         catMbus.addMessageSpec(msgSpec);
         msgSpec = addBasicMsg("Install-DataReadout Mbus device", RtuMessageConstant.MBUS_INSTALL_DATAREADOUT, false);
         catMbus.addMessageSpec(msgSpec);
+        
+        msgSpec = addValueMessage("Change inactivity timeout", RtuMessageConstant.WAKEUP_INACT_TIMEOUT, false);
+        catWakeUp.addMessageSpec(msgSpec);
+        msgSpec = addValueMessage("Add number to white list", RtuMessageConstant.WAKEUP_ADD_WHITELIST, false);
+        catWakeUp.addMessageSpec(msgSpec);
+        msgSpec = addValueMessage("Delete number from white list", RtuMessageConstant.WAKEUP_DELETE_WHITELIST, false);
+        catWakeUp.addMessageSpec(msgSpec);
+        // TODO Don't implement this yet ... 
+//        msgSpec = addBasicMsg("Clear white list", RtuMessageConstant.WAKEUP_CLEAR_WHITELIST, false);
+//        catWakeUp.addMessageSpec(msgSpec);
+//        msgSpec = addValueMessage("Change general restriction ", RtuMessageConstant.WAKEUP_GENERAL_RESTRICTION, false);
+//        catWakeUp.addMessageSpec(msgSpec);
+        
         theCategories.add(cat);
         theCategories.add(cat2);
         theCategories.add(catMbus);
+        theCategories.add(catWakeUp);
         return theCategories;
+	}
+	
+	private MessageSpec addValueMessage(String keyId, String tagName, boolean advanced){
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        tagSpec.add(new MessageValueSpec());
+        msgSpec.add(tagSpec);
+        return msgSpec;
+
 	}
 
 	private MessageSpec addClearThresholdMessage(String keyId, String tagName, boolean advanced) {
