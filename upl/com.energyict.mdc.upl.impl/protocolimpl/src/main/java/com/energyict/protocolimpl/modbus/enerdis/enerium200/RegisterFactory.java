@@ -38,7 +38,7 @@ import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.Signed_1_100
 
 /**
  *
- * @author Koen
+ * @author jme
  */
 public class RegisterFactory extends AbstractRegisterFactory {
     
@@ -50,49 +50,49 @@ public class RegisterFactory extends AbstractRegisterFactory {
 	public static List enerium200Registers;
 	
 	static {
-    	addReg(0x0500, 2, "1.1.32.7.0.255", "V", "V1 (First measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
-    	addReg(0x0502, 2, "1.1.52.7.0.255", "V", "V2 (First measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
-    	addReg(0x0504, 2, "1.1.72.7.0.255", "V", "V3 (First measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
+    	addReg(0x0500, 2, "1.1.32.7.0.255", "V", "V1 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
+    	addReg(0x0502, 2, "1.1.52.7.0.255", "V", "V2 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
+    	addReg(0x0504, 2, "1.1.72.7.0.255", "V", "V3 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
 
-    	addReg(0x0506, 2, "1.1.128.7.0.255", "V", "Vearth (First measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
-    	addReg(0x0508, 2, "1.1.129.7.0.255", "V", "U12 (First measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
-    	addReg(0x050A, 2, "1.1.130.7.0.255", "V", "U23 (First measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
-    	addReg(0x050C, 2, "1.1.131.7.0.255", "V", "U31 (First measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
+    	addReg(0x0506, 2, "1.1.128.7.0.255", "V", "Vearth (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
+    	addReg(0x0508, 2, "1.1.129.7.0.255", "V", "U12 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
+    	addReg(0x050A, 2, "1.1.130.7.0.255", "V", "U23 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
+    	addReg(0x050C, 2, "1.1.131.7.0.255", "V", "U31 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
 
-    	addReg(0x050E, 2, "1.1.31.7.0.255", "A", "I1 (First measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
-    	addReg(0x0510, 2, "1.1.51.7.0.255", "A", "I2 (First measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
-    	addReg(0x0512, 2, "1.1.71.7.0.255", "A", "I3 (First measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
-    	addReg(0x0514, 2, "1.1.91.7.0.255", "A", "In (First measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
+    	addReg(0x050E, 2, "1.1.31.7.0.255", "A", "I1 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
+    	addReg(0x0510, 2, "1.1.51.7.0.255", "A", "I2 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
+    	addReg(0x0512, 2, "1.1.71.7.0.255", "A", "I3 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
+    	addReg(0x0514, 2, "1.1.91.7.0.255", "A", "In (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
     	
-    	addReg(0x0516, 2, "1.1.21.7.0.255", "W", "P1 (First measurements)", 1, Enerium200Register.SIGNED);
-    	addReg(0x0518, 2, "1.1.41.7.0.255", "W", "P2 (First measurements)", 1, Enerium200Register.SIGNED);
-    	addReg(0x051A, 2, "1.1.61.7.0.255", "W", "P3 (First measurements)", 1, Enerium200Register.SIGNED);
-    	addReg(0x051C, 2, "1.1.1.7.0.255",  "W", "Pt (First measurements)", 1, Enerium200Register.SIGNED);
+    	addReg(0x0516, 2, "1.1.21.7.0.255", "W", "P1 (1s measurements)", 1, Enerium200Register.SIGNED);
+    	addReg(0x0518, 2, "1.1.41.7.0.255", "W", "P2 (1s measurements)", 1, Enerium200Register.SIGNED);
+    	addReg(0x051A, 2, "1.1.61.7.0.255", "W", "P3 (1s measurements)", 1, Enerium200Register.SIGNED);
+    	addReg(0x051C, 2, "1.1.1.7.0.255",  "W", "Pt (1s measurements)", 1, Enerium200Register.SIGNED);
     	
-    	addReg(0x051E, 2, "1.1.23.7.0.255", "var", "Q1 (First measurements)", 1, Enerium200Register.SIGNED);
-    	addReg(0x0520, 2, "1.1.43.7.0.255", "var", "Q2 (First measurements)", 1, Enerium200Register.SIGNED);
-    	addReg(0x0522, 2, "1.1.63.7.0.255", "var", "Q3 (First measurements)", 1, Enerium200Register.SIGNED);
-    	addReg(0x0524, 2, "1.1.3.7.0.255",  "var", "Qt (First measurements)", 1, Enerium200Register.SIGNED);
+    	addReg(0x051E, 2, "1.1.23.7.0.255", "var", "Q1 (1s measurements)", 1, Enerium200Register.SIGNED);
+    	addReg(0x0520, 2, "1.1.43.7.0.255", "var", "Q2 (1s measurements)", 1, Enerium200Register.SIGNED);
+    	addReg(0x0522, 2, "1.1.63.7.0.255", "var", "Q3 (1s measurements)", 1, Enerium200Register.SIGNED);
+    	addReg(0x0524, 2, "1.1.3.7.0.255",  "var", "Qt (1s measurements)", 1, Enerium200Register.SIGNED);
 
-    	addReg(0x0526, 2, "1.1.29.7.0.255", "VA", "S1 (First measurements)", 1, Enerium200Register.NON_SIGNED);
-    	addReg(0x0528, 2, "1.1.49.7.0.255", "VA", "S2 (First measurements)", 1, Enerium200Register.NON_SIGNED);
-    	addReg(0x052A, 2, "1.1.69.7.0.255", "VA", "S3 (First measurements)", 1, Enerium200Register.NON_SIGNED);
-    	addReg(0x052C, 2, "1.1.9.7.0.255",  "VA", "St (First measurements)", 1, Enerium200Register.NON_SIGNED);
+    	addReg(0x0526, 2, "1.1.29.7.0.255", "VA", "S1 (1s measurements)", 1, Enerium200Register.NON_SIGNED);
+    	addReg(0x0528, 2, "1.1.49.7.0.255", "VA", "S2 (1s measurements)", 1, Enerium200Register.NON_SIGNED);
+    	addReg(0x052A, 2, "1.1.69.7.0.255", "VA", "S3 (1s measurements)", 1, Enerium200Register.NON_SIGNED);
+    	addReg(0x052C, 2, "1.1.9.7.0.255",  "VA", "St (1s measurements)", 1, Enerium200Register.NON_SIGNED);
     	
-    	addReg(0x0536, 1, "1.1.33.7.0.255", "", "Cos phi phase 1 (First measurements)", 1, Enerium200Register.SIGNED_1_10000);
-    	addReg(0x0538, 1, "1.1.53.7.0.255", "", "Cos phi phase 2 (First measurements)", 1, Enerium200Register.SIGNED_1_10000);
-    	addReg(0x053A, 1, "1.1.73.7.0.255", "", "Cos phi phase 3 (First measurements)", 1, Enerium200Register.SIGNED_1_10000);
-    	addReg(0x053C, 1, "1.1.13.7.0.255", "", "Triphase Cos phi (First measurements)", 1, Enerium200Register.SIGNED_1_10000);
+    	addReg(0x0536, 1, "1.1.33.7.0.255", "", "Cos phi phase 1 (1s measurements)", 1, Enerium200Register.SIGNED_1_10000);
+    	addReg(0x0538, 1, "1.1.53.7.0.255", "", "Cos phi phase 2 (1s measurements)", 1, Enerium200Register.SIGNED_1_10000);
+    	addReg(0x053A, 1, "1.1.73.7.0.255", "", "Cos phi phase 3 (1s measurements)", 1, Enerium200Register.SIGNED_1_10000);
+    	addReg(0x053C, 1, "1.1.13.7.0.255", "", "Triphase Cos phi (1s measurements)", 1, Enerium200Register.SIGNED_1_10000);
 
-    	addReg(0x053E, 1, "1.1.132.7.0.255", "", "Crest factor V1 (First measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
-    	addReg(0x053F, 1, "1.1.133.7.0.255", "", "Crest factor V2 (First measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
-    	addReg(0x0540, 1, "1.1.134.7.0.255", "", "Crest factor V3 (First measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
-    	addReg(0x0541, 1, "1.1.135.7.0.255", "", "Crest factor I1 (First measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
-    	addReg(0x0542, 1, "1.1.136.7.0.255", "", "Crest factor I2 (First measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
-    	addReg(0x0543, 1, "1.1.137.7.0.255", "", "Crest factor I3 (First measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
+    	addReg(0x053E, 1, "1.1.132.7.0.255", "", "Crest factor V1 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
+    	addReg(0x053F, 1, "1.1.133.7.0.255", "", "Crest factor V2 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
+    	addReg(0x0540, 1, "1.1.134.7.0.255", "", "Crest factor V3 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
+    	addReg(0x0541, 1, "1.1.135.7.0.255", "", "Crest factor I1 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
+    	addReg(0x0542, 1, "1.1.136.7.0.255", "", "Crest factor I2 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
+    	addReg(0x0543, 1, "1.1.137.7.0.255", "", "Crest factor I3 (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_10000);
 
-    	addReg(0x0544, 1, "1.1.138.7.0.255", "%", "Voltage imbalance (First measurements)", 1, Enerium200Register.SIGNED_1_100);
-    	addReg(0x0545, 1, "1.1.14.7.0.255", "Hz", "Frequency (First measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
+    	addReg(0x0544, 1, "1.1.138.7.0.255", "%", "Voltage imbalance (1s measurements)", 1, Enerium200Register.SIGNED_1_100);
+    	addReg(0x0545, 1, "1.1.14.7.0.255", "Hz", "Frequency (1s measurements)", 1, Enerium200Register.NON_SIGNED_1_100);
 
     	addReg(0x0A00, 2, "0.1.96.8.1.0", "h", "Product time meter in operation", 1, Enerium200Register.NON_SIGNED_1_100);
     	addReg(0x0A02, 2, "0.1.96.8.1.1", "h", "Voltage presence time meter", 1, Enerium200Register.NON_SIGNED_1_100);
