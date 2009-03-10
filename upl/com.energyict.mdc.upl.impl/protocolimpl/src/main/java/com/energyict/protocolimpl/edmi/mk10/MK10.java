@@ -35,18 +35,19 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper;
  * 
  * Changes:
  * 
- * 17/11/2008 -> Fixed meter event bugs (wrong mappings from event number to description string)
- * 17/11/2008 -> Fixed bug in load profile raw data conversion (negative units & overflow)
- * 17/11/2008 -> Fixed bug in load profile (start date <-> first entry) first entry can be different from 0 !!!
- * 16/12/2008 -> Switched export/import for registers and load surveys according IEC and not ANSI
- * 18/12/2008 -> Removed MISSING flag when only incomplete interval and no missing data
- * 07/01/2009 -> Added register readings for Abs values 
- * 13/01/2009 -> Minor changes to support push protocol
- * 19/01/2009 -> Fixed issue with events. Do not read events when firstentry > lastentry
- * 19/01/2009 -> Fixed issue with registers (rates). Rate can be 0 for unified rate and 1 to 8 (and not 1 to 7 !!!).
- * 19/01/2009 -> Hard coded some information for the most used registers.
- * 20/01/2009 -> Fixed register scaling and decimal point.
- * 21/01/2009 -> Added custom property to disable log-off after communication to prevent modem disconnect.
+ * jme: 17/11/2008 -> Fixed meter event bugs (wrong mappings from event number to description string)
+ * jme: 17/11/2008 -> Fixed bug in load profile raw data conversion (negative units & overflow)
+ * jme: 17/11/2008 -> Fixed bug in load profile (start date <-> first entry) first entry can be different from 0 !!!
+ * jme: 16/12/2008 -> Switched export/import for registers and load surveys according IEC and not ANSI
+ * jme: 18/12/2008 -> Removed MISSING flag when only incomplete interval and no missing data
+ * jme: 07/01/2009 -> Added register readings for Abs values 
+ * jme: 13/01/2009 -> Minor changes to support push protocol
+ * jme: 19/01/2009 -> Fixed issue with events. Do not read events when firstentry > lastentry
+ * jme: 19/01/2009 -> Fixed issue with registers (rates). Rate can be 0 for unified rate and 1 to 8 (and not 1 to 7 !!!).
+ * jme: 19/01/2009 -> Hard coded some information for the most used registers.
+ * jme: 20/01/2009 -> Fixed register scaling and decimal point.
+ * jme: 21/01/2009 -> Added custom property to disable log-off after communication to prevent modem disconnect.
+ * gna: 24/02/2009 -> Added the units and extra scaler for instantaneous values.
  */
 public class MK10 extends AbstractProtocol {
     
