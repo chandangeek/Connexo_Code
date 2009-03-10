@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Properties;
 
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.UnsupportedException;
@@ -19,10 +18,18 @@ import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.TimeDateParser;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.profile.Profile;
 
+/**
+ * Class that implements the Enerdis Enerium200 modbus protocol.
+ * @author  jme
+ * 
+ * Changes:
+ * jme: 17/11/2008 -> Initial release of the Enerium 200 protocol
+ * 
+ */
+
 public class Enerium200 extends Modbus {
 
 	private static final int DEBUG 	= 1;
-
 	private static final int NUMBER_OF_CHANNELS = 8;
 	
 	private MeterInfo meterInfo 	= null;
@@ -39,35 +46,26 @@ public class Enerium200 extends Modbus {
 	 * Abstract methods from ModBus class  
 	 */
 	
-	protected void doTheConnect() throws IOException {
-
-	}
-
-	protected void doTheDisConnect() throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
+	protected void doTheConnect() throws IOException {}
+	protected void doTheDisConnect() throws IOException {}
 
 	protected List doTheGetOptionalKeys() {
 		List returnList = new ArrayList(0);
-		// TODO Auto-generated method stub
 		return returnList;
 	}
 
 	protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-	
 		try {
 			Integer.parseInt(getInfoTypeDeviceID());
 		} catch (Exception e) {
 			setInfoTypeDeviceID("1");
 		}
-		
-	try {
-		getRegistersInfo(1);
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+
+		try {
+			getRegistersInfo(1);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	protected String getRegistersInfo(int extendedLogging) throws IOException {
