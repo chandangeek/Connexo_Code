@@ -15,11 +15,11 @@ public class KPHDLCConnection extends HDLCConnection{
 	public KPHDLCConnection(InputStream inputStream, OutputStream outputStream,
 			int timeout, long forceDelay, int maxRetries, int clientMacAddress,
 			int serverLowerMacAddress, int serverUpperMacAddress,
-			int addressingMode) throws DLMSConnectionException,
+			int addressingMode, int informationFieldSize) throws DLMSConnectionException,
 			ConnectionException {
 		super(inputStream, outputStream, timeout, forceDelay, maxRetries,
 				clientMacAddress, serverLowerMacAddress, serverUpperMacAddress,
-				addressingMode);
+				addressingMode, informationFieldSize);
 	}
 
 	/**

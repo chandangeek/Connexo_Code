@@ -73,6 +73,9 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.SET_TIME.equals(qName)){
 			setType(RtuMessageConstant.SET_TIME);
 			handleSetTime(attrbs);
+		} else if(RtuMessageConstant.ME_MAKING_ENTRIES.equals(qName)){
+			setType(RtuMessageConstant.ME_MAKING_ENTRIES);
+			handleMakingEntries(attrbs);
 		}
 	}
 
@@ -359,6 +362,46 @@ public class MessageHandler extends DefaultHandler{
 	
 	public String getEpochTime(){
 		return this.epochTime;
+	}
+	/**********************************************/
+	
+	/**********************************************
+	 * Making entries Related messages
+	 **********************************************/
+	private String startDate = "";
+	private String entries = "";
+	private String interval = "";
+	private String syncClock = "";
+	
+	private void handleMakingEntries(Attributes attrbs){
+		this.startDate = attrbs.getValue(RtuMessageConstant.ME_START_DATE);
+		this.entries = attrbs.getValue(RtuMessageConstant.ME_NUMBER_OF_ENTRIES);
+		this.interval = attrbs.getValue(RtuMessageConstant.ME_INTERVAL);
+		this.syncClock = attrbs.getValue(RtuMessageConstant.ME_SET_CLOCK_BACK);
+	}
+	
+	public String getMEStartDate(){
+		return this.startDate;
+	}
+	
+	public int getMEEntries() throws IOException{
+		try {
+			return Integer.parseInt(this.entries);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			throw new IOException("Number of entries does not contain a non numeric value: " + this.entries);
+		}
+	}
+	
+	public String getMEInterval() throws IOException {
+		if(!this.interval.equalsIgnoreCase("15") && !this.interval.equalsIgnoreCase("day") && !this.interval.equalsIgnoreCase("month")){
+			throw new IOException("Only '15 - day - month' is alowed in the interval field. (value: " + this.interval);
+		}
+		return this.interval;
+	}
+	
+	public boolean getMESyncAtEnd(){
+		return !this.syncClock.equalsIgnoreCase("0");
 	}
 	/**********************************************/
 }

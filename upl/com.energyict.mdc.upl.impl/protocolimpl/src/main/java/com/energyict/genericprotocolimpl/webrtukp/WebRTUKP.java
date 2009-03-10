@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -138,6 +139,7 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
  * GNA |19022009| Changed all messageEntrys in date-form to a UnixTime entry; 
  * 					Added a message to change to connectMode of the disconnectorObject;
  * 					Fixed bugs in the ActivityCalendar object; Added an entry delete of the specialDays
+ * GNA |09032009| Added the informationFieldSize to the HDLCConnection so the max send/received length is customizable
  */
 
 public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEnabler{
@@ -178,6 +180,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	private int addressingMode;
 	private int extendedLogging;
 	private int maxMbusDevices;
+	private int informationFieldSize;
 	private String password;
 	private String serialNumber;
 	private String manufacturer;
@@ -328,7 +331,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		
 		this.dlmsConnection = (this.connectionMode == 0)?
 //					new TempHDLCConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode):
-					new KPHDLCConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode):
+					new KPHDLCConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode,this.informationFieldSize):
 					new TCPIPConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress);
 		
 					
@@ -886,14 +889,15 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         this.serverLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "1"));
         this.serverUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "17"));
         this.requestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0"));
-        // if HDLC set default timeout to 15s, if TCPIP set default timeout to 60s
-        this.timeout = Integer.parseInt(properties.getProperty("Timeout", (this.connectionMode==0)?"15000":"60000"));	// set the HDLC timeout to 15000 for the WebRTU KP
+        // if HDLC set default timeout to 5s, if TCPIP set default timeout to 60s
+        this.timeout = Integer.parseInt(properties.getProperty("Timeout", (this.connectionMode==0)?"5000":"60000"));	// set the HDLC timeout to 5000 for the WebRTU KP
         this.forceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "100"));
         this.retries = Integer.parseInt(properties.getProperty("Retries", "3"));	
         this.addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "2"));
         this.extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
         this.manufacturer = properties.getProperty("Manufacturer", "WKP");
         this.maxMbusDevices = Integer.parseInt(properties.getProperty("MaxMbusDevices", "4"));
+        this.informationFieldSize = Integer.parseInt(properties.getProperty("InformationFieldSize","-1"));
 	}
 	
 	public void addProperties(Properties properties) {
@@ -905,7 +909,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	}
 
 	public List<String> getOptionalKeys() {
-        List<String> result = new ArrayList<String>(16);
+        List<String> result = new ArrayList<String>(20);
         result.add("Timeout");
         result.add("Retries");
         result.add("DelayAfterFail");
@@ -915,6 +919,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         result.add("ClientMacAddress");
         result.add("ServerUpperMacAddress");
         result.add("ServerLowerMacAddress");
+        result.add("InformationFieldSize");
         result.add("ExtendedLogging");
         result.add("LoadProfileId");
         result.add("AddressingMode");
@@ -1020,6 +1025,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				boolean touSpecialDays 	= messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS);
 				boolean specialDelEntry	= messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE);
 				boolean setTime			= messageHandler.getType().equals(RtuMessageConstant.SET_TIME);
+				boolean fillUpDB		= messageHandler.getType().equals(RtuMessageConstant.ME_MAKING_ENTRIES);
 				
 				if(xmlConfig){
 					
@@ -1237,7 +1243,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 					if(messageHandler.getEpActivationTime() != null){	// The EmergencyProfileActivationTime
 						try{
 //							emergencyProfile.addDataType(new OctetString(convertStringToDateTimeOctetString(messageHandler.getEpActivationTime()).getBEREncodedByteArray(), 0, true));
-							emergencyProfile.addDataType(new OctetString(convertUnixToGMTDateTime(messageHandler.getEpActivationTime()).getBEREncodedByteArray(), 0, true));
+							emergencyProfile.addDataType(new OctetString(convertUnixToGMTDateTime(messageHandler.getEpActivationTime(), getTimeZone()).getBEREncodedByteArray(), 0, true));
 						} catch (NumberFormatException e) {
 							e.printStackTrace();
 							log(Level.INFO, "Could not pars the emergency profile activationTime value to a valid date.");
@@ -1449,7 +1455,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 							} 
 							if(activateDate != null){
 //								ac.writeActivatePassiveCalendarTime(new OctetString(convertStringToDateTimeOctetString(activateDate).getBEREncodedByteArray(), 0, true));
-								ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activateDate).getBEREncodedByteArray(), 0));
+								ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activateDate, getTimeZone()).getBEREncodedByteArray(), 0));
 							}
 							
 						}
@@ -1523,8 +1529,38 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				} else if(setTime){
 					
 					String epochTime = messageHandler.getEpochTime();
-					log(Level.INFO, "Handling message " + rm.displayString() + ": Setting the device time to: " + convertUnixToGMTDateTime(epochTime).getValue().getTime());
-					forceClock(convertUnixToGMTDateTime(epochTime).getValue().getTime());
+					log(Level.INFO, "Handling message " + rm.displayString() + ": Setting the device time to: " + convertUnixToGMTDateTime(epochTime, getTimeZone()).getValue().getTime());
+					forceClock(convertUnixToGMTDateTime(epochTime, getTimeZone()).getValue().getTime());
+					success = true;
+					
+				} else if(fillUpDB){
+					
+					log(Level.INFO, "Handling message " + rm.displayString() + ": Making database entries.");
+					log(Level.INFO, "(This can take several minutes/houres, depending on the number of entries you want to simulate)");
+					
+					if(messageHandler.getMEEntries() > 0){
+						// Start the entry making ...
+						
+						int entries = messageHandler.getMEEntries();
+						String type = messageHandler.getMEInterval();
+						Long millis = Long.parseLong(messageHandler.getMEStartDate())*1000;
+						Date startTime = new Date(Long.parseLong(messageHandler.getMEStartDate())*1000);
+						startTime = getFirstDate(startTime, type);
+						while(entries > 0){
+							log(Level.INFO, "Setting meterTime to: " + startTime );
+							setClock(startTime);
+							waitForCrossingBoundry();
+							startTime = setBeforeNextInterval(startTime, type);
+							entries--;
+						}
+					}
+					
+					if(messageHandler.getMESyncAtEnd()){
+		        		Date currentTime = Calendar.getInstance(getTimeZone()).getTime();
+		        		getLogger().log(Level.INFO, "Synced clock to: " + currentTime);
+		        		forceClock(currentTime);
+					}
+					
 					success = true;
 					
 				} else {
@@ -1552,6 +1588,95 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				}
 			}
 		}
+	}
+
+	private void waitForCrossingBoundry() throws IOException{
+		try {
+			for(int i = 0; i < 3; i++){
+				Thread.sleep(15000);
+				log(Level.INFO, "Keeping connection alive");
+				getTime();
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			throw new IOException("Interrupted while waiting." + e.getMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Could not keep connection alive." + e.getMessage());
+		}
+	}
+	
+	public static void main(String args[]){
+		WebRTUKP wkp = new WebRTUKP();
+		System.out.println(System.currentTimeMillis());
+		System.out.println(System.currentTimeMillis());
+		System.out.println(System.currentTimeMillis());
+		System.out.println(System.currentTimeMillis());
+//		try {
+			Calendar cal1 = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+			cal1.setTimeInMillis(Long.parseLong("1219219091")*1000);
+			
+			System.out.println("Offset1: " + cal1.getTimeZone().getOffset(Long.parseLong("1219219091")*1000));
+			System.out.println("Offset1: " + Calendar.getInstance().getTimeZone().getOffset(Long.parseLong("1219219091")*1000));
+			
+			System.out.println(cal1.getTime());
+//			Calendar cal2 = wkp.setBeforeNextIntervalCal(Long.parseLong("1219219091")*1000, "day");
+//			System.out.println(cal2.getTime());
+			
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+		}
+	
+	private Date getFirstDate(Date startTime, String type) throws IOException{
+		Calendar cal1 = Calendar.getInstance(getTimeZone());
+		cal1.setTime(startTime);
+		if(type.equalsIgnoreCase("15")){
+			if(cal1.get(Calendar.MINUTE) < 15){
+				cal1.set(Calendar.MINUTE, 14);
+				cal1.set(Calendar.SECOND, 40);
+			} else if(cal1.get(Calendar.MINUTE) < 30){
+				cal1.set(Calendar.MINUTE, 29);
+				cal1.set(Calendar.SECOND, 40);
+			} else if(cal1.get(Calendar.MINUTE) < 45){
+				cal1.set(Calendar.MINUTE, 44);
+				cal1.set(Calendar.SECOND, 40);
+			} else {
+				cal1.set(Calendar.MINUTE, 59);
+				cal1.set(Calendar.SECOND, 40);
+			}
+			return cal1.getTime();
+		} else if(type.equalsIgnoreCase("day")){
+			cal1.set(Calendar.HOUR_OF_DAY, (23 - (getMeter().getTimeZone().getRawOffset()/3600000)));
+			cal1.set(Calendar.MINUTE, 59);
+			cal1.set(Calendar.SECOND, 40);
+			return cal1.getTime();
+		} else if(type.equalsIgnoreCase("month")){
+			cal1.set(Calendar.DATE, cal1.getActualMaximum(Calendar.DAY_OF_MONTH));
+			cal1.set(Calendar.HOUR_OF_DAY, (23 - (getMeter().getTimeZone().getRawOffset()/3600000)));
+			cal1.set(Calendar.MINUTE, 59);
+			cal1.set(Calendar.SECOND, 40);
+			return cal1.getTime();
+		}
+		
+		throw new IOException("Invalid intervaltype.");
+	}
+
+	private Date setBeforeNextInterval(Date startTime, String type) throws IOException{
+		Calendar cal1 = Calendar.getInstance(getTimeZone());
+		cal1.setTime(startTime);
+		if(type.equalsIgnoreCase("15")){
+			cal1.add(Calendar.MINUTE, 15);
+			return cal1.getTime();
+		} else if(type.equalsIgnoreCase("day")){
+			cal1.add(Calendar.DAY_OF_MONTH, 1);
+			return cal1.getTime();
+		} else if(type.equalsIgnoreCase("month")){
+			cal1.add(Calendar.MONTH, 1);
+			return cal1.getTime();
+		}
+		
+		throw new IOException("Invalid intervaltype.");
 	}
 
 	private ArrayList getSortedList(HashMap seasonsProfile) throws IOException {
@@ -1670,10 +1795,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		return dateTime;
 	}
 	
-	private AXDRDateTime convertUnixToGMTDateTime(String time) throws IOException{
+	private AXDRDateTime convertUnixToGMTDateTime(String time, TimeZone timeZone) throws IOException{
 		try {
 			AXDRDateTime dateTime = null;
-			Calendar cal = Calendar.getInstance(getTimeZone());
+			Calendar cal = Calendar.getInstance(timeZone);
 			cal.setTimeInMillis(Long.parseLong(time)*1000);
 			dateTime = new AXDRDateTime(cal);
 			return dateTime;
@@ -1782,6 +1907,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		MessageCategorySpec catLoadLimit = new MessageCategorySpec("LoadLimit");
 		MessageCategorySpec catActivityCal = new MessageCategorySpec("ActivityCalendar");
 		MessageCategorySpec catTime = new MessageCategorySpec("Time");
+		MessageCategorySpec catMakeEntries = new MessageCategorySpec("Create database entries");
 		
 		// XMLConfig related messages
 		MessageSpec msgSpec = addDefaultValueMsg("XMLConfig", RtuMessageConstant.XMLCONFIG, false);
@@ -1825,6 +1951,11 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		msgSpec = addTimeMessage("Set the meterTime to a specific time", RtuMessageConstant.SET_TIME, false);
 		catTime.addMessageSpec(msgSpec);
 		
+		// Create database entries
+		msgSpec = addCreateDBEntries("Create entries in the meters database", RtuMessageConstant.ME_MAKING_ENTRIES, false);
+		catMakeEntries.addMessageSpec(msgSpec);
+		
+		
 		categories.add(catXMLConfig);
 		categories.add(catFirmware);
 		categories.add(catP1Messages);
@@ -1832,6 +1963,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		categories.add(catLoadLimit);
 		categories.add(catActivityCal);
 		categories.add(catTime);
+		categories.add(catMakeEntries);
 		return categories;
 	}
 	
@@ -1899,6 +2031,24 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         profileTagSpec.add(msgAttrSpec);
         tagSpec.add(msgVal);
         tagSpec.add(profileTagSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+	
+	private MessageSpec addCreateDBEntries(String keyId, String tagName, boolean advanced){
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.ME_START_DATE, true);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.ME_NUMBER_OF_ENTRIES, true);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.ME_INTERVAL, true);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.ME_SET_CLOCK_BACK, false);
+        tagSpec.add(msgAttrSpec);
+        tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
 	}
