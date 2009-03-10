@@ -13,6 +13,7 @@ import com.energyict.dlms.OctetString;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
@@ -218,6 +219,10 @@ public class Clock extends AbstractCosemObject {
 
     public void setTimeAttr(DateTime dateTime) throws IOException {
         write(2, dateTime.getBEREncodedByteArray());
+    }
+    
+    public void setAXDRDateTimeAttr(AXDRDateTime dateTime) throws IOException{
+    	write(2,dateTime.getBEREncodedByteArray());
     }
     
     public AbstractDataType getTimeAttr() throws IOException {

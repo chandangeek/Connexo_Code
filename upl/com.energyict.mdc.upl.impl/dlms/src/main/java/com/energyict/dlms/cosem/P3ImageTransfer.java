@@ -1,6 +1,7 @@
 package com.energyict.dlms.cosem;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.logging.Level;
 
 import com.energyict.dlms.ProtocolLink;
@@ -126,8 +127,14 @@ public class P3ImageTransfer extends AbstractCosemObject{
 		for(int i = 0; i < blockCount; i++){
 			if(i < blockCount -1){
 				octetStringData = new byte[(int)getMaxImageBlockSize().getValue()];
+				if(DEBUG){
+					this.protocolLink.getLogger().log(Level.INFO, "ImageTransfer: Before arrayCopy " + System.currentTimeMillis());
+				}
 				System.arraycopy(this.data, (int)(i*getMaxImageBlockSize().getValue()), octetStringData, 0, 
 						(int)getMaxImageBlockSize().getValue());
+				if(DEBUG){
+					this.protocolLink.getLogger().log(Level.INFO, "ImageTransfer: After arrayCopy " + System.currentTimeMillis());
+				}
 			} else {
 				long blockSize = this.size.getValue() - (i*getMaxImageBlockSize().getValue());
 				octetStringData = new byte[(int)blockSize];
@@ -138,6 +145,9 @@ public class P3ImageTransfer extends AbstractCosemObject{
 			this.imageBlockTransfer = new Structure();
 			this.imageBlockTransfer.addDataType(new Unsigned32(i));
 			this.imageBlockTransfer.addDataType(os);
+			if(DEBUG){
+				this.protocolLink.getLogger().log(Level.INFO, "ImageTransfer: Just before writing " + System.currentTimeMillis());
+			}
 			writeImageBlock(this.imageBlockTransfer);
 			
 			if(i % 50 == 0){ // i is multiple of 50
