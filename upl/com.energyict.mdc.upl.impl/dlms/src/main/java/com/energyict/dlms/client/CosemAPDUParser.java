@@ -19,6 +19,7 @@ public class CosemAPDUParser {
 	final int DEBUG=0;
 	
 	private ProfileData profileData=null;
+	private ObisCode loadProfileObisCode=null;
 	private MeterReadingData meterReadingData=null;
 	private int profileInterval=-1;
 	private Date previousEndTime=null;
@@ -46,6 +47,7 @@ public class CosemAPDUParser {
 	private void reset() {
 	
 		profileData=null;
+		loadProfileObisCode=null;
 		meterReadingData=null;
 		profileInterval=-1;
 		date=null;
@@ -95,7 +97,7 @@ public class CosemAPDUParser {
 		// search for a starting apdu with device identification
 		while(it.hasNext()) {
 			CosemAPDU apdu = it.next();
-			if (DEBUG>=1)
+			if (DEBUG>=2)
 				System.out.print("identifyDevice "+apdu);
 			
 			if (apdu.getCosemAttributeDescriptor().getObis().equals(DatabaseIDCustomCosem.getObisCode())) {
@@ -122,9 +124,20 @@ public class CosemAPDUParser {
 			}
 		}
 	}
+
+	private boolean isChannelInfoObject(ObisCode obisCode) {
+		return ((obisCode.getA()==0) && (obisCode.getB()>=1) && (obisCode.getB()<=128) && (obisCode.getC()==96) && (obisCode.getD()==62) && (obisCode.getE()==0) && (obisCode.getF()==0));
+			
+	}
 	
 	private boolean isDeviceChannelNameObject(ObisCode obisCode) {
 		return ((obisCode.getA()==0) && (obisCode.getB()==0) && (obisCode.getC()==96) && (obisCode.getD()==121) && (obisCode.getF()==0));
+			
+	}
+	
+	// 64 load profiles
+	private boolean isLoadProfileObisCode(ObisCode obisCode) {
+		return ((obisCode.getA()==0) && (obisCode.getB()==0) && (obisCode.getC()==99) && (obisCode.getD()>=1) && (obisCode.getD()<=64) && (obisCode.getE()==0) && (obisCode.getF()==255));
 			
 	}
 	
@@ -139,7 +152,7 @@ public class CosemAPDUParser {
 				break;
 			}
 			
-			if (DEBUG>=1)
+			if (DEBUG>=2)
 				System.out.print("parseContent "+apdu);
 			
 			if (isDeviceChannelNameObject(apdu.getCosemAttributeDescriptor().getObis())) {
@@ -188,12 +201,20 @@ public class CosemAPDUParser {
 										  ((ipAddressLong)&0xff);  
 				}
 			}
-			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.99.1.0.255"))) {
-				if (profileData==null)
+			else if (isLoadProfileObisCode(apdu.getCosemAttributeDescriptor().getObis())) {
+			//else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.99.1.0.255"))) {
+				
+				// We should create a hashmap that stores all load profiles...
+				if (DEBUG>=1) System.out.println("Received "+apdu.getCosemAttributeDescriptor().getObis().toString());
+					
+				if (profileData==null) {
+					setLoadProfileObisCode(apdu.getCosemAttributeDescriptor().getObis());
 					profileData = new ProfileData();
+				}
 				channelInfos = buildIntervalData(apdu,channelInfos);
 			} // load profile
 			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.99.98.0.255"))) {
+				if (DEBUG>=1) System.out.println("KV_DEBUG> Received 0.0.99.98.0.255");
 				if (profileData==null)
 					profileData = new ProfileData();
 				buildEventLog(apdu);
@@ -208,11 +229,18 @@ public class CosemAPDUParser {
 					deviceMessageCustomCosems = new ArrayList();
 				buildMessages(apdu);
 			}
+			else if (isChannelInfoObject(apdu.getCosemAttributeDescriptor().getObis())) {
+				if ((apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_DATA_VALUE) &&
+					(apdu.getCosemAttributeDescriptor().getClassId() == DLMSCOSEMGlobals.ICID_DATA)) {	
+					// search for a channelInfo to adjust unit/scaler and device channel ordinal mapping...
+					findAndAdjustChannelInfoFromChannelInfo(apdu,channelInfos);
+				}
+			}
 			else {
 				if ((apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_REGISTER_SCALER) &&
 					(apdu.getCosemAttributeDescriptor().getClassId() == DLMSCOSEMGlobals.ICID_REGISTER)) {	
 					// search for a channelInfo to adjust unit/scaler...
-					findAndAdjustChannelInfoUnit(apdu,channelInfos);
+					findAndAdjustChannelInfoFromDeviceRegister(apdu,channelInfos);
 				}
 			}
 			
@@ -394,7 +422,7 @@ public class CosemAPDUParser {
 		return date;
 	} // private Date buildDate(AbstractDataType dataType) throws IOException
 	
-	private void findAndAdjustChannelInfoUnit(CosemAPDU apdu,List<ChannelInfo> channelInfos) {
+	private void findAndAdjustChannelInfoFromDeviceRegister(CosemAPDU apdu,List<ChannelInfo> channelInfos) {
 		if (channelInfos != null) {
 			for(int i=0;i<channelInfos.size();i++) {
 				if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString(channelInfos.get(i).getName()))) {
@@ -403,8 +431,26 @@ public class CosemAPDUParser {
 				}
 			}
 		}
-	} // private void findAndAdjustChannelInfoUnit(CosemAPDU apdu,List<ChannelInfo> channelInfos)
+	} // private void findAndAdjustChannelInfoFromDeviceRegister(CosemAPDU apdu,List<ChannelInfo> channelInfos)
 
+	private void findAndAdjustChannelInfoFromChannelInfo(CosemAPDU apdu,List<ChannelInfo> channelInfos) {
+		if (channelInfos != null) {
+			for(int i=0;i<channelInfos.size();i++) {
+				if ((apdu.getCosemAttributeDescriptor().getObis().getB()-1) == i) {
+
+
+					Structure structure = apdu.getDataType().getStructure();
+					channelInfos.get(i).setName(AXDRString.decode(structure.getNextDataType()));
+					channelInfos.get(i).setChannelId(structure.getNextDataType().intValue());
+					channelInfos.get(i).setUnit(AXDRUnit.decode(structure.getNextDataType()));
+					String cummulativeWrapArountValue = AXDRString.decode(structure.getNextDataType());
+					channelInfos.get(i).setCumulativeWrapValue(cummulativeWrapArountValue==null?null:new BigDecimal(cummulativeWrapArountValue));
+					//System.out.println("KV_DEBUG> channelInfo "+i+", "+apdu.getCosemAttributeDescriptor().getObis().toString()+", "+channelInfos.get(i).getName()+", "+channelInfos.get(i).getChannelId()+", "+channelInfos.get(i).getUnit()+", "+channelInfos.get(i).getCumulativeWrapValue());								
+				}
+			}
+		}
+	} // private void findAndAdjustChannelInfoFromChannelInfo(CosemAPDU apdu,List<ChannelInfo> channelInfos)
+	
 	private List<ChannelInfo> buildChannelInfos(int nrOfChannels) {
 		List<ChannelInfo> channelInfos = new ArrayList();
 		for(int channelId=0;channelId<nrOfChannels;channelId++) {
@@ -507,6 +553,14 @@ public class CosemAPDUParser {
 
 	public String getIpAddress() {
 		return ipAddress;
+	}
+
+	public ObisCode getLoadProfileObisCode() {
+		return loadProfileObisCode;
+	}
+
+	public void setLoadProfileObisCode(ObisCode loadProfileObisCode) {
+		this.loadProfileObisCode = loadProfileObisCode;
 	}
 
 }
