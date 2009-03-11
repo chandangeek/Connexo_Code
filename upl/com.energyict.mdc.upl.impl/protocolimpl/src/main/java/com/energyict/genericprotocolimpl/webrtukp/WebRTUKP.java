@@ -73,12 +73,14 @@ import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.Limiter;
 import com.energyict.dlms.cosem.P3ImageTransfer;
+import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.cosem.Limiter.ValueDefinitionType;
+import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.StoreObject;
@@ -1026,6 +1028,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				boolean specialDelEntry	= messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE);
 				boolean setTime			= messageHandler.getType().equals(RtuMessageConstant.SET_TIME);
 				boolean fillUpDB		= messageHandler.getType().equals(RtuMessageConstant.ME_MAKING_ENTRIES);
+				boolean gprsParameters 	= messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_SETUP);
 				
 				if(xmlConfig){
 					
@@ -1545,7 +1548,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 						String type = messageHandler.getMEInterval();
 						Long millis = Long.parseLong(messageHandler.getMEStartDate())*1000;
 						Date startTime = new Date(Long.parseLong(messageHandler.getMEStartDate())*1000);
-						startTime = getFirstDate(startTime, type);
+						startTime = getFirstDate(startTime, type, getMeter().getTimeZone());
 						while(entries > 0){
 							log(Level.INFO, "Setting meterTime to: " + startTime );
 							setClock(startTime);
@@ -1563,7 +1566,29 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 					
 					success = true;
 					
-				} else {
+				} else if(gprsParameters){
+					
+					log(Level.INFO, "Handling message " + rm.displayString() + ": Changing gprs modem parameters");
+					
+					PPPAuthenticationType pppat = getCosemObjectFactory().getPPPSetup().new PPPAuthenticationType();
+					pppat.setAuthenticationType(PPPSetup.LCPOptionsType.AUTH_PAP);
+					if(messageHandler.getGprsUsername() != null){
+						pppat.setUserName(messageHandler.getGprsUsername());
+					}
+					if(messageHandler.getGprsPassword() != null){
+						pppat.setPassWord(messageHandler.getGprsPassword());
+					}
+					if((messageHandler.getGprsUsername() != null) || (messageHandler.getGprsPassword() != null)){
+						getCosemObjectFactory().getPPPSetup().writePPPAuthenticationType(pppat);
+					}
+					
+					if(!messageHandler.getGprsApn().equalsIgnoreCase("")){
+						getCosemObjectFactory().getGPRSModemSetup().writeAPN(messageHandler.getGprsApn());
+					}
+					
+					success = true;
+				}
+				else {
 					success = false;
 				}
 				
@@ -1608,28 +1633,61 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	
 	public static void main(String args[]){
 		WebRTUKP wkp = new WebRTUKP();
-		System.out.println(System.currentTimeMillis());
-		System.out.println(System.currentTimeMillis());
-		System.out.println(System.currentTimeMillis());
-		System.out.println(System.currentTimeMillis());
-//		try {
-			Calendar cal1 = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-			cal1.setTimeInMillis(Long.parseLong("1219219091")*1000);
+		
+		try {
+			AXDRDateTime axdrDateTime = wkp.convertUnixToGMTDateTime("1236761593", TimeZone.getTimeZone("GMT"));
+			System.out.println(axdrDateTime.getValue().getTime());
+			System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("GMT")));
+			System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
+			System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
+			System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1236761593")*1000)/3600000);
 			
-			System.out.println("Offset1: " + cal1.getTimeZone().getOffset(Long.parseLong("1219219091")*1000));
-			System.out.println("Offset1: " + Calendar.getInstance().getTimeZone().getOffset(Long.parseLong("1219219091")*1000));
+			axdrDateTime = wkp.convertUnixToGMTDateTime("1236761593", TimeZone.getTimeZone("Europe/Brussels"));
+			System.out.println(axdrDateTime.getValue().getTime());
+			System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("Europe/Brussels")));
+			System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
+			System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
+			System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1236761593")*1000)/3600000);
 			
-			System.out.println(cal1.getTime());
-//			Calendar cal2 = wkp.setBeforeNextIntervalCal(Long.parseLong("1219219091")*1000, "day");
-//			System.out.println(cal2.getTime());
+			axdrDateTime = wkp.convertUnixToGMTDateTime("1234947193", TimeZone.getTimeZone("GMT"));
+			System.out.println(axdrDateTime.getValue().getTime());
+			System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("GMT")));
+			System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
+			System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
+			System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1234947193")*1000)/3600000);
 			
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+			axdrDateTime = wkp.convertUnixToGMTDateTime("1234947193", TimeZone.getTimeZone("Europe/Brussels"));
+			System.out.println(axdrDateTime.getValue().getTime());
+			System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("Europe/Brussels")));
+			System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
+			System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
+			System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1234947193")*1000)/3600000);
+			
+			Date nextDate = wkp.getFirstDate(axdrDateTime.getValue().getTime(), "month", TimeZone.getTimeZone("Europe/Brussels"));
+			int days = 0;
+			while(days < 60){
+				
+				if(days == 36){
+					System.out.println("timeout");
+				}
+				
+				System.out.println(nextDate);
+				nextDate = wkp.setBeforeNextInterval(nextDate, "month", TimeZone.getTimeZone("Europe/Brussels"));
+				days++;
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		}
 	
 	private Date getFirstDate(Date startTime, String type) throws IOException{
-		Calendar cal1 = Calendar.getInstance(getTimeZone());
+		return getFirstDate(startTime, type, getTimeZone());
+		}
+	
+	private Date getFirstDate(Date startTime, String type, TimeZone timeZone) throws IOException{
+		Calendar cal1 = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		cal1.setTime(startTime);
 		if(type.equalsIgnoreCase("15")){
 			if(cal1.get(Calendar.MINUTE) < 15){
@@ -1647,13 +1705,13 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 			}
 			return cal1.getTime();
 		} else if(type.equalsIgnoreCase("day")){
-			cal1.set(Calendar.HOUR_OF_DAY, (23 - (getMeter().getTimeZone().getRawOffset()/3600000)));
+			cal1.set(Calendar.HOUR_OF_DAY, (23 - (timeZone.getOffset(startTime.getTime())/3600000)));
 			cal1.set(Calendar.MINUTE, 59);
 			cal1.set(Calendar.SECOND, 40);
 			return cal1.getTime();
 		} else if(type.equalsIgnoreCase("month")){
 			cal1.set(Calendar.DATE, cal1.getActualMaximum(Calendar.DAY_OF_MONTH));
-			cal1.set(Calendar.HOUR_OF_DAY, (23 - (getMeter().getTimeZone().getRawOffset()/3600000)));
+			cal1.set(Calendar.HOUR_OF_DAY, (23 - (timeZone.getOffset(startTime.getTime())/3600000)));
 			cal1.set(Calendar.MINUTE, 59);
 			cal1.set(Calendar.SECOND, 40);
 			return cal1.getTime();
@@ -1662,17 +1720,29 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		throw new IOException("Invalid intervaltype.");
 	}
 
-	private Date setBeforeNextInterval(Date startTime, String type) throws IOException{
-		Calendar cal1 = Calendar.getInstance(getTimeZone());
+	private Date setBeforeNextInterval(Date startTime, String type) throws IOException {
+		return setBeforeNextInterval(startTime, type, getMeter().getTimeZone());
+	}
+	
+	private Date setBeforeNextInterval(Date startTime, String type, TimeZone timeZone) throws IOException{
+		Calendar cal1 = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		cal1.setTime(startTime);
+		int zoneOffset = 0;
 		if(type.equalsIgnoreCase("15")){
 			cal1.add(Calendar.MINUTE, 15);
 			return cal1.getTime();
 		} else if(type.equalsIgnoreCase("day")){
+			zoneOffset = timeZone.getOffset(cal1.getTimeInMillis()) / 3600000;
 			cal1.add(Calendar.DAY_OF_MONTH, 1);
+			zoneOffset = zoneOffset - (timeZone.getOffset(cal1.getTimeInMillis()) / 3600000);
+			cal1.add(Calendar.HOUR_OF_DAY, zoneOffset);
 			return cal1.getTime();
 		} else if(type.equalsIgnoreCase("month")){
+			zoneOffset = timeZone.getOffset(cal1.getTimeInMillis()) / 3600000;
 			cal1.add(Calendar.MONTH, 1);
+			cal1.set(Calendar.DATE, cal1.getActualMaximum(Calendar.DAY_OF_MONTH));
+			zoneOffset = zoneOffset - (timeZone.getOffset(cal1.getTimeInMillis()) / 3600000);
+			cal1.add(Calendar.HOUR_OF_DAY, zoneOffset);
 			return cal1.getTime();
 		}
 		
@@ -1908,6 +1978,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		MessageCategorySpec catActivityCal = new MessageCategorySpec("ActivityCalendar");
 		MessageCategorySpec catTime = new MessageCategorySpec("Time");
 		MessageCategorySpec catMakeEntries = new MessageCategorySpec("Create database entries");
+		MessageCategorySpec catGPRSModemSetup = new MessageCategorySpec("Change GPRS modem setup");
 		
 		// XMLConfig related messages
 		MessageSpec msgSpec = addDefaultValueMsg("XMLConfig", RtuMessageConstant.XMLCONFIG, false);
@@ -1955,6 +2026,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		msgSpec = addCreateDBEntries("Create entries in the meters database", RtuMessageConstant.ME_MAKING_ENTRIES, false);
 		catMakeEntries.addMessageSpec(msgSpec);
 		
+		// Change GPRS modem setup
+		msgSpec = addChangeGPRSSetup("Change GPRS modem setup parameters", RtuMessageConstant.GPRS_MODEM_SETUP, false);
+		catGPRSModemSetup.addMessageSpec(msgSpec);
+		
 		
 		categories.add(catXMLConfig);
 		categories.add(catFirmware);
@@ -1964,6 +2039,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		categories.add(catActivityCal);
 		categories.add(catTime);
 		categories.add(catMakeEntries);
+		categories.add(catGPRSModemSetup);
 		return categories;
 	}
 	
@@ -2031,6 +2107,22 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         profileTagSpec.add(msgAttrSpec);
         tagSpec.add(msgVal);
         tagSpec.add(profileTagSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+	
+	private MessageSpec addChangeGPRSSetup(String keyId, String tagName, boolean advanced){
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.GPRS_APN, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.GPRS_USERNAME, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.GPRS_PASSWORD, false);
+        tagSpec.add(msgAttrSpec);
+        tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
 	}

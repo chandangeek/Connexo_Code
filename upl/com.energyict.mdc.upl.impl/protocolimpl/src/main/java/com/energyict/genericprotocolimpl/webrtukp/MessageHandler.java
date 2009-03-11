@@ -76,6 +76,9 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.ME_MAKING_ENTRIES.equals(qName)){
 			setType(RtuMessageConstant.ME_MAKING_ENTRIES);
 			handleMakingEntries(attrbs);
+		} else if(RtuMessageConstant.GPRS_MODEM_SETUP.equals(qName)){
+			setType(RtuMessageConstant.GPRS_MODEM_SETUP);
+			handleGrpsModemSetup(attrbs);
 		}
 	}
 
@@ -401,7 +404,43 @@ public class MessageHandler extends DefaultHandler{
 	}
 	
 	public boolean getMESyncAtEnd(){
-		return !this.syncClock.equalsIgnoreCase("0");
+		if(this.syncClock != null){
+			return !this.syncClock.equalsIgnoreCase("0");
+		} else {
+			return false;
+		}
 	}
+	/**********************************************/
+	
+	/**********************************************
+	 * Changing GPRS modem parameters Related messages
+	 **********************************************/
+	
+	private String gprsApn = "";
+	private String gprsUsername = "";
+	private String gprsPassword = "";
+	
+	private void handleGrpsModemSetup(Attributes attrbs){
+		this.gprsApn = attrbs.getValue(RtuMessageConstant.GPRS_APN);
+		this.gprsUsername = attrbs.getValue(RtuMessageConstant.GPRS_USERNAME);
+		this.gprsPassword = attrbs.getValue(RtuMessageConstant.GPRS_PASSWORD);
+	}
+	
+	public String getGprsApn(){
+		if(this.gprsApn != null){
+			return this.gprsApn;
+		} else{
+			return "";
+		}
+	}
+	
+	public String getGprsUsername(){
+		return this.gprsUsername;
+	}
+	
+	public String getGprsPassword(){
+		return this.gprsPassword;
+	}
+	
 	/**********************************************/
 }
