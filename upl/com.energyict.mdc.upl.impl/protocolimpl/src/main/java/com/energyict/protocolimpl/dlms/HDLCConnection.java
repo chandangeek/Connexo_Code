@@ -1159,8 +1159,8 @@ public class HDLCConnection extends Connection implements DLMSConnection {
           else if (bAddressingMode == CLIENT_ADDRESSING_4BYTE)
              if ((byteReceiveBuffer[protocolParameters[frameDestination]+3] & 0x01)==0) throw new DLMSConnectionException("HDLCFrame> Frame destination address error");
           bDestination=(byte)(byteReceiveBuffer[protocolParameters[frameDestination]]>>1);
-          if ((byteReceiveBuffer[protocolParameters[frameControl]] & 0x01)==0) throw new DLMSConnectionException("HDLCFrame> Frame source address error");
-          bSource=(byte)(byteReceiveBuffer[protocolParameters[frameControl]]>>1);
+          if ((byteReceiveBuffer[protocolParameters[frameSource]] & 0x01)==0) throw new DLMSConnectionException("HDLCFrame> Frame source address error");
+          bSource=(byte)(byteReceiveBuffer[protocolParameters[frameSource]]>>1);
  
        }
 
