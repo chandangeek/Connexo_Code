@@ -130,7 +130,7 @@ public class CSDCaller {
 		Date newLastStart = this.csdCaller.getLastCommunicationStart();
 		try {
 			while(!isChanged(this.lastStart, newLastStart)){
-				Thread.sleep(20000);			//TODO set it to 30s or something
+				Thread.sleep(20000);
 				findCSDSchedule();
 				newLastStart = this.csdCaller.getLastCommunicationStart();
 				if(System.currentTimeMillis() > waitTimeout){
@@ -141,7 +141,7 @@ public class CSDCaller {
 			Date newNextComm = this.csdCaller.getNextCommunication();
 			
 			while(!isCommunicationEnd(newLastStart, this.lastEnd, newLastEnd, this.nextComm, newNextComm)){
-				Thread.sleep(20000);		// TODO set it to 30s or something
+				Thread.sleep(20000);
 				findCSDSchedule();
 				newLastEnd = this.csdCaller.getLastCommunicationEnd();
 				newNextComm = this.csdCaller.getNextCommunication();

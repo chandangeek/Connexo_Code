@@ -1,7 +1,5 @@
 package com.energyict.genericprotocolimpl.iskragprs.csd;
 
-import oracle.sql.DATE;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -29,13 +27,14 @@ public class IpUpdater {
 		connectionProvider.configure(properties);
 	};
 	
-	private static String request = "select * from RADIUSACCOUNTING where CALLING_STATION_ID like ?";
-
-	private static String requestOracle = "select FRAMED_IP_ADDRESS, EVENT_TIMESTAMP from (select * from RADIUSACCOUNTING where CALLING_STATION_ID like ? order by EVENT_TIMESTAMP desc) where rownum <= 1";
-	private static String requestMySQL = "select FRAMED_IP_ADDRESS, EVENT_TIMESTAMP from (select * from RADIUSACCOUNTING where CALLING_STATION_ID like ? order by EVENT_TIMESTAMP desc) LIMIT 1";
-	private static String requestSQLServer = "select TOP 1 FRAMED_IP_ADDRESS, EVENT_TIMESTAMP from (select * from RADIUSACCOUNTING where CALLING_STATION_ID like ? order by EVENT_TIMESTAMP desc)";
-	
-	private static String request2 = "select * from RADIUSACCOUNTING where CALLING_STATION_ID like ? and EVENT_TIMESTAMP > ?";
+//	private static String request = "select * from RADIUSACCOUNTING where CALLING_STATION_ID like ?";
+//
+//	private static String requestOracle = "select FRAMED_IP_ADDRESS, EVENT_TIMESTAMP from (select * from RADIUSACCOUNTING where CALLING_STATION_ID like ? order by EVENT_TIMESTAMP desc) where rownum <= 1";
+//	private static String requestMySQL = "select FRAMED_IP_ADDRESS, EVENT_TIMESTAMP from (select * from RADIUSACCOUNTING where CALLING_STATION_ID like ? order by EVENT_TIMESTAMP desc) LIMIT 1";
+//	private static String requestSQLServer = "select TOP 1 FRAMED_IP_ADDRESS, EVENT_TIMESTAMP from (select * from RADIUSACCOUNTING where CALLING_STATION_ID like ? order by EVENT_TIMESTAMP desc)";
+//	
+//	private static String request2 = "select * from RADIUSACCOUNTING where CALLING_STATION_ID like ? and EVENT_TIMESTAMP > ?";
+	private static String request = "select FRAMED_IP_ADDRESS from RADIUSACCOUNTING where CALLING_STATION_ID like ? and ? < LOG_DATE";
 	
 	private static String IPADDRESS = "FRAMED_IP_ADDRESS";
 
@@ -86,31 +85,24 @@ public class IpUpdater {
 			PreparedStatement statement = null;
 			try {
 				
-				
-				//TODO complete
-				
-				
 				connection = connectionProvider.getConnection();
 				 
-				SqlBuilder builder = new SqlBuilder(requestOracle);
+				SqlBuilder builder = new SqlBuilder(request);
 				builder.bindString(getSQLLikePhoneNumber(phone));
-//				builder.bindTimestamp(date2);
-				
+				builder.bindTimestamp(date2);
+
 				statement = builder.getStatement(connection);
+				
 				
 				ResultSet rs = null;
 				try {
 					rs = statement.executeQuery();
+					
 					String date, time;
 					String tempIpAddress;
 					while(rs.next()){
 						if(rs.isFirst()){
-							String str = rs.getString("EVENT_TIMESTAMP");
-							oracle.sql.DATE d = new DATE(str);
-							lastDate = new Date(d.longValue());
-							if(lastDate.after(date2)){
-								ipAddress = rs.getString(IPADDRESS);
-							}
+							ipAddress = rs.getString(IPADDRESS);
 						} else {
 							throw new ConnectionException("Multiple records were found after CSD call, will not update ipaddress.");
 						}
@@ -183,7 +175,7 @@ public class IpUpdater {
 	public static void main(String[] args){
 		try {
 			IpUpdater ipUpdater = new IpUpdater(900000,3000);
-			System.out.println(ipUpdater.poll("00031657311563", new Date(System.currentTimeMillis())));
+			System.out.println(ipUpdater.poll("31610121147", new Date(System.currentTimeMillis())));
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

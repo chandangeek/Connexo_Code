@@ -73,10 +73,7 @@ public class CSDCall extends ModemConnection{
 		try {
 			write("ATD"+phone+"\r\n",500);
 			
-			if(expectCommPort("BUSY", timeOut)){
-				//TODO put the response from the device "NO ANSWER" "NO DIALTONE" "
-				//TODO if you get in here the wakeup call is make ...
-			} else {
+			if(!expectCommPort("BUSY", timeOut)){
 				throw new IOException("Failed do do a wakeUp.");
 			}
 			
