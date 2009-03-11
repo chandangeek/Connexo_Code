@@ -29,6 +29,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     
     SDKSampleProtocolConnection connection;
     private int sDKSampleProperty;
+    ObisCode loadProfileObisCode;
     
     /** Creates a new instance of SDKSampleProtocol */
     public SDKSampleProtocol() {
@@ -141,9 +142,17 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         getLogger().info("--> here we read the profiledata from the meter and construct a profiledata object");  
         
         ProfileData pd = new ProfileData();
-        
-        pd.addChannel(new ChannelInfo(0,0, "SDK sample channel 1", Unit.get("kWh")));
-        pd.addChannel(new ChannelInfo(1,1, "SDK sample channel 2", Unit.get("kvarh")));
+        if (getLoadProfileObisCode().getD() == 1) {
+	        pd.addChannel(new ChannelInfo(0,0, "SDK sample profile "+getLoadProfileObisCode().toString()+" channel 1", Unit.get("kWh")));
+	        pd.addChannel(new ChannelInfo(1,1, "SDK sample profile "+getLoadProfileObisCode().toString()+" channel 2", Unit.get("kvarh")));
+        }
+        else if (getLoadProfileObisCode().getD() == 2) {
+	        pd.addChannel(new ChannelInfo(0,0, "SDK sample profile "+getLoadProfileObisCode().toString()+" channel 1", Unit.get("kWh")));
+	        pd.addChannel(new ChannelInfo(1,1, "SDK sample profile "+getLoadProfileObisCode().toString()+" channel 2", Unit.get("kvarh")));
+        }
+        else  {
+        	throw new IOException("Invalid load profile request "+getLoadProfileObisCode().toString());
+        }
         
         Calendar cal = Calendar.getInstance(getTimeZone());
         cal.setTime(lastReading);
@@ -189,6 +198,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         // Override or add new properties here e.g. below
         setSDKSampleProperty(Integer.parseInt(properties.getProperty("SDKSampleProperty", "123")));
+        setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
     }
     
     protected List doGetOptionalKeys() {
@@ -239,4 +249,12 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     public void setSDKSampleProperty(int sDKSampleProperty) {
         this.sDKSampleProperty = sDKSampleProperty;
     }
+
+	public ObisCode getLoadProfileObisCode() {
+		return loadProfileObisCode;
+	}
+
+	public void setLoadProfileObisCode(ObisCode loadProfileObisCode) {
+		this.loadProfileObisCode = loadProfileObisCode;
+	}
 }

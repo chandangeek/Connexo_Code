@@ -244,18 +244,18 @@ while(count++<2) {
             
             // ********************** Properties **********************
             Properties properties = new Properties();
-            properties.setProperty("ProfileInterval", "60");
+//            properties.setProperty("ProfileInterval", "60");
             //properties.setProperty(MeterProtocol.NODEID,"0");
-            properties.setProperty(MeterProtocol.ADDRESS,"10");
-            properties.setProperty("HalfDuplex", "-1");
-            int ift;
-            if ((args==null) || (args.length==0))
-                ift=25;
-            else
-                ift=Integer.parseInt(args[0]);
+            properties.setProperty(MeterProtocol.ADDRESS,"1");
+            properties.setProperty("HalfDuplex", "1");
+//            int ift;
+//            if ((args==null) || (args.length==0))
+//                ift=25;
+//            else
+//                ift=Integer.parseInt(args[0]);
             
-            properties.setProperty("InterframeTimeout", ""+ift);
-            properties.setProperty("PhysicalLayer","0");
+            //properties.setProperty("InterframeTimeout", ""+ift);
+            //properties.setProperty("PhysicalLayer","0");
             // ********************** EictRtuModbus **********************
             EictVeris hawkeye = new EictVeris();
             
@@ -263,7 +263,7 @@ while(count++<2) {
             hawkeye.setHalfDuplexController(dialer.getHalfDuplexController());
             hawkeye.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
             hawkeye.connect();
-            System.out.println(hawkeye.getFirmwareVersion());
+            //System.out.println(hawkeye.getFirmwareVersion());
             
 
 //            try {
@@ -275,20 +275,20 @@ while(count++<2) {
             //try {System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.132.7.0.255")));}catch(Exception e){}
             //try {System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.152.7.0.255")));}catch(Exception e){}
             //try {System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.172.7.0.255")));}catch(Exception e){}
-//            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
+            //System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
             //System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.254")));
-//            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.132.7.0.255")));
+            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.132.7.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
-            System.out.println(hawkeye.getRegistersInfo(0));
-            System.out.println(hawkeye.getRegistersInfo(1));
+            //System.out.println(hawkeye.getRegistersInfo(0));
+           // System.out.println(hawkeye.getRegistersInfo(1));
 
             dialer.disConnect();
             hawkeye.disconnect();
 }
             //System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.52.7.0.255")));
-//            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.72.7.0.255")));
+            //System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.72.7.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.12.7.0.255")));
 //
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.152.7.0.255")));

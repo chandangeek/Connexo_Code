@@ -103,7 +103,7 @@ public class Cube350 extends Modbus {
                 properties.setProperty("ProfileInterval", "60");
                 // properties.setProperty(MeterProtocol.NODEID,"0");
                 
-                if ((t%2)==0) properties.setProperty(MeterProtocol.ADDRESS, "7");
+                if ((t%2)==0) properties.setProperty(MeterProtocol.ADDRESS, "1");
                 else properties.setProperty(MeterProtocol.ADDRESS, "1");
                 
 //                properties.setProperty(MeterProtocol.ADDRESS, "1");
@@ -155,7 +155,7 @@ public class Cube350 extends Modbus {
 //                
 //
 //                System.out.println(cube.readRegister(ObisCode.fromString("1.1.32.7.0.255")));
-//                System.out.println(cube.readRegister(ObisCode.fromString("1.1.52.7.0.255")));
+                System.out.println(cube.readRegister(ObisCode.fromString("1.1.52.7.0.255")));
 //                System.out.println(cube.readRegister(ObisCode.fromString("1.1.72.7.0.255")));
 //                
 //

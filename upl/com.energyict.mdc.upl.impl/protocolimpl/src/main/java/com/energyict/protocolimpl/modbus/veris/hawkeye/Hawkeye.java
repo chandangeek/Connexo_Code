@@ -234,16 +234,16 @@ while(count++<1) {
             Properties properties = new Properties();
             properties.setProperty("ProfileInterval", "60");
             //properties.setProperty(MeterProtocol.NODEID,"0");
-            properties.setProperty(MeterProtocol.ADDRESS,"1");
-            properties.setProperty("HalfDuplex", "-1");
+            properties.setProperty(MeterProtocol.ADDRESS,"2");
+            properties.setProperty("HalfDuplex", "1");
             
-            int ift;
-            if ((args==null) || (args.length==0))
-                ift=25;
-            else
-                ift=Integer.parseInt(args[0]);
-            
-            properties.setProperty("InterframeTimeout", ""+ift);
+//            int ift;
+//            if ((args==null) || (args.length==0))
+//                ift=25;
+//            else
+//                ift=Integer.parseInt(args[0]);
+//            
+//            properties.setProperty("InterframeTimeout", ""+ift);
             
             
             // ********************** EictRtuModbus **********************
