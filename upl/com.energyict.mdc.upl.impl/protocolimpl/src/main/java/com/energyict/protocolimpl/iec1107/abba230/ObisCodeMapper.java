@@ -160,7 +160,7 @@ public class ObisCodeMapper {
             	String sn = (String) rFactory.getRegister("SerialNumber");
                 registerValue = new RegisterValue(obisCode,sn);
                 return registerValue;
-            } else return new RegisterInfo("SchemeID");
+            } else return new RegisterInfo("SerialNumber");
         }
         else if (obisCode.toString().indexOf("0.0.96.51.0.255") != -1) { // APPL firmware version
             if (read) {
