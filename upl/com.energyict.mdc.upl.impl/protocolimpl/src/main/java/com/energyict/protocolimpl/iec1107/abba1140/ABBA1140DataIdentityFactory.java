@@ -1,15 +1,15 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
-
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 /** @author fbo */
 
@@ -61,10 +61,10 @@ public class ABBA1140DataIdentityFactory {
             ABBA1140DataIdentity rawRegister = findRawRegister(dataID);
             return rawRegister.read(cached,(dataLength==-1?rawRegister.getLength():dataLength),set);
         } catch(FlagIEC1107ConnectionException e) {
-            String msg = "ABBA1140DataIdentityFactory, getDataIdentity, "
+        	String msg = "ABBA1140DataIdentityFactory, getDataIdentity, "
                     + "dataID=" + dataID + " " + e.getMessage();
             throw new IOException(msg);
-        }
+        } 
     }
     
     /** Read DataIdentity in streaming mode
@@ -132,9 +132,12 @@ public class ABBA1140DataIdentityFactory {
         // TOU registers
         add("508", 64,ABBA1140DataIdentity.NOT_STREAMEABLE);
         // Historical values
-        add("543", 457, 15 ,ABBA1140DataIdentity.STREAMEABLE);
+        add("543", 457, 24 ,ABBA1140DataIdentity.STREAMEABLE);  //JME: Changed highest billingpoint from 15 to 24 (new firmware stores 24 historical values)
+        // Daily historical values
+        add("545", 302, 14,ABBA1140DataIdentity.STREAMEABLE);	//JME: New data entity: 14 daily historical values (0 to 13) // FIXME: NOG TE TESTEN !!!
         // Configure Load Profile Read By Date
         add("554", 8, ABBA1140DataIdentity.NOT_STREAMEABLE );
+
     }
     
     private void add(String id, int length, boolean streamable ){

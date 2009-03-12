@@ -118,6 +118,13 @@ public class ObisCodeMapper {
                 return registerValue;
             } else return new RegisterInfo("SchemeID");
         }
+        else if (obisCode.toString().indexOf("0.0.96.1.0.255") != -1) { // Serial number
+            if (read) {
+            	String sn = (String) rFactory.getRegister("SerialNumber");
+                registerValue = new RegisterValue(obisCode,sn);
+                return registerValue;
+            } else return new RegisterInfo("SerialNumber");
+        }
         
         // *********************************************************************************
         // Electricity related ObisRegisters

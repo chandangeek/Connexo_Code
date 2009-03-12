@@ -12,6 +12,7 @@ import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.abba230.ABBA230RegisterData;
 
 /** @author fbo */
 
@@ -48,6 +49,7 @@ public class ABBA1140RegisterFactory {
     private ABBA1140Register custDefRegConfig;
     private ABBA1140Register historicalEvents;
     private ABBA1140Register historicalRegister;
+    private ABBA1140Register dailyHistoricalRegister;
     private ABBA1140Register historicalSystemStatus;
     private ABBA1140Register integrationPeriod;
     private ABBA1140Register loadProfile;
@@ -396,6 +398,8 @@ public class ABBA1140RegisterFactory {
         historicalRegister = cr("543", "HistoricalRegister", ABBA1140RegisterData.ABBA_HISTORICALVALUES,0,457, null);
         historicalEvents = cr("544", "HistoricalEvents", ABBA1140RegisterData.ABBA_HISTORICALEVENTS,0,792, null);
         
+        dailyHistoricalRegister = cr("545", "DailyHistoricalRegister", ABBA1140RegisterData.ABBA_HISTORICALVALUES,0,302, null); // FIXME: NOG TE TESTEN !!!
+        
         loadProfile = cr("550", "LoadProfile", ABBA1140RegisterData.ABBA_BYTEARRAY,0,-1, null);
         
         /* The 2 ways to specifiy how much load profile data to retrieve:
@@ -495,7 +499,7 @@ public class ABBA1140RegisterFactory {
                 return register2Retrieve.parse(register2Retrieve.readRegister(register2Retrieve.isCached()));
             }
             // billing point register set
-            else if ((billingPoint>=0) && (billingPoint<=14)) {
+            else if ((billingPoint>=0) && (billingPoint<=23)) { //JME: Changed highest billingpoint from 14 to 23 (new firmware stores 24 historical values)
                 
                 if (HistoricalRegister.has(register2Retrieve.getDataID())) {
                     // retrieve the billing set data
@@ -515,7 +519,28 @@ public class ABBA1140RegisterFactory {
                     register2Retrieve = findRegister(name);
                     return register2Retrieve.parse(register2Retrieve.readRegister(register2Retrieve.isCached(),billingPoint));
                 }
-            } else throw new IOException("ABBA1140, getRegister, invalid billing point "+billingPoint+"!");
+            }
+            else if ((billingPoint>=24) && (billingPoint<=37)) { // FIXME: NOG TE TESTEN !!!
+                    
+                    if (HistoricalRegister.has(register2Retrieve.getDataID())) {
+                        // retrieve the billing set data
+                        ABBA1140Register register = findRegister("DailyHistoricalRegister");
+                        HistoricalRegister historicalValues = (HistoricalRegister)register.parse(register.readRegister(register.isCached(),billingPoint-12));
+                        
+                        // find register within the data
+                        register2Retrieve = findRegister(name);
+                        Object obj = register2Retrieve.parse(historicalValues.getData(register2Retrieve.getDataID()));
+                        try {
+                            ((MainRegister)obj).setHistoricalValues(historicalValues);
+                        } catch(ClassCastException e) {
+                            // absorb
+                        }
+                        return obj;
+                    } else {
+                        register2Retrieve = findRegister(name);
+                        return register2Retrieve.parse(register2Retrieve.readRegister(register2Retrieve.isCached(),billingPoint-12));
+                    }
+                } else throw new IOException("Elster A230, getRegister, invalid billing point "+billingPoint+"!");
         } catch(FlagIEC1107ConnectionException e) {
             throw new IOException("ABBA1140, getRegister, "+e.getMessage());
         }

@@ -60,6 +60,14 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 /** @author  fbo */
+/*
+ * 
+ * JME	12032009	Added support for new firmware by adding the following features:
+ * 						* Added new registers: 	- Serial number (0.0.96.1.0.255)
+ * 												- Daily historical registers: Added for obisCode field F from 24 to 37
+ * 												- Historical registers: Increased from 15 to 24 billing points (obis field F from 0 to 23)
+ * 
+ */
 
 public class ABBA1140 implements
         MeterProtocol, ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo,
@@ -644,8 +652,12 @@ public class ABBA1140 implements
             if( bpi > 0 ) {
                 obisCodeString = "1.1.0.1.2."+ billingPoint[bpi];
                 obisCode = ObisCode.fromString( obisCodeString );
-                obisCodeInfo = ObisCodeMapper.getRegisterInfo( obisCode );
-                rslt.append( " " + obisCodeString + ", " + obisCodeInfo + "\n" );
+                try {
+					obisCodeInfo = ObisCodeMapper.getRegisterInfo( obisCode );
+	                rslt.append( " " + obisCodeString + ", " + obisCodeInfo + "\n" );
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
                 if( pExtendedLogging == 2 )
                     rslt.append( " " + rFactory.readRegister( obisCode ).toString() + "\n" );
             }
