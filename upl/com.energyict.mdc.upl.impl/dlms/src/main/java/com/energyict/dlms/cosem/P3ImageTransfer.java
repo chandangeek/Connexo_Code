@@ -21,7 +21,7 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 
 public class P3ImageTransfer extends AbstractCosemObject{
 
-	static public boolean DEBUG = true;
+	static public boolean DEBUG = false;
 	static public final int CLASSID = 18;
 	static private int delay = 3000;
 	private int maxBlockRetryCount = 3;
