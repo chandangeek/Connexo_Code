@@ -17,6 +17,9 @@ public class CSDCall extends ModemConnection{
 	private SerialCommunicationChannel serialCommChannel;
 	private Link link;
 	
+	private static String NOCARRIER = "NO CARRIER received";
+	private static String BUSY = "BUSY received";
+	
 	/**
 	 * Constructor
 	 * @param link
@@ -73,16 +76,24 @@ public class CSDCall extends ModemConnection{
 		try {
 			write("ATD"+phone+"\r\n",500);
 			
-			if(!expectCommPort("BUSY", timeOut)){
+			if(expectCommPort("CONNECT", timeOut)){
 				throw new IOException("Failed do do a wakeUp.");
 			}
 			
 		} catch (DialerCarrierException e){
 			e.printStackTrace();
-			throw new IOException(e.getMessage());
+			if(e.getMessage().indexOf(NOCARRIER) != 0){
+				throw new IOException(e.getMessage());
+			} else {
+				// the call was good, but you don't know if the meter will come online
+			}
 		} catch (DialerException e){
 			e.printStackTrace();
-			throw new IOException(e.getMessage());
+			if(e.getMessage().indexOf(BUSY) != 0){
+				throw new IOException(e.getMessage());
+			} else {
+				// the call was good, but you don't know if the meter will come online
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException(e.getMessage());
