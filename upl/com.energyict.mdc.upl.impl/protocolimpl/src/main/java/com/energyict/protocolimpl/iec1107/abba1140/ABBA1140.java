@@ -5,13 +5,21 @@
  * Class that implements the Elster A1140 meter protocol.
  * <BR>
  * <B>@beginchanges</B><BR>
-FBO|02022006|Initial version
-FBO|29052006|Fix profile data: data was fetched as energy values, but the meter 
-stores power/demand values.
-FBO|30052006|Fix profile data: When a time set occurs and the time meter is set 
-back for more then one interval period, there will be double entries in the 
-profile data.  These entries will not get a SL flag from the meter.  Since these 
-entries occur twice or more they need an SL flag.
+ * 
+ * FBO	02022006	Initial version
+ * FBO	29052006	Fix profile data: data was fetched as energy values, but the meter 
+ * 					stores power/demand values.
+ * FBO	30052006	Fix profile data: When a time set occurs and the time meter is set 
+ * 					back for more then one interval period, there will be double entries in the 
+ * 					profile data.  These entries will not get a SL flag from the meter.  Since these 
+ * 					entries occur twice or more they need an SL flag.
+ * JME	13032009	Added support for new firmware by adding the following features:
+ * 						* Added new registers: 	
+ * 							- Serial number (0.0.96.1.0.255)
+ * 							- Daily historical registers: Added for obisCode field F from 24 to 37
+ * 							- Historical registers: Increased from 15 to 24 billing points (obis field F from 0 to 23)
+ * 						* Implemented message protocol with the following messages:
+ * 							- Billing reset message
  *@endchanges
  */
 
@@ -71,16 +79,6 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 /** @author  fbo */
-/*
- * 
- * JME	12032009	Added support for new firmware by adding the following features:
- * 						* Added new registers: 	
- * 							- Serial number (0.0.96.1.0.255)
- * 							- Daily historical registers: Added for obisCode field F from 24 to 37
- * 							- Historical registers: Increased from 15 to 24 billing points (obis field F from 0 to 23)
- * 						* Implemented message protocol with the following messages:
- * 							- Billing reset message
- */
 
 public class ABBA1140 implements
         MeterProtocol, ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo,
