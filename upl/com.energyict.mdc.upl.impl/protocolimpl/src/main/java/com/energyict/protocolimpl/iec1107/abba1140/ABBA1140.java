@@ -41,6 +41,9 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
@@ -52,6 +55,14 @@ import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.SerialNumber;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
@@ -63,15 +74,17 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 /*
  * 
  * JME	12032009	Added support for new firmware by adding the following features:
- * 						* Added new registers: 	- Serial number (0.0.96.1.0.255)
- * 												- Daily historical registers: Added for obisCode field F from 24 to 37
- * 												- Historical registers: Increased from 15 to 24 billing points (obis field F from 0 to 23)
- * 
+ * 						* Added new registers: 	
+ * 							- Serial number (0.0.96.1.0.255)
+ * 							- Daily historical registers: Added for obisCode field F from 24 to 37
+ * 							- Historical registers: Increased from 15 to 24 billing points (obis field F from 0 to 23)
+ * 						* Implemented message protocol with the following messages:
+ * 							- Billing reset message
  */
 
 public class ABBA1140 implements
         MeterProtocol, ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo,
-        RegisterProtocol {
+        RegisterProtocol, MessageProtocol {
     
     final static long FORCE_DELAY = 300;
     
@@ -83,6 +96,8 @@ public class ABBA1140 implements
     final static String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
     final static String PK_ECHO_CANCELING = "EchoCancelling";
     
+    private static String BILLINGRESET		= "BillingReset";
+	private static String BILLINGRESET_DISPLAY 		= "Billing reset";
     
     /** Property Default values */
     final static String PD_NODE_ID = "";
@@ -801,5 +816,100 @@ public class ABBA1140 implements
         
     }
     
+    /*
+     * MessageProtocol methods below this banner
+     */
     
+	public List getMessageCategories() {
+        List theCategories = new ArrayList();
+        MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
+        
+        MessageSpec msgSpec = addBasicMsg(BILLINGRESET_DISPLAY, BILLINGRESET, false);
+        cat.addMessageSpec(msgSpec);
+
+        theCategories.add(cat);
+        return theCategories;
+	}
+
+    private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+	public String writeMessage(Message msg) {
+		return msg.write(this);
+	}
+
+	public String writeValue(MessageValue msgValue) {
+		return msgValue.getValue();
+	}
+
+	public void applyMessages(List messageEntries) throws IOException {
+		
+	}
+
+    public String writeTag(MessageTag msgTag) {
+        StringBuffer buf = new StringBuffer();
+        
+        // a. Opening tag
+        buf.append("<");
+        buf.append( msgTag.getName() );
+        
+        // b. Attributes
+        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
+            MessageAttribute att = (MessageAttribute)it.next();
+            if (att.getValue()==null || att.getValue().length()==0)
+                continue;
+            buf.append(" ").append(att.getSpec().getName());
+            buf.append("=").append('"').append(att.getValue()).append('"');
+        }
+        buf.append(">");
+        
+        // c. sub elements
+        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
+            MessageElement elt = (MessageElement)it.next();
+            if (elt.isTag())
+                buf.append( writeTag((MessageTag)elt) );
+            else if (elt.isValue()) {
+                String value = writeValue((MessageValue)elt);
+                if (value==null || value.length()==0)
+                    return "";
+                buf.append(value);
+            }
+        }
+        
+        // d. Closing tag
+        buf.append("</");
+        buf.append( msgTag.getName() );
+        buf.append(">");
+        
+        return buf.toString();    
+    }	
+
+	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
+		
+		if (messageEntry.getContent().indexOf("<"+BILLINGRESET)>=0) {
+			try {
+				logger.info("************************* BILLING RESET *************************");
+				logger.info("Performing billing reset ...");
+				int start = messageEntry.getContent().indexOf(BILLINGRESET)+BILLINGRESET.length()+1;
+				int end = messageEntry.getContent().lastIndexOf(BILLINGRESET)-2;
+				String mdresetXMLData = messageEntry.getContent().substring(start,end);
+				doBillingReset();
+				logger.info("Billing reset succes!");
+				return MessageResult.createSuccess(messageEntry);
+			} catch(IOException e) {
+				logger.info("Billing reset failed! => " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+		return MessageResult.createFailed(messageEntry);
+	}
+
+	private void doBillingReset() throws IOException {
+		rFactory.setRegister("EndOfBillingPeriod", "1");
+	}
+
 }

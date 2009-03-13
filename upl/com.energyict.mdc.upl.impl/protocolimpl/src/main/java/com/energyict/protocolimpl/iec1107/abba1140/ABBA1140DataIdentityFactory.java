@@ -137,6 +137,10 @@ public class ABBA1140DataIdentityFactory {
         add("545", 302, 14,ABBA1140DataIdentity.STREAMEABLE);	//JME: New data entity: 14 daily historical values (0 to 13) // FIXME: NOG TE TESTEN !!!
         // Configure Load Profile Read By Date
         add("554", 8, ABBA1140DataIdentity.NOT_STREAMEABLE );
+        
+        // Load profile configure data
+        add("655", 1,ABBA1140DataIdentity.NOT_STREAMEABLE);
+
 
     }
     

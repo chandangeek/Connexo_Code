@@ -12,7 +12,6 @@ import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.abba230.ABBA230RegisterData;
 
 /** @author fbo */
 
@@ -50,6 +49,7 @@ public class ABBA1140RegisterFactory {
     private ABBA1140Register historicalEvents;
     private ABBA1140Register historicalRegister;
     private ABBA1140Register dailyHistoricalRegister;
+    private ABBA1140Register endOfBillingPeriod;
     private ABBA1140Register historicalSystemStatus;
     private ABBA1140Register integrationPeriod;
     private ABBA1140Register loadProfile;
@@ -424,6 +424,8 @@ public class ABBA1140RegisterFactory {
         loadProfileConfiguration = cr("777", "LoadProfileConfiguration", ABBA1140RegisterData.ABBA_LOAD_PROFILE_CONFIG,0,2, null);
         integrationPeriod = cr("878", "IntegrationPeriod", ABBA1140RegisterData.ABBA_INTEGRATION_PERIOD,0,1, null);
         
+        endOfBillingPeriod = cr("655", "EndOfBillingPeriod", ABBA1140RegisterData.ABBA_HEX, 0, 1, null, ABBA1140Register.WRITEABLE, ABBA1140Register.NOT_CACHED); //FIXME: Nog te testen !!!
+        
     }
     
     /** factory method for ABBARegisters */
@@ -540,7 +542,7 @@ public class ABBA1140RegisterFactory {
                         register2Retrieve = findRegister(name);
                         return register2Retrieve.parse(register2Retrieve.readRegister(register2Retrieve.isCached(),billingPoint-12));
                     }
-                } else throw new IOException("Elster A230, getRegister, invalid billing point "+billingPoint+"!");
+                } else throw new IOException("Elster A1140, getRegister, invalid billing point "+billingPoint+"!");
         } catch(FlagIEC1107ConnectionException e) {
             throw new IOException("ABBA1140, getRegister, "+e.getMessage());
         }
