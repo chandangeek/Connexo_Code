@@ -38,6 +38,7 @@ import com.energyict.protocolimpl.iec1107.*;
  * KV	02122008 	Add intervalstate bits to logbook
  * JME	23012009	Fixed Java 1.5 <=> 1.4 issues to port from 8.1 to 7.5, 7.3 or 7.1
  * JME	20022009	Implemented Billing reset message
+ * JME	13032009	Fixed bug in Billing reset message
  * 
  */
 
@@ -716,7 +717,7 @@ public class ABBA230 implements
     }
     
     private void doBillingReset() throws IOException {
-			rFactory.setRegister("EndOfBillingPeriod",new byte[]{1});
+			rFactory.setRegister("EndOfBillingPeriod", "1");
 	}
     
     /* (non-Javadoc)

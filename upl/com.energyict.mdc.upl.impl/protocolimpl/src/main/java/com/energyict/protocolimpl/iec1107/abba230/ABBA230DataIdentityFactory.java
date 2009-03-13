@@ -1,15 +1,15 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
-
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 /** @author fbo */
 
@@ -190,7 +190,8 @@ public class ABBA230DataIdentityFactory {
         add("431", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorCloseOpticalEventLog
         add("432", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorCloseModuleEventLog
         add("433", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorCloseButtonEventLog
-        
+        add("655", 1,ABBA230DataIdentity.NOT_STREAMEABLE); // EndOfBillingPeriod
+
         
         add("701", 53,ABBA230DataIdentity.STREAMEABLE); // MeterErrorEventLog
         add("705", 43,ABBA230DataIdentity.STREAMEABLE); // BatteryVoltageLowEventLog
