@@ -366,7 +366,7 @@ public class ABBA1140 implements
      * @see com.energyict.protocol.MeterProtocol#getProtocolVersion()
      */
     public String getProtocolVersion() {
-        return "$Revision: 1.16 $";
+        return "$Date";
     }
     
     /* (non-Javadoc)
