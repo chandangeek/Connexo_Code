@@ -652,4 +652,9 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
     public void setCurrentSelectedDevice(Rtu currentSelectedDevice) {
         this.currentSelectedDevice = currentSelectedDevice;
     }
+
+	public long getTimeDifference() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 } 
