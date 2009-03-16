@@ -857,4 +857,9 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
 		return new RegisterInfo("RegisterInfo");
 	}
+
+	public long getTimeDifference() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
