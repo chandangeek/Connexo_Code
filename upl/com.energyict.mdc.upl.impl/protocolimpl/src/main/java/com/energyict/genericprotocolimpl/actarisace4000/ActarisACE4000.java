@@ -765,6 +765,11 @@ public class ActarisACE4000 implements GenericProtocol{
 		return rtu;
 	}
 
+	public long getTimeDifference() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 	//**********************************************************************************************************************
 
 }
