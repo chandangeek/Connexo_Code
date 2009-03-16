@@ -127,6 +127,11 @@ public class Meter implements GenericProtocol, Messaging {
     public List getRequiredKeys() {
         return new ArrayList();
     }
+
+	public long getTimeDifference() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
     
   
 

@@ -447,5 +447,10 @@ public class Concentrator implements GenericProtocol, Messaging {
         return msgValue.getValue();
     }
 
+	public long getTimeDifference() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
     
 }
