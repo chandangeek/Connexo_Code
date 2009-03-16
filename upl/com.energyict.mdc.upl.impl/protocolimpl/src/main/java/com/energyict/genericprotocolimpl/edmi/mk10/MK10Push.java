@@ -417,5 +417,10 @@ public class MK10Push implements GenericProtocol {
 		list.addAll(getMK10Executor().getRequiredKeys());
 		return list;
 	}
+
+	public long getTimeDifference() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
 }
