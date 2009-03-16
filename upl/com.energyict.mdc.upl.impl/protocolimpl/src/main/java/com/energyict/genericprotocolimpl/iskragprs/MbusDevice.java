@@ -414,4 +414,9 @@ public class MbusDevice implements Messaging, GenericProtocol{
 	public IskraMx37x getIskraDevice(){
 		return this.iskra;
 	}
+
+	public long getTimeDifference() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

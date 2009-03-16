@@ -141,6 +141,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	private int configProgramChanges;
 	private int csdCall;
 	
+	private long timeDifference;
+	
 	private boolean forcedMbusCheck = false;
 	
     private String strID;
@@ -315,7 +317,11 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 				
 				// Set clock or Force clock... if necessary
 				if( communicationProfile.getForceClock() ){
-					getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + Calendar.getInstance(getTimeZone()).getTime());
+			        Date cTime = getTime();
+			        Date now = Calendar.getInstance(getTimeZone()).getTime();
+			        this.timeDifference = ( now.getTime() - cTime.getTime() );
+			        getLogger().info("Difference between metertime and systemtime is " + this.timeDifference + " ms");
+					getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + now);
 					setTimeClock();
 				}else if( communicationProfile.getWriteClock() ) {
 					setTime();
@@ -933,10 +939,10 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         
         Date now = new Date();
         
-        long sDiff = ( now.getTime() - cTime.getTime() ) / 1000;
-        long sAbsDiff = Math.abs( sDiff );
+        this.timeDifference = ( now.getTime() - cTime.getTime() );
+        long sAbsDiff = Math.abs( this.timeDifference ) / 1000;
         
-        getLogger().info("Difference between metertime and systemtime is " + sDiff * 1000 + " ms");
+        getLogger().info("Difference between metertime and systemtime is " + this.timeDifference + " ms");
         
         long max = communicationProfile.getMaximumClockDifference();
         long min = communicationProfile.getMinimumClockDifference();
@@ -2065,5 +2071,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
 	public ObisCode getMonthlyLoadProfile() {
 		return monthlyObisCode;
+	}
+
+	public long getTimeDifference() {
+		return this.timeDifference;
 	}
 }
