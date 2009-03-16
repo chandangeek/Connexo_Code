@@ -166,6 +166,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	private StoreObject				storeObject;
 	private ObisCodeMapper			ocm;
 	
+	private long 					timeDifference = 0;
 	/**
 	 * Properties
 	 */
@@ -187,6 +188,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	private String serialNumber;
 	private String manufacturer;
 	private String deviceId;
+	private boolean readDaily;
+	private boolean readMonthly;
 	
 	/**
 	 * This method handles the complete WebRTU. The Rtu acts as an Electricity meter. The E-meter itself can have several MBus meters
@@ -223,7 +226,12 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 //			handleMbusMeters();
         	// Set clock or Force clock... if necessary
         	if( this.commProfile.getForceClock() ){
+        		
+        		// TODO get the timedifference here!
+        		// TODO			
+        		Date meterTime = getTime();
         		Date currentTime = Calendar.getInstance(getTimeZone()).getTime();
+        		this.timeDifference = Math.abs(currentTime.getTime()-meterTime.getTime());
         		getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + currentTime);
         		forceClock(currentTime);
         	}else {
@@ -235,7 +243,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				ElectricityProfile ep = new ElectricityProfile(this);
 				
 				ep.getProfile(getMeterConfig().getProfileObject().getObisCode(), this.commProfile.getReadMeterEvents());
-			}
+			} 
 			
     		/**
     		 * Here we are assuming that the daily and monthly values should be read.
@@ -244,10 +252,15 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
     		 */
 			if(this.commProfile.getReadMeterReadings()){
 				
-				getLogger().log(Level.INFO, "Getting daily and monthly values for meter with serialnumber: " + webRtuKP.getSerialNumber());
 				DailyMonthly dm = new DailyMonthly(this);
-				dm.getDailyValues(getMeterConfig().getDailyProfileObject().getObisCode());
-				dm.getMonthlyValues(getMeterConfig().getMonthlyProfileObject().getObisCode());
+				if(readDaily){
+					getLogger().log(Level.INFO, "Getting daily values for meter with serialnumber: " + webRtuKP.getSerialNumber());
+					dm.getDailyValues(getMeterConfig().getDailyProfileObject().getObisCode());
+				}
+				if(readMonthly){
+					getLogger().log(Level.INFO, "Getting monthly values for meter with serialnumber: " + webRtuKP.getSerialNumber());
+					dm.getMonthlyValues(getMeterConfig().getMonthlyProfileObject().getObisCode());
+				}
 				
 				getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + webRtuKP.getSerialNumber());
 				doReadRegisters();
@@ -292,6 +305,11 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				getLogger().info("Meter " + this.serialNumber + " has completely finished.");
 			}
 		}
+	}
+	
+
+	public long getTimeDifference() {
+		return this.timeDifference;
 	}
 	
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
@@ -729,7 +747,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 			Date meterTime = getTime();
 			Date now = Calendar.getInstance(getTimeZone()).getTime();
 			
-			long diff = Math.abs(now.getTime()-meterTime.getTime())/1000;
+			this.timeDifference = Math.abs(now.getTime()-meterTime.getTime());
+			long diff = this.timeDifference / 1000;
 			
 			log(Level.INFO, "Difference between metertime(" + meterTime + ") and systemtime(" + now + ") is " + diff + "s.");
 			if(this.commProfile.getWriteClock()){
@@ -740,6 +759,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 			} else {
 				log(Level.INFO, "WriteClock is disabled, metertime will not be set.");
 			}
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw e;
@@ -900,6 +920,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         this.manufacturer = properties.getProperty("Manufacturer", "WKP");
         this.maxMbusDevices = Integer.parseInt(properties.getProperty("MaxMbusDevices", "4"));
         this.informationFieldSize = Integer.parseInt(properties.getProperty("InformationFieldSize","-1"));
+        this.readDaily = !properties.getProperty("ReadDailyValues", "1").equalsIgnoreCase("0");
+        this.readMonthly = !properties.getProperty("ReadMonthlyValues", "1").equalsIgnoreCase("0");
 	}
 	
 	public void addProperties(Properties properties) {
@@ -931,6 +953,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         result.add("ForceDelay");
         result.add("Manufacturer");
         result.add("MaxMbusDevices");
+        result.add("ReadDailyValues");
+        result.add("ReadMonthlyValues");
 		return result;
 	}
 
@@ -2296,6 +2320,15 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		return msgValue.getValue();
 	}
 	
+	public boolean isReadDaily() {
+		return readDaily;
+	}
+
+
+	public boolean isReadMonthly() {
+		return readMonthly;
+	}
+	
 	/** EIServer 7.5 Cache mechanism, only the DLMSCache is in that database, the 8.x has a EISDEVICECACHE ... */
 	
     public void setCache(Object cacheObject) {
@@ -2329,5 +2362,4 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         }
         else throw new com.energyict.cbo.BusinessException("invalid RtuId!");
     }
-
 }

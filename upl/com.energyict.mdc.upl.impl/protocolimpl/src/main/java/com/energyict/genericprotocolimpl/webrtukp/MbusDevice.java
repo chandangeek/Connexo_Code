@@ -152,9 +152,11 @@ public class MbusDevice implements GenericProtocol, Messaging{
 		
 		// import daily/monthly
 		if(commProfile.getReadMeterReadings()){
-			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMbus().getSerialNumber());
 			MbusDailyMonthly mdm = new MbusDailyMonthly(this);
-			mdm.getMonthlyProfile(getMeterConfig().getMonthlyProfileObject().getObisCode());
+			if(getWebRTU().isReadMonthly()){
+				getLogger().log(Level.INFO, "Getting Monthly values for meter with serialnumber: " + getMbus().getSerialNumber());
+				mdm.getMonthlyProfile(getMeterConfig().getMonthlyProfileObject().getObisCode());
+			}
 			getLogger().log(Level.INFO, "Getting registers from Mbus meter " + (getPhysicalAddress()+1));
 			doReadRegisters();
 		}
@@ -516,5 +518,10 @@ public class MbusDevice implements GenericProtocol, Messaging{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public long getTimeDifference() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }
