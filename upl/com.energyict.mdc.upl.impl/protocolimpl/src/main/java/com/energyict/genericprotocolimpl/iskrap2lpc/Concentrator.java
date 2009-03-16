@@ -525,7 +525,7 @@ public class Concentrator implements Messaging, GenericProtocol {
         
     }
     
-    private void handleConcentratorRtuMessage(
+    protected void handleConcentratorRtuMessage(
         Rtu concentrator, String serial, RtuMessage msg)
             throws BusinessException, SQLException {
     	String contents = msg.getContents();
