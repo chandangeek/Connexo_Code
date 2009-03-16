@@ -533,4 +533,9 @@ public class MbusDevice implements Messaging, GenericProtocol{
 	public void setMeterReadTransaction(MeterReadTransaction meterReadTransaction) {
 		this.mrt = meterReadTransaction;
 	}
+
+	public long getTimeDifference() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

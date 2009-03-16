@@ -80,6 +80,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     private String lpMonthly;
     private String lpElectricity;
     private String lpMbus;
+    private long timeDifference;
 
     private Logger 					logger;
     private Properties 				properties;
@@ -434,9 +435,9 @@ public class Concentrator implements Messaging, GenericProtocol {
     	
     	getLogger().log(Level.INFO, "Handling the concentrator with serialnumber: " + concentrator.getSerialNumber());
         
-        if( communicationProfile.getWriteClock() ) {
-            setTime();
-        }
+//        if( communicationProfile.getWriteClock() ) {
+        setTime();
+//        }
         
         /* short circuit */
         if( communicationProfile.getSendRtuMessage() ) {
@@ -501,25 +502,25 @@ public class Concentrator implements Messaging, GenericProtocol {
         
         Date now = new Date();
         
-        long sDiff = ( now.getTime() - cTime.getTime() ) / 1000;
-        long sAbsDiff = Math.abs( sDiff );
+        this.timeDifference = now.getTime() - cTime.getTime() ;
+        long sAbsDiff = Math.abs( this.timeDifference ) / 1000;
         
         getLogger().info( 
-                "Difference between metertime and systemtime is " + sDiff * 1000 
-                + " ms");
-        
-        long max = communicationProfile.getMaximumClockDifference();
-        long min = communicationProfile.getMinimumClockDifference();
-        
-        if( ( sAbsDiff < max ) && ( sAbsDiff > min ) ) { 
-            
-            getLogger().severe("Adjust meter time to system time. Concentrator time: " + cTime + ", System time: " + now);
-        
-            String d = Constant.getInstance().getDateFormatFixed().format(now);
-            
-            getConnection().setConcentratorSystemTime(d);
-//            getConnection().timeSync();
-            
+                "Difference between metertime and systemtime is " + this.timeDifference + " ms");
+        if( communicationProfile.getWriteClock() ) {
+        	long max = communicationProfile.getMaximumClockDifference();
+        	long min = communicationProfile.getMinimumClockDifference();
+        	
+        	if( ( sAbsDiff < max ) && ( sAbsDiff > min ) ) { 
+        		
+        		getLogger().severe("Adjust meter time to system time. Concentrator time: " + cTime + ", System time: " + now);
+        		
+        		String d = Constant.getInstance().getDateFormatFixed().format(now);
+        		
+        		getConnection().setConcentratorSystemTime(d);
+//            getConnection().timeSync();	Don't do this, the concentrator will handle the timeSet with all his meters
+        		
+        	}
         }
         
     }
@@ -1133,5 +1134,9 @@ public class Concentrator implements Messaging, GenericProtocol {
 
 	protected String getLpMbus() {
 		return lpMbus;
+	}
+
+	public long getTimeDifference() {
+		return this.timeDifference;
 	}
 }
