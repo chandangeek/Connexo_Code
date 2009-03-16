@@ -145,7 +145,15 @@ public class P2LPCTest {
 				rms.setState(rmt);
 				concentrator.createMessage(rms);
 				pendingMessageID = ((RtuMessage)concentrator.getPendingMessages().get(0)).getId();
-				iskraConcentrator.handleConcentrator(concentrator);
+//				iskraConcentrator.handleConcentrator(concentrator);
+				
+	            String serial = concentrator.getSerialNumber();
+	            Iterator i = concentrator.getPendingMessages().iterator();
+	            while (i.hasNext()) {
+	                RtuMessage msg = (RtuMessage) i.next();
+	                iskraConcentrator.handleConcentratorRtuMessage(concentrator, serial, msg);
+	            }
+				
 				RtuMessage rtum = getJustExecutedPendingMessage(Utilities.mw().getRtuMessageFactory().findByRtu(concentrator), pendingMessageID);
 				assertTrue(rtum.isFailed());	// message content contains NON-numeric values
 				
@@ -153,7 +161,15 @@ public class P2LPCTest {
 				rms.setContents("<UserFile ID of firmware bin file>220</UserFile ID of firmware bin file><GroupID of meters to receive new firmware>17800</GroupID of meters to receive new firmware>");
 				concentrator.createMessage(rms);
 				pendingMessageID = ((RtuMessage)concentrator.getPendingMessages().get(0)).getId();
-				iskraConcentrator.handleConcentrator(concentrator);
+//				iskraConcentrator.handleConcentrator(concentrator);
+				
+				serial = concentrator.getSerialNumber();
+	            i = concentrator.getPendingMessages().iterator();
+	            while (i.hasNext()) {
+	                RtuMessage msg = (RtuMessage) i.next();
+	                iskraConcentrator.handleConcentratorRtuMessage(concentrator, serial, msg);
+	            }
+				
 				rtum = getJustExecutedPendingMessage(Utilities.mw().getRtuMessageFactory().findByRtu(concentrator), pendingMessageID);
 				assertTrue(rtum.isFailed());	// there is no GroupID with the value 17800
 				
@@ -163,7 +179,15 @@ public class P2LPCTest {
 				rms.setContents("<UserFile ID of firmware bin file>" + gr.getId() + "</UserFile ID of firmware bin file><GroupID of meters to receive new firmware>" + gr.getId() + "</GroupID of meters to receive new firmware>");
 				concentrator.createMessage(rms);
 				pendingMessageID = ((RtuMessage)concentrator.getPendingMessages().get(0)).getId();
-				iskraConcentrator.handleConcentrator(concentrator);
+//				iskraConcentrator.handleConcentrator(concentrator);
+				
+				serial = concentrator.getSerialNumber();
+	            i = concentrator.getPendingMessages().iterator();
+	            while (i.hasNext()) {
+	                RtuMessage msg = (RtuMessage) i.next();
+	                iskraConcentrator.handleConcentratorRtuMessage(concentrator, serial, msg);
+	            }
+	            
 				rtum = getJustExecutedPendingMessage(Utilities.mw().getRtuMessageFactory().findByRtu(concentrator), pendingMessageID);
 				assertTrue(rtum.isFailed()); 	// the userfile is NOT of the type userfile
 				
@@ -172,7 +196,15 @@ public class P2LPCTest {
 				rms.setContents("<UserFile ID of firmware bin file>" + uf.getId() + "</UserFile ID of firmware bin file><GroupID of meters to receive new firmware>" + gr.getId() + "</GroupID of meters to receive new firmware>");
 				concentrator.createMessage(rms);
 				pendingMessageID = ((RtuMessage)concentrator.getPendingMessages().get(0)).getId();
-				iskraConcentrator.handleConcentrator(concentrator);
+//				iskraConcentrator.handleConcentrator(concentrator);
+				
+				serial = concentrator.getSerialNumber();
+	            i = concentrator.getPendingMessages().iterator();
+	            while (i.hasNext()) {
+	                RtuMessage msg = (RtuMessage) i.next();
+	                iskraConcentrator.handleConcentratorRtuMessage(concentrator, serial, msg);
+	            }
+	            
 				rtum = getJustExecutedPendingMessage(Utilities.mw().getRtuMessageFactory().findByRtu(concentrator), pendingMessageID);
 				assertTrue(rtum.isFailed()); 	// the length of the userFile is empty
 				
@@ -185,15 +217,6 @@ public class P2LPCTest {
 			e.printStackTrace();
 			fail();
 		} catch (SQLException e) {
-			e.printStackTrace();
-			fail();
-		} catch (ServiceException e) {
-			e.printStackTrace();
-			fail();
-		} catch (ParseException e) {
-			e.printStackTrace();
-			fail();
-		} catch (IOException e) {
 			e.printStackTrace();
 			fail();
 		}
@@ -288,7 +311,15 @@ public class P2LPCTest {
 				
 				// the response contains no DLC tag, message should fail
 				TConnection.setByteArrayResponse(new byte[]{0x3C, 0x53, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x3E, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21, 0x3C, 0x2F, 0x53, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x3E});
-				iskraConcentrator.handleConcentrator(concentrator);
+//				iskraConcentrator.handleConcentrator(concentrator);
+				
+	            String serial = concentrator.getSerialNumber();
+	            Iterator i = concentrator.getPendingMessages().iterator();
+	            while (i.hasNext()) {
+	                RtuMessage msg = (RtuMessage) i.next();
+	                iskraConcentrator.handleConcentratorRtuMessage(concentrator, serial, msg);
+	            }
+	            
 				RtuMessage rtum = getJustExecutedPendingMessage(Utilities.mw().getRtuMessageFactory().findByRtu(concentrator), pendingMessageID);
 				assertTrue(rtum.isFailed());
 				assertEquals(TConnection.GETFILESIZE, TConnection.getConnectionEvents().get(0));
@@ -299,7 +330,15 @@ public class P2LPCTest {
 				pendingMessageID = ((RtuMessage)concentrator.getPendingMessages().get(0)).getId();
 				// the response contains a DLC tag, message should succeed
 				TConnection.setByteArrayResponse(new byte[]{0x3C, 0x44, 0x4C, 0x43, 0x3E, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21, 0x3C, 0x2F, 0x44, 0x4C, 0x43, 0x3E});
-				iskraConcentrator.handleConcentrator(concentrator);
+//				iskraConcentrator.handleConcentrator(concentrator);
+				
+				serial = concentrator.getSerialNumber();
+	            i = concentrator.getPendingMessages().iterator();
+	            while (i.hasNext()) {
+	                RtuMessage msg = (RtuMessage) i.next();
+	                iskraConcentrator.handleConcentratorRtuMessage(concentrator, serial, msg);
+	            }
+	            
 				rtum = getJustExecutedPendingMessage(Utilities.mw().getRtuMessageFactory().findByRtu(concentrator), pendingMessageID);
 				assertTrue(rtum.isConfirmed());
 				assertEquals(TConnection.GETFILESIZE, TConnection.getConnectionEvents().get(2));
@@ -312,7 +351,15 @@ public class P2LPCTest {
 				concentrator.createMessage(rms);
 				pendingMessageID = ((RtuMessage)concentrator.getPendingMessages().get(0)).getId();
 				// the message should fail because the content contains a NON-numeric value
-				iskraConcentrator.handleConcentrator(concentrator);
+//				iskraConcentrator.handleConcentrator(concentrator);
+				
+				serial = concentrator.getSerialNumber();
+	            i = concentrator.getPendingMessages().iterator();
+	            while (i.hasNext()) {
+	                RtuMessage msg = (RtuMessage) i.next();
+	                iskraConcentrator.handleConcentratorRtuMessage(concentrator, serial, msg);
+	            }
+	            
 				rtum = getJustExecutedPendingMessage(Utilities.mw().getRtuMessageFactory().findByRtu(concentrator), pendingMessageID);
 				assertTrue(rtum.isFailed());
 				assertEquals(6, TConnection.getConnectionEvents().size());
@@ -330,15 +377,6 @@ public class P2LPCTest {
 			e.printStackTrace();
 			fail();
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
-			fail();
-		} catch (IOException e) {
-			e.printStackTrace();
-			fail();
-		} catch (ServiceException e) {
-			e.printStackTrace();
-			fail();
-		} catch (ParseException e) {
 			e.printStackTrace();
 			fail();
 		}
