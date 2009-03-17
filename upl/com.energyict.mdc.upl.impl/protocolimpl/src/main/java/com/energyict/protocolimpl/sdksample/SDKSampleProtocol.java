@@ -151,7 +151,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
 	        pd.addChannel(new ChannelInfo(1,1, "SDK sample profile "+getLoadProfileObisCode().toString()+" channel 2", Unit.get("kvarh")));
         }
         else  {
-        	throw new IOException("Invalid load profile request "+getLoadProfileObisCode().toString());
+        	throw new NoSuchRegisterException("Invalid load profile request "+getLoadProfileObisCode().toString());
         }
         
         Calendar cal = Calendar.getInstance(getTimeZone());
