@@ -2,7 +2,6 @@ package com.energyict.dlms.client;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.InetAddress;
 import java.util.*;
 
 import com.energyict.cbo.*;
@@ -18,10 +17,9 @@ public class CosemAPDUParser {
 
 	final int DEBUG=0;
 	
-	private ProfileData profileData=null;
-	private ObisCode loadProfileObisCode=null;
+	private Map<ObisCode,LoadProfile> loadProfiles=null;
+
 	private MeterReadingData meterReadingData=null;
-	private int profileInterval=-1;
 	private Date previousEndTime=null;
 	private Date date=null;
 	private AcknowledgeCustomCosem acknowledgeCustomCosem=null;
@@ -29,7 +27,6 @@ public class CosemAPDUParser {
 	private DatabaseIDCustomCosem databaseIDCustomCosem=null;
 	private DeviceIDCustomCosem deviceIDCustomCosem=null;
 	private DeviceIdentification deviceIdentification=null;
-	private List<ObisCode> loadProfileCapturedObjects = null;
 	private List<ObisCode> eventLogCapturedObjects = null;
 	private List<ObisCode> meterReadingsCapturedObjects = null;
 	private List<DeviceMessageCustomCosem> deviceMessageCustomCosems = null;
@@ -46,10 +43,9 @@ public class CosemAPDUParser {
 
 	private void reset() {
 	
-		profileData=null;
-		loadProfileObisCode=null;
+		loadProfiles=new HashMap<ObisCode,LoadProfile>();
+		
 		meterReadingData=null;
-		profileInterval=-1;
 		date=null;
 		deviceIdentification=null;
 		acknowledgeCustomCosem=null;
@@ -67,7 +63,6 @@ public class CosemAPDUParser {
 		databaseIDCustomCosem=null;
 		deviceIDCustomCosem=null;
 		
-		loadProfileCapturedObjects = null;
 		eventLogCapturedObjects = null;
 		meterReadingsCapturedObjects = null;
 		
@@ -142,7 +137,12 @@ public class CosemAPDUParser {
 	}
 	
 	private void parseContent(Iterator<CosemAPDU> it) throws IOException {
-		List<ChannelInfo> channelInfos=null;
+		
+		LoadProfile tempLoadProfile=null;
+		List<MeterEvent> tempMeterEvents=null;
+		List<ObisCode> loadProfileCapturedObjects = null;
+		
+		
 		while(it.hasNext()) {
 			CosemAPDU apdu = it.next();
 			
@@ -202,22 +202,23 @@ public class CosemAPDUParser {
 				}
 			}
 			else if (isLoadProfileObisCode(apdu.getCosemAttributeDescriptor().getObis())) {
-			//else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.99.1.0.255"))) {
-				
 				// We should create a hashmap that stores all load profiles...
 				if (DEBUG>=1) System.out.println("Received "+apdu.getCosemAttributeDescriptor().getObis().toString());
-					
-				if (profileData==null) {
-					setLoadProfileObisCode(apdu.getCosemAttributeDescriptor().getObis());
-					profileData = new ProfileData();
+				
+				tempLoadProfile = loadProfiles.get(apdu.getCosemAttributeDescriptor().getObis());
+				if (tempLoadProfile == null) {
+					loadProfileCapturedObjects=null;
+					tempLoadProfile = new LoadProfile(new ProfileData(),-1,apdu.getCosemAttributeDescriptor().getObis());
+					loadProfiles.put(apdu.getCosemAttributeDescriptor().getObis(),tempLoadProfile);
+					if (tempMeterEvents != null)
+						tempLoadProfile.getProfileData().setMeterEvents(tempMeterEvents);
+					tempMeterEvents=null;
 				}
-				channelInfos = buildIntervalData(apdu,channelInfos);
+				buildIntervalData(apdu,tempLoadProfile,loadProfileCapturedObjects);
 			} // load profile
-			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.99.98.0.255"))) {
+			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.99.98.0.255"))) { // meter event log
 				if (DEBUG>=1) System.out.println("KV_DEBUG> Received 0.0.99.98.0.255");
-				if (profileData==null)
-					profileData = new ProfileData();
-				buildEventLog(apdu);
+				tempMeterEvents = buildEventLog(apdu);
 			}
 			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.99.96.0.255"))) { // meterreadings
 				if (meterReadingData==null)
@@ -233,14 +234,14 @@ public class CosemAPDUParser {
 				if ((apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_DATA_VALUE) &&
 					(apdu.getCosemAttributeDescriptor().getClassId() == DLMSCOSEMGlobals.ICID_DATA)) {	
 					// search for a channelInfo to adjust unit/scaler and device channel ordinal mapping...
-					findAndAdjustChannelInfoFromChannelInfo(apdu,channelInfos);
+					findAndAdjustChannelInfoFromChannelInfo(apdu,tempLoadProfile);
 				}
 			}
 			else {
 				if ((apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_REGISTER_SCALER) &&
 					(apdu.getCosemAttributeDescriptor().getClassId() == DLMSCOSEMGlobals.ICID_REGISTER)) {	
 					// search for a channelInfo to adjust unit/scaler...
-					findAndAdjustChannelInfoFromDeviceRegister(apdu,channelInfos);
+					findAndAdjustChannelInfoFromDeviceRegister(apdu,tempLoadProfile);
 				}
 			}
 			
@@ -298,7 +299,7 @@ public class CosemAPDUParser {
 		}
 	} // private void buildMeterReadingData(CosemAPDU apdu) throws IOException
 	
-	private void buildEventLog(CosemAPDU apdu) throws IOException {
+	private List<MeterEvent> buildEventLog(CosemAPDU apdu) throws IOException {
 		if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_CAPTUREOBJECTS) {
 			// absorb
 		}
@@ -321,17 +322,18 @@ public class CosemAPDUParser {
 				
 				meterEvents.add(new MeterEvent(date,eiCode,protocolCode,message));
 			}
-			profileData.setMeterEvents(meterEvents);
+			return meterEvents;
 		}
+		
+		return null;
 	} // private void buildEventLog(CosemAPDU apdu) throws IOException
 	
-	private List<ChannelInfo> buildIntervalData(CosemAPDU apdu,List<ChannelInfo> channelInfos) throws IOException {
+	private void buildIntervalData(CosemAPDU apdu,LoadProfile tempLoadProfile,List<ObisCode> loadProfileCapturedObjects) throws IOException {
 		if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_CAPTUREOBJECTS) {
-			channelInfos = buildChannelInfos(apdu);
-			profileData.setChannelInfos(channelInfos);
+			tempLoadProfile.getProfileData().setChannelInfos(buildChannelInfos(apdu,loadProfileCapturedObjects));
 		}
 		else if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_CAPTUREPERIOD) {
-			profileInterval = apdu.getDataType().intValue();
+			tempLoadProfile.setIntervalInSeconds(apdu.getDataType().intValue());
 		}
 		else if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_BUFFER) {
 			Array buffer = apdu.getDataType().getArray();
@@ -348,9 +350,10 @@ public class CosemAPDUParser {
 				int eiStatus=0;
 				List<IntervalValue> intervalValues = new ArrayList();
 				if (loadProfileCapturedObjects==null) { // in case of short format...
-					if (channelInfos == null) {
+					List<ChannelInfo> channelInfos = tempLoadProfile.getProfileData().getChannelInfos();
+					if ((channelInfos == null) || (channelInfos.size()==0)) {
 						channelInfos = buildChannelInfos(entry.nrOfDataTypes()-2);
-						profileData.setChannelInfos(channelInfos);
+						tempLoadProfile.getProfileData().setChannelInfos(channelInfos);
 					}
 					endTime = buildDate(entry.getDataType(0));
 					eiStatus = entry.getDataType(1).intValue();
@@ -400,16 +403,14 @@ public class CosemAPDUParser {
 					}
 					
 					if (endTime==null) {
-						endTime = new Date(previousEndTime.getTime()+profileInterval*1000);
+						endTime = new Date(previousEndTime.getTime()+tempLoadProfile.getIntervalInSeconds()*1000);
 					}
 					intervalDatas.add(new IntervalData(endTime,eiStatus,0,0,intervalValues2));
 					previousEndTime = endTime;
 				}
 			}
-			profileData.setIntervalDatas(intervalDatas);
+			tempLoadProfile.getProfileData().setIntervalDatas(intervalDatas);
 		}
-		
-		return channelInfos;
 		
 	} // private void buildIntervalData(CosemAPDU apdu,List<ChannelInfo> channelInfos) throws IOException
 	
@@ -422,9 +423,11 @@ public class CosemAPDUParser {
 		return date;
 	} // private Date buildDate(AbstractDataType dataType) throws IOException
 	
-	private void findAndAdjustChannelInfoFromDeviceRegister(CosemAPDU apdu,List<ChannelInfo> channelInfos) {
-		if (channelInfos != null) {
-			for(int i=0;i<channelInfos.size();i++) {
+	private void findAndAdjustChannelInfoFromDeviceRegister(CosemAPDU apdu,LoadProfile tempLoadProfile) {
+		if ((tempLoadProfile.getProfileData().getChannelInfos() != null) && (tempLoadProfile.getProfileData().getChannelInfos().size() > 0)) {
+			List<ChannelInfo> channelInfos = tempLoadProfile.getProfileData().getChannelInfos();
+			
+			for(int i=0;i<tempLoadProfile.getProfileData().getChannelInfos().size();i++) {
 				if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString(channelInfos.get(i).getName()))) {
 					ScalerUnit scalerUnit = new ScalerUnit(apdu.getDataType());
 					channelInfos.get(i).setUnit(scalerUnit.getUnit());
@@ -433,8 +436,9 @@ public class CosemAPDUParser {
 		}
 	} // private void findAndAdjustChannelInfoFromDeviceRegister(CosemAPDU apdu,List<ChannelInfo> channelInfos)
 
-	private void findAndAdjustChannelInfoFromChannelInfo(CosemAPDU apdu,List<ChannelInfo> channelInfos) {
-		if (channelInfos != null) {
+	private void findAndAdjustChannelInfoFromChannelInfo(CosemAPDU apdu,LoadProfile tempLoadProfile) {
+		if ((tempLoadProfile.getProfileData().getChannelInfos() != null) && (tempLoadProfile.getProfileData().getChannelInfos().size() > 0)) {
+			List<ChannelInfo> channelInfos = tempLoadProfile.getProfileData().getChannelInfos();
 			for(int i=0;i<channelInfos.size();i++) {
 				if ((apdu.getCosemAttributeDescriptor().getObis().getB()-1) == i) {
 
@@ -460,7 +464,7 @@ public class CosemAPDUParser {
 		return channelInfos;
 	} // private List<ChannelInfo> buildChannelInfos(int nrOfChannels)
 	
-	private List<ChannelInfo> buildChannelInfos(CosemAPDU apdu) {
+	private List<ChannelInfo> buildChannelInfos(CosemAPDU apdu,List<ObisCode> loadProfileCapturedObjects) {
 		List<ChannelInfo> channelInfos = new ArrayList();
 		int channelId=0;
 		Array captureObjects = apdu.getDataType().getArray();
@@ -500,12 +504,8 @@ public class CosemAPDUParser {
 
 	}
 
-	public ProfileData getProfileData() {
-		return profileData;
-	}
-
-	public int getProfileInterval() {
-		return profileInterval;
+	public LoadProfile getLoadProfile(int profileIndex) {
+		return loadProfiles.get(ObisCode.fromString("0.0.99."+(profileIndex+1)+".0.255"));
 	}
 
 	public Date getDate() {
@@ -555,12 +555,8 @@ public class CosemAPDUParser {
 		return ipAddress;
 	}
 
-	public ObisCode getLoadProfileObisCode() {
-		return loadProfileObisCode;
-	}
-
-	public void setLoadProfileObisCode(ObisCode loadProfileObisCode) {
-		this.loadProfileObisCode = loadProfileObisCode;
+	public Map<ObisCode, LoadProfile> getLoadProfiles() {
+		return loadProfiles;
 	}
 
 }
