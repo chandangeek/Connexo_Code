@@ -435,11 +435,19 @@ public class MessageHandler extends DefaultHandler{
 	}
 	
 	public String getGprsUsername(){
-		return this.gprsUsername;
+		if(this.gprsUsername != null){
+			return this.gprsUsername;
+		} else {
+			return "";
+		}
 	}
 	
 	public String getGprsPassword(){
-		return this.gprsPassword;
+		if(this.gprsPassword != null){
+			return this.gprsPassword;
+		} else {
+			return "";
+		}
 	}
 	
 	/**********************************************/

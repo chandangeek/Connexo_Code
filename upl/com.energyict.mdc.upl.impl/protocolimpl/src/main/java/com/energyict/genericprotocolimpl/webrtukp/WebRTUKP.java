@@ -142,6 +142,9 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
  * 					Added a message to change to connectMode of the disconnectorObject;
  * 					Fixed bugs in the ActivityCalendar object; Added an entry delete of the specialDays
  * GNA |09032009| Added the informationFieldSize to the HDLCConnection so the max send/received length is customizable
+ * GNA |16032009| Added the getTimeDifference method so timedifferences are shown in the AMR logging. 
+ * 					Added properties to disable the reading of the daily/monthly values
+ * 					Added ipPortNumber property for updating the phone number with inbound communications
  */
 
 public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEnabler{
@@ -421,13 +424,16 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	 * @throws IOException
 	 */
 	private void updateIPAddress() throws SQLException, BusinessException, IOException{
-		String ipAddress = "";
+		StringBuffer ipAddress = new StringBuffer();
 		try {
 			IPv4Setup ipv4Setup = getCosemObjectFactory().getIPv4Setup();
-			ipAddress = ipv4Setup.getIPAddress();
+			ipAddress.append(ipv4Setup.getIPAddress());
+			ipAddress.append(":");
+			ipAddress.append(getPortNumber());
 			
 			RtuShadow shadow = getMeter().getShadow();
-			shadow.setIpAddress(ipAddress);
+//			shadow.setIpAddress(ipAddress.toString());
+			shadow.setPhoneNumber(ipAddress.toString());
 			
 			getMeter().update(shadow);
 		} catch (IOException e) {
@@ -438,6 +444,19 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 			throw new SQLException("Could not update the IP address.");
 		}
 	}
+	
+    /**
+     * Look if there is a portnumber given with the property IpPortNumber, else use the default 2048
+     * @return
+     */
+    private String getPortNumber(){
+    	String port = getMeter().getProperties().getProperty("IpPortNumber");
+    	if(port != null){
+    		return port; 
+    	} else {
+    		return "4059";	// default port number
+    	}
+    }
 	
 	/**
 	 * Just to test some objects
@@ -955,6 +974,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         result.add("MaxMbusDevices");
         result.add("ReadDailyValues");
         result.add("ReadMonthlyValues");
+        result.add("IpPortNumber");	
 		return result;
 	}
 
@@ -1604,9 +1624,16 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 					}
 					if((messageHandler.getGprsUsername() != null) || (messageHandler.getGprsPassword() != null)){
 						getCosemObjectFactory().getPPPSetup().writePPPAuthenticationType(pppat);
+						
+						// TODO change this back to using the DLMS object instead of the raw data
+//						byte[] b = new byte[pppat.getBEREncodedByteArray().length + 2];
+//						b[0] = (byte)0x16;
+//						b[1] = (byte)0x01;
+//						System.arraycopy(pppat.getBEREncodedByteArray(), 0, b, 2, b.length-2);
+//						getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.25.3.0.255"), 5, 44).write(b);
 					}
 					
-					if(!messageHandler.getGprsApn().equalsIgnoreCase("")){
+					if(messageHandler.getGprsApn() != null){
 						getCosemObjectFactory().getGPRSModemSetup().writeAPN(messageHandler.getGprsApn());
 					}
 					
