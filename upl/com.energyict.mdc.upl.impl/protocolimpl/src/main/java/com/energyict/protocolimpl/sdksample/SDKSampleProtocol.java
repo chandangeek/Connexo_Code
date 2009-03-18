@@ -139,7 +139,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         
         getLogger().info("call overrided method getProfileData("+lastReading+","+includeEvents+")");  
-        getLogger().info("--> here we read the profiledata from the meter and construct a profiledata object");  
+        getLogger().info("--> here we read the profiledata for "+getLoadProfileObisCode().toString()+" from the meter and construct a profiledata object");  
         
         ProfileData pd = new ProfileData();
         if (getLoadProfileObisCode().getD() == 1) {
@@ -198,7 +198,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         // Override or add new properties here e.g. below
         setSDKSampleProperty(Integer.parseInt(properties.getProperty("SDKSampleProperty", "123")));
-        setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
+       	setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
     }
     
     protected List doGetOptionalKeys() {
