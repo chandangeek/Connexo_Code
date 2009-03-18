@@ -235,7 +235,7 @@ while(count++<1) {
             properties.setProperty("ProfileInterval", "60");
             //properties.setProperty(MeterProtocol.NODEID,"0");
             properties.setProperty(MeterProtocol.ADDRESS,"2");
-            properties.setProperty("HalfDuplex", "1");
+            properties.setProperty("HalfDuplex", "-1");
             
 //            int ift;
 //            if ((args==null) || (args.length==0))
