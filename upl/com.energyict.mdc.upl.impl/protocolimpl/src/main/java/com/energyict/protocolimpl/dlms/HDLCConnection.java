@@ -596,9 +596,11 @@ public class HDLCConnection extends Connection implements DLMSConnection {
     
     private byte waitForHDLCFrameStateMachine(int iTimeout,byte[] byteReceiveBuffer) throws DLMSConnectionException {
         long lMSTimeout;
-        int inewKar;
+        int inewKar = 0;
         int[] CRC; //=new int[2];
         int[] calcCRC; //=new int[2];
+        
+        byte[] dataByte = null;
 
         short sLength;
         short sRXCount=0;
@@ -613,7 +615,8 @@ public class HDLCConnection extends Connection implements DLMSConnection {
         
         try {
             while(boolAbort==false) {
-                if ((inewKar = readIn()) != -1) {
+            	// GNA |18032009| After getting the length of the dlms frame just read in the complete frame, it saves time (about 100ms)
+                if ((sLength == 0)?((inewKar = readIn()) != -1):((dataByte = readInArray()) != null)) {
                    if (DEBUG>=1) ProtocolUtils.outputHex(inewKar);
                    if (sRXCount>=MAX_BUFFER_SIZE) return HDLC_BADFRAME;
                    
@@ -645,46 +648,54 @@ public class HDLCConnection extends Connection implements DLMSConnection {
                            {
                                sLength =(short)((((short)byteReceiveBuffer[protocolParameters[frameFormatMSB]]&0x0007)<<8) |
                                                  ((short)byteReceiveBuffer[protocolParameters[frameFormatLSB]]&0x00FF));
+                               dataByte = new byte[sLength];
                                bCurrentState = WAIT_FOR_DATA;
                            }
                        } break; // WAIT_FOR_FRAME_FORMAT
 
                        case WAIT_FOR_DATA:
                        {
-                           byteReceiveBuffer[sRXCount++]=(byte)inewKar;
+//                           byteReceiveBuffer[sRXCount++]=(byte)inewKar;
+                    	   System.arraycopy(dataByte, 0, byteReceiveBuffer, sRXCount, dataByte.length);
+                    	   sRXCount += dataByte.length;
+                    	   System.out.println("sRXCount : " + sRXCount + " - sLength : " + sLength + " - dataByte.length : " + dataByte.length);
                            if (sRXCount >= sLength)
                            {
-                              bCurrentState = WAIT_FOR_END_FLAG;
+//                              bCurrentState = WAIT_FOR_END_FLAG;
+                        	   return checkCRC(byteReceiveBuffer, sRXCount);
                            }
                        } break; // WAIT_FOR_DATA
 
-                       case WAIT_FOR_END_FLAG:
-                       {
-                           switch((byte)inewKar)
-                           {
-                              case HDLC_FLAG:
-                              {
-                                  // Check CRC
-                                  CRC = getCRC(byteReceiveBuffer);
-                                  calcCRC = calcCRC(byteReceiveBuffer);
-                                  if ((CRC[0] == calcCRC[0]) &&
-                                      (CRC[1] == calcCRC[1]))
-                                  {
-                                      return HDLC_RX_OK;
-                                  }
-                                  else
-                                  {
-                                      return HDLC_BADCRC;
-                                  }
-
-                              } // case HDLC_FLAG:
-
-                              default: 
-                                  return HDLC_BADFRAME;
-                              
-                           } // switch((byte)inewKar)
-
-                       } // case WAIT_FOR_END_FLAG:
+                       
+//                       case WAIT_FOR_END_FLAG:
+//                       {
+////                           switch((byte)inewKar)
+//                    	   switch(byteReceiveBuffer[byteReceiveBuffer.length-1])
+//                           {
+//                              case HDLC_FLAG:
+//                              {
+//                                  // Check CRC
+//                                  CRC = getCRC(byteReceiveBuffer);
+//                                  calcCRC = calcCRC(byteReceiveBuffer);
+//                                  if ((CRC[0] == calcCRC[0]) &&
+//                                      (CRC[1] == calcCRC[1]))
+//                                  {
+//                                	  System.out.println(byteReceiveBuffer);
+//                                      return HDLC_RX_OK;
+//                                  }
+//                                  else
+//                                  {
+//                                      return HDLC_BADCRC;
+//                                  }
+//
+//                              } // case HDLC_FLAG:
+//
+//                              default: 
+//                                  return HDLC_BADFRAME;
+//                              
+//                           } // switch((byte)inewKar)
+//
+//                       } // case WAIT_FOR_END_FLAG:
 
                     } // switch (bCurrentState)
 
@@ -707,7 +718,38 @@ public class HDLCConnection extends Connection implements DLMSConnection {
         }
     } // private byte waitForHDLCFrameStateMachine()
     
-    private void sendFrame(byte[] byteBuffer) throws NestedIOException,DLMSConnectionException {
+    private byte checkCRC(byte[] byteReceiveBuffer, short count) {
+    	
+        int[] CRC; //=new int[2];
+        int[] calcCRC; //=new int[2];
+        
+	   switch(byteReceiveBuffer[count-1])
+	   {
+	      case HDLC_FLAG:
+	      {
+	          // Check CRC
+	      CRC = getCRC(byteReceiveBuffer);
+	      calcCRC = calcCRC(byteReceiveBuffer);
+	      if ((CRC[0] == calcCRC[0]) &&
+	          (CRC[1] == calcCRC[1]))
+	      {
+	    	  System.out.println(byteReceiveBuffer);
+	          return HDLC_RX_OK;
+	      }
+	      else
+	      {
+	          return HDLC_BADCRC;
+	      }
+	
+	  } // case HDLC_FLAG:
+	
+	      default: 
+	          return HDLC_BADFRAME;
+	      
+	   }	
+	}
+
+	private void sendFrame(byte[] byteBuffer) throws NestedIOException,DLMSConnectionException {
         int iLength;
         byte[] flag=new byte[1];
         flag[0] = HDLC_FLAG;
