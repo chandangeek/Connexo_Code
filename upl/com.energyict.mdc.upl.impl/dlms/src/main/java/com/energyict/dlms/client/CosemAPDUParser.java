@@ -140,7 +140,7 @@ public class CosemAPDUParser {
 		
 		LoadProfile tempLoadProfile=null;
 		List<MeterEvent> tempMeterEvents=null;
-		List<ObisCode> loadProfileCapturedObjects = null;
+		List<ObisCode> loadProfileCapturedObjects = new ArrayList<ObisCode>();
 		
 		
 		while(it.hasNext()) {
@@ -207,7 +207,7 @@ public class CosemAPDUParser {
 				
 				tempLoadProfile = loadProfiles.get(apdu.getCosemAttributeDescriptor().getObis());
 				if (tempLoadProfile == null) {
-					loadProfileCapturedObjects=null;
+					loadProfileCapturedObjects = new ArrayList<ObisCode>();
 					tempLoadProfile = new LoadProfile(new ProfileData(),-1,apdu.getCosemAttributeDescriptor().getObis());
 					loadProfiles.put(apdu.getCosemAttributeDescriptor().getObis(),tempLoadProfile);
 					if (tempMeterEvents != null)
@@ -349,7 +349,7 @@ public class CosemAPDUParser {
 				Date endTime=null;
 				int eiStatus=0;
 				List<IntervalValue> intervalValues = new ArrayList();
-				if (loadProfileCapturedObjects==null) { // in case of short format...
+				if (loadProfileCapturedObjects.size()==0) { // in case of short format...
 					List<ChannelInfo> channelInfos = tempLoadProfile.getProfileData().getChannelInfos();
 					if ((channelInfos == null) || (channelInfos.size()==0)) {
 						channelInfos = buildChannelInfos(entry.nrOfDataTypes()-2);
@@ -476,8 +476,6 @@ public class CosemAPDUParser {
 			int classId = dataType.getStructure().getDataType(0).getUnsigned16().intValue();
 			ObisCode obisCode = ObisCode.fromByteArray(dataType.getStructure().getDataType(1).getOctetString().getOctetStr());
 			
-			if (loadProfileCapturedObjects==null)
-				loadProfileCapturedObjects = new ArrayList();
 			loadProfileCapturedObjects.add(obisCode);
 			
 			int attr = dataType.getStructure().getDataType(2).getInteger8().intValue();
