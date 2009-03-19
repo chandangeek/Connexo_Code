@@ -23,7 +23,10 @@ import com.energyict.protocolimpl.modbus.enerdis.enerium200.profile.Profile;
  * @author  jme
  * 
  * Changes:
- * jme: 17/11/2008 -> Initial release of the Enerium 200 protocol
+ * jme: 17/11/2008 	-> 	Initial release of the Enerium 200 protocol
+ * jme:	19/03/2009	-> 	Override of the default values for timing/retries properties with the most 
+ * 						obvious and working values. The following properties are changed: InterframeTimeout, 
+ * 						PhysicalLayer, ResponseTimeout, Timeout and Retries.
  * 
  */
 
@@ -55,6 +58,13 @@ public class Enerium200 extends Modbus {
 	}
 
 	protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+		
+        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","500").trim()));
+        setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty("PhysicalLayer","1").trim()));
+        setInfoTypeResponseTimeout(Integer.parseInt(properties.getProperty("ResponseTimeout","2000").trim()));
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty("Timeout","5000").trim()));
+        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty("Retries","5").trim()));
+        
 		try {
 			Integer.parseInt(getInfoTypeDeviceID());
 		} catch (Exception e) {
