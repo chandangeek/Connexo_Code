@@ -23,8 +23,8 @@ import com.energyict.protocolimpl.modbus.enerdis.enerium200.profile.Profile;
  * @author  jme
  * 
  * Changes:
- * jme: 17/11/2008 	-> 	Initial release of the Enerium 200 protocol
- * jme:	19/03/2009	-> 	Override of the default values for timing/retries properties with the most 
+ * jme:	17/11/2008	->	Initial release of the Enerium 200 protocol
+ * jme:	19/03/2009	->	Override of the default values for timing/retries properties with the most 
  * 						obvious and working values. The following properties are changed: InterframeTimeout, 
  * 						PhysicalLayer, ResponseTimeout, Timeout and Retries.
  * 
