@@ -26,6 +26,7 @@ import com.energyict.protocol.discover.Discover;
  * 
  * Changes:
  * 02/01/2009|JME - Added call to doTheGetOptionalKeys() in method doGetOptionalKeys() to read the optional keys from the abstract method, implemented by the protocol who's is extending Modbus
+ * 19/03/2009|JME - Added setter for InfoTypeResponseTimeout property.
  * 
  */
 abstract public class Modbus extends AbstractProtocol implements Discover {
@@ -284,5 +285,7 @@ abstract public class Modbus extends AbstractProtocol implements Discover {
 	protected void setInfoTypeMeterFirmwareVersion(String meterFirmwareVersion) {
 		this.meterFirmwareVersion = meterFirmwareVersion;
 	}
-    
+    protected void setInfoTypeResponseTimeout(int responseTimeout) {
+    	this.responseTimeout = responseTimeout;
+    }
 }
