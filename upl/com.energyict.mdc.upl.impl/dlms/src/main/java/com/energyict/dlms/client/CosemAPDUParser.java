@@ -221,15 +221,20 @@ public class CosemAPDUParser {
 					loadProfileCapturedObjects = new ArrayList<ObisCode>();
 					tempLoadProfile = new LoadProfile(new ProfileData(),-1,apdu.getCosemAttributeDescriptor().getObis());
 					loadProfiles.add(tempLoadProfile);
-					if (tempMeterEvents != null)
+					if (tempMeterEvents != null) {
 						tempLoadProfile.getProfileData().setMeterEvents(tempMeterEvents);
-					tempMeterEvents=null;
+						tempMeterEvents=null;
+					}
 				}
 				buildIntervalData(apdu,tempLoadProfile,loadProfileCapturedObjects);
 			} // load profile
 			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.99.98.0.255"))) { // meter event log
 				if (DEBUG>=1) System.out.println("KV_DEBUG> Received 0.0.99.98.0.255");
 				tempMeterEvents = buildEventLog(apdu);
+				if ((tempLoadProfile != null) && (tempMeterEvents != null)) {
+					tempLoadProfile.getProfileData().setMeterEvents(tempMeterEvents);
+					tempMeterEvents=null;
+				}
 			}
 			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.99.96.0.255"))) { // meterreadings
 				if (meterReadingData==null)
