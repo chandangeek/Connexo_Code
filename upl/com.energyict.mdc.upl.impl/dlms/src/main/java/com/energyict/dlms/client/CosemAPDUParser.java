@@ -17,8 +17,8 @@ public class CosemAPDUParser {
 
 	final int DEBUG=0;
 	
-	private Map<ObisCode,LoadProfile> loadProfiles=null;
-
+	private List<LoadProfile> loadProfiles=null;
+	
 	private MeterReadingData meterReadingData=null;
 	private Date previousEndTime=null;
 	private Date date=null;
@@ -43,7 +43,7 @@ public class CosemAPDUParser {
 
 	private void reset() {
 	
-		loadProfiles=new HashMap<ObisCode,LoadProfile>();
+		loadProfiles=new ArrayList<LoadProfile>();
 		
 		meterReadingData=null;
 		date=null;
@@ -136,6 +136,17 @@ public class CosemAPDUParser {
 			
 	}
 	
+	private LoadProfile findLoadProfile(ObisCode loadProfileObisCode) {
+		
+		for (int i=0;i<loadProfiles.size();i++) {
+			LoadProfile loadProfile = loadProfiles.get(i);
+			if (loadProfile.getLoadProfileObiscode().equals(loadProfileObisCode))
+				return loadProfile;
+		}
+
+		return null;
+	}
+	
 	private void parseContent(Iterator<CosemAPDU> it) throws IOException {
 		
 		LoadProfile tempLoadProfile=null;
@@ -205,11 +216,11 @@ public class CosemAPDUParser {
 				// We should create a hashmap that stores all load profiles...
 				if (DEBUG>=1) System.out.println("Received "+apdu.getCosemAttributeDescriptor().getObis().toString());
 				
-				tempLoadProfile = loadProfiles.get(apdu.getCosemAttributeDescriptor().getObis());
+				tempLoadProfile = findLoadProfile(apdu.getCosemAttributeDescriptor().getObis());
 				if (tempLoadProfile == null) {
 					loadProfileCapturedObjects = new ArrayList<ObisCode>();
 					tempLoadProfile = new LoadProfile(new ProfileData(),-1,apdu.getCosemAttributeDescriptor().getObis());
-					loadProfiles.put(apdu.getCosemAttributeDescriptor().getObis(),tempLoadProfile);
+					loadProfiles.add(tempLoadProfile);
 					if (tempMeterEvents != null)
 						tempLoadProfile.getProfileData().setMeterEvents(tempMeterEvents);
 					tempMeterEvents=null;
@@ -503,7 +514,7 @@ public class CosemAPDUParser {
 	}
 
 	public LoadProfile getLoadProfile(int profileIndex) {
-		return loadProfiles.get(ObisCode.fromString("0.0.99."+(profileIndex+1)+".0.255"));
+		return findLoadProfile(ObisCode.fromString("0.0.99."+(profileIndex+1)+".0.255"));
 	}
 
 	public Date getDate() {
@@ -553,7 +564,7 @@ public class CosemAPDUParser {
 		return ipAddress;
 	}
 
-	public Map<ObisCode, LoadProfile> getLoadProfiles() {
+	public List<LoadProfile> getLoadProfiles() {
 		return loadProfiles;
 	}
 
