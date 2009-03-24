@@ -39,6 +39,7 @@ import com.energyict.protocolimpl.iec1107.*;
  * JME	23012009	Fixed Java 1.5 <=> 1.4 issues to port from 8.1 to 7.5, 7.3 or 7.1
  * JME	20022009	Implemented Billing reset message
  * JME	13032009	Fixed bug in Billing reset message
+ * JME	24032009	Added delay during close contactor message execution between the ARM and CLOSE command.
  * 
  */
 
@@ -1070,7 +1071,8 @@ public class ABBA230 implements
 		    	long val = ((Long)rFactory.getRegister("ContactorStatus")).longValue();
 		    	if (val > 0) {
 		        	rFactory.setRegister("ContactorStatus",new byte[]{0}); // arm the contactor for closing
-		        	rFactory.setRegister("ContactorCloser",new byte[]{0}); // close the armed contactor
+		        	try {Thread.sleep(1000);} catch (InterruptedException e) {}
+		        	rFactory.setRegister("ContactorCloser",new byte[]{1}); // close the armed contactor
 		    	}
 			}
 			else if (messageEntry.getContent().indexOf("<"+ARM)>=0) {
