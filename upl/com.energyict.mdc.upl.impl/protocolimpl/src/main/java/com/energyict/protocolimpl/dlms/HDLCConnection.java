@@ -658,7 +658,6 @@ public class HDLCConnection extends Connection implements DLMSConnection {
 //                           byteReceiveBuffer[sRXCount++]=(byte)inewKar;
                     	   System.arraycopy(dataByte, 0, byteReceiveBuffer, sRXCount, dataByte.length);
                     	   sRXCount += dataByte.length;
-                    	   System.out.println("sRXCount : " + sRXCount + " - sLength : " + sLength + " - dataByte.length : " + dataByte.length);
                            if (sRXCount >= sLength)
                            {
 //                              bCurrentState = WAIT_FOR_END_FLAG;

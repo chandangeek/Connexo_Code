@@ -326,7 +326,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
      */
     public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn =
-        (HHUSignOn)new IEC1107HHUConnection(commChannel, this.timeout, this.retries, 300, 0);
+        (HHUSignOn)new IEC1107HHUConnection(commChannel, this.timeout, this.retries, 300, 1);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
@@ -432,8 +432,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 			ipAddress.append(getPortNumber());
 			
 			RtuShadow shadow = getMeter().getShadow();
-//			shadow.setIpAddress(ipAddress.toString());
-			shadow.setPhoneNumber(ipAddress.toString());
+			shadow.setIpAddress(ipAddress.toString());
+//			shadow.setPhoneNumber(ipAddress.toString());
 			
 			getMeter().update(shadow);
 		} catch (IOException e) {
