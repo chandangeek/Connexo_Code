@@ -123,9 +123,9 @@ public class RegisterFactory extends AbstractRegisterFactory {
             		} else {
             			bd = new BigDecimal("+" + val);
             		}
-                    return bd.movePointRight(1);
+                    return bd.movePointLeft(1);
             	} else {
-            		throw new ModbusException("Not supported when Systemtype is 31 or 40",(short) 0,0x83,0x02);
+            		throw new ModbusException("Not supported when Systemtype is 30 or 31",(short) 0,0x83,0x02);
             	}
             }
         });
@@ -143,9 +143,9 @@ public class RegisterFactory extends AbstractRegisterFactory {
             		} else {
             			bd = new BigDecimal("+" + val);
             		}
-                    return bd.movePointRight(2);
+                    return bd.movePointLeft(2);
             	} else {
-            		throw new ModbusException("Not supported when Systemtype is 31 or 40",(short) 0,0x83,0x02);
+            		throw new ModbusException("Not supported when Systemtype is 30 or 31",(short) 0,0x83,0x02);
             	}
             }
         });
