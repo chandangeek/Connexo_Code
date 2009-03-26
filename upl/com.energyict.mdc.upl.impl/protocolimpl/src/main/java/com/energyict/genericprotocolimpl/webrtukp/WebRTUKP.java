@@ -326,7 +326,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
      */
     public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn =
-        (HHUSignOn)new IEC1107HHUConnection(commChannel, this.timeout, this.retries, 300, 1);
+        (HHUSignOn)new IEC1107HHUConnection(commChannel, this.timeout, this.retries, 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
