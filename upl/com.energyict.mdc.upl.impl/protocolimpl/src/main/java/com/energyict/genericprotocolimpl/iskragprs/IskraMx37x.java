@@ -27,7 +27,11 @@ import com.energyict.cbo.Unit;
 import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.DialerMarker;
 import com.energyict.dialer.core.Link;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
@@ -49,7 +53,6 @@ import com.energyict.dlms.cosem.AutoConnect;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.StoredValues;
@@ -79,6 +82,7 @@ import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.MissingPropertyException;
@@ -104,8 +108,9 @@ import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
  * GNA |29012009| Added force clock
  * GNA |02022009| Mad some changes to the sendTOU message. No activationDate is immediate activation using the Object method
  * GNA |23022009| Added mbus install/remove/dataretrieval messages
+ * GNA |26032009| Added the activate Wakeup message
  */
-public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism, Messaging{
+public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism, Messaging, HHUEnabler{
 	
 	private int DEBUG = 0;
 	private int TESTLOGGING = 0; 
@@ -792,7 +797,12 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 				dlmsConnection = new TCPIPConnection(is, os, iHDLCTimeoutProperty, 100, iProtocolRetriesProperty,iClientMacAddress, iServerLowerMacAddress);
 			}
 			
-			dlmsConnection.setIskraWrapper(1);
+		
+			
+			if (DialerMarker.hasOpticalMarker(this.link)){
+				((HHUEnabler)this).enableHHUSignOn(this.link.getSerialCommunicationChannel());
+			}
+			
 			
 		} catch (DLMSConnectionException e) {
 			throw new IOException(e.getMessage());
@@ -801,6 +811,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
 	private void connect() throws IOException, DLMSConnectionException, SQLException, BusinessException {
 			getDLMSConnection().connectMAC();
+			
+			dlmsConnection.setIskraWrapper(1);
+			
 			secureConnection = new SecureConnection(iSecurityLevelProperty,
 					firmwareVersion, strPassword, getDLMSConnection());
 			if(TESTLOGGING >= 1) getLogger().log(Level.INFO, "GN - TESTLOG: Starting the Cache mechanism(checking if cache exists, reading cache if it doesn't exist)");
@@ -1158,7 +1171,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             	throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
             
             strPassword = rtu.getPassword();
-            iHDLCTimeoutProperty=Integer.parseInt(properties.getProperty("Timeout","10000").trim());
+            iHDLCTimeoutProperty=Integer.parseInt(properties.getProperty("Timeout","5000").trim());
             iProtocolRetriesProperty=Integer.parseInt(properties.getProperty("Retries","10").trim());
             iSecurityLevelProperty=Integer.parseInt(properties.getProperty("SecurityLevel","1").trim());
             iRequestTimeZone=Integer.parseInt(properties.getProperty("RequestTimeZone","0").trim());
@@ -1325,6 +1338,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             boolean wuDeleteWhiteList = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_DELETE_WHITELIST);
             boolean wuGeneralRestrict = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_GENERAL_RESTRICTION);
             boolean wuClearWhiteList = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_CLEAR_WHITELIST);
+            boolean wuActivate = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_ACTIVATE);
             
             if (falsemsg){
             	msg.setFailed();
@@ -1423,6 +1437,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             else if(wuClearWhiteList){
             	clearWhiteList(msg);
             }
+            else if(wuActivate){
+            	activateWakeUp(msg);
+            }
             else {
             	msg.setFailed();
             }
@@ -1445,6 +1462,28 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e, msg, description);
+		}
+	}
+	
+	/**
+	 * Set the gsm mode to GSM.
+	 * Values:
+	 * 		- 0 : GSM
+	 * 		- 1 : GSM/PPP
+	 * 		- 2 : GPRS
+	 * @param msg
+	 * @throws SQLException 
+	 * @throws BusinessException 
+	 */
+	private void activateWakeUp(RtuMessage msg) throws IOException, BusinessException, SQLException{
+		try {
+			Unsigned8 gsmMode = new Unsigned8(0);
+			getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.10.255"), 2, 1).write(gsmMode.getBEREncodedByteArray());
+			
+			msg.confirm();
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Could not write the GSM mode");
 		}
 	}
 	
@@ -1921,6 +1960,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         catWakeUp.addMessageSpec(msgSpec);
         msgSpec = addValueMessage("Delete number from white list", RtuMessageConstant.WAKEUP_DELETE_WHITELIST, false);
         catWakeUp.addMessageSpec(msgSpec);
+        msgSpec = addBasicMsg("Activate wakeup mechanism", RtuMessageConstant.WAKEUP_ACTIVATE, false);
+        catWakeUp.addMessageSpec(msgSpec);
         // TODO Don't implement this yet ... 
 //        msgSpec = addBasicMsg("Clear white list", RtuMessageConstant.WAKEUP_CLEAR_WHITELIST, false);
 //        catWakeUp.addMessageSpec(msgSpec);
@@ -2076,4 +2117,29 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	public long getTimeDifference() {
 		return this.timeDifference;
 	}
+
+    public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
+        enableHHUSignOn(commChannel,false);
+    }
+    /**
+     * Used by the framework
+     * @param commChannel communication channel object
+     * @param datareadout enable or disable data readout
+     * @throws com.energyict.dialer.connection.ConnectionException thrown when a connection exception happens
+     */
+    public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
+        HHUSignOn hhuSignOn =
+        (HHUSignOn)new IEC1107HHUConnection(commChannel, this.iHDLCTimeoutProperty, this.iProtocolRetriesProperty, 300, 0);
+        hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
+        hhuSignOn.setProtocol(HHUSignOn.MODE_BINARY_HDLC);
+        hhuSignOn.enableDataReadout(datareadout);
+        getDLMSConnection().setHHUSignOn(hhuSignOn, this.nodeId);
+    }
+    /**
+     * Getter for the data readout
+     * @return byte[] with data readout
+     */
+    public byte[] getHHUDataReadout() {
+        return getDLMSConnection().getHhuSignOn().getDataReadout();
+    }
 }

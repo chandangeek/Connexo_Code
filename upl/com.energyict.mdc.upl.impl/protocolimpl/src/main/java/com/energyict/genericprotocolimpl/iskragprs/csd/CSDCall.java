@@ -81,15 +81,15 @@ public class CSDCall extends ModemConnection{
 			}
 			
 		} catch (DialerCarrierException e){
-			e.printStackTrace();
 			if(e.getMessage().indexOf(NOCARRIER) != 0){
+				e.printStackTrace();
 				throw new IOException(e.getMessage());
 			} else {
 				// the call was good, but you don't know if the meter will come online
 			}
 		} catch (DialerException e){
-			e.printStackTrace();
 			if(e.getMessage().indexOf(BUSY) != 0){
+				e.printStackTrace();
 				throw new IOException(e.getMessage());
 			} else {
 				// the call was good, but you don't know if the meter will come online

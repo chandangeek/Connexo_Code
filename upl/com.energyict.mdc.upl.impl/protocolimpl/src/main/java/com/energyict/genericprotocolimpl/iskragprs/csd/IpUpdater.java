@@ -26,14 +26,6 @@ public class IpUpdater {
 		Properties properties = getProperties();
 		connectionProvider.configure(properties);
 	};
-	
-//	private static String request = "select * from RADIUSACCOUNTING where CALLING_STATION_ID like ?";
-//
-//	private static String requestOracle = "select FRAMED_IP_ADDRESS, EVENT_TIMESTAMP from (select * from RADIUSACCOUNTING where CALLING_STATION_ID like ? order by EVENT_TIMESTAMP desc) where rownum <= 1";
-//	private static String requestMySQL = "select FRAMED_IP_ADDRESS, EVENT_TIMESTAMP from (select * from RADIUSACCOUNTING where CALLING_STATION_ID like ? order by EVENT_TIMESTAMP desc) LIMIT 1";
-//	private static String requestSQLServer = "select TOP 1 FRAMED_IP_ADDRESS, EVENT_TIMESTAMP from (select * from RADIUSACCOUNTING where CALLING_STATION_ID like ? order by EVENT_TIMESTAMP desc)";
-//	
-//	private static String request2 = "select * from RADIUSACCOUNTING where CALLING_STATION_ID like ? and EVENT_TIMESTAMP > ?";
 	private static String request = "select FRAMED_IP_ADDRESS from RADIUSACCOUNTING where CALLING_STATION_ID like ? and ? < LOG_DATE";
 	
 	private static String IPADDRESS = "FRAMED_IP_ADDRESS";
