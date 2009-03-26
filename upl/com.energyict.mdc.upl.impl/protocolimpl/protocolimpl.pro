@@ -269,3 +269,5 @@
 -keepnames class com.energyict.protocolimpl.modbus.enerdis.enerium200.Enerium200
 
 -keepnames class com.energyict.protocolimpl.dlms.actarisace6000.ACE6000
+
+-keepnames class com.energyict.protocolimpl.modbus.schneider.compactnsx.CompactNSX
