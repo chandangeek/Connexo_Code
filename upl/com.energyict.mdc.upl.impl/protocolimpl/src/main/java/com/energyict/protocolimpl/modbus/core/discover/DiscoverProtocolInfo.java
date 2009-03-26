@@ -49,6 +49,8 @@ public class DiscoverProtocolInfo {
         list.add(new DiscoverProtocolInfo(2,"142","com.energyict.protocolimpl.modbus.socomec.a40.A40","PNP Socomec Diris A40"));
         list.add(new DiscoverProtocolInfo(2,"73","com.energyict.protocolimpl.modbus.ge.pqm2.PQM2","PNP GE PQM2"));
         
+        list.add(new DiscoverProtocolInfo(1,"Schneider Electric;TRV00210","com.energyict.protocolimpl.modbus.schneider.compactnsx.CompactNSX","PNP Schneider CompactNSX"));
+        
     }
     
     private int discoverMethod;
