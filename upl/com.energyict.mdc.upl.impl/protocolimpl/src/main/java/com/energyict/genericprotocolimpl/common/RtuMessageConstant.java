@@ -130,6 +130,7 @@ public class RtuMessageConstant {
 	public static final String WAKEUP_DELETE_WHITELIST = "Phonenumber to delete";
 	public static final String WAKEUP_CLEAR_WHITELIST = "Clear whiteList";
 	public static final String WAKEUP_GENERAL_RESTRICTION = "General restriction";
+	public static final String WAKEUP_ACTIVATE = "Activate the wakeup mechanism";
 	
 	/** RtuMessage tags for Making entries */
 	public static final String ME_MAKING_ENTRIES ="Make_database_entries";
