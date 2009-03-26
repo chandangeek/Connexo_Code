@@ -41,8 +41,8 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(1003,1,ObisCode.fromString("1.1.132.7.0.255"))); // RMS Phase-to-Neutral voltage V1N
         getRegisters().add(new HoldingRegister(1004,1,ObisCode.fromString("1.1.152.7.0.255"))); // RMS Phase-to-Neutral voltage V2N
         getRegisters().add(new HoldingRegister(1005,1,ObisCode.fromString("1.1.172.7.0.255"))); // RMS Phase-to-Neutral voltage V3N
-        getRegisters().add(new HoldingRegister(1006,1,ObisCode.fromString("1.1.12.4.0.255"))); // Total average Line-to-Line
-        getRegisters().add(new HoldingRegister(1007,1,ObisCode.fromString("1.1.112.4.0.255"))); // Total average Line-to-Neutral
+        getRegisters().add(new HoldingRegister(1006,1,ObisCode.fromString("1.1.128.7.0.255"))); // Total average Line-to-Line
+        getRegisters().add(new HoldingRegister(1007,1,ObisCode.fromString("1.1.129.7.0.255"))); // Total average Line-to-Neutral
         getRegisters().add(new HoldingRegister(1145,1,ObisCode.fromString("1.1.12.6.0.255"))); // Maximum of V12, V23, V31
         getRegisters().add(new HoldingRegister(1146,1,ObisCode.fromString("1.1.12.3.0.255"))); // Minimum of V12, V23, V31
         
@@ -52,7 +52,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(1018,1,ObisCode.fromString("1.1.71.7.0.255"))); // RMS current on phase 3:L3
         getRegisters().add(new HoldingRegister(1019,1,ObisCode.fromString("1.1.11.6.0.255"))); // Maximum I1, I2, I3
         getRegisters().add(new HoldingRegister(1026,1,ObisCode.fromString("1.1.11.3.0.255"))); // Minimum I1, I2, I3
-        getRegisters().add(new HoldingRegister(1027,1,ObisCode.fromString("1.1.11.4.0.255"))); // Total average I1, I2, I3
+        getRegisters().add(new HoldingRegister(1027,1,ObisCode.fromString("1.1.130.7.0.255"))); // Total average I1, I2, I3
         
         // Active power
         getRegisters().add(new HoldingRegister(1034,1,ObisCode.fromString("1.1.21.7.0.255"),Unit.get("kW")).setParser("PowerSign")); // Active power Phase1
