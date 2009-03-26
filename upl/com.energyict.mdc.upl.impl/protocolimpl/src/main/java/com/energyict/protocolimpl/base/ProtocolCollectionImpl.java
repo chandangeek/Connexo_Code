@@ -137,6 +137,7 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         protocolclasses.add("com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging");protocolnames.add("DLMS Z3 Messaging");
         protocolclasses.add("com.energyict.protocolimpl.dlms.elster.ek2xx.EK2xx");protocolnames.add("DLMS Elster Instromet EK2xx");
         protocolclasses.add("com.energyict.protocolimpl.modbus.enerdis.enerium200.Enerium200");protocolnames.add("Enerdis Enerium 200 modbus meter");
+        protocolclasses.add("com.energyict.protocolimpl.modbus.schneider.compactnsx.CompactNSX");protocolnames.add("Schneider Compact NSX Modbus meter");
     }  
     
     public String getProtocolName(int index) throws IOException {
