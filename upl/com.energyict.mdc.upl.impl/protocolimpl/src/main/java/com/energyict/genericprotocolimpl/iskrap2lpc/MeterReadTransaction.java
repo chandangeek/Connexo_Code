@@ -70,6 +70,11 @@ import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
  * NOTE:
  * In several methods you will see an IF-ELSE structure with a TESTING variable, this is only necessary for UnitTesting so we can actually 
  * store meterData in the database, sometimes it is used to set configuration which we normally should have read from the meter.
+ * 
+ * changes:
+ * 
+ * GNA |26032009| Mantis 4170: Fixed duplicate MBus serialnumber issue
+ * 
  */
 public class MeterReadTransaction implements CacheMechanism {
 	
@@ -1687,9 +1692,11 @@ public class MeterReadTransaction implements CacheMechanism {
 		if(meter.getProperties().getProperty(Constant.RTU_TYPE) != null){	// means we can create the mbusDevices
 			for(int i = 0; i < MBUS_MAX; i++){
 				if(!getResultsFile().getSerialNumbers(i).equalsIgnoreCase("")){
-					this.mbusDevices[count++] = new MbusDevice(-1, i, getResultsFile().getSerialNumbers(i), 15, 
-							findOrCreate(getMeter(), getResultsFile().getSerialNumbers(i), 15),
-							Unit.get(BaseUnit.UNITLESS), getLogger());
+					Rtu mbus = findOrCreate(getMeter(), getResultsFile().getSerialNumbers(i), 15);
+					if(mbus != null){
+						this.mbusDevices[count++] = new MbusDevice(-1, i, getResultsFile().getSerialNumbers(i), 15, 
+								mbus, Unit.get(BaseUnit.UNITLESS), getLogger());
+					}
 				}
 			}
 		} else if(slaves.size() > 0){	// we have downstreamRtu's
