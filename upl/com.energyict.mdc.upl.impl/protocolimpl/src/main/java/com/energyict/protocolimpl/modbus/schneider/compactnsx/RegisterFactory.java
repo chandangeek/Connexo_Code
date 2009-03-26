@@ -73,7 +73,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(1046,1,ObisCode.fromString("1.1.33.7.0.255"),Unit.get("")).setParser("PowerFactorSign")); // powerfactor phase A
         getRegisters().add(new HoldingRegister(1047,1,ObisCode.fromString("1.1.53.7.0.255"),Unit.get("")).setParser("PowerFactorSign")); // powerfactor phase B
         getRegisters().add(new HoldingRegister(1048,1,ObisCode.fromString("1.1.73.7.0.255"),Unit.get("")).setParser("PowerFactorSign")); // powerfactor phase C
-        getRegisters().add(new HoldingRegister(1049,1,ObisCode.fromString("1.1.13.7.0.255"),Unit.get("")).setParser("PowerFactorSign")); // powerfactor phase B
+        getRegisters().add(new HoldingRegister(1049,1,ObisCode.fromString("1.1.13.7.0.255"),Unit.get("")).setParser("PowerFactorSign")); // Total power factor
         
         // Signers
         getRegisters().add(new HoldingRegister(3316, 1, "PowerSign"));
