@@ -732,7 +732,6 @@ public class HDLCConnection extends Connection implements DLMSConnection {
 	      if ((CRC[0] == calcCRC[0]) &&
 	          (CRC[1] == calcCRC[1]))
 	      {
-	    	  System.out.println(byteReceiveBuffer);
 	          return HDLC_RX_OK;
 	      }
 	      else

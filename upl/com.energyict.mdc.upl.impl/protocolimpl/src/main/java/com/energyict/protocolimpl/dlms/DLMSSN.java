@@ -16,36 +16,51 @@
 
 
 package com.energyict.protocolimpl.dlms; 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 
-import java.sql.SQLException;
-
-import com.energyict.protocol.*;
-import java.util.logging.*;
-import com.energyict.cbo.*; 
-import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.SerialCommunicationChannel; 
-
-import com.energyict.protocolimpl.dlms.siemenszmd.*;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.CacheMechanism;
+import com.energyict.cbo.NotFoundException;
+import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dlms.*;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.DLMSObis;
-import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 
 
 
@@ -78,6 +93,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
     private int iInterval=-1;
     private int iNROfIntervals=-1;
     private int extendedLogging;
+    protected ProtocolChannelMap channelMap;
     
     //private boolean boolAbort=false;
     
@@ -514,12 +530,20 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
             if (meterConfig.getChannelObject(i).isCapturedObjectCumulative()) {
                 
                 if (meterConfig.getChannelObject(i).isCapturedObjectPulses()) {
-                    channelInfo.setCumulativeWrapValue(BigDecimal.valueOf(Long.MAX_VALUE));
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> channel "+i+" is cumulative 64 bit");
+                	if(channelMap != null){
+                		channelInfo.setCumulativeWrapValue((channelMap.getProtocolChannel(i) != null)?channelMap.getProtocolChannel(i).getWrapAroundValue():BigDecimal.valueOf(Long.MAX_VALUE));
+                	} else {
+                		channelInfo.setCumulativeWrapValue(BigDecimal.valueOf(Long.MAX_VALUE));
+                		if (DEBUG>=1) System.out.println("KV_DEBUG> channel "+i+" is cumulative 64 bit");
+                	}
                 }
                 else {
-                    channelInfo.setCumulativeWrapValue(BigDecimal.valueOf(2^32));
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> channel "+i+" is cumulative 32 bit");
+                	if(channelMap != null){
+                		channelInfo.setCumulativeWrapValue((channelMap.getProtocolChannel(i) != null)?channelMap.getProtocolChannel(i).getWrapAroundValue():BigDecimal.valueOf(2^32));
+                	} else {
+                		channelInfo.setCumulativeWrapValue(BigDecimal.valueOf(2^32));
+                		if (DEBUG>=1) System.out.println("KV_DEBUG> channel "+i+" is cumulative 32 bit");
+                	}
                 }
             }
             profileData.addChannel(channelInfo);
@@ -846,6 +870,11 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
             extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0"));
             addressingMode=Integer.parseInt(properties.getProperty("AddressingMode","-1"));  
             connectionMode = Integer.parseInt(properties.getProperty("Connection","0")); // 0=HDLC, 1= TCP/IP
+            if(properties.getProperty("ChannelMap", "").equalsIgnoreCase("")){
+            	channelMap = null;
+            } else {
+            	channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap"));
+            }
             
             doValidateProperties(properties);
         }
@@ -926,6 +955,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
         result.add("ExtendedLogging");
         result.add("AddressingMode");
         result.add("EventIdIndex");
+        result.add("ChannelMap");
         return result;
     }
 
