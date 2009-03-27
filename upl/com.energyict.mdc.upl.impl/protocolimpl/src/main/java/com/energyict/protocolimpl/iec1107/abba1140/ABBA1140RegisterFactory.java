@@ -27,7 +27,8 @@ public class ABBA1140RegisterFactory {
     private MeterExceptionInfo meterExceptionInfo;
     private ABBA1140DataIdentityFactory dataIdentityFactory;
     private DataType dataType;
-    
+	private ABBA1140 abba1140;
+
     private ABBA1140Register cTPrimary;
     private ABBA1140Register cTPrimaryAndSecundary;
     private ABBA1140Register cTSecundary;
@@ -605,6 +606,12 @@ public class ABBA1140RegisterFactory {
         return sb.toString();
     }
 
+	public void setABBA1140(ABBA1140 abba1140) {
+		this.abba1140  = abba1140;
+	}
 
+	public ABBA1140 getAbba1140() {
+		return abba1140;
+	}
     
 }

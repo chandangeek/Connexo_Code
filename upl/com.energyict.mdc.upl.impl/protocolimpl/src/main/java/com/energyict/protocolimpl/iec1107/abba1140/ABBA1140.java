@@ -16,6 +16,7 @@
  * JME	26032009	Added support for new firmware by adding the following features:
  * 						* Added new registers: 	
  * 							- Serial number (0.0.96.1.0.255)
+ * 							- Device type and version (0.0.96.51.0.255)
  * 							- Daily historical registers: Added for obisCode field F from 24 to 37
  * 							- Historical registers: Increased from 15 to 24 billing points (obis field F from 0 to 23)
  * 							- Time of billing point registers: Increased from 0-14 to 0-37 and added billing trigger source as registertext 
@@ -37,6 +38,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.*;
 
@@ -97,6 +99,7 @@ public class ABBA1140 implements
     private FlagIEC1107Connection flagConnection=null;
     private ABBA1140RegisterFactory rFactory=null;
     private ABBA1140Profile profile=null;
+    private MeterType meterType = null;
     
     public ABBA1140() { }
     
@@ -239,10 +242,10 @@ public class ABBA1140 implements
      */
     public void connect(int baudrate) throws IOException {
         try {
-            getFlagIEC1107Connection().connectMAC(pAddress,pPassword,pSecurityLevel,pNodeId,baudrate);
+            this.meterType = getFlagIEC1107Connection().connectMAC(pAddress,pPassword,pSecurityLevel,pNodeId,baudrate);
             rFactory = new ABBA1140RegisterFactory((ProtocolLink)this,(MeterExceptionInfo)this);
+            rFactory.setABBA1140(this);
             profile=new ABBA1140Profile(this,rFactory);
-            
             
         } catch(FlagIEC1107ConnectionException e) {
             throw new IOException(e.getMessage());
@@ -335,10 +338,16 @@ public class ABBA1140 implements
      * @see com.energyict.protocol.MeterProtocol#getFirmwareVersion()
      */
     public String getFirmwareVersion() throws IOException,UnsupportedException {
-        String str="unknown";
+        String str = null;
+        try {
+			ABBA1140MeterTypeParser mtp = new ABBA1140MeterTypeParser(getMeterType());
+			str = mtp.toString();
+        } catch (Exception e) {
+			str = "unknown";
+		}
         // KV 15122003 only if pAddress is filled in
         if ((pAddress!=null) && (pAddress.length()>5)) {
-            str = pAddress.substring(5,pAddress.length());
+            str += " " + pAddress.substring(5,pAddress.length());
         }
         return str;
     }
@@ -524,6 +533,10 @@ public class ABBA1140 implements
     public ABBA1140MeterType getAbba1140MeterType() {
         return abba1140MeterType;
     }
+    
+    public MeterType getMeterType() {
+		return meterType;
+	}
     
     /* ________ Not supported methods ___________ */
     

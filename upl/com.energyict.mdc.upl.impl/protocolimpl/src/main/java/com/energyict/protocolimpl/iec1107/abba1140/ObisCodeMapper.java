@@ -112,13 +112,20 @@ public class ObisCodeMapper {
         }
         /** Current System Status */
         else if (obisCode.toString().startsWith("0.0.96.50.0.255") ) { 
-            if (read) {
-                SystemStatus ss = (SystemStatus)rFactory.getRegister("SystemStatus");
-                registerValue = new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(ss.getValue()),Unit.get(255)));
-                return registerValue;
-            } else {
-                return new RegisterInfo("Current System Status (32 bit word)");
-            }
+        	if (read) {
+        		SystemStatus ss = (SystemStatus)rFactory.getRegister("SystemStatus");
+        		registerValue = new RegisterValue(obisCode,new Quantity(BigDecimal.valueOf(ss.getValue()),Unit.get(255)));
+        		return registerValue;
+        	} else {
+        		return new RegisterInfo("Current System Status (32 bit word)");
+        	}
+        } else if (obisCode.toString().startsWith("0.0.96.51.0.255") ) { 
+        	if (read) {
+        		registerValue = new RegisterValue(obisCode, rFactory.getAbba1140().getFirmwareVersion());
+        		return registerValue;
+        	} else {
+        		return new RegisterInfo("Device type and version");
+        	}
         } else if ((obisCode.toString().indexOf("1.1.0.4.2.255") != -1) || (obisCode.toString().indexOf("1.0.0.4.2.255") != -1)) { 
             if (read) {
                 BigDecimal bd = (BigDecimal)rFactory.getRegister("CTPrimary");
