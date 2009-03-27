@@ -40,6 +40,7 @@ import com.energyict.protocolimpl.iec1107.*;
  * JME	20022009	Implemented Billing reset message
  * JME	13032009	Fixed bug in Billing reset message
  * JME	24032009	Added delay during close contactor message execution between the ARM and CLOSE command.
+ * JME	27032009	Made extended logging more robust for meter configuration
  * 
  */
 
@@ -770,7 +771,7 @@ public class ABBA230 implements
     
     /* ________ Get Register Info, extended logging ___________ */
     
-    private void getRegistersInfo() throws IOException {
+    private void getRegistersInfo() {
         
         StringBuffer rslt = new StringBuffer();
         String obisCodeString;
@@ -783,8 +784,11 @@ public class ABBA230 implements
         
         for (int bpi = 0; bpi < billingPoint.length; bpi ++) {
             
-            TariffSources ts = (TariffSources)rFactory.getRegister("TariffSources");
-            ArrayList tarifRegisters = new ArrayList();
+            try {
+
+            	TariffSources ts = (TariffSources)rFactory.getRegister("TariffSources");
+				ArrayList tarifRegisters = new ArrayList();
+
 //            if (billingPoint[bpi] == 255) {
 //                ts = (TariffSources)rFactory.getRegister("TariffSources");
 //            } else {
@@ -801,131 +805,175 @@ public class ABBA230 implements
 //            	}
 //                
 //            }
-            
-            rslt.append( "Billing point: " + billingPoint[bpi] + "\n" );
-            
-            if( bpi > 0 ) {
-                obisCodeString = "1.1.0.1.2."+ billingPoint[bpi];
-                obisCode = ObisCode.fromString( obisCodeString );
-                obisCodeInfo = ObisCodeMapper.getRegisterInfo( obisCode );
-                rslt.append( " " + obisCodeString + ", " + obisCodeInfo + "\n" );
-                if( pExtendedLogging == 2 )
-                    rslt.append( " " + rFactory.readRegister( obisCode ).toString() + "\n" );
-            }
-            
-            rslt.append( "Cumulative registers: \n" );
-            List list = EnergyTypeCode.getEnergyTypeCodes();
-            Iterator it = list.iterator();
-            while(it.hasNext()) {
-                EnergyTypeCode etc = (EnergyTypeCode)it.next();
-                obisCodeString = "1.1."+etc.getObisC()+".8.0."+ billingPoint[bpi];
-                obisCode = ObisCode.fromString( obisCodeString );
-                obisCodeInfo = ObisCodeMapper.getRegisterInfo( obisCode );
-                
-                rslt.append( " " + obisCodeString + ", " + obisCodeInfo + "\n" );
-                if( pExtendedLogging == 2)
-                    rslt.append( " " + rFactory.readRegister( obisCode ).toString() + "\n" );
-                
-                for (int i=0;i<ts.getRegSource().length;i++) {
-                    if (ts.getRegSource()[i] == etc.getRegSource()) {
-                        obisCodeString = "1.1."+etc.getObisC()+".8."+(i+1)+"."+billingPoint[bpi];
-                        tarifRegisters.add(obisCodeString);
-                    }
-                }
-                
-            }
-            rslt.append( "\n" );
-            
-            rslt.append( "Tou Registers: \n" );
-            it = tarifRegisters.iterator();
-            while( it.hasNext() ){
-                obisCodeString = (String) it.next();
-                obisCode = ObisCode.fromString( obisCodeString );
-                obisCodeInfo = ObisCodeMapper.getRegisterInfo( obisCode );
-                
-                rslt.append( " " + obisCodeString + ", " + obisCodeInfo + "\n" );
-                if( pExtendedLogging == 2 )
-                    rslt.append( " " +  rFactory.readRegister( obisCode ).toString() + "\n" );
-            }
-            
-            rslt.append( "\n" );
-            
-            rslt.append("Cumulative Maximum Demand registers:\n");
-            int [] md = { 0, 1 };
-            for (int i=0;i<md.length;i++) {
-                try {
-                    CumulativeMaximumDemand cmd = (CumulativeMaximumDemand)rFactory.getRegister("CumulativeMaximumDemand"+i,billingPoint[bpi]);
-                    int c = EnergyTypeCode.getObisCFromRegSource( cmd.getRegSource(), false );
-                    obisCodeString = "1." + md[i] + "." + c  + ".2.0." + billingPoint[bpi];
-                    obisCode = ObisCode.fromString( obisCodeString );
-                    obisCodeInfo = ObisCodeMapper.getRegisterInfo( obisCode );
-                    
-                    rslt.append( " " + obisCodeString + ", " + obisCodeInfo + "\n" );
-                    if(  pExtendedLogging == 2 )
-                        rslt.append( " " +  rFactory.readRegister( obisCode ).toString() + "\n" );
-                } catch(NoSuchRegisterException e) {
-                    // the register is not configured in the meter, so it can not be fetched
-                }
-            }
-            
-            rslt.append( "\n" );
-            
-            rslt.append("Maximum demand registers:\n");
-            
-            int [] cmd = { 0, 1 };
-            for (int i=0;i<cmd.length;i++) {
-                try {
-                    MaximumDemand mdRegister = (MaximumDemand)rFactory.getRegister("MaximumDemand"+i,billingPoint[bpi]);
-                    int c = EnergyTypeCode.getObisCFromRegSource( mdRegister.getRegSource(), false );
-                    if( mdRegister.getQuantity() == null )
-                        continue;
-                    
-                    obisCodeString = "1.1." + c  + ".6.0." + billingPoint[bpi];
-                    obisCode = ObisCode.fromString( obisCodeString );
-                    //System.out.println("obisCode " + obisCodeString );
-                    obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));
-                    //System.out.println("obisCodeInfo " + obisCodeInfo );
-                    
-                    rslt.append( " " + obisCodeString + ", " + obisCodeInfo +"\n");
-                    if(  pExtendedLogging == 2 )
-                        rslt.append( " " +  rFactory.readRegister( obisCode ).toString() + "\n" );
-                    
-                } catch(NoSuchRegisterException e) {
-                    // the register is not configured in the meter, so it can not be fetched
-                }
-            }
-            
-            rslt.append( "\n" );
+
+				if (billingPoint[bpi] == 0) {
+					ts = (TariffSources)rFactory.getRegister("TariffSources");
+				} else if ((billingPoint[bpi]>0) && (billingPoint[bpi]<=11)) {
+					HistoricalRegister hv = (HistoricalRegister)
+					rFactory.getRegister( "HistoricalRegister", billingPoint[bpi] );
+					if( hv.getBillingDate() == null ) continue;
+				} else {
+					HistoricalRegister hv = (HistoricalRegister)
+					rFactory.getRegister( "DailyHistoricalRegister", billingPoint[bpi] );
+					if( hv.getBillingDate() == null ) continue;
+				}
+
+				
+				rslt.append( "Billing point: " + billingPoint[bpi] + "\n" );
+				
+				if( bpi > 0 ) {
+				    try {
+						obisCodeString = "1.1.0.1.2."+ billingPoint[bpi];
+						obisCode = ObisCode.fromString( obisCodeString );
+						obisCodeInfo = ObisCodeMapper.getRegisterInfo( obisCode );
+						rslt.append( " " + obisCodeString + ", " + obisCodeInfo + "\n" );
+						if( pExtendedLogging == 2 )
+						    rslt.append( " " + rFactory.readRegister( obisCode ).toString() + "\n" );
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				
+				rslt.append( "Cumulative registers: \n" );
+				List list = EnergyTypeCode.getEnergyTypeCodes();
+				Iterator it = list.iterator();
+				while(it.hasNext()) {
+				    EnergyTypeCode etc = (EnergyTypeCode)it.next();
+				    
+				    try {
+						obisCodeString = "1.1."+etc.getObisC()+".8.0."+ billingPoint[bpi];
+						obisCode = ObisCode.fromString( obisCodeString );
+						obisCodeInfo = ObisCodeMapper.getRegisterInfo( obisCode );
+						rslt.append( " " + obisCodeString + ", " + obisCodeInfo + "\n" );
+						if( pExtendedLogging == 2)
+						    rslt.append( " " + rFactory.readRegister( obisCode ).toString() + "\n" );
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				    
+				    for (int i=0;i<ts.getRegSource().length;i++) {
+				        if (ts.getRegSource()[i] == etc.getRegSource()) {
+				            obisCodeString = "1.1."+etc.getObisC()+".8."+(i+1)+"."+billingPoint[bpi];
+				            tarifRegisters.add(obisCodeString);
+				        }
+				    }
+				    
+				}
+				rslt.append( "\n" );
+				
+				rslt.append( "Tou Registers: \n" );
+				it = tarifRegisters.iterator();
+				while( it.hasNext() ){
+				    try {
+						obisCodeString = (String) it.next();
+						obisCode = ObisCode.fromString( obisCodeString );
+						obisCodeInfo = ObisCodeMapper.getRegisterInfo( obisCode );
+						rslt.append( " " + obisCodeString + ", " + obisCodeInfo + "\n" );
+						if( pExtendedLogging == 2 )
+						    rslt.append( " " +  rFactory.readRegister( obisCode ).toString() + "\n" );
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				
+				rslt.append( "\n" );
+				
+				rslt.append("Cumulative Maximum Demand registers:\n");
+				int [] md = { 0, 1 };
+				for (int i=0;i<md.length;i++) {
+				    try {
+				        CumulativeMaximumDemand cmd = (CumulativeMaximumDemand)rFactory.getRegister("CumulativeMaximumDemand"+i,billingPoint[bpi]);
+				        int c = EnergyTypeCode.getObisCFromRegSource( cmd.getRegSource(), false );
+				        obisCodeString = "1." + md[i] + "." + c  + ".2.0." + billingPoint[bpi];
+				        obisCode = ObisCode.fromString( obisCodeString );
+				        obisCodeInfo = ObisCodeMapper.getRegisterInfo( obisCode );
+				        rslt.append( " " + obisCodeString + ", " + obisCodeInfo + "\n" );
+				        if(  pExtendedLogging == 2 )
+				            rslt.append( " " +  rFactory.readRegister( obisCode ).toString() + "\n" );
+				    } catch(Exception e) {
+				    	e.printStackTrace();
+				    }
+				}
+				
+				rslt.append( "\n" );
+				
+				rslt.append("Maximum demand registers:\n");
+				
+				int [] cmd = { 0, 1 };
+				for (int i=0;i<cmd.length;i++) {
+				    try {
+				        MaximumDemand mdRegister = (MaximumDemand)rFactory.getRegister("MaximumDemand"+i,billingPoint[bpi]);
+				        int c = EnergyTypeCode.getObisCFromRegSource( mdRegister.getRegSource(), false );
+				        if( mdRegister.getQuantity() == null )
+				            continue;
+				        
+				        try {
+							obisCodeString = "1.1." + c  + ".6.0." + billingPoint[bpi];
+							obisCode = ObisCode.fromString( obisCodeString );
+							obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));
+							rslt.append( " " + obisCodeString + ", " + obisCodeInfo +"\n");
+							if(  pExtendedLogging == 2 )
+							    rslt.append( " " +  rFactory.readRegister( obisCode ).toString() + "\n" );
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+				        
+				    } catch(Exception e) {
+				    	e.printStackTrace();
+				    }
+				}
+				
+				rslt.append( "\n" );
+
+            } catch (Exception e) {
+				e.printStackTrace();
+			}
         }
             
-        rslt.append("\n");
-        obisCodeString = "1.1.0.4.2.255";
-        obisCode = ObisCode.fromString( obisCodeString );
-        obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));
-        rslt.append( " " + obisCodeString + ", " + obisCodeInfo +"\n");
-        if(  pExtendedLogging == 2 )
-            rslt.append( " " +  rFactory.readRegister( obisCode ).toString() + "\n" );
+        try {
+			rslt.append("\n");
+			obisCodeString = "1.1.0.4.2.255";
+			obisCode = ObisCode.fromString( obisCodeString );
+			obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));
+			rslt.append( " " + obisCodeString + ", " + obisCodeInfo +"\n");
+			if(  pExtendedLogging == 2 )
+			    rslt.append( " " +  rFactory.readRegister( obisCode ).toString() + "\n" );
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-        obisCodeString = "1.1.0.4.5.255";
-        obisCode = ObisCode.fromString( obisCodeString );
-        obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));
-        rslt.append( " " + obisCodeString + ", " + obisCodeInfo +"\n");
-        if(  pExtendedLogging == 2 )
-            rslt.append( " " +  rFactory.readRegister( obisCode ).toString() + "\n" );
+        try {
+			obisCodeString = "1.1.0.4.5.255";
+			obisCode = ObisCode.fromString( obisCodeString );
+			obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));
+			rslt.append( " " + obisCodeString + ", " + obisCodeInfo +"\n");
+			if(  pExtendedLogging == 2 )
+			    rslt.append( " " +  rFactory.readRegister( obisCode ).toString() + "\n" );
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-        obisCodeString = "1.0.0.0.1.255";
-        obisCode = ObisCode.fromString( obisCodeString );
-        obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));
-        rslt.append( " " + obisCodeString + ", " + obisCodeInfo +"\n");
-        if(  pExtendedLogging == 2 )
-            rslt.append( " " +  rFactory.readRegister( obisCode ).toString() + "\n" );
+        try {
+			obisCodeString = "1.0.0.0.1.255";
+			obisCode = ObisCode.fromString( obisCodeString );
+			obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));
+			rslt.append( " " + obisCodeString + ", " + obisCodeInfo +"\n");
+			if(  pExtendedLogging == 2 )
+			    rslt.append( " " +  rFactory.readRegister( obisCode ).toString() + "\n" );
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-        obisCodeString = "0.0.96.50.0.255";
-        obisCode = ObisCode.fromString( obisCodeString );
-        obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));
-        rslt.append( " " + obisCodeString + ", " + obisCodeInfo +"\n");
-        if(  pExtendedLogging == 2 )
-            rslt.append( " " +  rFactory.readRegister( obisCode ).toString() + "\n" );
+        try {
+			obisCodeString = "0.0.96.50.0.255";
+			obisCode = ObisCode.fromString( obisCodeString );
+			obisCodeInfo = ObisCodeMapper.getRegisterInfo(ObisCode.fromString(obisCodeString));
+			rslt.append( " " + obisCodeString + ", " + obisCodeInfo +"\n");
+			if(  pExtendedLogging == 2 )
+			    rslt.append( " " +  rFactory.readRegister( obisCode ).toString() + "\n" );
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
         
         rslt.append("************************* End Extended Logging *********************");
         logger.info(rslt.toString());
