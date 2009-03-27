@@ -134,7 +134,7 @@ public class ABBA1140DataIdentityFactory {
         // Historical values
         add("543", 457, 24 ,ABBA1140DataIdentity.STREAMEABLE);  //JME: Changed highest billingpoint from 15 to 24 (new firmware stores 24 historical values)
         // Daily historical values
-        add("545", 302, 14,ABBA1140DataIdentity.STREAMEABLE);	//JME: New data entity: 14 daily historical values (0 to 13) // FIXME: NOG TE TESTEN !!!
+        add("545", 457, 14,ABBA1140DataIdentity.STREAMEABLE);	//JME: New data entity: 14 daily historical values (0 to 13) // FIXME: NOG TE TESTEN !!!
         // Configure Load Profile Read By Date
         add("554", 8, ABBA1140DataIdentity.NOT_STREAMEABLE );
         

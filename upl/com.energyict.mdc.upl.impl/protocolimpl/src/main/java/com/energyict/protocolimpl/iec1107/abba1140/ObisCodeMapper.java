@@ -25,7 +25,10 @@ import java.util.logging.Logger;
 
 public class ObisCodeMapper {
     
-    private ABBA1140RegisterFactory rFactory;
+    static public final int NUMBER_OF_HISTORICAL_REGS=24;
+    static public final int NUMBER_OF_DAILY_REGS=14;
+
+	private ABBA1140RegisterFactory rFactory;
     
     /** Creates a new instance of ObisCodeMapping */
     ObisCodeMapper(ABBA1140RegisterFactory abba1140RegisterFactory) {
@@ -70,25 +73,42 @@ public class ObisCodeMapper {
         
         /** Billing Point Timestamp */
         if (obisCode.toString().startsWith("1.1.0.1.2.")) { 
-            if ((bp >= 0) && (bp < 14)) {
-                if (read) {
-                    HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister("HistoricalRegister",bp);
+        	if ((bp >= 0) && (bp < NUMBER_OF_HISTORICAL_REGS)) {
+        		if (read) {
+        			HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister("HistoricalRegister",bp);
 
-                    Quantity quantity = new Quantity( new BigDecimal( hv.getBillingTrigger() ),Unit.get(255) );
-                    Date eventTime = hv.getBillingDate();
-                    Date fromTime = null;
-                    Date toTime = hv.getBillingDate();
-                    
-                    registerValue = new RegisterValue(obisCode,quantity,eventTime,fromTime,toTime);
-                    
-                    return registerValue;
-                } else { 
-                    return new RegisterInfo("billing point "+bp+" timestamp");
-                }
-            } else {
-                String msg = "ObisCode "+obisCode.toString()+" is not supported!";
-                throw new NoSuchRegisterException(msg);
-            }
+        			Quantity quantity = new Quantity( new BigDecimal( hv.getBillingTrigger() ),Unit.get(255) );
+        			Date eventTime = hv.getBillingDate();
+        			Date fromTime = null;
+        			Date toTime = hv.getBillingDate();
+
+//        			registerValue = new RegisterValue(obisCode,quantity,eventTime,fromTime,toTime);
+        			registerValue = new RegisterValue(obisCode,quantity,eventTime,fromTime,toTime, null, 0, getBillingReason(quantity.intValue()));
+        			
+        			return registerValue;
+        		} else { 
+        			return new RegisterInfo("billing point "+bp+" timestamp (HistoricalRegister)");
+        		}
+        	} else if ((bp >= NUMBER_OF_HISTORICAL_REGS) && (bp < (NUMBER_OF_DAILY_REGS + NUMBER_OF_HISTORICAL_REGS))) {
+        		if (read) {
+        			HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister("DailyHistoricalRegister",bp - NUMBER_OF_HISTORICAL_REGS);
+
+        			Quantity quantity = new Quantity( new BigDecimal( hv.getBillingTrigger() ),Unit.get(255) );
+        			Date eventTime = hv.getBillingDate();
+        			Date fromTime = null;
+        			Date toTime = hv.getBillingDate();
+
+//        			registerValue = new RegisterValue(obisCode,quantity,eventTime,fromTime,toTime);
+        			registerValue = new RegisterValue(obisCode,quantity,eventTime,fromTime,toTime, null, 0, "Billing trigger: Daily billing");
+
+        			return registerValue;
+        		} else { 
+        			return new RegisterInfo("billing point "+bp+" timestamp (DailyHistoricalRegister)");
+        		}
+        	} else {
+        		String msg = "ObisCode "+obisCode.toString()+" is not supported!";
+        		throw new NoSuchRegisterException(msg);
+        	}
         }
         /** Current System Status */
         else if (obisCode.toString().startsWith("0.0.96.50.0.255") ) { 
@@ -290,5 +310,20 @@ public class ObisCodeMapper {
             return new RegisterInfo(obisTranslation.toString());
         
     }
+
+	private String getBillingReason(int billingTrigger) {
+		switch (billingTrigger) {
+			case 0x00: return ""; 
+			case 0x01: return "Billing trigger: Billing date";
+			case 0x02: return "Billing trigger: Season change";
+			case 0x04: return "Billing trigger: Tarif changeover";
+			case 0x08: return "Billing trigger: Serial port";
+			case 0x10: return "Billing trigger: Optical port";
+			case 0x20: return "Billing trigger: Billing button";
+			case 0x40: return "Billing trigger: CT Ratio change";
+			case 0x80: return "Billing trigger: Power up";
+			default: return "Unknown billing trigger: " + billingTrigger;
+		}
+	}
     
 }

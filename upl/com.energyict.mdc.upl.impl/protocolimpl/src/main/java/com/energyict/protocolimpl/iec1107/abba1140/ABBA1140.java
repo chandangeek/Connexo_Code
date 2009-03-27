@@ -13,11 +13,12 @@
  * 					back for more then one interval period, there will be double entries in the 
  * 					profile data.  These entries will not get a SL flag from the meter.  Since these 
  * 					entries occur twice or more they need an SL flag.
- * JME	13032009	Added support for new firmware by adding the following features:
+ * JME	26032009	Added support for new firmware by adding the following features:
  * 						* Added new registers: 	
  * 							- Serial number (0.0.96.1.0.255)
  * 							- Daily historical registers: Added for obisCode field F from 24 to 37
  * 							- Historical registers: Increased from 15 to 24 billing points (obis field F from 0 to 23)
+ * 							- Time of billing point registers: Increased from 0-14 to 0-37 and added billing trigger source as registertext 
  * 						* Implemented message protocol with the following messages:
  * 							- Billing reset message
  *@endchanges
@@ -868,7 +869,7 @@ public class ABBA1140 implements
 	}
 
 	private void doBillingReset() throws IOException {
-		rFactory.setRegister("EndOfBillingPeriod", "1");
+		rFactory.setRegister("EndOfBillingPeriod", "01");
 	}
 
 }

@@ -19,6 +19,8 @@ public class ABBA1140RegisterFactory {
     
     static public final int MAX_CMD_REGS=4;
     static public final int MAX_MD_REGS=12;
+    static public final int NUMBER_OF_HISTORICAL_REGS=24;
+    static public final int NUMBER_OF_DAILY_REGS=14;
     
     private Map registers = new TreeMap();
     private ProtocolLink protocolLink;
@@ -341,6 +343,14 @@ public class ABBA1140RegisterFactory {
         return timeOfUse7;
     }
     
+    public ABBA1140Register getDailyHistoricalRegister() {
+		return dailyHistoricalRegister;
+	}
+    
+    public ABBA1140Register getEndOfBillingPeriod() {
+		return endOfBillingPeriod;
+	}
+    
     // length = -1, not used
     private void initRegisters() {
         
@@ -398,7 +408,7 @@ public class ABBA1140RegisterFactory {
         historicalRegister = cr("543", "HistoricalRegister", ABBA1140RegisterData.ABBA_HISTORICALVALUES,0,457, null);
         historicalEvents = cr("544", "HistoricalEvents", ABBA1140RegisterData.ABBA_HISTORICALEVENTS,0,792, null);
         
-        dailyHistoricalRegister = cr("545", "DailyHistoricalRegister", ABBA1140RegisterData.ABBA_HISTORICALVALUES,0,302, null); // FIXME: NOG TE TESTEN !!!
+        dailyHistoricalRegister = cr("545", "DailyHistoricalRegister", ABBA1140RegisterData.ABBA_HISTORICALVALUES,0,302, null);
         
         loadProfile = cr("550", "LoadProfile", ABBA1140RegisterData.ABBA_BYTEARRAY,0,-1, null);
         
@@ -424,7 +434,7 @@ public class ABBA1140RegisterFactory {
         loadProfileConfiguration = cr("777", "LoadProfileConfiguration", ABBA1140RegisterData.ABBA_LOAD_PROFILE_CONFIG,0,2, null);
         integrationPeriod = cr("878", "IntegrationPeriod", ABBA1140RegisterData.ABBA_INTEGRATION_PERIOD,0,1, null);
         
-        endOfBillingPeriod = cr("655", "EndOfBillingPeriod", ABBA1140RegisterData.ABBA_HEX, 0, 1, null, ABBA1140Register.WRITEABLE, ABBA1140Register.NOT_CACHED); //FIXME: Nog te testen !!!
+        endOfBillingPeriod = cr("655", "EndOfBillingPeriod", ABBA1140RegisterData.ABBA_HEX, 0, 1, null, ABBA1140Register.WRITEABLE, ABBA1140Register.NOT_CACHED);
         
     }
     
@@ -501,7 +511,7 @@ public class ABBA1140RegisterFactory {
                 return register2Retrieve.parse(register2Retrieve.readRegister(register2Retrieve.isCached()));
             }
             // billing point register set
-            else if ((billingPoint>=0) && (billingPoint<=23)) { //JME: Changed highest billingpoint from 14 to 23 (new firmware stores 24 historical values)
+            else if ((billingPoint>=0) && (billingPoint<NUMBER_OF_HISTORICAL_REGS)) { //JME: Changed highest billingpoint from 14 to 23 (new firmware stores 24 historical values)
                 
                 if (HistoricalRegister.has(register2Retrieve.getDataID())) {
                     // retrieve the billing set data
@@ -522,12 +532,12 @@ public class ABBA1140RegisterFactory {
                     return register2Retrieve.parse(register2Retrieve.readRegister(register2Retrieve.isCached(),billingPoint));
                 }
             }
-            else if ((billingPoint>=24) && (billingPoint<=37)) { // FIXME: NOG TE TESTEN !!!
+            else if ((billingPoint>=NUMBER_OF_HISTORICAL_REGS) && (billingPoint<(NUMBER_OF_HISTORICAL_REGS + NUMBER_OF_DAILY_REGS))) {
                     
                     if (HistoricalRegister.has(register2Retrieve.getDataID())) {
                         // retrieve the billing set data
                         ABBA1140Register register = findRegister("DailyHistoricalRegister");
-                        HistoricalRegister historicalValues = (HistoricalRegister)register.parse(register.readRegister(register.isCached(),billingPoint-12));
+                        HistoricalRegister historicalValues = (HistoricalRegister)register.parse(register.readRegister(register.isCached(),billingPoint - NUMBER_OF_HISTORICAL_REGS));
                         
                         // find register within the data
                         register2Retrieve = findRegister(name);
@@ -540,7 +550,7 @@ public class ABBA1140RegisterFactory {
                         return obj;
                     } else {
                         register2Retrieve = findRegister(name);
-                        return register2Retrieve.parse(register2Retrieve.readRegister(register2Retrieve.isCached(),billingPoint-12));
+                        return register2Retrieve.parse(register2Retrieve.readRegister(register2Retrieve.isCached(),billingPoint - NUMBER_OF_HISTORICAL_REGS));
                     }
                 } else throw new IOException("Elster A1140, getRegister, invalid billing point "+billingPoint+"!");
         } catch(FlagIEC1107ConnectionException e) {
