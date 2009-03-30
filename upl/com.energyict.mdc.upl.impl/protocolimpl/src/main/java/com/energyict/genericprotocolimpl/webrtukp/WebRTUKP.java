@@ -1037,6 +1037,623 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		return this.storeObject;
 	}
 	
+	private void handleMessage(RtuMessage rtuMessage) throws BusinessException, SQLException {
+		byte theMonitoredAttributeType = -1;
+		boolean success = false;
+		String content = rtuMessage.getContents();
+		MessageHandler messageHandler = new MessageHandler();
+		importMessage(content, messageHandler);
+		try {
+			importMessage(content, messageHandler);
+			
+			boolean xmlConfig		= messageHandler.getType().equals(RtuMessageConstant.XMLCONFIG);
+			boolean firmware		= messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPGRADE);
+			boolean p1Text 			= messageHandler.getType().equals(RtuMessageConstant.P1TEXTMESSAGE);
+			boolean p1Code 			= messageHandler.getType().equals(RtuMessageConstant.P1CODEMESSAGE);
+			boolean connect			= messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
+			boolean disconnect		= messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
+			boolean connectMode		= messageHandler.getType().equals(RtuMessageConstant.CONNECT_CONTROL_MODE);
+			boolean llConfig		= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_CONFIGURE);
+			boolean llClear			= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_DISABLE);
+			boolean llSetGrId		= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST);
+			boolean touCalendar		= messageHandler.getType().equals(RtuMessageConstant.TOU_ACTIVITY_CAL);
+			boolean touSpecialDays 	= messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS);
+			boolean specialDelEntry	= messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE);
+			boolean setTime			= messageHandler.getType().equals(RtuMessageConstant.SET_TIME);
+			boolean fillUpDB		= messageHandler.getType().equals(RtuMessageConstant.ME_MAKING_ENTRIES);
+			boolean gprsParameters 	= messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_SETUP);
+			
+			if(xmlConfig){
+				
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": XmlConfig");
+				
+				String xmlConfigStr = getMessageValue(content, RtuMessageConstant.XMLCONFIG);
+				
+				getCosemObjectFactory().getData(getMeterConfig().getXMLConfig().getObisCode()).setValueAttr(OctetString.fromString(xmlConfigStr));
+				
+				success = true;
+				
+			} else if(firmware){
+				
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Firmware upgrade");
+				
+				String userFileID = messageHandler.getUserFileId();
+				if(DEBUG)System.out.println("UserFileID: " + userFileID);
+				
+				if(!ParseUtils.isInteger(userFileID)){
+					String str = "Not a valid entry for the current meter message (" + content + ").";
+            		throw new IOException(str);
+				} 
+				UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
+				if(!(uf instanceof UserFile )){
+					String str = "Not a valid entry for the userfileID " + userFileID;
+					throw new IOException(str);
+				}
+				
+				byte[] imageData = uf.loadFileInByteArray();
+				P3ImageTransfer p3it = getCosemObjectFactory().getP3ImageTransfer();
+				p3it.upgrade(imageData);
+				if(DEBUG)System.out.println("UserFile is send to the device.");
+				if(messageHandler.activateNow()){
+					if(DEBUG)System.out.println("Start the activateNow.");
+					p3it.activateAndRetryImage();
+					if(DEBUG)System.out.println("ActivateNow complete.");
+				} else if(!messageHandler.getActivationDate().equalsIgnoreCase("")){
+					SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+					String strDate = messageHandler.getActivationDate();
+					Array dateArray = convertUnixToDateTimeArray(strDate);
+					if(DEBUG)System.out.println("Write the executionTime");
+					sas.writeExecutionTime(dateArray);
+					if(DEBUG)System.out.println("ExecutionTime sent...");
+				}
+				
+				success = true;
+				
+			} else if(p1Code){
+				
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Consumer message Code");
+				
+				Data dataCode = getCosemObjectFactory().getData(getMeterConfig().getConsumerMessageCode().getObisCode());
+				dataCode.setValueAttr(OctetString.fromString(messageHandler.getP1Code()));
+				
+				success = true;
+				
+				
+			} else if(p1Text){
+				
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Consumer message Text");
+				
+				Data dataCode = getCosemObjectFactory().getData(getMeterConfig().getConsumerMessageText().getObisCode());
+				dataCode.setValueAttr(OctetString.fromString(messageHandler.getP1Text()));
+				
+				success = true;
+				
+			} else if(connect){
+				
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Connect");
+				
+				if(!messageHandler.getConnectDate().equals("")){	// use the disconnectControlScheduler
+					
+					Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
+					SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
+					
+					ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getDisconnectorScriptTable().getObisCode());
+					byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn(); 
+					Structure scriptStruct = new Structure();
+					scriptStruct.addDataType(new OctetString(scriptLogicalName));
+					scriptStruct.addDataType(new Unsigned16(2)); 	// method '2' is the 'remote_connect' method
+					
+					sasConnect.writeExecutedScript(scriptStruct);
+					sasConnect.writeExecutionTime(executionTimeArray);
+					
+				} else {	// immediate connect
+					Disconnector connector = getCosemObjectFactory().getDisconnector();
+					connector.remoteReconnect();
+				}
+				
+				success = true;
+			} else if(disconnect){
+				
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Disconnect");
+				
+				if(!messageHandler.getDisconnectDate().equals("")){ // use the disconnectControlScheduler
+					
+					Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
+					SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
+					
+					ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getDisconnectorScriptTable().getObisCode());
+					byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn(); 
+					Structure scriptStruct = new Structure();
+					scriptStruct.addDataType(new OctetString(scriptLogicalName));
+					scriptStruct.addDataType(new Unsigned16(1));	// method '1' is the 'remote_disconnect' method
+					
+					sasDisconnect.writeExecutedScript(scriptStruct);
+					sasDisconnect.writeExecutionTime(executionTimeArray);
+					
+				} else { 	// immediate disconnect
+					Disconnector disconnector = getCosemObjectFactory().getDisconnector();
+					disconnector.remoteDisconnect();
+				}
+				
+				success = true;
+			} else if(connectMode){
+				
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": ConnectControl mode");
+				String mode = messageHandler.getConnectControlMode();
+				
+				if(mode != null){
+					try {
+						int modeInt = Integer.parseInt(mode);
+						
+						if((modeInt >=0) && (modeInt <=6)){
+							Disconnector connectorMode = getCosemObjectFactory().getDisconnector();
+							connectorMode.writeControlMode(new TypeEnum(modeInt));
+							
+						} else {
+							throw new IOException("Mode is not a valid entry for message " + rtuMessage.displayString() + ", value must be between 0 and 6");
+						}
+						
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+						throw new IOException("Mode is not a valid entry for message " + rtuMessage.displayString());
+					}
+				} else {
+					// should never get to the else, can't leave message empty 
+					throw new IOException("Message " + rtuMessage.displayString() + " can not be empty");
+				}
+				
+				success = true;
+			} else if (llClear){
+				
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Clear LoadLimit configuration");
+				
+				Limiter clearLLimiter = getCosemObjectFactory().getLimiter();
+				
+				// set the normal threshold duration to null
+				clearLLimiter.writeThresholdNormal(new NullData());
+				// set the emergency threshold duration to null
+				clearLLimiter.writeThresholdEmergency(new NullData());
+				// erase the emergency profile
+				Structure emptyStruct = new Structure();
+				emptyStruct.addDataType(new NullData());
+				emptyStruct.addDataType(new NullData());
+				emptyStruct.addDataType(new NullData());
+				clearLLimiter.writeEmergencyProfile(clearLLimiter.new EmergencyProfile(emptyStruct.getBEREncodedByteArray(), 0, 0));
+				
+				success = true;
+			} else if (llConfig){
+				
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Set LoadLimit configuration");
+				
+				Limiter loadLimiter = getCosemObjectFactory().getLimiter();
+				
+				if(theMonitoredAttributeType == -1){	// check for the type of the monitored value
+					ValueDefinitionType valueDefinitionType = loadLimiter.getMonitoredValue();
+					theMonitoredAttributeType = getMonitoredAttributeType(valueDefinitionType);
+				}
+				
+				// Write the normalThreshold
+				if(messageHandler.getNormalThreshold() != null){
+					try {
+						loadLimiter.writeThresholdNormal(convertToMonitoredType(theMonitoredAttributeType, messageHandler.getNormalThreshold()));
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+						log(Level.INFO, "Could not pars the normalThreshold value to an integer.");
+						throw new IOException("Could not pars the normalThreshold value to an integer." + e.getMessage());
+					}
+				}
+				
+				// Write the emergencyThreshold
+				if(messageHandler.getEmergencyThreshold() != null){
+					try{
+						loadLimiter.writeThresholdEmergency(convertToMonitoredType(theMonitoredAttributeType, messageHandler.getEmergencyThreshold()));
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+						log(Level.INFO, "Could not pars the emergencyThreshold value to an integer.");
+						throw new IOException("Could not pars the emergencyThreshold value to an integer." + e.getMessage());
+					}
+				}
+				
+				// Write the minimumOverThresholdDuration
+				if(messageHandler.getOverThresholdDurtion() != null){
+					try{
+						loadLimiter.writeMinOverThresholdDuration(new Unsigned32(Integer.parseInt(messageHandler.getOverThresholdDurtion())));
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+						log(Level.INFO, "Could not pars the minimum over threshold duration value to an integer.");
+						throw new IOException("Could not pars the minimum over threshold duration value to an integer." + e.getMessage());
+					}
+				}
+				
+				// Construct the emergencyProfile
+				Structure emergencyProfile = new Structure();
+				if(messageHandler.getEpProfileId() != null){	// The EmergencyProfileID
+					try {
+						emergencyProfile.addDataType(new Unsigned16(Integer.parseInt(messageHandler.getEpProfileId())));
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+						log(Level.INFO, "Could not pars the emergency profile id value to an integer.");
+						throw new IOException("Could not pars the emergency profile id value to an integer." + e.getMessage());
+					}
+				}
+				if(messageHandler.getEpActivationTime() != null){	// The EmergencyProfileActivationTime
+					try{
+//						emergencyProfile.addDataType(new OctetString(convertStringToDateTimeOctetString(messageHandler.getEpActivationTime()).getBEREncodedByteArray(), 0, true));
+						emergencyProfile.addDataType(new OctetString(convertUnixToGMTDateTime(messageHandler.getEpActivationTime(), getTimeZone()).getBEREncodedByteArray(), 0, true));
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+						log(Level.INFO, "Could not pars the emergency profile activationTime value to a valid date.");
+						throw new IOException("Could not pars the emergency profile activationTime value to a valid date." + e.getMessage());
+					}
+				}
+				if(messageHandler.getEpDuration() != null){		// The EmergencyProfileDuration
+					try{
+						emergencyProfile.addDataType(new Unsigned32(Integer.parseInt(messageHandler.getEpDuration())));
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+						log(Level.INFO, "Could not pars the emergency profile duration value to an integer.");
+						throw new IOException("Could not pars the emergency profile duration value to an integer." + e.getMessage());
+					}
+				}
+				if((emergencyProfile.nrOfDataTypes() > 0) && (emergencyProfile.nrOfDataTypes() != 3)){	// If all three elements are correct, then send it, otherwise throw error
+					throw new IOException("The complete emergecy profile must be filled in before sending it to the meter.");
+				} else {
+					if(emergencyProfile.nrOfDataTypes() > 0){
+						loadLimiter.writeEmergencyProfile(emergencyProfile.getBEREncodedByteArray());
+					}
+				}
+				
+				success = true;
+			} else if (llSetGrId){
+				
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Set LoadLimit EmergencyProfile group ID's");
+				
+				Limiter epdiLimiter = getCosemObjectFactory().getLimiter();
+				try {
+					Lookup lut = mw().getLookupFactory().find(Integer.parseInt(messageHandler.getEpGroupIdListLookupTableId()));
+					if(lut == null){
+						throw new IOException("No lookuptable defined with id '" + messageHandler.getEpGroupIdListLookupTableId() + "'");
+					} else {
+						Iterator entriesIt = lut.getEntries().iterator();
+						Array idArray = new Array();
+						while(entriesIt.hasNext()){
+							LookupEntry lue = (LookupEntry)entriesIt.next();
+							idArray.addDataType(new Unsigned16(lue.getKey()));
+						}
+						epdiLimiter.writeEmergencyProfileGroupIdList(idArray);
+					}
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+					throw new IOException("The given lookupTable id is not a valid entry.");
+				}
+				
+				success = true;
+				
+			} else if(touCalendar){
+				
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Set Activity calendar");
+				
+				String name = messageHandler.getTOUCalendarName();
+				String activateDate = messageHandler.getTOUActivationDate();
+				String codeTable = messageHandler.getTOUCodeTable();
+				String userFile = messageHandler.getTOUUserFile();
+				
+				if((codeTable == null) &&(userFile == null)){
+					throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
+				} else if((codeTable != null) &&(userFile != null)){
+					throw new IOException("CodeTable-ID AND UserFile-ID can not be both filled in.");
+				}
+				
+				if(codeTable != null){
+					
+					Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
+					if(ct == null){
+						throw new IOException("No CodeTable defined with id '" + codeTable + "'");
+					} else {
+						
+						List calendars = ct.getCalendars();
+						Array seasonArray = new Array();
+						Array weekArray = new Array();
+						HashMap seasonsProfile = new HashMap();
+						ArrayList seasonsP = new ArrayList();
+						
+						Iterator itr = calendars.iterator();
+						while(itr.hasNext()){ 
+							CodeCalendar cc = (CodeCalendar)itr.next();
+							int seasonId = cc.getSeason();
+							if(seasonId != 0){
+								OctetString os = new OctetString(new byte[]{(byte) ((cc.getYear()==-1)?0xff:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xff:(cc.getYear())&0xFF), 
+										(byte) ((cc.getMonth()==-1)?0xFF:cc.getMonth()), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()), (byte) 0xFF, 0, 0, 0, 0, (byte) 0x80, 0, 0});
+								seasonsProfile.put(os, seasonId);
+							}
+						}
+
+						seasonsP = getSortedList(seasonsProfile);
+						
+						int weekCount = 0;
+						Iterator seasonsPIt = seasonsP.iterator();
+						while(seasonsPIt.hasNext()){
+							Structure entry = (Structure)seasonsPIt.next();
+							OctetString dateTime = (OctetString)entry.getDataType(0);
+							Structure seasonStruct = new Structure();
+							int seasonProfileNameId = ((Unsigned8)entry.getDataType(1)).getValue();
+							if(!seasonArrayExists(seasonProfileNameId, seasonArray)){
+								
+								String weekProfileName = "Week" + weekCount++;
+								seasonStruct.addDataType(OctetString.fromString(Integer.toString(seasonProfileNameId)));	// the seasonProfileName is the DB id of the season
+								seasonStruct.addDataType(dateTime);
+								seasonStruct.addDataType(OctetString.fromString(weekProfileName));
+								seasonArray.addDataType(seasonStruct);
+								if(!weekArrayExists(weekProfileName, weekArray)){
+									Structure weekStruct = new Structure();
+									Iterator sIt = calendars.iterator();
+									CodeDayType dayTypes[] = {null, null, null, null, null, null, null};
+									CodeDayType any = null;
+									while(sIt.hasNext()){
+										CodeCalendar codeCal = (CodeCalendar)sIt.next();
+										if(codeCal.getSeason() == seasonProfileNameId){
+											switch(codeCal.getDayOfWeek()){
+											case 1: {
+												if(dayTypes[0] != null){
+													if(dayTypes[0] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
+												}else{dayTypes[0] = codeCal.getDayType();}}break;
+											case 2: {
+												if(dayTypes[1] != null){
+													if(dayTypes[1] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
+												}else{dayTypes[1] = codeCal.getDayType();}}break;
+											case 3: {
+												if(dayTypes[2] != null){
+													if(dayTypes[2] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
+												}else{dayTypes[2] = codeCal.getDayType();}}break;
+											case 4: {
+												if(dayTypes[3] != null){
+													if(dayTypes[3] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
+												}else{dayTypes[3] = codeCal.getDayType();}}break;
+											case 5: {
+												if(dayTypes[4] != null){
+													if(dayTypes[4] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
+												}else{dayTypes[4] = codeCal.getDayType();}}break;
+											case 6: {
+												if(dayTypes[5] != null){
+													if(dayTypes[5] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
+												}else{dayTypes[5] = codeCal.getDayType();}}break;
+											case 7: {
+												if(dayTypes[6] != null){
+													if(dayTypes[6] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
+												}else{dayTypes[6] = codeCal.getDayType();}}break;
+											case -1: {
+												if(any != null){
+													if(any != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
+												}else{any = codeCal.getDayType();}}break;
+											default: throw new IOException("Undefined daytype code received.");
+											}
+										}
+									}
+									
+									weekStruct.addDataType(OctetString.fromString(weekProfileName));
+									for(int i = 0; i < dayTypes.length; i++){
+										if(dayTypes[i] != null){
+											weekStruct.addDataType(new Unsigned8(dayTypes[i].getId()));
+										} else if(any != null){
+											weekStruct.addDataType(new Unsigned8(any.getId()));
+										} else {
+											throw new IOException("Not all dayId's are correctly filled in.");
+										}
+									}
+									weekArray.addDataType(weekStruct);
+									
+								}
+							}
+						}
+						Array dayArray = new Array();
+						List dayProfiles = ct.getDayTypesOfCalendar();
+						Iterator dayIt = dayProfiles.iterator();
+						while(dayIt.hasNext()){
+							CodeDayType cdt = (CodeDayType)dayIt.next();
+							Structure schedule = new Structure();
+							List definitions = cdt.getDefinitions();
+							Array daySchedules = new Array();
+							for(int i = 0; i < definitions.size(); i++){
+								Structure def = new Structure();
+								CodeDayTypeDef cdtd = (CodeDayTypeDef)definitions.get(i);
+								int tStamp = cdtd.getTstampFrom();
+								int hour = tStamp/10000;
+								int min = (tStamp-hour*10000)/100;
+								int sec = tStamp-(hour*10000)-(min*100);
+								OctetString tstampOs = new OctetString(new byte[]{(byte)hour, (byte)min, (byte)sec, 0});
+								Unsigned16 selector = new Unsigned16(cdtd.getCodeValue());
+								def.addDataType(tstampOs);
+								def.addDataType(new OctetString(getMeterConfig().getTariffScriptTable().getLNArray()));
+//								def.addDataType(new OctetString(new byte[]{0,0,10,0,(byte)100,(byte)255}));
+								def.addDataType(selector);
+								daySchedules.addDataType(def);
+							}
+							schedule.addDataType(new Unsigned8(cdt.getId()));
+							schedule.addDataType(daySchedules);
+							dayArray.addDataType(schedule);
+						}
+						
+						ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
+						
+						if(DEBUG)System.out.println(seasonArray);
+						if(DEBUG)System.out.println(weekArray);
+						if(DEBUG)System.out.println(dayArray);
+
+						ac.writeSeasonProfilePassive(seasonArray);
+						ac.writeWeekProfileTablePassive(weekArray);
+						ac.writeDayProfileTablePassive(dayArray);
+						
+						if(name != null){
+							if(name.length() > 8){
+								name = name.substring(0, 8);
+							}
+							ac.writeCalendarNamePassive(OctetString.fromString(name));
+						} 
+						if(activateDate != null){
+//							ac.writeActivatePassiveCalendarTime(new OctetString(convertStringToDateTimeOctetString(activateDate).getBEREncodedByteArray(), 0, true));
+							ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activateDate, getTimeZone()).getBEREncodedByteArray(), 0));
+						}
+						
+					}
+					
+				} else if(userFile != null){
+					throw new IOException("ActivityCalendar by userfile is not supported yet.");
+				} else {
+					// should never get here 
+					throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
+				}
+				
+				success = true;
+				
+			} else if(touSpecialDays){
+				
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Set Special Days table");
+				
+				String codeTable = messageHandler.getSpecialDaysCodeTable();
+				
+				if(codeTable == null){
+					throw new IOException("CodeTalbe-ID can not be empty.");
+				} else {
+					
+					Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
+					if(ct == null){
+						throw new IOException("No CodeTable defined with id '" + codeTable + "'");
+					} else {
+
+						List calendars = ct.getCalendars();
+						Array sdArray = new Array();
+
+						SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
+						
+						for(int i = 0; i < calendars.size(); i++){
+							CodeCalendar cc = (CodeCalendar)calendars.get(i);
+							if(cc.getSeason() == 0){
+								OctetString os = new OctetString(new byte[]{(byte) ((cc.getYear()==-1)?0xff:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xff:(cc.getYear())&0xFF), 
+										(byte) ((cc.getMonth()==-1)?0xFF:cc.getMonth()), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()),
+										(byte) ((cc.getDayOfWeek()==-1)?0xFF:cc.getDayOfWeek())});
+								Unsigned8 dayType = new Unsigned8(cc.getDayType().getId());
+								Structure struct = new Structure();
+								AXDRDateTime dt = new AXDRDateTime(new byte[]{(byte)0x09, (byte) ((cc.getYear()==-1)?0x07:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xB2:(cc.getYear())&0xFF), 
+										(byte) ((cc.getMonth()==-1)?0xFF:cc.getMonth()), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()),
+										(byte) ((cc.getDayOfWeek()==-1)?0xFF:cc.getDayOfWeek()), 0, 0, 0, 0, 0, 0, 0});	
+								long days = dt.getValue().getTimeInMillis()/1000/60/60/24;
+								struct.addDataType(new Unsigned16((int)days));
+								struct.addDataType(os);
+								struct.addDataType(dayType);
+//								sdt.insert(struct);
+								sdArray.addDataType(struct);
+							}
+						}
+						
+						if(sdArray.nrOfDataTypes() != 0){
+							sdt.writeSpecialDays(sdArray);
+						}
+						
+						success = true;
+					}
+				}
+			} else if(specialDelEntry){
+				try {
+					SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
+					sdt.delete(Integer.parseInt(messageHandler.getSpecialDayDeleteEntry()));
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+					throw new IOException("Delete index is not a valid entry");
+				}
+				
+				success = true;
+			} else if(setTime){
+				
+				String epochTime = messageHandler.getEpochTime();
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Setting the device time to: " + convertUnixToGMTDateTime(epochTime, getTimeZone()).getValue().getTime());
+				forceClock(convertUnixToGMTDateTime(epochTime, getTimeZone()).getValue().getTime());
+				success = true;
+				
+			} else if(fillUpDB){
+				
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Making database entries.");
+				log(Level.INFO, "(This can take several minutes/houres, depending on the number of entries you want to simulate)");
+				
+				if(messageHandler.getMEEntries() > 0){
+					// Start the entry making ...
+					
+					int entries = messageHandler.getMEEntries();
+					String type = messageHandler.getMEInterval();
+					Long millis = Long.parseLong(messageHandler.getMEStartDate())*1000;
+					Date startTime = new Date(Long.parseLong(messageHandler.getMEStartDate())*1000);
+					startTime = getFirstDate(startTime, type, getMeter().getTimeZone());
+					while(entries > 0){
+						log(Level.INFO, "Setting meterTime to: " + startTime );
+						setClock(startTime);
+						waitForCrossingBoundry();
+						startTime = setBeforeNextInterval(startTime, type);
+						entries--;
+					}
+				}
+				
+				if(messageHandler.getMESyncAtEnd()){
+	        		Date currentTime = Calendar.getInstance(getTimeZone()).getTime();
+	        		getLogger().log(Level.INFO, "Synced clock to: " + currentTime);
+	        		forceClock(currentTime);
+				}
+				
+				success = true;
+				
+			} else if(gprsParameters){
+				
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Changing gprs modem parameters");
+				
+				PPPAuthenticationType pppat = getCosemObjectFactory().getPPPSetup().new PPPAuthenticationType();
+				pppat.setAuthenticationType(PPPSetup.LCPOptionsType.AUTH_PAP);
+				if(messageHandler.getGprsUsername() != null){
+					pppat.setUserName(messageHandler.getGprsUsername());
+				}
+				if(messageHandler.getGprsPassword() != null){
+					pppat.setPassWord(messageHandler.getGprsPassword());
+				}
+				if((messageHandler.getGprsUsername() != null) || (messageHandler.getGprsPassword() != null)){
+					getCosemObjectFactory().getPPPSetup().writePPPAuthenticationType(pppat);
+					
+					// TODO change this back to using the DLMS object instead of the raw data
+//					byte[] b = new byte[pppat.getBEREncodedByteArray().length + 2];
+//					b[0] = (byte)0x16;
+//					b[1] = (byte)0x01;
+//					System.arraycopy(pppat.getBEREncodedByteArray(), 0, b, 2, b.length-2);
+//					getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.25.3.0.255"), 5, 44).write(b);
+				}
+				
+				if(messageHandler.getGprsApn() != null){
+					getCosemObjectFactory().getGPRSModemSetup().writeAPN(messageHandler.getGprsApn());
+				}
+				
+				success = true;
+			}
+			else {
+				success = false;
+			}
+			
+		} catch (BusinessException e) {
+			e.printStackTrace();
+			log(Level.INFO, "Message " + rtuMessage.displayString() + " has failed. " + e.getMessage());
+		} catch (ConnectionException e){
+			e.printStackTrace();
+			log(Level.INFO, "Message " + rtuMessage.displayString() + " has failed. " + e.getMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
+			log(Level.INFO, "Message " + rtuMessage.displayString() + " has failed. " + e.getMessage());
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			log(Level.INFO, "Message " + rtuMessage.displayString() + " has failed. " + e.getMessage());
+		} finally {
+			if(success){
+				rtuMessage.confirm();
+				log(Level.INFO, "Message " + rtuMessage.displayString() + " has finished.");
+			} else {
+				rtuMessage.setFailed();
+			}
+		}
+	}
+	
 	/**
 	 * Messages
 	 * @throws SQLException 
@@ -1044,625 +1661,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	 */
 	private void sendMeterMessages() throws BusinessException, SQLException {
 
-		MessageHandler messageHandler = new MessageHandler();
-		
 		Iterator<RtuMessage> it = getMeter().getPendingMessages().iterator();
 		RtuMessage rm = null;
-		boolean success = false;
-		byte theMonitoredAttributeType = -1;
 		while(it.hasNext()){
-			
-			try {
-				rm = (RtuMessage)it.next();
-				String content = rm.getContents();
-				importMessage(content, messageHandler);
-				
-				boolean xmlConfig		= messageHandler.getType().equals(RtuMessageConstant.XMLCONFIG);
-				boolean firmware		= messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPGRADE);
-				boolean p1Text 			= messageHandler.getType().equals(RtuMessageConstant.P1TEXTMESSAGE);
-				boolean p1Code 			= messageHandler.getType().equals(RtuMessageConstant.P1CODEMESSAGE);
-				boolean connect			= messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
-				boolean disconnect		= messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
-				boolean connectMode		= messageHandler.getType().equals(RtuMessageConstant.CONNECT_CONTROL_MODE);
-				boolean llConfig		= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_CONFIGURE);
-				boolean llClear			= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_DISABLE);
-				boolean llSetGrId		= messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST);
-				boolean touCalendar		= messageHandler.getType().equals(RtuMessageConstant.TOU_ACTIVITY_CAL);
-				boolean touSpecialDays 	= messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS);
-				boolean specialDelEntry	= messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE);
-				boolean setTime			= messageHandler.getType().equals(RtuMessageConstant.SET_TIME);
-				boolean fillUpDB		= messageHandler.getType().equals(RtuMessageConstant.ME_MAKING_ENTRIES);
-				boolean gprsParameters 	= messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_SETUP);
-				
-				if(xmlConfig){
-					
-					log(Level.INFO, "Handling message " + rm.displayString() + ": XmlConfig");
-					
-					String xmlConfigStr = getMessageValue(content, RtuMessageConstant.XMLCONFIG);
-					
-					getCosemObjectFactory().getData(getMeterConfig().getXMLConfig().getObisCode()).setValueAttr(OctetString.fromString(xmlConfigStr));
-					
-					success = true;
-					
-				} else if(firmware){
-					
-					log(Level.INFO, "Handling message " + rm.displayString() + ": Firmware upgrade");
-					
-					String userFileID = messageHandler.getUserFileId();
-					if(DEBUG)System.out.println("UserFileID: " + userFileID);
-					
-					if(!ParseUtils.isInteger(userFileID)){
-						String str = "Not a valid entry for the current meter message (" + content + ").";
-	            		throw new IOException(str);
-					} 
-					UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
-					if(!(uf instanceof UserFile )){
-						String str = "Not a valid entry for the userfileID " + userFileID;
-						throw new IOException(str);
-					}
-					
-					byte[] imageData = uf.loadFileInByteArray();
-					P3ImageTransfer p3it = getCosemObjectFactory().getP3ImageTransfer();
-					p3it.upgrade(imageData);
-					if(DEBUG)System.out.println("UserFile is send to the device.");
-					if(messageHandler.activateNow()){
-						if(DEBUG)System.out.println("Start the activateNow.");
-						p3it.activateAndRetryImage();
-						if(DEBUG)System.out.println("ActivateNow complete.");
-					} else if(!messageHandler.getActivationDate().equalsIgnoreCase("")){
-						SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
-						String strDate = messageHandler.getActivationDate();
-						Array dateArray = convertUnixToDateTimeArray(strDate);
-						if(DEBUG)System.out.println("Write the executionTime");
-						sas.writeExecutionTime(dateArray);
-						if(DEBUG)System.out.println("ExecutionTime sent...");
-					}
-					
-					success = true;
-					
-				} else if(p1Code){
-					
-					log(Level.INFO, "Handling message " + rm.displayString() + ": Consumer message Code");
-					
-					Data dataCode = getCosemObjectFactory().getData(getMeterConfig().getConsumerMessageCode().getObisCode());
-					dataCode.setValueAttr(OctetString.fromString(messageHandler.getP1Code()));
-					
-					success = true;
-					
-					
-				} else if(p1Text){
-					
-					log(Level.INFO, "Handling message " + rm.displayString() + ": Consumer message Text");
-					
-					Data dataCode = getCosemObjectFactory().getData(getMeterConfig().getConsumerMessageText().getObisCode());
-					dataCode.setValueAttr(OctetString.fromString(messageHandler.getP1Text()));
-					
-					success = true;
-					
-				} else if(connect){
-					
-					log(Level.INFO, "Handling message " + rm.displayString() + ": Connect");
-					
-					if(!messageHandler.getConnectDate().equals("")){	// use the disconnectControlScheduler
-						
-						Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
-						SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
-						
-						ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getDisconnectorScriptTable().getObisCode());
-						byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn(); 
-						Structure scriptStruct = new Structure();
-						scriptStruct.addDataType(new OctetString(scriptLogicalName));
-						scriptStruct.addDataType(new Unsigned16(2)); 	// method '2' is the 'remote_connect' method
-						
-						sasConnect.writeExecutedScript(scriptStruct);
-						sasConnect.writeExecutionTime(executionTimeArray);
-						
-					} else {	// immediate connect
-						Disconnector connector = getCosemObjectFactory().getDisconnector();
-						connector.remoteReconnect();
-					}
-					
-					success = true;
-				} else if(disconnect){
-					
-					log(Level.INFO, "Handling message " + rm.displayString() + ": Disconnect");
-					
-					if(!messageHandler.getDisconnectDate().equals("")){ // use the disconnectControlScheduler
-						
-						Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
-						SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
-						
-						ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getDisconnectorScriptTable().getObisCode());
-						byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn(); 
-						Structure scriptStruct = new Structure();
-						scriptStruct.addDataType(new OctetString(scriptLogicalName));
-						scriptStruct.addDataType(new Unsigned16(1));	// method '1' is the 'remote_disconnect' method
-						
-						sasDisconnect.writeExecutedScript(scriptStruct);
-						sasDisconnect.writeExecutionTime(executionTimeArray);
-						
-					} else { 	// immediate disconnect
-						Disconnector disconnector = getCosemObjectFactory().getDisconnector();
-						disconnector.remoteDisconnect();
-					}
-					
-					success = true;
-				} else if(connectMode){
-					
-					log(Level.INFO, "Handling message " + rm.displayString() + ": ConnectControl mode");
-					String mode = messageHandler.getConnectControlMode();
-					
-					if(mode != null){
-						try {
-							int modeInt = Integer.parseInt(mode);
-							
-							if((modeInt >=0) && (modeInt <=6)){
-								Disconnector connectorMode = getCosemObjectFactory().getDisconnector();
-								connectorMode.writeControlMode(new TypeEnum(modeInt));
-								
-							} else {
-								throw new IOException("Mode is not a valid entry for message " + rm.displayString() + ", value must be between 0 and 6");
-							}
-							
-						} catch (NumberFormatException e) {
-							e.printStackTrace();
-							throw new IOException("Mode is not a valid entry for message " + rm.displayString());
-						}
-					} else {
-						// should never get to the else, can't leave message empty 
-						throw new IOException("Message " + rm.displayString() + " can not be empty");
-					}
-					
-					success = true;
-				} else if (llClear){
-					
-					log(Level.INFO, "Handling message " + rm.displayString() + ": Clear LoadLimit configuration");
-					
-					Limiter clearLLimiter = getCosemObjectFactory().getLimiter();
-					
-					// set the normal threshold duration to null
-					clearLLimiter.writeThresholdNormal(new NullData());
-					// set the emergency threshold duration to null
-					clearLLimiter.writeThresholdEmergency(new NullData());
-					// erase the emergency profile
-					Structure emptyStruct = new Structure();
-					emptyStruct.addDataType(new NullData());
-					emptyStruct.addDataType(new NullData());
-					emptyStruct.addDataType(new NullData());
-					clearLLimiter.writeEmergencyProfile(clearLLimiter.new EmergencyProfile(emptyStruct.getBEREncodedByteArray(), 0, 0));
-					
-					success = true;
-				} else if (llConfig){
-					
-					log(Level.INFO, "Handling message " + rm.displayString() + ": Set LoadLimit configuration");
-					
-					Limiter loadLimiter = getCosemObjectFactory().getLimiter();
-					
-					if(theMonitoredAttributeType == -1){	// check for the type of the monitored value
-						ValueDefinitionType valueDefinitionType = loadLimiter.getMonitoredValue();
-						theMonitoredAttributeType = getMonitoredAttributeType(valueDefinitionType);
-					}
-					
-					// Write the normalThreshold
-					if(messageHandler.getNormalThreshold() != null){
-						try {
-							loadLimiter.writeThresholdNormal(convertToMonitoredType(theMonitoredAttributeType, messageHandler.getNormalThreshold()));
-						} catch (NumberFormatException e) {
-							e.printStackTrace();
-							log(Level.INFO, "Could not pars the normalThreshold value to an integer.");
-							throw new IOException("Could not pars the normalThreshold value to an integer." + e.getMessage());
-						}
-					}
-					
-					// Write the emergencyThreshold
-					if(messageHandler.getEmergencyThreshold() != null){
-						try{
-							loadLimiter.writeThresholdEmergency(convertToMonitoredType(theMonitoredAttributeType, messageHandler.getEmergencyThreshold()));
-						} catch (NumberFormatException e) {
-							e.printStackTrace();
-							log(Level.INFO, "Could not pars the emergencyThreshold value to an integer.");
-							throw new IOException("Could not pars the emergencyThreshold value to an integer." + e.getMessage());
-						}
-					}
-					
-					// Write the minimumOverThresholdDuration
-					if(messageHandler.getOverThresholdDurtion() != null){
-						try{
-							loadLimiter.writeMinOverThresholdDuration(new Unsigned32(Integer.parseInt(messageHandler.getOverThresholdDurtion())));
-						} catch (NumberFormatException e) {
-							e.printStackTrace();
-							log(Level.INFO, "Could not pars the minimum over threshold duration value to an integer.");
-							throw new IOException("Could not pars the minimum over threshold duration value to an integer." + e.getMessage());
-						}
-					}
-					
-					// Construct the emergencyProfile
-					Structure emergencyProfile = new Structure();
-					if(messageHandler.getEpProfileId() != null){	// The EmergencyProfileID
-						try {
-							emergencyProfile.addDataType(new Unsigned16(Integer.parseInt(messageHandler.getEpProfileId())));
-						} catch (NumberFormatException e) {
-							e.printStackTrace();
-							log(Level.INFO, "Could not pars the emergency profile id value to an integer.");
-							throw new IOException("Could not pars the emergency profile id value to an integer." + e.getMessage());
-						}
-					}
-					if(messageHandler.getEpActivationTime() != null){	// The EmergencyProfileActivationTime
-						try{
-//							emergencyProfile.addDataType(new OctetString(convertStringToDateTimeOctetString(messageHandler.getEpActivationTime()).getBEREncodedByteArray(), 0, true));
-							emergencyProfile.addDataType(new OctetString(convertUnixToGMTDateTime(messageHandler.getEpActivationTime(), getTimeZone()).getBEREncodedByteArray(), 0, true));
-						} catch (NumberFormatException e) {
-							e.printStackTrace();
-							log(Level.INFO, "Could not pars the emergency profile activationTime value to a valid date.");
-							throw new IOException("Could not pars the emergency profile activationTime value to a valid date." + e.getMessage());
-						}
-					}
-					if(messageHandler.getEpDuration() != null){		// The EmergencyProfileDuration
-						try{
-							emergencyProfile.addDataType(new Unsigned32(Integer.parseInt(messageHandler.getEpDuration())));
-						} catch (NumberFormatException e) {
-							e.printStackTrace();
-							log(Level.INFO, "Could not pars the emergency profile duration value to an integer.");
-							throw new IOException("Could not pars the emergency profile duration value to an integer." + e.getMessage());
-						}
-					}
-					if((emergencyProfile.nrOfDataTypes() > 0) && (emergencyProfile.nrOfDataTypes() != 3)){	// If all three elements are correct, then send it, otherwise throw error
-						throw new IOException("The complete emergecy profile must be filled in before sending it to the meter.");
-					} else {
-						if(emergencyProfile.nrOfDataTypes() > 0){
-							loadLimiter.writeEmergencyProfile(emergencyProfile.getBEREncodedByteArray());
-						}
-					}
-					
-					success = true;
-				} else if (llSetGrId){
-					
-					log(Level.INFO, "Handling message " + rm.displayString() + ": Set LoadLimit EmergencyProfile group ID's");
-					
-					Limiter epdiLimiter = getCosemObjectFactory().getLimiter();
-					try {
-						Lookup lut = mw().getLookupFactory().find(Integer.parseInt(messageHandler.getEpGroupIdListLookupTableId()));
-						if(lut == null){
-							throw new IOException("No lookuptable defined with id '" + messageHandler.getEpGroupIdListLookupTableId() + "'");
-						} else {
-							Iterator entriesIt = lut.getEntries().iterator();
-							Array idArray = new Array();
-							while(entriesIt.hasNext()){
-								LookupEntry lue = (LookupEntry)entriesIt.next();
-								idArray.addDataType(new Unsigned16(lue.getKey()));
-							}
-							epdiLimiter.writeEmergencyProfileGroupIdList(idArray);
-						}
-					} catch (NumberFormatException e) {
-						e.printStackTrace();
-						throw new IOException("The given lookupTable id is not a valid entry.");
-					}
-					
-					success = true;
-					
-				} else if(touCalendar){
-					
-					log(Level.INFO, "Handling message " + rm.displayString() + ": Set Activity calendar");
-					
-					String name = messageHandler.getTOUCalendarName();
-					String activateDate = messageHandler.getTOUActivationDate();
-					String codeTable = messageHandler.getTOUCodeTable();
-					String userFile = messageHandler.getTOUUserFile();
-					
-					if((codeTable == null) &&(userFile == null)){
-						throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
-					} else if((codeTable != null) &&(userFile != null)){
-						throw new IOException("CodeTable-ID AND UserFile-ID can not be both filled in.");
-					}
-					
-					if(codeTable != null){
-						
-						Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
-						if(ct == null){
-							throw new IOException("No CodeTable defined with id '" + codeTable + "'");
-						} else {
-							
-							List calendars = ct.getCalendars();
-							Array seasonArray = new Array();
-							Array weekArray = new Array();
-							HashMap seasonsProfile = new HashMap();
-							ArrayList seasonsP = new ArrayList();
-							
-							Iterator itr = calendars.iterator();
-							while(itr.hasNext()){ 
-								CodeCalendar cc = (CodeCalendar)itr.next();
-								int seasonId = cc.getSeason();
-								if(seasonId != 0){
-									OctetString os = new OctetString(new byte[]{(byte) ((cc.getYear()==-1)?0xff:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xff:(cc.getYear())&0xFF), 
-											(byte) ((cc.getMonth()==-1)?0xFF:cc.getMonth()), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()), (byte) 0xFF, 0, 0, 0, 0, (byte) 0x80, 0, 0});
-									seasonsProfile.put(os, seasonId);
-								}
-							}
-
-							seasonsP = getSortedList(seasonsProfile);
-							
-							int weekCount = 0;
-							Iterator seasonsPIt = seasonsP.iterator();
-							while(seasonsPIt.hasNext()){
-								Structure entry = (Structure)seasonsPIt.next();
-								OctetString dateTime = (OctetString)entry.getDataType(0);
-								Structure seasonStruct = new Structure();
-								int seasonProfileNameId = ((Unsigned8)entry.getDataType(1)).getValue();
-								if(!seasonArrayExists(seasonProfileNameId, seasonArray)){
-									
-									String weekProfileName = "Week" + weekCount++;
-									seasonStruct.addDataType(OctetString.fromString(Integer.toString(seasonProfileNameId)));	// the seasonProfileName is the DB id of the season
-									seasonStruct.addDataType(dateTime);
-									seasonStruct.addDataType(OctetString.fromString(weekProfileName));
-									seasonArray.addDataType(seasonStruct);
-									if(!weekArrayExists(weekProfileName, weekArray)){
-										Structure weekStruct = new Structure();
-										Iterator sIt = calendars.iterator();
-										CodeDayType dayTypes[] = {null, null, null, null, null, null, null};
-										CodeDayType any = null;
-										while(sIt.hasNext()){
-											CodeCalendar codeCal = (CodeCalendar)sIt.next();
-											if(codeCal.getSeason() == seasonProfileNameId){
-												switch(codeCal.getDayOfWeek()){
-												case 1: {
-													if(dayTypes[0] != null){
-														if(dayTypes[0] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
-													}else{dayTypes[0] = codeCal.getDayType();}}break;
-												case 2: {
-													if(dayTypes[1] != null){
-														if(dayTypes[1] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
-													}else{dayTypes[1] = codeCal.getDayType();}}break;
-												case 3: {
-													if(dayTypes[2] != null){
-														if(dayTypes[2] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
-													}else{dayTypes[2] = codeCal.getDayType();}}break;
-												case 4: {
-													if(dayTypes[3] != null){
-														if(dayTypes[3] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
-													}else{dayTypes[3] = codeCal.getDayType();}}break;
-												case 5: {
-													if(dayTypes[4] != null){
-														if(dayTypes[4] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
-													}else{dayTypes[4] = codeCal.getDayType();}}break;
-												case 6: {
-													if(dayTypes[5] != null){
-														if(dayTypes[5] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
-													}else{dayTypes[5] = codeCal.getDayType();}}break;
-												case 7: {
-													if(dayTypes[6] != null){
-														if(dayTypes[6] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
-													}else{dayTypes[6] = codeCal.getDayType();}}break;
-												case -1: {
-													if(any != null){
-														if(any != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
-													}else{any = codeCal.getDayType();}}break;
-												default: throw new IOException("Undefined daytype code received.");
-												}
-											}
-										}
-										
-										weekStruct.addDataType(OctetString.fromString(weekProfileName));
-										for(int i = 0; i < dayTypes.length; i++){
-											if(dayTypes[i] != null){
-												weekStruct.addDataType(new Unsigned8(dayTypes[i].getId()));
-											} else if(any != null){
-												weekStruct.addDataType(new Unsigned8(any.getId()));
-											} else {
-												throw new IOException("Not all dayId's are correctly filled in.");
-											}
-										}
-										weekArray.addDataType(weekStruct);
-										
-									}
-								}
-							}
-							Array dayArray = new Array();
-							List dayProfiles = ct.getDayTypesOfCalendar();
-							Iterator dayIt = dayProfiles.iterator();
-							while(dayIt.hasNext()){
-								CodeDayType cdt = (CodeDayType)dayIt.next();
-								Structure schedule = new Structure();
-								List definitions = cdt.getDefinitions();
-								Array daySchedules = new Array();
-								for(int i = 0; i < definitions.size(); i++){
-									Structure def = new Structure();
-									CodeDayTypeDef cdtd = (CodeDayTypeDef)definitions.get(i);
-									int tStamp = cdtd.getTstampFrom();
-									int hour = tStamp/10000;
-									int min = (tStamp-hour*10000)/100;
-									int sec = tStamp-(hour*10000)-(min*100);
-									OctetString tstampOs = new OctetString(new byte[]{(byte)hour, (byte)min, (byte)sec, 0});
-									Unsigned16 selector = new Unsigned16(cdtd.getCodeValue());
-									def.addDataType(tstampOs);
-									def.addDataType(new OctetString(getMeterConfig().getTariffScriptTable().getLNArray()));
-//									def.addDataType(new OctetString(new byte[]{0,0,10,0,(byte)100,(byte)255}));
-									def.addDataType(selector);
-									daySchedules.addDataType(def);
-								}
-								schedule.addDataType(new Unsigned8(cdt.getId()));
-								schedule.addDataType(daySchedules);
-								dayArray.addDataType(schedule);
-							}
-							
-							ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
-							
-							if(DEBUG)System.out.println(seasonArray);
-							if(DEBUG)System.out.println(weekArray);
-							if(DEBUG)System.out.println(dayArray);
-
-							ac.writeSeasonProfilePassive(seasonArray);
-							ac.writeWeekProfileTablePassive(weekArray);
-							ac.writeDayProfileTablePassive(dayArray);
-							
-							if(name != null){
-								if(name.length() > 8){
-									name = name.substring(0, 8);
-								}
-								ac.writeCalendarNamePassive(OctetString.fromString(name));
-							} 
-							if(activateDate != null){
-//								ac.writeActivatePassiveCalendarTime(new OctetString(convertStringToDateTimeOctetString(activateDate).getBEREncodedByteArray(), 0, true));
-								ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activateDate, getTimeZone()).getBEREncodedByteArray(), 0));
-							}
-							
-						}
-						
-					} else if(userFile != null){
-						throw new IOException("ActivityCalendar by userfile is not supported yet.");
-					} else {
-						// should never get here 
-						throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
-					}
-					
-					success = true;
-					
-				} else if(touSpecialDays){
-					
-					log(Level.INFO, "Handling message " + rm.displayString() + ": Set Special Days table");
-					
-					String codeTable = messageHandler.getSpecialDaysCodeTable();
-					
-					if(codeTable == null){
-						throw new IOException("CodeTalbe-ID can not be empty.");
-					} else {
-						
-						Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
-						if(ct == null){
-							throw new IOException("No CodeTable defined with id '" + codeTable + "'");
-						} else {
-
-							List calendars = ct.getCalendars();
-							Array sdArray = new Array();
-
-							SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
-							
-							for(int i = 0; i < calendars.size(); i++){
-								CodeCalendar cc = (CodeCalendar)calendars.get(i);
-								if(cc.getSeason() == 0){
-									OctetString os = new OctetString(new byte[]{(byte) ((cc.getYear()==-1)?0xff:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xff:(cc.getYear())&0xFF), 
-											(byte) ((cc.getMonth()==-1)?0xFF:cc.getMonth()), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()),
-											(byte) ((cc.getDayOfWeek()==-1)?0xFF:cc.getDayOfWeek())});
-									Unsigned8 dayType = new Unsigned8(cc.getDayType().getId());
-									Structure struct = new Structure();
-									AXDRDateTime dt = new AXDRDateTime(new byte[]{(byte)0x09, (byte) ((cc.getYear()==-1)?0x07:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xB2:(cc.getYear())&0xFF), 
-											(byte) ((cc.getMonth()==-1)?0xFF:cc.getMonth()), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()),
-											(byte) ((cc.getDayOfWeek()==-1)?0xFF:cc.getDayOfWeek()), 0, 0, 0, 0, 0, 0, 0});	
-									long days = dt.getValue().getTimeInMillis()/1000/60/60/24;
-									struct.addDataType(new Unsigned16((int)days));
-									struct.addDataType(os);
-									struct.addDataType(dayType);
-//									sdt.insert(struct);
-									sdArray.addDataType(struct);
-								}
-							}
-							
-							if(sdArray.nrOfDataTypes() != 0){
-								sdt.writeSpecialDays(sdArray);
-							}
-							
-							success = true;
-						}
-					}
-				} else if(specialDelEntry){
-					try {
-						SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
-						sdt.delete(Integer.parseInt(messageHandler.getSpecialDayDeleteEntry()));
-					} catch (NumberFormatException e) {
-						e.printStackTrace();
-						throw new IOException("Delete index is not a valid entry");
-					}
-					
-					success = true;
-				} else if(setTime){
-					
-					String epochTime = messageHandler.getEpochTime();
-					log(Level.INFO, "Handling message " + rm.displayString() + ": Setting the device time to: " + convertUnixToGMTDateTime(epochTime, getTimeZone()).getValue().getTime());
-					forceClock(convertUnixToGMTDateTime(epochTime, getTimeZone()).getValue().getTime());
-					success = true;
-					
-				} else if(fillUpDB){
-					
-					log(Level.INFO, "Handling message " + rm.displayString() + ": Making database entries.");
-					log(Level.INFO, "(This can take several minutes/houres, depending on the number of entries you want to simulate)");
-					
-					if(messageHandler.getMEEntries() > 0){
-						// Start the entry making ...
-						
-						int entries = messageHandler.getMEEntries();
-						String type = messageHandler.getMEInterval();
-						Long millis = Long.parseLong(messageHandler.getMEStartDate())*1000;
-						Date startTime = new Date(Long.parseLong(messageHandler.getMEStartDate())*1000);
-						startTime = getFirstDate(startTime, type, getMeter().getTimeZone());
-						while(entries > 0){
-							log(Level.INFO, "Setting meterTime to: " + startTime );
-							setClock(startTime);
-							waitForCrossingBoundry();
-							startTime = setBeforeNextInterval(startTime, type);
-							entries--;
-						}
-					}
-					
-					if(messageHandler.getMESyncAtEnd()){
-		        		Date currentTime = Calendar.getInstance(getTimeZone()).getTime();
-		        		getLogger().log(Level.INFO, "Synced clock to: " + currentTime);
-		        		forceClock(currentTime);
-					}
-					
-					success = true;
-					
-				} else if(gprsParameters){
-					
-					log(Level.INFO, "Handling message " + rm.displayString() + ": Changing gprs modem parameters");
-					
-					PPPAuthenticationType pppat = getCosemObjectFactory().getPPPSetup().new PPPAuthenticationType();
-					pppat.setAuthenticationType(PPPSetup.LCPOptionsType.AUTH_PAP);
-					if(messageHandler.getGprsUsername() != null){
-						pppat.setUserName(messageHandler.getGprsUsername());
-					}
-					if(messageHandler.getGprsPassword() != null){
-						pppat.setPassWord(messageHandler.getGprsPassword());
-					}
-					if((messageHandler.getGprsUsername() != null) || (messageHandler.getGprsPassword() != null)){
-						getCosemObjectFactory().getPPPSetup().writePPPAuthenticationType(pppat);
-						
-						// TODO change this back to using the DLMS object instead of the raw data
-//						byte[] b = new byte[pppat.getBEREncodedByteArray().length + 2];
-//						b[0] = (byte)0x16;
-//						b[1] = (byte)0x01;
-//						System.arraycopy(pppat.getBEREncodedByteArray(), 0, b, 2, b.length-2);
-//						getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.25.3.0.255"), 5, 44).write(b);
-					}
-					
-					if(messageHandler.getGprsApn() != null){
-						getCosemObjectFactory().getGPRSModemSetup().writeAPN(messageHandler.getGprsApn());
-					}
-					
-					success = true;
-				}
-				else {
-					success = false;
-				}
-				
-			} catch (BusinessException e) {
-				e.printStackTrace();
-				log(Level.INFO, "Message " + rm.displayString() + " has failed. " + e.getMessage());
-			} catch (ConnectionException e){
-				e.printStackTrace();
-				log(Level.INFO, "Message " + rm.displayString() + " has failed. " + e.getMessage());
-			} catch (IOException e) {
-				e.printStackTrace();
-				log(Level.INFO, "Message " + rm.displayString() + " has failed. " + e.getMessage());
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				log(Level.INFO, "Message " + rm.displayString() + " has failed. " + e.getMessage());
-			} finally {
-				if(success){
-					rm.confirm();
-					log(Level.INFO, "Message " + rm.displayString() + " has finished.");
-				} else {
-					rm.setFailed();
-				}
-			}
+			handleMessage(rm);
 		}
 	}
 
