@@ -173,7 +173,7 @@ public class AARQ {
 	
     private void CheckAARE(byte[] responseData) throws IOException
     {
-    	System.out.println(responseData.length);
+    	//System.out.println(responseData.length);
        int i;
 //       int iLength;
        String strResultSourceDiagnostics="";
