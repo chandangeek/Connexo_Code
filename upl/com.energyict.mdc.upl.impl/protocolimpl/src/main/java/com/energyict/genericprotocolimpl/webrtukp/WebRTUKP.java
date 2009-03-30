@@ -932,7 +932,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         this.requestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0"));
         // if HDLC set default timeout to 5s, if TCPIP set default timeout to 60s
         this.timeout = Integer.parseInt(properties.getProperty("Timeout", (this.connectionMode==0)?"5000":"60000"));	// set the HDLC timeout to 5000 for the WebRTU KP
-        this.forceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "100"));
+        this.forceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "1"));
         this.retries = Integer.parseInt(properties.getProperty("Retries", "3"));	
         this.addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "2"));
         this.extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));

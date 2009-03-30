@@ -3,6 +3,7 @@ package com.energyict.genericprotocolimpl.webrtukp;
 import java.io.IOException;
 
 import com.energyict.dlms.DLMSConnection;
+import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.protocol.ProtocolUtils;
 
 public class AARQ {
@@ -328,9 +329,11 @@ public class AARQ {
 				0x05, 0x08, 0x01, 0x01, (byte)0xa2, 0x03, 0x02, 0x01, 0x00, (byte)0xa3, 0x05, (byte)0xa1, 0x03, 0x02, 0x01, 0x00, (byte)0xbe, 0x10, 0x04, 0x0e, 
 				0x08, 0x00, 0x06, 0x5f, 0x1f, 0x04, 0x00, 0x00, 0x10, 0x18, 0x02, 0x00, 0x00, 0x07};
 		
+		byte[] result = ParseUtils.hexStringToByteArray("000100010010002b6129a109060760857405080101a203020100a305a103020100be10040e0800065f1f000000101904180007");
+		byte[] resultX = ParseUtils.hexStringToByteArray("000100010010002b6129a109060760857405080101a203020101a305a103020105be10040e0800065f1f000000101904180007");
 		AARQ aarq = new AARQ();
 		try {
-			aarq.CheckAARE(response);
+			aarq.CheckAARE(resultX);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
