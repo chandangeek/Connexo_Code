@@ -628,9 +628,9 @@ public class ABBA1140 implements
 				TariffSources ts;
 				ArrayList tarifRegisters = new ArrayList();
 
-				if (bpi == 0) {
+				if (billingPoint[bpi] == 0) {
 					ts = (TariffSources)rFactory.getRegister("TariffSources");
-				} else if ((bpi>0) && (bpi<=14)) {
+				} else if ((billingPoint[bpi]>0) && (billingPoint[bpi]<=14)) {
 					HistoricalRegister hv = (HistoricalRegister)
 					rFactory.getRegister( "HistoricalRegister", billingPoint[bpi] );
 					if( hv.getBillingDate() == null ) continue;
