@@ -17,6 +17,8 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
  * @author gna
  * The P3ImageTransfer Object is created from the DSMR P3 Companion Standard and it is slightly different from the 
  * ImageTransfer Object in the draft of the BlueBook_V9. So remember, this object is NOT completely DLMS compliant.
+ * BeginChanges:
+ * GNA 30032009 : Added a trimByteArray to reduce the FF blocks.
  */
 
 public class P3ImageTransfer extends AbstractCosemObject{
@@ -127,27 +129,18 @@ public class P3ImageTransfer extends AbstractCosemObject{
 		for(int i = 0; i < blockCount; i++){
 			if(i < blockCount -1){
 				octetStringData = new byte[(int)getMaxImageBlockSize().getValue()];
-				if(DEBUG){
-					this.protocolLink.getLogger().log(Level.INFO, "ImageTransfer: Before arrayCopy " + System.currentTimeMillis());
-				}
 				System.arraycopy(this.data, (int)(i*getMaxImageBlockSize().getValue()), octetStringData, 0, 
 						(int)getMaxImageBlockSize().getValue());
-				if(DEBUG){
-					this.protocolLink.getLogger().log(Level.INFO, "ImageTransfer: After arrayCopy " + System.currentTimeMillis());
-				}
 			} else {
 				long blockSize = this.size.getValue() - (i*getMaxImageBlockSize().getValue());
 				octetStringData = new byte[(int)blockSize];
 				System.arraycopy(this.data, (int)(i*getMaxImageBlockSize().getValue()), octetStringData, 0, 
 						(int)blockSize);
 			}
-			os = new OctetString(octetStringData);
+			os = new OctetString(trimByteArray(octetStringData));
 			this.imageBlockTransfer = new Structure();
 			this.imageBlockTransfer.addDataType(new Unsigned32(i));
 			this.imageBlockTransfer.addDataType(os);
-			if(DEBUG){
-				this.protocolLink.getLogger().log(Level.INFO, "ImageTransfer: Just before writing " + System.currentTimeMillis());
-			}
 			writeImageBlock(this.imageBlockTransfer);
 			
 			if(i % 50 == 0){ // i is multiple of 50
@@ -156,6 +149,21 @@ public class P3ImageTransfer extends AbstractCosemObject{
 			
 			if(DEBUG)System.out.println("ImageTrans: Write block " + i + " success.");
 		}
+	}
+	
+	/**
+	 * Trim the byteArray so all ending 0xFF bytes are trimed.
+	 * @param octetStringData
+	 * @return the trimmed byteArray
+	 */
+	private byte[] trimByteArray(byte[] octetStringData){
+		int last = octetStringData.length-1;
+		while((last >= 0) && (octetStringData[last] == -1)){
+			last--;
+		}
+		byte[] b = new byte[last+1];
+		System.arraycopy(octetStringData, 0, b, 0, last+1);
+		return b;
 	}
 	
 	/**
@@ -194,7 +202,7 @@ public class P3ImageTransfer extends AbstractCosemObject{
 						(int)blockSize);
 			}
 			
-			os = new OctetString(octetStringData);
+			os = new OctetString(trimByteArray(octetStringData));
 			this.imageBlockTransfer = new Structure();
 			this.imageBlockTransfer.addDataType(new Unsigned32((int)getFirstMissingBlock().getValue()));
 			this.imageBlockTransfer.addDataType(os);
@@ -435,4 +443,12 @@ public class P3ImageTransfer extends AbstractCosemObject{
 		return this.firstMissingBlockOffset;
 	}
 
+	public static void main(String args[]) throws IOException{
+		P3ImageTransfer p = new P3ImageTransfer(null, null);
+		byte[] b = new byte[]{0x01, 0x02, 0x03, (byte)0xFF, (byte)0xFF, 0x06, (byte)0xFF, 0x08, 0x09, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF};
+		byte[] b2 = new byte[]{(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF};
+		b = p.trimByteArray(b2);
+		System.out.println(new String(b));
+	}
+	
 }
