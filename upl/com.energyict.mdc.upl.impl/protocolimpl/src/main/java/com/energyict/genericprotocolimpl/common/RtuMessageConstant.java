@@ -138,4 +138,8 @@ public class RtuMessageConstant {
 	public static final String ME_NUMBER_OF_ENTRIES = "Number_of_entries";
 	public static final String ME_INTERVAL = "Interval";
 	public static final String ME_SET_CLOCK_BACK = "Sync_clock_at_end";
+	
+	/** RtuMessage tags for ReadingTestFile */
+	public static final String TEST_MESSAGE = "Test_Message";
+	public static final String TEST_FILE = "Test_File";
 }

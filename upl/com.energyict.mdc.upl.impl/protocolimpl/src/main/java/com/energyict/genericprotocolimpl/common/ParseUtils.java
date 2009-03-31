@@ -232,7 +232,7 @@ public class ParseUtils {
 //		String sgn = ".";
 //		System.out.println(countEqualSignsInString(str, sgn));
 		
-		String str = "1300000000000001";
+		String str = "000100010010002b6129a109060760857405080101a203020100a305a103020100be10040e0800065f1f000000101904180007";
 		System.out.println(ParseUtils.hexStringToByteArray(str));
 	}
 }
