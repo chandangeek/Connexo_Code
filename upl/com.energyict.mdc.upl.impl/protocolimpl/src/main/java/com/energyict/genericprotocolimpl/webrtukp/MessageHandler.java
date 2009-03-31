@@ -79,6 +79,9 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.GPRS_MODEM_SETUP.equals(qName)){
 			setType(RtuMessageConstant.GPRS_MODEM_SETUP);
 			handleGrpsModemSetup(attrbs);
+		} else if(RtuMessageConstant.TEST_MESSAGE.equals(qName)){
+			setType(RtuMessageConstant.TEST_MESSAGE);
+			handleTestMessage(attrbs);
 		}
 	}
 
@@ -448,6 +451,22 @@ public class MessageHandler extends DefaultHandler{
 		} else {
 			return "";
 		}
+	}
+	
+	/**********************************************/
+	
+	/**********************************************
+	 * Handle TestMessage Related messages
+	 **********************************************/
+	
+	String ufId = "";
+	
+	private void handleTestMessage(Attributes attrbs){
+		this.ufId = attrbs.getValue(RtuMessageConstant.TEST_FILE);
+	}
+	
+	public String getTestUserFileId(){
+		return (this.ufId != null)?this.ufId:"";
 	}
 	
 	/**********************************************/

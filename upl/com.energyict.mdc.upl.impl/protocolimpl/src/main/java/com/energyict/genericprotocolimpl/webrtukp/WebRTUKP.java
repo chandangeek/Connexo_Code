@@ -1,6 +1,8 @@
 package com.energyict.genericprotocolimpl.webrtukp;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,7 +10,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -70,6 +71,9 @@ import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DemandRegister;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.GenericRead;
+import com.energyict.dlms.cosem.GenericWrite;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.Limiter;
 import com.energyict.dlms.cosem.P3ImageTransfer;
@@ -84,6 +88,8 @@ import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.StoreObject;
+import com.energyict.genericprotocolimpl.webrtukp.csvhandling.CSVParser;
+import com.energyict.genericprotocolimpl.webrtukp.csvhandling.TestObject;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.DailyMonthly;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.ElectricityProfile;
 import com.energyict.mdw.amr.GenericProtocol;
@@ -101,7 +107,9 @@ import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MissingPropertyException;
@@ -121,6 +129,7 @@ import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
+import com.energyict.utils.Utilities;
 
 /**
  * 
@@ -1042,7 +1051,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		boolean success = false;
 		String content = rtuMessage.getContents();
 		MessageHandler messageHandler = new MessageHandler();
-		importMessage(content, messageHandler);
 		try {
 			importMessage(content, messageHandler);
 			
@@ -1062,6 +1070,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 			boolean setTime			= messageHandler.getType().equals(RtuMessageConstant.SET_TIME);
 			boolean fillUpDB		= messageHandler.getType().equals(RtuMessageConstant.ME_MAKING_ENTRIES);
 			boolean gprsParameters 	= messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_SETUP);
+			boolean testMessage 	= messageHandler.getType().equals(RtuMessageConstant.TEST_MESSAGE);
 			
 			if(xmlConfig){
 				
@@ -1613,13 +1622,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				}
 				if((messageHandler.getGprsUsername() != null) || (messageHandler.getGprsPassword() != null)){
 					getCosemObjectFactory().getPPPSetup().writePPPAuthenticationType(pppat);
-					
-					// TODO change this back to using the DLMS object instead of the raw data
-//					byte[] b = new byte[pppat.getBEREncodedByteArray().length + 2];
-//					b[0] = (byte)0x16;
-//					b[1] = (byte)0x01;
-//					System.arraycopy(pppat.getBEREncodedByteArray(), 0, b, 2, b.length-2);
-//					getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.25.3.0.255"), 5, 44).write(b);
 				}
 				
 				if(messageHandler.getGprsApn() != null){
@@ -1627,8 +1629,73 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				}
 				
 				success = true;
-			}
-			else {
+			} else if(testMessage){
+				
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": TestMessage");
+				
+				String userFileId = messageHandler.getTestUserFileId();
+				if(!userFileId.equalsIgnoreCase("")){
+					if(ParseUtils.isInteger(userFileId)){
+						UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
+						byte[] data = uf.loadFileInByteArray();
+						CSVParser csvParser = new CSVParser(data);
+						boolean hasWritten;
+						for(int i = 1; i < csvParser.size(); i++){
+							TestObject to = csvParser.getTestObject(i);
+							hasWritten = false;
+							try {
+								switch(csvParser.getTestObject(i).getType()){
+								case 0 :{ // GET
+									GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), to.getAttribute(), to.getClassId());
+									to.setResult(gr.getDataContainer().print2strDataContainer());
+									hasWritten = true;
+								}break;
+								case 1 :{ // SET
+									GenericWrite gw = getCosemObjectFactory().getGenericWrite(to.getObisCode(), to.getAttribute(), to.getClassId());
+									to.setResult("OK");
+									hasWritten = true;
+								}break;
+								case 2 :{ // ACTION
+									GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
+									to.setResult("OK");
+									hasWritten = true;
+								}break;
+								case 3 :{ // MESSAGE
+									RtuMessageShadow rms = new RtuMessageShadow();
+									rms.setContents(csvParser.getTestObject(i).getData());
+									rms.setRtuId(getMeter().getId());
+									handleMessage(mw().getRtuMessageFactory().create(rms));
+									to.setResult("OK");
+									hasWritten = true;
+								}break;
+								default:{
+									throw new ApplicationException("Row " + i + " of the CSV file does not contain a valid type.");
+								}
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+								getLogger().log(Level.INFO, "Test " + i + " has failed.");
+								if(!hasWritten){
+									to.setResult("Failed. " + e.getMessage());
+									hasWritten = true;
+								}
+							} finally {
+								if(!hasWritten){
+									to.setResult("Failed.");
+								}
+							}
+						}
+						mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf));
+						
+					} else {
+						throw new IOException("UserFileId is not a valid number");
+					}
+				} else {
+					throw new IOException("No userfile id is given.");
+				}
+				
+				success = true;
+			} else {
 				success = false;
 			}
 			
@@ -1688,50 +1755,70 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		WebRTUKP wkp = new WebRTUKP();
 		
 		try {
-			AXDRDateTime axdrDateTime = wkp.convertUnixToGMTDateTime("1236761593", TimeZone.getTimeZone("GMT"));
-			System.out.println(axdrDateTime.getValue().getTime());
-			System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("GMT")));
-			System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
-			System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
-			System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1236761593")*1000)/3600000);
 			
-			axdrDateTime = wkp.convertUnixToGMTDateTime("1236761593", TimeZone.getTimeZone("Europe/Brussels"));
-			System.out.println(axdrDateTime.getValue().getTime());
-			System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("Europe/Brussels")));
-			System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
-			System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
-			System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1236761593")*1000)/3600000);
+			Utilities.createEnvironment();
+			MeteringWarehouse.createBatchContext(false);
+			RtuMessageShadow rms = new RtuMessageShadow();
+			rms.setContents("<Test_Message Test_File='460'> </Test_Message>");
+			rms.setRtuId(17492);
 			
-			axdrDateTime = wkp.convertUnixToGMTDateTime("1234947193", TimeZone.getTimeZone("GMT"));
-			System.out.println(axdrDateTime.getValue().getTime());
-			System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("GMT")));
-			System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
-			System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
-			System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1234947193")*1000)/3600000);
+			wkp.logger = Logger.getAnonymousLogger();
 			
-			axdrDateTime = wkp.convertUnixToGMTDateTime("1234947193", TimeZone.getTimeZone("Europe/Brussels"));
-			System.out.println(axdrDateTime.getValue().getTime());
-			System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("Europe/Brussels")));
-			System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
-			System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
-			System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1234947193")*1000)/3600000);
-			
-			Date nextDate = wkp.getFirstDate(axdrDateTime.getValue().getTime(), "month", TimeZone.getTimeZone("Europe/Brussels"));
-			int days = 0;
-			while(days < 60){
-				
-				if(days == 36){
-					System.out.println("timeout");
-				}
-				
-				System.out.println(nextDate);
-				nextDate = wkp.setBeforeNextInterval(nextDate, "month", TimeZone.getTimeZone("Europe/Brussels"));
-				days++;
-			}
-			
-		} catch (IOException e) {
+			wkp.handleMessage(wkp.mw().getRtuMessageFactory().create(rms));
+		} catch (BusinessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		
+//		try {
+//			AXDRDateTime axdrDateTime = wkp.convertUnixToGMTDateTime("1236761593", TimeZone.getTimeZone("GMT"));
+//			System.out.println(axdrDateTime.getValue().getTime());
+//			System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("GMT")));
+//			System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
+//			System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
+//			System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1236761593")*1000)/3600000);
+//			
+//			axdrDateTime = wkp.convertUnixToGMTDateTime("1236761593", TimeZone.getTimeZone("Europe/Brussels"));
+//			System.out.println(axdrDateTime.getValue().getTime());
+//			System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("Europe/Brussels")));
+//			System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
+//			System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
+//			System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1236761593")*1000)/3600000);
+//			
+//			axdrDateTime = wkp.convertUnixToGMTDateTime("1234947193", TimeZone.getTimeZone("GMT"));
+//			System.out.println(axdrDateTime.getValue().getTime());
+//			System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("GMT")));
+//			System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
+//			System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
+//			System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1234947193")*1000)/3600000);
+//			
+//			axdrDateTime = wkp.convertUnixToGMTDateTime("1234947193", TimeZone.getTimeZone("Europe/Brussels"));
+//			System.out.println(axdrDateTime.getValue().getTime());
+//			System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("Europe/Brussels")));
+//			System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
+//			System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
+//			System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1234947193")*1000)/3600000);
+//			
+//			Date nextDate = wkp.getFirstDate(axdrDateTime.getValue().getTime(), "month", TimeZone.getTimeZone("Europe/Brussels"));
+//			int days = 0;
+//			while(days < 60){
+//				
+//				if(days == 36){
+//					System.out.println("timeout");
+//				}
+//				
+//				System.out.println(nextDate);
+//				nextDate = wkp.setBeforeNextInterval(nextDate, "month", TimeZone.getTimeZone("Europe/Brussels"));
+//				days++;
+//			}
+//			
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		
 		}
 	
@@ -2032,6 +2119,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		MessageCategorySpec catTime = new MessageCategorySpec("Time");
 		MessageCategorySpec catMakeEntries = new MessageCategorySpec("Create database entries");
 		MessageCategorySpec catGPRSModemSetup = new MessageCategorySpec("Change GPRS modem setup");
+		MessageCategorySpec catTestMessage = new MessageCategorySpec("TestMessage");
 		
 		// XMLConfig related messages
 		MessageSpec msgSpec = addDefaultValueMsg("XMLConfig", RtuMessageConstant.XMLCONFIG, false);
@@ -2083,6 +2171,9 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		msgSpec = addChangeGPRSSetup("Change GPRS modem setup parameters", RtuMessageConstant.GPRS_MODEM_SETUP, false);
 		catGPRSModemSetup.addMessageSpec(msgSpec);
 		
+		// TestMessage
+		msgSpec = addTestMessage("Test Message", RtuMessageConstant.TEST_MESSAGE, true);
+		catTestMessage.addMessageSpec(msgSpec);
 		
 		categories.add(catXMLConfig);
 		categories.add(catFirmware);
@@ -2093,6 +2184,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		categories.add(catTime);
 		categories.add(catMakeEntries);
 		categories.add(catGPRSModemSetup);
+		categories.add(catTestMessage);
 		return categories;
 	}
 	
@@ -2204,6 +2296,18 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         MessageValueSpec msgVal = new MessageValueSpec();
         msgVal.setValue(" ");
         MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.SET_TIME_VALUE, true);
+        tagSpec.add(msgVal);
+        tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+	
+	private MessageSpec addTestMessage(String keyId, String tagName, boolean advanced) {
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.TEST_FILE, true);
         tagSpec.add(msgVal);
         tagSpec.add(msgAttrSpec);
         msgSpec.add(tagSpec);
