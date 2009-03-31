@@ -87,4 +87,8 @@ public class CSVParser {
 		}
 		return strBuffer.toString().getBytes();
 	}
+
+	public void addLine(String string) {
+		lines.add(new TestObject(string));
+	}
 }

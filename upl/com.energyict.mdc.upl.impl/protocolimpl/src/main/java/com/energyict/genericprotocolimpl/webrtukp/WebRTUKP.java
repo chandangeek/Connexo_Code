@@ -1630,68 +1630,84 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 			} else if(testMessage){
 				
 				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": TestMessage");
-				
+				int failures = 0;
 				String userFileId = messageHandler.getTestUserFileId();
 				if(!userFileId.equalsIgnoreCase("")){
 					if(ParseUtils.isInteger(userFileId)){
 						UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
-						byte[] data = uf.loadFileInByteArray();
-						CSVParser csvParser = new CSVParser(data);
-						boolean hasWritten;
-						for(int i = 1; i < csvParser.size(); i++){
-							TestObject to = csvParser.getTestObject(i);
-							hasWritten = false;
-							try {
-								switch(csvParser.getTestObject(i).getType()){
-								case 0 :{ // GET
-									GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), DLMSUtils.attrLN2SN(to.getAttribute()), to.getClassId());
-									to.setResult(ParseUtils.decimalByteToString(gr.getResponseData()));
-									hasWritten = true;
-								}break;
-								case 1 :{ // SET
-									GenericWrite gw = getCosemObjectFactory().getGenericWrite(to.getObisCode(), to.getAttribute(), to.getClassId());
-									gw.write(ParseUtils.hexStringToByteArray(to.getData()));
-									to.setResult("OK");
-									hasWritten = true;
-								}break;
-								case 2 :{ // ACTION
-									GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
-									gi.invoke();
-									to.setResult("OK");
-									hasWritten = true;
-								}break;
-								case 3 :{ // MESSAGE
-									RtuMessageShadow rms = new RtuMessageShadow();
-									rms.setContents(csvParser.getTestObject(i).getData());
-									rms.setRtuId(getMeter().getId());
-									RtuMessage rm = mw().getRtuMessageFactory().create(rms);
-									handleMessage(rm);
-									if(rm.getState().getId() == rm.getState().CONFIRMED.getId()){
+						if(uf != null){
+							byte[] data = uf.loadFileInByteArray();
+							CSVParser csvParser = new CSVParser(data);
+							boolean hasWritten;
+							for(int i = 1; i < csvParser.size(); i++){
+								TestObject to = csvParser.getTestObject(i);
+								hasWritten = false;
+								try {
+									switch(csvParser.getTestObject(i).getType()){
+									case 0 :{ // GET
+										GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), DLMSUtils.attrLN2SN(to.getAttribute()), to.getClassId());
+										to.setResult(ParseUtils.decimalByteToString(gr.getResponseData()));
+										hasWritten = true;
+									}break;
+									case 1 :{ // SET
+										GenericWrite gw = getCosemObjectFactory().getGenericWrite(to.getObisCode(), to.getAttribute(), to.getClassId());
+										gw.write(ParseUtils.hexStringToByteArray(to.getData()));
 										to.setResult("OK");
-									} else {
-										to.setResult("Message failed, current state " + rm.getState().getId());
+										hasWritten = true;
+									}break;
+									case 2 :{ // ACTION
+										GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
+										gi.invoke();
+										to.setResult("OK");
+										hasWritten = true;
+									}break;
+									case 3 :{ // MESSAGE
+										RtuMessageShadow rms = new RtuMessageShadow();
+										rms.setContents(csvParser.getTestObject(i).getData());
+										rms.setRtuId(getMeter().getId());
+										RtuMessage rm = mw().getRtuMessageFactory().create(rms);
+										handleMessage(rm);
+										if(rm.getState().getId() == rm.getState().CONFIRMED.getId()){
+											to.setResult("OK");
+										} else {
+											to.setResult("Message failed, current state " + rm.getState().getId());
+											failures++;
+										}
+										hasWritten = true;
+									}break;
+									case 4:{ // WAIT
+										waitCyclus(Integer.parseInt(to.getData()));
+										to.setResult("OK");
+										hasWritten = true;
+									}break; 
+									default:{
+										throw new ApplicationException("Row " + i + " of the CSV file does not contain a valid type.");
 									}
-									hasWritten = true;
-								}break;
-								default:{
-									throw new ApplicationException("Row " + i + " of the CSV file does not contain a valid type.");
-								}
-								}
-							} catch (Exception e) {
-								e.printStackTrace();
-								getLogger().log(Level.INFO, "Test " + i + " has failed.");
-								if(!hasWritten){
-									to.setResult("Failed. " + e.getMessage());
-									hasWritten = true;
-								}
-							} finally {
-								if(!hasWritten){
-									to.setResult("Failed.");
+									}
+								} catch (Exception e) {
+									e.printStackTrace();
+									getLogger().log(Level.INFO, "Test " + i + " has failed.");
+									if(!hasWritten){
+										to.setResult("Failed. " + e.getMessage());
+										hasWritten = true;
+										failures++;
+									}
+								} finally {
+									if(!hasWritten){
+										to.setResult("Failed.");
+										failures++;
+									}
 								}
 							}
+							if(failures == 0){
+								csvParser.addLine("All the tests are successfully finished.");
+							} else {
+								csvParser.addLine("" + failures + " of the " + csvParser.size() + " tests " + ((failures==1)?"has":"have") +" failed.");
+							}
+							mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf));
+						} else {
+							throw new ApplicationException("Userfile with ID " + userFileId + " does not exist.");
 						}
-						mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf));
-						
 					} else {
 						throw new IOException("UserFileId is not a valid number");
 					}
@@ -1738,6 +1754,27 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		while(it.hasNext()){
 			rm = it.next();
 			handleMessage(rm);
+		}
+	}
+	
+	private void waitCyclus(int delay) throws IOException{
+		try {
+			int nrOfPolls = (delay/((this.connectionMode==0)?10:20)) + (delay%((this.connectionMode==0)?10:20)==0?0:1);
+			for(int i = 0; i < nrOfPolls; i++){
+				if(i < nrOfPolls-1){
+					Thread.sleep((this.connectionMode==0)?10000:20000);
+				} else {
+					Thread.sleep((delay-(i*((this.connectionMode==0)?10:20)))*1000);
+				}
+				log(Level.INFO, "Keeping connection alive");
+				getTime();
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			throw new IOException("Interrupted while waiting." + e.getMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Could not keep connection alive." + e.getMessage());
 		}
 	}
 

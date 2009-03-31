@@ -24,6 +24,7 @@ public class TestObject {
 	public static int SET = 1;
 	public static int ACTION = 2;
 	public static int MESSAGE = 3;
+	public static int WAIT = 4;
 	
 	private String[] testRow;
 	private boolean validData = false;
@@ -33,6 +34,8 @@ public class TestObject {
 			this.testRow = subString.split(";");
 		} else if (ParseUtils.countEqualSignsInString(subString, ",") >= 1){
 			this.testRow = subString.split(",");
+		} else {
+			this.testRow = new String[]{subString};
 		}
 	}
 	
@@ -53,8 +56,10 @@ public class TestObject {
 			return ACTION;
 		} else if(this.testRow[TYPE].equalsIgnoreCase("Message")){
 			return MESSAGE;
+		} else if(this.testRow[TYPE].equalsIgnoreCase("Wait")){
+			return WAIT;
 		} else {
-			throw new ApplicationException("Type is not correct, please review your csv file for errors.");
+			throw new ApplicationException("Type " + this.testRow[TYPE] + " is not a valid type, please review your csv file for errors.");
 		}
 			
 	}
