@@ -15,10 +15,11 @@ public class CSVParser {
 	private ArrayList lines = new ArrayList();
 	
 	public CSVParser(byte[] rawBytes){
+		
 		this.rawText = new String(rawBytes);
 		parse();
 	}
-	
+
 	private void parse(){
 		int beginOffset = 0;
 		int endOffset = this.rawText.indexOf(new String(new byte[]{0x0D, 0x0A}));

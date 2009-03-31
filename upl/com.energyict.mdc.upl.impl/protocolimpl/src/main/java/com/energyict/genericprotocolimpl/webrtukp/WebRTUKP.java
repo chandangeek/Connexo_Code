@@ -1644,16 +1644,18 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 								switch(csvParser.getTestObject(i).getType()){
 								case 0 :{ // GET
 									GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), to.getAttribute(), to.getClassId());
-									to.setResult(gr.getDataContainer().print2strDataContainer());
+									to.setResult(ParseUtils.decimalByteToString(gr.getResponseData()));
 									hasWritten = true;
 								}break;
 								case 1 :{ // SET
 									GenericWrite gw = getCosemObjectFactory().getGenericWrite(to.getObisCode(), to.getAttribute(), to.getClassId());
+									gw.write(ParseUtils.hexStringToByteArray(to.getData()));
 									to.setResult("OK");
 									hasWritten = true;
 								}break;
 								case 2 :{ // ACTION
 									GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
+									gi.invoke(to.getMethod());
 									to.setResult("OK");
 									hasWritten = true;
 								}break;
@@ -1728,6 +1730,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		Iterator<RtuMessage> it = getMeter().getPendingMessages().iterator();
 		RtuMessage rm = null;
 		while(it.hasNext()){
+			rm = it.next();
 			handleMessage(rm);
 		}
 	}
@@ -1752,7 +1755,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		WebRTUKP wkp = new WebRTUKP();
 		
 		try {
-			
+//			Utilities.createEnvironment();
+//			MeteringWarehouse.createBatchContext(false);
 			RtuMessageShadow rms = new RtuMessageShadow();
 			rms.setContents("<Test_Message Test_File='460'> </Test_Message>");
 			rms.setRtuId(17492);

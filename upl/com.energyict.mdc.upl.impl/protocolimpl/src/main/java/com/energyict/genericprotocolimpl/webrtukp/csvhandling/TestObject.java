@@ -55,6 +55,13 @@ public class TestObject {
 	}
 	
 	public String getData(){
+		if(this.testRow[DATA].indexOf("\"") != -1){
+			int beginOffset = 0;
+			int endOffset = 0;
+			while(beginOffset != -1){
+//				beginOffset = this.testRow[DATA].indexOf("\"")
+			}
+		}
 		return this.testRow[DATA];
 	}
 	
