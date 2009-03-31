@@ -39,6 +39,7 @@ import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
@@ -1643,7 +1644,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 							try {
 								switch(csvParser.getTestObject(i).getType()){
 								case 0 :{ // GET
-									GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), to.getAttribute(), to.getClassId());
+									GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), DLMSUtils.attrLN2SN(to.getAttribute()), to.getClassId());
 									to.setResult(ParseUtils.decimalByteToString(gr.getResponseData()));
 									hasWritten = true;
 								}break;
@@ -1655,7 +1656,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 								}break;
 								case 2 :{ // ACTION
 									GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
-									gi.invoke(to.getMethod());
+									gi.invoke();
 									to.setResult("OK");
 									hasWritten = true;
 								}break;
@@ -1663,8 +1664,13 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 									RtuMessageShadow rms = new RtuMessageShadow();
 									rms.setContents(csvParser.getTestObject(i).getData());
 									rms.setRtuId(getMeter().getId());
-									handleMessage(mw().getRtuMessageFactory().create(rms));
-									to.setResult("OK");
+									RtuMessage rm = mw().getRtuMessageFactory().create(rms);
+									handleMessage(rm);
+									if(rm.getState().getId() == rm.getState().CONFIRMED.getId()){
+										to.setResult("OK");
+									} else {
+										to.setResult("Message failed, current state " + rm.getState().getId());
+									}
 									hasWritten = true;
 								}break;
 								default:{

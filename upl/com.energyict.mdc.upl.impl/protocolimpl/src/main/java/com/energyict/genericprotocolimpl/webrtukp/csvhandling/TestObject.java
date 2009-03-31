@@ -26,6 +26,7 @@ public class TestObject {
 	public static int MESSAGE = 3;
 	
 	private String[] testRow;
+	private boolean validData = false;
 	
 	public TestObject(String subString) {
 		if(ParseUtils.countEqualSignsInString(subString, ";") >= 1){
@@ -35,8 +36,12 @@ public class TestObject {
 		}
 	}
 	
-	public boolean isValid(){
-		return !this.testRow[A].equalsIgnoreCase("A");
+	private boolean validData(){
+		return validData;
+	}
+	
+	private void setValidData(){
+		this.validData = true;
 	}
 	
 	public int getType(){
@@ -55,14 +60,37 @@ public class TestObject {
 	}
 	
 	public String getData(){
-		if(this.testRow[DATA].indexOf("\"") != -1){
-			int beginOffset = 0;
-			int endOffset = 0;
-			while(beginOffset != -1){
-//				beginOffset = this.testRow[DATA].indexOf("\"")
+		if(validData()){
+			return this.testRow[DATA];
+		} else {
+			if(this.testRow[DATA].indexOf("\"") != -1){
+				int offset = 0;
+				byte[] b = this.testRow[DATA].getBytes();
+				byte[] result = new byte[b.length];
+				for(int i = 0; i < b.length; i++){
+					if(b[i] == 34){
+						if((i != b.length-1) && (b[i+1] == 34)){
+							result[offset++] = b[i];
+						}
+					} else {
+						result[offset++] = b[i];
+					}
+				}
+				this.testRow[DATA] = new String(trimByteArray(result));
 			}
+			setValidData();
+			return this.testRow[DATA];
 		}
-		return this.testRow[DATA];
+	}
+	
+	private byte[] trimByteArray(byte[] byteArray){
+		int last = byteArray.length-1;
+		while((last >= 0) && (byteArray[last] == 0)){
+			last--;
+		}
+		byte[] b = new byte[last+1];
+		System.arraycopy(byteArray, 0, b, 0, last+1);
+		return b;
 	}
 	
 	public ObisCode getObisCode(){

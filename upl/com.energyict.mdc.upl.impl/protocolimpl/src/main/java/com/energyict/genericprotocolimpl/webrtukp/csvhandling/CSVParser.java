@@ -41,7 +41,7 @@ public class CSVParser {
 	public static void main(String args[])throws IOException{
 		try {
 //			Utilities.createEnvironment();
-			MeteringWarehouse.createBatchContext(false);
+//			MeteringWarehouse.createBatchContext(false);
 			MeteringWarehouse mw = MeteringWarehouse.getCurrent();
 			int id = 460;
 			UserFile uf = mw.getUserFileFactory().find(id);
