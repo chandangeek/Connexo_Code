@@ -1,8 +1,6 @@
 package com.energyict.genericprotocolimpl.webrtukp;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -109,7 +107,6 @@ import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.mdw.shadow.RtuShadow;
-import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MissingPropertyException;
@@ -129,7 +126,6 @@ import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
-import com.energyict.utils.Utilities;
 
 /**
  * 
@@ -154,6 +150,7 @@ import com.energyict.utils.Utilities;
  * GNA |16032009| Added the getTimeDifference method so timedifferences are shown in the AMR logging. 
  * 					Added properties to disable the reading of the daily/monthly values
  * 					Added ipPortNumber property for updating the phone number with inbound communications
+ * GNA |30032009| Added testMessage to enable overnight tests for the embedded device
  */
 
 public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEnabler{
@@ -1756,8 +1753,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		
 		try {
 			
-			Utilities.createEnvironment();
-			MeteringWarehouse.createBatchContext(false);
 			RtuMessageShadow rms = new RtuMessageShadow();
 			rms.setContents("<Test_Message Test_File='460'> </Test_Message>");
 			rms.setRtuId(17492);
