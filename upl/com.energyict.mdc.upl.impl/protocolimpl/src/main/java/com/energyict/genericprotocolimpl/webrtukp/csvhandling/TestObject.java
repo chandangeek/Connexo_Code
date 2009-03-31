@@ -1,7 +1,6 @@
 package com.energyict.genericprotocolimpl.webrtukp.csvhandling;
 
 import com.energyict.cbo.ApplicationException;
-import com.energyict.dlms.UniversalObject;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.obis.ObisCode;
 

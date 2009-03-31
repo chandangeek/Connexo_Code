@@ -4,13 +4,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.UserFileShadow;
-import com.energyict.protocolimpl.iec870.ziv5ctd.ByteArray;
-import com.energyict.utils.Utilities;
 
 public class CSVParser {
 	
@@ -42,7 +39,7 @@ public class CSVParser {
 	
 	public static void main(String args[])throws IOException{
 		try {
-			Utilities.createEnvironment();
+//			Utilities.createEnvironment();
 			MeteringWarehouse.createBatchContext(false);
 			MeteringWarehouse mw = MeteringWarehouse.getCurrent();
 			int id = 460;
