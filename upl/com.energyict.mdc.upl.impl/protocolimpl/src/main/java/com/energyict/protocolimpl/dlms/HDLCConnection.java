@@ -1084,7 +1084,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
             else {
                 // if initial frame was I frame (hdlsFrame == null) or retries reached max, bubble up to sendRequest method and resend I frame
                 // else send txframe again
-                if ((hdlcFrame == null) || (retryCount++ >= (iMaxRetries-1))) {
+                if (retryCount++ >= iMaxRetries-1) {
                     throw new DLMSConnectionException("receiveInformationField> ERROR receiving data.",(short)((short)bResult&0x00FF));
                 }
                 sendFrame(txFrame);
