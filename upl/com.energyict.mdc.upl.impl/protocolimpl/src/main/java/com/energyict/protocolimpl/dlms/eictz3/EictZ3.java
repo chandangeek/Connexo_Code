@@ -41,7 +41,7 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
-import com.energyict.genericprotocolimpl.webrtukp.MessageHandler;
+import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageHandler;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
