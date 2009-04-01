@@ -256,9 +256,60 @@ public class HDLCConnection extends Connection implements DLMSConnection {
         getAddressingMode(addressingMode);
         setProtocolParams();
         this.informationFieldSize=informationFieldSize;
+        updateSNRMFrames();
+        
     } // public HDLCConnection(...)
     
-    private void getAddressingMode(int addressingMode) throws DLMSConnectionException {
+    private void updateSNRMFrames() {
+    	byte[] macSNRM_part1 = new byte[]{(byte)SNRM|(byte)HDLC_FRAME_CONTROL_PF_BIT,
+                0x00,0x00, // Header CRC
+                (byte)0x81,(byte)0x80,0x12,
+                // Changing the MAX information field size does not seems to
+                // change the secondary device behaviour.
+                };
+    	byte[] macSNRM_part2 = new byte[]{0x07,0x04,0x00,0x00,0x00,0x01,
+                0x08,0x04,0x00,0x00,0x00,0x01,0x00,0x00};
+    	byte[] infoFieldBytes = new byte[2*4+4];	// TODO make this one customizable 
+    	int index = 0;
+    	infoFieldBytes[index++] = 0x05;
+    	infoFieldBytes[index++] = (byte)(informationFieldSize==-1?1:4);
+    	for(int i = infoFieldBytes[index - 1]-1; i >= 0 ; i--){
+    		infoFieldBytes[index++] = (byte) ((informationFieldSize==-1?ISIZE:informationFieldSize>>(i*8))&0xFF);
+    	}    	
+    	infoFieldBytes[index++] = 0x06;
+    	infoFieldBytes[index++] = (byte)(informationFieldSize==-1?1:4);
+    	for(int i = infoFieldBytes[index - 1]-1; i >= 0 ; i--){
+    		infoFieldBytes[index++] = (byte) ((informationFieldSize==-1?ISIZE:informationFieldSize>>(i*8))&0xFF);
+    	}
+    	macSNRMFrame = new byte[macSNRM_part1.length + macSNRM_part2.length + infoFieldBytes.length];
+    	System.arraycopy(macSNRM_part1, 0, macSNRMFrame, 0, macSNRM_part1.length);
+    	System.arraycopy(infoFieldBytes, 0, macSNRMFrame, macSNRM_part1.length, infoFieldBytes.length);
+    	System.arraycopy(macSNRM_part2, 0, macSNRMFrame, macSNRM_part1.length+infoFieldBytes.length, macSNRM_part2.length);
+//    	
+//    	macSNRMFrame = new byte[]{(byte)SNRM|(byte)HDLC_FRAME_CONTROL_PF_BIT,
+//                0x00,0x00, // Header CRC
+//                (byte)0x81,(byte)0x80,0x12,
+//                // Changing the MAX information field size does not seems to
+//                // change the secondary device behaviour.
+//                0x05,0x01,informationFieldSize==-1?ISIZE:(byte)informationFieldSize,
+//                0x06,0x01,informationFieldSize==-1?ISIZE:(byte)informationFieldSize,
+//                0x07,0x04,0x00,0x00,0x00,0x01,
+//                0x08,0x04,0x00,0x00,0x00,0x01,
+//                0x00,0x00};
+//    	
+    	flexSNRMFrame = new byte[]{(byte)SNRM|(byte)HDLC_FRAME_CONTROL_PF_BIT,
+              0x00,0x00, // Header CRC
+              (byte)0x81,(byte)0x80,0x12,
+              // Changing the MAX information field size does not seems to
+              // change the secondary device behaviour.
+              0x05,0x01,(byte)0xF8,
+              0x06,0x01,(byte)0xF8,
+              0x07,0x04,0x00,0x00,0x00,0x01,
+              0x08,0x04,0x00,0x00,0x00,0x01,
+              0x00,0x00};
+	}
+
+	private void getAddressingMode(int addressingMode) throws DLMSConnectionException {
         
         
         
@@ -338,29 +389,31 @@ public class HDLCConnection extends Connection implements DLMSConnection {
        }
     } // private void setProtocolParams()
     
-    protected byte[] macSNRMFrame={(byte)SNRM|(byte)HDLC_FRAME_CONTROL_PF_BIT,
-                                 0x00,0x00, // Header CRC
-                                 (byte)0x81,(byte)0x80,0x12,
-                                 // Changing the MAX information field size does not seems to
-                                 // change the secondary device behaviour.
-                                 0x05,0x01,informationFieldSize==-1?ISIZE:(byte)informationFieldSize,
-                                 0x06,0x01,informationFieldSize==-1?ISIZE:(byte)informationFieldSize,
-                                 0x07,0x04,0x00,0x00,0x00,0x01,
-                                 0x08,0x04,0x00,0x00,0x00,0x01,
-                                 0x00,0x00}; // Frame CRC
+//    protected byte[] macSNRMFrame={(byte)SNRM|(byte)HDLC_FRAME_CONTROL_PF_BIT,
+//                                 0x00,0x00, // Header CRC
+//                                 (byte)0x81,(byte)0x80,0x12,
+//                                 // Changing the MAX information field size does not seems to
+//                                 // change the secondary device behaviour.
+//                                 0x05,0x01,informationFieldSize==-1?ISIZE:(byte)informationFieldSize,
+//                                 0x06,0x01,informationFieldSize==-1?ISIZE:(byte)informationFieldSize,
+//                                 0x07,0x04,0x00,0x00,0x00,0x01,
+//                                 0x08,0x04,0x00,0x00,0x00,0x01,
+//                                 0x00,0x00}; // Frame CRC
+    protected byte[] macSNRMFrame;
     
 //    private byte[] flexSNRMFrame={(byte) 0x93, (byte) 0x00, (byte) 0x00};
   
-    protected byte[] flexSNRMFrame = {(byte)SNRM|(byte)HDLC_FRAME_CONTROL_PF_BIT,
-            0x00,0x00, // Header CRC
-            (byte)0x81,(byte)0x80,0x12,
-            // Changing the MAX information field size does not seems to
-            // change the secondary device behaviour.
-            0x05,0x01,(byte)0xF8,
-            0x06,0x01,(byte)0xF8,
-            0x07,0x04,0x00,0x00,0x00,0x01,
-            0x08,0x04,0x00,0x00,0x00,0x01,
-            0x00,0x00}; // Frame CRC
+//    protected byte[] flexSNRMFrame = {(byte)SNRM|(byte)HDLC_FRAME_CONTROL_PF_BIT,
+//            0x00,0x00, // Header CRC
+//            (byte)0x81,(byte)0x80,0x12,
+//            // Changing the MAX information field size does not seems to
+//            // change the secondary device behaviour.
+//            0x05,0x01,(byte)0xF8,
+//            0x06,0x01,(byte)0xF8,
+//            0x07,0x04,0x00,0x00,0x00,0x01,
+//            0x08,0x04,0x00,0x00,0x00,0x01,
+//            0x00,0x00}; // Frame CRC
+    protected byte[] flexSNRMFrame;
        
    protected byte[] buildFrame(byte[] macFrame)
    {
