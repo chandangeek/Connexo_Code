@@ -26,6 +26,9 @@ import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MbusMessageExecutor;
+import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageExecutor;
+import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageHandler;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.MbusDailyMonthly;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.MbusProfile;
 import com.energyict.mdw.amr.GenericProtocol;
@@ -190,163 +193,13 @@ public class MbusDevice implements GenericProtocol, Messaging{
 	}
 	
 	private void sendMeterMessages() throws BusinessException, SQLException {
-		MessageHandler messageHandler = new MessageHandler();
-		
+		MbusMessageExecutor messageExecutor = new MbusMessageExecutor(this);
+
 		Iterator<RtuMessage> it = getMbus().getPendingMessages().iterator();
 		RtuMessage rm = null;
-		boolean success = false;
 		while(it.hasNext()){
-			try {
-				
-				rm = (RtuMessage)it.next();
-				String content = rm.getContents();
-				getWebRTU().importMessage(content, messageHandler);
-				
-				boolean connect			= messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
-				boolean disconnect		= messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
-				boolean connectMode		= messageHandler.getType().equals(RtuMessageConstant.CONNECT_CONTROL_MODE);
-				boolean decommission 	= messageHandler.getType().equals(RtuMessageConstant.MBUS_DECOMMISSION);
-				boolean mbusEncryption 	= messageHandler.getType().equals(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
-				
-				if(connect){
-					
-					getLogger().log(Level.INFO, "Handling MbusMessage " + rm.displayString() + ": Connect");
-
-					if(!messageHandler.getConnectDate().equals("")){	// use the disconnectControlScheduler
-						
-						Array executionTimeArray = getWebRTU().convertUnixToDateTimeArray(messageHandler.getConnectDate());
-						SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getPhysicalAddress()).getObisCode());
-						
-						ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getPhysicalAddress()).getObisCode());
-						byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn(); 
-						Structure scriptStruct = new Structure();
-						scriptStruct.addDataType(new OctetString(scriptLogicalName));
-						scriptStruct.addDataType(new Unsigned16(2)); 	// method '2' is the 'remote_connect' method
-						
-						sasConnect.writeExecutedScript(scriptStruct);
-						sasConnect.writeExecutionTime(executionTimeArray);
-						
-					} else { // immediate connect
-						Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode());
-						connector.remoteReconnect();
-					}
-					
-					success = true;
-					
-				} else if(disconnect){
-					
-					getLogger().log(Level.INFO, "Handling MbusMessage " + rm.displayString() + ": Disconnect");
-					
-					if(!messageHandler.getDisconnectDate().equals("")){	// use the disconnectControlScheduler
-						
-						Array executionTimeArray = getWebRTU().convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
-						SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getPhysicalAddress()).getObisCode());
-						
-						ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getPhysicalAddress()).getObisCode());
-						byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn(); 
-						Structure scriptStruct = new Structure();
-						scriptStruct.addDataType(new OctetString(scriptLogicalName));
-						scriptStruct.addDataType(new Unsigned16(1));	// method '1' is the 'remote_disconnect' method
-						
-						sasDisconnect.writeExecutedScript(scriptStruct);
-						sasDisconnect.writeExecutionTime(executionTimeArray);
-						
-					} else { // immediate disconnect
-						Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode());
-						connector.remoteDisconnect();
-					}
-					
-					success = true;
-				} else if(connectMode){
-					
-					getLogger().log(Level.INFO, "Handling message " + rm.displayString() + ": ConnectControl mode");
-					String mode = messageHandler.getConnectControlMode();
-					
-					if(mode != null){
-						try {
-							int modeInt = Integer.parseInt(mode);
-							
-							if((modeInt >=0) && (modeInt <=6)){
-								Disconnector connectorMode = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getPhysicalAddress()).getObisCode());
-								connectorMode.writeControlMode(new TypeEnum(modeInt));
-								
-							} else {
-								throw new IOException("Mode is not a valid entry for message " + rm.displayString() + ", value must be between 0 and 6");
-							}
-							
-						} catch (NumberFormatException e) {
-							e.printStackTrace();
-							throw new IOException("Mode is not a valid entry for message " + rm.displayString());
-						}
-					} else {
-						// should never get to the else, can't leave message empty 
-						throw new IOException("Message " + rm.displayString() + " can not be empty");
-					}
-					
-					success = true;
-				} else if(decommission){
-					
-					getLogger().log(Level.INFO, "Handling MbusMessage " + rm.displayString() + ": Decommission MBus device");
-					
-					MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getPhysicalAddress()).getObisCode());
-					mbusClient.deinstallSlave();
-					
-					success = true;
-				} else if(mbusEncryption){
-					
-					getLogger().log(Level.INFO, "Handling MbusMessage " + rm.displayString() + ": Set encryption keys");
-					
-					String openKey = messageHandler.getOpenKey();
-					String transferKey = messageHandler.getTransferKey();
-					
-					MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getPhysicalAddress()).getObisCode());
-					
-					if(openKey == null){
-						mbusClient.setEncryptionKey("");
-					} else if(transferKey != null){
-						mbusClient.setEncryptionKey(convertStringToByte(openKey));
-						mbusClient.setTransportKey(convertStringToByte(transferKey));
-					} else {
-						throw new IOException("Transfer key may not be empty when setting the encryption keys.");
-					}
-					
-					success = true;
-				} else {	// unknown message
-					success = false;
-					throw new IOException("Unknown message");
-				}
-				
-			} catch (BusinessException e) {
-				e.printStackTrace();
-				getLogger().log(Level.INFO, "Message " + rm.displayString() + " has failed. " + e.getMessage());
-			} catch (ConnectionException e){
-				e.printStackTrace();
-				getLogger().log(Level.INFO, "Message " + rm.displayString() + " has failed. " + e.getMessage());
-			} catch (IOException e) {
-				e.printStackTrace();
-				getLogger().log(Level.INFO, "Message " + rm.displayString() + " has failed. " + e.getMessage());
-			} finally {
-				if(success){
-					rm.confirm();
-					getLogger().log(Level.INFO, "Message " + rm.displayString() + " has finished.");
-				} else {
-					rm.setFailed();
-				}
-			}
-		}
-	}
-	
-	private byte[] convertStringToByte(String string) throws IOException {
-		try {
-			byte[] b = new byte[string.length()/2];
-			int offset = 0;
-			for(int i = 0; i < b.length; i++){
-				b[i] = (byte) Integer.parseInt(string.substring(offset, offset+=2),16);
-			}
-			return b;
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-			throw new IOException("String " + string + " can not be formatted to byteArray");
+			rm = it.next();
+			messageExecutor.doMessage(rm);
 		}
 	}
 
@@ -513,11 +366,11 @@ public class MbusDevice implements GenericProtocol, Messaging{
 	public static void main(String args[]){
 		MbusDevice md = new MbusDevice();
 		String string = "123456781AFF";
-		try {
-			System.out.println(md.convertStringToByte(string));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		try {
+////			System.out.println(md.convertStringToByte(string));
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	public long getTimeDifference() {

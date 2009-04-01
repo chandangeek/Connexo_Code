@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.energyict.genericprotocolimpl.webrtukp;
+package com.energyict.genericprotocolimpl.webrtukp.messagehandling;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -82,6 +82,8 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.TEST_MESSAGE.equals(qName)){
 			setType(RtuMessageConstant.TEST_MESSAGE);
 			handleTestMessage(attrbs);
+		} else if(RtuMessageConstant.GLOBAL_METER_RESET.equals(qName)){
+			setType(RtuMessageConstant.GLOBAL_METER_RESET);
 		}
 	}
 
@@ -469,5 +471,10 @@ public class MessageHandler extends DefaultHandler{
 		return (this.ufId != null)?this.ufId:"";
 	}
 	
+	/**********************************************/
+	
+	/**********************************************
+	 * Global Meter Reset Related messages
+	 **********************************************/
 	/**********************************************/
 }
