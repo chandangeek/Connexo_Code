@@ -772,13 +772,15 @@ public class MessageExecutor extends GenericMessageExecutor{
 				
 				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Setting whitelist.");
 				AutoConnect autoConnect = getCosemObjectFactory().getAutoConnect();
-				autoConnect.addNumberToDestinationList(messageHandler.getNr1());
-				autoConnect.addNumberToDestinationList(messageHandler.getNr2());
-				autoConnect.addNumberToDestinationList(messageHandler.getNr3());
-				autoConnect.addNumberToDestinationList(messageHandler.getNr4());
-				autoConnect.addNumberToDestinationList(messageHandler.getNr5());
 				
-				autoConnect.updatePhoneList();
+				Array list = new Array();
+				list.addDataType(OctetString.fromString(messageHandler.getNr1()));
+				list.addDataType(OctetString.fromString(messageHandler.getNr2()));
+				list.addDataType(OctetString.fromString(messageHandler.getNr3()));
+				list.addDataType(OctetString.fromString(messageHandler.getNr4()));
+				list.addDataType(OctetString.fromString(messageHandler.getNr5()));
+
+				autoConnect.writeDestinationList(list);
 				
 				success = true;
 			} else {
