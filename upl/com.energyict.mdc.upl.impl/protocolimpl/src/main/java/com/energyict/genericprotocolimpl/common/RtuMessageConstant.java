@@ -142,4 +142,7 @@ public class RtuMessageConstant {
 	/** RtuMessage tags for ReadingTestFile */
 	public static final String TEST_MESSAGE = "Test_Message";
 	public static final String TEST_FILE = "Test_File";
+	
+	/** RtuMessage tags for GlobalMeterReset */
+	public static final String GLOBAL_METER_RESET = "Global_Meter_Reset";
 }
