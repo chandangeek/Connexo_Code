@@ -192,6 +192,8 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
     Profile profile = null;
     ObisCodeMapper obisCodeMapper = null;
     
+    private boolean software7E1;
+    
     private final String[] REGISTERCONFIG =
     { "TotalImportKwh","TotalExportKwh","TotalImportKvarh",
       "TotalExportKvarh","TotalKvah"
@@ -251,6 +253,8 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
         
         if (p.getProperty(PK_FORCE_DELAY) != null)
             pForceDelay = Integer.parseInt( p.getProperty(PK_FORCE_DELAY) );
+        
+        this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
         
         validateProperties();
         
@@ -320,7 +324,7 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
                 flagIEC1107Connection = new FlagIEC1107Connection(inputStream,
                 outputStream, pTimeout, pRetries, pForceDelay,
                 0, 0,
-                new com.energyict.protocolimpl.iec1107.ppm.Encryption());
+                new com.energyict.protocolimpl.iec1107.ppm.Encryption(),software7E1);
             } catch (ConnectionException e) {
                 logger.severe("PPM: init(...), " + e.getMessage());
             }
@@ -424,6 +428,7 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
         result.add( PK_RETRIES );
         result.add( PK_EXTENDED_LOGGING );
         result.add(PK_FORCE_DELAY);
+        result.add("Software7E1");
         return result;
     }
     

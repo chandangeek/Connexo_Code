@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.iec1107.kamstrup;
+package com.energyict.protocolimpl.iec1107;
 
 import java.io.IOException;
 import java.io.OutputStream;

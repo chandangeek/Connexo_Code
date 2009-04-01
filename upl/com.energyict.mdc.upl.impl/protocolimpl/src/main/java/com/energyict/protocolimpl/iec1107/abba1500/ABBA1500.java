@@ -84,6 +84,8 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
     byte[] dataReadout=null;
     boolean profileDateRead=false;
     
+    boolean software7E1;
+    
     int forcedDelay;
     
     private DataDumpParser dataDumpParser;
@@ -209,6 +211,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
             forcedDelay=Integer.parseInt(properties.getProperty("ForcedDelay","0").trim());
             serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
             iFirmwareVersion = properties.getProperty("FirmwareVersion", "3.03").trim();
+            this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
             
             if (!iFirmwareVersion.equalsIgnoreCase("3.03") && !iFirmwareVersion.equalsIgnoreCase("3.02"))
             	throw new InvalidPropertyException("Invalid value for FirmwareVersion: " + iFirmwareVersion + "! Valid FirmwareVersion values are '3.02' and '3.03'.");
@@ -287,6 +290,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
         result.add("VDEWCompatible");
         result.add("ForcedDelay");
         result.add("FirmwareVersion");
+        result.add("Software7E1");
         return result;
     }
 
@@ -310,7 +314,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
         this.logger = logger;     
         
         try {
-           flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,forcedDelay,iEchoCancelling,iIEC1107Compatible);
+           flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,forcedDelay,iEchoCancelling,iIEC1107Compatible,software7E1);
            abba1500Registry = new ABBA1500Registry(this,this);
            abba1500Profile = new ABBA1500Profile(this,this,abba1500Registry);
            abba1500Profile.setFirmwareVersion(getIFirmwareVersion());

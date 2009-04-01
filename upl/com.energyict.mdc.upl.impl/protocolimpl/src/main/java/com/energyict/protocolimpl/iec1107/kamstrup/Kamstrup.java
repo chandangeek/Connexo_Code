@@ -60,8 +60,7 @@ public class Kamstrup implements MeterProtocol, ProtocolLink, RegisterProtocol {
     private int iEchoCancelling;
     private int iIEC1107Compatible;
     private int iProfileInterval;
-    private int software7E1;
-
+    private boolean software7E1;
     private TimeZone timeZone;
     private Logger logger;
     
@@ -208,7 +207,7 @@ public class Kamstrup implements MeterProtocol, ProtocolLink, RegisterProtocol {
             iIEC1107Compatible=Integer.parseInt(properties.getProperty("IEC1107Compatible","1").trim());
             iProfileInterval=Integer.parseInt(properties.getProperty("ProfileInterval","3600").trim());
             extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0").trim());
-            software7E1=Integer.parseInt(properties.getProperty("Software7E1","0").trim());
+            this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
         }
         catch (NumberFormatException e) {
            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
@@ -295,14 +294,14 @@ public class Kamstrup implements MeterProtocol, ProtocolLink, RegisterProtocol {
         
         try {
            
-        	if (isSoftware7E1()) {
-        		Software7E1InputStream softIn = new Software7E1InputStream(inputStream);
-        		Software7E1OutputStream softOut = new Software7E1OutputStream(outputStream);
-        		flagIEC1107Connection=new FlagIEC1107Connection(softIn,softOut,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible);
-        	} else {
-            	flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible);
-        	}
-           
+//        	if (isSoftware7E1()) {
+//        		Software7E1InputStream softIn = new Software7E1InputStream(inputStream);
+//        		Software7E1OutputStream softOut = new Software7E1OutputStream(outputStream);
+//        		flagIEC1107Connection=new FlagIEC1107Connection(softIn,softOut,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible);
+//        	} else {
+//            	flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible);
+//        	}
+        	flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible,software7E1);
         	kamstrupRegistry = new KamstrupRegistry(this);
            kamstrupProfile = new KamstrupProfile(this,kamstrupRegistry);
         }
@@ -311,10 +310,6 @@ public class Kamstrup implements MeterProtocol, ProtocolLink, RegisterProtocol {
         }
         
     } // public void init(InputStream inputStream,OutputStream outputStream,TimeZone timeZone,Logger logger)
-    
-    private boolean isSoftware7E1() {
-		return (software7E1 == 1);
-	}
 
 	/**
      * @throws IOException  */    

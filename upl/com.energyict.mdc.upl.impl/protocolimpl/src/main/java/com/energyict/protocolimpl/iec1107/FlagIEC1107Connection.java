@@ -29,6 +29,7 @@ import com.energyict.dialer.core.HalfDuplexController;
  *      JM 22012009 Added method to disconnect meter without sending a break command to
  *      			prevent communication timeouts or non responding devices with 
  *      			Elster meters (ABBA1350, ABBA1500, ...)
+ *      GN 01042009 Generalized the Software7E1 from the Kamstrup for all FlagIEC1107 protocols
  */
 public class FlagIEC1107Connection extends Connection {
     
@@ -81,6 +82,7 @@ public class FlagIEC1107Connection extends Connection {
     private String errorSignature = "ERR";
     
     private boolean addCRLF=false;
+    private boolean software7E1;
     
     String strIdentConfig;
     String strPass;
@@ -95,8 +97,9 @@ public class FlagIEC1107Connection extends Connection {
     int iMaxRetries,
     long lForceDelay,
     int iEchoCancelling,
-    int iIEC1107Compatible) throws ConnectionException {
-        this(inputStream,outputStream,iTimeout,iMaxRetries,lForceDelay,iEchoCancelling,iIEC1107Compatible,null);
+    int iIEC1107Compatible,
+    boolean software7E1) throws ConnectionException {
+        this(inputStream,outputStream,iTimeout,iMaxRetries,lForceDelay,iEchoCancelling,iIEC1107Compatible,null,software7E1);
     }
     
     /**
@@ -118,8 +121,9 @@ public class FlagIEC1107Connection extends Connection {
                                  long lForceDelay,
                                  int iEchoCancelling,
                                  int iIEC1107Compatible,
-                                 Encryptor encryptor) throws ConnectionException {
-        this(inputStream,outputStream,iTimeout,iMaxRetries,lForceDelay,iEchoCancelling,iIEC1107Compatible,encryptor,null);
+                                 Encryptor encryptor,
+                                 boolean software7E1) throws ConnectionException {
+        this(inputStream,outputStream,iTimeout,iMaxRetries,lForceDelay,iEchoCancelling,iIEC1107Compatible,encryptor,null,software7E1);
         
     }
     public FlagIEC1107Connection(InputStream inputStream,
@@ -130,13 +134,16 @@ public class FlagIEC1107Connection extends Connection {
                                  int iEchoCancelling,
                                  int iIEC1107Compatible,
                                  Encryptor encryptor,
-                                 HalfDuplexController halfDuplexController) throws ConnectionException {
-        super(inputStream, outputStream, lForceDelay, iEchoCancelling,halfDuplexController);
+                                 HalfDuplexController halfDuplexController,
+                                 boolean software7E1) throws ConnectionException {
+    	super((software7E1?new Software7E1InputStream(inputStream):inputStream), 
+    			(software7E1?new Software7E1OutputStream(outputStream):outputStream), lForceDelay, iEchoCancelling,halfDuplexController);
         this.iMaxRetries = iMaxRetries;
         this.lForceDelay = lForceDelay;
         this.iEchoCancelling = iEchoCancelling;
         this.iIEC1107Compatible = iIEC1107Compatible;
         this.encryptor=encryptor;
+        this.software7E1 = software7E1;
         iProtocolTimeout=iTimeout;
         boolFlagIEC1107Connected=false;
     } // public FlagIEC1107Connection(...)
@@ -937,7 +944,7 @@ public class FlagIEC1107Connection extends Connection {
     
     public static void main(String[] args) {
         try {
-            FlagIEC1107Connection f = new FlagIEC1107Connection(null, null, 3000, 3, 0, 0, 1);
+            FlagIEC1107Connection f = new FlagIEC1107Connection(null, null, 3000, 3, 0, 0, 1, false);
             
             String strData = "(23CB4DDDE2B76317)";
             String strCommand = "P2";

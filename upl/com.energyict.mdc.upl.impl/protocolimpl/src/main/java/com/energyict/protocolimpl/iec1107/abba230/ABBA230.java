@@ -116,6 +116,8 @@ public class ABBA230 implements
     private ABBA230RegisterFactory rFactory=null;
     private ABBA230Profile profile=null;
     
+    private boolean software7E1;
+    
     public ABBA230() { }
     
     /* ________ Impelement interface MeterProtocol ___________ */
@@ -185,7 +187,7 @@ public class ABBA230 implements
             if (p.getProperty(PK_IEC1107_COMPATIBLE) != null)
                 pIEC1107Compatible = Integer.parseInt(p.getProperty(PK_IEC1107_COMPATIBLE));
             
-            
+            this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("Elster A230, validateProperties, NumberFormatException, "+e.getMessage());
         }
@@ -225,6 +227,7 @@ public class ABBA230 implements
         result.add("EchoCancelling");
         result.add("IEC1107Compatible");
         result.add("ExtendedLogging");
+        result.add("Software7E1");
         return result;
     }
     
@@ -258,7 +261,7 @@ public class ABBA230 implements
                     new FlagIEC1107Connection(
                     inputStream,outputStream,pTimeout,pRetries,
                     FORCE_DELAY,pEchoCancelling,pIEC1107Compatible,
-                    new CAI700());
+                    new CAI700(),software7E1);
         } catch(ConnectionException e) {
             logger.severe("Elster A230: init(...), " + e.getMessage());
         }

@@ -64,6 +64,7 @@ public class EictRtuVdew implements MeterProtocol, HHUEnabler, ProtocolLink, Met
     private TimeZone timeZone;
     private Logger logger;
     
+    private boolean software7E1;
     
     FlagIEC1107Connection flagIEC1107Connection=null;
     EictRtuVdewRegistry eictRtuVdewRegistry=null;
@@ -164,6 +165,7 @@ public class EictRtuVdew implements MeterProtocol, HHUEnabler, ProtocolLink, Met
             scaler = Integer.parseInt(properties.getProperty("Scaler","0").trim());
             halfDuplex=Integer.parseInt(properties.getProperty("HalfDuplex","0").trim());
             forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay","0").trim());
+            this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
         }
         catch (NumberFormatException e) {
            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
@@ -224,7 +226,7 @@ public class EictRtuVdew implements MeterProtocol, HHUEnabler, ProtocolLink, Met
         result.add("Scaler");
         result.add("HalfDuplex");
         result.add("ForcedDelay");
-        
+        result.add("Software7E1");
         return result;
     }
 
@@ -248,7 +250,7 @@ public class EictRtuVdew implements MeterProtocol, HHUEnabler, ProtocolLink, Met
         this.logger = logger;     
         
         try {
-           flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,forcedDelay,iEchoCancelling,iIEC1107Compatible,null,halfDuplex != 0 ? halfDuplexController:null);
+           flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,forcedDelay,iEchoCancelling,iIEC1107Compatible,null,halfDuplex != 0 ? halfDuplexController:null,software7E1);
            eictRtuVdewRegistry = new EictRtuVdewRegistry(this,this);
            eictRtuVdewProfile = new EictRtuVdewProfile(this,this,eictRtuVdewRegistry);
         }

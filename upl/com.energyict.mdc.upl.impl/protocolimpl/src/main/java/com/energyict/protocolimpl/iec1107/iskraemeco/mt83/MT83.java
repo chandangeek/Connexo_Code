@@ -56,6 +56,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     RegisterConfig mt83RegisterConfig = new MT83RegisterConfig(); // we should use an infotype property to determine the registerset
 
     byte[] dataReadout=null;
+    private boolean software7E1;
     
     /** Creates a new instance of MT83, empty constructor*/
     public MT83() {
@@ -173,7 +174,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
             extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0").trim()); 
             readCurrentDay = Integer.parseInt(properties.getProperty("ReadCurrentDay","0").trim());
             loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber","1").trim());
-            
+            this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
             if ((loadProfileNumber < LOADPROFILES_FIRST) || (loadProfileNumber > LOADPROFILES_LAST)) {
             	String exceptionmessage = "";
             	exceptionmessage += "LoadProfileNumber cannot be " + loadProfileNumber + "! ";
@@ -243,6 +244,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         result.add("ExtendedLogging");
         result.add("ReadCurrentDay");
         result.add("LoadProfileNumber");
+        result.add("Software7E1");
         return result;
     }
     
@@ -274,7 +276,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         this.timeZone = timeZone;
         this.logger = logger;
         try {
-            flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible);
+            flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible,software7E1);
             flagIEC1107Connection.setErrorSignature("ER");
             mt83Registry = new MT83Registry(this,this);
             mt83Profile = new MT83Profile(this,this,mt83Registry);

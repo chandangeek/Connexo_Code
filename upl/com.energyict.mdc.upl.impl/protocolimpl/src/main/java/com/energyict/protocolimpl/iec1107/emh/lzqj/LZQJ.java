@@ -64,6 +64,8 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
     
     byte[] dataReadout=null;
     
+    private boolean software7E1;
+    
     /** Creates a new instance of LZQJ, empty constructor*/
     public LZQJ() {
     } // public LZQJ()
@@ -174,6 +176,8 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
             dataReadoutRequest = Integer.parseInt(properties.getProperty("DataReadout","1").trim());
             extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0").trim());
             vdewCompatible=Integer.parseInt(properties.getProperty("VDEWCompatible","1").trim());
+
+            this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
         }
         catch (NumberFormatException e) {
            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
@@ -243,6 +247,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
         result.add("DataReadout");
         result.add("ExtendedLogging");
         result.add("VDEWCompatible");
+        result.add("Software7E1");
         return result;
     }
 
@@ -266,7 +271,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
         this.logger = logger;     
         
         try {
-           flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible);
+           flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible,software7E1);
            flagIEC1107Connection.setAddCRLF(true);
            lzqjRegistry = new LZQJRegistry(this,this);
            lzqjProfile = new LZQJProfile(this,this,lzqjRegistry);

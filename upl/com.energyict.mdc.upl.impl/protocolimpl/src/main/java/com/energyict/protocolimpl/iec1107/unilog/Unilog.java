@@ -108,6 +108,8 @@ public class Unilog implements MeterProtocol, ProtocolLink, MeterExceptionInfo {
     UnilogRegistry registry = null;
     UnilogProfile profile = null;
     ProtocolChannelMap protocolChannelMap = null;
+    
+    private boolean software7E1;
 
     /** Creates a new instance of Unilog, empty constructor */
     public Unilog() {
@@ -161,6 +163,8 @@ public class Unilog implements MeterProtocol, ProtocolLink, MeterExceptionInfo {
             pRountTripCorrection = Integer.parseInt(p
                     .getProperty(MeterProtocol.ROUNDTRIPCORR));
 
+        this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+        
         validateProperties();
 
     }
@@ -184,6 +188,7 @@ public class Unilog implements MeterProtocol, ProtocolLink, MeterExceptionInfo {
         result.add(PK_TIMEOUT);
         result.add(PK_RETRIES);
         result.add(MeterProtocol.ROUNDTRIPCORR);
+        result.add("Software7E1");
         return result;
     }
 
@@ -216,7 +221,7 @@ public class Unilog implements MeterProtocol, ProtocolLink, MeterExceptionInfo {
         try {
             flagIEC1107Connection = new FlagIEC1107Connection(inputStream,
                     outputStream, pTimeout, pRetries, pForceDelay,
-                    pEchoCanceling, pIec1107Compatible);
+                    pEchoCanceling, pIec1107Compatible,software7E1);
 
             registry = new UnilogRegistry(this, this);
             profile = new UnilogProfile(this, registry);

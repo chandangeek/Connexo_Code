@@ -62,6 +62,7 @@ public abstract class AbstractIEC1107Protocol implements MeterProtocol, Protocol
     
     byte[] dataReadout;
     boolean requestDataReadout;
+    boolean software7E1;
     Encryptor encryptor;
     
     public AbstractIEC1107Protocol() {
@@ -163,6 +164,7 @@ public abstract class AbstractIEC1107Protocol implements MeterProtocol, Protocol
         result.add("ExtendedLogging");
         result.add("ChannelMap");
         result.add("ForcedDelay");
+        result.add("Software7E1");
 // if needed, add following codelines into the overridden doGetOptionalKeys() method        
 //        result.add("RequestHeader"));
 //        result.add("Scaler"));
@@ -216,7 +218,7 @@ public abstract class AbstractIEC1107Protocol implements MeterProtocol, Protocol
         this.timeZone=timeZone;
         this.logger=logger;
         try {
-            flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iec1107TimeoutProperty,protocolRetriesProperty,forcedDelay,echoCancelling,iec1107Compatible,encryptor);
+            flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iec1107TimeoutProperty,protocolRetriesProperty,forcedDelay,echoCancelling,iec1107Compatible,encryptor,software7E1);
         }
         catch(ConnectionException e) {
             logger.severe("IndigoPlus, init, "+e.getMessage());
@@ -422,6 +424,7 @@ public abstract class AbstractIEC1107Protocol implements MeterProtocol, Protocol
             requestHeader = Integer.parseInt(properties.getProperty("RequestHeader","0").trim());
             scaler = Integer.parseInt(properties.getProperty("Scaler","0").trim());
             forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay","300").trim());
+            software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
             doValidateProperties(properties);
         }
         catch (NumberFormatException e) {

@@ -75,6 +75,8 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
     private TimeZone timeZone;
     private Logger logger;
     
+    private boolean software7E1;
+    
     
     FlagIEC1107Connection flagIEC1107Connection=null;
     
@@ -182,6 +184,7 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
             // -1 = use identification string from signon later...
             abba1700MeterType = new ABBA1700MeterType(Integer.parseInt(properties.getProperty("MeterType","-1").trim()));
             forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay","300").trim());
+            this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
         }
         catch (NumberFormatException e) {
             throw new InvalidPropertyException("ABBA1700, validateProperties, NumberFormatException, "+e.getMessage());
@@ -208,6 +211,7 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
         result.add("ExtendedLogging");
         result.add("MeterType");
         result.add("ForcedDelay");
+        result.add("Software7E1");
         return result;
     }
     
@@ -240,7 +244,7 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
         this.logger = logger;
         
         try {
-            flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,forcedDelay,iEchoCancelling,iIEC1107Compatible,new CAI700());
+            flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,forcedDelay,iEchoCancelling,iIEC1107Compatible,new CAI700(), software7E1);
                         
 //            abba1700RegisterFactory = new ABBA1700RegisterFactory((ProtocolLink)this,(MeterExceptionInfo)this,abba1700MeterType); // KV 19012004
 //            abba1700Profile=new ABBA1700Profile(this,getABBA1700RegisterFactory());

@@ -78,6 +78,8 @@ public class IskraEmeco implements MeterProtocol, ProtocolLink, HHUEnabler, Mete
 
     byte[] dataReadout=null;
     
+    private boolean software7E1;
+    
     /** Creates a new instance of ABBA1500, empty constructor*/
     public IskraEmeco() {
     } // public IskraEmeco()
@@ -202,6 +204,7 @@ public class IskraEmeco implements MeterProtocol, ProtocolLink, HHUEnabler, Mete
             channelMap = new ChannelMap(properties.getProperty("ChannelMap","1.5:5.5:8.5"));
             extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0").trim()); 
             readCurrentDay = Integer.parseInt(properties.getProperty("ReadCurrentDay","0"));
+            this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
         }
         catch (NumberFormatException e) {
             throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());
@@ -260,7 +263,7 @@ public class IskraEmeco implements MeterProtocol, ProtocolLink, HHUEnabler, Mete
         result.add("ChannelMap");
         result.add("ExtendedLogging");
         result.add("ReadCurrentDay");
-        
+        result.add("Software7E1");
         return result;
     }
     
@@ -287,7 +290,7 @@ public class IskraEmeco implements MeterProtocol, ProtocolLink, HHUEnabler, Mete
         this.timeZone = timeZone;
         this.logger = logger;
         try {
-            flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible);
+            flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible,software7E1);
             iskraEmecoRegistry = new IskraEmecoRegistry(this,this);
             iskraEmecoProfile = new IskraEmecoProfile(this,this,iskraEmecoRegistry);
         }

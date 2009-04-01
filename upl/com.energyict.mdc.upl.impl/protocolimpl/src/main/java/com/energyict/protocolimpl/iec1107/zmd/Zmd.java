@@ -64,7 +64,7 @@ public class Zmd
     
     private static SimpleDateFormat registerFormat;
     private DataDumpParser dataDumpParser;
-    
+    private boolean software7E1;
     ObisCode serialNumbObisCode = ObisCode.fromString("1.0.9.0.0.255");
     
     public Zmd() { } 
@@ -149,7 +149,7 @@ public class Zmd
             protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap", "0,0,0,0"));
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
             serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
-            
+            this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
         } catch (NumberFormatException e) {
             String msg = "validateProperties, NumberFormatException, " + e.getMessage();
             throw new InvalidPropertyException( msg );
@@ -202,6 +202,7 @@ public class Zmd
         result.add("ChannelMap");
         result.add("ExtendedLogging");
         result.add("IgnoreSerialNumberCheck");
+        result.add("Software7E1");
         return result;
     }
     
@@ -226,7 +227,7 @@ public class Zmd
             flagIEC1107Connection = 
                 new FlagIEC1107Connection(  inputStream, outputStream, 
                     iIEC1107TimeoutProperty, iProtocolRetriesProperty, 0, 
-                    iEchoCancelling, iIEC1107Compatible);
+                    iEchoCancelling, iIEC1107Compatible,software7E1);
             
             flagIEC1107Connection.setErrorSignature( "ER" );
             

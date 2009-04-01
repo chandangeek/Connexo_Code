@@ -111,6 +111,8 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
     private Logger logger = null;
     private DataType dataType = null;
     
+    private boolean software7E1;
+    
 
     public A140() {
     }
@@ -153,6 +155,7 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
         if (p.getProperty(PK_EXTENDED_LOGGING) != null)
             pExtendedLogging = p.getProperty(PK_EXTENDED_LOGGING);
         
+        this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
         validateProperties();
 
     }
@@ -174,6 +177,7 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
         result.add( PK_TIMEOUT );
         result.add( PK_RETRIES );
         result.add( PK_EXTENDED_LOGGING );
+        result.add("Software7E1");
         return result;
     }
 
@@ -210,7 +214,7 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
         try {
             flagConnection = new FlagIEC1107Connection(inputStream,
                     outputStream, pTimeout, pRetries, FORCE_DELAY, 0, 1,
-                    new CAI700() );
+                    new CAI700(), software7E1 );
         } catch (ConnectionException e) {
             logger.severe("A140: init(...), " + e.getMessage());
         }
@@ -557,7 +561,7 @@ public class A140 implements MeterProtocol, ProtocolLink, HHUEnabler,
     
     private void validateProperties() throws MissingPropertyException,
             InvalidPropertyException {
-
+    	
     }
 
     /* ___ Unsupported methods ___ */

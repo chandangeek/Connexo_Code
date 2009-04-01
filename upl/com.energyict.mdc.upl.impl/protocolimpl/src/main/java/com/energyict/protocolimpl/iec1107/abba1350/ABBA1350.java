@@ -77,6 +77,8 @@ RegisterProtocol, MessageProtocol {
 	private Date meterDate = null;
 	private String meterSerial = null;
 
+	private boolean software7E1;
+	
 	/** Creates a new instance of ABBA1350, empty constructor */
 	public ABBA1350() {
 	} 
@@ -191,6 +193,7 @@ RegisterProtocol, MessageProtocol {
 			extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0").trim());
 			vdewCompatible = Integer.parseInt(properties.getProperty("VDEWCompatible", "0").trim());
 			loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber", "1"));
+			this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
 			//failOnUnitMismatch = Integer.parseInt(properties.getProperty("FailOnUnitMismatch", "0"));
 
 		} catch (NumberFormatException e) {
@@ -260,6 +263,7 @@ RegisterProtocol, MessageProtocol {
 		result.add("ExtendedLogging");
 		result.add("VDEWCompatible");
 		result.add("ForceDelay");
+		result.add("Software7E1");
 		//result.add("FailOnUnitMismatch");
 		return result;
 	}
@@ -285,7 +289,7 @@ RegisterProtocol, MessageProtocol {
 
 		try {
 			flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, iIEC1107TimeoutProperty,
-					iProtocolRetriesProperty, iForceDelay, iEchoCancelling, 1);
+					iProtocolRetriesProperty, iForceDelay, iEchoCancelling, 1, software7E1);
 			abba1350Registry = new ABBA1350Registry(this, this);
 			abba1350Profile = new ABBA1350Profile(this, this, abba1350Registry);
 
@@ -832,6 +836,7 @@ RegisterProtocol, MessageProtocol {
 			properties.setProperty("SecurityLevel", "1");
 			properties.setProperty("Timeout", "3000");
 			properties.setProperty("VDEWCompatible", "1");
+			properties.setProperty("Software7E1", "1");
 
 
 

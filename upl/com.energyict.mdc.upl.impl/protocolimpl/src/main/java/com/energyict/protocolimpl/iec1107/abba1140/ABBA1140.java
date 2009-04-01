@@ -102,6 +102,8 @@ public class ABBA1140 implements
     private ABBA1140Profile profile=null;
     private MeterType meterType = null;
     
+    private boolean software7E1;
+    
     public ABBA1140() { }
     
     /* ________ Impelement interface MeterProtocol ___________ */
@@ -167,7 +169,7 @@ public class ABBA1140 implements
             if (p.getProperty(PK_IEC1107_COMPATIBLE) != null)
                 pIEC1107Compatible = Integer.parseInt(p.getProperty(PK_IEC1107_COMPATIBLE));
             
-            
+            this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("ABBA1140, validateProperties, NumberFormatException, "+e.getMessage());
         }
@@ -193,6 +195,7 @@ public class ABBA1140 implements
         result.add("EchoCancelling");
         result.add("IEC1107Compatible");
         result.add("ExtendedLogging");
+        result.add("Software7E1");
         return result;
     }
     
@@ -226,7 +229,7 @@ public class ABBA1140 implements
                     new FlagIEC1107Connection(
                     inputStream,outputStream,pTimeout,pRetries,
                     FORCE_DELAY,pEchoCancelling,pIEC1107Compatible,
-                    new CAI700());
+                    new CAI700(), software7E1);
         } catch(ConnectionException e) {
             logger.severe("ABBA1140: init(...), " + e.getMessage());
         }

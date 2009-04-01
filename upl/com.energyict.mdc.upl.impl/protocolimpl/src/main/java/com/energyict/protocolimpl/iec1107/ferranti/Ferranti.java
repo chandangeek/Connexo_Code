@@ -62,6 +62,8 @@ public class Ferranti implements MeterProtocol, ProtocolLink, MeterExceptionInfo
     
     byte[] dataReadout=null;
     
+    private boolean software7E1;
+    
     /** Creates a new instance of Ferranti, empty constructor*/
     public Ferranti() {
     } // public Ferranti()
@@ -182,6 +184,7 @@ public class Ferranti implements MeterProtocol, ProtocolLink, MeterExceptionInfo
             iIEC1107Compatible=Integer.parseInt(properties.getProperty("IEC1107Compatible","1").trim());
             iProfileInterval=Integer.parseInt(properties.getProperty("ProfileInterval","3600").trim());
             channelMap = new ChannelMap(properties.getProperty("ChannelMap","0"));
+            this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
         }
         catch (NumberFormatException e) {
            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
@@ -238,7 +241,7 @@ public class Ferranti implements MeterProtocol, ProtocolLink, MeterExceptionInfo
         result.add("EchoCancelling");
         result.add("IEC1107Compatible");
         result.add("ChannelMap");
-        
+        result.add("Software7E1");
         return result;
     }
 
@@ -262,7 +265,7 @@ public class Ferranti implements MeterProtocol, ProtocolLink, MeterExceptionInfo
         this.logger = logger;     
         
         try {
-           flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible);
+           flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible,software7E1);
            ferrantiRegistry = new FerrantiRegistry(this,this);
            ferrantiProfile = new FerrantiProfile(this,this,ferrantiRegistry);
         }
