@@ -6,15 +6,12 @@
 
 package com.energyict.dlms.cosem;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 
-import com.energyict.protocolimpl.dlms.*;
 import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.obis.ObisCode;
 /**
  *
  * @author  Koen
@@ -94,6 +91,20 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public ScriptTable getScriptTable(ObisCode obisCode) throws IOException {
         return new ScriptTable(protocolLink, getObjectReference(obisCode));
     }
+    
+    public ScriptTable getGlobalMeterResetScriptTable() throws IOException {
+    	return new ScriptTable(protocolLink, ScriptTable.LN_GLOBAL_METER_RESET);
+    }
+    public ScriptTable getTarifficationScriptTable() throws IOException {
+    	return new ScriptTable(protocolLink, ScriptTable.LN_TARIFFICATION_SCRIPT_TABLE);
+    }
+    public ScriptTable getDisconnectControlScriptTable() throws IOException {
+    	return new ScriptTable(protocolLink, ScriptTable.LN_DISCONNECT_CONTROL);
+    }
+    public ScriptTable getImageActivationScriptTable() throws IOException {
+    	return new ScriptTable(protocolLink, ScriptTable.LN_IMAGE_ACTIVATION);
+    }
+    
     public RegisterMonitor getRegisterMonitor(ObisCode obisCode) throws IOException {
         return new RegisterMonitor(protocolLink, getObjectReference(obisCode));
     }
@@ -126,7 +137,6 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public GenericInvoke getGenericInvoke(ObisCode obisCode, int classId, int method) throws IOException{
     	return new GenericInvoke(protocolLink, getObjectReference(obisCode, classId), method);
     }
-    
     
     public ProfileGeneric getProfileGeneric(ObisCode obisCode) throws IOException {
         return new ProfileGeneric(protocolLink,getObjectReference(obisCode));

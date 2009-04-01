@@ -10,6 +10,7 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.obis.ObisCode;
 
 /**
  * @author gna
@@ -33,6 +34,7 @@ public class SingleActionSchedule extends AbstractCosemObject{
 	
 	/** Method invoke */
 	// none
+	
 	
 	public SingleActionSchedule(ProtocolLink protocolLink,ObjectReference objectReference) {
 		super(protocolLink, objectReference);

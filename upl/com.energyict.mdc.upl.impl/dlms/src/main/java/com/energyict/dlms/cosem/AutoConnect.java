@@ -18,6 +18,10 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
  *	various modes, the calling windows and destinations are not defined here. 
  *	Depending on the mode, one or more instances of this IC may be necessary to perform the function 
  *	of sending out messages. 
+ * @beginChanges
+ * GNA |01042009| Adding and deleting from the destinationList is not updated immediately, the user(programmer) has to use the updatePhoneList
+ * 					method to send the list to the meter.
+ * @endChanges
  */
 
 public class AutoConnect extends AbstractCosemObject {
@@ -279,7 +283,8 @@ public class AutoConnect extends AbstractCosemObject {
 	 */
 	public void addNumberToDestinationList(OctetString number) throws IOException {
 		try{
-			writeDestinationList(getDestinationList().addDataType(number));
+//			writeDestinationList(getDestinationList().addDataType(number));
+			getDestinationList().addDataType(number);
 		} catch (IOException e){
 			throw new IOException("Could not add " + number.toString() + " to the destinationList." + e.getMessage());
 		}
@@ -307,7 +312,7 @@ public class AutoConnect extends AbstractCosemObject {
 					temp.addDataType(getDestinationList().getDataType(i));
 				}
 			}
-			writeDestinationList(temp);
+//			writeDestinationList(temp);
 		} catch (IOException e){
 			throw new IOException("Could not delete " + number.toString() + " from the destinationList." + e.getMessage());
 		}
@@ -331,5 +336,13 @@ public class AutoConnect extends AbstractCosemObject {
 		Array temp = new Array();
 		temp.addDataType(OctetString.fromString(""));
 		writeDestinationList(temp);
+	}
+	
+	/**
+	 * Write the updated phoneList to the device
+	 * @throws IOException
+	 */
+	public void updatePhoneList() throws IOException {
+		writeDestinationList(getDestinationList());
 	}
 }
