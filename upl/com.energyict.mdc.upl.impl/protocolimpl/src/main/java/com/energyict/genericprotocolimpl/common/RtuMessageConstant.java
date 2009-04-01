@@ -125,12 +125,12 @@ public class RtuMessageConstant {
 	public static final String SET_TIME_VALUE = "Time_Value";
 	
 	/** RtuMessage tags for Wakeup configuration */
-	public static final String WAKEUP_INACT_TIMEOUT = "Inactivity timeout";
-	public static final String WAKEUP_ADD_WHITELIST = "Phonenumber to add";
-	public static final String WAKEUP_DELETE_WHITELIST = "Phonenumber to delete";
-	public static final String WAKEUP_CLEAR_WHITELIST = "Clear whiteList";
-	public static final String WAKEUP_GENERAL_RESTRICTION = "General restriction";
-	public static final String WAKEUP_ACTIVATE = "Activate the wakeup mechanism";
+	public static final String WAKEUP_INACT_TIMEOUT = "Inactivity_timeout";
+	public static final String WAKEUP_ADD_WHITELIST = "Phonenumbers_to_add";
+	public static final String WAKEUP_DELETE_WHITELIST = "Phonenumber_to_delete";
+	public static final String WAKEUP_CLEAR_WHITELIST = "Clear_whiteList";
+	public static final String WAKEUP_GENERAL_RESTRICTION = "General_restriction";
+	public static final String WAKEUP_ACTIVATE = "Activate_the_wakeup_mechanism";
 	public static final String WAKEUP_NR1 = "Phonenumber1";
 	public static final String WAKEUP_NR2 = "Phonenumber2";
 	public static final String WAKEUP_NR3 = "Phonenumber3";
