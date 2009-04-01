@@ -38,6 +38,7 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.AutoConnect;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DemandRegister;
@@ -112,6 +113,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 			boolean gprsParameters 	= messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_SETUP);
 			boolean testMessage 	= messageHandler.getType().equals(RtuMessageConstant.TEST_MESSAGE);
 			boolean globalReset		= messageHandler.getType().equals(RtuMessageConstant.GLOBAL_METER_RESET);
+			boolean wakeUpWhiteList = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
 			
 			if(xmlConfig){
 				
@@ -761,7 +763,22 @@ public class MessageExecutor extends GenericMessageExecutor{
 				success = true;
 			} else if(globalReset){
 				
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Global Meter Reset.");
+				ScriptTable globalResetST = getCosemObjectFactory().getGlobalMeterResetScriptTable();
+				globalResetST.invoke(1);	// execute script one 
 				
+				success = true;
+			} else if(wakeUpWhiteList){
+				
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Setting whitelist.");
+				AutoConnect autoConnect = getCosemObjectFactory().getAutoConnect();
+				autoConnect.addNumberToDestinationList(messageHandler.getNr1());
+				autoConnect.addNumberToDestinationList(messageHandler.getNr2());
+				autoConnect.addNumberToDestinationList(messageHandler.getNr3());
+				autoConnect.addNumberToDestinationList(messageHandler.getNr4());
+				autoConnect.addNumberToDestinationList(messageHandler.getNr5());
+				
+				autoConnect.updatePhoneList();
 				
 				success = true;
 			} else {

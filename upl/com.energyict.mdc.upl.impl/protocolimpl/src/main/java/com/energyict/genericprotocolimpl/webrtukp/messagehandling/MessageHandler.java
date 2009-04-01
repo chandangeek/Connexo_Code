@@ -84,6 +84,11 @@ public class MessageHandler extends DefaultHandler{
 			handleTestMessage(attrbs);
 		} else if(RtuMessageConstant.GLOBAL_METER_RESET.equals(qName)){
 			setType(RtuMessageConstant.GLOBAL_METER_RESET);
+		} else if(RtuMessageConstant.WAKEUP_ADD_WHITELIST.equals(qName)){
+			setType(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
+			handleWakeUpWhiteList(attrbs);
+		} else {
+			throw new SAXException("Unknown messageContent : " + qName);
 		}
 	}
 
@@ -461,7 +466,7 @@ public class MessageHandler extends DefaultHandler{
 	 * Handle TestMessage Related messages
 	 **********************************************/
 	
-	String ufId = "";
+	private String ufId = "";
 	
 	private void handleTestMessage(Attributes attrbs){
 		this.ufId = attrbs.getValue(RtuMessageConstant.TEST_FILE);
@@ -476,5 +481,45 @@ public class MessageHandler extends DefaultHandler{
 	/**********************************************
 	 * Global Meter Reset Related messages
 	 **********************************************/
+	/**********************************************/
+	
+	/**********************************************
+	 * WakeUp functionality Related messages
+	 **********************************************/
+	
+	private String nr1 = "";
+	private String nr2 = "";
+	private String nr3 = "";
+	private String nr4 = "";
+	private String nr5 = "";
+	
+	private void handleWakeUpWhiteList(Attributes attrbs){
+		this.nr1 = attrbs.getValue(RtuMessageConstant.WAKEUP_NR1);
+		this.nr2 = attrbs.getValue(RtuMessageConstant.WAKEUP_NR2);
+		this.nr3 = attrbs.getValue(RtuMessageConstant.WAKEUP_NR3);
+		this.nr4 = attrbs.getValue(RtuMessageConstant.WAKEUP_NR4);
+		this.nr5 = attrbs.getValue(RtuMessageConstant.WAKEUP_NR5);
+	}
+
+	public String getNr1() {
+		return (this.nr1 != null)?this.nr1:"";
+	}
+
+	public String getNr2() {
+		return (this.nr2 != null)?this.nr2:"";
+	}
+
+	public String getNr3() {
+		return (this.nr3 != null)?this.nr3:"";
+	}
+
+	public String getNr4() {
+		return (this.nr4 != null)?this.nr4:"";
+	}
+
+	public String getNr5() {
+		return (this.nr5 != null)?this.nr5:"";
+	}
+	
 	/**********************************************/
 }

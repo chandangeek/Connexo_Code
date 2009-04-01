@@ -1101,6 +1101,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		MessageCategorySpec catGPRSModemSetup = new MessageCategorySpec("Change GPRS modem setup");
 		MessageCategorySpec catTestMessage = new MessageCategorySpec("TestMessage");
 		MessageCategorySpec catGlobalDisc = new MessageCategorySpec("Global Reset");
+		MessageCategorySpec catWakeUp = new MessageCategorySpec("Wake up functionality");
 		
 		// XMLConfig related messages
 		MessageSpec msgSpec = addDefaultValueMsg("XMLConfig", RtuMessageConstant.XMLCONFIG, false);
@@ -1156,8 +1157,13 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		msgSpec = addTestMessage("Test Message", RtuMessageConstant.TEST_MESSAGE, true);
 		catTestMessage.addMessageSpec(msgSpec);
 		
+		// Global reset 
 		msgSpec = addNoValueMsg("Global Meter Reset", RtuMessageConstant.GLOBAL_METER_RESET, false);
 		catGlobalDisc.addMessageSpec(msgSpec);
+		
+		// WakeUp functionality
+		msgSpec = addPhoneListMsg("Add phonenumbers to whitelist", RtuMessageConstant.WAKEUP_ADD_WHITELIST, false);
+		catWakeUp.addMessageSpec(msgSpec);
 		
 		categories.add(catXMLConfig);
 		categories.add(catFirmware);
@@ -1170,6 +1176,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		categories.add(catGPRSModemSetup);
 		categories.add(catTestMessage);
 		categories.add(catGlobalDisc);
+		categories.add(catWakeUp);
 		return categories;
 	}
 	
@@ -1283,6 +1290,26 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.SET_TIME_VALUE, true);
         tagSpec.add(msgVal);
         tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+	
+	private MessageSpec addPhoneListMsg(String keyId, String tagName, boolean advanced) {
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR1, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR2, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR3, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR4, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR5, false);
+        tagSpec.add(msgAttrSpec);
+        tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
 	}
