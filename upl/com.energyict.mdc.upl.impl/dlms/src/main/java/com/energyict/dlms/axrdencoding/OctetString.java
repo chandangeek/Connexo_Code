@@ -147,6 +147,12 @@ public class OctetString extends AbstractDataType {
         }
                 
     }
+    
+    public byte[] getContentBytes(){
+    	byte[] content = new byte[getOctetStr().length-2];
+    	System.arraycopy(getOctetStr(), fixed?1:2, content, 0, content.length);
+    	return content;
+    }
 
     public byte[] getOctetStr() {
         return octetStr;

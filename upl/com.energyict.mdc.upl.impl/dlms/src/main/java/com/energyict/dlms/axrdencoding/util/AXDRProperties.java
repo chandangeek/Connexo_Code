@@ -42,7 +42,7 @@ public class AXDRProperties {
 			if (keyValue.getDataType(0).isOctetString())
 				key = keyValue.getDataType(0).getOctetString().stringValue();
 			else if (keyValue.getDataType(0).isInteger32())
-				key = keyValue.getDataType(0).intValue();
+				key = new Integer(keyValue.getDataType(0).intValue());
 			
 			String value = keyValue.getDataType(1).getOctetString().stringValue();
 			properties.put(key,value);
@@ -54,7 +54,7 @@ public class AXDRProperties {
 	
 	static public void main(String[] args) {
 		Properties properties = new Properties();
-		properties.put(2, "1000");
+		properties.put(new Integer(2), "1000");
 		properties.put("test2", "1234");
 		properties.put("test3", "");
 		properties.put("test4", "testvalue");
