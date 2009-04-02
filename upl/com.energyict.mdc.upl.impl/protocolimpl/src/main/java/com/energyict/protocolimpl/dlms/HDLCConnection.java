@@ -256,9 +256,60 @@ public class HDLCConnection extends Connection implements DLMSConnection {
         getAddressingMode(addressingMode);
         setProtocolParams();
         this.informationFieldSize=informationFieldSize;
+        updateSNRMFrames();
+        
     } // public HDLCConnection(...)
     
-    private void getAddressingMode(int addressingMode) throws DLMSConnectionException {
+    private void updateSNRMFrames() {
+    	byte[] macSNRM_part1 = new byte[]{(byte)SNRM|(byte)HDLC_FRAME_CONTROL_PF_BIT,
+                0x00,0x00, // Header CRC
+                (byte)0x81,(byte)0x80,0x12,
+                // Changing the MAX information field size does not seems to
+                // change the secondary device behaviour.
+                };
+    	byte[] macSNRM_part2 = new byte[]{0x07,0x04,0x00,0x00,0x00,0x01,
+                0x08,0x04,0x00,0x00,0x00,0x01,0x00,0x00};
+    	byte[] infoFieldBytes = new byte[2*4+4];	// TODO make this one customizable 
+    	int index = 0;
+    	infoFieldBytes[index++] = 0x05;
+    	infoFieldBytes[index++] = (byte)(informationFieldSize==-1?1:4);
+    	for(int i = infoFieldBytes[index - 1]-1; i >= 0 ; i--){
+    		infoFieldBytes[index++] = (byte) ((informationFieldSize==-1?ISIZE:informationFieldSize>>(i*8))&0xFF);
+    	}    	
+    	infoFieldBytes[index++] = 0x06;
+    	infoFieldBytes[index++] = (byte)(informationFieldSize==-1?1:4);
+    	for(int i = infoFieldBytes[index - 1]-1; i >= 0 ; i--){
+    		infoFieldBytes[index++] = (byte) ((informationFieldSize==-1?ISIZE:informationFieldSize>>(i*8))&0xFF);
+    	}
+    	macSNRMFrame = new byte[macSNRM_part1.length + macSNRM_part2.length + infoFieldBytes.length];
+    	System.arraycopy(macSNRM_part1, 0, macSNRMFrame, 0, macSNRM_part1.length);
+    	System.arraycopy(infoFieldBytes, 0, macSNRMFrame, macSNRM_part1.length, infoFieldBytes.length);
+    	System.arraycopy(macSNRM_part2, 0, macSNRMFrame, macSNRM_part1.length+infoFieldBytes.length, macSNRM_part2.length);
+//    	
+//    	macSNRMFrame = new byte[]{(byte)SNRM|(byte)HDLC_FRAME_CONTROL_PF_BIT,
+//                0x00,0x00, // Header CRC
+//                (byte)0x81,(byte)0x80,0x12,
+//                // Changing the MAX information field size does not seems to
+//                // change the secondary device behaviour.
+//                0x05,0x01,informationFieldSize==-1?ISIZE:(byte)informationFieldSize,
+//                0x06,0x01,informationFieldSize==-1?ISIZE:(byte)informationFieldSize,
+//                0x07,0x04,0x00,0x00,0x00,0x01,
+//                0x08,0x04,0x00,0x00,0x00,0x01,
+//                0x00,0x00};
+//    	
+    	flexSNRMFrame = new byte[]{(byte)SNRM|(byte)HDLC_FRAME_CONTROL_PF_BIT,
+              0x00,0x00, // Header CRC
+              (byte)0x81,(byte)0x80,0x12,
+              // Changing the MAX information field size does not seems to
+              // change the secondary device behaviour.
+              0x05,0x01,(byte)0xF8,
+              0x06,0x01,(byte)0xF8,
+              0x07,0x04,0x00,0x00,0x00,0x01,
+              0x08,0x04,0x00,0x00,0x00,0x01,
+              0x00,0x00};
+	}
+
+	private void getAddressingMode(int addressingMode) throws DLMSConnectionException {
         
         
         
@@ -338,29 +389,31 @@ public class HDLCConnection extends Connection implements DLMSConnection {
        }
     } // private void setProtocolParams()
     
-    protected byte[] macSNRMFrame={(byte)SNRM|(byte)HDLC_FRAME_CONTROL_PF_BIT,
-                                 0x00,0x00, // Header CRC
-                                 (byte)0x81,(byte)0x80,0x12,
-                                 // Changing the MAX information field size does not seems to
-                                 // change the secondary device behaviour.
-                                 0x05,0x01,informationFieldSize==-1?ISIZE:(byte)informationFieldSize,
-                                 0x06,0x01,informationFieldSize==-1?ISIZE:(byte)informationFieldSize,
-                                 0x07,0x04,0x00,0x00,0x00,0x01,
-                                 0x08,0x04,0x00,0x00,0x00,0x01,
-                                 0x00,0x00}; // Frame CRC
+//    protected byte[] macSNRMFrame={(byte)SNRM|(byte)HDLC_FRAME_CONTROL_PF_BIT,
+//                                 0x00,0x00, // Header CRC
+//                                 (byte)0x81,(byte)0x80,0x12,
+//                                 // Changing the MAX information field size does not seems to
+//                                 // change the secondary device behaviour.
+//                                 0x05,0x01,informationFieldSize==-1?ISIZE:(byte)informationFieldSize,
+//                                 0x06,0x01,informationFieldSize==-1?ISIZE:(byte)informationFieldSize,
+//                                 0x07,0x04,0x00,0x00,0x00,0x01,
+//                                 0x08,0x04,0x00,0x00,0x00,0x01,
+//                                 0x00,0x00}; // Frame CRC
+    protected byte[] macSNRMFrame;
     
 //    private byte[] flexSNRMFrame={(byte) 0x93, (byte) 0x00, (byte) 0x00};
   
-    protected byte[] flexSNRMFrame = {(byte)SNRM|(byte)HDLC_FRAME_CONTROL_PF_BIT,
-            0x00,0x00, // Header CRC
-            (byte)0x81,(byte)0x80,0x12,
-            // Changing the MAX information field size does not seems to
-            // change the secondary device behaviour.
-            0x05,0x01,(byte)0xF8,
-            0x06,0x01,(byte)0xF8,
-            0x07,0x04,0x00,0x00,0x00,0x01,
-            0x08,0x04,0x00,0x00,0x00,0x01,
-            0x00,0x00}; // Frame CRC
+//    protected byte[] flexSNRMFrame = {(byte)SNRM|(byte)HDLC_FRAME_CONTROL_PF_BIT,
+//            0x00,0x00, // Header CRC
+//            (byte)0x81,(byte)0x80,0x12,
+//            // Changing the MAX information field size does not seems to
+//            // change the secondary device behaviour.
+//            0x05,0x01,(byte)0xF8,
+//            0x06,0x01,(byte)0xF8,
+//            0x07,0x04,0x00,0x00,0x00,0x01,
+//            0x08,0x04,0x00,0x00,0x00,0x01,
+//            0x00,0x00}; // Frame CRC
+    protected byte[] flexSNRMFrame;
        
    protected byte[] buildFrame(byte[] macFrame)
    {
@@ -596,9 +649,11 @@ public class HDLCConnection extends Connection implements DLMSConnection {
     
     private byte waitForHDLCFrameStateMachine(int iTimeout,byte[] byteReceiveBuffer) throws DLMSConnectionException {
         long lMSTimeout;
-        int inewKar;
+        int inewKar = 0;
         int[] CRC; //=new int[2];
         int[] calcCRC; //=new int[2];
+        
+        byte[] dataByte = null;
 
         short sLength;
         short sRXCount=0;
@@ -613,7 +668,8 @@ public class HDLCConnection extends Connection implements DLMSConnection {
         
         try {
             while(boolAbort==false) {
-                if ((inewKar = readIn()) != -1) {
+            	// GNA |18032009| After getting the length of the dlms frame just read in the complete frame, it saves time (about 100ms)
+                if ((sLength == 0)?((inewKar = readIn()) != -1):((dataByte = readInArray()) != null)) {
                    if (DEBUG>=1) ProtocolUtils.outputHex(inewKar);
                    if (sRXCount>=MAX_BUFFER_SIZE) return HDLC_BADFRAME;
                    
@@ -645,46 +701,53 @@ public class HDLCConnection extends Connection implements DLMSConnection {
                            {
                                sLength =(short)((((short)byteReceiveBuffer[protocolParameters[frameFormatMSB]]&0x0007)<<8) |
                                                  ((short)byteReceiveBuffer[protocolParameters[frameFormatLSB]]&0x00FF));
+                               dataByte = new byte[sLength];
                                bCurrentState = WAIT_FOR_DATA;
                            }
                        } break; // WAIT_FOR_FRAME_FORMAT
 
                        case WAIT_FOR_DATA:
                        {
-                           byteReceiveBuffer[sRXCount++]=(byte)inewKar;
+//                           byteReceiveBuffer[sRXCount++]=(byte)inewKar;
+                    	   System.arraycopy(dataByte, 0, byteReceiveBuffer, sRXCount, dataByte.length);
+                    	   sRXCount += dataByte.length;
                            if (sRXCount >= sLength)
                            {
-                              bCurrentState = WAIT_FOR_END_FLAG;
+//                              bCurrentState = WAIT_FOR_END_FLAG;
+                        	   return checkCRC(byteReceiveBuffer, sRXCount);
                            }
                        } break; // WAIT_FOR_DATA
 
-                       case WAIT_FOR_END_FLAG:
-                       {
-                           switch((byte)inewKar)
-                           {
-                              case HDLC_FLAG:
-                              {
-                                  // Check CRC
-                                  CRC = getCRC(byteReceiveBuffer);
-                                  calcCRC = calcCRC(byteReceiveBuffer);
-                                  if ((CRC[0] == calcCRC[0]) &&
-                                      (CRC[1] == calcCRC[1]))
-                                  {
-                                      return HDLC_RX_OK;
-                                  }
-                                  else
-                                  {
-                                      return HDLC_BADCRC;
-                                  }
-
-                              } // case HDLC_FLAG:
-
-                              default: 
-                                  return HDLC_BADFRAME;
-                              
-                           } // switch((byte)inewKar)
-
-                       } // case WAIT_FOR_END_FLAG:
+                       
+//                       case WAIT_FOR_END_FLAG:
+//                       {
+////                           switch((byte)inewKar)
+//                    	   switch(byteReceiveBuffer[byteReceiveBuffer.length-1])
+//                           {
+//                              case HDLC_FLAG:
+//                              {
+//                                  // Check CRC
+//                                  CRC = getCRC(byteReceiveBuffer);
+//                                  calcCRC = calcCRC(byteReceiveBuffer);
+//                                  if ((CRC[0] == calcCRC[0]) &&
+//                                      (CRC[1] == calcCRC[1]))
+//                                  {
+//                                	  System.out.println(byteReceiveBuffer);
+//                                      return HDLC_RX_OK;
+//                                  }
+//                                  else
+//                                  {
+//                                      return HDLC_BADCRC;
+//                                  }
+//
+//                              } // case HDLC_FLAG:
+//
+//                              default: 
+//                                  return HDLC_BADFRAME;
+//                              
+//                           } // switch((byte)inewKar)
+//
+//                       } // case WAIT_FOR_END_FLAG:
 
                     } // switch (bCurrentState)
 
@@ -707,7 +770,37 @@ public class HDLCConnection extends Connection implements DLMSConnection {
         }
     } // private byte waitForHDLCFrameStateMachine()
     
-    private void sendFrame(byte[] byteBuffer) throws NestedIOException,DLMSConnectionException {
+    private byte checkCRC(byte[] byteReceiveBuffer, short count) {
+    	
+        int[] CRC; //=new int[2];
+        int[] calcCRC; //=new int[2];
+        
+	   switch(byteReceiveBuffer[count-1])
+	   {
+	      case HDLC_FLAG:
+	      {
+	          // Check CRC
+	      CRC = getCRC(byteReceiveBuffer);
+	      calcCRC = calcCRC(byteReceiveBuffer);
+	      if ((CRC[0] == calcCRC[0]) &&
+	          (CRC[1] == calcCRC[1]))
+	      {
+	          return HDLC_RX_OK;
+	      }
+	      else
+	      {
+	          return HDLC_BADCRC;
+	      }
+	
+	  } // case HDLC_FLAG:
+	
+	      default: 
+	          return HDLC_BADFRAME;
+	      
+	   }	
+	}
+
+	private void sendFrame(byte[] byteBuffer) throws NestedIOException,DLMSConnectionException {
         int iLength;
         byte[] flag=new byte[1];
         flag[0] = HDLC_FLAG;
@@ -991,16 +1084,17 @@ public class HDLCConnection extends Connection implements DLMSConnection {
             else {
                 // if initial frame was I frame (hdlsFrame == null) or retries reached max, bubble up to sendRequest method and resend I frame
                 // else send txframe again
-            	if (retryCount++ >= iMaxRetries-1) {
+                if (retryCount++ >= iMaxRetries-1) {
                     throw new DLMSConnectionException("receiveInformationField> ERROR receiving data.",(short)((short)bResult&0x00FF));
                 }
                 sendFrame(txFrame);
                 bState=STATE_WAIT_FOR_RR_FRAME; 
             }
 
-        } while ((bState==STATE_WAIT_FOR_RR_FRAME) ||
-                 (hdlcFrame.bControl == DM) ||
-                 ((hdlcFrame.sFrameFormat & HDLC_FRAME_S_BIT) != 0)); 
+        } while (((bState==STATE_WAIT_FOR_RR_FRAME) ||
+        		(hdlcFrame.sFrameFormat & HDLC_FRAME_S_BIT) != 0) ||
+                 (hdlcFrame.bControl == DM)); 
+
 
         return (receiveBuffer.getArray());
 
