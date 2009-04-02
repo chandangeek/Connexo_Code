@@ -8,6 +8,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.obis.ObisCode;
 
 /**
  * 
@@ -54,6 +55,10 @@ public class AutoConnect extends AbstractCosemObject {
 		super(protocolLink, objectReference);
 	}
 
+	public ObisCode getObisCode(){
+		return ObisCode.fromByteArray(LN);
+	}
+	
 	protected int getClassId() {
 		return this.CLASSID;
 	}
