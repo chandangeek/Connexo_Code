@@ -41,6 +41,7 @@ import com.energyict.protocolimpl.iec1107.*;
  * JME	13032009	Fixed bug in Billing reset message
  * JME	24032009	Added delay during close contactor message execution between the ARM and CLOSE command.
  * JME	27032009	Made extended logging more robust for meter configuration
+ * JME	02042009	Moved contactor code to new class and fixed bug in close message (Mantis issue 4047) 
  * 
  */
 
@@ -48,8 +49,9 @@ public class ABBA230 implements
         MeterProtocol, ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo,
         RegisterProtocol, MessageProtocol, EventMapper {
     
-	final int DEBUG=0;
-	
+	private static final int DEBUG=0;
+
+
 	boolean firmwareUpgrade=false;
 	
     private static String CONNECT 			= "ConnectLoad";
@@ -86,6 +88,7 @@ public class ABBA230 implements
     final static int PD_EXTENDED_LOGGING = 0;
     final static int PD_IEC1107_COMPATIBLE = 1;
     final static int PD_ECHO_CANCELING = 0;
+	
     
     /**
      * Property values Required properties will have NO default value Optional
@@ -1111,30 +1114,19 @@ public class ABBA230 implements
 		
 		try {
 			if (messageEntry.getContent().indexOf("<"+DISCONNECT)>=0) {
-				logger.info("************************* DISCONNECT CONTACTOR *************************");
-		    	long val = ((Long)rFactory.getRegister("ContactorStatus")).longValue();
-		    	if (val == 0) {
-		        	rFactory.setRegister("ContactorStatus",new byte[]{1}); // open the contactor
-		    	}
+				ContactorController cc = new ContactorController(rFactory, logger);
+				cc.doDisconnect();
 			}
 			else if (messageEntry.getContent().indexOf("<"+CONNECT)>=0) {
-				logger.info("************************* CONNECT CONTACTOR *************************");
-		    	long val = ((Long)rFactory.getRegister("ContactorStatus")).longValue();
-		    	if (val > 0) {
-		        	rFactory.setRegister("ContactorStatus",new byte[]{0}); // arm the contactor for closing
-		        	try {Thread.sleep(1000);} catch (InterruptedException e) {}
-		        	rFactory.setRegister("ContactorCloser",new byte[]{1}); // close the armed contactor
-		    	}
+				ContactorController cc = new ContactorController(rFactory, logger);
+				cc.doConnect();
 			}
 			else if (messageEntry.getContent().indexOf("<"+ARM)>=0) {
-				logger.info("************************* ARM CONTACTOR *************************");
-		    	long val = ((Long)rFactory.getRegister("ContactorStatus")).longValue();
-		    	if (val == 1) {
-		        	rFactory.setRegister("ContactorStatus",new byte[]{0}); // arm the contactor for closing
-		    	}
+				ContactorController cc = new ContactorController(rFactory, logger);
+				cc.doArm();
 			}
 			else if (messageEntry.getContent().indexOf("<"+TARIFFPROGRAM)>=0) {
-				logger.info("************************* PROGRAM TARIFF *************************");
+				logger.info("*************************** PROGRAM TARIFF *****************************");
 				int start = messageEntry.getContent().indexOf(TARIFFPROGRAM)+TARIFFPROGRAM.length()+1;
 				int end = messageEntry.getContent().lastIndexOf(TARIFFPROGRAM)-2;
 				String tariffXMLData = messageEntry.getContent().substring(start,end);
@@ -1142,7 +1134,7 @@ public class ABBA230 implements
 				o.start(tariffXMLData,false); 
 			}
 			else if (messageEntry.getContent().indexOf("<"+FIRMWAREPROGRAM)>=0) {
-				logger.info("************************* FIRMWARE UPGRADE *************************");
+				logger.info("*************************** FIRMWARE UPGRADE ***************************");
 				int start = messageEntry.getContent().indexOf(FIRMWAREPROGRAM)+FIRMWAREPROGRAM.length()+1;
 				int end = messageEntry.getContent().lastIndexOf(FIRMWAREPROGRAM)-2;
 				String firmwareXMLData = messageEntry.getContent().substring(start,end);
@@ -1179,8 +1171,5 @@ public class ABBA230 implements
 			return MessageResult.createFailed(messageEntry);
 		}
 	}
-	
-	
-	
-	
+
 }
