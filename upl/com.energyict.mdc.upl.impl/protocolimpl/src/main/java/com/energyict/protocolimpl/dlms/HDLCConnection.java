@@ -998,9 +998,9 @@ public class HDLCConnection extends Connection implements DLMSConnection {
                 bState=STATE_WAIT_FOR_RR_FRAME; 
             }
 
-        } while (((hdlcFrame.sFrameFormat & HDLC_FRAME_S_BIT) != 0) ||
-                 (bState==STATE_WAIT_FOR_RR_FRAME) ||
-                 (hdlcFrame.bControl == DM)); 
+        } while ((bState==STATE_WAIT_FOR_RR_FRAME) ||
+                 (hdlcFrame.bControl == DM) ||
+                 ((hdlcFrame.sFrameFormat & HDLC_FRAME_S_BIT) != 0)); 
 
         return (receiveBuffer.getArray());
 
