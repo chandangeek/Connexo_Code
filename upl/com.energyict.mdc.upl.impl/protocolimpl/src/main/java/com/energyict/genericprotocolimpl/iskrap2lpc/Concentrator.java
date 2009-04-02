@@ -67,6 +67,12 @@ import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.tcpip.PPPDialer;
 
+/**
+ * 
+ * @author gna
+ * BeginChanges:
+ * GNA |27032009| Added forceClock to the concentrator, only this schedule is handle, all the meters are ignored
+ */
 public class Concentrator implements Messaging, GenericProtocol {
     
     private boolean DEBUG = false;
@@ -129,43 +135,46 @@ public class Concentrator implements Messaging, GenericProtocol {
             
             if(serial.equalsIgnoreCase(conSerial)){
             	
-            	// get the prototype 
-            	RtuType type = getRtuType(concentrator);
-            	
-            	/** use the meters in the dataBase */
-            	if(type == null){ 	
-            		meters = concentrator.getDownstreamRtus();
-            		meters = collectSerialsFromRtuList(meters);
-            	}
-            	/** use the auto discovery - which means create all the meters if they don't exist */ 
-            	else{
-            		/** Only when you want to read a profile or meter registers */
-            		if(communicationProfile.getReadMeterReadings()||communicationProfile.getReadDemandValues()){
-            			meterList = getConnection().getMetersList();
-            			meters = collectSerials(meterList);
+            	if(!communicationProfile.getForceClock()){
+            		
+            		// get the prototype 
+            		RtuType type = getRtuType(concentrator);
+            		
+            		/** use the meters in the dataBase */
+            		if(type == null){ 	
+            			meters = concentrator.getDownstreamRtus();
+            			meters = collectSerialsFromRtuList(meters);
             		}
-            		else{	/** But if you only want to write the clock or send messages, use the downStreamRtu's */
-            			meters = concentrator.getDownstreamRtus();		// returns a list with RTU's
-            			meters = collectSerialsFromRtuList(meters);		// returns a list with RTU serialnumbers
+            		/** use the auto discovery - which means create all the meters if they don't exist */ 
+            		else{
+            			/** Only when you want to read a profile or meter registers */
+            			if(communicationProfile.getReadMeterReadings()||communicationProfile.getReadDemandValues()){
+            				meterList = getConnection().getMetersList();
+            				meters = collectSerials(meterList);
+            			}
+            			else{	/** But if you only want to write the clock or send messages, use the downStreamRtu's */
+            				meters = concentrator.getDownstreamRtus();		// returns a list with RTU's
+            				meters = collectSerialsFromRtuList(meters);		// returns a list with RTU serialnumbers
+            			}
+            		}
+            		
+            		meterCount = meters.size();
+            		
+            		getLogger().log(Level.INFO, meterCount + " meter(s) will be handled");
+            		
+            		Iterator im = meters.iterator();
+            		while (im.hasNext()) {
+            			String meterSerial = (String) im.next();
+            			if(!meterSerial.equalsIgnoreCase(tempSerialnumber)){
+            				handleMeter(concentrator, meterSerial);
+            				progressLog.append(meterSerial + " ");
+            				getLogger().log(Level.INFO, "" + --meterCount + " meter(s) to go.");
+            			} else {
+            				getLogger().log(Level.INFO, "Temporary serialnumber 99999999 is ignored.");
+            				--meterCount;
+            			}
             		}
             	}
-            	
-                meterCount = meters.size();
-                
-                getLogger().log(Level.INFO, meterCount + " meter(s) will be handled");
-                
-                Iterator im = meters.iterator();
-                while (im.hasNext()) {
-                    String meterSerial = (String) im.next();
-                    if(!meterSerial.equalsIgnoreCase(tempSerialnumber)){
-                    	handleMeter(concentrator, meterSerial);
-                    	progressLog.append(meterSerial + " ");
-                    	getLogger().log(Level.INFO, "" + --meterCount + " meter(s) to go.");
-                    } else {
-                    	getLogger().log(Level.INFO, "Temporary serialnumber 99999999 is ignored.");
-                    	--meterCount;
-                    }
-                }
                 
                 handleConcentrator(concentrator);
             }
@@ -493,7 +502,6 @@ public class Concentrator implements Messaging, GenericProtocol {
          * will (probably) handle this. 
          */
         
-//        String systime = port(concentrator).getConcentratorSystemTime();
     	String systime = getConnection().getConcentratorSystemTime();
         
         systime = 
@@ -513,7 +521,7 @@ public class Concentrator implements Messaging, GenericProtocol {
         	
         	if( ( sAbsDiff < max ) && ( sAbsDiff > min ) ) { 
         		
-        		getLogger().severe("Adjust meter time to system time. Concentrator time: " + cTime + ", System time: " + now);
+        		getLogger().severe("Adjust concentrator time to system time. Concentrator time: " + cTime + ", System time: " + now);
         		
         		String d = Constant.getInstance().getDateFormatFixed().format(now);
         		
@@ -521,6 +529,10 @@ public class Concentrator implements Messaging, GenericProtocol {
 //            getConnection().timeSync();	Don't do this, the concentrator will handle the timeSet with all his meters
         		
         	}
+        } else if(communicationProfile.getForceClock()){
+    		getLogger().severe("Forcing concentrator time to system time. Concentrator time: " + cTime + ", System time: " + now);
+    		String d = Constant.getInstance().getDateFormatFixed().format(now);
+    		getConnection().setConcentratorSystemTime(d);
         }
         
     }

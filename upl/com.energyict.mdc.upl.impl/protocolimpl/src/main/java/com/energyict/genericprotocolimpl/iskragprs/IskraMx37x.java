@@ -109,6 +109,7 @@ import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
  * GNA |02022009| Mad some changes to the sendTOU message. No activationDate is immediate activation using the Object method
  * GNA |23022009| Added mbus install/remove/dataretrieval messages
  * GNA |26032009| Added the activate Wakeup message
+ * GNA |02042009| Added extra registers to check if the MO switch has successfully been done
  */
 public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism, Messaging, HHUEnabler{
 	
@@ -1551,6 +1552,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 				getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.20.255"), 2, 1).write(new OctetString(restrictionList).getBEREncodedByteArray());
 				
 				autoConnect.deleteFromDestinationList(number);
+				autoConnect.updatePhoneList();
 				msg.confirm();
 			} else {
 				throw new ApplicationException("Can't delete " + number + " from phone list because it is not in the list.");
@@ -1581,6 +1583,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 			String number = getMessageValue(msg.getContents(), RtuMessageConstant.WAKEUP_ADD_WHITELIST);
 			AutoConnect autoConnect = getCosemObjectFactory().getAutoConnect();
 			autoConnect.addNumberToDestinationList(number);
+			autoConnect.updatePhoneList();
 			
 			int index = autoConnect.getDestinationList().nrOfDataTypes() - 1;
 			

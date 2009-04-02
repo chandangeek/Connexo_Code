@@ -14,6 +14,9 @@ import java.util.NoSuchElementException;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Data;
@@ -164,6 +167,27 @@ public class ObisCodeMapper {
             
             // Abstract ObisRegisters
             if ((obisCode.getA() == 0) && (obisCode.getB() == 0)) {
+            	
+            	if(obisCode.toString().equalsIgnoreCase("0.0.128.20.3.255")){
+	            	registerValue = new RegisterValue(obisCode, null,
+	            			null, null, null, new Date(), 0, new VisibleString(cof[DAILY].getData(obisCode).getAttrbAbstractDataType(2).getBEREncodedByteArray(), 0).getStr());
+	            	return registerValue;
+	            } else if(obisCode.toString().equalsIgnoreCase("0.0.128.20.20.255")){
+	            	registerValue = new RegisterValue(obisCode, null,
+	            			null, null, null, new Date(), 0, ParseUtils.decimalByteToString(new OctetString(cof[DAILY].getData(obisCode).getAttrbAbstractDataType(2).getBEREncodedByteArray()).getContentBytes()));
+	            	return registerValue;
+	            } else if(obisCode.toString().equalsIgnoreCase(cof[DAILY].getAutoConnect().getObisCode().toString())){
+	            	Array phoneList = cof[DAILY].getAutoConnect().readDestinationList();
+	            	StringBuffer numbers = new StringBuffer();
+	            	for(int i = 0; i < phoneList.nrOfDataTypes(); i++){
+	            		numbers.append(new String(new OctetString(phoneList.getDataType(i).getBEREncodedByteArray()).getContentBytes()));
+	            		if(i < phoneList.nrOfDataTypes() - 1){
+	            			numbers.append(";");
+	            		}
+	            	}
+	            	registerValue = new RegisterValue(obisCode, null, null, null, null, new Date(), 0, numbers.toString());
+	            	return registerValue;
+	            }
                 
 	            CosemObject cosemObject = cof[DAILY].getCosemObject(obisCode);
 	            
@@ -191,7 +215,7 @@ public class ObisCodeMapper {
 	            		return registerValue;
 	            		
 	            	}
-	            } 
+	            }
 	            
                 Date billingDate = null;
                 Date captureTime = null;
