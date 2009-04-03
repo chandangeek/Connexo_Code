@@ -23,7 +23,7 @@ public class HeaderField {
 	private int interval;
 	private String configVersion;
 
-	public void HeaderField() {}
+	public HeaderField() {}
 	
 	public void parse(byte[] header) {
 		parseSourceType(ProtocolUtils.getSubArray(header, 0, 15));
