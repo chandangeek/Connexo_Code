@@ -101,7 +101,7 @@ public class AARQ {
 		
 		// copy aarq1 to aarq buffer
 		for(int i = 0; i < aarq1.length; i++){
-			aarq[t++] = aarq1[i++];
+			aarq[t++] = aarq1[i];
 		}
 		
 		// calling authentication
