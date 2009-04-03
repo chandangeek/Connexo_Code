@@ -111,7 +111,7 @@ public class ActivityCalendar extends AbstractCosemObject {
     
     public void writeWeekProfileTablePassive(Array weekProfileTablePassive) throws IOException {
         write(8, weekProfileTablePassive.getBEREncodedByteArray());
-        this.seasonProfilePassive=seasonProfilePassive;
+        this.weekProfileTablePassive=weekProfileTablePassive;
     }
     public Array readWeekProfileTablePassive() throws IOException {
         if (weekProfileTablePassive == null) {
