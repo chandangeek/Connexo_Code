@@ -1,11 +1,15 @@
 /*
- * Hawkeye.java
+ * Cube350.java
  *
  * Created on 19 september 2005, 16:02
  *
  * To change this template, choose Tools | Options and locate the template under
  * the Source Creation and Management node. Right-click the template and choose
  * Open. You can then make changes to the template in the Source Editor.
+ * 
+ * Changes:
+ * JME	|06042009|	Added harmonics registers 2 to 15 for V1, V2, V3, I1, I2 and I3.
+ * 
  */
 
 package com.energyict.protocolimpl.modbus.northerndesign.cube350;
@@ -26,9 +30,6 @@ import com.energyict.protocolimpl.modbus.core.Modbus;
  */
 
 public class Cube350 extends Modbus {
-    
-	
-	
 	
     public Cube350() { }
     
