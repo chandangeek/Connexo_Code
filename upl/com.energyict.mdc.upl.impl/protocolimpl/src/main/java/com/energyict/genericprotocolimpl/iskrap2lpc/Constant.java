@@ -206,6 +206,7 @@ public class Constant {
     final static String SYS_UpgradeStartMissing = "SYS.UpgradeStartMissing";
     final static String SYS_UpgradeFinish = "SYS.UpgradeFinish";
     final static String SYS_UpgradeFinishSection = "SYS.UpgradeFinishSection";
+    final static String SYS_UpgradeCompleteOK = "SYS.UpgradeCompleteOK";
     final static String SYS_KeysFileOK = "SYS.KeysFileOK";
     final static String SYS_KeysFileError = "SYS.KeysFileError";
     final static String SYS_ResultsFileError = "SYS.ResultsFileError";

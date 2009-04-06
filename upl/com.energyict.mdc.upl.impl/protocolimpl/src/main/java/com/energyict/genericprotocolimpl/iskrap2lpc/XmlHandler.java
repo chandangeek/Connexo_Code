@@ -297,6 +297,7 @@ class XmlHandler extends DefaultHandler {
             String dateTime = attrbs.getValue("DateTime");
             String status = attrbs.getValue("Status");
             String ident = attrbs.getValue("Ident");
+            String value = attrbs.getValue("Value");
             int eventId = Integer.parseInt(status);
             Date time = dateFormat.parse(dateTime);
             
@@ -374,7 +375,9 @@ class XmlHandler extends DefaultHandler {
             	if( mask(ident, Constant.SYS_UpgradeFileError))
             		addMeterEvent(time, MeterEvent.OTHER, "System error: ERROR during file upgrade.");
             	if( mask(ident, Constant.SYS_UpgradeStartMissing))
-            		addMeterEvent(time, MeterEvent.OTHER, "System error: The start of the upgrade is missing.");
+            		addMeterEvent(time, MeterEvent.OTHER, "System error: A part of the upgrade is missing for meter : " + value);
+            	if( mask(ident, Constant.SYS_UpgradeCompleteOK))
+            		addMeterEvent(time, MeterEvent.OTHER, "System event: Upgrade complete for meter : " + value);
             	if( mask(ident, Constant.SYS_UpgradeFinish))
             		addMeterEvent(time, MeterEvent.OTHER, "System event: Upgrade is finished.");
             	if( mask(ident, Constant.SYS_UpgradeFinishSection))
@@ -386,7 +389,7 @@ class XmlHandler extends DefaultHandler {
             	if( mask(ident, Constant.SYS_ResultsFileError))
             		addMeterEvent(time, MeterEvent.OTHER, "System error: ERROR in file containing the results.");
             	if( mask(ident, Constant.SYS_UpgradeStartActivate))
-            		addMeterEvent(time, MeterEvent.OTHER, "System event: Upgrading is activeted.");
+            		addMeterEvent(time, MeterEvent.OTHER, "System event: Activated upgrade for meter : " + value);
             	if( mask(ident, Constant.DLC_AddSubstation))
             		addMeterEvent(time, MeterEvent.OTHER, "DLC event: DLC meter added a substation.");
             	if( mask(ident, Constant.DLC_Deinstall))
@@ -414,7 +417,7 @@ class XmlHandler extends DefaultHandler {
             	if( mask(ident, Constant.SUB_TariffActivateError))
             		addMeterEvent(time, MeterEvent.OTHER, "SUB error: Error during activation of new tariff.");
             	if( mask(ident, Constant.SUB_TariffActivateOK))
-            		addMeterEvent(time, MeterEvent.OTHER, "SUB event: Tariff activation OK.");
+            		addMeterEvent(time, MeterEvent.OTHER, "SUB event: Tariff activation OK for meter : " + value);
             	if( mask(ident, Constant.SUB_TariffWriteError))
             		addMeterEvent(time, MeterEvent.OTHER, "SUB error: ERROR during the writing of the new tariff.");
             	if( mask(ident, Constant.SUB_TariffWriteOK))
