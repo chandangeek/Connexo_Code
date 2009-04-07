@@ -20,12 +20,14 @@ public class DateValuePair {
     Date date;
     BigDecimal value;
     Unit unit;
+    String text;
     
     /** Creates a new instance of DateValuePair */
-    public DateValuePair(Date date,BigDecimal value, Unit unit) {
+    public DateValuePair(Date date,BigDecimal value, Unit unit, String text) {
         this.date = date;
         this.value = value;
         this.unit = unit;
+        this.text = text;
     }
     
     /**
@@ -71,4 +73,13 @@ public class DateValuePair {
 	public String toString() {
         return getValue()+", "+getDate();
     }
+	
+	public void setText(String text) {
+		this.text = text;
+	}
+	
+	public String getText() {
+		return text;
+	}
+	
 }

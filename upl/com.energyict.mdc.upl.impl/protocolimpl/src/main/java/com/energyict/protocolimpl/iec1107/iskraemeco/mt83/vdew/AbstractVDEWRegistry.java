@@ -142,6 +142,8 @@ public abstract class AbstractVDEWRegistry {
             type = VDEWRegisterDataParse.VDEW_INTEGER;
         if (attribs.indexOf("DATE_VALUE_PAIR") != -1)
             type = VDEWRegisterDataParse.VDEW_DATE_VALUE_PAIR;
+        if (attribs.indexOf("STRING_VALUE_PAIR") != -1)
+            type = VDEWRegisterDataParse.VDEW_STRING_VALUE_PAIR;
         return type;
     }
     private String parseObjectId(String name) {

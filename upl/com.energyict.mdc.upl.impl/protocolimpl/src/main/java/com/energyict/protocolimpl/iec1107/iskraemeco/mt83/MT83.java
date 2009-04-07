@@ -22,6 +22,10 @@ import com.energyict.dialer.connection.HHUSignOn;
  * Class that implements the Iskra MT83 meter IEC1107 protocol.
  * <BR>
  *
+ * Changes:
+ * JME	|07042009|	Added support for more registers
+ * JME	|07042009|	Removed channelmap property. The protocol now reads this data from the meter.
+ * 
  */
 public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExceptionInfo, RegisterProtocol {
     
@@ -53,7 +57,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     FlagIEC1107Connection flagIEC1107Connection=null;
     MT83Registry mt83Registry=null;
     MT83Profile mt83Profile=null;
-    RegisterConfig mt83RegisterConfig = new MT83RegisterConfig(); // we should use an infotype property to determine the registerset
+    MT83RegisterConfig mt83RegisterConfig = new MT83RegisterConfig(); // we should use an infotype property to determine the registerset
 
     byte[] dataReadout=null;
     private boolean software7E1;
@@ -170,7 +174,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
             iEchoCancelling=Integer.parseInt(properties.getProperty("EchoCancelling","0").trim());
             iIEC1107Compatible=Integer.parseInt(properties.getProperty("IEC1107Compatible","1").trim());
             iProfileInterval=Integer.parseInt(properties.getProperty("ProfileInterval","900").trim());
-            channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1.5:2.5:5.5:6.5:7.5:8.5").trim());
+//            channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","1.5:2.5:5.5:6.5:7.5:8.5").trim());
             extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0").trim()); 
             readCurrentDay = Integer.parseInt(properties.getProperty("ReadCurrentDay","0").trim());
             loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber","1").trim());
@@ -240,7 +244,6 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         result.add("SecurityLevel");
         result.add("EchoCancelling");
         result.add("IEC1107Compatible");
-        result.add("ChannelMap");
         result.add("ExtendedLogging");
         result.add("ReadCurrentDay");
         result.add("LoadProfileNumber");
@@ -330,7 +333,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     }
     
     public int getNumberOfChannels() throws UnsupportedException, IOException {
-        return channelMap.getNrOfProtocolChannels();
+        return getProtocolChannelMap().getNrOfProtocolChannels();
     	//return channelMap.getNrOfChannels();
     }
     
@@ -385,10 +388,14 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     }
     
     public ProtocolChannelMap getProtocolChannelMap() {
-        return channelMap;
-    }
-    public ChannelMap getChannelMap() {
-        return null;
+        if (channelMap == null) {
+        	try {
+				channelMap = getMT83Profile().buildChannelMap(getProfileInterval(), loadProfileNumber);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+        }
+    	return channelMap;
     }
     
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
@@ -411,7 +418,6 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         this.dataReadout=dataReadout;
     }
     
-    
     public void release() throws IOException {
     }
     
@@ -433,7 +439,8 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     R e g i s t e r P r o t o c o l  i n t e r f a c e 
     *******************************************************************************************/
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return MT83ObisCodeMapper.getRegisterInfo(obisCode);
+        RegisterInfo regInfo = new RegisterInfo(this.mt83RegisterConfig.getRegisterDescription(obisCode));
+    	return regInfo;
     }
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
     	RegisterValue regvalue;
@@ -461,10 +468,14 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         return readCurrentDay==1;
     }
     
+	public ChannelMap getChannelMap() {
+        return null;
+    }
+
     public static void sendDebug(String message, int debuglvl) {
 		message = " ##### DEBUG [" + new Date().toString() + "] ######## > " + message;
-		System.out.println(message);
     	if ((debuglvl > 0) && (DEBUG > 0 ) && (logger != null)) {
+    		System.out.println(message);
     		logger.info(message);
     	}
     }

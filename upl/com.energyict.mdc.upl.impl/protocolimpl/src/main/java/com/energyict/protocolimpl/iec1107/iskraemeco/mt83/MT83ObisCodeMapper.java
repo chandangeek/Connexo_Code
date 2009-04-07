@@ -18,35 +18,46 @@ import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.*;
  * @author  jme
  */
 public class MT83ObisCodeMapper {
-	private static final int DEBUG = 0;
-
-	//private static final Date JAN2008 = new Date(946681200000L);
-
-	MT83Registry mt83Registry;
-	RegisterConfig regs;
+	private static final int DEBUG 		= 0;
+	private MT83Registry mt83Registry 	= null;
+	private MT83RegisterConfig regs			= null;
 
 	/** Creates a new instance of ObisCodeMapper */
-	public MT83ObisCodeMapper(MT83Registry mt83Registry, TimeZone timeZone, RegisterConfig regs) {
+	public MT83ObisCodeMapper(MT83Registry mt83Registry, TimeZone timeZone, MT83RegisterConfig regs) {
 		this.mt83Registry=mt83Registry;
 		this.regs=regs;
 	}
 
-	static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-		MT83ObisCodeMapper ocm = new MT83ObisCodeMapper(null,null,null);
-		return (RegisterInfo)ocm.doGetRegister(obisCode,false);
+	public MT83RegisterConfig getMT83RegisterConfig() {
+		return regs;
 	}
-
+	
 	public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
-		return (RegisterValue)doGetRegister(obisCode,true);
+		ObisCode obis = getMT83RegisterConfig().obisToDeviceCode(obisCode);
+		RegisterValue regVal = (RegisterValue)doGetRegister(obis);
+		
+		RegisterValue returnValue = new RegisterValue(
+				obisCode, 
+				regVal.getQuantity(), 
+				regVal.getEventTime(), 
+				regVal.getFromTime(),
+				regVal.getToTime(),
+				regVal.getReadTime(),
+				regVal.getRtuRegisterId(),
+				regVal.getText()
+		);
+		
+		return returnValue;
 	}
 
 	private int getBillingResetCounter(RegisterConfig regs) throws IOException {
 		return ((Integer)mt83Registry.getRegister(MT83Registry.BILLING_RESET_COUNTER)).intValue();
 	}
 
-	private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException {
+	private Object doGetRegister(ObisCode obisCode) throws IOException {
 		RegisterValue registerValue=null;
 		int billingPoint=-1;
+		DateValuePair dvp = null;
 
 		// obis F code
 		if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
@@ -57,37 +68,33 @@ public class MT83ObisCodeMapper {
 			billingPoint = -1;
 		else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported! (1) ");
 
-		if (!read) return new RegisterInfo(obisCode.getDescription());
-
 		String billingDateRegister;
 		Date eventDate = null;
 		Date fromDate = null;
 		Date toDate = null;
 
 		String strReg=null;
-		strReg = regs.getMeterRegisterCode(obisCode);
+		strReg = obisCode.toString();
 		
-		if (strReg == null) 
-			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported! (2) ");
 		try {
 
 			if (billingPoint != -1) {
 
-				int VZ = getBillingResetCounter(regs);
-				int obisF = (VZ - Math.abs(obisCode.getF()));
-				if ((obisF < 1) || (obisF > VZ)) throw new IOException("Invalid historical register! VZ = " + VZ + " Requested = " + obisCode.getF());
-				
-				
-				MT83.sendDebug("Changing obiscode from " + obisCode.toString(), DEBUG);
-				
-				obisCode = ObisCode.fromString(strReg);
-				strReg = (new ObisCode(obisCode.getA(), obisCode.getB(), obisCode.getC(), obisCode.getD(), obisCode.getE(), obisF)).toString();
- 
-				MT83.sendDebug("Changing obiscode " + obisCode.toString() + " to [" + strReg + "]", DEBUG);
-
-				if (DEBUG == 1) {
-					MT83.sendDebug("doGetregister(): Billingpoint = " + billingPoint + " - getBillingResetCounter = " + VZ + " - strReg = " + strReg, DEBUG);
-				}
+//				int VZ = getBillingResetCounter(regs);
+//				int obisF = (VZ - Math.abs(obisCode.getF()));
+//				if ((obisF < 1) || (obisF > VZ)) throw new IOException("Invalid historical register! VZ = " + VZ + " Requested = " + obisCode.getF());
+//				
+//				
+//				MT83.sendDebug("Changing obiscode from " + obisCode.toString(), DEBUG);
+//				
+//				obisCode = ObisCode.fromString(strReg);
+//				strReg = (new ObisCode(obisCode.getA(), obisCode.getB(), obisCode.getC(), obisCode.getD(), obisCode.getE(), obisF)).toString();
+// 
+//				MT83.sendDebug("Changing obiscode " + obisCode.toString() + " to [" + strReg + "]", DEBUG);
+//
+//				if (DEBUG == 1) {
+//					MT83.sendDebug("doGetregister(): Billingpoint = " + billingPoint + " - getBillingResetCounter = " + VZ + " - strReg = " + strReg, DEBUG);
+//				}
 
 				ObisCode billingStartObis = ObisCode.fromString(MT83Registry.BILLING_DATE_START);
 				billingDateRegister = new ObisCode(billingStartObis.getA(), billingStartObis.getB(), billingStartObis.getC(), billingStartObis.getD(), billingStartObis.getE(), billingStartObis.getF() + ObisCode.fromString(strReg).getF()).toString();
@@ -95,7 +102,8 @@ public class MT83ObisCodeMapper {
 				MT83.sendDebug("Reading toDate from obis: " + billingDateRegister.toString(), DEBUG);
 				
 				toDate = ((Date)mt83Registry.getRegister(billingDateRegister.toString()));
-
+				eventDate = toDate;
+				
 				billingDateRegister = new ObisCode(billingStartObis.getA(), billingStartObis.getB(), billingStartObis.getC(), billingStartObis.getD(), billingStartObis.getE(), billingStartObis.getF() + (ObisCode.fromString(strReg).getF() + 1)).toString();
 
 				MT83.sendDebug("Reading fromDate from obis: " + billingDateRegister.toString() + "\n", DEBUG);
@@ -108,8 +116,10 @@ public class MT83ObisCodeMapper {
 				}
 			}
 
+			
 			MT83.sendDebug("Reading register: Obis = " + obisCode.toString() + " Edis: " + strReg, 0);
-			DateValuePair dvp = (DateValuePair)mt83Registry.getRegister(strReg+" DATE_VALUE_PAIR");
+			
+			dvp = (DateValuePair)mt83Registry.getRegister(strReg+" DATE_VALUE_PAIR");
 			Unit obisCodeUnit = dvp.getUnit(); 
 			if (!obisCode.getUnitElectricity(0).getBaseUnit().toString().equalsIgnoreCase(obisCodeUnit.getBaseUnit().toString())) {
 				if (!obisCodeUnit.isUndefined()) throw new NoSuchRegisterException("Unit of the obiscode (" + obisCode.getUnitElectricity(0).getBaseUnit() +") doesn't match the unit of the register received from the meter (" + obisCodeUnit.getBaseUnit() + ")");
@@ -122,10 +132,12 @@ public class MT83ObisCodeMapper {
 			if (quantity.getAmount() != null) {
 				eventDate = dvp.getDate();
 				if (eventDate != null) {
-					fromDate = null;
-					toDate = null;
+//					fromDate = null;
+//					toDate = null;
+				} else {
+					eventDate = toDate;
 				}
-				registerValue = new RegisterValue(obisCode, quantity, eventDate, fromDate, toDate);
+				registerValue = new RegisterValue(obisCode, quantity, eventDate, fromDate, toDate, null, 0, dvp.getText());
 			} else {
 				String strValue = (String)mt83Registry.getRegister(strReg+" STRING");
 				registerValue = new RegisterValue(obisCode,strValue);
@@ -137,6 +149,6 @@ public class MT83ObisCodeMapper {
 			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported! (3) " + e.toString());
 		}
 
-	} // private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException      
+	}
 
-} // public class ObisCodeMapper
+}

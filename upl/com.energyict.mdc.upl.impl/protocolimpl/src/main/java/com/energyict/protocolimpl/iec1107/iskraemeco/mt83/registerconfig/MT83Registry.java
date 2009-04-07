@@ -88,21 +88,21 @@ public class MT83Registry extends AbstractVDEWRegistry {
         
         registers.put(BILLING_RESET_COUNTER, newReg("1.0.0.1.0.255", INTEGER, false, null, READ1, null));
         
-        registers.put(BILLING_DATE_1, newReg("1.0.0.1.2.1", DATETIME_NOSEC, false, null, READ1, null)); 
-        registers.put(BILLING_DATE_2, newReg("1.0.0.1.2.2", DATETIME_NOSEC, false, null, READ1, null));
-        registers.put(BILLING_DATE_3, newReg("1.0.0.1.2.3", DATETIME_NOSEC, false, null, READ1, null));
-        registers.put(BILLING_DATE_4, newReg("1.0.0.1.2.4", DATETIME_NOSEC, false, null, READ1, null));
-        registers.put(BILLING_DATE_5, newReg("1.0.0.1.2.5", DATETIME_NOSEC, false, null, READ1, null));
-        registers.put(BILLING_DATE_6, newReg("1.0.0.1.2.6", DATETIME_NOSEC, false, null, READ1, null));
-        registers.put(BILLING_DATE_7, newReg("1.0.0.1.2.7", DATETIME_NOSEC, false, null, READ1, null));
-        registers.put(BILLING_DATE_8, newReg("1.0.0.1.2.8", DATETIME_NOSEC, false, null, READ1, null));
-        registers.put(BILLING_DATE_9, newReg("1.0.0.1.2.9", DATETIME_NOSEC, false, null, READ1, null));
-        registers.put(BILLING_DATE_10, newReg("1.0.0.1.2.10", DATETIME_NOSEC, false, null, READ1, null));
-        registers.put(BILLING_DATE_11, newReg("1.0.0.1.2.11", DATETIME_NOSEC, false, null, READ1, null));
-        registers.put(BILLING_DATE_12, newReg("1.0.0.1.2.12", DATETIME_NOSEC, false, null, READ1, null));
-        registers.put(BILLING_DATE_13, newReg("1.0.0.1.2.13", DATETIME_NOSEC, false, null, READ1, null));
-        registers.put(BILLING_DATE_14, newReg("1.0.0.1.2.14", DATETIME_NOSEC, false, null, READ1, null));
-        registers.put(BILLING_DATE_15, newReg("1.0.0.1.2.15", DATETIME_NOSEC, false, null, READ1, null));
+        registers.put(BILLING_DATE_1, newReg("1.0.0.1.2.1", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null)); 
+        registers.put(BILLING_DATE_2, newReg("1.0.0.1.2.2", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
+        registers.put(BILLING_DATE_3, newReg("1.0.0.1.2.3", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
+        registers.put(BILLING_DATE_4, newReg("1.0.0.1.2.4", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
+        registers.put(BILLING_DATE_5, newReg("1.0.0.1.2.5", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
+        registers.put(BILLING_DATE_6, newReg("1.0.0.1.2.6", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
+        registers.put(BILLING_DATE_7, newReg("1.0.0.1.2.7", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
+        registers.put(BILLING_DATE_8, newReg("1.0.0.1.2.8", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
+        registers.put(BILLING_DATE_9, newReg("1.0.0.1.2.9", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
+        registers.put(BILLING_DATE_10, newReg("1.0.0.1.2.10", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
+        registers.put(BILLING_DATE_11, newReg("1.0.0.1.2.11", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
+        registers.put(BILLING_DATE_12, newReg("1.0.0.1.2.12", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
+        registers.put(BILLING_DATE_13, newReg("1.0.0.1.2.13", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
+        registers.put(BILLING_DATE_14, newReg("1.0.0.1.2.14", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
+        registers.put(BILLING_DATE_15, newReg("1.0.0.1.2.15", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
         
     }
         
@@ -111,5 +111,9 @@ public class MT83Registry extends AbstractVDEWRegistry {
     	return new VDEWRegister(registerID_in, dataType,0, -1, unit, isWritable, VDEWRegister.NOT_CACHED, readCommand, writeCommand, true);
     }
     
+    private VDEWRegister newReg(String registerID_in, int dataType, boolean isCached, boolean isWritable, Unit unit, byte[] readCommand, byte[] writeCommand) {
+    	if (!isWritable) writeCommand = null;
+    	return new VDEWRegister(registerID_in, dataType,0, -1, unit, isWritable, isCached, readCommand, writeCommand, true);
+    }
     
 }

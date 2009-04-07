@@ -17,17 +17,69 @@ import com.energyict.protocolimpl.iec1107.*;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.*;
 
 /**
- *
  * @author  jme
  */
 public class MT83Profile extends VDEWProfile {
     
-    private static final int DEBUG=1;
+    private static final int DEBUG=0;
     
     /** Creates a new instance of MT83Profile */
     public MT83Profile(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink, AbstractVDEWRegistry abstractVDEWRegistry) {
         super(meterExceptionInfo,protocolLink,abstractVDEWRegistry);
     }
+    
+    private byte[] getRawProfileData(int profileInterval, int profileId) throws IOException {
+    	Calendar fromCalendar = Calendar.getInstance();
+    	fromCalendar.setTime(new Date());
+    	fromCalendar.add(Calendar.SECOND, (profileInterval * (-2)));
+    	
+    	Calendar toCalendar = Calendar.getInstance();
+    	toCalendar.setTime(new Date());
+    	
+    	return readRawData(fromCalendar, toCalendar, profileId);
+    }
+    
+    public ProtocolChannelMap buildChannelMap(int profileInterval, int profileId) throws IOException {
+    	int numberOfChannels = 0; 
+    	int meterProfileInterval = 0; 
+    	byte[] responseData = getRawProfileData(profileInterval, profileId);
+    	String channelMapString = "";
+    	
+    	meterProfileInterval = Integer.valueOf(getDataBetweenBrackets(responseData, 3)).intValue() * 60;
+    	numberOfChannels = Integer.valueOf(getDataBetweenBrackets(responseData, 4)).intValue();
+    	
+    	if (DEBUG>=1) {
+			System.out.println("  Settings profile interval = " + meterProfileInterval);
+			System.out.println("  Meter profile interval =    " + meterProfileInterval);
+			System.out.println("  Number of channels =        " + numberOfChannels);
+		}
+    	
+		for (int i = 0; i < numberOfChannels; i++) {
+    		String channelMapName = getDataBetweenBrackets(responseData, (i*2) + 5);
+    		String channelUnit = getDataBetweenBrackets(responseData, (i*2) + 6);
+        	if (DEBUG>=1) System.out.println("    CHANNEL[" + i + "]: " + channelMapName + " Unit = " + channelUnit);
+    		if (i>0) channelMapString += ":";
+    		channelMapString += channelMapName;
+    	}
+    	
+    	return new ProtocolChannelMap(channelMapString);
+	}
+    
+    private String getDataBetweenBrackets(byte[] responseData, int bracketNumber) {
+    	int bp = 0;
+    	String returnValue = null;
+    	
+    	for (int i = 0; i < bracketNumber; i++) {
+    		bp = gotoNextOpenBracket(responseData, bp);
+        	if (++bp>responseData.length) break;
+		}
+    	
+    	if (bp < responseData.length) {
+    		returnValue = new String(ProtocolUtils.getSubArray(responseData, bp, gotoNextCloseBracket(responseData, bp) - 1)); 
+    	} 
+    	
+		return returnValue;
+	}
     
     public ProfileData getProfileData(Calendar fromCalendar, Calendar toCalendar, int nrOfChannels, int profileId, boolean includeEvents, boolean readCurrentDay) throws IOException {
         byte[] data; 
@@ -95,7 +147,16 @@ public class MT83Profile extends VDEWProfile {
         }
         return i;
     }
-    
+
+    private int gotoNextCloseBracket(byte[] responseData,int i) {
+        while(true) {
+            if (responseData[i] == ')') break;
+            i++;
+            if (i>=responseData.length) break;
+        }
+        return i;
+    }
+
     private int gotoNextCR(byte[] responseData,int i) {
         while(true) {
             if (responseData[i] == '\r') break;

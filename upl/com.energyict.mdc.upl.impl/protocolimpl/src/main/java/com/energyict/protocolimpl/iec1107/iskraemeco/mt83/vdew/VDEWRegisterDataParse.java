@@ -41,6 +41,7 @@ abstract public class VDEWRegisterDataParse {
     public final static int VDEW_GMTTIMESTRING=13; // write
     public final static int VDEW_DATETIME=14; // YYMMDDHHMMSS
     public final static int VDEW_DATETIME_NOSEC = 15; //YYMMDDHHMM
+    public static final int VDEW_STRING_VALUE_PAIR = 16;
     
     
     abstract protected Unit getUnit();
@@ -215,12 +216,16 @@ abstract public class VDEWRegisterDataParse {
                 case VDEW_DATETIME_NOSEC:
                 	return parseDateYYMMDDHHMM(data);
 
+                case VDEW_STRING_VALUE_PAIR:
+                	return parseStringValuePair(data);
+
                 default:
                     throw new IOException("VDEWRegisterDataParse, parse , unknown type "+getType());
             }
         }
         catch(NumberFormatException e) {
-            throw new IOException("VDEWRegisterDataParse, parse error");
+            e.printStackTrace();
+        	throw new IOException("VDEWRegisterDataParse, parse error");
         }
         
     } // protected Object parse(byte[] data)
@@ -230,6 +235,74 @@ abstract public class VDEWRegisterDataParse {
         int count=0;
         BigDecimal value = null;
         Date date = null;
+        Unit unit = Unit.getUndefined();
+        String text = "";
+        
+        // format is (number)(YYMMDDHHMM)
+        for(int i=0;i<rawdata.length;i++) {
+            if (rawdata[i] == '(') {
+               strBuff = new StringBuffer(); 
+            }
+            else if (rawdata[i] == ')') {
+                if (count==0) {
+                    try {
+                       if (strBuff.toString().length() > 0){
+                       	value = new BigDecimal(strBuff.toString());
+                       } else {
+                    	   value = null;
+                       }
+                    }
+                    catch(NumberFormatException e) {
+                    	
+                    	// Iskra adds unit to the value: ex (0000.23 kVA)(081105163000)
+                    	// so we need to check if there's a valid value followed by a space
+                    	
+                    	if (strBuff.toString().indexOf(" ") > 0){
+                    		try {
+                                value = new BigDecimal(strBuff.toString().substring(0, strBuff.toString().indexOf(" ")));
+                                String unitacronym = strBuff.toString().substring(strBuff.toString().indexOf(" "));
+                                if (unitacronym != null){
+                                	unitacronym = unitacronym.trim();
+                                	if (unitacronym.equalsIgnoreCase("deg")) unitacronym = "°";
+                                	unit = Unit.get(unitacronym);
+                                	MT83.sendDebug("VDEWRegisterDataParse(): unitacronym = " + unitacronym + " Unit.get() = " + unit, DEBUG);
+                                	if (unit == null) unit = Unit.getUndefined(); 
+                                }
+                    		} catch (NumberFormatException ee) {
+                    			value = null;
+                    		}
+                    	} else {
+                    		value = null;
+                    	}
+ 
+                    }
+                    strBuff=null;
+                    count++;
+                }
+                else if (count==1) {
+                    try {
+						text = "";
+                    	date = parseDateTimeYYMMDDHHMMSS(strBuff.toString().getBytes());
+					} catch (Exception e) {
+						date = null;
+						text = strBuff.toString();
+					}
+                    break;
+                }
+            }
+            else {
+                if (strBuff != null)
+                    strBuff.append((char)rawdata[i]);
+            }
+        }
+        return new DateValuePair(date,value, unit, text);
+    } // private DateValuePair parseDateValuePair(byte[] rawdata) throws IOException
+
+    private DateValuePair parseStringValuePair(byte[] rawdata) throws IOException {
+        StringBuffer strBuff=null;
+        int count=0;
+        BigDecimal value = null;
+        String text = null;
         Unit unit = Unit.getUndefined();
         
         // format is (number)(YYMMDDHHMM)
@@ -274,7 +347,8 @@ abstract public class VDEWRegisterDataParse {
                     count++;
                 }
                 else if (count==1) {
-                    date = parseDateTimeYYMMDDHHMMSS(strBuff.toString().getBytes());
+                    text = strBuff.toString();
+//                    date = parseDateTimeYYMMDDHHMMSS(strBuff.toString().getBytes());
                     break;
                 }
             }
@@ -283,9 +357,9 @@ abstract public class VDEWRegisterDataParse {
                     strBuff.append((char)rawdata[i]);
             }
         }
-        return new DateValuePair(date,value, unit);
+        return new DateValuePair(null,value, unit, text);
     } // private DateValuePair parseDateValuePair(byte[] rawdata) throws IOException
-    
+
     private Integer parseInteger(byte[] rawdata) throws IOException {
         return new Integer(Integer.parseInt(findValue(rawdata)));
     }
