@@ -48,6 +48,7 @@ import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.*;
 import com.energyict.protocolimpl.dlms.Z3.AARQ;
+import com.energyict.genericprotocolimpl.webrtukp.KPHDLCConnection;
 
 public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol {
     private static final byte DEBUG=0;  // KV 16012004 changed all DEBUG values  
@@ -131,7 +132,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
             cosemObjectFactory = new CosemObjectFactory(this);
             storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
             if (connectionMode == 0)
-                dlmsConnection=new HDLCConnection(inputStream,outputStream,hDLCTimeoutProperty,100,protocolRetriesProperty,clientMacAddress,serverLowerMacAddress,serverUpperMacAddress,addressingMode,informationFieldSize);
+                dlmsConnection=new KPHDLCConnection(inputStream,outputStream,hDLCTimeoutProperty,100,protocolRetriesProperty,clientMacAddress,serverLowerMacAddress,serverUpperMacAddress,addressingMode,informationFieldSize);
             else
                 dlmsConnection=new TCPIPConnection(inputStream,outputStream,hDLCTimeoutProperty,100,protocolRetriesProperty,clientMacAddress,serverLowerMacAddress);
             
@@ -523,7 +524,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
             getDLMSConnection().connectMAC();
         }
         catch(DLMSConnectionException e) {
-            throw new IOException(e.getMessage());
+            throw new NestedIOException(e);
         }
         try {
         	
