@@ -8,7 +8,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
-import com.energyict.mdwswing.actions.estimation.GetBlockToEstimateAction;
+
 
 /**
  * @author gna
