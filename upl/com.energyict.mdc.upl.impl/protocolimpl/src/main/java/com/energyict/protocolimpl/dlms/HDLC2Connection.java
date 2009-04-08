@@ -13,34 +13,7 @@ import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.ReceiveBuffer;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
-/**
- * @version  1.0
- * @author   Koenraad Vanderschaeve
- * <P>
- * <B>Description :</B><BR>
- * Class that implements the HDLC datalink layer protocol.
- * <B>Hardcoded :</B><BR>
- *  Destination and source address <BR>
- *  RX windowsize = 1 <BR>
- *  TX windowsize = 1 <BR>
- *  RX buffersize = 248 bytes <BR>
- *  TX buffersize = 248 bytes <BR>
- * <B>Changes :</B><BR>
- *      KV 15052002 Initial version.<BR>
- *      KV 08102003 bugfix in getReasons (arrayoutofbounds)
- *      KV 14012004 bugfix 4 byte addressing
- *      KV 14012004 changed 4 byte addressing
- *      KV 17112004 made more robust...
- *      GN 14012008 made SNRMType for interoperability
- */
 
-
-/*
- *  Siemens ZMD meter upperaddress (bij ons lower) 1=management unit, 17=communication unit
- *  loweraddress (bij ons upper) = physical device address! if not given, meter react always
- *
- *
- */
 public class HDLC2Connection extends Connection implements DLMSConnection {
 
     private static final byte DEBUG=0;
@@ -241,7 +214,6 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
         iProtocolTimeout=iTimeout;
         NR=NS=0;
         boolHDLCConnected=false;
-        lastHDLCFrame=null;
         //bClientMACAddress=0;
         this.lForceDelay = lForceDelay;
 
@@ -635,8 +607,10 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
 
     private HDLCFrame decodeFrame(byte[] byteReceiveBuffer) throws DLMSConnectionException
     {
-       return(new HDLCFrame(byteReceiveBuffer));
-    } // private decodeFrame(byte[] byteReceiveBuffer)
+       HDLCFrame result = new HDLCFrame(byteReceiveBuffer);
+       //print(byteReceiveBuffer[protocolParameters[frameControl]],false);
+       return result;
+    } 
 
     
     private byte waitForHDLCFrameStateMachine(int iTimeout,byte[] byteReceiveBuffer) throws DLMSConnectionException {
@@ -767,26 +741,18 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
         int[] CRC; //=new int[2];
         int[] calcCRC; //=new int[2];
         
-	   switch(byteReceiveBuffer[count-1])
-	   {
-	      case HDLC_FLAG:
-	      {
-	          // Check CRC
-	      CRC = getCRC(byteReceiveBuffer);
-	      calcCRC = calcCRC(byteReceiveBuffer);
-	      if ((CRC[0] == calcCRC[0]) &&
-	          (CRC[1] == calcCRC[1]))
-	      {
-	          return HDLC_RX_OK;
-	      }
-	      else
-	      {
-	          return HDLC_BADCRC;
-	      }
+        switch(byteReceiveBuffer[count-1]) {
+        	case HDLC_FLAG:
+        		// Check CRC
+        		CRC = getCRC(byteReceiveBuffer);
+        		calcCRC = calcCRC(byteReceiveBuffer);
+        		if ((CRC[0] == calcCRC[0]) && (CRC[1] == calcCRC[1])) {
+        			return HDLC_RX_OK;
+        		} else {
+        			return HDLC_BADCRC;
+        		}
 	
-	  } // case HDLC_FLAG:
-	
-	      default: 
+        	default: 
 	          return HDLC_BADFRAME;
 	      
 	   }	
@@ -799,6 +765,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
         delay(lForceDelay);
         iLength = (((int)byteBuffer[protocolParameters[frameFormatMSB]]&0x00000007)<<8)|
                    ((int)byteBuffer[protocolParameters[frameFormatLSB]]&0x000000FF);
+        //print(byteBuffer[protocolParameters[frameControl]],true);
         try {
 //           sendOut(flag);
 //           sendOut(byteBuffer,0,iLength);
@@ -808,8 +775,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
         	byte[] data = new byte[iLength + 2];
         	data[0] = HDLC_FLAG;
         	System.arraycopy(byteBuffer, 0, data, 1, iLength);
-        	data[data.length-1] = HDLC_FLAG;
-        	
+        	data[data.length-1] = HDLC_FLAG;        
         	sendOut(data);
         	
            if (DEBUG==1) {
@@ -831,62 +797,18 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
      * @exception DLMSConnectionException
      */
     private static final int TOO_MANY_RETRIES=500;
+    
     public byte[] sendRequest(byte[] byteRequestBuffer) throws IOException {
-        byte[] receivedArray;
-        int retryCount,tooManyRetries;
-        int bufferLength;
-        // KV 19092003 bugfix, after retry, data was truncated cause receiveBuffer was constructed in receiveInformationField()
         ReceiveBuffer receiveBuffer=new ReceiveBuffer();
-        retryCount=tooManyRetries=0;
-        bufferLength=0;
-        while(true) {
-            try {
-                sendInformationField(byteRequestBuffer);
-// KV_DEBUG 09122004
-//System.out.println("KV_DEBUG> hdlcconnection "+receiveBuffer.bytesReceived());
-                receivedArray = receiveInformationField(receiveBuffer); // KV 19092003 bugfix, after retry, data was truncated cause receiveBuffer was constructed in receiveInformationField()
-                // If successfull send , adjust S
-                if (NS++ > 6) NS=0; // Sequence counter
-                
-                if (receivedArray.length != 0) return receivedArray;
-                else {
-                    // if retryCount grows over the configuration's max retries parameter, throw exception
-                    if (retryCount++ >= (iMaxRetries-1))
-                       throw new DLMSConnectionException("sendRequest, max retries!");
-                }
-            }
-            catch(DLMSConnectionException e) {
-// KV_DEBUG 09122004
-//System.out.println("KV_DEBUG> hdlcconnection "+e.toString());
-//System.out.println("KV_DEBUG> hdlcconnection "+bufferLength+", "+receiveBuffer.bytesReceived());
+        try {
+        	sendInformationField(byteRequestBuffer);
+        	return receiveInformationField(receiveBuffer); 
+        } catch(DLMSConnectionException e) {
+        	throw new NestedIOException(e);
+        }
+    } 
 
-
-                // Test if length of receivebuffer has changed since previous error. If so,
-                // reset retrycount and save length for!
-                if (bufferLength < receiveBuffer.bytesReceived()) {
-                    retryCount=0;
-                    bufferLength = receiveBuffer.bytesReceived();                        
-                }
-               // if retryCount grows over the configuration's max retries parameter, throw exception
-               if (retryCount++ >= (iMaxRetries-1))
-                  throw new ProtocolConnectionException("sendRequest, max retries exceeded, "+e.getMessage()+", reason="+getReason(e.getReason()),e.getReason());
-               // for safety purposes. I line is so bad that tooManyRetries exceeds 500 retries, throw exception
-               if (tooManyRetries++ >= (TOO_MANY_RETRIES-1))
-                  throw new ProtocolConnectionException("sendRequest, too many retries exceeded, "+e.getMessage()+", reason="+getReason(e.getReason()),e.getReason());
-               // KV 17112004
-               if (NS++ > 6) NS=0; // Sequence counter
-            }
-            catch (IOException e) {
-               throw new ProtocolConnectionException("sendRequest, IOException, "+e.getMessage());
-            }
-        } // while(true)
-
-    } // public byte[] sendRequest(byte[] byteBuffer) throws IOException
-
-    // Send information field segmented if size > sMaxTXIFSize.
-    // Wait for RR frame each I frame send (windowsize=1, hardcoded).
-    private void sendInformationField(byte[] byteBuffer) throws NestedIOException,DLMSConnectionException
-    {
+    private void sendInformationField(byte[] byteBuffer) throws IOException, DLMSConnectionException {
         long lLength;
         short sFrameFormat;
         int i;
@@ -918,64 +840,17 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
             }
 
             txFrame[protocolParameters[frameFormatMSB]] = (byte)((sFrameFormat >> 8)&0x00FF);
-            txFrame[protocolParameters[frameFormatLSB]] = (byte)(sFrameFormat &0x00FF);
-            /*
-            if (bAddressingMode == CLIENT_ADDRESSING_4BYTE) {
-                txFrame[FRAME_DESTINATION+3] = (byte)HDLC_DESTINATION;
-                txFrame[FRAME_DESTINATION+2] = (byte)(HDLC_DESTINATION>>8);
-                txFrame[FRAME_DESTINATION+1] = (byte)(HDLC_DESTINATION>>16);
-                txFrame[FRAME_DESTINATION] = (byte)(HDLC_DESTINATION>>24);
-            }
-            else if (bAddressingMode == CLIENT_ADDRESSING_1BYTE) {
-                txFrame[FRAME_DESTINATION] = (byte)HDLC_DESTINATION;
-            }
-            txFrame[FRAME_SOURCE] = bClientMACAddress;
-*/
-            txFrame = buildAddressingScheme(txFrame);
-            
-            // If we received already an I / RR / RNR frame, use the
-            // last receive N(S) field to construct N(R).
-            if (lastHDLCFrame != null)
-            {
-                NR = (byte)(lastHDLCFrame.NS+1);
-                if (NR > 7) NR=0;
-            }
-
+            txFrame[protocolParameters[frameFormatLSB]] = (byte)(sFrameFormat &0x00FF);      
+            txFrame = buildAddressingScheme(txFrame);                      
             txFrame[protocolParameters[frameControl]] = (byte)(I | (NR<<5) | (NS<<1) | HDLC_FRAME_CONTROL_PF_BIT);
             calcCRC(txFrame);
             sendFrame(txFrame);
 
-            if ((sFrameFormat & HDLC_FRAME_S_BIT) != 0)
-            {
-                do
-                {
-                     bResult = waitForHDLCFrameStateMachine(iProtocolTimeout,rxFrame);
-                     if (bResult == HDLC_RX_OK)
-                     {
-                          hdlcFrame=decodeFrame(rxFrame);
-                          if (hdlcFrame.bControl != RR)
-                          {
-                             throw new DLMSConnectionException("ERROR sending data, should receive an RR frame.");
-                          }
-
-
-                          // Should not be done here KV 05062002
-                          //getHDLCParameters(hdlcFrame.InformationBuffer);
-
-                     } // if (waitForHDLCFrameStateMachine(iProtocolTimeout,rxFrame) == HDLC_RX_OK)
-                     else
-                     {
-
-                          throw new DLMSConnectionException("ERROR sending data, reason "+getReason(bResult),(short)((short)bResult&0x00FF));
-                     }
-
-                } while(!hdlcFrame.boolControlPFBit);
-
-            } // if (sFrameFormat & HDLC_FRAME_S_BIT)
-
-        } // while(lLength>0)
-
-    } // public void sendInformationField(byte[] byteBuffer) throws DLMSConnectionException
+            if ((sFrameFormat & HDLC_FRAME_S_BIT) != 0) {
+            	waitForReceiveReady();                
+            } 
+        } 
+    } 
 
     
     private byte[] buildAddressingScheme(byte[] buffer) {
@@ -1014,84 +889,103 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
        return buffer;
     }
     
+    private void waitForReceiveReady() throws DLMSConnectionException,IOException {
+        
+        for (int retryCount = 1 ; retryCount <= (iMaxRetries + 1) ; retryCount++) {
+            byte bResult = waitForHDLCFrameStateMachine(iProtocolTimeout,rxFrame);
+            if (bResult == HDLC_RX_OK) {                
+                HDLCFrame hdlcFrame=decodeFrame(rxFrame);
+                if (hdlcFrame.bControl == I || hdlcFrame.bControl == RR) {                	
+                	if ( updateNS(hdlcFrame)) {
+                    	return;
+                    } else {
+                    	if (hdlcFrame.boolControlPFBit)
+                    		sendFrame(txFrame);                                            
+                    }
+                } else {
+                	throw new DLMSConnectionException("ERROR receiving data, should receive an I or RR frame.");   
+                }                
+            } else {
+            	// receive timeout
+                sendFrame(txFrame);                
+            }
+        }
+        throw new DLMSConnectionException("receiveReceiveReady > Retry count exceeded when receiving data");        
+    }
+        
     private static final byte STATE_WAIT_FOR_I_FRAME=0;
     private static final byte STATE_WAIT_FOR_RR_FRAME=1;
     
     private byte[] receiveInformationField(ReceiveBuffer receiveBuffer) throws DLMSConnectionException,IOException {
-        byte bResult;
-        HDLCFrame hdlcFrame=null;
-        short sFrameFormat;
-        byte bCountWindowSize=0;
-        byte bState=STATE_WAIT_FOR_I_FRAME;
-        int retryCount=0;
         
         if (!boolHDLCConnected)
           throw new DLMSConnectionException("HDLC connection not established!");
-        do {
-            bResult = waitForHDLCFrameStateMachine(iProtocolTimeout,rxFrame);
-            if (bResult == HDLC_RX_OK) {
-                retryCount=0;
-                hdlcFrame=decodeFrame(rxFrame);
-                if (hdlcFrame.bControl == I) {
-                    lastHDLCFrame = hdlcFrame;
-                    
-                    // Send RR frame
+        for (int retryCount = 1 ; retryCount <= (iMaxRetries+1) ; retryCount++) {
+        	byte bResult = waitForHDLCFrameStateMachine(iProtocolTimeout,rxFrame);
+            if (bResult == HDLC_RX_OK) {                
+                HDLCFrame hdlcFrame = decodeFrame(rxFrame);
+                updateNS(hdlcFrame);
+                if (hdlcFrame.bControl == I) {                   	
                     if (NR == hdlcFrame.NS) {
                     	if (hdlcFrame.InformationBuffer != null) 
                     		receiveBuffer.addArray(hdlcFrame.InformationBuffer);
-                    }
-                    else {
+                    	NR = (byte) nextSequence(NR);
+                    	if ((hdlcFrame.sFrameFormat & HDLC_FRAME_S_BIT) != 0) {
+                    		if (hdlcFrame.boolControlPFBit)
+                    			sendReceiveReady();
+                    		retryCount = 0;
+                    	} else {
+                    		return receiveBuffer.getArray();
+                    	}
+                    } else {
+                    	// send correct sequence number to
+                    	if (hdlcFrame.boolControlPFBit) {
+                    		if (NS == hdlcFrame.NR)
+                    			sendFrame(txFrame); // resend last I frame
+                    		else
+                    			sendReceiveReady();
+                    	}                    	                  
                         if (DEBUG >= 1) System.out.println("KV_DEBUG> NR != hdlcFrame.NS, received frame not added to receivebuffer...");
                     }
-                    
-                    NR = (byte)(hdlcFrame.NS+1);
-                    if (NR > 7) NR=0;
-                    
-                    // Change to compatible with Kamstrup
-                    //if ((hdlcFrame.sFrameFormat & HDLC_FRAME_S_BIT) != 0) {
-	                    sFrameFormat=(short)(protocolParameters[headerSize] | HDLC_FRAME_TYPE3);
-	                    txFrame[protocolParameters[frameFormatMSB]] = (byte)((sFrameFormat >> 8)&0x00FF);
-	                    txFrame[protocolParameters[frameFormatLSB]] = (byte)(sFrameFormat &0x00FF);
-	                    txFrame = buildAddressingScheme(txFrame);
-	                    txFrame[protocolParameters[frameControl]] = (byte)(RR | (NR<<5) | HDLC_FRAME_CONTROL_PF_BIT);
-	                    
-	                    calcCRC(txFrame);
-	                    sendFrame(txFrame);
-	                    bState=STATE_WAIT_FOR_RR_FRAME;
-                    //}
-                }
-                else if (hdlcFrame.bControl == RR) {
-                    bState=STATE_WAIT_FOR_I_FRAME;
-                }
-                else if (hdlcFrame.bControl == DM) {
-                    bState=STATE_WAIT_FOR_I_FRAME;
-                }
-                else {
-                    bState=STATE_WAIT_FOR_I_FRAME;
+                } else if (hdlcFrame.bControl == RR) {
+                    // received RR frame , expected I frame
+                	if (hdlcFrame.boolControlPFBit) {                	
+                		if (NS == hdlcFrame.NR)
+                			sendFrame(txFrame); // resend last I frame
+                		else
+                			sendReceiveReady();
+                	}
+                } else {
+                	// invalid frame type 
                     throw new DLMSConnectionException("ERROR receiving data, should receive an I or RR frame.");   
-                }
-                
-            } // if (waitForHDLCFrameStateMachine(iProtocolTimeout,rxFrame) == HDLC_RX_OK)
-            // KV 17112004 changed
-            else {
-                // if initial frame was I frame (hdlsFrame == null) or retries reached max, bubble up to sendRequest method and resend I frame
-                // else send txframe again
-                if (retryCount++ >= iMaxRetries-1) {
-                    throw new DLMSConnectionException("receiveInformationField> ERROR receiving data.",(short)((short)bResult&0x00FF));
-                }
-                sendFrame(txFrame);
-                bState=STATE_WAIT_FOR_RR_FRAME; 
+                }                
+            } else {
+                sendFrame(txFrame);                
             }
+        }
+        throw new DLMSConnectionException("receiveInformationField> Retry count exceeded when receiving data");        
+    }
 
-        } while (((bState==STATE_WAIT_FOR_RR_FRAME) ||
-        		(hdlcFrame.sFrameFormat & HDLC_FRAME_S_BIT) != 0) ||
-                 (hdlcFrame.bControl == DM)); 
-
-
-        return (receiveBuffer.getArray());
-
-    } // public byte[] receiveInformationField() throws DLMSConnectionException
-
+    private boolean updateNS(HDLCFrame frame) {
+    	if (nextSequence(NS) == frame.NR) {
+    		NS = frame.NR;
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+    
+	private void sendReceiveReady() throws IOException , DLMSConnectionException {
+		short sFrameFormat;
+		sFrameFormat=(short)(protocolParameters[headerSize] | HDLC_FRAME_TYPE3);
+		txFrame[protocolParameters[frameFormatMSB]] = (byte)((sFrameFormat >> 8)&0x00FF);
+		txFrame[protocolParameters[frameFormatLSB]] = (byte)(sFrameFormat &0x00FF);
+		txFrame = buildAddressingScheme(txFrame);
+		txFrame[protocolParameters[frameControl]] = (byte)(RR | (NR<<5) | HDLC_FRAME_CONTROL_PF_BIT);             
+		calcCRC(txFrame);
+		sendFrame(txFrame);         
+    }
+	
 
     private int[] getCRC(byte[] byteBuffer)
     {
@@ -1177,6 +1071,10 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
 
     } // private unsigned short CalcCRC()
 
+    private int nextSequence(int in) {
+    	return (in + 1) % 8; 
+    }
+    
     // KV 18092003
     protected HHUSignOn hhuSignOn=null;
     protected String meterId="";
@@ -1188,6 +1086,35 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
         return hhuSignOn;   
     }
     
+    private void print(byte cntrl , boolean out) {
+ 	   String frameDescription = "?";
+ 	   int NR = (cntrl & 0xFF) >> 5;
+ 	   int NS = (cntrl & 0x0F) >> 1;
+ 	   
+ 	   if ((cntrl & 0x01) == 0x00)
+ 		   frameDescription = "I (" + NR + "/" + NS + ")";
+ 	   if ((cntrl & 0x0F) == 0x01)
+ 		   frameDescription = "RR (" + NR + ")";
+ 	   if ((cntrl & 0x0F) == 0x05)
+ 		   frameDescription = "RNR (" + NR + ")";
+ 	   if ((cntrl & 0x8F) == 0x83)
+ 		   frameDescription = "SNRM";
+ 	   if ((cntrl & 0x4F) == 0x43)
+ 		   frameDescription = "DISC";
+ 	   if ((cntrl & 0x6F) == 0x63)
+ 		   frameDescription = "UA";
+ 	   if ((cntrl & 0x0F) == 0x0F)
+ 		   frameDescription = "DM";
+ 	   if ((cntrl & 0x8F) == 0x87)
+ 		   frameDescription = "FRMR";
+ 	   if ((cntrl & 0x8F) == 0x87)
+ 		   frameDescription = "FRMR";
+ 	   if (out)
+ 		   System.out.println("==> " + frameDescription);
+         else
+            System.out.println("<== " + frameDescription);
+    }
+ 	
     static class HDLCFrame {
        public HDLCFrame(byte[] byteReceiveBuffer) throws DLMSConnectionException
        {
@@ -1250,6 +1177,9 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
  
        }
 
+       
+    		   
+       
        public short sLength;
        public byte bFrameType;
        public byte bControl;
