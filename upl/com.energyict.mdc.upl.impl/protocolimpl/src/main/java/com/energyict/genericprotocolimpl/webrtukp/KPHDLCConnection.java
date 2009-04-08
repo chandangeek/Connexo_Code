@@ -6,9 +6,9 @@ import java.io.OutputStream;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.protocolimpl.dlms.HDLCConnection;
+import com.energyict.protocolimpl.dlms.HDLC2Connection;
 
-public class KPHDLCConnection extends HDLCConnection{
+public class KPHDLCConnection extends HDLC2Connection{
 
 
 	
