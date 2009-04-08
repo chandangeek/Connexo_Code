@@ -132,7 +132,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Prot
             cosemObjectFactory = new CosemObjectFactory(this);
             storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
             if (connectionMode == 0)
-                dlmsConnection=new KPHDLCConnection(inputStream,outputStream,hDLCTimeoutProperty,100,protocolRetriesProperty,clientMacAddress,serverLowerMacAddress,serverUpperMacAddress,addressingMode,informationFieldSize);
+                dlmsConnection=new Z3HDLCConnection(inputStream,outputStream,hDLCTimeoutProperty,100,protocolRetriesProperty,clientMacAddress,serverLowerMacAddress,serverUpperMacAddress,addressingMode,informationFieldSize);
             else
                 dlmsConnection=new TCPIPConnection(inputStream,outputStream,hDLCTimeoutProperty,100,protocolRetriesProperty,clientMacAddress,serverLowerMacAddress);
             
