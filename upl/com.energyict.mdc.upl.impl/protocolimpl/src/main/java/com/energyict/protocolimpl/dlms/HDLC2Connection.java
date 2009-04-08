@@ -156,7 +156,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
     public static final byte CLIENT_ADDRESSING_1BYTE=1;
     public static final byte CLIENT_ADDRESSING_2BYTE=2;
     public static final byte CLIENT_ADDRESSING_4BYTE=4;
-    private static byte bAddressingMode = 1;
+    private byte bAddressingMode = 1;
 
     private byte ISIZE=(byte)0x80;
     
@@ -1115,7 +1115,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
             System.out.println("<== " + frameDescription);
     }
  	
-    static class HDLCFrame {
+    class HDLCFrame {
        public HDLCFrame(byte[] byteReceiveBuffer) throws DLMSConnectionException
        {
           int i;
