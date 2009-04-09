@@ -36,4 +36,8 @@ public class DLMSConnectionException extends Exception
       this.sReason = sReason;
 
   } // public DLMSConnectionException(String str)
+  
+  public DLMSConnectionException(Throwable ex) {
+	  super(ex);
+  }
 }
