@@ -702,7 +702,11 @@ public class MessageExecutor extends GenericMessageExecutor{
 									}break;
 									case 2 :{ // ACTION
 										GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
-										gi.invoke();
+										if(to.getData().equalsIgnoreCase("")){
+											gi.invoke();
+										} else {
+											gi.invoke(ParseUtils.hexStringToByteArray(to.getData()));
+										}
 										to.setResult("OK");
 										hasWritten = true;
 									}break;
