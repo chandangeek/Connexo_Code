@@ -180,10 +180,14 @@ public class MbusDevice implements GenericProtocol, Messaging{
 				rr = it.next();
 				oc = rr.getRtuRegisterSpec().getObisCode();
 				rv = readRegister(adjustToMbusChannelObisCode(oc));
-				rv.setRtuRegisterId(rr.getId());
-				
-				if(rr.getReadingAt(rv.getReadTime()) == null){
-					getWebRTU().getStoreObject().add(rr, rv);
+				if(rv != null){
+					rv.setRtuRegisterId(rr.getId());
+					
+					if(rr.getReadingAt(rv.getReadTime()) == null){
+						getWebRTU().getStoreObject().add(rr, rv);
+					}
+				} else {
+					getLogger().log(Level.INFO, "Obiscode " + oc + " is not supported.");
 				}
 			}
 		} catch (IOException e) {
