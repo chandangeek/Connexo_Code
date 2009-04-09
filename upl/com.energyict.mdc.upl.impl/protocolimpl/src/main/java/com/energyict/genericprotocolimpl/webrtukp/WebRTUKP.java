@@ -79,9 +79,7 @@ import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.messaging.Messaging;
-import com.energyict.protocolimpl.dlms.DLMSCache;
-import com.energyict.protocolimpl.dlms.RtuDLMS;
-import com.energyict.protocolimpl.dlms.RtuDLMSCache;
+import com.energyict.protocolimpl.dlms.*;
 
 /**
  * 
@@ -313,7 +311,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		
 		this.dlmsConnection = (this.connectionMode == 0)?
 //					new TempHDLCConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode):
-					new KPHDLCConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode,this.informationFieldSize):
+					new HDLC2Connection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode,this.informationFieldSize,5):
 					new TCPIPConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress);
 		
 					
