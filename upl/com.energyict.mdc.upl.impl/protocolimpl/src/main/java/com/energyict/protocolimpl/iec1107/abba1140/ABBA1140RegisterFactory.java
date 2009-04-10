@@ -87,6 +87,7 @@ public class ABBA1140RegisterFactory {
     private ABBA1140Register timeOfUse5;
     private ABBA1140Register timeOfUse6;
     private ABBA1140Register timeOfUse7;
+	private ABBA1140Register loadProfileDSTConfig;
     
     /**
      * Creates a new instance of ABBA1140RegisterFactory
@@ -437,6 +438,8 @@ public class ABBA1140RegisterFactory {
         
         endOfBillingPeriod = cr("655", "EndOfBillingPeriod", ABBA1140RegisterData.ABBA_HEX, 0, 1, null, ABBA1140Register.WRITEABLE, ABBA1140Register.NOT_CACHED);
         
+        loadProfileDSTConfig = cr("778", "LoadProfileDSTConfig", ABBA1140RegisterData.ABBA_HEX,0,1, null);
+
     }
     
     /** factory method for ABBARegisters */
@@ -614,4 +617,7 @@ public class ABBA1140RegisterFactory {
 		return abba1140;
 	}
     
+	public ABBA1140Register getLoadProfileDSTConfig() {
+		return loadProfileDSTConfig;
+	}
 }

@@ -132,14 +132,16 @@ public class ABBA1140DataIdentityFactory {
         // TOU registers
         add("508", 64,ABBA1140DataIdentity.NOT_STREAMEABLE);
         // Historical values
-        add("543", 457, 24 ,ABBA1140DataIdentity.STREAMEABLE);  //JME: Changed highest billingpoint from 15 to 24 (new firmware stores 24 historical values)
+        add("543", 457, 24 ,ABBA1140DataIdentity.STREAMEABLE);
         // Daily historical values
-        add("545", 457, 14,ABBA1140DataIdentity.STREAMEABLE);	//JME: New data entity: 14 daily historical values (0 to 13) // FIXME: NOG TE TESTEN !!!
+        add("545", 457, 14,ABBA1140DataIdentity.STREAMEABLE);
         // Configure Load Profile Read By Date
         add("554", 8, ABBA1140DataIdentity.NOT_STREAMEABLE );
         
         // Load profile configure data
         add("655", 1,ABBA1140DataIdentity.NOT_STREAMEABLE);
+
+        add("778", 1, ABBA1140DataIdentity.NOT_STREAMEABLE );
 
 
     }

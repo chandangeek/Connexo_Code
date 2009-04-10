@@ -58,17 +58,21 @@ public class ABBA1140Profile {
     
     private final ABBA1140RegisterFactory rFactory;
     private final ProtocolLink protocolLink;
-    private final TimeZone timeZone;
+    private final TimeZone adjustedTimeZone;
     // configuration of the meter
     private LoadProfileConfigRegister meterConfig;
     private Date meterTime = null;
     /** integration period in seconds */
     private int integrationPeriod;
     
-    ABBA1140Profile(ProtocolLink protocolLink,ABBA1140RegisterFactory abba1140RegisterFactory) {
+    ABBA1140Profile(ProtocolLink protocolLink,ABBA1140RegisterFactory abba1140RegisterFactory) throws IOException {
         this.protocolLink = protocolLink;
-        this.timeZone = protocolLink.getTimeZone();
         this.rFactory = abba1140RegisterFactory;
+        long val = ((Long)rFactory.getRegister("LoadProfileDSTConfig")).longValue();
+        if ((val&0x01)==0)
+        	adjustedTimeZone = ProtocolUtils.getWinterTimeZone(protocolLink.getTimeZone());
+        else
+        	adjustedTimeZone = protocolLink.getTimeZone();
     }
     
     /** Retrieve the load profile between from and to date.
@@ -219,13 +223,13 @@ public class ABBA1140Profile {
                 interval = new Interval( createDate(current.getTime()) );
             }
             
-            if (DEBUG>=1) System.out.println(current.toString(timeZone,e4Dst));
+            if (DEBUG>=1) System.out.println(current.toString(getAdjustedTimeZone(),e4Dst));
             if (DEBUG>=1) System.out.println(interval.toString());
             
             // The opposite check is not possible since the meter local tim
             // dst behaviour can be set NOT to follow DST while
             // the profile data has it's dst flag set.
-            if ((timeZone.useDaylightTime()) && !e4Dst) {
+            if ((getAdjustedTimeZone().useDaylightTime()) && !e4Dst) {
                 String msg =
                         "ABBA1140Profile, parse, configured timezone expects " +
                         "profiledata to follow DST, correct first!";
@@ -325,7 +329,7 @@ public class ABBA1140Profile {
                     break;
             }
             if( eiCode != -1 && protocolCode != -1 ) {
-                Date date = ProtocolUtils.getCalendar(timeZone,profileEntry.getTime()).getTime();
+                Date date = ProtocolUtils.getCalendar(getAdjustedTimeZone(),profileEntry.getTime()).getTime();
                 MeterEvent me = new MeterEvent(date,eiCode,protocolCode);
                 profileData.addEvent( me );
             }
@@ -334,7 +338,7 @@ public class ABBA1140Profile {
     }
     
     Date createDate(long seconds){
-        return ProtocolUtils.getCalendar(timeZone, seconds).getTime();
+        return ProtocolUtils.getCalendar(getAdjustedTimeZone(), seconds).getTime();
     }
     
     private static final int METER_TRANSIENT_RESET=0x01;
@@ -426,7 +430,7 @@ public class ABBA1140Profile {
         boolean timeChange = false;
         
         Interval(long seconds){
-            Calendar startC = ProtocolUtils.getCalendar(timeZone, seconds);
+            Calendar startC = ProtocolUtils.getCalendar(getAdjustedTimeZone(), seconds);
             this.startTime = startC.getTime();
             this.endTime = new Date( ((startTime.getTime()/1000) + integrationPeriod)*1000 );
             this.key = startC;
@@ -435,7 +439,7 @@ public class ABBA1140Profile {
         Interval(Date startTime) {
             this.startTime = startTime;
             this.endTime = new Date( ((startTime.getTime()/1000) + integrationPeriod)*1000 );
-            this.key = ProtocolUtils.getCalendar(timeZone);
+            this.key = ProtocolUtils.getCalendar(getAdjustedTimeZone());
             this.key.setTime(startTime);
         }
         
@@ -531,5 +535,9 @@ public class ABBA1140Profile {
         }
         
     }
-    
+
+    public TimeZone getAdjustedTimeZone() {
+		return adjustedTimeZone;
+	}
+
 }

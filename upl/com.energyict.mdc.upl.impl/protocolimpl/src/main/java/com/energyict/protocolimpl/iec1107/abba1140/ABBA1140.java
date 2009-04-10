@@ -23,6 +23,7 @@
  * 							- Time of billing point registers: Increased from 0-14 to 0-37 and added billing trigger source as registertext 
  * 						* Implemented message protocol with the following messages:
  * 							- Billing reset message
+ * JME	10042009	Merged fix from ABBA230 to ABBA1140 profile, to adjust GMT profile timestamps to correct timezone.
  *@endchanges
  */
 
