@@ -54,7 +54,6 @@ import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.dlms.cosem.Limiter.EmergencyProfile;
 import com.energyict.dlms.cosem.Limiter.ValueDefinitionType;
 import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
@@ -74,6 +73,13 @@ import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.RtuMessageShadow;
 
+/**
+ * 
+ * @author gna
+ * @beginChanges
+ * GNA |15042009| The dataField in the TestMessage has a '0x' prefix for better visualization.
+ * @endChanges
+ */
 public class MessageExecutor extends GenericMessageExecutor{
 	
 	private WebRTUKP webRtu;
@@ -691,7 +697,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 									switch(csvParser.getTestObject(i).getType()){
 									case 0 :{ // GET
 										GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), DLMSUtils.attrLN2SN(to.getAttribute()), to.getClassId());
-										to.setResult(ParseUtils.decimalByteToString(gr.getResponseData()));
+										to.setResult("0x"+ParseUtils.decimalByteToString(gr.getResponseData()));
 										hasWritten = true;
 									}break;
 									case 1 :{ // SET
