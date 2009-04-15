@@ -66,7 +66,7 @@ public class TestObject {
 	
 	public String getData(){
 		if(validData()){
-			return this.testRow[DATA];
+			return returnData();
 		} else {
 			if(this.testRow[DATA].indexOf("\"") != -1){
 				int offset = 0;
@@ -84,6 +84,14 @@ public class TestObject {
 				this.testRow[DATA] = new String(trimByteArray(result));
 			}
 			setValidData();
+			return returnData();
+		}
+	}
+	
+	private String returnData(){
+		if(this.testRow[DATA].indexOf("0x") != -1){
+			return this.testRow[DATA].substring(this.testRow[DATA].indexOf("0x")+2);
+		} else {
 			return this.testRow[DATA];
 		}
 	}
