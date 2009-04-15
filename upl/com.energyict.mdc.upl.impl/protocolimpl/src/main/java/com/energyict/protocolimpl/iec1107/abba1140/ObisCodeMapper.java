@@ -144,13 +144,18 @@ public class ObisCodeMapper {
                 registerValue = new RegisterValue(obisCode,schemeId);
                 return registerValue;
             } else return new RegisterInfo("SchemeID");
-        }
-        else if (obisCode.toString().indexOf("0.0.96.1.0.255") != -1) { // Serial number
+        } else if (obisCode.toString().indexOf("0.0.96.1.0.255") != -1) { // Serial number
             if (read) {
             	String sn = (String) rFactory.getRegister("SerialNumber");
                 registerValue = new RegisterValue(obisCode,sn);
                 return registerValue;
             } else return new RegisterInfo("SerialNumber");
+        } else if (obisCode.toString().indexOf("1.1.0.2.0.255") != -1) { // Serial number
+            if (read) {
+            	String fw = getRFactory().getAbba1140().getFirmwareVersion();
+                registerValue = new RegisterValue(obisCode,fw);
+                return registerValue;
+            } else return new RegisterInfo("Device info and firmware version");
         }
         
         // *********************************************************************************
@@ -333,4 +338,7 @@ public class ObisCodeMapper {
 		}
 	}
     
+	public ABBA1140RegisterFactory getRFactory() {
+		return rFactory;
+	}
 }

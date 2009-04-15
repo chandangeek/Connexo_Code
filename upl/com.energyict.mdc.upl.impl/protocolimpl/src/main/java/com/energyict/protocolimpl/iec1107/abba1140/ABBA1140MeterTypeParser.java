@@ -102,10 +102,10 @@ public class ABBA1140MeterTypeParser {
 	
 	public String toString() {
 		String returnValue = 
-			"Device name: " + getDeviceType() + 
-			" " + getFixedId() + 
-			"." + getMeterVariant() + 
-			"v" + getMeterVersion();
+			getDeviceType() + " " + 
+			getFixedId() + "." + 
+			getMeterVariant() +	"v" + 
+			getMeterVersion();
 		return returnValue;
 	}
 }
