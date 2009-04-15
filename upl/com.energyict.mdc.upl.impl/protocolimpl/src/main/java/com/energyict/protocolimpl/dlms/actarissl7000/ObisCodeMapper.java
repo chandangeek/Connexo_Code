@@ -10,6 +10,7 @@ import java.io.*;
 import java.math.BigDecimal;
 
 import com.energyict.obis.*;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.NoSuchRegisterException;
@@ -34,12 +35,16 @@ public class ObisCodeMapper {
         
     }
     
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+    static public RegisterInfo getRegisterInfo(ObisCode obisCode) {
+			return new RegisterInfo(obisCode.getDescription());
     }
     
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
-        return (RegisterValue)doGetRegister(obisCode);
+        try {
+        	return (RegisterValue)doGetRegister(obisCode);
+		} catch (Exception e) {
+			throw new NoSuchRegisterException("Problems while reading " + obisCode + ": " + e.getMessage());
+		}
     }
     
     private Object doGetRegister(ObisCode obisCode) throws IOException {
@@ -79,16 +84,24 @@ public class ObisCodeMapper {
             if (cosemObject==null)
                 throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!"); 
 
-            Date captureTime = cosemObject.getCaptureTime();
-            Date billingDate = cosemObject.getBillingDate();
-            registerValue = new RegisterValue(obisCode,
-                                              cosemObject.getQuantityValue(),
+            Date captureTime = null;
+            Date billingDate = null;
+            Quantity quantityValue = null;
+            String textValue = null;
+            
+            try {captureTime = cosemObject.getCaptureTime();} catch (Exception e) {}
+            try {billingDate = cosemObject.getBillingDate();} catch (Exception e) {}
+            try {quantityValue = cosemObject.getQuantityValue();} catch (Exception e) {}
+            try {textValue = cosemObject.getText();} catch (Exception e) {}
+
+			registerValue = new RegisterValue(obisCode,
+                                              quantityValue,
                                               captureTime==null?billingDate:captureTime,
                                               null,
-                                              cosemObject.getBillingDate(),
+                                              billingDate,
                                               new Date(),
                                               0,
-                                              cosemObject.getText());
+                                              textValue);
             return registerValue;
         }
         

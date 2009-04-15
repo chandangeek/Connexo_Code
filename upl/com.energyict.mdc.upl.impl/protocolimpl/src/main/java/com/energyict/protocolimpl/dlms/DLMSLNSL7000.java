@@ -18,6 +18,7 @@
 	KV|23032005|Changed header to be compatible with protocol version tool
 	KV|31032005|Handle DataContainerException
 	GN|25042008|Missing hour values with a profileInterval of 10min
+	JM|15042009|Made readRegister more robust to prevent exceptions to interrupt meter readout communication.  
  * @endchanges
  */
 package com.energyict.protocolimpl.dlms;  
