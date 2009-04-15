@@ -24,6 +24,7 @@
  * 						* Implemented message protocol with the following messages:
  * 							- Billing reset message
  * JME	10042009	Merged fix from ABBA230 to ABBA1140 profile, to adjust GMT profile timestamps to correct timezone.
+ * JME	15042009	Mapped firmware version and device type to obiscode 1.1.0.2.0.255
  *@endchanges
  */
 
