@@ -152,7 +152,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
                 dlmsConnection=new TCPIPConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
         }
         catch(DLMSConnectionException e) {
-            //logger.severe ("DLMS: init(...), "+e.getMessage());
+            //logger.severe ("DLMSSN init(...), "+e.getMessage());
             throw new IOException(e.getMessage());
         }
         
@@ -228,7 +228,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
                         }
                         catch(IOException e) {
                             iConf=-1;
-                            logger.severe("DLMS: Configuration change count not accessible, request object list.");
+                            logger.severe("DLMSSN Configuration change count not accessible, request object list.");
                             requestObjectList();
                             dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
                         }
@@ -238,14 +238,14 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
                         //System.out.println("!!!!!!!!!! DEBUGGING CODE FORCED DLMS CACHE UPDATE !!!!!!!!!!");
                         //if (true) {
                         // ****************************************************************************   
-                            logger.severe("DLMS: Configuration changed, request object list.");
+                            logger.severe("DLMSSN Configuration changed, request object list.");
                             requestObjectList();           // request object list again from rtu
                             dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
                             dlmsCache.setConfProgChange(iConf);  // set new configuration program change
                         }
                     }
                     else { // Cache not exist
-                        logger.info("DLMS: Cache does not exist, request object list.");
+                        logger.info("DLMSSN Cache does not exist, request object list.");
                         requestObjectList();
                         try {
                             iConf = requestConfigurationProgramChanges();
@@ -961,14 +961,14 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
 
     private void requestClockObject() {
         if (iRequestClockObject == 1) {
-            try{logger.severe("DLMS: Clock time                       : "+getTime());}catch(IOException e){logger.severe("time attribute error");}
-            //try{logger.severe ("DLMS: Clock time_zone                  : "+requestTimeZone());}catch(IOException e){logger.severe ("time_zone attribute error");}
-            try{logger.severe("DLMS: Clock time_zone                  : "+requestAttributeLong(meterConfig.getClockSN(),TIME_TIME_ZONE));}catch(IOException e){logger.severe("time_zone attribute error");}
-            try{logger.severe("DLMS: Clock status                     : "+requestAttributeLong(meterConfig.getClockSN(),TIME_STATUS));}catch(IOException e){logger.severe("status attribute error");}
-            try{logger.severe("DLMS: Clock daylight_savings_begin     : "+requestAttributeString(meterConfig.getClockSN(),TIME_DS_BEGIN));}catch(IOException e){logger.severe("DS begin attribute error");}
-            try{logger.severe("DLMS: Clock daylight_savings_end       : "+requestAttributeString(meterConfig.getClockSN(),TIME_DS_END));}catch(IOException e){logger.severe("DS end attribute error");}
-            try{logger.severe("DLMS: Clock daylight_savings_deviation : "+requestAttributeLong(meterConfig.getClockSN(),TIME_DS_DEVIATION));}catch(IOException e){logger.severe("DS deviation attribute error");}
-            try{logger.severe("DLMS: Clock daylight_saving_enabled    : "+requestDaylightSavingEnabled());}catch(IOException e){logger.severe("DS enebled attribute error");}
+            try{logger.severe("DLMSSN Clock time                       : "+getTime());}catch(IOException e){logger.severe("time attribute error");}
+            //try{logger.severe ("DLMSSN Clock time_zone                  : "+requestTimeZone());}catch(IOException e){logger.severe ("time_zone attribute error");}
+            try{logger.severe("DLMSSN Clock time_zone                  : "+requestAttributeLong(meterConfig.getClockSN(),TIME_TIME_ZONE));}catch(IOException e){logger.severe("time_zone attribute error");}
+            try{logger.severe("DLMSSN Clock status                     : "+requestAttributeLong(meterConfig.getClockSN(),TIME_STATUS));}catch(IOException e){logger.severe("status attribute error");}
+            try{logger.severe("DLMSSN Clock daylight_savings_begin     : "+requestAttributeString(meterConfig.getClockSN(),TIME_DS_BEGIN));}catch(IOException e){logger.severe("DS begin attribute error");}
+            try{logger.severe("DLMSSN Clock daylight_savings_end       : "+requestAttributeString(meterConfig.getClockSN(),TIME_DS_END));}catch(IOException e){logger.severe("DS end attribute error");}
+            try{logger.severe("DLMSSN Clock daylight_savings_deviation : "+requestAttributeLong(meterConfig.getClockSN(),TIME_DS_DEVIATION));}catch(IOException e){logger.severe("DS deviation attribute error");}
+            try{logger.severe("DLMSSN Clock daylight_saving_enabled    : "+requestDaylightSavingEnabled());}catch(IOException e){logger.severe("DS enebled attribute error");}
 
         } // if (iRequestClockObject == 1)
 
