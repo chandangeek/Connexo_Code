@@ -256,14 +256,15 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 			
 //			GenericCache.stopCacheMechanism(getMeter(), dlmsCache);
 
-			// This cacheobject is supported by the 7.5
-			updateCache(getMeter().getId(), dlmsCache);
-			
-			Environment.getDefault().execute(getStoreObject());
 			if(success){
 				disConnect();
 				getLogger().info("Meter " + this.serialNumber + " has completely finished.");
 			}
+			
+			// This cacheobject is supported by the 7.5
+			updateCache(getMeter().getId(), dlmsCache);
+			
+			Environment.getDefault().execute(getStoreObject());
 		}
 	}
 	
