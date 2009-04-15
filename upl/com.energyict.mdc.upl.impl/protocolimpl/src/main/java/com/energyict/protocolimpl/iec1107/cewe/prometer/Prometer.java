@@ -384,6 +384,8 @@ public class Prometer extends AbstractProtocol  {
     };
     
     ProRegister rBillingMD [][] = null;
+
+	private boolean software7E1;
     {
         rBillingMD = new ProRegister[billingMD.length][];
         for( int row = 0; row < billingMD.length; row ++ ) {
@@ -482,7 +484,7 @@ public class Prometer extends AbstractProtocol  {
             
             connection= 
                 new IEC1107Connection( iStream,oStream,pTimeout,pRetries,
-                        pForcedDelay,pEchoCancelling,pCompatible,"[");
+                        pForcedDelay,pEchoCancelling,pCompatible,"[", software7E1);
             
             obisCodeMapper = new ObisCodeMapper(this);
             
@@ -534,7 +536,9 @@ public class Prometer extends AbstractProtocol  {
     
     /** @see AbstractProtocol#doGetOptionalKeys() */
     protected List doGetOptionalKeys() {
-        return  new ArrayList();
+        List result = new ArrayList();
+        result.add("Software7E1");
+        return result;
     }
     
     /** @see AbstractProtocol#doValidateProperties(java.util.Properties) */
@@ -546,7 +550,8 @@ public class Prometer extends AbstractProtocol  {
      
         v = p.getProperty(PK_LOGGER);
         pLogger = (v == null) ? PD_LOGGER : Integer.parseInt(v);
-        
+        this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+
     }
     
     /** @see AbstractProtocol#getTime() */

@@ -371,6 +371,8 @@ public class CewePrometer extends AbstractProtocol  {
     ProRegister rEventLogReadOffset = new ProRegister(this, "102100", false);
     ProRegister rEventLogNextEvent = new ProRegister(this, "102200", false);
 
+	private boolean software7E1;
+
     /* TOU-registers select */
     
     /** TOU-registers select 00: active energy imp. */
@@ -489,7 +491,7 @@ public class CewePrometer extends AbstractProtocol  {
             
             connection= 
                 new IEC1107Connection( iStream,oStream,pTimeout,pRetries,
-                        pForcedDelay,pEchoCancelling,pCompatible,"ER:");
+                        pForcedDelay,pEchoCancelling,pCompatible,"ER:", software7E1);
             
             obisCodeMapper = new ObisCodeMapper(this);
             eventParser = new EventParser(this);
@@ -556,6 +558,7 @@ public class CewePrometer extends AbstractProtocol  {
         ArrayList result = new ArrayList();
         result.add( PK_LOGGER );
         result.add( MeterProtocol.PASSWORD );
+        result.add("Software7E1");
         return result;
     }
     
@@ -568,7 +571,8 @@ public class CewePrometer extends AbstractProtocol  {
      
         v = p.getProperty(PK_LOGGER);
         pLogger = (v == null) ? PD_LOGGER : Integer.parseInt(v);
-        
+        this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+
     }
     
     /** @see AbstractProtocol#getTime() */

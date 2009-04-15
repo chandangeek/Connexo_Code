@@ -25,6 +25,7 @@ import com.energyict.protocolimpl.base.*;
  *      KV 27102004 Make more robust against marginal comminication quality
  *      KV 10122004 Add IEC1107Compatible > 1 as special feature to control baudrate on a E600 meter...
  *      KV 21122004 Cearify exception messages and add state to control NAK
+ *      JM 15042009 Generalized the Software7E1 for all IEC1107 protocols
  */
 public class IEC1107Connection extends Connection implements ProtocolConnection {
     
@@ -80,12 +81,13 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
     private int state=STATE_SIGNON;
     public int checksumMethod=0;
     private boolean readoutEnabled = false;
+	private boolean software7E1 = false;
     
     //public IEC1107Connection(InputStream inputStream, OutputStream outputStream, int iTimeout, int iMaxRetries, long lForceDelay, int iEchoCancelling, int iIEC1107Compatible) throws ConnectionException {
     //      this(inputStream,outputStream,iTimeout,iMaxRetries,lForceDelay,iEchoCancelling,iIEC1107Compatible,null,null);
     //}
-    public IEC1107Connection(InputStream inputStream, OutputStream outputStream, int iTimeout, int iMaxRetries, long lForceDelay, int iEchoCancelling, int iIEC1107Compatible, String errorSignature) throws ConnectionException {
-        this(inputStream,outputStream,iTimeout,iMaxRetries,lForceDelay,iEchoCancelling,iIEC1107Compatible,null,errorSignature);
+    public IEC1107Connection(InputStream inputStream, OutputStream outputStream, int iTimeout, int iMaxRetries, long lForceDelay, int iEchoCancelling, int iIEC1107Compatible, String errorSignature, boolean software7E1) throws ConnectionException {
+        this(inputStream,outputStream,iTimeout,iMaxRetries,lForceDelay,iEchoCancelling,iIEC1107Compatible,null,errorSignature, software7E1);
     }
     
     /**
@@ -100,8 +102,9 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
      * @param encryptor if the protocol has an encryptor to use for security level 2 password logon
      * @exception ProtocolConnectionException
      */
-    public IEC1107Connection(InputStream inputStream, OutputStream outputStream, int iTimeout, int iMaxRetries, long lForceDelay, int iEchoCancelling, int iIEC1107Compatible, Encryptor encryptor, String errorSignature) throws ConnectionException {
-        super(inputStream, outputStream, lForceDelay, iEchoCancelling);
+    public IEC1107Connection(InputStream inputStream, OutputStream outputStream, int iTimeout, int iMaxRetries, long lForceDelay, int iEchoCancelling, int iIEC1107Compatible, Encryptor encryptor, String errorSignature, boolean software7E1) throws ConnectionException {
+        super((software7E1?new Software7E1InputStream(inputStream):inputStream), 
+    			(software7E1?new Software7E1OutputStream(outputStream):outputStream), lForceDelay, iEchoCancelling);
         this.iMaxRetries = iMaxRetries;
         this.lForceDelay = lForceDelay;
         this.iEchoCancelling = iEchoCancelling;
@@ -110,6 +113,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
         iProtocolTimeout=iTimeout;
         boolFlagIEC1107Connected=false;
         this.errorSignature=errorSignature;
+        this.software7E1  = software7E1;
     } // public FlagIEC1107Connection(...)
     
     /**

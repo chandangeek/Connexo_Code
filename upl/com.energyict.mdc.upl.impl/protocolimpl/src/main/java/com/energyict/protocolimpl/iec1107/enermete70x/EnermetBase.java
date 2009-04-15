@@ -31,6 +31,7 @@ abstract public class EnermetBase extends AbstractProtocol {
     IEC1107Connection iec1107Connection=null;
     DataReadingCommandFactory dataReadingCommandFactory=null;
     EnermetLoadProfile enermetLoadProfile=null;
+    private boolean software7E1;
     
     abstract protected RegisterConfig getRegs();
     
@@ -62,16 +63,19 @@ abstract public class EnermetBase extends AbstractProtocol {
     }
     
     protected List doGetOptionalKeys() {
-        return null;
+        List result = new ArrayList();
+        result.add("Software7E1");
+        return result;
     }
     
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
-        iec1107Connection=new IEC1107Connection(inputStream,outputStream,timeoutProperty,protocolRetriesProperty,forcedDelay,echoCancelling,protocolCompatible,encryptor,ERROR_SIGNATURE);
+        iec1107Connection=new IEC1107Connection(inputStream,outputStream,timeoutProperty,protocolRetriesProperty,forcedDelay,echoCancelling,protocolCompatible,encryptor,ERROR_SIGNATURE, software7E1);
         enermetLoadProfile = new EnermetLoadProfile(this);
         return iec1107Connection;
     }
     
     protected void doValidateProperties(Properties properties) throws com.energyict.protocol.MissingPropertyException, com.energyict.protocol.InvalidPropertyException {
+        this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
