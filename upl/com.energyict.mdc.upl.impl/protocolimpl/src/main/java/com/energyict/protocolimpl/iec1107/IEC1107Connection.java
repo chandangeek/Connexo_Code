@@ -82,6 +82,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
     public int checksumMethod=0;
     private boolean readoutEnabled = false;
 	private boolean software7E1 = false;
+    private boolean noBreakRetry = false;
     
     //public IEC1107Connection(InputStream inputStream, OutputStream outputStream, int iTimeout, int iMaxRetries, long lForceDelay, int iEchoCancelling, int iIEC1107Compatible) throws ConnectionException {
     //      this(inputStream,outputStream,iTimeout,iMaxRetries,lForceDelay,iEchoCancelling,iIEC1107Compatible,null,null);
@@ -253,6 +254,8 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
     private void prepareAuthentication(String strPass) throws NestedIOException,ProtocolConnectionException {
         int iRetries=0;
         
+        if (isNoBreakRetry()) iRetries = iMaxRetries - 1;
+        
         while(true) {
             String pwd = (strPass!=null) ? strPass : "";
             try {
@@ -289,8 +292,10 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                 else if (iRetries++ >=iMaxRetries)
                     throw new ProtocolConnectionException("Authentication error! Possibly wrong password! (error iMaxRetries), "+e.getMessage());
                 else {
-                    sendBreak();
-                    delay(DELAY_AFTER_BREAK);
+                	if (!isNoBreakRetry()) {
+                		sendBreak();
+                		delay(DELAY_AFTER_BREAK);
+                	}
                 }
             }
             catch (IOException e) {
@@ -509,7 +514,8 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
         int iNewKar;
         byte bState=0;
         
-        lMSTimeout = System.currentTimeMillis() + iProtocolTimeout;
+        if (isNoBreakRetry()) lMSTimeout = System.currentTimeMillis() + 5000;
+        else lMSTimeout = System.currentTimeMillis() + iProtocolTimeout;
         
         copyEchoBuffer();
         
@@ -941,5 +947,15 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
         return (byte)checksum;
     }
     
+    public void setNoBreakRetry(boolean noBreakRetry) {
+		this.noBreakRetry = noBreakRetry;
+	}
+    public boolean isNoBreakRetry() {
+		return noBreakRetry;
+	}
+    
+    public void setBoolFlagIEC1107Connected(boolean boolFlagIEC1107Connected) {
+		this.boolFlagIEC1107Connected = boolFlagIEC1107Connected;
+	}
     
 } // public class FlagIEC1107Connection

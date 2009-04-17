@@ -46,7 +46,7 @@ public class EnermetLoadProfile {
                     }
                     catch(ProtocolConnectionException e) {
                         //absorb ([4])
-                        if (e.getProtocolErrorCode().compareTo(enermet.COMMAND_CANNOT_BE_EXECUTED) != 0)
+                        if ((e.getProtocolErrorCode() == null) || (e.getProtocolErrorCode().compareTo(enermet.COMMAND_CANNOT_BE_EXECUTED) != 0))
                             throw e;
                         else
                             break;

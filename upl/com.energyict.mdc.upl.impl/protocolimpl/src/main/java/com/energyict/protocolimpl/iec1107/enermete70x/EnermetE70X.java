@@ -37,6 +37,7 @@ public class EnermetE70X extends EnermetBase {
     
     /** Creates a new instance of EnermetE70X */
     public EnermetE70X() {
+    	setTestE70xConnection(true);
     }
     
     protected RegisterConfig getRegs() {

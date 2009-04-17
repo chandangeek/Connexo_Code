@@ -32,6 +32,7 @@ abstract public class EnermetBase extends AbstractProtocol {
     DataReadingCommandFactory dataReadingCommandFactory=null;
     EnermetLoadProfile enermetLoadProfile=null;
     private boolean software7E1;
+    private boolean testE70xConnection = false;
     
     abstract protected RegisterConfig getRegs();
     
@@ -44,7 +45,64 @@ abstract public class EnermetBase extends AbstractProtocol {
         return getEnermetLoadProfile().getProfileData(lastReading, includeEvents);
     }
     
-    protected void doConnect() throws IOException {
+    public void connect() throws IOException {
+    	if(isTestE70xConnection()) {
+    	int logonRetries = getInfoTypeRetries();
+       
+    	try {
+            if (isRequestDataReadout()) {
+               super.setDataReadout(getProtocolConnection().dataReadout(getStrID(),getNodeId()));
+               getProtocolConnection().disconnectMAC();
+            }
+            while(logonRetries-- >= 0) {
+            	try {
+            		setMeterType(getProtocolConnection().connectMAC(getStrID(),getStrPassword(),getSecurityLevel(),getNodeId()));
+            		doConnect();
+            		testConnection();
+            		break;
+            	} catch (Exception e) {
+            		((IEC1107Connection)getProtocolConnection()).setBoolFlagIEC1107Connected(false);
+            		e.printStackTrace();
+            	}
+            	if (logonRetries < 0) throw new ProtocolConnectionException("Unable to connect to meter.");
+            }
+        }
+        catch(ProtocolConnectionException e) {
+            throw new IOException(e.getMessage());
+        }
+        
+        try {
+            validateSerialNumber();
+        }
+        catch(ProtocolConnectionException e) {
+            disconnect();
+            throw new IOException(e.getMessage());
+        }
+        
+        try {
+            validateDeviceId();
+        }
+        catch(ProtocolConnectionException e) {
+            disconnect();
+            throw new IOException(e.getMessage());
+        }
+        
+        if (getExtendedLogging() >= 1) 
+           getLogger().info(getRegistersInfo(getExtendedLogging()));
+    	} else {
+    		super.connect();
+    	}
+    }
+    
+    private void testConnection() throws Exception {
+    	try {
+    		getFirmwareVersion();
+		} catch (Exception e) {
+			throw new ProtocolConnectionException("Unable to enter programming mode. An Enermet70x meter switches to DataReadout mode after 1500ms timeout !!!");
+		}
+	}
+
+	protected void doConnect() throws IOException {
         dataReadingCommandFactory = new DataReadingCommandFactory(this);
     }
 
@@ -70,6 +128,7 @@ abstract public class EnermetBase extends AbstractProtocol {
     
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         iec1107Connection=new IEC1107Connection(inputStream,outputStream,timeoutProperty,protocolRetriesProperty,forcedDelay,echoCancelling,protocolCompatible,encryptor,ERROR_SIGNATURE, software7E1);
+        iec1107Connection.setNoBreakRetry(isTestE70xConnection());
         enermetLoadProfile = new EnermetLoadProfile(this);
         return iec1107Connection;
     }
@@ -327,6 +386,12 @@ abstract public class EnermetBase extends AbstractProtocol {
         return enermetLoadProfile;
     }
     
+    public boolean isTestE70xConnection() {
+		return testE70xConnection;
+	}
     
+    public void setTestE70xConnection(boolean testE70xConnection) {
+		this.testE70xConnection = testE70xConnection;
+	}
     
 } // class EnermetE70X

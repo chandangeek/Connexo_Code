@@ -1090,4 +1090,35 @@ public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, Ser
         this.protocolRetriesProperty = protocolRetriesProperty;
     }
     
+    public boolean isRequestDataReadout() {
+		return requestDataReadout;
+	}
+    
+    public void setDataReadout(byte[] dataReadout) {
+		this.dataReadout = dataReadout;
+	}
+    
+    public String getStrID() {
+		return strID;
+	}
+    
+    public String getNodeId() {
+		return nodeId;
+	}
+    
+    public void setMeterType(MeterType meterType) {
+		this.meterType = meterType;
+	}
+    
+    public int getExtendedLogging() {
+		return extendedLogging;
+	}
+    
+    public int getSecurityLevel() {
+		return securityLevel;
+	}
+    
+    public String getStrPassword() {
+		return strPassword;
+	}
 }
