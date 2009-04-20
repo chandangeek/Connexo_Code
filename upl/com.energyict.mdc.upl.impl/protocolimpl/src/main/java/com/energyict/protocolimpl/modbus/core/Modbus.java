@@ -14,12 +14,15 @@ import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.iec1107.abba230.TariffSaxParser;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 
 import java.io.*;
 import java.math.*;
 import java.util.*;
+
 import com.energyict.protocol.discover.Discover;
+import com.energyict.protocol.messaging.*;
 /**
  *
  * @author Koen
@@ -29,7 +32,7 @@ import com.energyict.protocol.discover.Discover;
  * 19/03/2009|JME - Added setter for InfoTypeResponseTimeout property.
  * 
  */
-abstract public class Modbus extends AbstractProtocol implements Discover {
+abstract public class Modbus extends AbstractProtocol implements Discover,MessageProtocol {
     
     abstract protected void doTheConnect() throws IOException;
     abstract protected void doTheDisConnect() throws IOException;
@@ -288,4 +291,189 @@ abstract public class Modbus extends AbstractProtocol implements Discover {
     protected void setInfoTypeResponseTimeout(int responseTimeout) {
     	this.responseTimeout = responseTimeout;
     }
+	
+    /*******************************************************************************************
+    M e s s a g e P r o t o c o l  i n t e r f a c e 
+    *******************************************************************************************/
+   // message protocol
+   public void applyMessages(List messageEntries) throws IOException {
+   }
+   
+   public String stripOffTag(String content) {
+	   return content.substring(content.indexOf(">")+1,content.lastIndexOf("<"));
+   }
+   public byte[] convertToBytesArray(int[] values) {
+	   byte[] byteArray = new byte[values.length*2];
+	   for (int i=0;i<values.length;i++) {
+		   byteArray[i*2] = (byte)(values[i]>>8); 
+		   byteArray[i*2+1] = (byte)values[i]; 	   
+	   }
+	   return byteArray;
+   }
+   
+   public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
+		try {
+			if (messageEntry.getContent().indexOf("<WriteMultipleRegisters")>=0) {
+				getLogger().info("************************* WriteMultipleRegisters *************************");
+				// e.g. HEX,0e00,2f4,D6D8
+				// e.g. DEC,3584,756,55000
+				// e.g. 0e00,2f4,D6D8
+				String content = stripOffTag(messageEntry.getContent());
+				String[] contentEntries = content.split(",");
+				if (contentEntries.length<2) {
+					getLogger().severe("Error parsing WriteMultipleRegisters message, content "+content+". Usage: [HEX or DEC,]address,val1,val2,...,valN");
+					return MessageResult.createFailed(messageEntry);
+				}
+				else {
+					int address;
+					int[] values;
+					if (contentEntries[0].compareTo("HEX")==0) {
+						if (contentEntries.length<3) {
+							getLogger().severe("Error parsing WriteMultipleRegisters message, content "+content+". Usage: [HEX or DEC,]address,val1,val2,...,valN");
+							return MessageResult.createFailed(messageEntry);
+						}
+						address = Integer.parseInt(contentEntries[1], 16);
+						values = new int[contentEntries.length-2];
+						for (int i=2;i<contentEntries.length;i++)
+							values[i-2]=Integer.parseInt(contentEntries[i],16);
+					}
+					else if (contentEntries[0].compareTo("DEC")==0) {
+						if (contentEntries.length<3) {
+							getLogger().severe("Error parsing WriteMultipleRegisters message, content "+content+". Usage: [HEX or DEC,]address,val1,val2,...,valN");
+							return MessageResult.createFailed(messageEntry);
+						}
+						address = Integer.parseInt(contentEntries[1]);
+						values = new int[contentEntries.length-2];
+						for (int i=2;i<contentEntries.length;i++)
+							values[i-2]=Integer.parseInt(contentEntries[i]);
+					}
+					else {
+						address = Integer.parseInt(contentEntries[0], 16);
+						values = new int[contentEntries.length-1];
+						for (int i=1;i<contentEntries.length;i++)
+							values[i-1]=Integer.parseInt(contentEntries[i],16);
+					}
+					getRegisterFactory().getFunctionCodeFactory().getWriteMultipleRegisters(address, values.length, convertToBytesArray(values));
+	                return MessageResult.createSuccess(messageEntry);
+				}
+				
+			}
+			else if (messageEntry.getContent().indexOf("<WriteSingleRegisters")>=0) {
+				getLogger().info("************************* WriteSingleRegisters *************************");
+				// e.g. HEX,0e00,2f4
+				// e.g. DEC,3584,756
+				// e.g. 0e00,2f4
+				String content = stripOffTag(messageEntry.getContent());
+				String[] contentEntries = content.split(",");
+				if (contentEntries.length<2) {
+					getLogger().severe("Error parsing WriteSingleRegisters message, content "+content+". Usage: [HEX or DEC,]address,value");
+					return MessageResult.createFailed(messageEntry);
+				}
+				else {
+					int address;
+					int value;
+					if (contentEntries[0].compareTo("HEX")==0) {
+						if (contentEntries.length<3) {
+							getLogger().severe("Error parsing WriteSingleRegisters message, content "+content+". Usage: [HEX or DEC,]address,value");
+							return MessageResult.createFailed(messageEntry);
+						}
+						address = Integer.parseInt(contentEntries[1], 16);
+						value = Integer.parseInt(contentEntries[2], 16);
+					}
+					else if (contentEntries[0].compareTo("DEC")==0) {
+						if (contentEntries.length<3) {
+							getLogger().severe("Error parsing WriteSingleRegisters message, content "+content+". Usage: [HEX or DEC,]address,value");
+							return MessageResult.createFailed(messageEntry);
+						}
+						address = Integer.parseInt(contentEntries[1]);
+						value = Integer.parseInt(contentEntries[2]);
+					}
+					else {
+						address = Integer.parseInt(contentEntries[0], 16);
+						value = Integer.parseInt(contentEntries[1],16);
+					}
+					getRegisterFactory().getFunctionCodeFactory().getWriteSingleRegister(address, value);
+	                return MessageResult.createSuccess(messageEntry);
+				}
+			}
+			else return doQueryMessage(messageEntry);
+		}
+		catch(IOException e) {
+			getLogger().severe("Error parsing message, "+e.getMessage());
+			return MessageResult.createFailed(messageEntry);
+		}
+   }
+   
+   public List getMessageCategories() {
+       List theCategories = new ArrayList();
+       // General Parameters
+       MessageCategorySpec cat = new MessageCategorySpec("Modbus general messages");
+       MessageSpec msgSpec = addBasicMsg("Write multiple registers", "WriteMultipleRegisters", false);
+       cat.addMessageSpec(msgSpec);
+       msgSpec = addBasicMsg("Write single register", "WriteSingleRegisters", false);
+       cat.addMessageSpec(msgSpec);
+       theCategories.add(cat);
+       return doGetMessageCategories(theCategories);
+   }
+   
+   protected MessageResult doQueryMessage(MessageEntry messageEntry) throws IOException {
+	   return MessageResult.createSuccess(messageEntry);
+   }
+   protected List doGetMessageCategories(List theCategories) {
+	   return theCategories;
+   }
+   
+   protected MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
+       MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+       MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+       tagSpec.add(new MessageValueSpec());
+       msgSpec.add(tagSpec);
+       return msgSpec;
+   }
+   
+   public String writeMessage(Message msg) {
+       return msg.write(this);
+   }
+   public String writeTag(MessageTag msgTag) {
+       StringBuffer buf = new StringBuffer();
+       
+       // a. Opening tag
+       buf.append("<");
+       buf.append( msgTag.getName() );
+       
+       // b. Attributes
+       for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
+           MessageAttribute att = (MessageAttribute)it.next();
+           if (att.getValue()==null || att.getValue().length()==0)
+               continue;
+           buf.append(" ").append(att.getSpec().getName());
+           buf.append("=").append('"').append(att.getValue()).append('"');
+       }
+       buf.append(">");
+       
+       // c. sub elements
+       for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
+           MessageElement elt = (MessageElement)it.next();
+           if (elt.isTag())
+               buf.append( writeTag((MessageTag)elt) );
+           else if (elt.isValue()) {
+               String value = writeValue((MessageValue)elt);
+               if (value==null || value.length()==0)
+                   return "";
+               buf.append(value);
+           }
+       }
+       
+       // d. Closing tag
+       buf.append("</");
+       buf.append( msgTag.getName() );
+       buf.append(">");
+       
+       return buf.toString();    
+   }
+   
+   public String writeValue(MessageValue value) {
+       return value.getValue();
+   }	
+	
 }

@@ -28,7 +28,7 @@ import com.energyict.protocol.discover.DiscoverTools;
  *
  * @author Koen
  */
-public class PQM2 extends Modbus implements MessageProtocol {
+public class PQM2 extends Modbus  {
     
     /** Creates a new instance of PQM2 */
     public PQM2() {
@@ -68,93 +68,7 @@ public class PQM2 extends Modbus implements MessageProtocol {
         //return new Date();
     }
     
-    /*******************************************************************************************
-     M e s s a g e P r o t o c o l  i n t e r f a c e 
-     *******************************************************************************************/
-    // message protocol
-    public void applyMessages(List messageEntries) throws IOException {
-        Iterator it = messageEntries.iterator();
-        while(it.hasNext()) {
-            MessageEntry messageEntry = (MessageEntry)it.next();
-            System.out.println(messageEntry);
-        }
-    }
-    
-    public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-        return MessageResult.createSuccess(messageEntry);
-        //messageEntry.setTrackingId("tracking ID for "+messageEntry.);
-        //return MessageResult.createQueued(messageEntry);
-        //return MessageResult.createFailed(messageEntry);
-        //return MessageResult.createUnknown(messageEntry);
-    }
-    
-    
-    public List getMessageCategories() {
-        List theCategories = new ArrayList();
-        // General Parameters
-        MessageCategorySpec cat = new MessageCategorySpec("PM800Messages");
-        MessageSpec msgSpec = addBasicMsg("Disconnect meter", "DISCONNECT", false);
-        cat.addMessageSpec(msgSpec);
-        msgSpec = addBasicMsg("Connect meter", "CONNECT", false);
-        cat.addMessageSpec(msgSpec);
-        msgSpec = addBasicMsg("Limit current to 6A", "LIMITCURRENT6A", false);
-        cat.addMessageSpec(msgSpec);
-        theCategories.add(cat);
-        return theCategories;
-    }
-    
-    private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
-        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        tagSpec.add(new MessageValueSpec());
-        msgSpec.add(tagSpec);
-        return msgSpec;
-    }
-    
-    public String writeMessage(Message msg) {
-        return msg.write(this);
-    }
-    public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
-        
-        // a. Opening tag
-        buf.append("<");
-        buf.append( msgTag.getName() );
-        
-        // b. Attributes
-        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
-            MessageAttribute att = (MessageAttribute)it.next();
-            if (att.getValue()==null || att.getValue().length()==0)
-                continue;
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
-        }
-        buf.append(">");
-        
-        // c. sub elements
-        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
-            MessageElement elt = (MessageElement)it.next();
-            if (elt.isTag())
-                buf.append( writeTag((MessageTag)elt) );
-            else if (elt.isValue()) {
-                String value = writeValue((MessageValue)elt);
-                if (value==null || value.length()==0)
-                    return "";
-                buf.append(value);
-            }
-        }
-        
-        // d. Closing tag
-        buf.append("</");
-        buf.append( msgTag.getName() );
-        buf.append(">");
-        
-        return buf.toString();    
-    }
-    
-    public String writeValue(MessageValue value) {
-        return value.getValue();
-    }    
+   
 
     public DiscoverResult discover(DiscoverTools discoverTools) {
         return null;

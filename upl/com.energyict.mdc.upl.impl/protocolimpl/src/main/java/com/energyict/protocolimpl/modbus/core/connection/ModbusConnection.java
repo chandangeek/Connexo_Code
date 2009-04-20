@@ -160,7 +160,15 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
                     case STATE_WAIT_FOR_FUNCTIONCODE: {
                         if (kar == requestData.getFunctionCode()) {
                             responseData.setFunctionCode(kar);
-                            state = STATE_WAIT_FOR_LENGTH;
+                            
+                            if ((responseData.getFunctionCode()==FunctionCodeFactory.FUNCTIONCODE_WRITEMULTIPLEREGISTER) ||
+                           		(responseData.getFunctionCode()==FunctionCodeFactory.FUNCTIONCODE_WRITESINGLEREGISTER)) {
+                            	len = 4+2;  // 4 bytes data + 2 bytes crc
+                            	state=STATE_WAIT_FOR_DATA;
+                            }
+                            else {
+                            	state = STATE_WAIT_FOR_LENGTH;
+                            }
                         }
                         else if (kar == (requestData.getFunctionCode()+0x80)) {
                             functionErrorCode=kar;
