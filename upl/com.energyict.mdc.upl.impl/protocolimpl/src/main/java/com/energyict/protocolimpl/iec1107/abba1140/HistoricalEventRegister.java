@@ -52,7 +52,7 @@ public class HistoricalEventRegister {
             shift = (long)ProtocolUtils.getIntLE(data,offset,4)&0xFFFFFFFFL;
             if( shift == 0 ) continue;
             date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
-            events.add( new MeterEvent(date, MeterEvent.OTHER, "Reverse Running") );
+            events.add( new MeterEvent(date, MeterEvent.REVERSE_RUN, "Reverse Running") );
         }
         
         phaseFailureCount = ProtocolUtils.getIntLE(data, 14, 2);
@@ -141,7 +141,7 @@ public class HistoricalEventRegister {
             shift = (long)ProtocolUtils.getIntLE(data,offset,4)&0xFFFFFFFFL;
             if( shift == 0 ) continue;
             date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
-            MeterEvent me = new MeterEvent(date, MeterEvent.OTHER, "Terminal Cover Cumulative Event Count");
+            MeterEvent me = new MeterEvent(date, MeterEvent.TERMINAL_OPENED, "Terminal Cover Cumulative Event Count");
             events.add(me);
         }
 
@@ -151,7 +151,7 @@ public class HistoricalEventRegister {
             shift = (long)ProtocolUtils.getIntLE(data,offset,4)&0xFFFFFFFFL;
             if( shift == 0 ) continue;
             date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
-            MeterEvent me = new MeterEvent(date, MeterEvent.OTHER, "Main Cover Cumulative Event Count");
+            MeterEvent me = new MeterEvent(date, MeterEvent.COVER_OPENED, "Main Cover Cumulative Event Count");
             events.add(me);
         }
         

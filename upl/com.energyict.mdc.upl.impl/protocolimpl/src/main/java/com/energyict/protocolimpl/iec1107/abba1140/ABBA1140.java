@@ -25,6 +25,8 @@
  * 							- Billing reset message
  * JME	10042009	Merged fix from ABBA230 to ABBA1140 profile, to adjust GMT profile timestamps to correct timezone.
  * JME	15042009	Mapped firmware version and device type to obiscode 1.1.0.2.0.255
+ * JME	20042009	Added exact fw revision number to getFirmware method. (Mantis #4342)
+ * 					Changed EiEventCode from other to more specific eventcode. (Mantis #4379)
  *@endchanges
  */
 
