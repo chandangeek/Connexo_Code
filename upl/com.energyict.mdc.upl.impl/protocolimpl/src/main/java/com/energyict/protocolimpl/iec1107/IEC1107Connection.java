@@ -202,6 +202,8 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
     
     private MeterType signOn(String strIdentConfig, String meterID) throws IOException,NestedIOException,ProtocolConnectionException {
         int retries=0;
+        if (isNoBreakRetry()) retries = iMaxRetries - 1;
+        
         while(true) {
             try {
                 String str="/?"+meterID+"!\r\n";
