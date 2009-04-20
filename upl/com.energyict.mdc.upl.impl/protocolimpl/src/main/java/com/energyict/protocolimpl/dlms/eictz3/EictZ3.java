@@ -422,28 +422,31 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 		boolean currentAdd = true, previousAdd = true;
 		IntervalData previousIntervalData = null, currentIntervalData;
 
-		if (dataContainer.getRoot().element.length == 0)
-			throw new IOException("No entries in object list.");
+		if (dataContainer.getRoot().element.length == 0){
+			getLogger().log(Level.INFO, "No entries in loadprofile.");
+		} else {
+			if (requestTimeZone != 0)
+				calendar = ProtocolUtils.getCalendar(false, requestTimeZone());
+			else
+				calendar = ProtocolUtils.initCalendar(false, timeZone);
+			
+			if (DEBUG >= 1)
+				dataContainer.printDataContainer();
+			// dataContainer.printDataContainer();
+			
+			for (i = 0; i < dataContainer.getRoot().element.length; i++) { // for
+				// all
+				// retrieved
+				// intervals
+				calendar = setCalendar(calendar, dataContainer.getRoot()
+						.getStructure(i), (byte) 0x00);
+				profileData.addInterval(getIntervalData(dataContainer.getRoot()
+						.getStructure(i), calendar));
+			} // for (i=0;i<dataContainer.getRoot().element.length;i++) // for all
+			// retrieved intervals
+			
+		}
 
-		if (requestTimeZone != 0)
-			calendar = ProtocolUtils.getCalendar(false, requestTimeZone());
-		else
-			calendar = ProtocolUtils.initCalendar(false, timeZone);
-
-		if (DEBUG >= 1)
-			dataContainer.printDataContainer();
-		// dataContainer.printDataContainer();
-
-		for (i = 0; i < dataContainer.getRoot().element.length; i++) { // for
-			// all
-			// retrieved
-			// intervals
-			calendar = setCalendar(calendar, dataContainer.getRoot()
-					.getStructure(i), (byte) 0x00);
-			profileData.addInterval(getIntervalData(dataContainer.getRoot()
-					.getStructure(i), calendar));
-		} // for (i=0;i<dataContainer.getRoot().element.length;i++) // for all
-		// retrieved intervals
 
 	} // private void buildProfileData(byte bNROfChannels, DataContainer
 
