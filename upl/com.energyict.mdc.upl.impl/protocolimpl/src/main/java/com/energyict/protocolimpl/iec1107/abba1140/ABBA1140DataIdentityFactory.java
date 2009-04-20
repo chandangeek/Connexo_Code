@@ -141,8 +141,10 @@ public class ABBA1140DataIdentityFactory {
         // Load profile configure data
         add("655", 1,ABBA1140DataIdentity.NOT_STREAMEABLE);
 
-        add("778", 1, ABBA1140DataIdentity.NOT_STREAMEABLE );
+        add("778", 1, ABBA1140DataIdentity.NOT_STREAMEABLE);
 
+        // Firmware version string and cuircuit board serial number
+        add("998", 12, ABBA1140DataIdentity.NOT_STREAMEABLE);
 
     }
     

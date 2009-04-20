@@ -344,13 +344,16 @@ public class ABBA1140 implements
      * @see com.energyict.protocol.MeterProtocol#getFirmwareVersion()
      */
     public String getFirmwareVersion() throws IOException,UnsupportedException {
-        String str = null;
+        String str = "";
         try {
 			ABBA1140MeterTypeParser mtp = new ABBA1140MeterTypeParser(getMeterType());
-			str = mtp.toString();
-        } catch (Exception e) {
-			str = "unknown";
-		}
+			str = mtp.toString() + " ";
+        } catch (Exception e) {}
+        
+        try {
+        	str += (String)rFactory.getRegister("FirmwareVersion");
+        } catch (Exception e) {}
+        
         // KV 15122003 only if pAddress is filled in
         if ((pAddress!=null) && (pAddress.length()>5)) {
             str += " " + pAddress.substring(5,pAddress.length());
