@@ -79,17 +79,22 @@ public class ObisCodeMapper {
             if (cosemObject==null)
                 throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!"); 
 
-            Date captureTime = cosemObject.getCaptureTime();
-            Date billingDate = cosemObject.getBillingDate();
-            registerValue = new RegisterValue(obisCode,
-                                              cosemObject.getQuantityValue(),
-                                              captureTime==null?billingDate:captureTime,
-                                              null,
-                                              cosemObject.getBillingDate(),
-                                              new Date(),
-                                              0,
-                                              cosemObject.getText());
-            return registerValue;
+            Date captureTime = null;
+            Date billingDate = null;
+            String text = null;
+            Quantity quantityValue = null;
+            
+            try {captureTime = cosemObject.getCaptureTime();} catch (Exception e) {}
+			try {billingDate = cosemObject.getBillingDate();} catch (Exception e) {}
+			try {quantityValue = cosemObject.getQuantityValue();} catch (Exception e) {}
+			try {text = cosemObject.getText();} catch (Exception e) {}
+
+			registerValue = new RegisterValue(obisCode, quantityValue,
+					captureTime == null ? billingDate : captureTime, null,
+					billingDate, new Date(), 0, text
+			);
+
+			return registerValue;      
         }
         
 

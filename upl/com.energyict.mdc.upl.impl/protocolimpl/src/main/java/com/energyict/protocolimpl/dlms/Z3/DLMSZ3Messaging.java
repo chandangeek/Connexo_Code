@@ -703,12 +703,17 @@ public class DLMSZ3Messaging implements MeterProtocol, MessageProtocol, Protocol
 
 	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
 		
-		if(obisCode.toString().equalsIgnoreCase(prepaidSetBudgetObisCode.toString())){
-			Register register = getCosemObjectFactory().getRegister(obisCode);
-			Date billingDate = getTime();
-			return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(register.getValue()), Unit.get(BaseUnit.WATTHOUR)), register.getBillingDate(), null, null);
-		} else {
-			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+		try {
+			if(obisCode.toString().equalsIgnoreCase(prepaidSetBudgetObisCode.toString())){
+				Register register = getCosemObjectFactory().getRegister(obisCode);
+				Date billingDate = getTime();
+				return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(register.getValue()), Unit.get(BaseUnit.WATTHOUR)), register.getBillingDate(), null, null);
+			} else {
+				throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+			}
+		} catch (Exception e) {
+			if (e instanceof InterruptedException) throw new IOException(e.getMessage());
+    		throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
 		}
 		
 	}

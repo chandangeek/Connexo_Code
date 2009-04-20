@@ -37,6 +37,7 @@ import com.energyict.protocolimpl.dlms.actarissl7000.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -1497,9 +1498,13 @@ public class DLMSLNSL7000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
     }
     
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        if (ocm == null)
-            ocm = new ObisCodeMapper(getCosemObjectFactory());
-        return ocm.getRegisterValue(obisCode);
+        try {
+			if (ocm == null)
+			    ocm = new ObisCodeMapper(getCosemObjectFactory());
+			return ocm.getRegisterValue(obisCode);
+		} catch (Exception e) {
+    		throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
+		}
     }
     
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {

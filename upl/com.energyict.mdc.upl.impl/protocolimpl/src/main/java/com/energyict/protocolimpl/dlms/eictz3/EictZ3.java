@@ -1339,27 +1339,32 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 	}
 
 	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+		try {
 
-		UniversalObject uo = getMeterConfig().findObject(obisCode);
-		if (uo.getClassID() == DLMSCOSEMGlobals.ICID_REGISTER) {
-			Register register = getCosemObjectFactory().getRegister(obisCode);
-			return new RegisterValue(obisCode, register.getQuantityValue());
-		} else if (uo.getClassID() == DLMSCOSEMGlobals.ICID_DEMAND_REGISTER) {
-			DemandRegister register = getCosemObjectFactory()
-					.getDemandRegister(obisCode);
-			return new RegisterValue(obisCode, register.getQuantityValue());
-		} else if (uo.getClassID() == DLMSCOSEMGlobals.ICID_EXTENDED_REGISTER) {
-			ExtendedRegister register = getCosemObjectFactory()
-					.getExtendedRegister(obisCode);
-			return new RegisterValue(obisCode, register.getQuantityValue());
-		} else if (uo.getClassID() == DLMSCOSEMGlobals.ICID_DISCONNECT_CONTROL) {
-			Disconnector register = getCosemObjectFactory().getDisconnector(
-					obisCode);
-			return new RegisterValue(obisCode, "" + register.getState());
+			UniversalObject uo = getMeterConfig().findObject(obisCode);
+			if (uo.getClassID() == DLMSCOSEMGlobals.ICID_REGISTER) {
+				Register register = getCosemObjectFactory().getRegister(obisCode);
+				return new RegisterValue(obisCode, register.getQuantityValue());
+			} else if (uo.getClassID() == DLMSCOSEMGlobals.ICID_DEMAND_REGISTER) {
+				DemandRegister register = getCosemObjectFactory()
+						.getDemandRegister(obisCode);
+				return new RegisterValue(obisCode, register.getQuantityValue());
+			} else if (uo.getClassID() == DLMSCOSEMGlobals.ICID_EXTENDED_REGISTER) {
+				ExtendedRegister register = getCosemObjectFactory()
+						.getExtendedRegister(obisCode);
+				return new RegisterValue(obisCode, register.getQuantityValue());
+			} else if (uo.getClassID() == DLMSCOSEMGlobals.ICID_DISCONNECT_CONTROL) {
+				Disconnector register = getCosemObjectFactory().getDisconnector(
+						obisCode);
+				return new RegisterValue(obisCode, "" + register.getState());
+			}
+			if (ocm == null)
+				ocm = new ObisCodeMapper(getCosemObjectFactory());
+			return ocm.getRegisterValue(obisCode);
+			
+		} catch (Exception e) {
+    		throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
 		}
-		if (ocm == null)
-			ocm = new ObisCodeMapper(getCosemObjectFactory());
-		return ocm.getRegisterValue(obisCode);
 	}
 
 	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {

@@ -1538,9 +1538,13 @@ public class ACE6000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Pro
     }
     
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        if (ocm == null)
-            ocm = new ObisCodeMapper(getCosemObjectFactory());
-        return ocm.getRegisterValue(obisCode);
+        try {
+			if (ocm == null)
+			    ocm = new ObisCodeMapper(getCosemObjectFactory());
+			return ocm.getRegisterValue(obisCode);
+		} catch (Exception e) {
+			throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
+		}
     }
     
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {

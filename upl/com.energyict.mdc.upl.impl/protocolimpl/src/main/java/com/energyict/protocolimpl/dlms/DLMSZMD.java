@@ -318,8 +318,12 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol {
     }
     
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        ObisCodeMapper ocm = new ObisCodeMapper(getCosemObjectFactory());
-        return ocm.getRegisterValue(obisCode);
+        try {
+			ObisCodeMapper ocm = new ObisCodeMapper(getCosemObjectFactory());
+			return ocm.getRegisterValue(obisCode);
+		} catch (Exception e) {
+			throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
+		}
     }
     
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {

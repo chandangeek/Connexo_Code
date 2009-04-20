@@ -27,6 +27,7 @@ import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.*;
+import com.energyict.protocolimpl.dlms.iskrame37x.ObisCodeMapper;
 
 public class Flex extends AXDRDecoder implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
     private static final byte DEBUG=0;  // KV 16012004 changed all DEBUG values  
@@ -1350,9 +1351,12 @@ public class Flex extends AXDRDecoder implements DLMSCOSEMGlobals, MeterProtocol
     }
     
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        if (ocm == null)
-            ocm = new ObisCodeMapper(getCosemObjectFactory());
-        return ocm.getRegisterValue(obisCode);
+    	try {
+    		if (ocm == null) ocm = new ObisCodeMapper(getCosemObjectFactory());
+    		return ocm.getRegisterValue(obisCode);
+    	} catch (Exception e) {
+    		throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
+    	}
     }
     
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
