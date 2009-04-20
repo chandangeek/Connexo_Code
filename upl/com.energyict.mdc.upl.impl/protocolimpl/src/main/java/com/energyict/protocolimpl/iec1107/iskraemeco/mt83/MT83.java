@@ -24,7 +24,8 @@ import com.energyict.dialer.connection.HHUSignOn;
  *
  * Changes:
  * JME	|07042009|	Added support for more registers
- * JME	|07042009|	Removed channelmap property. The protocol now reads this data from the meter.
+ * JME	|14042009|	Removed channelmap property. The protocol now reads this data from the meter.
+ * JME	|20042009|	Fixed nullpointer exception when there is no profile data.
  * 
  */
 public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExceptionInfo, RegisterProtocol {
@@ -252,7 +253,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.0 $";
+        return "$Date$";
     }
     
     public String getFirmwareVersion() throws IOException,UnsupportedException {
@@ -333,7 +334,8 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
     }
     
     public int getNumberOfChannels() throws UnsupportedException, IOException {
-        return getProtocolChannelMap().getNrOfProtocolChannels();
+        
+    	return getProtocolChannelMap().getNrOfProtocolChannels();
     	//return channelMap.getNrOfChannels();
     }
     
@@ -392,6 +394,7 @@ public class MT83 implements MeterProtocol, ProtocolLink, HHUEnabler, MeterExcep
         	try {
 				channelMap = getMT83Profile().buildChannelMap(getProfileInterval(), loadProfileNumber);
 			} catch (Exception e) {
+				try {channelMap = new ProtocolChannelMap("");} catch (InvalidPropertyException e1) {}
 				e.printStackTrace();
 			}
         }
