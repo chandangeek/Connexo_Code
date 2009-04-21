@@ -45,7 +45,7 @@ public class EnermetE70X extends EnermetBase {
     }    
 
     public String getProtocolVersion() {
-        return "$Revision: 1.18 $";
+        return "$Date$";
     }
 
     
