@@ -501,7 +501,25 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
                         case COSEM_ACTIONRESPONSE_NORMAL: {
                             i++; // skip tag
                             i++; // skip invoke id & priority
-                            evalDataAccessResult(responseData[i]);
+//                            evalDataAccessResult(responseData[i]);
+                            switch(responseData[i]) {
+                            case 0: // data
+                                i++;
+                                receiveBuffer.addArray(responseData,i);
+                                return receiveBuffer.getArray();
+                                
+                            case 1: // data-access-result
+                            {
+                                i++;
+                                evalDataAccessResult(responseData[i]);
+                                //System.out.println("Data access result OK");
+                                
+                            } break;  // data-access-result
+                            
+                            default:
+                                throw new IOException("unknown COSEM_ACTIONRESPONSE_NORMAL,  "+responseData[i]);
+                                
+                        } // switch(responseData[i])
                         } break; // case COSEM_ACTIONRESPONSE_NORMAL:
                         
                         default:
@@ -518,7 +536,25 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
                         case COSEM_SETRESPONSE_NORMAL: {
                             i++; // skip tag
                             i++; // skip invoke id & priority
-                            evalDataAccessResult(responseData[i]);
+//                            evalDataAccessResult(responseData[i]);
+                            switch(responseData[i]) {
+                            case 0: // data
+                                i++;
+                                receiveBuffer.addArray(responseData,i);
+                                return receiveBuffer.getArray();
+                                
+                            case 1: // data-access-result
+                            {
+                                i++;
+                                evalDataAccessResult(responseData[i]);
+                                //System.out.println("Data access result OK");
+                                
+                            } break;  // data-access-result
+                            
+                            default:
+                                throw new IOException("unknown COSEM_SETRESPONSE_NORMAL,  "+responseData[i]);
+                                
+                        } // switch(responseData[i])
                         } break; // case COSEM_SETRESPONSE_NORMAL:
                         
                         default:
