@@ -19,12 +19,14 @@ public class TestObject {
 	private static int METHOD = 10;
 	private static int RESULT = 11;
 	private static int EXPECTED = 12;
+	private static int STARTTIME = 13;
 	
 	public static int GET = 0;
 	public static int SET = 1;
 	public static int ACTION = 2;
 	public static int MESSAGE = 3;
 	public static int WAIT = 4;
+	public static int EMPTY = 5;
 	
 	private String[] testRow;
 	private boolean validData = false;
@@ -47,6 +49,10 @@ public class TestObject {
 		this.validData = true;
 	}
 	
+	public int size(){
+		return this.testRow.length;
+	}
+	
 	public int getType(){
 		if(this.testRow[TYPE].equalsIgnoreCase("Get")){
 			return GET;
@@ -58,8 +64,13 @@ public class TestObject {
 			return MESSAGE;
 		} else if(this.testRow[TYPE].equalsIgnoreCase("Wait")){
 			return WAIT;
+//		} else if(this.testRow[TYPE].equalsIgnoreCase("")){
+//			return EMPTY;
+//		} else if(this.testRow[TYPE].equalsIgnoreCase("\r\n")){
+//			return EMPTY;
 		} else {
-			throw new ApplicationException("Type " + this.testRow[TYPE] + " is not a valid type, please review your csv file for errors.");
+//			throw new ApplicationException("Type " + this.testRow[TYPE] + " is not a valid type, please review your csv file for errors.");
+			return EMPTY;
 		}
 			
 	}
@@ -130,20 +141,38 @@ public class TestObject {
 	}
 
 	public void setResult(String result) {
-		if(this.testRow.length <= EXPECTED){
+		if(this.testRow.length <= STARTTIME){
 			String[] temp = this.testRow;
-			this.testRow = new String[EXPECTED+1];
+			this.testRow = new String[STARTTIME+1];
 			System.arraycopy(temp, 0, this.testRow, 0, temp.length);
 		}
 		this.testRow[RESULT] = result;
 	}
 
 	public String getString(int j) {
-		if(this.testRow.length <= EXPECTED){
+		if(this.testRow.length <= j){
 			String[] temp = this.testRow;
-			this.testRow = new String[EXPECTED+1];
+			this.testRow = new String[j];
 			System.arraycopy(temp, 0, this.testRow, 0, temp.length);
 		}
 		return (this.testRow[j] == null)?"":this.testRow[j];
+	}
+	
+	public String getExpected() {
+		if(this.testRow.length <= STARTTIME){
+			String[] temp = this.testRow;
+			this.testRow = new String[STARTTIME+1];
+			System.arraycopy(temp, 0, this.testRow, 0, temp.length);
+		}
+		return this.testRow[EXPECTED];
+	}
+	
+	public void setTime(String time) {
+		if(this.testRow.length <= STARTTIME){
+			String[] temp = this.testRow;
+			this.testRow = new String[STARTTIME+1];
+			System.arraycopy(temp, 0, this.testRow, 0, temp.length);
+		}
+		this.testRow[STARTTIME] = time;
 	}
 }

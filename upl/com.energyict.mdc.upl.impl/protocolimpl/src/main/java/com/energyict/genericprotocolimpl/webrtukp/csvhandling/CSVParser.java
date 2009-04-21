@@ -5,8 +5,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.energyict.cbo.ApplicationException;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.GenericRead;
+import com.energyict.dlms.cosem.GenericWrite;
+import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.mdw.shadow.UserFileShadow;
 
 public class CSVParser {
@@ -36,6 +44,42 @@ public class CSVParser {
 	
 	public int size(){
 		return this.lines.size();
+	}
+	
+	public int getValidSize(){
+		int count = 0;
+		for(int i = 0; i < size(); i++){
+			if(isValidLine((TestObject)this.lines.get(i))){
+				count++;
+			}
+		}
+		return count;
+	}	
+	
+	public boolean isValidLine(TestObject to){
+		switch(to.getType()){
+		case 0 :{ // GET
+			return true;
+		}
+		case 1 :{ // SET
+			return true;
+		}
+		case 2 :{ // ACTION
+			return true;
+		}
+		case 3 :{ // MESSAGE
+			return true;
+		}
+		case 4:{ // WAIT
+			return true;
+		}
+		case 5:{ // EMPTY line
+			return false;
+		}
+		default:{
+			return false;
+		}
+		}
 	}
 	
 	public static void main(String args[])throws IOException{
@@ -77,13 +121,15 @@ public class CSVParser {
 		StringBuffer strBuffer = new StringBuffer();
 		for(int i = 0; i < this.lines.size(); i++){
 			TestObject to = (TestObject)this.lines.get(i);
-			for(int j = 0; j <= 12; j++){
-				strBuffer.append(to.getString(j));
-				if(j != 12){
-					strBuffer.append(";");
+			if(!to.getString(0).equalsIgnoreCase("")){
+				for(int j = 0; j < to.size(); j++){
+					strBuffer.append(to.getString(j));
+					if(j != to.size()){
+						strBuffer.append(";");
+					}
 				}
+				strBuffer.append(new String(new byte[]{0x0D, 0x0A}));
 			}
-			strBuffer.append(new String(new byte[]{0x0D, 0x0A}));
 		}
 		return strBuffer.toString().getBytes();
 	}
