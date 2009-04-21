@@ -683,6 +683,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": TestMessage");
 				int failures = 0;
 				String userFileId = messageHandler.getTestUserFileId();
+				Date currentTime;
 				if(!userFileId.equalsIgnoreCase("")){
 					if(ParseUtils.isInteger(userFileId)){
 						UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
@@ -690,74 +691,90 @@ public class MessageExecutor extends GenericMessageExecutor{
 							byte[] data = uf.loadFileInByteArray();
 							CSVParser csvParser = new CSVParser(data);
 							boolean hasWritten;
-							for(int i = 1; i < csvParser.size(); i++){
-								TestObject to = csvParser.getTestObject(i);
-								hasWritten = false;
-								try {
-									switch(csvParser.getTestObject(i).getType()){
-									case 0 :{ // GET
-										GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), DLMSUtils.attrLN2SN(to.getAttribute()), to.getClassId());
-										to.setResult("0x"+ParseUtils.decimalByteToString(gr.getResponseData()));
-										hasWritten = true;
-									}break;
-									case 1 :{ // SET
-										GenericWrite gw = getCosemObjectFactory().getGenericWrite(to.getObisCode(), to.getAttribute(), to.getClassId());
-										gw.write(ParseUtils.hexStringToByteArray(to.getData()));
-										to.setResult("OK");
-										hasWritten = true;
-									}break;
-									case 2 :{ // ACTION
-										GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
-										if(to.getData().equalsIgnoreCase("")){
-											gi.invoke();
-										} else {
-											gi.invoke(ParseUtils.hexStringToByteArray(to.getData()));
-										}
-										to.setResult("OK");
-										hasWritten = true;
-									}break;
-									case 3 :{ // MESSAGE
-										RtuMessageShadow rms = new RtuMessageShadow();
-										rms.setContents(csvParser.getTestObject(i).getData());
-										rms.setRtuId(getWebRtu().getMeter().getId());
-										RtuMessage rm = mw().getRtuMessageFactory().create(rms);
-										doMessage(rm);
-										if(rm.getState().getId() == rm.getState().CONFIRMED.getId()){
+							TestObject to = new TestObject("");
+							for(int i = 0; i < csvParser.size(); i++){
+								to = csvParser.getTestObject(i);
+								if(csvParser.isValidLine(to)){
+									currentTime = new Date(System.currentTimeMillis());
+									hasWritten = false;
+									try {
+										switch(to.getType()){
+										case 0 :{ // GET
+											GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), DLMSUtils.attrLN2SN(to.getAttribute()), to.getClassId());
+											to.setResult("0x"+ParseUtils.decimalByteToString(gr.getResponseData()));
+											hasWritten = true;
+										}break;
+										case 1 :{ // SET
+											GenericWrite gw = getCosemObjectFactory().getGenericWrite(to.getObisCode(), to.getAttribute(), to.getClassId());
+											gw.write(ParseUtils.hexStringToByteArray(to.getData()));
 											to.setResult("OK");
-										} else {
-											to.setResult("Message failed, current state " + rm.getState().getId());
-											failures++;
+											hasWritten = true;
+										}break;
+										case 2 :{ // ACTION
+											GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
+											if(to.getData().equalsIgnoreCase("")){
+												gi.invoke();
+											} else {
+												gi.invoke(ParseUtils.hexStringToByteArray(to.getData()));
+											}
+											to.setResult("OK");
+											hasWritten = true;
+										}break;
+										case 3 :{ // MESSAGE
+											RtuMessageShadow rms = new RtuMessageShadow();
+											rms.setContents(csvParser.getTestObject(i).getData());
+											rms.setRtuId(getWebRtu().getMeter().getId());
+											RtuMessage rm = mw().getRtuMessageFactory().create(rms);
+											doMessage(rm);
+											if(rm.getState().getId() == rm.getState().CONFIRMED.getId()){
+												to.setResult("OK");
+											} else {
+												to.setResult("Message failed, current state " + rm.getState().getId());
+												failures++;
+											}
+											hasWritten = true;
+										}break;
+										case 4:{ // WAIT
+											waitCyclus(Integer.parseInt(to.getData()));
+											to.setResult("OK");
+											hasWritten = true;
+										}break; 
+										case 5:{
+											// do nothing, it's no valid line
+										}break;
+										default:{
+											throw new ApplicationException("Row " + i + " of the CSV file does not contain a valid type.");
 										}
-										hasWritten = true;
-									}break;
-									case 4:{ // WAIT
-										waitCyclus(Integer.parseInt(to.getData()));
-										to.setResult("OK");
-										hasWritten = true;
-									}break; 
-									default:{
-										throw new ApplicationException("Row " + i + " of the CSV file does not contain a valid type.");
+										}
+										to.setTime(getShowableString(currentTime));
+									} catch (Exception e) {
+										e.printStackTrace();
+										if(!hasWritten){
+											if(e.getMessage().indexOf(to.getExpected()) != -1){
+												to.setResult(e.getMessage());
+												hasWritten = true;
+											} else {
+												getLogger().log(Level.INFO, "Test " + i + " has failed.");
+												to.setResult("Failed. " + e.getMessage());
+												hasWritten = true;
+												failures++;
+											}
+											to.setTime(getShowableString(currentTime));
+										}
+									} finally {
+										if(!hasWritten){
+											to.setResult("Failed - Unknow exception ...");
+											failures++;
+											to.setTime(getShowableString(currentTime));
+										}
 									}
-									}
-								} catch (Exception e) {
-									e.printStackTrace();
-									getLogger().log(Level.INFO, "Test " + i + " has failed.");
-									if(!hasWritten){
-										to.setResult("Failed. " + e.getMessage());
-										hasWritten = true;
-										failures++;
-									}
-								} finally {
-									if(!hasWritten){
-										to.setResult("Failed.");
-										failures++;
-									}
+								
 								}
 							}
 							if(failures == 0){
 								csvParser.addLine("All the tests are successfully finished.");
 							} else {
-								csvParser.addLine("" + failures + " of the " + csvParser.size() + " tests " + ((failures==1)?"has":"have") +" failed.");
+								csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures==1)?"has":"have") +" failed.");
 							}
 							mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf));
 						} else {
@@ -817,6 +834,20 @@ public class MessageExecutor extends GenericMessageExecutor{
 				rtuMessage.setFailed();
 			}
 		}
+	}
+	
+	private String getShowableString(Date date){
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		StringBuffer strBuff = new StringBuffer();
+		strBuff.append(cal.get(Calendar.DAY_OF_MONTH));strBuff.append("/");
+		strBuff.append(cal.get(Calendar.MONTH)+1);strBuff.append("/");
+		strBuff.append(cal.get(Calendar.YEAR));strBuff.append(" - ");
+		strBuff.append(cal.get(Calendar.HOUR_OF_DAY));strBuff.append(":");
+		strBuff.append(cal.get(Calendar.MINUTE));strBuff.append(":");
+		strBuff.append(cal.get(Calendar.SECOND));strBuff.append(":");
+		strBuff.append(cal.get(Calendar.MILLISECOND));
+		return strBuff.toString();
 	}
 	
 	/**
