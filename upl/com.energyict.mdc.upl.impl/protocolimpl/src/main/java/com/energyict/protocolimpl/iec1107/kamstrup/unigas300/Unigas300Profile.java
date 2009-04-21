@@ -23,7 +23,19 @@ import com.energyict.protocolimpl.iec1107.vdew.*;
  */
 public class Unigas300Profile extends VDEWProfile {
     
-    private static final Unit[] KAMSTRUP_PROTILEDATAUNITS = {Unit.get("m3"),Unit.get("m3"),Unit.get("m3"),Unit.get(BaseUnit.KELVIN,-1),Unit.get("mbar"),Unit.get("")};
+    private static final Unit[] KAMSTRUP_PROTILEDATAUNITS = {
+    	Unit.get("m3"),
+    	Unit.get("m3"),
+    	Unit.get("m3"),
+    	Unit.get("m3"),
+    	Unit.get("m3"),
+    	Unit.get("m3"),
+    	Unit.get(BaseUnit.KELVIN,-1),
+    	Unit.get("mbar"),
+    	Unit.get(""),
+    	Unit.get(""),
+    	Unit.get("")
+    };
     
     /** Creates a new instance of KamstrupProfile */
     public Unigas300Profile(ProtocolLink protocolLink,AbstractVDEWRegistry abstractVDEWRegistry) {
@@ -179,7 +191,7 @@ public class Unigas300Profile extends VDEWProfile {
             profileData = new ProfileData();        
             for (t=0;t<nrOfChannels;t++) {
                ChannelInfo chi = new ChannelInfo(t,"kamstrup_channel_"+t,KAMSTRUP_PROTILEDATAUNITS[t]);
-               if ((t>=0) && (t<=2)) chi.setCumulativeWrapValue(new BigDecimal("100000000"));
+               if ((t>=0) && (t<=5)) chi.setCumulativeWrapValue(new BigDecimal("100000000"));
                profileData.addChannel(chi);
             }
 

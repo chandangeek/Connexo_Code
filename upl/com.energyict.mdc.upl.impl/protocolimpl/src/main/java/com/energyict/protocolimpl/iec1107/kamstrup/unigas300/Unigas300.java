@@ -57,7 +57,7 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
     
     private static final byte DEBUG=0;
     
-    private static final int KAMSTRUP_NR_OF_CHANNELS=6;
+    private static final int KAMSTRUP_NR_OF_CHANNELS=11;
     private static final String[] KAMSTRUP_METERREADINGS_979D1 = {"23.2.0","13.1.0","1:13.0.0","0:41.0.0","0:42.0.0","97.97.0"};
     private static final String[] KAMSTRUP_METERREADINGS_979E1 = {"23.2.0","1:12.0.0","1:13.0.0","0:41.0.0","0:42.0.0","97.97.0"};
     private static final String[] KAMSTRUP_METERREADINGS_979A1 = {"23.2.0","13.1.0","1:13.0.0","0:41.0.0","0:42.0.0","97.97.0"};
@@ -287,7 +287,8 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
     
     public String getFirmwareVersion() throws IOException,UnsupportedException {
        try {
-           return((String)getKamstrupRegistry().getRegister("CI software revision number")+" "+(String)getKamstrupRegistry().getRegister("UNIGAS software revision number"));        
+         return((String)getKamstrupRegistry().getRegister("UNIGAS software revision number"));        
+//         return((String)getKamstrupRegistry().getRegister("CI software revision number")+" "+(String)getKamstrupRegistry().getRegister("UNIGAS software revision number"));        
        }
        catch(IOException e) {
            throw new IOException("Kamstrup, getFirmwareVersion, "+e.getMessage()); 
@@ -328,7 +329,9 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
      * @throws IOException  */    
     public void connect() throws IOException {
        try {
-          dataReadout = flagIEC1107Connection.dataReadout(strID,nodeId);
+          
+    	  sendWakeUp();
+    	  dataReadout = flagIEC1107Connection.dataReadout(strID,nodeId);
           flagIEC1107Connection.disconnectMAC();
        /*   try {
               Thread.sleep(2000);
@@ -345,7 +348,13 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
        }
     }
     
-    public void disconnect() throws IOException {
+    private void sendWakeUp() throws ConnectionException {
+ 	   byte[] wakeUp = new byte[20];
+       for (int i = 0; i < wakeUp.length; i++) wakeUp[i] = (byte) 0x00;
+ 	  	getFlagIEC1107Connection().sendOut(wakeUp);
+	}
+
+	public void disconnect() throws IOException {
        try {
           flagIEC1107Connection.disconnectMAC();
        }
