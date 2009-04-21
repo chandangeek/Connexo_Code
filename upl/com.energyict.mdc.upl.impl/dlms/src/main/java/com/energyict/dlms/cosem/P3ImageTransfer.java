@@ -89,6 +89,7 @@ public class P3ImageTransfer extends AbstractCosemObject{
 			if(DEBUG)System.out.println("ImageTrans: Maximum block size is: " + getMaxImageBlockSize() + 
 					", Number of blocks: " + blockCount + ".");
 			
+			this.protocolLink.getLogger().log(Level.INFO, "Start : " + System.currentTimeMillis());
 			
 			// Step2: Initiate the image transfer
 			initiateImageTransfer();
@@ -106,6 +107,7 @@ public class P3ImageTransfer extends AbstractCosemObject{
 			verifyAndRetryImage();
 			if(DEBUG)System.out.println("ImageTrans: Verification successfull.");
 			
+			this.protocolLink.getLogger().log(Level.INFO, "Start : " + System.currentTimeMillis());
 			// Step6: Check image before activation
 			// Skip this step
 			
@@ -189,6 +191,7 @@ public class P3ImageTransfer extends AbstractCosemObject{
 				}
 			} else {
 				previousMissingBlock = getFirstMissingBlock().getValue();
+				retryBlock = 0;
 			}
 			
 			if (getFirstMissingBlock().getValue() < this.blockCount -1) {
