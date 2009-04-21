@@ -23,18 +23,47 @@ import com.energyict.protocolimpl.iec1107.vdew.*;
  */
 public class Unigas300Profile extends VDEWProfile {
     
+    private static final int STATUS_WORD_STATED = 0x8000;
+    private static final int LOGGER_CLEARED = 0x4000;
+    private static final int LOGBOOK_CLEARED = 0x2000;
+    private static final int EXTERNAL_EVENT_ASSIGNED = 0x1000;
+    private static final int WAITING_EXTERNAL_EVENT = 0x0800;
+    private static final int END_WRONG_OPERATION = 0x0400;
+    private static final int WRONG_OPERATION = 0x0200;
+    private static final int PARAMETER_SETTING = 0x0100;
+    private static final int POWER_FAILURE = 0x80;
+    private static final int POWER_RECOVERY = 0x40;
+    private static final int DEVICE_CLOCK_SET = 0x20;
+    private static final int DEVICE_RESET = 0x10;
+    private static final int SEASONAL_SWITCHOVER = 0x08;
+    private static final int DISTURBED_MEASURE = 0x04;
+    private static final int RUNNING_RESERVE_EXHAUSTED = 0x02;
+    private static final int FATAL_DEVICE_ERROR = 0x01;
+
+	private static final int DEBUG = 1;
+
+    private static final String[] statusstr={"FATAL_DEVICE_ERROR",
+                                      "RUNNING_RESERVE_EXHAUSTED",
+                                      "DISTURBED_MEASURE",
+                                      "SEASONAL_SWITCHOVER",
+                                      "DEVICE_RESET",
+                                      "DEVICE_CLOCK_ERROR",
+                                      "POWER_RECOVERY",
+                                      "POWER_FAILURE",
+                                      "STATUS_WORD_STATED",
+                                      "LOGGER_CLEARED",
+                                      "LOGBOOK_CLEARED",
+                                      "EXTERNAL_EVENT_ASSIGNED",
+                                      "WAITING_EXTERNAL_EVENT",
+                                      "END_WRONG_OPERATION",
+                                      "WRONG_OPERATION",
+                                      "PARAMETER_SETTING"};
+	
     private static final Unit[] KAMSTRUP_PROTILEDATAUNITS = {
-    	Unit.get("m3"),
-    	Unit.get("m3"),
-    	Unit.get("m3"),
-    	Unit.get("m3"),
-    	Unit.get("m3"),
-    	Unit.get("m3"),
-    	Unit.get(BaseUnit.KELVIN,-1),
-    	Unit.get("mbar"),
-    	Unit.get(""),
-    	Unit.get(""),
-    	Unit.get("")
+    	Unit.get("m3"),	Unit.get("m3"), Unit.get("m3"),
+    	Unit.get("m3"),	Unit.get("m3"),	Unit.get("m3"),
+    	Unit.get(BaseUnit.KELVIN,-1), Unit.get("mbar"),
+    	Unit.get(""), Unit.get(""), Unit.get("")
     };
     
     /** Creates a new instance of KamstrupProfile */
@@ -105,41 +134,6 @@ public class Unigas300Profile extends VDEWProfile {
        return new String(strparse);
     } // private String parseFindString(byte[] data,int iOffset)
     
-    
-    private static final int STATUS_WORD_STATED = 0x8000;
-    private static final int LOGGER_CLEARED = 0x4000;
-    private static final int LOGBOOK_CLEARED = 0x2000;
-    private static final int EXTERNAL_EVENT_ASSIGNED = 0x1000;
-    private static final int WAITING_EXTERNAL_EVENT = 0x0800;
-    private static final int END_WRONG_OPERATION = 0x0400;
-    private static final int WRONG_OPERATION = 0x0200;
-    private static final int PARAMETER_SETTING = 0x0100;
-    private static final int POWER_FAILURE = 0x80;
-    private static final int POWER_RECOVERY = 0x40;
-    private static final int DEVICE_CLOCK_SET = 0x20;
-    private static final int DEVICE_RESET = 0x10;
-    private static final int SEASONAL_SWITCHOVER = 0x08;
-    private static final int DISTURBED_MEASURE = 0x04;
-    private static final int RUNNING_RESERVE_EXHAUSTED = 0x02;
-    private static final int FATAL_DEVICE_ERROR = 0x01;
-    
-    private static final String[] statusstr={"FATAL_DEVICE_ERROR",
-                                      "RUNNING_RESERVE_EXHAUSTED",
-                                      "DISTURBED_MEASURE",
-                                      "SEASONAL_SWITCHOVER",
-                                      "DEVICE_RESET",
-                                      "DEVICE_CLOCK_ERROR",
-                                      "POWER_RECOVERY",
-                                      "POWER_FAILURE",
-                                      "STATUS_WORD_STATED",
-                                      "LOGGER_CLEARED",
-                                      "LOGBOOK_CLEARED",
-                                      "EXTERNAL_EVENT_ASSIGNED",
-                                      "WAITING_EXTERNAL_EVENT",
-                                      "END_WRONG_OPERATION",
-                                      "WRONG_OPERATION",
-                                      "PARAMETER_SETTING"};
-    
     private long mapLogCodes(long lLogCode) {
         switch((int)lLogCode) {
             case PARAMETER_SETTING:
@@ -177,7 +171,9 @@ public class Unigas300Profile extends VDEWProfile {
     } // private void mapLogCodes(long lLogCode)
     
     ProfileData buildProfileData(byte[] responseData,int nrOfChannels) throws IOException {
-        ProfileData profileData;
+        if (DEBUG >= 1) System.out.println("\nresponseData = \n\n" + new String(responseData) + "\n");
+        if (DEBUG >= 1) System.out.println("nrOfChannels = " + nrOfChannels);
+    	ProfileData profileData;
         Calendar calendar;
         int status=0;
         byte bNROfValues=0;
@@ -191,6 +187,7 @@ public class Unigas300Profile extends VDEWProfile {
             profileData = new ProfileData();        
             for (t=0;t<nrOfChannels;t++) {
                ChannelInfo chi = new ChannelInfo(t,"kamstrup_channel_"+t,KAMSTRUP_PROTILEDATAUNITS[t]);
+               if (DEBUG >= 1) System.out.println("t = " + t + " Channelinfo = " + chi.getName() + " [" + chi.getUnit() + "]");
                if ((t>=0) && (t<=5)) chi.setCumulativeWrapValue(new BigDecimal("100000000"));
                profileData.addChannel(chi);
             }
@@ -205,8 +202,10 @@ public class Unigas300Profile extends VDEWProfile {
                        throw new IOException("No entries in object list.");
                        
                    calendar = parseDateTime(responseData,i+1);
+                   if (DEBUG >= 1) System.out.println("calendar = " + calendar.getTime());
                    i=gotoNextOpenBracket(responseData,i+1);
                    status = Integer.parseInt(parseFindString(responseData,i),16);
+                   if (DEBUG >= 1) System.out.println("status = " + status);
                    status &= (SEASONAL_SWITCHOVER^0xFFFF);
                    for (t=0;t<16;t++) {
                       if ((status & (0x01<<t)) != 0) {
@@ -218,8 +217,10 @@ public class Unigas300Profile extends VDEWProfile {
                    
                    i=gotoNextOpenBracket(responseData,i+1);
                    bInterval = (byte)Integer.parseInt(parseFindString(responseData,i));
+                   if (DEBUG >= 1) System.out.println("bInterval = " + bInterval);
                    i=gotoNextOpenBracket(responseData,i+1);
-                   bNROfValues = ProtocolUtils.bcd2nibble(responseData,i+1);
+                   bNROfValues = ProtocolUtils.bcd2byte(responseData,i+1);
+                   if (DEBUG >= 1) System.out.println("bNROfValues = " + bNROfValues);
                    if (bNROfValues > nrOfChannels) 
                       throw new IOException("buildProfileData() error, mismatch between nrOfChannels and profile columns!");
                    for (t=0;t<bNROfValues;t++) {
