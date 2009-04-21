@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
+import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeDuration;
@@ -54,7 +55,6 @@ public class DailyMonthly {
 			Calendar channelCalendar = null;
 			Calendar toCalendar = getToCalendar();
 			for (int i = 0; i < getMeter().getChannels().size(); i++) {
-				// TODO check for the from-date of all the daily or monthly channels
 				Channel chn = getMeter().getChannel(i);
 				if(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS){ //the channel is a daily channel
 					channelCalendar = getFromCalendar(getMeter().getChannel(i));
@@ -65,7 +65,7 @@ public class DailyMonthly {
 			}
 			webrtu.getLogger().log(Level.INFO, "Reading Daily values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
-			buildProfileData(dc, profileData, genericProfile);
+			buildProfileData(dc, profileData, genericProfile, TimeDuration.DAYS);
 			ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
 			
@@ -123,7 +123,6 @@ public class DailyMonthly {
 			Calendar channelCalendar = null;
 			Calendar toCalendar = getToCalendar();
 			for (int i = 0; i < getMeter().getChannels().size(); i++) {
-				// TODO check for the from-date of all the daily or monthly channels
 				Channel chn = getMeter().getChannel(i);
 				if(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS){ //the channel is a daily channel
 					channelCalendar = getFromCalendar(getMeter().getChannel(i));
@@ -135,7 +134,7 @@ public class DailyMonthly {
 			
 			webrtu.getLogger().log(Level.INFO, "Reading Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
-			buildProfileData(dc, profileData, genericProfile);
+			buildProfileData(dc, profileData, genericProfile, TimeDuration.MONTHS);
 			ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
 			
@@ -243,25 +242,42 @@ public class DailyMonthly {
 		return -1;
 	}
 	
-	private void buildProfileData(DataContainer dc, ProfileData pd, ProfileGeneric pg) throws IOException{
+	private void buildProfileData(DataContainer dc, ProfileData pd, ProfileGeneric pg, int timeDuration) throws IOException{
 		
-		//TODO check how this reacts with the profile.
-		
-		Calendar cal = null;
-		IntervalData currentInterval = null;
-		int profileStatus = 0;
-		if(dc.getRoot().getElements().length != 0){
-			for(int i = 0; i < dc.getRoot().getElements().length; i++){
-				cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
-				if(cal != null){				
-					currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg);
-					if(currentInterval != null){
-						pd.addInterval(currentInterval);
+		try {
+			Calendar cal = null;
+			IntervalData currentInterval = null;
+			int profileStatus = 0;
+			if(dc.getRoot().getElements().length != 0){
+				for(int i = 0; i < dc.getRoot().getElements().length; i++){
+					
+					if(dc.getRoot().getStructure(i).isOctetString(0)){
+						cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
+					} else {
+						if(cal != null){
+							if(timeDuration == TimeDuration.DAYS){
+								cal.add(Calendar.DAY_OF_MONTH, 1);
+							} else if(timeDuration == TimeDuration.MONTHS){
+								cal.add(Calendar.MONTH, 1);
+							} else {
+								throw new ApplicationException("TimeDuration is not correct.");
+							}
+						}
+					}
+					
+					if(cal != null){				
+						currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg);
+						if(currentInterval != null){
+							pd.addInterval(currentInterval);
+						}
 					}
 				}
+			} else {
+				webrtu.getLogger().info("No entries in LoadProfile");
 			}
-		} else {
-			webrtu.getLogger().info("No entries in LoadProfile");
+		} catch (ClassCastException e) {
+			e.printStackTrace();
+			throw new ClassCastException("Configuration of the profile probably not correct.");
 		}
 	}
 	

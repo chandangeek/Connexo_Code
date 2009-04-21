@@ -90,7 +90,8 @@ public class MbusProfile {
 				MbusControlLog mbusControlLog = new MbusControlLog(getTimeZone(), mbusLog);
 				profileData.getMeterEvents().addAll(mbusControlLog.getMeterEvents());
 				
-				profileData.applyEvents(mbusDevice.getMbus().getIntervalInSeconds()/60);
+				// Don't create statusbits from the events
+//				profileData.applyEvents(mbusDevice.getMbus().getIntervalInSeconds()/60);
 			}
 			
 			// We save the profileData to a tempObject so we can store everything at the end of the communication

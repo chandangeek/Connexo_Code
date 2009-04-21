@@ -112,7 +112,9 @@ public class ElectricityProfile {
 				profileData.getMeterEvents().addAll(mbusLogs.getMeterEvents());
 				profileData.getMeterEvents().addAll(powerFailure.getMeterEvents());
 				
-				profileData.applyEvents(webrtu.getMeter().getIntervalInSeconds()/60);
+				// Don't create statusbits from the events
+//				profileData.applyEvents(webrtu.getMeter().getIntervalInSeconds()/60);
+				
 			}
 			
 			// We save the profileData to a tempObject so we can store everything at the end of the communication
@@ -235,6 +237,10 @@ public class ElectricityProfile {
 						profileStatus = dc.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex(pg));
 					} else {
 						profileStatus = 0;
+					}
+					
+					if((profileStatus != 0) & (profileStatus != 8)){
+						System.out.println("Break");
 					}
 					
 					currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg);
