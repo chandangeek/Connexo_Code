@@ -1281,7 +1281,7 @@ public class ACE6000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Pro
     } // public String getSerialNumber() throws IOException  
     
     public String getProtocolVersion() {
-        return "$Revision: 1.5 $";
+        return "$Date$";
     }
     public String getFirmwareVersion() throws IOException,UnsupportedException {
         if (version == null) {

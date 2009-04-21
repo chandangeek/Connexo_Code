@@ -1242,7 +1242,7 @@ public class DLMSLNSL7000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
     } // public String getSerialNumber() throws IOException  
     
     public String getProtocolVersion() {
-        return "$Revision: 1.39 $";
+        return "$Date$";
     }
     public String getFirmwareVersion() throws IOException,UnsupportedException {
         if (version == null) {

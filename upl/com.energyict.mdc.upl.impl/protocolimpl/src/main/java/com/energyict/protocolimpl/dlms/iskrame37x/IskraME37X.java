@@ -1165,7 +1165,7 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
     } // public String getSerialNumber() throws IOException  
     
     public String getProtocolVersion() {
-        return "$Revision: 1.10 $";
+        return "$Date$";
     }
     public String getFirmwareVersion() throws IOException,UnsupportedException {
         return "UNAVAILABLE";

@@ -1091,7 +1091,7 @@ public class Flex extends AXDRDecoder implements DLMSCOSEMGlobals, MeterProtocol
     } // public String getSerialNumber() throws IOException  
     
     public String getProtocolVersion() {
-        return "$Revision: 1.5 $";
+        return "$Date$";
     }
     public String getFirmwareVersion() throws IOException,UnsupportedException {
 //        return "UNAVAILABLE";
