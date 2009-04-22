@@ -72,7 +72,7 @@ public class CSDCaller {
 						}
 					} else {
 						IpUpdater ipUpdater = new IpUpdater(this.timeOut, this.pollFreq);
-						return ipUpdater.poll(this.phone, this.csdCaller.getLastCommunicationEnd());
+						return ipUpdater.poll(this.phone, this.csdCaller.getLastCommunicationStart());
 					}
 				} else {
 					return "";

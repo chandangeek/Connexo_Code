@@ -26,7 +26,7 @@ public class IpUpdater {
 		Properties properties = getProperties();
 		connectionProvider.configure(properties);
 	};
-	private static String request = "select FRAMED_IP_ADDRESS from RADIUSACCOUNTING where CALLING_STATION_ID like ? and ? < LOG_DATE";
+	private static String request = "select FRAMED_IP_ADDRESS from RADIUSACCOUNTING where CALLING_STATION_ID like ? and ? < to_date(EVENT_TIMESTAMP, 'MM/DD/YY hh24:mi:ss')";
 	
 	private static String IPADDRESS = "FRAMED_IP_ADDRESS";
 
@@ -90,13 +90,15 @@ public class IpUpdater {
 				try {
 					rs = statement.executeQuery();
 					
-					String date, time;
-					String tempIpAddress;
 					while(rs.next()){
 						if(rs.isFirst()){
 							ipAddress = rs.getString(IPADDRESS);
 						} else {
-							throw new ConnectionException("Multiple records were found after CSD call, will not update ipaddress.");
+							if(ipAddress != null){
+								if(ipAddress != rs.getString(IPADDRESS)){
+									throw new ConnectionException("Multiple records were found after CSD call, will not update ipaddress.");
+								}
+							}
 						}
 					}
 					
