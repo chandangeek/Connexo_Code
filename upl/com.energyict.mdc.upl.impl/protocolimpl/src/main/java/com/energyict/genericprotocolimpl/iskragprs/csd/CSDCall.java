@@ -35,9 +35,10 @@ public class CSDCall extends ModemConnection{
 	 * Do a CSD ATDial with the given phone number.
 	 * The CSD call fails when we do not get the expected response.
 	 * @param phone
+	 * @param postDialCommand 
 	 * @throws IOException
 	 */
-	public void doCall(String phone) throws IOException{
+	public void doCall(String phone, String postDialCommand) throws IOException{
 		
 		try {
 			if(this.serialCommChannel.sigCD()){
@@ -46,7 +47,7 @@ public class CSDCall extends ModemConnection{
 				toggleDTR(1000);
 			}
 			initModem();
-			dialMeter(phone, 60000);
+			dialMeter(phone, postDialCommand, 60000);
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -67,14 +68,19 @@ public class CSDCall extends ModemConnection{
 	/**
 	 * Make the dial to the meter
 	 * @param phone
+	 * @param postDialCommand 
 	 * @param timeOut
 	 * @throws IOException
 	 * @throws LinkException
 	 */
-	private void dialMeter(String phone, int timeOut) throws IOException, LinkException {
+	private void dialMeter(String phone, String postDialCommand, int timeOut) throws IOException, LinkException {
 
 		try {
-			write("ATD"+phone+"\r\n",500);
+			if((postDialCommand != null) && (postDialCommand.trim().length() != 0)){
+				write("ATD"+postDialCommand+phone+"\r\n", 500);
+			} else {
+				write("ATD"+phone+"\r\n",500);
+			}
 			
 			if(expectCommPort("CONNECT", timeOut)){
 				throw new IOException("Failed do do a wakeUp.");
