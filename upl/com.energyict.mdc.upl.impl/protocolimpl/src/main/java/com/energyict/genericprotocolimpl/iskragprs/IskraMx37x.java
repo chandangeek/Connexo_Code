@@ -66,6 +66,7 @@ import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
 import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
 import com.energyict.genericprotocolimpl.iskragprs.csd.CSDCall;
 import com.energyict.genericprotocolimpl.iskragprs.csd.CSDCaller;
+import com.energyict.genericprotocolimpl.iskragprs.imagetransfer.ImageTransfer;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
@@ -241,20 +242,30 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 //    	cal.set(Calendar.SECOND, Integer.parseInt(startDate.substring(startDate.lastIndexOf(":") + 1, startDate.length())));
 //    	
 //    	System.out.println(cal.getTime());
-		IskraMx37x instance = new IskraMx37x();
-		byte[] list = new byte[]{1,2,3,4,5,6,7,8};
-		try {
-			byte[] list2 = instance.shiftRestrictionList(1, list, 0);
-			list2 = instance.shiftRestrictionList(5, list2, 1);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println("");
+//		IskraMx37x instance = new IskraMx37x();
+//		byte[] list = new byte[]{1,2,3,4,5,6,7,8};
+//		try {
+//			byte[] list2 = instance.shiftRestrictionList(1, list, 0);
+//			list2 = instance.shiftRestrictionList(5, list2, 1);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		System.out.println("");
+		
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		cal.set(Calendar.YEAR, 2009);
+		cal.set(Calendar.MONTH, 3);
+		cal.set(Calendar.DAY_OF_MONTH, 10);
+		cal.set(Calendar.HOUR_OF_DAY, 10);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		System.out.println(cal.getTimeInMillis()/1000);
 		
 	}
 
-	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
+	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {		
 		
 		String ipAddress = null;
 		
@@ -271,7 +282,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 			
 			if(this.csdCall != 0){
 				CSDCall call = new CSDCall(link);
-				call.doCall(rtu.getPhoneNumber());
+				call.doCall(rtu.getPhoneNumber(), rtu.getPostDialCommand());
 				logger.log(Level.INFO, "Made a successful call.");
 				
 			} else {
@@ -1340,6 +1351,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             boolean wuGeneralRestrict = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_GENERAL_RESTRICTION);
             boolean wuClearWhiteList = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_CLEAR_WHITELIST);
             boolean wuActivate = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_ACTIVATE);
+            boolean firmware = contents.equalsIgnoreCase(RtuMessageConstant.FIRMWARE);
             
             if (falsemsg){
             	msg.setFailed();
@@ -1423,16 +1435,16 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             	getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.130.255"), 9, 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
             	msg.confirm();
             }
-            else if(wuAddWhiteList){	// TODO test
+            else if(wuAddWhiteList){
             	addPhoneToWhiteList(msg);
             }
-            else if(wuDeleteWhiteList){	// TODO test
+            else if(wuDeleteWhiteList){
             	deletePhoneFromWhiteList(msg);
             }
-            else if(wuChangeTimeOut){	// TODO test
+            else if(wuChangeTimeOut){
             	changeInactivityTimeout(msg);
             }
-            else if(wuGeneralRestrict){	// TODO test
+            else if(wuGeneralRestrict){
             	changeGeneralPhoneRestriction(msg);
             }
             else if(wuClearWhiteList){
@@ -1440,13 +1452,42 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             }
             else if(wuActivate){
             	activateWakeUp(msg);
-            }
+            } 
+            else if(firmware){
+            	upgradeFirmware(msg);
+            } 
             else {
             	msg.setFailed();
             }
 		}
 	}
 	
+	private void upgradeFirmware(RtuMessage msg) throws BusinessException, SQLException {
+		String description = "Upgrade firmware for meter with serialnumber: " + rtu.getSerialNumber();
+		
+		try {
+			getLogger().log(Level.INFO, description);
+			String id = getMessageValue(msg.getContents(), RtuMessageConstant.FIRMWARE);
+			
+			UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(id));
+			if(uf != null){
+				
+				byte[] imageData = uf.loadFileInByteArray();
+				ImageTransfer it = new ImageTransfer(this);
+				it.upgradeImage(imageData);
+				
+				msg.confirm();
+				
+			} else {
+				throw new IOException("No userfile found with id " + id);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e, msg, description);
+		}
+	}
+
 	private void clearWhiteList(RtuMessage msg) throws BusinessException, SQLException {
 		String description = "Clear whitelist for meter with serialnumber: " + rtu.getSerialNumber();
 		
@@ -1876,16 +1917,16 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     	}
     }
 	
-	protected UserFile getUserFile(String contents)throws BusinessException {
+	protected UserFile getUserFile(String contents)throws IOException {
         int id = getTouFileId(contents);
         UserFile userFile = 
         	MeteringWarehouse.getCurrent().getUserFileFactory().find(id);
         if (userFile == null)
-        	throw new BusinessException("No userfile found with id " + id);
+        	throw new IOException("No userfile found with id " + id);
         return userFile;
 	}
 	
-	protected int getTouFileId(String contents) throws BusinessException {
+	protected int getTouFileId(String contents) throws IOException {
 		int startIndex = 2 + RtuMessageConstant.TOU_SCHEDULE.length();  // <TOU>
 		int endIndex = contents.indexOf("</" + RtuMessageConstant.TOU_SCHEDULE + ">");
 		String value = contents.substring(startIndex, endIndex);
@@ -1893,11 +1934,11 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 			return Integer.parseInt(value);
 		}
 		catch (NumberFormatException e) {
-			throw new BusinessException("Invalid userfile id: " + value);
+			throw new IOException("Invalid userfile id: " + value);
 		}
 	}
 
-	private Calendar getCalendarFromString(String strDate) throws BusinessException {
+	private Calendar getCalendarFromString(String strDate) throws IOException {
 		try{
 			Calendar cal = Calendar.getInstance(getTimeZone());
 	    	cal.set(Calendar.DATE, Integer.parseInt(strDate.substring(0, strDate.indexOf("/"))));
@@ -1911,7 +1952,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	    	return cal;
 		}
     	catch(NumberFormatException e){
-    		throw new BusinessException("Invalid dateTime format for the applyThreshold message.");
+    		throw new IOException("Invalid dateTime format for the applyThreshold message.");
     	}
 		
 	}
@@ -1931,6 +1972,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         MessageCategorySpec cat2 = new MessageCategorySpec("ThresholdMessages");
         MessageCategorySpec catMbus = new MessageCategorySpec("MBus messages");
         MessageCategorySpec catWakeUp = new MessageCategorySpec("Wakeup configuration");
+        MessageCategorySpec catFirmware = new MessageCategorySpec("Firmware");
         
         MessageSpec msgSpec = addBasicMsg("Disconnect meter", RtuMessageConstant.DISCONNECT_LOAD, false);
         cat.addMessageSpec(msgSpec);
@@ -1971,10 +2013,18 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 //        msgSpec = addValueMessage("Change general restriction ", RtuMessageConstant.WAKEUP_GENERAL_RESTRICTION, false);
 //        catWakeUp.addMessageSpec(msgSpec);
         
+        msgSpec = addValueMessage("Upgrade Firmware", RtuMessageConstant.FIRMWARE, false);
+        catFirmware.addMessageSpec(msgSpec);
+        
         theCategories.add(cat);
         theCategories.add(cat2);
         theCategories.add(catMbus);
         theCategories.add(catWakeUp);
+        //TODO
+        //TODO	The FirmwareMessage is disabled for the current release, it's not complete yet!
+        //TODO
+        //TODO
+//        theCategories.add(catFirmware);
         return theCategories;
 	}
 	
