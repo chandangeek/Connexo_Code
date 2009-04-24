@@ -12,6 +12,7 @@ import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.ReceiveBuffer;
 /**
  * @version  1.0
@@ -193,7 +194,8 @@ public class HDLCConnection extends Connection implements DLMSConnection {
     private byte ISIZE=(byte)0x80;
     
     private long lForceDelay;
-
+    
+    private InvokeIdAndPriority invokeIdAndPriority;
 /**
      * Class constructor.
      * @param inputStream InputStream for the active connection, e.g. established with ATDialer.
@@ -229,6 +231,8 @@ public class HDLCConnection extends Connection implements DLMSConnection {
         this.iServerLowerMacAddress=iServerLowerMacAddress;
         getAddressingMode(addressingMode);
         setProtocolParams();
+        this.invokeIdAndPriority = new InvokeIdAndPriority();
+        
     } // public HDLCConnection(...)
 
     private void getAddressingMode(int addressingMode) throws DLMSConnectionException {
@@ -1132,5 +1136,17 @@ public class HDLCConnection extends Connection implements DLMSConnection {
 		// absorb ...
 		
 	}
+	
+    /********************************************************************************************************
+     * Invoke-Id-And-Priority byte setting
+     ********************************************************************************************************/
+    
+    public void setInvokeIdAndPriority(InvokeIdAndPriority iiap){
+    	this.invokeIdAndPriority = iiap;
+    }
+    
+    public InvokeIdAndPriority getInvokeIdAndPriority(){
+    	return this.invokeIdAndPriority;
+    }
 
 } // public class HDLCConnection

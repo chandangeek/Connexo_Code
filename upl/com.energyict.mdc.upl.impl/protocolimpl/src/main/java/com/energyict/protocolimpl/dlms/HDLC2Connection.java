@@ -10,6 +10,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.ReceiveBuffer;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -130,6 +131,7 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
     private byte[] macSNRMFrame;
     private HHUSignOn hhuSignOn=null;
     private String meterId="";
+    private InvokeIdAndPriority invokeIdAndPriority;
         
     public HDLC2Connection(
     			InputStream inputStream,
@@ -158,7 +160,8 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
         setProtocolParams();
         this.informationFieldSize= (informationFieldSize == - 1) ? ISIZE : informationFieldSize;
         this.hhuSignonBaudRateCode = hhuSignonBaudRateCode;
-        updateSNRMFrames();        
+        updateSNRMFrames();
+        this.invokeIdAndPriority = new InvokeIdAndPriority();
     } 
    
     public int getType() {
@@ -698,6 +701,17 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
     public void setIskraWrapper(int type) {
 	}
  	
+    /********************************************************************************************************
+     * Invoke-Id-And-Priority byte setting
+     ********************************************************************************************************/
+    
+    public void setInvokeIdAndPriority(InvokeIdAndPriority iiap){
+    	this.invokeIdAndPriority = iiap;
+    }
+    
+    public InvokeIdAndPriority getInvokeIdAndPriority(){
+    	return this.invokeIdAndPriority;
+    }
   
     private class HDLCFrame {
     
