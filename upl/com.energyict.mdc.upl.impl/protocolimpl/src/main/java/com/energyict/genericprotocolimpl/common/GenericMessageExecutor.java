@@ -17,9 +17,16 @@ import org.xml.sax.helpers.DefaultHandler;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdw.core.RtuMessage;
 
+/**
+ * 
+ * @author gna
+ * @BeginChanges:
+ * 	GNA |21042009| Changed the SingleActionScheduler Execution time, according to BlueBook9th the executionTime is an Array of Structures of 2 OctetStrings
+ */
 public abstract class GenericMessageExecutor {
 	
 	abstract public void doMessage(RtuMessage rtuMessage)throws BusinessException, SQLException;
@@ -76,8 +83,10 @@ public abstract class GenericMessageExecutor {
 			OctetString time = new OctetString(timeBytes);
 			
 			Array dateTimeArray = new Array();
-			dateTimeArray.addDataType(time);
-			dateTimeArray.addDataType(date);
+			Structure strDateTime = new Structure();
+			strDateTime.addDataType(time);
+			strDateTime.addDataType(date);
+			dateTimeArray.addDataType(strDateTime);
 			return dateTimeArray;
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
