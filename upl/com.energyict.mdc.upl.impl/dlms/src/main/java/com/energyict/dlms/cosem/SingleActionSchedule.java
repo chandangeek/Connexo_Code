@@ -121,7 +121,7 @@ public class SingleActionSchedule extends AbstractCosemObject{
 	}
 	
 	/**
-	 * Writes an ExecutionTime to the device
+	 * Writes an Array of possible executionTime STRUCTURES.
 	 * @param executionTime
 	 * @throws IOException
 	 */

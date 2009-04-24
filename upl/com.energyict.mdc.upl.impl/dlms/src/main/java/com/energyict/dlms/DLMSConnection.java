@@ -30,4 +30,6 @@ public interface DLMSConnection {
     public int getType();
 	public void setSNRMType(int type);  
 	public void setIskraWrapper(int type);
+	public void setInvokeIdAndPriority(InvokeIdAndPriority iiap);
+	public InvokeIdAndPriority getInvokeIdAndPriority();
 }

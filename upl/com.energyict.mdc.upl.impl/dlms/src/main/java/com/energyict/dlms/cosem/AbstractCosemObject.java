@@ -5,13 +5,19 @@
  */
 
 package com.energyict.dlms.cosem;
-import com.energyict.cbo.*;
-import java.io.*;
-import java.util.*;
-import com.energyict.protocolimpl.dlms.*;
-import com.energyict.protocol.ProtocolUtils;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dlms.*;
+import com.energyict.dlms.AdaptorConnection;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ReceiveBuffer;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author  Koen
@@ -38,11 +44,13 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
     private ObjectReference objectReference;
     
     abstract protected int getClassId();
+    private byte INVOKE_ID_AND_PRIORITY;
     
     /** Creates a new instance of AbstractCosemObject */
     public AbstractCosemObject(ProtocolLink protocolLink,ObjectReference objectReference) {
         this.objectReference=objectReference;
         this.protocolLink=protocolLink;
+        this.INVOKE_ID_AND_PRIORITY = this.protocolLink.getDLMSConnection().getInvokeIdAndPriority().getInvokeIdAndPriorityData();
     }
     
     public byte[] getCompoundData() {
@@ -229,7 +237,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
         readRequestArray[DL_COSEMPDU_OFFSET] = COSEM_GETREQUEST;
         readRequestArray[DL_COSEMPDU_OFFSET+1] = COSEM_GETREQUEST_NORMAL; // get request normal
         
-        readRequestArray[DL_COSEMPDU_OFFSET+2] = (byte)0x81; //invoke id and priority
+        readRequestArray[DL_COSEMPDU_OFFSET+2] = INVOKE_ID_AND_PRIORITY; //invoke id and priority
         
         readRequestArray[DL_COSEMPDU_OFFSET_CID] = (byte)(classId>>8);
         readRequestArray[DL_COSEMPDU_OFFSET_CID+1] = (byte)classId;
@@ -265,7 +273,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
         readRequestArray[2] = 0x00; // LLC_Quality
         readRequestArray[DL_COSEMPDU_OFFSET] = COSEM_GETREQUEST;
         readRequestArray[DL_COSEMPDU_OFFSET+1] = COSEM_GETREQUEST_NEXT; // get request next
-        readRequestArray[DL_COSEMPDU_OFFSET+2] = (byte)0x81; //invoke id and priority
+        readRequestArray[DL_COSEMPDU_OFFSET+2] = INVOKE_ID_AND_PRIORITY; //invoke id and priority
         readRequestArray[DL_COSEMPDU_OFFSET+3] = (byte)(iBlockNumber>>24);
         readRequestArray[DL_COSEMPDU_OFFSET+4] = (byte)(iBlockNumber>>16);
         readRequestArray[DL_COSEMPDU_OFFSET+5] = (byte)(iBlockNumber>>8);
@@ -283,7 +291,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
         writeRequestArray[2] = 0x00; // LLC_Quality
         writeRequestArray[DL_COSEMPDU_OFFSET] = COSEM_SETREQUEST;
         writeRequestArray[DL_COSEMPDU_OFFSET+1] = COSEM_SETREQUEST_NORMAL; // get request normal
-        writeRequestArray[DL_COSEMPDU_OFFSET+2] = (byte)0x81; //invoke id and priority
+        writeRequestArray[DL_COSEMPDU_OFFSET+2] = INVOKE_ID_AND_PRIORITY; //invoke id and priority
         
         writeRequestArray[DL_COSEMPDU_OFFSET_CID] = (byte)(classId>>8);
         writeRequestArray[DL_COSEMPDU_OFFSET_CID+1] = (byte)classId;
@@ -317,7 +325,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
         writeRequestArray[2] = 0x00; // LLC_Quality
         writeRequestArray[DL_COSEMPDU_OFFSET] = COSEM_ACTIONREQUEST;
         writeRequestArray[DL_COSEMPDU_OFFSET+1] = COSEM_ACTIONREQUEST_NORMAL; // get request normal
-        writeRequestArray[DL_COSEMPDU_OFFSET+2] = (byte)0x81; //invoke id and priority
+        writeRequestArray[DL_COSEMPDU_OFFSET+2] = INVOKE_ID_AND_PRIORITY; //invoke id and priority
         
         writeRequestArray[DL_COSEMPDU_OFFSET_CID] = (byte)(classId>>8);
         writeRequestArray[DL_COSEMPDU_OFFSET_CID+1] = (byte)classId;

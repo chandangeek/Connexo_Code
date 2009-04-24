@@ -34,7 +34,9 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
 
     private static final byte CLIENT_NO_SECURITY=0;
     private static final byte CLIENT_LOWLEVEL_SECURITY=1;
-
+    
+    private InvokeIdAndPriority invokeIdAndPriority;
+    
     public TCPIPConnection(InputStream inputStream,
                           OutputStream outputStream,
                           int timeout,
@@ -49,6 +51,8 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
         this.serverAddress=serverAddress;
         this.forceDelay = forceDelay;
         boolTCPIPConnected=false;
+        this.invokeIdAndPriority = new InvokeIdAndPriority();
+        
     } // public TCPIPConnection(...)
 
     public int getType() {
@@ -372,5 +376,16 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
             this.data = data;
         }
     } // class WPDU
-
+    
+    /********************************************************************************************************
+     * Invoke-Id-And-Priority byte setting
+     ********************************************************************************************************/
+    
+    public void setInvokeIdAndPriority(InvokeIdAndPriority iiap){
+    	this.invokeIdAndPriority = iiap;
+    }
+    
+    public InvokeIdAndPriority getInvokeIdAndPriority(){
+    	return this.invokeIdAndPriority;
+    }
 } // public class TCPIPConnection

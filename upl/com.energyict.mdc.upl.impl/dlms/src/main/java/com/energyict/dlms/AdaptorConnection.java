@@ -11,6 +11,7 @@ public class AdaptorConnection implements DLMSConnection {
 
 	final int DEBUG=0;
 	ByteArrayOutputStream baos = null;
+	private InvokeIdAndPriority invokeIdAndPriority = new InvokeIdAndPriority();
 	
 	public AdaptorConnection() throws IOException {
 		// TODO Auto-generated constructor stub
@@ -70,5 +71,17 @@ public class AdaptorConnection implements DLMSConnection {
 		// TODO Auto-generated method stub
 		
 	}
+	
+    /********************************************************************************************************
+     * Invoke-Id-And-Priority byte setting
+     ********************************************************************************************************/
+    
+    public void setInvokeIdAndPriority(InvokeIdAndPriority iiap){
+    	this.invokeIdAndPriority = iiap;
+    }
+    
+    public InvokeIdAndPriority getInvokeIdAndPriority(){
+    	return this.invokeIdAndPriority;
+    }
 
 }

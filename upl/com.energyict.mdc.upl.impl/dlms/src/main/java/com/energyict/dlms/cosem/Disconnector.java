@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 
 /**
@@ -194,7 +195,7 @@ public class Disconnector extends AbstractCosemObject{
 	 * @throws IOException 
 	 */
 	public void remoteDisconnect() throws IOException{
-		invoke(METHOD_REMOTE_DISCONNECT);
+		invoke(METHOD_REMOTE_DISCONNECT, new Integer8(0).getBEREncodedByteArray());
 	}
 	
 	/**
@@ -206,6 +207,6 @@ public class Disconnector extends AbstractCosemObject{
 	 * @throws IOException 
 	 */
 	public void remoteReconnect() throws IOException{
-		invoke(METHOD_REMOTE_RECONNECT);
+		invoke(METHOD_REMOTE_RECONNECT, new Integer8(0).getBEREncodedByteArray());
 	}
 }

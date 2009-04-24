@@ -8,11 +8,10 @@
 
 package com.energyict.dlms; 
 
-import java.io.*;
+import java.io.IOException;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocolimpl.dlms.*;
 /**
  *
  * @author  Koen 
@@ -57,7 +56,7 @@ public class DLMSMeterConfig {
         if (manuf==null) 
             return false;
         else
-            return "ISK".compareTo(manuf)==0;
+            return ("ISK".compareTo(manuf)==0)||("WKP".compareTo(manuf)==0);
     }
     
     /** Creates a new instance of DLMSMeterConfig */
@@ -379,4 +378,5 @@ public class DLMSMeterConfig {
 	public UniversalObject getMbusClient(int physicalAddress) throws IOException{
 		return config.getMbusClient(IOL, manuf, physicalAddress);
 	}
+	
 }
