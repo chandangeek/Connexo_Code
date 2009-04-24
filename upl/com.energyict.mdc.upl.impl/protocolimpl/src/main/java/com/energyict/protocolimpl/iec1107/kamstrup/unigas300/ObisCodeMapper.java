@@ -55,7 +55,7 @@ public class ObisCodeMapper {
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
         RegisterMappingFactory rmf = new RegisterMappingFactory();
         String registerCode = rmf.findRegisterCode(obisCode);
-        Object o = unigas300.getKamstrupRegistry().getRegister(registerCode);
+        Object o = unigas300.getUnigas300Registry().getRegister(registerCode);
         if (o instanceof Quantity) {
             return new RegisterValue(obisCode,(Quantity)o);
         }

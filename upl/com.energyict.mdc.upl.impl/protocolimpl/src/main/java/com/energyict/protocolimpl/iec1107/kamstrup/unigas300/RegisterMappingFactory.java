@@ -51,6 +51,7 @@ public class RegisterMappingFactory {
         getRegisterMappings().add(new RegisterMapping("1107 device address","C.90.1", ObisCode.fromString("7.1.96.50.8.255")));
         getRegisterMappings().add(new RegisterMapping("UNIGAS software revision number","C.90.2", ObisCode.fromString("7.1.96.50.9.255")));
         getRegisterMappings().add(new RegisterMapping("CI software revision number","C.90.3", ObisCode.fromString("7.1.96.50.10.255")));
+        getRegisterMappings().add(new RegisterMapping("DeviceSerialNumber", "C.1.0", ObisCode.fromString("0.0.96.1.0.255")));
         
         getRegisterMappings().add(new RegisterMapping("actual status bits","C.5", ObisCode.fromString("7.1.96.50.11.255")));
     }    

@@ -1,5 +1,5 @@
 /*
- * KamstrupProfile.java
+ * Unigas300Profile.java
  *
  * Created on 12 mei 2003, 15:00
  */
@@ -62,11 +62,11 @@ public class Unigas300Profile extends VDEWProfile {
     private static final Unit[] KAMSTRUP_PROTILEDATAUNITS = {
     	Unit.get("m3"),	Unit.get("m3"), Unit.get("m3"),
     	Unit.get("m3"),	Unit.get("m3"),	Unit.get("m3"),
-    	Unit.get(BaseUnit.KELVIN,-1), Unit.get("mbar"),
+    	Unit.get(BaseUnit.DEGREE_CELSIUS, -2), Unit.get("mbar"),
     	Unit.get(""), Unit.get(""), Unit.get("")
     };
     
-    /** Creates a new instance of KamstrupProfile */
+    /** Creates a new instance of Unigas300Profile */
     public Unigas300Profile(ProtocolLink protocolLink,AbstractVDEWRegistry abstractVDEWRegistry) {
         super(null,protocolLink,abstractVDEWRegistry);
     }
@@ -113,7 +113,7 @@ public class Unigas300Profile extends VDEWProfile {
        // KV 25032004
        int seconds = (int)ProtocolUtils.bcd2byte(data,11+iOffset);       
        if (seconds != 0)
-           getProtocolLink().getLogger().severe ("KamstrupProfile, parseDateTime, seconds != 0 ("+seconds+")");
+           getProtocolLink().getLogger().severe ("Unigas300Profile, parseDateTime, seconds != 0 ("+seconds+")");
        calendar.set(calendar.SECOND,0); //(int)ProtocolUtils.bcd2byte(data,11+iOffset));
        calendar.set(calendar.MILLISECOND,0);
        return calendar;
@@ -257,4 +257,4 @@ public class Unigas300Profile extends VDEWProfile {
     } // ProfileData buildProfileData(byte[] responseData) throws IOException
     
     
-} // KamstrupProfile
+} // Unigas300Profile

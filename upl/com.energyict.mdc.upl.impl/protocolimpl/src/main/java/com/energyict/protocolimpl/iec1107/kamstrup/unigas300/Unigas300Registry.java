@@ -1,5 +1,5 @@
 /*
- * KamstrupRegister.java
+ * Unigas300Register.java
  *
  * Created on 16 juni 2003, 16:35
  */
@@ -17,7 +17,7 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWRegisterDataParse;
  */
 public class Unigas300Registry extends AbstractVDEWRegistry {
     
-    /** Creates a new instance of KamstrupRegister */
+    /** Creates a new instance of Unigas300Register */
     public Unigas300Registry(ProtocolLink protocolLink) {
         super(null,protocolLink);
     }
@@ -41,13 +41,13 @@ public class Unigas300Registry extends AbstractVDEWRegistry {
         registers.put("Time", new VDEWRegister("0.9.1",VDEWRegisterDataParse.VDEW_TIMESTRING,0, -1,null,VDEWRegister.WRITEABLE,VDEWRegister.NOT_CACHED));
         registers.put("Date", new VDEWRegister("0.9.2",VDEWRegisterDataParse.VDEW_DATESTRING,0, -1,null,VDEWRegister.WRITEABLE,VDEWRegister.NOT_CACHED));
         registers.put("TimeDate", new VDEWRegister("0.9.1 0.9.2",VDEWRegisterDataParse.VDEW_TIMEDATE,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED));
+
+        registers.put("DeviceSerialNumber", new VDEWRegister("C.1.0",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
         registers.put("1107 device address", new VDEWRegister("C.90.1",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
         registers.put("UNIGAS software revision number", new VDEWRegister("C.90.2",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
         registers.put("CI software revision number", new VDEWRegister("C.90.3",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
         
         registers.put("actual status bits", new VDEWRegister("C.5",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
     }
-    
-
     
 }
