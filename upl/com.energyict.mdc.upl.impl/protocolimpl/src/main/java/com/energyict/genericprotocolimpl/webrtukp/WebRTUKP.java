@@ -1,6 +1,5 @@
 package com.energyict.genericprotocolimpl.webrtukp;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,13 +14,6 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
-
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
@@ -35,12 +27,10 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
@@ -79,7 +69,11 @@ import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.messaging.Messaging;
-import com.energyict.protocolimpl.dlms.*;
+import com.energyict.protocolimpl.dlms.DLMSCache;
+import com.energyict.protocolimpl.dlms.HDLC2Connection;
+import com.energyict.protocolimpl.dlms.RtuDLMS;
+import com.energyict.protocolimpl.dlms.RtuDLMSCache;
+import com.energyict.utils.Utilities;
 
 /**
  * 
@@ -153,6 +147,12 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	private String deviceId;
 	private boolean readDaily;
 	private boolean readMonthly;
+
+	private int iiapPriority;
+
+	private int iiapServiceClass;
+
+	private int iiapInvokeId;
 	
 	/**
 	 * This method handles the complete WebRTU. The Rtu acts as an Electricity meter. The E-meter itself can have several MBus meters
@@ -315,7 +315,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 					new HDLC2Connection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode,this.informationFieldSize,5):
 					new TCPIPConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress);
 		
-					
+		
+		InvokeIdAndPriority iiap = buildInvokeIdAndPriority();
+		this.dlmsConnection.setInvokeIdAndPriority(iiap);
+		
 		if (DialerMarker.hasOpticalMarker(this.link)){
 			((HHUEnabler)this).enableHHUSignOn(this.link.getSerialCommunicationChannel());
 		}			
@@ -328,6 +331,15 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		this.mbusDevices = new MbusDevice[this.maxMbusDevices];
 		this.storeObject = new StoreObject();
 	}
+
+	private InvokeIdAndPriority buildInvokeIdAndPriority() throws DLMSConnectionException {
+		InvokeIdAndPriority iiap = new InvokeIdAndPriority();
+		iiap.setPriority(this.iiapPriority);
+		iiap.setServiceClass(this.iiapServiceClass);
+		iiap.setTheInvokeId(this.iiapInvokeId);
+		return iiap;
+	}
+
 
 	/**
 	 * Makes a connection to the server, if the socket is not available then an error is thrown.
@@ -899,6 +911,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         this.informationFieldSize = Integer.parseInt(properties.getProperty("InformationFieldSize","-1"));
         this.readDaily = !properties.getProperty("ReadDailyValues", "1").equalsIgnoreCase("0");
         this.readMonthly = !properties.getProperty("ReadMonthlyValues", "1").equalsIgnoreCase("0");
+        
+        this.iiapInvokeId = Integer.parseInt(properties.getProperty("IIAPInvokeId", "0"));
+        this.iiapPriority = Integer.parseInt(properties.getProperty("IIAPPriority", "1"));
+        this.iiapServiceClass = Integer.parseInt(properties.getProperty("IIAPServiceClass", "1"));
 	}
 	
 	public void addProperties(Properties properties) {
@@ -932,7 +948,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         result.add("MaxMbusDevices");
         result.add("ReadDailyValues");
         result.add("ReadMonthlyValues");
-        result.add("IpPortNumber");	
+        result.add("IpPortNumber");
+        result.add("IIAPInvokeId");
+        result.add("IIAPPriority");
+        result.add("IIAPServiceClass");
 		return result;
 	}
 
@@ -1145,7 +1164,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		catTime.addMessageSpec(msgSpec);
 		
 		// Create database entries
-		msgSpec = addCreateDBEntries("Create entries in the meters database", RtuMessageConstant.ME_MAKING_ENTRIES, false);
+		msgSpec = addCreateDBEntries("Create entries in the meters database", RtuMessageConstant.ME_MAKING_ENTRIES, true);
 		catMakeEntries.addMessageSpec(msgSpec);
 		
 		// Change GPRS modem setup

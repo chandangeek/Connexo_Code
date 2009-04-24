@@ -47,6 +47,7 @@ import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.dlms.cosem.GenericWrite;
+import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.Limiter;
 import com.energyict.dlms.cosem.P3ImageTransfer;
 import com.energyict.dlms.cosem.PPPSetup;
@@ -85,6 +86,8 @@ public class MessageExecutor extends GenericMessageExecutor{
 	private WebRTUKP webRtu;
 	private boolean DEBUG = false;
 
+	private static final byte[] defaultMonitoredAttribute = new byte[]{1,0,90,7,0,(byte)255};	// Total current, instantaneous value
+	
 	public MessageExecutor(WebRTUKP webRTUKP) {
 		this.webRtu = webRTUKP;
 	}
@@ -149,12 +152,15 @@ public class MessageExecutor extends GenericMessageExecutor{
 				}
 				
 				byte[] imageData = uf.loadFileInByteArray();
-				P3ImageTransfer p3it = getCosemObjectFactory().getP3ImageTransfer();
-				p3it.upgrade(imageData);
+//				P3ImageTransfer p3it = getCosemObjectFactory().getP3ImageTransfer();
+				ImageTransfer it = getCosemObjectFactory().getImageTransfer();
+//				p3it.upgrade(imageData);
+				it.upgrade(imageData);
 				if(DEBUG)System.out.println("UserFile is send to the device.");
 				if(messageHandler.activateNow()){
 					if(DEBUG)System.out.println("Start the activateNow.");
-					p3it.activateAndRetryImage();
+//					p3it.activateAndRetryImage();
+					it.imageActivation();
 					if(DEBUG)System.out.println("ActivateNow complete.");
 				} else if(!messageHandler.getActivationDate().equalsIgnoreCase("")){
 					SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
@@ -287,6 +293,10 @@ public class MessageExecutor extends GenericMessageExecutor{
 				
 				if(theMonitoredAttributeType == -1){	// check for the type of the monitored value
 					ValueDefinitionType valueDefinitionType = loadLimiter.getMonitoredValue();
+					if(valueDefinitionType.getClassId().getValue() == 0){
+						setMonitoredValue(loadLimiter);
+						valueDefinitionType = loadLimiter.readMonitoredValue();
+					}
 					theMonitoredAttributeType = getMonitoredAttributeType(valueDefinitionType);
 				}
 				
@@ -836,6 +846,15 @@ public class MessageExecutor extends GenericMessageExecutor{
 		}
 	}
 	
+	private void setMonitoredValue(Limiter loadLimiter) throws IOException {
+		ValueDefinitionType vdt = loadLimiter.new ValueDefinitionType();
+		vdt.addDataType(new Unsigned16(3));
+		OctetString os = new OctetString(defaultMonitoredAttribute);
+		vdt.addDataType(os);
+		vdt.addDataType(new Integer8(2));
+		loadLimiter.writeMonitoredValue(vdt);
+	}
+
 	private String getShowableString(Date date){
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);

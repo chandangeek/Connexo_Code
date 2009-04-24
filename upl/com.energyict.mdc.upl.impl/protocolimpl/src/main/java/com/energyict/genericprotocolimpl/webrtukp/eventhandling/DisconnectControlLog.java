@@ -35,7 +35,11 @@ public class DisconnectControlLog {
 		Date eventTimeStamp = null;
 		for(int i = 0; i <= (size-1); i++){
 			int eventId = (int)this.dcEvents.getRoot().getStructure(i).getValue(1);
-			int threshold = (int)this.dcEvents.getRoot().getStructure(i).getInteger(2);
+			int threshold = 0;
+			//TODO fix it for the Iskra 2009 meter
+			if(this.dcEvents.getRoot().getStructure(i).isInteger(2)){
+				threshold = (int)this.dcEvents.getRoot().getStructure(i).getInteger(2);
+			}
 			if(isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))){
 				eventTimeStamp = dcEvents.getRoot().getStructure(i).getOctetString(0).toDate(this.timeZone);
 			}
