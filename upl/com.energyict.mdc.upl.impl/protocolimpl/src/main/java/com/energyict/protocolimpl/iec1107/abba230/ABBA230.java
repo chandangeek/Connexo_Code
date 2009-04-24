@@ -78,7 +78,6 @@ public class ABBA230 implements
     final static String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
     final static String PK_ECHO_CANCELING = "EchoCancelling";
     
-    
     /** Property Default values */
     final static String PD_NODE_ID = "";
     final static int PD_TIMEOUT = 10000;
@@ -119,6 +118,7 @@ public class ABBA230 implements
     private ABBA230RegisterFactory rFactory=null;
     private ABBA230Profile profile=null;
     
+    private CacheMechanism cacheObject=null;
     private boolean software7E1;
     
     public ABBA230() { }
@@ -191,6 +191,7 @@ public class ABBA230 implements
                 pIEC1107Compatible = Integer.parseInt(p.getProperty(PK_IEC1107_COMPATIBLE));
             
             this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+            
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("Elster A230, validateProperties, NumberFormatException, "+e.getMessage());
         }
@@ -201,7 +202,7 @@ public class ABBA230 implements
     
     
     public List map2MeterEvent(String event) throws IOException {
-    	EventMapperFactory emf = new EventMapperFactory();
+    	EventMapperFactory emf = new EventMapperFactory(); 
     	return emf.getMeterEvents(event);
     }
     
@@ -230,6 +231,7 @@ public class ABBA230 implements
         result.add("EchoCancelling");
         result.add("IEC1107Compatible");
         result.add("ExtendedLogging");
+        result.add("EventMapperEnabled");
         result.add("Software7E1");
         return result;
     }
@@ -283,8 +285,14 @@ public class ABBA230 implements
         try {
             getFlagIEC1107Connection().connectMAC(pAddress,pPassword,pSecurityLevel,pNodeId,baudrate);
             
-            rFactory = new ABBA230RegisterFactory((ProtocolLink)this,(MeterExceptionInfo)this);
+            
+            
+            executeDefaultScript();
+            //executeRegisterScript();
+            
+            rFactory = new ABBA230RegisterFactory(this,(MeterExceptionInfo)this);
             profile=new ABBA230Profile(this,rFactory);
+        
             
             
         } catch(FlagIEC1107ConnectionException e) {
@@ -396,7 +404,11 @@ public class ABBA230 implements
     /* (non-Javadoc)
      * @see com.energyict.protocol.MeterProtocol#release()
      */
-    public void release() throws IOException {}
+    public void release() throws IOException {
+    	
+    	/* In case we use the caching for some extra functionality, clean it up! */
+    	setCache(null);
+    }
     
     
     /* ________ Impelement interface ProtocolLink ___________ */
@@ -594,7 +606,9 @@ public class ABBA230 implements
     /* method not supported
      * @see com.energyict.protocol.MeterProtocol#getCache()
      */
-    public Object getCache() { return null; }
+    public Object getCache() { 
+    	return cacheObject; 
+    }
     
     /* method not supported
      * @see com.energyict.protocol.MeterProtocol#fetchCache(int)
@@ -605,7 +619,9 @@ public class ABBA230 implements
     /* method not supported
      * @see com.energyict.protocol.MeterProtocol#setCache(java.lang.Object)
      */
-    public void setCache(Object cacheObject) {}
+    public void setCache(Object cacheObject) {
+    	this.cacheObject=(CacheMechanism)cacheObject;
+    }
     
     /* method not supported
      * @see com.energyict.protocol.MeterProtocol#updateCache(int, java.lang.Object)
@@ -1171,5 +1187,19 @@ public class ABBA230 implements
 			return MessageResult.createFailed(messageEntry);
 		}
 	}
-
+	
+	private void executeDefaultScript() throws IOException {
+		if ((getCache() != null) && (getCache() instanceof CacheMechanism)) {
+			// call the scriptexecution  scriptId,script
+			String script = "778001(1),777001(2),878001(3),798001(10)";
+			((CacheMechanism)getCache()).setCache(new String[]{"3",script});
+		}
+	}	
+	private void executeRegisterScript() throws IOException {
+		if ((getCache() != null) && (getCache() instanceof CacheMechanism)) {
+			// call the scriptexecution  scriptId,script
+			String script = "507001(40),507002(40)";
+			((CacheMechanism)getCache()).setCache(new String[]{"4",script});
+		}
+	}	
 }

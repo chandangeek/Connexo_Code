@@ -121,6 +121,7 @@ public class ABBA230RegisterFactory {
     private ABBA230Register applFWVersion;
     
     SystemStatus systemStatus=null;
+    ABBA230 abba230;
     
     /**
      * Creates a new instance of ABBA230RegisterFactory
@@ -128,13 +129,14 @@ public class ABBA230RegisterFactory {
      * @param meterExceptionInfo
      */
     public ABBA230RegisterFactory(
-            ProtocolLink protocolLink, MeterExceptionInfo meterExceptionInfo ) {
+    		ABBA230 abba230, MeterExceptionInfo meterExceptionInfo ) {
         
-        this.protocolLink = protocolLink;
+        this.protocolLink = (ProtocolLink)abba230;
         this.meterExceptionInfo = meterExceptionInfo;
         this.dataType = new DataType(protocolLink.getTimeZone());
         this.dataIdentityFactory = new ABBA230DataIdentityFactory(protocolLink,meterExceptionInfo);
         initRegisters();
+        this.abba230=abba230;
         
     }
     

@@ -6,7 +6,7 @@ import java.util.logging.*;
 
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.*;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.AbstractEventLog;
 
 /**
  * As example a new AS230 meter with intervals of half an hour.
@@ -56,26 +56,22 @@ public class ABBA230Profile {
     private Date meterTime = null;
     /** integration period in seconds */
     private int integrationPeriod;
+    ABBA230 abba230;
     
-    ABBA230Profile(ProtocolLink protocolLink,ABBA230RegisterFactory abba230RegisterFactory) throws IOException {
-        this.protocolLink = protocolLink;
+    
+    ABBA230Profile(ABBA230 abba230,ABBA230RegisterFactory abba230RegisterFactory) throws IOException {
+    	this.abba230=abba230;
+    	this.protocolLink = (ProtocolLink)abba230;
         this.rFactory = abba230RegisterFactory;
         long val = ((Long)rFactory.getRegister("LoadProfileDSTConfig")).longValue();
         if ((val&0x01)==0)
         	adjustedTimeZone = ProtocolUtils.getWinterTimeZone(protocolLink.getTimeZone());
         else
         	adjustedTimeZone = protocolLink.getTimeZone();
+        
     }
     
-    /** Retrieve the load profile between from and to date.
-     *
-     * @param from
-     * @param to
-     * @param includeEvents
-     * @throws java.io.IOException
-     * @return
-     */
-    ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
+    private void requestLoadProfile(Date from, Date to, boolean includeEvents) throws IOException {
         Logger l = protocolLink.getLogger();
         if( l.isLoggable( Level.INFO ) ) {
             String msg = "getProfileData(Date " + from + ", Date "
@@ -107,7 +103,18 @@ public class ABBA230Profile {
 //        long nrOfDaysToRetrieve = ((tostd/ONEDAY) - (fromstd/ONEDAY)) + 1;
 //
 //        rFactory.setRegister("LoadProfileSet",new Long(nrOfDaysToRetrieve));
-        
+    }
+    
+    /** Retrieve the load profile between from and to date.
+     *
+     * @param from
+     * @param to
+     * @param includeEvents
+     * @throws java.io.IOException
+     * @return
+     */
+    ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
+    	requestLoadProfile(from,to,includeEvents);
         return doGetProfileData(includeEvents,from);
     }
     
@@ -129,22 +136,43 @@ public class ABBA230Profile {
         
         return doGetProfileData(includeEvents,null);
     }
-    
+
+	private void executeProfileDataScript(long nrOfBlocks) throws IOException {
+		if ((abba230.getCache() != null) && (abba230.getCache() instanceof CacheMechanism)) {
+			StringBuffer strBuff = new StringBuffer();
+			for(int i=0;i<nrOfBlocks;i++) {
+				if (i>0)
+					strBuff.append(",");
+				strBuff.append("55000"+(i+1)+"(40)");
+			}
+			// call the scriptexecution  scriptId,script
+			((CacheMechanism)abba230.getCache()).setCache(new String[]{"2",strBuff.toString()});
+		}
+	}
+	private void executeLogbookScript() throws IOException {
+		if ((abba230.getCache() != null) && (abba230.getCache() instanceof CacheMechanism)) {
+			// call the scriptexecution  scriptId,script
+			String script = "678001(40),678002(13),679001(40),679002(13),680001(40),680002(40),680003(2d),685001(40),685002(13),695001(40),695002(13),691001(40),691002(13),692001(40),692002(13),693001(40),693002(13),694001(2b),696001(2b),699001(35),422001(35),423001(35),424001(35),425001(35),426001(35),427001(35),428001(35),429001(35),430001(35),431001(35),432001(35),433001(35),701001(35),705001(2b)";
+			((CacheMechanism)abba230.getCache()).setCache(new String[]{"2",script});
+		}
+	}
+	
     private ProfileData doGetProfileData( boolean includeEvents,Date from ) throws IOException {
         byte[] data;
         
-        // the use of stream mode requires a write to the 551 identity. Now we use the 554 identity deading load profile from - to
-        //if (protocolLink.isIEC1107Compatible()) {
-            long nrOfBlocks = ((Long)rFactory.getRegister("LoadProfileByDate64Blocks")).longValue();
-            data = rFactory.getRegisterRawData("LoadProfile", (int)nrOfBlocks*64);
-        //} else {
-        //    long nrOfBlocks = ((Long)rFactory.getRegister("LoadProfile256Blocks")).longValue();
-        //    data = rFactory.getRegisterRawDataStream("LoadProfile",(int)nrOfBlocks);
-        //}
+        long nrOfBlocks = ((Long)rFactory.getRegister("LoadProfileByDate64Blocks")).longValue();
+        
+        // specific for the scripting with wavenis
+        //executeProfileDataScript(nrOfBlocks);
+        
+        data = rFactory.getRegisterRawData("LoadProfile", (int)nrOfBlocks*64);
         
         ProfileData profileData = parse(includeEvents,new ByteArrayInputStream(data), protocolLink.getNumberOfChannels());
         
         if( includeEvents ) {
+        	
+        	//executeLogbookDataScript();
+        	
         	List meterEvents= new ArrayList();
         	
         	getMeterEvents(rFactory.getOverVoltageEventLog(),meterEvents);
