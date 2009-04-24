@@ -43,8 +43,8 @@ public class StatusCodeProfile {
             eiCode |= IntervalStateBits.BADTIME;
         if ((statusCodeProfile & DATA_NOT_VALID) == DATA_NOT_VALID)
             eiCode |= IntervalStateBits.CORRUPTED;
-//        if ((statusCodeProfile & DAYLIGHT_SAVING) == DAYLIGHT_SAVING)
-//            eiCode |= IntervalStateBits.OTHER;
+        if ((statusCodeProfile & DAYLIGHT_SAVING) == DAYLIGHT_SAVING)
+            eiCode |= IntervalStateBits.OTHER;
         if ((statusCodeProfile & BILLING_RESET) == BILLING_RESET)
             eiCode |= IntervalStateBits.OTHER;
         if ((statusCodeProfile & CLOCK_ADJUSTED) == CLOCK_ADJUSTED)
