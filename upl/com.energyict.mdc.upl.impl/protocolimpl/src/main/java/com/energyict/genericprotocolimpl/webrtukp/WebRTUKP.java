@@ -31,6 +31,7 @@ import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
@@ -757,7 +758,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	
 	public void forceClock(Date currentTime) throws IOException{
 		try {
-			getCosemObjectFactory().getClock().setTimeAttr(new DateTime(currentTime));
+//			getCosemObjectFactory().getClock().setTimeAttr(new DateTime(currentTime));
+			getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(currentTime));
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not force to set the Clock object.");
@@ -778,7 +780,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	
 	public void setClock(Date time) throws IOException{
 		try {
-			getCosemObjectFactory().getClock().setTimeAttr(new DateTime(time));
+//			getCosemObjectFactory().getClock().setTimeAttr(new DateTime(time));
+			getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(time));
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not set the Clock object.");

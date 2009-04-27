@@ -17,6 +17,8 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
@@ -90,7 +92,8 @@ public class MbusDailyMonthly {
 		int profileStatus = 0;
 		if(dc.getRoot().getElements().length != 0){
 			for(int i = 0; i < dc.getRoot().getElements().length; i++){
-				cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
+//				cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
+				cal = new AXDRDateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).getArray())).getValue();
 				if(cal != null){				
 					currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg);
 					if(currentInterval != null){
