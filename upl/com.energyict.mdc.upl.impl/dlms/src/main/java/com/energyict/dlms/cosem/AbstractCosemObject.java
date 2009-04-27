@@ -50,7 +50,8 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
     public AbstractCosemObject(ProtocolLink protocolLink,ObjectReference objectReference) {
         this.objectReference=objectReference;
         this.protocolLink=protocolLink;
-        this.INVOKE_ID_AND_PRIORITY = this.protocolLink.getDLMSConnection().getInvokeIdAndPriority().getInvokeIdAndPriorityData();
+        if (this.protocolLink != null)
+        	this.INVOKE_ID_AND_PRIORITY = this.protocolLink.getDLMSConnection().getInvokeIdAndPriority().getInvokeIdAndPriorityData();
     }
     
     public byte[] getCompoundData() {
