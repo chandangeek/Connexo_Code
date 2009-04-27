@@ -239,10 +239,6 @@ public class ElectricityProfile {
 						profileStatus = 0;
 					}
 					
-					if((profileStatus != 0) & (profileStatus != 8)){
-						System.out.println("Break");
-					}
-					
 					currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg);
 					if(currentInterval != null){
 						pd.addInterval(currentInterval);
