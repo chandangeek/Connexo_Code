@@ -9,21 +9,33 @@
  * 
  * Changes:
  * JME	|06042009|	Added harmonics registers 2 to 15 for V1, V2, V3, I1, I2 and I3.
+ * JME	|27042009|	Added instantaneous power registers, per phase.
  * 
  */
 
 package com.energyict.protocolimpl.modbus.northerndesign.cube350;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
-import com.energyict.dialer.core.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 
 /**
@@ -60,7 +72,7 @@ public class Cube350 extends Modbus {
     }
     
     public String getProtocolVersion() {
-        return "$Revision: 1.4 $";
+        return "$Revision: 1.5 $";
     }
     
     protected void initRegisterFactory() {

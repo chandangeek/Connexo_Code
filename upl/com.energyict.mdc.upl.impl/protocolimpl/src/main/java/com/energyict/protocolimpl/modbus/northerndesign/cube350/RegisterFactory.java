@@ -54,6 +54,8 @@ public class RegisterFactory extends AbstractRegisterFactory {
         /* Power scale */
         getRegisters().add( new HoldingRegister(2840,1,"kp").setParser("value0") );
         
+        /* energy */
+        
         
         /* energy */
         getRegisters().add(new HoldingRegister(514,2,toObis("1.1.1.8.0.255"),Unit.get("kWh"))); 
@@ -76,6 +78,19 @@ public class RegisterFactory extends AbstractRegisterFactory {
         /* power phase C */ 
         getRegisters().add(new HoldingRegister(2829,1,toObis("1.1.61.7.0.255"),Unit.get("W"))); 
 
+        /* Reactive power phase A */ 
+        getRegisters().add(new HoldingRegister(3075,1,toObis("1.1.23.7.0.255"),Unit.get("var")));
+        /* Reactive power phase B */ 
+        getRegisters().add(new HoldingRegister(3076,1,toObis("1.1.43.7.0.255"),Unit.get("var")));
+        /* Reactive power phase C */ 
+        getRegisters().add(new HoldingRegister(3077,1,toObis("1.1.63.7.0.255"),Unit.get("var"))); 
+
+        /* Apparent Power phase A */ 
+        getRegisters().add(new HoldingRegister(3072,1,toObis("1.1.29.7.0.255"),Unit.get("VA")));
+        /* Apparent Power phase B */ 
+        getRegisters().add(new HoldingRegister(3073,1,toObis("1.1.49.7.0.255"),Unit.get("VA")));
+        /* Apparent Power phase C */ 
+        getRegisters().add(new HoldingRegister(3074,1,toObis("1.1.69.7.0.255"),Unit.get("VA"))); 
         
         /* power factor phase A */
         getRegisters().add(new HoldingRegister(2830,1,toObis("1.1.33.7.0.255"))); 
@@ -250,7 +265,14 @@ public class RegisterFactory extends AbstractRegisterFactory {
             scaleMap.put( toObis( "1.1.41.7.0.255" ),"kp" );
             scaleMap.put( toObis( "1.1.61.7.0.255" ),"kp" );
 
-            
+            scaleMap.put( toObis( "1.1.23.7.0.255" ),"kp" );
+            scaleMap.put( toObis( "1.1.43.7.0.255" ),"kp" );
+            scaleMap.put( toObis( "1.1.63.7.0.255" ),"kp" );
+
+            scaleMap.put( toObis( "1.1.29.7.0.255" ),"kp" );
+            scaleMap.put( toObis( "1.1.49.7.0.255" ),"kp" );
+            scaleMap.put( toObis( "1.1.69.7.0.255" ),"kp" );
+
             scaleMap.put( toObis( "1.1.33.7.0.255" ),"pf" );
             scaleMap.put( toObis( "1.1.53.7.0.255" ),"pf" );
             scaleMap.put( toObis( "1.1.73.7.0.255" ),"pf" );
