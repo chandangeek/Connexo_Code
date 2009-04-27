@@ -548,5 +548,16 @@ public class DLMSUtils implements DLMSCOSEMGlobals {
 
   
     
+    public static byte[] hexStringToByteArray(String str){
+    	byte[] data = new byte[str.length()/2];
+    	int offset = 0;
+    	int endOffset = 2;
+    	for(int i = 0; i < data.length; i++){
+    		data[i] = (byte)Integer.parseInt(str.substring(offset, endOffset), 16);
+    		offset = endOffset;
+    		endOffset += 2;
+    	}
+    	return data;
+    }
     
 }
