@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.protocol.ProtocolUtils;
 
@@ -90,10 +91,17 @@ public class AXDRDateTime extends AbstractDataType {
     	if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING){
             throw new IOException("AXDRDateTime, invalid identifier "+berEncodedData[offset]);
     	}
-    	offset = offset + 1;
+    	offset = offset + 2;
+
+    	int tOffset = (short)ProtocolUtils.getInt(berEncodedData,11,2);
+    	tOffset *= -1;	
+    	int deviation = tOffset/60;
+        TimeZone tz = TimeZone.getTimeZone("GMT"+(deviation<0?"":"+")+deviation);
+//        dateTime.setTimeZone(tz);
+    	dateTime = Calendar.getInstance(tz);
     	
-        dateTime = ProtocolUtils.getCleanCalendar(zone);
-        
+    	System.out.println("1/ " + dateTime.getTime());
+    	
         int year = ProtocolUtils.getShort(berEncodedData, offset );
         dateTime.set(Calendar.YEAR, year);
         offset = offset + 2;
@@ -116,6 +124,13 @@ public class AXDRDateTime extends AbstractDataType {
         
         int second = ProtocolUtils.getByte2Int(berEncodedData, offset);
         dateTime.set(Calendar.SECOND, second);
+        
+        dateTime.set(Calendar.MILLISECOND, 0);
+        
+        System.out.println("2/ " + dateTime.getTime());
+        
+        System.out.println("3/ " + dateTime.getTime());
+        
         offset = offset + 1; 
         
         offset = offset + 1; 
@@ -136,7 +151,7 @@ public class AXDRDateTime extends AbstractDataType {
     protected byte[] doGetBEREncodedByteArray() throws IOException {
         
         Calendar v = getValue();
-
+        
         int year        = v.get(Calendar.YEAR);
         int month       = v.get(Calendar.MONTH);
         int dayOfMonth  = v.get(Calendar.DAY_OF_MONTH);
@@ -145,6 +160,8 @@ public class AXDRDateTime extends AbstractDataType {
         int minute      = v.get(Calendar.MINUTE);
         int second      = v.get(Calendar.SECOND);
         int hs          = v.get(Calendar.MILLISECOND) / 10;
+        
+//        int deviation = (v.getTimeZone().getRawOffset()/60000) + (v.getTimeZone().inDaylightTime(v.getTime())?1:0);
         
         return 
             new byte [] {   
@@ -159,8 +176,10 @@ public class AXDRDateTime extends AbstractDataType {
                 (byte) (minute),
                 (byte) (second),
                 (byte) (hs),
-                (byte) 0x80,
-                0,
+//                (byte) ((deviation>>8)&0xFF),
+//                (byte) (deviation&0xFF),
+                (byte) 0x00,
+                (byte) 0x00,
                 (byte)status
             };
         
@@ -212,66 +231,30 @@ public class AXDRDateTime extends AbstractDataType {
     }
     
     public static void main(String[] args) {
-        
-//        byte [] ba = new byte [] {
-//        (byte)0x09, (byte)0x0c, (byte)0x07, (byte)0xD7, (byte)0x0A, 
-//        (byte)0x16, (byte)0x01, (byte)0x0A, (byte)0x35, (byte)0x0F, 
-//        (byte)0xFF, (byte)0x08, (byte)0x00, (byte)0x80
-//        };
-//        
-//        
-//        DateTime dt = new DateTime( ba, 0, TimeZone.getDefault() );
-//        System.out.println( "" + dt.getValue().getTime() );
-//        
-//        Calendar v = dt.getValue();
-//
-//        int year        = v.get(Calendar.YEAR);
-//        int month       = v.get(Calendar.MONTH);
-//        int dayOfMonth  = v.get(Calendar.DAY_OF_MONTH);
-//        int dayOfWeek   = v.get(Calendar.DAY_OF_WEEK);
-//        int hour        = v.get(Calendar.HOUR);
-//        int minute      = v.get(Calendar.MINUTE);
-//        int second      = v.get(Calendar.SECOND);
-//        int hms         = v.get(Calendar.MILLISECOND) / 10;
-//        
-//        byte [] bin =
-//            
-//        {   
-//            (byte) 0x09,
-//            (byte) 0x0c,
-//            (byte) ((year & 0Xff00 ) >> 8),
-//            (byte) (year & 0X00ff),
-//            (byte) (month + 1),
-//            (byte) (dayOfMonth),
-//            (byte) (dayOfWeek - 1),
-//            (byte) (hour),
-//            (byte) (minute),
-//            (byte) (second),
-//            (byte) (hms),
-//            0,
-//            0,
-//            (byte)0x80
-//        };
-//        
-//        for (int i = 0; i < bin.length; i++) {
-//            System.out.print( Integer.toHexString( bin[i] ) + " " );
+ //        try {
+//        	Calendar cal = Calendar.getInstance();
+//        	cal.add(Calendar.DATE, -1);
+//	        AXDRDateTime dt2 = new AXDRDateTime(cal); //TimeZone.getTimeZone("ECT"));
+//	        System.out.println(ProtocolUtils.outputHexString(dt2.getBEREncodedByteArray()));
+//	        byte[] data = dt2.getBEREncodedByteArray();
+//	        AXDRDateTime dt3 = new AXDRDateTime(data,0,TimeZone.getTimeZone("ECT"));
+//	        System.out.println(dt3.getValue().getTime());
 //        }
-//        System.out.println( bin );
-//        System.out.println( new DateTime( bin, 0, TimeZone.getDefault() ).getValue().getTime() );
-//        
-        try {
-        	Calendar cal = Calendar.getInstance();
-        	cal.add(Calendar.DATE, -1);
-	        AXDRDateTime dt2 = new AXDRDateTime(cal); //TimeZone.getTimeZone("ECT"));
-	        System.out.println(ProtocolUtils.outputHexString(dt2.getBEREncodedByteArray()));
-	        byte[] data = dt2.getBEREncodedByteArray();
-	        AXDRDateTime dt3 = new AXDRDateTime(data,0,TimeZone.getTimeZone("ECT"));
-	        System.out.println(dt3.getValue().getTime());
-        }
-        catch(IOException e) {
-        	e.printStackTrace();
-        }
+//        catch(IOException e) {
+//        	e.printStackTrace();
+//        }
         
+    	byte[] b = DLMSUtils.hexStringToByteArray("090C07D9041B0108032F00FF8880");
+    	try {
+			AXDRDateTime dt = new AXDRDateTime(b,0,null);
+			
+			dt.doGetBEREncodedByteArray();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
     }
     
 }
