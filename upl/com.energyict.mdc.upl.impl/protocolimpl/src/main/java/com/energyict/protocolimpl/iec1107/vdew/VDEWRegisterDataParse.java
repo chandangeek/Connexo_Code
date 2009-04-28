@@ -38,6 +38,7 @@ abstract public class VDEWRegisterDataParse {
     public final static int VDEW_GMTDATESTRING=12; // write
     public final static int VDEW_GMTTIMESTRING=13; // write
     public final static int VDEW_DATE_TIME=14; // YYMMDDHHMMSS
+    public final static int KAMSTRUP300_DATE_VALUE_PAIR=15; // (XXXXXXX...)(YY-MM-DD HH:MM:SS)
     
     
     abstract protected Unit getUnit();
@@ -96,6 +97,9 @@ abstract public class VDEWRegisterDataParse {
            calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         }
         calendar.setTime(date);
+        
+        System.out.println("buildDate: date=" + date + " calendar=" + calendar.getTime() + " gmt=" + gmt);
+
         ProtocolUtils.val2BCDascii(calendar.get(Calendar.YEAR)-2000,data,1);
         ProtocolUtils.val2BCDascii(calendar.get(Calendar.MONTH)+1,data,3);
         ProtocolUtils.val2BCDascii(calendar.get(Calendar.DAY_OF_MONTH),data,5);
@@ -167,7 +171,7 @@ abstract public class VDEWRegisterDataParse {
     
     // ********************************* parse received data *********************************
     protected Object parse(byte[] data) throws IOException {
-        try {
+    	try {
             switch(getType()) {
                 
                 case VDEW_S_TIME_S_DATE:
@@ -205,6 +209,9 @@ abstract public class VDEWRegisterDataParse {
                     
                 case VDEW_DATE_VALUE_PAIR:
                     return parseDateValuePair(data);
+                    
+                case KAMSTRUP300_DATE_VALUE_PAIR:
+                    return parseKamstrup300DateValuePair(data);
                     
                 default:
                     throw new IOException("VDEWRegisterDataParse, parse , unknown type "+getType());
@@ -250,6 +257,18 @@ abstract public class VDEWRegisterDataParse {
         return new DateValuePair(date,value);
     } // private DateValuePair parseDateValuePair(byte[] rawdata) throws IOException
     
+    private DateQuantityPair parseKamstrup300DateValuePair(byte[] rawdata) throws IOException {
+        String fullData = new String(rawdata);
+        String valueData = fullData.substring(0, fullData.indexOf(" "));
+        String dateData = fullData.substring(fullData.indexOf(" ")).trim();
+        
+        BigDecimal value = new BigDecimal(findValue(valueData.getBytes()));
+        Date date = null;
+        Unit unit = buildUnit(valueData.getBytes());
+        date = parseKamstrup300TimeDate(dateData.getBytes());
+        return new DateQuantityPair(date,new Quantity(value, unit));
+    } // private DateValuePair parseDateValuePair(byte[] rawdata) throws IOException
+
     private Integer parseInteger(byte[] rawdata) throws IOException {
         return new Integer(Integer.parseInt(findValue(rawdata)));
     }
@@ -313,6 +332,25 @@ abstract public class VDEWRegisterDataParse {
         calendar.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex(data[2]));
         calendar.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(data[3]));
         calendar.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[4]));
+        return calendar.getTime();
+    }
+    
+    private Date parseKamstrup300TimeDate(byte[] rawdata) throws IOException {
+    	if (rawdata.length != 17) throw new IOException("parseKamstrup300TimeDate, wrong data length!");
+    	String stringData = new String(rawdata);
+        Calendar calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
+        Calendar noInit = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
+        noInit.set(2070, 0, 1, 0, 0, 0);
+        
+        calendar.set(Calendar.YEAR, 		Integer.valueOf(stringData.substring(0, 2)).intValue() + 2000);
+        calendar.set(Calendar.MONTH, 		Integer.valueOf(stringData.substring(3, 5)).intValue() - 1);
+        calendar.set(Calendar.DAY_OF_MONTH, Integer.valueOf(stringData.substring(6, 8)).intValue());
+        calendar.set(Calendar.HOUR_OF_DAY, 	Integer.valueOf(stringData.substring(9, 11)).intValue());
+        calendar.set(Calendar.MINUTE, 		Integer.valueOf(stringData.substring(12, 14)).intValue());
+        calendar.set(Calendar.SECOND, 		Integer.valueOf(stringData.substring(15, 17)).intValue());
+        
+        if (calendar.equals(noInit)) throw new IOException("Register not initialized!");
+        
         return calendar.getTime();
     }
     

@@ -192,7 +192,8 @@ public class VDEWRegister extends VDEWRegisterDataParse {
         while(st.countTokens() > 0) {
             String token = st.nextToken();
             byte[] data = getData(token);
-            abstractVDEWRegistry.validateData(data);
+            if (getProtocolLink().getDataReadout() == null)
+            	abstractVDEWRegistry.validateData(data);
             ba.write(data);
         }
         regdata = ba.toByteArray();
@@ -204,9 +205,10 @@ public class VDEWRegister extends VDEWRegisterDataParse {
         StringBuffer strbuffer = new StringBuffer();
         int state=0;
         int index = strdump.indexOf(token);
+        int i = 0;
         
         if (index == -1) throw new IOException("VDEWRegister, getData, register "+getObjectID()+" does not exist in datareadout!");
-        for (int i = index; i < strdump.length() ; i++) {
+        for (i = index; i < strdump.length() ; i++) {
             if (state == 0) {
                 if (strdump.charAt(i) == '(') state = 1;
             }
@@ -215,7 +217,23 @@ public class VDEWRegister extends VDEWRegisterDataParse {
                 strbuffer.append(strdump.charAt(i));
             }
         } // for (int i = index; i < strdump.length() ; i++)
-        return strbuffer.toString().getBytes();
+
+        index = i;
+        state = 0;
+        
+        if (getType() == VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR) {
+        	strbuffer.append(" ");
+        	for (i = index; i < strdump.length() ; i++) {
+				if (state == 0) {
+					if (strdump.charAt(i) == '(') state = 1;
+				}
+				else if (state == 1) {
+					if (strdump.charAt(i) == ')') break;
+					strbuffer.append(strdump.charAt(i));
+				}
+			} // for (int i = index; i < strdump.length() ; i++)
+		}
+		return strbuffer.toString().getBytes();
     }
     
     // read register in the meter
@@ -229,12 +247,11 @@ public class VDEWRegister extends VDEWRegisterDataParse {
                 byte[] data = null;
                 if (getType() == VDEW_DATE_VALUE_PAIR) {
                     data = getProtocolLink().getFlagIEC1107Connection().receiveRawData();
-                    abstractVDEWRegistry.validateData(data);
                 }
                 else {
                     data = getProtocolLink().getFlagIEC1107Connection().receiveData();
-                    abstractVDEWRegistry.validateData(data);
                 }
+                abstractVDEWRegistry.validateData(data);
                 ba.write(data);
             }
             regdata = ba.toByteArray();
