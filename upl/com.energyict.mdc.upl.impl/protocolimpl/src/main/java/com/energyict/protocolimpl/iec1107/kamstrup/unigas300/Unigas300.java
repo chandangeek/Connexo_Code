@@ -38,20 +38,14 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 /**
- * @version  1.0
  * @author   jme
  * <P>
  * <B>Description :</B><BR>
- * Class that implements the ABB A1500 Alpha meter protocol. This class implements the MeterProtocol interface.
+ * Class that implements the Kamstrup Unigas 300 meter protocol.
  * <BR>
- * <B>@beginchanges</B><BR>
-KV |27092002|Initial version
-KV|31102002| Reengineered to MeterProtocol interface
-KV|23032005| Changed header to be compatible with protocol version tool
-KV|30032005| Handle StringOutOfBoundException in IEC1107 connection layer
-JME|30032005|Added support for software 7E1 communication: Added parity bit to outputStream, stripped parity bit from inputStream
-
- * @endchanges
+ * @beginchanges
+ *	JME	|28042009|	Initial protocol version
+ *
  */
 public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol { //,CommunicationParameters {
     
