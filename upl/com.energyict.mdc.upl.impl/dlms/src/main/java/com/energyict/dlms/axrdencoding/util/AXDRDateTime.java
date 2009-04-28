@@ -100,8 +100,6 @@ public class AXDRDateTime extends AbstractDataType {
 //        dateTime.setTimeZone(tz);
     	dateTime = Calendar.getInstance(tz);
     	
-    	System.out.println("1/ " + dateTime.getTime());
-    	
         int year = ProtocolUtils.getShort(berEncodedData, offset );
         dateTime.set(Calendar.YEAR, year);
         offset = offset + 2;
@@ -126,10 +124,6 @@ public class AXDRDateTime extends AbstractDataType {
         dateTime.set(Calendar.SECOND, second);
         
         dateTime.set(Calendar.MILLISECOND, 0);
-        
-        System.out.println("2/ " + dateTime.getTime());
-        
-        System.out.println("3/ " + dateTime.getTime());
         
         offset = offset + 1; 
         
