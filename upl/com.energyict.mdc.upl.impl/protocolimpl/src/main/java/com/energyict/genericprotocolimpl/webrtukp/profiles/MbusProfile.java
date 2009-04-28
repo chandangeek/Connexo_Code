@@ -286,7 +286,7 @@ public class MbusProfile {
 		return this.mbusDevice.getWebRTU().getMeterConfig();
 	}
 	
-	private TimeZone getTimeZone(){
-		return this.mbusDevice.getWebRTU().getTimeZone();
+	private TimeZone getTimeZone() throws IOException{
+		return this.mbusDevice.getWebRTU().getMeterTimeZone();
 	}
 }
