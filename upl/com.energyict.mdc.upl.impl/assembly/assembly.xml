@@ -4,12 +4,20 @@
 	<id>protocols</id>
 	
 	<formats>
-		<format>zip</format>
+		<!-- 
+			Disable the zip or in fact any archived format due to broken duplicate file detection in the assembly plugin.
+			
+			http://jira.codehaus.org/browse/MASSEMBLY-285
+		 -->
+		<!--<format>zip</format>-->
+		
+		<format>dir</format>
 	</formats>
 	
 	<includeBaseDirectory>false</includeBaseDirectory>
 	
 	<moduleSets>
+		<!--  moduleSet for the commServer -->
 		<moduleSet>
 			<includes>
 				<include>com.energyict:dlms</include>
@@ -19,7 +27,31 @@
 			
 			<binaries>
 				<unpack>false</unpack>
+				<outputDirectory>EIServer\ComServerJ\bin</outputDirectory>
+				<includeDependencies>true</includeDependencies>
 			</binaries>
 		</moduleSet>
+		
+		<!--  moduleSet for EIServer -->
+		<moduleSet>
+			<includes>
+				<include>com.energyict:dlms</include>
+				<include>com.energyict:protocolimpl</include>
+			</includes>
+			
+			<binaries>
+				<unpack>false</unpack>
+				<outputDirectory>EIServer\bin-all</outputDirectory>
+				<includeDependencies>false</includeDependencies>
+				<dependencySets>
+					<dependencySet>
+						<includes>
+							<!--  dependency needed for Iskra P2LPC -->
+							<include>axis-jaxrpc*</include>
+						</includes>
+					</dependencySet>
+				</dependencySets>
+			</binaries>
+		</moduleSet>		
 	</moduleSets>
 </assembly>
