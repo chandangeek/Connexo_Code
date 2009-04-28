@@ -97,9 +97,6 @@ abstract public class VDEWRegisterDataParse {
            calendar = ProtocolUtils.getCleanCalendar(getProtocolLink().getTimeZone());
         }
         calendar.setTime(date);
-        
-        System.out.println("buildDate: date=" + date + " calendar=" + calendar.getTime() + " gmt=" + gmt);
-
         ProtocolUtils.val2BCDascii(calendar.get(Calendar.YEAR)-2000,data,1);
         ProtocolUtils.val2BCDascii(calendar.get(Calendar.MONTH)+1,data,3);
         ProtocolUtils.val2BCDascii(calendar.get(Calendar.DAY_OF_MONTH),data,5);
@@ -171,7 +168,7 @@ abstract public class VDEWRegisterDataParse {
     
     // ********************************* parse received data *********************************
     protected Object parse(byte[] data) throws IOException {
-    	try {
+        try {
             switch(getType()) {
                 
                 case VDEW_S_TIME_S_DATE:
