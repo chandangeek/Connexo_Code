@@ -19,6 +19,8 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.iec1107.vdew.DateQuantityPair;
+import com.energyict.protocolimpl.iec1107.vdew.DateValuePair;
 
 /**
  *
@@ -64,6 +66,9 @@ public class ObisCodeMapper {
         }
         else if (o instanceof String) {
             return new RegisterValue(obisCode,(String)o);
+        }
+        else if (o instanceof DateQuantityPair) {
+            return new RegisterValue(obisCode,((DateQuantityPair)o).getQuantity(), ((DateQuantityPair)o).getDate());
         }
         
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");

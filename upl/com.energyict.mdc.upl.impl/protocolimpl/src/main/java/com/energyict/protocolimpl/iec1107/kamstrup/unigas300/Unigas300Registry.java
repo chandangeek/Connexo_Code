@@ -6,6 +6,11 @@
 
 package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
+import java.io.IOException;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWRegister;
@@ -17,37 +22,146 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWRegisterDataParse;
  */
 public class Unigas300Registry extends AbstractVDEWRegistry {
     
-    /** Creates a new instance of Unigas300Register */
+	private static final RegisterMappingFactory rmf = new RegisterMappingFactory();
+	
+	/** Creates a new instance of Unigas300Register */
     public Unigas300Registry(ProtocolLink protocolLink) {
         super(null,protocolLink);
     }
     
     protected void initRegisters() {
-        registers.put("Converter Unconverted volume (Ch.1) Vm1", new VDEWRegister("1:13.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
-        registers.put("Converter Unconverted volume (Ch.2) Vm2", new VDEWRegister("2:13.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
-        registers.put("converter error corrected volume (Ch.1) Vc", new VDEWRegister("13.1.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
-        registers.put("Converter converted volume (Ch.1) Vb", new VDEWRegister("23.2.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
-        registers.put("Measured, disturbed volume, Ve", new VDEWRegister("1:12.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
-        registers.put("Measured Temperature", new VDEWRegister("0:41.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
-        registers.put("Measured absolute pressure", new VDEWRegister("0:42.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
-        registers.put("Conversion factor", new VDEWRegister("0:52.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
-        registers.put("Correction factor", new VDEWRegister("0:51.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
-        registers.put("Compressibility factor", new VDEWRegister("0:53.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
-        registers.put("Actual normalised flow 5 minutes avg.", new VDEWRegister("1:43.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
-        registers.put("Actual normalised flow 60 minutes avg.", new VDEWRegister("2:43.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
-        
-        registers.put("Unigas Error code", new VDEWRegister("97.97.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
-        
+    	
+    	add(RegisterMappingFactory.VM1, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
+    	add(RegisterMappingFactory.VC1_ERR, VDEWRegisterDataParse.VDEW_QUANTITY, null);
+    	add(RegisterMappingFactory.VC1, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
+    	add(RegisterMappingFactory.VB1, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
+    	add(RegisterMappingFactory.VB1_ERR,	VDEWRegisterDataParse.VDEW_QUANTITY, null);
+    	add(RegisterMappingFactory.VM2, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
+    	add(RegisterMappingFactory.VM3, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
+    	
+    	add(RegisterMappingFactory.STATUS1,	VDEWRegisterDataParse.VDEW_STRING, null);
+    	add(RegisterMappingFactory.STATUS2,	VDEWRegisterDataParse.VDEW_STRING, null);
+    	add(RegisterMappingFactory.STATUS3,	VDEWRegisterDataParse.VDEW_STRING, null);
+    	add(RegisterMappingFactory.STATUS4,	VDEWRegisterDataParse.VDEW_STRING, null);
+
+    	add(RegisterMappingFactory.CF, 		VDEWRegisterDataParse.VDEW_QUANTITY, null);
+    	add(RegisterMappingFactory.C, 		VDEWRegisterDataParse.VDEW_QUANTITY, null);
+    	add(RegisterMappingFactory.Z, 		VDEWRegisterDataParse.VDEW_QUANTITY, null);
+    	add(RegisterMappingFactory.Z_ZB, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
+    	add(RegisterMappingFactory.P,		VDEWRegisterDataParse.VDEW_QUANTITY, null);
+    	add(RegisterMappingFactory.T, 		VDEWRegisterDataParse.VDEW_QUANTITY, 8, Unit.get(BaseUnit.DEGREE_CELSIUS, -2));
+
+        add(RegisterMappingFactory.PMAX_YESTERDAY, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.TMAX_YESTERDAY, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.PMIN_YESTERDAY, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.TMIN_YESTERDAY, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.QC_YESTERDAY, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.QB_YESTERDAY, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+
+        add(RegisterMappingFactory.PMAX_LASTMONTH, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.TMAX_LASTMONTH, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.PMIN_LASTMONTH, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.TMIN_LASTMONTH, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.QC_LASTMONTH, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.QB_LASTMONTH, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+
+        add(RegisterMappingFactory.PMAX_LASTYEAR, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.TMAX_LASTYEAR, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.PMIN_LASTYEAR, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.TMIN_LASTYEAR, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.QC_LASTYEAR, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.QB_LASTYEAR, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+
+        add(RegisterMappingFactory.PMAX_TODAY, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.TMAX_TODAY, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.PMIN_TODAY, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.TMIN_TODAY, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.QC_TODAY, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.QB_TODAY, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+
+        add(RegisterMappingFactory.PMAX_CURRENTMONTH, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.TMAX_CURRENTMONTH, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.PMIN_CURRENTMONTH, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.TMIN_CURRENTMONTH, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.QC_CURRENTMONTH, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.QB_CURRENTMONTH, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+
+        add(RegisterMappingFactory.PMAX_CURRENTYEAR, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.TMAX_CURRENTYEAR, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.PMIN_CURRENTYEAR, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.TMIN_CURRENTYEAR, 	VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.QC_CURRENTYEAR, 		VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+        add(RegisterMappingFactory.QB_CURRENTYEAR, 		VDEWRegisterDataParse.KAMSTRUP300_DATE_VALUE_PAIR, null);
+
+        add(RegisterMappingFactory.APPLIANCE_TYPE, 	VDEWRegisterDataParse.VDEW_STRING, null);
+        add(RegisterMappingFactory.DEVICE_SERIAL, 	VDEWRegisterDataParse.VDEW_STRING, null);
+        add(RegisterMappingFactory.DEVICE_ADDRESS, 	VDEWRegisterDataParse.VDEW_STRING, null);
+        add(RegisterMappingFactory.DEVICE_EANCODE, 	VDEWRegisterDataParse.VDEW_STRING, null);
+
+        add(RegisterMappingFactory.FW_VERSION_D, 	VDEWRegisterDataParse.VDEW_STRING, null);
+        add(RegisterMappingFactory.FW_VERSION_M, 	VDEWRegisterDataParse.VDEW_STRING, null);
+        add(RegisterMappingFactory.FW_CRC_D, 		VDEWRegisterDataParse.VDEW_STRING, null);
+        add(RegisterMappingFactory.FW_CRC_M, 		VDEWRegisterDataParse.VDEW_STRING, null);
+
+        add(RegisterMappingFactory.GSM_UPTIME, 			VDEWRegisterDataParse.VDEW_QUANTITY, null);
+        add(RegisterMappingFactory.GSM_CONNECTIONTIME, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
+        add(RegisterMappingFactory.GSM_SIGNAL, 			VDEWRegisterDataParse.VDEW_QUANTITY, null);
+
+        add(RegisterMappingFactory.BATTERY_C_NEW, 		VDEWRegisterDataParse.VDEW_QUANTITY, null);
+        add(RegisterMappingFactory.BATTERY_C_USED, 		VDEWRegisterDataParse.VDEW_QUANTITY, null);
+        add(RegisterMappingFactory.BATTERY_V_UNIGAS,	VDEWRegisterDataParse.VDEW_QUANTITY, null);
+        add(RegisterMappingFactory.BATTERY_V_UNILOG,	VDEWRegisterDataParse.VDEW_QUANTITY, null);
+        add(RegisterMappingFactory.OPERATING_HOURS, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
+
+        add(RegisterMappingFactory.SCHEDULER_START, 	VDEWRegisterDataParse.VDEW_DATESTRING, null);
+
+//    	registers.put("", new VDEWRegister("1:13.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+//        
+        //Creo que su hermosa! Estoy loco como un sombrerero tuyo!
+//    	
+//    	registers.put("Converter Unconverted volume (Ch.1) Vm1", new VDEWRegister("1:13.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+//        registers.put("Converter Unconverted volume (Ch.2) Vm2", new VDEWRegister("2:13.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+//        registers.put("converter error corrected volume (Ch.1) Vc", new VDEWRegister("13.1.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+//        registers.put("Converter converted volume (Ch.1) Vb", new VDEWRegister("23.2.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+//        registers.put("Measured, disturbed volume, Ve", new VDEWRegister("1:12.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+//        registers.put("Measured Temperature", new VDEWRegister("0:41.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+//        registers.put("Measured absolute pressure", new VDEWRegister("0:42.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+//        registers.put("Conversion factor", new VDEWRegister("0:52.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+//        registers.put("Correction factor", new VDEWRegister("0:51.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+//        registers.put("Compressibility factor", new VDEWRegister("0:53.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+//        registers.put("Actual normalised flow 5 minutes avg.", new VDEWRegister("1:43.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+//        registers.put("Actual normalised flow 60 minutes avg.", new VDEWRegister("2:43.0.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+//        
+//        registers.put("Unigas Error code", new VDEWRegister("97.97.0",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+//        
         registers.put("Time", new VDEWRegister("0.9.1",VDEWRegisterDataParse.VDEW_TIMESTRING,0, -1,null,VDEWRegister.WRITEABLE,VDEWRegister.NOT_CACHED));
         registers.put("Date", new VDEWRegister("0.9.2",VDEWRegisterDataParse.VDEW_DATESTRING,0, -1,null,VDEWRegister.WRITEABLE,VDEWRegister.NOT_CACHED));
         registers.put("TimeDate", new VDEWRegister("0.9.1 0.9.2",VDEWRegisterDataParse.VDEW_TIMEDATE,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED));
-
+//
         registers.put("DeviceSerialNumber", new VDEWRegister("C.1.0",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
-        registers.put("1107 device address", new VDEWRegister("C.90.1",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+//        registers.put("1107 device address", new VDEWRegister("C.90.1",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
         registers.put("UNIGAS software revision number", new VDEWRegister("C.90.2",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
         registers.put("CI software revision number", new VDEWRegister("C.90.3",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
-        
-        registers.put("actual status bits", new VDEWRegister("C.5",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+//        
+//        registers.put("actual status bits", new VDEWRegister("C.5",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
     }
+    
+    private void add(String description, int parserType, Unit unit) {
+    	add(description, parserType, -1, unit);
+    }
+
+    private void add(String description, int parserType, int length, Unit unit) {
+    	RegisterMapping rm;
+		ObisCode oc;
+    	try {
+			oc = rmf.findObisCode(description);
+			rm = rmf.findRegisterMapping(oc);
+		} catch (IOException e) {
+			System.out.println(" ###### ERROR ###### " + e.getMessage());
+			return;
+		}
+    	String register = rm.getRegisterCode();
+    	registers.put(description, new VDEWRegister(register,parserType,0,length,unit,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
+	}
     
 }

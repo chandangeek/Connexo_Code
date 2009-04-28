@@ -39,7 +39,7 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 /**
  * @version  1.0
- * @author   Koenraad Vanderschaeve
+ * @author   jme
  * <P>
  * <B>Description :</B><BR>
  * Class that implements the ABB A1500 Alpha meter protocol. This class implements the MeterProtocol interface.
@@ -87,7 +87,7 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
             
     byte[] dataReadout=null;
     
-    /** Creates a new instance of ABBA1500, empty constructor*/
+    /** Creates a new instance of Unigas300, empty constructor*/
     public Unigas300() {
     } // public Unigas300()
 
@@ -454,7 +454,12 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
 			ObisCodeMapper ocm = new ObisCodeMapper(this);
 			return ocm.getRegisterValue(obisCode);
 		} catch (Exception e) {
-			throw new NoSuchRegisterException("Problems while reading register " + obisCode + ": " + e.getMessage());
+			if ((e instanceof IOException) && (e.getMessage().indexOf("not initialized") != -1)) {
+				return new RegisterValue(obisCode, "No value available");
+			}
+			String msg = "Problems while reading register " + obisCode + ": " + e.getMessage();
+			System.out.println(msg);
+			throw new NoSuchRegisterException(msg);
 		}
     }
     

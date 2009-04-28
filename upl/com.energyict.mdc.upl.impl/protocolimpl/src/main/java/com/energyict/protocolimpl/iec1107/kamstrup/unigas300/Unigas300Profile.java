@@ -8,6 +8,7 @@ package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
 import java.io.*;
 import java.util.*;
+
 import com.energyict.cbo.*;
 import java.math.*;
 import com.energyict.protocol.*;
@@ -135,7 +136,10 @@ public class Unigas300Profile extends VDEWProfile {
     } // private String parseFindString(byte[] data,int iOffset)
     
     private long mapLogCodes(long lLogCode) {
-        switch((int)lLogCode) {
+        
+    	System.out.println("Meter status logcode = " + lLogCode);
+    	
+    	switch((int)lLogCode) {
             case PARAMETER_SETTING:
                 return(MeterEvent.CONFIGURATIONCHANGE);
                 
@@ -202,16 +206,14 @@ public class Unigas300Profile extends VDEWProfile {
                        throw new IOException("No entries in object list.");
                        
                    calendar = parseDateTime(responseData,i+1);
-                   if (DEBUG >= 1) System.out.println("calendar = " + calendar.getTime());
                    i=gotoNextOpenBracket(responseData,i+1);
                    status = Integer.parseInt(parseFindString(responseData,i),16);
-                   if (DEBUG >= 1) System.out.println("status = " + status);
                    status &= (SEASONAL_SWITCHOVER^0xFFFF);
+                   if (DEBUG >= 1) System.out.println("Status = " + status);
                    for (t=0;t<16;t++) {
-                      if ((status & (0x01<<t)) != 0) {
-                           profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-                                                       (int)mapLogCodes((long)(status&(0x01<<t))&0xFF),
-                                                       status&0xff));
+                      long statPart = status & (0x01<<t); 
+                	   if (statPart != 0) {
+                           profileData.addEvent(createMeterEvent((int) statPart, calendar));
                       }
                    }
                    
@@ -255,6 +257,83 @@ public class Unigas300Profile extends VDEWProfile {
         }
         return profileData;
     } // ProfileData buildProfileData(byte[] responseData) throws IOException
+
+	private MeterEvent createMeterEvent(int status, Calendar calendar) {
+		final int FATAL_ERROR 	= 0x00001;
+		final int ALARM_ACTIVE 	= 0x00002;
+		final int SUMMERTIME 	= 0x00008;
+		final int COUNTER_RESET	= 0x00010;
+		final int CLOCK_SET 	= 0x00020;
+		final int POWER_UP 		= 0x00040;
+		final int EXT_POWER 	= 0x00080;
+		final int MET_SETTINGS	= 0x00100;
+		final int CONV_ER_START	= 0x00200;
+		final int CONV_ER_END	= 0x00400;
+		final int LOGBOOKS_ERASED = 0x02000;
+		final int LOGGERS_ERASED = 0x04000;
+		
+		Date eventDate = new Date(((Calendar)calendar.clone()).getTime().getTime());
+		String message = null;
+		int eiCode = 0;
+		
+		switch (status) {
+		case FATAL_ERROR:
+			message = "Fatal error";
+			eiCode = MeterEvent.FATAL_ERROR;
+			break;
+		case ALARM_ACTIVE:
+			message = "Alarms active";
+			eiCode = MeterEvent.METER_ALARM;
+			break;
+		case SUMMERTIME:
+			message = "Summertime active";
+			eiCode = MeterEvent.OTHER;
+			break;
+		case COUNTER_RESET:
+			message = "Counter has been reset to 0";
+			eiCode = MeterEvent.CLEAR_DATA;
+			break;
+		case CLOCK_SET:
+			message = "Clock has been moved more than xx s";
+			eiCode = MeterEvent.SETCLOCK;
+			break;
+		case POWER_UP:
+			message = "A power up or reset has occurred";
+			eiCode = MeterEvent.POWERUP;
+			break;
+		case EXT_POWER:
+			message = "No external power supply";
+			eiCode = MeterEvent.OTHER;
+			break;
+		case MET_SETTINGS:
+			message = "Metrological setting modified";
+			eiCode = MeterEvent.CONFIGURATIONCHANGE;
+			break;
+		case CONV_ER_START:
+			message = "Conversion error: error in p or T";
+			eiCode = MeterEvent.APPLICATION_ALERT_START;
+			break;
+		case CONV_ER_END:
+			message = "Conversion error ended";
+			eiCode = MeterEvent.APPLICATION_ALERT_STOP;
+			break;
+		case LOGBOOKS_ERASED:
+			message = "Logbooks erased";
+			eiCode = MeterEvent.CLEAR_DATA;
+			break;
+		case LOGGERS_ERASED:
+			message = "Loggers erased";
+			eiCode = MeterEvent.CLEAR_DATA;
+			break;
+		default:
+			message = "Unknown meterEvent! Status = " + status;
+			eiCode = MeterEvent.OTHER;
+			break;
+		}
+		
+		
+		return new MeterEvent(eventDate, eiCode, status, message);
+	}
     
     
 } // Unigas300Profile
