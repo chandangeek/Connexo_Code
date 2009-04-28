@@ -55,7 +55,7 @@ JME|30032005|Added support for software 7E1 communication: Added parity bit to o
  */
 public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol { //,CommunicationParameters {
     
-    private static final byte DEBUG=1;
+    private static final byte DEBUG=0;
     
     private static final int KAMSTRUP_NR_OF_CHANNELS=11;
     private static final String[] KAMSTRUP_METERREADINGS_979D1 = {"23.2.0","13.1.0","1:13.0.0","0:41.0.0","0:42.0.0","97.97.0"};
@@ -457,9 +457,7 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
 			if ((e instanceof IOException) && (e.getMessage().indexOf("not initialized") != -1)) {
 				return new RegisterValue(obisCode, "No value available");
 			}
-			String msg = "Problems while reading register " + obisCode + ": " + e.getMessage();
-			System.out.println(msg);
-			throw new NoSuchRegisterException(msg);
+			throw new NoSuchRegisterException("Problems while reading register " + obisCode + ": " + e.getMessage());
 		}
     }
     

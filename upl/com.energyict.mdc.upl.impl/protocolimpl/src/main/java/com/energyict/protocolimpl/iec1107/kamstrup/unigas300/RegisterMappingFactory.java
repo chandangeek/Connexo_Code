@@ -200,32 +200,6 @@ public class RegisterMappingFactory {
         add(BATTERY_C_NEW,		"C.6.4", 	"0.0.96.6.4.255");
         add(OPERATING_HOURS,	"C.8.0", 	"0.0.96.8.0.255");
         
-        
-//    	getRegisterMappings().add(new RegisterMapping("Converter Unconverted volume (Ch.1) Vm1","1:13.0.0", ObisCode.fromString("7.1.0.13.0.255")));
-//        getRegisterMappings().add(new RegisterMapping("Converter Unconverted volume (Ch.2) Vm2","2:13.0.0", ObisCode.fromString("7.2.0.13.0.255")));
-//        
-//        getRegisterMappings().add(new RegisterMapping("converter error corrected volume (Ch.1) Vc","13.1.0", ObisCode.fromString("7.1.96.50.0.255")));
-//        getRegisterMappings().add(new RegisterMapping("Converter converted volume (Ch.1) Vb","23.2.0", ObisCode.fromString("7.1.0.3.3.255")));
-//        getRegisterMappings().add(new RegisterMapping("Measured, disturbed volume, Ve","1:12.0.0", ObisCode.fromString("7.1.96.50.1.255")));
-//        getRegisterMappings().add(new RegisterMapping("Measured Temperature","0:41.0.0", ObisCode.fromString("7.1.0.6.2.255")));
-//        getRegisterMappings().add(new RegisterMapping("Measured absolute pressure","0:42.0.0", ObisCode.fromString("7.1.0.6.1.255")));
-//        getRegisterMappings().add(new RegisterMapping("Conversion factor","0:52.0.0", ObisCode.fromString("7.1.0.4.0.255")));
-//        getRegisterMappings().add(new RegisterMapping("Correction factor","0:51.0.0", ObisCode.fromString("7.1.0.4.1.255")));
-//        getRegisterMappings().add(new RegisterMapping("Compressibility factor","0:53.0.0", ObisCode.fromString("7.1.0.4.2.255")));
-//        getRegisterMappings().add(new RegisterMapping("Actual normalised flow 5 minutes avg.","1:43.0.0", ObisCode.fromString("7.1.96.50.2.255")));
-//        getRegisterMappings().add(new RegisterMapping("Actual normalised flow 60 minutes avg.","2:43.0.0", ObisCode.fromString("7.1.96.50.3.255")));
-//        
-//        getRegisterMappings().add(new RegisterMapping("Unigas Error code","97.97.0", ObisCode.fromString("7.1.96.50.4.255")));
-//        
-//        getRegisterMappings().add(new RegisterMapping("Time","0.9.1", ObisCode.fromString("7.1.96.50.5.255")));
-//        getRegisterMappings().add(new RegisterMapping("Date","0.9.2", ObisCode.fromString("7.1.96.50.6.255")));
-//        getRegisterMappings().add(new RegisterMapping("TimeDate","0.9.1 0.9.2", ObisCode.fromString("7.1.96.50.7.255")));
-//        getRegisterMappings().add(new RegisterMapping("1107 device address","C.90.1", ObisCode.fromString("7.1.96.50.8.255")));
-//        getRegisterMappings().add(new RegisterMapping("UNIGAS software revision number","C.90.2", ObisCode.fromString("7.1.96.50.9.255")));
-//        getRegisterMappings().add(new RegisterMapping("CI software revision number","C.90.3", ObisCode.fromString("7.1.96.50.10.255")));
-//        getRegisterMappings().add(new RegisterMapping("DeviceSerialNumber", "C.1.0", ObisCode.fromString("0.0.96.1.0.255")));
-//        
-//        getRegisterMappings().add(new RegisterMapping("actual status bits","C.5", ObisCode.fromString("7.1.96.50.11.255")));
     }    
 
     private void add(String description, String register, String obis) {

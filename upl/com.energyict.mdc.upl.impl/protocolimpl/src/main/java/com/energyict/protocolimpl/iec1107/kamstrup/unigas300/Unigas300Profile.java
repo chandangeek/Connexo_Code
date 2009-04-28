@@ -41,7 +41,7 @@ public class Unigas300Profile extends VDEWProfile {
     private static final int RUNNING_RESERVE_EXHAUSTED = 0x02;
     private static final int FATAL_DEVICE_ERROR = 0x01;
 
-	private static final int DEBUG = 1;
+	private static final int DEBUG = 0;
 
     private static final String[] statusstr={"FATAL_DEVICE_ERROR",
                                       "RUNNING_RESERVE_EXHAUSTED",
@@ -134,45 +134,6 @@ public class Unigas300Profile extends VDEWProfile {
        for (i=0;i<(stop-start-1);i++) strparse[i]=data[i+start+1+iOffset];
        return new String(strparse);
     } // private String parseFindString(byte[] data,int iOffset)
-    
-    private long mapLogCodes(long lLogCode) {
-        
-    	System.out.println("Meter status logcode = " + lLogCode);
-    	
-    	switch((int)lLogCode) {
-            case PARAMETER_SETTING:
-                return(MeterEvent.CONFIGURATIONCHANGE);
-                
-            case DEVICE_CLOCK_SET: 
-                return(MeterEvent.SETCLOCK);
-                
-            case WRONG_OPERATION: 
-                return(MeterEvent.PROGRAM_FLOW_ERROR);
-            
-            case FATAL_DEVICE_ERROR: 
-                return(MeterEvent.FATAL_ERROR);
-            case POWER_FAILURE: 
-                return(MeterEvent.POWERDOWN);
-            case POWER_RECOVERY: 
-                return(MeterEvent.POWERUP);
-            case DEVICE_RESET:
-                return(MeterEvent.CLEAR_DATA);
-
-            case STATUS_WORD_STATED:
-            case LOGGER_CLEARED:
-            case LOGBOOK_CLEARED:
-            case EXTERNAL_EVENT_ASSIGNED:
-            case WAITING_EXTERNAL_EVENT:
-            case END_WRONG_OPERATION:
-            case SEASONAL_SWITCHOVER:
-            case DISTURBED_MEASURE:
-            case RUNNING_RESERVE_EXHAUSTED: 
-            default:
-                return(MeterEvent.OTHER);
-            
-        } // switch(lLogCode)
-        
-    } // private void mapLogCodes(long lLogCode)
     
     ProfileData buildProfileData(byte[] responseData,int nrOfChannels) throws IOException {
         if (DEBUG >= 1) System.out.println("\nresponseData = \n\n" + new String(responseData) + "\n");
