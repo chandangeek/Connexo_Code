@@ -649,7 +649,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 					String type = messageHandler.getMEInterval();
 					Long millis = Long.parseLong(messageHandler.getMEStartDate())*1000;
 					Date startTime = new Date(Long.parseLong(messageHandler.getMEStartDate())*1000);
-					startTime = getFirstDate(startTime, type, getWebRtu().getTimeZone());
+					startTime = getFirstDate(startTime, type);
 					while(entries > 0){
 						log(Level.INFO, "Setting meterTime to: " + startTime );
 						getWebRtu().setClock(startTime);
@@ -712,12 +712,14 @@ public class MessageExecutor extends GenericMessageExecutor{
 										case 0 :{ // GET
 											GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), DLMSUtils.attrLN2SN(to.getAttribute()), to.getClassId());
 											to.setResult("0x"+ParseUtils.decimalByteToString(gr.getResponseData()));
+											getLogger().log(Level.INFO, "Test " + i + " has successfully finished.");
 											hasWritten = true;
 										}break;
 										case 1 :{ // SET
 											GenericWrite gw = getCosemObjectFactory().getGenericWrite(to.getObisCode(), to.getAttribute(), to.getClassId());
 											gw.write(ParseUtils.hexStringToByteArray(to.getData()));
 											to.setResult("OK");
+											getLogger().log(Level.INFO, "Test " + i + " has successfully finished.");
 											hasWritten = true;
 										}break;
 										case 2 :{ // ACTION
@@ -728,6 +730,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 												gi.invoke(ParseUtils.hexStringToByteArray(to.getData()));
 											}
 											to.setResult("OK");
+											getLogger().log(Level.INFO, "Test " + i + " has successfully finished.");
 											hasWritten = true;
 										}break;
 										case 3 :{ // MESSAGE
@@ -738,15 +741,18 @@ public class MessageExecutor extends GenericMessageExecutor{
 											doMessage(rm);
 											if(rm.getState().getId() == rm.getState().CONFIRMED.getId()){
 												to.setResult("OK");
+												getLogger().log(Level.INFO, "Test " + i + " has successfully finished.");
 											} else {
 												to.setResult("Message failed, current state " + rm.getState().getId());
 												failures++;
+												getLogger().log(Level.INFO, "Test " + i + " has failed.");
 											}
 											hasWritten = true;
 										}break;
 										case 4:{ // WAIT
 											waitCyclus(Integer.parseInt(to.getData()));
 											to.setResult("OK");
+											getLogger().log(Level.INFO, "Test " + i + " has successfully finished.");
 											hasWritten = true;
 										}break; 
 										case 5:{
@@ -762,10 +768,17 @@ public class MessageExecutor extends GenericMessageExecutor{
 										if(!hasWritten){
 											if((to.getExpected() != null) && (e.getMessage().indexOf(to.getExpected()) != -1)){
 												to.setResult(e.getMessage());
+												getLogger().log(Level.INFO, "Test " + i + " has successfully finished.");
 												hasWritten = true;
 											} else {
 												getLogger().log(Level.INFO, "Test " + i + " has failed.");
-												to.setResult("Failed. " + e.getMessage());
+												String eMessage;
+												if(e.getMessage().indexOf("\r\n") != -1){
+													eMessage = e.getMessage().substring(0, e.getMessage().indexOf("\r\n")) + "...";
+												} else {
+													eMessage = e.getMessage();
+												}
+												to.setResult("Failed. " + eMessage);
 												hasWritten = true;
 												failures++;
 											}
@@ -973,12 +986,13 @@ public class MessageExecutor extends GenericMessageExecutor{
 	}
 	
 	private Date getFirstDate(Date startTime, String type) throws IOException{
-		return getFirstDate(startTime, type, getTimeZone());
+		return getFirstDate(startTime, type, getWebRtu().getMeter().getTimeZone());
 		}
 	
 	private Date getFirstDate(Date startTime, String type, TimeZone timeZone) throws IOException{
 		Calendar cal1 = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		cal1.setTime(startTime);
+		cal1.getTime();
 		if(type.equalsIgnoreCase("15")){
 			if(cal1.get(Calendar.MINUTE) < 15){
 				cal1.set(Calendar.MINUTE, 14);
@@ -1027,7 +1041,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 	}
 
 	private Date setBeforeNextInterval(Date startTime, String type) throws IOException {
-		return setBeforeNextInterval(startTime, type, getTimeZone());
+		return setBeforeNextInterval(startTime, type, getWebRtu().getMeter().getTimeZone());
 	}
 	
 	private Date setBeforeNextInterval(Date startTime, String type, TimeZone timeZone) throws IOException{

@@ -1182,7 +1182,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		catGlobalDisc.addMessageSpec(msgSpec);
 		
 		// WakeUp functionality
-		msgSpec = addPhoneListMsg("Add phonenumbers to whitelist", RtuMessageConstant.WAKEUP_ADD_WHITELIST, false);
+		msgSpec = addPhoneListMsg("Set phonenumbers to whitelist", RtuMessageConstant.WAKEUP_ADD_WHITELIST, false);
 		catWakeUp.addMessageSpec(msgSpec);
 		
 		categories.add(catXMLConfig);
