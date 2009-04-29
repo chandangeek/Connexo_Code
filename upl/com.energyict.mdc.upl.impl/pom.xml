@@ -311,7 +311,9 @@
 
 	<modules>
 		<module>protocolimpl</module>
-		<module>echelon</module>
+		
+		<!-- Echelon isn't used anymore, when needed just uncomment this -->
+		<!-- <module>echelon</module> -->
 		<module>dlms</module>
 	</modules>
 	<build>
