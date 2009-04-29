@@ -273,3 +273,6 @@
 -keepnames class com.energyict.protocolimpl.modbus.schneider.compactnsx.CompactNSX
 
 -keepnames class com.energyict.protocolimpl.iec1107.kamstrup.unigas300.Unigas300
+
+-keepnames class com.energyict.protocolimpl.dlms.as220.AS220
+
