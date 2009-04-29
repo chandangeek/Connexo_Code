@@ -760,7 +760,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 									} catch (Exception e) {
 										e.printStackTrace();
 										if(!hasWritten){
-											if(e.getMessage().indexOf(to.getExpected()) != -1){
+											if((to.getExpected() != null) && (e.getMessage().indexOf(to.getExpected()) != -1)){
 												to.setResult(e.getMessage());
 												hasWritten = true;
 											} else {
