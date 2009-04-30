@@ -35,15 +35,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSObis;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -148,8 +140,10 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
             // KV 19092003 set forcedelay to 100 ms for the optical delay when using HHU?
             if (connectionMode==0)
                 dlmsConnection=new HDLCConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress,iServerUpperMacAddress,addressingMode);
-            else
+            else if (connectionMode==1)
                 dlmsConnection=new TCPIPConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
+            else if (connectionMode==2)
+                dlmsConnection=new CosemPDUConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
         }
         catch(DLMSConnectionException e) {
             //logger.severe ("DLMSSN init(...), "+e.getMessage());
@@ -869,7 +863,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
             serialNumber=properties.getProperty(MeterProtocol.SERIALNUMBER);
             extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0"));
             addressingMode=Integer.parseInt(properties.getProperty("AddressingMode","-1"));  
-            connectionMode = Integer.parseInt(properties.getProperty("Connection","0")); // 0=HDLC, 1= TCP/IP
+            connectionMode = Integer.parseInt(properties.getProperty("Connection","0")); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection
             if(properties.getProperty("ChannelMap", "").equalsIgnoreCase("")){
             	channelMap = null;
             } else {
@@ -956,6 +950,7 @@ abstract public class DLMSSN implements DLMSCOSEMGlobals, MeterProtocol, HHUEnab
         result.add("AddressingMode");
         result.add("EventIdIndex");
         result.add("ChannelMap");
+        result.add("Connection");
         return result;
     }
 
