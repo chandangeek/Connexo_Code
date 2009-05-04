@@ -999,7 +999,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 			clientMacAddress = Integer.parseInt(properties.getProperty(
 					"ClientMacAddress", "1").trim());
 			serverUpperMacAddress = Integer.parseInt(properties.getProperty(
-					"iServerUpperMacAddress", "17").trim());
+					"ServerUpperMacAddress", "17").trim());
 			serverLowerMacAddress = Integer.parseInt(properties.getProperty(
 					"ServerLowerMacAddress", "17").trim());
 			firmwareVersion = properties.getProperty("FirmwareVersion", "ANY");
@@ -1215,7 +1215,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 		result.add("FirmwareVersion");
 		result.add("SecurityLevel");
 		result.add("ClientMacAddress");
-		result.add("iServerUpperMacAddress");
+		result.add("ServerUpperMacAddress");
 		result.add("ServerLowerMacAddress");
 		result.add("ExtendedLogging");
 		result.add("AddressingMode");
