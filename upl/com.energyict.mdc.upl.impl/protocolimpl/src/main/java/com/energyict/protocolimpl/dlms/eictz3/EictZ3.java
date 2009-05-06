@@ -22,7 +22,7 @@
 	KV|11022009|Cleanup and refactored as NTA compatible EICT Z3 protocol
  * @endchanges
  */
-package com.energyict.protocolimpl.dlms.eictz3;
+package com.energyict.protocolimpl.dlms.eictz3; 
 
 import java.io.*;
 import java.util.*;

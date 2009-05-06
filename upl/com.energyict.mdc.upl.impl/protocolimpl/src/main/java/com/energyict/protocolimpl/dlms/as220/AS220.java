@@ -33,10 +33,9 @@ import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.dlms.DLMSSN;
 
-public class AS220 extends DLMSSN implements RegisterProtocol {
-    private static final byte DEBUG=0;
+public class AS220 extends DLMSSNAS220 implements RegisterProtocol {
+    private static final byte DEBUG=1;
     
     int eventIdIndex;
     
@@ -74,6 +73,10 @@ public class AS220 extends DLMSSN implements RegisterProtocol {
            calendar = Calendar.getInstance(ProtocolUtils.getWinterTimeZone(timeZone));
         return calendar;
     }
+    
+    
+
+    
     
     protected void getEventLog(ProfileData profileData,Calendar fromCalendar, Calendar toCalendar) throws IOException {
         DataContainer dc = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCalendar,toCalendar);
@@ -113,124 +116,23 @@ public class AS220 extends DLMSSN implements RegisterProtocol {
         }
     }
     
-    protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,UniversalObject[] intervalList)  throws IOException {
-        byte bDOW;
-        Calendar stdCalendar=null;
-        Calendar dstCalendar=null;
-        Calendar calendar=null;
-        int i,t;
+    protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,List values)  throws IOException {
+
+        int i,t; 
         IntervalData savedIntervalData=null;
         
-        if (isRequestTimeZone()) {
-            stdCalendar = ProtocolUtils.getCalendar(false,requestTimeZone());
-            dstCalendar = ProtocolUtils.getCalendar(true,requestTimeZone());
-        }
-        else { // KV 27102003
-            stdCalendar = initCalendarSW(false,getTimeZone());
-            dstCalendar = initCalendarSW(true,getTimeZone());
-        }
         
-        if (DEBUG >= 1) System.out.println("intervalList.length = "+intervalList.length);
+        if (DEBUG >= 1) System.out.println("intervalList.length = "+values.size());
         
-        for (i=0;i<intervalList.length;i++) {
-            
-            // KV 27102003
-            if (intervalList[i].getField(IL_CAPUTURETIME+11) != 0xff) {
-                if ((intervalList[i].getField(IL_CAPUTURETIME+11)&0x80) == 0x80)
-                    calendar = dstCalendar;
-                else
-                    calendar = stdCalendar;
-            }
-            else calendar = stdCalendar;
-            
-            // Build Timestamp
-            calendar.set(Calendar.YEAR,(int)((intervalList[i].getField(IL_CAPUTURETIME)<<8) |
-            intervalList[i].getField(IL_CAPUTURETIME+1)));
-            calendar.set(Calendar.MONTH,(int)intervalList[i].getField(IL_CAPUTURETIME+2)-1);
-            calendar.set(Calendar.DAY_OF_MONTH,(int)intervalList[i].getField(IL_CAPUTURETIME+3));
-            calendar.set(Calendar.HOUR_OF_DAY,(int)intervalList[i].getField(IL_CAPUTURETIME+5));
-            calendar.set(Calendar.MINUTE,(int)intervalList[i].getField(IL_CAPUTURETIME+6));
-            calendar.set(Calendar.SECOND,(int)intervalList[i].getField(IL_CAPUTURETIME+7));
-            
-            int iField = (int)intervalList[i].getField(IL_EVENT); // & (int)EV_CAPTURED_EVENTS; // KV 10102003, include all bits...
-            iField &= (EV_NORMAL_END_OF_INTERVAL ^ 0xffffffff); // exclude EV_NORMAL_END_OF_INTERVAL bit
-            iField &= (EV_SUMMER_WINTER ^ 0xffffffff); // exclude EV_SUMMER_WINTER bit // KV 10102003
-            for (int bit=0x1;bit!=0;bit<<=1) {
-                if ((iField & bit) != 0) {
-                    profileData.addEvent(new MeterEvent(new Date(((Calendar)calendar.clone()).getTime().getTime()),
-                    (int)mapLogCodes(bit),
-                    (int)bit));
-                }
-            } // for (int bit=0x1;bit!=0;bit<<=1)
-            
-            // KV 12112002 following the Siemens integration handbook, only exclude profile entries where
-            // status & EV_START_OF_INTERVAL is true
-            if ((intervalList[i].getField(IL_EVENT) & EV_START_OF_INTERVAL) == 0) {
-                
-                // In case the EV_NORMAL_END_OF_INTERVAL bit is not set, calendar is possibly
-                // not aligned to interval boundary caused by an event
-                if ((intervalList[i].getField(IL_EVENT) & EV_NORMAL_END_OF_INTERVAL) == 0) {
-                    // Following code does the aligning
-                    int rest = (int)(calendar.getTime().getTime()/1000) % getProfileInterval();
-                    if (DEBUG >= 1) System.out.print(calendar.getTime()+" "+calendar.getTime().getTime()+", timestamp adjusted with "+(getProfileInterval() - rest)+" sec.");
-                    if (rest > 0) calendar.add(Calendar.SECOND, getProfileInterval() - rest);
-                }
-                else {
-                    if (DEBUG >= 1) System.out.print(calendar.getTime()+" "+calendar.getTime().getTime()+", statusbits = "+Integer.toHexString(iField));
-                }
-                
-                // Fill profileData
-                IntervalData intervalData = new IntervalData(new Date(((Calendar)calendar.clone()).getTime().getTime()));
-                
-                for (t=0;t<bNROfChannels;t++) {
-                    Long val = new Long(intervalList[i].getField(IL_DEMANDVALUE+t));
-                    intervalData.addValue(val);
-                    if (DEBUG >= 1) System.out.print(", value = "+val.longValue());
-                }
-                
-                if ((intervalList[i].getField(IL_EVENT) & EV_CORRUPTED_MEASUREMENT) != 0)
-                    intervalData.addStatus(IntervalData.CORRUPTED);
-                
-                // In case the EV_NORMAL_END_OF_INTERVAL bit is not set, save the interval and add it to the
-                // next or save as separate!
-                if ((intervalList[i].getField(IL_EVENT) & EV_NORMAL_END_OF_INTERVAL) != 0) {
-                    if (savedIntervalData != null) {
-                        if (savedIntervalData.getEndTime().equals(intervalData.getEndTime())) {
-                            profileData.addInterval(addIntervalData(savedIntervalData,intervalData));
-                        }
-                        else {
-                            profileData.addInterval(savedIntervalData);
-                            profileData.addInterval(intervalData);
-                        }
-                        savedIntervalData = null;
-                    }
-                    else profileData.addInterval(intervalData);
-                }
-                else {
-                    // KV 15122003 cumulate multiple powerfails during an interval
-                    if (savedIntervalData == null)
-                        savedIntervalData = intervalData;
-                    else {
-                        // if new event crosses intervalboundary, save the cumulated data to nearest interval
-                        // and save new data for next interval...
-                        if (getNrOfIntervals(savedIntervalData) < getNrOfIntervals(intervalData)) {
-                           roundUp2nearestInterval(savedIntervalData);
-                           profileData.addInterval(savedIntervalData);
-                           savedIntervalData = intervalData;
-                        }
-                        else {
-                           savedIntervalData = addIntervalData(savedIntervalData,intervalData);
-                        }
-                    }
-                }
-                
-            } // if ((intervalList[i].getField(IL_EVENT) & EV_START_OF_INTERVAL) == 0)
-            
-            if (DEBUG >= 1) System.out.println();
-            
+        for (i=0;i<values.size();i++) {
+        	System.out.println(values.get(i));
         } // for (i=0;i<intervalList.length;i++) {
         
+        System.out.println();
+        
     } // ProfileData buildProfileData(...)
+    
+    
     
     // KV 15122003
     private void roundDown2nearestInterval(IntervalData intervalData) throws IOException {
@@ -280,6 +182,24 @@ public class AS220 extends DLMSSN implements RegisterProtocol {
         } // switch(lLogCode)
     } // private void mapLogCodes(long lLogCode)
     
+    
+    
+    byte[] aarqlowlevelAS220 = {(byte)0xE6,(byte)0xE6,(byte)0x00,
+            0x60, 0x36, (byte) 0xA1, 0x09, 0x06, 0x07,
+            0x60, (byte)0x85, 0x74, 0x05, 0x08, 0x01,
+            0x02, (byte)0x8A, 0x02, 0x07, (byte)0x80, (byte)0x8B,
+            0x07, 0x60, (byte)0x85, 0x74, 0x05, 0x08,
+            0x02, 0x01, (byte)0xAC, 0x0A, (byte)0x80, 0x08,
+            0x31, 0x32, 0x33, 0x34, 0x35, 0x36,
+            0x37, 0x38};
+    byte[] aarqlowlevelAS220_2= {(byte)0xBE, 0x10, 0x04, 0x0E,
+            0x01, 0x00, 0x00, 0x00, 0x06, 0x5F,
+            0x1F, 0x04, 0x00, 0x18, 0x02, 0x20,
+            0x00, (byte)0xEF};
+
+    protected byte[] getLowLevelSecurity() {
+        return buildaarq(aarqlowlevelAS220,aarqlowlevelAS220_2); 
+    }    
     
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
