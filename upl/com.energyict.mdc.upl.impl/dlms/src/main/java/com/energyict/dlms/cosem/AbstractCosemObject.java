@@ -161,6 +161,21 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
         }
     }
     
+    
+    private byte[] buildReadRequestNext(int blockNr) {
+        // KV 06052009
+        byte[] readRequestArray = new byte[READREQUEST_DATA_SIZE];
+        readRequestArray[0] = (byte)0xE6; // Destination_LSAP
+        readRequestArray[1] = (byte)0xE6; // Source_LSAP
+        readRequestArray[2] = 0x00; // LLC_Quality
+        readRequestArray[DL_COSEMPDU_OFFSET] = COSEM_READREQUEST;
+        readRequestArray[DL_COSEMPDU_LENGTH_OFFSET] = 0x01; // length of the variable length SEQUENCE OF
+        readRequestArray[DL_COSEMPDU_TAG_OFFSET] = 0x05; // block-number-access
+        readRequestArray[READREQUEST_BLOCKNR_MSB] = (byte)(((blockNr)>>8)&0x00FF);
+        readRequestArray[READREQUEST_BLOCKNR_LSB] = (byte)((blockNr)&0x00FF);
+        return readRequestArray;
+    } // protected byte[] buildReadRequest(int iObj, int iAttr, byte[] byteSelectiveBuffer)    
+    
     private byte[] buildReadRequest(int iObj, int iAttr, byte[] byteSelectiveBuffer) {
         // Simple request data Array
         
@@ -359,7 +374,10 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
     
     private static final byte SERVICEERROR_ACCESS_TAG=5;
     private static final byte ACCESS_AUTHORIZATION=1;
+    
+    private static final byte READRESPONSE_DATA_TAG=0;
     private static final byte READRESPONSE_DATAACCESSERROR_TAG=1;
+    private static final byte READRESPONSE_DATABLOCK_RESULT_TAG=2;
     
     private byte[] CheckCosemPDUResponseHeader(byte[] responseData) throws IOException {
         int i;
@@ -374,14 +392,68 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
             i=DL_COSEMPDU_OFFSET;
             
             switch(responseData[i]) {
-                case COSEM_READRESPONSE:
+                case COSEM_READRESPONSE: {
+                	switch(responseData[DL_COSEMPDU_OFFSET+2]) {
+                	
+                		case READRESPONSE_DATA_TAG:
+                        	receiveBuffer.addArray(responseData,DL_COSEMPDU_OFFSET+3);
+                        	return receiveBuffer.getArray();
+                		
+                		case READRESPONSE_DATAACCESSERROR_TAG:
+                            evalDataAccessResult(responseData[DL_COSEMPDU_OFFSET+3]);
+                            receiveBuffer.addArray(responseData,DL_COSEMPDU_OFFSET+3);
+                            return receiveBuffer.getArray();
+                		
+                		case READRESPONSE_DATABLOCK_RESULT_TAG: {
+                			i=DL_COSEMPDU_OFFSET+3; // to point to the block last
+                			
+                            boolLastBlock = (responseData[i] != 0x00);
+                            i++; // skip lastblock
+                            iBlockNumber = ProtocolUtils.getInt(responseData,i,2);
+                            i+=2; // skip iBlockNumber
+
+                            iBlockSize = (int)DLMSUtils.getAXDRLength(responseData,i);
+                            
+                            i += DLMSUtils.getAXDRLengthOffset(responseData,i);
+                            
+                            if (iBlockNumber==1)
+                                i+=2; // skip the tricky read response sequence of choice and data encoding 0100
+
+                            if (DEBUG>=1)
+                            	System.out.println("last block="+boolLastBlock+", blockNumber="+iBlockNumber+", blockSize="+iBlockSize+", offset="+i);
+                            
+                            receiveBuffer.addArray(responseData,i);
+                            
+                            if (!boolLastBlock) {
+                                try {
+                                    if (DEBUG>=1)
+                                    	System.out.println("Acknowledge block "+iBlockNumber);
+                                    responseData = protocolLink.getDLMSConnection().sendRequest(buildReadRequestNext(iBlockNumber));
+                                    if (DEBUG>=1)
+                                    	System.out.println("next response data = "+ProtocolUtils.outputHexString(responseData));
+                                }
+                                catch(IOException e) {
+                                    throw new NestedIOException(e,"Error in COSEM_GETRESPONSE_WITH_DATABLOCK");
+                                }
+                            }
+                            else {
+                                return (receiveBuffer.getArray());
+                            }
+                                    
+                			
+                		} break; // READRESPONSE_DATABLOCK_RESULT_TAG
+                    		
+                	} // switch(responseData[DL_COSEMPDU_OFFSET+2])
+                    
+                } break; //COSEM_READRESPONSE
+                
                 case COSEM_WRITERESPONSE: {
                     if (responseData[DL_COSEMPDU_OFFSET+2] == READRESPONSE_DATAACCESSERROR_TAG) {
                         evalDataAccessResult(responseData[DL_COSEMPDU_OFFSET+3]);
                     }
                     receiveBuffer.addArray(responseData,DL_COSEMPDU_OFFSET+3);
                     return receiveBuffer.getArray();
-                } //break; //COSEM_READRESPONSE, COSEM_WRITERESPONSE
+                } // COSEM_WRITERESPONSE
                 
                 case COSEM_CONFIRMEDSERVICEERROR: {
 //                    if ((responseData[DL_COSEMPDU_OFFSET+1] == CONFIRMEDSERVICEERROR_READ_TAG) &&
@@ -396,23 +468,21 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 //                    }
                     
                     switch(responseData[DL_COSEMPDU_OFFSET+1]){
-                    case CONFIRMEDSERVICEERROR_INITIATEERROR_TAG:{
-                    	throw new IOException("Confirmed Service Error - 'Initiate error' - Reason: " + getServiceError(responseData[DL_COSEMPDU_OFFSET+2],responseData[DL_COSEMPDU_OFFSET+3]));
+	                    case CONFIRMEDSERVICEERROR_INITIATEERROR_TAG:{
+	                    	throw new IOException("Confirmed Service Error - 'Initiate error' - Reason: " + getServiceError(responseData[DL_COSEMPDU_OFFSET+2],responseData[DL_COSEMPDU_OFFSET+3]));
+	                    }
+	                    case CONFIRMEDSERVICEERROR_READ_TAG:{
+	                    	throw new IOException("Confirmed Service Error - 'Read error' - Reason: " + getServiceError(responseData[DL_COSEMPDU_OFFSET+2],responseData[DL_COSEMPDU_OFFSET+3]));
+	                    }
+	                    case CONFIRMEDSERVICEERROR_WRITE_TAG:{
+	                    	throw new IOException("Confirmed Service Error - 'Write error' - Reason: " + getServiceError(responseData[DL_COSEMPDU_OFFSET+2],responseData[DL_COSEMPDU_OFFSET+3]));
+	                    }
+	                    default:{
+	                      throw new IOException("Unknown service error, "+responseData[DL_COSEMPDU_OFFSET+1]+
+	                      responseData[DL_COSEMPDU_OFFSET+2]+
+	                      responseData[DL_COSEMPDU_OFFSET+3]);
+	                    }
                     }
-                    case CONFIRMEDSERVICEERROR_READ_TAG:{
-                    	throw new IOException("Confirmed Service Error - 'Read error' - Reason: " + getServiceError(responseData[DL_COSEMPDU_OFFSET+2],responseData[DL_COSEMPDU_OFFSET+3]));
-                    }
-                    case CONFIRMEDSERVICEERROR_WRITE_TAG:{
-                    	throw new IOException("Confirmed Service Error - 'Write error' - Reason: " + getServiceError(responseData[DL_COSEMPDU_OFFSET+2],responseData[DL_COSEMPDU_OFFSET+3]));
-                    }
-                    default:{
-                      throw new IOException("Unknown service error, "+responseData[DL_COSEMPDU_OFFSET+1]+
-                      responseData[DL_COSEMPDU_OFFSET+2]+
-                      responseData[DL_COSEMPDU_OFFSET+3]);
-                    }
-                    }
-                    
-                    
                 } // !!! break !!! COSEM_CONFIRMEDSERVICEERROR
                 
                 case COSEM_GETRESPONSE: {

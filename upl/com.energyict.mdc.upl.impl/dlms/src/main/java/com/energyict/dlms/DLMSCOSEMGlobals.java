@@ -194,6 +194,9 @@ public interface DLMSCOSEMGlobals {
     final byte READREQUEST_SN_LSB=7;
     
     
+    final byte READREQUEST_BLOCKNR_MSB=6;
+    final byte READREQUEST_BLOCKNR_LSB=7;    
+    
     // ************************************************************************************************************
     // LN referencing    
     final byte SETREQUEST_DATA_SIZE=16; // Size of readrequest data and offset to selective data

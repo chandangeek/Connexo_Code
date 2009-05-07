@@ -50,6 +50,7 @@ public class DLMSConfig {
     
     
     final static private DLMSConfig[] configchange = {
+    	    new DLMSConfig("GEC",1,0,0,96,2,0,255),
             new DLMSConfig("LGZ",3,0,0,96,2,0,255),
             new DLMSConfig("EIT",3,0,0,96,2,0,255),
             new DLMSConfig("ISK",1,0,0,96,2,0,255),
@@ -59,6 +60,7 @@ public class DLMSConfig {
     };
     
     final static private DLMSConfig[] eventLog = {
+    	new DLMSConfig("GEC",7,0,0,99,98,1,255),
         new DLMSConfig("LGZ",7,1,-1,99,98,-1,-1),
         new DLMSConfig("EIT",7,1,-1,99,98,-1,-1),
         new DLMSConfig("ISK",7,1,-1,99,98,-1,-1),
@@ -68,6 +70,7 @@ public class DLMSConfig {
     };
     
     final static private DLMSConfig[] version = {
+    	    new DLMSConfig("GEC",1,1,0,0,2,0,255),
             new DLMSConfig("LGZ",1,1,0,0,2,0,255),
             new DLMSConfig("EIT",1,1,0,0,2,0,255),
             new DLMSConfig("EMO",1,0,0,96,1,2,255),      
@@ -141,6 +144,7 @@ public class DLMSConfig {
     };
     
     final static private DLMSConfig[] serialNumber = {
+    		new DLMSConfig("GEC",1,1,0,0,0,0,255),
             new DLMSConfig("LGZ",1,1,0,0,0,0,255),
             new DLMSConfig("EMO",1,1,0,0,0,0,255),
             new DLMSConfig("SLB",1,0,0,96,1,0,255),    

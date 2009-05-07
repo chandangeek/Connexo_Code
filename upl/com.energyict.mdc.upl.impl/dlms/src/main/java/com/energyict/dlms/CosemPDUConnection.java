@@ -3,8 +3,7 @@ package com.energyict.dlms;
 import com.energyict.dialer.connection.*;
 import java.io.*;
 
-import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.*;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -16,9 +15,9 @@ import com.energyict.protocol.ProtocolUtils;
  */
 
 public class CosemPDUConnection extends Connection implements DLMSConnection {
-    private static final byte DEBUG=0;
+    private static final byte DEBUG=2;
     private final long TIMEOUT=300000;
-    private final int WRAPPER_VERSION=0x0001;
+
 
     // TCPIP specific
     // Sequence numbering
@@ -87,16 +86,21 @@ public class CosemPDUConnection extends Connection implements DLMSConnection {
     } // public void disconnectMAC() throws IOException
     
     private byte[] receiveData() throws IOException {
-        int kar;
-        ByteArrayOutputStream resultArrayOutputStream = new ByteArrayOutputStream();
-        resultArrayOutputStream.reset();
+        byte[] data;
+        long interFrameTimeout;
         copyEchoBuffer();
+        interFrameTimeout = System.currentTimeMillis() + timeout;
         while(true) {
-            if ((kar = readIn()) != -1) {
-               if (DEBUG>=2) ProtocolUtils.outputHex(kar);
-               resultArrayOutputStream.write(kar);
+            if ((data = readInArray()) != null) {
+               if (DEBUG>=2) ProtocolUtils.outputHexString(data);
+               byte[] dataWithLLC = new byte[data.length+3];
+               System.arraycopy(data, 0, dataWithLLC, 3, data.length);
+               return dataWithLLC;
             } // if ((iNewKar = readIn()) != -1)
-            return resultArrayOutputStream.toByteArray();    
+            if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+                throw new ConnectionException("receiveData() response timeout error",TIMEOUT_ERROR);
+            }
+            
         } // while(true)
     } // private byte waitForTCPIPFrameStateMachine()
     
