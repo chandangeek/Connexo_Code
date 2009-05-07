@@ -25,6 +25,7 @@
 package com.energyict.protocolimpl.dlms.eictz3; 
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.logging.*;
 
@@ -39,6 +40,7 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.client.ParseUtils;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageHandler;
@@ -242,15 +244,31 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 			byte bNROfChannels, boolean includeEvents) throws IOException {
 
 		ProfileData profileData = new ProfileData();
-		DataContainer dataContainer = getCosemObjectFactory()
-				.getProfileGeneric(ObisCode.fromString(loadProfileObisCode))
-				.getBuffer(fromCalendar, Calendar.getInstance());
-
+		
+		final ProfileGeneric profileGeneric = this.getCosemObjectFactory().getProfileGeneric(ObisCode.fromString(loadProfileObisCode));
+		final DataContainer dataContainer = profileGeneric.getBuffer(fromCalendar, Calendar.getInstance());
+		
+		final CapturedObjectsHelper capturedObjectsHelper = this.getCapturedObjectsHelper();
+		
 		for (int i = 0; i < bNROfChannels; i++) {
-			ScalerUnit scalerunit = getRegisterScalerUnit(i);
-			profileData.addChannel(new ChannelInfo(i, "EictZ3_channel_" + i,
-					scalerunit.getUnit()));
+			final ScalerUnit scalerunit = getRegisterScalerUnit(i);
+			final ChannelInfo channelInfo = new ChannelInfo(i, "EictZ3_channel_" + i, scalerunit.getUnit());
+			
+			// Get the obis code for the given channel in the profile data, we want to know whether it is cumulative or not.
+			// If it is, fill in the wrap value. We set it to some bogus value that is non-zero (to make sure we don't break anything).
+			// The value of this field itself is never used in EIServer, instead the overflow value of the channel itself is used for the calculation.
+			// This means this is more or less a fancy way of setting a flag.
+			//
+			// Mantis 4477.
+			final ObisCode channelObisCode = capturedObjectsHelper.getProfileDataChannelObisCode(i);
+			
+			if (ParseUtils.isObisCodeCumulative(channelObisCode)) {
+				channelInfo.setCumulativeWrapValue(BigDecimal.TEN);
+			}
+			
+			profileData.addChannel(channelInfo);
 		}
+		
 		buildProfileData(bNROfChannels, dataContainer, profileData);
 
 		if (includeEvents) {
