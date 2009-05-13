@@ -20,6 +20,7 @@ import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 public class MessageHandler extends DefaultHandler{
 
 	private String type = "";
+	private boolean isXmlInContent = false;
 	
 	public MessageHandler(){
 		
@@ -28,6 +29,7 @@ public class MessageHandler extends DefaultHandler{
 	public void startElement(String uri, String lName, String qName, Attributes attrbs) throws SAXException {
 		if(RtuMessageConstant.XMLCONFIG.equals(qName)){
 			setType(RtuMessageConstant.XMLCONFIG);
+			isXmlInContent = true;
 		} else if(RtuMessageConstant.FIRMWARE_UPGRADE.equals(qName)){
 			setType(RtuMessageConstant.FIRMWARE_UPGRADE);
 			handleFirmWareUpgrade(attrbs);
@@ -88,7 +90,9 @@ public class MessageHandler extends DefaultHandler{
 			setType(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
 			handleWakeUpWhiteList(attrbs);
 		} else {
-			throw new SAXException("Unknown messageContent : " + qName);
+			if(!isXmlInContent){ // if its the xmlMessage, then don't fail because it has xml in the content
+				throw new SAXException("Unknown messageContent : " + qName);
+			}
 		}
 	}
 
