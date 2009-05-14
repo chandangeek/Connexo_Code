@@ -146,14 +146,14 @@ public class ABBA230Profile {
 				strBuff.append("55000"+(i+1)+"(40)");
 			}
 			// call the scriptexecution  scriptId,script
-			((CacheMechanism)abba230.getCache()).setCache(new String[]{"2",strBuff.toString()});
+			((CacheMechanism)abba230.getCache()).setCache(new String[]{"3",strBuff.toString()});
 		}
 	}
-	private void executeLogbookScript() throws IOException {
+	private void executeLogbookDataScript() throws IOException {
 		if ((abba230.getCache() != null) && (abba230.getCache() instanceof CacheMechanism)) {
 			// call the scriptexecution  scriptId,script
 			String script = "678001(40),678002(13),679001(40),679002(13),680001(40),680002(40),680003(2d),685001(40),685002(13),695001(40),695002(13),691001(40),691002(13),692001(40),692002(13),693001(40),693002(13),694001(2b),696001(2b),699001(35),422001(35),423001(35),424001(35),425001(35),426001(35),427001(35),428001(35),429001(35),430001(35),431001(35),432001(35),433001(35),701001(35),705001(2b)";
-			((CacheMechanism)abba230.getCache()).setCache(new String[]{"2",script});
+			((CacheMechanism)abba230.getCache()).setCache(new String[]{"3",script});
 		}
 	}
 	
@@ -163,7 +163,7 @@ public class ABBA230Profile {
         long nrOfBlocks = ((Long)rFactory.getRegister("LoadProfileByDate64Blocks")).longValue();
         
         // specific for the scripting with wavenis
-        //executeProfileDataScript(nrOfBlocks);
+        executeProfileDataScript(nrOfBlocks);
         
         data = rFactory.getRegisterRawData("LoadProfile", (int)nrOfBlocks*64);
         
@@ -171,7 +171,7 @@ public class ABBA230Profile {
         
         if( includeEvents ) {
         	
-        	//executeLogbookDataScript();
+        	executeLogbookDataScript();
         	
         	List meterEvents= new ArrayList();
         	

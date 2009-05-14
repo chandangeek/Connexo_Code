@@ -553,7 +553,7 @@ public class ParseUtils {
 //            System.out.println(ParseUtils.getBigInteger(byteBuffer, 2, 3));
 //            System.out.println(ParseUtils.getBigIntegerLE(byteBuffer, 2, 3));
             
-            System.out.println(ProtocolUtils.outputHexString(createBCDByteArrayLEWithMask("FFFFFFFF",8)));
+//            System.out.println(ProtocolUtils.outputHexString(createBCDByteArrayLEWithMask("FFFFFFFF",8)));
      
 //        	Calendar cal = Calendar.getInstance();
 //        	cal.add(Calendar.DATE, -1);
@@ -570,6 +570,16 @@ public class ParseUtils {
 //            System.out.println("systemTime="+systemTime.getTime());
             
            // throw new IOException("test");
+        	
+        	Calendar cal = Calendar.getInstance();
+        	cal.set(Calendar.MINUTE,15);
+        	cal.set(Calendar.SECOND,0);
+        	cal.set(Calendar.MILLISECOND,0);
+        	System.out.println(cal.getTime());
+        	roundUp2nearestInterval(cal, 900);
+        	System.out.println(cal.getTime());
+        	
+        	
         }
         catch(Exception e) {
             e.printStackTrace();

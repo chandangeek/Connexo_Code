@@ -21,7 +21,8 @@ public class LoadProfileCompactArray {
 		int offset = 0;
 		
 		if (data[offset] != 19)
-			throw new IOException("No compact array!");
+			return; // if the load profile is empty...
+			//throw new IOException("No compact array!");
 		
 		offset+=4; // skip compact array tag AND TypeDescription
 		
@@ -36,7 +37,7 @@ public class LoadProfileCompactArray {
         for (int i=0;i<length/4;i++) {
         	Long value = new Long(ProtocolUtils.getLong(data, offset, 4));
         	offset+=4;
-        	loadProfileCompactArrayEntries.add(new LoadProfileCompactArrayEntry(value,timeZone));
+        	loadProfileCompactArrayEntries.add(new LoadProfileCompactArrayEntry(value));
         }
         
 	}

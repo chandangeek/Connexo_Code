@@ -288,7 +288,7 @@ public class ABBA230 implements
             
             
             executeDefaultScript();
-            //executeRegisterScript();
+            executeRegisterScript();
             
             rFactory = new ABBA230RegisterFactory(this,(MeterExceptionInfo)this);
             profile=new ABBA230Profile(this,rFactory);
@@ -1192,14 +1192,14 @@ public class ABBA230 implements
 		if ((getCache() != null) && (getCache() instanceof CacheMechanism)) {
 			// call the scriptexecution  scriptId,script
 			String script = "778001(1),777001(2),878001(3),798001(10)";
-			((CacheMechanism)getCache()).setCache(new String[]{"3",script});
+			((CacheMechanism)getCache()).setCache(new String[]{"1",script});
 		}
 	}	
 	private void executeRegisterScript() throws IOException {
 		if ((getCache() != null) && (getCache() instanceof CacheMechanism)) {
 			// call the scriptexecution  scriptId,script
 			String script = "507001(40),507002(40)";
-			((CacheMechanism)getCache()).setCache(new String[]{"4",script});
+			((CacheMechanism)getCache()).setCache(new String[]{"2",script});
 		}
 	}	
 }

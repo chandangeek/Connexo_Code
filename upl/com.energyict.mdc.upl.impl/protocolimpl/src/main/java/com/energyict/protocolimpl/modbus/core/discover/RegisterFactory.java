@@ -33,7 +33,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
     protected void init() {
         setZeroBased(false); // this means that reg2read = reg-1
         getRegisters().add(new HoldingRegister(3590,1,"PNP Northerndesign EnergyICT"));
-        getRegisters().add(new HoldingRegister(6254,2,"PNP Cutler Hammer IQ200").setParser("PNP Cutler Hammer IQ200"));
+        getRegisters().add(new HoldingRegister(0x186e,2,"PNP Cutler Hammer IQ200").setParser("PNP Cutler Hammer IQ200"));
         getRegisters().add(new HoldingRegister(0x186e,2,"PNP Cutler Hammer IQ230").setParser("PNP Cutler Hammer IQ230"));
         getRegisters().add(new HoldingRegister(257,1,"PNP Socomec Diris A20"));
         getRegisters().add(new HoldingRegister(257,1,"PNP Socomec Diris A40"));
@@ -60,7 +60,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
         
         getParserFactory().addParser("PNP Cutler Hammer IQ200", new Parser() {
             public Object val(int[] values, AbstractRegister register) {
-                return new BigDecimal( values[0]&0xff );
+                return new BigDecimal( values[0]&0x3f );
             }
         });        
         getParserFactory().addParser("PNP Cutler Hammer IQ230", new Parser() {
@@ -69,7 +69,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
                 for (int i=0;i<values.length;i++) {
                     val += (values[i]<<(i*16));
                 }
-                return new BigDecimal(val);
+                return new BigDecimal(val&0x003F0000);
             }
         });        
         

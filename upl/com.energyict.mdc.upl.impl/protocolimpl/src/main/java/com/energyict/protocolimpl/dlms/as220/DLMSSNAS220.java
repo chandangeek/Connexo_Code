@@ -43,7 +43,7 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
     abstract protected void getEventLog(ProfileData profileDate,Calendar fromCalendar, Calendar toCalendar) throws IOException;
     
     
-    private static final byte DEBUG=0;
+    private static final byte DEBUG=1;
     
     private DLMSCache dlmsCache=new DLMSCache(); 
     
@@ -552,6 +552,8 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
         List loadProfileCompactArrayEntries = o.getLoadProfileCompactArrayEntries();
        
         buildProfileData(bNROfChannels,profileData,scalerunit,loadProfileCompactArrayEntries);
+        
+        if (DEBUG >= 1) System.out.println(profileData);
         
         if (includeEvents) {
             getEventLog(profileData,fromCalendar,toCalendar);

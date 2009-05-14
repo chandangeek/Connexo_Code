@@ -27,12 +27,14 @@ package com.energyict.protocolimpl.dlms.as220;
 
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.ParseUtils;
 
 public class AS220 extends DLMSSNAS220 implements RegisterProtocol {
     private static final byte DEBUG=1;
@@ -116,19 +118,90 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol {
         }
     }
     
-    protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,List values)  throws IOException {
+    protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,List loadProfileCompactArrayEntries)  throws IOException {
 
         int i,t; 
         IntervalData savedIntervalData=null;
+        List intervalDatas = new ArrayList();
+        int latestProfileInterval= getProfileInterval();
+        int eiCode=0;
+        if (DEBUG >= 1) System.out.println("loadProfileCompactArrayEntries.size() = "+loadProfileCompactArrayEntries.size());
         
+        LoadProfileCompactArrayEntry dateStamp=null;
+        Calendar calendar = null;
+        for (i=0;i<loadProfileCompactArrayEntries.size();i++) {
+        	LoadProfileCompactArrayEntry lpcae = (LoadProfileCompactArrayEntry)loadProfileCompactArrayEntries.get(i);
+        	if (DEBUG >= 1) System.out.println(lpcae);
+        	
+        	if (lpcae.isValue()) { // normal interval value
+        		if (calendar == null) continue; // first the calendar has to be initialized with the start of load profile marker
+        		IntervalData ivd = new IntervalData(calendar.getTime());
+        		ivd.addValue(new BigDecimal(""+lpcae.getValue()));
+        		intervalDatas.add(ivd);
+        		latestProfileInterval = lpcae.getIntervalInSeconds();
+           		calendar.add(Calendar.SECOND,latestProfileInterval); // set the calendar to the next interval endtime
+        	}
+        	else if (lpcae.isPartialValue()) { // partial interval value
+        		if (calendar == null) continue; // first the calendar has to be initialized with the start of load profile marker
+        		IntervalData ivd = new IntervalData(calendar.getTime(),eiCode);
+        		eiCode=0;
+        		ivd.addValue(new BigDecimal(""+lpcae.getValue()));
+        		intervalDatas.add(ivd);
+        		latestProfileInterval = lpcae.getIntervalInSeconds();
+        		calendar.add(Calendar.SECOND,latestProfileInterval); // set the calendar to the next interval endtime
+        	}
+        	else if (lpcae.isDate()) { // date stamp
+        		// date always followed by time? Do the processing if time is received
+        		dateStamp = lpcae;
+        	}
+        	else if (lpcae.isTime()) { // time stamp
+        		if (dateStamp ==null) {
+        			
+        			// change of the interval...
+        			// only timestamp is received...
+        			// adjust time here...
+        		}
+        		else {
+        			// set the calendar
+            		calendar = ProtocolUtils.getCleanCalendar(getTimeZone());
+            		calendar.set(Calendar.YEAR, dateStamp.getYear());
+            		calendar.set(Calendar.MONTH, dateStamp.getMonth());
+            		calendar.set(Calendar.DATE, dateStamp.getDay());
+            		calendar.set(Calendar.HOUR_OF_DAY, lpcae.getHours());
+            		calendar.set(Calendar.MINUTE, lpcae.getMinutes());
+            		calendar.set(Calendar.SECOND, lpcae.getSeconds());
+            		dateStamp = null; // reset the dateStamp
+            		
+	            	if (lpcae.isStartOfLoadProfile()) {
+	            		// do nothing special...
+	            	}
+	            	else if (lpcae.isPowerOff()) {
+	            		ParseUtils.roundUp2nearestInterval(calendar, latestProfileInterval);
+	            		eiCode = IntervalStateBits.POWERDOWN;
+	            	}
+	            	else if (lpcae.isPowerOn()) {
+	            		ParseUtils.roundUp2nearestInterval(calendar, latestProfileInterval);
+	            		eiCode = IntervalStateBits.POWERUP;
+	            	}
+	            	else if (lpcae.isChangeclockOldTime()) {
+	            		ParseUtils.roundUp2nearestInterval(calendar, latestProfileInterval);
+	            		eiCode = IntervalStateBits.SHORTLONG;
+	            		
+	            	}
+	            	else if (lpcae.isChangeclockNewTime()) {
+	            		ParseUtils.roundUp2nearestInterval(calendar, latestProfileInterval);
+	            		eiCode = IntervalStateBits.SHORTLONG;
+	            	}
+        		}
+        	} // time
+        	
+        	
+        } // for (i=0;i<loadProfileCompactArrayEntries.size();i++) {
         
-        if (DEBUG >= 1) System.out.println("intervalList.length = "+values.size());
+        if (DEBUG >= 1) System.out.println();
         
-        for (i=0;i<values.size();i++) {
-        	System.out.println(values.get(i));
-        } // for (i=0;i<intervalList.length;i++) {
-        
-        System.out.println();
+        if (DEBUG >= 1) System.out.println("intervalDatas.size() = "+intervalDatas.size());
+        profileData.setIntervalDatas(intervalDatas);
         
     } // ProfileData buildProfileData(...)
     
