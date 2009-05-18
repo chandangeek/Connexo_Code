@@ -96,11 +96,22 @@ public class GenericModbusDiscover extends Modbus {
                     catch(ModbusException e) {
                         //e.printStackTrace();
                     }
+                    catch(ProtocolConnectionException e) {
+                    	//System.out.println(e.getMessage());
+                    	continue;
+                    }
                     boolean found=false;
                     StringTokenizer strTok = new StringTokenizer(dpi.getDetectionString(),";");
                     while(strTok.countTokens()>0) {
                         String detectionToken = strTok.nextToken();
-                        if (value==Integer.parseInt(detectionToken)) {
+                        
+                        int detectiontokenValue=0;
+                        if (detectionToken.indexOf("0x") == 0)
+                        	detectiontokenValue=Integer.parseInt(detectionToken.substring(2),16);
+                        else 
+                        	detectiontokenValue=Integer.parseInt(detectionToken);
+                        	
+                        if (value==detectiontokenValue) {
                             discoverResult.setDiscovered(true);
                             discoverResult.setProtocolName(dpi.getProtocolName());
                             discoverResult.setAddress(discoverTools.getAddress());
@@ -250,8 +261,8 @@ public class GenericModbusDiscover extends Modbus {
                 discoverTools = new DiscoverTools("COM1");
             else
                 discoverTools = new DiscoverTools(args[1]); //"/dev/ttyXR0";
-            discoverTools.setProperties(genericModbusDiscover.getProperties(5));
-            discoverTools.setAddress(1);
+            discoverTools.setProperties(genericModbusDiscover.getProperties(2));
+            discoverTools.setAddress(2);
             discoverTools.init();
             discoverTools.connect();
             

@@ -89,7 +89,17 @@ public class ABBA230Profile {
         
         /* by writing the dates in register 554 */
         LoadProfileReadByDate lpbd = new LoadProfileReadByDate(from, to);
-        rFactory.setRegister("LoadProfileReadByDate", lpbd );
+        int retry=0;
+        while(true) {
+	        try {
+	        	rFactory.setRegister("LoadProfileReadByDate", lpbd );
+	        	break;
+	        }
+	        catch(IOException e) {
+	        	if (retry++>=3)
+	        		throw e;
+	        }
+        }
         
         if( DEBUG > 0 )
             System.out.println( "Inquiring meter for " + lpbd );
