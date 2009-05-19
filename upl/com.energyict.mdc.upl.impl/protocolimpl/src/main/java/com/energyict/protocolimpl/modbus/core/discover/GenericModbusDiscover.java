@@ -261,8 +261,8 @@ public class GenericModbusDiscover extends Modbus {
                 discoverTools = new DiscoverTools("COM1");
             else
                 discoverTools = new DiscoverTools(args[1]); //"/dev/ttyXR0";
-            discoverTools.setProperties(genericModbusDiscover.getProperties(2));
-            discoverTools.setAddress(2);
+            discoverTools.setProperties(genericModbusDiscover.getProperties(1));
+            discoverTools.setAddress(1);
             discoverTools.init();
             discoverTools.connect();
             
