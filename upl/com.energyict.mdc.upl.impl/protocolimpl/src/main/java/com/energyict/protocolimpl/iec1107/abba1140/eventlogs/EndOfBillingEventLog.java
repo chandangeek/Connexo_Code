@@ -1,33 +1,69 @@
 package com.energyict.protocolimpl.iec1107.abba1140.eventlogs;
 
 import java.io.IOException;
-import java.util.*;
-
-import com.energyict.protocol.*;
-
+import java.util.TimeZone;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
+ 
 public class EndOfBillingEventLog extends AbstractEventLog {
 
-	private static final int NUMBER_OF_EVENTS = 3;
+	private static final int DEBUG 				= 0;
+	private static final int NUMBER_OF_EVENTS 	= 3;
+	private static final int COUNT_SIZE 		= 2;
+	private static final int TIMESTAMP_SIZE 	= 4;
 
-	int mostRecent;
-	int count;
-	TimeStampInfoPair[] timeStampInfoPairs = new TimeStampInfoPair[NUMBER_OF_EVENTS];
+	private static final String EVENT_NAME 		= "End of biling event";
+	private static final int EVENT_CODE 		= MeterEvent.BILLING_ACTION;
 	
+	private int count = 0;
+	private TimeStamp[] timeStamp=new TimeStamp[NUMBER_OF_EVENTS];
+
+	/*
+	 * Constructors
+	 */
+
 	public EndOfBillingEventLog(TimeZone timeZone) throws IOException {
 		super(timeZone);
 	}
-	
-	public void parse(byte[] data) throws IOException {
-		int offset=0;
-		mostRecent = ProtocolUtils.getIntLE(data, offset++, 1);
-		count = ProtocolUtils.getIntLE(data, offset, 2); offset+=2;
-        for( int i = 0; i < NUMBER_OF_EVENTS; i ++ ) {
-    		timeStampInfoPairs[i] = new TimeStampInfoPair(data,offset,timeZone);
-    		offset+=TimeStampInfoPair.size();
-    		if (timeStampInfoPairs[i].getDate() != null)
-    			addMeterEvent(new MeterEvent(timeStampInfoPairs[i].getDate(), MeterEvent.BILLING_ACTION,(timeStampInfoPairs[i].getInfoIndex()==1?"failed":"success")+" ("+count+")"));
-        }
 
+	/*
+	 * Private getters, setters and methods
+	 */
+
+	private void debug() {
+		System.out.println("count = " + count);
+		for( int i = 0; i < NUMBER_OF_EVENTS; i ++ )
+        	System.out.println(EVENT_NAME + " timeStamp[" + i + "] = " + timeStamp[i].getTimeStamp());
+	}
+
+	/*
+	 * Public methods
+	 */
+
+	public void parse(byte[] data) throws IOException {
+		count = ProtocolUtils.getIntLE(data, 0, COUNT_SIZE);
+		for( int i = 0; i < NUMBER_OF_EVENTS; i++ ) {
+        	timeStamp[i] = new TimeStamp(data, COUNT_SIZE + (i*TIMESTAMP_SIZE), getTimeZone());
+        	if (timeStamp[i].getTimeStamp()!=null)
+        		addMeterEvent(new MeterEvent(timeStamp[i].getTimeStamp(), EVENT_CODE, EVENT_NAME + " ("+count+")"));
+        }
+		if (DEBUG>=1) debug();
+	}
+
+	/*
+	 * Public getters and setters
+	 */
+
+	public int getCount() {
+		return count;
+	}
+	
+	public TimeStamp[] getTimeStamp() {
+		return timeStamp;
+	}
+
+	public TimeStamp getTimeStamp(int index) {
+		return timeStamp[index];
 	}
 
 }

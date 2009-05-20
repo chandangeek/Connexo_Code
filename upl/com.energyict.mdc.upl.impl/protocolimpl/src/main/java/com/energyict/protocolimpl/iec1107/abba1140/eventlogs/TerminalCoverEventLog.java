@@ -1,47 +1,69 @@
 package com.energyict.protocolimpl.iec1107.abba1140.eventlogs;
 
 import java.io.IOException;
-import java.util.*;
-
-import com.energyict.protocol.*;
+import java.util.TimeZone;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
  
 public class TerminalCoverEventLog extends AbstractEventLog {
 
-	private static final int NUMBER_OF_EVENTS = 3;
+	private static final int DEBUG 				= 0;
+	private static final int NUMBER_OF_EVENTS 	= 3;
+	private static final int COUNT_SIZE 		= 2;
+	private static final int TIMESTAMP_SIZE 	= 4;
+
+	private static final String EVENT_NAME 		= "Terminal cover tamper";
+	private static final int EVENT_CODE 		= MeterEvent.TERMINAL_OPENED;
 	
-	int mostRecent;
-	int count;
-	TimeStampPair[] timeStampPair=new TimeStampPair[NUMBER_OF_EVENTS];
-	
+	private int count = 0;
+	private TimeStamp[] timeStamp=new TimeStamp[NUMBER_OF_EVENTS];
+
+	/*
+	 * Constructors
+	 */
+
 	public TerminalCoverEventLog(TimeZone timeZone) throws IOException {
 		super(timeZone);
 	}
-	
-	public void parse(byte[] data) throws IOException {
-		System.out.println("DEBUG: Entering TerminalCoverEventLog, parse(data)");
-		System.out.println("Data: ");
-		ProtocolUtils.printResponseData(data);
-		System.out.println();
-		
-		
-		int offset=0;
-		mostRecent = ProtocolUtils.getIntLE(data, offset++, 1);
-		count = ProtocolUtils.getIntLE(data, offset, 2); offset+=2;
-        
-		System.out.println("mostRecent = " + mostRecent);
-		System.out.println("count = " + count);
-		
-		for( int i = 0; i < NUMBER_OF_EVENTS; i ++ ) {
-        	timeStampPair[i] = new TimeStampPair(data,offset,getTimeZone());
-        	System.out.println("timeStampPair["+i+"] = startDate: " + timeStampPair[i].getStartDate() + " endDate: " + timeStampPair[i].getEndDate());
-        	offset+=TimeStampPair.size();
-        	if (timeStampPair[i].getStartDate()!=null) {
-        		addMeterEvent(new MeterEvent(timeStampPair[i].getStartDate(), MeterEvent.TERMINAL_OPENED, "start of terminal cover tamper"+" ("+count+")"));
-        		addMeterEvent(new MeterEvent(timeStampPair[i].getEndDate(), MeterEvent.TERMINAL_OPENED, "end of terminal cover tamper"+" ("+count+")"));
-        	} 
-        }
 
+	/*
+	 * Private getters, setters and methods
+	 */
+
+	private void debug() {
+		System.out.println("count = " + count);
+		for( int i = 0; i < NUMBER_OF_EVENTS; i ++ )
+        	System.out.println(EVENT_NAME + " timeStamp[" + i + "] = " + timeStamp[i].getTimeStamp());
 	}
 
+	/*
+	 * Public methods
+	 */
+
+	public void parse(byte[] data) throws IOException {
+		count = ProtocolUtils.getIntLE(data, 0, COUNT_SIZE);
+		for( int i = 0; i < NUMBER_OF_EVENTS; i++ ) {
+        	timeStamp[i] = new TimeStamp(data, COUNT_SIZE + (i*TIMESTAMP_SIZE), getTimeZone());
+        	if (timeStamp[i].getTimeStamp()!=null)
+        		addMeterEvent(new MeterEvent(timeStamp[i].getTimeStamp(), EVENT_CODE, EVENT_NAME + " ("+count+")"));
+        }
+		if (DEBUG>=1) debug();
+	}
+
+	/*
+	 * Public getters and setters
+	 */
+
+	public int getCount() {
+		return count;
+	}
+	
+	public TimeStamp[] getTimeStamp() {
+		return timeStamp;
+	}
+
+	public TimeStamp getTimeStamp(int index) {
+		return timeStamp[index];
+	}
 
 }
