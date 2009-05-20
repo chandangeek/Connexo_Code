@@ -10,7 +10,7 @@ import com.energyict.protocol.ProtocolUtils;
 
 abstract public class AbstractEventLog {
     
-	static final int DEBUG 				= 0;
+	static final int DEBUG 				= 1;
 	static final int COUNT_SIZE 		= 2;
 	static final int TIMESTAMP_SIZE 	= 4;
 	static final int NUMBER_OF_EVENTS 	= 3;
@@ -20,7 +20,6 @@ abstract public class AbstractEventLog {
 	TimeZone timeZone;
 	List meterEvents=new ArrayList();
 	
-	abstract protected void doParse(byte[] data);
 	abstract protected String getEventName();
 	abstract protected int getEventCode();
 
@@ -60,7 +59,6 @@ abstract public class AbstractEventLog {
         	if (timeStamp[i].getTimeStamp()!=null)
         		addMeterEvent(new MeterEvent(timeStamp[i].getTimeStamp(), getEventCode(), getEventName() + " ("+count+")"));
         }
-		doParse(data);
 		debug();
 	}
 

@@ -16,10 +16,6 @@ public class TerminalCoverEventLog extends AbstractEventLog {
 		super(timeZone);
 	}
 
-	protected void doParse(byte[] data) {
-		
-	}
-
 	protected int getEventCode() {
 		return EVENT_CODE;
 	}
