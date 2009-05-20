@@ -3,16 +3,16 @@ package com.energyict.protocolimpl.iec1107.abba1140.eventlogs;
 import java.util.TimeZone;
 import com.energyict.protocol.MeterEvent;
  
-public class PhaseFailureEventLog extends AbstractEventLog {
+public class InternalBatteryEventLog extends AbstractEventLog {
 
-	static final String EVENT_NAME 		= "Phase failure event";
-	static final int EVENT_CODE 		= MeterEvent.PHASE_FAILURE;
+	static final String EVENT_NAME 		= "Internal battery event";
+	static final int EVENT_CODE 		= MeterEvent.OTHER;
 	
 	/*
 	 * Constructors
 	 */
 
-	public PhaseFailureEventLog(TimeZone timeZone) {
+	public InternalBatteryEventLog(TimeZone timeZone) {
 		super(timeZone);
 	}
 

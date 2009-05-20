@@ -1,14 +1,15 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.*;
 
 /** @author  Koen */
 
@@ -39,6 +40,16 @@ abstract public class ABBA1140RegisterData {
     final static int ABBA_INTEGRATION_PERIOD=22;
     final static int ABBA_LOAD_PROFILE_BY_DATE=23;
     final static int ABBA_LOAD_PROFILE_CONFIG=24;
+
+    final static int ABBA_TERMINALCOVEREVENTLOG=29;
+    final static int ABBA_MAINCOVEREVENTLOG=30;
+    final static int ABBA_PHASEFAILUREEVENTLOG=31;
+    final static int ABBA_REVERSERUNEVENTLOG=32;
+    final static int ABBA_POWEREFAILEVENTLOG=33;
+    final static int ABBA_TRANSIENTEVENTLOG=34;
+    final static int ABBA_ENDOFBILLINGEVENTLOG=35;
+    final static int ABBA_METERERROREVENTLOG=36;
+	final static int ABBA_INTERNALBATTERYEVENTLOG = 37;
     
     abstract protected Unit getUnit();
     abstract protected int getType();
@@ -219,7 +230,61 @@ abstract public class ABBA1140RegisterData {
                 
                 case ABBA_LOAD_PROFILE_CONFIG: 
                     return new LoadProfileConfigRegister(getRegisterFactory(), data);
-                    
+
+                case ABBA_TERMINALCOVEREVENTLOG: {
+                	TerminalCoverEventLog o = new TerminalCoverEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                	
+                case ABBA_MAINCOVEREVENTLOG: {
+                	MainCoverEventLog o = new MainCoverEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                	
+                case ABBA_PHASEFAILUREEVENTLOG: {
+                	PhaseFailureEventLog o = new PhaseFailureEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                	
+                case ABBA_REVERSERUNEVENTLOG: {
+                	ReverserunEventLog o = new ReverserunEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                	
+                case ABBA_POWEREFAILEVENTLOG: {
+                	PowerFailEventLog o = new PowerFailEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                
+                case ABBA_TRANSIENTEVENTLOG: {
+                	TransientEventLog o = new TransientEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+
+                case ABBA_ENDOFBILLINGEVENTLOG: {
+                	EndOfBillingEventLog o = new EndOfBillingEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+                
+                case ABBA_METERERROREVENTLOG: {
+                	MeterErrorEventLog o = new MeterErrorEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+
+                case ABBA_INTERNALBATTERYEVENTLOG: {
+                	InternalBatteryEventLog o = new InternalBatteryEventLog(getProtocolLink().getTimeZone());
+                	o.parse(data);
+                	return o;
+                }
+
                 default:
                     throw new IOException("ABBA1140RegisterData, parse , unknown type " + getType());
             }

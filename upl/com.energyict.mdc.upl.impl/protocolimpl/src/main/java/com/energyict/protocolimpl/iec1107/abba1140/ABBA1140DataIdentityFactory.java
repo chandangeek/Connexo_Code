@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.abba230.ABBA230DataIdentity;
 
 /** @author fbo */
 
@@ -143,6 +144,26 @@ public class ABBA1140DataIdentityFactory {
 
         add("778", 1, ABBA1140DataIdentity.NOT_STREAMEABLE);
 
+        // event logs
+//        add("691", 83,ABBA1140DataIdentity.STREAMEABLE); // TerminalCoverEventLog
+//        add("692", 83,ABBA1140DataIdentity.STREAMEABLE); // MainCoverEventLog
+//        add("693", 83,ABBA1140DataIdentity.STREAMEABLE); // PhaseFailureEventLog
+//        add("694", 43,ABBA1140DataIdentity.STREAMEABLE); // ReverserunEventLog
+//        add("695", 83,ABBA1140DataIdentity.STREAMEABLE); // PowerFailEventLog
+//        add("696", 43,ABBA1140DataIdentity.STREAMEABLE); // TransientEventLog
+//        add("699", 53,ABBA1140DataIdentity.STREAMEABLE); // EndOfBillingEventLog
+//        add("701", 53,ABBA1140DataIdentity.STREAMEABLE); // MeterErrorEventLog
+        add("691", 14,ABBA1140DataIdentity.STREAMEABLE); // TerminalCoverEventLog
+        add("692", 14,ABBA1140DataIdentity.STREAMEABLE); // MainCoverEventLog
+        add("693", 17,ABBA1140DataIdentity.STREAMEABLE); // PhaseFailureEventLog
+        add("694", 14,ABBA1140DataIdentity.STREAMEABLE); // ReverserunEventLog
+        add("695", 14,ABBA1140DataIdentity.STREAMEABLE); // PowerFailEventLog
+        add("696", 14,ABBA1140DataIdentity.STREAMEABLE); // TransientEventLog
+        add("697", 14,ABBA1140DataIdentity.STREAMEABLE); // InternalBatteryEventLog
+        add("699", 17,ABBA1140DataIdentity.STREAMEABLE); // EndOfBillingEventLog
+        add("701", 14,ABBA1140DataIdentity.STREAMEABLE); // MeterErrorEventLog
+
+        
         // Firmware version string and cuircuit board serial number
         add("998", 12, ABBA1140DataIdentity.NOT_STREAMEABLE);
 

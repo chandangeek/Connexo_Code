@@ -11,7 +11,6 @@ import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
@@ -19,6 +18,7 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.AbstractEventLog;
 
 /**
  * As example a new A1140 meter with intervals of half an hour.
@@ -117,7 +117,7 @@ public class ABBA1140Profile {
 //
 //        rFactory.setRegister("LoadProfileSet",new Long(nrOfDaysToRetrieve));
         
-        return doGetProfileData(includeEvents);
+        return doGetProfileData(includeEvents, from);
     }
     
     /** Retrieve the complete load profile.
@@ -136,10 +136,10 @@ public class ABBA1140Profile {
         /* by writing the value FFFF to register 551, the complete load profile is read */
         rFactory.setRegister("LoadProfileSet",new Long(0xFFFF));
         
-        return doGetProfileData(includeEvents);
+        return doGetProfileData(includeEvents, null);
     }
     
-    private ProfileData doGetProfileData( boolean includeEvents ) throws IOException {
+    private ProfileData doGetProfileData( boolean includeEvents, Date from ) throws IOException {
         byte[] data;
         if (protocolLink.isIEC1107Compatible()) {
             long nrOfBlocks = ((Long)rFactory.getRegister("LoadProfile64Blocks")).longValue();
@@ -161,9 +161,69 @@ public class ABBA1140Profile {
             }
         }
         
+        
+        if( includeEvents ) {
+        	
+        	List meterEvents= new ArrayList();
+        	
+        	getMeterEvents(rFactory.getPowerFailEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getTerminalCoverEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getMainCoverEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getPhaseFailureEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getReverserunEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getTransientEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getInternalBatteryEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getEndOfBillingEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getMeterErrorEventLog(),meterEvents);
+        	
+        	profileData.getMeterEvents().addAll(truncateMeterEvents(meterEvents,from));
+       		//profileData.setMeterEvents(truncateMeterEvents(meterEvents,from));
+        }
+        
+        profileData.setIntervalDatas(truncateIntervalDatas(profileData.getIntervalDatas(),from));
+
+        
         return profileData;
     }
     
+    private List truncateIntervalDatas(List intervalDatas,Date from) {
+    	if (from == null)
+    		return intervalDatas;
+    	Iterator it = intervalDatas.iterator();
+    	while(it.hasNext()) {
+    		IntervalData intervalData = (IntervalData) it.next();
+    		if (intervalData.getEndTime().before(from))
+    			it.remove();
+    	}
+    	return intervalDatas;
+    }    
+    
+    private List truncateMeterEvents(List meterEvents,Date from) {
+    	if (from == null)
+    		return meterEvents;
+    	Iterator it = meterEvents.iterator();
+    	while(it.hasNext()) {
+    		MeterEvent meterEvent = (MeterEvent) it.next();
+    		if (meterEvent.getTime().before(from))
+    			it.remove();
+    	}
+    	return meterEvents;
+    }
+    
+    private void getMeterEvents(ABBA1140Register reg,List meterEvents) {
+    	try {
+    		AbstractEventLog o = (AbstractEventLog)rFactory.getRegister( reg );
+    		meterEvents.addAll(o.getMeterEvents());
+    	}
+    	catch(IOException e) {
+    		e.printStackTrace();
+    		protocolLink.getLogger().info("No "+reg.getName()+" available");
+    	}
+    	catch(NullPointerException e) {
+    		e.printStackTrace();
+    	}
+    }
+
     public Date getMeterTime() throws IOException {
         if( meterTime == null )
             meterTime = (Date)rFactory.getRegister("TimeDate");

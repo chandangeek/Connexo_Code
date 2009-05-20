@@ -89,6 +89,16 @@ public class ABBA1140RegisterFactory {
     private ABBA1140Register timeOfUse6;
     private ABBA1140Register timeOfUse7;
 	private ABBA1140Register loadProfileDSTConfig;
+	
+	private ABBA1140Register terminalCoverEventLog;
+	private ABBA1140Register mainCoverEventLog;
+	private ABBA1140Register phaseFailureEventLog;
+	private ABBA1140Register reverserunEventLog;
+	private ABBA1140Register powerFailEventLog;
+	private ABBA1140Register transientEventLog;
+	private ABBA1140Register endOfBillingEventLog;
+	private ABBA1140Register meterErrorEventLog;
+	private ABBA1140Register internalBatteryEventLog;
     
     /**
      * Creates a new instance of ABBA1140RegisterFactory
@@ -417,6 +427,17 @@ public class ABBA1140RegisterFactory {
         
         dailyHistoricalRegister = cr("545", "DailyHistoricalRegister", ABBA1140RegisterData.ABBA_HISTORICALVALUES,0,302, null);
         
+        // event logs
+        terminalCoverEventLog = cr("691", "TerminalCoverEventLog", ABBA1140RegisterData.ABBA_TERMINALCOVEREVENTLOG,0,14, null);
+        mainCoverEventLog = cr("692", "MainCoverEventLog", ABBA1140RegisterData.ABBA_MAINCOVEREVENTLOG,0,14, null);
+        phaseFailureEventLog = cr("693", "PhaseFailureEventLog", ABBA1140RegisterData.ABBA_PHASEFAILUREEVENTLOG,0,17, null);
+        reverserunEventLog = cr("694", "ReverserunEventLog", ABBA1140RegisterData.ABBA_REVERSERUNEVENTLOG,0,14, null);
+        powerFailEventLog = cr("695", "PowerFailEventLog", ABBA1140RegisterData.ABBA_POWEREFAILEVENTLOG,0,14, null);
+        transientEventLog = cr("696", "TransientEventLog", ABBA1140RegisterData.ABBA_TRANSIENTEVENTLOG,0,14, null);
+        internalBatteryEventLog = cr("697", "InternalBatteryEventLog", ABBA1140RegisterData.ABBA_INTERNALBATTERYEVENTLOG,0,14, null);
+        endOfBillingEventLog = cr("699", "EndOfBillingEventLog", ABBA1140RegisterData.ABBA_ENDOFBILLINGEVENTLOG,0,17, null);
+        meterErrorEventLog = cr("701", "MeterErrorEventLog", ABBA1140RegisterData.ABBA_METERERROREVENTLOG,0,14, null);
+        
         loadProfile = cr("550", "LoadProfile", ABBA1140RegisterData.ABBA_BYTEARRAY,0,-1, null);
         
         /* The 2 ways to specifiy how much load profile data to retrieve:
@@ -624,5 +645,41 @@ public class ABBA1140RegisterFactory {
     
 	public ABBA1140Register getLoadProfileDSTConfig() {
 		return loadProfileDSTConfig;
+	}
+	
+	public ABBA1140Register getTerminalCoverEventLog() {
+		return terminalCoverEventLog;
+	}
+	
+	public ABBA1140Register getMainCoverEventLog() {
+		return mainCoverEventLog;
+	}
+
+	public ABBA1140Register getPhaseFailureEventLog() {
+		return phaseFailureEventLog;
+	}
+	
+	public ABBA1140Register getReverserunEventLog() {
+		return reverserunEventLog;
+	}
+	
+	public ABBA1140Register getPowerFailEventLog() {
+		return powerFailEventLog;
+	}
+	
+	public ABBA1140Register getTransientEventLog() {
+		return transientEventLog;
+	}
+	
+	public ABBA1140Register getEndOfBillingEventLog() {
+		return endOfBillingEventLog;
+	}
+	
+	public ABBA1140Register getMeterErrorEventLog() {
+		return meterErrorEventLog;
+	}
+
+	public ABBA1140Register getInternalBatteryEventLog() {
+		return internalBatteryEventLog;
 	}
 }

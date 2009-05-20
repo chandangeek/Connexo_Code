@@ -107,6 +107,8 @@ public class ABBA1140 implements
     private MeterType meterType = null;
     
     private boolean software7E1;
+
+	private long delayBeforeConnect = 0;;
     
     public ABBA1140() { }
     
@@ -126,6 +128,8 @@ public class ABBA1140 implements
                     throw new MissingPropertyException(msg);
                 }
             }
+            
+            delayBeforeConnect = Long.parseLong(p.getProperty("DelayBeforeConnect", "0"));
             
             if (p.getProperty(MeterProtocol.ADDRESS) != null)
                 pAddress = p.getProperty(MeterProtocol.ADDRESS);
@@ -200,6 +204,7 @@ public class ABBA1140 implements
         result.add("IEC1107Compatible");
         result.add("ExtendedLogging");
         result.add("Software7E1");
+        result.add("DelayBeforeConnect");
         return result;
     }
     
@@ -250,7 +255,8 @@ public class ABBA1140 implements
      */
     public void connect(int baudrate) throws IOException {
         try {
-            this.meterType = getFlagIEC1107Connection().connectMAC(pAddress,pPassword,pSecurityLevel,pNodeId,baudrate);
+            Thread.sleep(delayBeforeConnect);
+        	this.meterType = getFlagIEC1107Connection().connectMAC(pAddress,pPassword,pSecurityLevel,pNodeId,baudrate);
             rFactory = new ABBA1140RegisterFactory((ProtocolLink)this,(MeterExceptionInfo)this);
             rFactory.setABBA1140(this);
             profile=new ABBA1140Profile(this,rFactory);
@@ -260,7 +266,9 @@ public class ABBA1140 implements
         } catch(IOException e) {
             disconnect();
             throw e;
-        }
+        } catch (InterruptedException e) {
+			e.printStackTrace();
+		}
         
         try {
             validateSerialNumber();
