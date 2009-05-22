@@ -1,3 +1,14 @@
+/**
+ * @author   Koenraad Vanderschaeve
+ * <P>
+ * <B>Description :</B><BR>
+ * Class that implements the DLMS COSEM meter protocol of the Actaris SL7000 meter with LN referencing. 
+ * <BR>
+ * <B>@beginchanges</B><BR>
+ * 	JM|22052009|Fixed billing point issue in ACE6000 and SL7000 DLMS protocols.   
+ * @endchanges
+ */
+
 package com.energyict.protocolimpl.dlms.actarisace6000;
 
 import com.energyict.cbo.*;

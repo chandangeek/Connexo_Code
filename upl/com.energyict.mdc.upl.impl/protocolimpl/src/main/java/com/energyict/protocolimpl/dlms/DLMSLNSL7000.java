@@ -6,19 +6,20 @@
  * Class that implements the DLMS COSEM meter protocol of the Actaris SL7000 meter with LN referencing. 
  * <BR>
  * <B>@beginchanges</B><BR>
-	KV|14052002|Initial version
-	KV|25102002|Re-engineered to MeterProtocol interface
-	KV|28082003|Password variable length
-	KV||bugfix, change of interface signature getValuesIterator in IntervalData 
-	KV|29102003|bugfix, did not request meterreading unit
-	KV|16012004|changed powerfail handling...
-	KV|06102004| reengineer using cosem package and add obiscode register mapping
-	KV|17112004|add logbook implementation
-	KV|17032005|improved registerreading
-	KV|23032005|Changed header to be compatible with protocol version tool
-	KV|31032005|Handle DataContainerException
-	GN|25042008|Missing hour values with a profileInterval of 10min
-	JM|15042009|Made readRegister more robust to prevent exceptions to interrupt meter readout communication.  
+ *	KV|14052002|Initial version
+ *	KV|25102002|Re-engineered to MeterProtocol interface
+ *	KV|28082003|Password variable length
+ *	KV||bugfix, change of interface signature getValuesIterator in IntervalData 
+ *	KV|29102003|bugfix, did not request meterreading unit
+ *	KV|16012004|changed powerfail handling...
+ *	KV|06102004| reengineer using cosem package and add obiscode register mapping
+ *	KV|17112004|add logbook implementation
+ *	KV|17032005|improved registerreading
+ *	KV|23032005|Changed header to be compatible with protocol version tool
+ *	KV|31032005|Handle DataContainerException
+ *	GN|25042008|Missing hour values with a profileInterval of 10min
+ *	JM|15042009|Made readRegister more robust to prevent exceptions to interrupt meter readout communication.  
+ * 	JM|22052009|Fixed billing point issue in ACE6000 and SL7000 DLMS protocols.   
  * @endchanges
  */
 package com.energyict.protocolimpl.dlms;  
