@@ -134,7 +134,7 @@ public class StoredValuesImpl implements StoredValues {
                 long value = ds.getValue(0);
                 ScalerUnit scalerUnit = new ScalerUnit(ds.getStructure(1).getInteger(0),
                                                        ds.getStructure(1).getInteger(1));
-                Date date = ds.getOctetString(2).toUTCDate();
+                Date date = ds.getOctetString(2).toDate(TimeZone.getDefault());
                 BillingValue billingValue = new BillingValue(date,value,scalerUnit,maximumDemandObisCode);
                 billingValues.add(billingValue);
                 if (DEBUG>=1) System.out.println("KV_DEBUG> "+billingValue);
@@ -156,7 +156,7 @@ public class StoredValuesImpl implements StoredValues {
             Date date=null;
             if (ds.getStructure(id).getNrOfElements() > 3) {
                if (ds.getStructure(id).isOctetString(4))
-                   date = ds.getStructure(id).getOctetString(4).toUTCDate();
+                   date = ds.getStructure(id).getOctetString(4).toDate(TimeZone.getDefault());
             }
             BillingValue billingValue = new BillingValue(date,value,scalerUnit,obisCode);
             billingValues.add(billingValue);
@@ -175,7 +175,7 @@ public class StoredValuesImpl implements StoredValues {
                                                ds.getStructure(2).getInteger(1));
         Date date=null;
         if (ds.getNrOfElements() > 3)
-           date = ds.getOctetString(4).toUTCDate();
+           date = ds.getOctetString(4).toDate(TimeZone.getDefault());
         BillingValue billingValue = new BillingValue(date,value,scalerUnit,obisCode);
         if (DEBUG>=1) System.out.println("KV_DEBUG> "+billingValue);
         return billingValue;
@@ -185,7 +185,7 @@ public class StoredValuesImpl implements StoredValues {
         int daysSinceLastReset = dc.getRoot().getStructure(billingSetId).getStructure(EOB_STATUS).getInteger(1);
         int nrOfResets= dc.getRoot().getStructure(billingSetId).getStructure(EOB_STATUS).getStructure(3).getInteger(0);
         int billingReason = dc.getRoot().getStructure(billingSetId).getStructure(EOB_STATUS).getStructure(3).getInteger(1);
-        Date billingDate = dc.getRoot().getStructure(billingSetId).getStructure(EOB_STATUS).getOctetString(4).toUTCDate();
+        Date billingDate = dc.getRoot().getStructure(billingSetId).getStructure(EOB_STATUS).getOctetString(4).toDate(TimeZone.getDefault());
         BillingSet billingSet = new BillingSet(billingDate,billingReason,daysSinceLastReset,nrOfResets);
         if (DEBUG>=1) System.out.println("KV_DEBUG> "+billingSet);
         return billingSet;
