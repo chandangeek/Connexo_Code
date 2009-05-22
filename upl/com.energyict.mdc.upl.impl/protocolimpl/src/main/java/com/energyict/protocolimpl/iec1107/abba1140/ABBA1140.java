@@ -27,7 +27,7 @@
  * JME	15042009	Mapped firmware version and device type to obiscode 1.1.0.2.0.255
  * JME	20042009	Added exact fw revision number to getFirmware method. (Mantis #4342)
  * 					Changed EiEventCode from other to more specific eventcode. (Mantis #4379)
- * JME	20042009	Added eventlogs: Terminal cover, Main cover, Phase failure, Reverse run, power failure, Transient reset, 
+ * JME	22052009	Added eventlogs: Terminal cover, Main cover, Phase failure, Reverse run, power failure, Transient reset, 
  * 					Internal battery, Billing event and Meter error.
  * 					Added wakeUp method to correctly initialize communication on some modems
  *@endchanges
