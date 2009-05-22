@@ -29,6 +29,7 @@
  * 					Changed EiEventCode from other to more specific eventcode. (Mantis #4379)
  * JME	20042009	Added eventlogs: Terminal cover, Main cover, Phase failure, Reverse run, power failure, Transient reset, 
  * 					Internal battery, Billing event and Meter error.
+ * 					Added wakeUp method to correctly initialize communication on some modems
  *@endchanges
  */
 
@@ -56,6 +57,7 @@ public class ABBA1140 implements
         RegisterProtocol, MessageProtocol {
     
     final static long FORCE_DELAY = 300;
+    final static long WAKEUP_DELAY = 1500;
     
     /** Property keys specific for A140 protocol. */
     final static String PK_TIMEOUT = "Timeout";
@@ -110,8 +112,6 @@ public class ABBA1140 implements
     
     private boolean software7E1;
 
-	private long delayBeforeConnect = 0;;
-    
     public ABBA1140() { }
     
     /* ________ Impelement interface MeterProtocol ___________ */
@@ -130,8 +130,6 @@ public class ABBA1140 implements
                     throw new MissingPropertyException(msg);
                 }
             }
-            
-            delayBeforeConnect = Long.parseLong(p.getProperty("DelayBeforeConnect", "0"));
             
             if (p.getProperty(MeterProtocol.ADDRESS) != null)
                 pAddress = p.getProperty(MeterProtocol.ADDRESS);
@@ -206,7 +204,6 @@ public class ABBA1140 implements
         result.add("IEC1107Compatible");
         result.add("ExtendedLogging");
         result.add("Software7E1");
-        result.add("DelayBeforeConnect");
         return result;
     }
     
@@ -257,7 +254,7 @@ public class ABBA1140 implements
      */
     public void connect(int baudrate) throws IOException {
         try {
-            Thread.sleep(delayBeforeConnect);
+        	sendWakeUp();
         	this.meterType = getFlagIEC1107Connection().connectMAC(pAddress,pPassword,pSecurityLevel,pNodeId,baudrate);
             rFactory = new ABBA1140RegisterFactory((ProtocolLink)this,(MeterExceptionInfo)this);
             rFactory.setABBA1140(this);
@@ -268,9 +265,7 @@ public class ABBA1140 implements
         } catch(IOException e) {
             disconnect();
             throw e;
-        } catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+        }
         
         try {
             validateSerialNumber();
@@ -281,6 +276,13 @@ public class ABBA1140 implements
         
         if ( pExtendedLogging > 0 ) getRegistersInfo();
         
+    }
+    
+    private void sendWakeUp() throws ConnectionException {
+  	   byte[] wakeUp = new byte[20];
+        for (int i = 0; i < wakeUp.length; i++) wakeUp[i] = (byte) 0x00;
+  	  	getFlagIEC1107Connection().sendOut(wakeUp);
+  	  	try {Thread.sleep(WAKEUP_DELAY);} catch (InterruptedException e) {};
     }
     
     /* (non-Javadoc)
