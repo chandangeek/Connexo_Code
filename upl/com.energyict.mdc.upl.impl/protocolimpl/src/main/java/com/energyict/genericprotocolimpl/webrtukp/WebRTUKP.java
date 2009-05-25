@@ -24,6 +24,7 @@ import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.DialerMarker;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
@@ -38,13 +39,16 @@ import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.IPv4Setup;
+import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageExecutor;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.DailyMonthly;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.ElectricityProfile;
+import com.energyict.genericprotocolimpl.webrtukp.wakeup.SmsWakeup;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.Channel;
@@ -104,6 +108,7 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEnabler{
 	
 	private boolean DEBUG = false;
+	private boolean connected = false;
 
 	private CosemObjectFactory 		cosemObjectFactory;
 	private DLMSConnection 			dlmsConnection;
@@ -147,12 +152,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	private String deviceId;
 	private boolean readDaily;
 	private boolean readMonthly;
-
 	private int iiapPriority;
-
 	private int iiapServiceClass;
-
 	private int iiapInvokeId;
+	private int wakeup;
 	
 	/**
 	 * This method handles the complete WebRTU. The Rtu acts as an Electricity meter. The E-meter itself can have several MBus meters
@@ -166,6 +169,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 		
 		boolean success = false;
+		String ipAddress = "";
 		
 		this.scheduler = scheduler;
 		this.logger = logger;
@@ -175,28 +179,38 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		
 		validateProperties();
 		
-		
 		try {
 			
-			init(link.getInputStream(), link.getOutputStream());
+			if(this.wakeup == 1){
+				//TODO do the wakeup
+				SmsWakeup smsWakeup = new SmsWakeup(this.scheduler, this.logger);
+				smsWakeup.doWakeUp();
+				
+				ipAddress = checkIPAddressForPortNumber(smsWakeup.getIpAddress());
+				
+				this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
+				this.link.getStreamConnection().open();
+				getLogger().log(Level.INFO, "Connected to " + ipAddress);
+				
+			} 
+			
+			init(this.link.getInputStream(), this.link.getOutputStream());
 			connect();
-			
+			connected = true;
 //			doSomeTestCalls();
-			
-//			readFromMeter("1.0.1.7.0.255");
-			
+//			readFromMeter("1.0.90.7.0.255");
 //			hasMBusMeters();
 //			handleMbusMeters();
-        	// Set clock or Force clock... if necessary
-        	if( this.commProfile.getForceClock() ){
-        		Date meterTime = getTime();
-        		Date currentTime = Calendar.getInstance(getTimeZone()).getTime();
-        		this.timeDifference = Math.abs(currentTime.getTime()-meterTime.getTime());
-        		getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + currentTime);
-        		forceClock(currentTime);
-        	}else {
-        		verifyAndWriteClock();
-        	}
+			// Set clock or Force clock... if necessary
+			if( this.commProfile.getForceClock() ){
+				Date meterTime = getTime();
+				Date currentTime = Calendar.getInstance(getTimeZone()).getTime();
+				this.timeDifference = Math.abs(currentTime.getTime()-meterTime.getTime());
+				getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + currentTime);
+				forceClock(currentTime);
+			}else {
+				verifyAndWriteClock();
+			}
 			
 			if(this.commProfile.getReadDemandValues()){
 				getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + webRtuKP.getSerialNumber());
@@ -205,11 +219,11 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				ep.getProfile(getMeterConfig().getProfileObject().getObisCode(), this.commProfile.getReadMeterEvents());
 			} 
 			
-    		/**
-    		 * Here we are assuming that the daily and monthly values should be read.
-    		 * In future it can be that this doesn't work for all customers, then we should implement a SmartMeterProperty to indicate whether you
-    		 * want to read the actual registers or the daily/monthly registers ...
-    		 */
+			/**
+			 * Here we are assuming that the daily and monthly values should be read.
+			 * In future it can be that this doesn't work for all customers, then we should implement a SmartMeterProperty to indicate whether you
+			 * want to read the actual registers or the daily/monthly registers ...
+			 */
 			if(this.commProfile.getReadMeterReadings()){
 				
 				DailyMonthly dm = new DailyMonthly(this);
@@ -268,6 +282,21 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		}
 	}
 	
+	/**
+	 * If the received IP address doesn't contain a portnumber, then put one in it
+	 * @param ipAddress
+	 * @return
+	 */
+    private String checkIPAddressForPortNumber(String ipAddress) {
+    	if(!ipAddress.contains(":")){
+    		StringBuffer strBuff = new StringBuffer();
+    		strBuff.append(ipAddress);
+    		strBuff.append(":");
+    		strBuff.append(getPortNumber());
+    		return strBuff.toString();
+    	}
+		return ipAddress;
+	}
 
 	public long getTimeDifference() {
 		return this.timeDifference;
@@ -433,8 +462,14 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	 */
 	private void doSomeTestCalls(){
 		try {
-			SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
-			String strDate = "27/01/2009 07:45:00";
+			
+			PPPSetup pppSetup = getCosemObjectFactory().getPPPSetup();
+			
+			pppSetup.getPPPAuthenticationType();
+			pppSetup.getPPPAuthenticationType().getUsername();
+			pppSetup.getPPPAuthenticationType().getPassword();
+			
+//			String strDate = "27/01/2009 07:45:00";
 //			Array dateArray = convertUnixToDateTimeArray(strDate);
 //			sas.writeExecutionTime(dateArray);
 		} catch (IOException e) {
@@ -607,7 +642,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	 */
 	private void disConnect() throws IOException{
 		try {
-			aarq.disConnect();
+			if(connected){	// only send the disconnect command if you are connected
+							// otherwise you will retry for a certain time ...
+				aarq.disConnect();
+			}
 			getDLMSConnection().disconnectMAC();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -917,6 +955,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         this.iiapInvokeId = Integer.parseInt(properties.getProperty("IIAPInvokeId", "0"));
         this.iiapPriority = Integer.parseInt(properties.getProperty("IIAPPriority", "1"));
         this.iiapServiceClass = Integer.parseInt(properties.getProperty("IIAPServiceClass", "1"));
+        
+        this.wakeup = Integer.parseInt(properties.getProperty("WakeUp", "0"));
 	}
 	
 	public void addProperties(Properties properties) {
@@ -954,6 +994,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         result.add("IIAPInvokeId");
         result.add("IIAPPriority");
         result.add("IIAPServiceClass");
+        result.add("WakeUp");
 		return result;
 	}
 
