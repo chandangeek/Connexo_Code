@@ -109,11 +109,12 @@ public class SmsWakeup {
 	 */
 	private void analyseRespsonse(SubmitWUTriggerResponse swuTriggerResponse) throws IOException {
 		String majorReturnCode = swuTriggerResponse.getReturn().getReturnCode().getMajorReturnCode();
+		String minorReturnCode = swuTriggerResponse.getReturn().getReturnCode().getMinorReturnCode();
 		if(majorReturnCode.equalsIgnoreCase(mrcRequestComplete)){
 			this.requestSuccess = false;
 			this.logger.info("Successfully send the wakeup trigger.");
 		} else {
-			this.logger.info("Wakeup trigger failed, returncode :" + majorReturnCode);
+			this.logger.info("Wakeup trigger failed, majorReturnCode: " + majorReturnCode + ", minorReturnCode: " + minorReturnCode);
 			throw new IOException("TriggerResponse is not correct: " + majorReturnCode);
 		}
 	}
