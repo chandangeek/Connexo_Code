@@ -216,7 +216,7 @@ public class SmsWakeup {
 			return wuts.getWUTriggerPort();
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new IOException("Just to Test");
+			throw new IOException("Just to Test" + e.getMessage());
 		}
 	}
 	
