@@ -276,3 +276,8 @@
 
 -keepnames class com.energyict.protocolimpl.dlms.as220.AS220
 
+-keepnames class com.vodafone.gdsp.ws.package-info
+-keep public class com.vodafone.gdsp.ws.*{
+	*;
+}
+
