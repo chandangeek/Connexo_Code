@@ -33,16 +33,13 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.PPPSetup;
-import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageExecutor;
@@ -278,7 +275,9 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 			// This cacheobject is supported by the 7.5
 			updateCache(getMeter().getId(), dlmsCache);
 			
-			Environment.getDefault().execute(getStoreObject());
+			if(getStoreObject() != null){
+				Environment.getDefault().execute(getStoreObject());
+			}
 		}
 	}
 	
