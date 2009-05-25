@@ -177,25 +177,25 @@ public class SmsWakeup {
 //		parameters.setTriggerType("The_TriggerType");
 //		SubmitWUTriggerResponse swuTriggerResponse = wuTrigger.submitWUTrigger(parameters, gdspHeader);
 		
-		Utilities.createEnvironment();
-		MeteringWarehouse.createBatchContext(false);
-		
-		MeteringWarehouse mw = MeteringWarehouse.getCurrent();
-		
-		Rtu rtu = mw.getRtuFactory().find(18052);
-//		MdwAttributeType mat = rtu.getDefaultRelationType().getAttributeType("IMSI");
-//			rtu.getDefaultRelation().get("IMSI");
-		
-		SmsWakeup smsWakeup = new SmsWakeup((CommunicationScheduler) rtu.getCommunicationSchedulers().get(9));
-		try {
-			smsWakeup.waitForIpUpdate();
-		} catch (BusinessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		};
+//		Utilities.createEnvironment();
+//		MeteringWarehouse.createBatchContext(false);
+//		
+//		MeteringWarehouse mw = MeteringWarehouse.getCurrent();
+//		
+//		Rtu rtu = mw.getRtuFactory().find(18052);
+////		MdwAttributeType mat = rtu.getDefaultRelationType().getAttributeType("IMSI");
+////			rtu.getDefaultRelation().get("IMSI");
+//		
+//		SmsWakeup smsWakeup = new SmsWakeup((CommunicationScheduler) rtu.getCommunicationSchedulers().get(9));
+//		try {
+//			smsWakeup.waitForIpUpdate();
+//		} catch (BusinessException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		};
 	}
 	
 //	public DeviceInfo getDeviceInfo(){
