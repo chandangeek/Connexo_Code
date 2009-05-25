@@ -33,7 +33,6 @@
     native <methods>;
 }
 
-
 -keepnames class com.energyict.protocolimpl.base.*
 
 -keepnames class com.energyict.protocolimpl.meteridentification.*
@@ -276,8 +275,12 @@
 
 -keepnames class com.energyict.protocolimpl.dlms.as220.AS220
 
+# Keep annotations, 
+-keepattributes *Annotation* public class com.vodafone.gdsp.ws.*{
+	*;
+}
+
 -keepnames class com.vodafone.gdsp.ws.package-info
 -keep public class com.vodafone.gdsp.ws.*{
 	*;
 }
-
