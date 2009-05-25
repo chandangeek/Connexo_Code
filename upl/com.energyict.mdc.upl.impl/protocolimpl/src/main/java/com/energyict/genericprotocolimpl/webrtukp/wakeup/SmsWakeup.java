@@ -7,10 +7,8 @@ import java.util.logging.Logger;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.MdwAttributeType;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
-import com.energyict.utils.Utilities;
 import com.vodafone.gdsp.ws.GdspCredentials;
 import com.vodafone.gdsp.ws.GdspHeader;
 import com.vodafone.gdsp.ws.SubmitWUTrigger;
