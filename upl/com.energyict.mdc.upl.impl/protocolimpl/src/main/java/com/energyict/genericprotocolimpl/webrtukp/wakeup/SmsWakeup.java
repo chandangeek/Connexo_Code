@@ -18,6 +18,8 @@ import com.vodafone.gdsp.ws.WUTriggerService;
 
 public class SmsWakeup {
 	
+	private int logLevel = 5;
+	
 	private String updatedIpAddress = "";
 	private long pollTimeout;	// TODO give it a default value
 	private int pollFreq;
@@ -51,12 +53,14 @@ public class SmsWakeup {
 		this.meter = this.scheduler.getRtu();
 		this.logger = logger;
 		updateProperties();
+		log(5, "In SMSWakup constructor");
 	}
 
 	public void doWakeUp() throws SQLException, BusinessException, IOException{
 		// TODO
 		// perhaps clear the IP-address of the RTU
 		clearMetersIpAddress();
+		log(5, "Cleared IP");
 		// make the request to Tibco
 		createWakeupCall();
 		// check for an updated IP-address
@@ -84,7 +88,9 @@ public class SmsWakeup {
 	}
 	
 	private void createWakeupCall() throws IOException{
+		log(5, "In createWakeupCall");
 		WUTrigger wuTrigger = getWUTrigger();
+		log(5, "Got wuTrigger");
 		SubmitWUTrigger parameters = new SubmitWUTrigger();
 		GdspHeader gdspHeader = new GdspHeader();
 		GdspCredentials value = new GdspCredentials();
@@ -96,7 +102,9 @@ public class SmsWakeup {
 		parameters.setOperatorName((String) getAttributeValue("Provider"));
 		parameters.setSourceId(MeteringWarehouse.getCurrent().getSystemProperty("SourceId"));
 		parameters.setTriggerType("SMS");
+		log(5, "Ready for takeoff");
 		SubmitWUTriggerResponse swuTriggerResponse = wuTrigger.submitWUTrigger(parameters, gdspHeader);
+		log(5, "Took off ...");
 		analyseRespsonse(swuTriggerResponse);
 		
 	}
@@ -214,6 +222,10 @@ public class SmsWakeup {
 	
 	public boolean isRequestSuccess(){
 		return this.requestSuccess;
+	}
+	
+	private void log(int level, String msg){
+		if(level >= this.logLevel)this.logger.info(msg);
 	}
 
 }
