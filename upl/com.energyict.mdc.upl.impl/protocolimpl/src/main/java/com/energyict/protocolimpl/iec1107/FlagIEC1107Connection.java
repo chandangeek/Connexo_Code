@@ -516,6 +516,7 @@ public class FlagIEC1107Connection extends Connection {
     public static final byte[] READ6={'R','6'};
     public static final byte[] READ3={'R','3'}; // KV 06072004
     public static final byte[] READ1={'R','1'};
+    public static final byte[] READ2={'R','2'};
     public static final byte[] READSTREAM={'R','D'};
     public static final byte[] WRITE1={'W','1'};
     static final byte[] LOGON_PROCEDURE_1={'P','1'};
