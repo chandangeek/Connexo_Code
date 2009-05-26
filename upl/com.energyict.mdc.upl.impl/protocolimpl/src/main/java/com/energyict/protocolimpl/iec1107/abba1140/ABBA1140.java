@@ -29,6 +29,8 @@
  * 					Changed EiEventCode from other to more specific eventcode. (Mantis #4379)
  * JME	22052009	Added eventlogs: Terminal cover, Main cover, Phase failure, Reverse run, power failure, Transient reset, 
  * 					Internal battery, Billing event and Meter error.
+ * JME	26052009	Added new property DelayBeforeConnect because some modems block the first bytes of communication. This delay
+ * 					resolves the problem.
  *@endchanges
  */
 
@@ -64,6 +66,7 @@ public class ABBA1140 implements
     final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
     final static String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
     final static String PK_ECHO_CANCELING = "EchoCancelling";
+    final static String PK_DELAY_BEFORE_CONNECT = "DelayBeforeConnect";
     
     private static String BILLINGRESET		= "BillingReset";
 	private static String BILLINGRESET_DISPLAY 		= "Billing reset";
@@ -109,6 +112,7 @@ public class ABBA1140 implements
     private MeterType meterType = null;
     
     private boolean software7E1;
+    private int pDelayBeforeConnect = 0;
 
     public ABBA1140() { }
     
@@ -156,6 +160,8 @@ public class ABBA1140 implements
             if (p.getProperty(PK_EXTENDED_LOGGING) != null)
                 pExtendedLogging = Integer.parseInt(p.getProperty(PK_EXTENDED_LOGGING));
             
+            if (p.getProperty(PK_DELAY_BEFORE_CONNECT) != null)
+                pDelayBeforeConnect = Integer.parseInt(p.getProperty(PK_DELAY_BEFORE_CONNECT));
             
             pSecurityLevel = Integer.parseInt(p.getProperty("SecurityLevel","2").trim());
             if (pSecurityLevel != 0) {
@@ -202,6 +208,7 @@ public class ABBA1140 implements
         result.add("IEC1107Compatible");
         result.add("ExtendedLogging");
         result.add("Software7E1");
+        result.add("DelayBeforeConnect");
         return result;
     }
     
@@ -251,7 +258,10 @@ public class ABBA1140 implements
      * @throws IOException
      */
     public void connect(int baudrate) throws IOException {
-        try {
+    	// Configurable delay to prevent some modems to block first communication bytes. 
+    	try {Thread.sleep(pDelayBeforeConnect);} catch (InterruptedException e) {throw new IOException(e.getMessage());};
+    	
+    	try {
         	this.meterType = getFlagIEC1107Connection().connectMAC(pAddress,pPassword,pSecurityLevel,pNodeId,baudrate);
             rFactory = new ABBA1140RegisterFactory((ProtocolLink)this,(MeterExceptionInfo)this);
             rFactory.setABBA1140(this);
