@@ -161,6 +161,8 @@ public abstract class AbstractVDEWRegistry {
             readCommand = FlagIEC1107Connection.READ1;
         if (attribs.indexOf("R5") != -1)
             readCommand = FlagIEC1107Connection.READ5;
+        if(attribs.indexOf("R2") != -1)
+        	readCommand = FlagIEC1107Connection.READ2;
         return readCommand;
     }
     private String getExtraAttributes(String name) {
