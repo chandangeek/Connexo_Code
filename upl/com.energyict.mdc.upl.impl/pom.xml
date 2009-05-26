@@ -3,7 +3,7 @@
 	<groupId>com.energyict</groupId>
 	<artifactId>protocols</artifactId>
 	<packaging>pom</packaging>
-	<version>8.1.30</version>
+	<version>8.3.1-SNAPSHOT</version>
 	<name>protocols</name>
 	<dependencies>
 		<dependency>
@@ -15,7 +15,7 @@
 	</dependencies>
 	
 	<properties>
-		<eiserver.version>8.1.17</eiserver.version>
+		<eiserver.version>8.4.0-SNAPSHOT</eiserver.version>
 	</properties>
 
 	<dependencyManagement>
@@ -306,14 +306,12 @@
 	</parent>
 
 	<scm>
-		<developerConnection>scm:svn:http://maven:maven@linux2/svn/labo/protocols/tags/8.1.30</developerConnection>
+		<developerConnection>scm:svn:http://maven:maven@linux2/svn/labo/protocols/tags/protocols-8.1.17</developerConnection>
 	</scm>
 
 	<modules>
 		<module>protocolimpl</module>
-		
-		<!-- Echelon isn't used anymore, when needed just uncomment this -->
-		<!-- <module>echelon</module> -->
+		<module>echelon</module>
 		<module>dlms</module>
 	</modules>
 	<build>
