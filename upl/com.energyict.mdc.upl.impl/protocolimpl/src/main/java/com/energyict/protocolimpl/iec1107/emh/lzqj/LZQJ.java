@@ -1,24 +1,50 @@
 package com.energyict.protocolimpl.iec1107.emh.lzqj;
 
 
-import java.io.*; 
-import java.util.*;
-import java.math.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 
-import com.energyict.protocol.*;
-import java.util.logging.*;
-import com.energyict.cbo.*;
-
-
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.vdew.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.base.DataDumpParser;
+import com.energyict.protocolimpl.base.DataParseException;
+import com.energyict.protocolimpl.base.DataParser;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.iec1107.ChannelMap;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
 
 /**
  * @version  1.0
@@ -65,23 +91,34 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
     byte[] dataReadout=null;
     
     private boolean software7E1;
+    private boolean isFixedProfileTimeZone;
+    private boolean profileHelper = false;
     
     /** Creates a new instance of LZQJ, empty constructor*/
     public LZQJ() {
     } // public LZQJ()
 
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
+    	this.profileHelper = true;
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.YEAR,-10);
-          return getProfileData(calendar.getTime(),includeEvents);
+        ProfileData pd = getProfileData(calendar.getTime(),includeEvents);
+        this.profileHelper = false;
+        return pd;
     }
 
     public ProfileData getProfileData(Date lastReading,boolean includeEvents) throws IOException {
-        return getLzqjProfile().getProfileData(lastReading,includeEvents);
+    	this.profileHelper = true;
+    	ProfileData pd = getLzqjProfile().getProfileData(lastReading,includeEvents);
+    	this.profileHelper = false;
+        return pd;
     }
     
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException,UnsupportedException {
-        return getLzqjProfile().getProfileData(from,to,includeEvents);
+    	this.profileHelper = true;
+    	ProfileData pd = getLzqjProfile().getProfileData(from,to,includeEvents);
+    	this.profileHelper = false;
+        return pd;
     }
     
     public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
@@ -123,6 +160,14 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
     public Date getTime() throws IOException {
         Date date =  (Date)getLzqjRegistry().getRegister("TimeDate");
         return new Date(date.getTime()-iRoundtripCorrection);
+//    	if(vdewCompatible == 1){
+//    		Date date = (Date)getLzqjRegistry().getRegister("TimeDate");
+//    		return new Date(date.getTime()-iRoundtripCorrection);
+//    	} else {
+//    		Object object = getLzqjRegistry().getRegister("TimeDate2");
+//    		Date date = (Date)object;
+//    		return new Date(date.getTime() - iRoundtripCorrection);
+//    	}
     }
     
     public byte getLastProtocolState(){
@@ -176,7 +221,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
             dataReadoutRequest = Integer.parseInt(properties.getProperty("DataReadout","1").trim());
             extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0").trim());
             vdewCompatible=Integer.parseInt(properties.getProperty("VDEWCompatible","1").trim());
-
+            isFixedProfileTimeZone = (Integer.parseInt(properties.getProperty("FixedProfileTimeZone", "1")) == 1);
             this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
         }
         catch (NumberFormatException e) {
@@ -248,6 +293,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
         result.add("ExtendedLogging");
         result.add("VDEWCompatible");
         result.add("Software7E1");
+        result.add("FixedProfileTimeZone");
         return result;
     }
 
@@ -256,7 +302,64 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
     }
     
     public String getFirmwareVersion() throws IOException,UnsupportedException {
-        return ("Unknown");
+    	
+        String name;
+        String firmware = "";
+		ByteArrayOutputStream byteArrayOutputStream;
+		byte[] data;
+		
+		try {
+			name = "0.2.0"+"(;)"; 
+			byteArrayOutputStream = new ByteArrayOutputStream();
+			byteArrayOutputStream.write(name.getBytes());
+			flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5,byteArrayOutputStream.toByteArray());
+			data = flagIEC1107Connection.receiveRawData();
+//			System.out.println("Configuration program version number: " + new String(data));
+			firmware += "Configuration program version number: " + new String(data);
+		} catch (Exception e) {
+			e.printStackTrace();
+			firmware += "Configuration program version number: (none)";
+		}
+    	
+        try {
+			name = "0.2.1*01"+"(;)"; 
+			byteArrayOutputStream = new ByteArrayOutputStream();
+			byteArrayOutputStream.write(name.getBytes());
+			flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5,byteArrayOutputStream.toByteArray());
+			data = flagIEC1107Connection.receiveRawData();
+//			System.out.println("Parameter number: " + new String(data));
+			firmware += " - Parameter number: " + new String(data);
+		} catch (Exception e) {
+			e.printStackTrace();
+			firmware += " - Parameter number: (none)";
+		}
+        
+        try {
+			name = "0.2.1*02"+"(;)"; 
+			byteArrayOutputStream = new ByteArrayOutputStream();
+			byteArrayOutputStream.write(name.getBytes());
+			flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5,byteArrayOutputStream.toByteArray());
+			data = flagIEC1107Connection.receiveRawData();
+//			System.out.println("Parameter settings: " + new String(data));
+			firmware += " - Parameter settings: " + new String(data);
+		} catch (Exception e) {
+			e.printStackTrace();
+			firmware += " - Parameter settings: (none)";
+		}
+        
+        try {
+			name = "0.2.1*50"+"(;)"; 
+			byteArrayOutputStream = new ByteArrayOutputStream();
+			byteArrayOutputStream.write(name.getBytes());
+			flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5,byteArrayOutputStream.toByteArray());
+			data = flagIEC1107Connection.receiveRawData();
+//			System.out.println("Set number: " + new String(data));
+			firmware += " - Set number: " + new String(data);
+		} catch (Exception e) {
+			e.printStackTrace();
+			firmware += " - Set number: (none)";
+		}
+		return firmware;
     } // public String getFirmwareVersion()
     
     /** initializes the receiver
@@ -274,7 +377,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
            flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,0,iEchoCancelling,iIEC1107Compatible,software7E1);
            flagIEC1107Connection.setAddCRLF(true);
            lzqjRegistry = new LZQJRegistry(this,this);
-           lzqjProfile = new LZQJProfile(this,this,lzqjRegistry);
+//           lzqjProfile = new LZQJProfile(this,this,lzqjRegistry);
         }
         catch(ConnectionException e) {
            logger.severe ("LZQJ: init(...), "+e.getMessage());
@@ -340,8 +443,19 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
         return flagIEC1107Connection;
     }
     
+    /**
+     * Apparently the profile is always returned in GMT+01 ...
+     */
     public TimeZone getTimeZone() {
-        return timeZone;
+    	if(profileHelper){
+    		if(isFixedProfileTimeZone){
+    			return TimeZone.getTimeZone("GMT+01:00");
+    		} else {
+    			return timeZone;
+    		}
+    	} else {
+    		return timeZone;
+    	}
     }
     
     public boolean isIEC1107Compatible() {
@@ -419,27 +533,56 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
             
             // read the non billing register to reuse the unit in case of billingpoints...
             try {
-                doReadRegister(new ObisCode(obisCode.getA(),obisCode.getB(),obisCode.getC(),obisCode.getD(),obisCode.getE(),255),false); 
+            	doReadRegister(new ObisCode(obisCode.getA(),obisCode.getB(),obisCode.getC(),obisCode.getD(),obisCode.getE(),255),false); 
             }
             catch(NoSuchRegisterException e) {
-                // absorb if not exist...
+            	// absorb if not exist...
             }
-            
+
             // read the billing point timestamp
             try {
-                doReadRegister(new ObisCode(1,1,0,1,2,billingPoint-VZ),true); 
+            	doReadRegister(new ObisCode(1,1,0,1,2,billingPoint-VZ),true);
             }
             catch(NoSuchRegisterException e) {
-                // absorb if not exist...
+            	// absorb if not exist...
             }
             
         } // if (obisCode.getF() != 255)
+
+        
+        // JME:	Special case for obiscode == 1.1.0.1.0.255 (billing point): 
+        //		Read the date of the billing reset and apply it to the billingPointRegister as eventTime
+        if (obisCode.toString().equalsIgnoreCase("1.1.0.1.0.255")) {
+        	RegisterValue billingPointRegister = doReadRegister(ObisCode.fromString("1.1.0.1.0.255"), false);
+        	int billingPoint = billingPointRegister.getQuantity().intValue();
+
+        	RegisterValue reg_date = null;
+        	try {
+        		reg_date = doReadRegister(new ObisCode(1,1,0,1,2,billingPoint),true);
+        		if (reg_date != null) {
+        			billingPointRegister = new RegisterValue(
+        					billingPointRegister.getObisCode(), 
+        					billingPointRegister.getQuantity(), 
+        					reg_date.getToTime(), // eventTime from billing point
+        					billingPointRegister.getFromTime(), 
+        					billingPointRegister.getToTime(), 
+        					billingPointRegister.getReadTime(), 
+        					billingPointRegister.getRtuRegisterId(), 
+        					billingPointRegister.getText()
+        			);
+        		}
+        	} catch (NoSuchRegisterException e) {
+        		// absorb if not exist...
+        	} 
+
+        	return billingPointRegister;
+        }
         
         return doReadRegister(obisCode, false); 
     }    
     
     private RegisterValue doReadRegister(ObisCode obisCode,boolean billingTimestamp) throws IOException {
-        RegisterValue registerValue =  findRegisterValue(obisCode);
+    	RegisterValue registerValue =  findRegisterValue(obisCode);
         if (registerValue == null) {
             if (billingTimestamp)
                 registerValue = doTheReadBillingRegisterTimestamp(obisCode); 
@@ -462,7 +605,18 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
           }
           else {
               DataDumpParser ddp = new DataDumpParser(getDataReadout());
-              data = ddp.getRegisterStrValue(edisNotation).getBytes();
+              if (edisNotation.indexOf("97.97.0") >=0){
+            	  data = ddp.getRegisterFFStrValue("F.F").getBytes();
+              }
+              else if(edisNotation.indexOf("0.1.0") >= 0){
+                  String name = edisNotation+"(;)"; 
+                  ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                  byteArrayOutputStream.write(name.getBytes());
+                  flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5,byteArrayOutputStream.toByteArray());
+                  data = flagIEC1107Connection.receiveRawData();
+              }
+              else
+                  data = ddp.getRegisterStrValue(edisNotation).getBytes();
           }
           return data;
     }
@@ -625,8 +779,20 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
     /**
      * Getter for property lzqjProfile.
      * @return Value of property lzqjProfile.
+     * @throws IOException 
      */
-    public LZQJProfile getLzqjProfile() {
+    public LZQJProfile getLzqjProfile() throws IOException {
+//    	if(lzqjProfile == null){
+//    		TimeZone profileTimeZone;
+//    		if(isRequestTimeZone){
+//    			profileTimeZone = TimeZone.getTimeZone("GMT+01:00");
+//    		} else {
+//    			profileTimeZone = getTimeZone();
+//    		}
+//    		//TODO set the timeZone with it
+//    		lzqjProfile = new LZQJProfile(this,this,lzqjRegistry,profileTimeZone);
+//    	}
+    	lzqjProfile = new LZQJProfile(this, this, lzqjRegistry);
         return lzqjProfile;
     }
     
