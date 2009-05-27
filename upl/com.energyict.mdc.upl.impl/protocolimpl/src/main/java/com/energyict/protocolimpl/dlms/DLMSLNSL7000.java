@@ -20,6 +20,7 @@
  *	GN|25042008|Missing hour values with a profileInterval of 10min
  *	JM|15042009|Made readRegister more robust to prevent exceptions to interrupt meter readout communication.  
  * 	JM|22052009|Fixed billing point issue in ACE6000 and SL7000 DLMS protocols.   
+ * 	JM|27052009|Forced request timezone to 0.   
  * @endchanges
  */
 package com.energyict.protocolimpl.dlms;  
@@ -1302,7 +1303,8 @@ public class DLMSLNSL7000 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
             iProtocolRetriesProperty=Integer.parseInt(properties.getProperty("Retries","5").trim());
             //iDelayAfterFailProperty=Integer.parseInt(properties.getProperty("DelayAfterfail","3000").trim());
             iSecurityLevelProperty=Integer.parseInt(properties.getProperty("SecurityLevel","1").trim());
-            iRequestTimeZone=Integer.parseInt(properties.getProperty("RequestTimeZone","0").trim());
+            iRequestTimeZone=0;
+            //iRequestTimeZone=Integer.parseInt(properties.getProperty("RequestTimeZone","0").trim());
             iRoundtripCorrection=Integer.parseInt(properties.getProperty("RoundtripCorrection","0").trim());
             
             iClientMacAddress=Integer.parseInt(properties.getProperty("ClientMacAddress","1").trim());
