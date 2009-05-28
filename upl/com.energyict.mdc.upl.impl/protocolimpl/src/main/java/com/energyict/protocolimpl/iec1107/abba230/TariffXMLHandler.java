@@ -42,7 +42,7 @@ public class TariffXMLHandler extends DefaultHandler {
 					(attributes.getQName(0).compareTo("id")==0) &&
 					(attributes.getQName(1).compareTo("packet")==0) &&
 					(attributes.getQName(2).compareTo("data")==0)) {
-					abba230DataIdentityFactory.setDataIdentity(attributes.getValue(0), Integer.parseInt(attributes.getValue(1),16), attributes.getValue(2));
+					abba230DataIdentityFactory.setDataIdentityHex(attributes.getValue(0), Integer.parseInt(attributes.getValue(1),16), attributes.getValue(2));
 				}
 			}
 			catch(IOException e) {
