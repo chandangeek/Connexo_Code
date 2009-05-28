@@ -150,4 +150,8 @@ public class RtuMessageConstant {
 	
 	/** RtuMessage tags for GlobalMeterReset */
 	public static final String GLOBAL_METER_RESET = "Global_Meter_Reset";
+	
+	/** RtuMessage tags for Corrected/UnCorrected values in Gas profile */
+	public static final String MBUS_CORRECTED_SWITCH = "Correction_switch";
+	public static final String MBUS_CORRECTED_VALUE = "Switch_State";
 }
