@@ -4,18 +4,20 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
-import javax.xml.ws.WebServiceRef;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.Utils;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
-import com.energyict.protocolimpl.meteridentification.LGZ;
+import com.sun.xml.ws.client.ClientTransportException;
 import com.vodafone.gdsp.ws.GdspCredentials;
 import com.vodafone.gdsp.ws.GdspHeader;
 import com.vodafone.gdsp.ws.SubmitWUTrigger;
@@ -39,7 +41,7 @@ public class SmsWakeup {
 	private long pollTimeout;
 	private int pollFreq;
 	private boolean requestSuccess = false;
-	private String wsdl;
+	private String endpointAddress;
 	
 	private Rtu meter;
 	private CommunicationScheduler scheduler;
@@ -89,11 +91,11 @@ public class SmsWakeup {
 	private void updateProperties(){
 		this.pollTimeout = Integer.parseInt(this.meter.getProperties().getProperty("PollTimeOut", "900000"));
 		this.pollFreq = Integer.parseInt(this.meter.getProperties().getProperty("PollFrequency", "15000"));
-		String host = mw().getSystemProperty("vfWuHostName");
+		String host = mw().getSystemProperty("vfEndpointAddress");
 		if(host == null){
-			wsdl = "http://localhost:4423/SharedResources/COMM_DEVICE/WUTriggerService.serviceagent/WUTriggerPort?wsdl";
+			endpointAddress = "http://localhost:4423/SharedResources/COMM_DEVICE/WUTriggerService.serviceagent/WUTriggerPort";
 		} else {
-			wsdl = "http://" + host + ":4423/SharedResources/COMM_DEVICE/WUTriggerService.serviceagent/WUTriggerPort?wsdl";
+			endpointAddress = host;
 		}
 	}
 	
@@ -159,9 +161,15 @@ public class SmsWakeup {
 		parameters.setTriggerType("SMS");
 		
 		log(5, "Ready for takeoff");
-		SubmitWUTriggerResponse swuTriggerResponse = wuTrigger.submitWUTrigger(parameters, gdspHeader);
-		log(5, "Took off ...");
-		analyseRespsonse(swuTriggerResponse);
+		SubmitWUTriggerResponse swuTriggerResponse;
+		try {
+			swuTriggerResponse = wuTrigger.submitWUTrigger(parameters, gdspHeader);
+			log(5, "Took off ...");
+			analyseRespsonse(swuTriggerResponse);
+		} catch (ClientTransportException e) {
+			e.printStackTrace();
+			throw new ConnectionException("Connection refused, please check if the endpointAddress is correct." + e.getMessage());
+		}
 		
 	}
 	
@@ -244,10 +252,13 @@ public class SmsWakeup {
 	}
 	
 	public WUTrigger getWUTrigger() throws IOException{
-		log(5, "Hostname: " + wsdl);
-		Service wuts = Service.create(new URL(wsdl), new QName("http://ws.gdsp.vodafone.com/", "WUTriggerService"));
-		log(5, "Created a service.");
-		return wuts.getPort(WUTrigger.class);
+		WUTriggerService wuService = new WUTriggerService(Utils.class.getResource("/wsdl/WUTriggerServiceConcrete_Incl_Schema.wsdl"), 
+				new QName("http://ws.gdsp.vodafone.com/", "WUTriggerService"));
+		WUTrigger proxy = wuService.getWUTriggerPort();
+		((BindingProvider)proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
+		
+		return proxy;
+		
 	}
 	
 	public boolean isRequestSuccess(){

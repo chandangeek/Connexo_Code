@@ -74,7 +74,7 @@
   </binding>
   <service name="WUTriggerService">
     <port name="WUTriggerPort" binding="tns:WUTriggerPortBinding">
-      <soap:address location="http://LT-38385:4423/SharedResources/COMM_DEVICE/WUTriggerService.serviceagent/WUTriggerPort"/>
+      <soap:address location="http://ES1WI272:4423/SharedResources/COMM_DEVICE/WUTriggerService.serviceagent/WUTriggerPort"/>
       <!--<soap:address location="http://localhost:2001/smsWakeup/smsWakeup"/>-->
     </port>
   </service>
