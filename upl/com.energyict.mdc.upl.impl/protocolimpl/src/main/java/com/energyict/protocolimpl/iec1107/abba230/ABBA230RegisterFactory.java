@@ -426,7 +426,7 @@ public class ABBA230RegisterFactory {
         loadProfileReadByDate = cr("554", "LoadProfileReadByDate", ABBA230RegisterData.ABBA_LOAD_PROFILE_BY_DATE,0, 2, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
         loadProfileByDate64Blocks = cr("554", "LoadProfileByDate64Blocks", ABBA230RegisterData.ABBA_HEX,0,2, null);
         
-        systemStatusDataIdentity = cr("724", "SystemStatus", ABBA230RegisterData.ABBA_SYSTEMSTATUS,0,10, null);
+        systemStatusDataIdentity = cr("724", "SystemStatus", ABBA230RegisterData.ABBA_SYSTEMSTATUS,0,13, null);
         
         custDefRegConfig = cr("600", "CustDefRegConfig", ABBA230RegisterData.ABBA_CUSTDEFREGCONFIG,0,4, null);
         

@@ -33,6 +33,22 @@ public class EventMapperFactory {
 		entries.add(new MeterEventMapEntry(7,5,MeterEvent.OTHER,"Firmware download"));
 		entries.add(new MeterEventMapEntry(7,6,MeterEvent.METER_ALARM,"Meter error"));
 		entries.add(new MeterEventMapEntry(7,7,MeterEvent.OTHER,"Battery voltage low"));
+
+		// TSystemStatus8
+		entries.add(new MeterEventMapEntry(8,7,MeterEvent.METER_ALARM,"Magnetic tamper in progress"));
+		entries.add(new MeterEventMapEntry(8,6,MeterEvent.METER_ALARM,"Terminal cover tamper in progress"));
+		entries.add(new MeterEventMapEntry(8,5,MeterEvent.METER_ALARM,"Main cover tamper in progress"));
+		entries.add(new MeterEventMapEntry(8,3,MeterEvent.METER_ALARM,"Undervoltage event"));
+		entries.add(new MeterEventMapEntry(8,2,MeterEvent.METER_ALARM,"Overvoltage event"));
+
+		// TSystemStatus9
+		entries.add(new MeterEventMapEntry(9,7,MeterEvent.METER_ALARM,"Load monitor high trip event"));
+		entries.add(new MeterEventMapEntry(9,5,MeterEvent.METER_ALARM,"Load monitor low trip event"));
+		entries.add(new MeterEventMapEntry(9,3,MeterEvent.METER_ALARM,"Undervoltage confirmed"));
+		entries.add(new MeterEventMapEntry(9,2,MeterEvent.METER_ALARM,"Undervoltage detected"));
+		entries.add(new MeterEventMapEntry(9,1,MeterEvent.METER_ALARM,"Overvoltage confirmed"));
+		entries.add(new MeterEventMapEntry(9,0,MeterEvent.METER_ALARM,"Overvoltage detected"));
+		
 		
 		// TSystemError0
 		entries.add(new MeterEventMapEntry(16,5,MeterEvent.HARDWARE_ERROR,"Contactor drive failure"));
@@ -79,7 +95,8 @@ public class EventMapperFactory {
 	public static void main(String[] args) {
 		EventMapperFactory o = new EventMapperFactory();
 		try {
-			Iterator it = o.getMeterEvents("000000000055550100000000000000ff0000000000").iterator();
+			Iterator it = o.getMeterEvents("00000000000080004000000000000000FFFFFFFFFF").iterator();
+			//Iterator it = o.getMeterEvents("000000000000000040000000000000000000000000").iterator();
 			while(it.hasNext()) {
 				
 				System.out.println(it.next());

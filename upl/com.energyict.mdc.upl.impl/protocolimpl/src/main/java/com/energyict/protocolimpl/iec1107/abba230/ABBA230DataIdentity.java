@@ -174,7 +174,7 @@ public class ABBA230DataIdentity {
             strbuff.append(dataId);
             strbuff.append(buildPacketID(packetid++,3));
             strbuff.append('(');
-            strbuff.append(Integer.toHexString(len));
+            strbuff.append(ProtocolUtils.buildStringHex(len,2));
             strbuff.append(')');
             dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().sendRawCommandFrame(FlagIEC1107Connection.READ1,strbuff.toString().getBytes());
             byte[] ba = dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().receiveData();

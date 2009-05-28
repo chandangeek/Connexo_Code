@@ -78,6 +78,8 @@ public class ABBA230 implements
     final static String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
     final static String PK_ECHO_CANCELING = "EchoCancelling";
     
+    final static String PK_SCRIPTING_ENABLED = "ScriptingEnabled";
+    
     /** Property Default values */
     final static String PD_NODE_ID = "";
     final static int PD_TIMEOUT = 10000;
@@ -120,6 +122,9 @@ public class ABBA230 implements
     
     private CacheMechanism cacheObject=null;
     private boolean software7E1;
+    private int scriptingEnabled=0;
+    private int nrOfLoadProfileBlocks=0;
+    
     
     public ABBA230() { }
     
@@ -186,9 +191,15 @@ public class ABBA230 implements
             
             if (p.getProperty(PK_ECHO_CANCELING) != null)
                 pEchoCancelling = Integer.parseInt(p.getProperty(PK_ECHO_CANCELING));
+
+            if (p.getProperty(PK_SCRIPTING_ENABLED) != null)
+                scriptingEnabled = Integer.parseInt(p.getProperty(PK_SCRIPTING_ENABLED,"0"));
+            
             
             if (p.getProperty(PK_IEC1107_COMPATIBLE) != null)
                 pIEC1107Compatible = Integer.parseInt(p.getProperty(PK_IEC1107_COMPATIBLE));
+            
+            
             
             this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
             
@@ -233,6 +244,7 @@ public class ABBA230 implements
         result.add("ExtendedLogging");
         result.add("EventMapperEnabled");
         result.add("Software7E1");
+        result.add("ScriptingEnabled");
         return result;
     }
     
@@ -1189,17 +1201,25 @@ public class ABBA230 implements
 	}
 	
 	private void executeDefaultScript() throws IOException {
-		if ((getCache() != null) && (getCache() instanceof CacheMechanism)) {
-			// call the scriptexecution  scriptId,script
-			String script = "778001(1),777001(2),878001(3),798001(10)";
-			((CacheMechanism)getCache()).setCache(new String[]{"1",script});
+		if ((getCache() != null) && (getCache() instanceof CacheMechanism) && (getScriptingEnabled() == 2)) {
+			((CacheMechanism)getCache()).setCache(new String[]{"0",null});
+			nrOfLoadProfileBlocks = ((Integer)((CacheMechanism)getCache()).getCache()).intValue();
 		}
 	}	
+	
 	private void executeRegisterScript() throws IOException {
-		if ((getCache() != null) && (getCache() instanceof CacheMechanism)) {
+		if ((getCache() != null) && (getCache() instanceof CacheMechanism) && (getScriptingEnabled() == 1)) {
 			// call the scriptexecution  scriptId,script
-			String script = "507001(40),507002(40)";
+			String script = "778001(1),777001(2),878001(3),798001(10),507001(40),507002(40),508001(40),508002(40),510001(18)";
 			((CacheMechanism)getCache()).setCache(new String[]{"2",script});
 		}
+	}
+
+	public int getScriptingEnabled() {
+		return scriptingEnabled;
+	}
+
+	public int getNrOfLoadProfileBlocks() {
+		return nrOfLoadProfileBlocks;
 	}	
 }

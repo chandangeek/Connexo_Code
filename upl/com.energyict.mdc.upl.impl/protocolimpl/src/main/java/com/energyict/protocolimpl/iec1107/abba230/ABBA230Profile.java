@@ -87,23 +87,24 @@ public class ABBA230Profile {
         if( to.after( getMeterTime() ) )
             to = getMeterTime();
         
-        /* by writing the dates in register 554 */
-        LoadProfileReadByDate lpbd = new LoadProfileReadByDate(from, to);
-        int retry=0;
-        while(true) {
-	        try {
-	        	rFactory.setRegister("LoadProfileReadByDate", lpbd );
-	        	break;
+        if (abba230.getScriptingEnabled() != 2 ) {
+	        /* by writing the dates in register 554 */
+	        LoadProfileReadByDate lpbd = new LoadProfileReadByDate(from, to);
+	        int retry=0;
+	        while(true) {
+		        try {
+		        	rFactory.setRegister("LoadProfileReadByDate", lpbd );
+		        	break;
+		        }
+		        catch(IOException e) {
+		        	if (retry++>=3)
+		        		throw e;
+		        }
 	        }
-	        catch(IOException e) {
-	        	if (retry++>=3)
-	        		throw e;
-	        }
+	        
+	        if( DEBUG > 0 )
+	            System.out.println( "Inquiring meter for " + lpbd );
         }
-        
-        if( DEBUG > 0 )
-            System.out.println( "Inquiring meter for " + lpbd );
-        
         /** Before the 554 LoadProfileReadByDate existed the meter was asked
          * to return x nr of days in the past.  This might still be a more
          * reliable approach. */
@@ -148,19 +149,19 @@ public class ABBA230Profile {
     }
 
 	private void executeProfileDataScript(long nrOfBlocks) throws IOException {
-		if ((abba230.getCache() != null) && (abba230.getCache() instanceof CacheMechanism)) {
+		if ((abba230.getCache() != null) && (abba230.getCache() instanceof CacheMechanism) && (abba230.getScriptingEnabled() == 1)) {
 			StringBuffer strBuff = new StringBuffer();
 			for(int i=0;i<nrOfBlocks;i++) {
 				if (i>0)
 					strBuff.append(",");
-				strBuff.append("55000"+(i+1)+"(40)");
+				strBuff.append("550"+ProtocolUtils.buildStringHex((i+1),3)+"(40)");
 			}
 			// call the scriptexecution  scriptId,script
 			((CacheMechanism)abba230.getCache()).setCache(new String[]{"3",strBuff.toString()});
 		}
 	}
 	private void executeLogbookDataScript() throws IOException {
-		if ((abba230.getCache() != null) && (abba230.getCache() instanceof CacheMechanism)) {
+		if ((abba230.getCache() != null) && (abba230.getCache() instanceof CacheMechanism) && (abba230.getScriptingEnabled() == 1)) {
 			// call the scriptexecution  scriptId,script
 			String script = "678001(40),678002(13),679001(40),679002(13),680001(40),680002(40),680003(2d),685001(40),685002(13),695001(40),695002(13),691001(40),691002(13),692001(40),692002(13),693001(40),693002(13),694001(2b),696001(2b),699001(35),422001(35),423001(35),424001(35),425001(35),426001(35),427001(35),428001(35),429001(35),430001(35),431001(35),432001(35),433001(35),701001(35),705001(2b)";
 			((CacheMechanism)abba230.getCache()).setCache(new String[]{"3",script});
@@ -170,7 +171,12 @@ public class ABBA230Profile {
     private ProfileData doGetProfileData( boolean includeEvents,Date from ) throws IOException {
         byte[] data;
         
-        long nrOfBlocks = ((Long)rFactory.getRegister("LoadProfileByDate64Blocks")).longValue();
+        long nrOfBlocks;
+        
+        if (abba230.getScriptingEnabled() != 2)
+        	nrOfBlocks = ((Long)rFactory.getRegister("LoadProfileByDate64Blocks")).longValue();
+        else
+        	nrOfBlocks = abba230.getNrOfLoadProfileBlocks(); // if we use default script 0 
         
         // specific for the scripting with wavenis
         executeProfileDataScript(nrOfBlocks);
