@@ -20,7 +20,8 @@ import com.energyict.protocolimpl.iec1107.vdew.*;
  *
  * @author  Koen
  * Changes:
- * KV 25032004 parseDateTime forced seconds to 0
+ * KV	25032004 parseDateTime forced seconds to 0
+ * JME	28052009 Fixed bug in profile parser: Last 3 channels are hex status channels and no decimal values.
  */
 public class Unigas300Profile extends VDEWProfile {
     
@@ -41,6 +42,8 @@ public class Unigas300Profile extends VDEWProfile {
     private static final int RUNNING_RESERVE_EXHAUSTED = 0x02;
     private static final int FATAL_DEVICE_ERROR = 0x01;
 
+    private static final int NUMBER_OF_STATUS_CHANNELS = 3;
+    
 	private static final int DEBUG = 0;
 
     private static final String[] statusstr={"FATAL_DEVICE_ERROR",
@@ -201,7 +204,11 @@ public class Unigas300Profile extends VDEWProfile {
                   IntervalData intervalData = new IntervalData(new Date(((Calendar)calendar.clone()).getTime().getTime()));
                   for (t=0;t<bNROfValues;t++) {
                       i=gotoNextOpenBracket(responseData,i);
-                      intervalData.addValue(new BigDecimal(parseFindString(responseData,i)));
+                      if (t < (bNROfValues - NUMBER_OF_STATUS_CHANNELS)) {
+                    	  intervalData.addValue(new BigDecimal(parseFindString(responseData,i)));
+                      } else {
+                          intervalData.addValue(new BigDecimal(Integer.parseInt(parseFindString(responseData,i), 16)));
+                      }
                       i++;
                    }
                    if ((status & DISTURBED_MEASURE) != 0)

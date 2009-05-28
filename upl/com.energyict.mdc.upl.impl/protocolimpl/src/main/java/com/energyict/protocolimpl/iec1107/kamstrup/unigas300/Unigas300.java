@@ -44,7 +44,8 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
  * Class that implements the Kamstrup Unigas 300 meter protocol.
  * <BR>
  * @beginchanges
- *	JME	|28042009|	Initial protocol version
+ *	JME	28042009	Initial protocol version
+ * 	JME	28052009	Fixed bug in profile parser: Last 3 channels are hex status channels and no decimal values.
  *
  */
 public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol { //,CommunicationParameters {
