@@ -10,11 +10,13 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ScriptTable;
@@ -23,6 +25,7 @@ import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtukp.MbusDevice;
 import com.energyict.mdw.core.RtuMessage;
+import com.energyict.obis.ObisCode;
 
 public class MbusMessageExecutor extends GenericMessageExecutor{
 	
@@ -45,6 +48,7 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 			boolean connectMode		= messageHandler.getType().equals(RtuMessageConstant.CONNECT_CONTROL_MODE);
 			boolean decommission 	= messageHandler.getType().equals(RtuMessageConstant.MBUS_DECOMMISSION);
 			boolean mbusEncryption 	= messageHandler.getType().equals(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
+			boolean correctSwitch 	= messageHandler.getType().equals(RtuMessageConstant.MBUS_CORRECTED_SWITCH);
 			
 			if(connect){
 				
@@ -97,7 +101,7 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 				success = true;
 			} else if(connectMode){
 				
-				getLogger().log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": ConnectControl mode");
+				getLogger().log(Level.INFO, "Handling MbusMessage " + rtuMessage.displayString() + ": ConnectControl mode");
 				String mode = messageHandler.getConnectControlMode();
 				
 				if(mode != null){
@@ -149,6 +153,16 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 				}
 				
 				success = true;
+			} else if(correctSwitch){
+				
+				getLogger().log(Level.INFO, "Handling MbusMessage " + rtuMessage.displayString() + ": Set loadprofile correction switch");
+				String corrSwitchOc =  "0."+getPhysicalAddress()+".24.8.0.255";
+				Data corrSwitch = getCosemObjectFactory().getData(ObisCode.fromString(corrSwitchOc));
+				BooleanObject bo = new BooleanObject(messageHandler.useCorrected());
+				corrSwitch.setValueAttr(bo);
+				
+				success = true;
+				
 			} else {	// unknown message
 				success = false;
 				throw new IOException("Unknown message");

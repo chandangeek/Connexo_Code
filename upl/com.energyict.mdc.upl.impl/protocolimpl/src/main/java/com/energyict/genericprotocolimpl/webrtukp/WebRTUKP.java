@@ -179,7 +179,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		try {
 			
 			if(this.wakeup == 1){
-				//TODO do the wakeup
+				this.logger.info("In Wakeup");
 				SmsWakeup smsWakeup = new SmsWakeup(this.scheduler, this.logger);
 				smsWakeup.doWakeUp();
 				
@@ -194,10 +194,12 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 			init(this.link.getInputStream(), this.link.getOutputStream());
 			connect();
 			connected = true;
+			
 //			doSomeTestCalls();
 //			readFromMeter("1.0.90.7.0.255");
 //			hasMBusMeters();
 //			handleMbusMeters();
+			
 			// Set clock or Force clock... if necessary
 			if( this.commProfile.getForceClock() ){
 				Date meterTime = getTime();

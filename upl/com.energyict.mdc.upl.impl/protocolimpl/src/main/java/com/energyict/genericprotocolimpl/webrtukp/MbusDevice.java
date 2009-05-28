@@ -267,10 +267,24 @@ public class MbusDevice implements GenericProtocol, Messaging{
 		catMbusSetup.addMessageSpec(msgSpec);
 		msgSpec = addEncryptionkeys("Set Encryption keys", RtuMessageConstant.MBUS_ENCRYPTION_KEYS, false);
 		catMbusSetup.addMessageSpec(msgSpec);
+		msgSpec = addCorrectSwitchMsg("Correction switch", RtuMessageConstant.MBUS_CORRECTED_SWITCH, false);
+		catMbusSetup.addMessageSpec(msgSpec);
 		
 		categories.add(catDisconnect);
 		categories.add(catMbusSetup);
 		return categories;
+	}
+
+	private MessageSpec addCorrectSwitchMsg(String keyId, String tagName, boolean advanced) {
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.MBUS_CORRECTED_VALUE, true);
+        tagSpec.add(msgVal);
+        tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
 	}
 
 	private MessageSpec addConnectControl(String keyId, String tagName, boolean advanced) {

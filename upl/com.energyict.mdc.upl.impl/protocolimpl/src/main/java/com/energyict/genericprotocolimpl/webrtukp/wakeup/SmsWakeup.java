@@ -2,13 +2,20 @@ package com.energyict.genericprotocolimpl.webrtukp.wakeup;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
+import javax.xml.namespace.QName;
+import javax.xml.ws.Service;
+import javax.xml.ws.WebServiceRef;
+
 import com.energyict.cbo.BusinessException;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
+import com.energyict.protocolimpl.meteridentification.LGZ;
 import com.vodafone.gdsp.ws.GdspCredentials;
 import com.vodafone.gdsp.ws.GdspHeader;
 import com.vodafone.gdsp.ws.SubmitWUTrigger;
@@ -16,14 +23,23 @@ import com.vodafone.gdsp.ws.SubmitWUTriggerResponse;
 import com.vodafone.gdsp.ws.WUTrigger;
 import com.vodafone.gdsp.ws.WUTriggerService;
 
+/**
+ * @author gna
+ * 
+ * The SMS Wakeup will send a wakeup trigger to TIBCO and receive an OK or NOT OK as a response to the trigger.
+ * Depending on the response, a polling mechanism is started to see if the meter gets an IP address, or ...
+ * exception is thrown when the trigger failed or the polling timed out.
+ *
+ */
 public class SmsWakeup {
 	
-	private int logLevel = 5;
+	private int logLevel = -2;
 	
 	private String updatedIpAddress = "";
-	private long pollTimeout;	// TODO give it a default value
+	private long pollTimeout;
 	private int pollFreq;
 	private boolean requestSuccess = false;
+	private String wsdl;
 	
 	private Rtu meter;
 	private CommunicationScheduler scheduler;
@@ -33,32 +49,32 @@ public class SmsWakeup {
 	private static String mrcInvalidSecurity = "005";
 	private static String mrcFailedValidation = "100";
 	private static String mrcProcessingError = "999";
-//	private static String[] majorErrorString = new String[]{
-//		"Invalid security context passed",
-//		"Request has failed validation",
-//		"Internal processing error. Please contact support help desk.",
-//		"UNKNOWN major return code: "
-//	};
-//	
-//	public SmsWakeup(Rtu meter) {
-//		this.meter = meter;
-//	}
 	
 	public SmsWakeup(CommunicationScheduler scheduler) {
 		this(scheduler, null);
 	}
 	
+	/**
+	 * Constructor
+	 * @param scheduler
+	 * @param logger
+	 */
 	public SmsWakeup(CommunicationScheduler scheduler, Logger logger) {
 		this.scheduler = scheduler;
-		this.meter = this.scheduler.getRtu();
 		this.logger = logger;
-		updateProperties();
-		log(5, "In SMSWakup constructor");
+		if(this.scheduler != null){
+			this.meter = this.scheduler.getRtu();
+			updateProperties();
+		}
 	}
 
+	/**
+	 * Triggers the wakeup
+	 * @throws SQLException
+	 * @throws BusinessException
+	 * @throws IOException
+	 */
 	public void doWakeUp() throws SQLException, BusinessException, IOException{
-		// TODO
-		// perhaps clear the IP-address of the RTU
 		clearMetersIpAddress();
 		log(5, "Cleared IP");
 		// make the request to Tibco
@@ -67,12 +83,25 @@ public class SmsWakeup {
 		waitForIpUpdate();
 	}
 
+	/**
+	 * Set some polling properties
+	 */
 	private void updateProperties(){
-		//TODO update all meters properties and attributes!
 		this.pollTimeout = Integer.parseInt(this.meter.getProperties().getProperty("PollTimeOut", "900000"));
 		this.pollFreq = Integer.parseInt(this.meter.getProperties().getProperty("PollFrequency", "15000"));
+		String host = mw().getSystemProperty("vfWuHostName");
+		if(host == null){
+			wsdl = "http://localhost:4423/SharedResources/COMM_DEVICE/WUTriggerService.serviceagent/WUTriggerPort?wsdl";
+		} else {
+			wsdl = "http://" + host + ":4423/SharedResources/COMM_DEVICE/WUTriggerService.serviceagent/WUTriggerPort?wsdl";
+		}
 	}
 	
+	/**
+	 * Clear the IP address field of the meter so we can poll on a filled in address
+	 * @throws SQLException
+	 * @throws BusinessException
+	 */
 	private void clearMetersIpAddress() throws SQLException, BusinessException{
 		
 		try {
@@ -87,21 +116,48 @@ public class SmsWakeup {
 		
 	}
 	
+	/**
+	 * Create the actual call.
+	 * Find all necessary parameters on the device, including his attributes and send the trigger.
+	 * Afterwards, check the response to see if the SMS will be sent to the device so we can start polling the IP-Address
+	 * @throws IOException when the wsdl is not found, or when certain attributes are not correctly filled in
+	 */
 	private void createWakeupCall() throws IOException{
 		log(5, "In createWakeupCall");
 		WUTrigger wuTrigger = getWUTrigger();
-		log(5, "Got wuTrigger");
+		log(5, "Got wuTriggerPort");
 		SubmitWUTrigger parameters = new SubmitWUTrigger();
 		GdspHeader gdspHeader = new GdspHeader();
 		GdspCredentials value = new GdspCredentials();
 		value.setUserId("");
 		value.setPassword("");
 		gdspHeader.setGdspCredentials(value);
-		parameters.setDeviceId(Long.toString(((BigDecimal)getAttributeValue("IMSI")).longValue()));
-		parameters.setMSISDNNumber((String) getAttributeValue("MSISDN"));
-		parameters.setOperatorName((String) getAttributeValue("Provider"));
-		parameters.setSourceId(MeteringWarehouse.getCurrent().getSystemProperty("SourceId"));
+		BigDecimal bd = (BigDecimal)getAttributeValue("IMSI");
+		if(bd != null){
+			parameters.setDeviceId(Long.toString((bd).longValue()));
+		} else {
+			throw new IOException("The IMSI number is a required attribute to successfully execute the wakeup trigger.");
+		}
+		String MSISDN = (String) getAttributeValue("MSISDN");
+		if(MSISDN != null){
+			parameters.setMSISDNNumber(MSISDN);
+		}
+		String provider = (String) getAttributeValue("Provider");
+		if(provider != null){
+			parameters.setOperatorName(provider);
+		} else {
+			throw new IOException("The Provider is a required attribute to successfully execute the wakeup trigger.");
+		}
+		String srcId = mw().getSystemProperty("SourceId");
+		if(srcId != null){
+			parameters.setSourceId(srcId);
+		} else {
+			throw new IOException("The SourceId is a required System property to successfully execute the wakeup trigger.");
+		}
+		
+		/** If in time CSD is added to this functionality, then make sure this one is fetched from the attributes and is correclty filled in*/
 		parameters.setTriggerType("SMS");
+		
 		log(5, "Ready for takeoff");
 		SubmitWUTriggerResponse swuTriggerResponse = wuTrigger.submitWUTrigger(parameters, gdspHeader);
 		log(5, "Took off ...");
@@ -115,21 +171,25 @@ public class SmsWakeup {
 	 * @param swuTriggerResponse
 	 * @throws IOException
 	 */
-	private void analyseRespsonse(SubmitWUTriggerResponse swuTriggerResponse) throws IOException {
+	private void analyseRespsonse(SubmitWUTriggerResponse swuTriggerResponse) throws ConnectionException {
 		String majorReturnCode = swuTriggerResponse.getReturn().getReturnCode().getMajorReturnCode();
 		String minorReturnCode = swuTriggerResponse.getReturn().getReturnCode().getMinorReturnCode();
 		if(majorReturnCode.equalsIgnoreCase(mrcRequestComplete)){
-			this.requestSuccess = false;
+			this.requestSuccess = true;
 			this.logger.info("Successfully send the wakeup trigger.");
 		} else {
+			this.requestSuccess = false;
 			this.logger.info("Wakeup trigger failed, majorReturnCode: " + majorReturnCode + ", minorReturnCode: " + minorReturnCode);
-			throw new IOException("TriggerResponse is not correct: " + majorReturnCode);
+			throw new ConnectionException("TriggerResponse is not as excpected, MajorReturnCode: " + majorReturnCode + ", MinorReturnCode: " + minorReturnCode);
 		}
 	}
 
+	/**
+	 * Poll the meters IP-address field for an update
+	 * @throws BusinessException
+	 * @throws IOException
+	 */
 	private void waitForIpUpdate() throws BusinessException, IOException{
-		// TODO
-		// Poll the database for a filled in IPaddress of this rtu
 		long protocolTimeout = System.currentTimeMillis() + this.pollTimeout;
 		while(updatedIpAddress == ""){
 			if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
@@ -141,6 +201,11 @@ public class SmsWakeup {
 		this.logger.info("IP-Address " + this.updatedIpAddress + " found for meter with serialnumber" + this.meter.getSerialNumber());
 	}
 	
+	/**
+	 * Hold the thread for the given sleeptime
+	 * @param sleepTime
+	 * @throws IOException
+	 */
 	private void sleep(long sleepTime) throws IOException{
 		try {
 			Thread.sleep(sleepTime);
@@ -150,10 +215,17 @@ public class SmsWakeup {
 		}
 	}
 
+	/**
+	 * Get the updated meter from the database
+	 * @return
+	 */
 	private Rtu getRefreshedMeter() {
 		return MeteringWarehouse.getCurrent().getRtuFactory().find(this.scheduler.getRtuId());
 	}
 
+	/**
+	 * @return the local ipaddress String
+	 */
 	public String getIpAddress() {
 		if(this.updatedIpAddress == null){
 			return "";
@@ -162,34 +234,68 @@ public class SmsWakeup {
 		}
 	}
 	
+	/**
+	 * Return the attribute with the given name, if an attribute doesn't exist then NULL is returned
+	 * @param attribute
+	 * @return
+	 */
 	private Object getAttributeValue(String attribute){
 		return this.meter.getDefaultRelation().get(attribute);
 	}
 	
+	public WUTrigger getWUTrigger() throws IOException{
+		log(5, "Hostname: " + wsdl);
+		Service wuts = Service.create(new URL(wsdl), new QName("http://ws.gdsp.vodafone.com/", "WUTriggerService"));
+		log(5, "Created a service.");
+		return wuts.getPort(WUTrigger.class);
+	}
+	
+	public boolean isRequestSuccess(){
+		return this.requestSuccess;
+	}
+	
+	private void log(int level, String msg){
+		if(this.logLevel == -2){
+			this.logLevel = Integer.parseInt(this.meter.getProperties().getProperty("TestLogging", "-1"));
+		}
+		if(level <= this.logLevel)this.logger.info(msg);
+	}
+	
+	private MeteringWarehouse mw(){
+		return MeteringWarehouse.getCurrent();
+	}
+	
 	public static void main(String args[]){
 		
-//		SmsWakeup swu = new SmsWakeup();
-//		
-//		WUTrigger wuTrigger = swu.getWUTrigger();
-//		SubmitWUTrigger parameters = new SubmitWUTrigger();
-//		GdspHeader gdspHeader = new GdspHeader();
-//		GdspCredentials value = new GdspCredentials();
-//		value.setUserId("User");
-//		value.setPassword("Passw");
-//		gdspHeader.setGdspCredentials(value);
-//		parameters.setDeviceId("The_DeviceId");
-//		parameters.setMSISDNNumber("The_MSISDNNumber");
-//		parameters.setOperatorName("The_OperatorName");
-//		parameters.setSourceId("The_SourceId");
-//		parameters.setTriggerType("The_TriggerType");
-//		SubmitWUTriggerResponse swuTriggerResponse = wuTrigger.submitWUTrigger(parameters, gdspHeader);
+		SmsWakeup swu = new SmsWakeup(null);
+		
+		try {
+			WUTrigger wuTrigger = swu.getWUTrigger();
+			SubmitWUTrigger parameters = new SubmitWUTrigger();
+			GdspHeader gdspHeader = new GdspHeader();
+			GdspCredentials value = new GdspCredentials();
+			value.setUserId("User");
+			value.setPassword("Passw");
+			gdspHeader.setGdspCredentials(value);
+			parameters.setDeviceId("The_DeviceId");
+			parameters.setMSISDNNumber("The_MSISDNNumber");
+			parameters.setOperatorName("The_OperatorName");
+			parameters.setSourceId("The_SourceId");
+			parameters.setTriggerType("The_TriggerType");
+			SubmitWUTriggerResponse swuTriggerResponse = wuTrigger.submitWUTrigger(parameters, gdspHeader);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 //		Utilities.createEnvironment();
 //		MeteringWarehouse.createBatchContext(false);
-//		
 //		MeteringWarehouse mw = MeteringWarehouse.getCurrent();
-//		
 //		Rtu rtu = mw.getRtuFactory().find(18052);
+//		String str = (String)rtu.getDefaultRelation().get("Gov");
+//		System.out.println(str);
+		
+		
 ////		MdwAttributeType mat = rtu.getDefaultRelationType().getAttributeType("IMSI");
 ////			rtu.getDefaultRelation().get("IMSI");
 //		
@@ -204,28 +310,4 @@ public class SmsWakeup {
 //			e.printStackTrace();
 //		};
 	}
-	
-//	public DeviceInfo getDeviceInfo(){
-//		DeviceInfoService dis = new DeviceInfoService();
-//		return dis.getDeviceInfoPort();
-//	}
-	
-	public WUTrigger getWUTrigger() throws IOException{
-		try {
-			WUTriggerService wuts = new WUTriggerService();
-			return wuts.getWUTriggerPort();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new IOException("Just to Test" + e.getMessage());
-		}
-	}
-	
-	public boolean isRequestSuccess(){
-		return this.requestSuccess;
-	}
-	
-	private void log(int level, String msg){
-		if(level >= this.logLevel)this.logger.info(msg);
-	}
-
 }

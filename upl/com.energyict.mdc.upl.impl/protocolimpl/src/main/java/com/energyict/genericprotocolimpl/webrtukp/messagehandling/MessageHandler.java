@@ -89,6 +89,9 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.WAKEUP_ADD_WHITELIST.equals(qName)){
 			setType(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
 			handleWakeUpWhiteList(attrbs);
+		} else if(RtuMessageConstant.MBUS_CORRECTED_SWITCH.equals(qName)){
+			setType(RtuMessageConstant.MBUS_CORRECTED_SWITCH);
+			handleMbusCorrectedValues(attrbs);
 		} else {
 			if(!isXmlInContent){ // if its the xmlMessage, then don't fail because it has xml in the content
 				throw new SAXException("Unknown messageContent : " + qName);
@@ -526,4 +529,26 @@ public class MessageHandler extends DefaultHandler{
 	}
 	
 	/**********************************************/
+	
+	/**********************************************
+	 * WakeUp functionality Related messages
+	 **********************************************/
+	
+	private String correctionSwitch = "";
+	
+	private void handleMbusCorrectedValues(Attributes attrbs) {
+		this.correctionSwitch = attrbs.getValue(RtuMessageConstant.MBUS_CORRECTED_VALUE);
+	}
+	
+	public String getCorrectionSwitch() {
+		return (this.correctionSwitch != null)?this.correctionSwitch:"";
+	}
+	
+	public boolean useUncorrected(){
+		return getCorrectionSwitch().equalsIgnoreCase("0");
+	}
+	
+	public boolean useCorrected(){
+		return !getCorrectionSwitch().equalsIgnoreCase("0");
+	}
 }
