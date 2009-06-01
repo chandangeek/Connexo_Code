@@ -217,7 +217,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 
 	}
 
-	protected void processRegisters(InputStream byteStream) throws IOException
+	protected void processRegisters(InputStream byteStream, int obisCValue) throws IOException
 	{
 		int startOffset = 0;
 		int len = 2;
@@ -264,7 +264,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 					pos ++;
 				}
 
-				ObisCode ob = new ObisCode(1, registerNumber, 0, 0, 0, 0);
+				ObisCode ob = new ObisCode(1, registerNumber, obisCValue, 0, 0, 0);
 
 				switch(type)
 				{
@@ -283,9 +283,8 @@ public class JemStar extends Jem implements MessageProtocol  {
 				case 4:
 					rv = new RegisterValue(ob, new Quantity(new BigDecimal(val), Unit.getUndefined()));
 				}
-
 				if(rv!=null)
-					registerValues.put(new Integer(ob.getB()), rv);			
+					registerValues.put(ob.toString(), rv);			
 			}
 
 		}
@@ -303,7 +302,8 @@ public class JemStar extends Jem implements MessageProtocol  {
 		int dateRangeCmd = 0xff;
 //		if(to!=null)
 //		dateRangeCmd = 0xff;
-
+		
+		//READ REGULAR REGISTERS
 		byte[] send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x52,0x02,0x10,0x02,(byte)dateRangeCmd,0x10,0x03};
 		byte[] check = connection.getCheck(send, send.length);
 
@@ -312,7 +312,20 @@ public class JemStar extends Jem implements MessageProtocol  {
 		outputStream.write(check);
 
 		InputStream dataInStream = new ByteArrayInputStream(connection.receiveResponse().toByteArray());
-		processRegisters(dataInStream);
+		processRegisters(dataInStream, REGULAR);
+		
+		//READ ALTERNATE REGISTERS
+		send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x52,0x03,0x10,0x02,(byte)dateRangeCmd,0x10,0x03};
+		check = connection.getCheck(send, send.length);
+
+		outputStream.write(ack);
+		outputStream.write(send);
+		outputStream.write(check);
+
+		dataInStream = new ByteArrayInputStream(connection.receiveResponse().toByteArray());
+		processRegisters(dataInStream, ALTERNATE);
+		
+		
 
 	}
 
@@ -418,7 +431,6 @@ public class JemStar extends Jem implements MessageProtocol  {
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
 		//getLogger().info("call getFirmwareVersion()");
 		//getLogger().info("--> report the firmware version and other important meterinfo here");
-		System.out.println();
 		byte[] send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x06,0x01,0x10,0x02,0x10,0x03};
 		byte[] check = connection.getCheck(send, send.length);
 //		delayAndFlush(1000);

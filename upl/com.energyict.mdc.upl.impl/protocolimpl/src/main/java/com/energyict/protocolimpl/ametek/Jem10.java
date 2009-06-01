@@ -2,55 +2,28 @@
 package com.energyict.protocolimpl.ametek;
 //com.energyict.protocolimpl.ametek.Jem10
 
-import com.energyict.protocol.ProtocolUtils;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocolimpl.ametek.JemProtocolConnection;
-import com.energyict.protocolimpl.base.AbstractProtocol;
-import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.base.ProtocolConnection;
 
 /**
  *
@@ -340,7 +313,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 
 	}
 
-	protected void processRegisters(InputStream byteStream) throws IOException
+	protected void processRegisters(InputStream byteStream, int obisCValue) throws IOException
 	{
 		int startOffset = 0;
 		int len = 2;
@@ -363,8 +336,9 @@ public class Jem10 extends Jem implements MessageProtocol  {
 
 			RegisterValue rv = null;
 
-			ObisCode ob = new ObisCode(1, registerNumber, 0, 0, 0, 0);
+			ObisCode ob = new ObisCode(1, registerNumber, obisCValue, 0, 0, 0);
 
+			
 			int type = 0;
 
 			if((bt & 0x80) == 0x80)
@@ -390,8 +364,9 @@ public class Jem10 extends Jem implements MessageProtocol  {
 				break;
 			}
 
+			
 			if(rv!=null)
-				registerValues.put(new Integer(ob.getB()), rv);			
+				registerValues.put(ob.toString(), rv);			
 		}
 
 	}
@@ -429,93 +404,18 @@ public class Jem10 extends Jem implements MessageProtocol  {
 		outputStream.write(send);
 		outputStream.write(check);
 
-//		int inval=0;
-//		List inList = new ArrayList();
-//		ByteArrayOutputStream dataOutStream = new ByteArrayOutputStream();
-//
-//		boolean in10 = false;
-//
-//		int byteCount = 0;
-//		int pinval = 0;
-//		int loc=0;
-//
-//		boolean notRead = true;
-//		long timer = new Date().getTime() + TIMEOUT;
-//		while (new Date().getTime() < timer && notRead){
-//			while(inputStream.available()>0)
-//			{
-//				notRead=false;
-//				inval = inputStream.read();
-//				inList.add(new Integer(inval));
-//
-//				logData(inval);
-//
-//				if(!in10 && (pinval==0x10 && inval==0x17 || pinval==0x10 && inval==0x03))
-//					in10 = true;
-//				else if(in10)
-//				{
-//					if(byteCount>0)
-//						in10=false;
-//
-//					byteCount++;
-//
-//					if(!in10)
-//					{
-//						byte[] ba = new byte[inList.size()-2 - loc];
-//						for(int i=loc; i< inList.size()-2; i++)
-//						{
-//							ba[i-loc] = (((Integer)inList.get(i+2)).byteValue());
-//
-//							if(((Integer)inList.get(i)).byteValue()==0x10 && 
-//									((Integer)inList.get(i+1)).byteValue()==0x02 &&
-//									!(((Integer)inList.get(i+2)).byteValue()==0x10 && 
-//											((Integer)inList.get(i+3)).byteValue()==0x03)
-//							)
-//								in10 = true;
-//							else if(in10 && ((Integer)inList.get(i+1)).byteValue()!=0x10 &&
-//									(((Integer)inList.get(i+2)).byteValue()==0x10 && 
-//											((Integer)inList.get(i+3)).byteValue()==0x17 ||
-//											((Integer)inList.get(i+2)).byteValue()==0x10 && 
-//											((Integer)inList.get(i+3)).byteValue()==0x03)
-//							)
-//								in10=false;
-//
-//							if(in10)
-//							{
-//								if(((Integer)inList.get(i+2)).byteValue()!=0x10)
-//									dataOutStream.write(Integer.parseInt(inList.get(i+2).toString()));
-//								else if(((Integer)inList.get(i+2)).byteValue()==0x10 && ((Integer)inList.get(i+3)).byteValue()==0x10)
-//								{
-//									dataOutStream.write(Integer.parseInt(inList.get(i+3).toString()));
-//									i++;
-//									ba[i-loc] = (((Integer)inList.get(i+2)).byteValue());
-//								}
-//							}
-//						}
-//						if(!verifyCheck(ba))
-//							throw new IOException("Invalid Checksum.");
-//
-//						in10 = false;
-//
-//						outputStream.write(new byte[]{0x06});
-//
-//						loc = inList.size();
-//						byteCount = 0;
-//						System.out.println();
-//					}
-//
-//				}
-//
-//				if(pinval==0x10 && inval==0x10)
-//					pinval = 0;
-//				else
-//					pinval = inval;
-//			}
-//		}
-//
-//		InputStream dataInStream = new ByteArrayInputStream(dataOutStream.toByteArray());
 		ByteArrayInputStream bais = new ByteArrayInputStream(connection.receiveResponse().toByteArray());
-		processRegisters(bais);
+		processRegisters(bais, REGULAR);
+		
+		send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x52,0x07,0x10,0x02,(byte)dateRangeCmd,0x10,0x03};
+		check = connection.getCheck(send, send.length);
+
+		outputStream.write(ack);
+		outputStream.write(send);
+		outputStream.write(check);
+
+		bais = new ByteArrayInputStream(connection.receiveResponse().toByteArray());
+		processRegisters(bais, ALTERNATE);
 
 	}
 
@@ -668,7 +568,6 @@ public class Jem10 extends Jem implements MessageProtocol  {
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
 		//getLogger().info("call getFirmwareVersion()");
 		//getLogger().info("--> report the firmware version and other important meterinfo here");
-		System.out.println();
 		byte[] send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x06,0x01,0x10,0x02,0x10,0x03};
 		byte[] check = connection.getCheck(send, send.length);
 

@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.ametek;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
@@ -29,7 +26,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -40,16 +36,15 @@ import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.base.AbstractProtocol;
-import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
-import com.energyict.protocolimpl.base.ProtocolConnectionException;
-import com.energyict.protocolimpl.itron.protocol.schlumberger.Command;
-import com.energyict.protocolimpl.itron.protocol.schlumberger.Response;
 
 public abstract class Jem extends AbstractProtocol implements MessageProtocol
 {
 
+	protected final static int REGULAR = 0;
+	protected final static int ALTERNATE = 1;
+	
 	protected JemProtocolConnection connection;
 	protected InputStream inputStream;
 	protected OutputStream outputStream;
@@ -235,7 +230,7 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol
 //		if(obisCode.getB()<1 || obisCode.getB()>channelCount)
 //		throw new NoSuchRegisterException("Register "+obisCode+" not supported!");
 
-		RegisterValue rv = (RegisterValue)registerValues.get(new Integer(obisCode.getB()));
+		RegisterValue rv = (RegisterValue)registerValues.get(obisCode.toString());
 
 		if(rv!=null)
 			return new RegisterValue(obisCode, rv.getQuantity(), rv.getEventTime(), rv.getFromTime(), rv.getToTime(), rv.getReadTime(), rv.getRtuRegisterId(), rv.getText());
