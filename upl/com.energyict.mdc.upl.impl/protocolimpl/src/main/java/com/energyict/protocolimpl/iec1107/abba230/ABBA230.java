@@ -381,11 +381,29 @@ public class ABBA230 implements
      * @see com.energyict.protocol.MeterProtocol#setTime()
      */
     public void setTime() throws IOException {
-        Calendar calendar=null;
-        calendar = ProtocolUtils.getCalendar(timeZone);
-        calendar.add(Calendar.MILLISECOND,pRoundTripCorrection);
-        getFlagIEC1107Connection().authenticate();
-        rFactory.setRegister("TimeDate",calendar.getTime());
+    	
+    	// if scripting enabled, clear the cache to force the IEC1107 transparant mode!
+    	// then get time to measure roundtrip and add roundtrip/2 to the clock to set... 
+		if ((getCache() != null) && (getCache() instanceof CacheMechanism) && (getScriptingEnabled() > 0)) {
+			((CacheMechanism)getCache()).setCache(null);
+			
+			long roundtrip = System.currentTimeMillis();
+			Date date = getTime();
+			roundtrip = (System.currentTimeMillis() - roundtrip) / 2;
+			
+	        Calendar calendar=null;
+	        calendar = ProtocolUtils.getCalendar(timeZone);
+	        calendar.add(Calendar.MILLISECOND,(int)roundtrip);
+	        getFlagIEC1107Connection().authenticate();
+	        rFactory.setRegister("TimeDate",calendar.getTime());
+		}   
+		else {
+	        Calendar calendar=null;
+	        calendar = ProtocolUtils.getCalendar(timeZone);
+	        calendar.add(Calendar.MILLISECOND,pRoundTripCorrection);
+	        getFlagIEC1107Connection().authenticate();
+	        rFactory.setRegister("TimeDate",calendar.getTime());
+		}
     } 
     
     /* (non-Javadoc)

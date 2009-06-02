@@ -175,8 +175,11 @@ public class ABBA230Profile {
         
         if (abba230.getScriptingEnabled() != 2)
         	nrOfBlocks = ((Long)rFactory.getRegister("LoadProfileByDate64Blocks")).longValue();
-        else
-        	nrOfBlocks = abba230.getNrOfLoadProfileBlocks(); // if we use default script 0 
+        else {
+        	nrOfBlocks = abba230.getNrOfLoadProfileBlocks(); // if we use default script 0
+        	if (nrOfBlocks == 0) // if the scripting failed or there are no blocks read for the load profile, use the transparant mode to read the load profile...
+        		nrOfBlocks = ((Long)rFactory.getRegister("LoadProfileByDate64Blocks")).longValue();
+        }
         
         // specific for the scripting with wavenis
         executeProfileDataScript(nrOfBlocks);
