@@ -286,11 +286,13 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol
 
 	protected SimpleDateFormat getDateFormatter() {
 		SimpleDateFormat format = new SimpleDateFormat("yyMMddhhmmss");
+		format.setTimeZone(getTimeZone());
 		return format;
 	}    
 
 	protected SimpleDateFormat getShortDateFormatter() {
 		SimpleDateFormat format = new SimpleDateFormat("MMddyyhhmm");
+		format.setTimeZone(getTimeZone());
 		return format;
 	}
 
