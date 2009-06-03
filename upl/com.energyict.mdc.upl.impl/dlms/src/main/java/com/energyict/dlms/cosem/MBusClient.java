@@ -158,4 +158,31 @@ public class MBusClient extends AbstractCosemObject{
 		setDeviceType(new Unsigned8(deviceType));
 	}
 	
+	/**
+	 * Get the version from the MBus device.
+	 * @return
+	 * @throws IOException
+	 */
+	public Unsigned8 getVersion() throws IOException{
+		return new Unsigned8(getLNResponseData(ATTRB_VERSION), 0);
+	}
+	
+	/** 
+	 * Write the given unsigned8 version to the device
+	 * @param version
+	 * @throws IOException
+	 */
+	public void setVersion(Unsigned8 version) throws IOException{
+		write(ATTRB_VERSION, deviceType.getBEREncodedByteArray());
+	}
+	
+	/**
+	 * Write the version to the meter.
+	 * @param version
+	 * @throws IOException
+	 */
+	public void setVersion(int version) throws IOException{
+		setVersion(new Unsigned8(version));
+	}
+	
 }
