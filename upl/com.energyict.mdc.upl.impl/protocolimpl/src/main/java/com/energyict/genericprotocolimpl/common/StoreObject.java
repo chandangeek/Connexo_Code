@@ -78,4 +78,8 @@ public class StoreObject implements Transaction {
 	public void add(ProfileData pd, Rtu rtu){
 		storeObjects.put(pd, rtu);
 	}
+	
+	public HashMap getMap(){
+		return this.storeObjects;
+	}
 }
