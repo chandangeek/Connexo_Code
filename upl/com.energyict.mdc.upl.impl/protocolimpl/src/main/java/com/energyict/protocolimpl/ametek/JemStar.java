@@ -133,7 +133,9 @@ public class JemStar extends Jem implements MessageProtocol  {
 					cal.setTimeInMillis(startTime);
 					ParseUtils.roundUp2nearestInterval(cal, getProfileInterval());
 					startTime=cal.getTimeInMillis();
-					if(endTime - startTime < getProfileInterval()){
+					endTime*=1000;
+					endTime -= getTimeZone().getOffset(endTime);
+					if(endTime - startTime < (getProfileInterval()*1000)){
 						eiStatus = IntervalStateBits.POWERDOWN | IntervalStateBits.POWERUP;
 						continue;
 					}
@@ -145,8 +147,8 @@ public class JemStar extends Jem implements MessageProtocol  {
 					}
 					
 					values = new ArrayList();
-					endTime *= 1000;
-					endTime -= getTimeZone().getOffset(endTime);
+//					endTime *= 1000;
+//					endTime -= getTimeZone().getOffset(endTime);
 					cal.setTimeInMillis(endTime);
 					ParseUtils.roundDown2nearestInterval(cal, getProfileInterval());
 					eiStatus = IntervalStateBits.POWERUP;
