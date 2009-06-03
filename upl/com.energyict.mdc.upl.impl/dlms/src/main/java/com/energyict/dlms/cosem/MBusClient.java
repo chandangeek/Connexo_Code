@@ -127,4 +127,35 @@ public class MBusClient extends AbstractCosemObject{
 	public void setTransportKey(byte[] encryptedkey) throws IOException {
 		invoke(METHOD_TRANSFER_KEY, new OctetString(encryptedkey).getBEREncodedByteArray());
 	}
+	
+	/**
+	 * Get the deviceType from the MBus device.
+	 * Description of the different types can be found in 'EN 13757-3 sub-clause 5.7, Table 3'
+	 * @return
+	 * @throws IOException
+	 */
+	public Unsigned8 getDeviceType() throws IOException{
+		return new Unsigned8(getLNResponseData(ATTRB_DEVICE_TYPE), 0);
+	}
+	
+	/** 
+	 * Write the given unsigned8 deviceType to the device
+	 * NOTE: setter may not be supported by all meters.
+	 * @param deviceType
+	 * @throws IOException
+	 */
+	public void setDeviceType(Unsigned8 deviceType) throws IOException{
+		write(ATTRB_DEVICE_TYPE, deviceType.getBEREncodedByteArray());
+	}
+	
+	/**
+	 * Write the deviceType to the meter.
+	 * NOTE: setter may not be supported by all meters.
+	 * @param deviceType
+	 * @throws IOException
+	 */
+	public void setDeviceType(int deviceType) throws IOException{
+		setDeviceType(new Unsigned8(deviceType));
+	}
+	
 }
