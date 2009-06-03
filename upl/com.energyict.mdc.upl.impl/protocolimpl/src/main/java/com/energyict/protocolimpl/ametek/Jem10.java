@@ -423,7 +423,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 		//getLogger().info("call overrided method getNumberOfChannels() (return 2 as sample)");
 		//getLogger().info("--> report the nr of load profile channels in the meter here");
 		if(this.channelCount==0){
-			byte[] send = new byte[]{(byte)0xFE,0x56,0x08,0x10,0x02,0x10,0x03};
+			byte[] send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x56,0x08,0x10,0x02,0x10,0x03};
 
 			byte[] check = connection.getCheck(send, send.length);
 
@@ -454,7 +454,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 	public Date getTime() throws IOException {
 		//getLogger().info("call getTime() (if time is different from system time taken into account the properties, setTime will be called) ");
 		//getLogger().info("--> request the metertime here");
-		byte[] send = new byte[]{(byte)0xFE,0x54,0x02,0x10,0x02,0x10,0x03};
+		byte[] send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x54,0x02,0x10,0x02,0x10,0x03};
 
 		byte[] check = connection.getCheck(send, send.length);
 
@@ -536,7 +536,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 		int ss = cal.get(Calendar.SECOND);
 		int w = cal.get(Calendar.DAY_OF_WEEK); 
 
-		byte[] send = new byte[]{(byte)0xFE,0x54,0x05,0x10,0x02,
+		byte[] send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x54,0x05,0x10,0x02,
 				(byte)(yy/10), (byte)(yy%10),
 				(byte)(mm/10), (byte)(mm%10),
 				(byte)(dd/10), (byte)(dd%10),
