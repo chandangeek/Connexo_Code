@@ -155,7 +155,7 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol
 		//getLogger().info("--> at that point, we have a communicationlink with the meter (modem, direct, optical, ip, ...)");     
 		//getLogger().info("--> here the login and other authentication and setup should be done");     
 
-		if(getInfoTypeNodeAddressNumber() < 1)
+		if(getInfoTypeNodeAddress() == null || getInfoTypeNodeAddressNumber() < 1)
 			throw new IOException("Invalid Node Address");
 
 		if(getInfoTypePassword() == null || (getInfoTypePassword()!=null && getInfoTypePassword().length()<1))
