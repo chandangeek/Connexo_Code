@@ -109,7 +109,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	
 	private boolean DEBUG = false;
 	private boolean connected = false;
-
+	
 	private CosemObjectFactory 		cosemObjectFactory;
 	private DLMSConnection 			dlmsConnection;
 	private DLMSMeterConfig			dlmsMeterConfig;
@@ -129,6 +129,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	private ObisCodeMapper			ocm;
 	
 	private long 					timeDifference = 0;
+	
 	/**
 	 * Properties
 	 */
