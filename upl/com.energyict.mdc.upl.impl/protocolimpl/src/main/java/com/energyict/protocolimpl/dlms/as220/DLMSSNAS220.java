@@ -203,7 +203,7 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
                         }
                         catch(IOException e) {
                             iConf=-1;
-                            logger.severe("DLMSSN Configuration change count not accessible, request object list.");
+                            logger.severe("DLMSSNAS220 Configuration change count not accessible, request object list.");
                             requestObjectList();
                             dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
                         }
@@ -213,14 +213,14 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
                         //System.out.println("!!!!!!!!!! DEBUGGING CODE FORCED DLMS CACHE UPDATE !!!!!!!!!!");
                         //if (true) {
                         // ****************************************************************************   
-                            logger.severe("DLMSSN Configuration changed, request object list.");
+                            logger.severe("DLMSSNAS220 Configuration changed, request object list.");
                             requestObjectList();           // request object list again from rtu
                             dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
                             dlmsCache.setConfProgChange(iConf);  // set new configuration program change
                         }
                     }
                     else { // Cache not exist
-                        logger.info("DLMSSN Cache does not exist, request object list.");
+                        logger.info("DLMSSNAS220 Cache does not exist, request object list.");
                         requestObjectList();
                         try {
                             iConf = requestConfigurationProgramChanges();
@@ -297,7 +297,7 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
             if (getDLMSConnection() != null) getDLMSConnection().disconnectMAC();
         }
         catch(DLMSConnectionException e) {
-            logger.severe("DLMSLN: disconnect(), "+e.getMessage()); 
+            logger.severe("DLMSSNAS220AS220: disconnect(), "+e.getMessage()); 
             //throw new IOException(e.getMessage());
         }
         
@@ -398,7 +398,7 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
         String devID =  (String)getCosemObjectFactory().getSAPAssignment().getLogicalDeviceNames().get(0);
         if ((strID != null) && ("".compareTo(strID) != 0)) {
             if (strID.compareTo(devID) != 0) {
-                throw new IOException("DLMSSN, requestSAP, Wrong DeviceID!, settings="+strID+", meter="+devID);
+                throw new IOException("DLMSSNAS220, requestSAP, Wrong DeviceID!, settings="+strID+", meter="+devID);
             }
         }
     } // public void requestSAP() throws IOException
@@ -553,13 +553,15 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
        
         buildProfileData(bNROfChannels,profileData,scalerunit,loadProfileCompactArrayEntries);
         
-        if (DEBUG >= 1) System.out.println(profileData);
-        
         if (includeEvents) {
             getEventLog(profileData,fromCalendar,toCalendar);
             // Apply the events to the channel statusvalues
             profileData.applyEvents(getProfileInterval()/60);
         }
+        
+        profileData.sort();
+        
+        if (DEBUG >= 1) System.out.println(profileData);
         
         return profileData;
         
@@ -978,14 +980,14 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
 
     private void requestClockObject() {
         if (iRequestClockObject == 1) {
-            try{logger.severe("DLMSSN Clock time                       : "+getTime());}catch(IOException e){logger.severe("time attribute error");}
-            //try{logger.severe ("DLMSSN Clock time_zone                  : "+requestTimeZone());}catch(IOException e){logger.severe ("time_zone attribute error");}
-            try{logger.severe("DLMSSN Clock time_zone                  : "+requestAttributeLong(meterConfig.getClockSN(),TIME_TIME_ZONE));}catch(IOException e){logger.severe("time_zone attribute error");}
-            try{logger.severe("DLMSSN Clock status                     : "+requestAttributeLong(meterConfig.getClockSN(),TIME_STATUS));}catch(IOException e){logger.severe("status attribute error");}
-            try{logger.severe("DLMSSN Clock daylight_savings_begin     : "+requestAttributeString(meterConfig.getClockSN(),TIME_DS_BEGIN));}catch(IOException e){logger.severe("DS begin attribute error");}
-            try{logger.severe("DLMSSN Clock daylight_savings_end       : "+requestAttributeString(meterConfig.getClockSN(),TIME_DS_END));}catch(IOException e){logger.severe("DS end attribute error");}
-            try{logger.severe("DLMSSN Clock daylight_savings_deviation : "+requestAttributeLong(meterConfig.getClockSN(),TIME_DS_DEVIATION));}catch(IOException e){logger.severe("DS deviation attribute error");}
-            try{logger.severe("DLMSSN Clock daylight_saving_enabled    : "+requestDaylightSavingEnabled());}catch(IOException e){logger.severe("DS enebled attribute error");}
+            try{logger.severe("DLMSSNAS220 Clock time                       : "+getTime());}catch(IOException e){logger.severe("time attribute error");}
+            //try{logger.severe ("DLMSSNAS220 Clock time_zone                  : "+requestTimeZone());}catch(IOException e){logger.severe ("time_zone attribute error");}
+            try{logger.severe("DLMSSNAS220 Clock time_zone                  : "+requestAttributeLong(meterConfig.getClockSN(),TIME_TIME_ZONE));}catch(IOException e){logger.severe("time_zone attribute error");}
+            try{logger.severe("DLMSSNAS220 Clock status                     : "+requestAttributeLong(meterConfig.getClockSN(),TIME_STATUS));}catch(IOException e){logger.severe("status attribute error");}
+            try{logger.severe("DLMSSNAS220 Clock daylight_savings_begin     : "+requestAttributeString(meterConfig.getClockSN(),TIME_DS_BEGIN));}catch(IOException e){logger.severe("DS begin attribute error");}
+            try{logger.severe("DLMSSNAS220 Clock daylight_savings_end       : "+requestAttributeString(meterConfig.getClockSN(),TIME_DS_END));}catch(IOException e){logger.severe("DS end attribute error");}
+            try{logger.severe("DLMSSNAS220 Clock daylight_savings_deviation : "+requestAttributeLong(meterConfig.getClockSN(),TIME_DS_DEVIATION));}catch(IOException e){logger.severe("DS deviation attribute error");}
+            try{logger.severe("DLMSSNAS220 Clock daylight_saving_enabled    : "+requestDaylightSavingEnabled());}catch(IOException e){logger.severe("DS enebled attribute error");}
 
         } // if (iRequestClockObject == 1)
 
@@ -1054,7 +1056,7 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
 
     public String getFileName() {
         Calendar calendar = Calendar.getInstance();
-        return calendar.get(Calendar.YEAR)+"_"+(calendar.get(Calendar.MONTH)+1)+"_"+calendar.get(Calendar.DAY_OF_MONTH)+"_"+strID+"_"+strPassword+"_"+serialNumber+"_"+iServerUpperMacAddress+"_DLMSSN.cache";
+        return calendar.get(Calendar.YEAR)+"_"+(calendar.get(Calendar.MONTH)+1)+"_"+calendar.get(Calendar.DAY_OF_MONTH)+"_"+strID+"_"+strPassword+"_"+serialNumber+"_"+iServerUpperMacAddress+"_DLMSSNAS220.cache";
     }    
     
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
@@ -1109,5 +1111,5 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
         return (StoredValues)storedValuesImpl;
     }
     
-} // public class DLMSSN
+} // public class DLMSSNAS220
 

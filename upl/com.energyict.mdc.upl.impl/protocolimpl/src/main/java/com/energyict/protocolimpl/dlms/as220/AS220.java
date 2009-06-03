@@ -34,12 +34,22 @@ import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.iec1107.abba230.*;
 
-public class AS220 extends DLMSSNAS220 implements RegisterProtocol {
+public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtocol {
     private static final byte DEBUG=1;
     
     int eventIdIndex;
+    
+    private static String CONNECT 			= "ConnectLoad";
+    private static String DISCONNECT 		= "DisconnectLoad";
+    private static String ARM 				= "ArmMeter";
+    
+    private static String CONNECT_DISPLAY 			= "Connect Load";
+    private static String DISCONNECT_DISPLAY 		= "Disconnect Load";
+    private static String ARM_DISPLAY 				= "Arm Meter";
     
     public AS220() {
     }
@@ -77,45 +87,71 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol {
     }
     
     
-
-    
-    
-    protected void getEventLog(ProfileData profileData,Calendar fromCalendar, Calendar toCalendar) throws IOException {
-        DataContainer dc = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCalendar,toCalendar);
-        
+    private List readMainLogbook(Calendar fromCalendar, Calendar toCalendar) throws IOException {
+        DataContainer dc = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.1.255")).getBuffer(fromCalendar,toCalendar);
+        if (DEBUG>=1) System.out.println("readMainLogbook");
         if (DEBUG>=1) dc.printDataContainer();
-        
-        if (DEBUG>=1) {
-           getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getCaptureObjectsAsDataContainer().printDataContainer();            
-        }
-        
-        int index=0;
-        if (eventIdIndex == -1) {
-            Iterator it = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getCaptureObjects().iterator();
-            while(it.hasNext()) {
-                CapturedObject capturedObject = (CapturedObject)it.next();
-                if (capturedObject.getLogicalName().getObisCode().equals(ObisCode.fromString("0.0.96.240.12.255")) &&
-                    (capturedObject.getAttributeIndex() == 2) &&
-                    (capturedObject.getClassId() == 3))
-                    break;
-                else
-                    index++;
-            }        
-        }
-        
+ 
+        List meterEvents = new ArrayList();
         for (int i=0;i<dc.getRoot().getNrOfElements();i++) {
            Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
            int id=0;
-           if (eventIdIndex == -1) {
-               id = dc.getRoot().getStructure(i).getInteger(index);
-           } 
-           else {
-               id = dc.getRoot().getStructure(i).convert2Long(eventIdIndex).intValue();
-           }
+           id = dc.getRoot().getStructure(i).getInteger(1);
            MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime); 
            if (meterEvent != null)
-              profileData.addEvent(meterEvent);
+        	   meterEvents.add(meterEvent);
         }
+    	
+        return meterEvents;
+    }
+    
+    private List readVoltageCutLogbook(Calendar fromCalendar, Calendar toCalendar) throws IOException {
+    	
+        DataContainer dc = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.5.255")).getBuffer(fromCalendar,toCalendar);
+        
+        if (DEBUG>=1) System.out.println("readVoltageCutLogbook");
+        if (DEBUG>=1) dc.printDataContainer();
+        
+ 
+        List meterEvents = new ArrayList();
+        for (int i=0;i<dc.getRoot().getNrOfElements();i++) {
+           Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
+           int id=dc.getRoot().getStructure(i).getInteger(1);
+    	   MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime); 
+           if (meterEvent != null)
+        	   meterEvents.add(meterEvent);
+        }
+        
+        return meterEvents;
+    }
+    
+    private List readCoverLogbook(Calendar fromCalendar, Calendar toCalendar) throws IOException {
+    	
+        DataContainer dc = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.2.255")).getBuffer(fromCalendar,toCalendar);
+        
+        if (DEBUG>=1) System.out.println("readCoverLogbook");
+        if (DEBUG>=1) dc.printDataContainer();
+        
+ 
+        List meterEvents = new ArrayList();
+        for (int i=0;i<dc.getRoot().getNrOfElements();i++) {
+           Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
+           int id=dc.getRoot().getStructure(i).getInteger(1);
+    	   MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime); 
+           if (meterEvent != null)
+        	   meterEvents.add(meterEvent);
+        }
+        
+        return meterEvents;
+    }    
+    
+    protected void getEventLog(ProfileData profileData,Calendar fromCalendar, Calendar toCalendar) throws IOException {
+        
+        List meterEvents = new ArrayList();
+        meterEvents.addAll(readMainLogbook(fromCalendar, toCalendar));
+        meterEvents.addAll(readVoltageCutLogbook(fromCalendar, toCalendar));
+        meterEvents.addAll(readCoverLogbook(fromCalendar, toCalendar));
+        profileData.setMeterEvents(meterEvents);
     }
     
     protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,List loadProfileCompactArrayEntries)  throws IOException {
@@ -142,9 +178,10 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol {
            		calendar.add(Calendar.SECOND,latestProfileInterval); // set the calendar to the next interval endtime
         	}
         	else if (lpcae.isPartialValue()) { // partial interval value
+        		eiCode |= IntervalStateBits.SHORTLONG;
         		if (calendar == null) continue; // first the calendar has to be initialized with the start of load profile marker
         		IntervalData ivd = new IntervalData(calendar.getTime(),eiCode);
-        		eiCode=0;
+        		eiCode = 0;
         		ivd.addValue(new BigDecimal(""+lpcae.getValue()));
         		intervalDatas.add(ivd);
         		latestProfileInterval = lpcae.getIntervalInSeconds();
@@ -318,5 +355,137 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol {
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
+
+	public List getMessageCategories() {
+        List theCategories = new ArrayList();
+        MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
+        
+        MessageSpec msgSpec = addBasicMsg(DISCONNECT_DISPLAY, DISCONNECT, false);
+        cat.addMessageSpec(msgSpec);
+        
+        msgSpec = addBasicMsg(ARM_DISPLAY, ARM, false);
+        cat.addMessageSpec(msgSpec);
+        
+        msgSpec = addBasicMsg(CONNECT_DISPLAY, CONNECT, false);
+        cat.addMessageSpec(msgSpec);
+        
+        theCategories.add(cat);
+        return theCategories;
+	}
+
+    private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+    
+	public String writeMessage(Message msg) {
+		return msg.write(this);
+	}
+
+    public String writeTag(MessageTag msgTag) {
+        StringBuffer buf = new StringBuffer();
+        
+        // a. Opening tag
+        buf.append("<");
+        buf.append( msgTag.getName() );
+        
+        // b. Attributes
+        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
+            MessageAttribute att = (MessageAttribute)it.next();
+            if (att.getValue()==null || att.getValue().length()==0)
+                continue;
+            buf.append(" ").append(att.getSpec().getName());
+            buf.append("=").append('"').append(att.getValue()).append('"');
+        }
+        buf.append(">");
+        
+        // c. sub elements
+        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
+            MessageElement elt = (MessageElement)it.next();
+            if (elt.isTag())
+                buf.append( writeTag((MessageTag)elt) );
+            else if (elt.isValue()) {
+                String value = writeValue((MessageValue)elt);
+                if (value==null || value.length()==0)
+                    return "";
+                buf.append(value);
+            }
+        }
+        
+        // d. Closing tag
+        buf.append("</");
+        buf.append( msgTag.getName() );
+        buf.append(">");
+        
+        return buf.toString();    
+    }	
+	
+	public String writeTag2(MessageTag msgTag) {
+        StringBuffer buf = new StringBuffer();
+        
+        // a. Opening tag
+        buf.append("<");
+        buf.append(msgTag.getName());
+        
+        // b. Attributes
+        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
+            MessageAttribute att = (MessageAttribute) it.next();
+            if (att.getValue() == null || att.getValue().length() == 0)
+                continue;
+            buf.append(" ").append(att.getSpec().getName());
+            buf.append("=").append('"').append(att.getValue()).append('"');
+        }
+        if (msgTag.getSubElements().isEmpty()) {
+            buf.append("/>");
+            return buf.toString();
+        }
+        buf.append(">");
+        // c. sub elements
+        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
+            MessageElement elt = (MessageElement) it.next();
+            if (elt.isTag())
+                buf.append(writeTag((MessageTag) elt));
+            else if (elt.isValue()) {
+                String value = writeValue((MessageValue) elt);
+                if (value == null || value.length() == 0)
+                    return "";
+                buf.append(value);
+            }
+        }
+        
+        // d. Closing tag
+        buf.append("</");
+        buf.append(msgTag.getName());
+        buf.append(">");
+        
+        return buf.toString();
+	}
+
+	public String writeValue(MessageValue msgValue) {
+		return msgValue.getValue();
+	}
+
+	public void applyMessages(List messageEntries) throws IOException {
+		
+	}
+
+	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
+		
+		//try {
+			if (messageEntry.getContent().indexOf("<"+DISCONNECT)>=0) {
+			}
+			else if (messageEntry.getContent().indexOf("<"+CONNECT)>=0) {
+			}
+			else if (messageEntry.getContent().indexOf("<"+ARM)>=0) {
+			}
+			return MessageResult.createSuccess(messageEntry);
+		//}
+		//catch(IOException e) {
+		//	return MessageResult.createFailed(messageEntry);
+		//}
+	}
+
     
 } // public class DLMSZMD
