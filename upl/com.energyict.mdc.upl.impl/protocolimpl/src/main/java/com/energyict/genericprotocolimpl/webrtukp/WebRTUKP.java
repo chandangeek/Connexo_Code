@@ -48,6 +48,7 @@ import com.energyict.genericprotocolimpl.webrtukp.profiles.ElectricityProfile;
 import com.energyict.genericprotocolimpl.webrtukp.wakeup.SmsWakeup;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.RtuRegisterGroup;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
@@ -100,6 +101,8 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
  * 					Added properties to disable the reading of the daily/monthly values
  * 					Added ipPortNumber property for updating the phone number with inbound communications
  * GNA |30032009| Added testMessage to enable overnight tests for the embedded device
+ * GNA |May 2009| Added Sms wakeup support
+ * GNA |03062009| Added registerGroup support
  */
 
 public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEnabler{
@@ -524,26 +527,42 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	 * Reading all the registers configured on the RTU
 	 * @throws IOException
 	 */
-	private void doReadRegisters() throws IOException{
+	protected void doReadRegisters() throws IOException{
 		Iterator<RtuRegister> it = getMeter().getRegisters().iterator();
+		List groups = this.scheduler.getCommunicationProfile().getRtuRegisterGroups();
 		ObisCode oc = null;
 		RegisterValue rv;
 		RtuRegister rr;
 		try {
 			while(it.hasNext()){
 				rr = it.next();
-				oc = rr.getRtuRegisterSpec().getObisCode();
-				rv = readRegister(oc);
-				rv.setRtuRegisterId(rr.getId());
-				
-				if(rr.getReadingAt(rv.getReadTime()) == null){
-					getStoreObject().add(rr, rv);
+				if(isInRegisterGroup(groups, rr)){
+					oc = rr.getRtuRegisterSpec().getObisCode();
+					rv = readRegister(oc);
+					rv.setRtuRegisterId(rr.getId());
+					
+					if(rr.getReadingAt(rv.getReadTime()) == null){
+						getStoreObject().add(rr, rv);
+					}
 				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException(e.getMessage());
 		}
+	}
+	
+	private boolean isInRegisterGroup(List groups, RtuRegister rr){
+		if(rr.getGroup() == null){
+			return false;
+		}
+		Iterator it = groups.iterator();
+		while(it.hasNext()){
+			if( rr.getGroup().equals((RtuRegisterGroup)it.next()) ){
+				return true;
+			}
+		}	
+		return false;
 	}
 	
 	/**
@@ -1008,6 +1027,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		return dlmsConnection;
 	}
 
+	protected void setDLMSConnection(DLMSConnection connection) {
+		this.dlmsConnection = connection;
+	}
+	
 	public Logger getLogger() {
 		return this.logger;
 	}
@@ -1054,10 +1077,17 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		return cosemObjectFactory;
 	}
 	
+	protected void setCosemObjectFactory(CosemObjectFactory cof){
+		this.cosemObjectFactory = cof;
+	}
+	
 	public StoreObject getStoreObject(){
 		return this.storeObject;
 	}
 	
+	protected void setStoreObject(StoreObject storeObject){
+		this.storeObject = storeObject;
+	}
 	
 	/**
 	 * Messages
@@ -1084,8 +1114,23 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		WebRTUKP wkp = new WebRTUKP();
 		
 //		try {
-////			Utilities.createEnvironment();
-////			MeteringWarehouse.createBatchContext(false);
+//			Utilities.createEnvironment();
+//			MeteringWarehouse.createBatchContext(false);
+//			MeteringWarehouse mw = MeteringWarehouse.getCurrent();
+////			CommunicationScheduler cs = mw.getCommunicationSchedulerFactory().find(8139);
+//			CommunicationScheduler cs = mw.getCommunicationSchedulerFactory().find(8158);
+//			Rtu rtu = cs.getRtu();
+//			wkp.webRtuKP = rtu;
+//			wkp.scheduler = cs;
+//			wkp.scheduler.getCommunicationProfile().getShadow();
+//			try {
+//				wkp.doReadRegisters();
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+			
+			
 //			RtuMessageShadow rms = new RtuMessageShadow();
 //			rms.setContents("<Test_Message Test_File='460'> </Test_Message>");
 //			rms.setRtuId(17492);
@@ -1200,8 +1245,9 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		catActivityCal.addMessageSpec(msgSpec);
 		msgSpec = addSpecialDays("Select the Special days Calendar", RtuMessageConstant.TOU_SPECIAL_DAYS, false);
 		catActivityCal.addMessageSpec(msgSpec);
-		msgSpec = addSpecialDaysDelete("Delete Special Day entry", RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE, false);
-		catActivityCal.addMessageSpec(msgSpec);
+		// Delete special days was only used for testing purposes
+//		msgSpec = addSpecialDaysDelete("Delete Special Day entry", RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE, false);
+//		catActivityCal.addMessageSpec(msgSpec);
 		
 		// Time related messages
 		msgSpec = addTimeMessage("Set the meterTime to a specific time", RtuMessageConstant.SET_TIME, false);
@@ -1569,4 +1615,13 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         }
         else throw new com.energyict.cbo.BusinessException("invalid RtuId!");
     }
+
+	protected void setRtu(Rtu rtu) {
+		this.webRtuKP = rtu;
+	}
+
+	protected void setCommunicationScheduler(
+			CommunicationScheduler communicationScheduler) {
+		this.scheduler = communicationScheduler;
+	}
 }

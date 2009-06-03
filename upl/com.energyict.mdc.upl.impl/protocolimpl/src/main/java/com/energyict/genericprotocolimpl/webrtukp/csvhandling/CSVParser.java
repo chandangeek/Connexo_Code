@@ -4,17 +4,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.GenericRead;
-import com.energyict.dlms.cosem.GenericWrite;
-import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.mdw.shadow.UserFileShadow;
 
 public class CSVParser {
@@ -57,6 +51,9 @@ public class CSVParser {
 	}	
 	
 	public boolean isValidLine(TestObject to){
+		if(to.size() == 0){
+			return false;
+		}
 		switch(to.getType()){
 		case 0 :{ // GET
 			return true;
@@ -102,11 +99,11 @@ public class CSVParser {
 		
 	}
 
-	public UserFileShadow convertResultToUserFile(UserFile uf) throws IOException{
+	public UserFileShadow convertResultToUserFile(UserFile uf, int folderId) throws IOException{
 		UserFileShadow ufs = new UserFileShadow();
-		ufs.setName("Result - " + System.currentTimeMillis());
+		ufs.setName(createFileName(uf.getName()));
 		ufs.setExtension("csv");
-		ufs.setFolderId(uf.getFolderId());
+		ufs.setFolderId(folderId);
 		File file = File.createTempFile("Tempfile", ".csv");
 		FileOutputStream fos = new FileOutputStream(file);
         fos.write(convertToByteArray());
@@ -115,6 +112,21 @@ public class CSVParser {
         ufs.setFile(file);
         return ufs;
 	}
+	
+	private String createFileName(String ufName){
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(System.currentTimeMillis());
+		
+		String name = "Result - " + ufName + " "
+			+ cal.get(Calendar.YEAR) + "-"
+			+ cal.get(Calendar.MONTH) + "-"
+			+ (cal.get(Calendar.DAY_OF_MONTH)+1) + " "
+			+ cal.get(Calendar.HOUR_OF_DAY) + "h"
+			+ cal.get(Calendar.MINUTE) + "m"
+			+ cal.get(Calendar.SECOND) + "s";
+		return name;
+	}
+	
 	
 	private byte[] convertToByteArray(){
 		int offset = 0;

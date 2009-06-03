@@ -712,14 +712,12 @@ public class MessageExecutor extends GenericMessageExecutor{
 										case 0 :{ // GET
 											GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), DLMSUtils.attrLN2SN(to.getAttribute()), to.getClassId());
 											to.setResult("0x"+ParseUtils.decimalByteToString(gr.getResponseData()));
-											getLogger().log(Level.INFO, "Test " + i + " has successfully finished.");
 											hasWritten = true;
 										}break;
 										case 1 :{ // SET
 											GenericWrite gw = getCosemObjectFactory().getGenericWrite(to.getObisCode(), to.getAttribute(), to.getClassId());
 											gw.write(ParseUtils.hexStringToByteArray(to.getData()));
 											to.setResult("OK");
-											getLogger().log(Level.INFO, "Test " + i + " has successfully finished.");
 											hasWritten = true;
 										}break;
 										case 2 :{ // ACTION
@@ -730,7 +728,6 @@ public class MessageExecutor extends GenericMessageExecutor{
 												gi.invoke(ParseUtils.hexStringToByteArray(to.getData()));
 											}
 											to.setResult("OK");
-											getLogger().log(Level.INFO, "Test " + i + " has successfully finished.");
 											hasWritten = true;
 										}break;
 										case 3 :{ // MESSAGE
@@ -741,18 +738,14 @@ public class MessageExecutor extends GenericMessageExecutor{
 											doMessage(rm);
 											if(rm.getState().getId() == rm.getState().CONFIRMED.getId()){
 												to.setResult("OK");
-												getLogger().log(Level.INFO, "Test " + i + " has successfully finished.");
 											} else {
-												to.setResult("Message failed, current state " + rm.getState().getId());
-												failures++;
-												getLogger().log(Level.INFO, "Test " + i + " has failed.");
+												to.setResult("MESSAGE failed, current state " + rm.getState().getId());
 											}
 											hasWritten = true;
 										}break;
 										case 4:{ // WAIT
 											waitCyclus(Integer.parseInt(to.getData()));
 											to.setResult("OK");
-											getLogger().log(Level.INFO, "Test " + i + " has successfully finished.");
 											hasWritten = true;
 										}break; 
 										case 5:{
@@ -762,7 +755,17 @@ public class MessageExecutor extends GenericMessageExecutor{
 											throw new ApplicationException("Row " + i + " of the CSV file does not contain a valid type.");
 										}
 										}
-										to.setTime(getShowableString(currentTime));
+										to.setTime(currentTime.getTime());
+										
+										// Check if the expected value is the same as the result
+										if(!to.getExpected().equalsIgnoreCase(to.getResult())){
+											to.setResult("Failed - " + to.getResult());
+											failures++;
+											getLogger().log(Level.INFO, "Test " + i + " has successfully finished, but the resutl didn't match the expected value.");
+										} else {
+											getLogger().log(Level.INFO, "Test " + i + " has successfully finished.");
+										}
+										
 									} catch (Exception e) {
 										e.printStackTrace();
 										if(!hasWritten){
@@ -782,16 +785,15 @@ public class MessageExecutor extends GenericMessageExecutor{
 												hasWritten = true;
 												failures++;
 											}
-											to.setTime(getShowableString(currentTime));
+											to.setTime(currentTime.getTime());
 										}
 									} finally {
 										if(!hasWritten){
 											to.setResult("Failed - Unknow exception ...");
 											failures++;
-											to.setTime(getShowableString(currentTime));
+											to.setTime(currentTime.getTime());
 										}
 									}
-								
 								}
 							}
 							if(failures == 0){
@@ -799,7 +801,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 							} else {
 								csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures==1)?"has":"have") +" failed.");
 							}
-							mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf));
+							mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf, getWebRtu().getMeter().getFolderId()));
 						} else {
 							throw new ApplicationException("Userfile with ID " + userFileId + " does not exist.");
 						}

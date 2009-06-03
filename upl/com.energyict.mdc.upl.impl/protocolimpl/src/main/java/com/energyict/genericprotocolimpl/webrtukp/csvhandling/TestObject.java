@@ -1,6 +1,5 @@
 package com.energyict.genericprotocolimpl.webrtukp.csvhandling;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.obis.ObisCode;
 
@@ -167,12 +166,24 @@ public class TestObject {
 		return this.testRow[EXPECTED];
 	}
 	
-	public void setTime(String time) {
+	public void setTime(long l) {
 		if(this.testRow.length <= STARTTIME){
 			String[] temp = this.testRow;
 			this.testRow = new String[STARTTIME+1];
 			System.arraycopy(temp, 0, this.testRow, 0, temp.length);
 		}
-		this.testRow[STARTTIME] = time;
+		this.testRow[STARTTIME] = Long.toString(l);
+	}
+
+	public String getResult() {
+		if(this.testRow.length <= STARTTIME){
+			String[] temp = this.testRow;
+			this.testRow = new String[STARTTIME+1];
+			System.arraycopy(temp, 0, this.testRow, 0, temp.length);
+		}
+		if(this.testRow[RESULT] == null){
+			setResult("");
+		}
+		return this.testRow[RESULT];
 	}
 }

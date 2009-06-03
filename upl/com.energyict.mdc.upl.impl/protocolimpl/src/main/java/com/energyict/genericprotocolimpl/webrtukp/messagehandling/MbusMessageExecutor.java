@@ -27,6 +27,12 @@ import com.energyict.genericprotocolimpl.webrtukp.MbusDevice;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
 
+/**
+ * 
+ * @author gna
+ * Changes:
+ * GNA |03062009| Added correction switch to switch between corrected and uncorrected Gas loadprofile
+ */
 public class MbusMessageExecutor extends GenericMessageExecutor{
 	
 	private MbusDevice mbusDevice;
@@ -156,7 +162,7 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 			} else if(correctSwitch){
 				
 				getLogger().log(Level.INFO, "Handling MbusMessage " + rtuMessage.displayString() + ": Set loadprofile correction switch");
-				String corrSwitchOc =  "0."+getPhysicalAddress()+".24.8.0.255";
+				String corrSwitchOc =  "0."+(getPhysicalAddress()+1)+".24.8.0.255";
 				Data corrSwitch = getCosemObjectFactory().getData(ObisCode.fromString(corrSwitchOc));
 				BooleanObject bo = new BooleanObject(messageHandler.useCorrected());
 				corrSwitch.setValueAttr(bo);
