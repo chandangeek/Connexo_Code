@@ -14,6 +14,7 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.OctetString;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ProtocolLink;
@@ -23,6 +24,7 @@ import com.energyict.dlms.ProtocolLink;
  * @author  Koen
  * Changes:
  * GNA |03022009| Added method to get an attributes abstractDataType
+ * GNA |03062009| Getter/Setter for Status attribute
  */
 public class ExtendedRegister extends Register implements CosemObject {
     public final int DEBUG=0;
@@ -106,8 +108,27 @@ public class ExtendedRegister extends Register implements CosemObject {
         }
     }
     
+    /**
+     * @param attribute - the attribute of the DLMS object you try to read
+     * @return the value of the attribute in an abstract type
+     */
     public AbstractDataType getAttrbAbstractDataType(int attribute) throws IOException{
     	return AXDRDecoder.decode(getLNResponseData(attribute));
+    }
+    
+    /**
+     * @return the status of the register
+     * @throws IOException if resulted dataType is not supported or when read failed.
+     */
+    public long getStatus() throws IOException{
+    	return DLMSUtils.parseValue2long(getResponseData(EXTENDED_REGISTER_STATUS));
+    }
+    /**
+     * @param status - The dataType is manufactures specific
+     * @throws IOException when writing failed, possible dataType not supported
+     */
+    public void setStatus(AbstractDataType status) throws IOException{
+    	write(EXTENDED_REGISTER_STATUS, status.getBEREncodedByteArray());
     }
     
 }
