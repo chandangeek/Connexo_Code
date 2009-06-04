@@ -45,6 +45,10 @@ public class MbusProfile {
 	public MbusProfile(MbusDevice mbusDevice){
 		this.mbusDevice = mbusDevice;
 	}
+
+	public void getProfile(ObisCode obisCode) throws IOException, SQLException, BusinessException {
+		getProfile(obisCode, false);
+	}
 	
 	public void getProfile(ObisCode mbusProfile, boolean events) throws IOException, SQLException, BusinessException{
 		ProfileData profileData = new ProfileData( );
@@ -79,23 +83,26 @@ public class MbusProfile {
 			ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 			profileData.sort();
 			
-			if(events){
-				Date lastLogReading = getMeter().getLastLogbook();
-				if(lastLogReading == null){
-					lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getMeter());
-				}
-				Calendar fromCal = ProtocolUtils.getCleanCalendar(getTimeZone());
-				fromCal.setTime(lastLogReading);
-				mbusDevice.getLogger().log(Level.INFO, "Reading EVENTS from Mbus meter with serialnumber " + mbusDevice.getCustomerID() + ".");
-				DataContainer mbusLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusControlLog(mbusDevice.getPhysicalAddress()).getObisCode()).getBuffer(fromCal, mbusDevice.getWebRTU().getToCalendar());
-				
-				MbusControlLog mbusControlLog = new MbusControlLog(getTimeZone(), mbusLog);
-				profileData.getMeterEvents().addAll(mbusControlLog.getMeterEvents());
-				
-				// Don't create statusbits from the events
-//				profileData.applyEvents(mbusDevice.getMbus().getIntervalInSeconds()/60);
-			}
+//			if(events){
+//				Date lastLogReading = getMeter().getLastLogbook();
+//				if(lastLogReading == null){
+//					lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getMeter());
+//				}
+//				Calendar fromCal = ProtocolUtils.getCleanCalendar(getTimeZone());
+//				fromCal.setTime(lastLogReading);
+//				mbusDevice.getLogger().log(Level.INFO, "Reading EVENTS from Mbus meter with serialnumber " + mbusDevice.getCustomerID() + ".");
+//				DataContainer mbusLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusControlLog(mbusDevice.getPhysicalAddress()).getObisCode()).getBuffer(fromCal, mbusDevice.getWebRTU().getToCalendar());
+//				
+//				MbusControlLog mbusControlLog = new MbusControlLog(getTimeZone(), mbusLog);
+//				profileData.getMeterEvents().addAll(mbusControlLog.getMeterEvents());
+//				
+//				// Don't create statusbits from the events
+////				profileData.applyEvents(mbusDevice.getMbus().getIntervalInSeconds()/60);
+//			}
 			
+			if(mbusDevice.getWebRTU().getMarkedAsBadTime()){
+				profileData.markIntervalsAsBadTime();
+			}
 			// We save the profileData to a tempObject so we can store everything at the end of the communication
 			mbusDevice.getWebRTU().getStoreObject().add(getMeter(), profileData);
 			
@@ -289,4 +296,5 @@ public class MbusProfile {
 	private TimeZone getTimeZone() throws IOException{
 		return this.mbusDevice.getWebRTU().getMeterTimeZone();
 	}
+
 }

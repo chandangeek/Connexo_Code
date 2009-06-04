@@ -142,6 +142,9 @@ public class DailyMonthly {
 			
 			// We save the profileData to a tempObject so we can store everything at the end of the communication
 //			webrtu.getStoreObject().add(getMeter(), pd);
+			if(webrtu.getMarkedAsBadTime()){
+				pd.markIntervalsAsBadTime();
+			}
 			webrtu.getStoreObject().add(pd, getMeter());
 			
 		} catch (IOException e) {

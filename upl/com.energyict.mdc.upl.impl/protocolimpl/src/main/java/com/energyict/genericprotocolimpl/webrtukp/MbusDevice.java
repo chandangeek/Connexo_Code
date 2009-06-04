@@ -30,6 +30,7 @@ import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MbusMessageExe
 import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageExecutor;
 import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageHandler;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.MbusDailyMonthly;
+import com.energyict.genericprotocolimpl.webrtukp.profiles.MbusEventProfile;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.MbusProfile;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
@@ -150,7 +151,14 @@ public class MbusDevice implements GenericProtocol, Messaging{
 		if(commProfile.getReadDemandValues()){
 			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMbus().getSerialNumber());
 			MbusProfile mp = new MbusProfile(this);
-			mp.getProfile(getWebRTU().getMeterConfig().getMbusProfile(getPhysicalAddress()).getObisCode(), commProfile.getReadMeterEvents());
+//			mp.getProfile(getWebRTU().getMeterConfig().getMbusProfile(getPhysicalAddress()).getObisCode(), commProfile.getReadMeterEvents());
+			mp.getProfile(getWebRTU().getMeterConfig().getMbusProfile(getPhysicalAddress()).getObisCode());
+		}
+		
+		if(commProfile.getReadMeterEvents()){
+			getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + getMbus().getSerialNumber());
+			MbusEventProfile mep = new MbusEventProfile(this);
+			mep.getEvents();
 		}
 		
 		// import daily/monthly

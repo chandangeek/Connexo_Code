@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -19,11 +20,11 @@ import org.junit.Test;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.common.StoreObject;
-import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterGroup;
 import com.energyict.mdw.amr.RtuRegisterMapping;
 import com.energyict.mdw.amr.RtuRegisterSpec;
@@ -48,7 +49,6 @@ import com.energyict.mdw.testutils.RtuRegisterSpecCRUD;
 import com.energyict.mdw.testutils.RtuTypeCRUD;
 import com.energyict.mdw.testutils.TimeOfUseCRUD;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.utils.DummyDLMSConnection;
 import com.energyict.utils.Utilities;
 
@@ -57,7 +57,7 @@ public class WebRTUKPTest {
 	private static Logger logger;
 
 	private static WebRTUKP webRtu;
-	private static DLMSConnection connection;
+	private static DummyDLMSConnection connection;
 	private static StoreObject storeObject;
 
 	private static String regGroupName = "";
@@ -86,6 +86,7 @@ public class WebRTUKPTest {
 		webRtu = new WebRTUKP();
 		connection = new DummyDLMSConnection();
 		storeObject = new StoreObject();
+		webRtu.setLogger(logger);
 		
 		/* create unique names */
 		timeOfUseName = "TimeOfUseName" + System.currentTimeMillis();
@@ -166,10 +167,9 @@ public class WebRTUKPTest {
 		this.rtu = RtuCRUD.findOrCreateRtu(RtuTypeCRUD.findRtuType(rtuTypeName), rtuName, 900);
 		
 		mp = ModemPoolCRUD.findOrCreateModemPool(modemPoolName);
-		List regGroups = new ArrayList();
-		regGroups.add(RtuRegisterGroupCRUD.findRegisterGroup(regGroupName).getShadow());
-		commProfile = CommunicationProfileCRUD.findOrCreateCommunicationProfile(commProfileName, true, false, false, false, false, regGroups);
-//		CommunicationProfileCRUD.setRegisterGroup(commProfile, RtuRegisterGroupCRUD.findRegisterGroup(regGroupName));
+		webRtu.setRtu(this.rtu);
+		webRtu.setDLMSConnection(connection);
+		webRtu.setCosemObjectFactory(new CosemObjectFactory((ProtocolLink)webRtu));
 	}
 
 	@After
@@ -183,10 +183,14 @@ public class WebRTUKPTest {
 	public void registerGroupsTest(){
 		
 		try {
-			webRtu.setRtu(this.rtu);
-			webRtu.setDLMSConnection(connection);
+			
+			connection.setResponseByte(new byte[]{(byte)0x10,(byte)0x00,(byte)0x0A,(byte)0xC4,(byte)0x01,(byte)0xC1,(byte)0x00,(byte)0x09,(byte)0x05
+				,(byte)0x54,(byte)0x75,(byte)0x6D,(byte)0x6D,(byte)0x79});
+			
 			webRtu.setStoreObject(storeObject);
-			webRtu.setCosemObjectFactory(new CosemObjectFactory((ProtocolLink)webRtu));
+			List regGroups = new ArrayList();
+			regGroups.add(RtuRegisterGroupCRUD.findRegisterGroup(regGroupName).getShadow());
+			commProfile = CommunicationProfileCRUD.findOrCreateCommunicationProfile(commProfileName, true, false, false, false, false, regGroups);
 			CommunicationSchedulerCRUD.createCommunicationScheduler(this.rtu, this.commProfile, this.mp);
 			assertEquals(1, rtu.getCommunicationSchedulers().size());
 			
@@ -210,5 +214,54 @@ public class WebRTUKPTest {
 			fail();
 		}
 		
+	}
+	
+	@Test
+	public void markAsBadTimeTest(){
+		try{
+			commProfile = CommunicationProfileCRUD.createCommunicationProfile(commProfileName,false, false, false, false, true, true, false, false, 60000, 10000, null);
+			CommunicationSchedulerCRUD.createCommunicationScheduler(this.rtu, this.commProfile, this.mp);
+			assertEquals(1, rtu.getCommunicationSchedulers().size());
+			
+			webRtu.setCommunicationScheduler((CommunicationScheduler)this.rtu.getCommunicationSchedulers().get(0));
+			webRtu.setMeterConfig(DLMSMeterConfig.getInstance("WKP"));
+					
+			/* Set the time two hours back */
+			Calendar cal = Calendar.getInstance(webRtu.getTimeZone());
+			cal.getTime();
+			cal.add(Calendar.HOUR_OF_DAY, -2);
+			AXDRDateTime dt = new AXDRDateTime(cal);
+//			DateTime dt = new DateTime(cal);
+			byte[] resp = new byte[]{(byte)0x10,(byte)0x00,(byte)0x0A,(byte)0xC4,(byte)0x01,(byte)0xC1,(byte)0x00,
+					0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+			System.arraycopy(dt.getBEREncodedByteArray(), 0, resp, 7, resp.length-7);
+			connection.setResponseByte(resp);
+			
+			/* The timedifference is out of the boundary */
+			assertTrue(webRtu.verifyMaxTimeDifference());
+			
+			/* Set the time to the current time */
+			cal = Calendar.getInstance(webRtu.getTimeZone());
+			dt = new AXDRDateTime(cal);
+			resp = new byte[]{(byte)0x10,(byte)0x00,(byte)0x0A,(byte)0xC4,(byte)0x01,(byte)0xC1,(byte)0x00,
+					0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+			System.arraycopy(dt.getBEREncodedByteArray(), 0, resp, 7, resp.length-7);
+			connection.setResponseByte(resp);
+			
+			/* The timedifference is in the boundary */
+			assertFalse(webRtu.verifyMaxTimeDifference());
+			
+		} catch (BusinessException e) {
+			e.printStackTrace();
+			fail();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			fail();
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail();
+		} finally {
+			
+		}
 	}
 }

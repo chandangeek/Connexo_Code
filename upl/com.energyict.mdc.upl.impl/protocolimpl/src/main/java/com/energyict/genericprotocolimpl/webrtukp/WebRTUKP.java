@@ -45,6 +45,7 @@ import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageExecutor;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.DailyMonthly;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.ElectricityProfile;
+import com.energyict.genericprotocolimpl.webrtukp.profiles.EventProfile;
 import com.energyict.genericprotocolimpl.webrtukp.wakeup.SmsWakeup;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
@@ -109,6 +110,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	
 	private boolean DEBUG = false;
 	private boolean connected = false;
+	private boolean badTime = false;
 	
 	private CosemObjectFactory 		cosemObjectFactory;
 	private DLMSConnection 			dlmsConnection;
@@ -128,7 +130,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	private StoreObject				storeObject;
 	private ObisCodeMapper			ocm;
 	
-	private long 					timeDifference = 0;
+	private long 					timeDifference = -1;
 	
 	/**
 	 * Properties
@@ -199,28 +201,34 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 			connect();
 			connected = true;
 			
+/*****************************************************************************
+ *  T E S T   M E T H O D S			
+ */
 //			doSomeTestCalls();
 //			readFromMeter("1.0.90.7.0.255");
 //			hasMBusMeters();
 //			handleMbusMeters();
+/*****************************************************************************/
 			
-			// Set clock or Force clock... if necessary
-			if( this.commProfile.getForceClock() ){
-				Date meterTime = getTime();
-				Date currentTime = Calendar.getInstance(getTimeZone()).getTime();
-				this.timeDifference = Math.abs(currentTime.getTime()-meterTime.getTime());
-				getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + currentTime);
-				forceClock(currentTime);
-			}else {
-				verifyAndWriteClock();
-			}
+			// Check if the time is greater then allowed, if so then no data can be stored...
+			badTime = verifyMaxTimeDifference();
 			
+			/**
+			 * After 03/06/09 the events are read apart from the intervalData
+			 */
 			if(this.commProfile.getReadDemandValues()){
 				getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + webRtuKP.getSerialNumber());
 				ElectricityProfile ep = new ElectricityProfile(this);
 				
-				ep.getProfile(getMeterConfig().getProfileObject().getObisCode(), this.commProfile.getReadMeterEvents());
+//				ep.getProfile(getMeterConfig().getProfileObject().getObisCode(), this.commProfile.getReadMeterEvents());
+				ep.getProfile(getMeterConfig().getProfileObject().getObisCode());
 			} 
+			
+			if(this.commProfile.getReadMeterEvents()){
+				getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + webRtuKP.getSerialNumber());
+				EventProfile evp = new EventProfile(this);
+				evp.getEvents();
+			}
 			
 			/**
 			 * Here we are assuming that the daily and monthly values should be read.
@@ -250,6 +258,17 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 			if(hasMBusMeters()){
 				getLogger().log(Level.INFO, "Starting to handle the MBus meters.");
 				handleMbusMeters();
+			}
+			
+			// Set clock or Force clock... if necessary
+			if( this.commProfile.getForceClock() ){
+				Date meterTime = getTime();
+				Date currentTime = Calendar.getInstance(getTimeZone()).getTime();
+				this.timeDifference = (this.timeDifference==-1)?Math.abs(currentTime.getTime()-meterTime.getTime()):this.timeDifference;
+				getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + currentTime);
+				forceClock(currentTime);
+			}else {
+				verifyAndWriteClock();
 			}
 			
 			success = true;
@@ -287,6 +306,28 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		}
 	}
 	
+	protected boolean verifyMaxTimeDifference() throws IOException {
+		Date systemTime = Calendar.getInstance().getTime();
+		Date meterTime = getTime();
+		
+		this.timeDifference = Math.abs(meterTime.getTime() - systemTime.getTime());
+		long diff = this.timeDifference;
+		if( (diff > this.commProfile.getMaximumClockDifference())){
+			
+			String msg = "Time difference exceeds configured maximum: (" + (diff / 1000) + " s > " + this.commProfile.getMaximumClockDifference()/1000+ " s )";
+			
+			getLogger().log(Level.SEVERE,  msg);
+			
+			if(this.commProfile.getCollectOutsideBoundary()){
+				// TODO should set the completion code to TIMEERROR, but that's not possible without changing the interface ...
+				return true;
+			} else {
+				throw new IOException(msg);
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * If the received IP address doesn't contain a portnumber, then put one in it
 	 * @param ipAddress
@@ -803,6 +844,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				if( (diff < this.commProfile.getMaximumClockDifference()) && (diff > this.commProfile.getMinimumClockDifference()) ){
 					log(Level.INFO, "Metertime will be set to systemtime: " + now);
 					setClock(now);
+				} else if(getMarkedAsBadTime()){
+					log(Level.INFO, "Metertime will not be set, timeDifference is to large.");
 				}
 			} else {
 				log(Level.INFO, "WriteClock is disabled, metertime will not be set.");
@@ -828,7 +871,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	public Date getTime() throws IOException{
 		try {
 			Date meterTime;
-			this.deviceClock = getCosemObjectFactory().getClock();
+			this.deviceClock = getCosemObjectFactory().getClock(ObisCode.fromString("0.0.1.0.0.255"));
 			meterTime = deviceClock.getDateTime();
 			return meterTime;
 		} catch (IOException e) {
@@ -1036,12 +1079,20 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		return this.logger;
 	}
 	
+	protected void setLogger(Logger logger){
+		this.logger = logger;
+	}
+	
 	public void log(Level level, String msg){
 		getLogger().log(level, msg);
 	}
 
 	public DLMSMeterConfig getMeterConfig() {
 		return this.dlmsMeterConfig;
+	}
+	
+	protected void setMeterConfig(DLMSMeterConfig meterConfig){
+		this.dlmsMeterConfig = meterConfig;
 	}
 
 	public int getReference() {
@@ -1578,9 +1629,22 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		return readDaily;
 	}
 
-
 	public boolean isReadMonthly() {
 		return readMonthly;
+	}
+	
+	protected void setRtu(Rtu rtu) {
+		this.webRtuKP = rtu;
+	}
+
+	protected void setCommunicationScheduler(
+			CommunicationScheduler communicationScheduler) {
+		this.scheduler = communicationScheduler;
+		this.commProfile = this.scheduler.getCommunicationProfile();
+	}
+	
+	public boolean getMarkedAsBadTime(){
+		return badTime;
 	}
 	
 	/** EIServer 7.5 Cache mechanism, only the DLMSCache is in that database, the 8.x has a EISDEVICECACHE ... */
@@ -1617,12 +1681,4 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         else throw new com.energyict.cbo.BusinessException("invalid RtuId!");
     }
 
-	protected void setRtu(Rtu rtu) {
-		this.webRtuKP = rtu;
-	}
-
-	protected void setCommunicationScheduler(
-			CommunicationScheduler communicationScheduler) {
-		this.scheduler = communicationScheduler;
-	}
 }

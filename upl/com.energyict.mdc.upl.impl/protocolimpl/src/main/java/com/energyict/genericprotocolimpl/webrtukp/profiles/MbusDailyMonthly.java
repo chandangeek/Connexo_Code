@@ -74,6 +74,10 @@ public class MbusDailyMonthly {
 			ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
 			
+			if(mbusDevice.getWebRTU().getMarkedAsBadTime()){
+				pd.markIntervalsAsBadTime();
+			}
+			
 			mbusDevice.getWebRTU().getStoreObject().add(pd, getMeter());
 			
 		} catch (IOException e) {

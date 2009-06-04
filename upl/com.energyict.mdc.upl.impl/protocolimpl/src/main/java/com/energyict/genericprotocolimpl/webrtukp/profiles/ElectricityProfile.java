@@ -53,6 +53,10 @@ public class ElectricityProfile {
 		this.webrtu = webrtu;
 	}
 	
+	public void getProfile(ObisCode obisCode) throws IOException, SQLException, BusinessException {
+		getProfile(obisCode, false);
+	}
+	
 	public void getProfile(ObisCode electricityProfile, boolean events) throws IOException, SQLException, BusinessException{
 		ProfileData profileData = new ProfileData( );
 		ProfileGeneric genericProfile;
@@ -87,39 +91,42 @@ public class ElectricityProfile {
 			ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 			profileData.sort();
 			
-			if(events){
-				Date lastLogReading = webrtu.getMeter().getLastLogbook();
-				if(lastLogReading == null){
-					lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(webrtu.getMeter());
-				}
-				Calendar fromCal = ProtocolUtils.getCleanCalendar(getTimeZone());
-				fromCal.setTime(lastLogReading);
-				webrtu.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + webrtu.getSerialNumber() + ".");
-				DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
-				DataContainer dcControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getControlLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
-				DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
-				DataContainer dcFraudDetection = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getFraudDetectionLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
-				DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
-//				DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer();
-				
-				EventsLog standardEvents = new EventsLog(getTimeZone(), dcEvent); 
-				FraudDetectionLog fraudDetectionEvents = new FraudDetectionLog(getTimeZone(), dcFraudDetection);
-				DisconnectControlLog disconnectControl = new DisconnectControlLog(getTimeZone(), dcControlLog);
-				MbusLog mbusLogs = new MbusLog(getTimeZone(), dcMbusEventLog);
-				PowerFailureLog powerFailure = new PowerFailureLog(getTimeZone(), dcPowerFailure);
-				
-				profileData.getMeterEvents().addAll(standardEvents.getMeterEvents());
-				profileData.getMeterEvents().addAll(fraudDetectionEvents.getMeterEvents());
-				profileData.getMeterEvents().addAll(disconnectControl.getMeterEvents());
-				profileData.getMeterEvents().addAll(mbusLogs.getMeterEvents());
-				profileData.getMeterEvents().addAll(powerFailure.getMeterEvents());
-				
-				// Don't create statusbits from the events
-//				profileData.applyEvents(webrtu.getMeter().getIntervalInSeconds()/60);
-				
-			}
+//			if(events){
+//				Date lastLogReading = webrtu.getMeter().getLastLogbook();
+//				if(lastLogReading == null){
+//					lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(webrtu.getMeter());
+//				}
+//				Calendar fromCal = ProtocolUtils.getCleanCalendar(getTimeZone());
+//				fromCal.setTime(lastLogReading);
+//				webrtu.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + webrtu.getSerialNumber() + ".");
+//				DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
+//				DataContainer dcControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getControlLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
+//				DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
+//				DataContainer dcFraudDetection = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getFraudDetectionLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
+//				DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
+////				DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer();
+//				
+//				EventsLog standardEvents = new EventsLog(getTimeZone(), dcEvent); 
+//				FraudDetectionLog fraudDetectionEvents = new FraudDetectionLog(getTimeZone(), dcFraudDetection);
+//				DisconnectControlLog disconnectControl = new DisconnectControlLog(getTimeZone(), dcControlLog);
+//				MbusLog mbusLogs = new MbusLog(getTimeZone(), dcMbusEventLog);
+//				PowerFailureLog powerFailure = new PowerFailureLog(getTimeZone(), dcPowerFailure);
+//				
+//				profileData.getMeterEvents().addAll(standardEvents.getMeterEvents());
+//				profileData.getMeterEvents().addAll(fraudDetectionEvents.getMeterEvents());
+//				profileData.getMeterEvents().addAll(disconnectControl.getMeterEvents());
+//				profileData.getMeterEvents().addAll(mbusLogs.getMeterEvents());
+//				profileData.getMeterEvents().addAll(powerFailure.getMeterEvents());
+//				
+//				// Don't create statusbits from the events
+////				profileData.applyEvents(webrtu.getMeter().getIntervalInSeconds()/60);
+//				
+//			}
 			
 			// We save the profileData to a tempObject so we can store everything at the end of the communication
+			if(webrtu.getMarkedAsBadTime()){
+				profileData.markIntervalsAsBadTime();
+			}
 			webrtu.getStoreObject().add(getMeter(), profileData);
 			
 		} catch (IOException e) {
@@ -333,4 +340,5 @@ public class ElectricityProfile {
 //		return this.webrtu.getTimeZone();
 		return this.webrtu.getMeterTimeZone();
 	}
+
 }
