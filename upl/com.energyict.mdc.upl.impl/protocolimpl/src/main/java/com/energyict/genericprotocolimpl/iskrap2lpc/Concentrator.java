@@ -180,7 +180,9 @@ public class Concentrator implements Messaging, GenericProtocol {
             }
             
             else{
-            	getLogger().log(Level.CONFIG, "ConcentratorID EIServer(" + serial + ") didn't match concentratorID(" + conSerial + ").");
+            	String serialError = "ConcentratorID EIServer(" + serial + ") didn't match concentratorID(" + conSerial + ").";
+            	getLogger().log(Level.CONFIG, serialError);
+            	throw new IOException(serialError);
             }
 
         } catch (ServiceException thrown) {
