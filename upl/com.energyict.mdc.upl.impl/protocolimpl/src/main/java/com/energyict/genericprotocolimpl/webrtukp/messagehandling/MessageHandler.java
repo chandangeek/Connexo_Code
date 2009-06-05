@@ -121,12 +121,12 @@ public class MessageHandler extends DefaultHandler{
 	 * FirmwareUpgrade Related messages
 	 **********************************************/
 	private String userfileId;
-	private String activateNow;
+//	private String activateNow;
 	private String activationDate;
 	
     private void handleFirmWareUpgrade(Attributes attrbs) {
     	this.userfileId = attrbs.getValue(RtuMessageConstant.FIRMWARE);
-    	this.activateNow = attrbs.getValue(RtuMessageConstant.FIRMWARE_ACTIVATE_NOW);
+//    	this.activateNow = attrbs.getValue(RtuMessageConstant.FIRMWARE_ACTIVATE_NOW);
     	this.activationDate = attrbs.getValue(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE);
 	}
 	
@@ -134,19 +134,19 @@ public class MessageHandler extends DefaultHandler{
 		return this.userfileId;
 	}
 	
-	public String getActivateNow(){
-		return this.activateNow;
-	}
+//	public String getActivateNow(){
+//		return this.activateNow;
+//	}
 	
 	
-	// Need to test again!
-	public boolean activateNow(){
-		if(this.activateNow != null){
-			return this.activateNow.equals("1");
-		} else {
-			return false;
-		}
-	}
+//	// Need to test again!
+//	public boolean activateNow(){
+//		if(this.activateNow != null){
+//			return this.activateNow.equals("1");
+//		} else {
+//			return false;
+//		}
+//	}
 	
 	public String getActivationDate(){
 		return this.activationDate;

@@ -60,6 +60,7 @@ import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
@@ -104,6 +105,7 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
  * GNA |30032009| Added testMessage to enable overnight tests for the embedded device
  * GNA |May 2009| Added Sms wakeup support
  * GNA |03062009| Added registerGroup support
+ * GNA |05062009| Changed writeClock support, split meterEvents and meterProfile
  */
 
 public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEnabler{
@@ -131,6 +133,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	private ObisCodeMapper			ocm;
 	
 	private long 					timeDifference = -1;
+	private long					roundTripCorrection = 0;
 	
 	/**
 	 * Properties
@@ -311,10 +314,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		Date meterTime = getTime();
 		
 		this.timeDifference = Math.abs(meterTime.getTime() - systemTime.getTime());
-		long diff = this.timeDifference;
-		if( (diff > this.commProfile.getMaximumClockDifference())){
+		long diff = this.timeDifference;	// in milliseconds
+		if( (diff > this.commProfile.getMaximumClockDifference()*1000)){
 			
-			String msg = "Time difference exceeds configured maximum: (" + (diff / 1000) + " s > " + this.commProfile.getMaximumClockDifference()/1000+ " s )";
+			String msg = "Time difference exceeds configured maximum: (" + (diff / 1000) + " s > " + this.commProfile.getMaximumClockDifference()+ " s )";
 			
 			getLogger().log(Level.SEVERE,  msg);
 			
@@ -430,7 +433,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 					log(Level.INFO, "Sign On procedure done.");
 			}
 			getDLMSConnection().setIskraWrapper(1);
-			aarq = new AARQ(this.securityLevel, this.password, getDLMSConnection());
+			aarq = new AARQ(this.password, getDLMSConnection());
+			aarq.requestApplicationAssociation(this.securityLevel);
 			
 			// objectList
 			checkCacheObjects();
@@ -573,18 +577,24 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		Iterator<RtuRegister> it = getMeter().getRegisters().iterator();
 		List groups = this.scheduler.getCommunicationProfile().getRtuRegisterGroups();
 		ObisCode oc = null;
-		RegisterValue rv;
+		RegisterValue rv = null;
 		RtuRegister rr;
 		try {
 			while(it.hasNext()){
 				rr = it.next();
 				if(isInRegisterGroup(groups, rr)){
 					oc = rr.getRtuRegisterSpec().getObisCode();
-					rv = readRegister(oc);
-					rv.setRtuRegisterId(rr.getId());
-					
-					if(rr.getReadingAt(rv.getReadTime()) == null){
-						getStoreObject().add(rr, rv);
+					try {
+						rv = readRegister(oc);
+						
+						rv.setRtuRegisterId(rr.getId());
+						
+						if(rr.getReadingAt(rv.getReadTime()) == null){
+							getStoreObject().add(rr, rv);
+						}
+					} catch (NoSuchRegisterException e) {
+						e.printStackTrace();
+						getLogger().log(Level.INFO, "ObisCode " + oc + " is not supported by the meter.");
 					}
 				}
 			}
@@ -596,6 +606,9 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	
 	private boolean isInRegisterGroup(List groups, RtuRegister rr){
 		if(rr.getGroup() == null){
+			if(groups.size() == 0){
+				return true;
+			}
 			return false;
 		}
 		Iterator it = groups.iterator();
@@ -861,7 +874,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	public void forceClock(Date currentTime) throws IOException{
 		try {
 //			getCosemObjectFactory().getClock().setTimeAttr(new DateTime(currentTime));
-			getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(currentTime));
+			getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(getRoundTripCorrected(currentTime)));
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not force to set the Clock object.");
@@ -883,13 +896,21 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	public void setClock(Date time) throws IOException{
 		try {
 //			getCosemObjectFactory().getClock().setTimeAttr(new DateTime(time));
-			getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(time));
+//			getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(time));
+			getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(getRoundTripCorrected(time)));
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not set the Clock object.");
 		}
 	}
 	
+	private Date getRoundTripCorrected(Date time) {
+		Calendar cal = Calendar.getInstance(getTimeZone());
+		cal.setTime(time);
+		cal.add(Calendar.MILLISECOND, getRoundTripCorrection());
+		return cal.getTime();
+	}
+
 	private Clock getDeviceClock(){
 		return this.deviceClock;
 	}
@@ -1015,6 +1036,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         this.informationFieldSize = Integer.parseInt(properties.getProperty("InformationFieldSize","-1"));
         this.readDaily = !properties.getProperty("ReadDailyValues", "1").equalsIgnoreCase("0");
         this.readMonthly = !properties.getProperty("ReadMonthlyValues", "1").equalsIgnoreCase("0");
+        this.roundTripCorrection = Long.parseLong(properties.getProperty("RoundTripCorrection","0"));
         
         this.iiapInvokeId = Integer.parseInt(properties.getProperty("IIAPInvokeId", "0"));
         this.iiapPriority = Integer.parseInt(properties.getProperty("IIAPPriority", "1"));
@@ -1059,6 +1081,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         result.add("IIAPPriority");
         result.add("IIAPServiceClass");
         result.add("WakeUp");
+        result.add("RoundTripCorrection");
 		return result;
 	}
 
@@ -1100,7 +1123,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	}
 
 	public int getRoundTripCorrection() {
-		return 0;
+		return (int)this.roundTripCorrection;
 	}
 
 	public StoredValues getStoredValues() {
@@ -1542,8 +1565,13 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
         tagSpec.add(msgVal);
         MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.FIRMWARE, true);
         tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.FIRMWARE_ACTIVATE_NOW, false);
-        tagSpec.add(msgAttrSpec);
+        
+        /* The Act. Now value is deleted, we use the ActivationDate to check if we need activation now or not.
+        This way it's the same as for example with the disconnector. */
+        
+//        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.FIRMWARE_ACTIVATE_NOW, false);
+//        tagSpec.add(msgAttrSpec);
+        
         msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE, false);
         tagSpec.add(msgAttrSpec);
         msgSpec.add(tagSpec);

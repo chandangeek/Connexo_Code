@@ -1,10 +1,8 @@
 package com.energyict.genericprotocolimpl.webrtukp;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.Date;
 
-import com.energyict.cbo.Quantity;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Register;
@@ -31,8 +29,6 @@ public class ObisCodeMapper {
 		RegisterValue rv = null;
 		int billingPoint = -1;
 		
-		//TODO: TEST ME
-		
 		// Abstract Registers
         if(obisCode.toString().indexOf("0.0.13.0.0.255") != -1){	// Activity Calendar
         	rv = new RegisterValue(obisCode,
@@ -45,6 +41,7 @@ public class ObisCodeMapper {
         			null,
         			null, null, null, new Date(), 0,
         			new String(cof.getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1).getString()));
+        	return rv;
         }
 		
     	//Electricity related ObisRegisters
@@ -53,7 +50,7 @@ public class ObisCodeMapper {
 			Register register = cof.getRegister(obisCode);
 			return new RegisterValue(obisCode, ParseUtils.registerToQuantity(register));
     	}
-		return rv;
+    	throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 	}
 
 }

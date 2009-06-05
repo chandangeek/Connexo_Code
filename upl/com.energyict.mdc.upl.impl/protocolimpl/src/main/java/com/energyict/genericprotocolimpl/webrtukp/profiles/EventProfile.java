@@ -22,7 +22,6 @@ import com.energyict.protocol.ProtocolUtils;
 /**
  * 
  * @author gna
- * TODO : NEED TO TEST THIS
  */
 public class EventProfile {
 

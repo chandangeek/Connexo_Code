@@ -59,14 +59,13 @@ public class AARQ {
     	
     }
     
-    public AARQ(int securityLevel, String password, DLMSConnection dlmsConnection) throws IOException{
+    public AARQ(String password, DLMSConnection dlmsConnection) throws IOException{
     	this.password = password;
     	this.dlmsConnection = dlmsConnection;
     	
-    	requestApplicationAssociation(securityLevel);
     }
 
-	private void requestApplicationAssociation(int securityLevel) throws IOException {
+	public void requestApplicationAssociation(int securityLevel) throws IOException {
 		byte[] aarq = null;
 		
 		if(securityLevel == 0){		// no authentication

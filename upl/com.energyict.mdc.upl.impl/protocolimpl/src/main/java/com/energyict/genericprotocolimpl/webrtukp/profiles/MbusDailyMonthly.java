@@ -89,8 +89,6 @@ public class MbusDailyMonthly {
 	
 	private void buildProfileData(DataContainer dc, ProfileData pd, ProfileGeneric pg) throws IOException{
 		
-		//TODO check how this reacts with the profile.
-		
 		Calendar cal = null;
 		IntervalData currentInterval = null;
 		int profileStatus = 0;

@@ -48,7 +48,6 @@ import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
-import com.energyict.genericprotocolimpl.webrtukp.AARQ;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.CommunicationProfile;
@@ -176,7 +175,8 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 			
 			getDLMSConnection().connectMAC();
 			getDLMSConnection().setIskraWrapper(1);
-			aarq = new AARQ(this.securityLevel, this.password, getDLMSConnection());
+			aarq = new AARQ(this.password, getDLMSConnection());
+			aarq.requestApplicationAssociation(this.securityLevel);
 			
 			
 		} catch (DLMSConnectionException e) {

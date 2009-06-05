@@ -79,6 +79,8 @@ import com.energyict.mdw.shadow.RtuMessageShadow;
  * @author gna
  * @beginChanges
  * GNA |15042009| The dataField in the TestMessage has a '0x' prefix for better visualization.
+ * GNA |04062009| Activate now is not a message value of the FirmwareUpgrade anymore, functionality is changes as it works with the disconnector
+ * 					if the activation date isn't filled in, then the activation takes place immediately
  * @endChanges
  */
 public class MessageExecutor extends GenericMessageExecutor{
@@ -157,7 +159,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 //				p3it.upgrade(imageData);
 				it.upgrade(imageData);
 				if(DEBUG)System.out.println("UserFile is send to the device.");
-				if(messageHandler.activateNow()){
+				if(messageHandler.getActivationDate().equalsIgnoreCase("")){ // Do an execute now
 					if(DEBUG)System.out.println("Start the activateNow.");
 //					p3it.activateAndRetryImage();
 					it.imageActivation();

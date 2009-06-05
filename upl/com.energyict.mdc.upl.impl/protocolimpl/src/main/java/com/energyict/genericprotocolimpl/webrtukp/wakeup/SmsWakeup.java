@@ -31,7 +31,8 @@ import com.vodafone.gdsp.ws.WUTriggerService;
  * The SMS Wakeup will send a wakeup trigger to TIBCO and receive an OK or NOT OK as a response to the trigger.
  * Depending on the response, a polling mechanism is started to see if the meter gets an IP address, or ...
  * exception is thrown when the trigger failed or the polling timed out.
- *
+ * Changes:
+ * GNA |04062009| Use the attribute GPRSProvider instead of Provider. Added a vfSoapAction, just in case this should change as well...
  */
 public class SmsWakeup {
 	
@@ -42,6 +43,7 @@ public class SmsWakeup {
 	private int pollFreq;
 	private boolean requestSuccess = false;
 	private String endpointAddress;
+	private String soapAction;
 	
 	private Rtu meter;
 	private CommunicationScheduler scheduler;
@@ -97,6 +99,12 @@ public class SmsWakeup {
 		} else {
 			endpointAddress = host;
 		}
+		String action = mw().getSystemProperty("vfSoapAction");
+		if(action == null){
+			soapAction = "/SharedResources/COMM_DEVICE/WUTriggerService.serviceagent/WUTriggerPort/submitWUTrigger";
+		} else {
+			soapAction = action;
+		}
 	}
 	
 	/**
@@ -144,7 +152,7 @@ public class SmsWakeup {
 		if(MSISDN != null){
 			parameters.setMSISDNNumber(MSISDN);
 		}
-		String provider = (String) getAttributeValue("Provider");
+		String provider = (String) getAttributeValue("GPRSProvider");
 		if(provider != null){
 			parameters.setOperatorName(provider);
 		} else {
@@ -157,7 +165,7 @@ public class SmsWakeup {
 			throw new IOException("The SourceId is a required System property to successfully execute the wakeup trigger.");
 		}
 		
-		/** If in time CSD is added to this functionality, then make sure this one is fetched from the attributes and is correclty filled in*/
+		/** If in time CSD is added to this functionality, then make sure this one is fetched from the attributes and is correctly filled in*/
 		parameters.setTriggerType("SMS");
 		
 		log(5, "Ready for takeoff");
@@ -256,6 +264,7 @@ public class SmsWakeup {
 				new QName("http://ws.gdsp.vodafone.com/", "WUTriggerService"));
 		WUTrigger proxy = wuService.getWUTriggerPort();
 		((BindingProvider)proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
+		((BindingProvider)proxy).getRequestContext().put(BindingProvider.SOAPACTION_URI_PROPERTY, soapAction);
 		
 		return proxy;
 		
