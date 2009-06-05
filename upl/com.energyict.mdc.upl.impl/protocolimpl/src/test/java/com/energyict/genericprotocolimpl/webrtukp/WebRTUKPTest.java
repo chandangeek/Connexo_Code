@@ -219,7 +219,7 @@ public class WebRTUKPTest {
 	@Test
 	public void markAsBadTimeTest(){
 		try{
-			commProfile = CommunicationProfileCRUD.createCommunicationProfile(commProfileName,false, false, false, false, true, true, false, false, 60000, 10000, null);
+			commProfile = CommunicationProfileCRUD.createCommunicationProfile(commProfileName,false, false, false, false, true, true, false, false, 3600, 10, null);
 			CommunicationSchedulerCRUD.createCommunicationScheduler(this.rtu, this.commProfile, this.mp);
 			assertEquals(1, rtu.getCommunicationSchedulers().size());
 			
