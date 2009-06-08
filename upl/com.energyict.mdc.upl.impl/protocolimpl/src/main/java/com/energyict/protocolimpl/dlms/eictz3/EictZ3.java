@@ -695,7 +695,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 						- (deviceTime.getTime() + roundtripCorrection);
 
 				logger.info("Time difference is [" + timeDifference
-						+ "] miliseconds.");
+						+ "] miliseconds (corrected for roundtrip time of [" + roundtripCorrection + "] milliseconds)");
 
 				// Now if the time difference can be corrected using a shift of
 				// the time, correct it, otherwise do a setClock.
