@@ -31,6 +31,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -46,10 +47,14 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
     private static String CONNECT 			= "ConnectLoad";
     private static String DISCONNECT 		= "DisconnectLoad";
     private static String ARM 				= "ArmMeter";
+    private static String TARIFF_OPTION_SWITCH_BASE = "TariffOptionSwitchBase";
+    private static String TARIFF_OPTION_SWITCH_DAYNIGHT = "TariffOptionSwitchDayNight";
     
     private static String CONNECT_DISPLAY 			= "Connect Load";
     private static String DISCONNECT_DISPLAY 		= "Disconnect Load";
     private static String ARM_DISPLAY 				= "Arm Meter";
+    private static String TARIFF_OPTION_SWITCH_BASE_DISPLAY = "Switch tariff option BASE";
+    private static String TARIFF_OPTION_SWITCH_DAYNIGHT_DISPLAY = "Switch tariff option DAY/NIGHT";
     
     public AS220() {
     }
@@ -368,6 +373,12 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
         
         msgSpec = addBasicMsg(CONNECT_DISPLAY, CONNECT, false);
         cat.addMessageSpec(msgSpec);
+
+        msgSpec = addBasicMsg(TARIFF_OPTION_SWITCH_BASE_DISPLAY, TARIFF_OPTION_SWITCH_BASE, false);
+        cat.addMessageSpec(msgSpec);
+
+        msgSpec = addBasicMsg(TARIFF_OPTION_SWITCH_DAYNIGHT_DISPLAY, TARIFF_OPTION_SWITCH_DAYNIGHT, false);
+        cat.addMessageSpec(msgSpec);
         
         theCategories.add(cat);
         return theCategories;
@@ -471,20 +482,40 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
 		
 	}
 
-	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
+	public MessageResult queryMessage(MessageEntry messageEntry) {
 		
-		//try {
+		try {
 			if (messageEntry.getContent().indexOf("<"+DISCONNECT)>=0) {
+				getCosemObjectFactory().getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).writeControlState(new TypeEnum(0));
+				getLogger().info("DISCONNECT message received");
+				if (DEBUG >= 1) System.out.println("DISCONNECT message received");
 			}
 			else if (messageEntry.getContent().indexOf("<"+CONNECT)>=0) {
+				getCosemObjectFactory().getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).writeControlState(new TypeEnum(1));
+				getLogger().info("CONNECT message received");
+				if (DEBUG >= 1) System.out.println("CONNECT message received");
 			}
 			else if (messageEntry.getContent().indexOf("<"+ARM)>=0) {
+				getCosemObjectFactory().getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).writeControlState(new TypeEnum(2));
+				getLogger().info("ARM message received");
+				if (DEBUG >= 1) System.out.println("ARM message received");
+			}
+			else if (messageEntry.getContent().indexOf("<"+TARIFF_OPTION_SWITCH_BASE)>=0) {
+				getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.0.255")).setValueAttr(new TypeEnum(0));
+				getLogger().info("TARIFF_OPTION_SWITCH_BASE message received");
+				if (DEBUG >= 1) System.out.println("TARIFF_OPTION_SWITCH_BASE message received");
+			}
+			else if (messageEntry.getContent().indexOf("<"+TARIFF_OPTION_SWITCH_DAYNIGHT)>=0) {
+				getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.0.255")).setValueAttr(new TypeEnum(1));
+				getLogger().info("TARIFF_OPTION_SWITCH_DAYNIGHT message received");
+				if (DEBUG >= 1) System.out.println("TARIFF_OPTION_SWITCH_DAYNIGHT message received");
 			}
 			return MessageResult.createSuccess(messageEntry);
-		//}
-		//catch(IOException e) {
-		//	return MessageResult.createFailed(messageEntry);
-		//}
+		}
+		catch(IOException e) {
+			getLogger().severe("QueryMessage(), "+e.getMessage());
+			return MessageResult.createFailed(messageEntry);
+		}
 	}
 
     
