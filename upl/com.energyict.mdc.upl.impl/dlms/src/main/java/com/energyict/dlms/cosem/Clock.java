@@ -5,6 +5,7 @@
  */
 
 package com.energyict.dlms.cosem;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -13,17 +14,32 @@ import com.energyict.dlms.OctetString;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Integer16;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
+
 /**
  *
  * @author  Koen
  */
 public class Clock extends AbstractCosemObject {
-    public final int DEBUG=0;
-    static public final int CLASSID=8;
+    
+	/** This is the maximum number of seconds we can use a time shift for. */
+	public static final int MAX_TIME_SHIFT_SECONDS = 900;
+	
+	/** Indicates whether we allow debugging output. */
+	private static final int DEBUG = 0; 
+    
+    /** Method ID of the shift_clock method. */
+    private static final int METHODID_SHIFT_TIME = 6;
+ 
+    /** The class ID of the clock object. */
+    private static final int CLASSID = 8;
+    
+    /** Long name of the clock object as defined in the spec. */
+    private static final byte[] LN = new byte[] { 0, 0, 1, 0, 0, (byte)255 };
     
     Date dateTime;
     boolean dateTimeCached=false;
@@ -34,8 +50,6 @@ public class Clock extends AbstractCosemObject {
     int dsDeviation=-1;
     int dsEnabled=-1;
     int dstFlag=-1;
-    
-    static final byte[] LN=new byte[]{0,0,1,0,0,(byte)255};
     
     /** Creates a new instance of Clock */
     public Clock(ProtocolLink protocolLink) {
@@ -116,24 +130,24 @@ public class Clock extends AbstractCosemObject {
         }
         
         int year = (int)ProtocolUtils.getShort(responseData,2)&0x0000FFFF;
-        if (year != 0xFFFF) gcalendarMeter.set(gcalendarMeter.YEAR,year);
+        if (year != 0xFFFF) gcalendarMeter.set(Calendar.YEAR,year);
         
         int month = (int)responseData[4]&0xFF;
-        if (month != 0xFF) gcalendarMeter.set(gcalendarMeter.MONTH,month-1);
+        if (month != 0xFF) gcalendarMeter.set(Calendar.MONTH,month-1);
         
         int date = (int)responseData[5]&0xFF;
-        if (date != 0xFF) gcalendarMeter.set(gcalendarMeter.DAY_OF_MONTH,date);
+        if (date != 0xFF) gcalendarMeter.set(Calendar.DAY_OF_MONTH,date);
         
         int hour = (int)responseData[7]&0xFF;
-        if (hour != 0xFF) gcalendarMeter.set(gcalendarMeter.HOUR_OF_DAY,hour);
+        if (hour != 0xFF) gcalendarMeter.set(Calendar.HOUR_OF_DAY,hour);
         
         int minute = (int)responseData[8]&0xFF;
-        if (minute != 0xFF) gcalendarMeter.set(gcalendarMeter.MINUTE,minute);
+        if (minute != 0xFF) gcalendarMeter.set(Calendar.MINUTE,minute);
         
         int seconds = (int)responseData[9]&0xFF;
-        if (seconds != 0xFF) gcalendarMeter.set(gcalendarMeter.SECOND,seconds);
+        if (seconds != 0xFF) gcalendarMeter.set(Calendar.SECOND,seconds);
         
-        gcalendarMeter.set(gcalendarMeter.MILLISECOND,0);
+        gcalendarMeter.set(Calendar.MILLISECOND,0);
         
         return gcalendarMeter;
     }
@@ -229,4 +243,25 @@ public class Clock extends AbstractCosemObject {
         return AXDRDecoder.decode(getLNResponseData(2));
     }
     
+    /**
+     * Shifts the time of the clock by offset seconds. Offset needs to be between -900 and +900 seconds.
+     * 
+     * This translates to method_id 6 on the clock object (class_id 8) in the DLMS blue book. Parameter is a long between -900 seconds and 900 
+     * seconds.
+     * 
+     * This method can be used to shift time relatively as opposed to setting the time absolutely. This allows for roundtrip correction when using 
+     * slow communication media.
+     * 
+     * @param 	offset						The offset to shift the time by (in seconds). 
+     * 
+     * @throws	IOException					If an IO error occurs during the method invocation.
+     * @throws	IllegalArgumentException	In case the offset does not fall between the specified boundaries (-900s <= offset <= 900s).
+     */
+    public final void shiftTime(final int offset) throws IOException, IllegalArgumentException {
+    	if (offset < (MAX_TIME_SHIFT_SECONDS * -1) || offset > MAX_TIME_SHIFT_SECONDS) {
+    		throw new IllegalArgumentException("Offset must be between -" + MAX_TIME_SHIFT_SECONDS + " and " + MAX_TIME_SHIFT_SECONDS + " seconds (inclusive) (DLMS blue book 4.5.1), you specified [" + offset + "]");
+    	}
+    	
+    	this.invoke(METHODID_SHIFT_TIME, new Integer16(offset).getBEREncodedByteArray());
+    }
 }
