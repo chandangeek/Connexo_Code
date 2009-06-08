@@ -100,8 +100,23 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
             if (objectReference.isLNReference())
                //responseData = protocolLink.getDLMSConnection().sendRequest(buildSetRequest(getClassId(),objectReference.getLn(),DLMSUtils.attrSN2LN(attribute),data));
                 responseData = protocolLink.getDLMSConnection().sendRequest(buildSetRequest(getClassId(),objectReference.getLn(),(byte)attribute,data));
-            else if (objectReference.isSNReference())
+            else if (objectReference.isSNReference()) {
+            	
+               // very dirty trick because there is a lot of legacy code that passes the attribute as
+               // an correct offset to the base address... 	However, the later (better) dlms framework objects
+               // use the method for write in this abstract class with attribute id 0,1,...
+               // so, only for attribute = 8 or a multiple of 8 can be a problem.... 	
+               if ((attribute < 8) || ((attribute % 8) != 0)) {
+            	   attribute = (attribute-1)*8;
+            	   byte[] data2 = new byte[data.length+1];
+            	   System.arraycopy(data, 0, data2, 1, data.length);
+            	   data = data2;
+            	   data[0] = 0x01;
+               }
+               
+               
                responseData = protocolLink.getDLMSConnection().sendRequest(buildWriteRequest((short)objectReference.getSn(),attribute,data));
+            }
             if (protocolLink.getDLMSConnection() instanceof AdaptorConnection)
             	return responseData;
             else 

@@ -185,6 +185,7 @@ public class Disconnector extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void writeControlMode(TypeEnum controlMode) throws IOException {
+		
 		write(ATTRB_CONTROL_MODE, controlMode.getBEREncodedByteArray());
 		this.controlMode = controlMode;
 	}
