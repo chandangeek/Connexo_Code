@@ -12,6 +12,7 @@ import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dialer.core.*;
 
 /*
@@ -361,11 +362,7 @@ public class SEVC implements MeterProtocol,HHUEnabler,SerialNumber {
     }
     
     public String getProtocolVersion() {
-    	String rev = "$Revision: 33703 $"+" - "+"$Date$";
-    	String manipulated = "Revision "+rev.substring(rev.indexOf("$Revision: ")+"$Revision: ".length(), rev.indexOf("$ -"))
-    						+"at "
-    						 +rev.substring(rev.indexOf("$Date: ")+"$Date: ".length(), rev.indexOf("$Date: ")+"$Date: ".length()+19);
-    	return manipulated; 
+        return "$Revision: 1.28 $";
     }
     
     public String getFirmwareVersion() throws IOException,UnsupportedException {
