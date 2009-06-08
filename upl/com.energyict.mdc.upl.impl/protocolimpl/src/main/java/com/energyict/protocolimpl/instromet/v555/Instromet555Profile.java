@@ -26,10 +26,10 @@ public class Instromet555Profile {
         System.out.println("size channelinfos= " + size);
         for (int i = 0; i < size; i++) {
         	profileData.addChannel((ChannelInfo) channelInfos.get(i));
-        	System.out.println("addChannel" + ((ChannelInfo) channelInfos.get(i)).getName()
+        	/*System.out.println("addChannel" + ((ChannelInfo) channelInfos.get(i)).getName()
                     + ", " + ((ChannelInfo) channelInfos.get(i)).getUnit()
                     + ", " + ((ChannelInfo) channelInfos.get(i)).getId() 
-                    + ", " + ((ChannelInfo) channelInfos.get(i)).getCumulativeWrapValue());
+                    + ", " + ((ChannelInfo) channelInfos.get(i)).getCumulativeWrapValue());*/
         }
         List intervalDatas = 
         	tablefactory.getLoggedDataTable(lastReading).getIntervalDatas();
