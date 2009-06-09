@@ -192,12 +192,13 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				SmsWakeup smsWakeup = new SmsWakeup(this.scheduler, this.logger);
 				smsWakeup.doWakeUp();
 				
+				this.webRtuKP = getUpdatedMeter();
+				
 				ipAddress = checkIPAddressForPortNumber(smsWakeup.getIpAddress());
 				
 				this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
 				this.link.getStreamConnection().open();
 				getLogger().log(Level.INFO, "Connected to " + ipAddress);
-				
 			} 
 			
 			init(this.link.getInputStream(), this.link.getOutputStream());
@@ -309,6 +310,10 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		}
 	}
 	
+	private Rtu getUpdatedMeter() {
+		return mw().getRtuFactory().find(this.webRtuKP.getId());
+	}
+
 	protected boolean verifyMaxTimeDifference() throws IOException {
 		Date systemTime = Calendar.getInstance().getTime();
 		Date meterTime = getTime();
