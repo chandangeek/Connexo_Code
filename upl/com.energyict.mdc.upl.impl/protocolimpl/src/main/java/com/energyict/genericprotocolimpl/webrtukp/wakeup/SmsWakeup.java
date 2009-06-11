@@ -192,7 +192,7 @@ public class SmsWakeup {
 		String minorReturnCode = swuTriggerResponse.getReturn().getReturnCode().getMinorReturnCode();
 		if(majorReturnCode.equalsIgnoreCase(mrcRequestComplete)){
 			this.requestSuccess = true;
-			this.logger.info("Successfully send the wakeup trigger.");
+			this.logger.info("Successfully sent the wakeup trigger.");
 		} else {
 			this.requestSuccess = false;
 			this.logger.info("Wakeup trigger failed, majorReturnCode: " + majorReturnCode + ", minorReturnCode: " + minorReturnCode);

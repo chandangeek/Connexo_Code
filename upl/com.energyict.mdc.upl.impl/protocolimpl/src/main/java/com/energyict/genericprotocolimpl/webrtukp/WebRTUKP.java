@@ -32,6 +32,10 @@ import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
@@ -123,6 +127,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	private CommunicationScheduler	scheduler;
 	private Link					link;
 	private Rtu						webRtuKP;
+	private ApplicationServiceObject aso;
 	
 	// this cache object is supported by 7.5
 	private DLMSCache 				dlmsCache=new DLMSCache();	     
@@ -320,7 +325,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		
 		this.timeDifference = Math.abs(meterTime.getTime() - systemTime.getTime());
 		long diff = this.timeDifference;	// in milliseconds
-		if( (diff > this.commProfile.getMaximumClockDifference()*1000)){
+		if( (diff/1000 > this.commProfile.getMaximumClockDifference())){
 			
 			String msg = "Time difference exceeds configured maximum: (" + (diff / 1000) + " s > " + this.commProfile.getMaximumClockDifference()+ " s )";
 			
@@ -402,6 +407,11 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		InvokeIdAndPriority iiap = buildInvokeIdAndPriority();
 		this.dlmsConnection.setInvokeIdAndPriority(iiap);
 		
+		ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
+		XdlmsAse xDlmsAse = new XdlmsAse(null, false, -1, 6, cb, 1200);
+		// TODO the value of the contextId can depend on the securityLevel
+		this.aso = new ApplicationServiceObject(xDlmsAse, this.securityLevel, this.password, this.dlmsConnection, AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING);
+		
 		if (DialerMarker.hasOpticalMarker(this.link)){
 			((HHUEnabler)this).enableHHUSignOn(this.link.getSerialCommunicationChannel());
 		}			
@@ -423,7 +433,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		return iiap;
 	}
 
-
 	/**
 	 * Makes a connection to the server, if the socket is not available then an error is thrown.
 	 * After a successful connection, we initiate an authentication request.
@@ -438,9 +447,13 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 					log(Level.INFO, "Sign On procedure done.");
 			}
 			getDLMSConnection().setIskraWrapper(1);
-			aarq = new AARQ(this.password, getDLMSConnection());
-			aarq.requestApplicationAssociation(this.securityLevel);
 			
+
+			this.aso.createAssociation();
+//			
+//			aarq = new AARQ(this.password, getDLMSConnection());
+//			aarq.requestApplicationAssociation(this.securityLevel);
+//			
 			// objectList
 			checkCacheObjects();
 			
@@ -473,9 +486,9 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	
 	/**
 	 * Collect the IP address of the meter and update this value on the RTU
-	 * @throws SQLException
-	 * @throws BusinessException
-	 * @throws IOException
+	 * @throws SQLException - if a database exception occured during the upgrade of the IP-address
+	 * @throws BusinessException - if a businessexception occured during the upgrade of the IP-address
+	 * @throws IOException - caused by an invalid reference type or invalid datatype
 	 */
 	private void updateIPAddress() throws SQLException, BusinessException, IOException{
 		StringBuffer ipAddress = new StringBuffer();
@@ -724,7 +737,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		try {
 			if(connected){	// only send the disconnect command if you are connected
 							// otherwise you will retry for a certain time ...
-				aarq.disConnect();
+//				aarq.disConnect();
+				this.aso.releaseAssociation();
 			}
 			getDLMSConnection().disconnectMAC();
 		} catch (IOException e) {
