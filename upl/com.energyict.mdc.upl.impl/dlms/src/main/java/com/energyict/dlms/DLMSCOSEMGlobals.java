@@ -215,12 +215,13 @@ public interface DLMSCOSEMGlobals {
     final byte COSEM_GETRESPONSE_WITH_DATABLOCK=2;    
     final byte COSEM_SETRESPONSE=(byte)0xC5;    
     final byte COSEM_SETRESPONSE_NORMAL=1;    
-
     final byte COSEM_ACTIONREQUEST=(byte)0xC3;    
     final byte COSEM_ACTIONREQUEST_NORMAL=1;    
-    
     final byte COSEM_ACTIONRESPONSE=(byte)0xC7;    
-    final byte COSEM_ACTIONRESPONSE_NORMAL=1;       
+    final byte COSEM_ACTIONRESPONSE_NORMAL=1;
+    
+    final byte COSEM_INITIATEREQUEST = (byte)0x01;
+    final byte COSEM_INITIATERESPONSE = (byte)0x08;
     
     // Confirmed Service error tags
     static final byte CONFIRMEDSERVICEERROR_INITIATEERROR_TAG=1;
@@ -242,5 +243,25 @@ public interface DLMSCOSEMGlobals {
     static final byte CONFIRMEDSERVICEERROR_INITIATEUPLOAD_TAG=17;
     static final byte CONFIRMEDSERVICEERROR_UPLOADSEGMENT_TAG=18;
     static final byte CONFIRMEDSERVICEERROR_TERMINATEUPLOAD_TAG=19;
-    
+
+    // ACSE tags
+    static final byte AARQ_TAG							= 	(byte)0x60;
+    static final byte AARQ_CALLING_AUTHENTICATION_VALUE = 	(byte)0xAC;
+    static final byte AARQ_USER_INFORMATION				= 	(byte)0xBE;
+    static final byte AARQ_APPLICATION_CONTEXT_NAME 	= 	(byte)0xA1;
+    static final byte AARQ_SENDER_ACSE_REQUIREMENTS		= 	(byte)0x8A;
+    static final byte AARQ_MECHANISM_NAME				=	(byte)0x8B;
+    static final byte AARE_TAG							=	(byte)0x61;
+    static final byte AARE_APPLICATION_CONTEXT_NAME 	= 	(byte)0xA1;
+    static final byte AARE_RESULT 						= 	(byte)0xA2;
+    static final byte AARE_RESULT_SOURCE_DIAGNOSTIC 	= 	(byte)0xA3;
+    static final byte ACSE_SERVICE_USER 				= 	(byte)0xA1;
+    static final byte ACSE_SERVICE_PROVIDER 			= 	(byte)0xA2;
+    static final byte AARE_USER_INFORMATION 			= 	(byte)0xBE;
+    static final byte DLMS_PDU_INITIATE_RESPONSE 		= 	(byte)0x08;
+    static final byte DLMS_PDU_CONFIRMED_SERVICE_ERROR	=	(byte)0x0E;
+    static final byte RLRQ_TAG							= 	(byte)0x62;
+    static final byte RLRE_TAG							=	(byte)0x63;
+    /** Not sure it's correct, we assume this is the value by looking at the results*/
+    static final byte RLRE_RELEASE_RESPONSE_REASON		=	(byte)0x80;
 }
