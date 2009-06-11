@@ -220,7 +220,7 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 	}
 
 	protected TimeZone getTimeZone() {
-		return null;
+		return getMbusDevice().getWebRTU().getTimeZone();
 	}
 	
 	private MbusDevice getMbusDevice(){
