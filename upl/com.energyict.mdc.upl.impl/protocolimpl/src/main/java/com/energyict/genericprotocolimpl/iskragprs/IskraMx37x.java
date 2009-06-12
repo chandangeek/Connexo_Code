@@ -101,6 +101,7 @@ import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.HDLCConnection;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
+import com.energyict.utils.Utilities;
 
 /**
  * @author gna
@@ -111,6 +112,7 @@ import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
  * GNA |23022009| Added mbus install/remove/dataretrieval messages
  * GNA |26032009| Added the activate Wakeup message
  * GNA |02042009| Added extra registers to check if the MO switch has successfully been done
+ * GNA |28052009| Deleted the 'DeleteNumberFromWhiteList' message and adjusted the set message to a limit of 5 numbers
  */
 public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism, Messaging, HHUEnabler{
 	
@@ -253,15 +255,37 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 //		}
 //		System.out.println("");
 		
-		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-		cal.set(Calendar.YEAR, 2009);
-		cal.set(Calendar.MONTH, 3);
-		cal.set(Calendar.DAY_OF_MONTH, 10);
-		cal.set(Calendar.HOUR_OF_DAY, 10);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-		System.out.println(cal.getTimeInMillis()/1000);
+		try {
+			Utilities.createEnvironment();
+			MeteringWarehouse.createBatchContext(false);
+			MeteringWarehouse mw = MeteringWarehouse.getCurrent();		
+			
+			Rtu rtu = mw.getRtuFactory().find(18572);
+			Rtu mbus = mw.getRtuFactory().find(17953);
+			
+			mbus.updateGateway(rtu);
+			
+			RtuShadow shadow = mbus.getShadow();
+			shadow.setGatewayId(0);
+			mbus.update(shadow);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+//		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+//		cal.set(Calendar.YEAR, 2009);
+//		cal.set(Calendar.MONTH, 3);
+//		cal.set(Calendar.DAY_OF_MONTH, 10);
+//		cal.set(Calendar.HOUR_OF_DAY, 10);
+//		cal.set(Calendar.MINUTE, 0);
+//		cal.set(Calendar.SECOND, 0);
+//		cal.set(Calendar.MILLISECOND, 0);
+//		System.out.println(cal.getTimeInMillis()/1000);
 		
 	}
 
@@ -1346,7 +1370,11 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             boolean mbusInstDR	= contents.equalsIgnoreCase(RtuMessageConstant.MBUS_INSTALL_DATAREADOUT);
             boolean mbusRemove 	= contents.equalsIgnoreCase(RtuMessageConstant.MBUS_REMOVE);
             boolean wuChangeTimeOut = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_INACT_TIMEOUT);
-            boolean wuAddWhiteList = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
+            boolean wuAddWhiteList = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_NR1)||
+            							contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_NR2)||
+            							contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_NR3)||
+            							contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_NR4)||
+            							contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_NR5);
             boolean wuDeleteWhiteList = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_DELETE_WHITELIST);
             boolean wuGeneralRestrict = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_GENERAL_RESTRICTION);
             boolean wuClearWhiteList = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_CLEAR_WHITELIST);
@@ -1425,31 +1453,40 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             
             else if(mbusInstall){
             	getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.128.255"), 9, 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
+            	
             	msg.confirm();
             }
             else if(mbusRemove){
             	getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.129.255"), 9, 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
+            	
+            	//TODO need To TEST
+            	clearMbusGateWays();
+            	
             	msg.confirm();
             }
             else if(mbusInstDR){
             	getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.130.255"), 9, 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
+            	
+            	// TODO need To TEST
+            	checkMbusDevices();	// we do this to update the ConcentratorGateway
+            	
             	msg.confirm();
             }
             else if(wuAddWhiteList){
             	addPhoneToWhiteList(msg);
             }
-            else if(wuDeleteWhiteList){
-            	deletePhoneFromWhiteList(msg);
-            }
+//            else if(wuDeleteWhiteList){		 // Delete doesn't work, you can only write 5 numbers
+//            		deletePhoneFromWhiteList(msg);
+//            }
             else if(wuChangeTimeOut){
             	changeInactivityTimeout(msg);
             }
             else if(wuGeneralRestrict){
             	changeGeneralPhoneRestriction(msg);
             }
-            else if(wuClearWhiteList){
-            	clearWhiteList(msg);
-            }
+//            else if(wuClearWhiteList){
+//            	clearWhiteList(msg);
+//            }
             else if(wuActivate){
             	activateWakeUp(msg);
             } 
@@ -1459,6 +1496,23 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             else {
             	msg.setFailed();
             }
+		}
+	}
+	
+	/**
+	 * NOTE: Updating the gateway of an RTU with NULL is not compatible with EIServer 7.x!!
+	 * @throws SQLException if a database exception occurred
+	 * @throws BusinessException if a business exception occurred
+	 */
+	private void clearMbusGateWays() throws SQLException, BusinessException{
+		List slaves = getMeter().getDownstreamRtus();
+		Iterator it = slaves.iterator();
+		while(it.hasNext()){
+			Rtu slave = (Rtu)it.next();
+//			slave.updateGateway(null);
+			RtuShadow shadow = slave.getShadow();
+			shadow.setGatewayId(0);
+			slave.update(shadow);
 		}
 	}
 	
@@ -1617,21 +1671,46 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	}
 
 	private void addPhoneToWhiteList(RtuMessage msg) throws BusinessException, SQLException {
-		String description = "Add number from whitelist for meter with serialnumber: " + rtu.getSerialNumber();
+		String description = "Adding numbers to whitelist for meter with serialnumber: " + rtu.getSerialNumber();
 		
 		try {
 			getLogger().log(Level.INFO, description);
-			String number = getMessageValue(msg.getContents(), RtuMessageConstant.WAKEUP_ADD_WHITELIST);
+			String[] numbers = new String[5];
+			numbers[0] = getMessageValue(msg.getContents(), RtuMessageConstant.WAKEUP_NR1);
+			numbers[1] = getMessageValue(msg.getContents(), RtuMessageConstant.WAKEUP_NR2);
+			numbers[2] = getMessageValue(msg.getContents(), RtuMessageConstant.WAKEUP_NR3);
+			numbers[3] = getMessageValue(msg.getContents(), RtuMessageConstant.WAKEUP_NR4);
+			numbers[4] = getMessageValue(msg.getContents(), RtuMessageConstant.WAKEUP_NR5);
 			AutoConnect autoConnect = getCosemObjectFactory().getAutoConnect();
-			autoConnect.addNumberToDestinationList(number);
-			autoConnect.updatePhoneList();
 			
-			int index = autoConnect.getDestinationList().nrOfDataTypes() - 1;
+			Array list = new Array();
+			list.addDataType(OctetString.fromString(numbers[0]));
+			list.addDataType(OctetString.fromString(numbers[1]));
+			list.addDataType(OctetString.fromString(numbers[2]));
+			list.addDataType(OctetString.fromString(numbers[3]));
+			list.addDataType(OctetString.fromString(numbers[4]));
+			
+			autoConnect.writeDestinationList(list);
 			
 			byte[] os = getCosemObjectFactory().getData(ObisCode.fromString("0.0.128.20.20.255")).getValueAttr().getOctetString().getOctetStr();
-			os[index] = (byte)0x03;
+			for(int i = 0; i < 5; i++){
+				if(!numbers[i].equalsIgnoreCase("")){
+					os[i] = (byte)0x03;
+				} else {
+					os[i] = (byte)0xff;
+				}
+			}
 			getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.20.255"), 2, 1).write(new OctetString(os).getBEREncodedByteArray());
 			
+//			autoConnect.addNumberToDestinationList(number);
+//			autoConnect.updatePhoneList();
+//			
+//			int index = autoConnect.getDestinationList().nrOfDataTypes() - 1;
+//			
+//			byte[] os = getCosemObjectFactory().getData(ObisCode.fromString("0.0.128.20.20.255")).getValueAttr().getOctetString().getOctetStr();
+//			os[index] = (byte)0x03;
+//			getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.20.255"), 2, 1).write(new OctetString(os).getBEREncodedByteArray());
+//			
 			msg.confirm();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2001,10 +2080,10 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         
         msgSpec = addValueMessage("Change inactivity timeout", RtuMessageConstant.WAKEUP_INACT_TIMEOUT, false);
         catWakeUp.addMessageSpec(msgSpec);
-        msgSpec = addValueMessage("Add number to white list", RtuMessageConstant.WAKEUP_ADD_WHITELIST, false);
+        msgSpec = addWhiteListPhoneNumbers("Add numbers to white list", RtuMessageConstant.WAKEUP_ADD_WHITELIST, false);
         catWakeUp.addMessageSpec(msgSpec);
-        msgSpec = addValueMessage("Delete number from white list", RtuMessageConstant.WAKEUP_DELETE_WHITELIST, false);
-        catWakeUp.addMessageSpec(msgSpec);
+//        msgSpec = addValueMessage("Delete number from white list", RtuMessageConstant.WAKEUP_DELETE_WHITELIST, false);
+//        catWakeUp.addMessageSpec(msgSpec);
         msgSpec = addBasicMsg("Activate wakeup mechanism", RtuMessageConstant.WAKEUP_ACTIVATE, false);
         catWakeUp.addMessageSpec(msgSpec);
         // TODO Don't implement this yet ... 
@@ -2013,8 +2092,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 //        msgSpec = addValueMessage("Change general restriction ", RtuMessageConstant.WAKEUP_GENERAL_RESTRICTION, false);
 //        catWakeUp.addMessageSpec(msgSpec);
         
-        msgSpec = addValueMessage("Upgrade Firmware", RtuMessageConstant.FIRMWARE, false);
-        catFirmware.addMessageSpec(msgSpec);
+        // TODO not complete yet!
+//        msgSpec = addValueMessage("Upgrade Firmware", RtuMessageConstant.FIRMWARE, false);
+//        catFirmware.addMessageSpec(msgSpec);
         
         theCategories.add(cat);
         theCategories.add(cat2);
@@ -2068,6 +2148,26 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	    tagSpec.add(new MessageValueSpec());
 	    msgSpec.add(tagSpec);
 	    tagSpec = new MessageTagSpec(RtuMessageConstant.CONTRACT_POWERLIMIT);
+	    tagSpec.add(new MessageValueSpec());
+	    msgSpec.add(tagSpec);
+		return msgSpec;
+	}
+	
+	private MessageSpec addWhiteListPhoneNumbers(String keyId, String tagName, boolean advanced){
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+	    MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.WAKEUP_NR1);
+	    tagSpec.add(new MessageValueSpec());
+	    msgSpec.add(tagSpec);
+	    tagSpec = new MessageTagSpec(RtuMessageConstant.WAKEUP_NR2);
+	    tagSpec.add(new MessageValueSpec());
+	    msgSpec.add(tagSpec);
+	    tagSpec = new MessageTagSpec(RtuMessageConstant.WAKEUP_NR3);
+	    tagSpec.add(new MessageValueSpec());
+	    msgSpec.add(tagSpec);
+	    tagSpec = new MessageTagSpec(RtuMessageConstant.WAKEUP_NR4);
+	    tagSpec.add(new MessageValueSpec());
+	    msgSpec.add(tagSpec);
+	    tagSpec = new MessageTagSpec(RtuMessageConstant.WAKEUP_NR5);
 	    tagSpec.add(new MessageValueSpec());
 	    msgSpec.add(tagSpec);
 		return msgSpec;
