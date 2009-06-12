@@ -83,7 +83,7 @@ public class CSDCall extends ModemConnection{
 			}
 			
 			if(expectCommPort("CONNECT", timeOut)){
-				throw new IOException("Failed do do a wakeUp.");
+				throw new IOException("Failed to do a wakeUp.");
 			}
 			
 		} catch (DialerCarrierException e){
