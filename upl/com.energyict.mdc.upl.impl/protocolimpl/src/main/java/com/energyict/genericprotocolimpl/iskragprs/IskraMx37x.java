@@ -101,7 +101,6 @@ import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.HDLCConnection;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
-import com.energyict.utils.Utilities;
 
 /**
  * @author gna
@@ -254,28 +253,6 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 //			e.printStackTrace();
 //		}
 //		System.out.println("");
-		
-		try {
-			Utilities.createEnvironment();
-			MeteringWarehouse.createBatchContext(false);
-			MeteringWarehouse mw = MeteringWarehouse.getCurrent();		
-			
-			Rtu rtu = mw.getRtuFactory().find(18572);
-			Rtu mbus = mw.getRtuFactory().find(17953);
-			
-			mbus.updateGateway(rtu);
-			
-			RtuShadow shadow = mbus.getShadow();
-			shadow.setGatewayId(0);
-			mbus.update(shadow);
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (BusinessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 //		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 //		cal.set(Calendar.YEAR, 2009);
