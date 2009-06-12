@@ -16,55 +16,64 @@
             <version>${eiserver.version}</version>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
         	<groupId>serialio</groupId>
         	<artifactId>serialio</artifactId>
         	<version>1.0.0</version>
         </dependency>
+        
          <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>xmodem</artifactId>
             <version>1.0.0</version>
         </dependency>
+        
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdwutil</artifactId>
             <version>${eiserver.version}</version>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
             <version>1.2.1</version>
         </dependency>
+        
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis-jaxrpc</artifactId>
             <version>1.2.1</version>
         </dependency>
+        
         <dependency>
          	<groupId>com.energyict</groupId>
          	<artifactId>mdwdevtools</artifactId>
-         	<version>${eiserver.version}</version>
+         	<!--  <version>${eiserver.version}</version>  -->
+         	<version>8.4.0-SNAPSHOT</version>
          	<scope>test</scope>
          </dependency>
+         
          <dependency>
          	<groupId>com.energyict</groupId>
          	<artifactId>dlms</artifactId>
          	<version>${project.version}</version>
          </dependency>
+         
          <dependency>
          	<groupId>org.hibernate</groupId>
 			<artifactId>hibernate</artifactId>
 			<version>3.2.1.ga</version>
          </dependency>
+         
 		<dependency>
          	<groupId>c3p0</groupId>
 			<artifactId>c3p0</artifactId>
 			<version>0.9.1.2</version>
          </dependency>
          
-		<!-- Added on 11/05/09 -->         
 		<dependency>
 		    <groupId>javax.xml.ws</groupId>
 		    <artifactId>jaxws-api</artifactId>
