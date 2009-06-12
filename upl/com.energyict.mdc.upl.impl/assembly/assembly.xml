@@ -53,6 +53,6 @@
 					</dependencySet>
 				</dependencySets>
 			</binaries>
-		</moduleSet>		
+		</moduleSet>
 	</moduleSets>
 </assembly>
