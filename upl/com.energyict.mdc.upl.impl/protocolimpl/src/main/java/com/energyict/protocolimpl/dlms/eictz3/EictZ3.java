@@ -597,8 +597,13 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 			eiStatus |= IntervalStateBits.CONFIGURATIONCHANGE;
 		if ((protocolStatus & DEVICE_CLOCK_SET_INCORRECT) != 0)
 			eiStatus |= IntervalStateBits.SHORTLONG;
-		if ((protocolStatus & SEASONAL_SWITCHOVER) != 0)
-			eiStatus |= IntervalStateBits.SHORTLONG;
+		
+		// Commented out as we don't want SL flags the whole summer long.
+		// NTA requires this apparently although the device uses UTC.
+		
+		/*if ((protocolStatus & SEASONAL_SWITCHOVER) != 0)
+			eiStatus |= IntervalStateBits.SHORTLONG;*/
+		
 		if ((protocolStatus & FATAL_DEVICE_ERROR) != 0)
 			eiStatus |= IntervalStateBits.OTHER;
 		if ((protocolStatus & DISTURBED_MEASURE) != 0)
@@ -695,7 +700,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 						- (deviceTime.getTime() + roundtripCorrection);
 
 				logger.info("Time difference is [" + timeDifference
-						+ "] miliseconds (corrected for roundtrip time of [" + roundtripCorrection + "] milliseconds)");
+						+ "] miliseconds (using roundtrip time of [" + roundtripCorrection + "] milliseconds)");
 
 				// Now if the time difference can be corrected using a shift of
 				// the time, correct it, otherwise do a setClock.
