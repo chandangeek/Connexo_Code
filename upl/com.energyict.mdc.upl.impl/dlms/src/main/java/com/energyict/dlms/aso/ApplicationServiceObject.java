@@ -25,18 +25,23 @@ public class ApplicationServiceObject {
 
 	protected XdlmsAse xDlmsAse;
 	protected AssociationControlServiceElement acse;
-	private SecurityProvider securityProvider;
+	protected SecurityContext securityContext;
 	protected ProtocolLink protocolLink;
 	
 	public static String ALGORITHM_MD5 = "MD5"; 
 	public static String ALGORITHM_SHA1 = "SHA-1";
 	public static String ALGORITHM_GMAC = "GMAC";
 	
-	public ApplicationServiceObject(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityProvider securityProvider, int contextId) throws IOException{
+	public ApplicationServiceObject(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext, int contextId) throws IOException{
 		this.xDlmsAse = xDlmsAse;
 		this.protocolLink = protocolLink;
-		this.securityProvider = securityProvider;
-		this.acse = new AssociationControlServiceElement(this.xDlmsAse, contextId, this.securityProvider.getSecurityLevel(), this.securityProvider.getCallingAuthenticationValue());
+		this.securityContext = securityContext;
+		this.acse = new AssociationControlServiceElement(this.xDlmsAse, contextId, 
+				this.securityContext.getAuthenticationLevel(), this.securityContext.getSecurityProvider().getCallingAuthenticationValue());
+	}
+	
+	public SecurityContext getSecurityContext(){
+		return this.securityContext;
 	}
 	
 	/*******************************************************************************************************
@@ -55,31 +60,35 @@ public class ApplicationServiceObject {
 		handleHighLevelSecurityAuthentication();
 
 	}
-	
+	/**
+	 * If HighLevelSecurity/Authentication is enabled, then there are two more steps to take.
+	 * According to the level a different algorithm must be used to encrypt the challenges.
+	 * @throws IOException
+	 */
 	protected void handleHighLevelSecurityAuthentication() throws IOException {
 		byte[] encryptedResponse;
 		byte[] plainText;
-		switch(this.securityProvider.getSecurityLevel()){
+		switch(this.securityContext.getAuthenticationLevel()){
 		case 0: break;
 		case 1: break;
 		case 2: throw new IOException("High level security 2 is not supported.");
 		case 3:{
 			if(this.acse.getRespondingAuthenticationValue() != null){
-				plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityProvider.getHLSSecret());
-				encryptedResponse = replyToHLSAuthentication(this.securityProvider.encrypt(plainText));
-				analyzeEncryptedResponse(ALGORITHM_MD5, encryptedResponse);
+				plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
+				encryptedResponse = replyToHLSAuthentication(this.securityContext.associationEncryption(plainText));
+				analyzeEncryptedResponse(encryptedResponse);
 			} else {
-				throw new ConnectionException("No challenge was responded; Current securityLevel(" + this.securityProvider.getSecurityLevel() +
+				throw new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
 				") requires the server to respond with a challenge.");
 			}
 		};break;
 		case 4:{
 			if(this.acse.getRespondingAuthenticationValue() != null){
-				plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityProvider.getHLSSecret());
-				encryptedResponse = replyToHLSAuthentication(this.securityProvider.encrypt(plainText));
-				analyzeEncryptedResponse(ALGORITHM_SHA1, encryptedResponse);
+				plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
+				encryptedResponse = replyToHLSAuthentication(this.securityContext.associationEncryption(plainText));
+				analyzeEncryptedResponse(encryptedResponse);
 			} else {
-				throw new ConnectionException("No challenge was responded; Current securityLevel(" + this.securityProvider.getSecurityLevel() +
+				throw new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
 				") requires the server to respond with a challenge.");
 			}
 		};break;
@@ -88,20 +97,20 @@ public class ApplicationServiceObject {
 			throw new IOException("High level security 5 (GMAC) is not supported YET.");
 		}default:{
 			// should never get here
-			throw new ConnectionException("Unknown securitylevel: " + this.securityProvider.getSecurityLevel());
+			throw new ConnectionException("Unknown authenticationLevel: " + this.securityContext.getAuthenticationLevel());
 		}
 		}
 	}
 
 	/**
 	 * Encrypt the clientToServer challenge and compare it with the encrypted response from the server
-	 * @param algorithm - name of the algorithm to use to encrypt the challenge
 	 * @param encryptedResponse is the response from the server to the reply_to_HLS_authentication
 	 * @throws IOException if the two challenges don't match, or if the HLSSecret could be supplied, if it's not a valid algorithm or when there is no callingAuthenticationvalue
 	 */
-	private void analyzeEncryptedResponse(String algorithm, byte[] encryptedResponse) throws IOException {
-		byte[] plainText = ProtocolUtils.concatByteArrays(this.securityProvider.getCallingAuthenticationValue(), this.securityProvider.getHLSSecret());
-		byte[] cToSEncrypted = this.securityProvider.encrypt(plainText);
+	private void analyzeEncryptedResponse(byte[] encryptedResponse) throws IOException {
+		byte[] plainText = ProtocolUtils.concatByteArrays(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
+//		byte[] cToSEncrypted = this.securityContext.getSecurityProvider().encrypt(plainText);
+		byte[] cToSEncrypted = this.securityContext.associationEncryption(plainText);
 		if(!Arrays.equals(cToSEncrypted, encryptedResponse)){
 			throw new IOException("HighLevelAuthentication failed, client and server challenges do not match.");
 		}

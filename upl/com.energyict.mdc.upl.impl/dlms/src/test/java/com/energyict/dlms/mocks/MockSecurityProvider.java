@@ -11,31 +11,12 @@ import com.energyict.protocol.ProtocolUtils;
 
 public class MockSecurityProvider implements SecurityProvider{
 	
-	private int securityLevel;
 	private String algorithm;
 	private String[] possibleAlgorithms = new String[]{"","","","MD5","SHA-1","GMAC"};
 	private byte[] cTOs;
 	
 	public MockSecurityProvider(){
 		
-	}
-
-	public byte[] decrypt(byte[] cipherdText) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public byte[] encrypt(byte[] plainText) throws IOException {
-		try {
-			byte[] digest;
-			MessageDigest md = MessageDigest.getInstance(this.algorithm);
-			md.reset();
-			digest = md.digest(plainText);
-			return digest;
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-			throw new IOException("" + this.algorithm + " algorithm isn't a valid algorithm type." + e.getMessage());
-		}
 	}
 
 	public byte[] getAuthenticationKey() throws IOException {
@@ -59,10 +40,6 @@ public class MockSecurityProvider implements SecurityProvider{
 
 	public byte[] getHLSSecret() throws IOException {
 		return new byte[]{(byte)0xFF,(byte)0x00,(byte)0xEE,(byte)0x11,(byte)0xDD,(byte)0x22,(byte)0xCC,(byte)0x33};
-	}
-
-	public int getSecurityLevel() {
-		return this.securityLevel;
 	}
 	
 	public String getAlgorithm() {
@@ -88,10 +65,6 @@ public class MockSecurityProvider implements SecurityProvider{
 	public void setCTOs(byte[] os) {
 		cTOs = os;
 	}
-
-	public void setSecurityLevel(int securityLevel) {
-		this.securityLevel = securityLevel;
-	}
 	
     /**
      * Build up a stringbuffer containing the hex values from the byteArray.
@@ -112,6 +85,19 @@ public class MockSecurityProvider implements SecurityProvider{
 		}
 		return strBuff.toString();
     }
+    
+	private byte[] encrypt(byte[] plainText) throws IOException {
+		try {
+			byte[] digest;
+			MessageDigest md = MessageDigest.getInstance(this.algorithm);
+			md.reset();
+			digest = md.digest(plainText);
+			return digest;
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			throw new IOException("" + this.algorithm + " algorithm isn't a valid algorithm type." + e.getMessage());
+		}
+	}
 	
 	public static void main(String args[]){
 		try {

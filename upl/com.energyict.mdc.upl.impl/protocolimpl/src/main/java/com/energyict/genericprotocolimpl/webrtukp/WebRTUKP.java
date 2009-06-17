@@ -36,6 +36,7 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.AssociationControlServiceElement;
 import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
@@ -408,12 +409,17 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		InvokeIdAndPriority iiap = buildInvokeIdAndPriority();
 		this.dlmsConnection.setInvokeIdAndPriority(iiap);
 		
-		LocalSecurityProvider lsp = new LocalSecurityProvider(this.webRtuKP);
+		LocalSecurityProvider lsp = new LocalSecurityProvider(this.securityLevel, this.password);
 		
 		ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
+		
 		XdlmsAse xDlmsAse = new XdlmsAse(null, false, -1, 6, cb, 1200);
-		// TODO the value of the contextId can depend on the securityLevel
-		this.aso = new ApplicationServiceObject(xDlmsAse, this, lsp, AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING);
+		
+		//TODO the dataTransport securityLevel should be a property
+		SecurityContext sc = new SecurityContext(0, this.securityLevel, 0, lsp);
+		
+		//TODO the value of the contextId can depend on the securityLevel
+		this.aso = new ApplicationServiceObject(xDlmsAse, this, sc, AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING);
 		
 		if (DialerMarker.hasOpticalMarker(this.link)){
 			((HHUEnabler)this).enableHHUSignOn(this.link.getSerialCommunicationChannel());

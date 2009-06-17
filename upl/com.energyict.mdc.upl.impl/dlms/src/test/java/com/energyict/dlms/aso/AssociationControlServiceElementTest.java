@@ -104,6 +104,15 @@ public class AssociationControlServiceElementTest {
 			acse.setCallingAuthenticationValue(authValue);
 			assertArrayEquals(aarqlowlevel, acse.buildAARQApdu());
 			
+			acse.setAuthMechanismId(5);
+			passw = "K56iVagY";
+			authValue = new byte[passw.length()];
+			for(int i = 0; i < passw.length(); i++){
+				authValue[i] = (byte)passw.charAt(i);
+			}
+			acse.setCallingAuthenticationValue(authValue);
+			assertArrayEquals(DLMSUtils.hexStringToByteArray("6036A1090607608574050801018A0207808B0760857405080205AC0A80084B35366956616759BE10040E01000000065F1F0400007E1F04B0"),
+					acse.buildAARQApdu());
 			
 		} catch (IOException e) {
 			e.printStackTrace();

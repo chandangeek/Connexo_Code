@@ -4,16 +4,13 @@ import java.io.IOException;
 
 /** SecurityProvider interface
  * 
+ * The securityProvider is responsible for providing all possible keys.
+ * 
  * @author gna
  *
  */
 public interface SecurityProvider {
 	
-	/**
-	 * @return the current securityLevel
-	 */
-	public int getSecurityLevel();
-
 	/**
 	 * This carries the challenge for the HLS authentication,
 	 * for example a random number is used
@@ -56,15 +53,15 @@ public interface SecurityProvider {
 	 */
 	public byte[] getMasterKey() throws IOException;
 
-	/**
-	 * @param plainText - the text to encrypt
-	 * @return the cipherdText
-	 */
-	public byte[] encrypt(byte[] plainText) throws IOException;
-	
-	/**
-	 * @param cipherdText - the encrypted text
-	 * @return the plainText
-	 */
-	public byte[] decrypt(byte[] cipherdText) throws IOException;
+//	/**
+//	 * @param plainText - the text to encrypt
+//	 * @return the cipherdText
+//	 */
+//	public byte[] encrypt(byte[] plainText) throws IOException;
+//	
+//	/**
+//	 * @param cipherdText - the encrypted text
+//	 * @return the plainText
+//	 */
+//	public byte[] decrypt(byte[] cipherdText) throws IOException;
 }

@@ -1,26 +1,25 @@
 package com.energyict.genericprotocolimpl.common;
 
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.mdw.core.Rtu;
 import com.energyict.protocolimpl.base.SecurityLevelException;
 
 public class LocalSecurityProvider implements SecurityProvider {
 	
-	private Rtu rtu;
 	private int securityLevel;
-	private String algorithm;
-	private String[] possibleAlgorithms = new String[]{"","","","MD5","SHA-1","GMAC"};
+	private String password;
 	private byte[] cTOs;
 	
-	public LocalSecurityProvider(Rtu rtu){
-		this.rtu = rtu;
-		this.securityLevel = Integer.parseInt(rtu.getProperties().getProperty("SecurityLevel", "0"));
-		this.algorithm = this.possibleAlgorithms[this.securityLevel];
+	/**
+	 * Create a new instance of LocalSecurityProvider
+	 * @param authenticationLevel - depending on the level we provide a different callingAuthenticationKey
+	 * @param password - this will be the HLSSecret with LowLevel Security
+	 */
+	public LocalSecurityProvider(int authenticationLevel, String password){
+		this.password = password;
+		this.securityLevel = authenticationLevel;
 	}
 	
 	/**
@@ -34,24 +33,6 @@ public class LocalSecurityProvider implements SecurityProvider {
 		}
 	}
 
-	public byte[] decrypt(byte[] cipherdText) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public byte[] encrypt(byte[] plainText) throws IOException {
-		try {
-			byte[] digest;
-			MessageDigest md = MessageDigest.getInstance(this.algorithm);
-			md.reset();
-			digest = md.digest(plainText);
-			return digest;
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-			throw new IOException("" + this.algorithm + " algorithm isn't a valid algorithm type." + e.getMessage());
-		}
-	}
-
 	public byte[] getAuthenticationKey() {
 		// TODO Auto-generated method stub
 		return null;
@@ -62,12 +43,6 @@ public class LocalSecurityProvider implements SecurityProvider {
 		switch(this.securityLevel){
 		case 0: return new byte[0];
 		case 1: {
-//			String password = this.rtu.getPassword();
-//			byte[] byteWord = new byte[password.length()];
-//			for(int i = 0; i < password.length(); i++){
-//				byteWord[i] = (byte)password.charAt(i);
-//			}
-//			return byteWord;
 			return getHLSSecret();
 		}
 		case 2: throw new SecurityLevelException("SecurityLevel 2 is not implemented.");
@@ -102,10 +77,9 @@ public class LocalSecurityProvider implements SecurityProvider {
 	}
 
 	public byte[] getHLSSecret() {
-		String password = this.rtu.getPassword();
-		byte[] byteWord = new byte[password.length()];
-		for(int i = 0; i < password.length(); i++){
-			byteWord[i] = (byte)password.charAt(i);
+		byte[] byteWord = new byte[this.password.length()];
+		for(int i = 0; i < this.password.length(); i++){
+			byteWord[i] = (byte)this.password.charAt(i);
 		}
 		return byteWord;
 	}
