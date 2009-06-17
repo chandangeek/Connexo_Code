@@ -255,6 +255,8 @@ public interface DLMSCOSEMGlobals {
     static final byte AARE_APPLICATION_CONTEXT_NAME 	= 	(byte)0xA1;
     static final byte AARE_RESULT 						= 	(byte)0xA2;
     static final byte AARE_RESULT_SOURCE_DIAGNOSTIC 	= 	(byte)0xA3;
+    static final byte AARE_MECHANISM_NAME				=	(byte)0x89;
+    static final byte AARE_RESPONDING_AUTHENTICATION_VALUE =(byte)0xAA;
     static final byte ACSE_SERVICE_USER 				= 	(byte)0xA1;
     static final byte ACSE_SERVICE_PROVIDER 			= 	(byte)0xA2;
     static final byte AARE_USER_INFORMATION 			= 	(byte)0xBE;

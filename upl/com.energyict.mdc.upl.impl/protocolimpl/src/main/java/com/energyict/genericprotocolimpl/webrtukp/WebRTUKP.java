@@ -28,6 +28,7 @@ import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.TCPIPConnection;
@@ -36,14 +37,16 @@ import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.AssociationControlServiceElement;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.IPv4Setup;
-import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageExecutor;
@@ -121,7 +124,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	private CosemObjectFactory 		cosemObjectFactory;
 	private DLMSConnection 			dlmsConnection;
 	private DLMSMeterConfig			dlmsMeterConfig;
-	private AARQ					aarq;
 	private CommunicationProfile	commProfile;
 	private Logger					logger;
 	private CommunicationScheduler	scheduler;
@@ -210,7 +212,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 			connect();
 			connected = true;
 			
-/*****************************************************************************
+			/*****************************************************************************
  *  T E S T   M E T H O D S			
  */
 //			doSomeTestCalls();
@@ -229,7 +231,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + webRtuKP.getSerialNumber());
 				ElectricityProfile ep = new ElectricityProfile(this);
 				
-//				ep.getProfile(getMeterConfig().getProfileObject().getObisCode(), this.commProfile.getReadMeterEvents());
 				ep.getProfile(getMeterConfig().getProfileObject().getObisCode());
 			} 
 			
@@ -407,10 +408,12 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		InvokeIdAndPriority iiap = buildInvokeIdAndPriority();
 		this.dlmsConnection.setInvokeIdAndPriority(iiap);
 		
+		LocalSecurityProvider lsp = new LocalSecurityProvider(this.webRtuKP);
+		
 		ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
 		XdlmsAse xDlmsAse = new XdlmsAse(null, false, -1, 6, cb, 1200);
 		// TODO the value of the contextId can depend on the securityLevel
-		this.aso = new ApplicationServiceObject(xDlmsAse, this.securityLevel, this.password, this.dlmsConnection, AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING);
+		this.aso = new ApplicationServiceObject(xDlmsAse, this, lsp, AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING);
 		
 		if (DialerMarker.hasOpticalMarker(this.link)){
 			((HHUEnabler)this).enableHHUSignOn(this.link.getSerialCommunicationChannel());
@@ -447,13 +450,9 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 					log(Level.INFO, "Sign On procedure done.");
 			}
 			getDLMSConnection().setIskraWrapper(1);
-			
 
 			this.aso.createAssociation();
-//			
-//			aarq = new AARQ(this.password, getDLMSConnection());
-//			aarq.requestApplicationAssociation(this.securityLevel);
-//			
+			
 			// objectList
 			checkCacheObjects();
 			
@@ -529,20 +528,25 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	 * Just to test some objects
 	 */
 	private void doSomeTestCalls(){
-		try {
-			
-			PPPSetup pppSetup = getCosemObjectFactory().getPPPSetup();
-			
-			pppSetup.getPPPAuthenticationType();
-			pppSetup.getPPPAuthenticationType().getUsername();
-			pppSetup.getPPPAuthenticationType().getPassword();
-			
-//			String strDate = "27/01/2009 07:45:00";
-//			Array dateArray = convertUnixToDateTimeArray(strDate);
-//			sas.writeExecutionTime(dateArray);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			AssociationLN aln = getCosemObjectFactory().getAssociationLN();
+//			
+//			System.out.println(aln.getBuffer());
+//			System.out.println(aln.getAssociatedPartnersId());
+//			System.out.println(aln.getClientSAP());
+//			System.out.println(aln.getServerSAP());
+//			System.out.println(aln.getXdlmsContextInfo());
+//			System.out.println(aln.readApplicationContextName());
+//			System.out.println(aln.readAuthenticationMechanismName());
+//			System.out.println(aln.readSecuritySetupReference());
+//			
+//			ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255"));
+//			Array dpta = ac.readDayProfileTableActive();
+//			ac.writeDayProfileTablePassive(dpta);
+//			
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 	}
 	
 	/**
@@ -1286,6 +1290,17 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 //		} catch (IOException e) {
 //			e.printStackTrace();
 //		}
+		
+		String comm = "612aa109060760857405080101a203020100a305a103020100be11040f080100065f1f0400007c1f04000007";
+		String mvie = "6141A109060760857405080101A203020100A305A10302010E88020780890760857405080205AA0A8008503677524A323146BE10040E0800065F1F040000501F01F40007";
+		
+		byte[] bComm = DLMSUtils.hexStringToByteArray(comm);
+		byte[] bmVie = DLMSUtils.hexStringToByteArray(mvie);
+		
+		for(int i = 0; i < ((bComm.length > bmVie.length)?bmVie.length:bComm.length); i++){
+			if(bComm[i] != bmVie[i])
+				System.out.println("Difference at: " + i + "; Comm: " + bComm[i] + "(" + comm.charAt(i*2) + comm.charAt(i*2+1) + ") - MVie: " + bmVie[i] + "(" + mvie.charAt(i*2) + mvie.charAt(i*2+1) + ")");
+		}
 		
 		}
 

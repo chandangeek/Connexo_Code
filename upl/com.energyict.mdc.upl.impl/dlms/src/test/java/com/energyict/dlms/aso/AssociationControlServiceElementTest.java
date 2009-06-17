@@ -1,12 +1,15 @@
 package com.energyict.dlms.aso;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
 import org.junit.Test;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
 
 
 public class AssociationControlServiceElementTest {
@@ -60,8 +63,7 @@ public class AssociationControlServiceElementTest {
     									(byte)0x01, // application context name 
     									(byte)0x01}; // context name ID 1
     	
-    	AssociationControlServiceElement acse = new AssociationControlServiceElement();
-    	acse.setContextId(1); // Set the value to 'Logical_Name_Referencing_no_ciphering'
+    	AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, 0, null);
     	
     	assertArrayEquals(acExpected1, acse.getApplicationContextName());
     	
@@ -85,17 +87,21 @@ public class AssociationControlServiceElementTest {
     	try {
     		
     		// AARQ without security mechanism
-			AssociationControlServiceElement acse = new AssociationControlServiceElement();
-			ConformanceBlock conformanceBlock = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
-			XdlmsAse ase = new XdlmsAse(null, false, -1, 6, conformanceBlock, 1200);
+    		ConformanceBlock conformanceBlock = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
+    		XdlmsAse ase = new XdlmsAse(null, false, -1, 6, conformanceBlock, 1200);
+			AssociationControlServiceElement acse = new AssociationControlServiceElement(ase, 1, 0, null);
 			acse.setUserInformation(ase.getInitiatRequestByteArray());
-			acse.setContextId(1);
 			assertArrayEquals(aarqNoAuthentication, acse.buildAARQApdu());
 			
 			
 			// AARQ using low level authentication
 			acse.setAuthMechanismId(1);
-			acse.setCallingAuthenticationValue("12345678");
+			String passw = "12345678";
+			byte[] authValue = new byte[passw.length()];
+			for(int i = 0; i < passw.length(); i++){
+				authValue[i] = (byte)passw.charAt(i);
+			}
+			acse.setCallingAuthenticationValue(authValue);
 			assertArrayEquals(aarqlowlevel, acse.buildAARQApdu());
 			
 			
@@ -108,8 +114,18 @@ public class AssociationControlServiceElementTest {
     @Test
     public void analyzeResponsTest(){
     	try {
-			AssociationControlServiceElement acse = new AssociationControlServiceElement();
+			
+    		AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, 2, null);
+    		
+    		String hlSecurityResponse = "6141A109060760857405080101A203020100A305A10302010E88020780890760857405080202AA0A8008503677524A323146BE10040E0800065F1F040000501F01F40007";
+    		acse.analyzeAARE(DLMSUtils.hexStringToByteArray(hlSecurityResponse));
+    		assertEquals("P6wRJ21F",new String(acse.getRespondingAuthenticationValue()));
+    		
+    		String str = "000100010064002c612aa109060760857405080101a203020100a305a103020100be11040f080100065f1f0400007c1f04000007";
+			acse.analyzeAARE(DLMSUtils.hexStringToByteArray(str));
+			
 			acse.analyzeAARE(noOrLowLevelAuthentication);
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail();

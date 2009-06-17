@@ -8,6 +8,8 @@ import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
+ * The AssociationControlServiceElement is an application layer protocol to establish and release an association between two entities
+ * and to determine the application context of that association.
  * 
  * @author gna
  * 
@@ -34,17 +36,16 @@ public class AssociationControlServiceElement {
 	private int contextId = 1;
 	private int mechanismId = 0;
 	private byte[] userInformationData;
-	private String callingAuthenticationValue;
+	private byte[] callingAuthenticationValue;
+	private byte[] respondingAuthenticationValue;
 	private XdlmsAse xdlmsAse;
 
-	public AssociationControlServiceElement() {
-	}
 
-	public AssociationControlServiceElement(int securityLevel, String callingAuthenticationValue, XdlmsAse dlmsAse, int contextId) {
-		setCallingAuthenticationValue(callingAuthenticationValue);
-		setAuthMechanismId(securityLevel);
+	public AssociationControlServiceElement(XdlmsAse dlmsAse, int contextId, int mechanismId, byte[] callingAuthenticationValue) {
 		this.xdlmsAse = dlmsAse;
 		this.contextId = contextId;
+		this.mechanismId = mechanismId;
+		this.callingAuthenticationValue = callingAuthenticationValue;
 	}
 
 	/**
@@ -52,23 +53,22 @@ public class AssociationControlServiceElement {
 	 * @throws IOException
 	 */
 	public byte[] createAssociationRequest() throws IOException {
-//		this.xdlmsAse = dlmsAse;
-//		setUserInformation(this.xdlmsAse.getInitiatRequestByteArray());
-//		byte[] response = this.connection.sendRequest(addUnusedPrefixBytesForCompliancyWithOldCode(buildAARQApdu()));
-//		analyzeAARE(response);
-//		if(this.mechanismId >= 2){
-//			throw new UnsupportedException("High Level security is not yet supported");
-//		}
 		setUserInformation(this.xdlmsAse.getInitiatRequestByteArray());
 		return addUnusedPrefixBytesForCompliancyWithOldCode(buildAARQApdu());
 	}
 	
+	/**
+	 * Release the current association
+	 * @return a byteArray containing an ApplicationAssociationReleaseRequest
+	 * @throws IOException
+	 */
 	public byte[] releaseAssociationRequest() throws IOException {
 		return addUnusedPrefixBytesForCompliancyWithOldCode(buildRLRQApdu());
 	}
 	
 	/**
 	 * FIXME TCPIPConnection strips the first three bytes of the byteArray.
+	 * This method add three redundant bytes in front of your array to be compliant with old implementation.
 	 */
 	private byte[] addUnusedPrefixBytesForCompliancyWithOldCode(byte[] request){
 		byte[] r = new byte[request.length+3];
@@ -99,10 +99,16 @@ public class AssociationControlServiceElement {
 		t += getApplicationContextName().length;
 
 		/**
-		 * called-AP-title [2] AP-title OPTIONAL, called-AE-qualifier [3]
+		 * called-AP-title [2] AP-title OPTIONAL,
+		 * called-AE-qualifier [3]
 		 * AE-qualifier OPTIONAL, called-AP-invocation-id [4]
 		 * AP-invocation-identifier OPTIONAL, called-AE-invocation-id [5]
-		 * AE-invocation-identifier OPTIONAL, calling-AP-title [6] AP-title
+		 * AE-invocation-identifier OPTIONAL, 
+		 * 
+		 * TODO for application contexts using ciphering, the calling-AP-title field shall carry the CLIENT-SYSTEM-TITLE 
+		 * calling-AP-title [6] AP-title
+		 * 
+		 * 
 		 * OPTIONAL, calling-AE-qualifier [7] AE-qualifier OPTIONAL,
 		 * calling-AP-invocation-id [8] AP-invocation-identifier OPTIONAL,
 		 * calling-AE-invocation-id [9] AE-invocation-identifier OPTIONAL,
@@ -140,7 +146,7 @@ public class AssociationControlServiceElement {
 	}
 	
 	/**
-	 * Analyze the responsedata
+	 * Analyze the responseData
 	 * @param responseData from the device
 	 * @throws IOException 
 	 */
@@ -165,7 +171,7 @@ public class AssociationControlServiceElement {
 								&& (responseData[i + 2] == 1)
 								&& (responseData[i + 3] == 0)) {
 							// Result OK
-							return;
+//							return;
 						}
 						i += responseData[i]; // skip length + data
 					} // else if (responseData[i] == AARE_RESULT)
@@ -227,9 +233,26 @@ public class AssociationControlServiceElement {
 						}
 
 						i += responseData[i]; // skip length + data
-					} // else if (responseData[i] ==
-						// AARE_RESULT_SOURCE_DIAGNOSTIC)
+					} // else if (responseData[i] == AARE_RESULT_SOURCE_DIAGNOSTIC)
+					
+					else if (responseData[i] == DLMSCOSEMGlobals.AARE_MECHANISM_NAME){
+						i++; //skip tag
+						if(responseData[i + 7] != this.mechanismId){
+							throw new IOException("Application Association Establishment Failed, mechanim_id("+ responseData[i+7] +"),  different then proposed(" + this.mechanismId + ")");
+						}
+						i += responseData[i]; // skip length + data
+					}
 
+					else if (responseData[i] == DLMSCOSEMGlobals.AARE_RESPONDING_AUTHENTICATION_VALUE){
+						i++; //skip tag
+						
+						if(responseData[i + 1] == (byte)0x80){ // encoding choice for GraphicString
+							setRespondingAuthenticationValue(ProtocolUtils.getSubArray2(responseData, i+3, responseData[i+2]));
+						}
+						
+						i += responseData[i]; // skip length + data
+					}
+					
 					else if (responseData[i] == DLMSCOSEMGlobals.AARE_USER_INFORMATION) {
 						i++; // skip tag
 						if (responseData[i + 2] > 0) { // length of octet string
@@ -240,6 +263,7 @@ public class AssociationControlServiceElement {
 																					// has only 3 bytes, 24 bit
 								getXdlmsAse().setMaxRecPDUServerSize(ProtocolUtils.getShort(responseData, i + 12));
 								getXdlmsAse().setVAAName(ProtocolUtils.getShort(responseData, i + 14));
+								return;
 
 							} else if (DLMSCOSEMGlobals.DLMS_PDU_CONFIRMED_SERVICE_ERROR == responseData[i + 3]) {
 								if (0x01 == responseData[i + 4])
@@ -438,14 +462,12 @@ public class AssociationControlServiceElement {
 		if(this.callingAuthenticationValue == null){
 			throw new ConnectionException("CallingAuthenticationValue is not filled in.");
 		}
-		byte[] authValue = new byte[this.callingAuthenticationValue.length() + 4];
+		byte[] authValue = new byte[this.callingAuthenticationValue.length + 4];
 		authValue[0] = DLMSCOSEMGlobals.AARQ_CALLING_AUTHENTICATION_VALUE;
-		authValue[1] = (byte) (this.callingAuthenticationValue.length() + 2);
+		authValue[1] = (byte) (this.callingAuthenticationValue.length + 2);
 		authValue[2] = (byte) 0x80; // choice for authentication-information ...
-		authValue[3] = (byte) this.callingAuthenticationValue.length();
-		for (int i = 0; i < this.callingAuthenticationValue.length(); i++) {
-			authValue[4 + i] = (byte) this.callingAuthenticationValue.charAt(i);
-		}
+		authValue[3] = (byte) this.callingAuthenticationValue.length;
+		System.arraycopy(this.callingAuthenticationValue, 0, authValue, 4, this.callingAuthenticationValue.length);
 		return authValue;
 	}
 
@@ -496,7 +518,7 @@ public class AssociationControlServiceElement {
 	 * 
 	 * @param authValue
 	 */
-	public void setCallingAuthenticationValue(String authValue) {
+	public void setCallingAuthenticationValue(byte[] authValue) {
 		this.callingAuthenticationValue = authValue;
 	}
 
@@ -515,5 +537,17 @@ public class AssociationControlServiceElement {
 			this.xdlmsAse = new XdlmsAse();
 		}
 		return this.xdlmsAse;
+	}
+	
+	protected byte[] getRespondingAuthenticationValue(){
+		return this.respondingAuthenticationValue;
+	}
+	
+	protected void setRespondingAuthenticationValue(byte[] respondingAuthenticationValue){
+		this.respondingAuthenticationValue = respondingAuthenticationValue;
+	}
+
+	public int getContextId() {
+		return this.contextId;
 	}
 }

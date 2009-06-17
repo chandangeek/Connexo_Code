@@ -6,13 +6,13 @@
 
 package com.energyict.dlms.cosem;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 
-import com.energyict.protocolimpl.dlms.*;
-import com.energyict.protocol.*;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.obis.ObisCode;
 /**
  *
  * @author  Koen
@@ -21,20 +21,69 @@ public class AssociationSN extends AbstractCosemObject {
     public final int DEBUG=0;
     static public final int CLASSID=12;
     
-    UniversalObject[] buffer;
+    
+    /** Attributes */
+    private UniversalObject[] buffer; // the objectList
+    private Array accessRightsList; // contains the access rights to attributes and methods
+    private OctetString securitySetupReference; //References the SecuritySetup object by its logical name
+    
+    /** Attribute numbers (shortname notation ...) */
+    static private final int ATTRB_OBJECT_LIST = 0x08;
+    static private final int ATTRB_ACCESS_RIGHTS = 0x10;
+    static private final int ATTRB_SECURITY_SETUP_REF = 0x18;
+    
+    /** Method invoke */
+    private static int METHOD_READ_BY_LOGICAL_NAME = 3;
+    private static int METHOD_CHANGE_SECRET = 5;
+    private static int METHOD_REPLY_TO_HLS_AUTHENTICATION = 8;
+    
+    static final byte[] LN=new byte[]{0,0,(byte)40,0,0,(byte)255};
+    
+    public AssociationSN(ProtocolLink protocolLink){
+    	super(protocolLink, new ObjectReference(LN));
+    }
     
     /** Creates a new instance of AssociationSN */
     public AssociationSN(ProtocolLink protocolLink,ObjectReference objectReference) {
         super(protocolLink,objectReference );
     }
     
-    public UniversalObject[] getBuffer() throws IOException {
-        buffer = data2UOL(getResponseData(ASSOC_SN_ATTR_OBJ_LST));
-        return buffer;
-    }
-    
     protected int getClassId() {
         return CLASSID;
     }
     
+    /** Return the logicalName (obiscode) of this object */
+    static public ObisCode getObisCode(){
+    	return ObisCode.fromByteArray(LN);
+    }
+    
+    /**
+     * Read the objectList from the current association
+     * @return an array of UO containing the information of the objects in the device
+     * @throws IOException
+     */
+    public UniversalObject[] getBuffer() throws IOException {
+    	buffer = data2UOL(getResponseData(ASSOC_SN_ATTR_OBJ_LST));
+    	return buffer;
+    }
+   
+    /**
+     * Reply to the server with his encrypted challenge
+     * @param encryptedChallenge is the response from the associationRequest, encrypted with the HLSKey
+     * @return a byteArray contain the clientToServer challenge encrypted with the HLSKey
+     */
+    public byte[] replyToHLSAuthentication(byte[] encryptedChallenge) throws IOException {
+    	return invoke(METHOD_REPLY_TO_HLS_AUTHENTICATION, new OctetString(encryptedChallenge).getBEREncodedByteArray());
+    }
+    
+    /**
+     * Change the HLS_Secret, depending on the securityMechanism implementation, the new secret may contain
+     * additional check bits and it may be encrypted
+     * @param hlsSecret
+     * @return
+     * @throws IOException
+     */
+    public byte[] changeHLSSecret(byte[] hlsSecret) throws IOException {
+    	return invoke(METHOD_CHANGE_SECRET, new OctetString(hlsSecret).getBEREncodedByteArray());
+    }
 }
