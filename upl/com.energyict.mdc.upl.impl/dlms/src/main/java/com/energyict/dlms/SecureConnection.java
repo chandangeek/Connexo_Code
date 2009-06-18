@@ -11,66 +11,74 @@ public class SecureConnection implements DLMSConnection {
 	private ApplicationServiceObject aso;
 	private DLMSConnection connection;
 	
-	public SecureConnection(ApplicationServiceObject aso, DLMSConnection connection){
+	public SecureConnection(ApplicationServiceObject aso, DLMSConnection transportConnection){
 		this.aso = aso;
-		this.connection = connection;
+		this.connection = transportConnection;
 	}
 	
-	private DLMSConnection getConnection(){
+	private DLMSConnection getTransportConnection(){
 		return this.connection;
 	}
 
 	public void connectMAC() throws IOException, DLMSConnectionException {
-		getConnection().connectMAC();
+		getTransportConnection().connectMAC();
 	}
 
 	public void disconnectMAC() throws IOException, DLMSConnectionException {
-		getConnection().disconnectMAC();
+		getTransportConnection().disconnectMAC();
 	}
 
 	public HHUSignOn getHhuSignOn() {
-		return getConnection().getHhuSignOn();
+		return getTransportConnection().getHhuSignOn();
 	}
 
 	public InvokeIdAndPriority getInvokeIdAndPriority() {
-		return getConnection().getInvokeIdAndPriority();
+		return getTransportConnection().getInvokeIdAndPriority();
 	}
 
 	public int getType() {
-		return getConnection().getType();
+		return getTransportConnection().getType();
 	}
 
 	public byte[] sendRequest(byte[] byteRequestBuffer) throws IOException {
 		
+		if(this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED){ // only then we should encrypt
+			
+			// Strip the 3 leading bytes before encrypting
+			byte[] leading = ProtocolUtils.getSubArray(byteRequestBuffer, 0, 2);
+			
+			byte[] encryptedRequest = ProtocolUtils.getSubArray(byteRequestBuffer, 3);
+			
+			//TODO add the securityHeader
+			
+			encryptedRequest = this.aso.getSecurityContext().dataTransportEncryption(encryptedRequest);
+			
+			// Last step is to add the three leading bytes you stripped in the beginning
+			encryptedRequest = ProtocolUtils.concatByteArrays(leading, encryptedRequest);
+			
+			// send the encrypted request to the DLMSConnection
+			return getTransportConnection().sendRequest(encryptedRequest);
+			
+		} else {
+			return getTransportConnection().sendRequest(byteRequestBuffer);
+		}
 		
-		// Strip the 3 leading bytes before encrypting
-		byte[] leading = ProtocolUtils.getSubArray(byteRequestBuffer, 0, 2);
-		
-		byte[] encryptedRequest = ProtocolUtils.getSubArray(byteRequestBuffer, 3);
-		
-		encryptedRequest = this.aso.getSecurityContext().dataTransportEncryption(encryptedRequest);
-		
-		// Last step is to add the three leading bytes you stripped in the beginning
-		ProtocolUtils.concatByteArrays(leading, encryptedRequest);
-		
-		// send the encrypted request to the DLMSConnection
-		return getConnection().sendRequest(encryptedRequest);
 	}
 
 	public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId) {
-		getConnection().setHHUSignOn(hhuSignOn, meterId);
+		getTransportConnection().setHHUSignOn(hhuSignOn, meterId);
 	}
 
 	public void setInvokeIdAndPriority(InvokeIdAndPriority iiap) {
-		getConnection().setInvokeIdAndPriority(iiap);
+		getTransportConnection().setInvokeIdAndPriority(iiap);
 	}	
 
 	public void setIskraWrapper(int type) {
-		getConnection().setIskraWrapper(type);
+		getTransportConnection().setIskraWrapper(type);
 	}
 
 	public void setSNRMType(int type) {
-		getConnection().setSNRMType(type);
+		getTransportConnection().setSNRMType(type);
 	}
 
 }

@@ -88,7 +88,7 @@ public class AssociationControlServiceElementTest {
     		
     		// AARQ without security mechanism
     		ConformanceBlock conformanceBlock = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
-    		XdlmsAse ase = new XdlmsAse(null, false, -1, 6, conformanceBlock, 1200);
+    		XdlmsAse ase = new XdlmsAse(null, true, -1, 6, conformanceBlock, 1200);
 			AssociationControlServiceElement acse = new AssociationControlServiceElement(ase, 1, 0, null);
 			acse.setUserInformation(ase.getInitiatRequestByteArray());
 			assertArrayEquals(aarqNoAuthentication, acse.buildAARQApdu());

@@ -28,6 +28,11 @@ public class ApplicationServiceObject {
 	protected SecurityContext securityContext;
 	protected ProtocolLink protocolLink;
 	
+	private int associationStatus;
+	public static int ASSOCIATION_DISCONNECTED = 0;
+	public static int ASSOCIATION_PENDING = 1;
+	public static int ASSOCIATION_CONNECTED = 2;
+	
 	public static String ALGORITHM_MD5 = "MD5"; 
 	public static String ALGORITHM_SHA1 = "SHA-1";
 	public static String ALGORITHM_GMAC = "GMAC";
@@ -37,11 +42,19 @@ public class ApplicationServiceObject {
 		this.protocolLink = protocolLink;
 		this.securityContext = securityContext;
 		this.acse = new AssociationControlServiceElement(this.xDlmsAse, contextId, 
-				this.securityContext.getAuthenticationLevel(), this.securityContext.getSecurityProvider().getCallingAuthenticationValue());
+		this.securityContext.getAuthenticationLevel(), this.securityContext.getSecurityProvider().getCallingAuthenticationValue());
+		this.associationStatus = ASSOCIATION_DISCONNECTED;
 	}
 	
 	public SecurityContext getSecurityContext(){
 		return this.securityContext;
+	}
+	
+	/**
+	 * @return the status of the current association(connected/disconnected/pending)
+	 */
+	public int getAssociationStatus(){
+		return this.associationStatus;
 	}
 	
 	/*******************************************************************************************************
@@ -58,7 +71,6 @@ public class ApplicationServiceObject {
 		byte[] response = this.protocolLink.getDLMSConnection().sendRequest(request);
 		this.acse.analyzeAARE(response);
 		handleHighLevelSecurityAuthentication();
-
 	}
 	/**
 	 * If HighLevelSecurity/Authentication is enabled, then there are two more steps to take.
@@ -68,9 +80,12 @@ public class ApplicationServiceObject {
 	protected void handleHighLevelSecurityAuthentication() throws IOException {
 		byte[] encryptedResponse;
 		byte[] plainText;
+		
+		this.associationStatus = ASSOCIATION_PENDING;
+		
 		switch(this.securityContext.getAuthenticationLevel()){
-		case 0: break;
-		case 1: break;
+		case 0: {this.associationStatus = ASSOCIATION_CONNECTED;};break;
+		case 1: {this.associationStatus = ASSOCIATION_CONNECTED;};break;
 		case 2: throw new IOException("High level security 2 is not supported.");
 		case 3:{
 			if(this.acse.getRespondingAuthenticationValue() != null){
@@ -113,6 +128,8 @@ public class ApplicationServiceObject {
 		byte[] cToSEncrypted = this.securityContext.associationEncryption(plainText);
 		if(!Arrays.equals(cToSEncrypted, encryptedResponse)){
 			throw new IOException("HighLevelAuthentication failed, client and server challenges do not match.");
+		} else {
+			this.associationStatus = ASSOCIATION_CONNECTED;
 		}
 	}
 
@@ -142,6 +159,7 @@ public class ApplicationServiceObject {
 		byte[] request = this.acse.releaseAssociationRequest();
 		byte[] response = this.protocolLink.getDLMSConnection().sendRequest(request);
 		this.acse.analyzeRLRE(response);
+		this.associationStatus = ASSOCIATION_DISCONNECTED;
 	}
 	
 	/*******************************************************************************************************/

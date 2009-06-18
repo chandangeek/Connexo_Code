@@ -27,7 +27,7 @@ public class XdlmsAseTest {
 					(byte)0x04, (byte)0xB0};
 			
 			ConformanceBlock conformanceBlock = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
-			XdlmsAse ase = new XdlmsAse(null, false, -1, 6, conformanceBlock, 1200);
+			XdlmsAse ase = new XdlmsAse(null, true, -1, 6, conformanceBlock, 1200);
 			
 			assertArrayEquals(expected, ase.getInitiatRequestByteArray());
 			

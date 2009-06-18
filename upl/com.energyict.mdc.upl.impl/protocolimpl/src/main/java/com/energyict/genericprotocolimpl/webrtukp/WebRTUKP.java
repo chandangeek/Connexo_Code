@@ -31,6 +31,7 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.SecureConnection;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
@@ -209,7 +210,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				getLogger().log(Level.INFO, "Connected to " + ipAddress);
 			} 
 			
-			init(this.link.getInputStream(), this.link.getOutputStream());
+			init();
 			connect();
 			connected = true;
 			
@@ -390,36 +391,29 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	
 	/**
 	 * Initializing global objects
-	 * @param is - the inputStream to work with
-	 * @param os - the outputStream to work with
 	 * @throws IOException - can be cause by the TCPIPConnection
-	 * @throws DLMSConnectionException - could not create a dlmsconnection
+	 * @throws DLMSConnectionException - could not create a dlmsConnection
 	 * @throws BusinessException 
-	 * @throws SQLException 
+	 * @throws SQLException when a database exception occurred
 	 */
-	private void init(InputStream is, OutputStream os) throws IOException, DLMSConnectionException, SQLException, BusinessException{
+	private void init() throws IOException, DLMSConnectionException, SQLException, BusinessException{
+		
 		this.cosemObjectFactory	= new CosemObjectFactory((ProtocolLink)this);
 		
-		this.dlmsConnection = (this.connectionMode == 0)?
-//					new TempHDLCConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode):
-					new HDLC2Connection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode,this.informationFieldSize,5):
-					new TCPIPConnection(is, os, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress);
-		
-		
-		InvokeIdAndPriority iiap = buildInvokeIdAndPriority();
-		this.dlmsConnection.setInvokeIdAndPriority(iiap);
-		
 		LocalSecurityProvider lsp = new LocalSecurityProvider(this.securityLevel, this.password);
-		
 		ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
-		
-		XdlmsAse xDlmsAse = new XdlmsAse(null, false, -1, 6, cb, 1200);
-		
+		XdlmsAse xDlmsAse = new XdlmsAse(null, true, -1, 6, cb, 1200);
 		//TODO the dataTransport securityLevel should be a property
+		//TODO the dataTransport encryptionType should be a property (although currently only 0 is described by DLMS)
 		SecurityContext sc = new SecurityContext(0, this.securityLevel, 0, lsp);
 		
 		//TODO the value of the contextId can depend on the securityLevel
 		this.aso = new ApplicationServiceObject(xDlmsAse, this, sc, AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING);
+		
+		this.dlmsConnection = new SecureConnection(this.aso, getTransportDLMSConnection());
+		
+		InvokeIdAndPriority iiap = buildInvokeIdAndPriority();
+		this.dlmsConnection.setInvokeIdAndPriority(iiap);
 		
 		if (DialerMarker.hasOpticalMarker(this.link)){
 			((HHUEnabler)this).enableHHUSignOn(this.link.getSerialCommunicationChannel());
@@ -432,6 +426,28 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		
 		this.mbusDevices = new MbusDevice[this.maxMbusDevices];
 		this.storeObject = new StoreObject();
+	}
+
+	/**
+	 * @param is - The inpuStream from the Link
+	 * @param os - The outputStream from the Link
+	 * @return the DLMSConnection to use
+	 * @throws DLMSConnectionException if unknown addressingMode has been selected
+	 * @throws IOException when Connection couldn't be instantiated or when the connectionMode isn't correct
+	 */
+	private DLMSConnection getTransportDLMSConnection() throws DLMSConnectionException, IOException{
+		DLMSConnection transportConnection;
+		if(this.connectionMode == 0){
+			transportConnection = new HDLC2Connection(this.link.getInputStream(), this.link.getOutputStream(), this.timeout, 
+					this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, 
+					this.addressingMode,this.informationFieldSize,5);
+		} else if(this.connectionMode == 1){
+			transportConnection = new TCPIPConnection(this.link.getInputStream(), this.link.getOutputStream(), this.timeout, 
+					this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress);
+		} else {
+			throw new IOException("Unknown connectionMode: " + this.connectionMode + " - Only 0(HDLC) and 1(TCP) are allowed");
+		}
+		return transportConnection;
 	}
 
 	private InvokeIdAndPriority buildInvokeIdAndPriority() throws DLMSConnectionException {

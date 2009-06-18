@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import com.energyict.dialer.connection.ConnectionException;
+
 /**
  * The securityContext manages the different securityLevels for establishing associations and dataTransport
  * 
@@ -109,10 +111,21 @@ public class SecurityContext {
 		}
 	}
 	
-	public byte[] dataTransportEncryption(byte[] plainText){
+	public byte[] dataTransportEncryption(byte[] plainText) throws ConnectionException{
 		
 		// TODO complete
-		
-		return null;
+		switch(this.securityPolicy){
+		case 0:{return plainText;} 	// no encryption/authentication
+		case 1:{
+			throw new ConnectionException("Current securityLevel (" + this.securityPolicy + " - authenticate all messages) is not supported yet.");
+			}	// authenticated
+		case 2:{
+			throw new ConnectionException("Current securityLevel (" + this.securityPolicy + " - encrypt all messages) is not supported yet.");
+			} 	// encrypted
+		case 3:{
+			throw new ConnectionException("Current securityLevel (" + this.securityPolicy + " - authenticate AND encrypt all messages) is not supported yet.");
+			}	// authenticated and encrypted
+		default:throw new ConnectionException("Unknown securityPolicy: " + this.securityPolicy);
+		}
 	}
 }

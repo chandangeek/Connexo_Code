@@ -40,7 +40,13 @@ public class AssociationControlServiceElement {
 	private byte[] respondingAuthenticationValue;
 	private XdlmsAse xdlmsAse;
 
-
+	/**
+	 * Create a new instance of the AssociationControlServiceElement
+	 * @param dlmsAse - the xDLMS_ASE
+	 * @param contextId - the applicationContextId which indicates which type of reference(LN/SN) and the use of ciphering 
+	 * @param mechanismId - the associationAuthenticationMechanism id
+	 * @param callingAuthenticationValue - the secret or challenge used for the authenticated association establishment
+	 */
 	public AssociationControlServiceElement(XdlmsAse dlmsAse, int contextId, int mechanismId, byte[] callingAuthenticationValue) {
 		this.xdlmsAse = dlmsAse;
 		this.contextId = contextId;
@@ -83,7 +89,7 @@ public class AssociationControlServiceElement {
 	 */
 	protected byte[] buildAARQApdu() throws IOException {
 		int t = 0;
-		byte[] aarq = new byte[1024]; // TODO fill in the maximum value of the
+		byte[] aarq = new byte[1024]; 
 		// byte
 		aarq[t++] = DLMSCOSEMGlobals.AARQ_TAG;
 		aarq[t++] = 0; 
@@ -340,7 +346,7 @@ public class AssociationControlServiceElement {
 	 */
 	protected byte[] buildRLRQApdu() {
 		int t = 0;
-		byte[] rlrq = new byte[1024]; // TODO fill in the maximum value of the
+		byte[] rlrq = new byte[1024]; 
 		// byte
 		rlrq[t++] = DLMSCOSEMGlobals.RLRQ_TAG;
 		rlrq[t++] = 0; 
@@ -532,6 +538,9 @@ public class AssociationControlServiceElement {
 		this.userInformationData = userInformation;
 	}
 	
+	/**
+	 * @return the current xDLMS_ASE
+	 */
 	protected XdlmsAse getXdlmsAse(){
 		if(this.xdlmsAse == null){
 			this.xdlmsAse = new XdlmsAse();
@@ -539,14 +548,24 @@ public class AssociationControlServiceElement {
 		return this.xdlmsAse;
 	}
 	
+	/**
+	 * @return the authenticaionValue(challenge) from the server
+	 */
 	protected byte[] getRespondingAuthenticationValue(){
 		return this.respondingAuthenticationValue;
 	}
 	
+	/**
+	 * Set the authenticationValue(challenge) from the server
+	 * @param respondingAuthenticationValue - the challenge from the server 
+	 */
 	protected void setRespondingAuthenticationValue(byte[] respondingAuthenticationValue){
 		this.respondingAuthenticationValue = respondingAuthenticationValue;
 	}
 
+	/**
+	 * @return the applicationContextId
+	 */
 	public int getContextId() {
 		return this.contextId;
 	}

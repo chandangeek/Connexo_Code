@@ -26,13 +26,17 @@ public class XdlmsAse {
 
 	public XdlmsAse() {
 	}
-	
+
 	/**
-	 * @param dedicatedKey
-	 * @param responseAllowed
-	 * @param proposedQOS
-	 * @param proposedDLMSVersion
-	 * @param conformanceBlock
+	 * Create a new instance of an xDLMS_ASE
+	 * 
+	 * @param dedicatedKey - this may contain a cipherKey that can be used in subsequent transmissions to cipher xDLMS APDU's. 
+	 * It's use is only allowed when the xDLMS-Initiate.Request APDU has been ciphered using a GLOBALKEY. If not used, set it to NULL
+	 * @param responseAllowed - indicate if a response is allowed, default true
+	 * @param proposedQOS - the proposed QualityOfService, set to default -1
+	 * @param proposedDLMSVersion - the proposed DLMSVersion (usually 6)
+	 * @param conformanceBlock - the proposed Conformance of the client
+	 * @param maxRecPDUSize - the proposed maximum PDU size of the client
 	 */
 	public XdlmsAse(String dedicatedKey, boolean responseAllowed, int proposedQOS, int proposedDLMSVersion, ConformanceBlock conformanceBlock, int maxRecPDUSize){
 		setConformanceBlock(conformanceBlock);
@@ -43,6 +47,11 @@ public class XdlmsAse {
 		setMaxRecPDUClientSize(maxRecPDUSize);
 	}
 
+	/**
+	 * Construct a byteArray containing an InitiateRequest using the desired parameters
+	 * @return an A-XDR encoded byteArray
+	 * @throws IOException if the encoding of certain objects fail
+	 */
 	public byte[] getInitiatRequestByteArray() throws IOException {
 		int t = 0;
 		byte[] xDlmsASEReq = new byte[1024];
@@ -50,6 +59,7 @@ public class XdlmsAse {
 		xDlmsASEReq[t++] = DLMSCOSEMGlobals.COSEM_INITIATEREQUEST;
 		
 		if (getDedicatedKey() != null) {
+			xDlmsASEReq[t++] = (byte)0x01; // indicating the presence of the key
 			System.arraycopy(getDedicatedKey().getBEREncodedByteArray(), 2,
 					xDlmsASEReq, t, getDedicatedKey().getDecodedSize());
 			t += getDedicatedKey().getDecodedSize();
@@ -57,13 +67,19 @@ public class XdlmsAse {
 			xDlmsASEReq[t++] = 0; // key not present
 		}
 
-		xDlmsASEReq[t++] = getResponseAllowed()?(byte)0xff:(byte)0x00;
+		if(getResponseAllowed()){ // true is the default value
+			xDlmsASEReq[t++] = (byte) 0x00;	// value is not present, default TRUE will be used
+		} else {
+			xDlmsASEReq[t++] = (byte)0x01; // indicating the presence of the value
+			xDlmsASEReq[t++] = (byte)0x00; // value is zero
+		}
 		
 		if(getProposedQOS() != null){
+			xDlmsASEReq[t++] = (byte)0x01; // indicating the presence of the QOS parameter
 			System.arraycopy(getProposedQOS().getBEREncodedByteArray(), 1, xDlmsASEReq, t, 1);
 			t += 1;
 		} else {
-			xDlmsASEReq[t++] = 0; // no QOS proposed
+			xDlmsASEReq[t++] = 0; // QOS is not present
 		}
 		
 		System.arraycopy(getProposedDLMSVersion().getBEREncodedByteArray(), 1, xDlmsASEReq, t, 1);
@@ -82,14 +98,24 @@ public class XdlmsAse {
 		return ProtocolUtils.getSubArray(xDlmsASEReq, 0, t-1);
 	}
 	
+	/**
+	 * @return the value of the responseAllowed
+	 */
 	protected boolean getResponseAllowed() {
 		return this.responseAllowed;
 	}
 
+	/**
+	 * Set the value of the responseAllowed
+	 * @param allowed
+	 */
 	public void setResponseAllowed(boolean allowed) {
 		this.responseAllowed = allowed;
 	}
 
+	/**
+	 * @return the value of the dedicatedKey
+	 */
 	protected OctetString getDedicatedKey() {
 		if (this.dedicatedKey != null) {
 			return OctetString.fromString(this.dedicatedKey);
@@ -98,10 +124,17 @@ public class XdlmsAse {
 		}
 	}
 
+	/**
+	 * Set the value of the dedicatedKey
+	 * @param dedicatedKey
+	 */
 	public void setDedicatedKey(String dedicatedKey) {
 		this.dedicatedKey = dedicatedKey;
 	}
 	
+	/**
+	 * @return the proposed qualityOfService
+	 */
 	protected Integer8 getProposedQOS(){
 		if(this.proposedQOS != -1){
 			return new Integer8(this.proposedQOS);
@@ -109,18 +142,32 @@ public class XdlmsAse {
 			return null;
 	}
 	
+	/**
+	 * Set the proposed qualityOfService
+	 * @param proposedQOS
+	 */
 	public void setProposedQOS(int proposedQOS){
 		this.proposedQOS = proposedQOS;
 	}
 	
+	/**
+	 * @return the proposed DLMSVersion
+	 */
 	protected Unsigned8 getProposedDLMSVersion(){
 		return new Unsigned8(this.proposedDLMSversion);
 	}
 	
+	/**
+	 * Set the proposed DLMSVersion
+	 * @param proposedDLMSVersion
+	 */
 	public void setProposedDLMSVersion(int proposedDLMSVersion){
 		this.proposedDLMSversion = proposedDLMSVersion;
 	}
 	
+	/**
+	 * @return the ConformanceBlock
+	 */
 	protected ConformanceBlock getConformanceBlock(){
 		if(this.cb == null){
 			this.cb = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
@@ -128,10 +175,17 @@ public class XdlmsAse {
 		return this.cb;
 	}
 	
+	/**
+	 * Set a proposed ConformanceBlock
+	 * @param cb
+	 */
 	public void setConformanceBlock(ConformanceBlock cb){
 		this.cb = cb;
 	}
 	
+	/**
+	 * @return the clients maximum receive PDU size
+	 */
 	protected Unsigned16 getMaxRecPDUClientSize(){
 		if(this.maxRecPDUClientSize != -1){
 			return new Unsigned16(this.maxRecPDUClientSize);
@@ -139,26 +193,50 @@ public class XdlmsAse {
 		return null;
 	}
 	
+	/**
+	 * Set the clients maximum receive PDU size
+	 * @param maxSize
+	 */
 	public void setMaxRecPDUClientSize(int maxSize){
 		this.maxRecPDUClientSize = maxSize;
 	}
 
+	/**
+	 * Set the server his negotiated QualityOfService
+	 * @param qos
+	 */
 	public void setNegotiatedQOS(byte qos) {
 		this.negotiatedQOS = qos;
 	}
 
+	/**
+	 * Set the server his negotiated DLMSVersion
+	 * @param dlmsVersion
+	 */
 	public void setNegotiatedDlmsVersion(byte dlmsVersion) {
 		this.negotiatedDLMSVersion = dlmsVersion;
 	}
 
+	/**
+	 * Set the server his negotiated ConformanceBlock
+	 * @param conformance
+	 */
 	public void setNegotiatedConformance(int conformance) {
 		this.negotiatedConformanceBlock = new ConformanceBlock((long)conformance);
 	}
 
+	/**
+	 * Set the server his maximum receive PDU size
+	 * @param maxPDUServer
+	 */
 	public void setMaxRecPDUServerSize(short maxPDUServer) {
 		this.maxRecPDUServerSize = maxPDUServer;
 	}
 
+	/**
+	 * Set the server his VAA name
+	 * @param vaaName
+	 */
 	public void setVAAName(short vaaName) {
 		this.vaaName = vaaName;
 	}
