@@ -1115,5 +1115,6 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
         return (StoredValues)storedValuesImpl;
     }
     
+    
 } // public class DLMSSNAS220
 

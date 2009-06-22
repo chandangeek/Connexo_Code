@@ -42,7 +42,6 @@ import com.energyict.protocolimpl.iec1107.abba230.*;
 public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtocol {
     private static final byte DEBUG=1;
     
-    int eventIdIndex;
     
     private static String CONNECT 			= "ConnectLoad";
     private static String DISCONNECT 		= "DisconnectLoad";
@@ -284,21 +283,6 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
         return intervalData;
     }
     
-    private long mapLogCodes(long lLogCode) {
-        switch((int)lLogCode) {
-            case (int)EV_FATAL_ERROR: return(MeterEvent.FATAL_ERROR);
-            case (int)EV_CORRUPTED_MEASUREMENT: return(MeterEvent.OTHER);
-            case (int)EV_TIME_DATE_ADJUSTED: return(MeterEvent.SETCLOCK);
-            case (int)EV_POWER_UP: return(MeterEvent.POWERUP);
-            case (int)EV_POWER_DOWN: return(MeterEvent.POWERDOWN);
-            case (int)EV_EVENT_LOG_CLEARED: return(MeterEvent.OTHER);
-            case (int)EV_LOAD_PROFILE_CLEARED: return(MeterEvent.CLEAR_DATA);
-            default: return(MeterEvent.OTHER);
-        } // switch(lLogCode)
-    } // private void mapLogCodes(long lLogCode)
-    
-    
-    
     byte[] aarqlowlevelAS220_old = {(byte)0xE6,(byte)0xE6,(byte)0x00,
             0x60, 0x36, (byte) 0xA1, 0x09, 0x06, 0x07,
             0x60, (byte)0x85, 0x74, 0x05, 0x08, 0x01,
@@ -346,7 +330,6 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
             iClientMacAddress=Integer.parseInt(properties.getProperty("ClientMacAddress","32").trim());
             iServerUpperMacAddress=Integer.parseInt(properties.getProperty("ServerUpperMacAddress","1").trim());
             iServerLowerMacAddress=Integer.parseInt(properties.getProperty("ServerLowerMacAddress","0").trim());
-            eventIdIndex=Integer.parseInt(properties.getProperty("EventIdIndex","-1").trim()); // ZMD=1, ZMQ=2
             
         }
         catch (NumberFormatException e) {
