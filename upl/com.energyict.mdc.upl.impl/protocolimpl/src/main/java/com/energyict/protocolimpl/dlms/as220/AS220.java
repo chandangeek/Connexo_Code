@@ -182,7 +182,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
            		calendar.add(Calendar.SECOND,latestProfileInterval); // set the calendar to the next interval endtime
         	}
         	else if (lpcae.isPartialValue()) { // partial interval value
-        		eiCode |= IntervalStateBits.SHORTLONG;
+        		//eiCode |= IntervalStateBits.SHORTLONG;
         		if (calendar == null) continue; // first the calendar has to be initialized with the start of load profile marker
         		IntervalData ivd = new IntervalData(calendar.getTime(),eiCode);
         		eiCode = 0;
