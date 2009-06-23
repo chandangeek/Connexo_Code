@@ -8,21 +8,11 @@ package com.energyict.protocolimpl.dlms.actarissl7000;
 
 import java.io.*;
 import java.util.*;
-import java.math.*;
 
-import com.energyict.protocolimpl.dlms.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.ObjectReference;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.HistoricalValue;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.*;
+import com.energyict.dlms.cosem.*;
+import com.energyict.obis.*;
+import com.energyict.protocol.NoSuchRegisterException;
 
 /**
  *
@@ -143,10 +133,18 @@ public class StoredValuesImpl implements StoredValues {
    
     private List getBillingValues(int billingSetId,int typeId,DataContainer dc) {
         List billingValues = new ArrayList();
-        DataStructure ds = dc.getRoot().getStructure(billingSetId).getStructure(typeId).getStructure(0);
+        
+        DataStructure billingStructure = dc.getRoot().getStructure(billingSetId);
+        if (!billingStructure.isStructure(typeId)) return billingValues;
+        DataStructure typeIdStructure = billingStructure.getStructure(typeId);
+        if (!typeIdStructure.isStructure(0)) return billingValues;
+        
+        DataStructure ds = typeIdStructure.getStructure(0);
         int entries = ds.getNrOfElements();
         for(int id=0;id<entries;id++) {
-            ObisCode obisCode = ds.getStructure(id).getOctetString(0).toObisCode();
+            if (!ds.isStructure(id)) continue;
+            if (!ds.getStructure(id).isOctetString(0)) continue;
+        	ObisCode obisCode = ds.getStructure(id).getOctetString(0).toObisCode();
             long value = ds.getStructure(id).getValue(1);
             ScalerUnit scalerUnit = new ScalerUnit(ds.getStructure(id).getStructure(2).getInteger(0),
                                                    ds.getStructure(id).getStructure(2).getInteger(1));
@@ -163,8 +161,11 @@ public class StoredValuesImpl implements StoredValues {
     } // private List getTotalEnergy(int billingSetId)
     
     private BillingValue getBillingValue(int billingSetId,int typeId,DataContainer dc) {
-        DataStructure ds = dc.getRoot().getStructure(billingSetId).getStructure(typeId);
+    	DataStructure billingSetStruncture = dc.getRoot().getStructure(billingSetId);
+    	if (!billingSetStruncture.isStructure(typeId)) return null;
+    	DataStructure ds = billingSetStruncture.getStructure(typeId);
         int entries = ds.getNrOfElements();
+    	if (!ds.isOctetString(0)) return null;
         ObisCode obisCode = ds.getOctetString(0).toObisCode();
         long value = ds.getValue(1);
         ScalerUnit scalerUnit = new ScalerUnit(ds.getStructure(2).getInteger(0),

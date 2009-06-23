@@ -21,6 +21,7 @@
  *	JM|15042009|Made readRegister more robust to prevent exceptions to interrupt meter readout communication.  
  * 	JM|22052009|Fixed billing point issue in ACE6000 and SL7000 DLMS protocols.   
  * 	JM|27052009|Forced request timezone to 0.   
+ * 	JM|23062009|Fixed historical value readings in StoredValuesImpl   
  * @endchanges
  */
 package com.energyict.protocolimpl.dlms;  

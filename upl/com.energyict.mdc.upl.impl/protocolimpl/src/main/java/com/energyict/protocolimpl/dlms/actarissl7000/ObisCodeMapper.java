@@ -40,11 +40,17 @@ public class ObisCodeMapper {
     }
     
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
-        try {
-        	return (RegisterValue)doGetRegister(obisCode);
+    	RegisterValue regValue;
+    	try {
+        	regValue = (RegisterValue) doGetRegister(obisCode);
 		} catch (Exception e) {
 			throw new NoSuchRegisterException("Problems while reading " + obisCode + ": " + e.getMessage());
 		}
+
+		if ((regValue.getEventTime() != null) && (regValue.getEventTime().getTime() <= 0))
+        	throw new NoSuchRegisterException("Value with obiscode: "+obisCode+" contains a uninitialized eventDate: " + regValue.getEventTime());
+		
+		return regValue;
     }
     
     private Object doGetRegister(ObisCode obisCode) throws IOException {
