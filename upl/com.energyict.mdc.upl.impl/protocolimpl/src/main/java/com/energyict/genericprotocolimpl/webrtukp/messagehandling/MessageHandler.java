@@ -92,6 +92,12 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.MBUS_CORRECTED_SWITCH.equals(qName)){
 			setType(RtuMessageConstant.MBUS_CORRECTED_SWITCH);
 			handleMbusCorrectedValues(attrbs);
+		} else if(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY.equals(qName)){
+			setType(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY);
+			handleChangeGlobalKey(attrbs);
+		} else if(RtuMessageConstant.AEE_CHANGE_HLS_SECRET.equals(qName)){
+			setType(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
+			handleChangeHLSSecret(attrbs);
 		} else {
 			if(!isXmlInContent){ // if its the xmlMessage, then don't fail because it has xml in the content
 				throw new SAXException("Unknown messageContent : " + qName);
@@ -149,6 +155,9 @@ public class MessageHandler extends DefaultHandler{
 //	}
 	
 	public String getActivationDate(){
+		if(this.activationDate == null){
+			this.activationDate = "";
+		}
 		return this.activationDate;
 	}
 	
@@ -531,7 +540,7 @@ public class MessageHandler extends DefaultHandler{
 	/**********************************************/
 	
 	/**********************************************
-	 * WakeUp functionality Related messages
+	 * Gas corrected LoadProfile functionality Related messages
 	 **********************************************/
 	
 	private String correctionSwitch = "";
@@ -550,5 +559,36 @@ public class MessageHandler extends DefaultHandler{
 	
 	public boolean useCorrected(){
 		return !getCorrectionSwitch().equalsIgnoreCase("0");
+	}
+	
+	/**********************************************/
+	
+	/**********************************************
+	 * Authentication and Encryption functionality Related messages
+	 **********************************************/
+	
+	private String hlsSecret = "";
+	private String globalKey = "";
+	private String globalKeyType = "";
+	
+	private void handleChangeHLSSecret(Attributes attrbs){
+		this.hlsSecret = attrbs.getValue(RtuMessageConstant.AEE_HLS_SECRET);
+	}
+	
+	private void handleChangeGlobalKey(Attributes attrbs){
+		this.globalKey = attrbs.getValue(RtuMessageConstant.AEE_GLOBAL_KEY);
+		this.globalKeyType = attrbs.getValue(RtuMessageConstant.AEE_GLOBAL_KEY_TYPE);
+	}
+	
+	public String getHLSSecret(){
+		return this.hlsSecret;
+	}
+	
+	public String getGlobalKey(){
+		return this.globalKey;
+	}
+	
+	public String getGlobalKeyType(){
+		return this.globalKeyType;
 	}
 }

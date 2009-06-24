@@ -154,4 +154,11 @@ public class RtuMessageConstant {
 	/** RtuMessage tags for Corrected/UnCorrected values in Gas profile */
 	public static final String MBUS_CORRECTED_SWITCH = "Correction_switch";
 	public static final String MBUS_CORRECTED_VALUE = "Switch_State";
+	
+	/** RtuMessage tags for authentication and encryption */
+	public static final String AEE_CHANGE_HLS_SECRET = "Change_HLS_Secret";
+	public static final String AEE_HLS_SECRET = "HLSSecret";
+	public static final String AEE_CHANGE_GLOBAL_KEY = "Change_Global_Key";
+	public static final String AEE_GLOBAL_KEY = "GlobalKey";
+	public static final String AEE_GLOBAL_KEY_TYPE = "GlobalKeyType";
 }

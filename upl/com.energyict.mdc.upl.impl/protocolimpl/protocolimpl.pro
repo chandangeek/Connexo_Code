@@ -282,3 +282,6 @@
 -keep public class com.vodafone.gdsp.ws.*{
 	*;
 }
+
+
+-keepnames class com.energyict.genericprotocolimpl.webrtukp.MeterToolProtocol

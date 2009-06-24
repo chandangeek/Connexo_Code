@@ -129,7 +129,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	 * Properties
 	 */
 	private Properties properties;
-	private int securityLevel; // 0: No Authentication - 1: Low Level - 2: High Level
+	private int authenticationSecurityLevel;
+	private int datatransportSecurityLevel; 	
 	private int connectionMode; // 0: DLMS/HDLC - 1: DLMS/TCPIP
 	private int clientMacAddress;
 	private int serverLowerMacAddress;
@@ -246,7 +247,12 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				getLogger().log(Level.INFO, "Starting to handle the MBus meters.");
 				handleMbusMeters();
 			}
-
+			
+			if(hasTicDevices()){
+				getLogger().log(Level.INFO, "Starting to handle the Tic device.");
+				handleTicDevice();
+			}
+			
 			// Set clock or Force clock... if necessary
 			if (this.commProfile.getForceClock()) {
 				Date meterTime = getTime();
@@ -293,6 +299,15 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				Environment.getDefault().execute(getStoreObject());
 			}
 		}
+	}
+	
+	private void handleTicDevice() {
+		
+	}
+
+	private boolean hasTicDevices() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	private Rtu getUpdatedMeter() {
@@ -378,18 +393,18 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	 * @throws BusinessException
 	 * @throws SQLException when a database exception occurred
 	 */
-	public void init() throws IOException, DLMSConnectionException, SQLException, BusinessException {
-
-		this.cosemObjectFactory = new CosemObjectFactory((ProtocolLink) this);
-
-		LocalSecurityProvider lsp = new LocalSecurityProvider(this.securityLevel, this.password);
+	public void init() throws IOException, DLMSConnectionException, SQLException, BusinessException{
+		
+		this.cosemObjectFactory	= new CosemObjectFactory((ProtocolLink)this);
+		
+		LocalSecurityProvider lsp = new LocalSecurityProvider(this.authenticationSecurityLevel, this.password);
 		ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
 		XdlmsAse xDlmsAse = new XdlmsAse(null, true, -1, 6, cb, 1200);
-		// TODO the dataTransport securityLevel should be a property
-		// TODO the dataTransport encryptionType should be a property (although currently only 0 is described by DLMS)
-		SecurityContext sc = new SecurityContext(0, this.securityLevel, 0, lsp);
-
-		// TODO the value of the contextId can depend on the securityLevel
+		//TODO the dataTransport securityLevel should be a property
+		//TODO the dataTransport encryptionType should be a property (although currently only 0 is described by DLMS)
+		SecurityContext sc = new SecurityContext(0, this.authenticationSecurityLevel, 0, this.deviceId, lsp);
+		
+		//TODO the value of the contextId can depend on the securityLevel
 		this.aso = new ApplicationServiceObject(xDlmsAse, this, sc, AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING);
 
 		this.dlmsConnection = new SecureConnection(this.aso, getTransportDLMSConnection());
@@ -412,7 +427,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	}
 
 	/**
-	 * @param is - The inpuStream from the Link
+	 * @param is - The inputStream from the Link
 	 * @param os - The outputStream from the Link
 	 * @return the DLMSConnection to use
 	 * @throws DLMSConnectionException if unknown addressingMode has been selected
@@ -534,26 +549,34 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	/**
 	 * Just to test some objects
 	 */
-	private void doSomeTestCalls() {
-		// try {
-		// AssociationLN aln = getCosemObjectFactory().getAssociationLN();
-		//			
-		// System.out.println(aln.getBuffer());
-		// System.out.println(aln.getAssociatedPartnersId());
-		// System.out.println(aln.getClientSAP());
-		// System.out.println(aln.getServerSAP());
-		// System.out.println(aln.getXdlmsContextInfo());
-		// System.out.println(aln.readApplicationContextName());
-		// System.out.println(aln.readAuthenticationMechanismName());
-		// System.out.println(aln.readSecuritySetupReference());
-		//			
-		// ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255"));
-		// Array dpta = ac.readDayProfileTableActive();
-		// ac.writeDayProfileTablePassive(dpta);
-		//			
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
+	private void doSomeTestCalls(){
+		
+//		try {
+//			getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.0.42.0.0.255"), DLMSUtils.attrLN2SN(2), 1);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+//		try {
+//			AssociationLN aln = getCosemObjectFactory().getAssociationLN();
+//			
+//			System.out.println(aln.getBuffer());
+//			System.out.println(aln.getAssociatedPartnersId());
+//			System.out.println(aln.getClientSAP());
+//			System.out.println(aln.getServerSAP());
+//			System.out.println(aln.getXdlmsContextInfo());
+//			System.out.println(aln.readApplicationContextName());
+//			System.out.println(aln.readAuthenticationMechanismName());
+//			System.out.println(aln.readSecuritySetupReference());
+//			
+//			ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255"));
+//			Array dpta = ac.readDayProfileTableActive();
+//			ac.writeDayProfileTablePassive(dpta);
+//			
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	/**
@@ -1050,31 +1073,40 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 			this.serialNumber = "";
 		}
 
-		// this.serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
-		this.securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "0"));
-		this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "1"));
-		this.clientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16"));
-		this.serverLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "1"));
-		this.serverUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "17"));
-		this.requestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0"));
-		// if HDLC set default timeout to 5s, if TCPIP set default timeout to 60s
-		this.timeout = Integer.parseInt(properties.getProperty("Timeout", (this.connectionMode == 0) ? "5000" : "60000")); // set the HDLC timeout to 5000 for the WebRTU KP
-		this.forceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "1"));
-		this.retries = Integer.parseInt(properties.getProperty("Retries", "3"));
-		this.addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "2"));
-		this.extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
-		this.manufacturer = properties.getProperty("Manufacturer", "WKP");
-		this.maxMbusDevices = Integer.parseInt(properties.getProperty("MaxMbusDevices", "4"));
-		this.informationFieldSize = Integer.parseInt(properties.getProperty("InformationFieldSize", "-1"));
-		this.readDaily = !properties.getProperty("ReadDailyValues", "1").equalsIgnoreCase("0");
-		this.readMonthly = !properties.getProperty("ReadMonthlyValues", "1").equalsIgnoreCase("0");
-		this.roundTripCorrection = Long.parseLong(properties.getProperty("RoundTripCorrection", "0"));
-
-		this.iiapInvokeId = Integer.parseInt(properties.getProperty("IIAPInvokeId", "0"));
-		this.iiapPriority = Integer.parseInt(properties.getProperty("IIAPPriority", "1"));
-		this.iiapServiceClass = Integer.parseInt(properties.getProperty("IIAPServiceClass", "1"));
-
-		this.wakeup = Integer.parseInt(properties.getProperty("WakeUp", "0"));
+		/* the format of the securityLevel is changed, now authenticationSecurityLevel and dataTransportSecurityLevel are in one*/
+		String securityLevel = properties.getProperty("SecurityLevel", "0");
+		if(securityLevel.indexOf(":") != -1){
+			this.authenticationSecurityLevel = Integer.parseInt(securityLevel.substring(0, securityLevel.indexOf(":")));
+			this.datatransportSecurityLevel = Integer.parseInt(securityLevel.substring(securityLevel.indexOf(":")+1));
+		} else {
+			this.authenticationSecurityLevel = Integer.parseInt(securityLevel);
+			this.datatransportSecurityLevel = 0;
+		}
+		
+//        this.securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "0"));
+        this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "1"));
+        this.clientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16"));
+        this.serverLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "1"));
+        this.serverUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "17"));
+        this.requestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0"));
+        // if HDLC set default timeout to 5s, if TCPIP set default timeout to 60s
+        this.timeout = Integer.parseInt(properties.getProperty("Timeout", (this.connectionMode==0)?"5000":"60000"));	// set the HDLC timeout to 5000 for the WebRTU KP
+        this.forceDelay = Integer.parseInt(properties.getProperty("ForceDelay", "1"));
+        this.retries = Integer.parseInt(properties.getProperty("Retries", "3"));	
+        this.addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "2"));
+        this.extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
+        this.manufacturer = properties.getProperty("Manufacturer", "WKP");
+        this.maxMbusDevices = Integer.parseInt(properties.getProperty("MaxMbusDevices", "4"));
+        this.informationFieldSize = Integer.parseInt(properties.getProperty("InformationFieldSize","-1"));
+        this.readDaily = !properties.getProperty("ReadDailyValues", "1").equalsIgnoreCase("0");
+        this.readMonthly = !properties.getProperty("ReadMonthlyValues", "1").equalsIgnoreCase("0");
+        this.roundTripCorrection = Long.parseLong(properties.getProperty("RoundTripCorrection","0"));
+        
+        this.iiapInvokeId = Integer.parseInt(properties.getProperty("IIAPInvokeId", "0"));
+        this.iiapPriority = Integer.parseInt(properties.getProperty("IIAPPriority", "1"));
+        this.iiapServiceClass = Integer.parseInt(properties.getProperty("IIAPServiceClass", "1"));
+        
+        this.wakeup = Integer.parseInt(properties.getProperty("WakeUp", "0"));
 	}
 
 	public void addProperties(Properties properties) {
@@ -1334,7 +1366,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		MessageCategorySpec catTestMessage = new MessageCategorySpec("TestMessage");
 		MessageCategorySpec catGlobalDisc = new MessageCategorySpec("Global Reset");
 		MessageCategorySpec catWakeUp = new MessageCategorySpec("Wake up functionality");
-
+		MessageCategorySpec catAuthEncrypt = new MessageCategorySpec("Authentication and Encryption");
+		
 		// XMLConfig related messages
 		MessageSpec msgSpec = addDefaultValueMsg("XMLConfig", RtuMessageConstant.XMLCONFIG, false);
 		catXMLConfig.addMessageSpec(msgSpec);
@@ -1397,7 +1430,14 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		// WakeUp functionality
 		msgSpec = addPhoneListMsg("Set phonenumbers to whitelist", RtuMessageConstant.WAKEUP_ADD_WHITELIST, false);
 		catWakeUp.addMessageSpec(msgSpec);
-
+		
+		// Authentication and Encryption functionality
+		//TODO does these have to be advanced messages?
+		msgSpec = addChangeHLSKeyMsg("Change the HLS secret", RtuMessageConstant.AEE_CHANGE_HLS_SECRET, false);
+		catAuthEncrypt.addMessageSpec(msgSpec);
+		msgSpec = addChangeGlobalKey("Change global key", RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY, false);
+		catAuthEncrypt.addMessageSpec(msgSpec);
+		
 		categories.add(catXMLConfig);
 		categories.add(catFirmware);
 		categories.add(catP1Messages);
@@ -1410,9 +1450,38 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		categories.add(catTestMessage);
 		categories.add(catGlobalDisc);
 		categories.add(catWakeUp);
+		
+		// TODO comment this before commiting
+		categories.add(catAuthEncrypt);
 		return categories;
 	}
-
+	
+	private MessageSpec addChangeHLSKeyMsg(String keyId, String tagName, boolean advanced){
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        tagSpec.add(msgVal);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.AEE_HLS_SECRET, true);
+        tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+	
+	private MessageSpec addChangeGlobalKey(String keyId, String tagName, boolean advanced){
+    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        tagSpec.add(msgVal);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.AEE_GLOBAL_KEY, true);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.AEE_GLOBAL_KEY_TYPE, true);
+        tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
+	
 	private MessageSpec addSpecialDays(String keyId, String tagName, boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);

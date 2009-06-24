@@ -20,6 +20,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BitString;
@@ -38,6 +39,8 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.AssociationSN;
 import com.energyict.dlms.cosem.AutoConnect;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Data;
@@ -53,6 +56,7 @@ import com.energyict.dlms.cosem.P3ImageTransfer;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.Limiter.ValueDefinitionType;
@@ -125,6 +129,8 @@ public class MessageExecutor extends GenericMessageExecutor{
 			boolean testMessage 	= messageHandler.getType().equals(RtuMessageConstant.TEST_MESSAGE);
 			boolean globalReset		= messageHandler.getType().equals(RtuMessageConstant.GLOBAL_METER_RESET);
 			boolean wakeUpWhiteList = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
+			boolean changeHLSSecret = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
+			boolean changeGlobalkey = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY);
 			
 			if(xmlConfig){
 				
@@ -837,6 +843,41 @@ public class MessageExecutor extends GenericMessageExecutor{
 				autoConnect.writeDestinationList(list);
 				
 				success = true;
+			} else if (changeGlobalkey){
+				//TODO to test
+				
+				Array globalKeyArray = new Array();
+				Structure keyData = new Structure();
+				keyData.addDataType(new TypeEnum(Integer.parseInt(messageHandler.getGlobalKeyType())));
+				keyData.addDataType(OctetString.fromString(messageHandler.getGlobalKey()));
+				globalKeyArray.addDataType(keyData);
+				
+				SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
+				ss.transferGlobalKey(globalKeyArray);
+				
+				success = true;
+			} else if(changeHLSSecret){
+				//TODO toTest
+				
+				if(getWebRtu().getReference() == ProtocolLink.LN_REFERENCE){
+					AssociationLN aln = getCosemObjectFactory().getAssociationLN();
+					
+					
+					// TODO maybe you need to get the key from the securityProvider
+					// We just return the byteArray because it is possible that the berEncoded octetString contains
+					// extra check bits ...
+					aln.changeHLSSecret(OctetString.fromString(messageHandler.getHLSSecret()).getBEREncodedByteArray());
+				} else if(getWebRtu().getReference() == ProtocolLink.SN_REFERENCE){
+					AssociationSN asn = getCosemObjectFactory().getAssociationSN();
+					
+					// TODO maybe you need to get the key from the securityProvider
+					// We just return the byteArray because it is possible that the berEncoded octetString contains
+					// extra check bits ...
+					asn.changeHLSSecret(OctetString.fromString(messageHandler.getHLSSecret()).getBEREncodedByteArray());
+				}
+				
+				
+				success = false;
 			} else {
 				success = false;
 			}
