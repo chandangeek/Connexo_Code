@@ -1,6 +1,7 @@
 package com.energyict.dlms;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
@@ -10,6 +11,16 @@ public class SecureConnection implements DLMSConnection {
 	
 	private ApplicationServiceObject aso;
 	private DLMSConnection connection;
+	
+	private static HashMap encryptionTagMap =  new HashMap();
+	static{
+		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_GETREQUEST, DLMSCOSEMGlobals.GLO_GETREQUEST);
+		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_ACTIONREQUEST, DLMSCOSEMGlobals.GLO_ACTIOREQUEST);
+		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_SETREQUEST, DLMSCOSEMGlobals.GLO_SETREQUEST);
+		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_GETRESPONSE, DLMSCOSEMGlobals.GLO_GETRESPONSE);
+		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_SETRESPONSE, DLMSCOSEMGlobals.GLO_SETRESPONSE);
+		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_ACTIONRESPONSE, DLMSCOSEMGlobals.GLO_ACTIONRESPONSE);
+	}
 	
 	public SecureConnection(ApplicationServiceObject aso, DLMSConnection transportConnection){
 		this.aso = aso;
@@ -46,10 +57,11 @@ public class SecureConnection implements DLMSConnection {
 			
 			// Strip the 3 leading bytes before encrypting
 			byte[] leading = ProtocolUtils.getSubArray(byteRequestBuffer, 0, 2);
-			
 			byte[] encryptedRequest = ProtocolUtils.getSubArray(byteRequestBuffer, 3);
 			
-			//TODO add the securityHeader
+//			byte encryptionTag = encryptionTagMap
+			
+			//TODO add the securityHeader or securityContext or whatever it's called
 			
 			encryptedRequest = this.aso.getSecurityContext().dataTransportEncryption(encryptedRequest);
 			

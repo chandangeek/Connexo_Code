@@ -228,6 +228,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 		return new ImageTransfer(protocolLink);
 	}
 	
+	public SecuritySetup getSecuritySetup() throws IOException {
+		return new SecuritySetup(protocolLink);
+	}
+	
     public CosemObject getCosemObject(ObisCode obisCode) throws IOException {
         if (obisCode.getF() != 255) {
             return getStoredValues().getHistoricalValue(obisCode);

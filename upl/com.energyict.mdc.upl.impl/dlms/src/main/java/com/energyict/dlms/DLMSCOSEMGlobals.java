@@ -220,6 +220,24 @@ public interface DLMSCOSEMGlobals {
     final byte COSEM_ACTIONRESPONSE=(byte)0xC7;    
     final byte COSEM_ACTIONRESPONSE_NORMAL=1;
     
+    // Global-ciphering tags
+    final byte GLO_GETREQUEST = (byte)0xC8;
+    final byte GLO_SETREQUEST = (byte)0xC9;
+    final byte GLO_EVENTNOTIFICATION_REQUEST= (byte)0xCA;
+    final byte GLO_ACTIOREQUEST = (byte)0xCB;
+    final byte GLO_GETRESPONSE = (byte)0xCC;
+    final byte GLO_SETRESPONSE = (byte)0xCD;
+    final byte GLO_ACTIONRESPONSE = (byte)0xCF;
+    
+    // Dedicated-ciphering tags
+    final byte DED_GETREQUEST = (byte)0xD0;
+    final byte DED_SETREQUEST = (byte)0xD1;
+    final byte DED_EVENTNOTIFICATION_REQUEST= (byte)0xD2;
+    final byte DED_ACTIOREQUEST = (byte)0xD3;
+    final byte DED_GETRESPONSE = (byte)0xD4;
+    final byte DED_SEETRESPONSE = (byte)0xD5;
+    final byte DED_ACTIONRESPONSE = (byte)0xD7;
+    
     final byte COSEM_INITIATEREQUEST = (byte)0x01;
     final byte COSEM_INITIATERESPONSE = (byte)0x08;
     
