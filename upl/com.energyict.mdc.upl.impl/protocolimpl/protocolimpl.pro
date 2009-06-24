@@ -283,5 +283,11 @@
 	*;
 }
 
-
+# Keep classes for the P3 testTool
 -keepnames class com.energyict.genericprotocolimpl.webrtukp.MeterToolProtocol
+-keepnames class com.energyict.genericprotocolimpl.common.StatusCodeProfile
+-keepnames class com.energyict.genericprotocolimpl.webrtukp.eventhandling.EventsLog
+-keepnames class com.energyict.genericprotocolimpl.webrtukp.eventhandling.FraudDetectionLog
+-keepnames class com.energyict.genericprotocolimpl.webrtukp.eventhandling.MbusControlLog
+-keepnames class com.energyict.genericprotocolimpl.webrtukp.eventhandling.MbusLog
+-keepnames class com.energyict.genericprotocolimpl.webrtukp.eventhandling.PowerFailureLog
