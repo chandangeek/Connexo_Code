@@ -287,14 +287,21 @@
 -keep public class com.energyict.genericprotocolimpl.webrtukp.MeterToolProtocol{
 	public *;
 }
--keepclassmembers class * {
-	public List<MeterEvent> getMeterEvents();
-}
 -keep public class com.energyict.genericprotocolimpl.common.StatusCodeProfile{
 	public *;
 }
--keepnames class com.energyict.genericprotocolimpl.webrtukp.eventhandling.EventsLog
--keepnames class com.energyict.genericprotocolimpl.webrtukp.eventhandling.FraudDetectionLog
--keepnames class com.energyict.genericprotocolimpl.webrtukp.eventhandling.MbusControlLog
--keepnames class com.energyict.genericprotocolimpl.webrtukp.eventhandling.MbusLog
--keepnames class com.energyict.genericprotocolimpl.webrtukp.eventhandling.PowerFailureLog
+-keep class com.energyict.genericprotocolimpl.webrtukp.eventhandling.EventsLog{
+	public List<MeterEvent> getMeterEvents();
+}
+-keep class com.energyict.genericprotocolimpl.webrtukp.eventhandling.FraudDetectionLog{
+	public List<MeterEvent> getMeterEvents();
+}
+-keep class com.energyict.genericprotocolimpl.webrtukp.eventhandling.MbusControlLog{
+	public List<MeterEvent> getMeterEvents();
+}
+-keep class com.energyict.genericprotocolimpl.webrtukp.eventhandling.MbusLog{
+	public List<MeterEvent> getMeterEvents();
+}
+-keep class com.energyict.genericprotocolimpl.webrtukp.eventhandling.PowerFailureLog{
+	public List<MeterEvent> getMeterEvents();
+}
