@@ -285,6 +285,9 @@
 
 # Keep classes for the P3 testTool
 -keepnames class com.energyict.genericprotocolimpl.webrtukp.MeterToolProtocol
+-keep public class com.energyict.genericprotocolimpl.webrtukp.MeterToolProtocol.*{
+	*;
+}
 -keepnames class com.energyict.genericprotocolimpl.common.StatusCodeProfile
 -keepnames class com.energyict.genericprotocolimpl.webrtukp.eventhandling.EventsLog
 -keepnames class com.energyict.genericprotocolimpl.webrtukp.eventhandling.FraudDetectionLog
