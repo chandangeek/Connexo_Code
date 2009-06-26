@@ -27,6 +27,7 @@ import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
@@ -139,7 +140,6 @@ public class MbusDevice implements GenericProtocol, Messaging{
 		if(commProfile.getReadDemandValues()){
 			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMbus().getSerialNumber());
 			MbusProfile mp = new MbusProfile(this);
-//			mp.getProfile(getWebRTU().getMeterConfig().getMbusProfile(getPhysicalAddress()).getObisCode(), commProfile.getReadMeterEvents());
 			mp.getProfile(getWebRTU().getMeterConfig().getMbusProfile(getPhysicalAddress()).getObisCode());
 		}
 		
@@ -152,6 +152,17 @@ public class MbusDevice implements GenericProtocol, Messaging{
 		// import daily/monthly
 		if(commProfile.getReadMeterReadings()){
 			MbusDailyMonthly mdm = new MbusDailyMonthly(this);
+			
+			if(getWebRTU().isReadDaily()){
+				getLogger().log(Level.INFO, "Getting Daily values for meter with serialnumber: " + getMbus().getSerialNumber());
+				if(commProfile.getReadDemandValues()){
+					mdm.getDailyProfile((ProfileData)(getWebRTU().getStoreObject().getMap().get(getMbus())),
+							getWebRTU().getMeterConfig().getMbusProfile(getPhysicalAddress()).getObisCode());
+				} else {
+					mdm.getDailyProfile(getWebRTU().getMeterConfig().getMbusProfile(getPhysicalAddress()).getObisCode());
+				}
+			}
+			
 			if(getWebRTU().isReadMonthly()){
 				getLogger().log(Level.INFO, "Getting Monthly values for meter with serialnumber: " + getMbus().getSerialNumber());
 				mdm.getMonthlyProfile(getMeterConfig().getMonthlyProfileObject().getObisCode());

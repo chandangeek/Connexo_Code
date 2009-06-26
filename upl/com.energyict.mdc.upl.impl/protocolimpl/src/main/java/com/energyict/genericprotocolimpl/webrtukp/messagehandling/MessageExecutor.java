@@ -609,9 +609,9 @@ public class MessageExecutor extends GenericMessageExecutor{
 										(byte) ((cc.getDayOfWeek()==-1)?0xFF:cc.getDayOfWeek())});
 								Unsigned8 dayType = new Unsigned8(cc.getDayType().getId());
 								Structure struct = new Structure();
-								AXDRDateTime dt = new AXDRDateTime(new byte[]{(byte)0x09, (byte) ((cc.getYear()==-1)?0x07:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xB2:(cc.getYear())&0xFF), 
+								AXDRDateTime dt = new AXDRDateTime(new byte[]{(byte)0x09,(byte)0x0C, (byte) ((cc.getYear()==-1)?0x07:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xB2:(cc.getYear())&0xFF), 
 										(byte) ((cc.getMonth()==-1)?0xFF:cc.getMonth()), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()),
-										(byte) ((cc.getDayOfWeek()==-1)?0xFF:cc.getDayOfWeek()), 0, 0, 0, 0, 0, 0, 0});	
+										(byte) ((cc.getDayOfWeek()==-1)?0xFF:cc.getDayOfWeek()), 0, 0, 0, 0, 0, 0, 0});
 								long days = dt.getValue().getTimeInMillis()/1000/60/60/24;
 								struct.addDataType(new Unsigned16((int)days));
 								struct.addDataType(os);

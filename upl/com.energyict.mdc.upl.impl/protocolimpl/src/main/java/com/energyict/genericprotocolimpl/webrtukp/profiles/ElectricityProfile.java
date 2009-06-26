@@ -64,70 +64,43 @@ public class ElectricityProfile {
 		try {
 			genericProfile = getCosemObjectFactory().getProfileGeneric(electricityProfile);
 			List<ChannelInfo> channelInfos = getChannelInfos(genericProfile);
-			verifyProfileInterval(genericProfile, channelInfos);
 			
-			profileData.setChannelInfos(channelInfos);
-			Calendar fromCalendar = null;
-			Calendar channelCalendar = null;
-			Calendar toCalendar = getToCalendar();
-			
-			for (int i = 0; i < getMeter().getChannels().size(); i++) {
-				Channel chn = getMeter().getChannel(i);
+			if(channelInfos.size() != 0){
+				webrtu.getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + webrtu.getSerialNumberValue());
+				verifyProfileInterval(genericProfile, channelInfos);
 				
-				//TODO this does not work with the 7.5 version
+				profileData.setChannelInfos(channelInfos);
+				Calendar fromCalendar = null;
+				Calendar channelCalendar = null;
+				Calendar toCalendar = getToCalendar();
 				
-				if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
-						!(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
-					channelCalendar = getFromCalendar(getMeter().getChannel(i));
-					if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
-						fromCalendar = channelCalendar;
+				for (int i = 0; i < getMeter().getChannels().size(); i++) {
+					Channel chn = getMeter().getChannel(i);
+					
+					//TODO this does not work with the 7.5 version
+					
+					if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
+							!(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
+						channelCalendar = getFromCalendar(getMeter().getChannel(i));
+						if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
+							fromCalendar = channelCalendar;
+						}
 					}
 				}
+				
+				webrtu.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+				DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
+				buildProfileData(dc, profileData, genericProfile);
+				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
+				profileData.sort();
+				
+				if(webrtu.getMarkedAsBadTime()){
+					profileData.markIntervalsAsBadTime();
+				}
+				// We save the profileData to a tempObject so we can store everything at the end of the communication
+				webrtu.getStoreObject().add(getMeter(), profileData);
+				
 			}
-			
-			webrtu.getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
-			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
-			buildProfileData(dc, profileData, genericProfile);
-			ParseUtils.validateProfileData(profileData, toCalendar.getTime());
-			profileData.sort();
-			
-//			if(events){
-//				Date lastLogReading = webrtu.getMeter().getLastLogbook();
-//				if(lastLogReading == null){
-//					lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(webrtu.getMeter());
-//				}
-//				Calendar fromCal = ProtocolUtils.getCleanCalendar(getTimeZone());
-//				fromCal.setTime(lastLogReading);
-//				webrtu.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + webrtu.getSerialNumber() + ".");
-//				DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
-//				DataContainer dcControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getControlLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
-//				DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
-//				DataContainer dcFraudDetection = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getFraudDetectionLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
-//				DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer(fromCal, webrtu.getToCalendar());
-////				DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer();
-//				
-//				EventsLog standardEvents = new EventsLog(getTimeZone(), dcEvent); 
-//				FraudDetectionLog fraudDetectionEvents = new FraudDetectionLog(getTimeZone(), dcFraudDetection);
-//				DisconnectControlLog disconnectControl = new DisconnectControlLog(getTimeZone(), dcControlLog);
-//				MbusLog mbusLogs = new MbusLog(getTimeZone(), dcMbusEventLog);
-//				PowerFailureLog powerFailure = new PowerFailureLog(getTimeZone(), dcPowerFailure);
-//				
-//				profileData.getMeterEvents().addAll(standardEvents.getMeterEvents());
-//				profileData.getMeterEvents().addAll(fraudDetectionEvents.getMeterEvents());
-//				profileData.getMeterEvents().addAll(disconnectControl.getMeterEvents());
-//				profileData.getMeterEvents().addAll(mbusLogs.getMeterEvents());
-//				profileData.getMeterEvents().addAll(powerFailure.getMeterEvents());
-//				
-//				// Don't create statusbits from the events
-////				profileData.applyEvents(webrtu.getMeter().getIntervalInSeconds()/60);
-//				
-//			}
-			
-			// We save the profileData to a tempObject so we can store everything at the end of the communication
-			if(webrtu.getMarkedAsBadTime()){
-				profileData.markIntervalsAsBadTime();
-			}
-			webrtu.getStoreObject().add(getMeter(), profileData);
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -149,6 +122,7 @@ public class ElectricityProfile {
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		ChannelInfo ci = null;
 		int index = 0;
+		int channelIndex = -1;
 		try{
 			for(int i = 0; i < profile.getCaptureObjects().size(); i++){
 				
@@ -156,18 +130,21 @@ public class ElectricityProfile {
 						&& !isProfileStatusObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){ // make a channel out of it
 					CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
 					ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
-					if((su != null) && (su.getUnitCode() != 0)){
-						ci = new ChannelInfo(index, getProfileChannelNumber(index+1), "WebRtuKP_"+index, su.getUnit());
-					} else {
-						ci = new ChannelInfo(index, getProfileChannelNumber(index+1), "WebRtuKP_"+index, Unit.get(BaseUnit.UNITLESS));
+					channelIndex = getProfileChannelNumber(index+1);
+					if(channelIndex != -1){
+						if((su != null) && (su.getUnitCode() != 0)){
+							ci = new ChannelInfo(index, channelIndex, "WebRtuKP_"+index, su.getUnit());
+						} else {
+							ci = new ChannelInfo(index, channelIndex, "WebRtuKP_"+index, Unit.get(BaseUnit.UNITLESS));
+						}
+						
+						index++;
+						if(com.energyict.dlms.client.ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())){
+							//TODO need to check the wrapValue
+							ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
+						}
+						channelInfos.add(ci);
 					}
-					
-					index++;
-					if(com.energyict.dlms.client.ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())){
-						//TODO need to check the wrapValue
-						ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
-					}
-					channelInfos.add(ci);
 				}
 				
 			}
@@ -249,7 +226,7 @@ public class ElectricityProfile {
 						profileStatus = 0;
 					}
 					
-					currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg);
+					currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg, pd.getChannelInfos());
 					if(currentInterval != null){
 						pd.addInterval(currentInterval);
 					}
@@ -264,15 +241,20 @@ public class ElectricityProfile {
 		return oc.equals(getMeterConfig().getStatusObject().getObisCode());
 	}
 	
-	private IntervalData getIntervalData(DataStructure ds, Calendar cal, int status, ProfileGeneric pg)throws IOException{
+	private IntervalData getIntervalData(DataStructure ds, Calendar cal, int status, ProfileGeneric pg, List channelInfos)throws IOException{
 		
 		IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
+		int index = 0;
 		
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
-				if(isKampstrupElectricityObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())
-						&& !isProfileStatusObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
-					id.addValue(new Integer(ds.getInteger(i)));
+				if(index < channelInfos.size()){
+					if(isKampstrupElectricityObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())
+							&& !isProfileStatusObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
+						id.addValue(new Integer(ds.getInteger(i)));
+						index++;
+					}
+					
 				}
 			}
 		} catch (IOException e) {

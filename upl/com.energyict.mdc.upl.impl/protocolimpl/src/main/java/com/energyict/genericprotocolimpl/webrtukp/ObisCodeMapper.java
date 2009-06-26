@@ -34,7 +34,7 @@ public class ObisCodeMapper {
         	rv = new RegisterValue(obisCode,
         			null,
         			null, null, null, new Date(), 0,
-        			new String(cof.getActivityCalendar(obisCode).readCalendarNameActive().toBigDecimal().toString()));
+        			new String(cof.getActivityCalendar(obisCode).readCalendarNameActive().getOctetStr()));
         	return rv;
         } else if (obisCode.toString().indexOf("1.0.0.2.0.255") != -1){	// Active firmware identifier
         	rv = new RegisterValue(obisCode,

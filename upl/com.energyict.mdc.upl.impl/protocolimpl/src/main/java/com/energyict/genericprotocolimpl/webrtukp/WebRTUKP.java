@@ -66,6 +66,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
@@ -118,6 +119,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	private DLMSCache dlmsCache = new DLMSCache();
 
 	private MbusDevice[] mbusDevices;
+	private TicDevice ticDevice;
 	private Clock deviceClock;
 	private StoreObject storeObject;
 	private ObisCodeMapper ocm;
@@ -155,8 +157,15 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	private int wakeup;
 
 	/**
-	 * This method handles the complete WebRTU. The Rtu acts as an Electricity meter. The E-meter itself can have several MBus meters - First he handles his own data collection: _Profiles
-	 * _Daily/Monthly readings _Registers _Messages - Then all the MBus meters are handled in the same way as the E-meter
+	 * <pre>
+	 * This method handles the complete WebRTU. The Rtu acts as an Electricity meter. The E-meter itself can have several MBus meters 
+	 * - First he handles his own data collection: 
+	 * 	_Profiles
+	 * 	_Daily/Monthly readings 
+	 * 	_Registers 
+	 * 	_Messages 
+	 * - Then all the MBus meters are handled in the same way as the E-meter
+	 * </pre>
 	 */
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 
@@ -185,6 +194,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
 				this.link.getStreamConnection().open();
 				getLogger().log(Level.INFO, "Connected to " + ipAddress);
+			} else if(this.scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer")){
+				throw new ConnectionException("The NullDialer type is only allowed for the wakeup meter.");
 			}
 
 			init();
@@ -201,15 +212,16 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 			/*****************************************************************************/
 
 			// Check if the time is greater then allowed, if so then no data can be stored...
-			badTime = verifyMaxTimeDifference();
-
+			// Don't do this when a forceClock is scheduled
+			if(!this.scheduler.getCommunicationProfile().getForceClock() && !this.scheduler.getCommunicationProfile().getAdHoc()){
+				badTime = verifyMaxTimeDifference();
+			}
+			
 			/**
 			 * After 03/06/09 the events are read apart from the intervalData
 			 */
 			if (this.commProfile.getReadDemandValues()) {
-				getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + webRtuKP.getSerialNumber());
 				ElectricityProfile ep = new ElectricityProfile(this);
-
 				ep.getProfile(getMeterConfig().getProfileObject().getObisCode());
 			}
 
@@ -226,16 +238,23 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 			if (this.commProfile.getReadMeterReadings()) {
 
 				DailyMonthly dm = new DailyMonthly(this);
+				
 				if (readDaily) {
-					getLogger().log(Level.INFO, "Getting daily values for meter with serialnumber: " + webRtuKP.getSerialNumber());
-					dm.getDailyValues(getMeterConfig().getDailyProfileObject().getObisCode());
+					if(doesObisCodeExistInObjectList(getMeterConfig().getDailyProfileObject().getObisCode())){
+						dm.getDailyValues(getMeterConfig().getDailyProfileObject().getObisCode());
+					} else {
+						getLogger().log(Level.INFO, "The dailyProfile object doesn't exist in the device.");
+					}
 				}
 				if (readMonthly) {
-					getLogger().log(Level.INFO, "Getting monthly values for meter with serialnumber: " + webRtuKP.getSerialNumber());
-					dm.getMonthlyValues(getMeterConfig().getMonthlyProfileObject().getObisCode());
+					if(doesObisCodeExistInObjectList(getMeterConfig().getMonthlyProfileObject().getObisCode())){
+						dm.getMonthlyValues(getMeterConfig().getMonthlyProfileObject().getObisCode());
+					} else {
+						getLogger().log(Level.INFO, "The monthlyProfile object doesn't exist in the device.");
+					}
 				}
 
-				getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + webRtuKP.getSerialNumber());
+				getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + getSerialNumberValue());
 				doReadRegisters();
 			}
 
@@ -248,6 +267,9 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				handleMbusMeters();
 			}
 			
+			/**
+			 * TODO - TOTest
+			 */
 			if(hasTicDevices()){
 				getLogger().log(Level.INFO, "Starting to handle the Tic device.");
 				handleTicDevice();
@@ -301,12 +323,59 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		}
 	}
 	
-	private void handleTicDevice() {
-		
+	/**
+	 * Check if a given ObisCode is in the objectList
+	 * @param obisCode to check
+	 * @return true if the list is null, or when the object is found. False if it's not found
+	 */
+	private boolean doesObisCodeExistInObjectList(ObisCode obisCode) {
+		UniversalObject[] objectList = getMeterConfig().getInstantiatedObjectList();
+		if(objectList == null){
+			return true;	// we don't have the objectList so try to read it 
+		} else {
+			for (int i=0;i<objectList.length;i++) {
+				if (objectList[i].getObisCode().equals(obisCode)){
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
+	private void handleTicDevice() throws BusinessException, SQLException, IOException {
+		this.ticDevice.setWebRTU(this);
+		this.ticDevice.execute(this.scheduler, null, getLogger());
+	}
+
+	/**
+	 * Checks whether there is a TicDevice configured in EIServer
+	 * @return true if there is a TicDevice configured as a slave of the WebRTU
+	 */
 	private boolean hasTicDevices() {
-		// TODO Auto-generated method stub
+		Rtu tic;
+		List<Rtu> slaves = getMeter().getDownstreamRtus();
+		Iterator<Rtu> it = slaves.iterator();
+		while (it.hasNext()) {
+			tic = it.next();
+			Class ticDevice = null;
+			
+			try {
+				ticDevice = Class.forName(tic.getRtuType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
+				if((ticDevice != null) && (ticDevice.newInstance() instanceof TicDevice)){
+					this.ticDevice = new TicDevice(tic);
+					return true;
+				}
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+//				should never come here because if the rtuType has the className, then you should be able to create a class for it...
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+				getLogger().log(Level.INFO, "Could not check for TicDevices exists.");
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+				getLogger().log(Level.INFO, "Could not check for TicDevices exists.");
+			}
+		}
 		return false;
 	}
 
@@ -717,6 +786,11 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		}
 	}
 
+	/**
+	 * Get the serialNumber from the device
+	 * @return
+	 * @throws IOException
+	 */
 	public String getSerialNumber() throws IOException {
 		try {
 			return getCosemObjectFactory().getGenericRead(getMeterConfig().getSerialNumberObject()).getString();
@@ -987,20 +1061,32 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		int mbusChannel;
 		while (it.hasNext()) {
 			mbusChannel = -1;
+			mbus = it.next();
+			Class device = null;
+			
 			try {
-				mbus = it.next();
-				serialMbus = mbus.getSerialNumber();
-				mbusChannel = checkSerialForMbusChannel(serialMbus);
-				// this.mbusDevices[count++] = new MbusDevice(serialMbus, mbus, getLogger());
-				if (mbusChannel != -1) {
-					this.mbusDevices[count++] = new MbusDevice(serialMbus, mbusChannel, mbus, getLogger());
-				} else {
-					getLogger().log(Level.INFO, "Mbusmeter with serialnumber " + serialMbus + " is not found on E-meter " + this.serialNumber);
-				}
-			} catch (ApplicationException e) {
-				// catch and go to next slave
+				device = Class.forName(mbus.getRtuType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
+				if((device != null) && (device.newInstance() instanceof MbusDevice)){
+					serialMbus = mbus.getSerialNumber();
+					mbusChannel = checkSerialForMbusChannel(serialMbus);
+					// this.mbusDevices[count++] = new MbusDevice(serialMbus, mbus, getLogger());
+					if (mbusChannel != -1) {
+						this.mbusDevices[count++] = new MbusDevice(serialMbus, mbusChannel, mbus, getLogger());
+					} else {
+						getLogger().log(Level.INFO, "Mbusmeter with serialnumber " + serialMbus + " is not found on E-meter " + this.serialNumber);
+					}
+				} // else it should be a Tic device
+			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
+				// should never come here because if the rtuType has the className, then you should be able to create a class for it...
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+				getLogger().log(Level.INFO, "Could not check if the mbusDevice " + serialMbus + " exists.");
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+				getLogger().log(Level.INFO, "Could not check if the mbusDevice " + serialMbus + " exists.");
 			}
+			
 		}
 
 		for (int i = 0; i < this.maxMbusDevices; i++) {
@@ -1047,6 +1133,14 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 
 	private MbusDevice mbusDevice(int i) {
 		return this.mbusDevices[i];
+	}
+	
+	/**
+	 * Return the value of the serialNumber property from the RTU
+	 * @return
+	 */
+	public String getSerialNumberValue(){
+		return this.serialNumber;
 	}
 
 	public void validateProperties() throws MissingPropertyException {
@@ -1338,18 +1432,17 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		// e.printStackTrace();
 		// }
 
-		String comm = "612aa109060760857405080101a203020100a305a103020100be11040f080100065f1f0400007c1f04000007";
-		String mvie = "6141A109060760857405080101A203020100A305A10302010E88020780890760857405080205AA0A8008503677524A323146BE10040E0800065F1F040000501F01F40007";
-
-		byte[] bComm = DLMSUtils.hexStringToByteArray(comm);
-		byte[] bmVie = DLMSUtils.hexStringToByteArray(mvie);
-
-		for (int i = 0; i < ((bComm.length > bmVie.length) ? bmVie.length : bComm.length); i++) {
-			if (bComm[i] != bmVie[i])
-				System.out.println("Difference at: " + i + "; Comm: " + bComm[i] + "(" + comm.charAt(i * 2) + comm.charAt(i * 2 + 1) + ") - MVie: " + bmVie[i] + "(" + mvie.charAt(i * 2)
-						+ mvie.charAt(i * 2 + 1) + ")");
-		}
-
+//		String comm = "612aa109060760857405080101a203020100a305a103020100be11040f080100065f1f0400007c1f04000007";
+//		String mvie = "6141A109060760857405080101A203020100A305A10302010E88020780890760857405080205AA0A8008503677524A323146BE10040E0800065F1F040000501F01F40007";
+//
+//		byte[] bComm = DLMSUtils.hexStringToByteArray(comm);
+//		byte[] bmVie = DLMSUtils.hexStringToByteArray(mvie);
+//
+//		for (int i = 0; i < ((bComm.length > bmVie.length) ? bmVie.length : bComm.length); i++) {
+//			if (bComm[i] != bmVie[i])
+//				System.out.println("Difference at: " + i + "; Comm: " + bComm[i] + "(" + comm.charAt(i * 2) + comm.charAt(i * 2 + 1) + ") - MVie: " + bmVie[i] + "(" + mvie.charAt(i * 2)
+//						+ mvie.charAt(i * 2 + 1) + ")");
+//		}
 	}
 
 	public List getMessageCategories() {
