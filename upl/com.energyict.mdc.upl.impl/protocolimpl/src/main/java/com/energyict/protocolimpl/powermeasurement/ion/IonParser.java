@@ -90,7 +90,7 @@ public class IonParser {
     }
     
     IonObject parseSignedInteger( Assembly a, int length ) {
-        IonInteger ionInt = new IonInteger( a.intValue(4) );
+        IonInteger ionInt = new IonInteger( a.intValue(length) );
         a.push( ionInt );
         return ionInt;
     }
