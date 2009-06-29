@@ -114,7 +114,7 @@ class Profile {
         ProfileData pd = getProfileData( pHandle, start, end );
         
         if( includeEvents ) {
-            Iterator iter = readLogRecords(null, null).iterator();
+            Iterator iter = readLogRecords(lastReading, null).iterator();
             while (iter.hasNext()) {
                 MeterEvent me = (MeterEvent) iter.next();
                 pd.addEvent( me );
@@ -390,6 +390,8 @@ class Profile {
                 
                 boolean add = true;
                 add &= ( from!= null && iDate.after( from ) );
+                if (to == null)
+                	to = new Date();
                 add &= ( to!=null && iDate.before( to ) );
                 
                 if( add ) {
