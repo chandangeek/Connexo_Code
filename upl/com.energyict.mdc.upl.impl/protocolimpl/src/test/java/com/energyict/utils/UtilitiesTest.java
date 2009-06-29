@@ -192,11 +192,11 @@ public class UtilitiesTest {
 				fail();
 
 		} catch (BusinessException e) {
-			fail();
 			e.printStackTrace();
+			fail();
 		} catch (SQLException e) {
-			fail();
 			e.printStackTrace();
+			fail();
 		}
 	}
 }
