@@ -1,11 +1,15 @@
 package com.energyict.genericprotocolimpl.webrtukp.eventhandling;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.MeterEvent;
 
 public class MbusLog {
@@ -44,14 +48,14 @@ public class MbusLog {
 		this.dcEvents = dc;
 	}
 	
-	public List<MeterEvent> getMeterEvents(){
+	public List<MeterEvent> getMeterEvents() throws IOException{
 		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
 		int size = this.dcEvents.getRoot().getNrOfElements();
 		Date eventTimeStamp = null;
 		for(int i = 0; i <= (size-1); i++){
 			int eventId = (int)this.dcEvents.getRoot().getStructure(i).getValue(1);
 			if(isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))){
-				eventTimeStamp = dcEvents.getRoot().getStructure(i).getOctetString(0).toDate(this.timeZone);
+				eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
 			}
 			if(eventTimeStamp != null){
 				buildMeterEvent(meterEvents, eventTimeStamp, eventId);

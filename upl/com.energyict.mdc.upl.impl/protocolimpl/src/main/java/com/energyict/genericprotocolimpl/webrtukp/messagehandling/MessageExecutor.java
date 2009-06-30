@@ -90,7 +90,7 @@ import com.energyict.mdw.shadow.RtuMessageShadow;
 public class MessageExecutor extends GenericMessageExecutor{
 	
 	private WebRTUKP webRtu;
-	private boolean DEBUG = false;
+	private boolean DEBUG = true;
 
 	private static final byte[] defaultMonitoredAttribute = new byte[]{1,0,90,7,0,(byte)255};	// Total current, instantaneous value
 	
@@ -281,15 +281,13 @@ public class MessageExecutor extends GenericMessageExecutor{
 				
 				Limiter clearLLimiter = getCosemObjectFactory().getLimiter();
 				
-				// set the normal threshold duration to null
-				clearLLimiter.writeThresholdNormal(new NullData());
-				// set the emergency threshold duration to null
-				clearLLimiter.writeThresholdEmergency(new NullData());
 				// erase the emergency profile
 				Structure emptyStruct = new Structure();
-				emptyStruct.addDataType(new NullData());
-				emptyStruct.addDataType(new NullData());
-				emptyStruct.addDataType(new NullData());
+				//TODO to test if this clears the emergencyProfile
+				emptyStruct.addDataType(new Unsigned16(0));
+				//we set the emergencyProfile activation date to the current time
+				emptyStruct.addDataType(new OctetString(convertUnixToGMTDateTime(Long.toString(System.currentTimeMillis()/1000 + 60), getTimeZone()).getBEREncodedByteArray(), 0, true));
+				emptyStruct.addDataType(new Unsigned32(0));
 				clearLLimiter.writeEmergencyProfile(clearLLimiter.new EmergencyProfile(emptyStruct.getBEREncodedByteArray(), 0, 0));
 				
 				success = true;

@@ -13,6 +13,8 @@ package com.energyict.genericprotocolimpl.common;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.*;
@@ -22,6 +24,7 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.TimeZone;
 
 /**
  *
@@ -216,6 +219,29 @@ public class ParseUtils {
 		}
 	}
 	
+	/**
+	 * Convert a DLMS object to a quantity
+	 * @param register
+	 * @return the quantity from the register
+	 * @throws IOException
+	 */
+	public static Quantity cosemObjectToQuantity(CosemObject cosemObject) throws IOException{
+		try {
+			if(cosemObject.getScalerUnit() != null){
+				if(cosemObject.getScalerUnit().getUnitCode() != 0){
+					return new Quantity(BigDecimal.valueOf(cosemObject.getValue()), cosemObject.getScalerUnit().getUnit());
+				} else {
+					return new Quantity(BigDecimal.valueOf(cosemObject.getValue()), Unit.get(BaseUnit.UNITLESS));
+				}
+			} else {
+				return new Quantity(BigDecimal.valueOf(cosemObject.getValue()), Unit.get(BaseUnit.UNITLESS));
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException(e.getMessage());
+		}
+	}
+	
     public static void validateProfileData(ProfileData profileData, Date date) {
         Iterator it = profileData.getIntervalDatas().iterator();
         while (it.hasNext()) {
@@ -226,6 +252,19 @@ public class ParseUtils {
             }
         }
     }
+    
+	public AXDRDateTime convertUnixToGMTDateTime(String time) throws IOException{
+		try {
+			AXDRDateTime dateTime = null;
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+			cal.setTimeInMillis(Long.parseLong(time)*1000);
+			dateTime = new AXDRDateTime(cal);
+			return dateTime;
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			throw new IOException("Could not parse " + time + " to a long value");
+		}
+	}
 	
 	public static void main(String[] args){
 //		String str = "99.1.0";

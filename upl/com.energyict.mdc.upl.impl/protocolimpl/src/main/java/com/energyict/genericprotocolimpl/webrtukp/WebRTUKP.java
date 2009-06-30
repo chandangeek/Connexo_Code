@@ -194,7 +194,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
 				this.link.getStreamConnection().open();
 				getLogger().log(Level.INFO, "Connected to " + ipAddress);
-			} else if(this.scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer")){
+			} else if((this.scheduler.getDialerFactory().getName() != null)&&(this.scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer"))){
 				throw new ConnectionException("The NullDialer type is only allowed for the wakeup meter.");
 			}
 

@@ -98,7 +98,8 @@ public abstract class GenericMessageExecutor {
 	public AXDRDateTime convertUnixToGMTDateTime(String time, TimeZone timeZone) throws IOException{
 		try {
 			AXDRDateTime dateTime = null;
-			Calendar cal = Calendar.getInstance(timeZone);
+//			Calendar cal = Calendar.getInstance(timeZone);
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 			cal.setTimeInMillis(Long.parseLong(time)*1000);
 			dateTime = new AXDRDateTime(cal);
 			return dateTime;

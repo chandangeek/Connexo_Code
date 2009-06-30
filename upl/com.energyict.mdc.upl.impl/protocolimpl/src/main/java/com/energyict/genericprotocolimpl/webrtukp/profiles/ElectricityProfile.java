@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
@@ -27,18 +26,12 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
-import com.energyict.genericprotocolimpl.webrtukp.eventhandling.DisconnectControlLog;
-import com.energyict.genericprotocolimpl.webrtukp.eventhandling.EventsLog;
-import com.energyict.genericprotocolimpl.webrtukp.eventhandling.FraudDetectionLog;
-import com.energyict.genericprotocolimpl.webrtukp.eventhandling.MbusLog;
-import com.energyict.genericprotocolimpl.webrtukp.eventhandling.PowerFailureLog;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 
 public class ElectricityProfile {
 	

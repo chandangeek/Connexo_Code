@@ -44,6 +44,7 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;
@@ -53,6 +54,7 @@ import com.energyict.dlms.cosem.AutoConnect;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.StoredValues;
@@ -1357,6 +1359,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             boolean wuClearWhiteList = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_CLEAR_WHITELIST);
             boolean wuActivate = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_ACTIVATE);
             boolean firmware = contents.equalsIgnoreCase(RtuMessageConstant.FIRMWARE);
+            boolean changeConMode = contents.equalsIgnoreCase(RtuMessageConstant.CONNECT_MODE);
             
             if (falsemsg){
             	msg.setFailed();
@@ -1403,6 +1406,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         			break;
         		}
         		}
+            } else if(changeConMode){
+            	changeConnectorMode(msg);
             }
 
             else if(tou) {
@@ -1476,6 +1481,25 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 		}
 	}
 	
+	private void changeConnectorMode(RtuMessage msg) throws BusinessException, SQLException, IOException {
+		String description = "Changing the connectorMode for meter with serialnumber: " + rtu.getSerialNumber();
+		
+		getLogger().log(Level.INFO, description);
+		
+		String mode = getMessageValue(msg.getContents(), RtuMessageConstant.CONNECT_MODE);
+		if(ParseUtils.isInteger(mode)){
+
+			Data dataMode = getCosemObjectFactory().getData(ObisCode.fromString("0.0.128.30.22.255"));
+			dataMode.setValueAttr(new Unsigned8(Integer.parseInt(mode)));
+			msg.confirm();
+			
+		} else {
+			fail(new NumberFormatException(), msg, description);
+		}
+		
+		
+	}
+
 	/**
 	 * NOTE: Updating the gateway of an RTU with NULL is not compatible with EIServer 7.x!!
 	 * @throws SQLException if a database exception occurred
@@ -2034,6 +2058,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         cat.addMessageSpec(msgSpec);
         msgSpec = addBasicMsg("Connect meter", RtuMessageConstant.CONNECT_LOAD, false);
         cat.addMessageSpec(msgSpec);
+        msgSpec = addValueMessage("Change Connector Mode", RtuMessageConstant.CONNECT_MODE, false);
+        cat.addMessageSpec(msgSpec);
         msgSpec = addBasicMsg("ReadOnDemand", RtuMessageConstant.READ_ON_DEMAND, false);
         cat.addMessageSpec(msgSpec);
         msgSpec = addTouMessage("Set new tariff program", RtuMessageConstant.TOU_SCHEDULE, false);
@@ -2070,7 +2096,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 //        catWakeUp.addMessageSpec(msgSpec);
         
         // TODO not complete yet!
-//        msgSpec = addValueMessage("Upgrade Firmware", RtuMessageConstant.FIRMWARE, false);
+        msgSpec = addValueMessage("Upgrade Firmware", RtuMessageConstant.FIRMWARE, false);
 //        catFirmware.addMessageSpec(msgSpec);
         
         theCategories.add(cat);
@@ -2081,7 +2107,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         //TODO	The FirmwareMessage is disabled for the current release, it's not complete yet!
         //TODO
         //TODO
-//        theCategories.add(catFirmware);
+        theCategories.add(catFirmware);
         return theCategories;
 	}
 	

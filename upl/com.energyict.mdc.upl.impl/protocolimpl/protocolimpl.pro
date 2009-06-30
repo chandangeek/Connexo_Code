@@ -225,6 +225,8 @@
 
 -keepnames class com.energyict.genericprotocolimpl.webrtukp.MbusDevice
 
+-keepnames class com.energyict.genericprotocolimpl.webrtukp.TicDevice
+
 -keepnames class com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging
 
 -keepnames class com.energyict.protocolimpl.elster.opus.Opus

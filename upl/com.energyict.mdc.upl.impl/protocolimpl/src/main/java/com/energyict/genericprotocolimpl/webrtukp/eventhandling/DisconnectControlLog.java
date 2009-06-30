@@ -1,11 +1,15 @@
 package com.energyict.genericprotocolimpl.webrtukp.eventhandling;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.MeterEvent;
 
 public class DisconnectControlLog {
@@ -29,19 +33,19 @@ public class DisconnectControlLog {
 		this.dcEvents = dc;
 	}
 	
-	public List<MeterEvent> getMeterEvents(){
+	public List<MeterEvent> getMeterEvents() throws IOException{
 		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
 		int size = this.dcEvents.getRoot().getNrOfElements();
 		Date eventTimeStamp = null;
 		for(int i = 0; i <= (size-1); i++){
 			int eventId = (int)this.dcEvents.getRoot().getStructure(i).getValue(1);
-			int threshold = 0;
+			String threshold = "Unknown";
 			//TODO fix it for the Iskra 2009 meter
-			if(this.dcEvents.getRoot().getStructure(i).isInteger(2)){
-				threshold = (int)this.dcEvents.getRoot().getStructure(i).getInteger(2);
+			if(this.dcEvents.getRoot().getStructure(i).getElements().length == 3){
+				threshold = Integer.toString(this.dcEvents.getRoot().getStructure(i).getInteger(2));
 			}
 			if(isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))){
-				eventTimeStamp = dcEvents.getRoot().getStructure(i).getOctetString(0).toDate(this.timeZone);
+				eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
 			}
 			if(eventTimeStamp != null){
 				buildMeterEvent(meterEvents, eventTimeStamp, eventId, threshold);
@@ -50,7 +54,7 @@ public class DisconnectControlLog {
 		return meterEvents;
 	}
 
-	private void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId, int threshold) {
+	private void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId, String threshold) {
 		
 		switch(eventId){
 		case EVENT_EVENT_LOG_CLEARED : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.CLEAR_DATA, eventId, "Disconnect control event log profile cleared."));}break;

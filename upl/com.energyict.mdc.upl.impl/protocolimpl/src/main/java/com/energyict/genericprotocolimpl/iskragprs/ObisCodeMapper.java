@@ -203,6 +203,14 @@ public class ObisCodeMapper {
                     return registerValue; 
 	            }
 	            
+	            if((obisCode.toString().indexOf("0.0.128.30.22.255") != -1) ) {	//ConnectorMode
+	            	registerValue = new RegisterValue(obisCode,
+                            cosemObject.getQuantityValue(),
+                            null, null, null,
+                            new Date(),0);
+                    return registerValue; 
+	            }
+	            
 	            else if (( obisCode.toString().indexOf("0.0.128.7.") != -1) || (obisCode.toString().indexOf("0.0.128.8.") != -1)){
 	            	registerValue = new RegisterValue(obisCode,cosemObject.getQuantityValue());
 	            	return registerValue;
