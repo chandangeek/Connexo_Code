@@ -7,6 +7,8 @@ import javax.xml.parsers.*;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.energyict.cbo.NestedIOException;
+
 public class FirmwareSaxParser {
 
 	ABBA230DataIdentityFactory abba230DataIdentityFactory;
@@ -15,10 +17,10 @@ public class FirmwareSaxParser {
 		this.abba230DataIdentityFactory=abba230DataIdentityFactory;
 	}
 	
-	protected void start(String str) {
+	protected void start(String str) throws IOException {
 		start(str,true);
 	}
-	protected void start(String str,boolean isfileRef) {
+	protected void start(String str,boolean isfileRef) throws IOException {
 		try {
 			if (isfileRef) {
 				File file = new File(str);
@@ -32,13 +34,11 @@ public class FirmwareSaxParser {
 			else parse(str);
 			
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+			throw new NestedIOException(e);
+		} 
 	}
 	
-	private void parse(String data) {
+	private void parse(String data) throws IOException {
         try {
             byte[] bai = data.getBytes();
             InputStream is = (InputStream) new ByteArrayInputStream(bai);
@@ -49,12 +49,10 @@ public class FirmwareSaxParser {
             saxParser.parse(is, myHandler);
             
         } catch (ParserConfigurationException e) {
-        	e.printStackTrace();
+        	throw new NestedIOException(e);
         } catch (SAXException e) {
-        	e.printStackTrace();
-        } catch (IOException e) {
-        	e.printStackTrace();
-         }
+        	throw new NestedIOException(e);
+        } 
 	}
 	
 	/**
@@ -62,7 +60,12 @@ public class FirmwareSaxParser {
 	 */
 	public static void main(String[] args) {
 		FirmwareSaxParser o = new FirmwareSaxParser(null);
-		o.start("C:/Documents and Settings/kvds/My Documents/projecten/ESB/firmware.xml",true);
+		try {
+			o.start("C:/Documents and Settings/kvds/My Documents/projecten/ESB/firmware.xml",true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		//o.start("C:/Documents and Settings/kvds/My Documents/projecten/ESB/tariff2.xml");
 		//o.start("C:/Documents and Settings/kvds/My Documents/projecten/ESB/tariff3.xml");
 		

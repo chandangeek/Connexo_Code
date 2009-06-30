@@ -116,6 +116,11 @@ public class ABBA230DataIdentityFactory {
             throw new IOException("ABBA230DataIdentityFactory, setDataIdentity, "+e.getMessage());
         }
     }
+    void setDataIdentityHex2(String dataID, int packet, String value) throws IOException {
+        ABBA230DataIdentity rawRegister = new ABBA230DataIdentity(dataID,this);
+        rawRegister.writeRawRegisterHex(packet,value);
+    }
+
     
     private void initRegisters() {
         

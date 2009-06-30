@@ -5,7 +5,8 @@ import java.io.*;
 import javax.xml.parsers.*;
 
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
+
+import com.energyict.cbo.NestedIOException;
 
 public class TariffSaxParser {
 
@@ -15,10 +16,10 @@ public class TariffSaxParser {
 		this.abba230DataIdentityFactory=abba230DataIdentityFactory;
 	}
 	
-	protected void start(String str) {
+	protected void start(String str) throws IOException {
 		start(str,true);
 	}
-	protected void start(String str,boolean isfileRef) {
+	protected void start(String str,boolean isfileRef) throws IOException {
 		try {
 			if (isfileRef) {
 				File file = new File(str);
@@ -32,13 +33,11 @@ public class TariffSaxParser {
 			else parse(str);
 			
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+			throw new NestedIOException(e);
+		} 
 	}
 	
-	private void parse(String data) {
+	private void parse(String data) throws IOException {
         try {
             byte[] bai = data.getBytes();
             InputStream is = (InputStream) new ByteArrayInputStream(bai);
@@ -49,12 +48,10 @@ public class TariffSaxParser {
             saxParser.parse(is, myHandler);
             
         } catch (ParserConfigurationException e) {
-        	e.printStackTrace();
+        	throw new NestedIOException(e);
         } catch (SAXException e) {
-        	e.printStackTrace();
-        } catch (IOException e) {
-        	e.printStackTrace();
-         }
+        	throw new NestedIOException(e);
+        }
 	}
 	
 //	/**

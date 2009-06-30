@@ -190,8 +190,14 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         getLogger().info("call overrided method readRegister("+obisCode+")");
         getLogger().info("--> request the register from the meter here");
-        if (obisCode.equals(ObisCode.fromString("1.1.1.8.0.255")))
-            return new RegisterValue(obisCode,new Quantity(new BigDecimal("1234687.64"),Unit.get("kWh")));
+        if (obisCode.getA() == 1) {
+	        if (obisCode.getD() == 8) {
+	            return new RegisterValue(obisCode,new Quantity(new BigDecimal(""+((System.currentTimeMillis()/1000)*obisCode.getB())),Unit.get("kWh")));
+	        }
+	        else {  
+	        	return new RegisterValue(obisCode,new Quantity(new BigDecimal("12345678.8"),Unit.get("kWh")));
+	        }
+        }
         throw new NoSuchRegisterException("Register "+obisCode+" not supported!");
     }
     

@@ -2,11 +2,9 @@ package com.energyict.protocolimpl.iec1107.abba230;
 
 import java.io.IOException;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 
@@ -101,13 +99,25 @@ public class FirmwareXMLHandler extends DefaultHandler {
 				            if (((long) (System.currentTimeMillis() - timeout)) > 0) {
 				                timeout = System.currentTimeMillis() + AUTHENTICATE_REARM_FIRMWARE; // arm again...
 				    			if (DEBUG>=1) System.out.println("Authenticate...");
-	
-				                abba230DataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().authenticate();
+								try {
+									abba230DataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().authenticate();
+								} catch (IOException e1) {
+									throw new SAXException(e1);
+								}
 				            }		
 				            
-							abba230DataIdentityFactory.setDataIdentityHex(attributes.getValue(0), Integer.parseInt(attributes.getValue(1),16), attributes.getValue(2));
+							abba230DataIdentityFactory.setDataIdentityHex2(attributes.getValue(0), Integer.parseInt(attributes.getValue(1),16), attributes.getValue(2));
 							break;
 						}
+			            catch(FlagIEC1107ConnectionException e) {
+							if (retry++>=5) {
+								throw new SAXException("Fail after 4 retries, ",e);
+							}
+							else {
+								if (DEBUG>=1)
+									System.out.println("FlagIEC1107ConnectionException exception received, retry...");
+							}
+		                }
 						catch(IOException e) {
 							if (e.getMessage().indexOf("ERR6")>=0) {
 								if (retry++>=2) {
@@ -117,7 +127,7 @@ public class FirmwareXMLHandler extends DefaultHandler {
 									try {
 										abba230DataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().authenticate();
 									} catch (IOException e1) {
-										e1.printStackTrace();
+										throw new SAXException(e1);
 									}
 									if (DEBUG>=1)
 										System.out.println("ERR6 received, retry...");

@@ -746,7 +746,7 @@ public class ABBA230 implements
     	}
     }
     
-    private void programFirmware(String firmwareXMLData) {
+    private void programFirmware(String firmwareXMLData) throws IOException {
 		FirmwareSaxParser o = new FirmwareSaxParser(rFactory.getABBA230DataIdentityFactory());
 		o.start(firmwareXMLData,false); 
     }
