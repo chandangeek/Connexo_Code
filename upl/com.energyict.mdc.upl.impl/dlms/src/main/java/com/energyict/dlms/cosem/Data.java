@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 
 import com.energyict.protocolimpl.dlms.*;
 import com.energyict.protocol.*;
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.OctetString;
@@ -68,7 +69,7 @@ public class Data extends AbstractCosemObject implements CosemObject {
     }
     
     public ScalerUnit getScalerUnit() throws IOException {
-        return null;
+        return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
     }
     
     public long getValue() throws IOException {

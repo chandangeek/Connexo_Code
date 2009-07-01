@@ -263,7 +263,12 @@ public class MbusDailyMonthly {
 	private ScalerUnit getMeterDemandRegisterScalerUnit(ObisCode oc) throws IOException{
 		try {
 			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
-			if( su.getUnitCode() == 0){
+			if(su != null){
+				if(su.getUnitCode() == 0){
+					su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
+				}
+				
+			} else {
 				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
 			}
 			return su;

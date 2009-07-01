@@ -35,7 +35,7 @@ import com.energyict.protocol.ProfileData;
 
 public class ElectricityProfile {
 	
-	private boolean DEBUG = true;	// TODO set it back to false
+	private boolean DEBUG = false;
 	
 	private WebRTUKP webrtu;
 	
@@ -105,7 +105,7 @@ public class ElectricityProfile {
 		Iterator<ChannelInfo> it = channelInfos.iterator();
 		while(it.hasNext()){
 			ChannelInfo ci = it.next();
-			if(getMeter().getChannel(ci.getChannelId()).getIntervalInSeconds() != genericProfile.getCapturePeriod()){
+			if(getMeter().getChannel(ci.getId()).getIntervalInSeconds() != genericProfile.getCapturePeriod()){
 				throw new IOException("Interval mismatch, EIServer: " + getMeter().getIntervalInSeconds() + "s - Meter: " + genericProfile.getCapturePeriod() + "s.");
 			}
 		}
@@ -159,7 +159,12 @@ public class ElectricityProfile {
 	private ScalerUnit getMeterDemandRegisterScalerUnit(ObisCode oc) throws IOException{
 		try {
 			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
-			if( su.getUnitCode() == 0){
+			if(su != null){
+				if(su.getUnitCode() == 0){
+					su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
+				}
+				
+			} else {
 				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
 			}
 			return su;

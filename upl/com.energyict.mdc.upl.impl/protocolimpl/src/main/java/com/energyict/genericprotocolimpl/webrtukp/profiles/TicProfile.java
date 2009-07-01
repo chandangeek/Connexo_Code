@@ -247,8 +247,18 @@ public class TicProfile {
 	 */
 	private ScalerUnit getScalerUnit(CapturedObject capturedObject){
 		try {
+			
+			if(capturedObject.getLogicalName().getObisCode().toString().equalsIgnoreCase("0.0.96.14.0.255")){
+				System.out.println("Test");
+			}
+			
 			ScalerUnit su = getCosemObjectFactory().getCosemObject(capturedObject.getLogicalName().getObisCode()).getScalerUnit();
-			if(su.getUnitCode() == 0){
+			if(su != null){
+				if(su.getUnitCode() == 0){
+					su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
+				}
+				
+			} else {
 				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
 			}
 			return su;
