@@ -44,6 +44,7 @@ import com.energyict.dlms.cosem.AssociationSN;
 import com.energyict.dlms.cosem.AutoConnect;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.DemandRegister;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.ExtendedRegister;
@@ -281,14 +282,36 @@ public class MessageExecutor extends GenericMessageExecutor{
 				
 				Limiter clearLLimiter = getCosemObjectFactory().getLimiter();
 				
-				// erase the emergency profile
+				// first do it the Iskra way, if it fails do it oure way
+				
 				Structure emptyStruct = new Structure();
-				//TODO to test if this clears the emergencyProfile
 				emptyStruct.addDataType(new Unsigned16(0));
-				//we set the emergencyProfile activation date to the current time
-				emptyStruct.addDataType(new OctetString(convertUnixToGMTDateTime(Long.toString(System.currentTimeMillis()/1000 + 60), getTimeZone()).getBEREncodedByteArray(), 0, true));
+				emptyStruct.addDataType(new OctetString(new byte[14]));
 				emptyStruct.addDataType(new Unsigned32(0));
-				clearLLimiter.writeEmergencyProfile(clearLLimiter.new EmergencyProfile(emptyStruct.getBEREncodedByteArray(), 0, 0));
+				try {
+					clearLLimiter.writeEmergencyProfile(clearLLimiter.new EmergencyProfile(emptyStruct.getBEREncodedByteArray(), 0, 0));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					if(e.getMessage().indexOf("Could not write the emergencyProfile structure.Cosem Data-Access-Result exception Type unmatched") != -1){ // do it oure way
+						emptyStruct = new Structure();
+						emptyStruct.addDataType(new NullData());
+						emptyStruct.addDataType(new NullData());
+						emptyStruct.addDataType(new NullData());
+						clearLLimiter.writeEmergencyProfile(clearLLimiter.new EmergencyProfile(emptyStruct.getBEREncodedByteArray(), 0, 0));
+					} else {
+						throw e;
+					}
+				}
+				
+				
+//				
+//				// erase the emergency profile
+//				//TODO to test if this clears the emergencyProfile
+//				emptyStruct.addDataType(new Unsigned16(0));
+//				//we set the emergencyProfile activation date to the current time
+//				emptyStruct.addDataType(new OctetString(convertUnixToGMTDateTime(Long.toString(System.currentTimeMillis()/1000 + 60), getTimeZone()).getBEREncodedByteArray(), 0, true));
+//				emptyStruct.addDataType(new Unsigned32(0));
 				
 				success = true;
 			} else if (llConfig){
@@ -764,10 +787,10 @@ public class MessageExecutor extends GenericMessageExecutor{
 										to.setTime(currentTime.getTime());
 										
 										// Check if the expected value is the same as the result
-										if(!to.getExpected().equalsIgnoreCase(to.getResult())){
+										if((to.getExpected() == null) ||(!to.getExpected().equalsIgnoreCase(to.getResult()))){
 											to.setResult("Failed - " + to.getResult());
 											failures++;
-											getLogger().log(Level.INFO, "Test " + i + " has successfully finished, but the resutl didn't match the expected value.");
+											getLogger().log(Level.INFO, "Test " + i + " has successfully finished, but the result didn't match the expected value.");
 										} else {
 											getLogger().log(Level.INFO, "Test " + i + " has successfully finished.");
 										}

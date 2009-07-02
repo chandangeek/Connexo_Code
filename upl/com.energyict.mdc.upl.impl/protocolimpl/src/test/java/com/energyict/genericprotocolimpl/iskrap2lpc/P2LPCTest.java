@@ -6,18 +6,14 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javax.xml.rpc.ServiceException;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.energyict.cbo.BusinessException;
@@ -32,11 +28,8 @@ import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.core.RtuMessageState;
 import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.coreimpl.CommunicationProfileImpl;
-import com.energyict.mdw.coreimpl.CommunicationProtocolImpl;
-import com.energyict.mdw.coreimpl.RtuTypeImpl;
 import com.energyict.mdw.shadow.RtuMessageShadow;
-import com.energyict.utils.Utilities;
+import com.energyict.protocolimpl.utils.Utilities;
 
 public class P2LPCTest {
 	

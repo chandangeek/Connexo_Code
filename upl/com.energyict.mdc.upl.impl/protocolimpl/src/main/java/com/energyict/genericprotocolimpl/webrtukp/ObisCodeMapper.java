@@ -45,7 +45,13 @@ public class ObisCodeMapper {
         			null, null, null, new Date(), 0,
         			new String(cof.getActivityCalendar(obisCode).readCalendarNameActive().getOctetStr()));
         	return rv;
-        } else if (obisCode.toString().indexOf("1.0.0.2.0.255") != -1){	// Active firmware identifier
+        } else if (obisCode.toString().indexOf("1.0.0.2.0.255") != -1){	// Core firmware (not upgradeable)
+        	rv = new RegisterValue(obisCode,
+        			null,
+        			null, null, null, new Date(), 0,
+        			new String(cof.getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1).getString()));
+        	return rv;
+        } else if (obisCode.toString().indexOf("1.1.0.2.0.255") != -1){	// Module firmware (not upgradeable)
         	rv = new RegisterValue(obisCode,
         			null,
         			null, null, null, new Date(), 0,

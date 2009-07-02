@@ -49,8 +49,8 @@ import com.energyict.mdw.testutils.RtuRegisterSpecCRUD;
 import com.energyict.mdw.testutils.RtuTypeCRUD;
 import com.energyict.mdw.testutils.TimeOfUseCRUD;
 import com.energyict.obis.ObisCode;
-import com.energyict.utils.DummyDLMSConnection;
-import com.energyict.utils.Utilities;
+import com.energyict.protocolimpl.utils.DummyDLMSConnection;
+import com.energyict.protocolimpl.utils.Utilities;
 
 public class WebRTUKPTest {
 

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
+import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
@@ -79,7 +80,7 @@ public class MbusDailyMonthly {
 				
 				this.mbusDevice.getLogger().log(Level.INFO, "Reading Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 				DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
-				buildProfileData(dc, profileData, genericProfile);
+				buildProfileData(dc, profileData, genericProfile, TimeDuration.MONTHS);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 				ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
 				
@@ -98,15 +99,26 @@ public class MbusDailyMonthly {
 		
 	}
 	
-	private void buildProfileData(DataContainer dc, ProfileData pd, ProfileGeneric pg) throws IOException{
+	private void buildProfileData(DataContainer dc, ProfileData pd, ProfileGeneric pg, int timeDuration) throws IOException{
 		
 		Calendar cal = null;
 		IntervalData currentInterval = null;
 		int profileStatus = 0;
 		if(dc.getRoot().getElements().length != 0){
 			for(int i = 0; i < dc.getRoot().getElements().length; i++){
-//				cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
-				cal = new AXDRDateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).getArray())).getValue();
+				if(dc.getRoot().getStructure(i).isOctetString(0)){
+					cal = new AXDRDateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).getArray())).getValue();
+				} else {
+					if(cal != null){
+						if(timeDuration == TimeDuration.DAYS){ //the daily profile is constructed from the hourly profile so only add 1 hour to the calendar
+							cal.add(Calendar.HOUR_OF_DAY, 1);
+						} else if(timeDuration == TimeDuration.MONTHS){
+							cal.add(Calendar.MONTH, 1);
+						} else {
+							throw new ApplicationException("TimeDuration is not correct.");
+						}
+					}
+				}
 				if(cal != null){				
 					currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg, pd.getChannelInfos());
 					if(currentInterval != null){
@@ -355,24 +367,17 @@ public class MbusDailyMonthly {
 			ProfileData pd;
 			if((intervalProfileData == null) || (intervalProfileData.getIntervalDatas().size() == 0) ||
 					(intervalProfileData.getIntervalData(0).getIntervalValues().size() != profileData.getChannelInfos().size())){ // read the complete data yourself	
-				//TODO TOTEST
 				dc = genericProfile.getBuffer(fromCalendar, toCalendar);
-				buildProfileData(dc, profileData, genericProfile);
+				buildProfileData(dc, profileData, genericProfile, TimeDuration.DAYS);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 				pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
-//			} else if(){ // also read the complete data because the number of channels doesn't match
-//				//TODO TOTEST
-//				dc = genericProfile.getBuffer(fromCalendar, toCalendar);
-//				buildProfileData(dc, profileData, genericProfile);
-//				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
-//				pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
 			} else { // use the given intervalProfileData to get the data
 				intervalProfileData.sort();
 				if(intervalProfileData.getIntervalData(0).getEndTime().after(fromCalendar.getTime())){ // Read profileData using the from to the start of the intervalprofileData
 					//TODO TOTEST
 					toCalendar.setTime(intervalProfileData.getIntervalData(0).getEndTime());
 					dc = genericProfile.getBuffer(fromCalendar, toCalendar);
-					buildProfileData(dc, profileData, genericProfile);
+					buildProfileData(dc, profileData, genericProfile, TimeDuration.DAYS);
 					ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 					pd = combineProfileBuffers(sortOutProfiledate(profileData, TimeDuration.DAYS), sortOutProfiledate(intervalProfileData, TimeDuration.DAYS));
 				} else {

@@ -72,15 +72,15 @@ public class MbusDevice implements GenericProtocol, Messaging{
 		this.valid = false;
 	}
 	
-	public MbusDevice(String serial, Rtu mbusRtu, Logger logger) throws SQLException, BusinessException, IOException{
+	public MbusDevice(String serial, Rtu mbusRtu, Logger logger){
 		this(0, 0, serial, 15, mbusRtu, Unit.get(BaseUnit.UNITLESS), logger);
 	}
 	
-	public MbusDevice(String serial, int physicalAddress, Rtu mbusRtu, Logger logger) throws SQLException, BusinessException, IOException{
+	public MbusDevice(String serial, int physicalAddress, Rtu mbusRtu, Logger logger){
 		this(0, physicalAddress, serial, 15, mbusRtu, Unit.get(BaseUnit.UNITLESS), logger);
 	}
 	
-	public MbusDevice(long mbusAddress, int phyaddress, String serial, int medium, Rtu mbusRtu, Unit mbusUnit, Logger logger) throws SQLException, BusinessException, IOException{
+	public MbusDevice(long mbusAddress, int phyaddress, String serial, int medium, Rtu mbusRtu, Unit mbusUnit, Logger logger){
 		this.mbusAddress = mbusAddress;
 		this.physicalAddress = phyaddress;
 		this.medium = medium;

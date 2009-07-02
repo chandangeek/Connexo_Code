@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.energyict.utils;
+package com.energyict.protocolimpl.utils;
 
 
 import static org.junit.Assert.assertEquals;
@@ -192,11 +192,11 @@ public class UtilitiesTest {
 				fail();
 
 		} catch (BusinessException e) {
-			e.printStackTrace();
 			fail();
+			e.printStackTrace();
 		} catch (SQLException e) {
-			e.printStackTrace();
 			fail();
+			e.printStackTrace();
 		}
 	}
 }

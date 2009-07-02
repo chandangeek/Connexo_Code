@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.logging.Level;
 
 import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
@@ -172,7 +171,7 @@ public class TicProfile {
 	}
 	
 	private void verifyProfileInterval(ProfileGeneric genericProfile) throws IOException{
-		Iterator<Channel> it = this.ticDevice.getWebRTU().getMeter().getChannels().iterator();
+		Iterator<Channel> it = this.ticDevice.getMeter().getChannels().iterator();
 		while(it.hasNext()){
 			Channel channel = it.next();
 			if(channel.getIntervalInSeconds() != genericProfile.getCapturePeriod()){

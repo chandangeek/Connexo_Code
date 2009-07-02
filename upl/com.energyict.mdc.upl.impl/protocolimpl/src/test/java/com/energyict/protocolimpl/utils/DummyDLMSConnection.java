@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.energyict.utils;
+package com.energyict.protocolimpl.utils;
 
 import java.io.IOException;
 

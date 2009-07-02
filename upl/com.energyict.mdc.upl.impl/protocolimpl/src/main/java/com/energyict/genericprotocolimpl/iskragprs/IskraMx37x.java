@@ -2058,7 +2058,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         cat.addMessageSpec(msgSpec);
         msgSpec = addBasicMsg("Connect meter", RtuMessageConstant.CONNECT_LOAD, false);
         cat.addMessageSpec(msgSpec);
-        msgSpec = addValueMessage("Change Connector Mode", RtuMessageConstant.CONNECT_MODE, false);
+        msgSpec = addValueMessage("ConnectControl Mode", RtuMessageConstant.CONNECT_MODE, false);
         cat.addMessageSpec(msgSpec);
         msgSpec = addBasicMsg("ReadOnDemand", RtuMessageConstant.READ_ON_DEMAND, false);
         cat.addMessageSpec(msgSpec);

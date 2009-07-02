@@ -5,16 +5,19 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
+import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -26,7 +29,6 @@ import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.SecureConnection;
@@ -58,15 +60,16 @@ import com.energyict.mdw.amr.RtuRegisterGroup;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.Folder;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
@@ -119,6 +122,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	private DLMSCache dlmsCache = new DLMSCache();
 
 	private MbusDevice[] mbusDevices;
+	private HashMap<String, Integer> ghostMbusDevices = new HashMap<String, Integer>();
 	private TicDevice ticDevice;
 	private Clock deviceClock;
 	private StoreObject storeObject;
@@ -262,14 +266,12 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				sendMeterMessages();
 			}
 
-			if (hasMBusMeters()) {
+			discoverMbusDevices();
+			if (getValidMbusDevices() != 0) {
 				getLogger().log(Level.INFO, "Starting to handle the MBus meters.");
 				handleMbusMeters();
 			}
-			
-			/**
-			 * TODO - TOTest
-			 */
+
 			if(hasTicDevices()){
 				getLogger().log(Level.INFO, "Starting to handle the Tic device.");
 				handleTicDevice();
@@ -342,6 +344,13 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		return false;
 	}
 
+	/**
+	 * Handle the TIC device.
+	 * Only profileData and events can be read
+	 * @throws BusinessException
+	 * @throws SQLException
+	 * @throws IOException
+	 */
 	private void handleTicDevice() throws BusinessException, SQLException, IOException {
 		this.ticDevice.setWebRTU(this);
 		this.ticDevice.execute(this.scheduler, null, getLogger());
@@ -469,9 +478,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		LocalSecurityProvider lsp = new LocalSecurityProvider(this.authenticationSecurityLevel, this.password);
 		ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
 		XdlmsAse xDlmsAse = new XdlmsAse(null, true, -1, 6, cb, 1200);
-		//TODO the dataTransport securityLevel should be a property
 		//TODO the dataTransport encryptionType should be a property (although currently only 0 is described by DLMS)
-		SecurityContext sc = new SecurityContext(0, this.authenticationSecurityLevel, 0, this.deviceId, lsp);
+		SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, this.deviceId, lsp);
 		
 		//TODO the value of the contextId can depend on the securityLevel
 		this.aso = new ApplicationServiceObject(xDlmsAse, this, sc, AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING);
@@ -701,8 +709,8 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		ObisCode oc = null;
 		RegisterValue rv = null;
 		RtuRegister rr;
-		try {
-			while (it.hasNext()) {
+		while (it.hasNext()) {
+			try {
 				rr = it.next();
 				if (isInRegisterGroup(groups, rr)) {
 					oc = rr.getRtuRegisterSpec().getObisCode();
@@ -719,10 +727,11 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 						getLogger().log(Level.INFO, "ObisCode " + oc + " is not supported by the meter.");
 					}
 				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				getLogger().log(Level.INFO, "Reading register with obisCode " + oc + " FAILED.");
+//				throw new IOException(e.getMessage());
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException(e.getMessage());
 		}
 	}
 
@@ -1050,7 +1059,172 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	public Rtu getMeter() {
 		return this.webRtuKP;
 	}
+	
+	private int getValidMbusDevices(){
+		int count = 0;
+		for(int i = 0; i < maxMbusDevices; i++){
+			if(this.mbusDevices[i] != null){
+				count++;
+			}
+		}
+		return count;
+	}
+	
+	public void discoverMbusDevices() throws SQLException, BusinessException{
+		
+		// get a MbusDeviceMap 
+		HashMap<String, Integer> mbusMap = getMbusMapper();
+		
+		// check if the current mbus slaves are still on the meter disappeared
+		checkForDisappearedMbusMeters(mbusMap);
+		// check if all the mbus devices are configured in EIServer
+		checkToUpdateMbusMeters(mbusMap);
+	}
+	
+	private void checkForDisappearedMbusMeters(HashMap<String, Integer> mbusMap){
 
+		List<Rtu> mbusSlaves = getMeter().getDownstreamRtus();
+		Iterator<Rtu> it = mbusSlaves.iterator();
+		while(it.hasNext()){
+			Rtu mbus = it.next();
+			Class device = null;
+			try {
+				device = Class.forName(mbus.getRtuType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
+				if((device != null) && (device.newInstance() instanceof MbusDevice)){
+					if(!mbusMap.containsKey(mbus.getSerialNumber())){
+						getLogger().log(Level.INFO, "MbusDevice " + mbus.getSerialNumber() + " is not installed on the physical device.");
+						ghostMbusDevices.put(mbus.getSerialNumber(), mbusMap.get(mbus.getSerialNumber()));
+					}
+				}
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+				// should never come here because if the rtuType has the className, then you should be able to create a class for it...
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+				getLogger().log(Level.INFO, "Could not check if the mbusDevice " + mbus.getSerialNumber() + " exists.");
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+				getLogger().log(Level.INFO, "Could not check if the mbusDevice " + mbus.getSerialNumber() + " exists.");
+			}
+		}
+		
+	}
+	
+	/**
+	 * 
+	 * TODO check the ghostMbusDevices and create the mbusDevices
+	 * @param mbusMap
+	 * @throws BusinessException 
+	 * @throws SQLException 
+	 */
+	private void checkToUpdateMbusMeters(HashMap<String, Integer> mbusMap) throws SQLException, BusinessException{
+		Iterator<Entry<String, Integer>>  mbusIt = mbusMap.entrySet().iterator();
+		int count = 0;
+		while(mbusIt.hasNext()){
+			Map.Entry<String, Integer> entry = mbusIt.next();
+			if(!ghostMbusDevices.containsKey(entry.getKey())){ // ghostMeters don't need to be read because they are not on the meter anymore
+				Rtu mbus = findOrCreateMbusDevice(entry.getKey());
+				if(mbus != null){
+					this.mbusDevices[count++] = new MbusDevice(entry.getKey(), entry.getValue(), mbus, getLogger());
+				}
+			}
+		}
+	}
+	
+	private Rtu findOrCreateMbusDevice(String key) throws SQLException, BusinessException {
+		List<Rtu> mbusList = mw().getRtuFactory().findBySerialNumber(key);
+		if(mbusList.size() == 1){
+			mbusList.get(0).updateGateway(getMeter());
+			return mbusList.get(0);
+		} else if(mbusList.size() > 1){
+			getLogger().log(Level.SEVERE, "Multiple meters where found with serial: " + key + ". Meter will not be handled.");
+			return null;
+		}
+		
+        RtuType rtuType = getRtuType();
+        if (rtuType == null){
+        	return null;
+        }
+        else{
+        	return createMeter(rtuType, key);
+        }
+	}
+
+	private Rtu createMeter(RtuType rtuType, String key) throws SQLException, BusinessException {
+        RtuShadow shadow = rtuType.newRtuShadow();
+        
+//        Date lastreading = shadow.getLastReading();
+        
+    	shadow.setName(key);
+        shadow.setSerialNumber(key);
+
+        String folderExtName = getProperty("FolderExtName");
+    	if(folderExtName != null){
+    		Folder result = mw().getFolderFactory().findByExternalName(folderExtName);
+    		if(result != null){
+    			shadow.setFolderId(result.getId());
+    		} else {
+    			getLogger().log(Level.INFO, "No folder found with external name: " + folderExtName + ", new meter will be placed in prototype folder.");
+    		}
+    	} else {
+    		getLogger().log(Level.INFO, "New meter will be placed in prototype folder.");
+    	}    
+    	
+    	shadow.setGatewayId(getMeter().getId());
+//    	shadow.setLastReading(lastreading);
+        return mw().getRtuFactory().create(shadow);	
+	}
+
+	private RtuType getRtuType(){
+    	String type = getProperty("RtuType");
+    	if (Utils.isNull(type)) {
+    		getLogger().warning("No automatic meter creation: no property RtuType defined.");
+    		return null;
+    	}
+    	else {
+           RtuType rtuType = mw().getRtuTypeFactory().find(type);
+           if (rtuType == null){
+        	   getLogger().log(Level.INFO, "No rtutype defined with name '" + type + "'");
+        	   return null;
+           } else if (rtuType.getPrototypeRtu() == null){
+        	   getLogger().log(Level.INFO, "Rtutype '" + type + "' has not prototype rtu");
+        	   return null;
+           }
+           return rtuType;
+        }
+	}
+	
+    private String getProperty(String key){
+        return (String)properties.get(key);
+    }
+	
+	private HashMap<String, Integer> getMbusMapper(){
+		String mbusSerial;
+		HashMap<String, Integer> mbusMap = new HashMap<String, Integer>();
+		for (int i = 0; i < this.maxMbusDevices; i++) {
+			mbusSerial = "";
+			try {
+				mbusSerial = getCosemObjectFactory().getGenericRead(getMeterConfig().getMbusSerialNumber(i)).getString();
+				if(!mbusSerial.equalsIgnoreCase("")){
+					mbusMap.put(mbusSerial, i);
+				}
+			} catch (IOException e) {
+				e.printStackTrace(); // catch and go to next
+				log(Level.INFO, "Could not retrieve the mbusSerialNumber for channel " + (i + 1));
+			}
+		}
+		return mbusMap;
+	}
+
+	/**
+	 * @deprecated after implementing the autodiscovery you have to use two methods:
+	 * - first 'discoverMbusDevices()'
+	 * - then 'getValidMbusDevices()'
+	 * @return
+	 * @throws SQLException
+	 * @throws BusinessException
+	 * @throws IOException
+	 */
 	private boolean hasMBusMeters() throws SQLException, BusinessException, IOException {
 
 		String serialMbus = "";
@@ -1212,7 +1386,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 	}
 
 	public List<String> getOptionalKeys() {
-		List<String> result = new ArrayList<String>(20);
+		List<String> result = new ArrayList<String>(30);
 		result.add("Timeout");
 		result.add("Retries");
 		result.add("DelayAfterFail");
@@ -1240,6 +1414,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		result.add("IIAPServiceClass");
 		result.add("WakeUp");
 		result.add("RoundTripCorrection");
+		result.add("FolderExtName");
 		return result;
 	}
 
@@ -1501,7 +1676,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		// catActivityCal.addMessageSpec(msgSpec);
 
 		// Time related messages
-		msgSpec = addTimeMessage("Set the meterTime to a specific time", RtuMessageConstant.SET_TIME, false);
+		msgSpec = addTimeMessage("Set the meterTime to a specific time", RtuMessageConstant.SET_TIME, true);
 		catTime.addMessageSpec(msgSpec);
 
 		// Create database entries

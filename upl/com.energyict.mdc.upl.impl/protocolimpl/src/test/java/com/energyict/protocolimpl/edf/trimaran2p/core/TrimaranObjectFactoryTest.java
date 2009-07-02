@@ -24,7 +24,7 @@ import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.APSEPDUFactory;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu.DLMSPDUFactory;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.APSEParameters;
-import com.energyict.utils.Utilities;
+import com.energyict.protocolimpl.utils.Utilities;
 
 import static org.junit.Assert.*;
 

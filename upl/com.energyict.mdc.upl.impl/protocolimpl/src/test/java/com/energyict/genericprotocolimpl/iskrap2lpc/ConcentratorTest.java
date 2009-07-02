@@ -42,7 +42,7 @@ import com.energyict.mdw.coreimpl.RtuTypeImpl;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.utils.Utilities;
+import com.energyict.protocolimpl.utils.Utilities;
 
 public class ConcentratorTest{
 
