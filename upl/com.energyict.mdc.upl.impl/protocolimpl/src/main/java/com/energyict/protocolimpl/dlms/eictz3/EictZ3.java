@@ -1,36 +1,12 @@
-/**
- * @version  2.0
- * @author   Koenraad Vanderschaeve
- * <P>
- * <B>Description :</B><BR>
- * Class that implements the DLMS COSEM meter protocol of the Actaris SL7000 meter with LN referencing. 
- * <BR>
- * <B>@beginchanges</B><BR>
-	KV|14052002|Initial version
-	KV|25102002|Re-engineered to MeterProtocol interface
-	KV|28082003|Password variable length
-	KV||bugfix, change of interface signature getValuesIterator in IntervalData 
-	KV|29102003|bugfix, did not request meterreading unit
-	KV|16012004|changed powerfail handling...
-	KV|06102004| reengineer using cosem package and add obiscode register mapping
-	KV|17112004|add logbook implementation
-	KV|17032005|improved registerreading
-	KV|23032005|Changed header to be compatible with protocol version tool
-	KV|31032005|Handle DataContainerException
-	GN|25042008|Missing hour values with a profileInterval of 10min
-	GN|04022009|Added the possibility to make a request with a from/to date. The request must be in the form: 0.0.99.1.0.255:7:2-01/02/2009 00:00:00-04/02/2009 12:00:00
-	KV|11022009|Cleanup and refactored as NTA compatible EICT Z3 protocol
- * @endchanges
- */
 package com.energyict.protocolimpl.dlms.eictz3;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -47,8 +23,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.NestedIOException;
-import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -85,6 +59,11 @@ import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.webrtukp.eventhandling.DisconnectControlLog;
+import com.energyict.genericprotocolimpl.webrtukp.eventhandling.EventsLog;
+import com.energyict.genericprotocolimpl.webrtukp.eventhandling.FraudDetectionLog;
+import com.energyict.genericprotocolimpl.webrtukp.eventhandling.MbusLog;
+import com.energyict.genericprotocolimpl.webrtukp.eventhandling.PowerFailureLog;
 import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
@@ -96,6 +75,7 @@ import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
@@ -116,15 +96,52 @@ import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.dlms.DLMSCache;
+import com.energyict.protocolimpl.dlms.DLMSSN;
 import com.energyict.protocolimpl.dlms.HDLC2Connection;
-import com.energyict.protocolimpl.dlms.RtuDLMS;
-import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.dlms.Z3.AARQ;
 
-public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
-		ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol {
+/**
+ * DLMS based {@link MeterProtocol} implementation for the Z3 and EpIO R2. There is also a generic protocol implementation {@link WebRTUKP}. 
+ * The latter is used in the CommServer. This protocol is mostly used in the RTU+Server (and is usually run over an RF dialer).
+ * 
+ * Originally loosely based on {@link DLMSSN}, but has been repeatedly refactored.
+ */
+public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol {
 
-	private static final byte DEBUG = 0; // KV 16012004 changed all DEBUG values
+	/** The name of the property containing the information field size. */
+	private static final String PROPNAME_INFORMATION_FIELD_SIZE = "InformationFieldSize";
+
+	/** Name of the property containing the load profile OBIS code to fetch. */
+	private static final String PROPNAME_LOAD_PROFILE_OBIS_CODE = "LoadProfileObisCode";
+
+	/** The name of the property indicating the {@link DLMSConnectionMode}. */
+	private static final String PROPNAME_CONNECTION = "Connection";
+
+	/**
+	 * The name of the property containing the client addressing mode. See {@link ClientAddressingMode} for values.
+	 */
+	private static final String PROPNAME_ADDRESSING_MODE = "AddressingMode";
+
+	/** The name of the property containing the server lower MAC address. */
+	private static final String PROPNAME_SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
+
+	/** The name of the property containing the server upper MAC address. */
+	private static final String PROPNAME_SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
+
+	/** The name of the property containing the client MAC address. */
+	private static final String PROPNAME_CLIENT_MAC_ADDRESS = "ClientMacAddress";
+
+	/** The name of the property containing the security level. */
+	private static final String PROPNAME_SECURITY_LEVEL = "SecurityLevel";
+
+	/** Indicates whether to request the time zone from the meter. */
+	private static final String PROPNAME_REQUEST_TIME_ZONE = "RequestTimeZone";
+
+	/** Name of the property containing the number of retries. */
+	private static final String PROPNAME_RETRIES = "Retries";
+
+	/** Name of the property containing the delay after failure in milliseconds. */
+	private static final String PROPNAME_TIMEOUT = "Timeout";
 
 	/** The maximum APDU size property name. */
 	private static final String PROPNAME_MAX_APDU_SIZE = "MaxAPDUSize";
@@ -132,72 +149,167 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 	/** The name of the property containing the time we force a delay. */
 	private static final String PROPNAME_FORCE_DELAY = "ForceDelay";
 
+	/** Name of the property containing the (fixed) roundtrop correction. */
+	private static final String PROPNAME_ROUNDTRIP_CORRECTION = "RoundtripCorrection";
+
 	/**
-	 * The name of the property containing the treshold in milliseconds we allow
-	 * for a time request when determining the time shift. It defaults to 5
-	 * seconds (5000 ms).
+	 * The name of the property containing the treshold in milliseconds we allow for a time request when determining the time shift. It defaults to 5 seconds (5000 ms).
 	 */
 	private static final String PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD = "ClockSetRoundtripCorrectionTreshold";
+	
+	/** Name of the property that contains the maximum number of MBus devices attached to the device. Default is 4. */
+	private static final String PROPNAME_MAXIMUM_NUMBER_OF_MBUS_DEVICES = "MaxMbusDevices";
 
 	/** The default roundtrip correction treshold when setting the clock. */
 	private static final int DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD = 5000;
 
 	/**
-	 * The name of the property containing the maximum number of clockset tries.
-	 * The algorithm will retry a when the roundtrip exceeds the value of
-	 * {@link #clockSetRoundtripTreshold}, defined by the property
-	 * {@value #PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD}.
+	 * The name of the property containing the maximum number of clockset tries. The algorithm will retry a when the roundtrip exceeds the value of {@link #clockSetRoundtripTreshold}, defined by the property {@value #PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD}.
 	 */
 	private static final String PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = "MaximumNumberOfClockSetTries";
 
 	/** Default number of retries allows for 10 retries. */
 	private static final int DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = 10;
 
-	String version = null;
-	String nodeId;
+	/** The OBIS code for the active firmware version. */
+	private static final ObisCode OBISCODE_ACTIVE_FIRMWARE = ObisCode.fromString("1.0.0.2.0.255");
 
-	private String strID = null;
-	private String strPassword = null;
-	private String serialNumber = null;
+	/** The OBIS code pointing to the serial number of the R2/Z3 itself. */
+	private static final ObisCode OBISCODE_R2_SERIAL_NUMBER = ObisCode.fromString("0.0.96.1.0.255");
+	
+	/** Protocol status flag indicating load profile has been cleared. */
+	private static final int CLEAR_LOADPROFILE = 0x4000;
+	
+	/** Protocol status flag indicating logbook has been cleared. */
+	private static final int CLEAR_LOGBOOK = 0x2000;
+	
+	/** protocol status flag end of error. */
+	private static final int END_OF_ERROR = 0x0400;
+	
+	/** protocol status. */
+	private static final int BEGIN_OF_ERROR = 0x0200;
+	
+	/** protocol status. */
+	private static final int VARIABLE_SET = 0x0100;
+	
+	/** protocol status. */
+	private static final int POWER_FAILURE = 0x0080;
+	
+	/** protocol status. */
+	private static final int POWER_RECOVERY = 0x0040;
+	
+	/** protocol status. */
+	private static final int DEVICE_CLOCK_SET_INCORRECT = 0x0020;
+	
+	/** protocol status. */
+	private static final int DEVICE_RESET = 0x0010;
+	
+	/** protocol status. */
+	private static final int DISTURBED_MEASURE = 0x0004;
+	
+	/** protocol status. */
+	private static final int RUNNING_RESERVE_EXHAUSTED = 0x0002;
+	
+	/** protocol status. */
+	private static final int FATAL_DEVICE_ERROR = 0x0001;
 
-	private String[] cachedSerialNumbers = null;
+	/** Contains the node address. */
+	private String nodeAddress;
 
-	private int hDLCTimeoutProperty;
-	private int protocolRetriesProperty;
-	private int securityLevel;
-	private int requestTimeZone;
+	/** The device ID. This is used in the {@link #requestSAP()} operation. */
+	private String deviceId;
+
+	/** The password to be used for the device. */
+	private String password;
+
+	/** The serial number to be used for the device. */
+	private String serialNumber;
+
+	/** The MBus serial numbers are cached when they are requested. */
+	private String[] mbusSerialNumbers;
+	
+	/** The device serial number. */
+	private String deviceSerialNumber;
+
+	/** Indicates the HDLC time out in milliseconds. */
+	private int hdlcTimeout;
+
+	/** Indicates the number of retries the protocol must do before giving up. */
+	private int protocolRetries;
+
+	/** The security level used. */
+	private SecurityLevel securityLevel;
+
+	/** Indicates whether we should request the time zone from the meter. */
+	private boolean requestTimeZone;
+
+	/** The roundtrip correction if this would be applicable. */
 	private int roundtripCorrection;
+
+	/** The client MAC address. */
 	private int clientMacAddress;
+
+	/** The server upper MAC address. */
 	private int serverUpperMacAddress;
+
+	/** The server lower MAC address. */
 	private int serverLowerMacAddress;
-	private String loadProfileObisCode;
-	private int fullLogbook;
-	private int maxMbusDevices;
 
-	DLMSConnection dlmsConnection = null;
-	CosemObjectFactory cosemObjectFactory = null;
-	StoredValuesImpl storedValuesImpl = null;
+	/** The load profile OBIS code. */
+	private ObisCode loadProfileObisCode;
 
-	ObisCodeMapper ocm = null;
+	/**
+	 * The DLMS connection that is used. Gets initialized in the {@link #init(InputStream, OutputStream, TimeZone, Logger)} method.
+	 */
+	private DLMSConnection dlmsConnection;
 
-	// Lazy initializing
+	/** The COSEM object factory. */
+	private final CosemObjectFactory cosemObjectFactory = new CosemObjectFactory(this);
+
+	/** The stored values implementation for the Z3. */
+	private final StoredValuesImpl storedValuesImpl = new StoredValuesImpl(this.cosemObjectFactory);
+
+	/** The OBIS code mapper. */
+	private final ObisCodeMapper ocm = new ObisCodeMapper(this.cosemObjectFactory);
+
+	/** The number of channels in the meter. */
 	private int numberOfChannels = -1;
-	private int configProgramChanges = -1;
+
+	/** Indicates whether the configuration of the meter has changed. Non primitive because it can be null as well. */
+	private int numberOfConfigurationChanges = -1;
+
+	/**
+	 * Profile interval, initialized to -1 to indicate that it has not been set yet.
+	 */
 	private int profileInterval = -1;
-	CapturedObjectsHelper capturedObjectsHelper = null;
 
-	// Added for MeterProtocol interface implementation
-	private Logger logger = null;
+	/** The captured objects helper. */
+	private CapturedObjectsHelper capturedObjectsHelper;
 
-	private TimeZone timeZone = null;
+	/**
+	 * Logger instance is not final as it can be set. We do default to the java.util.logging naming convention.
+	 */
+	private Logger logger = Logger.getLogger(EictZ3.class.getName());
 
-	// private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("ECT");
-	private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("WKP");
+	/** The device time zone. */
+	private TimeZone timeZone;
+
+	/**
+	 * The meter configuration used here is the one from the {@link WebRTUKP} meter.
+	 */
+	private final DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("WKP");
+
+	/** DLMS cache, used to cache the UOL. */
 	private DLMSCache dlmsCache = new DLMSCache();
-	private int extendedLogging;
-	int addressingMode;
-	int connectionMode;
-	int informationFieldSize;
+
+	/** The {@link ClientAddressingMode} used. */
+	private ClientAddressingMode addressingMode;
+
+	/** The {@link DLMSConnectionMode} used. */
+	private DLMSConnectionMode connectionMode;
+	
+	/** The information field size. */
+	private int informationFieldSize;
 
 	/** The maximum APDU size. */
 	private int maximumAPDUSize = -1;
@@ -206,383 +318,306 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 	private int forceDelay = 0;
 
 	/**
-	 * The roundtrip treshold we allow when setting the clock. This is in
-	 * milliseconds.
+	 * The roundtrip treshold we allow when setting the clock. This is in milliseconds.
 	 */
 	private int clockSetRoundtripTreshold;
 
 	/**
-	 * The number of tries allowed when trying to set the clock and the
-	 * roundtrip takes too long according to {@link #clockSetRoundtripTreshold}.
+	 * The number of tries allowed when trying to set the clock and the roundtrip takes too long according to {@link #clockSetRoundtripTreshold}.
 	 */
 	private int numberOfClocksetTries;
 
-	/** Creates a new instance of EictZ3, empty constructor */
-	public EictZ3() {
-		// Default.
-	} // public EictZ3(...)
+	/** The maximum number of MBus devices. */
+	private int maximumNumberOfMBusDevices;
+	
+	/** The firmware version. */
+	private String firmwareVersion;
 
-	public DLMSConnection getDLMSConnection() {
-		return dlmsConnection;
+	/**
+	 * {@inheritDoc}
+	 */
+	public final DLMSConnection getDLMSConnection() {
+		return this.dlmsConnection;
 	}
 
 	/**
-	 * initializes the receiver
 	 * 
-	 * @param inputStream
-	 * <br>
-	 * @param outputStream
-	 * <br>
-	 * @param timeZone
-	 * <br>
-	 * @param logger
-	 * <br>
+	 * {@inheritDoc}
 	 */
-	public void init(InputStream inputStream, OutputStream outputStream,
-			TimeZone timeZone, Logger logger) throws IOException {
+	public final void init(final InputStream inputStream, final OutputStream outputStream, final TimeZone timeZone,final  Logger logger) throws IOException {
 		this.timeZone = timeZone;
 
-		// Don't allow the logger to be null as this would complicate all code
-		// wanting to log anything with null checks.
 		if (logger != null) {
 			this.logger = logger;
-		} else {
-			this.logger = Logger.getLogger(EictZ3.class.getName());
 		}
 
 		try {
-			cosemObjectFactory = new CosemObjectFactory(this);
-			storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
-			if (connectionMode == 0)
-				dlmsConnection = new HDLC2Connection(inputStream, outputStream,
-						hDLCTimeoutProperty, this.forceDelay,
-						protocolRetriesProperty, clientMacAddress,
-						serverLowerMacAddress, serverUpperMacAddress,
-						addressingMode, informationFieldSize, 5);
-			else
-				dlmsConnection = new TCPIPConnection(inputStream, outputStream,
-						hDLCTimeoutProperty, this.forceDelay,
-						protocolRetriesProperty, clientMacAddress,
-						serverLowerMacAddress);
+			logger.info("Initializing DLMS connection...");
 
-			getDLMSConnection().setIskraWrapper(1);
-		} catch (DLMSConnectionException e) {
-			// logger.severe
-			// ("dlms: Device clock is outside tolerance window. Setting clock");
-			throw new IOException(e.getMessage());
-		}
-		// boolAbort = false;
-	}
+			if (this.connectionMode == DLMSConnectionMode.HDLC) {
+				logger.info("Using DLMS/HDLC, addressing mode of [" + addressingMode.getNumberOfBytes() + "] bytes.");
 
-	private CapturedObjectsHelper getCapturedObjectsHelper()
-			throws UnsupportedException, IOException {
-		if (capturedObjectsHelper == null) {
-			ProfileGeneric profileGeneric = getCosemObjectFactory()
-					.getProfileGeneric(ObisCode.fromString(loadProfileObisCode));
-			capturedObjectsHelper = profileGeneric.getCaptureObjectsHelper();
-		} // if (capturedObjects == null)
-		return capturedObjectsHelper;
-	} // private CapturedObjectsHelper getCapturedObjectsHelper() throws
+				this.dlmsConnection = new HDLC2Connection(inputStream, outputStream, this.hdlcTimeout, this.forceDelay, protocolRetries, clientMacAddress, serverLowerMacAddress, serverUpperMacAddress, addressingMode.getNumberOfBytes(), informationFieldSize, 5);
+			} else {
+				logger.info("Using DLMS/IP...");
 
-	// UnsupportedException, IOException {
-
-	public int getNumberOfChannels() throws UnsupportedException, IOException {
-		try {
-			if (numberOfChannels == -1) {
-				numberOfChannels = getCapturedObjectsHelper().getNrOfchannels();
+				this.dlmsConnection = new TCPIPConnection(inputStream, outputStream, hdlcTimeout, this.forceDelay, protocolRetries, clientMacAddress, serverLowerMacAddress);
 			}
-			return numberOfChannels;
-		} catch (IOException e) {
-			getLogger().severe(e.getMessage());
-			return 0;
+		} catch (DLMSConnectionException e) {
+			throw new IOException("Got a DLMS connection error when initializing the connection, error message was [" + e.getMessage() + "]", e);
 		}
-	} // public int getNumberOfChannels() throws IOException
+	}
 
 	/**
-	 * Method that requests the recorder interval in sec. Hardcoded for SL7000
-	 * meter to 15 min.
+	 * Returns the {@link CapturedObjectsHelper}.
 	 * 
-	 * @return Remote meter 'recorder interval' in min.
-	 * @exception IOException
+	 * @return	The {@link CapturedObjectsHelper}.
+	 * 
+	 * @throws 	IOException		If something goes wrong.
 	 */
-	public int getProfileInterval() throws IOException, UnsupportedException {
-		try {
-			if (profileInterval == -1) {
-				ProfileGeneric profileGeneric = getCosemObjectFactory()
-						.getProfileGeneric(
-								ObisCode.fromString(loadProfileObisCode));
-				profileInterval = profileGeneric.getCapturePeriod();
-			}
-			return profileInterval;
-		} catch (IOException e) {
-			return 0;
+	private final CapturedObjectsHelper getCapturedObjectsHelper() throws IOException {
+		if (this.capturedObjectsHelper == null) {
+			logger.info("Initializing the CapturedObjectsHelper using the generic profile...");
+			
+			final ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(this.loadProfileObisCode);
+			this.capturedObjectsHelper = profileGeneric.getCaptureObjectsHelper();
 		}
+		
+		return this.capturedObjectsHelper;
 	}
 
-	public ProfileData getProfileData(boolean includeEvents) throws IOException {
-		Calendar fromCalendar = ProtocolUtils.getCleanCalendar(timeZone);
+	/**
+	 * {@inheritDoc}
+	 */
+	public final int getNumberOfChannels() throws IOException {
+		if (this.numberOfChannels == -1) {
+			logger.info("Loading the number of channels...");
+			
+			this.numberOfChannels = this.getCapturedObjectsHelper().getNrOfchannels();
+		}
+		
+		return this.numberOfChannels;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public final int getProfileInterval() throws IOException {
+		if (this.profileInterval == -1) {
+			logger.info("Requesting the profile interval from the meter...");
+			
+			final ProfileGeneric profileGeneric = this.getCosemObjectFactory().getProfileGeneric(this.loadProfileObisCode);
+			this.profileInterval = profileGeneric.getCapturePeriod();
+		}
+		
+		return this.profileInterval;
+	}
+
+	/**
+	 * As the meter has been invented in 2009, the from date is set fixed to 1st of January of 2009, which seems like a sensible default.
+	 * 
+	 * {@inheritDoc}
+	 */
+	public final ProfileData getProfileData(final boolean includeEvents) throws IOException {
+		final Calendar fromCalendar = ProtocolUtils.getCleanCalendar(this.timeZone);
+		
 		fromCalendar.set(Calendar.YEAR, 2009);
 		fromCalendar.set(Calendar.MONTH, 0);
 		fromCalendar.set(Calendar.DATE, 1);
-		return doGetProfileData(fromCalendar, ProtocolUtils
-				.getCalendar(timeZone), includeEvents);
+	
+		return this.getProfileData(fromCalendar, ProtocolUtils.getCalendar(this.timeZone), includeEvents);
 	}
 
-	public ProfileData getProfileData(Date lastReading, boolean includeEvents)
-			throws IOException {
-		Calendar fromCalendar = ProtocolUtils.getCleanCalendar(timeZone);
+	/**
+	 * {@inheritDoc}
+	 */
+	public final ProfileData getProfileData(final Date lastReading, final boolean includeEvents) throws IOException {
+		final Calendar fromCalendar = ProtocolUtils.getCleanCalendar(this.timeZone);
+		
 		fromCalendar.setTime(lastReading);
-		return doGetProfileData(fromCalendar, ProtocolUtils
-				.getCalendar(timeZone), includeEvents);
+		
+		return this.getProfileData(fromCalendar, ProtocolUtils.getCalendar(this.timeZone), includeEvents);
 	}
 
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents)
-			throws IOException, UnsupportedException {
-		throw new UnsupportedException(
-				"getProfileData(from,to) is not supported by this meter");
+	/**
+	 * {@inheritDoc}
+	 */
+	public final ProfileData getProfileData(final Date fromDate, final Date toDate, final boolean includeEvents) throws IOException {
+		final Calendar from = ProtocolUtils.getCleanCalendar(this.timeZone);
+		from.setTime(fromDate);
+		
+		final Calendar to = ProtocolUtils.getCleanCalendar(this.timeZone);
+		to.setTime(toDate);
+		
+		return this.getProfileData(from, to, includeEvents);
 	}
 
-	@SuppressWarnings("unused")
-	private ProfileData doGetProfileData(Calendar fromCalendar,
-			Calendar toCalendar, boolean includeEvents) throws IOException {
-
-		byte bNROfChannels = (byte) getNumberOfChannels();
-		return doGetDemandValues(fromCalendar, bNROfChannels, includeEvents);
-	}
-
-	@SuppressWarnings("unchecked")
-	private ProfileData doGetDemandValues(Calendar fromCalendar,
-			byte bNROfChannels, boolean includeEvents) throws IOException {
-
-		ProfileData profileData = new ProfileData();
-		DataContainer dataContainer = getCosemObjectFactory()
-				.getProfileGeneric(ObisCode.fromString(loadProfileObisCode))
-				.getBuffer(fromCalendar, Calendar.getInstance());
-
-		for (int i = 0; i < bNROfChannels; i++) {
-			ScalerUnit scalerunit = getRegisterScalerUnit(i);
-			profileData.addChannel(new ChannelInfo(i, "EictZ3_channel_" + i,
-					scalerunit.getUnit()));
+	/**
+	 * Gets the profile data starting from the date indicated by fromCalendar and ending at toCalendar.
+	 * 
+	 * @param 	from				The starting point.
+	 * @param 	to					The ending point (this is allowed to be null).
+	 * @param 	includeEvents		Indicates whether the logbook should be included or not.
+	 * 
+	 * @return	The profile data for the given period.
+	 * 
+	 * @throws 	IOException			if an error occurs during the device communication.
+	 */
+	private final ProfileData getProfileData(final Calendar from, final Calendar to, final boolean includeEvents) throws IOException {
+		logger.info("Loading profile data starting at [" + from + "], ending at [" + to + "], " + (includeEvents ? "" : "not") + " including events");
+		
+		final ProfileData profileData = new ProfileData();
+		
+		final DataContainer datacontainer = this.getCosemObjectFactory().getProfileGeneric(this.loadProfileObisCode).getBuffer(from, to);
+		
+		logger.info("Building channel information...");
+		
+		for (int i = 0; i < this.getNumberOfChannels(); i++) {
+			final ScalerUnit scalerUnit = this.getRegisterScalerUnit(i);
+			
+			logger.info("Scaler unit for channel [" + i + "] is [" + scalerUnit + "]");
+			
+			final ChannelInfo channelInfo = new ChannelInfo(i, "EICTZ3_CH_" + i, scalerUnit.getUnit());
+			
+			profileData.addChannel(channelInfo);
 		}
-		buildProfileData(dataContainer, profileData);
+		
+		logger.info("Building profile data...");
+		
+		final Object[] loadProfileEntries = datacontainer.getRoot().element;
+		
+		if (loadProfileEntries.length == 0) {
+			logger.log(Level.INFO, "There are no entries in the load profile, nothing to build...");
+		} else {
+			logger.log(Level.INFO, "Got [" + datacontainer.getRoot().element.length + "] entries in the load profile, building profile data...");
+			
+			for (int i = 0; i < loadProfileEntries.length; i++) {
+				final DataStructure intervalData = datacontainer.getRoot().getStructure(i);
+				final Calendar calendar = ProtocolUtils.initCalendar(false, timeZone);
+				
+				this.mapIntervalEndTimeToCalendar(calendar, intervalData.getStructure(i), (byte)0);
+				
+				final int eiStatus = this.map2IntervalStateBits(intervalData.getInteger(1));
+				final int protocolStatus = intervalData.getInteger(1);
+				
+				final IntervalData data = new IntervalData(new Date(((Calendar) calendar.clone()).getTime().getTime()), eiStatus, protocolStatus);
 
+				for (int j = 0; j < getCapturedObjectsHelper().getNrOfCapturedObjects(); j++) {
+					if (getCapturedObjectsHelper().isChannelData(j)) {
+						data.addValue(new Integer(intervalData.getInteger(j)));
+					}
+				}
+				
+				profileData.addInterval(data);
+			}
+		}
+		
 		if (includeEvents) {
-			profileData.getMeterEvents().addAll(getLogbookData(fromCalendar));
-			// Apply the events to the channel statusvalues
-			profileData.applyEvents(getProfileInterval() / 60);
+			logger.info("Requested to include meter events, loading...");
+			
+			profileData.setMeterEvents(this.getMeterEvents(from, to));
 		}
-
+		
 		return profileData;
 	}
-
-	/*
-	 * {{ 0 , 0 , 99 , 98 , 0 , 255 }, 7 , 1 , STD_EVLOG ,&getEventLog ,
-	 * PUBLICACCESS }, ///< Std Event Log {{ 0 , 0 , 99 , 98 , 1 , 255 }, 7 , 1
-	 * , FRAUD_EVLOG ,&getEventLog , PUBLICACCESS }, ///< Faud Event Log {{ 0 ,
-	 * 0 , 99 , 98 , 2 , 255 }, 7 , 0 , DISCONNECT_CTRL_EVLOG ,&getEventLog ,
-	 * PUBLICACCESS }, ///< Control Log {{ 0 , 0 , 99 , 98 , 3 , 255 }, 7 , 0 ,
-	 * MBUS_EVLOG ,&getEventLog , PUBLICACCESS }, ///< Mbus Event Log {{ 0 , 1 ,
-	 * 24 , 5 , 0 , 255 }, 7 , 1 , MBUS_CTRL_EVLOG1 ,&getEventLog , PUBLICACCESS
-	 * }, {{ 0 , 2 , 24 , 5 , 0 , 255 }, 7 , 1 , MBUS_CTRL_EVLOG2 , &getEventLog
-	 * , PUBLICACCESS }, ///< Mbus Control Log Channel 2 {{ 0 , 3 , 24 , 5 , 0 ,
-	 * 255 }, 7 , 1 , MBUS_CTRL_EVLOG3 , &getEventLog , PUBLICACCESS }, ///<
-	 * Mbus Control Log Channel 2 {{ 0 , 4 , 24 , 5 , 0 , 255 }, 7 , 1 ,
-	 * MBUS_CTRL_EVLOG4 ,&getEventLog , PUBLICACCESS }, ///< Mbus Control Log
-	 * Channel 4 {{ 1 , 0 , 99 , 97 , 0 , 255 }, 7 , 0 , POWER_FAIL_LOG
-	 * ,&getEventLog , PUBLICACCESS }, ///< Power fail Log
+	
+	/**
+	 * Loads the meter events from the meter and returns them.
+	 * 
+	 * @param 	from		The start date.
+	 * @param 	to			The end date.
+	 * 
+	 * @return	The meter events for the given period.
+	 * 
+	 * @throws 	IOException		If an IO error occurs during the communication.
 	 */
-	@SuppressWarnings("unchecked")
-	private List getLogbookData(Calendar from) throws IOException {
-		List meterEvents = new ArrayList();
-		if (DEBUG >= 1)
-			getCosemObjectFactory().getProfileGeneric(
-					ObisCode.fromByteArray(LOGBOOK_PROFILE_LN)).getBuffer()
-					.printDataContainer();
-		Logbook logbook = new Logbook(timeZone);
-		Calendar to = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-		if (fullLogbook == 0) {
-			meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory()
-					.getProfileGeneric(
-							ObisCode.fromByteArray(LOGBOOK_PROFILE_LN))
-					.readBufferAttr(from, to)));
-			meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory()
-					.getProfileGeneric(ObisCode.fromString("0.0.99.98.1.255"))
-					.readBufferAttr(from, to)));
-			meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory()
-					.getProfileGeneric(ObisCode.fromString("0.0.99.98.2.255"))
-					.readBufferAttr(from, to)));
-			meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory()
-					.getProfileGeneric(ObisCode.fromString("0.0.99.98.3.255"))
-					.readBufferAttr(from, to)));
-			meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory()
-					.getProfileGeneric(ObisCode.fromString("0.1.24.5.0.255"))
-					.readBufferAttr(from, to)));
-			meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory()
-					.getProfileGeneric(ObisCode.fromString("0.2.24.5.0.255"))
-					.readBufferAttr(from, to)));
-			meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory()
-					.getProfileGeneric(ObisCode.fromString("0.3.24.5.0.255"))
-					.readBufferAttr(from, to)));
-			meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory()
-					.getProfileGeneric(ObisCode.fromString("0.4.24.5.0.255"))
-					.readBufferAttr(from, to)));
-			meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory()
-					.getProfileGeneric(ObisCode.fromString("1.0.99.97.0.255"))
-					.readBufferAttr(from, to)));
-		} else {
-			meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory()
-					.getProfileGeneric(
-							ObisCode.fromByteArray(LOGBOOK_PROFILE_LN))
-					.readBufferAttr()));
-			meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory()
-					.getProfileGeneric(ObisCode.fromString("0.0.99.98.1.255"))
-					.readBufferAttr()));
-			meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory()
-					.getProfileGeneric(ObisCode.fromString("0.0.99.98.2.255"))
-					.readBufferAttr()));
-			meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory()
-					.getProfileGeneric(ObisCode.fromString("0.0.99.98.3.255"))
-					.readBufferAttr()));
-			meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory()
-					.getProfileGeneric(ObisCode.fromString("0.1.24.5.0.255"))
-					.readBufferAttr()));
-			meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory()
-					.getProfileGeneric(ObisCode.fromString("0.2.24.5.0.255"))
-					.readBufferAttr()));
-			meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory()
-					.getProfileGeneric(ObisCode.fromString("0.3.24.5.0.255"))
-					.readBufferAttr()));
-			meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory()
-					.getProfileGeneric(ObisCode.fromString("0.4.24.5.0.255"))
-					.readBufferAttr()));
-			meterEvents.addAll(logbook.getMeterEvents(getCosemObjectFactory()
-					.getProfileGeneric(ObisCode.fromString("1.0.99.97.0.255"))
-					.readBufferAttr()));
-		}
-		Collections.sort(meterEvents);
-		return meterEvents;
+	private final List<MeterEvent> getMeterEvents(final Calendar from, final Calendar to) throws IOException {
+		logger.info("Fetching meter events from [" + from + "] to [" + to + "]");
+		
+		final List<MeterEvent> events = new ArrayList<MeterEvent>();
+		
+		final DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(from, to);
+		final DataContainer dcControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getControlLogObject().getObisCode()).getBuffer(from, to);
+		final DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode()).getBuffer(from, to);
+		final DataContainer dcFraudDetection = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getFraudDetectionLogObject().getObisCode()).getBuffer(from, to);
+		final DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer(from, to);;
+		
+		final EventsLog standardEvents = new EventsLog(getTimeZone(), dcEvent); 
+		final FraudDetectionLog fraudDetectionEvents = new FraudDetectionLog(getTimeZone(), dcFraudDetection);
+		final DisconnectControlLog disconnectControl = new DisconnectControlLog(getTimeZone(), dcControlLog);
+		final MbusLog mbusLogs = new MbusLog(getTimeZone(), dcMbusEventLog);
+		final PowerFailureLog powerFailure = new PowerFailureLog(getTimeZone(), dcPowerFailure);
+		
+		events.addAll(standardEvents.getMeterEvents());
+		events.addAll(fraudDetectionEvents.getMeterEvents());
+		events.addAll(disconnectControl.getMeterEvents());
+		events.addAll(mbusLogs.getMeterEvents());
+		events.addAll(powerFailure.getMeterEvents());
+		
+		return events;
 	}
 
-	private Calendar setCalendar(Calendar cal, DataStructure dataStructure,
-			byte btype) throws IOException {
+	private final Calendar mapIntervalEndTimeToCalendar(final Calendar cal, final DataStructure intervalData, final byte btype) throws IOException {
+		final Calendar calendar = (Calendar) cal.clone();
 
-		Calendar calendar = (Calendar) cal.clone();
-
-		if (dataStructure.getOctetString(0).getArray()[0] != -1)
-			calendar
-					.set(Calendar.YEAR, (((int) dataStructure.getOctetString(0)
-							.getArray()[0] & 0xff) << 8)
-							| (((int) dataStructure.getOctetString(0)
-									.getArray()[1] & 0xff)));
-
-		if (dataStructure.getOctetString(0).getArray()[2] != -1)
-			calendar.set(Calendar.MONTH, ((int) dataStructure.getOctetString(0)
-					.getArray()[2] & 0xff) - 1);
-
-		if (dataStructure.getOctetString(0).getArray()[3] != -1)
-			calendar.set(Calendar.DAY_OF_MONTH, ((int) dataStructure
-					.getOctetString(0).getArray()[3] & 0xff));
-
-		if (dataStructure.getOctetString(0).getArray()[5] != -1)
-			calendar.set(Calendar.HOUR_OF_DAY, ((int) dataStructure
-					.getOctetString(0).getArray()[5] & 0xff));
-		else
+		if (intervalData.getOctetString(0).getArray()[0] != -1) {
+			calendar.set(Calendar.YEAR, (((int) intervalData.getOctetString(0).getArray()[0] & 0xff) << 8) | (((int) intervalData.getOctetString(0).getArray()[1] & 0xff)));
+		}
+		
+		if (intervalData.getOctetString(0).getArray()[2] != -1) {
+			calendar.set(Calendar.MONTH, ((int) intervalData.getOctetString(0).getArray()[2] & 0xff) - 1);
+		}
+		
+		if (intervalData.getOctetString(0).getArray()[3] != -1) {
+			calendar.set(Calendar.DAY_OF_MONTH, ((int) intervalData.getOctetString(0).getArray()[3] & 0xff));
+		}
+		
+		if (intervalData.getOctetString(0).getArray()[5] != -1) {
+			calendar.set(Calendar.HOUR_OF_DAY, ((int) intervalData.getOctetString(0).getArray()[5] & 0xff));
+		} else {
 			calendar.set(Calendar.HOUR_OF_DAY, 0);
-
+		}
+		
 		if (btype == 0) {
-			if (dataStructure.getOctetString(0).getArray()[6] != -1)
-				calendar
-						.set(
-								Calendar.MINUTE,
-								(((int) dataStructure.getOctetString(0)
-										.getArray()[6] & 0xff) / (getProfileInterval() / 60))
-										* (getProfileInterval() / 60));
-			else
+			if (intervalData.getOctetString(0).getArray()[6] != -1) {
+				calendar.set(Calendar.MINUTE, (((int) intervalData.getOctetString(0).getArray()[6] & 0xff) / (getProfileInterval() / 60)) * (getProfileInterval() / 60));
+			} else {
 				calendar.set(Calendar.MINUTE, 0);
-
+			}
+			
 			calendar.set(Calendar.SECOND, 0);
 		} else {
-			if (dataStructure.getOctetString(0).getArray()[6] != -1)
-				calendar.set(Calendar.MINUTE, ((int) dataStructure
-						.getOctetString(0).getArray()[6] & 0xff));
-			else
+			if (intervalData.getOctetString(0).getArray()[6] != -1) {
+				calendar.set(Calendar.MINUTE, ((int) intervalData.getOctetString(0).getArray()[6] & 0xff));
+			} else {
 				calendar.set(Calendar.MINUTE, 0);
-
-			if (dataStructure.getOctetString(0).getArray()[7] != -1)
-				calendar.set(Calendar.SECOND, ((int) dataStructure
-						.getOctetString(0).getArray()[7] & 0xff));
-			else
+			}
+			
+			if (intervalData.getOctetString(0).getArray()[7] != -1) {
+				calendar.set(Calendar.SECOND, ((int) intervalData.getOctetString(0).getArray()[7] & 0xff));
+			} else {
 				calendar.set(Calendar.SECOND, 0);
+			}
 		}
 
-		// if DSA, add 1 hour
-		if (dataStructure.getOctetString(0).getArray()[11] != -1)
-			if ((dataStructure.getOctetString(0).getArray()[11] & (byte) 0x80) == 0x80)
+		// if DST, add 1 hour
+		if (intervalData.getOctetString(0).getArray()[11] != -1) {
+			if ((intervalData.getOctetString(0).getArray()[11] & (byte) 0x80) == 0x80) {
 				calendar.add(Calendar.HOUR_OF_DAY, -1);
+			}
+		}
 
 		return calendar;
+	}
 
-	} // private void setCalendar(Calendar calendar, DataStructure
-
-	// dataStructure,byte bBitmask)
-
-	private void buildProfileData(final DataContainer dataContainer, final ProfileData profileData) throws IOException {
-		Calendar calendar = null;
-		int i;
-
-		if (dataContainer.getRoot().element.length == 0) {
-			getLogger().log(Level.INFO, "No entries in loadprofile.");
-		} else {
-			if (requestTimeZone != 0)
-				calendar = ProtocolUtils.getCalendar(false, requestTimeZone());
-			else
-				calendar = ProtocolUtils.initCalendar(false, timeZone);
-
-			if (DEBUG >= 1)
-				dataContainer.printDataContainer();
-			// dataContainer.printDataContainer();
-
-			for (i = 0; i < dataContainer.getRoot().element.length; i++) { // for
-				// all
-				// retrieved
-				// intervals
-				calendar = setCalendar(calendar, dataContainer.getRoot()
-						.getStructure(i), (byte) 0x00);
-				profileData.addInterval(getIntervalData(dataContainer.getRoot()
-						.getStructure(i), calendar));
-			} // for (i=0;i<dataContainer.getRoot().element.length;i++) // for
-				// all
-			// retrieved intervals
-
-		}
-
-	} // private void buildProfileData(byte bNROfChannels, DataContainer
-
-
-	/*
-	 * VDEW status flags
+	/**
+	 * Maps the given protocol status to interval state bits (eistatus). (bitset).
+	 * 
+	 * @param 	protocolStatus		The protocol status to map.
+	 * 
+	 * @return	The mapped eistatus.
 	 */
-
-	// appears only in the logbook
-	protected static final int CLEAR_LOADPROFILE = 0x4000;
-	protected static final int CLEAR_LOGBOOK = 0x2000;
-	protected static final int END_OF_ERROR = 0x0400;
-	protected static final int BEGIN_OF_ERROR = 0x0200;
-	protected static final int VARIABLE_SET = 0x0100;
-
-	// appears in the logbook and the intervalstatus
-	protected static final int POWER_FAILURE = 0x0080;
-	protected static final int POWER_RECOVERY = 0x0040;
-	protected static final int DEVICE_CLOCK_SET_INCORRECT = 0x0020; // Changed
-	// KV
-	// 12062003
-	protected static final int DEVICE_RESET = 0x0010;
-	protected static final int SEASONAL_SWITCHOVER = 0x0008;
-	protected static final int DISTURBED_MEASURE = 0x0004;
-	protected static final int RUNNING_RESERVE_EXHAUSTED = 0x0002;
-	protected static final int FATAL_DEVICE_ERROR = 0x0001;
-
-	private int map2IntervalStateBits(int protocolStatus) {
+	private final int map2IntervalStateBits(final int protocolStatus) {
 		int eiStatus = 0;
 
 		if ((protocolStatus & CLEAR_LOADPROFILE) != 0)
@@ -597,13 +632,14 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 			eiStatus |= IntervalStateBits.CONFIGURATIONCHANGE;
 		if ((protocolStatus & DEVICE_CLOCK_SET_INCORRECT) != 0)
 			eiStatus |= IntervalStateBits.SHORTLONG;
-		
+
 		// Commented out as we don't want SL flags the whole summer long.
 		// NTA requires this apparently although the device uses UTC.
-		
-		/*if ((protocolStatus & SEASONAL_SWITCHOVER) != 0)
-			eiStatus |= IntervalStateBits.SHORTLONG;*/
-		
+
+		/*
+		 * if ((protocolStatus & SEASONAL_SWITCHOVER) != 0) eiStatus |= IntervalStateBits.SHORTLONG;
+		 */
+
 		if ((protocolStatus & FATAL_DEVICE_ERROR) != 0)
 			eiStatus |= IntervalStateBits.OTHER;
 		if ((protocolStatus & DISTURBED_MEASURE) != 0)
@@ -616,65 +652,51 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 			eiStatus |= IntervalStateBits.OTHER;
 		if ((protocolStatus & RUNNING_RESERVE_EXHAUSTED) != 0)
 			eiStatus |= IntervalStateBits.OTHER;
+		
 		return eiStatus;
-	} // private void map2IntervalStateBits(int protocolStatus)
-
-	private IntervalData getIntervalData(DataStructure dataStructure,
-			Calendar calendar) throws UnsupportedException, IOException {
-		// Add interval data...
-		int eiStatus = map2IntervalStateBits(dataStructure.getInteger(1));
-		int protocolStatus = dataStructure.getInteger(1);
-		IntervalData intervalData = new IntervalData(new Date(
-				((Calendar) calendar.clone()).getTime().getTime()), eiStatus,
-				protocolStatus);
-
-		for (int t = 0; t < getCapturedObjectsHelper().getNrOfCapturedObjects(); t++)
-			if (getCapturedObjectsHelper().isChannelData(t))
-				intervalData.addValue(new Integer(dataStructure.getInteger(t)));
-		return intervalData;
-	}
-
-	public Quantity getMeterReading(String name) throws UnsupportedException,
-			IOException {
-		throw new UnsupportedException();
-	}
-
-	public Quantity getMeterReading(int channelId) throws UnsupportedException,
-			IOException {
-		throw new UnsupportedException();
-	}
-
-	private ScalerUnit getRegisterScalerUnit(int channelId) throws IOException {
-		if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(
-				channelId).getClassId() == DLMSCOSEMGlobals.ICID_REGISTER) {
-			return getCosemObjectFactory().getRegister(
-					getCapturedObjectsHelper().getProfileDataChannelObisCode(
-							channelId)).getScalerUnit();
-		} else if (getCapturedObjectsHelper()
-				.getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSCOSEMGlobals.ICID_DEMAND_REGISTER) {
-			return getCosemObjectFactory().getDemandRegister(
-					getCapturedObjectsHelper().getProfileDataChannelObisCode(
-							channelId)).getScalerUnit();
-		} else if (getCapturedObjectsHelper()
-				.getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSCOSEMGlobals.ICID_EXTENDED_REGISTER) {
-			return getCosemObjectFactory().getExtendedRegister(
-					getCapturedObjectsHelper().getProfileDataChannelObisCode(
-							channelId)).getScalerUnit();
-		} else
-			throw new IOException(
-					"EictZ3, getRegisterScalerUnit(), invalid channelId, "
-							+ channelId);
 	}
 
 	/**
-	 * This method sets the time/date in the remote meter equal to the system
-	 * time/date of the machine where this object resides.
+	 * {@inheritDoc}
+	 */
+	public final Quantity getMeterReading(final String name) throws IOException {
+		throw new UnsupportedException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public final Quantity getMeterReading(final int channelId) throws IOException {
+		throw new UnsupportedException();
+	}
+
+	/**
+	 * Gets the scaler unit for the given channel.
+	 * 
+	 * @param 	channelId		The ID of the channel for which to fetch the scaler.
+	 * 
+	 * @return	The scaler.
+	 * 
+	 * @throws 	IOException		If an IO error occurs while communicating with the meter.
+	 */
+	private ScalerUnit getRegisterScalerUnit(int channelId) throws IOException {
+		if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSCOSEMGlobals.ICID_REGISTER) {
+			return getCosemObjectFactory().getRegister(getCapturedObjectsHelper().getProfileDataChannelObisCode(channelId)).getScalerUnit();
+		} else if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSCOSEMGlobals.ICID_DEMAND_REGISTER) {
+			return getCosemObjectFactory().getDemandRegister(getCapturedObjectsHelper().getProfileDataChannelObisCode(channelId)).getScalerUnit();
+		} else if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSCOSEMGlobals.ICID_EXTENDED_REGISTER) {
+			return getCosemObjectFactory().getExtendedRegister(getCapturedObjectsHelper().getProfileDataChannelObisCode(channelId)).getScalerUnit();
+		} else
+			throw new IOException("EictZ3, getRegisterScalerUnit(), invalid channelId, " + channelId);
+	}
+
+	/**
+	 * This method sets the time/date in the remote meter equal to the system time/date of the machine where this object resides.
 	 * 
 	 * @exception IOException
 	 */
 	public final void setTime() throws IOException {
-		logger
-				.info("Setting the time of the remote device, first requesting the device's time.");
+		logger.info("Setting the time of the remote device, first requesting the device's time.");
 
 		final Clock clock = this.getCosemObjectFactory().getClock();
 
@@ -683,7 +705,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 
 		while (!timeAdjusted && currentTry <= this.numberOfClocksetTries) {
 			logger.info("Requesting clock for adjustment");
-			
+
 			final long startTime = System.currentTimeMillis();
 
 			final Date deviceTime = clock.getDateTime();
@@ -696,25 +718,20 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 				// The time that arrives here, has to be corrected with the
 				// roundtripcorrection, as this would be the time on the device
 				// at this time.
-				final long timeDifference = System.currentTimeMillis()
-						- (deviceTime.getTime() + roundtripCorrection);
+				final long timeDifference = System.currentTimeMillis() - (deviceTime.getTime() + roundtripCorrection);
 
-				logger.info("Time difference is [" + timeDifference
-						+ "] miliseconds (using roundtrip time of [" + roundtripCorrection + "] milliseconds)");
+				logger.info("Time difference is [" + timeDifference + "] miliseconds (using roundtrip time of [" + roundtripCorrection + "] milliseconds)");
 
 				// Now if the time difference can be corrected using a shift of
 				// the time, correct it, otherwise do a setClock.
 				if (Math.abs(timeDifference / 1000) <= Clock.MAX_TIME_SHIFT_SECONDS) {
-					logger
-							.info("Time difference can be corrected using a time shift, invoking.");
+					logger.info("Time difference can be corrected using a time shift, invoking.");
 
 					clock.shiftTime((int) (timeDifference / 1000));
 				} else {
-					logger
-							.info("Time difference is too big to be corrected using a time shift, setting absolute date and time.");
+					logger.info("Time difference is too big to be corrected using a time shift, setting absolute date and time.");
 
-					final Date date = new Date(System.currentTimeMillis()
-							+ roundtripCorrection);
+					final Date date = new Date(System.currentTimeMillis() + roundtripCorrection);
 
 					final Calendar newTimeToSet = Calendar.getInstance();
 					newTimeToSet.setTime(date);
@@ -724,36 +741,28 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 
 				timeAdjusted = true;
 			} else {
-				logger.info("Roundtrip to the device took ["
-						+ (endTime - startTime)
-						+ "] milliseconds, which exceeds the treshold of ["
-						+ this.clockSetRoundtripTreshold
-						+ "] milliseconds, retrying");
+				logger.info("Roundtrip to the device took [" + (endTime - startTime) + "] milliseconds, which exceeds the treshold of [" + this.clockSetRoundtripTreshold + "] milliseconds, retrying");
 			}
 
 			currentTry++;
 		}
-		
-		// Exceeded tries without an adjust, this means the roundtrip time was not acceptable.
+
+		// Exceeded tries without an adjust, this means the roundtrip time was
+		// not acceptable.
 		if (!timeAdjusted) {
-			logger.log(Level.WARNING,
-					"Cannot set time, did not have a roundtrip that took shorter than ["
-							+ this.clockSetRoundtripTreshold
-							+ "] milliseconds. Not setting clock.");
+			logger.log(Level.WARNING, "Cannot set time, did not have a roundtrip that took shorter than [" + this.clockSetRoundtripTreshold + "] milliseconds. Not setting clock.");
 		}
 	}
 
 	/**
-	 * Sets the device time using the DLMS set on the date_time of the clock
-	 * object. This is absolute setting of time, which is used in case of a
-	 * force clock, or in case the time exceeds the limits of the shift_time
-	 * method (which is a quarter of an hour either back or forward shift).
+	 * Sets the device time using the DLMS set on the date_time of the clock object. This is absolute setting of time, which is used in case of a force clock, or in case the time exceeds the limits of the shift_time method (which is a quarter of an hour either back or forward shift).
 	 * 
 	 * @param newTime
 	 *            The new time to set.
 	 */
 	private final void setDeviceTime(final Calendar newTime) throws IOException {
-		//Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		// Calendar calendar =
+		// Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		newTime.add(Calendar.MILLISECOND, roundtripCorrection);
 		byte[] byteTimeBuffer = new byte[14];
 
@@ -776,8 +785,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 		else
 			byteTimeBuffer[13] = (byte) 0x00; // 0x00;
 
-		getCosemObjectFactory().writeObject(
-				ObisCode.fromString("0.0.1.0.0.255"), 8, 2, byteTimeBuffer);
+		getCosemObjectFactory().writeObject(ObisCode.fromString("0.0.1.0.0.255"), 8, 2, byteTimeBuffer);
 	}
 
 	public Date getTime() throws IOException {
@@ -787,263 +795,213 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 		return date;
 	}
 
-	public int requestConfigurationProgramChanges() throws IOException {
-		if (configProgramChanges == -1)
-			configProgramChanges = (int) getCosemObjectFactory()
-					.getCosemObject(
-							getMeterConfig().getConfigObject().getObisCode())
-					.getValue();
-		return configProgramChanges;
-	} // public int requestConfigurationProgramChanges() throws IOException
+	/**
+	 * Checks if the device configuration has changed.
+	 * 
+	 * @return	True if the device configuration has changed.
+	 * 
+	 * @throws 	IOException		If an error occurs during the device communication.
+	 */
+	private final int requestConfigurationProgramChanges() throws IOException {
+		if (this.numberOfConfigurationChanges == -1) {
+			logger.info("Asking meter if the configuration has changed since the last check...");
+			
+			this.numberOfConfigurationChanges = (int) getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode()).getValue();
+		}
+		
+		return this.numberOfConfigurationChanges;
+	}
 
 	/**
-	 * This method requests for the COSEM object SAP.
-	 * 
-	 * @exception IOException
+	 * {@inheritDoc}
 	 */
-	public void requestSAP() throws IOException {
-		String devID = (String) getCosemObjectFactory().getSAPAssignment()
-				.getLogicalDeviceNames().get(0);
-		if ((strID != null) && ("".compareTo(strID) != 0)) {
-			if (strID.compareTo(devID) != 0) {
-				throw new IOException(
-						"DLMSSN, requestSAP, Wrong DeviceID!, settings="
-								+ strID + ", meter=" + devID);
-			}
-		}
-	} // public void requestSAP() throws IOException
-
-	public void connect() throws IOException {
+	public final void connect() throws IOException {
+		logger.info("Connecting to EpIO / Z3, connecting MAC...");
+		
 		try {
-			getDLMSConnection().connectMAC();
+			this.getDLMSConnection().connectMAC();
 		} catch (DLMSConnectionException e) {
-			throw new NestedIOException(e);
+			logger.log(Level.SEVERE, "Cannot connect MAC over DLMS connection [mode : " + this.connectionMode + "] due to a DLMS connection error [" + e.getMessage() + "]", e);
+			
+			throw new IOException("DLMS connection error when connecting MAC, message was [" + e.getMessage() + "]", e);
 		}
-		try {
-			// The AARQ constructor does the work, so it is in fact useful, although unused...
-			@SuppressWarnings("unused") AARQ aarq = null;
+		
+		logger.info("Done, connected MAC, now associating...");
+		
+		// The AARQ constructor does the work, so it is in fact useful,
+		// although unused...
+		@SuppressWarnings("unused")
+		AARQ aarq = null;
 
-			if (this.maximumAPDUSize == -1) {
-				aarq = new AARQ(securityLevel, strPassword, getDLMSConnection());
+		if (this.maximumAPDUSize == -1) {
+			aarq = new AARQ(this.securityLevel.getPropertyValue(), this.password, getDLMSConnection());
+		} else {
+			aarq = new AARQ(this.securityLevel.getPropertyValue(), this.password, this.getDLMSConnection(), this.maximumAPDUSize);
+		}
+
+		logger.info("Done, associated. Checking if we need to update our cache...");
+		
+		final int deviceConfigurationChanges = this.requestConfigurationProgramChanges();
+		
+		logger.info("Device configuration changes : [" + deviceConfigurationChanges + "]");
+		
+		boolean needToLoadObjectList = false;
+		
+		if (this.dlmsCache != null && this.dlmsCache.getObjectList() != null && this.dlmsCache.getObjectList().length > 0) {
+			logger.info("We have a DLMS cache for this device, checking if it is still valid.");
+			
+			if (this.dlmsCache.getConfProgChange() == deviceConfigurationChanges) {
+				logger.info("It is still valid, using it...");
 			} else {
-				aarq = new AARQ(this.securityLevel, this.strPassword, this
-						.getDLMSConnection(), this.maximumAPDUSize);
+				logger.info("It is not valid anymore, configuration changes from the device [" + deviceConfigurationChanges + "] does not match the one in the cache [" + this.dlmsCache.getConfProgChange() + "]");
+				
+				needToLoadObjectList = true;
 			}
-
-			try {
-
-				// requestSAP(); // KV 08102004 R/W denied to read SAP!!!!!
-				// System.out.println("cache="+dlmsCache.getObjectList()+", confchange="+dlmsCache.getConfProgChange()+", ischanged="+dlmsCache.isChanged());
-				try { // conf program change and object list stuff
-					int iConf;
-
-					if (dlmsCache.getObjectList() != null) {
-						meterConfig.setInstantiatedObjectList(dlmsCache
-								.getObjectList());
-						try {
-
-							iConf = requestConfigurationProgramChanges();
-						} catch (IOException e) {
-							iConf = 0; // -1;
-							// KV_TO_DO temporary hardcode confchange to 0 and
-							// left out requesting objectlist from the exception
-							// logger.severe("DLMSZMD: Configuration change count not accessible, request object list.");
-							// requestObjectList();
-							// dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());
-							// // save object list in cache
-						}
-
-						if (iConf != dlmsCache.getConfProgChange()) {
-							// KV 19112003 ************************** DEBUGGING
-							// CODE ********************************
-							// System.out.println("!!!!!!!!!! DEBUGGING CODE FORCED DLMS CACHE UPDATE !!!!!!!!!!");
-							// if (true) {
-							// ****************************************************************************
-							logger
-									.severe("DLMSZMD: Configuration changed, request object list.");
-							requestObjectList(); // request object list again
-							// from rtu
-							dlmsCache.saveObjectList(meterConfig
-									.getInstantiatedObjectList()); // save
-							// object
-							// list in
-							// cache
-							dlmsCache.setConfProgChange(iConf); // set new
-							// configuration
-							// program
-							// change
-						}
-					} else { // Cache not exist
-						logger
-								.info("GenericGetSet: Cache does not exist, request object list.");
-						requestObjectList();
-						try {
-							iConf = requestConfigurationProgramChanges();
-						} catch (IOException e) {
-							// KV_TO_DO temporary catch this exception
-							iConf = 0;
-						}
-
-						dlmsCache.saveObjectList(meterConfig
-								.getInstantiatedObjectList()); // save object
-						// list in cache
-						dlmsCache.setConfProgChange(iConf); // set new
-						// configuration
-						// program change
-					}
-
-					if (!verifyMeterSerialNR())
-						throw new IOException(
-								"SerialNumber mismatch! meter serial nrs="
-										+ reportCachedSerialNumbers()
-										+ ", configured sn=" + serialNumber);
-
-					if (extendedLogging >= 1)
-						logger.info(getRegistersInfo(extendedLogging));
-
-				} catch (IOException e) {
-					throw new IOException("connect() error, " + e.getMessage());
-				}
-
-			} catch (IOException e) {
-				throw new IOException(e.getMessage());
-			}
-		} catch (IOException e) {
-			throw new IOException(e.getMessage());
+		} else {
+			logger.info("No cache for this device.");
+			needToLoadObjectList = true;
 		}
+		
+		if (needToLoadObjectList) {
+			logger.info("Requesting meter object list...");
+			
+			this.requestObjectList();
+		
+			logger.info("Updating cache...");
+			
+			this.dlmsCache.saveObjectList(this.meterConfig.getInstantiatedObjectList());
+			this.dlmsCache.setConfProgChange(deviceConfigurationChanges);
+		} else {
+			logger.info("Using instantiated object list from the cache...");
+			
+			this.meterConfig.setInstantiatedObjectList(dlmsCache.getObjectList());
+		}
+		
+		logger.info("Verifying device serial number...");
+		
+		if (!this.verifyMeterSerialNumber()) {
+			throw new IllegalStateException("Serial number reported by meter [" + this.getDeviceSerialNumber() + "] does not match the one configured in EIServer [" + this.serialNumber + "], please correct.");
+		}
+	}
 
-		if (!validateSerialNumber())
-			throw new IOException("SerialNumber mismatch! meter serial nrs="
-					+ reportCachedSerialNumbers() + ", configured sn="
-					+ serialNumber);
-
-	} // public void connect() throws IOException
-
-	// KV 19012004
-	private boolean verifyMeterSerialNR() throws IOException {
-		if ((serialNumber == null) || ("".compareTo(serialNumber) == 0)
-				|| validateSerialNumber())
+	/**
+	 * Verifies the EIServer serial number against the device serial number.
+	 * 
+	 * @throws	IOException		If an IO error occurs during the device communication.
+	 */
+	private final boolean verifyMeterSerialNumber() throws IOException {
+		if (this.serialNumber == null || this.serialNumber.trim().equals("")) {
+			logger.info("There was no serial number configured in EIServer, assuming the configuration is valid...");
+			
 			return true;
-		else
-			return false;
-	}
-
-	private String[] getCachedSerialNumbers() throws IOException {
-		if (cachedSerialNumbers == null) {
-
-			if (getNodeId() != -1) {
-				// if a node address is configured, only read the serial number
-				// for that meter!
-				cachedSerialNumbers = new String[1];
-				if (getNodeId() == 0)
-					cachedSerialNumbers[0] = AXDRDecoder.decode(
-							getCosemObjectFactory().getData(
-									ObisCode.fromString("0.0.96.1.0.255"))
-									.getData()).getOctetString().stringValue();
-				else
-					cachedSerialNumbers[0] = getMBUSSerialNumber(getNodeId() - 1);
-			} else {
-				cachedSerialNumbers = new String[5];
-				cachedSerialNumbers[0] = AXDRDecoder.decode(
-						getCosemObjectFactory().getData(
-								ObisCode.fromString("0.0.96.1.0.255"))
-								.getData()).getOctetString().stringValue();
-				for (int mbusDLMSConfigIndex = 0; mbusDLMSConfigIndex < maxMbusDevices; mbusDLMSConfigIndex++) {
-					String serialInMBusMeter = getMBUSSerialNumber(mbusDLMSConfigIndex);
-					cachedSerialNumbers[mbusDLMSConfigIndex + 1] = serialInMBusMeter;
-				}
-			}
 		}
-		return cachedSerialNumbers;
+		
+		return this.getDeviceSerialNumber().toLowerCase().trim().equals(this.serialNumber.toLowerCase().trim());
 	}
 
-	private boolean validateSerialNumber() throws IOException {
-		if ((serialNumber == null) || ("".compareTo(serialNumber) == 0))
-			return true;
-		for (int i = 0; i < getCachedSerialNumbers().length; i++) {
-			if (getCachedSerialNumbers()[i] != null) {
-				String sn = getCachedSerialNumbers()[i];
-				if ((sn != null) && (sn.compareTo(serialNumber) == 0))
-					return true;
-			}
-		}
-		return false;
-	}
-
-	private String reportCachedSerialNumbers() throws IOException {
-		StringBuffer strBuff = new StringBuffer();
-		for (int i = 0; i < getCachedSerialNumbers().length; i++) {
-			if (getCachedSerialNumbers()[i] != null) {
-				if (i != 0)
-					strBuff.append(", ");
-				strBuff.append(getCachedSerialNumbers()[i]);
-			}
-		}
-		return strBuff.toString();
-	}
-
-	private int getNodeId() {
-		if ("".compareTo(nodeId) != 0)
-			return Integer.parseInt(nodeId);
-		else
+	/**
+	 * Returns the node address as it is filled in in EIServer.
+	 * 
+	 * @return The node address as it is filled in in EIServer.
+	 */
+	private final int getNodeAddress() {
+		if (this.nodeAddress == null || this.nodeAddress.trim().equals("")) {
 			return -1;
-	}
+		} else {
+			try {
+				return Integer.valueOf(this.nodeAddress);
+			} catch (NumberFormatException e) {
+				this.logger.log(Level.WARNING, "A node address was configured for device with serial ID [" + this.deviceId + "], but could not parse it as it was probably not numeric ! (error was [" + e.getMessage() + "]", e);
 
-	private int getPhysicalAddress() throws IOException {
-
-		// node ID is 0 or empty for the Z3 meter, 1 and > for the connected
-		// MBus meter
-		if ((getNodeId() != -1) && (getNodeId() > 0))
-			return getNodeId() - 1;
-		else if (getNodeId() == 0)
-			throw new IOException(
-					"This is not an MBus meter connected! Node address has to be different from 0!");
-		else {
-			// use serialnumber configured to search for the physical address
-			// (index in the DLMSConfig array of obis codes for a given object)
-			// only serialnumbers for the mbus meters
-			for (int mbusDLMSConfigIndex = 0; mbusDLMSConfigIndex < maxMbusDevices; mbusDLMSConfigIndex++) {
-				if (getCachedSerialNumbers()[mbusDLMSConfigIndex + 1] != null) {
-					String sn = getCachedSerialNumbers()[mbusDLMSConfigIndex + 1];
-					if ((sn != null) && (sn.compareTo(serialNumber) == 0))
-						return mbusDLMSConfigIndex;
-				}
+				return -1;
 			}
 		}
-
-		throw new IOException(
-				"Could not retrieve the physical address for the mbus meter "
-						+ serialNumber);
 	}
 
-	private String getMBUSSerialNumber(int mbusDLMSConfigIndex)
-			throws IOException {
-		String serial = null;
-		try {
-			serial = getCosemObjectFactory().getGenericRead(
-					getMeterConfig().getMbusSerialNumber(mbusDLMSConfigIndex))
-					.getString();
-			return serial;
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException(
-					"Could not retrieve the serialnumber of meter " + serial
-							+ e);
+	/**
+	 * This method uses two behaviours, depending on the fact whether you have filled in a Node Address or not. If the node address > 0, then node address - 1 is returned. If the node address is 0, we try to find the MBus meter based on the serial number. If the node address is 0, this means no MBus meter is meant. The method returns -1 if no MBus device with the given serial number can be found.
+	 * 
+	 * @return The MBus meter index.
+	 * 
+	 * @throws IOException
+	 *             If an IO error occurs during the fetch of the MBus serial numbers.
+	 */
+	private final int getMBusPhysicalAddress() throws IOException {
+		if (this.getNodeAddress() == 0) {
+			throw new IllegalStateException("Cannot determine MBus index as the node address is explicitly set to 0, meaning that the destination is the EpIO/Z3, and not an MBus meter.");
+		} else if (this.getNodeAddress() > 0) {
+			this.logger.info("Node address has been set in EIServer to be [" + this.nodeAddress + "], using this hardcoded value minus one and not using meter configuration");
+			return this.getNodeAddress() - 1;
+		} else {
+			this.logger.info("Node address was not set in EIServer, using serial number to probe for MBus device index...");
+
+			if (this.mbusSerialNumbers == null) {
+				logger.info("Do not have MBus serial numbers yet, requesting from meter...");
+
+				this.mbusSerialNumbers = this.requestMBusSerialNumbers();
+			}
+
+			for (int i = 0; i < this.maximumNumberOfMBusDevices; i++) {
+				if (mbusSerialNumbers[i] != null && mbusSerialNumbers[i].trim().equals(this.serialNumber)) {
+					return i;
+				}
+			}
+
+			return -1;
 		}
+	}
+
+	/**
+	 * Requests the serial numbers of the remote device.
+	 * 
+	 * @return The requested serial numbers.
+	 * 
+	 * @throws IOException
+	 *             If an IO error should occur when requesting the MBus serial numbers from the meter.
+	 */
+	private final String[] requestMBusSerialNumbers() throws IOException {
+		final String[] serialNumbers = new String[this.maximumNumberOfMBusDevices];
+
+		for (int i = 0; i < this.maximumNumberOfMBusDevices; i++) {
+			final String mbusSerialNumber = getMBusDeviceSerialNumberFromMeter(i);
+			serialNumbers[i] = mbusSerialNumber;
+		}
+
+		return serialNumbers;
+	}
+
+	/**
+	 * Gets the serial number of the MBus device on the given index.
+	 * 
+	 * @param mbusDeviceIndex
+	 *            The index of the sought after MBus device.
+	 * 
+	 * @return The serial number of the device, <code>null</code> if there is no such device.
+	 * 
+	 * @throws IOException
+	 *             If an IO error occurs during the query for the MBus serial number.
+	 */
+	private final String getMBusDeviceSerialNumberFromMeter(final int mbusDeviceIndex) throws IOException {
+		logger.info("Requesting serial number for MBus device, physical address [" + mbusDeviceIndex + "]");
+		
+		final UniversalObject serialNumberObject = this.meterConfig.getMbusSerialNumber(mbusDeviceIndex);
+		
+		final String serialNumber = this.cosemObjectFactory.getGenericRead(serialNumberObject).getString();
+		
+		logger.info("Device says serial number is [" + serialNumber + "]");
+		
+		return serialNumber;
 	}
 
 	/*
-	 * extendedLogging = 1 current set of logical addresses, extendedLogging =
-	 * 2..17 historical set 1..16
+	 * extendedLogging = 1 current set of logical addresses, extendedLogging = 2..17 historical set 1..16
 	 */
 	protected String getRegistersInfo(@SuppressWarnings("unused") int extendedLogging) throws IOException {
 		StringBuffer strBuff = new StringBuffer();
-		strBuff
-				.append("********************* All instantiated objects in the meter *********************\n");
+		strBuff.append("********************* All instantiated objects in the meter *********************\n");
 		for (int i = 0; i < getMeterConfig().getInstantiatedObjectList().length; i++) {
 			UniversalObject uo = getMeterConfig().getInstantiatedObjectList()[i];
-			strBuff.append(uo.toString() + " "
-					+ uo.getObisCode().getDescription() + "\n");
+			strBuff.append(uo.toString() + " " + uo.getObisCode().getDescription() + "\n");
 		}
 		// strBuff.append(getSerialNumber()+"\n");
 		// strBuff.append(AXDRDecoder.decode(getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.1.1.255")).getData()).toString()+"\n");
@@ -1061,202 +1019,127 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 	} // public void disconnect() throws IOException
 
 	/**
-	 * This method requests for the COSEM object list in the remote meter. A
-	 * list is byuild with LN and SN references. This method must be executed
-	 * before other request methods.
+	 * This method requests for the COSEM object list in the remote meter. A list is byuild with LN and SN references. This method must be executed before other request methods.
 	 * 
 	 * @exception IOException
 	 */
 	private void requestObjectList() throws IOException {
-		meterConfig.setInstantiatedObjectList(getCosemObjectFactory()
-				.getAssociationLN().getBuffer());
+		meterConfig.setInstantiatedObjectList(getCosemObjectFactory().getAssociationLN().getBuffer());
 	} // public void requestObjectList() throws IOException
 
-	public String requestAttribute(short sIC, byte[] LN, byte bAttr)
-			throws IOException {
+	public String requestAttribute(short sIC, byte[] LN, byte bAttr) throws IOException {
 		return doRequestAttribute(sIC, LN, bAttr).print2strDataContainer();
 	} // public String requestAttribute(short sIC,byte[] LN,byte bAttr ) throws
 
 	// IOException
 
-	private DataContainer doRequestAttribute(int classId, byte[] ln, int lnAttr)
-			throws IOException {
-		DataContainer dc = getCosemObjectFactory().getGenericRead(
-				ObisCode.fromByteArray(ln), DLMSUtils.attrLN2SN(lnAttr),
-				classId).getDataContainer();
+	private DataContainer doRequestAttribute(int classId, byte[] ln, int lnAttr) throws IOException {
+		DataContainer dc = getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(ln), DLMSUtils.attrLN2SN(lnAttr), classId).getDataContainer();
 		return dc;
-	} // public DataContainer doRequestAttribute(short sIC,byte[] LN,byte bAttr
-
-	// ) throws IOException
-
-	public String getProtocolVersion() {
-		return "$Revision: 1.39 $";
 	}
 
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
-		if (version == null) {
-			version = AXDRDecoder.decode(
-					getCosemObjectFactory().getData(
-							ObisCode.fromString("1.0.0.2.0.255")).getData())
-					.getOctetString().stringValue();
+	/**
+	 * {@inheritDoc}
+	 */
+	public final String getProtocolVersion() {
+		return "$Date:$";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public final String getFirmwareVersion() throws IOException {
+		if (this.firmwareVersion == null) {
+			this.firmwareVersion = AXDRDecoder.decode(this.getCosemObjectFactory().getData(OBISCODE_ACTIVE_FIRMWARE).getData()).getOctetString().stringValue();
 		}
-		return version;
+		
+		return this.firmwareVersion;
 	}
 
 	/**
-	 * this implementation calls <code> validateProperties </code> and assigns
-	 * the argument to the properties field
-	 * 
-	 * @param properties
-	 * <br>
-	 * @throws MissingPropertyException
-	 * <br>
-	 * @throws InvalidPropertyException
-	 * <br>
-	 * @see AbstractMeterProtocol#validateProperties
+	 * {@inheritDoc}
 	 */
-	public void setProperties(Properties properties)
-			throws MissingPropertyException, InvalidPropertyException {
-		validateProperties(properties);
-		// this.properties = properties;
+	public final void setProperties(final Properties properties) throws MissingPropertyException, InvalidPropertyException {
+		this.checkRequiredProperties(properties);
+		this.configure(properties);
 	}
 
 	/**
-	 * <p>
-	 * validates the properties.
-	 * </p>
-	 * <p>
-	 * The default implementation checks that all required parameters are
-	 * present.
-	 * </p>
+	 * Configures this protocol based on the {@link Properties}.
 	 * 
 	 * @param properties
-	 * <br>
-	 * @throws MissingPropertyException
-	 * <br>
-	 * @throws InvalidPropertyException
-	 * <br>
+	 *            The {@link Properties} that are supplied as configuration to {@link #setProperties(Properties)}.
 	 */
-	protected void validateProperties(Properties properties)
-			throws MissingPropertyException, InvalidPropertyException {
+	private final void configure(final Properties properties) throws InvalidPropertyException {
+		if (properties.containsKey(MeterProtocol.ADDRESS)) {
+			if (properties.getProperty(MeterProtocol.ADDRESS) != null && properties.getProperty(MeterProtocol.ADDRESS).length() <= 16) {
+				this.deviceId = properties.getProperty(MeterProtocol.ADDRESS);
+			} else {
+				throw new InvalidPropertyException("Property [" + MeterProtocol.ADDRESS + "] should have 16 characters or less if it is specified, you specified [" + properties.getProperty(MeterProtocol.ADDRESS).length() + "] characters !");
+			}
+		}
+
+		this.password = properties.getProperty(MeterProtocol.PASSWORD);
+		this.hdlcTimeout = Integer.parseInt(properties.getProperty(PROPNAME_TIMEOUT, "10000").trim());
+		this.protocolRetries = Integer.parseInt(properties.getProperty(PROPNAME_RETRIES, "5").trim());
+		this.securityLevel = SecurityLevel.getByPropertyValue(Integer.parseInt(properties.getProperty(PROPNAME_SECURITY_LEVEL, "1").trim()));
+		this.requestTimeZone = Integer.parseInt(properties.getProperty(PROPNAME_REQUEST_TIME_ZONE, "0").trim()) != 0;
+		this.roundtripCorrection = Integer.parseInt(properties.getProperty(PROPNAME_ROUNDTRIP_CORRECTION, "0").trim());
+		this.clientMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, "1").trim());
+		this.serverUpperMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "17").trim());
+		this.serverLowerMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "17").trim());
+		this.nodeAddress = properties.getProperty(MeterProtocol.NODEID, "");
+		this.serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
+		this.addressingMode = ClientAddressingMode.getByPropertyValue(Integer.parseInt(properties.getProperty(PROPNAME_ADDRESSING_MODE, "-1")));
+		this.connectionMode = DLMSConnectionMode.getByPropertyValue(Integer.parseInt(properties.getProperty(PROPNAME_CONNECTION, "0")));
+		this.loadProfileObisCode = ObisCode.fromString(properties.getProperty(PROPNAME_LOAD_PROFILE_OBIS_CODE, "1.0.99.1.0.255"));
+		this.informationFieldSize = Integer.parseInt(properties.getProperty(PROPNAME_INFORMATION_FIELD_SIZE, "-1"));
+		this.maximumNumberOfMBusDevices = Integer.parseInt(properties.getProperty(PROPNAME_MAXIMUM_NUMBER_OF_MBUS_DEVICES, "4"));
+
 		try {
-			final Iterator<String> iterator = getRequiredKeys().iterator();
-			while (iterator.hasNext()) {
-				String key = (String) iterator.next();
-				if (properties.getProperty(key) == null)
-					throw new MissingPropertyException(key + " key missing");
-			}
-			strID = properties.getProperty(MeterProtocol.ADDRESS);
-			if ((strID != null) && (strID.length() > 16))
-				throw new InvalidPropertyException(
-						"ID must be less or equal then 16 characters.");
-			strPassword = properties.getProperty(MeterProtocol.PASSWORD);
-			// if (strPassword.length()!=8) throw new
-			// InvalidPropertyException("Password must be exact 8 characters.");
-			hDLCTimeoutProperty = Integer.parseInt(properties.getProperty(
-					"Timeout", "10000").trim());
-			protocolRetriesProperty = Integer.parseInt(properties.getProperty(
-					"Retries", "5").trim());
-			// iDelayAfterFailProperty=Integer.parseInt(properties.getProperty("DelayAfterfail","3000").trim());
-			securityLevel = Integer.parseInt(properties.getProperty(
-					"SecurityLevel", "1").trim());
-			requestTimeZone = Integer.parseInt(properties.getProperty(
-					"RequestTimeZone", "0").trim());
-			roundtripCorrection = Integer.parseInt(properties.getProperty(
-					"RoundtripCorrection", "0").trim());
-
-			clientMacAddress = Integer.parseInt(properties.getProperty(
-					"ClientMacAddress", "1").trim());
-			serverUpperMacAddress = Integer.parseInt(properties.getProperty(
-					"iServerUpperMacAddress", "17").trim());
-			serverLowerMacAddress = Integer.parseInt(properties.getProperty(
-					"ServerLowerMacAddress", "17").trim());
-			nodeId = properties.getProperty(MeterProtocol.NODEID, "");
-			// KV 19012004 get the serialNumber
-			serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
-			extendedLogging = Integer.parseInt(properties.getProperty(
-					"ExtendedLogging", "0"));
-			addressingMode = Integer.parseInt(properties.getProperty(
-					"AddressingMode", "-1"));
-			connectionMode = Integer.parseInt(properties.getProperty(
-					"Connection", "0")); // 0=HDLC, 1= TCP/IP
-
-			// default obis code is the obiscode for the elec meter attached to
-			// the uart2 port
-			loadProfileObisCode = properties.getProperty("LoadProfileObisCode",
-					"1.0.99.1.0.255");
-			fullLogbook = Integer.parseInt(properties.getProperty(
-					"FullLogbook", "0"));
-			informationFieldSize = Integer.parseInt(properties.getProperty(
-					"InformationFieldSize", "-1"));
-
-			maxMbusDevices = Integer.parseInt(properties.getProperty(
-					"MaxMbusDevices", "4"));
-
-			try {
-				this.maximumAPDUSize = Integer.parseInt(properties.getProperty(
-						PROPNAME_MAX_APDU_SIZE, "-1"));
-			} catch (NumberFormatException e) {
-				this.maximumAPDUSize = -1;
-			}
-
-			// FIXME
-			// Strange, need to have an int here as HDLCConnection defines the
-			// parameter as a long, where TCPIPConnection defines this as an
-			// int.
-			// An int will probably be sufficient as we don't want to delay for
-			// too long.
-			try {
-				this.forceDelay = Integer.parseInt(properties.getProperty(
-						PROPNAME_FORCE_DELAY, "0"));
-			} catch (NumberFormatException e) {
-				logger.log(Level.WARNING, "Cannot interpret property ["
-						+ PROPNAME_FORCE_DELAY
-						+ "] because it is not numeric, defaulting to ["
-						+ this.forceDelay + "]");
-			}
-
-			try {
-				this.clockSetRoundtripTreshold = Integer
-						.parseInt(properties
-								.getProperty(
-										PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD,
-										String
-												.valueOf(DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD)));
-			} catch (NumberFormatException e) {
-				logger
-						.log(
-								Level.SEVERE,
-								"Cannot parse the number of roundtrip correction probes to be done, setting to default value of ["
-										+ DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD
-										+ "]", e);
-
-				this.clockSetRoundtripTreshold = DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD;
-			}
-
-			try {
-				this.numberOfClocksetTries = Integer
-						.parseInt(properties
-								.getProperty(
-										PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES,
-										String
-												.valueOf(DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES)));
-			} catch (NumberFormatException e) {
-				logger
-						.log(
-								Level.SEVERE,
-								"Cannot parse the number of clockset tries to a numeric value, setting to default value of ["
-										+ DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES
-										+ "]", e);
-
-				this.numberOfClocksetTries = DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES;
-			}
+			this.maximumAPDUSize = Integer.parseInt(properties.getProperty(PROPNAME_MAX_APDU_SIZE, "-1"));
 		} catch (NumberFormatException e) {
-			throw new InvalidPropertyException(
-					"DukePower, validateProperties, NumberFormatException, "
-							+ e.getMessage());
+			this.maximumAPDUSize = -1;
 		}
 
+		try {
+			this.forceDelay = Integer.parseInt(properties.getProperty(PROPNAME_FORCE_DELAY, "0"));
+		} catch (NumberFormatException e) {
+			logger.log(Level.WARNING, "Cannot interpret property [" + PROPNAME_FORCE_DELAY + "] because it is not numeric, defaulting to [" + this.forceDelay + "]");
+		}
+
+		try {
+			this.clockSetRoundtripTreshold = Integer.parseInt(properties.getProperty(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, String.valueOf(DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD)));
+		} catch (NumberFormatException e) {
+			logger.log(Level.SEVERE, "Cannot parse the number of roundtrip correction probes to be done, setting to default value of [" + DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD + "]", e);
+
+			this.clockSetRoundtripTreshold = DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD;
+		}
+
+		try {
+			this.numberOfClocksetTries = Integer.parseInt(properties.getProperty(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, String.valueOf(DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES)));
+		} catch (NumberFormatException e) {
+			logger.log(Level.SEVERE, "Cannot parse the number of clockset tries to a numeric value, setting to default value of [" + DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES + "]", e);
+
+			this.numberOfClocksetTries = DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES;
+		}
+	}
+
+	/**
+	 * Checks if all required properties are present in the given {@link Properties} object.
+	 * 
+	 * @param properties
+	 *            The properties object to check.
+	 * 
+	 * @throws MissingPropertyException
+	 *             If a required property is missing.
+	 */
+	private final void checkRequiredProperties(final Properties properties) throws MissingPropertyException {
+		for (final String requiredProperty : this.getRequiredKeys()) {
+			if (!properties.containsKey(requiredProperty)) {
+				throw new MissingPropertyException("Property [" + requiredProperty + "] is required for this protocol !");
+			}
+		}
 	}
 
 	/**
@@ -1272,8 +1155,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 	 * @throws NoSuchRegisterException
 	 * <br>
 	 */
-	public String getRegister(String name) throws IOException,
-			UnsupportedException, NoSuchRegisterException {
+	public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
 		return doGetRegister(name);
 	}
 
@@ -1284,63 +1166,32 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 		DLMSObis ln = new DLMSObis(name);
 		if (ln.isLogicalName()) {
 			if (classSpecified) {
-				return requestAttribute(ln.getDLMSClass(), ln.getLN(),
-						(byte) ln.getOffset());
+				return requestAttribute(ln.getDLMSClass(), ln.getLN(), (byte) ln.getOffset());
 			} else {
 				UniversalObject uo = getMeterConfig().getObject(ln);
-				return getCosemObjectFactory().getGenericRead(uo)
-						.getDataContainer().print2strDataContainer();
+				return getCosemObjectFactory().getGenericRead(uo).getDataContainer().print2strDataContainer();
 			}
 		} else if (name.indexOf("-") >= 0) { // you get a from/to
 			DLMSObis ln2 = new DLMSObis(name.substring(0, name.indexOf("-")));
 			if (ln2.isLogicalName()) {
-				String from = name.substring(name.indexOf("-") + 1, name
-						.indexOf("-", name.indexOf("-") + 1));
-				String to = name.substring(name.indexOf(from) + from.length()
-						+ 1);
+				String from = name.substring(name.indexOf("-") + 1, name.indexOf("-", name.indexOf("-") + 1));
+				String to = name.substring(name.indexOf(from) + from.length() + 1);
 				if (ln2.getDLMSClass() == 7) {
-					return getCosemObjectFactory().getProfileGeneric(
-							getMeterConfig().getObject(ln2).getObisCode())
-							.getBuffer(convertStringToCalendar(from),
-									convertStringToCalendar(to))
-							.print2strDataContainer();
+					return getCosemObjectFactory().getProfileGeneric(getMeterConfig().getObject(ln2).getObisCode()).getBuffer(convertStringToCalendar(from), convertStringToCalendar(to)).print2strDataContainer();
 				} else {
-					throw new NoSuchRegisterException(
-							"GenericGetSet,getRegister, register " + name
-									+ " is not a profile.");
+					throw new NoSuchRegisterException("GenericGetSet,getRegister, register " + name + " is not a profile.");
 				}
 			} else {
-				throw new NoSuchRegisterException(
-						"GenericGetSet,getRegister, register " + name
-								+ " does not exist.");
+				throw new NoSuchRegisterException("GenericGetSet,getRegister, register " + name + " does not exist.");
 			}
 		} else {
-			throw new NoSuchRegisterException(
-					"GenericGetSet,getRegister, register " + name
-							+ " does not exist.");
+			throw new NoSuchRegisterException("GenericGetSet,getRegister, register " + name + " does not exist.");
 		}
 	}
 
 	private Calendar convertStringToCalendar(String strDate) {
 		Calendar cal = Calendar.getInstance(getTimeZone());
-		cal
-				.set(
-						Integer.parseInt(strDate.substring(strDate
-								.lastIndexOf("/") + 1, strDate.indexOf(" "))) & 0xFFFF,
-						(Integer.parseInt(strDate.substring(strDate
-								.indexOf("/") + 1, strDate.lastIndexOf("/"))) & 0xFF) - 1,
-						Integer.parseInt(strDate.substring(0, strDate
-								.indexOf("/"))) & 0xFF, Integer
-								.parseInt(strDate
-										.substring(strDate.indexOf(" ") + 1,
-												strDate.indexOf(":"))) & 0xFF,
-						Integer.parseInt(strDate.substring(
-								strDate.indexOf(":") + 1, strDate
-										.lastIndexOf(":"))) & 0xFF, Integer
-								.parseInt(strDate
-										.substring(
-												strDate.lastIndexOf(":") + 1,
-												strDate.length())) & 0xFF);
+		cal.set(Integer.parseInt(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" "))) & 0xFFFF, (Integer.parseInt(strDate.substring(strDate.indexOf("/") + 1, strDate.lastIndexOf("/"))) & 0xFF) - 1, Integer.parseInt(strDate.substring(0, strDate.indexOf("/"))) & 0xFF, Integer.parseInt(strDate.substring(strDate.indexOf(" ") + 1, strDate.indexOf(":"))) & 0xFF, Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":"))) & 0xFF, Integer.parseInt(strDate.substring(strDate.lastIndexOf(":") + 1, strDate.length())) & 0xFF);
 		return cal;
 	}
 
@@ -1358,32 +1209,34 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 	 * @throws UnsupportedException
 	 * <br>
 	 */
-	public void setRegister(String name, String value) throws IOException,
-			NoSuchRegisterException, UnsupportedException {
+	public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
 		boolean classSpecified = false;
 		if (name.indexOf(':') >= 0)
 			classSpecified = true;
 		DLMSObis ln = new DLMSObis(name);
 		if ((ln.isLogicalName()) && (classSpecified)) {
-			getCosemObjectFactory().getGenericWrite(
-					ObisCode.fromByteArray(ln.getLN()), ln.getOffset(),
-					ln.getDLMSClass()).write(convert(value));
+			getCosemObjectFactory().getGenericWrite(ObisCode.fromByteArray(ln.getLN()), ln.getOffset(), ln.getDLMSClass()).write(convert(value));
 		} else
-			throw new NoSuchRegisterException(
-					"GenericGetSet, setRegister, register " + name
-							+ " does not exist.");
+			throw new NoSuchRegisterException("GenericGetSet, setRegister, register " + name + " does not exist.");
 	}
 
-	byte[] convert(String s) throws IOException {
-		if ((s.length() % 2) != 0)
-			throw new IOException(
-					"String length is not a modulo 2 hex representation!");
-		else {
-			byte[] data = new byte[s.length() / 2];
+	/**
+	 * Converts the given string.
+	 * 
+	 * @param 	s		The string.
+	 * 
+	 * @return	
+	 */
+	private final byte[] convert(final String s) {
+		if ((s.length() % 2) != 0) {
+			throw new IllegalArgumentException("String length is not a modulo 2 hex representation!");
+		} else {
+			final byte[] data = new byte[s.length() / 2];
+			
 			for (int i = 0; i < (s.length() / 2); i++) {
-				data[i] = (byte) Integer.parseInt(s.substring(i * 2,
-						(i * 2) + 2), 16);
+				data[i] = (byte) Integer.parseInt(s.substring(i * 2, (i * 2) + 2), 16);
 			}
+			
 			return data;
 		}
 	}
@@ -1436,101 +1289,127 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 		optionalProperties.add("InformationFieldSize");
 		optionalProperties.add(PROPNAME_MAX_APDU_SIZE);
 		optionalProperties.add(PROPNAME_FORCE_DELAY);
-		optionalProperties
-				.add(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD);
+		optionalProperties.add(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD);
 		optionalProperties.add(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES);
 
 		return optionalProperties;
 	}
 
-	public int requestTimeZone() throws IOException {
-		// All time reporting is UTC for the SL7000
-		return (0);
-	}
+	/**
+	 * {@inheritDoc}
+	 */
+	public final void setCache(final Object cacheObject) {
+		if (!(cacheObject instanceof DLMSCache)) {
+			throw new IllegalArgumentException("This protocol expects a cache object of type [" + DLMSCache.class.getName() + "], you provided an object of type [" + cacheObject + "], which is not compatible with this implementation !");
+		}
 
-	public void setCache(Object cacheObject) {
 		this.dlmsCache = (DLMSCache) cacheObject;
 	}
 
-	public Object getCache() {
-		return dlmsCache;
+	/**
+	 * {@inheritDoc}
+	 */
+	public final Object getCache() {
+		return this.dlmsCache;
 	}
 
-	public Object fetchCache(int rtuid) throws java.sql.SQLException,
-			com.energyict.cbo.BusinessException {
-		if (rtuid != 0) {
-			RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-			RtuDLMS rtu = new RtuDLMS(rtuid);
-			try {
-				return new DLMSCache(rtuCache.getObjectList(), rtu
-						.getConfProgChange());
-			} catch (NotFoundException e) {
-				return new DLMSCache(null, -1);
-			}
-		} else
-			throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+	/**
+	 * This is a default implementation, and it throws an exception telling the developer of calling it that if he/she wants this to work, he/she needs to provide an override that will work in his/her given situation (which will largely depend on EIServer database access).
+	 * 
+	 * As such this method is marked overridable (which translates to non-final in Java).
+	 * 
+	 * {@inheritDoc}
+	 */
+	public Object fetchCache(final int rtuid) throws SQLException, BusinessException {
+		throw new UnsupportedOperationException("Fetching caches is not available by default for this protocol, if you want to enable this, override this method taking into account the context you are running in (Commserver, remote commserver, RTU+Server, etc...) as all these mechanisms are different");
+
 	}
 
-	public void updateCache(int rtuid, Object cacheObject)
-			throws java.sql.SQLException, com.energyict.cbo.BusinessException {
-		if (rtuid != 0) {
-			DLMSCache dc = (DLMSCache) cacheObject;
-			if (dc.isChanged()) {
-				RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-				RtuDLMS rtu = new RtuDLMS(rtuid);
-				rtuCache.saveObjectList(dc.getObjectList());
-				rtu.setConfProgChange(dc.getConfProgChange());
-			}
-		} else
-			throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+	/**
+	 * This is a default implementation, and it throws an exception telling the developer of calling it that if he/she wants this to work, he/she needs to provide an override that will work in his/her given situation (which will largely depend on EIServer database access).
+	 * 
+	 * As such this method is marked overridable (which translates to non-final in Java).
+	 * 
+	 * {@inheritDoc}
+	 */
+	public void updateCache(final int rtuid, final Object cacheObject) throws SQLException, BusinessException {
+		throw new UnsupportedOperationException("Updating caches is not available by default for this protocol, if you want to enable this, override this method taking into account the context you are running in (Commserver, remote commserver, RTU+Server, etc...) as all these mechanisms are different");
 	}
 
-	public void release() throws IOException {
+	/**
+	 * {@inheritDoc}
+	 */
+	public final void release() throws IOException {
 		// Not implemented for this protocol.
 	}
 
-	// implementation oh HHUEnabler interface
-	public void enableHHUSignOn(SerialCommunicationChannel commChannel)
-			throws ConnectionException {
-		enableHHUSignOn(commChannel, false);
+	/**
+	 * {@inheritDoc}
+	 */
+	public final void enableHHUSignOn(final SerialCommunicationChannel commChannel) throws ConnectionException {
+		this.enableHHUSignOn(commChannel, false);
 	}
 
-	public void enableHHUSignOn(SerialCommunicationChannel commChannel,
-			boolean datareadout) throws ConnectionException {
-		HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel,
-				hDLCTimeoutProperty, protocolRetriesProperty, 300, 0);
+	/**
+	 * {@inheritDoc}
+	 */
+	public final void enableHHUSignOn(final SerialCommunicationChannel commChannel, final boolean datareadout) throws ConnectionException {
+		final HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, this.hdlcTimeout, this.protocolRetries, 300, 0);
+
 		hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
 		hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
 		hhuSignOn.enableDataReadout(datareadout);
-		getDLMSConnection().setHHUSignOn(hhuSignOn, nodeId);
+
+		this.getDLMSConnection().setHHUSignOn(hhuSignOn, this.nodeAddress);
 	}
 
-	public byte[] getHHUDataReadout() {
-		return getDLMSConnection().getHhuSignOn().getDataReadout();
+	/**
+	 * {@inheritDoc}
+	 */
+	public final byte[] getHHUDataReadout() {
+		return this.getDLMSConnection().getHhuSignOn().getDataReadout();
 	}
 
-	public Logger getLogger() {
-		return logger;
+	/**
+	 * {@inheritDoc}
+	 */
+	public final Logger getLogger() {
+		return this.logger;
 	}
 
-	public DLMSMeterConfig getMeterConfig() {
-		return meterConfig;
+	/**
+	 * {@inheritDoc}
+	 */
+	public final DLMSMeterConfig getMeterConfig() {
+		return this.meterConfig;
 	}
 
-	public int getReference() {
-		return ProtocolLink.LN_REFERENCE;
+	/**
+	 * {@inheritDoc}
+	 */
+	public final int getReference() {
+		return LN_REFERENCE;
 	}
 
-	public int getRoundTripCorrection() {
-		return roundtripCorrection;
+	/**
+	 * {@inheritDoc}
+	 */
+	public final int getRoundTripCorrection() {
+		return this.roundtripCorrection;
 	}
 
-	public TimeZone getTimeZone() {
-		return timeZone;
+	/**
+	 * {@inheritDoc}
+	 */
+	public final TimeZone getTimeZone() {
+		return this.timeZone;
 	}
 
-	public boolean isRequestTimeZone() {
-		return (requestTimeZone != 0);
+	/**
+	 * {@inheritDoc}
+	 */
+	public final boolean isRequestTimeZone() {
+		return this.requestTimeZone;
 	}
 
 	/**
@@ -1542,49 +1421,47 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 		return cosemObjectFactory;
 	}
 
-	public String getFileName() {
-
-		Calendar calendar = Calendar.getInstance();
-		return calendar.get(Calendar.YEAR) + "_"
-				+ (calendar.get(Calendar.MONTH) + 1) + "_"
-				+ calendar.get(Calendar.DAY_OF_MONTH) + "_" + strID + "_"
-				+ strPassword + "_" + serialNumber + "_"
-				+ serverUpperMacAddress + "_DLMSSL7000.cache";
+	/**
+	 * This one returns the file name for the DLMS cache.
+	 * 
+	 * {@inheritDoc}
+	 */
+	public final String getFileName() {
+		throw new UnsupportedOperationException("Getting a file name for a DLMS Z3 meter is not supported by this protocol at this time !");
 	}
 
-	public StoredValues getStoredValues() {
-		return (StoredValues) storedValuesImpl;
+	/**
+	 * {@inheritDoc}
+	 */
+	public final StoredValues getStoredValues() {
+		return this.storedValuesImpl;
 	}
 
-	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+	/**
+	 * {@inheritDoc}
+	 */
+	public final RegisterValue readRegister(final ObisCode obisCode) throws IOException {
 		try {
 
 			UniversalObject uo = getMeterConfig().findObject(obisCode);
 			if (uo.getClassID() == DLMSCOSEMGlobals.ICID_REGISTER) {
-				Register register = getCosemObjectFactory().getRegister(
-						obisCode);
+				Register register = getCosemObjectFactory().getRegister(obisCode);
 				return new RegisterValue(obisCode, register.getQuantityValue());
 			} else if (uo.getClassID() == DLMSCOSEMGlobals.ICID_DEMAND_REGISTER) {
-				DemandRegister register = getCosemObjectFactory()
-						.getDemandRegister(obisCode);
+				DemandRegister register = getCosemObjectFactory().getDemandRegister(obisCode);
 				return new RegisterValue(obisCode, register.getQuantityValue());
 			} else if (uo.getClassID() == DLMSCOSEMGlobals.ICID_EXTENDED_REGISTER) {
-				ExtendedRegister register = getCosemObjectFactory()
-						.getExtendedRegister(obisCode);
+				ExtendedRegister register = getCosemObjectFactory().getExtendedRegister(obisCode);
 				return new RegisterValue(obisCode, register.getQuantityValue());
 			} else if (uo.getClassID() == DLMSCOSEMGlobals.ICID_DISCONNECT_CONTROL) {
-				Disconnector register = getCosemObjectFactory()
-						.getDisconnector(obisCode);
+				Disconnector register = getCosemObjectFactory().getDisconnector(obisCode);
 				return new RegisterValue(obisCode, "" + register.getState());
 			}
-			if (ocm == null)
-				ocm = new ObisCodeMapper(getCosemObjectFactory());
-			return ocm.getRegisterValue(obisCode);
+
+			return this.ocm.getRegisterValue(obisCode);
 
 		} catch (Exception e) {
-			throw new NoSuchRegisterException(
-					"Problems while reading register " + obisCode.toString()
-							+ ": " + e.getMessage());
+			throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
 		}
 	}
 
@@ -1594,27 +1471,21 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 
 	public List<MessageCategorySpec> getMessageCategories() {
 		List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
-		MessageCategorySpec catDisconnect = new MessageCategorySpec(
-				"Disconnect Control");
+		MessageCategorySpec catDisconnect = new MessageCategorySpec("Disconnect Control");
 		MessageCategorySpec catMbusSetup = new MessageCategorySpec("Mbus setup");
 
 		// Disconnect control related messages
-		MessageSpec msgSpec = addConnectControl("Disconnect",
-				RtuMessageConstant.DISCONNECT_LOAD, false);
+		MessageSpec msgSpec = addConnectControl("Disconnect", RtuMessageConstant.DISCONNECT_LOAD, false);
 		catDisconnect.addMessageSpec(msgSpec);
-		msgSpec = addConnectControl("Connect", RtuMessageConstant.CONNECT_LOAD,
-				false);
+		msgSpec = addConnectControl("Connect", RtuMessageConstant.CONNECT_LOAD, false);
 		catDisconnect.addMessageSpec(msgSpec);
-		msgSpec = addConnectControlMode("ConnectControl mode",
-				RtuMessageConstant.CONNECT_CONTROL_MODE, false);
+		msgSpec = addConnectControlMode("ConnectControl mode", RtuMessageConstant.CONNECT_CONTROL_MODE, false);
 		catDisconnect.addMessageSpec(msgSpec);
 
 		// Mbus setup related messages
-		msgSpec = addNoValueMsg("Decommission",
-				RtuMessageConstant.MBUS_DECOMMISSION, false);
+		msgSpec = addNoValueMsg("Decommission", RtuMessageConstant.MBUS_DECOMMISSION, false);
 		catMbusSetup.addMessageSpec(msgSpec);
-		msgSpec = addEncryptionkeys("Set Encryption keys",
-				RtuMessageConstant.MBUS_ENCRYPTION_KEYS, false);
+		msgSpec = addEncryptionkeys("Set Encryption keys", RtuMessageConstant.MBUS_ENCRYPTION_KEYS, false);
 		catMbusSetup.addMessageSpec(msgSpec);
 
 		categories.add(catDisconnect);
@@ -1622,53 +1493,45 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 		return categories;
 	}
 
-	private MessageSpec addConnectControl(String keyId, String tagName,
-			boolean advanced) {
+	private MessageSpec addConnectControl(String keyId, String tagName, boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 		MessageValueSpec msgVal = new MessageValueSpec();
 		msgVal.setValue(" ");
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-				RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, false);
+		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, false);
 		tagSpec.add(msgVal);
 		tagSpec.add(msgAttrSpec);
 		msgSpec.add(tagSpec);
 		return msgSpec;
 	}
 
-	private MessageSpec addConnectControlMode(String keyId, String tagName,
-			boolean advanced) {
+	private MessageSpec addConnectControlMode(String keyId, String tagName, boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 		MessageValueSpec msgVal = new MessageValueSpec();
 		msgVal.setValue(" ");
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-				RtuMessageConstant.CONNECT_MODE, true);
+		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.CONNECT_MODE, true);
 		tagSpec.add(msgVal);
 		tagSpec.add(msgAttrSpec);
 		msgSpec.add(tagSpec);
 		return msgSpec;
 	}
 
-	private MessageSpec addNoValueMsg(String keyId, String tagName,
-			boolean advanced) {
+	private MessageSpec addNoValueMsg(String keyId, String tagName, boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 		msgSpec.add(tagSpec);
 		return msgSpec;
 	}
 
-	private MessageSpec addEncryptionkeys(String keyId, String tagName,
-			boolean advanced) {
+	private MessageSpec addEncryptionkeys(String keyId, String tagName, boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 		MessageValueSpec msgVal = new MessageValueSpec();
 		msgVal.setValue(" ");
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-				RtuMessageConstant.MBUS_OPEN_KEY, false);
+		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.MBUS_OPEN_KEY, false);
 		tagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(
-				RtuMessageConstant.MBUS_TRANSFER_KEY, false);
+		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.MBUS_TRANSFER_KEY, false);
 		tagSpec.add(msgAttrSpec);
 		tagSpec.add(msgVal);
 		msgSpec.add(tagSpec);
@@ -1733,8 +1596,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 		// Not implemented for this protocol.
 	}
 
-	private void importMessage(String message, DefaultHandler handler)
-			throws BusinessException {
+	private void importMessage(String message, DefaultHandler handler) throws BusinessException {
 		try {
 
 			byte[] bai = message.getBytes();
@@ -1780,8 +1642,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 			return dateTimeArray;
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
-			throw new IOException("Could not parse " + strDate
-					+ " to a long value");
+			throw new IOException("Could not parse " + strDate + " to a long value");
 		}
 	}
 
@@ -1790,14 +1651,12 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 			byte[] b = new byte[string.length() / 2];
 			int offset = 0;
 			for (int i = 0; i < b.length; i++) {
-				b[i] = (byte) Integer.parseInt(string.substring(offset,
-						offset += 2), 16);
+				b[i] = (byte) Integer.parseInt(string.substring(offset, offset += 2), 16);
 			}
 			return b;
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
-			throw new IOException("String " + string
-					+ " can not be formatted to byteArray");
+			throw new IOException("String " + string + " can not be formatted to byteArray");
 		}
 	}
 
@@ -1808,45 +1667,26 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 		try {
 			importMessage(messageEntry.getContent(), messageHandler);
 
-			boolean connect = messageHandler.getType().equals(
-					RtuMessageConstant.CONNECT_LOAD);
-			boolean disconnect = messageHandler.getType().equals(
-					RtuMessageConstant.DISCONNECT_LOAD);
-			boolean connectMode = messageHandler.getType().equals(
-					RtuMessageConstant.CONNECT_CONTROL_MODE);
-			boolean decommission = messageHandler.getType().equals(
-					RtuMessageConstant.MBUS_DECOMMISSION);
-			boolean mbusEncryption = messageHandler.getType().equals(
-					RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
+			boolean connect = messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
+			boolean disconnect = messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
+			boolean connectMode = messageHandler.getType().equals(RtuMessageConstant.CONNECT_CONTROL_MODE);
+			boolean decommission = messageHandler.getType().equals(RtuMessageConstant.MBUS_DECOMMISSION);
+			boolean mbusEncryption = messageHandler.getType().equals(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
 
 			if (connect) {
 
-				getLogger().log(Level.INFO,
-						"Handling MbusMessage " + messageEntry + ": Connect");
+				getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Connect");
 
 				if (!messageHandler.getConnectDate().equals("")) { // use the
 					// disconnectControlScheduler
 
-					Array executionTimeArray = convertUnixToDateTimeArray(messageHandler
-							.getConnectDate());
-					SingleActionSchedule sasConnect = getCosemObjectFactory()
-							.getSingleActionSchedule(
-									getMeterConfig()
-											.getMbusDisconnectControlSchedule(
-													getPhysicalAddress())
-											.getObisCode());
+					Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
+					SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getMBusPhysicalAddress()).getObisCode());
 
-					ScriptTable disconnectorScriptTable = getCosemObjectFactory()
-							.getScriptTable(
-									getMeterConfig()
-											.getMbusDisconnectorScriptTable(
-													getPhysicalAddress())
-											.getObisCode());
-					byte[] scriptLogicalName = disconnectorScriptTable
-							.getObjectReference().getLn();
+					ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getMBusPhysicalAddress()).getObisCode());
+					byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
 					Structure scriptStruct = new Structure();
-					scriptStruct
-							.addDataType(new OctetString(scriptLogicalName));
+					scriptStruct.addDataType(new OctetString(scriptLogicalName));
 					scriptStruct.addDataType(new Unsigned16(2)); // method '2'
 					// is the
 					// 'remote_connect'
@@ -1856,10 +1696,7 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 					sasConnect.writeExecutionTime(executionTimeArray);
 
 				} else { // immediate connect
-					Disconnector connector = getCosemObjectFactory()
-							.getDisconnector(
-									getMeterConfig().getMbusDisconnectControl(
-											getPhysicalAddress()).getObisCode());
+					Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMBusPhysicalAddress()).getObisCode());
 					connector.remoteReconnect();
 				}
 
@@ -1867,35 +1704,18 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 
 			} else if (disconnect) {
 
-				getLogger()
-						.log(
-								Level.INFO,
-								"Handling MbusMessage " + messageEntry
-										+ ": Disconnect");
+				getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Disconnect");
 
 				if (!messageHandler.getDisconnectDate().equals("")) { // use the
 					// disconnectControlScheduler
 
-					Array executionTimeArray = convertUnixToDateTimeArray(messageHandler
-							.getDisconnectDate());
-					SingleActionSchedule sasDisconnect = getCosemObjectFactory()
-							.getSingleActionSchedule(
-									getMeterConfig()
-											.getMbusDisconnectControlSchedule(
-													getPhysicalAddress())
-											.getObisCode());
+					Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
+					SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getMBusPhysicalAddress()).getObisCode());
 
-					ScriptTable disconnectorScriptTable = getCosemObjectFactory()
-							.getScriptTable(
-									getMeterConfig()
-											.getMbusDisconnectorScriptTable(
-													getPhysicalAddress())
-											.getObisCode());
-					byte[] scriptLogicalName = disconnectorScriptTable
-							.getObjectReference().getLn();
+					ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getMBusPhysicalAddress()).getObisCode());
+					byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
 					Structure scriptStruct = new Structure();
-					scriptStruct
-							.addDataType(new OctetString(scriptLogicalName));
+					scriptStruct.addDataType(new OctetString(scriptLogicalName));
 					scriptStruct.addDataType(new Unsigned16(1)); // method '1'
 					// is the
 					// 'remote_disconnect'
@@ -1905,20 +1725,14 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 					sasDisconnect.writeExecutionTime(executionTimeArray);
 
 				} else { // immediate disconnect
-					Disconnector connector = getCosemObjectFactory()
-							.getDisconnector(
-									getMeterConfig().getMbusDisconnectControl(
-											getPhysicalAddress()).getObisCode());
+					Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMBusPhysicalAddress()).getObisCode());
 					connector.remoteDisconnect();
 				}
 
 				success = true;
 			} else if (connectMode) {
 
-				getLogger().log(
-						Level.INFO,
-						"Handling message " + messageEntry
-								+ ": ConnectControl mode");
+				getLogger().log(Level.INFO, "Handling message " + messageEntry + ": ConnectControl mode");
 				String mode = messageHandler.getConnectControlMode();
 
 				if (mode != null) {
@@ -1926,96 +1740,84 @@ public class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler,
 						int modeInt = Integer.parseInt(mode);
 
 						if ((modeInt >= 0) && (modeInt <= 6)) {
-							Disconnector connectorMode = getCosemObjectFactory()
-									.getDisconnector(
-											getMeterConfig()
-													.getMbusDisconnectControl(
-															getPhysicalAddress())
-													.getObisCode());
-							connectorMode
-									.writeControlMode(new TypeEnum(modeInt));
+							Disconnector connectorMode = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMBusPhysicalAddress()).getObisCode());
+							connectorMode.writeControlMode(new TypeEnum(modeInt));
 
 						} else {
-							throw new IOException(
-									"Mode is not a valid entry for message "
-											+ messageEntry
-											+ ", value must be between 0 and 6");
+							throw new IOException("Mode is not a valid entry for message " + messageEntry + ", value must be between 0 and 6");
 						}
 
 					} catch (NumberFormatException e) {
 						e.printStackTrace();
-						throw new IOException(
-								"Mode is not a valid entry for message "
-										+ messageEntry);
+						throw new IOException("Mode is not a valid entry for message " + messageEntry);
 					}
 				} else {
 					// should never get to the else, can't leave message empty
-					throw new IOException("Message " + messageEntry
-							+ " can not be empty");
+					throw new IOException("Message " + messageEntry + " can not be empty");
 				}
 
 				success = true;
 			} else if (decommission) {
 
-				getLogger().log(
-						Level.INFO,
-						"Handling MbusMessage " + messageEntry
-								+ ": Decommission MBus device");
+				getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Decommission MBus device");
 
-				MBusClient mbusClient = getCosemObjectFactory().getMbusClient(
-						getMeterConfig().getMbusClient(getPhysicalAddress())
-								.getObisCode());
+				MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMBusPhysicalAddress()).getObisCode());
 				mbusClient.deinstallSlave();
 
 				success = true;
 			} else if (mbusEncryption) {
 
-				getLogger().log(
-						Level.INFO,
-						"Handling MbusMessage " + messageEntry
-								+ ": Set encryption keys");
+				getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Set encryption keys");
 
 				String openKey = messageHandler.getOpenKey();
 				String transferKey = messageHandler.getTransferKey();
 
-				MBusClient mbusClient = getCosemObjectFactory().getMbusClient(
-						getMeterConfig().getMbusClient(getPhysicalAddress())
-								.getObisCode());
+				MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMBusPhysicalAddress()).getObisCode());
 
 				if (openKey == null) {
 					mbusClient.setEncryptionKey("");
 				} else if (transferKey != null) {
 					mbusClient.setEncryptionKey(convertStringToByte(openKey));
-					mbusClient
-							.setTransportKey(convertStringToByte(transferKey));
+					mbusClient.setTransportKey(convertStringToByte(transferKey));
 				} else {
-					throw new IOException(
-							"Transfer key may not be empty when setting the encryption keys.");
+					throw new IOException("Transfer key may not be empty when setting the encryption keys.");
 				}
 
 				success = true;
 			} else { // unknown message
 				success = false;
 			}
-			
+
 			if (success) {
-				getLogger().log(Level.INFO,
-						"Message " + messageEntry + " has finished.");
+				getLogger().log(Level.INFO, "Message " + messageEntry + " has finished.");
 				return MessageResult.createSuccess(messageEntry);
 			} else {
-				getLogger().log(Level.INFO,
-						"Message " + messageEntry + " has failed.");
+				getLogger().log(Level.INFO, "Message " + messageEntry + " has failed.");
 				return MessageResult.createFailed(messageEntry);
 			}
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Caught an IO error while querying message [" + messageEntry.getTrackingId() + "], message was [" + e.getMessage() + "]", e);
-			
+
 			return MessageResult.createFailed(messageEntry);
 		} catch (BusinessException e) {
 			logger.log(Level.SEVERE, "Caught an business error while querying message [" + messageEntry.getTrackingId() + "], message was [" + e.getMessage() + "]", e);
-			
+
 			return MessageResult.createFailed(messageEntry);
 		}
 	}
-
-} // public class DLMSProtocolLN extends MeterProtocol
+	
+	/**
+	 * Fetches the device serial number from the device itself.
+	 * 
+	 * @return	The device serial number from the device itself.
+	 * 
+	 * @throws 	IOException		If an error occurs during the communication with the device.
+	 */
+	private final String getDeviceSerialNumber() throws IOException {
+		if (this.deviceSerialNumber == null) {
+			this.deviceSerialNumber = this.getCosemObjectFactory().getData(OBISCODE_R2_SERIAL_NUMBER).getString();
+		} 
+			
+		return this.deviceSerialNumber;
+	}
+}

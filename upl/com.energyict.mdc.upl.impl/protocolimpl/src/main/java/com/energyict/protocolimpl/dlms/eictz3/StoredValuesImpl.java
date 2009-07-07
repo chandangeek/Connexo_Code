@@ -6,38 +6,34 @@
 
 package com.energyict.protocolimpl.dlms.eictz3;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import com.energyict.protocolimpl.dlms.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.HistoricalValue;
-import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.ProtocolLink;
+import com.energyict.obis.ObisCode;
 
 /**
  *
  * @author  Koen
  */
-public class StoredValuesImpl implements StoredValues {
-    final int DEBUG=0;
+final class StoredValuesImpl implements StoredValues {
     
     private static final int EOB_STATUS=0;
     private static final int TOTAL_ENERGY=1;
     private static final int ENERGY_RATES=2;
     private static final int MAXIMUM_DEMANDS=3;
     private static final int MD_RANGE=24; // 48 entries. ObisCode followed by struct, 24 times = 48 entries in the datacontainer
-    private static final int CUMULATIVE_DEMAND=51; // unised for the moment...
-    
     
     CosemObjectFactory cof;
     ProtocolLink protocolLink;
@@ -135,7 +131,6 @@ public class StoredValuesImpl implements StoredValues {
                 Date date = ds.getOctetString(2).toUTCDate();
                 BillingValue billingValue = new BillingValue(date,value,scalerUnit,maximumDemandObisCode);
                 billingValues.add(billingValue);
-                if (DEBUG>=1) System.out.println("KV_DEBUG> "+billingValue);
             }
         } // for(int id=0;id<entries;id++)
         return billingValues;
@@ -157,7 +152,6 @@ public class StoredValuesImpl implements StoredValues {
             }
             BillingValue billingValue = new BillingValue(date,value,scalerUnit,obisCode);
             billingValues.add(billingValue);
-            if (DEBUG>=1) System.out.println("KV_DEBUG> "+billingValue);
         } // for(int id=0;id<entries;id++)
         return billingValues;
     } // private List getTotalEnergy(int billingSetId)
@@ -173,7 +167,6 @@ public class StoredValuesImpl implements StoredValues {
         if (ds.getNrOfElements() > 3)
            date = ds.getOctetString(4).toUTCDate();
         BillingValue billingValue = new BillingValue(date,value,scalerUnit,obisCode);
-        if (DEBUG>=1) System.out.println("KV_DEBUG> "+billingValue);
         return billingValue;
     } // private List getBillingValue(int billingSetId)
     
@@ -183,16 +176,13 @@ public class StoredValuesImpl implements StoredValues {
         int billingReason = dc.getRoot().getStructure(billingSetId).getStructure(EOB_STATUS).getStructure(3).getInteger(1);
         Date billingDate = dc.getRoot().getStructure(billingSetId).getStructure(EOB_STATUS).getOctetString(4).toUTCDate();
         BillingSet billingSet = new BillingSet(billingDate,billingReason,daysSinceLastReset,nrOfResets);
-        if (DEBUG>=1) System.out.println("KV_DEBUG> "+billingSet);
         return billingSet;
     }
     
     private void processDataContainer(DataContainer dc) {
         billingSets.clear();
         int nrOfBillingSets = dc.getRoot().getNrOfElements();
-        if (DEBUG>=1) System.out.println("nrOfBillingSets : "+nrOfBillingSets);
-        for (int billingSetId=0;billingSetId<nrOfBillingSets;billingSetId++) {
-if (DEBUG>=1) System.out.println("************************************************************************************");            
+        for (int billingSetId=0;billingSetId<nrOfBillingSets;billingSetId++) {          
             BillingSet billingSet = getBillingSet(billingSetId,dc);
             billingSet.addBillingValues(getBillingValues(billingSetId,TOTAL_ENERGY,dc)); // total energy
             billingSet.addBillingValues(getBillingValues(billingSetId,ENERGY_RATES,dc)); // energy rates
