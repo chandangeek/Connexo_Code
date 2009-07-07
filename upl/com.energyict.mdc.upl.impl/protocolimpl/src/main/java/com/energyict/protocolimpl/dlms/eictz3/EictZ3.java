@@ -1469,7 +1469,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		return ObisCodeMapper.getRegisterInfo(obisCode);
 	}
 
-	public List<MessageCategorySpec> getMessageCategories() {
+	public final List<MessageCategorySpec> getMessageCategories() {
 		List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
 		MessageCategorySpec catDisconnect = new MessageCategorySpec("Disconnect Control");
 		MessageCategorySpec catMbusSetup = new MessageCategorySpec("Mbus setup");
@@ -1493,7 +1493,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		return categories;
 	}
 
-	private MessageSpec addConnectControl(String keyId, String tagName, boolean advanced) {
+	private final MessageSpec addConnectControl(String keyId, String tagName, boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 		MessageValueSpec msgVal = new MessageValueSpec();
@@ -1505,7 +1505,13 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		return msgSpec;
 	}
 
-	private MessageSpec addConnectControlMode(String keyId, String tagName, boolean advanced) {
+	/**
+	 * @param keyId
+	 * @param tagName
+	 * @param advanced
+	 * @return
+	 */
+	private final MessageSpec addConnectControlMode(String keyId, String tagName, boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 		MessageValueSpec msgVal = new MessageValueSpec();
@@ -1517,14 +1523,14 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		return msgSpec;
 	}
 
-	private MessageSpec addNoValueMsg(String keyId, String tagName, boolean advanced) {
+	private final MessageSpec addNoValueMsg(String keyId, String tagName, boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 		msgSpec.add(tagSpec);
 		return msgSpec;
 	}
 
-	private MessageSpec addEncryptionkeys(String keyId, String tagName, boolean advanced) {
+	private final MessageSpec addEncryptionkeys(String keyId, String tagName, boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 		MessageValueSpec msgVal = new MessageValueSpec();
@@ -1538,12 +1544,18 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		return msgSpec;
 	}
 
-	public String writeMessage(Message msg) {
+	/**
+	 * {@inheritDoc}
+	 */
+	public final String writeMessage(final Message msg) {
 		return msg.write(this);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@SuppressWarnings("unchecked")
-	public String writeTag(MessageTag msgTag) {
+	public final String writeTag(final MessageTag msgTag) {
 		final StringBuilder buf = new StringBuilder();
 
 		// a. Opening tag
@@ -1584,7 +1596,10 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		return buf.toString();
 	}
 
-	public String writeValue(MessageValue msgValue) {
+	/**
+	 * {@inheritDoc}
+	 */
+	public final String writeValue(final MessageValue msgValue) {
 		return msgValue.getValue();
 	}
 
@@ -1596,7 +1611,12 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		// Not implemented for this protocol.
 	}
 
-	private void importMessage(String message, DefaultHandler handler) throws BusinessException {
+	/**
+	 * @param message
+	 * @param handler
+	 * @throws BusinessException
+	 */
+	private final void importMessage(String message, DefaultHandler handler) throws BusinessException {
 		try {
 
 			byte[] bai = message.getBytes();

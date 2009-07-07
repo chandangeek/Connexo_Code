@@ -8,10 +8,10 @@ package com.energyict.protocolimpl.dlms.eictz3;
 public enum DLMSConnectionMode {
 
 	/** Connection over TCP/IP. */
-	TCPIP(0), 
+	TCPIP(1), 
 	
 	/** Connection over HDLC. */
-	HDLC(1);
+	HDLC(0);
 	
 	private final int propertyValue;
 	
