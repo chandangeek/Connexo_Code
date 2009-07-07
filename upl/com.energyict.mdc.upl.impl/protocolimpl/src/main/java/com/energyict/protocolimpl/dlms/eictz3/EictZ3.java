@@ -126,7 +126,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	private static final String PROPNAME_SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
 
 	/** The name of the property containing the server upper MAC address. */
-	private static final String PROPNAME_SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
+	private static final String PROPNAME_SERVER_UPPER_MAC_ADDRESS = "iServerUpperMacAddress";
 
 	/** The name of the property containing the client MAC address. */
 	private static final String PROPNAME_CLIENT_MAC_ADDRESS = "ClientMacAddress";
