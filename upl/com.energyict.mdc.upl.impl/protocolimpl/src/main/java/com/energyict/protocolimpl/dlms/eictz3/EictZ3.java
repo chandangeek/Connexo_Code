@@ -22,8 +22,10 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -59,7 +61,6 @@ import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
-import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.DisconnectControlLog;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.EventsLog;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.FraudDetectionLog;
@@ -101,7 +102,7 @@ import com.energyict.protocolimpl.dlms.HDLC2Connection;
 import com.energyict.protocolimpl.dlms.Z3.AARQ;
 
 /**
- * DLMS based {@link MeterProtocol} implementation for the Z3 and EpIO R2. There is also a generic protocol implementation {@link WebRTUKP}. 
+ * DLMS based {@link MeterProtocol} implementation for the Z3 and EpIO R2. There is also a generic protocol implementation {@link WebRTUKP}.
  */
 public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol {
 
@@ -153,7 +154,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	 * The name of the property containing the treshold in milliseconds we allow for a time request when determining the time shift. It defaults to 5 seconds (5000 ms).
 	 */
 	private static final String PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD = "ClockSetRoundtripCorrectionTreshold";
-	
+
 	/** Name of the property that contains the maximum number of MBus devices attached to the device. Default is 4. */
 	private static final String PROPNAME_MAXIMUM_NUMBER_OF_MBUS_DEVICES = "MaxMbusDevices";
 
@@ -173,40 +174,40 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 
 	/** The OBIS code pointing to the serial number of the R2/Z3 itself. */
 	private static final ObisCode OBISCODE_R2_SERIAL_NUMBER = ObisCode.fromString("0.0.96.1.0.255");
-	
+
 	/** Protocol status flag indicating load profile has been cleared. */
 	private static final int CLEAR_LOADPROFILE = 0x4000;
-	
+
 	/** Protocol status flag indicating logbook has been cleared. */
 	private static final int CLEAR_LOGBOOK = 0x2000;
-	
+
 	/** protocol status flag end of error. */
 	private static final int END_OF_ERROR = 0x0400;
-	
+
 	/** protocol status. */
 	private static final int BEGIN_OF_ERROR = 0x0200;
-	
+
 	/** protocol status. */
 	private static final int VARIABLE_SET = 0x0100;
-	
+
 	/** protocol status. */
 	private static final int POWER_FAILURE = 0x0080;
-	
+
 	/** protocol status. */
 	private static final int POWER_RECOVERY = 0x0040;
-	
+
 	/** protocol status. */
 	private static final int DEVICE_CLOCK_SET_INCORRECT = 0x0020;
-	
+
 	/** protocol status. */
 	private static final int DEVICE_RESET = 0x0010;
-	
+
 	/** protocol status. */
 	private static final int DISTURBED_MEASURE = 0x0004;
-	
+
 	/** protocol status. */
 	private static final int RUNNING_RESERVE_EXHAUSTED = 0x0002;
-	
+
 	/** protocol status. */
 	private static final int FATAL_DEVICE_ERROR = 0x0001;
 
@@ -224,7 +225,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 
 	/** The MBus serial numbers are cached when they are requested. */
 	private String[] mbusSerialNumbers;
-	
+
 	/** The device serial number. */
 	private String deviceSerialNumber;
 
@@ -304,7 +305,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 
 	/** The {@link DLMSConnectionMode} used. */
 	private DLMSConnectionMode connectionMode;
-	
+
 	/** The information field size. */
 	private int informationFieldSize;
 
@@ -326,7 +327,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 
 	/** The maximum number of MBus devices. */
 	private int maximumNumberOfMBusDevices;
-	
+
 	/** The firmware version. */
 	private String firmwareVersion;
 
@@ -341,7 +342,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	 * 
 	 * {@inheritDoc}
 	 */
-	public final void init(final InputStream inputStream, final OutputStream outputStream, final TimeZone timeZone,final  Logger logger) throws IOException {
+	public final void init(final InputStream inputStream, final OutputStream outputStream, final TimeZone timeZone, final Logger logger) throws IOException {
 		this.timeZone = timeZone;
 
 		if (logger != null) {
@@ -368,18 +369,19 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	/**
 	 * Returns the {@link CapturedObjectsHelper}.
 	 * 
-	 * @return	The {@link CapturedObjectsHelper}.
+	 * @return The {@link CapturedObjectsHelper}.
 	 * 
-	 * @throws 	IOException		If something goes wrong.
+	 * @throws IOException
+	 *             If something goes wrong.
 	 */
 	private final CapturedObjectsHelper getCapturedObjectsHelper() throws IOException {
 		if (this.capturedObjectsHelper == null) {
 			logger.info("Initializing the CapturedObjectsHelper using the generic profile...");
-			
+
 			final ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(this.loadProfileObisCode);
 			this.capturedObjectsHelper = profileGeneric.getCaptureObjectsHelper();
 		}
-		
+
 		return this.capturedObjectsHelper;
 	}
 
@@ -389,10 +391,10 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	public final int getNumberOfChannels() throws IOException {
 		if (this.numberOfChannels == -1) {
 			logger.info("Loading the number of channels...");
-			
+
 			this.numberOfChannels = this.getCapturedObjectsHelper().getNrOfchannels();
 		}
-		
+
 		return this.numberOfChannels;
 	}
 
@@ -402,11 +404,11 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	public final int getProfileInterval() throws IOException {
 		if (this.profileInterval == -1) {
 			logger.info("Requesting the profile interval from the meter...");
-			
+
 			final ProfileGeneric profileGeneric = this.getCosemObjectFactory().getProfileGeneric(this.loadProfileObisCode);
 			this.profileInterval = profileGeneric.getCapturePeriod();
 		}
-		
+
 		return this.profileInterval;
 	}
 
@@ -417,11 +419,11 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	 */
 	public final ProfileData getProfileData(final boolean includeEvents) throws IOException {
 		final Calendar fromCalendar = ProtocolUtils.getCleanCalendar(this.timeZone);
-		
+
 		fromCalendar.set(Calendar.YEAR, 2009);
 		fromCalendar.set(Calendar.MONTH, 0);
 		fromCalendar.set(Calendar.DATE, 1);
-	
+
 		return this.getProfileData(fromCalendar, ProtocolUtils.getCalendar(this.timeZone), includeEvents);
 	}
 
@@ -430,9 +432,9 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	 */
 	public final ProfileData getProfileData(final Date lastReading, final boolean includeEvents) throws IOException {
 		final Calendar fromCalendar = ProtocolUtils.getCleanCalendar(this.timeZone);
-		
+
 		fromCalendar.setTime(lastReading);
-		
+
 		return this.getProfileData(fromCalendar, ProtocolUtils.getCalendar(this.timeZone), includeEvents);
 	}
 
@@ -442,61 +444,64 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	public final ProfileData getProfileData(final Date fromDate, final Date toDate, final boolean includeEvents) throws IOException {
 		final Calendar from = ProtocolUtils.getCleanCalendar(this.timeZone);
 		from.setTime(fromDate);
-		
+
 		final Calendar to = ProtocolUtils.getCleanCalendar(this.timeZone);
 		to.setTime(toDate);
-		
+
 		return this.getProfileData(from, to, includeEvents);
 	}
 
 	/**
 	 * Gets the profile data starting from the date indicated by fromCalendar and ending at toCalendar.
 	 * 
-	 * @param 	from				The starting point.
-	 * @param 	to					The ending point (this is allowed to be null).
-	 * @param 	includeEvents		Indicates whether the logbook should be included or not.
+	 * @param from
+	 *            The starting point.
+	 * @param to
+	 *            The ending point (this is allowed to be null).
+	 * @param includeEvents
+	 *            Indicates whether the logbook should be included or not.
 	 * 
-	 * @return	The profile data for the given period.
+	 * @return The profile data for the given period.
 	 * 
-	 * @throws 	IOException			if an error occurs during the device communication.
+	 * @throws IOException
+	 *             if an error occurs during the device communication.
 	 */
 	private final ProfileData getProfileData(final Calendar from, final Calendar to, final boolean includeEvents) throws IOException {
 		logger.info("Loading profile data starting at [" + from + "], ending at [" + to + "], " + (includeEvents ? "" : "not") + " including events");
-		
+
 		final ProfileData profileData = new ProfileData();
-		
+
 		final DataContainer datacontainer = this.getCosemObjectFactory().getProfileGeneric(this.loadProfileObisCode).getBuffer(from, to);
-		
+
 		logger.info("Building channel information...");
-		
+
 		for (int i = 0; i < this.getNumberOfChannels(); i++) {
 			final ScalerUnit scalerUnit = this.getRegisterScalerUnit(i);
-			
+
 			logger.info("Scaler unit for channel [" + i + "] is [" + scalerUnit + "]");
-			
+
 			final ChannelInfo channelInfo = new ChannelInfo(i, "EICTZ3_CH_" + i, scalerUnit.getUnit());
-			
+
 			profileData.addChannel(channelInfo);
 		}
-		
+
 		logger.info("Building profile data...");
-		
+
 		final Object[] loadProfileEntries = datacontainer.getRoot().element;
-		
+
 		if (loadProfileEntries.length == 0) {
 			logger.log(Level.INFO, "There are no entries in the load profile, nothing to build...");
 		} else {
 			logger.log(Level.INFO, "Got [" + datacontainer.getRoot().element.length + "] entries in the load profile, building profile data...");
-			
+
 			for (int i = 0; i < loadProfileEntries.length; i++) {
 				final DataStructure intervalData = datacontainer.getRoot().getStructure(i);
-				final Calendar calendar = ProtocolUtils.initCalendar(false, timeZone);
-				
-				this.mapIntervalEndTimeToCalendar(calendar, intervalData.getStructure(i), (byte)0);
-				
+				Calendar calendar = ProtocolUtils.initCalendar(false, timeZone);
+				calendar = this.mapIntervalEndTimeToCalendar(calendar, intervalData, (byte) 0);
+
 				final int eiStatus = this.map2IntervalStateBits(intervalData.getInteger(1));
 				final int protocolStatus = intervalData.getInteger(1);
-				
+
 				final IntervalData data = new IntervalData(new Date(((Calendar) calendar.clone()).getTime().getTime()), eiStatus, protocolStatus);
 
 				for (int j = 0; j < getCapturedObjectsHelper().getNrOfCapturedObjects(); j++) {
@@ -504,53 +509,57 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 						data.addValue(new Integer(intervalData.getInteger(j)));
 					}
 				}
-				
+
 				profileData.addInterval(data);
 			}
 		}
-		
+
 		if (includeEvents) {
 			logger.info("Requested to include meter events, loading...");
-			
+
 			profileData.setMeterEvents(this.getMeterEvents(from, to));
 		}
-		
+
 		return profileData;
 	}
-	
+
 	/**
 	 * Loads the meter events from the meter and returns them.
 	 * 
-	 * @param 	from		The start date.
-	 * @param 	to			The end date.
+	 * @param from
+	 *            The start date.
+	 * @param to
+	 *            The end date.
 	 * 
-	 * @return	The meter events for the given period.
+	 * @return The meter events for the given period.
 	 * 
-	 * @throws 	IOException		If an IO error occurs during the communication.
+	 * @throws IOException
+	 *             If an IO error occurs during the communication.
 	 */
 	private final List<MeterEvent> getMeterEvents(final Calendar from, final Calendar to) throws IOException {
 		logger.info("Fetching meter events from [" + from + "] to [" + to + "]");
-		
+
 		final List<MeterEvent> events = new ArrayList<MeterEvent>();
-		
+
 		final DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(from, to);
 		final DataContainer dcControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getControlLogObject().getObisCode()).getBuffer(from, to);
 		final DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode()).getBuffer(from, to);
 		final DataContainer dcFraudDetection = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getFraudDetectionLogObject().getObisCode()).getBuffer(from, to);
-		final DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer(from, to);;
-		
-		final EventsLog standardEvents = new EventsLog(getTimeZone(), dcEvent); 
+		final DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer(from, to);
+		;
+
+		final EventsLog standardEvents = new EventsLog(getTimeZone(), dcEvent);
 		final FraudDetectionLog fraudDetectionEvents = new FraudDetectionLog(getTimeZone(), dcFraudDetection);
 		final DisconnectControlLog disconnectControl = new DisconnectControlLog(getTimeZone(), dcControlLog);
 		final MbusLog mbusLogs = new MbusLog(getTimeZone(), dcMbusEventLog);
 		final PowerFailureLog powerFailure = new PowerFailureLog(getTimeZone(), dcPowerFailure);
-		
+
 		events.addAll(standardEvents.getMeterEvents());
 		events.addAll(fraudDetectionEvents.getMeterEvents());
 		events.addAll(disconnectControl.getMeterEvents());
 		events.addAll(mbusLogs.getMeterEvents());
 		events.addAll(powerFailure.getMeterEvents());
-		
+
 		return events;
 	}
 
@@ -560,28 +569,28 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		if (intervalData.getOctetString(0).getArray()[0] != -1) {
 			calendar.set(Calendar.YEAR, (((int) intervalData.getOctetString(0).getArray()[0] & 0xff) << 8) | (((int) intervalData.getOctetString(0).getArray()[1] & 0xff)));
 		}
-		
+
 		if (intervalData.getOctetString(0).getArray()[2] != -1) {
 			calendar.set(Calendar.MONTH, ((int) intervalData.getOctetString(0).getArray()[2] & 0xff) - 1);
 		}
-		
+
 		if (intervalData.getOctetString(0).getArray()[3] != -1) {
 			calendar.set(Calendar.DAY_OF_MONTH, ((int) intervalData.getOctetString(0).getArray()[3] & 0xff));
 		}
-		
+
 		if (intervalData.getOctetString(0).getArray()[5] != -1) {
 			calendar.set(Calendar.HOUR_OF_DAY, ((int) intervalData.getOctetString(0).getArray()[5] & 0xff));
 		} else {
 			calendar.set(Calendar.HOUR_OF_DAY, 0);
 		}
-		
+
 		if (btype == 0) {
 			if (intervalData.getOctetString(0).getArray()[6] != -1) {
 				calendar.set(Calendar.MINUTE, (((int) intervalData.getOctetString(0).getArray()[6] & 0xff) / (getProfileInterval() / 60)) * (getProfileInterval() / 60));
 			} else {
 				calendar.set(Calendar.MINUTE, 0);
 			}
-			
+
 			calendar.set(Calendar.SECOND, 0);
 		} else {
 			if (intervalData.getOctetString(0).getArray()[6] != -1) {
@@ -589,7 +598,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 			} else {
 				calendar.set(Calendar.MINUTE, 0);
 			}
-			
+
 			if (intervalData.getOctetString(0).getArray()[7] != -1) {
 				calendar.set(Calendar.SECOND, ((int) intervalData.getOctetString(0).getArray()[7] & 0xff));
 			} else {
@@ -610,9 +619,10 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	/**
 	 * Maps the given protocol status to interval state bits (eistatus). (bitset).
 	 * 
-	 * @param 	protocolStatus		The protocol status to map.
+	 * @param protocolStatus
+	 *            The protocol status to map.
 	 * 
-	 * @return	The mapped eistatus.
+	 * @return The mapped eistatus.
 	 */
 	private final int map2IntervalStateBits(final int protocolStatus) {
 		int eiStatus = 0;
@@ -649,7 +659,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 			eiStatus |= IntervalStateBits.OTHER;
 		if ((protocolStatus & RUNNING_RESERVE_EXHAUSTED) != 0)
 			eiStatus |= IntervalStateBits.OTHER;
-		
+
 		return eiStatus;
 	}
 
@@ -670,21 +680,34 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	/**
 	 * Gets the scaler unit for the given channel.
 	 * 
-	 * @param 	channelId		The ID of the channel for which to fetch the scaler.
+	 * @param channelId
+	 *            The ID of the channel for which to fetch the scaler.
 	 * 
-	 * @return	The scaler.
+	 * @return The scaler.
 	 * 
-	 * @throws 	IOException		If an IO error occurs while communicating with the meter.
+	 * @throws IOException
+	 *             If an IO error occurs while communicating with the meter.
 	 */
-	private ScalerUnit getRegisterScalerUnit(int channelId) throws IOException {
+	private final ScalerUnit getRegisterScalerUnit(final int channelId) throws IOException {
+		ScalerUnit unit = null;
+		
 		if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSCOSEMGlobals.ICID_REGISTER) {
-			return getCosemObjectFactory().getRegister(getCapturedObjectsHelper().getProfileDataChannelObisCode(channelId)).getScalerUnit();
+			unit = this.getCosemObjectFactory().getRegister(getCapturedObjectsHelper().getProfileDataChannelObisCode(channelId)).getScalerUnit();
 		} else if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSCOSEMGlobals.ICID_DEMAND_REGISTER) {
-			return getCosemObjectFactory().getDemandRegister(getCapturedObjectsHelper().getProfileDataChannelObisCode(channelId)).getScalerUnit();
+			unit = this.getCosemObjectFactory().getDemandRegister(getCapturedObjectsHelper().getProfileDataChannelObisCode(channelId)).getScalerUnit();
 		} else if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSCOSEMGlobals.ICID_EXTENDED_REGISTER) {
-			return getCosemObjectFactory().getExtendedRegister(getCapturedObjectsHelper().getProfileDataChannelObisCode(channelId)).getScalerUnit();
-		} else
-			throw new IOException("EictZ3, getRegisterScalerUnit(), invalid channelId, " + channelId);
+			unit = this.getCosemObjectFactory().getExtendedRegister(getCapturedObjectsHelper().getProfileDataChannelObisCode(channelId)).getScalerUnit();
+		} else {
+			throw new IllegalArgumentException("EictZ3, getRegisterScalerUnit(), invalid channelId, " + channelId);
+		}
+		
+		if (unit.getUnitCode() == 0) {
+			logger.info("Channel [" + channelId + "] has a scaler unit with unit code [0], using a unitless scalerunit.");
+			
+			unit = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
+		}
+		
+		return unit;
 	}
 
 	/**
@@ -795,17 +818,18 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	/**
 	 * Checks if the device configuration has changed.
 	 * 
-	 * @return	True if the device configuration has changed.
+	 * @return True if the device configuration has changed.
 	 * 
-	 * @throws 	IOException		If an error occurs during the device communication.
+	 * @throws IOException
+	 *             If an error occurs during the device communication.
 	 */
 	private final int requestConfigurationProgramChanges() throws IOException {
 		if (this.numberOfConfigurationChanges == -1) {
 			logger.info("Asking meter if the configuration has changed since the last check...");
-			
+
 			this.numberOfConfigurationChanges = (int) getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode()).getValue();
 		}
-		
+
 		return this.numberOfConfigurationChanges;
 	}
 
@@ -814,17 +838,17 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	 */
 	public final void connect() throws IOException {
 		logger.info("Connecting to EpIO / Z3, connecting MAC...");
-		
+
 		try {
 			this.getDLMSConnection().connectMAC();
 		} catch (DLMSConnectionException e) {
 			logger.log(Level.SEVERE, "Cannot connect MAC over DLMS connection [mode : " + this.connectionMode + "] due to a DLMS connection error [" + e.getMessage() + "]", e);
-			
+
 			throw new IOException("DLMS connection error when connecting MAC, message was [" + e.getMessage() + "]", e);
 		}
-		
+
 		logger.info("Done, connected MAC, now associating...");
-		
+
 		// The AARQ constructor does the work, so it is in fact useful,
 		// although unused...
 		@SuppressWarnings("unused")
@@ -837,49 +861,49 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		}
 
 		logger.info("Done, associated. Checking if we need to update our cache...");
-		
+
 		boolean needToLoadObjectList = false;
-		
+
 		if (this.dlmsCache != null && this.dlmsCache.getObjectList() != null && this.dlmsCache.getObjectList().length > 0) {
 			logger.info("We have a DLMS cache for this device, checking if it is still valid.");
-			
+
 			// Set the object list in the meter config.
 			this.meterConfig.setInstantiatedObjectList(this.dlmsCache.getObjectList());
-			
+
 			final int deviceConfigurationChanges = this.requestConfigurationProgramChanges();
-			
+
 			logger.info("Device configuration changes : [" + deviceConfigurationChanges + "]");
-			
+
 			if (this.dlmsCache.getConfProgChange() == deviceConfigurationChanges) {
 				logger.info("It is still valid, using it...");
 			} else {
 				logger.info("It is not valid anymore, configuration changes from the device [" + deviceConfigurationChanges + "] does not match the one in the cache [" + this.dlmsCache.getConfProgChange() + "]");
-				
+
 				needToLoadObjectList = true;
 			}
 		} else {
 			logger.info("No cache for this device.");
 			needToLoadObjectList = true;
 		}
-		
+
 		if (needToLoadObjectList) {
 			logger.info("Requesting meter object list...");
-			
+
 			this.requestObjectList();
-		
+
 			logger.info("Updating cache...");
-			
+
 			this.dlmsCache.saveObjectList(this.meterConfig.getInstantiatedObjectList());
-			
+
 			final int deviceConfigurationChanges = this.requestConfigurationProgramChanges();
-			
+
 			logger.info("Device configuration changes : [" + deviceConfigurationChanges + "]");
-			
+
 			this.dlmsCache.setConfProgChange(deviceConfigurationChanges);
 		}
-		
+
 		logger.info("Verifying device serial number...");
-		
+
 		if (!this.verifyMeterSerialNumber()) {
 			throw new IllegalStateException("Serial number reported by meter [" + this.getDeviceSerialNumber() + "] does not match the one configured in EIServer [" + this.serialNumber + "], please correct.");
 		}
@@ -888,16 +912,38 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	/**
 	 * Verifies the EIServer serial number against the device serial number.
 	 * 
-	 * @throws	IOException		If an IO error occurs during the device communication.
+	 * @throws IOException
+	 *             If an IO error occurs during the device communication.
 	 */
 	private final boolean verifyMeterSerialNumber() throws IOException {
 		if (this.serialNumber == null || this.serialNumber.trim().equals("")) {
 			logger.info("There was no serial number configured in EIServer, assuming the configuration is valid...");
-			
+
 			return true;
 		}
-		
-		return this.getDeviceSerialNumber().toLowerCase().trim().equals(this.serialNumber.toLowerCase().trim());
+
+		boolean matches = this.getDeviceSerialNumber().toLowerCase().trim().equals(this.serialNumber.toLowerCase().trim());
+
+		if (!matches) {
+			logger.info("The serial number does not match the one of the EpIO itself, checking if it is an MBus device proxied by the EpIO...");
+
+			if (this.mbusSerialNumbers == null) {
+				logger.info("Requesting MBus serial numbers from the device...");
+
+				this.mbusSerialNumbers = this.requestMBusSerialNumbers();
+
+				logger.info("Received [" + this.mbusSerialNumbers.length + "] serial numbers for MBus devices proxied by the EpIO, validating...");
+
+				for (final String serialNumber : this.mbusSerialNumbers) {
+					if (serialNumber.toLowerCase().trim().equals(this.serialNumber)) {
+						matches = true;
+						break;
+					}
+				}
+			}
+		}
+
+		return matches;
 	}
 
 	/**
@@ -984,40 +1030,32 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	 */
 	private final String getMBusDeviceSerialNumberFromMeter(final int mbusDeviceIndex) throws IOException {
 		logger.info("Requesting serial number for MBus device, physical address [" + mbusDeviceIndex + "]");
-		
+
 		final UniversalObject serialNumberObject = this.meterConfig.getMbusSerialNumber(mbusDeviceIndex);
-		
+
 		final String serialNumber = this.cosemObjectFactory.getGenericRead(serialNumberObject).getString();
-		
+
 		logger.info("Device says serial number is [" + serialNumber + "]");
-		
+
 		return serialNumber;
 	}
 
-	/*
-	 * extendedLogging = 1 current set of logical addresses, extendedLogging = 2..17 historical set 1..16
+	/**
+	 * {@inheritDoc}
 	 */
-	protected String getRegistersInfo(@SuppressWarnings("unused") int extendedLogging) throws IOException {
-		StringBuffer strBuff = new StringBuffer();
-		strBuff.append("********************* All instantiated objects in the meter *********************\n");
-		for (int i = 0; i < getMeterConfig().getInstantiatedObjectList().length; i++) {
-			UniversalObject uo = getMeterConfig().getInstantiatedObjectList()[i];
-			strBuff.append(uo.toString() + " " + uo.getObisCode().getDescription() + "\n");
-		}
-		// strBuff.append(getSerialNumber()+"\n");
-		// strBuff.append(AXDRDecoder.decode(getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.1.1.255")).getData()).toString()+"\n");
-		// // utility equipment identifier
-		return strBuff.toString();
-	}
-
-	public void disconnect() throws IOException {
+	public final void disconnect() throws IOException {
 		try {
-			if (dlmsConnection != null)
+			if (this.dlmsConnection != null) {
 				getDLMSConnection().disconnectMAC();
+			} else {
+				logger.log(Level.WARNING, "Cannot disconnect because the DLMS connection is null !");
+			}
 		} catch (DLMSConnectionException e) {
-			logger.severe("DLMSLN: disconnect(), " + e.getMessage());
+			logger.log(Level.SEVERE, "DLMS connection error when disconnecting from device : [" + e.getMessage() + "]", e);
+			
+			throw new IOException("DLMS connection error when disconnecting from device : [" + e.getMessage() + "]", e);
 		}
-	} // public void disconnect() throws IOException
+	}
 
 	/**
 	 * This method requests for the COSEM object list in the remote meter. A list is byuild with LN and SN references. This method must be executed before other request methods.
@@ -1026,7 +1064,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	 */
 	private final void requestObjectList() throws IOException {
 		logger.info("Requesting object list from device and updating meter config...");
-		
+
 		this.meterConfig.setInstantiatedObjectList(getCosemObjectFactory().getAssociationLN().getBuffer());
 	}
 
@@ -1045,7 +1083,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	 * {@inheritDoc}
 	 */
 	public final String getProtocolVersion() {
-		return "$Revision$ $Date:$";
+		return "$Revision$ $Date$";
 	}
 
 	/**
@@ -1055,7 +1093,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		if (this.firmwareVersion == null) {
 			this.firmwareVersion = AXDRDecoder.decode(this.getCosemObjectFactory().getData(OBISCODE_ACTIVE_FIRMWARE).getData()).getOctetString().stringValue();
 		}
-		
+
 		return this.firmwareVersion;
 	}
 
@@ -1226,20 +1264,21 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	/**
 	 * Converts the given string.
 	 * 
-	 * @param 	s		The string.
+	 * @param s
+	 *            The string.
 	 * 
-	 * @return	
+	 * @return
 	 */
 	private final byte[] convert(final String s) {
 		if ((s.length() % 2) != 0) {
 			throw new IllegalArgumentException("String length is not a modulo 2 hex representation!");
 		} else {
 			final byte[] data = new byte[s.length() / 2];
-			
+
 			for (int i = 0; i < (s.length() / 2); i++) {
 				data[i] = (byte) Integer.parseInt(s.substring(i * 2, (i * 2) + 2), 16);
 			}
-			
+
 			return data;
 		}
 	}
@@ -1272,7 +1311,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	 * 
 	 * @return a list of strings
 	 */
-	public List<String> getOptionalKeys() {
+	public final List<String> getOptionalKeys() {
 		final List<String> optionalProperties = new ArrayList<String>();
 
 		optionalProperties.add("Timeout");
@@ -1430,7 +1469,8 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	 * {@inheritDoc}
 	 */
 	public final String getFileName() {
-		throw new UnsupportedOperationException("Getting a file name for a DLMS Z3 meter is not supported by this protocol at this time !");
+		Calendar calendar = Calendar.getInstance();
+		return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + this.deviceId + "_" + this.password + "_" + this.serialNumber + "_" + serverUpperMacAddress + "_DLMSEICTZ3.cache";
 	}
 
 	/**
@@ -1468,10 +1508,16 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		}
 	}
 
-	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
+	/**
+	 * {@inheritDoc}
+	 */
+	public final RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
 		return ObisCodeMapper.getRegisterInfo(obisCode);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public final List<MessageCategorySpec> getMessageCategories() {
 		List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
 		MessageCategorySpec catDisconnect = new MessageCategorySpec("Disconnect Control");
@@ -1496,6 +1542,12 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		return categories;
 	}
 
+	/**
+	 * @param keyId
+	 * @param tagName
+	 * @param advanced
+	 * @return
+	 */
 	private final MessageSpec addConnectControl(String keyId, String tagName, boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -1828,19 +1880,20 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 			return MessageResult.createFailed(messageEntry);
 		}
 	}
-	
+
 	/**
 	 * Fetches the device serial number from the device itself.
 	 * 
-	 * @return	The device serial number from the device itself.
+	 * @return The device serial number from the device itself.
 	 * 
-	 * @throws 	IOException		If an error occurs during the communication with the device.
+	 * @throws IOException
+	 *             If an error occurs during the communication with the device.
 	 */
 	private final String getDeviceSerialNumber() throws IOException {
 		if (this.deviceSerialNumber == null) {
 			this.deviceSerialNumber = this.getCosemObjectFactory().getData(OBISCODE_R2_SERIAL_NUMBER).getString();
-		} 
-			
+		}
+
 		return this.deviceSerialNumber;
 	}
 }
