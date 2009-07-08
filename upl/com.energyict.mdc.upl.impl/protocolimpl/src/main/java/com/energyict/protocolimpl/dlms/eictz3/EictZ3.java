@@ -59,6 +59,7 @@ import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.DisconnectControlLog;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.EventsLog;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.FraudDetectionLog;
@@ -96,15 +97,11 @@ import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.dlms.DLMSCache;
-import com.energyict.protocolimpl.dlms.DLMSSN;
 import com.energyict.protocolimpl.dlms.HDLC2Connection;
 import com.energyict.protocolimpl.dlms.Z3.AARQ;
 
 /**
  * DLMS based {@link MeterProtocol} implementation for the Z3 and EpIO R2. There is also a generic protocol implementation {@link WebRTUKP}. 
- * The latter is used in the CommServer. This protocol is mostly used in the RTU+Server (and is usually run over an RF dialer).
- * 
- * Originally loosely based on {@link DLMSSN}, but has been repeatedly refactored.
  */
 public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol {
 
@@ -841,14 +838,17 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 
 		logger.info("Done, associated. Checking if we need to update our cache...");
 		
-		final int deviceConfigurationChanges = this.requestConfigurationProgramChanges();
-		
-		logger.info("Device configuration changes : [" + deviceConfigurationChanges + "]");
-		
 		boolean needToLoadObjectList = false;
 		
 		if (this.dlmsCache != null && this.dlmsCache.getObjectList() != null && this.dlmsCache.getObjectList().length > 0) {
 			logger.info("We have a DLMS cache for this device, checking if it is still valid.");
+			
+			// Set the object list in the meter config.
+			this.meterConfig.setInstantiatedObjectList(this.dlmsCache.getObjectList());
+			
+			final int deviceConfigurationChanges = this.requestConfigurationProgramChanges();
+			
+			logger.info("Device configuration changes : [" + deviceConfigurationChanges + "]");
 			
 			if (this.dlmsCache.getConfProgChange() == deviceConfigurationChanges) {
 				logger.info("It is still valid, using it...");
@@ -870,11 +870,12 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 			logger.info("Updating cache...");
 			
 			this.dlmsCache.saveObjectList(this.meterConfig.getInstantiatedObjectList());
-			this.dlmsCache.setConfProgChange(deviceConfigurationChanges);
-		} else {
-			logger.info("Using instantiated object list from the cache...");
 			
-			this.meterConfig.setInstantiatedObjectList(dlmsCache.getObjectList());
+			final int deviceConfigurationChanges = this.requestConfigurationProgramChanges();
+			
+			logger.info("Device configuration changes : [" + deviceConfigurationChanges + "]");
+			
+			this.dlmsCache.setConfProgChange(deviceConfigurationChanges);
 		}
 		
 		logger.info("Verifying device serial number...");
@@ -1023,17 +1024,19 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	 * 
 	 * @exception IOException
 	 */
-	private void requestObjectList() throws IOException {
-		meterConfig.setInstantiatedObjectList(getCosemObjectFactory().getAssociationLN().getBuffer());
-	} // public void requestObjectList() throws IOException
+	private final void requestObjectList() throws IOException {
+		logger.info("Requesting object list from device and updating meter config...");
+		
+		this.meterConfig.setInstantiatedObjectList(getCosemObjectFactory().getAssociationLN().getBuffer());
+	}
 
-	public String requestAttribute(short sIC, byte[] LN, byte bAttr) throws IOException {
-		return doRequestAttribute(sIC, LN, bAttr).print2strDataContainer();
-	} // public String requestAttribute(short sIC,byte[] LN,byte bAttr ) throws
+	private final String requestAttribute(final short sIC, final byte[] LN, final byte bAttr) throws IOException {
+		return this.doRequestAttribute(sIC, LN, bAttr).print2strDataContainer();
+	}
 
 	// IOException
 
-	private DataContainer doRequestAttribute(int classId, byte[] ln, int lnAttr) throws IOException {
+	private final DataContainer doRequestAttribute(int classId, byte[] ln, int lnAttr) throws IOException {
 		DataContainer dc = getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(ln), DLMSUtils.attrLN2SN(lnAttr), classId).getDataContainer();
 		return dc;
 	}
