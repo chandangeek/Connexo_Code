@@ -51,6 +51,7 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.CapturedObjectsHelper;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.DemandRegister;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.ExtendedRegister;
@@ -60,6 +61,7 @@ import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.cosem.DataAccessResultException.DataAccessResultCode;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.DisconnectControlLog;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.EventsLog;
@@ -407,6 +409,8 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 
 			final ProfileGeneric profileGeneric = this.getCosemObjectFactory().getProfileGeneric(this.loadProfileObisCode);
 			this.profileInterval = profileGeneric.getCapturePeriod();
+			
+			logger.info("Profile interval is [" + this.profileInterval + "]");
 		}
 
 		return this.profileInterval;
@@ -495,7 +499,12 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 			logger.log(Level.INFO, "Got [" + datacontainer.getRoot().element.length + "] entries in the load profile, building profile data...");
 
 			for (int i = 0; i < loadProfileEntries.length; i++) {
+				logger.info("Processing interval [" + i + "]");
+				
 				final DataStructure intervalData = datacontainer.getRoot().getStructure(i);
+				
+				logger.info("Mapping interval end time...");
+				
 				Calendar calendar = ProtocolUtils.initCalendar(false, timeZone);
 				calendar = this.mapIntervalEndTimeToCalendar(calendar, intervalData, (byte) 0);
 
@@ -503,7 +512,9 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 				final int protocolStatus = intervalData.getInteger(1);
 
 				final IntervalData data = new IntervalData(new Date(((Calendar) calendar.clone()).getTime().getTime()), eiStatus, protocolStatus);
-
+				
+				logger.info("Adding channel data.");
+				
 				for (int j = 0; j < getCapturedObjectsHelper().getNrOfCapturedObjects(); j++) {
 					if (getCapturedObjectsHelper().isChannelData(j)) {
 						data.addValue(new Integer(intervalData.getInteger(j)));
@@ -546,7 +557,6 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		final DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode()).getBuffer(from, to);
 		final DataContainer dcFraudDetection = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getFraudDetectionLogObject().getObisCode()).getBuffer(from, to);
 		final DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer(from, to);
-		;
 
 		final EventsLog standardEvents = new EventsLog(getTimeZone(), dcEvent);
 		final FraudDetectionLog fraudDetectionEvents = new FraudDetectionLog(getTimeZone(), dcFraudDetection);
@@ -906,6 +916,8 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 
 		if (!this.verifyMeterSerialNumber()) {
 			throw new IllegalStateException("Serial number reported by meter [" + this.getDeviceSerialNumber() + "] does not match the one configured in EIServer [" + this.serialNumber + "], please correct.");
+		} else {
+			logger.info("Serial number is valid.");
 		}
 	}
 
@@ -1020,7 +1032,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	/**
 	 * Gets the serial number of the MBus device on the given index.
 	 * 
-	 * @param mbusDeviceIndex
+	 * @param mbusPhysicalAddress
 	 *            The index of the sought after MBus device.
 	 * 
 	 * @return The serial number of the device, <code>null</code> if there is no such device.
@@ -1028,16 +1040,26 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	 * @throws IOException
 	 *             If an IO error occurs during the query for the MBus serial number.
 	 */
-	private final String getMBusDeviceSerialNumberFromMeter(final int mbusDeviceIndex) throws IOException {
-		logger.info("Requesting serial number for MBus device, physical address [" + mbusDeviceIndex + "]");
+	private final String getMBusDeviceSerialNumberFromMeter(final int mbusPhysicalAddress) throws IOException {
+		logger.info("Requesting serial number for MBus device, physical address [" + mbusPhysicalAddress + "]");
 
-		final UniversalObject serialNumberObject = this.meterConfig.getMbusSerialNumber(mbusDeviceIndex);
+		final UniversalObject serialNumberObject = this.meterConfig.getMbusSerialNumber(mbusPhysicalAddress);
+		
+		try {
+			final String serialNumber = this.cosemObjectFactory.getGenericRead(serialNumberObject).getString();
 
-		final String serialNumber = this.cosemObjectFactory.getGenericRead(serialNumberObject).getString();
+			logger.info("Device says serial number is [" + serialNumber + "] for MBus device on physical address [" + mbusPhysicalAddress + "]");
 
-		logger.info("Device says serial number is [" + serialNumber + "]");
-
-		return serialNumber;
+			return serialNumber;
+		} catch (DataAccessResultException e) {
+			if (e.getCode() == DataAccessResultCode.OBJECT_UNDEFINED) {
+				logger.info("No MBus device on physical address [" + mbusPhysicalAddress + "]");
+				
+				return null;
+			} else {
+				throw e;
+			}
+		}
 	}
 
 	/**
