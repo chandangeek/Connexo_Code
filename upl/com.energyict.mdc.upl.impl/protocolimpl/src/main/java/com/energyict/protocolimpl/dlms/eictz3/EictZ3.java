@@ -1045,7 +1045,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	 * {@inheritDoc}
 	 */
 	public final String getProtocolVersion() {
-		return "$Date:$";
+		return "$Revision:$";
 	}
 
 	/**
