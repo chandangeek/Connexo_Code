@@ -16,17 +16,94 @@ import java.io.IOException;
  *
  * @author kvds
  */
-public class DataAccessResultException extends IOException {
+public final class DataAccessResultException extends IOException {
+	
+	/** Required for serializable classes. */
+	private static final long serialVersionUID = 1L;
+
+	/** Enumerates the most frequent data access result codes. */
+	public enum DataAccessResultCode {
+		SUCCESS(0, "Success"),
+		HARDWARE_FAULT(1, "Hardware fault"),
+		TEMPORARY_FAILURE(2, "Temporary failure"),
+		RW_DENIED(3, "R/W denied"),
+		OBJECT_UNDEFINED(4, "Object undefined"),
+		OBJECTCLASS_INCONSISTENT(9, "Object class inconsistent"),
+		OBJECT_UNAVAILABLE(11, "Object unavailable"),
+		TYPE_UNMATCHED(12, "Type unmatched"),
+		ACCESS_SCOPE_VIOLATION(13, "Scope of access violation"),
+		DATA_BLOCK_UNAVAILABLE(14, "Data block unavailable"),
+		OTHER(255, "Other reason");
+		
+		/** This is the integer result code returned by the device. */
+		private final int result;
+		
+		/** The description of the error. */
+		private final String description;
+		
+		/**
+		 * Create a new instance using the result and description.
+		 * 
+		 * @param 	result			The result.
+		 * @param 	rescription		The description.
+		 */
+		private DataAccessResultCode(final int result, final String description) {
+			this.result = result;
+			this.description = description;
+		}
+		
+		/**
+		 * Returns the result code as it was returned by the device.
+		 * 
+		 * @return	The result code as it was returned by the device.
+		 */
+		public final int getResultCode() {
+			return this.result;
+		}
+		
+		/**
+		 * Returns the description.
+		 * 
+		 * @return	The description.
+		 */
+		public final String getDescription() {
+			return this.description;
+		}
+		
+		/**
+		 * Returns the corresponding data access result code.
+		 * 
+		 * @param 	resultCode		The result code.
+		 * 
+		 * @return	The corresponding {@link DataAccessResultCode}.
+		 */
+		private static final DataAccessResultCode byResultCode(final int resultCode) {
+			for (final DataAccessResultCode code : values()) {
+				if (code.result == resultCode) {
+					return code;
+				}
+			}
+			
+			return null;
+		}
+	}
     
-    private int dataAccessResult;
-        
+	/** The code as it was returned by the device. This is always filled in. */
+    private final int dataAccessResult;
+    
+    /** This is a "parsed" version of the preceding field. */
+    private final DataAccessResultCode dataAccessResultCode;
+    
     /** Creates a new instance of DataAccessResultException */
     public DataAccessResultException(int dataAccessResult) {
         this(dataAccessResult,"Cosem Data-Access-Result exception "+evalDataAccessResult(dataAccessResult));
     }
+    
     public DataAccessResultException(int dataAccessResult, String message) {
         super(message);
-        this.setDataAccessResult(dataAccessResult);
+        
+        this.dataAccessResult = dataAccessResult;
+        this.dataAccessResultCode = DataAccessResultCode.byResultCode(dataAccessResult);
     }
     
     public String toString() {
@@ -62,9 +139,13 @@ public class DataAccessResultException extends IOException {
     public int getDataAccessResult() {
         return dataAccessResult;
     }
-
-    private void setDataAccessResult(int dataAccessResult) {
-        this.dataAccessResult = dataAccessResult;
+     
+    /**
+     * Returns the data access result code if there is one. 
+     * 
+     * @return	The data access result code if there is one.
+     */
+    public final DataAccessResultCode getCode() {
+    	return this.dataAccessResultCode;
     }
-            
 }
