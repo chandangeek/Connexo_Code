@@ -53,6 +53,13 @@ public class Structure extends AbstractDataType {
         
     }
     
+    public boolean hasMoreElements() {
+    	if (autoIndex == nrOfDataTypes())
+    		return false;
+    	else
+    		return true;
+    }
+    
     public AbstractDataType getNextDataType() {
         return (AbstractDataType)dataTypes.get(autoIndex++);    
     }

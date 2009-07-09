@@ -35,6 +35,7 @@ public class CosemAPDUParser {
 	private List<DeviceChannelName> deviceChannelNames=null;
 	private LookupResourcesCustomCosem lookupResourcesCustomCosem=null;
 	private TaskStatusCustomCosem taskStatusCustomCosem=null;
+	private RtuPlusServerInfoCustomCosem rtuPlusServerInfoCustomCosem=null;
 	private String ipAddress="";
 	
 	
@@ -56,6 +57,7 @@ public class CosemAPDUParser {
 		deviceChannelNames = null;
 		lookupResourcesCustomCosem = null;
 		taskStatusCustomCosem = null;
+		rtuPlusServerInfoCustomCosem=null;
 		
 		// local
 		previousEndTime=null;
@@ -199,6 +201,9 @@ public class CosemAPDUParser {
 			}
 			else if (apdu.getCosemAttributeDescriptor().getObis().equals(CommandCustomCosem.getObisCode())) {
 				commandCustomCosem = new CommandCustomCosem(apdu.getDataType());
+			}
+			else if (apdu.getCosemAttributeDescriptor().getObis().equals(RtuPlusServerInfoCustomCosem.getObisCode())) {
+				rtuPlusServerInfoCustomCosem = new RtuPlusServerInfoCustomCosem(apdu.getDataType());
 			}
 			else if (apdu.getCosemAttributeDescriptor().getObis().equals(Clock.getObisCode())) {
 				date = new DateTime(apdu.getDataType().getOctetString()).getValue().getTime();
@@ -571,6 +576,12 @@ public class CosemAPDUParser {
 
 	public List<LoadProfile> getLoadProfiles() {
 		return loadProfiles;
+	}
+
+	public RtuPlusServerInfoCustomCosem getRtuPlusServerInfoCustomCosem() {
+		if (rtuPlusServerInfoCustomCosem==null)
+			rtuPlusServerInfoCustomCosem = new RtuPlusServerInfoCustomCosem();
+		return rtuPlusServerInfoCustomCosem;
 	}
 
 }
