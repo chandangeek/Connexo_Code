@@ -27,6 +27,9 @@ import java.util.*;
  */
 public class SDKSampleProtocol extends AbstractProtocol implements MessageProtocol  {
     
+    private static String FIRMWAREPROGRAM 	= "UpgradeMeterFirmware";
+    private static String FIRMWAREPROGRAM_DISPLAY 	= "Upgrade Meter Firmware";
+	
     SDKSampleProtocolConnection connection;
     private int sDKSampleProperty;
     ObisCode loadProfileObisCode;
@@ -68,6 +71,10 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         cat.addMessageSpec(msgSpec);
         msgSpec = addBasicMsg("Limit current to 6A", "LIMITCURRENT6A", false);
         cat.addMessageSpec(msgSpec);
+        
+        msgSpec = addBasicMsg(FIRMWAREPROGRAM_DISPLAY, FIRMWAREPROGRAM, true);
+        cat.addMessageSpec(msgSpec);        
+        
         theCategories.add(cat);
         return theCategories;
     }    
@@ -192,10 +199,20 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         getLogger().info("--> request the register from the meter here");
         if (obisCode.getA() == 1) {
 	        if (obisCode.getD() == 8) {
-	            return new RegisterValue(obisCode,new Quantity(new BigDecimal(""+((System.currentTimeMillis()/1000)*obisCode.getB())),Unit.get("kWh")));
+		        if (obisCode.getE() > 0) {
+		        	return new RegisterValue(obisCode,new Quantity(new BigDecimal(""+(((System.currentTimeMillis()/1000)*2)*obisCode.getB())),Unit.get("kWh")));
+		        }
+		        else {
+		        	return new RegisterValue(obisCode,new Quantity(new BigDecimal(""+((System.currentTimeMillis()/1000)*obisCode.getB())),Unit.get("kWh")));
+		        }
 	        }
 	        else {  
-	        	return new RegisterValue(obisCode,new Quantity(new BigDecimal("12345678.8"),Unit.get("kWh")));
+	        	if (obisCode.getE() > 0) {
+	        		return new RegisterValue(obisCode,new Quantity(new BigDecimal("12345678.8").multiply(new BigDecimal("2")),Unit.get("kWh")));
+	        	}
+	        	else {
+	        		return new RegisterValue(obisCode,new Quantity(new BigDecimal("12345678.8"),Unit.get("kWh")));
+	        	}
 	        }
         }
         throw new NoSuchRegisterException("Register "+obisCode+" not supported!");
