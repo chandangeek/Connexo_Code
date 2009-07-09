@@ -357,12 +357,14 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 			if (this.connectionMode == DLMSConnectionMode.HDLC) {
 				logger.info("Using DLMS/HDLC, addressing mode of [" + addressingMode.getNumberOfBytes() + "] bytes.");
 
-				this.dlmsConnection = new HDLC2Connection(inputStream, outputStream, this.hdlcTimeout, this.forceDelay, protocolRetries, clientMacAddress, serverLowerMacAddress, serverUpperMacAddress, addressingMode.getNumberOfBytes(), informationFieldSize, 5);
+				this.dlmsConnection = new HDLC2Connection(inputStream, outputStream, this.hdlcTimeout, this.forceDelay, this. protocolRetries, this.clientMacAddress, this.serverLowerMacAddress,this.serverUpperMacAddress, this.addressingMode.getNumberOfBytes(), this.informationFieldSize, 5);
 			} else {
 				logger.info("Using DLMS/IP...");
 
-				this.dlmsConnection = new TCPIPConnection(inputStream, outputStream, hdlcTimeout, this.forceDelay, protocolRetries, clientMacAddress, serverLowerMacAddress);
+				this.dlmsConnection = new TCPIPConnection(inputStream, outputStream, this.hdlcTimeout, this.forceDelay, this.protocolRetries, this.clientMacAddress, this.serverLowerMacAddress);
 			}
+			
+			this.dlmsConnection.setIskraWrapper(1);
 		} catch (DLMSConnectionException e) {
 			// JDK 5 and predecessors apparently cannot init an IOException using String, Exception, so let's do this verbosely then...
 			final IOException ioException = new IOException("Got a DLMS connection error when initializing the connection, error message was [" + e.getMessage() + "]");
@@ -381,10 +383,12 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	 */
 	private final CapturedObjectsHelper getCapturedObjectsHelper() throws IOException {
 		if (this.capturedObjectsHelper == null) {
-			logger.info("Initializing the CapturedObjectsHelper using the generic profile...");
-
+			logger.info("Initializing the CapturedObjectsHelper using the generic profile, profile OBIS code is [" + this.loadProfileObisCode.toString() + "]");
+			
 			final ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(this.loadProfileObisCode);
 			this.capturedObjectsHelper = profileGeneric.getCaptureObjectsHelper();
+			
+			logger.info("Done, load profile [" + this.loadProfileObisCode + "] has [" + this.capturedObjectsHelper.getNrOfCapturedObjects() + "] captured objects...");
 		}
 
 		return this.capturedObjectsHelper;
@@ -395,9 +399,11 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	 */
 	public final int getNumberOfChannels() throws IOException {
 		if (this.numberOfChannels == -1) {
-			logger.info("Loading the number of channels...");
+			logger.info("Loading the number of channels, looping over the captured objects...");
 
 			this.numberOfChannels = this.getCapturedObjectsHelper().getNrOfchannels();
+			
+			logger.info("Got [" + this.numberOfChannels + "] channels in load profile (out of [" + this.capturedObjectsHelper.getNrOfCapturedObjects() + "] captured objects)");
 		}
 
 		return this.numberOfChannels;
