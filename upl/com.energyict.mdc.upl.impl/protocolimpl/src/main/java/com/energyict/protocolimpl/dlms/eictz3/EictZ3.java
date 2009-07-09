@@ -364,7 +364,10 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 				this.dlmsConnection = new TCPIPConnection(inputStream, outputStream, hdlcTimeout, this.forceDelay, protocolRetries, clientMacAddress, serverLowerMacAddress);
 			}
 		} catch (DLMSConnectionException e) {
-			throw new IOException("Got a DLMS connection error when initializing the connection, error message was [" + e.getMessage() + "]", e);
+			// JDK 5 and predecessors apparently cannot init an IOException using String, Exception, so let's do this verbosely then...
+			final IOException ioException = new IOException("Got a DLMS connection error when initializing the connection, error message was [" + e.getMessage() + "]");
+			ioException.initCause(e);
+			throw ioException;
 		}
 	}
 
@@ -853,8 +856,10 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 			this.getDLMSConnection().connectMAC();
 		} catch (DLMSConnectionException e) {
 			logger.log(Level.SEVERE, "Cannot connect MAC over DLMS connection [mode : " + this.connectionMode + "] due to a DLMS connection error [" + e.getMessage() + "]", e);
-
-			throw new IOException("DLMS connection error when connecting MAC, message was [" + e.getMessage() + "]", e);
+			// JDK 5 and predecessors apparently cannot init an IOException using String, Exception, so let's do this verbosely then...
+			final IOException ioException = new IOException("DLMS connection error when connecting MAC, message was [" + e.getMessage() + "]");
+			ioException.initCause(e);
+			throw ioException;
 		}
 
 		logger.info("Done, connected MAC, now associating...");
@@ -1074,8 +1079,11 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 			}
 		} catch (DLMSConnectionException e) {
 			logger.log(Level.SEVERE, "DLMS connection error when disconnecting from device : [" + e.getMessage() + "]", e);
-			
-			throw new IOException("DLMS connection error when disconnecting from device : [" + e.getMessage() + "]", e);
+				
+			// JDK 5 and predecessors apparently cannot init an IOException using String, Exception, so let's do this verbosely then...
+			final IOException ioException = new IOException("DLMS connection error when disconnecting from device : [" + e.getMessage() + "]");
+			ioException.initCause(e);
+			throw ioException;
 		}
 	}
 
