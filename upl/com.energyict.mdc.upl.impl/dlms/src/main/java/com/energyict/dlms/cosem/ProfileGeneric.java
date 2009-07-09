@@ -117,23 +117,23 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
      */
     public java.util.List getCaptureObjects() throws IOException {
         if (captureObjects == null) {
-            int classId;
-            LogicalName logicalName;
-            int attributeIndex;
-            int dataIndex;
             DataContainer dataContainer = new DataContainer();
             dataContainer.parseObjectList(getCapturedObjectsResponseData(),protocolLink.getLogger());
+            
             if (DEBUG >= 1) dataContainer.printDataContainer();
+            
             // translate dataContainer into list of captureobjects
-            captureObjects = new ArrayList();
+            this.captureObjects = new ArrayList();
+            
             for (int index=0;index<dataContainer.getRoot().getNrOfElements();index++) {
                 if (dataContainer.getRoot().isStructure(index)) {
                     DataStructure dataStructure = dataContainer.getRoot().getStructure(index);
-                    classId = dataStructure.getInteger(0);
-                    logicalName = new LogicalName(dataStructure.getOctetString(1));
-                    attributeIndex = dataStructure.getInteger(2);
-                    dataIndex = dataStructure.getInteger(3);
-                    captureObjects.add(new CapturedObject(classId,logicalName,attributeIndex,dataIndex));
+                    final int classId = dataStructure.getInteger(0);
+                    final LogicalName logicalName = new LogicalName(dataStructure.getOctetString(1));
+                    final int attributeIndex = dataStructure.getInteger(2);
+                    final int  dataIndex = dataStructure.getInteger(3);
+                    
+                    this.captureObjects.add(new CapturedObject(classId,logicalName,attributeIndex,dataIndex));
                 }
             }
         }

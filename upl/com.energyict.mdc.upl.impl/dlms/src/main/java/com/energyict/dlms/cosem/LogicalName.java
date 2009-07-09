@@ -26,7 +26,7 @@ public class LogicalName {
         StringBuffer strBuff = new StringBuffer();
         for (int i=0;i<octetString.getArray().length;i++) {
             if (i!=0) strBuff.append(".");
-            strBuff.append(Integer.toString(octetString.getArray()[i]));
+            strBuff.append(Integer.toString(octetString.getArray()[i] & 0xFF));
         }
         return strBuff.toString();
     }
@@ -42,22 +42,22 @@ public class LogicalName {
     }
     
     public int getA() {
-        return octetString.getArray()[0];
+        return octetString.getArray()[0] & 0xFF;
     }
     public int getB() {
-        return octetString.getArray()[1];
+        return octetString.getArray()[1] & 0xFF;
     }
     public int getC() {
-        return octetString.getArray()[2];
+        return octetString.getArray()[2] & 0xFF;
     }
     public int getD() {
-        return octetString.getArray()[3];
+        return octetString.getArray()[3] & 0xFF;
     }
     public int getE() {
-        return octetString.getArray()[4];
+        return octetString.getArray()[4] & 0xFF;
     }
     public int getF() {
-        return octetString.getArray()[5];
+        return octetString.getArray()[5] & 0xFF;
     }
     
     

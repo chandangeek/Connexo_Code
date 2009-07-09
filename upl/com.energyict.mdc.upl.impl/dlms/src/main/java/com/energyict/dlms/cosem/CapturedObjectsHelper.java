@@ -68,14 +68,18 @@ public class CapturedObjectsHelper implements DLMSCOSEMGlobals {
 	}
 
 	public boolean isChannelData(CapturedObject co) {
+		// Default decision logic...
+		// A is not equal to 0 (which is for abstract objects.
+		// B is between 1 and 64 (channels) or between 128 and 199 (manufacturer specific).
+		// The class should be REGISTER of DEMAND REGISTER.
+		//
+		// Blue book 5.3
 		if ((co.getLogicalName().getA() != 0)
-				&& // == LN_A_ELECTRICITY_RELATED_OBJECTS) &&
-				(co.getLogicalName().getB() >= 0)
-				&& // was 1 (KV 06032007)
-				(co.getLogicalName().getB() <= 64)
-				&& ((co.getClassId() == ICID_REGISTER) || (co.getClassId() == ICID_DEMAND_REGISTER))) {
+			&& ((co.getLogicalName().getB() >= 0 && co.getLogicalName().getB() <= 64) || (co.getLogicalName().getB() >= 128 && co.getLogicalName().getB() <= 199))
+			&& ((co.getClassId() == ICID_REGISTER) || (co.getClassId() == ICID_DEMAND_REGISTER))) {
 			return true;
 		}
+		
 		// Changed GN 29022008 to add the extended register for the Iskra MBus
 		// meter
 		else if (((co.getLogicalName().getA() == 0) || (co.getLogicalName()
@@ -99,14 +103,19 @@ public class CapturedObjectsHelper implements DLMSCOSEMGlobals {
 	}
 
 	public int getNrOfchannels() {
-
 		if (nrOfChannels == -1) {
 			nrOfChannels = 0;
 			Iterator<CapturedObject> it = capturedObjects.iterator();
+			
+			int i = 0;
+			
 			while (it.hasNext()) {
 				CapturedObject co = it.next();
-				if (isChannelData(co))
+				if (isChannelData(co)) {
 					nrOfChannels++;
+				}
+				
+				i++;
 			}
 		}
 		return nrOfChannels;
