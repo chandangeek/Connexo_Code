@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -48,6 +49,8 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.client.ParseUtils;
+import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CapturedObjectsHelper;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -484,7 +487,8 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 
 		final ProfileData profileData = new ProfileData();
 
-		final DataContainer datacontainer = this.getCosemObjectFactory().getProfileGeneric(this.loadProfileObisCode).getBuffer(from, to);
+		final ProfileGeneric profileGeneric = this.getCosemObjectFactory().getProfileGeneric(this.loadProfileObisCode);
+		final DataContainer datacontainer = profileGeneric.getBuffer(from, to);
 
 		logger.info("Building channel information...");
 
@@ -494,6 +498,14 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 			logger.info("Scaler unit for channel [" + i + "] is [" + scalerUnit + "]");
 
 			final ChannelInfo channelInfo = new ChannelInfo(i, "EICTZ3_CH_" + i, scalerUnit.getUnit());
+			
+			CapturedObject co = ((CapturedObject)profileGeneric.getCaptureObjects().get(i));
+			
+			if(ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())) {
+				logger.info("Indicating that channel [" + i + "] is cumulative...");
+				
+				channelInfo.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
+			}
 
 			profileData.addChannel(channelInfo);
 		}
