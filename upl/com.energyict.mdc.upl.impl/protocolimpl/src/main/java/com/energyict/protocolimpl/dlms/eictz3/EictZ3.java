@@ -482,6 +482,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	 * @throws IOException
 	 *             if an error occurs during the device communication.
 	 */
+	@SuppressWarnings("deprecation")
 	private final ProfileData getProfileData(final Calendar from, final Calendar to, final boolean includeEvents) throws IOException {
 		logger.info("Loading profile data starting at [" + from + "], ending at [" + to + "], " + (includeEvents ? "" : "not") + " including events");
 
@@ -499,9 +500,9 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 
 			final ChannelInfo channelInfo = new ChannelInfo(i, "EICTZ3_CH_" + i, scalerUnit.getUnit());
 			
-			CapturedObject co = ((CapturedObject)profileGeneric.getCaptureObjects().get(i));
+			CapturedObject channelCapturedObject = getCapturedObjectsHelper().getProfileDataChannelCapturedObject(i);
 			
-			if(ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())) {
+			if(ParseUtils.isObisCodeCumulative(channelCapturedObject.getLogicalName().getObisCode())) {
 				logger.info("Indicating that channel [" + i + "] is cumulative...");
 				
 				channelInfo.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
