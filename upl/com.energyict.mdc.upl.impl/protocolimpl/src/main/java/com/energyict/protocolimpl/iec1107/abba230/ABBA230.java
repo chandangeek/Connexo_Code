@@ -68,11 +68,11 @@ public class ABBA230 implements
     private static String FIRMWAREPROGRAM_DISPLAY 	= "Upgrade Meter Firmware";
 	private static String BILLINGRESET_DISPLAY 		= "Billing reset";
 	
-    final static long FORCE_DELAY = 300;
     
     /** Property keys specific for AS230 protocol. */
     final static String PK_TIMEOUT = "Timeout";
     final static String PK_RETRIES = "Retries";
+    final static String PK_FORCED_DELAY = "ForcedDelay";
     final static String PK_SECURITY_LEVEL = "SecurityLevel";
     final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
     final static String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
@@ -89,6 +89,7 @@ public class ABBA230 implements
     final static int PD_EXTENDED_LOGGING = 0;
     final static int PD_IEC1107_COMPATIBLE = 1;
     final static int PD_ECHO_CANCELING = 0;
+    final static int PD_FORCED_DELAY = 300;
 	
     
     /**
@@ -105,6 +106,7 @@ public class ABBA230 implements
     
     /* Max nr of consecutive protocol errors before end of communication */
     int pRetries = PD_RETRIES;
+    int forcedDelay = PD_FORCED_DELAY;
     /* Offset in ms to the get/set time */
     int pRoundTripCorrection = PD_ROUNDTRIP_CORRECTION;
     int pSecurityLevel = PD_SECURITY_LEVEL;
@@ -172,7 +174,6 @@ public class ABBA230 implements
             if (p.getProperty(PK_EXTENDED_LOGGING) != null)
                 pExtendedLogging = Integer.parseInt(p.getProperty(PK_EXTENDED_LOGGING));
             
-            
             pSecurityLevel = Integer.parseInt(p.getProperty("SecurityLevel","3").trim());
             if (pSecurityLevel != 0) {
                 if ("".equals(pPassword)) {
@@ -194,12 +195,16 @@ public class ABBA230 implements
 
             if (p.getProperty(PK_SCRIPTING_ENABLED) != null)
                 scriptingEnabled = Integer.parseInt(p.getProperty(PK_SCRIPTING_ENABLED,"0"));
+
+            // tricky... If scripting is enabled, we know it is an RF meter. So set the forced delay default to 0!
+            if (scriptingEnabled>0)
+            	forcedDelay=0;
             
+            if (p.getProperty("ForcedDelay") != null)
+                forcedDelay = new Integer(p.getProperty(PK_FORCED_DELAY) ).intValue();
             
             if (p.getProperty(PK_IEC1107_COMPATIBLE) != null)
                 pIEC1107Compatible = Integer.parseInt(p.getProperty(PK_IEC1107_COMPATIBLE));
-            
-            
             
             this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
             
@@ -245,6 +250,7 @@ public class ABBA230 implements
         result.add("EventMapperEnabled");
         result.add("Software7E1");
         result.add("ScriptingEnabled");
+        result.add("ForcedDelay");
         return result;
     }
     
@@ -277,8 +283,9 @@ public class ABBA230 implements
             flagConnection=
                     new FlagIEC1107Connection(
                     inputStream,outputStream,pTimeout,pRetries,
-                    FORCE_DELAY,pEchoCancelling,pIEC1107Compatible,
+                    forcedDelay,pEchoCancelling,pIEC1107Compatible,
                     new CAI700(),software7E1);
+            
         } catch(ConnectionException e) {
             logger.severe("Elster A230: init(...), " + e.getMessage());
         }
