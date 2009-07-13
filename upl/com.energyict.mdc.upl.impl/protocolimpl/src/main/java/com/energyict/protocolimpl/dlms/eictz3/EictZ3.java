@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -66,6 +67,7 @@ import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.cosem.DataAccessResultException.DataAccessResultCode;
 import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.DisconnectControlLog;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.EventsLog;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.FraudDetectionLog;
@@ -92,6 +94,8 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageAttributeSpec;
@@ -109,7 +113,7 @@ import com.energyict.protocolimpl.dlms.Z3.AARQ;
 /**
  * DLMS based {@link MeterProtocol} implementation for the Z3 and EpIO R2. There is also a generic protocol implementation {@link WebRTUKP}.
  */
-public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol {
+public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol, FirmwareUpdateMessaging {
 
 	/** The name of the property containing the information field size. */
 	private static final String PROPNAME_INFORMATION_FIELD_SIZE = "InformationFieldSize";
@@ -179,6 +183,12 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 
 	/** The OBIS code pointing to the serial number of the R2/Z3 itself. */
 	private static final ObisCode OBISCODE_R2_SERIAL_NUMBER = ObisCode.fromString("0.0.96.1.0.255");
+	
+	/** The load profile format for an MBus meter depending on the physical address. */
+	private static final MessageFormat MBUS_LOAD_PROFILE_FORMAT = new MessageFormat("0.{0}.24.3.0.255");
+	
+	/** This is the default Obis code for the Epio. */
+	private static final ObisCode OBIS_CODE_EPIO_LOAD_PROFILE = ObisCode.fromString("1.0.99.1.0.255");
 
 	/** Protocol status flag indicating load profile has been cleared. */
 	private static final int CLEAR_LOADPROFILE = 0x4000;
@@ -386,12 +396,12 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	 */
 	private final CapturedObjectsHelper getCapturedObjectsHelper() throws IOException {
 		if (this.capturedObjectsHelper == null) {
-			logger.info("Initializing the CapturedObjectsHelper using the generic profile, profile OBIS code is [" + this.loadProfileObisCode.toString() + "]");
+			logger.info("Initializing the CapturedObjectsHelper using the generic profile, profile OBIS code is [" + this.getLoadprofileObisCode().toString() + "]");
 			
-			final ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(this.loadProfileObisCode);
+			final ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(this.getLoadprofileObisCode());
 			this.capturedObjectsHelper = profileGeneric.getCaptureObjectsHelper();
 			
-			logger.info("Done, load profile [" + this.loadProfileObisCode + "] has [" + this.capturedObjectsHelper.getNrOfCapturedObjects() + "] captured objects...");
+			logger.info("Done, load profile [" + this.getLoadprofileObisCode() + "] has [" + this.capturedObjectsHelper.getNrOfCapturedObjects() + "] captured objects...");
 		}
 
 		return this.capturedObjectsHelper;
@@ -419,13 +429,43 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		if (this.profileInterval == -1) {
 			logger.info("Requesting the profile interval from the meter...");
 
-			final ProfileGeneric profileGeneric = this.getCosemObjectFactory().getProfileGeneric(this.loadProfileObisCode);
+			final ProfileGeneric profileGeneric = this.getCosemObjectFactory().getProfileGeneric(this.getLoadprofileObisCode());
 			this.profileInterval = profileGeneric.getCapturePeriod();
 			
 			logger.info("Profile interval is [" + this.profileInterval + "]");
 		}
 
 		return this.profileInterval;
+	}
+	
+	/**
+	 * Returns the load profile obis code.
+	 * 
+	 * @return	The load profile obis code.
+	 * 
+	 * @throws	IOException	If an IO error occurs during the load profile determination.
+	 */
+	private final ObisCode getLoadprofileObisCode() throws IOException {
+		if (this.loadProfileObisCode == null) {
+			logger.info("No specific obis code has been specified, trying to determine it...");
+			
+			final int mbusPhysicalAddress = this.getMBusPhysicalAddress();
+			
+			if (mbusPhysicalAddress == -1) {
+				logger.info("Determined MBus physical address : [" + mbusPhysicalAddress + "], determining obis code to use for the load profile...");
+				
+				final int obisCodeId = mbusPhysicalAddress + 1;
+				this.loadProfileObisCode = ObisCode.fromString(MBUS_LOAD_PROFILE_FORMAT.format(new Object[] { obisCodeId }));
+		
+				logger.info("Using Obis code [" + this.loadProfileObisCode + "] for load profile...");
+			} else {
+				logger.info("Not an MBus meter, using EpIO default load profile OBIS code [" + OBIS_CODE_EPIO_LOAD_PROFILE + "]");
+				
+				this.loadProfileObisCode = OBIS_CODE_EPIO_LOAD_PROFILE;
+			}
+		}
+		
+		return this.loadProfileObisCode;
 	}
 
 	/**
@@ -487,8 +527,8 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		logger.info("Loading profile data starting at [" + from + "], ending at [" + to + "], " + (includeEvents ? "" : "not") + " including events");
 
 		final ProfileData profileData = new ProfileData();
-
-		final ProfileGeneric profileGeneric = this.getCosemObjectFactory().getProfileGeneric(this.loadProfileObisCode);
+		
+		final ProfileGeneric profileGeneric = this.getCosemObjectFactory().getProfileGeneric(this.getLoadprofileObisCode());
 		final DataContainer datacontainer = profileGeneric.getBuffer(from, to);
 
 		logger.info("Building channel information...");
@@ -818,7 +858,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		newTime.add(Calendar.MILLISECOND, roundtripCorrection);
 		byte[] byteTimeBuffer = new byte[14];
 
-		byteTimeBuffer[0] = TYPEDESC_OCTET_STRING;
+		byteTimeBuffer[0] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
 		byteTimeBuffer[1] = 12; // length
 		byteTimeBuffer[2] = (byte) (newTime.get(Calendar.YEAR) >> 8);
 		byteTimeBuffer[3] = (byte) newTime.get(Calendar.YEAR);
@@ -1182,7 +1222,7 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		this.serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
 		this.addressingMode = ClientAddressingMode.getByPropertyValue(Integer.parseInt(properties.getProperty(PROPNAME_ADDRESSING_MODE, "-1")));
 		this.connectionMode = DLMSConnectionMode.getByPropertyValue(Integer.parseInt(properties.getProperty(PROPNAME_CONNECTION, "0")));
-		this.loadProfileObisCode = ObisCode.fromString(properties.getProperty(PROPNAME_LOAD_PROFILE_OBIS_CODE, "1.0.99.1.0.255"));
+		this.loadProfileObisCode = properties.containsKey(PROPNAME_LOAD_PROFILE_OBIS_CODE) ? ObisCode.fromString(properties.getProperty(PROPNAME_LOAD_PROFILE_OBIS_CODE)) : null;
 		this.informationFieldSize = Integer.parseInt(properties.getProperty(PROPNAME_INFORMATION_FIELD_SIZE, "-1"));
 		this.maximumNumberOfMBusDevices = Integer.parseInt(properties.getProperty(PROPNAME_MAXIMUM_NUMBER_OF_MBUS_DEVICES, "4"));
 
@@ -1563,24 +1603,28 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 	public final RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
 		return ObisCodeMapper.getRegisterInfo(obisCode);
 	}
-
 	/**
 	 * {@inheritDoc}
 	 */
 	public final List<MessageCategorySpec> getMessageCategories() {
 		List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
+		
+		// Firmware.
+		//categories.add(this.getFirmwareMessages());
+		
+		// Disconnect control.
 		MessageCategorySpec catDisconnect = new MessageCategorySpec("Disconnect Control");
-		MessageCategorySpec catMbusSetup = new MessageCategorySpec("Mbus setup");
-
-		// Disconnect control related messages
+		
 		MessageSpec msgSpec = addConnectControl("Disconnect", RtuMessageConstant.DISCONNECT_LOAD, false);
 		catDisconnect.addMessageSpec(msgSpec);
 		msgSpec = addConnectControl("Connect", RtuMessageConstant.CONNECT_LOAD, false);
 		catDisconnect.addMessageSpec(msgSpec);
 		msgSpec = addConnectControlMode("ConnectControl mode", RtuMessageConstant.CONNECT_CONTROL_MODE, false);
 		catDisconnect.addMessageSpec(msgSpec);
+		
+		// MBus messages.
+		MessageCategorySpec catMbusSetup = new MessageCategorySpec("Mbus setup");
 
-		// Mbus setup related messages
 		msgSpec = addNoValueMsg("Decommission", RtuMessageConstant.MBUS_DECOMMISSION, false);
 		catMbusSetup.addMessageSpec(msgSpec);
 		msgSpec = addEncryptionkeys("Set Encryption keys", RtuMessageConstant.MBUS_ENCRYPTION_KEYS, false);
@@ -1588,7 +1632,39 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 
 		categories.add(catDisconnect);
 		categories.add(catMbusSetup);
+		
+		final MessageCategorySpec firmwareMessages = new MessageCategorySpec("Firmware");
+		
 		return categories;
+	}
+	
+	/**
+	 * Returns the firmware messages category specification.
+	 * 
+	 * @return	The firmware messages category specification.
+	 */
+	private final MessageCategorySpec getFirmwareMessages() {
+		final MessageCategorySpec firmwareMessages = new MessageCategorySpec("Firmware");
+		
+		final MessageSpec upgradeMessage = new MessageSpec("Upgrade Firmware", false);
+		final MessageTagSpec tag = new MessageTagSpec(RtuMessageConstant.FIRMWARE_UPGRADE);
+		
+		final MessageValueSpec messageValue = new MessageValueSpec();
+		messageValue.setValue(" ");
+		
+		tag.add(messageValue);
+		
+		final MessageAttributeSpec userFileAttribute = new MessageAttributeSpec(RtuMessageConstant.FIRMWARE, true);
+		tag.add(userFileAttribute);
+
+		final MessageAttributeSpec activationDateAttribute = new MessageAttributeSpec(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE, false);
+		tag.add(activationDateAttribute);
+		
+		upgradeMessage.add(tag);
+		
+		firmwareMessages.addMessageSpec(upgradeMessage);
+		
+		return firmwareMessages;
 	}
 
 	/**
@@ -1784,8 +1860,8 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		}
 	}
 
+	
 	public MessageResult queryMessage(MessageEntry messageEntry) {
-
 		MessageHandler messageHandler = new MessageHandler();
 		boolean success = false;
 		try {
@@ -1944,5 +2020,72 @@ public final class EictZ3 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler
 		}
 
 		return this.deviceSerialNumber;
+	}
+	/*				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Firmware upgrade");
+				
+				String userFileID = messageHandler.getUserFileId();
+				if(DEBUG)System.out.println("UserFileID: " + userFileID);
+				
+				if(!ParseUtils.isInteger(userFileID)){
+					String str = "Not a valid entry for the current meter message (" + content + ").";
+            		throw new IOException(str);
+				} 
+				UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
+				if(!(uf instanceof UserFile )){
+					String str = "Not a valid entry for the userfileID " + userFileID;
+					throw new IOException(str);
+				}
+				
+				byte[] imageData = uf.loadFileInByteArray();
+//				P3ImageTransfer p3it = getCosemObjectFactory().getP3ImageTransfer();
+				ImageTransfer it = getCosemObjectFactory().getImageTransfer();
+//				p3it.upgrade(imageData);
+				it.upgrade(imageData);
+				if(DEBUG)System.out.println("UserFile is send to the device.");
+				if(messageHandler.getActivationDate().equalsIgnoreCase("")){ // Do an execute now
+					if(DEBUG)System.out.println("Start the activateNow.");
+//					p3it.activateAndRetryImage();
+					it.imageActivation();
+					if(DEBUG)System.out.println("ActivateNow complete.");
+				} else if(!messageHandler.getActivationDate().equalsIgnoreCase("")){
+					SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+					String strDate = messageHandler.getActivationDate();
+					Array dateArray = convertUnixToDateTimeArray(strDate);
+					if(DEBUG)System.out.println("Write the executionTime");
+					sas.writeExecutionTime(dateArray);
+					if(DEBUG)System.out.println("ExecutionTime sent...");
+				}
+				
+				success = true;*/
+	private final void handleFirmwareUpgrade() {
+		
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public final FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
+		return new FirmwareUpdateMessageBuilder();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public final boolean supportsUrls() {
+		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public final boolean supportsUserFilesForFirmwareUpdate() {
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public final boolean supportsUserFileReferences() {
+		return false;
 	}
 }
