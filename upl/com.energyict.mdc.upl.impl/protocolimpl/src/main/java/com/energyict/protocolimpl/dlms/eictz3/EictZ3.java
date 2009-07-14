@@ -24,6 +24,8 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import sun.misc.BASE64Decoder;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
@@ -59,6 +61,7 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.DemandRegister;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
@@ -74,6 +77,7 @@ import com.energyict.genericprotocolimpl.webrtukp.eventhandling.FraudDetectionLo
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.MbusLog;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.PowerFailureLog;
 import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageHandler;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.ChannelInfo;
@@ -451,7 +455,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			
 			final int mbusPhysicalAddress = this.getMBusPhysicalAddress();
 			
-			if (mbusPhysicalAddress == -1) {
+			if (mbusPhysicalAddress != -1) {
 				logger.info("Determined MBus physical address : [" + mbusPhysicalAddress + "], determining obis code to use for the load profile...");
 				
 				final int obisCodeId = mbusPhysicalAddress + 1;
@@ -463,6 +467,8 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 				
 				this.loadProfileObisCode = OBIS_CODE_EPIO_LOAD_PROFILE;
 			}
+		} else {
+			logger.info("Load profile OBIS code : [" + this.loadProfileObisCode + "]");
 		}
 		
 		return this.loadProfileObisCode;
@@ -522,7 +528,6 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	 * @throws IOException
 	 *             if an error occurs during the device communication.
 	 */
-	@SuppressWarnings("deprecation")
 	private final ProfileData getProfileData(final Calendar from, final Calendar to, final boolean includeEvents) throws IOException {
 		logger.info("Loading profile data starting at [" + from + "], ending at [" + to + "], " + (includeEvents ? "" : "not") + " including events");
 
@@ -1633,38 +1638,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		categories.add(catDisconnect);
 		categories.add(catMbusSetup);
 		
-		final MessageCategorySpec firmwareMessages = new MessageCategorySpec("Firmware");
-		
 		return categories;
-	}
-	
-	/**
-	 * Returns the firmware messages category specification.
-	 * 
-	 * @return	The firmware messages category specification.
-	 */
-	private final MessageCategorySpec getFirmwareMessages() {
-		final MessageCategorySpec firmwareMessages = new MessageCategorySpec("Firmware");
-		
-		final MessageSpec upgradeMessage = new MessageSpec("Upgrade Firmware", false);
-		final MessageTagSpec tag = new MessageTagSpec(RtuMessageConstant.FIRMWARE_UPGRADE);
-		
-		final MessageValueSpec messageValue = new MessageValueSpec();
-		messageValue.setValue(" ");
-		
-		tag.add(messageValue);
-		
-		final MessageAttributeSpec userFileAttribute = new MessageAttributeSpec(RtuMessageConstant.FIRMWARE, true);
-		tag.add(userFileAttribute);
-
-		final MessageAttributeSpec activationDateAttribute = new MessageAttributeSpec(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE, false);
-		tag.add(activationDateAttribute);
-		
-		upgradeMessage.add(tag);
-		
-		firmwareMessages.addMessageSpec(upgradeMessage);
-		
-		return firmwareMessages;
 	}
 
 	/**
@@ -1859,150 +1833,226 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			throw new IOException("String " + string + " can not be formatted to byteArray");
 		}
 	}
-
 	
-	public MessageResult queryMessage(MessageEntry messageEntry) {
-		MessageHandler messageHandler = new MessageHandler();
-		boolean success = false;
+	/**
+	 * Indicates whether the message concerns an EpIO upgrade message.
+	 * 
+	 * @param 		messageContents		The contents of the message.
+	 * 
+	 * @return		<code>true</code> if the message contents concern a firmware upgrade.
+	 */
+	private final boolean isEpIOFirmwareUpgrade(final String messageContents) {
+		return messageContents != null && messageContents.contains("<FirmwareUpdate>");
+	}
+
+	/**
+	 * Upgrades the remote device using the image specified.
+	 * 
+	 * @param 	image			The new image to push to the remote device.
+	 * 
+	 * @throws	IOException		If an IO error occurs during the upgrade.
+	 */
+	private final void upgradeDevice(final byte[] image) throws IOException {
+		logger.info("Upgrading EpIO with new firmware image of size [" + image.length + "] bytes");
+		
+		final ImageTransfer imageTransfer = this.getCosemObjectFactory().getImageTransfer();
+		
 		try {
-			importMessage(messageEntry.getContent(), messageHandler);
-
-			boolean connect = messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
-			boolean disconnect = messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
-			boolean connectMode = messageHandler.getType().equals(RtuMessageConstant.CONNECT_CONTROL_MODE);
-			boolean decommission = messageHandler.getType().equals(RtuMessageConstant.MBUS_DECOMMISSION);
-			boolean mbusEncryption = messageHandler.getType().equals(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
-
-			if (connect) {
-
-				getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Connect");
-
-				if (!messageHandler.getConnectDate().equals("")) { // use the
-					// disconnectControlScheduler
-
-					Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
-					SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getMBusPhysicalAddress()).getObisCode());
-
-					ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getMBusPhysicalAddress()).getObisCode());
-					byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
-					Structure scriptStruct = new Structure();
-					scriptStruct.addDataType(new OctetString(scriptLogicalName));
-					scriptStruct.addDataType(new Unsigned16(2)); // method '2'
-					// is the
-					// 'remote_connect'
-					// method
-
-					sasConnect.writeExecutedScript(scriptStruct);
-					sasConnect.writeExecutionTime(executionTimeArray);
-
-				} else { // immediate connect
-					Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMBusPhysicalAddress()).getObisCode());
-					connector.remoteReconnect();
-				}
-
-				success = true;
-
-			} else if (disconnect) {
-
-				getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Disconnect");
-
-				if (!messageHandler.getDisconnectDate().equals("")) { // use the
-					// disconnectControlScheduler
-
-					Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
-					SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getMBusPhysicalAddress()).getObisCode());
-
-					ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getMBusPhysicalAddress()).getObisCode());
-					byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
-					Structure scriptStruct = new Structure();
-					scriptStruct.addDataType(new OctetString(scriptLogicalName));
-					scriptStruct.addDataType(new Unsigned16(1)); // method '1'
-					// is the
-					// 'remote_disconnect'
-					// method
-
-					sasDisconnect.writeExecutedScript(scriptStruct);
-					sasDisconnect.writeExecutionTime(executionTimeArray);
-
-				} else { // immediate disconnect
-					Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMBusPhysicalAddress()).getObisCode());
-					connector.remoteDisconnect();
-				}
-
-				success = true;
-			} else if (connectMode) {
-
-				getLogger().log(Level.INFO, "Handling message " + messageEntry + ": ConnectControl mode");
-				String mode = messageHandler.getConnectControlMode();
-
-				if (mode != null) {
-					try {
-						int modeInt = Integer.parseInt(mode);
-
-						if ((modeInt >= 0) && (modeInt <= 6)) {
-							Disconnector connectorMode = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMBusPhysicalAddress()).getObisCode());
-							connectorMode.writeControlMode(new TypeEnum(modeInt));
-
-						} else {
-							throw new IOException("Mode is not a valid entry for message " + messageEntry + ", value must be between 0 and 6");
-						}
-
-					} catch (NumberFormatException e) {
-						e.printStackTrace();
-						throw new IOException("Mode is not a valid entry for message " + messageEntry);
-					}
-				} else {
-					// should never get to the else, can't leave message empty
-					throw new IOException("Message " + messageEntry + " can not be empty");
-				}
-
-				success = true;
-			} else if (decommission) {
-
-				getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Decommission MBus device");
-
-				MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMBusPhysicalAddress()).getObisCode());
-				mbusClient.deinstallSlave();
-
-				success = true;
-			} else if (mbusEncryption) {
-
-				getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Set encryption keys");
-
-				String openKey = messageHandler.getOpenKey();
-				String transferKey = messageHandler.getTransferKey();
-
-				MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMBusPhysicalAddress()).getObisCode());
-
-				if (openKey == null) {
-					mbusClient.setEncryptionKey("");
-				} else if (transferKey != null) {
-					mbusClient.setEncryptionKey(convertStringToByte(openKey));
-					mbusClient.setTransportKey(convertStringToByte(transferKey));
-				} else {
-					throw new IOException("Transfer key may not be empty when setting the encryption keys.");
-				}
-
-				success = true;
-			} else { // unknown message
-				success = false;
-			}
-
-			if (success) {
-				getLogger().log(Level.INFO, "Message " + messageEntry + " has finished.");
-				return MessageResult.createSuccess(messageEntry);
-			} else {
-				getLogger().log(Level.INFO, "Message " + messageEntry + " has failed.");
+			logger.info("Converting received image to binary using a Base64 decoder...");
+			
+			final BASE64Decoder decoder = new BASE64Decoder();
+			final byte[] binaryImage = decoder.decodeBuffer(new String(image));
+			
+			logger.info("Commencing upgrade...");
+			
+			imageTransfer.upgrade(binaryImage);
+			
+			logger.info("Upgrade has finished successfully...");
+		} catch (InterruptedException e) {
+			logger.log(Level.SEVERE, "Interrupted while uploading firmware image [" + e.getMessage() + "]", e);
+			
+			final IOException ioException = new IOException(e.getMessage());
+			ioException.initCause(e);
+			
+			throw ioException;
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public final MessageResult queryMessage(final MessageEntry messageEntry) throws IOException {
+		if (isEpIOFirmwareUpgrade(messageEntry.getContent())) {
+			logger.info("Received a firmware upgrade message, using firmware message builder...");
+			
+			final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder();
+			
+			try {
+				builder.initFromXml(messageEntry.getContent());
+			} catch (SAXException e) {
+				logger.log(Level.SEVERE, "Cannot process firmware upgrade message due to an XML parsing error [" + e.getMessage() + "]", e);
+				
+				// Set the message failed.
 				return MessageResult.createFailed(messageEntry);
 			}
-		} catch (IOException e) {
-			logger.log(Level.SEVERE, "Caught an IO error while querying message [" + messageEntry.getTrackingId() + "], message was [" + e.getMessage() + "]", e);
-
-			return MessageResult.createFailed(messageEntry);
-		} catch (BusinessException e) {
-			logger.log(Level.SEVERE, "Caught an business error while querying message [" + messageEntry.getTrackingId() + "], message was [" + e.getMessage() + "]", e);
-
-			return MessageResult.createFailed(messageEntry);
+			
+			// We requested an inlined file...
+			if (builder.getUserFile() != null) {
+				logger.info("Pulling out user file and dispatching to the device...");
+				
+				this.upgradeDevice(builder.getUserFile().loadFileInByteArray());
+			} else {
+				logger.log(Level.WARNING, "The message did not contain a user file to use for the upgrade, message fails...");
+				
+				return MessageResult.createFailed(messageEntry);
+			}
+			
+			logger.info("Upgrade message has been processed successfully, marking message as successfully processed...");
+			
+			return MessageResult.createSuccess(messageEntry);
+		} else {
+			MessageHandler messageHandler = new MessageHandler();
+			boolean success = false;
+			try {
+				importMessage(messageEntry.getContent(), messageHandler);
+	
+				boolean connect = messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
+				boolean disconnect = messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
+				boolean connectMode = messageHandler.getType().equals(RtuMessageConstant.CONNECT_CONTROL_MODE);
+				boolean decommission = messageHandler.getType().equals(RtuMessageConstant.MBUS_DECOMMISSION);
+				boolean mbusEncryption = messageHandler.getType().equals(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
+	
+				if (connect) {
+	
+					getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Connect");
+	
+					if (!messageHandler.getConnectDate().equals("")) { // use the
+						// disconnectControlScheduler
+	
+						Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
+						SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getMBusPhysicalAddress()).getObisCode());
+	
+						ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getMBusPhysicalAddress()).getObisCode());
+						byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
+						Structure scriptStruct = new Structure();
+						scriptStruct.addDataType(new OctetString(scriptLogicalName));
+						scriptStruct.addDataType(new Unsigned16(2)); // method '2'
+						// is the
+						// 'remote_connect'
+						// method
+	
+						sasConnect.writeExecutedScript(scriptStruct);
+						sasConnect.writeExecutionTime(executionTimeArray);
+	
+					} else { // immediate connect
+						Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMBusPhysicalAddress()).getObisCode());
+						connector.remoteReconnect();
+					}
+	
+					success = true;
+	
+				} else if (disconnect) {
+	
+					getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Disconnect");
+	
+					if (!messageHandler.getDisconnectDate().equals("")) { // use the
+						// disconnectControlScheduler
+	
+						Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
+						SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getMBusPhysicalAddress()).getObisCode());
+	
+						ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getMBusPhysicalAddress()).getObisCode());
+						byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
+						Structure scriptStruct = new Structure();
+						scriptStruct.addDataType(new OctetString(scriptLogicalName));
+						scriptStruct.addDataType(new Unsigned16(1)); // method '1'
+						// is the
+						// 'remote_disconnect'
+						// method
+	
+						sasDisconnect.writeExecutedScript(scriptStruct);
+						sasDisconnect.writeExecutionTime(executionTimeArray);
+	
+					} else { // immediate disconnect
+						Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMBusPhysicalAddress()).getObisCode());
+						connector.remoteDisconnect();
+					}
+	
+					success = true;
+				} else if (connectMode) {
+	
+					getLogger().log(Level.INFO, "Handling message " + messageEntry + ": ConnectControl mode");
+					String mode = messageHandler.getConnectControlMode();
+	
+					if (mode != null) {
+						try {
+							int modeInt = Integer.parseInt(mode);
+	
+							if ((modeInt >= 0) && (modeInt <= 6)) {
+								Disconnector connectorMode = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMBusPhysicalAddress()).getObisCode());
+								connectorMode.writeControlMode(new TypeEnum(modeInt));
+	
+							} else {
+								throw new IOException("Mode is not a valid entry for message " + messageEntry + ", value must be between 0 and 6");
+							}
+	
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+							throw new IOException("Mode is not a valid entry for message " + messageEntry);
+						}
+					} else {
+						// should never get to the else, can't leave message empty
+						throw new IOException("Message " + messageEntry + " can not be empty");
+					}
+	
+					success = true;
+				} else if (decommission) {
+	
+					getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Decommission MBus device");
+	
+					MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMBusPhysicalAddress()).getObisCode());
+					mbusClient.deinstallSlave();
+	
+					success = true;
+				} else if (mbusEncryption) {
+	
+					getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Set encryption keys");
+	
+					String openKey = messageHandler.getOpenKey();
+					String transferKey = messageHandler.getTransferKey();
+	
+					MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMBusPhysicalAddress()).getObisCode());
+	
+					if (openKey == null) {
+						mbusClient.setEncryptionKey("");
+					} else if (transferKey != null) {
+						mbusClient.setEncryptionKey(convertStringToByte(openKey));
+						mbusClient.setTransportKey(convertStringToByte(transferKey));
+					} else {
+						throw new IOException("Transfer key may not be empty when setting the encryption keys.");
+					}
+	
+					success = true;
+				} else { // unknown message
+					success = false;
+				}
+	
+				if (success) {
+					getLogger().log(Level.INFO, "Message " + messageEntry + " has finished.");
+					return MessageResult.createSuccess(messageEntry);
+				} else {
+					getLogger().log(Level.INFO, "Message " + messageEntry + " has failed.");
+					return MessageResult.createFailed(messageEntry);
+				}
+			} catch (IOException e) {
+				logger.log(Level.SEVERE, "Caught an IO error while querying message [" + messageEntry.getTrackingId() + "], message was [" + e.getMessage() + "]", e);
+	
+				return MessageResult.createFailed(messageEntry);
+			} catch (BusinessException e) {
+				logger.log(Level.SEVERE, "Caught an business error while querying message [" + messageEntry.getTrackingId() + "], message was [" + e.getMessage() + "]", e);
+	
+				return MessageResult.createFailed(messageEntry);
+			}
 		}
 	}
 
@@ -2021,45 +2071,6 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 		return this.deviceSerialNumber;
 	}
-	/*				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Firmware upgrade");
-				
-				String userFileID = messageHandler.getUserFileId();
-				if(DEBUG)System.out.println("UserFileID: " + userFileID);
-				
-				if(!ParseUtils.isInteger(userFileID)){
-					String str = "Not a valid entry for the current meter message (" + content + ").";
-            		throw new IOException(str);
-				} 
-				UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
-				if(!(uf instanceof UserFile )){
-					String str = "Not a valid entry for the userfileID " + userFileID;
-					throw new IOException(str);
-				}
-				
-				byte[] imageData = uf.loadFileInByteArray();
-//				P3ImageTransfer p3it = getCosemObjectFactory().getP3ImageTransfer();
-				ImageTransfer it = getCosemObjectFactory().getImageTransfer();
-//				p3it.upgrade(imageData);
-				it.upgrade(imageData);
-				if(DEBUG)System.out.println("UserFile is send to the device.");
-				if(messageHandler.getActivationDate().equalsIgnoreCase("")){ // Do an execute now
-					if(DEBUG)System.out.println("Start the activateNow.");
-//					p3it.activateAndRetryImage();
-					it.imageActivation();
-					if(DEBUG)System.out.println("ActivateNow complete.");
-				} else if(!messageHandler.getActivationDate().equalsIgnoreCase("")){
-					SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
-					String strDate = messageHandler.getActivationDate();
-					Array dateArray = convertUnixToDateTimeArray(strDate);
-					if(DEBUG)System.out.println("Write the executionTime");
-					sas.writeExecutionTime(dateArray);
-					if(DEBUG)System.out.println("ExecutionTime sent...");
-				}
-				
-				success = true;*/
-	private final void handleFirmwareUpgrade() {
-		
-	}
 
 	/**
 	 * {@inheritDoc}
@@ -2069,6 +2080,8 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	}
 
 	/**
+	 * We use {@link UserFile}s to do this.
+	 * 
 	 * {@inheritDoc}
 	 */
 	public final boolean supportsUrls() {
@@ -2076,6 +2089,8 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	}
 
 	/**
+	 * So this is true.
+	 * 
 	 * {@inheritDoc}
 	 */
 	public final boolean supportsUserFilesForFirmwareUpdate() {
@@ -2083,6 +2098,8 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	}
 
 	/**
+	 * And we don't have access to the database so we don't want references.
+	 * 
 	 * {@inheritDoc}
 	 */
 	public final boolean supportsUserFileReferences() {
