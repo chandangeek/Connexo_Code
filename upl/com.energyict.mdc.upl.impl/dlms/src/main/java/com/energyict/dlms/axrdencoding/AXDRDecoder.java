@@ -63,8 +63,8 @@ public class AXDRDecoder {
                 return new Unsigned32(data,offset);
             case DLMSCOSEMGlobals.TYPEDESC_LONG64:
                 return new Integer64(data, offset);
-                
-
+            case DLMSCOSEMGlobals.TYPEDESC_BOOLEAN:
+            	return new BooleanObject(data, offset);
                 
         } // switch(data[offset])
         throw new IOException("AXDRDecoder, unknown datatype "+data[offset]);
