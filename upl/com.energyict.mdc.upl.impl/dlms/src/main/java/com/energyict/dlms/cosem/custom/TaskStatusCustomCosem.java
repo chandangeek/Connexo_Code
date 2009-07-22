@@ -8,7 +8,6 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.*;
 import com.energyict.dlms.client.CompoundDataBuilderConnection;
 import com.energyict.dlms.cosem.*;
-import com.energyict.mdw.core.AmrJournalEntry;
 import com.energyict.obis.ObisCode;
 
 public class TaskStatusCustomCosem extends Data {
@@ -43,19 +42,20 @@ public class TaskStatusCustomCosem extends Data {
         return AbstractCosemObject.CLASSID_DATA;
     }
 
-    public void setFields(int status,List<AmrJournalEntry> amrJournalEntries) throws IOException {
+    public void setFields(int status,List<AmrJournalScheduleEntry> amrJournalScheduleEntries) throws IOException {
 		Structure structure = new Structure();
-		structure.addDataType(new Integer8(status));
+		structure.addDataType(new Integer8(status)); // 0
 		Array amrEntries = new Array();
-		for (int i=0;i<amrJournalEntries.size();i++) {
+		for (int i=0;i<amrJournalScheduleEntries.size();i++) {
 			Structure amrEntry = new Structure();
-			amrEntry.addDataType(AXDRDate.encode(amrJournalEntries.get(i).getDate()));
-			amrEntry.addDataType(new Integer8(amrJournalEntries.get(i).getCode()));
-			amrEntry.addDataType(AXDRString.encode(amrJournalEntries.get(i).getComPortName()));
-			amrEntry.addDataType(AXDRString.encode(amrJournalEntries.get(i).getInfo()));
+			amrEntry.addDataType(AXDRDate.encode(amrJournalScheduleEntries.get(i).getDate()));
+			amrEntry.addDataType(new Integer8(amrJournalScheduleEntries.get(i).getCode()));
+			amrEntry.addDataType(AXDRString.encode(amrJournalScheduleEntries.get(i).getComPortName()));
+			amrEntry.addDataType(AXDRString.encode(amrJournalScheduleEntries.get(i).getInfo()));
+			amrEntry.addDataType(new Integer32(amrJournalScheduleEntries.get(i).getScheduleId()));
 			amrEntries.addDataType(amrEntry);
 		}
-		structure.addDataType(amrEntries);
+		structure.addDataType(amrEntries); // 1
 		setValueAttr(structure);
     }
     
@@ -63,8 +63,8 @@ public class TaskStatusCustomCosem extends Data {
 		return getValueAttr().getStructure().getDataType(0).intValue();
     }
     
-    public List<AmrJournalEntry> getAmrJournalEntries() { // throws IOException {
-    	List<AmrJournalEntry> amrJournalEntries = new ArrayList<AmrJournalEntry>();
+    public List<AmrJournalScheduleEntry> getAmrJournalScheduleEntries() { // throws IOException {
+    	List<AmrJournalScheduleEntry> amrJournalEntries = new ArrayList<AmrJournalScheduleEntry>();
     	Array amrEntries = getValueAttr().getStructure().getDataType(1).getArray();
     	for (int i=0;i<amrEntries.nrOfDataTypes();i++) {
     		Structure amrEntry = amrEntries.getDataType(i).getStructure();
@@ -72,7 +72,8 @@ public class TaskStatusCustomCosem extends Data {
     		int code = amrEntry.getNextDataType().intValue();
     		String comPortName = AXDRString.decode(amrEntry.getNextDataType());
     		String info = AXDRString.decode(amrEntry.getNextDataType());
-    		amrJournalEntries.add(new AmrJournalEntry(date,comPortName,code,info));
+    		int scheduleId = amrEntry.nrOfDataTypes()>=5?amrEntry.getNextDataType().intValue():0;
+    		amrJournalEntries.add(new AmrJournalScheduleEntry(date,comPortName,code,info,scheduleId));
     	}
     	return amrJournalEntries;
     }

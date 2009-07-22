@@ -30,6 +30,7 @@ public class CosemAPDUParser {
 	private List<ObisCode> eventLogCapturedObjects = null;
 	private List<ObisCode> meterReadingsCapturedObjects = null;
 	private List<DeviceMessageCustomCosem> deviceMessageCustomCosems = null;
+	private List<DeviceScheduleCustomCosem> deviceScheduleCustomCosems = null;
 	private DeviceCustomCosem deviceCustomCosem = null;
 	private DeployDataCustomCosem deployDataCustomCosem=null;
 	private List<DeviceChannelName> deviceChannelNames=null;
@@ -187,6 +188,11 @@ public class CosemAPDUParser {
 					deviceMessageCustomCosems = new ArrayList();
 				deviceMessageCustomCosems.add(new DeviceMessageCustomCosem(apdu.getDataType()));
 			}
+			else if (apdu.getCosemAttributeDescriptor().getObis().equals(DeviceScheduleCustomCosem.getObisCode())) {
+				if (deviceScheduleCustomCosems==null)
+					deviceScheduleCustomCosems = new ArrayList();
+				deviceScheduleCustomCosems.add(new DeviceScheduleCustomCosem(apdu.getDataType()));
+			}
 			else if (apdu.getCosemAttributeDescriptor().getObis().equals(DeployDataCustomCosem.getObisCode())) {
 				deployDataCustomCosem = new DeployDataCustomCosem(apdu.getDataType());
 			}
@@ -251,6 +257,11 @@ public class CosemAPDUParser {
 					deviceMessageCustomCosems = new ArrayList();
 				buildMessages(apdu);
 			}
+			else if (apdu.getCosemAttributeDescriptor().getObis().equals(ObisCode.fromString("0.0.99.97.0.255"))) { // schedules
+				if (deviceScheduleCustomCosems==null)
+					deviceScheduleCustomCosems = new ArrayList();
+				buildSchedules(apdu);
+			}
 			else if (isChannelInfoObject(apdu.getCosemAttributeDescriptor().getObis())) {
 				if ((apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_DATA_VALUE) &&
 					(apdu.getCosemAttributeDescriptor().getClassId() == DLMSCOSEMGlobals.ICID_DATA)) {	
@@ -283,6 +294,19 @@ public class CosemAPDUParser {
 			}
 		}		
 	} // private void buildMessages(CosemAPDU apdu) throws IOException
+	
+
+	private void buildSchedules(CosemAPDU apdu) throws IOException {
+		if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_CAPTUREOBJECTS) {
+			// absorb
+		}
+		else if (apdu.getCosemAttributeDescriptor().getAttributeId() == DLMSCOSEMGlobals.ATTR_PROFILEGENERIC_BUFFER) {
+			Array buffer = apdu.getDataType().getArray();
+			for (int i=0;i<buffer.nrOfDataTypes();i++) {
+				deviceScheduleCustomCosems.add(new DeviceScheduleCustomCosem(buffer.getDataType(i)));
+			}
+		}		
+	} // private void buildSchedules(CosemAPDU apdu) throws IOException
 	
 	private void buildMeterReadingData(CosemAPDU apdu) throws IOException {
 		
@@ -541,6 +565,9 @@ public class CosemAPDUParser {
 
 	public List<DeviceMessageCustomCosem> getDeviceMessageCustomCosems() {
 		return deviceMessageCustomCosems;
+	}
+	public List<DeviceScheduleCustomCosem> getDeviceScheduleCustomCosems() {
+		return deviceScheduleCustomCosems;
 	}
 	public DeviceIdentification getDeviceIdentification() {
 		return deviceIdentification;

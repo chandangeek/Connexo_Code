@@ -13,8 +13,9 @@ public class AcknowledgeCustomCosem extends Data {
 	static public final int SUCCESS=0;
 	static public final int VERSION=1;
 	static public final int MESSAGES=2;
+	static public final int SCHEDULERS=3;
 	
-	static public final String[] positiveAcks = new String[]{"SUCCESS","VERSION","MESSAGES"};
+	static public final String[] positiveAcks = new String[]{"SUCCESS","VERSION","MESSAGES","SCHEDULERS"};
 	
 	// ERROR CODES
 	static public final int FAILURE=100;
@@ -67,6 +68,10 @@ public class AcknowledgeCustomCosem extends Data {
 	
 	public boolean isMessages() throws IOException {
 		return getCode()==MESSAGES;
+	}
+	
+	public boolean isSchedulers() throws IOException {
+		return getCode()==SCHEDULERS;
 	}
 	
 	public boolean isVersion() throws IOException {
