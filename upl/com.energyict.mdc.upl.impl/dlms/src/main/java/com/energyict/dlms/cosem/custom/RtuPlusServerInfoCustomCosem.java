@@ -1,19 +1,34 @@
 package com.energyict.dlms.cosem.custom;
 
 import java.io.IOException;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.client.CompoundDataBuilderConnection;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.AbstractCosemObject;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.obis.ObisCode;
 
 public class RtuPlusServerInfoCustomCosem extends Data {
-
-	AbstractDataType dataType=null;
-	String softwareVersion=null;
-	String coreVersion=null;
+	
+	private AbstractDataType dataType=null;
+	private String softwareVersion=null;
+	private String coreVersion=null;
+	
+	/** Indicates whether the RTU+Server has an RF interface. */
+	private Boolean eictRF;
+	
+	/** Indicates whether the RTU+Server has a Wavenis interface. */
+	private Boolean wavenis;
+	
+	/** Indicates whether the RTU+Server has a PLC interface. */
+	private Boolean plc;
 	
 	private final String DEFAULT_SOFTWARE_VERSION="1.3.1";
 	private final String DEFAULT_CORE_VERSION="8.3.5";
@@ -52,15 +67,31 @@ public class RtuPlusServerInfoCustomCosem extends Data {
         return AbstractCosemObject.CLASSID_DATA;
     }
 
-    public void setFields(String softwareVersion, String coreVersion) throws IOException {
+    /**
+     * Set the fields of the Cosem.
+     * 
+     * @param 	softwareVersion			The RTU+Server version.
+     * @param 	coreVersion				The MDW version.
+     * @param 	wavenisInterface		<code>true</code> if the RTU+Server has a Wavenis interface, <code>false</code> if not.
+     * @param 	eictRFInterface			<code>true</code> if the RTU+Server has an EICT RF interface, <code>false</code> if not.
+     * @param 	plcInterface			<code>true</code> if the RTU+Server has a PLC interface, <code>false</code> if not.
+     * 
+     * @throws 	IOException
+     */
+    public void setFields(String softwareVersion, String coreVersion, final boolean wavenisInterface, final boolean eictRFInterface, final boolean plcInterface) throws IOException {
 		Structure structure = new Structure();
 		structure.addDataType(OctetString.fromString(softwareVersion));
 		structure.addDataType(OctetString.fromString(coreVersion));
+		
+		// Add indicators of southbound communication types.
+		structure.addDataType(new BooleanObject(wavenisInterface));
+		structure.addDataType(new BooleanObject(eictRFInterface));
+		structure.addDataType(new BooleanObject(plcInterface));
+		
 		setValueAttr(structure);
 		this.softwareVersion = softwareVersion;
 		this.coreVersion = coreVersion;
     }
-    
     
     public String getSoftwareVersion() {
     	if (softwareVersion==null) {
@@ -113,6 +144,66 @@ public class RtuPlusServerInfoCustomCosem extends Data {
     
     public boolean isHigherThenVersion131() {
         return (getIntSoftwareVersion() > Integer.parseInt(DEFAULT_SOFTWARE_VERSION.replace(".","")));
+    }
+    
+    /**
+     * Indicates whether the given RTU+Server has a Wavenis interface.
+     * 
+     * @return	<code>true</code> if the RTU+Server has a wavenis interface, <code>false</code> if it doesn't.
+     */
+    public final boolean hasWavenisInterface() {
+    	if (this.wavenis != null) {
+    		return this.wavenis.booleanValue();
+    	} else {
+    		if (getValueAttr().getStructure().nrOfDataTypes() >= 3) {
+    			final BooleanObject dlmsBoolean = (BooleanObject)this.getValueAttr().getStructure().getDataType(2);
+    			this.wavenis = Boolean.valueOf(dlmsBoolean.getState());
+    			
+    			return this.wavenis.booleanValue();
+    		}
+    		
+    		return false;
+    	}
+    }
+    
+    /**
+     * Indicates whether the given RTU+Server has an EICT RF interface.
+     * 
+     * @return	<code>true</code> if it does, <code>false</code> if it doesn't.
+     */
+    public final boolean hasEictRFInterface() {
+    	if (this.eictRF != null) {
+    		return this.eictRF.booleanValue();
+    	} else {
+    		if (getValueAttr().getStructure().nrOfDataTypes() >= 3) {
+    			final BooleanObject dlmsBoolean = (BooleanObject)this.getValueAttr().getStructure().getDataType(3);
+    			this.eictRF = Boolean.valueOf(dlmsBoolean.getState());
+    			
+    			return this.eictRF.booleanValue();
+    		}
+    		
+    		return false;
+    	}
+    }
+    
+    /**
+     * Indicates whether the given RTU+Server has a PLC interface.
+     * 
+     * @return	<code>true</code> if it does, <code>false</code> if it doesn't.
+     */
+    public final boolean hasPLCInterface() {
+    	if (this.plc != null) {
+    		return this.plc.booleanValue();
+    	} else {
+    		if (getValueAttr().getStructure().nrOfDataTypes() >= 3) {
+    			final BooleanObject dlmsBoolean = (BooleanObject)this.getValueAttr().getStructure().getDataType(4);
+    			this.plc = Boolean.valueOf(dlmsBoolean.getState());
+    			
+    			return this.plc.booleanValue();
+    		}
+    		
+    		return false;
+    	}
     }
     
 //    static public void main(String[] args) {
