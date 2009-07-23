@@ -152,6 +152,10 @@ public class RtuPlusServerInfoCustomCosem extends Data {
      * @return	<code>true</code> if the RTU+Server has a wavenis interface, <code>false</code> if it doesn't.
      */
     public final boolean hasWavenisInterface() {
+    	
+    	if (getValueAttr()==null)
+    		return false;
+    	
     	if (this.wavenis != null) {
     		return this.wavenis.booleanValue();
     	} else {
@@ -172,6 +176,9 @@ public class RtuPlusServerInfoCustomCosem extends Data {
      * @return	<code>true</code> if it does, <code>false</code> if it doesn't.
      */
     public final boolean hasEictRFInterface() {
+    	if (getValueAttr()==null)
+    		return false;
+    	
     	if (this.eictRF != null) {
     		return this.eictRF.booleanValue();
     	} else {
@@ -192,6 +199,9 @@ public class RtuPlusServerInfoCustomCosem extends Data {
      * @return	<code>true</code> if it does, <code>false</code> if it doesn't.
      */
     public final boolean hasPLCInterface() {
+    	if (getValueAttr()==null)
+    		return false;
+    	
     	if (this.plc != null) {
     		return this.plc.booleanValue();
     	} else {
