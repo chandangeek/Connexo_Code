@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.common;
+package com.energyict.genericprotocolimpl.common.messages;
 
 
 public class RtuMessageConstant {

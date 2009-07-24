@@ -41,7 +41,8 @@ import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.P2LPCSoapPort_PortType;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.WebServiceLocator;
 import com.energyict.mdw.amr.GenericProtocol;
@@ -981,10 +982,10 @@ public class Concentrator implements Messaging, GenericProtocol {
         msgSpec = addBasicMsg("Set new tariff program", RtuMessageConstant.TOU_SCHEDULE, !ADVANCED);
         cat.addMessageSpec(msgSpec);
         
-        msgSpec = addThresholdMsg("Apply threshold", RtuMessageConstant.APPLY_THRESHOLD, !ADVANCED);
+        msgSpec = addThresholdMsg("Apply LoadLimiting", RtuMessageConstant.APPLY_THRESHOLD, !ADVANCED);
         cat.addMessageSpec(msgSpec);
         
-        msgSpec = addClearThresholdMsg("Clear threshold", RtuMessageConstant.CLEAR_THRESHOLD, !ADVANCED);
+        msgSpec = addClearThresholdMsg(RtuMessageKeyIdConstants.LOADLIMITCLEAR, RtuMessageConstant.CLEAR_THRESHOLD, !ADVANCED);
         cat.addMessageSpec(msgSpec);
         
         msgSpec = addPLCFreqChange("Change PLC Frequency", RtuMessageConstant.CHANGE_PLC_FREQUENCY, !ADVANCED);

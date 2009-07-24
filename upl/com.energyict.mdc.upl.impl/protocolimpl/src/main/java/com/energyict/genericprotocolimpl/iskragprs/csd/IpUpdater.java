@@ -96,7 +96,7 @@ public class IpUpdater {
 							ipAddress = rs.getString(IPADDRESS);
 						} else {
 							if(ipAddress != null){
-								if(ipAddress != rs.getString(IPADDRESS)){
+								if(!ipAddress.equalsIgnoreCase(rs.getString(IPADDRESS))){
 									throw new ConnectionException("Multiple records were found after CSD call, will not update ipaddress.");
 								}
 							}

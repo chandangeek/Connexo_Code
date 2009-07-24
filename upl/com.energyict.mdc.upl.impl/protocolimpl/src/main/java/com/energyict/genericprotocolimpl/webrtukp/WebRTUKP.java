@@ -47,9 +47,9 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
-import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageExecutor;
+import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MeterMessages;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.DailyMonthly;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.ElectricityProfile;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.EventProfile;
@@ -72,17 +72,6 @@ import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.HDLC2Connection;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
@@ -100,7 +89,7 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
  *         GNA |May 2009| Added Sms wakeup support GNA |03062009| Added registerGroup support GNA |05062009| Changed writeClock support, split meterEvents and meterProfile
  */
 
-public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEnabler, MeterToolProtocol {
+public class WebRTUKP extends MeterMessages implements GenericProtocol, ProtocolLink, HHUEnabler, MeterToolProtocol {
 
 	private boolean DEBUG = false;
 	private boolean connected = false;
@@ -183,7 +172,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		this.link = link;
 
 		validateProperties();
-
+		
 		try {
 
 			if (this.wakeup == 1) {
@@ -665,7 +654,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 				if (mbusDevices[i] != null) {
 					mbusDevices[i].setWebRtu(this);
 					mbusDevices[i].execute(scheduler, null, null);
-					getLogger().info("MbusDevice " + i + " has finished.");
+					getLogger().info("MbusDevice " + (i+1) + " has finished.");
 				}
 			} catch (BusinessException e) {
 
@@ -735,7 +724,7 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 		}
 	}
 
-	private boolean isInRegisterGroup(List groups, RtuRegister rr) {
+	public boolean isInRegisterGroup(List groups, RtuRegister rr) {
 		if (rr.getGroup() == null) {
 			if (groups.size() == 0) {
 				return true;
@@ -1618,427 +1607,6 @@ public class WebRTUKP implements GenericProtocol, ProtocolLink, Messaging, HHUEn
 //				System.out.println("Difference at: " + i + "; Comm: " + bComm[i] + "(" + comm.charAt(i * 2) + comm.charAt(i * 2 + 1) + ") - MVie: " + bmVie[i] + "(" + mvie.charAt(i * 2)
 //						+ mvie.charAt(i * 2 + 1) + ")");
 //		}
-	}
-
-	public List getMessageCategories() {
-		List categories = new ArrayList();
-		MessageCategorySpec catXMLConfig = new MessageCategorySpec("XMLConfig");
-		MessageCategorySpec catFirmware = new MessageCategorySpec("Firmware");
-		MessageCategorySpec catP1Messages = new MessageCategorySpec("Consumer messages to P1");
-		MessageCategorySpec catDisconnect = new MessageCategorySpec("Disconnect Control");
-		MessageCategorySpec catLoadLimit = new MessageCategorySpec("LoadLimit");
-		MessageCategorySpec catActivityCal = new MessageCategorySpec("ActivityCalendar");
-		MessageCategorySpec catTime = new MessageCategorySpec("Time");
-		MessageCategorySpec catMakeEntries = new MessageCategorySpec("Create database entries");
-		MessageCategorySpec catGPRSModemSetup = new MessageCategorySpec("Change GPRS modem setup");
-		MessageCategorySpec catTestMessage = new MessageCategorySpec("TestMessage");
-		MessageCategorySpec catGlobalDisc = new MessageCategorySpec("Global Reset");
-		MessageCategorySpec catWakeUp = new MessageCategorySpec("Wake up functionality");
-		MessageCategorySpec catAuthEncrypt = new MessageCategorySpec("Authentication and Encryption");
-		
-		// XMLConfig related messages
-		MessageSpec msgSpec = addDefaultValueMsg("XMLConfig", RtuMessageConstant.XMLCONFIG, false);
-		catXMLConfig.addMessageSpec(msgSpec);
-
-		// Firmware related messages
-		msgSpec = addFirmwareMsg("Upgrade Firmware", RtuMessageConstant.FIRMWARE_UPGRADE, false);
-		catFirmware.addMessageSpec(msgSpec);
-
-		// Consumer messages to P1 related messages
-		msgSpec = addP1Text("Consumer message Text to port P1", RtuMessageConstant.P1TEXTMESSAGE, false);
-		catP1Messages.addMessageSpec(msgSpec);
-		msgSpec = addP1Code("Consumer message Code to port P1", RtuMessageConstant.P1CODEMESSAGE, false);
-		catP1Messages.addMessageSpec(msgSpec);
-
-		// Disconnect control related messages
-		msgSpec = addConnectControl("Disconnect", RtuMessageConstant.DISCONNECT_LOAD, false);
-		catDisconnect.addMessageSpec(msgSpec);
-		msgSpec = addConnectControl("Connect", RtuMessageConstant.CONNECT_LOAD, false);
-		catDisconnect.addMessageSpec(msgSpec);
-		msgSpec = addConnectControlMode("ConnectControl mode", RtuMessageConstant.CONNECT_CONTROL_MODE, false);
-		catDisconnect.addMessageSpec(msgSpec);
-
-		// LoadLimit related messages
-		msgSpec = addConfigureLL("Configure Loadlimiting parameters", RtuMessageConstant.LOAD_LIMIT_CONFIGURE, false);
-		catLoadLimit.addMessageSpec(msgSpec);
-		msgSpec = addNoValueMsg("Clear the Loadlimit configuration", RtuMessageConstant.LOAD_LIMIT_DISABLE, false);
-		catLoadLimit.addMessageSpec(msgSpec);
-		msgSpec = addGroupIdsLL("Set emergency profile group id's", RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST, false);
-		catLoadLimit.addMessageSpec(msgSpec);
-
-		// Activity Calendar related messages
-		msgSpec = addTimeOfUse("Select the Activity Calendar", RtuMessageConstant.TOU_ACTIVITY_CAL, false);
-		catActivityCal.addMessageSpec(msgSpec);
-		msgSpec = addSpecialDays("Select the Special days Calendar", RtuMessageConstant.TOU_SPECIAL_DAYS, false);
-		catActivityCal.addMessageSpec(msgSpec);
-		// Delete special days was only used for testing purposes
-		// msgSpec = addSpecialDaysDelete("Delete Special Day entry", RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE, false);
-		// catActivityCal.addMessageSpec(msgSpec);
-
-		// Time related messages
-		msgSpec = addTimeMessage("Set the meterTime to a specific time", RtuMessageConstant.SET_TIME, true);
-		catTime.addMessageSpec(msgSpec);
-
-		// Create database entries
-		msgSpec = addCreateDBEntries("Create entries in the meters database", RtuMessageConstant.ME_MAKING_ENTRIES, true);
-		catMakeEntries.addMessageSpec(msgSpec);
-
-		// Change GPRS modem setup
-		msgSpec = addChangeGPRSSetup("Change GPRS modem setup parameters", RtuMessageConstant.GPRS_MODEM_SETUP, false);
-		catGPRSModemSetup.addMessageSpec(msgSpec);
-
-		// TestMessage
-		msgSpec = addTestMessage("Test Message", RtuMessageConstant.TEST_MESSAGE, true);
-		catTestMessage.addMessageSpec(msgSpec);
-
-		// Global reset
-		msgSpec = addNoValueMsg("Global Meter Reset", RtuMessageConstant.GLOBAL_METER_RESET, false);
-		catGlobalDisc.addMessageSpec(msgSpec);
-
-		// WakeUp functionality
-		msgSpec = addPhoneListMsg("Set phonenumbers to whitelist", RtuMessageConstant.WAKEUP_ADD_WHITELIST, false);
-		catWakeUp.addMessageSpec(msgSpec);
-		
-		// Authentication and Encryption functionality
-		//TODO does these have to be advanced messages?
-		msgSpec = addChangeHLSKeyMsg("Change the HLS secret", RtuMessageConstant.AEE_CHANGE_HLS_SECRET, false);
-		catAuthEncrypt.addMessageSpec(msgSpec);
-		msgSpec = addChangeGlobalKey("Change global key", RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY, false);
-		catAuthEncrypt.addMessageSpec(msgSpec);
-		
-		categories.add(catXMLConfig);
-		categories.add(catFirmware);
-		categories.add(catP1Messages);
-		categories.add(catDisconnect);
-		categories.add(catLoadLimit);
-		categories.add(catActivityCal);
-		categories.add(catTime);
-		categories.add(catMakeEntries);
-		categories.add(catGPRSModemSetup);
-		categories.add(catTestMessage);
-		categories.add(catGlobalDisc);
-		categories.add(catWakeUp);
-		
-		// TODO comment this before commiting
-		categories.add(catAuthEncrypt);
-		return categories;
-	}
-	
-	private MessageSpec addChangeHLSKeyMsg(String keyId, String tagName, boolean advanced){
-    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        tagSpec.add(msgVal);
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.AEE_HLS_SECRET, true);
-        tagSpec.add(msgAttrSpec);
-        msgSpec.add(tagSpec);
-        return msgSpec;
-	}
-	
-	private MessageSpec addChangeGlobalKey(String keyId, String tagName, boolean advanced){
-    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        tagSpec.add(msgVal);
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.AEE_GLOBAL_KEY, true);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.AEE_GLOBAL_KEY_TYPE, true);
-        tagSpec.add(msgAttrSpec);
-        msgSpec.add(tagSpec);
-        return msgSpec;
-	}
-	
-	private MessageSpec addSpecialDays(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		tagSpec.add(msgVal);
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.TOU_SPECIAL_DAYS_CODE_TABLE, false);
-		tagSpec.add(msgAttrSpec);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
-
-	private MessageSpec addSpecialDaysDelete(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		tagSpec.add(msgVal);
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE_ENTRY, true);
-		tagSpec.add(msgAttrSpec);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
-
-	private MessageSpec addNoValueMsg(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
-
-	private MessageSpec addGroupIdsLL(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_EP_GRID_LOOKUP_ID, true);
-		tagSpec.add(msgVal);
-		tagSpec.add(msgAttrSpec);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
-
-	private MessageSpec addConfigureLL(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_NORMAL_THRESHOLD, false);
-		tagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_THRESHOLD, false);
-		tagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_MIN_OVER_THRESHOLD_DURATION, false);
-		tagSpec.add(msgAttrSpec);
-		MessageTagSpec profileTagSpec = new MessageTagSpec("Emergency_Profile");
-		profileTagSpec.add(msgVal);
-		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_EP_PROFILE_ID, false);
-		profileTagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_EP_ACTIVATION_TIME, false);
-		profileTagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.LOAD_LIMIT_EP_DURATION, false);
-		profileTagSpec.add(msgAttrSpec);
-		tagSpec.add(msgVal);
-		tagSpec.add(profileTagSpec);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
-
-	private MessageSpec addChangeGPRSSetup(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.GPRS_APN, false);
-		tagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.GPRS_USERNAME, false);
-		tagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.GPRS_PASSWORD, false);
-		tagSpec.add(msgAttrSpec);
-		tagSpec.add(msgVal);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
-
-	private MessageSpec addCreateDBEntries(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.ME_START_DATE, true);
-		tagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.ME_NUMBER_OF_ENTRIES, true);
-		tagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.ME_INTERVAL, true);
-		tagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.ME_SET_CLOCK_BACK, false);
-		tagSpec.add(msgAttrSpec);
-		tagSpec.add(msgVal);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
-
-	private MessageSpec addTimeMessage(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.SET_TIME_VALUE, true);
-		tagSpec.add(msgVal);
-		tagSpec.add(msgAttrSpec);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
-
-	private MessageSpec addPhoneListMsg(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR1, false);
-		tagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR2, false);
-		tagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR3, false);
-		tagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR4, false);
-		tagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.WAKEUP_NR5, false);
-		tagSpec.add(msgAttrSpec);
-		tagSpec.add(msgVal);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
-
-	private MessageSpec addTestMessage(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.TEST_FILE, true);
-		tagSpec.add(msgVal);
-		tagSpec.add(msgAttrSpec);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
-
-	private MessageSpec addConnectControl(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, false);
-		tagSpec.add(msgVal);
-		tagSpec.add(msgAttrSpec);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
-
-	private MessageSpec addConnectControlMode(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.CONNECT_MODE, true);
-		tagSpec.add(msgVal);
-		tagSpec.add(msgAttrSpec);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
-
-	private MessageSpec addP1Code(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		tagSpec.add(msgVal);
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.P1CODE, false);
-		tagSpec.add(msgAttrSpec);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
-
-	private MessageSpec addP1Text(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		tagSpec.add(msgVal);
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.P1TEXT, false);
-		tagSpec.add(msgAttrSpec);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
-
-	private MessageSpec addFirmwareMsg(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		tagSpec.add(msgVal);
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.FIRMWARE, true);
-		tagSpec.add(msgAttrSpec);
-
-		/*
-		 * The Act. Now value is deleted, we use the ActivationDate to check if we need activation now or not. This way it's the same as for example with the disconnector.
-		 */
-
-		// msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.FIRMWARE_ACTIVATE_NOW, false);
-		// tagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE, false);
-		tagSpec.add(msgAttrSpec);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
-
-	private MessageSpec addDefaultValueMsg(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		tagSpec.add(msgVal);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
-
-	private MessageSpec addTimeOfUse(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		tagSpec.add(msgVal);
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.TOU_ACTIVITY_NAME, false);
-		tagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.TOU_ACTIVITY_DATE, false);
-		tagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE, false);
-		tagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.TOU_ACTIVITY_USER_FILE, false);
-		tagSpec.add(msgAttrSpec);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
-
-	public String writeMessage(Message msg) {
-		return msg.write(this);
-	}
-
-	public String writeTag(MessageTag msgTag) {
-		StringBuffer buf = new StringBuffer();
-
-		// a. Opening tag
-		buf.append("<");
-		buf.append(msgTag.getName());
-
-		// b. Attributes
-		for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
-			MessageAttribute att = (MessageAttribute) it.next();
-			if (att.getValue() == null || att.getValue().length() == 0)
-				continue;
-			buf.append(" ").append(att.getSpec().getName());
-			buf.append("=").append('"').append(att.getValue()).append('"');
-		}
-		if (msgTag.getSubElements().isEmpty()) {
-			buf.append("/>");
-			return buf.toString();
-		}
-		buf.append(">");
-		// c. sub elements
-		for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
-			MessageElement elt = (MessageElement) it.next();
-			if (elt.isTag())
-				buf.append(writeTag((MessageTag) elt));
-			else if (elt.isValue()) {
-				String value = writeValue((MessageValue) elt);
-				if (value == null || value.length() == 0)
-					return "";
-				buf.append(value);
-			}
-		}
-
-		// d. Closing tag
-		buf.append("</");
-		buf.append(msgTag.getName());
-		buf.append(">");
-
-		return buf.toString();
-	}
-
-	public String writeValue(MessageValue msgValue) {
-		return msgValue.getValue();
 	}
 
 	public boolean isReadDaily() {

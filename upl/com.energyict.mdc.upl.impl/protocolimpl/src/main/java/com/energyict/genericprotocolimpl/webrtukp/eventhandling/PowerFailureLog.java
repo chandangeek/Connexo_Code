@@ -12,6 +12,13 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.MeterEvent;
 
+/**
+ * 
+ * @author gna
+ * Changes:
+ * GNA|20072009| Changed the duration to a long, otherwise you could get negative durations ...
+ */
+
 public class PowerFailureLog {
 	
 	private TimeZone timeZone;
@@ -28,7 +35,7 @@ public class PowerFailureLog {
 		int size = this.dcEvents.getRoot().getNrOfElements();
 		Date eventTimeStamp = null;
 		for(int i = 0; i <= (size-1); i++){
-			int duration = (int)this.dcEvents.getRoot().getStructure(i).getValue(1);
+			long duration = this.dcEvents.getRoot().getStructure(i).getValue(1);
 			if(isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))){
 				eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
 			}
@@ -39,7 +46,7 @@ public class PowerFailureLog {
 		return meterEvents;
 	}
 
-	private void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int duration) {
+	private void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, long duration) {
 		meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.PHASE_FAILURE, "Duration of power failure: " + duration));
 	}
 

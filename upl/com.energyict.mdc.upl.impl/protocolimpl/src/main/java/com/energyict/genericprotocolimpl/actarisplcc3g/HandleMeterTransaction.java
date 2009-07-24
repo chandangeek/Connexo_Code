@@ -4,17 +4,14 @@ import com.energyict.cbo.*;
 import com.energyict.edf.messages.*;
 import com.energyict.edf.messages.objects.*;
 import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.*;
-import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.PLCCMeterLoadProfileEnergy;
 import com.energyict.genericprotocolimpl.common.*;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.mdw.amr.*;
 import com.energyict.obis.*;
 import com.energyict.protocol.*;
-import com.energyict.protocol.MeterReadingData;
 import java.io.*;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.Iterator;
-import java.util.List;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Transaction;

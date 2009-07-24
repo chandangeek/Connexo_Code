@@ -32,7 +32,7 @@ import com.energyict.cpo.Environment;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.genericprotocolimpl.common.GenericCache;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.iskrap2lpc.Concentrator.XmlException;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.CosemDateTime;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ObjectDef;
@@ -367,7 +367,8 @@ public class MeterReadTransaction implements CacheMechanism {
         String mtr = getMeter().getSerialNumber();
         
         String from = Constant.getInstance().format( new Date() );
-        String to = Constant.getInstance().format( new Date() );
+        Date toDate = new Date();
+        String to = Constant.getInstance().format( toDate );
         
         String lpString1 = "99.1.0";
         String lpString2 = "99.2.0";
@@ -482,8 +483,11 @@ public class MeterReadTransaction implements CacheMechanism {
             getLogger().log(Level.INFO, "Done reading EVENTS.");
         }
         
-	        // if complete profile is read, store it!
-        getStoreObjects().add(meter, dataHandler.getProfileData());
+	    // if complete profile is read, check if there are values in the future and then store it.
+        ProfileData pd = dataHandler.getProfileData();
+        ParseUtils.validateProfileData(pd, toDate);
+        
+        getStoreObjects().add(meter, pd);
     }
 
     /**
@@ -503,7 +507,8 @@ public class MeterReadTransaction implements CacheMechanism {
     	String monthly = getConcentrator().getLpMonthly();
     	
     	String from = Constant.getInstance().format(new Date());
-        String to = Constant.getInstance().format(new Date());
+    	Date toDate = new Date();
+        String to = Constant.getInstance().format(toDate);
     	
 //    	int period;
 //    	CosemDateTime cdt;
@@ -594,6 +599,8 @@ public class MeterReadTransaction implements CacheMechanism {
 //					meter.store(dataHandler.getDailyMonthlyProfile(), false);
 					ProfileData pd = dataHandler.getDailyMonthlyProfile();
 					pd = sortOutProfileData(pd, pc);
+				    // if complete profile is read, check if there are values in the future and then store it.
+			        ParseUtils.validateProfileData(pd, toDate);
 					getStoreObjects().add(chn, pd);
 					dataHandler.clearDailyMonthlyProfile();
 				}

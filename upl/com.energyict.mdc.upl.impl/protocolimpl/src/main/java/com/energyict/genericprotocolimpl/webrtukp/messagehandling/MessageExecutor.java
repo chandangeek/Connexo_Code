@@ -64,7 +64,7 @@ import com.energyict.dlms.cosem.Limiter.ValueDefinitionType;
 import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtukp.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtukp.csvhandling.TestObject;

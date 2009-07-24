@@ -25,7 +25,8 @@ import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.common.ParseUtils;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
@@ -130,7 +131,8 @@ public class MbusDevice implements Messaging, GenericProtocol{
 		String profile = "";
 		String xml = "";
 		String from = "";
-		String to = Constant.getInstance().format(new Date());
+		Date toDate = new Date();
+		String to = Constant.getInstance().format(toDate);
 		String register = "";
 		
         Channel chn;
@@ -177,7 +179,9 @@ public class MbusDevice implements Messaging, GenericProtocol{
         }
         
         getLogger().log(Level.INFO, "Done reading PROFILE.");
-        
+	    // if complete profile is read, check if there are values in the future and then store it.
+        ProfileData pd = dataHandler.getProfileData();
+        ParseUtils.validateProfileData(pd, toDate);
         mrt.getStoreObjects().add(getRtu(), dataHandler.getProfileData());
 	}
 	
@@ -187,7 +191,8 @@ public class MbusDevice implements Messaging, GenericProtocol{
 		String xml = "";
 		String register = "";
 		String from = "";
-		String to = Constant.getInstance().format(new Date());
+		Date toDate = new Date();
+		String to = Constant.getInstance().format(toDate);
 		
 //		if (mrt.useParameters()) {
 //			
@@ -257,6 +262,7 @@ public class MbusDevice implements Messaging, GenericProtocol{
 				mrt.getConcentrator().importData(xml, dataHandler);
 				ProfileData pd = dataHandler.getDailyMonthlyProfile();
 				pd = mrt.sortOutProfileData(pd, pc);
+		        ParseUtils.validateProfileData(pd, toDate);
 				mrt.getStoreObjects().add(chn, pd);
 				dataHandler.clearDailyMonthlyProfile();
 			}

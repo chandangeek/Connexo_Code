@@ -69,7 +69,7 @@ import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.cosem.DataAccessResultException.DataAccessResultCode;
-import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.DisconnectControlLog;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.EventsLog;

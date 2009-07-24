@@ -63,7 +63,9 @@ import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.common.GenericCache;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConstants;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
 import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
 import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
 import com.energyict.genericprotocolimpl.iskragprs.csd.CSDCall;
@@ -366,8 +368,12 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 					
 					getLogger().log(Level.INFO, "Getting daily and monthly values for meter with serialnumber: " + rtu.getSerialNumber());
 					DailyMonthly dm = new DailyMonthly(this);
-					dm.getDailyValues(dailyObisCode);
-					dm.getMonthlyValues(monthlyObisCode);
+					if(dailyObisCode != null){
+						dm.getDailyValues(dailyObisCode);
+					}
+					if(monthlyObisCode != null){
+						dm.getMonthlyValues(monthlyObisCode);
+					}
 				}
 				
 				// Send messages ... if there are messages
@@ -2048,11 +2054,11 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
 	public List getMessageCategories() {
         List theCategories = new ArrayList();
-        MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
-        MessageCategorySpec cat2 = new MessageCategorySpec("ThresholdMessages");
-        MessageCategorySpec catMbus = new MessageCategorySpec("MBus messages");
-        MessageCategorySpec catWakeUp = new MessageCategorySpec("Wakeup configuration");
-        MessageCategorySpec catFirmware = new MessageCategorySpec("Firmware");
+        MessageCategorySpec cat = new MessageCategorySpec(RtuMessageCategoryConstants.BASICMESSAGES);
+        MessageCategorySpec catLoadLimit = new MessageCategorySpec(RtuMessageCategoryConstants.LOADLIMIT);
+        MessageCategorySpec catMbus = new MessageCategorySpec(RtuMessageCategoryConstants.MBUSMESSAGES);
+        MessageCategorySpec catWakeUp = new MessageCategorySpec(RtuMessageCategoryConstants.WAKEUPFUNCTIONALITY);
+        MessageCategorySpec catFirmware = new MessageCategorySpec(RtuMessageCategoryConstants.FIRMWARE);
         
         MessageSpec msgSpec = addBasicMsg("Disconnect meter", RtuMessageConstant.DISCONNECT_LOAD, false);
         cat.addMessageSpec(msgSpec);
@@ -2067,12 +2073,12 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         msgSpec = addGPRSModemSetup("Change GPRS Modem setup", RtuMessageConstant.GPRS_MODEM_SETUP, false);
         cat.addMessageSpec(msgSpec);
         
-        msgSpec = addThresholdParameters("Threshold parameters", RtuMessageConstant.THRESHOLD_PARAMETERS, false);
-        cat2.addMessageSpec(msgSpec);
-        msgSpec = addThresholdMessage("Apply Threshold", RtuMessageConstant.APPLY_THRESHOLD, false);
-        cat2.addMessageSpec(msgSpec);
-        msgSpec = addClearThresholdMessage("Clear Threshold", RtuMessageConstant.CLEAR_THRESHOLD, false);
-        cat2.addMessageSpec(msgSpec);
+        msgSpec = addThresholdParameters(RtuMessageKeyIdConstants.LOADLIMITCONFIG, RtuMessageConstant.THRESHOLD_PARAMETERS, false);
+        catLoadLimit.addMessageSpec(msgSpec);
+        msgSpec = addThresholdMessage("Apply LoadLimiting", RtuMessageConstant.APPLY_THRESHOLD, false);
+        catLoadLimit.addMessageSpec(msgSpec);
+        msgSpec = addClearThresholdMessage(RtuMessageKeyIdConstants.LOADLIMITCLEAR, RtuMessageConstant.CLEAR_THRESHOLD, false);
+        catLoadLimit.addMessageSpec(msgSpec);
 
         msgSpec = addBasicMsg("Install MBus device", RtuMessageConstant.MBUS_INSTALL, false);
         catMbus.addMessageSpec(msgSpec);
@@ -2096,11 +2102,11 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 //        catWakeUp.addMessageSpec(msgSpec);
         
         // TODO not complete yet!
-        msgSpec = addValueMessage("Upgrade Firmware", RtuMessageConstant.FIRMWARE, false);
+//        msgSpec = addValueMessage("Upgrade Firmware", RtuMessageConstant.FIRMWARE, false);
 //        catFirmware.addMessageSpec(msgSpec);
         
         theCategories.add(cat);
-        theCategories.add(cat2);
+        theCategories.add(catLoadLimit);
         theCategories.add(catMbus);
         theCategories.add(catWakeUp);
         //TODO

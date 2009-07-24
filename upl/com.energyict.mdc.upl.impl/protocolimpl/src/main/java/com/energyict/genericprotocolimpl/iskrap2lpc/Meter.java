@@ -1,7 +1,8 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
 import com.energyict.cbo.*;
-import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 
@@ -31,7 +32,7 @@ public class Meter implements Messaging, MeterProtocol {
         msgSpec = addBasicMsg("Disconnect", RtuMessageConstant.DISCONNECT_LOAD, !ADVANCED);
         cat.addMessageSpec(msgSpec);
         
-        msgSpec = addThresholdParameters("Threshold parameters", RtuMessageConstant.THRESHOLD_PARAMETERS, !ADVANCED);
+        msgSpec = addThresholdParameters(RtuMessageKeyIdConstants.LOADLIMITCONFIG, RtuMessageConstant.THRESHOLD_PARAMETERS, !ADVANCED);
         cat.addMessageSpec(msgSpec);
         
         msgSpec = addRepeaterMode("Repeater mode", RtuMessageConstant.REPEATER_MODE, !ADVANCED);

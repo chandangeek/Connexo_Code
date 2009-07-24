@@ -15,8 +15,8 @@ import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MbusMessageExecutor;
+import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MbusMessages;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.MbusDailyMonthly;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.MbusEventProfile;
 import com.energyict.genericprotocolimpl.webrtukp.profiles.MbusProfile;
@@ -27,19 +27,9 @@ import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
 /**
@@ -53,7 +43,7 @@ import com.energyict.protocolimpl.base.ProtocolChannelMap;
  * 					Changed all messageEntrys in date-form to a UnixTime entry; 
  */
 
-public class MbusDevice implements GenericProtocol, Messaging{
+public class MbusDevice extends MbusMessages implements GenericProtocol{
 	
 	private long mbusAddress	= -1;		// this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
 	private int physicalAddress = -1;		// this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
@@ -62,11 +52,13 @@ public class MbusDevice implements GenericProtocol, Messaging{
 	private boolean valid;
 	
 	public Rtu	mbus;
+	public CommunicationProfile commProfile;
 	private WebRTUKP webRtu;
 	private Logger logger;
 	private ProtocolChannelMap channelMap = null;
 	private Unit mbusUnit;
 	private MbusObisCodeMapper mocm = null;
+	
 	
 	public MbusDevice(){
 		this.valid = false;
@@ -126,7 +118,7 @@ public class MbusDevice implements GenericProtocol, Messaging{
 	}
 
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-		CommunicationProfile commProfile = scheduler.getCommunicationProfile();
+		this.commProfile = scheduler.getCommunicationProfile();
 		
 		try {
 			// Before reading data, check the serialnumber
@@ -179,22 +171,31 @@ public class MbusDevice implements GenericProtocol, Messaging{
 	
 	private void doReadRegisters() throws IOException{
 		Iterator<RtuRegister> it = getMbus().getRegisters().iterator();
+		List groups = this.commProfile.getRtuRegisterGroups();
 		ObisCode oc = null;
 		RegisterValue rv;
 		RtuRegister rr;
 		try {
 			while(it.hasNext()){
 				rr = it.next();
-				oc = rr.getRtuRegisterSpec().getObisCode();
-				rv = readRegister(adjustToMbusChannelObisCode(oc));
-				if(rv != null){
-					rv.setRtuRegisterId(rr.getId());
-					
-					if(rr.getReadingAt(rv.getReadTime()) == null){
-						getWebRTU().getStoreObject().add(rr, rv);
+				if (getWebRTU().isInRegisterGroup(groups, rr)) {
+					oc = rr.getRtuRegisterSpec().getObisCode();
+					try{
+						rv = readRegister(adjustToMbusChannelObisCode(oc));
+						if(rv != null){
+							rv.setRtuRegisterId(rr.getId());
+							
+							if(rr.getReadingAt(rv.getReadTime()) == null){
+								getWebRTU().getStoreObject().add(rr, rv);
+							}
+						} else {
+							getLogger().log(Level.INFO, "Obiscode " + oc + " is not supported.");
+						}
+						
+					} catch (NoSuchRegisterException e) {
+						e.printStackTrace();
+						getLogger().log(Level.INFO, "ObisCode " + oc + " is not supported by the meter.");
 					}
-				} else {
-					getLogger().log(Level.INFO, "Obiscode " + oc + " is not supported.");
 				}
 			}
 		} catch (IOException e) {
@@ -254,138 +255,6 @@ public class MbusDevice implements GenericProtocol, Messaging{
 	
 	public WebRTUKP getWebRTU(){
 		return this.webRtu;
-	}
-
-	public List getMessageCategories() {
-		List categories = new ArrayList();
-		MessageCategorySpec catDisconnect = new MessageCategorySpec("Disconnect Control");
-		MessageCategorySpec catMbusSetup = new MessageCategorySpec("Mbus setup");
-		
-		// Disconnect control related messages
-		MessageSpec msgSpec = addConnectControl("Disconnect", RtuMessageConstant.DISCONNECT_LOAD, false);
-		catDisconnect.addMessageSpec(msgSpec);
-		msgSpec = addConnectControl("Connect", RtuMessageConstant.CONNECT_LOAD, false);
-		catDisconnect.addMessageSpec(msgSpec);
-		msgSpec = addConnectControlMode("ConnectControl mode", RtuMessageConstant.CONNECT_CONTROL_MODE, false);
-		catDisconnect.addMessageSpec(msgSpec);
-		
-		// Mbus setup related messages
-		msgSpec = addNoValueMsg("Decommission", RtuMessageConstant.MBUS_DECOMMISSION, false);
-		catMbusSetup.addMessageSpec(msgSpec);
-		msgSpec = addEncryptionkeys("Set Encryption keys", RtuMessageConstant.MBUS_ENCRYPTION_KEYS, false);
-		catMbusSetup.addMessageSpec(msgSpec);
-		msgSpec = addCorrectSwitchMsg("Correction switch", RtuMessageConstant.MBUS_CORRECTED_SWITCH, false);
-		catMbusSetup.addMessageSpec(msgSpec);
-		
-		categories.add(catDisconnect);
-		categories.add(catMbusSetup);
-		return categories;
-	}
-
-	private MessageSpec addCorrectSwitchMsg(String keyId, String tagName, boolean advanced) {
-    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.MBUS_CORRECTED_VALUE, true);
-        tagSpec.add(msgVal);
-        tagSpec.add(msgAttrSpec);
-        msgSpec.add(tagSpec);
-        return msgSpec;
-	}
-
-	private MessageSpec addConnectControl(String keyId, String tagName, boolean advanced) {
-    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, false);
-        tagSpec.add(msgVal);
-        tagSpec.add(msgAttrSpec);
-        msgSpec.add(tagSpec);
-        return msgSpec;
-	}
-	
-	private MessageSpec addConnectControlMode(String keyId, String tagName, boolean advanced) {
-    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.CONNECT_MODE, true);
-        tagSpec.add(msgVal);
-        tagSpec.add(msgAttrSpec);
-        msgSpec.add(tagSpec);
-        return msgSpec;
-	}
-	
-	private MessageSpec addNoValueMsg(String keyId, String tagName, boolean advanced){
-        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        msgSpec.add(tagSpec);
-        return msgSpec;
-	}
-	
-	private MessageSpec addEncryptionkeys(String keyId, String tagName, boolean advanced) {
-    	MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.MBUS_OPEN_KEY, false);
-        tagSpec.add(msgAttrSpec);
-        msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.MBUS_TRANSFER_KEY, false);
-        tagSpec.add(msgAttrSpec);
-        tagSpec.add(msgVal);
-        msgSpec.add(tagSpec);
-        return msgSpec;
-	}
-	
-	public String writeMessage(Message msg) {
-		return msg.write(this);
-	}
-
-	public String writeTag(MessageTag msgTag) {
-		StringBuffer buf = new StringBuffer();
-        
-        // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
-        
-        // b. Attributes
-        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
-            MessageAttribute att = (MessageAttribute) it.next();
-            if (att.getValue() == null || att.getValue().length() == 0)
-                continue;
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
-        }
-        if (msgTag.getSubElements().isEmpty()) {
-            buf.append("/>");
-            return buf.toString();
-        }
-        buf.append(">");
-        // c. sub elements
-        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
-            MessageElement elt = (MessageElement) it.next();
-            if (elt.isTag())
-                buf.append(writeTag((MessageTag) elt));
-            else if (elt.isValue()) {
-                String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0)
-                    return "";
-                buf.append(value);
-            }
-        }
-        
-        // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
-        
-        return buf.toString();
-	}
-
-	public String writeValue(MessageValue msgValue) {
-		return msgValue.getValue();
 	}
 
 	public static void main(String args[]){

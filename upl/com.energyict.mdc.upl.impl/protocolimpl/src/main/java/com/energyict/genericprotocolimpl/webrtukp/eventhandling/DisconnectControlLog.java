@@ -40,7 +40,7 @@ public class DisconnectControlLog {
 		for(int i = 0; i <= (size-1); i++){
 			int eventId = (int)this.dcEvents.getRoot().getStructure(i).getValue(1);
 			String threshold = "Unknown";
-			//TODO fix it for the Iskra 2009 meter
+			//fixed it for the Iskra 2009 meter
 			if(this.dcEvents.getRoot().getStructure(i).getElements().length == 3){
 				threshold = Integer.toString(this.dcEvents.getRoot().getStructure(i).getInteger(2));
 			}

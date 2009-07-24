@@ -22,9 +22,10 @@ import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
-import com.energyict.genericprotocolimpl.common.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtukp.MbusDevice;
 import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 
 /**
@@ -138,6 +139,11 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 				
 				MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getPhysicalAddress()).getObisCode());
 				mbusClient.deinstallSlave();
+				
+				//Need to clear the gateWay
+				RtuShadow shadow = mbusDevice.getMbus().getShadow();
+				shadow.setGatewayId(0);
+				mbusDevice.getMbus().update(shadow);
 				
 				success = true;
 			} else if(mbusEncryption){
