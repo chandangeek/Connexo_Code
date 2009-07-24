@@ -1016,7 +1016,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 				logger.info("Received [" + this.mbusSerialNumbers.length + "] serial numbers for MBus devices proxied by the EpIO, validating...");
 
 				for (final String serialNumber : this.mbusSerialNumbers) {
-					if (serialNumber.toLowerCase().trim().equals(this.serialNumber)) {
+					if (serialNumber != null && serialNumber.toLowerCase().trim().equals(this.serialNumber)) {
 						matches = true;
 						break;
 					}
@@ -1866,6 +1866,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			logger.info("Commencing upgrade...");
 			
 			imageTransfer.upgrade(binaryImage);
+			imageTransfer.imageActivation();
 			
 			logger.info("Upgrade has finished successfully...");
 		} catch (InterruptedException e) {
