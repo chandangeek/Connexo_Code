@@ -127,10 +127,11 @@ public class AssociationControlServiceElementTest {
     		AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, 2, null);
     		
     		String hlSecurityResponse = "6141A109060760857405080101A203020100A305A10302010E88020780890760857405080202AA0A8008503677524A323146BE10040E0800065F1F040000501F01F40007";
+    		String responsePiet =       "6142a109060760857405080101a203020100a305a10302010e01aa168014001c3943003872870070e50e00e1ca1c01c39438be10040e0800065f1f040000101904180007";
     		acse.analyzeAARE(DLMSUtils.hexStringToByteArray(hlSecurityResponse));
     		assertEquals("P6wRJ21F",new String(acse.getRespondingAuthenticationValue()));
     		
-    		String str = "000100010064002c612aa109060760857405080101a203020100a305a103020100be11040f080100065f1f0400007c1f04000007";
+    		String str =          "000100010064002c612aa109060760857405080101a203020100a305a103020100be11040f080100065f1f0400007c1f04000007";
 			acse.analyzeAARE(DLMSUtils.hexStringToByteArray(str));
 			
 			acse.analyzeAARE(noOrLowLevelAuthentication);

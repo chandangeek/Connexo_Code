@@ -17,7 +17,7 @@ import com.energyict.protocol.RegisterValue;
  * 
  * @author gna
  * Changes:
- * GNA |03062009| Added abstract registers (activity Calendar, Acive Firmware)
+ * GNA |03062009| Added abstract registers (activity Calendar, Active Firmware)
  */
 public class ObisCodeMapper {
 	
@@ -51,11 +51,23 @@ public class ObisCodeMapper {
         			null, null, null, new Date(), 0,
         			new String(cof.getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1).getString()));
         	return rv;
-        } else if (obisCode.toString().indexOf("1.1.0.2.0.255") != -1){	// Module firmware (not upgradeable)
+        } else if (obisCode.toString().indexOf("1.1.0.2.0.255") != -1){	// Module firmware (upgradeable)
         	rv = new RegisterValue(obisCode,
         			null,
         			null, null, null, new Date(), 0,
         			new String(cof.getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1).getString()));
+        	return rv;
+        } else if (obisCode.toString().indexOf("1.0.0.2.8.255") != -1){	// Core firmware signature (not upgradeable)
+        	rv = new RegisterValue(obisCode,
+        			null,
+        			null, null, null, new Date(), 0,
+        			ParseUtils.decimalByteToString(cof.getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1).getResponseData()));
+        	return rv;
+        } else if (obisCode.toString().indexOf("1.1.0.2.8.255") != -1){	// Module firmware signature (upgradeable)
+        	rv = new RegisterValue(obisCode,
+        			null,
+        			null, null, null, new Date(), 0,
+        			ParseUtils.decimalByteToString(cof.getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1).getResponseData()));
         	return rv;
         }
 		

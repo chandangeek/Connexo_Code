@@ -234,6 +234,13 @@ public class XdlmsAse {
 	}
 
 	/**
+	 * @return the servers his proposed maximum PDU size
+	 */
+	public int getMaxRecPDUServerSize(){
+		return this.maxRecPDUServerSize;
+	}
+	
+	/**
 	 * Set the server his VAA name
 	 * @param vaaName
 	 */

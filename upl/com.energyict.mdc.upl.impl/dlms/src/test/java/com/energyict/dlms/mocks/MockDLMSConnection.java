@@ -43,10 +43,14 @@ public class MockDLMSConnection implements DLMSConnection {
 	}
 
 	/**
-	 * Doesn't send anything, just returns the response you have to set before the send!!
+	 * Doesn't send anything, just returns the response you have to set before the send. If you didn't set anything, then your requestBuffer is returned
 	 */
 	public byte[] sendRequest(byte[] byteRequestBuffer) throws IOException {
-		return this.responseByte;
+		if(this.responseByte == null){
+			return byteRequestBuffer;
+		} else {
+			return this.responseByte;
+		}
 	}
 
 	public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId) {

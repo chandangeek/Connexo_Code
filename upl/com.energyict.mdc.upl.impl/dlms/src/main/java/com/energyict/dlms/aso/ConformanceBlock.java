@@ -32,7 +32,6 @@ public class ConformanceBlock{
 	/**
 	 * These bits can be used to set or clear a bit in the conformance block
 	 */
-	
 	public static int BIT_READ = 3;
 	public static int BIT_WRITE = 4;
 	public static int BIT_UNCONFIRMED_WRITE = 5;

@@ -14,14 +14,19 @@ public class MockSecurityProvider implements SecurityProvider{
 	private String algorithm;
 	private String[] possibleAlgorithms = new String[]{"","","","MD5","SHA-1","GMAC"};
 	private byte[] cTOs;
+	private byte[] authenticationKey;
+	private byte[] dedicatedKey;
+	private byte[] globalKey;
 	
 	public MockSecurityProvider(){
 		
 	}
 
 	public byte[] getAuthenticationKey() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return this.authenticationKey;
+	}
+	public void setAuthenticationKey(byte[] ak){
+		this.authenticationKey = ak;
 	}
 
 	public byte[] getCallingAuthenticationValue() throws IOException {
@@ -29,13 +34,17 @@ public class MockSecurityProvider implements SecurityProvider{
 	}
 
 	public byte[] getDedicatedKey() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return this.dedicatedKey;
+	}
+	public void setDedicatedKey(byte[] dk){
+		this.dedicatedKey = dk;
 	}
 
 	public byte[] getGlobalKey() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return this.globalKey;
+	}
+	public void setGlobalkey(byte[] gk){
+		this.globalKey = gk;
 	}
 
 	public byte[] getHLSSecret() throws IOException {

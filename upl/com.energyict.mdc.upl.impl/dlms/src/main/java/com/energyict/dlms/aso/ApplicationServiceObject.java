@@ -56,6 +56,9 @@ public class ApplicationServiceObject {
 	public int getAssociationStatus(){
 		return this.associationStatus;
 	}
+	public void setAssociationState(int state) {
+		this.associationStatus = state;
+	}
 	
 	/*******************************************************************************************************
 	 * Application association management
@@ -161,6 +164,6 @@ public class ApplicationServiceObject {
 		this.acse.analyzeRLRE(response);
 		this.associationStatus = ASSOCIATION_DISCONNECTED;
 	}
-	
+
 	/*******************************************************************************************************/
 }

@@ -350,7 +350,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 				}
 				
 				// Read profiles and events ... if necessary
-				if( (communicationProfile.getReadDemandValues()) && (communicationProfile.getReadMeterEvents()) ){
+				if( communicationProfile.getReadDemandValues()){
 					doTheCheckMethods();
 					getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + rtu.getSerialNumber());
 					ElectricityProfile ep = new ElectricityProfile(this);

@@ -16,7 +16,7 @@ public class SecurityContextTest {
 		assertArrayEquals(new byte[]{(byte)0x4B, (byte)0x41, (byte)0x4D, (byte)0x00, (byte)0x55, (byte)0x9C, (byte)0x86, (byte)0xDB,
 				(byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00}, iv);
 
-		sc.frameCounter = 10;
+		sc.setFrameCounter(10);
 		iv = sc.getInitializationVector();
 		
 		assertArrayEquals(new byte[]{(byte)0x4B, (byte)0x41, (byte)0x4D, (byte)0x00, (byte)0x55, (byte)0x9C, (byte)0x86, (byte)0xDB,

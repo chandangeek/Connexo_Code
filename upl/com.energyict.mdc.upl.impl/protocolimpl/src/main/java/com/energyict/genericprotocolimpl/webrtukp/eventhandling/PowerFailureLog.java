@@ -36,6 +36,10 @@ public class PowerFailureLog {
 		Date eventTimeStamp = null;
 		for(int i = 0; i <= (size-1); i++){
 			long duration = this.dcEvents.getRoot().getStructure(i).getValue(1);
+			if(duration < 0){
+				duration += 0xFFFF;
+				duration++;
+			}
 			if(isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))){
 				eventTimeStamp = new AXDRDateTime(new OctetString(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
 			}
