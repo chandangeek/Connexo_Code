@@ -1,5 +1,7 @@
 package com.energyict.encryption;
 
+import com.energyict.protocol.ProtocolUtils;
+
 public class BitVector {
 	private byte[] value;
 
@@ -197,11 +199,20 @@ public class BitVector {
 		return result;
 	}
 
+	/**
+	 * @deprecated - It seems that this one gets the LSB's instead of the MSB's
+	 */
 	public BitVector Msb(int n) {
 		BitVector result = new BitVector(n);
 		for (int i = this.length() - n; i < this.length(); i++) {
 			result.setValue(this.getValue(i), i - (this.length() - n));
 		}
+		return result;
+	}
+	
+	public BitVector Msb2(int n){
+		BitVector result = new BitVector(n);
+		result.setValue(ProtocolUtils.getSubArray2(this.getValue(), 0, n));
 		return result;
 	}
 

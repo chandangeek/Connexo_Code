@@ -7,7 +7,14 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.client.ParseUtils;
 import com.energyict.protocol.ProtocolUtils;
-
+/**
+ * <pre>
+ * A DLMSConnection acting as a gateway.
+ * Depending on the required securityPolicy, the request and responses will be encrypted or decrypted.
+ * </pre>
+ * @author gna
+ *
+ */
 public class SecureConnection implements DLMSConnection {
 	
 	private ApplicationServiceObject aso;
@@ -28,6 +35,9 @@ public class SecureConnection implements DLMSConnection {
 		this.connection = transportConnection;
 	}
 	
+	/**
+	 * @return the actual DLMSConnection used for dataTransprotation
+	 */
 	private DLMSConnection getTransportConnection(){
 		return this.connection;
 	}
@@ -53,16 +63,18 @@ public class SecureConnection implements DLMSConnection {
 	}
 
 	/**
-	 * The sendRequest will check the current securitySuit to encrypt or authenticate the data and then parse the APDU to the DLMSConnection.
+	 * The sendRequest will check the current securitySuite to encrypt or authenticate the data and then parse the APDU to the DLMSConnection.
 	 * The response from the meter is decrypted before sending it back to the object.
 	 * @param byteRequestBuffer - The unEncrypted/authenticated request
 	 * @return the unEncrypted response from the device
 	 */
 	public byte[] sendRequest(byte[] byteRequestBuffer) throws IOException {
 		
-		if(this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED){ 	// only then we should encrypt
+		/* dataTransport security is only applied after we made an established association */
+		if(this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED){ 	
 			
-			if((this.aso.getSecurityContext().getSecurityControlByte()&0x30) == 0){				// No Encryption/Authentication
+			/* If no security is applied, then just forward the requests and responses */
+			if(this.aso.getSecurityContext().getSecurityPolicy() == 0){
 				return getTransportConnection().sendRequest(byteRequestBuffer);
 			} else {
 				
@@ -71,7 +83,6 @@ public class SecureConnection implements DLMSConnection {
 				byte[] securedRequest = ProtocolUtils.getSubArray(byteRequestBuffer, 3);
 				byte tag = ((Byte) encryptionTagMap.get(securedRequest[0])).byteValue();
 				
-				//TODO add the securityHeader or securityContext or whatever it's called
 				securedRequest = this.aso.getSecurityContext().dataTransportEncryption(securedRequest);
 				securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
 				
@@ -79,33 +90,20 @@ public class SecureConnection implements DLMSConnection {
 				securedRequest = ProtocolUtils.concatByteArrays(leading, securedRequest);
 				
 				// send the encrypted request to the DLMSConnection
-				// TODO decode the frame before sending data to the object 
+				byte[] securedResponse = getTransportConnection().sendRequest(securedRequest);
 				
-				return getTransportConnection().sendRequest(securedRequest);
-				
+				// check if the response tag is know and decrypt the data if necessary
+				if(encryptionTagMap.containsKey(securedResponse[0])){
+					byte[] decryptedResponse = this.aso.getSecurityContext().dataTransportDecryption(ProtocolUtils.getSubArray(securedResponse, 2));
+					return decryptedResponse;
+				} else {
+					throw new IOException("Unknown GlobalCiphering-Tag : " + securedResponse[0]);
+				}
 			}
-			
-		} else {
+		} else { /* During association establishment the request just needs to be forwarded */
 			return getTransportConnection().sendRequest(byteRequestBuffer);
 		}
-		
 	}
-	
-//	/**
-//	 * Construct the securityHeader depending on the secuirityContext defined in the ASO
-//	 * @return
-//	 */
-//	private byte[] constructSecurityHeader(){
-//		byte[] securityHeader = new byte[5];
-//		securityHeader[4] = this.aso.getSecurityContext().getSecurityControlByte();
-//		
-//		securityHeader[0] = (byte) (this.aso.getSecurityContext().getFrameCounter()&0xFF);
-//		securityHeader[1] = (byte) ((this.aso.getSecurityContext().getFrameCounter()>>8)&0xFF);
-//		securityHeader[2] = (byte) ((this.aso.getSecurityContext().getFrameCounter()>>16)&0xFF);
-//		securityHeader[3] = (byte) ((this.aso.getSecurityContext().getFrameCounter()>>24)&0xFF);
-//		
-//		return securityHeader;
-//	}
 	
 	public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId) {
 		getTransportConnection().setHHUSignOn(hhuSignOn, meterId);

@@ -29,6 +29,7 @@ import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.SecureConnection;
@@ -148,6 +149,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	private int iiapServiceClass;
 	private int iiapInvokeId;
 	private int wakeup;
+	private byte[] dataTransportKey;
 
 	/**
 	 * <pre>
@@ -464,7 +466,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		
 		this.cosemObjectFactory	= new CosemObjectFactory((ProtocolLink)this);
 		
-		LocalSecurityProvider lsp = new LocalSecurityProvider(this.authenticationSecurityLevel, this.password);
+		LocalSecurityProvider lsp = new LocalSecurityProvider(this.authenticationSecurityLevel, this.password, this.dataTransportKey);
 		ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
 		XdlmsAse xDlmsAse = new XdlmsAse(null, true, -1, 6, cb, 1200);
 		//TODO the dataTransport encryptionType should be a property (although currently only 0 is described by DLMS)
@@ -1339,6 +1341,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 			this.authenticationSecurityLevel = Integer.parseInt(securityLevel);
 			this.datatransportSecurityLevel = 0;
 		}
+		this.dataTransportKey = DLMSUtils.hexStringToByteArray(properties.getProperty("DataTransportKey",""));
 		
 //        this.securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "0"));
         this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "1"));
@@ -1404,6 +1407,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		result.add("WakeUp");
 		result.add("RoundTripCorrection");
 		result.add("FolderExtName");
+		result.add("DataTransportKey");
 		return result;
 	}
 

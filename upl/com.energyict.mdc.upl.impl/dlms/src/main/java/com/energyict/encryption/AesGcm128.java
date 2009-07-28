@@ -42,6 +42,8 @@ public class AesGcm128 {
 	private BitVector c;	// ciphertext
 	private BitVector t;	// authenticationtag
 	private BitVector h;	// hash
+	
+	private int tagSize = 16;	// The default tagSize for GCM is 16bit; NOTE: DLMS specifies a 12bit TagLength
 
 
 	/**
@@ -75,9 +77,11 @@ public class AesGcm128 {
 	/**
 	 * Creates a new instance of the AES Galois/Counter mode with a globalKey byteArray
 	 * @param globalKey - the global encryption Key
+	 * @param tagSize - the size of the authenticationTag
 	 */
-	public AesGcm128(byte[] globalKey){
+	public AesGcm128(byte[] globalKey, int tagSize){
 		this(new BitVector(globalKey));
+		this.tagSize = tagSize;
 	}
 
 	/**
@@ -98,6 +102,9 @@ public class AesGcm128 {
 
 		} catch (InvalidKeyException e) {
 			e.printStackTrace();
+			if(e.getLocalizedMessage().indexOf("Invalid AES key length") != -1){
+				throw new IllegalArgumentException("Invalid Global Key length, length should be 16 bytes.", e.getCause());
+			}
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		} catch (NoSuchPaddingException e) {
@@ -149,7 +156,7 @@ public class AesGcm128 {
 				BitVector.convertFromInt(c.length()*8, 8));
 		x = BitVector.multiplication(BitVector.addition(x, len),h);
 		
-		t = BitVector.addition(x, aesEncrypt(y0)).Msb(16);	
+		t = BitVector.addition(x, aesEncrypt(y0)).Msb2(this.tagSize);	
 	}
 
 	/**
@@ -178,12 +185,12 @@ public class AesGcm128 {
 				BitVector.convertFromInt(c.length()*8, 8));
 		x = BitVector.multiplication(BitVector.addition(x, len),h);
 		
-		BitVector t2 = BitVector.addition(x, aesEncrypt(y0)).Msb(16);
+		BitVector t2 = BitVector.addition(x, aesEncrypt(y0)).Msb2(this.tagSize);
 		
 		System.out.println(t2.toString());
 		System.out.println(t.toString());
 		
-		if (!t2.equals(t)) {
+		if ((t.getValue().length != 0) && (!t2.equals(t))) {
 			return false;
 		}
 		
@@ -297,6 +304,16 @@ public class AesGcm128 {
 	 */
 	public void setTag(BitVector t) {
 		this.t = t;
+	}
+	
+	/**
+	 * Setter for the size of the authenticationTag.
+	 * Most common tagSizes are : 128, 120, 112, 104, or 96 bits
+	 * Default the size is 128bits
+	 * @param tagSize - the size of the tag.
+	 */
+	public void setTagSize(int tagSize){
+		this.tagSize = tagSize;
 	}
 	
 }

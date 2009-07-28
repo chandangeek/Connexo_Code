@@ -19,10 +19,6 @@ import com.energyict.protocol.ProtocolUtils;
 
 public class SecureConnectionTest {
 	
-	private final int DATA_AUTHENTICATION = 1;
-	private final int DATA_ENCRYPTION = 2;
-	private final int DATA_AUTHENTICATIONENCRYPTION = 3;
-
 	@Test
 	public void sendRequest(){
 
@@ -41,7 +37,7 @@ public class SecureConnectionTest {
 		try {
 			
 			// Only authentication
-			int dataTransportSecurityType = DATA_AUTHENTICATION;	 
+			int dataTransportSecurityType = SecurityContext.SECURITYPOLICY_AUTHENTICATION;	 
 			SecurityContext sc = new SecurityContext(dataTransportSecurityType, 0,0,"MMM0000012345678", msp);
 			sc.setFrameCounter(19088743); 		// this is '0x01234567'
 			aso = new ApplicationServiceObject(xDlmsAse, null, sc, AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING);
@@ -53,7 +49,7 @@ public class SecureConnectionTest {
 			assertArrayEquals(DLMSUtils.hexStringToByteArray("C81E1001234567C0010000080000010000FF020006725D910F9221D263877516"), ProtocolUtils.getSubArray(unEncryptedResponse,3));
 			
 			// Only encryption
-			dataTransportSecurityType = DATA_ENCRYPTION;
+			dataTransportSecurityType = SecurityContext.SECURITYPOLICY_ENCRYPTION;
 			sc = new SecurityContext(dataTransportSecurityType, 0,0,"MMM0000012345678", msp);
 			sc.setFrameCounter(19088743); 		// this is '0x01234567'
 			aso = new ApplicationServiceObject(xDlmsAse, null, sc, AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING);
@@ -65,7 +61,7 @@ public class SecureConnectionTest {
 			assertArrayEquals(DLMSUtils.hexStringToByteArray("C8122001234567411312FF935A47566827C467BC"), ProtocolUtils.getSubArray(unEncryptedResponse,3));
 			
 			// Authentication and Encryption
-			dataTransportSecurityType = DATA_AUTHENTICATIONENCRYPTION;
+			dataTransportSecurityType = SecurityContext.SECURITYPOLICY_BOTH;
 			sc = new SecurityContext(dataTransportSecurityType, 0,0,"MMM0000012345678", msp);
 			sc.setFrameCounter(19088743); 		// this is '0x01234567'
 			aso = new ApplicationServiceObject(xDlmsAse, null, sc, AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING);
@@ -80,7 +76,5 @@ public class SecureConnectionTest {
 			e.printStackTrace();
 			fail();
 		}
-		
-		
 	}
 }

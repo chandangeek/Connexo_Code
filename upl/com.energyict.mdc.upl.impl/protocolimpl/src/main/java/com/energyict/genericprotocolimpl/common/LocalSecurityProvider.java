@@ -9,17 +9,19 @@ import com.energyict.protocolimpl.base.SecurityLevelException;
 public class LocalSecurityProvider implements SecurityProvider {
 	
 	private int securityLevel;
-	private String password;
 	private byte[] cTOs;
+	private String authenticationPassword;
+	private byte[] dataTransportPassword;
 	
 	/**
 	 * Create a new instance of LocalSecurityProvider
 	 * @param authenticationLevel - depending on the level we provide a different callingAuthenticationKey
 	 * @param password - this will be the HLSSecret with LowLevel Security
 	 */
-	public LocalSecurityProvider(int authenticationLevel, String password){
-		this.password = password;
+	public LocalSecurityProvider(int authenticationLevel, String password, byte[] dataTransportKey){
 		this.securityLevel = authenticationLevel;
+		this.authenticationPassword = password;
+		this.dataTransportPassword = dataTransportKey;
 	}
 	
 	/**
@@ -34,8 +36,11 @@ public class LocalSecurityProvider implements SecurityProvider {
 	}
 
 	public byte[] getAuthenticationKey() {
-		// TODO Auto-generated method stub
-		return null;
+		byte[] byteWord = new byte[this.authenticationPassword.length()];
+		for(int i = 0; i < this.authenticationPassword.length(); i++){
+			byteWord[i] = (byte)this.authenticationPassword.charAt(i);
+		}
+		return byteWord;
 	}
 
 	public byte[] getCallingAuthenticationValue() throws SecurityLevelException {
@@ -68,8 +73,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 	}
 
 	public byte[] getGlobalKey() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.dataTransportPassword;
 	}
 
 	public int getSecurityLevel() {
@@ -77,9 +81,9 @@ public class LocalSecurityProvider implements SecurityProvider {
 	}
 
 	public byte[] getHLSSecret() {
-		byte[] byteWord = new byte[this.password.length()];
-		for(int i = 0; i < this.password.length(); i++){
-			byteWord[i] = (byte)this.password.charAt(i);
+		byte[] byteWord = new byte[this.authenticationPassword.length()];
+		for(int i = 0; i < this.authenticationPassword.length(); i++){
+			byteWord[i] = (byte)this.authenticationPassword.charAt(i);
 		}
 		return byteWord;
 	}
