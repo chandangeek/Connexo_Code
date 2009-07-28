@@ -220,7 +220,7 @@ public interface DLMSCOSEMGlobals {
     final byte COSEM_ACTIONRESPONSE=(byte)0xC7;    
     final byte COSEM_ACTIONRESPONSE_NORMAL=1;
     
-    // Global-ciphering tags
+    // Global-ciphering tags (LongName)
     final byte GLO_GETREQUEST = (byte)0xC8;
     final byte GLO_SETREQUEST = (byte)0xC9;
     final byte GLO_EVENTNOTIFICATION_REQUEST= (byte)0xCA;
@@ -228,8 +228,18 @@ public interface DLMSCOSEMGlobals {
     final byte GLO_GETRESPONSE = (byte)0xCC;
     final byte GLO_SETRESPONSE = (byte)0xCD;
     final byte GLO_ACTIONRESPONSE = (byte)0xCF;
+    // Global-ciphering tags (ShortName)
+    final byte GLO_INITIATEREQUEST = (byte)0x21;
+    final byte GLO_READREQUEST = (byte)0x25;
+    final byte GLO_WRITEREQUEST = (byte)0x26;
+    final byte GLO_INITIATERESPONSE = (byte)0x28;
+    final byte GLO_READRESPONSE = (byte)0x2C;
+    final byte GLO_WRITERESPONSE = (byte)0x2D;
+    final byte GLO_CONFIRMEDSERVICEERROR = (byte)0x2E;
+    final byte GLO_UNCONFIRMEDWRITEREQUEST = (byte)0x36;
+    final byte GLO_INFORMATIONREPORTREQUEST = (byte)0x38;
     
-    // Dedicated-ciphering tags
+    // Dedicated-ciphering tags (LongName)
     final byte DED_GETREQUEST = (byte)0xD0;
     final byte DED_SETREQUEST = (byte)0xD1;
     final byte DED_EVENTNOTIFICATION_REQUEST= (byte)0xD2;
@@ -237,6 +247,16 @@ public interface DLMSCOSEMGlobals {
     final byte DED_GETRESPONSE = (byte)0xD4;
     final byte DED_SEETRESPONSE = (byte)0xD5;
     final byte DED_ACTIONRESPONSE = (byte)0xD7;
+    // Dedicated-ciphering tags (ShortName)
+    final byte DED_INITIATEREQUEST = (byte)0x41;
+    final byte DED_READREQUEST = (byte)0x45;
+    final byte DED_WRITEREQUEST = (byte)0x46;
+    final byte DED_INITIATERESPONSE = (byte)0x48;
+    final byte DED_READRESPONSE = (byte)0x4C;
+    final byte DED_WRITERESPONSE = (byte)0x4D;
+    final byte DED_CONFIRMEDSERVICEERROR = (byte)0x4E;
+    final byte DED_UNCONFIRMEDWRITEREQUEST = (byte)0x56;
+    final byte DED_INFORMATIONREPORTREQUEST = (byte)0x58;
     
     final byte COSEM_INITIATEREQUEST = (byte)0x01;
     final byte COSEM_INITIATERESPONSE = (byte)0x08;

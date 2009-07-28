@@ -28,6 +28,12 @@ public class SecureConnection implements DLMSConnection {
 		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_GETRESPONSE, DLMSCOSEMGlobals.GLO_GETRESPONSE);
 		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_SETRESPONSE, DLMSCOSEMGlobals.GLO_SETRESPONSE);
 		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_ACTIONRESPONSE, DLMSCOSEMGlobals.GLO_ACTIONRESPONSE);
+		
+		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_READREQUEST, DLMSCOSEMGlobals.GLO_READREQUEST);
+		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_READRESPONSE, DLMSCOSEMGlobals.GLO_READRESPONSE);
+		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_WRITEREQUEST, DLMSCOSEMGlobals.GLO_WRITEREQUEST);
+		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_WRITERESPONSE, DLMSCOSEMGlobals.GLO_WRITERESPONSE);
+
 	}
 	
 	public SecureConnection(ApplicationServiceObject aso, DLMSConnection transportConnection){
