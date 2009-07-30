@@ -71,7 +71,11 @@ public class UnilogProfile extends VDEWProfile {
             Unit.get("m3"), 
             Unit.get(BaseUnit.KELVIN, -1), 
             Unit.get("mbar"),
-            Unit.get("") 
+            Unit.get(""),
+            Unit.get("") ,
+            Unit.get("") ,
+            Unit.get("") ,
+            Unit.get("")
     };
 
     
@@ -269,17 +273,17 @@ public class UnilogProfile extends VDEWProfile {
         
         // We suppose that the profile contains nr of channels!!
         try {
-
-            for (t = 0; t < nrOfChannels; t++) {
-
-                ChannelInfo chi = new ChannelInfo(t, "unilog_channel_" + t,
-                        dataUnits[t]);
-                if ((t >= 0) && (t <= 2))
-                    chi.setCumulativeWrapValue(new BigDecimal("100000000"));
-
-                profileData.addChannel(chi);
-
-            }
+// TODO don't forget to add the channelInfo's
+//            for (t = 0; t < nrOfChannels; t++) {
+//
+//                ChannelInfo chi = new ChannelInfo(t, "unilog_channel_" + t,
+//                        dataUnits[t]);
+//                if ((t >= 0) && (t <= 2))
+//                    chi.setCumulativeWrapValue(new BigDecimal("100000000"));
+//
+//                profileData.addChannel(chi);
+//
+//            }
 
             int i = 0;
             while (true) {
@@ -296,6 +300,7 @@ public class UnilogProfile extends VDEWProfile {
                     status = Integer.parseInt(parseFindString(responseData, i), 16);
                     status &= (SEASONAL_SWITCHOVER ^ 0xFFFF);
                     
+                    // Adding meterEvents
                     for (t = 0; t < 16; t++) {
                         if ((status & (0x01 << t)) != 0) {
                             
@@ -319,10 +324,33 @@ public class UnilogProfile extends VDEWProfile {
                     bNROfValues = ProtocolUtils.bcd2nibble(responseData, i + 1);
                     if (bNROfValues > nrOfChannels)
                         throw new IOException(
-                                "buildProfileData() error, mismatch between nrOfChannels and profile columns!");
-                    for (t = 0; t < bNROfValues; t++) {
-                        i = gotoNextOpenBracket(responseData, i + 1);
-                        i = gotoNextOpenBracket(responseData, i + 1);
+                                "buildProfileData() error, mismatch between nrOfChannels(" + nrOfChannels + ") and profile columns(" + bNROfValues + ")!");
+
+                    if(profileData.getChannelInfos().size() == 0){
+                    	String channelName;
+                    	String channelUnit;
+                    	Unit cUnit;
+                    	ChannelInfo ci;
+                    	// TODO build channelInfos
+                    	for (t = 0; t < bNROfValues; t++) {
+                    		channelName = "";
+                    		channelUnit = "";
+                    		i = gotoNextOpenBracket(responseData, i + 1);
+                    		channelName = parseFindString(responseData, i);
+                    		i = gotoNextOpenBracket(responseData, i + 1);
+                    		channelUnit = parseFindString(responseData, i);
+                    		if(!channelUnit.equalsIgnoreCase("")){
+                    			cUnit = Unit.get(channelUnit);
+                    		} else {
+                    			cUnit = Unit.getUndefined();
+                    		} 
+                    		ci = new ChannelInfo(t, "EdisChannel-"+channelName, cUnit);
+                    		if(getProtocolLink().getProtocolChannelMap().getProtocolChannel(t).isCumul()){
+                    			ci.setCumulativeWrapValue(getProtocolLink().getProtocolChannelMap().getProtocolChannel(t).getWrapAroundValue());
+                    		}
+                    		profileData.addChannel(ci);
+                    		
+                    	}
                     }
 
                     i = gotoNextCR(responseData, i + 1);

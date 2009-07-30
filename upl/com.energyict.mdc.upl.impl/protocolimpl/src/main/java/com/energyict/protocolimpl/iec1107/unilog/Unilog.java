@@ -165,6 +165,10 @@ public class Unilog implements MeterProtocol, ProtocolLink, MeterExceptionInfo {
 
         this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
         
+        if (p.getProperty("ChannelMap") != null){
+        	this.pChannelMap = p.getProperty("ChannelMap");
+        }
+        
         validateProperties();
 
     }
@@ -189,6 +193,7 @@ public class Unilog implements MeterProtocol, ProtocolLink, MeterExceptionInfo {
         result.add(PK_RETRIES);
         result.add(MeterProtocol.ROUNDTRIPCORR);
         result.add("Software7E1");
+        result.add("ChannelMap");
         return result;
     }
 

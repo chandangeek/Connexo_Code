@@ -7,6 +7,9 @@
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
@@ -192,6 +195,40 @@ public class UNIFLO1200Registers {
 			default: throw new IOException("Unknown firmwareversion: " + this.fwVersion);
 		}
 	}
+	
+	/**
+	 * Checks if a given register is a cumulative register
+	 * @param addressIndex - the number(index) of the register
+	 * @return true if cumulative, false otherwise
+	 * @throws IOException if addressIndex is out of range or firmwareVersion is unknown
+	 */
+	public boolean isCumulative(int addressIndex) throws IOException {
+		if ((addressIndex > MAX_INDEX) || (addressIndex < MIN_INDEX)) 
+			throw new IOException("isCumulative() addressIndex wrong value: " + addressIndex + ". Valid value: " + MIN_INDEX + " to " + MAX_INDEX);
+
+		switch (this.fwVersion) {
+			case UNIFLO1200_FW_25: return V25.isCumulative(addressIndex);
+			case UNIFLO1200_FW_28: return V28.isCumulative(addressIndex);
+			default: throw new IOException("Unknown firmwareversion: " + this.fwVersion);
+		}
+	}
+	
+	/**
+	 * Returns the cumulative wrapValue
+	 * @param addressIndex - the number(index) of the register
+	 * @return the wrapValue
+	 * @throws IOException if addressIndex is out of range or firmwareVersion is unknown
+	 */
+	public long getCumulativeWrapValue(int addressIndex) throws IOException{ 
+		if ((addressIndex > MAX_INDEX) || (addressIndex < MIN_INDEX)) 
+			throw new IOException("getCumulativeWrapValue() addressIndex wrong value: " + addressIndex + ". Valid value: " + MIN_INDEX + " to " + MAX_INDEX);
+
+		switch (this.fwVersion) {
+			case UNIFLO1200_FW_25: return V25.getCumulativeWrapValue(addressIndex);
+			case UNIFLO1200_FW_28: return V28.getCumulativeWrapValue(addressIndex);
+			default: throw new IOException("Unknown firmwareversion: " + this.fwVersion);
+		}
+	}
 
 	public static class V25 {
 		private static final int ABSOLUTE_ADDRESSES[] 		= {0x00000000};
@@ -203,6 +240,8 @@ public class UNIFLO1200Registers {
 		public static final int MONTH_LOG_STARTADDRESS 		= 0;
 		public static final int EVENT_LOG_STARTADDRESS		= 0;
 
+		public static boolean isCumulative(int addressIndex){ return false;}
+		public static long getCumulativeWrapValue(int addressIndex){ return 99999999;}	// unnecessary because it's always false
 	}
 	
 	public static class V28 {
@@ -1335,7 +1374,49 @@ public class UNIFLO1200Registers {
 
 		};
 
+		/* The HashMap will indicate if the register is cumulative and what the wrapValue is */
+		public static HashMap CUMULATIVE_REGISTERS = new HashMap();
+		static{
+			buildCumulativeHashMap();
+		}
+		
+		private static void buildCumulativeHashMap(){
+			CUMULATIVE_REGISTERS.put(32, 99999999);
+			CUMULATIVE_REGISTERS.put(42, 99999999);
+			CUMULATIVE_REGISTERS.put(43, 99999999);
+			CUMULATIVE_REGISTERS.put(44, 99999999);	// TODO, chech the wrapValue
+			CUMULATIVE_REGISTERS.put(45, 99999999);	// TODO, chech the wrapValue
+			CUMULATIVE_REGISTERS.put(46, 99999999);	// TODO, chech the wrapValue
+			CUMULATIVE_REGISTERS.put(47, 99999999);	// TODO, chech the wrapValue
+			CUMULATIVE_REGISTERS.put(95, 99999999);
+			CUMULATIVE_REGISTERS.put(96, 99999999);	// TODO, not sure, but in the manual you see a wrapValue	
+			CUMULATIVE_REGISTERS.put(97, 99999999);	// TODO, not sure, but in the manual you see a wrapValue
+			CUMULATIVE_REGISTERS.put(108, 99999999);
+			CUMULATIVE_REGISTERS.put(190, 99999999);
+			CUMULATIVE_REGISTERS.put(191, 99999999);
+			CUMULATIVE_REGISTERS.put(192, 99999999);
+			CUMULATIVE_REGISTERS.put(193, 99999999);
+			CUMULATIVE_REGISTERS.put(194, 99999999);
+			CUMULATIVE_REGISTERS.put(210, 99999999);
+			CUMULATIVE_REGISTERS.put(211, 99999999);
+			}
+		
+		/**
+		 * Checks if current register is an accumulated value
+		 * @param addressIndex - the number(index) of the register
+		 * @return true if cumulative, false otherwise
+		 */
+		public static boolean isCumulative(int addressIndex){
+			return CUMULATIVE_REGISTERS.containsKey(addressIndex);
+		}
 	
+		/**
+		 * @param addressIndex - the number(index) of the register
+		 * @return the wrapValue
+		 */
+		public static long getCumulativeWrapValue(int addressIndex){
+			return (Integer) CUMULATIVE_REGISTERS.get(addressIndex);
+		}
 	}
 
 

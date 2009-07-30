@@ -7,6 +7,7 @@
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,13 +102,18 @@ public class UNIFLO1200ProfileInfoParser {
 	public List buildChannelInfos() throws IOException {
 		List channelInfos = new ArrayList();
 		int numberOfChannels = getNumberOfChannels();
+		ChannelInfo ci;
 		
 		for (int channelIndex = 0; channelIndex < numberOfChannels; channelIndex++) {
 			int channelRegisterID = logInfoValue[channelIndex] & 0x000000FF;
 			String channelName = "CH" + channelIndex + " [" + getUNIFLO1200Registers().getAddressName(channelRegisterID) + "]";
 			Unit channelUnit = Unit.get(getUNIFLO1200Registers().getUnitString(channelRegisterID));
 			if (channelUnit == null) channelUnit = Unit.get("");
-			channelInfos.add(new ChannelInfo(channelIndex, channelName, channelUnit));
+			ci = new ChannelInfo(channelIndex, channelName, channelUnit);
+			if(getUNIFLO1200Registers().isCumulative(channelRegisterID)){
+				ci.setCumulativeWrapValue(new BigDecimal(getUNIFLO1200Registers().getCumulativeWrapValue(channelRegisterID)));
+			}
+			channelInfos.add(ci);
 		}
 		
 		return channelInfos;
