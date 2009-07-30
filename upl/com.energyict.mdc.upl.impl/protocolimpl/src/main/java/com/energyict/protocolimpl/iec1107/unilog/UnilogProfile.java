@@ -273,17 +273,6 @@ public class UnilogProfile extends VDEWProfile {
         
         // We suppose that the profile contains nr of channels!!
         try {
-// TODO don't forget to add the channelInfo's
-//            for (t = 0; t < nrOfChannels; t++) {
-//
-//                ChannelInfo chi = new ChannelInfo(t, "unilog_channel_" + t,
-//                        dataUnits[t]);
-//                if ((t >= 0) && (t <= 2))
-//                    chi.setCumulativeWrapValue(new BigDecimal("100000000"));
-//
-//                profileData.addChannel(chi);
-//
-//            }
 
             int i = 0;
             while (true) {

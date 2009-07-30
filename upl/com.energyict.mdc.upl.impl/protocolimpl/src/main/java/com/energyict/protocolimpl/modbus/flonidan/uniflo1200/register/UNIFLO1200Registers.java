@@ -219,7 +219,7 @@ public class UNIFLO1200Registers {
 	 * @return the wrapValue
 	 * @throws IOException if addressIndex is out of range or firmwareVersion is unknown
 	 */
-	public long getCumulativeWrapValue(int addressIndex) throws IOException{ 
+	public int getCumulativeWrapValue(int addressIndex) throws IOException{ 
 		if ((addressIndex > MAX_INDEX) || (addressIndex < MIN_INDEX)) 
 			throw new IOException("getCumulativeWrapValue() addressIndex wrong value: " + addressIndex + ". Valid value: " + MIN_INDEX + " to " + MAX_INDEX);
 
@@ -241,7 +241,7 @@ public class UNIFLO1200Registers {
 		public static final int EVENT_LOG_STARTADDRESS		= 0;
 
 		public static boolean isCumulative(int addressIndex){ return false;}
-		public static long getCumulativeWrapValue(int addressIndex){ return 99999999;}	// unnecessary because it's always false
+		public static int getCumulativeWrapValue(int addressIndex){ return 99999999;}	// unnecessary because it's always false
 	}
 	
 	public static class V28 {
@@ -1381,24 +1381,24 @@ public class UNIFLO1200Registers {
 		}
 		
 		private static void buildCumulativeHashMap(){
-			CUMULATIVE_REGISTERS.put(32, 99999999);
-			CUMULATIVE_REGISTERS.put(42, 99999999);
-			CUMULATIVE_REGISTERS.put(43, 99999999);
-			CUMULATIVE_REGISTERS.put(44, 99999999);	// TODO, chech the wrapValue
-			CUMULATIVE_REGISTERS.put(45, 99999999);	// TODO, chech the wrapValue
-			CUMULATIVE_REGISTERS.put(46, 99999999);	// TODO, chech the wrapValue
-			CUMULATIVE_REGISTERS.put(47, 99999999);	// TODO, chech the wrapValue
-			CUMULATIVE_REGISTERS.put(95, 99999999);
-			CUMULATIVE_REGISTERS.put(96, 99999999);	// TODO, not sure, but in the manual you see a wrapValue	
-			CUMULATIVE_REGISTERS.put(97, 99999999);	// TODO, not sure, but in the manual you see a wrapValue
-			CUMULATIVE_REGISTERS.put(108, 99999999);
-			CUMULATIVE_REGISTERS.put(190, 99999999);
-			CUMULATIVE_REGISTERS.put(191, 99999999);
-			CUMULATIVE_REGISTERS.put(192, 99999999);
-			CUMULATIVE_REGISTERS.put(193, 99999999);
-			CUMULATIVE_REGISTERS.put(194, 99999999);
-			CUMULATIVE_REGISTERS.put(210, 99999999);
-			CUMULATIVE_REGISTERS.put(211, 99999999);
+			CUMULATIVE_REGISTERS.put(new Integer(32), "99999999");
+			CUMULATIVE_REGISTERS.put(new Integer(42), "99999999");
+			CUMULATIVE_REGISTERS.put(new Integer(43), "99999999");
+			CUMULATIVE_REGISTERS.put(new Integer(44), "99999999");	// TODO, chech the wrapValue
+			CUMULATIVE_REGISTERS.put(new Integer(45), "99999999");	// TODO, chech the wrapValue
+			CUMULATIVE_REGISTERS.put(new Integer(46), "99999999");	// TODO, chech the wrapValue
+			CUMULATIVE_REGISTERS.put(new Integer(47), "99999999");	// TODO, chech the wrapValue
+			CUMULATIVE_REGISTERS.put(new Integer(95), "99999999");
+			CUMULATIVE_REGISTERS.put(new Integer(96), "99999999");	// TODO, not sure, but in the manual you see a wrapValue	
+			CUMULATIVE_REGISTERS.put(new Integer(97), "99999999");	// TODO, not sure, but in the manual you see a wrapValue
+			CUMULATIVE_REGISTERS.put(new Integer(108), "99999999");
+			CUMULATIVE_REGISTERS.put(new Integer(190), "99999999");
+			CUMULATIVE_REGISTERS.put(new Integer(191), "99999999");
+			CUMULATIVE_REGISTERS.put(new Integer(192), "99999999");
+			CUMULATIVE_REGISTERS.put(new Integer(193), "99999999");
+			CUMULATIVE_REGISTERS.put(new Integer(194), "99999999");
+			CUMULATIVE_REGISTERS.put(new Integer(210), "99999999");
+			CUMULATIVE_REGISTERS.put(new Integer(211), "99999999");
 			}
 		
 		/**
@@ -1407,15 +1407,15 @@ public class UNIFLO1200Registers {
 		 * @return true if cumulative, false otherwise
 		 */
 		public static boolean isCumulative(int addressIndex){
-			return CUMULATIVE_REGISTERS.containsKey(addressIndex);
+			return CUMULATIVE_REGISTERS.containsKey(new Integer(addressIndex));
 		}
 	
 		/**
 		 * @param addressIndex - the number(index) of the register
 		 * @return the wrapValue
 		 */
-		public static long getCumulativeWrapValue(int addressIndex){
-			return (Integer) CUMULATIVE_REGISTERS.get(addressIndex);
+		public static int getCumulativeWrapValue(int addressIndex){
+			return Integer.parseInt((String)CUMULATIVE_REGISTERS.get(new Integer(addressIndex)));
 		}
 	}
 
