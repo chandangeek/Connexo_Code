@@ -131,4 +131,19 @@ public class MockSecurityProvider implements SecurityProvider{
 		return null;
 	}
 
+	public byte[] getNEWAuthenticationKey() throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public byte[] getNEWGlobalKey() throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public byte[] getNEWHLSSecret() throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

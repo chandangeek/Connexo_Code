@@ -23,6 +23,12 @@ public interface SecurityProvider {
 	 * @throws IOException
 	 */
 	public byte[] getHLSSecret() throws IOException;
+
+	/**
+	 * @return the NEW HLSSecret for the KeyChange functionality
+	 * @throws IOException
+	 */
+	public byte[] getNEWHLSSecret() throws IOException;
 	
 	/**
 	 * A global key is a ciphering key that may be used to cipher xDLMS APDU's, 
@@ -30,6 +36,12 @@ public interface SecurityProvider {
 	 * @throws IOException
 	 */
 	public byte[] getGlobalKey() throws IOException;
+	
+	/** 
+	 * @return the new GlobalKey for the KeyChange functionality
+	 * @throws IOException
+	 */
+	public byte[] getNEWGlobalKey() throws IOException;
 	
 	/**
 	 * A dedicated key is a ciphering key that is delivered during AA establishment and that may be used in subsequent 
@@ -45,6 +57,12 @@ public interface SecurityProvider {
 	 * @throws IOException
 	 */
 	public byte[] getAuthenticationKey() throws IOException;
+	
+	/**
+	 * @return the new authentication key for the KeyChange functionality
+	 * @throws IOException
+	 */
+	public byte[] getNEWAuthenticationKey() throws IOException;
 	
 	/**
 	 * A master key shall be present in each COSEM server logical device configured in the system.

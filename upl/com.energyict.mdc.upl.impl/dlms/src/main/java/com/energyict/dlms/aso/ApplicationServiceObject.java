@@ -42,7 +42,7 @@ public class ApplicationServiceObject {
 		this.protocolLink = protocolLink;
 		this.securityContext = securityContext;
 		this.acse = new AssociationControlServiceElement(this.xDlmsAse, contextId, 
-		this.securityContext.getAuthenticationLevel(), this.securityContext.getSecurityProvider().getCallingAuthenticationValue());
+					this.securityContext.getAuthenticationLevel(), this.securityContext.getSecurityProvider().getCallingAuthenticationValue());
 		this.associationStatus = ASSOCIATION_DISCONNECTED;
 	}
 	
@@ -150,6 +150,8 @@ public class ApplicationServiceObject {
 		} else if((this.acse.getContextId() == 2) || (this.acse.getContextId() == 4)){	// reply with AssociationSN 
 			AssociationSN asn = new AssociationSN(this.protocolLink);
 			encryptedResponse = new OctetString(asn.replyToHLSAuthentication(digest));
+		} else {
+			throw new IllegalArgumentException("Invalid ContextId: " + this.acse.getContextId());
 		}
 		return encryptedResponse.getContentBytes();
 	}
