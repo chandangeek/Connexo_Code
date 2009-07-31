@@ -97,4 +97,21 @@ public class LocalSecurityProvider implements SecurityProvider {
 		return this.masterKey;
 	}
 
+	/********** Return new keys for KeyChange functionality **********/
+	
+	public byte[] getNEWAuthenticationKey() throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public byte[] getNEWGlobalKey() throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public byte[] getNEWHLSSecret() throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
