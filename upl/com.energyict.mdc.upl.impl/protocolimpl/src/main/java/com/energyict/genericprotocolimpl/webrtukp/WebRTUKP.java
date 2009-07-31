@@ -69,6 +69,7 @@ import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
@@ -149,7 +150,6 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	private int iiapServiceClass;
 	private int iiapInvokeId;
 	private int wakeup;
-	private byte[] dataTransportKey;
 
 	/**
 	 * <pre>
@@ -465,8 +465,10 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	public void init() throws IOException, DLMSConnectionException, SQLException, BusinessException{
 		
 		this.cosemObjectFactory	= new CosemObjectFactory((ProtocolLink)this);
+		Properties meterProperties = getMeter().getProperties();
+		meterProperties.put(MeterProtocol.PASSWORD, getMeter().getPassword());
+		LocalSecurityProvider lsp = new LocalSecurityProvider(meterProperties);
 		
-		LocalSecurityProvider lsp = new LocalSecurityProvider(this.authenticationSecurityLevel, this.password, this.dataTransportKey);
 		ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
 		XdlmsAse xDlmsAse = new XdlmsAse(null, true, -1, 6, cb, 1200);
 		//TODO the dataTransport encryptionType should be a property (although currently only 0 is described by DLMS)
@@ -1341,9 +1343,6 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 			this.authenticationSecurityLevel = Integer.parseInt(securityLevel);
 			this.datatransportSecurityLevel = 0;
 		}
-		this.dataTransportKey = DLMSUtils.hexStringToByteArray(properties.getProperty("DataTransportKey",""));
-		
-//        this.securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "0"));
         this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "1"));
         this.clientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "16"));
         this.serverLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "1"));
@@ -1408,6 +1407,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		result.add("RoundTripCorrection");
 		result.add("FolderExtName");
 		result.add("DataTransportKey");
+		result.add("MasterKey");
 		return result;
 	}
 

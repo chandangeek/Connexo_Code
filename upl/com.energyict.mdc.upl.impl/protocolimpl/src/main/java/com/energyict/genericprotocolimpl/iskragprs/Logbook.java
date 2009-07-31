@@ -22,6 +22,8 @@ import com.energyict.protocol.ProfileData;
 /**
  * 
  * @author Koen
+ * @changes 
+ * GNA |30072009| Changed certain eventCodes to newer EIServer eventCodes
  */
 public class Logbook {
 
@@ -69,7 +71,7 @@ public class Logbook {
 		List meterEvents = new ArrayList(); // of type MeterEvent
 		int size = dc.getRoot().getNrOfElements();
 		Date eventTimeStamp = null;
-		for (int i = 0; i <= (size - 1); i++) {
+		for (int i = 0; i < size; i++) {
 
 			// int eventId = dc.getRoot().getStructure(i).getInteger(1);
 			int eventId = (int) dc.getRoot().getStructure(i).getValue(1);
@@ -92,13 +94,11 @@ public class Logbook {
 	}
 
 	private boolean isOctetString(DataStructure structure) {
-
-		if (structure.getElement(0) instanceof com.energyict.dlms.OctetString)
+		if (structure.getElement(0) instanceof com.energyict.dlms.OctetString){
 			return true;
-		else if (structure.getElement(0) instanceof java.lang.Integer)
+		} else {
 			return false;
-		else
-			return false;
+		}
 	}
 
 	private void buildMeterEvent(List meterEvents, Date eventTimeStamp,
@@ -157,10 +157,17 @@ public class Logbook {
 						.add(new MeterEvent(eventTimeStamp,
 								MeterEvent.CLEAR_DATA,
 								"Event status event log cleared"));
-			if ((eventId & EVENT_STATUS_LOADPROFILE_CLEARED) == EVENT_STATUS_LOADPROFILE_CLEARED)
+			if ((eventId & EVENT_STATUS_LOADPROFILE_CLEARED) == EVENT_STATUS_LOADPROFILE_CLEARED){
+
+//				meterEvents.add(new MeterEvent(eventTimeStamp,
+//						MeterEvent.CLEAR_DATA,
+//				"Event status load profile cleared"));
+				
+				/** Current event only supported from EIServer8.3.13, otherwise be sure to use the event above */
 				meterEvents.add(new MeterEvent(eventTimeStamp,
-						MeterEvent.CLEAR_DATA,
-						"Event status load profile cleared"));
+						MeterEvent.LOADPROFILE_CLEARED,
+				"Event status load profile cleared"));
+			}
 
 		} else {
 
@@ -189,13 +196,22 @@ public class Logbook {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.OTHER,
 						"Event status end of L3 phase failure"));
-			if (aloneEventId == EVENT_STATUS_METER_COVER_OPENED)
+			if (aloneEventId == EVENT_STATUS_METER_COVER_OPENED){
+//				meterEvents.add(new MeterEvent(eventTimeStamp,
+//						MeterEvent.OTHER, "Event status meter cover opened"));
+				/** Current event only supported from EIServer8.3.13, otherwise be sure to use the event above */
 				meterEvents.add(new MeterEvent(eventTimeStamp,
-						MeterEvent.OTHER, "Event status meter cover opened"));
-			if (aloneEventId == EVENT_STATUS_TERMINAL_COVER_OPENED)
-				meterEvents
-						.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER,
-								"Event status terminal cover opened"));
+						MeterEvent.COVER_OPENED, "Event status meter cover opened"));
+			}
+			if (aloneEventId == EVENT_STATUS_TERMINAL_COVER_OPENED){
+//				meterEvents
+//				.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER,
+//				"Event status terminal cover opened"));
+
+				/** Current event only supported from EIServer8.3.13, otherwise be sure to use the event above */
+				meterEvents.add(new MeterEvent(eventTimeStamp,
+						MeterEvent.TERMINAL_OPENED, "Event status meter cover opened"));
+			}
 
 		}
 

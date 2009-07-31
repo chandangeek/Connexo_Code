@@ -1,9 +1,12 @@
 package com.energyict.genericprotocolimpl.common;
 
 import java.io.IOException;
+import java.util.Properties;
 import java.util.Random;
 
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.SecurityLevelException;
 
 public class LocalSecurityProvider implements SecurityProvider {
@@ -12,16 +15,22 @@ public class LocalSecurityProvider implements SecurityProvider {
 	private byte[] cTOs;
 	private String authenticationPassword;
 	private byte[] dataTransportPassword;
+	private byte[] masterKey;
 	
 	/**
 	 * Create a new instance of LocalSecurityProvider
-	 * @param authenticationLevel - depending on the level we provide a different callingAuthenticationKey
-	 * @param password - this will be the HLSSecret with LowLevel Security
+	 * @param properties - contains the keys for the authentication/encryption
 	 */
-	public LocalSecurityProvider(int authenticationLevel, String password, byte[] dataTransportKey){
-		this.securityLevel = authenticationLevel;
-		this.authenticationPassword = password;
-		this.dataTransportPassword = dataTransportKey;
+	public LocalSecurityProvider(Properties properties){
+		String sl = properties.getProperty("SecurityLevel", "0");
+		if(sl.indexOf(":") != -1){
+			this.securityLevel = Integer.parseInt(sl.substring(0, sl.indexOf(":")));
+		} else {
+			this.securityLevel = Integer.parseInt(sl);
+		}
+		this.dataTransportPassword = DLMSUtils.hexStringToByteArray(properties.getProperty("DataTransportKey", ""));
+		this.masterKey = DLMSUtils.hexStringToByteArray(properties.getProperty("MasterKey", ""));
+		this.authenticationPassword = properties.getProperty(MeterProtocol.PASSWORD);
 	}
 	
 	/**
@@ -76,10 +85,6 @@ public class LocalSecurityProvider implements SecurityProvider {
 		return this.dataTransportPassword;
 	}
 
-	public int getSecurityLevel() {
-		return this.securityLevel;
-	}
-
 	public byte[] getHLSSecret() {
 		byte[] byteWord = new byte[this.authenticationPassword.length()];
 		for(int i = 0; i < this.authenticationPassword.length(); i++){
@@ -89,8 +94,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 	}
 
 	public byte[] getMasterKey() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return this.masterKey;
 	}
 
 }

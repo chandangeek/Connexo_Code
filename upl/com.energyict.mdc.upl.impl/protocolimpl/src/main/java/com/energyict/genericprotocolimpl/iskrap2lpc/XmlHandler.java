@@ -482,7 +482,9 @@ class XmlHandler extends DefaultHandler {
             	}
             	if ( mask(eventId, Constant.EVENT_LOADPROFILE_CLEARED) ){
             		final String msg = "Event status load profile cleared.";
-            		addMeterEvent(time,MeterEvent.CLEAR_DATA,msg);
+//            		addMeterEvent(time,MeterEvent.CLEAR_DATA,msg);
+            		/** Current event only supported from EIServer8.3.13, otherwise be sure to use the event above */
+            		addMeterEvent(time, MeterEvent.LOADPROFILE_CLEARED, msg);
             	}
             	if ( mask(eventId, Constant.EVENT_L1_POWER_FAILURE) ) {
             		final String msg = "Event status L1 phase failure.";
@@ -510,13 +512,13 @@ class XmlHandler extends DefaultHandler {
             	}
             	if ( mask(eventId, Constant.EVENT_METER_COVER_OPENED) ){
             		final String msg = "Event status meter cover opened.";
-            		addMeterEvent(time, MeterEvent.COVER_OPENED, msg);	// Only in later version of EISERVER
 //            		addMeterEvent(time, MeterEvent.OTHER, msg);
+            		addMeterEvent(time, MeterEvent.COVER_OPENED, msg);	// Only in later version of EISERVER
             	}
             	if ( mask(eventId, Constant.EVENT_TERMINAL_COVER_OPENED) ){
             		final String msg = "Event status terminal cover opened.";
-            		addMeterEvent(time,MeterEvent.TERMINAL_OPENED,msg);	// Only in later version of EISERVER
 //            		addMeterEvent(time, MeterEvent.OTHER, msg);
+            		addMeterEvent(time,MeterEvent.TERMINAL_OPENED,msg);	// Only in later version of EISERVER
             	}
             }
         } catch (ParseException e) {
