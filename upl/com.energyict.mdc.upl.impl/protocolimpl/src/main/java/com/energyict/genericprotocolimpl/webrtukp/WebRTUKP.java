@@ -39,6 +39,7 @@ import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.AssociationControlServiceElement;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CapturedObject;
@@ -465,14 +466,11 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	public void init() throws IOException, DLMSConnectionException, SQLException, BusinessException{
 		
 		this.cosemObjectFactory	= new CosemObjectFactory((ProtocolLink)this);
-		Properties meterProperties = getMeter().getProperties();
-		meterProperties.put(MeterProtocol.PASSWORD, getMeter().getPassword());
-		LocalSecurityProvider lsp = new LocalSecurityProvider(meterProperties);
 		
 		ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
 		XdlmsAse xDlmsAse = new XdlmsAse(null, true, -1, 6, cb, 1200);
 		//TODO the dataTransport encryptionType should be a property (although currently only 0 is described by DLMS)
-		SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, this.deviceId, lsp);
+		SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, this.deviceId, getSecurityProvider());
 		
 		//TODO the value of the contextId can depend on the securityLevel
 		this.aso = new ApplicationServiceObject(xDlmsAse, this, sc, AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING);
@@ -496,6 +494,18 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		this.storeObject = new StoreObject();
 	}
 
+	/**
+	 * @return the current securityProvider (currently only LocalSecurityProvider is availeable) 
+	 */
+	private SecurityProvider getSecurityProvider(){
+		
+		Properties meterProperties = getMeter().getProperties();
+		meterProperties.put(MeterProtocol.PASSWORD, getMeter().getPassword());
+		LocalSecurityProvider lsp = new LocalSecurityProvider(meterProperties);
+		
+		return lsp;
+	}
+	
 	/**
 	 * @param is - The inputStream from the Link
 	 * @param os - The outputStream from the Link
