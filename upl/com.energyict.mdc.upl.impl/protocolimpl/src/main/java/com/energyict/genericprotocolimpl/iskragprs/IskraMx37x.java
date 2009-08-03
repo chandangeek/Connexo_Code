@@ -44,7 +44,6 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;

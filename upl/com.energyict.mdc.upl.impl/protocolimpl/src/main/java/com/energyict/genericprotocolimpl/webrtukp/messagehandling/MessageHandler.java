@@ -94,10 +94,10 @@ public class MessageHandler extends DefaultHandler{
 			handleMbusCorrectedValues(attrbs);
 		} else if(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY.equals(qName)){
 			setType(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY);
-			handleChangeGlobalKey(attrbs);
 		} else if(RtuMessageConstant.AEE_CHANGE_HLS_SECRET.equals(qName)){
 			setType(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
-			handleChangeHLSSecret(attrbs);
+		} else if(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY.equals(qName)){
+			setType(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY);
 		} else {
 			if(!isXmlInContent){ // if its the xmlMessage, then don't fail because it has xml in the content
 				throw new SAXException("Unknown messageContent : " + qName);
@@ -567,28 +567,28 @@ public class MessageHandler extends DefaultHandler{
 	 * Authentication and Encryption functionality Related messages
 	 **********************************************/
 	
-	private String hlsSecret = "";
-	private String globalKey = "";
-	private String globalKeyType = "";
+//	private String hlsSecret = "";
+//	private String globalKey = "";
+//	private String globalKeyType = "";
 	
-	private void handleChangeHLSSecret(Attributes attrbs){
-		this.hlsSecret = attrbs.getValue(RtuMessageConstant.AEE_HLS_SECRET);
-	}
+//	private void handleChangeHLSSecret(Attributes attrbs){
+//		this.hlsSecret = attrbs.getValue(RtuMessageConstant.AEE_HLS_SECRET);
+//	}
+//	
+//	private void handleChangeGlobalKey(Attributes attrbs){
+//		this.globalKey = attrbs.getValue(RtuMessageConstant.AEE_GLOBAL_KEY);
+////		this.globalKeyType = attrbs.getValue(RtuMessageConstant.AEE_GLOBAL_KEY_TYPE);
+//	}
+//	
+//	public String getHLSSecret(){
+//		return this.hlsSecret;
+//	}
+//	
+//	public String getGlobalKey(){
+//		return this.globalKey;
+//	}
 	
-	private void handleChangeGlobalKey(Attributes attrbs){
-		this.globalKey = attrbs.getValue(RtuMessageConstant.AEE_GLOBAL_KEY);
-		this.globalKeyType = attrbs.getValue(RtuMessageConstant.AEE_GLOBAL_KEY_TYPE);
-	}
-	
-	public String getHLSSecret(){
-		return this.hlsSecret;
-	}
-	
-	public String getGlobalKey(){
-		return this.globalKey;
-	}
-	
-	public String getGlobalKeyType(){
-		return this.globalKeyType;
-	}
+//	public String getGlobalKeyType(){
+//		return this.globalKeyType;
+//	}
 }

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.encryption.AesGcm128;
 import com.energyict.encryption.BitVector;

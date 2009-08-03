@@ -27,6 +27,7 @@ public class RtuMessageKeyIdConstants {
 	public final static String SETWHITELIST = "Set phonenumbers to whitelist";
 	public final static String CHANGEHLSSECRET = "Change the HLS secret";
 	public final static String CHANGEGLOBALKEY = "Change global key";
+	public static final String CHANGEAUTHENTICATIONKEY = "Change authentication key";
 	public final static String READONDEMAND = "ReadOnDemand";
 	public final static String MBUSDECOMMISSION = "Decommission";
 	public final static String MBUSENCRYPTIONKEY = "Set Encryption keys";

@@ -450,16 +450,22 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 	   try {
 		DataContainer dc = new DataContainer();
 		   
-		   byte b[] = new byte[]{(byte)0x1, (byte)0x4, (byte)0x2, (byte)0x2, (byte)0x0, (byte)0x12, (byte)0x80, (byte)0x11, (byte)0x2, (byte)0x2,
-				   (byte)0x9, (byte)0x0C, (byte)0x7, (byte)0xD9, (byte)0x2, (byte)0x12, (byte)0x3, (byte)0x0F, (byte)0x2B, (byte)0x2D, (byte)0x0,
-				   (byte)0xFF, (byte)0xC4, (byte)0x0, (byte)0x12, (byte)0x80, (byte)0x11, (byte)0x2, (byte)0x2, (byte)0x9, (byte)0x0C, (byte)0x7,
-				   (byte)0xD9, (byte)0x2, (byte)0x12, (byte)0x3, (byte)0x0F, (byte)0x30, (byte)0x23, (byte)0x0, (byte)0xFF, (byte)0xC4, (byte)0x0,
-				   (byte)0x12, (byte)0x0, (byte)0x80, (byte)0x2, (byte)0x2, (byte)0x9, (byte)0x0C, (byte)0x7, (byte)0xD9, (byte)0x2, (byte)0x12,
-				   (byte)0x3, (byte)0x0F, (byte)0x30, (byte)0x26, (byte)0x0, (byte)0xFF, (byte)0xC4, (byte)0x0, (byte)0x12, (byte)0x0, (byte)0x40};
+//		   byte b[] = new byte[]{(byte)0x1, (byte)0x4, (byte)0x2, (byte)0x2, (byte)0x0, (byte)0x12, (byte)0x80, (byte)0x11, (byte)0x2, (byte)0x2,
+//				   (byte)0x9, (byte)0x0C, (byte)0x7, (byte)0xD9, (byte)0x2, (byte)0x12, (byte)0x3, (byte)0x0F, (byte)0x2B, (byte)0x2D, (byte)0x0,
+//				   (byte)0xFF, (byte)0xC4, (byte)0x0, (byte)0x12, (byte)0x80, (byte)0x11, (byte)0x2, (byte)0x2, (byte)0x9, (byte)0x0C, (byte)0x7,
+//				   (byte)0xD9, (byte)0x2, (byte)0x12, (byte)0x3, (byte)0x0F, (byte)0x30, (byte)0x23, (byte)0x0, (byte)0xFF, (byte)0xC4, (byte)0x0,
+//				   (byte)0x12, (byte)0x0, (byte)0x80, (byte)0x2, (byte)0x2, (byte)0x9, (byte)0x0C, (byte)0x7, (byte)0xD9, (byte)0x2, (byte)0x12,
+//				   (byte)0x3, (byte)0x0F, (byte)0x30, (byte)0x26, (byte)0x0, (byte)0xFF, (byte)0xC4, (byte)0x0, (byte)0x12, (byte)0x0, (byte)0x40};
+//		   
+//		   dc.parseObjectList(b, null);
+//		   
+//		   dc.printDataContainer();
 		   
-		   dc.parseObjectList(b, null);
+		   byte by[] = DLMSUtils.hexStringToByteArray("01660202090c07d9031a040f1a1800ffc4001280110202090c07d9031a040f1b1000ffc4001200100202090c07d9031a040f1c0800ffc4001280110202090c07d9031a040f231f00ffc4001280110202090c07d9031b0509160700ffc4001200100202090c07d9031b050a340100ffc4001280110202090c07d9031b050d261b00ffc4001280110202090c07d9031b050d283b00ffc4001280110202090c07d9031b050d2c1c00ffc4001280110202090c07d9031b050d350f00ffc4001200200202090c07d9031b050e030a00ffc4001280110202090c07d9031d070b022100ff88801280110202090c07d9031e01020f2800ff88801280110202090c07d9031e0110310a00ff88801280110202090c07d9031e01120c1100ff8880128011");
+		   dc = new DataContainer();
+		   dc.parseObjectList(by, null);
+		   dc.print2strDataContainer();
 		   
-		   dc.printDataContainer();
 	} catch (IOException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();

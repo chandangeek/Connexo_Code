@@ -160,5 +160,7 @@ public class RtuMessageConstant {
 	public static final String AEE_HLS_SECRET = "HLSSecret";
 	public static final String AEE_CHANGE_GLOBAL_KEY = "Change_Global_Key";
 	public static final String AEE_GLOBAL_KEY = "GlobalKey";
-	public static final String AEE_GLOBAL_KEY_TYPE = "GlobalKeyType";
+//	public static final String AEE_GLOBAL_KEY_TYPE = "GlobalKeyType";
+	public static final String AEE_CHANGE_AUTHENTICATION_KEY = "AuthenticationKey";
+//	public static final String AEE_AUTHENTICATION_KEY_TYPE = "AuthenticationKeyType";
 }

@@ -14,6 +14,7 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
 import com.energyict.protocol.MeterEvent;
@@ -73,21 +74,24 @@ public class Logbook {
 		Date eventTimeStamp = null;
 		for (int i = 0; i < size; i++) {
 
-			// int eventId = dc.getRoot().getStructure(i).getInteger(1);
-			int eventId = (int) dc.getRoot().getStructure(i).getValue(1);
-			// int eventId = (byte)dc.getRoot().getStructure(i).getValue(1);
-
-			if (isOctetString(dc.getRoot().getStructure(i))){
-				eventTimeStamp = dc.getRoot().getStructure(i).getOctetString(0).toDate(timeZone);
-				buildMeterEvent(meterEvents, eventTimeStamp, eventId);
-			} else {
-				// if the time is not the correct structure, then we don't store it in the database
-				this.logger.log(Level.INFO, "An event is returned with an invalid timestamp, eventcode is : " + eventId);
+			if(dc.getRoot().getStructure(i) != null){
+				
+				// int eventId = dc.getRoot().getStructure(i).getInteger(1);
+				int eventId = (int) dc.getRoot().getStructure(i).getValue(1);
+				// int eventId = (byte)dc.getRoot().getStructure(i).getValue(1);
+				
+				if (isOctetString(dc.getRoot().getStructure(i))){
+					eventTimeStamp = dc.getRoot().getStructure(i).getOctetString(0).toDate(timeZone);
+					buildMeterEvent(meterEvents, eventTimeStamp, eventId);
+				} else {
+					// if the time is not the correct structure, then we don't store it in the database
+					this.logger.log(Level.INFO, "An event is returned with an invalid timestamp, eventcode is : " + eventId);
+				}
+				
+				if (DEBUG >= 1)
+					System.out.println("DEBUG> eventId=" + eventId
+							+ ", eventTimeStamp=" + eventTimeStamp);
 			}
-
-			if (DEBUG >= 1)
-				System.out.println("DEBUG> eventId=" + eventId
-						+ ", eventTimeStamp=" + eventTimeStamp);
 
 		}
 		return meterEvents;
@@ -222,25 +226,28 @@ public class Logbook {
 		try {
 			DataContainer dc = new DataContainer();
 
-			byte b[] = new byte[] { (byte) 0x1, (byte) 0x4, (byte) 0x2,
-					(byte) 0x2, (byte) 0x0, (byte) 0x12, (byte) 0x80,
-					(byte) 0x11, (byte) 0x2, (byte) 0x2, (byte) 0x9,
-					(byte) 0x0C, (byte) 0x7, (byte) 0xD9, (byte) 0x2,
-					(byte) 0x12, (byte) 0x3, (byte) 0x0F, (byte) 0x2B,
-					(byte) 0x2D, (byte) 0x0, (byte) 0xFF, (byte) 0xC4,
-					(byte) 0x0, (byte) 0x12, (byte) 0x80, (byte) 0x11,
-					(byte) 0x2, (byte) 0x2, (byte) 0x9, (byte) 0x0C,
-					(byte) 0x7, (byte) 0xD9, (byte) 0x2, (byte) 0x12,
-					(byte) 0x3, (byte) 0x0F, (byte) 0x30, (byte) 0x23,
-					(byte) 0x0, (byte) 0xFF, (byte) 0xC4, (byte) 0x0,
-					(byte) 0x12, (byte) 0x0, (byte) 0x80, (byte) 0x2,
-					(byte) 0x2, (byte) 0x9, (byte) 0x0C, (byte) 0x7,
-					(byte) 0xD9, (byte) 0x2, (byte) 0x12, (byte) 0x3,
-					(byte) 0x0F, (byte) 0x30, (byte) 0x26, (byte) 0x0,
-					(byte) 0xFF, (byte) 0xC4, (byte) 0x0, (byte) 0x12,
-					(byte) 0x0, (byte) 0x40 };
-
-			dc.parseObjectList(b, null);
+//			byte b[] = new byte[] { (byte) 0x1, (byte) 0x4, (byte) 0x2,
+//					(byte) 0x2, (byte) 0x0, (byte) 0x12, (byte) 0x80,
+//					(byte) 0x11, (byte) 0x2, (byte) 0x2, (byte) 0x9,
+//					(byte) 0x0C, (byte) 0x7, (byte) 0xD9, (byte) 0x2,
+//					(byte) 0x12, (byte) 0x3, (byte) 0x0F, (byte) 0x2B,
+//					(byte) 0x2D, (byte) 0x0, (byte) 0xFF, (byte) 0xC4,
+//					(byte) 0x0, (byte) 0x12, (byte) 0x80, (byte) 0x11,
+//					(byte) 0x2, (byte) 0x2, (byte) 0x9, (byte) 0x0C,
+//					(byte) 0x7, (byte) 0xD9, (byte) 0x2, (byte) 0x12,
+//					(byte) 0x3, (byte) 0x0F, (byte) 0x30, (byte) 0x23,
+//					(byte) 0x0, (byte) 0xFF, (byte) 0xC4, (byte) 0x0,
+//					(byte) 0x12, (byte) 0x0, (byte) 0x80, (byte) 0x2,
+//					(byte) 0x2, (byte) 0x9, (byte) 0x0C, (byte) 0x7,
+//					(byte) 0xD9, (byte) 0x2, (byte) 0x12, (byte) 0x3,
+//					(byte) 0x0F, (byte) 0x30, (byte) 0x26, (byte) 0x0,
+//					(byte) 0xFF, (byte) 0xC4, (byte) 0x0, (byte) 0x12,
+//					(byte) 0x0, (byte) 0x40 };
+//
+//			dc.parseObjectList(b, null);
+//			dc.printDataContainer();
+			byte by[] = DLMSUtils.hexStringToByteArray("01660202090c07d9031a040f1a1800ffc4001280110202090c07d9031a040f1b1000ffc4001200100202090c07d9031a040f1c0800ffc4001280110202090c07d9031a040f231f00ffc4001280110202090c07d9031b0509160700ffc4001200100202090c07d9031b050a340100ffc4001280110202090c07d9031b050d261b00ffc4001280110202090c07d9031b050d283b00ffc4001280110202090c07d9031b050d2c1c00ffc4001280110202090c07d9031b050d350f00ffc4001200200202090c07d9031b050e030a00ffc4001280110202090c07d9031d070b022100ff88801280110202090c07d9031e01020f2800ff88801280110202090c07d9031e0110310a00ff88801280110202090c07d9031e01120c1100ff8880128011");
+			dc.parseObjectList(by, null);
 			dc.printDataContainer();
 			
 			Logbook lb = new Logbook(TimeZone.getDefault());

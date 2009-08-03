@@ -132,6 +132,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 			boolean wakeUpWhiteList = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
 			boolean changeHLSSecret = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
 			boolean changeGlobalkey = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY);
+			boolean changeAuthkey 	= messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY);
 			
 			if(xmlConfig){
 				
@@ -303,15 +304,6 @@ public class MessageExecutor extends GenericMessageExecutor{
 						throw e;
 					}
 				}
-				
-				
-//				
-//				// erase the emergency profile
-//				//TODO to test if this clears the emergencyProfile
-//				emptyStruct.addDataType(new Unsigned16(0));
-//				//we set the emergencyProfile activation date to the current time
-//				emptyStruct.addDataType(new OctetString(convertUnixToGMTDateTime(Long.toString(System.currentTimeMillis()/1000 + 60), getTimeZone()).getBEREncodedByteArray(), 0, true));
-//				emptyStruct.addDataType(new Unsigned32(0));
 				
 				success = true;
 			} else if (llConfig){
@@ -609,7 +601,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 				String codeTable = messageHandler.getSpecialDaysCodeTable();
 				
 				if(codeTable == null){
-					throw new IOException("CodeTalbe-ID can not be empty.");
+					throw new IOException("CodeTable-ID can not be empty.");
 				} else {
 					
 					Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
@@ -869,8 +861,21 @@ public class MessageExecutor extends GenericMessageExecutor{
 				
 				Array globalKeyArray = new Array();
 				Structure keyData = new Structure();
-				keyData.addDataType(new TypeEnum(Integer.parseInt(messageHandler.getGlobalKeyType())));
-				keyData.addDataType(OctetString.fromString(messageHandler.getGlobalKey()));
+				keyData.addDataType(new TypeEnum(0));	// 0 means keyType: global unicast encryption key
+				keyData.addDataType(new OctetString(getWebRtu().getSecurityProvider().getNEWAuthenticationKey()));
+				globalKeyArray.addDataType(keyData);
+				
+				SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
+				ss.transferGlobalKey(globalKeyArray);
+				
+				success = true;
+			} else if (changeAuthkey){
+				//TODO to test
+				
+				Array globalKeyArray = new Array();
+				Structure keyData = new Structure();
+				keyData.addDataType(new TypeEnum(2));	// 2 means keyType: authenticationKey
+				keyData.addDataType(new OctetString(getWebRtu().getSecurityProvider().getNEWAuthenticationKey()));
 				globalKeyArray.addDataType(keyData);
 				
 				SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
@@ -887,18 +892,18 @@ public class MessageExecutor extends GenericMessageExecutor{
 					// TODO maybe you need to get the key from the securityProvider
 					// We just return the byteArray because it is possible that the berEncoded octetString contains
 					// extra check bits ...
-					aln.changeHLSSecret(OctetString.fromString(messageHandler.getHLSSecret()).getBEREncodedByteArray());
+					aln.changeHLSSecret(new OctetString(getWebRtu().getSecurityProvider().getNEWHLSSecret()).getBEREncodedByteArray());
 				} else if(getWebRtu().getReference() == ProtocolLink.SN_REFERENCE){
 					AssociationSN asn = getCosemObjectFactory().getAssociationSN();
 					
 					// TODO maybe you need to get the key from the securityProvider
 					// We just return the byteArray because it is possible that the berEncoded octetString contains
 					// extra check bits ...
-					asn.changeHLSSecret(OctetString.fromString(messageHandler.getHLSSecret()).getBEREncodedByteArray());
+					asn.changeHLSSecret(new OctetString(getWebRtu().getSecurityProvider().getNEWHLSSecret()).getBEREncodedByteArray());
 				}
 				
 				
-				success = false;
+				success = true;
 			} else {
 				success = false;
 			}

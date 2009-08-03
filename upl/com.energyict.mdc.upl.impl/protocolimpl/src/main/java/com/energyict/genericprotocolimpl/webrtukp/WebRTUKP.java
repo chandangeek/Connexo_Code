@@ -48,7 +48,6 @@ import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageExecutor;
 import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MeterMessages;
@@ -114,6 +113,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	private DLMSCache dlmsCache = new DLMSCache();
 
 	private MbusDevice[] mbusDevices;
+	/** GhostMbusDevices are Mbus meters that are connected with their gateway in EIServer, but not on the physical device anymore*/
 	private HashMap<String, Integer> ghostMbusDevices = new HashMap<String, Integer>();
 	private TicDevice ticDevice;
 	private Clock deviceClock;
@@ -497,7 +497,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	/**
 	 * @return the current securityProvider (currently only LocalSecurityProvider is availeable) 
 	 */
-	private SecurityProvider getSecurityProvider(){
+	public SecurityProvider getSecurityProvider(){
 		
 		Properties meterProperties = getMeter().getProperties();
 		meterProperties.put(MeterProtocol.PASSWORD, getMeter().getPassword());
@@ -634,7 +634,6 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 //		try {
 //			getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.0.42.0.0.255"), DLMSUtils.attrLN2SN(2), 1);
 //		} catch (IOException e) {
-//			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
 		
@@ -1093,7 +1092,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 			Class device = null;
 			try {
 				device = Class.forName(mbus.getRtuType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
-				if((device != null) && (device.newInstance() instanceof MbusDevice)){
+				if((device != null) && (device.newInstance() instanceof MbusDevice)){		// we check to see if it's an Mbus device and no TIC device
 					if(!mbusMap.containsKey(mbus.getSerialNumber())){
 						getLogger().log(Level.INFO, "MbusDevice " + mbus.getSerialNumber() + " is not installed on the physical device.");
 						ghostMbusDevices.put(mbus.getSerialNumber(), mbusMap.get(mbus.getSerialNumber()));
@@ -1115,7 +1114,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	
 	/**
 	 * 
-	 * TODO check the ghostMbusDevices and create the mbusDevices
+	 * Check the ghostMbusDevices and create the mbusDevices
 	 * @param mbusMap
 	 * @throws BusinessException 
 	 * @throws SQLException 

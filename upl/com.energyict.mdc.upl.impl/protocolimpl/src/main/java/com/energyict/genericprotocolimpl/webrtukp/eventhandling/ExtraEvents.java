@@ -44,7 +44,9 @@ public class ExtraEvents {
 		extraEvents.put(new Integer(238), new String[] {
 				Integer.toString(MeterEvent.OTHER),
 				"Indicates 'No Connection' timeout" });
-
+		extraEvents.put(new Integer(239), new String[] {
+			Integer.toString(MeterEvent.POWERDOWN),
+			"Long power failure" });
 	}
 
 	/**

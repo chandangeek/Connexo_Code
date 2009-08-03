@@ -59,6 +59,9 @@ public class DataStructure implements Serializable {
     }
     
     public boolean isOctetString(int index) {
+    	if(element[index] == null){
+    		return false;
+    	}
         if (element[index] instanceof OctetString)
             return true;
         else
@@ -66,24 +69,36 @@ public class DataStructure implements Serializable {
     }
     
     public boolean isStructure(int index) {
+    	if(element[index] == null){
+    		return false;
+    	}
         if (element[index] instanceof DataStructure)
             return true;
         else
             return false;
     }
     public boolean isInteger(int index) {
+    	if(element[index] == null){
+    		return false;
+    	}
         if (element[index].getClass().getName().compareTo("java.lang.Integer") == 0)
             return true;
         else
             return false;
     }
     public boolean isLong(int index) {
+    	if(element[index] == null){
+    		return false;
+    	}
         if (element[index].getClass().getName().compareTo("java.lang.Long") == 0)
             return true;
         else
             return false;
     }
     public boolean isString(int index) {
+    	if(element[index] == null){
+    		return false;
+    	}
         if (element[index].getClass().getName().compareTo("java.lang.String") == 0)
             return true;
         else

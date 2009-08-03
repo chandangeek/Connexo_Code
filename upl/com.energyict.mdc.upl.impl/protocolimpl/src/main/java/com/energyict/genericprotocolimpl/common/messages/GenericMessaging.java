@@ -286,7 +286,8 @@ public abstract class GenericMessaging implements Messaging {
 	}
 
 	/**
-	 * Create two messages, one to change the <b>globalKey</b>, the other one to change
+	 * Create three messages, one to change the <b>globalKey</b>, one to chang the
+	 * <b>AuthenticationKey</b>, and the other one to change
 	 * the <b>HLSSecret</b>
 	 * 
 	 * @return
@@ -294,13 +295,16 @@ public abstract class GenericMessaging implements Messaging {
 	public MessageCategorySpec getAuthEncryptCategory() {
 		MessageCategorySpec catAuthEncrypt = new MessageCategorySpec(
 				RtuMessageCategoryConstants.AUTHENTICATEENCRYPT);
-		// TODO does these have to be advanced messages?
-		MessageSpec msgSpec = addChangeHLSKeyMsg(
+		// TODO do these have to be advanced messages?
+		MessageSpec msgSpec = addNoValueMsg(
 				RtuMessageKeyIdConstants.CHANGEHLSSECRET,
 				RtuMessageConstant.AEE_CHANGE_HLS_SECRET, false);
 		catAuthEncrypt.addMessageSpec(msgSpec);
-		msgSpec = addChangeGlobalKey(RtuMessageKeyIdConstants.CHANGEGLOBALKEY,
+		msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.CHANGEGLOBALKEY,
 				RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY, false);
+		catAuthEncrypt.addMessageSpec(msgSpec);
+		msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.CHANGEAUTHENTICATIONKEY,
+				RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY, false);
 		catAuthEncrypt.addMessageSpec(msgSpec);
 		return catAuthEncrypt;
 	}
@@ -329,36 +333,36 @@ public abstract class GenericMessaging implements Messaging {
 		return catMbusSetup;
 	}
 
-	private MessageSpec addChangeHLSKeyMsg(String keyId, String tagName,
-			boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		tagSpec.add(msgVal);
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-				RtuMessageConstant.AEE_HLS_SECRET, true);
-		tagSpec.add(msgAttrSpec);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
-
-	private MessageSpec addChangeGlobalKey(String keyId, String tagName,
-			boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		tagSpec.add(msgVal);
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-				RtuMessageConstant.AEE_GLOBAL_KEY, true);
-		tagSpec.add(msgAttrSpec);
-		msgAttrSpec = new MessageAttributeSpec(
-				RtuMessageConstant.AEE_GLOBAL_KEY_TYPE, true);
-		tagSpec.add(msgAttrSpec);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
+//	private MessageSpec addChangeHLSKeyMsg(String keyId, String tagName,
+//			boolean advanced) {
+//		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+//		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+//		MessageValueSpec msgVal = new MessageValueSpec();
+//		msgVal.setValue(" ");
+//		tagSpec.add(msgVal);
+//		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
+//				RtuMessageConstant.AEE_HLS_SECRET, true);
+//		tagSpec.add(msgAttrSpec);
+//		msgSpec.add(tagSpec);
+//		return msgSpec;
+//	}
+//
+//	private MessageSpec addChangeGlobalKey(String keyId, String tagName,
+//			boolean advanced) {
+//		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+//		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+//		MessageValueSpec msgVal = new MessageValueSpec();
+//		msgVal.setValue(" ");
+//		tagSpec.add(msgVal);
+//		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
+//				RtuMessageConstant.AEE_GLOBAL_KEY, true);
+//		tagSpec.add(msgAttrSpec);
+//		msgAttrSpec = new MessageAttributeSpec(
+//				RtuMessageConstant.AEE_GLOBAL_KEY_TYPE, true);
+//		tagSpec.add(msgAttrSpec);
+//		msgSpec.add(tagSpec);
+//		return msgSpec;
+//	}
 
 	private MessageSpec addSpecialDays(String keyId, String tagName,
 			boolean advanced) {

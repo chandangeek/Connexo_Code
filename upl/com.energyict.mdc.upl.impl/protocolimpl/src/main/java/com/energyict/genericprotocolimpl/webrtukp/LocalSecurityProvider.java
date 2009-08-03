@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.common;
+package com.energyict.genericprotocolimpl.webrtukp;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -9,6 +9,11 @@ import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.SecurityLevelException;
 
+/**
+ * Provides all the securityKeys, just for local purpose
+ * @author gna
+ *
+ */
 public class LocalSecurityProvider implements SecurityProvider {
 	
 	private int securityLevel;
@@ -16,21 +21,38 @@ public class LocalSecurityProvider implements SecurityProvider {
 	private String authenticationPassword;
 	private byte[] dataTransportPassword;
 	private byte[] masterKey;
+	private String hlsSecret;
+	private Properties properties;
+	
+	/** Property name of the new AutenticationKey */
+	private static String NEW_AUTHENTICATION_KEY = "NewAuthenticationKey";
+	/** Property name of the new Global encryption Key */
+	private static String NEW_GLOBAL_KEY = "NewGlobalKey";
+	/** Property name of the new HighLevel security Secret */
+	private static String NEW_HLS_SECRET = "NewHLSSecret";
+	/** Property name of the DataTransport EncryptionKey */
+	private static String DATATRANSPORTKEY = "DataTransportKey";
+	/** Property name of the Master key, or KeyEncryptionKey */
+	private static String MASTERKEY = "MasterKey";
+	/** Property name of the DataTransport AuthenticationKey */
+	private static String DATATRANSPORT_AUTHENTICATIONKEY = "DataTransportAuthenticationKey";
 	
 	/**
 	 * Create a new instance of LocalSecurityProvider
 	 * @param properties - contains the keys for the authentication/encryption
 	 */
 	public LocalSecurityProvider(Properties properties){
+		this.properties = properties;
 		String sl = properties.getProperty("SecurityLevel", "0");
 		if(sl.indexOf(":") != -1){
 			this.securityLevel = Integer.parseInt(sl.substring(0, sl.indexOf(":")));
 		} else {
 			this.securityLevel = Integer.parseInt(sl);
 		}
-		this.dataTransportPassword = DLMSUtils.hexStringToByteArray(properties.getProperty("DataTransportKey", ""));
-		this.masterKey = DLMSUtils.hexStringToByteArray(properties.getProperty("MasterKey", ""));
-		this.authenticationPassword = properties.getProperty(MeterProtocol.PASSWORD);
+		this.dataTransportPassword = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORTKEY, ""));
+		this.masterKey = DLMSUtils.hexStringToByteArray(properties.getProperty(MASTERKEY, ""));
+		this.authenticationPassword = properties.getProperty(DATATRANSPORT_AUTHENTICATIONKEY,"");
+		this.hlsSecret = properties.getProperty(MeterProtocol.PASSWORD);
 	}
 	
 	/**
@@ -44,6 +66,9 @@ public class LocalSecurityProvider implements SecurityProvider {
 		}
 	}
 
+	/**
+	 * The authenticationKey is the password of the RTU
+	 */
 	public byte[] getAuthenticationKey() {
 		byte[] byteWord = new byte[this.authenticationPassword.length()];
 		for(int i = 0; i < this.authenticationPassword.length(); i++){
@@ -81,14 +106,21 @@ public class LocalSecurityProvider implements SecurityProvider {
 		return null;
 	}
 
+	/**
+	 * The global key or encryption key is a custom property of the rtu
+	 */
 	public byte[] getGlobalKey() {
 		return this.dataTransportPassword;
 	}
 
+	/**
+	 * The HLSSecret is the password of the RTU
+	 * <b>NOTE:</b> yes, currently it's the same as the authenticationKey
+	 */
 	public byte[] getHLSSecret() {
-		byte[] byteWord = new byte[this.authenticationPassword.length()];
-		for(int i = 0; i < this.authenticationPassword.length(); i++){
-			byteWord[i] = (byte)this.authenticationPassword.charAt(i);
+		byte[] byteWord = new byte[this.hlsSecret.length()];
+		for(int i = 0; i < this.hlsSecret.length(); i++){
+			byteWord[i] = (byte)this.hlsSecret.charAt(i);
 		}
 		return byteWord;
 	}
@@ -97,21 +129,27 @@ public class LocalSecurityProvider implements SecurityProvider {
 		return this.masterKey;
 	}
 
-	/********** Return new keys for KeyChange functionality **********/
+	//********** Return new keys for KeyChange functionality **********/
 	
 	public byte[] getNEWAuthenticationKey() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		if(this.properties.containsKey(NEW_AUTHENTICATION_KEY)){
+			return DLMSUtils.hexStringToByteArray(this.properties.getProperty(NEW_AUTHENTICATION_KEY));
+		}
+		throw new IllegalArgumentException("New authenticationKey is not correctly filled in.");
 	}
 
 	public byte[] getNEWGlobalKey() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		if(this.properties.containsKey(NEW_GLOBAL_KEY)){
+			return DLMSUtils.hexStringToByteArray(this.properties.getProperty(NEW_GLOBAL_KEY));
+		}
+		throw new IllegalArgumentException("New globalKey is not correctly filled in.");
 	}
 
 	public byte[] getNEWHLSSecret() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		if(this.properties.containsKey(NEW_HLS_SECRET)){
+			return DLMSUtils.hexStringToByteArray(this.properties.getProperty(NEW_HLS_SECRET));
+		}
+		throw new IllegalArgumentException("New HLSSecret is not correctly filled in.");
 	}
 
 }
