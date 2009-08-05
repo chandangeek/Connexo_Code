@@ -59,7 +59,7 @@ public class MK6Profile {
     }
     
     public int getNumberOfChannels() throws IOException {
-        return getLoadSurvey().getNrOfChannels();
+        return mk6.isStatusFlagChannel()?getLoadSurvey().getNrOfChannels():getLoadSurvey().getNrOfChannels()-1;
     }
     
     

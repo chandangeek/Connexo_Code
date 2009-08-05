@@ -29,8 +29,9 @@ import com.energyict.protocolimpl.edmi.mk6.core.*;
  *
  * @author  Koen
  * @beginchanges
-KV|17052006|Check for duplicates
-KV|14112007|Fix to use the correct first record timestamp 
+ * KV|17052006|Check for duplicates
+ * KV|14112007|Fix to use the correct first record timestamp 
+ * GN|05082009|If the FailWhenChannelConfigMisMatch flag is check it always failed when you didn't set the StatusConfigFlag property
  * @endchanges
  */
 public class MK6 extends AbstractProtocol {
