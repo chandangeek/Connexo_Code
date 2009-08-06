@@ -255,7 +255,7 @@ public abstract class GenericMessaging implements Messaging {
 	}
 
 	/**
-	 * Creates a message without a value, <b>meterreset</b> must be handled after this
+	 * Creates a message without a value, <b>meterReset</b> must be handled after this
 	 * message
 	 * 
 	 * @return
@@ -286,7 +286,7 @@ public abstract class GenericMessaging implements Messaging {
 	}
 
 	/**
-	 * Create three messages, one to change the <b>globalKey</b>, one to chang the
+	 * Create three messages, one to change the <b>globalKey</b>, one to change the
 	 * <b>AuthenticationKey</b>, and the other one to change
 	 * the <b>HLSSecret</b>
 	 * 
@@ -333,7 +333,7 @@ public abstract class GenericMessaging implements Messaging {
 		return catMbusSetup;
 	}
 
-//	private MessageSpec addChangeHLSKeyMsg(String keyId, String tagName,
+//	protected MessageSpec addChangeHLSKeyMsg(String keyId, String tagName,
 //			boolean advanced) {
 //		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 //		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -347,7 +347,7 @@ public abstract class GenericMessaging implements Messaging {
 //		return msgSpec;
 //	}
 //
-//	private MessageSpec addChangeGlobalKey(String keyId, String tagName,
+//	protected MessageSpec addChangeGlobalKey(String keyId, String tagName,
 //			boolean advanced) {
 //		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 //		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -364,7 +364,7 @@ public abstract class GenericMessaging implements Messaging {
 //		return msgSpec;
 //	}
 
-	private MessageSpec addSpecialDays(String keyId, String tagName,
+	protected MessageSpec addSpecialDays(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -378,7 +378,7 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-	private MessageSpec addNoValueMsg(String keyId, String tagName,
+	protected MessageSpec addNoValueMsg(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -386,7 +386,7 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-	private MessageSpec addGroupIdsLL(String keyId, String tagName,
+	protected MessageSpec addGroupIdsLL(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -400,7 +400,7 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-	private MessageSpec addConfigureLL(String keyId, String tagName,
+	protected MessageSpec addConfigureLL(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -433,7 +433,7 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-	private MessageSpec addChangeGPRSSetup(String keyId, String tagName,
+	protected MessageSpec addChangeGPRSSetup(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -453,7 +453,7 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-	private MessageSpec addCreateDBEntries(String keyId, String tagName,
+	protected MessageSpec addCreateDBEntries(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -476,7 +476,7 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-	private MessageSpec addTimeMessage(String keyId, String tagName,
+	protected MessageSpec addTimeMessage(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -490,7 +490,7 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-	private MessageSpec addPhoneListMsg(String keyId, String tagName,
+	protected MessageSpec addPhoneListMsg(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -516,7 +516,7 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-	private MessageSpec addTestMessage(String keyId, String tagName,
+	protected MessageSpec addTestMessage(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -530,7 +530,7 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-	private MessageSpec addConnectControl(String keyId, String tagName,
+	protected MessageSpec addConnectControl(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -544,7 +544,7 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-	private MessageSpec addConnectControlMode(String keyId, String tagName,
+	protected MessageSpec addConnectControlMode(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -558,7 +558,7 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-	private MessageSpec addP1Code(String keyId, String tagName, boolean advanced) {
+	protected MessageSpec addP1Code(String keyId, String tagName, boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 		MessageValueSpec msgVal = new MessageValueSpec();
@@ -571,7 +571,7 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-	private MessageSpec addP1Text(String keyId, String tagName, boolean advanced) {
+	protected MessageSpec addP1Text(String keyId, String tagName, boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 		MessageValueSpec msgVal = new MessageValueSpec();
@@ -584,7 +584,7 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-	private MessageSpec addFirmwareMsg(String keyId, String tagName,
+	protected MessageSpec addFirmwareMsg(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -612,7 +612,7 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-	private MessageSpec addDefaultValueMsg(String keyId, String tagName,
+	protected MessageSpec addDefaultValueMsg(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -622,7 +622,7 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-	private MessageSpec addTimeOfUse(String keyId, String tagName,
+	protected MessageSpec addTimeOfUse(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -645,7 +645,7 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-	private MessageSpec addCorrectSwitchMsg(String keyId, String tagName,
+	protected MessageSpec addCorrectSwitchMsg(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -659,7 +659,7 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-	private MessageSpec addEncryptionkeys(String keyId, String tagName,
+	protected MessageSpec addEncryptionkeys(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);

@@ -38,6 +38,7 @@ public class AssociationControlServiceElement {
 	private byte[] userInformationData;
 	private byte[] callingAuthenticationValue;
 	private byte[] respondingAuthenticationValue;
+	private byte[] respondingAPTitle;
 	private XdlmsAse xdlmsAse;
 
 	/**
@@ -177,11 +178,19 @@ public class AssociationControlServiceElement {
 								&& (responseData[i + 2] == 1)
 								&& (responseData[i + 3] == 0)) {
 							// Result OK
-//							return;
+//							return;	 //Don't return otherwise you don't get all info
 						}
 						i += responseData[i]; // skip length + data
 					} // else if (responseData[i] == AARE_RESULT)
 
+					else if(responseData[i] == DLMSCOSEMGlobals.AARE_RESPONING_AP_TITLE){
+						i++; // skip tag
+						if (responseData[i] > 0) { // length of octet string
+							this.respondingAPTitle = ProtocolUtils.getSubArray2(responseData, i+1, responseData[i]);
+						}
+						i += responseData[i];
+					}
+					
 					else if (responseData[i] == DLMSCOSEMGlobals.AARE_RESULT_SOURCE_DIAGNOSTIC) {
 						i++; // skip tag
 						if (responseData[i] == 5) // check length
@@ -568,5 +577,13 @@ public class AssociationControlServiceElement {
 	 */
 	public int getContextId() {
 		return this.contextId;
+	}
+	
+	protected void setRespondingAPTitle(byte[] respondingAPTitle){
+		this.respondingAPTitle = respondingAPTitle;
+	}
+	
+	public byte[] getRespondingAPTtitle(){
+		return this.respondingAPTitle;
 	}
 }

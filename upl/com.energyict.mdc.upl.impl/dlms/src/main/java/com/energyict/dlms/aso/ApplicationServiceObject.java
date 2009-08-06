@@ -73,6 +73,7 @@ public class ApplicationServiceObject {
 		byte[] request = this.acse.createAssociationRequest();
 		byte[] response = this.protocolLink.getDLMSConnection().sendRequest(request);
 		this.acse.analyzeAARE(response);
+		getSecurityContext().setSystemTitle(this.acse.getRespondingAPTtitle());
 		handleHighLevelSecurityAuthentication();
 	}
 	/**

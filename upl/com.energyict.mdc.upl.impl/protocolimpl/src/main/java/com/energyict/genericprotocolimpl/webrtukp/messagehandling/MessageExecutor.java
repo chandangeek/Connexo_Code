@@ -133,6 +133,8 @@ public class MessageExecutor extends GenericMessageExecutor{
 			boolean changeHLSSecret = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
 			boolean changeGlobalkey = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY);
 			boolean changeAuthkey 	= messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY);
+			boolean activateSMS		= messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ACTIVATE);
+			boolean deActivateSMS 	= messageHandler.getType().equals(RtuMessageConstant.WAKEUP_DEACTIVATE);
 			
 			if(xmlConfig){
 				
@@ -903,6 +905,14 @@ public class MessageExecutor extends GenericMessageExecutor{
 				}
 				
 				
+				success = true;
+			} else if(activateSMS){
+				// TODO toTest
+				getCosemObjectFactory().getAutoConnect().writeMode(4);
+				success = true;
+			} else if(deActivateSMS){
+				// TODO toTest
+				getCosemObjectFactory().getAutoConnect().writeMode(1);
 				success = true;
 			} else {
 				success = false;

@@ -24,5 +24,6 @@ public class RtuMessageCategoryConstants {
 	public final static String BASICMESSAGES = "BasicMessages";
 	public final static String MBUSMESSAGES = "MusMessages";
 	public final static String MBUSSETUP = "Mbus setup";
+	public final static String CHANGECONNECTIVITY = "Change connectivity setup";
 	
 }

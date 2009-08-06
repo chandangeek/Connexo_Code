@@ -131,6 +131,7 @@ public class RtuMessageConstant {
 	public static final String WAKEUP_CLEAR_WHITELIST = "Clear_whiteList";
 	public static final String WAKEUP_GENERAL_RESTRICTION = "General_restriction";
 	public static final String WAKEUP_ACTIVATE = "Activate_the_wakeup_mechanism";
+	public static final String WAKEUP_DEACTIVATE = "Deactive_the_wakeup_mechanism";
 	public static final String WAKEUP_NR1 = "Phonenumber1";
 	public static final String WAKEUP_NR2 = "Phonenumber2";
 	public static final String WAKEUP_NR3 = "Phonenumber3";
@@ -160,7 +161,5 @@ public class RtuMessageConstant {
 	public static final String AEE_HLS_SECRET = "HLSSecret";
 	public static final String AEE_CHANGE_GLOBAL_KEY = "Change_Global_Key";
 	public static final String AEE_GLOBAL_KEY = "GlobalKey";
-//	public static final String AEE_GLOBAL_KEY_TYPE = "GlobalKeyType";
 	public static final String AEE_CHANGE_AUTHENTICATION_KEY = "AuthenticationKey";
-//	public static final String AEE_AUTHENTICATION_KEY_TYPE = "AuthenticationKeyType";
 }

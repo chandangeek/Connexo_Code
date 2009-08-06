@@ -104,7 +104,17 @@ public class AutoConnect extends AbstractCosemObject {
 	
 	/**
 	 * Write the given mode to the device
-	 * @param mode
+	 * @param mode - > possible values are:
+	 * <pre>
+	 * (0)  no auto dialling, 
+	 * (1)  auto dialling allowed anytime, 
+	 * (2)  auto dialling allowed within the validity time of the calling window, 
+	 * (3)  “regular” auto dialling allowed within the validity time of the calling window; “alarm” initiated auto dialling allowed anytime, 
+	 * (4)  SMS sending via Public Land Mobile Network (PLMN), 
+	 * (5)  SMS sending via PSTN, 
+	 * (6)  email  sending, 
+	 * (200..255)   manufacturer specific modes
+	 * </pre>
 	 * @throws IOException
 	 */
 	public void writeMode(int mode) throws IOException {
