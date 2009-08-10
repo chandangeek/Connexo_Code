@@ -30,6 +30,10 @@ public class EventMapperFactory {
 		entries.add(new MeterEventMapEntry(7,1,MeterEvent.METER_ALARM,"Magnetic tamper event"));
 		entries.add(new MeterEventMapEntry(7,2,MeterEvent.OTHER,"Reverse run occured"));
 		entries.add(new MeterEventMapEntry(7,3,MeterEvent.PROGRAM_FLOW_ERROR,"Transient reset occured"));
+		
+		//added cc
+		entries.add(new MeterEventMapEntry(7,4,MeterEvent.BILLING_ACTION ,"STATUS_EVENT_BILLING Billing event occured"));
+		
 		entries.add(new MeterEventMapEntry(7,5,MeterEvent.OTHER,"Firmware download"));
 		entries.add(new MeterEventMapEntry(7,6,MeterEvent.METER_ALARM,"Meter error"));
 		entries.add(new MeterEventMapEntry(7,7,MeterEvent.OTHER,"Battery voltage low"));
@@ -41,6 +45,11 @@ public class EventMapperFactory {
 		entries.add(new MeterEventMapEntry(8,3,MeterEvent.METER_ALARM,"Undervoltage event"));
 		entries.add(new MeterEventMapEntry(8,2,MeterEvent.METER_ALARM,"Overvoltage event"));
 
+		//added cc
+		entries.add(new MeterEventMapEntry(8,1,MeterEvent.OTHER ,"STATUS_EVENT_MODULE_COMMS_SESSION Module Comms event"));  //this creates an infinite loop, so we won't be using it!
+		//added cc
+		entries.add(new MeterEventMapEntry(8,0,MeterEvent.OTHER ,"STATUS_EVENT_OPTICAL_COMMS_SESSION Optical FLAG Comms event"));
+		
 		// TSystemStatus9
 		entries.add(new MeterEventMapEntry(9,7,MeterEvent.METER_ALARM,"Load monitor high trip event"));
 		entries.add(new MeterEventMapEntry(9,5,MeterEvent.METER_ALARM,"Load monitor low trip event"));
@@ -51,8 +60,37 @@ public class EventMapperFactory {
 		
 		
 		// TSystemError0
+		//added cc
+		entries.add(new MeterEventMapEntry(16,7,MeterEvent.HARDWARE_ERROR,"Error Power Fail Backup"));
+		
 		entries.add(new MeterEventMapEntry(16,5,MeterEvent.HARDWARE_ERROR,"Contactor drive failure"));
 		entries.add(new MeterEventMapEntry(16,6,MeterEvent.HARDWARE_ERROR,"RTC failed to initialise"));
+		
+		//added cc
+		entries.add(new MeterEventMapEntry(16,4,MeterEvent.HARDWARE_ERROR,"I2C failure"));
+		entries.add(new MeterEventMapEntry(16,3,MeterEvent.HARDWARE_ERROR,"I2C unknown device failure"));
+		entries.add(new MeterEventMapEntry(16,2,MeterEvent.HARDWARE_ERROR,"I2C device 2 failure"));
+		entries.add(new MeterEventMapEntry(16,1,MeterEvent.HARDWARE_ERROR,"I2C device 1 failure"));
+		entries.add(new MeterEventMapEntry(16,0,MeterEvent.HARDWARE_ERROR,"I2C device 0 failure"));		
+		
+		
+		// TSystemError1 all added by cc
+		entries.add(new MeterEventMapEntry(17,6,MeterEvent.HARDWARE_ERROR,"Firmware Checksum error"));
+		entries.add(new MeterEventMapEntry(17,5,MeterEvent.HARDWARE_ERROR,"Error Invalid Instrumentation Period Configuration"));
+		entries.add(new MeterEventMapEntry(17,4,MeterEvent.HARDWARE_ERROR,"Error Invalid Instrumentation profile"));
+		entries.add(new MeterEventMapEntry(17,3,MeterEvent.HARDWARE_ERROR,"Error Estimated Battery Life Exceeded"));
+		entries.add(new MeterEventMapEntry(17,2,MeterEvent.HARDWARE_ERROR,"Error Invalid Demand Period Configuration"));
+		entries.add(new MeterEventMapEntry(17,1,MeterEvent.HARDWARE_ERROR,"Error Load PRofile"));
+		entries.add(new MeterEventMapEntry(17,0,MeterEvent.HARDWARE_ERROR,"Error Backup"));
+
+
+		// TSystemError2 all added by cc
+		entries.add(new MeterEventMapEntry(18,3,MeterEvent.HARDWARE_ERROR,"Manufacturing Configuration PROFILES"));
+		entries.add(new MeterEventMapEntry(18,2,MeterEvent.HARDWARE_ERROR,"Manufacturing Configuration REGISTRATION"));
+		entries.add(new MeterEventMapEntry(18,1,MeterEvent.HARDWARE_ERROR,"Manufacturing Configuration REG_SP"));
+		entries.add(new MeterEventMapEntry(18,0,MeterEvent.HARDWARE_ERROR,"Manufacturing Configuration CE"));
+
+		
 	}
 	
 	public List getMeterEvents(String eventString) throws IOException{
