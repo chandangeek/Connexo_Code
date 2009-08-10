@@ -54,7 +54,7 @@ public class MeterMessages extends GenericMessaging {
 		// categories.add(catWakeUp);
 
 		// TODO comment this BEFORE the release
-		categories.add(catAuthEncrypt);
+//		categories.add(catAuthEncrypt);
 
 		return categories;
 	}

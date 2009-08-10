@@ -140,8 +140,15 @@ public class SecuritySetup extends AbstractCosemObject{
 	
 	/**
 	 * Activate the given securityPolicy for this device.
-	 * NOTE: THE SECURITY POLICY CAN ONLY BE STRENGTHENED
+	 * <b>NOTE:</b> THE SECURITY POLICY CAN ONLY BE STRENGTHENED
 	 * @param securityPolicy
+	 * <pre>Values for securityPolicy:
+	 * 	(0)    nothing, 
+	 *	(1)    all messages to be authenticated, 
+	 *	(2)    all messages to be encrypted, 
+	 *	(3)    all messages to be authenticated and encrypted. 
+	 * </pre>
+	 * 
 	 * @return
 	 * @throws IOException
 	 */

@@ -234,4 +234,22 @@ public class AesGcm128Test {
 				   								   "b16aedf5aa0de657ba637b39");
 	}
 	
+	@Test
+	public void testPiet(){
+		String eKey = "43218765AABBCCDD55443322ABABCDCD";
+		String akey = "12348765AABBCCDD55443322ABABCDCD";
+		String iv = "4B414D0000000013C057F8A3";
+		String ad = "3012348765AABBCCDD55443322ABABCDCD";
+		String c = "D7F68E0A72DDE3A53367BDD49E";
+		String at = "E58DC6BAA86EB6FD0B284DDD";
+		
+		AesGcm128 ag = new AesGcm128(new BitVector(eKey));
+		ag.setTagSize(12);
+		ag.setInitializationVector(new BitVector(iv));
+		ag.setAdditionalAuthenticationData(new BitVector(ad));
+		ag.setCipherText(new BitVector(c));
+
+		ag.decrypt();
+			
+	}
 }

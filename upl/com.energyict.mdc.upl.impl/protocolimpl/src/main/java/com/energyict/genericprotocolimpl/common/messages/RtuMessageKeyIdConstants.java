@@ -35,4 +35,5 @@ public class RtuMessageKeyIdConstants {
 	public final static String ACTIVATESMSWAKEUP = "Activate SMS wakeup";
 	public final static String DEACTIVATESMSWAKEUP = "Deactive SMS wakeup";
 	public final static String ACTIVATESCDWAKEUP = "Activate CSD wakeup";
+	public final static String ACTIVATE_SECURITY = "Activate dataTransport security";
 }

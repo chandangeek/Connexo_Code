@@ -306,6 +306,9 @@ public abstract class GenericMessaging implements Messaging {
 		msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.CHANGEAUTHENTICATIONKEY,
 				RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY, false);
 		catAuthEncrypt.addMessageSpec(msgSpec);
+		msgSpec = addSecurityLevelMsg(RtuMessageKeyIdConstants.ACTIVATE_SECURITY,
+				RtuMessageConstant.AEE_ACTIVATE_SECURITY, true);
+		catAuthEncrypt.addMessageSpec(msgSpec);
 		return catAuthEncrypt;
 	}
 
@@ -653,6 +656,20 @@ public abstract class GenericMessaging implements Messaging {
 		msgVal.setValue(" ");
 		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
 				RtuMessageConstant.MBUS_CORRECTED_VALUE, true);
+		tagSpec.add(msgVal);
+		tagSpec.add(msgAttrSpec);
+		msgSpec.add(tagSpec);
+		return msgSpec;
+	}
+	
+	protected MessageSpec addSecurityLevelMsg(String keyId, String tagName,
+			boolean advanced) {
+		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+		MessageValueSpec msgVal = new MessageValueSpec();
+		msgVal.setValue(" ");
+		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
+				RtuMessageConstant.AEE_SECURITYLEVEL, true);
 		tagSpec.add(msgVal);
 		tagSpec.add(msgAttrSpec);
 		msgSpec.add(tagSpec);

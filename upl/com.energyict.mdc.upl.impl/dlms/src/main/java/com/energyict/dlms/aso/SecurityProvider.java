@@ -66,7 +66,7 @@ public interface SecurityProvider {
 	
 	/**
 	 * A master key shall be present in each COSEM server logical device configured in the system.
-	 * This key is used for wrapping global keys
+	 * This key is used for wrapping global keys. The MasterKey should not be transfered during a session.
 	 * @throws IOException
 	 */
 	public byte[] getMasterKey() throws IOException;

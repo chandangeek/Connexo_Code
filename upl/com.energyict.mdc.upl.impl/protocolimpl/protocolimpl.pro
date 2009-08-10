@@ -295,3 +295,6 @@
 -keep class com.energyict.genericprotocolimpl.webrtukp.eventhandling.*{
 	public *;
 }
+
+-keepnames class com.energyict.protocolimpl.modbus.socomec.a40.A40
+-keepnames class com.energyict.protocolimpl.modbus.socomec.a20.A20

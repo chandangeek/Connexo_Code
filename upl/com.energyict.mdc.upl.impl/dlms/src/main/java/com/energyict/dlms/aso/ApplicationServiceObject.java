@@ -32,10 +32,7 @@ public class ApplicationServiceObject {
 	public static int ASSOCIATION_DISCONNECTED = 0;
 	public static int ASSOCIATION_PENDING = 1;
 	public static int ASSOCIATION_CONNECTED = 2;
-	
-	public static String ALGORITHM_MD5 = "MD5"; 
-	public static String ALGORITHM_SHA1 = "SHA-1";
-	public static String ALGORITHM_GMAC = "GMAC";
+	public static int ASSOCIATION_READY_FOR_DSICONNECTION = 3;
 	
 	public ApplicationServiceObject(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext, int contextId) throws IOException{
 		this.xDlmsAse = xDlmsAse;
@@ -162,6 +159,7 @@ public class ApplicationServiceObject {
 	 * @throws IOException
 	 */
 	public void releaseAssociation() throws IOException{
+		this.associationStatus = ASSOCIATION_READY_FOR_DSICONNECTION;
 		byte[] request = this.acse.releaseAssociationRequest();
 		byte[] response = this.protocolLink.getDLMSConnection().sendRequest(request);
 		this.acse.analyzeRLRE(response);

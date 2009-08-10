@@ -352,7 +352,6 @@ public class MbusDailyMonthly {
 			Calendar toCalendar = getToCalendar();
 			
 			for (int i = 0; i < getMeter().getChannels().size(); i++) {
-				// TODO check for the from-date of all the daily channels
 				Channel chn = getMeter().getChannel(i);
 				if(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS){ //the channel is a daily channel
 					channelCalendar = getFromCalendar(getMeter().getChannel(i));

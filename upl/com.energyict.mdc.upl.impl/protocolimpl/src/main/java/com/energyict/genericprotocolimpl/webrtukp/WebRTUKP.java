@@ -472,7 +472,6 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		//TODO the dataTransport encryptionType should be a property (although currently only 0 is described by DLMS)
 		SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, getSecurityProvider());
 		
-		//TODO the value of the contextId can depend on the securityLevel
 		this.aso = new ApplicationServiceObject(xDlmsAse, this, sc, 
 					(this.datatransportSecurityLevel == 0)?AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING:
 					AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_WITH_CIPHERING);

@@ -18,7 +18,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 	
 	private int securityLevel;
 	private byte[] cTOs;
-	private String authenticationPassword;
+	private byte[] authenticationPassword;
 	private byte[] dataTransportPassword;
 	private byte[] masterKey;
 	private String hlsSecret;
@@ -51,7 +51,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 		}
 		this.dataTransportPassword = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORTKEY, ""));
 		this.masterKey = DLMSUtils.hexStringToByteArray(properties.getProperty(MASTERKEY, ""));
-		this.authenticationPassword = properties.getProperty(DATATRANSPORT_AUTHENTICATIONKEY,"");
+		this.authenticationPassword = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORT_AUTHENTICATIONKEY,""));
 		this.hlsSecret = properties.getProperty(MeterProtocol.PASSWORD);
 	}
 	
@@ -70,11 +70,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 	 * The authenticationKey is the password of the RTU
 	 */
 	public byte[] getAuthenticationKey() {
-		byte[] byteWord = new byte[this.authenticationPassword.length()];
-		for(int i = 0; i < this.authenticationPassword.length(); i++){
-			byteWord[i] = (byte)this.authenticationPassword.charAt(i);
-		}
-		return byteWord;
+		return this.authenticationPassword;
 	}
 
 	public byte[] getCallingAuthenticationValue() throws SecurityLevelException {
@@ -115,7 +111,6 @@ public class LocalSecurityProvider implements SecurityProvider {
 
 	/**
 	 * The HLSSecret is the password of the RTU
-	 * <b>NOTE:</b> yes, currently it's the same as the authenticationKey
 	 */
 	public byte[] getHLSSecret() {
 		byte[] byteWord = new byte[this.hlsSecret.length()];

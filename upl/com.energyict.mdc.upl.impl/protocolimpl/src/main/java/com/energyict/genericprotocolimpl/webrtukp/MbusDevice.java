@@ -268,7 +268,6 @@ public class MbusDevice extends MbusMessages implements GenericProtocol{
 	}
 
 	public long getTimeDifference() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 }

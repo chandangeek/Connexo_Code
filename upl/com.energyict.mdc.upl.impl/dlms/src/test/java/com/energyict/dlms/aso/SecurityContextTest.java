@@ -70,7 +70,7 @@ public class SecurityContextTest {
 	 * The intention of the test is to check for the correct positions of all fields in the frame
 	 */
 	@Test
-	public void logicalDataDecrypionHugeFrame(){
+	public void logicalDataDecryptionHugeFrame(){
 		String hugeFrame = "cc820409200000002b8983ff4da4e3a8cb6d5918c521f43556dd887e66e2ac3cb075c1e0b18ba0809d69e3b20381bd0b" +
 				"385b67e0da82ff71bb175ee951b3b5112c795ba46fac4253fd17d397ab1b84f27fc62e29808981778a908477c217445a0be778a71d21eb7014c0d759de1b7ff8" +
 				"6f7f250540fc85f68b65e88543cb912ed15a041995c87b4f8c63048fa8a0f439b1e1c26b07faa3d22018722f7220833330d2c7186c9c59ec20ad8800f2b7ba31" +
@@ -116,6 +116,29 @@ public class SecurityContextTest {
 			byte[] unCipherResponse = sc.dataTransportDecryption(DLMSUtils.hexStringToByteArray(hugeFrame));
 			
 			assertArrayEquals(DLMSUtils.hexStringToByteArray(hugeUncipheredFrame), unCipherResponse);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail();
+		}
+	}
+	
+	@Test
+	public void logicalDataEncryptionExampleFrame(){
+		String frame = "C0010000080000010000FF0200";
+		String cipheredFrame = "1E3001234567411312FF935A47566827C467BC7D825C3BE4A77C3FCC056B6B";
+		String globalKey = "000102030405060708090A0B0C0D0E0F";
+		String authenticationKey = "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF";
+		try {
+			MockSecurityProvider msp = new MockSecurityProvider();
+			msp.setAuthenticationKey(DLMSUtils.hexStringToByteArray(authenticationKey));
+			msp.setGlobalkey(DLMSUtils.hexStringToByteArray(globalKey));
+			
+			// Both authentication and encryption
+			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_BOTH, 0,0,DLMSUtils.hexStringToByteArray("4D4D4D0000BC614E"), msp);
+			sc.setFrameCounter(19088743); 		// this is '0x01234567'
+			byte[] cipheredResponse = sc.dataTransportEncryption(DLMSUtils.hexStringToByteArray(frame));
+			assertArrayEquals(DLMSUtils.hexStringToByteArray(cipheredFrame), cipheredResponse);
 			
 		} catch (IOException e) {
 			e.printStackTrace();

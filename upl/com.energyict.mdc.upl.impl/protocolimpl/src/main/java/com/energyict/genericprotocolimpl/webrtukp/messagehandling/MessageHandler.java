@@ -98,6 +98,9 @@ public class MessageHandler extends DefaultHandler{
 			setType(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
 		} else if(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY.equals(qName)){
 			setType(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY);
+		} else if(RtuMessageConstant.AEE_ACTIVATE_SECURITY.equals(qName)){
+			setType(RtuMessageConstant.AEE_ACTIVATE_SECURITY);
+			handleActivateSecurityLevel(attrbs);
 		} else {
 			if(!isXmlInContent){ // if its the xmlMessage, then don't fail because it has xml in the content
 				throw new SAXException("Unknown messageContent : " + qName);
@@ -566,29 +569,13 @@ public class MessageHandler extends DefaultHandler{
 	/**********************************************
 	 * Authentication and Encryption functionality Related messages
 	 **********************************************/
+	private String securityLevel = "";
 	
-//	private String hlsSecret = "";
-//	private String globalKey = "";
-//	private String globalKeyType = "";
+	private void handleActivateSecurityLevel(Attributes attrbs){
+		this.securityLevel = attrbs.getValue(RtuMessageConstant.AEE_SECURITYLEVEL);
+	}
 	
-//	private void handleChangeHLSSecret(Attributes attrbs){
-//		this.hlsSecret = attrbs.getValue(RtuMessageConstant.AEE_HLS_SECRET);
-//	}
-//	
-//	private void handleChangeGlobalKey(Attributes attrbs){
-//		this.globalKey = attrbs.getValue(RtuMessageConstant.AEE_GLOBAL_KEY);
-////		this.globalKeyType = attrbs.getValue(RtuMessageConstant.AEE_GLOBAL_KEY_TYPE);
-//	}
-//	
-//	public String getHLSSecret(){
-//		return this.hlsSecret;
-//	}
-//	
-//	public String getGlobalKey(){
-//		return this.globalKey;
-//	}
-	
-//	public String getGlobalKeyType(){
-//		return this.globalKeyType;
-//	}
+	public int getSecurityLevel(){
+		return Integer.parseInt(this.securityLevel);
+	}
 }

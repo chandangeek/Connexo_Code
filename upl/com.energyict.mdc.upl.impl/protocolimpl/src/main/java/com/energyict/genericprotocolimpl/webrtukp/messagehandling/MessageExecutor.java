@@ -135,6 +135,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 			boolean changeAuthkey 	= messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY);
 			boolean activateSMS		= messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ACTIVATE);
 			boolean deActivateSMS 	= messageHandler.getType().equals(RtuMessageConstant.WAKEUP_DEACTIVATE);
+			boolean actSecuritLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_ACTIVATE_SECURITY);
 			
 			if(xmlConfig){
 				
@@ -294,7 +295,6 @@ public class MessageExecutor extends GenericMessageExecutor{
 				try {
 					clearLLimiter.writeEmergencyProfile(clearLLimiter.new EmergencyProfile(emptyStruct.getBEREncodedByteArray(), 0, 0));
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 					if(e.getMessage().indexOf("Could not write the emergencyProfile structure.Cosem Data-Access-Result exception Type unmatched") != -1){ // do it oure way
 						emptyStruct = new Structure();
@@ -890,21 +890,16 @@ public class MessageExecutor extends GenericMessageExecutor{
 				if(getWebRtu().getReference() == ProtocolLink.LN_REFERENCE){
 					AssociationLN aln = getCosemObjectFactory().getAssociationLN();
 					
-					
-					// TODO maybe you need to get the key from the securityProvider
 					// We just return the byteArray because it is possible that the berEncoded octetString contains
 					// extra check bits ...
 					aln.changeHLSSecret(new OctetString(getWebRtu().getSecurityProvider().getNEWHLSSecret()).getBEREncodedByteArray());
 				} else if(getWebRtu().getReference() == ProtocolLink.SN_REFERENCE){
 					AssociationSN asn = getCosemObjectFactory().getAssociationSN();
 					
-					// TODO maybe you need to get the key from the securityProvider
 					// We just return the byteArray because it is possible that the berEncoded octetString contains
 					// extra check bits ...
 					asn.changeHLSSecret(new OctetString(getWebRtu().getSecurityProvider().getNEWHLSSecret()).getBEREncodedByteArray());
 				}
-				
-				
 				success = true;
 			} else if(activateSMS){
 				// TODO toTest
@@ -913,6 +908,10 @@ public class MessageExecutor extends GenericMessageExecutor{
 			} else if(deActivateSMS){
 				// TODO toTest
 				getCosemObjectFactory().getAutoConnect().writeMode(1);
+				success = true;
+			} else if(actSecuritLevel){
+				// TODO toTest
+				getCosemObjectFactory().getSecuritySetup().activateSecurity(new TypeEnum(messageHandler.getSecurityLevel()));
 				success = true;
 			} else {
 				success = false;
@@ -947,20 +946,6 @@ public class MessageExecutor extends GenericMessageExecutor{
 		vdt.addDataType(os);
 		vdt.addDataType(new Integer8(2));
 		loadLimiter.writeMonitoredValue(vdt);
-	}
-
-	private String getShowableString(Date date){
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		StringBuffer strBuff = new StringBuffer();
-		strBuff.append(cal.get(Calendar.DAY_OF_MONTH));strBuff.append("/");
-		strBuff.append(cal.get(Calendar.MONTH)+1);strBuff.append("/");
-		strBuff.append(cal.get(Calendar.YEAR));strBuff.append(" - ");
-		strBuff.append(cal.get(Calendar.HOUR_OF_DAY));strBuff.append(":");
-		strBuff.append(cal.get(Calendar.MINUTE));strBuff.append(":");
-		strBuff.append(cal.get(Calendar.SECOND));strBuff.append(":");
-		strBuff.append(cal.get(Calendar.MILLISECOND));
-		return strBuff.toString();
 	}
 	
 	/**
