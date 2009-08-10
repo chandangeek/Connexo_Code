@@ -10,22 +10,26 @@
 
 package com.energyict.protocolimpl.modbus.socomec.a40;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.modbus.core.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.Parser;
 
 /**
  *
  * @author Koen
  */
 public class RegisterFactory extends AbstractRegisterFactory {
-    
+	
     /** Creates a new instance of RegisterFactory */
     public RegisterFactory(Modbus modBus) {
         super(modBus);
@@ -36,32 +40,35 @@ public class RegisterFactory extends AbstractRegisterFactory {
         setZeroBased(false); // this means that reg2read = reg-1
         
         // registers
-        getRegisters().add(new HoldingRegister(1835,2,ObisCode.fromString("1.1.16.8.0.255"),Unit.get("kWh")).setParser("decimal10000"));
-        getRegisters().add(new HoldingRegister(1803,1,ObisCode.fromString("1.1.1.7.0.255"),Unit.get("kW")).setParser("power"));
-        getRegisters().add(new HoldingRegister(1804,1,ObisCode.fromString("1.1.3.7.0.255"),Unit.get("kvar")).setParser("power"));
-        getRegisters().add(new HoldingRegister(1805,1,ObisCode.fromString("1.1.9.7.0.255"),Unit.get("kVA")).setParser("power"));
-        getRegisters().add(new HoldingRegister(1806,1,ObisCode.fromString("1.1.13.7.0.255")).setParser("powerfactor"));
-        getRegisters().add(new HoldingRegister(1858,1,ObisCode.fromString("1.1.12.7.0.255")).setParser("voltage"));// A40
-        getRegisters().add(new HoldingRegister(1859,1,ObisCode.fromString("1.1.112.7.0.255")).setParser("voltage")); // A40
-        getRegisters().add(new HoldingRegister(1857,1,ObisCode.fromString("1.1.11.7.0.255")).setParser("current")); // A40
-        getRegisters().add(new HoldingRegister(1807,1,ObisCode.fromString("1.1.21.7.0.255"))); // A40
-        getRegisters().add(new HoldingRegister(1808,1,ObisCode.fromString("1.1.41.7.0.255"))); // A40
-        getRegisters().add(new HoldingRegister(1809,1,ObisCode.fromString("1.1.61.7.0.255"))); // A40
-        getRegisters().add(new HoldingRegister(1816,1,ObisCode.fromString("1.1.33.7.0.255")).setParser("powerfactor")); // A40
-        getRegisters().add(new HoldingRegister(1817,1,ObisCode.fromString("1.1.53.7.0.255")).setParser("powerfactor")); // A40
-        getRegisters().add(new HoldingRegister(1818,1,ObisCode.fromString("1.1.73.7.0.255")).setParser("powerfactor")); // A40
-        getRegisters().add(new HoldingRegister(1796,1,ObisCode.fromString("1.1.32.7.0.255")).setParser("voltage"));
-        getRegisters().add(new HoldingRegister(1797,1,ObisCode.fromString("1.1.52.7.0.255")).setParser("voltage"));
-        getRegisters().add(new HoldingRegister(1798,1,ObisCode.fromString("1.1.72.7.0.255")).setParser("voltage"));
-        getRegisters().add(new HoldingRegister(1799,1,ObisCode.fromString("1.1.132.7.0.255")).setParser("voltage"));
-        getRegisters().add(new HoldingRegister(1800,1,ObisCode.fromString("1.1.152.7.0.255")).setParser("voltage"));
-        getRegisters().add(new HoldingRegister(1801,1,ObisCode.fromString("1.1.172.7.0.255")).setParser("voltage"));
-        getRegisters().add(new HoldingRegister(1792,1,ObisCode.fromString("1.1.31.7.0.255")).setParser("current"));
-        getRegisters().add(new HoldingRegister(1793,1,ObisCode.fromString("1.1.51.7.0.255")).setParser("current"));
-        getRegisters().add(new HoldingRegister(1794,1,ObisCode.fromString("1.1.71.7.0.255")).setParser("current"));
-        getRegisters().add(new HoldingRegister(1822,1,ObisCode.fromString("1.1.1.4.0.255"))); // A40
-        //getRegisters().add(new HoldingRegister(1104,1,ObisCode.fromString("1.1.1.3.0.255")));
-        getRegisters().add(new HoldingRegister(1830,1,ObisCode.fromString("1.1.1.6.0.255"),Unit.get("kW")).setParser("power"));
+        getRegisters().add(new HoldingRegister(1835,2,ObisCode.fromString("1.1.16.8.0.255"),Unit.get("kWh")).setParser("decimal10000")); 	// active Energy+
+        getRegisters().add(new HoldingRegister(1803,1,ObisCode.fromString("1.1.1.7.0.255"),Unit.get("kW")).setParser("power"));				// Active Power
+        getRegisters().add(new HoldingRegister(1804,1,ObisCode.fromString("1.1.3.7.0.255"),Unit.get("kvar")).setParser("power"));			// Reactive Power
+        getRegisters().add(new HoldingRegister(1805,1,ObisCode.fromString("1.1.9.7.0.255"),Unit.get("kVA")).setParser("power"));			// Apparent Power
+        getRegisters().add(new HoldingRegister(1806,1,ObisCode.fromString("1.1.13.7.0.255")).setParser("powerfactor"));						// PowerFactor
+        getRegisters().add(new HoldingRegister(1858,1,ObisCode.fromString("1.1.12.7.0.255")).setParser("voltage"));// A40					// Voltage any phase
+        getRegisters().add(new HoldingRegister(1859,1,ObisCode.fromString("1.1.112.7.0.255")).setParser("voltage")); // A40					//
+        getRegisters().add(new HoldingRegister(1857,1,ObisCode.fromString("1.1.11.7.0.255")).setParser("current")); // A40					// Current any phase
+        getRegisters().add(new HoldingRegister(1807,1,ObisCode.fromString("1.1.21.7.0.255"))); // A40										// Active power ph1
+        getRegisters().add(new HoldingRegister(1808,1,ObisCode.fromString("1.1.41.7.0.255"))); // A40										// Active power ph2
+        getRegisters().add(new HoldingRegister(1809,1,ObisCode.fromString("1.1.61.7.0.255"))); // A40										// Active power ph3
+        getRegisters().add(new HoldingRegister(1810,1,ObisCode.fromString("1.1.23.7.0.255"))); // A40										// Reactive power ph1
+        getRegisters().add(new HoldingRegister(1811,1,ObisCode.fromString("1.1.43.7.0.255"))); // A40										// Reactive power ph2
+        getRegisters().add(new HoldingRegister(1812,1,ObisCode.fromString("1.1.63.7.0.255"))); // A40										// Reactive power ph3
+        getRegisters().add(new HoldingRegister(1816,1,ObisCode.fromString("1.1.33.7.0.255")).setParser("powerfactor")); // A40				// PowerFactor ph1
+        getRegisters().add(new HoldingRegister(1817,1,ObisCode.fromString("1.1.53.7.0.255")).setParser("powerfactor")); // A40				// PowerFactor ph2
+        getRegisters().add(new HoldingRegister(1818,1,ObisCode.fromString("1.1.73.7.0.255")).setParser("powerfactor")); // A40				// PowerFactor ph3
+        getRegisters().add(new HoldingRegister(1796,1,ObisCode.fromString("1.1.32.7.0.255")).setParser("voltage"));							// Voltage ph1
+        getRegisters().add(new HoldingRegister(1797,1,ObisCode.fromString("1.1.52.7.0.255")).setParser("voltage"));							// Voltage ph2
+        getRegisters().add(new HoldingRegister(1798,1,ObisCode.fromString("1.1.72.7.0.255")).setParser("voltage"));							// Voltage ph3
+        getRegisters().add(new HoldingRegister(1799,1,ObisCode.fromString("1.1.132.7.0.255")).setParser("voltage"));						//
+        getRegisters().add(new HoldingRegister(1800,1,ObisCode.fromString("1.1.152.7.0.255")).setParser("voltage"));						//
+        getRegisters().add(new HoldingRegister(1801,1,ObisCode.fromString("1.1.172.7.0.255")).setParser("voltage"));						//
+        getRegisters().add(new HoldingRegister(1792,1,ObisCode.fromString("1.1.31.7.0.255")).setParser("current"));							// Current ph1
+        getRegisters().add(new HoldingRegister(1793,1,ObisCode.fromString("1.1.51.7.0.255")).setParser("current"));							// Current ph2
+        getRegisters().add(new HoldingRegister(1794,1,ObisCode.fromString("1.1.71.7.0.255")).setParser("current"));							// Current ph3
+        getRegisters().add(new HoldingRegister(1822,1,ObisCode.fromString("1.1.1.4.0.255"))); // A40										// Average Active Power
+        //getRegisters().add(new HoldingRegister(1104,1,ObisCode.fromString("1.1.1.3.0.255")));						
+        getRegisters().add(new HoldingRegister(1830,1,ObisCode.fromString("1.1.1.6.0.255"),Unit.get("kW")).setParser("power"));				// Max. Demand Active Power
         
 
         getRegisters().add(new HoldingRegister(258,2,"slotinfo"));
@@ -196,6 +203,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
                 return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('E')); 
             }
         });
+        
     } //private void initParsers()
     
 } // public class RegisterFactory extends AbstractRegisterFactory
