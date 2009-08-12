@@ -570,9 +570,11 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 				
 				final DataStructure intervalData = datacontainer.getRoot().getStructure(i);
 				
-				logger.info("Mapping interval end time...");
+				if (logger.isLoggable(Level.FINE)) {
+					logger.log(Level.FINE, "Mapping interval end time...");
+				}
 				
-				Calendar calendar = ProtocolUtils.initCalendar(false, timeZone);
+				Calendar calendar = ProtocolUtils.initCalendar(false, this.timeZone);
 				calendar = this.mapIntervalEndTimeToCalendar(calendar, intervalData, (byte) 0);
 
 				final int eiStatus = this.map2IntervalStateBits(intervalData.getInteger(1));
