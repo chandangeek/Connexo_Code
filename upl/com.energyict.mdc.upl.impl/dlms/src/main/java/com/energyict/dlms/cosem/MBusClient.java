@@ -67,6 +67,26 @@ public class MBusClient extends AbstractCosemObject{
 	}
 	
 	/**
+	 * Get the identification number from the MBus device.
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	public Unsigned32 getIdentificationNumber() throws IOException {
+		return new Unsigned32(getLNResponseData(ATTRB_IDENTIFICATION_NUMBER), 0);
+	}
+	
+	/**
+	 * Get the manufacturer ID from the MBus device.
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	public Unsigned16 getManufacturerID() throws IOException {
+		return new Unsigned16(getLNResponseData(ATTRB_MANUFACTURER_ID), 0);
+	}
+	
+	/**
 	 * Force to install the mbus meter with the given primaryAddress
 	 * @param primaryAddress
 	 * @throws IOException
