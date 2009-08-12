@@ -615,7 +615,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	 *             If an IO error occurs during the communication.
 	 */
 	private final List<MeterEvent> getMeterEvents(final Calendar from, final Calendar to) throws IOException {
-		logger.info("Fetching meter events from [" + from + "] to [" + to + "]");
+		logger.info("Fetching meter events from [" + (from != null ? from.getTime() : "Not specified") + "] to [" + (to != null ? to.getTime() : "Not specified") + "]");
 
 		final List<MeterEvent> events = new ArrayList<MeterEvent>();
 
