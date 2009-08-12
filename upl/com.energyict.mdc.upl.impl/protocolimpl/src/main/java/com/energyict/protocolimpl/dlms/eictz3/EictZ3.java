@@ -136,7 +136,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	/** The name of the property containing the server lower MAC address. */
 	private static final String PROPNAME_SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
 
-	/** The name of the property containing the server upper MAC address. */
+	/** The name of the property containing the server qupper MAC address. */
 	private static final String PROPNAME_SERVER_UPPER_MAC_ADDRESS = "iServerUpperMacAddress";
 
 	/** The name of the property containing the client MAC address. */
@@ -1882,7 +1882,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	/**
 	 * {@inheritDoc}
 	 */
-	public final MessageResult queryMessage(final MessageEntry messageEntry) throws IOException {
+	public final MessageResult queryMessage(final MessageEntry messageEntry) {
 		if (isEpIOFirmwareUpgrade(messageEntry.getContent())) {
 			logger.info("Received a firmware upgrade message, using firmware message builder...");
 			
@@ -1895,13 +1895,35 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 				
 				// Set the message failed.
 				return MessageResult.createFailed(messageEntry);
+			} catch (IOException e) {
+				if (logger.isLoggable(Level.SEVERE)) {
+					logger.log(Level.SEVERE, "Got an IO error when loading firmware message content [" + e.getMessage() + "]", e);
+				}
+				
+				return MessageResult.createFailed(messageEntry);
 			}
 			
 			// We requested an inlined file...
 			if (builder.getUserFile() != null) {
 				logger.info("Pulling out user file and dispatching to the device...");
 				
-				this.upgradeDevice(builder.getUserFile().loadFileInByteArray());
+				final byte[] upgradeFileData = builder.getUserFile().loadFileInByteArray();
+				
+				if (upgradeFileData.length > 0) {
+					try {
+						this.upgradeDevice(builder.getUserFile().loadFileInByteArray());
+					} catch (IOException e) {
+						if (logger.isLoggable(Level.SEVERE)) {
+							logger.log(Level.SEVERE, "Caught an IO error when trying upgrade [" + e.getMessage() + "]", e);
+						}
+					}
+				} else {
+					if (logger.isLoggable(Level.WARNING)) {
+						logger.log(Level.WARNING, "Length of the upgrade file is not valid [" + upgradeFileData + " bytes], failing message.");
+					}
+					
+					return MessageResult.createFailed(messageEntry);
+				}
 			} else {
 				logger.log(Level.WARNING, "The message did not contain a user file to use for the upgrade, message fails...");
 				
