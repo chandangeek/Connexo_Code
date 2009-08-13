@@ -496,13 +496,14 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	}
 
 	/**
-	 * @return the current securityProvider (currently only LocalSecurityProvider is availeable) 
+	 * @return the current securityProvider (currently only LocalSecurityProvider is available) 
 	 */
 	public SecurityProvider getSecurityProvider(){
 		
-		Properties meterProperties = getMeter().getProperties();
-		meterProperties.put(MeterProtocol.PASSWORD, getMeter().getPassword());
-		LocalSecurityProvider lsp = new LocalSecurityProvider(meterProperties);
+		if(getMeter() != null){	//MeterTool already has the password as a property
+			this.properties.put(MeterProtocol.PASSWORD, this.password);
+		}
+		LocalSecurityProvider lsp = new LocalSecurityProvider(this.properties);
 		
 		return lsp;
 	}

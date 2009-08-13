@@ -864,7 +864,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 				Array globalKeyArray = new Array();
 				Structure keyData = new Structure();
 				keyData.addDataType(new TypeEnum(0));	// 0 means keyType: global unicast encryption key
-				keyData.addDataType(new OctetString(getWebRtu().getSecurityProvider().getNEWAuthenticationKey()));
+				keyData.addDataType(new OctetString(getWebRtu().getSecurityProvider().getNEWGlobalKey()));
 				globalKeyArray.addDataType(keyData);
 				
 				SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();

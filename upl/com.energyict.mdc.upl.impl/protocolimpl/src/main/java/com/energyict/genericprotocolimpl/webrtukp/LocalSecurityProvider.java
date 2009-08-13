@@ -67,7 +67,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 	}
 
 	/**
-	 * The authenticationKey is the password of the RTU
+	 * Return the dataTransprot authenticationKey
 	 */
 	public byte[] getAuthenticationKey() {
 		return this.authenticationPassword;
