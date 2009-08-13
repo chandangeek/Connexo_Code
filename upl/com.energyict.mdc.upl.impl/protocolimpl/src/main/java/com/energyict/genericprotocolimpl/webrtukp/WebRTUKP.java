@@ -1335,8 +1335,8 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		}
 		if (getMeter() != null && getMeter().getPassword() != "") {
 			this.password = getMeter().getPassword();
-		} else {
-			this.password = "";
+		} else if(getMeter() == null){
+			this.password = properties.getProperty("Password","");
 		}
 		if (getMeter() != null && getMeter().getSerialNumber() != "") {
 			this.serialNumber = getMeter().getSerialNumber();
