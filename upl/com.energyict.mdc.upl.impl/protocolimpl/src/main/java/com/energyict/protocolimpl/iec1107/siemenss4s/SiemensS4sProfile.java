@@ -1,0 +1,180 @@
+package com.energyict.protocolimpl.iec1107.siemenss4s;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import sun.security.action.GetLongAction;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sIntegrationPeriod;
+import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectFactory;
+import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sRegisterConfig;
+
+public class SiemensS4sProfile {
+
+	private S4sObjectFactory s4sObjectFactory;
+	private S4sIntegrationPeriod integrationPeriodObject;
+
+	private boolean bufferOverFlow = false;
+	
+	private static int PROFILE_READ_BLOCK_SIZE = 40;
+	private static int PROFILE_MEMORY_START_ADDRESS = 0x2000;
+	private static int PROFILE_MEMORY_STOP_ADDRESS = 0x5FFF;
+	
+	/**
+	 * Creates a new instance of the Siemens Profile Object
+	 * @param objectFactory
+	 */
+	public SiemensS4sProfile(S4sObjectFactory objectFactory) {
+		this.s4sObjectFactory = objectFactory;
+	}
+
+	/**
+	 * @return the profileInterval of the device
+	 * @throws FlagIEC1107ConnectionException
+	 * @throws ConnectionException
+	 * @throws IOException
+	 */
+	public int getProfileInterval() throws FlagIEC1107ConnectionException, ConnectionException, IOException {
+		return getIntegrationPeriodObject().getInterval();
+	}
+	
+	/**
+	 * Create the IntegrationPeriod object if it doesn't exist
+	 * @return the IntegrationPeriod object
+	 * @throws FlagIEC1107ConnectionException
+	 * @throws ConnectionException
+	 * @throws IOException
+	 */
+	private S4sIntegrationPeriod getIntegrationPeriodObject() throws FlagIEC1107ConnectionException, ConnectionException, IOException{
+		if(this.integrationPeriodObject == null){	// lazy init because we only want to read it once
+			this.integrationPeriodObject = getObjectFactory().getIntegrationPeriodObject();
+		}
+		return integrationPeriodObject;
+	}
+	
+	private S4sObjectFactory getObjectFactory(){
+		return this.s4sObjectFactory;
+	}
+
+	/**
+	 * Retrieve and build the profileData
+	 * 
+	 * <b>Note:</b> 
+	 * We retrieve the blocks in size of 40 bytes because MV-90 does it like this.
+	 * TODO: Test if we can read bigger blocks, which will lead to less communication
+	 * 
+	 * @param lastReading - the date from where to start reading 
+	 * @param includeEvents - indicates whether you need to read the events
+	 * @return a fully build profileData object
+	 * @throws FlagIEC1107ConnectionException
+	 * @throws ConnectionException
+	 * @throws IOException
+	 */
+	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws FlagIEC1107ConnectionException, ConnectionException, IOException {
+		byte[] allChannelInfos = getObjectFactory().getAllChannelInfosRawData();
+		List channelInfos = getChannelInfos(allChannelInfos);
+		SiemensS4sProfileRecorder pRecorder = new SiemensS4sProfileRecorder();
+		
+		if(channelInfos.size() != 0){
+			byte[] profilePart;
+			byte[] preparedReadProfileCommand;
+			Date lastIntervalDate = null;
+			int offsetPointer = getObjectFactory().getProfilePointerObject().getCurrentPointer();
+
+			pRecorder.setChannelInfos(channelInfos);
+			pRecorder.setFirstIntervalTime(getObjectFactory().getDateTimeObject().getMeterTime());
+			do{
+				
+				preparedReadProfileCommand = prepareReadProfilePartCommand(offsetPointer);
+				profilePart = getObjectFactory().readRawMemoryBlock(preparedReadProfileCommand);
+				pRecorder.addProfilePart(profilePart);
+				offsetPointer = decreaseMemoryPointer(offsetPointer);
+				lastIntervalDate = pRecorder.getLastIntervalDate();
+				
+			}while(lastReading.before(lastIntervalDate) && !this.bufferOverFlow);
+		}
+		Logger.global.log(Level.INFO, "Meter returned no channelInformation so no profileData is constructed.");
+		return pRecorder.getProfileData();
+	}
+
+	/**
+	 * Create a list of channelInfo objects. If a channel isn't used, then don't create an info for it.
+	 * @param allChannelInfos a byteArray containing the rawBytes of the 4 channelInfoRegisters
+	 * @return a List of channelInfos.
+	 * @throws FlagIEC1107ConnectionException
+	 * @throws ConnectionException
+	 * @throws IOException
+	 */
+	protected List getChannelInfos(byte[] allChannelInfos) throws FlagIEC1107ConnectionException, ConnectionException, IOException {
+		
+		List channelInfos = new ArrayList();
+		
+		S4sRegisterConfig chanConfig;
+		ChannelInfo ci;
+		int index = 0;
+		for(int i = 0; i < 4; i++){
+			chanConfig = new S4sRegisterConfig(ProtocolUtils.getSubArray2(allChannelInfos, i*2, 2));
+			if(chanConfig.isValid()){
+				// TODO check if you have to set a Multiplier or scaler to the channels
+				ci = new ChannelInfo(index, "Channel_" + index + " - " + chanConfig.getType(), chanConfig.getUnit());
+				channelInfos.add(ci);
+				index++;
+			}
+		}
+		
+		return channelInfos;
+	}
+	
+	/**
+	 * Create a readCommand with the offset as a memoryAddress
+	 * @param offset MemoryAddress of the profileMemory
+	 * @return a byteArray containing a readCommand 
+	 * @throws IOException 
+	 */
+	protected byte[] prepareReadProfilePartCommand(int offset) throws IOException{
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		int memoryLocation = PROFILE_MEMORY_START_ADDRESS + offset;
+		baos.write(Integer.toHexString(memoryLocation).getBytes());
+		baos.write(("(" + PROFILE_READ_BLOCK_SIZE + ")").getBytes());
+		return baos.toByteArray();
+	}
+	
+	/**
+	 * Decrease the current pointer with the readSize.
+	 * Make extra checks for memoryBufferOverFlows so you don't keep on reading the complete buffer
+	 * @param offsetPointer - the pointer used for the latest profileReadPart
+	 * @return the decreased pointer
+	 * @throws FlagIEC1107ConnectionException
+	 * @throws ConnectionException
+	 * @throws IOException
+	 */
+	private int decreaseMemoryPointer(int offsetPointer) throws FlagIEC1107ConnectionException, ConnectionException, IOException{
+		
+		// Check if you have a buffer OverFlow
+		if((offsetPointer > getObjectFactory().getProfilePointerObject().getCurrentPointer()) &&
+				(offsetPointer - PROFILE_READ_BLOCK_SIZE) < getObjectFactory().getProfilePointerObject().getCurrentPointer()){
+			this.bufferOverFlow = true;
+		}
+		
+		if(offsetPointer == 0){
+			offsetPointer = 0x3FFF - 4;
+		} else if((offsetPointer - PROFILE_READ_BLOCK_SIZE) < 0){
+			offsetPointer = 0;
+		} else {
+			offsetPointer -= PROFILE_READ_BLOCK_SIZE;
+		}
+		return offsetPointer;
+	}
+
+}

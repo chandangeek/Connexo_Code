@@ -1,0 +1,53 @@
+package com.energyict.protocolimpl.iec1107.siemenss4s.objects;
+
+import java.util.Calendar;
+
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.protocol.ProtocolUtils;
+
+/**
+ * The dateTime values from the S4s device
+ * <b>NOTE: We assume the meter stores his time in GMT ...</b>
+ * 
+ * @author gna
+ *
+ */
+public class S4sDateTime {
+
+	private byte[] date;
+	private byte[] time;
+	
+	private final static int SECONDS 	= 0;
+	private final static int MINUTES 	= 1;
+	private final static int HOURES 	= 2;
+	private final static int MONTHS		= 0;
+	private final static int YEARS		= 1;
+	private final static int DAYS		= 2;
+	
+	/**
+	 * Creates a new instance of the dateTime object
+	 * @param date
+	 * @param time
+	 */
+	public S4sDateTime(byte[] date, byte[] time){
+		this.date = DLMSUtils.hexStringToByteArray(new String(S4ObjectUtils.switchNibbles(date)));
+		this.time = DLMSUtils.hexStringToByteArray(new String(S4ObjectUtils.switchNibbles(time)));
+	}
+	
+	/**
+	 * Construct a GMT calendar with the meterTime
+	 * @return a Calendar with the current MeterTime
+	 */
+	public Calendar getMeterTime(){
+		Calendar cal = ProtocolUtils.getCleanGMTCalendar();
+		int year = (date[YEARS] >= 90)?(1900 + date[YEARS]):(2000 + date[YEARS]);
+		cal.set(Calendar.YEAR, year);
+		cal.set(Calendar.MONTH, date[MONTHS]-1); // -1 because javaMonth starts from zero ...	
+		cal.set(Calendar.DAY_OF_MONTH, date[DAYS]);
+		cal.set(Calendar.HOUR_OF_DAY, time[HOURES]);
+		cal.set(Calendar.MINUTE, time[MINUTES]);
+		cal.set(Calendar.SECOND, time[SECONDS]);
+		return cal;
+	}
+	
+}
