@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.protocol.ProtocolUtils;
 
@@ -199,18 +200,34 @@ public class AssociationControlServiceElement {
 								if ((responseData[i + 2] == 3)
 										&& (responseData[i + 3] == 2)
 										&& (responseData[i + 4] == 1)) {
-									if (responseData[i + 5] == 0x00)
+									if (responseData[i + 5] == 0x00){
 										strResultSourceDiagnostics += ", ACSE_SERVICE_USER";
-									else if (responseData[i + 5] == 0x01)
+									}
+									else if (responseData[i + 5] == 0x01){
 										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, no reason given";
-									else if (responseData[i + 5] == 0x02)
+										throw new IOException("Application Association Establishment Failed"
+												+ strResultSourceDiagnostics);										
+									}
+									else if (responseData[i + 5] == 0x02){
 										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Application Context Name Not Supported";
-									else if (responseData[i + 5] == 0x0B)
+										throw new IOException("Application Association Establishment Failed"
+												+ strResultSourceDiagnostics);
+									}
+									else if (responseData[i + 5] == 0x0B){
 										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Not Recognised";
-									else if (responseData[i + 5] == 0x0C)
+										throw new IOException("Application Association Establishment Failed"
+												+ strResultSourceDiagnostics);
+									}
+									else if (responseData[i + 5] == 0x0C){
 										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Required";
-									else if (responseData[i + 5] == 0x0D)
+										throw new IOException("Application Association Establishment Failed"
+												+ strResultSourceDiagnostics);
+									}
+									else if (responseData[i + 5] == 0x0D){
 										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Failure";
+										throw new IOException("Application Association Establishment Failed"
+												+ strResultSourceDiagnostics);
+									}
 									else if (responseData[i + 5] == 0x0E)
 										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Required";
 									else
@@ -364,6 +381,17 @@ public class AssociationControlServiceElement {
 		
 		rlrq[1] = (byte) (t - 2);
 		return ProtocolUtils.getSubArray(rlrq, 0, t - 1);
+	}
+	
+	public static void main(String[] args){
+		try {
+			byte[] b = DLMSUtils.hexStringToByteArray("0a0001c100630580030201");
+			AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, 1, null);
+			acse.analyzeRLRE(b);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	protected void analyzeRLRE(byte[] responseData) throws IOException {
