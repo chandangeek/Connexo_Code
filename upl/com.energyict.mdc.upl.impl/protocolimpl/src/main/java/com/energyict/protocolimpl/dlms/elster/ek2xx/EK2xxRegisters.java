@@ -4,12 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 
 public class EK2xxRegisters {
 
-	private static final int DEBUG 	= 0;
-	
 	private static final String CLOCK_OBJECT 			= "CLOCK_OBJECT [8]";
 	private static final String HDLC_SETUP_OBJECT 		= "HDLC_SETUP_OBJECT [23]";
 	private static final String ASSOCIATION_OBJECT 		= "ASSOCIATION_OBJECT [15]";
@@ -24,16 +21,16 @@ public class EK2xxRegisters {
 	public static final ObisCode LOG					= ObisCode.fromString("7.0.99.99.0.255");
 	public static final ObisCode CLOCK					= ObisCode.fromString("0.0.1.0.0.255");
 	public static final ObisCode SOFTWARE_VERSION		= ObisCode.fromString("7.0.0.2.2.255");
-	
+
 	private Map objectInfo = new HashMap(0);
 	private Map objectTypes = new HashMap(0);
-	
+
 	/*
 	 * Constructors
 	 */
 
 	public EK2xxRegisters() {
-		
+
 		addName(CLOCK, " Clock object #1");
 		addName("0.0.22.0.0.255", " IEC HDLC setup");
 		addName("0.0.40.0.0.255", " Current association");
@@ -79,7 +76,7 @@ public class EK2xxRegisters {
 		addType(PROFILE, PROFILE_OBJECT);
 		addType(LOG, PROFILE_OBJECT);
 		addType("7.1.0.0.1.255", DATA_OBJECT);
-		
+
 	}
 
 	/*
@@ -87,19 +84,19 @@ public class EK2xxRegisters {
 	 */
 
 	private void addName(String obisString, String description) {
-		objectInfo.put(ObisCode.fromString(obisString), description);
+		this.objectInfo.put(ObisCode.fromString(obisString), description);
 	}
 
 	private void addName(ObisCode obisCode, String description) {
-		objectInfo.put(obisCode, description);
+		this.objectInfo.put(obisCode, description);
 	}
 
 	private void addType(String obisString, String type) {
-		objectTypes.put(ObisCode.fromString(obisString), type);
+		this.objectTypes.put(ObisCode.fromString(obisString), type);
 	}
 
 	private void addType(ObisCode obisCode, String type) {
-		objectTypes.put(obisCode, type);
+		this.objectTypes.put(obisCode, type);
 	}
 
 	/*
@@ -112,15 +109,19 @@ public class EK2xxRegisters {
 	 * Public getters and setters
 	 */
 
-	public String getObjectName(ObisCode obisCode) throws NoSuchRegisterException {
-		String infoMessage = (String) objectInfo.get(obisCode);
-		if (infoMessage == null) infoMessage = "No object description found.";
+	public String getObjectName(ObisCode obisCode) {
+		String infoMessage = (String) this.objectInfo.get(obisCode);
+		if (infoMessage == null) {
+			infoMessage = "No object description found.";
+		}
 		return infoMessage;
 	}
-	
+
 	public String getObjectType(ObisCode obisCode) {
-		String typeMessage = (String) objectTypes.get(obisCode);
-		if (typeMessage == null) typeMessage = UNKNOWN_OBJECT;
+		String typeMessage = (String) this.objectTypes.get(obisCode);
+		if (typeMessage == null) {
+			typeMessage = UNKNOWN_OBJECT;
+		}
 		return typeMessage;
 	}
 

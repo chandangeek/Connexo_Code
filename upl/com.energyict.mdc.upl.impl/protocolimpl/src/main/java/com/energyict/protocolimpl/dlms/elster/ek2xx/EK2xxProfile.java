@@ -26,14 +26,14 @@ public class EK2xxProfile {
 
 	private static final int DEBUG 			= 0;
 	private static final int STATUS_OK		= 0x80000000;
-	
+
 	private EK2xx ek2xx						= null;
 	private List channelInfos 				= null;
 	private List intervalDatas				= new ArrayList(0);
 	private EK2xxLogbook logbook			= new EK2xxLogbook();
-	private CapturedObjects capturedObjects	= null;        
+	private CapturedObjects capturedObjects	= null;
 	private boolean generateEvents			= false;
-	
+
 	/*
 	 * Constructors
 	 */
@@ -42,7 +42,7 @@ public class EK2xxProfile {
 		this.channelInfos = null;
 		this.ek2xx = ek2xx;
 	}
-	
+
 	/*
 	 * Private getters, setters and methods
 	 */
@@ -56,30 +56,33 @@ public class EK2xxProfile {
 	private void generateChannelInfos(DataStructure ds) throws IOException {
 		int numberOfChannels = getEk2xx().getNumberOfChannels();
 		for (int channelId=0;channelId<numberOfChannels;channelId++) {
-            Unit unit = getEk2xx().readRegister(getCapturedObjects().getProfileDataChannel(channelId)).getQuantity().getUnit();
-            getChannelInfos().add(new ChannelInfo(channelId, "CH"+channelId, unit));
-        }
+			Unit unit = getEk2xx().readRegister(getCapturedObjects().getProfileDataChannel(channelId)).getQuantity().getUnit();
+			getChannelInfos().add(new ChannelInfo(channelId, "CH"+channelId, unit));
+		}
 	}
 
 	private EK2xx getEk2xx() {
-		return ek2xx;
+		return this.ek2xx;
 	}
-	
+
 	private void parseStructure(DataStructure ds) throws IOException {
-		List numbers = new ArrayList(0); 
-		if (channelInfos == null) generateChannelInfos(ds);
-		
+		List numbers = new ArrayList(0);
+		if (this.channelInfos == null) {
+			generateChannelInfos(ds);
+		}
+
 		for (int i = 2; i < ds.getNrOfElements(); i++) {
-			if (getCapturedObjects().isChannelData(i-2))
+			if (getCapturedObjects().isChannelData(i-2)) {
 				numbers.add(ds.getElement(i));
+			}
 		}
 		Date timeStamp = ds.getOctetString(0).toDate(getTimeZone());
 		Calendar calendar = ProtocolUtils.getCleanCalendar(getTimeZone());
 		calendar.setTime(timeStamp);
-		
+
 		int meterIntStatus = ds.getInteger(1);
 		int eiIntStatus = EK2xxEvents.getEiIntervalStatus(meterIntStatus);
-		
+
 		if (DEBUG >= 1) {
 			System.out.println(
 					" timeStamp = " + timeStamp +
@@ -87,21 +90,21 @@ public class EK2xxProfile {
 					" eiIntStatus = " + ProtocolUtils.buildStringHex(eiIntStatus, 8)
 			);
 		}
-		
-        if (!ParseUtils.isOnIntervalBoundary(calendar,getEk2xx().getProfileInterval())) {
-    		if (generateEvents) {
-    			logbook.addMeterEvent(timeStamp, MeterEvent.OTHER, meterIntStatus, EK2xxEvents.getStatusDescription(meterIntStatus));
-    		}
-            ParseUtils.roundUp2nearestInterval(calendar,getEk2xx().getProfileInterval());
-        }
 
-        IntervalData intervalDataTemp = findIntervalData(timeStamp);
-        if (intervalDataTemp != null) {
-        	eiIntStatus |= intervalDataTemp.getEiStatus();
-        	deleteIntervalData(timeStamp);
-        }
-        
-        IntervalData intervalData = new IntervalData(calendar.getTime(), eiIntStatus, meterIntStatus);
+		if (!ParseUtils.isOnIntervalBoundary(calendar,getEk2xx().getProfileInterval())) {
+			if (this.generateEvents) {
+				this.logbook.addMeterEvent(timeStamp, MeterEvent.OTHER, meterIntStatus, EK2xxEvents.getStatusDescription(meterIntStatus));
+			}
+			ParseUtils.roundUp2nearestInterval(calendar,getEk2xx().getProfileInterval());
+		}
+
+		IntervalData intervalDataTemp = findIntervalData(timeStamp);
+		if (intervalDataTemp != null) {
+			eiIntStatus |= intervalDataTemp.getEiStatus();
+			deleteIntervalData(timeStamp);
+		}
+
+		IntervalData intervalData = new IntervalData(calendar.getTime(), eiIntStatus, meterIntStatus);
 		intervalData.addValues(numbers);
 
 		getIntervalDatas().add(intervalData);
@@ -111,18 +114,22 @@ public class EK2xxProfile {
 	private IntervalData findIntervalData(Date timestamp) {
 		for (int i = 0; i < getIntervalDatas().size(); i++) {
 			IntervalData id = (IntervalData) getIntervalDatas().get(i);
-			if (id.getEndTime().compareTo(timestamp) == 0) return id;
+			if (id.getEndTime().compareTo(timestamp) == 0) {
+				return id;
+			}
 		}
 		return null;
 	}
-	
+
 	private void deleteIntervalData(Date timestamp) {
 		for (int i = 0; i < getIntervalDatas().size(); i++) {
 			IntervalData id = (IntervalData) getIntervalDatas().get(i);
-			if (id.getEndTime().compareTo(timestamp) == 0) getIntervalDatas().remove(i);
+			if (id.getEndTime().compareTo(timestamp) == 0) {
+				getIntervalDatas().remove(i);
+			}
 		}
 	}
-	
+
 	/*
 	 * Public methods
 	 */
@@ -144,85 +151,88 @@ public class EK2xxProfile {
 	 * Public getters and setters
 	 */
 
-    public CapturedObjects getCapturedObjects()  throws UnsupportedException, IOException {
-        
-    	if (capturedObjects == null) {
-           byte[] responseData;
-           int i;
-           DataContainer dataContainer = null;
-           try {
-               ProfileGeneric profileGeneric = getEk2xx().getCosemObjectFactory().getProfileGeneric(EK2xxRegisters.PROFILE);
-               getEk2xx().getMeterConfig().setCapturedObjectList(profileGeneric.getCaptureObjectsAsUniversalObjects());               
-               dataContainer = profileGeneric.getCaptureObjectsAsDataContainer();
-               
-               capturedObjects = new CapturedObjects(dataContainer.getRoot().element.length - 1);
-               for (i=0;i<dataContainer.getRoot().element.length - 2;i++) {
-                  capturedObjects.add(i,
-                                      dataContainer.getRoot().getStructure(i+2).getInteger(0),
-                                      dataContainer.getRoot().getStructure(i+2).getOctetString(1).getArray(),
-                                      dataContainer.getRoot().getStructure(i+2).getInteger(2));
-               }
-           }
-           catch (java.lang.ClassCastException e) {
-               System.out.println("Error retrieving object: "+e.getMessage());   
-           }
-           catch(java.lang.ArrayIndexOutOfBoundsException e) {
-               System.out.println("Index error: "+e.getMessage());   
-           }
-           
-        }
-        
-        return capturedObjects ;
-        
-    }
+	public CapturedObjects getCapturedObjects()  throws UnsupportedException, IOException {
+
+		if (this.capturedObjects == null) {
+			byte[] responseData;
+			int i;
+			DataContainer dataContainer = null;
+			try {
+				ProfileGeneric profileGeneric = getEk2xx().getCosemObjectFactory().getProfileGeneric(EK2xxRegisters.PROFILE);
+				getEk2xx().getMeterConfig().setCapturedObjectList(profileGeneric.getCaptureObjectsAsUniversalObjects());
+				dataContainer = profileGeneric.getCaptureObjectsAsDataContainer();
+
+				this.capturedObjects = new CapturedObjects(dataContainer.getRoot().element.length - 1);
+				for (i=0;i<dataContainer.getRoot().element.length - 2;i++) {
+					this.capturedObjects.add(i,
+							dataContainer.getRoot().getStructure(i+2).getInteger(0),
+							dataContainer.getRoot().getStructure(i+2).getOctetString(1).getArray(),
+							dataContainer.getRoot().getStructure(i+2).getInteger(2));
+				}
+			}
+			catch (java.lang.ClassCastException e) {
+				System.out.println("Error retrieving object: "+e.getMessage());
+			}
+			catch(java.lang.ArrayIndexOutOfBoundsException e) {
+				System.out.println("Index error: "+e.getMessage());
+			}
+
+		}
+
+		return this.capturedObjects ;
+
+	}
 
 	public Date getDateFromDataContainer(DataContainer dc) {
 		Date returnDate = null;
 		DataStructure root = dc.getRoot();
-		
+
 		if(root.getNrOfElements() > 0) {
 			DataStructure ds = root.getStructure(0);
 			returnDate = ds.getOctetString(0).toDate(getTimeZone());
-		} 
-		
+		}
+
 		return returnDate;
 	}
-    
+
 	public List getChannelInfos() {
-		if (channelInfos == null) channelInfos = new ArrayList(0);
-		return channelInfos;
+		if (this.channelInfos == null) {
+			this.channelInfos = new ArrayList(0);
+		}
+		return this.channelInfos;
 	}
 
 	public List getIntervalDatas() {
-		return intervalDatas;
+		return this.intervalDatas;
 	}
 
 	public List getMeterEvents() {
-		return checkOnOverlappingEvents(logbook.getMeterEvents());
+		return checkOnOverlappingEvents(this.logbook.getMeterEvents());
 	}
 
-    public static List checkOnOverlappingEvents(List meterEvents) {
-    	Map eventsMap = new HashMap();
-        int size = meterEvents.size();
-	    for (int i = 0; i < size; i++) {
-	    	MeterEvent event = (MeterEvent) meterEvents.get(i);
-	    	Date time = event.getTime();
-	    	MeterEvent eventInMap = (MeterEvent) eventsMap.get(time);
-	    	while (eventInMap != null) {
-	    		time.setTime(time.getTime() + 1000); // add one second
+	public static List checkOnOverlappingEvents(List meterEvents) {
+		Map eventsMap = new HashMap();
+		int size = meterEvents.size();
+		for (int i = 0; i < size; i++) {
+			MeterEvent event = (MeterEvent) meterEvents.get(i);
+			Date time = event.getTime();
+			MeterEvent eventInMap = (MeterEvent) eventsMap.get(time);
+			while (eventInMap != null) {
+				time.setTime(time.getTime() + 1000); // add one second
 				eventInMap = (MeterEvent) eventsMap.get(time);
-	    	}
-	    	MeterEvent newMeterEvent= 
-	    		new MeterEvent(time, event.getEiCode(), event.getProtocolCode(),event.getMessage());
-    		eventsMap.put(time, newMeterEvent);
-	    }
-	    Iterator it = eventsMap.values().iterator();
+			}
+			MeterEvent newMeterEvent=
+				new MeterEvent(time, event.getEiCode(), event.getProtocolCode(),event.getMessage());
+			eventsMap.put(time, newMeterEvent);
+		}
+		Iterator it = eventsMap.values().iterator();
 		List result = new ArrayList();
-	    while (it.hasNext()) 
-	        result.add((MeterEvent) it.next());
+		while (it.hasNext()) {
+			result.add(it.next());
+		}
 		return result;
-    }
-	
+	}
+
 	public void setGenerateEvents(boolean generateEvents) {
 		this.generateEvents = generateEvents;
 	}
@@ -233,5 +243,5 @@ public class EK2xxProfile {
 			parseDataContainer((DataContainer) dataContainers.get(i));
 		}
 	}
-	
+
 }
