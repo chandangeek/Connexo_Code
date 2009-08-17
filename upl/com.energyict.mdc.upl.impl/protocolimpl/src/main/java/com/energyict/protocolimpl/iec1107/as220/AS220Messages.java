@@ -1,0 +1,255 @@
+/**
+ * AS220Messages.java
+ * 
+ * Created on 19-nov-2008, 13:15:45 by jme
+ * 
+ */
+package com.energyict.protocolimpl.iec1107.as220;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+
+/**
+ * @author jme
+ *
+ */
+public class AS220Messages {
+
+	private static final int DEBUG = 0;
+
+	private AS220 as220 = null;
+	private static final AS220MessageType SPC_MESSAGE = new AS220MessageType("SPC_DATA", 4, 285 * 2, "Upload 'Switch Point Clock' settings (Class 4)");
+	private static final AS220MessageType SPCU = new AS220MessageType("SPCU_DATA", 34, 285 * 2, "Upload 'Switch Point Clock Update' settings (Class 32)");
+
+	private static final AS220MessageType CONTACTOR_CLOSE = new AS220MessageType("CONTACTOR_CLOSE", 411, 0, "Contactor close");
+	private static final AS220MessageType CONTACTOR_ARM = 	new AS220MessageType("CONTACTOR_ARM", 411, 0, "Contactor arm");
+	private static final AS220MessageType CONTACTOR_OPEN = 	new AS220MessageType("CONTACTOR_OPEN", 411, 0, "Contactor open");
+
+	public AS220Messages(AS220 as220) {
+		this.as220 = as220;
+	}
+
+	//--------------------------------------------------------------------------------------------------------------------------
+
+	public List getMessageCategories() {
+		sendDebug("getMessageCategories()");
+
+		List theCategories = new ArrayList();
+		MessageCategorySpec catTimeTable = new MessageCategorySpec("'Switch Point Clock' Messages");
+		catTimeTable.addMessageSpec(addBasicMsg(SPC_MESSAGE, false));
+		catTimeTable.addMessageSpec(addBasicMsg(SPCU, false));
+
+		MessageCategorySpec catContactor = new MessageCategorySpec("'Contacor' Messages");
+		catContactor.addMessageSpec(addBasicMsg(CONTACTOR_CLOSE, false));
+		catContactor.addMessageSpec(addBasicMsg(CONTACTOR_ARM, false));
+		catContactor.addMessageSpec(addBasicMsg(CONTACTOR_OPEN, false));
+
+
+		theCategories.add(catTimeTable);
+		theCategories.add(catContactor);
+		return theCategories;
+	}
+
+	public void applyMessages(List messageEntries) {
+		sendDebug("applyMessages(List messageEntries)");
+		if (DEBUG >= 2) {
+			Iterator it = messageEntries.iterator();
+			while(it.hasNext()) {
+				MessageEntry messageEntry = (MessageEntry)it.next();
+				sendDebug(messageEntry.toString());
+			}
+		}
+	}
+
+	public MessageResult queryMessage(MessageEntry messageEntry) {
+		sendDebug("queryMessage(MessageEntry messageEntry)");
+
+		try {
+			if (isThisMessage(messageEntry, SPC_MESSAGE)) {
+				sendDebug("************************* " + SPC_MESSAGE.getDisplayName() + " *************************");
+				writeClassSettings(messageEntry, SPC_MESSAGE);
+				return MessageResult.createSuccess(messageEntry);
+			}
+			else if (isThisMessage(messageEntry, SPCU)) {
+				sendDebug("************************* " + SPCU + " *************************");
+				writeClassSettings(messageEntry, SPCU);
+				return MessageResult.createSuccess(messageEntry);
+			} else if (isThisMessage(messageEntry, CONTACTOR_ARM)) {
+				System.out.println("Received contactor CONTACTOR_ARM");
+				AS220ContactorController cc = new AS220ContactorController(this.as220.getAS220Registry(), this.as220.getLogger());
+				cc.doArm();
+				return MessageResult.createSuccess(messageEntry);
+			} else if (isThisMessage(messageEntry, CONTACTOR_CLOSE)) {
+				System.out.println("Received contactor CONTACTOR_CLOSE");
+				AS220ContactorController cc = new AS220ContactorController(this.as220.getAS220Registry(), this.as220.getLogger());
+				try {
+					cc.doConnect();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return MessageResult.createSuccess(messageEntry);
+			} else if (isThisMessage(messageEntry, CONTACTOR_OPEN)) {
+				System.out.println("Received contactor ARM message");
+				AS220ContactorController cc = new AS220ContactorController(this.as220.getAS220Registry(), this.as220.getLogger());
+				cc.doDisconnect();
+				return MessageResult.createSuccess(messageEntry);
+			}
+
+		}
+		catch(IOException e) {
+			sendDebug(e.getMessage());
+		}
+
+		return MessageResult.createFailed(messageEntry);
+	}
+
+	public String writeValue(MessageValue value) {
+		sendDebug("writeValue(MessageValue value)");
+		return value.getValue();
+	}
+
+	public String writeMessage(Message msg) {
+		sendDebug("writeMessage(Message msg)");
+		return msg.write(this.as220);
+	}
+
+	public String writeTag(MessageTag tag) {
+		sendDebug("writeTag(MessageTag tag)");
+
+		StringBuffer buf = new StringBuffer();
+
+		// a. Opening tag
+		buf.append("<");
+		buf.append( tag.getName() );
+
+		// b. Attributes
+		for (Iterator it = tag.getAttributes().iterator(); it.hasNext();) {
+			MessageAttribute att = (MessageAttribute)it.next();
+			if ((att.getValue()==null) || (att.getValue().length()==0)) {
+				continue;
+			}
+			buf.append(" ").append(att.getSpec().getName());
+			buf.append("=").append('"').append(att.getValue()).append('"');
+		}
+		buf.append(">");
+
+		// c. sub elements
+		for (Iterator it = tag.getSubElements().iterator(); it.hasNext();) {
+			MessageElement elt = (MessageElement)it.next();
+			if (elt.isTag()) {
+				buf.append( writeTag((MessageTag)elt) );
+			} else if (elt.isValue()) {
+				String value = writeValue((MessageValue)elt);
+				if ((value==null) || (value.length()==0)) {
+					return "";
+				}
+				buf.append(value);
+			}
+		}
+
+		// d. Closing tag
+		buf.append("\n\n</");
+		buf.append( tag.getName() );
+		buf.append(">");
+
+		return buf.toString();
+
+	}
+
+	//--------------------------------------------------------------------------------------------------------------------------
+
+
+
+	private static MessageSpec addBasicMsg(AS220MessageType abba220MessageType, boolean advanced) {
+		MessageSpec msgSpec = new MessageSpec(abba220MessageType.getDisplayName(), advanced);
+		MessageTagSpec tagSpec = new MessageTagSpec(abba220MessageType.getTagName());
+		msgSpec.add(tagSpec);
+		return msgSpec;
+	}
+
+
+	private void writeClassSettings(MessageEntry messageEntry, AS220MessageType messageType) throws IOException {
+		final byte[] WRITE1 = FlagIEC1107Connection.WRITE1;
+		final int MAX_PACKETSIZE = 48;
+
+		String returnValue = "";
+		String iec1107Command = "";
+
+		int first = 0;
+		int last = 0;
+		int offset = 0;
+		int length = 0;
+
+		if (this.as220.getISecurityLevel() < 1) {
+			throw new IOException("Message " + messageType.getDisplayName() + " needs at least security level 1. Current level: " + this.as220.getISecurityLevel());
+		}
+
+		String message = AS220Utils.getXMLAttributeValue(messageType.getTagName(), messageEntry.getContent());
+		message = AS220Utils.cleanAttributeValue(message);
+		sendDebug("Cleaned attribute value: " + message);
+		if (message.length() != messageType.getLength()) {
+			throw new IOException("Wrong length !!! Length should be " + messageType.getLength() + " but was " + message.length());
+		}
+		if (!AS220Utils.containsOnlyTheseCharacters(message.toUpperCase(), "0123456789ABCDEF")) {
+			throw new IOException("Invalid characters in message. Only the following characters are allowed: '0123456789ABCDEFabcdef'");
+		}
+
+		do {
+			last = first + MAX_PACKETSIZE;
+			if (last >= message.length()) {
+				last = message.length();
+			}
+			String rawdata = message.substring(first, last);
+
+			length = rawdata.length() / 2;
+			offset = first / 2;
+
+			iec1107Command = "C" + ProtocolUtils.buildStringHex(messageType.getClassnr(), 2);
+			iec1107Command += ProtocolUtils.buildStringHex(length, 4);
+			iec1107Command += ProtocolUtils.buildStringHex(offset, 4);
+			iec1107Command += "(" + rawdata + ")";
+
+			sendDebug(	" classNumber: " + ProtocolUtils.buildStringHex(messageType.getClassnr(), 2) +
+					" First: " + ProtocolUtils.buildStringHex(first, 4) +
+					" Last: " + ProtocolUtils.buildStringHex(last, 4) +
+					" Offset: " + ProtocolUtils.buildStringHex(offset, 4) +
+					" Length: " + ProtocolUtils.buildStringHex(length, 4) +
+					" Sending iec1107Command: [ W1." + iec1107Command + " ]"
+			);
+
+			returnValue = this.as220.getFlagIEC1107Connection().sendRawCommandFrameAndReturn(WRITE1, iec1107Command.getBytes());
+			if (returnValue != null) {
+				throw new IOException(" Wrong response on iec1107Command: W1." + iec1107Command + "] expected 'null' but received " + ProtocolUtils.getResponseData(returnValue.getBytes()));
+			}
+			first = last;
+
+		} while (first < message.length());
+
+	}
+
+	private static boolean isThisMessage(MessageEntry messageEntry, AS220MessageType messagetype) {
+		return (AS220Utils.getXMLAttributeValue(messagetype.getTagName(), messageEntry.getContent()) != null);
+	}
+
+	private void sendDebug(String string) {
+		if (DEBUG >= 1) {
+			this.as220.sendDebug(string);
+		}
+	}
+
+}

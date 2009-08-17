@@ -289,12 +289,17 @@
 -keep public class com.energyict.genericprotocolimpl.webrtukp.MeterToolProtocol{
 	public *;
 }
+
 -keep public class com.energyict.genericprotocolimpl.common.StatusCodeProfile{
 	public *;
 }
+
 -keep class com.energyict.genericprotocolimpl.webrtukp.eventhandling.*{
 	public *;
 }
 
 -keepnames class com.energyict.protocolimpl.modbus.socomec.a40.A40
+
 -keepnames class com.energyict.protocolimpl.modbus.socomec.a20.A20
+
+-keepnames class com.energyict.protocolimpl.iec1107.as220.AS220
