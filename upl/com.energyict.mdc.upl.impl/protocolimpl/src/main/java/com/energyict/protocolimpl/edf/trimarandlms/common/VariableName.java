@@ -15,13 +15,15 @@ import java.io.Serializable;
 import com.energyict.cbo.*;
 
 /**
- *
+ * FIXME: Run the tests again with the serialVersionUID so you can rebuild the registers correctly with the fixed ID
  * @author Koen
  */
 public class VariableName implements Serializable{
     
     
-    public static final int ENERGIE = 0;
+	private static final long serialVersionUID = 6576743255886418829L;
+	
+	public static final int ENERGIE = 0;
     public static final int TEMPS_FONCTIONNEMENT = 1;
     public static final int DEPASSEMENT_QUADRATIUQUE = 2;
     public static final int DUREE_DEPASSEMENT = 3;

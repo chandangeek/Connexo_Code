@@ -3,17 +3,13 @@
  */
 package com.energyict.protocolimpl.edf.trimaran2p;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocolimpl.edf.trimaran2p.Trimaran2P;
 import com.energyict.protocolimpl.edf.trimaran2p.core.VariableNameFactory;
 import com.energyict.protocolimpl.edf.trimarandlms.common.Register;
 import com.energyict.protocolimpl.edf.trimarandlms.common.VariableName;

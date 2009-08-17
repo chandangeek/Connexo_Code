@@ -584,10 +584,11 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
     private RegisterValue doReadRegister(ObisCode obisCode,boolean billingTimestamp) throws IOException {
     	RegisterValue registerValue =  findRegisterValue(obisCode);
         if (registerValue == null) {
-            if (billingTimestamp)
-                registerValue = doTheReadBillingRegisterTimestamp(obisCode); 
-            else
-                registerValue = doTheReadRegister(obisCode); 
+            if (billingTimestamp){
+                registerValue = doTheReadBillingRegisterTimestamp(obisCode);
+            } else {
+                registerValue = doTheReadRegister(obisCode);
+            }
             registerValues.add(registerValue);
         }
         return registerValue; 

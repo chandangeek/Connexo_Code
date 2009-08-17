@@ -133,7 +133,7 @@ public class ConcentratorTest{
 		
 		mbusAfter();
 	}
-	@Ignore
+	
 	@Test
 	public void importProfileTest() {
 		

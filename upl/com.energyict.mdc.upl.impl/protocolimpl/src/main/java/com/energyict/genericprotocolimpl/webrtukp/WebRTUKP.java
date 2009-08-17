@@ -1419,6 +1419,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		result.add("FolderExtName");
 		result.add("DataTransportKey");
 		result.add("MasterKey");
+		result.add("DataTransportAuthenticationKey");
 		return result;
 	}
 

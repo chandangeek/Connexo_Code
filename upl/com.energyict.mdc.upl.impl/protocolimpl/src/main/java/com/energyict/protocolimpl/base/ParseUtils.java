@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProtocolUtils;
 
@@ -534,6 +535,9 @@ public class ParseUtils {
     	return data;
     }
     
+    public static byte[] stripByteArrayBrackets(byte[] byteArrayWithBrackets){
+    	return (ProtocolUtils.stripBrackets(new String(byteArrayWithBrackets))).getBytes();
+    }
     
     static public void main(String[] argv) {
         try {

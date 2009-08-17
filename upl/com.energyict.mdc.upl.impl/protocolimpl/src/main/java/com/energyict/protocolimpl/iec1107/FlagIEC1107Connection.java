@@ -618,10 +618,22 @@ public class FlagIEC1107Connection extends Connection {
         return new String(receiveRawData());
     }
     
+    /**
+     * @return the data without the brackets
+     * @throws IOException
+     * @throws ConnectionException
+     * @throws FlagIEC1107ConnectionException
+     */
     public byte[] receiveData() throws IOException, ConnectionException, FlagIEC1107ConnectionException {
         return parseDataBetweenBrackets(doReceiveDataRetry());
     }
     
+    /**
+     * @return the data including the brackets
+     * @throws IOException
+     * @throws ConnectionException
+     * @throws FlagIEC1107ConnectionException
+     */
     public byte[] receiveRawData() throws IOException, ConnectionException, FlagIEC1107ConnectionException {
         return doReceiveDataRetry();
     }
