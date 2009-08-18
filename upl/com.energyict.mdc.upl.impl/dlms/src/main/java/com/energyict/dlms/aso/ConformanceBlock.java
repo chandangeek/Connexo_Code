@@ -16,7 +16,7 @@ public class ConformanceBlock{
 	 * - selective access is supported (bit21)
 	 * </pre>
 	 */
-	public static long DEFAULT_LN_CONFORMANCE_BLOCK = 32287;
+	public static final long DEFAULT_LN_CONFORMANCE_BLOCK = 32287;
 	/**
 	 * Default conformance block with ShortName referencing:
 	 * <pre>
@@ -28,33 +28,32 @@ public class ConformanceBlock{
 	 * </pre>
 	 */
 	public static long DEFAULT_SN_CONFORMANCE_BLOCK = 1835808;
-	
+
 	/**
 	 * These bits can be used to set or clear a bit in the conformance block
 	 */
-	public static int BIT_READ = 3;
-	public static int BIT_WRITE = 4;
-	public static int BIT_UNCONFIRMED_WRITE = 5;
-	public static int BIT_ATTRB0_SUPP_SET = 8;
-	public static int BIT_PRIORITY_MGMT_SUPP = 9;
-	public static int BIT_ATTRB0_SUPP_GET = 10;
-	public static int BIT_BLOCK_TRANSF_GET = 11;
-	public static int BIT_BLOCK_TRANSF_SET = 12;
-	public static int BIT_BLOCK_TRANSF_ACTION = 13;
-	public static int BIT_MULTIPLE_REFS = 14;
-	public static int BIT_INFORMATION_REPORT = 15;
-	public static int BIT_PARAMETERIZED_ACCESS = 18;
-	public static int BIT_GET = 19;
-	public static int BIT_SET = 20;
-	public static int BIT_SELECTIVE_ACCESS = 21;
-	public static int BIT_EVENT_NOTIFY = 22;
-	public static int BIT_ACTION = 23;
-	
-	protected byte[] block = new byte[24];
-	
-	public ConformanceBlock(){
-	}
-	
+	public static final int BIT_READ = 3;
+	public static final int BIT_WRITE = 4;
+	public static final int BIT_UNCONFIRMED_WRITE = 5;
+	public static final int BIT_ATTRB0_SUPP_SET = 8;
+	public static final int BIT_PRIORITY_MGMT_SUPP = 9;
+	public static final int BIT_ATTRB0_SUPP_GET = 10;
+	public static final int BIT_BLOCK_TRANSF_GET = 11;
+	public static final int BIT_BLOCK_TRANSF_SET = 12;
+	public static final int BIT_BLOCK_TRANSF_ACTION = 13;
+	public static final int BIT_MULTIPLE_REFS = 14;
+	public static final int BIT_INFORMATION_REPORT = 15;
+	public static final int BIT_PARAMETERIZED_ACCESS = 18;
+	public static final int BIT_GET = 19;
+	public static final int BIT_SET = 20;
+	public static final int BIT_SELECTIVE_ACCESS = 21;
+	public static final int BIT_EVENT_NOTIFY = 22;
+	public static final int BIT_ACTION = 23;
+
+	private byte[] block = new byte[24];
+
+	public ConformanceBlock(){}
+
 	/**
 	 * Constructor with a given conformance. It is advisable to use one of the default LN or SN conformance blocks
 	 * @param proposedConformance - a long value representing a bitString according to the required conformance
@@ -62,7 +61,7 @@ public class ConformanceBlock{
 	public ConformanceBlock(long proposedConformance){
 		updateBlock(proposedConformance);
 	}
-	
+
 	/**
 	 * @return the AXDR encoded byteArray of the conformance Block
 	 */
@@ -77,17 +76,17 @@ public class ConformanceBlock{
 		}
 		return b;
 	}
-	
+
 	/**
 	 * Fill in the byteArray with '0' and '1' to indicate which bit is set or not
 	 * @param proposedConformance - the long value representing the bitString according to the required conformance
 	 */
-	protected void updateBlock(long proposedConformance){
+	private void updateBlock(long proposedConformance){
 		for(int i = 0; i < this.block.length ; i++){
 			this.block[i] = (byte)((proposedConformance>>(this.block.length-1-i))&0x1);
 		}
 	}
-	
+
 	/**
 	 * Construct the long value from the byteArry
 	 * @return the conformance long-value
@@ -99,7 +98,7 @@ public class ConformanceBlock{
 		}
 		return value;
 	}
-	
+
 	/**
 	 * Set a certain bit in the byteArray
 	 * @param bit - the number of the bit you want to set

@@ -1,3 +1,5 @@
+package com.energyict.dlms;
+
 /*
  * DLMSConnection.java
  *
@@ -8,28 +10,37 @@
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-package com.energyict.dlms;
+import java.io.IOException;
 
-import com.energyict.dialer.connection.*;
-import java.io.*;
+import com.energyict.dialer.connection.HHUSignOn;
 
 /**
  *
  * @author kvds
  */
 public interface DLMSConnection {
-    
-    public final int DLMS_CONNECTION_TCPIP=1;
-    public final int DLMS_CONNECTION_HDLC=0;
-    
-    public byte[] sendRequest(byte[] byteRequestBuffer) throws IOException;
-    public void setHHUSignOn(HHUSignOn hhuSignOn,String meterId);
-    public HHUSignOn getHhuSignOn();
-    public void connectMAC() throws IOException,DLMSConnectionException;
-    public void disconnectMAC() throws IOException,DLMSConnectionException;
-    public int getType();
-	public void setSNRMType(int type);  
-	public void setIskraWrapper(int type);
-	public void setInvokeIdAndPriority(InvokeIdAndPriority iiap);
-	public InvokeIdAndPriority getInvokeIdAndPriority();
+
+	int DLMS_CONNECTION_TCPIP=1;
+	int DLMS_CONNECTION_HDLC=0;
+
+	byte[] sendRequest(byte[] byteRequestBuffer) throws IOException;
+
+	void setHHUSignOn(HHUSignOn hhuSignOn,String meterId);
+
+	HHUSignOn getHhuSignOn();
+
+	void connectMAC() throws IOException,DLMSConnectionException;
+
+	void disconnectMAC() throws IOException,DLMSConnectionException;
+
+	int getType();
+
+	void setSNRMType(int type);
+
+	void setIskraWrapper(int type);
+
+	void setInvokeIdAndPriority(InvokeIdAndPriority iiap);
+
+	InvokeIdAndPriority getInvokeIdAndPriority();
+
 }
