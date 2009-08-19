@@ -10,15 +10,11 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import java.io.IOException;
+import java.util.Date;
 
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
 import com.energyict.protocolimpl.elster.alpha.core.classes.ClassParseUtils;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
 
 
 /**
@@ -26,160 +22,161 @@ import com.energyict.cbo.*;
  * @author koen
  */
 public class Class9Status1 extends AbstractClass {
-    
-    ClassIdentification classIdentification = new ClassIdentification(9,48,false);
-       
-    int XUOMLO;
-    int SYSERR;
-    int SYSWARN;
-    int SYSSTAT;
-    int CUMDDR;
-    int CUMDPUL;
-    int PWRLOG;
-    Date PSTART;
-    Date PEND;
-    int SEARAT;
-    int DOY;
-    Date TD;
-    int TRI;
-    int DATATR;
-    int DATREP;
-    int DATMOD;
-    int CUMDR;
-    int CUMCOMM;
-    int CUMOUT;
-    
-    public String toString() {
-        return "Class9Status1: XUOMLO=0x"+Integer.toHexString(XUOMLO)+", "+
-               "SYSERR=0x"+Integer.toHexString(SYSERR)+", "+
-               "SYSWARN=0x"+Integer.toHexString(SYSWARN)+", "+
-               "SYSSTAT=0x"+Integer.toHexString(SYSSTAT)+", "+
-               "CUMDDR="+CUMDDR+", "+
-               "CUMDPUL="+CUMDPUL+", "+
-               "PWRLOG=0x"+Integer.toHexString(PWRLOG)+", "+
-               "PSTART="+PSTART+", "+
-               "PEND="+PEND+", "+
-               "SEARAT="+Integer.toHexString(SEARAT)+", "+
-               "DOY="+Integer.toHexString(DOY)+", "+
-               "TD="+TD+", "+
-               "TRI="+TRI+", "+
-               "DATATR="+DATATR+", "+
-               "DATREP="+DATREP+", "+
-               "DATMOD="+DATMOD+", "+
-               "CUMDR="+CUMDR+", "+
-               "CUMCOMM="+CUMCOMM+", "+
-               "CUMOUT="+CUMOUT;
-    }
-    
-    /** Creates a new instance of Class9Status1 */
-    public Class9Status1(ClassFactory classFactory) {
-        super(classFactory);
-    }
-    
-    protected void parse(byte[] data) throws IOException {
-        XUOMLO = ProtocolUtils.getInt(data,0, 1);
-        SYSERR = ProtocolUtils.getInt(data,1, 3);
-        SYSWARN = ProtocolUtils.getInt(data,4, 1);
-        SYSSTAT = ProtocolUtils.getInt(data,5, 1);
-        CUMDDR = ProtocolUtils.getBCD2Int(data,6,1);
-        CUMDPUL = ProtocolUtils.getBCD2Int(data,7,1);
-        PWRLOG = ProtocolUtils.getInt(data,8, 4);
-        PSTART = ClassParseUtils.getDate6(data,12, getClassFactory().getAlpha().getTimeZone());
-        PEND = ClassParseUtils.getDate6(data,18, getClassFactory().getAlpha().getTimeZone());
-        SEARAT = ProtocolUtils.getInt(data,24, 1);
-        DOY = ProtocolUtils.getInt(data,25, 2);
-        TD = ClassParseUtils.getDate6(data,27, getClassFactory().getAlpha().getTimeZone());
-        TRI = ProtocolUtils.getBCD2Int(data,33,2);
-        DATATR = ProtocolUtils.getBCD2Int(data,35,3);
-        DATREP = ProtocolUtils.getBCD2Int(data,38,3);
-        DATMOD = ProtocolUtils.getBCD2Int(data,41,3);
-        CUMDR = ProtocolUtils.getBCD2Int(data,44,1);
-        CUMCOMM = ProtocolUtils.getBCD2Int(data,45,1);
-        CUMOUT = ProtocolUtils.getBCD2Int(data,46,2);
+
+	private ClassIdentification classIdentification = new ClassIdentification(9,48,false);
+
+	private int XUOMLO;
+	private int SYSERR;
+	private int SYSWARN;
+	private int SYSSTAT;
+	private int CUMDDR;
+	private int CUMDPUL;
+	private int PWRLOG;
+	private Date PSTART;
+	private Date PEND;
+	private int SEARAT;
+	private int DOY;
+	private Date TD;
+	private int TRI;
+	private int DATATR;
+	private int DATREP;
+	private int DATMOD;
+	private int CUMDR;
+	private int CUMCOMM;
+	private int CUMOUT;
+
+	@Override
+	public String toString() {
+		return "Class9Status1: XUOMLO=0x"+Integer.toHexString(this.XUOMLO)+", "+
+		"SYSERR=0x"+Integer.toHexString(this.SYSERR)+", "+
+		"SYSWARN=0x"+Integer.toHexString(this.SYSWARN)+", "+
+		"SYSSTAT=0x"+Integer.toHexString(this.SYSSTAT)+", "+
+		"CUMDDR="+this.CUMDDR+", "+
+		"CUMDPUL="+this.CUMDPUL+", "+
+		"PWRLOG=0x"+Integer.toHexString(this.PWRLOG)+", "+
+		"PSTART="+this.PSTART+", "+
+		"PEND="+this.PEND+", "+
+		"SEARAT="+Integer.toHexString(this.SEARAT)+", "+
+		"DOY="+Integer.toHexString(this.DOY)+", "+
+		"TD="+this.TD+", "+
+		"TRI="+this.TRI+", "+
+		"DATATR="+this.DATATR+", "+
+		"DATREP="+this.DATREP+", "+
+		"DATMOD="+this.DATMOD+", "+
+		"CUMDR="+this.CUMDR+", "+
+		"CUMCOMM="+this.CUMCOMM+", "+
+		"CUMOUT="+this.CUMOUT;
+	}
+
+	/** Creates a new instance of Class9Status1 */
+	public Class9Status1(ClassFactory classFactory) {
+		super(classFactory);
+	}
+
+	@Override
+	protected void parse(byte[] data) throws IOException {
+		this.XUOMLO = ProtocolUtils.getInt(data,0, 1);
+		this.SYSERR = ProtocolUtils.getInt(data,1, 3);
+		this.SYSWARN = ProtocolUtils.getInt(data,4, 1);
+		this.SYSSTAT = ProtocolUtils.getInt(data,5, 1);
+		this.CUMDDR = ProtocolUtils.getBCD2Int(data,6,1);
+		this.CUMDPUL = ProtocolUtils.getBCD2Int(data,7,1);
+		this.PWRLOG = ProtocolUtils.getInt(data,8, 4);
+		this.PSTART = ClassParseUtils.getDate6(data,12, getClassFactory().getAlpha().getTimeZone());
+		this.PEND = ClassParseUtils.getDate6(data,18, getClassFactory().getAlpha().getTimeZone());
+		this.SEARAT = ProtocolUtils.getInt(data,24, 1);
+		this.DOY = ProtocolUtils.getInt(data,25, 2);
+		this.TD = ClassParseUtils.getDate6(data,27, getClassFactory().getAlpha().getTimeZone());
+		this.TRI = ProtocolUtils.getBCD2Int(data,33,2);
+		this.DATATR = ProtocolUtils.getBCD2Int(data,35,3);
+		this.DATREP = ProtocolUtils.getBCD2Int(data,38,3);
+		this.DATMOD = ProtocolUtils.getBCD2Int(data,41,3);
+		this.CUMDR = ProtocolUtils.getBCD2Int(data,44,1);
+		this.CUMCOMM = ProtocolUtils.getBCD2Int(data,45,1);
+		this.CUMOUT = ProtocolUtils.getBCD2Int(data,46,2);
+	}
 
 
-    }
-    
-    
-    
-    protected ClassIdentification getClassIdentification() {
-        return classIdentification; 
-    }    
 
-    public int getXUOMLO() {
-        return XUOMLO;
-    }
+	@Override
+	protected ClassIdentification getClassIdentification() {
+		return this.classIdentification;
+	}
 
-    public int getSYSERR() {
-        return SYSERR;
-    }
+	public int getXUOMLO() {
+		return this.XUOMLO;
+	}
 
-    public int getSYSWARN() {
-        return SYSWARN;
-    }
+	public int getSYSERR() {
+		return this.SYSERR;
+	}
 
-    public int getSYSSTAT() {
-        return SYSSTAT;
-    }
+	public int getSYSWARN() {
+		return this.SYSWARN;
+	}
 
-    public int getCUMDDR() {
-        return CUMDDR;
-    }
+	public int getSYSSTAT() {
+		return this.SYSSTAT;
+	}
 
-    public int getCUMDPUL() {
-        return CUMDPUL;
-    }
+	public int getCUMDDR() {
+		return this.CUMDDR;
+	}
 
-    public int getPWRLOG() {
-        return PWRLOG;
-    }
+	public int getCUMDPUL() {
+		return this.CUMDPUL;
+	}
 
-    public Date getPSTART() {
-        return PSTART;
-    }
+	public int getPWRLOG() {
+		return this.PWRLOG;
+	}
 
-    public Date getPEND() {
-        return PEND;
-    }
+	public Date getPSTART() {
+		return this.PSTART;
+	}
 
-    public int getSEARAT() {
-        return SEARAT;
-    }
+	public Date getPEND() {
+		return this.PEND;
+	}
 
-    public int getDOY() {
-        return DOY;
-    }
+	public int getSEARAT() {
+		return this.SEARAT;
+	}
 
-    public Date getTD() {
-        return TD;
-    }
+	public int getDOY() {
+		return this.DOY;
+	}
 
-    public int getTRI() {
-        return TRI;
-    }
+	public Date getTD() {
+		return this.TD;
+	}
 
-    public int getDATATR() {
-        return DATATR;
-    }
+	public int getTRI() {
+		return this.TRI;
+	}
 
-    public int getDATREP() {
-        return DATREP;
-    }
+	public int getDATATR() {
+		return this.DATATR;
+	}
 
-    public int getDATMOD() {
-        return DATMOD;
-    }
+	public int getDATREP() {
+		return this.DATREP;
+	}
 
-    public int getCUMDR() {
-        return CUMDR;
-    }
+	public int getDATMOD() {
+		return this.DATMOD;
+	}
 
-    public int getCUMCOMM() {
-        return CUMCOMM;
-    }
+	public int getCUMDR() {
+		return this.CUMDR;
+	}
 
-    public int getCUMOUT() {
-        return CUMOUT;
-    }
-    
+	public int getCUMCOMM() {
+		return this.CUMCOMM;
+	}
+
+	public int getCUMOUT() {
+		return this.CUMOUT;
+	}
+
 }

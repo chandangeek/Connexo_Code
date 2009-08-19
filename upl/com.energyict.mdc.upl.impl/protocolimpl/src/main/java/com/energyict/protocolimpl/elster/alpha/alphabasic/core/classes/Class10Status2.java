@@ -10,14 +10,10 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import java.io.IOException;
 
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
 
 
 /**
@@ -25,47 +21,50 @@ import com.energyict.cbo.*;
  * @author koen
  */
 public class Class10Status2 extends AbstractClass {
-    
-    ClassIdentification classIdentification = new ClassIdentification(10,24,false);
-       
-    int KH;
-    int PR;
-    int PULDEF;
-    long MTRSN;
-    long KEADJ;
-    long KDADJ;
-    int ENEWCON;
-    int ENEWACT;
-        
-    public String toString() {
-        return "Class10Status2: KH="+KH+", "+
-               "PR="+PR+", "+
-               "PULDEF=0x"+Integer.toHexString(PULDEF)+", "+
-               "MTRSN="+MTRSN+", "+
-               "KEADJ="+KEADJ+", "+
-               "KDADJ="+KDADJ+", "+
-               "ENEWCON="+ENEWCON+", "+
-               "ENEWACT=0x"+Integer.toHexString(ENEWACT);
-    }
-    
-    /** Creates a new instance of Class10Status2 */
-    public Class10Status2(ClassFactory classFactory) {
-        super(classFactory);
-    }
-    
-    protected void parse(byte[] data) throws IOException {
-         KH = ProtocolUtils.getBCD2Int(data,0, 3);
-         PR = ProtocolUtils.getBCD2Int(data,3, 1);
-         PULDEF = ProtocolUtils.getInt(data,4, 1);
-         MTRSN = ParseUtils.getBCD2Long(data,5, 5);
-         KEADJ = ParseUtils.getBCD2Long(data,10, 5);
-         KDADJ = ParseUtils.getBCD2Long(data,15, 5);
-         ENEWCON = ProtocolUtils.getBCD2Int(data,20, 3);
-         ENEWACT = ProtocolUtils.getInt(data,23,1);
-    }
-    
-    protected ClassIdentification getClassIdentification() {
-        return classIdentification; 
-    }    
-    
+
+	private ClassIdentification classIdentification = new ClassIdentification(10,24,false);
+
+	private int KH;
+	private int PR;
+	private int PULDEF;
+	private long MTRSN;
+	private long KEADJ;
+	private long KDADJ;
+	private int ENEWCON;
+	private int ENEWACT;
+
+	@Override
+	public String toString() {
+		return "Class10Status2: KH="+this.KH+", "+
+		"PR="+this.PR+", "+
+		"PULDEF=0x"+Integer.toHexString(this.PULDEF)+", "+
+		"MTRSN="+this.MTRSN+", "+
+		"KEADJ="+this.KEADJ+", "+
+		"KDADJ="+this.KDADJ+", "+
+		"ENEWCON="+this.ENEWCON+", "+
+		"ENEWACT=0x"+Integer.toHexString(this.ENEWACT);
+	}
+
+	/** Creates a new instance of Class10Status2 */
+	public Class10Status2(ClassFactory classFactory) {
+		super(classFactory);
+	}
+
+	@Override
+	protected void parse(byte[] data) throws IOException {
+		this.KH = ProtocolUtils.getBCD2Int(data,0, 3);
+		this.PR = ProtocolUtils.getBCD2Int(data,3, 1);
+		this.PULDEF = ProtocolUtils.getInt(data,4, 1);
+		this.MTRSN = ParseUtils.getBCD2Long(data,5, 5);
+		this.KEADJ = ParseUtils.getBCD2Long(data,10, 5);
+		this.KDADJ = ParseUtils.getBCD2Long(data,15, 5);
+		this.ENEWCON = ProtocolUtils.getBCD2Int(data,20, 3);
+		this.ENEWACT = ProtocolUtils.getInt(data,23,1);
+	}
+
+	@Override
+	protected ClassIdentification getClassIdentification() {
+		return this.classIdentification;
+	}
+
 }

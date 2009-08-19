@@ -40,7 +40,6 @@ public class A1440ObisCodeMapper {
 		initObisUnconnected();
 	}
 
-
 	void initObisUnconnected() {
 
 		this.obisMap.put("1.1.0.1.0.255", BILLINGCOUNTER);
@@ -74,9 +73,7 @@ public class A1440ObisCodeMapper {
 
 			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
-				if( i > 0 ) {
-					bpOString = bpOString + "-" + i;
-				}
+				if( i > 0 ) {bpOString = bpOString + "-" + i;}
 				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
@@ -88,9 +85,7 @@ public class A1440ObisCodeMapper {
 
 			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
-				if( i > 0 ) {
-					bpOString = bpOString + "-" + i;
-				}
+				if( i > 0 ) {bpOString = bpOString + "-" + i;}
 				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
@@ -102,9 +97,7 @@ public class A1440ObisCodeMapper {
 
 			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
-				if( i > 0 ) {
-					bpOString = bpOString + "-" + i;
-				}
+				if( i > 0 ) {bpOString = bpOString + "-" + i;}
 				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
@@ -116,9 +109,7 @@ public class A1440ObisCodeMapper {
 
 			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
-				if( i > 0 ) {
-					bpOString = bpOString + "-" + i;
-				}
+				if( i > 0 ) {bpOString = bpOString + "-" + i;}
 				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
@@ -130,9 +121,7 @@ public class A1440ObisCodeMapper {
 
 			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
-				if( i > 0 ) {
-					bpOString = bpOString + "-" + i;
-				}
+				if( i > 0 ) {bpOString = bpOString + "-" + i;}
 				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
@@ -144,9 +133,7 @@ public class A1440ObisCodeMapper {
 
 			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
-				if( i > 0 ) {
-					bpOString = bpOString + "-" + i;
-				}
+				if( i > 0 ) {bpOString = bpOString + "-" + i;}
 				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
@@ -158,9 +145,7 @@ public class A1440ObisCodeMapper {
 
 			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
-				if( i > 0 ) {
-					bpOString = bpOString + "-" + i;
-				}
+				if( i > 0 ) {bpOString = bpOString + "-" + i;}
 				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
@@ -172,9 +157,7 @@ public class A1440ObisCodeMapper {
 
 			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
-				if( i > 0 ) {
-					bpOString = bpOString + "-" + i;
-				}
+				if( i > 0 ) {bpOString = bpOString + "-" + i;}
 				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
@@ -186,9 +169,7 @@ public class A1440ObisCodeMapper {
 
 			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
-				if( i > 0 ) {
-					bpOString = bpOString + "-" + i;
-				}
+				if( i > 0 ) {bpOString = bpOString + "-" + i;}
 				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
@@ -200,9 +181,7 @@ public class A1440ObisCodeMapper {
 
 			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
-				if( i > 0 ) {
-					bpOString = bpOString + "-" + i;
-				}
+				if( i > 0 ) {bpOString = bpOString + "-" + i;}
 				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
@@ -214,9 +193,7 @@ public class A1440ObisCodeMapper {
 
 			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
-				if( i > 0 ) {
-					bpOString = bpOString + "-" + i;
-				}
+				if( i > 0 ) {bpOString = bpOString + "-" + i;}
 				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
@@ -229,9 +206,7 @@ public class A1440ObisCodeMapper {
 
 			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
-				if( i > 0 ) {
-					bpOString = bpOString + "-" + i;
-				}
+				if( i > 0 ) {bpOString = bpOString + "-" + i;}
 				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}

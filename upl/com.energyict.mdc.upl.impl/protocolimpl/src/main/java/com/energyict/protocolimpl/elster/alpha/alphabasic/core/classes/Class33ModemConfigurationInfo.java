@@ -10,83 +10,85 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
 
 /**
  *
  * @author Koen
  */
 public class Class33ModemConfigurationInfo extends AbstractClass {
-    
-    ClassIdentification classIdentification = new ClassIdentification(33,64,false);
-    String COMID;
-    String INITSTR;
-    int TWIND3;
-    int AUTOANS;
-    int INITDEL;
-    int TRYDEL;
-    int RSPEED;
-    int DEVNUM;
-    //RESERVED [12]
 
-    public String toString() {
-        return "Class33ModemConfigurationInfo: COMID="+COMID+", INITSTR="+INITSTR+", TWIND3="+TWIND3+", AUTOANS="+AUTOANS+", INITDEL="+INITDEL+", TRYDEL="+TRYDEL+", RSPEED="+RSPEED+", DEVNUM="+DEVNUM;                
-    }
-    
-    /** Creates a new instance of Class33ModemConfigurationInfo */
-    public Class33ModemConfigurationInfo(ClassFactory classFactory) {
-        super(classFactory);
-    }
-    
-    protected void parse(byte[] data) throws IOException {
-        COMID = new String(ProtocolUtils.getSubArray(data,0, 7));
-        INITSTR = new String(ProtocolUtils.getSubArray(data,8, 43));
-        TWIND3 = ProtocolUtils.getBCD2Int(data, 44, 2);
-        AUTOANS = ProtocolUtils.getInt(data,46, 1);
-        INITDEL = ProtocolUtils.getInt(data,47, 1);
-        TRYDEL = ProtocolUtils.getInt(data,48, 1);
-        RSPEED = ProtocolUtils.getInt(data,49, 1);
-        DEVNUM = ProtocolUtils.getInt(data,50, 1);
-    }
-    
-    protected ClassIdentification getClassIdentification() {
-        return classIdentification; 
-    }
+	private ClassIdentification classIdentification = new ClassIdentification(33,64,false);
+	private String comId;
+	private String initStr;
+	private int twind3;
+	private int autoAns;
+	private int initDel;
+	private int tryDel;
+	private int rSpeed;
+	private int devNum;
+	//RESERVED [12]
 
-    public String getCOMID() {
-        return COMID;
-    }
+	@Override
+	public String toString() {
+		return "Class33ModemConfigurationInfo: COMID="+this.comId+", INITSTR="+this.initStr+", TWIND3="+this.twind3+", AUTOANS="+this.autoAns+", INITDEL="+this.initDel+", TRYDEL="+this.tryDel+", RSPEED="+this.rSpeed+", DEVNUM="+this.devNum;
+	}
 
-    public String getINITSTR() {
-        return INITSTR;
-    }
+	/** Creates a new instance of Class33ModemConfigurationInfo */
+	public Class33ModemConfigurationInfo(ClassFactory classFactory) {
+		super(classFactory);
+	}
 
-    public int getTWIND3() {
-        return TWIND3;
-    }
+	@Override
+	protected void parse(byte[] data) throws IOException {
+		this.comId = new String(ProtocolUtils.getSubArray(data,0, 7));
+		this.initStr = new String(ProtocolUtils.getSubArray(data,8, 43));
+		this.twind3 = ProtocolUtils.getBCD2Int(data, 44, 2);
+		this.autoAns = ProtocolUtils.getInt(data,46, 1);
+		this.initDel = ProtocolUtils.getInt(data,47, 1);
+		this.tryDel = ProtocolUtils.getInt(data,48, 1);
+		this.rSpeed = ProtocolUtils.getInt(data,49, 1);
+		this.devNum = ProtocolUtils.getInt(data,50, 1);
+	}
 
-    public int getAUTOANS() {
-        return AUTOANS;
-    }
+	@Override
+	protected ClassIdentification getClassIdentification() {
+		return this.classIdentification;
+	}
 
-    public int getINITDEL() {
-        return INITDEL;
-    }
+	public String getCOMID() {
+		return this.comId;
+	}
 
-    public int getTRYDEL() {
-        return TRYDEL;
-    }
+	public String getINITSTR() {
+		return this.initStr;
+	}
 
-    public int getRSPEED() {
-        return RSPEED;
-    }
+	public int getTWIND3() {
+		return this.twind3;
+	}
 
-    public int getDEVNUM() {
-        return DEVNUM;
-    }
-    
-    
+	public int getAUTOANS() {
+		return this.autoAns;
+	}
+
+	public int getINITDEL() {
+		return this.initDel;
+	}
+
+	public int getTRYDEL() {
+		return this.tryDel;
+	}
+
+	public int getRSPEED() {
+		return this.rSpeed;
+	}
+
+	public int getDEVNUM() {
+		return this.devNum;
+	}
+
+
 }

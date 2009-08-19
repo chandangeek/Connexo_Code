@@ -806,12 +806,8 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	}
 
 	protected void validateSerialNumber() throws IOException {
-		if ((this.serialNumber == null) || ("".compareTo(this.serialNumber)==0)) {
-			return;
-		}
-		if (this.serialNumber.compareTo(getMeterSerial()) == 0) {
-			return;
-		}
+		if ((this.serialNumber == null) || ("".compareTo(this.serialNumber)==0)) {return;}
+		if (this.serialNumber.compareTo(getMeterSerial()) == 0) {return;}
 		throw new IOException("SerialNumber mismatch! meter sn="+getMeterSerial()+", configured sn="+this.serialNumber);
 	}
 
@@ -850,8 +846,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			Logger log = getLogger();
 			if (log != null) {
 				getLogger().info(str);
-			}
-			else {
+			} else {
 				System.out.println(str);
 			}
 		}
@@ -896,9 +891,8 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			String dev = "";
 			String fwdev = "";
 
-			if (this.iSecurityLevel < 1) {
-				return "Unknown (SecurityLevel to low)";
-			}
+			if (this.iSecurityLevel < 1) { return "Unknown (SecurityLevel to low)"; }
+
 			fwdev = (String)getA1440Registry().getRegister(A1440Registry.FIRMWARE);
 			hw = (String)getA1440Registry().getRegister(A1440Registry.HARDWARE);
 

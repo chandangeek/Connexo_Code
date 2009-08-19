@@ -10,127 +10,122 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import java.io.IOException;
 
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
 
 /**
  *
  * @author Koen
  */
 public class Class2IdentificationAndDemandData extends AbstractClass {
-    
-    ClassIdentification classIdentification = new ClassIdentification(2,52,true);
-    
-    
-    static public final int IMPORT = 1;
-    static public final int EXPORT = 0;
-    
-    
-    long UMTRSN;
-    String ACCTID;
-    // pad 14 bytes
-    int KWOVRL; 
-    int KWTHRSA;
-    int KWTHRSB;
-    int KWTHRSC;
-    int KWTHRSD;
-    int E2KYZDV;
-    int EMETFLG;
-    int EATRVAL;
-        
-    
-    public String toString() {
-        return "Class2IdentificationAndDemandData: UMTRSN="+UMTRSN+", ACCTID="+ACCTID+", KWOVRL="+KWOVRL+", KWTHRSA="+KWTHRSA+", KWTHRSB="+KWTHRSB+", KWTHRSC="+KWTHRSC+", KWTHRSD="+KWTHRSD+", E2KYZDV="+E2KYZDV+
-                ", EMETFLG=0x"+Integer.toHexString(EMETFLG)+", EATRVAL="+EATRVAL+", isSingleRate="+isSingleRate();
-    }
-    
-    /** Creates a new instance of class1IdentificationAndDemandData */
-    public Class2IdentificationAndDemandData(ClassFactory classFactory) {
-        super(classFactory);
-    }
-    
-    protected void parse(byte[] data) throws IOException {
-        UMTRSN = ParseUtils.getBCD2Long(data,0, 5);
-        ACCTID = new String(ProtocolUtils.getSubArray2(data, 5,14));
-        KWOVRL = ProtocolUtils.getBCD2Int(data, 33, 3);
-        KWTHRSA = ProtocolUtils.getBCD2Int(data, 36, 3);
-        KWTHRSB = ProtocolUtils.getBCD2Int(data, 39, 3);
-        KWTHRSC = ProtocolUtils.getBCD2Int(data, 42, 3);
-        KWTHRSD = ProtocolUtils.getBCD2Int(data, 45, 3);
-        E2KYZDV = ProtocolUtils.getInt(data,48,1);
-        EMETFLG = ProtocolUtils.getInt(data,49,1);
-        EATRVAL = ProtocolUtils.getInt(data,50,1);
-    }
-    
-    protected ClassIdentification getClassIdentification() {
-        return classIdentification; 
-    }
-    
-    
-    public long getUMTRSN() {
-        return UMTRSN;
-    }
 
-    public String getACCTID() {
-        return ACCTID;
-    }
-
-    public int getKWOVRL() {
-        return KWOVRL;
-    }
-
-    public int getKWTHRSA() {
-        return KWTHRSA;
-    }
-
-    public int getKWTHRSB() {
-        return KWTHRSB;
-    }
-
-    public int getKWTHRSC() {
-        return KWTHRSC;
-    }
-
-    public int getKWTHRSD() {
-        return KWTHRSD;
-    }
-
-    public int getE2KYZDV() {
-        return E2KYZDV;
-    }
-
-    public int getEMETFLG() {
-        return EMETFLG;
-    }
-
-    public int getEATRVAL() {
-        return EATRVAL;
-    }
+	ClassIdentification classIdentification = new ClassIdentification(2,52,true);
 
 
-    
-    /*
-     *  @result boolean single or 4 rate meter 
-     */
-    public boolean isSingleRate() {
-        return (getEMETFLG() & 0x0400) == 0x0400;
-    }
-    
-    /*
-     *  @result int zero based single rate rate
-     */
-    public int getSingleRate() {
-        return (getEMETFLG() >> 6) & 0x0003;
-    }
-    
-    
-    
-    
-    
+	static public final int IMPORT = 1;
+	static public final int EXPORT = 0;
+
+	private long umtrSn;
+	private String acctId;
+	// pad 14 bytes
+	private int kwovrl;
+	private int kwthrsA;
+	private int kwthrsB;
+	private int kwthrsC;
+	private int kwthrsD;
+	private int e2kyzdv;
+	private int emetflg;
+	private int eatrVal;
+
+	@Override
+	public String toString() {
+		return "Class2IdentificationAndDemandData: UMTRSN="+this.umtrSn+", ACCTID="+this.acctId+", KWOVRL="+this.kwovrl+", KWTHRSA="+this.kwthrsA+", KWTHRSB="+this.kwthrsB+", KWTHRSC="+this.kwthrsC+", KWTHRSD="+this.kwthrsD+", E2KYZDV="+this.e2kyzdv+
+		", EMETFLG=0x"+Integer.toHexString(this.emetflg)+", EATRVAL="+this.eatrVal+", isSingleRate="+isSingleRate();
+	}
+
+	/** Creates a new instance of class1IdentificationAndDemandData */
+	public Class2IdentificationAndDemandData(ClassFactory classFactory) {
+		super(classFactory);
+	}
+
+	@Override
+	protected void parse(byte[] data) throws IOException {
+		this.umtrSn = ParseUtils.getBCD2Long(data,0, 5);
+		this.acctId = new String(ProtocolUtils.getSubArray2(data, 5,14));
+		this.kwovrl = ProtocolUtils.getBCD2Int(data, 33, 3);
+		this.kwthrsA = ProtocolUtils.getBCD2Int(data, 36, 3);
+		this.kwthrsB = ProtocolUtils.getBCD2Int(data, 39, 3);
+		this.kwthrsC = ProtocolUtils.getBCD2Int(data, 42, 3);
+		this.kwthrsD = ProtocolUtils.getBCD2Int(data, 45, 3);
+		this.e2kyzdv = ProtocolUtils.getInt(data,48,1);
+		this.emetflg = ProtocolUtils.getInt(data,49,1);
+		this.eatrVal = ProtocolUtils.getInt(data,50,1);
+	}
+
+	@Override
+	protected ClassIdentification getClassIdentification() {
+		return this.classIdentification;
+	}
+
+
+	public long getUMTRSN() {
+		return this.umtrSn;
+	}
+
+	public String getACCTID() {
+		return this.acctId;
+	}
+
+	public int getKWOVRL() {
+		return this.kwovrl;
+	}
+
+	public int getKWTHRSA() {
+		return this.kwthrsA;
+	}
+
+	public int getKWTHRSB() {
+		return this.kwthrsB;
+	}
+
+	public int getKWTHRSC() {
+		return this.kwthrsC;
+	}
+
+	public int getKWTHRSD() {
+		return this.kwthrsD;
+	}
+
+	public int getE2KYZDV() {
+		return this.e2kyzdv;
+	}
+
+	public int getEMETFLG() {
+		return this.emetflg;
+	}
+
+	public int getEATRVAL() {
+		return this.eatrVal;
+	}
+
+	/*
+	 *  @result boolean single or 4 rate meter
+	 */
+	public boolean isSingleRate() {
+		return (getEMETFLG() & 0x0400) == 0x0400;
+	}
+
+	/*
+	 *  @result int zero based single rate rate
+	 */
+	public int getSingleRate() {
+		return (getEMETFLG() >> 6) & 0x0003;
+	}
+
+
+
+
+
 }

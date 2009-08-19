@@ -17,15 +17,16 @@ package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
  * @author Koen
  */
 public class Class11BillingData extends ClassBillingData {
-    
-    ClassIdentification classIdentification = new ClassIdentification(11,496,false);
-        
-    /** Creates a new instance of Class11BillingData */
-    public Class11BillingData(ClassFactory classFactory) {
-        super(classFactory);
-    }
-    
-    protected ClassIdentification getClassIdentification() {
-        return classIdentification; 
-    }    
+
+	private ClassIdentification classIdentification = new ClassIdentification(11,496,false);
+
+	/** Creates a new instance of Class11BillingData */
+	public Class11BillingData(ClassFactory classFactory) {
+		super(classFactory);
+	}
+
+	@Override
+	protected ClassIdentification getClassIdentification() {
+		return this.classIdentification;
+	}
 }

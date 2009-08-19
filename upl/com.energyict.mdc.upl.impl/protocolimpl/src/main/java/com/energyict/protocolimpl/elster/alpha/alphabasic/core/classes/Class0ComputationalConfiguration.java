@@ -10,87 +10,85 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
-import com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes.AbstractClass;
-import com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes.ClassIdentification;
-import com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes.ClassFactory;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 /**
  *
  * @author Koen
  */
 public class Class0ComputationalConfiguration extends AbstractClass {
-    
-    ClassIdentification classIdentification = new ClassIdentification(0,15,true);
-    
-    BigDecimal UKH; 
-    int UPR;
-    BigDecimal UKE;
-    int INTNORM;
-    int INTTEST;
-    int DPLOCE;  // decimal location applied to all energy values, 1 byte; 0 = no decimal displayed, 1 to 4 = decimal location on display beginning at the right.
-    int DPLOCD; //decimal location applied to all demand values, 1 byte; 0 = no decimal displayed, 1 to 4 = decimal location on display beginning at the right.
-    int NUMSBI;
-        
-    public String toString() {
-        return "Class0ComputationalConfiguration: UKH="+UKH+", UPR="+UPR+", UKE="+UKE+", INTNORM="+INTNORM+", INTTEST="+INTTEST+", DPLOCE="+DPLOCE+", DPLOCD="+DPLOCD+", NUMSBI=0x"+Integer.toHexString(NUMSBI);
-    }
-    
-    /** Creates a new instance of Class0ComputationalConfiguration */
-    public Class0ComputationalConfiguration(ClassFactory classFactory) {
-        super(classFactory);
-    }
-    
-    protected void parse(byte[] data) throws IOException {
-        UKH = BigDecimal.valueOf(ParseUtils.getBCD2Long(data, 0, 3),3);
-        UPR = ProtocolUtils.getBCD2Int(data, 3, 1);
-        UKE = BigDecimal.valueOf(ParseUtils.getBCD2Long(data, 4, 5),6);
-        INTNORM = ProtocolUtils.getInt(data,9,1);
-        INTTEST = ProtocolUtils.getInt(data,10,1);
-        DPLOCE = ProtocolUtils.getInt(data,11,1);
-        DPLOCD = ProtocolUtils.getInt(data,12,1);
-        NUMSBI = ProtocolUtils.getInt(data,13,1);
-    }
-    
-    protected ClassIdentification getClassIdentification() {
-        return classIdentification; 
-    }
 
-    public BigDecimal getUKH() {
-        return UKH;
-    }
+	private ClassIdentification classIdentification = new ClassIdentification(0,15,true);
 
-    public int getUPR() {
-        return UPR;
-    }
+	private BigDecimal UKH;
+	private int UPR;
+	private BigDecimal UKE;
+	private int INTNORM;
+	private int INTTEST;
+	private int DPLOCE;  // decimal location applied to all energy values, 1 byte; 0 = no decimal displayed, 1 to 4 = decimal location on display beginning at the right.
+	private int DPLOCD; //decimal location applied to all demand values, 1 byte; 0 = no decimal displayed, 1 to 4 = decimal location on display beginning at the right.
+	private int NUMSBI;
 
-    public BigDecimal getUKE() {
-        return UKE;
-    }
+	@Override
+	public String toString() {
+		return "Class0ComputationalConfiguration: UKH="+this.UKH+", UPR="+this.UPR+", UKE="+this.UKE+", INTNORM="+this.INTNORM+", INTTEST="+this.INTTEST+", DPLOCE="+this.DPLOCE+", DPLOCD="+this.DPLOCD+", NUMSBI=0x"+Integer.toHexString(this.NUMSBI);
+	}
 
-    public int getINTNORM() {
-        return INTNORM;
-    }
+	/** Creates a new instance of Class0ComputationalConfiguration */
+	public Class0ComputationalConfiguration(ClassFactory classFactory) {
+		super(classFactory);
+	}
 
-    public int getINTTEST() {
-        return INTTEST;
-    }
+	@Override
+	protected void parse(byte[] data) throws IOException {
+		this.UKH = BigDecimal.valueOf(ParseUtils.getBCD2Long(data, 0, 3),3);
+		this.UPR = ProtocolUtils.getBCD2Int(data, 3, 1);
+		this.UKE = BigDecimal.valueOf(ParseUtils.getBCD2Long(data, 4, 5),6);
+		this.INTNORM = ProtocolUtils.getInt(data,9,1);
+		this.INTTEST = ProtocolUtils.getInt(data,10,1);
+		this.DPLOCE = ProtocolUtils.getInt(data,11,1);
+		this.DPLOCD = ProtocolUtils.getInt(data,12,1);
+		this.NUMSBI = ProtocolUtils.getInt(data,13,1);
+	}
 
-    public int getDPLOCE() {
-        return DPLOCE;
-    }
+	@Override
+	protected ClassIdentification getClassIdentification() {
+		return this.classIdentification;
+	}
 
-    public int getDPLOCD() {
-        return DPLOCD;
-    }
+	public BigDecimal getUKH() {
+		return this.UKH;
+	}
 
-    public int getNUMSBI() {
-        return NUMSBI;
-    }
+	public int getUPR() {
+		return this.UPR;
+	}
+
+	public BigDecimal getUKE() {
+		return this.UKE;
+	}
+
+	public int getINTNORM() {
+		return this.INTNORM;
+	}
+
+	public int getINTTEST() {
+		return this.INTTEST;
+	}
+
+	public int getDPLOCE() {
+		return this.DPLOCE;
+	}
+
+	public int getDPLOCD() {
+		return this.DPLOCD;
+	}
+
+	public int getNUMSBI() {
+		return this.NUMSBI;
+	}
 
 }

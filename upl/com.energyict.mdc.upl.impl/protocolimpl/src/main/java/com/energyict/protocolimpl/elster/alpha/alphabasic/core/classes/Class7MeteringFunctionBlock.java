@@ -10,14 +10,11 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
 
 
 /**
@@ -25,61 +22,64 @@ import com.energyict.cbo.*;
  * @author Koen
  */
 public class Class7MeteringFunctionBlock extends AbstractClass {
-    
-    ClassIdentification classIdentification = new ClassIdentification(7,288,true);
 
-    long XMTRSN;
-    BigDecimal XKH;
-    int XPR1;
-    BigDecimal XKE1;
-    int XKHDIV;
-    
-    public String toString() {
-        return "Class7MeteringFunctionBlock: XMTRSN="+XMTRSN+", XKH="+XKH+", XPR1="+XPR1+", XKE1="+XKE1+", XKHDIV="+XKHDIV;
-    }
-    
-    /** Creates a new instance of Class6MeteringFunctionBlock */
-    public Class7MeteringFunctionBlock(ClassFactory classFactory) {
-        super(classFactory);
-    }
-    
-    protected void parse(byte[] data) throws IOException {
-        XMTRSN = ParseUtils.getBCD2Long(data,0, 5); //new String(ProtocolUtils.getSubArray2(data, 0, 5));
-        if (getClassIdentification().getLength() > 5) {
-            XKH = BigDecimal.valueOf(ParseUtils.getBCD2Long(data, 5, 3),3);
-            XPR1 = ProtocolUtils.getBCD2Int(data,8, 1);
-            XKE1 = BigDecimal.valueOf(ParseUtils.getBCD2Long(data, 9, 5),6);
-            XKHDIV = ProtocolUtils.getInt(data,14, 1);
-        }
-    }
-    
-    protected ClassIdentification getClassIdentification() {
-        return classIdentification; 
-    }
+	private ClassIdentification classIdentification = new ClassIdentification(7,288,true);
 
-    public void discoverSerialNumber() {
-        getClassIdentification().setLength(5);
-        getClassIdentification().setVerify(false);
-    }
-    
-    public long getXMTRSN() {
-        return XMTRSN;
-    }
+	private long xmtrsn;
+	private BigDecimal xkh;
+	private int xpr1;
+	private BigDecimal xke1;
+	private int xkhdiv;
 
-    public BigDecimal getXKH() {
-        return XKH;
-    }
+	@Override
+	public String toString() {
+		return "Class7MeteringFunctionBlock: XMTRSN="+this.xmtrsn+", XKH="+this.xkh+", XPR1="+this.xpr1+", XKE1="+this.xke1+", XKHDIV="+this.xkhdiv;
+	}
 
-    public int getXPR1() {
-        return XPR1;
-    }
+	/** Creates a new instance of Class6MeteringFunctionBlock */
+	public Class7MeteringFunctionBlock(ClassFactory classFactory) {
+		super(classFactory);
+	}
 
-    public BigDecimal getXKE1() {
-        return XKE1;
-    }
+	@Override
+	protected void parse(byte[] data) throws IOException {
+		this.xmtrsn = ParseUtils.getBCD2Long(data,0, 5); //new String(ProtocolUtils.getSubArray2(data, 0, 5));
+		if (getClassIdentification().getLength() > 5) {
+			this.xkh = BigDecimal.valueOf(ParseUtils.getBCD2Long(data, 5, 3),3);
+			this.xpr1 = ProtocolUtils.getBCD2Int(data,8, 1);
+			this.xke1 = BigDecimal.valueOf(ParseUtils.getBCD2Long(data, 9, 5),6);
+			this.xkhdiv = ProtocolUtils.getInt(data,14, 1);
+		}
+	}
 
-    public int getXKHDIV() {
-        return XKHDIV;
-    }
-    
+	@Override
+	protected ClassIdentification getClassIdentification() {
+		return this.classIdentification;
+	}
+
+	public void discoverSerialNumber() {
+		getClassIdentification().setLength(5);
+		getClassIdentification().setVerify(false);
+	}
+
+	public long getXMTRSN() {
+		return this.xmtrsn;
+	}
+
+	public BigDecimal getXKH() {
+		return this.xkh;
+	}
+
+	public int getXPR1() {
+		return this.xpr1;
+	}
+
+	public BigDecimal getXKE1() {
+		return this.xke1;
+	}
+
+	public int getXKHDIV() {
+		return this.xkhdiv;
+	}
+
 }
