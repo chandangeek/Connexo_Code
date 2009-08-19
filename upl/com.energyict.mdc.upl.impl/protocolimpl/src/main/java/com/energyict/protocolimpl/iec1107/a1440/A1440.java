@@ -207,6 +207,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			this.vdewCompatible = Integer.parseInt(properties.getProperty("VDEWCompatible", "0").trim());
 			this.loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber", "1"));
 			this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+			this.failOnUnitMismatch = Integer.parseInt(properties.getProperty("FailOnUnitMismatch", "0"));
 		} catch (NumberFormatException e) {
 			throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "	+ e.getMessage());
 		}
@@ -288,7 +289,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		result.add("VDEWCompatible");
 		result.add("ForceDelay");
 		result.add("Software7E1");
-		//result.add("FailOnUnitMismatch");
+		result.add("FailOnUnitMismatch");
 		return result;
 	}
 
@@ -301,7 +302,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			this.firmwareVersion = (String)getA1440Registry().getRegister(this.a1440Registry.FIRMWAREID);
 		}
 		return this.firmwareVersion;
-	} // public String getFirmwareVersion()
+	}
 
 	/**
 	 * initializes the receiver

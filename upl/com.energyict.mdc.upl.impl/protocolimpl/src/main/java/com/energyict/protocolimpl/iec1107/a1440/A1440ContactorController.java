@@ -5,9 +5,9 @@ import java.util.logging.Logger;
 
 public class A1440ContactorController {
 
-	private static final String CONTACTOR_OPEN 		= "0100";
-	private static final String CONTACTOR_ARMED 	= "0100";
-	private static final String CONTACTOR_CLOSED 	= "0100";
+	private static final String CONTACTOR_OPEN 		= "0";
+	private static final String CONTACTOR_ARMED 	= "1";
+	private static final String CONTACTOR_CLOSED 	= "2";
 
 	private A1440Registry a1440Registry = null;
 	private Logger logger = null;
