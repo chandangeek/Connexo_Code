@@ -4,7 +4,7 @@
  * Created on 04 mei 2004, 10:00
  */
 
-package com.energyict.protocolimpl.iec1107.as220;
+package com.energyict.protocolimpl.iec1107.a1440;
 
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
@@ -19,7 +19,7 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWRegisterDataParse;
  * Changes:
  * KV 04052004 Initial version
  */
-public class AS220Registry extends AbstractVDEWRegistry {
+public class A1440Registry extends AbstractVDEWRegistry {
 
 	public static final String ID1 = "ID1";
 	public static final String ID2 = "ID2";
@@ -41,7 +41,7 @@ public class AS220Registry extends AbstractVDEWRegistry {
 	public static final String CONTACTOR = "Contactor";
 
 	/** Creates a new instance of KamstrupRegister */
-	public AS220Registry(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink) {
+	public A1440Registry(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink) {
 		// Use ChannelMap to dcetermine which VHI tu access... First entry in the ChannelMap is the OBIS B value.
 		super(meterExceptionInfo,protocolLink,Integer.parseInt(protocolLink.getChannelMap().getChannel(0).getRegister()));
 	}

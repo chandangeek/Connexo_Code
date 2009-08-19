@@ -3,7 +3,7 @@
  *
  */
 
-package com.energyict.protocolimpl.iec1107.as220;
+package com.energyict.protocolimpl.iec1107.a1440;
 
 import java.io.IOException;
 
@@ -14,13 +14,13 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
  *
  * @author  Koen
  */
-public class AS220ProfileHeader {
+public class A1440ProfileHeader {
 
 	private int profileInterval;
 	private int nrOfChannels;
 
 	/** Creates a new instance of ProfileHeader */
-	public AS220ProfileHeader(FlagIEC1107Connection flagIEC1107Connection, int profileNumber) throws IOException {
+	public A1440ProfileHeader(FlagIEC1107Connection flagIEC1107Connection, int profileNumber) throws IOException {
 		if (profileNumber == 1) {
 			flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5,"X(;)".getBytes());
 		} else if (profileNumber == 2) {

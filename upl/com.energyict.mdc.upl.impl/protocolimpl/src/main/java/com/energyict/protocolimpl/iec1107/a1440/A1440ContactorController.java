@@ -1,27 +1,27 @@
-package com.energyict.protocolimpl.iec1107.as220;
+package com.energyict.protocolimpl.iec1107.a1440;
 
 import java.io.IOException;
 import java.util.logging.Logger;
 
-public class AS220ContactorController {
+public class A1440ContactorController {
 
 	private static final String CONTACTOR_OPEN 		= "0100";
 	private static final String CONTACTOR_ARMED 	= "0100";
 	private static final String CONTACTOR_CLOSED 	= "0100";
 
-	private AS220Registry as220Registry = null;
+	private A1440Registry a1440Registry = null;
 	private Logger logger = null;
 
 	/*
 	 * Constructors
 	 */
 
-	public AS220ContactorController(AS220 as220) {
-		if ((as220 == null) || (as220.getAS220Registry() == null)) {
-			throw new IllegalArgumentException("Argument as220 or as220.getAS220Registry() cannot be null!");
+	public A1440ContactorController(A1440 a1440) {
+		if ((a1440 == null) || (a1440.getA1440Registry() == null)) {
+			throw new IllegalArgumentException("Argument a1440 or a1440.getA1440Registry() cannot be null!");
 		}
-		this.as220Registry = as220.getAS220Registry();
-		this.logger = as220.getLogger();
+		this.a1440Registry = a1440.getA1440Registry();
+		this.logger = a1440.getLogger();
 	}
 
 	/*
@@ -39,8 +39,8 @@ public class AS220ContactorController {
 		return this.logger;
 	}
 
-	private AS220Registry getAs220Registry() {
-		return this.as220Registry;
+	private A1440Registry getA1440Registry() {
+		return this.a1440Registry;
 	}
 
 	/*
@@ -50,19 +50,19 @@ public class AS220ContactorController {
 	public void doDisconnect() throws IOException {
 		getLogger().info("************************* DISCONNECT CONTACTOR *************************");
 		readContactorState();
-		getAs220Registry().setRegister(AS220Registry.CONTACTOR, CONTACTOR_OPEN);
+		getA1440Registry().setRegister(A1440Registry.CONTACTOR, CONTACTOR_OPEN);
 	}
 
 	public void doArm() throws IOException {
 		getLogger().info("***************************** ARM CONTACTOR ****************************");
 		readContactorState();
-		getAs220Registry().setRegister(AS220Registry.CONTACTOR, CONTACTOR_ARMED);
+		getA1440Registry().setRegister(A1440Registry.CONTACTOR, CONTACTOR_ARMED);
 	}
 
 	public void doConnect() throws IOException {
 		getLogger().info("*************************** CONNECT CONTACTOR **************************");
 		readContactorState();
-		getAs220Registry().setRegister(AS220Registry.CONTACTOR, CONTACTOR_CLOSED);
+		getA1440Registry().setRegister(A1440Registry.CONTACTOR, CONTACTOR_CLOSED);
 	}
 
 }

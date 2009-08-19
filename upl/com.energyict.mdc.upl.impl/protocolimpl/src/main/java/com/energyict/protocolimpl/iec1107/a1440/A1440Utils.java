@@ -1,16 +1,16 @@
 /**
- * AS220Utils.java
+ * A1440Utils.java
  * 
  * Created on 20-nov-2008, 11:15:48 by jme
  * 
  */
-package com.energyict.protocolimpl.iec1107.as220;
+package com.energyict.protocolimpl.iec1107.a1440;
 
 /**
  * @author jme
  *
  */
-public final class AS220Utils {
+public final class A1440Utils {
 
 	private static final int MIN_ATTRIBUTE_LENGTH = 1;
 	private static final int MIN_XML_LENGTH = 7;
@@ -20,7 +20,7 @@ public final class AS220Utils {
 	private static final char CR = 0x0D;
 	private static final char SP = 0x20;
 
-	private AS220Utils() {}
+	private A1440Utils() {}
 
 	public static String getXMLAttributeValue(String attribute, String xmlstring) {
 		return getXMLAttributeValue(attribute, xmlstring, true);

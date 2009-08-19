@@ -4,7 +4,7 @@
  * Created on 24-nov-2008, 11:46:49 by jme
  * 
  */
-package com.energyict.protocolimpl.iec1107.as220;
+package com.energyict.protocolimpl.iec1107.a1440;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -13,7 +13,7 @@ import java.util.LinkedHashMap;
  * @author jme
  *
  */
-public class AS220ObisCodeMapper {
+public class A1440ObisCodeMapper {
 
 	public static final String ID1 = "Device ID1";
 	public static final String ID2 = "Device ID2";
@@ -33,10 +33,10 @@ public class AS220ObisCodeMapper {
 
 
 	private LinkedHashMap obisMap = new LinkedHashMap();
-	private AS220 as220 = null;
+	private A1440 a1440 = null;
 
-	public AS220ObisCodeMapper(AS220 as220) {
-		this.as220 = as220;
+	public A1440ObisCodeMapper(A1440 a1440) {
+		this.a1440 = a1440;
 		initObisUnconnected();
 	}
 
@@ -72,12 +72,12 @@ public class AS220ObisCodeMapper {
 			String obis = "1.1.1.2.0.VZ";
 			String dscr = "+P, cumulative maximum, M0 (1.2.0*";
 
-			for( int i = 0; i < this.as220.getBillingCount(); i ++ ) {
+			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
 				if( i > 0 ) {
 					bpOString = bpOString + "-" + i;
 				}
-				String bpDscr = dscr + (this.as220.getBillingCount() - i) + ")";
+				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
 
@@ -86,12 +86,12 @@ public class AS220ObisCodeMapper {
 			obis = "1.1.1.6.0.VZ";
 			dscr = "+P, maximum, M0 (1.6.0*";
 
-			for( int i = 0; i < this.as220.getBillingCount(); i ++ ) {
+			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
 				if( i > 0 ) {
 					bpOString = bpOString + "-" + i;
 				}
-				String bpDscr = dscr + (this.as220.getBillingCount() - i) + ")";
+				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
 
@@ -100,12 +100,12 @@ public class AS220ObisCodeMapper {
 			obis = "1.1.1.8.1.VZ";
 			dscr = "+A, Time integral 1, T1 (1.8.1*";
 
-			for( int i = 0; i < this.as220.getBillingCount(); i ++ ) {
+			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
 				if( i > 0 ) {
 					bpOString = bpOString + "-" + i;
 				}
-				String bpDscr = dscr + (this.as220.getBillingCount() - i) + ")";
+				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
 
@@ -114,12 +114,12 @@ public class AS220ObisCodeMapper {
 			obis = "1.1.1.8.2.VZ";
 			dscr = "+A, Time integral 1, T1 (1.8.2*";
 
-			for( int i = 0; i < this.as220.getBillingCount(); i ++ ) {
+			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
 				if( i > 0 ) {
 					bpOString = bpOString + "-" + i;
 				}
-				String bpDscr = dscr + (this.as220.getBillingCount() - i) + ")";
+				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
 
@@ -128,12 +128,12 @@ public class AS220ObisCodeMapper {
 			obis = "1.1.2.2.0.VZ";
 			dscr = "-P, cumulative maximum, M0 (2.2.0*";
 
-			for( int i = 0; i < this.as220.getBillingCount(); i ++ ) {
+			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
 				if( i > 0 ) {
 					bpOString = bpOString + "-" + i;
 				}
-				String bpDscr = dscr + (this.as220.getBillingCount() - i) + ")";
+				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
 
@@ -142,12 +142,12 @@ public class AS220ObisCodeMapper {
 			obis = "1.1.2.6.0.VZ";
 			dscr = "-P, maximum, M0 (2.6.0*";
 
-			for( int i = 0; i < this.as220.getBillingCount(); i ++ ) {
+			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
 				if( i > 0 ) {
 					bpOString = bpOString + "-" + i;
 				}
-				String bpDscr = dscr + (this.as220.getBillingCount() - i) + ")";
+				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
 
@@ -156,12 +156,12 @@ public class AS220ObisCodeMapper {
 			obis = "1.1.2.8.1.VZ";
 			dscr = "-A, Time integral 1, T1 (2.8.1*";
 
-			for( int i = 0; i < this.as220.getBillingCount(); i ++ ) {
+			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
 				if( i > 0 ) {
 					bpOString = bpOString + "-" + i;
 				}
-				String bpDscr = dscr + (this.as220.getBillingCount() - i) + ")";
+				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
 
@@ -170,12 +170,12 @@ public class AS220ObisCodeMapper {
 			obis = "1.1.2.8.2.VZ";
 			dscr = "-A, Time integral 1, T2 (2.8.2*";
 
-			for( int i = 0; i < this.as220.getBillingCount(); i ++ ) {
+			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
 				if( i > 0 ) {
 					bpOString = bpOString + "-" + i;
 				}
-				String bpDscr = dscr + (this.as220.getBillingCount() - i) + ")";
+				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
 
@@ -184,12 +184,12 @@ public class AS220ObisCodeMapper {
 			obis = "1.1.3.8.1.VZ";
 			dscr = "+R, Time integral 1, T1 (3.8.1*";
 
-			for( int i = 0; i < this.as220.getBillingCount(); i ++ ) {
+			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
 				if( i > 0 ) {
 					bpOString = bpOString + "-" + i;
 				}
-				String bpDscr = dscr + (this.as220.getBillingCount() - i) + ")";
+				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
 
@@ -198,12 +198,12 @@ public class AS220ObisCodeMapper {
 			obis = "1.1.3.8.2.VZ";
 			dscr = "+R, Time integral 1, T2 (3.8.2*";
 
-			for( int i = 0; i < this.as220.getBillingCount(); i ++ ) {
+			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
 				if( i > 0 ) {
 					bpOString = bpOString + "-" + i;
 				}
-				String bpDscr = dscr + (this.as220.getBillingCount() - i) + ")";
+				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
 
@@ -212,12 +212,12 @@ public class AS220ObisCodeMapper {
 			obis = "1.1.4.8.1.VZ";
 			dscr = "-R, Time integral 1, T1 (4.8.1*";
 
-			for( int i = 0; i < this.as220.getBillingCount(); i ++ ) {
+			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
 				if( i > 0 ) {
 					bpOString = bpOString + "-" + i;
 				}
-				String bpDscr = dscr + (this.as220.getBillingCount() - i) + ")";
+				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
 
@@ -227,12 +227,12 @@ public class AS220ObisCodeMapper {
 			obis = "1.1.4.8.2.VZ";
 			dscr = "-R, Time integral 1, T2 (4.8.2*";
 
-			for( int i = 0; i < this.as220.getBillingCount(); i ++ ) {
+			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
 				String bpOString = obis;
 				if( i > 0 ) {
 					bpOString = bpOString + "-" + i;
 				}
-				String bpDscr = dscr + (this.as220.getBillingCount() - i) + ")";
+				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
 				this.obisMap.put(bpOString, bpDscr);
 			}
 

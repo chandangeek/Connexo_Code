@@ -1,9 +1,9 @@
 /*
- * AS220Profile.java
+ * A1440Profile.java
  *
  */
 
-package com.energyict.protocolimpl.iec1107.as220;
+package com.energyict.protocolimpl.iec1107.a1440;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -37,7 +37,7 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
  * @author fbo
  * 
  */
-public class AS220Profile extends VDEWProfile {
+public class A1440Profile extends VDEWProfile {
 
 	private static final int DEBUG = 0;
 
@@ -54,14 +54,14 @@ public class AS220Profile extends VDEWProfile {
 	private static final int L3_MISSING					= 0x00800000;
 
 
-	private AS220ProfileHeader as220ProfileHeader = null;
+	private A1440ProfileHeader a1440ProfileHeader = null;
 	private static final boolean KEEPSTATUS = false;
 
 	private static final int POWERQUALITY_PROFILE = 2;
 	private int loadProfileNumber;
 
 	/** Creates a new instance of ABBA1500Profile */
-	public AS220Profile(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink, AbstractVDEWRegistry abstractVDEWRegistry) {
+	public A1440Profile(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink, AbstractVDEWRegistry abstractVDEWRegistry) {
 		super(meterExceptionInfo,protocolLink,abstractVDEWRegistry,KEEPSTATUS);
 	}
 
@@ -152,12 +152,12 @@ public class AS220Profile extends VDEWProfile {
 	}
 
 
-	public AS220ProfileHeader getProfileHeader(int profileNumber) throws IOException {
+	public A1440ProfileHeader getProfileHeader(int profileNumber) throws IOException {
 		this.loadProfileNumber = profileNumber;
-		if (this.as220ProfileHeader == null) {
-			this.as220ProfileHeader = new AS220ProfileHeader(getProtocolLink().getFlagIEC1107Connection(), this.loadProfileNumber);
+		if (this.a1440ProfileHeader == null) {
+			this.a1440ProfileHeader = new A1440ProfileHeader(getProtocolLink().getFlagIEC1107Connection(), this.loadProfileNumber);
 		}
-		return this.as220ProfileHeader;
+		return this.a1440ProfileHeader;
 	}
 
 	// override the default getProfileHeader() to prevent bypass of the new getProfileHeader(int profileNumber) method

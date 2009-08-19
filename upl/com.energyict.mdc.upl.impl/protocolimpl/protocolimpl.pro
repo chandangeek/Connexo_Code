@@ -303,3 +303,5 @@
 -keepnames class com.energyict.protocolimpl.modbus.socomec.a20.A20
 
 -keepnames class com.energyict.protocolimpl.iec1107.as220.AS220
+
+-keepnames class com.energyict.protocolimpl.iec1107.a1440.A1440

@@ -143,6 +143,7 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
 		this.protocolclasses.add("com.energyict.protocolimpl.iec1107.kamstrup.unigas300.Unigas300");this.protocolnames.add("IEC1107 Kamstrup UNIGAS300 meter");
 		this.protocolclasses.add("com.energyict.protocolimpl.dlms.as220.AS220");this.protocolnames.add("Elster AS220 DLMS meter");
 		this.protocolclasses.add("com.energyict.protocolimpl.iec1107.as220.AS220");this.protocolnames.add("Elster AS220 IEC1107 meter");
+		this.protocolclasses.add("com.energyict.protocolimpl.iec1107.a1440.A1440");this.protocolnames.add("Elster A1440 IEC1107 meter");
 	}
 
 	public String getProtocolName(int index) throws IOException {
