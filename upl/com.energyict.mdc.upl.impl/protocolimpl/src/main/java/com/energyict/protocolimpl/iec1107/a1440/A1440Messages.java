@@ -10,8 +10,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.messaging.Message;
@@ -28,11 +30,8 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
  * @author jme
  *
  */
-public class A1440Messages {
+public class A1440Messages implements MessageProtocol {
 
-	private static final int DEBUG = 0;
-
-	private A1440 a1440 = null;
 	private static final A1440MessageType SPC_MESSAGE = new A1440MessageType("SPC_DATA", 4, 285 * 2, "Upload 'Switch Point Clock' settings (Class 4)");
 	private static final A1440MessageType SPCU = new A1440MessageType("SPCU_DATA", 34, 285 * 2, "Upload 'Switch Point Clock Update' settings (Class 32)");
 
@@ -40,15 +39,13 @@ public class A1440Messages {
 	private static final A1440MessageType CONTACTOR_ARM = 	new A1440MessageType("CONTACTOR_ARM", 411, 0, "Contactor arm");
 	private static final A1440MessageType CONTACTOR_OPEN = 	new A1440MessageType("CONTACTOR_OPEN", 411, 0, "Contactor open");
 
+	private A1440 a1440 = null;
+
 	public A1440Messages(A1440 a1440) {
 		this.a1440 = a1440;
 	}
 
-	//--------------------------------------------------------------------------------------------------------------------------
-
 	public List getMessageCategories() {
-		sendDebug("getMessageCategories()");
-
 		List theCategories = new ArrayList();
 		MessageCategorySpec catTimeTable = new MessageCategorySpec("'Switch Point Clock' Messages");
 		catTimeTable.addMessageSpec(addBasicMsg(SPC_MESSAGE, false));
@@ -65,27 +62,22 @@ public class A1440Messages {
 	}
 
 	public void applyMessages(List messageEntries) {
-		sendDebug("applyMessages(List messageEntries)");
-		if (DEBUG >= 2) {
-			Iterator it = messageEntries.iterator();
-			while(it.hasNext()) {
-				MessageEntry messageEntry = (MessageEntry)it.next();
-				sendDebug(messageEntry.toString());
-			}
+		Iterator it = messageEntries.iterator();
+		while(it.hasNext()) {
+			MessageEntry messageEntry = (MessageEntry)it.next();
+			getLogger().finest(messageEntry.toString());
 		}
 	}
 
 	public MessageResult queryMessage(MessageEntry messageEntry) {
-		sendDebug("queryMessage(MessageEntry messageEntry)");
-
 		try {
 			if (isThisMessage(messageEntry, SPC_MESSAGE)) {
-				sendDebug("************************* " + SPC_MESSAGE.getDisplayName() + " *************************");
+				getLogger().fine("************************* " + SPC_MESSAGE.getDisplayName() + " *************************");
 				writeClassSettings(messageEntry, SPC_MESSAGE);
 				return MessageResult.createSuccess(messageEntry);
 			}
 			else if (isThisMessage(messageEntry, SPCU)) {
-				sendDebug("************************* " + SPCU + " *************************");
+				getLogger().fine("************************* " + SPCU + " *************************");
 				writeClassSettings(messageEntry, SPCU);
 				return MessageResult.createSuccess(messageEntry);
 			} else if (isThisMessage(messageEntry, CONTACTOR_ARM)) {
@@ -111,25 +103,21 @@ public class A1440Messages {
 
 		}
 		catch(IOException e) {
-			sendDebug(e.getMessage());
+			e.printStackTrace();
 		}
 
 		return MessageResult.createFailed(messageEntry);
 	}
 
 	public String writeValue(MessageValue value) {
-		sendDebug("writeValue(MessageValue value)");
 		return value.getValue();
 	}
 
 	public String writeMessage(Message msg) {
-		sendDebug("writeMessage(Message msg)");
 		return msg.write(this.a1440);
 	}
 
 	public String writeTag(MessageTag tag) {
-		sendDebug("writeTag(MessageTag tag)");
-
 		StringBuffer buf = new StringBuffer();
 
 		// a. Opening tag
@@ -200,7 +188,6 @@ public class A1440Messages {
 
 		String message = A1440Utils.getXMLAttributeValue(messageType.getTagName(), messageEntry.getContent());
 		message = A1440Utils.cleanAttributeValue(message);
-		sendDebug("Cleaned attribute value: " + message);
 		if (message.length() != messageType.getLength()) {
 			throw new IOException("Wrong length !!! Length should be " + messageType.getLength() + " but was " + message.length());
 		}
@@ -223,7 +210,7 @@ public class A1440Messages {
 			iec1107Command += ProtocolUtils.buildStringHex(offset, 4);
 			iec1107Command += "(" + rawdata + ")";
 
-			sendDebug(	" classNumber: " + ProtocolUtils.buildStringHex(messageType.getClassnr(), 2) +
+			getLogger().finest(	" classNumber: " + ProtocolUtils.buildStringHex(messageType.getClassnr(), 2) +
 					" First: " + ProtocolUtils.buildStringHex(first, 4) +
 					" Last: " + ProtocolUtils.buildStringHex(last, 4) +
 					" Offset: " + ProtocolUtils.buildStringHex(offset, 4) +
@@ -245,10 +232,11 @@ public class A1440Messages {
 		return (A1440Utils.getXMLAttributeValue(messagetype.getTagName(), messageEntry.getContent()) != null);
 	}
 
-	private void sendDebug(String string) {
-		if (DEBUG >= 1) {
-			this.a1440.sendDebug(string);
-		}
+	private Logger getLogger() {
+		return getA1440().getLogger();
 	}
 
+	public A1440 getA1440() {
+		return this.a1440;
+	}
 }

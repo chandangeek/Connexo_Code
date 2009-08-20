@@ -157,7 +157,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	}
 
 	public Date getTime() throws IOException {
-		sendDebug("getTime request !!!", 2);
+		getLogger().finest("getTime request !!!");
 		this.meterDate = (Date) getA1440Registry().getRegister("TimeDate");
 		return new Date(this.meterDate.getTime() - this.iRoundtripCorrection);
 	}
@@ -361,19 +361,10 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	}
 
 	private byte[] cleanDataReadout(byte[] dro) {
-		if (DEBUG >= 1) {
-			sendDebug("cleanDataReadout()  INPUT dro = " + new String(dro), 2);
-		}
-
 		for (int i = 0; i < dro.length; i++) {
 			if (((i+3) < dro.length) && (dro[i] == '&')) {
-				if (dro[i+3] == '(') {
-					dro[i] = '*';
-				}
+				if (dro[i+3] == '(') {dro[i] = '*';}
 			}
-		}
-		if (DEBUG >= 1) {
-			sendDebug("cleanDataReadout() OUTPUT dro = " + new String(dro), 2);
 		}
 		return dro;
 	}
@@ -497,7 +488,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 		try {
 
-			sendDebug("readRegister() obis: " + obis.toString(), 2);
+			getLogger().fine("readRegister() obis: " + obis.toString());
 			// it is not possible to translate the following edis code in this way
 			if( "1.1.0.1.2.255".equals(obis.toString())) {
 				return new RegisterValue(obis, readTime());
@@ -577,7 +568,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			if (temp.indexOf('*') != -1) {
 				readUnit = Unit.get(temp.substring(temp.indexOf('*') + 1));
 				temp = temp.substring(0, temp.indexOf('*'));
-				sendDebug("ReadUnit: " + readUnit, 3);
+				getLogger().finest("ReadUnit: " + readUnit);
 			}
 
 			BigDecimal bd = new BigDecimal(temp);
@@ -611,8 +602,6 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 						String message = "Unit or scaler from obiscode is different from register Unit in meter!!! ";
 						message += " (Unit from meter: " + readUnit;
 						message += " -  Unit from obiscode: " + obis.getUnitElectricity(this.scaler) + ")\n";
-
-						sendDebug(message);
 						getLogger().info(message);
 						if (this.failOnUnitMismatch == 1) {
 							throw new InvalidPropertyException(message);
@@ -662,14 +651,14 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		byte[] data;
 		if (!isDataReadout()) {
 			String name = edisNotation + "(;)";
-			sendDebug("Requesting read(): edisNotation = " + edisNotation, 2);
+			getLogger().finest("Requesting read(): edisNotation = " + edisNotation);
 			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 			byteArrayOutputStream.write(name.getBytes());
 			this.flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream
 					.toByteArray());
 			data = this.flagIEC1107Connection.receiveRawData();
 		} else {
-			sendDebug("Requesting read(): edisNotation = " + edisNotation + " dataReadOut: " + getDataReadout().length, 2);
+			getLogger().finest("Requesting read(): edisNotation = " + edisNotation + " dataReadOut: " + getDataReadout().length);
 			DataDumpParser ddp = new DataDumpParser(getDataReadout());
 			data = ddp.getRegisterStrValue(edisNotation).getBytes();
 		}
@@ -682,7 +671,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	}
 
 	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-		sendDebug(" translateRegister(): " + obisCode.toString(), 2);
+		getLogger().finer(" translateRegister(): " + obisCode.toString());
 		String reginfo = (String) this.a1440ObisCodeMapper.getObisMap().get(obisCode.toString());
 		if (reginfo == null) {
 			reginfo = obisCode.getDescription();
@@ -767,7 +756,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		if( this.billingCount == null ){
 
 			if (isDataReadout()) {
-				sendDebug("Requesting getBillingCount() dataReadOut: " + getDataReadout().length, 2);
+				getLogger().info("Requesting getBillingCount() dataReadOut: " + getDataReadout().length);
 				DataDumpParser ddp = new DataDumpParser(getDataReadout());
 				this.billingCount = new int [] {ddp.getBillingCounter()};
 			} else {
@@ -790,7 +779,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 					this.billingCount = new int [] { Integer.parseInt(v) };
 				} catch (NumberFormatException e) {
 					this.billingCount = new int [] {0};
-					sendDebug("Unable to read billingCounter. Defaulting to 0!");
+					getLogger().info("Unable to read billingCounter. Defaulting to 0!");
 				}
 			}
 
@@ -839,47 +828,34 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		return this.a1440Messages.writeValue(value);
 	}
 
-
-	public void sendDebug(String str){
-		if (DEBUG >= 1) {
-			str = "######## DEBUG > " + str + "\n";
-			Logger log = getLogger();
-			if (log != null) {
-				getLogger().info(str);
-			} else {
-				System.out.println(str);
-			}
-		}
-	}
-
 	private String readSpecialRegister(String registerName) throws IOException {
 		if (registerName.equals(A1440ObisCodeMapper.ID1)) {
-			return new String(ProtocolUtils.convert2ascii(((String)getA1440Registry().getRegister(A1440Registry.ID1)).getBytes()));
+			return new String(ProtocolUtils.convert2ascii(((String) getA1440Registry().getRegister(A1440Registry.ID1)).getBytes()));
 		}
 		if (registerName.equals(A1440ObisCodeMapper.ID2)) {
-			return new String(ProtocolUtils.convert2ascii(((String)getA1440Registry().getRegister(A1440Registry.ID2)).getBytes()));
+			return new String(ProtocolUtils.convert2ascii(((String) getA1440Registry().getRegister(A1440Registry.ID2)).getBytes()));
 		}
 		if (registerName.equals(A1440ObisCodeMapper.ID3)) {
-			return new String(ProtocolUtils.convert2ascii(((String)getA1440Registry().getRegister(A1440Registry.ID3)).getBytes()));
+			return new String(ProtocolUtils.convert2ascii(((String) getA1440Registry().getRegister(A1440Registry.ID3)).getBytes()));
 		}
 		if (registerName.equals(A1440ObisCodeMapper.ID4)) {
-			return new String(ProtocolUtils.convert2ascii(((String)getA1440Registry().getRegister(A1440Registry.ID4)).getBytes()));
+			return new String(ProtocolUtils.convert2ascii(((String) getA1440Registry().getRegister(A1440Registry.ID4)).getBytes()));
 		}
 		if (registerName.equals(A1440ObisCodeMapper.ID5)) {
-			return new String(ProtocolUtils.convert2ascii(((String)getA1440Registry().getRegister(A1440Registry.ID5)).getBytes()));
+			return new String(ProtocolUtils.convert2ascii(((String) getA1440Registry().getRegister(A1440Registry.ID5)).getBytes()));
 		}
 		if (registerName.equals(A1440ObisCodeMapper.ID6)) {
-			return new String(ProtocolUtils.convert2ascii(((String)getA1440Registry().getRegister(A1440Registry.ID6)).getBytes()));
+			return new String(ProtocolUtils.convert2ascii(((String) getA1440Registry().getRegister(A1440Registry.ID6)).getBytes()));
 		}
 
 		if (registerName.equals(A1440ObisCodeMapper.IEC1107_ID)) {
-			return new String(ProtocolUtils.convert2ascii(((String)getA1440Registry().getRegister(A1440Registry.IEC1107_ID)).getBytes()));
+			return new String(ProtocolUtils.convert2ascii(((String) getA1440Registry().getRegister(A1440Registry.IEC1107_ID)).getBytes()));
 		}
 		if (registerName.equals(A1440ObisCodeMapper.IEC1107_ADDRESS_OP)) {
-			return new String(ProtocolUtils.convert2ascii(((String)getA1440Registry().getRegister(A1440Registry.IEC1107_ADDRESS_OP)).getBytes()));
+			return new String(ProtocolUtils.convert2ascii(((String) getA1440Registry().getRegister(A1440Registry.IEC1107_ADDRESS_OP)).getBytes()));
 		}
 		if (registerName.equals(A1440ObisCodeMapper.IEC1107_ADDRESS_EL)) {
-			return new String(ProtocolUtils.convert2ascii(((String)getA1440Registry().getRegister(A1440Registry.IEC1107_ADDRESS_EL)).getBytes()));
+			return new String(ProtocolUtils.convert2ascii(((String) getA1440Registry().getRegister(A1440Registry.IEC1107_ADDRESS_EL)).getBytes()));
 		}
 		if (registerName.equals(A1440ObisCodeMapper.FIRMWAREID)) {
 			return getFirmwareVersion();
@@ -906,22 +882,12 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 				dev = "Unknown";
 			}
 
-			if (hw != null) {
-				hw = new String(ProtocolUtils.convert2ascii(hw.getBytes())).trim();
-			} else {
-				hw = "Unknown";
-			}
+			hw = (hw == null) ? "Unknown" : new String(ProtocolUtils.convert2ascii(hw.getBytes())).trim();
 
 			return dev + " " + "v" + fw + " " + hw;
 		}
 
 		return "";
-	}
-
-	private void sendDebug(String string, int i) {
-		if (DEBUG >= i) {
-			sendDebug(string);
-		}
 	}
 
 }

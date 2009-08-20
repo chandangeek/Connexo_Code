@@ -6,37 +6,46 @@
 
 package com.energyict.protocolimpl.iec1107;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocol.meteridentification.MeterType;
+import java.io.IOException;
+import java.util.TimeZone;
+import java.util.logging.Logger;
+
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import java.util.logging.*;
+
+
 /**
- *
- * @author  Koen
+ * 
+ * @author Koen
  */
 public interface ProtocolLink {
-    
-    public FlagIEC1107Connection getFlagIEC1107Connection();
-    public TimeZone getTimeZone();
-    public boolean isIEC1107Compatible();
-    public int getNumberOfChannels() throws UnsupportedException, IOException;
-    public String getPassword();
-    public byte[] getDataReadout();
-    public int getProfileInterval() throws UnsupportedException, IOException;
-    
-    /**
-     * @deprecated use getProtocolChannelMap()
-     */
-    public ChannelMap getChannelMap();
-    
-    public ProtocolChannelMap getProtocolChannelMap();
-    public Logger getLogger();
-    public int getNrOfRetries();
-    public boolean isRequestHeader();
-    
+
+	FlagIEC1107Connection getFlagIEC1107Connection();
+
+	TimeZone getTimeZone();
+
+	boolean isIEC1107Compatible();
+
+	int getNumberOfChannels() throws UnsupportedException, IOException;
+
+	String getPassword();
+
+	byte[] getDataReadout();
+
+	int getProfileInterval() throws UnsupportedException, IOException;
+
+	/**
+	 * @deprecated use getProtocolChannelMap()
+	 */
+	@Deprecated
+	ChannelMap getChannelMap();
+
+	ProtocolChannelMap getProtocolChannelMap();
+
+	Logger getLogger();
+
+	int getNrOfRetries();
+
+	boolean isRequestHeader();
+
 }
