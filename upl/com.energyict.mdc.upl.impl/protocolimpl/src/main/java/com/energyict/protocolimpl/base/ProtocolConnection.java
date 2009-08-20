@@ -7,50 +7,51 @@
 package com.energyict.protocolimpl.base;
 
 import java.io.IOException;
+
 import com.energyict.cbo.NestedIOException;
-import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.protocol.meteridentification.MeterType;
 
 /**
  * The low level communication class extending from Connection should also implement ProtocolConnection interface. That interface is returned by the doInit(...) abstract method implemented in the protocol implementation class that extends AbstractProtocol.
  * @author Koen
  */
 public interface ProtocolConnection {
-    
-    /**
-     * Setter for the HHU (hand held unit) specific methods. No implementation in most cases.
-     * @param hhuSignOn hhuSignOn
-     */
-    public void setHHUSignOn(HHUSignOn hhuSignOn);
-    /**
-     * Getter for the HHU (hand held unit) specific methods. No implementation in most cases.
-     * @return hhuSignOn
-     */
-    public HHUSignOn getHhuSignOn();
-    /**
-     * Implements the specific meter communication disconnect
-     * @throws com.energyict.cbo.NestedIOException Thrown when something goes wrong different from a protocol related exception
-     * @throws com.energyict.protocolimpl.base.ProtocolConnectionException thrown for protocol and communication related exceptions
-     */
-    public void disconnectMAC() throws NestedIOException, ProtocolConnectionException;
-    /**
-     * Implements the specific meter communication connect
-     * @param strID property MeterProtocol.ADDRESS (DeviceId)
-     * @param strPassword property MetrProtocol.PASSWORD (Password)
-     * @param securityLevel custom property "SecurityLevel"
-     * @param nodeId property MeterProtocol.NODEID (NodeAddress)
-     * @throws java.io.IOException Thrown when something goes wrong different from a protocol related exception
-     * @throws com.energyict.protocolimpl.base.ProtocolConnectionException thrown for protocol and communication related exceptions
-     * @return MeterType is a class with meter specific info. Implemented specific for the IEC1107 optical head communication and signon related info. However, MeterType can be used in other implementations too.
-     */
-    public MeterType connectMAC(String strID,String strPassword,int securityLevel,String nodeId) throws IOException, ProtocolConnectionException;
-    /**
-     * Implements the dataReadout functionality. Specific IEC1107 protocol related.
-     * @param strID property MeterProtocol.ADDRESS (DeviceId)
-     * @param nodeId property MeterProtocol.NODEID (NodeAddress)
-     * @throws com.energyict.cbo.NestedIOException Thrown when something goes wrong different from a protocol related exception
-     * @throws com.energyict.protocolimpl.base.ProtocolConnectionException thrown for protocol and communication related exceptions
-     * @return byte[] data
-     */
-    public byte[] dataReadout(String strID,String nodeId) throws NestedIOException, ProtocolConnectionException;
+
+	/**
+	 * Setter for the HHU (hand held unit) specific methods. No implementation in most cases.
+	 * @param hhuSignOn hhuSignOn
+	 */
+	void setHHUSignOn(HHUSignOn hhuSignOn);
+	/**
+	 * Getter for the HHU (hand held unit) specific methods. No implementation in most cases.
+	 * @return hhuSignOn
+	 */
+	HHUSignOn getHhuSignOn();
+	/**
+	 * Implements the specific meter communication disconnect
+	 * @throws com.energyict.cbo.NestedIOException Thrown when something goes wrong different from a protocol related exception
+	 * @throws com.energyict.protocolimpl.base.ProtocolConnectionException thrown for protocol and communication related exceptions
+	 */
+	void disconnectMAC() throws NestedIOException, ProtocolConnectionException;
+	/**
+	 * Implements the specific meter communication connect
+	 * @param strID property MeterProtocol.ADDRESS (DeviceId)
+	 * @param strPassword property MetrProtocol.PASSWORD (Password)
+	 * @param securityLevel custom property "SecurityLevel"
+	 * @param nodeId property MeterProtocol.NODEID (NodeAddress)
+	 * @throws java.io.IOException Thrown when something goes wrong different from a protocol related exception
+	 * @throws com.energyict.protocolimpl.base.ProtocolConnectionException thrown for protocol and communication related exceptions
+	 * @return MeterType is a class with meter specific info. Implemented specific for the IEC1107 optical head communication and signon related info. However, MeterType can be used in other implementations too.
+	 */
+	MeterType connectMAC(String strID,String strPassword,int securityLevel,String nodeId) throws IOException, ProtocolConnectionException;
+	/**
+	 * Implements the dataReadout functionality. Specific IEC1107 protocol related.
+	 * @param strID property MeterProtocol.ADDRESS (DeviceId)
+	 * @param nodeId property MeterProtocol.NODEID (NodeAddress)
+	 * @throws com.energyict.cbo.NestedIOException Thrown when something goes wrong different from a protocol related exception
+	 * @throws com.energyict.protocolimpl.base.ProtocolConnectionException thrown for protocol and communication related exceptions
+	 * @return byte[] data
+	 */
+	byte[] dataReadout(String strID,String nodeId) throws NestedIOException, ProtocolConnectionException;
 }

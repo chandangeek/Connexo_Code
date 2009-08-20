@@ -50,19 +50,19 @@ public class A1440ContactorController {
 	public void doDisconnect() throws IOException {
 		getLogger().info("************************* DISCONNECT CONTACTOR *************************");
 		readContactorState();
-		getA1440Registry().setRegister(A1440Registry.CONTACTOR, CONTACTOR_OPEN);
+		getA1440Registry().setRegister(A1440Registry.CONTACTOR_REGISTER, CONTACTOR_OPEN);
 	}
 
 	public void doArm() throws IOException {
 		getLogger().info("***************************** ARM CONTACTOR ****************************");
 		readContactorState();
-		getA1440Registry().setRegister(A1440Registry.CONTACTOR, CONTACTOR_ARMED);
+		getA1440Registry().setRegister(A1440Registry.CONTACTOR_REGISTER, CONTACTOR_ARMED);
 	}
 
 	public void doConnect() throws IOException {
 		getLogger().info("*************************** CONNECT CONTACTOR **************************");
 		readContactorState();
-		getA1440Registry().setRegister(A1440Registry.CONTACTOR, CONTACTOR_CLOSED);
+		getA1440Registry().setRegister(A1440Registry.CONTACTOR_REGISTER, CONTACTOR_CLOSED);
 	}
 
 }

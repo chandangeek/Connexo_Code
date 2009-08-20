@@ -10,33 +10,45 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import java.util.*;
-import java.io.*;
-import java.util.logging.*;
+import java.io.IOException;
+import java.util.TimeZone;
+import java.util.logging.Logger;
+
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.protocolimpl.meteridentification.*;
+import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
 
 /**
- *
+ * 
  * @author Koen
  */
 public interface C12ProtocolLink {
-    
-    public C12Layer2 getC12Layer2();
-    public TimeZone getTimeZone();
-    public int getNumberOfChannels() throws UnsupportedException, IOException;
-    public ProtocolChannelMap getProtocolChannelMap();
-    public int getProfileInterval() throws UnsupportedException, IOException;
-    public Logger getLogger();
-    public PSEMServiceFactory getPSEMServiceFactory();   
-    public StandardTableFactory getStandardTableFactory();
-    public int getInfoTypeRoundtripCorrection();
-    public AbstractManufacturer getManufacturer();  
-    
-    /*
-     *   In case of GE KV and KV2 meters, returns getManufacturerTableFactory().getGEDeviceTable().getMeterMode();
-     */
-    public int getMeterConfig() throws IOException; // meter specific
+
+	C12Layer2 getC12Layer2();
+
+	TimeZone getTimeZone();
+
+	int getNumberOfChannels() throws UnsupportedException, IOException;
+
+	ProtocolChannelMap getProtocolChannelMap();
+
+	int getProfileInterval() throws UnsupportedException, IOException;
+
+	Logger getLogger();
+
+	PSEMServiceFactory getPSEMServiceFactory();
+
+	StandardTableFactory getStandardTableFactory();
+
+	int getInfoTypeRoundtripCorrection();
+
+	AbstractManufacturer getManufacturer();
+
+	/**
+	 * In case of GE KV and KV2 meters, returns
+	 * getManufacturerTableFactory().getGEDeviceTable().getMeterMode();
+	 */
+	int getMeterConfig() throws IOException; // meter specific
+
 }

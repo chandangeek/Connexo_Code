@@ -11,17 +11,27 @@ import java.io.*;
 import com.energyict.protocolimpl.dlms.*;
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.ScalerUnit;
+
 /**
- *
- * @author  Koen
+ * 
+ * @author Koen
  */
 public interface CosemObject {
-    public long getValue() throws IOException;
-    public Date getCaptureTime() throws IOException;
-    public ScalerUnit getScalerUnit() throws IOException;
-    public Quantity getQuantityValue() throws IOException;
-    public String toString();
-    public Date getBillingDate() throws IOException;
-    public int getResetCounter();
-    public String getText() throws IOException;
+
+	long getValue() throws IOException;
+
+	Date getCaptureTime() throws IOException;
+
+	ScalerUnit getScalerUnit() throws IOException;
+
+	Quantity getQuantityValue() throws IOException;
+
+	String toString();
+
+	Date getBillingDate() throws IOException;
+
+	int getResetCounter();
+
+	String getText() throws IOException;
+
 }

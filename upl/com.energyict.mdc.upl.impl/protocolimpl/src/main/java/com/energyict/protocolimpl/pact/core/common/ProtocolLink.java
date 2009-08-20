@@ -6,27 +6,43 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import java.util.*;
+import java.util.TimeZone;
 import java.util.logging.Logger;
-import com.energyict.protocolimpl.pact.core.common.*;
+
 import com.energyict.protocol.UnsupportedException;
+
 /**
- *
- * @author  Koen
+ * 
+ * @author Koen
  */
 public interface ProtocolLink {
-    public TimeZone getTimeZone();
-    public TimeZone getRegisterTimeZone();
-    public PACTConnection getPactConnection();
-    public ChannelMap getChannelMap();
-    public int getProfileInterval() throws UnsupportedException, java.io.IOException;
-    public PACTToolkit getPACTToolkit();
-    public PACTMode getPACTMode();
-    public Logger getLogger();
-    public boolean isExtendedLogging();
-    public boolean isStatusFlagChannel();
-    public int getForcedRequestExtraDays();
-    public int getModulo();
-    public boolean isMeterTypeICM200();
-    public boolean isMeterTypeCSP();
+
+	TimeZone getTimeZone();
+
+	TimeZone getRegisterTimeZone();
+
+	PACTConnection getPactConnection();
+
+	ChannelMap getChannelMap();
+
+	int getProfileInterval() throws UnsupportedException, java.io.IOException;
+
+	PACTToolkit getPACTToolkit();
+
+	PACTMode getPACTMode();
+
+	Logger getLogger();
+
+	boolean isExtendedLogging();
+
+	boolean isStatusFlagChannel();
+
+	int getForcedRequestExtraDays();
+
+	int getModulo();
+
+	boolean isMeterTypeICM200();
+
+	boolean isMeterTypeCSP();
+
 }

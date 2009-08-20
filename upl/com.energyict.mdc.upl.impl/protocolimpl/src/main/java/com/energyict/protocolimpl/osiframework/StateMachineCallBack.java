@@ -10,14 +10,14 @@
 
 package com.energyict.protocolimpl.osiframework;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public interface StateMachineCallBack {
-    
-    public int receiving() throws IOException;
-    
+
+	int receiving() throws IOException;
+
 }

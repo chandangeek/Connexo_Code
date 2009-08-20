@@ -8,9 +8,11 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc.stub;
 
 public interface WebService extends javax.xml.rpc.Service {
-    public java.lang.String getP2LPCSoapPortAddress();
 
-    public com.energyict.genericprotocolimpl.iskrap2lpc.stub.P2LPCSoapPort_PortType getP2LPCSoapPort() throws javax.xml.rpc.ServiceException;
+	java.lang.String getP2LPCSoapPortAddress();
 
-    public com.energyict.genericprotocolimpl.iskrap2lpc.stub.P2LPCSoapPort_PortType getP2LPCSoapPort(java.net.URL portAddress) throws javax.xml.rpc.ServiceException;
+	com.energyict.genericprotocolimpl.iskrap2lpc.stub.P2LPCSoapPort_PortType getP2LPCSoapPort() throws javax.xml.rpc.ServiceException;
+
+	com.energyict.genericprotocolimpl.iskrap2lpc.stub.P2LPCSoapPort_PortType getP2LPCSoapPort(java.net.URL portAddress) throws javax.xml.rpc.ServiceException;
+
 }

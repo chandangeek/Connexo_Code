@@ -6,21 +6,25 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
+import java.util.TimeZone;
+
+import com.energyict.protocol.UnsupportedException;
 
 /**
- *
- * @author  Koen
+ * 
+ * @author Koen
  */
 public interface IEC870ProtocolLink {
-    public IEC870Connection getIEC870Connection();
-    public TimeZone getTimeZone();
-    public int getNumberOfChannels() throws UnsupportedException, IOException;
-    public String getPassword();
-    public int getProfileInterval() throws UnsupportedException, IOException;
+
+	IEC870Connection getIEC870Connection();
+
+	TimeZone getTimeZone();
+
+	int getNumberOfChannels() throws UnsupportedException, IOException;
+
+	String getPassword();
+
+	int getProfileInterval() throws UnsupportedException, IOException;
+
 }

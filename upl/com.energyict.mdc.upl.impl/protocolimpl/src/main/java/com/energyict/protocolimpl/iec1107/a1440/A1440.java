@@ -26,6 +26,7 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.DemandResetProtocol;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
@@ -61,7 +62,7 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
  * 19-08-2009 jme > Copied ABBA1350 protocol as base for new A1440 protocol
  * 
  */
-public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol {
+public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, DemandResetProtocol {
 
 	private final static int DEBUG = 0;
 
@@ -157,7 +158,6 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	}
 
 	public Date getTime() throws IOException {
-		getLogger().finest("getTime request !!!");
 		this.meterDate = (Date) getA1440Registry().getRegister("TimeDate");
 		return new Date(this.meterDate.getTime() - this.iRoundtripCorrection);
 	}
@@ -488,7 +488,6 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 		try {
 
-			getLogger().fine("readRegister() obis: " + obis.toString());
 			// it is not possible to translate the following edis code in this way
 			if( "1.1.0.1.2.255".equals(obis.toString())) {
 				return new RegisterValue(obis, readTime());
@@ -568,7 +567,6 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			if (temp.indexOf('*') != -1) {
 				readUnit = Unit.get(temp.substring(temp.indexOf('*') + 1));
 				temp = temp.substring(0, temp.indexOf('*'));
-				getLogger().finest("ReadUnit: " + readUnit);
 			}
 
 			BigDecimal bd = new BigDecimal(temp);
@@ -651,14 +649,12 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		byte[] data;
 		if (!isDataReadout()) {
 			String name = edisNotation + "(;)";
-			getLogger().finest("Requesting read(): edisNotation = " + edisNotation);
 			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 			byteArrayOutputStream.write(name.getBytes());
 			this.flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream
 					.toByteArray());
 			data = this.flagIEC1107Connection.receiveRawData();
 		} else {
-			getLogger().finest("Requesting read(): edisNotation = " + edisNotation + " dataReadOut: " + getDataReadout().length);
 			DataDumpParser ddp = new DataDumpParser(getDataReadout());
 			data = ddp.getRegisterStrValue(edisNotation).getBytes();
 		}
@@ -671,15 +667,10 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	}
 
 	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-		getLogger().finer(" translateRegister(): " + obisCode.toString());
 		String reginfo = (String) this.a1440ObisCodeMapper.getObisMap().get(obisCode.toString());
-		if (reginfo == null) {
-			reginfo = obisCode.getDescription();
-		}
+		if (reginfo == null) { reginfo = obisCode.getDescription();	}
 		return new RegisterInfo("" + reginfo);
 	}
-
-
 
 	private void getRegistersInfo() throws IOException {
 		StringBuffer rslt = new StringBuffer();
@@ -699,7 +690,6 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			} else {
 				rslt.append( obis + " " + translateRegister(oc) + "\n");
 			}
-
 		}
 
 		getLogger().info(rslt.toString());
@@ -756,7 +746,6 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		if( this.billingCount == null ){
 
 			if (isDataReadout()) {
-				getLogger().info("Requesting getBillingCount() dataReadOut: " + getDataReadout().length);
 				DataDumpParser ddp = new DataDumpParser(getDataReadout());
 				this.billingCount = new int [] {ddp.getBillingCounter()};
 			} else {
@@ -888,6 +877,10 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		}
 
 		return "";
+	}
+
+	public void resetDemand() throws IOException {
+		this.a1440Messages.doDemandReset();
 	}
 
 }

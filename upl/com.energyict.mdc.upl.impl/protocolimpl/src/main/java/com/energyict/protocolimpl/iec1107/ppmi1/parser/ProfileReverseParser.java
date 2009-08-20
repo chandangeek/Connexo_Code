@@ -12,13 +12,13 @@ import com.energyict.protocolimpl.iec1107.ppmi1.Profile;
 
 public class ProfileReverseParser {
 
-    boolean DBG = false;
-    
+	boolean DBG = false;
+
 	//Date currentMeterDate = null; // KV 22072005 unused code
 	int dayNr = 0;
 	int monthNr = 0;
 	//TimeZone timeZone = null;// KV 22072005 unused code
-	
+
 	private boolean beginFound = false;
 	int lastGoodIndex = 0;
 	//int firstDay = 0;// KV 22072005 unused code
@@ -38,96 +38,112 @@ public class ProfileReverseParser {
 	private TerminalAssembler terminalAssembler = new TerminalAssembler();
 	private DayAssembler dayAssembler = new DayAssembler();
 
-    /** intervalLength in seconds */
+	/** intervalLength in seconds */
 	public ProfileReverseParser(
-                    Date currentMeterDate, int nrOfChannels,
-                    int intervalLength, TimeZone timeZone ) {
+			Date currentMeterDate, int nrOfChannels,
+			int intervalLength, TimeZone timeZone ) {
 
 		//this.currentMeterDate = currentMeterDate;// KV 22072005 unused code
 		Calendar c = ProtocolUtils.getCalendar( timeZone );
 		c.setTime(currentMeterDate);
-		dayNr = c.get(Calendar.DAY_OF_MONTH);
-		monthNr = c.get(Calendar.MONTH);
+		this.dayNr = c.get(Calendar.DAY_OF_MONTH);
+		this.monthNr = c.get(Calendar.MONTH);
 		//this.timeZone = timeZone;// KV 22072005 unused code
-		
+
 		this.nrOfChannels = nrOfChannels;
 		this.intervalLength = intervalLength;
 
-		setAssemblerTable(0xE4, 0xE4, dayAssembler);
-		setAssemblerTable(0x00, 0xE3, terminalAssembler);
-		setAssemblerTable(0xE5, 0xFE, terminalAssembler);
-		setAssemblerTable(0xFF, 0xFF, ffAssembler);
+		setAssemblerTable(0xE4, 0xE4, this.dayAssembler);
+		setAssemblerTable(0x00, 0xE3, this.terminalAssembler);
+		setAssemblerTable(0xE5, 0xFE, this.terminalAssembler);
+		setAssemblerTable(0xFF, 0xFF, this.ffAssembler);
 	}
 
 	public void setInput(byte[] b) {
-		byteAssembly = new ByteAssembly();
-		byteAssembly.setInput(b);
+		this.byteAssembly = new ByteAssembly();
+		this.byteAssembly.setInput(b);
 	}
 
 	public byte[] match() throws IOException {
 
 		try {
-		byteAssembly.index = byteAssembly.getSize() - 1;
-		int character = byteAssembly.get();
+			this.byteAssembly.index = this.byteAssembly.getSize() - 1;
+			int character = this.byteAssembly.get();
 
-		while (byteAssembly.index > 0 && !beginFound) {
-			byteAssembly.index--;
-			character = byteAssembly.get() & 0xFF;
-			byteAssembly.push(new Byte((byte) character));
-			assemblerTable[character].workOn(byteAssembly);
-			if( DBG ) System.out.println( byteAssembly );
-		}
+			while ((this.byteAssembly.index > 0) && !this.beginFound) {
+				this.byteAssembly.index--;
+				character = this.byteAssembly.get() & 0xFF;
+				this.byteAssembly.push(new Byte((byte) character));
+				this.assemblerTable[character].workOn(this.byteAssembly);
+				if( this.DBG ) {
+					System.out.println( this.byteAssembly );
+				}
+			}
 
-		int length = ffAssembler.position16FF - lastGoodIndex;
-		byte[] result = new byte[length];
-		System.arraycopy(byteAssembly.input, lastGoodIndex, result, 0, length);
-		return result;
+			int length = this.ffAssembler.position16FF - this.lastGoodIndex;
+			byte[] result = new byte[length];
+			System.arraycopy(this.byteAssembly.input, this.lastGoodIndex, result, 0, length);
+			return result;
 		} catch( Exception ex ){
 			ex.printStackTrace();
-			if( DBG ) System.out.println( byteAssembly );
+			if( this.DBG ) {
+				System.out.println( this.byteAssembly );
+			}
 			throw new IOException( ex.getMessage() );
 		}
 	}
 
 	private void setAssemblerTable(int from, int to, Assembler assembler) {
 		for (int i = from; i <= to; i++) {
-			if (i >= 0 && i < assemblerTable.length) {
-				assemblerTable[i] = assembler;
+			if ((i >= 0) && (i < this.assemblerTable.length)) {
+				this.assemblerTable[i] = assembler;
 			}
 		}
 	}
 
 	public void blockScan() {
-		int min = (int) Profile.dayByteSizeMin(nrOfChannels, intervalLength) / 2;
-		int max = (int) Profile.dayByteSizeMax(nrOfChannels, intervalLength) / 2;
-		
-		if(DBG) System.out.println(byteAssembly.toString(byteAssembly.index - min));
-		if(DBG) System.out.println(byteAssembly.toString(byteAssembly.index - max));
+		int min = (int) Profile.dayByteSizeMin(this.nrOfChannels, this.intervalLength) / 2;
+		int max = (int) Profile.dayByteSizeMax(this.nrOfChannels, this.intervalLength) / 2;
 
-		int index = byteAssembly.index - min;
-		if ( index > 0 && (byteAssembly.input[index] & 0xFF) == 0xE4) {
-			byteAssembly.index -= min;
-			if(DBG)  System.out.println(byteAssembly);
-			lastGoodIndex = byteAssembly.index;
-			blockScan();
-			return;
+		if(this.DBG) {
+			System.out.println(this.byteAssembly.toString(this.byteAssembly.index - min));
 		}
-		
-		index = byteAssembly.index - max;
-		if (index > 0 && (byteAssembly.input[index] & 0xFF) == 0xE4) {
-			byteAssembly.index -= max;
-			if(DBG) System.out.println(byteAssembly);
-			lastGoodIndex = byteAssembly.index;
+		if(this.DBG) {
+			System.out.println(this.byteAssembly.toString(this.byteAssembly.index - max));
+		}
+
+		int index = this.byteAssembly.index - min;
+		if ( (index > 0) && ((this.byteAssembly.input[index] & 0xFF) == 0xE4)) {
+			this.byteAssembly.index -= min;
+			if(this.DBG) {
+				System.out.println(this.byteAssembly);
+			}
+			this.lastGoodIndex = this.byteAssembly.index;
 			blockScan();
 			return;
 		}
 
-		beginFound = true;
-		byteAssembly.index = lastGoodIndex;
-		int firstDay = (int) hex2dec(byteAssembly.input[byteAssembly.index + 1]);
-		int firstMonth = (int) hex2dec(byteAssembly.input[byteAssembly.index + 2]);
-		if(DBG) System.out.println( "FirstDay = " + firstDay + "/" + firstMonth);
-		if(DBG) System.out.println(byteAssembly);
+		index = this.byteAssembly.index - max;
+		if ((index > 0) && ((this.byteAssembly.input[index] & 0xFF) == 0xE4)) {
+			this.byteAssembly.index -= max;
+			if(this.DBG) {
+				System.out.println(this.byteAssembly);
+			}
+			this.lastGoodIndex = this.byteAssembly.index;
+			blockScan();
+			return;
+		}
+
+		this.beginFound = true;
+		this.byteAssembly.index = this.lastGoodIndex;
+		int firstDay = (int) hex2dec(this.byteAssembly.input[this.byteAssembly.index + 1]);
+		int firstMonth = (int) hex2dec(this.byteAssembly.input[this.byteAssembly.index + 2]);
+		if(this.DBG) {
+			System.out.println( "FirstDay = " + firstDay + "/" + firstMonth);
+		}
+		if(this.DBG) {
+			System.out.println(this.byteAssembly);
+		}
 	}
 
 	public static long hex2dec(byte value) {
@@ -135,7 +151,7 @@ public class ProfileReverseParser {
 	}
 
 	public interface Assembler {
-		public abstract void workOn(ByteAssembly a) throws IOException;
+		abstract void workOn(ByteAssembly a) throws IOException;
 	}
 
 	class FFAssembler implements Assembler {
@@ -144,11 +160,11 @@ public class ProfileReverseParser {
 		//boolean past16Fs = false;// KV 22072005 unused code
 
 		public void workOn(ByteAssembly ta) {
-			if (ffCount == 15 ){
-		//		past16Fs = true;// KV 22072005 unused code
-				position16FF = ta.index;				
+			if (this.ffCount == 15 ){
+				//		past16Fs = true;// KV 22072005 unused code
+				this.position16FF = ta.index;
 			} else {
-				ffCount += 1;
+				this.ffCount += 1;
 			}
 			((Byte) ta.pop()).byteValue();
 		}
@@ -162,15 +178,15 @@ public class ProfileReverseParser {
 
 			((Byte) ta.pop()).byteValue();
 
-			int day = (int) hex2dec(byteAssembly.input[byteAssembly.index + 1]);
-			int month = (int) hex2dec(byteAssembly.input[byteAssembly.index + 2]);
+			int day = (int) hex2dec(ProfileReverseParser.this.byteAssembly.input[ProfileReverseParser.this.byteAssembly.index + 1]);
+			int month = (int) hex2dec(ProfileReverseParser.this.byteAssembly.input[ProfileReverseParser.this.byteAssembly.index + 2]);
 
-			if (day == dayNr && month == monthNr + 1) {
+			if ((day == ProfileReverseParser.this.dayNr) && (month == ProfileReverseParser.this.monthNr + 1)) {
 				//foundCurrentDay = true;// KV 22072005 unused code
 				System.out.println("DAY = " + day + " - " + month);
 				//firstDay = day;// KV 22072005 unused code
 				//firstMonth = month;// KV 22072005 unused code
-				lastGoodIndex = byteAssembly.index;
+				ProfileReverseParser.this.lastGoodIndex = ProfileReverseParser.this.byteAssembly.index;
 				blockScan();
 			}
 		}
@@ -180,7 +196,7 @@ public class ProfileReverseParser {
 
 		public void workOn(ByteAssembly ta) {
 			ta.pop();
-			ffAssembler.ffCount = 0;
+			ProfileReverseParser.this.ffAssembler.ffCount = 0;
 		}
 	}
 

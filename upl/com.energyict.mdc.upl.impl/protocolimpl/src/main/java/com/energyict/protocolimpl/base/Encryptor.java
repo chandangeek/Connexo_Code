@@ -7,9 +7,11 @@
 package com.energyict.protocolimpl.base;
 
 /**
- *
- * @author  Koen
+ * 
+ * @author Koen
  */
 public interface Encryptor {
-    public String encrypt(String passWord, String key);
+
+	String encrypt(String passWord, String key);
+
 }

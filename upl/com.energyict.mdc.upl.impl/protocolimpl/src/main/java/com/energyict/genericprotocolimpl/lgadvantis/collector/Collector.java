@@ -1,9 +1,11 @@
 package com.energyict.genericprotocolimpl.lgadvantis.collector;
 
-import com.energyict.genericprotocolimpl.lgadvantis.*;
+import com.energyict.genericprotocolimpl.lgadvantis.ReadResult;
+import com.energyict.genericprotocolimpl.lgadvantis.RtuMessageLink;
+import com.energyict.genericprotocolimpl.lgadvantis.Task;
 
 public interface Collector {
-    
-    public ReadResult getAll( Task task, RtuMessageLink messageLink );
-    
+
+	ReadResult getAll(Task task, RtuMessageLink messageLink);
+
 }

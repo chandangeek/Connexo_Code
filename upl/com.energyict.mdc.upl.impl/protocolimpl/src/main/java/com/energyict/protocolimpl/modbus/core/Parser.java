@@ -10,12 +10,14 @@
 
 package com.energyict.protocolimpl.modbus.core;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public interface Parser {
-    public Object val(int[] values, AbstractRegister register) throws IOException;
+
+	Object val(int[] values, AbstractRegister register) throws IOException;
+
 }

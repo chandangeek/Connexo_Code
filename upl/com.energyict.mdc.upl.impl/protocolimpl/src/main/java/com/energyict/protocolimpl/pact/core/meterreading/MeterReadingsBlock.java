@@ -11,5 +11,7 @@ package com.energyict.protocolimpl.pact.core.meterreading;
  * @author  Koen
  */
 public interface MeterReadingsBlock {
-    public String toString();
+
+	String toString();
+
 }

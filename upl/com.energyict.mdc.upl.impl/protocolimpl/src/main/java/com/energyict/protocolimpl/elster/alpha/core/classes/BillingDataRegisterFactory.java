@@ -10,13 +10,17 @@
 
 package com.energyict.protocolimpl.elster.alpha.core.classes;
 
-import java.util.List;
 import java.io.IOException;
+import java.util.List;
+
 /**
- *
+ * 
  * @author koen
  */
 public interface BillingDataRegisterFactory {
-    public void buildAll() throws IOException;
-    public List getBillingDataRegisters(int set) throws IOException;
+
+	void buildAll() throws IOException;
+
+	List getBillingDataRegisters(int set) throws IOException;
+
 }

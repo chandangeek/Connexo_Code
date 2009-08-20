@@ -10,17 +10,20 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocolimpl.base.AbstractProtocol;
 
 /**
- *
+ * 
  * @author Koen
  */
 public interface ProtocolLink {
-    public AbstractProtocol getProtocol();
-    public ApplicationStateMachine getApplicationStateMachine();
-    public MiniDLMSConnection getMiniDLMSConnection();
-    public DataDefinitionFactory getDataDefinitionFactory();
+
+	AbstractProtocol getProtocol();
+
+	ApplicationStateMachine getApplicationStateMachine();
+
+	MiniDLMSConnection getMiniDLMSConnection();
+
+	DataDefinitionFactory getDataDefinitionFactory();
+
 }

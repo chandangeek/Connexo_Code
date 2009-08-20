@@ -7,20 +7,31 @@
 package com.energyict.protocolimpl.pact.core.survey;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocolimpl.pact.core.common.*;
+import com.energyict.protocolimpl.pact.core.common.ChannelMap;
+
 /**
- *
- * @author  Koen 
+ * 
+ * @author Koen
  */
 public interface LoadSurveyInterpreter {
-    public ProfileData getProfileData();
-    public void parse(byte[] loadSurveyData, ChannelMap channelMap, boolean statusFlagchannel) throws IOException;
-    public String toString();
-    public int[] getEnergyTypeCodes();
-    public int getEnergyTypeCode(int channel);
-    public int getNrOfSurveyChannels();
-    public int getNrOfBlocks(Date from, Date to) throws IOException;
-    public int getNrOfDays(Date from, Date to) throws IOException;
+
+	ProfileData getProfileData();
+
+	void parse(byte[] loadSurveyData, ChannelMap channelMap, boolean statusFlagchannel) throws IOException;
+
+	String toString();
+
+	int[] getEnergyTypeCodes();
+
+	int getEnergyTypeCode(int channel);
+
+	int getNrOfSurveyChannels();
+
+	int getNrOfBlocks(Date from, Date to) throws IOException;
+
+	int getNrOfDays(Date from, Date to) throws IOException;
+
 }

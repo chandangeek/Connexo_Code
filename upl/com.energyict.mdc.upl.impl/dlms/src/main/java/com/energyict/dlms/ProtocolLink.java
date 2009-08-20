@@ -10,22 +10,30 @@ import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import com.energyict.dlms.cosem.StoredValues;
+
 /**
- *
- * @author  Koen
+ * 
+ * @author Koen
  */
 public interface ProtocolLink {
 
-	int SN_REFERENCE=1;
-	int LN_REFERENCE=0;
+	int SN_REFERENCE = 1;
+	int LN_REFERENCE = 0;
 
 	DLMSConnection getDLMSConnection();
+
 	DLMSMeterConfig getMeterConfig();
+
 	TimeZone getTimeZone();
+
 	boolean isRequestTimeZone();
+
 	int getRoundTripCorrection();
+
 	Logger getLogger();
+
 	int getReference();
+
 	StoredValues getStoredValues();
 
 }

@@ -12,22 +12,27 @@ import com.energyict.obis.ObisCode;
 
 public interface Cosem {
 
-    int getShortName();
-    public List getPrimitiveShortNameList();
-    
-    ObisCode getObisCode();
-    
-    /* DDispatch */ 
-    List addMeTo( Task task, boolean write );
-    /* DDispatch */
-    void addMeTo( CosemObject cosemObject );
-    
-    Collector getCollector( );
-    Cosem setCollector( Collector collector );
-    
-    Encoder getEncoder();
-    Cosem setEncoder( Encoder convertor );
-     
-    void parse(AbstractDataType dataType, Task task) throws IOException;
-    void parse(byte[] binaryData, Task task) throws IOException;
+	int getShortName();
+
+	List getPrimitiveShortNameList();
+
+	ObisCode getObisCode();
+
+	/* DDispatch */
+	List addMeTo(Task task, boolean write);
+
+	/* DDispatch */
+	void addMeTo(CosemObject cosemObject);
+
+	Collector getCollector();
+
+	Cosem setCollector(Collector collector);
+
+	Encoder getEncoder();
+
+	Cosem setEncoder(Encoder convertor);
+
+	void parse(AbstractDataType dataType, Task task) throws IOException;
+
+	void parse(byte[] binaryData, Task task) throws IOException;
 }

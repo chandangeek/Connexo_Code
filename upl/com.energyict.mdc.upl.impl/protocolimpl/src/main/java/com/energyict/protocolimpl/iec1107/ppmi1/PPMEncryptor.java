@@ -11,14 +11,17 @@ import com.energyict.protocolimpl.base.Encryptor;
  * @author fbo
  */
 public interface PPMEncryptor extends Encryptor {
-    /**
-     * statefull version of encrypt, the object itself will hold
-     * a copy of the password.
-     */
-	public String encrypt(String key);
+
+	/**
+	 * statefull version of encrypt, the object itself will hold
+	 * a copy of the password.
+	 */
+	String encrypt(String key);
+
 	/**
 	 * 
 	 * @return the next seed
 	 */
-	public String getNextSeed();
+	String getNextSeed();
+
 }

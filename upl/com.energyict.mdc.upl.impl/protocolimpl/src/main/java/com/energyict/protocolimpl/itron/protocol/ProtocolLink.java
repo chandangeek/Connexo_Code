@@ -10,15 +10,20 @@
 
 package com.energyict.protocolimpl.itron.protocol;
 
-import com.energyict.protocolimpl.itron.protocol.schlumberger.*;
-import java.util.*;
+import java.util.TimeZone;
+
+import com.energyict.protocolimpl.itron.protocol.schlumberger.CommandFactory;
 
 /**
- *
+ * 
  * @author Koen
  */
 public interface ProtocolLink {
-    CommandFactory getCommandFactory();
-    TimeZone getTimeZone();
-    int getBlockSize();
+
+	CommandFactory getCommandFactory();
+
+	TimeZone getTimeZone();
+
+	int getBlockSize();
+
 }

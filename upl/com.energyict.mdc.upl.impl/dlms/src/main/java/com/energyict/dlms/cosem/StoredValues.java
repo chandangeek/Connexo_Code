@@ -6,18 +6,25 @@
 
 package com.energyict.dlms.cosem;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Date;
 
 import com.energyict.obis.ObisCode;
+
 /**
- *
- * @author  Koen
+ * 
+ * @author Koen
  */
 public interface StoredValues {
-    public HistoricalValue getHistoricalValue(ObisCode obisCode) throws IOException;
-    public Date getBillingPointTimeDate(int billingPoint) throws IOException;
-    public int getBillingPointCounter() throws IOException;
-    public void retrieve() throws IOException;
-    public ProfileGeneric getProfileGeneric();
+
+	HistoricalValue getHistoricalValue(ObisCode obisCode) throws IOException;
+
+	Date getBillingPointTimeDate(int billingPoint) throws IOException;
+
+	int getBillingPointCounter() throws IOException;
+
+	void retrieve() throws IOException;
+
+	ProfileGeneric getProfileGeneric();
+
 }

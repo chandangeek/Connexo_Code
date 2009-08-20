@@ -13,9 +13,11 @@ package com.energyict.protocolimpl.mbus.core;
 import java.math.*;
 
 /**
- *
+ * 
  * @author kvds
  */
 public interface RangeCoder {
-    public BigDecimal calcMultiplier(int coding);
+
+	BigDecimal calcMultiplier(int coding);
+
 }

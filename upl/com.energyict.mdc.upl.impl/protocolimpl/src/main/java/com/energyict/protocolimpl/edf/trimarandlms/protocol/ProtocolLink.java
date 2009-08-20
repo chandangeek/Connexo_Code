@@ -17,13 +17,19 @@ import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.APSEPDUFactory;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu.DLMSPDUFactory;
 
 /**
- *
+ * 
  * @author Koen
  */
 public interface ProtocolLink {
-    public Connection62056 getConnection62056();
-    public TimeZone getTimeZone();
-    public APSEPDUFactory getAPSEFactory();
-    public DLMSPDUFactory getDLMSPDUFactory();
-    public Logger getLogger();
+
+	Connection62056 getConnection62056();
+
+	TimeZone getTimeZone();
+
+	APSEPDUFactory getAPSEFactory();
+
+	DLMSPDUFactory getDLMSPDUFactory();
+
+	Logger getLogger();
+
 }
