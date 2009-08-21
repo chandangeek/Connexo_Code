@@ -580,6 +580,10 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 				temp = temp.substring(0, temp.indexOf('*'));
 			}
 
+			if ((temp == null) || (temp.length() == 0)){
+				throw new NoSuchRegisterException();
+			}
+
 			BigDecimal bd = new BigDecimal(temp);
 
 			// Read the eventTime (timestamp after the register data)
