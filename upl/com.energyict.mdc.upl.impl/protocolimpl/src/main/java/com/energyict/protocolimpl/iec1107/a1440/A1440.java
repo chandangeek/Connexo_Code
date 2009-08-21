@@ -158,8 +158,9 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	}
 
 	public Date getTime() throws IOException {
-		this.meterDate = (Date) getA1440Registry().getRegister("TimeDate");
-		return new Date(this.meterDate.getTime() - this.iRoundtripCorrection);
+		return new Date();
+		//		this.meterDate = (Date) getA1440Registry().getRegister("TimeDate");
+		//		return new Date(this.meterDate.getTime() - this.iRoundtripCorrection);
 	}
 
 	/** ************************************ MeterProtocol implementation ************************************** */
@@ -445,8 +446,23 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	static Map exceptionInfoMap = new HashMap();
 	static {
 		exceptionInfoMap.put("ERROR", "Request could not execute!");
-		exceptionInfoMap.put("ERROR01", "A1440 ERROR 01, invalid command!");
-		exceptionInfoMap.put("ERROR06", "A1440 ERROR 06, invalid command!");
+		exceptionInfoMap.put("ERROR00", "A1440 ERROR 00, no valid command!");
+		exceptionInfoMap.put("ERROR01", "A1440 ERROR 01, unknown command!");
+		exceptionInfoMap.put("ERROR02", "A1440 ERROR 02, no access without manufacturer password");
+		exceptionInfoMap.put("ERROR03", "A1440 ERROR 03, no access without hardware lock released");
+		exceptionInfoMap.put("ERROR04", "A1440 ERROR 04, no valid class");
+		exceptionInfoMap.put("ERROR05", "A1440 ERROR 05, no additional data available");
+		exceptionInfoMap.put("ERROR06", "A1440 ERROR 06, command format not valid!");
+		exceptionInfoMap.put("ERROR07", "A1440 ERROR 07, function is not supported!");
+		exceptionInfoMap.put("ERROR08", "A1440 ERROR 08, demand reset not allowed!");
+		exceptionInfoMap.put("ERROR09", "A1440 ERROR 09, load profile initialisation not activated!");
+		exceptionInfoMap.put("ERROR10", "A1440 ERROR 10, ripple receiver not enabled!");
+		exceptionInfoMap.put("ERROR11", "A1440 ERROR 11, no valid time and date!");
+		exceptionInfoMap.put("ERROR12", "A1440 ERROR 12, no access to the desired storage!");
+		exceptionInfoMap.put("ERROR13", "A1440 ERROR 13, no access, because the set mode was not activated by the alternate button!");
+		exceptionInfoMap.put("ERROR14", "A1440 ERROR 14, no access without password!");
+		exceptionInfoMap.put("ERROR15", "A1440 ERROR 15, no access with closed terminal cover!");
+		exceptionInfoMap.put("ERROR16", "A1440 ERROR 16, no access due to configuration change denial!");
 	}
 
 	public String getExceptionInfo(String id) {
@@ -533,17 +549,12 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 			if( obis.getF() != 255 ) {
 				int f = getBillingCount() - Math.abs(obis.getF());
+				if (f < 0) { throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF()); }
 				fs = "*" + ProtocolUtils.buildStringDecimal(f, 2);
 			}
+
 			String edis = obis.getC() + "." + obis.getD() + "." + obis.getE() + fs;
-			try {
-				data = read(edis);
-			} catch (IOException e1) {
-				if (DEBUG >= 3) {
-					e1.printStackTrace();
-				}
-				throw e1;
-			}
+			data = read(edis);
 
 			// try to read the time stamp, and us it as the register toTime.
 			try {
@@ -611,35 +622,11 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 			return new RegisterValue(obis, q, eventTime, toTime);
 
-		} catch (NoSuchRegisterException e) {
-			String m = "ObisCode " + obis.toString() + " is not supported!";
-			if (DEBUG >= 3) {
-				e.printStackTrace();
-			}
-			throw new NoSuchRegisterException(m);
 		} catch (InvalidPropertyException e) {
 			String m = "getMeterReading() error, " + e.getMessage();
-			if (DEBUG >= 3) {
-				e.printStackTrace();
-			}
 			throw new InvalidPropertyException(m);
-		} catch (FlagIEC1107ConnectionException e) {
-			String m = "getMeterReading() error, " + e.getMessage();
-			if (DEBUG >= 3) {
-				e.printStackTrace();
-			}
-			throw new IOException(m);
 		} catch (IOException e) {
 			String m = "getMeterReading() error, " + e.getMessage();
-			if (DEBUG >= 3) {
-				e.printStackTrace();
-			}
-			throw new IOException(m);
-		} catch (NumberFormatException e) {
-			String m = "ObisCode " + obis.toString() + " is not supported!";
-			if (DEBUG >= 3) {
-				e.printStackTrace();
-			}
 			throw new NoSuchRegisterException(m);
 		}
 

@@ -39,7 +39,12 @@ public class A1440Registry extends AbstractVDEWRegistry {
 	public static final String IEC1107_ADDRESS_EL = "IEC1107_ADDRESS_EL";
 
 	public static final String CONTACTOR_REGISTER = "ContactorRegister";
+
 	public static final String DEMAND_RESET_REGISTER = "DemandResetRegister";
+	public static final String POWER_OUTAGE_RESET_REGISTER = "PowerOutageResetRegister";
+	public static final String POWER_QUALITY_RESET_REGISTER = "PowerQualityResetRegister";
+	public static final String ERROR_STATUS_REGISTER = "ErrorStatusResetRegister";
+	public static final String PERSONALITY_REGISTER = "PersonalityRegister";
 
 	/** Creates a new instance of KamstrupRegister */
 	public A1440Registry(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink) {
@@ -79,7 +84,13 @@ public class A1440Registry extends AbstractVDEWRegistry {
 		this.registers.put("TimeDate2", new VDEWRegister("C003",VDEWRegisterDataParse.VDEW_DATE_TIME,0, -1,null,VDEWRegister.WRITEABLE,VDEWRegister.NOT_CACHED,FlagIEC1107Connection.READ5,FlagIEC1107Connection.WRITE2));
 
 		this.registers.put(CONTACTOR_REGISTER, new VDEWRegister("S0I",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
+
 		this.registers.put(DEMAND_RESET_REGISTER, new VDEWRegister("S01",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
+		this.registers.put(POWER_OUTAGE_RESET_REGISTER, new VDEWRegister("S02",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
+		this.registers.put(POWER_QUALITY_RESET_REGISTER, new VDEWRegister("S03",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
+		this.registers.put(ERROR_STATUS_REGISTER, new VDEWRegister("S07",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
+
+		this.registers.put(PERSONALITY_REGISTER, new VDEWRegister("P02",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
 
 	}
 

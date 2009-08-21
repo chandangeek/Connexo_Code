@@ -38,6 +38,9 @@ public class A1440Messages implements MessageProtocol {
 	private static final A1440MessageType CONTACTOR_OPEN = 	new A1440MessageType("CONTACTOR_OPEN", 411, 0, "Contactor open");
 
 	private static final A1440MessageType DEMAND_RESET = new A1440MessageType("DEMAND_RESET", 0, 0, "Demand reset");
+	private static final A1440MessageType POWER_OUTAGE_RESET = new A1440MessageType("POWER_OUTAGE_RESET", 0, 0, "Power outage counter reset");
+	private static final A1440MessageType POWER_QUALITY_RESET = new A1440MessageType("POWER_QUALITY_RESET", 0, 0, "Power quality counters reset");
+	private static final A1440MessageType ERROR_STATUS_RESET = new A1440MessageType("ERROR_STATUS_RESET", 0, 0, "Error status reset");
 
 	private A1440 a1440 = null;
 
@@ -58,6 +61,9 @@ public class A1440Messages implements MessageProtocol {
 
 		MessageCategorySpec catResetMessages = new MessageCategorySpec("'Reset' Messages");
 		catResetMessages.addMessageSpec(addBasicMsg(DEMAND_RESET, false));
+		catResetMessages.addMessageSpec(addBasicMsg(POWER_OUTAGE_RESET, false));
+		catResetMessages.addMessageSpec(addBasicMsg(POWER_QUALITY_RESET, false));
+		catResetMessages.addMessageSpec(addBasicMsg(ERROR_STATUS_RESET, false));
 
 		theCategories.add(catTimeTable);
 		theCategories.add(catContactor);
@@ -101,6 +107,21 @@ public class A1440Messages implements MessageProtocol {
 				return MessageResult.createSuccess(messageEntry);
 			}
 
+			if (isThisMessage(messageEntry, POWER_OUTAGE_RESET)) {
+				doPowerOutageReset();
+				return MessageResult.createSuccess(messageEntry);
+			}
+
+			if (isThisMessage(messageEntry, POWER_QUALITY_RESET)) {
+				doPowerQualityReset();
+				return MessageResult.createSuccess(messageEntry);
+			}
+
+			if (isThisMessage(messageEntry, ERROR_STATUS_RESET)) {
+				doErrorStatusReset();
+				return MessageResult.createSuccess(messageEntry);
+			}
+
 		}
 		catch(IOException e) {
 			e.printStackTrace();
@@ -117,13 +138,7 @@ public class A1440Messages implements MessageProtocol {
 		return msg.write(this.a1440);
 	}
 
-	public void applyMessages(List messageEntries) {
-		Iterator it = messageEntries.iterator();
-		while(it.hasNext()) {
-			MessageEntry messageEntry = (MessageEntry)it.next();
-			getLogger().finest(messageEntry.toString());
-		}
-	}
+	public void applyMessages(List messageEntries) {}
 
 	public String writeTag(MessageTag tag) {
 		StringBuffer buf = new StringBuffer();
@@ -206,5 +221,20 @@ public class A1440Messages implements MessageProtocol {
 	public void doDemandReset() throws IOException {
 		System.out.println("Received DEMAND_RESET");
 		getA1440().getA1440Registry().setRegister(A1440Registry.DEMAND_RESET_REGISTER , "");
+	}
+
+	public void doErrorStatusReset() throws IOException {
+		System.out.println("Received ERROR_STATUS_RESET");
+		getA1440().getA1440Registry().setRegister(A1440Registry.ERROR_STATUS_REGISTER , "");
+	}
+
+	public void doPowerQualityReset() throws IOException {
+		System.out.println("Received POWER_QUALITY_RESET");
+		getA1440().getA1440Registry().setRegister(A1440Registry.POWER_QUALITY_RESET_REGISTER , "");
+	}
+
+	public void doPowerOutageReset() throws IOException {
+		System.out.println("Received POWER_OUTAGE_RESET");
+		getA1440().getA1440Registry().setRegister(A1440Registry.POWER_OUTAGE_RESET_REGISTER , "");
 	}
 }
