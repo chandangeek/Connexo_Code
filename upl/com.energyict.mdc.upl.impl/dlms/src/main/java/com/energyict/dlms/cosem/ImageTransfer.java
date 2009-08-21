@@ -11,9 +11,7 @@ import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.util.AXDRBoolean;
 import com.energyict.obis.ObisCode;
 
 /**
@@ -100,28 +98,39 @@ public class ImageTransfer extends AbstractCosemObject{
 		this.data = data;
 		this.size = new Unsigned32(data.length);
 		
+		// Set the imageTransferEnabledState to true
+		writeImageTransferEnabledState(true);
+		
 		if(getImageTransferEnabledState().getState()){
 			
-			if(DEBUG)System.out.println("ImageTrans: Enabled state is true.");
+			if(DEBUG) {
+				System.out.println("ImageTrans: Enabled state is true.");
+			}
 			
 			// Step1: Get the maximum image block size
 			// and calculate the amount of blocks in one step
 			this.blockCount = (int)(this.size.getValue()/readImageBlockSize().getValue()) + (((this.size.getValue()%readImageBlockSize().getValue())==0)?0:1);
-			if(DEBUG)System.out.println("ImageTrans: Maximum block size is: " + readImageBlockSize() + 
-					", Number of blocks: " + blockCount + ".");
+			if(DEBUG) {
+				System.out.println("ImageTrans: Maximum block size is: " + readImageBlockSize() + 
+						", Number of blocks: " + blockCount + ".");
+			}
 			
 			// Step2: Initiate the image transfer
 			Structure imageInitiateStructure = new Structure();
 			imageInitiateStructure.addDataType(OctetString.fromString("EICT-" + System.currentTimeMillis()));
 			imageInitiateStructure.addDataType(this.size);
 			imageTransferInitiate(imageInitiateStructure);
-			if(DEBUG)System.out.println("ImageTrans: Initialize success.");
+			if(DEBUG) {
+				System.out.println("ImageTrans: Initialize success.");
+			}
 			
 			
 			// Step3: Transfer image blocks
 			//TODO - TOTEST  
 			transferImageBlocks();
-			if(DEBUG)System.out.println("ImageTrans: Transfered " + this.blockCount + " blocks.");
+			if(DEBUG) {
+				System.out.println("ImageTrans: Transfered " + this.blockCount + " blocks.");
+			}
 			
 			// Step4: Check completeness of the image and transfer missing blocks
 			//TODO - Checking for missings is not necessary at the moment because we have a guaranteed connection,
@@ -131,7 +140,9 @@ public class ImageTransfer extends AbstractCosemObject{
 			// Step5: Verify image
 			//TODO - TOTEST
 			verifyAndRetryImage();
-			if(DEBUG)System.out.println("ImageTrans: Verification successfull.");
+			if(DEBUG) {
+				System.out.println("ImageTrans: Verification successfull.");
+			}
 			
 			this.protocolLink.getLogger().log(Level.INFO, "Start : " + System.currentTimeMillis());
 			// Step6: Check image before activation
@@ -178,7 +189,9 @@ public class ImageTransfer extends AbstractCosemObject{
 				this.protocolLink.getLogger().log(Level.INFO, "ImageTransfer: " + i + " of " + blockCount + " blocks are sent to the device");
 			}
 			
-			if(DEBUG)System.out.println("ImageTrans: Write block " + i + " success.");
+			if(DEBUG) {
+				System.out.println("ImageTrans: Write block " + i + " success.");
+			}
 		}
 	}
 	
@@ -324,6 +337,20 @@ public class ImageTransfer extends AbstractCosemObject{
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not retrieve the transfer enabled state." + e.getMessage());
+		}
+	}
+	
+	/**
+	 * Write the given state ot the imageTransfer enabled attribute
+	 * @param state : true to indicate that in imageTransfer will be done, false otherwise
+	 * @throws IOException
+	 */
+	public void writeImageTransferEnabledState(boolean state) throws IOException{
+		try {
+			write(ATTRB_IMAGE_TRANSFER_ENABLED, new BooleanObject(state).getBEREncodedByteArray());
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Could not write the transfer enabled state." + e.getMessage());
 		}
 	}
 	

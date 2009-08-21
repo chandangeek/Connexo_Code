@@ -10,10 +10,10 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.ReceiveBuffer;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 final public class HDLC2Connection extends Connection implements DLMSConnection {
 
@@ -196,21 +196,25 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
 
 	private void getAddressingMode(int addressingMode) throws DLMSConnectionException {                        
         if (addressingMode == CLIENT_ADDRESSING_DEFAULT) {
-            if ((iServerLowerMacAddress  == 0) && (iServerUpperMacAddress  <= 0x7F)) 
-            	bAddressingMode = CLIENT_ADDRESSING_1BYTE;
-            else if (iServerLowerMacAddress  != 0) 
-            	bAddressingMode = CLIENT_ADDRESSING_4BYTE;
-            else 
-            	throw new DLMSConnectionException("HDLC2Connection, getAddressingMode, unknown addressing scheme, invalid server addresses");
+            if ((iServerLowerMacAddress  == 0) && (iServerUpperMacAddress  <= 0x7F)) {
+				bAddressingMode = CLIENT_ADDRESSING_1BYTE;
+			} else if (iServerLowerMacAddress  != 0) {
+				bAddressingMode = CLIENT_ADDRESSING_4BYTE;
+			} else {
+				throw new DLMSConnectionException("HDLC2Connection, getAddressingMode, unknown addressing scheme, invalid server addresses");
+			}
         } else {
         	this.bAddressingMode=(byte)addressingMode;
         }        
-        if (iClientMacAddress > 0x7F) 
-        	throw new DLMSConnectionException("HDLC2Connection, getAddressingMode, unknown addressing scheme, invalid client addres");
-        if (iClientMacAddress == 0) 
-        	throw new DLMSConnectionException("HDLC2Connection, getAddressingMode, unknown addressing scheme, client addres = 0");
-        if (iServerUpperMacAddress == 0) 
-        	throw new DLMSConnectionException("HDLC2Connection, getAddressingMode, unknown addressing scheme, server upper addres = 0");
+        if (iClientMacAddress > 0x7F) {
+			throw new DLMSConnectionException("HDLC2Connection, getAddressingMode, unknown addressing scheme, invalid client addres");
+		}
+        if (iClientMacAddress == 0) {
+			throw new DLMSConnectionException("HDLC2Connection, getAddressingMode, unknown addressing scheme, client addres = 0");
+		}
+        if (iServerUpperMacAddress == 0) {
+			throw new DLMSConnectionException("HDLC2Connection, getAddressingMode, unknown addressing scheme, server upper addres = 0");
+		}
     }
   
     
@@ -231,8 +235,9 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
     	frame[protocolParameters[frameFormatMSB]] = highByte(sFrameFormat);
     	frame[protocolParameters[frameFormatLSB]] = lowByte(sFrameFormat);
     	frame = buildAddressingScheme(frame);      
-    	for(int i=0;i<macFrame.length;i++)
-    		frame[protocolParameters[frameSource]+1+i] = macFrame[i];      
+    	for(int i=0;i<macFrame.length;i++) {
+			frame[protocolParameters[frameSource]+1+i] = macFrame[i];
+		}      
     	return frame;             
     }
    
@@ -240,10 +245,11 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
     	if (!boolHDLCConnected) {
            try {
               if (hhuSignOn != null) {
-            	  if (hhuSignonBaudRateCode == -1)
-            		  hhuSignOn.signOn("",meterId);
-            	  else
-            		  hhuSignOn.signOn("",meterId,hhuSignonBaudRateCode);
+            	  if (hhuSignonBaudRateCode == -1) {
+					hhuSignOn.signOn("",meterId);
+				} else {
+					hhuSignOn.signOn("",meterId,hhuSignonBaudRateCode);
+				}
               }
            }
            catch(ConnectionException e) {
@@ -321,8 +327,9 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
        int negosMaxRXIFSize=128;
        int negosMaxTXIFSize=128;       
        
-       if ((byteReceiveBuffer[OFFSET_TO_FORMAT_ID] != (byte)0x81) || (byteReceiveBuffer[OFFSET_TO_GROUP_ID] != (byte)0x80))
-           throw new DLMSConnectionException("HDLC2Connection, getHDLCParameters, format (0x"+((int)byteReceiveBuffer[OFFSET_TO_FORMAT_ID]&0xFF)+") and/or group identifier (0x"+((int)byteReceiveBuffer[OFFSET_TO_GROUP_ID]&0xFF)+") wrong!");                   
+       if ((byteReceiveBuffer[OFFSET_TO_FORMAT_ID] != (byte)0x81) || (byteReceiveBuffer[OFFSET_TO_GROUP_ID] != (byte)0x80)) {
+		throw new DLMSConnectionException("HDLC2Connection, getHDLCParameters, format (0x"+((int)byteReceiveBuffer[OFFSET_TO_FORMAT_ID]&0xFF)+") and/or group identifier (0x"+((int)byteReceiveBuffer[OFFSET_TO_GROUP_ID]&0xFF)+") wrong!");
+	}                   
        for (int i = 0 ; i< (byteReceiveBuffer.length-OFFSET_TO_DATA);) {
           int data = byteReceiveBuffer[OFFSET_TO_DATA+i]& 0xFF;
           int valLen = 0;          
@@ -363,8 +370,12 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
           }
        }       
        // Use smallest parameters negotiated.
-       if (negosMaxRXIFSize<sMaxRXIFSize) sMaxRXIFSize = negosMaxRXIFSize;
-       if (negosMaxTXIFSize<sMaxTXIFSize) sMaxTXIFSize = negosMaxTXIFSize;
+       if (negosMaxRXIFSize<sMaxRXIFSize) {
+		sMaxRXIFSize = negosMaxRXIFSize;
+	}
+       if (negosMaxTXIFSize<sMaxTXIFSize) {
+		sMaxTXIFSize = negosMaxTXIFSize;
+	}
     }
 
     private HDLCFrame decodeFrame(byte[] byteReceiveBuffer) throws DLMSConnectionException
@@ -387,7 +398,9 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
         	while(true) {     
         		int inewKar = readIn();        		
         		if (inewKar != -1) {
-        			if (sRXCount>=MAX_BUFFER_SIZE) return HDLC_BADFRAME;
+        			if (sRXCount>=MAX_BUFFER_SIZE) {
+						return HDLC_BADFRAME;
+					}
         			switch (bCurrentState) {
         				case WAIT_FOR_START_FLAG:
     						switch((byte)inewKar) {
@@ -399,8 +412,9 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
     					break; 
 
         				case WAIT_FOR_FRAME_FORMAT:                       
-        					if ((sRXCount==0) &&((byte)inewKar == HDLC_FLAG)) 
-        						break;                           
+        					if ((sRXCount==0) &&((byte)inewKar == HDLC_FLAG)) {
+								break;
+							}                           
         					byteReceiveBuffer[sRXCount++]=(byte)inewKar;
         					if (sRXCount >= 2) {
         						sLength = getLength(byteReceiveBuffer);        								                               
@@ -416,8 +430,9 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
        						break; 
         			} 
                 } 
-                if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) 
-                    return HDLC_TIMEOUT;
+                if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+					return HDLC_TIMEOUT;
+				}
             }   
         } catch(ArrayIndexOutOfBoundsException e) {
            throw new DLMSConnectionException(e.getMessage());
@@ -463,8 +478,9 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
     } 
 
     private void sendInformationField(byte[] byteBuffer) throws IOException, DLMSConnectionException {
-    	if (!boolHDLCConnected)
-          throw new DLMSConnectionException("HDLC connection not established!");
+    	if (!boolHDLCConnected) {
+			throw new DLMSConnectionException("HDLC connection not established!");
+		}
 
         int lLength = byteBuffer.length; // length of information byteBuffer
         int iIndex=0; // index in information byteBuffer
@@ -473,10 +489,12 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
         	int infoLength = (lLength > sMaxTXIFSize) ? sMaxTXIFSize : lLength;
         	lLength -= infoLength;
             int sFrameFormat= (infoLength+protocolParameters[headerSize]+CRC_SIZE) | HDLC_FRAME_TYPE3;
-            if (lLength > 0)
-            	sFrameFormat |= HDLC_FRAME_S_BIT;
-            for (int i=0; i < infoLength ; i++)
-                  txFrame[protocolParameters[frameInformationField]+i] = byteBuffer[iIndex++];           
+            if (lLength > 0) {
+				sFrameFormat |= HDLC_FRAME_S_BIT;
+			}
+            for (int i=0; i < infoLength ; i++) {
+				txFrame[protocolParameters[frameInformationField]+i] = byteBuffer[iIndex++];
+			}           
             txFrame[protocolParameters[frameFormatMSB]] = highByte(sFrameFormat);
             txFrame[protocolParameters[frameFormatLSB]] = lowByte(sFrameFormat);      
             txFrame = buildAddressingScheme(txFrame);                      
@@ -514,8 +532,9 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
                 	if ( updateNS(hdlcFrame)) {
                     	return;
                     } else {
-                    	if (hdlcFrame.boolControlPFBit)
-                    		sendFrame(txFrame);                                            
+                    	if (hdlcFrame.boolControlPFBit) {
+							sendFrame(txFrame);
+						}                                            
                     }
                 } else {
                 	throw new DLMSConnectionException("ERROR receiving data, should receive an I or RR frame.");   
@@ -532,8 +551,9 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
     private static final byte STATE_WAIT_FOR_RR_FRAME=1;
     
     private byte[] receiveInformationField(ReceiveBuffer receiveBuffer) throws DLMSConnectionException,IOException {        
-        if (!boolHDLCConnected)
-          throw new DLMSConnectionException("HDLC connection not established!");
+        if (!boolHDLCConnected) {
+			throw new DLMSConnectionException("HDLC connection not established!");
+		}
         for (int retryCount = 1 ; retryCount <= (iMaxRetries+1) ; retryCount++) {
         	byte bResult = waitForHDLCFrameStateMachine(iProtocolTimeout,rxFrame);
             if (bResult == HDLC_RX_OK) {                
@@ -541,12 +561,14 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
                 updateNS(hdlcFrame);
                 if (hdlcFrame.bControl == I) {                   	
                     if (NR == hdlcFrame.NS) {
-                    	if (hdlcFrame.informationBuffer != null) 
-                    		receiveBuffer.addArray(hdlcFrame.informationBuffer);
+                    	if (hdlcFrame.informationBuffer != null) {
+							receiveBuffer.addArray(hdlcFrame.informationBuffer);
+						}
                     	NR = (byte) nextSequence(NR);
                     	if ((hdlcFrame.sFrameFormat & HDLC_FRAME_S_BIT) != 0) {
-                    		if (hdlcFrame.boolControlPFBit)
-                    			sendReceiveReady();
+                    		if (hdlcFrame.boolControlPFBit) {
+								sendReceiveReady();
+							}
                     		retryCount = 0;
                     	} else {
                     		return receiveBuffer.getArray();
@@ -554,19 +576,21 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
                     } else {
                     	// send correct sequence number to
                     	if (hdlcFrame.boolControlPFBit) {
-                    		if (NS == hdlcFrame.NR)
-                    			sendFrame(txFrame); // resend last I frame
-                    		else
-                    			sendReceiveReady();
+                    		if (NS == hdlcFrame.NR) {
+								sendFrame(txFrame); // resend last I frame
+							} else {
+								sendReceiveReady();
+							}
                     	}                    	                  
                           }
                 } else if (hdlcFrame.bControl == RR) {
                     // received RR frame , expected I frame
                 	if (hdlcFrame.boolControlPFBit) {                	
-                		if (NS == hdlcFrame.NR)
-                			sendFrame(txFrame); // resend last I frame
-                		else
-                			sendReceiveReady();
+                		if (NS == hdlcFrame.NR) {
+							sendFrame(txFrame); // resend last I frame
+						} else {
+							sendReceiveReady();
+						}
                 	}
                 } else {
                 	// invalid frame type 
@@ -674,33 +698,57 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
  	   int NR = (cntrl & 0xFF) >> 5;
  	   int NS = (cntrl & 0x0F) >> 1;
  	   
- 	   if ((cntrl & 0x01) == 0x00)
- 		   frameDescription = "I (" + NR + "/" + NS + ")";
- 	   if ((cntrl & 0x0F) == 0x01)
- 		   frameDescription = "RR (" + NR + ")";
- 	   if ((cntrl & 0x0F) == 0x05)
- 		   frameDescription = "RNR (" + NR + ")";
- 	   if ((cntrl & 0x8F) == 0x83)
- 		   frameDescription = "SNRM";
- 	   if ((cntrl & 0x4F) == 0x43)
- 		   frameDescription = "DISC";
- 	   if ((cntrl & 0x6F) == 0x63)
- 		   frameDescription = "UA";
- 	   if ((cntrl & 0x0F) == 0x0F)
- 		   frameDescription = "DM";
- 	   if ((cntrl & 0x8F) == 0x87)
- 		   frameDescription = "FRMR";
- 	   if ((cntrl & 0x8F) == 0x87)
- 		   frameDescription = "FRMR";
- 	   if (out)
- 		   System.out.println("==> " + frameDescription);
-         else
-            System.out.println("<== " + frameDescription);
+ 	   if ((cntrl & 0x01) == 0x00) {
+		frameDescription = "I (" + NR + "/" + NS + ")";
+	}
+ 	   if ((cntrl & 0x0F) == 0x01) {
+		frameDescription = "RR (" + NR + ")";
+	}
+ 	   if ((cntrl & 0x0F) == 0x05) {
+		frameDescription = "RNR (" + NR + ")";
+	}
+ 	   if ((cntrl & 0x8F) == 0x83) {
+		frameDescription = "SNRM";
+	}
+ 	   if ((cntrl & 0x4F) == 0x43) {
+		frameDescription = "DISC";
+	}
+ 	   if ((cntrl & 0x6F) == 0x63) {
+		frameDescription = "UA";
+	}
+ 	   if ((cntrl & 0x0F) == 0x0F) {
+		frameDescription = "DM";
+	}
+ 	   if ((cntrl & 0x8F) == 0x87) {
+		frameDescription = "FRMR";
+	}
+ 	   if ((cntrl & 0x8F) == 0x87) {
+		frameDescription = "FRMR";
+	}
+ 	   if (out) {
+		System.out.println("==> " + frameDescription);
+	} else {
+		System.out.println("<== " + frameDescription);
+	}
     }
     
     public void setIskraWrapper(int type) {
 	}
  	
+    public static void main(String args[]){
+    	byte[] response = DLMSUtils.hexStringToByteArray("A019030243730E2F8180120501D20601D207010108010140E7");
+    	try {
+    		HDLC2Connection con = new HDLC2Connection(null, null, -1, 150, 1, 16, 1, 17, 2,255,300);
+			HDLCFrame fram = con.new HDLCFrame(response);
+		} catch (DLMSConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
     /********************************************************************************************************
      * Invoke-Id-And-Priority byte setting
      ********************************************************************************************************/
@@ -733,8 +781,9 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
         		 (byteReceiveBuffer[protocolParameters[frameFormatLSB]]& 0xFF);
         	if (sLength >= (protocolParameters[headerSize]+2)){
         		informationBuffer = new byte[sLength - (protocolParameters[headerSize]+2)];
-        		for (int i=0;i<sLength-(protocolParameters[headerSize]+2);i++)
-                  informationBuffer[i] = byteReceiveBuffer[protocolParameters[headerSize]+i];
+        		for (int i=0;i<sLength-(protocolParameters[headerSize]+2);i++) {
+					informationBuffer[i] = byteReceiveBuffer[protocolParameters[headerSize]+i];
+				}
         	} else {
         	  informationBuffer = null;
         	}
@@ -742,13 +791,15 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
         	boolControlPFBit = (byteReceiveBuffer[protocolParameters[frameControl]] & HDLC_FRAME_CONTROL_PF_BIT)!= 0;
         	// 	Mask out the PF bit
         	byteReceiveBuffer[protocolParameters[frameControl]] &= (HDLC_FRAME_CONTROL_PF_BIT^0xFF);
-        	if ((byteReceiveBuffer[protocolParameters[frameControl]]&I_MASK) == I) 
-        		bControl = I;
-        	else if ((byteReceiveBuffer[protocolParameters[frameControl]]&RR_MASK) == RR) 
-        		bControl = RR;
-        	else if ((byteReceiveBuffer[protocolParameters[frameControl]]&RNR_MASK) == RNR) 
-        		bControl = RNR;
-        	else bControl = byteReceiveBuffer[protocolParameters[frameControl]];
+        	if ((byteReceiveBuffer[protocolParameters[frameControl]]&I_MASK) == I) {
+				bControl = I;
+			} else if ((byteReceiveBuffer[protocolParameters[frameControl]]&RR_MASK) == RR) {
+				bControl = RR;
+			} else if ((byteReceiveBuffer[protocolParameters[frameControl]]&RNR_MASK) == RNR) {
+				bControl = RNR;
+			} else {
+				bControl = byteReceiveBuffer[protocolParameters[frameControl]];
+			}
         	NR=0;
         	NS=0;          
         	if (bControl == I) {
@@ -759,11 +810,13 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
         	}
         	bDestination=0;
         	bSource=0;
-        	if ((byteReceiveBuffer[2 + bAddressingMode] & 0x01)==0) 
-        		throw new DLMSConnectionException("HDLCFrame> Frame destination address error");        	
+        	if ((byteReceiveBuffer[2 + bAddressingMode] & 0x01)==0) {
+				throw new DLMSConnectionException("HDLCFrame> Frame destination address error");
+			}        	
         	bDestination = (byteReceiveBuffer[protocolParameters[frameDestination]] & 0xFF) >> 1 ;
-          	if ((byteReceiveBuffer[protocolParameters[frameSource]] & 0x01) == 0) 
-          		throw new DLMSConnectionException("HDLCFrame> Frame source address error");
+          	if ((byteReceiveBuffer[protocolParameters[frameSource]] & 0x01) == 0) {
+				throw new DLMSConnectionException("HDLCFrame> Frame source address error");
+			}
           	bSource= (byteReceiveBuffer[protocolParameters[frameSource]] & 0xFF) >> 1;
         }           		                
     } 

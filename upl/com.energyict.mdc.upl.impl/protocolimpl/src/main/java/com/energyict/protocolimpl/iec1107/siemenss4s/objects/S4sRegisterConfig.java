@@ -39,7 +39,7 @@ public class S4sRegisterConfig {
 		if(this.rawBytes[0] == 11){
 			return Unit.getUndefined();
 		} else {
-			return this.possibleUnits[this.rawBytes[0]&0x0F];
+			return possibleUnits[this.rawBytes[0]&0x0F];
 		}
 	}
 	
@@ -54,7 +54,7 @@ public class S4sRegisterConfig {
 	 * @return the type of the channel/register (import/export/undefined)
 	 */
 	public String getType(){
-		return this.possibleTypes[(this.rawBytes[0]&0xC0)>>6];
+		return possibleTypes[(this.rawBytes[0]&0xC0)>>6];
 	}
 	
 	/**

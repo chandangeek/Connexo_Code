@@ -80,18 +80,21 @@ public class ObisCodeMapper {
 //        	}
 //        		
 //        	else if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
-        	if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
+        	if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99)){
                 billingPoint = obisCode.getF()+101;
-            else if ((obisCode.getF()  <=0) && (obisCode.getF() >= -99))
+        	} else if ((obisCode.getF()  <=0) && (obisCode.getF() >= -99)){
                 billingPoint = (obisCode.getF()*-1)+101;
-            else if ((obisCode.getF()  <=101) && (obisCode.getF() < 255))
+        	} else if ((obisCode.getF()  <=101) && (obisCode.getF() < 255)){
                 billingPoint = obisCode.getF();
-            else if (obisCode.getF() == 255)
+        	} else if (obisCode.getF() == 255){
                 billingPoint = -1;
-            else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+        	} else {
+        		throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+        	}
             
-            if ( (billingPoint != -1) && (billingPoint != -2) )
-                obisCode = new ObisCode(obisCode.getA(),obisCode.getB(),obisCode.getC(),obisCode.getD(),obisCode.getE(),billingPoint);
+            if ( (billingPoint != -1) && (billingPoint != -2) ){
+            	obisCode = new ObisCode(obisCode.getA(),obisCode.getB(),obisCode.getC(),obisCode.getD(),obisCode.getE(),billingPoint);
+            }
             
             
             //*********************************************************************************
@@ -101,8 +104,8 @@ public class ObisCodeMapper {
             	Date billingDate;
             	Date fromTime;
             	
-            	if (daily) cofIndex = 0;
-            	else if (monthly) cofIndex = 1;
+            	if (daily){ cofIndex = 0;}
+            	else if (monthly){ cofIndex = 1;}
             	
             	CosemObject cosemObject = null;
             	
@@ -191,8 +194,9 @@ public class ObisCodeMapper {
                 
 	            CosemObject cosemObject = cof[DAILY].getCosemObject(obisCode);
 	            
-	            if (cosemObject==null)
-	                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!"); 
+	            if (cosemObject==null){
+	                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+	            } 
 	            
 	            if ( (obisCode.toString().indexOf("0.0.128.30.21.255") != -1) ) { // Disconnector
                     registerValue = new RegisterValue(obisCode,
@@ -304,9 +308,11 @@ public class ObisCodeMapper {
             		Data data = cof[DAILY].getData(new ObisCode(0,1,128,50,0,255));
             		BigDecimal am = BigDecimal.valueOf(register.getValue());
             		Unit u = null;
-            		if (register.getScalerUnit().getUnitCode() != 0)
+            		if (register.getScalerUnit().getUnitCode() != 0){
             			u = register.getScalerUnit().getUnit();
-            		else u = Unit.get(BaseUnit.UNITLESS, 0);
+            		} else {
+            			u = Unit.get(BaseUnit.UNITLESS, 0);
+            		}
             		
             		Date captime = register.getCaptureTime();
             		return new RegisterValue(obisCode, new Quantity(am, u), null, captime);

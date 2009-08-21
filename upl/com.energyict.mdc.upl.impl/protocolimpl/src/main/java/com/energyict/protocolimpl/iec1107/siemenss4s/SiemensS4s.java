@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.Properties;
 
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectFactory;
@@ -20,11 +22,47 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 	
 	private S4sObjectFactory objectFactory;
 	private SiemensS4sProfile profileObject;
+	private SiemensS4sObisCodeMapper obisCodeMapper;
+	
 	private String nodeAddress;
 	private String deviceId;
 	private String passWord;
 	private String serialNumber;
+	
+	private boolean requestDataReadout;
+	
 	private int securityLevel;
+	
+	private byte[] dataReadout;
+	
+	/**
+	 * Creates a new instance of the SiemesS4s protocol
+	 */
+	public SiemensS4s(){
+		super(new SiemensS4sEncryptor());
+	}
+	
+    public void connect() throws IOException {
+        try {
+            if (requestDataReadout) {
+               dataReadout = getFlagIEC1107Connection().dataReadout(deviceId,nodeAddress);
+               getFlagIEC1107Connection().disconnectMAC();
+            }
+            getFlagIEC1107Connection().connectMAC(deviceId,passWord,securityLevel,nodeAddress);
+            doConnect();
+        }
+        catch(FlagIEC1107ConnectionException e) {
+            throw new IOException(e.getMessage());
+        }
+        
+        try {
+            validateSerialNumber();
+        }
+        catch(FlagIEC1107ConnectionException e) {
+            disconnect();
+            throw new IOException(e.getMessage());
+        }
+    }
 
 	protected void doConnect() throws IOException {
 		initLocalObjects();
@@ -45,8 +83,9 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 	protected void doValidateProperties(Properties properties)
 	throws MissingPropertyException, InvalidPropertyException {
 		this.deviceId = properties.getProperty(MeterProtocol.ADDRESS);
-		this.passWord = properties.getProperty(MeterProtocol.PASSWORD);
-		this.securityLevel=Integer.parseInt(properties.getProperty("SecurityLevel","1").trim());
+		this.passWord = properties.getProperty(MeterProtocol.PASSWORD,"4281602592");
+		//TODO set the level in the encryptor
+		this.securityLevel=Integer.parseInt(properties.getProperty("SecurityLevel","2").trim());
 		this.nodeAddress=properties.getProperty(MeterProtocol.NODEID,"");
 		this.serialNumber=properties.getProperty(MeterProtocol.SERIALNUMBER);
 	}
@@ -85,6 +124,17 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
 		return this.profileObject.getProfileData(lastReading, includeEvents);
 	}
+	
+    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+        return getObisCodeMapper().getRegisterValue(obisCode);
+    }
+    
+    private SiemensS4sObisCodeMapper getObisCodeMapper(){
+    	if(this.obisCodeMapper == null){
+    		this.obisCodeMapper = new SiemensS4sObisCodeMapper(this.getObjectFactory());
+    	}
+    	return this.obisCodeMapper;
+    }
 
 	/**
 	 * @return the current objectFactory

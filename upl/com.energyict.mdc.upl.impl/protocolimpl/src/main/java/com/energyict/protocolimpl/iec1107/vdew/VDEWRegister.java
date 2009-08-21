@@ -6,12 +6,14 @@
 
 package com.energyict.protocolimpl.iec1107.vdew;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.StringTokenizer;
+
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 /**
  *
@@ -148,23 +150,26 @@ public class VDEWRegister extends VDEWRegisterDataParse {
     private void dowriteRawRegister(String value) throws FlagIEC1107ConnectionException,IOException {
         String data=null;
         if (getWriteCommand().equals(FlagIEC1107Connection.WRITE5)) {
-            if (isUsePassword())
-               data = getObjectID()+"("+value+")("+getProtocolLink().getPassword()+")";
-            else
-               data = getObjectID()+"("+value+")";
+            if (isUsePassword()) {
+				data = getObjectID()+"("+value+")("+getProtocolLink().getPassword()+")";
+			} else {
+				data = getObjectID()+"("+value+")";
+			}
         }
-        else if (getWriteCommand().equals(FlagIEC1107Connection.WRITE1))
-            data = getObjectID()+"("+value+")";
-        else if (getWriteCommand().equals(FlagIEC1107Connection.WRITE2)) {
-            if (isUsePassword())
-               data = getObjectID()+"("+value+")("+getProtocolLink().getPassword()+")";
-            else
-               data = getObjectID()+"("+value+")";
+        else if (getWriteCommand().equals(FlagIEC1107Connection.WRITE1)) {
+			data = getObjectID()+"("+value+")";
+		} else if (getWriteCommand().equals(FlagIEC1107Connection.WRITE2)) {
+            if (isUsePassword()) {
+				data = getObjectID()+"("+value+")("+getProtocolLink().getPassword()+")";
+			} else {
+				data = getObjectID()+"("+value+")";
+			}
         }
         String retval = getProtocolLink().getFlagIEC1107Connection().sendRawCommandFrameAndReturn(getWriteCommand(),data.getBytes());
         
-        if (retval != null)
-            abstractVDEWRegistry.validateData(retval);        
+        if (retval != null) {
+			abstractVDEWRegistry.validateData(retval);
+		}        
         resetRegdata();
     }
     
@@ -192,8 +197,9 @@ public class VDEWRegister extends VDEWRegisterDataParse {
         while(st.countTokens() > 0) {
             String token = st.nextToken();
             byte[] data = getData(token);
-            if (getProtocolLink().getDataReadout() == null)
-            	abstractVDEWRegistry.validateData(data);
+            if (getProtocolLink().getDataReadout() == null) {
+				abstractVDEWRegistry.validateData(data);
+			}
             ba.write(data);
         }
         regdata = ba.toByteArray();
@@ -207,13 +213,19 @@ public class VDEWRegister extends VDEWRegisterDataParse {
         int index = strdump.indexOf(token);
         int i = 0;
         
-        if (index == -1) throw new IOException("VDEWRegister, getData, register "+getObjectID()+" does not exist in datareadout!");
+        if (index == -1) {
+			throw new IOException("VDEWRegister, getData, register "+getObjectID()+" does not exist in datareadout!");
+		}
         for (i = index; i < strdump.length() ; i++) {
             if (state == 0) {
-                if (strdump.charAt(i) == '(') state = 1;
+                if (strdump.charAt(i) == '(') {
+					state = 1;
+				}
             }
             else if (state == 1) {
-                if (strdump.charAt(i) == ')') break;
+                if (strdump.charAt(i) == ')') {
+					break;
+				}
                 strbuffer.append(strdump.charAt(i));
             }
         } // for (int i = index; i < strdump.length() ; i++)
@@ -225,10 +237,14 @@ public class VDEWRegister extends VDEWRegisterDataParse {
         	strbuffer.append(" ");
         	for (i = index; i < strdump.length() ; i++) {
 				if (state == 0) {
-					if (strdump.charAt(i) == '(') state = 1;
+					if (strdump.charAt(i) == '(') {
+						state = 1;
+					}
 				}
 				else if (state == 1) {
-					if (strdump.charAt(i) == ')') break;
+					if (strdump.charAt(i) == ')') {
+						break;
+					}
 					strbuffer.append(strdump.charAt(i));
 				}
 			} // for (int i = index; i < strdump.length() ; i++)

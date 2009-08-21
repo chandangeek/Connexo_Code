@@ -6,19 +6,17 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco;
 
-import java.util.*;
-import java.io.*;
-import java.math.BigDecimal;
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 
-import com.energyict.obis.*;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocolimpl.siemens7ED62.SCTMDumpData;
-import com.energyict.protocolimpl.customerconfig.*;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.iec1107.vdew.DateValuePair;
 /**
  *
@@ -54,14 +52,16 @@ public class ObisCodeMapper {
         Unit unit = null;
         int billingPoint=-1;
         
-        // obis F code
-        if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
-            billingPoint = obisCode.getF();
-        else if ((obisCode.getF()  <=0) && (obisCode.getF() >= -99))
-            billingPoint = obisCode.getF()*-1;
-        else if (obisCode.getF() == 255)
-            billingPoint = -1;
-        else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+        // obis F code 
+        if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99)) {
+			billingPoint = obisCode.getF();
+		} else if ((obisCode.getF()  <=0) && (obisCode.getF() >= -99)) {
+			billingPoint = obisCode.getF()*-1;
+		} else if (obisCode.getF() == 255) {
+			billingPoint = -1;
+		} else {
+			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+		}
         
         ObisCode oc = new ObisCode(obisCode.getA(),obisCode.getB(),obisCode.getC(),obisCode.getD(),obisCode.getE(),255);
         
@@ -70,12 +70,13 @@ public class ObisCodeMapper {
             String strReg=null;
             if (obisCode.getB() == 2) {
                strReg = (obisCode.getC()==255?"":obisCode.getC()+".")+(obisCode.getD()==255?"":obisCode.getD()+".")+(obisCode.getE()==255?"":obisCode.getE()+"");
-            }
-            else
-               strReg = regs.getMeterRegisterCode(oc);
+            } else {
+				strReg = regs.getMeterRegisterCode(oc);
+			}
             
-            if (strReg == null) 
-                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+            if (strReg == null) {
+				throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+			}
             try {
                 Date billingDate=null;
                 if (billingPoint != -1) {
@@ -91,8 +92,9 @@ public class ObisCodeMapper {
                 DateValuePair dvp = (DateValuePair)iskraEmecoRegistry.getRegister(strReg+" DATE_VALUE_PAIR");
                 
                 Unit obisCodeUnit=obisCode.getUnitElectricity(0);
-                if (obisCodeUnit.getDlmsCode() != 255)
-                    obisCodeUnit = obisCode.getUnitElectricity(regs.getScaler());
+                if (obisCodeUnit.getDlmsCode() != 255) {
+					obisCodeUnit = obisCode.getUnitElectricity(regs.getScaler());
+				}
                 
                 Quantity quantity = new Quantity(dvp.getValue(),obisCodeUnit);
                 if (quantity.getAmount() != null) {

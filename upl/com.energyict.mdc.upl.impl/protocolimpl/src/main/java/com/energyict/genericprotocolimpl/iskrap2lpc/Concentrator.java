@@ -101,7 +101,9 @@ public class Concentrator implements Messaging, GenericProtocol {
 
     public void execute( CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
         
-    	if(TESTLOGGING >= 1)logger.log(Level.INFO, "TESTLOGGING - 1/ Started the execute method.");
+    	if(TESTLOGGING >= 1) {
+			logger.log(Level.INFO, "TESTLOGGING - 1/ Started the execute method.");
+		}
     	
         this.logger = logger;
         this.communicationScheduler = scheduler;
@@ -111,25 +113,34 @@ public class Concentrator implements Messaging, GenericProtocol {
         int meterCount = -1;
         
         concentrator = scheduler.getRtu();
-        if(TESTLOGGING >= 1)getLogger().log(Level.INFO, "TESTLOGGING - 2/ Got the rtu from database");
+        if(TESTLOGGING >= 1) {
+			getLogger().log(Level.INFO, "TESTLOGGING - 2/ Got the rtu from database");
+		}
         String serial = concentrator.getSerialNumber();
-        if(TESTLOGGING >= 1)getLogger().log(Level.INFO, "TESTLOGGING - 3/ Got serialNumber form rtu from database");
+        if(TESTLOGGING >= 1) {
+			getLogger().log(Level.INFO, "TESTLOGGING - 3/ Got serialNumber form rtu from database");
+		}
         StringBuffer progressLog = new StringBuffer(); progressLog.append("");	// just for safety
         PPPDialer dialer = null;
 
+        
         try {
             
             if (useDialUp(concentrator)) {	// something for ftp?
                 dialer = new PPPDialer(serial, logger);
                 String user = getUser(concentrator);
-                if( user!=null ) 
-                    dialer.setUserName(user);
+                if( user!=null ) {
+					dialer.setUserName(user);
+				}
                 String pwd = getPassword(concentrator);
-                if( pwd!=null ) 
-                    dialer.setPassword(pwd);
+                if( pwd!=null ) {
+					dialer.setPassword(pwd);
+				}
                 dialer.connect();
             }
-            if(TESTLOGGING >= 1)getLogger().log(Level.INFO, "TESTLOGGING - 4/ Will start the request for the serialNumber over GPRS");
+            if(TESTLOGGING >= 1) {
+				getLogger().log(Level.INFO, "TESTLOGGING - 4/ Will start the request for the serialNumber over GPRS");
+			}
             String conSerial = checkConcentratorSerial(concentrator);
             String meterList = null;
             List meters = null;
@@ -235,8 +246,9 @@ public class Concentrator implements Messaging, GenericProtocol {
             
         } finally {
             /** clean up, must simply ALWAYS happen */
-            if (useDialUp(concentrator) && dialer != null)
-                dialer.disconnect();
+            if (useDialUp(concentrator) && dialer != null) {
+				dialer.disconnect();
+			}
         }
     }
     
@@ -260,7 +272,9 @@ public class Concentrator implements Messaging, GenericProtocol {
 				return conID;
 			} else {
 				conID = getConnection().getConcentratorStatus();
-				if(TESTLOGGING >= 1)getLogger().log(Level.INFO, "TESTLOGGING - SerialNumber = " + conID);
+				if(TESTLOGGING >= 1) {
+					getLogger().log(Level.INFO, "TESTLOGGING - SerialNumber = " + conID);
+				}
 				return conID.substring(conID.indexOf('"') + 1, conID.indexOf('"',conID.indexOf('"') + 1));
 			}
 			
@@ -703,8 +717,9 @@ public class Concentrator implements Messaging, GenericProtocol {
             	
             } else if (applyThreshold ){
             	String groupID = getMessageValue(contents, RtuMessageConstant.THRESHOLD_GROUPID);
-            	if (groupID.equalsIgnoreCase(""))
-            		throw new BusinessException("No groupID was entered.");
+            	if (groupID.equalsIgnoreCase("")) {
+					throw new BusinessException("No groupID was entered.");
+				}
             	
             	UnsignedInt uiDuration = new UnsignedInt();
             	UnsignedInt uiGrId = new UnsignedInt();
@@ -803,8 +818,9 @@ public class Concentrator implements Messaging, GenericProtocol {
         
         for( int i = 0; i < nl.getLength(); i ++ ) {
             Element e = (Element)nl.item(i);
-            if( "DLCMeters".equals( e.getAttribute("GroupID") ) )
-                result.add( e.getAttribute( "DeviceID" ) );
+            if( "DLCMeters".equals( e.getAttribute("GroupID") ) ) {
+				result.add( e.getAttribute( "DeviceID" ) );
+			}
         }
         
         return result;
@@ -836,10 +852,12 @@ public class Concentrator implements Messaging, GenericProtocol {
     	String type = concentrator.getProperties().getProperty(Constant.RTU_TYPE);
     	if(type != null){
     		RtuType rtuType = mw().getRtuTypeFactory().find(type);
-            if (rtuType == null)
-         	   throw new IOException("Iskra Mx37x, No rtutype defined with name '" + type + "'");
-            if (rtuType.getPrototypeRtu() == null)
-         	   throw new IOException("Iskra Mx37x, rtutype '" + type + "' has no prototype rtu");
+            if (rtuType == null) {
+				throw new IOException("Iskra Mx37x, No rtutype defined with name '" + type + "'");
+			}
+            if (rtuType.getPrototypeRtu() == null) {
+				throw new IOException("Iskra Mx37x, rtutype '" + type + "' has no prototype rtu");
+			}
             return rtuType;
     	}
     	else{
@@ -1065,8 +1083,9 @@ public class Concentrator implements Messaging, GenericProtocol {
         // b. Attributes
         for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
             MessageAttribute att = (MessageAttribute) it.next();
-            if (att.getValue() == null || att.getValue().length() == 0)
-                continue;
+            if (att.getValue() == null || att.getValue().length() == 0) {
+				continue;
+			}
             buf.append(" ").append(att.getSpec().getName());
             buf.append("=").append('"').append(att.getValue()).append('"');
         }
@@ -1078,12 +1097,13 @@ public class Concentrator implements Messaging, GenericProtocol {
         // c. sub elements
         for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
             MessageElement elt = (MessageElement) it.next();
-            if (elt.isTag())
-                buf.append(writeTag((MessageTag) elt));
-            else if (elt.isValue()) {
+            if (elt.isTag()) {
+				buf.append(writeTag((MessageTag) elt));
+			} else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0)
-                    return "";
+                if (value == null || value.length() == 0) {
+					return "";
+				}
                 buf.append(value);
             }
         }

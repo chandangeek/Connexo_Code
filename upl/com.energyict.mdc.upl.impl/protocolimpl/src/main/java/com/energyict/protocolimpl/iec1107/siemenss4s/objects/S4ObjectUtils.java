@@ -2,6 +2,11 @@ package com.energyict.protocolimpl.iec1107.siemenss4s.objects;
 
 import com.energyict.protocol.ProtocolUtils;
 
+/**
+ * Useful utils for operations with the S4s data
+ * @author gna
+ *
+ */
 public class S4ObjectUtils {
 
 	/**
@@ -21,6 +26,20 @@ public class S4ObjectUtils {
 			offset += 1;
 		}
 		return strBuff2.toString().getBytes();
+	}
+	
+	/**
+	 * Revert from LSB-MBS to MSB-LSB
+	 * @param array - the Array to revert
+	 * @return an inverted array
+	 */
+	public static byte[] revertByteArray(byte[] array){
+		byte[] reverse = new byte[array.length];
+		int offset = array.length-1;
+		for(int i = 0; i < array.length; i++,offset--){
+			reverse[i] = array[offset];
+		}
+		return reverse;
 	}
 	
 }

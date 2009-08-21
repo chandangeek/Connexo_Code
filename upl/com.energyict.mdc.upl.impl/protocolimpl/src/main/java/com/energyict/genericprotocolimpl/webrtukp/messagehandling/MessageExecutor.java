@@ -44,7 +44,6 @@ import com.energyict.dlms.cosem.AssociationSN;
 import com.energyict.dlms.cosem.AutoConnect;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.DemandRegister;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.ExtendedRegister;
@@ -53,7 +52,6 @@ import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.dlms.cosem.GenericWrite;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.Limiter;
-import com.energyict.dlms.cosem.P3ImageTransfer;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.ScriptTable;
@@ -152,7 +150,9 @@ public class MessageExecutor extends GenericMessageExecutor{
 				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Firmware upgrade");
 				
 				String userFileID = messageHandler.getUserFileId();
-				if(DEBUG)System.out.println("UserFileID: " + userFileID);
+				if(DEBUG) {
+					System.out.println("UserFileID: " + userFileID);
+				}
 				
 				if(!ParseUtils.isInteger(userFileID)){
 					String str = "Not a valid entry for the current meter message (" + content + ").";
@@ -169,19 +169,29 @@ public class MessageExecutor extends GenericMessageExecutor{
 				ImageTransfer it = getCosemObjectFactory().getImageTransfer();
 //				p3it.upgrade(imageData);
 				it.upgrade(imageData);
-				if(DEBUG)System.out.println("UserFile is send to the device.");
+				if(DEBUG) {
+					System.out.println("UserFile is send to the device.");
+				}
 				if(messageHandler.getActivationDate().equalsIgnoreCase("")){ // Do an execute now
-					if(DEBUG)System.out.println("Start the activateNow.");
+					if(DEBUG) {
+						System.out.println("Start the activateNow.");
+					}
 //					p3it.activateAndRetryImage();
 					it.imageActivation();
-					if(DEBUG)System.out.println("ActivateNow complete.");
+					if(DEBUG) {
+						System.out.println("ActivateNow complete.");
+					}
 				} else if(!messageHandler.getActivationDate().equalsIgnoreCase("")){
 					SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
 					String strDate = messageHandler.getActivationDate();
 					Array dateArray = convertUnixToDateTimeArray(strDate);
-					if(DEBUG)System.out.println("Write the executionTime");
+					if(DEBUG) {
+						System.out.println("Write the executionTime");
+					}
 					sas.writeExecutionTime(dateArray);
-					if(DEBUG)System.out.println("ExecutionTime sent...");
+					if(DEBUG) {
+						System.out.println("ExecutionTime sent...");
+					}
 				}
 				
 				success = true;
@@ -566,9 +576,15 @@ public class MessageExecutor extends GenericMessageExecutor{
 						
 						ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
 						
-						if(DEBUG)System.out.println(seasonArray);
-						if(DEBUG)System.out.println(weekArray);
-						if(DEBUG)System.out.println(dayArray);
+						if(DEBUG) {
+							System.out.println(seasonArray);
+						}
+						if(DEBUG) {
+							System.out.println(weekArray);
+						}
+						if(DEBUG) {
+							System.out.println(dayArray);
+						}
 
 						ac.writeSeasonProfilePassive(seasonArray);
 						ac.writeWeekProfileTablePassive(weekArray);
@@ -892,13 +908,14 @@ public class MessageExecutor extends GenericMessageExecutor{
 					
 					// We just return the byteArray because it is possible that the berEncoded octetString contains
 					// extra check bits ...
-					aln.changeHLSSecret(new OctetString(getWebRtu().getSecurityProvider().getNEWHLSSecret()).getBEREncodedByteArray());
+					aln.changeHLSSecret(getWebRtu().getSecurityProvider().getNEWHLSSecret());
 				} else if(getWebRtu().getReference() == ProtocolLink.SN_REFERENCE){
 					AssociationSN asn = getCosemObjectFactory().getAssociationSN();
 					
 					// We just return the byteArray because it is possible that the berEncoded octetString contains
 					// extra check bits ...
-					asn.changeHLSSecret(new OctetString(getWebRtu().getSecurityProvider().getNEWHLSSecret()).getBEREncodedByteArray());
+					//TODO low lever security should set the value directly to tthe secret attribuut of the SNAssociation
+					asn.changeHLSSecret(getWebRtu().getSecurityProvider().getNEWHLSSecret());
 				}
 				success = true;
 			} else if(activateSMS){

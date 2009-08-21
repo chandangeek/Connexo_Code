@@ -6,7 +6,6 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
-import com.energyict.protocolimpl.iec1107.siemenss4s.SiemensS4sProfileRecorder;
 import com.energyict.protocolimpl.iec1107.siemenss4s.SiemensS4sRegister;
 import com.energyict.protocolimpl.iec1107.siemenss4s.SiemensS4sRegisterMapper;
 
@@ -16,7 +15,7 @@ public class S4sObjectFactory {
 	private SiemensS4sRegisterMapper siemensS4sRegisterMapper;
 	
 	public S4sObjectFactory(FlagIEC1107Connection flagIEC1107Connection){
-		this.iec1107Connection = flagIEC1107Connection;
+		this.iec1107Connection = flagIEC1107Connection; 
 	}
 	
 	/**

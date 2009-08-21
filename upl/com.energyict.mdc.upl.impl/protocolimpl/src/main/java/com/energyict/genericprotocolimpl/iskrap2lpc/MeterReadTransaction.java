@@ -1,7 +1,6 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
@@ -22,12 +21,10 @@ import org.apache.axis.types.UnsignedShort;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
-import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.genericprotocolimpl.common.GenericCache;
@@ -566,9 +563,9 @@ public class MeterReadTransaction implements CacheMechanism {
 //							} else {
 								xml = getConnection().getMeterProfile(getMeter().getSerialNumber(), daily, pc.getRegister(), from, to);
 //							}
-						}
-						else
+						} else {
 							throw new IOException("Channelconfiguration of channel \"" + chn + "\" is different from the channelMap");
+						}
 					}
 					else if(pc.containsMonthlyValues()){
 						if(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS){
@@ -579,12 +576,13 @@ public class MeterReadTransaction implements CacheMechanism {
 //							} else {
 								xml = getConnection().getMeterProfile(getMeter().getSerialNumber(), monthly, pc.getRegister(), from, to);
 //							}
-						}
-						else
+						} else {
 							throw new IOException("Channelconfiguration of channel \"" + chn + "\" is different from the channelMap");
+						}
 					}
-				} else
+				} else {
 					throw new IOException("Channel out of bound exception: no channel with profileIndex " + i+1 + " is configured on the meter.");
+				}
 
 				if(!xml.equalsIgnoreCase("")){
 					
@@ -649,8 +647,9 @@ public class MeterReadTransaction implements CacheMechanism {
 	private boolean checkDailyBillingTime(Date date){
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		if(cal.get(Calendar.HOUR)==0 && cal.get(Calendar.MINUTE)==0 && cal.get(Calendar.SECOND)==0 && cal.get(Calendar.MILLISECOND)==0)
+		if(cal.get(Calendar.HOUR)==0 && cal.get(Calendar.MINUTE)==0 && cal.get(Calendar.SECOND)==0 && cal.get(Calendar.MILLISECOND)==0) {
 			return true;
+		}
 		return false;
 	}
 	
@@ -662,8 +661,9 @@ public class MeterReadTransaction implements CacheMechanism {
 	private boolean checkMonthlyBillingTime(Date date){
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		if(checkDailyBillingTime(date) && cal.get(Calendar.DAY_OF_MONTH)==1)
+		if(checkDailyBillingTime(date) && cal.get(Calendar.DAY_OF_MONTH)==1) {
 			return true;
+		}
 		return false;
 	}
 
@@ -676,8 +676,9 @@ public class MeterReadTransaction implements CacheMechanism {
 		Iterator it = meter.getChannels().iterator();
 		while(it.hasNext()){
 			Channel chn = (Channel)it.next();
-			if(chn.getLoadProfileIndex() == profileIndex)
+			if(chn.getLoadProfileIndex() == profileIndex) {
 				return chn;
+			}
 		}
 		return null;
 	}
@@ -742,8 +743,9 @@ public class MeterReadTransaction implements CacheMechanism {
     	Iterator it = registerValues.iterator();
     	while(it.hasNext()){
     		Date dateRrri = ((RtuRegisterReadingImpl)it.next()).getToTime();
-    		if (dateRrri.after(lastDate))
-    			lastDate = dateRrri;
+    		if (dateRrri.after(lastDate)) {
+				lastDate = dateRrri;
+			}
     	}
     	return lastDate;
 	}
@@ -768,8 +770,9 @@ public class MeterReadTransaction implements CacheMechanism {
 	 */
     protected Date getLastReading(Rtu rtu) {
         Date result = rtu.getLastReading();
-        if( result == null )
-        	result = getClearLastMonthDate(rtu);
+        if( result == null ) {
+			result = getClearLastMonthDate(rtu);
+		}
         return result;
     }
     
@@ -780,8 +783,9 @@ public class MeterReadTransaction implements CacheMechanism {
      */
     protected Date getLastLogboog(Rtu rtu) {
         Date result = rtu.getLastLogbook();
-        if( result == null ) 
-        	result = getClearLastMonthDate(rtu);
+        if( result == null ) {
+			result = getClearLastMonthDate(rtu);
+		}
         return result;
     }
     
@@ -808,10 +812,11 @@ public class MeterReadTransaction implements CacheMechanism {
     public ProtocolChannelMap getChannelMap() throws InvalidPropertyException, BusinessException {
     	if (protocolChannelMap == null){
     		String sChannelMap = getMeter().getProperties().getProperty( Constant.CHANNEL_MAP );
-    		if(sChannelMap != null)
-    			protocolChannelMap = new ProtocolChannelMap( sChannelMap );
-    		else
-    			throw new BusinessException("No channelmap configured on the meter, meter will not be handled.");
+    		if(sChannelMap != null) {
+				protocolChannelMap = new ProtocolChannelMap( sChannelMap );
+			} else {
+				throw new BusinessException("No channelmap configured on the meter, meter will not be handled.");
+			}
     	}
         return protocolChannelMap;
     }
@@ -866,22 +871,34 @@ public class MeterReadTransaction implements CacheMechanism {
         }
         
         int year = (int)ProtocolUtils.getShort(responseData,2)&0x0000FFFF;
-        if (year != 0xFFFF) gcalendarMeter.set(gcalendarMeter.YEAR,year);
+        if (year != 0xFFFF) {
+			gcalendarMeter.set(gcalendarMeter.YEAR,year);
+		}
         
         int month = (int)responseData[4]&0xFF;
-        if (month != 0xFF) gcalendarMeter.set(gcalendarMeter.MONTH,month-1);
+        if (month != 0xFF) {
+			gcalendarMeter.set(gcalendarMeter.MONTH,month-1);
+		}
         
         int date = (int)responseData[5]&0xFF;
-        if (date != 0xFF) gcalendarMeter.set(gcalendarMeter.DAY_OF_MONTH,date);
+        if (date != 0xFF) {
+			gcalendarMeter.set(gcalendarMeter.DAY_OF_MONTH,date);
+		}
         
         int hour = (int)responseData[7]&0xFF;
-        if (hour != 0xFF) gcalendarMeter.set(gcalendarMeter.HOUR_OF_DAY,hour);
+        if (hour != 0xFF) {
+			gcalendarMeter.set(gcalendarMeter.HOUR_OF_DAY,hour);
+		}
         
         int minute = (int)responseData[8]&0xFF;
-        if (minute != 0xFF) gcalendarMeter.set(gcalendarMeter.MINUTE,minute);
+        if (minute != 0xFF) {
+			gcalendarMeter.set(gcalendarMeter.MINUTE,minute);
+		}
         
         int seconds = (int)responseData[9]&0xFF;
-        if (seconds != 0xFF) gcalendarMeter.set(gcalendarMeter.SECOND,seconds);
+        if (seconds != 0xFF) {
+			gcalendarMeter.set(gcalendarMeter.SECOND,seconds);
+		}
         
         gcalendarMeter.set(gcalendarMeter.MILLISECOND,0);
         
@@ -907,11 +924,11 @@ public class MeterReadTransaction implements CacheMechanism {
 	 */
 	protected boolean rtuExists(String serial){
 		List meterList = getConcentrator().mw().getRtuFactory().findBySerialNumber(serial);
-		if(meterList.size() == 1)
+		if(meterList.size() == 1) {
 			return true;
-		else if (meterList.size() == 0)
+		} else if (meterList.size() == 0) {
 			return false;
-		else{	// should never get here, no multiple serialNumbers can be allowed
+		} else{	// should never get here, no multiple serialNumbers can be allowed
 			getLogger().severe(toDuplicateSerialsErrorMsg(serial));
 		}
 		return false;
@@ -942,9 +959,9 @@ public class MeterReadTransaction implements CacheMechanism {
             return null;
         }
         
-        if(getConcentrator().getRtuType(concentrator) != null)
-        	return createMeter(concentrator, getConcentrator().getRtuType(concentrator), serial);
-        else{
+        if(getConcentrator().getRtuType(concentrator) != null) {
+			return createMeter(concentrator, getConcentrator().getRtuType(concentrator), serial);
+		} else{
         	getLogger().severe( Constant.NO_AUTODISCOVERY ); 
         	return null;
         }
@@ -976,9 +993,9 @@ public class MeterReadTransaction implements CacheMechanism {
             return null;
         }
         
-        if(getMbusRtuType(medium) != null)
-        	return createMeter(concentrator, getMbusRtuType(medium), serial);
-        else{
+        if(getMbusRtuType(medium) != null) {
+			return createMeter(concentrator, getMbusRtuType(medium), serial);
+		} else{
         	getLogger().severe( Constant.NO_AUTODISCOVERY ); 
         	return null;
         }
@@ -995,10 +1012,12 @@ public class MeterReadTransaction implements CacheMechanism {
 				type = lut.getValue(medium);
 				if((type != null) && !type.equalsIgnoreCase("")){
 					RtuType rtuType = getConcentrator().mw().getRtuTypeFactory().find(type);
-		            if (rtuType == null)
-		          	   throw new IOException("Iskra Mx37x, There is no prototype defined for the MBus medium with code '" + type + "'");
-		             if (rtuType.getPrototypeRtu() == null)
-		          	   throw new IOException("Iskra Mx37x, rtutype '" + type + "' has no prototype rtu");
+		            if (rtuType == null) {
+						throw new IOException("Iskra Mx37x, There is no prototype defined for the MBus medium with code '" + type + "'");
+					}
+		             if (rtuType.getPrototypeRtu() == null) {
+						throw new IOException("Iskra Mx37x, rtutype '" + type + "' has no prototype rtu");
+					}
 		             return rtuType;
 				} else {
 					throw new IOException("No RtuType defined in lookuptable '" + lookup + "' for the value '" + medium + "'");
@@ -1108,8 +1127,9 @@ public class MeterReadTransaction implements CacheMechanism {
 	 * @param msg
 	 */
 	private void testLogging(String msg){
-		if(getConcentrator().getTESTLOGGING() >= 1)
+		if(getConcentrator().getTESTLOGGING() >= 1) {
 			getLogger().log(Level.INFO, msg);
+		}
 	}
 	
 	/**
@@ -1154,8 +1174,9 @@ public class MeterReadTransaction implements CacheMechanism {
     protected void sendMeterMessages(Rtu eRtu, Rtu mbusRtu, XmlHandler dataHandler) throws BusinessException, SQLException, NumberFormatException, IOException {
     
         /* short circuit */
-        if( ! communicationProfile.getSendRtuMessage() )
-            return;
+        if( ! communicationProfile.getSendRtuMessage() ) {
+			return;
+		}
         
         Iterator mi = null;
         String showSerial = null;
@@ -1171,10 +1192,11 @@ public class MeterReadTransaction implements CacheMechanism {
         
         String serial = eRtu.getSerialNumber();     
         
-        if (mi.hasNext())
-        	getLogger().log(Level.INFO, "Handling MESSAGES from meter with serialnumber " + showSerial);
-        else
-        	return;
+        if (mi.hasNext()) {
+			getLogger().log(Level.INFO, "Handling MESSAGES from meter with serialnumber " + showSerial);
+		} else {
+			return;
+		}
         
         while (mi.hasNext()) {
             
@@ -1202,10 +1224,11 @@ public class MeterReadTransaction implements CacheMechanism {
                     List rl = new ArrayList( );
                     Iterator i = null;
                     
-                    if (mbusRtu != null)
-                    	i = mbusRtu.getRtuType().getRtuRegisterSpecs().iterator();
-                    else
-                    	i = eRtu.getRtuType().getRtuRegisterSpecs().iterator();
+                    if (mbusRtu != null) {
+						i = mbusRtu.getRtuType().getRtuRegisterSpecs().iterator();
+					} else {
+						i = eRtu.getRtuType().getRtuRegisterSpecs().iterator();
+					}
                     
                     while (i.hasNext()) {
                         
@@ -1217,10 +1240,9 @@ public class MeterReadTransaction implements CacheMechanism {
                         		rl.add(oc.toString());
                         	}
                         			
-                        	else if(checkOtherObisCodes(oc))
-                        		rl.add( new String(oc.getC()+"."+oc.getD()+"."+oc.getE()) );
-                        	
-                        	else if(checkFirmwareObisCodes(oc)){
+                        	else if(checkOtherObisCodes(oc)) {
+								rl.add( new String(oc.getC()+"."+oc.getD()+"."+oc.getE()) );
+							} else if(checkFirmwareObisCodes(oc)){
                         		String fwv = getFirmwareVersions(serial, oc);
                         		Date meterTime = getTime();
                         		Date d = new Date(System.currentTimeMillis());
@@ -1237,16 +1259,18 @@ public class MeterReadTransaction implements CacheMechanism {
                         		Date meterTime = getTime();
                         		Date d = new Date(System.currentTimeMillis());
                         		dataHandler.getMeterReadingData().add(new RegisterValue(oc, null, null, null, meterTime, d, 0, calendarName));
-                        	}
-                        	else
-                        		getLogger().log(Level.INFO, "Register with obisCode " + oc.toString() + " is not supported.");
+                        	} else {
+								getLogger().log(Level.INFO, "Register with obisCode " + oc.toString() + " is not supported.");
+							}
                      
 	                        dataHandler.checkOnDemands(true);
 	                        dataHandler.setProfileDuration(-1);
                         }
                         
                     }
-                    if (DEBUG) System.out.println(rl);
+                    if (DEBUG) {
+						System.out.println(rl);
+					}
                     String registers [];
                     String r = null;
                     if(rl.size() > 0){
@@ -1255,10 +1279,11 @@ public class MeterReadTransaction implements CacheMechanism {
                     	getConcentrator().importData(r, dataHandler);
                     }
                     
-                    if (mbusRtu != null)
-                    	handleRegisters(dataHandler, mbusRtu);
-                    else
-                    	handleRegisters(dataHandler, eRtu);
+                    if (mbusRtu != null) {
+						handleRegisters(dataHandler, mbusRtu);
+					} else {
+						handleRegisters(dataHandler, eRtu);
+					}
                     dataHandler.checkOnDemands(false);
                     
                     msg.confirm();
@@ -1303,8 +1328,9 @@ public class MeterReadTransaction implements CacheMechanism {
 
                 	try{
                 		uiGrId.setValue((long)Integer.parseInt(groupID));
-                		if (!thresholdPL.equalsIgnoreCase(""))
-                			crPl.setValue((long)Integer.parseInt(thresholdPL));
+                		if (!thresholdPL.equalsIgnoreCase("")) {
+							crPl.setValue((long)Integer.parseInt(thresholdPL));
+						}
                 		if (!contractPL.equalsIgnoreCase("")){
                     		contractPowerLimit[1] = (byte)((long)Integer.parseInt(contractPL) >> 24);
                     		contractPowerLimit[2] = (byte)((long)Integer.parseInt(contractPL) >> 16);
@@ -1328,8 +1354,9 @@ public class MeterReadTransaction implements CacheMechanism {
                 	}
                 	
                 	getConnection().setMeterCodeRedGroupId(serial, uiGrId);
-                	if (!thresholdPL.equalsIgnoreCase(""))
-                		getConnection().setMeterCodeRedPowerLimit(serial, crPl);
+                	if (!thresholdPL.equalsIgnoreCase("")) {
+						getConnection().setMeterCodeRedPowerLimit(serial, crPl);
+					}
                 	
                     msg.confirm();
                     getLogger().log(Level.INFO, "Current message " + contents + " has finished.");
@@ -1400,37 +1427,49 @@ public class MeterReadTransaction implements CacheMechanism {
 		if(oc.getC() == 128){
 			if((oc.getA()==0)&&((oc.getB()==0)||(oc.getB()==1))){
 				if(oc.getD() == 7){			// dips and swells
-					if((oc.getE()>=11)&&(oc.getE()<=17))
+					if((oc.getE()>=11)&&(oc.getE()<=17)) {
 						return true;
-					if((oc.getE()>=21)&&(oc.getE()<=27))
+					}
+					if((oc.getE()>=21)&&(oc.getE()<=27)) {
 						return true;
-					if((oc.getE()>=31)&&(oc.getE()<=37))
+					}
+					if((oc.getE()>=31)&&(oc.getE()<=37)) {
 						return true;
-					if((oc.getE()>=41)&&(oc.getE()<=47))
+					}
+					if((oc.getE()>=41)&&(oc.getE()<=47)) {
 						return true;
-					if((oc.getE()>=50)&&(oc.getE()<=51))	// voltage asymmetry
+					}
+					if((oc.getE()>=50)&&(oc.getE()<=51)) {
 						return true;
+					}
 				}
 				else if(oc.getD() == 8){	// daily peak and minimum
-					if((oc.getE()>=0)&&(oc.getE()<=3))
+					if((oc.getE()>=0)&&(oc.getE()<=3)) {
 						return true;
-					if((oc.getE()>=10)&&(oc.getE()<=13))
+					}
+					if((oc.getE()>=10)&&(oc.getE()<=13)) {
 						return true;
-					if((oc.getE()>=20)&&(oc.getE()<=23))
+					}
+					if((oc.getE()>=20)&&(oc.getE()<=23)) {
 						return true;
-					if((oc.getE()>=30)&&(oc.getE()<=33))
+					}
+					if((oc.getE()>=30)&&(oc.getE()<=33)) {
 						return true;
-					if(oc.getE()==50)
+					}
+					if(oc.getE()==50) {
 						return true;
+					}
 				}
 				else if(oc.getD() == 6){		// reclosing counter
-					if(oc.getE()==1)
+					if(oc.getE()==1) {
 						return true;
+					}
 				}
-				else if((oc.getD() == 50)&&(oc.getE() == 0)) // ondemand gas
+				else if((oc.getD() == 50)&&(oc.getE() == 0)) {
 					return true;
 //				else if((oc.getD() == 0)&&(oc.getE() == 2))	// DLC frequency pair
 //					return true;
+				}
 			}
 		}
     	return false;
@@ -1443,8 +1482,9 @@ public class MeterReadTransaction implements CacheMechanism {
 	 */
 	private boolean checkFirmwareObisCodes(ObisCode oc){
 		if(oc.getD() == 101){
-			if(oc.getE() == 18 || oc.getE() == 28 || oc.getE() == 26)	// firmware versions
-			return true;
+			if(oc.getE() == 18 || oc.getE() == 28 || oc.getE() == 26) {
+				return true;
+			}
 		}
 		return false;
 	}
@@ -1457,14 +1497,18 @@ public class MeterReadTransaction implements CacheMechanism {
     private boolean checkOtherObisCodes(ObisCode oc) {
     	if((oc.getA()==1)&&((oc.getB()==0)||(oc.getB()==1))){
     		if((oc.getC()==1)||(oc.getC()==2)){
-    			if((oc.getD()==4)&&(oc.getE()==0))
-    				return true;		// Current average demand
-    			if((oc.getD()==5)&&(oc.getE()==0))
-    				return true;		// Last average demand
-    			if((oc.getD()==6)&&((oc.getE()>=0)&&(oc.getE()<=4)))
-    				return true;		// Max. demand rate E
-    			if((oc.getD()==8)&&((oc.getE()>=0)&&(oc.getE()<=4)))
-    				return true;		// Active energy
+    			if((oc.getD()==4)&&(oc.getE()==0)) {
+					return true;		// Current average demand
+				}
+    			if((oc.getD()==5)&&(oc.getE()==0)) {
+					return true;		// Last average demand
+				}
+    			if((oc.getD()==6)&&((oc.getE()>=0)&&(oc.getE()<=4))) {
+					return true;		// Max. demand rate E
+				}
+    			if((oc.getD()==8)&&((oc.getE()>=0)&&(oc.getE()<=4))) {
+					return true;		// Active energy
+				}
     		}
     	}
 		return false;
@@ -1584,17 +1628,21 @@ public class MeterReadTransaction implements CacheMechanism {
     			&&!getConcentrator().getLpElectricity().equalsIgnoreCase("")
     			&&!getConcentrator().getLpMbus().equalsIgnoreCase("")
     			&&!getConcentrator().getLpMonthly().equalsIgnoreCase("")){
-    		if(ParseUtils.countEqualSignsInString(getConcentrator().getLpDaily(), ".") != 2)
-    			throw new IOException("Property DailyLoadProfile is not valid.");
+    		if(ParseUtils.countEqualSignsInString(getConcentrator().getLpDaily(), ".") != 2) {
+				throw new IOException("Property DailyLoadProfile is not valid.");
+			}
     		
-    		if(ParseUtils.countEqualSignsInString(getConcentrator().getLpMonthly(), ".") != 2)
-    			throw new IOException("Property MonthlyLoadProfile is not valid.");
+    		if(ParseUtils.countEqualSignsInString(getConcentrator().getLpMonthly(), ".") != 2) {
+				throw new IOException("Property MonthlyLoadProfile is not valid.");
+			}
     		
-    		if(ParseUtils.countEqualSignsInString(getConcentrator().getLpElectricity(), ".") != 2)
-    			throw new IOException("Property ElectricityLoadProfile is not valid.");
+    		if(ParseUtils.countEqualSignsInString(getConcentrator().getLpElectricity(), ".") != 2) {
+				throw new IOException("Property ElectricityLoadProfile is not valid.");
+			}
     		
-    		if(ParseUtils.countEqualSignsInString(getConcentrator().getLpMbus(), ".") != 2)
-    			throw new IOException("Property MBusLoadProfile is not valid.");
+    		if(ParseUtils.countEqualSignsInString(getConcentrator().getLpMbus(), ".") != 2) {
+				throw new IOException("Property MBusLoadProfile is not valid.");
+			}
     		
     		return true;
     		
@@ -1785,10 +1833,11 @@ public class MeterReadTransaction implements CacheMechanism {
 		byte[] parseStr = new byte[bStr.length-2];
 		System.arraycopy(bStr, 2, parseStr, 0, bStr.length-2);
 		String str;
-		if(ParseUtils.checkIfAllAreChars(parseStr))
+		if(ParseUtils.checkIfAllAreChars(parseStr)) {
 			str = new String(parseStr);
-		else
+		} else {
 			str = ParseUtils.decimalByteToString(parseStr);
+		}
 		return str;
 	}
 	
