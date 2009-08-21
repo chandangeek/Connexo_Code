@@ -30,8 +30,8 @@ import com.energyict.protocol.messaging.MessageValue;
  */
 public class A1440Messages implements MessageProtocol {
 
-	private static final A1440MessageType SPC_MESSAGE = new A1440MessageType("SPC_DATA", 4, 285 * 2, "Upload 'Switch Point Clock' settings (Class 4)");
-	private static final A1440MessageType SPCU_MESSAGE = new A1440MessageType("SPCU_DATA", 34, 285 * 2, "Upload 'Switch Point Clock Update' settings (Class 32)");
+	//	private static final A1440MessageType SPC_MESSAGE = new A1440MessageType("SPC_DATA", 4, 285 * 2, "Upload 'Switch Point Clock' settings (Class 4)");
+	//	private static final A1440MessageType SPCU_MESSAGE = new A1440MessageType("SPCU_DATA", 34, 285 * 2, "Upload 'Switch Point Clock Update' settings (Class 32)");
 
 	private static final A1440MessageType CONTACTOR_CLOSE = new A1440MessageType("CONTACTOR_CLOSE", 411, 0, "Contactor close");
 	private static final A1440MessageType CONTACTOR_ARM = 	new A1440MessageType("CONTACTOR_ARM", 411, 0, "Contactor arm");
@@ -50,9 +50,9 @@ public class A1440Messages implements MessageProtocol {
 
 	public List getMessageCategories() {
 		List theCategories = new ArrayList();
-		MessageCategorySpec catTimeTable = new MessageCategorySpec("'Switch Point Clock' Messages");
-		catTimeTable.addMessageSpec(addBasicMsg(SPC_MESSAGE, false));
-		catTimeTable.addMessageSpec(addBasicMsg(SPCU_MESSAGE, false));
+		//MessageCategorySpec catTimeTable = new MessageCategorySpec("'Switch Point Clock' Messages");
+		//catTimeTable.addMessageSpec(addBasicMsg(SPC_MESSAGE, false));
+		//catTimeTable.addMessageSpec(addBasicMsg(SPCU_MESSAGE, false));
 
 		MessageCategorySpec catContactor = new MessageCategorySpec("'Contacor' Messages");
 		catContactor.addMessageSpec(addBasicMsg(CONTACTOR_CLOSE, false));
@@ -65,7 +65,7 @@ public class A1440Messages implements MessageProtocol {
 		catResetMessages.addMessageSpec(addBasicMsg(POWER_QUALITY_RESET, false));
 		catResetMessages.addMessageSpec(addBasicMsg(ERROR_STATUS_RESET, false));
 
-		theCategories.add(catTimeTable);
+		//theCategories.add(catTimeTable);
 		theCategories.add(catContactor);
 		theCategories.add(catResetMessages);
 		return theCategories;
@@ -73,19 +73,19 @@ public class A1440Messages implements MessageProtocol {
 
 	public MessageResult queryMessage(MessageEntry messageEntry) {
 		try {
-			if (isThisMessage(messageEntry, SPC_MESSAGE)) {
-				getLogger().fine("************************* " + SPC_MESSAGE.getDisplayName() + " *************************");
-				A1440MeterclassWriter classWriter = new A1440MeterclassWriter(getA1440());
-				classWriter.writeClassSettings(messageEntry, SPC_MESSAGE);
-				return MessageResult.createSuccess(messageEntry);
-			}
-
-			if (isThisMessage(messageEntry, SPCU_MESSAGE)) {
-				getLogger().fine("************************* " + SPCU_MESSAGE + " *************************");
-				A1440MeterclassWriter classWriter = new A1440MeterclassWriter(getA1440());
-				classWriter.writeClassSettings(messageEntry, SPCU_MESSAGE);
-				return MessageResult.createSuccess(messageEntry);
-			}
+			//			if (isThisMessage(messageEntry, SPC_MESSAGE)) {
+			//				getLogger().fine("************************* " + SPC_MESSAGE.getDisplayName() + " *************************");
+			//				A1440MeterclassWriter classWriter = new A1440MeterclassWriter(getA1440());
+			//				classWriter.writeClassSettings(messageEntry, SPC_MESSAGE);
+			//				return MessageResult.createSuccess(messageEntry);
+			//			}
+			//
+			//			if (isThisMessage(messageEntry, SPCU_MESSAGE)) {
+			//				getLogger().fine("************************* " + SPCU_MESSAGE + " *************************");
+			//				A1440MeterclassWriter classWriter = new A1440MeterclassWriter(getA1440());
+			//				classWriter.writeClassSettings(messageEntry, SPCU_MESSAGE);
+			//				return MessageResult.createSuccess(messageEntry);
+			//			}
 
 			if (isThisMessage(messageEntry, CONTACTOR_ARM)) {
 				doArmContactor();
