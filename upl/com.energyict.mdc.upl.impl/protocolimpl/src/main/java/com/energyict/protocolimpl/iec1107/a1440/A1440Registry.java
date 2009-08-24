@@ -46,7 +46,11 @@ public class A1440Registry extends AbstractVDEWRegistry {
 	public static final String ERROR_STATUS_REGISTER = "ErrorStatusResetRegister";
 	public static final String PERSONALITY_REGISTER = "PersonalityRegister";
 
-	/** Creates a new instance of KamstrupRegister */
+	/**
+	 * Creates a new instance of KamstrupRegister
+	 * @param meterExceptionInfo
+	 * @param protocolLink
+	 */
 	public A1440Registry(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink) {
 		// Use ChannelMap to dcetermine which VHI tu access... First entry in the ChannelMap is the OBIS B value.
 		super(meterExceptionInfo,protocolLink,Integer.parseInt(protocolLink.getChannelMap().getChannel(0).getRegister()));

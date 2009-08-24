@@ -9,59 +9,72 @@ public class A1440ContactorController {
 	private static final String CONTACTOR_ARMED 	= "1";
 	private static final String CONTACTOR_CLOSED 	= "2";
 
-	private A1440Registry a1440Registry = null;
-	private Logger logger = null;
+	private A1440 a1440 = null;
 
-	/*
-	 * Constructors
+	/**
+	 * Constructor for the A1440ContactorController
+	 * @param a1440 The A1440 protocol, used to get the A1440Registry and the logger
 	 */
-
 	public A1440ContactorController(A1440 a1440) {
 		if ((a1440 == null) || (a1440.getA1440Registry() == null)) {
 			throw new IllegalArgumentException("Argument a1440 or a1440.getA1440Registry() cannot be null!");
 		}
-		this.a1440Registry = a1440.getA1440Registry();
-		this.logger = a1440.getLogger();
 	}
 
 	/*
 	 * Private getters, setters and methods
 	 */
 
-	private int readContactorState() {
-		return 0;
+	private A1440 getA1440() {
+		return this.a1440;
 	}
 
+	/**
+	 * Get the logger used in the A1440 protocol
+	 * @return The A1440 logger
+	 */
 	private Logger getLogger() {
-		if (this.logger == null) {
-			this.logger = Logger.global;
-		}
-		return this.logger;
+		return getA1440().getLogger();
 	}
 
+	/**
+	 * Get the A1440Registry used in the A1440 protocol
+	 * @return The A1440Registry
+	 */
 	private A1440Registry getA1440Registry() {
-		return this.a1440Registry;
+		return getA1440().getA1440Registry();
 	}
 
 	/*
 	 * Public methods
 	 */
 
+	/**
+	 * This command tries to switch off (disconnect) the contactor in the A1440 device.
+	 * @throws IOException
+	 */
 	public void doDisconnect() throws IOException {
 		getLogger().info("************************* DISCONNECT CONTACTOR *************************");
-		readContactorState();
 		getA1440Registry().setRegister(A1440Registry.CONTACTOR_REGISTER, CONTACTOR_OPEN);
 	}
 
+	/**
+	 * This command tries to switch the contactor to ARMED mode for the A1440 device.
+	 * The armed-status allows the customer to switch the relay back on by pressing
+	 * the meter button for at least 4 seconds.
+	 * @throws IOException
+	 */
 	public void doArm() throws IOException {
 		getLogger().info("***************************** ARM CONTACTOR ****************************");
-		readContactorState();
 		getA1440Registry().setRegister(A1440Registry.CONTACTOR_REGISTER, CONTACTOR_ARMED);
 	}
 
+	/**
+	 * This command tries to switch on (connect) the contactor in the A1440 device.
+	 * @throws IOException
+	 */
 	public void doConnect() throws IOException {
 		getLogger().info("*************************** CONNECT CONTACTOR **************************");
-		readContactorState();
 		getA1440Registry().setRegister(A1440Registry.CONTACTOR_REGISTER, CONTACTOR_CLOSED);
 	}
 

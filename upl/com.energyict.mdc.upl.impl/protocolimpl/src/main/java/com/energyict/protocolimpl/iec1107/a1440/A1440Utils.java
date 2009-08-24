@@ -81,6 +81,17 @@ public final class A1440Utils {
 		return true;
 	}
 
+	/**
+	 * Removes the following characters from a given string:
+	 * <lu>
+	 * <li>TAB</li>
+	 * <li>LINE FEED</li>
+	 * <li>CARIAGE RETURN</li>
+	 * <li>SPACE</li>
+	 * </lu>
+	 * @param attributeValue
+	 * @return The cleaned string
+	 */
 	public static String cleanAttributeValue(String attributeValue) {
 		String returnValue = "";
 		for (int i = 0; i < attributeValue.length(); i ++) {
@@ -91,6 +102,17 @@ public final class A1440Utils {
 		return returnValue;
 	}
 
+	/**
+	 * Check is a given character is valid or not. This is a list of invalid characters:
+	 * <lu>
+	 * <li>TAB</li>
+	 * <li>LINE FEED</li>
+	 * <li>CARIAGE RETURN</li>
+	 * <li>SPACE</li>
+	 * </lu>
+	 * @param character
+	 * @return
+	 */
 	private static boolean isValidChar(char character) {
 		switch (character) {
 		case TB: return false;

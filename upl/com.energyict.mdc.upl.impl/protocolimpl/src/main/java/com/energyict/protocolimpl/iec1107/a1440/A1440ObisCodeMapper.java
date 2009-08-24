@@ -40,7 +40,10 @@ public class A1440ObisCodeMapper {
 		initObisUnconnected();
 	}
 
-	void initObisUnconnected() {
+	/**
+	 * Initialize the map of obiscodes without reading the billing counter
+	 */
+	private void initObisUnconnected() {
 
 		this.obisMap.put("1.1.0.1.0.255", BILLINGCOUNTER);
 		this.obisMap.put( "1.1.0.1.2.255", DATETIME );
@@ -81,7 +84,12 @@ public class A1440ObisCodeMapper {
 
 	}
 
-	void initObis() throws IOException {
+	/**
+	 * Initialize the map of obiscodes, and try to read the billing counter to
+	 * add only the used historical registers to te obismap
+	 * @throws IOException when somthing goes wrong while reading the billing counter
+	 */
+	public void initObis() throws IOException {
 		{
 
 			String obis;
@@ -215,6 +223,10 @@ public class A1440ObisCodeMapper {
 		}
 	};
 
+	/**
+	 * Get the map with obiscodes, supported by the protocol and the device.
+	 * @return the map with obiscodes
+	 */
 	public LinkedHashMap getObisMap() {
 		return this.obisMap;
 	}

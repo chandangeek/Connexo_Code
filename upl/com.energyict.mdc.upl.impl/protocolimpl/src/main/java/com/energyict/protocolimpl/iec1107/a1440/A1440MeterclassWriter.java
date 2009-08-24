@@ -14,10 +14,18 @@ public class A1440MeterclassWriter {
 
 	private A1440 a1440;
 
+	/**
+	 * @param a1440
+	 */
 	public A1440MeterclassWriter(A1440 a1440) {
 		this.a1440 = a1440;
 	}
 
+	/**
+	 * @param messageEntry
+	 * @param messageType
+	 * @throws IOException
+	 */
 	public void writeClassSettings(MessageEntry messageEntry, A1440MessageType messageType) throws IOException {
 		final byte[] WRITE1 = FlagIEC1107Connection.WRITE1;
 		final int MAX_PACKETSIZE = 48;
@@ -76,7 +84,7 @@ public class A1440MeterclassWriter {
 
 	}
 
-	public A1440 getA1440() {
+	private A1440 getA1440() {
 		return this.a1440;
 	}
 

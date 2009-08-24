@@ -30,9 +30,6 @@ import com.energyict.protocol.messaging.MessageValue;
  */
 public class A1440Messages implements MessageProtocol {
 
-	//	private static final A1440MessageType SPC_MESSAGE = new A1440MessageType("SPC_DATA", 4, 285 * 2, "Upload 'Switch Point Clock' settings (Class 4)");
-	//	private static final A1440MessageType SPCU_MESSAGE = new A1440MessageType("SPCU_DATA", 34, 285 * 2, "Upload 'Switch Point Clock Update' settings (Class 32)");
-
 	private static final A1440MessageType CONTACTOR_CLOSE = new A1440MessageType("CONTACTOR_CLOSE", 411, 0, "Contactor close");
 	private static final A1440MessageType CONTACTOR_ARM = 	new A1440MessageType("CONTACTOR_ARM", 411, 0, "Contactor arm");
 	private static final A1440MessageType CONTACTOR_OPEN = 	new A1440MessageType("CONTACTOR_OPEN", 411, 0, "Contactor open");
@@ -50,9 +47,6 @@ public class A1440Messages implements MessageProtocol {
 
 	public List getMessageCategories() {
 		List theCategories = new ArrayList();
-		//MessageCategorySpec catTimeTable = new MessageCategorySpec("'Switch Point Clock' Messages");
-		//catTimeTable.addMessageSpec(addBasicMsg(SPC_MESSAGE, false));
-		//catTimeTable.addMessageSpec(addBasicMsg(SPCU_MESSAGE, false));
 
 		MessageCategorySpec catContactor = new MessageCategorySpec("'Contacor' Messages");
 		catContactor.addMessageSpec(addBasicMsg(CONTACTOR_CLOSE, false));
@@ -65,7 +59,6 @@ public class A1440Messages implements MessageProtocol {
 		catResetMessages.addMessageSpec(addBasicMsg(POWER_QUALITY_RESET, false));
 		catResetMessages.addMessageSpec(addBasicMsg(ERROR_STATUS_RESET, false));
 
-		//theCategories.add(catTimeTable);
 		theCategories.add(catContactor);
 		theCategories.add(catResetMessages);
 		return theCategories;
@@ -73,19 +66,8 @@ public class A1440Messages implements MessageProtocol {
 
 	public MessageResult queryMessage(MessageEntry messageEntry) {
 		try {
-			//			if (isThisMessage(messageEntry, SPC_MESSAGE)) {
-			//				getLogger().fine("************************* " + SPC_MESSAGE.getDisplayName() + " *************************");
-			//				A1440MeterclassWriter classWriter = new A1440MeterclassWriter(getA1440());
-			//				classWriter.writeClassSettings(messageEntry, SPC_MESSAGE);
-			//				return MessageResult.createSuccess(messageEntry);
-			//			}
-			//
-			//			if (isThisMessage(messageEntry, SPCU_MESSAGE)) {
-			//				getLogger().fine("************************* " + SPCU_MESSAGE + " *************************");
-			//				A1440MeterclassWriter classWriter = new A1440MeterclassWriter(getA1440());
-			//				classWriter.writeClassSettings(messageEntry, SPCU_MESSAGE);
-			//				return MessageResult.createSuccess(messageEntry);
-			//			}
+
+			getLogger().fine("Received message with tracking ID " + messageEntry.getTrackingId());
 
 			if (isThisMessage(messageEntry, CONTACTOR_ARM)) {
 				doArmContactor();
@@ -200,41 +182,78 @@ public class A1440Messages implements MessageProtocol {
 		return this.a1440;
 	}
 
+	/**
+	 * This command tries to switch off (disconnect) the contactor in the A1440 device.
+	 * @throws IOException
+	 */
 	public void doOpenContactor() throws IOException {
-		System.out.println("Received contactor ARM message");
+		System.out.println("Received contactor ARM");
 		A1440ContactorController cc = new A1440ContactorController(this.a1440);
 		cc.doDisconnect();
 	}
 
+	/**
+	 * This command tries to switch on (connect) the contactor in the A1440 device.
+	 * @throws IOException
+	 */
 	public void doCloseContactor() throws IOException {
 		System.out.println("Received contactor CONTACTOR_CLOSE");
 		A1440ContactorController cc = new A1440ContactorController(this.a1440);
 		cc.doConnect();
 	}
 
+	/**
+	 * This command tries to switch the contactor to ARMED mode for the A1440 device.
+	 * The armed-status allows the customer to switch the relay back on by pressing
+	 * the meter button for at least 4 seconds.
+	 * @throws IOException
+	 */
 	public void doArmContactor() throws IOException {
 		System.out.println("Received contactor CONTACTOR_ARM");
 		A1440ContactorController cc = new A1440ContactorController(this.a1440);
 		cc.doArm();
 	}
 
+	/**
+	 * After receiving the “Demand Reset” command the meter executes a demand
+	 * reset by doing a snap shot of all energy and demand registers.
+	 * @throws IOException
+	 */
 	public void doDemandReset() throws IOException {
 		System.out.println("Received DEMAND_RESET");
 		getA1440().getA1440Registry().setRegister(A1440Registry.DEMAND_RESET_REGISTER , "");
 	}
 
+	/**
+	 * With that command the error status of the meter can be reset.
+	 * @throws IOException
+	 */
 	public void doErrorStatusReset() throws IOException {
 		System.out.println("Received ERROR_STATUS_RESET");
 		getA1440().getA1440Registry().setRegister(A1440Registry.ERROR_STATUS_REGISTER , "");
 	}
 
+	/**
+	 * With that command the power quality counters (in class 26) can be set to zero
+	 * @throws IOException
+	 */
 	public void doPowerQualityReset() throws IOException {
 		System.out.println("Received POWER_QUALITY_RESET");
 		getA1440().getA1440Registry().setRegister(A1440Registry.POWER_QUALITY_RESET_REGISTER , "");
 	}
 
+	/**
+	 * With that command the following registers can be set to zero:
+	 * <ul>
+	 * <li>Counter for power outages </li>
+	 * <li>Event registers (class 25)</li>
+	 * <li>Power Fail, Reverse Power</li>
+	 * <ul>
+	 * @throws IOException
+	 */
 	public void doPowerOutageReset() throws IOException {
 		System.out.println("Received POWER_OUTAGE_RESET");
 		getA1440().getA1440Registry().setRegister(A1440Registry.POWER_OUTAGE_RESET_REGISTER , "");
 	}
+
 }

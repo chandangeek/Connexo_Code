@@ -101,7 +101,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	private A1440ObisCodeMapper a1440ObisCodeMapper = new A1440ObisCodeMapper(this);
 
 	private byte[] dataReadout = null;
-	private int [] billingCount;
+	private int[] billingCount;
 	private String firmwareVersion = null;
 	private Date meterDate = null;
 	private String meterSerial = null;
@@ -109,7 +109,8 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	private boolean software7E1;
 
 	/** Creates a new instance of A1440, empty constructor */
-	public A1440() {}
+	public A1440() {
+	}
 
 	public ProfileData getProfileData(boolean includeEvents) throws IOException {
 		Calendar calendar = ProtocolUtils.getCalendar(this.timeZone);
@@ -158,12 +159,9 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	}
 
 	public Date getTime() throws IOException {
-		return new Date();
-		//		this.meterDate = (Date) getA1440Registry().getRegister("TimeDate");
-		//		return new Date(this.meterDate.getTime() - this.iRoundtripCorrection);
+		this.meterDate = (Date) getA1440Registry().getRegister("TimeDate");
+		return new Date(this.meterDate.getTime() - this.iRoundtripCorrection);
 	}
-
-	/** ************************************ MeterProtocol implementation ************************************** */
 
 	/**
 	 * This implementation calls <code> validateProperties </code> and assigns
@@ -174,11 +172,10 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	}
 
 	/**
-	 * Validates the properties.  The default implementation checks that all
+	 * Validates the properties. The default implementation checks that all
 	 * required parameters are present.
 	 */
-	private void validateProperties(Properties properties)
-	throws MissingPropertyException, InvalidPropertyException {
+	private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 
 		try {
 			Iterator iterator = getRequiredKeys().iterator();
@@ -190,7 +187,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			}
 			this.strID = properties.getProperty(MeterProtocol.ADDRESS, "");
 			this.strPassword = properties.getProperty(MeterProtocol.PASSWORD);
-			this.serialNumber=properties.getProperty(MeterProtocol.SERIALNUMBER);
+			this.serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
 			this.iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
 			this.iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
 			this.iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
@@ -210,11 +207,12 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
 			this.failOnUnitMismatch = Integer.parseInt(properties.getProperty("FailOnUnitMismatch", "0"));
 		} catch (NumberFormatException e) {
-			throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "	+ e.getMessage());
+			throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
 		}
 
 		if ((this.loadProfileNumber < MIN_LOADPROFILE) || (this.loadProfileNumber > MAX_LOADPROFILE)) {
-			throw new InvalidPropertyException("Invalid loadProfileNumber (" + this.loadProfileNumber + "). Minimum value: " + MIN_LOADPROFILE + " Maximum value: " + MAX_LOADPROFILE);
+			throw new InvalidPropertyException("Invalid loadProfileNumber (" + this.loadProfileNumber + "). Minimum value: " + MIN_LOADPROFILE
+					+ " Maximum value: " + MAX_LOADPROFILE);
 		}
 
 	}
@@ -231,7 +229,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		return new String(data);
 	}
 
-	public void setRegister(String name, String value) throws IOException, NoSuchRegisterException,	UnsupportedException {
+	public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
 
 		if (name.equals("CONNECT")) {
 			System.out.println("Received CONNECT message: " + value);
@@ -300,7 +298,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
 		if (this.firmwareVersion == null) {
-			this.firmwareVersion = (String)getA1440Registry().getRegister(this.a1440Registry.FIRMWAREID);
+			this.firmwareVersion = (String) getA1440Registry().getRegister(this.a1440Registry.FIRMWAREID);
 		}
 		return this.firmwareVersion;
 	}
@@ -314,8 +312,8 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		this.logger = logger;
 
 		try {
-			this.flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, this.iIEC1107TimeoutProperty,
-					this.iProtocolRetriesProperty, this.iForceDelay, this.iEchoCancelling, 1, this.software7E1);
+			this.flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, this.iIEC1107TimeoutProperty, this.iProtocolRetriesProperty,
+					this.iForceDelay, this.iEchoCancelling, 1, this.software7E1);
 			this.a1440Registry = new A1440Registry(this, this);
 			this.a1440Profile = new A1440Profile(this, this, this.a1440Registry);
 
@@ -348,7 +346,6 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			throw new IOException(e.getMessage());
 		}
 
-
 		validateSerialNumber();
 		this.a1440ObisCodeMapper.initObis();
 
@@ -361,13 +358,13 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 	}
 
-	private byte[] cleanDataReadout(byte[] dro) {
-		for (int i = 0; i < dro.length; i++) {
-			if (((i+3) < dro.length) && (dro[i] == '&')) {
-				if (dro[i+3] == '(') {dro[i] = '*';}
+	private byte[] cleanDataReadout(byte[] dataReadOur) {
+		for (int i = 0; i < dataReadOur.length; i++) {
+			if (((i + 3) < dataReadOur.length) && (dataReadOur[i] == '&')) {
+				if (dataReadOur[i + 3] == '(') { dataReadOur[i] = '*'; }
 			}
 		}
-		return dro;
+		return dataReadOur;
 	}
 
 	public void disconnect() throws IOException {
@@ -398,7 +395,6 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		}
 	}
 
-	// Implementation of interface ProtocolLink
 	public FlagIEC1107Connection getFlagIEC1107Connection() {
 		return this.flagIEC1107Connection;
 	}
@@ -430,8 +426,8 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	public void setCache(Object cacheObject) {
 	}
 
-	public void updateCache(int rtuid, Object cacheObject)
-	throws SQLException, BusinessException { }
+	public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
+	}
 
 	public ChannelMap getChannelMap() {
 		return this.channelMap;
@@ -491,7 +487,6 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		return this.protocolChannelMap;
 	}
 
-
 	/* Translate the obis codes to edis codes, and read */
 	public RegisterValue readRegister(ObisCode obis) throws IOException {
 		DataParser dp = new DataParser(getTimeZone());
@@ -505,51 +500,53 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		try {
 
 			// it is not possible to translate the following edis code in this way
-			if( "1.1.0.1.2.255".equals(obis.toString())) {
+			if ("1.1.0.1.2.255".equals(obis.toString())) {
 				return new RegisterValue(obis, readTime());
 			}
 
-			if( "1.1.0.0.0.255".equals(obis.toString())) {
+			if ("1.1.0.0.0.255".equals(obis.toString())) {
 				return new RegisterValue(obis, getMeterSerial());
 			}
-			if( "1.1.0.2.0.255".equals(obis.toString())) {
+			if ("1.1.0.2.0.255".equals(obis.toString())) {
 				return new RegisterValue(obis, getFirmwareVersion());
 			}
 
-			if( "1.1.0.0.1.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.1.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
-			if( "1.1.0.0.2.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.2.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
-			if( "1.1.0.0.3.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.3.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
-			if( "1.1.0.0.4.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.4.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
-			if( "1.1.0.0.5.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.5.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
-			if( "1.1.0.0.6.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.6.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
-			if( "1.1.0.0.7.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.7.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
-			if( "1.1.0.0.8.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.8.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
-			if( "1.1.0.0.9.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.9.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
-			if( "1.1.0.0.10.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.10.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
 
-			if( obis.getF() != 255 ) {
+			if (obis.getF() != 255) {
 				int f = getBillingCount() - Math.abs(obis.getF());
-				if (f < 0) { throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF()); }
+				if (f < 0) {
+					throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF());
+				}
 				fs = "*" + ProtocolUtils.buildStringDecimal(f, 2);
 			}
 
@@ -569,8 +566,8 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 				toTimeString = dp.parseBetweenBrackets(timeStampData);
 				vts.parse(toTimeString);
 				toTime = vts.getCalendar().getTime();
-			} catch (Exception e) {}
-
+			} catch (Exception e) {
+			}
 
 			// read and parse the value an the unit ()if exists) of the register
 			String temp = dp.parseBetweenBrackets(data, 0, 0);
@@ -580,7 +577,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 				temp = temp.substring(0, temp.indexOf('*'));
 			}
 
-			if ((temp == null) || (temp.length() == 0)){
+			if ((temp == null) || (temp.length() == 0)) {
 				throw new NoSuchRegisterException();
 			}
 
@@ -589,7 +586,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			// Read the eventTime (timestamp after the register data)
 			try {
 				String dString = dp.parseBetweenBrackets(data, 0, 1);
-				if( "0000000000".equals(dString) ) {
+				if ("0000000000".equals(dString)) {
 					throw new NoSuchRegisterException();
 				}
 				VDEWTimeStamp vts = new VDEWTimeStamp(getTimeZone());
@@ -642,8 +639,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			String name = edisNotation + "(;)";
 			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 			byteArrayOutputStream.write(name.getBytes());
-			this.flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream
-					.toByteArray());
+			this.flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream.toByteArray());
 			data = this.flagIEC1107Connection.receiveRawData();
 		} else {
 			DataDumpParser ddp = new DataDumpParser(getDataReadout());
@@ -652,14 +648,16 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		return data;
 	}
 
-	Quantity readTime( ) throws IOException {
+	Quantity readTime() throws IOException {
 		Long seconds = new Long(getTime().getTime() / 1000);
-		return new Quantity( seconds, Unit.get(BaseUnit.SECOND) );
+		return new Quantity(seconds, Unit.get(BaseUnit.SECOND));
 	}
 
 	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
 		String reginfo = (String) this.a1440ObisCodeMapper.getObisMap().get(obisCode.toString());
-		if (reginfo == null) { reginfo = obisCode.getDescription();	}
+		if (reginfo == null) {
+			reginfo = obisCode.getDescription();
+		}
 		return new RegisterInfo("" + reginfo);
 	}
 
@@ -667,19 +665,19 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		StringBuffer rslt = new StringBuffer();
 
 		Iterator i = this.a1440ObisCodeMapper.getObisMap().keySet().iterator();
-		while(i.hasNext()){
-			String obis = (String)i.next();
+		while (i.hasNext()) {
+			String obis = (String) i.next();
 			ObisCode oc = ObisCode.fromString(obis);
 
-			if(DEBUG >= 5) {
+			if (DEBUG >= 5) {
 				try {
-					rslt.append( translateRegister(oc) + "\n" );
-					rslt.append( readRegister(oc) + "\n" );
-				} catch( NoSuchRegisterException nsre ) {
+					rslt.append(translateRegister(oc) + "\n");
+					rslt.append(readRegister(oc) + "\n");
+				} catch (NoSuchRegisterException nsre) {
 					// ignore and continue
 				}
 			} else {
-				rslt.append( obis + " " + translateRegister(oc) + "\n");
+				rslt.append(obis + " " + translateRegister(oc) + "\n");
 			}
 		}
 
@@ -697,24 +695,20 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			returnString += " Meter ID4: " + readSpecialRegister(A1440ObisCodeMapper.ID4) + "\n";
 			returnString += " Meter ID5: " + readSpecialRegister(A1440ObisCodeMapper.ID5) + "\n";
 			returnString += " Meter ID6: " + readSpecialRegister(A1440ObisCodeMapper.ID6) + "\n";
-
 			returnString += " Meter IEC1107 ID:" + readSpecialRegister(A1440ObisCodeMapper.IEC1107_ID) + "\n";
 			returnString += " Meter IECII07 address (optical):    " + readSpecialRegister(A1440ObisCodeMapper.IEC1107_ADDRESS_OP) + "\n";
 			returnString += " Meter IECII07 address (electrical): " + readSpecialRegister(A1440ObisCodeMapper.IEC1107_ADDRESS_EL) + "\n";
-
 		}
 		getLogger().info(returnString);
 	}
 
-	// ********************************************************************************************************
-	// implementation of the HHUEnabler interface
 	public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
 		enableHHUSignOn(commChannel, isDataReadout());
 	}
 
 	public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
-		HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, this.iIEC1107TimeoutProperty,
-				this.iProtocolRetriesProperty, 300, this.iEchoCancelling);
+		HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, this.iIEC1107TimeoutProperty, this.iProtocolRetriesProperty, 300,
+				this.iEchoCancelling);
 		hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
 		hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
 		hhuSignOn.enableDataReadout(datareadout);
@@ -733,17 +727,17 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		return this.a1440Profile;
 	}
 
-	int getBillingCount() throws IOException{
-		if( this.billingCount == null ){
+	int getBillingCount() throws IOException {
+		if (this.billingCount == null) {
 
 			if (isDataReadout()) {
 				DataDumpParser ddp = new DataDumpParser(getDataReadout());
-				this.billingCount = new int [] {ddp.getBillingCounter()};
+				this.billingCount = new int[] { ddp.getBillingCounter() };
 			} else {
 
 				String data;
 				try {
-					data = new String( read("0.1.0") );
+					data = new String(read("0.1.0"));
 				} catch (NoSuchRegisterException e) {
 					if (!isDataReadout()) {
 						throw e;
@@ -753,12 +747,12 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 				int start = data.indexOf('(') + 1;
 				int stop = data.indexOf(')');
-				String v = data.substring( start, stop );
+				String value = data.substring(start, stop);
 
 				try {
-					this.billingCount = new int [] { Integer.parseInt(v) };
+					this.billingCount = new int[] { Integer.parseInt(value) };
 				} catch (NumberFormatException e) {
-					this.billingCount = new int [] {0};
+					this.billingCount = new int[] { 0 };
 					getLogger().info("Unable to read billingCounter. Defaulting to 0!");
 				}
 			}
@@ -769,20 +763,20 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 	private String getMeterSerial() throws IOException {
 		if (this.meterSerial == null) {
-			this.meterSerial = (String)getA1440Registry().getRegister(this.a1440Registry.SERIAL);
+			this.meterSerial = (String) getA1440Registry().getRegister(this.a1440Registry.SERIAL);
 		}
 		return this.meterSerial;
 	}
 
 	protected void validateSerialNumber() throws IOException {
-		if ((this.serialNumber == null) || ("".compareTo(this.serialNumber)==0)) {return;}
-		if (this.serialNumber.compareTo(getMeterSerial()) == 0) {return;}
-		throw new IOException("SerialNumber mismatch! meter sn="+getMeterSerial()+", configured sn="+this.serialNumber);
+		if ((this.serialNumber == null) || ("".compareTo(this.serialNumber) == 0)) {
+			return;
+		}
+		if (this.serialNumber.compareTo(getMeterSerial()) == 0) {
+			return;
+		}
+		throw new IOException("SerialNumber mismatch! meter sn=" + getMeterSerial() + ", configured sn=" + this.serialNumber);
 	}
-
-	/**
-	 * Implementation of methods in MessageProtocol
-	 */
 
 	public void applyMessages(List messageEntries) throws IOException {
 		this.a1440Messages.applyMessages(messageEntries);
@@ -847,10 +841,12 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			String dev = "";
 			String fwdev = "";
 
-			if (this.iSecurityLevel < 1) { return "Unknown (SecurityLevel to low)"; }
+			if (this.iSecurityLevel < 1) {
+				return "Unknown (SecurityLevel to low)";
+			}
 
-			fwdev = (String)getA1440Registry().getRegister(A1440Registry.FIRMWARE);
-			hw = (String)getA1440Registry().getRegister(A1440Registry.HARDWARE);
+			fwdev = (String) getA1440Registry().getRegister(A1440Registry.FIRMWARE);
+			hw = (String) getA1440Registry().getRegister(A1440Registry.HARDWARE);
 
 			if ((fwdev != null) && (fwdev.length() >= 30)) {
 				fw = fwdev.substring(0, 10);
