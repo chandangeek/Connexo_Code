@@ -312,239 +312,224 @@ public class A1440Profile extends VDEWProfile {
 		String[] edisCodes=null;
 
 		// We suppose that the profile contains nr of channels!!
-		try {
-			VDEWTimeStamp vts = new VDEWTimeStamp(getProtocolLink().getTimeZone());
-			profileData = new ProfileData();
+		VDEWTimeStamp vts = new VDEWTimeStamp(getProtocolLink().getTimeZone());
+		profileData = new ProfileData();
 
-			int i=0;
-			while(true) {
+		int i=0;
+		while(true) {
 
-				if (responseData[i] == 'P') {
-					i+=4; // skip P.01
-					i=gotoNextOpenBracket(responseData,i);
+			if (responseData[i] == 'P') {
+				i+=4; // skip P.01
+				i=gotoNextOpenBracket(responseData,i);
 
-					if (dp.parseBetweenBrackets(responseData,i).compareTo("ERROR") == 0) {
-						throw new IOException("No entries in object list.");
-					}
-
-					//--------------------------------------------------------
-					// Data part 1: Read timestamp from loadprofile
-					//--------------------------------------------------------
-					vts.parse(dp.parseBetweenBrackets(responseData,i));
-					calendar = vts.getCalendar();
-
-					//--------------------------------------------------------
-					// Data part 2: Read status from loadprofile
-					//--------------------------------------------------------
-					i=gotoNextOpenBracket(responseData,i+1);
-					bStatus =  parseIntervalStatus(responseData, i);
-
-					eiCode = 0;
-					for (t=0;t<8;t++) {
-						if ((bStatus & (byte)(0x01<<t)) != 0) {
-							eiCode |= mapStatus2IntervalStateBits((bStatus&(byte)(0x01<<t))&0xFF);
-						}
-					}
-
-					// KV 02112005
-					if (((bStatus&SEASONAL_SWITCHOVER)==SEASONAL_SWITCHOVER) &&
-							(vts.getMode()==VDEWTimeStamp.MODE_SUMMERTIME) &&
-							(!getProtocolLink().getTimeZone().inDaylightTime(calendar.getTime())) &&
-							((bStatus&DEVICE_CLOCK_SET_INCORRECT)==DEVICE_CLOCK_SET_INCORRECT)) {
-						calendar.add(Calendar.MILLISECOND,-1*getProtocolLink().getTimeZone().getDSTSavings());
-					}
-
-					if (!ParseUtils.isOnIntervalBoundary(calendar,getProtocolLink().getProfileInterval())) {
-						partialInterval=true;
-						// roundup to the first interval boundary
-						ParseUtils.roundUp2nearestInterval(calendar,getProtocolLink().getProfileInterval());
-					}
-					else {
-						partialInterval=false;
-					}
-
-					//--------------------------------------------------------
-					// Data part 3: Read profile interval from loadprofile
-					//--------------------------------------------------------
-					i=gotoNextOpenBracket(responseData,i+1);
-					profileInterval = Integer.parseInt(dp.parseBetweenBrackets(responseData,i));
-					if ((profileInterval*60) != getProtocolLink().getProfileInterval()) {
-						throw new IOException("buildProfileData() error, mismatch between configured profileinterval ("+getProtocolLink().getProfileInterval()+") and meter profileinterval ("+(profileInterval*60)+")!");
-					}
-
-					//--------------------------------------------------------
-					// Data part 4: Read number of channels from loadprofile
-					//--------------------------------------------------------
-					i=gotoNextOpenBracket(responseData,i+1);
-					// KV 06092005 K&P
-					//bNROfValues = ProtocolUtils.bcd2nibble(responseData,i+1);
-					bNROfValues = (byte)Integer.parseInt(dp.parseBetweenBrackets(responseData,i));
-
-					if (bNROfValues > getProtocolLink().getNumberOfChannels()) {
-						throw new IOException("buildProfileData() error, mismatch between configured nrOfChannels ("+getProtocolLink().getNumberOfChannels()+") and meter profile nrOfChannels ("+bNROfValues+")!");
-					}
-
-					//--------------------------------------------------------
-					// Data part 5 + 6: Read the channel units
-					// and ediscodes from loadprofile
-					//--------------------------------------------------------
-					units = new Unit[bNROfValues];
-					edisCodes = new String[bNROfValues];
-					for (t=0;t<bNROfValues;t++) {// skip all obis codes
-						i=gotoNextOpenBracket(responseData,i+1);
-						edisCodes[t] = dp.parseBetweenBrackets(responseData,i);
-						i=gotoNextOpenBracket(responseData,i+1);
-						units[t] = Unit.get(dp.parseBetweenBrackets(responseData,i));
-					}
-
-					//--------------------------------------------------------
-					// On first run, build the channelinfo using the ediscodes
-					// and the units in the loadprofile header.
-					//--------------------------------------------------------
-					// KV 06092005 K&P changes
-					if (!buildChannelInfos) {
-						int id=0;
-						for (t=0;t<bNROfValues;t++) {
-							ChannelInfo chi=null;
-							if (getProtocolLink().getProtocolChannelMap().isMappedChannels()) {
-								int fysical0BasedChannelId = getFysical0BasedChannelId(edisCodes[t]);
-								if (getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).getIntValue(0) != -1) {
-									chi = new ChannelInfo(id,getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).getIntValue(0), "channel_"+id,units[t]);
-									id++;
-								}
-								if (!getProtocolLink().isRequestHeader()) {
-									if (getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).isCumul()) {
-										chi.setCumulativeWrapValue(getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).getWrapAroundValue());
-									}
-								}
-							}
-							else {
-								chi = new ChannelInfo(t,"channel_"+t,units[t]);
-								if (!getProtocolLink().isRequestHeader()) {
-									if (getProtocolLink().getProtocolChannelMap().getProtocolChannel(t).isCumul()) {
-										chi.setCumulativeWrapValue(getProtocolLink().getProtocolChannelMap().getProtocolChannel(t).getWrapAroundValue());
-									}
-								}
-							}
-
-
-							// KV 06092005 K&P changes
-							if (chi != null) {
-								profileData.addChannel(chi);
-							}
-						}
-						buildChannelInfos = true;
-					}
-
-					// skip data until next CR
-					i= gotoNextCR(responseData,i+1);
+				if (dp.parseBetweenBrackets(responseData,i).compareTo("ERROR") == 0) {
+					throw new IOException("No entries in object list.");
 				}
-				else if ((responseData[i] == '\r') || (responseData[i] == '\n')) {
-					i+=1; // skip additional CR's or LF's
+
+				//--------------------------------------------------------
+				// Data part 1: Read timestamp from loadprofile
+				//--------------------------------------------------------
+				vts.parse(dp.parseBetweenBrackets(responseData,i));
+				calendar = vts.getCalendar();
+
+				//--------------------------------------------------------
+				// Data part 2: Read status from loadprofile
+				//--------------------------------------------------------
+				i=gotoNextOpenBracket(responseData,i+1);
+				bStatus =  parseIntervalStatus(responseData, i);
+
+				eiCode = 0;
+				for (t=0;t<8;t++) {
+					if ((bStatus & (byte)(0x01<<t)) != 0) {
+						eiCode |= mapStatus2IntervalStateBits((bStatus&(byte)(0x01<<t))&0xFF);
+					}
+				}
+
+				// KV 02112005
+				if (((bStatus&SEASONAL_SWITCHOVER)==SEASONAL_SWITCHOVER) &&
+						(vts.getMode()==VDEWTimeStamp.MODE_SUMMERTIME) &&
+						(!getProtocolLink().getTimeZone().inDaylightTime(calendar.getTime())) &&
+						((bStatus&DEVICE_CLOCK_SET_INCORRECT)==DEVICE_CLOCK_SET_INCORRECT)) {
+					calendar.add(Calendar.MILLISECOND,-1*getProtocolLink().getTimeZone().getDSTSavings());
+				}
+
+				if (!ParseUtils.isOnIntervalBoundary(calendar,getProtocolLink().getProfileInterval())) {
+					partialInterval=true;
+					// roundup to the first interval boundary
+					ParseUtils.roundUp2nearestInterval(calendar,getProtocolLink().getProfileInterval());
 				}
 				else {
-					//------------------------------------------------------------
-					// Data at responseData[i] is channel data:
-					// eg (027.012)(000.103)(014.847)(005.123)
-					//------------------------------------------------------------
+					partialInterval=false;
+				}
 
-					// Fill profileData
-					IntervalData intervalData = new IntervalData(new Date(calendar.getTime().getTime()),eiCode,bStatus);
+				//--------------------------------------------------------
+				// Data part 3: Read profile interval from loadprofile
+				//--------------------------------------------------------
+				i=gotoNextOpenBracket(responseData,i+1);
+				profileInterval = Integer.parseInt(dp.parseBetweenBrackets(responseData,i));
+				if ((profileInterval*60) != getProtocolLink().getProfileInterval()) {
+					throw new IOException("buildProfileData() error, mismatch between configured profileinterval ("+getProtocolLink().getProfileInterval()+") and meter profileinterval ("+(profileInterval*60)+")!");
+				}
 
-					if (!KEEPSTATUS) {
-						eiCode=0;
-					}
+				//--------------------------------------------------------
+				// Data part 4: Read number of channels from loadprofile
+				//--------------------------------------------------------
+				i=gotoNextOpenBracket(responseData,i+1);
+				// KV 06092005 K&P
+				//bNROfValues = ProtocolUtils.bcd2nibble(responseData,i+1);
+				bNROfValues = (byte)Integer.parseInt(dp.parseBetweenBrackets(responseData,i));
 
-					for (t=0;t<bNROfValues;t++) { // skip all obis codes
-						i=gotoNextOpenBracket(responseData,i);
-						BigDecimal bd = new BigDecimal(dp.parseBetweenBrackets(responseData,i));
-						//long lVal = bd.longValue();
-						// KV 06092005 K&P changes
+				if (bNROfValues > getProtocolLink().getNumberOfChannels()) {
+					throw new IOException("buildProfileData() error, mismatch between configured nrOfChannels ("+getProtocolLink().getNumberOfChannels()+") and meter profile nrOfChannels ("+bNROfValues+")!");
+				}
+
+				//--------------------------------------------------------
+				// Data part 5 + 6: Read the channel units
+				// and ediscodes from loadprofile
+				//--------------------------------------------------------
+				units = new Unit[bNROfValues];
+				edisCodes = new String[bNROfValues];
+				for (t=0;t<bNROfValues;t++) {// skip all obis codes
+					i=gotoNextOpenBracket(responseData,i+1);
+					edisCodes[t] = dp.parseBetweenBrackets(responseData,i);
+					i=gotoNextOpenBracket(responseData,i+1);
+					units[t] = Unit.get(dp.parseBetweenBrackets(responseData,i));
+				}
+
+				//--------------------------------------------------------
+				// On first run, build the channelinfo using the ediscodes
+				// and the units in the loadprofile header.
+				//--------------------------------------------------------
+				// KV 06092005 K&P changes
+				if (!buildChannelInfos) {
+					int id=0;
+					for (t=0;t<bNROfValues;t++) {
+						ChannelInfo chi=null;
 						if (getProtocolLink().getProtocolChannelMap().isMappedChannels()) {
 							int fysical0BasedChannelId = getFysical0BasedChannelId(edisCodes[t]);
 							if (getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).getIntValue(0) != -1) {
-								intervalData.addValue(bd); //new Long(lVal));
+								chi = new ChannelInfo(id,getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).getIntValue(0), "channel_"+id,units[t]);
+								id++;
+							}
+							if (!getProtocolLink().isRequestHeader() && (getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).isCumul())) {
+								chi.setCumulativeWrapValue(getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).getWrapAroundValue());
+							}
+						} else {
+							chi = new ChannelInfo(t,"channel_"+t,units[t]);
+							if (!getProtocolLink().isRequestHeader() && (getProtocolLink().getProtocolChannelMap().getProtocolChannel(t).isCumul())) {
+								chi.setCumulativeWrapValue(getProtocolLink().getProtocolChannelMap().getProtocolChannel(t).getWrapAroundValue());
 							}
 						}
-						else {
+
+						// KV 06092005 K&P changes
+						if (chi != null) {
+							profileData.addChannel(chi);
+						}
+					}
+					buildChannelInfos = true;
+				}
+
+				// skip data until next CR
+				i= gotoNextCR(responseData,i+1);
+			} else if ((responseData[i] == '\r') || (responseData[i] == '\n')) {
+				i+=1; // skip additional CR's or LF's
+			} else {
+				//------------------------------------------------------------
+				// Data at responseData[i] is channel data:
+				// eg (027.012)(000.103)(014.847)(005.123)
+				//------------------------------------------------------------
+
+				// Fill profileData
+				IntervalData intervalData = new IntervalData(new Date(calendar.getTime().getTime()),eiCode,bStatus);
+
+				if (!KEEPSTATUS) {
+					eiCode=0;
+				}
+
+				for (t=0;t<bNROfValues;t++) { // skip all obis codes
+					i=gotoNextOpenBracket(responseData,i);
+					BigDecimal bd = new BigDecimal(dp.parseBetweenBrackets(responseData,i));
+					//long lVal = bd.longValue();
+					// KV 06092005 K&P changes
+					if (getProtocolLink().getProtocolChannelMap().isMappedChannels()) {
+						int fysical0BasedChannelId = getFysical0BasedChannelId(edisCodes[t]);
+						if (getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).getIntValue(0) != -1) {
 							intervalData.addValue(bd); //new Long(lVal));
 						}
-
-						i++;
+					}
+					else {
+						intervalData.addValue(bd); //new Long(lVal));
 					}
 
-					if (partialInterval) {
+					i++;
+				}
 
-						if (intervalDataSave != null) {
-							if (intervalData.getEndTime().getTime() == intervalDataSave.getEndTime().getTime()) {
-								if (DEBUG >= 1) {
-									System.out.println("KV_DEBUG> partialInterval, add partialInterval to currentInterval");
-								}
-								intervalData = addIntervalData(intervalDataSave,intervalData, units); // add intervals together to avoid double interval values...
+				if (partialInterval) {
+
+					if (intervalDataSave != null) {
+						if (intervalData.getEndTime().getTime() == intervalDataSave.getEndTime().getTime()) {
+							if (DEBUG >= 1) {
+								System.out.println("KV_DEBUG> partialInterval, add partialInterval to currentInterval");
 							}
-							else {
-								if (DEBUG >= 1) {
-									System.out.println("KV_DEBUG> partialInterval, save partialInterval to profiledata and assign currentInterval to partialInterval");
-								}
-								profileData.addInterval(intervalDataSave); // save the partial interval. Timestamp has been adjusted to the next intervalboundary
-								intervalDataSave=intervalData;
-							}
+							intervalData = addIntervalData(intervalDataSave,intervalData, units); // add intervals together to avoid double interval values...
 						}
 						else {
 							if (DEBUG >= 1) {
-								System.out.println("KV_DEBUG> partialInterval, assign currentInterval to partialInterval");
+								System.out.println("KV_DEBUG> partialInterval, save partialInterval to profiledata and assign currentInterval to partialInterval");
 							}
+							profileData.addInterval(intervalDataSave); // save the partial interval. Timestamp has been adjusted to the next intervalboundary
 							intervalDataSave=intervalData;
 						}
 					}
 					else {
-						// If there was a partial interval within interval x and the next interval has the same timestamp as interval x,
-						// then we must add them together!
-						// If the next interval's timestamps != timestamp of interval x, save the partial interval as separate entry for interval x.
-						if (intervalDataSave != null) {
-							if (intervalData.getEndTime().getTime() == intervalDataSave.getEndTime().getTime()) {
-								if (DEBUG >= 1) {
-									System.out.println("KV_DEBUG> add partialInterval to currentInterval");
-								}
-								intervalData = addIntervalData(intervalDataSave,intervalData, units); // add intervals together to avoid double interval values...
-							}
-							else {
-								if (DEBUG >= 1) {
-									System.out.println("KV_DEBUG> save partialInterval to profiledata");
-								}
-								profileData.addInterval(intervalDataSave); // save the partial interval. Timestamp has been adjusted to the next intervalboundary
-							}
-							intervalDataSave = null;
-						}
-
 						if (DEBUG >= 1) {
-							System.out.println("KV_DEBUG> save currentInterval to profiledata");
+							System.out.println("KV_DEBUG> partialInterval, assign currentInterval to partialInterval");
 						}
-						// save the current interval
-						profileData.addInterval(intervalData);
+						intervalDataSave=intervalData;
+					}
+				}
+				else {
+					// If there was a partial interval within interval x and the next interval has the same timestamp as interval x,
+					// then we must add them together!
+					// If the next interval's timestamps != timestamp of interval x, save the partial interval as separate entry for interval x.
+					if (intervalDataSave != null) {
+						if (intervalData.getEndTime().getTime() == intervalDataSave.getEndTime().getTime()) {
+							if (DEBUG >= 1) {
+								System.out.println("KV_DEBUG> add partialInterval to currentInterval");
+							}
+							intervalData = addIntervalData(intervalDataSave,intervalData, units); // add intervals together to avoid double interval values...
+						}
+						else {
+							if (DEBUG >= 1) {
+								System.out.println("KV_DEBUG> save partialInterval to profiledata");
+							}
+							profileData.addInterval(intervalDataSave); // save the partial interval. Timestamp has been adjusted to the next intervalboundary
+						}
+						intervalDataSave = null;
 					}
 
-					calendar.add(Calendar.MINUTE,profileInterval);
-
-					i= gotoNextCR(responseData,i+1);
-
+					if (DEBUG >= 1) {
+						System.out.println("KV_DEBUG> save currentInterval to profiledata");
+					}
+					// save the current interval
+					profileData.addInterval(intervalData);
 				}
 
-				if (i>=responseData.length) {
-					break;
-				}
+				calendar.add(Calendar.MINUTE,profileInterval);
 
-			} // while(true)
-		}
-		catch(IOException e) {
-			throw new IOException("buildProfileData> "+e.getMessage());
-		}
+				i= gotoNextCR(responseData,i+1);
+
+			}
+
+			if (i>=responseData.length) {
+				break;
+			}
+
+		} // while(true)
 
 		return profileData;
 
 	} // private ProfileData buildProfileData(byte[] responseData) throws IOException
-
-
 
 	@Override
 	protected List buildMeterEvents(byte[] responseData) throws IOException {
@@ -584,7 +569,7 @@ public class A1440Profile extends VDEWProfile {
 					}
 
 
-					// See A1500 dproduct description on page 45 for the explenation of the 16 statusbits.
+					// See A1500 product description on page 45 for the explenation of the 16 statusbits.
 					// Use status to parse the meterevents. Lower statusbyte of meterevents is the same as
 					// the intervalstatus byte. So, therefor, we omit the reading of the logbook
 
@@ -626,34 +611,28 @@ public class A1440Profile extends VDEWProfile {
 
 	} // private List buildMeterEvents(byte[] responseData)
 
-	private int gotoNextOpenBracket(byte[] responseData,int i) {
+	private int gotoNextOpenBracket(byte[] responseData,int index) {
+		int i = index;
 		while(true) {
-			if (responseData[i] == '(') {
-				break;
-			}
+			if (responseData[i] == '(') {break;}
 			i++;
-			if (i>=responseData.length) {
-				break;
-			}
+			if (i>=responseData.length) {break;}
 		}
 		return i;
 	}
 
-	private int gotoNextCR(byte[] responseData,int i) {
+	private int gotoNextCR(byte[] responseData, int index) {
+		int i = index;
 		while(true) {
-			if (responseData[i] == '\r') {
-				break;
-			}
+			if (responseData[i] == '\r') { break;}
 			i++;
-			if (i>=responseData.length) {
-				break;
-			}
+			if (i>=responseData.length) {break;}
 		}
 		return i;
 	}
 
 	private int getFysical0BasedChannelId(String edisCode) {
-		return Integer.parseInt(edisCode.substring(edisCode.indexOf("-")+1,edisCode.indexOf(":")))-1;
+		return Integer.parseInt(edisCode.substring(edisCode.indexOf('-')+1,edisCode.indexOf(':')))-1;
 	}
 
 	private IntervalData addIntervalData(IntervalData cumulatedIntervalData,IntervalData currentIntervalData, Unit[] unitlist) {
@@ -668,14 +647,8 @@ public class A1440Profile extends VDEWProfile {
 
 				if ((unit != null) && (unit.isVolumeUnit())) {
 					intervalData.addValue(val1.add(val2));
-					if (DEBUG >= 1) {
-						System.out.println("Interval data added: val1: " + val1 + " val2: " + val2 + " Result: " + val1.add(val2));
-					}
 				} else {
 					intervalData.addValue((val1.add(val2)).divide(new BigDecimal(2), BigDecimal.ROUND_HALF_UP));
-					if (DEBUG >= 1) {
-						System.out.println("Interval data divided: val1: " + val1 + " val2: " + val2 + " Result: " + val1.add(val2).divide(new BigDecimal(2), BigDecimal.ROUND_HALF_UP));
-					}
 				}
 			}
 		} else {

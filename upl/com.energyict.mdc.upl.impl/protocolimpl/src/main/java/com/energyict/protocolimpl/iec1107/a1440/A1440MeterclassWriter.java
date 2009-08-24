@@ -12,6 +12,8 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
  */
 public class A1440MeterclassWriter {
 
+	private static final int MAX_PACKETSIZE = 48;
+
 	private A1440 a1440;
 
 	/**
@@ -27,9 +29,6 @@ public class A1440MeterclassWriter {
 	 * @throws IOException
 	 */
 	public void writeClassSettings(MessageEntry messageEntry, A1440MessageType messageType) throws IOException {
-		final byte[] WRITE1 = FlagIEC1107Connection.WRITE1;
-		final int MAX_PACKETSIZE = 48;
-
 		String returnValue = "";
 		String iec1107Command = "";
 
@@ -74,7 +73,7 @@ public class A1440MeterclassWriter {
 					" Sending iec1107Command: [ W1." + iec1107Command + " ]"
 			);
 
-			returnValue = this.a1440.getFlagIEC1107Connection().sendRawCommandFrameAndReturn(WRITE1, iec1107Command.getBytes());
+			returnValue = this.a1440.getFlagIEC1107Connection().sendRawCommandFrameAndReturn(FlagIEC1107Connection.WRITE1, iec1107Command.getBytes());
 			if (returnValue != null) {
 				throw new IOException(" Wrong response on iec1107Command: W1." + iec1107Command + "] expected 'null' but received " + ProtocolUtils.getResponseData(returnValue.getBytes()));
 			}
