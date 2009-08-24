@@ -187,7 +187,7 @@ public class A1440Messages implements MessageProtocol {
 	 * @throws IOException
 	 */
 	public void doOpenContactor() throws IOException {
-		System.out.println("Received contactor ARM");
+		getLogger().fine("Received contactor ARM");
 		A1440ContactorController cc = new A1440ContactorController(this.a1440);
 		cc.doDisconnect();
 	}
@@ -197,7 +197,7 @@ public class A1440Messages implements MessageProtocol {
 	 * @throws IOException
 	 */
 	public void doCloseContactor() throws IOException {
-		System.out.println("Received contactor CONTACTOR_CLOSE");
+		getLogger().fine("Received contactor CONTACTOR_CLOSE");
 		A1440ContactorController cc = new A1440ContactorController(this.a1440);
 		cc.doConnect();
 	}
@@ -209,7 +209,7 @@ public class A1440Messages implements MessageProtocol {
 	 * @throws IOException
 	 */
 	public void doArmContactor() throws IOException {
-		System.out.println("Received contactor CONTACTOR_ARM");
+		getLogger().fine("Received contactor CONTACTOR_ARM");
 		A1440ContactorController cc = new A1440ContactorController(this.a1440);
 		cc.doArm();
 	}
@@ -220,7 +220,7 @@ public class A1440Messages implements MessageProtocol {
 	 * @throws IOException
 	 */
 	public void doDemandReset() throws IOException {
-		System.out.println("Received DEMAND_RESET");
+		getLogger().fine("Received DEMAND_RESET");
 		getA1440().getA1440Registry().setRegister(A1440Registry.DEMAND_RESET_REGISTER , "");
 	}
 
@@ -229,7 +229,7 @@ public class A1440Messages implements MessageProtocol {
 	 * @throws IOException
 	 */
 	public void doErrorStatusReset() throws IOException {
-		System.out.println("Received ERROR_STATUS_RESET");
+		getLogger().fine("Received ERROR_STATUS_RESET");
 		getA1440().getA1440Registry().setRegister(A1440Registry.ERROR_STATUS_REGISTER , "");
 	}
 
@@ -238,7 +238,7 @@ public class A1440Messages implements MessageProtocol {
 	 * @throws IOException
 	 */
 	public void doPowerQualityReset() throws IOException {
-		System.out.println("Received POWER_QUALITY_RESET");
+		getLogger().fine("Received POWER_QUALITY_RESET");
 		getA1440().getA1440Registry().setRegister(A1440Registry.POWER_QUALITY_RESET_REGISTER , "");
 	}
 
@@ -252,7 +252,7 @@ public class A1440Messages implements MessageProtocol {
 	 * @throws IOException
 	 */
 	public void doPowerOutageReset() throws IOException {
-		System.out.println("Received POWER_OUTAGE_RESET");
+		getLogger().fine("Received POWER_OUTAGE_RESET");
 		getA1440().getA1440Registry().setRegister(A1440Registry.POWER_OUTAGE_RESET_REGISTER , "");
 	}
 
