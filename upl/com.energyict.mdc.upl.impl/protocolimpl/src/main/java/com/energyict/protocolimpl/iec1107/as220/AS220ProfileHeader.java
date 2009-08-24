@@ -19,7 +19,12 @@ public class AS220ProfileHeader {
 	private int profileInterval;
 	private int nrOfChannels;
 
-	/** Creates a new instance of ProfileHeader */
+	/**
+	 * Creates a new instance of ProfileHeader
+	 * @param flagIEC1107Connection
+	 * @param profileNumber
+	 * @throws IOException
+	 */
 	public AS220ProfileHeader(FlagIEC1107Connection flagIEC1107Connection, int profileNumber) throws IOException {
 		if (profileNumber == 1) {
 			flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5,"X(;)".getBytes());

@@ -26,6 +26,7 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.DemandResetProtocol;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
@@ -56,12 +57,12 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
 
 /**
  * @author jme
- * @since 17-aug-2009
+ * @since 19-aug-2009
  * 
- * 17-08-2009 jme > Copied ABBA1350 protocol as base for new AS220 protocol
+ * 19-08-2009 jme > Copied ABBA1350 protocol as base for new AS220 protocol
  * 
  */
-public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol {
+public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, DemandResetProtocol {
 
 	private final static int DEBUG = 0;
 
@@ -94,13 +95,13 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	private int failOnUnitMismatch = 0;
 
 	private FlagIEC1107Connection flagIEC1107Connection = null;
-	private AS220Registry as220Registry = null;
-	private AS220Profile as220Profile = null;
-	private AS220Messages as220Messages = new AS220Messages(this);
-	private AS220ObisCodeMapper as220ObisCodeMapper = new AS220ObisCodeMapper(this);
+	private AS220Registry aS220Registry = null;
+	private AS220Profile aS220Profile = null;
+	private AS220Messages aS220Messages = new AS220Messages(this);
+	private AS220ObisCodeMapper aS220ObisCodeMapper = new AS220ObisCodeMapper(this);
 
 	private byte[] dataReadout = null;
-	private int [] billingCount;
+	private int[] billingCount;
 	private String firmwareVersion = null;
 	private Date meterDate = null;
 	private String meterSerial = null;
@@ -108,7 +109,8 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	private boolean software7E1;
 
 	/** Creates a new instance of AS220, empty constructor */
-	public AS220() {}
+	public AS220() {
+	}
 
 	public ProfileData getProfileData(boolean includeEvents) throws IOException {
 		Calendar calendar = ProtocolUtils.getCalendar(this.timeZone);
@@ -157,12 +159,9 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	}
 
 	public Date getTime() throws IOException {
-		sendDebug("getTime request !!!", 2);
 		this.meterDate = (Date) getAS220Registry().getRegister("TimeDate");
 		return new Date(this.meterDate.getTime() - this.iRoundtripCorrection);
 	}
-
-	/** ************************************ MeterProtocol implementation ************************************** */
 
 	/**
 	 * This implementation calls <code> validateProperties </code> and assigns
@@ -173,11 +172,10 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	}
 
 	/**
-	 * Validates the properties.  The default implementation checks that all
+	 * Validates the properties. The default implementation checks that all
 	 * required parameters are present.
 	 */
-	private void validateProperties(Properties properties)
-	throws MissingPropertyException, InvalidPropertyException {
+	private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 
 		try {
 			Iterator iterator = getRequiredKeys().iterator();
@@ -189,7 +187,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			}
 			this.strID = properties.getProperty(MeterProtocol.ADDRESS, "");
 			this.strPassword = properties.getProperty(MeterProtocol.PASSWORD);
-			this.serialNumber=properties.getProperty(MeterProtocol.SERIALNUMBER);
+			this.serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
 			this.iIEC1107TimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "20000").trim());
 			this.iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
 			this.iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
@@ -207,12 +205,14 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			this.vdewCompatible = Integer.parseInt(properties.getProperty("VDEWCompatible", "0").trim());
 			this.loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber", "1"));
 			this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+			this.failOnUnitMismatch = Integer.parseInt(properties.getProperty("FailOnUnitMismatch", "0"));
 		} catch (NumberFormatException e) {
-			throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "	+ e.getMessage());
+			throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
 		}
 
 		if ((this.loadProfileNumber < MIN_LOADPROFILE) || (this.loadProfileNumber > MAX_LOADPROFILE)) {
-			throw new InvalidPropertyException("Invalid loadProfileNumber (" + this.loadProfileNumber + "). Minimum value: " + MIN_LOADPROFILE + " Maximum value: " + MAX_LOADPROFILE);
+			throw new InvalidPropertyException("Invalid loadProfileNumber (" + this.loadProfileNumber + "). Minimum value: " + MIN_LOADPROFILE
+					+ " Maximum value: " + MAX_LOADPROFILE);
 		}
 
 	}
@@ -229,7 +229,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		return new String(data);
 	}
 
-	public void setRegister(String name, String value) throws IOException, NoSuchRegisterException,	UnsupportedException {
+	public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
 
 		if (name.equals("CONNECT")) {
 			System.out.println("Received CONNECT message: " + value);
@@ -288,7 +288,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		result.add("VDEWCompatible");
 		result.add("ForceDelay");
 		result.add("Software7E1");
-		//result.add("FailOnUnitMismatch");
+		result.add("FailOnUnitMismatch");
 		return result;
 	}
 
@@ -298,10 +298,10 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
 		if (this.firmwareVersion == null) {
-			this.firmwareVersion = (String)getAS220Registry().getRegister(this.as220Registry.FIRMWAREID);
+			this.firmwareVersion = (String) getAS220Registry().getRegister(this.aS220Registry.FIRMWAREID);
 		}
 		return this.firmwareVersion;
-	} // public String getFirmwareVersion()
+	}
 
 	/**
 	 * initializes the receiver
@@ -312,10 +312,10 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		this.logger = logger;
 
 		try {
-			this.flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, this.iIEC1107TimeoutProperty,
-					this.iProtocolRetriesProperty, this.iForceDelay, this.iEchoCancelling, 1, this.software7E1);
-			this.as220Registry = new AS220Registry(this, this);
-			this.as220Profile = new AS220Profile(this, this, this.as220Registry);
+			this.flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, this.iIEC1107TimeoutProperty, this.iProtocolRetriesProperty,
+					this.iForceDelay, this.iEchoCancelling, 1, this.software7E1);
+			this.aS220Registry = new AS220Registry(this, this);
+			this.aS220Profile = new AS220Profile(this, this, this.aS220Registry);
 
 		} catch (ConnectionException e) {
 			if (logger != null) {
@@ -346,9 +346,8 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			throw new IOException(e.getMessage());
 		}
 
-
 		validateSerialNumber();
-		this.as220ObisCodeMapper.initObis();
+		this.aS220ObisCodeMapper.initObis();
 
 		if (this.extendedLogging >= 2) {
 			getMeterInfo();
@@ -359,22 +358,13 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 	}
 
-	private byte[] cleanDataReadout(byte[] dro) {
-		if (DEBUG >= 1) {
-			sendDebug("cleanDataReadout()  INPUT dro = " + new String(dro), 2);
-		}
-
-		for (int i = 0; i < dro.length; i++) {
-			if (((i+3) < dro.length) && (dro[i] == '&')) {
-				if (dro[i+3] == '(') {
-					dro[i] = '*';
-				}
+	private byte[] cleanDataReadout(byte[] dataReadOur) {
+		for (int i = 0; i < dataReadOur.length; i++) {
+			if (((i + 3) < dataReadOur.length) && (dataReadOur[i] == '&')) {
+				if (dataReadOur[i + 3] == '(') { dataReadOur[i] = '*'; }
 			}
 		}
-		if (DEBUG >= 1) {
-			sendDebug("cleanDataReadout() OUTPUT dro = " + new String(dro), 2);
-		}
-		return dro;
+		return dataReadOur;
 	}
 
 	public void disconnect() throws IOException {
@@ -405,7 +395,6 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		}
 	}
 
-	// Implementation of interface ProtocolLink
 	public FlagIEC1107Connection getFlagIEC1107Connection() {
 		return this.flagIEC1107Connection;
 	}
@@ -437,8 +426,8 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	public void setCache(Object cacheObject) {
 	}
 
-	public void updateCache(int rtuid, Object cacheObject)
-	throws SQLException, BusinessException { }
+	public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
+	}
 
 	public ChannelMap getChannelMap() {
 		return this.channelMap;
@@ -453,8 +442,23 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	static Map exceptionInfoMap = new HashMap();
 	static {
 		exceptionInfoMap.put("ERROR", "Request could not execute!");
-		exceptionInfoMap.put("ERROR01", "AS220 ERROR 01, invalid command!");
-		exceptionInfoMap.put("ERROR06", "AS220 ERROR 06, invalid command!");
+		exceptionInfoMap.put("ERROR00", "AS220 ERROR 00, no valid command!");
+		exceptionInfoMap.put("ERROR01", "AS220 ERROR 01, unknown command!");
+		exceptionInfoMap.put("ERROR02", "AS220 ERROR 02, no access without manufacturer password");
+		exceptionInfoMap.put("ERROR03", "AS220 ERROR 03, no access without hardware lock released");
+		exceptionInfoMap.put("ERROR04", "AS220 ERROR 04, no valid class");
+		exceptionInfoMap.put("ERROR05", "AS220 ERROR 05, no additional data available");
+		exceptionInfoMap.put("ERROR06", "AS220 ERROR 06, command format not valid!");
+		exceptionInfoMap.put("ERROR07", "AS220 ERROR 07, function is not supported!");
+		exceptionInfoMap.put("ERROR08", "AS220 ERROR 08, demand reset not allowed!");
+		exceptionInfoMap.put("ERROR09", "AS220 ERROR 09, load profile initialisation not activated!");
+		exceptionInfoMap.put("ERROR10", "AS220 ERROR 10, ripple receiver not enabled!");
+		exceptionInfoMap.put("ERROR11", "AS220 ERROR 11, no valid time and date!");
+		exceptionInfoMap.put("ERROR12", "AS220 ERROR 12, no access to the desired storage!");
+		exceptionInfoMap.put("ERROR13", "AS220 ERROR 13, no access, because the set mode was not activated by the alternate button!");
+		exceptionInfoMap.put("ERROR14", "AS220 ERROR 14, no access without password!");
+		exceptionInfoMap.put("ERROR15", "AS220 ERROR 15, no access with closed terminal cover!");
+		exceptionInfoMap.put("ERROR16", "AS220 ERROR 16, no access due to configuration change denial!");
 	}
 
 	public String getExceptionInfo(String id) {
@@ -483,7 +487,6 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		return this.protocolChannelMap;
 	}
 
-
 	/* Translate the obis codes to edis codes, and read */
 	public RegisterValue readRegister(ObisCode obis) throws IOException {
 		DataParser dp = new DataParser(getTimeZone());
@@ -496,63 +499,59 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 		try {
 
-			sendDebug("readRegister() obis: " + obis.toString(), 2);
 			// it is not possible to translate the following edis code in this way
-			if( "1.1.0.1.2.255".equals(obis.toString())) {
+			if ("1.1.0.1.2.255".equals(obis.toString())) {
 				return new RegisterValue(obis, readTime());
 			}
 
-			if( "1.1.0.0.0.255".equals(obis.toString())) {
+			if ("1.1.0.0.0.255".equals(obis.toString())) {
 				return new RegisterValue(obis, getMeterSerial());
 			}
-			if( "1.1.0.2.0.255".equals(obis.toString())) {
+			if ("1.1.0.2.0.255".equals(obis.toString())) {
 				return new RegisterValue(obis, getFirmwareVersion());
 			}
 
-			if( "1.1.0.0.1.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.as220ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.1.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
-			if( "1.1.0.0.2.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.as220ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.2.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
-			if( "1.1.0.0.3.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.as220ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.3.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
-			if( "1.1.0.0.4.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.as220ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.4.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
-			if( "1.1.0.0.5.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.as220ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.5.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
-			if( "1.1.0.0.6.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.as220ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.6.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
-			if( "1.1.0.0.7.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.as220ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.7.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
-			if( "1.1.0.0.8.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.as220ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.8.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
-			if( "1.1.0.0.9.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.as220ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.9.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
-			if( "1.1.0.0.10.255".equals(obis.toString())) {
-				return new RegisterValue(obis, readSpecialRegister((String)this.as220ObisCodeMapper.getObisMap().get(obis.toString())));
+			if ("1.1.0.0.10.255".equals(obis.toString())) {
+				return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
 			}
 
-			if( obis.getF() != 255 ) {
+			if (obis.getF() != 255) {
 				int f = getBillingCount() - Math.abs(obis.getF());
+				if (f < 0) {
+					throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF());
+				}
 				fs = "*" + ProtocolUtils.buildStringDecimal(f, 2);
 			}
+
 			String edis = obis.getC() + "." + obis.getD() + "." + obis.getE() + fs;
-			try {
-				data = read(edis);
-			} catch (IOException e1) {
-				if (DEBUG >= 3) {
-					e1.printStackTrace();
-				}
-				throw e1;
-			}
+			data = read(edis);
 
 			// try to read the time stamp, and us it as the register toTime.
 			try {
@@ -567,8 +566,8 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 				toTimeString = dp.parseBetweenBrackets(timeStampData);
 				vts.parse(toTimeString);
 				toTime = vts.getCalendar().getTime();
-			} catch (Exception e) {}
-
+			} catch (Exception e) {
+			}
 
 			// read and parse the value an the unit ()if exists) of the register
 			String temp = dp.parseBetweenBrackets(data, 0, 0);
@@ -576,7 +575,10 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			if (temp.indexOf('*') != -1) {
 				readUnit = Unit.get(temp.substring(temp.indexOf('*') + 1));
 				temp = temp.substring(0, temp.indexOf('*'));
-				sendDebug("ReadUnit: " + readUnit, 3);
+			}
+
+			if ((temp == null) || (temp.length() == 0)) {
+				throw new NoSuchRegisterException();
 			}
 
 			BigDecimal bd = new BigDecimal(temp);
@@ -584,7 +586,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			// Read the eventTime (timestamp after the register data)
 			try {
 				String dString = dp.parseBetweenBrackets(data, 0, 1);
-				if( "0000000000".equals(dString) ) {
+				if ("0000000000".equals(dString)) {
 					throw new NoSuchRegisterException();
 				}
 				VDEWTimeStamp vts = new VDEWTimeStamp(getTimeZone());
@@ -610,8 +612,6 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 						String message = "Unit or scaler from obiscode is different from register Unit in meter!!! ";
 						message += " (Unit from meter: " + readUnit;
 						message += " -  Unit from obiscode: " + obis.getUnitElectricity(this.scaler) + ")\n";
-
-						sendDebug(message);
 						getLogger().info(message);
 						if (this.failOnUnitMismatch == 1) {
 							throw new InvalidPropertyException(message);
@@ -623,35 +623,11 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 			return new RegisterValue(obis, q, eventTime, toTime);
 
-		} catch (NoSuchRegisterException e) {
-			String m = "ObisCode " + obis.toString() + " is not supported!";
-			if (DEBUG >= 3) {
-				e.printStackTrace();
-			}
-			throw new NoSuchRegisterException(m);
 		} catch (InvalidPropertyException e) {
 			String m = "getMeterReading() error, " + e.getMessage();
-			if (DEBUG >= 3) {
-				e.printStackTrace();
-			}
 			throw new InvalidPropertyException(m);
-		} catch (FlagIEC1107ConnectionException e) {
-			String m = "getMeterReading() error, " + e.getMessage();
-			if (DEBUG >= 3) {
-				e.printStackTrace();
-			}
-			throw new IOException(m);
 		} catch (IOException e) {
 			String m = "getMeterReading() error, " + e.getMessage();
-			if (DEBUG >= 3) {
-				e.printStackTrace();
-			}
-			throw new IOException(m);
-		} catch (NumberFormatException e) {
-			String m = "ObisCode " + obis.toString() + " is not supported!";
-			if (DEBUG >= 3) {
-				e.printStackTrace();
-			}
 			throw new NoSuchRegisterException(m);
 		}
 
@@ -661,55 +637,48 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		byte[] data;
 		if (!isDataReadout()) {
 			String name = edisNotation + "(;)";
-			sendDebug("Requesting read(): edisNotation = " + edisNotation, 2);
 			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 			byteArrayOutputStream.write(name.getBytes());
-			this.flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream
-					.toByteArray());
+			this.flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream.toByteArray());
 			data = this.flagIEC1107Connection.receiveRawData();
 		} else {
-			sendDebug("Requesting read(): edisNotation = " + edisNotation + " dataReadOut: " + getDataReadout().length, 2);
 			DataDumpParser ddp = new DataDumpParser(getDataReadout());
 			data = ddp.getRegisterStrValue(edisNotation).getBytes();
 		}
 		return data;
 	}
 
-	Quantity readTime( ) throws IOException {
+	Quantity readTime() throws IOException {
 		Long seconds = new Long(getTime().getTime() / 1000);
-		return new Quantity( seconds, Unit.get(BaseUnit.SECOND) );
+		return new Quantity(seconds, Unit.get(BaseUnit.SECOND));
 	}
 
 	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-		sendDebug(" translateRegister(): " + obisCode.toString(), 2);
-		String reginfo = (String) this.as220ObisCodeMapper.getObisMap().get(obisCode.toString());
+		String reginfo = (String) this.aS220ObisCodeMapper.getObisMap().get(obisCode.toString());
 		if (reginfo == null) {
 			reginfo = obisCode.getDescription();
 		}
 		return new RegisterInfo("" + reginfo);
 	}
 
-
-
 	private void getRegistersInfo() throws IOException {
 		StringBuffer rslt = new StringBuffer();
 
-		Iterator i = this.as220ObisCodeMapper.getObisMap().keySet().iterator();
-		while(i.hasNext()){
-			String obis = (String)i.next();
+		Iterator i = this.aS220ObisCodeMapper.getObisMap().keySet().iterator();
+		while (i.hasNext()) {
+			String obis = (String) i.next();
 			ObisCode oc = ObisCode.fromString(obis);
 
-			if(DEBUG >= 5) {
+			if (DEBUG >= 5) {
 				try {
-					rslt.append( translateRegister(oc) + "\n" );
-					rslt.append( readRegister(oc) + "\n" );
-				} catch( NoSuchRegisterException nsre ) {
+					rslt.append(translateRegister(oc) + "\n");
+					rslt.append(readRegister(oc) + "\n");
+				} catch (NoSuchRegisterException nsre) {
 					// ignore and continue
 				}
 			} else {
-				rslt.append( obis + " " + translateRegister(oc) + "\n");
+				rslt.append(obis + " " + translateRegister(oc) + "\n");
 			}
-
 		}
 
 		getLogger().info(rslt.toString());
@@ -726,24 +695,20 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			returnString += " Meter ID4: " + readSpecialRegister(AS220ObisCodeMapper.ID4) + "\n";
 			returnString += " Meter ID5: " + readSpecialRegister(AS220ObisCodeMapper.ID5) + "\n";
 			returnString += " Meter ID6: " + readSpecialRegister(AS220ObisCodeMapper.ID6) + "\n";
-
 			returnString += " Meter IEC1107 ID:" + readSpecialRegister(AS220ObisCodeMapper.IEC1107_ID) + "\n";
 			returnString += " Meter IECII07 address (optical):    " + readSpecialRegister(AS220ObisCodeMapper.IEC1107_ADDRESS_OP) + "\n";
 			returnString += " Meter IECII07 address (electrical): " + readSpecialRegister(AS220ObisCodeMapper.IEC1107_ADDRESS_EL) + "\n";
-
 		}
 		getLogger().info(returnString);
 	}
 
-	// ********************************************************************************************************
-	// implementation of the HHUEnabler interface
 	public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
 		enableHHUSignOn(commChannel, isDataReadout());
 	}
 
 	public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
-		HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, this.iIEC1107TimeoutProperty,
-				this.iProtocolRetriesProperty, 300, this.iEchoCancelling);
+		HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, this.iIEC1107TimeoutProperty, this.iProtocolRetriesProperty, 300,
+				this.iEchoCancelling);
 		hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
 		hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
 		hhuSignOn.enableDataReadout(datareadout);
@@ -755,25 +720,24 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	}
 
 	public AS220Registry getAS220Registry() {
-		return this.as220Registry;
+		return this.aS220Registry;
 	}
 
 	public AS220Profile getAS220Profile() {
-		return this.as220Profile;
+		return this.aS220Profile;
 	}
 
-	int getBillingCount() throws IOException{
-		if( this.billingCount == null ){
+	int getBillingCount() throws IOException {
+		if (this.billingCount == null) {
 
 			if (isDataReadout()) {
-				sendDebug("Requesting getBillingCount() dataReadOut: " + getDataReadout().length, 2);
 				DataDumpParser ddp = new DataDumpParser(getDataReadout());
-				this.billingCount = new int [] {ddp.getBillingCounter()};
+				this.billingCount = new int[] { ddp.getBillingCounter() };
 			} else {
 
 				String data;
 				try {
-					data = new String( read("0.1.0") );
+					data = new String(read("0.1.0"));
 				} catch (NoSuchRegisterException e) {
 					if (!isDataReadout()) {
 						throw e;
@@ -783,13 +747,13 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 				int start = data.indexOf('(') + 1;
 				int stop = data.indexOf(')');
-				String v = data.substring( start, stop );
+				String value = data.substring(start, stop);
 
 				try {
-					this.billingCount = new int [] { Integer.parseInt(v) };
+					this.billingCount = new int[] { Integer.parseInt(value) };
 				} catch (NumberFormatException e) {
-					this.billingCount = new int [] {0};
-					sendDebug("Unable to read billingCounter. Defaulting to 0!");
+					this.billingCount = new int[] { 0 };
+					getLogger().info("Unable to read billingCounter. Defaulting to 0!");
 				}
 			}
 
@@ -799,91 +763,73 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 	private String getMeterSerial() throws IOException {
 		if (this.meterSerial == null) {
-			this.meterSerial = (String)getAS220Registry().getRegister(this.as220Registry.SERIAL);
+			this.meterSerial = (String) getAS220Registry().getRegister(this.aS220Registry.SERIAL);
 		}
 		return this.meterSerial;
 	}
 
 	protected void validateSerialNumber() throws IOException {
-		if ((this.serialNumber == null) || ("".compareTo(this.serialNumber)==0)) {
+		if ((this.serialNumber == null) || ("".compareTo(this.serialNumber) == 0)) {
 			return;
 		}
 		if (this.serialNumber.compareTo(getMeterSerial()) == 0) {
 			return;
 		}
-		throw new IOException("SerialNumber mismatch! meter sn="+getMeterSerial()+", configured sn="+this.serialNumber);
+		throw new IOException("SerialNumber mismatch! meter sn=" + getMeterSerial() + ", configured sn=" + this.serialNumber);
 	}
 
-	/**
-	 * Implementation of methods in MessageProtocol
-	 */
-
 	public void applyMessages(List messageEntries) throws IOException {
-		this.as220Messages.applyMessages(messageEntries);
+		this.aS220Messages.applyMessages(messageEntries);
 	}
 
 	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-		return this.as220Messages.queryMessage(messageEntry);
+		return this.aS220Messages.queryMessage(messageEntry);
 	}
 
 	public List getMessageCategories() {
-		return this.as220Messages.getMessageCategories();
+		return this.aS220Messages.getMessageCategories();
 	}
 
 	public String writeMessage(Message msg) {
-		return this.as220Messages.writeMessage(msg);
+		return this.aS220Messages.writeMessage(msg);
 	}
 
 	public String writeTag(MessageTag tag) {
-		return this.as220Messages.writeTag(tag);
+		return this.aS220Messages.writeTag(tag);
 	}
 
 	public String writeValue(MessageValue value) {
-		return this.as220Messages.writeValue(value);
-	}
-
-
-	public void sendDebug(String str){
-		if (DEBUG >= 1) {
-			str = "######## DEBUG > " + str + "\n";
-			Logger log = getLogger();
-			if (log != null) {
-				getLogger().info(str);
-			}
-			else {
-				System.out.println(str);
-			}
-		}
+		return this.aS220Messages.writeValue(value);
 	}
 
 	private String readSpecialRegister(String registerName) throws IOException {
 		if (registerName.equals(AS220ObisCodeMapper.ID1)) {
-			return new String(ProtocolUtils.convert2ascii(((String)getAS220Registry().getRegister(AS220Registry.ID1)).getBytes()));
+			return new String(ProtocolUtils.convert2ascii(((String) getAS220Registry().getRegister(AS220Registry.ID1)).getBytes()));
 		}
 		if (registerName.equals(AS220ObisCodeMapper.ID2)) {
-			return new String(ProtocolUtils.convert2ascii(((String)getAS220Registry().getRegister(AS220Registry.ID2)).getBytes()));
+			return new String(ProtocolUtils.convert2ascii(((String) getAS220Registry().getRegister(AS220Registry.ID2)).getBytes()));
 		}
 		if (registerName.equals(AS220ObisCodeMapper.ID3)) {
-			return new String(ProtocolUtils.convert2ascii(((String)getAS220Registry().getRegister(AS220Registry.ID3)).getBytes()));
+			return new String(ProtocolUtils.convert2ascii(((String) getAS220Registry().getRegister(AS220Registry.ID3)).getBytes()));
 		}
 		if (registerName.equals(AS220ObisCodeMapper.ID4)) {
-			return new String(ProtocolUtils.convert2ascii(((String)getAS220Registry().getRegister(AS220Registry.ID4)).getBytes()));
+			return new String(ProtocolUtils.convert2ascii(((String) getAS220Registry().getRegister(AS220Registry.ID4)).getBytes()));
 		}
 		if (registerName.equals(AS220ObisCodeMapper.ID5)) {
-			return new String(ProtocolUtils.convert2ascii(((String)getAS220Registry().getRegister(AS220Registry.ID5)).getBytes()));
+			return new String(ProtocolUtils.convert2ascii(((String) getAS220Registry().getRegister(AS220Registry.ID5)).getBytes()));
 		}
 		if (registerName.equals(AS220ObisCodeMapper.ID6)) {
-			return new String(ProtocolUtils.convert2ascii(((String)getAS220Registry().getRegister(AS220Registry.ID6)).getBytes()));
+			return new String(ProtocolUtils.convert2ascii(((String) getAS220Registry().getRegister(AS220Registry.ID6)).getBytes()));
 		}
 
 		if (registerName.equals(AS220ObisCodeMapper.IEC1107_ID)) {
-			return new String(ProtocolUtils.convert2ascii(((String)getAS220Registry().getRegister(AS220Registry.IEC1107_ID)).getBytes()));
+			return new String(ProtocolUtils.convert2ascii(((String) getAS220Registry().getRegister(AS220Registry.IEC1107_ID)).getBytes()));
 		}
 		if (registerName.equals(AS220ObisCodeMapper.IEC1107_ADDRESS_OP)) {
-			return new String(ProtocolUtils.convert2ascii(((String)getAS220Registry().getRegister(AS220Registry.IEC1107_ADDRESS_OP)).getBytes()));
+			return new String(ProtocolUtils.convert2ascii(((String) getAS220Registry().getRegister(AS220Registry.IEC1107_ADDRESS_OP)).getBytes()));
 		}
 		if (registerName.equals(AS220ObisCodeMapper.IEC1107_ADDRESS_EL)) {
-			return new String(ProtocolUtils.convert2ascii(((String)getAS220Registry().getRegister(AS220Registry.IEC1107_ADDRESS_EL)).getBytes()));
+			return new String(ProtocolUtils.convert2ascii(((String) getAS220Registry().getRegister(AS220Registry.IEC1107_ADDRESS_EL)).getBytes()));
 		}
 		if (registerName.equals(AS220ObisCodeMapper.FIRMWAREID)) {
 			return getFirmwareVersion();
@@ -898,8 +844,9 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			if (this.iSecurityLevel < 1) {
 				return "Unknown (SecurityLevel to low)";
 			}
-			fwdev = (String)getAS220Registry().getRegister(AS220Registry.FIRMWARE);
-			hw = (String)getAS220Registry().getRegister(AS220Registry.HARDWARE);
+
+			fwdev = (String) getAS220Registry().getRegister(AS220Registry.FIRMWARE);
+			hw = (String) getAS220Registry().getRegister(AS220Registry.HARDWARE);
 
 			if ((fwdev != null) && (fwdev.length() >= 30)) {
 				fw = fwdev.substring(0, 10);
@@ -911,11 +858,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 				dev = "Unknown";
 			}
 
-			if (hw != null) {
-				hw = new String(ProtocolUtils.convert2ascii(hw.getBytes())).trim();
-			} else {
-				hw = "Unknown";
-			}
+			hw = (hw == null) ? "Unknown" : new String(ProtocolUtils.convert2ascii(hw.getBytes())).trim();
 
 			return dev + " " + "v" + fw + " " + hw;
 		}
@@ -923,10 +866,8 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		return "";
 	}
 
-	private void sendDebug(String string, int i) {
-		if (DEBUG >= i) {
-			sendDebug(string);
-		}
+	public void resetDemand() throws IOException {
+		this.aS220Messages.doDemandReset();
 	}
 
 }
