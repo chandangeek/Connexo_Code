@@ -26,18 +26,22 @@ import com.energyict.protocol.messaging.MessageValue;
 
 /**
  * @author jme
- *
+ * 
  */
 public class A1440Messages implements MessageProtocol {
 
 	private static final A1440MessageType CONTACTOR_CLOSE = new A1440MessageType("CONTACTOR_CLOSE", 411, 0, "Contactor close");
-	private static final A1440MessageType CONTACTOR_ARM = 	new A1440MessageType("CONTACTOR_ARM", 411, 0, "Contactor arm");
-	private static final A1440MessageType CONTACTOR_OPEN = 	new A1440MessageType("CONTACTOR_OPEN", 411, 0, "Contactor open");
+	private static final A1440MessageType CONTACTOR_ARM = new A1440MessageType("CONTACTOR_ARM", 411, 0, "Contactor arm");
+	private static final A1440MessageType CONTACTOR_OPEN = new A1440MessageType("CONTACTOR_OPEN", 411, 0, "Contactor open");
 
 	private static final A1440MessageType DEMAND_RESET = new A1440MessageType("DEMAND_RESET", 0, 0, "Demand reset");
 	private static final A1440MessageType POWER_OUTAGE_RESET = new A1440MessageType("POWER_OUTAGE_RESET", 0, 0, "Power outage counter reset");
 	private static final A1440MessageType POWER_QUALITY_RESET = new A1440MessageType("POWER_QUALITY_RESET", 0, 0, "Power quality counters reset");
 	private static final A1440MessageType ERROR_STATUS_RESET = new A1440MessageType("ERROR_STATUS_RESET", 0, 0, "Error status reset");
+
+	private static final A1440MessageType REGISTERS_RESET = new A1440MessageType("REGISTERS_RESET", 0, 0, "Register data reset");
+	private static final A1440MessageType LOAD_LOG_RESET = new A1440MessageType("LOAD_LOG_RESET", 0, 0, "Load profile and logfile reset");
+	private static final A1440MessageType EVENT_LOG_RESET = new A1440MessageType("EVENT_LOG_RESET", 0, 0, "Event log register reset");
 
 	private A1440 a1440 = null;
 
@@ -55,9 +59,12 @@ public class A1440Messages implements MessageProtocol {
 
 		MessageCategorySpec catResetMessages = new MessageCategorySpec("'Reset' Messages");
 		catResetMessages.addMessageSpec(addBasicMsg(DEMAND_RESET, false));
-		catResetMessages.addMessageSpec(addBasicMsg(POWER_OUTAGE_RESET, false));
-		catResetMessages.addMessageSpec(addBasicMsg(POWER_QUALITY_RESET, false));
-		catResetMessages.addMessageSpec(addBasicMsg(ERROR_STATUS_RESET, false));
+		catResetMessages.addMessageSpec(addBasicMsg(POWER_OUTAGE_RESET, true));
+		catResetMessages.addMessageSpec(addBasicMsg(POWER_QUALITY_RESET, true));
+		catResetMessages.addMessageSpec(addBasicMsg(ERROR_STATUS_RESET, true));
+		catResetMessages.addMessageSpec(addBasicMsg(REGISTERS_RESET, true));
+		catResetMessages.addMessageSpec(addBasicMsg(LOAD_LOG_RESET, true));
+		catResetMessages.addMessageSpec(addBasicMsg(EVENT_LOG_RESET, true));
 
 		theCategories.add(catContactor);
 		theCategories.add(catResetMessages);
@@ -104,8 +111,22 @@ public class A1440Messages implements MessageProtocol {
 				return MessageResult.createSuccess(messageEntry);
 			}
 
-		}
-		catch(IOException e) {
+			if (isThisMessage(messageEntry, REGISTERS_RESET)) {
+				doRegistersReset();
+				return MessageResult.createSuccess(messageEntry);
+			}
+
+			if (isThisMessage(messageEntry, LOAD_LOG_RESET)) {
+				doLoadLogReset();
+				return MessageResult.createSuccess(messageEntry);
+			}
+
+			if (isThisMessage(messageEntry, EVENT_LOG_RESET)) {
+				doEventLogReset();
+				return MessageResult.createSuccess(messageEntry);
+			}
+
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
@@ -120,19 +141,20 @@ public class A1440Messages implements MessageProtocol {
 		return msg.write(this.a1440);
 	}
 
-	public void applyMessages(List messageEntries) {}
+	public void applyMessages(List messageEntries) {
+	}
 
 	public String writeTag(MessageTag tag) {
 		StringBuffer buf = new StringBuffer();
 
 		// a. Opening tag
 		buf.append("<");
-		buf.append( tag.getName() );
+		buf.append(tag.getName());
 
 		// b. Attributes
 		for (Iterator it = tag.getAttributes().iterator(); it.hasNext();) {
-			MessageAttribute att = (MessageAttribute)it.next();
-			if ((att.getValue()==null) || (att.getValue().length()==0)) {
+			MessageAttribute att = (MessageAttribute) it.next();
+			if ((att.getValue() == null) || (att.getValue().length() == 0)) {
 				continue;
 			}
 			buf.append(" ").append(att.getSpec().getName());
@@ -142,12 +164,12 @@ public class A1440Messages implements MessageProtocol {
 
 		// c. sub elements
 		for (Iterator it = tag.getSubElements().iterator(); it.hasNext();) {
-			MessageElement elt = (MessageElement)it.next();
+			MessageElement elt = (MessageElement) it.next();
 			if (elt.isTag()) {
-				buf.append( writeTag((MessageTag)elt) );
+				buf.append(writeTag((MessageTag) elt));
 			} else if (elt.isValue()) {
-				String value = writeValue((MessageValue)elt);
-				if ((value==null) || (value.length()==0)) {
+				String value = writeValue((MessageValue) elt);
+				if ((value == null) || (value.length() == 0)) {
 					return "";
 				}
 				buf.append(value);
@@ -156,7 +178,7 @@ public class A1440Messages implements MessageProtocol {
 
 		// d. Closing tag
 		buf.append("\n\n</");
-		buf.append( tag.getName() );
+		buf.append(tag.getName());
 		buf.append(">");
 
 		return buf.toString();
@@ -183,7 +205,8 @@ public class A1440Messages implements MessageProtocol {
 	}
 
 	/**
-	 * This command tries to switch off (disconnect) the contactor in the A1440 device.
+	 * This command tries to switch off (disconnect) the contactor in the A1440
+	 * device.
 	 * @throws IOException
 	 */
 	public void doOpenContactor() throws IOException {
@@ -193,7 +216,8 @@ public class A1440Messages implements MessageProtocol {
 	}
 
 	/**
-	 * This command tries to switch on (connect) the contactor in the A1440 device.
+	 * This command tries to switch on (connect) the contactor in the A1440
+	 * device.
 	 * @throws IOException
 	 */
 	public void doCloseContactor() throws IOException {
@@ -203,9 +227,9 @@ public class A1440Messages implements MessageProtocol {
 	}
 
 	/**
-	 * This command tries to switch the contactor to ARMED mode for the A1440 device.
-	 * The armed-status allows the customer to switch the relay back on by pressing
-	 * the meter button for at least 4 seconds.
+	 * This command tries to switch the contactor to ARMED mode for the A1440
+	 * device. The armed-status allows the customer to switch the relay back on
+	 * by pressing the meter button for at least 4 seconds.
 	 * @throws IOException
 	 */
 	public void doArmContactor() throws IOException {
@@ -221,7 +245,7 @@ public class A1440Messages implements MessageProtocol {
 	 */
 	public void doDemandReset() throws IOException {
 		getLogger().fine("Received DEMAND_RESET");
-		getA1440().getA1440Registry().setRegister(A1440Registry.DEMAND_RESET_REGISTER , "");
+		getA1440().getA1440Registry().setRegister(A1440Registry.DEMAND_RESET_REGISTER, "");
 	}
 
 	/**
@@ -230,22 +254,23 @@ public class A1440Messages implements MessageProtocol {
 	 */
 	public void doErrorStatusReset() throws IOException {
 		getLogger().fine("Received ERROR_STATUS_RESET");
-		getA1440().getA1440Registry().setRegister(A1440Registry.ERROR_STATUS_REGISTER , "");
+		getA1440().getA1440Registry().setRegister(A1440Registry.ERROR_STATUS_RESET_REGISTER, "");
 	}
 
 	/**
-	 * With that command the power quality counters (in class 26) can be set to zero
+	 * With that command the power quality counters (in class 26) can be set to
+	 * zero
 	 * @throws IOException
 	 */
 	public void doPowerQualityReset() throws IOException {
 		getLogger().fine("Received POWER_QUALITY_RESET");
-		getA1440().getA1440Registry().setRegister(A1440Registry.POWER_QUALITY_RESET_REGISTER , "");
+		getA1440().getA1440Registry().setRegister(A1440Registry.POWER_QUALITY_RESET_REGISTER, "");
 	}
 
 	/**
 	 * With that command the following registers can be set to zero:
 	 * <ul>
-	 * <li>Counter for power outages </li>
+	 * <li>Counter for power outages</li>
 	 * <li>Event registers (class 25)</li>
 	 * <li>Power Fail, Reverse Power</li>
 	 * <ul>
@@ -253,7 +278,35 @@ public class A1440Messages implements MessageProtocol {
 	 */
 	public void doPowerOutageReset() throws IOException {
 		getLogger().fine("Received POWER_OUTAGE_RESET");
-		getA1440().getA1440Registry().setRegister(A1440Registry.POWER_OUTAGE_RESET_REGISTER , "");
+		getA1440().getA1440Registry().setRegister(A1440Registry.POWER_OUTAGE_RESET_REGISTER, "");
+	}
+
+	/**
+	 * With this command all registers of the meter (energy, demand register, ...)
+	 * will be reset to zero.
+	 * @throws IOException
+	 */
+	public void doRegistersReset() throws IOException {
+		getLogger().fine("Received REGISTERS_RESET");
+		getA1440().getA1440Registry().setRegister(A1440Registry.REGISTERS_RESET_REGISTER, "");
+	}
+
+	/**
+	 * Resets the event logs of class 25.
+	 * @throws IOException
+	 */
+	public void doEventLogReset()  throws IOException {
+		getLogger().fine("Received EVENT_LOG_RESET");
+		getA1440().getA1440Registry().setRegister(A1440Registry.EVENT_LOG_RESET_REGISTER, "");
+	}
+
+	/**
+	 * With that command the load profile and log file will be reset.
+	 * @throws IOException
+	 */
+	public void doLoadLogReset()  throws IOException {
+		getLogger().fine("Received LOAD_LOG_RESET");
+		getA1440().getA1440Registry().setRegister(A1440Registry.LOAD_LOG_RESET_REGISTER, "");
 	}
 
 }

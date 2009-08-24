@@ -43,8 +43,10 @@ public class A1440Registry extends AbstractVDEWRegistry {
 	public static final String DEMAND_RESET_REGISTER = "DemandResetRegister";
 	public static final String POWER_OUTAGE_RESET_REGISTER = "PowerOutageResetRegister";
 	public static final String POWER_QUALITY_RESET_REGISTER = "PowerQualityResetRegister";
-	public static final String ERROR_STATUS_REGISTER = "ErrorStatusResetRegister";
-	public static final String PERSONALITY_REGISTER = "PersonalityRegister";
+	public static final String ERROR_STATUS_RESET_REGISTER = "ErrorStatusResetRegister";
+	public static final String REGISTERS_RESET_REGISTER = "RegisterResetRegister";
+	public static final String EVENT_LOG_RESET_REGISTER = "EventLogResetRegister";
+	public static final String LOAD_LOG_RESET_REGISTER = "LoadLogResetRegister";
 
 	/**
 	 * Creates a new instance of KamstrupRegister
@@ -92,9 +94,10 @@ public class A1440Registry extends AbstractVDEWRegistry {
 		this.registers.put(DEMAND_RESET_REGISTER, new VDEWRegister("S01",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
 		this.registers.put(POWER_OUTAGE_RESET_REGISTER, new VDEWRegister("S02",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
 		this.registers.put(POWER_QUALITY_RESET_REGISTER, new VDEWRegister("S03",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
-		this.registers.put(ERROR_STATUS_REGISTER, new VDEWRegister("S07",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
-
-		this.registers.put(PERSONALITY_REGISTER, new VDEWRegister("P02",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
+		this.registers.put(ERROR_STATUS_RESET_REGISTER, new VDEWRegister("S07",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
+		this.registers.put(REGISTERS_RESET_REGISTER, new VDEWRegister("P01",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
+		this.registers.put(EVENT_LOG_RESET_REGISTER, new VDEWRegister("S0D",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
+		this.registers.put(LOAD_LOG_RESET_REGISTER, new VDEWRegister("S08",VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1,FlagIEC1107Connection.WRITE1));
 
 	}
 
