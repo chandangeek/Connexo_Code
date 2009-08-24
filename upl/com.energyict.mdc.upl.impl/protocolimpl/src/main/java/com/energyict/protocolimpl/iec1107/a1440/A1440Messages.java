@@ -23,6 +23,7 @@ import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocolimpl.base.ContactorController;
 
 /**
  * @author jme
@@ -211,7 +212,7 @@ public class A1440Messages implements MessageProtocol {
 	 */
 	public void doOpenContactor() throws IOException {
 		getLogger().fine("Received contactor ARM");
-		A1440ContactorController cc = new A1440ContactorController(this.a1440);
+		ContactorController cc = new A1440ContactorController(this.a1440);
 		cc.doDisconnect();
 	}
 
@@ -222,7 +223,7 @@ public class A1440Messages implements MessageProtocol {
 	 */
 	public void doCloseContactor() throws IOException {
 		getLogger().fine("Received contactor CONTACTOR_CLOSE");
-		A1440ContactorController cc = new A1440ContactorController(this.a1440);
+		ContactorController cc = new A1440ContactorController(this.a1440);
 		cc.doConnect();
 	}
 
@@ -234,7 +235,7 @@ public class A1440Messages implements MessageProtocol {
 	 */
 	public void doArmContactor() throws IOException {
 		getLogger().fine("Received contactor CONTACTOR_ARM");
-		A1440ContactorController cc = new A1440ContactorController(this.a1440);
+		ContactorController cc = new A1440ContactorController(this.a1440);
 		cc.doArm();
 	}
 

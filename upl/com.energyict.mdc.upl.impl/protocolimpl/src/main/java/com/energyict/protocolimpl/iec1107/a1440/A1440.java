@@ -45,6 +45,7 @@ import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.base.DataDumpParser;
 import com.energyict.protocolimpl.base.DataParseException;
 import com.energyict.protocolimpl.base.DataParser;
@@ -233,15 +234,15 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 		if (name.equals("CONNECT")) {
 			System.out.println("Received CONNECT message: " + value);
-			A1440ContactorController cc = new A1440ContactorController(this);
+			ContactorController cc = new A1440ContactorController(this);
 			cc.doConnect();
 		} else if (name.equals("DISCONNECT")) {
 			System.out.println("Received DISCONNECT message: " + value);
-			A1440ContactorController cc = new A1440ContactorController(this);
+			ContactorController cc = new A1440ContactorController(this);
 			cc.doDisconnect();
 		} else if (name.equals("ARM")) {
 			System.out.println("Received ARM message: " + value);
-			A1440ContactorController cc = new A1440ContactorController(this);
+			ContactorController cc = new A1440ContactorController(this);
 			cc.doArm();
 		} else {
 			System.out.println("Received message: name = " + name + ", value = " + value);

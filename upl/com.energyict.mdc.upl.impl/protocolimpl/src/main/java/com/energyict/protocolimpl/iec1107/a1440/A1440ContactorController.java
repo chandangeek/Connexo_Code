@@ -3,7 +3,9 @@ package com.energyict.protocolimpl.iec1107.a1440;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-public class A1440ContactorController {
+import com.energyict.protocolimpl.base.ContactorController;
+
+public class A1440ContactorController implements ContactorController {
 
 	private static final String CONTACTOR_OPEN 		= "0";
 	private static final String CONTACTOR_ARMED 	= "1";
@@ -49,29 +51,24 @@ public class A1440ContactorController {
 	 * Public methods
 	 */
 
-	/**
-	 * This command tries to switch off (disconnect) the contactor in the A1440 device.
-	 * @throws IOException
+	/* (non-Javadoc)
+	 * @see com.energyict.protocolimpl.base.ContactorController#doDisconnect()
 	 */
 	public void doDisconnect() throws IOException {
 		getLogger().info("************************* DISCONNECT CONTACTOR *************************");
 		getA1440Registry().setRegister(A1440Registry.CONTACTOR_REGISTER, CONTACTOR_OPEN);
 	}
 
-	/**
-	 * This command tries to switch the contactor to ARMED mode for the A1440 device.
-	 * The armed-status allows the customer to switch the relay back on by pressing
-	 * the meter button for at least 4 seconds.
-	 * @throws IOException
+	/* (non-Javadoc)
+	 * @see com.energyict.protocolimpl.base.ContactorController#doArm()
 	 */
 	public void doArm() throws IOException {
 		getLogger().info("***************************** ARM CONTACTOR ****************************");
 		getA1440Registry().setRegister(A1440Registry.CONTACTOR_REGISTER, CONTACTOR_ARMED);
 	}
 
-	/**
-	 * This command tries to switch on (connect) the contactor in the A1440 device.
-	 * @throws IOException
+	/* (non-Javadoc)
+	 * @see com.energyict.protocolimpl.base.ContactorController#doConnect()
 	 */
 	public void doConnect() throws IOException {
 		getLogger().info("*************************** CONNECT CONTACTOR **************************");

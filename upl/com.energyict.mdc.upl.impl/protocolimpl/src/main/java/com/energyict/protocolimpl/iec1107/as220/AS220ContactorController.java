@@ -3,7 +3,9 @@ package com.energyict.protocolimpl.iec1107.as220;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-public class AS220ContactorController {
+import com.energyict.protocolimpl.base.ContactorController;
+
+public class AS220ContactorController implements ContactorController {
 
 	private static final String CONTACTOR_OPEN 		= "0";
 	private static final String CONTACTOR_ARMED 	= "1";
