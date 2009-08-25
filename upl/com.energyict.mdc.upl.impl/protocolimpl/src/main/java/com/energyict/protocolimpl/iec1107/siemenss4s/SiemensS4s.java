@@ -80,6 +80,9 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 		return new ArrayList();
 	}
 	
+	/**
+	 * Set certain properties before doing anything
+	 */
 	protected void doValidateProperties(Properties properties)
 	throws MissingPropertyException, InvalidPropertyException {
 		this.deviceId = properties.getProperty(MeterProtocol.ADDRESS);
@@ -115,20 +118,35 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 	}
 	
 	/**
-	 * Return the meter his current profileInterval.
+	 * @return the meter his current profileInterval.
 	 */
 	public int getProfileInterval() throws FlagIEC1107ConnectionException, ConnectionException, IOException{
 		return this.profileObject.getProfileInterval();
 	}
 	
+	/**
+	 * Create the profileObject
+	 * @param lastReading - the from date from where to start reading
+	 * @param includeEvents - indicates whether we need to read the events
+	 * @return the requested loadProfile
+	 */
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
 		return this.profileObject.getProfileData(lastReading, includeEvents);
 	}
 	
+	/**
+	 * Read a register given the obisCode
+	 * @param obisCode - the ObisCode of the register
+	 * @return a registerValue containing necessary register information
+	 */
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return getObisCodeMapper().getRegisterValue(obisCode);
     }
     
+    /**
+     * Getter for the obisCodeMapper. If he doesn't exist, then create ONE.
+     * @return the registerObisCodeMapper
+     */
     private SiemensS4sObisCodeMapper getObisCodeMapper(){
     	if(this.obisCodeMapper == null){
     		this.obisCodeMapper = new SiemensS4sObisCodeMapper(this.getObjectFactory());

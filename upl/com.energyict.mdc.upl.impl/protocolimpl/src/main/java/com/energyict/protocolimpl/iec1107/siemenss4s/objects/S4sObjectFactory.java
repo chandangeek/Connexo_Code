@@ -11,8 +11,10 @@ import com.energyict.protocolimpl.iec1107.siemenss4s.SiemensS4sRegisterMapper;
 
 public class S4sObjectFactory {
 
-	private FlagIEC1107Connection iec1107Connection;
-	private SiemensS4sRegisterMapper siemensS4sRegisterMapper;
+	private FlagIEC1107Connection 		iec1107Connection;
+	private SiemensS4sRegisterMapper 	siemensS4sRegisterMapper;
+	private S4sProfilePointer 			siemensProfilePointer;
+	private S4sIntegrationPeriod 		siemensIntegrationPeriod;
 	
 	public S4sObjectFactory(FlagIEC1107Connection flagIEC1107Connection){
 		this.iec1107Connection = flagIEC1107Connection; 
@@ -113,8 +115,11 @@ public class S4sObjectFactory {
 	 * @throws IOException
 	 */
 	public S4sIntegrationPeriod getIntegrationPeriodObject() throws FlagIEC1107ConnectionException, ConnectionException, IOException{
-		byte[] period = readRawRegister(SiemensS4sRegisterMapper.PROFILE_INTERVAL);
-		return new S4sIntegrationPeriod(period);
+		if(this.siemensIntegrationPeriod == null){
+			byte[] period = readRawRegister(SiemensS4sRegisterMapper.PROFILE_INTERVAL);
+			this.siemensIntegrationPeriod = new S4sIntegrationPeriod(period);
+		}
+		return this.siemensIntegrationPeriod;
 	}
 
 	/**
@@ -124,8 +129,11 @@ public class S4sObjectFactory {
 	 * @throws IOException
 	 */
 	public S4sProfilePointer getProfilePointerObject() throws FlagIEC1107ConnectionException, ConnectionException, IOException {
-		byte[] pointer = readRawRegister(SiemensS4sRegisterMapper.PROFILE_POINTER);
-		return new S4sProfilePointer(pointer);
+		if(this.siemensProfilePointer == null){
+			byte[] pointer = readRawRegister(SiemensS4sRegisterMapper.PROFILE_POINTER);
+			this.siemensProfilePointer = new S4sProfilePointer(pointer);
+		}
+		return this.siemensProfilePointer;
 	}
 
 	/**

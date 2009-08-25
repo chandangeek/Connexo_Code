@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.iec1107.siemenss4s.objects;
 
 import java.util.Calendar;
 
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -17,12 +16,12 @@ public class S4sDateTime {
 	private byte[] date;
 	private byte[] time;
 	
-	private final static int SECONDS 	= 0;
+	private final static int SECONDS 	= 2;
 	private final static int MINUTES 	= 1;
-	private final static int HOURES 	= 2;
-	private final static int MONTHS		= 0;
+	private final static int HOURES 	= 0;
+	private final static int MONTHS		= 2;
 	private final static int YEARS		= 1;
-	private final static int DAYS		= 2;
+	private final static int DAYS		= 0;
 	
 	/**
 	 * Creates a new instance of the dateTime object
@@ -30,12 +29,13 @@ public class S4sDateTime {
 	 * @param time
 	 */
 	public S4sDateTime(byte[] date, byte[] time){
-		this.date = DLMSUtils.hexStringToByteArray(new String(S4ObjectUtils.switchNibbles(date)));
-		this.time = DLMSUtils.hexStringToByteArray(new String(S4ObjectUtils.switchNibbles(time)));
+		this.date = S4sObjectUtils.getAsciiConvertedDecimalByteArray(S4sObjectUtils.revertByteArray(date));
+		this.time = S4sObjectUtils.getAsciiConvertedDecimalByteArray(S4sObjectUtils.revertByteArray(time));
 	}
 	
 	/**
 	 * Construct a GMT calendar with the meterTime
+	 * NOTE: In the documentation is never mentioned about a timeZone, so we assume we receive everything in GMT
 	 * @return a Calendar with the current MeterTime
 	 */
 	public Calendar getMeterTime(){

@@ -3,13 +3,10 @@ package com.energyict.protocolimpl.iec1107.siemenss4s;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import sun.security.action.GetLongAction;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.ChannelInfo;
@@ -26,8 +23,9 @@ public class SiemensS4sProfile {
 	private S4sIntegrationPeriod integrationPeriodObject;
 
 	private boolean bufferOverFlow = false;
+	private int smallerStep = 0;
 	
-	private static int PROFILE_READ_BLOCK_SIZE = 40;
+	private static int PROFILE_READ_BLOCK_SIZE = 0x40;
 	private static int PROFILE_MEMORY_START_ADDRESS = 0x2000;
 	private static int PROFILE_MEMORY_STOP_ADDRESS = 0x5FFF;
 	
@@ -84,14 +82,15 @@ public class SiemensS4sProfile {
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws FlagIEC1107ConnectionException, ConnectionException, IOException {
 		byte[] allChannelInfos = getObjectFactory().getAllChannelInfosRawData();
 		List channelInfos = getChannelInfos(allChannelInfos);
-		SiemensS4sProfileRecorder pRecorder = new SiemensS4sProfileRecorder();
-		
+		SiemensS4sProfileRecorder pRecorder = new SiemensS4sProfileRecorder(getProfileInterval());
 		if(channelInfos.size() != 0){
 			byte[] profilePart;
 			byte[] preparedReadProfileCommand;
 			Date lastIntervalDate = null;
-			int offsetPointer = getObjectFactory().getProfilePointerObject().getCurrentPointer();
-
+			
+			// The current pointer points to the interval being constructed, so we don't need that one
+			int offsetPointer = decreaseMemoryPointer(getObjectFactory().getProfilePointerObject().getCurrentPointer());
+			
 			pRecorder.setChannelInfos(channelInfos);
 			pRecorder.setFirstIntervalTime(getObjectFactory().getDateTimeObject().getMeterTime());
 			do{
@@ -101,13 +100,16 @@ public class SiemensS4sProfile {
 				pRecorder.addProfilePart(profilePart);
 				offsetPointer = decreaseMemoryPointer(offsetPointer);
 				lastIntervalDate = pRecorder.getLastIntervalDate();
+				//TODO delete this
+				System.out.println(lastIntervalDate);
 				
 			}while(lastReading.before(lastIntervalDate) && !this.bufferOverFlow);
+		} else {
+			Logger.global.log(Level.INFO, "Meter returned no channelInformation so no profileData is constructed.");
 		}
-		Logger.global.log(Level.INFO, "Meter returned no channelInformation so no profileData is constructed.");
 		return pRecorder.getProfileData();
 	}
-
+	
 	/**
 	 * Create a list of channelInfo objects. If a channel isn't used, then don't create an info for it.
 	 * @param allChannelInfos a byteArray containing the rawBytes of the 4 channelInfoRegisters
@@ -138,6 +140,7 @@ public class SiemensS4sProfile {
 	
 	/**
 	 * Create a readCommand with the offset as a memoryAddress
+	 * The memoryAddress must be in upperCase!!
 	 * @param offset MemoryAddress of the profileMemory
 	 * @return a byteArray containing a readCommand 
 	 * @throws IOException 
@@ -145,14 +148,15 @@ public class SiemensS4sProfile {
 	protected byte[] prepareReadProfilePartCommand(int offset) throws IOException{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		int memoryLocation = PROFILE_MEMORY_START_ADDRESS + offset;
-		baos.write(Integer.toHexString(memoryLocation).getBytes());
-		baos.write(("(" + PROFILE_READ_BLOCK_SIZE + ")").getBytes());
+		baos.write(Integer.toHexString(memoryLocation).toUpperCase().getBytes());
+		baos.write(("(" + Integer.toHexString(PROFILE_READ_BLOCK_SIZE - smallerStep) + ")").getBytes());
 		return baos.toByteArray();
 	}
 	
 	/**
 	 * Decrease the current pointer with the readSize.
 	 * Make extra checks for memoryBufferOverFlows so you don't keep on reading the complete buffer
+	 * If you reach the start of the buffer, then only read the necessary bytes and continue at the end of the buffer
 	 * @param offsetPointer - the pointer used for the latest profileReadPart
 	 * @return the decreased pointer
 	 * @throws FlagIEC1107ConnectionException
@@ -168,10 +172,13 @@ public class SiemensS4sProfile {
 		}
 		
 		if(offsetPointer == 0){
-			offsetPointer = 0x3FFF - 4;
+			smallerStep = 0;
+			offsetPointer = 0x3FFF - PROFILE_READ_BLOCK_SIZE;
 		} else if((offsetPointer - PROFILE_READ_BLOCK_SIZE) < 0){
+			smallerStep = PROFILE_READ_BLOCK_SIZE - offsetPointer;
 			offsetPointer = 0;
 		} else {
+			smallerStep = 0;
 			offsetPointer -= PROFILE_READ_BLOCK_SIZE;
 		}
 		return offsetPointer;

@@ -18,7 +18,7 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 
 
-public class SiemenS4sProfileTest {
+public class SiemensS4sProfileTest {
 	
 	@Test
 	public void getChannelInfoTest(){

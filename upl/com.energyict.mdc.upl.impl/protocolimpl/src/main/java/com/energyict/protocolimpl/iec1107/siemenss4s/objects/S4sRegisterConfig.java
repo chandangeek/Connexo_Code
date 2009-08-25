@@ -29,7 +29,7 @@ public class S4sRegisterConfig {
 	 * @param unitTotalRegisterA
 	 */
 	public S4sRegisterConfig(byte[] unitTotalRegisterA) {
-		this.rawBytes = DLMSUtils.hexStringToByteArray(new String(S4ObjectUtils.switchNibbles(unitTotalRegisterA)));
+		this.rawBytes = DLMSUtils.hexStringToByteArray(new String(S4sObjectUtils.switchNibbles(unitTotalRegisterA)));
 	}
 	
 	/**

@@ -3,7 +3,7 @@ package com.energyict.protocolimpl.iec1107.siemenss4s;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.Encryptor;
-import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4ObjectUtils;
+import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectUtils;
 
 /**
  * 
@@ -27,7 +27,7 @@ public class SiemensS4sEncryptor implements Encryptor {
 	public String encrypt(String passWord, String key) {
 		int antiSeed = SecureAlgorithm.calculateAntiSeed(Integer.valueOf(key, 16));
 		byte[] passBytes = DLMSUtils.hexStringToByteArray(Long.toHexString(Long.valueOf(passWord)));
-		passBytes = S4ObjectUtils.revertByteArray(passBytes);
+		passBytes = S4sObjectUtils.revertByteArray(passBytes);
 		int passInt = Integer.valueOf(outputHexString(passBytes), 16);
 		int response = (passInt&0xFFFF)^antiSeed + ((passInt&0xFFFF0000)^(antiSeed<<16));
 		StringBuffer strBuff = new StringBuffer();

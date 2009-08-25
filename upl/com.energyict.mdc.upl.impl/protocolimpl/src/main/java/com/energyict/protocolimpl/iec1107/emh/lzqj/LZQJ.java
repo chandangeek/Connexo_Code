@@ -134,10 +134,11 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
  */
     
     public void setTime() throws IOException {
-       if (vdewCompatible == 1)
-           setTimeVDEWCompatible();
-       else
-           setTimeAlternativeMethod();
+       if (vdewCompatible == 1) {
+		setTimeVDEWCompatible();
+	} else {
+		setTimeAlternativeMethod();
+	}
     }
     
     private void setTimeAlternativeMethod() throws IOException {
@@ -160,14 +161,6 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
     public Date getTime() throws IOException {
         Date date =  (Date)getLzqjRegistry().getRegister("TimeDate");
         return new Date(date.getTime()-iRoundtripCorrection);
-//    	if(vdewCompatible == 1){
-//    		Date date = (Date)getLzqjRegistry().getRegister("TimeDate");
-//    		return new Date(date.getTime()-iRoundtripCorrection);
-//    	} else {
-//    		Object object = getLzqjRegistry().getRegister("TimeDate2");
-//    		Date date = (Date)object;
-//    		return new Date(date.getTime() - iRoundtripCorrection);
-//    	}
     }
     
     public byte getLastProtocolState(){
@@ -201,8 +194,9 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
             while (iterator.hasNext())
             { 
                 String key = (String) iterator.next();
-                if (properties.getProperty(key) == null)
-                    throw new MissingPropertyException (key + " key missing");
+                if (properties.getProperty(key) == null) {
+					throw new MissingPropertyException (key + " key missing");
+				}
             }
             strID = properties.getProperty(MeterProtocol.ADDRESS);
             strPassword = properties.getProperty(MeterProtocol.PASSWORD);
@@ -402,15 +396,17 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
           
           flagIEC1107Connection.connectMAC(strID,strPassword,iSecurityLevel,nodeId);
           
-          if ((getFlagIEC1107Connection().getHhuSignOn()!=null)  && (isDataReadout()))
-               dataReadout = getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
+          if ((getFlagIEC1107Connection().getHhuSignOn()!=null)  && (isDataReadout())) {
+			dataReadout = getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
+		}
        }
        catch(FlagIEC1107ConnectionException e) {
           throw new IOException(e.getMessage());
        }
        
-       if (extendedLogging >= 1) 
-          getRegistersInfo();
+       if (extendedLogging >= 1) {
+		getRegistersInfo();
+	}
        
     }
     
@@ -424,17 +420,19 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
     }
     
     public int getNumberOfChannels() throws UnsupportedException, IOException {
-        if (requestHeader == 1)
-            return getLzqjProfile().getProfileHeader().getNrOfChannels();
-        else
-            return getProtocolChannelMap().getNrOfProtocolChannels();
+        if (requestHeader == 1) {
+			return getLzqjProfile().getProfileHeader().getNrOfChannels();
+		} else {
+			return getProtocolChannelMap().getNrOfProtocolChannels();
+		}
     }
     
     public int getProfileInterval() throws UnsupportedException, IOException {
-        if (requestHeader == 1)
-           return getLzqjProfile().getProfileHeader().getProfileInterval();
-        else
-           return profileInterval; 
+        if (requestHeader == 1) {
+			return getLzqjProfile().getProfileHeader().getProfileInterval();
+		} else {
+			return profileInterval;
+		} 
     }
     
 
@@ -502,10 +500,11 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 
     public String getExceptionInfo(String id) {
         String exceptionInfo = (String)exceptionInfoMap.get(ProtocolUtils.stripBrackets(id));
-        if (exceptionInfo != null)
-           return id+", "+exceptionInfo;
-        else
-           return "No meter specific exception info for "+id; 
+        if (exceptionInfo != null) {
+			return id+", "+exceptionInfo;
+		} else {
+			return "No meter specific exception info for "+id;
+		} 
     }    
     
     public int getNrOfRetries() {
@@ -615,9 +614,9 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
                   byteArrayOutputStream.write(name.getBytes());
                   flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5,byteArrayOutputStream.toByteArray());
                   data = flagIEC1107Connection.receiveRawData();
-              }
-              else
-                  data = ddp.getRegisterStrValue(edisNotation).getBytes();
+              } else {
+				data = ddp.getRegisterStrValue(edisNotation).getBytes();
+			}
           }
           return data;
     }
@@ -633,8 +632,9 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
             DataParser dp = new DataParser(getTimeZone());
             VDEWTimeStamp vts = new VDEWTimeStamp(getTimeZone());
             String dateStr = dp.parseBetweenBrackets(data,0,pos);
-            if ("".compareTo(dateStr)==0)
-                return null;
+            if ("".compareTo(dateStr)==0) {
+				return null;
+			}
             vts.parse(dateStr);
             date = vts.getCalendar().getTime();
             return date;

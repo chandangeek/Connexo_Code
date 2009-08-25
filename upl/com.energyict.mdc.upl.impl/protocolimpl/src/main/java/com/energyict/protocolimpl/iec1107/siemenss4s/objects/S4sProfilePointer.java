@@ -5,12 +5,15 @@ public class S4sProfilePointer {
 	private byte[] rawBytes;
 	
 	public S4sProfilePointer(byte[] profilePointer) {
-		this.rawBytes = S4ObjectUtils.revertByteArray(profilePointer);
+		this.rawBytes = S4sObjectUtils.revertByteArray(profilePointer);
 	}
 
+	/**
+	 * @return the current profile pointer
+	 */
 	public int getCurrentPointer() {
-		String str = new String(rawBytes)+"0";
-		return Integer.valueOf(str, 16)/4;
+		String str = new String(rawBytes);
+		return Integer.valueOf(str, 16)*4;
 	}
 
 }

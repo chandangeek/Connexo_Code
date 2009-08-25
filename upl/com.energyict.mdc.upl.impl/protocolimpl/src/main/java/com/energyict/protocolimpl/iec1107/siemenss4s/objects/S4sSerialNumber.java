@@ -13,7 +13,7 @@ public class S4sSerialNumber {
 	private byte[] rawBytes;
 	
 	public S4sSerialNumber(byte[] rawBytes){
-		byte[] temp = S4ObjectUtils.switchNibbles(rawBytes);
+		byte[] temp = S4sObjectUtils.switchNibbles(rawBytes);
 		this.rawBytes = DLMSUtils.hexStringToByteArray(new String(temp));		// strange way of parsing a decimal byteArray to a String, back to an ASCII byteArray...
 	}
 	

@@ -7,7 +7,7 @@ import com.energyict.protocol.ProtocolUtils;
  * @author gna
  *
  */
-public class S4ObjectUtils {
+public class S4sObjectUtils {
 
 	/**
 	 * Switches the nibbles in the byteArray
@@ -36,10 +36,30 @@ public class S4ObjectUtils {
 	public static byte[] revertByteArray(byte[] array){
 		byte[] reverse = new byte[array.length];
 		int offset = array.length-1;
-		for(int i = 0; i < array.length; i++,offset--){
+		for(int i = 0; i < array.length; i++,offset--) {
 			reverse[i] = array[offset];
 		}
+		
 		return reverse;
 	}
 	
+	
+	/**
+	 * Convert a byteArray with ASCII values of a decimal number to a byteArray forming decimal numbers
+	 * @param data ex. [56, 48, 57, 48, 52, 50]
+	 * @return the converted byteArray ex. [80, 90, 42]
+	 */
+	public static byte[] getAsciiConvertedDecimalByteArray(byte[] data){
+		if(data.length%2 != 0){
+			throw new IllegalArgumentException("Data length is not even.");
+		}
+		byte[] converted = new byte[data.length/2];
+		String temp = new String(data);
+		String tempPart;
+		for(int i = 0; i < converted.length; i++){
+			tempPart = temp.substring(i*2, (i*2)+2);
+			converted[i] = Integer.valueOf(tempPart).byteValue();
+		}
+		return converted;
+	}
 }
