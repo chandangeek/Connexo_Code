@@ -29,7 +29,6 @@ import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.SecureConnection;
@@ -500,7 +499,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	 */
 	public SecurityProvider getSecurityProvider(){
 		
-		if(getMeter() != null){	//MeterTool already has the password as a property
+		if((getMeter() != null) && (this.password != null)){	//MeterTool already has the password as a property
 			this.properties.put(MeterProtocol.PASSWORD, this.password);
 		}
 		LocalSecurityProvider lsp = new LocalSecurityProvider(this.properties);
@@ -1325,8 +1324,9 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		Iterator<String> iterator = getRequiredKeys().iterator();
 		while (iterator.hasNext()) {
 			String key = iterator.next();
-			if (properties.getProperty(key) == null)
+			if (properties.getProperty(key) == null) {
 				throw new MissingPropertyException(key + " key missing");
+			}
 		}
 
 		if (getMeter() != null && getMeter().getDeviceId() != "") {
@@ -1665,8 +1665,9 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 			} catch (NotFoundException e) {
 				return new DLMSCache(null, -1);
 			}
-		} else
+		} else {
 			throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+		}
 	}
 
 	public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
@@ -1678,8 +1679,9 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 				rtuCache.saveObjectList(dc.getObjectList());
 				rtu.setConfProgChange(dc.getConfProgChange());
 			}
-		} else
+		} else {
 			throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+		}
 	}
 
 }
