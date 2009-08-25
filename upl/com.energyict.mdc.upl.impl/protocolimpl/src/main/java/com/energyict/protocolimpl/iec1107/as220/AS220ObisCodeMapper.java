@@ -65,22 +65,9 @@ public class AS220ObisCodeMapper {
 		this.obisMap.put("1.1.0.0.10.255", FIRMWARE);
 
 		this.obisMap.put("1.1.32.7.0.255", "U L1, total");
-		this.obisMap.put("1.1.52.7.0.255", "U L2, total");
-		this.obisMap.put("1.1.72.7.0.255", "U L3, total");
-
 		this.obisMap.put("1.1.31.7.0.255", "I L1, total");
-		this.obisMap.put("1.1.51.7.0.255", "I L2, total");
-		this.obisMap.put("1.1.71.7.0.255", "I L3, total");
-
-		this.obisMap.put("1.1.1.7.0.255",  "+P total, T0");
 		this.obisMap.put("1.1.21.7.0.255", "+P L1, T0");
-		this.obisMap.put("1.1.41.7.0.255", "+P L2, T0");
-		this.obisMap.put("1.1.61.7.0.255", "+P L3, T0");
-
-		this.obisMap.put("1.1.2.7.0.255",  "-P total, T0");
 		this.obisMap.put("1.1.22.7.0.255", "-P L1, T0");
-		this.obisMap.put("1.1.42.7.0.255", "-P L2, T0");
-		this.obisMap.put("1.1.62.7.0.255", "-P L3, T0");
 
 	}
 
