@@ -195,10 +195,10 @@ public class AS220ObisCodeMapper {
 				this.obisMap.put(bpOString, bpDscr);
 			}
 
-			this.obisMap.put( "1.1.2.6.1.255", "-P, Max , M2 (2.6.1)" );
+			this.obisMap.put( "1.1.2.6.2.255", "-P, Max , M2 (2.6.2)" );
 
-			obis = "1.1.2.6.1.VZ";
-			dscr = "-P, Max , M2 (2.6.1*";
+			obis = "1.1.2.6.2.VZ";
+			dscr = "-P, Max , M2 (2.6.2*";
 
 			for( int i = 0; i < this.aS220.getBillingCount(); i ++ ) {
 				String bpOString = obis;
