@@ -51,6 +51,7 @@ import com.energyict.protocolimpl.base.DataDumpParser;
 import com.energyict.protocolimpl.base.DataParseException;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.base.RtuPlusServerHalfDuplexController;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
@@ -112,6 +113,8 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 
 	private HalfDuplexController halfDuplexController;
 	private int halfDuplex;
+
+	private int rs485RtuPlusServer = 0;
 
 	/** Creates a new instance of AS220, empty constructor */
 	public AS220() {
@@ -212,6 +215,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 			this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
 			this.failOnUnitMismatch = Integer.parseInt(properties.getProperty("FailOnUnitMismatch", "0"));
 			this.halfDuplex=Integer.parseInt(properties.getProperty("HalfDuplex","0").trim());
+			this.rs485RtuPlusServer=Integer.parseInt(properties.getProperty("RS485RtuPlusServer","0").trim());
 		} catch (NumberFormatException e) {
 			throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
 		}
@@ -291,6 +295,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 		result.add("Software7E1");
 		result.add("HalfDuplex");
 		result.add("FailOnUnitMismatch");
+		result.add("RS485RtuPlusServer");
 		return result;
 	}
 
@@ -872,9 +877,17 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 		this.aS220Messages.doDemandReset();
 	}
 
-	public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
-		this.halfDuplexController = halfDuplexController;
-		halfDuplexController.setDelay(this.halfDuplex);
+	private boolean isRS485RtuPlusServer() {
+		return (this.rs485RtuPlusServer  != 0);
+	}
+
+	public void setHalfDuplexController(HalfDuplexController controller) {
+		if (isRS485RtuPlusServer()) {
+			this.halfDuplexController = new RtuPlusServerHalfDuplexController(controller);
+		} else {
+			this.halfDuplexController = controller;
+		}
+		this.halfDuplexController.setDelay(this.halfDuplex);
 	}
 
 }

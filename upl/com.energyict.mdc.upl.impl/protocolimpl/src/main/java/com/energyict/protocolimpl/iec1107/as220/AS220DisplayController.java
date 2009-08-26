@@ -60,7 +60,7 @@ public class AS220DisplayController {
 	}
 
 	private String getPacketFromString(String displayMessage) {
-		String message = formatMessageLength(displayMessage);
+		String message = formatMessageLength(cleanMessageValue(displayMessage));
 		message = toHexString(message);
 		return "010000" + message.substring(14, 20) + "000000" + message.substring(0, 14) + "0000";
 	}
@@ -76,4 +76,25 @@ public class AS220DisplayController {
 		}
 		return message;
 	}
+
+	private String cleanMessageValue(String attributeValue) {
+		final char TAB = 0x09;
+		final char LF = 0x0A;
+		final char CR = 0x0D;
+
+		boolean isValidChar = true;
+		String returnValue = "";
+
+		for (int i = 0; i < attributeValue.length(); i ++) {
+			isValidChar = true;
+			if (attributeValue.charAt(i) == CR) { isValidChar = false; }
+			if (attributeValue.charAt(i) == LF) { isValidChar = false; }
+			if (attributeValue.charAt(i) == TAB) { isValidChar = false; }
+			if (isValidChar) {
+				returnValue += attributeValue.charAt(i);
+			}
+		}
+		return returnValue;
+	}
+
 }
