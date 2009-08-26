@@ -240,19 +240,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 	}
 
 	public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
-
-		AS220DisplayController displayController = new AS220DisplayController(this);
-		try {
-			for (int i = 100; i < 150; i++) {
-				displayController.writeMessage("Jeroen " + i);
-				Thread.sleep(250);
-			}
-			displayController.clearDisplay();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		throw new UnsupportedException();
 	}
 
 	/**
