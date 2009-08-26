@@ -182,6 +182,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 		Date startTime = cal.getTime();
 		ArrayList dataList = new ArrayList();
 		Date lastDate=null;
+		List partialVals = new ArrayList(); 
 
 		ParseUtils.roundDown2nearestInterval(cal,getProfileInterval());
 
@@ -204,14 +205,29 @@ public class Jem10 extends Jem implements MessageProtocol  {
 				if((val & intervalIndicator) == intervalIndicator) {
 					val = val ^ intervalIndicator;				
 				}
-				values.add(new BigDecimal(val));				
+				BigDecimal bd;
+				if (partialVals.size()>0)
+					bd = (BigDecimal)partialVals.remove(0);
+				else
+					bd = new BigDecimal(0);
+				values.add(bd.add(new BigDecimal(val)));				
 			}
 
 			if(eventVal>0) {
+				partialVals = new ArrayList(values);
 				try {
 					startTime = getShortDateFormatter().parse(convertHexToString(byteStream, 5, true));
+					
+					if (noDate){
+						//on the first event set the time
+						noDate = false;
+						cal.setTime(startTime);
+						ParseUtils.roundUp2nearestInterval(cal, getProfileInterval());
+					}
+					
 					Date endTime = null;
-					if(byteStream.available()>0 && !( ((val = convertHexToLong(byteStream, len))& intervalIndicator) == intervalIndicator)) {
+					if(byteStream.available()>0 && !( (((val = convertHexToLong(byteStream, len))& intervalIndicator) == intervalIndicator) //)){
+							|| (((val)& eventIndicator) == eventIndicator))) {
 						String s = Long.toHexString(val);
 						while (s.length()<4)
 							s="0"+s;
@@ -222,41 +238,31 @@ public class Jem10 extends Jem implements MessageProtocol  {
 					
 					if ((eventVal & powerOutEvent) == powerOutEvent) { //powerOutage
 						eventVal=0;
-						noDate = false;
-						eiStatus = IntervalStateBits.POWERDOWN;
-						if(endTime.getTime() - startTime.getTime() < getProfileInterval()){
+						if(endTime.before(cal.getTime())){
+							//Power up power down happens inside the interval
 							eiStatus = IntervalStateBits.POWERDOWN | IntervalStateBits.POWERUP;
 							continue;
 						}
-						if(cal.getTime().getTime() >= startDate.getTime() && cal.getTime().before(now)) {
+						else {
+							//save values now with power down, then jump cal to power up interval
+							eiStatus = IntervalStateBits.POWERDOWN;
 							IntervalData id = new IntervalData(cal.getTime(), eiStatus);
 							id.addValues(values);
 							pd.addInterval(id);
-						}
-
-						values = new ArrayList();
-						cal.setTime(endTime);
-						ParseUtils.roundUp2nearestInterval(cal, getProfileInterval());
-						eiStatus = IntervalStateBits.POWERUP;
-						for(int i=0; i<channelCount; i++) {
-							values.add(new BigDecimal(0));
+							partialVals = new ArrayList();
+							cal.setTime(endTime);
+							ParseUtils.roundUp2nearestInterval(cal, getProfileInterval());
+							eiStatus = IntervalStateBits.POWERUP;
+							continue;
 						}
 					}
 					else if((eventVal & 0x80) == 0x80) { //midnight
 						eventVal=0;
-						noDate = false;
-						cal.setTime(startTime);
 					}
 					else{
 						eventVal=0;
-						Calendar tempCal = (Calendar)cal.clone();
-						tempCal.setTime(startTime);
-						ParseUtils.roundDown2nearestInterval(tempCal, getProfileInterval());
-						if(lastDate==null || (lastDate!=null && tempCal.getTime().equals(lastDate) ||
-								tempCal.getTime().before(lastDate)))
 							continue;
 					}
-//					pd.addEvent(new MeterEvent(now,MeterEvent.APPLICATION_ALERT_START, "SDK Sample"));
 
 				}
 				catch(Exception e) {
@@ -270,8 +276,10 @@ public class Jem10 extends Jem implements MessageProtocol  {
 			
 			if(noDate){
 				dataList.add(values);
+				partialVals = new ArrayList();
 			}
 			else{
+				partialVals = new ArrayList();
 				if(dataList.size()>0){
 					Calendar c = (Calendar)cal.clone();
 					c.setTime(startTime);
@@ -513,7 +521,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 		try
 		{
 			Date date = getDateFormatter().parse(instr);
-
+			getLogger().info("Meter time: " + date + " System time: " + new Date());
 			return date;
 		}
 		catch (Exception e)
@@ -547,6 +555,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 
 		byte[] check = connection.getCheck(send, send.length);
 
+		getLogger().info("Setting time to " + cal.getTime());
 		outputStream.write(ack);
 		outputStream.write(send);
 		outputStream.write(check);
@@ -557,6 +566,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 		inval = bais.read();
 		if (inval!=6)
 			throw new IOException("Failed to set time");
+		getLogger().info("Set time successful");
 	}
 
 	public String getProtocolVersion() {

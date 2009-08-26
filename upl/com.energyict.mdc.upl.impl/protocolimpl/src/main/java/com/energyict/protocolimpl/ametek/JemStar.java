@@ -98,6 +98,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 		long startTime = cal.getTimeInMillis();
 		ArrayList dataList = new ArrayList();
 		Date lastDate = null;
+		List partialVals = new ArrayList(); 
 
 		ParseUtils.roundDown2nearestInterval(cal,getProfileInterval());
 		while(byteStream.available()>0)
@@ -112,66 +113,59 @@ public class JemStar extends Jem implements MessageProtocol  {
 					isEvent = true;
 					val = val ^ eventIndicator;
 				}
-				values.add(new BigDecimal(val));
+				BigDecimal bd;
+				if (partialVals.size()>0)
+					bd = (BigDecimal)partialVals.remove(0);
+				else
+					bd = new BigDecimal(0);
+				values.add(bd.add(new BigDecimal(val)));
 
 			}
 
 			if(isEvent)
 			{
+				partialVals = new ArrayList(values);
 				isEvent = false;
 				long eventCode = convertHexToLongLE(byteStream, len);
 				startTime = convertHexToLongLE(byteStream, 4);
-
+				
+				if (noDate){
+					//on the first event set the time
+					startTime *= 1000l;
+					startTime -= getTimeZone().getOffset(startTime);
+					noDate = false;
+					cal.setTimeInMillis(startTime);
+					ParseUtils.roundUp2nearestInterval(cal, getProfileInterval());
+				}
+				
 				long endTime = convertHexToLongLE(byteStream, 4);
 				//endTime not used
 				//byteStream.skip(4);//used to be eaten in endTime
 				if ((eventCode & powerOutEvent) == powerOutEvent) //powerOutage
-				{					
-					eiStatus = IntervalStateBits.POWERDOWN;
-					startTime *= 1000;
-					startTime -= getTimeZone().getOffset(startTime);
-					cal.setTimeInMillis(startTime);
-					ParseUtils.roundUp2nearestInterval(cal, getProfileInterval());
-					startTime=cal.getTimeInMillis();
-					endTime*=1000;
-					endTime -= getTimeZone().getOffset(endTime);
-					if(endTime - startTime < (getProfileInterval()*1000)){
+				{			
+					if(endTime < cal.getTimeInMillis()){
+						//Power up power down happens inside the interval
 						eiStatus = IntervalStateBits.POWERDOWN | IntervalStateBits.POWERUP;
 						continue;
 					}
-					
-					if(cal.getTime().getTime() >= startDate.getTime() && cal.getTime().before(now)) {
+					else {
+						//save values now with power down, then jump cal to power up interval
+						eiStatus = IntervalStateBits.POWERDOWN;
 						IntervalData id = new IntervalData(cal.getTime(), eiStatus);
 						id.addValues(values);
 						pd.addInterval(id);
-					}
-					
-					values = new ArrayList();
-//					endTime *= 1000;
-//					endTime -= getTimeZone().getOffset(endTime);
-					cal.setTimeInMillis(endTime);
-					ParseUtils.roundDown2nearestInterval(cal, getProfileInterval());
-					eiStatus = IntervalStateBits.POWERUP;
-					for(int i=0; i<channelCount; i++)
-					{
-						values.add(new BigDecimal(0));
+						partialVals = new ArrayList();
+						cal.setTimeInMillis(endTime);
+						ParseUtils.roundUp2nearestInterval(cal, getProfileInterval());
+						eiStatus = IntervalStateBits.POWERUP;
+						continue;
 					}
 				}
+//				}
 				else if((eventCode & eventIndicator) == eventIndicator) //midnight
 				{
-					noDate = false;
-					startTime *= 1000;
-					startTime -= getTimeZone().getOffset(startTime);
-					cal.setTimeInMillis(startTime);
 				}
 				else{
-					startTime *= 1000;
-					startTime -= getTimeZone().getOffset(startTime);
-					Calendar tempCal = (Calendar)cal.clone();
-					tempCal.setTimeInMillis(startTime);
-					ParseUtils.roundDown2nearestInterval(tempCal, getProfileInterval());
-					if(lastDate==null || (lastDate!=null && tempCal.getTime().equals(lastDate) ||
-							tempCal.getTime().before(lastDate)))
 						continue;
 				}
 				
@@ -188,14 +182,12 @@ public class JemStar extends Jem implements MessageProtocol  {
 					processList(dataList, c, startDate, now);
 					dataList = new ArrayList();
 				}
-				if(cal.getTime().getTime() >= startDate.getTime() && cal.getTime().before(now))
+				if(cal.getTime().after(startDate) && cal.getTime().before(now))
 				{
 					IntervalData id = new IntervalData(cal.getTime(), eiStatus);
 					id.addValues(values);
 					pd.addInterval(id);
 				}
-//				else
-//					System.out.println("NOOO NOW=" + now + " CAL= " + cal.getTime());
 				lastDate = cal.getTime();
 				cal.add(Calendar.SECOND, getProfileInterval());
 				eiStatus=0;
@@ -380,6 +372,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 		try
 		{
 			Date date = getDateFormatter().parse(instr);
+			getLogger().info("Meter time: " + date + " System time: " + new Date());
 			return date;
 		}
 		catch (Exception e)
@@ -411,7 +404,8 @@ public class JemStar extends Jem implements MessageProtocol  {
 				(byte)(w), 0x10,0x03};
 
 		byte[] check = connection.getCheck(send, send.length);
-
+		
+		getLogger().info("Setting time to " + cal.getTime());
 		outputStream.write(ack);
 		outputStream.write(send);
 		outputStream.write(check);
@@ -423,6 +417,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 		inval = bais.read();
 		if (inval!=6)
 			throw new IOException("Failed to set time");
+		getLogger().info("Set time successful");
 	}
 
 	public String getProtocolVersion() {
