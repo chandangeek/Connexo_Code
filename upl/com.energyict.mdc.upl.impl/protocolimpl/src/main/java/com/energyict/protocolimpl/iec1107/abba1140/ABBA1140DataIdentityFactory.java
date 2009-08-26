@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.abba230.ABBA230DataIdentity;
 
 /** @author fbo */
 
