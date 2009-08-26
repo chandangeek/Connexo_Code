@@ -137,7 +137,7 @@ public class AS220Messages implements MessageProtocol {
 			}
 
 			if (isThisMessage(messageEntry, SET_DISPLAY_MESSAGE)) {
-				doWriteMessageToDisplay(messageEntry.getContentBetweenTags());
+				doWriteMessageToDisplay(getContentBetweenTags(messageEntry.getContent()));
 				return MessageResult.createSuccess(messageEntry);
 			}
 
@@ -214,6 +214,13 @@ public class AS220Messages implements MessageProtocol {
 
 	private static boolean isThisMessage(MessageEntry messageEntry, AS220MessageType messagetype) {
 		return (AS220Utils.getXMLAttributeValue(messagetype.getTagName(), messageEntry.getContent()) != null);
+	}
+
+	private static String getContentBetweenTags(String value) {
+		String returnValue = value;
+		int startPos = returnValue.indexOf('>') + 1;
+		int endPos = returnValue.lastIndexOf('<');
+		return returnValue.substring(startPos, endPos);
 	}
 
 	private Logger getLogger() {
