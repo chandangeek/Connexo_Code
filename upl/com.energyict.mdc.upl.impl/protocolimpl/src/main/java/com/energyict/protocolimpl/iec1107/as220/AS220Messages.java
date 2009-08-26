@@ -44,6 +44,10 @@ public class AS220Messages implements MessageProtocol {
 	private static final AS220MessageType LOAD_LOG_RESET = new AS220MessageType("LOAD_LOG_RESET", 0, 0, "Load profile and logfile reset");
 	private static final AS220MessageType EVENT_LOG_RESET = new AS220MessageType("EVENT_LOG_RESET", 0, 0, "Event log register reset");
 
+	private static final AS220MessageType SET_DISPLAY_MESSAGE = new AS220MessageType("SET_DISPLAY_MESSAGE", 0, 0, "Write a message to the LCD of the meter");
+	private static final AS220MessageType CLEAR_DISPLAY_MESSAGE = new AS220MessageType("CLEAR_DISPLAY_MESSAGE", 0, 0,
+	"Clear the message on the LCD of the meter");
+
 	private AS220 as220 = null;
 
 	public AS220Messages(AS220 as220) {
@@ -67,8 +71,13 @@ public class AS220Messages implements MessageProtocol {
 		catResetMessages.addMessageSpec(addBasicMsg(LOAD_LOG_RESET, true));
 		catResetMessages.addMessageSpec(addBasicMsg(EVENT_LOG_RESET, true));
 
+		MessageCategorySpec catDisplay = new MessageCategorySpec("'Display' Messages");
+		catDisplay.addMessageSpec(addBasicMsg(SET_DISPLAY_MESSAGE, false));
+		catDisplay.addMessageSpec(addBasicMsg(CLEAR_DISPLAY_MESSAGE, false));
+
 		theCategories.add(catContactor);
 		theCategories.add(catResetMessages);
+		theCategories.add(catDisplay);
 		return theCategories;
 	}
 
@@ -124,6 +133,16 @@ public class AS220Messages implements MessageProtocol {
 
 			if (isThisMessage(messageEntry, EVENT_LOG_RESET)) {
 				doEventLogReset();
+				return MessageResult.createSuccess(messageEntry);
+			}
+
+			if (isThisMessage(messageEntry, SET_DISPLAY_MESSAGE)) {
+				doWriteMessageToDisplay(messageEntry.getContentBetweenTags());
+				return MessageResult.createSuccess(messageEntry);
+			}
+
+			if (isThisMessage(messageEntry, CLEAR_DISPLAY_MESSAGE)) {
+				doClearDisplay();
 				return MessageResult.createSuccess(messageEntry);
 			}
 
@@ -283,8 +302,8 @@ public class AS220Messages implements MessageProtocol {
 	}
 
 	/**
-	 * With this command all registers of the meter (energy, demand register, ...)
-	 * will be reset to zero.
+	 * With this command all registers of the meter (energy, demand register,
+	 * ...) will be reset to zero.
 	 * @throws IOException
 	 */
 	public void doRegistersReset() throws IOException {
@@ -296,7 +315,7 @@ public class AS220Messages implements MessageProtocol {
 	 * Resets the event logs of class 25.
 	 * @throws IOException
 	 */
-	public void doEventLogReset()  throws IOException {
+	public void doEventLogReset() throws IOException {
 		getLogger().fine("Received EVENT_LOG_RESET");
 		getAS220().getAS220Registry().setRegister(AS220Registry.EVENT_LOG_RESET_REGISTER, "");
 	}
@@ -305,9 +324,30 @@ public class AS220Messages implements MessageProtocol {
 	 * With that command the load profile and log file will be reset.
 	 * @throws IOException
 	 */
-	public void doLoadLogReset()  throws IOException {
+	public void doLoadLogReset() throws IOException {
 		getLogger().fine("Received LOAD_LOG_RESET");
 		getAS220().getAS220Registry().setRegister(AS220Registry.LOAD_LOG_RESET_REGISTER, "");
+	}
+
+	/**
+	 * This command clears the message on the display of the meter.
+	 * @throws IOException
+	 */
+	public void doClearDisplay() throws IOException {
+		AS220DisplayController displayController = new AS220DisplayController(getAS220());
+		displayController.clearDisplay();
+	}
+
+	/**
+	 * This command sends a message onto the display of the meter. This message
+	 * has the highest priority. This means that all other messages are
+	 * overwritten by this message in scrollmode.
+	 * @param message The message to show on the LCD of the device
+	 * @throws IOException
+	 */
+	public void doWriteMessageToDisplay(String message) throws IOException {
+		AS220DisplayController displayController = new AS220DisplayController(getAS220());
+		displayController.writeMessage(message);
 	}
 
 }

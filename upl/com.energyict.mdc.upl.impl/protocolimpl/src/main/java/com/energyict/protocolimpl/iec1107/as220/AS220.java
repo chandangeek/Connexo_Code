@@ -243,7 +243,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 				displayController.writeMessage("Jeroen " + i);
 				Thread.sleep(250);
 			}
-			displayController.clearMessage();
+			displayController.clearDisplay();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

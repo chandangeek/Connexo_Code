@@ -44,7 +44,7 @@ public class AS220DisplayController {
 	 * This command clears the message on the display of the meter.
 	 * @throws IOException
 	 */
-	public void clearMessage() throws IOException {
+	public void clearDisplay() throws IOException {
 		getLogger().fine("Clearing message from device.");
 		getAs220().getAS220Registry().setRegister(AS220Registry.DISPLAY_MESSAGE_REGISTER, "00");
 	}
