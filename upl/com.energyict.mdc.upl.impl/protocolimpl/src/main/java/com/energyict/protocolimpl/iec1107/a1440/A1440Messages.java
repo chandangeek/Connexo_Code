@@ -211,8 +211,8 @@ public class A1440Messages implements MessageProtocol {
 	 * @throws IOException
 	 */
 	public void doOpenContactor() throws IOException {
-		getLogger().fine("Received contactor ARM");
-		ContactorController cc = new A1440ContactorController(this.a1440);
+		getLogger().fine("Received contactor CONTACTOR_OPEN");
+		ContactorController cc = new A1440ContactorController(getA1440());
 		cc.doDisconnect();
 	}
 
@@ -223,7 +223,7 @@ public class A1440Messages implements MessageProtocol {
 	 */
 	public void doCloseContactor() throws IOException {
 		getLogger().fine("Received contactor CONTACTOR_CLOSE");
-		ContactorController cc = new A1440ContactorController(this.a1440);
+		ContactorController cc = new A1440ContactorController(getA1440());
 		cc.doConnect();
 	}
 
@@ -235,7 +235,7 @@ public class A1440Messages implements MessageProtocol {
 	 */
 	public void doArmContactor() throws IOException {
 		getLogger().fine("Received contactor CONTACTOR_ARM");
-		ContactorController cc = new A1440ContactorController(this.a1440);
+		ContactorController cc = new A1440ContactorController(getA1440());
 		cc.doArm();
 	}
 

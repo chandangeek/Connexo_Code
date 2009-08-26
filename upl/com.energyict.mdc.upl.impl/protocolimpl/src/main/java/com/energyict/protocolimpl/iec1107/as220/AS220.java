@@ -24,10 +24,12 @@ import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.DemandResetProtocol;
 import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
@@ -62,7 +64,7 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
  * 19-08-2009 jme > Copied ABBA1350 protocol as base for new AS220 protocol
  * 
  */
-public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, DemandResetProtocol {
+public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, DemandResetProtocol {
 
 	private final static int DEBUG = 0;
 
@@ -107,6 +109,9 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	private String meterSerial = null;
 
 	private boolean software7E1;
+
+	private HalfDuplexController halfDuplexController;
+	private int halfDuplex;
 
 	/** Creates a new instance of AS220, empty constructor */
 	public AS220() {
@@ -206,6 +211,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			this.loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber", "1"));
 			this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
 			this.failOnUnitMismatch = Integer.parseInt(properties.getProperty("FailOnUnitMismatch", "0"));
+			this.halfDuplex=Integer.parseInt(properties.getProperty("HalfDuplex","0").trim());
 		} catch (NumberFormatException e) {
 			throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
 		}
@@ -231,21 +237,16 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 	public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
 
-		if (name.equals("CONNECT")) {
-			System.out.println("Received CONNECT message: " + value);
-			AS220ContactorController cc = new AS220ContactorController(this);
-			cc.doConnect();
-		} else if (name.equals("DISCONNECT")) {
-			System.out.println("Received DISCONNECT message: " + value);
-			AS220ContactorController cc = new AS220ContactorController(this);
-			cc.doDisconnect();
-		} else if (name.equals("ARM")) {
-			System.out.println("Received ARM message: " + value);
-			AS220ContactorController cc = new AS220ContactorController(this);
-			cc.doArm();
-		} else {
-			System.out.println("Received message: name = " + name + ", value = " + value);
-			getAS220Registry().setRegister(name, value);
+		AS220DisplayController displayController = new AS220DisplayController(this);
+		try {
+			for (int i = 100; i < 150; i++) {
+				displayController.writeMessage("Jeroen " + i);
+				Thread.sleep(250);
+			}
+			displayController.clearMessage();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 	}
@@ -288,6 +289,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		result.add("VDEWCompatible");
 		result.add("ForceDelay");
 		result.add("Software7E1");
+		result.add("HalfDuplex");
 		result.add("FailOnUnitMismatch");
 		return result;
 	}
@@ -313,7 +315,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 		try {
 			this.flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, this.iIEC1107TimeoutProperty, this.iProtocolRetriesProperty,
-					this.iForceDelay, this.iEchoCancelling, 1, this.software7E1);
+					this.iForceDelay, this.iEchoCancelling, 1, null, this.halfDuplex != 0 ? this.halfDuplexController : null, this.software7E1);
 			this.aS220Registry = new AS220Registry(this, this);
 			this.aS220Profile = new AS220Profile(this, this, this.aS220Registry);
 
@@ -868,6 +870,11 @@ public class AS220 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 	public void resetDemand() throws IOException {
 		this.aS220Messages.doDemandReset();
+	}
+
+	public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
+		this.halfDuplexController = halfDuplexController;
+		halfDuplexController.setDelay(this.halfDuplex);
 	}
 
 }

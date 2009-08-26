@@ -139,7 +139,7 @@ public class AS220Messages implements MessageProtocol {
 	}
 
 	public String writeMessage(Message msg) {
-		return msg.write(this.as220);
+		return msg.write(getAS220());
 	}
 
 	public void applyMessages(List messageEntries) {
@@ -211,8 +211,8 @@ public class AS220Messages implements MessageProtocol {
 	 * @throws IOException
 	 */
 	public void doOpenContactor() throws IOException {
-		getLogger().fine("Received contactor ARM");
-		ContactorController cc = new AS220ContactorController(this.as220);
+		getLogger().fine("Received contactor CONTACTOR_OPEN");
+		ContactorController cc = new AS220ContactorController(getAS220());
 		cc.doDisconnect();
 	}
 
@@ -223,7 +223,7 @@ public class AS220Messages implements MessageProtocol {
 	 */
 	public void doCloseContactor() throws IOException {
 		getLogger().fine("Received contactor CONTACTOR_CLOSE");
-		ContactorController cc = new AS220ContactorController(this.as220);
+		ContactorController cc = new AS220ContactorController(getAS220());
 		cc.doConnect();
 	}
 
@@ -235,7 +235,7 @@ public class AS220Messages implements MessageProtocol {
 	 */
 	public void doArmContactor() throws IOException {
 		getLogger().fine("Received contactor CONTACTOR_ARM");
-		ContactorController cc = new AS220ContactorController(this.as220);
+		ContactorController cc = new AS220ContactorController(getAS220());
 		cc.doArm();
 	}
 

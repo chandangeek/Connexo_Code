@@ -11,16 +11,17 @@ public class AS220ContactorController implements ContactorController {
 	private static final String CONTACTOR_ARMED 	= "1";
 	private static final String CONTACTOR_CLOSED 	= "2";
 
-	private AS220 aS220 = null;
+	private AS220 as220 = null;
 
 	/**
 	 * Constructor for the AS220ContactorController
-	 * @param aS220 The AS220 protocol, used to get the AS220Registry and the logger
+	 * @param as220 The AS220 protocol, used to get the AS220Registry and the logger
 	 */
-	public AS220ContactorController(AS220 aS220) {
-		if ((aS220 == null) || (aS220.getAS220Registry() == null)) {
+	public AS220ContactorController(AS220 as220) {
+		if ((as220 == null) || (as220.getAS220Registry() == null)) {
 			throw new IllegalArgumentException("Argument as220 or as220.getAS220Registry() cannot be null!");
 		}
+		this.as220 = as220;
 	}
 
 	/*
@@ -28,7 +29,7 @@ public class AS220ContactorController implements ContactorController {
 	 */
 
 	private AS220 getAS220() {
-		return this.aS220;
+		return this.as220;
 	}
 
 	/**

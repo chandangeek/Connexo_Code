@@ -21,6 +21,7 @@ public class A1440ContactorController implements ContactorController {
 		if ((a1440 == null) || (a1440.getA1440Registry() == null)) {
 			throw new IllegalArgumentException("Argument a1440 or a1440.getA1440Registry() cannot be null!");
 		}
+		this.a1440 = a1440;
 	}
 
 	/*

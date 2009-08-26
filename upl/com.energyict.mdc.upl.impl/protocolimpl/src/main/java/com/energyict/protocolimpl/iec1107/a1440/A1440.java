@@ -24,10 +24,12 @@ import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.DemandResetProtocol;
 import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
@@ -45,7 +47,6 @@ import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.base.DataDumpParser;
 import com.energyict.protocolimpl.base.DataParseException;
 import com.energyict.protocolimpl.base.DataParser;
@@ -63,7 +64,7 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
  * 19-08-2009 jme > Copied ABBA1350 protocol as base for new A1440 protocol
  * 
  */
-public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, DemandResetProtocol {
+public class A1440 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, DemandResetProtocol {
 
 	private final static int DEBUG = 0;
 
@@ -108,6 +109,9 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	private String meterSerial = null;
 
 	private boolean software7E1;
+
+	private HalfDuplexController halfDuplexController;
+	private long halfDuplex;
 
 	/** Creates a new instance of A1440, empty constructor */
 	public A1440() {
@@ -207,6 +211,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 			this.loadProfileNumber = Integer.parseInt(properties.getProperty("LoadProfileNumber", "1"));
 			this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
 			this.failOnUnitMismatch = Integer.parseInt(properties.getProperty("FailOnUnitMismatch", "0"));
+			this.halfDuplex=Integer.parseInt(properties.getProperty("HalfDuplex","0").trim());
 		} catch (NumberFormatException e) {
 			throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, " + e.getMessage());
 		}
@@ -231,24 +236,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 	}
 
 	public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
-
-		if (name.equals("CONNECT")) {
-			System.out.println("Received CONNECT message: " + value);
-			ContactorController cc = new A1440ContactorController(this);
-			cc.doConnect();
-		} else if (name.equals("DISCONNECT")) {
-			System.out.println("Received DISCONNECT message: " + value);
-			ContactorController cc = new A1440ContactorController(this);
-			cc.doDisconnect();
-		} else if (name.equals("ARM")) {
-			System.out.println("Received ARM message: " + value);
-			ContactorController cc = new A1440ContactorController(this);
-			cc.doArm();
-		} else {
-			System.out.println("Received message: name = " + name + ", value = " + value);
-			getA1440Registry().setRegister(name, value);
-		}
-
+		throw new UnsupportedException();
 	}
 
 	/**
@@ -289,6 +277,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 		result.add("VDEWCompatible");
 		result.add("ForceDelay");
 		result.add("Software7E1");
+		result.add("HalfDuplex");
 		result.add("FailOnUnitMismatch");
 		return result;
 	}
@@ -314,7 +303,7 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 		try {
 			this.flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, this.iIEC1107TimeoutProperty, this.iProtocolRetriesProperty,
-					this.iForceDelay, this.iEchoCancelling, 1, this.software7E1);
+					this.iForceDelay, this.iEchoCancelling, 1, null, this.halfDuplex != 0 ? this.halfDuplexController : null, this.software7E1);
 			this.a1440Registry = new A1440Registry(this, this);
 			this.a1440Profile = new A1440Profile(this, this, this.a1440Registry);
 
@@ -869,6 +858,11 @@ public class A1440 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExce
 
 	public void resetDemand() throws IOException {
 		this.a1440Messages.doDemandReset();
+	}
+
+	public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
+		this.halfDuplexController = halfDuplexController;
+		halfDuplexController.setDelay(this.halfDuplex);
 	}
 
 }
