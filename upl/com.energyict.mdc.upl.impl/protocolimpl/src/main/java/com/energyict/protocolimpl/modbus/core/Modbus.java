@@ -14,7 +14,6 @@ import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.iec1107.abba230.TariffSaxParser;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 
 import java.io.*;

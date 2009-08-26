@@ -6,7 +6,6 @@
 
 package com.energyict.protocolimpl.meteridentification;
 import java.io.*;
-import java.util.*;
 
 
 /**
