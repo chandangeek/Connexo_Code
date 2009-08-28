@@ -297,15 +297,28 @@ public class JemStar extends Jem implements MessageProtocol  {
 //		if(to!=null)
 //		dateRangeCmd = 0xff;
 		
-		//READ REGULAR REGISTERS
-		byte[] send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x52,0x02,0x10,0x02,(byte)dateRangeCmd,0x10,0x03};
+		//FREEZE REGISTERS BEFORE READ
+		byte[] send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x4C,0x01,0x10,0x02,0x10,0x03};
 		byte[] check = connection.getCheck(send, send.length);
+		outputStream.write(ack);
+		outputStream.write(send);
+		outputStream.write(check);
+		InputStream dataInStream = new ByteArrayInputStream(connection.receiveResponse().toByteArray());
+		int inval = dataInStream.read();
+		if (inval!=6)
+			getLogger().warning("Failed to freeze regiser");
+		else
+			getLogger().info("Registers frozen successfully");
+		
+		//READ REGULAR REGISTERS
+		send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x52,0x02,0x10,0x02,(byte)dateRangeCmd,0x10,0x03};
+		check = connection.getCheck(send, send.length);
 
 		outputStream.write(ack);
 		outputStream.write(send);
 		outputStream.write(check);
 
-		InputStream dataInStream = new ByteArrayInputStream(connection.receiveResponse().toByteArray());
+		dataInStream = new ByteArrayInputStream(connection.receiveResponse().toByteArray());
 		processRegisters(dataInStream, REGULAR);
 		
 		//READ ALTERNATE REGISTERS
@@ -372,7 +385,6 @@ public class JemStar extends Jem implements MessageProtocol  {
 		try
 		{
 			Date date = getDateFormatter().parse(instr);
-			getLogger().info("Meter time: " + date + " System time: " + new Date());
 			return date;
 		}
 		catch (Exception e)
