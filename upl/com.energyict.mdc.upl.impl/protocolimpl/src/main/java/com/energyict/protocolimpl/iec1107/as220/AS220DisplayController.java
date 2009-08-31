@@ -18,6 +18,10 @@ public class AS220DisplayController {
 	private static final int VALUE_FIELD_LENGTH = 7;
 	private static final String CLEAR_MESSAGE = "000000000000000000000000000000000000";
 
+	private static final char TAB = 0x09;
+	private static final char LF = 0x0A;
+	private static final char CR = 0x0D;
+
 	private AS220 as220 = null;
 
 	/**
@@ -101,10 +105,6 @@ public class AS220DisplayController {
 	 * @return The cleaned value of the string
 	 */
 	private String cleanMessageValue(String attributeValue) {
-		final char TAB = 0x09;
-		final char LF = 0x0A;
-		final char CR = 0x0D;
-
 		boolean isValidChar = true;
 		String returnValue = "";
 

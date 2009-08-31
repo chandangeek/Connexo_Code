@@ -257,8 +257,7 @@ public class AS220 implements MeterProtocol, HHUEnabler, HalfDuplexEnabler, Prot
 	 * @return a list of strings
 	 */
 	public List getRequiredKeys() {
-		List result = new ArrayList(0);
-		return result;
+		return new ArrayList(0);
 	}
 
 	/**
