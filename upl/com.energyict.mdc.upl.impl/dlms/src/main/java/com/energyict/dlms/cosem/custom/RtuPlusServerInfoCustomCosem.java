@@ -20,6 +20,7 @@ public class RtuPlusServerInfoCustomCosem extends Data {
 	private AbstractDataType dataType=null;
 	private String softwareVersion=null;
 	private String coreVersion=null;
+	private String eiwebPlusVersion=null;
 	
 	/** Indicates whether the RTU+Server has an RF interface. */
 	private Boolean eictRF;
@@ -30,6 +31,7 @@ public class RtuPlusServerInfoCustomCosem extends Data {
 	/** Indicates whether the RTU+Server has a PLC interface. */
 	private Boolean plc;
 	
+	private final String DEFAULT_EIWEBPLUS_SOFTWARE_VERSION="1.0.2";
 	private final String DEFAULT_SOFTWARE_VERSION="1.3.1";
 	private final String DEFAULT_CORE_VERSION="8.3.5";
 	
@@ -51,7 +53,7 @@ public class RtuPlusServerInfoCustomCosem extends Data {
 	
 	public RtuPlusServerInfoCustomCosem() {
 		super(new CompoundDataBuilderConnection(),new ObjectReference(LN));
-		softwareVersion=DEFAULT_SOFTWARE_VERSION;
+		softwareVersion=DEFAULT_EIWEBPLUS_SOFTWARE_VERSION;
 		coreVersion=DEFAULT_CORE_VERSION;
 	}
 	
@@ -78,20 +80,36 @@ public class RtuPlusServerInfoCustomCosem extends Data {
      * 
      * @throws 	IOException
      */
-    public void setFields(String softwareVersion, String coreVersion, final boolean wavenisInterface, final boolean eictRFInterface, final boolean plcInterface) throws IOException {
+    public void setFields(String softwareVersion, String coreVersion, String eiwebPlusVersion, final boolean wavenisInterface, final boolean eictRFInterface, final boolean plcInterface) throws IOException {
 		Structure structure = new Structure();
-		structure.addDataType(OctetString.fromString(softwareVersion));
-		structure.addDataType(OctetString.fromString(coreVersion));
+		structure.addDataType(OctetString.fromString(softwareVersion)); // 1
+		structure.addDataType(OctetString.fromString(coreVersion)); // 2
 		
 		// Add indicators of southbound communication types.
-		structure.addDataType(new BooleanObject(wavenisInterface));
-		structure.addDataType(new BooleanObject(eictRFInterface));
-		structure.addDataType(new BooleanObject(plcInterface));
+		structure.addDataType(new BooleanObject(wavenisInterface)); // 3
+		structure.addDataType(new BooleanObject(eictRFInterface)); // 4
+		structure.addDataType(new BooleanObject(plcInterface)); // 5
+
+		structure.addDataType(OctetString.fromString(eiwebPlusVersion)); // 6
+		
 		
 		setValueAttr(structure);
+		this.eiwebPlusVersion = eiwebPlusVersion;
 		this.softwareVersion = softwareVersion;
 		this.coreVersion = coreVersion;
     }
+
+    public String getEIWebPlusVersion() {
+    	if (eiwebPlusVersion==null) {
+	    	if (getValueAttr().getStructure().nrOfDataTypes()>=6)
+	    		eiwebPlusVersion = getValueAttr().getStructure().getDataType(5).isOctetString()?dataType.getStructure().getDataType(5).getOctetString().stringValue():null;
+	   		else
+	   			eiwebPlusVersion = null;
+    	}
+    	
+    	return eiwebPlusVersion;
+    }
+    
     
     public String getSoftwareVersion() {
     	if (softwareVersion==null) {
@@ -123,18 +141,52 @@ public class RtuPlusServerInfoCustomCosem extends Data {
     	super.setValueAttr(dataType);
     }
     
-    public boolean isVersion131() {
-    	return (getIntSoftwareVersion() == Integer.parseInt(DEFAULT_SOFTWARE_VERSION.replace(".","")));
+    public boolean isEIWebPlusVersion102() {
+    	if (getEIWebPlusVersion() != null) {
+    		if (getEIWebPlusVersion().indexOf("Development") >=0) {
+    			return false;
+    		}
+    		else {
+    			return (getIntVersion(getEIWebPlusVersion(),DEFAULT_EIWEBPLUS_SOFTWARE_VERSION) == Integer.parseInt(DEFAULT_EIWEBPLUS_SOFTWARE_VERSION.replace(".","")));
+    		}
+    	}
+    	else{
+    		if (getSoftwareVersion().indexOf("Development") >=0) {
+    			return false;
+    		}
+    		else {
+    			return (getIntVersion(getSoftwareVersion(),DEFAULT_SOFTWARE_VERSION) == Integer.parseInt(DEFAULT_SOFTWARE_VERSION.replace(".","")));
+    		}
+    	}
     }
     
-    private int getIntSoftwareVersion() {
+    public boolean isHigherThenEIWebPlusVersion102() {
+    	if (getEIWebPlusVersion() != null) {
+    		if (getEIWebPlusVersion().indexOf("Development") >=0) {
+    			return true;
+    		}
+    		else {
+    			return (getIntVersion(getEIWebPlusVersion(),DEFAULT_EIWEBPLUS_SOFTWARE_VERSION) > Integer.parseInt(DEFAULT_EIWEBPLUS_SOFTWARE_VERSION.replace(".","")));
+    		}
+    	}
+    	else {
+	    	if (getSoftwareVersion().indexOf("Development") >=0) {
+	    		return true;
+	    	}
+	    	else {
+	    		return (getIntVersion(getSoftwareVersion(),DEFAULT_SOFTWARE_VERSION) > Integer.parseInt(DEFAULT_SOFTWARE_VERSION.replace(".","")));
+	    	}
+    	}
+    }
+
+    private int getIntVersion(String version,String defaultVersion) {
         String patternStr = "[0-9].[0-9].[0-9]";
         Pattern pattern = Pattern.compile(patternStr);
-        Matcher matcher = pattern.matcher(getSoftwareVersion());
+        Matcher matcher = pattern.matcher(version);
         boolean matchFound = matcher.find();    // true
 
         if (!matchFound)
-        	return Integer.parseInt(DEFAULT_SOFTWARE_VERSION.replace(".",""));
+        	return Integer.parseInt(defaultVersion.replace(".",""));
         
         // Retrieve matching string
         String newVersion = matcher.group().replace(".","");         
@@ -142,9 +194,6 @@ public class RtuPlusServerInfoCustomCosem extends Data {
     	
     }
     
-    public boolean isHigherThenVersion131() {
-        return (getIntSoftwareVersion() > Integer.parseInt(DEFAULT_SOFTWARE_VERSION.replace(".","")));
-    }
     
     /**
      * Indicates whether the given RTU+Server has a Wavenis interface.
@@ -216,15 +265,15 @@ public class RtuPlusServerInfoCustomCosem extends Data {
     	}
     }
     
-//    static public void main(String[] args) {
-//    	RtuPlusServerInfoCustomCosem o = new RtuPlusServerInfoCustomCosem();
-//        try {
-//			o.setFields("1.3.0","");
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//        System.out.println(o.isHigherThenVersion131());
-//        System.out.println(o.isVersion131());
-//    }
+    static public void main(String[] args) {
+    	RtuPlusServerInfoCustomCosem o = new RtuPlusServerInfoCustomCosem();
+        try {
+			o.setFields("1.1.3","1.0.3",null,true,true,true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        System.out.println(o.isHigherThenEIWebPlusVersion102());
+        System.out.println(o.isEIWebPlusVersion102());
+    }
 }
