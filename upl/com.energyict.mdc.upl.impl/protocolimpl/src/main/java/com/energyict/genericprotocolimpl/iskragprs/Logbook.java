@@ -88,9 +88,10 @@ public class Logbook {
 					this.logger.log(Level.INFO, "An event is returned with an invalid timestamp, eventcode is : " + eventId);
 				}
 				
-				if (DEBUG >= 1)
+				if (DEBUG >= 1) {
 					System.out.println("DEBUG> eventId=" + eventId
 							+ ", eventTimeStamp=" + eventTimeStamp);
+				}
 			}
 
 		}
@@ -113,93 +114,113 @@ public class Logbook {
 		if ((eventId & 0x8000) == 0) {
 
 			/* These events can be combined */
-			if ((eventId & EVENT_STATUS_FATAL_ERROR) == EVENT_STATUS_FATAL_ERROR)
+			if ((eventId & EVENT_STATUS_FATAL_ERROR) == EVENT_STATUS_FATAL_ERROR) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.FATAL_ERROR, "Device disturbance"));
-			if ((eventId & EVENT_STATUS_DEVICE_CLOCK_RESERVE) == EVENT_STATUS_DEVICE_CLOCK_RESERVE)
+			}
+			if ((eventId & EVENT_STATUS_DEVICE_CLOCK_RESERVE) == EVENT_STATUS_DEVICE_CLOCK_RESERVE) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.OTHER, "Event status device clock reserve"));
-			if ((eventId & EVENT_STATUS_VALUE_CORRUPT) == EVENT_STATUS_VALUE_CORRUPT)
+			}
+			if ((eventId & EVENT_STATUS_VALUE_CORRUPT) == EVENT_STATUS_VALUE_CORRUPT) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.OTHER, "Event status value corrupt"));
-			if ((eventId & EVENT_STATUS_DAYLIGHT_CHANGE) == EVENT_STATUS_DAYLIGHT_CHANGE)
+			}
+			if ((eventId & EVENT_STATUS_DAYLIGHT_CHANGE) == EVENT_STATUS_DAYLIGHT_CHANGE) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.OTHER, "Event status daylight change"));
-			if ((eventId & EVENT_STATUS_BILLING_RESET) == EVENT_STATUS_BILLING_RESET)
+			}
+			if ((eventId & EVENT_STATUS_BILLING_RESET) == EVENT_STATUS_BILLING_RESET) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.BILLING_ACTION, "Billing action occured"));
-			if ((eventId & EVENT_STATUS_DEVICE_CLOCK_CHANGED) == EVENT_STATUS_DEVICE_CLOCK_CHANGED)
+			}
+			if ((eventId & EVENT_STATUS_DEVICE_CLOCK_CHANGED) == EVENT_STATUS_DEVICE_CLOCK_CHANGED) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.SETCLOCK, "Set time"));
-			if ((eventId & EVENT_STATUS_POWER_RETURNED) == EVENT_STATUS_POWER_RETURNED)
+			}
+			if ((eventId & EVENT_STATUS_POWER_RETURNED) == EVENT_STATUS_POWER_RETURNED) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.POWERUP, "PowerUp"));
-			if ((eventId & EVENT_STATUS_POWER_FAILURE) == EVENT_STATUS_POWER_FAILURE)
+			}
+			if ((eventId & EVENT_STATUS_POWER_FAILURE) == EVENT_STATUS_POWER_FAILURE) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.POWERDOWN, "PowerDown"));
-			if ((eventId & EVENT_STATUS_VARIABLE_SET) == EVENT_STATUS_VARIABLE_SET)
+			}
+			if ((eventId & EVENT_STATUS_VARIABLE_SET) == EVENT_STATUS_VARIABLE_SET) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.OTHER, "Event status variable set"));
-			if ((eventId & EVENT_STATUS_UNRELIABLE_OPERATING_CONDITIONS) == EVENT_STATUS_UNRELIABLE_OPERATING_CONDITIONS)
+			}
+			if ((eventId & EVENT_STATUS_UNRELIABLE_OPERATING_CONDITIONS) == EVENT_STATUS_UNRELIABLE_OPERATING_CONDITIONS) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.OTHER,
 						"Event status unreliable operating conditions"));
-			if ((eventId & EVENT_STATUS_END_OF_UNRELIABLE_OPERATING_CONDITIONS) == EVENT_STATUS_END_OF_UNRELIABLE_OPERATING_CONDITIONS)
+			}
+			if ((eventId & EVENT_STATUS_END_OF_UNRELIABLE_OPERATING_CONDITIONS) == EVENT_STATUS_END_OF_UNRELIABLE_OPERATING_CONDITIONS) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.OTHER,
 						"Event status end of unreliable operating conditions"));
-			if ((eventId & EVENT_STATUS_UNRELIABLE_EXTERNAL_CONTROL) == EVENT_STATUS_UNRELIABLE_EXTERNAL_CONTROL)
+			}
+			if ((eventId & EVENT_STATUS_UNRELIABLE_EXTERNAL_CONTROL) == EVENT_STATUS_UNRELIABLE_EXTERNAL_CONTROL) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.OTHER,
 						"Event status unreliable external control"));
-			if ((eventId & EVENT_STATUS_END_OF_UNRELIABLE_EXTERNAL_CONTROL) == EVENT_STATUS_END_OF_UNRELIABLE_EXTERNAL_CONTROL)
+			}
+			if ((eventId & EVENT_STATUS_END_OF_UNRELIABLE_EXTERNAL_CONTROL) == EVENT_STATUS_END_OF_UNRELIABLE_EXTERNAL_CONTROL) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.OTHER,
 						"Event status end of unreliable external control"));
-			if ((eventId & EVENT_STATUS_EVENTLOG_CLEARED) == EVENT_STATUS_EVENTLOG_CLEARED)
+			}
+			if ((eventId & EVENT_STATUS_EVENTLOG_CLEARED) == EVENT_STATUS_EVENTLOG_CLEARED) {
 				meterEvents
 						.add(new MeterEvent(eventTimeStamp,
 								MeterEvent.CLEAR_DATA,
 								"Event status event log cleared"));
+			}
 			if ((eventId & EVENT_STATUS_LOADPROFILE_CLEARED) == EVENT_STATUS_LOADPROFILE_CLEARED){
 
-//				meterEvents.add(new MeterEvent(eventTimeStamp,
-//						MeterEvent.CLEAR_DATA,
-//				"Event status load profile cleared"));
+				meterEvents.add(new MeterEvent(eventTimeStamp,
+						MeterEvent.CLEAR_DATA,
+				"Event status load profile cleared"));
 				
 				/** Current event only supported from EIServer8.3.13, otherwise be sure to use the event above */
-				meterEvents.add(new MeterEvent(eventTimeStamp,
-						MeterEvent.LOADPROFILE_CLEARED,
-				"Event status load profile cleared"));
+//				meterEvents.add(new MeterEvent(eventTimeStamp,
+//						MeterEvent.LOADPROFILE_CLEARED,
+//				"Event status load profile cleared"));
 			}
 
 		} else {
 
 			/* These events occur alone */
-			if (aloneEventId == EVENT_STATUS_L1_POWER_FAILURE)
+			if (aloneEventId == EVENT_STATUS_L1_POWER_FAILURE) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.PHASE_FAILURE,
 						"Event status L1 phase failure"));
-			if (aloneEventId == EVENT_STATUS_L2_POWER_FAILURE)
+			}
+			if (aloneEventId == EVENT_STATUS_L2_POWER_FAILURE) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.PHASE_FAILURE,
 						"Event status L2 phase failure"));
-			if (aloneEventId == EVENT_STATUS_L3_POWER_FAILURE)
+			}
+			if (aloneEventId == EVENT_STATUS_L3_POWER_FAILURE) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.PHASE_FAILURE,
 						"Event status L3 phase failure"));
-			if (aloneEventId == EVENT_STATUS_L1_POWER_RETURNED)
+			}
+			if (aloneEventId == EVENT_STATUS_L1_POWER_RETURNED) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.OTHER,
 						"Event status end of L1 phase failure"));
-			if (aloneEventId == EVENT_STATUS_L2_POWER_RETURNED)
+			}
+			if (aloneEventId == EVENT_STATUS_L2_POWER_RETURNED) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.OTHER,
 						"Event status end of L2 phase failure"));
-			if (aloneEventId == EVENT_STATUS_L3_POWER_RETURNED)
+			}
+			if (aloneEventId == EVENT_STATUS_L3_POWER_RETURNED) {
 				meterEvents.add(new MeterEvent(eventTimeStamp,
 						MeterEvent.OTHER,
 						"Event status end of L3 phase failure"));
+			}
 			if (aloneEventId == EVENT_STATUS_METER_COVER_OPENED){
 //				meterEvents.add(new MeterEvent(eventTimeStamp,
 //						MeterEvent.OTHER, "Event status meter cover opened"));
