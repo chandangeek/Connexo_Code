@@ -153,8 +153,10 @@ public class RtuMessageConstant {
 	public static final String GLOBAL_METER_RESET = "Global_Meter_Reset";
 	
 	/** RtuMessage tags for Corrected/UnCorrected values in Gas profile */
-	public static final String MBUS_CORRECTED_SWITCH = "Correction_switch";
-	public static final String MBUS_CORRECTED_VALUE = "Switch_State";
+//	public static final String MBUS_CORRECTED_SWITCH = "Correction_switch";
+//	public static final String MBUS_CORRECTED_VALUE = "Switch_State";
+	public static final String MBUS_CORRECTED_VALUES = "Corrected_values";
+	public static final String MBUS_UNCORRECTED_VALUES = "UnCorrected_values";
 	
 	/** RtuMessage tags for authentication and encryption */
 	public static final String AEE_CHANGE_HLS_SECRET = "Change_HLS_Secret";

@@ -205,4 +205,25 @@ public class MBusClient extends AbstractCosemObject{
 		setVersion(new Unsigned8(version));
 	}
 	
+	/**
+	 * Write the captureDefinitionBlock.
+	 * The array contains one or more structures with two elements in them.
+	 * The first is the DIB(DataInformationBlock) octetString, the other is the VIB(ValueInformationBlock) octetString
+	 * @param capDef
+	 * @throws IOException
+	 */
+	public void writeCaptureDefinition(Array capDef) throws IOException{
+		write(ATTRB_CAPTURE_DEFINITION, capDef.getBEREncodedByteArray());
+	}
+	
+	/**
+	 * Return the captureDefinitonBlock object
+	 * The array contains one or more structures with two elements in them.
+	 * The first is the DIB(DataInformationBlock) octetString, the other is the VIB(ValueInformationBlock) octetString
+	 * @return an array containing the capture definition of the mbus slave device
+	 * @throws IOException
+	 */
+	public Array getCaptureDefiniton() throws IOException {
+		return new Array(getLNResponseData(ATTRB_CAPTURE_DEFINITION), 0, 0);
+	}
 }

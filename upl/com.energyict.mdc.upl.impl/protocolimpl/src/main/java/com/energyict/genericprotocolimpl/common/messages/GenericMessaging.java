@@ -46,8 +46,9 @@ public abstract class GenericMessaging implements Messaging {
 		// b. Attributes
 		for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
 			MessageAttribute att = (MessageAttribute) it.next();
-			if (att.getValue() == null || att.getValue().length() == 0)
+			if (att.getValue() == null || att.getValue().length() == 0) {
 				continue;
+			}
 			buf.append(" ").append(att.getSpec().getName());
 			buf.append("=").append('"').append(att.getValue()).append('"');
 		}
@@ -59,12 +60,13 @@ public abstract class GenericMessaging implements Messaging {
 		// c. sub elements
 		for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
 			MessageElement elt = (MessageElement) it.next();
-			if (elt.isTag())
+			if (elt.isTag()) {
 				buf.append(writeTag((MessageTag) elt));
-			else if (elt.isValue()) {
+			} else if (elt.isValue()) {
 				String value = writeValue((MessageValue) elt);
-				if (value == null || value.length() == 0)
+				if (value == null || value.length() == 0) {
 					return "";
+				}
 				buf.append(value);
 			}
 		}
@@ -313,8 +315,9 @@ public abstract class GenericMessaging implements Messaging {
 	}
 
 	/**
-	 * Create three messages, one to <b>decommission</b> the mbus device, on to set the
-	 * <b>encryption keys</b> and one to set the <b>corrected or uncorrected</b>
+	 * Create four messages, one to <b>decommission</b> the mbus device, on to set the
+	 * <b>encryption keys</b> and one to set <b>use corrected mbus values</b> and the last to
+	 * <b>use UNcorrected mbus values</b>
 	 * gasLoadProfile
 	 * 
 	 * @return
@@ -329,9 +332,12 @@ public abstract class GenericMessaging implements Messaging {
 		msgSpec = addEncryptionkeys(RtuMessageKeyIdConstants.MBUSENCRYPTIONKEY,
 				RtuMessageConstant.MBUS_ENCRYPTION_KEYS, false);
 		catMbusSetup.addMessageSpec(msgSpec);
-		msgSpec = addCorrectSwitchMsg(
-				RtuMessageKeyIdConstants.MBUSGASCORRECTION,
-				RtuMessageConstant.MBUS_CORRECTED_SWITCH, false);
+//		msgSpec = addCorrectSwitchMsg(
+//				RtuMessageKeyIdConstants.MBUSGASCORRECTION,
+//				RtuMessageConstant.MBUS_CORRECTED_SWITCH, false);
+		msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.MBUSVALUESCORRECTED, RtuMessageConstant.MBUS_CORRECTED_VALUES, false);
+		catMbusSetup.addMessageSpec(msgSpec);
+		msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.MBUSVALUESUNCORRECTED, RtuMessageConstant.MBUS_UNCORRECTED_VALUES, false);
 		catMbusSetup.addMessageSpec(msgSpec);
 		return catMbusSetup;
 	}
@@ -648,19 +654,19 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-	protected MessageSpec addCorrectSwitchMsg(String keyId, String tagName,
-			boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
-		msgVal.setValue(" ");
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-				RtuMessageConstant.MBUS_CORRECTED_VALUE, true);
-		tagSpec.add(msgVal);
-		tagSpec.add(msgAttrSpec);
-		msgSpec.add(tagSpec);
-		return msgSpec;
-	}
+//	protected MessageSpec addCorrectSwitchMsg(String keyId, String tagName,
+//			boolean advanced) {
+//		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+//		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+//		MessageValueSpec msgVal = new MessageValueSpec();
+//		msgVal.setValue(" ");
+//		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
+//				RtuMessageConstant.MBUS_CORRECTED_VALUE, true);
+//		tagSpec.add(msgVal);
+//		tagSpec.add(msgAttrSpec);
+//		msgSpec.add(tagSpec);
+//		return msgSpec;
+//	}
 	
 	protected MessageSpec addSecurityLevelMsg(String keyId, String tagName,
 			boolean advanced) {

@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;

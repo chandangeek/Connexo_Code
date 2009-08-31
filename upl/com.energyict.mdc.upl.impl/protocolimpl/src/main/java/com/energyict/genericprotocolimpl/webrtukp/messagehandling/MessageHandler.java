@@ -89,9 +89,9 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.WAKEUP_ADD_WHITELIST.equals(qName)){
 			setType(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
 			handleWakeUpWhiteList(attrbs);
-		} else if(RtuMessageConstant.MBUS_CORRECTED_SWITCH.equals(qName)){
-			setType(RtuMessageConstant.MBUS_CORRECTED_SWITCH);
-			handleMbusCorrectedValues(attrbs);
+//		} else if(RtuMessageConstant.MBUS_CORRECTED_SWITCH.equals(qName)){
+//			setType(RtuMessageConstant.MBUS_CORRECTED_SWITCH);
+//			handleMbusCorrectedValues(attrbs);
 		} else if(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY.equals(qName)){
 			setType(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY);
 		} else if(RtuMessageConstant.AEE_CHANGE_HLS_SECRET.equals(qName)){
@@ -101,6 +101,10 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.AEE_ACTIVATE_SECURITY.equals(qName)){
 			setType(RtuMessageConstant.AEE_ACTIVATE_SECURITY);
 			handleActivateSecurityLevel(attrbs);
+		} else if(RtuMessageConstant.MBUS_CORRECTED_VALUES.equals(qName)){
+			setType(RtuMessageConstant.MBUS_CORRECTED_VALUES);
+		} else if(RtuMessageConstant.MBUS_UNCORRECTED_VALUES.equals(qName)){
+			setType(RtuMessageConstant.MBUS_UNCORRECTED_VALUES);
 		} else {
 			if(!isXmlInContent){ // if its the xmlMessage, then don't fail because it has xml in the content
 				throw new SAXException("Unknown messageContent : " + qName);
@@ -540,29 +544,29 @@ public class MessageHandler extends DefaultHandler{
 		return (this.nr5 != null)?this.nr5:"";
 	}
 	
-	/**********************************************/
-	
-	/**********************************************
-	 * Gas corrected LoadProfile functionality Related messages
-	 **********************************************/
-	
-	private String correctionSwitch = "";
-	
-	private void handleMbusCorrectedValues(Attributes attrbs) {
-		this.correctionSwitch = attrbs.getValue(RtuMessageConstant.MBUS_CORRECTED_VALUE);
-	}
-	
-	public String getCorrectionSwitch() {
-		return (this.correctionSwitch != null)?this.correctionSwitch:"";
-	}
-	
-	public boolean useUncorrected(){
-		return getCorrectionSwitch().equalsIgnoreCase("0");
-	}
-	
-	public boolean useCorrected(){
-		return !getCorrectionSwitch().equalsIgnoreCase("0");
-	}
+//	/**********************************************/
+//	
+//	/**********************************************
+//	 * Gas corrected LoadProfile functionality Related messages
+//	 **********************************************/
+//	
+//	private String correctionSwitch = "";
+//	
+//	private void handleMbusCorrectedValues(Attributes attrbs) {
+//		this.correctionSwitch = attrbs.getValue(RtuMessageConstant.MBUS_CORRECTED_VALUE);
+//	}
+//	
+//	public String getCorrectionSwitch() {
+//		return (this.correctionSwitch != null)?this.correctionSwitch:"";
+//	}
+//	
+//	public boolean useUncorrected(){
+//		return getCorrectionSwitch().equalsIgnoreCase("0");
+//	}
+//	
+//	public boolean useCorrected(){
+//		return !getCorrectionSwitch().equalsIgnoreCase("0");
+//	}
 	
 	/**********************************************/
 	

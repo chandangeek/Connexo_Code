@@ -31,7 +31,9 @@ public class RtuMessageKeyIdConstants {
 	public final static String READONDEMAND = "ReadOnDemand";
 	public final static String MBUSDECOMMISSION = "Decommission";
 	public final static String MBUSENCRYPTIONKEY = "Set Encryption keys";
-	public final static String MBUSGASCORRECTION = "Correction switch";
+//	public final static String MBUSGASCORRECTION = "Correction switch";
+	public final static String MBUSVALUESCORRECTED = "Use Corrected Mbus values";
+	public final static String MBUSVALUESUNCORRECTED = "Use UnCorrected Mbus values";
 	public final static String ACTIVATESMSWAKEUP = "Activate SMS wakeup";
 	public final static String DEACTIVATESMSWAKEUP = "Deactive SMS wakeup";
 	public final static String ACTIVATESCDWAKEUP = "Activate CSD wakeup";
