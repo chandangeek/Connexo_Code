@@ -15,7 +15,7 @@
 	</dependencies>
 	
 	<properties>
-		<eiserver.version>8.3.11</eiserver.version>
+		<eiserver.version>8.3.12-SNAPSHOT</eiserver.version>
 	</properties>
 
 	<dependencyManagement>
