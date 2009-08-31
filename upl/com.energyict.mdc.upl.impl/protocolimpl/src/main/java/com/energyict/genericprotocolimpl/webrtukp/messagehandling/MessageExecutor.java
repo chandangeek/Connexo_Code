@@ -90,6 +90,8 @@ public class MessageExecutor extends GenericMessageExecutor{
 	
 	private WebRTUKP webRtu;
 	private boolean DEBUG = true;
+	
+//	private String[] weekNames = {"a", "b", "c", "d"};
 
 	private static final byte[] defaultMonitoredAttribute = new byte[]{1,0,90,7,0,(byte)255};	// Total current, instantaneous value
 	
@@ -480,7 +482,9 @@ public class MessageExecutor extends GenericMessageExecutor{
 							int seasonProfileNameId = ((Unsigned8)entry.getDataType(1)).getValue();
 							if(!seasonArrayExists(seasonProfileNameId, seasonArray)){
 								
-								String weekProfileName = "Week" + weekCount++;
+//								String weekProfileName = "Week" + weekCount++;
+								String weekProfileName = Integer.toString(weekCount++);
+//								String weekProfileName = weekNames[weekCount++];
 								seasonStruct.addDataType(OctetString.fromString(Integer.toString(seasonProfileNameId)));	// the seasonProfileName is the DB id of the season
 								seasonStruct.addDataType(dateTime);
 								seasonStruct.addDataType(OctetString.fromString(weekProfileName));
