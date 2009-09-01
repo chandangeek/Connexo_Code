@@ -19,7 +19,6 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.client.ParseUtils;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
@@ -41,25 +40,25 @@ import com.energyict.protocol.ProfileData;
 
 public class MbusDailyMonthly {
 	
-	private MbusDevice mbusDevice;
+	private final MbusDevice mbusDevice;
 	
-	public MbusDailyMonthly(MbusDevice mbusDevice){
+	public MbusDailyMonthly(final MbusDevice mbusDevice){
 		this.mbusDevice = mbusDevice;
 	}
 	
-	public void getDailyValues(ObisCode dailyObisCode) throws IOException, SQLException, BusinessException {
-		ProfileData profileData = new ProfileData( );
+	public void getDailyValues(final ObisCode dailyObisCode) throws IOException, SQLException, BusinessException {
+		final ProfileData profileData = new ProfileData( );
 		try {
-			ProfileGeneric genericProfile = getCosemObjectFactory().getProfileGeneric(dailyObisCode);
-			List<ChannelInfo> channelInfos = getDailyMonthlyChannelInfos(genericProfile, TimeDuration.DAYS);
+			final ProfileGeneric genericProfile = getCosemObjectFactory().getProfileGeneric(dailyObisCode);
+			final List<ChannelInfo> channelInfos = getDailyMonthlyChannelInfos(genericProfile, TimeDuration.DAYS);
 			
 			profileData.setChannelInfos(channelInfos);
 			Calendar fromCalendar = Calendar.getInstance(mbusDevice.getIskraDevice().getTimeZone());
 			Calendar channelCalendar = null;
-			Calendar toCalendar = getToCalendar();
+			final Calendar toCalendar = getToCalendar();
 			for (int i = 0; i < getMeter().getChannels().size(); i++) {
 				// TODO check for the from-date of all the daily or monthly channels
-				Channel chn = getMeter().getChannel(i);
+				final Channel chn = getMeter().getChannel(i);
 				if(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS){ //the channel is a daily channel
 					channelCalendar = getFromCalendar(getMeter().getChannel(i));
 					if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
@@ -69,34 +68,34 @@ public class MbusDailyMonthly {
 			}
 			
 			this.mbusDevice.getLogger().log(Level.INFO, "Mbus " + this.mbusDevice.getCustomerID() + ": Reading Daily values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
-			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
+			final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
-			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
+			final ProfileData pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
 			getMeter().store(pd, false);
 			
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException(e.getMessage());
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			e.printStackTrace();
 			throw new SQLException(e.getMessage());
-		} catch (BusinessException e) {
+		} catch (final BusinessException e) {
 			e.printStackTrace();
 			throw new BusinessException(e.getMessage());
 		}
 		
 	}
 
-	private List<ChannelInfo> getDailyMonthlyChannelInfos(ProfileGeneric profile, int timeDuration) throws IOException {
-		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+	private List<ChannelInfo> getDailyMonthlyChannelInfos(final ProfileGeneric profile, final int timeDuration) throws IOException {
+		final List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		ChannelInfo ci = null;
 		int index = 0;
 		try{
 			for(int i = 0; i < profile.getCaptureObjects().size(); i++){
 				
 				if(mbusDevice.isIskraMbusObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){ // make a channel out of it
-					CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
-					ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
+					final CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
+					final ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
 					if(timeDuration == TimeDuration.DAYS){
 						ci = new ChannelInfo(index, getDailyChannelNumber(index+1), "IskraMx372_Mbus_Daily_"+index, su.getUnit());
 					} else if(timeDuration == TimeDuration.MONTHS){
@@ -113,26 +112,26 @@ public class MbusDailyMonthly {
 				}
 				
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException("Failed to build the channelInfos." + e);
 		}
 		return channelInfos;
 	}
 
-	public void getMonthlyValues(ObisCode monthlyObisCode) throws IOException, SQLException, BusinessException {
-		ProfileData profileData = new ProfileData( );
+	public void getMonthlyValues(final ObisCode monthlyObisCode) throws IOException, SQLException, BusinessException {
+		final ProfileData profileData = new ProfileData( );
 		try {
-			ProfileGeneric genericProfile = getCosemObjectFactory().getProfileGeneric(monthlyObisCode);
-			List<ChannelInfo> channelInfos = getDailyMonthlyChannelInfos(genericProfile, TimeDuration.MONTHS);
+			final ProfileGeneric genericProfile = getCosemObjectFactory().getProfileGeneric(monthlyObisCode);
+			final List<ChannelInfo> channelInfos = getDailyMonthlyChannelInfos(genericProfile, TimeDuration.MONTHS);
 			
 			profileData.setChannelInfos(channelInfos);
 			Calendar fromCalendar = null;
 			Calendar channelCalendar = null;
-			Calendar toCalendar = getToCalendar();
+			final Calendar toCalendar = getToCalendar();
 			for (int i = 0; i < getMeter().getChannels().size(); i++) {
 				// TODO check for the from-date of all the daily or monthly channels
-				Channel chn = getMeter().getChannel(i);
+				final Channel chn = getMeter().getChannel(i);
 				if(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS){ //the channel is a daily channel
 					channelCalendar = getFromCalendar(getMeter().getChannel(i));
 					if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
@@ -142,18 +141,18 @@ public class MbusDailyMonthly {
 			}
 			
 			this.mbusDevice.getLogger().log(Level.INFO, "Mbus " + this.mbusDevice.getCustomerID() + ": Reading Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
-			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
+			final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
-			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
+			final ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
 			getMeter().store(pd, false);
 			
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException(e.getMessage());
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			e.printStackTrace();
 			throw new SQLException(e.getMessage());
-		} catch (BusinessException e) {
+		} catch (final BusinessException e) {
 			e.printStackTrace();
 			throw new BusinessException(e.getMessage());
 		}
@@ -165,33 +164,35 @@ public class MbusDailyMonthly {
 	 * @return
 	 * @throws IOException
 	 */
-	private ScalerUnit getMeterDemandRegisterScalerUnit(ObisCode oc) throws IOException{
+	private ScalerUnit getMeterDemandRegisterScalerUnit(final ObisCode oc) throws IOException{
 		try {
 			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
 			if( su.getUnitCode() == 0){
 				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
 			}
 			return su;
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not get the scalerunit from object '" + oc + "'.");
 		}
 	}
 	
-	private ProfileData sortOutProfiledate(ProfileData profileData, int timeDuration) {
-		ProfileData pd = new ProfileData();
+	private ProfileData sortOutProfiledate(final ProfileData profileData, final int timeDuration) {
+		final ProfileData pd = new ProfileData();
 		pd.setChannelInfos(profileData.getChannelInfos());
-		Iterator<IntervalData> it = profileData.getIntervalIterator();
+		final Iterator<IntervalData> it = profileData.getIntervalIterator();
 		while(it.hasNext()){
-			IntervalData id = it.next();
+			final IntervalData id = it.next();
 			switch(timeDuration){
 			case TimeDuration.DAYS:{
-				if(checkDailyBillingTime(id.getEndTime()))
+				if(checkDailyBillingTime(id.getEndTime())) {
 					pd.addInterval(id);
+				}
 			}break;
 			case TimeDuration.MONTHS:{
-				if(checkMonthlyBillingTime(id.getEndTime()))
+				if(checkMonthlyBillingTime(id.getEndTime())) {
 					pd.addInterval(id);
+				}
 			}break;
 			}
 		}
@@ -203,11 +204,12 @@ public class MbusDailyMonthly {
 	 * @param date
 	 * @return true or false
 	 */
-	private boolean checkDailyBillingTime(Date date){
-		Calendar cal = Calendar.getInstance();
+	private boolean checkDailyBillingTime(final Date date){
+		final Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		if(cal.get(Calendar.HOUR)==0 && cal.get(Calendar.MINUTE)==0 && cal.get(Calendar.SECOND)==0 && cal.get(Calendar.MILLISECOND)==0)
+		if(cal.get(Calendar.HOUR)==0 && cal.get(Calendar.MINUTE)==0 && cal.get(Calendar.SECOND)==0 && cal.get(Calendar.MILLISECOND)==0) {
 			return true;
+		}
 		return false;
 	}
 	
@@ -216,15 +218,16 @@ public class MbusDailyMonthly {
 	 * @param date
 	 * @return true or false
 	 */
-	private boolean checkMonthlyBillingTime(Date date){
-		Calendar cal = Calendar.getInstance();
+	private boolean checkMonthlyBillingTime(final Date date){
+		final Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		if(checkDailyBillingTime(date) && cal.get(Calendar.DAY_OF_MONTH)==1)
+		if(checkDailyBillingTime(date) && cal.get(Calendar.DAY_OF_MONTH)==1) {
 			return true;
+		}
 		return false;
 	}
 	
-	private int getDailyChannelNumber(int index){
+	private int getDailyChannelNumber(final int index){
 		int channelIndex = 0;
 		for(int i = 0; i < getMeter().getChannels().size(); i++){
 			if(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS){
@@ -237,7 +240,7 @@ public class MbusDailyMonthly {
 		return -1;
 	}
 	
-	private int getMonthlyChannelNumber(int index){
+	private int getMonthlyChannelNumber(final int index){
 		int channelIndex = 0;
 		for(int i = 0; i < getMeter().getChannels().size(); i++){
 			if(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.MONTHS){
@@ -250,13 +253,13 @@ public class MbusDailyMonthly {
 		return -1;
 	}
 	
-	private void buildProfileData(DataContainer dc, ProfileData pd, ProfileGeneric pg) throws IOException{
+	private void buildProfileData(final DataContainer dc, final ProfileData pd, final ProfileGeneric pg) throws IOException{
 		
 		//TODO check how this reacts with the profile.
 		
 		Calendar cal = null;
 		IntervalData currentInterval = null;
-		int profileStatus = 0;
+		final int profileStatus = 0;
 		if(dc.getRoot().getElements().length != 0){
 		
 			for(int i = 0; i < dc.getRoot().getElements().length; i++){
@@ -273,9 +276,9 @@ public class MbusDailyMonthly {
 		}
 	}
 	
-	private IntervalData getIntervalData(DataStructure ds, Calendar cal, int status, ProfileGeneric pg)throws IOException{
+	private IntervalData getIntervalData(final DataStructure ds, final Calendar cal, final int status, final ProfileGeneric pg)throws IOException{
 		
-		IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
+		final IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
 		
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
@@ -283,7 +286,7 @@ public class MbusDailyMonthly {
 					id.addValue(new Integer(ds.getInteger(i)));
 				}
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException("Failed to parse the intervalData objects form the datacontainer.");
 		}
@@ -291,14 +294,14 @@ public class MbusDailyMonthly {
 		return id;
 	}
 	
-	private int getProfileClockChannelIndex(ProfileGeneric pg) throws IOException{
+	private int getProfileClockChannelIndex(final ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
 				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getClockObject().getObisCode())){
 					return i;
 				}
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not retrieve the index of the profileData's clock attribute.");
 		}
@@ -317,7 +320,7 @@ public class MbusDailyMonthly {
 		return this.mbusDevice.getIskraDevice().getToCalendar();
 	}
 	
-	private Calendar getFromCalendar(Channel channel){
+	private Calendar getFromCalendar(final Channel channel){
 		return this.mbusDevice.getIskraDevice().getFromCalendar(channel);
 	}
 	

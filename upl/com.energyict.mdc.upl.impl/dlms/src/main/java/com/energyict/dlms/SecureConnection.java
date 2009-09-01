@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.client.ParseUtils;
 import com.energyict.protocol.ProtocolUtils;
 /**
  * <pre>
@@ -17,8 +16,8 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class SecureConnection implements DLMSConnection {
 	
-	private ApplicationServiceObject aso;
-	private DLMSConnection connection;
+	private final ApplicationServiceObject aso;
+	private final DLMSConnection connection;
 	
 	private static HashMap encryptionTagMap =  new HashMap();
 	static{
@@ -36,7 +35,7 @@ public class SecureConnection implements DLMSConnection {
 
 	}
 	
-	public SecureConnection(ApplicationServiceObject aso, DLMSConnection transportConnection){
+	public SecureConnection(final ApplicationServiceObject aso, final DLMSConnection transportConnection){
 		this.aso = aso;
 		this.connection = transportConnection;
 	}
@@ -74,7 +73,7 @@ public class SecureConnection implements DLMSConnection {
 	 * @param byteRequestBuffer - The unEncrypted/authenticated request
 	 * @return the unEncrypted response from the device
 	 */
-	public byte[] sendRequest(byte[] byteRequestBuffer) throws IOException {
+	public byte[] sendRequest(final byte[] byteRequestBuffer) throws IOException {
 		
 		/* dataTransport security is only applied after we made an established association */
 		if(this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED){ 	
@@ -85,9 +84,9 @@ public class SecureConnection implements DLMSConnection {
 			} else {
 				
 				// FIXME: Strip the 3 leading bytes before encrypting -> due to old HDLC code
-				byte[] leading = ProtocolUtils.getSubArray(byteRequestBuffer, 0, 2);
+				final byte[] leading = ProtocolUtils.getSubArray(byteRequestBuffer, 0, 2);
 				byte[] securedRequest = ProtocolUtils.getSubArray(byteRequestBuffer, 3);
-				byte tag = ((Byte) encryptionTagMap.get(securedRequest[0])).byteValue();
+				final byte tag = ((Byte) encryptionTagMap.get(securedRequest[0])).byteValue();
 				
 				securedRequest = this.aso.getSecurityContext().dataTransportEncryption(securedRequest);
 				securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
@@ -96,13 +95,13 @@ public class SecureConnection implements DLMSConnection {
 				securedRequest = ProtocolUtils.concatByteArrays(leading, securedRequest);
 				
 				// send the encrypted request to the DLMSConnection
-				byte[] securedResponse = getTransportConnection().sendRequest(securedRequest);
+				final byte[] securedResponse = getTransportConnection().sendRequest(securedRequest);
 				
 				// check if the response tag is know and decrypt the data if necessary
 				if(encryptionTagMap.containsKey(securedResponse[3])){
 					// FIXME: Strip the 3 leading bytes before decryption -> due to old HDLC code
 					// Strip the 3 leading bytes before encrypting
-					byte[] decryptedResponse = this.aso.getSecurityContext().dataTransportDecryption(ProtocolUtils.getSubArray(securedResponse, 3));
+					final byte[] decryptedResponse = this.aso.getSecurityContext().dataTransportDecryption(ProtocolUtils.getSubArray(securedResponse, 3));
 					
 					// FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
 					return  ProtocolUtils.concatByteArrays(leading, decryptedResponse);
@@ -115,19 +114,19 @@ public class SecureConnection implements DLMSConnection {
 		}
 	}
 	
-	public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId) {
+	public void setHHUSignOn(final HHUSignOn hhuSignOn, final String meterId) {
 		getTransportConnection().setHHUSignOn(hhuSignOn, meterId);
 	}
 
-	public void setInvokeIdAndPriority(InvokeIdAndPriority iiap) {
+	public void setInvokeIdAndPriority(final InvokeIdAndPriority iiap) {
 		getTransportConnection().setInvokeIdAndPriority(iiap);
 	}	
 
-	public void setIskraWrapper(int type) {
+	public void setIskraWrapper(final int type) {
 		getTransportConnection().setIskraWrapper(type);
 	}
 
-	public void setSNRMType(int type) {
+	public void setSNRMType(final int type) {
 		getTransportConnection().setSNRMType(type);
 	}
 

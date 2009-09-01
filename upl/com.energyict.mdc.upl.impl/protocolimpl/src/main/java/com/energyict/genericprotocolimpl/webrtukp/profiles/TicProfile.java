@@ -29,18 +29,18 @@ import com.energyict.protocol.ProfileData;
 
 public class TicProfile {
 
-	private TicDevice ticDevice;
+	private final TicDevice ticDevice;
 	
-	public TicProfile(TicDevice ticDevice) {
+	public TicProfile(final TicDevice ticDevice) {
 		this.ticDevice = ticDevice;
 	}
 
-	public ProfileData getProfileData(ObisCode obisCode) throws IOException {
-		ProfileData profileData = new ProfileData( );
+	public ProfileData getProfileData(final ObisCode obisCode) throws IOException {
+		final ProfileData profileData = new ProfileData( );
 		ProfileGeneric genericProfile;
 		
 		genericProfile = getCosemObjectFactory().getProfileGeneric(obisCode);
-		List<ChannelInfo> channelInfos = getChannelInfos(genericProfile);
+		final List<ChannelInfo> channelInfos = getChannelInfos(genericProfile);
 		
 		if(channelInfos.size() != 0){
 			
@@ -49,10 +49,10 @@ public class TicProfile {
 			profileData.setChannelInfos(channelInfos);
 			Calendar fromCalendar = null;
 			Calendar channelCalendar = null;
-			Calendar toCalendar = getToCalendar();
+			final Calendar toCalendar = getToCalendar();
 			
 			for (int i = 0; i < this.ticDevice.getMeter().getChannels().size(); i++) {
-				Channel chn = this.ticDevice.getMeter().getChannel(i);
+				final Channel chn = this.ticDevice.getMeter().getChannel(i);
 				channelCalendar = getFromCalendar(chn);
 				
 				if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
@@ -62,7 +62,7 @@ public class TicProfile {
 			
 			this.ticDevice.getWebRTU().getLogger().log(Level.INFO, "Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
 			
-			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
+			final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
 			ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 			profileData.sort();
@@ -76,7 +76,7 @@ public class TicProfile {
 		return profileData;
 	}
 	
-	private void buildProfileData(DataContainer dc, ProfileData pd, ProfileGeneric pg) throws IOException{
+	private void buildProfileData(final DataContainer dc, final ProfileData pd, final ProfileGeneric pg) throws IOException{
 		
 		
 		Calendar cal = null;
@@ -112,9 +112,9 @@ public class TicProfile {
 		}
 	}
 	
-	private IntervalData getIntervalData(DataStructure ds, Calendar cal, int status, ProfileGeneric pg, List channelInfos)throws IOException{
+	private IntervalData getIntervalData(final DataStructure ds, final Calendar cal, final int status, final ProfileGeneric pg, final List channelInfos)throws IOException{
 		
-		IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
+		final IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
 		int index = 0;
 		
 		try {
@@ -126,7 +126,7 @@ public class TicProfile {
 					}
 				}
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException("Failed to parse the intervalData objects form the datacontainer.");
 		}
@@ -134,28 +134,28 @@ public class TicProfile {
 		return id;
 	}
 	
-	private int getProfileClockChannelIndex(ProfileGeneric pg) throws IOException{
+	private int getProfileClockChannelIndex(final ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
 				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(this.ticDevice.getWebRTU().getMeterConfig().getClockObject().getObisCode())){
 					return i;
 				}
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not retrieve the index of the profileData's clock attribute.");
 		}
 		return -1;
 	}
 	
-	private int getProfileStatusChannelIndex(ProfileGeneric pg) throws IOException{
+	private int getProfileStatusChannelIndex(final ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjectsAsUniversalObjects().length; i++){
 				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(this.ticDevice.getWebRTU().getMeterConfig().getStatusObject().getObisCode())){
 					return i;
 				}
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not retrieve the index of the profileData's status attribute.");
 		}
@@ -166,14 +166,14 @@ public class TicProfile {
 		return this.ticDevice.getWebRTU().getToCalendar();
 	}
 	
-	private Calendar getFromCalendar(Channel channel){
+	private Calendar getFromCalendar(final Channel channel){
 		return this.ticDevice.getWebRTU().getFromCalendar(channel);
 	}
 	
-	private void verifyProfileInterval(ProfileGeneric genericProfile) throws IOException{
-		Iterator<Channel> it = this.ticDevice.getMeter().getChannels().iterator();
+	private void verifyProfileInterval(final ProfileGeneric genericProfile) throws IOException{
+		final Iterator<Channel> it = this.ticDevice.getMeter().getChannels().iterator();
 		while(it.hasNext()){
-			Channel channel = it.next();
+			final Channel channel = it.next();
 			if(channel.getIntervalInSeconds() != genericProfile.getCapturePeriod()){
 				throw new IOException("Interval mismatch, Channel: " + channel + " has a different interval(" + channel.getIntervalInSeconds() +
 						"s) as configured in the meter " + genericProfile.getCapturePeriod());
@@ -187,19 +187,19 @@ public class TicProfile {
 	 * @return the list
 	 * @throws IOException if we can't get the captured objects
 	 */
-	private List<ChannelInfo> getChannelInfos(ProfileGeneric genericProfile) throws IOException {
-		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+	private List<ChannelInfo> getChannelInfos(final ProfileGeneric genericProfile) throws IOException {
+		final List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		ChannelInfo ci = null;
 		int index = 0;
 		int channelIndex = -1;
 		try{
 			for(int i = 0; i < genericProfile.getCaptureObjects().size(); i++){
-				CapturedObject co = ((CapturedObject)genericProfile.getCaptureObjects().get(i));
+				final CapturedObject co = ((CapturedObject)genericProfile.getCaptureObjects().get(i));
 				if(isValidProfileObisCode(co)){
 					
 					channelIndex = getProfileChannelNumber(index+1);
 					if(channelIndex != -1){
-						ScalerUnit su = getScalerUnit(co);
+						final ScalerUnit su = getScalerUnit(co);
 						if((su != null) && (su.getUnitCode() != 0)){
 							ci = new ChannelInfo(index, channelIndex, "TicDevice_"+index, su.getUnit());
 						} else {
@@ -207,7 +207,7 @@ public class TicProfile {
 						}
 						index++;
 						
-						if(com.energyict.dlms.client.ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())){
+						if(com.energyict.dlms.ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())){
 //							ci.setCumulative();
 							ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
 						}
@@ -216,7 +216,7 @@ public class TicProfile {
 					}
 				}
 			}
-		} catch (IOException e){
+		} catch (final IOException e){
 			e.printStackTrace();
 			throw new IOException("Failed to build the channelInfos." + e);
 		}
@@ -228,7 +228,7 @@ public class TicProfile {
 	 * @param index
 	 * @return the channel number
 	 */
-	private int getProfileChannelNumber(int index){
+	private int getProfileChannelNumber(final int index){
 		for(int i = 0; i < this.ticDevice.getMeter().getChannels().size(); i++){
 			
 			if(this.ticDevice.getMeter().getChannel(i).getLoadProfileIndex() == index){
@@ -244,7 +244,7 @@ public class TicProfile {
 	 * @param capturedObject
 	 * @return the scalerUnit
 	 */
-	private ScalerUnit getScalerUnit(CapturedObject capturedObject){
+	private ScalerUnit getScalerUnit(final CapturedObject capturedObject){
 		try {
 			
 			if(capturedObject.getLogicalName().getObisCode().toString().equalsIgnoreCase("0.0.96.14.0.255")){
@@ -261,7 +261,7 @@ public class TicProfile {
 				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
 			}
 			return su;
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			this.ticDevice.getWebRTU().getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + capturedObject.getLogicalName().getObisCode() + "'.");
 		}
@@ -274,7 +274,7 @@ public class TicProfile {
 	 * @return
 	 * @throws IOException 
 	 */
-	private boolean isValidProfileObisCode(CapturedObject capturedObject) throws IOException {
+	private boolean isValidProfileObisCode(final CapturedObject capturedObject) throws IOException {
 		if(((capturedObject.getClassId() == 1) || // DATA
 				(capturedObject.getClassId() == 3) || // Register
 				(capturedObject.getClassId() == 4) || // Extended register
@@ -286,7 +286,7 @@ public class TicProfile {
 		}
 	}
 	
-	private boolean isProfileStatusObisCode(ObisCode oc) throws IOException{
+	private boolean isProfileStatusObisCode(final ObisCode oc) throws IOException{
 		return oc.equals(this.ticDevice.getWebRTU().getMeterConfig().getStatusObject().getObisCode());
 	}
 

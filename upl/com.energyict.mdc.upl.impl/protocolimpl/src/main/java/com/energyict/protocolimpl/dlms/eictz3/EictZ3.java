@@ -42,6 +42,7 @@ import com.energyict.dlms.DLMSObis;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
@@ -52,7 +53,6 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.client.ParseUtils;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CapturedObjectsHelper;
 import com.energyict.dlms.cosem.Clock;
@@ -382,7 +382,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			}
 			
 			this.dlmsConnection.setIskraWrapper(1);
-		} catch (DLMSConnectionException e) {
+		} catch (final DLMSConnectionException e) {
 			// JDK 5 and predecessors apparently cannot init an IOException using String, Exception, so let's do this verbosely then...
 			final IOException ioException = new IOException("Got a DLMS connection error when initializing the connection, error message was [" + e.getMessage() + "]");
 			ioException.initCause(e);
@@ -545,7 +545,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 			final ChannelInfo channelInfo = new ChannelInfo(i, "EICTZ3_CH_" + i, scalerUnit.getUnit());
 			
-			CapturedObject channelCapturedObject = getCapturedObjectsHelper().getProfileDataChannelCapturedObject(i);
+			final CapturedObject channelCapturedObject = getCapturedObjectsHelper().getProfileDataChannelCapturedObject(i);
 			
 			if(ParseUtils.isObisCodeCumulative(channelCapturedObject.getLogicalName().getObisCode())) {
 				logger.info("Indicating that channel [" + i + "] is cumulative...");
@@ -646,26 +646,26 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		final Calendar calendar = (Calendar) cal.clone();
 
 		if (intervalData.getOctetString(0).getArray()[0] != -1) {
-			calendar.set(Calendar.YEAR, (((int) intervalData.getOctetString(0).getArray()[0] & 0xff) << 8) | (((int) intervalData.getOctetString(0).getArray()[1] & 0xff)));
+			calendar.set(Calendar.YEAR, ((intervalData.getOctetString(0).getArray()[0] & 0xff) << 8) | ((intervalData.getOctetString(0).getArray()[1] & 0xff)));
 		}
 
 		if (intervalData.getOctetString(0).getArray()[2] != -1) {
-			calendar.set(Calendar.MONTH, ((int) intervalData.getOctetString(0).getArray()[2] & 0xff) - 1);
+			calendar.set(Calendar.MONTH, (intervalData.getOctetString(0).getArray()[2] & 0xff) - 1);
 		}
 
 		if (intervalData.getOctetString(0).getArray()[3] != -1) {
-			calendar.set(Calendar.DAY_OF_MONTH, ((int) intervalData.getOctetString(0).getArray()[3] & 0xff));
+			calendar.set(Calendar.DAY_OF_MONTH, (intervalData.getOctetString(0).getArray()[3] & 0xff));
 		}
 
 		if (intervalData.getOctetString(0).getArray()[5] != -1) {
-			calendar.set(Calendar.HOUR_OF_DAY, ((int) intervalData.getOctetString(0).getArray()[5] & 0xff));
+			calendar.set(Calendar.HOUR_OF_DAY, (intervalData.getOctetString(0).getArray()[5] & 0xff));
 		} else {
 			calendar.set(Calendar.HOUR_OF_DAY, 0);
 		}
 
 		if (btype == 0) {
 			if (intervalData.getOctetString(0).getArray()[6] != -1) {
-				calendar.set(Calendar.MINUTE, (((int) intervalData.getOctetString(0).getArray()[6] & 0xff) / (getProfileInterval() / 60)) * (getProfileInterval() / 60));
+				calendar.set(Calendar.MINUTE, ((intervalData.getOctetString(0).getArray()[6] & 0xff) / (getProfileInterval() / 60)) * (getProfileInterval() / 60));
 			} else {
 				calendar.set(Calendar.MINUTE, 0);
 			}
@@ -673,13 +673,13 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			calendar.set(Calendar.SECOND, 0);
 		} else {
 			if (intervalData.getOctetString(0).getArray()[6] != -1) {
-				calendar.set(Calendar.MINUTE, ((int) intervalData.getOctetString(0).getArray()[6] & 0xff));
+				calendar.set(Calendar.MINUTE, (intervalData.getOctetString(0).getArray()[6] & 0xff));
 			} else {
 				calendar.set(Calendar.MINUTE, 0);
 			}
 
 			if (intervalData.getOctetString(0).getArray()[7] != -1) {
-				calendar.set(Calendar.SECOND, ((int) intervalData.getOctetString(0).getArray()[7] & 0xff));
+				calendar.set(Calendar.SECOND, (intervalData.getOctetString(0).getArray()[7] & 0xff));
 			} else {
 				calendar.set(Calendar.SECOND, 0);
 			}
@@ -706,18 +706,24 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	private final int map2IntervalStateBits(final int protocolStatus) {
 		int eiStatus = 0;
 
-		if ((protocolStatus & CLEAR_LOADPROFILE) != 0)
+		if ((protocolStatus & CLEAR_LOADPROFILE) != 0) {
 			eiStatus |= IntervalStateBits.OTHER;
-		if ((protocolStatus & CLEAR_LOGBOOK) != 0)
+		}
+		if ((protocolStatus & CLEAR_LOGBOOK) != 0) {
 			eiStatus |= IntervalStateBits.OTHER;
-		if ((protocolStatus & END_OF_ERROR) != 0)
+		}
+		if ((protocolStatus & END_OF_ERROR) != 0) {
 			eiStatus |= IntervalStateBits.OTHER;
-		if ((protocolStatus & BEGIN_OF_ERROR) != 0)
+		}
+		if ((protocolStatus & BEGIN_OF_ERROR) != 0) {
 			eiStatus |= IntervalStateBits.OTHER;
-		if ((protocolStatus & VARIABLE_SET) != 0)
+		}
+		if ((protocolStatus & VARIABLE_SET) != 0) {
 			eiStatus |= IntervalStateBits.CONFIGURATIONCHANGE;
-		if ((protocolStatus & DEVICE_CLOCK_SET_INCORRECT) != 0)
+		}
+		if ((protocolStatus & DEVICE_CLOCK_SET_INCORRECT) != 0) {
 			eiStatus |= IntervalStateBits.SHORTLONG;
+		}
 
 		// Commented out as we don't want SL flags the whole summer long.
 		// NTA requires this apparently although the device uses UTC.
@@ -726,18 +732,24 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		 * if ((protocolStatus & SEASONAL_SWITCHOVER) != 0) eiStatus |= IntervalStateBits.SHORTLONG;
 		 */
 
-		if ((protocolStatus & FATAL_DEVICE_ERROR) != 0)
+		if ((protocolStatus & FATAL_DEVICE_ERROR) != 0) {
 			eiStatus |= IntervalStateBits.OTHER;
-		if ((protocolStatus & DISTURBED_MEASURE) != 0)
+		}
+		if ((protocolStatus & DISTURBED_MEASURE) != 0) {
 			eiStatus |= IntervalStateBits.CORRUPTED;
-		if ((protocolStatus & POWER_FAILURE) != 0)
+		}
+		if ((protocolStatus & POWER_FAILURE) != 0) {
 			eiStatus |= IntervalStateBits.POWERDOWN;
-		if ((protocolStatus & POWER_RECOVERY) != 0)
+		}
+		if ((protocolStatus & POWER_RECOVERY) != 0) {
 			eiStatus |= IntervalStateBits.POWERUP;
-		if ((protocolStatus & DEVICE_RESET) != 0)
+		}
+		if ((protocolStatus & DEVICE_RESET) != 0) {
 			eiStatus |= IntervalStateBits.OTHER;
-		if ((protocolStatus & RUNNING_RESERVE_EXHAUSTED) != 0)
+		}
+		if ((protocolStatus & RUNNING_RESERVE_EXHAUSTED) != 0) {
 			eiStatus |= IntervalStateBits.OTHER;
+		}
 
 		return eiStatus;
 	}
@@ -863,7 +875,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		// Calendar calendar =
 		// Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		newTime.add(Calendar.MILLISECOND, roundtripCorrection);
-		byte[] byteTimeBuffer = new byte[14];
+		final byte[] byteTimeBuffer = new byte[14];
 
 		byteTimeBuffer[0] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
 		byteTimeBuffer[1] = 12; // length
@@ -879,17 +891,18 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		byteTimeBuffer[10] = (byte) 0xFF;
 		byteTimeBuffer[11] = (byte) 0xFF; // 0x80;
 		byteTimeBuffer[12] = (byte) 0xFF; // 0x00;
-		if (timeZone.inDaylightTime(newTime.getTime()))
+		if (timeZone.inDaylightTime(newTime.getTime())) {
 			byteTimeBuffer[13] = (byte) 0x80; // 0x00;
-		else
+		} else {
 			byteTimeBuffer[13] = (byte) 0x00; // 0x00;
+		}
 
 		getCosemObjectFactory().writeObject(ObisCode.fromString("0.0.1.0.0.255"), 8, 2, byteTimeBuffer);
 	}
 
 	public Date getTime() throws IOException {
-		Clock clock = getCosemObjectFactory().getClock();
-		Date date = clock.getDateTime();
+		final Clock clock = getCosemObjectFactory().getClock();
+		final Date date = clock.getDateTime();
 		// dstFlag = clock.getDstFlag();
 		return date;
 	}
@@ -920,7 +933,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 		try {
 			this.getDLMSConnection().connectMAC();
-		} catch (DLMSConnectionException e) {
+		} catch (final DLMSConnectionException e) {
 			logger.log(Level.SEVERE, "Cannot connect MAC over DLMS connection [mode : " + this.connectionMode + "] due to a DLMS connection error [" + e.getMessage() + "]", e);
 			// JDK 5 and predecessors apparently cannot init an IOException using String, Exception, so let's do this verbosely then...
 			final IOException ioException = new IOException("DLMS connection error when connecting MAC, message was [" + e.getMessage() + "]");
@@ -1040,7 +1053,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		} else {
 			try {
 				return Integer.valueOf(this.nodeAddress);
-			} catch (NumberFormatException e) {
+			} catch (final NumberFormatException e) {
 				this.logger.log(Level.WARNING, "A node address was configured for device with serial ID [" + this.deviceId + "], but could not parse it as it was probably not numeric ! (error was [" + e.getMessage() + "]", e);
 
 				return -1;
@@ -1122,7 +1135,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			logger.info("Device says serial number is [" + serialNumber + "] for MBus device on physical address [" + mbusPhysicalAddress + "]");
 
 			return serialNumber;
-		} catch (DataAccessResultException e) {
+		} catch (final DataAccessResultException e) {
 			if (e.getCode() == DataAccessResultCode.OBJECT_UNDEFINED) {
 				logger.info("No MBus device on physical address [" + mbusPhysicalAddress + "]");
 				
@@ -1143,7 +1156,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			} else {
 				logger.log(Level.WARNING, "Cannot disconnect because the DLMS connection is null !");
 			}
-		} catch (DLMSConnectionException e) {
+		} catch (final DLMSConnectionException e) {
 			logger.log(Level.SEVERE, "DLMS connection error when disconnecting from device : [" + e.getMessage() + "]", e);
 				
 			// JDK 5 and predecessors apparently cannot init an IOException using String, Exception, so let's do this verbosely then...
@@ -1170,8 +1183,8 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	// IOException
 
-	private final DataContainer doRequestAttribute(int classId, byte[] ln, int lnAttr) throws IOException {
-		DataContainer dc = getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(ln), DLMSUtils.attrLN2SN(lnAttr), classId).getDataContainer();
+	private final DataContainer doRequestAttribute(final int classId, final byte[] ln, final int lnAttr) throws IOException {
+		final DataContainer dc = getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(ln), DLMSUtils.attrLN2SN(lnAttr), classId).getDataContainer();
 		return dc;
 	}
 
@@ -1235,19 +1248,19 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 		try {
 			this.maximumAPDUSize = Integer.parseInt(properties.getProperty(PROPNAME_MAX_APDU_SIZE, "-1"));
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 			this.maximumAPDUSize = -1;
 		}
 
 		try {
 			this.forceDelay = Integer.parseInt(properties.getProperty(PROPNAME_FORCE_DELAY, "0"));
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 			logger.log(Level.WARNING, "Cannot interpret property [" + PROPNAME_FORCE_DELAY + "] because it is not numeric, defaulting to [" + this.forceDelay + "]");
 		}
 
 		try {
 			this.clockSetRoundtripTreshold = Integer.parseInt(properties.getProperty(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, String.valueOf(DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD)));
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 			logger.log(Level.SEVERE, "Cannot parse the number of roundtrip correction probes to be done, setting to default value of [" + DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD + "]", e);
 
 			this.clockSetRoundtripTreshold = DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD;
@@ -1255,7 +1268,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 		try {
 			this.numberOfClocksetTries = Integer.parseInt(properties.getProperty(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, String.valueOf(DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES)));
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 			logger.log(Level.SEVERE, "Cannot parse the number of clockset tries to a numeric value, setting to default value of [" + DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES + "]", e);
 
 			this.numberOfClocksetTries = DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES;
@@ -1292,27 +1305,28 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	 * @throws NoSuchRegisterException
 	 * <br>
 	 */
-	public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+	public String getRegister(final String name) throws IOException, UnsupportedException, NoSuchRegisterException {
 		return doGetRegister(name);
 	}
 
-	private String doGetRegister(String name) throws IOException {
+	private String doGetRegister(final String name) throws IOException {
 		boolean classSpecified = false;
-		if (name.indexOf(':') >= 0)
+		if (name.indexOf(':') >= 0) {
 			classSpecified = true;
-		DLMSObis ln = new DLMSObis(name);
+		}
+		final DLMSObis ln = new DLMSObis(name);
 		if (ln.isLogicalName()) {
 			if (classSpecified) {
 				return requestAttribute(ln.getDLMSClass(), ln.getLN(), (byte) ln.getOffset());
 			} else {
-				UniversalObject uo = getMeterConfig().getObject(ln);
+				final UniversalObject uo = getMeterConfig().getObject(ln);
 				return getCosemObjectFactory().getGenericRead(uo).getDataContainer().print2strDataContainer();
 			}
 		} else if (name.indexOf("-") >= 0) { // you get a from/to
-			DLMSObis ln2 = new DLMSObis(name.substring(0, name.indexOf("-")));
+			final DLMSObis ln2 = new DLMSObis(name.substring(0, name.indexOf("-")));
 			if (ln2.isLogicalName()) {
-				String from = name.substring(name.indexOf("-") + 1, name.indexOf("-", name.indexOf("-") + 1));
-				String to = name.substring(name.indexOf(from) + from.length() + 1);
+				final String from = name.substring(name.indexOf("-") + 1, name.indexOf("-", name.indexOf("-") + 1));
+				final String to = name.substring(name.indexOf(from) + from.length() + 1);
 				if (ln2.getDLMSClass() == 7) {
 					return getCosemObjectFactory().getProfileGeneric(getMeterConfig().getObject(ln2).getObisCode()).getBuffer(convertStringToCalendar(from), convertStringToCalendar(to)).print2strDataContainer();
 				} else {
@@ -1326,8 +1340,8 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		}
 	}
 
-	private Calendar convertStringToCalendar(String strDate) {
-		Calendar cal = Calendar.getInstance(getTimeZone());
+	private Calendar convertStringToCalendar(final String strDate) {
+		final Calendar cal = Calendar.getInstance(getTimeZone());
 		cal.set(Integer.parseInt(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" "))) & 0xFFFF, (Integer.parseInt(strDate.substring(strDate.indexOf("/") + 1, strDate.lastIndexOf("/"))) & 0xFF) - 1, Integer.parseInt(strDate.substring(0, strDate.indexOf("/"))) & 0xFF, Integer.parseInt(strDate.substring(strDate.indexOf(" ") + 1, strDate.indexOf(":"))) & 0xFF, Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":"))) & 0xFF, Integer.parseInt(strDate.substring(strDate.lastIndexOf(":") + 1, strDate.length())) & 0xFF);
 		return cal;
 	}
@@ -1346,15 +1360,17 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	 * @throws UnsupportedException
 	 * <br>
 	 */
-	public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+	public void setRegister(final String name, final String value) throws IOException, NoSuchRegisterException, UnsupportedException {
 		boolean classSpecified = false;
-		if (name.indexOf(':') >= 0)
+		if (name.indexOf(':') >= 0) {
 			classSpecified = true;
-		DLMSObis ln = new DLMSObis(name);
+		}
+		final DLMSObis ln = new DLMSObis(name);
 		if ((ln.isLogicalName()) && (classSpecified)) {
 			getCosemObjectFactory().getGenericWrite(ObisCode.fromByteArray(ln.getLN()), ln.getOffset(), ln.getDLMSClass()).write(convert(value));
-		} else
+		} else {
 			throw new NoSuchRegisterException("GenericGetSet, setRegister, register " + name + " does not exist.");
+		}
 	}
 
 	/**
@@ -1397,7 +1413,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	 * @return a list of strings
 	 */
 	public List<String> getRequiredKeys() {
-		List<String> requiredProperties = new ArrayList<String>();
+		final List<String> requiredProperties = new ArrayList<String>();
 
 		return requiredProperties;
 	}
@@ -1565,7 +1581,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	 * {@inheritDoc}
 	 */
 	public final String getFileName() {
-		Calendar calendar = Calendar.getInstance();
+		final Calendar calendar = Calendar.getInstance();
 		return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + this.deviceId + "_" + this.password + "_" + this.serialNumber + "_" + serverUpperMacAddress + "_DLMSEICTZ3.cache";
 	}
 
@@ -1582,24 +1598,24 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	public final RegisterValue readRegister(final ObisCode obisCode) throws IOException {
 		try {
 
-			UniversalObject uo = getMeterConfig().findObject(obisCode);
+			final UniversalObject uo = getMeterConfig().findObject(obisCode);
 			if (uo.getClassID() == DLMSCOSEMGlobals.ICID_REGISTER) {
-				Register register = getCosemObjectFactory().getRegister(obisCode);
+				final Register register = getCosemObjectFactory().getRegister(obisCode);
 				return new RegisterValue(obisCode, register.getQuantityValue());
 			} else if (uo.getClassID() == DLMSCOSEMGlobals.ICID_DEMAND_REGISTER) {
-				DemandRegister register = getCosemObjectFactory().getDemandRegister(obisCode);
+				final DemandRegister register = getCosemObjectFactory().getDemandRegister(obisCode);
 				return new RegisterValue(obisCode, register.getQuantityValue());
 			} else if (uo.getClassID() == DLMSCOSEMGlobals.ICID_EXTENDED_REGISTER) {
-				ExtendedRegister register = getCosemObjectFactory().getExtendedRegister(obisCode);
+				final ExtendedRegister register = getCosemObjectFactory().getExtendedRegister(obisCode);
 				return new RegisterValue(obisCode, register.getQuantityValue());
 			} else if (uo.getClassID() == DLMSCOSEMGlobals.ICID_DISCONNECT_CONTROL) {
-				Disconnector register = getCosemObjectFactory().getDisconnector(obisCode);
+				final Disconnector register = getCosemObjectFactory().getDisconnector(obisCode);
 				return new RegisterValue(obisCode, "" + register.getState());
 			}
 
 			return this.ocm.getRegisterValue(obisCode);
 
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
 		}
 	}
@@ -1607,20 +1623,20 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	/**
 	 * {@inheritDoc}
 	 */
-	public final RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
+	public final RegisterInfo translateRegister(final ObisCode obisCode) throws IOException {
 		return ObisCodeMapper.getRegisterInfo(obisCode);
 	}
 	/**
 	 * {@inheritDoc}
 	 */
 	public final List<MessageCategorySpec> getMessageCategories() {
-		List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
+		final List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
 		
 		// Firmware.
 		//categories.add(this.getFirmwareMessages());
 		
 		// Disconnect control.
-		MessageCategorySpec catDisconnect = new MessageCategorySpec("Disconnect Control");
+		final MessageCategorySpec catDisconnect = new MessageCategorySpec("Disconnect Control");
 		
 		MessageSpec msgSpec = addConnectControl("Disconnect", RtuMessageConstant.DISCONNECT_LOAD, false);
 		catDisconnect.addMessageSpec(msgSpec);
@@ -1630,7 +1646,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		catDisconnect.addMessageSpec(msgSpec);
 		
 		// MBus messages.
-		MessageCategorySpec catMbusSetup = new MessageCategorySpec("Mbus setup");
+		final MessageCategorySpec catMbusSetup = new MessageCategorySpec("Mbus setup");
 
 		msgSpec = addNoValueMsg("Decommission", RtuMessageConstant.MBUS_DECOMMISSION, false);
 		catMbusSetup.addMessageSpec(msgSpec);
@@ -1649,12 +1665,12 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	 * @param advanced
 	 * @return
 	 */
-	private final MessageSpec addConnectControl(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
+	private final MessageSpec addConnectControl(final String keyId, final String tagName, final boolean advanced) {
+		final MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		final MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+		final MessageValueSpec msgVal = new MessageValueSpec();
 		msgVal.setValue(" ");
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, false);
+		final MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, false);
 		tagSpec.add(msgVal);
 		tagSpec.add(msgAttrSpec);
 		msgSpec.add(tagSpec);
@@ -1667,29 +1683,29 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	 * @param advanced
 	 * @return
 	 */
-	private final MessageSpec addConnectControlMode(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
+	private final MessageSpec addConnectControlMode(final String keyId, final String tagName, final boolean advanced) {
+		final MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		final MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+		final MessageValueSpec msgVal = new MessageValueSpec();
 		msgVal.setValue(" ");
-		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.CONNECT_MODE, true);
+		final MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.CONNECT_MODE, true);
 		tagSpec.add(msgVal);
 		tagSpec.add(msgAttrSpec);
 		msgSpec.add(tagSpec);
 		return msgSpec;
 	}
 
-	private final MessageSpec addNoValueMsg(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+	private final MessageSpec addNoValueMsg(final String keyId, final String tagName, final boolean advanced) {
+		final MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		final MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 		msgSpec.add(tagSpec);
 		return msgSpec;
 	}
 
-	private final MessageSpec addEncryptionkeys(String keyId, String tagName, boolean advanced) {
-		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-		MessageValueSpec msgVal = new MessageValueSpec();
+	private final MessageSpec addEncryptionkeys(final String keyId, final String tagName, final boolean advanced) {
+		final MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		final MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+		final MessageValueSpec msgVal = new MessageValueSpec();
 		msgVal.setValue(" ");
 		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.MBUS_OPEN_KEY, false);
 		tagSpec.add(msgAttrSpec);
@@ -1719,10 +1735,11 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		buf.append(msgTag.getName());
 
 		// b. Attributes
-		for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
-			MessageAttribute att = (MessageAttribute) it.next();
-			if (att.getValue() == null || att.getValue().length() == 0)
+		for (final Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
+			final MessageAttribute att = (MessageAttribute) it.next();
+			if (att.getValue() == null || att.getValue().length() == 0) {
 				continue;
+			}
 			buf.append(" ").append(att.getSpec().getName());
 			buf.append("=").append('"').append(att.getValue()).append('"');
 		}
@@ -1732,14 +1749,15 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		}
 		buf.append(">");
 		// c. sub elements
-		for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
-			MessageElement elt = (MessageElement) it.next();
-			if (elt.isTag())
+		for (final Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
+			final MessageElement elt = (MessageElement) it.next();
+			if (elt.isTag()) {
 				buf.append(writeTag((MessageTag) elt));
-			else if (elt.isValue()) {
-				String value = writeValue((MessageValue) elt);
-				if (value == null || value.length() == 0)
+			} else if (elt.isValue()) {
+				final String value = writeValue((MessageValue) elt);
+				if (value == null || value.length() == 0) {
 					return "";
+				}
 				buf.append(value);
 			}
 		}
@@ -1772,65 +1790,65 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	 * @param handler
 	 * @throws BusinessException
 	 */
-	private final void importMessage(String message, DefaultHandler handler) throws BusinessException {
+	private final void importMessage(final String message, final DefaultHandler handler) throws BusinessException {
 		try {
 
-			byte[] bai = message.getBytes();
-			InputStream i = (InputStream) new ByteArrayInputStream(bai);
+			final byte[] bai = message.getBytes();
+			final InputStream i = new ByteArrayInputStream(bai);
 
-			SAXParserFactory factory = SAXParserFactory.newInstance();
-			SAXParser saxParser = factory.newSAXParser();
+			final SAXParserFactory factory = SAXParserFactory.newInstance();
+			final SAXParser saxParser = factory.newSAXParser();
 			saxParser.parse(i, handler);
 
-		} catch (ParserConfigurationException thrown) {
+		} catch (final ParserConfigurationException thrown) {
 			thrown.printStackTrace();
 			throw new BusinessException(thrown);
-		} catch (SAXException thrown) {
+		} catch (final SAXException thrown) {
 			thrown.printStackTrace();
 			throw new BusinessException(thrown);
-		} catch (IOException thrown) {
+		} catch (final IOException thrown) {
 			thrown.printStackTrace();
 			throw new BusinessException(thrown);
 		}
 	}
 
-	private Array convertUnixToDateTimeArray(String strDate) throws IOException {
+	private Array convertUnixToDateTimeArray(final String strDate) throws IOException {
 		try {
-			Calendar cal = Calendar.getInstance(getTimeZone());
+			final Calendar cal = Calendar.getInstance(getTimeZone());
 			cal.setTimeInMillis(Long.parseLong(strDate) * 1000);
-			byte[] dateBytes = new byte[5];
+			final byte[] dateBytes = new byte[5];
 			dateBytes[0] = (byte) ((cal.get(Calendar.YEAR) >> 8) & 0xFF);
 			dateBytes[1] = (byte) (cal.get(Calendar.YEAR) & 0xFF);
 			dateBytes[2] = (byte) ((cal.get(Calendar.MONTH) & 0xFF) + 1);
 			dateBytes[3] = (byte) (cal.get(Calendar.DAY_OF_MONTH) & 0xFF);
 			dateBytes[4] = (byte) 0xFF;
-			OctetString date = new OctetString(dateBytes);
-			byte[] timeBytes = new byte[4];
+			final OctetString date = new OctetString(dateBytes);
+			final byte[] timeBytes = new byte[4];
 			timeBytes[0] = (byte) cal.get(Calendar.HOUR_OF_DAY);
 			timeBytes[1] = (byte) cal.get(Calendar.MINUTE);
 			timeBytes[2] = (byte) 0x00;
 			timeBytes[3] = (byte) 0x00;
-			OctetString time = new OctetString(timeBytes);
+			final OctetString time = new OctetString(timeBytes);
 
-			Array dateTimeArray = new Array();
+			final Array dateTimeArray = new Array();
 			dateTimeArray.addDataType(time);
 			dateTimeArray.addDataType(date);
 			return dateTimeArray;
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 			e.printStackTrace();
 			throw new IOException("Could not parse " + strDate + " to a long value");
 		}
 	}
 
-	private byte[] convertStringToByte(String string) throws IOException {
+	private byte[] convertStringToByte(final String string) throws IOException {
 		try {
-			byte[] b = new byte[string.length() / 2];
+			final byte[] b = new byte[string.length() / 2];
 			int offset = 0;
 			for (int i = 0; i < b.length; i++) {
 				b[i] = (byte) Integer.parseInt(string.substring(offset, offset += 2), 16);
 			}
 			return b;
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 			e.printStackTrace();
 			throw new IOException("String " + string + " can not be formatted to byteArray");
 		}
@@ -1871,7 +1889,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			imageTransfer.imageActivation();
 			
 			logger.info("Upgrade has finished successfully...");
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			logger.log(Level.SEVERE, "Interrupted while uploading firmware image [" + e.getMessage() + "]", e);
 			
 			final IOException ioException = new IOException(e.getMessage());
@@ -1892,12 +1910,12 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			
 			try {
 				builder.initFromXml(messageEntry.getContent());
-			} catch (SAXException e) {
+			} catch (final SAXException e) {
 				logger.log(Level.SEVERE, "Cannot process firmware upgrade message due to an XML parsing error [" + e.getMessage() + "]", e);
 				
 				// Set the message failed.
 				return MessageResult.createFailed(messageEntry);
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				if (logger.isLoggable(Level.SEVERE)) {
 					logger.log(Level.SEVERE, "Got an IO error when loading firmware message content [" + e.getMessage() + "]", e);
 				}
@@ -1914,7 +1932,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 				if (upgradeFileData.length > 0) {
 					try {
 						this.upgradeDevice(builder.getUserFile().loadFileInByteArray());
-					} catch (IOException e) {
+					} catch (final IOException e) {
 						if (logger.isLoggable(Level.SEVERE)) {
 							logger.log(Level.SEVERE, "Caught an IO error when trying upgrade [" + e.getMessage() + "]", e);
 						}
@@ -1936,16 +1954,16 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			
 			return MessageResult.createSuccess(messageEntry);
 		} else {
-			MessageHandler messageHandler = new MessageHandler();
+			final MessageHandler messageHandler = new MessageHandler();
 			boolean success = false;
 			try {
 				importMessage(messageEntry.getContent(), messageHandler);
 	
-				boolean connect = messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
-				boolean disconnect = messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
-				boolean connectMode = messageHandler.getType().equals(RtuMessageConstant.CONNECT_CONTROL_MODE);
-				boolean decommission = messageHandler.getType().equals(RtuMessageConstant.MBUS_DECOMMISSION);
-				boolean mbusEncryption = messageHandler.getType().equals(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
+				final boolean connect = messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
+				final boolean disconnect = messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
+				final boolean connectMode = messageHandler.getType().equals(RtuMessageConstant.CONNECT_CONTROL_MODE);
+				final boolean decommission = messageHandler.getType().equals(RtuMessageConstant.MBUS_DECOMMISSION);
+				final boolean mbusEncryption = messageHandler.getType().equals(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
 	
 				if (connect) {
 	
@@ -1954,12 +1972,12 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 					if (!messageHandler.getConnectDate().equals("")) { // use the
 						// disconnectControlScheduler
 	
-						Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
-						SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getMBusPhysicalAddress()).getObisCode());
+						final Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
+						final SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getMBusPhysicalAddress()).getObisCode());
 	
-						ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getMBusPhysicalAddress()).getObisCode());
-						byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
-						Structure scriptStruct = new Structure();
+						final ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getMBusPhysicalAddress()).getObisCode());
+						final byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
+						final Structure scriptStruct = new Structure();
 						scriptStruct.addDataType(new OctetString(scriptLogicalName));
 						scriptStruct.addDataType(new Unsigned16(2)); // method '2'
 						// is the
@@ -1970,7 +1988,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 						sasConnect.writeExecutionTime(executionTimeArray);
 	
 					} else { // immediate connect
-						Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMBusPhysicalAddress()).getObisCode());
+						final Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMBusPhysicalAddress()).getObisCode());
 						connector.remoteReconnect();
 					}
 	
@@ -1983,12 +2001,12 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 					if (!messageHandler.getDisconnectDate().equals("")) { // use the
 						// disconnectControlScheduler
 	
-						Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
-						SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getMBusPhysicalAddress()).getObisCode());
+						final Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
+						final SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getMBusPhysicalAddress()).getObisCode());
 	
-						ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getMBusPhysicalAddress()).getObisCode());
-						byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
-						Structure scriptStruct = new Structure();
+						final ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getMBusPhysicalAddress()).getObisCode());
+						final byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
+						final Structure scriptStruct = new Structure();
 						scriptStruct.addDataType(new OctetString(scriptLogicalName));
 						scriptStruct.addDataType(new Unsigned16(1)); // method '1'
 						// is the
@@ -1999,7 +2017,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 						sasDisconnect.writeExecutionTime(executionTimeArray);
 	
 					} else { // immediate disconnect
-						Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMBusPhysicalAddress()).getObisCode());
+						final Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMBusPhysicalAddress()).getObisCode());
 						connector.remoteDisconnect();
 					}
 	
@@ -2007,21 +2025,21 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 				} else if (connectMode) {
 	
 					getLogger().log(Level.INFO, "Handling message " + messageEntry + ": ConnectControl mode");
-					String mode = messageHandler.getConnectControlMode();
+					final String mode = messageHandler.getConnectControlMode();
 	
 					if (mode != null) {
 						try {
-							int modeInt = Integer.parseInt(mode);
+							final int modeInt = Integer.parseInt(mode);
 	
 							if ((modeInt >= 0) && (modeInt <= 6)) {
-								Disconnector connectorMode = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMBusPhysicalAddress()).getObisCode());
+								final Disconnector connectorMode = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMBusPhysicalAddress()).getObisCode());
 								connectorMode.writeControlMode(new TypeEnum(modeInt));
 	
 							} else {
 								throw new IOException("Mode is not a valid entry for message " + messageEntry + ", value must be between 0 and 6");
 							}
 	
-						} catch (NumberFormatException e) {
+						} catch (final NumberFormatException e) {
 							e.printStackTrace();
 							throw new IOException("Mode is not a valid entry for message " + messageEntry);
 						}
@@ -2035,7 +2053,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	
 					getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Decommission MBus device");
 	
-					MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMBusPhysicalAddress()).getObisCode());
+					final MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMBusPhysicalAddress()).getObisCode());
 					mbusClient.deinstallSlave();
 	
 					success = true;
@@ -2043,10 +2061,10 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	
 					getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Set encryption keys");
 	
-					String openKey = messageHandler.getOpenKey();
-					String transferKey = messageHandler.getTransferKey();
+					final String openKey = messageHandler.getOpenKey();
+					final String transferKey = messageHandler.getTransferKey();
 	
-					MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMBusPhysicalAddress()).getObisCode());
+					final MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMBusPhysicalAddress()).getObisCode());
 	
 					if (openKey == null) {
 						mbusClient.setEncryptionKey("");
@@ -2069,11 +2087,11 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 					getLogger().log(Level.INFO, "Message " + messageEntry + " has failed.");
 					return MessageResult.createFailed(messageEntry);
 				}
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				logger.log(Level.SEVERE, "Caught an IO error while querying message [" + messageEntry.getTrackingId() + "], message was [" + e.getMessage() + "]", e);
 	
 				return MessageResult.createFailed(messageEntry);
-			} catch (BusinessException e) {
+			} catch (final BusinessException e) {
 				logger.log(Level.SEVERE, "Caught an business error while querying message [" + messageEntry.getTrackingId() + "], message was [" + e.getMessage() + "]", e);
 	
 				return MessageResult.createFailed(messageEntry);

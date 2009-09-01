@@ -1,4 +1,4 @@
-package com.energyict.dlms.client;
+package com.energyict.dlms;
 
 import com.energyict.obis.ObisCode;
 

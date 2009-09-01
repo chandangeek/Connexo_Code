@@ -17,8 +17,8 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.client.ParseUtils;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
@@ -50,24 +50,24 @@ public class ElectricityProfile {
 	public ElectricityProfile(){
 	}
 	
-	public ElectricityProfile(IskraMx37x iskra){
+	public ElectricityProfile(final IskraMx37x iskra){
 		this.iskramx37x = iskra;
 	}
 	
-	public void getProfile(ObisCode electricityProfile, boolean events) throws IOException, SQLException, BusinessException{
-		ProfileData profileData = new ProfileData( );
+	public void getProfile(final ObisCode electricityProfile, final boolean events) throws IOException, SQLException, BusinessException{
+		final ProfileData profileData = new ProfileData( );
 		ProfileGeneric genericProfile;
 		try {
 			genericProfile = getCosemObjectFactory().getProfileGeneric(electricityProfile);
-			List<ChannelInfo> channelInfos = getChannelInfos(genericProfile);
+			final List<ChannelInfo> channelInfos = getChannelInfos(genericProfile);
 			
 			profileData.setChannelInfos(channelInfos);
 			Calendar fromCalendar = null;
 			Calendar channelCalendar = null;
-			Calendar toCalendar = getToCalendar();
+			final Calendar toCalendar = getToCalendar();
 			
 			for (int i = 0; i < getMeter().getChannels().size(); i++) {
-				Channel chn = getMeter().getChannel(i);
+				final Channel chn = getMeter().getChannel(i);
 				if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
 						!(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
 					channelCalendar = getFromCalendar(getMeter().getChannel(i));
@@ -78,7 +78,7 @@ public class ElectricityProfile {
 			}
 			
 			iskramx37x.getLogger().log(Level.INFO, "Meter " + this.iskramx37x.getMeter().getSerialNumber() + ": Retrieving profiledata from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
-			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
+			final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 			buildProfileData(dc, profileData, genericProfile);
 			profileData.sort();
 			
@@ -87,31 +87,31 @@ public class ElectricityProfile {
 				if(lastLogReading == null){
 					lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(iskramx37x.getMeter());
 				}
-				Calendar fromCal = ProtocolUtils.getCleanCalendar(getTimeZone());
+				final Calendar fromCal = ProtocolUtils.getCleanCalendar(getTimeZone());
 				fromCal.setTime(lastLogReading);
 				iskramx37x.getLogger().log(Level.INFO, "Meter " + this.iskramx37x.getMeter().getSerialNumber() + ": Reading EVENTS from meter with serialnumber " + iskramx37x.getSerialNumber() + ".");
-				DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, iskramx37x.getToCalendar());
-				Logbook logbook = new Logbook(getTimeZone(), iskramx37x.getLogger());
+				final DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, iskramx37x.getToCalendar());
+				final Logbook logbook = new Logbook(getTimeZone(), iskramx37x.getLogger());
 				profileData.getMeterEvents().addAll(logbook.getMeterEvents(dcEvent));
 				profileData.applyEvents(iskramx37x.getMeter().getIntervalInSeconds()/60);
 			}
 			
 			getMeter().store(profileData, false);
 			
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException(e.getMessage());
-		} catch (SQLException e){
+		} catch (final SQLException e){
 			e.printStackTrace();
 			throw new SQLException(e.getMessage());
-		} catch (BusinessException e){
+		} catch (final BusinessException e){
 			e.printStackTrace();
 			throw new BusinessException(e.getMessage());
 		}
 	}
 
-	private List<ChannelInfo> getChannelInfos(ProfileGeneric profile) throws IOException {
-		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+	private List<ChannelInfo> getChannelInfos(final ProfileGeneric profile) throws IOException {
+		final List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		ChannelInfo ci = null;
 		int index = 0;
 		try{
@@ -119,8 +119,8 @@ public class ElectricityProfile {
 				
 				if(ParseUtils.isElectricityObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode()) 
 						&& !isProfileStatusObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){ // make a channel out of it
-					CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
-					ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
+					final CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
+					final ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
 					if(su != null){
 						ci = new ChannelInfo(index, getProfileChannelNumber(index+1), "IskraMx372_"+index, su.getUnit());
 					} else {
@@ -136,7 +136,7 @@ public class ElectricityProfile {
 				}
 				
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException("Failed to build the channelInfos." + e);
 		}
@@ -150,20 +150,20 @@ public class ElectricityProfile {
 	 * @return
 	 * @throws IOException
 	 */
-	private ScalerUnit getMeterDemandRegisterScalerUnit(ObisCode oc) throws IOException{
+	private ScalerUnit getMeterDemandRegisterScalerUnit(final ObisCode oc) throws IOException{
 		try {
 			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
 			if( su.getUnitCode() == 0){
 				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
 			}
 			return su;
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not get the scalerunit from object '" + oc + "'.");
 		}
 	}
 	
-	private int getProfileChannelNumber(int index){
+	private int getProfileChannelNumber(final int index){
 		int channelIndex = 0;
 		for(int i = 0; i < getMeter().getChannels().size(); i++){
 		if(!(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
@@ -177,7 +177,7 @@ public class ElectricityProfile {
 		return -1;
 	}
 	
-	private void buildProfileData(DataContainer dc, ProfileData pd, ProfileGeneric pg) throws IOException{
+	private void buildProfileData(final DataContainer dc, final ProfileData pd, final ProfileGeneric pg) throws IOException{
 		
 		//TODO check how this reacts with the profile.
 		
@@ -237,13 +237,13 @@ public class ElectricityProfile {
 //        
 //    }
 	
-	private boolean isProfileStatusObisCode(ObisCode oc) throws IOException{
+	private boolean isProfileStatusObisCode(final ObisCode oc) throws IOException{
 		return oc.equals(getMeterConfig().getStatusObject().getObisCode());
 	}
 	
-	private IntervalData getIntervalData(DataStructure ds, Calendar cal, int status, ProfileGeneric pg)throws IOException{
+	private IntervalData getIntervalData(final DataStructure ds, final Calendar cal, final int status, final ProfileGeneric pg)throws IOException{
 		
-		IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
+		final IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
 		
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
@@ -252,7 +252,7 @@ public class ElectricityProfile {
 					id.addValue(new Integer(ds.getInteger(i)));
 				}
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException("Failed to parse the intervalData objects form the datacontainer.");
 		}
@@ -260,28 +260,28 @@ public class ElectricityProfile {
 		return id;
 	}
 	
-	private int getProfileStatusChannelIndex(ProfileGeneric pg) throws IOException{
+	private int getProfileStatusChannelIndex(final ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjectsAsUniversalObjects().length; i++){
 				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getStatusObject().getObisCode())){
 					return i;
 				}
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not retrieve the index of the profileData's status attribute.");
 		}
 		return -1;
 	}
 	
-	private int getProfileClockChannelIndex(ProfileGeneric pg) throws IOException{
+	private int getProfileClockChannelIndex(final ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
 				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getClockObject().getObisCode())){
 					return i;
 				}
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not retrieve the index of the profileData's clock attribute.");
 		}
@@ -300,7 +300,7 @@ public class ElectricityProfile {
 		return this.iskramx37x.getToCalendar();
 	}
 	
-	private Calendar getFromCalendar(Channel channel){
+	private Calendar getFromCalendar(final Channel channel){
 		return this.iskramx37x.getFromCalendar(channel);
 	}
 	

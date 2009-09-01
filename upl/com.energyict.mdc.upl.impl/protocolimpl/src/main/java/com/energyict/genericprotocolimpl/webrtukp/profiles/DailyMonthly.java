@@ -42,15 +42,15 @@ public class DailyMonthly {
 	public DailyMonthly(){
 	}
 	
-	public DailyMonthly(WebRTUKP webrtu){
+	public DailyMonthly(final WebRTUKP webrtu){
 		this.webrtu = webrtu;
 	}
 
-	public void getDailyValues(ObisCode dailyObisCode) throws IOException, SQLException, BusinessException {
-		ProfileData profileData = new ProfileData( );
+	public void getDailyValues(final ObisCode dailyObisCode) throws IOException, SQLException, BusinessException {
+		final ProfileData profileData = new ProfileData( );
 		try {
-			ProfileGeneric genericProfile = getCosemObjectFactory().getProfileGeneric(dailyObisCode);
-			List<ChannelInfo> channelInfos = getDailyMonthlyChannelInfos(genericProfile, TimeDuration.DAYS);
+			final ProfileGeneric genericProfile = getCosemObjectFactory().getProfileGeneric(dailyObisCode);
+			final List<ChannelInfo> channelInfos = getDailyMonthlyChannelInfos(genericProfile, TimeDuration.DAYS);
 			if(channelInfos.size() != 0){
 				
 				webrtu.getLogger().log(Level.INFO, "Getting daily values for meter with serialnumber: " + webrtu.getSerialNumberValue());
@@ -58,9 +58,9 @@ public class DailyMonthly {
 				profileData.setChannelInfos(channelInfos);
 				Calendar fromCalendar = null;
 				Calendar channelCalendar = null;
-				Calendar toCalendar = getToCalendar();
+				final Calendar toCalendar = getToCalendar();
 				for (int i = 0; i < getMeter().getChannels().size(); i++) {
-					Channel chn = getMeter().getChannel(i);
+					final Channel chn = getMeter().getChannel(i);
 					if(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS){ //the channel is a daily channel
 						channelCalendar = getFromCalendar(getMeter().getChannel(i));
 						if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
@@ -69,34 +69,34 @@ public class DailyMonthly {
 					}
 				}
 				webrtu.getLogger().log(Level.INFO, "Reading Daily values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
-				DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
+				final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 				buildProfileData(dc, profileData, genericProfile, TimeDuration.DAYS);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
-				ProfileData pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
+				final ProfileData pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
 				
 				// We save the profileData to a tempObject so we can store everything at the end of the communication
 //			webrtu.getStoreObject().add(getMeter(), pd);
 				webrtu.getStoreObject().add(pd, getMeter());
 			}
 			
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException(e.getMessage());
 		}
 		
 	}
 
-	private List<ChannelInfo> getDailyMonthlyChannelInfos(ProfileGeneric profile, int timeDuration) throws IOException {
-		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+	private List<ChannelInfo> getDailyMonthlyChannelInfos(final ProfileGeneric profile, final int timeDuration) throws IOException {
+		final List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		ChannelInfo ci = null;
 		int index = 0;
 		int channelIndex = -1;
 		try{
 			for(int i = 0; i < profile.getCaptureObjects().size(); i++){
 				
-				if(com.energyict.dlms.client.ParseUtils.isElectricityObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){ // make a channel out of it
-					CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
-					ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
+				if(com.energyict.dlms.ParseUtils.isElectricityObisCode(((CapturedObject)(profile.getCaptureObjects().get(i))).getLogicalName().getObisCode())){ // make a channel out of it
+					final CapturedObject co = ((CapturedObject)profile.getCaptureObjects().get(i));
+					final ScalerUnit su = getMeterDemandRegisterScalerUnit(co.getLogicalName().getObisCode());
 					if(timeDuration == TimeDuration.DAYS){
 						channelIndex = getDailyChannelNumber(index+1);
 					} else if(timeDuration == TimeDuration.MONTHS){
@@ -106,7 +106,7 @@ public class DailyMonthly {
 					if(channelIndex != -1){
 						ci = new ChannelInfo(index, channelIndex, "WebRtuKP_DayMonth_"+index, su.getUnit());
 						index++;
-						if(com.energyict.dlms.client.ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())){
+						if(com.energyict.dlms.ParseUtils.isObisCodeCumulative(co.getLogicalName().getObisCode())){
 							//TODO need to check the wrapValue
 							ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
 						}
@@ -116,18 +116,18 @@ public class DailyMonthly {
 				}
 				
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException("Failed to build the channelInfos." + e);
 		}
 		return channelInfos;
 	}
 
-	public void getMonthlyValues(ObisCode monthlyObisCode) throws IOException, SQLException, BusinessException {
-		ProfileData profileData = new ProfileData( );
+	public void getMonthlyValues(final ObisCode monthlyObisCode) throws IOException, SQLException, BusinessException {
+		final ProfileData profileData = new ProfileData( );
 		try {
-			ProfileGeneric genericProfile = getCosemObjectFactory().getProfileGeneric(monthlyObisCode);
-			List<ChannelInfo> channelInfos = getDailyMonthlyChannelInfos(genericProfile, TimeDuration.MONTHS);
+			final ProfileGeneric genericProfile = getCosemObjectFactory().getProfileGeneric(monthlyObisCode);
+			final List<ChannelInfo> channelInfos = getDailyMonthlyChannelInfos(genericProfile, TimeDuration.MONTHS);
 			if(channelInfos.size() != 0){
 				
 				webrtu.getLogger().log(Level.INFO, "Getting monthly values for meter with serialnumber: " + webrtu.getSerialNumberValue());
@@ -135,9 +135,9 @@ public class DailyMonthly {
 				profileData.setChannelInfos(channelInfos);
 				Calendar fromCalendar = null;
 				Calendar channelCalendar = null;
-				Calendar toCalendar = getToCalendar();
+				final Calendar toCalendar = getToCalendar();
 				for (int i = 0; i < getMeter().getChannels().size(); i++) {
-					Channel chn = getMeter().getChannel(i);
+					final Channel chn = getMeter().getChannel(i);
 					if(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS){ //the channel is a daily channel
 						channelCalendar = getFromCalendar(getMeter().getChannel(i));
 						if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
@@ -147,10 +147,10 @@ public class DailyMonthly {
 				}
 				
 				webrtu.getLogger().log(Level.INFO, "Reading Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
-				DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
+				final DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
 				buildProfileData(dc, profileData, genericProfile, TimeDuration.MONTHS);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
-				ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
+				final ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
 				
 				// We save the profileData to a tempObject so we can store everything at the end of the communication
 //			webrtu.getStoreObject().add(getMeter(), pd);
@@ -160,7 +160,7 @@ public class DailyMonthly {
 				webrtu.getStoreObject().add(pd, getMeter());
 			}
 			
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException(e.getMessage());
 		}
@@ -174,34 +174,36 @@ public class DailyMonthly {
 	 * @return
 	 * @throws IOException
 	 */
-	private ScalerUnit getMeterDemandRegisterScalerUnit(ObisCode oc) throws IOException{
+	private ScalerUnit getMeterDemandRegisterScalerUnit(final ObisCode oc) throws IOException{
 		try {
 			ScalerUnit su = getCosemObjectFactory().getCosemObject(oc).getScalerUnit();
 			if( su.getUnitCode() == 0){
 				su = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
 			}
 			return su;
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			webrtu.getLogger().log(Level.INFO, "Could not get the scalerunit from object '" + oc + "'.");
 		}
 		return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
 	}
 	
-	private ProfileData sortOutProfiledate(ProfileData profileData, int timeDuration) {
-		ProfileData pd = new ProfileData();
+	private ProfileData sortOutProfiledate(final ProfileData profileData, final int timeDuration) {
+		final ProfileData pd = new ProfileData();
 		pd.setChannelInfos(profileData.getChannelInfos());
-		Iterator<IntervalData> it = profileData.getIntervalIterator();
+		final Iterator<IntervalData> it = profileData.getIntervalIterator();
 		while(it.hasNext()){
-			IntervalData id = it.next();
+			final IntervalData id = it.next();
 			switch(timeDuration){
 			case TimeDuration.DAYS:{
-				if(checkDailyBillingTime(id.getEndTime()))
+				if(checkDailyBillingTime(id.getEndTime())) {
 					pd.addInterval(id);
+				}
 			}break;
 			case TimeDuration.MONTHS:{
-				if(checkMonthlyBillingTime(id.getEndTime()))
+				if(checkMonthlyBillingTime(id.getEndTime())) {
 					pd.addInterval(id);
+				}
 			}break;
 			}
 		}
@@ -213,11 +215,12 @@ public class DailyMonthly {
 	 * @param date
 	 * @return true or false
 	 */
-	private boolean checkDailyBillingTime(Date date){
-		Calendar cal = Calendar.getInstance();
+	private boolean checkDailyBillingTime(final Date date){
+		final Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		if(cal.get(Calendar.HOUR)==0 && cal.get(Calendar.MINUTE)==0 && cal.get(Calendar.SECOND)==0 && cal.get(Calendar.MILLISECOND)==0)
+		if(cal.get(Calendar.HOUR)==0 && cal.get(Calendar.MINUTE)==0 && cal.get(Calendar.SECOND)==0 && cal.get(Calendar.MILLISECOND)==0) {
 			return true;
+		}
 		return false;
 	}
 	
@@ -226,15 +229,16 @@ public class DailyMonthly {
 	 * @param date
 	 * @return true or false
 	 */
-	private boolean checkMonthlyBillingTime(Date date){
-		Calendar cal = Calendar.getInstance();
+	private boolean checkMonthlyBillingTime(final Date date){
+		final Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		if(checkDailyBillingTime(date) && cal.get(Calendar.DAY_OF_MONTH)==1)
+		if(checkDailyBillingTime(date) && cal.get(Calendar.DAY_OF_MONTH)==1) {
 			return true;
+		}
 		return false;
 	}
 	
-	private int getDailyChannelNumber(int index){
+	private int getDailyChannelNumber(final int index){
 		int channelIndex = 0;
 		for(int i = 0; i < getMeter().getChannels().size(); i++){
 			if(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.DAYS){
@@ -247,7 +251,7 @@ public class DailyMonthly {
 		return -1;
 	}
 	
-	private int getMonthlyChannelNumber(int index){
+	private int getMonthlyChannelNumber(final int index){
 		int channelIndex = 0;
 		for(int i = 0; i < getMeter().getChannels().size(); i++){
 			if(getMeter().getChannel(i).getInterval().getTimeUnitCode() == TimeDuration.MONTHS){
@@ -260,12 +264,12 @@ public class DailyMonthly {
 		return -1;
 	}
 	
-	private void buildProfileData(DataContainer dc, ProfileData pd, ProfileGeneric pg, int timeDuration) throws IOException{
+	private void buildProfileData(final DataContainer dc, final ProfileData pd, final ProfileGeneric pg, final int timeDuration) throws IOException{
 		
 		try {
 			Calendar cal = null;
 			IntervalData currentInterval = null;
-			int profileStatus = 0;
+			final int profileStatus = 0;
 			if(dc.getRoot().getElements().length != 0){
 				for(int i = 0; i < dc.getRoot().getElements().length; i++){
 					
@@ -294,7 +298,7 @@ public class DailyMonthly {
 			} else {
 				webrtu.getLogger().info("No entries in LoadProfile");
 			}
-		} catch (ClassCastException e) {
+		} catch (final ClassCastException e) {
 			e.printStackTrace();
 			throw new ClassCastException("Configuration of the profile probably not correct.");
 		}
@@ -311,21 +315,21 @@ public class DailyMonthly {
 	 * @return the intervalData
 	 * @throws IOException
 	 */
-	private IntervalData getIntervalData(DataStructure ds, Calendar cal, int status, ProfileGeneric pg, List channelInfos)throws IOException{
+	private IntervalData getIntervalData(final DataStructure ds, final Calendar cal, final int status, final ProfileGeneric pg, final List channelInfos)throws IOException{
 		
-		IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
+		final IntervalData id = new IntervalData(cal.getTime(), StatusCodeProfile.intervalStateBits(status));
 		int index = 0;
 		
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
 				if(index < channelInfos.size()){
-					if(com.energyict.dlms.client.ParseUtils.isElectricityObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
+					if(com.energyict.dlms.ParseUtils.isElectricityObisCode(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode())){
 						id.addValue(new Integer(ds.getInteger(i)));
 						index++;
 					}
 				}
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException("Failed to parse the intervalData objects form the datacontainer.");
 		}
@@ -333,14 +337,14 @@ public class DailyMonthly {
 		return id;
 	}
 	
-	private int getProfileClockChannelIndex(ProfileGeneric pg) throws IOException{
+	private int getProfileClockChannelIndex(final ProfileGeneric pg) throws IOException{
 		try {
 			for(int i = 0; i < pg.getCaptureObjects().size(); i++){
 				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getClockObject().getObisCode())){
 					return i;
 				}
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IOException("Could not retrieve the index of the profileData's clock attribute.");
 		}
@@ -359,7 +363,7 @@ public class DailyMonthly {
 		return this.webrtu.getToCalendar();
 	}
 	
-	private Calendar getFromCalendar(Channel channel){
+	private Calendar getFromCalendar(final Channel channel){
 		return this.webrtu.getFromCalendar(channel);
 	}
 	
