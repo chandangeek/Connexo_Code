@@ -121,6 +121,7 @@ import com.energyict.protocolimpl.iec1107.ppm.register.LoadProfileDefinition;
   || Added extra checking error checking in communication.
   JME|01092009| Fixed bug in DataIdentity resulting in an exception while using IEC1107 (OPUS = 0)
   || Argument was not copied to object property because of typo. Changed "lenght" to "length" in argument name.
+  || Added fixes for Java code quality
 
  * @endchanges
  * @author fbo
@@ -138,61 +139,61 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	private Logger logger = null;
 
 	/** Property keys specific for PPM protocol. */
-	final static String PK_OPUS = "OPUS";
-	final static String PK_TIMEOUT = "Timeout";
-	final static String PK_RETRIES = "Retries";
-	final static String PK_FORCE_DELAY = "ForcedDelay";
+	private static final String PK_OPUS = "OPUS";
+	private static final String PK_TIMEOUT = "Timeout";
+	private static final String PK_RETRIES = "Retries";
+	private static final String PK_FORCE_DELAY = "ForcedDelay";
 
-	final static String PK_DELAY_AFTER_FAIL = "DelayAfterFail";
-	final static String PK_SECURITY_LEVEL = "SecurityLevel";
-	final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
+	private static final String PK_DELAY_AFTER_FAIL = "DelayAfterFail";
+	private static final String PK_SECURITY_LEVEL = "SecurityLevel";
+	private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
 
 	/** Property Default values */
-	final static String PD_NODE_ID = "";
-	final static int PD_TIMEOUT = 10000;
-	final static int PD_RETRIES = 5;
-	final static int PD_ROUNDTRIP_CORRECTION = 0;
-	final static long PD_FORCE_DELAY = 350;
+	private static final String PD_NODE_ID = "";
+	private static final int PD_TIMEOUT = 10000;
+	private static final int PD_RETRIES = 5;
+	private static final int PD_ROUNDTRIP_CORRECTION = 0;
+	private static final long PD_FORCE_DELAY = 350;
 
-	final static long PD_DELAY_AFTER_FAIL = 500;
-	final static int PD_SECURITY_LEVEL = 2;
-	final static String PD_OPUS = "1";
-	final static String PD_EXTENDED_LOGGING = "0";
+	private static final long PD_DELAY_AFTER_FAIL = 500;
+	private static final int PD_SECURITY_LEVEL = 2;
+	private static final String PD_OPUS = "1";
+	private static final String PD_EXTENDED_LOGGING = "0";
 
 
 	/** Property values
 	 * Required properties will have NO default value
 	 * Optional properties make use of default value */
-	String pAddress = null;
-	String pNodeId = PD_NODE_ID;
-	String pSerialNumber = null;
-	String pPassword = null;
+	private String pAddress = null;
+	private String pNodeId = PD_NODE_ID;
+	private String pSerialNumber = null;
+	private String pPassword = null;
 
 	/* Protocol timeout fail in msec */
-	int pTimeout = PD_TIMEOUT;
+	private int pTimeout = PD_TIMEOUT;
 	/* Max nr of consecutive protocol errors before end of communication */
-	int pRetries = PD_RETRIES;
+	private int pRetries = PD_RETRIES;
 	/* Offset in ms to the get/set time */
-	int pRountTripCorrection = PD_ROUNDTRIP_CORRECTION;
+	private int pRountTripCorrection = PD_ROUNDTRIP_CORRECTION;
 	/* Delay in msec between protocol Message Sequences */
-	long pForceDelay = PD_FORCE_DELAY;
+	private long pForceDelay = PD_FORCE_DELAY;
 	/* Delay in msec after a protocol error */
-	long pDelayAfterFail = PD_DELAY_AFTER_FAIL;
-	int pSecurityLevel = PD_SECURITY_LEVEL;
+	private long pDelayAfterFail = PD_DELAY_AFTER_FAIL;
+	private int pSecurityLevel = PD_SECURITY_LEVEL;
 	//String pProfileInterval = null;
 	/* 1 if opus protocol is used, 0 if not */
-	String pOpus = PD_OPUS;
-	String pExtendedLogging = PD_EXTENDED_LOGGING;
+	private String pOpus = PD_OPUS;
+	private String pExtendedLogging = PD_EXTENDED_LOGGING;
 
-	int pCorrectTime;
+	private int pCorrectTime;
 
-	FlagIEC1107Connection flagIEC1107Connection = null;
-	OpusConnection opusConnection = null;
+	private FlagIEC1107Connection flagIEC1107Connection = null;
+	private OpusConnection opusConnection = null;
 
-	MeterType meterType = null;
-	RegisterFactory rFactory = null;
-	Profile profile = null;
-	ObisCodeMapper obisCodeMapper = null;
+	private MeterType meterType = null;
+	private RegisterFactory rFactory = null;
+	private Profile profile = null;
+	private ObisCodeMapper obisCodeMapper = null;
 
 	private boolean software7E1;
 

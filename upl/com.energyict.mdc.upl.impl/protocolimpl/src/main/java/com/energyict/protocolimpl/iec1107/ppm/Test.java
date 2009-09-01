@@ -14,10 +14,9 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.LinkException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
@@ -31,19 +30,20 @@ import com.energyict.protocolimpl.iec1107.ppm.register.ScalingFactor;
 public class Test {
 
 	public Test() throws InvalidPropertyException, MissingPropertyException {
-		properties = new Properties();
-		properties.setProperty(MeterProtocol.PASSWORD, PASSWORD);
-		meterProtocol.setProperties(properties);
+		this.properties = new Properties();
+		this.properties.setProperty(MeterProtocol.PASSWORD, PASSWORD);
+		this.meterProtocol.setProperties(this.properties);
 
-		logger = Logger.getAnonymousLogger(); 
+		this.logger = Logger.getAnonymousLogger();
 
-		Handler[] h = logger.getHandlers();
-		for (int i = 0; i < h.length; i++)
+		Handler[] h = this.logger.getHandlers();
+		for (int i = 0; i < h.length; i++) {
 			h[i].setFormatter(new PlainFormatter());
+		}
 
 		ConsoleHandler ch = new ConsoleHandler();
 		ch.setFormatter(new PlainFormatter());
-		logger.addHandler(ch);
+		this.logger.addHandler(ch);
 
 	}
 
@@ -66,33 +66,31 @@ public class Test {
 
 	public void open() throws LinkException, IOException {
 
-		dialer = DialerFactory.getOpticalDialer().newDialer();
-		dialer.init(commPort);
-		dialer.connect("", 60000);
+		this.dialer = DialerFactory.getOpticalDialer().newDialer();
+		this.dialer.init(this.commPort);
+		this.dialer.connect("", 60000);
 
-		is = dialer.getInputStream();
-		os = dialer.getOutputStream();
+		this.is = this.dialer.getInputStream();
+		this.os = this.dialer.getOutputStream();
 
-		meterProtocol.init(is, os, timeZone, logger);
-		meterProtocol.enableHHUSignOn(dialer.getSerialCommunicationChannel());
+		this.meterProtocol.init(this.is, this.os, this.timeZone, this.logger);
+		this.meterProtocol.enableHHUSignOn(this.dialer.getSerialCommunicationChannel());
 
-		meterProtocol.connect();
+		this.meterProtocol.connect();
 	}
 
 	public boolean read() throws IOException {
-		Iterator ri = meterProtocol.rFactory.getRegisters().keySet()
-				.iterator();
+		Iterator ri = this.meterProtocol.getRegisterFactory().getRegisters().keySet()
+		.iterator();
 
 		while (ri.hasNext()) {
 			String key = (String) ri.next();
 
-			logger.log(Level.INFO, "register " + key + " = ");
+			this.logger.log(Level.INFO, "register " + key + " = ");
 
-			if (!key.equalsIgnoreCase("LoadProfile"))
-
-				logger.log(Level.INFO, meterProtocol.rFactory
-						.getRegister(key)
-						+ "\n");
+			if (!key.equalsIgnoreCase("LoadProfile")) {
+				this.logger.log(Level.INFO, this.meterProtocol.getRegisterFactory().getRegister(key) + "\n");
+			}
 		}
 
 		return true;
@@ -107,7 +105,7 @@ public class Test {
 		//		sb.append( a.toString() );
 		//		sb.append( "\nAllocation Test -> stop\n" );
 
-		logger.log(Level.INFO, sb.toString());
+		this.logger.log(Level.INFO, sb.toString());
 
 	}
 
@@ -129,7 +127,7 @@ public class Test {
 
 		StringBuffer sb = new StringBuffer();
 
-		RegisterFactory rf = meterProtocol.rFactory;
+		RegisterFactory rf = this.meterProtocol.getRegisterFactory();
 
 		sb.append("Scaling Factor = " + rf.getScalingFactor() + "\n");
 
@@ -171,18 +169,18 @@ public class Test {
 
 		sb.append(rf.getHistoricalData().toString());
 
-		logger.log(Level.INFO, sb.toString());
+		this.logger.log(Level.INFO, sb.toString());
 
 	}
 
 	void obisCodeTest() throws IOException {
 		StringBuffer sb = new StringBuffer();
 
-		PPM ppm = meterProtocol;
+		PPM ppm = this.meterProtocol;
 
 		ObisCode o = new ObisCode(1, 1, ObisCode.CODE_C_ACTIVE_IMPORT, 1, 1, 1);
 		sb.append(o.toString() + " == " + ppm.translateRegister(o) + "\n");
-		
+
 
 		o = new ObisCode(1, 1, ObisCode.CODE_C_ACTIVE_EXPORT, 1, 1, 1);
 		sb.append(o.toString() + " == " + ppm.translateRegister(o) + "\n");
@@ -196,7 +194,7 @@ public class Test {
 		o = new ObisCode(1, 1, ObisCode.CODE_C_APPARENT, 1, 1, 1);
 		sb.append(o.toString() + " == " + ppm.translateRegister(o) + "\n");
 
-		logger.log(Level.INFO, sb.toString());
+		this.logger.log(Level.INFO, sb.toString());
 
 	}
 
@@ -205,9 +203,9 @@ public class Test {
 		Calendar c = Calendar.getInstance();
 		c.set(Calendar.DAY_OF_YEAR, c.get(Calendar.DAY_OF_YEAR) - 3 );
 
-		logger.log(Level.INFO, meterProtocol.getProfileData(c.getTime(), false)
+		this.logger.log(Level.INFO, this.meterProtocol.getProfileData(c.getTime(), false)
 				.toString());
-		
+
 	}
 
 	void offlineScalingTest() {
@@ -303,7 +301,7 @@ public class Test {
 
 		sb.append("\nDURATION = " + (System.currentTimeMillis() - start));
 
-		logger.log(Level.INFO, sb.toString());
+		this.logger.log(Level.INFO, sb.toString());
 
 	}
 
@@ -314,7 +312,7 @@ public class Test {
 		StringBuffer sb = new StringBuffer();
 
 		sb.append("scalingTest ");
-		RegisterFactory rf = meterProtocol.rFactory;
+		RegisterFactory rf = this.meterProtocol.getRegisterFactory();
 
 		sb.append("scalingFactor= " + rf.getScalingFactor() + "\n");
 		sb.append("toRegisterQuantity()=");
@@ -326,7 +324,7 @@ public class Test {
 
 		sb.append("\nDURATION = " + (System.currentTimeMillis() - start));
 
-		logger.log(Level.INFO, sb.toString());
+		this.logger.log(Level.INFO, sb.toString());
 
 	}
 
@@ -337,36 +335,36 @@ public class Test {
 		StringBuffer sb = new StringBuffer();
 
 		sb.append("scalingTest ");
-		RegisterFactory rf = meterProtocol.rFactory;
+		RegisterFactory rf = this.meterProtocol.getRegisterFactory();
 
 		sb.append(rf.getRegisterInformation() + "");
 
 		sb.append("\nDURATION = " + (System.currentTimeMillis() - start));
 
-		logger.log(Level.INFO, sb.toString());
+		this.logger.log(Level.INFO, sb.toString());
 
 	}
 
 	private void log(String msg) {
-		logger.log(Level.INFO, msg);
+		this.logger.log(Level.INFO, msg);
 	}
 
 	public void close() throws IOException, LinkException {
-		dialer.disConnect();
+		this.dialer.disConnect();
 	}
 
 	public static void main(String[] args) throws Exception {
 		Test test = new Test();
 		try {
-			
+
 			test.open();
-			
+
 			//test.offlineScalingTest();
 			//test.onlineScalingTest();
 			//test.registerInformationTest();
-			//			
+			//
 			//test.orderedRead();
-			
+
 			test.miniProfileTest();
 
 		} catch (Exception ex) {
