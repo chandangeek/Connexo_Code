@@ -4,12 +4,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
@@ -17,6 +19,12 @@ import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sIntegrationPerio
 import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectFactory;
 import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sRegisterConfig;
 
+/**
+ * An object that handles the collecting and parsing of profileData.
+ * All profile attributes (interval, number of channels) can be fetched with this object as well.
+ * @author gna
+ * @since 24/08/2009
+ */
 public class SiemensS4sProfile {
 
 	private S4sObjectFactory s4sObjectFactory;
@@ -88,7 +96,7 @@ public class SiemensS4sProfile {
 			byte[] preparedReadProfileCommand;
 			Date lastIntervalDate = null;
 			
-			// The current pointer points to the interval being constructed, so we don't need that one
+			// The current pointer points to the interval being constructed, so we don't need that one but all the data before
 			int offsetPointer = decreaseMemoryPointer(getObjectFactory().getProfilePointerObject().getCurrentPointer());
 			
 			pRecorder.setChannelInfos(channelInfos);
@@ -100,13 +108,12 @@ public class SiemensS4sProfile {
 				pRecorder.addProfilePart(profilePart);
 				offsetPointer = decreaseMemoryPointer(offsetPointer);
 				lastIntervalDate = pRecorder.getLastIntervalDate();
-				//TODO delete this
-				System.out.println(lastIntervalDate);
 				
 			}while(lastReading.before(lastIntervalDate) && !this.bufferOverFlow);
 		} else {
 			Logger.global.log(Level.INFO, "Meter returned no channelInformation so no profileData is constructed.");
 		}
+		deleteUnwantedIntervals( pRecorder.getProfileData(), lastReading );
 		return pRecorder.getProfileData();
 	}
 	
@@ -182,6 +189,22 @@ public class SiemensS4sProfile {
 			offsetPointer -= PROFILE_READ_BLOCK_SIZE;
 		}
 		return offsetPointer;
+	}
+	
+	/**
+	 * Because we read memoryBlocks, we get more data then needed.
+	 * This method skips the unwanted intervals.
+	 * @param pd is the ProfileData to shift
+	 * @param lastReading is the first date we may find in the profileData
+	 */
+	private void deleteUnwantedIntervals(ProfileData pd, Date lastReading){
+		Iterator it = pd.getIntervalDatas().iterator();
+		while (it.hasNext()) {
+			IntervalData ivdt = (IntervalData) it.next();
+			if(ivdt.getEndTime().before(lastReading)){
+				it.remove();
+			}
+		}
 	}
 
 }

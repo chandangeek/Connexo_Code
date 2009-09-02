@@ -10,17 +10,17 @@ import com.energyict.obis.ObisCode;
  * @author gna
  *
  */
-public class SiemensS4sRegister {
+public class SiemensS4sRegisterDefinition {
 
 	private String location;			// the memory address in the device
 	private ObisCode obisCode;			// the corresponding obisCode
 	private String length;				// the amount of NIBBLES to read or write
 	
-	public SiemensS4sRegister(String location, String length){
+	public SiemensS4sRegisterDefinition(String location, String length){
 		this(location, length, null);
 	}
 	
-	public SiemensS4sRegister(String location, String length, ObisCode oc){
+	public SiemensS4sRegisterDefinition(String location, String length, ObisCode oc){
 		this.location = location;
 		this.length = length;
 		this.obisCode = oc;

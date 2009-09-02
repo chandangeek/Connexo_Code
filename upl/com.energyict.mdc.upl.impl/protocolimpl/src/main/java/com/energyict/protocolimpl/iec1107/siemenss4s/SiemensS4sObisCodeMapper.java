@@ -1,8 +1,14 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s;
 
+import java.io.IOException;
+
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectFactory;
+import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sRegister;
 
 public class SiemensS4sObisCodeMapper {
 
@@ -12,20 +18,26 @@ public class SiemensS4sObisCodeMapper {
 		this.s4sObjectFactory = objectFactory;
 	}
 
-	public RegisterValue getRegisterValue(ObisCode obisCode) {
+	public RegisterValue getRegisterValue(ObisCode obisCode) throws FlagIEC1107ConnectionException, ConnectionException, IOException {
 		RegisterValue registerValue = null;
 		
 		if( (obisCode.getA() == 1) && (obisCode.getC() == 1) && (obisCode.getD() == 8)){	// Active Power
 			if((obisCode.getB() >= 0) && (obisCode.getB() < 4)){
-				if((obisCode.getE() >= 1) && (obisCode.getE() <= 4)){
-					
-					//TODO Read the register and parse it back!
-					
+				S4sRegister register;
+				switch(obisCode.getE()){
+				case 1: register = s4sObjectFactory.getRegister(SiemensS4sRegisterMapper.TOTAL_REGISTER_A);break;
+				case 2: register = s4sObjectFactory.getRegister(SiemensS4sRegisterMapper.TOTAL_REGISTER_B);break;
+				case 3: register = s4sObjectFactory.getRegister(SiemensS4sRegisterMapper.TOTAL_REGISTER_C);break;
+				case 4: register = s4sObjectFactory.getRegister(SiemensS4sRegisterMapper.TOTAL_REGISTER_D);break;
+				default: throw new UnsupportedException("Obiscode " + obisCode + " is not supported.");
 				}
+				
+				RegisterValue rv = new RegisterValue(obisCode, register.getRegisterQuantity());
+				return rv;
 			}
 		}
 		
-		return null;
+		throw new UnsupportedException("Obiscode " + obisCode + " is not supported.");
 	}
 
 }

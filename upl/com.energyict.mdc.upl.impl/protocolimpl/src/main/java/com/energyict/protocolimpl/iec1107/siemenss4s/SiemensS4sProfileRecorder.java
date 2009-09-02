@@ -1,32 +1,42 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
+import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectUtils;
 
-
+/**
+ * The profileRecorder is a type of buffer containing the raw profileData form the device.
+ * @author gna
+ *
+ */
 public class SiemensS4sProfileRecorder {
 	
-	private ProfileData profileData;
-	private Calendar intervalTime;
-	private Calendar lastIntervalTime;
+	private ProfileData profileData;				// The EICT profileObject
+	private Calendar intervalTime;					// Calendar containing the value of the next interval
+	private Calendar lastIntervalTime;				// Calendar containing the value of the last interval
+		
+	private byte[] profileBuffer = new byte[]{};	// A buffer contain the rawData from the meters memory
+	private int offset;								// A pointer pointing to the last treated data
+	private int profilePeriod;						// The interval of the profile
 	
-	private byte[] profileBuffer = new byte[]{};
-	private int offset;
-	private int profilePeriod;
+	private int intervalRecordSize;					// Contains the size of ONE record(dependent of the number of channels)
+	private int intervalDateRecordSize;				// Contains the size of a record with a dateTime included
 	
-	private int intervalRecordSize;
-	private int intervalDateRecordSize;
-	
+	/**
+	 * Creates a new instance of the ProfileRecorder
+	 * @param profilePeriod the period of the loadProfile
+	 */
 	public SiemensS4sProfileRecorder(int profilePeriod){
 		this.profileData = new ProfileData();
-//		this.offset = 56;	// defend this init
 		this.offset = 0;
 		this.profilePeriod = profilePeriod;
 	}
@@ -43,56 +53,96 @@ public class SiemensS4sProfileRecorder {
 	}	
 
 	/**
-	 * TODO check the size of the profilePart, if it's not a complete record, than wait for a complete record!
-	 * @param profilePart
-	 * @throws IOException 
+	 * Method to add a part to raw buffer and calculate the intervals
+	 * @param profilePart the raw intervalData
+	 * @throws IOException if parsing of the rawData fails
 	 */
 	public void addProfilePart(byte[] profilePart) throws IOException {
 		
 		byte[] reversedBuffer = S4sObjectUtils.revertByteArray(profilePart);
+		this.offset += reversedBuffer.length;
 		
-		this.profileBuffer = ProtocolUtils.concatByteArrays(this.profileBuffer, reversedBuffer);
+//		this.profileBuffer = ProtocolUtils.concatByteArrays(this.profileBuffer, reversedBuffer);
+		this.profileBuffer = ProtocolUtils.concatByteArrays(reversedBuffer, this.profileBuffer);
 		
-		//TODO do this as much as you can
-		byte[] temp = getDataRecordArray();
-		while(temp.length != 0){
-			SiemensS4sProfileRecord record = new SiemensS4sProfileRecord(temp, this.intervalTime, this.profileData.getNumberOfChannels());
-			this.profileData.addInterval(record.getIntervalData());
+		List intervalBuffer = createIntervalBuffer();
+
+		for(int i = intervalBuffer.size()-1; i >= 0; i--){
+			SiemensS4sProfileRecord record = new SiemensS4sProfileRecord((byte[])intervalBuffer.get(i), this.intervalTime, this.profileData.getNumberOfChannels());
+			IntervalData id = record.getIntervalData();
+			if(record.possibleDelete()){
+				Iterator it = this.profileData.getIntervalDatas().iterator();
+				while (it.hasNext()) {
+					IntervalData ivdt = (IntervalData) it.next();
+					if(ivdt.getEndTime().compareTo(id.getEndTime()) == 0){
+						it.remove();
+					}
+				}
+			}
+			this.profileData.addInterval(id);
+			this.intervalTime = record.getLastIntervalCalendar();
 			this.lastIntervalTime = this.intervalTime;
-			this.intervalTime.add(Calendar.SECOND, -this.profilePeriod);
-			temp = getDataRecordArray();
+			setToNextInterval();
 		}
 	}
 	
-	private byte[] getDataRecordArray() throws IOException{
-		byte[] data;
-		if((this.offset + intervalRecordSize) <= this.profileBuffer.length){	// can we take a piece thats large enough
-			data = ProtocolUtils.getSubArray2(this.profileBuffer, this.offset, intervalRecordSize);
-			if(itsActuallyADateIntervalRecord(data)){
-				//check if we can take a piece as large as the dateInterval
-				if((this.offset + this.intervalDateRecordSize) <= this.profileBuffer.length){
-					data = ProtocolUtils.getSubArray2(this.profileBuffer, this.offset, this.intervalDateRecordSize);
-					this.offset += this.intervalDateRecordSize;
+	/**
+	 * Set the time to the next interval
+	 * @throws IOException
+	 */
+	private void setToNextInterval() throws IOException{
+		this.intervalTime.add(Calendar.SECOND, -this.profilePeriod);
+		ParseUtils.roundUp2nearestInterval(this.intervalTime, this.profilePeriod);
+	}
+	
+	/**
+	 * Creates a list containing the byteArrays per interval. We create a list for this because the
+	 * arrays have a different size if they contain a dateTime in it.
+	 * @return a list with a number of raw byteArrays
+	 * @throws IOException if parsing of the tempDatapart failed
+	 */
+	private List createIntervalBuffer() throws IOException{
+		List buffer = new ArrayList();
+		byte[] tempDataPart;
+//		int tempOffset = this.profileBuffer.length;
+		
+//		tempOffset -= intervalRecordSize; 
+//		while(tempOffset >= this.offset){
+//			tempDataPart = ProtocolUtils.getSubArray2(this.profileBuffer, tempOffset, intervalRecordSize);
+//			if(S4sObjectUtils.itsActuallyADateIntervalRecord(tempDataPart)){
+//				tempOffset += intervalRecordSize;
+//				tempOffset -= intervalDateRecordSize;
+//				tempDataPart = ProtocolUtils.getSubArray2(this.profileBuffer, tempOffset, intervalDateRecordSize);
+//			}
+//			new String(tempDataPart);
+//			buffer.add(tempDataPart);
+//			tempOffset -= intervalRecordSize; 
+//		}
+		
+		while((this.offset - intervalRecordSize) >= 0 ){
+			this.offset -= intervalRecordSize;
+			tempDataPart = ProtocolUtils.getSubArray2(this.profileBuffer, this.offset, intervalRecordSize);
+			if(S4sObjectUtils.itsActuallyADateIntervalRecord(tempDataPart)){
+				this.offset += intervalRecordSize;
+				if((this.offset - intervalDateRecordSize) >=0){
+					this.offset -= intervalDateRecordSize;
+					tempDataPart = ProtocolUtils.getSubArray2(this.profileBuffer, this.offset, intervalDateRecordSize);
+					buffer.add(tempDataPart);
 				} else {
-					data = new byte[0];	// indicating we need more data!
+					this.offset -= intervalRecordSize;
 				}
 			} else {
-				this.offset += this.intervalRecordSize;
+				buffer.add(tempDataPart);
 			}
-		} else {
-			data = new byte[0];		// indicating we need more data!
 		}
-		return data;
-	}
-	
-	private boolean itsActuallyADateIntervalRecord(byte[] recordData) throws IOException{
-		if((ProtocolUtils.hex2nibble(recordData[recordData.length-4])&0x01) == 1){
-			return true;
-		} else {
-			return false;
-		}
+		
+//		this.offset = this.profileBuffer.length; 
+		return buffer;
 	}
 
+	/**
+	 * @return the date of the last interval
+	 */
 	public Date getLastIntervalDate() {
 		return this.lastIntervalTime.getTime();
 	}
@@ -105,6 +155,12 @@ public class SiemensS4sProfileRecorder {
 		return this.profileData;
 	}
 
+	/**
+	 * Setter for last intervalTime.
+	 * We use the currentMeterTime and calculate the latest intervalDate
+	 * @param meterTime
+	 * @throws IOException
+	 */
 	public void setFirstIntervalTime(Calendar meterTime) throws IOException {
 		this.intervalTime = meterTime;
 		ParseUtils.roundDown2nearestInterval(this.intervalTime, this.profilePeriod);

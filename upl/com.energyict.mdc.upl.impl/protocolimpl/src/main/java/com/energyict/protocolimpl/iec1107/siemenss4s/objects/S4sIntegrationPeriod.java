@@ -12,6 +12,10 @@ public class S4sIntegrationPeriod {
 	private int[] periods = {300, 600, 900, 1200, 1800, 3600};	// periods in seconds
 	private byte[] rawBytes;
 	
+	/**
+	 * Creates a new instance of the integrationPeriod object
+	 * @param period a hexadecimal number referring to a number in the periods array
+	 */
 	public S4sIntegrationPeriod(byte[] period){
 		this.rawBytes = DLMSUtils.hexStringToByteArray(new String(period));
 		if(this.rawBytes.length != 1){

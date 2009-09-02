@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s.objects;
 
+import java.io.IOException;
+
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -61,5 +63,20 @@ public class S4sObjectUtils {
 			converted[i] = Integer.valueOf(tempPart).byteValue();
 		}
 		return converted;
+	}
+	
+	/**
+	 * Check whether the recordData contains a date or if its just an interval.
+	 * The fist BIT of the 4th last BYTE is 1 if it contains a date.
+	 * @param recordData - raw bytes containing the intervalData
+	 * @return true if its a date interval, otherwise false
+	 * @throws IOException - if it's invalid Hex data
+	 */
+	public static boolean itsActuallyADateIntervalRecord(byte[] recordData) throws IOException{
+		if((ProtocolUtils.hex2nibble(recordData[recordData.length-4])&0x01) == 1){
+			return true;
+		} else {
+			return false;
+		}
 	}
 }

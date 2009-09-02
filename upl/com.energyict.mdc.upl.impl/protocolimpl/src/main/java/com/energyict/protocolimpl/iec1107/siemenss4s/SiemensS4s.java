@@ -17,6 +17,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectFactory;
+import com.energyict.protocolimpl.iec1107.siemenss4s.security.SiemensS4sEncryptor;
 
 public class SiemensS4s extends AbstractIEC1107Protocol {
 	
@@ -87,6 +88,9 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 	throws MissingPropertyException, InvalidPropertyException {
 		this.deviceId = properties.getProperty(MeterProtocol.ADDRESS);
 		this.passWord = properties.getProperty(MeterProtocol.PASSWORD,"4281602592");
+		if(this.passWord.equalsIgnoreCase("")){
+			this.passWord = "4281602592";
+		}
 		//TODO set the level in the encryptor
 		this.securityLevel=Integer.parseInt(properties.getProperty("SecurityLevel","2").trim());
 		this.nodeAddress=properties.getProperty(MeterProtocol.NODEID,"");
@@ -110,7 +114,6 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 	
 	/**
 	 * Read the time from the meter.
-	 * TODO : TOTest
 	 */
 	public Date getTime() throws IOException {
 		Calendar s4sDateTime = getObjectFactory().getDateTimeObject().getMeterTime();

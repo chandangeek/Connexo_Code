@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.energyict.protocolimpl.iec1107.siemenss4s.security.SecureAlgorithm;
+
 
 public class SecureAlgorithmTest {
 	
@@ -13,6 +15,7 @@ public class SecureAlgorithmTest {
 	 * We decoded the password as 0x201234FF so all results match the seeds
 	 */
 	public void calculateAntiSeedTest(){
+		
 		int antiSeed;
 
 		int seed1 = 0x3A20;

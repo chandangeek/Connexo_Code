@@ -26,10 +26,12 @@ public class S4sRegisterConfig {
 	
 	/**
 	 * Creates new instance of the registerConfigObject
-	 * @param unitTotalRegisterA
+	 * @param unitTotalRegister - rawData of the register configuration
+	 * @param unitType - Select the units you want to use in the registerConfiguration
 	 */
-	public S4sRegisterConfig(byte[] unitTotalRegisterA) {
-		this.rawBytes = DLMSUtils.hexStringToByteArray(new String(S4sObjectUtils.switchNibbles(unitTotalRegisterA)));
+	public S4sRegisterConfig(byte[] unitTotalRegister) {
+		this.rawBytes = DLMSUtils.hexStringToByteArray(new String(S4sObjectUtils.switchNibbles(unitTotalRegister)));
+		System.out.println(toString());
 	}
 	
 	/**
@@ -66,5 +68,14 @@ public class S4sRegisterConfig {
 			return false;
 		}
 		return true;
+	}
+	
+	public String toString(){
+		StringBuffer strBuff = new StringBuffer();
+		strBuff.append("RegisterDefinition: ");
+		strBuff.append("'\t - Unit: " + getUnit());
+		strBuff.append("'\t - Decimals: " + getDecimals());
+		strBuff.append("'\t - Type: " + getType());
+		return strBuff.toString();
 	}
 }

@@ -6,7 +6,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
-import com.energyict.protocolimpl.iec1107.siemenss4s.SiemensS4sRegister;
+import com.energyict.protocolimpl.iec1107.siemenss4s.SiemensS4sRegisterDefinition;
 import com.energyict.protocolimpl.iec1107.siemenss4s.SiemensS4sRegisterMapper;
 
 public class S4sObjectFactory {
@@ -61,7 +61,7 @@ public class S4sObjectFactory {
 	 * @throws IOException if received contains an error
 	 */
 	private byte[] readRawRegister(String register) throws FlagIEC1107ConnectionException, ConnectionException, IOException{
-		SiemensS4sRegister ss4r = getSiemensS4sRegisterMapper().find(register);
+		SiemensS4sRegisterDefinition ss4r = getSiemensS4sRegisterMapper().find(register);
 		byte[] readCommand = ss4r.prepareRead();
 		getConnection().sendRawCommandFrame(FlagIEC1107Connection.READ1, readCommand);
 		byte[] readResponse = getConnection().receiveData();
@@ -144,6 +144,14 @@ public class S4sObjectFactory {
 	 */
 	public byte[] getAllChannelInfosRawData() throws FlagIEC1107ConnectionException, ConnectionException, IOException {
 		return readRawRegister(SiemensS4sRegisterMapper.TOTAL_CHANNEL_CONFIGURATION);
+	}
+	
+	public S4sRegister getRegister(String name) throws FlagIEC1107ConnectionException, ConnectionException, IOException{
+		byte[] rawData = readRawRegister(name);
+		byte[] rawRegisterConfig = readRawRegister(getSiemensS4sRegisterMapper().convertRegisterNameToUnitName(name));
+		S4sRegisterConfig config = new S4sRegisterConfig(rawRegisterConfig);
+		S4sRegister register = new S4sRegister(rawData, config);
+		return register;
 	}
 
 }

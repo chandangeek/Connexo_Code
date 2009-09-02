@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.iec1107.siemenss4s;
+package com.energyict.protocolimpl.iec1107.siemenss4s.security;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.protocol.ProtocolUtils;

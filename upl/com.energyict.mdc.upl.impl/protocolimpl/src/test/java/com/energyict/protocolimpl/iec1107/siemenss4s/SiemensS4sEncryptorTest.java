@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.energyict.protocolimpl.iec1107.siemenss4s.security.SiemensS4sEncryptor;
+
 public class SiemensS4sEncryptorTest {
 
 	@Test

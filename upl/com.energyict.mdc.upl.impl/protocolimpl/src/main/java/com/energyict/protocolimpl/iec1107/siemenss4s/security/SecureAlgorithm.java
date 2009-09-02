@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.iec1107.siemenss4s;
+package com.energyict.protocolimpl.iec1107.siemenss4s.security;
 
 public class SecureAlgorithm {
 
