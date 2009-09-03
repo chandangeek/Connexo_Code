@@ -14,20 +14,75 @@ GN|07112008|Only read the MBus unit when mbus is enabled, older meters don't hav
  */
 package com.energyict.protocolimpl.dlms.iskrame37x;  
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
-import com.energyict.cbo.*;
-import com.energyict.dialer.connection.*;
+import com.energyict.cbo.NotFoundException;
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DLMSObis;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.dlms.*;
+import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.protocolimpl.dlms.CapturedObjects;
+import com.energyict.protocolimpl.dlms.DLMSCache;
+import com.energyict.protocolimpl.dlms.HDLCConnection;
+import com.energyict.protocolimpl.dlms.RtuDLMS;
+import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 
 public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol {
    
@@ -226,9 +281,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
         try {
             cosemObjectFactory = new CosemObjectFactory(this);
             storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
-            if (connectionMode == 0)
-                dlmsConnection=new HDLCConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress,iServerUpperMacAddress,addressingMode);
-            else{
+            if (connectionMode == 0) {
+				dlmsConnection=new HDLCConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress,iServerUpperMacAddress,addressingMode);
+			} else{
             	dlmsConnection=new TCPIPConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerUpperMacAddress);
             }
             dlmsConnection.setIskraWrapper(1);
@@ -267,8 +322,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
        // prepare aarq buffer
        aarq = new byte[3+aarq1.length+1+(strPassword==null?0:strPassword.length())+aarq2.length];
        // copy aarq1 to aarq buffer
-       for (i=0;i<aarq1.length;i++)
-           aarq[t++] = aarq1[i];
+       for (i=0;i<aarq1.length;i++) {
+		aarq[t++] = aarq1[i];
+	}
        
        // calling authentification
        aarq[t++] = (byte)0xAC; // calling authentification tag
@@ -276,13 +332,15 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
        aarq[t++] = (byte)0x80; // tag representation
        // copy password to aarq buffer
        aarq[t++] = (byte)(strPassword==null?0:strPassword.length());
-       for (i=0;i<(strPassword==null?0:strPassword.length());i++)
-           aarq[t++] = (byte)strPassword.charAt(i);
+       for (i=0;i<(strPassword==null?0:strPassword.length());i++) {
+		aarq[t++] = (byte)strPassword.charAt(i);
+	}
        
        
        // copy in aarq2 to aarq buffer
-       for (i=0;i<aarq2.length;i++)
-           aarq[t++] = aarq2[i];
+       for (i=0;i<aarq2.length;i++) {
+		aarq[t++] = aarq2[i];
+	}
        
        aarq[4] = (byte)(((int)aarq.length&0xFF)-5); // Total length of frame - headerlength
        
@@ -318,7 +376,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
        byte[] responseData;
        responseData = getDLMSConnection().sendRequest(aarq);
        CheckAARE(responseData);
-       if (DEBUG >= 2) ProtocolUtils.printResponseData(responseData);
+       if (DEBUG >= 2) {
+		ProtocolUtils.printResponseData(responseData);
+	}
     } // public void doRequestApplAssoc(int iLevel) throws IOException
     
     private void CheckAARE(byte[] responseData) throws IOException
@@ -367,21 +427,23 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
                                  (responseData[i+3] == 2) &&
                                  (responseData[i+4] == 1))
                              {
-                                 if (responseData[i+5] == 0x00)
-                                    strResultSourceDiagnostics += ", ACSE_SERVICE_USER";
-                                 else if (responseData[i+5] == 0x01)
-                                     strResultSourceDiagnostics += ", ACSE_SERVICE_USER, no reason given";
-                                 else if (responseData[i+5] == 0x02)
-                                    strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Application Context Name Not Supported";
-                                 else if (responseData[i+5] == 0x0B)
-                                    strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Not Recognised";
-                                 else if (responseData[i+5] == 0x0C)
-                                    strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Required";
-                                 else if (responseData[i+5] == 0x0D)
-                                    strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Failure";
-                                 else if (responseData[i+5] == 0x0E)
-                                    strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Required";
-                                 else throw new IOException("Application Association Establishment failed, ACSE_SERVICE_USER, unknown result!");
+                                 if (responseData[i+5] == 0x00) {
+									strResultSourceDiagnostics += ", ACSE_SERVICE_USER";
+								} else if (responseData[i+5] == 0x01) {
+									strResultSourceDiagnostics += ", ACSE_SERVICE_USER, no reason given";
+								} else if (responseData[i+5] == 0x02) {
+									strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Application Context Name Not Supported";
+								} else if (responseData[i+5] == 0x0B) {
+									strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Not Recognised";
+								} else if (responseData[i+5] == 0x0C) {
+									strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Required";
+								} else if (responseData[i+5] == 0x0D) {
+									strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Failure";
+								} else if (responseData[i+5] == 0x0E) {
+									strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Required";
+								} else {
+									throw new IOException("Application Association Establishment failed, ACSE_SERVICE_USER, unknown result!");
+								}
                              }
                              else
                              {
@@ -394,17 +456,22 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
                                  (responseData[i+3] == 2) &&
                                  (responseData[i+4] == 1))
                              {
-                                 if (responseData[i+5] == 0x00)
-                                    strResultSourceDiagnostics +=", ACSE_SERVICE_PROVIDER!";
-                                 else if (responseData[i+5] == 0x01)
-                                    strResultSourceDiagnostics +=", ACSE_SERVICE_PROVIDER, No Reason Given!";
-                                 else if (responseData[i+5] == 0x02)
-                                    strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER, No Common ACSE Version!";
-                                 else throw new IOException("Application Association Establishment Failed, ACSE_SERVICE_PROVIDER, unknown result");
-                             }
-                             else throw new IOException("Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_PROVIDER,  wrong tag");
+                                 if (responseData[i+5] == 0x00) {
+									strResultSourceDiagnostics +=", ACSE_SERVICE_PROVIDER!";
+								} else if (responseData[i+5] == 0x01) {
+									strResultSourceDiagnostics +=", ACSE_SERVICE_PROVIDER, No Reason Given!";
+								} else if (responseData[i+5] == 0x02) {
+									strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER, No Common ACSE Version!";
+								} else {
+									throw new IOException("Application Association Establishment Failed, ACSE_SERVICE_PROVIDER, unknown result");
+								}
+                             } else {
+								throw new IOException("Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_PROVIDER,  wrong tag");
+							}
                          } // else if (responseData[i+1] == ACSE_SERVICE_PROVIDER)
-                         else throw new IOException("Application Association Establishment Failed, result_source_diagnostic,  wrong tag");
+ else {
+							throw new IOException("Application Association Establishment Failed, result_source_diagnostic,  wrong tag");
+						}
                      }
                      else
                      {
@@ -435,30 +502,35 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
                        }
                        else if (DLMS_PDU_CONFIRMED_SERVICE_ERROR == responseData[i+3]) 
                        {
-                           if (0x01 == responseData[i+4])
-                               strResultSourceDiagnostics += ", InitiateError";
-                           else if (0x02 == responseData[i+4])
-                               strResultSourceDiagnostics += ", getStatus";
-                           else if (0x03 == responseData[i+4])
-                               strResultSourceDiagnostics += ", getNameList";
-                           else if (0x13 == responseData[i+4])
-                               strResultSourceDiagnostics += ", terminateUpload";
-                           else throw new IOException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown ConfirmedServiceError choice");
+                           if (0x01 == responseData[i+4]) {
+							strResultSourceDiagnostics += ", InitiateError";
+						} else if (0x02 == responseData[i+4]) {
+							strResultSourceDiagnostics += ", getStatus";
+						} else if (0x03 == responseData[i+4]) {
+							strResultSourceDiagnostics += ", getNameList";
+						} else if (0x13 == responseData[i+4]) {
+							strResultSourceDiagnostics += ", terminateUpload";
+						} else {
+							throw new IOException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown ConfirmedServiceError choice");
+						}
 
-                           if (0x06 != responseData[i+5])
-                               strResultSourceDiagnostics += ", No ServiceError tag";
+                           if (0x06 != responseData[i+5]) {
+							strResultSourceDiagnostics += ", No ServiceError tag";
+						}
 
-                           if (0x00 == responseData[i+6])
-                               strResultSourceDiagnostics += "";
-                           else if (0x01 == responseData[i+6])
-                               strResultSourceDiagnostics += ", DLMS version too low";
-                           else if (0x02 == responseData[i+6])
-                               strResultSourceDiagnostics += ", Incompatible conformance";
-                           else if (0x03 == responseData[i+6])
-                               strResultSourceDiagnostics = ", pdu size too short";
-                           else if (0x04 == responseData[i+6])
-                               strResultSourceDiagnostics = ", refused by the VDE handler";
-                           else throw new IOException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons ");
+                           if (0x00 == responseData[i+6]) {
+							strResultSourceDiagnostics += "";
+						} else if (0x01 == responseData[i+6]) {
+							strResultSourceDiagnostics += ", DLMS version too low";
+						} else if (0x02 == responseData[i+6]) {
+							strResultSourceDiagnostics += ", Incompatible conformance";
+						} else if (0x03 == responseData[i+6]) {
+							strResultSourceDiagnostics = ", pdu size too short";
+						} else if (0x04 == responseData[i+6]) {
+							strResultSourceDiagnostics = ", refused by the VDE handler";
+						} else {
+							throw new IOException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons ");
+						}
                        }
                        else
                        {
@@ -520,7 +592,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
                                        dataContainer.getRoot().getStructure(i).getInteger(0),
                                        dataContainer.getRoot().getStructure(i).getOctetString(1).getArray(),
                                        dataContainer.getRoot().getStructure(i).getInteger(2));
-                               if (dataContainerOffset== -1) dataContainerOffset  = i - 2;
+                               if (dataContainerOffset== -1) {
+								dataContainerOffset  = i - 2;
+							}
                                j++;
                 		   }
                 	   }
@@ -530,7 +604,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
                                        dataContainer.getRoot().getStructure(i).getInteger(0),
                                        dataContainer.getRoot().getStructure(i).getOctetString(1).getArray(),
                                        dataContainer.getRoot().getStructure(i).getInteger(2));
-                               if (dataContainerOffset== -1) dataContainerOffset  = i - 2;
+                               if (dataContainerOffset== -1) {
+								dataContainerOffset  = i - 2;
+							}
                                j++;
                 		   }
                 	   }
@@ -621,7 +697,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
             	}
             	
         		else if ( bytesToObisString(capturedObjects.getProfileDataChannel(channelId).getLN()).indexOf("0.1.128.50.0.255") == 0 ){
-            		if ( DEBUG == 1 )System.out.println("We got a MBUS channel");
+            		if ( DEBUG == 1 ) {
+						System.out.println("We got a MBUS channel");
+					}
             		// don't show the events on the mbus meter
             		includeEvents = false;
             		
@@ -653,7 +731,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
     private String bytesToObisString(byte[] channelLN) {
     	String str = "";
 		for(int i = 0; i < channelLN.length; i++){
-			if (i>0) str+=".";
+			if (i>0) {
+				str+=".";
+			}
 			str += ""+((int)channelLN[i]&0xff);
 		}
 		return str;
@@ -669,51 +749,60 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
         
         Calendar calendar = (Calendar)cal.clone();
         
-        if (dataStructure.getOctetString(0).getArray()[0] != -1)
-              calendar.set(Calendar.YEAR,(((int)dataStructure.getOctetString(0).getArray()[0]&0xff)<<8)|
+        if (dataStructure.getOctetString(0).getArray()[0] != -1) {
+			calendar.set(Calendar.YEAR,(((int)dataStructure.getOctetString(0).getArray()[0]&0xff)<<8)|
                                          (((int)dataStructure.getOctetString(0).getArray()[1]&0xff)));
+		}
         
         
-        if (dataStructure.getOctetString(0).getArray()[2] != -1)
-              calendar.set(Calendar.MONTH,((int)dataStructure.getOctetString(0).getArray()[2]&0xff)-1);
+        if (dataStructure.getOctetString(0).getArray()[2] != -1) {
+			calendar.set(Calendar.MONTH,((int)dataStructure.getOctetString(0).getArray()[2]&0xff)-1);
+		}
         
         
-        if (dataStructure.getOctetString(0).getArray()[3] != -1)
-              calendar.set(Calendar.DAY_OF_MONTH,((int)dataStructure.getOctetString(0).getArray()[3]&0xff));
+        if (dataStructure.getOctetString(0).getArray()[3] != -1) {
+			calendar.set(Calendar.DAY_OF_MONTH,((int)dataStructure.getOctetString(0).getArray()[3]&0xff));
+		}
         
         
-        if (dataStructure.getOctetString(0).getArray()[5] != -1)
-              calendar.set(Calendar.HOUR_OF_DAY,((int)dataStructure.getOctetString(0).getArray()[5]&0xff));
-        else
-              calendar.set(Calendar.HOUR_OF_DAY,0);
+        if (dataStructure.getOctetString(0).getArray()[5] != -1) {
+			calendar.set(Calendar.HOUR_OF_DAY,((int)dataStructure.getOctetString(0).getArray()[5]&0xff));
+		} else {
+			calendar.set(Calendar.HOUR_OF_DAY,0);
+		}
         
         
         if (btype == 0)
         {
-            if (dataStructure.getOctetString(0).getArray()[6] != -1)
-                  calendar.set(Calendar.MINUTE,(((int)dataStructure.getOctetString(0).getArray()[6]&0xff)/(getProfileInterval()/60))*(getProfileInterval()/60));
-            else
-                  calendar.set(Calendar.MINUTE,0);
+            if (dataStructure.getOctetString(0).getArray()[6] != -1) {
+				calendar.set(Calendar.MINUTE,(((int)dataStructure.getOctetString(0).getArray()[6]&0xff)/(getProfileInterval()/60))*(getProfileInterval()/60));
+			} else {
+				calendar.set(Calendar.MINUTE,0);
+			}
             
             calendar.set(Calendar.SECOND,0);
         }
         else
         {
-            if (dataStructure.getOctetString(0).getArray()[6] != -1)
-                  calendar.set(Calendar.MINUTE,((int)dataStructure.getOctetString(0).getArray()[6]&0xff));
-            else
-                  calendar.set(Calendar.MINUTE,0);
+            if (dataStructure.getOctetString(0).getArray()[6] != -1) {
+				calendar.set(Calendar.MINUTE,((int)dataStructure.getOctetString(0).getArray()[6]&0xff));
+			} else {
+				calendar.set(Calendar.MINUTE,0);
+			}
             
-            if (dataStructure.getOctetString(0).getArray()[7] != -1)
-                  calendar.set(Calendar.SECOND,((int)dataStructure.getOctetString(0).getArray()[7]&0xff));
-            else
-                  calendar.set(Calendar.SECOND,0);
+            if (dataStructure.getOctetString(0).getArray()[7] != -1) {
+				calendar.set(Calendar.SECOND,((int)dataStructure.getOctetString(0).getArray()[7]&0xff));
+			} else {
+				calendar.set(Calendar.SECOND,0);
+			}
         }
         
         // if DSA, add 1 hour
-        if (dataStructure.getOctetString(0).getArray()[11] != -1)
-           if ((dataStructure.getOctetString(0).getArray()[11] & (byte)0x80) == 0x80)
-               calendar.add(Calendar.HOUR_OF_DAY,-1);
+        if (dataStructure.getOctetString(0).getArray()[11] != -1) {
+			if ((dataStructure.getOctetString(0).getArray()[11] & (byte)0x80) == 0x80) {
+				calendar.add(Calendar.HOUR_OF_DAY,-1);
+			}
+		}
         
         return calendar;
         
@@ -723,8 +812,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
     private int getProfileClockChannelIndex() throws IOException {
         for (int i=0;i<capturedObjects.getNROfObjects();i++) {
             if (!capturedObjects.isChannelData(i)) {
-                if (ObisCode.fromByteArray(capturedObjects.getLN(i)).equals(ObisCode.fromString("0.0.1.0.0.255")))
-                    return i;
+                if (ObisCode.fromByteArray(capturedObjects.getLN(i)).equals(ObisCode.fromString("0.0.1.0.0.255"))) {
+					return i;
+				}
             }
         }
         throw new IOException("Iskra MT37x, no clock channel found in captureobjects!");
@@ -734,8 +824,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
     private int getProfileStatusChannelIndex() {
         for (int i=0;i<capturedObjects.getNROfObjects();i++) {
             if (!capturedObjects.isChannelData(i)) {
-                if (ObisCode.fromByteArray(capturedObjects.getLN(i)).equals(ObisCode.fromString("1.0.96.240.0.255")))
-                    return i;
+                if (ObisCode.fromByteArray(capturedObjects.getLN(i)).equals(ObisCode.fromString("1.0.96.240.0.255"))) {
+					return i;
+				}
             }
         }
         return -1;
@@ -750,10 +841,13 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
         boolean currentAdd=true,previousAdd=true;
         IntervalData previousIntervalData=null,currentIntervalData;
 
-        if (DEBUG >=1) dataContainer.printDataContainer();
+        if (DEBUG >=1) {
+			dataContainer.printDataContainer();
+		}
         
-        if (dataContainer.getRoot().element.length == 0)
-            throw new IOException("No entries in Load Profile Datacontainer.");
+        if (dataContainer.getRoot().element.length == 0) {
+			throw new IOException("No entries in Load Profile Datacontainer.");
+		}
         
         for (i=0;i<dataContainer.getRoot().element.length;i++) { // for all retrieved intervals
             try {    
@@ -761,14 +855,19 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
             }
             catch(ClassCastException e) {
                 // absorb
-                if (DEBUG>=1)  System.out.println ("KV_DEBUG> buildProfileData, ClassCastException ,"+e.toString());
-                if (calendar != null) calendar.add(calendar.MINUTE,(getProfileInterval()/60));
+                if (DEBUG>=1) {
+					System.out.println ("KV_DEBUG> buildProfileData, ClassCastException ,"+e.toString());
+				}
+                if (calendar != null) {
+					calendar.add(calendar.MINUTE,(getProfileInterval()/60));
+				}
             }
             if (calendar != null) {
-                if (getProfileStatusChannelIndex()!=-1)
-                    protocolStatus = dataContainer.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex());   
-                else
-                    protocolStatus=0;
+                if (getProfileStatusChannelIndex()!=-1) {
+					protocolStatus = dataContainer.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex());
+				} else {
+					protocolStatus=0;
+				}
 
                 currentIntervalData = getIntervalData(dataContainer.getRoot().getStructure(i), calendar, protocolStatus);
 
@@ -779,7 +878,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
                 }
 
                 if (currentAdd & !previousAdd) {
-                   if (DEBUG>=1) System.out.println ("add intervals together...");
+                   if (DEBUG>=1) {
+					System.out.println ("add intervals together...");
+				}
                    currentIntervalData = addIntervalData(currentIntervalData,previousIntervalData);
                 }
 
@@ -796,7 +897,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
             
         } // for (i=0;i<dataContainer.getRoot().element.length;i++) // for all retrieved intervals
 
-        if (DEBUG>=1) System.out.println(profileData);
+        if (DEBUG>=1) {
+			System.out.println(profileData);
+		}
         
     } // private void buildProfileData(byte bNROfChannels, DataContainer dataContainer)  throws IOException
     
@@ -849,8 +952,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
         
         for (int t=0;t<getCapturedObjects().getNROfChannels();t++){
         	
-                if (getCapturedObjects().isChannelData(getObjectNumber(t)))
-                    intervalData.addValue(new Integer(dataStructure.getInteger(getObjectNumber(t) + dataContainerOffset)));
+                if (getCapturedObjects().isChannelData(getObjectNumber(t))) {
+					intervalData.addValue(new Integer(dataStructure.getInteger(getObjectNumber(t) + dataContainerOffset)));
+				}
         }
         	
         return intervalData;
@@ -858,8 +962,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
     
     private int getObjectNumber(int t) throws UnsupportedException {
 		for(int i = 0; i < capturedObjects.getNROfObjects(); i++){
-			if ( capturedObjects.getChannelNR(i) == t)
+			if ( capturedObjects.getChannelNR(i) == t) {
 				return i;
+			}
 		}
 		throw new UnsupportedException();
 	}
@@ -884,10 +989,11 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
     public void setTime() throws IOException
     {
        Calendar calendar=null;
-       if (iRequestTimeZone != 0)
-           calendar = ProtocolUtils.getCalendar(false,requestTimeZone());
-       else
-           calendar = ProtocolUtils.initCalendar(false,timeZone);
+       if (iRequestTimeZone != 0) {
+		calendar = ProtocolUtils.getCalendar(false,requestTimeZone());
+	} else {
+		calendar = ProtocolUtils.initCalendar(false,timeZone);
+	}
        calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);           
        doSetTime(calendar);
     } // public void setTime() throws IOException
@@ -912,10 +1018,11 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
        byteTimeBuffer[11]=(byte)(0x80); 
        byteTimeBuffer[12]=(byte)0;
        
-       if (timeZone.inDaylightTime(calendar.getTime()))
-           byteTimeBuffer[13]=(byte)0x80; //0x00;
-       else
-           byteTimeBuffer[13]=(byte)0x00; //0x00;
+       if (timeZone.inDaylightTime(calendar.getTime())) {
+		byteTimeBuffer[13]=(byte)0x80; //0x00;
+	} else {
+		byteTimeBuffer[13]=(byte)0x00; //0x00;
+	}
        
        getCosemObjectFactory().writeObject(ObisCode.fromString("0.0.1.0.0.255"),8,2, byteTimeBuffer);
     } // private void doSetTime(Calendar calendar)
@@ -928,10 +1035,11 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
     }
     
     private boolean verifyMeterID() throws IOException {
-        if ((strID == null) || ("".compareTo(strID)==0) || (strID.compareTo(getDeviceAddress()) == 0))
-            return true;
-        else 
-            return false;
+        if ((strID == null) || ("".compareTo(strID)==0) || (strID.compareTo(getDeviceAddress()) == 0)) {
+			return true;
+		} else {
+			return false;
+		}
     }
     
     public String getDeviceAddress() throws IOException {
@@ -942,15 +1050,17 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
     
     // KV 19012004
     private boolean verifyMeterSerialNR() throws IOException {
-        if ((serialNumber == null) || ("".compareTo(serialNumber)==0) || (serialNumber.compareTo(getSerialNumber()) == 0))
-            return true;
-        else 
-            return false;
+        if ((serialNumber == null) || ("".compareTo(serialNumber)==0) || (serialNumber.compareTo(getSerialNumber()) == 0)) {
+			return true;
+		} else {
+			return false;
+		}
     }
 
     public int requestConfigurationProgramChanges() throws IOException {
-        if (configProgramChanges == -1)
-           configProgramChanges = (int)getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode()).getValue();
+        if (configProgramChanges == -1) {
+			configProgramChanges = (int)getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode()).getValue();
+		}
         return configProgramChanges;
     } // public int requestConfigurationProgramChanges() throws IOException
     
@@ -981,7 +1091,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
             try {
     
                // requestSAP();  // KV 08102004 R/W denied to read SAP!!!!!
-               if (DEBUG == 1) System.out.println("cache="+dlmsCache.getObjectList()+", confchange="+dlmsCache.getConfProgChange()+", ischanged="+dlmsCache.isChanged());
+               if (DEBUG == 1) {
+				System.out.println("cache="+dlmsCache.getObjectList()+", confchange="+dlmsCache.getConfProgChange()+", ischanged="+dlmsCache.isChanged());
+			}
                 try { // conf program change and object list stuff
                     int iConf;
                     
@@ -1003,7 +1115,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
 
                         if (iConf != dlmsCache.getConfProgChange()) {
                             
-                        if (DEBUG>=1) System.out.println("iConf="+iConf+", dlmsCache.getConfProgChange()="+dlmsCache.getConfProgChange());    
+                        if (DEBUG>=1) {
+							System.out.println("iConf="+iConf+", dlmsCache.getConfProgChange()="+dlmsCache.getConfProgChange());
+						}    
                             
                         // KV 19112003 ************************** DEBUGGING CODE ********************************
                         //System.out.println("!!!!!!!!!! DEBUGGING CODE FORCED DLMS CACHE UPDATE !!!!!!!!!!");
@@ -1013,7 +1127,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
                             requestObjectList();           // request object list again from rtu
                             dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
                             dlmsCache.setConfProgChange(iConf);  // set new configuration program change
-                            if (DEBUG>=1) System.out.println("after requesting objectlist (conf changed)... iConf="+iConf+", dlmsCache.getConfProgChange()="+dlmsCache.getConfProgChange());  
+                            if (DEBUG>=1) {
+								System.out.println("after requesting objectlist (conf changed)... iConf="+iConf+", dlmsCache.getConfProgChange()="+dlmsCache.getConfProgChange());
+							}  
                         }
                     }
                     else { // Cache not exist
@@ -1024,22 +1140,27 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
                           
                             dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
                             dlmsCache.setConfProgChange(iConf);  // set new configuration program change
-                            if (DEBUG>=1) System.out.println("after requesting objectlist... iConf="+iConf+", dlmsCache.getConfProgChange()="+dlmsCache.getConfProgChange());  
+                            if (DEBUG>=1) {
+								System.out.println("after requesting objectlist... iConf="+iConf+", dlmsCache.getConfProgChange()="+dlmsCache.getConfProgChange());
+							}  
                         }
                         catch(IOException e) {
                             iConf=-1;
                         }
                     }
-                    if (!verifyMeterID()) 
-                        throw new IOException("Iskra MT37x, connect, Wrong DeviceID!, settings="+strID+", meter="+getDeviceAddress());
+                    if (!verifyMeterID()) {
+						throw new IOException("Iskra MT37x, connect, Wrong DeviceID!, settings="+strID+", meter="+getDeviceAddress());
+					}
 
                     // KV 19012004
-                    if (!verifyMeterSerialNR()) 
-                        throw new IOException("Iskra MT37x, connect, Wrong SerialNR!, settings="+serialNumber+", meter="+getSerialNumber());
+                    if (!verifyMeterSerialNR()) {
+						throw new IOException("Iskra MT37x, connect, Wrong SerialNR!, settings="+serialNumber+", meter="+getSerialNumber());
+					}
                     
                     
-                    if (extendedLogging >= 1) 
-                       logger.info(getRegistersInfo(extendedLogging));
+                    if (extendedLogging >= 1) {
+						logger.info(getRegistersInfo(extendedLogging));
+					}
                     
                     if(metertype == MBUS){
 		                if ( demandScalerUnits[MBUS].getUnitCode() == 0 ){
@@ -1150,9 +1271,13 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
     
     private void validateSerialNumber() throws IOException {
         boolean check = true;
-        if ((serialNumber == null) || ("".compareTo(serialNumber)==0)) return;
+        if ((serialNumber == null) || ("".compareTo(serialNumber)==0)) {
+			return;
+		}
         String sn = (String)getSerialNumber();
-        if ((sn != null) && (sn.compareTo(serialNumber) == 0)) return;
+        if ((sn != null) && (sn.compareTo(serialNumber) == 0)) {
+			return;
+		}
         throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+serialNumber);
     }
     
@@ -1197,11 +1322,14 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
             while (iterator.hasNext())
             {
                 String key = (String) iterator.next();
-                if (properties.getProperty(key) == null)
-                    throw new MissingPropertyException (key + " key missing");
+                if (properties.getProperty(key) == null) {
+					throw new MissingPropertyException (key + " key missing");
+				}
             }
             strID = properties.getProperty(MeterProtocol.ADDRESS);
-            if ((strID != null) && (strID.length()>16)) throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
+            if ((strID != null) && (strID.length()>16)) {
+				throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
+			}
             strPassword = properties.getProperty(MeterProtocol.PASSWORD);
             //if (strPassword.length()!=8) throw new InvalidPropertyException("Password must be exact 8 characters.");
             iHDLCTimeoutProperty=Integer.parseInt(properties.getProperty("Timeout","10000").trim());
@@ -1220,13 +1348,15 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
             serialNumber=properties.getProperty(MeterProtocol.SERIALNUMBER);
             extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0"));            
             
-            if (Integer.parseInt(properties.getProperty("LoadProfileId","1")) == 1)
-                loadProfileObisCode = loadProfileObisCode1;
-            else if (Integer.parseInt(properties.getProperty("LoadProfileId","1")) == 2)
-                loadProfileObisCode = loadProfileObisCode2;
-            else if (Integer.parseInt(properties.getProperty("LoadProfileId","1")) == 97)
-                loadProfileObisCode = loadProfileObisCode97;
-            else throw new InvalidPropertyException("IskraME37X, validateProperties, invalid LoadProfileId, "+Integer.parseInt(properties.getProperty("LoadProfileId","1"))); 
+            if (Integer.parseInt(properties.getProperty("LoadProfileId","1")) == 1) {
+				loadProfileObisCode = loadProfileObisCode1;
+			} else if (Integer.parseInt(properties.getProperty("LoadProfileId","1")) == 2) {
+				loadProfileObisCode = loadProfileObisCode2;
+			} else if (Integer.parseInt(properties.getProperty("LoadProfileId","1")) == 97) {
+				loadProfileObisCode = loadProfileObisCode97;
+			} else {
+				throw new InvalidPropertyException("IskraME37X, validateProperties, invalid LoadProfileId, "+Integer.parseInt(properties.getProperty("LoadProfileId","1")));
+			} 
             
             addressingMode=Integer.parseInt(properties.getProperty("AddressingMode","2"));              
             connectionMode = Integer.parseInt(properties.getProperty("Connection","0")); // 0=HDLC, 1= TCP/IP
@@ -1254,18 +1384,20 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
     
     private String doGetRegister(String name) throws IOException {
         boolean classSpecified=false;
-        if (name.indexOf(':') >= 0)
-            classSpecified=true;
+        if (name.indexOf(':') >= 0) {
+			classSpecified=true;
+		}
         DLMSObis ln = new DLMSObis(name);
         if (ln.isLogicalName()) {
-            if (classSpecified)
-               return requestAttribute(ln.getDLMSClass(),ln.getLN(), (byte)ln.getOffset());
-            else {
+            if (classSpecified) {
+				return requestAttribute(ln.getDLMSClass(),ln.getLN(), (byte)ln.getOffset());
+			} else {
                UniversalObject uo = getMeterConfig().getObject(ln);
                return getCosemObjectFactory().getGenericRead(uo).getDataContainer().print2strDataContainer();
             }
-        }
-        else throw new NoSuchRegisterException("IskraME37x,getRegister, register "+name+" does not exist.");
+        } else {
+			throw new NoSuchRegisterException("IskraME37x,getRegister, register "+name+" does not exist.");
+		}
     }
     
     /** this implementation throws UnsupportedException. Subclasses may override
@@ -1344,8 +1476,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
             catch(NotFoundException e) {
                return new DLMSCache(null,-1);  
             }
-        }
-        else throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+        } else {
+			throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+		}
     } 
     public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException,com.energyict.cbo.BusinessException {
         if (rtuid != 0) {
@@ -1356,8 +1489,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
                 rtuCache.saveObjectList(dc.getObjectList());
                 rtu.setConfProgChange(dc.getConfProgChange());
             }
-        }
-        else throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+        } else {
+			throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+		}
     }
     
     public void release() throws IOException {
@@ -1424,7 +1558,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
     
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
     	try {
-    		if (ocm == null) ocm = new ObisCodeMapper(getCosemObjectFactory());
+    		if (ocm == null) {
+				ocm = new ObisCodeMapper(getCosemObjectFactory());
+			}
     		return ocm.getRegisterValue(obisCode);
     	} catch (Exception e) {
     		throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
@@ -1444,13 +1580,15 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
         Iterator it = messageEntries.iterator();
         while(it.hasNext()) {
             MessageEntry messageEntry = (MessageEntry)it.next();
-            if (DEBUG == 1) System.out.println(messageEntry);
+            if (DEBUG == 1) {
+				System.out.println(messageEntry);
+			}
             
-            if ( ((String)messageEntry.getContent().substring(messageEntry.getContent().indexOf("<")+1, messageEntry.getContent().indexOf(">"))).equals(CONNECT) )
-            	messages.add(connectMsg);
-            
-            else if ( ((String)messageEntry.getContent().substring(messageEntry.getContent().indexOf("<")+1, messageEntry.getContent().indexOf(">"))).equals(DISCONNECT) )
-            	messages.add(disconnectMsg);
+            if ( ((String)messageEntry.getContent().substring(messageEntry.getContent().indexOf("<")+1, messageEntry.getContent().indexOf(">"))).equals(CONNECT) ) {
+				messages.add(connectMsg);
+			} else if ( ((String)messageEntry.getContent().substring(messageEntry.getContent().indexOf("<")+1, messageEntry.getContent().indexOf(">"))).equals(DISCONNECT) ) {
+				messages.add(disconnectMsg);
+			}
             
         }		
         
@@ -1466,17 +1604,19 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
 		switch(breakerState.intValue()){
 		
 		case 0: {
-			if ( ((String)messageEntry.getContent().substring(messageEntry.getContent().indexOf("<")+1, messageEntry.getContent().indexOf(">"))).equals(DISCONNECT) )
+			if ( ((String)messageEntry.getContent().substring(messageEntry.getContent().indexOf("<")+1, messageEntry.getContent().indexOf(">"))).equals(DISCONNECT) ) {
 				return MessageResult.createSuccess(messageEntry);
-			else 
-	            return MessageResult.createFailed(messageEntry);          
+			} else {
+				return MessageResult.createFailed(messageEntry);
+			}          
 		}
 		
 		case 1: {
-			if ( ((String)messageEntry.getContent().substring(messageEntry.getContent().indexOf("<")+1, messageEntry.getContent().indexOf(">"))).equals(CONNECT) )
+			if ( ((String)messageEntry.getContent().substring(messageEntry.getContent().indexOf("<")+1, messageEntry.getContent().indexOf(">"))).equals(CONNECT) ) {
 				return MessageResult.createSuccess(messageEntry);
-			else 
-	            return MessageResult.createFailed(messageEntry);   
+			} else {
+				return MessageResult.createFailed(messageEntry);
+			}   
 		}
 		
 		default:
@@ -1516,8 +1656,9 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
 	        // b. Attributes
 	        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
 	            MessageAttribute att = (MessageAttribute)it.next();
-	            if (att.getValue()==null || att.getValue().length()==0)
-	                continue;
+	            if (att.getValue()==null || att.getValue().length()==0) {
+					continue;
+				}
 	            buf.append(" ").append(att.getSpec().getName());
 	            buf.append("=").append('"').append(att.getValue()).append('"');
 	        }
@@ -1526,12 +1667,13 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
 	        // c. sub elements
 	        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
 	            MessageElement elt = (MessageElement)it.next();
-	            if (elt.isTag())
-	                buf.append( writeTag((MessageTag)elt) );
-	            else if (elt.isValue()) {
+	            if (elt.isTag()) {
+					buf.append( writeTag((MessageTag)elt) );
+				} else if (elt.isValue()) {
 	                String value = writeValue((MessageValue)elt);
-	                if (value==null || value.length()==0)
-	                    return "";
+	                if (value==null || value.length()==0) {
+						return "";
+					}
 	                buf.append(value);
 	            }
 	        }
@@ -1558,12 +1700,11 @@ public class IskraME37X implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, 
 
 	public static ScalerUnit getScalerUnit(ObisCode obisCode) {
 		
-		if (obisCode.toString().indexOf("1.0") == 0)
+		if (obisCode.toString().indexOf("1.0") == 0) {
 			return demandScalerUnits[ELECTRICITY];
-		else
+		} else {
 			return demandScalerUnits[MBUS];
+		}
 	}
-	
-
     
-} // public class DLMSProtocolLN extends MeterProtocol
+} 

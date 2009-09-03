@@ -167,9 +167,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 				}
 				
 				byte[] imageData = uf.loadFileInByteArray();
-//				P3ImageTransfer p3it = getCosemObjectFactory().getP3ImageTransfer();
 				ImageTransfer it = getCosemObjectFactory().getImageTransfer();
-//				p3it.upgrade(imageData);
 				it.upgrade(imageData);
 				if(DEBUG) {
 					System.out.println("UserFile is send to the device.");
@@ -178,8 +176,15 @@ public class MessageExecutor extends GenericMessageExecutor{
 					if(DEBUG) {
 						System.out.println("Start the activateNow.");
 					}
-//					p3it.activateAndRetryImage();
-					it.imageActivation();
+//					it.imageActivation();
+					
+					Calendar cal = Calendar.getInstance();
+					cal.add(Calendar.MINUTE, 2);
+					SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+					String strDate = Long.toString(cal.getTimeInMillis()/1000);
+					Array dateArray = convertUnixToDateTimeArray(strDate);
+					
+					sas.writeExecutionTime(dateArray);
 					if(DEBUG) {
 						System.out.println("ActivateNow complete.");
 					}

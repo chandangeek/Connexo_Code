@@ -13,7 +13,11 @@ import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ObjectDef;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.PeriodicProfileType;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ProfileType;
 import com.energyict.protocol.ProtocolUtils;
-
+/**
+ * Basic connection implementation for retry logic
+ * @author gna
+ *
+ */
 public class RealTimeConnection implements Connection {
 	
 	private int timeout;
@@ -52,14 +56,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -104,14 +110,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -130,14 +138,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -156,14 +166,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -184,14 +196,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -211,14 +225,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -238,14 +254,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -265,14 +283,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -294,14 +314,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -320,14 +342,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -346,14 +370,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -372,14 +398,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -398,14 +426,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -426,14 +456,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -453,14 +485,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -480,14 +514,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -507,14 +543,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -532,14 +570,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -558,14 +598,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -584,14 +626,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -644,14 +688,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -670,14 +716,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -698,14 +746,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -725,14 +775,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -751,14 +803,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -773,14 +827,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}
@@ -796,14 +852,16 @@ public class RealTimeConnection implements Connection {
 				e.printStackTrace();
 				checkDefaultErrors(e);
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new RemoteException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 				timeout--;
-				if(timeout == 0)
+				if(timeout == 0) {
 					throw new ServiceException(e.getMessage());
+				}
 				ProtocolUtils.delayProtocol(delayAfterRetry);
 			}
 		}

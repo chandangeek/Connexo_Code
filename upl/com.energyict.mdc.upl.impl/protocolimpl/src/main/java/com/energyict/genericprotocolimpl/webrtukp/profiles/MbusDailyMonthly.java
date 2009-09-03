@@ -26,7 +26,6 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
 import com.energyict.genericprotocolimpl.webrtukp.MbusDevice;
-import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
@@ -56,45 +55,39 @@ public class MbusDailyMonthly {
 		ProfileData profileData = new ProfileData( );
 		ProfileGeneric genericProfile;
 		
-		try {
-			genericProfile = getCosemObjectFactory().getProfileGeneric(mbusProfile);
-			List<ChannelInfo> channelInfos = getDailyMonthlyChannelInfos(genericProfile, TimeDuration.MONTHS);
+		genericProfile = getCosemObjectFactory().getProfileGeneric(mbusProfile);
+		List<ChannelInfo> channelInfos = getDailyMonthlyChannelInfos(genericProfile, TimeDuration.MONTHS);
+		
+		if(channelInfos.size() != 0){
 			
-			if(channelInfos.size() != 0){
-				
-				profileData.setChannelInfos(channelInfos);
-				Calendar fromCalendar = null;
-				Calendar channelCalendar = null;
-				Calendar toCalendar = getToCalendar();
-				
-				for (int i = 0; i < getMeter().getChannels().size(); i++) {
-					// TODO check for the from-date of all the daily or monthly channels
-					Channel chn = getMeter().getChannel(i);
-					if(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS){ //the channel is a daily channel
-						channelCalendar = getFromCalendar(getMeter().getChannel(i));
-						if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
-							fromCalendar = channelCalendar;
-						}
+			profileData.setChannelInfos(channelInfos);
+			Calendar fromCalendar = null;
+			Calendar channelCalendar = null;
+			Calendar toCalendar = getToCalendar();
+			
+			for (int i = 0; i < getMeter().getChannels().size(); i++) {
+				// TODO check for the from-date of all the daily or monthly channels
+				Channel chn = getMeter().getChannel(i);
+				if(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS){ //the channel is a daily channel
+					channelCalendar = getFromCalendar(getMeter().getChannel(i));
+					if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
+						fromCalendar = channelCalendar;
 					}
 				}
-				
-				this.mbusDevice.getLogger().log(Level.INFO, "Reading Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
-				DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
-				buildProfileData(dc, profileData, genericProfile, TimeDuration.MONTHS);
-				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
-				ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
-				
-				if(mbusDevice.getWebRTU().getMarkedAsBadTime()){
-					pd.markIntervalsAsBadTime();
-				}
-				
-				mbusDevice.getWebRTU().getStoreObject().add(pd, getMeter());
-				
 			}
 			
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException(e.getMessage());
+			this.mbusDevice.getLogger().log(Level.INFO, "Reading Monthly values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
+			buildProfileData(dc, profileData, genericProfile, TimeDuration.MONTHS);
+			ParseUtils.validateProfileData(profileData, toCalendar.getTime());
+			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
+			
+			if(mbusDevice.getWebRTU().getMarkedAsBadTime()){
+				pd.markIntervalsAsBadTime();
+			}
+			
+			mbusDevice.getWebRTU().getStoreObject().add(pd, getMeter());
+			
 		}
 		
 	}
@@ -111,7 +104,7 @@ public class MbusDailyMonthly {
 				} else {
 					if(cal != null){
 						if(timeDuration == TimeDuration.DAYS){ //the daily profile is constructed from the hourly profile so only add 1 hour to the calendar
-							cal.add(Calendar.HOUR_OF_DAY, 1);
+							cal.add(Calendar.DAY_OF_MONTH, 1);
 						} else if(timeDuration == TimeDuration.MONTHS){
 							cal.add(Calendar.MONTH, 1);
 						} else {
@@ -226,12 +219,14 @@ public class MbusDailyMonthly {
 			IntervalData id = it.next();
 			switch(timeDuration){
 			case TimeDuration.DAYS:{
-				if(checkDailyBillingTime(id.getEndTime()))
+				if(checkDailyBillingTime(id.getEndTime())) {
 					pd.addInterval(id);
+				}
 			}break;
 			case TimeDuration.MONTHS:{
-				if(checkMonthlyBillingTime(id.getEndTime()))
+				if(checkMonthlyBillingTime(id.getEndTime())) {
 					pd.addInterval(id);
+				}
 			}break;
 			}
 		}
@@ -246,8 +241,9 @@ public class MbusDailyMonthly {
 	private boolean checkDailyBillingTime(Date date){
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		if(cal.get(Calendar.HOUR_OF_DAY)==0 && cal.get(Calendar.MINUTE)==0 && cal.get(Calendar.SECOND)==0 && cal.get(Calendar.MILLISECOND)==0)
+		if(cal.get(Calendar.HOUR_OF_DAY)==0 && cal.get(Calendar.MINUTE)==0 && cal.get(Calendar.SECOND)==0 && cal.get(Calendar.MILLISECOND)==0) {
 			return true;
+		}
 		return false;
 	}
 	
@@ -259,8 +255,9 @@ public class MbusDailyMonthly {
 	private boolean checkMonthlyBillingTime(Date date){
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		if(checkDailyBillingTime(date) && cal.get(Calendar.DAY_OF_MONTH)==1)
+		if(checkDailyBillingTime(date) && cal.get(Calendar.DAY_OF_MONTH)==1) {
 			return true;
+		}
 		return false;
 	}
 	
@@ -328,8 +325,44 @@ public class MbusDailyMonthly {
 	 * @param obisCode - the hourly-interval obisCode
 	 * @throws IOException 
 	 */
-	public void getDailyProfile(ObisCode obisCode) throws IOException {
-		getDailyProfile(null, obisCode);
+	public void getDailyProfile(ObisCode dailyObisCode) throws IOException {
+//		getDailyProfile(null, obisCode);
+		ProfileData profileData = new ProfileData();
+		ProfileGeneric genericProfile;
+		
+		genericProfile = getCosemObjectFactory().getProfileGeneric(dailyObisCode);
+		List<ChannelInfo> channelInfos = getDailyMonthlyChannelInfos(genericProfile, TimeDuration.DAYS);
+		
+		if(channelInfos.size() != 0){
+			
+			profileData.setChannelInfos(channelInfos);
+			Calendar fromCalendar = null;
+			Calendar channelCalendar = null;
+			Calendar toCalendar = getToCalendar();
+			
+			for (int i = 0; i < getMeter().getChannels().size(); i++) {
+				// TODO check for the from-date of all the daily or monthly channels
+				Channel chn = getMeter().getChannel(i);
+				if(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS){ //the channel is a daily channel
+					channelCalendar = getFromCalendar(getMeter().getChannel(i));
+					if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
+						fromCalendar = channelCalendar;
+					}
+				}
+			}
+			
+			this.mbusDevice.getLogger().log(Level.INFO, "Reading Daily values from " + fromCalendar.getTime() + " to " + toCalendar.getTime());
+			DataContainer dc = genericProfile.getBuffer(fromCalendar, toCalendar);
+			buildProfileData(dc, profileData, genericProfile, TimeDuration.DAYS);
+			ParseUtils.validateProfileData(profileData, toCalendar.getTime());
+			ProfileData pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
+			
+			if(mbusDevice.getWebRTU().getMarkedAsBadTime()){
+				pd.markIntervalsAsBadTime();
+			}
+			
+			mbusDevice.getWebRTU().getStoreObject().add(pd, getMeter());
+		}
 	}
 
 	/**
@@ -337,6 +370,7 @@ public class MbusDailyMonthly {
 	 * @param intervalProfileData - the partial profileData object form the hourly intervals
 	 * @param obisCode - the hourly-interval obisCode
 	 * @throws IOException 
+	 * @deprecated We used to get the dailyProfile from the first Hourly value of the day ...
 	 */
 	public void getDailyProfile(ProfileData intervalProfileData, ObisCode obisCode) throws IOException {
 		ProfileData profileData = new ProfileData( );

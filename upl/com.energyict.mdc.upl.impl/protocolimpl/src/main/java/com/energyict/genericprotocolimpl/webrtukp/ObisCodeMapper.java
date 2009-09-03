@@ -1,10 +1,12 @@
 package com.energyict.genericprotocolimpl.webrtukp;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Date;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.cosem.AbstractCosemObject;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Register;
@@ -22,6 +24,7 @@ import com.energyict.protocol.RegisterValue;
 public class ObisCodeMapper {
 	
 	private boolean debug = false;
+	private static final String[] possibleConnectStates = {"Disconnected","Connected","Ready for Reconnection"};
 
 	CosemObjectFactory cof = new CosemObjectFactory(null);
 	
@@ -68,6 +71,23 @@ public class ObisCodeMapper {
         			null,
         			null, null, null, new Date(), 0,
         			ParseUtils.decimalByteToString(cof.getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1).getResponseData()));
+        	return rv;
+        } else if (obisCode.toString().indexOf("0.128.96.3.10.255") != -1){	// E-meter connect control mode	- Use the B field as '128' to indicate the controlMode
+        	int mode = cof.getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).getControlMode().getValue();
+        	rv = new RegisterValue(obisCode,
+        			new Quantity(BigDecimal.valueOf(mode), Unit.getUndefined()),
+        			null, null, null, new Date(), 0,
+        			new String("ConnectControl mode: " + mode));
+        	return rv;
+        } else if (obisCode.toString().indexOf("0.129.96.3.10.255") != -1){	// Current status of the breaker - Use the B field as '129' to indicate the controlState
+        	int state = cof.getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).getControlState().getValue();
+        	if((state < 0) || (state > 2)){
+        		throw new IllegalArgumentException("The connectControlState has an invalid value: " + state);
+        	}
+        	rv = new RegisterValue(obisCode,
+        			new Quantity(BigDecimal.valueOf(state), Unit.getUndefined()),
+        			null, null, null, new Date(), 0,
+        			new String("ConnectControl state: " + possibleConnectStates[state]));
         	return rv;
         }
 		

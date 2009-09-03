@@ -40,12 +40,14 @@ import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.IPv4Setup;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageExecutor;
@@ -108,12 +110,10 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	private Rtu webRtuKP;
 	private ApplicationServiceObject aso;
 
-	// this cache object is supported by 7.5
-	private DLMSCache dlmsCache = new DLMSCache();
+	private DLMSCache dlmsCache = new DLMSCache();	// this cache object is supported by 7.5
 
 	private MbusDevice[] mbusDevices;
-	/** GhostMbusDevices are Mbus meters that are connected with their gateway in EIServer, but not on the physical device anymore*/
-	private HashMap<String, Integer> ghostMbusDevices = new HashMap<String, Integer>();
+	private HashMap<String, Integer> ghostMbusDevices = new HashMap<String, Integer>();	// GhostMbusDevices are Mbus meters that are connected with their gateway in EIServer, but not on the physical device anymore
 	private TicDevice ticDevice;
 	private Clock deviceClock;
 	private StoreObject storeObject;
@@ -122,7 +122,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	private long timeDifference = -1;
 	private long roundTripCorrection = 0;
 
-	/**
+	/*
 	 * Properties
 	 */
 	private Properties properties;
@@ -200,7 +200,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 			/*****************************************************************************
 			 * T E S T M E T H O D S
 			 */
-			// doSomeTestCalls();
+//			 doSomeTestCalls();
 			// readFromMeter("1.0.90.7.0.255");
 			// hasMBusMeters();
 			// handleMbusMeters();
@@ -631,6 +631,20 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	 * Just to test some objects
 	 */
 	private void doSomeTestCalls(){
+		
+		try {
+			MessageExecutor messageExecutor = new MessageExecutor(this);
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.MINUTE, 2);
+			SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+			System.out.println(cal.getTimeInMillis()/1000);
+			String strDate = Long.toString(cal.getTimeInMillis()/1000);
+			Array dateArray = messageExecutor.convertUnixToDateTimeArray(strDate);
+			sas.writeExecutionTime(dateArray);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 //		try {
 //			getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.0.42.0.0.255"), DLMSUtils.attrLN2SN(2), 1);

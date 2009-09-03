@@ -117,8 +117,9 @@ public class ImageTransfer extends AbstractCosemObject{
 			
 			// Step2: Initiate the image transfer
 			Structure imageInitiateStructure = new Structure();
-			imageInitiateStructure.addDataType(OctetString.fromString("EICT-" + System.currentTimeMillis()));
+			imageInitiateStructure.addDataType(OctetString.fromString("NewImage"));
 			imageInitiateStructure.addDataType(this.size);
+			
 			imageTransferInitiate(imageInitiateStructure);
 			if(DEBUG) {
 				System.out.println("ImageTrans: Initialize success.");
@@ -173,16 +174,15 @@ public class ImageTransfer extends AbstractCosemObject{
 						(int)readImageBlockSize().getValue());
 			} else {
 				long blockSize = this.size.getValue() - (i*readImageBlockSize().getValue());
-				octetStringData = new byte[(int)blockSize];
+				octetStringData = new byte[(int)readImageBlockSize().getValue()];
 				System.arraycopy(this.data, (int)(i*readImageBlockSize().getValue()), octetStringData, 0, 
 						(int)blockSize);
+				
 			}
-//			os = new OctetString(trimByteArray(octetStringData));
 			os = new OctetString(octetStringData);
 			imageBlockTransfer = new Structure();
 			imageBlockTransfer.addDataType(new Unsigned32(i));
 			imageBlockTransfer.addDataType(os);
-//			writeImageBlock(imageBlockTransfer);
 			imageBlockTransfer(imageBlockTransfer);
 			
 			if(i % 50 == 0){ // i is multiple of 50
