@@ -1,8 +1,11 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
@@ -15,10 +18,6 @@ import com.energyict.protocolimpl.iec1107.ppmi1.register.HistoricalData;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.MainRegister;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.MaximumDemand;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.RegisterInformation;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * <pre>
@@ -82,520 +81,576 @@ import java.util.List;
  */
 
 public class ObisCodeMapper {
-    
-    private RegisterFactory rFactory;
-    RegisterInformation ri = new RegisterInformation();
-    
-    /**
-     * Dangerous stuff (using instance variables with a static method:
-     * getRegisterInfo). Make sure only 2 methods are public!
-     */
-    
-    //private Date billingDate = null; // KV 22072005 billingDate is never created
-    private MetaRegister sourceRegister = null;
-    private MetaRegister derivedRegister = null;
-    //private int registerIndex;// KV22072005 unused code
-    private int billingPoint;
-    
-    /** Manufacturer specific codes */
-    static public final int CODE_E_REGISTER_1=128;
-    static public final int CODE_E_REGISTER_2=129;
-    static public final int CODE_E_REGISTER_3=130;
-    static public final int CODE_E_REGISTER_4=131;
-    
-    private ObisCodeMapper( ){
-    }
-    
-    public ObisCodeMapper(RegisterInformation ri) throws IOException {
-        this.ri = ri;
-    }
-    
-    public ObisCodeMapper(RegisterFactory registerFactory) throws IOException {
-        this.rFactory = registerFactory;
-        this.ri = registerFactory.getRegisterInformation();
-    }
-    
-    private ObisCodeMapper(ObisCode obisCode) throws NoSuchRegisterException {
-        this.getMapRegister(obisCode);
-        this.getBillingPoint(obisCode);
-    }
-    
-    public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        ObisCodeMapper ocm = new ObisCodeMapper(obisCode);
-        String desc = ocm.toString( obisCode );
-        return new RegisterInfo(desc);
-    }
-    
-    public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
-        
-        this.getBillingPoint(obisCode);
-        
-        if( isBillingDate(obisCode ) ) {
-            HistoricalData hd = null;
-            hd = rFactory.getHistoricalData().get(billingPoint);
-            Date date = hd.getDate();
-            Unit secondsUnit = Unit.get( BaseUnit.SECOND );
-            Long sl = new Long( date.getTime() / 1000 );
-            Quantity seconds = new Quantity( sl, secondsUnit );
-            return new RegisterValue( obisCode, seconds,  date );
-        }
-        
-        this.getMapRegister(obisCode);
-        String key = getRegisterFactoryKey(obisCode);
-        
-        if (key == null)
-            throw new NoSuchRegisterException("ObisCode " + obisCode.toString()
-            + " is not supported!");
-        
-        Object o = null;
-        Date toDate = null;
-        Date eventDate = null;
-        
-        if (rFactory != null) {
-            
-            if( obisCode.getD() == 2 )
-                return getCMD(obisCode);
-            if( obisCode.getD() == 6 )
-                return getMD(obisCode);
-            
-            if (billingPoint == -1) {
-                o = rFactory.getRegister(key);
-                toDate = new Date();
-            } else {
-                HistoricalData hd = null;
-                hd = rFactory.getHistoricalData().get(billingPoint);
-                
-                
-                if( hd == null )
-                    return null;
-                
-                o = hd.get(key);
-                toDate = hd.getDate();
-                eventDate = hd.getDate();
 
-            }
-            
-        }
-        
-        if (o instanceof MainRegister)
-            return ((MainRegister) o).toRegisterValue(obisCode, eventDate, toDate);
-        if (o instanceof MaximumDemand) {
-            return ((MaximumDemand) o).toRegisterValue(obisCode, toDate);
-        }
-        
-        return new RegisterValue(obisCode);
-        
-    }
-    
-    /* Return the RegisterFactoryKey that identifies the register.  If it
-     * concerns a simple (cumulative|primary) register, just return
-     * that RegisterFactoryKey, if it is a derived register, return that key.
-     */
-    private String getRegisterFactoryKey( ObisCode obisCode ) {
-        if (derivedRegister == null) {
-            return sourceRegister.registerFactoryKey;
-        } else {
-            
-            if (derivedRegister.sourceRegister != null) {
-                
-                if (ri.isCMDRegister(derivedRegister) && derivedRegister.sourceRegister.equals(sourceRegister)) {
-                    return derivedRegister.registerFactoryKey;
-                }
-                
-                if (ri.isMDRegister(derivedRegister) && derivedRegister.sourceRegister.equals(sourceRegister))
-                    return derivedRegister.registerFactoryKey;
-                
-                if (ri.isTouRegister(derivedRegister) && derivedRegister.sourceRegister.equals(sourceRegister))
-                    return derivedRegister.registerFactoryKey;
-            }
-            
-        }
-        
-        return null;
-    }
-    
-    /* This is a big chunk of mapping/translation */
-    
-    /* In the case of energy: map the obiscode to the MetaRegister */
-    private HashMap energyMap = new HashMap() {
-        {
-            put(new Integer(ObisCode.CODE_C_ACTIVE_IMPORT), ri.importWh);
-            put(new Integer(ObisCode.CODE_C_ACTIVE_EXPORT), ri.exportWh);
-            put(new Integer(ObisCode.CODE_C_REACTIVE_IMPORT), ri.importVarh);
-            put(new Integer(ObisCode.CODE_C_REACTIVE_EXPORT), ri.exportVarh);
-            put(new Integer(ObisCode.CODE_C_APPARENT), ri.vAh);
-        }
-    };
-    
-    private MetaRegister getEnergy(ObisCode o) {
-        return (MetaRegister) energyMap.get(new Integer(o.getC()));
-    }
-    
-    /* In the case of power: map the obiscode to the MetaRegister */
-    private HashMap powerMap = new HashMap() {
-        {
-            put(new Integer(ObisCode.CODE_C_ACTIVE_IMPORT), ri.importW);
-            put(new Integer(ObisCode.CODE_C_ACTIVE_EXPORT), ri.exportW);
-            put(new Integer(ObisCode.CODE_C_REACTIVE_IMPORT), ri.importVar);
-            put(new Integer(ObisCode.CODE_C_REACTIVE_EXPORT), ri.exportVar);
-            put(new Integer(ObisCode.CODE_C_APPARENT), ri.vA);
-        }
-    };
-    
-    private MetaRegister getPower(ObisCode o) {
-        return (MetaRegister) powerMap.get(new Integer(o.getC()));
-    }
-    
-    /* sourceRegister and derivedRegister are mapped */
-    private void getMapRegister(ObisCode obisCode)
-    throws NoSuchRegisterException {
-        
-        if( isBillingDate( obisCode ) ) return ;
-        
-        // KV22072005 unused code
-        //int e = registerIndex = obisCode.getE();
-        int e = obisCode.getE();
-        
-        // Step 3 :: What does code D say ?
-        switch (obisCode.getD()) {
-            
-            case ObisCode.CODE_D_CUMULATIVE_MAXUMUM_DEMAND : // C_MX_DMD (o=2)
-                sourceRegister = getPower(obisCode);
-                if( e == 0 ) {
-                    derivedRegister = ri.findCMDRegisterFor(sourceRegister);
-                } else if ( e == CODE_E_REGISTER_1 ) {
-                    derivedRegister = ri.cmdRegister[ 0 ];
-                } else if ( e == CODE_E_REGISTER_2 ) {
-                    derivedRegister = ri.cmdRegister[ 1 ];
-                } else if ( e == CODE_E_REGISTER_3 ) {
-                    derivedRegister = ri.cmdRegister[ 2 ];
-                } else if ( e == CODE_E_REGISTER_4 ) {
-                    derivedRegister = ri.cmdRegister[ 3 ];
-                }
-                
-                //derivedRegister = (e == 0 | e > ri.cmdRegister.length ) ? null : ri.cmdRegister[e - 1];
-                break;
-                
-            case ObisCode.CODE_D_MAXIMUM_DEMAND : // MX_DMD (o=6)
-                sourceRegister = getPower(obisCode);
-                if( e == 0 ) {
-                    derivedRegister = ri.findMDRegisterFor(sourceRegister);
-                } else if ( e == CODE_E_REGISTER_1 ) {
-                    derivedRegister = ri.mdRegister[ 0 ];
-                } else if ( e == CODE_E_REGISTER_2 ) {
-                    derivedRegister = ri.mdRegister[ 1 ];
-                } else if ( e == CODE_E_REGISTER_3 ) {
-                    derivedRegister = ri.mdRegister[ 2 ];
-                } else if ( e == CODE_E_REGISTER_4 ) {
-                    derivedRegister = ri.mdRegister[ 3 ];
-                }
-                
-                //derivedRegister = (e == 0 | e > ri.mdRegister.length ) ? null : ri.mdRegister[e - 1];
-                break;
-                
-            case ObisCode.CODE_D_TIME_INTEGRAL : // TOU (o=8)
-                sourceRegister = getEnergy(obisCode);
-                derivedRegister = (e == 0 | e > ri.touRegister.length) ? null : ri.touRegister[e - 1];
-                break;
-                
-                
-            default :
-                throw new NoSuchRegisterException("ObisCode "
-                + obisCode.toString() + " is not supported!");
-        }
-        
-    }
-    
-    void getBillingPoint(ObisCode obisCode) throws NoSuchRegisterException {
-        
-        if (obisCode.getF() == 255)
-            billingPoint = -1;
-        else if (obisCode.getF() >= 0 && obisCode.getF() <= 3)
-            billingPoint = obisCode.getF();
-        else if (obisCode.getF() < 0 && obisCode.getF() >= -3)
-            billingPoint = obisCode.getF() * -1;
-        else
-            throw new NoSuchRegisterException("ObisCode " + obisCode.toString()
-            + " is not supported!");
-    }
-    
-    boolean isBillingDate( ObisCode obisCode ){
-        return ( obisCode.getC() == 0 ) && ( obisCode.getE() == 2 );
-    }
-    
-    /*
-     * For making a nice descriptive toString(), the MetaRegisters are mapped
-     * onto a special string, that makes sense in an Obiscode-context.
-     */
-    public String toString( ObisCode obisCode ) {
-        String result = "";
-        
-// KV 22072005 billingDate is never created
-//        if ( billingDate != null )
-//            result += "billing date ";
-        
-        if (sourceRegister != null)
-            result += metaRegToString.get(sourceRegister).toString();
-        
-        if (derivedRegister != null) {
-            result += ", " + metaRegToString.get(derivedRegister).toString();
-        } else {
-            if( obisCode.getE() == 0 && obisCode.getD() == 2 )
-                result += ", " + metaRegToString.get(ri.cmdTou1).toString();
-            if( obisCode.getE() == 0 && obisCode.getD() == 6 )
-                result += ", " + metaRegToString.get(ri.mdTou1).toString();
-        }
-        
-        if (billingPoint != -1)
-            result += ", billingpoint " + (billingPoint);
-        else
-            result += ", current value";
-        
-        return result;
-    }
-    
-    /* String representation of the registers */
-    HashMap metaRegToString = new HashMap() {
-        {
-            put(ri.importWh, "Energy, Active import");
-            put(ri.exportWh, "Energy, Active export");
-            put(ri.importVarh, "Energy, Reactive import");
-            put(ri.exportVarh, "Energy, Reactive export");
-            put(ri.vAh, "Energy, Apparent import");
-            
-            put(ri.importW, "Power, Active import");
-            put(ri.exportW, "Power, Active export");
-            put(ri.importVar, "Power, Reactive import");
-            put(ri.exportVar, "Power, Reactive export");
-            put(ri.vA, "Power, Apparent import");
-            
-            put(ri.tou1, "Tarif reg. 1");
-            put(ri.tou2, "Tarif reg. 2");
-            put(ri.tou3, "Tarif reg. 3");
-            put(ri.tou4, "Tarif reg. 4");
-            put(ri.tou5, "Tarif reg. 5");
-            put(ri.tou6, "Tarif reg. 6");
-            put(ri.tou7, "Tarif reg. 7");
-            put(ri.tou8, "Tarif reg. 8");
-            
-            put(ri.mdTou1, "Maximum Demand");
-            put(ri.mdTou2, "Maximum Demand");
-            put(ri.mdTou3, "Maximum Demand");
-            put(ri.mdTou4, "Maximum Demand");
-            
-            put(ri.cmdTou1, "Cumulative Maximum Demand");
-            put(ri.cmdTou2, "Cumulative Maximum Demand");
-            put(ri.cmdTou3, "Cumulative Maximum Demand");
-            put(ri.cmdTou4, "Cumulative Maximum Demand");
-            
-        }
-    };
-    
-    /** Getting Maximum Demands.
-     *
-     */
-    private RegisterValue getMD( ObisCode obisCode ) throws IOException {
-        
-        if( obisCode.getE() == 0 ) {
-            
-            List l = ri.findAllMDRegistersFor( sourceRegister );
-            
-            if( billingPoint == -1 ) {
-                
-                Date d = new Date();
-                ArrayList r = new ArrayList();
-                
-                if( l.contains( ri.mdTou1 )  )
-                    r.add( rFactory.getMaximumDemand1().toRegisterValue( obisCode, d ) );
-                if( l.contains( ri.mdTou2 ) )
-                    r.add( rFactory.getMaximumDemand2().toRegisterValue( obisCode, d ) );
-                if( l.contains( ri.mdTou3 ) )
-                    r.add( rFactory.getMaximumDemand3().toRegisterValue( obisCode, d ) );
-                if( l.contains( ri.mdTou4 ) )
-                    r.add( rFactory.getMaximumDemand4().toRegisterValue( obisCode, d ) );
-                
-                return getMax( (RegisterValue[])r.toArray( new RegisterValue[0] ) );
-                
-            } else if(billingPoint >= 0 && billingPoint < 4) {
-                
-                HistoricalData hd = rFactory.getHistoricalData().get(billingPoint);
-                
-                if( hd == null ) return null;
-                
-                Date d = hd.getDate();
-                ArrayList r = new ArrayList();
-                
-                if( l.contains( ri.mdTou1 )  )
-                    r.add( hd.getMaxDemand1().toRegisterValue( obisCode, d ) );
-                if( l.contains( ri.mdTou2 ) )
-                    r.add( hd.getMaxDemand2().toRegisterValue( obisCode, d ) );
-                if( l.contains( ri.mdTou3 ) )
-                    r.add( hd.getMaxDemand3().toRegisterValue( obisCode, d ) );
-                if( l.contains( ri.mdTou4 ) )
-                    r.add( hd.getMaxDemand4().toRegisterValue( obisCode, d ) );
-                
-                return getMax( (RegisterValue[])r.toArray( new RegisterValue[0] ) );
-                
-                
-            }
-            
-        } else {
-            
-            if( billingPoint == -1 ) {
-                
-                Date d = new Date();
-                //ArrayList r = new ArrayList();// KV 22072005 unused code
-                
-                if( obisCode.getE() == CODE_E_REGISTER_1 )
-                    return rFactory.getMaximumDemand1().toRegisterValue( obisCode, d );
-                if( obisCode.getE() == CODE_E_REGISTER_2 )
-                    return rFactory.getMaximumDemand2().toRegisterValue( obisCode, d );
-                if( obisCode.getE() == CODE_E_REGISTER_3 )
-                    return rFactory.getMaximumDemand3().toRegisterValue( obisCode, d );
-                if( obisCode.getE() == CODE_E_REGISTER_4 )
-                    return rFactory.getMaximumDemand4().toRegisterValue( obisCode, d );
-                
-            } else if(billingPoint >= 0 && billingPoint < 4) {
-                
-                HistoricalData hd = rFactory.getHistoricalData().get(billingPoint);
-                
-                if( hd == null ) return null;
-                
-                Date d = hd.getDate();
-                //ArrayList r = new ArrayList();// KV 22072005 unused code
-                
-                if( obisCode.getE() == CODE_E_REGISTER_1 )
-                    return hd.getMaxDemand1().toRegisterValue( obisCode, d );
-                if( obisCode.getE() == CODE_E_REGISTER_2 )
-                    return hd.getMaxDemand2().toRegisterValue( obisCode, d );
-                if( obisCode.getE() == CODE_E_REGISTER_3 )
-                    return hd.getMaxDemand3().toRegisterValue( obisCode, d );
-                if( obisCode.getE() == CODE_E_REGISTER_4 )
-                    return hd.getMaxDemand4().toRegisterValue( obisCode, d );
-                
-            }
-            
-        }
-        
-        throw new
-        NoSuchRegisterException( "ObisCode " + obisCode.toString()
-        + " is not supported!");
-        
-    }
-    
-    
-    private RegisterValue getCMD( ObisCode obisCode ) throws IOException {
-        
-        if( obisCode.getE() == 0 ) {
-            
-            List l = ri.findAllCMDRegistersFor( sourceRegister );
-            
-            if( billingPoint == -1 ) {
-                
-                Date d = new Date();
-                ArrayList r = new ArrayList();
-                
-                if( l.contains( ri.cmdTou1 )  )
-                    r.add( rFactory.getCumulativeMaximumDemand1().toRegisterValue( obisCode, d, d ) );
-                if( l.contains( ri.cmdTou2 ) )
-                    r.add( rFactory.getCumulativeMaximumDemand2().toRegisterValue( obisCode, d, d ) );
-                if( l.contains( ri.cmdTou3 ) )
-                    r.add( rFactory.getCumulativeMaximumDemand3().toRegisterValue( obisCode, d, d ) );
-                if( l.contains( ri.cmdTou4 ) )
-                    r.add( rFactory.getCumulativeMaximumDemand4().toRegisterValue( obisCode, d, d ) );
-                
-                return getMax( (RegisterValue[])r.toArray( new RegisterValue[0] ) );
-                
-            } else if(billingPoint >= 0 && billingPoint < 4) {
-                
-                HistoricalData hd = rFactory.getHistoricalData().get(billingPoint);
-                
-                if( hd == null ) return null;
-                
-                Date d = hd.getDate();
-                ArrayList r = new ArrayList();
-                
-                if( l.contains( ri.cmdTou1 )  )
-                    r.add( hd.getCumulativeMaxDemand1().toRegisterValue( obisCode, d, d ) );
-                if( l.contains( ri.cmdTou2 ) )
-                    r.add( hd.getCumulativeMaxDemand2().toRegisterValue( obisCode, d, d ) );
-                if( l.contains( ri.cmdTou3 ) )
-                    r.add( hd.getCumulativeMaxDemand3().toRegisterValue( obisCode, d, d ) );
-                if( l.contains( ri.cmdTou4 ) )
-                    r.add( hd.getCumulativeMaxDemand4().toRegisterValue( obisCode, d, d ) );
-                
-                return getMax( (RegisterValue[])r.toArray( new RegisterValue[0] ) );
-                   
-            }
-            
-        } else {
-            
-            if( billingPoint == -1 ) {
-                
-                Date d = new Date();
-                //ArrayList r = new ArrayList();// KV 22072005 unused code
-                
-                if( obisCode.getE() == CODE_E_REGISTER_1 )
-                    return rFactory.getCumulativeMaximumDemand1().toRegisterValue( obisCode, d, d );
-                if( obisCode.getE() == CODE_E_REGISTER_2 )
-                    return rFactory.getCumulativeMaximumDemand2().toRegisterValue( obisCode, d, d );
-                if( obisCode.getE() == CODE_E_REGISTER_3 )
-                    return rFactory.getCumulativeMaximumDemand3().toRegisterValue( obisCode, d, d );
-                if( obisCode.getE() == CODE_E_REGISTER_4 )
-                    return rFactory.getCumulativeMaximumDemand4().toRegisterValue( obisCode, d, d );
-                
-            } else if(billingPoint >= 0 && billingPoint < 4) {
-                
-                HistoricalData hd = rFactory.getHistoricalData().get(billingPoint);
-                
-                if( hd == null ) return null;
-                
-                Date d = hd.getDate();
-                //ArrayList r = new ArrayList();// KV 22072005 unused code
-                
-                if( obisCode.getE() == CODE_E_REGISTER_1 )
-                    return hd.getCumulativeMaxDemand1().toRegisterValue( obisCode, d, d );
-                if( obisCode.getE() == CODE_E_REGISTER_2 )
-                    return hd.getCumulativeMaxDemand2().toRegisterValue( obisCode, d, d );
-                if( obisCode.getE() == CODE_E_REGISTER_3 )
-                    return hd.getCumulativeMaxDemand3().toRegisterValue( obisCode, d, d );
-                if( obisCode.getE() == CODE_E_REGISTER_4 )
-                    return hd.getCumulativeMaxDemand4().toRegisterValue( obisCode, d, d );
-                
-            }
-            
-        }
-        
-        throw new
-        NoSuchRegisterException( "ObisCode " + obisCode.toString()
-        + " is not supported!");
-        
-    }
-    
-    /* Return the biggest RegisterValue out of an array */
-    private RegisterValue getMax( RegisterValue[] values ){
-        RegisterValue max = values[0];
-        for( int i = 1; i < values.length; i ++ )
-            if( values[i].getQuantity().compareTo( max.getQuantity() ) > 0 )
-                max = values[i];
-        return max;
-    }
-    
-    public static void main( String [] args ) throws Exception {
-        
-        //ArrayList a = new ArrayList();// KV 22072005 unused code
-        RegisterValue [] rv = 
-        { new RegisterValue( new ObisCode( 1, 1, 1, 1, 1, 1 ), 
-            new Quantity( new BigDecimal( 25 ), Unit.get( BaseUnit.WATTHOUR ) ) ),
-          new RegisterValue( new ObisCode( 1, 1, 1, 1, 1, 2 ), 
-            new Quantity( new BigDecimal( 10 ), Unit.get( BaseUnit.WATTHOUR ) ) ),
-          new RegisterValue( new ObisCode( 1, 1, 1, 1, 1, 3 ), 
-            new Quantity( new BigDecimal( 20 ), Unit.get( BaseUnit.WATTHOUR ) ) ),
-          new RegisterValue( new ObisCode( 1, 1, 1, 1, 1, 4 ), 
-            new Quantity( new BigDecimal( 10 ), Unit.get( BaseUnit.WATTHOUR ) ) )
-        };
-        ObisCodeMapper ocm = new ObisCodeMapper();
-        System.out.println( ocm.getMax( rv ) );
-    }
+	private RegisterFactory rFactory;
+	RegisterInformation ri = new RegisterInformation();
+
+	/**
+	 * Dangerous stuff (using instance variables with a static method:
+	 * getRegisterInfo). Make sure only 2 methods are public!
+	 */
+
+	//private Date billingDate = null; // KV 22072005 billingDate is never created
+	private MetaRegister sourceRegister = null;
+	private MetaRegister derivedRegister = null;
+	//private int registerIndex;// KV22072005 unused code
+	private int billingPoint;
+
+	/** Manufacturer specific codes */
+	static public final int CODE_E_REGISTER_1=128;
+	static public final int CODE_E_REGISTER_2=129;
+	static public final int CODE_E_REGISTER_3=130;
+	static public final int CODE_E_REGISTER_4=131;
+
+	private ObisCodeMapper( ){
+	}
+
+	public ObisCodeMapper(RegisterInformation ri) throws IOException {
+		this.ri = ri;
+	}
+
+	public ObisCodeMapper(RegisterFactory registerFactory) throws IOException {
+		this.rFactory = registerFactory;
+		this.ri = registerFactory.getRegisterInformation();
+	}
+
+	private ObisCodeMapper(ObisCode obisCode) throws NoSuchRegisterException {
+		this.getMapRegister(obisCode);
+		this.getBillingPoint(obisCode);
+	}
+
+	public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
+		ObisCodeMapper ocm = new ObisCodeMapper(obisCode);
+		String desc = ocm.toString( obisCode );
+		return new RegisterInfo(desc);
+	}
+
+	public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
+
+		this.getBillingPoint(obisCode);
+
+		if( isBillingDate(obisCode ) ) {
+			HistoricalData hd = null;
+			hd = this.rFactory.getHistoricalData().get(this.billingPoint);
+			Date date = hd.getDate();
+			Unit secondsUnit = Unit.get( BaseUnit.SECOND );
+			Long sl = new Long( date.getTime() / 1000 );
+			Quantity seconds = new Quantity( sl, secondsUnit );
+			return new RegisterValue( obisCode, seconds,  date );
+		}
+
+		this.getMapRegister(obisCode);
+		String key = getRegisterFactoryKey(obisCode);
+
+		if (key == null) {
+			throw new NoSuchRegisterException("ObisCode " + obisCode.toString()
+					+ " is not supported!");
+		}
+
+		Object o = null;
+		Date toDate = null;
+		Date eventDate = null;
+
+		if (this.rFactory != null) {
+
+			if( obisCode.getD() == 2 ) {
+				return getCMD(obisCode);
+			}
+			if( obisCode.getD() == 6 ) {
+				return getMD(obisCode);
+			}
+
+			if (this.billingPoint == -1) {
+				o = this.rFactory.getRegister(key);
+				toDate = new Date();
+			} else {
+				HistoricalData hd = null;
+				hd = this.rFactory.getHistoricalData().get(this.billingPoint);
+
+
+				if( hd == null ) {
+					return null;
+				}
+
+				o = hd.get(key);
+				toDate = hd.getDate();
+				eventDate = hd.getDate();
+
+			}
+
+		}
+
+		if (o instanceof MainRegister) {
+			return ((MainRegister) o).toRegisterValue(obisCode, eventDate, toDate);
+		}
+		if (o instanceof MaximumDemand) {
+			return ((MaximumDemand) o).toRegisterValue(obisCode, toDate);
+		}
+
+		return new RegisterValue(obisCode);
+
+	}
+
+	/* Return the RegisterFactoryKey that identifies the register.  If it
+	 * concerns a simple (cumulative|primary) register, just return
+	 * that RegisterFactoryKey, if it is a derived register, return that key.
+	 */
+	private String getRegisterFactoryKey( ObisCode obisCode ) {
+		if (this.derivedRegister == null) {
+			return this.sourceRegister.registerFactoryKey;
+		} else {
+
+			if (this.derivedRegister.sourceRegister != null) {
+
+				if (this.ri.isCMDRegister(this.derivedRegister) && this.derivedRegister.sourceRegister.equals(this.sourceRegister)) {
+					return this.derivedRegister.registerFactoryKey;
+				}
+
+				if (this.ri.isMDRegister(this.derivedRegister) && this.derivedRegister.sourceRegister.equals(this.sourceRegister)) {
+					return this.derivedRegister.registerFactoryKey;
+				}
+
+				if (this.ri.isTouRegister(this.derivedRegister) && this.derivedRegister.sourceRegister.equals(this.sourceRegister)) {
+					return this.derivedRegister.registerFactoryKey;
+				}
+			}
+
+		}
+
+		return null;
+	}
+
+	/* This is a big chunk of mapping/translation */
+
+	/* In the case of energy: map the obiscode to the MetaRegister */
+	private HashMap energyMap = new HashMap() {
+		{
+			put(new Integer(ObisCode.CODE_C_ACTIVE_IMPORT), ObisCodeMapper.this.ri.getImportWh());
+			put(new Integer(ObisCode.CODE_C_ACTIVE_EXPORT), ObisCodeMapper.this.ri.getExportWh());
+			put(new Integer(ObisCode.CODE_C_REACTIVE_IMPORT), ObisCodeMapper.this.ri.getImportVarh());
+			put(new Integer(ObisCode.CODE_C_REACTIVE_EXPORT), ObisCodeMapper.this.ri.getExportVarh());
+			put(new Integer(ObisCode.CODE_C_APPARENT), ObisCodeMapper.this.ri.getVAh());
+		}
+	};
+
+	private MetaRegister getEnergy(ObisCode o) {
+		return (MetaRegister) this.energyMap.get(new Integer(o.getC()));
+	}
+
+	/* In the case of power: map the obiscode to the MetaRegister */
+	private HashMap powerMap = new HashMap() {
+		{
+			put(new Integer(ObisCode.CODE_C_ACTIVE_IMPORT), ObisCodeMapper.this.ri.getImportW());
+			put(new Integer(ObisCode.CODE_C_ACTIVE_EXPORT), ObisCodeMapper.this.ri.getExportW());
+			put(new Integer(ObisCode.CODE_C_REACTIVE_IMPORT), ObisCodeMapper.this.ri.getImportVar());
+			put(new Integer(ObisCode.CODE_C_REACTIVE_EXPORT), ObisCodeMapper.this.ri.getExportVar());
+			put(new Integer(ObisCode.CODE_C_APPARENT), ObisCodeMapper.this.ri.getVA());
+		}
+	};
+
+	private MetaRegister getPower(ObisCode o) {
+		return (MetaRegister) this.powerMap.get(new Integer(o.getC()));
+	}
+
+	/* sourceRegister and derivedRegister are mapped */
+	private void getMapRegister(ObisCode obisCode)
+	throws NoSuchRegisterException {
+
+		if( isBillingDate( obisCode ) ) {
+			return ;
+		}
+
+		// KV22072005 unused code
+		//int e = registerIndex = obisCode.getE();
+		int e = obisCode.getE();
+
+		// Step 3 :: What does code D say ?
+		switch (obisCode.getD()) {
+
+		case ObisCode.CODE_D_CUMULATIVE_MAXUMUM_DEMAND : // C_MX_DMD (o=2)
+			this.sourceRegister = getPower(obisCode);
+			if( e == 0 ) {
+				this.derivedRegister = this.ri.findCMDRegisterFor(this.sourceRegister);
+			} else if ( e == CODE_E_REGISTER_1 ) {
+				this.derivedRegister = this.ri.getCmdRegister()[ 0 ];
+			} else if ( e == CODE_E_REGISTER_2 ) {
+				this.derivedRegister = this.ri.getCmdRegister()[ 1 ];
+			} else if ( e == CODE_E_REGISTER_3 ) {
+				this.derivedRegister = this.ri.getCmdRegister()[ 2 ];
+			} else if ( e == CODE_E_REGISTER_4 ) {
+				this.derivedRegister = this.ri.getCmdRegister()[ 3 ];
+			}
+
+			//derivedRegister = (e == 0 | e > ri.cmdRegister.length ) ? null : ri.cmdRegister[e - 1];
+			break;
+
+		case ObisCode.CODE_D_MAXIMUM_DEMAND : // MX_DMD (o=6)
+			this.sourceRegister = getPower(obisCode);
+			if( e == 0 ) {
+				this.derivedRegister = this.ri.findMDRegisterFor(this.sourceRegister);
+			} else if ( e == CODE_E_REGISTER_1 ) {
+				this.derivedRegister = this.ri.getMdRegister()[ 0 ];
+			} else if ( e == CODE_E_REGISTER_2 ) {
+				this.derivedRegister = this.ri.getMdRegister()[ 1 ];
+			} else if ( e == CODE_E_REGISTER_3 ) {
+				this.derivedRegister = this.ri.getMdRegister()[ 2 ];
+			} else if ( e == CODE_E_REGISTER_4 ) {
+				this.derivedRegister = this.ri.getMdRegister()[ 3 ];
+			}
+
+			//derivedRegister = (e == 0 | e > ri.mdRegister.length ) ? null : ri.mdRegister[e - 1];
+			break;
+
+		case ObisCode.CODE_D_TIME_INTEGRAL : // TOU (o=8)
+			this.sourceRegister = getEnergy(obisCode);
+			this.derivedRegister = ((e == 0) | (e > this.ri.getTouRegister().length)) ? null : this.ri.getTouRegister()[e - 1];
+			break;
+
+
+		default :
+			throw new NoSuchRegisterException("ObisCode "
+					+ obisCode.toString() + " is not supported!");
+		}
+
+	}
+
+	void getBillingPoint(ObisCode obisCode) throws NoSuchRegisterException {
+
+		if (obisCode.getF() == 255) {
+			this.billingPoint = -1;
+		} else if ((obisCode.getF() >= 0) && (obisCode.getF() <= 3)) {
+			this.billingPoint = obisCode.getF();
+		} else if ((obisCode.getF() < 0) && (obisCode.getF() >= -3)) {
+			this.billingPoint = obisCode.getF() * -1;
+		} else {
+			throw new NoSuchRegisterException("ObisCode " + obisCode.toString()
+					+ " is not supported!");
+		}
+	}
+
+	boolean isBillingDate( ObisCode obisCode ){
+		return ( obisCode.getC() == 0 ) && ( obisCode.getE() == 2 );
+	}
+
+	/*
+	 * For making a nice descriptive toString(), the MetaRegisters are mapped
+	 * onto a special string, that makes sense in an Obiscode-context.
+	 */
+	public String toString( ObisCode obisCode ) {
+		String result = "";
+
+		// KV 22072005 billingDate is never created
+		//        if ( billingDate != null )
+		//            result += "billing date ";
+
+		if (this.sourceRegister != null) {
+			result += this.metaRegToString.get(this.sourceRegister).toString();
+		}
+
+		if (this.derivedRegister != null) {
+			result += ", " + this.metaRegToString.get(this.derivedRegister).toString();
+		} else {
+			if( (obisCode.getE() == 0) && (obisCode.getD() == 2) ) {
+				result += ", " + this.metaRegToString.get(this.ri.getCmdTou1()).toString();
+			}
+			if( (obisCode.getE() == 0) && (obisCode.getD() == 6) ) {
+				result += ", " + this.metaRegToString.get(this.ri.getMdTou1()).toString();
+			}
+		}
+
+		if (this.billingPoint != -1) {
+			result += ", billingpoint " + (this.billingPoint);
+		} else {
+			result += ", current value";
+		}
+
+		return result;
+	}
+
+	/* String representation of the registers */
+	HashMap metaRegToString = new HashMap() {
+		{
+			put(ObisCodeMapper.this.ri.getImportWh(), "Energy, Active import");
+			put(ObisCodeMapper.this.ri.getExportWh(), "Energy, Active export");
+			put(ObisCodeMapper.this.ri.getImportVarh(), "Energy, Reactive import");
+			put(ObisCodeMapper.this.ri.getExportVarh(), "Energy, Reactive export");
+			put(ObisCodeMapper.this.ri.getVAh(), "Energy, Apparent import");
+
+			put(ObisCodeMapper.this.ri.getImportW(), "Power, Active import");
+			put(ObisCodeMapper.this.ri.getExportW(), "Power, Active export");
+			put(ObisCodeMapper.this.ri.getImportVar(), "Power, Reactive import");
+			put(ObisCodeMapper.this.ri.getExportVar(), "Power, Reactive export");
+			put(ObisCodeMapper.this.ri.getVA(), "Power, Apparent import");
+
+			put(ObisCodeMapper.this.ri.getTou1(), "Tarif reg. 1");
+			put(ObisCodeMapper.this.ri.getTou2(), "Tarif reg. 2");
+			put(ObisCodeMapper.this.ri.getTou3(), "Tarif reg. 3");
+			put(ObisCodeMapper.this.ri.getTou4(), "Tarif reg. 4");
+			put(ObisCodeMapper.this.ri.getTou5(), "Tarif reg. 5");
+			put(ObisCodeMapper.this.ri.getTou6(), "Tarif reg. 6");
+			put(ObisCodeMapper.this.ri.getTou7(), "Tarif reg. 7");
+			put(ObisCodeMapper.this.ri.getTou8(), "Tarif reg. 8");
+
+			put(ObisCodeMapper.this.ri.getMdTou1(), "Maximum Demand");
+			put(ObisCodeMapper.this.ri.getMdTou2(), "Maximum Demand");
+			put(ObisCodeMapper.this.ri.getMdTou3(), "Maximum Demand");
+			put(ObisCodeMapper.this.ri.getMdTou4(), "Maximum Demand");
+
+			put(ObisCodeMapper.this.ri.getCmdTou1(), "Cumulative Maximum Demand");
+			put(ObisCodeMapper.this.ri.getCmdTou2(), "Cumulative Maximum Demand");
+			put(ObisCodeMapper.this.ri.getCmdTou3(), "Cumulative Maximum Demand");
+			put(ObisCodeMapper.this.ri.getCmdTou4(), "Cumulative Maximum Demand");
+
+		}
+	};
+
+	/** Getting Maximum Demands.
+	 *
+	 */
+	private RegisterValue getMD( ObisCode obisCode ) throws IOException {
+
+		if( obisCode.getE() == 0 ) {
+
+			List l = this.ri.findAllMDRegistersFor( this.sourceRegister );
+
+			if( this.billingPoint == -1 ) {
+
+				Date d = new Date();
+				ArrayList r = new ArrayList();
+
+				if( l.contains( this.ri.getMdTou1() )  ) {
+					r.add( this.rFactory.getMaximumDemand1().toRegisterValue( obisCode, d ) );
+				}
+				if( l.contains( this.ri.getMdTou2() ) ) {
+					r.add( this.rFactory.getMaximumDemand2().toRegisterValue( obisCode, d ) );
+				}
+				if( l.contains( this.ri.getMdTou3() ) ) {
+					r.add( this.rFactory.getMaximumDemand3().toRegisterValue( obisCode, d ) );
+				}
+				if( l.contains( this.ri.getMdTou4() ) ) {
+					r.add( this.rFactory.getMaximumDemand4().toRegisterValue( obisCode, d ) );
+				}
+
+				return getMax( (RegisterValue[])r.toArray( new RegisterValue[0] ) );
+
+			} else if((this.billingPoint >= 0) && (this.billingPoint < 4)) {
+
+				HistoricalData hd = this.rFactory.getHistoricalData().get(this.billingPoint);
+
+				if( hd == null ) {
+					return null;
+				}
+
+				Date d = hd.getDate();
+				ArrayList r = new ArrayList();
+
+				if( l.contains( this.ri.getMdTou1() )  ) {
+					r.add( hd.getMaxDemand1().toRegisterValue( obisCode, d ) );
+				}
+				if( l.contains( this.ri.getMdTou2() ) ) {
+					r.add( hd.getMaxDemand2().toRegisterValue( obisCode, d ) );
+				}
+				if( l.contains( this.ri.getMdTou3() ) ) {
+					r.add( hd.getMaxDemand3().toRegisterValue( obisCode, d ) );
+				}
+				if( l.contains( this.ri.getMdTou4() ) ) {
+					r.add( hd.getMaxDemand4().toRegisterValue( obisCode, d ) );
+				}
+
+				return getMax( (RegisterValue[])r.toArray( new RegisterValue[0] ) );
+
+
+			}
+
+		} else {
+
+			if( this.billingPoint == -1 ) {
+
+				Date d = new Date();
+				//ArrayList r = new ArrayList();// KV 22072005 unused code
+
+				if( obisCode.getE() == CODE_E_REGISTER_1 ) {
+					return this.rFactory.getMaximumDemand1().toRegisterValue( obisCode, d );
+				}
+				if( obisCode.getE() == CODE_E_REGISTER_2 ) {
+					return this.rFactory.getMaximumDemand2().toRegisterValue( obisCode, d );
+				}
+				if( obisCode.getE() == CODE_E_REGISTER_3 ) {
+					return this.rFactory.getMaximumDemand3().toRegisterValue( obisCode, d );
+				}
+				if( obisCode.getE() == CODE_E_REGISTER_4 ) {
+					return this.rFactory.getMaximumDemand4().toRegisterValue( obisCode, d );
+				}
+
+			} else if((this.billingPoint >= 0) && (this.billingPoint < 4)) {
+
+				HistoricalData hd = this.rFactory.getHistoricalData().get(this.billingPoint);
+
+				if( hd == null ) {
+					return null;
+				}
+
+				Date d = hd.getDate();
+				//ArrayList r = new ArrayList();// KV 22072005 unused code
+
+				if( obisCode.getE() == CODE_E_REGISTER_1 ) {
+					return hd.getMaxDemand1().toRegisterValue( obisCode, d );
+				}
+				if( obisCode.getE() == CODE_E_REGISTER_2 ) {
+					return hd.getMaxDemand2().toRegisterValue( obisCode, d );
+				}
+				if( obisCode.getE() == CODE_E_REGISTER_3 ) {
+					return hd.getMaxDemand3().toRegisterValue( obisCode, d );
+				}
+				if( obisCode.getE() == CODE_E_REGISTER_4 ) {
+					return hd.getMaxDemand4().toRegisterValue( obisCode, d );
+				}
+
+			}
+
+		}
+
+		throw new
+		NoSuchRegisterException( "ObisCode " + obisCode.toString()
+				+ " is not supported!");
+
+	}
+
+
+	private RegisterValue getCMD( ObisCode obisCode ) throws IOException {
+
+		if( obisCode.getE() == 0 ) {
+
+			List l = this.ri.findAllCMDRegistersFor( this.sourceRegister );
+
+			if( this.billingPoint == -1 ) {
+
+				Date d = new Date();
+				ArrayList r = new ArrayList();
+
+				if( l.contains( this.ri.getCmdTou1() )  ) {
+					r.add( this.rFactory.getCumulativeMaximumDemand1().toRegisterValue( obisCode, d, d ) );
+				}
+				if( l.contains( this.ri.getCmdTou2() ) ) {
+					r.add( this.rFactory.getCumulativeMaximumDemand2().toRegisterValue( obisCode, d, d ) );
+				}
+				if( l.contains( this.ri.getCmdTou3() ) ) {
+					r.add( this.rFactory.getCumulativeMaximumDemand3().toRegisterValue( obisCode, d, d ) );
+				}
+				if( l.contains( this.ri.getCmdTou4() ) ) {
+					r.add( this.rFactory.getCumulativeMaximumDemand4().toRegisterValue( obisCode, d, d ) );
+				}
+
+				return getMax( (RegisterValue[])r.toArray( new RegisterValue[0] ) );
+
+			} else if((this.billingPoint >= 0) && (this.billingPoint < 4)) {
+
+				HistoricalData hd = this.rFactory.getHistoricalData().get(this.billingPoint);
+
+				if( hd == null ) {
+					return null;
+				}
+
+				Date d = hd.getDate();
+				ArrayList r = new ArrayList();
+
+				if( l.contains( this.ri.getCmdTou1() )  ) {
+					r.add( hd.getCumulativeMaxDemand1().toRegisterValue( obisCode, d, d ) );
+				}
+				if( l.contains( this.ri.getCmdTou2() ) ) {
+					r.add( hd.getCumulativeMaxDemand2().toRegisterValue( obisCode, d, d ) );
+				}
+				if( l.contains( this.ri.getCmdTou3() ) ) {
+					r.add( hd.getCumulativeMaxDemand3().toRegisterValue( obisCode, d, d ) );
+				}
+				if( l.contains( this.ri.getCmdTou4() ) ) {
+					r.add( hd.getCumulativeMaxDemand4().toRegisterValue( obisCode, d, d ) );
+				}
+
+				return getMax( (RegisterValue[])r.toArray( new RegisterValue[0] ) );
+
+			}
+
+		} else {
+
+			if( this.billingPoint == -1 ) {
+
+				Date d = new Date();
+				//ArrayList r = new ArrayList();// KV 22072005 unused code
+
+				if( obisCode.getE() == CODE_E_REGISTER_1 ) {
+					return this.rFactory.getCumulativeMaximumDemand1().toRegisterValue( obisCode, d, d );
+				}
+				if( obisCode.getE() == CODE_E_REGISTER_2 ) {
+					return this.rFactory.getCumulativeMaximumDemand2().toRegisterValue( obisCode, d, d );
+				}
+				if( obisCode.getE() == CODE_E_REGISTER_3 ) {
+					return this.rFactory.getCumulativeMaximumDemand3().toRegisterValue( obisCode, d, d );
+				}
+				if( obisCode.getE() == CODE_E_REGISTER_4 ) {
+					return this.rFactory.getCumulativeMaximumDemand4().toRegisterValue( obisCode, d, d );
+				}
+
+			} else if((this.billingPoint >= 0) && (this.billingPoint < 4)) {
+
+				HistoricalData hd = this.rFactory.getHistoricalData().get(this.billingPoint);
+
+				if( hd == null ) {
+					return null;
+				}
+
+				Date d = hd.getDate();
+				//ArrayList r = new ArrayList();// KV 22072005 unused code
+
+				if( obisCode.getE() == CODE_E_REGISTER_1 ) {
+					return hd.getCumulativeMaxDemand1().toRegisterValue( obisCode, d, d );
+				}
+				if( obisCode.getE() == CODE_E_REGISTER_2 ) {
+					return hd.getCumulativeMaxDemand2().toRegisterValue( obisCode, d, d );
+				}
+				if( obisCode.getE() == CODE_E_REGISTER_3 ) {
+					return hd.getCumulativeMaxDemand3().toRegisterValue( obisCode, d, d );
+				}
+				if( obisCode.getE() == CODE_E_REGISTER_4 ) {
+					return hd.getCumulativeMaxDemand4().toRegisterValue( obisCode, d, d );
+				}
+
+			}
+
+		}
+
+		throw new
+		NoSuchRegisterException( "ObisCode " + obisCode.toString()
+				+ " is not supported!");
+
+	}
+
+	/* Return the biggest RegisterValue out of an array */
+	private RegisterValue getMax( RegisterValue[] values ){
+		RegisterValue max = values[0];
+		for( int i = 1; i < values.length; i ++ ) {
+			if( values[i].getQuantity().compareTo( max.getQuantity() ) > 0 ) {
+				max = values[i];
+			}
+		}
+		return max;
+	}
+
+	public static void main( String [] args ) throws Exception {
+
+		//ArrayList a = new ArrayList();// KV 22072005 unused code
+		RegisterValue [] rv =
+		{ new RegisterValue( new ObisCode( 1, 1, 1, 1, 1, 1 ),
+				new Quantity( new BigDecimal( 25 ), Unit.get( BaseUnit.WATTHOUR ) ) ),
+				new RegisterValue( new ObisCode( 1, 1, 1, 1, 1, 2 ),
+						new Quantity( new BigDecimal( 10 ), Unit.get( BaseUnit.WATTHOUR ) ) ),
+						new RegisterValue( new ObisCode( 1, 1, 1, 1, 1, 3 ),
+								new Quantity( new BigDecimal( 20 ), Unit.get( BaseUnit.WATTHOUR ) ) ),
+								new RegisterValue( new ObisCode( 1, 1, 1, 1, 1, 4 ),
+										new Quantity( new BigDecimal( 10 ), Unit.get( BaseUnit.WATTHOUR ) ) )
+		};
+		ObisCodeMapper ocm = new ObisCodeMapper();
+		System.out.println( ocm.getMax( rv ) );
+	}
 
 }

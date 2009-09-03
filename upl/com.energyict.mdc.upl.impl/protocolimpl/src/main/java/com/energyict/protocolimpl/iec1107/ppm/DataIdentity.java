@@ -13,8 +13,8 @@ import com.energyict.protocolimpl.iec1107.ppm.opus.OpusResponse;
 
 class DataIdentity implements Serializable {
 
-	static final boolean PROFILE = true;
-	static final boolean NORMAL = false;
+	public static final boolean PROFILE = true;
+	public static final boolean NORMAL = false;
 
 	private byte[][] dataBlocks = null;
 

@@ -11,9 +11,9 @@ import com.energyict.protocolimpl.iec1107.ppm.MetaRegister;
 
 public class MainRegister {
 
-	String name;
-	Quantity quantity = null;
-	MetaRegister metaRegister = null;
+	private String name;
+	private Quantity quantity = null;
+	private MetaRegister metaRegister = null;
 
 	public MainRegister(MetaRegister metaRegister, Quantity quantity) {
 		this.metaRegister = metaRegister;
@@ -30,28 +30,28 @@ public class MainRegister {
 	 * @return Value of property quantity.
 	 */
 	public Quantity getQuantity() {
-		return quantity;
+		return this.quantity;
 	}
 
 	/**
 	 * Setter for property quantity.
 	 * 
-	 * @param quantity
-	 *            New value of property quantity.
+	 * @param quantity New value of property quantity.
 	 */
 	public void setQuantity(Quantity quantity) {
 		this.quantity = quantity;
 	}
 
 	public RegisterValue toRegisterValue(ObisCode o, Date eventDate, Date toDate) {
-		return new RegisterValue(o, quantity, eventDate, null, toDate);
+		return new RegisterValue(o, this.quantity, eventDate, null, toDate);
 	}
 
 	public String toString() {
 		StringBuffer result = new StringBuffer();
-		if (name != null)
-			result.append(name + " ");
-		result.append("[" + metaRegister + "]");
+		if (this.name != null) {
+			result.append(this.name + " ");
+		}
+		result.append("[" + this.metaRegister + "]");
 		result.append(" quantity = " + this.quantity);
 		return result.toString();
 	}

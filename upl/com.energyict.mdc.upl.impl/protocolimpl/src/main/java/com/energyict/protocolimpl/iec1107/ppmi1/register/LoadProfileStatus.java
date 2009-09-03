@@ -11,60 +11,63 @@ import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
 
 public class LoadProfileStatus {
 
-    /* LoadProfileStatus Type */
-    static byte SS_DIAGNOSTIC_FLAG = 0x01;
+	/* LoadProfileStatus Type */
+	private static final byte SS_DIAGNOSTIC_FLAG = 0x01;
+	private static final byte SS_WRITE_ACCESS = 0x02;
+	private static final byte SS_PARTIAL_DEMAND = 0x04;
+	private static final byte SS_REVERSE_RUN = 0x08;
 
-    static byte SS_WRITE_ACCESS = 0x02;
+	private int status;
 
-    static byte SS_PARTIAL_DEMAND = 0x04;
+	public LoadProfileStatus(byte b) {
+		this.status = Integer.parseInt(Byte.toString(b), 16);
+	}
 
-    static byte SS_REVERSE_RUN = 0x08;
+	public LoadProfileStatus(int i) {
+		this.status = i;
+	}
 
-    int status;
+	public int getEIStatus() {
+		int result = IntervalStateBits.OK;
+		if (is(SS_DIAGNOSTIC_FLAG)) {
+			result |= IntervalStateBits.OTHER;
+		}
+		if (is(SS_WRITE_ACCESS)) {
+			result |= IntervalStateBits.CONFIGURATIONCHANGE | IntervalStateBits.SHORTLONG;
+		}
+		if (is(SS_PARTIAL_DEMAND)) {
+			result |= IntervalStateBits.PHASEFAILURE;
+		}
+		if (is(SS_REVERSE_RUN)) {
+			result |= IntervalStateBits.REVERSERUN;
+		}
+		return result;
+	}
 
-    public LoadProfileStatus(byte b) {
-        status = Integer.parseInt(Byte.toString(b), 16);
-    }
+	public boolean is(byte statusType) {
+		return (this.status & statusType) > 0;
+	}
 
-    public LoadProfileStatus(int i) {
-        status = i;
-    }
+	public String toString() {
 
-    public int getEIStatus() {
-        int result = IntervalStateBits.OK;
-        if (is(SS_DIAGNOSTIC_FLAG))
-            result |= IntervalStateBits.OTHER;
-        if (is(SS_WRITE_ACCESS))
-            result |= IntervalStateBits.CONFIGURATIONCHANGE
-                    | IntervalStateBits.SHORTLONG;
-        if (is(SS_PARTIAL_DEMAND))
-            result |= IntervalStateBits.PHASEFAILURE;
-        if (is(SS_REVERSE_RUN))
-            result |= IntervalStateBits.REVERSERUN;
-        return result;
-    }
+		StringBuffer sb = new StringBuffer();
 
-    public boolean is(byte statusType) {
-        return (status & statusType) > 0;
-    }
+		if (is(SS_DIAGNOSTIC_FLAG)) {
+			sb.append("[Diagnostic flag] ");
+		}
+		if (is(SS_WRITE_ACCESS)) {
+			sb.append("[Write access] ");
+		}
+		if (is(SS_PARTIAL_DEMAND)) {
+			sb.append("[Partial Demand] ");
+		}
+		if (is(SS_REVERSE_RUN)) {
+			sb.append("[Reverse Running] ");
+		}
 
-    public String toString() {
+		sb.append(Integer.toBinaryString(this.status) + " " + PPMUtils.toHexaString(this.status));
 
-        StringBuffer sb = new StringBuffer();
-
-        if (is(SS_DIAGNOSTIC_FLAG))
-            sb.append("[Diagnostic flag] ");
-        if (is(SS_WRITE_ACCESS))
-            sb.append("[Write access] ");
-        if (is(SS_PARTIAL_DEMAND))
-            sb.append("[Partial Demand] ");
-        if (is(SS_REVERSE_RUN))
-            sb.append("[Reverse Running] ");
-
-        sb.append(Integer.toBinaryString(status) + " "
-                + PPMUtils.toHexaString(status));
-
-        return sb.toString();
-    }
+		return sb.toString();
+	}
 
 }

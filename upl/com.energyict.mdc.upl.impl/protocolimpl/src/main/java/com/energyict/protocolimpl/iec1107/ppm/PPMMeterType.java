@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.iec1107.ppm;
 
-
 /**
  * There are 2 types of PPM meters: - Issue 1 - Issue 2
  * <p>
@@ -16,7 +15,7 @@ package com.energyict.protocolimpl.iec1107.ppm;
  * @author fbo
  */
 
-public class PPMMeterType { 
+public class PPMMeterType {
 
 	/** The historical data register contains data for 4 days */
 	public final static int NR_HISTORICAL_DATA = 4;
@@ -24,15 +23,15 @@ public class PPMMeterType {
 	static final PPMMeterType ISSUE1 = new PPMMeterType.Issue1("Issue1");
 	static final PPMMeterType ISSUE2 = new PPMMeterType.Issue2("Issue2");
 
-        // KV 22072005 set both constants final
+	// KV 22072005 set both constants final
 	public static final int NR_TOU_REGISTERS = 8;
 	public static final int NR_MD_TOU_REGISTERS = 4;
 
 	//String name; // KV 22072005 unused
 
 	/** Creates a new instance of PPMMeterType */
-	PPMMeterType(String name) {
-	//	this.name = name; // unused
+	public PPMMeterType(String name) {
+		//	this.name = name; // unused
 	}
 
 	public static class Issue1 extends PPMMeterType {

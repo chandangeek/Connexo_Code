@@ -16,34 +16,32 @@ import com.energyict.protocolimpl.iec1107.ppm.PPMUtils;
 
 public class MaximumDemand {
 
-	Quantity[] quantity = new Quantity[3];
-	Date[] date = new Date[3];
-	Unit unit = null;
+	private Quantity[] quantity = new Quantity[3];
+	private Date[] date = new Date[3];
+	private Unit unit = null;
 
-	TimeZone timeZone;
+	private TimeZone timeZone;
 
-	public MaximumDemand(Unit unit, byte[] data, BigDecimal scalingFactor,
-			TimeZone timeZone) throws IOException {
+	public MaximumDemand(Unit unit, byte[] data, BigDecimal scalingFactor, TimeZone timeZone) throws IOException {
 		this.unit = unit;
 		this.timeZone = timeZone;
 		parse(data, scalingFactor);
 	}
 
-	private void parse(byte[] data, BigDecimal scalingFactor)
-			throws IOException {
+	private void parse(byte[] data, BigDecimal scalingFactor) throws IOException {
 
-		quantity[0] = PPMUtils.parseQuantity(data, 0, 5, scalingFactor, unit);
-		quantity[1] = PPMUtils.parseQuantity(data, 5, 5, scalingFactor, unit);
-		quantity[2] = PPMUtils.parseQuantity(data, 10, 5, scalingFactor, unit);
+		this.quantity[0] = PPMUtils.parseQuantity(data, 0, 5, scalingFactor, this.unit);
+		this.quantity[1] = PPMUtils.parseQuantity(data, 5, 5, scalingFactor, this.unit);
+		this.quantity[2] = PPMUtils.parseQuantity(data, 10, 5, scalingFactor, this.unit);
 
-		date[0] = PPMUtils.parseTimeStamp(data, 16, timeZone);
-		date[1] = PPMUtils.parseTimeStamp(data, 20, timeZone);
-		date[2] = PPMUtils.parseTimeStamp(data, 24, timeZone);
+		this.date[0] = PPMUtils.parseTimeStamp(data, 16, this.timeZone);
+		this.date[1] = PPMUtils.parseTimeStamp(data, 20, this.timeZone);
+		this.date[2] = PPMUtils.parseTimeStamp(data, 24, this.timeZone);
 
 	}
 
 	public Quantity getQuantity(int index) {
-		return quantity[index];
+		return this.quantity[index];
 	}
 
 	public void setQuantity(int index, Quantity quantity) {
@@ -51,16 +49,15 @@ public class MaximumDemand {
 	}
 
 	public RegisterValue toRegisterValue(ObisCode o, Date date) {
-		return new RegisterValue(o, quantity[o.getB() - 1],
-				this.date[o.getB() - 1], null, date);
+		return new RegisterValue(o, this.quantity[o.getB() - 1], this.date[o.getB() - 1], null, date);
 	}
 
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		SimpleDateFormat df = new SimpleDateFormat();
-		sb.append("1) " + quantity[0] + " " + df.format(date[0]) + "\n");
-		sb.append("2) " + quantity[1] + " " + df.format(date[1]) + "\n");
-		sb.append("3) " + quantity[2] + " " + df.format(date[2]) + "\n");
+		sb.append("1) " + this.quantity[0] + " " + df.format(this.date[0]) + "\n");
+		sb.append("2) " + this.quantity[1] + " " + df.format(this.date[1]) + "\n");
+		sb.append("3) " + this.quantity[2] + " " + df.format(this.date[2]) + "\n");
 
 		return sb.toString();
 	}

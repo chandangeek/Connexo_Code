@@ -47,7 +47,7 @@ public class Test {
 
 	}
 
-	PPM meterProtocol = new PPM();
+	private PPM meterProtocol = new PPM();
 
 	private Properties properties = new Properties();
 
@@ -80,8 +80,7 @@ public class Test {
 	}
 
 	public boolean read() throws IOException {
-		Iterator ri = this.meterProtocol.getRegisterFactory().getRegisters().keySet()
-		.iterator();
+		Iterator ri = this.meterProtocol.getRegisterFactory().getRegisters().keySet().iterator();
 
 		while (ri.hasNext()) {
 			String key = (String) ri.next();
@@ -96,7 +95,7 @@ public class Test {
 		return true;
 	}
 
-	void allocationTest() {
+	private void allocationTest() {
 
 		StringBuffer sb = new StringBuffer();
 
@@ -109,7 +108,7 @@ public class Test {
 
 	}
 
-	void allocationParserTest() {
+	private void allocationParserTest() {
 
 		byte b = 1;
 
@@ -123,7 +122,7 @@ public class Test {
 
 	}
 
-	void orderedRead() throws IOException {
+	private void orderedRead() throws IOException {
 
 		StringBuffer sb = new StringBuffer();
 
@@ -173,14 +172,13 @@ public class Test {
 
 	}
 
-	void obisCodeTest() throws IOException {
+	private void obisCodeTest() throws IOException {
 		StringBuffer sb = new StringBuffer();
 
 		PPM ppm = this.meterProtocol;
 
 		ObisCode o = new ObisCode(1, 1, ObisCode.CODE_C_ACTIVE_IMPORT, 1, 1, 1);
 		sb.append(o.toString() + " == " + ppm.translateRegister(o) + "\n");
-
 
 		o = new ObisCode(1, 1, ObisCode.CODE_C_ACTIVE_EXPORT, 1, 1, 1);
 		sb.append(o.toString() + " == " + ppm.translateRegister(o) + "\n");
@@ -198,17 +196,15 @@ public class Test {
 
 	}
 
-
-	void miniProfileTest() throws IOException {
+	private void miniProfileTest() throws IOException {
 		Calendar c = Calendar.getInstance();
-		c.set(Calendar.DAY_OF_YEAR, c.get(Calendar.DAY_OF_YEAR) - 3 );
+		c.set(Calendar.DAY_OF_YEAR, c.get(Calendar.DAY_OF_YEAR) - 3);
 
-		this.logger.log(Level.INFO, this.meterProtocol.getProfileData(c.getTime(), false)
-				.toString());
+		this.logger.log(Level.INFO, this.meterProtocol.getProfileData(c.getTime(), false).toString());
 
 	}
 
-	void offlineScalingTest() {
+	private void offlineScalingTest() {
 
 		long start = System.currentTimeMillis();
 
@@ -305,7 +301,7 @@ public class Test {
 
 	}
 
-	void onlineScalingTest() throws IOException {
+	private void onlineScalingTest() throws IOException {
 
 		long start = System.currentTimeMillis();
 
@@ -328,7 +324,7 @@ public class Test {
 
 	}
 
-	void registerInformationTest() throws IOException {
+	private void registerInformationTest() throws IOException {
 
 		long start = System.currentTimeMillis();
 

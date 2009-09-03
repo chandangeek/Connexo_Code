@@ -3,7 +3,6 @@ package com.energyict.protocolimpl.iec1107.ppm.parser;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.TimeZone;
-import java.util.logging.Logger;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -40,7 +39,7 @@ public class HistoricalDataParser {
 		//log = ppm.getLogger(); // KV 22072005 unused code
 		//this.ppm = ppm; // KV 22072005 unused code
 		this.rf = rf;
-		timeZone = ppm.getTimeZone();
+		this.timeZone = ppm.getTimeZone();
 	}
 
 	public void setInput(byte[] input) {
@@ -51,164 +50,160 @@ public class HistoricalDataParser {
 	public HistoricalDataSet match() throws NumberFormatException, IOException {
 
 		// registerInformation = rf.getRegisterInformation();// KV 22072005 unused code
-		historicalDataSet = new HistoricalDataSet();
+		this.historicalDataSet = new HistoricalDataSet();
 
 		for (int i = 0; i < PPMMeterType.NR_HISTORICAL_DATA; i++) {
 
-			hd = new HistoricalData();
+			this.hd = new HistoricalData();
 
 			matchCumulative();
 			matchTimeOfUse();
 			matchMaximumDemands();
 			matchCumulativeMaximumDemands();
-			bAss.index += 16;
+			this.bAss.addToIndex(16);
 
-			historicalDataSet.add(hd);
+			this.historicalDataSet.add(this.hd);
 
 		}
-		return historicalDataSet;
+		return this.historicalDataSet;
 	}
-        
-        public HistoricalData matchPeriod()throws NumberFormatException, IOException {
+
+	public HistoricalData matchPeriod() throws NumberFormatException, IOException {
 
 		// registerInformation = rf.getRegisterInformation();// KV 22072005 unused code
-		historicalDataSet = new HistoricalDataSet();
+		this.historicalDataSet = new HistoricalDataSet();
 
-		hd = new HistoricalData();
+		this.hd = new HistoricalData();
 
 		matchCumulative();
 		matchTimeOfUse();
 		matchMaximumDemands();
 		matchCumulativeMaximumDemands();
-		bAss.index += 16;
+		this.bAss.addToIndex(16);
 
-		return hd;
-                
+		return this.hd;
+
 	}
 
 	void matchCumulative() throws NumberFormatException, IOException {
 
-		hd.setImportKWh(createMR(RegisterFactory.R_TOTAL_IMPORT_WH));
-		hd.setExportKWh(createMR(RegisterFactory.R_TOTAL_EXPORT_WH));
-		hd.setImportKvarh(createMR(RegisterFactory.R_TOTAL_IMPORT_VARH ));
-		bAss.index += 1; // unused byte
+		this.hd.setImportKWh(createMR(RegisterFactory.R_TOTAL_IMPORT_WH));
+		this.hd.setExportKWh(createMR(RegisterFactory.R_TOTAL_EXPORT_WH));
+		this.hd.setImportKvarh(createMR(RegisterFactory.R_TOTAL_IMPORT_VARH));
+		this.bAss.addToIndex(1); // unused byte
 
-		hd.setExportKvarh(createMR(RegisterFactory.R_TOTAL_EXPORT_VARH));
-		hd.setTotalKVAh(createMR(RegisterFactory.R_TOTAL_VAH ));
+		this.hd.setExportKvarh(createMR(RegisterFactory.R_TOTAL_EXPORT_VARH));
+		this.hd.setTotalKVAh(createMR(RegisterFactory.R_TOTAL_VAH));
 
-		int bc = PPMUtils.parseInteger(bAss.input, bAss.index + 1, 1)
-				.intValue();
-		hd.setBillingCount(bc);
-		bAss.index += 2; // billing reset counter
+		int bc = PPMUtils.parseInteger(this.bAss.getInput(), this.bAss.getIndex() + 1, 1).intValue();
+		this.hd.setBillingCount(bc);
+		this.bAss.addToIndex(2); // billing reset counter
 
-		hd.setDate(PPMUtils.parseTimeStamp(bAss.input, bAss.index, timeZone));
-		bAss.index += 4;
+		this.hd.setDate(PPMUtils.parseTimeStamp(this.bAss.getInput(), this.bAss.getIndex(), this.timeZone));
+		this.bAss.addToIndex(4);
 	}
 
 	void matchTimeOfUse() throws NumberFormatException, IOException {
 
-		hd.setTimeOfUse1(createMR(RegisterFactory.R_TIME_OF_USE_1));
-		hd.setTimeOfUse2(createMR(RegisterFactory.R_TIME_OF_USE_2));
-		hd.setTimeOfUse3(createMR(RegisterFactory.R_TIME_OF_USE_3));
-		bAss.index += 1; // unused byte
+		this.hd.setTimeOfUse1(createMR(RegisterFactory.R_TIME_OF_USE_1));
+		this.hd.setTimeOfUse2(createMR(RegisterFactory.R_TIME_OF_USE_2));
+		this.hd.setTimeOfUse3(createMR(RegisterFactory.R_TIME_OF_USE_3));
+		this.bAss.addToIndex(1); // unused byte
 
-		hd.setTimeOfUse4(createMR(RegisterFactory.R_TIME_OF_USE_4));
-		hd.setTimeOfUse5(createMR(RegisterFactory.R_TIME_OF_USE_5));
-		hd.setTimeOfUse6(createMR(RegisterFactory.R_TIME_OF_USE_6));
-		bAss.index += 1; // unused byte
+		this.hd.setTimeOfUse4(createMR(RegisterFactory.R_TIME_OF_USE_4));
+		this.hd.setTimeOfUse5(createMR(RegisterFactory.R_TIME_OF_USE_5));
+		this.hd.setTimeOfUse6(createMR(RegisterFactory.R_TIME_OF_USE_6));
+		this.bAss.addToIndex(1); // unused byte
 
-		hd.setTimeOfUse7(createMR(RegisterFactory.R_TIME_OF_USE_7));
-		hd.setTimeOfUse8(createMR(RegisterFactory.R_TIME_OF_USE_8));
-		bAss.index += 6; // unused byte
+		this.hd.setTimeOfUse7(createMR(RegisterFactory.R_TIME_OF_USE_7));
+		this.hd.setTimeOfUse8(createMR(RegisterFactory.R_TIME_OF_USE_8));
+		this.bAss.addToIndex(6); // unused byte
 
 	}
 
 	public void matchMaximumDemands() throws NumberFormatException, IOException {
 
-		RegisterInformation ri = rf.getRegisterInformation();
+		RegisterInformation ri = this.rf.getRegisterInformation();
 		BigDecimal scaleFactor = null;
 		Unit unit = null;
 
 		//1
-		byte[] d = ProtocolUtils.getSubArray2(bAss.input, bAss.index, 32);
+		byte[] d = ProtocolUtils.getSubArray2(this.bAss.getInput(), this.bAss.getIndex(), 32);
 		//MeterUnit meterUnit = rf.getRegisterInformation().mdTou1.getMeterUnit();
 
-		scaleFactor = ri.mdTou1.getRegisterScaleFactor();
-		unit = ri.mdTou1.getUnit();
+		scaleFactor = ri.getMdTou1().getRegisterScaleFactor();
+		unit = ri.getMdTou1().getUnit();
 
-		MaximumDemand md = new MaximumDemand(unit, d, scaleFactor, timeZone);
-		hd.setMaxDemand1(md);
-		bAss.index += 32;
+		MaximumDemand md = new MaximumDemand(unit, d, scaleFactor, this.timeZone);
+		this.hd.setMaxDemand1(md);
+		this.bAss.addToIndex(32);
 
 		//2
-		d = ProtocolUtils.getSubArray2(bAss.input, bAss.index, 32);
+		d = ProtocolUtils.getSubArray2(this.bAss.getInput(), this.bAss.getIndex(), 32);
 		//meterUnit = rf.getRegisterInformation().mdTou2.getMeterUnit();
 
-		scaleFactor = ri.mdTou2.getRegisterScaleFactor();
-		unit = ri.mdTou2.getUnit();
+		scaleFactor = ri.getMdTou2().getRegisterScaleFactor();
+		unit = ri.getMdTou2().getUnit();
 
-		md = new MaximumDemand(unit, d, scaleFactor, timeZone);
-		hd.setMaxDemand2(md);
-		bAss.index += 32;
+		md = new MaximumDemand(unit, d, scaleFactor, this.timeZone);
+		this.hd.setMaxDemand2(md);
+		this.bAss.addToIndex(32);
 
 		//3
-		d = ProtocolUtils.getSubArray2(bAss.input, bAss.index, 32);
+		d = ProtocolUtils.getSubArray2(this.bAss.getInput(), this.bAss.getIndex(), 32);
 		//meterUnit = rf.getRegisterInformation().mdTou3.getMeterUnit();
 
-		scaleFactor = ri.mdTou3.getRegisterScaleFactor();
-		unit = ri.mdTou3.getUnit();
+		scaleFactor = ri.getMdTou3().getRegisterScaleFactor();
+		unit = ri.getMdTou3().getUnit();
 
-		md = new MaximumDemand(unit, d, scaleFactor, timeZone);
-		hd.setMaxDemand3(md);
-		bAss.index += 32;
+		md = new MaximumDemand(unit, d, scaleFactor, this.timeZone);
+		this.hd.setMaxDemand3(md);
+		this.bAss.addToIndex(32);
 
 		//4
-		d = ProtocolUtils.getSubArray2(bAss.input, bAss.index, 32);
+		d = ProtocolUtils.getSubArray2(this.bAss.getInput(), this.bAss.getIndex(), 32);
 
-		scaleFactor = ri.mdTou4.getRegisterScaleFactor();
-		unit = ri.mdTou4.getUnit();
+		scaleFactor = ri.getMdTou4().getRegisterScaleFactor();
+		unit = ri.getMdTou4().getUnit();
 
-		md = new MaximumDemand(unit, d, scaleFactor, timeZone);
-		hd.setMaxDemand4(md);
-		bAss.index += 32;
+		md = new MaximumDemand(unit, d, scaleFactor, this.timeZone);
+		this.hd.setMaxDemand4(md);
+		this.bAss.addToIndex(32);
 
 	}
 
-	void matchCumulativeMaximumDemands() throws NumberFormatException,
-			IOException {
+	void matchCumulativeMaximumDemands() throws NumberFormatException, IOException {
 
-		hd.setCumulativeMaxDemand1(createMR(RegisterFactory.R_MAXIMUM_DEMAND_1));
-		hd.setCumulativeMaxDemand2(createMR(RegisterFactory.R_MAXIMUM_DEMAND_2));
-		bAss.index += 6;
+		this.hd.setCumulativeMaxDemand1(createMR(RegisterFactory.R_MAXIMUM_DEMAND_1));
+		this.hd.setCumulativeMaxDemand2(createMR(RegisterFactory.R_MAXIMUM_DEMAND_2));
+		this.bAss.addToIndex(6);
 
-		hd.setCumulativeMaxDemand3(createMR(RegisterFactory.R_MAXIMUM_DEMAND_3));
-		hd.setCumulativeMaxDemand4(createMR(RegisterFactory.R_MAXIMUM_DEMAND_4));
-		bAss.index += 6;
+		this.hd.setCumulativeMaxDemand3(createMR(RegisterFactory.R_MAXIMUM_DEMAND_3));
+		this.hd.setCumulativeMaxDemand4(createMR(RegisterFactory.R_MAXIMUM_DEMAND_4));
+		this.bAss.addToIndex(6);
 
 	}
 
 	private MainRegister createMR(String RegisterId) throws IOException {
 		MainRegister m = null;
 
-		MetaRegister metaRegister = rf.getRegisterInformation().get(RegisterId);
+		MetaRegister metaRegister = this.rf.getRegisterInformation().get(RegisterId);
 		Unit unit = null;
 		BigDecimal scaleFactor = null;
 		if (metaRegister != null) {
 			unit = metaRegister.getUnit();
 			scaleFactor = metaRegister.getRegisterScaleFactor();
 		}
-		Quantity q = PPMUtils.parseQuantity(bAss.input, bAss.index, 5,
-				scaleFactor, unit);
+		Quantity q = PPMUtils.parseQuantity(this.bAss.getInput(), this.bAss.getIndex(), 5, scaleFactor, unit);
 		m = new MainRegister(metaRegister, q);
 
-		bAss.index += 5;
+		this.bAss.addToIndex(5);
 		return m;
 	}
 
 	public Quantity getQuantity(Unit u) throws IOException {
-		Quantity q = PPMUtils.parseQuantity(bAss.input, bAss.index, 5, rf
-				.getScalingFactor().getRegisterScaleFactor(), u);
-		bAss.index += 5;
+		Quantity q = PPMUtils.parseQuantity(this.bAss.getInput(), this.bAss.getIndex(), 5, this.rf.getScalingFactor().getRegisterScaleFactor(), u);
+		this.bAss.addToIndex(5);
 		return q;
 	}
 

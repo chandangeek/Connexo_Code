@@ -17,19 +17,19 @@ import com.energyict.protocolimpl.iec1107.ppm.register.RegisterInformation;
  * 
  * <pre>
  * 
- *  
- *    TIME OF USE REGISTER ALLOCATION 
- *    		
+ * 
+ *    TIME OF USE REGISTER ALLOCATION
+ * 
  *    	741 - Import kWh
  *    	742 - Export kWh
  *    	743 - Import kvarh
  *    	744 - Export kvarh
  *    	745 - Total kVAh
- *    
+ * 
  *    Bit format: 0 = inactive, 1 = active
- *    
- *    
- *    
+ * 
+ * 
+ * 
  *    			741		742		743		744		745
  *    msb
  *    			 _		 _		 _		 _		 _
@@ -41,58 +41,58 @@ import com.energyict.protocolimpl.iec1107.ppm.register.RegisterInformation;
  *    		5	|_|		|_|		|_|		|_|		|_|		TOU register 6
  *    		6	|_|		|_|		|_|		|_|		|_|		TOU register 7
  *    		7	|_|		|_|		|_|		|_|		|_|		TOU register 8
- *    lsb		 
- *    
+ *    lsb
+ * 
  *    There are 8 Time Of Use Registers (=Rates) that can be assigned for storing
  *    use of the Total Registers (=Cumulative).
- *    
- *   
- *  
+ * 
+ * 
+ * 
  * </pre>
  * <pre>
  * 
- *  
- *    MAXIMUM DEMAND TIME OF USE REGISTER ALLOCATION 
- *    		
+ * 
+ *    MAXIMUM DEMAND TIME OF USE REGISTER ALLOCATION
+ * 
  *    	751 - Import kWh
  *    	752 - Export kWh
  *    	753 - Import kvarh
  *    	754 - Export kvarh
  *    	755 - Total kVAh
- *    
+ * 
  *    Bit format: 0 = inactive, 1 = active
- *    
- *    
- *    
+ * 
+ * 
+ * 
  *    			751		752		753		754		755
  *    msb
  *    			 _		 _		 _		 _		 _
- *    		0	|_|		|_|		|_|		|_|		|_|		
- *    		1	|_|		|_|		|_|		|_|		|_|		
- *    		2	|_|		|_|		|_|		|_|		|_|		
- *    		3	|_|		|_|		|_|		|_|		|_|		
- *    		4	|_|		|_|		|_|		|_|		|_|		MD TOU register 1 
+ *    		0	|_|		|_|		|_|		|_|		|_|
+ *    		1	|_|		|_|		|_|		|_|		|_|
+ *    		2	|_|		|_|		|_|		|_|		|_|
+ *    		3	|_|		|_|		|_|		|_|		|_|
+ *    		4	|_|		|_|		|_|		|_|		|_|		MD TOU register 1
  *    		5	|_|		|_|		|_|		|_|		|_|		MD TOU register 2
  *    		6	|_|		|_|		|_|		|_|		|_|		MD TOU register 3
  *    		7	|_|		|_|		|_|		|_|		|_|		MD TOU register 4
- *    lsb		 
- *    
- *   
- *  
+ *    lsb
+ * 
+ * 
+ * 
  * </pre>
  * 
- * This parsers takes all the allocation bytes, and uses them to build up 
- * a RegisterInformation object.     
+ * This parsers takes all the allocation bytes, and uses them to build up
+ * a RegisterInformation object.
  * 
  * @author fbo
  */
 
 public class RegisterInformationParser {
 
-	byte[] touInput; 
-	byte[] mdTouInput;
+	private byte[] touInput;
+	private byte[] mdTouInput;
 
-	RegisterInformation registerInformation;
+	private RegisterInformation registerInformation;
 
 	/**
 	 * Set the input of the parser
@@ -132,80 +132,88 @@ public class RegisterInformationParser {
 
 	public RegisterInformation match() {
 
-		registerInformation = new RegisterInformation();
+		this.registerInformation = new RegisterInformation();
 
 		matchTOUAllocation();
 		matchMDTOUAllocation();
 
-		return registerInformation;
+		return this.registerInformation;
 	}
 
 	private void matchTOUAllocation() {
 
-		int nrTotalRegisters = registerInformation.energyDefinition.length;
+		int nrTotalRegisters = this.registerInformation.getEnergyDefinition().length;
 
 		for (int trIndex = 0; trIndex < nrTotalRegisters; trIndex++) {
 
-			MetaRegister sourceReg = registerInformation.energyDefinition[trIndex];
-			char[] totalRegisterAssignment = toCharArray(touInput[trIndex]);
+			MetaRegister sourceReg = this.registerInformation.getEnergyDefinition()[trIndex];
+			char[] totalRegisterAssignment = toCharArray(this.touInput[trIndex]);
 
-	
-			if (totalRegisterAssignment[0] == '1')
-				registerInformation.tou8.setSourceRegister(sourceReg);
 
-			if (totalRegisterAssignment[1] == '1')
-				registerInformation.tou7.setSourceRegister(sourceReg);
+			if (totalRegisterAssignment[0] == '1') {
+				this.registerInformation.getTou8().setSourceRegister(sourceReg);
+			}
 
-			if (totalRegisterAssignment[2] == '1')
-				registerInformation.tou6.setSourceRegister(sourceReg);
+			if (totalRegisterAssignment[1] == '1') {
+				this.registerInformation.getTou7().setSourceRegister(sourceReg);
+			}
 
-			if (totalRegisterAssignment[3] == '1')
-				registerInformation.tou5.setSourceRegister(sourceReg);
+			if (totalRegisterAssignment[2] == '1') {
+				this.registerInformation.getTou6().setSourceRegister(sourceReg);
+			}
 
-			if (totalRegisterAssignment[4] == '1')
-				registerInformation.tou4.setSourceRegister(sourceReg);
+			if (totalRegisterAssignment[3] == '1') {
+				this.registerInformation.getTou5().setSourceRegister(sourceReg);
+			}
 
-			if (totalRegisterAssignment[5] == '1')
-				registerInformation.tou3.setSourceRegister(sourceReg);
+			if (totalRegisterAssignment[4] == '1') {
+				this.registerInformation.getTou4().setSourceRegister(sourceReg);
+			}
 
-			if (totalRegisterAssignment[6] == '1')
-				registerInformation.tou2.setSourceRegister(sourceReg);
+			if (totalRegisterAssignment[5] == '1') {
+				this.registerInformation.getTou3().setSourceRegister(sourceReg);
+			}
 
-			if (totalRegisterAssignment[7] == '1')
-				registerInformation.tou1.setSourceRegister(sourceReg);
+			if (totalRegisterAssignment[6] == '1') {
+				this.registerInformation.getTou2().setSourceRegister(sourceReg);
+			}
+
+			if (totalRegisterAssignment[7] == '1') {
+				this.registerInformation.getTou1().setSourceRegister(sourceReg);
+			}
 
 		}
 	}
 
 	private void matchMDTOUAllocation() {
 
-		int nrTotalRegisters = registerInformation.demandDefinition.length;
-		
+		int nrTotalRegisters = this.registerInformation.getDemandDefinition().length;
+
 		for (int trIndex = 0; trIndex < nrTotalRegisters; trIndex++) {
 
-			MetaRegister sourceReg = 
-				registerInformation.demandDefinition[trIndex];
-			
-			char[] totalRegisterAssignment = toCharArray(mdTouInput[trIndex]);
-			
+			MetaRegister sourceReg =
+				this.registerInformation.getDemandDefinition()[trIndex];
+
+			char[] totalRegisterAssignment = toCharArray(this.mdTouInput[trIndex]);
+
 			if (totalRegisterAssignment[4] == '1') {
-				registerInformation.mdTou4.setSourceRegister(sourceReg);
-				registerInformation.cmdTou4.setSourceRegister(sourceReg);
+				this.registerInformation.getMdTou4().setSourceRegister(sourceReg);
+				this.registerInformation.getCmdTou4().setSourceRegister(sourceReg);
 			}
-			
+
 			if (totalRegisterAssignment[5] == '1'){
-				registerInformation.mdTou3.setSourceRegister(sourceReg);
-				registerInformation.cmdTou3.setSourceRegister(sourceReg);
+				this.registerInformation.getMdTou3().setSourceRegister(sourceReg);
+				this.registerInformation.getCmdTou3().setSourceRegister(sourceReg);
 			}
-			
+
 			if (totalRegisterAssignment[6] == '1'){
-				registerInformation.mdTou2.setSourceRegister(sourceReg);
-				registerInformation.cmdTou2.setSourceRegister(sourceReg);
-			}	
-			
-			if (totalRegisterAssignment[7] == '1'){	
-				registerInformation.mdTou1.setSourceRegister(sourceReg);
-				registerInformation.cmdTou1.setSourceRegister(sourceReg);
+				this.registerInformation.getMdTou2().setSourceRegister(sourceReg);
+				this.registerInformation.getCmdTou2().setSourceRegister(sourceReg);
+			}
+
+			if (totalRegisterAssignment[7] == '1'){
+				this.registerInformation.getMdTou1().setSourceRegister(sourceReg);
+				this.registerInformation.getCmdTou1().setSourceRegister(sourceReg);
 			}
 		}
 
@@ -217,7 +225,7 @@ public class RegisterInformationParser {
 
 		char[] result = {'0', '0', '0', '0', '0', '0', '0', '0'};
 
-        int i = b&0xFF;
+		int i = b&0xFF;
 		char[] bitArray = Integer.toBinaryString(i).toCharArray();
 		System.arraycopy(bitArray, 0, result, 8 - bitArray.length,
 				bitArray.length);

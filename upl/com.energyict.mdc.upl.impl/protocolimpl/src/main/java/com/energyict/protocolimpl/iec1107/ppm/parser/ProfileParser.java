@@ -23,19 +23,16 @@ public class ProfileParser {
 
 	/* debug */
 	//private boolean parseFirstDayOnly = true;// KV 22072005 unused code
-	public boolean DBG = false;
+	private boolean dbg = false;
 
 	private PPM ppm = null;
 	private RegisterFactory rFactory = null;
 	private Date meterTime;
 
-	/* constants Byte Size */
-	static final int AA_BS = 3;
+	private Assembler[] assemblerTable = new Assembler[256];
+	private Assembly assembly = null;
 
-	Assembler[] assemblerTable = new Assembler[256];
-	Assembly assembly = null;
-
-	ProfileData targetProfileData = null;
+	private ProfileData targetProfileData = null;
 	//IntervalData targetIntervalData = null; // KV 22072005 unused code
 
 	private int nrOfChannels = 1;
@@ -48,11 +45,9 @@ public class ProfileParser {
 	private NumberAssembler numberAssembler = new NumberAssembler();
 	private AAAssembler aaAssembler = new AAAssembler();
 
-	public ProfileParser( PPM ppm, RegisterFactory registerFactory,
-			Date meterTime, LoadProfileDefinition loadDef, boolean dbg)
-	throws IOException {
+	public ProfileParser(PPM ppm, RegisterFactory registerFactory, Date meterTime, LoadProfileDefinition loadDef, boolean dbg) throws IOException {
 
-		this.DBG = dbg;
+		this.dbg = dbg;
 
 		this.ppm = ppm;
 		this.rFactory = registerFactory;
@@ -60,7 +55,7 @@ public class ProfileParser {
 		this.loadDef = loadDef;
 		this.nrOfChannels = loadDef.getNrOfChannels();
 
-		if (!this.DBG) {
+		if (!this.dbg) {
 			this.integrationPeriod = this.rFactory.getIntegrationPeriod().intValue() * 60;
 			this.scalingFactor = this.rFactory.getScalingFactor();
 		} else {
@@ -100,18 +95,18 @@ public class ProfileParser {
 			character = this.assembly.read();
 		} while (character != -1);
 
-		if( this.assembly.getTarget() != null ) {
-			this.dayAssembler.createProfileData( (Day) this.assembly.getTarget() );
+		if (this.assembly.getTarget() != null) {
+			this.dayAssembler.createProfileData((Day) this.assembly.getTarget());
 		}
 
-		if( ! ((Day)this.assembly.getTarget()).isEmpty() ) {
+		if (!((Day) this.assembly.getTarget()).isEmpty()) {
 			System.out.println(this.assembly.getTarget());
 		}
 
 	}
 
 	public ProfileData getProfileData() throws IOException {
-		if( this.targetProfileData == null ) {
+		if (this.targetProfileData == null) {
 			this.targetProfileData = new ProfileData();
 		}
 		this.targetProfileData.setChannelInfos(this.loadDef.toChannelInfoList());
@@ -140,10 +135,10 @@ public class ProfileParser {
 
 		public void workOn(Assembly ta) throws IOException {
 
-			if( ta.getTarget() != null ) {
-				createProfileData( (Day) ta.getTarget() );
-				if(ProfileParser.this.DBG) {
-					System.out.println( "Day\n" + ta.getTarget() );
+			if (ta.getTarget() != null) {
+				createProfileData((Day) ta.getTarget());
+				if (ProfileParser.this.dbg) {
+					System.out.println("Day\n" + ta.getTarget());
 				}
 			}
 
@@ -158,23 +153,23 @@ public class ProfileParser {
 
 		/* Create the profile data after a complete day has been parsed.  The time
 		 * is actually not that important, but it's just a good time. */
-		public void createProfileData( Day aDay ){
+		public void createProfileData(Day aDay) {
 
-			if( aDay.isEmpty() ) {
+			if (aDay.isEmpty()) {
 				return;
 			}
 
-			for( int hi = 0; hi < aDay.reading.length; hi ++ ){
+			for (int hi = 0; hi < aDay.reading.length; hi++) {
 
-				if( ! aDay.reading[hi].isEmpty() ){
+				if (!aDay.reading[hi].isEmpty()) {
 					IntervalData i = new IntervalData(aDay.reading[hi].date);
 
-					if(aDay.status[hi] != null ) {
+					if (aDay.status[hi] != null) {
 						i.setEiStatus(aDay.status[hi].getEIStatus());
 					}
 
-					for( int vi = 0; vi < aDay.reading[hi].value.length; vi ++ ) {
-						i.addValue( aDay.reading[hi].value[vi] );
+					for (int vi = 0; vi < aDay.reading[hi].value.length; vi++) {
+						i.addValue(aDay.reading[hi].value[vi]);
 					}
 
 					ProfileParser.this.targetProfileData.addInterval(i);
@@ -206,24 +201,21 @@ public class ProfileParser {
 				return;
 			}
 
-			if ((day.readIndex < 48  // TODO can be 49 too ... // sh*t!
+			if ((day.readIndex < 48 // TODO can be 49 too ... // sh*t!
 			)
-			&& day.reading[day.readIndex].date.before(ProfileParser.this.meterTime) ) {
+			&& day.reading[day.readIndex].date.before(ProfileParser.this.meterTime)) {
 
 				/* 1) create a status object */
 				day.status[day.readIndex] = new LoadProfileStatus((byte) getVal()[0]);
 
 				/* 2) create a reading */
 				for (int vi = 0; vi < ProfileParser.this.nrOfChannels; vi++) {
-					day.reading[day.readIndex].value[vi] = constructValue(
-							getVal(), (vi * 3) + 1);
+					day.reading[day.readIndex].value[vi] = constructValue(getVal(), (vi * 3) + 1);
 
 				}
 
 				/* 3) some debugging info */
-				day.readingString[day.readIndex] = " ->"
-					+ getVal()[0] + " " + getVal()[1] + " "
-					+ getVal()[2] + " " + getVal()[3];
+				day.readingString[day.readIndex] = " ->" + getVal()[0] + " " + getVal()[1] + " " + getVal()[2] + " " + getVal()[3];
 
 			}
 			this.byteNr = 0;
@@ -252,8 +244,7 @@ public class ProfileParser {
 			return new LoadProfileStatus((byte) iArray[0]);
 		}
 
-		private BigDecimal constructValue(int[] iArray, int i)
-		throws IOException {
+		private BigDecimal constructValue(int[] iArray, int i) throws IOException {
 			long v = iArray[i] * 10000;
 			v += (iArray[i + 1] * 100);
 			v += iArray[i + 2];
@@ -266,37 +257,37 @@ public class ProfileParser {
 
 		public void workOn(Assembly ta) throws IOException {
 
-			ta.pop();	/* clear Stack, and NumberAssembler */
+			ta.pop(); /* clear Stack, and NumberAssembler */
 			ProfileParser.this.numberAssembler.byteNr = 0;
 
-			System.out.println( ProfileParser.this.assembly );
+			System.out.println(ProfileParser.this.assembly);
 
-			byte[] jmpSize = new byte[2]; ta.read(jmpSize, 0, 2);
+			byte[] jmpSize = new byte[2];
+			ta.read(jmpSize, 0, 2);
 
-			long jmp = Long.parseLong( PPMUtils.toHexaString( jmpSize[1] )
-					+ PPMUtils.toHexaString( jmpSize[0] ), 16)
-					- 3;
+			long jmp = Long.parseLong(PPMUtils.toHexaString(jmpSize[1]) + PPMUtils.toHexaString(jmpSize[0]), 16) - 3;
 
-			System.out.println( "jump Size = " + jmp );
+			System.out.println("jump Size = " + jmp);
 
-			if (ta.getTarget() != null){/* Calculate number of hours under jump */
+			if (ta.getTarget() != null) {/* Calculate number of hours under jump */
 				Day aDay = (Day) ta.getTarget();
-				aDay.readIndex += ( jmp + 3 ) /  ( 1 + ( 3 * ProfileParser.this.nrOfChannels));
+				aDay.readIndex += (jmp + 3) / (1 + (3 * ProfileParser.this.nrOfChannels));
 			}
-
 
 			for (int i = 0; i < jmp; i++) {
 				ta.read();
 			}
 
-			System.out.println( ProfileParser.this.assembly );
+			System.out.println(ProfileParser.this.assembly);
 
 		}
 
 	}
 
-	/** This class is mainly meant for debugging purposes, it can display itself
-	 * in an pretty and structured way. */
+	/**
+	 * This class is mainly meant for debugging purposes, it can display itself
+	 * in an pretty and structured way.
+	 */
 	class Day {
 
 		int readIndex = 0;
@@ -310,11 +301,11 @@ public class ProfileParser {
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM H:mm");
 
 		public Day(int day, int month) throws IOException {
-			Calendar c = ProtocolUtils.getCalendar( ProfileParser.this.ppm.getTimeZone() );
+			Calendar c = ProtocolUtils.getCalendar(ProfileParser.this.ppm.getTimeZone());
 			c.set(c.get(Calendar.YEAR), month - 1, day, 0, 0, 0);
 
 			int iSec = ProfileParser.this.integrationPeriod;
-			int iPerDay = 86400 /* =secs/day */ / iSec + 1;
+			int iPerDay = 86400 /* =secs/day *// iSec + 1;
 
 			this.day = day;
 			this.month = month;
@@ -330,9 +321,9 @@ public class ProfileParser {
 			}
 		}
 
-		boolean isEmpty( ){
-			for( int i = 0; i < this.reading.length; i ++ ) {
-				if( ! this.reading[i].isEmpty() ) {
+		boolean isEmpty() {
+			for (int i = 0; i < this.reading.length; i++) {
+				if (!this.reading[i].isEmpty()) {
 					return false;
 				}
 			}
@@ -347,9 +338,9 @@ public class ProfileParser {
 				this.value = new BigDecimal[ProfileParser.this.loadDef.getNrOfChannels()];
 			}
 
-			boolean isEmpty( ){
-				for( int i = 0; i < this.value.length; i ++ ) {
-					if( this.value[i] != null ) {
+			boolean isEmpty() {
+				for (int i = 0; i < this.value.length; i++) {
+					if (this.value[i] != null) {
 						return false;
 					}
 				}
@@ -390,5 +381,3 @@ public class ProfileParser {
 	}
 
 }
-
-
