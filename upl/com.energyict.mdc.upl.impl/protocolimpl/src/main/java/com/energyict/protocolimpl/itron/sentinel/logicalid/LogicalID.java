@@ -10,62 +10,62 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 
 /**
- *
+ * 
  * @author Koen
  */
 public class LogicalID {
-    
-    private String description;
-    private long id;
-    private Unit unit;
-    private ObisCode obisCode;
-    
-    /** Creates a new instance of LogicalID */
-    public LogicalID(String description, long id, ObisCode obisCode, Unit unit) {
-        this.setDescription(description);
-        this.setId(id);
-        this.setUnit(unit);
-        this.setObisCode(obisCode);
-    }
 
-    public String toString() {
-        return description+", 0x"+Long.toHexString(id)+", "+unit+", "+obisCode;
-    }
-    
-    public String getDescription() {
-        return description;
-    }
+	private String description;
+	private long id;
+	private Unit unit;
+	private ObisCode obisCode;
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+	/** Creates a new instance of LogicalID */
+	public LogicalID(String description, long id, ObisCode obisCode, Unit unit) {
+		this.description = description;
+		this.id = id;
+		this.unit = unit;
+		this.obisCode = obisCode;
+	}
 
-    public long getId() {
-        return id;
-    }
+	public String toString() {
+		return this.description + ", 0x" + Long.toHexString(this.id) + ", " + this.unit + ", " + this.obisCode;
+	}
 
-    public void setId(long id) {
-        this.id = id;
-    }
+	public String getDescription() {
+		return this.description;
+	}
 
-    public Unit getUnit() {
-        return unit;
-    }
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
-    public void setUnit(Unit unit) {
-        this.unit = unit;
-    }
+	public long getId() {
+		return this.id;
+	}
 
-    public ObisCode getObisCode() {
-        return obisCode;
-    }
+	public void setId(long id) {
+		this.id = id;
+	}
 
-    public void setObisCode(ObisCode obisCode) {
-        this.obisCode = obisCode;
-    }
-    
+	public Unit getUnit() {
+		return this.unit;
+	}
+
+	public void setUnit(Unit unit) {
+		this.unit = unit;
+	}
+
+	public ObisCode getObisCode() {
+		return this.obisCode;
+	}
+
+	public void setObisCode(ObisCode obisCode) {
+		this.obisCode = obisCode;
+	}
+
 }

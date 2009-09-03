@@ -10,48 +10,40 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import java.io.IOException;
 
 /**
- *
+ * 
  * @author Koen
  */
 public class TemplateDataRead extends AbstractDataRead {
-    
-    /** Creates a new instance of ConstantsDataRead */
-    public TemplateDataRead(DataReadFactory dataReadFactory) {
-        super(dataReadFactory);
-    }
-    
-    public static void main(String[] args) {
-        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new TemplateDataRead(null)));
-    }      
-    
-    protected void parse(byte[] data) throws IOException {
-        
-        int offset=0;
-        int dataOrder = getDataReadFactory().getManufacturerTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
-    }
-    
-    protected void prepareBuild() throws IOException {
-        
-        long[] lids = new long[]{LogicalIDFactory.findLogicalId("CT_MULTIPLIER").getId(),
-                                 LogicalIDFactory.findLogicalId("VT_MULTIPLIER").getId(),
-                                 LogicalIDFactory.findLogicalId("REGISTER_MULTIPLIER").getId(),
-                                 LogicalIDFactory.findLogicalId("CUSTOMER_SERIAL_NUMBER").getId(),
-                                 LogicalIDFactory.findLogicalId("PROGRAM_ID").getId(),
-                                 LogicalIDFactory.findLogicalId("FIRMWARE_VERSION_REVISION").getId(),
-                                 LogicalIDFactory.findLogicalId("DEMAND_INTERVAL_LENGTH").getId(),
-                                 LogicalIDFactory.findLogicalId("ALL_SITESCAN").getId()};
-        
-        setDataReadDescriptor(new DataReadDescriptor(0x00, 0x08, lids));    
-        
-    } // protected void prepareBuild() throws IOException
-    
-} // public class ConstantsDataRead extends AbstractDataRead
+
+	/** Creates a new instance of ConstantsDataRead */
+	public TemplateDataRead(DataReadFactory dataReadFactory) {
+		super(dataReadFactory);
+	}
+
+	public static void main(String[] args) {
+		System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new TemplateDataRead(null)));
+	}
+
+	protected void parse(byte[] data) throws IOException {
+		getDataReadFactory().getManufacturerTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
+	}
+
+	protected void prepareBuild() throws IOException {
+
+		long[] lids = new long[]{LogicalIDFactory.findLogicalId("CT_MULTIPLIER").getId(),
+				LogicalIDFactory.findLogicalId("VT_MULTIPLIER").getId(),
+				LogicalIDFactory.findLogicalId("REGISTER_MULTIPLIER").getId(),
+				LogicalIDFactory.findLogicalId("CUSTOMER_SERIAL_NUMBER").getId(),
+				LogicalIDFactory.findLogicalId("PROGRAM_ID").getId(),
+				LogicalIDFactory.findLogicalId("FIRMWARE_VERSION_REVISION").getId(),
+				LogicalIDFactory.findLogicalId("DEMAND_INTERVAL_LENGTH").getId(),
+				LogicalIDFactory.findLogicalId("ALL_SITESCAN").getId()};
+
+		setDataReadDescriptor(new DataReadDescriptor(0x00, 0x08, lids));
+
+	}
+
+}

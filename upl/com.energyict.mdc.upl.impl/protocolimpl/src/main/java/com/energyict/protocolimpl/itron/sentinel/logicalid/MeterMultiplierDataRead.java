@@ -10,38 +10,32 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
- *
+ * 
  * @author Koen
  */
 public class MeterMultiplierDataRead extends AbstractDataRead {
-    
-    /** Creates a new instance of ConstantsDataRead */
-    public MeterMultiplierDataRead(DataReadFactory dataReadFactory) {
-        super(dataReadFactory);
-    }
-    
-    public static void main(String[] args) {
-        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new MeterMultiplierDataRead(null)));
-    }      
-    
-    protected void parse(byte[] data) throws IOException {
-        
-        int offset=0;
-        int dataOrder = getDataReadFactory().getManufacturerTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        System.out.println(ProtocolUtils.outputHexString(data));
-    }
-    
-    protected void prepareBuild() throws IOException {
-        long[] lids = new long[]{LogicalIDFactory.findLogicalId("METER_MULTIPLIER").getId(),
-                                 LogicalIDFactory.findLogicalId("TRANSFORMER_MULTIPLIER").getId()};
-        setDataReadDescriptor(new DataReadDescriptor(0x00, 0x02, lids));    
-    } // protected void prepareBuild() throws IOException
+
+	/** Creates a new instance of ConstantsDataRead */
+	public MeterMultiplierDataRead(DataReadFactory dataReadFactory) {
+		super(dataReadFactory);
+	}
+
+	public static void main(String[] args) {
+		System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new MeterMultiplierDataRead(null)));
+	}
+
+	protected void parse(byte[] data) throws IOException {
+		getDataReadFactory().getManufacturerTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
+		System.out.println(ProtocolUtils.outputHexString(data));
+	}
+
+	protected void prepareBuild() throws IOException {
+		long[] lids = new long[] { LogicalIDFactory.findLogicalId("METER_MULTIPLIER").getId(), LogicalIDFactory.findLogicalId("TRANSFORMER_MULTIPLIER").getId() };
+		setDataReadDescriptor(new DataReadDescriptor(0x00, 0x02, lids));
+	}
 }

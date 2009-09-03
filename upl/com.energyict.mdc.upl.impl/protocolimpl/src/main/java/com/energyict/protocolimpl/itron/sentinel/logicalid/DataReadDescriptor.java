@@ -11,57 +11,56 @@
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
 /**
- *
+ * 
  * @author Koen
  */
 public class DataReadDescriptor {
-    
-    private int mode;
-    private int count;
-    private long[] lids;
-    
-    /** Creates a new instance of DataReadDescriptor */
-    public DataReadDescriptor(int mode,int count,long[] lids) {
-        this.setMode(mode);
-        this.setCount(count);
-        this.setLids(lids);
-    }
 
-    public String toString() {
-        // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("DataReadDescriptor:\n");
-        strBuff.append("   count="+getCount()+"\n");
-        for (int i=0;i<getLids().length;i++) {
-            strBuff.append("       lids["+i+"]=0x"+Long.toHexString(getLids()[i])+"\n");
-        }
-        strBuff.append("   mode="+getMode()+"\n");
-        return strBuff.toString();
-    }
-    
-    public int getMode() {
-        return mode;
-    }
+	private int mode;
+	private int count;
+	private long[] lids;
 
-    public void setMode(int mode) {
-        this.mode = mode;
-    }
+	/** Creates a new instance of DataReadDescriptor */
+	public DataReadDescriptor(int mode, int count, long[] lids) {
+		this.mode = mode;
+		this.count = count;
+		this.lids = lids;
+	}
 
-    public int getCount() {
-        return count;
-    }
+	public String toString() {
+		// Generated code by ToStringBuilder
+		StringBuffer strBuff = new StringBuffer();
+		strBuff.append("DataReadDescriptor:\n");
+		strBuff.append("   count=" + getCount() + "\n");
+		for (int i = 0; i < getLids().length; i++) {
+			strBuff.append("       lids[" + i + "]=0x" + Long.toHexString(getLids()[i]) + "\n");
+		}
+		strBuff.append("   mode=" + getMode() + "\n");
+		return strBuff.toString();
+	}
 
-    public void setCount(int count) {
-        this.count = count;
-    }
+	public int getMode() {
+		return this.mode;
+	}
 
-    public long[] getLids() {
-        return lids;
-    }
+	public void setMode(int mode) {
+		this.mode = mode;
+	}
 
-    public void setLids(long[] lids) {
-        this.lids = lids;
-    }
-    
-    
+	public int getCount() {
+		return this.count;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
+	}
+
+	public long[] getLids() {
+		return this.lids;
+	}
+
+	public void setLids(long[] lids) {
+		this.lids = lids;
+	}
+
 }
