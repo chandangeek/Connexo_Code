@@ -72,14 +72,14 @@ public class ObisCodeMapper {
         			null, null, null, new Date(), 0,
         			ParseUtils.decimalByteToString(cof.getGenericRead(obisCode, DLMSUtils.attrLN2SN(2), 1).getResponseData()));
         	return rv;
-        } else if (obisCode.toString().indexOf("0.128.96.3.10.255") != -1){	// E-meter connect control mode	- Use the B field as '128' to indicate the controlMode
+        } else if (obisCode.toString().indexOf("0.0.96.3.128.255") != -1){	// E-meter connect control mode	- Use the E field as '128' to indicate the controlMode
         	int mode = cof.getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).getControlMode().getValue();
         	rv = new RegisterValue(obisCode,
         			new Quantity(BigDecimal.valueOf(mode), Unit.getUndefined()),
         			null, null, null, new Date(), 0,
         			new String("ConnectControl mode: " + mode));
         	return rv;
-        } else if (obisCode.toString().indexOf("0.129.96.3.10.255") != -1){	// Current status of the breaker - Use the B field as '129' to indicate the controlState
+        } else if (obisCode.toString().indexOf("0.0.96.3.129.255") != -1){	// Current status of the breaker - Use the E field as '129' to indicate the controlState
         	int state = cof.getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).getControlState().getValue();
         	if((state < 0) || (state > 2)){
         		throw new IllegalArgumentException("The connectControlState has an invalid value: " + state);
