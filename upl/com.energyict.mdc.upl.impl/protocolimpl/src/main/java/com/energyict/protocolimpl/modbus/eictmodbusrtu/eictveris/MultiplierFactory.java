@@ -64,7 +64,9 @@ public class MultiplierFactory {
     
     public void init() throws IOException {
         
-        if (firmwareVersion.indexOf("100")>=0)
+        if (firmwareVersion.indexOf("50")>=0)
+            meterType=0;
+        else if (firmwareVersion.indexOf("100")>=0)
             meterType=0;
         else if (firmwareVersion.indexOf("300/400")>=0)
             meterType=1;
