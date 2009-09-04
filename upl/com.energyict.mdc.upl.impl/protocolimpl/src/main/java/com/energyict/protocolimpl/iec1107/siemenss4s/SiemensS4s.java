@@ -14,7 +14,6 @@ import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectFactory;
@@ -71,7 +70,7 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 		initLocalObjects();
 	}
 	
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels(){
         return this.channelMap;
      }
 	
@@ -170,4 +169,8 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 	private S4sObjectFactory getObjectFactory(){
 		return this.objectFactory;
 	}
+	
+    public String getProtocolVersion() {
+        return "$Revision:$";
+    }
 }
