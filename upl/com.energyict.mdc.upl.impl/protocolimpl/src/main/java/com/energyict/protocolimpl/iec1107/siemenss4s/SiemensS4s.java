@@ -14,6 +14,7 @@ import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectFactory;
@@ -33,6 +34,7 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 	private boolean requestDataReadout;
 	
 	private int securityLevel;
+	private int channelMap;
 	
 	private byte[] dataReadout;
 	
@@ -69,6 +71,10 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 		initLocalObjects();
 	}
 	
+    public int getNumberOfChannels() throws UnsupportedException, IOException {
+        return this.channelMap;
+     }
+	
 	/**
 	 * Initialize local objects
 	 */
@@ -95,6 +101,7 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 		this.securityLevel=Integer.parseInt(properties.getProperty("SecurityLevel","2").trim());
 		this.nodeAddress=properties.getProperty(MeterProtocol.NODEID,"");
 		this.serialNumber=properties.getProperty(MeterProtocol.SERIALNUMBER);
+		this.channelMap = Integer.valueOf(properties.getProperty("ChannelMap","1"));
 	}
 	
 	/**

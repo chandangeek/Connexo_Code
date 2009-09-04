@@ -88,8 +88,7 @@ public class SiemensS4sProfile {
 	 * @throws IOException
 	 */
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws FlagIEC1107ConnectionException, ConnectionException, IOException {
-		byte[] allChannelInfos = getObjectFactory().getAllChannelInfosRawData();
-		List channelInfos = getChannelInfos(allChannelInfos);
+		List channelInfos = getChannelInfos();
 		SiemensS4sProfileRecorder pRecorder = new SiemensS4sProfileRecorder(getProfileInterval());
 		if(channelInfos.size() != 0){
 			byte[] profilePart;
@@ -115,6 +114,11 @@ public class SiemensS4sProfile {
 		}
 		deleteUnwantedIntervals( pRecorder.getProfileData(), lastReading );
 		return pRecorder.getProfileData();
+	}
+	
+	public List getChannelInfos() throws FlagIEC1107ConnectionException, ConnectionException, IOException{
+		byte[] allChannelInfos = getObjectFactory().getAllChannelInfosRawData();
+		return getChannelInfos(allChannelInfos);
 	}
 	
 	/**
