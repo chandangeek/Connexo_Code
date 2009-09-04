@@ -171,6 +171,6 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 	}
 	
     public String getProtocolVersion() {
-        return "$Revision:$";
+        return "$Date$";
     }
 }
