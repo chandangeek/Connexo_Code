@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.iec1107.siemenss4s.objects;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSUtils;
 
 /**
  * Contains the configuration of a Register, or a ChannelInfo object configuration!
@@ -30,7 +29,7 @@ public class S4sRegisterConfig {
 	 * @param unitType - Select the units you want to use in the registerConfiguration
 	 */
 	public S4sRegisterConfig(byte[] unitTotalRegister) {
-		this.rawBytes = DLMSUtils.hexStringToByteArray(new String(S4sObjectUtils.switchNibbles(unitTotalRegister)));
+		this.rawBytes = S4sObjectUtils.hexStringToByteArray(new String(S4sObjectUtils.switchNibbles(unitTotalRegister)));
 		System.out.println(toString());
 	}
 	

@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s.objects;
 
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -14,7 +13,7 @@ public class S4sSerialNumber {
 	
 	public S4sSerialNumber(byte[] rawBytes){
 		byte[] temp = S4sObjectUtils.switchNibbles(rawBytes);
-		this.rawBytes = DLMSUtils.hexStringToByteArray(new String(temp));		// strange way of parsing a decimal byteArray to a String, back to an ASCII byteArray...
+		this.rawBytes = S4sObjectUtils.hexStringToByteArray(new String(temp));		// strange way of parsing a decimal byteArray to a String, back to an ASCII byteArray...
 	}
 	
 	/**

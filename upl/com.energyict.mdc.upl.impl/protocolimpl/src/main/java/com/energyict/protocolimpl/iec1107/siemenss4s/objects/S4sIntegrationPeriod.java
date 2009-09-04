@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s.objects;
 
-import com.energyict.dlms.DLMSUtils;
 
 /**
  * Integration period, or interval, of the meter
@@ -17,7 +16,7 @@ public class S4sIntegrationPeriod {
 	 * @param period a hexadecimal number referring to a number in the periods array
 	 */
 	public S4sIntegrationPeriod(byte[] period){
-		this.rawBytes = DLMSUtils.hexStringToByteArray(new String(period));
+		this.rawBytes = S4sObjectUtils.hexStringToByteArray(new String(period));
 		if(this.rawBytes.length != 1){
 			throw new IllegalArgumentException("Period is only one byte long, received " + period.length);
 		} else if(this.rawBytes[0] > 5){
