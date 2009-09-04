@@ -23,7 +23,7 @@ public class S4sProfilePointer {
 	 */
 	public int getCurrentPointer() {
 		String str = new String(rawBytes);
-		return Integer.valueOf(str, 16)*4;
+		return Integer.parseInt(str, 16)*4;
 	}
 
 }

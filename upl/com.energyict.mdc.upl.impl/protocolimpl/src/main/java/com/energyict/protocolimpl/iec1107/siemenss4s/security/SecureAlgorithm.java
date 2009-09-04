@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.iec1107.siemenss4s.security;
 
 public class SecureAlgorithm {
 
-	private static byte g = Byte.valueOf((byte) 0x12);
+	private static byte g = Byte.parseByte("18"); //((byte) 0x12)
 	
 	public static int calculateAntiSeed(int seed){
 		

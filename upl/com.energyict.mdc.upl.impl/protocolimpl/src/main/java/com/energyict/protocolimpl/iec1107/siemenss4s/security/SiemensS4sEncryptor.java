@@ -25,10 +25,10 @@ public class SiemensS4sEncryptor implements Encryptor {
 	 * @return the encrypted security-String
 	 */
 	public String encrypt(String passWord, String key) {
-		int antiSeed = SecureAlgorithm.calculateAntiSeed(Integer.valueOf(key, 16));
+		int antiSeed = SecureAlgorithm.calculateAntiSeed(Integer.parseInt(key, 16));
 		byte[] passBytes = DLMSUtils.hexStringToByteArray(Long.toHexString(Long.valueOf(passWord)));
 		passBytes = S4sObjectUtils.revertByteArray(passBytes);
-		int passInt = Integer.valueOf(outputHexString(passBytes), 16);
+		int passInt = Integer.parseInt(outputHexString(passBytes), 16);
 		int response = (passInt&0xFFFF)^antiSeed + ((passInt&0xFFFF0000)^(antiSeed<<16));
 		StringBuffer strBuff = new StringBuffer();
 		strBuff.append(this.securityLevel);

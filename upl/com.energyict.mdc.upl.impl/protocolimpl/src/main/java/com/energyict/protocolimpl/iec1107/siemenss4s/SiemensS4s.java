@@ -100,7 +100,7 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 		this.securityLevel=Integer.parseInt(properties.getProperty("SecurityLevel","2").trim());
 		this.nodeAddress=properties.getProperty(MeterProtocol.NODEID,"");
 		this.serialNumber=properties.getProperty(MeterProtocol.SERIALNUMBER);
-		this.channelMap = Integer.valueOf(properties.getProperty("ChannelMap","1"));
+		this.channelMap = Integer.parseInt(properties.getProperty("ChannelMap","1"));
 	}
 	
 	/**
