@@ -176,15 +176,17 @@ public class MessageExecutor extends GenericMessageExecutor{
 					if(DEBUG) {
 						System.out.println("Start the activateNow.");
 					}
-//					it.imageActivation();
+					it.imageActivation();
 					
-					Calendar cal = Calendar.getInstance();
-					cal.add(Calendar.MINUTE, 2);
-					SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
-					String strDate = Long.toString(cal.getTimeInMillis()/1000);
-					Array dateArray = convertUnixToDateTimeArray(strDate);
+					//Below is a solution for not immediately activating the image so the current connection isn't lost
+//					Calendar cal = Calendar.getInstance();
+//					cal.add(Calendar.MINUTE, 2);
+//					SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+//					String strDate = Long.toString(cal.getTimeInMillis()/1000);
+//					Array dateArray = convertUnixToDateTimeArray(strDate);
+//					
+//					sas.writeExecutionTime(dateArray);
 					
-					sas.writeExecutionTime(dateArray);
 					if(DEBUG) {
 						System.out.println("ActivateNow complete.");
 					}
@@ -884,7 +886,6 @@ public class MessageExecutor extends GenericMessageExecutor{
 				
 				success = true;
 			} else if (changeGlobalkey){
-				//TODO to test
 				
 				Array globalKeyArray = new Array();
 				Structure keyData = new Structure();
@@ -897,7 +898,6 @@ public class MessageExecutor extends GenericMessageExecutor{
 				
 				success = true;
 			} else if (changeAuthkey){
-				//TODO to test
 				
 				Array globalKeyArray = new Array();
 				Structure keyData = new Structure();
@@ -910,7 +910,6 @@ public class MessageExecutor extends GenericMessageExecutor{
 				
 				success = true;
 			} else if(changeHLSSecret){
-				//TODO toTest
 				
 				if(getWebRtu().getReference() == ProtocolLink.LN_REFERENCE){
 					AssociationLN aln = getCosemObjectFactory().getAssociationLN();
@@ -928,15 +927,12 @@ public class MessageExecutor extends GenericMessageExecutor{
 				}
 				success = true;
 			} else if(activateSMS){
-				// TODO toTest
 				getCosemObjectFactory().getAutoConnect().writeMode(4);
 				success = true;
 			} else if(deActivateSMS){
-				// TODO toTest
 				getCosemObjectFactory().getAutoConnect().writeMode(1);
 				success = true;
 			} else if(actSecuritLevel){
-				// TODO toTest
 				getCosemObjectFactory().getSecuritySetup().activateSecurity(new TypeEnum(messageHandler.getSecurityLevel()));
 				success = true;
 			} else {

@@ -46,7 +46,7 @@ public class ExtraEvents {
 				"Indicates 'No Connection' timeout" });
 		extraEvents.put(new Integer(239), new String[] {
 			Integer.toString(MeterEvent.POWERDOWN),
-			"Long power failure" });
+			"Large Clock adjustment" });
 	}
 
 	/**

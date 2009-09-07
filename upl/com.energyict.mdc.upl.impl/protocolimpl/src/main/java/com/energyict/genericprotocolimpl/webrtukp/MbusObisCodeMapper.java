@@ -31,32 +31,6 @@ public class MbusObisCodeMapper {
 
 	public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
 		RegisterValue rv = null;
-//		
-//    	//Mbus related ObisRegisters
-//    	if ((obisCode.getA() == 0) && ((obisCode.getB() >= 1) && (obisCode.getB() <= 4)) && (obisCode.getC() == 24) && (obisCode.getD() == 2) 
-//    			&& ((obisCode.getE() >= 1) && (obisCode.getE() <= 4))){
-//			ExtendedRegister register = cof.getExtendedRegister(obisCode);
-//			return new RegisterValue(obisCode, ParseUtils.registerToQuantity(register));
-//    	} else if ((obisCode.getA() == 0) && (obisCode.toString().indexOf(".24.4.128.255") != -1)){	// E-meter connect control mode	- Use the E field as '128' to indicate the controlMode
-//        	int mode = cof.getDisconnector(adjustToDisconnectOC(obisCode)).getControlMode().getValue();
-//        	rv = new RegisterValue(obisCode,
-//        			new Quantity(BigDecimal.valueOf(mode), Unit.getUndefined()),
-//        			null, null, null, new Date(), 0,
-//        			new String("ConnectControl mode: " + mode));
-//        	return rv;
-//        } else if (obisCode.toString().indexOf("0.0.96.3.129.255") != -1){	// Current status of the breaker - Use the E field as '129' to indicate the controlState
-//        	int state = cof.getDisconnector(adjustToDisconnectOC(obisCode)).getControlState().getValue();
-//        	if((state < 0) || (state > 2)){
-//        		throw new IllegalArgumentException("The connectControlState has an invalid value: " + state);
-//        	}
-//        	rv = new RegisterValue(obisCode,
-//        			new Quantity(BigDecimal.valueOf(state), Unit.getUndefined()),
-//        			null, null, null, new Date(), 0,
-//        			new String("ConnectControl state: " + possibleConnectStates[state]));
-//        	return rv;
-//        }
-//    	throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-		
 		
     	//Mbus related ObisRegisters
     	if ((obisCode.getA() == 0) && ((obisCode.getB() >= 1) && (obisCode.getB() <= 4)) && (obisCode.getC() == 24) ){

@@ -9,10 +9,10 @@ import java.util.Calendar;
 import org.junit.Test;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectUtils;
 
 public class SiemensS4sProfileRecorderTest {
 
@@ -20,7 +20,7 @@ public class SiemensS4sProfileRecorderTest {
 	@Test
 	public void addProfilePartTest() {
 
-		byte[] channelInfo = DLMSUtils.hexStringToByteArray("3336423042304230");// Only channel 1
+		byte[] channelInfo = S4sObjectUtils.hexStringToByteArray("3336423042304230");// Only channel 1
 		SiemensS4sProfile s4Profile = new SiemensS4sProfile(null);
 
 		Calendar timeCalendar = Calendar.getInstance();
@@ -88,7 +88,7 @@ public class SiemensS4sProfileRecorderTest {
 			byte[] multiplePart1 = "0020035103520020189118920020687168720020148114820020928192820020".getBytes();
 			byte[] multiplePart2 = "8001800200208601860200206901860200202131213200201131113200202131".getBytes();
 			byte[] multiplePart3 = "2132002021312132002001310132002041314132002095319532002098419842".getBytes();
-			channelInfo = DLMSUtils.hexStringToByteArray("3336333642304230");// Only channel 1
+			channelInfo = S4sObjectUtils.hexStringToByteArray("3336333642304230");// Only channel 1
 			
 			profileRecorder = new SiemensS4sProfileRecorder(1800);
 			profileRecorder.setChannelInfos(s4Profile.getChannelInfos(channelInfo));

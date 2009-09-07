@@ -37,7 +37,7 @@ public class DisconnectControlLog {
 		int size = this.dcEvents.getRoot().getNrOfElements();
 		Date eventTimeStamp = null;
 		for(int i = 0; i <= (size-1); i++){
-			int eventId = (int)this.dcEvents.getRoot().getStructure(i).getValue(1);
+			int eventId = (int)this.dcEvents.getRoot().getStructure(i).getValue(1)&0xFF; // To prevent negative values
 			String threshold = "Unknown";
 			//fixed it for the Iskra 2009 meter
 			if(this.dcEvents.getRoot().getStructure(i).getElements().length == 3){
@@ -54,7 +54,6 @@ public class DisconnectControlLog {
 	}
 
 	private void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId, String threshold) {
-		
 		if( !ExtraEvents.extraEvents.containsKey(new Integer(eventId)) ){
 			switch(eventId){
 			case EVENT_EVENT_LOG_CLEARED : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.CLEAR_DATA, eventId, "Disconnect control event log profile cleared."));}break;
