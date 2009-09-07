@@ -51,8 +51,8 @@
         <dependency>
          	<groupId>com.energyict</groupId>
          	<artifactId>mdwdevtools</artifactId>
-         	<!--  <version>${eiserver.version}</version>  -->
-         	<version>8.4.0-SNAPSHOT</version>
+         	<version>${eiserver.version}</version>
+         	<!--  <version>8.4.0-SNAPSHOT</version> -->
          	<scope>test</scope>
          </dependency>
          
