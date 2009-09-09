@@ -122,6 +122,7 @@ import com.energyict.protocolimpl.iec1107.ppm.register.LoadProfileDefinition;
   JME|01092009| Fixed bug in DataIdentity resulting in an exception while using IEC1107 (OPUS = 0)
   || Argument was not copied to object property because of typo. Changed "lenght" to "length" in argument name.
   || Added fixes for Java code quality
+  JME|09092009| Added support for setTime() while usong the optical connection (OPUS = 0)
 
  * @endchanges
  * @author fbo
@@ -615,7 +616,8 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 				throw new NestedIOException( ex );
 
 			}
-
+		} else {
+			this.rFactory.setRegister(RegisterFactory.R_TIME_DATE_OPTICAL, sysCalendar.getTime());
 		}
 	}
 
