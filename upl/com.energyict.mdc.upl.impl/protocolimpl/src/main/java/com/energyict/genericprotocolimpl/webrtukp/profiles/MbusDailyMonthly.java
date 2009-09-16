@@ -289,7 +289,8 @@ public class MbusDailyMonthly {
 	}
 	
 	private boolean isMbusRegisterObisCode(ObisCode oc){
-		if((oc.getC() == 24) && (oc.getD() == 2) && (oc.getB() >=1) && (oc.getB() <= 4) && (oc.getE() >= 1) && (oc.getE() <= 4) ){
+//		if((oc.getC() == 24) && (oc.getD() == 2) && (oc.getB() >=1) && (oc.getB() <= 4) && (oc.getE() >= 1) && (oc.getE() <= 4) ){
+		if((oc.getC() == 24) && (oc.getD() == 2) && (oc.getB() == (mbusDevice.getPhysicalAddress()+1)) && (oc.getE() >= 1) && (oc.getE() <= 4) ){
 			return true;
 		} else {
 			return false;
