@@ -11,6 +11,12 @@ import com.energyict.obis.ObisCode;
 
 public class UniversalObject implements DLMSCOSEMGlobals,Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5227477714920108186L;
+	
+	
 	// Captured Object List
 	private static final byte COL_CLASSID=0;
 	private static final byte COL_LN_A=1;
