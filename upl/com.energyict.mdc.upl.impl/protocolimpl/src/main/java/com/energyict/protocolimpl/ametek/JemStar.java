@@ -164,6 +164,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 //				}
 				else if((eventCode & eventIndicator) == eventIndicator) //midnight
 				{
+					partialVals = new ArrayList();
 				}
 				else{
 						continue;
