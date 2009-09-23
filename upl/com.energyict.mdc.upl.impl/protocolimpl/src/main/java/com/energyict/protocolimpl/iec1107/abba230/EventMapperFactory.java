@@ -12,11 +12,12 @@ public class EventMapperFactory {
 	
 	
 	static List entries = new ArrayList();
+	
 	static {
 		// TSystemStatus4 not needed!
 		
 		// TSystemStatus6
-		entries.add(new MeterEventMapEntry(6,0,MeterEvent.CONFIGURATIONCHANGE,"Programming event occured"));
+		entries.add(new MeterEventMapEntry(6,0,MeterEvent.CONFIGURATIONCHANGE,"Programming event occurred"));
 		entries.add(new MeterEventMapEntry(6,1,MeterEvent.CONFIGURATIONCHANGE,"Password changed"));
 		entries.add(new MeterEventMapEntry(6,2,MeterEvent.POWERDOWN,"Powerfail longer than 3 minutes"));
 		entries.add(new MeterEventMapEntry(6,3,MeterEvent.POWERDOWN,"Powerfail"));
@@ -28,11 +29,11 @@ public class EventMapperFactory {
 		// TSystemStatus7
 		entries.add(new MeterEventMapEntry(7,0,MeterEvent.METER_ALARM,"Main cover tamper event"));
 		entries.add(new MeterEventMapEntry(7,1,MeterEvent.METER_ALARM,"Magnetic tamper event"));
-		entries.add(new MeterEventMapEntry(7,2,MeterEvent.OTHER,"Reverse run occured"));
-		entries.add(new MeterEventMapEntry(7,3,MeterEvent.PROGRAM_FLOW_ERROR,"Transient reset occured"));
+		entries.add(new MeterEventMapEntry(7,2,MeterEvent.OTHER,"Reverse run occurred"));
+		entries.add(new MeterEventMapEntry(7,3,MeterEvent.PROGRAM_FLOW_ERROR,"Transient reset occurred"));
 		
 		//added cc
-		entries.add(new MeterEventMapEntry(7,4,MeterEvent.BILLING_ACTION ,"STATUS_EVENT_BILLING Billing event occured"));
+		entries.add(new MeterEventMapEntry(7,4,MeterEvent.BILLING_ACTION ,"STATUS_EVENT_BILLING Billing event occurred"));
 		
 		entries.add(new MeterEventMapEntry(7,5,MeterEvent.OTHER,"Firmware download"));
 		entries.add(new MeterEventMapEntry(7,6,MeterEvent.METER_ALARM,"Meter error"));
@@ -51,14 +52,32 @@ public class EventMapperFactory {
 		entries.add(new MeterEventMapEntry(8,0,MeterEvent.OTHER ,"STATUS_EVENT_OPTICAL_COMMS_SESSION Optical FLAG Comms event"));
 		
 		// TSystemStatus9
-		entries.add(new MeterEventMapEntry(9,7,MeterEvent.METER_ALARM,"Load monitor high trip event"));
-		entries.add(new MeterEventMapEntry(9,5,MeterEvent.METER_ALARM,"Load monitor low trip event"));
+                //cc modified description
+		entries.add(new MeterEventMapEntry(9,7,MeterEvent.METER_ALARM,"STATUS_EVENT_LOADMON_HIGH_TRIP Load monitor high trip event"));
+                //cc modified description
+		entries.add(new MeterEventMapEntry(9,5,MeterEvent.METER_ALARM,"STATUS_EVENT_LOADMON_LOW_TRIP Load monitor low trip event"));
 		entries.add(new MeterEventMapEntry(9,3,MeterEvent.METER_ALARM,"Undervoltage confirmed"));
 		entries.add(new MeterEventMapEntry(9,2,MeterEvent.METER_ALARM,"Undervoltage detected"));
 		entries.add(new MeterEventMapEntry(9,1,MeterEvent.METER_ALARM,"Overvoltage confirmed"));
 		entries.add(new MeterEventMapEntry(9,0,MeterEvent.METER_ALARM,"Overvoltage detected"));
+                
+                // TSystemStatus10 - all added by cc
+                entries.add(new MeterEventMapEntry(10,7,MeterEvent.METER_ALARM,"STATUS_EVENT_CONTACT_ARM_LOADMON Contacted Armed via Load Monitor"));
+                entries.add(new MeterEventMapEntry(10,6,MeterEvent.METER_ALARM,"STATUS_EVENT_CONTACT_ARM_MOD Contactor Armed via Remote Module Comms"));
+                entries.add(new MeterEventMapEntry(10,5,MeterEvent.METER_ALARM,"STATUS_EVENT_CONTACTOR_ARM_OPT Contactor Armed via Optical Comms"));
+                entries.add(new MeterEventMapEntry(10,4,MeterEvent.METER_ALARM,"STATUS_EVENT_CONTACT_OPEN_DISCONNECT Contactor Opened by Disconnector"));
+                entries.add(new MeterEventMapEntry(10,3,MeterEvent.METER_ALARM,"STATUS_EVENT_CONTACT_OPEN_LOADMON_HIGH Contactor Opened by Load Monitor High"));
+                entries.add(new MeterEventMapEntry(10,2,MeterEvent.METER_ALARM,"STATUS_EVENT_CONTACT_OPEN_LOADMON_LOW Contactor Opened by Load Monitor Low"));
+                entries.add(new MeterEventMapEntry(10,1,MeterEvent.METER_ALARM,"STATUS_EVENT_CONTACTOR_OPEN_MOD Contactor Opened via Remote Module Comms"));
+		entries.add(new MeterEventMapEntry(10,0,MeterEvent.METER_ALARM,"STATUS_EVENT_CONTACTOR_OPEN_OPT Contactor Opened via Optical Comms"));
 		
+                // TSystemStatus11 - all added by cc
+                entries.add(new MeterEventMapEntry(11,3,MeterEvent.METER_ALARM,"STATUS_EVENT_CONTACT_CLOSE_BUT Contactor Closed by Pushbutton"));
+                entries.add(new MeterEventMapEntry(11,2,MeterEvent.METER_ALARM,"STATUS_EVENT_CONTACT_CLOSE_MOD Contactor Closed via Remote Module Comms"));
+                entries.add(new MeterEventMapEntry(11,1,MeterEvent.METER_ALARM,"STATUS_EVENT_CONTACTOR_CLOSE_OPT Contactor Closed via Optical Comms"));
+                entries.add(new MeterEventMapEntry(11,0,MeterEvent.METER_ALARM,"STATUS_EVENT_CONTACT_ARM_DISCONNECT Contactor Armed by Disconnector"));
 		
+                
 		// TSystemError0
 		//added cc
 		entries.add(new MeterEventMapEntry(16,7,MeterEvent.HARDWARE_ERROR,"Error Power Fail Backup"));
@@ -91,7 +110,7 @@ public class EventMapperFactory {
 		entries.add(new MeterEventMapEntry(18,0,MeterEvent.HARDWARE_ERROR,"Manufacturing Configuration CE"));
 
 		
-	}
+	}	
 	
 	public List getMeterEvents(String eventString) throws IOException{
 		
