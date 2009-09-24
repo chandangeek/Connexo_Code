@@ -55,7 +55,7 @@ public class EventMapperFactory {
                 //cc modified description
 		entries.add(new MeterEventMapEntry(9,7,MeterEvent.METER_ALARM,"STATUS_EVENT_LOADMON_HIGH_TRIP Load monitor high trip event"));
                 //cc modified description
-		entries.add(new MeterEventMapEntry(9,5,MeterEvent.METER_ALARM,"STATUS_EVENT_LOADMON_LOW_TRIP Load monitor low trip event"));
+		entries.add(new MeterEventMapEntry(9,6,MeterEvent.METER_ALARM,"STATUS_EVENT_LOADMON_LOW_TRIP Load monitor low trip event"));
 		entries.add(new MeterEventMapEntry(9,3,MeterEvent.METER_ALARM,"Undervoltage confirmed"));
 		entries.add(new MeterEventMapEntry(9,2,MeterEvent.METER_ALARM,"Undervoltage detected"));
 		entries.add(new MeterEventMapEntry(9,1,MeterEvent.METER_ALARM,"Overvoltage confirmed"));
