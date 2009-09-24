@@ -481,17 +481,17 @@ public class MessageExecutor extends GenericMessageExecutor{
 						seasonsP = getSortedList(seasonsProfile);
 						
 						int weekCount = 0;
+						int seasonCount = 0;
 						Iterator seasonsPIt = seasonsP.iterator();
 						while(seasonsPIt.hasNext()){
 							Structure entry = (Structure)seasonsPIt.next();
 							OctetString dateTime = (OctetString)entry.getDataType(0);
 							Structure seasonStruct = new Structure();
-							int seasonProfileNameId = ((Unsigned8)entry.getDataType(1)).getValue();
+//							int seasonProfileNameId = ((Unsigned8)entry.getDataType(1)).getValue();
+							int seasonProfileNameId = seasonCount++;
 							if(!seasonArrayExists(seasonProfileNameId, seasonArray)){
 								
-//								String weekProfileName = "Week" + weekCount++;
 								String weekProfileName = Integer.toString(weekCount++);
-//								String weekProfileName = weekNames[weekCount++];
 								seasonStruct.addDataType(OctetString.fromString(Integer.toString(seasonProfileNameId)));	// the seasonProfileName is the DB id of the season
 								seasonStruct.addDataType(dateTime);
 								seasonStruct.addDataType(OctetString.fromString(weekProfileName));

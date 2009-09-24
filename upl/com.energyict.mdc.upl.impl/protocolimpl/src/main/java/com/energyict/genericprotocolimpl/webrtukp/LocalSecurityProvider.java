@@ -25,17 +25,17 @@ public class LocalSecurityProvider implements SecurityProvider {
 	private Properties properties;
 	
 	/** Property name of the new AutenticationKey */
-	private static String NEW_AUTHENTICATION_KEY = "NewAuthenticationKey";
+	final static String NEW_AUTHENTICATION_KEY = "NewAuthenticationKey";
 	/** Property name of the new Global encryption Key */
-	private static String NEW_GLOBAL_KEY = "NewGlobalKey";
+	final static String NEW_GLOBAL_KEY = "NewGlobalKey";
 	/** Property name of the new HighLevel security Secret */
-	private static String NEW_HLS_SECRET = "NewHLSSecret";
+	final static String NEW_HLS_SECRET = "NewHLSSecret";
 	/** Property name of the DataTransport EncryptionKey */
-	private static String DATATRANSPORTKEY = "DataTransportKey";
+	final static String DATATRANSPORTKEY = "DataTransportKey";
 	/** Property name of the Master key, or KeyEncryptionKey */
-	private static String MASTERKEY = "MasterKey";
+	final static String MASTERKEY = "MasterKey";
 	/** Property name of the DataTransport AuthenticationKey */
-	private static String DATATRANSPORT_AUTHENTICATIONKEY = "DataTransportAuthenticationKey";
+	final static String DATATRANSPORT_AUTHENTICATIONKEY = "DataTransportAuthenticationKey";
 	
 	/**
 	 * Create a new instance of LocalSecurityProvider

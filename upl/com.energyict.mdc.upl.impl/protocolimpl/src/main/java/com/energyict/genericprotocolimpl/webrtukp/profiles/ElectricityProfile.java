@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.logging.Level;
 
 import com.energyict.cbo.BaseUnit;
@@ -317,11 +316,6 @@ public class ElectricityProfile {
 	
 	private DLMSMeterConfig getMeterConfig(){
 		return this.webrtu.getMeterConfig();
-	}
-	
-	private TimeZone getTimeZone() throws IOException{
-//		return this.webrtu.getTimeZone();
-		return this.webrtu.getMeterTimeZone();
 	}
 
 }

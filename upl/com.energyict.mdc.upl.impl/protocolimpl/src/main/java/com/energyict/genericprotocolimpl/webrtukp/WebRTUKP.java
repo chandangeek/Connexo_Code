@@ -40,6 +40,7 @@ import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
@@ -1429,9 +1430,15 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		result.add("WakeUp");
 		result.add("RoundTripCorrection");
 		result.add("FolderExtName");
-		result.add("DataTransportKey");
-		result.add("MasterKey");
-		result.add("DataTransportAuthenticationKey");
+//		result.add("DataTransportKey");
+//		result.add("MasterKey");
+//		result.add("DataTransportAuthenticationKey");
+		result.add(LocalSecurityProvider.DATATRANSPORTKEY);
+		result.add(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
+		result.add(LocalSecurityProvider.MASTERKEY);
+		result.add(LocalSecurityProvider.NEW_GLOBAL_KEY);
+		result.add(LocalSecurityProvider.NEW_AUTHENTICATION_KEY);
+		result.add(LocalSecurityProvider.NEW_HLS_SECRET);
 		return result;
 	}
 

@@ -39,6 +39,8 @@ public class ObisCodeMapper {
     private static final int DAILY 		= 	0x00;
     private static final int MONTHLY	=	0x01;
     
+    private static final String[] possibleConnectStates = {"Disconnected","Connected","Ready for Reconnection"};
+    
     private static ObisCode dailyObisCode 		= null;
     private static ObisCode monthlyObisCode 	= null;
     private	static ArrayList profileConfiguration = null;
@@ -154,7 +156,9 @@ public class ObisCodeMapper {
                     Data data = cof[DAILY].getData(new ObisCode(1,0,0,1,2,billingPoint));
                     registerValue = new RegisterValue(obisCode,data.getBillingDate());
                     return registerValue;
-                } else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+                } else {
+					throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+				}
             } // // billing point timestamp
             
             // *********************************************************************************
@@ -202,12 +206,9 @@ public class ObisCodeMapper {
                     registerValue = new RegisterValue(obisCode,
                             cosemObject.getQuantityValue(),
                             null, null, null,
-                            new Date(),0,
-                            cosemObject.getText());
+                            new Date(),0);
                     return registerValue; 
-	            }
-	            
-	            if((obisCode.toString().indexOf("0.0.128.30.22.255") != -1) ) {	//ConnectorMode
+	            }else if((obisCode.toString().indexOf("0.0.128.30.22.255") != -1) ) {	//ConnectorMode
 	            	registerValue = new RegisterValue(obisCode,
                             cosemObject.getQuantityValue(),
                             null, null, null,

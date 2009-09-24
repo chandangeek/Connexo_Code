@@ -561,9 +561,9 @@ class XmlHandler extends DefaultHandler {
             	}
             	if ( mask(eventId, Constant.EVENT_LOADPROFILE_CLEARED) ){
             		final String msg = "Event status load profile cleared.";
-            		addMeterEvent(time,MeterEvent.CLEAR_DATA,msg);
+//            		addMeterEvent(time,MeterEvent.CLEAR_DATA,msg);
             		/** Current event only supported from EIServer8.3.13, otherwise be sure to use the event above */
-//            		addMeterEvent(time, MeterEvent.LOADPROFILE_CLEARED, msg);
+            		addMeterEvent(time, MeterEvent.LOADPROFILE_CLEARED, msg);
             	}
             	if ( mask(eventId, Constant.EVENT_L1_POWER_FAILURE) ) {
             		final String msg = "Event status L1 phase failure.";

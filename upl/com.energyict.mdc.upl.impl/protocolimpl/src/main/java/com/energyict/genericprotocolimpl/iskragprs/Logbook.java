@@ -178,14 +178,14 @@ public class Logbook {
 			}
 			if ((eventId & EVENT_STATUS_LOADPROFILE_CLEARED) == EVENT_STATUS_LOADPROFILE_CLEARED){
 
-				meterEvents.add(new MeterEvent(eventTimeStamp,
-						MeterEvent.CLEAR_DATA,
-				"Event status load profile cleared"));
+//				meterEvents.add(new MeterEvent(eventTimeStamp,
+//						MeterEvent.CLEAR_DATA,
+//				"Event status load profile cleared"));
 				
 				/** Current event only supported from EIServer8.3.13, otherwise be sure to use the event above */
-//				meterEvents.add(new MeterEvent(eventTimeStamp,
-//						MeterEvent.LOADPROFILE_CLEARED,
-//				"Event status load profile cleared"));
+				meterEvents.add(new MeterEvent(eventTimeStamp,
+						MeterEvent.LOADPROFILE_CLEARED,
+				"Event status load profile cleared"));
 			}
 
 		} else {
