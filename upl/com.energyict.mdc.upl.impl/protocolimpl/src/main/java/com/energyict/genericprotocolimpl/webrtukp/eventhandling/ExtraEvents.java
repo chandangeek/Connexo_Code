@@ -25,7 +25,7 @@ public class ExtraEvents {
 		extraEvents.put(new Integer(230), new String[] {
 				Integer.toString(MeterEvent.FATAL_ERROR), "Fatal Error" });
 		extraEvents.put(new Integer(231), new String[] {
-				Integer.toString(MeterEvent.CLEAR_DATA), "Billing Reset" });
+				Integer.toString(MeterEvent.BILLING_ACTION), "Billing Reset" });
 		extraEvents.put(new Integer(232), new String[] {
 				Integer.toString(MeterEvent.PHASE_FAILURE),
 				"Power failure on L1" });
@@ -45,8 +45,11 @@ public class ExtraEvents {
 				Integer.toString(MeterEvent.OTHER),
 				"Indicates 'No Connection' timeout" });
 		extraEvents.put(new Integer(239), new String[] {
-			Integer.toString(MeterEvent.POWERDOWN),
+			Integer.toString(MeterEvent.SETCLOCK),
 			"Large Clock adjustment" });
+		extraEvents.put(new Integer(240), new String[] {
+			Integer.toString(MeterEvent.OTHER),
+			"Device Reset" });
 	}
 
 	/**
