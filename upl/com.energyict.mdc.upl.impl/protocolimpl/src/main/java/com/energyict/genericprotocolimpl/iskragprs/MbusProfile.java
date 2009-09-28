@@ -34,11 +34,13 @@ import com.energyict.protocol.ProfileData;
  * Changes:
  * GNA |23012009| When no there are no entries in the loadprofile, no error is thrown, just logging info.
  * GNA |29012009| When the ScalerUnit is (0, 0) then return a Unitless scalerUnit, otherwise you get errors.
+ * GNA |28092009| MBus profile interval is customizable (different from HOUR interval)
  */
 
 public class MbusProfile {
 	
 	private MbusDevice mbusDevice;
+	private int channelTimeInSeconds = -1;
 	
 	public MbusProfile(){
 	}
@@ -63,6 +65,7 @@ public class MbusProfile {
 				final Channel chn = getMeter().getChannel(i);
 				if(!(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS) && 
 						!(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS)){
+					channelTimeInSeconds = chn.getIntervalInSeconds();
 					channelCalendar = getFromCalendar(getMeter().getChannel(i));
 					if((fromCalendar == null) || (channelCalendar.before(fromCalendar))){
 						fromCalendar = channelCalendar;
@@ -156,8 +159,6 @@ public class MbusProfile {
 	
 	private void buildProfileData(final DataContainer dc, final ProfileData pd, final ProfileGeneric pg) throws IOException{
 		
-		//TODO check how this reacts with the profile.
-		
 		Calendar cal = null;
 		IntervalData currentInterval = null;
 		final int profileStatus = 0;
@@ -167,10 +168,9 @@ public class MbusProfile {
 				if(dc.getRoot().getStructure(i).isOctetString(0)){
 					cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
 				} else {
-					//TODO get the interval of the meter itself
-	//				cal.add(Calendar.SECOND, 3600);
 					if(cal != null){
-						cal.add(Calendar.SECOND, mbusDevice.getMbus().getIntervalInSeconds());
+//						cal.add(Calendar.SECOND, mbusDevice.getMbus().getIntervalInSeconds());
+						cal.add(Calendar.SECOND, channelTimeInSeconds);
 					}
 				}
 				if(cal != null){				

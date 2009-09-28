@@ -39,12 +39,6 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class ElectricityProfile {
 	
-//    private final int PROFILE_STATUS_DEVICE_DISTURBANCE=0x01;
-//    private final int PROFILE_STATUS_RESET_CUMULATION=0x10;
-//    private final int PROFILE_STATUS_DEVICE_CLOCK_CHANGED=0x20;
-//    private final int PROFILE_STATUS_POWER_RETURNED=0x40;
-//    private final int PROFILE_STATUS_POWER_FAILURE=0x80;
-	
 	private IskraMx37x iskramx37x;
 	
 	public ElectricityProfile(){
@@ -212,30 +206,6 @@ public class ElectricityProfile {
 			this.iskramx37x.getLogger().log(Level.INFO, "No entries in LoadProfile");
 		}
 	}
-	
-//    private int map(int protocolStatus) {
-//        
-//        int eiStatus=0;
-//        
-//        if ((protocolStatus & PROFILE_STATUS_DEVICE_DISTURBANCE) == PROFILE_STATUS_DEVICE_DISTURBANCE) {
-//            eiStatus |= IntervalStateBits.DEVICE_ERROR; 
-//        }
-//        if ((protocolStatus & PROFILE_STATUS_RESET_CUMULATION) == PROFILE_STATUS_RESET_CUMULATION) {
-//            eiStatus |= IntervalStateBits.OTHER; 
-//        } 
-//        if ((protocolStatus & PROFILE_STATUS_DEVICE_CLOCK_CHANGED) == PROFILE_STATUS_DEVICE_CLOCK_CHANGED) {
-//            eiStatus |= IntervalStateBits.SHORTLONG; 
-//        } 
-//        if ((protocolStatus & PROFILE_STATUS_POWER_RETURNED) == PROFILE_STATUS_POWER_RETURNED) {
-//            eiStatus |= IntervalStateBits.POWERUP; 
-//        } 
-//        if ((protocolStatus & PROFILE_STATUS_POWER_FAILURE) == PROFILE_STATUS_POWER_FAILURE) {
-//            eiStatus |= IntervalStateBits.POWERDOWN; 
-//        } 
-//        
-//        return eiStatus;
-//        
-//    }
 	
 	private boolean isProfileStatusObisCode(final ObisCode oc) throws IOException{
 		return oc.equals(getMeterConfig().getStatusObject().getObisCode());
