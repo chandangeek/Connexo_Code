@@ -75,7 +75,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 	private int profileInterval;
 	private ChannelMap channelMap;
 	private int requestHeader;
-	ProtocolChannelMap protocolChannelMap = null;
+	private ProtocolChannelMap protocolChannelMap = null;
 	private int dataReadoutRequest;
 
 	private TimeZone timeZone;
@@ -83,11 +83,11 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 	private int extendedLogging;
 	private int vdewCompatible;
 
-	FlagIEC1107Connection flagIEC1107Connection=null;
-	LZQJRegistry lzqjRegistry=null;
-	LZQJProfile lzqjProfile=null;
+	private FlagIEC1107Connection flagIEC1107Connection=null;
+	private LZQJRegistry lzqjRegistry=null;
+	private LZQJProfile lzqjProfile=null;
 
-	List registerValues=null;
+	private List registerValues=null;
 
 	byte[] dataReadout=null;
 
