@@ -63,8 +63,6 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
  */
 public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol {
 
-	static private final byte DEBUG=0;
-
 	private String strID;
 	private String strPassword;
 	private int iIEC1107TimeoutProperty;
@@ -78,7 +76,6 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 	private ChannelMap channelMap;
 	private int requestHeader;
 	ProtocolChannelMap protocolChannelMap = null;
-	private int scaler;
 	private int dataReadoutRequest;
 
 	private TimeZone timeZone;
@@ -215,7 +212,6 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 			channelMap = new ChannelMap("0"); //properties.getProperty("ChannelMap","0"));
 			requestHeader=Integer.parseInt(properties.getProperty("RequestHeader","0").trim());
 			protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","0,0,0,0"));
-			scaler = Integer.parseInt(properties.getProperty("Scaler","0").trim());
 			dataReadoutRequest = Integer.parseInt(properties.getProperty("DataReadout","1").trim());
 			extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0").trim());
 			vdewCompatible=Integer.parseInt(properties.getProperty("VDEWCompatible","1").trim());
@@ -286,7 +282,6 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 		result.add("IEC1107Compatible");
 		result.add("ChannelMap");
 		result.add("RequestHeader");
-		result.add("Scaler");
 		result.add("DataReadout");
 		result.add("ExtendedLogging");
 		result.add("VDEWCompatible");
@@ -816,16 +811,6 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 	 * @throws IOException
 	 */
 	public LZQJProfile getLzqjProfile() throws IOException {
-		//    	if(lzqjProfile == null){
-		//    		TimeZone profileTimeZone;
-		//    		if(isRequestTimeZone){
-		//    			profileTimeZone = TimeZone.getTimeZone("GMT+01:00");
-		//    		} else {
-		//    			profileTimeZone = getTimeZone();
-		//    		}
-		//    		//TODO set the timeZone with it
-		//    		lzqjProfile = new LZQJProfile(this,this,lzqjRegistry,profileTimeZone);
-		//    	}
 		lzqjProfile = new LZQJProfile(this, this, lzqjRegistry);
 		return lzqjProfile;
 	}
