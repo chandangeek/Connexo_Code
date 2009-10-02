@@ -122,7 +122,7 @@ import com.energyict.protocolimpl.iec1107.ppm.register.LoadProfileDefinition;
   JME|01092009| Fixed bug in DataIdentity resulting in an exception while using IEC1107 (OPUS = 0)
   || Argument was not copied to object property because of typo. Changed "lenght" to "length" in argument name.
   || Added fixes for Java code quality
-  JME|09092009| Added support for setTime() while usong the optical connection (OPUS = 0)
+  JME|09092009| Added support for setTime() while using the optical connection (OPUS = 0)
 
  * @endchanges
  * @author fbo
@@ -134,7 +134,6 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * for an interval to be valid/acceptable. (in millisecs)
 	 * (see Fix for data spikes) */
 	public final static int MINIMUM_INTERVAL_AGE = 60000;
-
 
 	private TimeZone timeZone = null;
 	private Logger logger = null;
@@ -160,7 +159,6 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	private static final int PD_SECURITY_LEVEL = 2;
 	private static final String PD_OPUS = "1";
 	private static final String PD_EXTENDED_LOGGING = "0";
-
 
 	/** Property values
 	 * Required properties will have NO default value
@@ -190,7 +188,6 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 
 	private FlagIEC1107Connection flagIEC1107Connection = null;
 	private OpusConnection opusConnection = null;
-
 	private MeterType meterType = null;
 	private RegisterFactory rFactory = null;
 	private Profile profile = null;
@@ -198,15 +195,16 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 
 	private boolean software7E1;
 
-	private final String[] REGISTERCONFIG =
-	{ "TotalImportKwh","TotalExportKwh","TotalImportKvarh",
-			"TotalExportKvarh","TotalKvah"
+	private final String[] REGISTERCONFIG = {
+			"TotalImportKwh",
+			"TotalExportKwh",
+			"TotalImportKvarh",
+			"TotalExportKvarh",
+			"TotalKvah"
 	};
 
-
 	/** Creates a new instance of PPM */
-	public PPM() {
-	}
+	public PPM() {}
 
 	/* ___ Implement interface MeterProtocol ___ */
 
@@ -216,8 +214,7 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * @see com.energyict.protocol.MeterProtocol#
 	 *      setProperties(java.util.Properties)
 	 */
-	public void setProperties(Properties p) throws InvalidPropertyException,
-	MissingPropertyException {
+	public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
 
 		if (p.getProperty(MeterProtocol.ADDRESS) != null) {
 			this.pAddress = p.getProperty(MeterProtocol.ADDRESS);
@@ -259,8 +256,8 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 			this.pRetries = Integer.parseInt(p.getProperty(PK_SECURITY_LEVEL));
 		}
 
-		if ( p.getProperty(MeterProtocol.CORRECTTIME) != null ) {
-			this.pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.CORRECTTIME) );
+		if (p.getProperty(MeterProtocol.CORRECTTIME) != null) {
+			this.pCorrectTime = Integer.parseInt(p.getProperty(MeterProtocol.CORRECTTIME));
 		}
 
 		if (p.getProperty(PK_EXTENDED_LOGGING) != null) {
@@ -268,7 +265,7 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 		}
 
 		if (p.getProperty(PK_FORCE_DELAY) != null) {
-			this.pForceDelay = Integer.parseInt( p.getProperty(PK_FORCE_DELAY) );
+			this.pForceDelay = Integer.parseInt(p.getProperty(PK_FORCE_DELAY));
 		}
 
 		this.software7E1 = !p.getProperty("Software7E1", "0").equalsIgnoreCase("0");
@@ -277,28 +274,24 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 
 	}
 
-	private void validateProperties( )
-	throws MissingPropertyException, InvalidPropertyException {
+	private void validateProperties() throws MissingPropertyException, InvalidPropertyException {
 
-		if( this.pPassword == null ) {
+		if (this.pPassword == null) {
 			String msg = "";
-			msg += "There was no password entered, ";
-			msg += "stopping communication. ";
-			throw new InvalidPropertyException( msg );
+			msg += "There was no password entered, stopping communication. ";
+			throw new InvalidPropertyException(msg);
 		}
 
-		if( this.pPassword.length() < 8 ){
+		if (this.pPassword.length() < 8) {
 			String msg = "";
-			msg += "Password is too short, the length must be 8 characters, ";
-			msg += "stopping communication. ";
-			throw new InvalidPropertyException( msg );
+			msg += "Password is too short, the length must be 8 characters, stopping communication. ";
+			throw new InvalidPropertyException(msg);
 		}
 
-		if( this.pPassword.length() > 8 ){
+		if (this.pPassword.length() > 8) {
 			String msg = "";
-			msg += "Password is too long, the length must be 8 characters, ";
-			msg += "stopping communication. ";
-			throw new InvalidPropertyException( msg );
+			msg += "Password is too long, the length must be 8 characters, stopping communication. ";
+			throw new InvalidPropertyException(msg);
 		}
 
 	}
@@ -309,8 +302,7 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * @see com.energyict.protocol.MeterProtocol#init( java.io.InputStream,
 	 *      java.io.OutputStream, java.util.TimeZone, java.util.logging.Logger)
 	 */
-	public void init(InputStream inputStream, OutputStream outputStream,
-			TimeZone timeZone, Logger logger) throws IOException {
+	public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
 
 		this.timeZone = timeZone;
 		this.logger = logger;
@@ -333,15 +325,21 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 			logger.info(infoMsg);
 		}
 
-		if( isOpus() ){
-			this.opusConnection = new OpusConnection( inputStream, outputStream,
-					this );
+		if (isOpus()) {
+			this.opusConnection = new OpusConnection(inputStream, outputStream, this);
 		} else {
 			try {
-				this.flagIEC1107Connection = new FlagIEC1107Connection(inputStream,
-						outputStream, this.pTimeout, this.pRetries, this.pForceDelay,
-						0, 0,
-						new com.energyict.protocolimpl.iec1107.ppm.Encryption(),this.software7E1);
+				this.flagIEC1107Connection = new FlagIEC1107Connection(
+						inputStream,
+						outputStream,
+						this.pTimeout,
+						this.pRetries,
+						this.pForceDelay,
+						0,
+						0,
+						new com.energyict.protocolimpl.iec1107.ppm.Encryption(),
+						this.software7E1
+				);
 			} catch (ConnectionException e) {
 				logger.severe("PPM: init(...), " + e.getMessage());
 			}
@@ -357,16 +355,11 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	public void connect() throws IOException {
 		try {
 			if( !isOpus() ){
-				this.meterType =
-					this.flagIEC1107Connection.connectMAC(this.pAddress, this.pPassword,
-							this.pSecurityLevel, this.pNodeId);
-
+				this.meterType = this.flagIEC1107Connection.connectMAC(this.pAddress, this.pPassword, this.pSecurityLevel, this.pNodeId);
 				String ri = this.meterType.getReceivedIdent().substring(10, 13);
 				int version = Integer.parseInt(ri);
-
-				this.logger.log(Level.INFO, "Meter " + this.meterType.getReceivedIdent() );
-				this.logger.log(Level.INFO, "MeterType version = " + ri + " - "
-						+ version);
+				this.logger.log(Level.INFO, "Meter " + this.meterType.getReceivedIdent());
+				this.logger.log(Level.INFO, "MeterType version = " + ri + " - " + version);
 			}
 
 			this.rFactory = new RegisterFactory(this, this, PPMMeterType.ISSUE2);
@@ -388,26 +381,19 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 *  dashes (-) in the comparison.
 	 */
 	private void validateSerialNumber() throws IOException {
-		boolean check = true;
 		if ((this.pSerialNumber == null) || ("".equals(this.pSerialNumber))) {
 			return;
-			// at this point pSerialNumber can not be null any more
 		}
 
 		String sn = (String) this.rFactory.getRegister("SerialNumber");
 		if( sn!= null ) {
-
 			String snNoDash = sn.replaceAll( "-+", "" );
-
 			String pSerialNumberNoDash = this.pSerialNumber.replaceAll( "-+", "" );
-
-			if( pSerialNumberNoDash.equals( snNoDash ) ) {
+			if (pSerialNumberNoDash.equals(snNoDash)) {
 				return;
 			}
 		}
-
-		throw new IOException("SerialNumber mismatch! meter sn=" + sn
-				+ ", configured sn=" + this.pSerialNumber);
+		throw new IOException("SerialNumber mismatch! meter sn=" + sn + ", configured sn=" + this.pSerialNumber);
 	}
 
 	/*
@@ -416,7 +402,7 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * @see com.energyict.protocol.MeterProtocol#disconnect()
 	 */
 	public void disconnect() throws IOException {
-		if( !isOpus() ) {
+		if (!isOpus()) {
 			try {
 				this.flagIEC1107Connection.disconnectMAC();
 			} catch (FlagIEC1107ConnectionException e) {
@@ -442,10 +428,10 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 */
 	public List getOptionalKeys() {
 		List result = new ArrayList();
-		result.add( PK_OPUS );
-		result.add( PK_TIMEOUT );
-		result.add( PK_RETRIES );
-		result.add( PK_EXTENDED_LOGGING );
+		result.add(PK_OPUS);
+		result.add(PK_TIMEOUT);
+		result.add(PK_RETRIES);
+		result.add(PK_EXTENDED_LOGGING);
 		result.add(PK_FORCE_DELAY);
 		result.add("Software7E1");
 		return result;
@@ -465,9 +451,7 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * @see com.energyict.protocol.MeterProtocol#getProfileData(boolean)
 	 */
 	public ProfileData getProfileData(boolean includeEvents) throws IOException {
-		ProfileData profileData = this.profile.getProfileData(new Date(),
-				new Date(), true);
-
+		ProfileData profileData = this.profile.getProfileData(new Date(), new Date(), true);
 		this.logger.log(Level.INFO, profileData.toString());
 		return profileData;
 	}
@@ -478,13 +462,10 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date,
 	 *      boolean)
 	 */
-	public ProfileData getProfileData(Date lastReading, boolean includeEvents)
-	throws IOException {
-		ProfileData profileData = this.profile.getProfileData(lastReading,
-				new Date(), includeEvents);
+	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
+		ProfileData profileData = this.profile.getProfileData(lastReading, new Date(), includeEvents);
 		this.logger.log(Level.INFO, profileData.toString());
 		return profileData;
-
 	}
 
 	/*
@@ -493,10 +474,8 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date,
 	 *      java.util.Date, boolean)
 	 */
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents)
-	throws IOException, UnsupportedException {
-		ProfileData profileData = this.profile.getProfileData(from, to,
-				includeEvents);
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+		ProfileData profileData = this.profile.getProfileData(from, to, includeEvents);
 		this.logger.log(Level.INFO, profileData.toString());
 		return profileData;
 	}
@@ -506,18 +485,15 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 *
 	 * @see com.energyict.protocol.MeterProtocol#getMeterReading(int)
 	 */
-	public Quantity getMeterReading(int channelId) throws UnsupportedException,
-	IOException {
-
+	public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
 		LoadProfileDefinition lpd = this.rFactory.getLoadProfileDefinition();
 		List l = lpd.toChannelInfoList();
 		ChannelInfo ci = (ChannelInfo)l.get( channelId );
-		if( ci == null ) {
-			this.logger.log(Level.INFO, "REGISTERCONFIG[0] " + channelId  );
+		if (ci == null) {
+			this.logger.log(Level.INFO, "REGISTERCONFIG[0] " + channelId);
 			return null;
 		} else {
-			this.logger.log(Level.INFO, "REGISTERCONFIG[0] " + channelId  + " "
-					+ this.rFactory.getRegister(this.REGISTERCONFIG[ci.getChannelId() - 1 ]) );
+			this.logger.log(Level.INFO, "REGISTERCONFIG[0] " + channelId + " " + this.rFactory.getRegister(this.REGISTERCONFIG[ci.getChannelId() - 1]));
 			return (Quantity) this.rFactory.getRegister(this.REGISTERCONFIG[ci.getChannelId() - 1 ]);
 		}
 	}
@@ -527,8 +503,7 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 *
 	 * @see com.energyict.protocol.MeterProtocol#getMeterReading(java.lang.String)
 	 */
-	public Quantity getMeterReading(String name) throws UnsupportedException,
-	IOException {
+	public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
 		return (Quantity) this.rFactory.getRegister(name);
 	}
 
@@ -564,9 +539,7 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 *
 	 * @see com.energyict.protocol.MeterProtocol#getRegister(java.lang.String)
 	 */
-	public String getRegister(String name) throws IOException,
-	UnsupportedException, NoSuchRegisterException {
-		// TODO Auto-generated method stub
+	public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
 		return null;
 	}
 
@@ -627,10 +600,7 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * @see com.energyict.protocol.MeterProtocol#setRegister(java.lang.String,
 	 *      java.lang.String)
 	 */
-	public void setRegister(String name, String value) throws IOException,
-	NoSuchRegisterException, UnsupportedException {
-		// TODO Auto-generated method stub
-
+	public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
 	}
 
 	public void initializeDevice() throws IOException, UnsupportedException {
@@ -643,7 +613,6 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * @see com.energyict.protocol.MeterProtocol#getCache()
 	 */
 	public Object getCache() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -653,15 +622,8 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * @see com.energyict.protocol.MeterProtocol#fetchCache(int)
 	 */
 	public Object fetchCache(int rtuid) throws SQLException, BusinessException {
-		// TODO Auto-generated method stub
 		return null;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.energyict.protocol.MeterProtocol#getFirmwareVersion()
-	 */
 
 	/*
 	 * (non-Javadoc)
@@ -669,8 +631,6 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * @see com.energyict.protocol.MeterProtocol#setCache(java.lang.Object)
 	 */
 	public void setCache(Object cacheObject) {
-		// TODO Auto-generated method stub
-
 	}
 
 	/*
@@ -679,10 +639,7 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * @see com.energyict.protocol.MeterProtocol#updateCache(int,
 	 *      java.lang.Object)
 	 */
-	public void updateCache(int rtuid, Object cacheObject) throws SQLException,
-	BusinessException {
-		// TODO Auto-generated method stub
-
+	public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
 	}
 
 	/*
@@ -691,8 +648,6 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * @see com.energyict.protocol.MeterProtocol#release()
 	 */
 	public void release() throws IOException {
-		// TODO Auto-generated method stub
-
 	}
 
 	/* ___ Implement interface ProtocolLink ___ */
@@ -703,7 +658,6 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getChannelMap()
 	 */
 	public ChannelMap getChannelMap() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -713,7 +667,6 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getDataReadout()
 	 */
 	public byte[] getDataReadout() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -762,10 +715,8 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * @see com.energyict.protocolimpl.base.HHUEnabler#enableHHUSignOn(com.energyict.dialer.core.SerialCommunicationChannel,
 	 *      boolean)
 	 */
-	public void enableHHUSignOn(SerialCommunicationChannel commChannel,
-			boolean enableDataReadout) throws ConnectionException {
-		HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel,
-				this.pTimeout, this.pRetries, this.pForceDelay, 0);
+	public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean enableDataReadout) throws ConnectionException {
+		HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, this.pTimeout, this.pRetries, this.pForceDelay, 0);
 		hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
 		hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
 		hhuSignOn.enableDataReadout(enableDataReadout);
@@ -777,8 +728,7 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 *
 	 * @see com.energyict.protocolimpl.base.HHUEnabler#enableHHUSignOn(com.energyict.dialer.core.SerialCommunicationChannel)
 	 */
-	public void enableHHUSignOn(SerialCommunicationChannel commChannel)
-	throws ConnectionException {
+	public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
 		enableHHUSignOn(commChannel, false);
 	}
 
@@ -807,20 +757,11 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 
 	static Map exception = new HashMap();
 	static {
-		exception
-		.put("ERR1", "Invalid Command/Function type e.g. other than W1, R1 etc");
-
-		exception
-		.put("ERR2", "Invalid Data Identity Number e.g. Data id does not exist"
-				+ " in the meter");
-		exception
-		.put("ERR3", "Invalid Packet Number");
-
-		exception
-		.put("ERR5", "Data Identity is locked - password timeout");
-
-		exception
-		.put("ERR6", "General Comms error");
+		exception.put("ERR1", "Invalid Command/Function type e.g. other than W1, R1 etc");
+		exception.put("ERR2", "Invalid Data Identity Number e.g. Data id does not exist" + " in the meter");
+		exception.put("ERR3", "Invalid Packet Number");
+		exception.put("ERR5", "Data Identity is locked - password timeout");
+		exception.put("ERR6", "General Comms error");
 	}
 
 	/*
@@ -845,8 +786,8 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * @see com.energyict.protocol.RegisterProtocol#readRegister(com.energyict.obis.ObisCode)
 	 */
 	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-		if( this.obisCodeMapper == null ) {
-			this.obisCodeMapper = new ObisCodeMapper( this.rFactory );
+		if (this.obisCodeMapper == null) {
+			this.obisCodeMapper = new ObisCodeMapper(this.rFactory);
 		}
 		return this.obisCodeMapper.getRegisterValue(obisCode);
 	}
@@ -866,12 +807,12 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 		return this.rFactory;
 	}
 
-	public OpusConnection getOpusConnection( ){
+	public OpusConnection getOpusConnection() {
 		return this.opusConnection;
 	}
 
-	public boolean isOpus( ){
-		return "1".equals( this.pOpus );
+	public boolean isOpus() {
+		return "1".equals(this.pOpus);
 	}
 
 	public String getNodeId() {
@@ -886,7 +827,7 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 		return this.pForceDelay;
 	}
 
-	public long getDelayAfterFail(){
+	public long getDelayAfterFail() {
 		return this.pDelayAfterFail;
 	}
 
@@ -894,10 +835,10 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 		return this.pTimeout;
 	}
 
-	public void doExtendedLogging( ) throws IOException {
+	public void doExtendedLogging() throws IOException {
 
-		if( "1".equals(this.pExtendedLogging ) ) {
-			this.logger.info( this.rFactory.getRegisterInformation().getExtendedLogging() + " \n" );
+		if ("1".equals(this.pExtendedLogging)) {
+			this.logger.info(this.rFactory.getRegisterInformation().getExtendedLogging() + " \n");
 		}
 
 	}
