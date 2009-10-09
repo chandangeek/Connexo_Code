@@ -265,7 +265,9 @@
 
 -keepnames class com.energyict.protocolimpl.dlms.elster.ek2xx.EK2xx
 
--keepnames class com.energyict.protocolimpl.dlms.eictz3.EictZ3
+-keep class com.energyict.protocolimpl.dlms.eictz3.EictZ3 {
+	public *;
+}
 
 -keepnames class com.energyict.protocolimpl.modbus.enerdis.enerium200.Enerium200
 
