@@ -56,7 +56,9 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CapturedObjectsHelper;
 import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.DemandRegister;
 import com.energyict.dlms.cosem.Disconnector;
@@ -193,6 +195,9 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	
 	/** This is the default Obis code for the Epio. */
 	private static final ObisCode OBIS_CODE_EPIO_LOAD_PROFILE = ObisCode.fromString("1.0.99.1.0.255");
+	
+	/** Obis code we can use to request the RF network topology. */
+	private static final ObisCode OBIS_CODE_NETWORK_TOPOLOGY = ObisCode.fromString("0.128.3.0.8.255");
 
 	/** Protocol status flag indicating load profile has been cleared. */
 	private static final int CLEAR_LOADPROFILE = 0x4000;
@@ -350,6 +355,12 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	/** The firmware version. */
 	private String firmwareVersion;
 
+	/** 
+	 * This one indicates if we have set the properties yet. It is used to make sure {@link #setProperties(Properties)} is called before {@link #init(InputStream, OutputStream, TimeZone, Logger)},
+	 * as one would assume the sequence to be the other way around.
+	 */
+	private transient boolean propertiesSet = false;
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -362,6 +373,10 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	 * {@inheritDoc}
 	 */
 	public final void init(final InputStream inputStream, final OutputStream outputStream, final TimeZone timeZone, final Logger logger) throws IOException {
+		if (!propertiesSet) {
+			throw new IllegalStateException("You have to call setProperties before calling init, otherwise this protocol will not work correctly.");
+		}
+		
 		this.timeZone = timeZone;
 
 		if (logger != null) {
@@ -1273,6 +1288,8 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 			this.numberOfClocksetTries = DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES;
 		}
+		
+		this.propertiesSet = true;
 	}
 
 	/**
@@ -2147,5 +2164,41 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	 */
 	public final boolean supportsUserFileReferences() {
 		return false;
+	}
+	
+	/**
+	 * Returns the CyNet RF network topology. This is a really specific method that will poll a specific register on the EpIO (in which the current
+	 * RF topology is stored).
+	 * 
+	 * @return	The CyNet RF network topology. The string has one line per node in the topology, and each line is manufacturerID and routing address, 
+	 * 			separated by a comma.
+	 */
+	public final String getRFNetworkTopology() throws IOException {
+		if (logger.isLoggable(Level.FINE)) {
+			logger.log(Level.FINE, "Requesting RF network topology from Z3.");
+		}
+		
+		final CosemObject cosemTopology = this.getCosemObjectFactory().getCosemObject(OBIS_CODE_NETWORK_TOPOLOGY);
+		
+		if (cosemTopology != null) {
+			final StringBuilder stringBuilder = new StringBuilder();
+			final DataStructure root = ((Data)cosemTopology).getDataContainer().getRoot();
+			
+			for (int i = 0; i < root.element.length; i++) {
+				final DataStructure topologyEntry = (DataStructure)root.element[i];
+				
+				final String manufacturerId = Long.toHexString((((Integer)topologyEntry.element[0]).intValue() & 0xFFFFFFFFl));
+				final String routingAddress = Long.toHexString((((Integer)topologyEntry.element[1]).intValue() & 0xFFFFFFFFl));
+				
+				stringBuilder.append(manufacturerId).append(',').append(routingAddress).append("\n");
+			}
+			
+			return stringBuilder.toString();
+		} else {
+			logger.log(Level.WARNING, "Query for OBIS code [" + OBIS_CODE_NETWORK_TOPOLOGY + "] did not yield any result, assuming no RF available.");
+		}
+		
+		// The EpIO did not return anything when requested for the particular register, so we do neither.
+		return null;
 	}
 }
