@@ -56,7 +56,6 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CapturedObjectsHelper;
 import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DataAccessResultException;
@@ -2178,11 +2177,11 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			logger.log(Level.FINE, "Requesting RF network topology from Z3.");
 		}
 		
-		final CosemObject cosemTopology = this.getCosemObjectFactory().getCosemObject(OBIS_CODE_NETWORK_TOPOLOGY);
+		final Data cosemTopology = this.getCosemObjectFactory().getData(OBIS_CODE_NETWORK_TOPOLOGY);
 		
 		if (cosemTopology != null) {
 			final StringBuilder stringBuilder = new StringBuilder();
-			final DataStructure root = ((Data)cosemTopology).getDataContainer().getRoot();
+			final DataStructure root = (cosemTopology).getDataContainer().getRoot();
 			
 			for (int i = 0; i < root.element.length; i++) {
 				final DataStructure topologyEntry = (DataStructure)root.element[i];
