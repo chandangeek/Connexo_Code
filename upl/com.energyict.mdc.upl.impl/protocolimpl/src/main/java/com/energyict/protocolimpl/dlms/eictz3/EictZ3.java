@@ -2193,6 +2193,10 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 				stringBuilder.append(manufacturerId).append(',').append(routingAddress).append("\n");
 			}
 			
+			if (logger.isLoggable(Level.FINE)) {
+				logger.log(Level.FINE, "Got routing table [" + stringBuilder.toString() + "] from the Z3.");
+			}
+			
 			return stringBuilder.toString();
 		} else {
 			logger.log(Level.WARNING, "Query for OBIS code [" + OBIS_CODE_NETWORK_TOPOLOGY + "] did not yield any result, assuming no RF available.");
