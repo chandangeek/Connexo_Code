@@ -2177,31 +2177,40 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			logger.log(Level.FINE, "Requesting RF network topology from Z3.");
 		}
 		
-		final Data cosemTopology = this.getCosemObjectFactory().getData(OBIS_CODE_NETWORK_TOPOLOGY);
-		
-		if (cosemTopology != null) {
-			final StringBuilder stringBuilder = new StringBuilder();
-			final DataStructure root = (cosemTopology).getDataContainer().getRoot();
+		try {
+			final Data cosemTopology = this.getCosemObjectFactory().getData(OBIS_CODE_NETWORK_TOPOLOGY);
 			
-			for (int i = 0; i < root.element.length; i++) {
-				final DataStructure topologyEntry = (DataStructure)root.element[i];
+			if (cosemTopology != null) {
+				final StringBuilder stringBuilder = new StringBuilder();
+				final DataStructure root = (cosemTopology).getDataContainer().getRoot();
 				
-				final String manufacturerId = Long.toHexString((((Integer)topologyEntry.element[0]).intValue() & 0xFFFFFFFFl));
-				final String routingAddress = Long.toHexString((((Integer)topologyEntry.element[1]).intValue() & 0xFFFFFFFFl));
+				for (int i = 0; i < root.element.length; i++) {
+					final DataStructure topologyEntry = (DataStructure)root.element[i];
+					
+					final String manufacturerId = Long.toHexString((((Integer)topologyEntry.element[0]).intValue() & 0xFFFFFFFFl));
+					final String routingAddress = Long.toHexString((((Integer)topologyEntry.element[1]).intValue() & 0xFFFFFFFFl));
+					
+					stringBuilder.append(manufacturerId).append(',').append(routingAddress).append("\n");
+				}
 				
-				stringBuilder.append(manufacturerId).append(',').append(routingAddress).append("\n");
+				if (logger.isLoggable(Level.FINE)) {
+					logger.log(Level.FINE, "Got routing table [" + stringBuilder.toString() + "] from the Z3.");
+				}
+				
+				return stringBuilder.toString();
+			} else {
+				logger.log(Level.WARNING, "Query for OBIS code [" + OBIS_CODE_NETWORK_TOPOLOGY + "] did not yield any result, assuming no RF available.");
 			}
 			
-			if (logger.isLoggable(Level.FINE)) {
-				logger.log(Level.FINE, "Got routing table [" + stringBuilder.toString() + "] from the Z3.");
+			// The EpIO did not return anything when requested for the particular register, so we do neither.
+			return null;
+		} catch (final DataAccessResultException e) {
+			if (e.getCode() == DataAccessResultCode.OBJECT_UNDEFINED) {
+				// No such register.
+				logger.log(Level.INFO, "The EpIO says there is no register with Obis code [" + OBIS_CODE_NETWORK_TOPOLOGY + "], assuming it is not acting as an RF master.");
 			}
 			
-			return stringBuilder.toString();
-		} else {
-			logger.log(Level.WARNING, "Query for OBIS code [" + OBIS_CODE_NETWORK_TOPOLOGY + "] did not yield any result, assuming no RF available.");
+			return null;
 		}
-		
-		// The EpIO did not return anything when requested for the particular register, so we do neither.
-		return null;
 	}
 }
