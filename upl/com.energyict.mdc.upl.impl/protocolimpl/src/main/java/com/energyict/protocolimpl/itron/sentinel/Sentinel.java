@@ -50,6 +50,8 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
     
     String c12User;
     int c12UserId;
+    int maxNrPackets;
+
     
     private ObisCodeInfoFactory obisCodeInfoFactory=null;
             
@@ -106,7 +108,7 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
         if ((getInfoTypeSecurityLevel()!=2) && ((getInfoTypePassword()==null) || (getInfoTypePassword().compareTo("")==0)))
             setInfoTypePassword(new String(new byte[]{0}));
             
-        getPSEMServiceFactory().logOn(c12UserId,replaceSpaces(c12User),getInfoTypePassword(),getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_ASCII, 128, 1);
+        getPSEMServiceFactory().logOn(c12UserId,replaceSpaces(c12User),getInfoTypePassword(),getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_ASCII, 128, maxNrPackets);
     }
     
     private String replaceSpaces(String c12User) {
@@ -132,13 +134,15 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
         setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.NODEID,"0"));
         c12User = properties.getProperty("C12User","");
         c12UserId = Integer.parseInt(properties.getProperty("C12UserId","0").trim());
-        
+        maxNrPackets = Integer.parseInt(properties.getProperty("MaxNrPackets", "1"), 16);
+
     }
     
     protected List doGetOptionalKeys() {
         List result = new ArrayList();
         result.add("C12User");
         result.add("C12UserId");
+        result.add("MaxNrPackets");
         return result;
     }
     
