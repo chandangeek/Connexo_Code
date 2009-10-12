@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.iec1107.ppm.parser;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -13,20 +14,11 @@ import com.energyict.protocolimpl.iec1107.ppm.Profile;
 public class ProfileReverseParser {
 
 	private boolean DBG = false;
-
-	// Date currentMeterDate = null; // KV 22072005 unused code
 	private int dayNr = 0;
 	private int monthNr = 0;
-	//TimeZone timeZone = null; // KV 22072005 unused code
 
 	private boolean beginFound = false;
 	private int lastGoodIndex = 0;
-	// int firstDay = 0; // KV 22072005 unused code
-	// int firstMonth = 0;// KV 22072005 unused code
-
-	//private int dayMinByteSize;// KV 22072005 unused code
-	//private int dayMaxByteSize;// KV 22072005 unused code
-
 	private int nrOfChannels;
 	private int intervalLength;
 
@@ -39,17 +31,11 @@ public class ProfileReverseParser {
 	private DayAssembler dayAssembler = new DayAssembler();
 
 	/** intervalLength in seconds */
-	public ProfileReverseParser(
-			Date currentMeterDate, int nrOfChannels,
-			int intervalLength, TimeZone timeZone ) {
-
-		// this.currentMeterDate = currentMeterDate; // KV 22072005 unused code
+	public ProfileReverseParser(Date currentMeterDate, int nrOfChannels, int intervalLength, TimeZone timeZone) {
 		Calendar c = ProtocolUtils.getCalendar( timeZone );
 		c.setTime(currentMeterDate);
 		this.dayNr = c.get(Calendar.DAY_OF_MONTH);
 		this.monthNr = c.get(Calendar.MONTH);
-		//this.timeZone = timeZone;// KV 22072005 unused code
-
 		this.nrOfChannels = nrOfChannels;
 		this.intervalLength = intervalLength;
 
@@ -157,11 +143,9 @@ public class ProfileReverseParser {
 	class FFAssembler implements Assembler {
 		int ffCount = 0;
 		int position16FF = 0;
-		//boolean past16Fs = false;// KV 22072005 unused code
 
 		public void workOn(ByteAssembly ta) {
 			if (this.ffCount == 15 ){
-				//past16Fs = true;// KV 22072005 unused code
 				this.position16FF = ta.getIndex();
 			} else {
 				this.ffCount += 1;
@@ -172,20 +156,11 @@ public class ProfileReverseParser {
 
 	class DayAssembler implements Assembler {
 
-		//boolean foundCurrentDay = false;// KV 22072005 unused code
-
 		public void workOn(ByteAssembly ta) throws IOException {
-
 			((Byte) ta.pop()).byteValue();
-
 			int day = (int) hex2dec(ProfileReverseParser.this.byteAssembly.getInput()[ProfileReverseParser.this.byteAssembly.getIndex() + 1]);
 			int month = (int) hex2dec(ProfileReverseParser.this.byteAssembly.getInput()[ProfileReverseParser.this.byteAssembly.getIndex() + 2]);
-
 			if ((day == ProfileReverseParser.this.dayNr) && (month == ProfileReverseParser.this.monthNr + 1)) {
-				//foundCurrentDay = true; // KV 22072005 unused code
-				System.out.println("DAY = " + day + " - " + month);
-				// firstDay = day; // KV 22072005 unused code
-				//firstMonth = month;// KV 22072005 unused code
 				ProfileReverseParser.this.lastGoodIndex = ProfileReverseParser.this.byteAssembly.getIndex();
 				blockScan();
 			}
@@ -193,11 +168,17 @@ public class ProfileReverseParser {
 	}
 
 	class TerminalAssembler implements Assembler {
-
 		public void workOn(ByteAssembly ta) {
 			ta.pop();
 			ProfileReverseParser.this.ffAssembler.ffCount = 0;
 		}
+	}
+
+	public String toString() {
+		return "ProfileReverseParser [DBG=" + DBG + "\n assemblerTable=" + Arrays.toString(assemblerTable) + "\n beginFound=" + beginFound + "\n byteAssembly="
+		+ byteAssembly + "\n dayAssembler=" + dayAssembler + "\n dayNr=" + dayNr + "\n ffAssembler=" + ffAssembler + "\n intervalLength=" + intervalLength
+		+ "\n lastGoodIndex=" + lastGoodIndex + "\n monthNr=" + monthNr + "\n nrOfChannels=" + nrOfChannels + "\n terminalAssembler=" + terminalAssembler
+		+ "]";
 	}
 
 }

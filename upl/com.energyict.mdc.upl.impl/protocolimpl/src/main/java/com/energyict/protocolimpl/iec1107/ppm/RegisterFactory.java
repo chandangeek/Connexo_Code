@@ -21,11 +21,8 @@ import com.energyict.protocolimpl.iec1107.ppm.register.ScalingFactor;
 
 /**
  * There is 1 register per actual "Meter Register".
- * 
  * But a register can also be composed out of several "Meter Registers"
- * 
  * Or a register may need another meter register to iterprete the value.
- * 
  * @author fbo
  */
 
@@ -124,149 +121,62 @@ public class RegisterFactory {
 	public final static String R_MD_TOU_ALLOC_EXPORT_KVARH = "MdTouAllocImportKvarh";
 	/** 755 Maximum Demand Time Of Use Register Allocation from Total kVA */
 	public final static String R_MD_TOU_ALLOC_TOTAL_KVAH = "MdTouAllocImportKVAh";
-
 	/** 540 Historical Data */
 	final static String R_HISTORICAL_DATA = "HistoricalData";
-        
-        /** 541 Historical Data: Last Billing Period data */
-        final static String R_LAST_BILLING = "LastBillingPeriod";
+	/** 541 Historical Data: Last Billing Period data */
+	final static String R_LAST_BILLING = "LastBillingPeriod";
 
 	final static String R_LOAD_PROFILE = "LoadProfile";
+	static final String R_DEVICE_STATUS = "DeviceStatus";
 
 	{
 		this.registers = new TreeMap();
 
-		add("850", R_TIME_ADJUSTMENT_RS232, Register.DATE, 0, -1,
-				Register.WRITEABLE, Register.NOT_CACHED);
-
-		add("860", R_TIME_DATE_RS232, Register.DATE, 0, -1, Register.WRITEABLE,
-				Register.NOT_CACHED);
-
-		add("861", R_TIME_DATE_OPTICAL, Register.DATE, 0, -1,
-				Register.WRITEABLE, Register.NOT_CACHED);
-
-		add("878", R_INTEGRATION_PERIOD, Register.INTEGER, 0, 1,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("798", R_SERIAL_NUMBER, Register.STRING, 0, -1,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("795", R_SCHEME_ID, Register.STRING, 0, -1, Register.NOT_WRITEABLE,
-				Register.CACHED);
-
-		add("878", R_SUBINTERVAL_PERIOD, Register.INTEGER, 1, 1,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("878", R_NUMBER_OF_SUBINTERVALS, Register.INTEGER, 2, 1,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("704", R_SCALING_FACTOR, Register.SCALINGFACTOR, 0, 1,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("774", R_LOAD_PROFILE_DEFININTION, Register.LOADPROFILEDEF, 0, 1,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("501", R_TOTAL_IMPORT_WH, Register.REGISTER, 0, 5,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("501", R_TOTAL_EXPORT_WH, Register.REGISTER, 5, 5,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("501", R_TOTAL_IMPORT_VARH, Register.REGISTER, 10, 5,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("501", R_TOTAL_EXPORT_VARH, Register.REGISTER, 15, 5,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("501", R_TOTAL_VAH, Register.REGISTER, 20, 5,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("502", R_TIME_OF_USE_1, Register.REGISTER, 0, 5,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("502", R_TIME_OF_USE_2, Register.REGISTER, 5, 5,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("502", R_TIME_OF_USE_3, Register.REGISTER, 10, 5,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("502", R_TIME_OF_USE_4, Register.REGISTER, 15, 5,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("502", R_TIME_OF_USE_5, Register.REGISTER, 20, 5,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("502", R_TIME_OF_USE_6, Register.REGISTER, 25, 5,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("502", R_TIME_OF_USE_7, Register.REGISTER, 30, 5,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("502", R_TIME_OF_USE_8, Register.REGISTER, 35, 5,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("503", R_MAXIMUM_DEMAND_1, Register.MD, 0, 32,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("503", R_MAXIMUM_DEMAND_2, Register.MD, 32, 32,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("503", R_MAXIMUM_DEMAND_3, Register.MD, 64, 32,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("503", R_MAXIMUM_DEMAND_4, Register.MD, 96, 32,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("504", R_CUMULATIVE_MAXIMUM_DEMAND1, Register.REGISTER, 0, 5,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("504", R_CUMULATIVE_MAXIMUM_DEMAND2, Register.REGISTER, 5, 5,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("504", R_CUMULATIVE_MAXIMUM_DEMAND3, Register.REGISTER, 16, 5,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("504", R_CUMULATIVE_MAXIMUM_DEMAND4, Register.REGISTER, 21, 5,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("741", R_TOU_ALLOC_IMPORT_KWH, Register.BYTEARRAY, 0, 1,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("742", R_TOU_ALLOC_EXPORT_KWH, Register.BYTEARRAY, 0, 1,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("743", R_TOU_ALLOC_IMPORT_KVARH, Register.BYTEARRAY, 0, 1,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("744", R_TOU_ALLOC_EXPORT_KVARH, Register.BYTEARRAY, 0, 1,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("745", R_TOU_ALLOC_TOTAL_KVAH, Register.BYTEARRAY, 0, 1,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("751", R_MD_TOU_ALLOC_IMPORT_KWH, Register.BYTEARRAY, 0, 1,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("752", R_MD_TOU_ALLOC_EXPORT_KWH, Register.BYTEARRAY, 0, 1,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("753", R_MD_TOU_ALLOC_IMPORT_KVARH, Register.BYTEARRAY, 0, 1,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("754", R_MD_TOU_ALLOC_EXPORT_KVARH, Register.BYTEARRAY, 0, 1,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("755", R_MD_TOU_ALLOC_TOTAL_KVAH, Register.BYTEARRAY, 0, 1,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-		add("540", R_HISTORICAL_DATA, Register.HISTORICAL, 0, 1024,
-				Register.NOT_WRITEABLE, Register.CACHED);
-
-                add("541", R_LAST_BILLING, Register.LAST_BILLING, 0, 256,
-				Register.NOT_WRITEABLE, Register.CACHED);
-		
-                add("550", R_LOAD_PROFILE, Register.BYTEARRAY, 0, -1,
-				Register.NOT_WRITEABLE, Register.CACHED);
+		add("850", R_TIME_ADJUSTMENT_RS232, Register.DATE, 0, -1, Register.WRITEABLE, Register.NOT_CACHED);
+		add("860", R_TIME_DATE_RS232, Register.DATE, 0, -1, Register.WRITEABLE, Register.NOT_CACHED);
+		add("861", R_TIME_DATE_OPTICAL, Register.DATE, 0, -1, Register.WRITEABLE, Register.NOT_CACHED);
+		add("878", R_INTEGRATION_PERIOD, Register.INTEGER, 0, 1, Register.NOT_WRITEABLE, Register.CACHED);
+		add("798", R_SERIAL_NUMBER, Register.STRING, 0, -1, Register.NOT_WRITEABLE, Register.CACHED);
+		add("795", R_SCHEME_ID, Register.STRING, 0, -1, Register.NOT_WRITEABLE, Register.CACHED);
+		add("878", R_SUBINTERVAL_PERIOD, Register.INTEGER, 1, 1, Register.NOT_WRITEABLE, Register.CACHED);
+		add("878", R_NUMBER_OF_SUBINTERVALS, Register.INTEGER, 2, 1, Register.NOT_WRITEABLE, Register.CACHED);
+		add("704", R_SCALING_FACTOR, Register.SCALINGFACTOR, 0, 1, Register.NOT_WRITEABLE, Register.CACHED);
+		add("774", R_LOAD_PROFILE_DEFININTION, Register.LOADPROFILEDEF, 0, 1, Register.NOT_WRITEABLE, Register.CACHED);
+		add("501", R_TOTAL_IMPORT_WH, Register.REGISTER, 0, 5, Register.NOT_WRITEABLE, Register.CACHED);
+		add("501", R_TOTAL_EXPORT_WH, Register.REGISTER, 5, 5, Register.NOT_WRITEABLE, Register.CACHED);
+		add("501", R_TOTAL_IMPORT_VARH, Register.REGISTER, 10, 5, Register.NOT_WRITEABLE, Register.CACHED);
+		add("501", R_TOTAL_EXPORT_VARH, Register.REGISTER, 15, 5, Register.NOT_WRITEABLE, Register.CACHED);
+		add("501", R_TOTAL_VAH, Register.REGISTER, 20, 5, Register.NOT_WRITEABLE, Register.CACHED);
+		add("502", R_TIME_OF_USE_1, Register.REGISTER, 0, 5, Register.NOT_WRITEABLE, Register.CACHED);
+		add("502", R_TIME_OF_USE_2, Register.REGISTER, 5, 5, Register.NOT_WRITEABLE, Register.CACHED);
+		add("502", R_TIME_OF_USE_3, Register.REGISTER, 10, 5, Register.NOT_WRITEABLE, Register.CACHED);
+		add("502", R_TIME_OF_USE_4, Register.REGISTER, 15, 5, Register.NOT_WRITEABLE, Register.CACHED);
+		add("502", R_TIME_OF_USE_5, Register.REGISTER, 20, 5, Register.NOT_WRITEABLE, Register.CACHED);
+		add("502", R_TIME_OF_USE_6, Register.REGISTER, 25, 5, Register.NOT_WRITEABLE, Register.CACHED);
+		add("502", R_TIME_OF_USE_7, Register.REGISTER, 30, 5, Register.NOT_WRITEABLE, Register.CACHED);
+		add("502", R_TIME_OF_USE_8, Register.REGISTER, 35, 5, Register.NOT_WRITEABLE, Register.CACHED);
+		add("503", R_MAXIMUM_DEMAND_1, Register.MD, 0, 32, Register.NOT_WRITEABLE, Register.CACHED);
+		add("503", R_MAXIMUM_DEMAND_2, Register.MD, 32, 32, Register.NOT_WRITEABLE, Register.CACHED);
+		add("503", R_MAXIMUM_DEMAND_3, Register.MD, 64, 32, Register.NOT_WRITEABLE, Register.CACHED);
+		add("503", R_MAXIMUM_DEMAND_4, Register.MD, 96, 32, Register.NOT_WRITEABLE, Register.CACHED);
+		add("504", R_CUMULATIVE_MAXIMUM_DEMAND1, Register.REGISTER, 0, 5, Register.NOT_WRITEABLE, Register.CACHED);
+		add("504", R_CUMULATIVE_MAXIMUM_DEMAND2, Register.REGISTER, 5, 5, Register.NOT_WRITEABLE, Register.CACHED);
+		add("504", R_CUMULATIVE_MAXIMUM_DEMAND3, Register.REGISTER, 16, 5, Register.NOT_WRITEABLE, Register.CACHED);
+		add("504", R_CUMULATIVE_MAXIMUM_DEMAND4, Register.REGISTER, 21, 5, Register.NOT_WRITEABLE, Register.CACHED);
+		add("741", R_TOU_ALLOC_IMPORT_KWH, Register.BYTEARRAY, 0, 1, Register.NOT_WRITEABLE, Register.CACHED);
+		add("742", R_TOU_ALLOC_EXPORT_KWH, Register.BYTEARRAY, 0, 1, Register.NOT_WRITEABLE, Register.CACHED);
+		add("743", R_TOU_ALLOC_IMPORT_KVARH, Register.BYTEARRAY, 0, 1, Register.NOT_WRITEABLE, Register.CACHED);
+		add("744", R_TOU_ALLOC_EXPORT_KVARH, Register.BYTEARRAY, 0, 1, Register.NOT_WRITEABLE, Register.CACHED);
+		add("745", R_TOU_ALLOC_TOTAL_KVAH, Register.BYTEARRAY, 0, 1, Register.NOT_WRITEABLE, Register.CACHED);
+		add("751", R_MD_TOU_ALLOC_IMPORT_KWH, Register.BYTEARRAY, 0, 1, Register.NOT_WRITEABLE, Register.CACHED);
+		add("752", R_MD_TOU_ALLOC_EXPORT_KWH, Register.BYTEARRAY, 0, 1, Register.NOT_WRITEABLE, Register.CACHED);
+		add("753", R_MD_TOU_ALLOC_IMPORT_KVARH, Register.BYTEARRAY, 0, 1, Register.NOT_WRITEABLE, Register.CACHED);
+		add("754", R_MD_TOU_ALLOC_EXPORT_KVARH, Register.BYTEARRAY, 0, 1, Register.NOT_WRITEABLE, Register.CACHED);
+		add("755", R_MD_TOU_ALLOC_TOTAL_KVAH, Register.BYTEARRAY, 0, 1, Register.NOT_WRITEABLE, Register.CACHED);
+		add("540", R_HISTORICAL_DATA, Register.HISTORICAL, 0, 1024, Register.NOT_WRITEABLE, Register.CACHED);
+		add("541", R_LAST_BILLING, Register.LAST_BILLING, 0, 256, Register.NOT_WRITEABLE, Register.CACHED);
+		add("550", R_LOAD_PROFILE, Register.BYTEARRAY, 0, -1, Register.NOT_WRITEABLE, Register.CACHED);
+		add("561", R_DEVICE_STATUS, Register.BYTEARRAY, 0, 9, Register.NOT_WRITEABLE, Register.CACHED);
 
 	}
 
@@ -279,15 +189,11 @@ public class RegisterFactory {
 	private RegisterInformation registerInformation = null;
 
 	/** Creates a new instance of RegisterFactory */
-	public RegisterFactory(PPM ppm, MeterExceptionInfo meterExceptionInfo,
-			PPMMeterType abba1700MeterType) {
-
+	public RegisterFactory(PPM ppm, MeterExceptionInfo meterExceptionInfo, PPMMeterType abba1700MeterType) {
 		this.ppm = ppm;
 		this.setMeterExceptionInfo(meterExceptionInfo);
 		meterType = abba1700MeterType;
-		dataItendityFactory = new DataIdentityFactory(ppm, meterExceptionInfo,
-				meterType);
-
+		dataItendityFactory = new DataIdentityFactory(ppm, meterExceptionInfo, meterType);
 	}
 
 	protected DataIdentityFactory getDataIdentityFactory() {
@@ -318,11 +224,12 @@ public class RegisterFactory {
 	public void setRegister(String name, String value) throws IOException {
 		try {
 			Register register = findRegister(name);
-			if (register.isWriteable())
+			if (register.isWriteable()) {
 				register.writeRegister(value);
-			else
+			} else {
 				throw new IOException(
-						"ABBA1700, setRegister, register not writeable");
+				"ABBA1700, setRegister, register not writeable");
+			}
 
 		} catch (FlagIEC1107ConnectionException e) {
 			throw new IOException("ABBA1700, setRegister, " + e.getMessage());
@@ -332,11 +239,12 @@ public class RegisterFactory {
 	public void setRegister(String name, Object object) throws IOException {
 		try {
 			Register register = findRegister(name);
-			if (register.isWriteable())
+			if (register.isWriteable()) {
 				register.writeRegister(object);
-			else
+			} else {
 				throw new IOException(
-						"ABBA1700, setRegister, register not writeable");
+				"ABBA1700, setRegister, register not writeable");
+			}
 
 		} catch (FlagIEC1107ConnectionException e) {
 			throw new IOException("ABBA1700, setRegister, " + e.getMessage());
@@ -352,11 +260,9 @@ public class RegisterFactory {
 	 * @return object the register read @param billingPoint -1 = current, 0 =
 	 * last billing point, 1 = 2-throws last billing point, ...
 	 */
-	private Object getRegister(String name, int billingPoint)
-			throws IOException {
+	private Object getRegister(String name, int billingPoint) throws IOException {
 		Register register2Retrieve = findRegister(name);
 		register2Retrieve = findRegister(name);
-
 		return register2Retrieve.getValue();
 	}
 
@@ -366,7 +272,7 @@ public class RegisterFactory {
 	}
 
 	public byte[] getRegisterRawData(String name, int dataLength)
-			throws IOException {
+	throws IOException {
 		try {
 			Register register = findRegister(name);
 			return (register.readRegister(register.isCached(), dataLength, 0));
@@ -379,11 +285,12 @@ public class RegisterFactory {
 	// search the map for the register info
 	public Register findRegister(String name) throws IOException {
 		Register register = (Register) registers.get(name);
-		if (register == null)
+		if (register == null) {
 			throw new IOException("RegisterFactory, findRegister, " + name
 					+ " does not exist!");
-		else
+		} else {
 			return register;
+		}
 	}
 
 	public RegisterInfo getRegisterInfo(String name) {
@@ -392,10 +299,11 @@ public class RegisterFactory {
 
 	/** 861 Time and date via optical port */
 	public Date getTimeDate() throws IOException {
-	 	if( ppm.isOpus() ) 
-	 		return (Date) getRegister(R_TIME_DATE_RS232);
-	 	else
-	 		return (Date) getRegister(R_TIME_DATE_OPTICAL);
+		if( ppm.isOpus() ) {
+			return (Date) getRegister(R_TIME_DATE_RS232);
+		} else {
+			return (Date) getRegister(R_TIME_DATE_OPTICAL);
+		}
 	}
 
 	/** 878 Integration period */
@@ -567,23 +475,23 @@ public class RegisterFactory {
 	HistoricalDataSet getHistoricalData() throws IOException {
 		return (HistoricalDataSet) getRegister(R_HISTORICAL_DATA);
 	}
-        
-        /** 541 Last Billing */
-        HistoricalData getLastBilling() throws IOException {
-            return (HistoricalData) getRegister( R_LAST_BILLING );
-        }
+
+	/** 541 Last Billing */
+	HistoricalData getLastBilling() throws IOException {
+		return (HistoricalData) getRegister( R_LAST_BILLING );
+	}
 
 	/** 774 Load Profile Definition */
 	public LoadProfileDefinition getLoadProfileDefinition() throws IOException {
 		return (LoadProfileDefinition) getRegister(R_LOAD_PROFILE_DEFININTION);
 	}
 
-    public MeterExceptionInfo getMeterExceptionInfo() {
-        return meterExceptionInfo;
-    }
+	public MeterExceptionInfo getMeterExceptionInfo() {
+		return meterExceptionInfo;
+	}
 
-    public void setMeterExceptionInfo(MeterExceptionInfo meterExceptionInfo) {
-        this.meterExceptionInfo = meterExceptionInfo;
-    }
+	public void setMeterExceptionInfo(MeterExceptionInfo meterExceptionInfo) {
+		this.meterExceptionInfo = meterExceptionInfo;
+	}
 
 }

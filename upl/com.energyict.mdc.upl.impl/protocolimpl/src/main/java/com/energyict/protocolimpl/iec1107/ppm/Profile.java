@@ -37,6 +37,7 @@ public class Profile {
 	Date meterDate = null;
 
 	Logger log = null;
+	private boolean includeEvents = false;
 
 	/**
 	 * Creates a new instance of Profile
@@ -67,16 +68,11 @@ public class Profile {
 	 * @param endDate
 	 *            for retrieving meterreadings
 	 */
-	ProfileData getProfileData(Date beginDate, Date endDate,
-			boolean includeEvents) throws IOException {
-
+	ProfileData getProfileData(Date beginDate, Date endDate, boolean includeEvents) throws IOException {
+		this.log.log(Level.INFO, "getProfileData() beginDate=" + beginDate + " endDate=" + endDate);
 		this.beginDate = beginDate;
 		this.endDate = endDate;
-
-		String logString =
-			"getProfileData() beginDate=" + beginDate + " endDate=" + endDate;
-
-		this.log.log(Level.INFO, logString);
+		this.includeEvents  = includeEvents;
 
 		if (this.ppm.isOpus()) {
 			return doOpusProtocol();
@@ -143,41 +139,44 @@ public class Profile {
 
 		}
 
-		return opp.getProfileData();
+		ProfileData pd = opp.getProfileData();
+		if (isIncludeEvents()) {
+			pd.generateEvents();
+		}
+
+		return pd;
 
 	}
 
 	private ProfileData doIECProtocol() throws IOException {
-
 		int intPeriodInSec = this.rFactory.getIntegrationPeriod().intValue() * 60;
+		long byteSize = nrBytesToRetrieve(this.beginDate, this.endDate, intPeriodInSec, this.ppm.getNumberOfChannels());
 
-		long byteSize = nrBytesToRetrieve(this.beginDate, this.endDate, intPeriodInSec,
-				this.ppm.getNumberOfChannels());
-
+		this.log.log(Level.INFO, "IEC protocol, getNumberOfChannels()= " + this.ppm.getNumberOfChannels());
+		this.log.log(Level.INFO, "IEC protocol, intPeriodInSec= " + intPeriodInSec);
 		this.log.log(Level.INFO, "IEC protocol, byteSize= " + byteSize);
 
-		byte[] data = this.rFactory.getRegisterRawData(
-				RegisterFactory.R_LOAD_PROFILE, (int) byteSize);
+		byte[] data = this.rFactory.getRegisterRawData(RegisterFactory.R_LOAD_PROFILE, (int) byteSize);
 
-		/* debugging purposes */
-		//		FileOutputStream fos = new FileOutputStream("c:\\20040823AA"
-		//				+ System.currentTimeMillis());
-		//		fos.write(data);
-		//		fos.close();
+		System.out.println("data = \n" + ProtocolUtils.getResponseData(data));
+
+
 		Date date = this.rFactory.getTimeDate();
 		int nrChannels = this.rFactory.getLoadProfileDefinition().getNrOfChannels();
 		int intervalLength = this.rFactory.getIntegrationPeriod().intValue();
 
-		ProfileReverseParser prp = new ProfileReverseParser(date, nrChannels,
-				intervalLength * 60, this.ppm.getTimeZone() );
+		ProfileReverseParser prp = new ProfileReverseParser(date, nrChannels, intervalLength * 60, this.ppm.getTimeZone());
 		prp.setInput(data);
 
-		ProfileParser pp = new ProfileParser( this.ppm, this.rFactory,
-				this.rFactory.getTimeDate(),
-				this.rFactory.getLoadProfileDefinition(), false);
+		ProfileParser pp = new ProfileParser(this.ppm, this.rFactory, this.rFactory.getTimeDate(), this.rFactory.getLoadProfileDefinition(), false);
 		pp.setInput(new ByteArrayInputStream(prp.match()));
 
-		return pp.getProfileData();
+		ProfileData pd = pp.getProfileData();
+
+		if (isIncludeEvents()) {
+			pd.generateEvents();
+		}
+		return pd;
 	}
 
 	/** channel value size (is a constant) */
@@ -192,7 +191,7 @@ public class Profile {
 	 * ( nr sec day / int. duration sec ) + 1 +1 for extra iperiod
 	 */
 	static int maxIntervalsPerDay(int interval) {
-		return ((24 * 60 * 60) / interval) + 1;
+		return minIntervalsPerDay(interval) + 1;
 	}
 
 	static int minIntervalsPerDay(int interval) {
@@ -205,11 +204,7 @@ public class Profile {
 	 * calculate difference.
 	 */
 	static long nrDaysInPeriodIEC(Date start, Date end) {
-		// day index since start of count
-		long sd = start.getTime() / 1000 / 60 / 60 / 24;
-		long ed = end.getTime() / 1000 / 60 / 60 / 24;
-
-		return ed - sd + 1;
+		return nrDaysInPeriodOPUS(start, end)+ 1;
 	}
 
 	/**
@@ -246,22 +241,14 @@ public class Profile {
 	}
 
 	public static long dayByteSizeMin(int nrChannels, int intervalLength) {
-		long nbip = nrBytesPerIntegrationPeriod(nrChannels);
-		long dayByteSize = (minIntervalsPerDay(intervalLength) * nbip)
-		+ E4_BYTE_SIZE + DATE_BYTE_SIZE;
-		return dayByteSize;
+		return (minIntervalsPerDay(intervalLength) * nrBytesPerIntegrationPeriod(nrChannels)) + E4_BYTE_SIZE + DATE_BYTE_SIZE;
 	}
 
 	public static long dayByteSizeMax(int nrChannels, int intervalLength) {
-		long nbip = nrBytesPerIntegrationPeriod(nrChannels);
-		long dayByteSize = (maxIntervalsPerDay(intervalLength) * nbip)
-		+ E4_BYTE_SIZE + DATE_BYTE_SIZE;
-		return dayByteSize;
+		return (maxIntervalsPerDay(intervalLength) * nrBytesPerIntegrationPeriod(nrChannels)) + E4_BYTE_SIZE + DATE_BYTE_SIZE;
 	}
 
-	static long nrBytesToRetrieve(Date start, Date end, int intervalLength,
-			int nrChannels) {
-
+	static long nrBytesToRetrieve(Date start, Date end, int intervalLength, int nrChannels) {
 		long nd = nrDaysInPeriodIEC(start, end);
 		long total = dayByteSizeMax(nrChannels, intervalLength) * nd;
 
@@ -278,6 +265,8 @@ public class Profile {
 
 	}
 
-
+	public boolean isIncludeEvents() {
+		return includeEvents;
+	}
 
 }

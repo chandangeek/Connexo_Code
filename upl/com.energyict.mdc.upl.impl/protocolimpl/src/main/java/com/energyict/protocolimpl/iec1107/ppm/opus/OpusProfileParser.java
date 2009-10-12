@@ -72,7 +72,6 @@ public class OpusProfileParser {
 			}
 		}
 
-		profileData.generateEvents();
 		return profileData;
 	}
 

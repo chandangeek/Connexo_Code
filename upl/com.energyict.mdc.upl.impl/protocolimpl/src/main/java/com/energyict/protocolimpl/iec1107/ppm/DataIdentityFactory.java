@@ -15,19 +15,13 @@ class DataIdentityFactory {
 	private PPM ppm = null;
 	private MeterExceptionInfo meterExceptionInfo = null;
 
-	//private PPMMeterType meterType; // KV 22072005 unused
-
 	public DataIdentityFactory(PPM ppm, MeterExceptionInfo meterExceptionInfo, PPMMeterType meterType) {
-
 		this.ppm = ppm;
 		this.meterExceptionInfo = meterExceptionInfo;
-		//this.meterType = meterType; // KV 22072005 unused
-
 	}
 
 	{
 		this.rawRegisters = new HashMap();
-
 		add("878", 3, 1, DataIdentity.NORMAL);
 		add("850", 7, 1, DataIdentity.NORMAL);
 		add("860", 7, 1, DataIdentity.NORMAL);
@@ -52,13 +46,12 @@ class DataIdentityFactory {
 		add("755", 1, 1, DataIdentity.NORMAL);
 		add("540", 1024, 16, DataIdentity.NORMAL);
 		add("541", 256, 4, DataIdentity.NORMAL);
-		add("550", 0, 16, DataIdentity.PROFILE);
-		// 550 has dummy packet length, see Profile
+		add("550", 0, 16, DataIdentity.PROFILE); // 550 has dummy packet length, see Profile
+		add("561", 0, 9, DataIdentity.NORMAL);
 
 	}
 
 	public byte[] getDataIdentity(String dataID, boolean cached, int dataLength, int set) throws IOException {
-
 		try {
 			DataIdentity rawRegister = findRawRegister(dataID);
 			return rawRegister.readRegister(dataID, cached, (dataLength == -1 ? rawRegister.getLength() : dataLength), set);
@@ -69,7 +62,6 @@ class DataIdentityFactory {
 	}
 
 	public void setDataIdentity(String dataID, String value) throws IOException {
-
 		try {
 			DataIdentity rawRegister = findRawRegister(dataID);
 			rawRegister.writeRegister(dataID, value);
@@ -102,14 +94,12 @@ class DataIdentityFactory {
 	}
 
 	private DataIdentity findRawRegister(String dataID) throws IOException {
-
 		DataIdentity rawRegister = (DataIdentity) this.rawRegisters.get(dataID);
 		if (rawRegister == null) {
 			throw new IOException("DataIdentityFactory, findRawRegister, " + dataID + " does not exist!");
 		} else {
 			return rawRegister;
 		}
-
 	}
 
 }

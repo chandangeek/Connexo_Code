@@ -28,6 +28,16 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdw.amr.RtuRegisterMapping;
+import com.energyict.mdw.amr.RtuRegisterMappingFactory;
+import com.energyict.mdw.amr.RtuRegisterSpecFactory;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.ProductSpec;
+import com.energyict.mdw.core.ProductSpecFactory;
+import com.energyict.mdw.core.RtuType;
+import com.energyict.mdw.core.RtuTypeFactory;
+import com.energyict.mdw.shadow.RtuTypeShadow;
+import com.energyict.mdw.shadow.amr.RtuRegisterSpecShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HHUEnabler;
@@ -451,7 +461,7 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * @see com.energyict.protocol.MeterProtocol#getProfileData(boolean)
 	 */
 	public ProfileData getProfileData(boolean includeEvents) throws IOException {
-		ProfileData profileData = this.profile.getProfileData(new Date(), new Date(), true);
+		ProfileData profileData = this.profile.getProfileData(new Date(), new Date(), includeEvents);
 		this.logger.log(Level.INFO, profileData.toString());
 		return profileData;
 	}
@@ -786,10 +796,14 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	 * @see com.energyict.protocol.RegisterProtocol#readRegister(com.energyict.obis.ObisCode)
 	 */
 	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+		return getObisCodeMapper().getRegisterValue(obisCode);
+	}
+
+	public ObisCodeMapper getObisCodeMapper() throws IOException {
 		if (this.obisCodeMapper == null) {
 			this.obisCodeMapper = new ObisCodeMapper(this.rFactory);
 		}
-		return this.obisCodeMapper.getRegisterValue(obisCode);
+		return obisCodeMapper;
 	}
 
 	/*
@@ -840,6 +854,90 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 		if ("1".equals(this.pExtendedLogging)) {
 			this.logger.info(this.rFactory.getRegisterInformation().getExtendedLogging() + " \n");
 		}
+
+	}
+
+	public static void main(String[] args) {
+		MeteringWarehouse.createBatchContext();
+		RtuRegisterSpecFactory regSpecFactory = MeteringWarehouse.getCurrent().getRtuRegisterSpecFactory();
+		RtuRegisterMappingFactory rtuRegisterMappingFactory = MeteringWarehouse.getCurrent().getRtuRegisterMappingFactory();
+		RtuTypeFactory rtuTypeFactory = MeteringWarehouse.getCurrent().getRtuTypeFactory();
+		ProductSpecFactory productSpecFactory = MeteringWarehouse.getCurrent().getProductSpecFactory();
+		ProductSpec prodSpec = productSpecFactory.findByEdiCode("123");
+
+		List<RtuType> result = rtuTypeFactory.findByName("PPM issue 2");
+		if (result.isEmpty()) {
+			System.out.println("RtuType not found!");
+			return;
+		}
+		RtuType rtuType = result.get(0);
+		RtuTypeShadow rtuTypeShadow = rtuType.getShadow();
+
+		List<ObisCode> obisCodes = new ArrayList<ObisCode>();
+		obisCodes.add(ObisCode.fromString("1.1.1.8.0.255"));
+		obisCodes.add(ObisCode.fromString("1.1.1.8.0.0"));
+		obisCodes.add(ObisCode.fromString("1.1.1.8.0.1"));
+		obisCodes.add(ObisCode.fromString("1.1.1.8.0.2"));
+		obisCodes.add(ObisCode.fromString("1.1.1.8.0.3"));
+
+		obisCodes.add(ObisCode.fromString("1.1.2.8.0.255"));
+		obisCodes.add(ObisCode.fromString("1.1.2.8.0.0"));
+		obisCodes.add(ObisCode.fromString("1.1.2.8.0.1"));
+		obisCodes.add(ObisCode.fromString("1.1.2.8.0.2"));
+		obisCodes.add(ObisCode.fromString("1.1.2.8.0.3"));
+
+		obisCodes.add(ObisCode.fromString("1.1.3.8.0.255"));
+		obisCodes.add(ObisCode.fromString("1.1.3.8.0.0"));
+		obisCodes.add(ObisCode.fromString("1.1.3.8.0.1"));
+		obisCodes.add(ObisCode.fromString("1.1.3.8.0.2"));
+		obisCodes.add(ObisCode.fromString("1.1.3.8.0.3"));
+
+		obisCodes.add(ObisCode.fromString("1.1.4.8.0.255"));
+		obisCodes.add(ObisCode.fromString("1.1.4.8.0.0"));
+		obisCodes.add(ObisCode.fromString("1.1.4.8.0.1"));
+		obisCodes.add(ObisCode.fromString("1.1.4.8.0.2"));
+		obisCodes.add(ObisCode.fromString("1.1.4.8.0.3"));
+
+		obisCodes.add(ObisCode.fromString("1.1.9.8.0.255"));
+		obisCodes.add(ObisCode.fromString("1.1.9.8.0.0"));
+		obisCodes.add(ObisCode.fromString("1.1.9.8.0.1"));
+		obisCodes.add(ObisCode.fromString("1.1.9.8.0.2"));
+		obisCodes.add(ObisCode.fromString("1.1.9.8.0.3"));
+
+		obisCodes.add(ObisCode.fromString("1.1.1.8.1.255"));
+		obisCodes.add(ObisCode.fromString("1.1.1.8.1.0"));
+		obisCodes.add(ObisCode.fromString("1.1.1.8.1.1"));
+		obisCodes.add(ObisCode.fromString("1.1.1.8.1.2"));
+		obisCodes.add(ObisCode.fromString("1.1.1.8.1.3"));
+
+		obisCodes.add(ObisCode.fromString("1.1.1.8.2.255"));
+		obisCodes.add(ObisCode.fromString("1.1.1.8.2.0"));
+		obisCodes.add(ObisCode.fromString("1.1.1.8.2.1"));
+		obisCodes.add(ObisCode.fromString("1.1.1.8.2.2"));
+		obisCodes.add(ObisCode.fromString("1.1.1.8.2.3"));
+
+
+		for (ObisCode obisCode : obisCodes) {
+			RtuRegisterSpecShadow shadow = new RtuRegisterSpecShadow();
+			shadow.setDeviceObisCode(obisCode);
+			shadow.setNumberOfFractionDigits(3);
+			shadow.setNumberOfDigits(10);
+			RtuRegisterMapping regMapping = rtuRegisterMappingFactory.find(obisCode, 0);
+			System.out.println("regMapping = " + regMapping);
+			if (regMapping == null) {
+				System.out.println("rtuRegResult is empty");
+				continue;
+			}
+			shadow.setRegisterMappingId(regMapping.getId());
+			try {
+				rtuTypeShadow.getRegisterSpecShadows().add(shadow);
+				rtuType.update(rtuTypeShadow);
+				rtuTypeShadow = rtuType.getShadow();
+			} catch (SQLException e) {
+			} catch (BusinessException e) {
+			}
+		}
+
 
 	}
 
