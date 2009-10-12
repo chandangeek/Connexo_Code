@@ -320,7 +320,8 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 				+ "- RoundTripCorr    = " + this.pRountTripCorrection + "\n"
 				+ "- Correct Time     = " + this.pCorrectTime + "\n"
 				+ "- TimeZone         = " + timeZone + "\n"
-				+ "- Force Delay      = " + this.pForceDelay;
+				+ "- Force Delay      = " + this.pForceDelay + "\n"
+				+ "- Software7E1      = " + this.software7E1;
 
 			logger.info(infoMsg);
 		}
