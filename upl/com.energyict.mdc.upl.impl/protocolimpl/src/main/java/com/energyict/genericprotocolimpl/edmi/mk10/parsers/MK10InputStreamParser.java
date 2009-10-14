@@ -15,12 +15,16 @@ import com.energyict.protocolimpl.base.CRCGenerator;
 /**
  * @author jme
  *
+ * JME|14102009|Quick fix for ImServ. They have a meter with a different discovery packet.
+ * 				Normal size = 24 bytes. Their size = 98 bytes. Needs to be investigated further!
+ * 				The new packet contains more data about the meter (version, ...)
+ * 
  */
 public class MK10InputStreamParser {
 
 	private static final int DEBUG			= 0;
 	private static final long DEBUG_DELAY 	= 0;
-	
+
 	private static final int CRC_LENGTH 	= 2;
 	private static final int BYTEMASK		= 0x000000FF;
 
@@ -33,12 +37,13 @@ public class MK10InputStreamParser {
 
 	private static final byte PUSH_START	= (byte)0x8F;
 	private static final int PUSH_LENGTH	= 24;
-	
+	private static final int PUSH_LENGTH_EX	= 98;
+
 	private static final byte EXT_START		= 'E';
 	private static final byte INFO_START	= 'I';
 	private static final byte READ_START	= 'R';
 	private static final byte FARC_START	= 'F';
-	
+
 	private static final int EXT_MIN_LENGTH		= 12 + CRC_LENGTH;
 	private static final int INFO_MIN_LENGTH	= 6 + CRC_LENGTH;
 	private static final int READ_MIN_LENGTH	= 4 + CRC_LENGTH;
@@ -54,13 +59,13 @@ public class MK10InputStreamParser {
 	private int crcCalc						= 0;
 	private int crcData						= 0;
 	private int serial						= 0;
-	
+
 	/*
 	 * Constructors
 	 */
 
 	public MK10InputStreamParser() {}
-	
+
 	/*
 	 * Private getters, setters and methods
 	 */
@@ -76,10 +81,10 @@ public class MK10InputStreamParser {
 			}
 			buffer.write(b);
 		}
-		
-		return buffer.toByteArray(); 
+
+		return buffer.toByteArray();
 	}
-	
+
 	private byte[] appendCRC(byte[] inputBytes) throws IOException {
 		byte[] byteBuffer = new byte[inputBytes.length + 2];
 		int tempCRC = CRCGenerator.ccittCRC(inputBytes, inputBytes.length);
@@ -87,28 +92,28 @@ public class MK10InputStreamParser {
 
 		byteBuffer[byteBuffer.length - 1] = (byte)(tempCRC & BYTEMASK);
 		byteBuffer[byteBuffer.length - 2] = (byte)((tempCRC>>8) & BYTEMASK);
-				
+
 		return byteBuffer;
 	}
 
 	private boolean validatePacket(byte[] bts) {
 		switch (bts[0]) {
-		case PUSH_START: 
-			if (bts.length != PUSH_LENGTH) return false;
+		case PUSH_START:
+			return ((bts.length == PUSH_LENGTH) || (bts.length == PUSH_LENGTH_EX));
+		case INFO_START:
+			return (bts.length >= INFO_MIN_LENGTH);
+		case EXT_START:
+			if (bts.length < EXT_MIN_LENGTH) {
+				return false;
+			} else {
+				return validatePacket(ProtocolUtils.getSubArray(bts, EXT_DATA_OFFSET));
+			}
+		case READ_START:
+			return (bts.length >= READ_MIN_LENGTH);
+		case FARC_START:
+			return (bts.length >= FARC_MIN_LENGTH);
+		default:
 			return true;
-		case INFO_START: 
-			if (bts.length < INFO_MIN_LENGTH) return false;
-			return true;
-		case EXT_START: 
-			if (bts.length < EXT_MIN_LENGTH) return false;
-			return validatePacket(ProtocolUtils.getSubArray(bts, EXT_DATA_OFFSET));
-		case READ_START: 
-			if (bts.length < READ_MIN_LENGTH) return false;
-			return true;
-		case FARC_START: 
-			if (bts.length < FARC_MIN_LENGTH) return false;
-			return true;
-		default: return true;
 		}
 	}
 
@@ -119,21 +124,23 @@ public class MK10InputStreamParser {
 	public int parse(byte[] bytes, boolean isLastByte) {
 		boolean valid = false;
 		boolean push = false;
-		
-		if (bytes == null) throw new NullPointerException("Invalid argument: bytes cannot be null;");
+
+		if (bytes == null) {
+			throw new NullPointerException("Invalid argument: bytes cannot be null;");
+		}
 		this.bytes = bytes;
 		this.length = getBytes().length;
 
 		if (getLength() > CRC_LENGTH) {
 			this.crcCalc = CRCGenerator.ccittCRC(bytes, bytes.length - CRC_LENGTH);
-			this.crcData = 
-				(((int)bytes[getLength() - 1]) & BYTEMASK) +  
-				((((int)bytes[getLength() - 2]) & BYTEMASK) * 256);
-			
-			valid = (getCrcCalc() == getCrcData()) && validatePacket(bytes);
-			push = ((bytes[0] == PUSH_START) && (bytes.length == PUSH_LENGTH)) && valid; 
+			this.crcData =
+				((bytes[getLength() - 1]) & BYTEMASK) +
+				(((bytes[getLength() - 2]) & BYTEMASK) * 256);
 
-			if (push) { 					// Packet is push packet so it doesn't matter there are still bytes in the input stream  
+			valid = (getCrcCalc() == getCrcData()) && validatePacket(bytes);
+			push = ((bytes[0] == PUSH_START) && ((bytes.length == PUSH_LENGTH) || (bytes.length == PUSH_LENGTH_EX))) && valid;
+
+			if (push) { 					// Packet is push packet so it doesn't matter there are still bytes in the input stream
 				this.validPacket = true;
 				this.pushPacket = true;
 			} else {
@@ -160,32 +167,38 @@ public class MK10InputStreamParser {
 		if (isPushPacket()) {
 			this.serial = 0;
 			for (int i = 0; i < 4; i++) {
-				int value = ((int) bytes[SERIAL_OFFSET + (3-i)] & 0x000000FF);
+				int value = (bytes[SERIAL_OFFSET + (3-i)] & 0x000000FF);
 				this.serial += value << (8*i);
 			}
 		} else {
 			this.serial = 0;
 		}
-		
-		if ((DEBUG >= 2) && isValidPacket()) System.out.println("MK10InputStreamParser.parse(): " + this.toString());
-		
+
+		if ((DEBUG >= 2) && isValidPacket()) {
+			System.out.println("MK10InputStreamParser.parse(): " + this.toString());
+		}
+
 		return getBytes().length;
 	}
-		
+
 	private boolean searchPacket(byte[] bts) {
 		boolean valid = false;
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-		
+
 		for (int i = 0; i < bts.length; i++) {
 			buffer.write(bts[i]);
 			if (buffer.toByteArray().length > CRC_LENGTH) {
 				int tempCrcCalc = CRCGenerator.ccittCRC(buffer.toByteArray(), buffer.toByteArray().length - CRC_LENGTH);
-				int tempCrcData = (((int)bytes[getLength() - 1]) & BYTEMASK) + ((((int)bytes[getLength() - 2]) & BYTEMASK) * 256);
-				if ((tempCrcCalc == tempCrcData) && validatePacket(buffer.toByteArray())) valid = true;
+				int tempCrcData = ((bytes[getLength() - 1]) & BYTEMASK) + (((bytes[getLength() - 2]) & BYTEMASK) * 256);
+				if ((tempCrcCalc == tempCrcData) && validatePacket(buffer.toByteArray())) {
+					valid = true;
+				}
 			}
 		}
-		
-		if (valid) this.bytes = buffer.toByteArray();
+
+		if (valid) {
+			this.bytes = buffer.toByteArray();
+		}
 		return valid;
 	}
 
@@ -200,22 +213,22 @@ public class MK10InputStreamParser {
 		returnValue += "bytes = " + ProtocolUtils.getResponseData(getBytes());
 		return returnValue;
 	}
-	
+
 	/*
 	 * Public getters and setters
 	 */
-	
+
 	public byte[] getValidPacket() throws IOException {
 		byte[] returnBytes;
 		byte[] bytesNoCRC = ProtocolUtils.getSubArray2(getBytes(), 0, getBytes().length - CRC_LENGTH);
-		
+
 		returnBytes = ProtocolUtils.concatByteArrays(new byte[] {STX}, bytesNoCRC); 	// append STX to calculate CRC (including STX)
 		returnBytes = appendCRC(returnBytes);											// calculate and append CRC
 		returnBytes = ProtocolUtils.getSubArray(returnBytes, 1);						// remove STX from packet to prevent stuffing of real STX
 		returnBytes = getBytesCharStuffing(returnBytes);								// apply stuffing on packet
 		returnBytes = ProtocolUtils.concatByteArrays(new byte[] {STX}, returnBytes);	// add STX to start of frame
-		returnBytes = ProtocolUtils.concatByteArrays(returnBytes, new byte[] {ETX});	// append ETX to end of frame 
-		
+		returnBytes = ProtocolUtils.concatByteArrays(returnBytes, new byte[] {ETX});	// append ETX to end of frame
+
 		if (DEBUG >= 1) {
 			System.out.println();
 			System.out.println(" Input data   = " + ProtocolUtils.getResponseData(getBytes()));
@@ -223,11 +236,11 @@ public class MK10InputStreamParser {
 		}
 
 		if (DEBUG >= 3) {
-			try {Thread.sleep(DEBUG_DELAY);} 
+			try {Thread.sleep(DEBUG_DELAY);}
 			catch (InterruptedException e) {e.printStackTrace();}
 		}
 
-		
+
 		return returnBytes;
 	}
 
@@ -236,31 +249,31 @@ public class MK10InputStreamParser {
 	}
 
 	public int getLength() {
-		return length; 
+		return length;
 	}
-	
+
 	public int getCrcCalc() {
 		return crcCalc;
 	}
-	
+
 	public int getCrcData() {
 		return crcData;
 	}
-	
+
 	public boolean isValidPacket() {
 		return validPacket;
 	}
-	
+
 	public boolean isPushPacket() {
 		return pushPacket;
 	}
-	
+
 	public int getSerial() {
 		return serial;
 	}
-	
+
 	public String getSerialAsString() {
 		return String.valueOf(serial);
 	}
-	
+
 }
