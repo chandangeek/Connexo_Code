@@ -48,6 +48,10 @@ public abstract class PushPacket {
 		return serial;
 	}
 
+	public int getSerialAsInt() {
+		return Integer.valueOf(getSerial() == null ? "0" : getSerial());
+	}
+
 	public int getPacketLength() {
 		return getRawData().length;
 	}
@@ -158,14 +162,12 @@ public abstract class PushPacket {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("\nPushPacket [");
-		builder.append(getClass().getName());
-		builder.append("]\n > pushPacketType = ");
+		builder.append("\n > pushPacketType = ");
 		builder.append(pushPacketType);
-		builder.append("\n > validPacket = ");
-		builder.append(validPacket);
 		builder.append("\n > serial = ");
 		builder.append(serial);
+		builder.append("\n > validPacket = ");
+		builder.append(validPacket);
 		builder.append("\n > actualCrc = ");
 		builder.append(actualCrc);
 		builder.append("\n > packetCrc = ");

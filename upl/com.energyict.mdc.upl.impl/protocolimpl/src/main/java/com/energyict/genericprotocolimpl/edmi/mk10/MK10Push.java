@@ -387,10 +387,9 @@ public class MK10Push implements GenericProtocol {
 			returnMessage += "] ######## > ";
 			returnMessage += message;
 		}
-		returnMessage += "\n";
 		if ((debuglvl <= DEBUG) && (getLogger() != null)) {
 			getLogger().log(Level.INFO, returnMessage);
-			System.out.print(returnMessage);
+			System.out.print(returnMessage + "\n");
 		}
 	}
 

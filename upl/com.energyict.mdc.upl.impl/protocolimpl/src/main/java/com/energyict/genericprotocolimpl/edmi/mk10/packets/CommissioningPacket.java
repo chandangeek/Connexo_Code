@@ -1,7 +1,9 @@
 package com.energyict.genericprotocolimpl.edmi.mk10.packets;
 
-
-
+/**
+ * @author jme
+ *
+ */
 public class CommissioningPacket extends PushPacket {
 
 	private static final int	OFFSET				= 8;
@@ -112,14 +114,14 @@ public class CommissioningPacket extends PushPacket {
 	}
 
 	private boolean checkValidLength() {
-		if (getPacketLength() < getBasicLength()) {
+		if (getPacketLength() < getMinimumPacketLength()) {
 			makeInvalid();
 			return false;
 		}
 		return true;
 	}
 
-	protected int getBasicLength() {
+	private int getMinimumPacketLength() {
 		return super.getBasicLength() + LENGTH_FW_EDITION + LENGTH_FW_VERSION + LENGTH_GSM_IMEI + LENGTH_METER_ID + 4;
 	}
 
@@ -136,7 +138,8 @@ public class CommissioningPacket extends PushPacket {
 		StringBuilder builder = new StringBuilder();
 		builder.append("\nCommissioningPacket [");
 		builder.append(getClass().getName());
-		builder.append("]\n > deviceConfiguration = ");
+		builder.append(super.toString());
+		builder.append("\n > deviceConfiguration = ");
 		builder.append(deviceConfiguration);
 		builder.append("\n > firmwareEdition = ");
 		builder.append(firmwareEdition);
@@ -152,8 +155,6 @@ public class CommissioningPacket extends PushPacket {
 		builder.append(meterId);
 		builder.append("\n > plantNumber = ");
 		builder.append(plantNumber);
-		builder.append("\n > toString() = ");
-		builder.append(super.toString());
 		return builder.toString();
 	}
 

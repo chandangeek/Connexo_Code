@@ -18,6 +18,7 @@ import java.net.UnknownHostException;
 
 import org.junit.Ignore;
 
+import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -49,6 +50,9 @@ public class MK10PushUtil {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		PushPacket packet = PushPacket.getPushPacket(bytes);
+		System.out.println(packet);
 
 	}
 

@@ -12,4 +12,15 @@ public class HeartbeatPacket extends PushPacket {
 
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("HeartbeatPacket = ");
+		builder.append(getClass().getName());
+		builder.append(super.toString());
+		return builder.toString();
+	}
+
+
+
 }
