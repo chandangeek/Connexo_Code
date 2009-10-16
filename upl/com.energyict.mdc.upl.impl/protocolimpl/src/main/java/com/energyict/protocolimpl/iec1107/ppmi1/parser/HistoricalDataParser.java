@@ -79,10 +79,8 @@ public class HistoricalDataParser {
 		this.hd.setExportKvarh(createMR(RegisterFactory.R_TOTAL_EXPORT_VARH));
 		this.hd.setTotalKVAh(createMR(RegisterFactory.R_TOTAL_VAH ));
 
-		int bc =
-			Integer.parseInt(Integer.toHexString(ProtocolUtils.getInt(this.bAss.input, this.bAss.index, 2)));
-		//PPMUtils.parseInteger(bAss.input, bAss.index, 2)
-		//		.intValue();
+		int bc = Integer.parseInt(Integer.toHexString(ProtocolUtils.getInt(this.bAss.input, this.bAss.index, 2)));
+		//PPMUtils.parseInteger(bAss.input, bAss.index, 2).intValue();
 		this.hd.setBillingCount(bc);
 		this.bAss.index += 2; // billing reset counter
 

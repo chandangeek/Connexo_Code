@@ -3,7 +3,6 @@ package com.energyict.protocolimpl.iec1107.ppmi1;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.TimeZone;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -91,10 +90,10 @@ public class Register {
 		this.readable = readable;
 
 	}
-// KV22072005 unused code
-//	protected void setUnit(Unit unit) {
-//		this.unit = unit;
-//	}
+	// KV22072005 unused code
+	//	protected void setUnit(Unit unit) {
+	//		this.unit = unit;
+	//	}
 
 	protected int getType() {
 		return type;
@@ -127,10 +126,10 @@ public class Register {
 	protected String getName() {
 		return name;
 	}
-// KV22072005 unused code
-//	protected void setMetaRegister(MetaRegister metaRegister) {
-//		this.metaRegister = metaRegister;
-//	}
+	// KV22072005 unused code
+	//	protected void setMetaRegister(MetaRegister metaRegister) {
+	//		this.metaRegister = metaRegister;
+	//	}
 
 	/* _________ __________ */
 
@@ -151,66 +150,67 @@ public class Register {
 	/* ________ ______ */
 
 	protected void writeRegister(String value)
-			throws FlagIEC1107ConnectionException, IOException {
+	throws FlagIEC1107ConnectionException, IOException {
 		this.value = null;
 		getDataIdentityFactory().setDataIdentity(getDataID(), value);
 	}
 
 	protected void writeRegister(Object object)
-			throws FlagIEC1107ConnectionException, IOException {
+	throws FlagIEC1107ConnectionException, IOException {
 		this.value = null;
 		getDataIdentityFactory()
-				.setDataIdentity(getDataID(), buildData(object));
+		.setDataIdentity(getDataID(), buildData(object));
 	}
 
 	byte[] readRegister(boolean cached, int dataLength, int set)
-			throws FlagIEC1107ConnectionException, IOException {
+	throws FlagIEC1107ConnectionException, IOException {
 		return getDataIdentityFactory().getDataIdentity(getDataID(), cached,
 				dataLength, set);
 	}
 
 	protected Object getValue() throws IOException {
-		if (value == null || !cached)
+		if (value == null || !cached) {
 			value = parse(this.readRegister(cached, -1, 0));
+		}
 		return value;
 	}
 
 	protected String buildData(Object object) throws IOException {
 		switch (getType()) {
-			case STRING :
-				return (String) object;
+		case STRING :
+			return (String) object;
 
-			case DATE :
-				return new String(PPMUtils.buildDate((Date) object,
-						registerFactory.getPpm().getTimeZone()));
+		case DATE :
+			return new String(PPMUtils.buildDate((Date) object,
+					registerFactory.getPpm().getTimeZone()));
 
-			case NUMBER :
-				return null;
+		case NUMBER :
+			return null;
 
-			case LONG :
-				return null;
+		case LONG :
+			return null;
 
-			case INTEGER :
-				return null;
+		case INTEGER :
+			return null;
 
-			case BITFIELD64 :
-				return null;
+		case BITFIELD64 :
+			return null;
 
-			case BYTEARRAY :
-				return null;
+		case BYTEARRAY :
+			return null;
 
-			case QUANTITY :
-				return null;
+		case QUANTITY :
+			return null;
 
-			case HEX :
-				return null;
+		case HEX :
+			return null;
 
-			case HEX_LE :
-				return PPMUtils.buildHexLE((Long) object);
+		case HEX_LE :
+			return PPMUtils.buildHexLE((Long) object);
 
-			default :
-				throw new IOException("Register, buildData , unknown type "
-						+ getType());
+		default :
+			throw new IOException("Register, buildData , unknown type "
+					+ getType());
 		}
 	}
 
@@ -219,94 +219,94 @@ public class Register {
 
 		try {
 			switch (getType()) {
-				case STRING :
-					return new String(ProtocolUtils.getSubArray2(data,
-							getOffset(), getLength()));
+			case STRING :
+				return new String(ProtocolUtils.getSubArray2(data,
+						getOffset(), getLength()));
 
-				case DATE :
-					return PPMUtils.parseDate(data, 0, registerFactory.getPpm()
-							.getTimeZone());
+			case DATE :
+				return PPMUtils.parseDate(data, 0, registerFactory.getPpm()
+						.getTimeZone());
 
-				case LONG :
-					return PPMUtils.parseLong(data, getOffset(), getLength());
+			case LONG :
+				return PPMUtils.parseLong(data, getOffset(), getLength());
 
-				case INTEGER :
-					return PPMUtils
-							.parseInteger(data, getOffset(), getLength());
+			case INTEGER :
+				return PPMUtils
+				.parseInteger(data, getOffset(), getLength());
 
-				case BITFIELD64 :
-					return PPMUtils.parseBitfield(data, getOffset(),
-							getLength());
+			case BITFIELD64 :
+				return PPMUtils.parseBitfield(data, getOffset(),
+						getLength());
 
-				case BYTEARRAY :
-					return ProtocolUtils.getSubArray2(data, getOffset(),
-							getLength());
+			case BYTEARRAY :
+				return ProtocolUtils.getSubArray2(data, getOffset(),
+						getLength());
 
-				case QUANTITY :
-					MetaRegister metaRegister = registerFactory
-							.getRegisterInformation().get(name);
-					Unit unit = null;
-					BigDecimal scaleFactor = null;
-					if (metaRegister != null) {
-						unit = metaRegister.getUnit();
-						scaleFactor = metaRegister.getRegisterScaleFactor();
-					}
-					return PPMUtils.parseQuantity(data, getOffset(),
-							getLength(), scaleFactor, unit);
+			case QUANTITY :
+				MetaRegister metaRegister = registerFactory
+				.getRegisterInformation().get(name);
+				Unit unit = null;
+				BigDecimal scaleFactor = null;
+				if (metaRegister != null) {
+					unit = metaRegister.getUnit();
+					scaleFactor = metaRegister.getRegisterScaleFactor();
+				}
+				return PPMUtils.parseQuantity(data, getOffset(),
+						getLength(), scaleFactor, unit);
 
-				case HEX :
-					return PPMUtils
-							.parseLongHex(data, getOffset(), getLength());
+			case HEX :
+				return PPMUtils
+				.parseLongHex(data, getOffset(), getLength());
 
-				case HEX_LE :
-					return PPMUtils.parseLongHexLE(data, getOffset(),
-							getLength());
+			case HEX_LE :
+				return PPMUtils.parseLongHexLE(data, getOffset(),
+						getLength());
 
-				case MD :
-					metaRegister = registerFactory.getRegisterInformation()
-							.get(name);
-					unit = null;
-					scaleFactor = null;
-					if (metaRegister != null) {
-						unit = metaRegister.getUnit();
-						scaleFactor = metaRegister.getRegisterScaleFactor();
-					}
-					byte[] d = ProtocolUtils.getSubArray2(data, getOffset(),
-							getLength());
-					return new MaximumDemand(unit, d, scaleFactor,
-							getProtocolLink().getTimeZone());
+			case MD :
+				metaRegister = registerFactory.getRegisterInformation()
+				.get(name);
+				unit = null;
+				scaleFactor = null;
+				if (metaRegister != null) {
+					unit = metaRegister.getUnit();
+					scaleFactor = metaRegister.getRegisterScaleFactor();
+				}
+				byte[] d = ProtocolUtils.getSubArray2(data, getOffset(),
+						getLength());
+				return new MaximumDemand(unit, d, scaleFactor,
+						getProtocolLink().getTimeZone());
 
-				case REGISTER :
-					metaRegister = registerFactory.getRegisterInformation()
-							.get(name);
-					unit = null;
-					scaleFactor = null;
-					if (metaRegister != null) {
-						unit = metaRegister.getUnit();
-						scaleFactor = metaRegister.getRegisterScaleFactor();
-					}
-					Quantity q = PPMUtils.parseQuantity(data, getOffset(),
-							getLength(), scaleFactor, unit);
-					return new MainRegister(metaRegister, q);
+			case REGISTER :
+				metaRegister = registerFactory.getRegisterInformation()
+				.get(name);
+				unit = null;
+				scaleFactor = null;
+				if (metaRegister != null) {
+					unit = metaRegister.getUnit();
+					scaleFactor = metaRegister.getRegisterScaleFactor();
+				}
+				Quantity q = PPMUtils.parseQuantity(data, getOffset(),
+						getLength(), scaleFactor, unit);
+				return new MainRegister(metaRegister, q);
 
-				case SCALINGFACTOR :
-					return ScalingFactor.parse(data[getOffset()]);
+			case SCALINGFACTOR :
+				return ScalingFactor.parse(data[getOffset()]);
 				//return ScalingFactor.parse( ProtocolUtils.getSubArray2(data,
-				// getOffset(), getLength() ));
+						// getOffset(), getLength() ));
 
-				case LOADPROFILEDEF :
-					return new LoadProfileDefinition(ProtocolUtils
-							.getSubArray2(data, getOffset(), getLength()));
+			case LOADPROFILEDEF :
+				return new LoadProfileDefinition(ProtocolUtils
+						.getSubArray2(data, getOffset(), getLength()));
 
-				case HISTORICAL :
-					HistoricalDataParser hdp = new HistoricalDataParser(
-							registerFactory.getPpm(), registerFactory);
-					hdp.setInput(data);
-					return hdp.match();
+			case HISTORICAL :
+				HistoricalDataParser hdp = new HistoricalDataParser(
+						registerFactory.getPpm(), registerFactory);
+				hdp.setInput(data);
+				return hdp.match();
 
-				default :
-					throw new IOException("Register, parse , unknown type "
-							+ getType());
+			default :
+				throw new IOException("Register, parse , unknown type "
+						+ getType());
 			}
 		} catch (NumberFormatException e) {
 			throw new IOException("Register, parse error");

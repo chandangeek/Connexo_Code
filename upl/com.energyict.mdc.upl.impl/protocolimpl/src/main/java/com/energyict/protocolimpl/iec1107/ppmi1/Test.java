@@ -14,10 +14,9 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.LinkException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
@@ -34,23 +33,21 @@ public class Test {
 		properties = new Properties();
 		properties.setProperty(MeterProtocol.PASSWORD, PASSWORD);
 		meterProtocol.setProperties(properties);
-
-		logger = Logger.getAnonymousLogger(); 
+		logger = Logger.getAnonymousLogger();
 
 		Handler[] h = logger.getHandlers();
-		for (int i = 0; i < h.length; i++)
+		for (int i = 0; i < h.length; i++) {
 			h[i].setFormatter(new PlainFormatter());
+		}
 
 		ConsoleHandler ch = new ConsoleHandler();
 		ch.setFormatter(new PlainFormatter());
 		logger.addHandler(ch);
-
 	}
 
 	PPM meterProtocol = new PPM();
 
 	private Properties properties = new Properties();
-
 	private Logger logger;
 
 	private final static String PASSWORD = "FEDC0003";
@@ -65,7 +62,6 @@ public class Test {
 	private OutputStream os = null;
 
 	public void open() throws LinkException, IOException {
-
 		dialer = DialerFactory.getOpticalDialer().newDialer();
 		dialer.init(commPort);
 		dialer.connect("", 60000);
@@ -80,49 +76,29 @@ public class Test {
 	}
 
 	public boolean read() throws IOException {
-		Iterator ri = meterProtocol.rFactory.getRegisters().keySet()
-				.iterator();
-
+		Iterator ri = meterProtocol.rFactory.getRegisters().keySet().iterator();
 		while (ri.hasNext()) {
 			String key = (String) ri.next();
-
 			logger.log(Level.INFO, "register " + key + " = ");
-
-			if (!key.equalsIgnoreCase("LoadProfile"))
-
-				logger.log(Level.INFO, meterProtocol.rFactory
-						.getRegister(key)
-						+ "\n");
+			if (!key.equalsIgnoreCase("LoadProfile")) {
+				logger.log(Level.INFO, meterProtocol.rFactory.getRegister(key) + "\n");
+			}
 		}
-
 		return true;
 	}
 
 	void allocationTest() {
-
 		StringBuffer sb = new StringBuffer();
-
 		sb.append("\nAllocation Test -> start\n");
-
-		//		sb.append( a.toString() );
-		//		sb.append( "\nAllocation Test -> stop\n" );
-
 		logger.log(Level.INFO, sb.toString());
-
 	}
 
 	void allocationParserTest() {
-
 		byte b = 1;
-
 		RegisterInformationParser ap = new RegisterInformationParser();
-
 		byte b1 = 1, b2 = 2, b3 = 4, b4 = 8, b5 = 16, bm1 = 1, bm2 = 0, bm3 = 2, bm4 = 4, bm5 = 8;
-
 		ap.set(b1, b2, b3, b4, b5, bm1, bm2, bm3, bm4, bm5);
-
 		System.out.println(ap.match());
-
 	}
 
 	void orderedRead() throws IOException {
@@ -182,7 +158,7 @@ public class Test {
 
 		ObisCode o = new ObisCode(1, 1, ObisCode.CODE_C_ACTIVE_IMPORT, 1, 1, 1);
 		sb.append(o.toString() + " == " + ppm.translateRegister(o) + "\n");
-		
+
 
 		o = new ObisCode(1, 1, ObisCode.CODE_C_ACTIVE_EXPORT, 1, 1, 1);
 		sb.append(o.toString() + " == " + ppm.translateRegister(o) + "\n");
@@ -207,7 +183,7 @@ public class Test {
 
 		logger.log(Level.INFO, meterProtocol.getProfileData(c.getTime(), false)
 				.toString());
-		
+
 	}
 
 	void offlineScalingTest() {
@@ -358,15 +334,15 @@ public class Test {
 	public static void main(String[] args) throws Exception {
 		Test test = new Test();
 		try {
-			
+
 			test.open();
-			
+
 			//test.offlineScalingTest();
 			//test.onlineScalingTest();
 			//test.registerInformationTest();
-			//			
+			//
 			//test.orderedRead();
-			
+
 			test.miniProfileTest();
 
 		} catch (Exception ex) {
