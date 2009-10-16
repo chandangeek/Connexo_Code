@@ -7,7 +7,7 @@ public class HeartbeatPacket extends PushPacket {
 	}
 
 	@Override
-	protected void doParse() {
+	void doParse() {
 		// TODO Auto-generated method stub
 
 	}

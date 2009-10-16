@@ -16,6 +16,8 @@ public enum PushPacketType {
 	private static final int	ADDRESS_HEARTBEAT1		= 0x0000FFE4;
 	private static final int	ADDRESS_HEARTBEAT2		= 0x0000FFE5;
 
+	private static final int	INTEGER_MASK			= 0x0FFFF;
+
 	/**
 	 * Get a human readable description of the packet type (ex: "Read-me packet", ...)
 	 * @return A string containing the description
@@ -46,7 +48,7 @@ public enum PushPacketType {
 	 * @return the {@link PushPacketType}
 	 */
 	public static PushPacketType getPacketType(int address) {
-		switch (address & 0x0FFFF) {
+		switch (address & INTEGER_MASK) {
 		case ADDRESS_README:
 			return README;
 		case ADDRESS_ALARM:

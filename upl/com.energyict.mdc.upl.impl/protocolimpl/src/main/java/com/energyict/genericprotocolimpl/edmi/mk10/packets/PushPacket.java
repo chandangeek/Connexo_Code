@@ -14,6 +14,9 @@ public abstract class PushPacket {
 	private static final int	LENGTH_CRC			= 2;
 	private static final int	LENGTH_SERIAL		= 4;
 
+	private static final int	BYTE_SHIFT_VALUE	= 0x0100;
+	private static final int	MAX_BYTE_VALUE		= 0x0FF;
+
 	private byte[] rawData;
 	private String serial;
 	private PushPacketType pushPacketType;
@@ -21,7 +24,7 @@ public abstract class PushPacket {
 	private int actualCrc;
 	private boolean validPacket = true;
 
-	protected abstract void doParse();
+	abstract void doParse();
 
 	public PushPacket(byte[] packetData) {
 		rawData = new byte[packetData.length];
@@ -68,7 +71,7 @@ public abstract class PushPacket {
 		return pushPacketType;
 	}
 
-	protected void parse() {
+	private void parse() {
 		checkBasicLength();
 		if (isValidPacket()) {
 			calcCrc();
@@ -82,21 +85,21 @@ public abstract class PushPacket {
 	private void parseSerial() {
 		int sn = 0;
 		for (int i = 0; i < LENGTH_SERIAL; i++) {
-			int val = getRawData()[LENGTH_PUSH + LENGTH_PACKETTYPE + i] & 0x0FF;
-			sn = (sn * 0x0100) + val;
+			int val = getRawData()[LENGTH_PUSH + LENGTH_PACKETTYPE + i] & MAX_BYTE_VALUE;
+			sn = (sn * BYTE_SHIFT_VALUE) + val;
 		}
 		serial = String.valueOf(sn);
 	}
 
 	private void parsePushPacketType() {
-		int address = getRawData()[LENGTH_PUSH] & 0x0FF;
-		address = (address * 0x0100) + (getRawData()[LENGTH_PUSH + 1] & 0x0FF);
+		int address = getRawData()[LENGTH_PUSH] & MAX_BYTE_VALUE;
+		address = (address * BYTE_SHIFT_VALUE) + (getRawData()[LENGTH_PUSH + 1] & MAX_BYTE_VALUE);
 		pushPacketType = PushPacketType.getPacketType(address);
 	}
 
 	private void parseCrc() {
-		packetCrc = getRawData()[getPacketLength() - 1] & 0x0FF;
-		packetCrc += (getRawData()[getPacketLength() - 2] & 0x0FF) * 256;
+		packetCrc = getRawData()[getPacketLength() - 1] & MAX_BYTE_VALUE;
+		packetCrc += (getRawData()[getPacketLength() - 2] & MAX_BYTE_VALUE) * BYTE_SHIFT_VALUE;
 		if (packetCrc != getActualCrc()) {
 			makeInvalid();
 		}
@@ -154,7 +157,7 @@ public abstract class PushPacket {
 	protected int readInt(int offset, int length) {
 		int returnValue = 0;
 		for (int i = 0; i < length; i++) {
-			returnValue = (returnValue * 0x0100) + (getRawData()[offset + i] & 0x0FF);
+			returnValue = (returnValue * BYTE_SHIFT_VALUE) + (getRawData()[offset + i] & MAX_BYTE_VALUE);
 		}
 		return returnValue;
 	}

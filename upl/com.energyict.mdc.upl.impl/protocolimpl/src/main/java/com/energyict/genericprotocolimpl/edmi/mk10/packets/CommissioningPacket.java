@@ -11,6 +11,7 @@ public class CommissioningPacket extends PushPacket {
 	private static final int	LENGTH_METER_ID		= 5;
 	private static final int	LENGTH_FW_VERSION	= 6;
 	private static final int	LENGTH_FW_EDITION	= 4;
+	private static final int	LENGTH_VAR			= 4;
 
 	private String gsmImei;
 	private String plantNumber;
@@ -27,7 +28,7 @@ public class CommissioningPacket extends PushPacket {
 		super(packetData);
 	}
 
-	protected void doParse() {
+	void doParse() {
 		if (checkValidLength()) {
 			parsePlantNumber();
 			parseGsmImei();
@@ -122,7 +123,7 @@ public class CommissioningPacket extends PushPacket {
 	}
 
 	private int getMinimumPacketLength() {
-		return super.getBasicLength() + LENGTH_FW_EDITION + LENGTH_FW_VERSION + LENGTH_GSM_IMEI + LENGTH_METER_ID + 4;
+		return super.getBasicLength() + LENGTH_FW_EDITION + LENGTH_FW_VERSION + LENGTH_GSM_IMEI + LENGTH_METER_ID + LENGTH_VAR;
 	}
 
 	private void addPointer(int value) {
