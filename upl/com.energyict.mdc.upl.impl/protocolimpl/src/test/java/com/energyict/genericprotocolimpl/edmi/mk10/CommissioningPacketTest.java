@@ -56,6 +56,7 @@ public class CommissioningPacketTest {
 		assertEquals(58423, packet.getPacketCrc());
 		assertEquals(58423, packet.getActualCrc());
 		assertEquals(packet.getPushPacketType(), PushPacketType.COMMISSIONING);
+		assertNotNull(packet.getPushPacketType().getDescription());
 		assertEquals(CommissioningPacket.class , packet.getClass());
 
 		CommissioningPacket cPacket = (CommissioningPacket) packet;
