@@ -1,5 +1,7 @@
 package com.energyict.genericprotocolimpl.edmi.mk10.packets;
 
+import java.io.IOException;
+
 /**
  * @author jme
  *
@@ -30,14 +32,26 @@ public class CommissioningPacket extends PushPacket {
 
 	void doParse() {
 		if (checkValidLength()) {
-			parsePlantNumber();
-			parseGsmImei();
-			parseDeviceConfiguration();
-			parseMeterId();
-			parseFirmwarVersion();
-			parseFirmwareEdition();
-			parseGsmCellTowerInfo();
-			parseGsmSimCardInfo();
+			try {
+				parsePlantNumber();
+				parseGsmImei();
+				parseDeviceConfiguration();
+				parseMeterId();
+				parseFirmwarVersion();
+				parseFirmwareEdition();
+				parseGsmCellTowerInfo();
+				parseGsmSimCardInfo();
+			} catch (IOException e) {
+				makeInvalid();
+				gsmImei = null;
+				plantNumber = null;
+				deviceConfiguration = null;
+				meterId = null;
+				firmwareVersion = null;
+				firmwareEdition = null;
+				gsmCellTowerInfo = null;
+				gsmSimCardInfo = null;
+			}
 		}
 	}
 
@@ -73,43 +87,44 @@ public class CommissioningPacket extends PushPacket {
 		return gsmSimCardInfo;
 	}
 
-	private void parsePlantNumber() {
+	private void parsePlantNumber() throws IOException {
 		addPointer(OFFSET);
 		plantNumber = readString(getPointer());
 	}
 
-	private void parseGsmImei() {
+	private void parseGsmImei() throws IOException {
 		addPointer(getPlantNumber().length() + 1);
 		gsmImei = readString(getPointer());
 	}
 
-	private void parseDeviceConfiguration() {
+	private void parseDeviceConfiguration() throws IOException {
 		addPointer(LENGTH_GSM_IMEI);
 		deviceConfiguration = readString(getPointer());
 	}
 
-	private void parseMeterId() {
+	private void parseMeterId() throws IOException {
 		addPointer(getDeviceConfiguration().length() + 1);
 		meterId = readString(getPointer());
 	}
 
-	private void parseFirmwarVersion() {
+	private void parseFirmwarVersion() throws IOException {
 		addPointer(LENGTH_METER_ID);
 		firmwareVersion = readString(getPointer());
 	}
 
-	private void parseFirmwareEdition() {
+	private void parseFirmwareEdition() throws IOException {
 		addPointer(LENGTH_FW_VERSION);
-		int fwEdition = readInt(getPointer(), LENGTH_FW_EDITION);
+		int fwEdition;
+		fwEdition = readInt(getPointer(), LENGTH_FW_EDITION);
 		firmwareEdition = String.valueOf(fwEdition);
 	}
 
-	private void parseGsmCellTowerInfo() {
+	private void parseGsmCellTowerInfo() throws IOException {
 		addPointer(LENGTH_FW_EDITION);
 		gsmCellTowerInfo = readString(getPointer());
 	}
 
-	private void parseGsmSimCardInfo() {
+	private void parseGsmSimCardInfo() throws IOException {
 		addPointer(getGsmCellTowerInfo().length() + 1);
 		gsmSimCardInfo = readString(getPointer());
 	}

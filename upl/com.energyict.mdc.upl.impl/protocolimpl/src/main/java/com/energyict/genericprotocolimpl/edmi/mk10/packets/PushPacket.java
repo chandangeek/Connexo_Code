@@ -30,9 +30,7 @@ public abstract class PushPacket {
 		rawData = new byte[packetData.length];
 		try {
 			ProtocolUtils.arrayCopy(packetData, rawData, 0);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		} catch (IOException e) {}
 		parse();
 	}
 
@@ -141,11 +139,14 @@ public abstract class PushPacket {
 		return LENGTH_PUSH + LENGTH_PACKETTYPE + LENGTH_SERIAL + LENGTH_CRC;
 	}
 
-	protected String readString(int offset) {
+	protected String readString(int offset) throws IOException {
 		int ptr = offset;
 		String returnValue = "";
 		byte bt;
 		do {
+			if (ptr >= getRawData().length) {
+				throw new IOException("getBasicLength() Reading out of packet boundries! ptr = " + ptr + ", packetlength = " + getRawData().length);
+			}
 			bt = getRawData()[ptr++];
 			if (bt != 0x00) {
 				returnValue += new String(new byte[] {bt});
@@ -154,10 +155,14 @@ public abstract class PushPacket {
 		return returnValue;
 	}
 
-	protected int readInt(int offset, int length) {
+	protected int readInt(int offset, int length) throws IOException {
 		int returnValue = 0;
 		for (int i = 0; i < length; i++) {
-			returnValue = (returnValue * BYTE_SHIFT_VALUE) + (getRawData()[offset + i] & MAX_BYTE_VALUE);
+			int ptr = offset + i;
+			if ((ptr) >= getRawData().length) {
+				throw new IOException("readInt() Reading out of packet boundries! ptr = " + ptr + ", packetlength = " + getRawData().length);
+			}
+			returnValue = (returnValue * BYTE_SHIFT_VALUE) + (getRawData()[ptr] & MAX_BYTE_VALUE);
 		}
 		return returnValue;
 	}
