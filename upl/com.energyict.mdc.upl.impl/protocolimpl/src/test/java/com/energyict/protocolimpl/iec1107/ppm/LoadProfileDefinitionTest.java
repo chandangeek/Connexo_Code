@@ -147,4 +147,36 @@ public class LoadProfileDefinitionTest {
 		}
 	}
 
+	@Test
+	public void testLoadProfileDefinition() {
+		LoadProfileDefinition lpd;
+		lpd = new LoadProfileDefinition(true, false, true, false, true);
+		assertNotNull(lpd);
+		assertNotNull(lpd.toString());
+		assertFalse(lpd.hasExportKvar());
+		assertFalse(lpd.hasExportKW());
+		assertTrue(lpd.hasImportKvar());
+		assertTrue(lpd.hasImportKW());
+		assertTrue(lpd.hasTotalKVA());
+		assertEquals(3, lpd.getNrOfChannels());
+		assertNotNull(lpd.toList());
+		assertNotNull(lpd.toChannelInfoList());
+		assertEquals(lpd.getNrOfChannels(), lpd.toList().size());
+		assertEquals(lpd.getNrOfChannels(), lpd.toChannelInfoList().size());
+
+		lpd = new LoadProfileDefinition(false, true, false, true, false);
+		assertNotNull(lpd);
+		assertNotNull(lpd.toString());
+		assertTrue(lpd.hasExportKvar());
+		assertTrue(lpd.hasExportKW());
+		assertFalse(lpd.hasImportKvar());
+		assertFalse(lpd.hasImportKW());
+		assertFalse(lpd.hasTotalKVA());
+		assertEquals(2, lpd.getNrOfChannels());
+		assertNotNull(lpd.toList());
+		assertNotNull(lpd.toChannelInfoList());
+		assertEquals(lpd.getNrOfChannels(), lpd.toList().size());
+		assertEquals(lpd.getNrOfChannels(), lpd.toChannelInfoList().size());
+	}
+
 }
