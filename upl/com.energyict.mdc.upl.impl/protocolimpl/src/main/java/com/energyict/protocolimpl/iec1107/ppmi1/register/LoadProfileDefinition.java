@@ -23,11 +23,12 @@ public class LoadProfileDefinition {
 	private boolean		totalKVA		= false;
 
 	private int			nrOfChannels	= 0;
+	private List		list			= null;
+	private List		channelInfoList	= null;
 
-	private ArrayList	list			= null;
-	private ArrayList	channelInfoList	= null;
+	private static final int BYTE_MASK	= 0x0FF;
 
-	final static Unit[] units = {
+	private static final Unit[] UNITS = {
 		Unit.get(BaseUnit.WATT, 3),
 		Unit.get(BaseUnit.VOLTAMPEREREACTIVE, 3),
 		Unit.get(BaseUnit.VOLTAMPERE, 3)
@@ -61,7 +62,7 @@ public class LoadProfileDefinition {
 	}
 
 	public LoadProfileDefinition(byte[] ba) throws IOException {
-		long channelMask = ba[0] & 0xFF;
+		long channelMask = ba[0] & BYTE_MASK;
 
 		long i = 1;
 		if ((channelMask & i) != 0) {
@@ -124,19 +125,19 @@ public class LoadProfileDefinition {
 			list = new ArrayList();
 			int i = 0;
 			if (hasImportKW()) {
-				list.add(i++, units[0]);
+				list.add(i++, UNITS[0]);
 			}
 			if (hasExportKW()) {
-				list.add(i++, units[0]);
+				list.add(i++, UNITS[0]);
 			}
 			if (hasImportKvar()) {
-				list.add(i++, units[1]);
+				list.add(i++, UNITS[1]);
 			}
 			if (hasExportKvar()) {
-				list.add(i++, units[1]);
+				list.add(i++, UNITS[1]);
 			}
 			if (hasTotalKVA()) {
-				list.add(i, units[2]);
+				list.add(i, UNITS[2]);
 			}
 		}
 		return list;
@@ -147,23 +148,23 @@ public class LoadProfileDefinition {
 			channelInfoList = new ArrayList();
 			int i = 0;
 			if (hasImportKW()) {
-				channelInfoList.add(new ChannelInfo(i, "Import KW", units[0]));
+				channelInfoList.add(new ChannelInfo(i, "Import KW", UNITS[0]));
 				i++;
 			}
 			if (hasExportKW()) {
-				channelInfoList.add(new ChannelInfo(i, "Export KW", units[0]));
+				channelInfoList.add(new ChannelInfo(i, "Export KW", UNITS[0]));
 				i++;
 			}
 			if (hasImportKvar()) {
-				channelInfoList.add(new ChannelInfo(i, "Import kvar", units[1]));
+				channelInfoList.add(new ChannelInfo(i, "Import kvar", UNITS[1]));
 				i++;
 			}
 			if (hasExportKvar()) {
-				channelInfoList.add(new ChannelInfo(i, "Export kvar", units[1]));
+				channelInfoList.add(new ChannelInfo(i, "Export kvar", UNITS[1]));
 				i++;
 			}
 			if (hasTotalKVA()) {
-				channelInfoList.add(new ChannelInfo(i, "Total kVA", units[2]));
+				channelInfoList.add(new ChannelInfo(i, "Total kVA", UNITS[2]));
 				i++;
 			}
 		}
