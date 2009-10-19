@@ -16,20 +16,22 @@ import com.energyict.protocol.ChannelInfo;
 
 public class LoadProfileDefinition {
 
-	private boolean importKW = false;
-	private boolean exportKW = false;
-	private boolean importKvar = false;
-	private boolean exportKvar = false;
-	private boolean totalKVA = false;
+	private boolean		importKW		= false;
+	private boolean		exportKW		= false;
+	private boolean		importKvar		= false;
+	private boolean		exportKvar		= false;
+	private boolean		totalKVA		= false;
 
-	private int nrOfChannels = 0;
+	private int			nrOfChannels	= 0;
 
-	private ArrayList list = null;
-	private ArrayList channelInfoList = null;
+	private ArrayList	list			= null;
+	private ArrayList	channelInfoList	= null;
 
-	final static Unit[] units = {Unit.get(BaseUnit.WATT, 3),
-			Unit.get(BaseUnit.VOLTAMPEREREACTIVE, 3),
-			Unit.get(BaseUnit.VOLTAMPERE, 3)};
+	final static Unit[] units = {
+		Unit.get(BaseUnit.WATT, 3),
+		Unit.get(BaseUnit.VOLTAMPEREREACTIVE, 3),
+		Unit.get(BaseUnit.VOLTAMPERE, 3)
+	};
 
 	public LoadProfileDefinition(boolean importKW, boolean exportKW,
 			boolean importKvar, boolean exportKvar, boolean totalKVA) {
@@ -39,12 +41,22 @@ public class LoadProfileDefinition {
 		this.importKvar = importKvar;
 		this.exportKvar = exportKvar;
 		this.totalKVA = totalKVA;
-		
-		if( importKW ) nrOfChannels ++;
-		if( exportKW ) nrOfChannels ++;
-		if( importKvar ) nrOfChannels ++;
-		if( exportKvar ) nrOfChannels ++;
-		if( totalKVA ) nrOfChannels ++;
+
+		if( importKW ) {
+			nrOfChannels ++;
+		}
+		if( exportKW ) {
+			nrOfChannels ++;
+		}
+		if( importKvar ) {
+			nrOfChannels ++;
+		}
+		if( exportKvar ) {
+			nrOfChannels ++;
+		}
+		if( totalKVA ) {
+			nrOfChannels ++;
+		}
 
 	}
 
@@ -111,16 +123,21 @@ public class LoadProfileDefinition {
 		if (this.list == null) {
 			list = new ArrayList();
 			int i = 0;
-			if (hasImportKW())
+			if (hasImportKW()) {
 				list.add(i++, units[0]);
-			if (hasExportKW())
+			}
+			if (hasExportKW()) {
 				list.add(i++, units[0]);
-			if (hasImportKvar())
+			}
+			if (hasImportKvar()) {
 				list.add(i++, units[1]);
-			if (hasExportKvar())
+			}
+			if (hasExportKvar()) {
 				list.add(i++, units[1]);
-			if (hasTotalKVA())
+			}
+			if (hasTotalKVA()) {
 				list.add(i, units[2]);
+			}
 		}
 		return list;
 	}
@@ -130,42 +147,47 @@ public class LoadProfileDefinition {
 			channelInfoList = new ArrayList();
 			int i = 0;
 			if (hasImportKW()) {
-				channelInfoList.add(new ChannelInfo(i, "Import KW", units[0]) );
-                i++;
-            }
-            if (hasExportKW()) {
+				channelInfoList.add(new ChannelInfo(i, "Import KW", units[0]));
+				i++;
+			}
+			if (hasExportKW()) {
 				channelInfoList.add(new ChannelInfo(i, "Export KW", units[0]));
-                i++;
-            }
+				i++;
+			}
 			if (hasImportKvar()) {
 				channelInfoList.add(new ChannelInfo(i, "Import kvar", units[1]));
-                i++;
-            }
+				i++;
+			}
 			if (hasExportKvar()) {
 				channelInfoList.add(new ChannelInfo(i, "Export kvar", units[1]));
-                i++;
-            }
+				i++;
+			}
 			if (hasTotalKVA()) {
 				channelInfoList.add(new ChannelInfo(i, "Total kVA", units[2]));
-                i++;
-            }
+				i++;
+			}
 		}
 		return channelInfoList;
 	}
 
-	
+
 	public String toString() {
 		String ret = "LoadProfileDefinition ";
-		if (importKW)
+		if (importKW) {
 			ret += "importKw=true,";
-		if (exportKW)
+		}
+		if (exportKW) {
 			ret += "exportKW=true,";
-		if (importKvar)
+		}
+		if (importKvar) {
 			ret += "importKvar=true,";
-		if (exportKvar)
+		}
+		if (exportKvar) {
 			ret += "exportKvar=true,";
-		if (totalKVA)
+		}
+		if (totalKVA) {
 			ret += "totalKVA=true,";
+		}
 		ret += " NrOfChannels=" + this.nrOfChannels;
 		return ret;
 	}
