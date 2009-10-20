@@ -66,8 +66,7 @@ public class Profile {
 	 * @param endDate
 	 *            for retrieving meterreadings
 	 */
-	ProfileData getProfileData(Date beginDate, Date endDate,
-			boolean includeEvents) throws IOException {
+	ProfileData getProfileData(Date beginDate, Date endDate, boolean includeEvents) throws IOException {
 
 		this.beginDate = beginDate;
 		this.endDate = endDate;
@@ -151,30 +150,24 @@ public class Profile {
 
 		int intPeriodInSec = rFactory.getIntegrationPeriod().intValue() * 60;
 
-		long byteSize = nrBytesToRetrieve(beginDate, endDate, intPeriodInSec,
-				ppm.getNumberOfChannels());
-
+		long byteSize = nrBytesToRetrieve(beginDate, endDate, intPeriodInSec, ppm.getNumberOfChannels());
 		log.log(Level.INFO, "IEC protocol, byteSize= " + byteSize);
 
-		byte[] data = rFactory.getRegisterRawData(
-				OpticalRegisterFactory.R_LOAD_PROFILE, (int) byteSize);
+		byte[] data = rFactory.getRegisterRawData(OpticalRegisterFactory.R_LOAD_PROFILE, (int) byteSize);
 
-		/* debugging purposes */
-		//		FileOutputStream fos = new FileOutputStream("c:\\20040823AA"
-		//				+ System.currentTimeMillis());
-		//		fos.write(data);
-		//		fos.close();
+		//		FileInputStream debugFile = new FileInputStream("C:\\EnergyICT\\WorkingDir\\ppm_profiles\\1255939433724_ppm1.hex");
+		//		byte[] data = new byte[(int) byteSize];
+		//		debugFile.read(data, 0, (int) byteSize);
+		//		debugFile.close();
+
 		Date date = rFactory.getTimeDate();
 		int nrChannels = rFactory.getLoadProfileDefinition().getNrOfChannels();
 		int intervalLength = rFactory.getIntegrationPeriod().intValue();
 
-		ProfileReverseParser prp = new ProfileReverseParser(date, nrChannels,
-				intervalLength * 60, ppm.getTimeZone() );
+		ProfileReverseParser prp = new ProfileReverseParser(date, nrChannels, intervalLength * 60, ppm.getTimeZone());
 		prp.setInput(data);
 
-		ProfileParser pp = new ProfileParser( ppm, rFactory,
-				rFactory.getTimeDate(),
-				rFactory.getLoadProfileDefinition(), false);
+		ProfileParser pp = new ProfileParser(ppm, rFactory, rFactory.getTimeDate(), rFactory.getLoadProfileDefinition(), false);
 		pp.setInput(new ByteArrayInputStream(prp.match()));
 
 		return pp.getProfileData();

@@ -6,6 +6,7 @@
 
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -418,10 +419,14 @@ MeterExceptionInfo, RegisterProtocol {
 	 * @see com.energyict.protocol.MeterProtocol#disconnect()
 	 */
 	public void disconnect() throws IOException {
-		if (isOpus()) {
-			logger.info("errorCount="+opusConnection.getErrorCount());
+		if (!isOpus()) {
+			try {
+				this.flagIEC1107Connection.disconnectMAC();
+			} catch (FlagIEC1107ConnectionException e) {
+				this.logger.severe("disconnect() error, " + e.getMessage());
+			}
 		} else {
-			logger.info("disconnect()");
+			logger.info("errorCount="+opusConnection.getErrorCount());
 		}
 	}
 
@@ -536,6 +541,8 @@ MeterExceptionInfo, RegisterProtocol {
 	 * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getNumberOfChannels()
 	 */
 	public int getNumberOfChannels() throws UnsupportedException, IOException {
+		LoadProfileDefinition lpd = rFactory.getLoadProfileDefinition();
+		System.out.println(lpd.toString());
 		return rFactory.getLoadProfileDefinition().getNrOfChannels();
 	}
 
@@ -562,10 +569,10 @@ MeterExceptionInfo, RegisterProtocol {
 	 *
 	 * @see com.energyict.protocol.MeterProtocol#getRegister(java.lang.String)
 	 */
-	public String getRegister(String name) throws IOException,
-	UnsupportedException, NoSuchRegisterException {
-		// TODO Auto-generated method stub
-		return null;
+	public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+
+
+		return "";
 	}
 
 	/*
@@ -625,10 +632,15 @@ MeterExceptionInfo, RegisterProtocol {
 	 * @see com.energyict.protocol.MeterProtocol#setRegister(java.lang.String,
 	 *      java.lang.String)
 	 */
-	public void setRegister(String name, String value) throws IOException,
-	NoSuchRegisterException, UnsupportedException {
-		// TODO Auto-generated method stub
-
+	public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+		if (name.equals("dumpLoadProfile") && value.equals("1")) {
+			String fileName = System.currentTimeMillis() + "_ppm1";
+			byte[] data = rFactory.getRegisterRawData(OpticalRegisterFactory.R_LOAD_PROFILE, 128*192);
+			System.out.println(ProtocolUtils.getResponseData(data));
+			FileOutputStream writer = new FileOutputStream("C:\\EnergyICT\\WorkingDir\\ppm_profiles\\" + fileName + ".hex");
+			writer.write(data);
+			writer.close();
+		}
 	}
 
 	public void initializeDevice() throws IOException, UnsupportedException {

@@ -87,11 +87,9 @@ class DataIdentity implements Serializable {
 				dataBlocks[set] = or.getDataMessageContent();
 			} else {
 				if (this.reverseIndexing) {
-					dataBlocks[set] = doReadRegisterProfile(dataID, dataLength,
-							set);
+					dataBlocks[set] = doReadRegisterProfile(dataID, dataLength, set);
 				} else {
-					dataBlocks[set] = doReadFlagRegister(dataID, dataLength,
-							set);
+					dataBlocks[set] = doReadFlagRegister(dataID, dataLength, set);
 				}
 			}
 		}
@@ -171,9 +169,7 @@ class DataIdentity implements Serializable {
 
 		int nrOfPackets = ((dataLen / 128) + ((dataLen % 128) == 0 ? 0 : 1));
 
-		nrOfPackets = (nrOfPackets > profileAddressArray.length)
-		? profileAddressArray.length
-				: nrOfPackets;
+		nrOfPackets = (nrOfPackets > profileAddressArray.length) ? profileAddressArray.length : nrOfPackets;
 
 		int pIndex = nrOfPackets;
 
@@ -183,9 +179,7 @@ class DataIdentity implements Serializable {
 			strbuff.append(buildPacketID(profileAddressArray[pIndex - 1], 3));
 			strbuff.append("(40)");
 
-			dataIdentityFactory.getPpm().getFlagIEC1107Connection()
-			.sendRawCommandFrame(FlagIEC1107Connection.READ1,
-					strbuff.toString().getBytes());
+			dataIdentityFactory.getPpm().getFlagIEC1107Connection().sendRawCommandFrame(FlagIEC1107Connection.READ1, strbuff.toString().getBytes());
 
 			byte[] ba = dataIdentityFactory.getPpm().getFlagIEC1107Connection()
 			.receiveData();

@@ -22,15 +22,14 @@ public class MaximumDemand {
 
 	TimeZone timeZone;
 
-	public MaximumDemand(Unit unit, byte[] data, BigDecimal scalingFactor,
-			TimeZone timeZone) throws IOException {
+	public MaximumDemand(Unit unit, byte[] data, BigDecimal scalingFactor, TimeZone timeZone) throws IOException {
 		this.unit = unit;
 		this.timeZone = timeZone;
 		parse(data, scalingFactor);
 	}
 
 	private void parse(byte[] data, BigDecimal scalingFactor)
-			throws IOException {
+	throws IOException {
 
 		quantity[0] = PPMUtils.parseQuantity(data, 0, 5, scalingFactor, unit);
 		quantity[1] = PPMUtils.parseQuantity(data, 5, 5, scalingFactor, unit);
@@ -49,9 +48,9 @@ public class MaximumDemand {
 	public void setQuantity(int index, Quantity quantity) {
 		this.quantity[index] = quantity;
 	}
-	
+
 	public Date getDate( int index ){
-	    return this.date[index];
+		return this.date[index];
 	}
 
 	public RegisterValue toRegisterValue(ObisCode o, Date date) {
