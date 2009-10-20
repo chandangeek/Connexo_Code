@@ -35,8 +35,8 @@ public class ProfileParser {
 	private LoadProfileDefinition loadDef = null;
 
 	private FFAssembler ffAssembler = new FFAssembler();
-	private DayAssembler dayAssembler = new DayAssembler();
-	private NumberAssembler numberAssembler = new NumberAssembler();
+	private DayAssembler dayAssembler = new DayAssembler(this);
+	private NumberAssembler numberAssembler = new NumberAssembler(this);
 	private AAAssembler aaAssembler = new AAAssembler(this);
 
 	public ProfileParser(PPM ppm, RegisterFactory registerFactory, Date meterTime, LoadProfileDefinition loadDef, boolean dbg) throws IOException {

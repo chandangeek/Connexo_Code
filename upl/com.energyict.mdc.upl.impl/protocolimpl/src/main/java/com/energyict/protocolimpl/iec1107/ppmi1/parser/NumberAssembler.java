@@ -11,10 +11,14 @@ import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileStatus;
 
 class NumberAssembler implements Assembler {
 
-	int byteNr;
-	int[] val = null;
+	private int byteNr;
+	private int[] val = null;
 
-	ProfileParser profileParser;
+	private ProfileParser profileParser;
+
+	public NumberAssembler(ProfileParser profileParser) {
+		this.profileParser = profileParser;
+	}
 
 	public void workOn(Assembly ta) throws IOException {
 
@@ -41,6 +45,7 @@ class NumberAssembler implements Assembler {
 
 			/* 2) create a reading */
 			for (int vi = 0; vi < getProfileParser().getNrOfChannels(); vi++) {
+				// day.getReading()[day.getReadIndex()].setValue(constructValue(getVal(), (vi * 3) + 1), vi);
 				day.getReading()[day.getReadIndex()].setValue(constructValue(getVal(), (vi * 3) + 1), vi);
 			}
 
@@ -57,6 +62,10 @@ class NumberAssembler implements Assembler {
 		this.byteNr = 0;
 		day.incReadIndex();
 
+	}
+
+	public void setByteNr(int byteNr) {
+		this.byteNr = byteNr;
 	}
 
 	int[] getVal() {

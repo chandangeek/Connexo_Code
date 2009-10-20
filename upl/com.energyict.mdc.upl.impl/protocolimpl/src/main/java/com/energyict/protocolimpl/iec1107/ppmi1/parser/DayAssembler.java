@@ -10,8 +10,12 @@ import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
 
 class DayAssembler implements Assembler {
 
-	int dayNr = 0;
+	private int dayNr = 0;
 	private ProfileParser profileParser;
+
+	public DayAssembler(ProfileParser profileParser) {
+		this.profileParser = profileParser;
+	}
 
 	public void workOn(Assembly ta) throws IOException {
 
