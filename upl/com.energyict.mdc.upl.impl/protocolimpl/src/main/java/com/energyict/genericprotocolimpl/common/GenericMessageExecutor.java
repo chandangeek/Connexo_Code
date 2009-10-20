@@ -73,7 +73,7 @@ public abstract class GenericMessageExecutor {
 			dateBytes[1] = (byte) (cal.get(Calendar.YEAR) &0xFF);
 			dateBytes[2] = (byte) ((cal.get(Calendar.MONTH)&0xFF) +1 );	
 			dateBytes[3] = (byte) (cal.get(Calendar.DAY_OF_MONTH)&0xFF);
-			dateBytes[4] = (byte)0xFF;
+			dateBytes[4] = getDLMSDayOfWeek(cal);
 			OctetString date = new OctetString(dateBytes);
 			byte[] timeBytes = new byte[4];
 			timeBytes[0] = (byte) cal.get(Calendar.HOUR_OF_DAY);
@@ -94,6 +94,13 @@ public abstract class GenericMessageExecutor {
 		}
 	}
 	
+	private byte getDLMSDayOfWeek(Calendar cal){
+		int dow = cal.get(Calendar.DAY_OF_WEEK) -1;
+		if(dow == 0){
+			dow = 7;
+		}
+		return (byte)dow;
+	}
 	
 	public AXDRDateTime convertUnixToGMTDateTime(String time, TimeZone timeZone) throws IOException{
 		try {
