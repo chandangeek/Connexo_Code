@@ -13,7 +13,9 @@ package com.energyict.dlms.axrdencoding;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
@@ -25,7 +27,7 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class Structure extends AbstractDataType {
     
-    List dataTypes;
+    protected List dataTypes;
     private int offsetBegin,offsetEnd;
     int autoIndex=0;
     
@@ -36,8 +38,9 @@ public class Structure extends AbstractDataType {
     
     public Structure(byte[] berEncodedData, int offset, int level) throws IOException {
         offsetBegin = offset;
-        if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_STRUCTURE)
-            throw new IOException("Structure, invalid identifier "+berEncodedData[offset]);
+        if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_STRUCTURE) {
+			throw new IOException("Structure, invalid identifier "+berEncodedData[offset]);
+		}
         offset++;
         dataTypes = new ArrayList();
         int length = (int)DLMSUtils.getAXDRLength(berEncodedData,offset);
@@ -54,10 +57,11 @@ public class Structure extends AbstractDataType {
     }
     
     public boolean hasMoreElements() {
-    	if (autoIndex == nrOfDataTypes())
-    		return false;
-    	else
-    		return true;
+    	if (autoIndex == nrOfDataTypes()) {
+			return false;
+		} else {
+			return true;
+		}
     }
     
     public AbstractDataType getNextDataType() {
@@ -78,8 +82,9 @@ public class Structure extends AbstractDataType {
     
     public String toString() {
         StringBuffer strBuffTab = new StringBuffer();
-        for (int i=0;i<getLevel();i++) 
-            strBuffTab.append("  ");
+        for (int i=0;i<getLevel();i++) {
+			strBuffTab.append("  ");
+		}
         StringBuffer strBuff = new StringBuffer();
         strBuff.append(strBuffTab.toString()+"Structure("+dataTypes.size()+"):\n");
         Iterator it = dataTypes.iterator();
@@ -97,10 +102,11 @@ public class Structure extends AbstractDataType {
         Iterator it = dataTypes.iterator();
         while(it.hasNext()) {
             AbstractDataType dt = (AbstractDataType)it.next();
-            if (dt==null)
-                baos.write(0);
-            else
-                baos.write(dt.getBEREncodedByteArray());
+            if (dt==null) {
+				baos.write(0);
+			} else {
+				baos.write(dt.getBEREncodedByteArray());
+			}
         }
         return baos.toByteArray();
     }

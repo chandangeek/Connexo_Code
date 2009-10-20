@@ -68,8 +68,6 @@ import com.energyict.genericprotocolimpl.webrtukp.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtukp.csvhandling.TestObject;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.CodeCalendar;
-import com.energyict.mdw.core.CodeDayType;
-import com.energyict.mdw.core.CodeDayTypeDef;
 import com.energyict.mdw.core.Lookup;
 import com.energyict.mdw.core.LookupEntry;
 import com.energyict.mdw.core.MeteringWarehouse;
@@ -461,145 +459,13 @@ public class MessageExecutor extends GenericMessageExecutor{
 						throw new IOException("No CodeTable defined with id '" + codeTable + "'");
 					} else {
 						
-						List calendars = ct.getCalendars();
-						Array seasonArray = new Array();
-						Array weekArray = new Array();
-						HashMap seasonsProfile = new HashMap();
-						ArrayList seasonsP = new ArrayList();
-						
-						Iterator itr = calendars.iterator();
-						while(itr.hasNext()){ 
-							CodeCalendar cc = (CodeCalendar)itr.next();
-							int seasonId = cc.getSeason();
-							if(seasonId != 0){
-								OctetString os = new OctetString(new byte[]{(byte) ((cc.getYear()==-1)?0xff:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xff:(cc.getYear())&0xFF), 
-										(byte) ((cc.getMonth()==-1)?0xFF:cc.getMonth()), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()), (byte) 0xFF, 0, 0, 0, 0, (byte) 0x80, 0, 0});
-								seasonsProfile.put(os, seasonId);
-							}
-						}
-
-						seasonsP = getSortedList(seasonsProfile);
-						
-						int weekCount = 0;
-						int seasonCount = 0;
-						Iterator seasonsPIt = seasonsP.iterator();
-						while(seasonsPIt.hasNext()){
-							Structure entry = (Structure)seasonsPIt.next();
-							OctetString dateTime = (OctetString)entry.getDataType(0);
-							Structure seasonStruct = new Structure();
-//							int seasonProfileNameId = ((Unsigned8)entry.getDataType(1)).getValue();
-							int seasonProfileNameId = seasonCount++;
-							if(!seasonArrayExists(seasonProfileNameId, seasonArray)){
-								
-								String weekProfileName = Integer.toString(weekCount++);
-								seasonStruct.addDataType(OctetString.fromString(Integer.toString(seasonProfileNameId)));	// the seasonProfileName is the DB id of the season
-								seasonStruct.addDataType(dateTime);
-								seasonStruct.addDataType(OctetString.fromString(weekProfileName));
-								seasonArray.addDataType(seasonStruct);
-								if(!weekArrayExists(weekProfileName, weekArray)){
-									Structure weekStruct = new Structure();
-									Iterator sIt = calendars.iterator();
-									CodeDayType dayTypes[] = {null, null, null, null, null, null, null};
-									CodeDayType any = null;
-									while(sIt.hasNext()){
-										CodeCalendar codeCal = (CodeCalendar)sIt.next();
-										if(codeCal.getSeason() == seasonProfileNameId){
-											switch(codeCal.getDayOfWeek()){
-											case 1: {
-												if(dayTypes[0] != null){
-													if(dayTypes[0] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
-												}else{dayTypes[0] = codeCal.getDayType();}}break;
-											case 2: {
-												if(dayTypes[1] != null){
-													if(dayTypes[1] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
-												}else{dayTypes[1] = codeCal.getDayType();}}break;
-											case 3: {
-												if(dayTypes[2] != null){
-													if(dayTypes[2] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
-												}else{dayTypes[2] = codeCal.getDayType();}}break;
-											case 4: {
-												if(dayTypes[3] != null){
-													if(dayTypes[3] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
-												}else{dayTypes[3] = codeCal.getDayType();}}break;
-											case 5: {
-												if(dayTypes[4] != null){
-													if(dayTypes[4] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
-												}else{dayTypes[4] = codeCal.getDayType();}}break;
-											case 6: {
-												if(dayTypes[5] != null){
-													if(dayTypes[5] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
-												}else{dayTypes[5] = codeCal.getDayType();}}break;
-											case 7: {
-												if(dayTypes[6] != null){
-													if(dayTypes[6] != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
-												}else{dayTypes[6] = codeCal.getDayType();}}break;
-											case -1: {
-												if(any != null){
-													if(any != codeCal.getDayType()){throw new IOException("Season profiles are not correctly configured.");}
-												}else{any = codeCal.getDayType();}}break;
-											default: throw new IOException("Undefined daytype code received.");
-											}
-										}
-									}
-									
-									weekStruct.addDataType(OctetString.fromString(weekProfileName));
-									for(int i = 0; i < dayTypes.length; i++){
-										if(dayTypes[i] != null){
-											weekStruct.addDataType(new Unsigned8(dayTypes[i].getId()));
-										} else if(any != null){
-											weekStruct.addDataType(new Unsigned8(any.getId()));
-										} else {
-											throw new IOException("Not all dayId's are correctly filled in.");
-										}
-									}
-									weekArray.addDataType(weekStruct);
-									
-								}
-							}
-						}
-						Array dayArray = new Array();
-						List dayProfiles = ct.getDayTypesOfCalendar();
-						Iterator dayIt = dayProfiles.iterator();
-						while(dayIt.hasNext()){
-							CodeDayType cdt = (CodeDayType)dayIt.next();
-							Structure schedule = new Structure();
-							List definitions = cdt.getDefinitions();
-							Array daySchedules = new Array();
-							for(int i = 0; i < definitions.size(); i++){
-								Structure def = new Structure();
-								CodeDayTypeDef cdtd = (CodeDayTypeDef)definitions.get(i);
-								int tStamp = cdtd.getTstampFrom();
-								int hour = tStamp/10000;
-								int min = (tStamp-hour*10000)/100;
-								int sec = tStamp-(hour*10000)-(min*100);
-								OctetString tstampOs = new OctetString(new byte[]{(byte)hour, (byte)min, (byte)sec, 0});
-								Unsigned16 selector = new Unsigned16(cdtd.getCodeValue());
-								def.addDataType(tstampOs);
-								def.addDataType(new OctetString(getMeterConfig().getTariffScriptTable().getLNArray()));
-//								def.addDataType(new OctetString(new byte[]{0,0,10,0,(byte)100,(byte)255}));
-								def.addDataType(selector);
-								daySchedules.addDataType(def);
-							}
-							schedule.addDataType(new Unsigned8(cdt.getId()));
-							schedule.addDataType(daySchedules);
-							dayArray.addDataType(schedule);
-						}
+						ActivityCalendarMessage acm = new ActivityCalendarMessage(ct, getMeterConfig());
+						acm.parse();
 						
 						ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
-						
-						if(DEBUG) {
-							System.out.println(seasonArray);
-						}
-						if(DEBUG) {
-							System.out.println(weekArray);
-						}
-						if(DEBUG) {
-							System.out.println(dayArray);
-						}
-
-						ac.writeSeasonProfilePassive(seasonArray);
-						ac.writeWeekProfileTablePassive(weekArray);
-						ac.writeDayProfileTablePassive(dayArray);
+						ac.writeSeasonProfilePassive(acm.getSeasonProfile());
+						ac.writeWeekProfileTablePassive(acm.getWeekProfile());
+						ac.writeDayProfileTablePassive(acm.getDayProfile());
 						
 						if(name != null){
 							if(name.length() > 8){
@@ -1023,6 +889,8 @@ public class MessageExecutor extends GenericMessageExecutor{
 		}
 	}
 	
+	
+	// You are doing one step to many
 	private ArrayList getSortedList(HashMap seasonsProfile) throws IOException {
 		LinkedList list = new LinkedList();
 		Structure struct;
@@ -1032,16 +900,16 @@ public class MessageExecutor extends GenericMessageExecutor{
 			Map.Entry entry = (Map.Entry)it.next();
 			AXDRDateTime dt = new AXDRDateTime((OctetString)entry.getKey());
 			check = false;
-			for(int i = 0; i < list.size(); i++){
-				if(dt.getValue().getTime().before((new AXDRDateTime((OctetString)((Structure)list.get(i)).getDataType(0))).getValue().getTime())){
-					struct = new Structure();
-					struct.addDataType((OctetString)entry.getKey());
-					struct.addDataType(new Unsigned8((Integer)entry.getValue()));
-					list.add(i, struct);
-					check = true;
-					break;
-				}
-			}
+//			for(int i = 0; i < list.size(); i++){
+//				if(dt.getValue().getTime().before((new AXDRDateTime((OctetString)((Structure)list.get(i)).getDataType(0))).getValue().getTime())){
+//					struct = new Structure();
+//					struct.addDataType((OctetString)entry.getKey());
+//					struct.addDataType(new Unsigned8((Integer)entry.getValue()));
+//					list.add(i, struct);
+//					check = true;
+//					break;
+//				}
+//			}
 			if(!check){
 				struct = new Structure();
 				struct.addDataType((OctetString)entry.getKey());
@@ -1053,25 +921,25 @@ public class MessageExecutor extends GenericMessageExecutor{
 		return new ArrayList(list);
 	}
 
-	private boolean seasonArrayExists(int seasonProfileNameId, Array seasonArray) {
-		for(int i = 0; i < seasonArray.nrOfDataTypes(); i++){
-			Structure struct = (Structure)seasonArray.getDataType(i);
-			if(new String(((OctetString)struct.getDataType(0)).getOctetStr()).equalsIgnoreCase(Integer.toString(seasonProfileNameId))){
-				return true;
-			}
-		}
-		return false;
-	}
+//	private boolean seasonArrayExists(int seasonProfileNameId, Array seasonArray) {
+//		for(int i = 0; i < seasonArray.nrOfDataTypes(); i++){
+//			Structure struct = (Structure)seasonArray.getDataType(i);
+//			if(new String(((OctetString)struct.getDataType(0)).getOctetStr()).equalsIgnoreCase(Integer.toString(seasonProfileNameId))){
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
 
-	private boolean weekArrayExists(String weekProfileName, Array weekArray) {
-		for(int i = 0; i < weekArray.nrOfDataTypes(); i++){
-			Structure struct = (Structure)weekArray.getDataType(i);
-			if(new String(((OctetString)struct.getDataType(0)).getOctetStr()).equalsIgnoreCase(weekProfileName)){
-				return true;
-			}
-		}
-		return false;
-	}
+//	private boolean weekArrayExists(String weekProfileName, Array weekArray) {
+//		for(int i = 0; i < weekArray.nrOfDataTypes(); i++){
+//			Structure struct = (Structure)weekArray.getDataType(i);
+//			if(new String(((OctetString)struct.getDataType(0)).getOctetStr()).equalsIgnoreCase(weekProfileName)){
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
 	
 	private Date getFirstDate(Date startTime, String type) throws IOException{
 		return getFirstDate(startTime, type, getWebRtu().getMeter().getTimeZone());

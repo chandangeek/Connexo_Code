@@ -6,13 +6,13 @@
 
 package com.energyict.dlms.cosem;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 
-import com.energyict.cbo.*;
-import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.protocol.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.OctetString;
 /**
  *
  * @author  Koen
@@ -148,24 +148,5 @@ public class ActivityCalendar extends AbstractCosemObject {
      */
 	public void activateNow() throws IOException {
 		invoke(ACTIVATE_PASSIVE_CALENDAR, new Integer8(0).getBEREncodedByteArray());
-	}
-	
-	public class seasonProfiles extends Structure{
-		
-		private OctetString seasonProfileName = null;
-		private OctetString seasonStart = null;
-		private OctetString weekName = null;
-		
-		public void setSeasonProfileName(String profileName){
-			this.seasonProfileName = OctetString.fromString(profileName);
-		}
-		
-		public void setSeasonStart(OctetString seasonStart){
-			this.seasonStart = seasonStart;
-		}
-		
-		public void setWeekName(String weekName){
-			this.weekName = OctetString.fromString(weekName);
-		}
 	}
 }
