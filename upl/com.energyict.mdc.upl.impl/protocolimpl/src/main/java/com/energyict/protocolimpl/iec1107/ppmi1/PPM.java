@@ -611,17 +611,17 @@ MeterExceptionInfo, RegisterProtocol {
 		}
 
 		if (isOpus()) {
-			logger.log(Level.WARNING, "setting clock" );
+			logger.log(Level.WARNING, "setting clock");
 			try {
-				rFactory.setRegister(OpusRegisterFactory.R_TIME_ADJUSTMENT_RS232, sysCalendar
-						.getTime());
-			} catch( IOException ex ){
+				rFactory.setRegister(OpusRegisterFactory.R_TIME_ADJUSTMENT_RS232, sysCalendar.getTime());
+			} catch (IOException ex) {
 				String msg = "Could not do a timeset, probably wrong password";
-				msg += " (PPM Isue 1 only checks the complete password during ";
-				msg += "timesets).";
-				logger.severe( msg );
-				throw new NestedIOException( ex );
+				msg += " (PPM Isue 1 only checks the complete password during timesets).";
+				logger.severe(msg);
+				throw new NestedIOException(ex);
 			}
+		} else {
+			this.rFactory.setRegister(OpticalRegisterFactory.R_TIME_DATE_OPTICAL, sysCalendar.getTime());
 		}
 
 	}
