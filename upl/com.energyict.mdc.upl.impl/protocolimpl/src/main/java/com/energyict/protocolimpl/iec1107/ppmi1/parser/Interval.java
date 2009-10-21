@@ -3,7 +3,8 @@ package com.energyict.protocolimpl.iec1107.ppmi1.parser;
 import java.math.BigDecimal;
 import java.util.Date;
 
-class Interval {
+public class Interval {
+
 	private Date			date;
 	private BigDecimal[]	value;
 	private ProfileParser	profileParser;

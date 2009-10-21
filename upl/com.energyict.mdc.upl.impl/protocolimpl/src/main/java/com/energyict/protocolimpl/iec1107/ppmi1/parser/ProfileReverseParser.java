@@ -67,7 +67,29 @@ public class ProfileReverseParser {
 				}
 			}
 
+			/*
+			 * When there's a power fail, the meter stores less then 16 FF's at
+			 * the end of the load profile, (meter bug??) so the FF's parser
+			 * can't find the reference position. Because the are FF's in the
+			 * profile (less then 16) we can take the position of the last
+			 * received FF's and use this to calculate the reference point,
+			 * otherwise it will result in a negative array exception as
+			 * position16FF will be zero ...
+			 */
 			int length = this.ffAssembler.position16FF - this.lastGoodIndex;
+			if (length < 0) {
+				length = this.ffAssembler.lastFFposition - this.lastGoodIndex;
+			}
+
+			if (isDebug()) {
+				System.out.println(
+						" position16FF = " +  this.ffAssembler.position16FF +
+						" lastFFposition = " +  this.ffAssembler.lastFFposition +
+						" lastGoodIndex = " + this.lastGoodIndex +
+						" length = " + length
+				);
+			}
+
 			byte[] result = new byte[length];
 			System.arraycopy(this.byteAssembly.getInput(), this.lastGoodIndex, result, 0, length);
 			return result;
@@ -144,8 +166,10 @@ public class ProfileReverseParser {
 	class FFAssembler implements Assembler {
 		int ffCount = 0;
 		int position16FF = 0;
+		int lastFFposition = 0;
 
 		public void workOn(ByteAssembly ta) {
+			lastFFposition = ta.getIndex();
 			if (this.ffCount == 15 ){
 				this.position16FF = ta.getIndex();
 			} else {
@@ -153,6 +177,7 @@ public class ProfileReverseParser {
 			}
 			((Byte) ta.pop()).byteValue();
 		}
+
 	}
 
 	class DayAssembler implements Assembler {
@@ -173,6 +198,10 @@ public class ProfileReverseParser {
 			ta.pop();
 			ProfileReverseParser.this.ffAssembler.ffCount = 0;
 		}
+	}
+
+	public boolean isDebug() {
+		return DBG;
 	}
 
 }

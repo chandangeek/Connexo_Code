@@ -35,8 +35,12 @@ class DayAssembler implements Assembler {
 		this.dayNr++;
 	}
 
-	/* Create the profile data after a complete day has been parsed.  The time
-	 * is actually not that important, but it's just a good time. */
+	/**
+	 * Create the profile data after a complete day has been parsed. The time is
+	 * actually not that important, but it's just a good time.
+	 * 
+	 * @param aDay
+	 */
 	public void createProfileData( Day aDay ){
 
 		if( aDay.isEmpty() ) {

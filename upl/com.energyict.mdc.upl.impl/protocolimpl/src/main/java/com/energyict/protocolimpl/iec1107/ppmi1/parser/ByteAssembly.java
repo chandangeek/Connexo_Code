@@ -5,12 +5,13 @@ import java.util.Stack;
 
 import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
 
-/**This Assembly is used to parse an incoming byte stream.  The ByteAssembly
- * offers extra functionality during debugging.  It contains the read-index,
- * and with that it can display the progress of the parsing.
+/**
+ * This Assembly is used to parse an incoming byte stream. The ByteAssembly
+ * offers extra functionality during debugging. It contains the read-index, and
+ * with that it can display the progress of the parsing.
  * 
- *  @author fbo */
-
+ * @author fbo
+ */
 public class ByteAssembly {
 
 	/* a place to keep track of consumption progress */
@@ -18,10 +19,7 @@ public class ByteAssembly {
 
 	/* another place to record progress; this is just an object */
 	private Object target;
-
-
 	private int index = 0;
-
 	private byte [] input = null;
 
 	public int getIndex( ){
