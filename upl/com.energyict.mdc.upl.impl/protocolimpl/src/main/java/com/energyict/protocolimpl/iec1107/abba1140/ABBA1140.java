@@ -165,9 +165,7 @@ public class ABBA1140 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
 	public void setProperties(Properties properties) throws MissingPropertyException , InvalidPropertyException {
 		try {
 
-			properties.list(System.out);
 			Properties p = replaceEmptyOfflineProperties(properties);
-			p.list(System.out);
 
 			Iterator iterator= getRequiredKeys().iterator();
 			while (iterator.hasNext()) {
