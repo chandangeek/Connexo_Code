@@ -76,12 +76,12 @@ public class Test {
 	}
 
 	public boolean read() throws IOException {
-		Iterator ri = meterProtocol.rFactory.getRegisters().keySet().iterator();
+		Iterator ri = meterProtocol.getRegisterFactory().getRegisters().keySet().iterator();
 		while (ri.hasNext()) {
 			String key = (String) ri.next();
 			logger.log(Level.INFO, "register " + key + " = ");
 			if (!key.equalsIgnoreCase("LoadProfile")) {
-				logger.log(Level.INFO, meterProtocol.rFactory.getRegister(key) + "\n");
+				logger.log(Level.INFO, meterProtocol.getRegisterFactory().getRegister(key) + "\n");
 			}
 		}
 		return true;
@@ -105,7 +105,7 @@ public class Test {
 
 		StringBuffer sb = new StringBuffer();
 
-		RegisterFactory rf = meterProtocol.rFactory;
+		RegisterFactory rf = meterProtocol.getRegisterFactory();
 
 		sb.append("Scaling Factor = " + rf.getScalingFactor() + "\n");
 
@@ -290,7 +290,7 @@ public class Test {
 		StringBuffer sb = new StringBuffer();
 
 		sb.append("scalingTest ");
-		RegisterFactory rf = meterProtocol.rFactory;
+		RegisterFactory rf = meterProtocol.getRegisterFactory();
 
 		sb.append("scalingFactor= " + rf.getScalingFactor() + "\n");
 		sb.append("toRegisterQuantity()=");
@@ -313,7 +313,7 @@ public class Test {
 		StringBuffer sb = new StringBuffer();
 
 		sb.append("scalingTest ");
-		RegisterFactory rf = meterProtocol.rFactory;
+		RegisterFactory rf = meterProtocol.getRegisterFactory();
 
 		sb.append(rf.getRegisterInformation() + "");
 
@@ -331,10 +331,10 @@ public class Test {
 		dialer.disConnect();
 	}
 
-	public static void main(String[] args) throws Exception {
-		Test test = new Test();
-		try {
+	public static void main(String[] args) {
 
+		try {
+			Test test = new Test();
 			test.open();
 
 			//test.offlineScalingTest();
@@ -344,15 +344,13 @@ public class Test {
 			//test.orderedRead();
 
 			test.miniProfileTest();
+			test.logger.log(Level.INFO, "close connection");
+			test.close();
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
-
 		} finally {
 
-			test.logger.log(Level.INFO, "close connection");
-
-			test.close();
 		}
 
 	}

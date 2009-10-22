@@ -66,7 +66,7 @@ public class Profile {
 	 * @param endDate
 	 *            for retrieving meterreadings
 	 */
-	ProfileData getProfileData(Date beginDate, Date endDate, boolean includeEvents) throws IOException {
+	public ProfileData getProfileData(Date beginDate, Date endDate, boolean includeEvents) throws IOException {
 
 		this.beginDate = beginDate;
 		this.endDate = endDate;
@@ -91,9 +91,7 @@ public class Profile {
 	 *
 	 * In 1 packet there is room for 8 values, so devide by 8
 	 */
-	private ProfileData doOpusProtocol() throws NestedIOException,
-	ConnectionException, IOException {
-
+	private ProfileData doOpusProtocol() throws NestedIOException, ConnectionException, IOException {
 		OpusProfileParser opp = new OpusProfileParser(ppm, rFactory, getMeterDate());
 
 		long bDate = daySince1970(ppm.getTimeZone(), beginDate);
@@ -135,8 +133,7 @@ public class Profile {
 			}
 
 			if(doAdd) {
-				opp.add(ppm.opusConnection.readRegister(  "550", 0,  (int) opusDayNr,
-						nrPackets, true));
+				opp.add(ppm.getOpusConnection().readRegister("550", 0, (int) opusDayNr, nrPackets, true));
 			}
 
 			current.add( Calendar.DAY_OF_YEAR, 1 );
@@ -147,18 +144,23 @@ public class Profile {
 	}
 
 	private ProfileData doIECProtocol() throws IOException {
+		boolean readFromFile = true;
+		byte[] data;
+		String fileName = "1256110602926_PR";
+		String pathName = "C:\\EnergyICT\\WorkingDir\\ppm_profiles\\";
+		String extName = ".hex";
 
 		int intPeriodInSec = rFactory.getIntegrationPeriod().intValue() * 60;
 
 		long byteSize = nrBytesToRetrieve(beginDate, endDate, intPeriodInSec, ppm.getNumberOfChannels());
 		log.log(Level.INFO, "IEC protocol, byteSize= " + byteSize);
 
-		byte[] data = rFactory.getRegisterRawData(OpticalRegisterFactory.R_LOAD_PROFILE, (int) byteSize);
-
-		//		FileInputStream debugFile = new FileInputStream("C:\\EnergyICT\\WorkingDir\\ppm_profiles\\1255939433724_ppm1.hex");
-		//		byte[] data = new byte[(int) byteSize];
-		//		debugFile.read(data, 0, (int) byteSize);
-		//		debugFile.close();
+		if (readFromFile) {
+			data = PPMUtils.fromFile(pathName + fileName + extName);
+		} else {
+			data = rFactory.getRegisterRawData(OpticalRegisterFactory.R_LOAD_PROFILE, (int) byteSize);
+			PPMUtils.toFile(data, pathName + System.currentTimeMillis()+ "_PR" + extName);
+		}
 
 		Date date = rFactory.getTimeDate();
 		int nrChannels = rFactory.getLoadProfileDefinition().getNrOfChannels();

@@ -125,48 +125,45 @@ import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileDefinition;
  * @author fbo
  */
 
-public class PPM implements
-MeterProtocol, HHUEnabler, SerialNumber,
-MeterExceptionInfo, RegisterProtocol {
-
-	private final static int MAX_TIME_DIFF = 50000;
+public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol {
 
 	/** The minimum period of time that must be elapsed in order
 	 * for an interval to be valid/acceptable. (in millisecs)
 	 * (see Fix for data spikes) */
-	public final static int MINIMUM_INTERVAL_AGE = 60000;
-
-	private TimeZone timeZone = null;
-	private Logger logger = null;
+	public final static int		MINIMUM_INTERVAL_AGE	= 60000;
+	private final static int	MAX_TIME_DIFF			= 50000;
 
 	/** Property keys specific for PPM protocol. */
-	public final static String PK_OPUS = "OPUS";
-	public final static String PK_TIMEOUT = "Timeout";
-	public final static String PK_RETRIES = "Retries";
-	public final static String PK_FORCE_DELAY = "ForcedDelay";
-	public final static String PK_DELAY_AFTER_FAIL = "DelayAfterFail";
-	public final static String PK_OFFLINE = "pkoffline";
-	public final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
+	public final static String	PK_OPUS					= "OPUS";
+	public final static String	PK_TIMEOUT				= "Timeout";
+	public final static String	PK_RETRIES				= "Retries";
+	public final static String	PK_FORCE_DELAY			= "ForcedDelay";
+	public final static String	PK_DELAY_AFTER_FAIL		= "DelayAfterFail";
+	public final static String	PK_OFFLINE				= "pkoffline";
+	public final static String	PK_EXTENDED_LOGGING		= "ExtendedLogging";
 
 	/** Property Default values */
 	//final static String PD_ADDRESS = null;
-	private final static String PD_NODE_ID = "";
-	private final static int PD_TIMEOUT = 10000;
-	private final static int PD_RETRIES = 5;
-	private final static int PD_ROUNDTRIP_CORRECTION = 0;
-	private final static long PD_FORCE_DELAY = 350;
-	private final static long PD_DELAY_AFTER_FAIL = 500;
-	private final static int PD_IEC1107_COMPAT = 0;
-	private final static String PD_OPUS = "1";
-	private final static String PD_PASSWORD = "--------";
-	private final static String PD_EXTENDED_LOGGING = "0";
-	private static final int PD_SECURITY_LEVEL = 0;
+	private final static String	PD_NODE_ID				= "";
+	private final static int	PD_TIMEOUT				= 10000;
+	private final static int	PD_RETRIES				= 5;
+	private final static int	PD_ROUNDTRIP_CORRECTION	= 0;
+	private final static long	PD_FORCE_DELAY			= 350;
+	private final static long	PD_DELAY_AFTER_FAIL		= 500;
+	private final static int	PD_IEC1107_COMPAT		= 0;
+	private final static String	PD_OPUS					= "1";
+	private final static String	PD_PASSWORD				= "--------";
+	private final static String	PD_EXTENDED_LOGGING		= "0";
+	private static final int	PD_SECURITY_LEVEL		= 0;
 
 	/** Property values */
 	/** Required properties will have NO default value */
 	private String pProfileInterval = null;
 	private String pSerialNumber = null;
 	private String pAddress = null;
+
+	private TimeZone timeZone = null;
+	private Logger logger = null;
 
 	/** Optional properties make use of default value */
 	private String pNodeId = PD_NODE_ID;
@@ -186,14 +183,12 @@ MeterExceptionInfo, RegisterProtocol {
 	private String pExtendedLogging = PD_EXTENDED_LOGGING;
 	private int pSecurityLevel = PD_SECURITY_LEVEL;
 
-	// KV22072005 flagIEC1107Connection is never created???
-	FlagIEC1107Connection flagIEC1107Connection = null;
+	private FlagIEC1107Connection flagIEC1107Connection = null;
+	private OpusConnection opusConnection = null;
 
-	OpusConnection opusConnection = null;
-
-	RegisterFactory rFactory = null;
-	Profile profile = null;
-	ObisCodeMapper obisCodeMapper = null;
+	private RegisterFactory rFactory = null;
+	private Profile profile = null;
+	private ObisCodeMapper obisCodeMapper = null;
 
 	private final String[] REGISTERCONFIG = {
 			"TotalImportKwh",
@@ -338,7 +333,7 @@ MeterExceptionInfo, RegisterProtocol {
 						this.pForceDelay,
 						0,
 						0,
-						new com.energyict.protocolimpl.iec1107.ppm.Encryption(),
+						new com.energyict.protocolimpl.iec1107.ppmi1.Encryption(),
 						this.software7E1
 				);
 			} catch (ConnectionException e) {

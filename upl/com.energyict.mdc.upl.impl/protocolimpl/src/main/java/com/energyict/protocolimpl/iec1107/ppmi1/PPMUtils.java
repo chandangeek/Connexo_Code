@@ -1,6 +1,9 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -369,6 +372,27 @@ public class PPMUtils {
 
 	public static long hex2dec(byte value) {
 		return Long.parseLong(Long.toHexString(value & 0xFF));
+	}
+
+	public static void toFile(byte[] data, String fileName) {
+		try {
+			FileOutputStream writer = new FileOutputStream(fileName);
+			writer.write(data);
+			writer.close();
+		} catch (IOException e) {
+		}
+	}
+
+	public static byte[] fromFile(String fileName) throws IOException {
+		File file = new File(fileName);
+		if (file.length() > Integer.MAX_VALUE) {
+			throw new IOException("Filesize to big. [" + file.length() + " > " + Integer.MAX_VALUE + "]");
+		}
+		byte[] data = new byte[(int) file.length()];
+		FileInputStream reader = new FileInputStream(fileName);
+		reader.read(data);
+		reader.close();
+		return data;
 	}
 
 }
