@@ -97,50 +97,50 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
  *  */
 public class ABBA1140 implements MeterProtocol, ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, MessageProtocol {
 
-	final static long FORCE_DELAY = 300;
+	private static final long FORCE_DELAY = 300;
 
 	/** Property keys specific for A140 protocol. */
-	private final static String PK_TIMEOUT = "Timeout";
-	final static String PK_RETRIES = "Retries";
-	final static String PK_SECURITY_LEVEL = "SecurityLevel";
-	final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
-	final static String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
-	final static String PK_ECHO_CANCELING = "EchoCancelling";
-	final static String PK_DELAY_BEFORE_CONNECT = "DelayBeforeConnect";
+	private static final String		PK_TIMEOUT				= "Timeout";
+	private static final String		PK_RETRIES				= "Retries";
+	private static final String		PK_SECURITY_LEVEL		= "SecurityLevel";
+	private static final String		PK_EXTENDED_LOGGING		= "ExtendedLogging";
+	private static final String		PK_IEC1107_COMPATIBLE	= "IEC1107Compatible";
+	private static final String		PK_ECHO_CANCELING		= "EchoCancelling";
+	private static final String		PK_DELAY_BEFORE_CONNECT	= "DelayBeforeConnect";
 
-	private static String BILLINGRESET		= "BillingReset";
-	private static String BILLINGRESET_DISPLAY 		= "Billing reset";
+	private static String			BILLINGRESET			= "BillingReset";
+	private static String			BILLINGRESET_DISPLAY	= "Billing reset";
 
 	/** Property Default values */
-	final static String PD_NODE_ID = "";
-	final static int PD_TIMEOUT = 10000;
-	final static int PD_RETRIES = 5;
-	final static int PD_ROUNDTRIP_CORRECTION = 0;
-	final static int PD_SECURITY_LEVEL = 2;
-	final static int PD_EXTENDED_LOGGING = 0;
-	final static int PD_IEC1107_COMPATIBLE = 0;
-	final static int PD_ECHO_CANCELING = 0;
-	private static final String OFFLINE_EMPTY = "offline.EMPTY";
+	private static final String		PD_NODE_ID				= "";
+	private static final int		PD_TIMEOUT				= 10000;
+	private static final int		PD_RETRIES				= 5;
+	private static final int		PD_ROUNDTRIP_CORRECTION	= 0;
+	private static final int		PD_SECURITY_LEVEL		= 2;
+	private static final int		PD_EXTENDED_LOGGING		= 0;
+	private static final int		PD_IEC1107_COMPATIBLE	= 0;
+	private static final int		PD_ECHO_CANCELING		= 0;
+	private static final String		OFFLINE_EMPTY			= "offline.EMPTY";
 
 	/**
 	 * Property values Required properties will have NO default value Optional
 	 * properties make use of default value
 	 */
-	String pAddress = null;
-	String pNodeId = PD_NODE_ID;
-	String pSerialNumber = null;
-	String pPassword = null;
+	private String pAddress = null;
+	private String pNodeId = PD_NODE_ID;
+	private String pSerialNumber = null;
+	private String pPassword = null;
 
 	/* Protocol timeout fail in msec */
-	int pTimeout = PD_TIMEOUT;
+	private int pTimeout = PD_TIMEOUT;
 
 	/* Max nr of consecutive protocol errors before end of communication */
-	int pRetries = PD_RETRIES;
+	private int pRetries = PD_RETRIES;
 	/* Offset in ms to the get/set time */
-	int pRoundTripCorrection = PD_ROUNDTRIP_CORRECTION;
-	int pSecurityLevel = PD_SECURITY_LEVEL;
-	int pCorrectTime = 0;
-	int pExtendedLogging = PD_EXTENDED_LOGGING;
+	private int pRoundTripCorrection = PD_ROUNDTRIP_CORRECTION;
+	private int pSecurityLevel = PD_SECURITY_LEVEL;
+	private int pCorrectTime = 0;
+	private int pExtendedLogging = PD_EXTENDED_LOGGING;
 	private int pEchoCancelling = PD_ECHO_CANCELING;
 	private int pIEC1107Compatible = PD_IEC1107_COMPATIBLE;
 
@@ -218,7 +218,7 @@ public class ABBA1140 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
 				pDelayBeforeConnect = Integer.parseInt(p.getProperty(PK_DELAY_BEFORE_CONNECT));
 			}
 
-			pSecurityLevel = Integer.parseInt(p.getProperty("SecurityLevel","2").trim());
+			pSecurityLevel = Integer.parseInt(p.getProperty(PK_SECURITY_LEVEL,"2").trim());
 			if (pSecurityLevel != 0) {
 				if ("".equals(pPassword)) {
 					String msg = "Password field is empty! correct first!";
@@ -332,7 +332,7 @@ public class ABBA1140 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
 	 * @param baudrate
 	 * @throws IOException
 	 */
-	public void connect(int baudrate) throws IOException {
+	private void connect(int baudrate) throws IOException {
 		// Configurable delay to prevent some modems to block first communication bytes.
 		try {Thread.sleep(pDelayBeforeConnect);} catch (InterruptedException e) {throw new IOException(e.getMessage());};
 
@@ -606,7 +606,7 @@ public class ABBA1140 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
 	}
 
 
-	static Map exceptionInfoMap = new HashMap();
+	private static Map exceptionInfoMap = new HashMap();
 	static {
 		exceptionInfoMap.put("ERR1","Invalid Command/Function type e.g. other than W1, R1 etc");
 		exceptionInfoMap.put("ERR2","Invalid Data Identity Number e.g. Data id does not exist in the meter");
@@ -633,11 +633,7 @@ public class ABBA1140 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
 		throw new IOException(msg);
 	}
 
-	public ABBA1140MeterType getAbba1140MeterType() {
-		return abba1140MeterType;
-	}
-
-	public MeterType getMeterType() {
+	private MeterType getMeterType() {
 		return meterType;
 	}
 
