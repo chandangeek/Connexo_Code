@@ -20,7 +20,6 @@ import com.energyict.commserverj.shadow.CommunicationSchedulerFullShadowBuilder;
 import com.energyict.concentrator.communication.driver.rf.cynet.ManufacturerId;
 import com.energyict.concentrator.communication.driver.rf.cynet.NetworkNode;
 import com.energyict.concentrator.communication.driver.rf.cynet.NetworkTopology;
-import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.InvokeIdAndPriority;
@@ -61,7 +60,7 @@ import com.energyict.protocol.RegisterValue;
 public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 	
 	/** Helper to rapidly fetch data without a Z3/R2 */
-	private boolean TESTING = false;
+	private boolean TESTING = true;
 	
 	/** Obis code we can use to request the RF network topology. */
 	private static final ObisCode OBIS_CODE_NETWORK_TOPOLOGY = ObisCode.fromString("0.128.3.0.8.255");
@@ -125,7 +124,9 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 				logger.log(Level.INFO, "Starting to handle meter \'" + rtu + "\'");
 			    
 			    // Loop over the Rtu's communicationSchedules
-				for(CommunicationScheduler commSchedule : rtu.getCommunicationSchedulers()){
+//				for(CommunicationScheduler commSchedule : rtu.getCommunicationSchedulers()){
+				for(int i = 0; i < rtu.getCommunicationSchedulers().size(); i++){
+					CommunicationScheduler commSchedule = (CommunicationScheduler)rtu.getCommunicationSchedulers().get(i);
 					
 					if(commSchedule.getNextCommunication().before(Calendar.getInstance(rtu.getDeviceTimeZone()).getTime())){
 						CommunicationSchedulerFullShadow csfs = CommunicationSchedulerFullShadowBuilder.getCommunicationSchedulerFullShadow(commSchedule);
@@ -136,9 +137,9 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 						//TODO
 						//TODO
 						//TODO Not correct yet!!
-						this.link.getStreamConnection().close();
-						this.link.setStreamConnection(new SocketStreamConnection(getMeter().getPhoneNumber()));
-						this.link.getStreamConnection().open();
+//						this.link.getStreamConnection().close();
+//						this.link.setStreamConnection(new SocketStreamConnection(getMeter().getPhoneNumber()));
+//						this.link.getStreamConnection().open();
 	//					((Dialer)this.link).connect(ti.getPhoneNumber(), ti.getPostDialCommand(), 90000);
 							
 						Handler fhSimple = new FileHandler("FileName", true);
