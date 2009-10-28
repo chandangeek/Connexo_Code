@@ -2,7 +2,7 @@ package com.energyict.dlms.aso;
 
 import java.io.IOException;
 
-/** SecurityProvider interface
+/**
  * 
  * The securityProvider is responsible for providing all possible keys.
  * 

@@ -22,8 +22,8 @@ import com.energyict.protocol.messaging.Messaging;
  *         <p>
  *         Abstract base class to implement messages in your protocol. Your
  *         protocol needs to extend your own MeterMessageClass. The extended
- *         class only needs to construct of list of MessageCategories. Common
- *         used getXCategories are defined below.
+ *         class only needs to construct of list of MessageCategories. Commonly
+ *         used get'X'Categories are defined below.
  *         </p>
  * 
  */

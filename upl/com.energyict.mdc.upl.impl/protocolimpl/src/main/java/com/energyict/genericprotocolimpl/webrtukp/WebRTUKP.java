@@ -40,7 +40,6 @@ import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.XdlmsAse;
-import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
@@ -48,6 +47,7 @@ import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageExecutor;
 import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MeterMessages;
@@ -507,8 +507,6 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	}
 	
 	/**
-	 * @param is - The inputStream from the Link
-	 * @param os - The outputStream from the Link
 	 * @return the DLMSConnection to use
 	 * @throws DLMSConnectionException if unknown addressingMode has been selected
 	 * @throws IOException when Connection couldn't be instantiated or when the connectionMode isn't correct

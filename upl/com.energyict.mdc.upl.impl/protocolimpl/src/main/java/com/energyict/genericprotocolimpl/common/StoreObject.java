@@ -79,6 +79,10 @@ public class StoreObject implements Transaction {
 		storeObjects.put(pd, rtu);
 	}
 	
+	public void addAll(Map map){
+		storeObjects.putAll(map);
+	}
+	
 	public HashMap getMap(){
 		return this.storeObjects;
 	}

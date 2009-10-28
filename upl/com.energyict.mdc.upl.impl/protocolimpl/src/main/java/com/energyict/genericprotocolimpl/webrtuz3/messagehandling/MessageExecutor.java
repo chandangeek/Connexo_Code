@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.webrtukp.messagehandling;
+package com.energyict.genericprotocolimpl.webrtuz3.messagehandling;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -60,12 +60,13 @@ import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.Limiter.ValueDefinitionType;
 import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
+import com.energyict.genericprotocolimpl.common.CommonUtils;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
-import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
-import com.energyict.genericprotocolimpl.webrtukp.csvhandling.CSVParser;
-import com.energyict.genericprotocolimpl.webrtukp.csvhandling.TestObject;
+import com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3;
+import com.energyict.genericprotocolimpl.webrtuz3.csvhandling.CSVParser;
+import com.energyict.genericprotocolimpl.webrtuz3.csvhandling.TestObject;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.CodeCalendar;
 import com.energyict.mdw.core.Lookup;
@@ -86,18 +87,18 @@ import com.energyict.mdw.shadow.RtuMessageShadow;
  */
 public class MessageExecutor extends GenericMessageExecutor{
 	
-	private WebRTUKP webRtu;
+	private WebRTUZ3 webRtu;
 	private boolean DEBUG = true;
 	
 //	private String[] weekNames = {"a", "b", "c", "d"};
 
 	private static final byte[] defaultMonitoredAttribute = new byte[]{1,0,90,7,0,(byte)255};	// Total current, instantaneous value
 	
-	public MessageExecutor(WebRTUKP webRTUKP) {
-		this.webRtu = webRTUKP;
+	public MessageExecutor(WebRTUZ3 webRTU) {
+		this.webRtu = webRTU;
 	}
 	
-	private WebRTUKP getWebRtu(){
+	private WebRTUZ3 getWebRtu(){
 		return this.webRtu;
 	}
 
@@ -788,7 +789,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 					
 					// We just return the byteArray because it is possible that the berEncoded octetString contains
 					// extra check bits ...
-					//TODO low lever security should set the value directly to tthe secret attribuut of the SNAssociation
+					//TODO low lever security should set the value directly to the secret attribute of the SNAssociation
 					asn.changeHLSSecret(getWebRtu().getSecurityProvider().getNEWHLSSecret());
 				}
 				success = true;
@@ -1066,8 +1067,11 @@ public class MessageExecutor extends GenericMessageExecutor{
 		return getWebRtu().getMeterConfig();
 	}
 	
+	/**
+	 * @return the current MeteringWarehouse
+	 */
 	private MeteringWarehouse mw(){
-		return getWebRtu().mw();
+		return CommonUtils.mw();
 	}
 
 	protected TimeZone getTimeZone() {

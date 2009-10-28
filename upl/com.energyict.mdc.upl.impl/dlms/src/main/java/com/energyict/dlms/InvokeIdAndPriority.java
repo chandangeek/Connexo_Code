@@ -1,12 +1,7 @@
 package com.energyict.dlms;
 
-import java.io.IOException;
-
-
 /**
- * 
- * @author gna
- * 
+ * <pre>
  * See GreenBook 6th p178.
  * Invoke-Id-And-Priority      ::= BIT STRING 
  * { 
@@ -19,6 +14,9 @@ import java.io.IOException;
  *     service_class             (6),       -- 0 = Unconfirmed, 1 = Confirmed 
  *     priority                  (7)        -- 0 = normal, 1 = high 
  * } 
+ * </pre>
+ * 
+ * @author gna
  */
 public class InvokeIdAndPriority {
 	
@@ -54,7 +52,7 @@ public class InvokeIdAndPriority {
      * Set the priority bit (bit 7);
      * 0 = normal, 1 = high 
      * @param priority
-     * @throws DLMSConnectionException
+     * @throws DLMSConnectionException if priority isn't valid
      */
     public void setPriority(int priority) throws DLMSConnectionException{
     	if(priority == PRIORITY_NORMAL){
@@ -70,7 +68,7 @@ public class InvokeIdAndPriority {
      * Set the serviceClass bit (bit 6);
      * 0 = Unconfirmed, 1 = Confirmed 
      * @param serviceClass
-     * @throws DLMSConnectionException
+     * @throws DLMSConnectionException if serviceClass isn't valid
      */
     public void setServiceClass(int serviceClass) throws DLMSConnectionException{
     	if(serviceClass == SERVICE_CLASS_UNCONFIRMED){
@@ -85,7 +83,7 @@ public class InvokeIdAndPriority {
     /**
      * Set the invoke-Id bit (0-1-2-3);
      * @param invokeId
-     * @throws DLMSConnectionException
+     * @throws DLMSConnectionException if invokeId isn't valid}
      */
     public void setTheInvokeId(int invokeId) throws DLMSConnectionException{
     	

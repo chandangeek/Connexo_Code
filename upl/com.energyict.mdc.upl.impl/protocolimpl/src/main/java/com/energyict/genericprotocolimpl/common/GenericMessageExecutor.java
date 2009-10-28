@@ -102,10 +102,15 @@ public abstract class GenericMessageExecutor {
 		return (byte)dow;
 	}
 	
-	public AXDRDateTime convertUnixToGMTDateTime(String time, TimeZone timeZone) throws IOException{
+	/**
+	 * Convert a given epoch timestamp in SECONDS to an {@link AXDRDateTime} object
+	 * @param time - the time in seconds sinds 1th jan 1970 00:00:00
+	 * @return the AXDRDateTime of the given time
+	 * @throws IOException when the entered time could not be parsed to a long value
+	 */
+	public AXDRDateTime convertUnixToGMTDateTime(String time) throws IOException{
 		try {
 			AXDRDateTime dateTime = null;
-//			Calendar cal = Calendar.getInstance(timeZone);
 			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 			cal.setTimeInMillis(Long.parseLong(time)*1000);
 			dateTime = new AXDRDateTime(cal);

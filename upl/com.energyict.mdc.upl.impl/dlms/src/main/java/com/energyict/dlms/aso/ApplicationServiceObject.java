@@ -11,15 +11,14 @@ import com.energyict.dlms.cosem.AssociationSN;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
- * 
- * @author gna
- * 
  *<pre>
  * The applicationServiceObject has three main objectives.
  * - Establish/maintain/release application associations
  * - Data transfer
  * - Layer management...
  * </pre>
+ * 
+ * @author gna
  */
 public class ApplicationServiceObject {
 

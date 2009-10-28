@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.webrtukp;
+package com.energyict.genericprotocolimpl.webrtuz3;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -15,11 +15,13 @@ import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MbusMessageExecutor;
-import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MbusMessages;
-import com.energyict.genericprotocolimpl.webrtukp.profiles.MbusDailyMonthly;
-import com.energyict.genericprotocolimpl.webrtukp.profiles.MbusEventProfile;
-import com.energyict.genericprotocolimpl.webrtukp.profiles.MbusProfile;
+import com.energyict.genericprotocolimpl.common.CommonUtils;
+import com.energyict.genericprotocolimpl.common.DLMSProtocol;
+import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MbusMessageExecutor;
+import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MbusMessages;
+import com.energyict.genericprotocolimpl.webrtuz3.profiles.MbusDailyMonthly;
+import com.energyict.genericprotocolimpl.webrtuz3.profiles.MbusEventProfile;
+import com.energyict.genericprotocolimpl.webrtuz3.profiles.MbusProfile;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.CommunicationProfile;
@@ -28,8 +30,8 @@ import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
 /**
  * @author gna
@@ -52,9 +54,8 @@ public class MbusDevice extends MbusMessages implements GenericProtocol{
 	
 	public Rtu	mbus;
 	public CommunicationProfile commProfile;
-	private WebRTUKP webRtu;
+	private WebRTUZ3 webRtu;
 	private Logger logger;
-	private ProtocolChannelMap channelMap = null;
 	private Unit mbusUnit;
 	private MbusObisCodeMapper mocm = null;
 	
@@ -131,13 +132,18 @@ public class MbusDevice extends MbusMessages implements GenericProtocol{
 		if(commProfile.getReadDemandValues()){
 			getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMbus().getSerialNumber());
 			MbusProfile mp = new MbusProfile(this);
-			mp.getProfile(getWebRTU().getMeterConfig().getMbusProfile(getPhysicalAddress()).getObisCode());
+			ProfileData pd = mp.getProfile(getWebRTU().getMeterConfig().getMbusProfile(getPhysicalAddress()).getObisCode());
+			if(this.webRtu.isBadTime()){
+				pd.markIntervalsAsBadTime();
+			}
+			this.webRtu.getStoreObject().add(pd, getMbus());
 		}
 		
 		if(commProfile.getReadMeterEvents()){
 			getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + getMbus().getSerialNumber());
 			MbusEventProfile mep = new MbusEventProfile(this);
-			mep.getEvents();
+			ProfileData eventPd = mep.getEvents();
+			this.webRtu.getStoreObject().add(eventPd, getMbus());
 		}
 		
 		// import daily/monthly
@@ -146,18 +152,15 @@ public class MbusDevice extends MbusMessages implements GenericProtocol{
 			
 			if(getWebRTU().isReadDaily()){
 				getLogger().log(Level.INFO, "Getting Daily values for meter with serialnumber: " + getMbus().getSerialNumber());
-//				if(commProfile.getReadDemandValues()){
-//					mdm.getDailyProfile((ProfileData)(getWebRTU().getStoreObject().getMap().get(getMbus())),
-//							getWebRTU().getMeterConfig().getMbusProfile(getPhysicalAddress()).getObisCode());
-//				} else {
-//					mdm.getDailyProfile(getWebRTU().getMeterConfig().getMbusProfile(getPhysicalAddress()).getObisCode());
-//				}
-				mdm.getDailyProfile(getMeterConfig().getDailyProfileObject().getObisCode());
+				ProfileData dailyPd = mdm.getDailyProfile(getMeterConfig().getDailyProfileObject().getObisCode());
+				this.webRtu.getStoreObject().add(dailyPd, getMbus());
 			}
 			
 			if(getWebRTU().isReadMonthly()){
 				getLogger().log(Level.INFO, "Getting Monthly values for meter with serialnumber: " + getMbus().getSerialNumber());
-				mdm.getMonthlyProfile(getMeterConfig().getMonthlyProfileObject().getObisCode());
+				ProfileData montProfileData = mdm.getMonthlyProfile(getMeterConfig().getMonthlyProfileObject().getObisCode());
+				this.webRtu.getStoreObject().add(montProfileData, getMbus());
+				
 			}
 			getLogger().log(Level.INFO, "Getting registers from Mbus meter " + (getPhysicalAddress()+1));
 			doReadRegisters();
@@ -169,16 +172,20 @@ public class MbusDevice extends MbusMessages implements GenericProtocol{
 		}
 	}
 	
+	/**
+	 * We don't use the {@link DLMSProtocol#doReadRegisters()} method because we need to adjust the mbusChannel
+	 * @throws IOException
+	 */
 	private void doReadRegisters() throws IOException{
 		Iterator<RtuRegister> it = getMbus().getRegisters().iterator();
 		List groups = this.commProfile.getRtuRegisterGroups();
 		ObisCode oc = null;
 		RegisterValue rv;
 		RtuRegister rr;
-		try {
-			while(it.hasNext()){
+		while(it.hasNext()){
+			try {
 				rr = it.next();
-				if (getWebRTU().isInRegisterGroup(groups, rr)) {
+				if (CommonUtils.isInRegisterGroup(groups, rr)) {
 					oc = rr.getRtuRegisterSpec().getObisCode();
 					try{
 						rv = readRegister(adjustToMbusChannelObisCode(oc));
@@ -197,10 +204,10 @@ public class MbusDevice extends MbusMessages implements GenericProtocol{
 						getLogger().log(Level.INFO, "ObisCode " + oc + " is not supported by the meter.");
 					}
 				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				getLogger().log(Level.INFO, "Reading register with obisCode " + oc + " FAILED.");
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException(e.getMessage());
 		}
 	}
 	
@@ -249,11 +256,11 @@ public class MbusDevice extends MbusMessages implements GenericProtocol{
 		return this.logger;
 	}
 
-	public void setWebRtu(WebRTUKP webRTU) {
-		this.webRtu = webRTU;
+	public void setWebRtu(WebRTUZ3 webRTUKP) {
+		this.webRtu = webRTUKP;
 	}
 	
-	public WebRTUKP getWebRTU(){
+	public WebRTUZ3 getWebRTU(){
 		return this.webRtu;
 	}
 

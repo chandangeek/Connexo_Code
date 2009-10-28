@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.webrtukp;
+package com.energyict.genericprotocolimpl.common;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -10,7 +10,10 @@ import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.SecurityLevelException;
 
 /**
- * Provides all the securityKeys, just for local purpose
+ * Default implementation of the securityProvider.
+ * Provides all the securityKeys, just for LOCAL purpose
+ * Functionality is implemented according to the NTA specification
+ * 
  * @author gna
  *
  */
@@ -25,17 +28,17 @@ public class LocalSecurityProvider implements SecurityProvider {
 	private Properties properties;
 	
 	/** Property name of the new AutenticationKey */
-	final static String NEW_AUTHENTICATION_KEY = "NewAuthenticationKey";
+	public final static String NEW_AUTHENTICATION_KEY = "NewAuthenticationKey";
 	/** Property name of the new Global encryption Key */
-	final static String NEW_GLOBAL_KEY = "NewGlobalKey";
+	public final static String NEW_GLOBAL_KEY = "NewGlobalKey";
 	/** Property name of the new HighLevel security Secret */
-	final static String NEW_HLS_SECRET = "NewHLSSecret";
+	public final static String NEW_HLS_SECRET = "NewHLSSecret";
 	/** Property name of the DataTransport EncryptionKey */
-	final static String DATATRANSPORTKEY = "DataTransportKey";
+	public final static String DATATRANSPORTKEY = "DataTransportKey";
 	/** Property name of the Master key, or KeyEncryptionKey */
-	final static String MASTERKEY = "MasterKey";
+	public final static String MASTERKEY = "MasterKey";
 	/** Property name of the DataTransport AuthenticationKey */
-	final static String DATATRANSPORT_AUTHENTICATIONKEY = "DataTransportAuthenticationKey";
+	public final static String DATATRANSPORT_AUTHENTICATIONKEY = "DataTransportAuthenticationKey";
 	
 	/**
 	 * Create a new instance of LocalSecurityProvider
@@ -52,7 +55,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 		this.dataTransportPassword = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORTKEY, ""));
 		this.masterKey = DLMSUtils.hexStringToByteArray(properties.getProperty(MASTERKEY, ""));
 		this.authenticationPassword = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORT_AUTHENTICATIONKEY,""));
-		this.hlsSecret = properties.getProperty(MeterProtocol.PASSWORD);
+		this.hlsSecret = properties.getProperty(MeterProtocol.PASSWORD,"");
 	}
 	
 	/**

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.energyict.protocolimpl.utils;
 
 import java.io.IOException;
@@ -11,6 +8,11 @@ import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.InvokeIdAndPriority;
 
 /**
+ * Dummy DLMS connection class.
+ * Just for testing purposes.
+ * 
+ * Before each DLMSRequest you must set the response with {@link DummyDLMSConnection#setResponseByte(byte[])}
+ * 
  * @author gna
  *
  */
@@ -91,6 +93,10 @@ public class DummyDLMSConnection implements DLMSConnection {
 	public void setSNRMType(int type) {
 	}
 	
+	/**
+	 * Set the desired response for your next DLMS request.
+	 * @param response - the response you would like to receive
+	 */
 	public void setResponseByte(byte[] response){
 		this.responseByte = response;
 	}
