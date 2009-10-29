@@ -307,3 +307,8 @@
 -keepnames class com.energyict.protocolimpl.iec1107.as220.AS220
 
 -keepnames class com.energyict.protocolimpl.iec1107.a1440.A1440
+
+-keepnames class com.energyict.genericprotocolimpl.gatewayz3.GateWayZ3
+
+-keepnames class com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3
+

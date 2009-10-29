@@ -61,28 +61,8 @@ public class ImageTransfer {
 			// Step 2: transfer image blocks
 			transferImageBlocks();
 			
-			for(int i = 0; i < 10; i++){
-				try {
-					Thread.sleep(30000);	// Have to wait a few seconds before requesting something
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				try {
-//					Unsigned32 u32Status = getCosemObjectFactory().getData(ObisCode.fromString("0.0.128.101.5.255")).getAttrbAbstractDataType(2).getUnsigned32();
-//					System.out.println(u32Status.getValue());
-					
-					// Step 3: check missing blocks // It is NOT a broadcast so no blocks can be missing...
-					checkMissingBlocks2();
-					
-					break;
-				} catch (Exception e) {
-					e.printStackTrace();
-					if(i == 9){
-						throw new IOException("Could not activate the image.");
-					}
-				}
-			}
+			// Step 3: check missing blocks // It is NOT a broadcast so no blocks can be missing...
+			checkMissingBlocks2();
 			
 			// Step 4: activate image
 			activateImage();

@@ -75,15 +75,12 @@ public class GateWayZ3Test {
 		al.add("28000548");
 		al.add("28000549");
 		al.add("00000000");
-//		al.add("28.0.5.5b");
-//		al.add("28.0.5.52");
-//		al.add("28.0.5.4d");
-//		al.add("28.0.5.48");
-//		al.add("28.0.5.49");
-//		al.add("0.0.0.0");
 		return al;
 	}
 	
+	/**
+	 * @return another expected list
+	 */
 	private ArrayList<String> getExpectedList2(){
 		ArrayList<String> al = new ArrayList<String>();
 		al.add("00000000");

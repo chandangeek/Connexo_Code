@@ -33,6 +33,9 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.FIRMWARE_UPGRADE.equals(qName)){
 			setType(RtuMessageConstant.FIRMWARE_UPGRADE);
 			handleFirmWareUpgrade(attrbs);
+		} else if(RtuMessageConstant.RF_FIRMWARE_UPGRADE.equals(qName)){
+			setType(RtuMessageConstant.RF_FIRMWARE_UPGRADE);
+			handleFirmWareUpgrade(attrbs);
 		} else if(RtuMessageConstant.P1CODEMESSAGE.equals(qName)){
 			setType(RtuMessageConstant.P1CODEMESSAGE);
 			handleP1Code(attrbs);
@@ -134,32 +137,16 @@ public class MessageHandler extends DefaultHandler{
 	 * FirmwareUpgrade Related messages
 	 **********************************************/
 	private String userfileId;
-//	private String activateNow;
 	private String activationDate;
 	
     private void handleFirmWareUpgrade(Attributes attrbs) {
     	this.userfileId = attrbs.getValue(RtuMessageConstant.FIRMWARE);
-//    	this.activateNow = attrbs.getValue(RtuMessageConstant.FIRMWARE_ACTIVATE_NOW);
     	this.activationDate = attrbs.getValue(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE);
 	}
 	
 	public String getUserFileId(){
 		return this.userfileId;
 	}
-	
-//	public String getActivateNow(){
-//		return this.activateNow;
-//	}
-	
-	
-//	// Need to test again!
-//	public boolean activateNow(){
-//		if(this.activateNow != null){
-//			return this.activateNow.equals("1");
-//		} else {
-//			return false;
-//		}
-//	}
 	
 	public String getActivationDate(){
 		if(this.activationDate == null){

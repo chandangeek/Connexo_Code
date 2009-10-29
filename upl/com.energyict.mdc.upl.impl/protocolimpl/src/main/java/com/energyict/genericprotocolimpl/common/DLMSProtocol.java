@@ -38,12 +38,12 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.amr.RtuRegisterGroup;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
@@ -131,7 +131,6 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 	/**
 	 * Handle the protocol tasks
 	 * 
-	 * @param link - the ComServer link
 	 * @throws BusinessException
 	 * @throws SQLException
 	 * @throws IOException
@@ -218,6 +217,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 			
 			this.meter = scheduler.getRtu();
 			this.communicationScheduler = scheduler; 
+			this.link = link;
 			
 			validateProperties();
 			configureDLMSProperties();
@@ -244,8 +244,9 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 	 * Handle all DLMS property related methods
 	 * 
 	 * @throws DLMSConnectionException if some of the invokeIdAndPriority bits aren't valid
+	 * @throws InvalidPropertyException when a property value contains incorrect data 
 	 */
-	protected void configureDLMSProperties() throws DLMSConnectionException{
+	protected void configureDLMSProperties() throws DLMSConnectionException, InvalidPropertyException{
 		
 		this.conformanceBlock = configureConformanceBlock();
 		if(this.conformanceBlock == null){
@@ -254,7 +255,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 			} else if(getReference() == ProtocolLink.LN_REFERENCE){
 				this.conformanceBlock = new ConformanceBlock(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
 			} else {
-				throw new IllegalArgumentException("Invalid reference method, only 0 and 1 are allowed.");
+				throw new InvalidPropertyException("Invalid reference method, only 0 and 1 are allowed.");
 			}
 		}
 		
@@ -760,7 +761,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 	public HashMap<RtuRegister, RegisterValue> doReadRegisters() throws IOException {
 		HashMap<RtuRegister, RegisterValue> regValueMap = new HashMap<RtuRegister, RegisterValue>();
 		Iterator<RtuRegister> it = getMeter().getRegisters().iterator();
-		List<RtuRegisterGroup> groups = getCommunicationProfile().getRtuRegisterGroups();
+		List groups = getCommunicationProfile().getRtuRegisterGroups();
 		ObisCode oc = null;
 		RegisterValue rv = null;
 		RtuRegister rr;

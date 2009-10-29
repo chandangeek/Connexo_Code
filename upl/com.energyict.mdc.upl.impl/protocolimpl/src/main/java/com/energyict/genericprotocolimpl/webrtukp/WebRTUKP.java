@@ -80,15 +80,34 @@ import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 
 /**
- * 
- * @author gna |08012009| First complete draft containing: - LoadProfile E-meter - Registers E-meter - LoadProfile Mbus-meter - Registers Mbus-meter Changes: GNA |20012009| Added the imageTransfer
- *         message, here we use the P3ImageTransfer object GNA |22012009| Added the Consumer messages over the P1 port GNA |27012009| Added the Disconnect Control message GNA |28012009| Implemented
- *         the Loadlimit messages - Enabled the daily/Monthly code GNA |02022009| Added the forceClock functionality GNA |12022009| Added ActivityCalendar and SpecialDays as rtu message GNA |17022009|
- *         Bug in hasMbusMeters(), if serialnumber is not found -> log and go next GNA |19022009| Changed all messageEntrys in date-form to a UnixTime entry; Added a message to change to connectMode
- *         of the disconnectorObject; Fixed bugs in the ActivityCalendar object; Added an entry delete of the specialDays GNA |09032009| Added the informationFieldSize to the HDLCConnection so the max
- *         send/received length is customizable GNA |16032009| Added the getTimeDifference method so timedifferences are shown in the AMR logging. Added properties to disable the reading of the
- *         daily/monthly values Added ipPortNumber property for updating the phone number with inbound communications GNA |30032009| Added testMessage to enable overnight tests for the embedded device
- *         GNA |May 2009| Added Sms wakeup support GNA |03062009| Added registerGroup support GNA |05062009| Changed writeClock support, split meterEvents and meterProfile
+ * <pre>
+ *  |08012009| First complete implementation of the WebRTUKP protocol containing: 
+ *  	- LoadProfile E-meter 
+ *  	- Registers E-meter 
+ *  	- LoadProfile Mbus-meter 
+ *  	- Registers Mbus-meter 
+ *  
+ *  Changes: 
+ *  GNA |20012009| Added the imageTransfer message, here we use the P3ImageTransfer object 
+ *  GNA |22012009| Added the Consumer messages over the P1 port 
+ *  GNA |27012009| Added the Disconnect Control message 
+ *  GNA |28012009| Implemented the Loadlimit messages - Enabled the daily/Monthly code 
+ *  GNA |02022009| Added the forceClock functionality 
+ *  GNA |12022009| Added ActivityCalendar and SpecialDays as rtu message 
+ *  GNA |17022009| Bug in hasMbusMeters(), if serialnumber is not found -> log and go next 
+ *  GNA |19022009| Changed all messageEntrys in date-form to a UnixTime entry; Added a message to change to connectMode
+ *         	of the disconnectorObject; Fixed bugs in the ActivityCalendar object; Added an entry delete of the specialDays 
+ *  GNA |09032009| Added the informationFieldSize to the HDLCConnection so the max send/received length is customizable 
+ *  GNA |16032009| Added the getTimeDifference method so timedifferences are shown in the AMR logging. Added properties 
+ *  		to disable the reading of the daily/monthly values Added ipPortNumber property for updating the phone number 
+ *  		with inbound communications 
+ *  GNA |30032009| Added testMessage to enable overnight tests for the embedded device
+ *  GNA |May 2009| Added Sms wakeup support 
+ *  GNA |03062009| Added registerGroup support 
+ *  GNA |05062009| Changed writeClock support, split meterEvents and meterProfile
+ * </pre>     
+ *    
+ * @author gna         
  */
 
 public class WebRTUKP extends MeterMessages implements GenericProtocol, ProtocolLink, HHUEnabler, MeterToolProtocol {
@@ -458,7 +477,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	 * 
 	 * @throws IOException - can be cause by the TCPIPConnection
 	 * @throws DLMSConnectionException - could not create a dlmsConnection
-	 * @throws BusinessException
+	 * @throws BusinessException if a business error occurred
 	 * @throws SQLException when a database exception occurred
 	 */
 	public void init() throws IOException, DLMSConnectionException, SQLException, BusinessException{

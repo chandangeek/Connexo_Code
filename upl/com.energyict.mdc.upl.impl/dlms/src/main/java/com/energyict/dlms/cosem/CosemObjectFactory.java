@@ -228,6 +228,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 		return new ImageTransfer(protocolLink);
 	}
 	
+	public ImageTransfer getImageTransfer(ObisCode obisCode) throws IOException {
+		return new ImageTransfer(protocolLink, getObjectReference(obisCode));
+	}
+	
 	public SecuritySetup getSecuritySetup() throws IOException {
 		return new SecuritySetup(protocolLink);
 	}
@@ -239,18 +243,19 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         else { 
 
 
-            if (protocolLink.getMeterConfig().getClassId(obisCode) == Register.CLASSID)
-               return new Register(protocolLink,getObjectReference(obisCode));
-            else if (protocolLink.getMeterConfig().getClassId(obisCode) == ExtendedRegister.CLASSID)
-               return new ExtendedRegister(protocolLink,getObjectReference(obisCode));
-            else if (protocolLink.getMeterConfig().getClassId(obisCode) == DemandRegister.CLASSID)
-               return new DemandRegister(protocolLink,getObjectReference(obisCode));
-            else if (protocolLink.getMeterConfig().getClassId(obisCode) == Data.CLASSID)
-               return new Data(protocolLink,getObjectReference(obisCode));
-            else if (protocolLink.getMeterConfig().getClassId(obisCode) == ProfileGeneric.CLASSID)
-               return new ProfileGeneric(protocolLink,getObjectReference(obisCode));
-            else
-               throw new IOException("CosemObjectFactory, getCosemObject, invalid classId "+protocolLink.getMeterConfig().getClassId(obisCode)+" for obisCode "+obisCode.toString()) ;
+            if (protocolLink.getMeterConfig().getClassId(obisCode) == Register.CLASSID) {
+				return new Register(protocolLink,getObjectReference(obisCode));
+			} else if (protocolLink.getMeterConfig().getClassId(obisCode) == ExtendedRegister.CLASSID) {
+				return new ExtendedRegister(protocolLink,getObjectReference(obisCode));
+			} else if (protocolLink.getMeterConfig().getClassId(obisCode) == DemandRegister.CLASSID) {
+				return new DemandRegister(protocolLink,getObjectReference(obisCode));
+			} else if (protocolLink.getMeterConfig().getClassId(obisCode) == Data.CLASSID) {
+				return new Data(protocolLink,getObjectReference(obisCode));
+			} else if (protocolLink.getMeterConfig().getClassId(obisCode) == ProfileGeneric.CLASSID) {
+				return new ProfileGeneric(protocolLink,getObjectReference(obisCode));
+			} else {
+				throw new IOException("CosemObjectFactory, getCosemObject, invalid classId "+protocolLink.getMeterConfig().getClassId(obisCode)+" for obisCode "+obisCode.toString()) ;
+			}
         }
             
     }
@@ -260,20 +265,22 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return getObjectReference(obisCode,-1);
     }
     public ObjectReference getObjectReference(ObisCode obisCode, int classId) throws IOException {
-        if (protocolLink.getReference() == ProtocolLink.LN_REFERENCE)
-            return new ObjectReference(obisCode.getLN(),classId);
-        else if (protocolLink.getReference() == ProtocolLink.SN_REFERENCE)
-            return new ObjectReference(protocolLink.getMeterConfig().getSN(obisCode));
+        if (protocolLink.getReference() == ProtocolLink.LN_REFERENCE) {
+			return new ObjectReference(obisCode.getLN(),classId);
+		} else if (protocolLink.getReference() == ProtocolLink.SN_REFERENCE) {
+			return new ObjectReference(protocolLink.getMeterConfig().getSN(obisCode));
+		}
         throw new IOException("CosemObjectFactory, getObjectReference, invalid reference type "+protocolLink.getReference());
     }
     public ObjectReference getObjectReference(byte[] ln,int sn) throws IOException {
         return getObjectReference(ln,-1,sn);
     }
     public ObjectReference getObjectReference(byte[] ln,int classId,int sn) throws IOException {
-        if (protocolLink.getReference() == ProtocolLink.LN_REFERENCE)
-            return new ObjectReference(ln,classId);
-        else if (protocolLink.getReference() == ProtocolLink.SN_REFERENCE)
-            return new ObjectReference(sn);
+        if (protocolLink.getReference() == ProtocolLink.LN_REFERENCE) {
+			return new ObjectReference(ln,classId);
+		} else if (protocolLink.getReference() == ProtocolLink.SN_REFERENCE) {
+			return new ObjectReference(sn);
+		}
         throw new IOException("CosemObjectFactory, getObjectReference, invalid reference type "+protocolLink.getReference());
     }
 

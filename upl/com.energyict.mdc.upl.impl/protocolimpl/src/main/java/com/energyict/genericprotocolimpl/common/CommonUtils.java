@@ -15,6 +15,7 @@ import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.protocol.InvalidPropertyException;
 
 /**
  * Commonly used methods for a {@link GenericProtocol}
@@ -35,12 +36,11 @@ public final class CommonUtils {
 	 * @throws IOException - if multiple meters were found in the database
 	 * @throws SQLException if database exception occurred
 	 * @throws BusinessException if business exception occurred
-	 * @throws IllegalArgumentException if some properties weren't correctly configured
 	 */
 	public static Rtu findOrCreateDeviceBySerialNumber(String serialNumber, String rtuTypeProperty, String folderExtNameProperty) throws IOException, SQLException, BusinessException{
-		List<Rtu> result = mw().getRtuFactory().findBySerialNumber(serialNumber);
+		List result = mw().getRtuFactory().findBySerialNumber(serialNumber);
 		if(result.size() == 1){		// we found the rtu so return it
-			return result.get(0);	
+			return (Rtu)result.get(0);	
 		} else if(result.size() > 1){
 			throw new IOException("Multple meters found in database with serialnumber " + serialNumber);
 		} else {					// no results were found, try to create it
@@ -60,12 +60,11 @@ public final class CommonUtils {
 	 * @throws IOException - if multiple meters were found in the database
 	 * @throws SQLException if database exception occurred
 	 * @throws BusinessException if business exception occurred
-	 * @throws IllegalArgumentException if some properties weren't correctly configured
 	 */
 	public static Rtu findOrCreateDeviceByDeviceId(String deviceId, String rtuTypeProperty, String folderExtNameProperty) throws IOException, SQLException, BusinessException{
-		List<Rtu> result = mw().getRtuFactory().findByDeviceId(deviceId);
+		List result = mw().getRtuFactory().findByDeviceId(deviceId);
 		if(result.size() == 1){		// we found the rtu so return it
-			return result.get(0);	
+			return (Rtu)result.get(0);	
 		} else if(result.size() > 1){
 			throw new IOException("Multple meters found in database with deviceId " + deviceId);
 		} else {					// no results were found, try to create it
@@ -126,21 +125,21 @@ public final class CommonUtils {
 	 * Find the RtuType for the given RtuTypeName
 	 * @param rtuTypeProperty - the name of the RtuType
 	 * @return the found rtuType
-	 * @throws IllegalArgumentException when the name of the rtuType is null, when no RtuType was found for the given name and when
+	 * @throws InvalidPropertyException when the name of the rtuType is null, when no RtuType was found for the given name and when
 	 *  the found RtuType doesn't have a prototype Rtu
 	 */
-	public static RtuType getRtuType(String rtuTypeProperty){
+	public static RtuType getRtuType(String rtuTypeProperty) throws InvalidPropertyException{
 		if(rtuTypeProperty != null){
 			RtuType rtuType = mw().getRtuTypeFactory().find(rtuTypeProperty);
 			if(rtuType == null){
-				throw new IllegalArgumentException("No rtutype defined with name '" + rtuTypeProperty + "'.");
+				throw new InvalidPropertyException("No rtutype defined with name '" + rtuTypeProperty + "'.");
 			} else if(rtuType.getPrototypeRtu() == null){
-				throw new IllegalArgumentException("Rtutype '" + rtuTypeProperty + "' has no prototype rtu.");
+				throw new InvalidPropertyException("Rtutype '" + rtuTypeProperty + "' has no prototype rtu.");
 			} else {
 				return rtuType;
 			}
 		} else {
-			throw new IllegalArgumentException("No automatic meter creation: no property RtuType defined.");
+			throw new InvalidPropertyException("No automatic meter creation: no property RtuType defined.");
 		}
 	}
 

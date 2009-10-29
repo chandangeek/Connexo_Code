@@ -177,14 +177,14 @@ public class MbusDevice extends MbusMessages implements GenericProtocol{
 	 * @throws IOException
 	 */
 	private void doReadRegisters() throws IOException{
-		Iterator<RtuRegister> it = getMbus().getRegisters().iterator();
+		Iterator it = getMbus().getRegisters().iterator();
 		List groups = this.commProfile.getRtuRegisterGroups();
 		ObisCode oc = null;
 		RegisterValue rv;
 		RtuRegister rr;
 		while(it.hasNext()){
 			try {
-				rr = it.next();
+				rr = (RtuRegister)it.next();
 				if (CommonUtils.isInRegisterGroup(groups, rr)) {
 					oc = rr.getRtuRegisterSpec().getObisCode();
 					try{

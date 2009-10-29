@@ -17,14 +17,18 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
 
 	/**
+	 * <pre>
  	 * It is possible to store three different objects:
 	 * If you want to store:
 	 * 	- profileData -> use the RTU as the key
 	 * 	- channelData -> use the Channel as the key
 	 *  - registerData -> use the RtuRegister as the key
 	 *  Changes:
-	 *  GNA|09022009| You can use profileData as the key because you can only have the same key once. If you store the 15min values with the RTU and the daily/monthly values witht the
+	 *  GNA|09022009| You can use profileData as the key because you can only have the same key once. 
+	 *  If you store the 15min values with the RTU and the daily/monthly values witht the
 	 * 	RTU then you overwrite the previous value of it. ProfileData will be unique
+	 * </pre>
+	 * 
 	 * @author gna
 	 *
 	 */

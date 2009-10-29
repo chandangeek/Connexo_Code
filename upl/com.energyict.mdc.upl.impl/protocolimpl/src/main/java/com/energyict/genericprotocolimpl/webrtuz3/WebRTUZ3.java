@@ -17,6 +17,7 @@ import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.aso.ConformanceBlock;
@@ -31,6 +32,7 @@ import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConstants;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
+import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MessageExecutor;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.DailyMonthly;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.ElectricityProfile;
@@ -39,6 +41,7 @@ import com.energyict.genericprotocolimpl.webrtuz3.wakeup.SmsWakeup;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
@@ -47,25 +50,67 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
 
-
+/**
+ * <pre>
+ * Implements the WebRTUZ3 protocol. Initially it's a copy of the {@link WebRTUKP} protocol, 
+ * but with more extensions to it.
+ * </pre>
+ * 
+ * @author gna
+ *
+ */
 public class WebRTUZ3 extends DLMSProtocol{
 	
+	/** The serialNumber of the Rtu */
 	private String serialNumber;
+	
+	/** The password of the Rtu */
 	private String password;
+	
+	/** The prototype {@link RtuType} of the mbus devices */
 	private String mbusRtuType;
+	
+	/** The external name of the folder where to place the autodiscovered MbusMeters */
 	private String folderExtName;
+	
+	/** Property to indicate to read the timeZone from the device or use the one configured on the Rtu */
 	private int requestTimeZone;
+	
+	/** The Maximum allowed mbus meters */
 	private int maxMbusDevices;
+	
+	/** Property to indicate to use the SMS wakeup method */
 	private int wakeup;
+	
+	/** Property to indicate the timedifference between System and device is larger then the maximum configured */
 	private boolean badTime = false;
+	
+	/** Property to allow reading the daily values */
 	private boolean readDaily = true;
+	
+	/** Property to allow reading the monthly values */
 	private boolean readMonthly = true;
 	
+	/** An array of 'slave' MbusDevices */
 	private MbusDevice[] mbusDevices;
-	private HashMap<String, Integer> ghostMbusDevices = new HashMap<String, Integer>();	// GhostMbusDevices are Mbus meters that are connected with their gateway in EIServer, but not on the physical device anymore
+	
+	/** GhostMbusDevices are Mbus meters that are connected with their gateway in EIServer, but not on the physical device anymore */
+	private HashMap<String, Integer> ghostMbusDevices = new HashMap<String, Integer>();	
+	
+	/** The used TicDevice */ 
 	private TicDevice ticDevice;
+	
+	/** The {@link StoreObject} used */ 
 	private StoreObject storeObject;
+	
+	/** The {@link ObisCodeMapper} used */
 	private ObisCodeMapper ocm;
+	
+	/** The obisCode for the RF-FirmwareVersion */
+	public final static ObisCode RF_FIRMWAREVERSION = ObisCode.fromString("1.129.0.2.0.255");
+	
+	/** The obisCode for the RF firmware Object */
+	public final static ObisCode RF_FIRMWARE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
 	
 	@Override
 	protected void doExecute() throws BusinessException, SQLException, IOException {
@@ -198,8 +243,18 @@ public class WebRTUZ3 extends DLMSProtocol{
 	protected void doConnect() throws IOException{
 		verifyMeterSerialNumber();
 		logger.log(Level.INFO, "FirmwareVersion: " + getFirmWareVersion());
+		//check if RF-Firmware exists
+		String rfFirmware = getRFFirmwareVersion();
+		if(!rfFirmware.equalsIgnoreCase("")){
+			logger.log(Level.INFO, "RF-FirmwareVersion: " + rfFirmware);
+		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @throws SQLException during smsWakeup, if we couldn't clear the IP-address in the database
+	 * @throws BusinessException if a business error occurred
+	 */
 	@Override
 	protected void doInit() throws SQLException, BusinessException, IOException{
 		this.mbusDevices = new MbusDevice[this.maxMbusDevices];
@@ -224,10 +279,20 @@ public class WebRTUZ3 extends DLMSProtocol{
 		
 	}
 	
+	/**
+	 * Retrieve the Rtu back from the database.
+	 * If any updates have been done then you won't get them until you retrieve it again.
+	 * @return your Rtu
+	 */
 	private Rtu getUpdatedMeter() {
 		return CommonUtils.mw().getRtuFactory().find(meter.getId());
 	}
 	
+	/**
+	 * Read the firmwareVersion from the device
+	 * @return the firmwareVersion
+	 * @throws IOException if we couldn't get the version
+	 */
 	private String getFirmWareVersion() throws IOException {
 		try {
 			return getCosemObjectFactory().getGenericRead(getMeterConfig().getVersionObject()).getString();
@@ -236,7 +301,24 @@ public class WebRTUZ3 extends DLMSProtocol{
 			throw new IOException("Could not fetch the firmwareVersion.");
 		}
 	}
+	
+	/**
+	 * Read the Z3/R2 RF-Firmwareversion
+	 * @return the firmwareversion, if it's not available then return an empty string
+	 */
+	private String getRFFirmwareVersion() {
+		try {
+			return getCosemObjectFactory().getGenericRead(RF_FIRMWAREVERSION,DLMSUtils.attrLN2SN(2),1).getString();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
 
+	/**
+	 * Checks if the serialnumber from the device matches the one configured in EIServer
+	 * @throws IOException if it doesn't match
+	 */
 	private void verifyMeterSerialNumber() throws IOException {
 		String serial = getSerialNumber();
 		if (!this.serialNumber.equals(serial)) {
@@ -246,8 +328,8 @@ public class WebRTUZ3 extends DLMSProtocol{
 	
 	/**
 	 * Get the serialNumber from the device
-	 * @return
-	 * @throws IOException
+	 * @return the serialnumber from the device
+	 * @throws IOException we couldn't read the serialnumber
 	 */
 	public String getSerialNumber() throws IOException {
 		try {
@@ -314,10 +396,16 @@ public class WebRTUZ3 extends DLMSProtocol{
 		this.folderExtName = properties.getProperty("FolderExtName");
 	}
 	
+	/**
+	 * @return true if it's allowed to read the daily values
+	 */
 	boolean isReadDaily(){
 		return this.readDaily;
 	}
 	
+	/**
+	 * @return true if it's allowed to read the monthly values
+	 */
 	boolean isReadMonthly(){
 		return this.readMonthly;
 	}
@@ -331,10 +419,16 @@ public class WebRTUZ3 extends DLMSProtocol{
 		return lsp;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public String getVersion() {
-		return "$Date";
+		return "$Date$";
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public int getReference() {
 		return ProtocolLink.LN_REFERENCE;
 	}
@@ -344,10 +438,16 @@ public class WebRTUZ3 extends DLMSProtocol{
 		return 0;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public StoredValues getStoredValues() {
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean isRequestTimeZone() {
 		return (this.requestTimeZone == 1) ? true : false;
 	}
@@ -366,6 +466,9 @@ public class WebRTUZ3 extends DLMSProtocol{
 		return this.storeObject;
 	}
 	
+	/**
+	 * @return the badTime parameter. It's true if the timedifference exceeds the configured boundaries
+	 */
 	public boolean isBadTime(){
 		return badTime;
 	}
@@ -373,9 +476,9 @@ public class WebRTUZ3 extends DLMSProtocol{
 	/**
 	 * Collect the IP address of the meter and update this value on the RTU
 	 * 
-	 * @throws SQLException - if a database exception occured during the upgrade of the IP-address
-	 * @throws BusinessException - if a businessexception occured during the upgrade of the IP-address
-	 * @throws IOException - caused by an invalid reference type or invalid datatype
+	 * @throws SQLException if a database exception occurred during the upgrade of the IP-address
+	 * @throws BusinessException if a businessexception occurred during the upgrade of the IP-address
+	 * @throws IOException caused by an invalid reference type or invalid datatype
 	 */
 	private void updateIPAddress() throws SQLException, BusinessException, IOException {
 		StringBuffer ipAddress = new StringBuffer();
@@ -399,7 +502,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 	}
 	
 	/**
-	 * Look if there is a portnumber given with the property IpPortNumber, else use the default 2048
+	 * Look if there is a portNumber given with the property IpPortNumber, else use the default 4059
 	 * 
 	 * @return
 	 */
@@ -413,10 +516,10 @@ public class WebRTUZ3 extends DLMSProtocol{
 	}
 	
 	/**
-	 * If the received IP address doesn't contain a portnumber, then put one in it
+	 * If the received IP address doesn't contain a portNumber, then put one in it
 	 * 
 	 * @param ipAddress
-	 * @return
+	 * @return the ipAddress concatenated with the portNumber (default 4059)
 	 */
 	private String checkIPAddressForPortNumber(String ipAddress) {
 		if (!ipAddress.contains(":")) {
@@ -683,6 +786,25 @@ public class WebRTUZ3 extends DLMSProtocol{
 		return categories;
 	}
 
+	/**
+	 * This messageCategory let's you upgrade two types of firmware.
+	 * One is the normal meter firmware, the other is the RF-firmware
+	 * Both are imported with a userfile
+	 * @return the messages for the FirmwareUpgrade
+	 */
+	@Override
+	public MessageCategorySpec getFirmwareCategory() {
+		MessageCategorySpec catFirmware = new MessageCategorySpec(
+				RtuMessageCategoryConstants.FIRMWARE);
+		MessageSpec msgSpec = addFirmwareMsg(RtuMessageKeyIdConstants.FIRMWARE,
+				RtuMessageConstant.FIRMWARE_UPGRADE, false);
+		catFirmware.addMessageSpec(msgSpec);
+		msgSpec = addFirmwareMsg(RtuMessageKeyIdConstants.RFFIRMWARE,
+				RtuMessageConstant.RF_FIRMWARE_UPGRADE, false);
+		catFirmware.addMessageSpec(msgSpec);
+		return catFirmware;
+	}
+	
 	/**
 	 * @return the messages for the ConnectivityCategory
 	 */

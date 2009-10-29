@@ -5,15 +5,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
-import java.util.logging.FileHandler;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
-import com.energyict.commserverj.FileFormatter;
 import com.energyict.commserverj.TaskImpl;
 import com.energyict.commserverj.shadow.CommunicationSchedulerFullShadow;
 import com.energyict.commserverj.shadow.CommunicationSchedulerFullShadowBuilder;
@@ -42,17 +40,25 @@ import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.shadow.ComPortShadow;
+import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.RegisterValue;
 
 
 /**
- * <p>
- * Implements the GateWay Z3 protocol. The Z3 will act as a Master/Gateway in an RF-Mesh network with a certain amount of
- * R2 slave devices.
- * After fetching the "routingTable" of the Z3, the protocol will handle each R2 one by one. The handling of the R2's will depend on
- * the nextCommunicationDate of his commSchedulers.
- * </p> 
+ * <pre>
+ * Implements the GateWay Z3 protocol. The Z3 will act as a Master/Gateway in an RF-Mesh 
+ * network with a certain amount of R2 slave devices.
+ * After fetching the "routingTable" of the Z3, the protocol will handle each R2 one by one. 
+ * The handling of the R2's will depend on the nextCommunicationDate of his commSchedulers.
+ * 
+ * <u>NOTE:</u>
+ * The communication to a slave should be started with a postDialCommand:
+ * <b>&lt;ESC&gt;rfclient="rfclientid"&lt;/ESC&gt;</b>
+ * Normally you should use an 'IP-dialer with selector' for this, but because we use the 
+ * same link from the Z3, we should send it our selves
+ * </pre> 
  * 
  * @author gna
  * @since 21 October 2009
@@ -60,7 +66,7 @@ import com.energyict.protocol.RegisterValue;
 public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 	
 	/** Helper to rapidly fetch data without a Z3/R2 */
-	private boolean TESTING = true;
+	private boolean TESTING = false;
 	
 	/** Obis code we can use to request the RF network topology. */
 	private static final ObisCode OBIS_CODE_NETWORK_TOPOLOGY = ObisCode.fromString("0.128.3.0.8.255");
@@ -71,6 +77,7 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 	/* Properties */
 	private String slaveRtuType;
 	private String folderExtName;
+	private String masterDeviceId = "";
 
 	@Override
 	protected void doExecute() throws BusinessException, SQLException, IOException {
@@ -90,8 +97,6 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 		} else {
 			slaves = getSlaveDevices();
 		}
-		// Need to close the DLMS association
-		// TODO Maybe just close the association and don't disconnect the MAC ...
 		disconnect();
 		logger.log(Level.INFO, "Disconnected from the Z3, now all slaves will be processed.");
 		// handle each slave device
@@ -113,8 +118,14 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 		try {
 			
 			try {
-				rtu = CommonUtils.findOrCreateDeviceByDeviceId(id, slaveRtuType, folderExtName);
-			} catch (IllegalArgumentException e) {
+				if(id.equalsIgnoreCase("00000000")){ //TODO check if this still happens, changed the getSlaveId() method
+					rtu = getMeter();
+					id = this.masterDeviceId;
+				} else {
+					rtu = findOrCreateDeviceByDeviceId(id);
+				}
+				
+			} catch (InvalidPropertyException e) {
 				//TODO to test
 				logger.log(Level.INFO, e.getMessage());
 			}
@@ -124,35 +135,23 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 				logger.log(Level.INFO, "Starting to handle meter \'" + rtu + "\'");
 			    
 			    // Loop over the Rtu's communicationSchedules
-//				for(CommunicationScheduler commSchedule : rtu.getCommunicationSchedulers()){
 				for(int i = 0; i < rtu.getCommunicationSchedulers().size(); i++){
 					CommunicationScheduler commSchedule = (CommunicationScheduler)rtu.getCommunicationSchedulers().get(i);
 					
-					if(commSchedule.getNextCommunication().before(Calendar.getInstance(rtu.getDeviceTimeZone()).getTime())){
+					if((commSchedule.getNextCommunication()!=null)&&(commSchedule.getNextCommunication().before(Calendar.getInstance(rtu.getDeviceTimeZone()).getTime()))
+							&&!commSchedule.equals(communicationScheduler)){
 						CommunicationSchedulerFullShadow csfs = CommunicationSchedulerFullShadowBuilder.getCommunicationSchedulerFullShadow(commSchedule);
 						csfs.setDialerFactory(communicationScheduler.getDialerFactory());
 						TaskImpl ti = new TaskImpl(csfs, getCurrentComportSchadow());
 						
-						//TODO
-						//TODO
-						//TODO
-						//TODO Not correct yet!!
-//						this.link.getStreamConnection().close();
-//						this.link.setStreamConnection(new SocketStreamConnection(getMeter().getPhoneNumber()));
-//						this.link.getStreamConnection().open();
-	//					((Dialer)this.link).connect(ti.getPhoneNumber(), ti.getPostDialCommand(), 90000);
-							
-						Handler fhSimple = new FileHandler("FileName", true);
-			            getLogger().addHandler(fhSimple);
-			            fhSimple.setFormatter(new FileFormatter());
-			            fhSimple.setLevel(Level.ALL);
+						link.getStreamConnection().write(rtu.getPostDialCommand()+"\r\n",500);
 			            
-						// TODO send the postDialCommand
-			            	
 			            completionCode = AmrJournalEntry.CC_OK;
 			            errorMessage = "";
 						// TODO check if all parameters are correct
 			            try{
+			            	commSchedule.startCommunication();
+			            	logger.log(Level.INFO, "modem dialing "+ getMeter().getPhoneNumber() + "("+ rtu.getPostDialCommand() +")");
 			            	ti.execute(this.link, false, false, logger);
 			            } catch (IOException e){
 			            	completionCode = AmrJournalEntry.CC_IOERROR;
@@ -168,19 +167,23 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 			    				if(completionCode != null){
 			    					
 			    					AMRJournalManager amrjm = new AMRJournalManager(rtu, commSchedule);
+			    					amrjm.journal(new AmrJournalEntry(completionCode));
+			    					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - connectTime)/1000));
+			    					
 			    					if(completionCode == AmrJournalEntry.CC_OK){
 			    						amrjm.updateLastCommunication();
 			    					} else {
-			    						amrjm.journal(new AmrJournalEntry(completionCode, errorMessage));
+			    						amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, errorMessage));
 			    						amrjm.updateRetrials();
 			    					}
-			    					
 			    				}
 			    			}
 			    		}
 						
-						
-					//TODO update gateway
+						Rtu master = getMasterForMeter(id);
+						if(master != null){
+							rtu.updateGateway(master);
+						}
 					}
 				}		
 				logger.log(Level.INFO, "Meter \'" + rtu + "\' has finished.");
@@ -205,21 +208,75 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 	}
 	
 	/**
+	 * Find the master of the meter with the given deviceId in the networkTopology
+	 * @param deviceId of the slave meter
+	 * @return the master meter(Rtu)
+	 * @throws IOException if multiple meters were found in the database
+	 * @throws SQLException if database exception occurred
+	 * @throws BusinessException if business exception occurred
+	 */
+	private Rtu getMasterForMeter(String deviceId) throws IOException, SQLException, BusinessException{
+		
+		for(NetworkNode nn:this.networkTopology.getRoot().getAllNodes()){
+			if(getOriginalManufacturerIdNotation(nn).equalsIgnoreCase(deviceId)){
+				Set<NetworkNode> networkMaster = nn.getParentNetwork().getNetworkMasters();
+				if(networkMaster.size() != 1){
+					throw new IllegalArgumentException("Number is masterNodes is different from 1 (" + networkMaster.size() + ")");
+				} else {
+					return findOrCreateDeviceByDeviceId(getOriginalManufacturerIdNotation(networkMaster.iterator().next()));
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Custom find or createDevice method.
+	 * After finding the device we check if the deviceId and postDialCommand is filled in and update if necessary.
+	 * 
+	 * @param deviceId - the rfclient id of the R2
+	 * @return an rtu
+	 * @throws IOException if multiple meters were found in the database
+	 * @throws SQLException if database exception occurred
+	 * @throws BusinessException if business exception occurred
+	 */
+	private Rtu findOrCreateDeviceByDeviceId(String deviceId) throws IOException, SQLException, BusinessException{
+		try{
+			Rtu device = CommonUtils.findOrCreateDeviceByDeviceId(deviceId, slaveRtuType, folderExtName);
+			
+			if(device != null){
+				//TODO toTest
+				updateR2WithPostDialCommandRfClient(device);
+			}
+			
+			return device;
+		} catch (InvalidPropertyException e) {
+			logger.log(Level.INFO, e.getMessage());
+		} 
+		return null;
+	}
+	
+	/**
 	 * {@inheritDoc}
 	 */
 	public List<String> getSlaveDevices() throws IOException {
 		
-		String nt = getNetworkTopology();
-			
-		this.networkTopology = NetworkTopology.parse(new ManufacturerId(0), nt, null);
-		
 		List<String> allNodes = new ArrayList<String>();
+		String nt = getNetworkTopology();
 		
-		for(NetworkNode nn:this.networkTopology.getRoot().getAllNodes()){
-			allNodes.add(getOriginalManufacturerIdNotation(nn));
+		if(nt != null){
+			this.networkTopology = NetworkTopology.parse(new ManufacturerId(0), nt, null);
+			
+			for(NetworkNode nn:this.networkTopology.getRoot().getAllNodes()){
+				allNodes.add(getOriginalManufacturerIdNotation(nn));
+			}
+			
+		} else {
+			logger.log(Level.INFO, "No slaves were found on the device.");
 		}
 		
-		return allNodes;
+ 		return allNodes;
 	}
 	
 	/**
@@ -285,6 +342,31 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 		return strBuilder.toString();
 	}
 	
+	/**
+	 * Set the postDial command for the Given R2.
+	 * The postDial command is constructed from the Rtu's deviceID and should be of the form
+	 * <b>&lt;ESC&gt;rfclient="deviceid"&lt;/ESC&gt;</b>
+	 * @param rtu - the Rtu to update
+	 * @throws SQLException if a database error occurred
+	 * @throws BusinessException if a business error occurred
+	 * @throws InvalidPropertyException if the DeviceId is empty
+	 */
+	protected void updateR2WithPostDialCommandRfClient(Rtu rtu) throws SQLException, BusinessException, InvalidPropertyException{
+		if((rtu.getPostDialCommand() == null) || (rtu.getPostDialCommand().equalsIgnoreCase(""))
+				|| (rtu.getPostDialCommand().equalsIgnoreCase("<ESC>rfclient=\"\"<\\ESC>"))){
+			
+			RtuShadow shadow = rtu.getShadow();
+			String deviceId = rtu.getDeviceId();
+			if((deviceId != null) && !(deviceId.equalsIgnoreCase(""))){
+				shadow.setPostDialCommand("<ESC>rfclient=\"" + deviceId +"\"<\\ESC>");
+				rtu.update(shadow);
+			} else {
+				throw new InvalidPropertyException("DeviceId of rtu " + rtu + " is empty, can't update postDialCommand.");
+			}
+			
+		}
+	}
+	
 	/** Short notation for MeteringWarehouse.getCurrent() */
 	private MeteringWarehouse mw(){
 		MeteringWarehouse result = MeteringWarehouse.getCurrent();
@@ -340,6 +422,10 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 	protected void doValidateProperties() {
 		this.slaveRtuType = properties.getProperty("RtuType");
 		this.folderExtName = properties.getProperty("FolderExtName");
+		this.masterDeviceId = getMeter().getDeviceId();
+		if(this.masterDeviceId == null){
+			this.masterDeviceId = "";
+		}
 	}
 
 	@Override
@@ -354,7 +440,7 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 	}
 
 	public String getVersion() {
-		return "$Date";
+		return "$Date$";
 	}
 
 	public int getReference() {
@@ -410,19 +496,16 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 
 	@Override
 	protected void doInit() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	protected RegisterValue readRegister(ObisCode obisCode) throws IOException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List getMessageCategories() {
-		// TODO Auto-generated method stub
+		// currently there are no messages to perform on the gateway itself
 		return null;
 	}
 }

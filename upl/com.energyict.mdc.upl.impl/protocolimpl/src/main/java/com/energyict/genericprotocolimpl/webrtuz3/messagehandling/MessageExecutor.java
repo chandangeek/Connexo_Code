@@ -88,10 +88,8 @@ import com.energyict.mdw.shadow.RtuMessageShadow;
 public class MessageExecutor extends GenericMessageExecutor{
 	
 	private WebRTUZ3 webRtu;
-	private boolean DEBUG = true;
+	private boolean DEBUG = false;
 	
-//	private String[] weekNames = {"a", "b", "c", "d"};
-
 	private static final byte[] defaultMonitoredAttribute = new byte[]{1,0,90,7,0,(byte)255};	// Total current, instantaneous value
 	
 	public MessageExecutor(WebRTUZ3 webRTU) {
@@ -112,6 +110,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 			
 			boolean xmlConfig		= messageHandler.getType().equals(RtuMessageConstant.XMLCONFIG);
 			boolean firmware		= messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPGRADE);
+			boolean rffirmware		= messageHandler.getType().equals(RtuMessageConstant.RF_FIRMWARE_UPGRADE);
 			boolean p1Text 			= messageHandler.getType().equals(RtuMessageConstant.P1TEXTMESSAGE);
 			boolean p1Code 			= messageHandler.getType().equals(RtuMessageConstant.P1CODEMESSAGE);
 			boolean connect			= messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
@@ -203,7 +202,62 @@ public class MessageExecutor extends GenericMessageExecutor{
 				}
 				
 				success = true;
+			} else if(rffirmware){
+				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": RF-Firmware upgrade");
 				
+				String userFileID = messageHandler.getUserFileId();
+				if(DEBUG) {
+					System.out.println("UserFileID: " + userFileID);
+				}
+				
+				if(!ParseUtils.isInteger(userFileID)){
+					String str = "Not a valid entry for the current meter message (" + content + ").";
+            		throw new IOException(str);
+				} 
+				UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
+				if(!(uf instanceof UserFile )){
+					String str = "Not a valid entry for the userfileID " + userFileID;
+					throw new IOException(str);
+				}
+				
+				byte[] imageData = uf.loadFileInByteArray();
+				ImageTransfer it = getCosemObjectFactory().getImageTransfer(WebRTUZ3.RF_FIRMWAREVERSION);
+				it.upgrade(imageData);
+				if(DEBUG) {
+					System.out.println("UserFile is send to the device.");
+				}
+				if(messageHandler.getActivationDate().equalsIgnoreCase("")){ // Do an execute now
+					if(DEBUG) {
+						System.out.println("Start the activateNow.");
+					}
+					it.imageActivation();
+					
+					//Below is a solution for not immediately activating the image so the current connection isn't lost
+//					Calendar cal = Calendar.getInstance();
+//					cal.add(Calendar.MINUTE, 2);
+//					SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+//					String strDate = Long.toString(cal.getTimeInMillis()/1000);
+//					Array dateArray = convertUnixToDateTimeArray(strDate);
+//					
+//					sas.writeExecutionTime(dateArray);
+					
+					if(DEBUG) {
+						System.out.println("ActivateNow complete.");
+					}
+				} else if(!messageHandler.getActivationDate().equalsIgnoreCase("")){
+					SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+					String strDate = messageHandler.getActivationDate();
+					Array dateArray = convertUnixToDateTimeArray(strDate);
+					if(DEBUG) {
+						System.out.println("Write the executionTime");
+					}
+					sas.writeExecutionTime(dateArray);
+					if(DEBUG) {
+						System.out.println("ExecutionTime sent...");
+					}
+				}
+				
+				success = true;
 			} else if(p1Code){
 				
 				log(Level.INFO, "Handling message " + rtuMessage.displayString() + ": Consumer message Code");
@@ -922,26 +976,6 @@ public class MessageExecutor extends GenericMessageExecutor{
 		return new ArrayList(list);
 	}
 
-//	private boolean seasonArrayExists(int seasonProfileNameId, Array seasonArray) {
-//		for(int i = 0; i < seasonArray.nrOfDataTypes(); i++){
-//			Structure struct = (Structure)seasonArray.getDataType(i);
-//			if(new String(((OctetString)struct.getDataType(0)).getOctetStr()).equalsIgnoreCase(Integer.toString(seasonProfileNameId))){
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
-
-//	private boolean weekArrayExists(String weekProfileName, Array weekArray) {
-//		for(int i = 0; i < weekArray.nrOfDataTypes(); i++){
-//			Structure struct = (Structure)weekArray.getDataType(i);
-//			if(new String(((OctetString)struct.getDataType(0)).getOctetStr()).equalsIgnoreCase(weekProfileName)){
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
-	
 	private Date getFirstDate(Date startTime, String type) throws IOException{
 		return getFirstDate(startTime, type, getWebRtu().getMeter().getTimeZone());
 		}

@@ -59,6 +59,7 @@ public class RtuMessageConstant {
     
     /** RtuMessage tag for upgrading the meters firmware */
     public final static String FIRMWARE_UPGRADE = "FirmwareUpgrade";
+    public final static String RF_FIRMWARE_UPGRADE = "RFFirmwareUpgrade";
     public final static String FIRMWARE = "UserFileID";
     public final static String FIRMWARE_METERS = "GroupID of meters to receive new firmware";
 	public static final String FIRMWARE_ACTIVATE_NOW = "Activate_now";

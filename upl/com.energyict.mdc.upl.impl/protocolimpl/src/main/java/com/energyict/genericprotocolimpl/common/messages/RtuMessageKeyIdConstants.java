@@ -9,6 +9,7 @@ public class RtuMessageKeyIdConstants {
 
 	public final static String XLMCONFIG = "XMLConfig";
 	public final static String FIRMWARE = "Upgrade Firmware";
+	public final static String RFFIRMWARE = "Upgrade RF-Firmware";
 	public final static String CONSUMERTEXTP1 = "Consumer message Text to port P1";
 	public final static String CONSUMERCODEP1 = "Consumer message Code to port P1";
 	public final static String DISCONNECT = "Disconnect";
