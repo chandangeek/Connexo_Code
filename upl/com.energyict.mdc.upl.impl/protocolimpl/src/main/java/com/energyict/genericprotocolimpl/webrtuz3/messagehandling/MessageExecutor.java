@@ -221,7 +221,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 				}
 				
 				byte[] imageData = uf.loadFileInByteArray();
-				ImageTransfer it = getCosemObjectFactory().getImageTransfer(WebRTUZ3.RF_FIRMWAREVERSION);
+				ImageTransfer it = getCosemObjectFactory().getImageTransfer(WebRTUZ3.RF_FIRMWARE_OBISCODE);
 				it.upgrade(imageData);
 				if(DEBUG) {
 					System.out.println("UserFile is send to the device.");

@@ -248,7 +248,7 @@ class XmlHandler extends DefaultHandler {
     						
     						String end = ".255";
     						
-    						if (!end.equals(null)){
+    						if (end != null){
     							if( ident.split("\\.").length == 3 ) {
 									oc = ObisCode.fromString( "1.0." + ident + end);
 								}

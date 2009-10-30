@@ -18,10 +18,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.Rtu;
@@ -175,9 +172,13 @@ public class MBCurrentReadings extends AbstractActarisObject {
 	private void setMBReadingData(String textContent) throws IOException, SQLException, BusinessException {
 		int offset = 0;
 		byte[] decoded = Base64.decode(textContent);
-		if(DEBUG >=1)System.out.println(new String(decoded));
+		if(DEBUG >=1) {
+			System.out.println(new String(decoded));
+		}
 		long timeStamp = (long)(getNumberFromB64(decoded, offset, 4))*1000;
-		if(DEBUG >= 1)System.out.println(new Date(timeStamp));
+		if(DEBUG >= 1) {
+			System.out.println(new Date(timeStamp));
+		}
 		setTimeStamp(new Date(timeStamp));
 		offset+=4;
 		
@@ -204,27 +205,25 @@ public class MBCurrentReadings extends AbstractActarisObject {
 			
 	        for (Object dataRecord : dataRecords) {
 				//TODO verify allot of stuff, just added some data
-				if(true){
-					DataRecord record;
-					ValueInformationfieldCoding valueInfo;
-					String obisString;
+				DataRecord record;
+				ValueInformationfieldCoding valueInfo;
+				String obisString;
+				
+				record = (DataRecord) dataRecord;
+				valueInfo = record.getDataRecordHeader().getValueInformationBlock().getValueInformationfieldCoding();
+				
+				if(valueInfo.isTypeUnit() && valueInfo.getDescription().equalsIgnoreCase("Volume")){
+					valueInfo.getObisCodeCreator().setA(ciField72h.getDeviceType().getObisA());
+					obisString = valueInfo.getObisCodeCreator().toString();
+					ObisCode oc = ObisCode.fromString(obisString);
 					
-					record = (DataRecord) dataRecord;
-					valueInfo = record.getDataRecordHeader().getValueInformationBlock().getValueInformationfieldCoding();
-					
-					if(valueInfo.isTypeUnit() && valueInfo.getDescription().equalsIgnoreCase("Volume")){
-						valueInfo.getObisCodeCreator().setA(ciField72h.getDeviceType().getObisA());
-						obisString = valueInfo.getObisCodeCreator().toString();
-						ObisCode oc = ObisCode.fromString(obisString);
-						
-						for( int i = 0; i < mbusSerials().size(); i++){
-							Rtu mbusDevice = mbusDevices().get(mbusSerials().get(i));
-							register = mbusDevice.getRegister(oc);
-							if(register != null && register.getReadingAt(getTimeStamp()) == null){
-								RegisterValue value = new RegisterValue(oc, record.getQuantity(), getTimeStamp());
-								value.setRtuRegisterId(register.getId());
-								getMrd().add(value);
-							}
+					for( int i = 0; i < mbusSerials().size(); i++){
+						Rtu mbusDevice = mbusDevices().get(mbusSerials().get(i));
+						register = mbusDevice.getRegister(oc);
+						if(register != null && register.getReadingAt(getTimeStamp()) == null){
+							RegisterValue value = new RegisterValue(oc, record.getQuantity(), getTimeStamp());
+							value.setRtuRegisterId(register.getId());
+							getMrd().add(value);
 						}
 					}
 				}

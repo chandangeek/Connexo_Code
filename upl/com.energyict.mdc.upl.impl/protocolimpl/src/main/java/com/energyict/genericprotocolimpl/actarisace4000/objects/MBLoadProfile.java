@@ -18,7 +18,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Unit;
@@ -166,7 +165,9 @@ public class MBLoadProfile extends AbstractActarisObject {
 		byte[] decoded = Base64.decode(data);
 		
 		long timeStamp = (long)(getNumberFromB64(decoded, offset, 4))*1000;
-		if(DEBUG >= 1)System.out.println(new Date(timeStamp));
+		if(DEBUG >= 1) {
+			System.out.println(new Date(timeStamp));
+		}
 		offset+=4;
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		cal.setTimeInMillis(timeStamp);
@@ -193,7 +194,7 @@ public class MBLoadProfile extends AbstractActarisObject {
 			}
 			
 			//TODO verify allot of stuff, just added some data
-			if(true){
+//			if(true){
 				DataRecord record;
 				ValueInformationfieldCoding vInfo;
 				
@@ -201,8 +202,9 @@ public class MBLoadProfile extends AbstractActarisObject {
 				int value;
 				
 				// TODO add the proper channel, you can get the unit from the mbus frame
-				if(getProfileData().getChannelInfos().size() == 0)
+				if(getProfileData().getChannelInfos().size() == 0) {
 					getProfileData().addChannel(getDefaultChannelInfo());
+				}
 				
 				for(Object dataRecord : dataRecords){
 					record = (DataRecord) dataRecord;
@@ -213,7 +215,7 @@ public class MBLoadProfile extends AbstractActarisObject {
 						getProfileData().addInterval(id);
 					}
 				}
-			}
+//			}
 			
 			if(getTrackingID() != -1){
 				getObjectFactory().sendAcknowledge(getTrackingID());
@@ -235,8 +237,9 @@ public class MBLoadProfile extends AbstractActarisObject {
 	}
 
 	public ProfileData getProfileData(){
-		if(profileData == null)
+		if(profileData == null) {
 			profileData = new ProfileData();
+		}
 		return profileData;
 	}
 	

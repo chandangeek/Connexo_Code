@@ -8,9 +8,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
@@ -91,7 +88,9 @@ public class BillingData extends AbstractActarisObject {
 	public static void main(String[] args){
 		String time;
 		
-		if(true){
+		boolean doThis = true;
+		
+		if(doThis){
 		    Date date = new Date();
 			time = "1219449600000";
 			long t = Long.valueOf(time);
@@ -103,7 +102,7 @@ public class BillingData extends AbstractActarisObject {
 			System.out.println(cal2.getTime());
 		}
 		
-		if(false){
+		if(!doThis){
 			String str = "SHxmVgAAA9UAAAAAAAAA2AAAAv0AAAAAAAAAAAEB";
 			String str2 = "SJJSAAAAA9UAAAAAAAAA2AAAAv0AAAAAAAAAAAER";
 			String str3 = "1bDUQQAABucAAAAAAAACmAAABE8AAAAAAAAAAAEB";
@@ -213,12 +212,15 @@ public class BillingData extends AbstractActarisObject {
 		subSet = mdElement.getAttribute(XMLTags.bdAttr);
 		
 		NodeList list = mdElement.getChildNodes();
-		if(DEBUG >= 2 )System.out.println("Billing:");
+		if(DEBUG >= 2 ) {
+			System.out.println("Billing:");
+		}
 		for(int i = 0; i < list.getLength(); i++){
 			Element element = (Element)list.item(i);
 			
-			if(element.getNodeName().equalsIgnoreCase(XMLTags.regData))
+			if(element.getNodeName().equalsIgnoreCase(XMLTags.regData)) {
 				setRegisterData(element.getTextContent());
+			}
 		}
 	}
 	
@@ -228,12 +230,15 @@ public class BillingData extends AbstractActarisObject {
 		for(int i = 0; i < list.getLength(); i++){
 			Element element = (Element)list.item(i);
 			
-			if(element.getNodeName().equalsIgnoreCase(XMLTags.billEnable))
+			if(element.getNodeName().equalsIgnoreCase(XMLTags.billEnable)) {
 				setEnabled(Integer.parseInt(element.getTextContent()));
-			if(element.getNodeName().equalsIgnoreCase(XMLTags.billInt))
+			}
+			if(element.getNodeName().equalsIgnoreCase(XMLTags.billInt)) {
 				setInterval(Integer.parseInt(element.getTextContent(),16));
-			if(element.getNodeName().equalsIgnoreCase(XMLTags.billNumb))
+			}
+			if(element.getNodeName().equalsIgnoreCase(XMLTags.billNumb)) {
 				setNumOfRecs(Integer.parseInt(element.getTextContent(),16));
+			}
 		}
 	}
 
@@ -241,7 +246,9 @@ public class BillingData extends AbstractActarisObject {
 		
 		int offset = 0;
 		byte[] decoded = Base64.decode(textContent);
-		if(DEBUG >=1)System.out.println(new String(decoded));
+		if(DEBUG >=1) {
+			System.out.println(new String(decoded));
+		}
 		long timeStamp = (long)(getNumberFromB64(decoded, offset, 4))*1000;
 		if(DEBUG >= 2){
 			System.out.print(timeStamp);
@@ -264,42 +271,54 @@ public class BillingData extends AbstractActarisObject {
 				offset+=4;
 				oc = ObisCode.fromString("1.0.1.8.0.255");
 				id.addValue(q.getAmount());
-			} else id.addValue(0);
+			} else {
+				id.addValue(0);
+			}
 			
 			if(subSet.indexOf("R") != -1){
 				q = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
 				offset+=4;
 				oc = ObisCode.fromString("1.0.2.8.0.255");
 				id.addValue(q.getAmount());
-			} else id.addValue(0);
+			} else {
+				id.addValue(0);
+			}
 			
 			if(subSet.indexOf("1") != -1){
 				q = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
 				offset+=4;
 				oc = ObisCode.fromString("1.0.1.8.1.255");
 				id.addValue(q.getAmount());
-			} else id.addValue(0);
+			} else {
+				id.addValue(0);
+			}
 			
 			if(subSet.indexOf("2") != -1){
 				q = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
 				offset+=4;
 				oc = ObisCode.fromString("1.0.1.8.2.255");
 				id.addValue(q.getAmount());
-			} else id.addValue(0);
+			} else {
+				id.addValue(0);
+			}
 			
 			if(subSet.indexOf("3") != -1){
 				q = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
 				offset+=4;
 				oc = ObisCode.fromString("1.0.1.8.3.255");
 				id.addValue(q.getAmount());
-			} else id.addValue(0);
+			} else {
+				id.addValue(0);
+			}
 			
 			if(subSet.indexOf("4") != -1){
 				q = new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR));
 				offset+=4;
 				oc = ObisCode.fromString("1.0.1.8.4.255");
 				id.addValue(q.getAmount());
-			} else id.addValue(0);
+			} else {
+				id.addValue(0);
+			}
 			
 			getProfileData().addInterval(id);
 		}

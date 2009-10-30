@@ -34,6 +34,10 @@ import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
 import com.energyict.genericprotocolimpl.common.ConcentratorProtocol;
 import com.energyict.genericprotocolimpl.common.DLMSProtocol;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConstants;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
+import com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3;
 import com.energyict.mdw.core.AmrJournalEntry;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.MeteringWarehouse;
@@ -44,6 +48,8 @@ import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageSpec;
 
 
 /**
@@ -112,17 +118,34 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 	 */
 	public void handleSlaveDevice(String id) {
 		Rtu rtu = null;
-		long connectTime = System.currentTimeMillis();
-		Integer completionCode = null;
-		String errorMessage = "";
 		try {
 			
 			try {
-				if(id.equalsIgnoreCase("00000000")){ //TODO check if this still happens, changed the getSlaveId() method
+				if(id.equalsIgnoreCase("00000000")){ //this is the master
+					
 					rtu = getMeter();
 					id = this.masterDeviceId;
+					
+				    // Loop over the Rtu's communicationSchedules
+					for(int i = 0; i < rtu.getCommunicationSchedulers().size(); i++){
+						CommunicationScheduler commSchedule = (CommunicationScheduler)rtu.getCommunicationSchedulers().get(i);
+//						doExecuteSlave(commSchedule);
+						doExecuteMaster(commSchedule);
+					}
+					
 				} else {
 					rtu = findOrCreateDeviceByDeviceId(id);
+					if(rtu != null){
+						
+					    // Loop over the Rtu's communicationSchedules
+						for(int i = 0; i < rtu.getCommunicationSchedulers().size(); i++){
+							CommunicationScheduler commSchedule = (CommunicationScheduler)rtu.getCommunicationSchedulers().get(i);
+							doExecuteSlave(commSchedule, false);
+						}
+						
+					} else {
+						logger.log(Level.INFO, "No meter found with DeviceId: " + id);
+					}
 				}
 				
 			} catch (InvalidPropertyException e) {
@@ -130,66 +153,6 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 				logger.log(Level.INFO, e.getMessage());
 			}
 			
-			if(rtu != null){
-				
-				logger.log(Level.INFO, "Starting to handle meter \'" + rtu + "\'");
-			    
-			    // Loop over the Rtu's communicationSchedules
-				for(int i = 0; i < rtu.getCommunicationSchedulers().size(); i++){
-					CommunicationScheduler commSchedule = (CommunicationScheduler)rtu.getCommunicationSchedulers().get(i);
-					
-					if((commSchedule.getNextCommunication()!=null)&&(commSchedule.getNextCommunication().before(Calendar.getInstance(rtu.getDeviceTimeZone()).getTime()))
-							&&!commSchedule.equals(communicationScheduler)){
-						CommunicationSchedulerFullShadow csfs = CommunicationSchedulerFullShadowBuilder.getCommunicationSchedulerFullShadow(commSchedule);
-						csfs.setDialerFactory(communicationScheduler.getDialerFactory());
-						TaskImpl ti = new TaskImpl(csfs, getCurrentComportSchadow());
-						
-						link.getStreamConnection().write(rtu.getPostDialCommand()+"\r\n",500);
-			            
-			            completionCode = AmrJournalEntry.CC_OK;
-			            errorMessage = "";
-						// TODO check if all parameters are correct
-			            try{
-			            	commSchedule.startCommunication();
-			            	logger.log(Level.INFO, "modem dialing "+ getMeter().getPhoneNumber() + "("+ rtu.getPostDialCommand() +")");
-			            	ti.execute(this.link, false, false, logger);
-			            } catch (IOException e){
-			            	completionCode = AmrJournalEntry.CC_IOERROR;
-			            	errorMessage = e.getMessage();
-			            } catch (SQLException e){
-			            	completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
-			            	errorMessage = e.getMessage();
-			            } catch (BusinessException e){
-			            	completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
-			            	errorMessage = e.getMessage();
-			    		} finally {
-			    			if(rtu != null){	// only if we have an Rtu we should set an AmrJournal
-			    				if(completionCode != null){
-			    					
-			    					AMRJournalManager amrjm = new AMRJournalManager(rtu, commSchedule);
-			    					amrjm.journal(new AmrJournalEntry(completionCode));
-			    					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - connectTime)/1000));
-			    					
-			    					if(completionCode == AmrJournalEntry.CC_OK){
-			    						amrjm.updateLastCommunication();
-			    					} else {
-			    						amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, errorMessage));
-			    						amrjm.updateRetrials();
-			    					}
-			    				}
-			    			}
-			    		}
-						
-						Rtu master = getMasterForMeter(id);
-						if(master != null){
-							rtu.updateGateway(master);
-						}
-					}
-				}		
-				logger.log(Level.INFO, "Meter \'" + rtu + "\' has finished.");
-			} else {
-				logger.log(Level.INFO, "No meter found with DeviceId: " + id);
-			}
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (NestedIOException e) {
@@ -206,6 +169,123 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 			e.printStackTrace();
 		}
 	}
+	
+	private void doExecuteMaster(CommunicationScheduler commSchedule){
+		doExecuteSlave(commSchedule, true);
+	}
+	
+	private void doExecuteSlave(CommunicationScheduler commSchedule, boolean useFixedZ3Protocol){
+		try {
+			long connectTime = System.currentTimeMillis();
+			Integer completionCode = null;
+			String errorMessage = "";
+			Rtu rtu = commSchedule.getRtu();
+			if((commSchedule.getNextCommunication()!=null)&&(commSchedule.getNextCommunication().before(Calendar.getInstance(rtu.getDeviceTimeZone()).getTime()))
+					&&!commSchedule.equals(communicationScheduler)){
+				
+				logger.log(Level.INFO, "Starting to handle meter \'" + rtu + "\'");
+				
+				CommunicationSchedulerFullShadow csfs = CommunicationSchedulerFullShadowBuilder.getCommunicationSchedulerFullShadow(commSchedule);
+				csfs.setDialerFactory(communicationScheduler.getDialerFactory());
+				
+				link.getStreamConnection().write(rtu.getPostDialCommand()+"\r\n",500);
+			    
+			    completionCode = AmrJournalEntry.CC_OK;
+			    errorMessage = "";
+			    
+			    try{
+			    	commSchedule.startCommunication();
+			    	logger.log(Level.INFO, "modem dialing "+ getMeter().getPhoneNumber() + "("+ rtu.getPostDialCommand() +")");
+			    	
+			    	if(useFixedZ3Protocol){ // then it's the master and you MUST use the WebRTUZ3 protocol
+						WebRTUZ3 wZ3 = new WebRTUZ3();
+						wZ3.addProperties(rtu.getProperties());
+						wZ3.execute(commSchedule, link, logger);
+			    	} else {	// it's a slave so you can execute his taskImpl
+			    		TaskImpl ti = new TaskImpl(csfs, getCurrentComportSchadow());
+			    		ti.execute(this.link, false, false, logger);
+			    	}
+			    	
+			    } catch (IOException e){
+			    	completionCode = AmrJournalEntry.CC_IOERROR;
+			    	errorMessage = e.getMessage();
+			    } catch (SQLException e){
+			    	completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
+			    	errorMessage = e.getMessage();
+			    } catch (BusinessException e){
+			    	completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
+			    	errorMessage = e.getMessage();
+				} finally {
+					if(rtu != null){	// only if we have an Rtu we should set an AmrJournal
+						if(completionCode != null){
+							
+							AMRJournalManager amrjm = new AMRJournalManager(rtu, commSchedule);
+							amrjm.journal(new AmrJournalEntry(completionCode));
+							amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - connectTime)/1000));
+							
+							if(completionCode == AmrJournalEntry.CC_OK){
+								amrjm.updateLastCommunication();
+							} else {
+								amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, errorMessage));
+								amrjm.updateRetrials();
+							}
+						}
+					}
+				}
+				
+				Rtu master = getMasterForMeter(rtu.getDeviceId());
+				if(master != null){
+					rtu.updateGateway(master);
+				}
+				
+				logger.log(Level.INFO, "Meter \'" + rtu + "\' has finished.");
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+//	/**
+//	 * Get the {@link TaskExecutor} for the given commSchedule
+//	 * @param commSchedule
+//	 * @return a {@link MeterProtocolTaskExecutor} or a {@link GenericProtocolExecutor}
+//	 * @throws BusinessException if a business error occurred
+//	 */
+//	private TaskExecutor getTaskExecutor(CommunicationScheduler commSchedule) throws BusinessException{
+//        Object object = newInstance(commSchedule.getRtu().getProtocol().getShadow());
+//        if (object instanceof MeterProtocol) {
+//			return new MeterProtocolTaskExecutor(false);
+//		} else if (object instanceof GenericProtocol) {
+//			return new GenericProtocolExecutor();
+//		}
+//        throw new BusinessException("Invalid communication class");
+//	}
+//	
+//	/**
+//	 * Create a new instance of the protocol
+//	 * @param cps the CommunicationProtocolShadow
+//	 * @return a new instance of the protocol
+//	 * @throws BusinessException if a business error occurred during the creation of a new instance
+//	 */
+//    private Object newInstance(CommunicationProtocolShadow cps) throws BusinessException {
+//        try {
+//            Class implementor = Class.forName(cps.getJavaClassName());
+//            return implementor.newInstance();
+//        } catch (ClassNotFoundException ex) {
+//            throw new BusinessException(ex);
+//        } catch (InstantiationException ex) {
+//            throw new BusinessException(ex);
+//        } catch (IllegalAccessException ex) {
+//            throw new BusinessException(ex);
+//        }
+//    }
 	
 	/**
 	 * Find the master of the meter with the given deviceId in the networkTopology
@@ -505,7 +585,30 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 
 	@Override
 	public List getMessageCategories() {
-		// currently there are no messages to perform on the gateway itself
-		return null;
+		List<MessageCategorySpec> categories = new ArrayList();
+		MessageCategorySpec catFirmware = getFirmwareCategory();
+		
+		categories.add(catFirmware);
+
+		return categories;
+	}
+	
+	/**
+	 * This messageCategory let's you upgrade two types of firmware.
+	 * One is the normal meter firmware, the other is the RF-firmware
+	 * Both are imported with a userfile
+	 * @return the messages for the FirmwareUpgrade
+	 */
+	@Override
+	public MessageCategorySpec getFirmwareCategory() {
+		MessageCategorySpec catFirmware = new MessageCategorySpec(
+				RtuMessageCategoryConstants.FIRMWARE);
+		MessageSpec msgSpec = addFirmwareMsg(RtuMessageKeyIdConstants.FIRMWARE,
+				RtuMessageConstant.FIRMWARE_UPGRADE, false);
+		catFirmware.addMessageSpec(msgSpec);
+		msgSpec = addFirmwareMsg(RtuMessageKeyIdConstants.RFFIRMWARE,
+				RtuMessageConstant.RF_FIRMWARE_UPGRADE, false);
+		catFirmware.addMessageSpec(msgSpec);
+		return catFirmware;
 	}
 }

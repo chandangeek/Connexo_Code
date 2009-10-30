@@ -6,15 +6,13 @@
 
 package com.energyict.dlms.cosem;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.energyict.protocolimpl.dlms.*;
-import com.energyict.protocol.*;
-import com.energyict.dlms.cosem.AbstractCosemObject;
+import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.OctetString;
-import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ProtocolLink;
 
 /**
@@ -39,7 +37,9 @@ public class SAPAssignment extends AbstractCosemObject {
             logicalDeviceNames = new ArrayList();
             DataContainer dataContainer = new DataContainer();
             dataContainer.parseObjectList(getResponseData(SAP_ATTR_ASSIGNMENT_LIST),protocolLink.getLogger());
-            if (DEBUG >= 1) dataContainer.printDataContainer();
+            if (DEBUG >= 1) {
+				dataContainer.printDataContainer();
+			}
             for (int i=0;i<dataContainer.getRoot().getNrOfElements();i++) {
                 DataStructure ds = (DataStructure)dataContainer.getRoot().getElement(i);
                 for (int t=0;t<ds.getNrOfElements();t++) {
@@ -47,11 +47,11 @@ public class SAPAssignment extends AbstractCosemObject {
                        OctetString octetString = ds.getOctetString(t);
                        logicalDeviceNames.add(octetString.toString().trim());
                    }
-                   else {
+//                   else {
                        // get all other fields of the structure which is instance specific.
                        // e.g. the Siemens returns beside the logical address name also a
                        // SAP identification 12xxxx (where xxxx is the SAP identification
-                   }
+//                   }
                 }
             }
         }

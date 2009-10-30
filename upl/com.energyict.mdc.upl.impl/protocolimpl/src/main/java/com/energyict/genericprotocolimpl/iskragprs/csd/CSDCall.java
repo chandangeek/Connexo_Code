@@ -1,8 +1,6 @@
 package com.energyict.genericprotocolimpl.iskragprs.csd;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import com.energyict.dialer.core.DialerCarrierException;
 import com.energyict.dialer.core.DialerException;
@@ -10,7 +8,6 @@ import com.energyict.dialer.core.Link;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dialer.coreimpl.ModemConnection;
-import com.energyict.mdw.core.CommunicationScheduler;
 
 public class CSDCall extends ModemConnection{
 	
@@ -90,15 +87,11 @@ public class CSDCall extends ModemConnection{
 			if(e.getMessage().indexOf(NOCARRIER) != 0){
 				e.printStackTrace();
 				throw new IOException(e.getMessage());
-			} else {
-				// the call was good, but you don't know if the meter will come online
 			}
 		} catch (DialerException e){
 			if(e.getMessage().indexOf(BUSY) != 0){
 				e.printStackTrace();
 				throw new IOException(e.getMessage());
-			} else {
-				// the call was good, but you don't know if the meter will come online
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

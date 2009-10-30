@@ -180,8 +180,11 @@ public class AssociationControlServiceElement {
 								&& (responseData[i + 3] == 0)) {
 							// Result OK
 //							return;	 //Don't return otherwise you don't get all info
+							i += responseData[i]; // skip length + data
+						} else {
+							// the result wasn't OK, but we keep going so we get the proper info
+							i += responseData[i]; // skip length + data
 						}
-						i += responseData[i]; // skip length + data
 					} // else if (responseData[i] == AARE_RESULT)
 
 					else if(responseData[i] == DLMSCOSEMGlobals.AARE_RESPONING_AP_TITLE){
@@ -228,11 +231,12 @@ public class AssociationControlServiceElement {
 										throw new IOException("Application Association Establishment Failed"
 												+ strResultSourceDiagnostics);
 									}
-									else if (responseData[i + 5] == 0x0E)
+									else if (responseData[i + 5] == 0x0E) {
 										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Required";
-									else
+									} else {
 										throw new IOException(
 												"Application Association Establishment failed, ACSE_SERVICE_USER, unknown result!");
+									}
 								} else {
 									throw new IOException(
 											"Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_USER,  wrong tag");
@@ -242,23 +246,26 @@ public class AssociationControlServiceElement {
 								if ((responseData[i + 2] == 3)
 										&& (responseData[i + 3] == 2)
 										&& (responseData[i + 4] == 1)) {
-									if (responseData[i + 5] == 0x00)
+									if (responseData[i + 5] == 0x00) {
 										strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER!";
-									else if (responseData[i + 5] == 0x01)
+									} else if (responseData[i + 5] == 0x01) {
 										strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER, No Reason Given!";
-									else if (responseData[i + 5] == 0x02)
+									} else if (responseData[i + 5] == 0x02) {
 										strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER, No Common ACSE Version!";
-									else
+									} else {
 										throw new IOException(
 												"Application Association Establishment Failed, ACSE_SERVICE_PROVIDER, unknown result");
-								} else
+									}
+								} else {
 									throw new IOException(
 											"Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_PROVIDER,  wrong tag");
+								}
 							} // else if (responseData[i+1] ==
 								// ACSE_SERVICE_PROVIDER)
-							else
+ else {
 								throw new IOException(
 										"Application Association Establishment Failed, result_source_diagnostic,  wrong tag");
+							}
 						} else {
 							throw new IOException(
 									"Application Association Establishment Failed, result_source_diagnostic, wrong length");
@@ -298,34 +305,37 @@ public class AssociationControlServiceElement {
 								return;
 
 							} else if (DLMSCOSEMGlobals.DLMS_PDU_CONFIRMED_SERVICE_ERROR == responseData[i + 3]) {
-								if (0x01 == responseData[i + 4])
+								if (0x01 == responseData[i + 4]) {
 									strResultSourceDiagnostics += ", InitiateError";
-								else if (0x02 == responseData[i + 4])
+								} else if (0x02 == responseData[i + 4]) {
 									strResultSourceDiagnostics += ", getStatus";
-								else if (0x03 == responseData[i + 4])
+								} else if (0x03 == responseData[i + 4]) {
 									strResultSourceDiagnostics += ", getNameList";
-								else if (0x13 == responseData[i + 4])
+								} else if (0x13 == responseData[i + 4]) {
 									strResultSourceDiagnostics += ", terminateUpload";
-								else
+								} else {
 									throw new IOException(
 											"Application Association Establishment Failed, AARE_USER_INFORMATION, unknown ConfirmedServiceError choice");
+								}
 
-								if (0x06 != responseData[i + 5])
+								if (0x06 != responseData[i + 5]) {
 									strResultSourceDiagnostics += ", No ServiceError tag";
+								}
 
-								if (0x00 == responseData[i + 6])
+								if (0x00 == responseData[i + 6]) {
 									strResultSourceDiagnostics += "";
-								else if (0x01 == responseData[i + 6])
+								} else if (0x01 == responseData[i + 6]) {
 									strResultSourceDiagnostics += ", DLMS version too low";
-								else if (0x02 == responseData[i + 6])
+								} else if (0x02 == responseData[i + 6]) {
 									strResultSourceDiagnostics += ", Incompatible conformance";
-								else if (0x03 == responseData[i + 6])
+								} else if (0x03 == responseData[i + 6]) {
 									strResultSourceDiagnostics = ", pdu size too short";
-								else if (0x04 == responseData[i + 6])
+								} else if (0x04 == responseData[i + 6]) {
 									strResultSourceDiagnostics = ", refused by the VDE handler";
-								else
+								} else {
 									throw new IOException(
 											"Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons ");
+								}
 							} else {
 								throw new IOException(
 										"Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons!");
