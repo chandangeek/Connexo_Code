@@ -6,7 +6,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -90,6 +89,7 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
  * 				resolves the problem.
  * JME 22102009	Added quick fix for ImServe to remove the properties with a value of "offline.EMPTY"
  * 				This behavior is temporary, it will move later on to the CommServerJOffline code
+ * JME 02112009 Removed previous quick fix and moved this feature to the CommServerJOffline code
  * </PRE>
  * 
  * @endchanges
@@ -120,7 +120,6 @@ public class ABBA1140 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
 	private static final int		PD_EXTENDED_LOGGING		= 0;
 	private static final int		PD_IEC1107_COMPATIBLE	= 0;
 	private static final int		PD_ECHO_CANCELING		= 0;
-	private static final String		OFFLINE_EMPTY			= "offline.EMPTY";
 
 	/**
 	 * Property values Required properties will have NO default value Optional
@@ -162,10 +161,8 @@ public class ABBA1140 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
 	/* (non-Javadoc)
 	 * @see com.energyict.protocol.MeterProtocol#setProperties(java.util.Properties)
 	 */
-	public void setProperties(Properties properties) throws MissingPropertyException , InvalidPropertyException {
+	public void setProperties(Properties p) throws MissingPropertyException , InvalidPropertyException {
 		try {
-
-			Properties p = replaceEmptyOfflineProperties(properties);
 
 			Iterator iterator= getRequiredKeys().iterator();
 			while (iterator.hasNext()) {
@@ -242,23 +239,6 @@ public class ABBA1140 implements MeterProtocol, ProtocolLink, HHUEnabler, Serial
 			throw new InvalidPropertyException("ABBA1140, validateProperties, NumberFormatException, "+e.getMessage());
 		}
 
-	}
-
-	/**
-	 * Temporary code, this behaviour will be moved to the CommServerJOffline
-	 * later. This method replaces the value
-	 */
-	private Properties replaceEmptyOfflineProperties(Properties properties) {
-		Properties returningProperties = (Properties) properties.clone();
-		Enumeration en = returningProperties.propertyNames();
-		while (en.hasMoreElements()) {
-			String key = (String) en.nextElement();
-			String value = returningProperties.getProperty(key);
-			if (OFFLINE_EMPTY.equals(value)) {
-				returningProperties.remove(key);
-			}
-		}
-		return returningProperties;
 	}
 
 	/* (non-Javadoc)
