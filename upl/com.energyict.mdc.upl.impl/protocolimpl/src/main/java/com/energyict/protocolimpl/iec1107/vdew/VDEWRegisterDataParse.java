@@ -21,8 +21,15 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 /**
  *
  * @author  Koen
+ * 
+ * 02/11/2009	JME Parse two character years as follows:
+ * 						year 00 -> 50 = 2000 -> 2050
+ * 						year 51 -> 99 = 1951 -> 2099
+ * 
  */
 abstract public class VDEWRegisterDataParse {
+
+	private static final int MAXYEAR = 2050;
 
 	static public final int MODE_WINTERTIME=0;
 	static public final int MODE_SUMMERTIME=1;
@@ -44,7 +51,6 @@ abstract public class VDEWRegisterDataParse {
 	public final static int VDEW_GMTTIMESTRING=13; // write
 	public final static int VDEW_DATE_TIME=14; // YYMMDDHHMMSS
 	public final static int KAMSTRUP300_DATE_VALUE_PAIR=15; // (XXXXXXX...)(YY-MM-DD HH:MM:SS)
-
 
 	abstract protected Unit getUnit();
 	abstract protected int getType();
@@ -90,7 +96,7 @@ abstract public class VDEWRegisterDataParse {
 				return new String((byte[]) object);
 			}
 
-		throw new IOException("VDEWRegisterDataParse, parse , unknown type "+getType());
+			throw new IOException("VDEWRegisterDataParse, parse , unknown type "+getType());
 		}
 	}
 
@@ -358,7 +364,7 @@ abstract public class VDEWRegisterDataParse {
 		byte[] data = ProtocolUtils.convert2ascii(rawdata);
 		Calendar calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
 		calendar.clear();
-		calendar.set(Calendar.YEAR,ProtocolUtils.BCD2hex(data[0])+2000);
+		calendar.set(Calendar.YEAR, getYear1900_2000(ProtocolUtils.BCD2hex(data[0])));
 		calendar.set(Calendar.MONTH,ProtocolUtils.BCD2hex(data[1])-1);
 		calendar.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex(data[2]));
 		calendar.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(data[3]));
@@ -424,7 +430,7 @@ abstract public class VDEWRegisterDataParse {
 		}
 
 		byte[] data = ProtocolUtils.convert2ascii(rawdata);
-		calendar.set(Calendar.YEAR,ProtocolUtils.BCD2hex(data[0])+2000);
+		calendar.set(Calendar.YEAR, getYear1900_2000(ProtocolUtils.BCD2hex(data[0])));
 		calendar.set(Calendar.MONTH,ProtocolUtils.BCD2hex(data[1])-1);
 		calendar.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex(data[2]));
 		return calendar.getTime();
@@ -459,7 +465,7 @@ abstract public class VDEWRegisterDataParse {
 		calendar.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(data[0]));
 		calendar.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[1]));
 		calendar.set(Calendar.SECOND,ProtocolUtils.BCD2hex(data[2]));
-		calendar.set(Calendar.YEAR,ProtocolUtils.BCD2hex(data[3])+2000);
+		calendar.set(Calendar.YEAR, getYear1900_2000(ProtocolUtils.BCD2hex(data[3])));
 		calendar.set(Calendar.MONTH,ProtocolUtils.BCD2hex(data[4])-1);
 		calendar.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex(data[5]));
 		return calendar.getTime();
@@ -481,7 +487,7 @@ abstract public class VDEWRegisterDataParse {
 		} else if (seasonalInfo == 2) {
 			calendar = ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT"));
 		}
-		calendar.set(Calendar.YEAR,ProtocolUtils.BCD2hex(date[0])+2000);
+		calendar.set(Calendar.YEAR, getYear1900_2000(ProtocolUtils.BCD2hex(date[0])));
 		calendar.set(Calendar.MONTH,ProtocolUtils.BCD2hex(date[1])-1);
 		calendar.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex(date[2]));
 		calendar.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(time[0]));
@@ -505,7 +511,7 @@ abstract public class VDEWRegisterDataParse {
 		} else if (seasonalInfo == 2) {
 			calendar = ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT"));
 		}
-		calendar.set(Calendar.YEAR,ProtocolUtils.BCD2hex(date[0])+2000);
+		calendar.set(Calendar.YEAR, getYear1900_2000(ProtocolUtils.BCD2hex(date[0])));
 		calendar.set(Calendar.MONTH,ProtocolUtils.BCD2hex(date[1])-1);
 		calendar.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex(date[2]));
 		calendar.set(Calendar.HOUR_OF_DAY,ProtocolUtils.BCD2hex(time[0]));
@@ -528,6 +534,18 @@ abstract public class VDEWRegisterDataParse {
 		calendar.set(Calendar.MINUTE,ProtocolUtils.bcd2int(rawdata,10));
 		calendar.set(Calendar.SECOND,ProtocolUtils.bcd2int(rawdata,12));
 		return calendar.getTime();
+	}
+
+	/**
+	 * Parse two character years as follows:
+	 * 		year 00 -> 50 = 2000 -> 2050
+	 * 		year 51 -> 99 = 1951 -> 2099
+	 * 
+	 * @param year
+	 * @return The correct year in the range of 1951 - 2050
+	 */
+	private int getYear1900_2000(int year) {
+		return year + ((year <= (MAXYEAR - 2000) ? 2000 : 1900));
 	}
 
 } // abstract public class VDEWRegisterDataParse
