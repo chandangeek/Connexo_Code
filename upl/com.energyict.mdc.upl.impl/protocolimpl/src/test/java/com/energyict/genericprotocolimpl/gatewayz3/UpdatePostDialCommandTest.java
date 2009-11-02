@@ -81,8 +81,8 @@ public class UpdatePostDialCommandTest {
 		try {
 			String deviceId = "28000044";
 			String testPostDialCommand = "TestPostDialCommand";
-			String secondPostDialCommand = "<ESC>rfclient=\"\"<\\ESC>";
-			String expectedPostDialCommand = "<ESC>rfclient=\"28000044\"<\\ESC>";
+			String secondPostDialCommand = "<ESC>rfclient=\"\"</ESC>";
+			String expectedPostDialCommand = "<ESC>rfclient=\"28000044\"</ESC>";
 
 			setDeviceId(deviceId);
 			gatewayZ3.updateR2WithPostDialCommandRfClient(rtu);

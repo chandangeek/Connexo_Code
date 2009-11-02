@@ -321,7 +321,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 	 */
 	private void verifyMeterSerialNumber() throws IOException {
 		String serial = getSerialNumber();
-		if (!this.serialNumber.equals(serial)) {
+		if (!(this.serialNumber.equalsIgnoreCase("")) && (!this.serialNumber.equals(serial))) {
 			throw new IOException("Wrong serialnumber, EIServer settings: " + this.serialNumber + " - Meter settings: " + serial);
 		}
 	}
@@ -579,8 +579,9 @@ public class WebRTUZ3 extends DLMSProtocol{
 	 * If the serialNumber can't be retrieved from the device then we just log and try the next one.
 	 * The number of Mbus devices to loop over is defined with the {@link #maxMbusDevices} property
 	 * @return a map containing SerailNumber - Physical mbus address
+	 * @throws ConnectionException 
 	 */
-	private HashMap<String, Integer> getMbusMapper(){
+	private HashMap<String, Integer> getMbusMapper() throws ConnectionException{
 		String mbusSerial;
 		HashMap<String, Integer> mbusMap = new HashMap<String, Integer>();
 		for (int i = 0; i < this.maxMbusDevices; i++) {
@@ -591,6 +592,9 @@ public class WebRTUZ3 extends DLMSProtocol{
 					mbusMap.put(mbusSerial, i);
 				}
 			} catch (IOException e) {
+				if(e.getMessage().indexOf("com.energyict.dialer.connection.ConnectionException: receiveResponse() interframe timeout error") > -1){
+					throw new ConnectionException("InterframeTimeout occurred. Meter probably not accessible anymore.");
+				}
 				e.printStackTrace(); // catch and go to next
 				logger.log(Level.FINE, "Could not retrieve the mbusSerialNumber for channel " + (i + 1));
 			}

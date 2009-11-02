@@ -33,7 +33,7 @@ public final class CommonUtils {
 	 * @param rtuTypeProperty - the Prototype for the new Rtu if non was found
 	 * @param folderExtNameProperty - the external name of the folder to place the new Rtu
 	 * @return an Rtu
-	 * @throws IOException - if multiple meters were found in the database
+	 * @throws IOException if multiple meters were found in the database
 	 * @throws SQLException if database exception occurred
 	 * @throws BusinessException if business exception occurred
 	 */
@@ -57,7 +57,7 @@ public final class CommonUtils {
 	 * @param rtuTypeProperty - the Prototype for the new Rtu if non was found
 	 * @param folderExtNameProperty - the external name of the folder to place the new Rtu
 	 * @return an Rtu
-	 * @throws IOException - if multiple meters were found in the database
+	 * @throws IOException if multiple meters were found in the database
 	 * @throws SQLException if database exception occurred
 	 * @throws BusinessException if business exception occurred
 	 */
