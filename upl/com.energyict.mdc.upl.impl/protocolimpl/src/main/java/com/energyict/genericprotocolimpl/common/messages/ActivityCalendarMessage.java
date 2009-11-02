@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.webrtukp.messagehandling;
+package com.energyict.genericprotocolimpl.common.messages;
 
 import java.io.IOException;
 import java.util.HashMap;

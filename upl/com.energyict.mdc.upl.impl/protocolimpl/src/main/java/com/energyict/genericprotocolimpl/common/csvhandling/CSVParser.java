@@ -1,11 +1,10 @@
-package com.energyict.genericprotocolimpl.webrtukp.csvhandling;
+package com.energyict.genericprotocolimpl.common.csvhandling;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.UserFile;

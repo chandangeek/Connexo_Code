@@ -32,12 +32,12 @@ import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConstants;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
+import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MessageExecutor;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.DailyMonthly;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.ElectricityProfile;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.EventProfile;
-import com.energyict.genericprotocolimpl.webrtuz3.wakeup.SmsWakeup;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
@@ -579,7 +579,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 	 * If the serialNumber can't be retrieved from the device then we just log and try the next one.
 	 * The number of Mbus devices to loop over is defined with the {@link #maxMbusDevices} property
 	 * @return a map containing SerailNumber - Physical mbus address
-	 * @throws ConnectionException 
+	 * @throws ConnectionException if interframeTimeout has passed and maximum retries have been reached
 	 */
 	private HashMap<String, Integer> getMbusMapper() throws ConnectionException{
 		String mbusSerial;
@@ -639,9 +639,9 @@ public class WebRTUZ3 extends DLMSProtocol{
 	/**
 	 * Check the ghostMbusDevices and create the mbusDevices
 	 * @param mbusMap
-	 * @throws BusinessException 
-	 * @throws SQLException 
-	 * @throws IOException 
+	 * @throws BusinessException if a business error occurred
+	 * @throws SQLException if database exception occurred
+	 * @throws IOException if multiple meters were found in the database
 	 */
 	private void checkToUpdateMbusMeters(HashMap<String, Integer> mbusMap) throws SQLException, BusinessException, IOException{
 		Iterator<Entry<String, Integer>>  mbusIt = mbusMap.entrySet().iterator();

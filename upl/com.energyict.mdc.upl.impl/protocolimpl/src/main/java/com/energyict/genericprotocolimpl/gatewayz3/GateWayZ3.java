@@ -258,7 +258,7 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 				
 				Rtu master = getMasterForMeter(rtu.getDeviceId());
 				if(master != null){
-					if(master != rtu.getGateway()){
+					if(!master.getDeviceId().equalsIgnoreCase(rtu.getGateway().getDeviceId())){
 						rtu.updateGateway(master);
 					}
 				}

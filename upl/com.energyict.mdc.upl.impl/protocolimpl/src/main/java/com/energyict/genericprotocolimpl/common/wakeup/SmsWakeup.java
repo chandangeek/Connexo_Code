@@ -1,15 +1,12 @@
-package com.energyict.genericprotocolimpl.webrtukp.wakeup;
+package com.energyict.genericprotocolimpl.common.wakeup;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.URL;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Service;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Utils;
@@ -26,13 +23,14 @@ import com.vodafone.gdsp.ws.WUTrigger;
 import com.vodafone.gdsp.ws.WUTriggerService;
 
 /**
- * @author gna
- * 
+ * <pre>
  * The SMS Wakeup will send a wakeup trigger to TIBCO and receive an OK or NOT OK as a response to the trigger.
  * Depending on the response, a polling mechanism is started to see if the meter gets an IP address, or ...
  * exception is thrown when the trigger failed or the polling timed out.
  * Changes:
  * GNA |04062009| Use the attribute GPRSProvider instead of Provider. Added a vfSoapAction, just in case this should change as well...
+ * </pre>
+ * @author gna
  */
 public class SmsWakeup {
 	
@@ -74,9 +72,9 @@ public class SmsWakeup {
 
 	/**
 	 * Triggers the wakeup
-	 * @throws SQLException
-	 * @throws BusinessException
-	 * @throws IOException
+	 * @throws SQLException if we couldn't clear the IP-address
+	 * @throws BusinessException if a business error occurred
+	 * @throws IOException if parameters aren't correctly configured, when WSDL isn't found or when interrupted while sleeping
 	 */
 	public void doWakeUp() throws SQLException, BusinessException, IOException{
 		clearMetersIpAddress();
@@ -109,8 +107,8 @@ public class SmsWakeup {
 	
 	/**
 	 * Clear the IP address field of the meter so we can poll on a filled in address
-	 * @throws SQLException
-	 * @throws BusinessException
+	 * @throws SQLException if a database error occurred
+	 * @throws BusinessException if a business error occurred
 	 */
 	private void clearMetersIpAddress() throws SQLException, BusinessException{
 		
@@ -202,8 +200,8 @@ public class SmsWakeup {
 
 	/**
 	 * Poll the meters IP-address field for an update
-	 * @throws BusinessException
-	 * @throws IOException
+	 * @throws BusinessException if there isn't an updated IP-address
+	 * @throws IOException during the sleep
 	 */
 	private void waitForIpUpdate() throws BusinessException, IOException{
 		long protocolTimeout = System.currentTimeMillis() + this.pollTimeout;
@@ -220,7 +218,7 @@ public class SmsWakeup {
 	/**
 	 * Hold the thread for the given sleeptime
 	 * @param sleepTime
-	 * @throws IOException
+	 * @throws IOException when we get interrupted while sleeping
 	 */
 	private void sleep(long sleepTime) throws IOException{
 		try {
@@ -278,7 +276,9 @@ public class SmsWakeup {
 		if(this.logLevel == -2){
 			this.logLevel = Integer.parseInt(this.meter.getProperties().getProperty("TestLogging", "-1"));
 		}
-		if(level <= this.logLevel)this.logger.info(msg);
+		if(level <= this.logLevel) {
+			this.logger.info(msg);
+		}
 	}
 	
 	private MeteringWarehouse mw(){
