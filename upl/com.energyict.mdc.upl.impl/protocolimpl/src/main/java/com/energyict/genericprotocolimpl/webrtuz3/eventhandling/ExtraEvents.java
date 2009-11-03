@@ -6,9 +6,8 @@ import java.util.HashMap;
 import com.energyict.protocol.MeterEvent;
 
 /**
- * 
- * @author gna Configuration of extra events that are defined after NTA
- *         implementation
+ * Configuration of extra events that are defined after NTA implementation
+ * @author gna 
  */
 public class ExtraEvents {
 

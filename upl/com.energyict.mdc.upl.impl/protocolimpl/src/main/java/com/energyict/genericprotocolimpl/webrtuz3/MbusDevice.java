@@ -17,6 +17,7 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
 import com.energyict.genericprotocolimpl.common.DLMSProtocol;
+import com.energyict.genericprotocolimpl.common.obiscodemappers.MbusObisCodeMapper;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MbusMessageExecutor;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MbusMessages;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.MbusDailyMonthly;

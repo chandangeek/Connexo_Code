@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.energyict.genericprotocolimpl.webrtukp;
+package com.energyict.genericprotocolimpl.common.obiscodemappers;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -10,7 +10,9 @@ import java.util.Date;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.genericprotocolimpl.common.EncryptionStatus;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
@@ -56,6 +58,13 @@ public class MbusObisCodeMapper {
     	        			new String("ConnectControl state: " + possibleConnectStates[state]));
     	        	return rv;
     			}
+    		} else if (obisCode.getD() == 50){ // MBus encryption status
+    			Data encryptionState = cof.getData(obisCode);
+    			rv = new RegisterValue(obisCode,
+	        			new Quantity(BigDecimal.valueOf(encryptionState.getValue()), Unit.getUndefined()),
+	        			null, null, null, new Date(), 0,
+	        			EncryptionStatus.forValue((int) encryptionState.getValue()).getLabelKey());
+    			return rv;
     		}
     		throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
     	} else {
@@ -63,6 +72,12 @@ public class MbusObisCodeMapper {
     	}
 	}
 	
+	/**
+	 * The given obisCode is not a valid one. We use it to make a distiction between two arguments of the same object.
+	 * This function will return the original obisCode from the Disconnector object, without the E-value
+	 * @param oc -  the manipulated ObisCode of the Disconnector object
+	 * @return the original ObisCode of the Disconnector object
+	 */
 	private ObisCode adjustToDisconnectOC(ObisCode oc) {
 		return new ObisCode(oc.getA(), oc.getB(), oc.getC(), oc.getD(), 0, oc.getF());
 	}

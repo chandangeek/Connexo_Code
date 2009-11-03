@@ -31,6 +31,7 @@ import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConstants;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
+import com.energyict.genericprotocolimpl.common.obiscodemappers.ObisCodeMapper;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MessageExecutor;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.DailyMonthly;

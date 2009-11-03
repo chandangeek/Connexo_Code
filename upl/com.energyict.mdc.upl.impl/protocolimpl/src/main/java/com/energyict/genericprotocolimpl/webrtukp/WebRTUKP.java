@@ -49,6 +49,7 @@ import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.genericprotocolimpl.common.StoreObject;
+import com.energyict.genericprotocolimpl.common.obiscodemappers.ObisCodeMapper;
 import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
 import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageExecutor;
 import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MeterMessages;
@@ -1468,7 +1469,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		return dlmsConnection;
 	}
 
-	protected void setDLMSConnection(DLMSConnection connection) {
+	public void setDLMSConnection(DLMSConnection connection) {
 		this.dlmsConnection = connection;
 	}
 

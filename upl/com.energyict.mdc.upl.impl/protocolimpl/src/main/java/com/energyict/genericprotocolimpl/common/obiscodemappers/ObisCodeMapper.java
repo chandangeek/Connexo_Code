@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.webrtukp;
+package com.energyict.genericprotocolimpl.common.obiscodemappers;
 
 import java.io.IOException;
 import java.math.BigDecimal;
