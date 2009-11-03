@@ -31,9 +31,9 @@ import com.energyict.obis.ObisCode;
 
 public class ImageTransfer extends AbstractCosemObject{
 
-	static public boolean DEBUG = false;
-	static public final int CLASSID = 18;
-	static private int delay = 3000;
+	public static boolean DEBUG = false;
+	public static final int CLASSID = 18;
+	private static int delay = 3000;
 	private int maxBlockRetryCount = 3;
 	private int maxTotalRetryCount = 500;
 	
@@ -48,18 +48,18 @@ public class ImageTransfer extends AbstractCosemObject{
 	private Array imageToActivateInfo = null;	// Provides information on the image(s) ready for activation
 	
 	/** Attribute numbers */
-	static private final int ATTRB_IMAGE_BLOCK_SIZE = 2;
-	static private final int ATTRB_IMAGE_TRANSFER_BLOCK_STATUS = 3;
-	static private final int ATTRB_IMAGE_FIRST_NOT_TRANSFERED_BLOCK = 4;
-	static private final int ATTRB_IMAGE_TRANSFER_ENABLED = 5;
-	static private final int ATTRB_IMAGE_TRANSFER_STATUS = 6;
-	static private final int ATTRB_IMAGE_TO_ACTIVATE_INFO = 7;
+	private static final int ATTRB_IMAGE_BLOCK_SIZE = 2;
+	private static final int ATTRB_IMAGE_TRANSFER_BLOCK_STATUS = 3;
+	private static final int ATTRB_IMAGE_FIRST_NOT_TRANSFERED_BLOCK = 4;
+	private static final int ATTRB_IMAGE_TRANSFER_ENABLED = 5;
+	private static final int ATTRB_IMAGE_TRANSFER_STATUS = 6;
+	private static final int ATTRB_IMAGE_TO_ACTIVATE_INFO = 7;
 	
 	/** Method invoke */
-	static private final int IMAGE_TRANSFER_INITIATE = 1;
-	static private final int IMAGE_BLOCK_TRANSFER = 2;
-	static private final int IMAGE_VERIFICATION = 3;
-	static private final int IMAGE_ACTIVATION = 4;
+	private static final int IMAGE_TRANSFER_INITIATE = 1;
+	private static final int IMAGE_BLOCK_TRANSFER = 2;
+	private static final int IMAGE_VERIFICATION = 3;
+	private static final int IMAGE_ACTIVATION = 4;
 	
 	/** Image info */
 	private Unsigned32 size = null; 	// the size of the image

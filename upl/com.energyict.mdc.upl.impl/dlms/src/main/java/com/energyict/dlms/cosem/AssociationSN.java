@@ -19,7 +19,7 @@ import com.energyict.obis.ObisCode;
  */
 public class AssociationSN extends AbstractCosemObject {
     public final int DEBUG=0;
-    static public final int CLASSID=12;
+    public static final int CLASSID=12;
     
     
     /** Attributes */
@@ -28,9 +28,9 @@ public class AssociationSN extends AbstractCosemObject {
     private OctetString securitySetupReference; //References the SecuritySetup object by its logical name
     
     /** Attribute numbers (shortname notation ...) */
-    static private final int ATTRB_OBJECT_LIST = 0x08;
-    static private final int ATTRB_ACCESS_RIGHTS = 0x10;
-    static private final int ATTRB_SECURITY_SETUP_REF = 0x18;
+    private static final int ATTRB_OBJECT_LIST = 0x08;
+    private static final int ATTRB_ACCESS_RIGHTS = 0x10;
+    private static final int ATTRB_SECURITY_SETUP_REF = 0x18;
     
     /** Method invoke */
     private static int METHOD_READ_BY_LOGICAL_NAME = 3;
@@ -53,7 +53,7 @@ public class AssociationSN extends AbstractCosemObject {
     }
     
     /** Return the logicalName (obiscode) of this object */
-    static public ObisCode getObisCode(){
+    public static ObisCode getObisCode(){
     	return ObisCode.fromByteArray(LN);
     }
     

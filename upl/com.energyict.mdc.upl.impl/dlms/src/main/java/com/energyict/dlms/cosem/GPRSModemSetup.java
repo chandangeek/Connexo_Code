@@ -22,17 +22,17 @@ public class GPRSModemSetup extends AbstractCosemObject {
 	private Structure qualityOfService = null;
 	
 	/** Attribute numbers */
-	static private final int ATTRB_APN = 2;
-	static private final int ATTRB_PIN_CODE = 3;
-	static private final int ATTRB_QUALITY_OF_SERVICE = 4;
+	private static final int ATTRB_APN = 2;
+	private static final int ATTRB_PIN_CODE = 3;
+	private static final int ATTRB_QUALITY_OF_SERVICE = 4;
 	
 	/** Method invoke */
 	// none
 	
 	private int CLASSID = 45;
 	
-	static private final int QOS_DEFAULT = 0;
-	static private final int QOS_REQUESTED = 1;
+	private static final int QOS_DEFAULT = 0;
+	private static final int QOS_REQUESTED = 1;
 
 	/**
 	 * @param protocolLink

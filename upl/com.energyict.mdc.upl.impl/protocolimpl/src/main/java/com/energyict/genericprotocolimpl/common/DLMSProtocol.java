@@ -1,8 +1,6 @@
 package com.energyict.genericprotocolimpl.common;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -17,7 +15,9 @@ import java.util.logging.Logger;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
+import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
@@ -36,6 +36,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
+import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.Channel;
@@ -126,6 +127,8 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 	protected int addressingMode;
 	protected int informationFieldSize;
 	protected int roundTripCorrection;
+	protected int wakeup;
+	protected String ipPortNumber;
 	protected String manufacturer;
 	
 	/**
@@ -218,11 +221,11 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 			this.meter = scheduler.getRtu();
 			this.communicationScheduler = scheduler; 
 			this.link = link;
-			
+			setLogger(logger);
 			validateProperties();
 			configureDLMSProperties();
 			
-			initializeGlobals(link.getInputStream(), link.getOutputStream(), logger);
+			initializeGlobals();
 			
 			connect();
 			
@@ -322,6 +325,10 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
         
         this.roundTripCorrection = Integer.parseInt(properties.getProperty("RoundTripCorrection","0"));
         
+        this.wakeup = Integer.parseInt(properties.getProperty("WakeUp","0"));
+        
+        this.ipPortNumber = properties.getProperty("IpPortNumber", "4059");
+        
         doValidateProperties();
 	}
 	
@@ -333,15 +340,15 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 	 * @throws BusinessException if multiple records were found for the current Rtu ID
 	 * @throws SQLException if a database access error occurs
 	 */
-	protected void initializeGlobals(InputStream ip, OutputStream os, Logger logger) throws IOException, DLMSConnectionException, SQLException, BusinessException{
-		setLogger(logger);
+	protected void initializeGlobals() throws IOException, DLMSConnectionException, SQLException, BusinessException{
+		
 		this.cosemObjectFactory	= new CosemObjectFactory((ProtocolLink)this);
 		
 		SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, this.securityProvider);
 		
 		this.aso = new ApplicationServiceObject(this.xdlmsAse, this, sc, getContextId());
 
-		this.dlmsConnection = new SecureConnection(this.aso, defineTransportDLMSConnection(ip, os));
+		this.dlmsConnection = new SecureConnection(this.aso, defineTransportDLMSConnection());
 
 		this.dlmsConnection.setInvokeIdAndPriority(this.invokeIdAndPriority);
 		this.dlmsConnection.setIskraWrapper(1);
@@ -351,7 +358,50 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 		if (getMeter() != null) {
 			setCache(fetchCache(getMeter().getId()));
 		}
+		
+		if (this.wakeup == 1) {
+			this.logger.info("In Wakeup");
+			SmsWakeup smsWakeup = new SmsWakeup(communicationScheduler, this.logger);
+			smsWakeup.doWakeUp();
+
+			meter = getUpdatedMeter();
+
+			String ipAddress = checkIPAddressForPortNumber(smsWakeup.getIpAddress());
+
+			this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
+			this.link.getStreamConnection().open();
+			getLogger().log(Level.INFO, "Connected to " + ipAddress);
+		} else if((communicationScheduler.getDialerFactory().getName() != null)&&(communicationScheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer"))){
+			throw new ConnectionException("The NullDialer type is only allowed for the wakeup meter.");
+		}
+		
 		doInit();
+	}
+	
+	/**
+	 * Retrieve the Rtu back from the database.
+	 * If any updates have been done then you won't get them until you retrieve it again.
+	 * @return your Rtu
+	 */
+	private Rtu getUpdatedMeter() {
+		return CommonUtils.mw().getRtuFactory().find(meter.getId());
+	}
+	
+	/**
+	 * If the received IP address doesn't contain a portNumber, then put one in it
+	 * 
+	 * @param ipAddress
+	 * @return the ipAddress concatenated with the portNumber (default 4059)
+	 */
+	private String checkIPAddressForPortNumber(String ipAddress) {
+		if (!ipAddress.contains(":")) {
+			StringBuffer strBuff = new StringBuffer();
+			strBuff.append(ipAddress);
+			strBuff.append(":");
+			strBuff.append(ipPortNumber);
+			return strBuff.toString();
+		}
+		return ipAddress;
 	}
 	
 	/**
@@ -381,21 +431,17 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 	
 	/**
 	 * Configure the DLMSConnection which is used for dataTransportation
-	 * 
-	 * @param is the inputStream from the Link
-	 * @param os the outputStream from the Link
-	 * 
 	 * @return the newly defined DLMSConnection
 	 * @throws DLMSConnectionException if addressingMode is unknown
 	 * @throws IOException if connectionMode is unknown
 	 */
-	protected DLMSConnection defineTransportDLMSConnection(InputStream is, OutputStream os) throws DLMSConnectionException, IOException{
+	protected DLMSConnection defineTransportDLMSConnection() throws DLMSConnectionException, IOException{
 		DLMSConnection transportConnection;
 		if (this.connectionMode == 0) {
-			transportConnection = new HDLC2Connection(is, os, this.timeOut, this.forceDelay, this.retries, this.clientMacAddress,
+			transportConnection = new HDLC2Connection(this.link.getInputStream(), this.link.getOutputStream(), this.timeOut, this.forceDelay, this.retries, this.clientMacAddress,
 					this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode, this.informationFieldSize, 5);
 		} else if (this.connectionMode == 1) {
-			transportConnection = new TCPIPConnection(is, os, this.timeOut, this.forceDelay, this.retries, this.clientMacAddress,
+			transportConnection = new TCPIPConnection(this.link.getInputStream(), this.link.getOutputStream(), this.timeOut, this.forceDelay, this.retries, this.clientMacAddress,
 					this.serverLowerMacAddress);
 		} else {
 			throw new IOException("Unknown connectionMode: " + this.connectionMode + " - Only 0(HDLC) and 1(TCP) are allowed");
@@ -599,6 +645,8 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 		optionalKeys.add("Manufacturer");
 		optionalKeys.add("InformationFieldSize");
 		optionalKeys.add("RoundTripCorrection");
+		optionalKeys.add("IpPortNumber");
+		optionalKeys.add("WakeUp");
 		List<String> protocolKeys = doGetOptionalKeys();
 		if(protocolKeys != null){
 			optionalKeys.addAll(protocolKeys);

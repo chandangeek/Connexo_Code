@@ -1,30 +1,44 @@
 package com.energyict.genericprotocolimpl.actarisplcc3g;  
 
-import com.energyict.dialer.core.*;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.edf.messages.objects.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.messaging.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.*;
-import java.util.logging.*;
-import java.util.logging.Level;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.Environment;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.Link;
+import com.energyict.dialer.core.LinkException;
 import com.energyict.dlms.DLMSConnection;
-import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.*;
-import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.core.*;
-import com.energyict.protocolimpl.dlms.*;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.ProtocolLink;
+import com.energyict.edf.messages.objects.ActivityCalendar;
+import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.PLCCMeterListBlocData;
+import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.PLCCObjectFactory;
+import com.energyict.mdw.amr.GenericProtocol;
+import com.energyict.mdw.core.CommunicationProfile;
+import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.MeteringWarehouseFactory;
+import com.energyict.mdw.core.Rtu;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.Messaging;
 
 /**
  * 
@@ -40,11 +54,11 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
     final int DEBUG=1;
     
     /* property key security level */
-    private final static String PK_SECURITY_LEVEL = "SecurityLevel";
-    private final static String PK_TIMEOUT = "Timeout";
+    private static final String PK_SECURITY_LEVEL = "SecurityLevel";
+    private static final String PK_TIMEOUT = "Timeout";
     
     /* property default security level */
-    private final static int PD_SECURITY_LEVEL = 1;
+    private static final int PD_SECURITY_LEVEL = 1;
     
     
     private Properties             properties;
@@ -106,8 +120,9 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
         // b. Attributes
         for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
             MessageAttribute att = (MessageAttribute) it.next();
-            if (att.getValue() == null || att.getValue().length() == 0)
-                continue;
+            if (att.getValue() == null || att.getValue().length() == 0) {
+				continue;
+			}
             buf.append(" ").append(att.getSpec().getName());
             buf.append("=").append('"').append(att.getValue()).append('"');
         }
@@ -119,12 +134,13 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
         // c. sub elements
         for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
             MessageElement elt = (MessageElement) it.next();
-            if (elt.isTag())
-                buf.append(writeTag((MessageTag) elt));
-            else if (elt.isValue()) {
+            if (elt.isTag()) {
+				buf.append(writeTag((MessageTag) elt));
+			} else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0)
-                    return "";
+                if (value == null || value.length() == 0) {
+					return "";
+				}
                 buf.append(value);
             }
         }
@@ -164,8 +180,9 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
         
         
         if (handleConcentrator.isFailed()) {
-            if (errorMessage == null)
-                errorMessage = new StringBuffer();
+            if (errorMessage == null) {
+				errorMessage = new StringBuffer();
+			}
             errorMessage.append(", error reading/storing concentrator "+concentratorDevice.getSerialNumber());
         }        
 
@@ -184,8 +201,9 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
         }
         //handleConcentrator.handleConcentratorTransaction();
         
-        if (errorMessage != null)
-            throw new IOException("Concentrator failed"+errorMessage);
+        if (errorMessage != null) {
+			throw new IOException("Concentrator failed"+errorMessage);
+		}
         }
         finally {
             disConnect();
@@ -477,8 +495,9 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
 //            errorMessage.append(", IOException handleMeter meter "+meterInfo.getSerialNumber());
 //        }
         if (handleMeter.isFailed()) {
-            if (errorMessage == null)
-                errorMessage = new StringBuffer();
+            if (errorMessage == null) {
+				errorMessage = new StringBuffer();
+			}
             errorMessage.append(", error reading/storing meter "+meterInfo.getSerialNumber());
         }
     }
@@ -516,13 +535,16 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
         while( i.hasNext() ) {
             String key = (String)i.next();
             if( ! properties.containsKey(key) ) {
-                if( sb.length() > 0 ) sb.append( ", " );
+                if( sb.length() > 0 ) {
+					sb.append( ", " );
+				}
                 sb.append( key );
             }
         }
         
-        if( sb.length() > 0 )
-            throw new RuntimeException( "Missing properties: " + sb );
+        if( sb.length() > 0 ) {
+			throw new RuntimeException( "Missing properties: " + sb );
+		}
         
     }
     
@@ -630,14 +652,16 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
 //    }
 
     public ConcentratorProfile getConcentratorProfile() {
-        if (concentratorProfile==null)
-            concentratorProfile = new ConcentratorProfile(this);
+        if (concentratorProfile==null) {
+			concentratorProfile = new ConcentratorProfile(this);
+		}
         return concentratorProfile;
     }
 
     public ConcentratorRegister getConcentratorRegister() {
-        if (concentratorRegister==null)
-            concentratorRegister = new ConcentratorRegister(this);
+        if (concentratorRegister==null) {
+			concentratorRegister = new ConcentratorRegister(this);
+		}
         return concentratorRegister;
     }    
     

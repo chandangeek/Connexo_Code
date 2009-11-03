@@ -10,7 +10,7 @@ import com.energyict.obis.ObisCode;
 
 public class SecuritySetup extends AbstractCosemObject{
 	
-	static public final int CLASSID = 64;
+	public static final int CLASSID = 64;
 	static final byte[] LN=new byte[]{0,0,43,0,0,(byte)255};
 	
 	/** Attributes */
@@ -20,14 +20,14 @@ public class SecuritySetup extends AbstractCosemObject{
 	private OctetString serverSystemTitle = null;	//Carries the server system title
 	
 	/** Attribute numbers */
-	static private final int ATTRB_SECURITY_POLICY = 2;
-	static private final int ATTRB_SECURITY_SUITE = 3;
-	static private final int ATTRB_CLIENT_SYSTEM_TITLE = 4;
-	static private final int ATTRB_SERVER_SYSTEM_TITLE = 5;
+	private static final int ATTRB_SECURITY_POLICY = 2;
+	private static final int ATTRB_SECURITY_SUITE = 3;
+	private static final int ATTRB_CLIENT_SYSTEM_TITLE = 4;
+	private static final int ATTRB_SERVER_SYSTEM_TITLE = 5;
 	
 	/** Methods */
-	static private final int METHOD_SECURITY_ACTIVATE = 1;		// Activates and strengthens the security policy
-	static private final int METHOD_GLOBAL_KEY_TRANSFER = 2;	// Update one or more global keys
+	private static final int METHOD_SECURITY_ACTIVATE = 1;		// Activates and strengthens the security policy
+	private static final int METHOD_GLOBAL_KEY_TRANSFER = 2;	// Update one or more global keys
 	
 	public SecuritySetup(ProtocolLink protocolLink,	ObjectReference objectReference) {
 		super(protocolLink, objectReference);
@@ -37,7 +37,7 @@ public class SecuritySetup extends AbstractCosemObject{
 		super(protocolLink, new ObjectReference(LN));
 	}
 
-	static public ObisCode getObisCode() {
+	public static ObisCode getObisCode() {
 		return ObisCode.fromByteArray(LN) ;
 	} 
 	

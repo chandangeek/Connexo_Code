@@ -68,16 +68,16 @@ public class Limiter extends AbstractCosemObject{
 	private ActionType actions = null;	// Defines the scripts to be executed when the monitored value crosses the threshold for minimal duration time
 	
 	/** Attribute numbers */
-	static private final int ATTRB_MONITORED_VALUE = 2;
-	static private final int ATTRB_THRESHOLD_ACTIVE = 3;
-	static private final int ATTRB_THRESHOLD_NORMAL = 4;
-	static private final int ATTRB_THRESHOLD_EMERGENCY = 5;
-	static private final int ATTRB_MIN_OVER_THRESHOLD_DURATION = 6;
-	static private final int ATTRB_MIN_UNDER_THRESHOLD_DURATION = 7;
-	static private final int ATTRB_EMERGENCY_PROFILE = 8;
-	static private final int ATTRB_EMERGENCY_PROFILE_GROUP_ID_LIST = 9;
-	static private final int ATTRB_EMERGENCY_PROFILE_ACTIVE = 10;
-	static private final int ATTRB_ACTIONS = 11;
+	private static final int ATTRB_MONITORED_VALUE = 2;
+	private static final int ATTRB_THRESHOLD_ACTIVE = 3;
+	private static final int ATTRB_THRESHOLD_NORMAL = 4;
+	private static final int ATTRB_THRESHOLD_EMERGENCY = 5;
+	private static final int ATTRB_MIN_OVER_THRESHOLD_DURATION = 6;
+	private static final int ATTRB_MIN_UNDER_THRESHOLD_DURATION = 7;
+	private static final int ATTRB_EMERGENCY_PROFILE = 8;
+	private static final int ATTRB_EMERGENCY_PROFILE_GROUP_ID_LIST = 9;
+	private static final int ATTRB_EMERGENCY_PROFILE_ACTIVE = 10;
+	private static final int ATTRB_ACTIONS = 11;
 	
 	/** Method invoke */
 	// none
@@ -432,9 +432,9 @@ public class Limiter extends AbstractCosemObject{
 	}
 	
 	public class ValueDefinitionType extends Structure{
-		static private final int ITEM_CLASS_ID = 0;
-		static private final int ITEM_LOGICAL_NAME = 1;
-		static private final int ITEM_ATTRIBUTE_INDEX = 2;
+		private static final int ITEM_CLASS_ID = 0;
+		private static final int ITEM_LOGICAL_NAME = 1;
+		private static final int ITEM_ATTRIBUTE_INDEX = 2;
 		
 		public ValueDefinitionType(){
 			super();
@@ -466,9 +466,9 @@ public class Limiter extends AbstractCosemObject{
 	
 	public class EmergencyProfile extends Structure{
 		
-		static private final int ITEM_EMERGENCY_PROFILE_ID = 0;
-		static private final int ITEM_EMERGENCY_ACTIVATION_TIME = 1;
-		static private final int ITEM_EMERGENCY_DURATION = 2;
+		private static final int ITEM_EMERGENCY_PROFILE_ID = 0;
+		private static final int ITEM_EMERGENCY_ACTIVATION_TIME = 1;
+		private static final int ITEM_EMERGENCY_DURATION = 2;
 		
 		public EmergencyProfile(){
 			super();
@@ -499,8 +499,8 @@ public class Limiter extends AbstractCosemObject{
 	
 	public class ActionType extends Structure{
 		
-		static private final int ITEM_ACTION_OVER_THRESHOLD = 0;
-		static private final int ITEM_ACTION_UNDER_THRESHOLD = 1;
+		private static final int ITEM_ACTION_OVER_THRESHOLD = 0;
+		private static final int ITEM_ACTION_UNDER_THRESHOLD = 1;
 		
 		public ActionType(){
 			super();
@@ -528,8 +528,8 @@ public class Limiter extends AbstractCosemObject{
 	
 	public class ActionItem extends Structure{
 		
-		static private final int ITEM_LOGICAL_NAME = 0;
-		static private final int ITEM_SELECTOR = 1;
+		private static final int ITEM_LOGICAL_NAME = 0;
+		private static final int ITEM_SELECTOR = 1;
 		
 		public ActionItem(){
 			super();

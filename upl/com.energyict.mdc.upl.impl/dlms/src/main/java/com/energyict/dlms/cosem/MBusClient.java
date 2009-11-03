@@ -36,27 +36,27 @@ public class MBusClient extends AbstractCosemObject{
 	private Unsigned8 alarm = null;
 	
 	/** Attribute numbers */
-	static private final int ATTRB_MBUS_PORT_REFERENCE = 2;
-	static private final int ATTRB_CAPTURE_DEFINITION = 3;
-	static private final int ATTRB_CAPTURE_PERIOD = 4;
-	static private final int ATTRB_PRIMARY_ADDRESS = 5;
-	static private final int ATTRB_IDENTIFICATION_NUMBER = 6;
-	static private final int ATTRB_MANUFACTURER_ID = 7;
-	static private final int ATTRB_VERSION = 8;
-	static private final int ATTRB_DEVICE_TYPE = 9;
-	static private final int ATTRB_ACCESS_NUMBER = 10;
-	static private final int ATTRB_STATUS = 11;
-	static private final int ATTRB_ALARM = 12;
+	private static final int ATTRB_MBUS_PORT_REFERENCE = 2;
+	private static final int ATTRB_CAPTURE_DEFINITION = 3;
+	private static final int ATTRB_CAPTURE_PERIOD = 4;
+	private static final int ATTRB_PRIMARY_ADDRESS = 5;
+	private static final int ATTRB_IDENTIFICATION_NUMBER = 6;
+	private static final int ATTRB_MANUFACTURER_ID = 7;
+	private static final int ATTRB_VERSION = 8;
+	private static final int ATTRB_DEVICE_TYPE = 9;
+	private static final int ATTRB_ACCESS_NUMBER = 10;
+	private static final int ATTRB_STATUS = 11;
+	private static final int ATTRB_ALARM = 12;
 	
 	/** Method invoke */
-	static private final int METHOD_SLAVE_INSTALL = 1;
-	static private final int METHOD_SLAVE_DEINSTALL = 2;
-	static private final int METHOD_CAPTURE = 3;
-	static private final int METHOD_RESET_ALARM = 4;
-	static private final int METHOD_SYNCHRONIZE_CLOCK = 5;
-	static private final int METHOD_DATA_SEND = 6;
-	static private final int METHOD_SET_ENCRYPTION_KEY = 7;
-	static private final int METHOD_TRANSFER_KEY = 8;
+	private static final int METHOD_SLAVE_INSTALL = 1;
+	private static final int METHOD_SLAVE_DEINSTALL = 2;
+	private static final int METHOD_CAPTURE = 3;
+	private static final int METHOD_RESET_ALARM = 4;
+	private static final int METHOD_SYNCHRONIZE_CLOCK = 5;
+	private static final int METHOD_DATA_SEND = 6;
+	private static final int METHOD_SET_ENCRYPTION_KEY = 7;
+	private static final int METHOD_TRANSFER_KEY = 8;
 	
 	public MBusClient(ProtocolLink protocolLink, ObjectReference objectReference){
 		super(protocolLink, objectReference);

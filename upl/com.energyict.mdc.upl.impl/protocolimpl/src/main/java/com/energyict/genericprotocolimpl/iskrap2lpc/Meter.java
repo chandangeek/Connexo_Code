@@ -1,19 +1,41 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
-import com.energyict.cbo.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
+
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.Quantity;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
-
-import java.io.*;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.logging.Logger;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.protocol.messaging.Messaging;
 
 public class Meter implements Messaging, MeterProtocol {
     
-    private final static boolean ADVANCED = true;
+    private static final boolean ADVANCED = true;
      
     public List getMessageCategories() {
         List theCategories = new ArrayList();
@@ -99,8 +121,9 @@ public class Meter implements Messaging, MeterProtocol {
         // b. Attributes
         for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
             MessageAttribute att = (MessageAttribute) it.next();
-            if (att.getValue() == null || att.getValue().length() == 0)
-                continue;
+            if (att.getValue() == null || att.getValue().length() == 0) {
+				continue;
+			}
             buf.append(" ").append(att.getSpec().getName());
             buf.append("=").append('"').append(att.getValue()).append('"');
         }
@@ -112,12 +135,13 @@ public class Meter implements Messaging, MeterProtocol {
         // c. sub elements
         for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
             MessageElement elt = (MessageElement) it.next();
-            if (elt.isTag())
-                buf.append(writeTag((MessageTag) elt));
-            else if (elt.isValue()) {
+            if (elt.isTag()) {
+				buf.append(writeTag((MessageTag) elt));
+			} else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0)
-                    return "";
+                if (value == null || value.length() == 0) {
+					return "";
+				}
                 buf.append(value);
             }
         }

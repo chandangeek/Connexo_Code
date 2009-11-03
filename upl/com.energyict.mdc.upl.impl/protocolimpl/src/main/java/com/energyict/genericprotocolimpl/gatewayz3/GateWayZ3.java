@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -21,6 +22,7 @@ import com.energyict.commserverj.shadow.CommunicationSchedulerFullShadowBuilder;
 import com.energyict.concentrator.communication.driver.rf.cynet.ManufacturerId;
 import com.energyict.concentrator.communication.driver.rf.cynet.NetworkNode;
 import com.energyict.concentrator.communication.driver.rf.cynet.NetworkTopology;
+import com.energyict.dialer.coreimpl.IPDialerSelector;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.InvokeIdAndPriority;
@@ -42,6 +44,7 @@ import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
 import com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3;
 import com.energyict.mdw.core.AmrJournalEntry;
+import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
@@ -56,18 +59,18 @@ import com.energyict.protocol.messaging.MessageSpec;
 
 
 /**
- * <pre>
+ * <p>
  * Implements the GateWay Z3 protocol. The Z3 will act as a Master/Gateway in an RF-Mesh 
  * network with a certain amount of R2 slave devices.
  * After fetching the "routingTable" of the Z3, the protocol will handle each R2 one by one. 
- * The handling of the R2's will depend on the nextCommunicationDate of his commSchedulers.
- * 
+ * The handling of the R2's will depend on the nextCommunicationDate of his {@link CommunicationProtocol}.
+ * </p><p>
  * <u>NOTE:</u>
  * The communication to a slave should be started with a postDialCommand:
  * <b>&lt;ESC&gt;rfclient="rfclientid"&lt;/ESC&gt;</b>
- * Normally you should use an 'IP-dialer with selector' for this, but because we use the 
+ * Normally you should use an '{@link IPDialerSelector}' for this, but because we use the 
  * same link from the Z3, we should send it our selves
- * </pre> 
+ * </p> 
  * 
  * @author gna
  * @since 21 October 2009
@@ -77,7 +80,7 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 	/** Helper to rapidly fetch data without a Z3/R2 */
 	private boolean TESTING = false;
 	
-	/** Obis code we can use to request the RF network topology. */
+	/** ObisCode we can use to request the RF network topology. */
 	private static final ObisCode OBIS_CODE_NETWORK_TOPOLOGY = ObisCode.fromString("0.128.3.0.8.255");
 	
 	/** The current NetworkTopology from the Z3 */
@@ -216,7 +219,10 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 			    	
 			    	if(useFixedZ3Protocol){ // then it's the master and you MUST use the WebRTUZ3 protocol
 						WebRTUZ3 wZ3 = new WebRTUZ3();
-						wZ3.addProperties(rtu.getProperties());
+						Properties props = rtu.getProperties();
+						/* We remove the WakeUp property so it only wakes up in the Gateway protocol and not in the WebRTUZ3 protocol */
+						props.remove("WakeUp");	
+						wZ3.addProperties(props);
 						wZ3.execute(commSchedule, link, logger);
 			    	} else {	// it's a slave so you can execute his taskImpl
 			    		TaskImpl ti = new TaskImpl(csfs, getCurrentComportSchadow());
@@ -449,13 +455,36 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 	@Override
 	public List getMessageCategories() {
 		List<MessageCategorySpec> categories = new ArrayList();
+		MessageCategorySpec catXMLConfig = getXmlConfigCategory();
 		MessageCategorySpec catFirmware = getFirmwareCategory();
+		MessageCategorySpec catP1Messages = getP1Category();
+		MessageCategorySpec catDisconnect = getConnectControlCategory();
+		MessageCategorySpec catLoadLimit = getLoadLimitCategory();
+		MessageCategorySpec catActivityCal = getActivityCalendarCategory();
+		MessageCategorySpec catTime = getTimeCategory();
+		MessageCategorySpec catMakeEntries = getDataBaseEntriesCategory();
+		MessageCategorySpec catTestMessage = getTestCategory();
+		MessageCategorySpec catGlobalDisc = getGlobalResetCategory();
+		MessageCategorySpec catAuthEncrypt = getAuthEncryptCategory();
+		MessageCategorySpec catConnectivity = getConnectivityCategory();
 		
+		categories.add(catXMLConfig);
 		categories.add(catFirmware);
+		categories.add(catP1Messages);
+		categories.add(catDisconnect);
+		categories.add(catLoadLimit);
+		categories.add(catActivityCal);
+		categories.add(catTime);
+		categories.add(catMakeEntries);
+		categories.add(catTestMessage);
+		categories.add(catGlobalDisc);
+		categories.add(catConnectivity);
+		
+		categories.add(catAuthEncrypt);
 
 		return categories;
 	}
-	
+
 	/**
 	 * This messageCategory let's you upgrade two types of firmware.
 	 * One is the normal meter firmware, the other is the RF-firmware
@@ -473,6 +502,28 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 				RtuMessageConstant.RF_FIRMWARE_UPGRADE, false);
 		catFirmware.addMessageSpec(msgSpec);
 		return catFirmware;
+	}
+	
+	/**
+	 * @return the messages for the ConnectivityCategory
+	 */
+	private MessageCategorySpec getConnectivityCategory() {
+		MessageCategorySpec catGPRSModemSetup = new MessageCategorySpec(
+				RtuMessageCategoryConstants.CHANGECONNECTIVITY);
+		MessageSpec msgSpec = addChangeGPRSSetup(
+				RtuMessageKeyIdConstants.GPRSMODEMSETUP,
+				RtuMessageConstant.GPRS_MODEM_SETUP, false);
+		catGPRSModemSetup.addMessageSpec(msgSpec);
+		msgSpec = addPhoneListMsg(RtuMessageKeyIdConstants.SETWHITELIST,
+				RtuMessageConstant.WAKEUP_ADD_WHITELIST, false);
+		catGPRSModemSetup.addMessageSpec(msgSpec);
+		msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.ACTIVATESMSWAKEUP,
+				RtuMessageConstant.WAKEUP_ACTIVATE, false);
+		catGPRSModemSetup.addMessageSpec(msgSpec);
+		msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.DEACTIVATESMSWAKEUP,
+				RtuMessageConstant.WAKEUP_DEACTIVATE, false);
+		catGPRSModemSetup.addMessageSpec(msgSpec);
+		return catGPRSModemSetup;
 	}
 	
 	/** Short notation for MeteringWarehouse.getCurrent() */

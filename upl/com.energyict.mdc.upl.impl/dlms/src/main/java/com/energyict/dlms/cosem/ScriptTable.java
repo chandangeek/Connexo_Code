@@ -2,15 +2,13 @@
 
 package com.energyict.dlms.cosem;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 
-import com.energyict.cbo.*;
-import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.dlms.cosem.AbstractCosemObject;
 /**
  *
  * @author  Koen
@@ -21,10 +19,10 @@ public class ScriptTable extends AbstractCosemObject {
     private Array scripts=null;
     
     /** Attribute numbers */
-    static private final int ATTRB_SCRIPTS = 2;
+    private static final int ATTRB_SCRIPTS = 2;
     
     /** Methods */
-    static private final int EXECUTE_SCRIPT = 1;
+    private static final int EXECUTE_SCRIPT = 1;
 	
 	public static final byte[] LN_GLOBAL_METER_RESET = new byte[]{0,0,10,0,0,(byte)255};
 	public static final byte[] LN_MDI_RESET = new byte[]{0,0,10,0,1,(byte)255};
@@ -47,7 +45,7 @@ public class ScriptTable extends AbstractCosemObject {
         super(protocolLink,new ObjectReference(scriptType));
     }
 	
-	static public ObisCode getGlobalResetObisCode() {
+	public static ObisCode getGlobalResetObisCode() {
 		return ObisCode.fromByteArray(LN_GLOBAL_METER_RESET);
 	}
     

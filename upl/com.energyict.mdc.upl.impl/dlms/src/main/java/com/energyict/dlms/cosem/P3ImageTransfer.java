@@ -1,7 +1,6 @@
 package com.energyict.dlms.cosem;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.logging.Level;
 
 import com.energyict.dlms.ProtocolLink;
@@ -23,9 +22,9 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 
 public class P3ImageTransfer extends AbstractCosemObject{
 
-	static public boolean DEBUG = false;
-	static public final int CLASSID = 18;
-	static private int delay = 3000;
+	public static boolean DEBUG = false;
+	public static final int CLASSID = 18;
+	private static int delay = 3000;
 	private int maxBlockRetryCount = 3;
 	private int maxTotalRetryCount = 500;
 	
@@ -40,17 +39,17 @@ public class P3ImageTransfer extends AbstractCosemObject{
 	private Structure imageInfo = null; // provides image info for all images
 	
 	/** Attribute numbers */
-	static private final int ATTRB_IMAGE_BLOCK_SIZE = 2;
-	static private final int ATTRB_IMAGE_BLOCK_TRANSFER = 3;
-	static private final int ATTRB_IMAGE_MISSING_BLOCKS = 4;
-	static private final int ATTRB_IMAGE_FIRST_MISSING_BLOCK_OFFSET = 5;
-	static private final int ATTRB_TRANSFER_ENABLED = 6;
-	static private final int ATTRB_IMAGES_INFO = 7;
+	private static final int ATTRB_IMAGE_BLOCK_SIZE = 2;
+	private static final int ATTRB_IMAGE_BLOCK_TRANSFER = 3;
+	private static final int ATTRB_IMAGE_MISSING_BLOCKS = 4;
+	private static final int ATTRB_IMAGE_FIRST_MISSING_BLOCK_OFFSET = 5;
+	private static final int ATTRB_TRANSFER_ENABLED = 6;
+	private static final int ATTRB_IMAGES_INFO = 7;
 	
 	/** Method invoke */
-	static private final int INITIATE_IMAGE_TRANSFER = 1;
-	static private final int IMAGE_VERIFICTION = 2;
-	static private final int IMAGE_VERIFICATION_ACTIVATION = 3;
+	private static final int INITIATE_IMAGE_TRANSFER = 1;
+	private static final int IMAGE_VERIFICTION = 2;
+	private static final int IMAGE_VERIFICATION_ACTIVATION = 3;
 	
 	/** Image info */
 	private Unsigned32 size = null; 	// the size of the image
@@ -81,31 +80,41 @@ public class P3ImageTransfer extends AbstractCosemObject{
 		
 		if(getTransferEnabledState().getState()){
 			
-			if(DEBUG)System.out.println("ImageTrans: Enabled state is true.");
+			if(DEBUG) {
+				System.out.println("ImageTrans: Enabled state is true.");
+			}
 			
 			// Step1: Get the maximum image block size
 			// and calculate the amount of blocks in one step
 			this.blockCount = (int)(this.size.getValue()/getMaxImageBlockSize().getValue()) + (((this.size.getValue()%getMaxImageBlockSize().getValue())==0)?0:1);
-			if(DEBUG)System.out.println("ImageTrans: Maximum block size is: " + getMaxImageBlockSize() + 
-					", Number of blocks: " + blockCount + ".");
+			if(DEBUG) {
+				System.out.println("ImageTrans: Maximum block size is: " + getMaxImageBlockSize() + 
+						", Number of blocks: " + blockCount + ".");
+			}
 			
 			this.protocolLink.getLogger().log(Level.INFO, "Start : " + System.currentTimeMillis());
 			
 			// Step2: Initiate the image transfer
 			initiateImageTransfer();
-			if(DEBUG)System.out.println("ImageTrans: Initialize success.");
+			if(DEBUG) {
+				System.out.println("ImageTrans: Initialize success.");
+			}
 			
 			
 			// Step3: Transfer image blocks
 			transferImageBlocks();
-			if(DEBUG)System.out.println("ImageTrans: Transfered " + this.blockCount + " blocks.");
+			if(DEBUG) {
+				System.out.println("ImageTrans: Transfered " + this.blockCount + " blocks.");
+			}
 			
 			// Step4: Check completeness of the image and transfer missing blocks
 			checkAndSendMissingBlocks();
 			
 			// Step5: Verify image
 			verifyAndRetryImage();
-			if(DEBUG)System.out.println("ImageTrans: Verification successfull.");
+			if(DEBUG) {
+				System.out.println("ImageTrans: Verification successfull.");
+			}
 			
 			this.protocolLink.getLogger().log(Level.INFO, "Start : " + System.currentTimeMillis());
 			// Step6: Check image before activation
@@ -149,7 +158,9 @@ public class P3ImageTransfer extends AbstractCosemObject{
 				this.protocolLink.getLogger().log(Level.INFO, "ImageTransfer: " + i + " of " + blockCount + " blocks are send to the device");
 			}
 			
-			if(DEBUG)System.out.println("ImageTrans: Write block " + i + " success.");
+			if(DEBUG) {
+				System.out.println("ImageTrans: Write block " + i + " success.");
+			}
 		}
 	}
 	
@@ -181,7 +192,9 @@ public class P3ImageTransfer extends AbstractCosemObject{
 		int totalRetry = 0;
 		while(readFirstMissingBlock().getValue() < this.blockCount){
 			
-			if(DEBUG)System.out.println("ImageTrans: First Missing block is " + getFirstMissingBlock().getValue());
+			if(DEBUG) {
+				System.out.println("ImageTrans: First Missing block is " + getFirstMissingBlock().getValue());
+			}
 			
 			if(previousMissingBlock == getFirstMissingBlock().getValue()){
 				if(retryBlock++ == this.maxBlockRetryCount){
@@ -210,7 +223,9 @@ public class P3ImageTransfer extends AbstractCosemObject{
 			this.imageBlockTransfer.addDataType(new Unsigned32((int)getFirstMissingBlock().getValue()));
 			this.imageBlockTransfer.addDataType(os);
 			writeImageBlock(this.imageBlockTransfer);
-			if(DEBUG)System.out.println("ImageTrans: Write block " + (int)getFirstMissingBlock().getValue() + " success.");
+			if(DEBUG) {
+				System.out.println("ImageTrans: Write block " + (int)getFirstMissingBlock().getValue() + " success.");
+			}
 		}
 	}
 
@@ -392,7 +407,9 @@ public class P3ImageTransfer extends AbstractCosemObject{
 				throw new IOException(e.getMessage());
 			}
 			// Catch and go to the next!
-			if(DEBUG)System.out.println("ImageTrans: Write block " + imageStruct.getDataType(0).getUnsigned32().getValue() + " has failed.");
+			if(DEBUG) {
+				System.out.println("ImageTrans: Write block " + imageStruct.getDataType(0).getUnsigned32().getValue() + " has failed.");
+			}
 		}
 	}
 	

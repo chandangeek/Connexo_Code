@@ -55,7 +55,7 @@ import com.energyict.dlms.axrdencoding.TypeEnum;
  */
 public class Disconnector extends AbstractCosemObject{
 	
-	static public boolean DEBUG = true;
+	public static boolean DEBUG = true;
 	static public final int CLASSID = 70;
 	
 	/** Attributes */
@@ -64,13 +64,13 @@ public class Disconnector extends AbstractCosemObject{
 	private TypeEnum controlMode = null;		// Configures the behavior of the disconnect control object for all triggers
 	
 	/** Attribute numbers */
-	static private final int ATTRB_OUTPUT_STATE = 2;
-	static private final int ATTRB_CONTROL_STATE = 3;
-	static private final int ATTRB_CONTROL_MODE = 4;
+	private static final int ATTRB_OUTPUT_STATE = 2;
+	private static final int ATTRB_CONTROL_STATE = 3;
+	private static final int ATTRB_CONTROL_MODE = 4;
 	
 	/** Method invoke */
-	static private final int METHOD_REMOTE_DISCONNECT = 1;
-	static private final int METHOD_REMOTE_RECONNECT = 2;
+	private static final int METHOD_REMOTE_DISCONNECT = 1;
+	private static final int METHOD_REMOTE_RECONNECT = 2;
 
 	public Disconnector(ProtocolLink protocolLink, ObjectReference objectReference) {
 		super(protocolLink, objectReference);

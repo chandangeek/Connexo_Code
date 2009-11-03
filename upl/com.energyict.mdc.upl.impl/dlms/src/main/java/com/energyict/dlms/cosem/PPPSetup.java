@@ -34,10 +34,10 @@ public class PPPSetup extends AbstractCosemObject {
 	private PPPAuthenticationType pppAuthentication = null; 	// Contains the parameters required by the PPP authentication procedure
 	
 	/** Attribute numbers */
-	static private final int ATTRB_PHY_REFERENCE = 2;
-	static private final int ATTRB_LCP_OPTIONS = 3;
-	static private final int ATTRB_IPCP_OPTIONS = 4;
-	static private final int ATTRB_PPP_AUTHENTICATION = 5;
+	private static final int ATTRB_PHY_REFERENCE = 2;
+	private static final int ATTRB_LCP_OPTIONS = 3;
+	private static final int ATTRB_IPCP_OPTIONS = 4;
+	private static final int ATTRB_PPP_AUTHENTICATION = 5;
 	
 	/** Method invoke */
 	// none
@@ -126,10 +126,10 @@ public class PPPSetup extends AbstractCosemObject {
 	
 	public class PPPAuthenticationType{
 
-		private final static int CHAP_MD5 = 0x05;	// default
-		private final static int CHAP_SHA_1 = 0x06;
-		private final static int CHAP_MS_SHAP = 0x80;
-		private final static int CHAP_MS_CHAP2 = 0x81;
+		private static final int CHAP_MD5 = 0x05;	// default
+		private static final int CHAP_SHA_1 = 0x06;
+		private static final int CHAP_MS_SHAP = 0x80;
+		private static final int CHAP_MS_CHAP2 = 0x81;
 		
 		private int authentication = -1;
 		
@@ -165,7 +165,9 @@ public class PPPSetup extends AbstractCosemObject {
 			this.dataContainer = new DataContainer();
 			try {
 				this.dataContainer.parseObjectList(responseData, protocolLink.getLogger());
-				if(DEBUG)this.dataContainer.printDataContainer();
+				if(DEBUG) {
+					this.dataContainer.printDataContainer();
+				}
 				
 				if(getLCPOptionsType().getAuthProt() != null){
 					switch(getLCPOptionsType().getAuthProt().getValue()){
@@ -248,23 +250,23 @@ public class PPPSetup extends AbstractCosemObject {
 
 	public class LCPOptionsType{
 		
-		private final static int LCP_OPTION_TYPE = 0;
-		private final static int LCP_OPTION_LENGTH = 1;
-		private final static int LCP_OPTION_DATA = 2;
+		private static final int LCP_OPTION_TYPE = 0;
+		private static final int LCP_OPTION_LENGTH = 1;
+		private static final int LCP_OPTION_DATA = 2;
 		
-		private final static int DATA_MRU = 1;
-		private final static int DATA_ACCM = 2;
-		private final static int DATA_AUTH_PROT = 3;
-		private final static int DATA_MAG_NUM = 5;
-		private final static int DATA_PROTF_COMPR = 7;
-		private final static int DATA_ADCTR_COMPR = 8;
-		private final static int DATA_FCS_ALTER = 9;
-		private final static int DATA_CALLBACK = 13;
+		private static final int DATA_MRU = 1;
+		private static final int DATA_ACCM = 2;
+		private static final int DATA_AUTH_PROT = 3;
+		private static final int DATA_MAG_NUM = 5;
+		private static final int DATA_PROTF_COMPR = 7;
+		private static final int DATA_ADCTR_COMPR = 8;
+		private static final int DATA_FCS_ALTER = 9;
+		private static final int DATA_CALLBACK = 13;
 		
-		public final static int AUTH_NO_AUTHENTICATION = 0x000;
-		public final static int AUTH_PAP = 0xc023;
-		public final static int AUTH_CHAP = 0xc223;
-		public final static int AUTH_EAP = 0xc227;
+		public static final int AUTH_NO_AUTHENTICATION = 0x000;
+		public static final int AUTH_PAP = 0xc023;
+		public static final int AUTH_CHAP = 0xc223;
+		public static final int AUTH_EAP = 0xc227;
 		
 		private DataContainer dataContainer = null;
 		private Unsigned16 mru = null;
@@ -279,7 +281,9 @@ public class PPPSetup extends AbstractCosemObject {
 		public LCPOptionsType(byte[] responseData) throws IOException {
 			this.dataContainer = new DataContainer();
 			this.dataContainer.parseObjectList(responseData, protocolLink.getLogger());
-			if(DEBUG)this.dataContainer.printDataContainer();
+			if(DEBUG) {
+				this.dataContainer.printDataContainer();
+			}
 				
 			for (int i=0; i<dataContainer.getRoot().getNrOfElements(); i++) {
 				switch(dataContainer.getRoot().getStructure(i).getInteger(LCP_OPTION_TYPE)){

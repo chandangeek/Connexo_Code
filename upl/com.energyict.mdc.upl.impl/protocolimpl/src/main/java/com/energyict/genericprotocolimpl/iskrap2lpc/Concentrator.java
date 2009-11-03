@@ -96,7 +96,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     private CommunicationScheduler 	communicationScheduler;
     private Rtu						concentrator;
     
-    private final static boolean ADVANCED = true;
+    private static final boolean ADVANCED = true;
     
 
     public void execute( CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {

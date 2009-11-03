@@ -70,18 +70,18 @@ import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
 class XmlHandler extends DefaultHandler {
 	
-    private final static String PROFILE = "Profile";
-    private final static String REGISTER = "Register";
-    private final static String EVENT = "Event";
-    private final static String ERROR = "Error";
-    private final static String POWER_EVENT = "PowerEvent";
-    private final static String METER_RESULTS = "MeterResults";
-    private final static String METER_STATUS = "MeterStatus";
-    private final static String ACTIVITY_CALENDAR = "ActivityCalendar";
+    private static final String PROFILE = "Profile";
+    private static final String REGISTER = "Register";
+    private static final String EVENT = "Event";
+    private static final String ERROR = "Error";
+    private static final String POWER_EVENT = "PowerEvent";
+    private static final String METER_RESULTS = "MeterResults";
+    private static final String METER_STATUS = "MeterStatus";
+    private static final String ACTIVITY_CALENDAR = "ActivityCalendar";
     
-    private final static String VALUE = "Value";
-    private final static String DATE_TIME = "DateTime";
-    private final static String STATUS = "Status";
+    private static final String VALUE = "Value";
+    private static final String DATE_TIME = "DateTime";
+    private static final String STATUS = "Status";
     
     private static final String POWER_UP_MSG = "Power up.";
     private static final String POWER_DOWN_MSG = "Power down.";

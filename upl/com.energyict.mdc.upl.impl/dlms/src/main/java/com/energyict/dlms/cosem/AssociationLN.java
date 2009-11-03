@@ -30,7 +30,7 @@ import com.energyict.obis.ObisCode;
  */
 public class AssociationLN extends AbstractCosemObject {
     public final int DEBUG=0;
-    static public final int CLASSID=15;
+    public static final int CLASSID=15;
     
     /** Attributes */
     private UniversalObject[] buffer;	// the objectList
@@ -50,20 +50,20 @@ public class AssociationLN extends AbstractCosemObject {
     private OctetString securitySetupReference; //References the SecuritySetup object by its logical name
     
     /** Attribute numbers */
-    static private final int ATTRB_OBJECT_LIST = 2;
-    static private final int ATTRB_ASSOCIATION_PRTN_ID = 3;
-    static private final int ATTRB_APPLICATION_CONTEXT_NAME = 4;
-    static private final int ATTRB_XDLMS_CONTEXT_INFO = 5;
-    static private final int ATTRB_AUTHENTICATION_MECH_NAME = 6;
-    static private final int ATTRB_SECRET = 7;
-    static private final int ATTRB_ASSOCIATON_STATUS = 8;
-    static private final int ATTRB_SECURITY_SETUP_REFERENCE = 9;
+    private static final int ATTRB_OBJECT_LIST = 2;
+    private static final int ATTRB_ASSOCIATION_PRTN_ID = 3;
+    private static final int ATTRB_APPLICATION_CONTEXT_NAME = 4;
+    private static final int ATTRB_XDLMS_CONTEXT_INFO = 5;
+    private static final int ATTRB_AUTHENTICATION_MECH_NAME = 6;
+    private static final int ATTRB_SECRET = 7;
+    private static final int ATTRB_ASSOCIATON_STATUS = 8;
+    private static final int ATTRB_SECURITY_SETUP_REFERENCE = 9;
     
     /** Method invoke */
-    static private final int METHOD_REPLY_TO_HLS_AUTHENTICATION = 1;
-    static private final int METHOD_CHANGE_HLS_SECRET = 2;
-    static private final int METHOD_ADD_OBJECT = 3;
-    static private final int METHOD_REMOVE_OBJECT = 4;
+    private static final int METHOD_REPLY_TO_HLS_AUTHENTICATION = 1;
+    private static final int METHOD_CHANGE_HLS_SECRET = 2;
+    private static final int METHOD_ADD_OBJECT = 3;
+    private static final int METHOD_REMOVE_OBJECT = 4;
     
     static final byte[] LN=new byte[]{0,0,(byte)40,0,0,(byte)255};
     
@@ -86,7 +86,7 @@ public class AssociationLN extends AbstractCosemObject {
     }
     
     /** Return the logicalName (obiscode) of this object */
-    static public ObisCode getObisCode(){
+    public static ObisCode getObisCode(){
     	return ObisCode.fromByteArray(LN);
     }
     

@@ -15,7 +15,6 @@ import java.util.logging.Level;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.InvokeIdAndPriority;
@@ -32,7 +31,6 @@ import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConstants;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
-import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MessageExecutor;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.DailyMonthly;
@@ -51,10 +49,10 @@ import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
 
 /**
- * <pre>
+ * <p>
  * Implements the WebRTUZ3 protocol. Initially it's a copy of the {@link WebRTUKP} protocol, 
  * but with more extensions to it.
- * </pre>
+ * </p>
  * 
  * @author gna
  *
@@ -78,9 +76,6 @@ public class WebRTUZ3 extends DLMSProtocol{
 	
 	/** The Maximum allowed mbus meters */
 	private int maxMbusDevices;
-	
-	/** Property to indicate to use the SMS wakeup method */
-	private int wakeup;
 	
 	/** Property to indicate the timedifference between System and device is larger then the maximum configured */
 	private boolean badTime = false;
@@ -261,31 +256,6 @@ public class WebRTUZ3 extends DLMSProtocol{
 		this.storeObject = new StoreObject();
 		this.ocm = new ObisCodeMapper(getCosemObjectFactory());
 		
-		if (this.wakeup == 1) {
-			this.logger.info("In Wakeup");
-			SmsWakeup smsWakeup = new SmsWakeup(communicationScheduler, this.logger);
-			smsWakeup.doWakeUp();
-
-			meter = getUpdatedMeter();
-
-			String ipAddress = checkIPAddressForPortNumber(smsWakeup.getIpAddress());
-
-			this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
-			this.link.getStreamConnection().open();
-			getLogger().log(Level.INFO, "Connected to " + ipAddress);
-		} else if((communicationScheduler.getDialerFactory().getName() != null)&&(communicationScheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer"))){
-			throw new ConnectionException("The NullDialer type is only allowed for the wakeup meter.");
-		}
-		
-	}
-	
-	/**
-	 * Retrieve the Rtu back from the database.
-	 * If any updates have been done then you won't get them until you retrieve it again.
-	 * @return your Rtu
-	 */
-	private Rtu getUpdatedMeter() {
-		return CommonUtils.mw().getRtuFactory().find(meter.getId());
 	}
 	
 	/**
@@ -354,8 +324,6 @@ public class WebRTUZ3 extends DLMSProtocol{
 		result.add("TestLogging");
 		result.add("ReadDailyValues");
 		result.add("ReadMonthlyValues");
-		result.add("IpPortNumber");
-		result.add("WakeUp");
 		result.add("FolderExtName");
 		result.add("RtuType");
 		result.add(LocalSecurityProvider.DATATRANSPORTKEY);
@@ -389,7 +357,6 @@ public class WebRTUZ3 extends DLMSProtocol{
 		
 		this.requestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0"));
 		this.maxMbusDevices = Integer.parseInt(properties.getProperty("MaxMbusDevices","4"));
-		this.wakeup = Integer.parseInt(properties.getProperty("WakeUp","0"));
 		this.readDaily = (Integer.parseInt(properties.getProperty("ReadDailyValues", "1")) == 1)?true:false;
 		this.readMonthly = (Integer.parseInt(properties.getProperty("ReadMonthlyValues", "1")) == 1)?true:false;
 		this.mbusRtuType = properties.getProperty("RtuType");
@@ -486,7 +453,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 			IPv4Setup ipv4Setup = getCosemObjectFactory().getIPv4Setup();
 			ipAddress.append(ipv4Setup.getIPAddress());
 			ipAddress.append(":");
-			ipAddress.append(getPortNumber());
+			ipAddress.append(this.ipPortNumber);
 
 			RtuShadow shadow = getMeter().getShadow();
 			shadow.setIpAddress(ipAddress.toString());
@@ -499,37 +466,6 @@ public class WebRTUZ3 extends DLMSProtocol{
 			e.printStackTrace();
 			throw new SQLException("Could not update the IP address.");
 		}
-	}
-	
-	/**
-	 * Look if there is a portNumber given with the property IpPortNumber, else use the default 4059
-	 * 
-	 * @return
-	 */
-	private String getPortNumber() {
-		String port = getMeter().getProperties().getProperty("IpPortNumber");
-		if (port != null) {
-			return port;
-		} else {
-			return "4059"; // default port number
-		}
-	}
-	
-	/**
-	 * If the received IP address doesn't contain a portNumber, then put one in it
-	 * 
-	 * @param ipAddress
-	 * @return the ipAddress concatenated with the portNumber (default 4059)
-	 */
-	private String checkIPAddressForPortNumber(String ipAddress) {
-		if (!ipAddress.contains(":")) {
-			StringBuffer strBuff = new StringBuffer();
-			strBuff.append(ipAddress);
-			strBuff.append(":");
-			strBuff.append(getPortNumber());
-			return strBuff.toString();
-		}
-		return ipAddress;
 	}
 
 	@Override

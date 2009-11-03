@@ -55,11 +55,11 @@ public class TCPUDPSetup extends AbstractCosemObject {
 	// shall be aborted
 
 	/** Attribute numbers */
-	static private final int ATTRB_PORT = 2;
-	static private final int ATTRB_IPREFERENCE = 3;
-	static private final int ATTRB_MSS = 4;
-	static private final int ATTRB_NBOFSIMCONN = 5;
-	static private final int ATTRB_INACTIVITYTIMEOUT = 6;
+	private static final int ATTRB_PORT = 2;
+	private static final int ATTRB_IPREFERENCE = 3;
+	private static final int ATTRB_MSS = 4;
+	private static final int ATTRB_NBOFSIMCONN = 5;
+	private static final int ATTRB_INACTIVITYTIMEOUT = 6;
 
 	/** Method invoke */
 	// none
@@ -81,7 +81,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 		return this.CLASSID;
 	}
 
-	static public ObisCode getObisCode() {
+	public static ObisCode getObisCode() {
 		return ObisCode.fromByteArray(LN);
 	}
 

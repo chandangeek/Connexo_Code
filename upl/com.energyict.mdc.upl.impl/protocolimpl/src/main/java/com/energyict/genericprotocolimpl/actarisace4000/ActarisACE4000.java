@@ -8,12 +8,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,7 +40,6 @@ import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.shadow.CommunicationProtocolShadow;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.mdw.shadow.RtuTypeShadow;
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  * @author gna
@@ -345,14 +342,16 @@ public class ActarisACE4000 implements GenericProtocol{
 		} finally {
 			try {
 				if(dialer != null){
-					if(dialer.getStreamConnection().isOpen())
+					if(dialer.getStreamConnection().isOpen()) {
 						dialer.disConnect();
+					}
 				}
 				
-				if(aace != null){
-//					if(!aace.getUDPListener().getDatagramSocket().isClosed())
+//				if(aace != null){
+//					if(!aace.getUDPListener().getDatagramSocket().isClosed()) {
 //						aace.getUDPListener().getDatagramSocket().close();
-				}
+//					}
+//				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (LinkException e) {
@@ -447,8 +446,9 @@ public class ActarisACE4000 implements GenericProtocol{
 
 	public int getTracker() {
 		// TODO use the scheduler ID to track messages
-		if(tracker == 4096)
+		if(tracker == 4096) {
 			tracker = 0;
+		}
 		return tracker++;
 	}
 
@@ -483,9 +483,9 @@ public class ActarisACE4000 implements GenericProtocol{
 				else if(isSlaveMeter(getPushedSerialNumber())){
 					findMasterMeter();
 					findAllSlaveMeters();
-				}
-				else
+				} else {
 					throw new ApplicationException("Meter "+ pushedSerialNumber +" is not found in database, no autodiscovery YET implemented.");
+				}
 				
 				getLogger().log(Level.INFO, "Received data from meter with serialnumber " + getMasterSerialNumber());
 				
@@ -519,8 +519,9 @@ public class ActarisACE4000 implements GenericProtocol{
 		List meterList = mw().getRtuFactory().findByDialHomeId("ACE4000MB"+serialNumber);
 		
 		if(meterList.size() == 1){	// we found him, take him down boys ....
-			if(getMbusMetersMap() == null)
+			if(getMbusMetersMap() == null) {
 				mbusMeters = new HashMap<String, Rtu>();
+			}
 			getMbusMetersMap().put(serialNumber, (Rtu)meterList.get(0));
 			getMBSerialNumber().add(serialNumber);
 			return true;
@@ -564,8 +565,9 @@ public class ActarisACE4000 implements GenericProtocol{
 	 * @return MBus serialnumbers
 	 */
 	public List<String> getMBSerialNumber() {
-		if(mbSerialNumber == null)
+		if(mbSerialNumber == null) {
 			mbSerialNumber = new ArrayList();
+		}
 		return mbSerialNumber;
 	}
 	
@@ -579,10 +581,11 @@ public class ActarisACE4000 implements GenericProtocol{
 	}
 	
 	public int getMeterProfileInterval(){
-		if( meter != null)
+		if( meter != null) {
 			return meter.getIntervalInSeconds();
-		else
+		} else {
 			return -1;
+		}
 	}
 	
 	/** Short notation for MeteringWarehouse.getCurrent() */
@@ -645,12 +648,12 @@ public class ActarisACE4000 implements GenericProtocol{
 			if(mbusSlave.getGateway() != null){
 				setMasterMeter(mbusSlave.getGateway());
 				setMasterSerialNumber(getMeter().getSerialNumber());
-			}
-			else
+			} else {
 				getLogger().severe("MBus slave meter has no gateway configured so no master meter was found!");
-		}
-		else
+			}
+		} else {
 			getLogger().severe("MasterMeter can NOT be found because no slaves are detected.");
+		}
 	}
 	
 	private void findAllSlaveMeters(){
@@ -659,8 +662,9 @@ public class ActarisACE4000 implements GenericProtocol{
 			if(slaves.size() > 0){
 				Iterator it = slaves.iterator();
 				while(it.hasNext()){
-					if(getMbusMetersMap() == null)
+					if(getMbusMetersMap() == null) {
 						mbusMeters = new HashMap<String, Rtu>();
+					}
 					
 					Rtu mbus = (Rtu)it.next();
 					if(!getMbusMetersMap().containsKey(mbus.getSerialNumber())){
@@ -673,9 +677,9 @@ public class ActarisACE4000 implements GenericProtocol{
 			else{
 				getLogger().log(Level.INFO, "No slave meters were found on meter " + getMasterSerialNumber());
 			}
-		}
-		else
+		} else {
 			getLogger().severe("No slaves can be found because the MasterMeter is NULL.");
+		}
 	}
 	
 	/**
@@ -747,9 +751,9 @@ public class ActarisACE4000 implements GenericProtocol{
 //			rtuTypeShadow.setProtocolShadow(commProtocol.getShadow());
 			rtuTypeShadow.setProtocolId(commProtocol.getId());
 			rtuTypeMeter = mw().getRtuTypeFactory().create(rtuTypeShadow);
-		}
-		else
+		} else {
 			rtuTypeMeter = (RtuType)result.get(0);
+		}
 		return rtuTypeMeter;
 	}
 	

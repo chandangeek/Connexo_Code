@@ -8,22 +8,22 @@ package com.energyict.genericprotocolimpl.common.messages;
  */
 public class RtuMessageCategoryConstants {
 
-	public final static String XLMCONFIG = "XMLConfig";
-	public final static String FIRMWARE = "Firmware";
-	public final static String CONSUMERMESSAGEP1 = "Consumer messages to P1";
-	public final static String DISCONNECTCONTROL = "Disconnect Control";
-	public final static String LOADLIMIT = "LoadLimit";
-	public final static String ACTICITYCALENDAR = "ActivityCalendar";
-	public final static String TIME = "Time";
-	public final static String DATABASEENTRIES = "Create database entries";
-	public final static String TESTMESSAGE = "TestMessage";
-	public final static String GLOBALRESET = "Global Reset";
-	public final static String GPRSMODEMSETUP = "Change GPRS Modem Setup";
-	public final static String WAKEUPFUNCTIONALITY = "Wake up functionality";
-	public final static String AUTHENTICATEENCRYPT = "Authentication and encryption";
-	public final static String BASICMESSAGES = "BasicMessages";
-	public final static String MBUSMESSAGES = "MusMessages";
-	public final static String MBUSSETUP = "Mbus setup";
-	public final static String CHANGECONNECTIVITY = "Change connectivity setup";
+	public static final String XLMCONFIG = "XMLConfig";
+	public static final String FIRMWARE = "Firmware";
+	public static final String CONSUMERMESSAGEP1 = "Consumer messages to P1";
+	public static final String DISCONNECTCONTROL = "Disconnect Control";
+	public static final String LOADLIMIT = "LoadLimit";
+	public static final String ACTICITYCALENDAR = "ActivityCalendar";
+	public static final String TIME = "Time";
+	public static final String DATABASEENTRIES = "Create database entries";
+	public static final String TESTMESSAGE = "TestMessage";
+	public static final String GLOBALRESET = "Global Reset";
+	public static final String GPRSMODEMSETUP = "Change GPRS Modem Setup";
+	public static final String WAKEUPFUNCTIONALITY = "Wake up functionality";
+	public static final String AUTHENTICATEENCRYPT = "Authentication and encryption";
+	public static final String BASICMESSAGES = "BasicMessages";
+	public static final String MBUSMESSAGES = "MusMessages";
+	public static final String MBUSSETUP = "Mbus setup";
+	public static final String CHANGECONNECTIVITY = "Change connectivity setup";
 	
 }
