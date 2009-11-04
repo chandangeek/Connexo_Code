@@ -166,7 +166,7 @@ public interface RegisterFactory {
 	byte[] getRegisterRawData(String name, int dataLength) throws IOException;
 
 	// search the map for the register info
-	Register findRegister(String name) throws IOException;
+	PPM1Register findRegister(String name) throws IOException;
 
 	RegisterInfo getRegisterInfo(String name);
 

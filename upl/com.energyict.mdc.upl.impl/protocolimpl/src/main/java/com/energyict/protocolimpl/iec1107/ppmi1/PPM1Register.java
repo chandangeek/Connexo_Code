@@ -17,44 +17,41 @@ import com.energyict.protocolimpl.iec1107.ppmi1.register.ScalingFactor;
 
 /** @author Koen, fbo */
 
-public class Register {
+public class PPM1Register {
 
 	/* Data Types used in the meter */
-	final static int STRING = 0;
-	final static int DATE = 1;
-	final static int NUMBER = 2;
-	final static int LONG = 3;
-	final static int BYTEARRAY = 4;
-	final static int QUANTITY = 5;
-	final static int INTEGER = 6;
-	final static int BITFIELD64 = 7;
-	final static int HEX = 9;
-	final static int HEX_LE = 10;
-	final static int MD = 11;
-	final static int REGISTER = 14;
-	final static int SCALINGFACTOR = 21;
-	final static int LOADPROFILEDEF = 22;
-	final static int HISTORICAL = 23;
+	protected final static int STRING = 0;
+	protected final static int DATE = 1;
+	protected final static int NUMBER = 2;
+	protected final static int LONG = 3;
+	protected final static int BYTEARRAY = 4;
+	protected final static int QUANTITY = 5;
+	protected final static int INTEGER = 6;
+	protected final static int BITFIELD64 = 7;
+	protected final static int HEX = 9;
+	protected final static int HEX_LE = 10;
+	protected final static int MD = 11;
+	protected final static int REGISTER = 14;
+	protected final static int SCALINGFACTOR = 21;
+	protected final static int LOADPROFILEDEF = 22;
+	protected final static int HISTORICAL = 23;
 
 	/* obvious stuff, but I like code that way */
-	static protected final boolean CACHED = true;
-	static protected final boolean NOT_CACHED = false;
+	protected static final boolean CACHED = true;
+	protected static final boolean NOT_CACHED = false;
 
-	static protected final boolean WRITEABLE = true;
-	static protected final boolean NOT_WRITEABLE = false;
+	protected static final boolean WRITEABLE = true;
+	protected static final boolean NOT_WRITEABLE = false;
 
-	static protected final boolean READABLE = true;
-	static protected final boolean NOT_READABLE = false;
+	protected static final boolean READABLE = true;
+	protected static final boolean NOT_READABLE = false;
 
 	private String dataId;
 	private String name;
 	private int type;
 	private int offset;
 	private int length;
-	//private Unit unit;// KV22072005 unused code
 	private Object value;
-	//private MetaRegister metaRegister;// KV22072005 unused code
-	//TimeZone timeZone = null;// KV22072005 unused code
 
 	private boolean writeable;
 	private boolean cached;
@@ -62,24 +59,50 @@ public class Register {
 
 	private RegisterFactory registerFactory = null;
 
-	/** Creates a new instance of Register */
-	protected Register(String dataId, String name, int type, int offset,
-			int length, boolean writeable, boolean cached) {
-
+	/**
+	 * Creates a new instance of Register
+	 * 
+	 * @param dataId
+	 * @param name
+	 * @param type
+	 * @param offset
+	 * @param length
+	 * @param writeable
+	 * @param cached
+	 */
+	protected PPM1Register(String dataId, String name, int type, int offset, int length, boolean writeable, boolean cached) {
 		init(dataId, name, type, offset, length, writeable, cached, true);
-
 	}
 
-	/** Creates a new instance of Register */
-	protected Register(String dataId, String name, int type, int offset,
-			int length, boolean writeable, boolean cached, boolean readable) {
-
+	/**
+	 * Creates a new instance of Register
+	 * 
+	 * @param dataId
+	 * @param name
+	 * @param type
+	 * @param offset
+	 * @param length
+	 * @param writeable
+	 * @param cached
+	 * @param readable
+	 */
+	protected PPM1Register(String dataId, String name, int type, int offset, int length, boolean writeable, boolean cached, boolean readable) {
 		init(dataId, name, type, offset, length, writeable, cached, readable);
-
 	}
 
-	protected void init(String dataId, String name, int type, int offset,
-			int length, boolean writeable, boolean cached, boolean readable) {
+	/**
+	 * Creates a new instance of Register
+	 * 
+	 * @param dataId
+	 * @param name
+	 * @param type
+	 * @param offset
+	 * @param length
+	 * @param writeable
+	 * @param cached
+	 * @param readable
+	 */
+	protected void init(String dataId, String name, int type, int offset, int length, boolean writeable, boolean cached, boolean readable) {
 		this.dataId = dataId;
 		this.name = name;
 		this.type = type;
@@ -88,81 +111,128 @@ public class Register {
 		this.writeable = writeable;
 		this.cached = cached;
 		this.readable = readable;
-
 	}
-	// KV22072005 unused code
-	//	protected void setUnit(Unit unit) {
-	//		this.unit = unit;
-	//	}
 
+	/**
+	 * @return
+	 */
 	protected int getType() {
 		return type;
 	}
 
+	/**
+	 * @return
+	 */
 	protected int getOffset() {
 		return offset;
 	}
 
+	/**
+	 * @return
+	 */
 	protected int getLength() {
 		return length;
 	}
 
+	/**
+	 * @return
+	 */
 	protected boolean isWriteable() {
 		return writeable;
 	}
 
+	/**
+	 * @return
+	 */
 	protected boolean isReadable() {
 		return readable;
 	}
 
+	/**
+	 * @return
+	 */
 	protected boolean isCached() {
 		return cached;
 	}
 
+	/**
+	 * @return
+	 */
 	protected String getDataID() {
 		return dataId;
 	}
 
+	/**
+	 * @return
+	 */
 	protected String getName() {
 		return name;
 	}
-	// KV22072005 unused code
-	//	protected void setMetaRegister(MetaRegister metaRegister) {
-	//		this.metaRegister = metaRegister;
-	//	}
 
-	/* _________ __________ */
-
+	/**
+	 * @param abba1700RegisterFactory
+	 */
 	protected void setRegisterFactory(RegisterFactory abba1700RegisterFactory) {
 		this.registerFactory = abba1700RegisterFactory;
 	}
 
+	/**
+	 * @return
+	 */
 	protected DataIdentityFactory getDataIdentityFactory() {
 		return registerFactory.getDataIdentityFactory();
 	}
+
+	/**
+	 * @return
+	 */
 	protected FlagIEC1107Connection getFlagIEC1107Connection() {
 		return registerFactory.getPpm().getFlagIEC1107Connection();
 	}
+
+	/**
+	 * @return
+	 */
 	protected PPM getProtocolLink() {
 		return registerFactory.getPpm();
 	}
 
-	/* ________ ______ */
-
+	/**
+	 * @param value
+	 * @throws FlagIEC1107ConnectionException
+	 * @throws IOException
+	 */
 	protected void writeRegister(String value) throws FlagIEC1107ConnectionException, IOException {
 		this.value = null;
 		getDataIdentityFactory().setDataIdentity(getDataID(), value);
 	}
 
+	/**
+	 * @param object
+	 * @throws FlagIEC1107ConnectionException
+	 * @throws IOException
+	 */
 	protected void writeRegister(Object object) throws FlagIEC1107ConnectionException, IOException {
 		this.value = null;
 		getDataIdentityFactory().setDataIdentity(getDataID(), buildData(object));
 	}
 
+	/**
+	 * @param cached
+	 * @param dataLength
+	 * @param set
+	 * @return
+	 * @throws FlagIEC1107ConnectionException
+	 * @throws IOException
+	 */
 	byte[] readRegister(boolean cached, int dataLength, int set) throws FlagIEC1107ConnectionException, IOException {
 		return getDataIdentityFactory().getDataIdentity(getDataID(), cached, dataLength, set);
 	}
 
+	/**
+	 * @return
+	 * @throws IOException
+	 */
 	protected Object getValue() throws IOException {
 		if (value == null || !cached) {
 			value = parse(this.readRegister(cached, -1, 0));
@@ -170,6 +240,11 @@ public class Register {
 		return value;
 	}
 
+	/**
+	 * @param object
+	 * @return
+	 * @throws IOException
+	 */
 	protected String buildData(Object object) throws IOException {
 		switch (getType()) {
 		case STRING :
@@ -197,7 +272,13 @@ public class Register {
 		}
 	}
 
-	/* parse byte[] to object */
+	/**
+	 * Parse byte[] to object
+	 * 
+	 * @param data
+	 * @return
+	 * @throws IOException
+	 */
 	protected Object parse(byte[] data) throws IOException {
 
 		try {
@@ -249,8 +330,6 @@ public class Register {
 				return new MainRegister(metaRegister, q);
 			case SCALINGFACTOR :
 				return ScalingFactor.parse(data[getOffset()]);
-				//return ScalingFactor.parse( ProtocolUtils.getSubArray2(data,
-				// getOffset(), getLength() ));
 			case LOADPROFILEDEF :
 				return new LoadProfileDefinition(ProtocolUtils.getSubArray2(data, getOffset(), getLength()));
 			case HISTORICAL :

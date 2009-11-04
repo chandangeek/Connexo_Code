@@ -14,9 +14,7 @@ class DataIdentityFactory {
 	private PPM ppm = null;
 
 	public DataIdentityFactory(PPM ppm ) {
-
 		this.ppm = ppm;
-
 	}
 
 	{

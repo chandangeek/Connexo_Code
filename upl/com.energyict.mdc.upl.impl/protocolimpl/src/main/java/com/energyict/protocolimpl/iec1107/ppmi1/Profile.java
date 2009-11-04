@@ -27,8 +27,11 @@ import com.energyict.protocolimpl.iec1107.ppmi1.parser.ProfileReverseParser;
  */
 public class Profile {
 
-	public static final boolean	READFROMFILE		= true;
-	public static final String	FILENAME			= "1257338670532_PR";
+	private static final boolean	READFROMFILE		= false;
+	private static final boolean	WRITETOFILE			= false;
+	private static final String		FILENAME			= "1257338670532_PR";
+	private static final String		PATHNAME			= "C:\\EnergyICT\\WorkingDir\\ppm_profiles\\";
+	private static final String		EXTENSION			= ".hex";
 
 	private static final int	HOURS_PER_DAY		= 24;
 	private static final int	MINUTES_PER_HOUR	= 60;
@@ -161,9 +164,6 @@ public class Profile {
 	private ProfileData doIECProtocol() throws IOException {
 		boolean readFromFile = READFROMFILE;
 		byte[] data;
-		String fileName = FILENAME;
-		String pathName = "C:\\EnergyICT\\WorkingDir\\ppm_profiles\\";
-		String extName = ".hex";
 
 		int intPeriodInSec = rFactory.getIntegrationPeriod().intValue() * SECONDS_PER_MINUTE;
 
@@ -171,10 +171,12 @@ public class Profile {
 		log.log(Level.INFO, "IEC protocol, byteSize= " + byteSize);
 
 		if (readFromFile) {
-			data = PPMUtils.fromFile(pathName + fileName + extName);
+			data = PPMUtils.fromFile(PATHNAME + FILENAME + EXTENSION);
 		} else {
 			data = rFactory.getRegisterRawData(OpticalRegisterFactory.R_LOAD_PROFILE, (int) byteSize);
-			PPMUtils.toFile(data, pathName + System.currentTimeMillis()+ "_PR" + extName);
+			if (WRITETOFILE) {
+				PPMUtils.toFile(data, PATHNAME + System.currentTimeMillis()+ "_PR" + EXTENSION);
+			}
 		}
 
 		Date date = rFactory.getTimeDate();

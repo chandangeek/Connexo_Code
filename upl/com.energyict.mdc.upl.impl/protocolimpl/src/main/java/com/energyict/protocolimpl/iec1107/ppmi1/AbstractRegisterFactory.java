@@ -77,25 +77,25 @@ public abstract class AbstractRegisterFactory implements RegisterFactory {
 		return registers;
 	}
 
-	protected void addRegister(Register register) {
+	protected void addRegister(PPM1Register register) {
 		this.registers.put(register.getName(), register);
 	}
 
 	protected void add(String dataId, String name, int type, int offset, int length, boolean writeable, boolean cached) {
-		Register r = new Register(dataId, name, type, offset, length, writeable, cached);
+		PPM1Register r = new PPM1Register(dataId, name, type, offset, length, writeable, cached);
 		r.setRegisterFactory(this);
 		this.registers.put(name, r);
 	}
 
 	protected void add(String dataId, String name, int type, int offset, int length, boolean writeable, boolean cached, boolean readable) {
-		Register r = new Register(dataId, name, type, offset, length, writeable, cached, readable);
+		PPM1Register r = new PPM1Register(dataId, name, type, offset, length, writeable, cached, readable);
 		r.setRegisterFactory(this);
 		this.registers.put(name, r);
 	}
 
 	// search the map for the register info
-	public Register findRegister(String name) throws IOException {
-		Register register = (Register) registers.get(name);
+	public PPM1Register findRegister(String name) throws IOException {
+		PPM1Register register = (PPM1Register) registers.get(name);
 		if (register == null) {
 			throw new IOException("RegisterFactory, findRegister, " + name + " does not exist!");
 		} else {
@@ -105,7 +105,7 @@ public abstract class AbstractRegisterFactory implements RegisterFactory {
 
 	public void setRegister(String name, String value) throws IOException {
 		try {
-			Register register = findRegister(name);
+			PPM1Register register = findRegister(name);
 			if (register.isWriteable()) {
 				register.writeRegister(value);
 			} else {
@@ -119,7 +119,7 @@ public abstract class AbstractRegisterFactory implements RegisterFactory {
 
 	public void setRegister(String name, Object object) throws IOException {
 		try {
-			Register register = findRegister(name);
+			PPM1Register register = findRegister(name);
 			if (register.isWriteable()) {
 				register.writeRegister(object);
 			} else {
@@ -140,7 +140,7 @@ public abstract class AbstractRegisterFactory implements RegisterFactory {
 	 * last billing point, 1 = 2-throws last billing point, ...
 	 */
 	private Object getRegister(String name, int billingPoint) throws IOException {
-		Register register2Retrieve = findRegister(name);
+		PPM1Register register2Retrieve = findRegister(name);
 		return register2Retrieve.getValue();
 	}
 
@@ -151,7 +151,7 @@ public abstract class AbstractRegisterFactory implements RegisterFactory {
 
 	public byte[] getRegisterRawData(String name, int dataLength) throws IOException {
 		try {
-			Register register = findRegister(name);
+			PPM1Register register = findRegister(name);
 			return (register.readRegister(register.isCached(), dataLength, 0));
 		} catch (FlagIEC1107ConnectionException e) {
 			throw new IOException("ABBA1700, getRegisterRawData, " + e.getMessage());

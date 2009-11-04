@@ -9,8 +9,10 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ppmi1.opus.OpusResponse;
 
-/** @author Koen, fbo */
-
+/**
+ * @author Koen, fbo
+ *
+ */
 class DataIdentity implements Serializable {
 
 	static final boolean PROFILE = true;

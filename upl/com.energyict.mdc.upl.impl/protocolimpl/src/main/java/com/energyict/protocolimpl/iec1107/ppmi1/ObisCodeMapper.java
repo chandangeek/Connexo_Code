@@ -197,21 +197,21 @@ public class ObisCodeMapper {
 	 */
 	private String getRegisterFactoryKey( ObisCode obisCode ) {
 		if (this.derivedRegister == null) {
-			return this.sourceRegister.registerFactoryKey;
+			return this.sourceRegister.getRegisterFactoryKey();
 		} else {
 
-			if (this.derivedRegister.sourceRegister != null) {
+			if (this.derivedRegister.getSourceRegister() != null) {
 
-				if (this.ri.isCMDRegister(this.derivedRegister) && this.derivedRegister.sourceRegister.equals(this.sourceRegister)) {
-					return this.derivedRegister.registerFactoryKey;
+				if (this.ri.isCMDRegister(this.derivedRegister) && this.derivedRegister.getSourceRegister().equals(this.sourceRegister)) {
+					return this.derivedRegister.getRegisterFactoryKey();
 				}
 
-				if (this.ri.isMDRegister(this.derivedRegister) && this.derivedRegister.sourceRegister.equals(this.sourceRegister)) {
-					return this.derivedRegister.registerFactoryKey;
+				if (this.ri.isMDRegister(this.derivedRegister) && this.derivedRegister.getSourceRegister().equals(this.sourceRegister)) {
+					return this.derivedRegister.getRegisterFactoryKey();
 				}
 
-				if (this.ri.isTouRegister(this.derivedRegister) && this.derivedRegister.sourceRegister.equals(this.sourceRegister)) {
-					return this.derivedRegister.registerFactoryKey;
+				if (this.ri.isTouRegister(this.derivedRegister) && this.derivedRegister.getSourceRegister().equals(this.sourceRegister)) {
+					return this.derivedRegister.getRegisterFactoryKey();
 				}
 			}
 
@@ -328,7 +328,7 @@ public class ObisCodeMapper {
 		}
 	}
 
-	boolean isBillingDate( ObisCode obisCode ){
+	private boolean isBillingDate( ObisCode obisCode ){
 		return ( obisCode.getC() == 0 ) && ( obisCode.getE() == 2 );
 	}
 

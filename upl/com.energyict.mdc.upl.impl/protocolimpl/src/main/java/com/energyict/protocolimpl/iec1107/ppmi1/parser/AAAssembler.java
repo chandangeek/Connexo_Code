@@ -17,14 +17,10 @@ class AAAssembler implements Assembler {
 		ta.pop(); /* clear Stack, and NumberAssembler */
 		getProfileParser().getNumberAssembler().setByteNr(0);
 
-		System.out.println(getProfileParser().getAssembly());
-
 		byte[] jmpSize = new byte[2];
 		ta.read(jmpSize, 0, 2);
 
 		long jmp = Long.parseLong(PPMUtils.toHexaString(jmpSize[1]) + PPMUtils.toHexaString(jmpSize[0]), 16) - 3;
-
-		System.out.println("jump Size = " + jmp);
 
 		if (ta.getTarget() != null) {/* Calculate number of hours under jump */
 			Day aDay = (Day) ta.getTarget();
@@ -34,8 +30,6 @@ class AAAssembler implements Assembler {
 		for (int i = 0; i < jmp; i++) {
 			ta.read();
 		}
-
-		System.out.println(getProfileParser().getAssembly());
 
 	}
 
