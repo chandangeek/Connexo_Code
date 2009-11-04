@@ -27,22 +27,31 @@ import com.energyict.protocolimpl.iec1107.ppmi1.parser.ProfileReverseParser;
  */
 public class Profile {
 
-	/** reference to the MeterProtocol */
-	PPM ppm = null;
-	/** registerfactory is used for reading 550 register */
-	RegisterFactory rFactory = null;
+	public static final boolean	READFROMFILE		= true;
+	public static final String	FILENAME			= "1257338670532_PR";
 
-	Date beginDate = null;
-	Date endDate = null;
-	Date meterDate = null;
+	private static final int	HOURS_PER_DAY		= 24;
+	private static final int	MINUTES_PER_HOUR	= 60;
+	private static final int	SECONDS_PER_MINUTE	= 60;
+	private static final int	MS_PER_SECOND		= 1000;
 
-	Logger log = null;
+	private static final int	CHANNEL_BYTE_SIZE	= 5;
+	private static final int	STATUS_BYTE_SIZE	= 1;
+	private static final int	E4_BYTE_SIZE		= 2;
+	private static final int	DATE_BYTE_SIZE		= 4;
+
+	private PPM ppm = null;
+	private RegisterFactory rFactory = null;
+	private Logger log = null;
+
+	private Date beginDate = null;
+	private Date endDate = null;
+	private Date meterDate = null;
 
 	/**
 	 * Creates a new instance of Profile
 	 */
-	public Profile(PPM ppm, RegisterFactory rf) throws IOException,
-	UnsupportedException {
+	public Profile(PPM ppm, RegisterFactory rf) throws IOException, UnsupportedException {
 		this.ppm = ppm;
 		rFactory = rf;
 		if (ppm != null) {
@@ -50,7 +59,7 @@ public class Profile {
 		}
 	}
 
-	Date getMeterDate() throws IOException {
+	private Date getMeterDate() throws IOException {
 		if (meterDate == null) {
 			this.meterDate = rFactory.getTimeDate();
 		}
@@ -58,13 +67,11 @@ public class Profile {
 	}
 
 	/**
-	 * given a begin- and enddate will return a Profile object with all the
+	 * Given a begin- and enddate will return a Profile object with all the
 	 * meter readings and events.
 	 *
-	 * @param beginDate
-	 *            for retrieving meterreadings
-	 * @param endDate
-	 *            for retrieving meterreadings
+	 * @param beginDate for retrieving meterreadings
+	 * @param endDate for retrieving meterreadings
 	 */
 	public ProfileData getProfileData(Date beginDate, Date endDate, boolean includeEvents) throws IOException {
 
@@ -83,13 +90,12 @@ public class Profile {
 		}
 	}
 
-	/* The nr of packets to retrieve is calculated:
-	 *
-	 * NR PACKETS = NR CHANNELS * NR INTERVALS per day
-	 * NR INTERVALS per day = LENGTH OF DAY (in sec) / PROFILE INTERVAL
-	 *
-	 *
-	 * In 1 packet there is room for 8 values, so devide by 8
+	/**
+	 * Get the {@link ProfileData} using the OPUS protocol version
+	 * @return The {@link ProfileData} from the meter
+	 * @throws NestedIOException
+	 * @throws ConnectionException
+	 * @throws IOException
 	 */
 	private ProfileData doOpusProtocol() throws NestedIOException, ConnectionException, IOException {
 		OpusProfileParser opp = new OpusProfileParser(ppm, rFactory, getMeterDate());
@@ -104,17 +110,21 @@ public class Profile {
 		String log = "Retrieve profile begin:" + beginDate + " end: " + endDate;
 		ppm.getLogger().fine( log );
 
-		for (; (bDate <= mDate ) && (bDate <= eDate ); bDate++) {
+		for (; (bDate <= mDate) && (bDate <= eDate); bDate++) {
 
 			int nrHours = PPMUtils.hoursInDay( current );
 
-			log =   "Retieve profile for " + current.getTime() +
-			" nrHours= " + nrHours;
-			ppm.getLogger().fine( log );
+			log = "Retieve profile for " + current.getTime() + " nrHours= " + nrHours;
+			ppm.getLogger().fine(log);
 
-			int nrSeconds = nrHours * 60 * 60;
-			int nrPackets = ( ppm.getNumberOfChannels() *
-					( nrSeconds / ppm.getProfileInterval() ) ) / 8;
+			/*
+			 * The nr of packets to retrieve is calculated:
+			 * NR PACKETS = NR CHANNELS * NR INTERVALS per day
+			 * NR INTERVALS per day = LENGTH OF DAY (in sec) / PROFILE INTERVAL
+			 * In 1 packet there is room for 8 values, so devide by 8
+			 */
+			int nrSeconds = nrHours * MINUTES_PER_HOUR * SECONDS_PER_MINUTE;
+			int nrPackets = (ppm.getNumberOfChannels() * (nrSeconds / ppm.getProfileInterval())) / 8;
 
 			long opusDayNr = mDate - bDate + 10;
 			boolean doAdd = true;
@@ -126,7 +136,7 @@ public class Profile {
 				if( hour <= 0 ) {
 					long iPeriod = rFactory.getIntegrationPeriod().intValue();
 					long minutes = mCalendar.get(Calendar.MINUTE);
-					if( minutes < (iPeriod+(PPM.MINIMUM_INTERVAL_AGE/1000/60) ) ) {
+					if( minutes < (iPeriod+(PPM.MINIMUM_INTERVAL_AGE/MS_PER_SECOND/SECONDS_PER_MINUTE) ) ) {
 						doAdd = false;
 					}
 				}
@@ -143,14 +153,19 @@ public class Profile {
 		return opp.getProfileData();
 	}
 
+	/**
+	 * Get the {@link ProfileData} using the IEC1107 protocol version
+	 * @return The {@link ProfileData} from the meter
+	 * @throws IOException
+	 */
 	private ProfileData doIECProtocol() throws IOException {
-		boolean readFromFile = true;
+		boolean readFromFile = READFROMFILE;
 		byte[] data;
-		String fileName = "1256110602926_PR";
+		String fileName = FILENAME;
 		String pathName = "C:\\EnergyICT\\WorkingDir\\ppm_profiles\\";
 		String extName = ".hex";
 
-		int intPeriodInSec = rFactory.getIntegrationPeriod().intValue() * 60;
+		int intPeriodInSec = rFactory.getIntegrationPeriod().intValue() * SECONDS_PER_MINUTE;
 
 		long byteSize = nrBytesToRetrieve(beginDate, endDate, intPeriodInSec, ppm.getNumberOfChannels());
 		log.log(Level.INFO, "IEC protocol, byteSize= " + byteSize);
@@ -166,7 +181,7 @@ public class Profile {
 		int nrChannels = rFactory.getLoadProfileDefinition().getNrOfChannels();
 		int intervalLength = rFactory.getIntegrationPeriod().intValue();
 
-		ProfileReverseParser prp = new ProfileReverseParser(date, nrChannels, intervalLength * 60, ppm.getTimeZone());
+		ProfileReverseParser prp = new ProfileReverseParser(date, nrChannels, intervalLength * SECONDS_PER_MINUTE, ppm.getTimeZone());
 		prp.setInput(data);
 
 		ProfileParser pp = new ProfileParser(ppm, rFactory, rFactory.getTimeDate(), rFactory.getLoadProfileDefinition(), false);
@@ -175,23 +190,15 @@ public class Profile {
 		return pp.getProfileData();
 	}
 
-	/** channel value size (is a constant) */
-	private static final int CHANNEL_BYTE_SIZE = 6;
-
-	/** status size (is a constant) */
-	private static final int STATUS_BYTE_SIZE = 2;
-	private static final int E4_BYTE_SIZE = 2;
-	private static final int DATE_BYTE_SIZE = 4;
-
 	/**
 	 * ( nr sec day / int. duration sec ) + 1 +1 for extra iperiod
 	 */
-	static int maxIntervalsPerDay(int interval) {
-		return ((24 * 60 * 60) / interval) + 1;
+	private static int maxIntervalsPerDay(int interval) {
+		return ((HOURS_PER_DAY * MINUTES_PER_HOUR * SECONDS_PER_MINUTE) / interval) + 1;
 	}
 
-	static int minIntervalsPerDay(int interval) {
-		return ((24 * 60 * 60) / interval);
+	private static int minIntervalsPerDay(int interval) {
+		return ((HOURS_PER_DAY * MINUTES_PER_HOUR * SECONDS_PER_MINUTE) / interval);
 	}
 
 	/**
@@ -199,26 +206,24 @@ public class Profile {
 	 * only a complete day can be parsed. Take start DAY and end DAY, and
 	 * calculate difference.
 	 */
-	static long nrDaysInPeriodIEC(Date start, Date end) {
+	private static long nrDaysInPeriodIEC(Date start, Date end) {
 		// day index since start of count
-		long sd = start.getTime() / 1000 / 60 / 60 / 24;
-		long ed = end.getTime() / 1000 / 60 / 60 / 24;
-
+		long sd = start.getTime() / MS_PER_SECOND / SECONDS_PER_MINUTE / MINUTES_PER_HOUR / HOURS_PER_DAY;
+		long ed = end.getTime() / MS_PER_SECOND / SECONDS_PER_MINUTE / MINUTES_PER_HOUR / HOURS_PER_DAY;
 		return ed - sd + 1;
 	}
 
 	/**
 	 * Calculate difference and subtract 1; today is retrieved separately.
 	 */
-	static long nrDaysInPeriodOPUS(Date start, Date end) {
+	private static long nrDaysInPeriodOPUS(Date start, Date end) {
 		// day index since start of count
-		long sd = start.getTime() / 1000 / 60 / 60 / 24;
-		long ed = end.getTime() / 1000 / 60 / 60 / 24;
-
+		long sd = start.getTime() / MS_PER_SECOND / SECONDS_PER_MINUTE / MINUTES_PER_HOUR / HOURS_PER_DAY;
+		long ed = end.getTime() / MS_PER_SECOND / SECONDS_PER_MINUTE / MINUTES_PER_HOUR / HOURS_PER_DAY;
 		return ed - sd;
 	}
 
-	static long daySince1970(TimeZone timeZone, Date date) {
+	private static long daySince1970(TimeZone timeZone, Date date) {
 
 		Calendar inputCalendar = ProtocolUtils.getCalendar( timeZone );
 		inputCalendar.setTime(date);
@@ -232,45 +237,27 @@ public class Profile {
 
 		calendar.set(year, month, day);
 
-		return calendar.getTimeInMillis() / 1000 / 60 / 60 / 24;
+		return calendar.getTimeInMillis() / MS_PER_SECOND / SECONDS_PER_MINUTE / MINUTES_PER_HOUR / HOURS_PER_DAY;
 
 	}
 
-	static int nrBytesPerIntegrationPeriod(int nrChannels) {
+	private static int nrBytesPerIntegrationPeriod(int nrChannels) {
 		return STATUS_BYTE_SIZE + (CHANNEL_BYTE_SIZE * nrChannels);
 	}
 
 	public static long dayByteSizeMin(int nrChannels, int intervalLength) {
 		long nbip = nrBytesPerIntegrationPeriod(nrChannels);
-		long dayByteSize = (minIntervalsPerDay(intervalLength) * nbip)
-		+ E4_BYTE_SIZE + DATE_BYTE_SIZE;
-		return dayByteSize;
+		return (minIntervalsPerDay(intervalLength) * nbip) + E4_BYTE_SIZE + DATE_BYTE_SIZE;
 	}
 
 	public static long dayByteSizeMax(int nrChannels, int intervalLength) {
 		long nbip = nrBytesPerIntegrationPeriod(nrChannels);
-		long dayByteSize = (maxIntervalsPerDay(intervalLength) * nbip)
-		+ E4_BYTE_SIZE + DATE_BYTE_SIZE;
-		return dayByteSize;
+		return (maxIntervalsPerDay(intervalLength) * nbip) + E4_BYTE_SIZE + DATE_BYTE_SIZE;
 	}
 
-	static long nrBytesToRetrieve(Date start, Date end, int intervalLength,
-			int nrChannels) {
-
+	private static long nrBytesToRetrieve(Date start, Date end, int intervalLength, int nrChannels) {
 		long nd = nrDaysInPeriodIEC(start, end);
-		long total = dayByteSizeMax(nrChannels, intervalLength) * nd;
-
-		//System.out.print("\nStartdate = [" + start + "] ");
-		//System.out.println(" enddate = [" + end + " ] ");
-
-		//System.out.print(" intervallength= [" + intervalLength + " sec]");
-		//System.out.print(" nr channels= [" + nrChannels + "] ");
-
-		//System.out.print(" nr Days in period =[" + nd + "]");
-		//System.out.print(" number bytes to retrieve =[" + total + "]");
-
-		return total;
-
+		return dayByteSizeMax(nrChannels, intervalLength) * nd;
 	}
 
 

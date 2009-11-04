@@ -78,6 +78,7 @@ public class ProfileReverseParser {
 			 */
 			int length = this.ffAssembler.position16FF - this.lastGoodIndex;
 			if (length < 0) {
+				System.out.println("length < 0 !!! length="+length);
 				length = this.ffAssembler.lastFFposition - this.lastGoodIndex;
 			}
 
@@ -113,6 +114,9 @@ public class ProfileReverseParser {
 	public void blockScan() {
 		int min = (int) Profile.dayByteSizeMin(this.nrOfChannels, this.intervalLength) / 2;
 		int max = (int) Profile.dayByteSizeMax(this.nrOfChannels, this.intervalLength) / 2;
+
+		System.out.println("min=" + min);
+		System.out.println("max=" + max);
 
 		if(this.DBG) {
 			System.out.println(this.byteAssembly.toString(this.byteAssembly.getIndex() - min));

@@ -127,9 +127,10 @@ import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileDefinition;
 
 public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol {
 
-	/** The minimum period of time that must be elapsed in order
-	 * for an interval to be valid/acceptable. (in millisecs)
-	 * (see Fix for data spikes) */
+	/**
+	 * The minimum period of time that must be elapsed in order for an interval
+	 * to be valid/acceptable. (in millisecs) (see Fix for data spikes)
+	 */
 	public final static int		MINIMUM_INTERVAL_AGE	= 60000;
 	private final static int	MAX_TIME_DIFF			= 50000;
 

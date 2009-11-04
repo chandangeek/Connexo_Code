@@ -43,11 +43,11 @@ class NumberAssembler implements Assembler {
 		if ((day.getReadIndex() < 48) && day.getReading()[day.getReadIndex()].getDate().before(getProfileParser().getMeterTime())) {
 
 			/* 1) create a status object */
-			day.setStatus(new LoadProfileStatus((byte) getVal()[0]), day.getReadIndex());
+			day.setStatus(new LoadProfileStatus((byte) (getVal()[0]/10)), day.getReadIndex());
 
 			/* 2) create a reading */
 			for (int vi = 0; vi < getProfileParser().getNrOfChannels(); vi++) {
-				day.getReading()[day.getReadIndex()].setValue(constructValue(getVal(), (vi * BYTES_PER_VALUE) + BYTES_PER_STATUS), vi);
+				day.getReading()[day.getReadIndex()].setValue(constructValue(getVal(), vi * (BYTES_PER_VALUE + BYTES_PER_STATUS)), vi);
 			}
 
 			/* 3) some debugging info */
@@ -75,24 +75,18 @@ class NumberAssembler implements Assembler {
 		return this.val;
 	}
 
-	private LoadProfileStatus constructStatus(int[] iArray) {
-		return new LoadProfileStatus((byte) iArray[0]);
-	}
-
-	//	private BigDecimal constructValue(int[] iArray, int i) throws IOException {
-	//		long v = iArray[i] * 10000;
-	//		v += (iArray[i + 1] * 100);
-	//		v += iArray[i + 2];
-	//		return getProfileParser().getScalingFactor().toProfileNumber(v);
-	//	}
-
 	private BigDecimal constructValue(int[] iArray, int i) throws IOException {
-		long v = iArray[i] * 100;
-		v += iArray[i + 1];
+		long v = (iArray[i] % 10) * 10000;
+		v += (iArray[i + 1] * 100);
+		v += iArray[i + 2];
 		return getProfileParser().getScalingFactor().toProfileNumber(v);
 	}
 
 	public ProfileParser getProfileParser() {
 		return profileParser;
+	}
+
+	public static void main(String[] args) {
+
 	}
 }

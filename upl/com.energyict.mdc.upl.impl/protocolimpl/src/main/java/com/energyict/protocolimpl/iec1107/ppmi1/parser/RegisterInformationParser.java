@@ -97,139 +97,101 @@ public class RegisterInformationParser {
 	/**
 	 * Set the input of the parser
 	 * 
-	 * @param reg741
-	 *            Register 741
-	 * @param reg742
-	 *            Register 742
-	 * @param reg743
-	 *            Register 743
-	 * @param reg744
-	 *            Register 744
-	 * @param reg745
-	 *            Register 745
-	 * @param reg751
-	 *            Register 751
-	 * @param reg752
-	 *            Register 752
-	 * @param reg753
-	 *            Register 753
-	 * @param reg754
-	 *            Register 754
-	 * @param reg755
-	 *            Register 755
+	 * @param reg741 Register 741
+	 * @param reg742 Register 742
+	 * @param reg743 Register 743
+	 * @param reg744 Register 744
+	 * @param reg745 Register 745
+	 * @param reg751 Register 751
+	 * @param reg752 Register 752
+	 * @param reg753 Register 753
+	 * @param reg754 Register 754
+	 * @param reg755 Register 755
 	 */
 	public void set(byte reg741, byte reg742, byte reg743, byte reg744,
 			byte reg745, byte reg751, byte reg752, byte reg753, byte reg754,
 			byte reg755) {
-
-		this.touInput = new byte[]{reg741, reg742, reg743, reg744,
-				reg745};
-
-		this.mdTouInput = new byte[]{reg751, reg752, reg753, reg754,
-				reg755};
-
+		this.touInput = new byte[]{reg741, reg742, reg743, reg744, reg745};
+		this.mdTouInput = new byte[]{reg751, reg752, reg753, reg754, reg755};
 	}
 
 	public RegisterInformation match() {
-
 		this.registerInformation = new RegisterInformation();
-
 		matchTOUAllocation();
 		matchMDTOUAllocation();
-
 		return this.registerInformation;
 	}
 
 	private void matchTOUAllocation() {
-
 		int nrTotalRegisters = this.registerInformation.getEnergyDefinition().length;
 
 		for (int trIndex = 0; trIndex < nrTotalRegisters; trIndex++) {
-
 			MetaRegister sourceReg = this.registerInformation.getEnergyDefinition()[trIndex];
 			char[] totalRegisterAssignment = toCharArray(this.touInput[trIndex]);
-
-
 			if (totalRegisterAssignment[0] == '1') {
 				this.registerInformation.getTou8().setSourceRegister(sourceReg);
 			}
-
 			if (totalRegisterAssignment[1] == '1') {
 				this.registerInformation.getTou7().setSourceRegister(sourceReg);
 			}
-
 			if (totalRegisterAssignment[2] == '1') {
 				this.registerInformation.getTou6().setSourceRegister(sourceReg);
 			}
-
 			if (totalRegisterAssignment[3] == '1') {
 				this.registerInformation.getTou5().setSourceRegister(sourceReg);
 			}
-
 			if (totalRegisterAssignment[4] == '1') {
 				this.registerInformation.getTou4().setSourceRegister(sourceReg);
 			}
-
 			if (totalRegisterAssignment[5] == '1') {
 				this.registerInformation.getTou3().setSourceRegister(sourceReg);
 			}
-
 			if (totalRegisterAssignment[6] == '1') {
 				this.registerInformation.getTou2().setSourceRegister(sourceReg);
 			}
-
 			if (totalRegisterAssignment[7] == '1') {
 				this.registerInformation.getTou1().setSourceRegister(sourceReg);
 			}
-
 		}
 	}
 
 	private void matchMDTOUAllocation() {
-
 		int nrTotalRegisters = this.registerInformation.getDemandDefinition().length;
 
 		for (int trIndex = 0; trIndex < nrTotalRegisters; trIndex++) {
-
-			MetaRegister sourceReg =
-				this.registerInformation.getDemandDefinition()[trIndex];
-
+			MetaRegister sourceReg = this.registerInformation.getDemandDefinition()[trIndex];
 			char[] totalRegisterAssignment = toCharArray(this.mdTouInput[trIndex]);
 
 			if (totalRegisterAssignment[4] == '1') {
 				this.registerInformation.getMdTou4().setSourceRegister(sourceReg);
 				this.registerInformation.getCmdTou4().setSourceRegister(sourceReg);
 			}
-
 			if (totalRegisterAssignment[5] == '1'){
 				this.registerInformation.getMdTou3().setSourceRegister(sourceReg);
 				this.registerInformation.getCmdTou3().setSourceRegister(sourceReg);
 			}
-
 			if (totalRegisterAssignment[6] == '1'){
 				this.registerInformation.getMdTou2().setSourceRegister(sourceReg);
 				this.registerInformation.getCmdTou2().setSourceRegister(sourceReg);
 			}
-
 			if (totalRegisterAssignment[7] == '1'){
 				this.registerInformation.getMdTou1().setSourceRegister(sourceReg);
 				this.registerInformation.getCmdTou1().setSourceRegister(sourceReg);
 			}
 		}
-
 	}
 
-	/**Converts byte to array of 'bits'.  Bits in this case being characters
-	 * 0 & 1. */
+	/**
+	 * Converts byte to array of 'bits'. Bits in this case being characters 0 & 1
+	 * 
+	 * @param b
+	 * @return
+	 */
 	private char[] toCharArray(byte b) {
-
 		char[] result = {'0', '0', '0', '0', '0', '0', '0', '0'};
-
 		int i = b&0xFF;
 		char[] bitArray = Integer.toBinaryString(i).toCharArray();
-		System.arraycopy(bitArray, 0, result, 8 - bitArray.length,
-				bitArray.length);
-
+		System.arraycopy(bitArray, 0, result, 8 - bitArray.length, bitArray.length);
 		return result;
 	}
 

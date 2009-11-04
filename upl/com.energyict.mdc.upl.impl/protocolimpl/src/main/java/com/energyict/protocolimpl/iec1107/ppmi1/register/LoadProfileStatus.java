@@ -12,10 +12,10 @@ import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
 public class LoadProfileStatus {
 
 	/* LoadProfileStatus Type */
-	private static final byte SS_DIAGNOSTIC_FLAG = 0x01;
-	private static final byte SS_WRITE_ACCESS = 0x02;
-	private static final byte SS_PARTIAL_DEMAND = 0x04;
-	private static final byte SS_REVERSE_RUN = 0x08;
+	private static final byte	SS_DIAGNOSTIC_FLAG	= 0x01;
+	private static final byte	SS_WRITE_ACCESS		= 0x02;
+	private static final byte	SS_PARTIAL_DEMAND	= 0x04;
+	private static final byte	SS_REVERSE_RUN		= 0x08;
 
 	private int status;
 
@@ -44,7 +44,7 @@ public class LoadProfileStatus {
 		return result;
 	}
 
-	public boolean is(byte statusType) {
+	private boolean is(byte statusType) {
 		return (this.status & statusType) > 0;
 	}
 
