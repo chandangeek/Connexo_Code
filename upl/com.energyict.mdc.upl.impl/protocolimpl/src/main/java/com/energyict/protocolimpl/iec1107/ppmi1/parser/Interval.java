@@ -3,12 +3,19 @@ package com.energyict.protocolimpl.iec1107.ppmi1.parser;
 import java.math.BigDecimal;
 import java.util.Date;
 
+/**
+ * @author jme
+ *
+ */
 public class Interval {
 
 	private Date			date;
 	private BigDecimal[]	value;
 	private ProfileParser	profileParser;
 
+	/**
+	 * @param profileParser
+	 */
 	public Interval(ProfileParser profileParser) {
 		this.profileParser = profileParser;
 		this.value = new BigDecimal[getProfileParser().getLoadDef().getNrOfChannels()];
@@ -27,10 +34,18 @@ public class Interval {
 		return true;
 	}
 
+	/**
+	 * Getter for the date of the interval
+	 * @return The date of the interval
+	 */
 	public Date getDate() {
 		return date;
 	}
 
+	/**
+	 * Setter for the date of the interval
+	 * @param date
+	 */
 	public void setDate(Date date) {
 		this.date = date;
 	}

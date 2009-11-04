@@ -12,7 +12,7 @@ import com.energyict.protocolimpl.iec1107.ppmi1.Profile;
 
 public class ProfileReverseParser {
 
-	boolean DBG = true;
+	boolean DBG = false;
 
 	int dayNr = 0;
 	int monthNr = 0;
@@ -78,7 +78,6 @@ public class ProfileReverseParser {
 			 */
 			int length = this.ffAssembler.position16FF - this.lastGoodIndex;
 			if (length < 0) {
-				System.out.println("length < 0 !!! length="+length);
 				length = this.ffAssembler.lastFFposition - this.lastGoodIndex;
 			}
 
@@ -115,13 +114,8 @@ public class ProfileReverseParser {
 		int min = (int) Profile.dayByteSizeMin(this.nrOfChannels, this.intervalLength) / 2;
 		int max = (int) Profile.dayByteSizeMax(this.nrOfChannels, this.intervalLength) / 2;
 
-		System.out.println("min=" + min);
-		System.out.println("max=" + max);
-
 		if(this.DBG) {
 			System.out.println(this.byteAssembly.toString(this.byteAssembly.getIndex() - min));
-		}
-		if(this.DBG) {
 			System.out.println(this.byteAssembly.toString(this.byteAssembly.getIndex() - max));
 		}
 
@@ -153,8 +147,6 @@ public class ProfileReverseParser {
 		int firstMonth = (int) hex2dec(this.byteAssembly.getInput()[this.byteAssembly.getIndex() + 2]);
 		if(this.DBG) {
 			System.out.println( "FirstDay = " + firstDay + "/" + firstMonth);
-		}
-		if(this.DBG) {
 			System.out.println(this.byteAssembly);
 		}
 	}
