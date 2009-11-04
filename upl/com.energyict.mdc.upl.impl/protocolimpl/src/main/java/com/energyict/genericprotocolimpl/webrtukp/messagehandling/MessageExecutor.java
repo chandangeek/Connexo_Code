@@ -65,6 +65,7 @@ import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.common.csvhandling.TestObject;
 import com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage;
+import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.mdw.core.Code;
@@ -130,6 +131,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 			boolean globalReset		= messageHandler.getType().equals(RtuMessageConstant.GLOBAL_METER_RESET);
 			boolean wakeUpWhiteList = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
 			boolean changeHLSSecret = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
+			boolean changeLLSSecret = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_LLS_SECRET);
 			boolean changeGlobalkey = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY);
 			boolean changeAuthkey 	= messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY);
 			boolean activateSMS		= messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ACTIVATE);
@@ -789,9 +791,27 @@ public class MessageExecutor extends GenericMessageExecutor{
 					
 					// We just return the byteArray because it is possible that the berEncoded octetString contains
 					// extra check bits ...
-					//TODO low lever security should set the value directly to tthe secret attribuut of the SNAssociation
-					asn.changeHLSSecret(getWebRtu().getSecurityProvider().getNEWHLSSecret());
+					//TODO low lever security should set the value directly to the secret attribute of the SNAssociation
+					asn.changeSecret(getWebRtu().getSecurityProvider().getNEWHLSSecret());
 				}
+				success = true;
+			} else if(changeLLSSecret){
+				
+				// changing the LLS secret in LN_referencing is a set of an attribute
+				if(getWebRtu().getReference() == ProtocolLink.LN_REFERENCE){
+					AssociationLN aln = getCosemObjectFactory().getAssociationLN();
+					aln.writeSecret(new OctetString(getWebRtu().getSecurityProvider().getNEWLLSSecret()));
+					
+				// changing the LLS secret in SN_referencing is the same action as for the HLS secret
+				} else if(getWebRtu().getReference() == ProtocolLink.SN_REFERENCE){
+					AssociationSN asn = getCosemObjectFactory().getAssociationSN();
+					
+					// We just return the byteArray because it is possible that the berEncoded octetString contains
+					// extra check bits ...
+					//TODO low lever security should set the value directly to the secret attribute of the SNAssociation
+					asn.changeSecret(getWebRtu().getSecurityProvider().getNEWHLSSecret());
+				}
+				
 				success = true;
 			} else if(activateSMS){
 				getCosemObjectFactory().getAutoConnect().writeMode(4);

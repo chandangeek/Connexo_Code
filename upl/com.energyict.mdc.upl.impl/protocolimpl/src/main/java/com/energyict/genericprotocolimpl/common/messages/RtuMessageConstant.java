@@ -161,7 +161,9 @@ public class RtuMessageConstant {
 	
 	/** RtuMessage tags for authentication and encryption */
 	public static final String AEE_CHANGE_HLS_SECRET = "Change_HLS_Secret";
+	public static final String AEE_CHANGE_LLS_SECRET = "Change_LLS_Secret";
 	public static final String AEE_HLS_SECRET = "HLSSecret";
+	public static final String AEE_LLS_SECRET = "LLSSecret";
 	public static final String AEE_CHANGE_GLOBAL_KEY = "Change_Global_Key";
 	public static final String AEE_GLOBAL_KEY = "GlobalKey";
 	public static final String AEE_CHANGE_AUTHENTICATION_KEY = "AuthenticationKey";

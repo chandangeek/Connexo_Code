@@ -39,6 +39,8 @@ public class LocalSecurityProvider implements SecurityProvider {
 	public static final String MASTERKEY = "MasterKey";
 	/** Property name of the DataTransport AuthenticationKey */
 	public static final String DATATRANSPORT_AUTHENTICATIONKEY = "DataTransportAuthenticationKey";
+	/** Property name of the new LowLevel security Secret */
+	public static final String NEW_LLS_SECRET = "NewLLSSecret";
 	
 	/**
 	 * Create a new instance of LocalSecurityProvider
@@ -114,6 +116,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 
 	/**
 	 * The HLSSecret is the password of the RTU
+	 * @return the password of the RTU
 	 */
 	public byte[] getHLSSecret() {
 		byte[] byteWord = new byte[this.hlsSecret.length()];
@@ -122,13 +125,27 @@ public class LocalSecurityProvider implements SecurityProvider {
 		}
 		return byteWord;
 	}
+	
+	/**
+	 * The LLSSecret is the same as the HLSSecret
+	 * @return the password of the RTU
+	 */
+	public byte[] getLLSSecret(){
+		return getHLSSecret();
+	}
 
+	/**
+	 * @return the master key (this is the KeyEncryptionKey)
+	 */
 	public byte[] getMasterKey() throws IOException {
 		return this.masterKey;
 	}
 
 	//********** Return new keys for KeyChange functionality **********/
 	
+	/**
+	 * @return the new data encryption Authentication Key
+	 */
 	public byte[] getNEWAuthenticationKey() throws IOException {
 		if(this.properties.containsKey(NEW_AUTHENTICATION_KEY)){
 			return DLMSUtils.hexStringToByteArray(this.properties.getProperty(NEW_AUTHENTICATION_KEY));
@@ -136,6 +153,9 @@ public class LocalSecurityProvider implements SecurityProvider {
 		throw new IllegalArgumentException("New authenticationKey is not correctly filled in.");
 	}
 
+	/**
+	 * @return the new Global Key
+	 */
 	public byte[] getNEWGlobalKey() throws IOException {
 		if(this.properties.containsKey(NEW_GLOBAL_KEY)){
 			return DLMSUtils.hexStringToByteArray(this.properties.getProperty(NEW_GLOBAL_KEY));
@@ -143,11 +163,31 @@ public class LocalSecurityProvider implements SecurityProvider {
 		throw new IllegalArgumentException("New globalKey is not correctly filled in.");
 	}
 
+	/**
+	 * @return the new HLS secret
+	 */
 	public byte[] getNEWHLSSecret() throws IOException {
 		if(this.properties.containsKey(NEW_HLS_SECRET)){
 			return DLMSUtils.hexStringToByteArray(this.properties.getProperty(NEW_HLS_SECRET));
 		}
 		throw new IllegalArgumentException("New HLSSecret is not correctly filled in.");
+	}
+	
+	/**
+	 * @return the new LLS secret
+	 * @return
+	 * @throws IOException
+	 */
+	public byte[] getNEWLLSSecret() throws IOException {
+		if(this.properties.containsKey(NEW_LLS_SECRET)){
+			String newLlsSecret = this.properties.getProperty(NEW_LLS_SECRET);
+			byte[] byteWord = new byte[newLlsSecret.length()];
+			for(int i = 0; i < newLlsSecret.length(); i++){
+				byteWord[i] = (byte)newLlsSecret.charAt(i);
+			}
+			return byteWord;
+		}
+		throw new IllegalArgumentException("New LLSSecret is not correctly filled in.");
 	}
 
 }

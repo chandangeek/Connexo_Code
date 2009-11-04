@@ -16,15 +16,12 @@ import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.messaging.Messaging;
 
 /**
+ * Abstract base class to implement messages in your protocol. Your
+ * protocol needs to extend your own MeterMessageClass. The extended
+ * class only needs to construct of list of MessageCategories. Commonly
+ * used get'X'Categories are defined below.
  * 
  * @author gna
- * 
- *         <p>
- *         Abstract base class to implement messages in your protocol. Your
- *         protocol needs to extend your own MeterMessageClass. The extended
- *         class only needs to construct of list of MessageCategories. Commonly
- *         used get'X'Categories are defined below.
- *         </p>
  * 
  */
 public abstract class GenericMessaging implements Messaging {
@@ -87,7 +84,7 @@ public abstract class GenericMessaging implements Messaging {
 	 * Will create a message that requires an xml code in the value field of the
 	 * XMLConfig element
 	 * 
-	 * @return
+	 * @return a category with one MessageSpec for xmlConfig functionality
 	 */
 	public MessageCategorySpec getXmlConfigCategory() {
 		MessageCategorySpec mcs = new MessageCategorySpec(
@@ -102,7 +99,7 @@ public abstract class GenericMessaging implements Messaging {
 	/**
 	 * Create a message that uses a UserFile id as value for the <b>firmware</b>
 	 * 
-	 * @return
+	 * @return  a category with one MessageSpec for firmwareUpgrade functionality
 	 */
 	public MessageCategorySpec getFirmwareCategory() {
 		MessageCategorySpec catFirmware = new MessageCategorySpec(
@@ -117,7 +114,7 @@ public abstract class GenericMessaging implements Messaging {
 	 * Creates two messages, one for sending <b>code to P1</b>, the other for sending
 	 * <b>text to P1</b>
 	 * 
-	 * @return
+	 * @return a category with two MessageSpecs for P1 functionality
 	 */
 	public MessageCategorySpec getP1Category() {
 		MessageCategorySpec catP1Messages = new MessageCategorySpec(
@@ -136,7 +133,7 @@ public abstract class GenericMessaging implements Messaging {
 	 * Creates three messages, one for <b>disconnect</b>, one for <b>connect</b> and the other
 	 * one to <b>set the connectMode</b>
 	 * 
-	 * @return
+	 * @return a category with three MessageSpecs for Connect/Disconnect control functionality
 	 */
 	public MessageCategorySpec getConnectControlCategory() {
 		MessageCategorySpec catDisconnect = new MessageCategorySpec(
@@ -159,7 +156,7 @@ public abstract class GenericMessaging implements Messaging {
 	 * Create three messages, one to <b>configure the loadlimiting parameters</b>, one
 	 * to <b>clear the loadlimit config</b>, and one to <b>set the loadlimit groupId</b>
 	 * 
-	 * @return
+	 * @return a category with three MessageSpecs for LoadLimit functionality
 	 */
 	public MessageCategorySpec getLoadLimitCategory() {
 		MessageCategorySpec catLoadLimit = new MessageCategorySpec(
@@ -182,7 +179,7 @@ public abstract class GenericMessaging implements Messaging {
 	 * Creates two messages, on to give up the ID of the code table to use as an
 	 * <b>activityCalendar</b>, the other to give the code table id of the <b>special days</b>
 	 * 
-	 * @return
+	 * @return a category with two MessageSpecs for ActivityCalendar functionality
 	 */
 	public MessageCategorySpec getActivityCalendarCategory() {
 		MessageCategorySpec catActivityCal = new MessageCategorySpec(
@@ -200,7 +197,7 @@ public abstract class GenericMessaging implements Messaging {
 	/**
 	 * Create a message to set the meter to a certain time
 	 * 
-	 * @return
+	 * @return a category with one MessageSpec for Timing functionality
 	 */
 	public MessageCategorySpec getTimeCategory() {
 		MessageCategorySpec catTime = new MessageCategorySpec(
@@ -214,7 +211,7 @@ public abstract class GenericMessaging implements Messaging {
 	/**
 	 * Create a message to simulate database entries in the meter
 	 * 
-	 * @return
+	 * @return a category with one MessageSpec for testing functionality
 	 */
 	public MessageCategorySpec getDataBaseEntriesCategory() {
 		MessageCategorySpec catMakeEntries = new MessageCategorySpec(
@@ -229,7 +226,7 @@ public abstract class GenericMessaging implements Messaging {
 	/**
 	 * Create a message to set the <b>apn, username, password </b>of the gprs modem
 	 * 
-	 * @return
+	 * @return a category with one MessageSpec for GPRS setup functionality
 	 */
 	public MessageCategorySpec getGPRSModemSetupCategory() {
 		MessageCategorySpec catGPRSModemSetup = new MessageCategorySpec(
@@ -244,7 +241,7 @@ public abstract class GenericMessaging implements Messaging {
 	/**
 	 * Creates a message with one value for example to parse a userfile ID
 	 * 
-	 * @return
+	 * @return a category with one messageSpec for testing functionality
 	 */
 	public MessageCategorySpec getTestCategory() {
 		MessageCategorySpec catTestMessage = new MessageCategorySpec(
@@ -260,7 +257,7 @@ public abstract class GenericMessaging implements Messaging {
 	 * Creates a message without a value, <b>meterReset</b> must be handled after this
 	 * message
 	 * 
-	 * @return
+	 * @return a category with one MessageSpec for globalMeterReset functionality
 	 */
 	public MessageCategorySpec getGlobalResetCategory() {
 		MessageCategorySpec catGlobalDisc = new MessageCategorySpec(
@@ -275,7 +272,7 @@ public abstract class GenericMessaging implements Messaging {
 	/**
 	 * Create one message to set <b>phoneNumbers to the whiteList</b>
 	 * 
-	 * @return
+	 * @return a category with one MessageSpec for WhiteList functionality
 	 */
 	public MessageCategorySpec getWakeupCategory() {
 		MessageCategorySpec catWakeUp = new MessageCategorySpec(
@@ -292,7 +289,7 @@ public abstract class GenericMessaging implements Messaging {
 	 * <b>AuthenticationKey</b>, and the other one to change
 	 * the <b>HLSSecret</b>
 	 * 
-	 * @return
+	 * @return a category with four MessageSpecs for Authenticate/Encrypt functionality
 	 */
 	public MessageCategorySpec getAuthEncryptCategory() {
 		MessageCategorySpec catAuthEncrypt = new MessageCategorySpec(
@@ -302,6 +299,11 @@ public abstract class GenericMessaging implements Messaging {
 				RtuMessageKeyIdConstants.CHANGEHLSSECRET,
 				RtuMessageConstant.AEE_CHANGE_HLS_SECRET, false);
 		catAuthEncrypt.addMessageSpec(msgSpec);
+		
+		//TODO uncomment this again after testing
+//		msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.CHANGELLSSECRET,
+//				RtuMessageConstant.AEE_CHANGE_LLS_SECRET, false);
+//		catAuthEncrypt.addMessageSpec(msgSpec);
 		msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.CHANGEGLOBALKEY,
 				RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY, false);
 		catAuthEncrypt.addMessageSpec(msgSpec);
@@ -320,7 +322,7 @@ public abstract class GenericMessaging implements Messaging {
 	 * <b>use UNcorrected mbus values</b>
 	 * gasLoadProfile
 	 * 
-	 * @return
+	 * @return a category with four messages for Mbus functionality
 	 */
 	public MessageCategorySpec getMbusSetupCategory() {
 		MessageCategorySpec catMbusSetup = new MessageCategorySpec(
@@ -342,37 +344,14 @@ public abstract class GenericMessaging implements Messaging {
 		return catMbusSetup;
 	}
 
-//	protected MessageSpec addChangeHLSKeyMsg(String keyId, String tagName,
-//			boolean advanced) {
-//		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-//		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-//		MessageValueSpec msgVal = new MessageValueSpec();
-//		msgVal.setValue(" ");
-//		tagSpec.add(msgVal);
-//		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-//				RtuMessageConstant.AEE_HLS_SECRET, true);
-//		tagSpec.add(msgAttrSpec);
-//		msgSpec.add(tagSpec);
-//		return msgSpec;
-//	}
-//
-//	protected MessageSpec addChangeGlobalKey(String keyId, String tagName,
-//			boolean advanced) {
-//		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-//		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-//		MessageValueSpec msgVal = new MessageValueSpec();
-//		msgVal.setValue(" ");
-//		tagSpec.add(msgVal);
-//		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-//				RtuMessageConstant.AEE_GLOBAL_KEY, true);
-//		tagSpec.add(msgAttrSpec);
-//		msgAttrSpec = new MessageAttributeSpec(
-//				RtuMessageConstant.AEE_GLOBAL_KEY_TYPE, true);
-//		tagSpec.add(msgAttrSpec);
-//		msgSpec.add(tagSpec);
-//		return msgSpec;
-//	}
-
+	/**
+	 * Creates a MessageSpec for specialDays functionality. It contains one field to enter the ID of the codeTable 
+	 * which has the special days configured.
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
 	protected MessageSpec addSpecialDays(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -387,6 +366,13 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
+	/**
+	 * Creates a MessageSpec with no fields to be filled in.
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
 	protected MessageSpec addNoValueMsg(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -395,6 +381,14 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
+	/**
+	 * Creates a MessageSpec to enter the ID of the LookUp table which contains the GroupID's of meters that
+	 * must be LoadLimit enabled
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
 	protected MessageSpec addGroupIdsLL(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -409,6 +403,13 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
+	/**
+	 * Creates a MessageSpec with several fields to enter to configure the LoadLimiting in the meter
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
 	protected MessageSpec addConfigureLL(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -442,6 +443,13 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
+	/**
+	 * Creates a MessageSpec with the configuration fields for the GPRS connection setup
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
 	protected MessageSpec addChangeGPRSSetup(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -462,6 +470,13 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
+	/**
+	 * Creates a MessageSpec to add entries in the Loadprofiles of the meter
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
 	protected MessageSpec addCreateDBEntries(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -485,6 +500,13 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
+	/**
+	 * Creates a MessageSpec with a field to set the meter to a certain time
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
 	protected MessageSpec addTimeMessage(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -499,6 +521,13 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
+	/**
+	 * Creates a MessageSpec to set several(max. 5) numbers in the WhiteList of the meter
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
 	protected MessageSpec addPhoneListMsg(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -525,6 +554,13 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
+	/**
+	 * Creates a MessageSpec to add a csv testFile that executes several commands
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
 	protected MessageSpec addTestMessage(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -539,6 +575,13 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
+	/**
+	 * Creates a MessageSpec to connect/disconnect the meter at a certain point in time
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
 	protected MessageSpec addConnectControl(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -553,6 +596,13 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
+	/**
+	 * Creates a MessageSpec to change the disconnect mode of the meter
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
 	protected MessageSpec addConnectControlMode(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -567,6 +617,13 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
+	/**
+	 * Creates a MessageSpec to add P1 code to the meter
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
 	protected MessageSpec addP1Code(String keyId, String tagName, boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -580,6 +637,13 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
+	/**
+	 * Creates a MessageSpec to add P1 text to the meter
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
 	protected MessageSpec addP1Text(String keyId, String tagName, boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -593,6 +657,13 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
+	/**
+	 * Creates a MessageSpec to add a firmwareUserfile to send to the meter
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
 	protected MessageSpec addFirmwareMsg(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -621,6 +692,13 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
+	/**
+	 * Creates a MessageSpec to add one value to the message
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
 	protected MessageSpec addDefaultValueMsg(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -631,6 +709,13 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
+	/**
+	 * Creates a MessageSpec to add ActivityCalendar functionality
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
 	protected MessageSpec addTimeOfUse(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -654,20 +739,13 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
-//	protected MessageSpec addCorrectSwitchMsg(String keyId, String tagName,
-//			boolean advanced) {
-//		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-//		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-//		MessageValueSpec msgVal = new MessageValueSpec();
-//		msgVal.setValue(" ");
-//		MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-//				RtuMessageConstant.MBUS_CORRECTED_VALUE, true);
-//		tagSpec.add(msgVal);
-//		tagSpec.add(msgAttrSpec);
-//		msgSpec.add(tagSpec);
-//		return msgSpec;
-//	}
-	
+	/**
+	 * Creates a MessageSpec to upgrade the level of security
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
 	protected MessageSpec addSecurityLevelMsg(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
@@ -682,6 +760,13 @@ public abstract class GenericMessaging implements Messaging {
 		return msgSpec;
 	}
 
+	/**
+	 * Creates a MessageSpec to enable encryption over P2 (MBus communication)
+	 * @param keyId - id for the MessageSpec
+	 * @param tagName - name for the MessageSpec
+	 * @param advanced - indicates whether it's an advanced message or not
+	 * @return the newly created MessageSpec
+	 */
 	protected MessageSpec addEncryptionkeys(String keyId, String tagName,
 			boolean advanced) {
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);

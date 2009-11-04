@@ -20,6 +20,7 @@ import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
+import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtukp.MbusDevice;
 import com.energyict.mdw.core.RtuMessage;

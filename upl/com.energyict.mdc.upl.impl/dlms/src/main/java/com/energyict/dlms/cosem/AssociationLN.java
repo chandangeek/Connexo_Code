@@ -276,6 +276,16 @@ public class AssociationLN extends AbstractCosemObject {
     }
     
     /**
+     * Write the given secret to the attribute
+     * @param secret - the octetString containing the secret
+     * @throws IOException when the type isn't correct or when the writing fails
+     */
+    public void writeSecret(OctetString secret) throws IOException{
+    	write(ATTRB_SECRET, secret.getBEREncodedByteArray());
+    	this.secret = secret;
+    }
+    
+    /**
      * @return a Structure or an OctetString containing the applicationContextName
      * @throws IOException when the response type isn't correct or when the reading failed
      */
@@ -318,7 +328,7 @@ public class AssociationLN extends AbstractCosemObject {
     
     /**
      * Read the securitySetupReference logicalName from the device
-     * @return the securotySetupReference
+     * @return the securitySetupReference
      * @throws IOException when the response type isn't correct or when the reading failed
      */
     public OctetString readSecuritySetupReference() throws IOException {

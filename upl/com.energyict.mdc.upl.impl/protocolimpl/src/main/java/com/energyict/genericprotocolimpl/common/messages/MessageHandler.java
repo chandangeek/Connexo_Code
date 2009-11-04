@@ -1,37 +1,40 @@
-/**
- * 
- */
-package com.energyict.genericprotocolimpl.webrtukp.messagehandling;
+
+package com.energyict.genericprotocolimpl.common.messages;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 
 /**
+ * Generic messageHandler. The xml-RtuMessage is parsed using the {@link DefaultHandler} and the relative
+ * variables are set.
+ * 
  * @author gna
  *
  */
 public class MessageHandler extends DefaultHandler{
 
+	/** Represents the current Message type */ 
 	private String type = "";
+	
+	/** Helper to indicate whether the RtuMessage content contains xml */
 	private boolean isXmlInContent = false;
 	
-	public MessageHandler(){
-		
-	}
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	public void startElement(String uri, String lName, String qName, Attributes attrbs) throws SAXException {
 		if(RtuMessageConstant.XMLCONFIG.equals(qName)){
 			setType(RtuMessageConstant.XMLCONFIG);
 			isXmlInContent = true;
 		} else if(RtuMessageConstant.FIRMWARE_UPGRADE.equals(qName)){
 			setType(RtuMessageConstant.FIRMWARE_UPGRADE);
+			handleFirmWareUpgrade(attrbs);
+		} else if(RtuMessageConstant.RF_FIRMWARE_UPGRADE.equals(qName)){
+			setType(RtuMessageConstant.RF_FIRMWARE_UPGRADE);
 			handleFirmWareUpgrade(attrbs);
 		} else if(RtuMessageConstant.P1CODEMESSAGE.equals(qName)){
 			setType(RtuMessageConstant.P1CODEMESSAGE);
@@ -89,13 +92,12 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.WAKEUP_ADD_WHITELIST.equals(qName)){
 			setType(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
 			handleWakeUpWhiteList(attrbs);
-//		} else if(RtuMessageConstant.MBUS_CORRECTED_SWITCH.equals(qName)){
-//			setType(RtuMessageConstant.MBUS_CORRECTED_SWITCH);
-//			handleMbusCorrectedValues(attrbs);
 		} else if(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY.equals(qName)){
 			setType(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY);
 		} else if(RtuMessageConstant.AEE_CHANGE_HLS_SECRET.equals(qName)){
 			setType(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
+		} else if(RtuMessageConstant.AEE_CHANGE_LLS_SECRET.equals(qName)){
+			setType(RtuMessageConstant.AEE_CHANGE_LLS_SECRET);
 		} else if(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY.equals(qName)){
 			setType(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY);
 		} else if(RtuMessageConstant.AEE_ACTIVATE_SECURITY.equals(qName)){
@@ -111,55 +113,37 @@ public class MessageHandler extends DefaultHandler{
 			}
 		}
 	}
-
-	public void characters (char buf [], int offset, int length) throws SAXException {
-//    	System.out.println(new String(buf, offset, length));
-    }
 	
+	/**
+	 * Setter for the {@link MessageHandler#type}
+	 * @param type - the message
+	 */
 	private void setType(String type){
 		this.type = type;
 	}
 	
+	/**
+	 * Getter fo the {@link MessageHandler#type}
+	 * @return
+	 */
 	public String getType(){
 		return this.type;
 	}
 	
-	/**********************************************
-	 * XMLConfig Related messages
-	 **********************************************/
+	
+	/* FirmwareUpgrade Related messages 
 	/**********************************************/
-	
-	
-	/**********************************************
-	 * FirmwareUpgrade Related messages
-	 **********************************************/
 	private String userfileId;
-//	private String activateNow;
 	private String activationDate;
 	
     private void handleFirmWareUpgrade(Attributes attrbs) {
     	this.userfileId = attrbs.getValue(RtuMessageConstant.FIRMWARE);
-//    	this.activateNow = attrbs.getValue(RtuMessageConstant.FIRMWARE_ACTIVATE_NOW);
     	this.activationDate = attrbs.getValue(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE);
 	}
 	
 	public String getUserFileId(){
 		return this.userfileId;
 	}
-	
-//	public String getActivateNow(){
-//		return this.activateNow;
-//	}
-	
-	
-//	// Need to test again!
-//	public boolean activateNow(){
-//		if(this.activateNow != null){
-//			return this.activateNow.equals("1");
-//		} else {
-//			return false;
-//		}
-//	}
 	
 	public String getActivationDate(){
 		if(this.activationDate == null){
@@ -168,35 +152,9 @@ public class MessageHandler extends DefaultHandler{
 		return this.activationDate;
 	}
 	
-	public Date activationDate() throws IOException{
-		return getCalendarFromString(getActivationDate()).getTime();
-	}
 	
-	private Calendar getCalendarFromString(String strDate) throws IOException{
-		Calendar cal = null;
-		try {
-			cal = Calendar.getInstance();
-			cal.set(Calendar.DATE, Integer.parseInt(strDate.substring(0, strDate.indexOf("/"))));
-			cal.set(Calendar.MONTH, (Integer.parseInt(strDate.substring(strDate.indexOf("/") + 1, strDate.lastIndexOf("/")))) - 1);
-			cal.set(Calendar.YEAR, Integer.parseInt(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" "))));
-			
-			cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(strDate.substring(strDate.indexOf(" ") + 1, strDate.indexOf(":"))));
-			cal.set(Calendar.MINUTE, Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":"))));
-			cal.set(Calendar.SECOND, Integer.parseInt(strDate.substring(strDate.lastIndexOf(":") + 1, strDate.length())));
-			cal.clear(Calendar.MILLISECOND);
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-			throw new IOException("Dateformat was not correct.");
-		}
-		return cal;
-	}
-	
+	/* P1 port Related messages
 	/**********************************************/
-	
-	
-	/**********************************************
-	 * P1 port Related messages
-	 **********************************************/
 	private String code;
 	private String text;
 
@@ -215,11 +173,9 @@ public class MessageHandler extends DefaultHandler{
 	public String getP1Text(){
 		return this.text;
 	}
-	/**********************************************/
 	
-	/**********************************************
-	 * Disconnect Control Related messages
-	 **********************************************/
+	/* Disconnect Control Related messages
+	/**********************************************/
 	private String connectDate;
 	private String disconnectDate;
 	private String mode;
@@ -253,12 +209,10 @@ public class MessageHandler extends DefaultHandler{
 		}
 		return this.disconnectDate;
 	}
-	/**********************************************/
 
 	
-	/**********************************************
-	 * LoadLimit Related messages
-	 **********************************************/
+	/* LoadLimit Related messages
+	/**********************************************/
 	private String normalThreshold = "";
 	private String emergencyThreshold = "";
 	private String overThresholdDurtion = "";
@@ -278,7 +232,6 @@ public class MessageHandler extends DefaultHandler{
 		this.overThresholdDurtion = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_MIN_OVER_THRESHOLD_DURATION);
 	}
 	
-
 	private void handleLoadLimitEmergencyProfile(Attributes attrbs) {
 		this.epProfileId = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_EP_PROFILE_ID);
 		this.epActivationTime = attrbs.getValue(RtuMessageConstant.LOAD_LIMIT_EP_ACTIVATION_TIME);
@@ -312,13 +265,10 @@ public class MessageHandler extends DefaultHandler{
 	public String getEpGroupIdListLookupTableId() {
 		return epGroupIdListLookupTableId;
 	}
+	
+	
+	/* Activity Calendar Related messages
 	/**********************************************/
-
-	
-	/**********************************************
-	 * Activity Calendar Related messages
-	 **********************************************/
-	
 	private String touActivationDate = "";
 	private String touCalendarName = "";
 	private String touCodeTable = "";
@@ -364,11 +314,10 @@ public class MessageHandler extends DefaultHandler{
 	public String getSpecialDayDeleteEntry(){
 		return this.deleteEntry;
 	}
-	/**********************************************/
 	
-	/**********************************************
-	 * Mbus encryption keys Related messages
-	 **********************************************/
+	
+	/* Mbus encryption keys Related messages
+ 	/**********************************************/
 	private String openKey = "";
 	private String transferKey = "";
 	
@@ -385,11 +334,9 @@ public class MessageHandler extends DefaultHandler{
 		return this.transferKey;
 	}
 	
-	/**********************************************/
 	
-	/**********************************************
-	 * SetTime Related messages
-	 **********************************************/
+	/* SetTime Related messages
+	/**********************************************/
 	private String epochTime = "";
 	
 	private void handleSetTime(Attributes attrbs){
@@ -399,11 +346,10 @@ public class MessageHandler extends DefaultHandler{
 	public String getEpochTime(){
 		return this.epochTime;
 	}
-	/**********************************************/
-	
-	/**********************************************
-	 * Making entries Related messages
-	 **********************************************/
+
+
+	/* Making entries Related messages
+	/***********************************************/
 	private String startDate = "";
 	private String entries = "";
 	private String interval = "";
@@ -443,12 +389,10 @@ public class MessageHandler extends DefaultHandler{
 			return false;
 		}
 	}
-	/**********************************************/
-	
-	/**********************************************
-	 * Changing GPRS modem parameters Related messages
-	 **********************************************/
-	
+
+
+	/* Changing GPRS modem parameters Related messages
+	/***********************************************/
 	private String gprsApn = "";
 	private String gprsUsername = "";
 	private String gprsPassword = "";
@@ -482,13 +426,10 @@ public class MessageHandler extends DefaultHandler{
 			return "";
 		}
 	}
-	
-	/**********************************************/
-	
-	/**********************************************
-	 * Handle TestMessage Related messages
-	 **********************************************/
-	
+
+
+	/* Handle TestMessage Related messages
+	/***********************************************/
 	private String ufId = "";
 	
 	private void handleTestMessage(Attributes attrbs){
@@ -499,17 +440,9 @@ public class MessageHandler extends DefaultHandler{
 		return (this.ufId != null)?this.ufId:"";
 	}
 	
+	
+	/* WakeUp functionality Related messages
 	/**********************************************/
-	
-	/**********************************************
-	 * Global Meter Reset Related messages
-	 **********************************************/
-	/**********************************************/
-	
-	/**********************************************
-	 * WakeUp functionality Related messages
-	 **********************************************/
-	
 	private String nr1 = "";
 	private String nr2 = "";
 	private String nr3 = "";
@@ -544,35 +477,9 @@ public class MessageHandler extends DefaultHandler{
 		return (this.nr5 != null)?this.nr5:"";
 	}
 	
-//	/**********************************************/
-//	
-//	/**********************************************
-//	 * Gas corrected LoadProfile functionality Related messages
-//	 **********************************************/
-//	
-//	private String correctionSwitch = "";
-//	
-//	private void handleMbusCorrectedValues(Attributes attrbs) {
-//		this.correctionSwitch = attrbs.getValue(RtuMessageConstant.MBUS_CORRECTED_VALUE);
-//	}
-//	
-//	public String getCorrectionSwitch() {
-//		return (this.correctionSwitch != null)?this.correctionSwitch:"";
-//	}
-//	
-//	public boolean useUncorrected(){
-//		return getCorrectionSwitch().equalsIgnoreCase("0");
-//	}
-//	
-//	public boolean useCorrected(){
-//		return !getCorrectionSwitch().equalsIgnoreCase("0");
-//	}
 	
-	/**********************************************/
-	
-	/**********************************************
-	 * Authentication and Encryption functionality Related messages
-	 **********************************************/
+	/* Authentication and Encryption functionality Related messages
+	/***********************************************/
 	private String securityLevel = "";
 	
 	private void handleActivateSecurityLevel(Attributes attrbs){

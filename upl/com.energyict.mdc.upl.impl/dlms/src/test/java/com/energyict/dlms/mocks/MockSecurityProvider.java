@@ -1,7 +1,6 @@
 package com.energyict.dlms.mocks;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -88,8 +87,9 @@ public class MockSecurityProvider implements SecurityProvider{
 		StringBuffer strBuff = new StringBuffer();
 		for(int i = 0; i < b.length; i++){
 			String str = Integer.toHexString(b[i]&0xFF);
-			if(str.length() == 1)
+			if(str.length() == 1) {
 				strBuff.append("0");
+			}
 			strBuff.append(str);
 		}
 		return strBuff.toString();
@@ -142,6 +142,11 @@ public class MockSecurityProvider implements SecurityProvider{
 	}
 
 	public byte[] getNEWHLSSecret() throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public byte[] getNEWLLSSecret() throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -27,6 +27,7 @@ public class RtuMessageKeyIdConstants {
 	public static final String GLOBALRESET = "Global Meter Reset";
 	public static final String SETWHITELIST = "Set phonenumbers to whitelist";
 	public static final String CHANGEHLSSECRET = "Change the HLS secret";
+	public static final String CHANGELLSSECRET = "Change the LLS secret";
 	public static final String CHANGEGLOBALKEY = "Change global key";
 	public static final String CHANGEAUTHENTICATIONKEY = "Change authentication key";
 	public static final String READONDEMAND = "ReadOnDemand";

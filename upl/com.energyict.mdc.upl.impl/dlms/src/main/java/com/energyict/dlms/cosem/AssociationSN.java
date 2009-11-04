@@ -79,11 +79,11 @@ public class AssociationSN extends AbstractCosemObject {
     /**
      * Change the HLS_Secret, depending on the securityMechanism implementation, the new secret may contain
      * additional check bits and it may be encrypted
-     * @param hlsSecret
-     * @return
-     * @throws IOException
+     * @param secret the new secret
+     * @return the irrelevant response (parsing has already been done)
+     * @throws IOException if the type of the secret doensn't match or when you don't have the proper permissions
      */
-    public byte[] changeHLSSecret(byte[] hlsSecret) throws IOException {
-    	return invoke(METHOD_CHANGE_SECRET, new OctetString(hlsSecret).getBEREncodedByteArray());
+    public byte[] changeSecret(byte[] secret) throws IOException {
+    	return invoke(METHOD_CHANGE_SECRET, new OctetString(secret).getBEREncodedByteArray());
     }
 }

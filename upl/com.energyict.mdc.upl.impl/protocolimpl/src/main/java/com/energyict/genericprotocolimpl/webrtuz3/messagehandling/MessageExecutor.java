@@ -66,6 +66,7 @@ import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.common.csvhandling.TestObject;
 import com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage;
+import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3;
 import com.energyict.mdw.core.Code;
@@ -845,7 +846,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 					// We just return the byteArray because it is possible that the berEncoded octetString contains
 					// extra check bits ...
 					//TODO low lever security should set the value directly to the secret attribute of the SNAssociation
-					asn.changeHLSSecret(getWebRtu().getSecurityProvider().getNEWHLSSecret());
+					asn.changeSecret(getWebRtu().getSecurityProvider().getNEWHLSSecret());
 				}
 				success = true;
 			} else if(activateSMS){

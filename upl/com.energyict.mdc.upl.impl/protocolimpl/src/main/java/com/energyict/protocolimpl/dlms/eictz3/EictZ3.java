@@ -77,7 +77,7 @@ import com.energyict.genericprotocolimpl.webrtukp.eventhandling.EventsLog;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.FraudDetectionLog;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.MbusLog;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.PowerFailureLog;
-import com.energyict.genericprotocolimpl.webrtukp.messagehandling.MessageHandler;
+import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;

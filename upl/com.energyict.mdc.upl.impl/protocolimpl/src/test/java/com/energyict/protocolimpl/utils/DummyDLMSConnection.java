@@ -18,7 +18,9 @@ import com.energyict.dlms.InvokeIdAndPriority;
  */
 public class DummyDLMSConnection implements DLMSConnection {
 	
+	/** the expected response */
 	private byte[] responseByte;
+	private byte[] sentBytes;
 
 	/**
 	 * 
@@ -64,6 +66,8 @@ public class DummyDLMSConnection implements DLMSConnection {
 	 * @see com.energyict.dlms.DLMSConnection#sendRequest(byte[])
 	 */
 	public byte[] sendRequest(byte[] byteRequestBuffer) throws IOException {
+		this.sentBytes = new byte[byteRequestBuffer.length];
+		System.arraycopy(byteRequestBuffer, 0, sentBytes, 0, byteRequestBuffer.length);
 		return this.responseByte;
 	}
 
@@ -99,6 +103,13 @@ public class DummyDLMSConnection implements DLMSConnection {
 	 */
 	public void setResponseByte(byte[] response){
 		this.responseByte = response;
+	}
+	
+	/**
+	 * @return the last byteArray you send over
+	 */
+	public byte[] getSentBytes(){
+		return this.sentBytes;
 	}
 
 }

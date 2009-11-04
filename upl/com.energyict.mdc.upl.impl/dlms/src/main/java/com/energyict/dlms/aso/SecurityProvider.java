@@ -7,7 +7,9 @@ import java.io.IOException;
  * The securityProvider is responsible for providing all possible keys.
  * 
  * @author gna
- *
+ * 
+ * @change
+ * 3th nov. 2009 - Added the getNEWLLSSecret method
  */
 public interface SecurityProvider {
 
@@ -29,7 +31,13 @@ public interface SecurityProvider {
 	 * @throws IOException
 	 */
 	byte[] getNEWHLSSecret() throws IOException;
-
+	
+	/**
+	 * @return the NEW LLSSecret for the KeyChange functionality
+	 * @throws IOException
+	 */
+	byte[] getNEWLLSSecret() throws IOException;
+	
 	/**
 	 * A global key is a ciphering key that may be used to cipher xDLMS APDU's,
 	 * exchanged between the same client and server, in more than one session.
