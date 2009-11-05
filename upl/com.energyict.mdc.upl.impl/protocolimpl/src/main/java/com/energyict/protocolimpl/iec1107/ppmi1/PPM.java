@@ -132,14 +132,10 @@ public class PPM extends AbstractPPM {
 	private final static String	PK_TIMEOUT				= "Timeout";
 	private final static String	PK_RETRIES				= "Retries";
 	private final static String	PK_FORCE_DELAY			= "ForcedDelay";
-	private final static String	PK_DELAY_AFTER_FAIL		= "DelayAfterFail";
-	private final static String	PK_OFFLINE				= "pkoffline";
 	private final static String	PK_EXTENDED_LOGGING		= "ExtendedLogging";
 
 	/** The historical data register contains data for 4 days */
 	public static final int 	NR_HISTORICAL_DATA 	= 4;
-	private static final int 	NR_TOU_REGISTERS	= 8; // KV 22072005 made final
-	private static final int 	NR_MD_TOU_REGISTERS = 4; // KV 22072005 made final
 
 	/** Property Default values */
 	//final static String PD_ADDRESS = null;
@@ -149,7 +145,6 @@ public class PPM extends AbstractPPM {
 	private final static int	PD_ROUNDTRIP_CORRECTION	= 0;
 	private final static long	PD_FORCE_DELAY			= 350;
 	private final static long	PD_DELAY_AFTER_FAIL		= 500;
-	private final static int	PD_IEC1107_COMPAT		= 0;
 	private final static String	PD_OPUS					= "1";
 	private final static String	PD_PASSWORD				= "--------";
 	private final static String	PD_EXTENDED_LOGGING		= "0";
