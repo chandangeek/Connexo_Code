@@ -27,7 +27,6 @@ class DataIdentity implements Serializable {
 	private DataIdentityFactory dataIdentityFactory = null;
 	private PPM ppm = null;
 
-	// JME: Fixed bug: changed "lenght" to "length" in argument name.
 	DataIdentity(String name, int length, int nrPackets, boolean reverseIndexing) {
 		init(name, length, nrPackets, reverseIndexing);
 	}
