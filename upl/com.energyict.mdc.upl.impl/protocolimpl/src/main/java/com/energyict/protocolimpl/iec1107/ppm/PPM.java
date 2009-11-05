@@ -129,36 +129,34 @@ import com.energyict.protocolimpl.iec1107.ppm.register.LoadProfileDefinition;
  */
 public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol {
 
-	private final static int MAX_TIME_DIFF = 50000;
-	/** The minimum period of time that must be elapsed in order
-	 * for an interval to be valid/acceptable. (in millisecs)
-	 * (see Fix for data spikes) */
-	public final static int MINIMUM_INTERVAL_AGE = 60000;
-
-	private TimeZone timeZone = null;
-	private Logger logger = null;
+	/**
+	 * The minimum period of time that must be elapsed in order for an interval
+	 * to be valid/acceptable. (in millisecs) (see Fix for data spikes)
+	 */
+	public final static int			MINIMUM_INTERVAL_AGE	= 60000;
+	private final static int		MAX_TIME_DIFF			= 50000;
 
 	/** Property keys specific for PPM protocol. */
-	private static final String PK_OPUS = "OPUS";
-	private static final String PK_TIMEOUT = "Timeout";
-	private static final String PK_RETRIES = "Retries";
-	private static final String PK_FORCE_DELAY = "ForcedDelay";
+	private static final String		PK_OPUS					= "OPUS";
+	private static final String		PK_TIMEOUT				= "Timeout";
+	private static final String		PK_RETRIES				= "Retries";
+	private static final String		PK_FORCE_DELAY			= "ForcedDelay";
 
-	private static final String PK_DELAY_AFTER_FAIL = "DelayAfterFail";
-	private static final String PK_SECURITY_LEVEL = "SecurityLevel";
-	private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
+	private static final String		PK_DELAY_AFTER_FAIL		= "DelayAfterFail";
+	private static final String		PK_SECURITY_LEVEL		= "SecurityLevel";
+	private static final String		PK_EXTENDED_LOGGING		= "ExtendedLogging";
 
 	/** Property Default values */
-	private static final String PD_NODE_ID = "";
-	private static final int PD_TIMEOUT = 10000;
-	private static final int PD_RETRIES = 5;
-	private static final int PD_ROUNDTRIP_CORRECTION = 0;
-	private static final long PD_FORCE_DELAY = 350;
+	private static final String		PD_NODE_ID				= "";
+	private static final int		PD_TIMEOUT				= 10000;
+	private static final int		PD_RETRIES				= 5;
+	private static final int		PD_ROUNDTRIP_CORRECTION	= 0;
+	private static final long		PD_FORCE_DELAY			= 350;
 
-	private static final long PD_DELAY_AFTER_FAIL = 500;
-	private static final int PD_SECURITY_LEVEL = 2;
-	private static final String PD_OPUS = "1";
-	private static final String PD_EXTENDED_LOGGING = "0";
+	private static final long		PD_DELAY_AFTER_FAIL		= 500;
+	private static final int		PD_SECURITY_LEVEL		= 2;
+	private static final String		PD_OPUS					= "1";
+	private static final String		PD_EXTENDED_LOGGING		= "0";
 
 	/** Property values
 	 * Required properties will have NO default value
@@ -167,6 +165,9 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	private String pNodeId = PD_NODE_ID;
 	private String pSerialNumber = null;
 	private String pPassword = null;
+
+	private TimeZone timeZone = null;
+	private Logger logger = null;
 
 	/* Protocol timeout fail in msec */
 	private int pTimeout = PD_TIMEOUT;
