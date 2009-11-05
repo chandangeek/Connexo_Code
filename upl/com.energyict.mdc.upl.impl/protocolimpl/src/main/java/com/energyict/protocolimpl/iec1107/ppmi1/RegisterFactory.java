@@ -16,142 +16,136 @@ import com.energyict.protocolimpl.iec1107.ppmi1.register.ScalingFactor;
 
 public interface RegisterFactory {
 
-
 	/** 850 Time Adjustement via RS232 */
-	final static String R_TIME_ADJUSTMENT_RS232 = "TimeDateAdjustmentRs232";
+	String R_TIME_ADJUSTMENT_RS232 = "TimeDateAdjustmentRs232";
+	String R_TIME_ADJUSTMENT_OPTICAL = "TimeDateAdjustmentOptical";
 
 	/** 860 Time and date via RS232 */
-	final static String R_TIME_DATE_RS232 = "TimeDateRs232";
+	String R_TIME_DATE_RS232 = "TimeDateRs232";
 
 	/** 861 Time and date via optical port */
-	final static String R_TIME_DATE_OPTICAL = "TimeDateOptical";
+	String R_TIME_DATE_OPTICAL = "TimeDateOptical";
 
 	/** 878 Integration period */
-	final static String R_INTEGRATION_PERIOD = "IntegrationPeriod";
+	String R_INTEGRATION_PERIOD = "IntegrationPeriod";
 
 	/** 798 Serial number */
-	final static String R_SERIAL_NUMBER = "SerialNumber";
+	String R_SERIAL_NUMBER = "SerialNumber";
 
 	/** 795 Scheme id */
-	final static String R_SCHEME_ID = "SchemeId";
+	String R_SCHEME_ID = "SchemeId";
 
 	/** 878 Subinterval period */
-	final static String R_SUBINTERVAL_PERIOD = "SubintervalPeriod";
+	String R_SUBINTERVAL_PERIOD = "SubintervalPeriod";
 
 	/** 878 Number subintervals */
-	final static String R_NUMBER_OF_SUBINTERVALS = "NumberOfSubintervals";
+	String R_NUMBER_OF_SUBINTERVALS = "NumberOfSubintervals";
 
 	/** 704 Scaling factor */
-	final static String R_SCALING_FACTOR = "ScalingFactor";
+	String R_SCALING_FACTOR = "ScalingFactor";
 
 	/** 774 Load profile defenition */
-	final static String R_LOAD_PROFILE_DEFININTION = "LoadProfileDefinition";
+	String R_LOAD_PROFILE_DEFININTION = "LoadProfileDefinition";
 
 	/** 501 Total Registers: Import kWh */
-	public final static String R_TOTAL_IMPORT_WH = "TotalImportKwh";
+	String R_TOTAL_IMPORT_WH = "TotalImportKwh";
 
 	/** 501 Total Registers: Export kWh */
-	public final static String R_TOTAL_EXPORT_WH = "TotalExportKwh";
+	String R_TOTAL_EXPORT_WH = "TotalExportKwh";
 
 	/** 501 Total Registers: Import kvarh */
-	public final static String R_TOTAL_IMPORT_VARH = "TotalImportKvarh";
+	String R_TOTAL_IMPORT_VARH = "TotalImportKvarh";
 
 	/** 501 Total Registers: Export kvarh */
-	public final static String R_TOTAL_EXPORT_VARH = "TotalExportKvarh";
+	String R_TOTAL_EXPORT_VARH = "TotalExportKvarh";
 
 	/** 501 Total Registers: Total kVAh */
-	public final static String R_TOTAL_VAH = "TotalKvah";
+	String R_TOTAL_VAH = "TotalKvah";
 
 	/** 502 Time Of Use Registers: TOU 1 */
-	public final static String R_TIME_OF_USE_1 = "TimeOfUse1";
+	String R_TIME_OF_USE_1 = "TimeOfUse1";
 
 	/** 502 Time Of Use Registers: TOU 2 */
-	public final static String R_TIME_OF_USE_2 = "TimeOfUse2";
+	String R_TIME_OF_USE_2 = "TimeOfUse2";
 
 	/** 502 Time Of Use Registers: TOU 3 */
-	public final static String R_TIME_OF_USE_3 = "TimeOfUse3";
+	String R_TIME_OF_USE_3 = "TimeOfUse3";
 
 	/** 502 Time Of Use Registers: TOU 4 */
-	public final static String R_TIME_OF_USE_4 = "TimeOfUse4";
+	String R_TIME_OF_USE_4 = "TimeOfUse4";
 
 	/** 502 Time Of Use Registers: TOU 5 */
-	public final static String R_TIME_OF_USE_5 = "TimeOfUse5";
+	String R_TIME_OF_USE_5 = "TimeOfUse5";
 
 	/** 502 Time Of Use Registers: TOU 6 */
-	public final static String R_TIME_OF_USE_6 = "TimeOfUse6";
+	String R_TIME_OF_USE_6 = "TimeOfUse6";
 
 	/** 502 Time Of Use Registers: TOU 7 */
-	public final static String R_TIME_OF_USE_7 = "TimeOfUse7";
+	String R_TIME_OF_USE_7 = "TimeOfUse7";
 
 	/** 502 Time Of Use Registers: TOU 8 */
-	public final static String R_TIME_OF_USE_8 = "TimeOfUse8";
+	String R_TIME_OF_USE_8 = "TimeOfUse8";
 
 	/** 503 Maximum Demand 1 */
-	public final static String R_MAXIMUM_DEMAND_1 = "MaximumDemand1";
+	String R_MAXIMUM_DEMAND_1 = "MaximumDemand1";
 
 	/** 503 Maximum Demand 2 */
-	public final static String R_MAXIMUM_DEMAND_2 = "MaximumDemand2";
+	String R_MAXIMUM_DEMAND_2 = "MaximumDemand2";
 
 	/** 503 Maximum Demand 3 */
-	public final static String R_MAXIMUM_DEMAND_3 = "MaximumDemand3";
+	String R_MAXIMUM_DEMAND_3 = "MaximumDemand3";
 
 	/** 503 Maximum Demand 4 */
-	public final static String R_MAXIMUM_DEMAND_4 = "MaximumDemand4";
+	String R_MAXIMUM_DEMAND_4 = "MaximumDemand4";
 
 	/** 504 Cumulative Maximum Demand 1 */
-	public final static String R_CUMULATIVE_MAXIMUM_DEMAND1 = "CumMaximumDemand1";
+	String R_CUMULATIVE_MAXIMUM_DEMAND1 = "CumMaximumDemand1";
 
 	/** 504 Cumulative Maximum Demand 1 */
-	public final static String R_CUMULATIVE_MAXIMUM_DEMAND2 = "CumMaximumDemand2";
+	String R_CUMULATIVE_MAXIMUM_DEMAND2 = "CumMaximumDemand2";
 
 	/** 504 Cumulative Maximum Demand 1 */
-	public final static String R_CUMULATIVE_MAXIMUM_DEMAND3 = "CumMaximumDemand3";
+	String R_CUMULATIVE_MAXIMUM_DEMAND3 = "CumMaximumDemand3";
 
 	/** 504 Cumulative Maximum Demand 1 */
-	public final static String R_CUMULATIVE_MAXIMUM_DEMAND4 = "CumMaximumDemand4";
+	String R_CUMULATIVE_MAXIMUM_DEMAND4 = "CumMaximumDemand4";
 
 	/** 741 Time Of Use Register Allocation from Import kWh */
-	public final static String R_TOU_ALLOC_IMPORT_KWH = "TouAllocImportKWH";
+	String R_TOU_ALLOC_IMPORT_KWH = "TouAllocImportKWH";
 
 	/** 742 Time Of Use Register Allocation from Export kWh */
-	public final static String R_TOU_ALLOC_EXPORT_KWH = "TouAllocExportKWH";
+	String R_TOU_ALLOC_EXPORT_KWH = "TouAllocExportKWH";
 
 	/** 743 Time Of Use Register Allocation from Import kvarh */
-	public final static String R_TOU_ALLOC_IMPORT_KVARH = "TouAllocImportKvarh";
+	String R_TOU_ALLOC_IMPORT_KVARH = "TouAllocImportKvarh";
 
 	/** 744 Time Of Use Register Allocation from Export kvarh */
-	public final static String R_TOU_ALLOC_EXPORT_KVARH = "TouAllocExportKvarh";
+	String R_TOU_ALLOC_EXPORT_KVARH = "TouAllocExportKvarh";
 
 	/** 745 Time Of Use Register Allocation from Total kVAh */
-	public final static String R_TOU_ALLOC_TOTAL_KVAH = "TouAllocImportKVAh";
+	String R_TOU_ALLOC_TOTAL_KVAH = "TouAllocImportKVAh";
 
 	/** 751 Maximum Demand Time Of Use Register Allocation From Import kW */
-	public final static String R_MD_TOU_ALLOC_IMPORT_KWH = "MdTouAllocImportKW";
+	String R_MD_TOU_ALLOC_IMPORT_KWH = "MdTouAllocImportKW";
 
 	/** 752 Maximum Demand Time Of Use Register Allocation from Export kW */
-	public final static String R_MD_TOU_ALLOC_EXPORT_KWH = "MdTouAllocExportKW";
+	String R_MD_TOU_ALLOC_EXPORT_KWH = "MdTouAllocExportKW";
 
 	/** 753 Maximum Demand Time Of Use Register Allocation from Import kvar */
-	public final static String R_MD_TOU_ALLOC_IMPORT_KVARH = "MdTouAllocImportKvar";
+	String R_MD_TOU_ALLOC_IMPORT_KVARH = "MdTouAllocImportKvar";
 
 	/** 754 Maximum Demand Time Of Use Register Allocation from Export kvar */
-	public final static String R_MD_TOU_ALLOC_EXPORT_KVARH = "MdTouAllocImportKvarh";
+	String R_MD_TOU_ALLOC_EXPORT_KVARH = "MdTouAllocImportKvarh";
 
 	/** 755 Maximum Demand Time Of Use Register Allocation from Total kVA */
-	public final static String R_MD_TOU_ALLOC_TOTAL_KVAH = "MdTouAllocImportKVAh";
+	String R_MD_TOU_ALLOC_TOTAL_KVAH = "MdTouAllocImportKVAh";
 
 	/** 540 Historical Data */
-	public final static String R_HISTORICAL_DATA = "HistoricalData";
+	String R_HISTORICAL_DATA = "HistoricalData";
 
 	/** Register keys */
 
-	public final static String R_LOAD_PROFILE = "LoadProfile";
-
-
-
-
-
-
+	String R_LOAD_PROFILE = "LoadProfile";
 
 	Map getRegisters();
 
