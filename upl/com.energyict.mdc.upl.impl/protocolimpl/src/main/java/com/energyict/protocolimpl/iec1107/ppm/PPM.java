@@ -529,15 +529,6 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see com.energyict.protocol.MeterProtocol#getTime()
-	 */
-	public Date getTime() throws IOException {
-		return this.rFactory.getTimeDate();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
 	 * @see com.energyict.protocol.MeterProtocol#getRegister(java.lang.String)
 	 */
 	public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
@@ -547,17 +538,26 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	/*
 	 * (non-Javadoc)
 	 *
+	 * @see com.energyict.protocol.MeterProtocol#getTime()
+	 */
+	public Date getTime() throws IOException {
+		return rFactory.getTimeDate();
+	}
+
+	/*
+	 * Important: A timeset can only be done if the difference is less than
+	 * 50 seconds.
+	 *
 	 * @see com.energyict.protocol.MeterProtocol#setTime()
 	 */
 	public void setTime() throws IOException {
-
-		this.logger.log( Level.INFO, "Setting time" );
+		logger.log( Level.INFO, "Setting time" );
 
 		Date meterTime = getTime();
 
 		Calendar sysCalendar = null;
-		sysCalendar = ProtocolUtils.getCalendar(this.timeZone);
-		sysCalendar.add(Calendar.MILLISECOND, this.pRountTripCorrection);
+		sysCalendar = ProtocolUtils.getCalendar(timeZone);
+		sysCalendar.add(Calendar.MILLISECOND, pRountTripCorrection);
 
 		long diff = meterTime.getTime() - sysCalendar.getTimeInMillis();
 
@@ -567,7 +567,7 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 			msg += " ( difference=" + Math.abs( diff ) + " ms ).";
 			msg += "The time will only be corrected with ";
 			msg += MAX_TIME_DIFF  + " ms.";
-			this.logger.severe( msg );
+			logger.severe( msg );
 
 			sysCalendar.setTime( meterTime );
 			if( diff < 0 ) {
@@ -579,20 +579,18 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 		}
 
 		if( isOpus() ) {
-			this.logger.log( Level.WARNING, "setting clock" );
+			logger.log( Level.WARNING, "setting clock" );
 			try {
-				this.rFactory.setRegister(
-						RegisterFactory.R_TIME_ADJUSTMENT_RS232, sysCalendar.getTime());
+				rFactory.setRegister(RegisterFactory.R_TIME_ADJUSTMENT_RS232, sysCalendar.getTime());
 			} catch( IOException ex ){
 				String msg = "Could not do a timeset, probably wrong password.";
-				this.logger.severe( msg );
-
+				logger.severe( msg );
 				throw new NestedIOException( ex );
-
 			}
 		} else {
 			this.rFactory.setRegister(RegisterFactory.R_TIME_DATE_OPTICAL, sysCalendar.getTime());
 		}
+
 	}
 
 	/*
