@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ import com.energyict.mdw.shadow.RtuTypeShadow;
 import com.energyict.mdw.shadow.UserFileShadow;
 
 public class Utilities {
-	
+
 	/**
 	 * ReadMeterReadings, ReadMeterEvents, ReadDemandValues, SendRtuMessage
 	 */
@@ -50,21 +51,24 @@ public class Utilities {
 	 * SendRtuMessage
 	 */
 	public static String COMMPROFILE_SENDRTUMESSAGE = "sendRtuMessage";
-	
+
 	public static String EMPTY_GROUP = "emptyGroup";
 	public static String EMPTY_USERFILE = "emptyUserFile";
 	public static String DUMMY_MODEMPOOL = "dummyModemPool";
-	
+
+	/**
+	 * Create a new default {@link Environment}
+	 */
 	public static void createEnvironment() {
-    	try {
-    		Properties properties = new Properties();
-    		properties.load(Utils.class.getResourceAsStream( "/eiserver.properties" ));
+		try {
+			Properties properties = new Properties();
+			properties.load(Utils.class.getResourceAsStream( "/eiserver.properties" ));
 			Environment.setDefault(properties);
 		} catch (IOException e) {
-            throw new ApplicationException(e);
+			throw new ApplicationException(e);
 		}
-    }
-	
+	}
+
 	/**
 	 * Create a communicationprotocol from a given JavaClassName
 	 * @param javaClassName
@@ -78,7 +82,7 @@ public class Utilities {
 		commProtShadow.setName(javaClassName);
 		return mw().getCommunicationProtocolFactory().create(commProtShadow);
 	}
-	
+
 	/**
 	 * Create an RtuType to use in future code as a basic to create new rtu's
 	 * @param commProtocol - the protocol
@@ -96,7 +100,7 @@ public class Utilities {
 		RtuType rtuType = mw().getRtuTypeFactory().create(rtuTypeShadow);
 		return rtuType;
 	}
-	
+
 	/**
 	 * Create a basic Rtu with the serialNumber equal to "99999999, interval 3600s
 	 * @param rtuType - the metertype of your wanted rtu
@@ -107,7 +111,7 @@ public class Utilities {
 	public static Rtu createRtu(RtuType rtuType) throws SQLException, BusinessException{
 		return createRtu(rtuType, "99999999");
 	}
-	
+
 	/**
 	 * Create a basic Rtu with you given serialnumber and an interval of 3600s
 	 * @param rtuType
@@ -119,7 +123,7 @@ public class Utilities {
 	public static Rtu createRtu(RtuType rtuType, String serial) throws SQLException, BusinessException{
 		return createRtu(rtuType, serial, 3600);
 	}
-	
+
 	/**
 	 * Create your custom Rtu with a given serialnumber and interval
 	 * @param rtuType
@@ -155,7 +159,7 @@ public class Utilities {
 		rtu = mw().getRtuFactory().create(rtuShadow);
 		return rtu;
 	}
-	
+
 	/**
 	 * Adds a channel to the given rtu
 	 * @param rtu
@@ -176,7 +180,7 @@ public class Utilities {
 		rtu = mw().getRtuFactory().create(rtuShadow);
 		return rtu;
 	}
-	
+
 	/**
 	 * @param COM1 - 9600 - NO Parity - 1 - 60000(timeOut in ms)
 	 * @return new dialer
@@ -184,30 +188,55 @@ public class Utilities {
 	 */
 	public static Dialer getNewDialer() throws LinkException, IOException{
 		Dialer dialer=null;
-        dialer =DialerFactory.getDirectDialer().newDialer();
-        dialer.init("COM1");
-        dialer.connect("",60000); 
-        dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
-                SerialCommunicationChannel.DATABITS_8,
-                SerialCommunicationChannel.PARITY_NONE,
-                SerialCommunicationChannel.STOPBITS_1);
+		dialer =DialerFactory.getDirectDialer().newDialer();
+		dialer.init("COM1");
+		dialer.connect("",60000);
+		dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
+				SerialCommunicationChannel.DATABITS_8,
+				SerialCommunicationChannel.PARITY_NONE,
+				SerialCommunicationChannel.STOPBITS_1);
 		return dialer;
 	}
-	
-    public static MeteringWarehouse mw() {
-        return MeteringWarehouse.getCurrent();
-    }
-    
+
+	/**
+	 * Getter for the current {@link MeteringWarehouse}
+	 * 
+	 * @return the current {@link MeteringWarehouse}
+	 */
+	public static MeteringWarehouse mw() {
+		return MeteringWarehouse.getCurrent();
+	}
+
+	/**
+	 * Get a {@link Channel} from a {@link Rtu}, using the channelindex
+	 * 
+	 * @param rtu
+	 * @param index
+	 * @return The {@link Channel}
+	 */
 	public static Channel getChannelWithProfileIndex(Rtu rtu, int index){
 		Iterator it = rtu.getChannels().iterator();
 		while(it.hasNext()){
 			Channel chn = (Channel)it.next();
-			if(chn.getLoadProfileIndex() == index)
+			if(chn.getLoadProfileIndex() == index) {
 				return chn;
+			}
 		}
 		return null;
 	}
 
+	/**
+	 * Create a new {@link CommunicationProfile} given a type name
+	 * The types can be:
+	 * {@link Utilities.COMMPROFILE_ALL}
+	 * {@link Utilities.COMMPROFILE_SENDRTUMESSAGE}
+	 * {@link Utilities.COMMPROFILE_READDEMANDVALUES}
+	 * 
+	 * @param type
+	 * @return
+	 * @throws SQLException
+	 * @throws BusinessException
+	 */
 	public static CommunicationProfile createCommunicationProfile(String type) throws SQLException, BusinessException{
 		CommunicationProfileShadow cps = new CommunicationProfileShadow();
 		if(type.equals(COMMPROFILE_ALL)){
@@ -228,9 +257,21 @@ public class Utilities {
 			cps.setStoreData(true);
 		}
 		return mw().getCommunicationProfileFactory().create(cps);
-		
+
 	}
-	
+
+	/**
+	 * Create a new {@link CommunicationProfile} given a type name and ad it to a given {@link Rtu}
+	 * The types can be:
+	 * {@link Utilities.COMMPROFILE_ALL}
+	 * {@link Utilities.COMMPROFILE_SENDRTUMESSAGE}
+	 * {@link Utilities.COMMPROFILE_READDEMANDVALUES}
+	 * 
+	 * @param rtu
+	 * @param type
+	 * @throws SQLException
+	 * @throws BusinessException
+	 */
 	public static void createCommunicationScheduler(Rtu rtu, String type) throws SQLException, BusinessException {
 		CommunicationSchedulerShadow css = new CommunicationSchedulerShadow();
 		css.setCommunicationProfile(createCommunicationProfile(type));
@@ -243,7 +284,12 @@ public class Utilities {
 		rtuShadow.setCommunicationSchedulerShadows(schedulerShadows);
 		rtu.update(rtuShadow);
 	}
-	
+
+	/**
+	 * @return
+	 * @throws SQLException
+	 * @throws BusinessException
+	 */
 	public static Group createEmptyRtuGroup() throws SQLException, BusinessException{
 		GroupShadow grs = new GroupShadow();
 		grs.setName(EMPTY_GROUP);
@@ -251,13 +297,23 @@ public class Utilities {
 		return mw().getGroupFactory().create(grs);
 	}
 
+	/**
+	 * @return
+	 * @throws SQLException
+	 * @throws BusinessException
+	 */
 	public static UserFile createEmptyUserFile() throws SQLException, BusinessException {
 		UserFileShadow ufs = new UserFileShadow();
 		ufs.setName(EMPTY_USERFILE);
 		ufs.setExtension("bin");
 		return mw().getUserFileFactory().create(ufs);
 	}
-	
+
+	/**
+	 * @return
+	 * @throws SQLException
+	 * @throws BusinessException
+	 */
 	public static ModemPool createDummyModemPool() throws SQLException, BusinessException{
 		List<ModemPool> result = mw().getModemPoolFactory().findByName(DUMMY_MODEMPOOL);
 		if(result.size() == 0){
@@ -268,13 +324,26 @@ public class Utilities {
 			return result.get(0);
 		}
 	}
-	
+
+	/**
+	 * @param meter
+	 * @param date
+	 * @throws SQLException
+	 * @throws BusinessException
+	 */
 	public static void changeLastReading(Rtu meter, Date date) throws SQLException, BusinessException{
 		RtuShadow rs = meter.getShadow();
 		rs.setLastReading(date);
 		meter.update(rs);
 	}
-	
+
+	/**
+	 * @param meter
+	 * @param date
+	 * @param channels
+	 * @throws SQLException
+	 * @throws BusinessException
+	 */
 	public static void changeLastReading(Rtu meter, Date date, int[] channels) throws SQLException, BusinessException{
 		RtuShadow rs = meter.getShadow();
 		for(int i = 0; i < channels.length; i++){
@@ -284,4 +353,20 @@ public class Utilities {
 		}
 		meter.update(rs);
 	}
+
+	/**
+	 * Generate a array of bytes from a hex string. This method does the opposite
+	 * of the {@link ProtocolUtils.getResponseData(byte[] bytes)} method.
+	 * 
+	 * @param hexString The hex string (ex: "$00$01$02$03")
+	 * @return the byte array
+	 */
+	public static byte[] getBytesFromHexString(String hexString) {
+		ByteArrayOutputStream bb = new ByteArrayOutputStream();
+		for (int i = 0; i < hexString.length(); i += 3) {
+			bb.write(Integer.parseInt(hexString.substring(i + 1, i + 3), 16));
+		}
+		return bb.toByteArray();
+	}
+
 }
