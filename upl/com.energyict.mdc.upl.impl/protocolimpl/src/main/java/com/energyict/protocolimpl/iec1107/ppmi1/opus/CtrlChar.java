@@ -1,4 +1,3 @@
-/* Created on Nov 19, 2004 3:01:06 PM */
 package com.energyict.protocolimpl.iec1107.ppmi1.opus;
 
 /**
@@ -6,10 +5,10 @@ package com.energyict.protocolimpl.iec1107.ppmi1.opus;
  * 
  * @author fbo
  */
-class CtrlChar {
+public class CtrlChar {
 
-	byte byteValue;
-	String name;
+	private byte byteValue;
+	private String name;
 
 	/**
 	 * @param byteValue
@@ -26,6 +25,22 @@ class CtrlChar {
 	 */
 	public String toString() {
 		return name + " " + byteValue;
+	}
+
+	public byte getByteValue() {
+		return this.byteValue;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setByteValue(byte byteValue) {
+		this.byteValue = byteValue;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	/**

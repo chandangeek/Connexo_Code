@@ -215,7 +215,7 @@ public class OpusConnection extends Connection {
 			if (timediff > timeout) {
 				throw new IOException("connection timeout");
 			}
-		} while (input != endCtrlChar.byteValue);
+		} while (input != endCtrlChar.getByteValue());
 
 		return bao.toByteArray();
 	}
@@ -234,16 +234,16 @@ public class OpusConnection extends Connection {
 
 		do {
 			input = readIn();
-			if (input == CtrlChar.ACK.byteValue) {
+			if (input == CtrlChar.ACK.getByteValue()) {
 				result = CtrlChar.ACK;
 			}
-			if (input == CtrlChar.NAK.byteValue) {
+			if (input == CtrlChar.NAK.getByteValue()) {
 				result = CtrlChar.NAK;
 			}
-			if (input == CtrlChar.EOT.byteValue) {
+			if (input == CtrlChar.EOT.getByteValue()) {
 				result = CtrlChar.EOT;
 			}
-			if (input == CtrlChar.SOH.byteValue) {
+			if (input == CtrlChar.SOH.getByteValue()) {
 				result = CtrlChar.SOH;
 			}
 			tries++;
@@ -266,7 +266,7 @@ public class OpusConnection extends Connection {
 			checksumOk = isCheckSumOk(message);
 		} else {
 			byte conMessage[] = new byte[message.length + 1];
-			conMessage[0] = startChar.byteValue;
+			conMessage[0] = startChar.getByteValue();
 			System.arraycopy(message, 0, conMessage, 1, message.length);
 			checksumOk = isCheckSumOk(conMessage);
 		}
@@ -279,7 +279,7 @@ public class OpusConnection extends Connection {
 			if (retries == maxRetry) {
 				throw new IOException("receive failed, max retry exceeded");
 			}
-			sendOut(CtrlChar.NAK.byteValue);
+			sendOut(CtrlChar.NAK.getByteValue());
 			message = receive();
 			checksumOk = isCheckSumOk(message);
 			if (checksumOk) {

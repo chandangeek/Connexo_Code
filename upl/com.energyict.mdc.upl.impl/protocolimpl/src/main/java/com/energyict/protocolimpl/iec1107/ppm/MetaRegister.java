@@ -22,67 +22,108 @@ public class MetaRegister {
 	private ScalingFactor scalingFactor = null;
 	private String registerFactoryKey = null;
 
+	/**
+	 * @param name
+	 * @param registerFactoryKey
+	 */
 	public MetaRegister(String name, String registerFactoryKey) {
 		this.name = name;
 		this.registerFactoryKey = registerFactoryKey;
 	}
 
+	/**
+	 * @param name
+	 * @param baseUnit
+	 */
 	public MetaRegister(String name, BaseUnit baseUnit) {
 		this.name = name;
 		this.baseUnit = baseUnit;
 	}
 
+	/**
+	 * @param name
+	 * @param registerFactoryKey
+	 * @param baseUnit
+	 */
 	public MetaRegister(String name, String registerFactoryKey, BaseUnit baseUnit) {
 		this(name, registerFactoryKey);
 		this.baseUnit = baseUnit;
 	}
 
+	/**
+	 * @return
+	 */
 	public String getName() {
 		if (this.sourceRegister != null) {
-			return this.name + " " + this.sourceRegister.name;
+			return name + " " + sourceRegister.name;
 		}
-		return this.name;
+		return name;
 	}
 
+	/**
+	 * @return
+	 */
 	public Unit getUnit() {
-		if (this.sourceRegister != null) {
-			return this.sourceRegister.unit;
+		if (sourceRegister != null) {
+			return sourceRegister.unit;
 		}
-		return this.unit;
+		return unit;
 	}
 
+	/**
+	 * @return
+	 */
 	private BaseUnit getBaseUnit() {
-		if (this.sourceRegister != null) {
-			return this.sourceRegister.baseUnit;
+		if (sourceRegister != null) {
+			return sourceRegister.baseUnit;
 		}
-		return this.baseUnit;
+		return baseUnit;
 	}
 
+	/**
+	 * @return
+	 */
 	public MetaRegister getSourceRegister() {
-		return this.sourceRegister;
+		return sourceRegister;
 	}
 
+	/**
+	 * @param sourceRegister
+	 */
 	public void setSourceRegister(MetaRegister sourceRegister) {
 		this.sourceRegister = sourceRegister;
 	}
 
+	/**
+	 * @return
+	 */
 	private ScalingFactor getScalingFactor() {
-		if (this.sourceRegister != null) {
-			return this.sourceRegister.scalingFactor;
+		if (sourceRegister != null) {
+			return sourceRegister.scalingFactor;
 		}
-		return this.scalingFactor;
+		return scalingFactor;
 	}
 
+	/**
+	 * @param scalingFactor
+	 */
 	public void setScalingFactor(ScalingFactor scalingFactor) {
 		this.scalingFactor = scalingFactor;
 		this.unit = Unit.get(this.baseUnit.getDlmsCode(), scalingFactor.getUnitScale());
 	}
 
+	/**
+	 * @param l
+	 * @return
+	 */
 	public Quantity scaleToRegister(long l) {
-		BigDecimal value = this.scalingFactor.getRegisterScaleFactor().multiply(BigDecimal.valueOf(l));
+		BigDecimal value = scalingFactor.getRegisterScaleFactor().multiply(BigDecimal.valueOf(l));
 		return new Quantity(value, getUnit());
 	}
 
+	/**
+	 * @return
+	 */
 	public BigDecimal getRegisterScaleFactor() {
 		if (getScalingFactor() != null) {
 			return getScalingFactor().getRegisterScaleFactor();
@@ -90,14 +131,23 @@ public class MetaRegister {
 		return null;
 	}
 
+	/**
+	 * @return
+	 */
 	public String getRegisterFactoryKey() {
-		return this.registerFactoryKey;
+		return registerFactoryKey;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	public String toString() {
 		return getName() + " " + getBaseUnit();
 	}
 
+	/**
+	 * @return
+	 */
 	public String toLongString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append(getName());
@@ -105,17 +155,20 @@ public class MetaRegister {
 		sb.append(" [baseUnit=" + getBaseUnit() + "]");
 		sb.append("[unit= " + getUnit() + "]");
 
-		if (this.sourceRegister != null) {
-			sb.append("[sourceRegister= " + this.sourceRegister.toString() + "]");
+		if (sourceRegister != null) {
+			sb.append("[sourceRegister= " + sourceRegister.toString() + "]");
 		} else {
 			sb.append("[sourceRegister=<null> ]");
 		}
 
-		sb.append("[scalingFactor= " + this.scalingFactor + "]");
+		sb.append("[scalingFactor= " + scalingFactor + "]");
 
 		return sb.toString();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	public boolean equals(Object obj) {
 
 		if (obj == this) {
@@ -128,32 +181,32 @@ public class MetaRegister {
 
 		MetaRegister m2 = (MetaRegister) obj;
 
-		if (this.registerFactoryKey == null) {
+		if (registerFactoryKey == null) {
 			if (m2.registerFactoryKey != null) {
 				return false;
 			}
 		} else {
-			if (!this.registerFactoryKey.equals(m2.registerFactoryKey)) {
+			if (!registerFactoryKey.equals(m2.registerFactoryKey)) {
 				return false;
 			}
 		}
 
-		if (this.name == null) {
+		if (name == null) {
 			if (m2.name != null) {
 				return false;
 			}
 		} else {
-			if (!this.name.equals(m2.name)) {
+			if (!name.equals(m2.name)) {
 				return false;
 			}
 		}
 
-		if (this.baseUnit == null) {
+		if (baseUnit == null) {
 			if (m2.baseUnit != null) {
 				return false;
 			}
 		} else {
-			if (!this.baseUnit.equals(m2.baseUnit)) {
+			if (!baseUnit.equals(m2.baseUnit)) {
 				return false;
 			}
 		}
@@ -162,11 +215,14 @@ public class MetaRegister {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
 	public int hashCode() {
 		int result = 0xFFFF;
-		result = (this.registerFactoryKey == null) ? result : result ^ this.registerFactoryKey.hashCode();
-		result = (this.name == null) ? result : result ^ this.name.hashCode();
-		result = (this.baseUnit == null) ? result : result ^ this.baseUnit.hashCode();
+		result = (registerFactoryKey == null) ? result : result ^ registerFactoryKey.hashCode();
+		result = (name == null) ? result : result ^ name.hashCode();
+		result = (baseUnit == null) ? result : result ^ baseUnit.hashCode();
 		return result;
 	}
 

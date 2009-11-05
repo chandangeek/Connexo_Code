@@ -15,7 +15,7 @@ class MessageComposer {
 	}
 
 	MessageComposer add(CtrlChar ctrlChar) {
-		content.write(ctrlChar.byteValue);
+		content.write(ctrlChar.getByteValue());
 		return this;
 	}
 

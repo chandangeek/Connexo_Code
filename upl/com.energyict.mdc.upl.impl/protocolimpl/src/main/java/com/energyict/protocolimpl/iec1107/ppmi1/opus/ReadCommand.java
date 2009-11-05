@@ -55,19 +55,19 @@ class ReadCommand extends OpusCommand {
 
 		MessageComposer iMessage = getOpusConnection().createInstruction(dataIdentity, packetNumber, CtrlChar.READ, dayNumber);
 		getOpusConnection().sendOut(iMessage);
-		getOpusConnection().sendOut(CtrlChar.STX.byteValue);
+		getOpusConnection().sendOut(CtrlChar.STX.getByteValue());
 		byte[] rsp = getOpusConnection().receiveMessage(null);
 		checkDefinition(rsp);
-		opusResponse.definitionMessage = rsp;
+		opusResponse.setDefinitionMessage(rsp);
 
 		if (opusResponse.isDefinitionMessageValid()) {
-			getOpusConnection().sendOut(CtrlChar.ACK.byteValue);
+			getOpusConnection().sendOut(CtrlChar.ACK.getByteValue());
 			getOpusConnection().receiveCtrlChar();
 			rsp = getOpusConnection().receiveMessage(CtrlChar.SOH);
 			check(rsp, dataIdentity, 1);
 			opusResponse.addDataMessage(rsp);
 			while (packetCount < nrPackets && !endOfRegister) {
-				getOpusConnection().sendOut(CtrlChar.ACK.byteValue);
+				getOpusConnection().sendOut(CtrlChar.ACK.getByteValue());
 				// if SOH, another part is comming
 				if (getOpusConnection().receiveCtrlChar() == CtrlChar.SOH) {
 					rsp = getOpusConnection().receiveMessage(CtrlChar.SOH);
@@ -80,7 +80,7 @@ class ReadCommand extends OpusCommand {
 				}
 			}
 			// in the end send an <EOT>, then start new command
-			getOpusConnection().sendOut(CtrlChar.EOT.byteValue);
+			getOpusConnection().sendOut(CtrlChar.EOT.getByteValue());
 		}
 	}
 

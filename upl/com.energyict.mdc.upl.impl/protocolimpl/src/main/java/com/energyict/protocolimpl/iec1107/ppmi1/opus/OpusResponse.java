@@ -9,8 +9,9 @@ import java.util.TimeZone;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
 
-/**Data object for grouping a meter-response; this consists of
- * a single definition message and 0 .. n dataMessages.
+/**
+ * Data object for grouping a meter-response; this consists of a single
+ * definition message and 0 .. n dataMessages.
  * 
  * @author fbo
  */
@@ -18,11 +19,11 @@ public class OpusResponse {
 
 	private TimeZone timeZone = null;
 	private byte [] identificationMessage = null;
-	byte [] definitionMessage = null;
-	ArrayList dataMessages = new ArrayList();
+	private byte [] definitionMessage = null;
+	private List dataMessages = new ArrayList();
 	private ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-	boolean isProfileData = false;
+	private boolean isProfileData = false;
 
 	OpusResponse( TimeZone timeZone, boolean isProfileData ){
 		this.timeZone = timeZone;
@@ -30,7 +31,7 @@ public class OpusResponse {
 	}
 
 	void addDataMessage( byte [] aDataMessage ) throws IOException{
-		dataMessages.add( aDataMessage );
+		getDataMessages().add( aDataMessage );
 		baos.write( aDataMessage );
 	}
 
@@ -42,8 +43,8 @@ public class OpusResponse {
 	 */
 	public byte [] getDataMessageContent( ) throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		for( int i = 0; i < dataMessages.size(); i ++ ) {
-			ArrayList list = PPMUtils.split((byte[])dataMessages.get(i), 1);
+		for( int i = 0; i < getDataMessages().size(); i ++ ) {
+			List list = PPMUtils.split((byte[])getDataMessages().get(i), 1);
 			bos.write( (byte[])list.get(1) );
 		}
 		return ProtocolUtils.convert2ascii(bos.toByteArray());
@@ -57,20 +58,36 @@ public class OpusResponse {
 	}
 
 	private boolean isProfileDefinitionMessageValid( ) {
-		List list = PPMUtils.split(definitionMessage, 1);
+		List list = PPMUtils.split(getDefinitionMessage(), 1);
 		String dayString = PPMUtils.parseBCDString((byte[]) list.get(2));
 		String monthString = PPMUtils.parseBCDString((byte[]) list.get(3));
 		int day = Integer.parseInt(dayString);
 		int month = Integer.parseInt(monthString);
-		return (day != 0 || month != 0);
+		return ((day != 0) || (month != 0));
+	}
+
+	public void setDefinitionMessage(byte [] definitionMessage) {
+		this.definitionMessage = definitionMessage;
+	}
+
+	public byte [] getDefinitionMessage() {
+		return definitionMessage;
+	}
+
+	public void setIdentificationMessage(byte[] identificationMessage) {
+		this.identificationMessage = identificationMessage;
 	}
 
 	public byte[] getIdentificationMessage() {
 		return identificationMessage;
 	}
 
-	public void setIdentificationMessage(byte[] identificationMessage) {
-		this.identificationMessage = identificationMessage;
+	public void setDataMessages(List dataMessages) {
+		this.dataMessages = dataMessages;
+	}
+
+	public List getDataMessages() {
+		return dataMessages;
 	}
 
 }

@@ -21,6 +21,10 @@ public class PPMIOException extends IOException {
 		this.reason = reason;
 	}
 
+	public String getReason() {
+		return this.reason;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Throwable#getMessage()
 	 */

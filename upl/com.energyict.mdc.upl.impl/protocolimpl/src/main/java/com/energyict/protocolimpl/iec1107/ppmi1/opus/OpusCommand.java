@@ -29,7 +29,7 @@ abstract class OpusCommand {
 	 */
 	void check(byte[] rsp, String dataId, int pNr) throws IOException {
 
-		int offset = (rsp[0] == CtrlChar.SOH.byteValue) ? 1 : 0;
+		int offset = (rsp[0] == CtrlChar.SOH.getByteValue()) ? 1 : 0;
 
 		String rcvd = toString(rsp, offset, 3);
 		String xpctd = getOpusConnection().getNodeId();

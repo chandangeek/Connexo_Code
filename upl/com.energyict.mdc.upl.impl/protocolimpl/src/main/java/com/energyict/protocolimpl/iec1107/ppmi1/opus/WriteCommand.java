@@ -22,18 +22,18 @@ class WriteCommand extends OpusCommand {
 	public void execute() throws ConnectionException, IOException {
 		MessageComposer iMessage = getOpusConnection().createInstruction(dataIdentity, packetNumber, CtrlChar.WRITE, dayNumber);
 		getOpusConnection().sendOut(iMessage);
-		getOpusConnection().sendOut(CtrlChar.STX.byteValue);
+		getOpusConnection().sendOut(CtrlChar.STX.getByteValue());
 
 		byte[] receive = getOpusConnection().receiveMessage(null);
 		checkDefinition(receive);
-		opusResponse.definitionMessage = receive;
+		opusResponse.setDefinitionMessage(receive);
 
-		getOpusConnection().sendOut(CtrlChar.ACK.byteValue);
+		getOpusConnection().sendOut(CtrlChar.ACK.getByteValue());
 		getOpusConnection().receive(CtrlChar.STX);
 
 		MessageComposer message = getOpusConnection().createDataMessage(dataIdentity, "001", data);
 		getOpusConnection().sendOut(message);
-		getOpusConnection().sendOut(CtrlChar.EOT.byteValue);
+		getOpusConnection().sendOut(CtrlChar.EOT.getByteValue());
 
 	}
 

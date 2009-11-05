@@ -57,6 +57,8 @@ public class PPMUtils {
 
 	private static final int	MILLISECONDS_IN_HOUR	= 60 * 60 * 1000;
 
+	private PPMUtils() {}
+
 	/**
 	 * @param data
 	 * @param offset
@@ -174,10 +176,7 @@ public class PPMUtils {
 		if (length > 4) {
 			throw new IOException("Register, parseInteger, datalength should not exceed 4!");
 		}
-
-		Integer result = new Integer(Integer.parseInt(Integer.toHexString(ProtocolUtils.getIntLE(data, offset, length))));
-
-		return result;
+		return new Integer(Integer.parseInt(Integer.toHexString(ProtocolUtils.getIntLE(data, offset, length))));
 	}
 
 	/**
@@ -358,10 +357,7 @@ public class PPMUtils {
 		int b0 = i % 10;
 		i /= 10;
 		int b1 = i % 10;
-
-		byte b = (byte) ((b1 << 4) | b0);
-
-		return b;
+		return (byte) ((b1 << 4) | b0);
 	}
 
 	/**

@@ -1,6 +1,9 @@
 package com.energyict.protocolimpl.iec1107.ppm;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -52,18 +55,38 @@ import com.energyict.protocol.ProtocolUtils;
 
 public class PPMUtils {
 
+	private static final int MILLISECONDS_IN_HOUR = 60 * 60 * 1000;
+
 	private PPMUtils() {}
 
-	public static final int MILLISECONDS_IN_HOUR = 60 * 60 * 1000;
-
+	/**
+	 * @param data
+	 * @param offset
+	 * @param length
+	 * @return
+	 * @throws IOException
+	 * @throws NumberFormatException
+	 */
 	public static Long parseLongHexLE(byte[] data, int offset, int length) throws IOException, NumberFormatException {
 		return new Long(ProtocolUtils.getLongLE(data, offset, length));
 	}
 
+	/**
+	 * @param data
+	 * @param offset
+	 * @param length
+	 * @return
+	 * @throws IOException
+	 * @throws NumberFormatException
+	 */
 	public static Long parseLongHex(byte[] data, int offset, int length) throws IOException, NumberFormatException {
 		return new Long(ProtocolUtils.getLong(data, offset, length));
 	}
 
+	/**
+	 * @param val
+	 * @return
+	 */
 	public static String buildHexLE(Long val) {
 		long lVal = val.longValue();
 		byte[] data = new byte[4];
@@ -72,6 +95,15 @@ public class PPMUtils {
 		return new String(data);
 	}
 
+	/**
+	 * @param data
+	 * @param offset
+	 * @param length
+	 * @param unit
+	 * @return
+	 * @throws IOException
+	 * @throws NumberFormatException
+	 */
 	public static BigDecimal parseBigDecimal(byte[] data, int offset, int length, Unit unit) throws IOException, NumberFormatException {
 		if (length > 8) {
 			throw new IOException("Register, parseBigDecimal, datalength should not exceed 8!");
@@ -80,6 +112,16 @@ public class PPMUtils {
 		return bd.movePointLeft(Math.abs(unit.getScale()));
 	}
 
+	/**
+	 * @param data
+	 * @param offset
+	 * @param length
+	 * @param scale
+	 * @param unit
+	 * @return
+	 * @throws IOException
+	 * @throws NumberFormatException
+	 */
 	public static Quantity parseQuantity(byte[] data, int offset, int length, BigDecimal scale, Unit unit) throws IOException, NumberFormatException {
 		if (length > 8) {
 			throw new IOException("Register, parseQuantity, datalength should not exceed 8!");
@@ -93,6 +135,13 @@ public class PPMUtils {
 		return new Quantity(bd, unit);
 	}
 
+	/**
+	 * @param data
+	 * @param offset
+	 * @param length
+	 * @return
+	 * @throws IOException
+	 */
 	public static Long parseBitfield(byte[] data, int offset, int length) throws IOException {
 		if (length > 8) {
 			throw new IOException("Register, parseBitfield, datalength should not exceed 8!");
@@ -100,6 +149,14 @@ public class PPMUtils {
 		return new Long(ProtocolUtils.getLong(data, offset, length));
 	}
 
+	/**
+	 * @param data
+	 * @param offset
+	 * @param length
+	 * @return
+	 * @throws IOException
+	 * @throws NumberFormatException
+	 */
 	public static Long parseLong(byte[] data, int offset, int length) throws IOException, NumberFormatException {
 		if (length > 8) {
 			throw new IOException("Register, parseLong, datalength should not exceed 8!");
@@ -107,6 +164,14 @@ public class PPMUtils {
 		return new Long(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data, offset, length))));
 	}
 
+	/**
+	 * @param data
+	 * @param offset
+	 * @param length
+	 * @return
+	 * @throws IOException
+	 * @throws NumberFormatException
+	 */
 	public static Integer parseInteger(byte[] data, int offset, int length) throws IOException, NumberFormatException {
 		if (length > 4) {
 			throw new IOException("Register, parseInteger, datalength should not exceed 4!");
@@ -114,7 +179,12 @@ public class PPMUtils {
 		return new Integer(Integer.parseInt(Integer.toHexString(ProtocolUtils.getIntLE(data, offset, length))));
 	}
 
-	// Parse a BCD String from native meter format
+	/**
+	 * Parse a BCD String from native meter format
+	 * 
+	 * @param data
+	 * @return
+	 */
 	public static String parseBCDString(byte[] data) {
 		StringBuffer result = new StringBuffer();
 		if (data == null) {
@@ -127,7 +197,15 @@ public class PPMUtils {
 		return result.toString();
 	}
 
-	/** Parse a Date (7 byte full date) */
+	/**
+	 * Parse a Date (7 byte full date)
+	 * 
+	 * @param data
+	 * @param offset
+	 * @param timeZone
+	 * @return
+	 * @throws IOException
+	 */
 	public static Date parseDate(byte[] data, int offset, TimeZone timeZone) throws IOException {
 		Calendar calendar = ProtocolUtils.getCalendar(timeZone);
 		calendar.clear();
@@ -145,31 +223,21 @@ public class PPMUtils {
 		int yearHigh = ProtocolUtils.BCD2hex(data[offset + 2]);
 		int yearLow = ProtocolUtils.BCD2hex(data[offset + 2]);
 
-		//		System.out.print("[" + toHexaString(data[offset + 0] & 0xFF) + " ");
-		//		System.out.print(toHexaString(data[offset + 1] & 0xFF) + " ");
-		//		System.out.print(toHexaString(data[offset + 2] & 0xFF) + " ");
-		//		System.out.print(toHexaString(data[offset + 3] & 0xFF) + " ");
-		//		System.out.print(toHexaString(data[offset + 4] & 0xFF) + " ");
-		//		System.out.print(toHexaString(data[offset + 5] & 0xFF) + " ");
-		//		System.out.print(toHexaString(data[offset + 6] & 0xFF) + " ");
-		//
-		//		System.out.print("] = [" + calendar.getTime() + " ]");
-		//
-		//		System.out.print("[" + toBinaryString(data[offset + 0] & 0xFF) + " ");
-		//
-		//		System.out.print(toBinaryString(data[offset + 1] & 0xFF) + " ");
-		//		System.out.print(toBinaryString(data[offset + 2] & 0xFF) + " ");
-		//		System.out.print(toBinaryString(data[offset + 3] & 0xFF) + " ");
-		//		System.out.print(toBinaryString(data[offset + 4] & 0xFF) + " ");
-		//		System.out.print(toBinaryString(data[offset + 5] & 0xFF) + " ");
-		//		System.out.print(toBinaryString(data[offset + 6] & 0xFF) + "]\n ");
-
 		return calendar.getTime();
 
 	}
 
-	/** Parse a timestamp, 4 byte */
+	/**
+	 * Parse a timestamp, 4 byte
+	 * 
+	 * @param data
+	 * @param offset
+	 * @param timeZone
+	 * @return
+	 * @throws IOException
+	 */
 	public static Date parseTimeStamp(byte[] data, int offset, TimeZone timeZone) throws IOException {
+
 		Calendar calendar = ProtocolUtils.getCalendar(timeZone);
 		calendar.set(Calendar.SECOND, 0);
 		calendar.set(Calendar.MINUTE, ProtocolUtils.BCD2hex(data[offset]));
@@ -182,27 +250,17 @@ public class PPMUtils {
 
 		calendar.set(Calendar.YEAR, year);
 
-		//		System.out.println( "yearOffset= " + yearOffset );
-		//		System.out.println( "year= " + year );
-		//
-		//		System.out.print("[" + toHexaString(data[offset + 0] & 0xFF) + " ");
-		//		System.out.print(toHexaString(data[offset + 1] & 0xFF) + " ");
-		//		System.out.print(toHexaString(data[offset + 2] & 0xFF) + " ");
-		//		System.out.print(toHexaString(data[offset + 3] & 0xFF) + " ");
-		//
-		//		System.out.print("] = [" + calendar.getTime() + " ]");
-		//
-		//		System.out.print("[" + toBinaryString(data[offset + 0] & 0xFF) + " " );
-		//
-		//		System.out.print(toBinaryString(data[offset + 1] & 0xFF) + " ");
-		//		System.out.print(toBinaryString(data[offset + 2] & 0xFF) + " ");
-		//		System.out.print(toBinaryString(data[offset + 3] & 0xFF) + "]\n");
-
 		return calendar.getTime();
 
 	}
 
-	/** Build a date, a full date (7 byte) */
+	/**
+	 * Build a date, a full date (7 byte)
+	 * 
+	 * @param date
+	 * @param timeZone
+	 * @return
+	 */
 	public static byte[] buildDate(Date date, TimeZone timeZone) {
 		Calendar calendar = ProtocolUtils.getCalendar(timeZone);
 		calendar.clear();
@@ -265,8 +323,13 @@ public class PPMUtils {
 	/**
 	 * Must be more precise, up to day, for the moment only months are taken
 	 * into consideration.
+	 * 
+	 * @param today
+	 * @param offset
+	 * @param timeZone
+	 * @return
 	 */
-	public static int getYear(Date today, int offset, TimeZone timeZone ) {
+	static int getYear(Date today, int offset, TimeZone timeZone ) {
 
 		Calendar c = ProtocolUtils.getCalendar( timeZone );
 		c.setTime(today);
@@ -284,8 +347,7 @@ public class PPMUtils {
 				}
 			}
 		} else { // == 0
-			offsetYear = ((todayYear % 4) == 0) ? todayYear : todayYear
-					- (todayYear % 4);
+			offsetYear = ((todayYear % 4) == 0) ? todayYear : todayYear - (todayYear % 4);
 		}
 		return offsetYear + offset;
 	}
@@ -297,7 +359,13 @@ public class PPMUtils {
 		return (byte) ((b1 << 4) | b0);
 	}
 
-	/** split byte stream for token '#' */
+	/**
+	 * Split byte stream for token '#'
+	 * 
+	 * @param b
+	 * @param offset
+	 * @return
+	 */
 	public static ArrayList split(byte[] b, int offset) {
 		ArrayList result = new ArrayList();
 		ByteArrayOutputStream temp = new ByteArrayOutputStream();
@@ -317,7 +385,11 @@ public class PPMUtils {
 		return result;
 	}
 
-	/** Clear hours, minutes and seconds to start at the beginning of the day.
+	/**
+	 * Clear hours, minutes and seconds to start at the beginning of the day.
+	 * 
+	 * @param c
+	 * @return
 	 */
 	static public Calendar clear(Calendar c) {
 		c.set(Calendar.SECOND, 0);
@@ -326,7 +398,11 @@ public class PPMUtils {
 		return c;
 	}
 
-	/** Return the number of hours in the day.
+	/**
+	 * Return the number of hours in the day.
+	 * 
+	 * @param c
+	 * @return
 	 */
 	static public int hoursInDay( Calendar c  ){
 		Calendar start = clear( (Calendar)c.clone() );
@@ -335,7 +411,12 @@ public class PPMUtils {
 		return (int) (tomorow.getTime().getTime() - start.getTime().getTime()) / MILLISECONDS_IN_HOUR;
 	}
 
-	/** Special debug stuff */
+	/**
+	 * Special debug stuff
+	 * 
+	 * @param b
+	 * @return
+	 */
 	public static String toBinaryString(int b) {
 		char[] result = {'0', '0', '0', '0', '0', '0', '0', '0'};
 		char[] bitArray = Integer.toBinaryString(b & 0xFF).toCharArray();
@@ -343,7 +424,12 @@ public class PPMUtils {
 		return new String(result);
 	}
 
-	/** Special debug stuff */
+	/**
+	 * Special debug stuff
+	 * 
+	 * @param b
+	 * @return
+	 */
 	public static String toHexaString(int b) {
 		String r = Integer.toHexString(b & 0xFF);
 		if (r.length() < 2) {
@@ -352,7 +438,12 @@ public class PPMUtils {
 		return r;
 	}
 
-	/** Special debug stuff */
+	/**
+	 * Special debug stuff
+	 * 
+	 * @param b
+	 * @return
+	 */
 	public static String toHexaString(byte[] b) {
 		StringBuffer sb = new StringBuffer();
 		if (b == null) {
@@ -363,6 +454,48 @@ public class PPMUtils {
 			}
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * @param value
+	 * @return
+	 */
+	public static long hex2dec(byte value) {
+		return Long.parseLong(Long.toHexString(value & 0xFF));
+	}
+
+	/**
+	 * Store a array of bytes to a file
+	 * 
+	 * @param data
+	 * @param fileName
+	 */
+	public static void toFile(byte[] data, String fileName) {
+		try {
+			FileOutputStream writer = new FileOutputStream(fileName);
+			writer.write(data);
+			writer.close();
+		} catch (IOException e) {
+		}
+	}
+
+	/**
+	 * Read a array of bytes from a file
+	 * 
+	 * @param fileName
+	 * @return
+	 * @throws IOException
+	 */
+	public static byte[] fromFile(String fileName) throws IOException {
+		File file = new File(fileName);
+		if (file.length() > Integer.MAX_VALUE) {
+			throw new IOException("Filesize to big. [" + file.length() + " > " + Integer.MAX_VALUE + "]");
+		}
+		byte[] data = new byte[(int) file.length()];
+		FileInputStream reader = new FileInputStream(fileName);
+		reader.read(data);
+		reader.close();
+		return data;
 	}
 
 }
