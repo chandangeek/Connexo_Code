@@ -579,17 +579,16 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 
 		}
 
-		if( isOpus() ) {
-			logger.log( Level.WARNING, "setting clock" );
-			try {
+		try {
+			if (isOpus()) {
 				rFactory.setRegister(RegisterFactory.R_TIME_ADJUSTMENT_RS232, sysCalendar.getTime());
-			} catch( IOException ex ){
-				String msg = "Could not do a timeset, probably wrong password.";
-				logger.severe( msg );
-				throw new NestedIOException( ex );
+			} else {
+				rFactory.setRegister(RegisterFactory.R_TIME_DATE_OPTICAL, sysCalendar.getTime());
 			}
-		} else {
-			this.rFactory.setRegister(RegisterFactory.R_TIME_DATE_OPTICAL, sysCalendar.getTime());
+		} catch (IOException ex) {
+			String msg = "Could not do a timeset, probably wrong password.";
+			logger.severe(msg);
+			throw new NestedIOException(ex);
 		}
 
 	}
