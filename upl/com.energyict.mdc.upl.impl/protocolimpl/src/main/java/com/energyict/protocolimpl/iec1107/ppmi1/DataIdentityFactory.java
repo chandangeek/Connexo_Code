@@ -10,12 +10,8 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 
 class DataIdentityFactory {
 
-	private Map rawRegisters;
-	private PPM ppm = null;
-
-	public DataIdentityFactory(PPM ppm ) {
-		this.ppm = ppm;
-	}
+	private Map	rawRegisters;
+	private PPM	ppm	= null;
 
 	{
 		rawRegisters = new HashMap();
@@ -48,7 +44,6 @@ class DataIdentityFactory {
 		add("540", 1024, 16, DataIdentity.NORMAL);
 		add("550", 0, 16, DataIdentity.PROFILE);
 
-
 		add("501", 25, 1, DataIdentity.NORMAL);
 		add("502", 40, 1, DataIdentity.NORMAL);
 		add("503", 128, 2, DataIdentity.NORMAL);
@@ -71,7 +66,22 @@ class DataIdentityFactory {
 
 	}
 
-	byte[] getDataIdentity(String dataID, boolean cached, int dataLength, int set) throws IOException {
+	/**
+	 * @param ppm
+	 */
+	public DataIdentityFactory(PPM ppm) {
+		this.ppm = ppm;
+	}
+
+	/**
+	 * @param dataID
+	 * @param cached
+	 * @param dataLength
+	 * @param set
+	 * @return
+	 * @throws IOException
+	 */
+	public byte[] getDataIdentity(String dataID, boolean cached, int dataLength, int set) throws IOException {
 		try {
 			DataIdentity rawRegister = findRawRegister(dataID);
 			return rawRegister.readRegister(dataID, cached, (dataLength == -1 ? rawRegister.getLength() : dataLength), set);
@@ -80,45 +90,58 @@ class DataIdentityFactory {
 		}
 	}
 
-	void setDataIdentity(String dataID, String value) throws IOException {
-
+	/**
+	 * @param dataID
+	 * @param value
+	 * @throws IOException
+	 */
+	public void setDataIdentity(String dataID, String value) throws IOException {
 		try {
 			DataIdentity rawRegister = findRawRegister(dataID);
 			rawRegister.writeRegister(dataID, value);
 		} catch (FlagIEC1107ConnectionException e) {
-			throw new IOException("DataIdentityFactory, setDataIdentity, "
-					+ e.getMessage());
+			throw new IOException("DataIdentityFactory, setDataIdentity, " + e.getMessage());
 		}
-
 	}
 
-	Map getRawRegisters() {
-		return rawRegisters;
-	}
-
-	PPM getPpm() {
+	/**
+	 * @return
+	 */
+	public PPM getPpm() {
 		return ppm;
 	}
 
+	/**
+	 * @param name
+	 * @param length
+	 * @param nrPackets
+	 * @param reverseIndexing
+	 */
 	private void add(String name, int length, int nrPackets, boolean reverseIndexing) {
 		DataIdentity di = new DataIdentity(name, length, nrPackets, reverseIndexing);
 		addRawRegister(di);
 		di.setDataIdentityFactory(this);
 	}
 
+	/**
+	 * @param di
+	 */
 	private void addRawRegister(DataIdentity di) {
 		rawRegisters.put(di.getName(), di);
 	}
 
+	/**
+	 * @param dataID
+	 * @return
+	 * @throws IOException
+	 */
 	private DataIdentity findRawRegister(String dataID) throws IOException {
-
 		DataIdentity rawRegister = (DataIdentity) rawRegisters.get(dataID);
 		if (rawRegister == null) {
 			throw new IOException("DataIdentityFactory, findRawRegister, " + dataID + " does not exist!");
 		} else {
 			return rawRegister;
 		}
-
 	}
 
 }

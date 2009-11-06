@@ -8,7 +8,6 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ppmi1.parser.HistoricalDataParser;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileDefinition;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.MainRegister;
@@ -20,21 +19,21 @@ import com.energyict.protocolimpl.iec1107.ppmi1.register.ScalingFactor;
 public class PPM1Register {
 
 	/* Data Types used in the meter */
-	protected final static int STRING = 0;
-	protected final static int DATE = 1;
-	protected final static int NUMBER = 2;
-	protected final static int LONG = 3;
-	protected final static int BYTEARRAY = 4;
-	protected final static int QUANTITY = 5;
-	protected final static int INTEGER = 6;
-	protected final static int BITFIELD64 = 7;
-	protected final static int HEX = 9;
-	protected final static int HEX_LE = 10;
-	protected final static int MD = 11;
-	protected final static int REGISTER = 14;
-	protected final static int SCALINGFACTOR = 21;
-	protected final static int LOADPROFILEDEF = 22;
-	protected final static int HISTORICAL = 23;
+	protected static final int STRING = 0;
+	protected static final int DATE = 1;
+	protected static final int NUMBER = 2;
+	protected static final int LONG = 3;
+	protected static final int BYTEARRAY = 4;
+	protected static final int QUANTITY = 5;
+	protected static final int INTEGER = 6;
+	protected static final int BITFIELD64 = 7;
+	protected static final int HEX = 9;
+	protected static final int HEX_LE = 10;
+	protected static final int MD = 11;
+	protected static final int REGISTER = 14;
+	protected static final int SCALINGFACTOR = 21;
+	protected static final int LOADPROFILEDEF = 22;
+	protected static final int HISTORICAL = 23;
 
 	/* obvious stuff, but I like code that way */
 	protected static final boolean CACHED = true;
@@ -102,7 +101,7 @@ public class PPM1Register {
 	 * @param cached
 	 * @param readable
 	 */
-	protected void init(String dataId, String name, int type, int offset, int length, boolean writeable, boolean cached, boolean readable) {
+	private void init(String dataId, String name, int type, int offset, int length, boolean writeable, boolean cached, boolean readable) {
 		this.dataId = dataId;
 		this.name = name;
 		this.type = type;
@@ -199,20 +198,18 @@ public class PPM1Register {
 
 	/**
 	 * @param value
-	 * @throws FlagIEC1107ConnectionException
 	 * @throws IOException
 	 */
-	protected void writeRegister(String value) throws FlagIEC1107ConnectionException, IOException {
+	protected void writeRegister(String value) throws IOException {
 		this.value = null;
 		getDataIdentityFactory().setDataIdentity(getDataID(), value);
 	}
 
 	/**
 	 * @param object
-	 * @throws FlagIEC1107ConnectionException
 	 * @throws IOException
 	 */
-	protected void writeRegister(Object object) throws FlagIEC1107ConnectionException, IOException {
+	protected void writeRegister(Object object) throws IOException {
 		this.value = null;
 		getDataIdentityFactory().setDataIdentity(getDataID(), buildData(object));
 	}
@@ -222,10 +219,9 @@ public class PPM1Register {
 	 * @param dataLength
 	 * @param set
 	 * @return
-	 * @throws FlagIEC1107ConnectionException
 	 * @throws IOException
 	 */
-	byte[] readRegister(boolean cached, int dataLength, int set) throws FlagIEC1107ConnectionException, IOException {
+	byte[] readRegister(boolean cached, int dataLength, int set) throws IOException {
 		return getDataIdentityFactory().getDataIdentity(getDataID(), cached, dataLength, set);
 	}
 

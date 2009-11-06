@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import com.energyict.cbo.Quantity;
@@ -53,9 +54,15 @@ import com.energyict.protocol.ProtocolUtils;
  * @author fbo
  */
 
-public class PPMUtils {
+public final class PPMUtils {
 
 	private static final int	MILLISECONDS_IN_HOUR	= 60 * 60 * 1000;
+
+	private static final int	BIG_DECIMAL_MAX_LENGTH	= 8;
+	private static final int	QUANTITY_MAX_LENGTH		= 8;
+	private static final int	BITFIELD_MAX_LENGTH		= 8;
+	private static final int	LONG_MAX_LENGTH			= 8;
+	private static final int	INTEGER_MAX_LENGTH		= 4;
 
 	private PPMUtils() {}
 
@@ -105,8 +112,8 @@ public class PPMUtils {
 	 * @throws NumberFormatException
 	 */
 	public static BigDecimal parseBigDecimal(byte[] data, int offset, int length, Unit unit) throws IOException, NumberFormatException {
-		if (length > 8) {
-			throw new IOException("Register, parseBigDecimal, datalength should not exceed 8!");
+		if (length > BIG_DECIMAL_MAX_LENGTH) {
+			throw new IOException("Register, parseBigDecimal, datalength should not exceed " + BIG_DECIMAL_MAX_LENGTH + "!");
 		}
 		BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data, offset, length))));
 		return bd.movePointLeft(Math.abs(unit.getScale()));
@@ -123,12 +130,12 @@ public class PPMUtils {
 	 * @throws NumberFormatException
 	 */
 	public static Quantity parseQuantity(byte[] data, int offset, int length, BigDecimal scale, Unit unit) throws IOException, NumberFormatException {
-		if (length > 8) {
-			throw new IOException("Register, parseQuantity, datalength should not exceed 8!");
+		if (length > QUANTITY_MAX_LENGTH) {
+			throw new IOException("Register, parseQuantity, datalength should not exceed " + QUANTITY_MAX_LENGTH + "!");
 		}
 		BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLong(data, offset, length))));
 		if (scale == null) {
-			bd = new BigDecimal(0);
+			bd = BigDecimal.ZERO;
 		} else {
 			bd = bd.multiply(scale);
 		}
@@ -143,8 +150,8 @@ public class PPMUtils {
 	 * @throws IOException
 	 */
 	public static Long parseBitfield(byte[] data, int offset, int length) throws IOException {
-		if (length > 8) {
-			throw new IOException("Register, parseBitfield, datalength should not exceed 8!");
+		if (length > BITFIELD_MAX_LENGTH) {
+			throw new IOException("Register, parseBitfield, datalength should not exceed " + BITFIELD_MAX_LENGTH + "!");
 		}
 		return new Long(ProtocolUtils.getLong(data, offset, length));
 	}
@@ -157,9 +164,9 @@ public class PPMUtils {
 	 * @throws IOException
 	 * @throws NumberFormatException
 	 */
-	public static Long parseLong(byte[] data, int offset, int length) throws IOException, NumberFormatException {
-		if (length > 8) {
-			throw new IOException("Register, parseLong, datalength should not exceed 8!");
+	public static Long parseLong(byte[] data, int offset, int length) throws IOException {
+		if (length > LONG_MAX_LENGTH) {
+			throw new IOException("Register, parseLong, datalength should not exceed " + LONG_MAX_LENGTH + "!");
 		}
 		return new Long(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data, offset, length))));
 	}
@@ -172,11 +179,11 @@ public class PPMUtils {
 	 * @throws IOException
 	 * @throws NumberFormatException
 	 */
-	public static Integer parseInteger(byte[] data, int offset, int length) throws IOException, NumberFormatException {
-		if (length > 4) {
-			throw new IOException("Register, parseInteger, datalength should not exceed 4!");
+	public static Integer parseInteger(byte[] data, int offset, int length) throws IOException {
+		if (length > INTEGER_MAX_LENGTH) {
+			throw new IOException("Register, parseInteger, datalength should not exceed " + INTEGER_MAX_LENGTH + "!");
 		}
-		return new Integer(Integer.parseInt(Integer.toHexString(ProtocolUtils.getIntLE(data, offset, length))));
+		return Integer.valueOf(Integer.parseInt(Integer.toHexString(ProtocolUtils.getIntLE(data, offset, length))));
 	}
 
 	/**
@@ -219,9 +226,6 @@ public class PPMUtils {
 		calendar.set(Calendar.DAY_OF_MONTH, ProtocolUtils.BCD2hex((byte) (data[offset + 3] & 0x3F)));
 		calendar.set(Calendar.MONTH, ProtocolUtils.BCD2hex((byte) (data[offset + 4] & 0x1F)) - 1);
 		calendar.set(Calendar.HOUR_OF_DAY, ProtocolUtils.BCD2hex(data[offset + 2]));
-
-		int yearHigh = ProtocolUtils.BCD2hex(data[offset + 2]);
-		int yearLow = ProtocolUtils.BCD2hex(data[offset + 2]);
 
 		return calendar.getTime();
 
@@ -330,7 +334,7 @@ public class PPMUtils {
 	 * @param timeZone
 	 * @return
 	 */
-	static int getYear(Date today, int offset, TimeZone timeZone) {
+	public static int getYear(Date today, int offset, TimeZone timeZone) {
 
 		Calendar c = ProtocolUtils.getCalendar(timeZone);
 		c.setTime(today);
@@ -367,8 +371,8 @@ public class PPMUtils {
 	 * @param offset
 	 * @return
 	 */
-	public static ArrayList split(byte[] b, int offset) {
-		ArrayList result = new ArrayList();
+	public static List split(byte[] b, int offset) {
+		List result = new ArrayList();
 		ByteArrayOutputStream temp = new ByteArrayOutputStream();
 		for (int i = offset; i < b.length; i++) {
 			if (b[i] == 0x23) {
@@ -390,7 +394,7 @@ public class PPMUtils {
 	 * @param c
 	 * @return
 	 */
-	static public Calendar clear(Calendar c) {
+	public static Calendar clear(Calendar c) {
 		c.set(Calendar.SECOND, 0);
 		c.set(Calendar.MINUTE, 0);
 		c.set(Calendar.HOUR_OF_DAY, 0);
@@ -403,15 +407,11 @@ public class PPMUtils {
 	 * @param c
 	 * @return
 	 */
-	static public int hoursInDay(Calendar c) {
-
+	public static int hoursInDay(Calendar c) {
 		Calendar start = clear((Calendar) c.clone());
-
 		Calendar tomorow = (Calendar) start.clone();
 		tomorow.add(Calendar.DAY_OF_YEAR, 1);
-
 		return (int) (tomorow.getTime().getTime() - start.getTime().getTime()) / MILLISECONDS_IN_HOUR;
-
 	}
 
 	/**
