@@ -6,551 +6,557 @@ import java.util.TreeSet;
 
 class TypeMaximumValues {
 
-    String manufacturer;
-    String versionNumber;
-    String revisionNumber;
-    
-    Set tablesImplemented;
-    
-    int maxMtrInputs;
-    int maxSenseInputs;
-    int maxTotalizations;
-    int maxStorageChnnls;
-    int maxXforms;
-    int maxRates;
-    int maxSummations;
-    int maxConcValues;
-    int maxRatePeaks;
-    int maxLoadCntrls;
-    int maxDataBlks;
-    int maxOutputs;
-    int maxDailyEvents;
-    int maxDailyScheds;
-    int maxSeasons;
-    int maxDateEvents;
-    int maxSelfReads;
-    int maxDisplayItems;
-    int maxDialInCnditns;
-    int maxHistryMsgCnditns;
-    int maxSmdErrors;
-    int maxStorK;
-    int maxHistEvents;
-    int maxEncdrs;
-    int maxMidnightEncdrReads;
-    int maxRateMins;
-    int maxSubIntvls;
-    
-    Set auxTablesImplemented;
-    
-    int industryNo;
-    int maxCartSize;
-    int cartMemSize;
-    
-    Set controlTables;
-    
-    int maxExternalDisplayItems;
-    int maxHighSpeedEvents;
-    int maxHiLoDemands;
-    int maxDaysHiLoDemands;
-    int maxLogicOrs;
-    int maxLogicElements;
-    int maxTimers;
-    int maxFlipflops;
-    int maxEventScheds;
-    int maxAnalogOutputs;
-    int maxAnalogFilters;
-    int maxKompensations;
-    int maxKompTotalizers;
-    int maxKompFilters;
-    int maxKompConstants;
-    int lastMLine;
-    int maxPeerNumericOutputs;
-    int maxPeerNumericInputs;
-    int maxPeerStatusOutputs;
-    int maxPeerSenseInputs;
-    int maxConstants;
-    int maxNandAllocations;
-    int maxBussFilters;
-    int maxBussFilterLen;
-    int maxModemStrings;
-    int maxPeerAbsoluteOutputs;
-    int maxPeerAbsoluteInputs;
+	private String manufacturer;
+	private String versionNumber;
+	private String revisionNumber;
 
-    static TypeMaximumValues parse( Assembly assembly ){
-        TypeMaximumValues tmv = new TypeMaximumValues();
-        
-        tmv.manufacturer = assembly.stringValue(4);
-        tmv.versionNumber = assembly.stringValue(4);
-        tmv.revisionNumber = assembly.stringValue(2);
-        
-        tmv.tablesImplemented = new TreeSet();
-        ByteArray ba = assembly.getBytes(32);
-        for( int i = 0; i < 255; i ++ ) {
-            Integer table = new Integer(i);
-            if( ba.getBit(i) )
-                tmv.tablesImplemented.add(table);
-        }
-        
-        tmv.maxMtrInputs = assembly.intValue();
-        tmv.maxSenseInputs = assembly.intValue();
-        tmv.maxTotalizations = assembly.intValue();
-        tmv.maxStorageChnnls = assembly.intValue();
-        tmv.maxXforms = assembly.intValue();
-        tmv.maxRates = assembly.intValue();
-        tmv.maxSummations = assembly.intValue();
-        tmv.maxConcValues = assembly.intValue();
-        tmv.maxRatePeaks = assembly.intValue();
-        tmv.maxLoadCntrls = assembly.intValue();
-        tmv.maxDataBlks = assembly.intValue();
-        tmv.maxOutputs = assembly.intValue();
-        tmv.maxDailyEvents = assembly.intValue();
-        tmv.maxDailyScheds = assembly.intValue();
-        tmv.maxSeasons = assembly.intValue();
-        tmv.maxDateEvents = assembly.intValue();
-        tmv.maxSelfReads = assembly.intValue();
-        tmv.maxDisplayItems = assembly.intValue();
-        tmv.maxDialInCnditns = assembly.intValue();
-        tmv.maxHistryMsgCnditns = assembly.intValue();
-        tmv.maxSmdErrors = assembly.intValue();
-        tmv.maxStorK = assembly.intValue();
-        tmv.maxHistEvents = assembly.intValue();
-        tmv.maxEncdrs = assembly.intValue();
-        tmv.maxMidnightEncdrReads = assembly.intValue();
-        tmv.maxRateMins = assembly.intValue();
-        tmv.maxSubIntvls = assembly.intValue();
-        
-        tmv.auxTablesImplemented = new TreeSet();
-        ba = assembly.getBytes(32);
-        for( int i = 0; i < 255; i ++ ) {
-            Integer table = new Integer(i);
-            if( ba.getBit(i) )
-                tmv.auxTablesImplemented.add(table);
-        }
-        
-        tmv.industryNo = assembly.intValue();
-        tmv.maxCartSize = assembly.intValue();
-        tmv.cartMemSize = assembly.intValue();
+	private Set tablesImplemented;
 
-        tmv.controlTables = new TreeSet();
-        ba = assembly.getBytes(32);
-        for( int i = 0; i < 255; i ++ ) {
-            Integer table = new Integer(i);
-            if( ba.getBit(i) )
-                tmv.controlTables.add(table);
-        }
-        
-        tmv.maxExternalDisplayItems = assembly.intValue();
-        tmv.maxHighSpeedEvents = assembly.intValue();
-        tmv.maxHiLoDemands = assembly.intValue();
-        tmv.maxDaysHiLoDemands = assembly.intValue();
-        tmv.maxLogicOrs = assembly.intValue();
-        tmv.maxLogicElements = assembly.intValue();
-        tmv.maxTimers = assembly.intValue();
-        tmv.maxFlipflops = assembly.intValue();
-        tmv.maxEventScheds = assembly.intValue();
-        tmv.maxAnalogOutputs = assembly.intValue();
-        tmv.maxAnalogFilters = assembly.intValue();
-        tmv.maxKompensations = assembly.intValue();
-        tmv.maxKompTotalizers = assembly.intValue();
-        tmv.maxKompFilters = assembly.intValue();
-        tmv.maxKompConstants = assembly.intValue();
-        tmv.lastMLine = assembly.intValue();
-        tmv.maxPeerNumericOutputs = assembly.intValue();
-        tmv.maxPeerNumericInputs = assembly.intValue();
-        tmv.maxPeerStatusOutputs = assembly.intValue();
-        tmv.maxPeerSenseInputs = assembly.intValue();
-        tmv.maxConstants = assembly.intValue();
-        tmv.maxNandAllocations = assembly.intValue();
-        tmv.maxBussFilters = assembly.intValue();
-        tmv.maxBussFilterLen = assembly.intValue();
-        tmv.maxModemStrings = assembly.intValue();
-        tmv.maxPeerAbsoluteOutputs = assembly.intValue();
-        tmv.maxPeerAbsoluteInputs = assembly.intValue();
-        
-        return tmv;
-    }
-    
-    /** Max mtr inputs allowed this SMD */
-    int getMaxMtrInputs() {
-        return maxMtrInputs;
-    }
+	private int maxMtrInputs;
+	private int maxSenseInputs;
+	private int maxTotalizations;
+	private int maxStorageChnnls;
+	private int maxXforms;
+	private int maxRates;
+	private int maxSummations;
+	private int maxConcValues;
+	private int maxRatePeaks;
+	private int maxLoadCntrls;
+	private int maxDataBlks;
+	private int maxOutputs;
+	private int maxDailyEvents;
+	private int maxDailyScheds;
+	private int maxSeasons;
+	private int maxDateEvents;
+	private int maxSelfReads;
+	private int maxDisplayItems;
+	private int maxDialInCnditns;
+	private int maxHistryMsgCnditns;
+	private int maxSmdErrors;
+	private int maxStorK;
+	private int maxHistEvents;
+	private int maxEncdrs;
+	private int maxMidnightEncdrReads;
+	private int maxRateMins;
+	private int maxSubIntvls;
 
-    /** Max no of external event inputs */
-    int getMaxSenseInputs() {
-        return maxSenseInputs;
-    }
+	private Set auxTablesImplemented;
 
-    /** Max totaliztion channels allowed */
-    int getMaxTotalizations() {
-        return maxTotalizations;
-    }
+	private int industryNo;
+	private int maxCartSize;
+	private int cartMemSize;
 
-    /** Max no of chnnls for intvl data */
-    int getMaxStorageChnnls() {
-        return maxStorageChnnls;
-    }
+	private Set controlTables;
 
-    /** Max no of transform channels */
-    int getMaxXforms() {
-        return maxXforms;
-    }
+	private int maxExternalDisplayItems;
+	private int maxHighSpeedEvents;
+	private int maxHiLoDemands;
+	private int maxDaysHiLoDemands;
+	private int maxLogicOrs;
+	private int maxLogicElements;
+	private int maxTimers;
+	private int maxFlipflops;
+	private int maxEventScheds;
+	private int maxAnalogOutputs;
+	private int maxAnalogFilters;
+	private int maxKompensations;
+	private int maxKompTotalizers;
+	private int maxKompFilters;
+	private int maxKompConstants;
+	private int lastMLine;
+	private int maxPeerNumericOutputs;
+	private int maxPeerNumericInputs;
+	private int maxPeerStatusOutputs;
+	private int maxPeerSenseInputs;
+	private int maxConstants;
+	private int maxNandAllocations;
+	private int maxBussFilters;
+	private int maxBussFilterLen;
+	private int maxModemStrings;
+	private int maxPeerAbsoluteOutputs;
+	private int maxPeerAbsoluteInputs;
 
-    /** Max no of rates calculated */
-    int getMaxRates() {
-        return maxRates;
-    }
+	static TypeMaximumValues parse( Assembly assembly ){
+		TypeMaximumValues tmv = new TypeMaximumValues();
 
-    /** Max no of summation regs/data blk */
-    int getMaxSummations() {
-        return maxSummations;
-    }
+		tmv.manufacturer = assembly.stringValue(4);
+		tmv.versionNumber = assembly.stringValue(4);
+		tmv.revisionNumber = assembly.stringValue(2);
 
-    /** Max concurrent values saved */
-    int getMaxConcValues() {
-        return maxConcValues;
-    }
+		tmv.tablesImplemented = new TreeSet();
+		ByteArray ba = assembly.getBytes(32);
+		for( int i = 0; i < 255; i ++ ) {
+			Integer table = Integer.valueOf(i);
+			if( ba.getBit(i) ) {
+				tmv.tablesImplemented.add(table);
+			}
+		}
 
-    /** Max peaks saved, each data blk */
-    int getMaxRatePeaks() {
-        return maxRatePeaks;
-    }
+		tmv.maxMtrInputs = assembly.intValue();
+		tmv.maxSenseInputs = assembly.intValue();
+		tmv.maxTotalizations = assembly.intValue();
+		tmv.maxStorageChnnls = assembly.intValue();
+		tmv.maxXforms = assembly.intValue();
+		tmv.maxRates = assembly.intValue();
+		tmv.maxSummations = assembly.intValue();
+		tmv.maxConcValues = assembly.intValue();
+		tmv.maxRatePeaks = assembly.intValue();
+		tmv.maxLoadCntrls = assembly.intValue();
+		tmv.maxDataBlks = assembly.intValue();
+		tmv.maxOutputs = assembly.intValue();
+		tmv.maxDailyEvents = assembly.intValue();
+		tmv.maxDailyScheds = assembly.intValue();
+		tmv.maxSeasons = assembly.intValue();
+		tmv.maxDateEvents = assembly.intValue();
+		tmv.maxSelfReads = assembly.intValue();
+		tmv.maxDisplayItems = assembly.intValue();
+		tmv.maxDialInCnditns = assembly.intValue();
+		tmv.maxHistryMsgCnditns = assembly.intValue();
+		tmv.maxSmdErrors = assembly.intValue();
+		tmv.maxStorK = assembly.intValue();
+		tmv.maxHistEvents = assembly.intValue();
+		tmv.maxEncdrs = assembly.intValue();
+		tmv.maxMidnightEncdrReads = assembly.intValue();
+		tmv.maxRateMins = assembly.intValue();
+		tmv.maxSubIntvls = assembly.intValue();
 
-    /** Max no of load control functions */
-    int getMaxLoadCntrls() {
-        return maxLoadCntrls;
-    }
+		tmv.auxTablesImplemented = new TreeSet();
+		ba = assembly.getBytes(32);
+		for( int i = 0; i < 255; i ++ ) {
+			Integer table = Integer.valueOf(i);
+			if( ba.getBit(i) ) {
+				tmv.auxTablesImplemented.add(table);
+			}
+		}
 
-    /** Max rating pd & totalization blks */
-    int getMaxDataBlks() {
-        return maxDataBlks;
-    }
+		tmv.industryNo = assembly.intValue();
+		tmv.maxCartSize = assembly.intValue();
+		tmv.cartMemSize = assembly.intValue();
 
-    /** Maximum gen. purpose relays */
-    int getMaxOutputs() {
-        return maxOutputs;
-    }
+		tmv.controlTables = new TreeSet();
+		ba = assembly.getBytes(32);
+		for( int i = 0; i < 255; i ++ ) {
+			Integer table = Integer.valueOf(i);
+			if( ba.getBit(i) ) {
+				tmv.controlTables.add(table);
+			}
+		}
 
-    /** Maximum no. of events allowed in each TOU_DAILY_SCHED. */
-    int getMaxDailyEvents() {
-        return maxDailyEvents;
-    }
+		tmv.maxExternalDisplayItems = assembly.intValue();
+		tmv.maxHighSpeedEvents = assembly.intValue();
+		tmv.maxHiLoDemands = assembly.intValue();
+		tmv.maxDaysHiLoDemands = assembly.intValue();
+		tmv.maxLogicOrs = assembly.intValue();
+		tmv.maxLogicElements = assembly.intValue();
+		tmv.maxTimers = assembly.intValue();
+		tmv.maxFlipflops = assembly.intValue();
+		tmv.maxEventScheds = assembly.intValue();
+		tmv.maxAnalogOutputs = assembly.intValue();
+		tmv.maxAnalogFilters = assembly.intValue();
+		tmv.maxKompensations = assembly.intValue();
+		tmv.maxKompTotalizers = assembly.intValue();
+		tmv.maxKompFilters = assembly.intValue();
+		tmv.maxKompConstants = assembly.intValue();
+		tmv.lastMLine = assembly.intValue();
+		tmv.maxPeerNumericOutputs = assembly.intValue();
+		tmv.maxPeerNumericInputs = assembly.intValue();
+		tmv.maxPeerStatusOutputs = assembly.intValue();
+		tmv.maxPeerSenseInputs = assembly.intValue();
+		tmv.maxConstants = assembly.intValue();
+		tmv.maxNandAllocations = assembly.intValue();
+		tmv.maxBussFilters = assembly.intValue();
+		tmv.maxBussFilterLen = assembly.intValue();
+		tmv.maxModemStrings = assembly.intValue();
+		tmv.maxPeerAbsoluteOutputs = assembly.intValue();
+		tmv.maxPeerAbsoluteInputs = assembly.intValue();
 
-    /** Max no. of daily scheds allowed */
-    int getMaxDailyScheds() {
-        return maxDailyScheds;
-    }
+		return tmv;
+	}
 
-    /** Max no. of seasons allowed in SMD */
-    int getMaxSeasons() {
-        return maxSeasons;
-    }
+	/** Max mtr inputs allowed this SMD */
+	int getMaxMtrInputs() {
+		return maxMtrInputs;
+	}
 
-    /** Max no. of dated events in table */
-    int getMaxDateEvents() {
-        return maxDateEvents;
-    }
+	/** Max no of external event inputs */
+	int getMaxSenseInputs() {
+		return maxSenseInputs;
+	}
 
-    /** The maximum no. of data blocks saved after a reset */
-    int getMaxSelfReads() {
-        return maxSelfReads;
-    }
+	/** Max totaliztion channels allowed */
+	int getMaxTotalizations() {
+		return maxTotalizations;
+	}
 
-    /** The max no of display items which can be put into a display table */
-    int getMaxDisplayItems() {
-        return maxDisplayItems;
-    }
+	/** Max no of chnnls for intvl data */
+	int getMaxStorageChnnls() {
+		return maxStorageChnnls;
+	}
 
-    /** The max no of conditions which can cause an event dial in. */
-    int getMaxDialInCnditns() {
-        return maxDialInCnditns;
-    }
+	/** Max no of transform channels */
+	int getMaxXforms() {
+		return maxXforms;
+	}
 
-    /** The max no of conditions which can cause a history message to be written. */
-    int getMaxHistryMsgCnditns() {
-        return maxHistryMsgCnditns;
-    }
+	/** Max no of rates calculated */
+	int getMaxRates() {
+		return maxRates;
+	}
 
-    /** The max no of error condition flags allotted for this device */
-    int getMaxSmdErrors() {
-        return maxSmdErrors;
-    }
+	/** Max no of summation regs/data blk */
+	int getMaxSummations() {
+		return maxSummations;
+	}
 
-    /** The max no of k bytes available for interval data storage. */
-    int getMaxStorK() {
-        return maxStorK;
-    }
+	/** Max concurrent values saved */
+	int getMaxConcValues() {
+		return maxConcValues;
+	}
 
-    /** Maximum no. of history messages which can be stored */
-    int getMaxHistEvents() {
-        return maxHistEvents;
-    }
+	/** Max peaks saved, each data blk */
+	int getMaxRatePeaks() {
+		return maxRatePeaks;
+	}
 
-    /** Maximum no. of encoders which can be attached to the SMD */
-    int getMaxEncdrs() {
-        return maxEncdrs;
-    }
+	/** Max no of load control functions */
+	int getMaxLoadCntrls() {
+		return maxLoadCntrls;
+	}
 
-    /** Maximum no. of days of midnight encoder readings stored */
-    int getMaxMidnightEncdrReads() {
-        return maxMidnightEncdrReads;
-    }
+	/** Max rating pd & totalization blks */
+	int getMaxDataBlks() {
+		return maxDataBlks;
+	}
 
-    /** Maximum No. of rate of consumption minimum peaks. */
-    int getMaxRateMins() {
-        return maxRateMins;
-    }
+	/** Maximum gen. purpose relays */
+	int getMaxOutputs() {
+		return maxOutputs;
+	}
 
-    /** Maximum no. of SUB_INTVLS which can be rolled for 1 RATE_INTVL */
-    int getMaxSubIntvls() {
-        return maxSubIntvls;
-    }
+	/** Maximum no. of events allowed in each TOU_DAILY_SCHED. */
+	int getMaxDailyEvents() {
+		return maxDailyEvents;
+	}
 
-    /** 0 = Electric Utility Industry */
-    int getIndustryNo() {
-        return industryNo;
-    }
+	/** Max no. of daily scheds allowed */
+	int getMaxDailyScheds() {
+		return maxDailyScheds;
+	}
 
-    /***/
-    int getMaxCartSize() {
-        return maxCartSize;
-    }
+	/** Max no. of seasons allowed in SMD */
+	int getMaxSeasons() {
+		return maxSeasons;
+	}
 
-    /***/
-    int getCartMemSize() {
-        return cartMemSize;
-    }
+	/** Max no. of dated events in table */
+	int getMaxDateEvents() {
+		return maxDateEvents;
+	}
 
-    /***/
-    int getMaxExternalDisplayItems() {
-        return maxExternalDisplayItems;
-    }
+	/** The maximum no. of data blocks saved after a reset */
+	int getMaxSelfReads() {
+		return maxSelfReads;
+	}
 
-    /***/
-    int getMaxHighSpeedEvents() {
-        return maxHighSpeedEvents;
-    }
+	/** The max no of display items which can be put into a display table */
+	int getMaxDisplayItems() {
+		return maxDisplayItems;
+	}
 
-    /***/
-    int getMaxHiLoDemands() {
-        return maxHiLoDemands;
-    }
+	/** The max no of conditions which can cause an event dial in. */
+	int getMaxDialInCnditns() {
+		return maxDialInCnditns;
+	}
 
-    /***/
-    int getMaxDaysHiLoDemands() {
-        return maxDaysHiLoDemands;
-    }
+	/** The max no of conditions which can cause a history message to be written. */
+	int getMaxHistryMsgCnditns() {
+		return maxHistryMsgCnditns;
+	}
 
-    /***/
-    int getMaxLogicOrs() {
-        return maxLogicOrs;
-    }
+	/** The max no of error condition flags allotted for this device */
+	int getMaxSmdErrors() {
+		return maxSmdErrors;
+	}
 
-    /***/
-    int getMaxLogicElements() {
-        return maxLogicElements;
-    }
+	/** The max no of k bytes available for interval data storage. */
+	int getMaxStorK() {
+		return maxStorK;
+	}
 
-    /***/
-    int getMaxTimers() {
-        return maxTimers;
-    }
+	/** Maximum no. of history messages which can be stored */
+	int getMaxHistEvents() {
+		return maxHistEvents;
+	}
 
-    /***/
-    int getMaxFlipflops() {
-        return maxFlipflops;
-    }
+	/** Maximum no. of encoders which can be attached to the SMD */
+	int getMaxEncdrs() {
+		return maxEncdrs;
+	}
 
-    /***/
-    int getMaxEventScheds() {
-        return maxEventScheds;
-    }
+	/** Maximum no. of days of midnight encoder readings stored */
+	int getMaxMidnightEncdrReads() {
+		return maxMidnightEncdrReads;
+	}
 
-    /** max number of analog output board channels */
-    int getMaxAnalogOutputs() {
-        return maxAnalogOutputs;
-    }
+	/** Maximum No. of rate of consumption minimum peaks. */
+	int getMaxRateMins() {
+		return maxRateMins;
+	}
 
-    /** max analog filter size */
-    int getMaxAnalogFilters() {
-        return maxAnalogFilters;
-    }
+	/** Maximum no. of SUB_INTVLS which can be rolled for 1 RATE_INTVL */
+	int getMaxSubIntvls() {
+		return maxSubIntvls;
+	}
 
-    /** max number of loss comp stages */
-    int getMaxKompensations() {
-        return maxKompensations;
-    }
+	/** 0 = Electric Utility Industry */
+	int getIndustryNo() {
+		return industryNo;
+	}
 
-    /** max number of totalizers per stage */
-    int getMaxKompTotalizers() {
-        return maxKompTotalizers;
-    }
+	/***/
+	int getMaxCartSize() {
+		return maxCartSize;
+	}
 
-    /** max number of totalizer filter stages */
-    int getMaxKompFilters() {
-        return maxKompFilters;
-    }
+	/***/
+	int getCartMemSize() {
+		return cartMemSize;
+	}
 
-    /** max number of constants sets per stage */
-    int getMaxKompConstants() {
-        return maxKompConstants;
-    }
+	/***/
+	int getMaxExternalDisplayItems() {
+		return maxExternalDisplayItems;
+	}
 
-    /** Last M Buss line number */
-    int getLastMLine() {
-        return lastMLine;
-    }
+	/***/
+	int getMaxHighSpeedEvents() {
+		return maxHighSpeedEvents;
+	}
 
-    /** Max number of peer to peer numeric outputs */
-    int getMaxPeerNumericOutputs() {
-        return maxPeerNumericOutputs;
-    }
+	/***/
+	int getMaxHiLoDemands() {
+		return maxHiLoDemands;
+	}
 
-    /** Max number of peer to peer numeric inputs */
-    int getMaxPeerNumericInputs() {
-        return maxPeerNumericInputs;
-    }
+	/***/
+	int getMaxDaysHiLoDemands() {
+		return maxDaysHiLoDemands;
+	}
 
-    /** Max number of peer to peer status outputs */
-    int getMaxPeerStatusOutputs() {
-        return maxPeerStatusOutputs;
-    }
+	/***/
+	int getMaxLogicOrs() {
+		return maxLogicOrs;
+	}
 
-    /** Max number of peer to peer sense inputs */
-    int getMaxPeerSenseInputs() {
-        return maxPeerSenseInputs;
-    }
+	/***/
+	int getMaxLogicElements() {
+		return maxLogicElements;
+	}
 
-    /** Max number table 55 constants */
-    int getMaxConstants() {
-        return maxConstants;
-    }
+	/***/
+	int getMaxTimers() {
+		return maxTimers;
+	}
 
-    /** Max number allocatable NAND flash files */
-    int getMaxNandAllocations() {
-        return maxNandAllocations;
-    }
+	/***/
+	int getMaxFlipflops() {
+		return maxFlipflops;
+	}
 
-    /** Max number type 2 buss filters */
-    int getMaxBussFilters() {
-        return maxBussFilters;
-    }
+	/***/
+	int getMaxEventScheds() {
+		return maxEventScheds;
+	}
 
-    /** Max number of stages in type 2 buss filters */
-    int getMaxBussFilterLen() {
-        return maxBussFilterLen;
-    }
+	/** max number of analog output board channels */
+	int getMaxAnalogOutputs() {
+		return maxAnalogOutputs;
+	}
 
-    /** Max number of stages in type 2 buss filters */
-    int getMaxModemStrings() {
-        return maxModemStrings;
-    }
+	/** max analog filter size */
+	int getMaxAnalogFilters() {
+		return maxAnalogFilters;
+	}
 
-    /** Max number of peer to peer absolute outputs */
-    int getMaxPeerAbsoluteOutputs() {
-        return maxPeerAbsoluteOutputs;
-    }
+	/** max number of loss comp stages */
+	int getMaxKompensations() {
+		return maxKompensations;
+	}
 
-    /** Max number of peer to peer absolute inputs */
-    int getMaxPeerAbsoluteInputs() {
-        return maxPeerAbsoluteInputs;
-    }
-    
-    public String toString( ) { 
-        StringBuffer rslt = new StringBuffer();
+	/** max number of totalizers per stage */
+	int getMaxKompTotalizers() {
+		return maxKompTotalizers;
+	}
 
-        rslt.append( "TypeMaximumValues [\n" );
-        
-        rslt.append( "    tablesImplemented:" );
-        Iterator i = tablesImplemented.iterator();
-        while( i.hasNext())
-            rslt.append( i.next().toString() + " "  );
-        rslt.append( "\n" );
-        
-        rslt.append( "    auxTablesImplemented:" );
-        i = auxTablesImplemented.iterator();
-        while( i.hasNext())
-            rslt.append( i.next().toString() + " "  );
-        rslt.append( "\n" );
-        
-        rslt.append( "    controlTables:" );
-        i = controlTables.iterator();
-        while( i.hasNext())
-            rslt.append( i.next().toString() + " "  );
-        rslt.append( "\n" );
-        
-        rslt.append( "    maxMtrInputs=" + this.maxMtrInputs + "\n" );
-        rslt.append( "    maxSenseInputs=" + this.maxSenseInputs + "\n" );
-        rslt.append( "    maxTotalizations=" + this.maxTotalizations + "\n" );
-        rslt.append( "    maxStorageChnnls=" + this.maxStorageChnnls + "\n" );
-        rslt.append( "    maxXforms=" + this.maxXforms + "\n" );
-        rslt.append( "    maxRates=" + this.maxRates + "\n" );
-        rslt.append( "    maxSummations=" + this.maxSummations + "\n" );
-        rslt.append( "    maxConcValues=" + this.maxConcValues + "\n" );
-        rslt.append( "    maxRatePeaks=" + this.maxRatePeaks + "\n" );
-        rslt.append( "    maxLoadCntrls=" + this.maxLoadCntrls + "\n" );
-        rslt.append( "    maxDataBlks=" + this.maxDataBlks + "\n" );
-        rslt.append( "    maxOutputs=" + this.maxOutputs + "\n" );
-        rslt.append( "    maxDailyEvents=" + this.maxDailyEvents + "\n" );
-        rslt.append( "    maxDailyScheds=" + this.maxDailyScheds + "\n" );
-        rslt.append( "    maxSeasons=" + this.maxSeasons + "\n" );
-        rslt.append( "    maxDateEvents=" + this.maxDateEvents + "\n" );
-        rslt.append( "    maxSelfReads=" + this.maxSelfReads + "\n" );
-        rslt.append( "    maxDisplayItems=" + this.maxDisplayItems + "\n" );
-        rslt.append( "    maxDialInCnditns=" + this.maxDialInCnditns + "\n" );
-        rslt.append( "    maxHistryMsgCnditns=" + this.maxHistryMsgCnditns + "\n" );
-        rslt.append( "    maxSmdErrors=" + this.maxSmdErrors + "\n" );
-        rslt.append( "    maxStorK=" + this.maxStorK + "\n" );
-        rslt.append( "    maxHistEvents=" + this.maxHistEvents + "\n" );
-        rslt.append( "    maxEncdrs=" + this.maxEncdrs + "\n" );
-        rslt.append( "    maxMidnightEncdrReads=" + this.maxMidnightEncdrReads + "\n" );
-        rslt.append( "    maxRateMins=" + this.maxRateMins + "\n" );
-        rslt.append( "    maxSubIntvls=" + this.maxSubIntvls + "\n" );
-        rslt.append( "    industryNo=" + this.industryNo + "\n" );
-        rslt.append( "    maxCartSize=" + this.maxCartSize + "\n" );
-        rslt.append( "    cartMemSize=" + this.cartMemSize + "\n" );
-        rslt.append( "    maxExternalDisplayItems=" + this.maxExternalDisplayItems + "\n" );
-        rslt.append( "    maxHighSpeedEvents=" + this.maxHighSpeedEvents + "\n" );
-        rslt.append( "    maxHiLoDemands=" + this.maxHiLoDemands + "\n" );
-        rslt.append( "    maxDaysHiLoDemands=" + this.maxDaysHiLoDemands + "\n" );
-        rslt.append( "    maxLogicOrs=" + this.maxLogicOrs + "\n" );
-        rslt.append( "    maxLogicElements=" + this.maxLogicElements + "\n" );
-        rslt.append( "    maxTimers=" + this.maxTimers + "\n" );
-        rslt.append( "    maxFlipflops=" + this.maxFlipflops + "\n" );
-        rslt.append( "    maxEventScheds=" + this.maxEventScheds + "\n" );
-        rslt.append( "    maxAnalogOutputs=" + this.maxAnalogOutputs + "\n" );
-        rslt.append( "    maxAnalogFilters=" + this.maxAnalogFilters + "\n" );
-        rslt.append( "    maxKompensations=" + this.maxKompensations + "\n" );
-        rslt.append( "    maxKompTotalizers=" + this.maxKompTotalizers + "\n" );
-        rslt.append( "    maxKompFilters=" + this.maxKompFilters + "\n" );
-        rslt.append( "    maxKompConstants=" + this.maxKompConstants + "\n" );
-        rslt.append( "    lastMLine=" + this.lastMLine + "\n" );
-        rslt.append( "    maxPeerNumericOutputs=" + this.maxPeerNumericOutputs + "\n" );
-        rslt.append( "    maxPeerNumericInputs=" + this.maxPeerNumericInputs + "\n" );
-        rslt.append( "    maxPeerStatusOutputs=" + this.maxPeerStatusOutputs + "\n" );
-        rslt.append( "    maxPeerSenseInputs=" + this.maxPeerSenseInputs + "\n" );
-        rslt.append( "    maxConstants=" + this.maxConstants + "\n" );
-        rslt.append( "    maxNandAllocations=" + this.maxNandAllocations + "\n" );
-        rslt.append( "    maxBussFilters=" + this.maxBussFilters + "\n" );
-        rslt.append( "    maxBussFilterLen=" + this.maxBussFilterLen + "\n" );
-        rslt.append( "    maxModemStrings=" + this.maxModemStrings + "\n" );
-        rslt.append( "    maxPeerAbsoluteOutputs=" + this.maxPeerAbsoluteOutputs + "\n" );
-        rslt.append( "    maxPeerAbsoluteInputs=" + this.maxPeerAbsoluteInputs + "\n" );
-        rslt.append( "]" );
-        
-        return rslt.toString();
-        
-    }
+	/** max number of totalizer filter stages */
+	int getMaxKompFilters() {
+		return maxKompFilters;
+	}
 
-    String getManufacturer() {
-        return manufacturer;
-    }
+	/** max number of constants sets per stage */
+	int getMaxKompConstants() {
+		return maxKompConstants;
+	}
 
-    String getRevisionNumber() {
-        return revisionNumber;
-    }
+	/** Last M Buss line number */
+	int getLastMLine() {
+		return lastMLine;
+	}
 
-    String getVersionNumber() {
-        return versionNumber;
-    }
+	/** Max number of peer to peer numeric outputs */
+	int getMaxPeerNumericOutputs() {
+		return maxPeerNumericOutputs;
+	}
+
+	/** Max number of peer to peer numeric inputs */
+	int getMaxPeerNumericInputs() {
+		return maxPeerNumericInputs;
+	}
+
+	/** Max number of peer to peer status outputs */
+	int getMaxPeerStatusOutputs() {
+		return maxPeerStatusOutputs;
+	}
+
+	/** Max number of peer to peer sense inputs */
+	int getMaxPeerSenseInputs() {
+		return maxPeerSenseInputs;
+	}
+
+	/** Max number table 55 constants */
+	int getMaxConstants() {
+		return maxConstants;
+	}
+
+	/** Max number allocatable NAND flash files */
+	int getMaxNandAllocations() {
+		return maxNandAllocations;
+	}
+
+	/** Max number type 2 buss filters */
+	int getMaxBussFilters() {
+		return maxBussFilters;
+	}
+
+	/** Max number of stages in type 2 buss filters */
+	int getMaxBussFilterLen() {
+		return maxBussFilterLen;
+	}
+
+	/** Max number of stages in type 2 buss filters */
+	int getMaxModemStrings() {
+		return maxModemStrings;
+	}
+
+	/** Max number of peer to peer absolute outputs */
+	int getMaxPeerAbsoluteOutputs() {
+		return maxPeerAbsoluteOutputs;
+	}
+
+	/** Max number of peer to peer absolute inputs */
+	int getMaxPeerAbsoluteInputs() {
+		return maxPeerAbsoluteInputs;
+	}
+
+	public String toString( ) {
+		StringBuffer rslt = new StringBuffer();
+
+		rslt.append( "TypeMaximumValues [\n" );
+
+		rslt.append( "    tablesImplemented:" );
+		Iterator i = tablesImplemented.iterator();
+		while( i.hasNext()) {
+			rslt.append(i.next().toString()).append(" ");
+		}
+		rslt.append( "\n" );
+
+		rslt.append( "    auxTablesImplemented:" );
+		i = auxTablesImplemented.iterator();
+		while( i.hasNext()) {
+			rslt.append(i.next().toString()).append(" ");
+		}
+		rslt.append( "\n" );
+
+		rslt.append( "    controlTables:" );
+		i = controlTables.iterator();
+		while( i.hasNext()) {
+			rslt.append(i.next().toString()).append(" ");
+		}
+		rslt.append( "\n" );
+
+		rslt.append( "    maxMtrInputs=" + this.maxMtrInputs + "\n" );
+		rslt.append( "    maxSenseInputs=" + this.maxSenseInputs + "\n" );
+		rslt.append( "    maxTotalizations=" + this.maxTotalizations + "\n" );
+		rslt.append( "    maxStorageChnnls=" + this.maxStorageChnnls + "\n" );
+		rslt.append( "    maxXforms=" + this.maxXforms + "\n" );
+		rslt.append( "    maxRates=" + this.maxRates + "\n" );
+		rslt.append( "    maxSummations=" + this.maxSummations + "\n" );
+		rslt.append( "    maxConcValues=" + this.maxConcValues + "\n" );
+		rslt.append( "    maxRatePeaks=" + this.maxRatePeaks + "\n" );
+		rslt.append( "    maxLoadCntrls=" + this.maxLoadCntrls + "\n" );
+		rslt.append( "    maxDataBlks=" + this.maxDataBlks + "\n" );
+		rslt.append( "    maxOutputs=" + this.maxOutputs + "\n" );
+		rslt.append( "    maxDailyEvents=" + this.maxDailyEvents + "\n" );
+		rslt.append( "    maxDailyScheds=" + this.maxDailyScheds + "\n" );
+		rslt.append( "    maxSeasons=" + this.maxSeasons + "\n" );
+		rslt.append( "    maxDateEvents=" + this.maxDateEvents + "\n" );
+		rslt.append( "    maxSelfReads=" + this.maxSelfReads + "\n" );
+		rslt.append( "    maxDisplayItems=" + this.maxDisplayItems + "\n" );
+		rslt.append( "    maxDialInCnditns=" + this.maxDialInCnditns + "\n" );
+		rslt.append( "    maxHistryMsgCnditns=" + this.maxHistryMsgCnditns + "\n" );
+		rslt.append( "    maxSmdErrors=" + this.maxSmdErrors + "\n" );
+		rslt.append( "    maxStorK=" + this.maxStorK + "\n" );
+		rslt.append( "    maxHistEvents=" + this.maxHistEvents + "\n" );
+		rslt.append( "    maxEncdrs=" + this.maxEncdrs + "\n" );
+		rslt.append( "    maxMidnightEncdrReads=" + this.maxMidnightEncdrReads + "\n" );
+		rslt.append( "    maxRateMins=" + this.maxRateMins + "\n" );
+		rslt.append( "    maxSubIntvls=" + this.maxSubIntvls + "\n" );
+		rslt.append( "    industryNo=" + this.industryNo + "\n" );
+		rslt.append( "    maxCartSize=" + this.maxCartSize + "\n" );
+		rslt.append( "    cartMemSize=" + this.cartMemSize + "\n" );
+		rslt.append( "    maxExternalDisplayItems=" + this.maxExternalDisplayItems + "\n" );
+		rslt.append( "    maxHighSpeedEvents=" + this.maxHighSpeedEvents + "\n" );
+		rslt.append( "    maxHiLoDemands=" + this.maxHiLoDemands + "\n" );
+		rslt.append( "    maxDaysHiLoDemands=" + this.maxDaysHiLoDemands + "\n" );
+		rslt.append( "    maxLogicOrs=" + this.maxLogicOrs + "\n" );
+		rslt.append( "    maxLogicElements=" + this.maxLogicElements + "\n" );
+		rslt.append( "    maxTimers=" + this.maxTimers + "\n" );
+		rslt.append( "    maxFlipflops=" + this.maxFlipflops + "\n" );
+		rslt.append( "    maxEventScheds=" + this.maxEventScheds + "\n" );
+		rslt.append( "    maxAnalogOutputs=" + this.maxAnalogOutputs + "\n" );
+		rslt.append( "    maxAnalogFilters=" + this.maxAnalogFilters + "\n" );
+		rslt.append( "    maxKompensations=" + this.maxKompensations + "\n" );
+		rslt.append( "    maxKompTotalizers=" + this.maxKompTotalizers + "\n" );
+		rslt.append( "    maxKompFilters=" + this.maxKompFilters + "\n" );
+		rslt.append( "    maxKompConstants=" + this.maxKompConstants + "\n" );
+		rslt.append( "    lastMLine=" + this.lastMLine + "\n" );
+		rslt.append( "    maxPeerNumericOutputs=" + this.maxPeerNumericOutputs + "\n" );
+		rslt.append( "    maxPeerNumericInputs=" + this.maxPeerNumericInputs + "\n" );
+		rslt.append( "    maxPeerStatusOutputs=" + this.maxPeerStatusOutputs + "\n" );
+		rslt.append( "    maxPeerSenseInputs=" + this.maxPeerSenseInputs + "\n" );
+		rslt.append( "    maxConstants=" + this.maxConstants + "\n" );
+		rslt.append( "    maxNandAllocations=" + this.maxNandAllocations + "\n" );
+		rslt.append( "    maxBussFilters=" + this.maxBussFilters + "\n" );
+		rslt.append( "    maxBussFilterLen=" + this.maxBussFilterLen + "\n" );
+		rslt.append( "    maxModemStrings=" + this.maxModemStrings + "\n" );
+		rslt.append( "    maxPeerAbsoluteOutputs=" + this.maxPeerAbsoluteOutputs + "\n" );
+		rslt.append( "    maxPeerAbsoluteInputs=" + this.maxPeerAbsoluteInputs + "\n" );
+		rslt.append( "]" );
+
+		return rslt.toString();
+
+	}
+
+	String getManufacturer() {
+		return manufacturer;
+	}
+
+	String getRevisionNumber() {
+		return revisionNumber;
+	}
+
+	String getVersionNumber() {
+		return versionNumber;
+	}
 
 }
