@@ -535,7 +535,6 @@ public class PPM extends AbstractPPM {
 			if (isOpus()) {
 				rFactory.setRegister(OpusRegisterFactory.R_TIME_ADJUSTMENT_RS232, sysCalendar.getTime());
 			} else {
-				// TODO: Fine tune adjustment time ...
 				rFactory.setRegister(OpticalRegisterFactory.R_TIME_ADJUSTMENT_OPTICAL, diff < 0 ? ADJUST_ADVANCE : ADJUST_RETARD);
 			}
 		} catch (IOException ex) {
