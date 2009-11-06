@@ -35,7 +35,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
@@ -124,30 +123,30 @@ public class PPM extends AbstractPPM {
 	 * The minimum period of time that must be elapsed in order for an interval
 	 * to be valid/acceptable. (in millisecs) (see Fix for data spikes)
 	 */
-	public final static int		MINIMUM_INTERVAL_AGE	= 60000;
-	private final static int	MAX_TIME_DIFF			= 50000;
+	public static final int			MINIMUM_INTERVAL_AGE	= 60000;
+	private static final int		MAX_TIME_DIFF			= 50000;
 
 	/** Property keys specific for PPM protocol. */
-	private final static String	PK_OPUS					= "OPUS";
-	private final static String	PK_TIMEOUT				= "Timeout";
-	private final static String	PK_RETRIES				= "Retries";
-	private final static String	PK_FORCE_DELAY			= "ForcedDelay";
-	private final static String	PK_EXTENDED_LOGGING		= "ExtendedLogging";
+	private static final String		PK_OPUS					= "OPUS";
+	private static final String		PK_TIMEOUT				= "Timeout";
+	private static final String		PK_RETRIES				= "Retries";
+	private static final String		PK_FORCE_DELAY			= "ForcedDelay";
+	private static final String		PK_EXTENDED_LOGGING		= "ExtendedLogging";
 
 	/** The historical data register contains data for 4 days */
 	public static final int 	NR_HISTORICAL_DATA 	= 4;
 
 	/** Property Default values */
 	//final static String PD_ADDRESS = null;
-	private final static String	PD_NODE_ID				= "";
-	private final static int	PD_TIMEOUT				= 10000;
-	private final static int	PD_RETRIES				= 5;
-	private final static int	PD_ROUNDTRIP_CORRECTION	= 0;
-	private final static long	PD_FORCE_DELAY			= 350;
-	private final static long	PD_DELAY_AFTER_FAIL		= 500;
-	private final static String	PD_OPUS					= "1";
-	private final static String	PD_PASSWORD				= "--------";
-	private final static String	PD_EXTENDED_LOGGING		= "0";
+	private static final String	PD_NODE_ID				= "";
+	private static final int	PD_TIMEOUT				= 10000;
+	private static final int	PD_RETRIES				= 5;
+	private static final int	PD_ROUNDTRIP_CORRECTION	= 0;
+	private static final long	PD_FORCE_DELAY			= 350;
+	private static final long	PD_DELAY_AFTER_FAIL		= 500;
+	private static final String	PD_OPUS					= "1";
+	private static final String	PD_PASSWORD				= "--------";
+	private static final String	PD_EXTENDED_LOGGING		= "0";
 	private static final int	PD_SECURITY_LEVEL		= 0;
 
 	private static final Map exception = new HashMap();
@@ -197,12 +196,12 @@ public class PPM extends AbstractPPM {
 	private Profile profile = null;
 	private ObisCodeMapper obisCodeMapper = null;
 
-	private final String[] REGISTERCONFIG = {
-			"TotalImportKwh",
-			"TotalExportKwh",
-			"TotalImportKvarh",
-			"TotalExportKvarh",
-			"TotalKvah"
+	private static final String[] REGISTERCONFIG = {
+		"TotalImportKwh",
+		"TotalExportKwh",
+		"TotalImportKvarh",
+		"TotalExportKvarh",
+		"TotalKvah"
 	};
 
 	private boolean software7E1 = false;
@@ -360,7 +359,7 @@ public class PPM extends AbstractPPM {
 
 		} catch (FlagIEC1107ConnectionException e) {
 			disconnect();
-			throw new IOException(e.getMessage());
+			throw e;
 		} catch (NumberFormatException nex) {
 			throw new IOException(nex.getMessage());
 		}
@@ -421,8 +420,7 @@ public class PPM extends AbstractPPM {
 	 * @see com.energyict.cbo.ConfigurationSupport#getRequiredKeys()
 	 */
 	public List getRequiredKeys() {
-		List result = new ArrayList(0);
-		return result;
+		return new ArrayList(0);
 	}
 
 	/* (non-Javadoc)
@@ -449,7 +447,7 @@ public class PPM extends AbstractPPM {
 	/* (non-Javadoc)
 	 * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, java.util.Date, boolean)
 	 */
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 		ProfileData profileData = profile.getProfileData(from, to, includeEvents);
 		logger.log(Level.INFO, profileData.toString());
 		return profileData;
@@ -458,7 +456,7 @@ public class PPM extends AbstractPPM {
 	/* (non-Javadoc)
 	 * @see com.energyict.protocol.MeterProtocol#getMeterReading(int)
 	 */
-	public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+	public Quantity getMeterReading(int channelId) throws IOException {
 		LoadProfileDefinition lpd = rFactory.getLoadProfileDefinition();
 		List l = lpd.toChannelInfoList();
 		ChannelInfo ci = (ChannelInfo) l.get(channelId);
@@ -474,22 +472,21 @@ public class PPM extends AbstractPPM {
 	/* (non-Javadoc)
 	 * @see com.energyict.protocol.MeterProtocol#getMeterReading(java.lang.String)
 	 */
-	public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+	public Quantity getMeterReading(String name) throws IOException {
 		return (Quantity) rFactory.getRegister(name);
 	}
 
 	/* (non-Javadoc)
 	 * @see com.energyict.protocol.MeterProtocol#getNumberOfChannels()
 	 */
-	public int getNumberOfChannels() throws UnsupportedException, IOException {
-		LoadProfileDefinition lpd = rFactory.getLoadProfileDefinition();
+	public int getNumberOfChannels() throws IOException {
 		return rFactory.getLoadProfileDefinition().getNrOfChannels();
 	}
 
 	/* (non-Javadoc)
 	 * @see com.energyict.protocol.MeterProtocol#getProfileInterval()
 	 */
-	public int getProfileInterval() throws UnsupportedException, IOException {
+	public int getProfileInterval() throws IOException {
 		return rFactory.getSubIntervalPeriod().intValue() * SECONDS_PER_MINUTE;
 	}
 

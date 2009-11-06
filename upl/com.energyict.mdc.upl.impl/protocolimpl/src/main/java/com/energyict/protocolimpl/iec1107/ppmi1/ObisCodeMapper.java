@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
@@ -83,7 +83,7 @@ import com.energyict.protocolimpl.iec1107.ppmi1.register.RegisterInformation;
 public class ObisCodeMapper {
 
 	private RegisterFactory rFactory;
-	RegisterInformation ri = new RegisterInformation();
+	private RegisterInformation ri = new RegisterInformation();
 
 	/**
 	 * Dangerous stuff (using instance variables with a static method:
@@ -97,10 +97,12 @@ public class ObisCodeMapper {
 	private int billingPoint;
 
 	/** Manufacturer specific codes */
-	static public final int CODE_E_REGISTER_1=128;
-	static public final int CODE_E_REGISTER_2=129;
-	static public final int CODE_E_REGISTER_3=130;
-	static public final int CODE_E_REGISTER_4=131;
+	public static final int CODE_E_REGISTER_1=128;
+	public static final int CODE_E_REGISTER_2=129;
+	public static final int CODE_E_REGISTER_3=130;
+	public static final int CODE_E_REGISTER_4=131;
+
+	private static final long	MS_PER_SECOND	= 1000;
 
 	private ObisCodeMapper( ){
 	}
@@ -134,13 +136,13 @@ public class ObisCodeMapper {
 			hd = this.rFactory.getHistoricalData().get(this.billingPoint);
 			Date date = hd.getDate();
 			Unit secondsUnit = Unit.get( BaseUnit.SECOND );
-			Long sl = new Long( date.getTime() / 1000 );
+			Long sl = new Long( date.getTime() / MS_PER_SECOND );
 			Quantity seconds = new Quantity( sl, secondsUnit );
 			return new RegisterValue( obisCode, seconds,  date );
 		}
 
 		this.getMapRegister(obisCode);
-		String key = getRegisterFactoryKey(obisCode);
+		String key = getRegisterFactoryKey();
 
 		if (key == null) {
 			throw new NoSuchRegisterException("ObisCode " + obisCode.toString()
@@ -195,7 +197,7 @@ public class ObisCodeMapper {
 	 * concerns a simple (cumulative|primary) register, just return
 	 * that RegisterFactoryKey, if it is a derived register, return that key.
 	 */
-	private String getRegisterFactoryKey( ObisCode obisCode ) {
+	private String getRegisterFactoryKey() {
 		if (this.derivedRegister == null) {
 			return this.sourceRegister.getRegisterFactoryKey();
 		} else {
@@ -223,33 +225,33 @@ public class ObisCodeMapper {
 	/* This is a big chunk of mapping/translation */
 
 	/* In the case of energy: map the obiscode to the MetaRegister */
-	private HashMap energyMap = new HashMap() {
+	private Map energyMap = new HashMap() {
 		{
-			put(new Integer(ObisCode.CODE_C_ACTIVE_IMPORT), ObisCodeMapper.this.ri.getImportWh());
-			put(new Integer(ObisCode.CODE_C_ACTIVE_EXPORT), ObisCodeMapper.this.ri.getExportWh());
-			put(new Integer(ObisCode.CODE_C_REACTIVE_IMPORT), ObisCodeMapper.this.ri.getImportVarh());
-			put(new Integer(ObisCode.CODE_C_REACTIVE_EXPORT), ObisCodeMapper.this.ri.getExportVarh());
-			put(new Integer(ObisCode.CODE_C_APPARENT), ObisCodeMapper.this.ri.getVAh());
+			put(Integer.valueOf(ObisCode.CODE_C_ACTIVE_IMPORT), ObisCodeMapper.this.ri.getImportWh());
+			put(Integer.valueOf(ObisCode.CODE_C_ACTIVE_EXPORT), ObisCodeMapper.this.ri.getExportWh());
+			put(Integer.valueOf(ObisCode.CODE_C_REACTIVE_IMPORT), ObisCodeMapper.this.ri.getImportVarh());
+			put(Integer.valueOf(ObisCode.CODE_C_REACTIVE_EXPORT), ObisCodeMapper.this.ri.getExportVarh());
+			put(Integer.valueOf(ObisCode.CODE_C_APPARENT), ObisCodeMapper.this.ri.getVAh());
 		}
 	};
 
 	private MetaRegister getEnergy(ObisCode o) {
-		return (MetaRegister) this.energyMap.get(new Integer(o.getC()));
+		return (MetaRegister) this.energyMap.get(Integer.valueOf(o.getC()));
 	}
 
 	/* In the case of power: map the obiscode to the MetaRegister */
-	private HashMap powerMap = new HashMap() {
+	private Map powerMap = new HashMap() {
 		{
-			put(new Integer(ObisCode.CODE_C_ACTIVE_IMPORT), ObisCodeMapper.this.ri.getImportW());
-			put(new Integer(ObisCode.CODE_C_ACTIVE_EXPORT), ObisCodeMapper.this.ri.getExportW());
-			put(new Integer(ObisCode.CODE_C_REACTIVE_IMPORT), ObisCodeMapper.this.ri.getImportVar());
-			put(new Integer(ObisCode.CODE_C_REACTIVE_EXPORT), ObisCodeMapper.this.ri.getExportVar());
-			put(new Integer(ObisCode.CODE_C_APPARENT), ObisCodeMapper.this.ri.getVA());
+			put(Integer.valueOf(ObisCode.CODE_C_ACTIVE_IMPORT), ObisCodeMapper.this.ri.getImportW());
+			put(Integer.valueOf(ObisCode.CODE_C_ACTIVE_EXPORT), ObisCodeMapper.this.ri.getExportW());
+			put(Integer.valueOf(ObisCode.CODE_C_REACTIVE_IMPORT), ObisCodeMapper.this.ri.getImportVar());
+			put(Integer.valueOf(ObisCode.CODE_C_REACTIVE_EXPORT), ObisCodeMapper.this.ri.getExportVar());
+			put(Integer.valueOf(ObisCode.CODE_C_APPARENT), ObisCodeMapper.this.ri.getVA());
 		}
 	};
 
 	private MetaRegister getPower(ObisCode o) {
-		return (MetaRegister) this.powerMap.get(new Integer(o.getC()));
+		return (MetaRegister) this.powerMap.get(Integer.valueOf(o.getC()));
 	}
 
 	/* sourceRegister and derivedRegister are mapped */
@@ -368,7 +370,7 @@ public class ObisCodeMapper {
 	}
 
 	/* String representation of the registers */
-	HashMap metaRegToString = new HashMap() {
+	private Map metaRegToString = new HashMap() {
 		{
 			put(ObisCodeMapper.this.ri.getImportWh(), "Energy, Active import");
 			put(ObisCodeMapper.this.ri.getExportWh(), "Energy, Active export");
@@ -634,23 +636,6 @@ public class ObisCodeMapper {
 			}
 		}
 		return max;
-	}
-
-	public static void main( String [] args ) throws Exception {
-
-		//ArrayList a = new ArrayList();// KV 22072005 unused code
-		RegisterValue [] rv =
-		{ new RegisterValue( new ObisCode( 1, 1, 1, 1, 1, 1 ),
-				new Quantity( new BigDecimal( 25 ), Unit.get( BaseUnit.WATTHOUR ) ) ),
-				new RegisterValue( new ObisCode( 1, 1, 1, 1, 1, 2 ),
-						new Quantity( new BigDecimal( 10 ), Unit.get( BaseUnit.WATTHOUR ) ) ),
-						new RegisterValue( new ObisCode( 1, 1, 1, 1, 1, 3 ),
-								new Quantity( new BigDecimal( 20 ), Unit.get( BaseUnit.WATTHOUR ) ) ),
-								new RegisterValue( new ObisCode( 1, 1, 1, 1, 1, 4 ),
-										new Quantity( new BigDecimal( 10 ), Unit.get( BaseUnit.WATTHOUR ) ) )
-		};
-		ObisCodeMapper ocm = new ObisCodeMapper();
-		System.out.println( ocm.getMax( rv ) );
 	}
 
 }
