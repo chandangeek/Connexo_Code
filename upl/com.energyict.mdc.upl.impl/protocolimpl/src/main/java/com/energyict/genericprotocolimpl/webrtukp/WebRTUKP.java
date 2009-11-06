@@ -40,12 +40,16 @@ import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.IPv4Setup;
+import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.genericprotocolimpl.common.StoreObject;
@@ -1238,16 +1242,42 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		for (int i = 0; i < this.maxMbusDevices; i++) {
 			mbusSerial = "";
 			try {
-				mbusSerial = getCosemObjectFactory().getGenericRead(getMeterConfig().getMbusSerialNumber(i)).getString();
-				if(!mbusSerial.equalsIgnoreCase("")){
-					mbusMap.put(mbusSerial, i);
-				}
+				MBusClient mClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(i).getObisCode());
+				Unsigned16 manId = mClient.getManufacturerID();
+				Unsigned32 idNum = mClient.getIdentificationNumber();
+				Unsigned8 version =	mClient.getVersion();
+				Unsigned8 devicet = mClient.getDeviceType();
+				mbusSerial = constructShortId(manId, idNum, version, devicet);
+				mbusMap.put(mbusSerial, i);
+				
 			} catch (IOException e) {
-				e.printStackTrace(); // catch and go to next
-				log(Level.INFO, "Could not retrieve the mbusSerialNumber for channel " + (i + 1));
+				log(Level.FINEST, e.getMessage());	// log and do next
+				log(Level.INFO, "Could not retrieve the mbus shortID for channel " + (i+1)); 
 			}
 		}
 		return mbusMap;
+	}
+	
+	/**
+	 * Construct the shortId from the four given fields
+	 * @param manufacturer - the manufacturer ID of the meter
+	 * @param identification - the identification number(serialnumber) of the meter
+	 * @param version - the version of the device type
+	 * @param deviceType - the device type
+	 * @return a string which is a concatenation of the manipulated given fields
+	 */
+	protected String constructShortId(Unsigned16 manufacturer, Unsigned32 identification, Unsigned8 version, Unsigned8 deviceType){
+		StringBuilder strBuilder = new StringBuilder();
+		
+		strBuilder.append((char)(((manufacturer.getValue()&0x7D00)/32/32)+64));
+		strBuilder.append((char)(((manufacturer.getValue()&0x03E0)/32)+64));
+		strBuilder.append((char)((manufacturer.getValue()&0x001F)+64));
+		
+		strBuilder.append(String.format("%08x", identification.getValue()));
+		strBuilder.append(String.format("%03d", version.getValue()));
+		strBuilder.append(String.format("%02d", deviceType.getValue()));
+		
+		return strBuilder.toString();
 	}
 
 	/**

@@ -179,6 +179,9 @@ public class WebRTUKPTest {
 		ModemPoolCRUD.deleteModemPool(modemPoolName);
 	}
 	
+	/**
+	 * Check whether the correct registers are read when they are in a certain rtuRegisterGroup
+	 */
 	@Test
 	public void registerGroupsTest(){
 		
@@ -216,6 +219,9 @@ public class WebRTUKPTest {
 		
 	}
 	
+	/**
+	 * Test whether the boolean markAsBadTime is set properly
+	 */
 	@Test
 	public void markAsBadTimeTest(){
 		try{

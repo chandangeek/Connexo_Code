@@ -10,13 +10,17 @@
 
 package com.energyict.genericprotocolimpl.common;
 
-import com.energyict.dlms.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
+
 import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.protocol.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
-import com.energyict.dlms.axrdencoding.util.*;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author kvds
@@ -29,7 +33,7 @@ public class LoadProfileDecompressor {
     
     /** Creates a new instance of LoadProfileDecompressor */
     public LoadProfileDecompressor(byte[] data, TimeZone timeZone) {
-        this.data = data; 
+        this.data = data.clone(); 
         this.timeZone=timeZone;
     }
     
@@ -40,17 +44,20 @@ public class LoadProfileDecompressor {
         Calendar cal = dateTime.getValue();
         offset+=2; // skip octet string 12
         offset+=12; // skip octet string
-        if (data[offset] != DLMSCOSEMGlobals.TYPEDESC_COMPACT_ARRAY) 
-            throw new IOException("LoadProfileDecompressor, invalid identifier for compact array! ("+data[offset]+")");
+        if (data[offset] != DLMSCOSEMGlobals.TYPEDESC_COMPACT_ARRAY) {
+			throw new IOException("LoadProfileDecompressor, invalid identifier for compact array! ("+data[offset]+")");
+		}
         offset++; // skip compact array id
-        if (data[offset] != 0) 
-            throw new IOException("LoadProfileDecompressor, invalid identifier for compact array type descriptor! ("+data[offset]+")");
+        if (data[offset] != 0) {
+			throw new IOException("LoadProfileDecompressor, invalid identifier for compact array type descriptor! ("+data[offset]+")");
+		}
         offset++; // skip compact array type descriptor identifier 0
         
         offset+=4; // skip struct with 2 implicit NULL elements
         
-        if (data[offset] != 1) 
-            throw new IOException("LoadProfileDecompressor, invalid identifier for compact array array contents! ("+data[offset]+")");
+        if (data[offset] != 1) {
+			throw new IOException("LoadProfileDecompressor, invalid identifier for compact array array contents! ("+data[offset]+")");
+		}
         offset++; // skip compact array compact array array contents 1
         
         int length = (int)DLMSUtils.getAXDRLength(data,offset);
@@ -63,10 +70,11 @@ public class LoadProfileDecompressor {
             offset+=4;
             
             LoadProfileEntry o = null;
-            if (index==0)
-                o = new LoadProfileEntry(cal,status,BigDecimal.valueOf(value));
-            else
-                o = new LoadProfileEntry(null,status,BigDecimal.valueOf(value));
+            if (index==0) {
+				o = new LoadProfileEntry(cal,status,BigDecimal.valueOf(value));
+			} else {
+				o = new LoadProfileEntry(null,status,BigDecimal.valueOf(value));
+			}
             
             //System.out.println(o);
             getLoadProfileEntries().add(o);

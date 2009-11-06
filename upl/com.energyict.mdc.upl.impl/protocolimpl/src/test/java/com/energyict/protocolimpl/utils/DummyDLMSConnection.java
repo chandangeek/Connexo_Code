@@ -66,8 +66,7 @@ public class DummyDLMSConnection implements DLMSConnection {
 	 * @see com.energyict.dlms.DLMSConnection#sendRequest(byte[])
 	 */
 	public byte[] sendRequest(byte[] byteRequestBuffer) throws IOException {
-		this.sentBytes = new byte[byteRequestBuffer.length];
-		System.arraycopy(byteRequestBuffer, 0, sentBytes, 0, byteRequestBuffer.length);
+		this.sentBytes = byteRequestBuffer.clone();
 		return this.responseByte;
 	}
 
@@ -102,7 +101,7 @@ public class DummyDLMSConnection implements DLMSConnection {
 	 * @param response - the response you would like to receive
 	 */
 	public void setResponseByte(byte[] response){
-		this.responseByte = response;
+		this.responseByte = response.clone();
 	}
 	
 	/**

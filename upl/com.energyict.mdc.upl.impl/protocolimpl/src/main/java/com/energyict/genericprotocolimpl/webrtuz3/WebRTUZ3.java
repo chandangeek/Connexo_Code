@@ -118,7 +118,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 			
 			// Check if the time is greater then allowed, if so then no data can be stored...
 			// Don't do this when a forceClock is scheduled
-			if(!communicationScheduler.getCommunicationProfile().getForceClock() && !communicationScheduler.getCommunicationProfile().getAdHoc()){
+			if(!getCommunicationScheduler().getCommunicationProfile().getForceClock() && !getCommunicationScheduler().getCommunicationProfile().getAdHoc()){
 				badTime = verifyMaxTimeDifference();
 			}
 			
@@ -173,7 +173,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 				}
 
 				getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + this.serialNumber);
-				HashMap<RtuRegister, RegisterValue> registerMap = doReadRegisters();
+				Map<RtuRegister, RegisterValue> registerMap = doReadRegisters();
 				storeObject.addAll(registerMap);
 			}
 			
@@ -199,7 +199,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 			if (getCommunicationProfile().getForceClock()) {
 				Date meterTime = getTime();
 				Date currentTime = Calendar.getInstance(getTimeZone()).getTime();
-				this.timeDifference = (this.timeDifference == -1) ? Math.abs(currentTime.getTime() - meterTime.getTime()) : this.timeDifference;
+				setTimeDifference(Math.abs(currentTime.getTime() - meterTime.getTime()));
 				getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + currentTime);
 				forceClock(currentTime);
 			} else {
@@ -238,11 +238,11 @@ public class WebRTUZ3 extends DLMSProtocol{
 	@Override
 	protected void doConnect() throws IOException{
 		verifyMeterSerialNumber();
-		logger.log(Level.INFO, "FirmwareVersion: " + getFirmWareVersion());
+		log(Level.INFO, "FirmwareVersion: " + getFirmWareVersion());
 		//check if RF-Firmware exists
 		String rfFirmware = getRFFirmwareVersion();
 		if(!rfFirmware.equalsIgnoreCase("")){
-			logger.log(Level.INFO, "RF-FirmwareVersion: " + rfFirmware);
+			log(Level.INFO, "RF-FirmwareVersion: " + rfFirmware);
 		}
 	}
 
@@ -353,15 +353,15 @@ public class WebRTUZ3 extends DLMSProtocol{
 		if (getMeter() != null && getMeter().getPassword() != "") {
 			this.password = getMeter().getPassword();
 		} else if(getMeter() == null){
-			this.password = properties.getProperty("Password","");
+			this.password = getProperties().getProperty("Password","");
 		}
 		
-		this.requestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0"));
-		this.maxMbusDevices = Integer.parseInt(properties.getProperty("MaxMbusDevices","4"));
-		this.readDaily = (Integer.parseInt(properties.getProperty("ReadDailyValues", "1")) == 1)?true:false;
-		this.readMonthly = (Integer.parseInt(properties.getProperty("ReadMonthlyValues", "1")) == 1)?true:false;
-		this.mbusRtuType = properties.getProperty("RtuType");
-		this.folderExtName = properties.getProperty("FolderExtName");
+		this.requestTimeZone = Integer.parseInt(getProperties().getProperty("RequestTimeZone", "0"));
+		this.maxMbusDevices = Integer.parseInt(getProperties().getProperty("MaxMbusDevices","4"));
+		this.readDaily = (Integer.parseInt(getProperties().getProperty("ReadDailyValues", "1")) == 1)?true:false;
+		this.readMonthly = (Integer.parseInt(getProperties().getProperty("ReadMonthlyValues", "1")) == 1)?true:false;
+		this.mbusRtuType = getProperties().getProperty("RtuType");
+		this.folderExtName = getProperties().getProperty("FolderExtName");
 	}
 	
 	/**
@@ -381,9 +381,9 @@ public class WebRTUZ3 extends DLMSProtocol{
 	@Override
 	public SecurityProvider getSecurityProvider() {
 		if((getMeter() != null) && (password != null)){
-			this.properties.put(MeterProtocol.PASSWORD, password);
+			getProperties().put(MeterProtocol.PASSWORD, password);
 		}
-		LocalSecurityProvider lsp = new LocalSecurityProvider(this.properties);
+		LocalSecurityProvider lsp = new LocalSecurityProvider(getProperties());
 		return lsp;
 	}
 
@@ -424,7 +424,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 	 * @return the connectionMode
 	 */
 	public int getConnectionMode() {
-		return this.connectionMode;
+		return super.getConnectionMode();
 	}
 	
 	/**
@@ -454,7 +454,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 			IPv4Setup ipv4Setup = getCosemObjectFactory().getIPv4Setup();
 			ipAddress.append(ipv4Setup.getIPAddress());
 			ipAddress.append(":");
-			ipAddress.append(this.ipPortNumber);
+			ipAddress.append(getIpPortNumber());
 
 			RtuShadow shadow = getMeter().getShadow();
 			shadow.setIpAddress(ipAddress.toString());
@@ -533,7 +533,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 					throw new ConnectionException("InterframeTimeout occurred. Meter probably not accessible anymore.");
 				}
 				e.printStackTrace(); // catch and go to next
-				logger.log(Level.FINE, "Could not retrieve the mbusSerialNumber for channel " + (i + 1));
+				log(Level.FINE, "Could not retrieve the mbusSerialNumber for channel " + (i + 1));
 			}
 		}
 		return mbusMap;
@@ -616,7 +616,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 			try {
 				if (mbusDevices[i] != null) {
 					mbusDevices[i].setWebRtu(this);
-					mbusDevices[i].execute(communicationScheduler, null, null);
+					mbusDevices[i].execute(getCommunicationScheduler(), null, null);
 					getLogger().info("MbusDevice " + (i+1) + " has finished.");
 				}
 			} catch (BusinessException e) {
@@ -691,7 +691,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 	 */
 	private void handleTicDevice() throws BusinessException, SQLException, IOException {
 		this.ticDevice.setWebRTU(this);
-		this.ticDevice.execute(communicationScheduler, null, getLogger());
+		this.ticDevice.execute(getCommunicationScheduler(), null, getLogger());
 	}
 
 	@Override

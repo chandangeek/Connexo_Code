@@ -50,12 +50,18 @@ public class MbusObisCodeMapper {
     			} else if(obisCode.getE() == 129){
     	        	int state = cof.getDisconnector(adjustToDisconnectOC(obisCode)).getControlState().getValue();
     	        	if((state < 0) || (state > 2)){
-    	        		throw new IllegalArgumentException("The connectControlState has an invalid value: " + state);
+    	        		rv = new RegisterValue(obisCode,
+    	        				new Quantity(BigDecimal.valueOf(state), Unit.getUndefined()),
+    	        				null, null, null, new Date(), 0,
+    	        				new String("ConnectControl state has an invalid state: " + state));
+
+//    	        		throw new IllegalArgumentException("The connectControlState has an invalid value: " + state);
+    	        	} else {
+    	        		rv = new RegisterValue(obisCode,
+    	        				new Quantity(BigDecimal.valueOf(state), Unit.getUndefined()),
+    	        				null, null, null, new Date(), 0,
+    	        				new String("ConnectControl state: " + possibleConnectStates[state]));
     	        	}
-    	        	rv = new RegisterValue(obisCode,
-    	        			new Quantity(BigDecimal.valueOf(state), Unit.getUndefined()),
-    	        			null, null, null, new Date(), 0,
-    	        			new String("ConnectControl state: " + possibleConnectStates[state]));
     	        	return rv;
     			}
     		} else if (obisCode.getD() == 50){ // MBus encryption status

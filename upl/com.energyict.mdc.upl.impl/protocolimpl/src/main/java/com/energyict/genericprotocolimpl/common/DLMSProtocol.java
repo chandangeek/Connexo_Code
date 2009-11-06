@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -72,64 +73,64 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 	private InvokeIdAndPriority invokeIdAndPriority;
 	
 	/** The {@link CosemObjectFactory} used */
-	protected CosemObjectFactory cosemObjectFactory;
+	private CosemObjectFactory cosemObjectFactory;
 	
 	/** The {@link DLMSConnection} used */
-	protected DLMSConnection dlmsConnection;
+	private DLMSConnection dlmsConnection;
 	
 	/** The {@link DLMSMeterConfig} used */
 	private DLMSMeterConfig dlmsMeterConfig;
 	
 	/** The {@link ApplicationServiceObject} used */
-	protected ApplicationServiceObject aso;
+	private ApplicationServiceObject aso;
 	
 	/** The {@link SecurityProvider} used for DLMS communication */
 	private SecurityProvider securityProvider;
 	
 	/** The {@link Logger} provided by the ComServer */
-	protected Logger logger;
+	private Logger logger;
 	
 	/** The {@link Properties} of the current RTU */
-	protected Properties properties;
+	private Properties properties;
 	
 	/** The {@link DLMSCache} of the current RTU */
 	private DLMSCache dlmsCache;
 	
 	/** The current {@link Rtu} */
-	protected Rtu meter;
+	private Rtu meter;
 	
 	/** The used {@link CommunicationScheduler} */
-	protected CommunicationScheduler communicationScheduler;
+	private CommunicationScheduler communicationScheduler;
 	
 	/** The used {@link Link} */
-	protected Link link;
+	private Link link;
 	
 	/** The timeDifference between the system and the meter */
-	protected long timeDifference;
+	private long timeDifference;
 	
 	/** The devices DLMS clock object */
-	protected Clock deviceClock;
+	private Clock deviceClock;
 	
 	
 	/* Properties */
-	protected int connectionMode;
-	protected int datatransportSecurityLevel;
-	protected int authenticationSecurityLevel;
-	protected int iiapPriority;
-	protected int iiapServiceClass;
-	protected int iiapInvokeId;
-	protected int clientMacAddress;
-	protected int serverUpperMacAddress;
-	protected int serverLowerMacAddress;
-	protected int timeOut;
-	protected int forceDelay;
-	protected int retries;
-	protected int addressingMode;
-	protected int informationFieldSize;
-	protected int roundTripCorrection;
-	protected int wakeup;
-	protected String ipPortNumber;
-	protected String manufacturer;
+	private int connectionMode;
+	private int datatransportSecurityLevel;
+	private int authenticationSecurityLevel;
+	private int iiapPriority;
+	private int iiapServiceClass;
+	private int iiapInvokeId;
+	private int clientMacAddress;
+	private int serverUpperMacAddress;
+	private int serverLowerMacAddress;
+	private int timeOut;
+	private int forceDelay;
+	private int retries;
+	private int addressingMode;
+	private int informationFieldSize;
+	private int roundTripCorrection;
+	private int wakeup;
+	private String ipPortNumber;
+	private String manufacturer;
 	
 	/**
 	 * Handle the protocol tasks
@@ -138,62 +139,62 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 	 * @throws SQLException
 	 * @throws IOException
 	 */
-	abstract protected void doExecute() throws BusinessException, SQLException, IOException;
+	protected abstract void doExecute() throws BusinessException, SQLException, IOException;
 	
 	/**
 	 * Configure the {@link ConformanceBlock} which is used for the DLMS association.
 	 * @return the conformanceBlock, if null is returned then depending on the reference,
 	 *  the default value({@link ConformanceBlock#DEFAULT_LN_CONFORMANCE_BLOCK} or {@link ConformanceBlock#DEFAULT_SN_CONFORMANCE_BLOCK}) will be used
 	 */
-	abstract protected ConformanceBlock configureConformanceBlock();
+	protected abstract ConformanceBlock configureConformanceBlock();
 	
 	/**
 	 * Configure the {@link XdlmsAse} which is used for the DLMS association.
 	 * @return the xdlmsAse, if null is returned then the default values will be used
 	 */
-	abstract protected XdlmsAse configureXdlmsAse();
+	protected abstract XdlmsAse configureXdlmsAse();
 	
 	/**
 	 * Configure the {@link InvokeIdAndPriority} bitString which is used during DLMS communication.
 	 * @return the invokeIdAndPriority bitString, if null is returned then the default value({@link DLMSProtocol#buildDefaultInvokeIdAndPriority()}) will be used
 	 */
-	abstract protected InvokeIdAndPriority configureInvokeIdAndPriority();
+	protected abstract InvokeIdAndPriority configureInvokeIdAndPriority();
 	
 	/**
 	 * Define a list of REQUIRED properties, other then the ones configure in {@link #getRequiredKeys()}.
 	 * These properties can be used specifically for the protocol
 	 * @return the properties list
 	 */
-	abstract protected List<String> doGetRequiredKeys();
+	protected abstract List<String> doGetRequiredKeys();
 	
 	/**
 	 * Define a list of OPTIONAL properties, other then the ones configured in {@linkplain #getOptionalKeys()}.
 	 * These properties can be used specifically for the protocol 
 	 * @return the properties list
 	 */
-	abstract protected List<String> doGetOptionalKeys();
+	protected abstract List<String> doGetOptionalKeys();
 	
 	/**
 	 * Configuration of the protocol specific Required and Optional properties
 	 */
-	abstract protected void doValidateProperties();
+	protected abstract void doValidateProperties();
 	
 	/** 
 	 * Build the logic to provide the desired {@link SecurityProvider}.
 	 * If no securityProvider should be used, then return null and the default({@link LocalSecurityProvider}) will be used.
 	 * */
-	abstract protected SecurityProvider getSecurityProvider();
+	protected abstract SecurityProvider getSecurityProvider();
 	
 	/**
 	 * Implement functionality right AFTER the DLMS association has been established
 	 * @throws IOException 
 	 */
-	abstract protected void doConnect() throws IOException;
+	protected abstract void doConnect() throws IOException;
 	
 	/**
 	 * Implement functionality right BEFORE the DLMS association is released
 	 */
-	abstract protected void doDisconnect();
+	protected abstract void doDisconnect();
 	
 	/**
 	 * Implement functionality right AFTER the initializeGlobals method
@@ -201,7 +202,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 	 * @throws BusinessException 
 	 * @throws SQLException 
 	 */
-	abstract protected void doInit() throws SQLException, BusinessException, IOException;
+	protected abstract void doInit() throws SQLException, BusinessException, IOException;
 	
 	/**
 	 * Read the register using your custom define ObisCodeMapper
@@ -209,7 +210,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 	 * @return the read RegisterValue
 	 * @throws IOException
 	 */
-	abstract protected RegisterValue readRegister(ObisCode obisCode) throws IOException;
+	protected abstract RegisterValue readRegister(ObisCode obisCode) throws IOException;
 
 	/* (non-Javadoc)
 	 * @see com.energyict.mdw.amr.GenericProtocol#execute(com.energyict.mdw.core.CommunicationScheduler, com.energyict.dialer.core.Link, java.util.logging.Logger)
@@ -232,11 +233,11 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 			doExecute();
 			
 		} catch (DLMSConnectionException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			disconnect();
 		} finally{
 			disconnect();
-			if (getMeter() != null) {
+			if ((getMeter() != null) && (dlmsCache != null)){
 				updateCache(getMeter().getId(), dlmsCache);
 			}
 		}
@@ -294,13 +295,14 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 			}
 		}
 		
-		String securityLevel = properties.getProperty("SecurityLevel", "0");
-		if(securityLevel.indexOf(":") != -1){
-			this.authenticationSecurityLevel = Integer.parseInt(securityLevel.substring(0, securityLevel.indexOf(":")));
-			this.datatransportSecurityLevel = Integer.parseInt(securityLevel.substring(securityLevel.indexOf(":")+1));
-		} else {
-			this.authenticationSecurityLevel = Integer.parseInt(securityLevel);
+		String[] securityLevel = properties.getProperty("SecurityLevel", "0").split(":");
+		this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
+		if(securityLevel.length == 2){
+			this.datatransportSecurityLevel = Integer.parseInt(securityLevel[1]);
+		} else if(securityLevel.length == 1){
 			this.datatransportSecurityLevel = 0;
+		} else {
+			throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty("SecurityLevel", "0"));
 		}
 		
 		this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "1"));
@@ -509,7 +511,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 		try {
 			return (int) getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode()).getValue();
 		} catch (IOException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			throw new IOException("Could not retrieve the configuration change parameter" + e);
 		}
 	}
@@ -530,8 +532,8 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 				throw new IllegalArgumentException("Invalid reference method, only 0 and 1 are allowed.");
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("Requesting configuration failed." + e.getCause());
+			log(Level.FINEST, e.getMessage());
+			throw new IOException("Requesting configuration failed." + e);
 		}
 	}
 	
@@ -540,17 +542,19 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 	 */
 	protected void disconnect(){
 		try {
-			if(this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED){
+			if((this.aso != null) && (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED)){
 				doDisconnect();
 				this.aso.releaseAssociation();
 			}
-			getDLMSConnection().disconnectMAC();
+			if(getDLMSConnection() != null){
+				getDLMSConnection().disconnectMAC();
+			}
 		} catch (IOException e) {
 			//absorb -> trying to close communication
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 		} catch (DLMSConnectionException e) {
 			//absorb -> trying to close communication
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 		}
 	}
 	
@@ -671,6 +675,14 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 		this.properties = properties;
 	}
 	
+	/**
+	 * Getter for the Properties object
+	 * @return the current Properties
+	 */
+	protected Properties getProperties(){
+		return this.properties;
+	}
+	
 	/** EIServer 7.5 Cache mechanism, only the DLMSCache is in that database, the 8.x has a EISDEVICECACHE ... */
 
 	public void setCache(Object cacheObject) {
@@ -722,8 +734,8 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 			meterTime = deviceClock.getDateTime();
 			return meterTime;
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("Could not retrieve the Clock object.");
+			log(Level.FINEST, e.getMessage());
+			throw new IOException("Could not retrieve the Clock object." + e);
 		}
 	}
 
@@ -769,9 +781,16 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 		}
 	}
 
-
 	public long getTimeDifference() {
 		return this.timeDifference;
+	}
+	
+	/**
+	 * Setter for the timeDifference
+	 * @param timeDifference
+	 */
+	protected void setTimeDifference(long timeDifference){
+		this.timeDifference = timeDifference;
 	}
 
 	/**
@@ -806,7 +825,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 	 * @return a HashMap containing the RtuRegister and the RegisterValue
 	 * @throws IOException 
 	 */
-	public HashMap<RtuRegister, RegisterValue> doReadRegisters() throws IOException {
+	public Map<RtuRegister, RegisterValue> doReadRegisters() throws IOException {
 		HashMap<RtuRegister, RegisterValue> regValueMap = new HashMap<RtuRegister, RegisterValue>();
 		Iterator<RtuRegister> it = getMeter().getRegisters().iterator();
 		List groups = getCommunicationProfile().getRtuRegisterGroups();
@@ -827,13 +846,13 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 							regValueMap.put(rr, rv);
 						}
 					} catch (NoSuchRegisterException e) {
-						e.printStackTrace();
+						log(Level.FINEST, e.getMessage());
 						getLogger().log(Level.INFO, "ObisCode " + oc + " is not supported by the meter.");
 					}
 				}
 			} catch (IOException e) {
 				// TODO if the connection is out you should not try and read the others as well...
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.INFO, "Reading register with obisCode " + oc + " FAILED.");
 			}
 		}
@@ -849,8 +868,8 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 		try {
 			getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(currentTime));
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("Could not set the Clock object.");
+			log(Level.FINEST, e.getMessage());
+			throw new IOException("Could not set the Clock object." + e);
 		}
 	}
 	
@@ -863,8 +882,8 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 		try {
 			setClock(currentTime);
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("Could not force to set the Clock object.");
+			log(Level.FINEST, e.getMessage());
+			throw new IOException("Could not force to set the Clock object." + e);
 		}
 	}
 	
@@ -889,8 +908,8 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 			}
 
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw e;
+			log(Level.FINEST, e.getMessage());
+			throw new IOException("Could not get or write the time." + e);
 		}
 
 	}
@@ -922,4 +941,62 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 	public Calendar getToCalendar() {
 		return ProtocolUtils.getCalendar(getTimeZone());
 	}
+	
+	/**
+	 * Log a message with a certain level
+	 * @param level - the logLevel
+	 * @param message - the message to log
+	 */
+	protected void log(Level level, String message){
+		logger.log(level, message);
+	}
+	
+	/**
+	 * Setter for the CosemObjectFactory, mainly for testing purposes
+	 * @param cosemObjectFactory - the given CosemObjectFactory
+	 */
+	protected void setCosemObjectFactory(CosemObjectFactory cosemObjectFactory){
+		this.cosemObjectFactory = cosemObjectFactory;
+	}
+	
+	/**
+	 * Setter for the DLMSConnection, mainly for testing purposes
+	 * @param dlmsConnection - the given DLMSConnection
+	 */
+	protected void setDLMSConnection(DLMSConnection dlmsConnection){
+		this.dlmsConnection = dlmsConnection;
+	}
+	
+	/**
+	 * Getter for the communicationScheduler
+	 * @return the current communicationScheduler
+	 */
+	protected CommunicationScheduler getCommunicationScheduler(){
+		return this.communicationScheduler;
+	}
+	
+	/**
+	 * Getter for the Link object
+	 * @return the current Link
+	 */
+	protected Link getLink(){
+		return this.link;
+	}
+	
+	/**
+	 * Getter for the IP port number
+	 * @return the current IpPortNumber
+	 */
+	protected String getIpPortNumber(){
+		return this.ipPortNumber;
+	}
+	
+	/**
+	 * Getter for the connectionMode
+	 * @return the current connectionMode
+	 */
+	protected int getConnectionMode(){
+		return this.connectionMode;
+	}
+	
 }

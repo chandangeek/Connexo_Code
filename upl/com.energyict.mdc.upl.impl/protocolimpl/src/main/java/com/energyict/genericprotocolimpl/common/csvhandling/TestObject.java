@@ -5,27 +5,27 @@ import com.energyict.obis.ObisCode;
 
 public class TestObject {
 
-	private static int TYPE = 0;
-	private static int DATA = 1;
-	private static int A = 2;
-	private static int B = 3;
-	private static int C = 4;
-	private static int D = 5;
-	private static int E = 6;
-	private static int F = 7;
-	private static int CLASSID = 8;
-	private static int ATTRIBUTE = 9;
-	private static int METHOD = 10;
-	private static int RESULT = 11;
-	private static int EXPECTED = 12;
-	private static int STARTTIME = 13;
+	private static final int TYPE = 0;
+	private static final int DATA = 1;
+	private static final int A = 2;
+	private static final int B = 3;
+	private static final int C = 4;
+	private static final int D = 5;
+	private static final int E = 6;
+	private static final int F = 7;
+	private static final int CLASSID = 8;
+	private static final int ATTRIBUTE = 9;
+	private static final int METHOD = 10;
+	private static final int RESULT = 11;
+	private static final int EXPECTED = 12;
+	private static final int STARTTIME = 13;
 	
-	public static int GET = 0;
-	public static int SET = 1;
-	public static int ACTION = 2;
-	public static int MESSAGE = 3;
-	public static int WAIT = 4;
-	public static int EMPTY = 5;
+	private static final int GET = 0;
+	private static final int SET = 1;
+	private static final int ACTION = 2;
+	private static final int MESSAGE = 3;
+	private static final int WAIT = 4;
+	private static final int EMPTY = 5;
 	
 	private String[] testRow;
 	private boolean validData = false;

@@ -120,13 +120,13 @@ public class MbusDevice extends MbusMessages implements GenericProtocol{
 	public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 		this.commProfile = scheduler.getCommunicationProfile();
 		
-		try {
+//		try {
 			// Before reading data, check the serialnumber
-			verifySerialNumber();
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException(e.getMessage());
-		}
+//			verifySerialNumber(); //TODO set back!
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			throw new IOException(e.getMessage());
+//		}
 		
 		// import profile
 		if(commProfile.getReadDemandValues()){
@@ -176,8 +176,8 @@ public class MbusDevice extends MbusMessages implements GenericProtocol{
 		ObisCode oc = null;
 		RegisterValue rv;
 		RtuRegister rr;
-		try {
-			while(it.hasNext()){
+		while(it.hasNext()){
+			try {
 				rr = it.next();
 				if (getWebRTU().isInRegisterGroup(groups, rr)) {
 					oc = rr.getRtuRegisterSpec().getObisCode();
@@ -198,10 +198,10 @@ public class MbusDevice extends MbusMessages implements GenericProtocol{
 						getLogger().log(Level.INFO, "ObisCode " + oc + " is not supported by the meter.");
 					}
 				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				getLogger().log(Level.INFO, "Reading register with obisCode " + oc + " FAILED.");
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException(e.getMessage());
 		}
 	}
 	
