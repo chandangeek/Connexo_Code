@@ -17,6 +17,7 @@ public class OpticalRegisterFactory extends AbstractRegisterFactory {
 	}
 
 	{
+		add("862", R_TIME_ADJUSTMENT_OPTICAL, PPM1Register.HEX, 0, 1, PPM1Register.WRITEABLE, PPM1Register.NOT_CACHED, false);
 		add("850", R_TIME_ADJUSTMENT_RS232, PPM1Register.DATE, 0, -1, PPM1Register.WRITEABLE, PPM1Register.NOT_CACHED, false);
 		add("860", R_TIME_DATE_RS232, PPM1Register.DATE, 0, -1, PPM1Register.WRITEABLE, PPM1Register.NOT_CACHED);
 		add("861", R_TIME_DATE_OPTICAL, PPM1Register.DATE, 0, -1, PPM1Register.WRITEABLE, PPM1Register.NOT_CACHED, false);

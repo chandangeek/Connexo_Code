@@ -150,6 +150,19 @@ public class PPM extends AbstractPPM {
 	private final static String	PD_EXTENDED_LOGGING		= "0";
 	private static final int	PD_SECURITY_LEVEL		= 0;
 
+	private static final Map exception = new HashMap();
+
+	private static final String	ADJUST_ADVANCE	= "7F";
+	private static final String	ADJUST_RETARD	= "FF";
+
+	static {
+		exception.put("ERR1", "Invalid Command/Function type e.g. other than W1, R1 etc");
+		exception.put("ERR2", "Invalid Data Identity Number e.g. Data id does not exist" + " in the meter");
+		exception.put("ERR3", "Invalid Packet Number");
+		exception.put("ERR5", "Data Identity is locked - password timeout");
+		exception.put("ERR6", "General Comms error");
+	}
+
 	/** Property values */
 	/** Required properties will have NO default value */
 	private String pProfileInterval = null;
@@ -371,6 +384,7 @@ public class PPM extends AbstractPPM {
 	 * @throws IOException
 	 */
 	private void validateSerialNumber() throws IOException {
+
 		if ((pSerialNumber == null) || ("".equals(pSerialNumber))) {
 			return;
 		}
@@ -493,7 +507,7 @@ public class PPM extends AbstractPPM {
 	 * @see com.energyict.protocol.MeterProtocol#setTime()
 	 */
 	public void setTime() throws IOException {
-		logger.log(Level.INFO, "Setting time");
+		logger.log(Level.INFO, "Setting time ...");
 
 		Date meterTime = getTime();
 
@@ -520,18 +534,17 @@ public class PPM extends AbstractPPM {
 
 		}
 
-		if (isOpus()) {
-			logger.log(Level.WARNING, "setting clock");
-			try {
+		try {
+			if (isOpus()) {
 				rFactory.setRegister(OpusRegisterFactory.R_TIME_ADJUSTMENT_RS232, sysCalendar.getTime());
-			} catch (IOException ex) {
-				String msg = "Could not do a timeset, probably wrong password";
-				msg += " (PPM Isue 1 only checks the complete password during timesets).";
-				logger.severe(msg);
-				throw new NestedIOException(ex);
+			} else {
+				// TODO: Fine tune adjustment time ...
+				rFactory.setRegister(OpticalRegisterFactory.R_TIME_ADJUSTMENT_OPTICAL, diff < 0 ? ADJUST_ADVANCE : ADJUST_RETARD);
 			}
-		} else {
-			this.rFactory.setRegister(OpticalRegisterFactory.R_TIME_DATE_OPTICAL, sysCalendar.getTime());
+		} catch (IOException ex) {
+			String msg = "Could not do a timeset, probably wrong password.";
+			logger.severe(msg);
+			throw new NestedIOException(ex);
 		}
 
 	}
@@ -592,15 +605,6 @@ public class PPM extends AbstractPPM {
 	 */
 	public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
 		return rFactory.getSerialNumber();
-	}
-
-	static Map exception = new HashMap();
-	static {
-		exception.put("ERR1", "Invalid Command/Function type e.g. other than W1, R1 etc");
-		exception.put("ERR2", "Invalid Data Identity Number e.g. Data id does not exist" + " in the meter");
-		exception.put("ERR3", "Invalid Packet Number");
-		exception.put("ERR5", "Data Identity is locked - password timeout");
-		exception.put("ERR6", "General Comms error");
 	}
 
 	/*

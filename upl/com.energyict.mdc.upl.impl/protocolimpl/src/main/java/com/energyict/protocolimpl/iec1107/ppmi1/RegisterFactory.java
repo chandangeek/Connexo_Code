@@ -18,7 +18,6 @@ public interface RegisterFactory {
 
 	/** 850 Time Adjustement via RS232 */
 	String R_TIME_ADJUSTMENT_RS232 = "TimeDateAdjustmentRs232";
-	String R_TIME_ADJUSTMENT_OPTICAL = "TimeDateAdjustmentOptical";
 
 	/** 860 Time and date via RS232 */
 	String R_TIME_DATE_RS232 = "TimeDateRs232";
@@ -146,6 +145,8 @@ public interface RegisterFactory {
 	/** Register keys */
 
 	String R_LOAD_PROFILE = "LoadProfile";
+
+	String	R_TIME_ADJUSTMENT_OPTICAL	= "TimeAdjustmentOptical";
 
 	Map getRegisters();
 
