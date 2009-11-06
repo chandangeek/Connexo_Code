@@ -535,7 +535,7 @@ public class PPM extends AbstractPPM {
 			if (isOpus()) {
 				rFactory.setRegister(OpusRegisterFactory.R_TIME_ADJUSTMENT_RS232, sysCalendar.getTime());
 			} else {
-				rFactory.setRegister(OpticalRegisterFactory.R_TIME_ADJUSTMENT_OPTICAL, diff < 0 ? ADJUST_ADVANCE : ADJUST_RETARD);
+				rFactory.setRegister(OpticalRegisterFactory.R_TIME_ADJUSTMENT_OPTICAL, diff > 0 ? ADJUST_ADVANCE : ADJUST_RETARD);
 			}
 		} catch (IOException ex) {
 			String msg = "Could not do a timeset, probably wrong password.";
