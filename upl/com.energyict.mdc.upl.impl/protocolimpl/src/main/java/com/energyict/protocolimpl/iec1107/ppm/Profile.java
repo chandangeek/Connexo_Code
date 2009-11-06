@@ -89,10 +89,9 @@ public class Profile {
 	 * @param endDate for retrieving meterreadings
 	 */
 	public ProfileData getProfileData(Date beginDate, Date endDate, boolean includeEvents) throws IOException {
-		this.log.log(Level.INFO, "getProfileData() beginDate=" + beginDate + " endDate=" + endDate);
 		this.beginDate = beginDate;
 		this.endDate = endDate;
-		this.includeEvents  = includeEvents;
+		this.includeEvents = includeEvents;
 
 		if (ppm.isOpus()) {
 			return doOpusProtocol();
@@ -313,6 +312,11 @@ public class Profile {
 		return dayByteSizeMax(nrChannels, intervalLength) * numberOfDaysInPeriod;
 	}
 
+	/**
+	 * Getter for the includeEvents property.
+	 *
+	 * @return true if events should be generated
+	 */
 	public boolean isIncludeEvents() {
 		return includeEvents;
 	}

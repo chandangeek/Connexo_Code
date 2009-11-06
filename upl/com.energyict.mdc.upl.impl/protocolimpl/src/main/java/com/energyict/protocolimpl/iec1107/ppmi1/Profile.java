@@ -55,6 +55,7 @@ public class Profile {
 	private Date endDate = null;
 	private Date meterDate = null;
 
+	private boolean includeEvents = false;
 	/**
 	 * Creates a new instance of Profile
 	 */
@@ -87,15 +88,10 @@ public class Profile {
 	 * @param endDate for retrieving meterreadings
 	 */
 	public ProfileData getProfileData(Date beginDate, Date endDate, boolean includeEvents) throws IOException {
-
 		this.beginDate = beginDate;
 		this.endDate = endDate;
-
-		String logString = "getProfileData() beginDate=" + beginDate;
-		logString += " endDate=" + endDate;
-
-		log.log(Level.INFO, logString);
-
+		this.includeEvents = includeEvents;
+		
 		if (ppm.isOpus()) {
 			return doOpusProtocol();
 		} else {
@@ -164,7 +160,13 @@ public class Profile {
 
 		}
 
-		return opp.getProfileData();
+		ProfileData pd = opp.getProfileData();
+		if (isIncludeEvents()) {
+			pd.generateEvents();
+		}
+
+		return pd;
+
 	}
 
 	/**
@@ -201,7 +203,12 @@ public class Profile {
 		ProfileParser pp = new ProfileParser(ppm, rFactory, rFactory.getTimeDate(), rFactory.getLoadProfileDefinition(), false);
 		pp.setInput(new ByteArrayInputStream(prp.match()));
 
-		return pp.getProfileData();
+		ProfileData pd = pp.getProfileData();
+
+		if (isIncludeEvents()) {
+			pd.generateEvents();
+		}
+		return pd;
 	}
 
 	/**
@@ -304,6 +311,14 @@ public class Profile {
 		return dayByteSizeMax(nrChannels, intervalLength) * numberOfDaysInPeriod;
 	}
 
+	/**
+	 * Getter for the includeEvents property.
+	 *
+	 * @return true if events should be generated
+	 */
+	public boolean isIncludeEvents() {
+		return includeEvents;
+	}
 
 
 }
