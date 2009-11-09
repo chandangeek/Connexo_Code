@@ -10,10 +10,15 @@
 
 package com.energyict.genericprotocolimpl.common;
 
-import com.energyict.cbo.*;
-import com.energyict.mdw.core.*;
-import java.sql.*;
-import java.util.*;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import com.energyict.cbo.BusinessException;
+import com.energyict.mdw.core.AmrJournalEntry;
+import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.Rtu;
 
 /**
  *
@@ -45,8 +50,9 @@ public class AMRJournalManager {
     }
     
     public void adjustCompletionCode(int cc) {
-        if (this.completionCode == AmrJournalEntry.CC_OK) 
-            this.completionCode=cc;       
+        if (this.completionCode == AmrJournalEntry.CC_OK) {
+			this.completionCode=cc;
+		}       
     }
     
     public int getCompletionCode() {

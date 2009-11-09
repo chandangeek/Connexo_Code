@@ -1,4 +1,4 @@
-package com.energyict.genericprotocolimpl.common.csvhandling;
+package com.energyict.genericprotocolimpl.webrtu.common.csvhandling;
 
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.obis.ObisCode;

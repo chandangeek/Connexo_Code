@@ -10,8 +10,12 @@
 
 package com.energyict.genericprotocolimpl.common;
 
-import com.energyict.protocol.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import com.energyict.protocol.MeterEvent;
 
 /**
  *
@@ -109,8 +113,9 @@ public class LogbookEvent {
         Iterator it = list.iterator();
         while(it.hasNext()) {
             LogbookEvent o = (LogbookEvent)it.next();
-            if (o.getId()==id)
-                return o;
+            if (o.getId()==id){
+            	return o;
+            }
         }
         return new LogbookEvent(id,"Unknown LogbookEvent id "+id,"",MeterEvent.OTHER);        
     }

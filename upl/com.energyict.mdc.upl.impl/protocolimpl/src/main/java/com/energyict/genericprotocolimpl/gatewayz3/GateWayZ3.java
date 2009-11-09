@@ -15,9 +15,6 @@ import java.util.logging.Logger;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.DuplicateException;
-import com.energyict.commserverj.TaskImpl;
-import com.energyict.commserverj.shadow.CommunicationSchedulerFullShadow;
-import com.energyict.commserverj.shadow.CommunicationSchedulerFullShadowBuilder;
 import com.energyict.concentrator.communication.driver.rf.cynet.ManufacturerId;
 import com.energyict.concentrator.communication.driver.rf.cynet.Network;
 import com.energyict.concentrator.communication.driver.rf.cynet.NetworkNode;
@@ -43,6 +40,7 @@ import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConst
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
 import com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3;
+import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.AmrJournalEntry;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.CommunicationScheduler;
@@ -75,9 +73,6 @@ import com.energyict.protocol.messaging.MessageSpec;
  */
 public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 	
-	/** Helper to rapidly fetch data without a Z3/R2 */
-	private boolean TESTING = false;
-	
 	/** ObisCode we can use to request the RF network topology. */
 	private static final ObisCode OBIS_CODE_NETWORK_TOPOLOGY = ObisCode.fromString("0.128.3.0.8.255");
 	
@@ -88,7 +83,7 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 	private NetworkTopology networkTopology;
 	
 	/** Contains a list of R2's who didn't end successfully */
-	private ArrayList<String> failingSlaves;
+	private List<String> failingSlaves;
 	
 	/* Properties */
 	private String slaveRtuType;
@@ -100,20 +95,8 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 
 		List<String> slaves;
 		failingSlaves = new ArrayList<String>();
-		if(TESTING){
-			slaves = new ArrayList<String>();
-			slaves.add("00000000");
-			slaves.add("28000552");
-			slaves.add("28000549");
-			slaves.add("28000548");
-			slaves.add("28000550");
-			slaves.add("28000551");
-			slaves.add("2800054d");
-			slaves.add("2800055b");
-			slaves.add("2800054b");
-		} else {
-			slaves = getSlaveDevices();
-		}
+		slaves = getSlaveDevices();
+		
 		disconnect();
 		log(Level.INFO, "Disconnected from the Z3, now all slaves will be processed.");
 		
@@ -146,7 +129,6 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 			if(id.equalsIgnoreCase("00000000")){ //this is the master
 				
 				rtu = getMeter();
-				id = this.masterDeviceId;
 				
 			    // Loop over the Rtu's communicationSchedules
 				for(int i = 0; i < rtu.getCommunicationSchedulers().size(); i++){
@@ -196,9 +178,6 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 	 * @param useFixedZ3Protocol indicate whether to use the fixed {@link WebRTUZ3} protocol or not
 	 */
 	private void doExecuteSlave(CommunicationScheduler commSchedule, boolean useFixedZ3Protocol){
-		long connectTime = System.currentTimeMillis();
-		Integer completionCode = null;
-		String errorMessage = "";
 		Rtu rtu = commSchedule.getRtu();
 		try {
 			if((commSchedule.getNextCommunication()!=null)&&(commSchedule.getNextCommunication().before(Calendar.getInstance(rtu.getDeviceTimeZone()).getTime()))
@@ -206,63 +185,10 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 				
 				log(Level.INFO, "Starting to handle meter \'" + rtu + "\'");
 				
-				CommunicationSchedulerFullShadow csfs = CommunicationSchedulerFullShadowBuilder.getCommunicationSchedulerFullShadow(commSchedule);
-				csfs.setDialerFactory(getCommunicationScheduler().getDialerFactory());
-				
 				getLink().getStreamConnection().write(rtu.getPostDialCommand()+"\r\n",500);
-			    
-			    completionCode = AmrJournalEntry.CC_OK;
-			    errorMessage = "";
-			    
-			    try{
-			    	commSchedule.startCommunication();
-			    	log(Level.INFO, "modem dialing "+ getMeter().getPhoneNumber() + "("+ rtu.getPostDialCommand() +")");
-			    	
-			    	if(useFixedZ3Protocol){ // then it's the master and you MUST use the WebRTUZ3 protocol
-						WebRTUZ3 wZ3 = new WebRTUZ3();
-						Properties props = rtu.getProperties();
-						/* We remove the WakeUp property so it only wakes up in the Gateway protocol and not in the WebRTUZ3 protocol */
-						props.remove("WakeUp");	
-						wZ3.addProperties(props);
-						wZ3.execute(commSchedule, getLink(), getLogger());
-			    	} else {	// it's a slave so you can execute his taskImpl
-			    		TaskImpl ti = new TaskImpl(csfs, getCurrentComportSchadow());
-			    		ti.execute(getLink(), false, false, getLogger());
-			    	}
-			    	
-			    } catch (IOException e){
-			    	completionCode = AmrJournalEntry.CC_IOERROR;
-			    	errorMessage = e.getMessage();
-			    	log(Level.INFO, errorMessage);
-			    	failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
-			    } catch (SQLException e){
-			    	completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
-			    	errorMessage = e.getMessage();
-			    	log(Level.INFO, errorMessage);
-			    	failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
-			    } catch (BusinessException e){
-			    	completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
-			    	errorMessage = e.getMessage();
-			    	log(Level.INFO, errorMessage);
-			    	failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
-				} finally {
-					if(rtu != null){	// only if we have an Rtu we should set an AmrJournal
-						if(completionCode != null){
-							
-							AMRJournalManager amrjm = new AMRJournalManager(rtu, commSchedule);
-							amrjm.journal(new AmrJournalEntry(completionCode));
-							amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - connectTime)/1000));
-							
-							if(completionCode == AmrJournalEntry.CC_OK){
-								amrjm.updateLastCommunication();
-							} else {
-								amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, errorMessage));
-								amrjm.updateRetrials();
-							}
-						}
-					}
-				}
 				
+				executeProtocol(commSchedule, rtu, useFixedZ3Protocol);
+			    
 				Rtu master = getMasterForMeter(rtu.getDeviceId());
 				if(master != null){
 					if(rtu.getGateway() == null){
@@ -288,6 +214,88 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 		} catch (BusinessException e) {
 			log(Level.FINEST, e.getMessage());
 			failingSlaves.add(logErrorDuringDBUpdate(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
+		}
+	}
+	
+	/**
+	 * Handles the protocol. The rtu properties are added before the generic execute method is called
+	 * @param commSchedule - the {@link CommunicationScheduler} to execute
+	 * @param rtu - the rtu we are dealing with
+	 * @param useFixedZ3Protocol - indicates to use the WebRTUZ3 protocol(for the master)
+	 * @throws SQLException if a database error occurred when we update the journal
+	 * @throws BusinessException if a business error occurred when we update the journal
+	 */
+	private void executeProtocol(CommunicationScheduler commSchedule, Rtu rtu, boolean useFixedZ3Protocol) throws SQLException, BusinessException{
+	    Integer completionCode = AmrJournalEntry.CC_OK;
+	    String errorMessage = "";
+	    long connectTime = System.currentTimeMillis();
+	    try{
+	    	commSchedule.startCommunication();
+	    	log(Level.INFO, "modem dialing "+ getMeter().getPhoneNumber() + "("+ rtu.getPostDialCommand() +")");
+	    	
+	    	Properties props = rtu.getProperties();
+	    	if(useFixedZ3Protocol){ // then it's the master and you MUST use the WebRTUZ3 protocol
+				WebRTUZ3 wZ3 = new WebRTUZ3();
+				/* We remove the WakeUp property so it only wakes up in the Gateway protocol and not in the WebRTUZ3 protocol */
+				props.remove("WakeUp");	
+				wZ3.addProperties(props);
+				wZ3.execute(commSchedule, getLink(), getLogger());
+	    	} else {	// it's a slave so you can execute his taskImpl
+	    		
+	            Class implementor = Class.forName(rtu.getRtuType().getProtocol().getJavaClassName());
+	            Object obj = implementor.newInstance();
+	            if(obj instanceof GenericProtocol){
+	            	((GenericProtocol) obj).addProperties(props);
+	            	((GenericProtocol) obj).execute(commSchedule, getLink(), getLogger());
+	            }
+	    	}
+	    	
+	    } catch (IOException e){
+	    	completionCode = AmrJournalEntry.CC_IOERROR;
+	    	errorMessage = e.getMessage();
+	    	log(Level.INFO, errorMessage);
+	    	failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
+	    } catch (SQLException e){
+	    	completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
+	    	errorMessage = e.getMessage();
+	    	log(Level.INFO, errorMessage);
+	    	failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
+	    } catch (BusinessException e){
+	    	completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
+	    	errorMessage = e.getMessage();
+	    	log(Level.INFO, errorMessage);
+	    	failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
+		} catch (ClassNotFoundException e) {
+	    	completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
+	    	errorMessage = e.getMessage();
+	    	log(Level.INFO, errorMessage);
+	    	failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
+		} catch (InstantiationException e) {
+	    	completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
+	    	errorMessage = e.getMessage();
+	    	log(Level.INFO, errorMessage);
+	    	failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
+		} catch (IllegalAccessException e) {
+	    	completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
+	    	errorMessage = e.getMessage();
+	    	log(Level.INFO, errorMessage);
+	    	failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
+		} finally {
+			if(rtu != null){	// only if we have an Rtu we should set an AmrJournal
+				if(completionCode != null){
+					
+					AMRJournalManager amrjm = new AMRJournalManager(rtu, commSchedule);
+					amrjm.journal(new AmrJournalEntry(completionCode));
+					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - connectTime)/1000));
+					
+					if(completionCode == AmrJournalEntry.CC_OK){
+						amrjm.updateLastCommunication();
+					} else {
+						amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, errorMessage));
+						amrjm.updateRetrials();
+					}
+				}
+			}
 		}
 	}
 	
@@ -605,24 +613,24 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol{
 	 * Setter for the CosemObjectFactory, mainly for testing purposes
 	 * @param cosemObjectFactory - the given CosemObjectFactory
 	 */
-	protected void setCosemObjectFactory(CosemObjectFactory cosemObjectFactory){
-		super.setCosemObjectFactory(cosemObjectFactory);
+	protected void setterForCosemObjectFactory(CosemObjectFactory cosemObjectFactory){
+		setCosemObjectFactory(cosemObjectFactory);
 	}
 	
 	/**
 	 * Setter for the DLMSConnection, mainly for testing purposes
 	 * @param dlmsConnection - the given DLMSConnection
 	 */
-	protected void setDLMSConnection(DLMSConnection dlmsConnection){
-		super.setDLMSConnection(dlmsConnection);
+	protected void setterForDLMSConnection(DLMSConnection dlmsConnection){
+		setDLMSConnection(dlmsConnection);
 	}
 	
 	/**
 	 * Setter for the Logger, mainly for testing purposes
 	 * @param logger - the given Logger
 	 */
-	protected void setLogger(Logger logger){
-		super.setLogger(logger);
+	protected void setterForLogger(Logger logger){
+		setLogger(logger);
 	}
 	
 	@Override

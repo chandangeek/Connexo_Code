@@ -10,13 +10,13 @@
 
 package com.energyict.genericprotocolimpl.common;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.IntervalStateBits;
 
 /**
  *
  * @author kvds
  */
-public class StatusCodeProfile {
+public class StatusCodeProfile { 
     
    
     /** Creates a new instance of StatusCodeProfile */
@@ -37,22 +37,30 @@ public class StatusCodeProfile {
         
         int eiCode=0;
         
-        if ((statusCodeProfile & CRITICAL_ERROR) == CRITICAL_ERROR)
-            eiCode |= IntervalStateBits.DEVICE_ERROR;
-        if ((statusCodeProfile & CLOCK_INVALID) == CLOCK_INVALID)
-            eiCode |= IntervalStateBits.BADTIME;
-        if ((statusCodeProfile & DATA_NOT_VALID) == DATA_NOT_VALID)
-            eiCode |= IntervalStateBits.CORRUPTED;
-        if ((statusCodeProfile & DAYLIGHT_SAVING) == DAYLIGHT_SAVING)
-            eiCode |= IntervalStateBits.OTHER;
-        if ((statusCodeProfile & BILLING_RESET) == BILLING_RESET)
-            eiCode |= IntervalStateBits.OTHER;
-        if ((statusCodeProfile & CLOCK_ADJUSTED) == CLOCK_ADJUSTED)
-            eiCode |= IntervalStateBits.SHORTLONG;
-        if ((statusCodeProfile & POWER_UP) == POWER_UP)
-            eiCode |= IntervalStateBits.POWERUP;
-        if ((statusCodeProfile & POWER_DOWN) == POWER_DOWN)
-            eiCode |= IntervalStateBits.POWERDOWN;
+        if ((statusCodeProfile & CRITICAL_ERROR) == CRITICAL_ERROR) {
+			eiCode |= IntervalStateBits.DEVICE_ERROR;
+		}
+        if ((statusCodeProfile & CLOCK_INVALID) == CLOCK_INVALID) {
+			eiCode |= IntervalStateBits.BADTIME;
+		}
+        if ((statusCodeProfile & DATA_NOT_VALID) == DATA_NOT_VALID) {
+			eiCode |= IntervalStateBits.CORRUPTED;
+		}
+        if ((statusCodeProfile & DAYLIGHT_SAVING) == DAYLIGHT_SAVING) {
+			eiCode |= IntervalStateBits.OTHER;
+		}
+        if ((statusCodeProfile & BILLING_RESET) == BILLING_RESET) {
+			eiCode |= IntervalStateBits.OTHER;
+		}
+        if ((statusCodeProfile & CLOCK_ADJUSTED) == CLOCK_ADJUSTED) {
+			eiCode |= IntervalStateBits.SHORTLONG;
+		}
+        if ((statusCodeProfile & POWER_UP) == POWER_UP) {
+			eiCode |= IntervalStateBits.POWERUP;
+		}
+        if ((statusCodeProfile & POWER_DOWN) == POWER_DOWN) {
+			eiCode |= IntervalStateBits.POWERDOWN;
+		}
         
         return eiCode;
     }

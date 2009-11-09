@@ -1,17 +1,26 @@
 package com.energyict.genericprotocolimpl.actarisplcc3g;
 
-import com.energyict.edf.messages.*;
-import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.*;
-import com.energyict.protocol.*;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.edf.messages.MessageContent;
+import com.energyict.edf.messages.MessageDiscoverMeters;
 import com.energyict.eisimport.core.AbstractStreamImporter;
-import java.text.*;
-import java.util.*;
+import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.RtuFactory;
+import com.energyict.mdw.shadow.RtuEventShadow;
+import com.energyict.mdw.shadow.RtuMessageShadow;
+import com.energyict.protocol.MeterEvent;
 
 // AbstractStreamImporter
 
@@ -28,38 +37,42 @@ public class EventImporter extends AbstractStreamImporter { //AbstractImporter {
             getLogger().warning("Alarm file ("+fileName+") imported, process...");
             byte[] data = new byte[(int)file.length()];
             getStream().read(data);
-            if (DEBUG==2) 
-                System.out.println( AXDRDecoder.decode(data));
+            if (DEBUG==2) {
+				System.out.println( AXDRDecoder.decode(data));
+			}
             
             Date date = getEventFileDate(fileName);
-            if (DEBUG==1) 
-                System.out.println(date);
+            if (DEBUG==1) {
+				System.out.println(date);
+			}
             Rtu device = findDevice(getConcentratorSerialNumber(fileName));
             AlarmFile alarmFile = new AlarmFile(data, device.getTimeZone());
             Iterator it = alarmFile.toAlarmEntries().iterator();
             while(it.hasNext()) {
                 
                 AlarmEntry alarmEntry = (AlarmEntry)it.next();
-                if (DEBUG==1)
-                    System.out.println(alarmEntry);
+                if (DEBUG==1) {
+					System.out.println(alarmEntry);
+				}
                 
                 createEventForDevice(alarmEntry);
                 
-                if (alarmEntry.isALARM_BEGIN_OF_DISCOVER()) {
-                    
-                }
-                else if (alarmEntry.isALARM_END_OF_DISCOVER()) {
-                    
-                }
-                else if (alarmEntry.isALARM_END_OF_LOAD_PROFILE_REQUEST()) {
-                    
-                }
-                else if (alarmEntry.isALARM_NEW_METER_FOUND()) {
+//                if (alarmEntry.isALARM_BEGIN_OF_DISCOVER()) {
+//                    
+//                }
+//                else if (alarmEntry.isALARM_END_OF_DISCOVER()) {
+//                    
+//                }
+//                else if (alarmEntry.isALARM_END_OF_LOAD_PROFILE_REQUEST()) {
+//                    
+//                }
+                
+                if (alarmEntry.isALARM_NEW_METER_FOUND()) {
                     sendDiscoverMessage(alarmEntry);                   
                 }
-                else if (alarmEntry.isALARM_TAMPER()) {
-                    
-                }
+//                else if (alarmEntry.isALARM_TAMPER()) {
+//                    
+//                }
             }
         }
         else {
@@ -94,8 +107,9 @@ public class EventImporter extends AbstractStreamImporter { //AbstractImporter {
         }
         else if (alarmEntry.isALARM_TAMPER()) {
             return MeterEvent.METER_ALARM;
-        }
-        else return MeterEvent.OTHER;
+        } else {
+			return MeterEvent.OTHER;
+		}
     }
     
     private void sendDiscoverMessage(AlarmEntry alarmEntry) throws IOException,BusinessException,SQLException {

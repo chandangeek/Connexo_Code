@@ -1,10 +1,11 @@
-package com.energyict.genericprotocolimpl.common.csvhandling;
+package com.energyict.genericprotocolimpl.webrtu.common.csvhandling;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.UserFile;
@@ -13,15 +14,10 @@ import com.energyict.mdw.shadow.UserFileShadow;
 public class CSVParser {
 	
 	private String rawText;
-	private ArrayList lines = new ArrayList();
-	
-	public CSVParser(byte[] rawBytes){
-		
-		this.rawText = new String(rawBytes);
-		parse();
-	}
+	private List lines = new ArrayList();
 
-	private void parse(){
+	public void parse(byte[] rawBytes){
+		this.rawText = new String(rawBytes);
 		int beginOffset = 0;
 		int endOffset = this.rawText.indexOf(new String(new byte[]{0x0D, 0x0A}));
 		while(endOffset != -1){
@@ -86,7 +82,8 @@ public class CSVParser {
 			int id = 460;
 			UserFile uf = mw.getUserFileFactory().find(id);
 			
-			CSVParser csvParser = new CSVParser(uf.loadFileInByteArray());
+			CSVParser csvParser = new CSVParser();
+			csvParser.parse(uf.loadFileInByteArray());
 			System.out.println(csvParser.rawText);
 			System.out.println(((TestObject)csvParser.lines.get(1)).getObisCode());
 			System.out.println(((TestObject)csvParser.lines.get(2)).getData());

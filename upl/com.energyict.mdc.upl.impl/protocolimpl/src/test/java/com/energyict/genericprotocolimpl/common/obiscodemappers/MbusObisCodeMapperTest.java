@@ -13,6 +13,7 @@ import org.junit.Test;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.MbusObisCodeMapper;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;

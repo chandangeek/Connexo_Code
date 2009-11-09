@@ -12,13 +12,20 @@ package com.energyict.protocolimpl.modbus.enerdis.recdigitcct;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.modbus.core.*;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.Parser;
 
 /** 
  * Responsibilities:
@@ -101,10 +108,11 @@ class RegisterFactory extends AbstractRegisterFactory {
         int vz = 10;
         for( int idx = 1; idx < 12; idx ++ ) {
             
-            if( vz == 0 )
-                monthMap[(month + idx) % 12] = "VZ";
-            else                
-                monthMap[(month + idx) % 12] = "VZ-" + vz;
+            if( vz == 0 ) {
+				monthMap[(month + idx) % 12] = "VZ";
+			} else {
+				monthMap[(month + idx) % 12] = "VZ-" + vz;
+			}
             
             vz = vz - 1;
             
@@ -289,10 +297,11 @@ class RegisterFactory extends AbstractRegisterFactory {
         bcd[15] = (values[3]&0x0000000f);
         
         int year = (bcd[2]*10) + bcd[3];
-        if( year > 60 ) 
-            year += 1900;
-        else
-            year += 2000;
+        if( year > 60 ) {
+			year += 1900;
+		} else {
+			year += 2000;
+		}
         
         cal.set(Calendar.MONTH,         ((bcd[0]*10) + bcd[1]) -1);
         cal.set(Calendar.YEAR,          year);
@@ -307,9 +316,9 @@ class RegisterFactory extends AbstractRegisterFactory {
         if( bcd[0] != 0 || bcd[1] != 0 || bcd[2] != 0 || 
             bcd[3] != 0 || bcd[4] != 0 || bcd[6] != 0 ||
             bcd[7] != 0 || bcd[8] != 0 || bcd[9] != 0 ||
-            bcd[10] != 0 || bcd[11] != 0 )
-            
-            result = cal.getTime();
+            bcd[10] != 0 || bcd[11] != 0 ) {
+			result = cal.getTime();
+		}
         
         if( debug ) {
             
@@ -359,10 +368,11 @@ class RegisterFactory extends AbstractRegisterFactory {
         
         
         int year = (bcd[2]*10) + bcd[3];
-        if( year > 60 ) 
-            year += 1900;
-        else
-            year += 2000;
+        if( year > 60 ) {
+			year += 1900;
+		} else {
+			year += 2000;
+		}
         
         cal.set(Calendar.MONTH,         ((bcd[0]*10) + bcd[1]) -1);
         cal.set(Calendar.YEAR,          year);
@@ -377,9 +387,9 @@ class RegisterFactory extends AbstractRegisterFactory {
         if( bcd[0] != 0 || bcd[1] != 0 || bcd[2] != 0 || 
             bcd[3] != 0 || bcd[4] != 0 || bcd[6] != 0 ||
             bcd[7] != 0 || bcd[8] != 0 || bcd[9] != 0 ||
-            bcd[10] != 0 || bcd[11] != 0 )
-            
-            result = cal.getTime();
+            bcd[10] != 0 || bcd[11] != 0 ) {
+			result = cal.getTime();
+		}
         
         if( debug ) {
             
@@ -417,9 +427,9 @@ class RegisterFactory extends AbstractRegisterFactory {
     BigDecimal toBigDecimal(Type type, ByteArray data) {
         
 
-        if( (type.intValue() & Type.BCD.intValue()) > 0 ) {
-//            return new BigDecimal( (byte)values[0] );
-        }
+//        if( (type.intValue() & Type.BCD.intValue()) > 0 ) {
+////            return new BigDecimal( (byte)values[0] );
+//        }
         
 
         /* 1 word - 2 bytes -> fits an int */ 
@@ -468,7 +478,9 @@ class RegisterFactory extends AbstractRegisterFactory {
         	
 //        	String chastring = "" + cha[0] + cha[1] + cha[2] + cha[3] + cha[4] + cha[5] + cha[6] + cha[7];
 			        	
-        	if (debug) System.out.println("chastring = " + str);
+        	if (debug) {
+				System.out.println("chastring = " + str);
+			}
         	
         	return new BigDecimal( unitInt(str) );
         	
@@ -606,7 +618,9 @@ class RegisterFactory extends AbstractRegisterFactory {
     }
     
     private void dbg(Object o) {
-        if( debug ) System.out.println( "" + o);
+        if( debug ) {
+			System.out.println( "" + o);
+		}
     }
     
     public static void main(String[] args) {

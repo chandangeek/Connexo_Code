@@ -62,11 +62,11 @@ import com.energyict.dlms.cosem.Limiter.ValueDefinitionType;
 import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.csvhandling.CSVParser;
-import com.energyict.genericprotocolimpl.common.csvhandling.TestObject;
 import com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
+import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
+import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.CodeCalendar;
@@ -618,7 +618,8 @@ public class MessageExecutor extends GenericMessageExecutor{
 						UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
 						if(uf != null){
 							byte[] data = uf.loadFileInByteArray();
-							CSVParser csvParser = new CSVParser(data);
+							CSVParser csvParser = new CSVParser();
+							csvParser.parse(data);
 							boolean hasWritten;
 							TestObject to = new TestObject("");
 							for(int i = 0; i < csvParser.size(); i++){

@@ -6,22 +6,21 @@
 
 package com.energyict.protocolimpl.dlms.eictz3;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
-import com.energyict.protocolimpl.dlms.*;
 import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.Register;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.ScalerUnit;
+import com.energyict.obis.ObisCode;
 /**
  *
  * @author  Koen
@@ -80,8 +79,9 @@ public class RegisterProfileMapper implements DLMSCOSEMGlobals {
             int channelIndex = obisCode.getB()-1; // save B field
             obisCode = new ObisCode(obisCode,1); // reset B field
             ObisCode profileObisCode = getMaximumDemandRelations().getProfileObisCode(obisCode);
-            if (dcMaximumDemand==null)
-               dcMaximumDemand = cof.getProfileGeneric(profileObisCode).getBuffer();
+            if (dcMaximumDemand==null) {
+				dcMaximumDemand = cof.getProfileGeneric(profileObisCode).getBuffer();
+			}
             if (channelIndex < dcMaximumDemand.getRoot().getNrOfElements()) {
                 int value = dcMaximumDemand.getRoot().getStructure(channelIndex).getInteger(0);
                 ScalerUnit scalerUnit = new ScalerUnit(dcMaximumDemand.getRoot().getStructure(channelIndex).getStructure(1).getInteger(0),dcMaximumDemand.getRoot().getStructure(channelIndex).getStructure(1).getInteger(1));
@@ -94,8 +94,9 @@ public class RegisterProfileMapper implements DLMSCOSEMGlobals {
             }
         }
         else if ((obisCode.getD() == ObisCode.CODE_D_RISING_DEMAND) || (obisCode.getD() == ObisCode.CODE_D_LAST_AVERAGE)) {
-            if (dcDemand==null)
-               dcDemand = cof.getProfileGeneric(ALLDEMANDS_PROFILE).getBuffer();
+            if (dcDemand==null) {
+				dcDemand = cof.getProfileGeneric(ALLDEMANDS_PROFILE).getBuffer();
+			}
             for (int i=0;i<dcDemand.getRoot().getStructure(0).getNrOfElements();i++) {
                 if (dcDemand.getRoot().getStructure(0).getStructure(i).getOctetString(0).toObisCode().equals(obisCode)) {
                     int value = dcDemand.getRoot().getStructure(0).getStructure(i).getInteger(1);
@@ -107,7 +108,7 @@ public class RegisterProfileMapper implements DLMSCOSEMGlobals {
                 }
             }
         }
-        else if (obisCode.getD() == ObisCode.CODE_D_CUMULATIVE_MAXUMUM_DEMAND) {
+//        else if (obisCode.getD() == ObisCode.CODE_D_CUMULATIVE_MAXUMUM_DEMAND) {
             // Requesting the buffer of obis CODE_D_CUMULATIVE_MAXUMUM_DEMAND seems not to work! It results in NULL data...
             /* 
             DataContainer dc = cof.getProfileGeneric(ALLCUMULATIVEMAXDEMANDS_PROFILE).getBuffer();
@@ -122,10 +123,11 @@ public class RegisterProfileMapper implements DLMSCOSEMGlobals {
                 }
             }
              */
-        }
+//        }
         else if ((obisCode.getD() == ObisCode.CODE_D_TIME_INTEGRAL) && (obisCode.getE()==0)) {
-            if (dcEnergyRates==null)
-               dcEnergyRates = cof.getProfileGeneric(ALLTOTALENERGIES_PROFILE).getBuffer();
+            if (dcEnergyRates==null) {
+				dcEnergyRates = cof.getProfileGeneric(ALLTOTALENERGIES_PROFILE).getBuffer();
+			}
             for (int i=0;i<dcEnergyRates.getRoot().getStructure(0).getNrOfElements();i++) {
                 if (dcEnergyRates.getRoot().getStructure(0).getStructure(i).getOctetString(0).toObisCode().equals(obisCode)) {
                     int value = dcEnergyRates.getRoot().getStructure(0).getStructure(i).getInteger(1);
@@ -138,8 +140,9 @@ public class RegisterProfileMapper implements DLMSCOSEMGlobals {
             }
         }
         else if ((obisCode.getD() == ObisCode.CODE_D_TIME_INTEGRAL) && (obisCode.getE()!=0)) {
-            if (dcTotalEnergies==null)
-               dcTotalEnergies = cof.getProfileGeneric(ALLENERGYRATES_PROFILE).getBuffer();
+            if (dcTotalEnergies==null) {
+				dcTotalEnergies = cof.getProfileGeneric(ALLENERGYRATES_PROFILE).getBuffer();
+			}
             for (int i=0;i<dcTotalEnergies.getRoot().getStructure(0).getNrOfElements();i++) {
                 if (dcTotalEnergies.getRoot().getStructure(0).getStructure(i).getOctetString(0).toObisCode().equals(obisCode)) {
                     int value = dcTotalEnergies.getRoot().getStructure(0).getStructure(i).getInteger(1);

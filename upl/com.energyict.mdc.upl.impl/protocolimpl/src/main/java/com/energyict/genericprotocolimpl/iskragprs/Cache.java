@@ -43,13 +43,13 @@ public class Cache implements Serializable{
 	}
 
 	public Cache(UniversalObject[] objectList,int confProgChange) {
-        this.objectList=objectList;
+        this.objectList=objectList.clone();
         this.confProgChange=confProgChange;
         setChanged(false);
 	}
 	
 	public Cache(UniversalObject[] objectList,int confProgChange,boolean changed) {
-        this.objectList=objectList;
+        this.objectList=objectList.clone();
         this.confProgChange=confProgChange;
         this.changed=changed;
 	}
@@ -58,15 +58,15 @@ public class Cache implements Serializable{
     		int gInterval2, byte[] gInterval3, byte[] gInterval4, ArrayList profileConfig,
     		int mbusCount, int[] mbusPhysicalAddress, int[] mbusMedium,
     		long[] mbusAddress, Unit[] mbusUnit, String[] mbusCustomerID) {
-        this.objectList=objectList;
+        this.objectList=objectList.clone();
         this.confProgChange=confProgChange;
         this.changed=changed;
         this.mbusCount = mbusCount;
-        this.mbusPhysicalAddress = mbusPhysicalAddress;
-        this.mbusMedium = mbusMedium;
-        this.mbusCustomerID = mbusCustomerID;
-        this.mbusAddress = mbusAddress;
-        this.mbusUnit = mbusUnit;
+        this.mbusPhysicalAddress = mbusPhysicalAddress.clone();
+        this.mbusMedium = mbusMedium.clone();
+        this.mbusCustomerID = mbusCustomerID.clone();
+        this.mbusAddress = mbusAddress.clone();
+        this.mbusUnit = mbusUnit.clone();
 	}
 
 	public boolean isChanged() {
@@ -78,7 +78,7 @@ public class Cache implements Serializable{
     }
     
     public void saveObjectList(UniversalObject[] objectList) {
-        this.objectList=objectList;
+        this.objectList=objectList.clone();
         setChanged(true);
     }
     

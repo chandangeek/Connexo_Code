@@ -12,19 +12,24 @@ package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
 
 
-import com.energyict.genericprotocolimpl.common.*;
-import java.io.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.*;
-import com.energyict.genericprotocolimpl.actarisplcc3g.*;
-
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.dlms.cosem.ObjectIdentification;
-import java.util.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.AbstractCosemObject;
+import com.energyict.dlms.cosem.ObjectIdentification;
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.genericprotocolimpl.common.LoadProfileDecompressor;
+import com.energyict.genericprotocolimpl.common.LoadProfileEntry;
+import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -47,10 +52,11 @@ public class PLCCMeterLoadProfileEnergy extends AbstractPLCCObject {
     }
     
     protected ObjectIdentification getId() {
-        if (isCompressed())
-            return new ObjectIdentification(ObisCode.fromString("1.1.99.1.0.255"), AbstractCosemObject.CLASSID_PROFILE_GENERIC);
-        else
-            return new ObjectIdentification(ObisCode.fromString("1.0.99.1.0.255"), AbstractCosemObject.CLASSID_PROFILE_GENERIC);
+        if (isCompressed()) {
+			return new ObjectIdentification(ObisCode.fromString("1.1.99.1.0.255"), AbstractCosemObject.CLASSID_PROFILE_GENERIC);
+		} else {
+			return new ObjectIdentification(ObisCode.fromString("1.0.99.1.0.255"), AbstractCosemObject.CLASSID_PROFILE_GENERIC);
+		}
     }
     
     public String toString() {
@@ -83,9 +89,9 @@ public class PLCCMeterLoadProfileEnergy extends AbstractPLCCObject {
     protected void doInvoke() throws IOException {
         profileGeneric = getCosemObjectFactory().getProfileGeneric(getId().getObisCode());
         
-        if (getTo()==null)
-            calTo = ProtocolUtils.getCalendar(getPLCCObjectFactory().getConcentrator().getTimeZone()); // KV_TO_DO concentrator timezone if all meters are in the same timezone...
-        else {
+        if (getTo()==null) {
+			calTo = ProtocolUtils.getCalendar(getPLCCObjectFactory().getConcentrator().getTimeZone()); // KV_TO_DO concentrator timezone if all meters are in the same timezone...
+		} else {
             calTo = ProtocolUtils.getCalendar(getPLCCObjectFactory().getConcentrator().getTimeZone());
             calTo.setTime(getTo());
         }
@@ -116,9 +122,9 @@ public class PLCCMeterLoadProfileEnergy extends AbstractPLCCObject {
                     //System.out.println("**************************** SKIP value due to non aligned datetime... ("+calendar.getTime()+")");
                     continue;
                 }
-                else {
-                    //System.out.println("**************************** new datetime... ("+calendar.getTime()+")");
-                }
+//                else {
+//                    //System.out.println("**************************** new datetime... ("+calendar.getTime()+")");
+//                }
             }
             IntervalData intervalData = new IntervalData(new Date(calendar.getTime().getTime()),StatusCodeProfile.intervalStateBits(loadProfileEntry.getStatus()),loadProfileEntry.getStatus());
             intervalData.addValue(loadProfileEntry.getValue());
@@ -152,8 +158,9 @@ public class PLCCMeterLoadProfileEnergy extends AbstractPLCCObject {
     }
 
     public long getCapturePeriod() throws IOException {
-        if (capturePeriod == -1)
-             capturePeriod = profileGeneric.readCapturePeriodAttr().intValue();        
+        if (capturePeriod == -1) {
+			capturePeriod = profileGeneric.readCapturePeriodAttr().intValue();
+		}        
         return capturePeriod;
     }
 

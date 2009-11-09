@@ -9,9 +9,14 @@ package com.energyict.protocolimpl.iec1107.sdc;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.rmi.NoSuchObjectException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.TimeZoneManager;
+import com.energyict.cbo.Unit;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocolimpl.base.DataParser;
 /**
@@ -47,8 +52,9 @@ public class RegisterSet {
        calendar = Calendar.getInstance(timeZone); 
        while(strTok.hasMoreTokens()) {
            String strRegisterExpression = strTok.nextToken();
-           if (strRegisterExpression.compareTo("([4])") != 0)
-               parseRegisterExpression(strRegisterExpression);
+           if (strRegisterExpression.compareTo("([4])") != 0) {
+			parseRegisterExpression(strRegisterExpression);
+		}
        }
     }
     
@@ -60,40 +66,42 @@ public class RegisterSet {
     	String typeString = strRegisterExpression.substring(0,strRegisterExpression.indexOf('('));
     	typeString = checkStringForNumbers(typeString);
     	
-    	if ( typeString.compareTo("DIAG") == 0 )
-    		dateType = 1;
-    	else if ( typeString.substring(0, 2).compareTo("DL") == 0 ){
+    	if ( typeString.compareTo("DIAG") == 0 ) {
+			dateType = 1;
+		} else if ( typeString.substring(0, 2).compareTo("DL") == 0 ){
     		dateType = 2;
     		setDates(dateType, typeString, str);
     	}
     	
     	else{
-    		// Tariff Program
-    		if ( typeString.compareTo("PR") == 0 ){}
+//    		// Tariff Program
+//    		if ( typeString.compareTo("PR") == 0 ){}
     		
     		// Serial Number
-    		else if ( ( typeString.compareTo("NS") == 0 ) | ( Integer.parseInt(typeString) == 99 ) ){
+    		if ( ( typeString.compareTo("NS") == 0 ) | ( Integer.parseInt(typeString) == 99 ) ){
     			type = getType(typeString);
     			Quantity qu = new Quantity(new BigDecimal(str),Unit.getUndefined());
     			registers[id] = new Register(type,qu,null,null); id++;
     		}
     		
-    		// TI Ratio
-    		else if ( ( Integer.parseInt(typeString) == 90 ) ){}
+//    		// TI Ratio
+//    		else if ( ( Integer.parseInt(typeString) == 90 ) ){}
 
     		// a date or a registervalue
     		else {
     			
-    			if (dateType == 1)
-    				setDates(dateType, typeString, str);
+    			if (dateType == 1) {
+					setDates(dateType, typeString, str);
+				}
     			
     			if ( (used) & (Integer.parseInt(typeString) != 66) & ( typeString.substring(0, 2).compareTo("DL") != 0 ) ){
     				type = getType(typeString);
         			
         			String acronym = str.split("\\*")[1];
         			
-        			if (acronym.compareToIgnoreCase("varh") == 0)
-        				acronym = "varh";
+        			if (acronym.compareToIgnoreCase("varh") == 0) {
+						acronym = "varh";
+					}
         			
         			String val = str.split("\\*")[0];
                    
@@ -122,8 +130,9 @@ public class RegisterSet {
     		}
     	}
     	
-    	if ( place [0] == 2 )
-    		typeString = typeString.substring(0, 2) + Integer.parseInt(typeString.substring(2, 3),16);
+    	if ( place [0] == 2 ) {
+			typeString = typeString.substring(0, 2) + Integer.parseInt(typeString.substring(2, 3),16);
+		}
     	
 		return typeString;
 	}
@@ -144,9 +153,9 @@ public class RegisterSet {
     	else if ( (type >= 6710) & (type <= 8316) ){
     		billingPoint = type % 100;
     		return type/100;
-    	}
-    		
-    	else throw new NoSuchObjectException("Type "+str+" is not supported");
+    	} else {
+			throw new NoSuchObjectException("Type "+str+" is not supported");
+		}
     	
     }
     
@@ -194,12 +203,14 @@ public class RegisterSet {
             StringBuffer strBuff = new StringBuffer();
             strBuff.append("RegisterSet "+getBillingPoint()+"\n");
             for (int i=0;i< registers.length ; i++) {
-                if (registers[i] != null)
-                    strBuff.append("register "+i+", "+registers[i].toString()+"\n");
+                if (registers[i] != null) {
+					strBuff.append("register "+i+", "+registers[i].toString()+"\n");
+				}
             }
             return strBuff.toString();
-        }
-        else return "RegisterSet "+getBillingPoint()+" is not used\n";
+        } else {
+			return "RegisterSet "+getBillingPoint()+" is not used\n";
+		}
     }
     
     
@@ -213,10 +224,12 @@ public class RegisterSet {
     public Register getRegister(int index) throws NoSuchRegisterException {
     	index = getRegisterIndex(index);
     
-        if ((index >= NR_OF_REGISTERS) || (index < 0))
-            throw new NoSuchRegisterException("RegisterSet, getRegister, register with id "+index+" invalid!");
-        if (registers[index]==null)
-            throw new NoSuchRegisterException("RegisterSet, getRegister, register with id "+index+" invalid!");
+        if ((index >= NR_OF_REGISTERS) || (index < 0)) {
+			throw new NoSuchRegisterException("RegisterSet, getRegister, register with id "+index+" invalid!");
+		}
+        if (registers[index]==null) {
+			throw new NoSuchRegisterException("RegisterSet, getRegister, register with id "+index+" invalid!");
+		}
         return registers[index];
     }
     
@@ -231,8 +244,9 @@ public class RegisterSet {
     	
     	for(teller = 0; teller  < registers.length; teller++){
     		if(registers[teller] != null){
-    			if(registers[teller].type == typeNumber)
-    				return teller;
+    			if(registers[teller].type == typeNumber) {
+					return teller;
+				}
     		}
     	}
     	

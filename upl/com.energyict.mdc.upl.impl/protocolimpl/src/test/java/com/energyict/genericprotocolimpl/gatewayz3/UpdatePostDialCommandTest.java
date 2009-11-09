@@ -47,9 +47,9 @@ public class UpdatePostDialCommandTest {
 		connection = new DummyDLMSConnection();
 		
 		gatewayZ3 = new GateWayZ3();
-		gatewayZ3.setLogger(logger);
-		gatewayZ3.setDLMSConnection(connection);
-		gatewayZ3.setCosemObjectFactory(new CosemObjectFactory(gatewayZ3));
+		gatewayZ3.setterForLogger(logger);
+		gatewayZ3.setterForDLMSConnection(connection);
+		gatewayZ3.setterForCosemObjectFactory(new CosemObjectFactory(gatewayZ3));
 	}
 	
 	@Before

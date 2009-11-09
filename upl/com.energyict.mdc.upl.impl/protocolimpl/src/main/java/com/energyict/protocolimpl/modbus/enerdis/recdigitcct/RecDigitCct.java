@@ -2,16 +2,30 @@ package com.energyict.protocolimpl.modbus.enerdis.recdigitcct;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.iec1107.Channel;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
-import com.energyict.protocolimpl.modbus.core.*;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
 
 /** 
@@ -80,10 +94,11 @@ public class RecDigitCct extends Modbus {
     	setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","100").trim()));
     	
         String property = properties.getProperty( PK_CHANNEL_MAP );
-        if( property != null )
-            channelMap = new ChannelMap( property );
-        else
-            channelMap = new ChannelMap( PD_CHANNEL_MAP );
+        if( property != null ) {
+			channelMap = new ChannelMap( property );
+		} else {
+			channelMap = new ChannelMap( PD_CHANNEL_MAP );
+		}
         
         if( channelMap.getNrOfChannels() > 8 ) {
             String msg = 
@@ -128,10 +143,11 @@ public class RecDigitCct extends Modbus {
 		    		Channel chan;
 		    		for( int j = 0; j < channelMap.getNrOfChannels(); j++){
 		    			chan = channelMap.getChannel(j);
-		    			if (i == j)
-		    				newChannelmap = newChannelmap + "0";
-		    			else
-		    				newChannelmap = newChannelmap + chan.getRegister();
+		    			if (i == j) {
+							newChannelmap = newChannelmap + "0";
+						} else {
+							newChannelmap = newChannelmap + chan.getRegister();
+						}
 		    			
 		    			newChannelmap = newChannelmap + ":";
 		    		}
@@ -153,10 +169,11 @@ public class RecDigitCct extends Modbus {
         calendar = Calendar.getInstance( gettimeZone() );
     	currentTime = Calendar.getInstance( gettimeZone() );
         
-        if( to != null )
-            calendar.setTime( round( to ) );
-        else
-            calendar.setTime( round( new Date() ) );
+        if( to != null ) {
+			calendar.setTime( round( to ) );
+		} else {
+			calendar.setTime( round( new Date() ) );
+		}
         
 		while( currentTime.getTime().after(from) & GO ){
 			
@@ -167,11 +184,12 @@ public class RecDigitCct extends Modbus {
 			    	dataArray[i] 	= memChannel[i].read(searchPointer[i], READ_STEP);  
 			    	
 			    	searchPointer[i] = searchPointer[i] - ( READ_STEP/2 );   
-				    if ( searchPointer[i] < -2 )
-				    	searchPointer[i] = searchPointer[i] + (VirtualMemory.MEMORY_SIZE) ;
-		    	}
-		    	else
-		    		dataArray[i] = null;
+				    if ( searchPointer[i] < -2 ) {
+						searchPointer[i] = searchPointer[i] + (VirtualMemory.MEMORY_SIZE) ;
+					}
+		    	} else {
+					dataArray[i] = null;
+				}
 			    
 		    }
 		    
@@ -181,8 +199,9 @@ public class RecDigitCct extends Modbus {
 				addState = 1;
 			}
 		    
-		    if ( !currentTime.getTime().after(from) ) 
-		    	addState = 1;
+		    if ( !currentTime.getTime().after(from) ) {
+				addState = 1;
+			}
             
 		    while( tempPointer > (0 + ( (GO)?1:0 ) + ( !currentTime.getTime().after(from)?-1:0 ) ) ){
         		
@@ -205,12 +224,15 @@ public class RecDigitCct extends Modbus {
     				
     				IntervalData doubleInterval = new IntervalData(profileData.getIntervalData(i).getEndTime());
     				
-    				if(debug)System.out.println("We got a double!");
+    				if(debug) {
+						System.out.println("We got a double!");
+					}
     				
-    				for (int k = 0; k < profileData.getNumberOfChannels(); k ++)
-    					doubleInterval.addValue( ( (BigDecimal)profileData.getIntervalData(i).get(k) )
+    				for (int k = 0; k < profileData.getNumberOfChannels(); k ++) {
+						doubleInterval.addValue( ( (BigDecimal)profileData.getIntervalData(i).get(k) )
     							.add( (BigDecimal)profileData.getIntervalData(j).get(k) )
     							, 0, profileData.getIntervalData(i).getEiStatus(k) | profileData.getIntervalData(j).getEiStatus(k) );
+					}
     				
     				profileData.getIntervalDatas().remove(j);
     				profileData.getIntervalDatas().remove(i);
@@ -221,7 +243,9 @@ public class RecDigitCct extends Modbus {
     			}
     		}
     		
-    		if (debug)System.out.println("Next intervalTime: " + profileData.getIntervalData(i).getEndTime() );
+    		if (debug) {
+				System.out.println("Next intervalTime: " + profileData.getIntervalData(i).getEndTime() );
+			}
     		
     	}
     	
@@ -231,27 +255,27 @@ public class RecDigitCct extends Modbus {
 
 	public void setTime() throws IOException {
 	
-    	if (debug) System.out.println( "TESTING THE setTime!" ); 
+    	if (debug) {
+			System.out.println( "TESTING THE setTime!" );
+		} 
 	
-    	if (true){
 		
-			Calendar instTime = Calendar.getInstance( gettimeZone() );
-			byte[] currentInstantTime = new byte[8];
-		
-			currentInstantTime[0] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.MONTH) + 1) ,16)) ;
-			currentInstantTime[1] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.YEAR) - 2000) ,16));
-			currentInstantTime[2] = (byte) 0xff;
-			currentInstantTime[3] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.DATE)) ,16));
-			currentInstantTime[4] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.MINUTE)) ,16));
-			currentInstantTime[5] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.HOUR_OF_DAY)) ,16));
-			currentInstantTime[6] = (byte) 0xff;
-			currentInstantTime[7] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.SECOND)) ,16));
+		Calendar instTime = Calendar.getInstance( gettimeZone() );
+		byte[] currentInstantTime = new byte[8];
+	
+		currentInstantTime[0] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.MONTH) + 1) ,16)) ;
+		currentInstantTime[1] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.YEAR) - 2000) ,16));
+		currentInstantTime[2] = (byte) 0xff;
+		currentInstantTime[3] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.DATE)) ,16));
+		currentInstantTime[4] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.MINUTE)) ,16));
+		currentInstantTime[5] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.HOUR_OF_DAY)) ,16));
+		currentInstantTime[6] = (byte) 0xff;
+		currentInstantTime[7] = (byte)(Integer.parseInt( Integer.toString(instTime.get(Calendar.SECOND)) ,16));
 
-			
-			FunctionCodeFactory fcf = new FunctionCodeFactory(this); 
 		
-			fcf.getWriteMultipleRegisters(0x0000, 4, currentInstantTime);
-		}
+		FunctionCodeFactory fcf = new FunctionCodeFactory(this); 
+	
+		fcf.getWriteMultipleRegisters(0x0000, 4, currentInstantTime);
 		
 	}
 
@@ -338,8 +362,9 @@ public class RecDigitCct extends Modbus {
 					tempPointer--;
 					calendar.add( Calendar.SECOND, getProfileInterval() );
 					flagState = flagState | temp[tempPointer].getEiStatus(tempPointer);
-					for (int i = 0; i < notNullCount(previousFourByte); i++ )
+					for (int i = 0; i < notNullCount(previousFourByte); i++ ) {
 						actualByte[i] = (BigDecimal)temp[tempPointer].get(i);
+					}
 					temp[tempPointer] = new IntervalData( round( currentTime.getTime() ) );
 				}
 			}
@@ -348,32 +373,37 @@ public class RecDigitCct extends Modbus {
 			previousPercent = BigDecimal.valueOf( (long) 1 ).subtract(currentPercent);
 	
 			for ( int i = 0; i < notNullCount(fourByte); i++ ){
-				if (notEmpty(fourByte[i]))
+				if (notEmpty(fourByte[i])) {
 					fourByte[i] = new ByteArray( new byte[] { 0, 0, 0, 0} );
+				}
 				
 				actualByte[i] = actualByte[i].add( toBigDecimal( fourByte[i] ).multiply( currentPercent )
 						.add( toBigDecimal( previousFourByte[i] ).multiply( previousPercent ) ) );
 			}
 			
-			if (debug)
+			if (debug) {
 				System.out.println(calendar.getTime());
+			}
 			
 			previousFourByte = fourByte;
 			
 			if ( ( addState == 0 ) & ( currentTime.getTimeInMillis() != firstDate.getTime() ) ){
 				
-				if ( temp[tempPointer] == null )
-			    	temp[tempPointer] = new IntervalData( round( currentTime.getTime() ) );
+				if ( temp[tempPointer] == null ) {
+					temp[tempPointer] = new IntervalData( round( currentTime.getTime() ) );
+				}
 				
-				for ( int i = 0; i < notNullCount(fourByte); i++)
+				for ( int i = 0; i < notNullCount(fourByte); i++) {
 					temp[tempPointer].addValue( actualByte[i], 0, flagState );
+				}
 	            
 		    	tempPointer++;
 
 	            calendar.add( Calendar.SECOND, -getProfileInterval() ); 
 				
-				if ( ( flagState == IntervalStateBits.POWERDOWN ) | ( flagState == 3 ) )
+				if ( ( flagState == IntervalStateBits.POWERDOWN ) | ( flagState == 3 ) ) {
 					flagState = 0;
+				}
 			}
 			
 	        jumpBack(currentTime);  
@@ -398,9 +428,11 @@ public class RecDigitCct extends Modbus {
 
 	private int notNullCount(ByteArray byteArray[]){
 		int count = 0;
-		for (int i = 0; i < byteArray.length; i++)
-			if (byteArray[i] != null)
+		for (int i = 0; i < byteArray.length; i++) {
+			if (byteArray[i] != null) {
 				count++;
+			}
+		}
 		return count;
 	}
 	
@@ -412,8 +444,9 @@ public class RecDigitCct extends Modbus {
     
     private ByteArray[] clearByteArray(ByteArray[] bArray){
     	
-    	for (int i = 0; i < notNullCount(bArray); i++)
-    		bArray[i] = new ByteArray( new byte[] { 0, 0, 0, 0} );    	
+    	for (int i = 0; i < notNullCount(bArray); i++) {
+			bArray[i] = new ByteArray( new byte[] { 0, 0, 0, 0} );
+		}    	
     	
     	return bArray;
     }
@@ -449,10 +482,11 @@ public class RecDigitCct extends Modbus {
 		for ( int i = 0; i < notNullCount(byteArray); i++ ){
 			if ( ( byteArray[i] != null ) & state ){
 				if ( byteArray[i].getBytes()[0] == -1 && byteArray[i].getBytes()[1] == -1 &&
-						byteArray[i].getBytes()[2] == -1 && byteArray[i].getBytes()[3] == -1 )
+						byteArray[i].getBytes()[2] == -1 && byteArray[i].getBytes()[3] == -1 ) {
 					state = true;
-				else
+				} else {
 					state = false;
+				}
 			}
 		}
         return state;
@@ -462,8 +496,9 @@ public class RecDigitCct extends Modbus {
 		boolean state = false;
 		for ( int i = 0; i < notNullCount(previousByteArray); i++){
 			if ( previousByteArray[i].getBytes()[0] == 0 &&	previousByteArray[i].getBytes()[1] == 0 &&
-				previousByteArray[i].getBytes()[2] == 0 && previousByteArray[i].getBytes()[3] == 0 )
+				previousByteArray[i].getBytes()[2] == 0 && previousByteArray[i].getBytes()[3] == 0 ) {
 				state = true;
+			}
 		}
 		return state;
 	}
@@ -565,8 +600,9 @@ public class RecDigitCct extends Modbus {
             for (int i = 0; i < channelMap.getNrOfChannels(); i++) {
                
                Channel channel = channelMap.getChannel(i);
-               if( ! "0".equals( channel.getRegister() ) )
-                   nrChannels = nrChannels + 1;
+               if( ! "0".equals( channel.getRegister() ) ) {
+				nrChannels = nrChannels + 1;
+			}
                 
             }
             
@@ -616,8 +652,9 @@ public class RecDigitCct extends Modbus {
     }
     
     void dbg( String msg ) {
-        if( debug )
-            System.out.println(msg);
+        if( debug ) {
+			System.out.println(msg);
+		}
     }
     public DiscoverResult discover(DiscoverTools discoverTools) {
         return null;

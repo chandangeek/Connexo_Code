@@ -31,7 +31,7 @@ import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageCategoryConstants;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageKeyIdConstants;
-import com.energyict.genericprotocolimpl.common.obiscodemappers.ObisCodeMapper;
+import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.ObisCodeMapper;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MessageExecutor;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.DailyMonthly;
@@ -91,7 +91,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 	private MbusDevice[] mbusDevices;
 	
 	/** GhostMbusDevices are Mbus meters that are connected with their gateway in EIServer, but not on the physical device anymore */
-	private HashMap<String, Integer> ghostMbusDevices = new HashMap<String, Integer>();	
+	private Map<String, Integer> ghostMbusDevices = new HashMap<String, Integer>();	
 	
 	/** The used TicDevice */ 
 	private TicDevice ticDevice;
@@ -224,7 +224,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 		try {
 			return buildDefaultInvokeIdAndPriority();
 		} catch (DLMSConnectionException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			// if we can't get it, then return null so the default should be used
 			return null;
 		}
@@ -268,8 +268,8 @@ public class WebRTUZ3 extends DLMSProtocol{
 		try {
 			return getCosemObjectFactory().getGenericRead(getMeterConfig().getVersionObject()).getString();
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("Could not fetch the firmwareVersion.");
+			log(Level.FINEST, e.getMessage());
+			throw new IOException("Could not fetch the firmwareVersion." + e);
 		}
 	}
 	
@@ -281,7 +281,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 		try {
 			return getCosemObjectFactory().getGenericRead(RF_FIRMWAREVERSION,DLMSUtils.attrLN2SN(2),1).getString();
 		} catch (IOException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			return "";
 		}
 	}
@@ -306,7 +306,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 		try {
 			return getCosemObjectFactory().getGenericRead(getMeterConfig().getSerialNumberObject()).getString();
 		} catch (IOException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			throw new IOException("Could not retrieve the serialnumber of the meter." + e);
 		}
 	}
@@ -461,11 +461,11 @@ public class WebRTUZ3 extends DLMSProtocol{
 
 			getMeter().update(shadow);
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("Could not set the IP address.");
+			log(Level.FINEST, e.getMessage());
+			throw new IOException("Could not set the IP address." + e);
 		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new SQLException("Could not update the IP address.");
+			log(Level.FINEST, e.getMessage());
+			throw new SQLException("Could not update the IP address." + e);
 		}
 	}
 
@@ -504,7 +504,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 	public void discoverMbusDevices() throws SQLException, BusinessException, IOException{
 		
 		// get an MbusDeviceMap 
-		HashMap<String, Integer> mbusMap = getMbusMapper();
+		Map<String, Integer> mbusMap = getMbusMapper();
 		// check if the current mbus slaves are still on the meter disappeared
 		checkForDisappearedMbusMeters(mbusMap);
 		// check if all the mbus devices are configured in EIServer
@@ -518,7 +518,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 	 * @return a map containing SerailNumber - Physical mbus address
 	 * @throws ConnectionException if interframeTimeout has passed and maximum retries have been reached
 	 */
-	private HashMap<String, Integer> getMbusMapper() throws ConnectionException{
+	private Map<String, Integer> getMbusMapper() throws ConnectionException{
 		String mbusSerial;
 		HashMap<String, Integer> mbusMap = new HashMap<String, Integer>();
 		for (int i = 0; i < this.maxMbusDevices; i++) {
@@ -530,9 +530,9 @@ public class WebRTUZ3 extends DLMSProtocol{
 				}
 			} catch (IOException e) {
 				if(e.getMessage().indexOf("com.energyict.dialer.connection.ConnectionException: receiveResponse() interframe timeout error") > -1){
-					throw new ConnectionException("InterframeTimeout occurred. Meter probably not accessible anymore.");
+					throw new ConnectionException("InterframeTimeout occurred. Meter probably not accessible anymore." + e);
 				}
-				e.printStackTrace(); // catch and go to next
+				log(Level.FINEST, e.getMessage()); // catch and go to next
 				log(Level.FINE, "Could not retrieve the mbusSerialNumber for channel " + (i + 1));
 			}
 		}
@@ -543,7 +543,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 	 * Check to see if you find MbusDevices as slaves for the current Z3 in the DataBase, but NOT on the physical device
 	 * @param mbusMap - a map of serialNumbers read from the Z3
 	 */
-	private void checkForDisappearedMbusMeters(HashMap<String, Integer> mbusMap){
+	private void checkForDisappearedMbusMeters(Map<String, Integer> mbusMap){
 
 		List<Rtu> mbusSlaves = getMeter().getDownstreamRtus();
 		Iterator<Rtu> it = mbusSlaves.iterator();
@@ -559,13 +559,13 @@ public class WebRTUZ3 extends DLMSProtocol{
 					}
 				}
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				// should never come here because if the rtuType has the className, then you should be able to create a class for it...
 			} catch (InstantiationException e) {
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.INFO, "Could not check if the mbusDevice " + mbus.getSerialNumber() + " exists.");
 			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.INFO, "Could not check if the mbusDevice " + mbus.getSerialNumber() + " exists.");
 			}
 		}
@@ -580,7 +580,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 	 * @throws SQLException if database exception occurred
 	 * @throws IOException if multiple meters were found in the database
 	 */
-	private void checkToUpdateMbusMeters(HashMap<String, Integer> mbusMap) throws SQLException, BusinessException, IOException{
+	private void checkToUpdateMbusMeters(Map<String, Integer> mbusMap) throws SQLException, BusinessException, IOException{
 		Iterator<Entry<String, Integer>>  mbusIt = mbusMap.entrySet().iterator();
 		int count = 0;
 		while(mbusIt.hasNext()){
@@ -624,7 +624,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 				/*
 				 * A single MBusMeter failed: log and try next MBusMeter.
 				 */
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
 
 			} catch (SQLException e) {
@@ -635,7 +635,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 				/*
 				 * A single MBusMeter failed: log and try next MBusMeter.
 				 */
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
 
 			} catch (IOException e) {
@@ -643,7 +643,7 @@ public class WebRTUZ3 extends DLMSProtocol{
 				/*
 				 * A single MBusMeter failed: log and try next MBusMeter.
 				 */
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed. [" + e.getMessage() + "]");
 
 			}
@@ -669,13 +669,13 @@ public class WebRTUZ3 extends DLMSProtocol{
 					return true;
 				}
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 //				should never come here because if the rtuType has the className, then you should be able to create a class for it...
 			} catch (InstantiationException e) {
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.INFO, "Could not check for TicDevices exists.");
 			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.INFO, "Could not check for TicDevices exists.");
 			}
 		}

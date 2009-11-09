@@ -10,6 +10,13 @@
 
 package com.energyict.genericprotocolimpl.common;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.TimeZone;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -17,21 +24,16 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.mdw.core.Rtu;
-import com.energyict.protocol.*;
-
-import java.io.*;
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.TimeZone;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
  * @author kvds
  */
 public class ParseUtils {
-    
+     
     /** Creates a new instance of ParseUtils */
     public ParseUtils() {
     }
@@ -47,9 +49,11 @@ public class ParseUtils {
     public static String buildStringDecimal(int value,int length) {
         String str=Integer.toString(value);
         StringBuffer strbuff = new StringBuffer();
-        if (length >= str.length())
-            for (int i=0;i<(length-str.length());i++)
-                strbuff.append('0');
+        if (length >= str.length()) {
+			for (int i=0;i<(length-str.length());i++) {
+				strbuff.append('0');
+			}
+		}
         strbuff.append(str);
         return strbuff.toString();
     }
@@ -63,9 +67,11 @@ public class ParseUtils {
     public static String buildStringDecimal(long value,int length) {
         String str=Long.toString(value);
         StringBuffer strbuff = new StringBuffer();
-        if (length >= str.length())
-            for (int i=0;i<(length-str.length());i++)
-                strbuff.append('0');
+        if (length >= str.length()) {
+			for (int i=0;i<(length-str.length());i++) {
+				strbuff.append('0');
+			}
+		}
         strbuff.append(str);
         return strbuff.toString();
     }
@@ -121,8 +127,9 @@ public class ParseUtils {
 		StringBuffer strBuff = new StringBuffer();
 		for(int i = 0; i < b.length; i++){
 			String str = Integer.toHexString(b[i]&0xFF);
-			if(str.length() == 1)
+			if(str.length() == 1) {
 				strBuff.append("0");
+			}
 			strBuff.append(str);
 		}
 		return strBuff.toString();
@@ -149,16 +156,18 @@ public class ParseUtils {
      */
     public static boolean checkIfAllAreChars(byte[] b){
     	for(int i = 0; i < b.length; i++){
-    		if(!(b[i] >= 48 && b[i] <= 57) && !(b[i] >= 65 && b[i] <= 90) && !(b[i] >= 97 && b[i] <= 122))
-    			return false;
+    		if(!(b[i] >= 48 && b[i] <= 57) && !(b[i] >= 65 && b[i] <= 90) && !(b[i] >= 97 && b[i] <= 122)) {
+				return false;
+			}
     	}
     	return true;
     }
     
     public static boolean checkIfAllAreDecimalChars(byte[] b){
     	for(int i = 0; i < b.length; i++){
-    		if(!(b[i] >= 48 && b[i] <= 57))
-    			return false;
+    		if(!(b[i] >= 48 && b[i] <= 57)) {
+				return false;
+			}
     	}
     	return true;
     }
