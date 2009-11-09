@@ -33,7 +33,7 @@ public class ConvertShortIdTest {
 	@Test
 	public void constructShortIdTest(){
 		
-		MbusProvider mp = new MbusProvider(null, null);
+		MbusProvider mp = new MbusProvider(null);
 		
 		String expectedShortIdLandisGyr = "FML1000013500003";
 		String expectedShortIdFlonidan = "FLO1234567806303";

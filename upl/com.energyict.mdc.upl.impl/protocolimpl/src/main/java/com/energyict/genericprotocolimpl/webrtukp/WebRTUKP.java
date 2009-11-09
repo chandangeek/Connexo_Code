@@ -1236,7 +1236,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	private HashMap<String, Integer> getMbusMapper(){
 		String mbusSerial;
 		HashMap<String, Integer> mbusMap = new HashMap<String, Integer>();
-		MbusProvider mp = new MbusProvider(getCosemObjectFactory(), getMeterConfig());
+		MbusProvider mp = new MbusProvider(getCosemObjectFactory());
 		for (int i = 0; i < this.maxMbusDevices; i++) {
 			mbusSerial = "";
 			try {
@@ -1246,7 +1246,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 //				Unsigned8 version =	mClient.getVersion();
 //				Unsigned8 devicet = mClient.getDeviceType();
 //				mbusSerial = constructShortId(manId, idNum, version, devicet);
-				mp.getMbusSerialNumber(i);
+				mp.getMbusSerialNumber(getMeterConfig().getMbusClient(i).getObisCode());
 				mbusMap.put(mbusSerial, i);
 				
 			} catch (IOException e) {

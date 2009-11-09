@@ -2,12 +2,12 @@ package com.energyict.genericprotocolimpl.webrtu.common;
 
 import java.io.IOException;
 
-import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.obis.ObisCode;
 
 /**
  * Provider for the Mbus serialNumber
@@ -18,11 +18,9 @@ import com.energyict.dlms.cosem.MBusClient;
 public class MbusProvider {
 
 	private CosemObjectFactory cosemObjectFactory;
-	private DLMSMeterConfig meterConfig;
 	
-	public MbusProvider(CosemObjectFactory cof, DLMSMeterConfig meterConfig){
+	public MbusProvider(CosemObjectFactory cof){
 		this.cosemObjectFactory = cof;
-		this.meterConfig = meterConfig;
 	}
 	
 	/**
@@ -33,8 +31,8 @@ public class MbusProvider {
 	 * @return - the constructed serialNumber of the Mbus device
 	 * @throws IOException
 	 */
-	public String getMbusSerialNumber(int mbusChannel) throws IOException{
-		MBusClient mClient = this.cosemObjectFactory.getMbusClient(this.meterConfig.getMbusClient(mbusChannel).getObisCode());
+	public String getMbusSerialNumber(ObisCode obisCode) throws IOException{
+		MBusClient mClient = this.cosemObjectFactory.getMbusClient(obisCode);
 		Unsigned16 manId = mClient.getManufacturerID();
 		Unsigned32 idNum = mClient.getIdentificationNumber();
 		Unsigned8 version =	mClient.getVersion();
