@@ -312,6 +312,6 @@
 
 -keepnames class com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3
 
--keep public class com.energyict.genericprotocolimpl.webrtu.common.MbusProvider{
-	public *;
+-keep public class com.energyict.genericprotocolimpl.webrtu.common.*{
+	*;
 }
