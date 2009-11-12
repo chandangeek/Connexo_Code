@@ -9,12 +9,31 @@ import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.abba230.CustDefRegConfig;
-import com.energyict.protocolimpl.iec1107.abba230.LoadProfileConfigRegister;
-import com.energyict.protocolimpl.iec1107.abba230.MDSources;
-import com.energyict.protocolimpl.iec1107.abba230.SystemStatus;
-import com.energyict.protocolimpl.iec1107.abba230.TariffSources;
-import com.energyict.protocolimpl.iec1107.abba230.eventlogs.*;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.BatteryVoltageLowEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorArmDisconnectEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorArmLoadMonitorEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorArmModuleEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorArmOpticalEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorCloseButtonEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorCloseModuleEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorCloseOpticalEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorOpenAutoDisconnectEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorOpenLoadMonitorHighEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorOpenLoadMonitorLowEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorOpenModuleEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ContactorOpenOpticalEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.EndOfBillingEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.LongPowerFailEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.MagneticTamperEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.MainCoverEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.MeterErrorEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.OverVoltageEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.PowerFailEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ProgrammingEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ReverserunEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.TerminalCoverEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.TransientEventLog;
+import com.energyict.protocolimpl.iec1107.abba230.eventlogs.UnderVoltageEventLog;
 
 /** @author  Koen */
 
@@ -141,8 +160,9 @@ abstract public class ABBA230RegisterData {
     
     private String buildHex(byte[] val) {
         byte[] data = new byte[val.length*2];
-        for (int i=0;i<val.length;i++)
-        	ProtocolUtils.val2HEXascii((int)val[i]&0xFF,data,i*2);
+        for (int i=0;i<val.length;i++) {
+			ProtocolUtils.val2HEXascii((int)val[i]&0xFF,data,i*2);
+		}
         return new String(data);
     }
     
@@ -419,29 +439,39 @@ abstract public class ABBA230RegisterData {
     }
     
     private BigDecimal parseBigDecimal(byte[] data) throws IOException,NumberFormatException {
-        if (getLength() > 8) throw new IOException("Elster A230RegisterData, parseBigDecimal, datalength should not exceed 8!");
+        if (getLength() > 8){
+        	throw new IOException("Elster A230RegisterData, parseBigDecimal, datalength should not exceed 8!");
+        }
         BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
         return bd.movePointLeft(Math.abs(getUnit().getScale()));
     }
     
     private Quantity parseQuantity(byte[] data) throws IOException,NumberFormatException {
-        if (getLength() > 8) throw new IOException("Elster A230RegisterData, parseQuantity, datalength should not exceed 8!");
+        if (getLength() > 8) {
+			throw new IOException("Elster A230RegisterData, parseQuantity, datalength should not exceed 8!");
+		}
         BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
         return new Quantity(bd,getUnit());
     }
     
     private Long parseBitfield(byte[] data) throws IOException {
-        if (getLength() > 8) throw new IOException("Elster A230RegisterData, parseBitfield, datalength should not exceed 8!");
+        if (getLength() > 8) {
+			throw new IOException("Elster A230RegisterData, parseBitfield, datalength should not exceed 8!");
+		}
         return new Long(ProtocolUtils.getLong(data,getOffset(),getLength()));
     }
     
     private Long parseLong(byte[] data) throws IOException,NumberFormatException {
-        if (getLength() > 8) throw new IOException("Elster A230RegisterData, parseLong, datalength should not exceed 8!");
+        if (getLength() > 8) {
+			throw new IOException("Elster A230RegisterData, parseLong, datalength should not exceed 8!");
+		}
         return new Long(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
     }
     
     private Integer parseInteger(byte[] data) throws IOException,NumberFormatException {
-        if (getLength() > 4) throw new IOException("Elster A230RegisterData, parseInteger, datalength should not exceed 4!");
+        if (getLength() > 4) {
+			throw new IOException("Elster A230RegisterData, parseInteger, datalength should not exceed 4!");
+		}
         return new Integer(Integer.parseInt(Integer.toHexString(ProtocolUtils.getIntLE(data,getOffset(),getLength()))));
     }
     

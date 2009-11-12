@@ -7,9 +7,10 @@
 
 package com.energyict.protocolimpl.iec1107.abba230;
 
+import java.util.Date;
+
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.MeterEvent;
-import java.util.Date;
 
 /**@author fbo */
 
@@ -89,10 +90,11 @@ public class ABBA230Event {
     
     MeterEvent toMeterEvent(){
         if( meterEvent == null ) {
-            if( description == null )
+            if( description == null ){
                 meterEvent = new MeterEvent(date, meterEventEiCode, meterCode);
-            else
-                meterEvent = new MeterEvent(date, meterEventEiCode, meterCode, description);
+            } else {
+				meterEvent = new MeterEvent(date, meterEventEiCode, meterCode, description);
+			}
         }
         return meterEvent;
     }
@@ -106,8 +108,9 @@ public class ABBA230Event {
             }
         }
         result += meterCode + ", " + description + "]";
-        if( description != null )
-            result += ", " + description;
+        if( description != null ) {
+			result += ", " + description;
+		}
         result += "]";
         return result;
     }

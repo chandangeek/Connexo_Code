@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
 import java.io.IOException;
-import java.util.*;
-
-
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import com.energyict.protocol.MeterEvent;
 
@@ -115,8 +116,9 @@ public class EventMapperFactory {
 	public List getMeterEvents(String eventString) throws IOException{
 		
 		long ms = new Date().getTime();
-		if (eventString.length() != 42)
+		if (eventString.length() != 42){
 			throw new IOException("EventMapperFactory, getMeterEvents, event string has wrong length! ("+eventString+")");
+		}
 		
 		List meterEvents = new ArrayList();
 		

@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import java.io.IOException;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
@@ -76,8 +76,9 @@ public class ABBA230DataIdentity {
                 int nrBlocks = nr256Sets * getSets();
                 
                 byte [] r = doReadRawRegisterStream( cached, nrBlocks );
-                for( int i = 0; i < getSets(); i ++ ) 
-                    dataBlocks[i] = ProtocolUtils.getSubArray2(r,setLength*i, getLength());
+                for( int i = 0; i < getSets(); i ++ ) {
+                	dataBlocks[i] = ProtocolUtils.getSubArray2(r,setLength*i, getLength());
+                }
             } else {
                 //if( dataId.equals( "543" ) )
                 //    System.out.println("read( " + dataLength + " , " + set + " )" );
@@ -96,8 +97,9 @@ public class ABBA230DataIdentity {
      * @return 
      */
     byte[] readStream(boolean cached, int nrOfBlocks) throws FlagIEC1107ConnectionException,IOException {
-        if (getSets() != 1)
-            throw new IOException("ABBA230DataIdentity, readRawRegisterStream, error nr of sets != 1 !!!, use of method not allowed");
+        if (getSets() != 1) {
+			throw new IOException("ABBA230DataIdentity, readRawRegisterStream, error nr of sets != 1 !!!, use of method not allowed");
+		}
         if ((!cached) || (dataBlocks[0] == null)) {
             dataBlocks[0] = doReadRawRegisterStream(cached,nrOfBlocks);
         }
@@ -108,14 +110,16 @@ public class ABBA230DataIdentity {
     protected void writeRawRegister(int packet, String value) throws FlagIEC1107ConnectionException,IOException {
         String data = dataId+ProtocolUtils.buildStringDecimal(packet,3)+"("+value+")";
         String retVal = dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().sendRawCommandFrameAndReturn(FlagIEC1107Connection.WRITE1,data.getBytes());
-        if ((retVal != null) && (retVal.indexOf("ERR") != -1))
-            throw new IOException(retVal+" received! Write command failed! Possibly wrong password level!");
+        if ((retVal != null) && (retVal.indexOf("ERR") != -1)) {
+			throw new IOException(retVal+" received! Write command failed! Possibly wrong password level!");
+		}
     }
     protected void writeRawRegisterHex(int packet, String value) throws FlagIEC1107ConnectionException,IOException {
         String data = dataId+ProtocolUtils.buildStringHex(packet,3)+"("+value+")";
         String retVal = dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().sendRawCommandFrameAndReturn(FlagIEC1107Connection.WRITE1,data.getBytes());
-        if ((retVal != null) && (retVal.indexOf("ERR") != -1))
-            throw new IOException(retVal+" received! Write command failed! Possibly wrong password level!");
+        if ((retVal != null) && (retVal.indexOf("ERR") != -1)) {
+			throw new IOException(retVal+" received! Write command failed! Possibly wrong password level!");
+		}
     }
     
     /** Write value to register.
@@ -126,8 +130,9 @@ public class ABBA230DataIdentity {
     void writeRawRegister(String value) throws FlagIEC1107ConnectionException,IOException {
         String data = dataId+"001("+value+")";
         String retVal = dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().sendRawCommandFrameAndReturn(FlagIEC1107Connection.WRITE1,data.getBytes());
-        if ((retVal != null) && (retVal.indexOf("ERR") != -1))
-            throw new IOException(retVal+" received! Write command failed! Possibly wrong password level!");
+        if ((retVal != null) && (retVal.indexOf("ERR") != -1)) {
+			throw new IOException(retVal+" received! Write command failed! Possibly wrong password level!");
+		}
         dataBlocks = new byte[getSets()][];
     }
     
@@ -142,8 +147,9 @@ public class ABBA230DataIdentity {
                 dataBlock = dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().receiveStreamData();
                 break;
             } catch(FlagIEC1107ConnectionException e) {
-                if (iRetries++ >= dataIdentityFactory.getProtocolLink().getNrOfRetries())
-                    throw e;
+                if (iRetries++ >= dataIdentityFactory.getProtocolLink().getNrOfRetries()) {
+					throw e;
+				}
                 dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().breakStreamingMode();
             }
         }
@@ -163,7 +169,9 @@ public class ABBA230DataIdentity {
     private byte[] doReadRawRegister(int dataLen,int set) throws FlagIEC1107ConnectionException,IOException {
         byte[] dataBlock=null;
         long timeout = System.currentTimeMillis() + AUTHENTICATE_REARM; // After 4,5 min, do authentication before continue! otherwise we can receive ERR5, password timeout!
-        if (dataLen <= 0) throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, doReadRawRegister, wrong dataLength ("+dataLen+")!");
+        if (dataLen <= 0) {
+			throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, doReadRawRegister, wrong dataLength ("+dataLen+")!");
+		}
         ByteArrayOutputStream data = new ByteArrayOutputStream();
         int packetid = ((dataLen/64) + ((dataLen%64)==0?0:1)) * set + 1; // calculate packetid
         int dataLength=dataLen;
@@ -186,8 +194,9 @@ public class ABBA230DataIdentity {
                 throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, doReadRawRegister, "+dataIdentityFactory.getMeterExceptionInfo().getExceptionInfo(exceptionId));
             }
             
-            if (ba.length != (len*2))
-                throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, doReadRawRegister, data length received ("+ba.length+") is different from data length requested ("+(len*2)+") !");
+            if (ba.length != (len*2)) {
+				throw new FlagIEC1107ConnectionException("ABBA230DataIdentity, doReadRawRegister, data length received ("+ba.length+") is different from data length requested ("+(len*2)+") !");
+			}
             
             data.write(ba);
             
@@ -204,9 +213,11 @@ public class ABBA230DataIdentity {
     private String buildPacketID(int packetID,int length) {
         String str=Integer.toHexString(packetID);
         StringBuffer strbuff = new StringBuffer();
-        if (length >= str.length())
-            for (int i=0;i<(length-str.length());i++)
-                strbuff.append('0');
+        if (length >= str.length()) {
+			for (int i=0;i<(length-str.length());i++) {
+				strbuff.append('0');
+			}
+		}
         strbuff.append(str);
         return strbuff.toString();
     }

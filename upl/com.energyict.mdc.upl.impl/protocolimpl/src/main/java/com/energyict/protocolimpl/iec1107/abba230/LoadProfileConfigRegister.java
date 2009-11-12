@@ -7,12 +7,13 @@
 
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
 
 /** 29 may 2006 Bugfix
  * The load profile was being read with energy units.  The meter was actually
@@ -45,7 +46,7 @@ public class LoadProfileConfigRegister {
     LoadProfileConfigRegister(ABBA230RegisterFactory rFactory, byte[] data) throws IOException {
         
         this.rFactory = rFactory;
-        this.channelMask = data;
+        this.channelMask = data.clone();
         
         init();      
         
@@ -154,7 +155,7 @@ public class LoadProfileConfigRegister {
             customerDefined2 = true;
             ABBA230Register r = rFactory.getCummMainvarhExport();
             register.add( r );
-            register.add( r );
+//            register.add( r );
             Unit u = r.getUnit().getFlowUnit();
             channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;

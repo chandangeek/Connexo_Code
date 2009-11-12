@@ -120,6 +120,10 @@ public class ABBA230RegisterFactory {
     private ABBA230Register dspFWVersion;
     private ABBA230Register applFWVersion;
     
+    private static final String cummulativeMainId = "507";
+    private static final String timeOfUseId = "508";
+    private static final String cummulativeMaxDemandId = "509";
+    
     SystemStatus systemStatus=null;
     ABBA230 abba230;
     
@@ -342,40 +346,40 @@ public class ABBA230RegisterFactory {
         
         cummulativeRegisters = cr("507", "CummulativeRegisters", ABBA230RegisterData.ABBA_BYTEARRAY,0,-1, null );
         
-        cummMainImport = cr("507", "CummMainImport", ABBA230RegisterData.ABBA_REGISTER,0,8,mWh);
-        cummMainExport = cr("507", "CummMainExport", ABBA230RegisterData.ABBA_REGISTER,8,8,mWh);
-        cummMainQ1 = cr("507", "CummMainQ1", ABBA230RegisterData.ABBA_REGISTER,16,8,mvarh);
-        cummMainQ2 = cr("507", "CummMainQ2", ABBA230RegisterData.ABBA_REGISTER,24,8,mvarh);
-        cummMainQ3 = cr("507", "CummMainQ3", ABBA230RegisterData.ABBA_REGISTER,32,8,mvarh);
-        cummMainQ4 = cr("507", "CummMainQ4", ABBA230RegisterData.ABBA_REGISTER,40,8,mvarh);
-        cummMainVAImport = cr("507", "CummMainVAImport", ABBA230RegisterData.ABBA_REGISTER,48,8,mvah);
-        cummMainVAExport = cr("507", "CummMainVAExport", ABBA230RegisterData.ABBA_REGISTER,56,8,mvah);
+        cummMainImport = cr(cummulativeMainId, "CummMainImport", ABBA230RegisterData.ABBA_REGISTER,0,8,mWh);
+        cummMainExport = cr(cummulativeMainId, "CummMainExport", ABBA230RegisterData.ABBA_REGISTER,8,8,mWh);
+        cummMainQ1 = cr(cummulativeMainId, "CummMainQ1", ABBA230RegisterData.ABBA_REGISTER,16,8,mvarh);
+        cummMainQ2 = cr(cummulativeMainId, "CummMainQ2", ABBA230RegisterData.ABBA_REGISTER,24,8,mvarh);
+        cummMainQ3 = cr(cummulativeMainId, "CummMainQ3", ABBA230RegisterData.ABBA_REGISTER,32,8,mvarh);
+        cummMainQ4 = cr(cummulativeMainId, "CummMainQ4", ABBA230RegisterData.ABBA_REGISTER,40,8,mvarh);
+        cummMainVAImport = cr(cummulativeMainId, "CummMainVAImport", ABBA230RegisterData.ABBA_REGISTER,48,8,mvah);
+        cummMainVAExport = cr(cummulativeMainId, "CummMainVAExport", ABBA230RegisterData.ABBA_REGISTER,56,8,mvah);
         // reserved for future use
-        cummMainvarhImport = cr("507", "CummMainvarhImport", ABBA230RegisterData.ABBA_REGISTER,112,8,mvarh);
-        cummMainvarhExport = cr("507", "CummMainvarhExport", ABBA230RegisterData.ABBA_REGISTER,120,8,mvarh);
+        cummMainvarhImport = cr(cummulativeMainId, "CummMainvarhImport", ABBA230RegisterData.ABBA_REGISTER,112,8,mvarh);
+        cummMainvarhExport = cr(cummulativeMainId, "CummMainvarhExport", ABBA230RegisterData.ABBA_REGISTER,120,8,mvarh);
         
-        timeOfUse0 = cr("508", "TimeOfUse0", ABBA230RegisterData.ABBA_REGISTER,0,8,null);
-        timeOfUse1 = cr("508", "TimeOfUse1", ABBA230RegisterData.ABBA_REGISTER,8,8,null);
-        timeOfUse2 = cr("508", "TimeOfUse2", ABBA230RegisterData.ABBA_REGISTER,16,8,null);
-        timeOfUse3 = cr("508", "TimeOfUse3", ABBA230RegisterData.ABBA_REGISTER,24,8,null);
-        timeOfUse4 = cr("508", "TimeOfUse4", ABBA230RegisterData.ABBA_REGISTER,32,8,null);
-        timeOfUse5 = cr("508", "TimeOfUse5", ABBA230RegisterData.ABBA_REGISTER,40,8,null);
-        timeOfUse6 = cr("508", "TimeOfUse6", ABBA230RegisterData.ABBA_REGISTER,48,8,null);
-        timeOfUse7 = cr("508", "TimeOfUse7", ABBA230RegisterData.ABBA_REGISTER,56,8,null);
-        timeOfUse8 = cr("508", "TimeOfUse8", ABBA230RegisterData.ABBA_REGISTER,64,8,null);
-        timeOfUse9 = cr("508", "TimeOfUse9", ABBA230RegisterData.ABBA_REGISTER,72,8,null);
-        timeOfUse10 = cr("508", "TimeOfUse10", ABBA230RegisterData.ABBA_REGISTER,80,8,null);
-        timeOfUse11 = cr("508", "TimeOfUse11", ABBA230RegisterData.ABBA_REGISTER,88,8,null);
-        timeOfUse12 = cr("508", "TimeOfUse12", ABBA230RegisterData.ABBA_REGISTER,96,8,null);
-        timeOfUse13 = cr("508", "TimeOfUse13", ABBA230RegisterData.ABBA_REGISTER,104,8,null);
-        timeOfUse14 = cr("508", "TimeOfUse14", ABBA230RegisterData.ABBA_REGISTER,112,8,null);
-        timeOfUse15 = cr("508", "TimeOfUse15", ABBA230RegisterData.ABBA_REGISTER,120,8,null);
+        timeOfUse0 = cr(timeOfUseId, "TimeOfUse0", ABBA230RegisterData.ABBA_REGISTER,0,8,null);
+        timeOfUse1 = cr(timeOfUseId, "TimeOfUse1", ABBA230RegisterData.ABBA_REGISTER,8,8,null);
+        timeOfUse2 = cr(timeOfUseId, "TimeOfUse2", ABBA230RegisterData.ABBA_REGISTER,16,8,null);
+        timeOfUse3 = cr(timeOfUseId, "TimeOfUse3", ABBA230RegisterData.ABBA_REGISTER,24,8,null);
+        timeOfUse4 = cr(timeOfUseId, "TimeOfUse4", ABBA230RegisterData.ABBA_REGISTER,32,8,null);
+        timeOfUse5 = cr(timeOfUseId, "TimeOfUse5", ABBA230RegisterData.ABBA_REGISTER,40,8,null);
+        timeOfUse6 = cr(timeOfUseId, "TimeOfUse6", ABBA230RegisterData.ABBA_REGISTER,48,8,null);
+        timeOfUse7 = cr(timeOfUseId, "TimeOfUse7", ABBA230RegisterData.ABBA_REGISTER,56,8,null);
+        timeOfUse8 = cr(timeOfUseId, "TimeOfUse8", ABBA230RegisterData.ABBA_REGISTER,64,8,null);
+        timeOfUse9 = cr(timeOfUseId, "TimeOfUse9", ABBA230RegisterData.ABBA_REGISTER,72,8,null);
+        timeOfUse10 = cr(timeOfUseId, "TimeOfUse10", ABBA230RegisterData.ABBA_REGISTER,80,8,null);
+        timeOfUse11 = cr(timeOfUseId, "TimeOfUse11", ABBA230RegisterData.ABBA_REGISTER,88,8,null);
+        timeOfUse12 = cr(timeOfUseId, "TimeOfUse12", ABBA230RegisterData.ABBA_REGISTER,96,8,null);
+        timeOfUse13 = cr(timeOfUseId, "TimeOfUse13", ABBA230RegisterData.ABBA_REGISTER,104,8,null);
+        timeOfUse14 = cr(timeOfUseId, "TimeOfUse14", ABBA230RegisterData.ABBA_REGISTER,112,8,null);
+        timeOfUse15 = cr(timeOfUseId, "TimeOfUse15", ABBA230RegisterData.ABBA_REGISTER,120,8,null);
         
-        cummulativeMaximumDemand = cr("509", "CummulativeMaximumDemand", ABBA230RegisterData.ABBA_BYTEARRAY,0,-1, null );
-        cumulativeMaximumDemand0 = cr("509","CumulativeMaximumDemand0", ABBA230RegisterData.ABBA_CMD,0,9,null);
-        cumulativeMaximumDemand1 = cr("509","CumulativeMaximumDemand1", ABBA230RegisterData.ABBA_CMD,9,9,null);
-        cumulativeMaximumDemand2 = cr("509","CumulativeMaximumDemand2", ABBA230RegisterData.ABBA_CMD,18,9,null);
-        cumulativeMaximumDemand3 = cr("509","CumulativeMaximumDemand3", ABBA230RegisterData.ABBA_CMD,27,9,null);
+        cummulativeMaximumDemand = cr(cummulativeMaxDemandId, "CummulativeMaximumDemand", ABBA230RegisterData.ABBA_BYTEARRAY,0,-1, null );
+        cumulativeMaximumDemand0 = cr(cummulativeMaxDemandId,"CumulativeMaximumDemand0", ABBA230RegisterData.ABBA_CMD,0,9,null);
+        cumulativeMaximumDemand1 = cr(cummulativeMaxDemandId,"CumulativeMaximumDemand1", ABBA230RegisterData.ABBA_CMD,9,9,null);
+        cumulativeMaximumDemand2 = cr(cummulativeMaxDemandId,"CumulativeMaximumDemand2", ABBA230RegisterData.ABBA_CMD,18,9,null);
+        cumulativeMaximumDemand3 = cr(cummulativeMaxDemandId,"CumulativeMaximumDemand3", ABBA230RegisterData.ABBA_CMD,27,9,null);
         
         maximumDemandRegisters = cr("510", "MaximumDemandRegisters", ABBA230RegisterData.ABBA_BYTEARRAY,0,24, null );
         maximumDemand0 = cr( "510", "MaximumDemand0", ABBA230RegisterData.ABBA_MD,0,12,null);
@@ -478,8 +482,11 @@ public class ABBA230RegisterFactory {
     public void setRegister(String name,String value) throws IOException {
         try {
             ABBA230Register register = findRegister(name);
-            if (register.isWriteable()) register.writeRegister(value);
-            else throw new IOException("Elster A230, setRegister, register not writeable");
+            if (register.isWriteable()) {
+				register.writeRegister(value);
+			} else {
+				throw new IOException("Elster A230, setRegister, register not writeable");
+			}
             
         } catch(FlagIEC1107ConnectionException e) {
             throw new IOException("Elster A230, setRegister, "+e.getMessage());
@@ -489,8 +496,11 @@ public class ABBA230RegisterFactory {
     public void setRegister(String name,Object object) throws IOException {
         try {
             ABBA230Register register = findRegister(name);
-            if (register.isWriteable()) register.writeRegister(object);
-            else throw new IOException("Elster A230, setRegister, register not writeable");
+            if (register.isWriteable()) {
+				register.writeRegister(object);
+			} else {
+				throw new IOException("Elster A230, setRegister, register not writeable");
+			}
             
         } catch(FlagIEC1107ConnectionException e) {
             throw new IOException("Elster A230, setRegister, "+e.getMessage());
@@ -563,7 +573,9 @@ public class ABBA230RegisterFactory {
                     register2Retrieve = findRegister(name);
                     return register2Retrieve.parse(register2Retrieve.readRegister(register2Retrieve.isCached(),billingPoint-12));
                 }
-            } else throw new IOException("Elster A230, getRegister, invalid billing point "+billingPoint+"!");
+            } else {
+				throw new IOException("Elster A230, getRegister, invalid billing point "+billingPoint+"!");
+			}
             
         } catch(FlagIEC1107ConnectionException e) {
             throw new IOException("Elster A230, getRegister, "+e.getMessage());
@@ -599,7 +611,9 @@ public class ABBA230RegisterFactory {
         if (register == null) {
             String msg = "Elster A230RegisterFactory, findRegister, " + name + " does not exist!";
             throw new IOException(msg);
-        } else return register;
+        } else {
+			return register;
+		}
     }
     
     public MeterExceptionInfo getMeterExceptionInfo() {

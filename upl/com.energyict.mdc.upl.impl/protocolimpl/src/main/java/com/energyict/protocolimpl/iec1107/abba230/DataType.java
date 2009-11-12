@@ -57,17 +57,39 @@ public class DataType {
     class IntegrationPeriod {
         
         int parse( byte data ) {
-            if( data == 0x00 ) return 1 * 60;
-            if( data == 0x01 ) return 2 * 60;
-            if( data == 0x02 ) return 3 * 60;
-            if( data == 0x03 ) return 4 * 60;
-            if( data == 0x04 ) return 5 * 60;
-            if( data == 0x05 ) return 6 * 60;
-            if( data == 0x06 ) return 10 * 60;
-            if( data == 0x07 ) return 15 * 60;
-            if( data == 0x08 ) return 20 * 60;
-            if( data == 0x09 ) return 30 * 60;
-            if( data == 0x0A ) return 60 * 60;
+            if( data == 0x00 ){
+            	return 1 * 60;
+            }
+            if( data == 0x01 ) {
+				return 2 * 60;
+			}
+            if( data == 0x02 ) {
+				return 3 * 60;
+			}
+            if( data == 0x03 ) {
+				return 4 * 60;
+			}
+            if( data == 0x04 ) {
+				return 5 * 60;
+			}
+            if( data == 0x05 ) {
+				return 6 * 60;
+			}
+            if( data == 0x06 ) {
+				return 10 * 60;
+			}
+            if( data == 0x07 ) {
+				return 15 * 60;
+			}
+            if( data == 0x08 ) {
+				return 20 * 60;
+			}
+            if( data == 0x09 ) {
+				return 30 * 60;
+			}
+            if( data == 0x0A ) {
+				return 60 * 60;
+			}
             return -1;
         }
         
@@ -85,20 +107,22 @@ public class DataType {
     /** Special debug stuff */
     public static String toHexaString(int b) {
         String r = Integer.toHexString(b & 0xFF);
-        if (r.length() < 2)
-            r = "0" + r;
+        if (r.length() < 2) {
+			r = "0" + r;
+		}
         return r;
     }
     
     /** Special debug stuff */
     public static String toHexaString( byte [] b, int pos, int length ){
         StringBuffer sb = new StringBuffer();
-        if( b == null ) 
-            sb.append( " <null> " );
-        else
-            for( int i = pos; i < pos + length; i ++  ){
+        if( b == null ) {
+			sb.append( " <null> " );
+		} else {
+			for( int i = pos; i < pos + length; i ++  ){
                 sb.append( "0x" + toHexaString( b[i] ) + " " );
             }
+		}
         return sb.toString();
     }
     
@@ -113,11 +137,14 @@ public class DataType {
         int stop = ( anIndex  + 8 );
         
         for( int i = start; i < stop; i ++ ) {
-            if( i == anIndex ) sb.append( "^" );
-            if( i < 0 || i >= ba.length )
-                sb.append( ".. " );
-            else
-                sb.append( toHexaString( ba[i] ) + " " );
+            if( i == anIndex ) {
+				sb.append( "^" );
+			}
+            if( i < 0 || i >= ba.length ) {
+				sb.append( ".. " );
+			} else {
+				sb.append( toHexaString( ba[i] ) + " " );
+			}
         }
         
         return sb;

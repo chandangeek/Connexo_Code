@@ -2,7 +2,8 @@ package com.energyict.protocolimpl.iec1107.abba230;
 
 import java.io.IOException;
 
-import org.xml.sax.*;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.energyict.protocol.ProtocolUtils;
@@ -22,14 +23,16 @@ public class FirmwareXMLHandler extends DefaultHandler {
 
 	public void startDocument() throws SAXException {
 		
-		if (DEBUG>=1)
+		if (DEBUG>=1){
 			System.out.println("start document");
+		}
 	}
 
 	public void endDocument() throws SAXException {
 		
-		if (DEBUG>=1)
+		if (DEBUG>=1) {
 			System.out.println("end document");
+		}
 	}
 	
 	private static final int AUTHENTICATE_REARM_FIRMWARE=60000; 
@@ -45,18 +48,25 @@ public class FirmwareXMLHandler extends DefaultHandler {
 			if (qName.compareTo("Page") == 0) {
 				int readCheckSum;
 				try {
-					if (pageChecksum == -1)
+					if (pageChecksum == -1) {
 						return;
+					}
 					readCheckSum = readChecksum(pageNumber);
 					if (readCheckSum != pageChecksum) {
-						if (DEBUG>=1) System.out.println("Error in checksum for page "+pageNumber);
+						if (DEBUG>=1) {
+							System.out.println("Error in checksum for page "+pageNumber);
+						}
 						throw new SAXException("Error in checksum for page "+pageNumber);
 					}
 					else {
-						if (DEBUG>=1) System.out.println("Checksum for page "+pageNumber+" ok");
+						if (DEBUG>=1) {
+							System.out.println("Checksum for page "+pageNumber+" ok");
+						}
 					}
 				} catch (IOException e) {
-					if (DEBUG>=1) System.out.println("Error reading checksum for page "+pageNumber+", "+e.getMessage());
+					if (DEBUG>=1) {
+						System.out.println("Error reading checksum for page "+pageNumber+", "+e.getMessage());
+					}
 					throw new SAXException(e);
 				}
 					
@@ -66,25 +76,29 @@ public class FirmwareXMLHandler extends DefaultHandler {
 	
 	
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		if (DEBUG>=1)
+		if (DEBUG>=1) {
 			System.out.print(qName+" --> ");
+		}
 		int len = attributes.getLength();
 		for (int i=0;i<len;i++) {
-			if (DEBUG>=1)
+			if (DEBUG>=1) {
 				System.out.print(attributes.getQName(i)+"="+attributes.getValue(i)+" ");
+			}
 		}
 		if (abba230DataIdentityFactory!=null) {
 			if (qName.compareTo("Page") == 0) {
 				
 				pageNumber = Integer.parseInt(attributes.getValue(0));
 				
-				if (attributes.getLength()==2)  
+				if (attributes.getLength()==2) {
 					pageChecksum = Integer.parseInt(attributes.getValue(1),16);
-				else 
+				} else {
 					pageChecksum = -1;
+				}
 				
-				if (DEBUG>=1) 
+				if (DEBUG>=1) {
 					System.out.println("pageNumber="+pageNumber+", pageChecksum=0x"+Integer.toHexString(pageChecksum));
+				}
 			} // Page tag
 			else if (qName.compareTo("Write") == 0) {
 				if ((attributes.getLength()==3) && 
@@ -98,7 +112,9 @@ public class FirmwareXMLHandler extends DefaultHandler {
 							
 				            if (((long) (System.currentTimeMillis() - timeout)) > 0) {
 				                timeout = System.currentTimeMillis() + AUTHENTICATE_REARM_FIRMWARE; // arm again...
-				    			if (DEBUG>=1) System.out.println("Authenticate...");
+				    			if (DEBUG>=1) {
+									System.out.println("Authenticate...");
+								}
 								try {
 									abba230DataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().authenticate();
 								} catch (IOException e1) {
@@ -114,8 +130,9 @@ public class FirmwareXMLHandler extends DefaultHandler {
 								throw new SAXException("Fail after 4 retries, ",e);
 							}
 							else {
-								if (DEBUG>=1)
+								if (DEBUG>=1) {
 									System.out.println("FlagIEC1107ConnectionException exception received, retry...");
+								}
 							}
 		                }
 						catch(IOException e) {
@@ -129,19 +146,21 @@ public class FirmwareXMLHandler extends DefaultHandler {
 									} catch (IOException e1) {
 										throw new SAXException(e1);
 									}
-									if (DEBUG>=1)
+									if (DEBUG>=1) {
 										System.out.println("ERR6 received, retry...");
+									}
 								}
-							}
-							else
+							} else {
 								throw new SAXException(e);
+							}
 						}
 					}
 				}
 			} // Write tag
 		}
-		if (DEBUG>=1)
+		if (DEBUG>=1) {
 			System.out.println();
+		}
 	}
 	
 }

@@ -21,25 +21,29 @@ public class TariffXMLHandler extends DefaultHandler {
 
 	public void startDocument() throws SAXException {
 		
-		if (DEBUG>=1)
+		if (DEBUG>=1){
 			System.out.println("start document");
+		}
 	}
 
 	public void endDocument() throws SAXException {
 		
-		if (DEBUG>=1)
+		if (DEBUG>=1) {
 			System.out.println("end document");
+		}
 	}
 	
 	private static final int AUTHENTICATE_REARM_FIRMWARE=60000; 
 	
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		if (DEBUG>=1)
+		if (DEBUG>=1) {
 			System.out.print(qName+" --> ");
+		}
 		int len = attributes.getLength();
 		for (int i=0;i<len;i++) {
-			if (DEBUG>=1)
+			if (DEBUG>=1) {
 				System.out.print(attributes.getQName(i)+"="+attributes.getValue(i)+" ");
+			}
 		}
 		if (abba230DataIdentityFactory!=null) {
 				if ((attributes.getLength()==3) && 
@@ -54,7 +58,9 @@ public class TariffXMLHandler extends DefaultHandler {
 							
 				            if (((long) (System.currentTimeMillis() - timeout)) > 0) {
 				                timeout = System.currentTimeMillis() + AUTHENTICATE_REARM_FIRMWARE; // arm again...
-				    			if (DEBUG>=1) System.out.println("Authenticate...");
+				    			if (DEBUG>=1) {
+									System.out.println("Authenticate...");
+								}
 								try {
 									abba230DataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().authenticate();
 								} catch (IOException e1) {
@@ -70,8 +76,9 @@ public class TariffXMLHandler extends DefaultHandler {
 								throw new SAXException("Fail after 4 retries, ",e);
 							}
 							else {
-								if (DEBUG>=1)
+								if (DEBUG>=1) {
 									System.out.println("FlagIEC1107ConnectionException exception received, retry...");
+								}
 							}
 		                }
 			            catch(IOException e) {
@@ -80,8 +87,9 @@ public class TariffXMLHandler extends DefaultHandler {
 					}
 				}
 		}
-		if (DEBUG>=1)
+		if (DEBUG>=1) {
 			System.out.println();
+		}
 	}
 	
 }

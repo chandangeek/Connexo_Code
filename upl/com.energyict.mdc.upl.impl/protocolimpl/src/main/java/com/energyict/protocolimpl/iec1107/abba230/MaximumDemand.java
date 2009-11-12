@@ -1,8 +1,5 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterValue;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -12,8 +9,11 @@ import java.util.List;
 import java.util.TimeZone;
 
 import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
 
 /* @author  Koen */
 
@@ -124,9 +124,15 @@ public class MaximumDemand extends MainRegister implements Comparable {
     public int compareTo(Object o) {
         if (getSorter() == ON_QUANTITY) { 
             MaximumDemand md = (MaximumDemand)o;
-            if( getQuantity() == null && md.getQuantity() == null ) return 0;
-            if( getQuantity() == null && md.getQuantity() != null ) return -1;
-            if( getQuantity() != null && md.getQuantity() == null ) return 1;
+            if( getQuantity() == null && md.getQuantity() == null ){
+            	return 0;
+            }
+            if( getQuantity() == null && md.getQuantity() != null ) {
+				return -1;
+			}
+            if( getQuantity() != null && md.getQuantity() == null ) {
+				return 1;
+			}
             return (getQuantity().compareTo(((MaximumDemand)o).getQuantity()));
         } else if (getSorter() == ON_DATETIME) {
             return (getDateTime().compareTo(((MaximumDemand)o).getDateTime()));

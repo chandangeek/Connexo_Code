@@ -46,6 +46,7 @@ public class ABBA230ProfileEntry {
         this.registerFactory = registerFactory;
         this.bai = bai;
         this.nrOfChannels = nrOfChannels;
+        this.values = new long[this.nrOfChannels];
         date = 0;
     
         init();

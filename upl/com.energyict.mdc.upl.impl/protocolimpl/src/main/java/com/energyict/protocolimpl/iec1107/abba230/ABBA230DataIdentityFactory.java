@@ -33,8 +33,9 @@ public class ABBA230DataIdentityFactory {
         
         if( dbg > 0 ) {
             Logger l = protocolLink.getLogger();
-            if( dbg > 1 && l.isLoggable( Level.INFO ) )
+            if( dbg > 1 && l.isLoggable( Level.INFO ) ){
                 l.log( Level.INFO, this.toString() );
+            }
         }
     }
     
@@ -78,8 +79,9 @@ public class ABBA230DataIdentityFactory {
         System.out.println("getDataIdentityStream( " + dataID + " cached " + cached + " nrOfBlocks " + nrOfBlocks );
         try {
             ABBA230DataIdentity rawRegister = findRawRegister(dataID);
-            if (!rawRegister.isStreameable())
-                throw new IOException("ABBA230DataIdentity, getDataIdentityStream, data identity not streameable!");
+            if (!rawRegister.isStreameable()) {
+				throw new IOException("ABBA230DataIdentity, getDataIdentityStream, data identity not streameable!");
+			}
             return rawRegister.readStream(cached,nrOfBlocks);
         } catch(FlagIEC1107ConnectionException e) {
             throw new IOException("ABBA230DataIdentityFactory, getDataIdentityStream, "+e.getMessage());
@@ -214,15 +216,17 @@ public class ABBA230DataIdentityFactory {
     
     private ABBA230DataIdentity findRawRegister(String dataID) throws IOException {
         ABBA230DataIdentity rawRegister = (ABBA230DataIdentity)rawRegisters.get(dataID);
-        if (rawRegister == null)
-            throw new IOException("ABBA230DataIdentityFactory, findRawRegister, "+dataID+" does not exist!");
+        if (rawRegister == null) {
+			throw new IOException("ABBA230DataIdentityFactory, findRawRegister, "+dataID+" does not exist!");
+		}
         return rawRegister;
     }
     
     private ABBA230DataIdentity setRawRegister(String dataID) throws IOException {
         ABBA230DataIdentity rawRegister = (ABBA230DataIdentity)rawRegisters.get(dataID);
-        if (rawRegister == null)
-            throw new IOException("ABBA230DataIdentityFactory, findRawRegister, "+dataID+" does not exist!");
+        if (rawRegister == null) {
+			throw new IOException("ABBA230DataIdentityFactory, findRawRegister, "+dataID+" does not exist!");
+		}
         return rawRegister;
     }
     

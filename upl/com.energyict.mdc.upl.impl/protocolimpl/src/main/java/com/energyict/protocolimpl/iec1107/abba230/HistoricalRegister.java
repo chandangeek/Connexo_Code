@@ -4,12 +4,10 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.abba1140.TariffSources;
-
-import java.util.TimeZone;
 
 /** @author fbo */
 
@@ -64,9 +62,9 @@ public class HistoricalRegister {
         
         long shift = (long)ProtocolUtils.getInt(data,298,4)&0xFFFFFFFFL;
         TimeZone tz = protocolLink.getTimeZone();
-        if(shift != 0)
+        if(shift != 0){
             billingDate = ProtocolUtils.getCalendar(tz,shift).getTime();
-        
+        }
         //tariffSources = new TariffSources(ba667);
         
         map.put("507", ba507);

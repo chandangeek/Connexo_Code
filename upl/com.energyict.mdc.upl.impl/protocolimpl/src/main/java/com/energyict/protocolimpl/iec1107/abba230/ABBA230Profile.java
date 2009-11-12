@@ -1,10 +1,24 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
+import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.abba230.eventlogs.AbstractEventLog;
 
@@ -39,7 +53,7 @@ import com.energyict.protocolimpl.iec1107.abba230.eventlogs.AbstractEventLog;
  *
  *
  * @author fbl 
- * 
+ *  
  */
         
 
@@ -64,10 +78,11 @@ public class ABBA230Profile {
     	this.protocolLink = (ProtocolLink)abba230;
         this.rFactory = abba230RegisterFactory;
         long val = ((Long)rFactory.getRegister("LoadProfileDSTConfig")).longValue();
-        if ((val&0x01)==0)
-        	adjustedTimeZone = ProtocolUtils.getWinterTimeZone(protocolLink.getTimeZone());
-        else
-        	adjustedTimeZone = protocolLink.getTimeZone();
+        if ((val&0x01)==0) {
+			adjustedTimeZone = ProtocolUtils.getWinterTimeZone(protocolLink.getTimeZone());
+		} else {
+			adjustedTimeZone = protocolLink.getTimeZone();
+		}
         
     }
     
@@ -79,13 +94,15 @@ public class ABBA230Profile {
             protocolLink.getLogger().info( msg );
         }
         
-        if (to.getTime() < from.getTime())
-            throw new IOException("ABBA230Profile, getProfileData, error ("+from+") > ("+to+")");
+        if (to.getTime() < from.getTime()) {
+			throw new IOException("ABBA230Profile, getProfileData, error ("+from+") > ("+to+")");
+		}
         
         /** If the to date is after the metertime, set the to date to the meter
          * time.  Obvious isn't it. */
-        if( to.after( getMeterTime() ) )
-            to = getMeterTime();
+        if( to.after( getMeterTime() ) ) {
+			to = getMeterTime();
+		}
         
         if (abba230.getScriptingEnabled() != 2 ) {
 	        /* by writing the dates in register 554 */
@@ -97,13 +114,15 @@ public class ABBA230Profile {
 		        	break;
 		        }
 		        catch(IOException e) {
-		        	if (retry++>=3)
-		        		throw e;
+		        	if (retry++>=3) {
+						throw e;
+					}
 		        }
 	        }
 	        
-	        if( DEBUG > 0 )
-	            System.out.println( "Inquiring meter for " + lpbd );
+	        if( DEBUG > 0 ) {
+				System.out.println( "Inquiring meter for " + lpbd );
+			}
         }
         /** Before the 554 LoadProfileReadByDate existed the meter was asked
          * to return x nr of days in the past.  This might still be a more
@@ -152,8 +171,9 @@ public class ABBA230Profile {
 		if ((abba230.getCache() != null) && (abba230.getCache() instanceof CacheMechanism) && (abba230.getScriptingEnabled() == 1)) {
 			StringBuffer strBuff = new StringBuffer();
 			for(int i=0;i<nrOfBlocks;i++) {
-				if (i>0)
+				if (i>0) {
 					strBuff.append(",");
+				}
 				strBuff.append("550"+ProtocolUtils.buildStringHex((i+1),3)+"(40)");
 			}
 			// call the scriptexecution  scriptId,script
@@ -173,12 +193,13 @@ public class ABBA230Profile {
         
         long nrOfBlocks;
         
-        if (abba230.getScriptingEnabled() != 2)
-        	nrOfBlocks = ((Long)rFactory.getRegister("LoadProfileByDate64Blocks")).longValue();
-        else {
+        if (abba230.getScriptingEnabled() != 2) {
+			nrOfBlocks = ((Long)rFactory.getRegister("LoadProfileByDate64Blocks")).longValue();
+		} else {
         	nrOfBlocks = abba230.getNrOfLoadProfileBlocks(); // if we use default script 0
-        	if (nrOfBlocks == 0) // if the scripting failed or there are no blocks read for the load profile, use the transparant mode to read the load profile...
-        		nrOfBlocks = ((Long)rFactory.getRegister("LoadProfileByDate64Blocks")).longValue();
+        	if (nrOfBlocks == 0) {
+				nrOfBlocks = ((Long)rFactory.getRegister("LoadProfileByDate64Blocks")).longValue();
+			}
         }
         
         // specific for the scripting with wavenis
@@ -230,25 +251,29 @@ public class ABBA230Profile {
     }
     
     private List truncateIntervalDatas(List intervalDatas,Date from) {
-    	if (from == null)
-    		return intervalDatas;
+    	if (from == null) {
+			return intervalDatas;
+		}
     	Iterator it = intervalDatas.iterator();
     	while(it.hasNext()) {
     		IntervalData intervalData = (IntervalData) it.next();
-    		if (intervalData.getEndTime().before(from))
-    			it.remove();
+    		if (intervalData.getEndTime().before(from)) {
+				it.remove();
+			}
     	}
     	return intervalDatas;
     }    
     
     private List truncateMeterEvents(List meterEvents,Date from) {
-    	if (from == null)
-    		return meterEvents;
+    	if (from == null) {
+			return meterEvents;
+		}
     	Iterator it = meterEvents.iterator();
     	while(it.hasNext()) {
     		MeterEvent meterEvent = (MeterEvent) it.next();
-    		if (meterEvent.getTime().before(from))
-    			it.remove();
+    		if (meterEvent.getTime().before(from)) {
+				it.remove();
+			}
     	}
     	return meterEvents;
     }
@@ -268,8 +293,9 @@ public class ABBA230Profile {
     }
     
     public Date getMeterTime() throws IOException {
-        if( meterTime == null )
-            meterTime = (Date)rFactory.getRegister("TimeDate");
+        if( meterTime == null ) {
+			meterTime = (Date)rFactory.getRegister("TimeDate");
+		}
         return meterTime;
     }
     
@@ -291,8 +317,9 @@ public class ABBA230Profile {
         
         /* ProfileData gets the configuration of the meter */
         Iterator i = meterConfig.toChannelInfo().iterator();
-        while( i.hasNext() )
-            profileData.addChannel( (ChannelInfo)i.next() );
+        while( i.hasNext() ) {
+			profileData.addChannel( (ChannelInfo)i.next() );
+		}
         
         // profile data must start with e4
         current = new ABBA230ProfileEntry(rFactory,bai,nrOfChannels);
@@ -326,8 +353,12 @@ public class ABBA230Profile {
                 interval = new Interval( createDate(current.getTime()) );
             }
             
-            if (DEBUG>=1) System.out.println(current.toString(getAdjustedTimeZone(),e4Dst));
-            if (DEBUG>=1) System.out.println(interval.toString());
+            if (DEBUG>=1) {
+				System.out.println(current.toString(getAdjustedTimeZone(),e4Dst));
+			}
+            if (DEBUG>=1) {
+				System.out.println(interval.toString());
+			}
             
             // The opposite check is not possible since the meter local tim
             // dst behaviour can be set NOT to follow DST while
@@ -354,8 +385,9 @@ public class ABBA230Profile {
                 profileData = new ProfileData();
                 /* ProfileData gets the configuration of the meter */
                 Iterator ci = meterConfig.toChannelInfo().iterator();
-                while( ci.hasNext() )
-                    profileData.addChannel( (ChannelInfo)ci.next() );
+                while( ci.hasNext() ) {
+					profileData.addChannel( (ChannelInfo)ci.next() );
+				}
                 iMap.clear();
             }
             
@@ -385,7 +417,9 @@ public class ABBA230Profile {
                 }
             }
             
-            if (current.getType() == ABBA230ProfileEntry.ENDOFDATA) break;
+            if (current.getType() == ABBA230ProfileEntry.ENDOFDATA) {
+				break;
+			}
             
         }
         
@@ -498,8 +532,9 @@ public class ABBA230Profile {
                 Object key = i.next();
                 Interval value = (Interval)map.get(key);
                 IntervalData id = value.getIntervalData();
-                if( id != null )
-                    profileData.addInterval(id);
+                if( id != null ) {
+					profileData.addInterval(id);
+				}
             }
         }
         
@@ -576,35 +611,44 @@ public class ABBA230Profile {
                 
                 IntervalData intervalData = new IntervalData(endTime);
                 
-                if ((status & METER_TRANSIENT_RESET) == METER_TRANSIENT_RESET)
-                    intervalData.addEiStatus(IntervalStateBits.OTHER);
-                if ((status & TIME_SYNC) == TIME_SYNC)
-                    intervalData.addEiStatus(IntervalStateBits.SHORTLONG);
-                if ((status & DATA_CHANGE) == DATA_CHANGE)
-                    intervalData.addEiStatus(IntervalStateBits.CONFIGURATIONCHANGE);
-                if ((status & BATTERY_FAIL) == BATTERY_FAIL)
-                    intervalData.addEiStatus(IntervalStateBits.OTHER);
-                if ((status & CT_RATIO_CHANGE) == CT_RATIO_CHANGE)
-                    intervalData.addEiStatus(IntervalStateBits.CONFIGURATIONCHANGE);
-                if ((status & REVERSE_RUN) == REVERSE_RUN)
-                    intervalData.addEiStatus(IntervalStateBits.REVERSERUN);
-                if ((status & PHASE_FAILURE) == PHASE_FAILURE)
-                    intervalData.addEiStatus(IntervalStateBits.PHASEFAILURE);
+                if ((status & METER_TRANSIENT_RESET) == METER_TRANSIENT_RESET) {
+					intervalData.addEiStatus(IntervalStateBits.OTHER);
+				}
+                if ((status & TIME_SYNC) == TIME_SYNC) {
+					intervalData.addEiStatus(IntervalStateBits.SHORTLONG);
+				}
+                if ((status & DATA_CHANGE) == DATA_CHANGE) {
+					intervalData.addEiStatus(IntervalStateBits.CONFIGURATIONCHANGE);
+				}
+                if ((status & BATTERY_FAIL) == BATTERY_FAIL) {
+					intervalData.addEiStatus(IntervalStateBits.OTHER);
+				}
+                if ((status & CT_RATIO_CHANGE) == CT_RATIO_CHANGE) {
+					intervalData.addEiStatus(IntervalStateBits.CONFIGURATIONCHANGE);
+				}
+                if ((status & REVERSE_RUN) == REVERSE_RUN) {
+					intervalData.addEiStatus(IntervalStateBits.REVERSERUN);
+				}
+                if ((status & PHASE_FAILURE) == PHASE_FAILURE) {
+					intervalData.addEiStatus(IntervalStateBits.PHASEFAILURE);
+				}
                 
                 long [] temp = new long [profileEntry.getValues().length];
                 System.arraycopy(profileEntry.getValues(),0, temp, 0, temp.length  );
                 for( int i = 1; i < entries.size(); i ++ ){
                     profileEntry = (ABBA230ProfileEntry) entries.get(i);
                     long [] pValues = profileEntry.getValues();
-                    for( int ti = 0; ti < temp.length; ti ++ )
-                        temp[ti] = temp[ti] + pValues[ti];
+                    for( int ti = 0; ti < temp.length; ti ++ ) {
+						temp[ti] = temp[ti] + pValues[ti];
+					}
                 }
                 for( int i = 0; i < profileEntry.getNumberOfChannels(); i ++ ){
                     intervalData.addValue(new Long( temp[i] ));
                 }
                 
-                if( timeChange || entries.size() > 1 )
-                    intervalData.addEiStatus(IntervalStateBits.SHORTLONG);
+                if( timeChange || entries.size() > 1 ) {
+					intervalData.addEiStatus(IntervalStateBits.SHORTLONG);
+				}
                 
                 if( entries.size() > 1 ) {
                     String msg = 
@@ -625,7 +669,9 @@ public class ABBA230Profile {
         }
         
         public boolean equals( Object other ){
-            if(!(other instanceof Interval)) return false;
+            if(!(other instanceof Interval)) {
+				return false;
+			}
             Interval oi = (Interval) other;
             return key.equals(oi.key);
         }

@@ -98,42 +98,42 @@ RegisterProtocol, MessageProtocol, EventMapper {
 
 	boolean firmwareUpgrade=false;
 
-	private static String CONNECT 			= "ConnectLoad";
-	private static String DISCONNECT 		= "DisconnectLoad";
-	private static String ARM 				= "ArmMeter";
-	private static String TARIFFPROGRAM 	= "UploadMeterScheme";
-	private static String FIRMWAREPROGRAM 	= "UpgradeMeterFirmware";
-	private static String BILLINGRESET		= "BillingReset";
+	private static final String CONNECT 			= "ConnectLoad";
+	private static final String DISCONNECT 		= "DisconnectLoad";
+	private static final String ARM 				= "ArmMeter";
+	private static final String TARIFFPROGRAM 	= "UploadMeterScheme";
+	private static final String FIRMWAREPROGRAM 	= "UpgradeMeterFirmware";
+	private static final String BILLINGRESET		= "BillingReset";
 
-	private static String CONNECT_DISPLAY 			= "Connect Load";
-	private static String DISCONNECT_DISPLAY 		= "Disconnect Load";
-	private static String ARM_DISPLAY 				= "Arm Meter";
-	private static String TARIFFPROGRAM_DISPLAY 	= "Upload Meter Scheme";
-	private static String FIRMWAREPROGRAM_DISPLAY 	= "Upgrade Meter Firmware";
-	private static String BILLINGRESET_DISPLAY 		= "Billing reset";
+	private static final String CONNECT_DISPLAY 			= "Connect Load";
+	private static final String DISCONNECT_DISPLAY 		= "Disconnect Load";
+	private static final String ARM_DISPLAY 				= "Arm Meter";
+	private static final String TARIFFPROGRAM_DISPLAY 	= "Upload Meter Scheme";
+	private static final String FIRMWAREPROGRAM_DISPLAY 	= "Upgrade Meter Firmware";
+	private static final String BILLINGRESET_DISPLAY 		= "Billing reset";
 
 
 	/** Property keys specific for AS230 protocol. */
-	final static String PK_TIMEOUT = "Timeout";
-	final static String PK_RETRIES = "Retries";
-	final static String PK_FORCED_DELAY = "ForcedDelay";
-	final static String PK_SECURITY_LEVEL = "SecurityLevel";
-	final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
-	final static String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
-	final static String PK_ECHO_CANCELING = "EchoCancelling";
+	static final String PK_TIMEOUT = "Timeout";
+	static final String PK_RETRIES = "Retries";
+	static final String PK_FORCED_DELAY = "ForcedDelay";
+	static final String PK_SECURITY_LEVEL = "SecurityLevel";
+	static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
+	static final String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
+	static final String PK_ECHO_CANCELING = "EchoCancelling";
 
-	final static String PK_SCRIPTING_ENABLED = "ScriptingEnabled";
+	static final String PK_SCRIPTING_ENABLED = "ScriptingEnabled";
 
 	/** Property Default values */
-	final static String PD_NODE_ID = "";
-	final static int PD_TIMEOUT = 10000;
-	final static int PD_RETRIES = 5;
-	final static int PD_ROUNDTRIP_CORRECTION = 0;
-	final static int PD_SECURITY_LEVEL = 2;
-	final static int PD_EXTENDED_LOGGING = 0;
-	final static int PD_IEC1107_COMPATIBLE = 1;
-	final static int PD_ECHO_CANCELING = 0;
-	final static int PD_FORCED_DELAY = 300;
+	static final String PD_NODE_ID = "";
+	static final int PD_TIMEOUT = 10000;
+	static final int PD_RETRIES = 5;
+	static final int PD_ROUNDTRIP_CORRECTION = 0;
+	static final int PD_SECURITY_LEVEL = 2;
+	static final int PD_EXTENDED_LOGGING = 0;
+	static final int PD_IEC1107_COMPATIBLE = 1;
+	static final int PD_ECHO_CANCELING = 0;
+	static final int PD_FORCED_DELAY = 300;
 
 
 	/**
