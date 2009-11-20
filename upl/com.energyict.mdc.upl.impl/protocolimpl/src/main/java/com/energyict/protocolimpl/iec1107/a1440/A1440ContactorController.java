@@ -24,10 +24,10 @@ public class A1440ContactorController implements ContactorController {
 		this.a1440 = a1440;
 	}
 
-	/*
-	 * Private getters, setters and methods
+	/**
+	 * Getter for the A1440 protocol, used to get the {@link Logger} and the {@link A1440Registry}
+	 * @return The A1440 protocol
 	 */
-
 	private A1440 getA1440() {
 		return this.a1440;
 	}
@@ -47,10 +47,6 @@ public class A1440ContactorController implements ContactorController {
 	private A1440Registry getA1440Registry() {
 		return getA1440().getA1440Registry();
 	}
-
-	/*
-	 * Public methods
-	 */
 
 	/* (non-Javadoc)
 	 * @see com.energyict.protocolimpl.base.ContactorController#doDisconnect()
