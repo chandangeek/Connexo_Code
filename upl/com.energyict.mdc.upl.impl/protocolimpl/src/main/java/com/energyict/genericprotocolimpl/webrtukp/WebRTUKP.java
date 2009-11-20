@@ -170,6 +170,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	private int iiapServiceClass;
 	private int iiapInvokeId;
 	private int wakeup;
+	private int oldMbusDiscovery;
 
 	/**
 	 * <pre>
@@ -1240,14 +1241,17 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		for (int i = 0; i < this.maxMbusDevices; i++) {
 			mbusSerial = "";
 			try {
-//				MBusClient mClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(i).getObisCode());
-//				Unsigned16 manId = mClient.getManufacturerID();
-//				Unsigned32 idNum = mClient.getIdentificationNumber();
-//				Unsigned8 version =	mClient.getVersion();
-//				Unsigned8 devicet = mClient.getDeviceType();
-//				mbusSerial = constructShortId(manId, idNum, version, devicet);
-				mp.getMbusSerialNumber(getMeterConfig().getMbusClient(i).getObisCode());
-				mbusMap.put(mbusSerial, i);
+				
+				if(this.oldMbusDiscovery != 0){
+					//This is the case where we check for the serialNumber as the EquipmentIdentifier
+					mbusSerial = getCosemObjectFactory().getGenericRead(getMeterConfig().getMbusSerialNumber(i)).getString();
+					if(!mbusSerial.equalsIgnoreCase("")){
+						mbusMap.put(mbusSerial, i);
+					}
+				} else {
+					//This is the case we implemented according to RFC013 for the Enexis project
+					mbusMap.put(mp.getMbusSerialNumber(getMeterConfig().getMbusClient(i).getObisCode()), i);
+				}
 				
 			} catch (IOException e) {
 				log(Level.FINEST, e.getMessage());	// log and do next
@@ -1416,6 +1420,8 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
         this.iiapServiceClass = Integer.parseInt(properties.getProperty("IIAPServiceClass", "1"));
         
         this.wakeup = Integer.parseInt(properties.getProperty("WakeUp", "0"));
+        
+        this.oldMbusDiscovery = Integer.parseInt(properties.getProperty("OldMbusDiscovery", "0"));
 	}
 
 	public void addProperties(Properties properties) {
@@ -1456,15 +1462,13 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		result.add("WakeUp");
 		result.add("RoundTripCorrection");
 		result.add("FolderExtName");
-//		result.add("DataTransportKey");
-//		result.add("MasterKey");
-//		result.add("DataTransportAuthenticationKey");
 		result.add(LocalSecurityProvider.DATATRANSPORTKEY);
 		result.add(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
 		result.add(LocalSecurityProvider.MASTERKEY);
 		result.add(LocalSecurityProvider.NEW_GLOBAL_KEY);
 		result.add(LocalSecurityProvider.NEW_AUTHENTICATION_KEY);
 		result.add(LocalSecurityProvider.NEW_HLS_SECRET);
+		result.add("OldMbusDiscovery");
 		return result;
 	}
 

@@ -315,3 +315,5 @@
 -keep public class com.energyict.genericprotocolimpl.webrtu.common.*{
 	*;
 }
+
+-keepnames class com.energyict.genericprotocolimpl.webrtuz3.TicDevice

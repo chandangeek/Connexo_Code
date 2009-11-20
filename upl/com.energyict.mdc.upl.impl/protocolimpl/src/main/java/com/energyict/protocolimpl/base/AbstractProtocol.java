@@ -6,26 +6,43 @@
 
 package com.energyict.protocolimpl.base;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 
-import com.energyict.protocol.*;
-import java.util.logging.*;
-import com.energyict.cbo.*; 
-
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.protocol.SerialNumber;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.DemandResetProtocol;
+import com.energyict.protocol.DialinScheduleProtocol;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.SerialNumber;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.protocol.meteridentification.MeterType;
 
 /**
  * Abstract base class to create a new protocol
@@ -303,8 +320,9 @@ public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, Ser
 //        result.add("Scaler"));
         
         List result2 = doGetOptionalKeys();
-        if (result2 != null) 
-            result.addAll(result2);
+        if (result2 != null) {
+			result.addAll(result2);
+		}
         return result;
     }
     
@@ -341,8 +359,9 @@ public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, Ser
             throw new IOException(e.getMessage());
         }
         
-        if (extendedLogging >= 1) 
-           logger.info(getRegistersInfo(extendedLogging));
+        if (extendedLogging >= 1) {
+			logger.info(getRegistersInfo(extendedLogging));
+		}
     }
     
     
@@ -356,8 +375,9 @@ public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, Ser
             getProtocolConnection().disconnectMAC();
         }
         catch(ProtocolConnectionException e) {
-            if (logger!=null)
-                logger.severe("disconnect() error, "+e.getMessage());
+            if (logger!=null) {
+				logger.severe("disconnect() error, "+e.getMessage());
+			}
             
         }
     }
@@ -440,8 +460,9 @@ public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, Ser
      * @return nr of load profile channels
      */
     public int getNumberOfChannels() throws UnsupportedException, IOException {
-        if (protocolChannelMap == null)
-            throw new IOException("getNumberOfChannels(), ChannelMap property not given. Cannot determine the nr of channels...");
+        if (protocolChannelMap == null) {
+			throw new IOException("getNumberOfChannels(), ChannelMap property not given. Cannot determine the nr of channels...");
+		}
        return protocolChannelMap.getNrOfProtocolChannels();
     }
     
@@ -781,10 +802,11 @@ public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, Ser
      * @return int nodeAddress
      */
     public int getInfoTypeNodeAddressNumber() {
-        if ((nodeId!=null) && ("".compareTo(nodeId)!=0))
-            return Integer.parseInt(nodeId);
-        else 
-            return 0;
+        if ((nodeId!=null) && ("".compareTo(nodeId)!=0)) {
+			return Integer.parseInt(nodeId);
+		} else {
+			return 0;
+		}
     }
     /**
      * Setter for the property "NodeAddress". NodeAddress is the infotype property value MeterProtocol.NODEID
@@ -801,10 +823,11 @@ public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, Ser
      * @return int nodeAddress
      */
     public int getInfoTypeNodeAddressNumberHex() {
-        if ((nodeId!=null) && ("".compareTo(nodeId)!=0))
-            return Integer.parseInt(nodeId,16);
-        else 
-            return 0;
+        if ((nodeId!=null) && ("".compareTo(nodeId)!=0)) {
+			return Integer.parseInt(nodeId,16);
+		} else {
+			return 0;
+		}
     }
     
     /*
@@ -900,8 +923,9 @@ public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, Ser
             Iterator iterator= getRequiredKeys().iterator();
             while (iterator.hasNext()) {
                 String key = (String) iterator.next();
-                if (properties.getProperty(key) == null)
-                    throw new MissingPropertyException(key + " key missing");
+                if (properties.getProperty(key) == null) {
+					throw new MissingPropertyException(key + " key missing");
+				}
             }
             strID = properties.getProperty(MeterProtocol.ADDRESS);
             strPassword = properties.getProperty(MeterProtocol.PASSWORD);
@@ -915,8 +939,9 @@ public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, Ser
             extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0").trim());
             serialNumber=properties.getProperty(MeterProtocol.SERIALNUMBER);
             channelMap = properties.getProperty("ChannelMap");
-            if (channelMap != null) 
-               protocolChannelMap = new ProtocolChannelMap(channelMap);
+            if (channelMap != null) {
+				protocolChannelMap = new ProtocolChannelMap(channelMap);
+			}
             profileInterval=Integer.parseInt(properties.getProperty("ProfileInterval","900").trim());
             requestHeader = Integer.parseInt(properties.getProperty("RequestHeader","0").trim());
             scaler = Integer.parseInt(properties.getProperty("Scaler","0").trim());
@@ -1121,4 +1146,8 @@ public abstract class AbstractProtocol implements MeterProtocol, HHUEnabler, Ser
     public String getStrPassword() {
 		return strPassword;
 	}
+    
+    protected void setAbstractLogger(Logger logger){
+    	this.logger = logger;
+    }
 }

@@ -29,7 +29,7 @@ public class MbusProvider {
 	 * "RFC13 of Enexis’ NTA 2009 meter project and RFC037 of Enexis’ Gridfield II project"
 	 * @param mbusChannel - the given Mbus channel
 	 * @return - the constructed serialNumber of the Mbus device
-	 * @throws IOException
+	 * @throws IOException if some MBus attributes could not be retrieved
 	 */
 	public String getMbusSerialNumber(ObisCode obisCode) throws IOException{
 		MBusClient mClient = this.cosemObjectFactory.getMbusClient(obisCode);
