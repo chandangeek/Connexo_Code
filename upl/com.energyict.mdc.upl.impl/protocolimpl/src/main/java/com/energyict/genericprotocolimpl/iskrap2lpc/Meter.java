@@ -171,7 +171,9 @@ public class Meter implements Messaging, MeterProtocol {
     public void disconnect() throws IOException { }
     
     public List getRequiredKeys() {
-        return new ArrayList(0);
+		ArrayList result = new ArrayList();
+		result.add(Constant.CHANNEL_MAP);
+		return result;
     }
     
     public List getOptionalKeys() {

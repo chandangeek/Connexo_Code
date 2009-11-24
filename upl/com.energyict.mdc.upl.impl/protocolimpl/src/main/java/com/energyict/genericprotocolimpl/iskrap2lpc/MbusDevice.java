@@ -23,7 +23,6 @@ import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
-import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
@@ -237,9 +236,9 @@ public class MbusDevice implements Messaging, GenericProtocol{
 //						} else {
 							xml = mrt.getConnection().getMeterProfile(mrt.getMeter().getSerialNumber(), daily, register, from, to);
 //						}
-					}
-					else
+					} else {
 						throw new IOException("Channelconfiguration of channel \"" + chn + "\" is different from the channelMap");
+					}
 				}
 				else if(pc.containsMonthlyValues()){
 					if(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS){
@@ -250,12 +249,13 @@ public class MbusDevice implements Messaging, GenericProtocol{
 //						} else {
 							xml = mrt.getConnection().getMeterProfile(mrt.getMeter().getSerialNumber(), monthly, register, from, to);
 //						}
-					}
-					else
+					} else {
 						throw new IOException("Channelconfiguration of channel \"" + chn + "\" is different from the channelMap");
+					}
 				}
-			} else
+			} else {
 				throw new IOException("Channel out of bound exception: no channel with profileIndex " + i+1 + " is configured on the meter.");
+			}
 
 			if(!xml.equalsIgnoreCase("")){
 				
@@ -271,8 +271,9 @@ public class MbusDevice implements Messaging, GenericProtocol{
 	
 	private void sendMeterMessages(Rtu eMeter) throws BusinessException, SQLException{
 		Iterator messageIt = getRtu().getPendingMessages().iterator();
-		if(messageIt.hasNext())
+		if(messageIt.hasNext()) {
 			getLogger().log(Level.INFO, "Handling MESSAGES from meter with serialnumber " + getCustomerID());
+		}
 		
 		while(messageIt.hasNext()){
 			RtuMessage msg = (RtuMessage) messageIt.next();
@@ -435,8 +436,9 @@ public class MbusDevice implements Messaging, GenericProtocol{
         // b. Attributes
         for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
             MessageAttribute att = (MessageAttribute) it.next();
-            if (att.getValue() == null || att.getValue().length() == 0)
-                continue;
+            if (att.getValue() == null || att.getValue().length() == 0) {
+				continue;
+			}
             buf.append(" ").append(att.getSpec().getName());
             buf.append("=").append('"').append(att.getValue()).append('"');
         }
@@ -448,12 +450,13 @@ public class MbusDevice implements Messaging, GenericProtocol{
         // c. sub elements
         for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
             MessageElement elt = (MessageElement) it.next();
-            if (elt.isTag())
-                buf.append(writeTag((MessageTag) elt));
-            else if (elt.isValue()) {
+            if (elt.isTag()) {
+				buf.append(writeTag((MessageTag) elt));
+			} else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0)
-                    return "";
+                if (value == null || value.length() == 0) {
+					return "";
+				}
                 buf.append(value);
             }
         }
@@ -488,10 +491,11 @@ public class MbusDevice implements Messaging, GenericProtocol{
 	public ProtocolChannelMap getChannelMap() throws InvalidPropertyException, BusinessException {
     	if (channelMap == null){
     		String sChannelMap = getRtu().getProperties().getProperty( Constant.CHANNEL_MAP );
-    		if(sChannelMap != null)
-    			channelMap = new ProtocolChannelMap( sChannelMap );
-    		else
-    			throw new BusinessException("No channelmap configured on the meter, meter will not be handled.");
+    		if(sChannelMap != null) {
+				channelMap = new ProtocolChannelMap( sChannelMap ); 
+			} else {
+				throw new BusinessException("No channelmap configured on the meter, meter will not be handled.");
+			}
     	}
         return channelMap;
 	}
@@ -527,12 +531,12 @@ public class MbusDevice implements Messaging, GenericProtocol{
 
 	public List getOptionalKeys() {
 		ArrayList result = new ArrayList();
+		result.add(Constant.CHANNEL_MAP);
 		return result;
 	}
 
 	public List getRequiredKeys() {
 		ArrayList result = new ArrayList();
-		result.add(Constant.CHANNEL_MAP);
 		return result;
 	}
 
@@ -543,5 +547,10 @@ public class MbusDevice implements Messaging, GenericProtocol{
 	public long getTimeDifference() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+	
+	public static void main(String args[]) throws InvalidPropertyException{
+		ProtocolChannelMap pcm = new ProtocolChannelMap("");
+		System.out.println(pcm);
 	}
 }
