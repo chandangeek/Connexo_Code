@@ -68,7 +68,7 @@
          	<version>${project.version}</version>
          </dependency>
          
-         <!-- To be in sync with the EIServer version  -->
+         <!-- To be in sync with the EIServer version  
          <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-annotations</artifactId>
@@ -80,6 +80,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+         -->
          
          <dependency>
          	<groupId>org.hibernate</groupId>

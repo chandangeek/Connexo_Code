@@ -17,17 +17,24 @@ public class ParseUtils {
 	}
 	
 	static public boolean isElectricityObisCode(ObisCode obisCode){
-		if ((obisCode.getA() == 1) && (obisCode.getB() >= 0) && (obisCode.getB() <= 64)) return true;
-        else return false;
+		if ((obisCode.getA() == 1) && (obisCode.getB() >= 0) && (obisCode.getB() <= 64)){
+			return true;
+		}
+        else{
+        	return false;
+        }
 	}
 	
 	static public byte[] concatArray(byte[] array1, byte[] array2) {
-		if ((array1==null) && (array2==null))
+		if ((array1==null) && (array2==null)) {
 			return null;
-		if (array1==null)
+		}
+		if (array1==null) {
 			return array2;
-		if (array2==null)
+		}
+		if (array2==null) {
 			return array1;
+		}
 		byte[] newArray = new byte[array1.length+array2.length];
 		System.arraycopy(array1, 0, newArray, 0, array1.length);
 		System.arraycopy(array2, 0, newArray, array1.length,array2.length);

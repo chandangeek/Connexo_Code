@@ -269,7 +269,7 @@ public class DailyMonthly {
 		try {
 			Calendar cal = null;
 			IntervalData currentInterval = null;
-			final int profileStatus = 0;
+			int profileStatus = 0;
 			if(dc.getRoot().getElements().length != 0){
 				for(int i = 0; i < dc.getRoot().getElements().length; i++){
 					
@@ -286,6 +286,11 @@ public class DailyMonthly {
 								throw new ApplicationException("TimeDuration is not correct.");
 							}
 						}
+					}
+					if(getProfileStatusChannelIndex(pg) != -1){
+						profileStatus = dc.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex(pg));
+					} else {
+						profileStatus = 0;
 					}
 					
 					if(cal != null){				
@@ -335,6 +340,20 @@ public class DailyMonthly {
 		}
 		
 		return id;
+	}
+	
+	private int getProfileStatusChannelIndex(final ProfileGeneric pg) throws IOException{
+		try {
+			for(int i = 0; i < pg.getCaptureObjectsAsUniversalObjects().length; i++){
+				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getStatusObject().getObisCode())){
+					return i;
+				}
+			}
+		} catch (final IOException e) {
+			e.printStackTrace();
+			throw new IOException("Could not retrieve the index of the profileData's status attribute.");
+		}
+		return -1;
 	}
 	
 	private int getProfileClockChannelIndex(final ProfileGeneric pg) throws IOException{

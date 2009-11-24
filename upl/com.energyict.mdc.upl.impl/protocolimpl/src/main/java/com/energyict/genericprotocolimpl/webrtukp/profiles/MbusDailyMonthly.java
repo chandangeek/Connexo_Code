@@ -112,7 +112,14 @@ public class MbusDailyMonthly {
 						}
 					}
 				}
-				if(cal != null){				
+				if(cal != null){		
+					
+					if(getProfileStatusChannelIndex(pg) != -1){
+						profileStatus = dc.getRoot().getStructure(i).getInteger(getProfileStatusChannelIndex(pg));
+					} else {
+						profileStatus = 0;
+					}
+					
 					currentInterval = getIntervalData(dc.getRoot().getStructure(i), cal, profileStatus, pg, pd.getChannelInfos());
 					if(currentInterval != null){
 						pd.addInterval(currentInterval);
@@ -122,6 +129,20 @@ public class MbusDailyMonthly {
 		} else {
 			this.mbusDevice.getLogger().info("No entries in LoadProfile");
 		}
+	}
+	
+	private int getProfileStatusChannelIndex(ProfileGeneric pg) throws IOException{
+		try {
+			for(int i = 0; i < pg.getCaptureObjectsAsUniversalObjects().length; i++){
+				if(((CapturedObject)(pg.getCaptureObjects().get(i))).getLogicalName().getObisCode().equals(getMeterConfig().getMbusStatusObject(this.mbusDevice.getPhysicalAddress()).getObisCode())){
+					return i;
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Could not retrieve the index of the profileData's status attribute.");
+		}
+		return -1;
 	}
 	
 	private int getProfileClockChannelIndex(ProfileGeneric pg) throws IOException{
