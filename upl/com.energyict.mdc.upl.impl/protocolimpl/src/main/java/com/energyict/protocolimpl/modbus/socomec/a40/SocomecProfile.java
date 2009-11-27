@@ -42,6 +42,7 @@ public class SocomecProfile {
 	private static final int memoryOverFlowedState = 1;
 	
 	private int[] startMemoryPointer;
+	private int[] channelInfoRegisters;
 	private List<IntervalData> profileIntervalData;
 	
 	/** Maximum allowed blocks to read in 1 readAction */
@@ -63,6 +64,20 @@ public class SocomecProfile {
 			this.profileParser = new SocomecProfileParser();
 		}
 		return this.profileParser;
+	}
+	
+	/**
+	 * @return the number of channels
+	 * @throws IOException if we couldn't read the necessary register
+	 */
+	public int getNumberOfChannels() throws IOException{
+		int counter = 0;
+		for(int i = 0; i < getChannelInforRegisters().length; i++){
+			if(getChannelInforRegisters()[i] == 1){
+				counter++;
+			}
+		}
+		return counter;
 	}
 	
 	/**
@@ -112,9 +127,19 @@ public class SocomecProfile {
 	 * @throws IOException if the register could not be found
 	 */
 	public List<ChannelInfo> getChannelInfos() throws IOException {
-		int[] channelInfoRegisters = findRegister(RegisterFactory.channelInfos).getReadHoldingRegistersRequest().getRegisters();
-		List<ChannelInfo> channelInfos = getProfileParser().parseChannelInfos(channelInfoRegisters);
+		List<ChannelInfo> channelInfos = getProfileParser().parseChannelInfos(getChannelInforRegisters());
 		return channelInfos;
+	}
+	
+	/**
+	 * @return the list of channelInfoRegisters
+	 * @throws IOException if the register could not be found
+	 */
+	private int[] getChannelInforRegisters() throws IOException{
+		if(this.channelInfoRegisters == null){
+			this.channelInfoRegisters = findRegister(RegisterFactory.channelInfos).getReadHoldingRegistersRequest().getRegisters();
+		}
+		return this.channelInfoRegisters;
 	}
 	
 	/**
@@ -127,12 +152,12 @@ public class SocomecProfile {
 	public List<IntervalData> getIntervalDatas(Date lastReading) throws UnsupportedException, IOException {
 		boolean dontExit = true;
 		
-		int[] channelInfoRegisters = findRegister(RegisterFactory.channelInfos).getReadHoldingRegistersRequest().getRegisters();
 		generateStartMemoryPointer();
 		Date lastUpdate = getDateTimeLastProfileUpdate();
 		
-		for(int i = 0; i < channelInfoRegisters.length; i++){
-			if(channelInfoRegisters[i] == 1){	// the channel is enabled in the profile
+		for(int i = 0; i < getChannelInforRegisters().length; i++){
+			if(getChannelInforRegisters()[i] == 1){	// the channel is enabled in the profile
+				dontExit = true;
 				int currentState = SocomecProfile.normalReadState;
 				this.profileParser = new SocomecProfileParser();
 				getProfileParser().setIntervalLength(getProfileInterval());

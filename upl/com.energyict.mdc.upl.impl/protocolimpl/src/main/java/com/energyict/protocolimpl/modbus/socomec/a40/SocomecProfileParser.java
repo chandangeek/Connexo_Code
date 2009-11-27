@@ -35,7 +35,7 @@ public class SocomecProfileParser {
 	
 	/** ChannelInfoUnits to construct the ChannelInfo List */
 	private static Unit[] channelInfoUnits = new Unit[]{Unit.get(BaseUnit.WATT, -1), Unit.get(BaseUnit.WATT, -1),
-															Unit.get(BaseUnit.VOLTAMPERE, -1), Unit.get(BaseUnit.VOLTAMPERE, -1)};
+															Unit.get(BaseUnit.VOLTAMPEREREACTIVE, -1), Unit.get(BaseUnit.VOLTAMPEREREACTIVE, -1)};
 	
 	/** The current intervalDate */
 	private Calendar intervalDate;

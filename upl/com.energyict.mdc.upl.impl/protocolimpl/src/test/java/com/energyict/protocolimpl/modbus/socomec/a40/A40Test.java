@@ -107,8 +107,8 @@ public class A40Test {
 		List<ChannelInfo> result = new ArrayList<ChannelInfo>();
 		result.add(new ChannelInfo(0,0,"Active Energy plus", Unit.get(BaseUnit.WATT, -1)));
 		result.add(new ChannelInfo(1,1,"Active Energy minus", Unit.get(BaseUnit.WATT, -1)));
-		result.add(new ChannelInfo(2,2,"Reactive Energy plus", Unit.get(BaseUnit.VOLTAMPERE, -1)));
-		result.add(new ChannelInfo(3,3,"Reactive Energy minus", Unit.get(BaseUnit.VOLTAMPERE, -1)));
+		result.add(new ChannelInfo(2,2,"Reactive Energy plus", Unit.get(BaseUnit.VOLTAMPEREREACTIVE, -1)));
+		result.add(new ChannelInfo(3,3,"Reactive Energy minus", Unit.get(BaseUnit.VOLTAMPEREREACTIVE, -1)));
 		return result;
 	}
 	

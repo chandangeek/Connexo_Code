@@ -278,4 +278,10 @@ public class A40 extends Modbus {
         return r.getReadHoldingRegistersRequest().getRegisters();
     }
     
+    /**
+     * @return the number of channels
+     */
+    public int getNumberOfChannels() throws UnsupportedException, IOException {
+        return getProfile().getNumberOfChannels();
+    }
 }
