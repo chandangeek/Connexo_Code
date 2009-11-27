@@ -7,12 +7,12 @@
 package com.energyict.protocolimpl.base;
 
 import java.io.IOException;
-import java.math.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProtocolUtils;
 
@@ -114,8 +114,9 @@ public class ParseUtils {
         long mask=0;
         long decimal=0x1;
         
-        if (length > 8)
-            throw new IOException("ParseUtils, convertNormSignedFP2Number, invalid length "+length);
+        if (length > 8) {
+			throw new IOException("ParseUtils, convertNormSignedFP2Number, invalid length "+length);
+		}
         
         if (order == LITTLE_ENDIAN) {
             temp = ProtocolUtils.getLongLE(data,offset,length);
@@ -130,20 +131,24 @@ public class ParseUtils {
         decimal <<= (fpBitsRight-1);
         
         // build mask
-        for (int i=0;i<length;i++)
-            mask = (mask << 8) | 0xff;
+        for (int i=0;i<length;i++) {
+			mask = (mask << 8) | 0xff;
+		}
             
         // sign bit ?
         lS = ((temp & sign) != 0) ? -1 : 1;
         
         // take two's complement
-        if (lS==-1) temp = (temp^mask) + 1;     
+        if (lS==-1) {
+			temp = (temp^mask) + 1;
+		}     
         
         // calc normalized value
         for (int i=0;i<fpBitsRight;i++) {
            lF = (double)(lF)/2;
-           if ((temp & (decimal >> i)) != 0)
-               val+=lF;
+           if ((temp & (decimal >> i)) != 0) {
+			val+=lF;
+		}
         }
         // if ((val==0) && (lS==-1)) val=1;
         // use sign bit
@@ -190,7 +195,9 @@ public class ParseUtils {
         int shift = 0;
         BigInteger bi = BigInteger.ZERO;
         try {
-            if (length > 64) throw new IOException("ProtocolUtils, getBigIntegerLE, invalid length");
+            if (length > 64) {
+				throw new IOException("ProtocolUtils, getBigIntegerLE, invalid length");
+			}
             for (int i=0;i<length;i++) {
                 bi = bi.multiply(BigInteger.valueOf(256));
                 bi = bi.add(BigInteger.valueOf(((long)byteBuffer[offset+i]&0xffL)));
@@ -206,7 +213,9 @@ public class ParseUtils {
         int shift = 0;
         BigInteger bi = BigInteger.ZERO;
         try {
-            if (length > 64) throw new IOException("ProtocolUtils, getBigIntegerLE, invalid length");
+            if (length > 64) {
+				throw new IOException("ProtocolUtils, getBigIntegerLE, invalid length");
+			}
             for (int i=0;i<length;i++) {
                 bi = bi.multiply(BigInteger.valueOf(256));
                 bi = bi.add(BigInteger.valueOf(((long)byteBuffer[((length-1)-i)+offset]&0xffL)));
@@ -310,21 +319,24 @@ public class ParseUtils {
     
     public static void roundUp2nearestInterval(Calendar cal, int profileInterval) throws IOException {
         int rest = (int)(cal.getTime().getTime()/1000) % profileInterval;
-        if (rest > 0)
-            cal.add(Calendar.SECOND,profileInterval - rest);
+        if (rest > 0) {
+			cal.add(Calendar.SECOND,profileInterval - rest);
+		}
     }
     
     public static void roundDown2nearestInterval(Calendar cal, int profileInterval) throws IOException {
         int rest = (int)(cal.getTime().getTime()/1000) % profileInterval;
-        if (rest > 0)
-            cal.add(Calendar.SECOND,(-1)*rest);
+        if (rest > 0) {
+			cal.add(Calendar.SECOND,(-1)*rest);
+		}
     }
     
     public static boolean isOnIntervalBoundary(Calendar cal, int profileInterval) {
-        if ((cal.getTime().getTime()%(profileInterval*1000)) == 0)
-            return true;
-        else
-            return false;
+        if ((cal.getTime().getTime()%(profileInterval*1000)) == 0) {
+			return true;
+		} else {
+			return false;
+		}
     }
     
     public static void addIntervalValues(IntervalData intervalData,IntervalData intervalData2Add) {
@@ -337,7 +349,9 @@ public class ParseUtils {
     }
     
     public static int getNrOfDays(Date from, Date to, TimeZone timeZone) throws IOException {
-        if (to.getTime() < from.getTime()) throw new IOException("ParseUtils, getNrOfDays, error ("+from+") > ("+to+")");
+        if (to.getTime() < from.getTime()) {
+			throw new IOException("ParseUtils, getNrOfDays, error ("+from+") > ("+to+")");
+		}
         long offset = to.getTime() - from.getTime();
         final long ONEDAY=24*60*60*1000;    
         long tostd = to.getTime() + (long)timeZone.getOffset(to.getTime());
@@ -376,6 +390,20 @@ public class ParseUtils {
         return subArray;
     } 
     
+    /**
+     * returns a sub array from index to end
+     * @param data source array
+     * @param from from index
+     * @param length length to copy
+     * @return subarray
+     */
+    public static int[] getSubArray(int[] data,int from,int length) {
+        int[] subArray = new int[length];
+        for (int i=0;i<subArray.length;i++) {
+           subArray[i] = data[i+from]; 
+        }
+        return subArray;
+    } 
     
     /**
      * returns a sub array from offset to offset + length
@@ -421,9 +449,11 @@ public class ParseUtils {
         String str=Long.toHexString(value);
         StringBuffer strbuff = new StringBuffer();
         strbuff.append(str);
-        if (length >= str.length())
-            for (int i=0;i<(length-str.length());i++)
-                strbuff.append(' ');
+        if (length >= str.length()) {
+			for (int i=0;i<(length-str.length());i++) {
+				strbuff.append(' ');
+			}
+		}
         return strbuff.toString().toUpperCase();
     }
     /**
@@ -437,19 +467,22 @@ public class ParseUtils {
         String str=Long.toString(value);
         StringBuffer strbuff = new StringBuffer();
         strbuff.append(str);
-        if (length >= str.length())
-            for (int i=0;i<(length-str.length());i++)
-                strbuff.append(' ');
+        if (length >= str.length()) {
+			for (int i=0;i<(length-str.length());i++) {
+				strbuff.append(' ');
+			}
+		}
         return strbuff.toString();
     }
     
     public static String buildBinaryRepresentation(long val, int nrOfBits) {
         StringBuffer strBuff = new StringBuffer();
         for (int i=0;i<nrOfBits;i++) {
-            if ((val & (0x1<<((nrOfBits-1)-i))) != 0)
-                strBuff.append("1");
-            else
-                strBuff.append("0");
+            if ((val & (0x1<<((nrOfBits-1)-i))) != 0) {
+				strBuff.append("1");
+			} else {
+				strBuff.append("0");
+			}
         }
         return strBuff.toString();        
     }
@@ -457,16 +490,18 @@ public class ParseUtils {
     public static byte[] extendWithNULL(byte[] rdata,int length) {
         byte[] data = new byte[length];
         System.arraycopy(rdata, 0, data, 0, rdata.length);
-        for (int i=rdata.length;i<data.length;i++)
-            data[i]=0;
+        for (int i=rdata.length;i<data.length;i++) {
+			data[i]=0;
+		}
         return data;
         
     }    
     public static byte[] extendWithChar0(byte[] rdata,int length) {
         byte[] data = new byte[length];
         System.arraycopy(rdata, 0, data, 0, rdata.length);
-        for (int i=rdata.length;i<data.length;i++)
-            data[i]=0x30;
+        for (int i=rdata.length;i<data.length;i++) {
+			data[i]=0x30;
+		}
         return data;
         
     }    

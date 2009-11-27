@@ -30,6 +30,16 @@ import com.energyict.protocolimpl.modbus.core.Parser;
  */
 public class RegisterFactory extends AbstractRegisterFactory {
 	
+	final static String slotInfo 		= "slotInfo";	
+	final static String productCode 	= "productCode";
+	final static String profileInterval	= "profileInterval";
+	final static String channelInfos	= "channelInfos";
+	final static String aePointer		= "activeEnergyPointer";
+	final static String rePointer		= "reactiveEnergyPointer";
+	final static String dtLastUpdate	= "dateTimeLastProfileUpdate";
+	final static String currentDateTime = "currentDateTime";
+	
+	
     /** Creates a new instance of RegisterFactory */
     public RegisterFactory(Modbus modBus) {
         super(modBus);
@@ -70,12 +80,21 @@ public class RegisterFactory extends AbstractRegisterFactory {
         //getRegisters().add(new HoldingRegister(1104,1,ObisCode.fromString("1.1.1.3.0.255")));						
         getRegisters().add(new HoldingRegister(1830,1,ObisCode.fromString("1.1.1.6.0.255"),Unit.get("kW")).setParser("power"));				// Max. Demand Active Power
         
-
-        getRegisters().add(new HoldingRegister(258,2,"slotinfo"));
-        getRegisters().add(new HoldingRegister(257,1,"productcode"));
+        getRegisters().add(new HoldingRegister(257,1,productCode));
         
         getRegisters().add(new HoldingRegister(513,1,"ctSec"));
         getRegisters().add(new HoldingRegister(514,1,"ctPrim"));
+        
+        getRegisters().add(new HoldingRegister(3072, 6, currentDateTime));
+        
+        // LoadProfile related registers
+        getRegisters().add(new HoldingRegister(258,4,slotInfo));
+        getRegisters().add(new HoldingRegister(580,1,profileInterval));
+        getRegisters().add(new HoldingRegister(575,4,channelInfos));
+        getRegisters().add(new HoldingRegister(12288, 1, aePointer));
+        getRegisters().add(new HoldingRegister(12289, 1, rePointer));
+        getRegisters().add(new HoldingRegister(12290, 3, dtLastUpdate));
+        
         
         // mMINT modbus <-> INCOM interface  does allow reading the registerconfiguration registers for the word order by using address 247 or 248.
         // we use a custom property to change the order because this reading of interface configuration registers is not possible within the framework.
