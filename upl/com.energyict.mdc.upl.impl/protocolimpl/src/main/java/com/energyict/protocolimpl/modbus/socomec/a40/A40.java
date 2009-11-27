@@ -69,6 +69,7 @@ public class A40 extends Modbus {
     		ProfileData profileData = new ProfileData();
     		profileData.setChannelInfos(getProfile().getChannelInfos());
     		profileData.setIntervalDatas(getProfile().getIntervalDatas(lastReading));
+    		profileData.sort();
     		return profileData;
     	} else {
     		throw new UnsupportedException("ProfileData is not supported by the meter.");

@@ -348,6 +348,7 @@ public class ParseUtils {
         intervalData.setIntervalValues(tempIntervalData.getIntervalValues());
     }
     
+    
     public static int getNrOfDays(Date from, Date to, TimeZone timeZone) throws IOException {
         if (to.getTime() < from.getTime()) {
 			throw new IOException("ParseUtils, getNrOfDays, error ("+from+") > ("+to+")");

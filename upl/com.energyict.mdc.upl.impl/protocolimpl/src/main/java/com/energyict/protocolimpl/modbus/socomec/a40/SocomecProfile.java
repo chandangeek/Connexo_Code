@@ -1,11 +1,15 @@
 package com.energyict.protocolimpl.modbus.socomec.a40;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
@@ -31,7 +35,17 @@ public class SocomecProfile {
 	private static final int p2StartAddress = Integer.valueOf(16793);
 	private static final int q1StartAddress = Integer.valueOf(21293);
 	private static final int q2StartAddress = Integer.valueOf(25793);
+	private static final int[] startAddresses = new int[]{p1StartAddress, p2StartAddress, q1StartAddress, q2StartAddress};
 	private static final int maxProfileBlockSize = Integer.valueOf(4500);
+	
+	private static final int normalReadState = 0;
+	private static final int memoryOverFlowedState = 1;
+	
+	private int[] startMemoryPointer;
+	private List<IntervalData> profileIntervalData;
+	
+	/** Maximum allowed blocks to read in 1 readAction */
+	private static final int maxReadBlockSize = 100;
 	
 	/** The used profileParser */
 	private SocomecProfileParser profileParser;
@@ -107,21 +121,128 @@ public class SocomecProfile {
 	 * Get the IntervalDatas from the given date to now
 	 * @param lastReading the startDate from the interval
 	 * @return a list of {@link IntervalData} objects
+	 * @throws IOException 
+	 * @throws UnsupportedException 
 	 */
-	public List<IntervalData> getIntervalDatas(Date lastReading) {
+	public List<IntervalData> getIntervalDatas(Date lastReading) throws UnsupportedException, IOException {
+		boolean dontExit = true;
 		
-		try {
-			
-			Date lastUpdate = getDateTimeLastProfileUpdate();
-			int[] profileIntervalsPPlus = this.modbus.readRawValue(13750, 100);
-			lastUpdate = getDateTimeLastProfileUpdate();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		int[] channelInfoRegisters = findRegister(RegisterFactory.channelInfos).getReadHoldingRegistersRequest().getRegisters();
+		generateStartMemoryPointer();
+		Date lastUpdate = getDateTimeLastProfileUpdate();
+		
+		for(int i = 0; i < channelInfoRegisters.length; i++){
+			if(channelInfoRegisters[i] == 1){	// the channel is enabled in the profile
+				int currentState = SocomecProfile.normalReadState;
+				this.profileParser = new SocomecProfileParser();
+				getProfileParser().setIntervalLength(getProfileInterval());
+				int readFromPointer = 0;
+				int readLength = 0;
+				getProfileParser().setLastUpdate(lastUpdate);
+				
+				int currentPointer = startMemoryPointer[i];
+				do{
+					switch(currentState){
+					case SocomecProfile.normalReadState:{
+						
+						if(((startAddresses[i] + currentPointer) - maxReadBlockSize) > startAddresses[i]){
+							readFromPointer = (startAddresses[i] + currentPointer) - maxReadBlockSize;
+							readLength = maxReadBlockSize;
+							currentPointer -= readLength;
+						} else {
+							readLength = readFromPointer - startAddresses[i];
+							readFromPointer = startAddresses[i];
+							currentPointer = maxProfileBlockSize;
+							currentState = SocomecProfile.memoryOverFlowedState;
+						}
+						
+					}break;
+					case SocomecProfile.memoryOverFlowedState:{
+						if(((startAddresses[i] + currentPointer) - maxReadBlockSize) > (startAddresses[i] + startMemoryPointer[i])){
+							readFromPointer = (startAddresses[i] + currentPointer) - maxReadBlockSize;
+							readLength = maxReadBlockSize;
+							currentPointer -= readLength;
+						} else {
+							readLength = readFromPointer - (startAddresses[i] + startMemoryPointer[i]);
+							readFromPointer = (startAddresses[i] + startMemoryPointer[i]);
+							dontExit = false;
+						}
+					}
+					}
+					
+					getProfileParser().addMemoryPointer(readLength);
+					getProfileParser().parseProfileDataBlock(this.modbus.readRawValue(readFromPointer, readLength));
+					
+				}while(getProfileParser().getIntervalDatas().get(getProfileParser().getIntervalDatas().size()-1).getEndTime().after(lastReading) && dontExit);
+				
+				checkForUnnecessaryIntervals(getProfileParser().getIntervalDatas(), lastReading);
+				addValuesToIntervals(getProfileParser().getIntervalDatas());
+				
+			} 
 		}
 		
-		// TODO Auto-generated method stub
-		return null;
+		
+		return this.profileIntervalData;
+		
+	}
+
+	/**
+	 * Add intervalData to the already existing intervalData
+	 * @param intervals the intervalData's to add
+	 */
+	private void addValuesToIntervals(List<IntervalData> intervals){
+		if(this.profileIntervalData == null){
+			this.profileIntervalData = new ArrayList<IntervalData>();
+			this.profileIntervalData = intervals;
+		} else {
+			ListIterator<IntervalData> it = this.profileIntervalData.listIterator();
+			while(it.hasNext()){
+				IntervalData id = it.next();
+				ListIterator<IntervalData> newIt = intervals.listIterator();
+				while(newIt.hasNext()){
+					IntervalData nid = newIt.next();
+					if(id.getEndTime().compareTo(nid.getEndTime()) == 0){
+						Iterator iter = nid.getIntervalValues().iterator();
+						while(iter.hasNext()){
+							IntervalValue iv = ((IntervalValue)iter.next());
+							id.addValue(iv.getNumber());
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Generate a helper object for memoryPointing to the start of the 4 profileBuffers
+	 * @throws UnsupportedException if we couldn't read the pointers
+	 * @throws IOException if we couldn't read the pointers
+	 */
+	private void generateStartMemoryPointer() throws UnsupportedException, IOException{
+		int startedAEMemoryPointer = getActiveEnergyPointer();
+		int startedREMemoryPointer = getReactiveEnergyPointer();
+		startMemoryPointer = new int[4];
+		startMemoryPointer[0] = startedAEMemoryPointer;
+		startMemoryPointer[1] = startedAEMemoryPointer;
+		startMemoryPointer[2] = startedREMemoryPointer;
+		startMemoryPointer[3] = startedREMemoryPointer;
+		
+	}
+	
+	/**
+	 * Remove unnecessary intervals from the intervalList
+	 * 
+	 * @param intervals - the List with the intervals
+	 * @param lastReading - the lastReading to check for
+	 */
+	private void checkForUnnecessaryIntervals(List<IntervalData> intervals, Date lastReading){
+		ListIterator<IntervalData> it = intervals.listIterator();
+		while(it.hasNext()){
+			IntervalData id = it.next();
+			if(id.getEndTime().before(lastReading)) {
+				it.remove();
+			}
+		}
 	}
 	
 	/**

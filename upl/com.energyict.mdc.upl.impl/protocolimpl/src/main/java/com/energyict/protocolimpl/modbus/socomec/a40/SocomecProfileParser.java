@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
@@ -56,7 +57,7 @@ public class SocomecProfileParser {
 	
 	/** Constructor */
 	protected SocomecProfileParser(){
-		this.memoryPointer = 0;
+		this.memoryPointer = -1;
 		this.currentState = normalState;
 		this.intervalDatas = new ArrayList<IntervalData>();
 	}
@@ -89,6 +90,7 @@ public class SocomecProfileParser {
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		int counter = Integer.valueOf(0);
 		for(int i = 0; i < channelInfoRegisters.length; i++){
+//		for(int i = 0; i < 1; i++){
 			if(channelInfoRegisters[i] == 1){
 				int id = counter++;
 				//TODO normally the third and fourth channel aren't WATT but var
@@ -153,7 +155,7 @@ public class SocomecProfileParser {
 			throw new IOException("StartDate can not be empty.");
 		}
 		
-		if(this.memoryPointer == 0){
+		if(this.memoryPointer == -1){
 			return;
 		}
 		
@@ -169,25 +171,30 @@ public class SocomecProfileParser {
 				}
 			}break;
 			case timedValue:{
-				if(isItAPowerUpPowerDownSequence()){
-					this.currentState = powerUp;
-				} else { // if it's not a PU/PD sequence then its a timeStamped value
-					setLastUpdate(DateTime.parseProfileDateTime(ParseUtils.getSubArray(this.virtualMemory, this.memoryPointer-2, 3)).getMeterCalender().getTime());
-					this.memoryPointer -= 3; //This can cause a negative value
-					if(this.memoryPointer < 0){
-						this.memoryPointer += 3;
-						exit = true;
-						break;
+				if(this.memoryPointer-5 >= 0){
+					if(isItAPowerUpPowerDownSequence()){
+						this.currentState = powerUp;
+					} else { // if it's not a PU/PD sequence then its a timeStamped value
+						setLastUpdate(DateTime.parseProfileDateTime(ParseUtils.getSubArray(this.virtualMemory, this.memoryPointer-2, 3)).getMeterCalender().getTime());
+						this.memoryPointer -= 3; //This can cause a negative value
+						if(this.memoryPointer < 0){
+							this.memoryPointer += 3;
+							exit = true;
+							break;
+						}
+						addAnInterval();
+						this.currentState = normalState;
 					}
-					addAnInterval();
-					this.currentState = normalState;
+				} else {
+					exit = true;
+					break;
 				}
 			}break;
 			case powerUp:{
 				//Add a powerUp event
 				Calendar eventDate = DateTime.parseProfileDateTime(ParseUtils.getSubArray(this.virtualMemory, this.memoryPointer-2, 3)).getMeterCalender();
 				addMeterEvents(new MeterEvent(eventDate.getTime(), MeterEvent.POWERUP));
-				ParseUtils.roundDown2nearestInterval(eventDate, this.profileInterval);
+				ParseUtils.roundUp2nearestInterval(eventDate, this.profileInterval);
 				setLastUpdate(eventDate.getTime());
 				
 				this.memoryPointer -= 3; //This can cause a negative value
@@ -216,7 +223,6 @@ public class SocomecProfileParser {
 		// Apply the meterEvents so we get the statusses
 		applyEvents();
 		
-//		return idList;
 	}
 	
     /** <p> Set the interval status based on the {@link MeterEvent}s form the meter </p>
@@ -244,12 +250,29 @@ public class SocomecProfileParser {
 	 * Add an interval to the IntervalDataList
 	 */
 	private void addAnInterval(){
-		int value = this.virtualMemory[this.memoryPointer];
-		IntervalData id = new IntervalData(this.intervalDate.getTime());
-		id.addValue(value);
-		this.intervalDatas.add(id);
+		if(!intervalExists()){
+			int value = this.virtualMemory[this.memoryPointer];
+			IntervalData id = new IntervalData(this.intervalDate.getTime());
+			id.addValue(value);
+			this.intervalDatas.add(id);
+		}
 		this.memoryPointer--;
 		this.intervalDate.add(Calendar.SECOND, -this.profileInterval);
+	}
+	
+	/**
+	 * Check if an interval already exists
+	 * @return true if it's so, false otherwise
+	 */
+	private boolean intervalExists(){
+		ListIterator<IntervalData> listIt = this.intervalDatas.listIterator();
+		while(listIt.hasNext()){
+			IntervalData id = listIt.next();
+			if(id.getEndTime().compareTo(this.intervalDate.getTime()) == 0 ){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -268,22 +291,11 @@ public class SocomecProfileParser {
 	 * @return true if it is, false otherwise
 	 */
 	private boolean isItAPowerUpPowerDownSequence(){
-		if((this.memoryPointer-5 >= 0) && ((this.virtualMemory[this.memoryPointer-2]&0xF000) == 0xF000) && (this.virtualMemory[this.memoryPointer-5]&0xE000) == 0xE000){
+		if(((this.virtualMemory[this.memoryPointer-2]&0xF000) == 0xF000) && (this.virtualMemory[this.memoryPointer-5]&0xE000) == 0xE000){
 			return true;
 		}
 		return false;
 	}
-	
-//	/**
-//	 * Check if the memoryPointer currently points to the start of a PowerUp dateTime
-//	 * @return true if it is, false otherwise
-//	 */
-//	private boolean isItAPowerUp(){
-//		if((this.memoryPointer-2 >= 0) && (this.virtualMemory[this.memoryPointer-2]&0xF000) == 0xF000){
-//			return true;
-//		}
-//		return false;
-//	}
 	
 	/**
 	 * Check if the memoryPointer currently points to the start of a PowerDown dateTime

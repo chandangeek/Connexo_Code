@@ -24,7 +24,6 @@ import com.energyict.protocol.MeterEvent;
  * <pre>
  * TODO: 
  * - multiple channels 
- * - powerUp/PowerDown in multiple blocks !!
  * </pre>
  * 
  * @author gna
@@ -95,6 +94,13 @@ public class SocomecProfileParserTest {
 			499, 520, 523, 60187, 2063, 8713, 64283, 2063, 12809, 60187, 2064,
 			1545, 64283, 2064, 6665, 60187, 2064, 14089 };
 
+	private static int[] profileMemoryBlock7_1 = new int[]{518, 518, 518, 518, 518, 518, 518, 518, 518, 518};
+	private static int[] profileMemoryBlock7_2 = new int[]{518, 64283, 2078, 9, 518, 518, 518, 518, 518, 518};
+	private static int[] profileMemoryBlock7_3 = new int[]{1545, 64283, 2064, 6665, 60187, 2064, 14089, 64283, 2065, 4105};
+	private static int[] profileMemoryBlock7_4 = new int[]{518, 518, 60187, 2063, 8713, 64283, 2063, 12809, 60187, 2064};
+	private static int[] profileMemoryBlock7_5 = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 518};
+	
+	
 	/** The current {@link SocomecProfileParser} used */
 	private static SocomecProfileParser profileParser;
 
@@ -148,7 +154,7 @@ public class SocomecProfileParserTest {
 			intervalDatas = new ArrayList<IntervalData>();
 			lastUpdate = new Date(Long.valueOf("1258388100000"));
 			profileParser.setLastUpdate(lastUpdate);
-			profileParser.addMemoryPointer(53);
+			profileParser.addMemoryPointer(54);
 			profileParser.setIntervalLength(900);
 			profileParser.parseProfileDataBlock(profileMemoryBlock1);
 			intervalDatas = profileParser.getIntervalDatas();
@@ -156,15 +162,15 @@ public class SocomecProfileParserTest {
 
 			assertEquals(lastUpdate, intervalDatas.get(0).getEndTime());
 
-			assertEquals(new Date(Long.valueOf("1258342200000")), intervalDatas
-					.get(51).getEndTime());
+			assertEquals(new Date(Long.valueOf("1258343100000")), intervalDatas
+					.get(50).getEndTime());
 
-			profileParser.addMemoryPointer(99);
+			profileParser.addMemoryPointer(100);
 			profileParser.parseProfileDataBlock(profileMemoryBlock2);
 			intervalDatas = profileParser.getIntervalDatas();
 			assertEquals(new Date(Long.valueOf("1258341300000")), intervalDatas
 					.get(52).getEndTime());
-			assertEquals(151, intervalDatas.size());
+			assertEquals(152, intervalDatas.size());
 			assertEquals(200, profileParser.getVirtualMemory().length);
 
 		} catch (NumberFormatException e) {
@@ -179,7 +185,7 @@ public class SocomecProfileParserTest {
 			intervalDatas = new ArrayList<IntervalData>();
 			lastUpdate = new Date(Long.valueOf("1259233200000"));
 			profileParser.setLastUpdate(lastUpdate);
-			profileParser.addMemoryPointer(72);
+			profileParser.addMemoryPointer(73);
 			profileParser.setIntervalLength(900);
 			profileParser.parseProfileDataBlock(profileMemoryBlock3);
 			intervalDatas = profileParser.getIntervalDatas();
@@ -188,7 +194,7 @@ public class SocomecProfileParserTest {
 			profileParser = new SocomecProfileParser();
 			profileParser
 					.setLastUpdate(new Date(Long.valueOf("1259245800000")));
-			profileParser.addMemoryPointer(59);
+			profileParser.addMemoryPointer(60);
 			profileParser.setIntervalLength(900);
 			profileParser.parseProfileDataBlock(profileMemoryBlock4);
 			intervalDatas = profileParser.getIntervalDatas();
@@ -205,7 +211,7 @@ public class SocomecProfileParserTest {
 			intervalDatas = new ArrayList<IntervalData>();
 			lastUpdate = new Date(Long.valueOf("1259310600000"));
 			profileParser.setLastUpdate(lastUpdate);
-			profileParser.addMemoryPointer(52);
+			profileParser.addMemoryPointer(53);
 			profileParser.setIntervalLength(900);
 			profileParser.parseProfileDataBlock(profileMemoryBlock5);
 			intervalDatas = profileParser.getIntervalDatas();
@@ -222,33 +228,59 @@ public class SocomecProfileParserTest {
 			assertEquals(IntervalData.POWERDOWN | IntervalData.POWERUP,
 					intervalDatas.get(0).getEiStatus());
 
-			/* Test for PU/PD in different blocks */
-			try {
-				profileParser = new SocomecProfileParser();
-				intervalDatas = new ArrayList<IntervalData>();
-				lastUpdate = new Date(Long.valueOf("1259310600000"));
-				profileParser.setLastUpdate(lastUpdate);
-				profileParser.addMemoryPointer(6);
-				profileParser.setIntervalLength(900);
-				profileParser.parseProfileDataBlock(profileMemoryBlock6_1);
-				intervalDatas = profileParser.getIntervalDatas();
-				assertEquals(1, intervalDatas.size());
-				/* Check the intervalStatusses */
-				assertEquals(0, intervalDatas.get(0).getEiStatus());
-				// add second part
-				profileParser.addMemoryPointer(profileMemoryBlock6_2.length);
-				profileParser.parseProfileDataBlock(profileMemoryBlock6_2);
-				intervalDatas = profileParser.getIntervalDatas();
-				assertEquals(30, intervalDatas.size());
-				/* Check the intervalStatusses */
-				assertEquals(IntervalData.POWERDOWN | IntervalData.POWERUP,
-						intervalDatas.get(0).getEiStatus());
+		} catch (NumberFormatException e) {
+			fail(e.getMessage());
+		} catch (IOException e) {
+			fail(e.getMessage());
+		}
+		
+		/* Test for PU/PD in different blocks */
+		try {
+			profileParser = new SocomecProfileParser();
+			intervalDatas = new ArrayList<IntervalData>();
+			lastUpdate = new Date(Long.valueOf("1259310600000"));
+			profileParser.setLastUpdate(lastUpdate);
+			profileParser.addMemoryPointer(7);
+			profileParser.setIntervalLength(900);
+			profileParser.parseProfileDataBlock(profileMemoryBlock6_1);
+			intervalDatas = profileParser.getIntervalDatas();
+			assertEquals(1, intervalDatas.size());
+			/* Check the intervalStatusses */
+			assertEquals(0, intervalDatas.get(0).getEiStatus());
+			// add second part
+			profileParser.addMemoryPointer(profileMemoryBlock6_2.length);
+			profileParser.parseProfileDataBlock(profileMemoryBlock6_2);
+			intervalDatas = profileParser.getIntervalDatas();
+			assertEquals(30, intervalDatas.size());
+			/* Check the intervalStatusses */
+			assertEquals(IntervalData.POWERDOWN | IntervalData.POWERUP,
+					intervalDatas.get(0).getEiStatus());
 
-			} catch (NumberFormatException e) {
-				fail(e.getMessage());
-			} catch (IOException e) {
-				fail(e.getMessage());
-			}
+		} catch (NumberFormatException e) {
+			fail(e.getMessage());
+		} catch (IOException e) {
+			fail(e.getMessage());
+		}
+		
+		/* Test for PU/PD in different blocks */
+		try {
+			profileParser = new SocomecProfileParser();
+			intervalDatas = new ArrayList<IntervalData>();
+			lastUpdate = new Date(Long.valueOf("1259325000000"));
+			profileParser.setLastUpdate(lastUpdate);
+			profileParser.addMemoryPointer(10);
+			profileParser.setIntervalLength(900);
+			profileParser.parseProfileDataBlock(profileMemoryBlock7_1);
+			profileParser.addMemoryPointer(10);
+			profileParser.parseProfileDataBlock(profileMemoryBlock7_2);
+			profileParser.addMemoryPointer(10);
+			profileParser.parseProfileDataBlock(profileMemoryBlock7_3);
+			profileParser.addMemoryPointer(10);
+			profileParser.parseProfileDataBlock(profileMemoryBlock7_4);
+			profileParser.addMemoryPointer(10);
+			profileParser.parseProfileDataBlock(profileMemoryBlock7_5);
+			intervalDatas = profileParser.getIntervalDatas();
+
 		} catch (NumberFormatException e) {
 			fail(e.getMessage());
 		} catch (IOException e) {
