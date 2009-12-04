@@ -27,7 +27,7 @@ import com.energyict.cpo.Environment;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.edmi.mk10.executer.MK10ProtocolExecuter;
-import com.energyict.genericprotocolimpl.edmi.mk10.parsers.MK10InputStreamParser;
+import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.genericprotocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
 import com.energyict.genericprotocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
 import com.energyict.mdw.amr.GenericProtocol;
@@ -210,22 +210,24 @@ public class MK10Push implements GenericProtocol {
 
 	private Rtu waitForPushMeter() throws IOException, BusinessException {
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-		MK10InputStreamParser inputParser = new MK10InputStreamParser();
-
+		Rtu pushDevice = null;
 		while(inputStream.available() > 0) {
 			buffer.write(inputStream.read() & BYTE_MASK);
 		}
 
-		inputParser.parse(buffer.toByteArray(), true);
-		if(!inputParser.isPushPacket()) {
-			throw new ProtocolException("Received invalid data: " + inputParser.toString());
+		PushPacket packet = PushPacket.getPushPacket(buffer.toByteArray());
+		sendDebug("** Received packet: "+ packet.getPushPacketType() + " **", 0);
+		switch (packet.getPushPacketType()) {
+		case README:
+		case HEARTBEAT:
+			pushDevice = findMatchingMeter(packet.getSerial());
+			break;
+		default:
+			throw new BusinessException("Received wrong packet [" + packet.getPushPacketType()+ "].");
 		}
-		sendDebug("** Received message from device with serial: " + inputParser.getSerial() + " **", 0);
-
-		Rtu pushDevice = findMatchingMeter(inputParser.getSerialAsString());
 
 		if (pushDevice == null) {
-			throw new BusinessException("RTU with callerID [" + inputParser.getSerial() + "] not found.");
+			throw new BusinessException("RTU with callerID [" + packet.getSerial() + "] not found.");
 		}
 
 		return pushDevice;
@@ -235,11 +237,7 @@ public class MK10Push implements GenericProtocol {
 
 		if (DEBUG >= 2) {
 			System.out.println("storeMeterData()");
-		}
-		if (DEBUG >= 2) {
 			System.out.println(" meterReadingData = " + meterReadingData);
-		}
-		if (DEBUG >= 2) {
 			System.out.println(" meterProfileData = " + meterProfileData);
 		}
 

@@ -2,20 +2,20 @@ package com.energyict.genericprotocolimpl.edmi.mk10.packets;
 
 import java.io.IOException;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.CRCGenerator;
-
-
 
 public abstract class PushPacket {
 
-	private static final int	LENGTH_PUSH			= 2;
-	private static final int	LENGTH_PACKETTYPE	= 2;
-	private static final int	LENGTH_CRC			= 2;
-	private static final int	LENGTH_SERIAL		= 4;
+	public static final String	FIELD_PUSH_PACKET_TYPE	= "pushPacketType";
+	public static final String	FIELD_SERIAL			= "serial";
 
-	private static final int	BYTE_SHIFT_VALUE	= 0x0100;
-	private static final int	MAX_BYTE_VALUE		= 0x0FF;
+	private static final int	LENGTH_PUSH				= 2;
+	private static final int	LENGTH_PACKETTYPE		= 2;
+	private static final int	LENGTH_CRC				= 2;
+	private static final int	LENGTH_SERIAL			= 4;
+
+	private static final int	BYTE_SHIFT_VALUE		= 0x0100;
+	private static final int	MAX_BYTE_VALUE			= 0x0FF;
 
 	private byte[] rawData;
 	private String serial;
@@ -27,10 +27,7 @@ public abstract class PushPacket {
 	abstract void doParse();
 
 	public PushPacket(byte[] packetData) {
-		rawData = new byte[packetData.length];
-		try {
-			ProtocolUtils.arrayCopy(packetData, rawData, 0);
-		} catch (IOException e) {}
+		rawData = packetData.clone();
 		parse();
 	}
 

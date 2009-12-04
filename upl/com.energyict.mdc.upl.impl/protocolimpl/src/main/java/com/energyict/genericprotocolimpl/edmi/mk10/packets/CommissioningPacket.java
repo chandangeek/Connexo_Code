@@ -174,6 +174,4 @@ public class CommissioningPacket extends PushPacket {
 		return builder.toString();
 	}
 
-
-
 }
