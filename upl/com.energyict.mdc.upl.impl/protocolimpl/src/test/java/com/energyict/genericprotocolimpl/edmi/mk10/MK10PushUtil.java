@@ -27,23 +27,33 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class MK10PushUtil {
 
+	private static final String HEARTBEAT =
+		"$8F$50$FF$E5$0C$7B$BB$F7$45$30$39$30$39$34$33$39" +
+		"$00$33$35$33$31$36$37$30$30$35$39$36$32$37$37$34" +
+		"$00$38$39$34$34$31$32$32$32$35$32$31$37$31$37$37" +
+		"$33$36$31$38$00$0E$FD";
+
+	private static final String COMMISSIONING =
+		"$8F$50$FF$E3$0C$77$9B$5F$45$30$39$30$31$33$34$36" +
+		"$00$33$35$36$31$38$37$30$33$30$30$30$32$35$31$38" +
+		"$00$4D$6B$31$30$5F$53$53$43$5F$30$31$34$35$00$31" +
+		"$30$58$58$00$31$2E$33$36$20$00$04$02$6D$40$31$31" +
+		"$61$66$2C$37$64$62$62$2C$38$2C$00$00$00$00$00$00" +
+		"$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00" +
+		"$E4$37";
+
+
 	@Ignore
 	public static void main(String[] args) {
-		String hexString = "$8F$50$FF$E3$0C$77$9B$5F$45$30$39$30$31$33$34$36$00$33$35$36$31$38$37$30$33$30$30$30$32$35$31$38$00$4D$6B$31$30$5F$53$53$43$5F$30$31$34$35$00$31$30$58$58$00$31$2E$33$36$20$00$04$02$6D$40$31$31$61$66$2C$37$64$62$62$2C$38$2C$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$00$E4$37";
-		ByteArrayOutputStream bb = new ByteArrayOutputStream();
 
-		for (int i = 0; i < hexString.length(); i += 3) {
-			bb.write(Integer.parseInt(hexString.substring(i + 1, i + 3), 16));
-		}
-
-		byte[] bytes = bb.toByteArray();
+		byte[] bytes = getBytesFromHexString(COMMISSIONING);
 		System.out.println(ProtocolUtils.getResponseData(bytes));
 
-		try {
-			saveUdpPacket(bytes, "c:\\mk10.hex");
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+		//		try {
+		//			saveUdpPacket(bytes, "c:\\mk10.hex");
+		//		} catch (IOException e1) {
+		//			e1.printStackTrace();
+		//		}
 
 		try {
 			sendUdpPacket(bytes, "127.0.0.1", 11000);
@@ -56,14 +66,14 @@ public class MK10PushUtil {
 
 	}
 
-	private static void saveUdpPacket(byte[] packetData, String fileName) throws IOException {
+	public static void saveUdpPacket(byte[] packetData, String fileName) throws IOException {
 		FileWriter fw = new FileWriter(new File(fileName));
 		fw.write(new String(packetData));
 		fw.flush();
 		fw.close();
 	}
 
-	private static void sendUdpPacket(byte[] packetData, String host, int port) throws IOException {
+	public static void sendUdpPacket(byte[] packetData, String host, int port) throws IOException {
 		InetAddress address;
 		try {
 			address = InetAddress.getByName(host);
@@ -79,5 +89,15 @@ public class MK10PushUtil {
 		}
 
 	}
+
+	@Ignore
+	public static byte[] getBytesFromHexString(String hexString) {
+		ByteArrayOutputStream bb = new ByteArrayOutputStream();
+		for (int i = 0; i < hexString.length(); i += 3) {
+			bb.write(Integer.parseInt(hexString.substring(i + 1, i + 3), 16));
+		}
+		return bb.toByteArray();
+	}
+
 
 }

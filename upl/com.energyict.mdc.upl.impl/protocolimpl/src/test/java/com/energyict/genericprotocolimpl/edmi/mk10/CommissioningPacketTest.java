@@ -7,8 +7,6 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.ByteArrayOutputStream;
-
 import org.junit.Test;
 
 import com.energyict.genericprotocolimpl.edmi.mk10.packets.CommissioningPacket;
@@ -47,7 +45,7 @@ public class CommissioningPacketTest {
 
 	@Test
 	public void testValidCommissioningPacket() {
-		PushPacket packet = PushPacket.getPushPacket(getBytesFromHexString(COMMISSIONING_PACKER_VALID));
+		PushPacket packet = PushPacket.getPushPacket(MK10PushUtil.getBytesFromHexString(COMMISSIONING_PACKER_VALID));
 		assertNotNull(packet);
 		assertTrue(packet.isValidPacket());
 		assertEquals("209165151", packet.getSerial());
@@ -73,7 +71,7 @@ public class CommissioningPacketTest {
 
 	@Test
 	public void testInvalidCrcCommissioningPacket() {
-		PushPacket packet = PushPacket.getPushPacket(getBytesFromHexString(COMMISSIONING_PACKER_INVALID_CRC));
+		PushPacket packet = PushPacket.getPushPacket(MK10PushUtil.getBytesFromHexString(COMMISSIONING_PACKER_INVALID_CRC));
 		assertNotNull(packet);
 		assertFalse(packet.isValidPacket());
 		assertEquals("209165151", packet.getSerial());
@@ -98,7 +96,7 @@ public class CommissioningPacketTest {
 
 	@Test
 	public void testInvalidShortCommissioningPacket() {
-		PushPacket packet = PushPacket.getPushPacket(getBytesFromHexString(COMMISSIONING_PACKER_INVALID_SHORT));
+		PushPacket packet = PushPacket.getPushPacket(MK10PushUtil.getBytesFromHexString(COMMISSIONING_PACKER_INVALID_SHORT));
 		assertNotNull(packet);
 		assertFalse(packet.isValidPacket());
 		assertEquals("209165151", packet.getSerial());
@@ -123,7 +121,7 @@ public class CommissioningPacketTest {
 
 	@Test
 	public void testInvalidMissingCommissioningPacket() {
-		PushPacket packet = PushPacket.getPushPacket(getBytesFromHexString(COMMISSIONING_PACKER_INVALID_MISSING));
+		PushPacket packet = PushPacket.getPushPacket(MK10PushUtil.getBytesFromHexString(COMMISSIONING_PACKER_INVALID_MISSING));
 		assertNotNull(packet);
 		assertFalse(packet.isValidPacket());
 		assertEquals("209165151", packet.getSerial());
@@ -149,17 +147,9 @@ public class CommissioningPacketTest {
 	@Test
 	public void testToString() {
 		// Small check if the toString doesn't generate NPE's or something like this
-		PushPacket packet = PushPacket.getPushPacket(getBytesFromHexString(COMMISSIONING_PACKER_INVALID_MISSING));
+		PushPacket packet = PushPacket.getPushPacket(MK10PushUtil.getBytesFromHexString(COMMISSIONING_PACKER_INVALID_MISSING));
 		assertNotNull(packet);
 		assertNotNull(packet.toString());
-	}
-
-	private byte[] getBytesFromHexString(String hexString) {
-		ByteArrayOutputStream bb = new ByteArrayOutputStream();
-		for (int i = 0; i < hexString.length(); i += 3) {
-			bb.write(Integer.parseInt(hexString.substring(i + 1, i + 3), 16));
-		}
-		return bb.toByteArray();
 	}
 
 }
