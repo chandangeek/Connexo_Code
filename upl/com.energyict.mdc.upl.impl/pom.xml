@@ -3,7 +3,7 @@
 	<groupId>com.energyict</groupId>
 	<artifactId>protocols</artifactId>
 	<packaging>pom</packaging>
-	<version>8.3.25-SNAPSHOT</version>
+	<version>8.3.25</version>
 	<name>protocols</name>
 	<dependencies>
 		<dependency>
