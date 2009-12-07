@@ -10,170 +10,186 @@
 
 package com.energyict.protocolimpl.edmi.mk10.loadsurvey;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.edmi.mk10.core.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
-import com.energyict.protocolimpl.edmi.mk10.command.*;
-import com.energyict.protocolimpl.itron.quantum1000.minidlms.remoteprocedures.SetSourceId;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.edmi.mk10.command.FileAccessReadCommand;
+import com.energyict.protocolimpl.edmi.mk10.core.AbstractRegisterType;
+import com.energyict.protocolimpl.edmi.mk10.core.RegisterTypeParser;
 
 /**
  *
  * @author koen
  */
 public class LoadSurveyData {
-    
-    private final int DEBUG=0;
-    private final int READBUFFER = 0xFF;
-    
-    private LoadSurvey loadSurvey;
-    
-    private byte[] data;
-    private Date firstTimeStamp;
-    private int numberOfRecords;
-    
-    /** Creates a new instance of LoadSurveyData */
-    public LoadSurveyData(LoadSurvey loadSurvey,Date from) throws IOException {
-        this.setLoadSurvey(loadSurvey);
-        init(from);
-    }
-    
-    
-    private void init(Date from) throws IOException {
-        FileAccessReadCommand farc;
-        long startRecord;
 
-        long interval = getLoadSurvey().getProfileInterval();
-        long first = getLoadSurvey().getFirstEntry();
-        Date loadSurveyStartDate = getLoadSurvey().getStartTime();
-        Date firstdate = new Date(loadSurveyStartDate.getTime() + (first * (interval * 1000)));
-                
-        long seconds_div = (from.getTime() - firstdate.getTime()) / 1000;
-        int records = 0;
-        
-        if (DEBUG>=1) System.out.println("KV_DEBUG> LoadSurveyData, init() getLoadSurvey()="+getLoadSurvey());
-        
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        byteArrayOutputStream.reset();
-        
-        if (seconds_div < 0) startRecord = first;
-    		else startRecord = first + (seconds_div / interval) + 1;
+	private final int DEBUG=0;
+	private final int READBUFFER = 0xFF;
 
-    	if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("From date:               " + from.toGMTString());
-        if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("Survey start date:       " + loadSurveyStartDate.toGMTString());
-        if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("Survey first entry:      " + first);
-        if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("Survey first entry date: " + firstdate.toGMTString());
-        if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("Survey entry interval:   " + interval);
-        if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("seconds_div:             " + seconds_div);
-        if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("startRecord:             " + startRecord);
+	private LoadSurvey loadSurvey;
 
-        farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(getLoadSurvey().getLoadSurveyNumber(), startRecord, 0x0001);
-        startRecord = farc.getStartRecord();
+	private byte[] data;
+	private Date firstTimeStamp;
+	private int numberOfRecords;
 
-        if (DEBUG>=1) loadSurvey.getCommandFactory().getMk10().sendDebug("new startRecord:         " + startRecord);
-               
-        do {
-            farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(getLoadSurvey().getLoadSurveyNumber(), startRecord, READBUFFER);
-            startRecord += farc.getNumberOfRecords();
-            records += farc.getNumberOfRecords();
-            byteArrayOutputStream.write(farc.getData(),0,farc.getData().length);
-            if (DEBUG>=1) getLoadSurvey().getCommandFactory().getMk10().sendDebug(farc.toString());        	
-        } while((getLoadSurvey().getStoredEntries()  - (farc.getStartRecord() + farc.getNumberOfRecords())) > 0);
-        
-        setNumberOfRecords(records);
-        setData(byteArrayOutputStream.toByteArray());
+	/** Creates a new instance of LoadSurveyData */
+	public LoadSurveyData(LoadSurvey loadSurvey,Date from) throws IOException {
+		this.setLoadSurvey(loadSurvey);
+		init(from);
+	}
 
-        Calendar cal = ProtocolUtils.getCleanCalendar(getLoadSurvey().getCommandFactory().getMk10().getTimeZone());
-        cal.setTime(firstdate);
-        cal.add(Calendar.SECOND,(int)((getLoadSurvey().getStoredEntries() - (getNumberOfRecords() - 1)) * interval));
-        setFirstTimeStamp(cal.getTime());
 
-    } // private void init(Date from) throws IOException
+	private void init(Date from) throws IOException {
+		FileAccessReadCommand farc;
+		long startRecord;
 
-    public String toString() {
-        try {
-            StringBuffer strBuff = new StringBuffer();
-            strBuff.append("LoadSurveyData:\n");
-            strBuff.append("    file search:\n");
-            strBuff.append("        first record TimeStamp="+getFirstTimeStamp()+"\n");
-            strBuff.append("    file read:\n");
-            strBuff.append("        actual nr of records read:"+getNumberOfRecords()+"\n");
-            for (int interval=0;interval<getNumberOfRecords();interval++) {
-               strBuff.append("        interval "+interval+": ");
-               for (int channel=0;channel<loadSurvey.getNrOfChannels();channel++) {
-                   if (getLoadSurvey().isEventLog())
-                      strBuff.append(getChannelValues(interval)[channel].getString()+" ");   
-                   else
-                      strBuff.append(getChannelValues(interval)[channel].getBigDecimal().multiply(loadSurvey.getLoadSurveyChannels()[channel].getScalingFactor())+"("+loadSurvey.getLoadSurveyChannels()[channel].getUnit()+") ");   
-               }
-               strBuff.append("\n");
-            }
-            return strBuff.toString();
-        }
-        catch(IOException e) {
-            return e.toString();
-        }
-        
-    } // public String toString()
-    
-    // loadSurvey.getProfileInterval() == 0 --> event log!, timestamp as separate field
-    
-    public int getStatus(int intervalIndex) throws IOException {
-        int offset = intervalIndex * loadSurvey.getEntryWidth();
-        return ProtocolUtils.getInt(getData(),offset,2);
-    }
-    
-    private byte[] getData(int intervalIndex, int channelIndex) throws IOException {
-    	int offset = (intervalIndex * getLoadSurvey().getEntryWidth()) + (channelIndex * 2);
-        return ProtocolUtils.getSubArray2(getData(), offset, getLoadSurvey().getLoadSurveyChannels()[channelIndex].getWidth());
-    }
-    
-    public AbstractRegisterType[] getChannelValues(int intervalIndex) throws IOException {
-        AbstractRegisterType[] channelValues = new AbstractRegisterType[loadSurvey.getNrOfChannels()];
-        RegisterTypeParser rtp = new RegisterTypeParser(loadSurvey.getCommandFactory().getMk10().getTimeZone());
-        AbstractRegisterType channelValue;
-        for (int channel=0;channel<loadSurvey.getNrOfChannels();channel++) {
-            char chan_type = (char)loadSurvey.getLoadSurveyChannels()[channel].getType();
-        	int chan_scaler = loadSurvey.getLoadSurveyChannels()[channel].getScaling();
-            
-            if (channel == (loadSurvey.getNrOfChannels() - 1)) channelValue = rtp.parse2Internal('C', getData(intervalIndex, channel));
-            	else channelValue = rtp.parseFromRaw(chan_type, getData(intervalIndex, channel), chan_scaler);
-        	channelValues[channel] = channelValue;
-        }
-        return channelValues;
-    }
-    
-    public LoadSurvey getLoadSurvey() {
-        return loadSurvey;
-    }
+		long interval = getLoadSurvey().getProfileInterval();
+		long first = getLoadSurvey().getFirstEntry();
+		Date loadSurveyStartDate = getLoadSurvey().getStartTime();
+		Date firstdate = new Date(loadSurveyStartDate.getTime() + (first * (interval * 1000)));
 
-    public void setLoadSurvey(LoadSurvey loadSurvey) {
-        this.loadSurvey = loadSurvey;
-    }
+		long seconds_div = (from.getTime() - firstdate.getTime()) / 1000;
+		int records = 0;
 
-    public byte[] getData() {
-        return data;
-    }
+		if (DEBUG>=1) {
+			System.out.println("KV_DEBUG> LoadSurveyData, init() getLoadSurvey()="+getLoadSurvey());
+		}
 
-    public void setData(byte[] data) {
-        this.data = data;
-    }
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		byteArrayOutputStream.reset();
 
-    public Date getFirstTimeStamp() {
-        return firstTimeStamp;
-    }
+		if (seconds_div < 0) {
+			startRecord = first;
+		} else {
+			startRecord = first + (seconds_div / interval) + 1;
+		}
 
-    public void setFirstTimeStamp(Date firstTimeStamp) {
-        this.firstTimeStamp = firstTimeStamp;
-    }
+		if (DEBUG>=1) {
+			loadSurvey.getCommandFactory().getMk10().sendDebug("From date:               " + from.toGMTString());
+			loadSurvey.getCommandFactory().getMk10().sendDebug("Survey start date:       " + loadSurveyStartDate.toGMTString());
+			loadSurvey.getCommandFactory().getMk10().sendDebug("Survey first entry:      " + first);
+			loadSurvey.getCommandFactory().getMk10().sendDebug("Survey first entry date: " + firstdate.toGMTString());
+			loadSurvey.getCommandFactory().getMk10().sendDebug("Survey entry interval:   " + interval);
+			loadSurvey.getCommandFactory().getMk10().sendDebug("seconds_div:             " + seconds_div);
+			loadSurvey.getCommandFactory().getMk10().sendDebug("startRecord:             " + startRecord);
+		}
 
-    public int getNumberOfRecords() {
-        return numberOfRecords;
-    }
+		farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(getLoadSurvey().getLoadSurveyNumber(), startRecord, 0x0001);
+		startRecord = farc.getStartRecord();
 
-    public void setNumberOfRecords(int numberOfRecords) {
-        this.numberOfRecords = numberOfRecords;
-    }
+		if (DEBUG>=1) {
+			loadSurvey.getCommandFactory().getMk10().sendDebug("new startRecord:         " + startRecord);
+		}
+
+		do {
+			farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(getLoadSurvey().getLoadSurveyNumber(), startRecord, READBUFFER);
+			startRecord += farc.getNumberOfRecords();
+			records += farc.getNumberOfRecords();
+			byteArrayOutputStream.write(farc.getData(),0,farc.getData().length);
+			if (DEBUG>=1) {
+				getLoadSurvey().getCommandFactory().getMk10().sendDebug(farc.toString());
+			}
+		} while((getLoadSurvey().getStoredEntries()  - (farc.getStartRecord() + farc.getNumberOfRecords())) > 0);
+
+		setNumberOfRecords(records);
+		setData(byteArrayOutputStream.toByteArray());
+
+		Calendar cal = ProtocolUtils.getCleanCalendar(getLoadSurvey().getCommandFactory().getMk10().getTimeZone());
+		cal.setTime(firstdate);
+		cal.add(Calendar.SECOND,(int)((getLoadSurvey().getStoredEntries() - (getNumberOfRecords() - 1)) * interval));
+		setFirstTimeStamp(cal.getTime());
+
+	} // private void init(Date from) throws IOException
+
+	public String toString() {
+		try {
+			StringBuffer strBuff = new StringBuffer();
+			strBuff.append("LoadSurveyData:\n");
+			strBuff.append("    file search:\n");
+			strBuff.append("        first record TimeStamp="+getFirstTimeStamp()+"\n");
+			strBuff.append("    file read:\n");
+			strBuff.append("        actual nr of records read:"+getNumberOfRecords()+"\n");
+			for (int interval=0;interval<getNumberOfRecords();interval++) {
+				strBuff.append("        interval "+interval+": ");
+				for (int channel=0;channel<loadSurvey.getNrOfChannels();channel++) {
+					if (getLoadSurvey().isEventLog()) {
+						strBuff.append(getChannelValues(interval)[channel].getString()+" ");
+					} else {
+						strBuff.append(getChannelValues(interval)[channel].getBigDecimal().multiply(loadSurvey.getLoadSurveyChannels()[channel].getScalingFactor())+"("+loadSurvey.getLoadSurveyChannels()[channel].getUnit()+") ");
+					}
+				}
+				strBuff.append("\n");
+			}
+			return strBuff.toString();
+		}
+		catch(IOException e) {
+			return e.toString();
+		}
+
+	} // public String toString()
+
+	// loadSurvey.getProfileInterval() == 0 --> event log!, timestamp as separate field
+
+	public int getStatus(int intervalIndex) throws IOException {
+		int offset = intervalIndex * loadSurvey.getEntryWidth();
+		return ProtocolUtils.getInt(getData(),offset,2);
+	}
+
+	private byte[] getData(int intervalIndex, int channelIndex) throws IOException {
+		int offset = (intervalIndex * getLoadSurvey().getEntryWidth()) + (channelIndex * 2);
+		return ProtocolUtils.getSubArray2(getData(), offset, getLoadSurvey().getLoadSurveyChannels()[channelIndex].getWidth());
+	}
+
+	public AbstractRegisterType[] getChannelValues(int intervalIndex) throws IOException {
+		AbstractRegisterType[] channelValues = new AbstractRegisterType[loadSurvey.getNrOfChannels()];
+		RegisterTypeParser rtp = new RegisterTypeParser(loadSurvey.getCommandFactory().getMk10().getTimeZone());
+		AbstractRegisterType channelValue;
+		for (int channel=0;channel<loadSurvey.getNrOfChannels();channel++) {
+			char chan_type = (char)loadSurvey.getLoadSurveyChannels()[channel].getType();
+			int chan_scaler = loadSurvey.getLoadSurveyChannels()[channel].getScaling();
+
+			if (channel == (loadSurvey.getNrOfChannels() - 1)) {
+				channelValue = rtp.parse2Internal('C', getData(intervalIndex, channel));
+			} else {
+				channelValue = rtp.parseFromRaw(chan_type, getData(intervalIndex, channel), chan_scaler);
+			}
+			channelValues[channel] = channelValue;
+		}
+		return channelValues;
+	}
+
+	public LoadSurvey getLoadSurvey() {
+		return loadSurvey;
+	}
+
+	public void setLoadSurvey(LoadSurvey loadSurvey) {
+		this.loadSurvey = loadSurvey;
+	}
+
+	public byte[] getData() {
+		return data;
+	}
+
+	public void setData(byte[] data) {
+		this.data = data;
+	}
+
+	public Date getFirstTimeStamp() {
+		return firstTimeStamp;
+	}
+
+	public void setFirstTimeStamp(Date firstTimeStamp) {
+		this.firstTimeStamp = firstTimeStamp;
+	}
+
+	public int getNumberOfRecords() {
+		return numberOfRecords;
+	}
+
+	public void setNumberOfRecords(int numberOfRecords) {
+		this.numberOfRecords = numberOfRecords;
+	}
 }

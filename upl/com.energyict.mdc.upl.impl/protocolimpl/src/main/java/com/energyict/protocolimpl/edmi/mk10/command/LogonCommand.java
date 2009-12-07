@@ -16,46 +16,46 @@ package com.energyict.protocolimpl.edmi.mk10.command;
  */
 public class LogonCommand extends AbstractCommand {
 
-    private String logon;
+	private String logon;
 
-    private String password;
-    
-    /** Creates a new instance of LogonCommand */
-    public LogonCommand(CommandFactory commandFactory) {
-        super(commandFactory);
-    }
-    
-    protected byte[] prepareBuild() {
-       String data = "L"+getLogon()+","+getPassword()+"\0";
-       return data.getBytes();         
-    }
-    
-    protected void parse(byte[] data) {
-        
-    }
-    
-    public String getLogon() {
-        return logon;
-    }
+	private String password;
 
-    public void setLogon(String logon) {
-        this.logon = logon;
-    }
+	/** Creates a new instance of LogonCommand */
+	public LogonCommand(CommandFactory commandFactory) {
+		super(commandFactory);
+	}
 
-    public String getPassword() {
-        return password;
-    }
+	protected byte[] prepareBuild() {
+		String data = "L"+getLogon()+","+getPassword()+"\0";
+		return data.getBytes();
+	}
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-    
+	protected void parse(byte[] data) {
 
-    public static void main(String[] args) {
-        LogonCommand lc = new LogonCommand(null);
-        lc.setLogon("koen");
-        lc.setPassword("1234");
-        lc.prepareBuild();
-        
-    }
+	}
+
+	public String getLogon() {
+		return logon;
+	}
+
+	public void setLogon(String logon) {
+		this.logon = logon;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+
+	public static void main(String[] args) {
+		LogonCommand lc = new LogonCommand(null);
+		lc.setLogon("koen");
+		lc.setPassword("1234");
+		lc.prepareBuild();
+
+	}
 }

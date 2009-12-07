@@ -15,18 +15,18 @@ package com.energyict.protocolimpl.edmi.mk10.command;
  * @author koen
  */
 public class ExitCommand extends AbstractCommand {
-    
-    /** Creates a new instance of ExitCommand */
-    public ExitCommand(CommandFactory commandFactory) {
-        super(commandFactory);
-    }
-    
-    protected byte[] prepareBuild() {
-       String data = "X";
-       return data.getBytes();         
-    }
-    
-    protected void parse(byte[] data) {
-        
-    }    
+
+	/** Creates a new instance of ExitCommand */
+	public ExitCommand(CommandFactory commandFactory) {
+		super(commandFactory);
+	}
+
+	protected byte[] prepareBuild() {
+		String data = "X";
+		return data.getBytes();
+	}
+
+	protected void parse(byte[] data) {
+
+	}
 }

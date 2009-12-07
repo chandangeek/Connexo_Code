@@ -10,9 +10,8 @@
 
 package com.energyict.protocolimpl.edmi.mk10.core;
 
-import com.energyict.protocol.*;
-import java.util.*;
-import java.io.*;
+import java.util.Date;
+import java.util.TimeZone;
 
 
 
@@ -22,31 +21,32 @@ import java.io.*;
  * @author koen
  */
 public class RegisterTypeDate extends AbstractRegisterType {
-    
-    private Date date;
-    
-    /** Creates a new instance of RegisterTypeDate */
-    public RegisterTypeDate(TimeZone timeZone, byte[] data, boolean T, boolean D) {
-        if (T & D) 
-            setDate(DateTimeBuilder.getDateFromDDMMYYHHMMSS(timeZone,data));
-        else if (T & !D)
-            setDate(DateTimeBuilder.getDateFromHHMMSS(timeZone,data));
-        else if (D & !T)
-            setDate(DateTimeBuilder.getDateFromDDMMYY(timeZone,data));
-    }
 
-    public Date getDate() {
-        return date;
-    }
+	private Date date;
 
-    public String getString() {
-        return ""+getDate();
-    }
-    
-    public void setDate(Date date) {
-        this.date = date;
-    }
-    
-    
-    
+	/** Creates a new instance of RegisterTypeDate */
+	public RegisterTypeDate(TimeZone timeZone, byte[] data, boolean T, boolean D) {
+		if (T & D) {
+			setDate(DateTimeBuilder.getDateFromDDMMYYHHMMSS(timeZone,data));
+		} else if (T & !D) {
+			setDate(DateTimeBuilder.getDateFromHHMMSS(timeZone,data));
+		} else if (D & !T) {
+			setDate(DateTimeBuilder.getDateFromDDMMYY(timeZone,data));
+		}
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public String getString() {
+		return ""+getDate();
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+
+
 }

@@ -21,14 +21,14 @@ import com.energyict.protocol.ProtocolUtils;
 public class RegisterInfo {
 
 	private static final int DEBUG = 0;
-	private List ir = new ArrayList(0);	
-	
+	private List ir = new ArrayList(0);
+
 	/*
 	 * Constructors
 	 */
 
 	public RegisterInfo() {
-		
+
 		// System information
 		add(0x0F000, "A");
 		add(0x0F001, "A");
@@ -50,20 +50,20 @@ public class RegisterInfo {
 		add(0x0F006, "C");
 
 		// Meter Power status
-		
+
 		add(0x0F03D, "T", "T");
 		add(0x0F061, "T", "T");
-		
+
 		addRange(0x0D800, 0x0D801, "L", "T");
 
 		addRange(0x0D802, 0x0D805, "L");
-		
+
 		addRange(0x0D840, 0x0D85F, "I");
 		addRange(0x0D860, 0x0D87F, "I");
 		addRange(0x0D880, 0x0D89F, "I");
-		
-}
-	
+
+	}
+
 	/*
 	 * Private inner classes
 	 */
@@ -73,7 +73,7 @@ public class RegisterInfo {
 		private String registerType			= "";
 		private String registerUnit 		= "";
 		private String registerDescription 	= "";
-		
+
 		public InfoItem(int registerID, String registerType, String registerUnit, String registerDescription) {
 			this.registerID = registerID;
 			this.registerType = registerType;
@@ -85,9 +85,9 @@ public class RegisterInfo {
 		public String getRegisterType() {return registerType;}
 		public String getRegisterUnit() {return registerUnit;}
 		public String getRegisterDescription() {return registerDescription;}
-		
+
 	}
-	
+
 	/*
 	 * Private getters, setters and methods
 	 */
@@ -95,11 +95,11 @@ public class RegisterInfo {
 	private void add(int regId, String regType, String regUnit, String regDesc) {
 		ir.add(new InfoItem(regId, regType, regUnit, regDesc));
 	}
-	
+
 	private void add(int regId, String regType, String regUnit) {
 		this.add(regId, regType, regUnit, "");
 	}
-	
+
 	private void add(int regId, String regType) {
 		this.add(regId, regType, "N", "");
 	}
@@ -109,17 +109,19 @@ public class RegisterInfo {
 			this.add(regId, regType, "N", "");
 		}
 	}
-	
+
 	private void addRange(int regIdFrom, int regIdTo, String regType, String regUnit) {
 		for (int regId = regIdFrom; regId <= regIdTo; regId++) {
 			this.add(regId, regType, regUnit, "");
 		}
 	}
-	
+
 	public InfoItem getInfoItem(int registerId) throws ProtocolException {
 		for (int i = 0; i < ir.size(); i++) {
 			InfoItem infoItem = (InfoItem) ir.get(i);
-			if (infoItem.registerID == registerId) return infoItem;
+			if (infoItem.registerID == registerId) {
+				return infoItem;
+			}
 		}
 		throw new ProtocolException("Hard coded register info not found for register " +  ProtocolUtils.buildStringHex(registerId, 5));
 	}
@@ -131,7 +133,9 @@ public class RegisterInfo {
 	public boolean isInfoHardCoded(int registerId) {
 		for (int i = 0; i < ir.size(); i++) {
 			InfoItem infoItem = (InfoItem) ir.get(i);
-			if (infoItem.registerID == registerId) return true;
+			if (infoItem.registerID == registerId) {
+				return true;
+			}
 		}
 		return false;
 	}
@@ -139,7 +143,7 @@ public class RegisterInfo {
 	public byte[] getInfoResponse(int registerId) throws IOException {
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 		InfoItem infoItem = getInfoItem(registerId);
-		
+
 		buffer.write(0x0049);
 		buffer.write((registerId & 0x0000FF00) >> 8);
 		buffer.write((registerId & 0x000000FF));
@@ -147,15 +151,17 @@ public class RegisterInfo {
 		buffer.write(infoItem.getRegisterUnit().getBytes());
 		buffer.write(infoItem.getRegisterDescription().getBytes());
 		buffer.write(0x00);
-		
-		if (DEBUG >= 1) System.out.println(" buffer = " + ProtocolUtils.getResponseData(buffer.toByteArray()));
-		
+
+		if (DEBUG >= 1) {
+			System.out.println(" buffer = " + ProtocolUtils.getResponseData(buffer.toByteArray()));
+		}
+
 		return buffer.toByteArray();
 	}
-	
+
 	/*
 	 * Public getters and setters
 	 */
 
-	
+
 }

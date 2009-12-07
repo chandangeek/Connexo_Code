@@ -10,34 +10,33 @@
 
 package com.energyict.protocolimpl.edmi.mk10.core;
 
-import java.io.*;
-import java.math.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 
-
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
  * @author koen
  */
 public class RegisterType64BitSignedLong extends AbstractRegisterType {
-    
-    private long value;
-    
-    /** Creates a new instance of RegisterType16BitsInt */
-    public RegisterType64BitSignedLong(byte[] data) throws IOException {
-       setValue(ProtocolUtils.getLong(data,0,8));        
-    }
 
-    public BigDecimal getBigDecimal() {
-        return new BigDecimal(""+value);
-    }   
-    
-    public long getValue() {
-        return value;
-    }
+	private long value;
 
-    public void setValue(long value) {
-        this.value = value;
-    }    
+	/** Creates a new instance of RegisterType16BitsInt */
+	public RegisterType64BitSignedLong(byte[] data) throws IOException {
+		setValue(ProtocolUtils.getLong(data,0,8));
+	}
+
+	public BigDecimal getBigDecimal() {
+		return new BigDecimal(""+value);
+	}
+
+	public long getValue() {
+		return value;
+	}
+
+	public void setValue(long value) {
+		this.value = value;
+	}
 }
