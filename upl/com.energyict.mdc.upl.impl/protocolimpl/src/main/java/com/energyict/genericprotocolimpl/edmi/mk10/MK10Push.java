@@ -363,7 +363,7 @@ public class MK10Push implements GenericProtocol {
 	}
 
 	public String getVersion() {
-		return "$Revision: 1.1 $";
+		return "$Revision: 1.3 $";
 	}
 
 	public void addProperties(Properties properties) {
