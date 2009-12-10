@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.modbus.socomec.a40;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -86,7 +87,7 @@ public class SocomecProfileParser {
 	 * @param channelInfoRegisters the registers read from the ModBus meter
 	 * @return a List of ChannelInfo
 	 */
-	List<ChannelInfo> parseChannelInfos(int[] channelInfoRegisters) {
+	List<ChannelInfo> parseChannelInfos(int[] channelInfoRegisters, BigDecimal multiplier) {
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		int counter = Integer.valueOf(0);
 		for(int i = 0; i < channelInfoRegisters.length; i++){
@@ -94,7 +95,7 @@ public class SocomecProfileParser {
 			if(channelInfoRegisters[i] == 1){
 				int id = counter++;
 				//TODO normally the third and fourth channel aren't WATT but var
-				channelInfos.add(new ChannelInfo(id, id, channelInfoNames[i], channelInfoUnits[i]));
+				channelInfos.add(new ChannelInfo(id, channelInfoNames[i], channelInfoUnits[i], 1, id, multiplier));
 			}
 		}
 		return channelInfos;

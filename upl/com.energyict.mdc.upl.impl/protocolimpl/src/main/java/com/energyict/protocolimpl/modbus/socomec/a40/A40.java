@@ -112,7 +112,7 @@ public class A40 extends Modbus {
      * {@inheritDoc}
      */
     public String getProtocolVersion() {
-        return "$Revision: 1.2 $";
+        return "$Date$";
     }
     
     /**

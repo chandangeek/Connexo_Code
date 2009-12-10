@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.modbus.socomec.a40;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -127,7 +128,8 @@ public class SocomecProfile {
 	 * @throws IOException if the register could not be found
 	 */
 	public List<ChannelInfo> getChannelInfos() throws IOException {
-		List<ChannelInfo> channelInfos = getProfileParser().parseChannelInfos(getChannelInforRegisters());
+		BigDecimal multiplier = this.modbus.getMultiplierFactory().getMultiplier(MultiplierFactory.CT);
+		List<ChannelInfo> channelInfos = getProfileParser().parseChannelInfos(getChannelInforRegisters(), multiplier);
 		return channelInfos;
 	}
 	

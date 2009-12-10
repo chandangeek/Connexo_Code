@@ -33,7 +33,11 @@ public class LoadProfileDecompressor {
     
     /** Creates a new instance of LoadProfileDecompressor */
     public LoadProfileDecompressor(byte[] data, TimeZone timeZone) {
-        this.data = data.clone(); 
+    	if(data != null){
+    		this.data = data.clone(); 
+    	} else {
+    		this.data = null;
+    	}
         this.timeZone=timeZone;
     }
     
