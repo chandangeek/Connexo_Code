@@ -6,10 +6,12 @@
 
 package com.energyict.protocolimpl.dlms.as220;
 
-import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.MeterEvent;
 
 
 /**
@@ -17,11 +19,11 @@ import com.energyict.protocol.*;
  * @author  Koen
  */
 public class EventNumber {
-    
+
     static final int MAINLOGBOOK=0;
     static final int VOLTAGECUTLOGBOOK=1;
     static final int COVEROGBOOK=2;
-    
+
     static List events = new ArrayList();
     static {
         events.add(new EventNumber(51,"phase 1 fail",VOLTAGECUTLOGBOOK,MeterEvent.PHASE_FAILURE));
@@ -33,16 +35,16 @@ public class EventNumber {
         events.add(new EventNumber(21,"cover opened",COVEROGBOOK,MeterEvent.OTHER));
         events.add(new EventNumber(22,"cover closed",COVEROGBOOK,MeterEvent.OTHER));
     }
-    
-    
-    
+
+
+
     private static final String[] strTypes={" (Alert)"," (Error)",""," (Error/Alert)"};
-    
+
     int type;
     int id;
     String idDescription;
     int meterEventCode;
-    
+
     /** Creates a new instance of EventLog */
     private EventNumber(int id, String idDescription, int type, int meterEventCode) {
         this.id=id;
@@ -55,21 +57,23 @@ public class EventNumber {
         Iterator it = events.iterator();
         while(it.hasNext()) {
             EventNumber en = (EventNumber)it.next();
-            if (en.getId() == id)
-                return en;
+            if (en.getId() == id) {
+				return en;
+			}
         }
-        return null; 
+        return null;
     }
-    
 
-    
+
+
     static public MeterEvent toMeterEvent(int id,Date dateTime) {
         EventNumber eventNumber = EventNumber.getEventNumber(id);
-        if (eventNumber==null) 
-        	eventNumber = new EventNumber(id,"unknown event",-1,MeterEvent.OTHER);
+        if (eventNumber==null) {
+			eventNumber = new EventNumber(id,"unknown event",-1,MeterEvent.OTHER);
+		}
         return new MeterEvent(dateTime,eventNumber.getMeterEventCode(),eventNumber.getId(),eventNumber.getIdDescription());
     }
-    
+
     /**
      * Getter for property id.
      * @return Value of property id.
@@ -77,15 +81,15 @@ public class EventNumber {
     private int getId() {
         return id;
     }
-    
+
     private int getType() {
         return type;
     }
-    
+
     private String getStrType() {
         return strTypes[getType()];
     }
-    
+
     /**
      * Setter for property id.
      * @param id New value of property id.
@@ -93,7 +97,7 @@ public class EventNumber {
     private void setId(int id) {
         this.id = id;
     }
-    
+
     /**
      * Getter for property idDescription.
      * @return Value of property idDescription.
@@ -101,7 +105,7 @@ public class EventNumber {
     private java.lang.String getIdDescription() {
         return idDescription;
     }
-    
+
     /**
      * Setter for property idDescription.
      * @param idDescription New value of property idDescription.
@@ -109,11 +113,11 @@ public class EventNumber {
     private void setIdDescription(java.lang.String idDescription) {
         this.idDescription = idDescription;
     }
-    
- 
+
+
 
 	public int getMeterEventCode() {
 		return meterEventCode;
 	}
-    
+
 }

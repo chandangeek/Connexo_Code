@@ -1,68 +1,63 @@
 package com.energyict.protocolimpl.dlms.as220;
 
-import java.util.*;
-
-import com.energyict.protocol.ProtocolUtils;
 
 public class LoadProfileCompactArrayEntry {
 
-	final int DEBUG=0;
-	
+	private static final int DEBUG=0;
+
 	int value;
 	int intervalInSeconds;
 	boolean dst;
 	boolean badTime;
-	
-	
+
 	int markerType;
 	int bit3130;
 
 	int seconds;
 	int minutes;
-	int hours;	
+	int hours;
 	int day;
 	int month;
 	int year;
-	
-	
-	
-	
+
 	final int VALUE=0;
 	final int VALUE_PARTIAL=1;
 	final int VALUE_DATE=2;
 	final int VALUE_TIME=3;
-	final int[] intervals =new int[]{600,900,1800,3600}; // in seconds 
+	final int[] intervals =new int[]{600,900,1800,3600}; // in seconds
 
-	
-	
 	public LoadProfileCompactArrayEntry(long rawValue) {
-		
+
 		bit3130 = (int)((rawValue>>30) & 0x03);
 		dst = (int)((rawValue>>21)&1) == 1;
 		badTime = (int)((rawValue>>29)&1) == 1;
-		
+
 		switch(bit3130) {
-		
-			case VALUE_PARTIAL: 	
+
+			case VALUE_PARTIAL:
 			case VALUE: {
 				value = (int)(rawValue & 0x1FFFFF);
 				intervalInSeconds = intervals[(int)((rawValue>>22)&0x3)];
 			} break;
-			
+
 			case VALUE_DATE: {
 				markerType = (int)(rawValue>>24) & 0x7;
 				day = (int)(rawValue) & 0x1F;
 				month = ((int)(rawValue>>5) & 0xF)-1;
 				year = (int)((rawValue>>9) & 0x7F)+2000;
-				if (DEBUG>=1) System.out.println("KV_DEBUG> "+day+"/"+month+"/"+year);
+				if (DEBUG>=1) {
+					System.out.println("KV_DEBUG> "+day+"/"+month+"/"+year);
+				}
 			} break;
-			
+
 			case VALUE_TIME: {
 				markerType = (int)(rawValue>>24) & 0x7;
 				seconds = (int)(rawValue) & 0x3F;
 				minutes = (int)(rawValue>>6) & 0x3F;
 				hours = (int)(rawValue>>12) & 0x1F;
-				if (DEBUG>=1) System.out.println("KV_DEBUG> "+hours+":"+minutes+":"+seconds);
+				if (DEBUG>=1) {
+					System.out.println("KV_DEBUG> "+hours+":"+minutes+":"+seconds);
+				}
 			} break;
 		}
 	}
@@ -79,7 +74,7 @@ public class LoadProfileCompactArrayEntry {
 	public boolean isTime() {
 		return bit3130 == 3;
 	}
-	
+
 	public boolean isStartOfLoadProfile() {
 		return markerType == 0;
 	}
@@ -98,15 +93,16 @@ public class LoadProfileCompactArrayEntry {
 	public boolean isChangeclockNewTime() {
 		return markerType == 5;
 	}
-	
-	
+
+
 //    public LoadProfileCompactArrayEntry() {
 //    }
 //    public static void main(String[] args) {
 //        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new LoadProfileCompactArrayEntry()));
-//    } 	
-    
-    public String toString() {
+//    }
+
+    @Override
+	public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         if ((bit3130 == VALUE) || (bit3130 == VALUE_PARTIAL)) {
@@ -126,12 +122,12 @@ public class LoadProfileCompactArrayEntry {
         }
         return strBuff.toString();
     }
-    
+
 	public int getValue() {
 		return value;
 	}
 
-	public int getIntervalInSeconds() { 
+	public int getIntervalInSeconds() {
 		return intervalInSeconds;
 	}
 
@@ -173,7 +169,7 @@ public class LoadProfileCompactArrayEntry {
 	}
 
 
-	
 
-	
+
+
 }
