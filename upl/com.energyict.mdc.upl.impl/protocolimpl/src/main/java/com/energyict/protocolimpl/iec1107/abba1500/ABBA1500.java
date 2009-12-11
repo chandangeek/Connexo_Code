@@ -1,25 +1,50 @@
 package com.energyict.protocolimpl.iec1107.abba1500;
 
 
-import java.io.*; 
-import java.util.*;
-import java.math.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 
-import com.energyict.protocol.*;
-
-import java.util.logging.*;
-import com.energyict.cbo.*;
-
-
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.vdew.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.base.DataDumpParser;
+import com.energyict.protocolimpl.base.DataParseException;
+import com.energyict.protocolimpl.base.DataParser;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.iec1107.ChannelMap;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
 
 /**
  * @version  1.0
@@ -42,18 +67,15 @@ GN|25032008|Added roundTripTime to correct the readout time when retries have oc
 JME|05012009|Added filter for CORRUPTED flag when PU or PD for firmware 3.02
 JME|05012009|Added eventTime to billingPointRegister (Obiscode = 1.1.0.1.0.255) to get the last billing reset time.
 JME|22012009|Removed break command after dataReadout, to prevent non responding meter issues.
-
  * @endchanges
  */
 public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol {
-    
-    static private final byte DEBUG = 0;
 
     private String strID;
     private String strPassword;
     private String serialNumber;
     private String mSerialNumber = null;
-    private int iIEC1107TimeoutProperty; 
+    private int iIEC1107TimeoutProperty;
     private int iProtocolRetriesProperty;
     private int iRoundtripCorrection;
     private int iSecurityLevel;
@@ -63,33 +85,30 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
     private int profileInterval;
     private ChannelMap channelMap;
     private int requestHeader;
-    ProtocolChannelMap protocolChannelMap = null;
-    private int scaler;
+    private ProtocolChannelMap protocolChannelMap = null;
     private int dataReadoutRequest;
     private long roundTripTime = 0;
-    
+
     private TimeZone timeZone;
     private Logger logger;
     private int extendedLogging;
     private int vdewCompatible;
     private String iFirmwareVersion = "";
-    
+
     FlagIEC1107Connection flagIEC1107Connection=null;
     ABBA1500Registry abba1500Registry=null;
     ABBA1500Profile abba1500Profile=null;
     ObisCode serialNumbObisCode = ObisCode.fromString("1.0.0.0.0.255");
-    
-    List registerValues=null;
-    
+
+    private List registerValues=null;
+
     byte[] dataReadout=null;
     boolean profileDateRead=false;
-    
+
     boolean software7E1;
-    
+
     int forcedDelay;
-    
-    private DataDumpParser dataDumpParser;
-    
+
     /** Creates a new instance of Abba1500, empty constructor*/
     public ABBA1500() {
     } // public Abba1500()
@@ -104,50 +123,51 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
         profileDateRead=true;
         return getAbba1500Profile().getProfileData(lastReading,includeEvents);
     }
-    
+
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException,UnsupportedException {
         profileDateRead=true;
         return getAbba1500Profile().getProfileData(from,to,includeEvents);
     }
-    
+
     public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
         throw new UnsupportedException();
     }
     public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
         throw new UnsupportedException();
-    } 
-    
+    }
+
 /**
  * This method sets the time/date in the remote meter equal to the system time/date of the machine where this object resides.
  * @exception IOException
  */
-    
+
     public void setTime() throws IOException {
         if ((getDataReadoutRequest()!=2) || profileDateRead) {
-           if (vdewCompatible == 1)
-               setTimeVDEWCompatible();
-           else
-               setTimeAlternativeMethod();
+           if (vdewCompatible == 1) {
+			setTimeVDEWCompatible();
+		} else {
+			setTimeAlternativeMethod();
+		}
         }
     }
-    
+
     private void setTimeAlternativeMethod() throws IOException {
        Calendar calendar=null;
        calendar = ProtocolUtils.getCalendar(timeZone);
-       calendar.add(Calendar.MILLISECOND,iRoundtripCorrection); 
+       calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);
        Date date = calendar.getTime();
        getAbba1500Registry().setRegister("TimeDate2",date);
     } // public void setTime() throws IOException
-    
+
     private void setTimeVDEWCompatible() throws IOException {
        Calendar calendar=null;
        calendar = ProtocolUtils.getCalendar(timeZone);
-       calendar.add(Calendar.MILLISECOND,iRoundtripCorrection); 
+       calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);
        Date date = calendar.getTime();
        getAbba1500Registry().setRegister("Time",date);
        getAbba1500Registry().setRegister("Date",date);
     } // public void setTime() throws IOException
-    
+
     public Date getTime() throws IOException {
         if ((getDataReadoutRequest()!=2) | profileDateRead) {
         	roundTripTime = Calendar.getInstance().getTime().getTime();
@@ -155,41 +175,43 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
             roundTripTime = Calendar.getInstance().getTime().getTime() - roundTripTime;
 //            return new Date(date.getTime()-iRoundtripCorrection);
             return new Date(date.getTime()-roundTripTime);
-        }
-        else return new Date();
+        } else {
+			return new Date();
+		}
     }
-    
+
     public byte getLastProtocolState(){
         return -1;
     }
-    
+
     /************************************** MeterProtocol implementation ***************************************/
-    
+
     /** this implementation calls <code> validateProperties </code>
      * and assigns the argument to the properties field
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
      * @see AbstractMeterProtocol#validateProperties
-     */    
+     */
     public void setProperties(Properties properties) throws MissingPropertyException , InvalidPropertyException {
         validateProperties(properties);
     }
-    
+
     /** <p>validates the properties.</p><p>
      * The default implementation checks that all required parameters are present.
      * </p>
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
-     */    
+     */
     private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
             Iterator iterator= getRequiredKeys().iterator();
-            while (iterator.hasNext()) { 
+            while (iterator.hasNext()) {
                 String key = (String) iterator.next();
-                if (properties.getProperty(key) == null)
-                    throw new MissingPropertyException (key + " key missing");
+                if (properties.getProperty(key) == null) {
+					throw new MissingPropertyException (key + " key missing");
+				}
             }
             strID = properties.getProperty(MeterProtocol.ADDRESS);
             strPassword = properties.getProperty(MeterProtocol.PASSWORD);
@@ -204,7 +226,6 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
             channelMap = new ChannelMap(properties.getProperty("ChannelMap","0"));
             requestHeader=Integer.parseInt(properties.getProperty("RequestHeader","1").trim());
             protocolChannelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap","0,0,0,0"));
-            scaler = Integer.parseInt(properties.getProperty("Scaler","0").trim());
             dataReadoutRequest = Integer.parseInt(properties.getProperty("DataReadout","0").trim());
             extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0").trim());
             vdewCompatible=Integer.parseInt(properties.getProperty("VDEWCompatible","1").trim());
@@ -212,31 +233,32 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
             serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
             iFirmwareVersion = properties.getProperty("FirmwareVersion", "3.03").trim();
             this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
-            
-            if (!iFirmwareVersion.equalsIgnoreCase("3.03") && !iFirmwareVersion.equalsIgnoreCase("3.02"))
-            	throw new InvalidPropertyException("Invalid value for FirmwareVersion: " + iFirmwareVersion + "! Valid FirmwareVersion values are '3.02' and '3.03'.");
-            
+
+            if (!iFirmwareVersion.equalsIgnoreCase("3.03") && !iFirmwareVersion.equalsIgnoreCase("3.02")) {
+				throw new InvalidPropertyException("Invalid value for FirmwareVersion: " + iFirmwareVersion + "! Valid FirmwareVersion values are '3.02' and '3.03'.");
+			}
+
         }
         catch (NumberFormatException e) {
-           throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
+           throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());
         }
-        
+
     }
-    
+
 //    private boolean isDataReadout() {
 //        return (dataReadoutRequest == 1);
 //    }
     private int getDataReadoutRequest() {
         return dataReadoutRequest;
     }
-    
+
     /** this implementation throws UnsupportedException. Subclasses may override
      * @param name <br>
      * @return the register value
      * @throws IOException <br>
      * @throws UnsupportedException <br>
      * @throws NoSuchRegisterException <br>
-     */    
+     */
     public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
        byteArrayOutputStream.write(name.getBytes());
@@ -244,37 +266,37 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
        byte[] data = flagIEC1107Connection.receiveRawData();
        return new String(data);
     }
-    
+
     /** this implementation throws UnsupportedException. Subclasses may override
      * @param name <br>
      * @param value <br>
      * @throws IOException <br>
      * @throws NoSuchRegisterException <br>
      * @throws UnsupportedException <br>
-     */    
+     */
     public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
         getAbba1500Registry().setRegister(name,value);
-    }    
+    }
 
     /** this implementation throws UnsupportedException. Subclasses may override
      * @throws IOException <br>
      * @throws UnsupportedException <br>
-     */    
+     */
     public void initializeDevice() throws IOException, UnsupportedException {
         throw new UnsupportedException();
     }
-    
+
     /** the implementation returns both the address and password key
      * @return a list of strings
-     */    
+     */
     public List getRequiredKeys() {
         List result = new ArrayList(0);
         return result;
     }
-     
+
     /** this implementation returns an empty list
      * @return a list of strings
-     */    
+     */
     public List getOptionalKeys() {
         List result = new ArrayList();
         result.add("Timeout");
@@ -297,22 +319,22 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
     public String getProtocolVersion() {
         return "$Revision: 1.38 $";
     }
-    
+
     public String getFirmwareVersion() throws IOException,UnsupportedException {
         return ("Unknown");
     } // public String getFirmwareVersion()
-    
+
     /** initializes the receiver
      * @param inputStream <br>
      * @param outputStream <br>
      * @param timeZone <br>
      * @param logger <br>
-     */    
+     */
     public void init(InputStream inputStream,OutputStream outputStream,TimeZone timeZone,Logger logger)
     {
         this.timeZone = timeZone;
-        this.logger = logger;     
-        
+        this.logger = logger;
+
         try {
            flagIEC1107Connection=new FlagIEC1107Connection(inputStream,outputStream,iIEC1107TimeoutProperty,iProtocolRetriesProperty,forcedDelay,iEchoCancelling,iIEC1107Compatible,software7E1);
            abba1500Registry = new ABBA1500Registry(this,this);
@@ -322,55 +344,59 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
         catch(ConnectionException e) {
            logger.severe ("ABBA1500: init(...), "+e.getMessage());
         }
-        
+
     } // public void init(InputStream inputStream,OutputStream outputStream,TimeZone timeZone,Logger logger)
-    
+
     /**
-     * @throws IOException  */    
+     * @throws IOException  */
     public void connect() throws IOException {
        try {
           if ((getFlagIEC1107Connection().getHhuSignOn() == null) && (getDataReadoutRequest()==1)) {
               dataReadout = flagIEC1107Connection.dataReadout(strID,nodeId);
 				// ABBA1500 doesn't respond after sending a break in dataReadoutMode, so disconnect without sending break
-				flagIEC1107Connection.disconnectMACWithoutBreak();  
+				flagIEC1107Connection.disconnectMACWithoutBreak();
           }
-          
+
           flagIEC1107Connection.connectMAC(strID,strPassword,iSecurityLevel,nodeId);
-          
-          
-          if ((getFlagIEC1107Connection().getHhuSignOn()!=null)  && (getDataReadoutRequest()==1))
-               dataReadout = getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
-          
-          if (!verifyMeterSerialNR()) 
-              throw new IOException("ABB A1500, connect, Wrong SerialNR!, EISerialNumber="+serialNumber+", MeterSerialNumber="+getSerialNumber());
+
+
+          if ((getFlagIEC1107Connection().getHhuSignOn()!=null)  && (getDataReadoutRequest()==1)) {
+			dataReadout = getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
+		}
+
+          if (!verifyMeterSerialNR()) {
+			throw new IOException("ABB A1500, connect, Wrong SerialNR!, EISerialNumber="+serialNumber+", MeterSerialNumber="+getSerialNumber());
+		}
        }
        catch(FlagIEC1107ConnectionException e) {
           throw new IOException(e.getMessage());
        }
-       
-       if (extendedLogging >= 1) 
-          getRegistersInfo();
-       
+
+       if (extendedLogging >= 1) {
+		getRegistersInfo();
+	}
+
     }
-    
+
     private String getSerialNumber() throws IOException {
     	if ( mSerialNumber == null ){
     		RegisterValue serialInfo = readRegister(serialNumbObisCode);
     		mSerialNumber = serialInfo.getText();
     	}
 
-		return mSerialNumber; 
+		return mSerialNumber;
 	}
 
 	private boolean verifyMeterSerialNR() throws IOException {
-        if ((serialNumber == null) || 
-        		("".compareTo(serialNumber)==0) || 
-        		(serialNumber.compareTo(getSerialNumber()) == 0))
-            return true;
-        else 
-            return false;
+        if ((serialNumber == null) ||
+        		("".compareTo(serialNumber)==0) ||
+        		(serialNumber.compareTo(getSerialNumber()) == 0)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
-    
+
     public void disconnect() throws IOException {
        try {
           flagIEC1107Connection.disconnectMAC();
@@ -379,41 +405,43 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
           logger.severe("disconnect() error, "+e.getMessage());
        }
     }
-    
+
     public int getNumberOfChannels() throws UnsupportedException, IOException {
-        if (requestHeader == 1)
-            return getAbba1500Profile().getProfileHeader().getNrOfChannels();
-        else
-            return getProtocolChannelMap().getNrOfProtocolChannels();
+        if (requestHeader == 1) {
+			return getAbba1500Profile().getProfileHeader().getNrOfChannels();
+		} else {
+			return getProtocolChannelMap().getNrOfProtocolChannels();
+		}
     }
-    
+
     public int getProfileInterval() throws UnsupportedException, IOException {
-        if (requestHeader == 1)
-           return getAbba1500Profile().getProfileHeader().getProfileInterval();
-        else
-           return profileInterval; 
+        if (requestHeader == 1) {
+			return getAbba1500Profile().getProfileHeader().getProfileInterval();
+		} else {
+			return profileInterval;
+		}
     }
-    
+
 
     // Implementation of interface ProtocolLink
     public FlagIEC1107Connection getFlagIEC1107Connection() {
         return flagIEC1107Connection;
     }
-    
+
     public TimeZone getTimeZone() {
         return timeZone;
     }
-    
+
     public boolean isIEC1107Compatible() {
         return (iIEC1107Compatible == 1);
     }
-    
+
     public String getPassword() {
        return strPassword;
     }
 
     public byte[] getDataReadout() {
-        
+
        if ((dataReadout == null) && (getDataReadoutRequest()==2)) {
            try {
                flagIEC1107Connection.disconnectMAC();
@@ -421,46 +449,46 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
                    Thread.sleep(2000);
                }
                catch(InterruptedException e) {
-                   throw new NestedIOException(e); 
-               }                  
+                   throw new NestedIOException(e);
+               }
                dataReadout = flagIEC1107Connection.dataReadout(strID,nodeId);
                try {
                    Thread.sleep(2000);
                }
                catch(InterruptedException e) {
-                   throw new NestedIOException(e); 
-               }    
+                   throw new NestedIOException(e);
+               }
            }
            catch(IOException e) {
                getLogger().severe("getDataReadout(), error reading datareadout, "+e.toString());
            }
-       } 
-       return dataReadout;    
+       }
+       return dataReadout;
     }
-    
+
     public Object getCache() {
         return null;
     }
     public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
         return null;
     }
-    
+
     public void setCache(Object cacheObject) {
     }
-    
+
     public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
     }
-    
+
     public ChannelMap getChannelMap() {
         return channelMap;
     }
     public void release() throws IOException {
     }
-    
+
     public Logger getLogger() {
         return logger;
     }
-    
+
     static Map exceptionInfoMap = new HashMap();
     static {
        exceptionInfoMap.put("ERROR","Request could not execute!");
@@ -470,16 +498,17 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
 
     public String getExceptionInfo(String id) {
         String exceptionInfo = (String)exceptionInfoMap.get(ProtocolUtils.stripBrackets(id));
-        if (exceptionInfo != null)
-           return id+", "+exceptionInfo;
-        else
-           return "No meter specific exception info for "+id; 
-    }    
-    
+        if (exceptionInfo != null) {
+			return id+", "+exceptionInfo;
+		} else {
+			return "No meter specific exception info for "+id;
+		}
+    }
+
     public int getNrOfRetries() {
         return iProtocolRetriesProperty;
-    }    
-   
+    }
+
     /**
      * Getter for property requestHeader.
      * @return Value of property requestHeader.
@@ -487,21 +516,21 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
     public boolean isRequestHeader() {
         return requestHeader==1;
     }
-    
+
     public com.energyict.protocolimpl.base.ProtocolChannelMap getProtocolChannelMap() {
         return protocolChannelMap;
-    }    
-    
+    }
+
     public RegisterValue readRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
         if (obisCode.getF() != 255) {
             RegisterValue billingPointRegister = doReadRegister(ObisCode.fromString("1.1.0.1.0.255"), false);
             int billingPoint = billingPointRegister.getQuantity().intValue();
             int VZ = Math.abs(obisCode.getF());
             obisCode = new ObisCode(obisCode.getA(),obisCode.getB(),obisCode.getC(),obisCode.getD(),obisCode.getE(),billingPoint-VZ);
-            
+
             // read the non billing register to reuse the unit in case of billingpoints...
             try {
-            	doReadRegister(new ObisCode(obisCode.getA(),obisCode.getB(),obisCode.getC(),obisCode.getD(),obisCode.getE(),255),false); 
+            	doReadRegister(new ObisCode(obisCode.getA(),obisCode.getB(),obisCode.getC(),obisCode.getD(),obisCode.getE(),255),false);
             }
             catch(NoSuchRegisterException e) {
             	// absorb if not exist...
@@ -514,11 +543,11 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
             catch(NoSuchRegisterException e) {
             	// absorb if not exist...
             }
-            
+
         } // if (obisCode.getF() != 255)
 
-        
-        // JME:	Special case for obiscode == 1.1.0.1.0.255 (billing point): 
+
+        // JME:	Special case for obiscode == 1.1.0.1.0.255 (billing point):
         //		Read the date of the billing reset and apply it to the billingPointRegister as eventTime
         if (obisCode.toString().equalsIgnoreCase("1.1.0.1.0.255")) {
         	RegisterValue billingPointRegister = doReadRegister(ObisCode.fromString("1.1.0.1.0.255"), false);
@@ -529,43 +558,44 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
         		reg_date = doReadRegister(new ObisCode(1,1,0,1,2,billingPoint),true);
         		if (reg_date != null) {
         			billingPointRegister = new RegisterValue(
-        					billingPointRegister.getObisCode(), 
-        					billingPointRegister.getQuantity(), 
+        					billingPointRegister.getObisCode(),
+        					billingPointRegister.getQuantity(),
         					reg_date.getToTime(), // eventTime from billing point
-        					billingPointRegister.getFromTime(), 
-        					billingPointRegister.getToTime(), 
-        					billingPointRegister.getReadTime(), 
-        					billingPointRegister.getRtuRegisterId(), 
+        					billingPointRegister.getFromTime(),
+        					billingPointRegister.getToTime(),
+        					billingPointRegister.getReadTime(),
+        					billingPointRegister.getRtuRegisterId(),
         					billingPointRegister.getText()
         			);
         		}
         	} catch (NoSuchRegisterException e) {
         		// absorb if not exist...
-        	} 
+        	}
 
         	return billingPointRegister;
         }
-        
-        return doReadRegister(obisCode, false); 
-    }    
-    
+
+        return doReadRegister(obisCode, false);
+    }
+
     private RegisterValue doReadRegister(ObisCode obisCode,boolean billingTimestamp) throws IOException {
     	RegisterValue registerValue =  findRegisterValue(obisCode);
         if (registerValue == null) {
-            if (billingTimestamp)
-                registerValue = doTheReadBillingRegisterTimestamp(obisCode); 
-            else
-                registerValue = doTheReadRegister(obisCode); 
+            if (billingTimestamp) {
+				registerValue = doTheReadBillingRegisterTimestamp(obisCode);
+			} else {
+				registerValue = doTheReadRegister(obisCode);
+			}
             registerValues.add(registerValue);
         }
-        return registerValue; 
+        return registerValue;
     }
 
     private byte[] readRegisterData(ObisCode obisCode) throws IOException {
           String edisNotation = obisCode.getC()+"."+obisCode.getD()+"."+obisCode.getE()+(obisCode.getF()==255?"":"*"+ProtocolUtils.buildStringDecimal(Math.abs(obisCode.getF()),2));
           byte[] data = null;
           if (getDataReadoutRequest()==0) {
-              String name = edisNotation+"(;)"; 
+              String name = edisNotation+"(;)";
               ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
               byteArrayOutputStream.write(name.getBytes());
               flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5,byteArrayOutputStream.toByteArray());
@@ -573,14 +603,15 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
           }
           else {
               DataDumpParser ddp = new DataDumpParser(getDataReadout());
-              if (edisNotation.indexOf("97.97.0") >=0)
-                  data = ddp.getRegisterFFStrValue("F.F").getBytes();
-              else
-                  data = ddp.getRegisterStrValue(edisNotation).getBytes();
+              if (edisNotation.indexOf("97.97.0") >=0) {
+				data = ddp.getRegisterFFStrValue("F.F").getBytes();
+			} else {
+				data = ddp.getRegisterStrValue(edisNotation).getBytes();
+			}
           }
           return data;
     }
-    
+
     private Quantity parseQuantity(byte[] data) throws IOException {
         DataParser dp = new DataParser(getTimeZone());
         Quantity quantity = dp.parseQuantityBetweenBrackets(data,0,0);
@@ -592,8 +623,9 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
             DataParser dp = new DataParser(getTimeZone());
             VDEWTimeStamp vts = new VDEWTimeStamp(getTimeZone());
             String dateStr = dp.parseBetweenBrackets(data,0,pos);
-            if ("".compareTo(dateStr)==0)
-                return null;
+            if ("".compareTo(dateStr)==0) {
+				return null;
+			}
             vts.parse(dateStr);
             date = vts.getCalendar().getTime();
             return date;
@@ -603,38 +635,38 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
             return null;
         }
     }
-    
+
     private RegisterValue doTheReadRegister(ObisCode obisCode) throws IOException {
        try {
-          
+
           byte[] data = readRegisterData(obisCode);
-          
+
           if (obisCode.equals(serialNumbObisCode)){
         	  String text = parseText(data);
         	  return new RegisterValue(obisCode,null,null,null,null,null,0,text);
           }
-          
+
           Quantity quantity = parseQuantity(data);
           Date date = parseDate(data,1);
-          Date billlingDate = null; 
-          
+          Date billlingDate = null;
+
           // in case of unitless AND billing register
           // find the non billing register and use that unit if the non billing register exist
           // also find the timestamp for that billingpoint and add it to the registervalue
           if ((quantity.getBaseUnit().getDlmsCode()==BaseUnit.UNITLESS) && (obisCode.getF() != 255)) {
-              
-              
+
+
               RegisterValue registerValue =  findRegisterValue(new ObisCode(obisCode.getA(),obisCode.getB(),obisCode.getC(),obisCode.getD(),obisCode.getE(),255));
               if (registerValue != null) {
-                  quantity = new Quantity(quantity.getAmount(),registerValue.getQuantity().getUnit());        
+                  quantity = new Quantity(quantity.getAmount(),registerValue.getQuantity().getUnit());
               }
-              
+
               registerValue =  findRegisterValue(new ObisCode(1,1,0,1,2,obisCode.getF()));
               if (registerValue != null) {
                   billlingDate = registerValue.getToTime();
               }
           }
-          
+
           return new RegisterValue(obisCode,quantity,date,billlingDate);
        }
        catch(NoSuchRegisterException e) {
@@ -652,7 +684,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
            throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
        }
     }
-    
+
     private String parseText(byte[] data) throws IOException {
         DataParser dp = new DataParser(getTimeZone());
         String text = dp.parseBetweenBrackets(data,0,0);
@@ -662,9 +694,9 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
 	private RegisterValue doTheReadBillingRegisterTimestamp(ObisCode obisCode) throws IOException {
        try {
           byte[] data = readRegisterData(obisCode);
-          
-//System.out.println(new String(data));          
-          
+
+//System.out.println(new String(data));
+
           Date date = parseDate(data,0);
           return new RegisterValue(obisCode,null,null,date);
        }
@@ -683,7 +715,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
            throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
        }
     }
-    
+
     private RegisterValue findRegisterValue(com.energyict.obis.ObisCode obisCode) {
         if (registerValues==null) {
             registerValues = new ArrayList();
@@ -699,12 +731,12 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
         }
         return null;
     }
-    
-    
+
+
     public RegisterInfo translateRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
         return new RegisterInfo(obisCode.getDescription());
     }
-    
+
     private void getRegistersInfo() throws IOException {
         StringBuffer strBuff = new StringBuffer();
         if (getDataReadoutRequest()==1) {
@@ -719,15 +751,15 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
         }
         logger.info(strBuff.toString());
     }
-    
-    
+
+
     // ********************************************************************************************************
     // implementation of the HHUEnabler interface
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
         enableHHUSignOn(commChannel,getDataReadoutRequest()==1);
     }
     public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
-        HHUSignOn hhuSignOn = (HHUSignOn)new IEC1107HHUConnection(commChannel,iIEC1107TimeoutProperty,iProtocolRetriesProperty,300,iEchoCancelling);
+        HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel,iIEC1107TimeoutProperty,iProtocolRetriesProperty,300,iEchoCancelling);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
         hhuSignOn.enableDataReadout(datareadout);
@@ -735,8 +767,8 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
     }
     public byte[] getHHUDataReadout() {
         return getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
-    }    
-    
+    }
+
     /**
      * Getter for property abba1500Registry.
      * @return Value of property abba1500Registry.
@@ -744,7 +776,7 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
     public com.energyict.protocolimpl.iec1107.abba1500.ABBA1500Registry getAbba1500Registry() {
         return abba1500Registry;
     }
-    
+
     /**
      * Getter for property abba1500Profile.
      * @return Value of property abba1500Profile.
@@ -756,5 +788,5 @@ public class ABBA1500 implements MeterProtocol, HHUEnabler, ProtocolLink, MeterE
 	public String getIFirmwareVersion() {
 		return iFirmwareVersion;
 	}
-    
+
 } // public class ABBA1500 implements MeterProtocol {
