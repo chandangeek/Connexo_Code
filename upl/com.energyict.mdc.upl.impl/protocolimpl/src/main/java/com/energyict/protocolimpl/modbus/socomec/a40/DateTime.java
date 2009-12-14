@@ -106,7 +106,7 @@ public class DateTime {
 	private static DateTime createDateTime(){
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		cal.set(year, (month-1), day, hour, minutes, seconds);
-		cal.set(Calendar.MILLISECOND, Integer.valueOf(0));
+		cal.set(Calendar.MILLISECOND, Integer.parseInt("0"));
 		return new DateTime(cal);
 	}
 }

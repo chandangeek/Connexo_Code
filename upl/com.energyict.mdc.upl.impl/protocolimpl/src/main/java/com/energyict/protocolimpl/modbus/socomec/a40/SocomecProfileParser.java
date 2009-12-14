@@ -41,7 +41,7 @@ public class SocomecProfileParser {
 	/** The current intervalDate */
 	private Calendar intervalDate;
 	/** The current memoryPointer */
-	private Integer memoryPointer;
+	private int memoryPointer;
 	/** The current profileInterval */
 	private Integer profileInterval;
 	
@@ -72,7 +72,7 @@ public class SocomecProfileParser {
 	 */
 	Integer parseProfileInterval(int[] registers) throws UnsupportedException{
 		if(registers.length == 1){
-			setIntervalLength(Integer.valueOf(registers[0]));
+			setIntervalLength(registers[0]);
 			return this.profileInterval;
 		} else {
 			throw new UnsupportedException("ProfileInterval not supported.");
@@ -89,7 +89,7 @@ public class SocomecProfileParser {
 	 */
 	List parseChannelInfos(int[] channelInfoRegisters, BigDecimal multiplier) {
 		List channelInfos = new ArrayList();
-		int counter = Integer.valueOf(0);
+		int counter = Integer.parseInt("0");
 		for(int i = 0; i < channelInfoRegisters.length; i++){
 			if(channelInfoRegisters[i] == 1){
 				int id = counter++;
@@ -108,7 +108,7 @@ public class SocomecProfileParser {
 	 */
 	int parseEnergyPointer(int[] pointer) throws UnsupportedException {
 		if(pointer.length == 1){
-			return Integer.valueOf(pointer[0]);
+			return pointer[0];
 		} else {
 			throw new UnsupportedException("ProfileInterval not supported.");
 		}
@@ -193,7 +193,7 @@ public class SocomecProfileParser {
 				//Add a powerUp event
 				Calendar eventDate = DateTime.parseProfileDateTime(ParseUtils.getSubArray(this.virtualMemory, this.memoryPointer-2, 3)).getMeterCalender();
 				addMeterEvents(new MeterEvent(eventDate.getTime(), MeterEvent.POWERUP));
-				ParseUtils.roundUp2nearestInterval(eventDate, this.profileInterval);
+				ParseUtils.roundUp2nearestInterval(eventDate, this.profileInterval.intValue());
 				setLastUpdate(eventDate.getTime());
 				
 				this.memoryPointer -= 3; //This can cause a negative value
@@ -207,7 +207,7 @@ public class SocomecProfileParser {
 				//Add a powerDown event
 				Calendar eventDate = DateTime.parseProfileDateTime(ParseUtils.getSubArray(this.virtualMemory, this.memoryPointer-2, 3)).getMeterCalender();
 				addMeterEvents(new MeterEvent(eventDate.getTime(), MeterEvent.POWERDOWN));
-				ParseUtils.roundDown2nearestInterval(eventDate, this.profileInterval);
+				ParseUtils.roundDown2nearestInterval(eventDate, this.profileInterval.intValue());
 				setLastUpdate(eventDate.getTime());
 				
 				this.memoryPointer -= 3; //This can cause a negative value
@@ -241,7 +241,7 @@ public class SocomecProfileParser {
     private void applyEvent(MeterEvent event) {
         Iterator intervalIterator = this.intervalDatas.iterator();
         while (intervalIterator.hasNext()) {
-            ((IntervalData) intervalIterator.next()).apply(event, this.profileInterval/60);
+            ((IntervalData) intervalIterator.next()).apply(event, this.profileInterval.intValue()/60);
         }
     }
 	
@@ -252,11 +252,11 @@ public class SocomecProfileParser {
 		if(!intervalExists()){
 			int value = this.virtualMemory[this.memoryPointer];
 			IntervalData id = new IntervalData(this.intervalDate.getTime());
-			id.addValue(value);
+			id.addValue(new BigDecimal(value));
 			this.intervalDatas.add(id);
 		}
 		this.memoryPointer--;
-		this.intervalDate.add(Calendar.SECOND, -this.profileInterval);
+		this.intervalDate.add(Calendar.SECOND, -this.profileInterval.intValue());
 	}
 	
 	/**
@@ -318,7 +318,7 @@ public class SocomecProfileParser {
 			/* It's a bit nasty thing to do but we need to add the memoryBlocks at the start
 			 * of the virtualMemory.
 			 */
-			int[] tempVirtualMemory = this.virtualMemory.clone();
+			int[] tempVirtualMemory = (int[])this.virtualMemory.clone();
 			this.virtualMemory = new int[memoryBlocks.length + tempVirtualMemory.length];
 			System.arraycopy(memoryBlocks, 0, this.virtualMemory, 0, memoryBlocks.length);
 			System.arraycopy(tempVirtualMemory, 0, this.virtualMemory, memoryBlocks.length, tempVirtualMemory.length);
@@ -349,7 +349,7 @@ public class SocomecProfileParser {
 	 * @param profileInterval - the current profileInterval
 	 */
 	void setIntervalLength(int profileInterval) {
-		this.profileInterval = profileInterval;
+		this.profileInterval = new Integer(profileInterval);
 	}
 	
 	/**

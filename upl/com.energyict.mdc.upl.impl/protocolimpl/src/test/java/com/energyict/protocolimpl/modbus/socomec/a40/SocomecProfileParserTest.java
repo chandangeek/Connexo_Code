@@ -219,9 +219,9 @@ public class SocomecProfileParserTest {
 
 			/* Test the meterEvents */
 			assertEquals(6, profileParser.getMeterEvents().size());
-			assertEquals(profileParser.getMeterEvents().get(0).getEiCode(),
+			assertEquals(((MeterEvent) profileParser.getMeterEvents().get(0)).getEiCode(),
 					MeterEvent.POWERUP);
-			assertEquals(profileParser.getMeterEvents().get(5).getEiCode(),
+			assertEquals(((MeterEvent) profileParser.getMeterEvents().get(5)).getEiCode(),
 					MeterEvent.POWERDOWN);
 
 			/* Check the intervalStatusses */

@@ -118,7 +118,7 @@ public class SocomecProfile {
 		if(profileInterval == null){
 			profileInterval = getProfileParser().parseProfileInterval(findRegister(RegisterFactory.profileInterval).getReadHoldingRegistersRequest().getRegisters());
 		}
-		return profileInterval;
+		return profileInterval.intValue();
 	}
 	
 	/**
@@ -279,9 +279,9 @@ public class SocomecProfile {
 	protected int getActiveEnergyPointer() throws UnsupportedException, IOException{
 		if(this.activeEnergyPointer == null){
 			int[] aePointer = findRegister(RegisterFactory.aePointer).getReadHoldingRegistersRequest().getRegisters();
-			this.activeEnergyPointer = getProfileParser().parseEnergyPointer(aePointer);
+			this.activeEnergyPointer = new Integer(getProfileParser().parseEnergyPointer(aePointer));
 		} 
-		return this.activeEnergyPointer;
+		return this.activeEnergyPointer.intValue();
 	}
 	
 	/**
@@ -292,9 +292,9 @@ public class SocomecProfile {
 	protected int getReactiveEnergyPointer() throws UnsupportedException, IOException{
 		if(this.reActiveEnergyPointer == null){
 			int[] rePointer = findRegister(RegisterFactory.rePointer).getReadHoldingRegistersRequest().getRegisters();
-			this.reActiveEnergyPointer = getProfileParser().parseEnergyPointer(rePointer);
+			this.reActiveEnergyPointer = new Integer(getProfileParser().parseEnergyPointer(rePointer));
 		}
-		return this.reActiveEnergyPointer;
+		return this.reActiveEnergyPointer.intValue();
 	}
 
 	/**
