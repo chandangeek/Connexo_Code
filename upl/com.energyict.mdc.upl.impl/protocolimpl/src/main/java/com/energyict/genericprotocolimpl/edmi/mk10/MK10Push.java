@@ -1,15 +1,12 @@
 /**
  * MK10Push.java
- * 
+ *
  * Created on 8-jan-2009, 12:47:25 by jme
- * 
+ *
  */
 package com.energyict.genericprotocolimpl.edmi.mk10;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,17 +33,16 @@ import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
 import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.base.CRCGenerator;
 
 /**
  * @author jme
- * 
+ *
  * JME|14102009|Quick fix for ImServ. They have a meter with a different discovery packet. (See MK10InputStreamParser.java)
- * 
+ *
  */
 public class MK10Push implements GenericProtocol {
 
@@ -79,6 +75,10 @@ public class MK10Push implements GenericProtocol {
 
 	private long getConnectTime() {
 		return connectTime;
+	}
+
+	public void setConnectTime(long connectTime) {
+		this.connectTime = connectTime;
 	}
 
 	private long getDisconnectTime() {
@@ -121,13 +121,13 @@ public class MK10Push implements GenericProtocol {
 		return returnValue;
 	}
 
-	private void addLogging(int completionCode, String completionMessage, List journal, boolean success, Exception exception) throws SQLException, BusinessException {
+	private void addLogging(int completionCode, String completionMessage, List<AmrJournalEntry> journal, boolean success, Exception exception) throws SQLException, BusinessException {
 		sendDebug("** addLogging **", 2);
 
 		// check if there was an protocol or timeout error
 		if (!success && (completionCode == AmrJournalEntry.CC_OK)) {
 			if (exception != null) {
-				if (exception.getMessage().indexOf("timeout") != -1) {
+				if ((exception.getMessage() != null) && (exception.getMessage().indexOf("timeout") != -1)) {
 					completionCode = AmrJournalEntry.CC_IOERROR;
 				} else {
 					completionCode = AmrJournalEntry.CC_PROTOCOLERROR;
@@ -140,13 +140,12 @@ public class MK10Push implements GenericProtocol {
 			while(it.hasNext()){
 				CommunicationScheduler cs = (CommunicationScheduler)it.next();
 				if( !cs.getActive() ){
-					cs.startCommunication();
 					AMRJournalManager amrjm = new AMRJournalManager(getMeter(), cs);
 					amrjm.journal(new AmrJournalEntry(completionCode));
-					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - getConnectTime())/1000));
+					amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(getDisconnectTime() - getConnectTime())/1000));
 
 					for (int i = 0; i < journal.size(); i++) {
-						AmrJournalEntry amrJournalEntry = (AmrJournalEntry) journal.get(i);
+						AmrJournalEntry amrJournalEntry = journal.get(i);
 						amrjm.journal(amrJournalEntry);
 					}
 
@@ -160,7 +159,7 @@ public class MK10Push implements GenericProtocol {
 						amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, "Exception: " + exception.toString()));
 					}
 
-					if (completionCode == AmrJournalEntry.CC_OK) {
+					if (success) {
 						sendDebug("** updateLastCommunication **", 3);
 						amrjm.updateLastCommunication();
 					} else {
@@ -169,9 +168,28 @@ public class MK10Push implements GenericProtocol {
 					}
 					break;
 				}
+				clearNextCommunicationDate(cs);
 			}
-		}else{
+		} else {
 			getLogger().log(Level.INFO, "Failed to enter an AMR journal entry.");
+		}
+	}
+
+	private void clearNextCommunicationDate(CommunicationScheduler cs) throws SQLException, BusinessException {
+		CommunicationSchedulerShadow shadow = cs.getShadow();
+		shadow.setNextCommunication(null);
+		cs.update(shadow);
+	}
+
+	private void startCommunication() throws SQLException, BusinessException {
+		if(getMeter() != null){
+			Iterator it = getMeter().getCommunicationSchedulers().iterator();
+			while(it.hasNext()){
+				CommunicationScheduler cs = (CommunicationScheduler)it.next();
+				if( !cs.getActive() ){
+					cs.startCommunication(cs.getComPortId());
+				}
+			}
 		}
 	}
 
@@ -191,21 +209,6 @@ public class MK10Push implements GenericProtocol {
 		}
 
 		return null;
-	}
-
-	private void initMk10Protocol(Rtu rtu) throws IOException {
-
-		//		this.properties = rtu.getProperties();
-		//
-		//		getProperties().put(MeterProtocol.ADDRESS, getMeter().getDeviceId());
-		//		getProperties().put(MeterProtocol.PASSWORD, getMeter().getPassword());
-		//		getProperties().put(MeterProtocol.NODEID, getMeter().getNodeAddress());
-		//		getProperties().put(MeterProtocol.SERIALNUMBER, getMeter().getSerialNumber());
-		//
-		//		getMk10Protocol().setPushProtocol(true);
-		//		getMk10Protocol().setProperties(getProperties());
-		//		getMk10Protocol().init(getMk10PushInputStream(), getMk10PushOutputStream(), getTimezone(), getLogger());
-
 	}
 
 	private Rtu waitForPushMeter() throws IOException, BusinessException {
@@ -263,7 +266,7 @@ public class MK10Push implements GenericProtocol {
 		this.outputStream = getLink().getOutputStream();
 		this.mk10PushInputStream = new MK10PushInputStream(getInputStream());
 		this.mk10PushOutputStream = new MK10PushOutputStream(getOutputStream());
-		this.connectTime = System.currentTimeMillis();
+		setConnectTime(System.currentTimeMillis());
 
 		try {
 
@@ -277,6 +280,8 @@ public class MK10Push implements GenericProtocol {
 
 			Rtu pushDevice = waitForPushMeter();
 			getMK10Executor().setMeter(pushDevice);
+
+			startCommunication();
 			getMK10Executor().doMeterProtocol();
 			storeMeterData(getMK10Executor().getMeterReadingData(), getMK10Executor().getMeterProfileData());
 
@@ -326,9 +331,6 @@ public class MK10Push implements GenericProtocol {
 			try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();};
 
 			try {
-				if (DEBUG >= 1) {
-					System.out.println("addLogging()");
-				}
 				addLogging(
 						getMK10Executor().getCompletionCode(),
 						getMK10Executor().getCompletionErrorString(),
@@ -336,9 +338,6 @@ public class MK10Push implements GenericProtocol {
 						success,
 						exception
 				);
-				if (DEBUG >= 1) {
-					System.out.println("addLogging() ended");
-				}
 			} catch (SQLException e) {
 				sendDebug("** SQLException **", 1);
 				e.printStackTrace();
@@ -363,7 +362,7 @@ public class MK10Push implements GenericProtocol {
 	}
 
 	public String getVersion() {
-		return "$Revision: 1.3 $";
+		return "$Revision: 1.4 $";
 	}
 
 	public void addProperties(Properties properties) {
@@ -391,60 +390,14 @@ public class MK10Push implements GenericProtocol {
 		}
 	}
 
-	public static void main(String[] args) {
-		try {
-			FileInputStream inFile		= new FileInputStream("C:\\debug\\packet.raw");
-			FileOutputStream outFile	= new FileOutputStream("C:\\debug\\packet_out_1.hex");
-
-			MK10PushInputStream in 		= new MK10PushInputStream(inFile);
-			MK10PushOutputStream out 	= new MK10PushOutputStream(outFile);
-
-			ByteArrayOutputStream fileBuffer = new ByteArrayOutputStream();
-
-			int crc = 0;
-
-			while (inFile.available() > 0) {
-				fileBuffer.write(inFile.read());
-			}
-
-
-
-
-			//            byte[] tempBuffer = new byte[] {
-			//            		(byte)0x8F, (byte)0x50, (byte)0xFF, (byte)0xE0,
-			//            		(byte)0x0C, (byte)0x4C, (byte)0x61, (byte)0xD3,
-			//            		(byte)0x18, (byte)0x80, (byte)0x0F, (byte)0xE7,
-			//            		(byte)0x18, (byte)0x7C, (byte)0x71, (byte)0x18,
-			//            		(byte)0x01, (byte)0x1E, (byte)0x00, (byte)0x00,
-			//            		(byte)0x40, (byte)0x00
-			//            };
-
-			byte [] tempBuffer = fileBuffer.toByteArray();
-
-			crc = CRCGenerator.ccittCRC(tempBuffer, tempBuffer.length - 3);
-			System.out.println("** CRC = " + crc + " [" + ProtocolUtils.buildStringHex(crc, 4) + "]" + " **");
-
-			crc = CRCGenerator.ccittCRC(tempBuffer, tempBuffer.length - 2);
-			System.out.println("** CRC = " + crc + " [" + ProtocolUtils.buildStringHex(crc, 4) + "]" + " **");
-
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-
-	}
-
-	public List getOptionalKeys() {
-		ArrayList list = new ArrayList(0);
+	public List<String> getOptionalKeys() {
+		List<String> list = new ArrayList<String>();
 		list.addAll(getMK10Executor().getOptionalKeys());
 		return list;
 	}
 
-	public List getRequiredKeys() {
-		ArrayList list = new ArrayList(0);
+	public List<String> getRequiredKeys() {
+		List<String> list = new ArrayList<String>();
 		list.addAll(getMK10Executor().getRequiredKeys());
 		return list;
 	}
