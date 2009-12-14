@@ -20,19 +20,19 @@ public class DateTime {
 	private static int minutes;
 	private static int seconds;
 	
-	private static int dayNormal = Integer.valueOf(0);
-	private static int monthNormal = Integer.valueOf(1);
-	private static int yearNormal = Integer.valueOf(2);
-	private static int hourNormal = Integer.valueOf(3);
-	private static int minuteNormal = Integer.valueOf(4);
-	private static int secondsNormal = Integer.valueOf(5);
+	private static int dayNormal = Integer.parseInt("0");
+	private static int monthNormal = Integer.parseInt("1");
+	private static int yearNormal = Integer.parseInt("2");
+	private static int hourNormal = Integer.parseInt("3");
+	private static int minuteNormal = Integer.parseInt("4");
+	private static int secondsNormal = Integer.parseInt("5");
 	
-	private static int dayProfile = Integer.valueOf(0);
-	private static int monthProfile = Integer.valueOf(0);
-	private static int yearProfile = Integer.valueOf(2);
-	private static int hourProfile = Integer.valueOf(1);
-	private static int minuteProfile = Integer.valueOf(1);
-	private static int secondsProfile = Integer.valueOf(2);
+	private static int dayProfile = Integer.parseInt("0");
+	private static int monthProfile = Integer.parseInt("0");
+	private static int yearProfile = Integer.parseInt("2");
+	private static int hourProfile = Integer.parseInt("1");
+	private static int minuteProfile = Integer.parseInt("1");
+	private static int secondsProfile = Integer.parseInt("2");
 	
 	/**
 	 * Private constructor

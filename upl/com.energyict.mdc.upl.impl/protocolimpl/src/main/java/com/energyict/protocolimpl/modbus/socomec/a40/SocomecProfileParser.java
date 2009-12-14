@@ -52,15 +52,15 @@ public class SocomecProfileParser {
 	private int currentState;
 	
 	/** The List of {@link IntervalData}s */
-	private List<IntervalData> intervalDatas;
+	private List intervalDatas;
 	/** The list of {@link MeterEvent}s */
-	private List<MeterEvent> meterEvents;
+	private List meterEvents;
 	
 	/** Constructor */
 	protected SocomecProfileParser(){
 		this.memoryPointer = -1;
 		this.currentState = normalState;
-		this.intervalDatas = new ArrayList<IntervalData>();
+		this.intervalDatas = new ArrayList();
 	}
 	
 	/**
@@ -87,14 +87,12 @@ public class SocomecProfileParser {
 	 * @param channelInfoRegisters the registers read from the ModBus meter
 	 * @return a List of ChannelInfo
 	 */
-	List<ChannelInfo> parseChannelInfos(int[] channelInfoRegisters, BigDecimal multiplier) {
-		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+	List parseChannelInfos(int[] channelInfoRegisters, BigDecimal multiplier) {
+		List channelInfos = new ArrayList();
 		int counter = Integer.valueOf(0);
 		for(int i = 0; i < channelInfoRegisters.length; i++){
-//		for(int i = 0; i < 1; i++){
 			if(channelInfoRegisters[i] == 1){
 				int id = counter++;
-				//TODO normally the third and fourth channel aren't WATT but var
 				channelInfos.add(new ChannelInfo(id, channelInfoNames[i], channelInfoUnits[i], 1, id, multiplier));
 			}
 		}
@@ -230,7 +228,7 @@ public class SocomecProfileParser {
      * @param idList - the IntervalData list
      */    
     private void applyEvents() {
-        Iterator<MeterEvent> eventIterator = getMeterEvents().iterator();
+        Iterator eventIterator = getMeterEvents().iterator();
         while (eventIterator.hasNext()) {
             applyEvent((MeterEvent) eventIterator.next());
         }
@@ -241,7 +239,7 @@ public class SocomecProfileParser {
      * @param idList - the IntervalData list
      */    
     private void applyEvent(MeterEvent event) {
-        Iterator<IntervalData> intervalIterator = this.intervalDatas.iterator();
+        Iterator intervalIterator = this.intervalDatas.iterator();
         while (intervalIterator.hasNext()) {
             ((IntervalData) intervalIterator.next()).apply(event, this.profileInterval/60);
         }
@@ -266,9 +264,9 @@ public class SocomecProfileParser {
 	 * @return true if it's so, false otherwise
 	 */
 	private boolean intervalExists(){
-		ListIterator<IntervalData> listIt = this.intervalDatas.listIterator();
+		ListIterator listIt = this.intervalDatas.listIterator();
 		while(listIt.hasNext()){
-			IntervalData id = listIt.next();
+			IntervalData id = (IntervalData)listIt.next();
 			if(id.getEndTime().compareTo(this.intervalDate.getTime()) == 0 ){
 				return true;
 			}
@@ -368,7 +366,7 @@ public class SocomecProfileParser {
 	 */
 	private void addMeterEvents(MeterEvent meterEvent){
 		if(this.meterEvents == null){
-			this.meterEvents = new ArrayList<MeterEvent>();
+			this.meterEvents = new ArrayList();
 		}
 		this.meterEvents.add(meterEvent);
 	}
@@ -376,9 +374,9 @@ public class SocomecProfileParser {
 	/**
 	 * @return the occurred meterEvents
 	 */
-	public List<MeterEvent> getMeterEvents() {
+	public List getMeterEvents() {
 		if(this.meterEvents == null){
-			this.meterEvents = new ArrayList<MeterEvent>();
+			this.meterEvents = new ArrayList();
 		}
 		return this.meterEvents;
 	}
@@ -386,7 +384,7 @@ public class SocomecProfileParser {
 	/**
 	 * @return all the IntervalDatas calculated from the memoryBlocks
 	 */
-	public List<IntervalData> getIntervalDatas(){
+	public List getIntervalDatas(){
 		return this.intervalDatas;
 	}
 }

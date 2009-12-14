@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.UnsupportedException;
@@ -32,19 +31,19 @@ public class SocomecProfile {
 	/** Points to the current memoryPosition of the ReactiveEnergy profile */
 	private Integer reActiveEnergyPointer;
 	
-	private static final int p1StartAddress = Integer.valueOf(12293);	//TODO this is probably 12293 (see doc. the previous object has 3 words and starts form 12290 ...)
-	private static final int p2StartAddress = Integer.valueOf(16793);
-	private static final int q1StartAddress = Integer.valueOf(21293);
-	private static final int q2StartAddress = Integer.valueOf(25793);
+	private static final int p1StartAddress = Integer.parseInt("12293");	//TODO this is probably 12293 (see doc. the previous object has 3 words and starts form 12290 ...)
+	private static final int p2StartAddress = Integer.parseInt("16793");
+	private static final int q1StartAddress = Integer.parseInt("21293");
+	private static final int q2StartAddress = Integer.parseInt("25793");
 	private static final int[] startAddresses = new int[]{p1StartAddress, p2StartAddress, q1StartAddress, q2StartAddress};
-	private static final int maxProfileBlockSize = Integer.valueOf(4500);
+	private static final int maxProfileBlockSize = Integer.parseInt("4500");
 	
 	private static final int normalReadState = 0;
 	private static final int memoryOverFlowedState = 1;
 	
 	private int[] startMemoryPointer;
 	private int[] channelInfoRegisters;
-	private List<IntervalData> profileIntervalData;
+	private List profileIntervalData;
 	
 	/** Maximum allowed blocks to read in 1 readAction */
 	private static final int maxReadBlockSize = 100;
@@ -127,9 +126,9 @@ public class SocomecProfile {
 	 * @return the list of channelInfos
 	 * @throws IOException if the register could not be found
 	 */
-	public List<ChannelInfo> getChannelInfos() throws IOException {
+	public List getChannelInfos() throws IOException {
 		BigDecimal multiplier = this.modbus.getMultiplierFactory().getMultiplier(MultiplierFactory.CT);
-		List<ChannelInfo> channelInfos = getProfileParser().parseChannelInfos(getChannelInforRegisters(), multiplier);
+		List channelInfos = getProfileParser().parseChannelInfos(getChannelInforRegisters(), multiplier);
 		return channelInfos;
 	}
 	
@@ -151,7 +150,7 @@ public class SocomecProfile {
 	 * @throws IOException 
 	 * @throws UnsupportedException 
 	 */
-	public List<IntervalData> getIntervalDatas(Date lastReading) throws UnsupportedException, IOException {
+	public List getIntervalDatas(Date lastReading) throws UnsupportedException, IOException {
 		boolean dontExit = true;
 		
 		generateStartMemoryPointer();
@@ -200,7 +199,7 @@ public class SocomecProfile {
 					getProfileParser().addMemoryPointer(readLength);
 					getProfileParser().parseProfileDataBlock(this.modbus.readRawValue(readFromPointer, readLength));
 					
-				}while(getProfileParser().getIntervalDatas().get(getProfileParser().getIntervalDatas().size()-1).getEndTime().after(lastReading) && dontExit);
+				}while(((IntervalData) getProfileParser().getIntervalDatas().get(getProfileParser().getIntervalDatas().size()-1)).getEndTime().after(lastReading) && dontExit);
 				
 				checkForUnnecessaryIntervals(getProfileParser().getIntervalDatas(), lastReading);
 				addValuesToIntervals(getProfileParser().getIntervalDatas());
@@ -217,17 +216,17 @@ public class SocomecProfile {
 	 * Add intervalData to the already existing intervalData
 	 * @param intervals the intervalData's to add
 	 */
-	private void addValuesToIntervals(List<IntervalData> intervals){
+	private void addValuesToIntervals(List intervals){
 		if(this.profileIntervalData == null){
-			this.profileIntervalData = new ArrayList<IntervalData>();
+			this.profileIntervalData = new ArrayList();
 			this.profileIntervalData = intervals;
 		} else {
-			ListIterator<IntervalData> it = this.profileIntervalData.listIterator();
+			ListIterator it = this.profileIntervalData.listIterator();
 			while(it.hasNext()){
-				IntervalData id = it.next();
-				ListIterator<IntervalData> newIt = intervals.listIterator();
+				IntervalData id = (IntervalData)it.next();
+				ListIterator newIt = intervals.listIterator();
 				while(newIt.hasNext()){
-					IntervalData nid = newIt.next();
+					IntervalData nid = (IntervalData)newIt.next();
 					if(id.getEndTime().compareTo(nid.getEndTime()) == 0){
 						Iterator iter = nid.getIntervalValues().iterator();
 						while(iter.hasNext()){
@@ -262,10 +261,10 @@ public class SocomecProfile {
 	 * @param intervals - the List with the intervals
 	 * @param lastReading - the lastReading to check for
 	 */
-	private void checkForUnnecessaryIntervals(List<IntervalData> intervals, Date lastReading){
-		ListIterator<IntervalData> it = intervals.listIterator();
+	private void checkForUnnecessaryIntervals(List intervals, Date lastReading){
+		ListIterator it = intervals.listIterator();
 		while(it.hasNext()){
-			IntervalData id = it.next();
+			IntervalData id = (IntervalData)it.next();
 			if(id.getEndTime().before(lastReading)) {
 				it.remove();
 			}
