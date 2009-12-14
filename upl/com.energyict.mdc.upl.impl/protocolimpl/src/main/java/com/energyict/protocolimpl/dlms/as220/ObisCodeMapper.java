@@ -1,9 +1,3 @@
-/*
- * ObisCodeMapper.java
- *
- * Created on 17 augustus 2004, 9:21
- */
-
 package com.energyict.protocolimpl.dlms.as220;
 
 import java.io.IOException;
@@ -16,13 +10,15 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
+
 /**
  *
- * @author  Koen
+ * @author Koen
  */
 public class ObisCodeMapper {
     CosemObjectFactory cof;
-    /** Creates a new instance of ObisCodeMapper */
+
+	/** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(CosemObjectFactory cof) {
         this.cof=cof;
     }
@@ -41,31 +37,29 @@ public class ObisCodeMapper {
         int billingPoint=-1;
 
         // obis F code
-        if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99)) {
+		if ((obisCode.getF() >= 0) && (obisCode.getF() <= 99)) {
 			billingPoint = obisCode.getF();
-		} else if ((obisCode.getF()  <=0) && (obisCode.getF() >= -99)) {
-			billingPoint = obisCode.getF()*-1;
+		} else if ((obisCode.getF() <= 0) && (obisCode.getF() >= -99)) {
+			billingPoint = obisCode.getF() * -1;
 		} else if (obisCode.getF() == 255) {
 			billingPoint = -1;
 		} else {
-			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+			throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
 		}
 
         // *********************************************************************************
         // General purpose ObisRegisters & abstract general service
-        if ((obisCode.toString().indexOf("1.0.0.1.0.255") != -1) ||(obisCode.toString().indexOf("1.1.0.1.0.255") != -1)) { // billing counter
-            registerValue = new RegisterValue(obisCode,cof.getCosemObject(ObisCode.fromString("1.0.0.1.0.255")).getQuantityValue());
-            return registerValue;
-        } // billing counter
-        else if ((obisCode.toString().indexOf("1.0.0.1.2.") != -1) || (obisCode.toString().indexOf("1.1.0.1.2.") != -1)) { // billing point timestamp
-            if ((billingPoint >= 0) && (billingPoint < 99)) {
-               registerValue = new RegisterValue(obisCode,
-                                                 cof.getStoredValues().getBillingPointTimeDate(billingPoint));
-               return registerValue;
-            } else {
-				throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+		if ((obisCode.toString().indexOf("1.0.0.1.0.255") != -1) || (obisCode.toString().indexOf("1.1.0.1.0.255") != -1)) { // billing counter
+			registerValue = new RegisterValue(obisCode, cof.getCosemObject(ObisCode.fromString("1.0.0.1.0.255")).getQuantityValue());
+			return registerValue;
+		} else if ((obisCode.toString().indexOf("1.0.0.1.2.") != -1) || (obisCode.toString().indexOf("1.1.0.1.2.") != -1)) { // billing point timestamp
+			if ((billingPoint >= 0) && (billingPoint < 99)) {
+				registerValue = new RegisterValue(obisCode, cof.getStoredValues().getBillingPointTimeDate(billingPoint));
+				return registerValue;
+			} else {
+				throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
 			}
-        } // // billing point timestamp
+		} // // billing point timestamp
 
         // *********************************************************************************
         CosemObject cosemObject = cof.getCosemObject(obisCode);
@@ -79,15 +73,22 @@ public class ObisCodeMapper {
         String text = null;
         Quantity quantityValue = null;
 
-        try {captureTime = cosemObject.getCaptureTime();} catch (Exception e) {}
-		try {billingDate = cosemObject.getBillingDate();} catch (Exception e) {}
-		try {quantityValue = cosemObject.getQuantityValue();} catch (Exception e) {}
-		try {text = cosemObject.getText();} catch (Exception e) {}
+        try {captureTime = cosemObject.getCaptureTime();} catch (IOException e) {}
+		try {billingDate = cosemObject.getBillingDate();} catch (IOException e) {}
+		try {quantityValue = cosemObject.getQuantityValue();} catch (IOException e) {}
+		try {text = cosemObject.getText();} catch (IOException e) {}
 
-		registerValue = new RegisterValue(obisCode, quantityValue,
-				captureTime == null ? billingDate : captureTime, null,
-				billingDate, new Date(), 0, text
-		);
+		registerValue =
+			new RegisterValue(
+				obisCode,
+				quantityValue,
+				(captureTime == null ? billingDate : captureTime),
+				null,
+				billingDate,
+				new Date(),
+				0,
+				text
+			);
 
 		return registerValue;
 

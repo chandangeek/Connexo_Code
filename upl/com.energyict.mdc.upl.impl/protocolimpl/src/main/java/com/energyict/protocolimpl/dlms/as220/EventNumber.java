@@ -24,7 +24,7 @@ public class EventNumber {
     static final int VOLTAGECUTLOGBOOK=1;
     static final int COVEROGBOOK=2;
 
-    static List events = new ArrayList();
+    static List<EventNumber> events = new ArrayList<EventNumber>();
     static {
         events.add(new EventNumber(51,"phase 1 fail",VOLTAGECUTLOGBOOK,MeterEvent.PHASE_FAILURE));
         events.add(new EventNumber(53,"phase 2 fail",VOLTAGECUTLOGBOOK,MeterEvent.PHASE_FAILURE));
@@ -54,17 +54,15 @@ public class EventNumber {
     }
 
     static private EventNumber getEventNumber(int id) {
-        Iterator it = events.iterator();
+        Iterator<EventNumber> it = events.iterator();
         while(it.hasNext()) {
-            EventNumber en = (EventNumber)it.next();
+            EventNumber en = it.next();
             if (en.getId() == id) {
 				return en;
 			}
         }
         return null;
     }
-
-
 
     static public MeterEvent toMeterEvent(int id,Date dateTime) {
         EventNumber eventNumber = EventNumber.getEventNumber(id);

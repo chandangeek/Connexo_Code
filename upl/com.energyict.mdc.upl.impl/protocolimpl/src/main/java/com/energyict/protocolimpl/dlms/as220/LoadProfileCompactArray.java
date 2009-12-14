@@ -11,12 +11,10 @@ import com.energyict.protocol.ProtocolUtils;
 public class LoadProfileCompactArray {
 
 	final int DEBUG=1;
-
-	List loadProfileCompactArrayEntries = new ArrayList();
-	TimeZone timeZone;
+	private List<LoadProfileCompactArrayEntry> loadProfileCompactArrayEntries = new ArrayList<LoadProfileCompactArrayEntry>();
 
 	public LoadProfileCompactArray(TimeZone timeZone) {
-		this.timeZone=timeZone;
+
 	}
 
 	public void  parse(byte[] data) throws IOException {
@@ -48,7 +46,7 @@ public class LoadProfileCompactArray {
 
 	}
 
-	public List getLoadProfileCompactArrayEntries() {
+	public List<LoadProfileCompactArrayEntry> getLoadProfileCompactArrayEntries() {
 		return loadProfileCompactArrayEntries;
 	}
 

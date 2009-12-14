@@ -65,9 +65,7 @@ import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.ParseUtils;
 
-public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtocol {
-    private static final byte DEBUG=1;
-
+public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProtocol {
 
 	private static String CONNECT = "ConnectLoad";
 	private static String DISCONNECT = "DisconnectLoad";
@@ -82,30 +80,13 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
 	private static String TARIFF_OPTION_SWITCH_DAYNIGHT_DISPLAY = "Switch tariff option DAY/NIGHT";
 
     public AS220() {
+
     }
 
     @Override
 	protected String getDeviceID() {
         return "GEC";
     }
-
-    // Interval List
-    private static final byte IL_CAPUTURETIME=0;
-    private static final byte IL_EVENT=12;
-    private static final byte IL_DEMANDVALUE=13;
-
-    // Event codes as interpreted by MV90 for the Siemens ZMD meter
-    private static final long EV_NORMAL_END_OF_INTERVAL=0x00800000;
-    private static final long EV_START_OF_INTERVAL=     0x00080000;
-    private static final long EV_FATAL_ERROR=           0x00000001;
-    private static final long EV_CORRUPTED_MEASUREMENT= 0x00000004;
-    private static final long EV_SUMMER_WINTER=         0x00000008;
-    private static final long EV_TIME_DATE_ADJUSTED=    0x00000020;
-    private static final long EV_POWER_UP=              0x00000040;
-    private static final long EV_POWER_DOWN=            0x00000080;
-    private static final long EV_EVENT_LOG_CLEARED=     0x00002000;
-    private static final long EV_LOAD_PROFILE_CLEARED=  0x00004000;
-    //private static final long EV_CAPTURED_EVENTS=       0x008860E5; // Add new events...
 
     //KV 27102003
     public Calendar initCalendarSW(boolean protocolDSTFlag,TimeZone timeZone) {
@@ -119,16 +100,14 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
     }
 
 
-    private List readMainLogbook(Calendar fromCalendar, Calendar toCalendar) throws IOException {
+    private List<MeterEvent> readMainLogbook(Calendar fromCalendar, Calendar toCalendar) throws IOException {
         DataContainer dc = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.1.255")).getBuffer(fromCalendar,toCalendar);
-        if (DEBUG>=1) {
+        if (isDebug()) {
 			System.out.println("readMainLogbook");
-		}
-        if (DEBUG>=1) {
 			dc.printDataContainer();
 		}
 
-        List meterEvents = new ArrayList();
+        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         for (int i=0;i<dc.getRoot().getNrOfElements();i++) {
            Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
            int id=0;
@@ -142,19 +121,17 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
         return meterEvents;
     }
 
-    private List readVoltageCutLogbook(Calendar fromCalendar, Calendar toCalendar) throws IOException {
+    private List<MeterEvent> readVoltageCutLogbook(Calendar fromCalendar, Calendar toCalendar) throws IOException {
 
         DataContainer dc = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.5.255")).getBuffer(fromCalendar,toCalendar);
 
-        if (DEBUG>=1) {
+        if (isDebug()) {
 			System.out.println("readVoltageCutLogbook");
-		}
-        if (DEBUG>=1) {
 			dc.printDataContainer();
 		}
 
 
-        List meterEvents = new ArrayList();
+        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         for (int i=0;i<dc.getRoot().getNrOfElements();i++) {
            Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
            int id=dc.getRoot().getStructure(i).getInteger(1);
@@ -167,19 +144,17 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
         return meterEvents;
     }
 
-    private List readCoverLogbook(Calendar fromCalendar, Calendar toCalendar) throws IOException {
+    private List<MeterEvent> readCoverLogbook(Calendar fromCalendar, Calendar toCalendar) throws IOException {
 
         DataContainer dc = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.2.255")).getBuffer(fromCalendar,toCalendar);
 
-        if (DEBUG>=1) {
+        if (isDebug()) {
 			System.out.println("readCoverLogbook");
-		}
-        if (DEBUG>=1) {
 			dc.printDataContainer();
 		}
 
 
-        List meterEvents = new ArrayList();
+        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         for (int i=0;i<dc.getRoot().getNrOfElements();i++) {
            Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
            int id=dc.getRoot().getStructure(i).getInteger(1);
@@ -194,8 +169,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
 
     @Override
 	protected void getEventLog(ProfileData profileData,Calendar fromCalendar, Calendar toCalendar) throws IOException {
-
-        List meterEvents = new ArrayList();
+        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         meterEvents.addAll(readMainLogbook(fromCalendar, toCalendar));
         meterEvents.addAll(readVoltageCutLogbook(fromCalendar, toCalendar));
         meterEvents.addAll(readCoverLogbook(fromCalendar, toCalendar));
@@ -203,22 +177,21 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
     }
 
     @Override
-	protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,List loadProfileCompactArrayEntries)  throws IOException {
+	protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,List<LoadProfileCompactArrayEntry> loadProfileCompactArrayEntries)  throws IOException {
 
-        int i,t;
-        IntervalData savedIntervalData=null;
-        List intervalDatas = new ArrayList();
+        int i;
+        List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
         int latestProfileInterval= getProfileInterval();
         int eiCode=0;
-        if (DEBUG >= 1) {
+        if (isDebug()) {
 			System.out.println("loadProfileCompactArrayEntries.size() = "+loadProfileCompactArrayEntries.size());
 		}
 
         LoadProfileCompactArrayEntry dateStamp=null;
         Calendar calendar = null;
         for (i=0;i<loadProfileCompactArrayEntries.size();i++) {
-        	LoadProfileCompactArrayEntry lpcae = (LoadProfileCompactArrayEntry)loadProfileCompactArrayEntries.get(i);
-        	if (DEBUG >= 1) {
+        	LoadProfileCompactArrayEntry lpcae = loadProfileCompactArrayEntries.get(i);
+        	if (isDebug()) {
 				System.out.println(lpcae);
 			}
 
@@ -292,87 +265,36 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
 
         } // for (i=0;i<loadProfileCompactArrayEntries.size();i++) {
 
-        if (DEBUG >= 1) {
-			System.out.println();
-		}
-
-        if (DEBUG >= 1) {
-			System.out.println("intervalDatas.size() = "+intervalDatas.size());
+        if (isDebug()) {
+			System.out.println("\nintervalDatas.size() = "+intervalDatas.size());
 		}
         profileData.setIntervalDatas(intervalDatas);
 
     } // ProfileData buildProfileData(...)
 
-
-
-    // KV 15122003
-    private void roundDown2nearestInterval(IntervalData intervalData) throws IOException {
-        int rest = (int)(intervalData.getEndTime().getTime()/1000) % getProfileInterval();
-        if (rest > 0) {
-			intervalData.getEndTime().setTime(((intervalData.getEndTime().getTime()/1000) - rest) * 1000);
-		}
-    }
-
-    // KV 15122003
-    private void roundUp2nearestInterval(IntervalData intervalData) throws IOException {
-        int rest = (int)(intervalData.getEndTime().getTime()/1000) % getProfileInterval();
-        if (rest > 0) {
-			intervalData.getEndTime().setTime(((intervalData.getEndTime().getTime()/1000) + (getProfileInterval() - rest)) * 1000);
-		}
-    }
-
-    // KV 15122003
-    private int getNrOfIntervals(IntervalData intervalData) throws IOException {
-        return (int)(intervalData.getEndTime().getTime()/1000) / getProfileInterval();
-    }
-
-    // KV 15122003 changed
-    private IntervalData addIntervalData(IntervalData cumulatedIntervalData,IntervalData currentIntervalData) throws IOException {
-        int currentCount = currentIntervalData.getValueCount();
-        IntervalData intervalData = new IntervalData(currentIntervalData.getEndTime());
-        int i;
-        long current;
-        for (i=0;i<currentCount;i++) {
-            if (getMeterConfig().getChannelObject(i).isCapturedObjectCumulative()) {
-				current = (currentIntervalData.get(i)).longValue();
-			} else {
-				current = (currentIntervalData.get(i)).longValue()+(cumulatedIntervalData.get(i)).longValue();
-			}
-            intervalData.addValue(new Long(current));
-        }
-        return intervalData;
-    }
-
-    byte[] aarqlowlevelAS220_old = {(byte)0xE6,(byte)0xE6,(byte)0x00,
-            0x60, 0x36, (byte) 0xA1, 0x09, 0x06, 0x07,
-            0x60, (byte)0x85, 0x74, 0x05, 0x08, 0x01,
-            0x02, (byte)0x8A, 0x02, 0x07, (byte)0x80, (byte)0x8B,
-            0x07, 0x60, (byte)0x85, 0x74, 0x05, 0x08,
-            0x02, 0x01, (byte)0xAC, 0x0A, (byte)0x80, 0x08,
-            0x31, 0x32, 0x33, 0x34, 0x35, 0x36,
-            0x37, 0x38};
-    byte[] aarqlowlevelAS220 = {(byte)0xE6,(byte)0xE6,(byte)0x00,
-            0x60, 0x36, (byte) 0xA1, 0x09, 0x06, 0x07,
-            0x60, (byte)0x85, 0x74, 0x05, 0x08, 0x01,
-            0x02, (byte)0x8A, 0x02, 0x07, (byte)0x80, (byte)0x8B,
-            0x07, 0x60, (byte)0x85, 0x74, 0x05, 0x08,
-            0x02, 0x01};
-    byte[] aarqlowlevelAS220_2= {(byte)0xBE, 0x10, 0x04, 0x0E,
-            0x01, 0x00, 0x00, 0x00, 0x06, 0x5F,
-            0x1F, 0x04, 0x00, 0x18, 0x02, 0x20,
-            0x00, (byte)0xEF};
-
     @Override
 	protected byte[] getLowLevelSecurity() {
-        return buildaarq(aarqlowlevelAS220,aarqlowlevelAS220_2);
+        final byte[] aarqlowlevelAS220 = {(byte)0xE6,(byte)0xE6,(byte)0x00,
+                0x60, 0x36, (byte) 0xA1, 0x09, 0x06, 0x07,
+                0x60, (byte)0x85, 0x74, 0x05, 0x08, 0x01,
+                0x02, (byte)0x8A, 0x02, 0x07, (byte)0x80, (byte)0x8B,
+                0x07, 0x60, (byte)0x85, 0x74, 0x05, 0x08,
+                0x02, 0x01};
+
+        final byte[] aarqlowlevelAS220_2= {(byte)0xBE, 0x10, 0x04, 0x0E,
+                0x01, 0x00, 0x00, 0x00, 0x06, 0x5F,
+                0x1F, 0x04, 0x00, 0x18, 0x02, 0x20,
+                0x00, (byte)0xEF};
+
+    	return buildaarq(aarqlowlevelAS220,aarqlowlevelAS220_2);
     }
 
     @Override
 	protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            Iterator iterator= getRequiredKeys().iterator();
+            Iterator<String> iterator= getRequiredKeys().iterator();
             while (iterator.hasNext()) {
-                String key = (String) iterator.next();
+                String key = iterator.next();
                 if (properties.getProperty(key) == null) {
 					throw new MissingPropertyException(key + " key missing");
 				}
@@ -384,7 +306,6 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
 			}
 
             strPassword = properties.getProperty(MeterProtocol.PASSWORD);
-            //if (strPassword.length()!=8) throw new InvalidPropertyException("Password must be exact 8 characters.");
             iHDLCTimeoutProperty=Integer.parseInt(properties.getProperty("Timeout","10000").trim());
             iProtocolRetriesProperty=Integer.parseInt(properties.getProperty("Retries","5").trim());
             iDelayAfterFailProperty=Integer.parseInt(properties.getProperty("DelayAfterfail","3000").trim());
@@ -415,8 +336,8 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
-	public List getMessageCategories() {
-        List theCategories = new ArrayList();
+	public List<MessageCategorySpec> getMessageCategories() {
+        List<MessageCategorySpec> theCategories = new ArrayList<MessageCategorySpec>();
         MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
 
         MessageSpec msgSpec = addBasicMsg(DISCONNECT_DISPLAY, DISCONNECT, false);
@@ -449,7 +370,8 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
 		return msg.write(this);
 	}
 
-    public String writeTag(MessageTag msgTag) {
+    @SuppressWarnings("unchecked")
+	public String writeTag(MessageTag msgTag) {
         StringBuffer buf = new StringBuffer();
 
         // a. Opening tag
@@ -457,8 +379,8 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
         buf.append( msgTag.getName() );
 
         // b. Attributes
-        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
-            MessageAttribute att = (MessageAttribute)it.next();
+        for (Iterator<MessageAttribute> it = msgTag.getAttributes().iterator(); it.hasNext();) {
+            MessageAttribute att = it.next();
             if (att.getValue()==null || att.getValue().length()==0) {
 				continue;
 			}
@@ -468,8 +390,8 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
         buf.append(">");
 
         // c. sub elements
-        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
-            MessageElement elt = (MessageElement)it.next();
+        for (Iterator<MessageElement> it = msgTag.getSubElements().iterator(); it.hasNext();) {
+            MessageElement elt = it.next();
             if (elt.isTag()) {
 				buf.append( writeTag((MessageTag)elt) );
 			} else if (elt.isValue()) {
@@ -489,6 +411,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
         return buf.toString();
     }
 
+	@SuppressWarnings("unchecked")
 	public String writeTag2(MessageTag msgTag) {
         StringBuffer buf = new StringBuffer();
 
@@ -497,8 +420,8 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
         buf.append(msgTag.getName());
 
         // b. Attributes
-        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
-            MessageAttribute att = (MessageAttribute) it.next();
+        for (Iterator<MessageAttribute> it = msgTag.getAttributes().iterator(); it.hasNext();) {
+            MessageAttribute att = it.next();
             if (att.getValue() == null || att.getValue().length() == 0) {
 				continue;
 			}
@@ -511,8 +434,8 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
         }
         buf.append(">");
         // c. sub elements
-        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
-            MessageElement elt = (MessageElement) it.next();
+        for (Iterator<MessageElement> it = msgTag.getSubElements().iterator(); it.hasNext();) {
+            MessageElement elt = it.next();
             if (elt.isTag()) {
 				buf.append(writeTag((MessageTag) elt));
 			} else if (elt.isValue()) {
@@ -536,6 +459,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
 		return msgValue.getValue();
 	}
 
+	@SuppressWarnings("unchecked")
 	public void applyMessages(List messageEntries) throws IOException {
 
 	}
@@ -546,35 +470,35 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol,MessageProtoc
 			if (messageEntry.getContent().indexOf("<"+DISCONNECT)>=0) {
 				getCosemObjectFactory().getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).writeControlState(new TypeEnum(0));
 				getLogger().info("DISCONNECT message received");
-				if (DEBUG >= 1) {
+				if (isDebug()) {
 					System.out.println("DISCONNECT message received");
 				}
 			}
 			else if (messageEntry.getContent().indexOf("<"+CONNECT)>=0) {
 				getCosemObjectFactory().getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).writeControlState(new TypeEnum(1));
 				getLogger().info("CONNECT message received");
-				if (DEBUG >= 1) {
+				if (isDebug()) {
 					System.out.println("CONNECT message received");
 				}
 			}
 			else if (messageEntry.getContent().indexOf("<"+ARM)>=0) {
 				getCosemObjectFactory().getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).writeControlState(new TypeEnum(2));
 				getLogger().info("ARM message received");
-				if (DEBUG >= 1) {
+				if (isDebug()) {
 					System.out.println("ARM message received");
 				}
 			}
 			else if (messageEntry.getContent().indexOf("<"+TARIFF_OPTION_SWITCH_BASE)>=0) {
 				getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.0.255")).setValueAttr(new TypeEnum(0));
 				getLogger().info("TARIFF_OPTION_SWITCH_BASE message received");
-				if (DEBUG >= 1) {
+				if (isDebug()) {
 					System.out.println("TARIFF_OPTION_SWITCH_BASE message received");
 				}
 			}
 			else if (messageEntry.getContent().indexOf("<"+TARIFF_OPTION_SWITCH_DAYNIGHT)>=0) {
 				getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.0.255")).setValueAttr(new TypeEnum(1));
 				getLogger().info("TARIFF_OPTION_SWITCH_DAYNIGHT message received");
-				if (DEBUG >= 1) {
+				if (isDebug()) {
 					System.out.println("TARIFF_OPTION_SWITCH_DAYNIGHT message received");
 				}
 			}
