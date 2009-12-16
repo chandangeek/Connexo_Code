@@ -319,3 +319,5 @@
 -keepnames class com.energyict.genericprotocolimpl.webrtuz3.TicDevice
 
 -keepnames class com.energyict.protocolimpl.modbus.socomec.countis.ci.Ci
+
+-keepnames class com.energyict.genericprotocolimpl.edmi.mk10.MK10Push
