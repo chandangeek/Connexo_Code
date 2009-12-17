@@ -138,12 +138,8 @@ public final class ProtocolTools {
 		}
 
 		byte[] bytes = new byte[firstArray.length + secondArray.length];
-		for (int i = 0; i < firstArray.length; i++) {
-			bytes[i] = firstArray[i];
-		}
-		for (int i = 0; i < secondArray.length; i++) {
-			bytes[i + firstArray.length] = secondArray[i];
-		}
+		System.arraycopy(firstArray, 0, bytes, 0, firstArray.length);
+		System.arraycopy(secondArray, 0, bytes, firstArray.length, secondArray.length);
 		return bytes;
 	}
 

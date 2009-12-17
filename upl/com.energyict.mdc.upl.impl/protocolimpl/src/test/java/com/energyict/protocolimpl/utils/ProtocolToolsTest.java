@@ -21,6 +21,7 @@ import antlr.Utils;
  */
 public class ProtocolToolsTest {
 
+	private static final String	NON_EXISTING_FILE_NAME	= "nonexistingfilename";
 	private static final String	FILENAME_TO_READ		= "/com/energyict/utils/ProtocolToolsReadFileTest.txt";
 	private static final String	FILENAME_TO_WRITE		= System.getProperty("java.io.tmpdir") + "/ProtocolToolsReadFileTest.tmp";
 	private static final String	VALUE_TO_READ_FROM_FILE	= "9876543210123456789";
@@ -232,6 +233,7 @@ public class ProtocolToolsTest {
 		assertEquals(new File(fileName).length(), fileContent.length);
 		String fileContentAsString = new String(fileContent);
 		assertEquals(VALUE_TO_READ_FROM_FILE, ProtocolTools.getDataBetweenBrackets(fileContentAsString));
+		assertArrayEquals(new byte[0], ProtocolTools.readBytesFromFile(NON_EXISTING_FILE_NAME));
 	}
 
 	/**
