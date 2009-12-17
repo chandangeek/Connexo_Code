@@ -1,5 +1,6 @@
 package com.energyict.genericprotocolimpl.edmi.mk10;
 
+import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -24,13 +25,13 @@ public class HeartBeatPacketTest {
 
 	@Test
 	public void toStringTest() {
-		PushPacket packet = PushPacket.getPushPacket(MK10PushUtil.getBytesFromHexString(PUSH_PACKET));
+		PushPacket packet = PushPacket.getPushPacket(getBytesFromHexString(PUSH_PACKET));
 		assertNotNull(packet.toString());
 	}
 
 	@Test
 	public void packetTypeTest() {
-		PushPacket packet = PushPacket.getPushPacket(MK10PushUtil.getBytesFromHexString(PUSH_PACKET));
+		PushPacket packet = PushPacket.getPushPacket(getBytesFromHexString(PUSH_PACKET));
 		assertEquals(HeartbeatPacket.class, packet.getClass());
 		assertEquals(PushPacketType.HEARTBEAT, packet.getPushPacketType());
 	}
@@ -56,7 +57,7 @@ public class HeartBeatPacketTest {
 	}
 
 	private static HeartbeatPacket getHeartBeatPacket() {
-		return (HeartbeatPacket) PushPacket.getPushPacket(MK10PushUtil.getBytesFromHexString(PUSH_PACKET));
+		return (HeartbeatPacket) PushPacket.getPushPacket(getBytesFromHexString(PUSH_PACKET));
 	}
 
 }

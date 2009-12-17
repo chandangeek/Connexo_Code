@@ -1,12 +1,13 @@
 /**
  * MK10Push.java
- * 
+ *
  * Created on 8-jan-2009, 12:47:25 by jme
- * 
+ *
  */
 package com.energyict.genericprotocolimpl.edmi.mk10;
 
-import java.io.ByteArrayOutputStream;
+import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexString;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -20,10 +21,9 @@ import org.junit.Ignore;
 
 import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.protocol.ProtocolUtils;
-
 /**
  * @author jme
- * 
+ *
  */
 public class MK10PushUtil {
 
@@ -89,15 +89,5 @@ public class MK10PushUtil {
 		}
 
 	}
-
-	@Ignore
-	public static byte[] getBytesFromHexString(String hexString) {
-		ByteArrayOutputStream bb = new ByteArrayOutputStream();
-		for (int i = 0; i < hexString.length(); i += 3) {
-			bb.write(Integer.parseInt(hexString.substring(i + 1, i + 3), 16));
-		}
-		return bb.toByteArray();
-	}
-
 
 }
