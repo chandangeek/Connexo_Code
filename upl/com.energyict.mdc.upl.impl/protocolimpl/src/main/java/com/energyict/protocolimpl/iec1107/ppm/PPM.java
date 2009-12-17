@@ -123,6 +123,7 @@ import com.energyict.protocolimpl.iec1107.ppm.register.LoadProfileDefinition;
   || Argument was not copied to object property because of typo. Changed "lenght" to "length" in argument name.
   || Added fixes for Java code quality
   JME|09092009| Added support for setTime() while using the optical connection (OPUS = 0)
+  JME|17122009| Changed method of setTime to do a adjust time. This method does not waste profiledata
 
  * @endchanges
  * @author fbo
@@ -157,6 +158,8 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 	private static final int		PD_SECURITY_LEVEL		= 2;
 	private static final String		PD_OPUS					= "1";
 	private static final String		PD_EXTENDED_LOGGING		= "0";
+
+	private static final long		TIME_SHIFT_RATE			= (60 * 10500) / 0x07F;
 
 	/** Property values
 	 * Required properties will have NO default value
@@ -583,7 +586,7 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 			if (isOpus()) {
 				rFactory.setRegister(RegisterFactory.R_TIME_ADJUSTMENT_RS232, sysCalendar.getTime());
 			} else {
-				rFactory.setRegister(RegisterFactory.R_TIME_DATE_OPTICAL, sysCalendar.getTime());
+				rFactory.setRegister(RegisterFactory.R_TIME_ADJUSTMENT_OPTICAL, getAdjustmentValue(diff));
 			}
 		} catch (IOException ex) {
 			String msg = "Could not do a timeset, probably wrong password.";
@@ -591,6 +594,15 @@ public class PPM implements MeterProtocol, HHUEnabler, SerialNumber, MeterExcept
 			throw new NestedIOException(ex);
 		}
 
+	}
+
+	private static String getAdjustmentValue(final long clockDiff) {
+		long shiftValue = Math.abs(clockDiff) / TIME_SHIFT_RATE;
+		shiftValue = shiftValue > 0x07F ? 0x07F : shiftValue;
+		shiftValue |= clockDiff > 0 ? 0x080 : 0x000;
+		String returValue = Long.toHexString(shiftValue).toUpperCase();
+		returValue = (returValue.length() < 2 ? "0" : "") + returValue;
+		return returValue;
 	}
 
 	/*

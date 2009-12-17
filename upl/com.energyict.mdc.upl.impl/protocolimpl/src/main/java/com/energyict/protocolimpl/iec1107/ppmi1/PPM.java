@@ -111,6 +111,9 @@ import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileDefinition;
   || to be at least a minute before the current meter time.
   FBL|02032007| Fix for sporadic data corruption
   || Added extra checking error checking in communication.
+  JME|17122009| Changed method of setTime to do a adjust time. This method does not waste profile data
+  || Fixed bug in profile parser (AAAssembler) to ignore the invalid marked profile data.
+
  * @endchanges
  * @author fbo
  */
@@ -151,8 +154,7 @@ public class PPM extends AbstractPPM {
 
 	private static final Map exception = new HashMap();
 
-	private static final String	ADJUST_ADVANCE	= "7F";
-	private static final String	ADJUST_RETARD	= "FF";
+	private static final long		TIME_SHIFT_RATE			= (60 * 10500) / 0x07F;
 
 	static {
 		exception.put("ERR1", "Invalid Command/Function type e.g. other than W1, R1 etc");
@@ -535,7 +537,7 @@ public class PPM extends AbstractPPM {
 			if (isOpus()) {
 				rFactory.setRegister(OpusRegisterFactory.R_TIME_ADJUSTMENT_RS232, sysCalendar.getTime());
 			} else {
-				rFactory.setRegister(OpticalRegisterFactory.R_TIME_ADJUSTMENT_OPTICAL, diff > 0 ? ADJUST_ADVANCE : ADJUST_RETARD);
+				rFactory.setRegister(OpticalRegisterFactory.R_TIME_ADJUSTMENT_OPTICAL, getAdjustmentValue(diff));
 			}
 		} catch (IOException ex) {
 			String msg = "Could not do a timeset, probably wrong password.";
@@ -543,6 +545,15 @@ public class PPM extends AbstractPPM {
 			throw new NestedIOException(ex);
 		}
 
+	}
+
+	private static String getAdjustmentValue(final long clockDiff) {
+		long shiftValue = Math.abs(clockDiff) / TIME_SHIFT_RATE;
+		shiftValue = shiftValue > 0x07F ? 0x07F : shiftValue;
+		shiftValue |= clockDiff > 0 ? 0x080 : 0x000;
+		String returValue = Long.toHexString(shiftValue).toUpperCase();
+		returValue = (returValue.length() < 2 ? "0" : "") + returValue;
+		return returValue;
 	}
 
 	/**

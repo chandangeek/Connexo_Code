@@ -6,6 +6,9 @@ import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
 
 class AAAssembler implements Assembler {
 
+	private static final int	BYTES_PER_VALUE		= 2;
+	private static final int	BYTES_PER_STATUS	= 1;
+
 	private ProfileParser	profileParser;
 
 	public AAAssembler(ProfileParser profileParser) {
@@ -19,12 +22,13 @@ class AAAssembler implements Assembler {
 
 		byte[] jmpSize = new byte[2];
 		ta.read(jmpSize, 0, 2);
-
+		int channelCount = getProfileParser().getNrOfChannels();
 		long jmp = Long.parseLong(PPMUtils.toHexaString(jmpSize[1]) + PPMUtils.toHexaString(jmpSize[0]), 16) - 3;
 
 		if (ta.getTarget() != null) {/* Calculate number of hours under jump */
 			Day aDay = (Day) ta.getTarget();
-			aDay.addToReadIndex((int) ((jmp + 3) / (1 + (3 * getProfileParser().getNrOfChannels()))));
+			int intervalsToJump = (int) (jmp / (channelCount * (BYTES_PER_VALUE + BYTES_PER_STATUS))) + 1;
+			aDay.addToReadIndex(intervalsToJump);
 		}
 
 		for (int i = 0; i < jmp; i++) {

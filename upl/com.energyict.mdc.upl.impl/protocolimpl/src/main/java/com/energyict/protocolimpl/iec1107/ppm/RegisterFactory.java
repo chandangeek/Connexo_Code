@@ -39,6 +39,9 @@ public class RegisterFactory {
 	final static String R_TIME_DATE_RS232 = "TimeDateRs232";
 	/** 861 Time and date via optical port */
 	final static String R_TIME_DATE_OPTICAL = "TimeDateOptical";
+	/** 862 Time Adjustement via optical port */
+	final static String	R_TIME_ADJUSTMENT_OPTICAL	= "TimeAdjustmentOptical";
+
 	/** 878 Integration period */
 	final static String R_INTEGRATION_PERIOD = "IntegrationPeriod";
 	/** 798 Serial number */
@@ -133,6 +136,8 @@ public class RegisterFactory {
 		this.registers = new TreeMap();
 
 		add("850", R_TIME_ADJUSTMENT_RS232, Register.DATE, 0, -1, Register.WRITEABLE, Register.NOT_CACHED);
+		add("862", R_TIME_ADJUSTMENT_OPTICAL, Register.HEX, 0, 1, Register.WRITEABLE, Register.NOT_CACHED);
+
 		add("860", R_TIME_DATE_RS232, Register.DATE, 0, -1, Register.WRITEABLE, Register.NOT_CACHED);
 		add("861", R_TIME_DATE_OPTICAL, Register.DATE, 0, -1, Register.WRITEABLE, Register.NOT_CACHED);
 		add("878", R_INTEGRATION_PERIOD, Register.INTEGER, 0, 1, Register.NOT_WRITEABLE, Register.CACHED);
@@ -443,7 +448,7 @@ public class RegisterFactory {
 	/**
 	 * A DataIndentity can contain multiple registers. But what if a Register is
 	 * best composed out of several other registers ?
-	 * 
+	 *
 	 * I will cache this in RegisterFactory, it could be done better .... 741 -
 	 * 745, 751 - 755 Register Allocation
 	 */

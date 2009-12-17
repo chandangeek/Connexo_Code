@@ -26,6 +26,7 @@ class DataIdentityFactory {
 		add("850", 7, 1, DataIdentity.NORMAL);
 		add("860", 7, 1, DataIdentity.NORMAL);
 		add("861", 7, 1, DataIdentity.NORMAL);
+		add("862", 1, 1, DataIdentity.NORMAL);
 		add("798", 16, 1, DataIdentity.NORMAL);
 		add("795", 8, 1, DataIdentity.NORMAL);
 		add("704", 1, 1, DataIdentity.NORMAL);
