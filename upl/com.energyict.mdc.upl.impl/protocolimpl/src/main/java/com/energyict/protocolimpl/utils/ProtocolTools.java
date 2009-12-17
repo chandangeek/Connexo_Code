@@ -51,7 +51,7 @@ public final class ProtocolTools {
 		byte[] data = new byte[0];
 		int openIndex = indexOff(buffer, (byte) '(');
 		int closeIndex = indexOff(buffer, (byte) ')', openIndex);
-		if ((openIndex != -1) && (closeIndex != -1) && (closeIndex > openIndex)) {
+		if ((openIndex != -1) && (closeIndex != -1)) {
 			data = getSubArray(buffer, openIndex + 1, closeIndex);
 		}
 		return data;
@@ -108,7 +108,7 @@ public final class ProtocolTools {
 	 */
 	public static byte[] getSubArray(final byte[] bytes, final int from, final int to) {
 		byte[] subBytes;
-		if (isArrayIndexInRange(bytes, from) && isArrayIndexInRange(bytes, to) && (from <= to)) {
+		if (isArrayIndexInRange(bytes, from) && isArrayIndexInRange(bytes, to - 1) && (from < to)) {
 			subBytes = new byte[to - from];
 			for (int i = 0; i < subBytes.length; i++) {
 				subBytes[i] = bytes[i + from];
@@ -125,6 +125,18 @@ public final class ProtocolTools {
 	 * @return
 	 */
 	public static byte[] getMergedArray(final byte[] firstArray, final byte[] secondArray) {
+		if (firstArray == null) {
+			if (secondArray == null) {
+				return new byte[0];
+			} else {
+				return secondArray.clone();
+			}
+		} else {
+			if (secondArray == null) {
+				return firstArray.clone();
+			}
+		}
+
 		byte[] bytes = new byte[firstArray.length + secondArray.length];
 		for (int i = 0; i < firstArray.length; i++) {
 			bytes[i] = firstArray[i];

@@ -1,18 +1,19 @@
-/**
- *
- */
 package com.energyict.protocolimpl.utils;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import java.util.Arrays;
+import java.io.File;
+import java.net.URL;
 
-import org.junit.Ignore;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import antlr.Utils;
 
 /**
  * @author jme
@@ -20,31 +21,78 @@ import org.junit.Test;
  */
 public class ProtocolToolsTest {
 
+	private static final String	FILENAME_TO_READ		= "/com/energyict/utils/ProtocolToolsReadFileTest.txt";
+	private static final String	FILENAME_TO_WRITE		= System.getProperty("java.io.tmpdir") + "/ProtocolToolsReadFileTest.tmp";
+	private static final String	VALUE_TO_READ_FROM_FILE	= "9876543210123456789";
+
 	private static final byte[]	BYTE_ARRAY				= new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05 };
-	private static final String	BYTE_ARRAY_AS_STRING	= "$00$01$02$03$04$05";
+	private static final String	BYTE_ARRAY_AS_STRING	= "000102030405";
+	private static final String	BYTE_ARRAY_AS_STRING_$	= "$00$01$02$03$04$05";
 	private static final String	BYTE_ARRAY_AS_STRING_0x	= " 0x00 0x01 0x02 0x03 0x04 0x05";
 	private static final String	CUSTOM_PREFIX			= " 0x";
 	private static final String	DEFAULT_PREFIX			= "$";
+	private static final String	EMPTY_PREFIX			= "";
+
 	private static final int	PADDING_TEST_LENGTH		= 20;
 	private static final char	PADDING_TEST_CHARACTER	= '-';
 	private static final String	PADDING_TEST_STRING		= "123";
+
+	private static final byte[] MERGE_ARRAY1			= "ABC012DEF345".getBytes();
+	private static final byte[] MERGE_ARRAY2			= "GHI678JKL012".getBytes();
+	private static final byte[] MERGED_ARRAY			= "ABC012DEF345GHI678JKL012".getBytes();
+
+	@BeforeClass
+	@AfterClass
+	public static void cleanUpData() {
+		File fileToWrite = new File(FILENAME_TO_WRITE);
+		if (fileToWrite.exists()) {
+			fileToWrite.delete();
+		}
+	}
+
+	/**
+	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#addPadding(java.lang.String, char, int, boolean)}.
+	 */
+	@Test
+	public final void testAddPadding() {
+		assertNotNull(ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, 0, false));
+		assertNotNull(ProtocolTools.addPadding("", PADDING_TEST_CHARACTER, 0, false));
+		assertEquals(null, ProtocolTools.addPadding(null, PADDING_TEST_CHARACTER, 0, false));
+		assertEquals(null, ProtocolTools.addPadding(null, PADDING_TEST_CHARACTER, PADDING_TEST_LENGTH, false));
+		assertEquals(PADDING_TEST_STRING.length(), ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, 0, false).length());
+		assertEquals(PADDING_TEST_STRING.length(), ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, PADDING_TEST_STRING.length(), false).length());
+		assertEquals(PADDING_TEST_LENGTH, ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, PADDING_TEST_LENGTH, false).length());
+		assertEquals(PADDING_TEST_STRING.length(), ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, 0, true).length());
+		assertEquals(PADDING_TEST_STRING.length(), ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, PADDING_TEST_STRING.length(), true).length());
+		assertEquals(PADDING_TEST_LENGTH, ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, PADDING_TEST_LENGTH, true).length());
+		assertEquals(0, ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, PADDING_TEST_LENGTH, true).indexOf(PADDING_TEST_STRING));
+		assertEquals(PADDING_TEST_LENGTH - PADDING_TEST_STRING.length(), ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, PADDING_TEST_LENGTH, false).indexOf(PADDING_TEST_STRING));
+		assertEquals(PADDING_TEST_STRING.length(), ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, PADDING_TEST_LENGTH, true).indexOf(PADDING_TEST_CHARACTER));
+		assertEquals(0, ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, PADDING_TEST_LENGTH, false).indexOf(PADDING_TEST_CHARACTER));
+	}
 
 	/**
 	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#getBytesFromHexString(java.lang.String)}.
 	 */
 	@Test
 	public final void testGetBytesFromHexStringString() {
-		assertNotNull(ProtocolTools.getBytesFromHexString(BYTE_ARRAY_AS_STRING));
-		assertTrue(Arrays.equals(BYTE_ARRAY, ProtocolTools.getBytesFromHexString(BYTE_ARRAY_AS_STRING)));
+		assertNotNull(ProtocolTools.getBytesFromHexString(BYTE_ARRAY_AS_STRING_$));
+		assertArrayEquals(BYTE_ARRAY, ProtocolTools.getBytesFromHexString(BYTE_ARRAY_AS_STRING_$));
 	}
 
 	/**
-	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#getHexStringFromBytes(byte[])}.
+	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#getBytesFromHexString(java.lang.String, java.lang.String)}.
 	 */
 	@Test
-	public final void testGetHexStringFromBytes() {
-		assertNotNull(ProtocolTools.getHexStringFromBytes(BYTE_ARRAY));
-		assertEquals(BYTE_ARRAY_AS_STRING, ProtocolTools.getHexStringFromBytes(BYTE_ARRAY));
+	public final void testGetBytesFromHexStringStringString() {
+		assertNotNull(ProtocolTools.getBytesFromHexString(BYTE_ARRAY_AS_STRING_$, DEFAULT_PREFIX));
+		assertNotNull(ProtocolTools.getBytesFromHexString(BYTE_ARRAY_AS_STRING_0x, CUSTOM_PREFIX));
+		assertNotNull(ProtocolTools.getBytesFromHexString(BYTE_ARRAY_AS_STRING, EMPTY_PREFIX));
+		assertNotNull(ProtocolTools.getBytesFromHexString(BYTE_ARRAY_AS_STRING, null));
+		assertArrayEquals(BYTE_ARRAY, ProtocolTools.getBytesFromHexString(BYTE_ARRAY_AS_STRING_$, DEFAULT_PREFIX));
+		assertArrayEquals(BYTE_ARRAY, ProtocolTools.getBytesFromHexString(BYTE_ARRAY_AS_STRING_0x, CUSTOM_PREFIX));
+		assertArrayEquals(BYTE_ARRAY, ProtocolTools.getBytesFromHexString(BYTE_ARRAY_AS_STRING, EMPTY_PREFIX));
+		assertArrayEquals(BYTE_ARRAY, ProtocolTools.getBytesFromHexString(BYTE_ARRAY_AS_STRING, null));
 	}
 
 	/**
@@ -52,17 +100,17 @@ public class ProtocolToolsTest {
 	 */
 	@Test
 	public final void testGetDataBetweenBracketsByteArray() {
-		assertTrue(Arrays.equals("123456".getBytes(), ProtocolTools.getDataBetweenBrackets("123(123456)321".getBytes())));
-		assertTrue(Arrays.equals("123456".getBytes(), ProtocolTools.getDataBetweenBrackets("(123456)321".getBytes())));
-		assertTrue(Arrays.equals("123456".getBytes(), ProtocolTools.getDataBetweenBrackets("(123456)".getBytes())));
-		assertTrue(Arrays.equals("123456".getBytes(), ProtocolTools.getDataBetweenBrackets(")(123456)".getBytes())));
-		assertTrue(Arrays.equals("(123456".getBytes(), ProtocolTools.getDataBetweenBrackets("((123456)".getBytes())));
-		assertTrue(Arrays.equals("".getBytes(), ProtocolTools.getDataBetweenBrackets("()123456)".getBytes())));
-		assertTrue(Arrays.equals("".getBytes(), ProtocolTools.getDataBetweenBrackets(")123456)".getBytes())));
-		assertTrue(Arrays.equals("".getBytes(), ProtocolTools.getDataBetweenBrackets(")(123456".getBytes())));
-		assertTrue(Arrays.equals("".getBytes(), ProtocolTools.getDataBetweenBrackets(")(123456".getBytes())));
-		assertTrue(Arrays.equals("123456".getBytes(), ProtocolTools.getDataBetweenBrackets("(123456)(123)".getBytes())));
-		assertTrue(Arrays.equals("123456".getBytes(), ProtocolTools.getDataBetweenBrackets("123)(123456)".getBytes())));
+		assertArrayEquals("123456".getBytes(), ProtocolTools.getDataBetweenBrackets("123(123456)321".getBytes()));
+		assertArrayEquals("123456".getBytes(), ProtocolTools.getDataBetweenBrackets("(123456)321".getBytes()));
+		assertArrayEquals("123456".getBytes(), ProtocolTools.getDataBetweenBrackets("(123456)".getBytes()));
+		assertArrayEquals("123456".getBytes(), ProtocolTools.getDataBetweenBrackets(")(123456)".getBytes()));
+		assertArrayEquals("(123456".getBytes(), ProtocolTools.getDataBetweenBrackets("((123456)".getBytes()));
+		assertArrayEquals("".getBytes(), ProtocolTools.getDataBetweenBrackets("()123456)".getBytes()));
+		assertArrayEquals("".getBytes(), ProtocolTools.getDataBetweenBrackets(")123456)".getBytes()));
+		assertArrayEquals("".getBytes(), ProtocolTools.getDataBetweenBrackets(")(123456".getBytes()));
+		assertArrayEquals("".getBytes(), ProtocolTools.getDataBetweenBrackets(")(123456".getBytes()));
+		assertArrayEquals("123456".getBytes(), ProtocolTools.getDataBetweenBrackets("(123456)(123)".getBytes()));
+		assertArrayEquals("123456".getBytes(), ProtocolTools.getDataBetweenBrackets("123)(123456)".getBytes()));
 	}
 
 	/**
@@ -70,7 +118,7 @@ public class ProtocolToolsTest {
 	 */
 	@Test
 	public final void testGetDataBetweenBracketsString() {
-		assertEquals("123456", ProtocolTools.getDataBetweenBrackets("123(123456)321"));
+		assertEquals("123456", ProtocolTools.getDataBetweenBrackets("\r\n#123(123456)321"));
 		assertEquals("123456", ProtocolTools.getDataBetweenBrackets("(123456)321"));
 		assertEquals("123456", ProtocolTools.getDataBetweenBrackets("(123456)"));
 		assertEquals("123456", ProtocolTools.getDataBetweenBrackets(")(123456)"));
@@ -84,31 +132,70 @@ public class ProtocolToolsTest {
 	}
 
 	/**
-	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#addPadding(java.lang.String, char, int, boolean)}.
+	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#getHexStringFromBytes(byte[])}.
 	 */
 	@Test
-	public final void testAddPadding() {
+	public final void testGetHexStringFromBytes() {
+		assertNotNull(ProtocolTools.getHexStringFromBytes(BYTE_ARRAY));
+		assertEquals(BYTE_ARRAY_AS_STRING_$, ProtocolTools.getHexStringFromBytes(BYTE_ARRAY));
+	}
 
-		assertNotNull(ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, 0, false));
-		assertNotNull(ProtocolTools.addPadding("", PADDING_TEST_CHARACTER, 0, false));
+	/**
+	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#getMergedArray(byte[], byte[])}.
+	 */
+	@Test
+	public final void testGetMergedArray() {
+		assertArrayEquals(MERGE_ARRAY1, ProtocolTools.getMergedArray(MERGE_ARRAY1, new byte[0]));
+		assertArrayEquals(MERGE_ARRAY2, ProtocolTools.getMergedArray(new byte[0], MERGE_ARRAY2));
+		assertArrayEquals(MERGE_ARRAY1, ProtocolTools.getMergedArray(MERGE_ARRAY1, null));
+		assertArrayEquals(MERGE_ARRAY2, ProtocolTools.getMergedArray(null, MERGE_ARRAY2));
+		assertArrayEquals(new byte[0], ProtocolTools.getMergedArray(new byte[0], null));
+		assertArrayEquals(new byte[0], ProtocolTools.getMergedArray(null, new byte[0]));
+		assertArrayEquals(new byte[0], ProtocolTools.getMergedArray(null, null));
+		assertArrayEquals(MERGED_ARRAY, ProtocolTools.getMergedArray(MERGE_ARRAY1, MERGE_ARRAY2));
+	}
 
-		assertEquals(null, ProtocolTools.addPadding(null, PADDING_TEST_CHARACTER, 0, false));
-		assertEquals(null, ProtocolTools.addPadding(null, PADDING_TEST_CHARACTER, PADDING_TEST_LENGTH, false));
+	/**
+	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#getSubArray(byte[], int, int)}.
+	 */
+	@Test
+	public final void testGetSubArray() {
+		assertArrayEquals(MERGE_ARRAY1, ProtocolTools.getSubArray(MERGED_ARRAY, 0, MERGE_ARRAY1.length));
+		assertArrayEquals(MERGE_ARRAY2, ProtocolTools.getSubArray(MERGED_ARRAY, MERGE_ARRAY1.length, MERGED_ARRAY.length));
+		assertArrayEquals(new byte[0], ProtocolTools.getSubArray(MERGED_ARRAY, 0, MERGED_ARRAY.length + 1));
+		assertArrayEquals(new byte[0], ProtocolTools.getSubArray(MERGED_ARRAY, -1, MERGE_ARRAY1.length));
+		assertArrayEquals(new byte[0], ProtocolTools.getSubArray(MERGED_ARRAY, MERGE_ARRAY1.length + 1, MERGE_ARRAY1.length));
+	}
 
-		assertEquals(PADDING_TEST_STRING.length(), ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, 0, false).length());
-		assertEquals(PADDING_TEST_STRING.length(), ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, PADDING_TEST_STRING.length(), false).length());
-		assertEquals(PADDING_TEST_LENGTH, ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, PADDING_TEST_LENGTH, false).length());
+	/**
+	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#indexOff(byte[], byte)}.
+	 */
+	@Test
+	public final void testIndexOffByteArrayByte() {
+		assertEquals(-1, ProtocolTools.indexOff(MERGED_ARRAY, (byte) ' '));
+		assertEquals(-1, ProtocolTools.indexOff(null, (byte) ' '));
+		assertEquals(0, ProtocolTools.indexOff(MERGED_ARRAY, (byte) 'A'));
+		assertEquals(3, ProtocolTools.indexOff(MERGED_ARRAY, (byte) '0'));
+		assertEquals(14, ProtocolTools.indexOff(MERGED_ARRAY, (byte) 'I'));
+	}
 
-		assertEquals(PADDING_TEST_STRING.length(), ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, 0, true).length());
-		assertEquals(PADDING_TEST_STRING.length(), ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, PADDING_TEST_STRING.length(), true).length());
-		assertEquals(PADDING_TEST_LENGTH, ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, PADDING_TEST_LENGTH, true).length());
-
-		assertEquals(0, ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, PADDING_TEST_LENGTH, true).indexOf(PADDING_TEST_STRING));
-		assertEquals(PADDING_TEST_LENGTH - PADDING_TEST_STRING.length(), ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, PADDING_TEST_LENGTH, false).indexOf(PADDING_TEST_STRING));
-
-		assertEquals(PADDING_TEST_STRING.length(), ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, PADDING_TEST_LENGTH, true).indexOf(PADDING_TEST_CHARACTER));
-		assertEquals(0, ProtocolTools.addPadding(PADDING_TEST_STRING, PADDING_TEST_CHARACTER, PADDING_TEST_LENGTH, false).indexOf(PADDING_TEST_CHARACTER));
-
+	/**
+	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#indexOff(byte[], byte, int)}.
+	 */
+	@Test
+	public final void testIndexOffByteArrayByteInt() {
+		assertEquals(-1, ProtocolTools.indexOff(MERGED_ARRAY, (byte) ' ', 0));
+		assertEquals(-1, ProtocolTools.indexOff(null, (byte) ' '), 0);
+		assertEquals(-1, ProtocolTools.indexOff(MERGED_ARRAY, (byte) '2', MERGED_ARRAY.length));
+		assertEquals(-1, ProtocolTools.indexOff(MERGED_ARRAY, (byte) '2', MERGED_ARRAY.length + 1));
+		assertEquals(MERGED_ARRAY.length - 1, ProtocolTools.indexOff(MERGED_ARRAY, (byte) '2', MERGED_ARRAY.length - 1));
+		assertEquals(0, ProtocolTools.indexOff(MERGED_ARRAY, (byte) 'A', 0));
+		assertEquals(-1, ProtocolTools.indexOff(MERGED_ARRAY, (byte) 'A', 1));
+		assertEquals(3, ProtocolTools.indexOff(MERGED_ARRAY, (byte) '0', 0));
+		assertEquals(3, ProtocolTools.indexOff(MERGED_ARRAY, (byte) '0', 3));
+		assertEquals(21, ProtocolTools.indexOff(MERGED_ARRAY, (byte) '0', 5));
+		assertEquals(21, ProtocolTools.indexOff(MERGED_ARRAY, (byte) '0', 21));
+		assertEquals(-1, ProtocolTools.indexOff(MERGED_ARRAY, (byte) '0', 22));
 	}
 
 	/**
@@ -132,68 +219,34 @@ public class ProtocolToolsTest {
 	}
 
 	/**
-	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#getSubArray(byte[], int, int)}.
+	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#readBytesFromFile(java.lang.String)}.
 	 */
 	@Test
-	@Ignore
-	public final void testGetSubArray() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	/**
-	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#getMergedArray(byte[], byte[])}.
-	 */
-	@Test
-	@Ignore
-	public final void testGetMergedArray() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	/**
-	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#indexOff(byte[], byte)}.
-	 */
-	@Test
-	@Ignore
-	public final void testIndexOffByteArrayByte() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	/**
-	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#indexOff(byte[], byte, int)}.
-	 */
-	@Test
-	@Ignore
-	public final void testIndexOffByteArrayByteInt() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	/**
-	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#getBytesFromHexString(java.lang.String, java.lang.String)}.
-	 */
-	@Test
-	public final void testGetBytesFromHexStringStringString() {
-		assertNotNull(ProtocolTools.getBytesFromHexString(BYTE_ARRAY_AS_STRING, DEFAULT_PREFIX));
-		assertNotNull(ProtocolTools.getBytesFromHexString(BYTE_ARRAY_AS_STRING_0x, CUSTOM_PREFIX));
-		assertTrue(Arrays.equals(BYTE_ARRAY, ProtocolTools.getBytesFromHexString(BYTE_ARRAY_AS_STRING, DEFAULT_PREFIX)));
-		assertTrue(Arrays.equals(BYTE_ARRAY, ProtocolTools.getBytesFromHexString(BYTE_ARRAY_AS_STRING_0x, CUSTOM_PREFIX)));
+	public final void testReadBytesFromFile() {
+		URL fileUrl = Utils.class.getResource(FILENAME_TO_READ);
+		assertNotNull("This test needs the following file: " + FILENAME_TO_READ + " but the fileUrl was null!", fileUrl);
+		String fileName = fileUrl.getFile();
+		byte[] fileContent = ProtocolTools.readBytesFromFile(fileName);
+		assertNotNull(fileContent);
+		assertTrue(fileContent.length > 0);
+		assertEquals(new File(fileName).length(), fileContent.length);
+		String fileContentAsString = new String(fileContent);
+		assertEquals(VALUE_TO_READ_FROM_FILE, ProtocolTools.getDataBetweenBrackets(fileContentAsString));
 	}
 
 	/**
 	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#writeBytesToFile(java.lang.String, byte[], boolean)}.
 	 */
 	@Test
-	@Ignore
 	public final void testWriteBytesToFile() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	/**
-	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#readBytesFromFile(java.lang.String)}.
-	 */
-	@Test
-	@Ignore
-	public final void testReadBytesFromFile() {
-		fail("Not yet implemented"); // TODO
+		assertFalse("This tes will write data to " + FILENAME_TO_WRITE + ", but file already exist!", new File(FILENAME_TO_WRITE).exists());
+		ProtocolTools.writeBytesToFile(FILENAME_TO_WRITE, BYTE_ARRAY, true);
+		assertTrue("Wrote data to " + FILENAME_TO_WRITE + ", but file doesn't exist!", new File(FILENAME_TO_WRITE).exists());
+		assertArrayEquals(BYTE_ARRAY, ProtocolTools.readBytesFromFile(FILENAME_TO_WRITE));
+		ProtocolTools.writeBytesToFile(FILENAME_TO_WRITE, BYTE_ARRAY, false);
+		assertArrayEquals(BYTE_ARRAY, ProtocolTools.readBytesFromFile(FILENAME_TO_WRITE));
+		ProtocolTools.writeBytesToFile(FILENAME_TO_WRITE, BYTE_ARRAY, true);
+		assertArrayEquals(ProtocolTools.getMergedArray(BYTE_ARRAY, BYTE_ARRAY), ProtocolTools.readBytesFromFile(FILENAME_TO_WRITE));
 	}
 
 }
