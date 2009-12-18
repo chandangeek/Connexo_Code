@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.iec1107.ppm.parser;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -66,7 +65,20 @@ public class ProfileReverseParser {
 				}
 			}
 
+			/*
+			 * When there's a power fail, the meter stores less then 16 FF's at
+			 * the end of the load profile, (meter bug??) so the FF's parser
+			 * can't find the reference position. Because the are FF's in the
+			 * profile (less then 16) we can take the position of the last
+			 * received FF's and use this to calculate the reference point,
+			 * otherwise it will result in a negative array exception as
+			 * position16FF will be zero ...
+			 */
 			int length = this.ffAssembler.position16FF - this.lastGoodIndex;
+			if (length < 0) {
+				length = this.ffAssembler.lastFFposition - this.lastGoodIndex;
+			}
+
 			byte[] result = new byte[length];
 			System.arraycopy(this.byteAssembly.getInput(), this.lastGoodIndex, result, 0, length);
 			return result;
@@ -93,8 +105,6 @@ public class ProfileReverseParser {
 
 		if(this.DBG) {
 			System.out.println(this.byteAssembly.toString(this.byteAssembly.getIndex() - min));
-		}
-		if(this.DBG) {
 			System.out.println(this.byteAssembly.toString(this.byteAssembly.getIndex() - max));
 		}
 
@@ -126,8 +136,6 @@ public class ProfileReverseParser {
 		int firstMonth = (int) hex2dec(this.byteAssembly.getInput()[this.byteAssembly.getIndex() + 2]);
 		if(this.DBG) {
 			System.out.println( "FirstDay = " + firstDay + "/" + firstMonth);
-		}
-		if(this.DBG) {
 			System.out.println(this.byteAssembly);
 		}
 	}
@@ -143,8 +151,10 @@ public class ProfileReverseParser {
 	class FFAssembler implements Assembler {
 		int ffCount = 0;
 		int position16FF = 0;
+		int lastFFposition = 0;
 
 		public void workOn(ByteAssembly ta) {
+			lastFFposition = ta.getIndex();
 			if (this.ffCount == 15 ){
 				this.position16FF = ta.getIndex();
 			} else {
@@ -174,11 +184,8 @@ public class ProfileReverseParser {
 		}
 	}
 
-	public String toString() {
-		return "ProfileReverseParser [DBG=" + DBG + "\n assemblerTable=" + Arrays.toString(assemblerTable) + "\n beginFound=" + beginFound + "\n byteAssembly="
-		+ byteAssembly + "\n dayAssembler=" + dayAssembler + "\n dayNr=" + dayNr + "\n ffAssembler=" + ffAssembler + "\n intervalLength=" + intervalLength
-		+ "\n lastGoodIndex=" + lastGoodIndex + "\n monthNr=" + monthNr + "\n nrOfChannels=" + nrOfChannels + "\n terminalAssembler=" + terminalAssembler
-		+ "]";
+	public boolean isDebug() {
+		return DBG;
 	}
 
 }

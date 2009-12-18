@@ -12,20 +12,18 @@ import com.energyict.protocolimpl.iec1107.ppmi1.Profile;
 
 public class ProfileReverseParser {
 
-	boolean DBG = false;
-
-	int dayNr = 0;
-	int monthNr = 0;
+	private boolean DBG = false;
+	private int dayNr = 0;
+	private int monthNr = 0;
 
 	private boolean beginFound = false;
-	int lastGoodIndex = 0;
-
+	private int lastGoodIndex = 0;
 	private int nrOfChannels;
 	private int intervalLength;
 
-	ByteAssembly byteAssembly = null;
+	private ByteAssembly byteAssembly = null;
 
-	Assembler[] assemblerTable = new Assembler[256];
+	private Assembler[] assemblerTable = new Assembler[256];
 
 	private FFAssembler ffAssembler = new FFAssembler();
 	private TerminalAssembler terminalAssembler = new TerminalAssembler();
@@ -79,15 +77,6 @@ public class ProfileReverseParser {
 			int length = this.ffAssembler.position16FF - this.lastGoodIndex;
 			if (length < 0) {
 				length = this.ffAssembler.lastFFposition - this.lastGoodIndex;
-			}
-
-			if (isDebug()) {
-				System.out.println(
-						" position16FF = " +  this.ffAssembler.position16FF +
-						" lastFFposition = " +  this.ffAssembler.lastFFposition +
-						" lastGoodIndex = " + this.lastGoodIndex +
-						" length = " + length
-				);
 			}
 
 			byte[] result = new byte[length];
@@ -182,7 +171,6 @@ public class ProfileReverseParser {
 			int day = (int) hex2dec(ProfileReverseParser.this.byteAssembly.getInput()[ProfileReverseParser.this.byteAssembly.getIndex() + 1]);
 			int month = (int) hex2dec(ProfileReverseParser.this.byteAssembly.getInput()[ProfileReverseParser.this.byteAssembly.getIndex() + 2]);
 			if ((day == ProfileReverseParser.this.dayNr) && (month == ProfileReverseParser.this.monthNr + 1)) {
-				System.out.println("DAY = " + day + " - " + month);
 				ProfileReverseParser.this.lastGoodIndex = ProfileReverseParser.this.byteAssembly.getIndex();
 				blockScan();
 			}

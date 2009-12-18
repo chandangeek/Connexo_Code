@@ -234,6 +234,15 @@ public final class ProtocolTools {
 		return byteArray.toByteArray();
 	}
 
-
+	/**
+	 * @param millis
+	 */
+	public static void delay(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+			// Absorb
+		}
+	}
 
 }
