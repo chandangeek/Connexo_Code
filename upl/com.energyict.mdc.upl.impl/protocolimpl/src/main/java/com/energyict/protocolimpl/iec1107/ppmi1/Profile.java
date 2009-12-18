@@ -27,9 +27,9 @@ import com.energyict.protocolimpl.iec1107.ppmi1.parser.ProfileReverseParser;
 public class Profile {
 
 	/** The following statics are only used for debugging purposes */
-	private static final boolean	READFROMFILE		= true;
+	private static final boolean	READFROMFILE		= false;
 	private static final boolean	WRITETOFILE			= false;
-	private static final String		FILENAME			= "IMSERV_DEBUG";
+	private static final String		FILENAME			= "1257407814849_PR";
 	private static final String		PATHNAME			= "C:\\EnergyICT\\WorkingDir\\ppm_profiles\\";
 	private static final String		EXTENSION			= ".hex";
 
