@@ -129,11 +129,11 @@ public final class ProtocolTools {
 			if (secondArray == null) {
 				return new byte[0];
 			} else {
-				return secondArray.clone();
+				return (byte[]) secondArray.clone();
 			}
 		} else {
 			if (secondArray == null) {
-				return firstArray.clone();
+				return (byte[]) firstArray.clone();
 			}
 		}
 
