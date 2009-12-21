@@ -122,6 +122,9 @@ public class P2LPCTest {
 	public void firmwareUpgradeConcentratorMessageTest(){
 		
 		try {
+			
+			Group gr = Utilities.createEmptyRtuGroup();
+			
 			int pendingMessageID;
 			prepareConcentratorCreation();
 			
@@ -179,7 +182,7 @@ public class P2LPCTest {
 				rtum = getJustExecutedPendingMessage(Utilities.mw().getRtuMessageFactory().findByRtu(concentrator), pendingMessageID);
 				assertTrue(rtum.isFailed());	// there is no GroupID with the value 17800
 				
-				Group gr = Utilities.createEmptyRtuGroup();
+//				Group gr = Utilities.createEmptyRtuGroup();
 				rms.setState(rmt);
 				rms.setContents("<"+ RtuMessageConstant.FIRMWARE +">"  + gr.getId() + "</"+RtuMessageConstant.FIRMWARE + "><GroupID of meters to receive new firmware>" + gr.getId() + "</GroupID of meters to receive new firmware>");
 				concentrator.createMessage(rms);
@@ -219,9 +222,11 @@ public class P2LPCTest {
 				uf = Utilities.createDummyNotEmptyUserFile(dummyUserFile);
 				
 				System.out.println("FolderID Group: " + gr.getFolderId());
-				System.out.println("FolderID Group: " + gr.getSearchFilter().getFolderId());
+				System.out.println("FolderID GroupSearchFilter: " + gr.getSearchFilter().getFolderId());
 				System.out.println("TypeId Group: " + gr.getSearchFilter().getTypeId());
-				System.out.println("Concentrator Group: " + concentrator.getRtuTypeId());
+				System.out.println("TypeId object: " + gr.getObjectType());
+				System.out.println("Concentrator rtuTypeId: " + concentrator.getTypeId());
+				System.out.println("Group fullname " + gr.getFullName());
 				
 				rms.setState(rmt);
 				rms.setContents("<"+ RtuMessageConstant.FIRMWARE +">" + uf.getId() + "</"+RtuMessageConstant.FIRMWARE + "><GroupID of meters to receive new firmware>" + gr.getId() + "</GroupID of meters to receive new firmware>");

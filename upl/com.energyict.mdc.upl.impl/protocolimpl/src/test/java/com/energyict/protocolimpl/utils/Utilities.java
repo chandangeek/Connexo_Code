@@ -298,7 +298,7 @@ public class Utilities {
 		GroupShadow grs = new GroupShadow();
 		grs.setName(emptyGroup);
 		grs.setObjectType(mw().getRtuFactory().getId());
-		grs.getSearchFilter().setFolderId(0);
+//		grs.getSearchFilter().setFolderId(0);
 		grs.getSearchFilter().setUseMaxResults(false);
 		return mw().getGroupFactory().create(grs);
 	}
