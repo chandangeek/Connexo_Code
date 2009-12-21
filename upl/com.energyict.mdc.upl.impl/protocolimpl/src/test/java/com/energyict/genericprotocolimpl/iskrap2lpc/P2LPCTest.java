@@ -209,7 +209,6 @@ public class P2LPCTest {
 				rtum = getJustExecutedPendingMessage(Utilities.mw().getRtuMessageFactory().findByRtu(concentrator), pendingMessageID);
 				assertTrue(rtum.isFailed()); 	// the length of the userFile is empty
 				
-				
 				File dummyUserFile = File.createTempFile("userfile","txt");
 				FileOutputStream fos = new FileOutputStream(dummyUserFile);
 				fos.write(new byte[]{1, 2, 3, 4, 5});
