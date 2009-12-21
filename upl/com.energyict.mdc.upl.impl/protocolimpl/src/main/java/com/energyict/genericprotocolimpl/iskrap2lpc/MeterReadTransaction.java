@@ -150,7 +150,6 @@ public class MeterReadTransaction implements CacheMechanism {
             	
                 // Import profile
                 if( communicationProfile.getReadDemandValues() ) {
-//                TODO	doTheCheckMethods();
                 	dataHandler = new XmlHandler( getLogger(), getChannelMap() );
                 	dataHandler.setChannelUnit(Unit.get(BaseUnit.WATTHOUR, 3));
                 	importProfile(meter, dataHandler, communicationProfile.getReadMeterEvents());
@@ -158,7 +157,6 @@ public class MeterReadTransaction implements CacheMechanism {
                 
                 // Import Daily and Monthly registers
                 if( communicationProfile.getReadMeterReadings() ){
-//                TODO	doTheCheckMethods();
                 	dataHandler = new XmlHandler(getLogger(), getChannelMap());
                 	dataHandler.setDailyMonthlyProfile(true);
                 	dataHandler.setChannelUnit(Unit.get(BaseUnit.WATTHOUR, 3));
@@ -168,9 +166,6 @@ public class MeterReadTransaction implements CacheMechanism {
                 
                 // Send messages
                 if( communicationProfile.getSendRtuMessage() ){
-//                	if(!initCheck){			// otherwise the MBus messages will not be executed
-//                		doTheMbusCheckMethods();
-//                	}
                 	dataHandler = new XmlHandler( getLogger(), getChannelMap() );
                 	sendMeterMessages(getMeter(), dataHandler);
                 }
@@ -375,27 +370,6 @@ public class MeterReadTransaction implements CacheMechanism {
          */
     	getLogger().log(Level.INFO, "Reading PROFILE from meter with serialnumber " + meter.getSerialNumber() + ".");
         
-//        ObjectDef[] lp1 = null;
-//        ObjectDef[] lp2 = null;
-//        int lpPeriod1 = -1;
-//        int lpPeriod2 = -1;
-//        if ( TESTING ){
-//        	FileReader inFile = new FileReader(Utils.class.getResource(Constant.profileConfig1).getFile());
-//        	xml = getConcentrator().readWithStringBuffer(inFile);
-//        	lp1 = getlpConfigObjectDefFromString(xml);
-//        	lpPeriod1 = 900;
-//        	inFile = new FileReader(Utils.class.getResource(Constant.profileConfig2).getFile());
-//        	xml = getConcentrator().readWithStringBuffer(inFile);
-//        	lp2 = getlpConfigObjectDefFromString(xml);
-//        	lpPeriod2 = 3600;
-//        }
-//        else{
-//        	lp1 = loadProfileConfig1;
-//        	lp2 = loadProfileConfig2;
-//        	lpPeriod1 = loadProfilePeriod1;
-//        	lpPeriod2 = loadProfilePeriod2;
-//        }
-        
         Channel chn;
         for( int i = 0; i < dataHandler.getChannelMap().getNrOfProtocolChannels(); i ++ ) {
         
@@ -408,48 +382,16 @@ public class MeterReadTransaction implements CacheMechanism {
             		
             		profile = getConcentrator().getLpElectricity();
             		
-//            		if(useParameters){
-//            			profile = getConcentrator().getLpElectricity();
-//            		} else {
-//            			
-//            			if(chn.getIntervalInSeconds() == lpPeriod1){
-//            				profile = lpString1;
-//            			}
-//            			else if(chn.getIntervalInSeconds() == lpPeriod2){
-//            				profile = lpString2;
-//            			}
-//            			else {
-//            				getLogger().log(Level.SEVERE, "Interval didn't match for channel \"" + chn + "\" - ProfileInterval EIServer: " + chn.getIntervalInSeconds());
-//            				throw new BusinessException("Interval didn't match");
-//            			}
-//            			
-//            		}
-            		
             		dataHandler.setProfileChannelIndex(i);
-//                	if(TESTING){
-//                		FileReader inFile = new FileReader(Utils.class.getResource(getProfileTestName()[i]).getFile());
-//                		xml = getConcentrator().readWithStringBuffer(inFile);
-//                	} else{
                 		getLogger().log(Level.INFO, "Retrieving profiledata from " + from + " to " + to);
                 		xml = getConnection().getMeterProfile(getMeter().getSerialNumber(), profile, pc.getRegister(), from, to);
-//                	}
 
             	}
             }
             if(!xml.equalsIgnoreCase("")){
-
             	dataHandler.setChannelIndex( i );
             	getConcentrator().importData(xml, dataHandler);
-            	
-//            	File file = new File("c://TEST_FILES/NULL2509Profile_" + mtr + "_" + i + ".xml");
-//            	FileOutputStream fos = new FileOutputStream(file);
-//            	ObjectOutputStream oos = new ObjectOutputStream(fos);
-//            	oos.writeObject(xml);
-//            	oos.close();
-//            	fos.close();
-            	
             }
-            
         }
         
         getLogger().log(Level.INFO, "Done reading PROFILE.");
@@ -463,17 +405,9 @@ public class MeterReadTransaction implements CacheMechanism {
             
             from = Constant.getInstance().format(getLastLogboog(getMeter()));
             String events, powerFailures;
-//            if(TESTING){
-//            	FileReader inFile = new FileReader(Utils.class.getResource(Constant.eventsFile).getFile());
-//        		events = getConcentrator().readWithStringBuffer(inFile);
-//        		inFile = new FileReader(Utils.class.getResource(Constant.powerDownFile).getFile());
-//        		powerFailures = getConcentrator().readWithStringBuffer(inFile);
-//            }
-//            else{
             	getLogger().log(Level.INFO, "Retrieving events from " + from + " to " + to);
             	events = getConnection().getMeterEvents(mtr, from, to);
             	powerFailures = getConnection().getMeterPowerFailures(mtr, from, to);
-//            }
             getConcentrator().importData(events, dataHandler);
             getConcentrator().importData(powerFailures, dataHandler);
             
@@ -507,40 +441,6 @@ public class MeterReadTransaction implements CacheMechanism {
     	Date toDate = new Date();
         String to = Constant.getInstance().format(toDate);
     	
-//    	int period;
-//    	CosemDateTime cdt;
-//    	period = loadProfilePeriod2;
-//    	cdt = billingReadTime;
-        
-//    	// variable configuration
-//    	if(TESTING){
-//    		daily = "98.2.0";
-//    		monthly = "98.1.0";
-//    	} else {
-//    		
-//    		if (useParameters) {
-//    			
-//				daily = getConcentrator().getLpDaily();
-//				monthly = getConcentrator().getLpMonthly();
-//				
-//			} else {
-//				
-//				if ( period == 86400 ){ 
-//					daily = "99.2.0";
-//				}else
-//					daily = null;
-//				
-//				if ( (cdt.getDayOfMonth().intValue() == 1) && (cdt.getHour().intValue() == 0) && (cdt.getYear().intValue() == 65535) && (cdt.getMonth().intValue() == 255) ){
-//					monthly = "98.1.0";
-//					if (daily == null) daily = "98.2.0";
-//				}else{
-//					monthly = "98.2.0";
-//					if (daily == null) daily = "98.1.0";
-//				}
-//				
-//			}
-//    	}
-		
 		try {
 			Channel chn;
 			ProtocolChannel pc;
@@ -556,13 +456,7 @@ public class MeterReadTransaction implements CacheMechanism {
 					if(pc.containsDailyValues()){
 						if(chn.getInterval().getTimeUnitCode() == TimeDuration.DAYS){
 							getLogger().log(Level.INFO, "Reading Daily values with registername: " + pc.getRegister() + " from " + from + " to " + to);
-//							if(TESTING){
-//			            		FileReader inFile = new FileReader(Utils.class.getResource(getBillingDaily()).getFile());
-////								FileReader inFile = new FileReader(Utils.class.getResource("/offlineFiles/iskrap2lpc/nullpointerstuff.xml").getFile());
-//			            		xml = getConcentrator().readWithStringBuffer(inFile);
-//							} else {
 								xml = getConnection().getMeterProfile(getMeter().getSerialNumber(), daily, pc.getRegister(), from, to);
-//							}
 						} else {
 							throw new IOException("Channelconfiguration of channel \"" + chn + "\" is different from the channelMap");
 						}
@@ -570,12 +464,7 @@ public class MeterReadTransaction implements CacheMechanism {
 					else if(pc.containsMonthlyValues()){
 						if(chn.getInterval().getTimeUnitCode() == TimeDuration.MONTHS){
 							getLogger().log(Level.INFO, "Reading Monthly values with registername: " + pc.getRegister()  + " from " + from + " to " + to);
-//							if(TESTING){
-//			            		FileReader inFile = new FileReader(Utils.class.getResource(getBillingMonthly()).getFile());
-//			            		xml = getConcentrator().readWithStringBuffer(inFile);
-//							} else {
 								xml = getConnection().getMeterProfile(getMeter().getSerialNumber(), monthly, pc.getRegister(), from, to);
-//							}
 						} else {
 							throw new IOException("Channelconfiguration of channel \"" + chn + "\" is different from the channelMap");
 						}
@@ -586,15 +475,8 @@ public class MeterReadTransaction implements CacheMechanism {
 
 				if(!xml.equalsIgnoreCase("")){
 					
-//		        	File file = new File("c://TEST_FILES/NULLChannel_" + chn.getId() + ".xml");
-//		        	FileOutputStream fos = new FileOutputStream(file);
-//		        	ObjectOutputStream oos = new ObjectOutputStream(fos);
-//		        	oos.writeObject(xml);
-//		        	oos.close();
-//		        	fos.close();
 					
 					getConcentrator().importData(xml, dataHandler);
-//					meter.store(dataHandler.getDailyMonthlyProfile(), false);
 					ProfileData pd = dataHandler.getDailyMonthlyProfile();
 					pd = sortOutProfileData(pd, pc);
 				    // if complete profile is read, check if there are values in the future and then store it.
@@ -1714,7 +1596,7 @@ public class MeterReadTransaction implements CacheMechanism {
      * @throws BusinessException 
      * @throws ServiceException 
      */
-    private boolean mbusCheck() throws ServiceException, BusinessException, IOException, SQLException{
+    protected boolean mbusCheck() throws ServiceException, BusinessException, IOException, SQLException{
 
 //		for(int i = 0; i < MBUS_MAX; i++){
 //			if ( mbusDevices[0] != null ){

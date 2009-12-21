@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -8,7 +9,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,14 +26,11 @@ import org.junit.Test;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Quantity;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.Environment;
 import com.energyict.interval.RawIntervalRecord;
-import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.CommunicationProtocol;
-import com.energyict.mdw.core.IntervalDataStorer;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuType;
@@ -74,6 +71,7 @@ public class ConcentratorTest{
 	
 	private CommunicationProtocol commProtMeter = null;
 	private Concentrator iskraConcentrator;
+	private TConnection connection;
 	private MeterReadTransaction meterReadTransaction;
 	private Rtu meter;
 	private Rtu mbusRtu[] = {null, null, null, null, null};
@@ -92,6 +90,8 @@ public class ConcentratorTest{
 	public void setUp() throws Exception {
 		iskraConcentrator = new Concentrator();
 		iskraConcentrator.setTESTING(true);
+		connection = new TConnection(iskraConcentrator);
+		iskraConcentrator.setConnection(connection);
 		meterReadTransaction = new MeterReadTransaction(iskraConcentrator, null, null, null);
 		meterReadTransaction.setTESTING(true);
 		
@@ -103,15 +103,17 @@ public class ConcentratorTest{
 				break;
 			}
 		}
-		if(commProtMeter == null)
+		if(commProtMeter == null) {
 			commProtMeter = Utilities.createCommunicationProtocol(jcnIskraMeter);
+		}
 		
 		// find out if there is an rtuType defined with this testName, if not, create it
 		result = Utilities.mw().getRtuTypeFactory().findByName(testMeter);
-		if(result.size() == 0)
+		if(result.size() == 0) {
 			rtuTypeMeter = Utilities.createRtuType(commProtMeter, testMeter, 4);
-		else
+		} else {
 			rtuTypeMeter = (RtuType)result.get(0);
+		}
 		
 	}
 
@@ -119,27 +121,34 @@ public class ConcentratorTest{
 	public void tearDown() throws Exception {
 		// first delete all the device
 		List result = Utilities.mw().getRtuFactory().findByName("12345678");
-		if (result.size() > 0)
-			for(int i = 0; i < result.size(); i++)
+		if (result.size() > 0) {
+			for(int i = 0; i < result.size(); i++) {
 				((Rtu)result.get(i)).delete();
+			}
+		}
 		
 		// then the deviceType
 		result = Utilities.mw().getRtuTypeFactory().findByName(testMeter);
-		if (result.size() > 0)
+		if (result.size() > 0) {
 			for(int i = 0; i < result.size(); i++){
 				((RtuTypeImpl)result.get(i)).delete();
 			}
+		}
 		
 		// then the communication protocol
 		result = Utilities.mw().getCommunicationProtocolFactory().findByName(jcnIskraMeter);
-		if (result.size() > 0)
-			for(int i = 0; i < result.size(); i++)
+		if (result.size() > 0) {
+			for(int i = 0; i < result.size(); i++) {
 				((CommunicationProtocolImpl)result.get(i)).delete();
+			}
+		}
 		
 		mbusAfter();
 	}
 	
-	@Ignore
+	/**
+	 * Import profileData from testFiles and put them into an RTU
+	 */
 	@Test
 	public void importProfileTest() {
 		
@@ -150,13 +159,15 @@ public class ConcentratorTest{
 			
 			// find out if there is already a meter with the TestMeter name, if not, create it
 			result = Utilities.mw().getRtuFactory().findByName(testMeter);
-			if(result.size() == 0)
+			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, "12345678", 900);
-			else
+			} else {
 				meter = (Rtu)result.get(0);
+			}
 			
-			if(meter==null)
+			if(meter==null) {
 				fail();
+			}
 			
 			meter = Utilities.addPropertyToRtu(meter, Constant.CHANNEL_MAP, "1.8.0+9:2.8.0+9");
 			iskraConcentrator.setLogger(logger);
@@ -164,7 +175,7 @@ public class ConcentratorTest{
 			meterReadTransaction.setMeter(meter);
 			XmlHandler xmlHandler = new XmlHandler(logger, meterReadTransaction.getChannelMap());
 			xmlHandler.setChannelUnit(Unit.get(BaseUnit.WATTHOUR, 3));
-			meterReadTransaction.setProfileTestName(Constant.profileFiles1);
+			connection.setMeterProfileTestFiles(Constant.profileFiles1);
 			meterReadTransaction.importProfile(meter, xmlHandler, false);
 			
 			assertEquals(Unit.get("kWh"), ((ChannelInfo)xmlHandler.getProfileData().getChannelInfos().get(0)).getUnit());
@@ -177,32 +188,6 @@ public class ConcentratorTest{
 					getIntervalDatas().size()-1).getEndTime());
 			assertEquals(lastNumber, ((IntervalValue)xmlHandler.getProfileData().getIntervalData(xmlHandler.getProfileData().
 					getIntervalDatas().size()-1).getIntervalValues().get(0)).getNumber().doubleValue());
-			
-			Environment.getDefault().execute(meterReadTransaction.getStoreObjects());
-			
-			System.out.println("Rtu: " + meter.getLastReading());
-			System.out.println("Channel 0: " + meter.getChannel(0).getLastReading());
-			Date d = Constant.getInstance().getDateFormat().parse("2008-04-17T07:45:00 +0000");
-			int[] channels = {0, 1};
-			Utilities.changeLastReading(meter, d);
-			Utilities.changeLastReading(meter, d, channels);
-			System.out.println("Rtu: " + meter.getLastReading());
-			System.out.println("Channel 0: " + meter.getChannel(0).getLastReading());
-			
-			
-			meterReadTransaction = new MeterReadTransaction(iskraConcentrator, null, null, null);
-			meterReadTransaction.setTESTING(true);
-			meterReadTransaction.setMeter(meter);
-			xmlHandler = new XmlHandler(logger, meterReadTransaction.getChannelMap());
-			xmlHandler.setChannelUnit(Unit.get(BaseUnit.WATTHOUR, 3));
-			meterReadTransaction.setProfileTestName(Constant.profileFiles1);
-			meterReadTransaction.importProfile(meter, xmlHandler, false);
-			
-			Environment.getDefault().execute(meterReadTransaction.getStoreObjects());
-			
-			System.out.println("Rtu: " + meter.getLastReading());
-			System.out.println("Channel 0: " + meter.getChannel(0).getLastReading());
-			
 			
 		} catch (InvalidPropertyException e) {
 			fail();
@@ -219,37 +204,35 @@ public class ConcentratorTest{
 		} catch (SQLException e) {
 			fail();
 			e.printStackTrace();
-		} catch (ParseException e) {
-			e.printStackTrace();
-			fail();
 		}
 	}
 
-	@Ignore
 	@Test
 	public void importDailyMonthlyTest(){
 		try {
 			
 			String property = "0:0:0:0:1.8.1+9d:1.8.1+9m";
 			result = Utilities.mw().getRtuFactory().findByName(testMeter);
-			if(result.size() == 0)
+			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, "12345678", 900);
-			else
+			} else {
 				meter = (Rtu)result.get(0);
+			}
 			meter = Utilities.addChannel(meter, TimeDuration.DAYS, 5);
 			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 6);
 			
-			if(!Utilities.getChannelWithProfileIndex(meter, 5).getInterval().equals(new TimeDuration(1, TimeDuration.DAYS)))
+			if(!Utilities.getChannelWithProfileIndex(meter, 5).getInterval().equals(new TimeDuration(1, TimeDuration.DAYS))) {
 				fail();
-			if(!Utilities.getChannelWithProfileIndex(meter, 6).getInterval().equals(new TimeDuration(1, TimeDuration.MONTHS)))
+			}
+			if(!Utilities.getChannelWithProfileIndex(meter, 6).getInterval().equals(new TimeDuration(1, TimeDuration.MONTHS))) {
 				fail();
+			}
 			
 			meter = Utilities.addPropertyToRtu(meter, "ChannelMap", property);
 			iskraConcentrator.setLogger(logger);
 			meterReadTransaction.setMeter(meter);
 			XmlHandler xmlHandler = new XmlHandler(logger, meterReadTransaction.getChannelMap());
-			meterReadTransaction.setBillingDaily(Constant.billingDaily);
-			meterReadTransaction.setBillingMonthly(Constant.billingMonthly);
+			connection.setMeterProfileTestFiles(Constant.billingDailyMonthly);
 			xmlHandler.setDailyMonthlyProfile(true);
 			meterReadTransaction.importDailyMonthly(meter, xmlHandler, meter.getSerialNumber());
 			 // do NOT store it, we already do this in the importDailyMonthly method
@@ -310,16 +293,16 @@ public class ConcentratorTest{
 		}
 	}
 
-	@Ignore
 	@Test
 	public void importTwoDailyMonthlyProfilesTest(){
 		try {
 			String property = "0:0:0:0:1.8.1+9d:1.8.1+9m";
 			result = Utilities.mw().getRtuFactory().findByName(testMeter);
-			if(result.size() == 0)
+			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, "12345678", 900);
-			else
+			} else {
 				meter = (Rtu)result.get(0);
+			}
 			meter = Utilities.addChannel(meter, TimeDuration.DAYS, 5);
 			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 6);
 			
@@ -329,8 +312,10 @@ public class ConcentratorTest{
 			
 			XmlHandler xmlHandler = new XmlHandler(logger, meterReadTransaction.getChannelMap());
 			xmlHandler.setDailyMonthlyProfile(true);
-			meterReadTransaction.setBillingDaily(Constant.dailyto0509);
-			meterReadTransaction.setBillingMonthly(Constant.monthlyto0509);
+//			meterReadTransaction.setBillingDaily(Constant.dailyto0509);
+//			meterReadTransaction.setBillingMonthly(Constant.monthlyto0509);
+			
+			connection.setMeterProfileTestFiles(Constant.dailyMonthly0509_2);
 			meterReadTransaction.importDailyMonthly(meter, xmlHandler, meter.getSerialNumber());
 			Environment.getDefault().execute(meterReadTransaction.getStoreObjects());
 
@@ -342,8 +327,10 @@ public class ConcentratorTest{
 			
 			xmlHandler = new XmlHandler(logger, meterReadTransaction.getChannelMap());
 			xmlHandler.setDailyMonthlyProfile(true);
-			meterReadTransaction.setBillingDaily(Constant.dailyfrom0509);
-			meterReadTransaction.setBillingMonthly(Constant.monthlyfrom0509);
+//			meterReadTransaction.setBillingDaily(Constant.dailyfrom0509);
+//			meterReadTransaction.setBillingMonthly(Constant.monthlyfrom0509);
+			
+			connection.setMeterProfileTestFiles(Constant.dailyMonthly0509_1);
 			meterReadTransaction.importDailyMonthly(meter, xmlHandler, meter.getSerialNumber());
 			Environment.getDefault().execute(meterReadTransaction.getStoreObjects());
 			
@@ -381,16 +368,16 @@ public class ConcentratorTest{
 		}
 	}
 
-	@Ignore
 	@Test
 	public void importDailyMonthlyFromPLR(){
 		try {
 			String property = "0:0:0:0:1.8.1+9d:1.8.2m";
 			result = Utilities.mw().getRtuFactory().findByName(testMeter);
-			if(result.size() == 0)
+			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, "12345678", 900);
-			else
+			} else {
 				meter = (Rtu)result.get(0);
+			}
 			meter = Utilities.addChannel(meter, TimeDuration.DAYS, 5);
 			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 6);
 			
@@ -400,8 +387,10 @@ public class ConcentratorTest{
 			
 			XmlHandler xmlHandler = new XmlHandler(logger, meterReadTransaction.getChannelMap());
 			xmlHandler.setDailyMonthlyProfile(true);
-			meterReadTransaction.setBillingDaily(Constant.dailyResult);
-			meterReadTransaction.setBillingMonthly(Constant.monthlyResult);
+//			meterReadTransaction.setBillingDaily(Constant.dailyResult);
+//			meterReadTransaction.setBillingMonthly(Constant.monthlyResult);
+			
+			connection.setMeterProfileTestFiles(Constant.dailyMonthlyResult);
 			meterReadTransaction.importDailyMonthly(meter, xmlHandler, meter.getSerialNumber());
 			Environment.getDefault().execute(meterReadTransaction.getStoreObjects());
 			
@@ -458,16 +447,16 @@ public class ConcentratorTest{
 		}
 	}
 
-	@Ignore
 	@Test
 	public void singelMonthlyValueTest(){
 		try {
 			String property = "0:0:0:0:1.8.1+9m";
 			result = Utilities.mw().getRtuFactory().findByName(testMeter);
-			if(result.size() == 0)
+			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, "12345678", 900);
-			else
+			} else {
 				meter = (Rtu)result.get(0);
+			}
 			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 5);
 			
 			meter = Utilities.addPropertyToRtu(meter, "ChannelMap", property);
@@ -476,7 +465,8 @@ public class ConcentratorTest{
 			
 			XmlHandler xmlHandler = new XmlHandler(logger, meterReadTransaction.getChannelMap());
 			xmlHandler.setDailyMonthlyProfile(true);
-			meterReadTransaction.setBillingMonthly(Constant.oneMonthlyValue);
+//			meterReadTransaction.setBillingMonthly(Constant.oneMonthlyValue);
+			connection.setMeterProfileTestFiles(new String[]{Constant.oneMonthlyValue});
 			meterReadTransaction.importDailyMonthly(meter, xmlHandler, meter.getSerialNumber());
 			Environment.getDefault().execute(meterReadTransaction.getStoreObjects());
 			
@@ -506,16 +496,16 @@ public class ConcentratorTest{
 		}
 	}
 	
-	@Ignore
 	@Test
 	public void mutlipleSingleStores(){
 		try {
 			String property = "0:0:0:0:1.8.1+9m";
 			result = Utilities.mw().getRtuFactory().findByName(testMeter);
-			if(result.size() == 0)
+			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, "12345678", 900);
-			else
+			} else {
 				meter = (Rtu)result.get(0);
+			}
 			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 5);
 			
 			meter = Utilities.addPropertyToRtu(meter, "ChannelMap", property);
@@ -524,13 +514,15 @@ public class ConcentratorTest{
 			
 			XmlHandler xmlHandler = new XmlHandler(logger, meterReadTransaction.getChannelMap());
 			xmlHandler.setDailyMonthlyProfile(true);
-			meterReadTransaction.setBillingMonthly(Constant.billingMonthly);
+//			meterReadTransaction.setBillingMonthly(Constant.billingMonthly);
+			connection.setMeterProfileTestFiles(new String[]{Constant.billingMonthly});
 			meterReadTransaction.importDailyMonthly(meter, xmlHandler, meter.getSerialNumber());
 			Environment.getDefault().execute(meterReadTransaction.getStoreObjects());
 			
 			xmlHandler = new XmlHandler(logger, meterReadTransaction.getChannelMap());
 			xmlHandler.setDailyMonthlyProfile(true);
-			meterReadTransaction.setBillingMonthly(Constant.oneMonthlyValue);
+//			meterReadTransaction.setBillingMonthly(Constant.oneMonthlyValue);
+			connection.setMeterProfileTestFiles(new String[]{Constant.oneMonthlyValue});
 			meterReadTransaction.importDailyMonthly(meter, xmlHandler, meter.getSerialNumber());
 			Environment.getDefault().execute(meterReadTransaction.getStoreObjects());
 			
@@ -566,43 +558,51 @@ public class ConcentratorTest{
 		result = Utilities.mw().getRtuFactory().findByName("0000");
 		if(result.size() > 0){
 			if (result.size() > 0){
-				for(int j = 0; j < result.size(); j++)
+				for(int j = 0; j < result.size(); j++) {
 					((Rtu)result.get(j)).delete();
+				}
 			}
 		}
 		result = Utilities.mw().getRtuFactory().findByName("1111");
 		if(result.size() > 0){
 			if (result.size() > 0){
-				for(int j = 0; j < result.size(); j++)
+				for(int j = 0; j < result.size(); j++) {
 					((Rtu)result.get(j)).delete();
+				}
 			}
 		}
 		result = Utilities.mw().getRtuFactory().findByName("2222");
 		if(result.size() > 0){
 			if (result.size() > 0){
-				for(int j = 0; j < result.size(); j++)
+				for(int j = 0; j < result.size(); j++) {
 					((Rtu)result.get(j)).delete();
+				}
 			}
 		}
 		result = Utilities.mw().getRtuFactory().findByName("3333");
 		if(result.size() > 0){
 			if (result.size() > 0){
-				for(int j = 0; j < result.size(); j++)
+				for(int j = 0; j < result.size(); j++) {
 					((Rtu)result.get(j)).delete();
+				}
 			}
 		}
 		
 		// then the deviceType
 		result = Utilities.mw().getRtuTypeFactory().findByName("mbusMeter");
-		if (result.size() > 0)
-			for(int i = 0; i < result.size(); i++)
+		if (result.size() > 0) {
+			for(int i = 0; i < result.size(); i++) {
 				((RtuTypeImpl)result.get(i)).delete();
+			}
+		}
 		
 		// then the communication profile
 		result = Utilities.mw().getCommunicationProtocolFactory().findByName(jcnMbusMeter);
-		if (result.size() > 0)
-			for(int i = 0; i < result.size(); i++)
+		if (result.size() > 0) {
+			for(int i = 0; i < result.size(); i++) {
 				((CommunicationProtocolImpl)result.get(i)).delete();
+			}
+		}
 	}
 	
 	@Ignore
@@ -612,10 +612,11 @@ public class ConcentratorTest{
 			
 			String property = "0:0:0:0:1.8.1+9m";
 			result = Utilities.mw().getRtuFactory().findByName(testMeter);
-			if(result.size() == 0)
+			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, "12345678", 900);
-			else
+			} else {
 				meter = (Rtu)result.get(0);
+			}
 			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 5);
 			
 			meter = Utilities.addPropertyToRtu(meter, "ChannelMap", property);
@@ -632,28 +633,31 @@ public class ConcentratorTest{
 					break;
 				}
 			}
-			if(commProtMeter == null)
+			if(commProtMeter == null) {
 				commProtMeter = Utilities.createCommunicationProtocol(jcnMbusMeter);
+			}
 			
 			// find out if there is an rtuType defined with this testName, if not, create it
 			result = Utilities.mw().getRtuTypeFactory().findByName("mbusMeter");
-			if(result.size() == 0)
+			if(result.size() == 0) {
 				rtuTypeMeter = Utilities.createRtuType(commProtMeter, "mbusMeter", 4);
-			else
+			} else {
 				rtuTypeMeter = (RtuType)result.get(0);
+			}
 			
 			for(int i = 0; i < 4; i++){
 				result = Utilities.mw().getRtuFactory().findByName(""+i+i+i+i);
-				if(result.size() == 0)
+				if(result.size() == 0) {
 					mbusRtu[i] = Utilities.createRtu(rtuTypeMeter, ""+i+i+i+i, 3600);
-				else 
+				} else {
 					mbusRtu[i] = (Rtu)result.get(0);
+				}
 				mbusRtu[i] = Utilities.addChannel(mbusRtu[i], TimeDuration.DAYS, 5);
 				mbusRtu[i] = Utilities.addPropertyToRtu(mbusRtu[i], "ChannelMap", "1:1:1:1:0."+(i+1)+".128.50.0d");
 				mbusRtu[i].updateGateway(meter);
 			}
 			
-//			meterReadTransaction.checkMbusDevices();
+			assertTrue(meterReadTransaction.mbusCheck());
 			
 //			for(int i = 0; i < 4; i++){
 //				MbusDevice mbd = meterReadTransaction.mbusDevices[i];
@@ -666,6 +670,12 @@ public class ConcentratorTest{
 			e.printStackTrace();
 			fail();
 		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			fail();
+		} catch (ServiceException e) {
+			e.printStackTrace();
+			fail();
+		} catch (IOException e) {
 			e.printStackTrace();
 			fail();
 		} finally {

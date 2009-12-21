@@ -4,7 +4,8 @@
 package com.energyict.protocolimpl.edf.trimaran2p;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,7 +17,6 @@ import java.util.TimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Ignore;
 
 import com.energyict.cbo.Utils;
 import com.energyict.protocolimpl.edf.trimaran2p.core.TrimaranObjectFactory;
@@ -49,7 +49,6 @@ public class RegisterFactoryTest {
 	public void tearDown() throws Exception {
 	}
 	
-	@Ignore
 	@Test
 	public void registerFactoryTest(){
 		

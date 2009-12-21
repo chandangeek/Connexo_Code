@@ -1,7 +1,10 @@
 package com.energyict.protocolimpl.utils;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,19 +45,20 @@ public class Utilities {
 	/**
 	 * ReadMeterReadings, ReadMeterEvents, ReadDemandValues, SendRtuMessage
 	 */
-	public static String COMMPROFILE_ALL = "all";
+	public static String commProfile_All = "all";
 	/**
 	 * ReadDemandValues
 	 */
-	public static String COMMPROFILE_READDEMANDVALUES = "readDemandValues";
+	public static String commProfile_ReadDemandValues = "readDemandValues";
 	/**
 	 * SendRtuMessage
 	 */
-	public static String COMMPROFILE_SENDRTUMESSAGE = "sendRtuMessage";
+	public static String commProfile_SendRtuMessage = "sendRtuMessage";
 
-	public static String EMPTY_GROUP = "emptyGroup";
-	public static String EMPTY_USERFILE = "emptyUserFile";
-	public static String DUMMY_MODEMPOOL = "dummyModemPool";
+	public static String emptyGroup = "emptyGroup";
+	public static String emptyUserFile = "emptyUserFile";
+	public static String notEmptyUserFile = "notEmptyUserFile";
+	public static String dummyModemPool = "dummyModemPool";
 
 	/**
 	 * Create a new default {@link Environment}
@@ -239,20 +243,20 @@ public class Utilities {
 	 */
 	public static CommunicationProfile createCommunicationProfile(String type) throws SQLException, BusinessException{
 		CommunicationProfileShadow cps = new CommunicationProfileShadow();
-		if(type.equals(COMMPROFILE_ALL)){
-			cps.setName(COMMPROFILE_ALL);
+		if(type.equals(commProfile_All)){
+			cps.setName(commProfile_All);
 			cps.setReadAllDemandValues(true);
 			cps.setReadDemandValues(true);
 			cps.setReadMeterEvents(true);
 			cps.setReadMeterReadings(true);
 			cps.setSendRtuMessage(true);
 			cps.setStoreData(true);
-		} else if(type.equals(COMMPROFILE_SENDRTUMESSAGE)){
-			cps.setName(COMMPROFILE_SENDRTUMESSAGE);
+		} else if(type.equals(commProfile_SendRtuMessage)){
+			cps.setName(commProfile_SendRtuMessage);
 			cps.setSendRtuMessage(true);
 			cps.setStoreData(true);
-		} else if(type.equals(COMMPROFILE_READDEMANDVALUES)){
-			cps.setName(COMMPROFILE_READDEMANDVALUES);
+		} else if(type.equals(commProfile_ReadDemandValues)){
+			cps.setName(commProfile_ReadDemandValues);
 			cps.setReadDemandValues(true);
 			cps.setStoreData(true);
 		}
@@ -292,7 +296,7 @@ public class Utilities {
 	 */
 	public static Group createEmptyRtuGroup() throws SQLException, BusinessException{
 		GroupShadow grs = new GroupShadow();
-		grs.setName(EMPTY_GROUP);
+		grs.setName(emptyGroup);
 		grs.setObjectType(mw().getRtuFactory().getId());
 		return mw().getGroupFactory().create(grs);
 	}
@@ -304,8 +308,23 @@ public class Utilities {
 	 */
 	public static UserFile createEmptyUserFile() throws SQLException, BusinessException {
 		UserFileShadow ufs = new UserFileShadow();
-		ufs.setName(EMPTY_USERFILE);
+		ufs.setName(emptyUserFile);
 		ufs.setExtension("bin");
+		return mw().getUserFileFactory().create(ufs);
+	}
+	
+	/**
+	 * Create a dummy {@link UserFile}
+	 * @param userFile - the file to load into the userFile
+	 * @return the UserFile
+	 * @throws SQLException if the creation didn't succeed because of a DataBase error
+	 * @throws BusinessException a business error occurred
+	 */
+	public static UserFile createDummyNotEmptyUserFile(File userFile) throws SQLException, BusinessException {
+		UserFileShadow ufs = new UserFileShadow();
+		ufs.setName(notEmptyUserFile);
+		ufs.setExtension("bin");
+		ufs.setFile(userFile);
 		return mw().getUserFileFactory().create(ufs);
 	}
 
@@ -315,10 +334,10 @@ public class Utilities {
 	 * @throws BusinessException
 	 */
 	public static ModemPool createDummyModemPool() throws SQLException, BusinessException{
-		List<ModemPool> result = mw().getModemPoolFactory().findByName(DUMMY_MODEMPOOL);
+		List<ModemPool> result = mw().getModemPoolFactory().findByName(dummyModemPool);
 		if(result.size() == 0){
 			ModemPoolShadow mps = new ModemPoolShadow();
-			mps.setName(DUMMY_MODEMPOOL);
+			mps.setName(dummyModemPool);
 			return mw().getModemPoolFactory().create(mps);
 		} else {
 			return result.get(0);
@@ -369,4 +388,24 @@ public class Utilities {
 		return bb.toByteArray();
 	}
 
+	/**
+	 * Read the file into a String
+	 * @param fileReader - the reader containing the file
+	 * @return a string
+	 * @throws IOException
+	 */
+    public static String readWithStringBuffer(Reader fileReader) throws IOException{
+    	try {
+    		BufferedReader br = new BufferedReader(fileReader);
+    		String line;
+    		StringBuffer result = new StringBuffer();
+			while ((line = br.readLine()) != null) {
+				result.append(line);
+			}
+			return result.toString();
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Failed to readin the file." + "("+e.getMessage()+")");
+		}
+    }
 }

@@ -18,7 +18,6 @@ import java.util.TimeZone;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.energyict.cbo.Utils;

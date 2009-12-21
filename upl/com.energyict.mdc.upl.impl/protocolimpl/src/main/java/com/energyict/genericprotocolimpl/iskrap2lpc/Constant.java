@@ -163,15 +163,19 @@ public class Constant {
     static final String testFile 		= "/offlineFiles/iskrap2lpc/test.xml";
     static final String billingDaily 	= "/offlineFiles/iskrap2lpc/daily.xml";
     static final String billingMonthly  = "/offlineFiles/iskrap2lpc/monthly.xml";
+    static final String[] billingDailyMonthly = {"/offlineFiles/iskrap2lpc/daily.xml","/offlineFiles/iskrap2lpc/monthly.xml"};
     static final String dailyfrom0509 	= "/offlineFiles/iskrap2lpc/dailyfrom0509.xml";
-    static final String dailyto0509 	= "/offlineFiles/iskrap2lpc/dailyto0509.xml";
     static final String monthlyfrom0509 = "/offlineFiles/iskrap2lpc/monthlyfrom0509.xml";
+    static final String[] dailyMonthly0509_1 = {"/offlineFiles/iskrap2lpc/dailyfrom0509.xml", "/offlineFiles/iskrap2lpc/monthlyfrom0509.xml"};
+    static final String dailyto0509 	= "/offlineFiles/iskrap2lpc/dailyto0509.xml";
     static final String monthlyto0509 = "/offlineFiles/iskrap2lpc/monthlyto0509.xml";
+    static final String[] dailyMonthly0509_2 = {"/offlineFiles/iskrap2lpc/dailyto0509.xml", "/offlineFiles/iskrap2lpc/monthlyto0509.xml"};
     static final String nullp1 = "/offlineFiles/iskrap2lpc/nullpointerstuff.xml";
     static final String nullp2 = "/offlineFiles/iskrap2lpc/nullpointerstuff2.xml";
     static final String[] nullPointerProfile = {"/offlineFiles/iskrap2lpc/NullPointer38547358_0.xml", "/offlineFiles/iskrap2lpc/NullPointer38547358_1.xml"};
     static final String dailyResult		= "/offlineFiles/iskrap2lpc/dailyfromPLR.xml";
     static final String monthlyResult	= "/offlineFiles/iskrap2lpc/monthlyfromPLR.xml";
+    static final String[] dailyMonthlyResult = {"/offlineFiles/iskrap2lpc/dailyfromPLR.xml", "/offlineFiles/iskrap2lpc/monthlyfromPLR.xml"};
     static final String oneMonthlyValue = "/offlineFiles/iskrap2lpc/oneMonthlyValue.xml";
     
     static final String NON_Unknown = "NON.Unknown";

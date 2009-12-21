@@ -1,5 +1,6 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -9,11 +10,14 @@ import javax.xml.rpc.ServiceException;
 
 import org.apache.axis.types.UnsignedInt;
 
+import antlr.Utils;
+
 import com.energyict.cbo.BusinessException;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.CosemDateTime;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ObjectDef;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.PeriodicProfileType;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.ProfileType;
+import com.energyict.protocolimpl.utils.Utilities;
 
 public class TConnection implements Connection{
 	
@@ -22,14 +26,17 @@ public class TConnection implements Connection{
 	private int delayAfterRetry;
 	private Concentrator concentrator;
 	
-	private static List<String> connectionEvents;
+	private List<String> connectionEvents;
 	
 	public static String COSEMSETREQUEST = "CosemSetRequest";
 	public static String GETFILESIZE = "GetFileSize";
 	public static String DOWNLOADFILECHUNK = "DownLoadFileChunk";
 	public static String UPLOADFILECHUNK = "UploadFileChunk";
 	
-	private static byte[] byteArrayResponse;
+	private String[] getMeterProfileTestFiles;
+	private int getMeterProfileRequestCounter = 0;
+	
+	private byte[] byteArrayResponse;
 
 	// TestClass should have Zero argument constructor ...
 	public TConnection(){
@@ -132,12 +139,26 @@ public class TConnection implements Connection{
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	/**
+	 * Set the testFile names
+	 * @param testFiles a string of testFileNames
+	 */
+	protected void setMeterProfileTestFiles(String[] testFiles){
+		this.getMeterProfileTestFiles = testFiles;
+		this.getMeterProfileRequestCounter = 0;
+	}
 
+	/**
+	 * {@inheritDoc}
+	 * @return the meterProfile
+	 */
 	public String getMeterProfile(String meterID, String profileID,
 			String registerID, String from, String to) throws ServiceException,
 			RemoteException, IOException, BusinessException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		FileReader inFile = new FileReader(Utils.class.getResource(this.getMeterProfileTestFiles[getMeterProfileRequestCounter++]).getFile());
+		return Utilities.readWithStringBuffer(inFile);
 	}
 
 	public ObjectDef[] getMeterProfileConfig(String meterID, ProfileType profile)
@@ -218,16 +239,16 @@ public class TConnection implements Connection{
 		
 	}
 
-	static public List<String> getConnectionEvents(){
+	public List<String> getConnectionEvents(){
 		return connectionEvents;
 	}
 	
-	static public void setByteArrayResponse(byte[] b){
+	public void setByteArrayResponse(byte[] b){
 		byteArrayResponse = b;
 	}
 	
 	private byte[] getByteArrayResponse(){
-		return TConnection.byteArrayResponse;
+		return this.byteArrayResponse;
 	}
 
 	public void copyFile(String sourceFile, String destinationFile,
