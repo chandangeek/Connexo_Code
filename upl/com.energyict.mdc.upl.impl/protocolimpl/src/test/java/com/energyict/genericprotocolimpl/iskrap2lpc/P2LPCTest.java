@@ -137,6 +137,8 @@ public class P2LPCTest {
 				fail();
 			}
 			
+			System.out.println("FolderID concentrator: " + concentrator.getFolderId());
+			
 			Utilities.createCommunicationScheduler(concentrator, Utilities.commProfile_SendRtuMessage);
 			if(((CommunicationScheduler)concentrator.getCommunicationSchedulers().get(0)).getCommunicationProfile().getSendRtuMessage()){
 				
