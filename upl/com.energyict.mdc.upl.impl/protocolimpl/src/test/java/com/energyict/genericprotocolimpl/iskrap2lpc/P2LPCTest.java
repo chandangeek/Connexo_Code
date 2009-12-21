@@ -217,6 +217,12 @@ public class P2LPCTest {
 				fos.close();
 				dummyUserFile.deleteOnExit();
 				uf = Utilities.createDummyNotEmptyUserFile(dummyUserFile);
+				
+				System.out.println("FolderID Group: " + gr.getFolderId());
+				System.out.println("FolderID Group: " + gr.getSearchFilter().getFolderId());
+				System.out.println("TypeId Group: " + gr.getSearchFilter().getTypeId());
+				System.out.println("Concentrator Group: " + concentrator.getRtuTypeId());
+				
 				rms.setState(rmt);
 				rms.setContents("<"+ RtuMessageConstant.FIRMWARE +">" + uf.getId() + "</"+RtuMessageConstant.FIRMWARE + "><GroupID of meters to receive new firmware>" + gr.getId() + "</GroupID of meters to receive new firmware>");
 				concentrator.createMessage(rms);
