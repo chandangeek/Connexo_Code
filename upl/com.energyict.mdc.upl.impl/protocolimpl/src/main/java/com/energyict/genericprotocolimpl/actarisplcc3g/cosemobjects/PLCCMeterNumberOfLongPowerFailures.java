@@ -12,50 +12,43 @@ package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
 
 
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.dlms.*;
-import java.io.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.*;
-import com.energyict.genericprotocolimpl.actarisplcc3g.*;
-
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.dlms.cosem.ObjectIdentification;
-import java.math.*;
-import com.energyict.dlms.cosem.AbstractCosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.ObjectIdentification;
+import com.energyict.obis.ObisCode;
 
 /**
  *
  * @author kvds
  */
 public class PLCCMeterNumberOfLongPowerFailures extends AbstractPLCCObject {
-    
+
     private BigDecimal value=null;
-    
+
     /** Creates a new instance of PLCCTemplateObject */
     public PLCCMeterNumberOfLongPowerFailures(PLCCObjectFactory objectFactory) {
         super(objectFactory);
     }
-    
+
     protected ObjectIdentification getId() {
-        return new ObjectIdentification(ObisCode.fromString("0.0.96.7.5.255"), AbstractCosemObject.CLASSID_DATA);
+        return new ObjectIdentification(ObisCode.fromString("0.0.96.7.5.255"), DLMSClassId.DATA.getClassId());
     }
-    
+
     protected void doInvoke() throws IOException {
         Data data = getCosemObjectFactory().getData(getId().getObisCode());
         value = data.getValueAttr().toBigDecimal();
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("PLCCMeterNumberOfLongPowerFailures:\n");
         strBuff.append("   value="+getValue()+"\n");
         return strBuff.toString();
-    } 
+    }
 
 
     public BigDecimal getValue() {

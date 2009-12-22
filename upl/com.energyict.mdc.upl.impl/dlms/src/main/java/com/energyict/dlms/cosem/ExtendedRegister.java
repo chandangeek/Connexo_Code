@@ -5,19 +5,15 @@
  */
 
 package com.energyict.dlms.cosem;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Date;
 
-import com.energyict.protocolimpl.dlms.*;
-import com.energyict.protocol.*;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.OctetString;
+import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.cosem.CosemObject;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.OctetString;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.ProtocolLink;
 
 /**
  *
@@ -28,17 +24,17 @@ import com.energyict.dlms.ProtocolLink;
  */
 public class ExtendedRegister extends Register implements CosemObject {
     public final int DEBUG=0;
-    static public final int CLASSID=4;
-    
+    public static final int CLASSID=DLMSClassId.EXTENDED_REGISTER.getClassId();
+
     Date captureTime;
     boolean captureTimeCached=false;
-    
+
     /** Creates a new instance of ExtendedRegister */
     public ExtendedRegister(ProtocolLink protocolLink, ObjectReference objectReference) {
         super(protocolLink,objectReference);
     }
-    
-    
+
+
     public String toString() {
         try {
            return super.toString()+", captureTime="+getCaptureTime();
@@ -47,54 +43,55 @@ public class ExtendedRegister extends Register implements CosemObject {
            return "ExtendedRegister, toString, retrieving error!";
         }
     }
-    
+
     /**
      * Getter for property captureTime.
      * @return Value of property captureTime.
      */
     public java.util.Date getCaptureTime() throws IOException {
-        if (captureTimeCached)
-            return captureTime;
-        else
-            return (getCaptureTime(getResponseData(EXTENDED_REGISTER_CAPTURE_TIME)));
+        if (captureTimeCached) {
+			return captureTime;
+		} else {
+			return (getCaptureTime(getResponseData(EXTENDED_REGISTER_CAPTURE_TIME)));
+		}
     }
-    
+
     public java.util.Date getCaptureTime(byte[] responseData) throws IOException {
         Clock clock = new Clock(protocolLink,getObjectReference(CLOCK_OBJECT_LN,protocolLink.getMeterConfig().getClockSN()));
         captureTime = clock.getDateTime(responseData);
         return captureTime;
     }
-    
-    
+
+
     public void setCaptureTime(Date captureTime) throws IOException {
         this.captureTime=captureTime;
-        captureTimeCached=true;    
+        captureTimeCached=true;
     }
-    
+
     public void setCaptureTime(OctetString octetString) throws IOException {
         Clock clock = new Clock(protocolLink,getObjectReference(CLOCK_OBJECT_LN,protocolLink.getMeterConfig().getClockSN()));
         clock.setDateTime(octetString);
         captureTime = clock.getDateTime();
-        captureTimeCached=true;        
+        captureTimeCached=true;
     }
-    
+
     public Date getBillingDate() {
         Date retValue;
-       
+
         retValue = super.getBillingDate();
         return retValue;
     }
-    
+
     public int getResetCounter() {
         int retValue;
-        
+
         retValue = super.getResetCounter();
         return retValue;
     }
     protected int getClassId() {
         return CLASSID;
-    }    
-    
+    }
+
     public String getText() throws IOException {
         try {
             DataContainer dc = new DataContainer();
@@ -102,12 +99,13 @@ public class ExtendedRegister extends Register implements CosemObject {
             return dc.getText(",");
         }
         catch(IOException e) {
-            if (e.toString().indexOf("R/W denied")>=0)
-                return null; //"This extended register status field is R/W denied";
+            if (e.toString().indexOf("R/W denied")>=0) {
+				return null; //"This extended register status field is R/W denied";
+			}
             throw e;
         }
     }
-    
+
     /**
      * @param attribute - the attribute of the DLMS object you try to read
      * @return the value of the attribute in an abstract type
@@ -115,7 +113,7 @@ public class ExtendedRegister extends Register implements CosemObject {
     public AbstractDataType getAttrbAbstractDataType(int attribute) throws IOException{
     	return AXDRDecoder.decode(getLNResponseData(attribute));
     }
-    
+
     /**
      * @return the status of the register
      * @throws IOException if resulted dataType is not supported or when read failed.
@@ -130,5 +128,5 @@ public class ExtendedRegister extends Register implements CosemObject {
     public void setStatus(AbstractDataType status) throws IOException{
     	write(EXTENDED_REGISTER_STATUS, status.getBEREncodedByteArray());
     }
-    
+
 }

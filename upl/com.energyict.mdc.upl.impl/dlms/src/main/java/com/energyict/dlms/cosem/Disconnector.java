@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.dlms.cosem;
 
@@ -12,9 +12,9 @@ import com.energyict.dlms.axrdencoding.TypeEnum;
 
 /**
  * @author gna
- * 
+ *
  * Disconnect Control States and State Transitions:
- * 
+ *
  * 					** States **
  * ------------------------------------------------
  * StateN°	|	StateName	|	State Description
@@ -23,7 +23,7 @@ import com.energyict.dlms.axrdencoding.TypeEnum;
  * 	1		| Connected		| The outputState is set to TRUE and the consumer is connected
  *  2		| Ready_for_	| The outputState is set to False and the consumer is disconnected. Reconnection
  *  		| reconnection	| requires manual intervention
- * 
+ *
  * 					** State Transitions **
  * ------------------------------------------------
  * Transition	|	Transition Name		|	State Description
@@ -34,7 +34,7 @@ import com.energyict.dlms.axrdencoding.TypeEnum;
  *  			|						| to the Disconnected(0) state.
  *  c			| remote_disconnect		| Moves the Disconnect control object from the Ready_for-reconnection(2)
  *  			|						| state to the Disconnected(0) state.
- *  d			| remote_reconnect		| Moves the Disconnect control object from the Disconnected(0) state to the 
+ *  d			| remote_reconnect		| Moves the Disconnect control object from the Disconnected(0) state to the
  *  			|						| Ready_for_reconnection(2) State.
  * 				|						| From this state, it is possible to move to the Connected(2) state via
  * 				|						| the manual_reconnect, transition(e) or local_reconnect, transition(h).
@@ -54,20 +54,19 @@ import com.energyict.dlms.axrdencoding.TypeEnum;
  * 				|						| Note: Transition (e) and (h) are essentially the same, but their Trigger is different.
  */
 public class Disconnector extends AbstractCosemObject{
-	
+
 	public static boolean DEBUG = true;
-	static public final int CLASSID = 70;
-	
+
 	/** Attributes */
 	private BooleanObject outputState = null; 	// Shows the actual physical state of the disconnect unit, i.e. if an electricity breaker or gas valvue is open or closed
 	private TypeEnum controlState = null; 		// Shows the internal state of the disconnect control object
 	private TypeEnum controlMode = null;		// Configures the behavior of the disconnect control object for all triggers
-	
+
 	/** Attribute numbers */
 	private static final int ATTRB_OUTPUT_STATE = 2;
 	private static final int ATTRB_CONTROL_STATE = 3;
 	private static final int ATTRB_CONTROL_MODE = 4;
-	
+
 	/** Method invoke */
 	private static final int METHOD_REMOTE_DISCONNECT = 1;
 	private static final int METHOD_REMOTE_RECONNECT = 2;
@@ -75,11 +74,11 @@ public class Disconnector extends AbstractCosemObject{
 	public Disconnector(ProtocolLink protocolLink, ObjectReference objectReference) {
 		super(protocolLink, objectReference);
 	}
-	
+
 	protected int getClassId() {
-		return this.CLASSID;
+		return DLMSClassId.DISCONNECT_CONTROL.getClassId();
 	}
-	
+
 	/**
 	 * Just returns the outputState that we previously read from the meter, if it is null, then we read it anyway
 	 * @return
@@ -91,7 +90,7 @@ public class Disconnector extends AbstractCosemObject{
 		}
 		return this.outputState;
 	}
-	
+
 	/**
 	 * Returns the state of the ouputState
 	 * @return true or false
@@ -103,7 +102,7 @@ public class Disconnector extends AbstractCosemObject{
 		}
 		return this.outputState.getState();
 	}
-	
+
 	/**
 	 * Reads the outputState from the meter
 	 * @return
@@ -123,7 +122,7 @@ public class Disconnector extends AbstractCosemObject{
 		write(ATTRB_OUTPUT_STATE, outputState.getBEREncodedByteArray());
 		this.outputState = outputState;
 	}
-	
+
 	/**
 	 * Read the controlState from the meter
 	 * @return
@@ -133,7 +132,7 @@ public class Disconnector extends AbstractCosemObject{
 		this.controlState = new TypeEnum(getLNResponseData(ATTRB_CONTROL_STATE), 0);
 		return this.controlState;
 	}
-	
+
 	/**
 	 * Get the latest retrieved control state
 	 * @return
@@ -155,7 +154,7 @@ public class Disconnector extends AbstractCosemObject{
 		write(ATTRB_CONTROL_STATE, controlState.getBEREncodedByteArray());
 		this.controlState = controlState;
 	}
-	
+
 	/**
 	 * Get the latest retrieved controlMode
 	 * @return
@@ -177,7 +176,7 @@ public class Disconnector extends AbstractCosemObject{
 		this.controlMode = new TypeEnum(getLNResponseData(ATTRB_CONTROL_MODE),0);
 		return this.controlMode;
 	}
-	
+
 	/**
 	 * Note: 	The ControlMode attribute is a static attribute ... so I suppose you can not write it.
 	 * 			But wrote a protected method to write it, if it's needed, just make it public.
@@ -185,27 +184,27 @@ public class Disconnector extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void writeControlMode(TypeEnum controlMode) throws IOException {
-		
+
 		write(ATTRB_CONTROL_MODE, controlMode.getBEREncodedByteArray());
 		this.controlMode = controlMode;
 	}
-	
+
 	/**
 	 * Forces the disconnect control object into 'Disconnected' state if remote disconnection
 	 * is enabled (control mode > 0)
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void remoteDisconnect() throws IOException{
 		invoke(METHOD_REMOTE_DISCONNECT, new Integer8(0).getBEREncodedByteArray());
 	}
-	
+
 	/**
 	 * Forces the disconnect control object into the 'ready_for_reconnection' state if a direct
 	 * remote reconnection is disabled (control mode = 1, 3, 5, 6)
-	 * 
+	 *
 	 * Forces the disconnect control object into the 'connected' state if a direct remote
-	 * reconnection is enabled (control mode = 2, 4) 
-	 * @throws IOException 
+	 * reconnection is enabled (control mode = 2, 4)
+	 * @throws IOException
 	 */
 	public void remoteReconnect() throws IOException{
 		invoke(METHOD_REMOTE_RECONNECT, new Integer8(0).getBEREncodedByteArray());

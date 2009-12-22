@@ -43,7 +43,6 @@ public interface DLMSCOSEMGlobals {
 	short ICID_LNREG=0x0003;
 	short ICID_DISCONNECT_CONTROL=70;
 
-
 	byte LN_A=0;
 	byte LN_B=1;
 	byte LN_C=2;

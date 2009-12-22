@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.dlms.cosem;
 
@@ -17,55 +17,55 @@ import com.energyict.obis.ObisCode;
  *
  */
 public class IPv4Setup extends AbstractCosemObject{
-	
+
 	private OctetString dl_Reference = null;
 	private Unsigned32 ipAddress = null;
-	private Array multicastIPAddress = null;		
-	private Array ipOptions = null;					
-	private Unsigned32 subnetMask = null;			
-	private Unsigned32 gatewayIPAddress = null;		
+	private Array multicastIPAddress = null;
+	private Array ipOptions = null;
+	private Unsigned32 subnetMask = null;
+	private Unsigned32 gatewayIPAddress = null;
 	private boolean useDHCPFlag = true;				//TODO
-	private Unsigned32 primaryDNSAddress = null;	
-	private Unsigned32 secondaryDNSAddress = null;	
-	
+	private Unsigned32 primaryDNSAddress = null;
+	private Unsigned32 secondaryDNSAddress = null;
+
 
 	static final byte[] LN=new byte[]{0,0,25,1,0,(byte)255};
-	
+
 	public IPv4Setup(ProtocolLink protocolLink) {
         super(protocolLink,new ObjectReference(LN));
     }
-    
+
 	public IPv4Setup(ProtocolLink protocolLink, ObjectReference objectReference) {
 		super(protocolLink, objectReference);
 	}
 
 	static public ObisCode getObisCode() {
 		return ObisCode.fromByteArray(LN) ;
-	}  
-	
-	protected int getClassId() {
-		return AbstractCosemObject.CLASSID_IPV4SETUP;
 	}
-	
+
+	protected int getClassId() {
+		return DLMSClassId.IPV4_SETUP.getClassId();
+	}
+
 	public OctetString readDLReference() throws IOException {
 		if(this.dl_Reference == null){
 			this.dl_Reference = new OctetString(getLNResponseData(2));
 		}
 		return this.dl_Reference;
 	}
-	
+
 	public void writeDLReference(OctetString dlReference) throws IOException{
 		write(2, dlReference.getBEREncodedByteArray());
 		this.dl_Reference = dlReference;
 	}
-	
+
 	public Unsigned32 readIPAddress() throws NumberFormatException, IOException{
 		if(this.ipAddress == null){
 			this.ipAddress = new Unsigned32(getLNResponseData(3), 0);
 		}
 		return this.ipAddress;
 	}
-	
+
 	public String getIPAddress() throws NumberFormatException, IOException{
 	   	StringBuffer builder = new StringBuffer();
     	for(int i = 1; i < readIPAddress().getBEREncodedByteArray().length; i++){
@@ -76,7 +76,7 @@ public class IPv4Setup extends AbstractCosemObject{
     	}
     	return builder.toString();
 	}
-	
+
 	public void setIPAddress(String newIp) throws IOException{
 		int pointer = 0;
 		byte[] ipByte = new byte[5];
@@ -87,7 +87,7 @@ public class IPv4Setup extends AbstractCosemObject{
 		}
 		writeIPAddress(new Unsigned32(ipByte, 0));
 	}
-	
+
 	public void writeIPAddress(Unsigned32 newIp) throws IOException{
 		write(3, newIp.getBEREncodedByteArray());
 		this.ipAddress = newIp;
@@ -103,39 +103,39 @@ public class IPv4Setup extends AbstractCosemObject{
 			e.printStackTrace();
 		}
 	}
-	
+
 	public Array readMulticastIPAddress() throws IOException{
 		if(this.multicastIPAddress == null){
 			this.multicastIPAddress = (Array)AXDRDecoder.decode(getLNResponseData(4));
-			
+
 		}
 		return this.multicastIPAddress;
 	}
-	
+
 	public void writeMulticastIPAddress(Array multicastIPAddress) throws IOException{
 		write(4, multicastIPAddress.getBEREncodedByteArray());
 		this.multicastIPAddress = multicastIPAddress;
 	}
-	
+
 	public Array readIPOptions() throws IOException {
 		if(this.ipOptions == null){
 			this.ipOptions = (Array)AXDRDecoder.decode(getLNResponseData(5));
 		}
 		return this.ipOptions;
 	}
-	
+
 	public void writeIPOptions(Array ipOptions) throws IOException {
 		write(5, ipOptions.getBEREncodedByteArray());
 		this.ipOptions = ipOptions;
 	}
-	
+
 	public Unsigned32 readSubnetMask() throws IOException {
 		if(this.subnetMask == null){
 			this.subnetMask = new Unsigned32(getLNResponseData(6), 0);
 		}
 		return this.subnetMask;
 	}
-	
+
 	public String getSubnetMask() throws IOException{
 	   	StringBuffer builder = new StringBuffer();
     	for(int i = 1; i < readSubnetMask().getBEREncodedByteArray().length; i++){
@@ -146,12 +146,12 @@ public class IPv4Setup extends AbstractCosemObject{
     	}
     	return builder.toString();
 	}
-	
+
 	public void writeSubnetMask(Unsigned32 subnetMask) throws IOException{
 		write(6, subnetMask.getBEREncodedByteArray());
 		this.subnetMask = subnetMask;
 	}
-	
+
 	public void setSubnetMask(String subnetMask) throws IOException {
 		int pointer = 0;
 		byte[] subnetByte = new byte[5];
@@ -162,14 +162,14 @@ public class IPv4Setup extends AbstractCosemObject{
 		}
 		writeSubnetMask(new Unsigned32(subnetByte, 0));
 	}
-	
+
 	public Unsigned32 readGatewayIPAddress() throws IOException {
 		if(this.gatewayIPAddress == null){
 			this.gatewayIPAddress = new Unsigned32(getLNResponseData(7), 0);
 		}
 		return this.gatewayIPAddress;
 	}
-	
+
 	public String getGatewayIPAddress() throws IOException{
 	   	StringBuffer builder = new StringBuffer();
     	for(int i = 1; i < readGatewayIPAddress().getBEREncodedByteArray().length; i++){
@@ -180,12 +180,12 @@ public class IPv4Setup extends AbstractCosemObject{
     	}
     	return builder.toString();
 	}
-	
+
 	public void writeGatewayIPAddress(Unsigned32 gatewayIPAddress) throws IOException{
 		write(7, gatewayIPAddress.getBEREncodedByteArray());
 		this.gatewayIPAddress = gatewayIPAddress;
 	}
-	
+
 	public void setGatewayIPAddress(String gatewayIPAddress) throws IOException {
 		int pointer = 0;
 		byte[] gatewayByte = new byte[5];
@@ -196,14 +196,14 @@ public class IPv4Setup extends AbstractCosemObject{
 		}
 		writeGatewayIPAddress(new Unsigned32(gatewayByte, 0));
 	}
-	
+
 	public Unsigned32 readPrimaryDNSAddress() throws IOException {
 		if(this.primaryDNSAddress == null){
 			this.primaryDNSAddress = new Unsigned32(getLNResponseData(9), 0);
 		}
 		return this.primaryDNSAddress;
 	}
-	
+
 	public String getPrimaryDNSAddress() throws IOException{
 	   	StringBuffer builder = new StringBuffer();
     	for(int i = 1; i < readPrimaryDNSAddress().getBEREncodedByteArray().length; i++){
@@ -214,12 +214,12 @@ public class IPv4Setup extends AbstractCosemObject{
     	}
     	return builder.toString();
 	}
-	
+
 	public void writePrimaryDNSAddress(Unsigned32 primaryDNSAddress) throws IOException{
 		write(9, primaryDNSAddress.getBEREncodedByteArray());
 		this.primaryDNSAddress = primaryDNSAddress;
 	}
-	
+
 	public void setPrimaryDNSAddress(String primaryDNSAddress) throws IOException {
 		int pointer = 0;
 		byte[] primaryDNSByte = new byte[5];
@@ -230,14 +230,14 @@ public class IPv4Setup extends AbstractCosemObject{
 		}
 		writePrimaryDNSAddress(new Unsigned32(primaryDNSByte, 0));
 	}
-	
+
 	public Unsigned32 readSecondaryDNSAddress() throws IOException {
 		if(this.secondaryDNSAddress == null){
 			this.secondaryDNSAddress = new Unsigned32(getLNResponseData(10), 0);
 		}
 		return this.secondaryDNSAddress;
 	}
-	
+
 	public String getSecondaryDNSAddress() throws IOException{
 	   	StringBuffer builder = new StringBuffer();
     	for(int i = 1; i < readSecondaryDNSAddress().getBEREncodedByteArray().length; i++){
@@ -248,12 +248,12 @@ public class IPv4Setup extends AbstractCosemObject{
     	}
     	return builder.toString();
 	}
-	
+
 	public void writeSecondaryDNSAddress(Unsigned32 secondaryDNSAddress) throws IOException{
 		write(10, secondaryDNSAddress.getBEREncodedByteArray());
 		this.secondaryDNSAddress = secondaryDNSAddress;
 	}
-	
+
 	public void setSecondaryDNSAddress(String secondaryDNSAddress) throws IOException {
 		int pointer = 0;
 		byte[] secondaryDNSByte = new byte[5];
@@ -264,5 +264,5 @@ public class IPv4Setup extends AbstractCosemObject{
 		}
 		writePrimaryDNSAddress(new Unsigned32(secondaryDNSByte, 0));
 	}
-	
+
 }

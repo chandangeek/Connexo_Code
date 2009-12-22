@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.dlms.cosem;
 
@@ -17,39 +17,38 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 
 /**
  * @author gna
- * 
+ *
  * The PPPSetup object is not completely implemented, please feel free to complete the object.
  *
  */
 public class PPPSetup extends AbstractCosemObject {
 
 	private boolean DEBUG = true;	//TODO set it back to false
-	private int CLASSID = 44;
-	
+
 	/** Attributes */
 	private OctetString phyReference = null;	// Contains information about the specific physical layer interface, supporting the PPP layer
 	private LCPOptionsType lcpOptions = null;	// Contains the parameters for the Link Control Protocol options
-	private IPCPOptionsType ipcpOptions = null; // Contains the parameters for the IP Control Protocol - the network control protocol module 
+	private IPCPOptionsType ipcpOptions = null; // Contains the parameters for the IP Control Protocol - the network control protocol module
 												//of the PPP for negotiating IP parameters on the PPP link options
 	private PPPAuthenticationType pppAuthentication = null; 	// Contains the parameters required by the PPP authentication procedure
-	
+
 	/** Attribute numbers */
 	private static final int ATTRB_PHY_REFERENCE = 2;
 	private static final int ATTRB_LCP_OPTIONS = 3;
 	private static final int ATTRB_IPCP_OPTIONS = 4;
 	private static final int ATTRB_PPP_AUTHENTICATION = 5;
-	
+
 	/** Method invoke */
 	// none
-	
+
 	public PPPSetup(ProtocolLink protocolLink, ObjectReference objectReference) {
 		super(protocolLink, objectReference);
 	}
 
 	protected int getClassId() {
-		return this.CLASSID;
+		return DLMSClassId.PPP_SETUP.getClassId();
 	}
-	
+
 	/**
 	 * Read the current lcpOptionsType from the device
 	 * @return
@@ -64,11 +63,11 @@ public class PPPSetup extends AbstractCosemObject {
 			throw new IOException("Could not read the lcpOptionsType." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Return the latest retrieved lcpOptionsType
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public LCPOptionsType getLCPOptionsType() throws IOException{
 		if(this.lcpOptions == null){
@@ -76,7 +75,7 @@ public class PPPSetup extends AbstractCosemObject {
 		}
 		return this.lcpOptions;
 	}
-	
+
 	/**
 	 * Read the current pppAuthenticationType from the device
 	 * @return
@@ -91,11 +90,11 @@ public class PPPSetup extends AbstractCosemObject {
 			throw new IOException("Could not read the pppAuthenticationType." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Return the latest retrieved pppAuthenticationType
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public PPPAuthenticationType getPPPAuthenticationType() throws IOException{
 		if(this.pppAuthentication == null){
@@ -103,7 +102,7 @@ public class PPPSetup extends AbstractCosemObject {
 		}
 		return this.pppAuthentication;
 	}
-	
+
 	/**
 	 * Write a self build pppAuthenticationType to the device
 	 * @param pppAuthenticationType
@@ -113,7 +112,7 @@ public class PPPSetup extends AbstractCosemObject {
 		write(ATTRB_PPP_AUTHENTICATION, pppAuthenticationType.getBEREncodedByteArray());
 		this.pppAuthentication = pppAuthenticationType;
 	}
-	
+
 	/**
 	 * Write a self build pppAuthenticationStructure to the device
 	 * @param pppAuthenticationType
@@ -123,29 +122,29 @@ public class PPPSetup extends AbstractCosemObject {
 		write(ATTRB_PPP_AUTHENTICATION, pppAuthenticationType.getBEREncodedByteArray());
 		this.pppAuthentication = new PPPAuthenticationType(pppAuthenticationType.getBEREncodedByteArray());
 	}
-	
+
 	public class PPPAuthenticationType{
 
 		private static final int CHAP_MD5 = 0x05;	// default
 		private static final int CHAP_SHA_1 = 0x06;
 		private static final int CHAP_MS_SHAP = 0x80;
 		private static final int CHAP_MS_CHAP2 = 0x81;
-		
+
 		private int authentication = -1;
-		
+
 		private OctetString username = null;
 		private OctetString password = null;
 		private Unsigned8 algorithmId = new Unsigned8(CHAP_MD5);	// the default value is 5(MD5)
-		
+
 		private BooleanObject md5Challange = null;
 		private BooleanObject oneTimePassword = null;
 		private BooleanObject genericTokenCard = null;
-		
+
 		private DataContainer dataContainer = null;
-		
+
 		public PPPAuthenticationType(){
 		}
-		
+
 		public byte[] getBEREncodedByteArray() throws IOException {
 			switch(this.authentication){
 			case LCPOptionsType.AUTH_NO_AUTHENTICATION : {return new NullData().getBEREncodedByteArray();}
@@ -168,7 +167,7 @@ public class PPPSetup extends AbstractCosemObject {
 				if(DEBUG) {
 					this.dataContainer.printDataContainer();
 				}
-				
+
 				if(getLCPOptionsType().getAuthProt() != null){
 					switch(getLCPOptionsType().getAuthProt().getValue()){
 					case LCPOptionsType.AUTH_NO_AUTHENTICATION : {this.authentication = LCPOptionsType.AUTH_NO_AUTHENTICATION;}break;
@@ -198,27 +197,27 @@ public class PPPSetup extends AbstractCosemObject {
 				throw new IOException("PPPAuthentication - can't parse response." + e.getMessage());
 			}
 		}
-		
+
 		public void setUserName(String userName){
 			this.username = OctetString.fromString(userName);
 		}
-		
+
 		public void setPassWord(String password){
 			this.password = OctetString.fromString(password);
 		}
-		
+
 		public void setUserName(OctetString userName){
 			this.username = userName;
 		}
-		
+
 		public void setPassWord(OctetString password){
 			this.password = password;
 		}
-		
+
 		public void setAuthenticationType(int type){
 			this.authentication = type;
 		}
-		
+
 		public int getAuthentication() {
 			return this.authentication;
 		}
@@ -249,11 +248,11 @@ public class PPPSetup extends AbstractCosemObject {
 	}
 
 	public class LCPOptionsType{
-		
+
 		private static final int LCP_OPTION_TYPE = 0;
 		private static final int LCP_OPTION_LENGTH = 1;
 		private static final int LCP_OPTION_DATA = 2;
-		
+
 		private static final int DATA_MRU = 1;
 		private static final int DATA_ACCM = 2;
 		private static final int DATA_AUTH_PROT = 3;
@@ -262,12 +261,12 @@ public class PPPSetup extends AbstractCosemObject {
 		private static final int DATA_ADCTR_COMPR = 8;
 		private static final int DATA_FCS_ALTER = 9;
 		private static final int DATA_CALLBACK = 13;
-		
+
 		public static final int AUTH_NO_AUTHENTICATION = 0x000;
 		public static final int AUTH_PAP = 0xc023;
 		public static final int AUTH_CHAP = 0xc223;
 		public static final int AUTH_EAP = 0xc227;
-		
+
 		private DataContainer dataContainer = null;
 		private Unsigned16 mru = null;
 		private Unsigned32 accm = null;
@@ -277,14 +276,14 @@ public class PPPSetup extends AbstractCosemObject {
 		private BooleanObject adCtrCompr = null;
 		private Unsigned8 fcsAlter = null;
 		private CallBackData callBack = null;
-		
+
 		public LCPOptionsType(byte[] responseData) throws IOException {
 			this.dataContainer = new DataContainer();
 			this.dataContainer.parseObjectList(responseData, protocolLink.getLogger());
 			if(DEBUG) {
 				this.dataContainer.printDataContainer();
 			}
-				
+
 			for (int i=0; i<dataContainer.getRoot().getNrOfElements(); i++) {
 				switch(dataContainer.getRoot().getStructure(i).getInteger(LCP_OPTION_TYPE)){
 				case DATA_MRU : {this.mru = new Unsigned16((int)dataContainer.getRoot().getValue(LCP_OPTION_DATA)&0xFFFF);}break;
@@ -299,7 +298,7 @@ public class PPPSetup extends AbstractCosemObject {
 				}
 			}
 		}
-		
+
 		public Unsigned16 getMru() {
 			return this.mru;
 		}
@@ -331,19 +330,19 @@ public class PPPSetup extends AbstractCosemObject {
 		public CallBackData getCallBack() {
 			return this.callBack;
 		}
-		
+
 		public class CallBackData{
 
 			public CallBackData(Object element) {
 				// TODO Auto-generated constructor stub
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	public class IPCPOptionsType{
-		
+
 	}
-	
+
 }

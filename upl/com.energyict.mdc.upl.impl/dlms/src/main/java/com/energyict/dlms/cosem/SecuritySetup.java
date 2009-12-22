@@ -9,45 +9,44 @@ import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.obis.ObisCode;
 
 public class SecuritySetup extends AbstractCosemObject{
-	
-	public static final int CLASSID = 64;
+
 	static final byte[] LN=new byte[]{0,0,43,0,0,(byte)255};
-	
+
 	/** Attributes */
 	private TypeEnum securityPolicy = null; 		//Enforces authentication and/or encryption algorithm provided with security_suite.
-	private TypeEnum securitySuite = null;			//Specifies authentication, encryption and key wrapping algorithm. 
+	private TypeEnum securitySuite = null;			//Specifies authentication, encryption and key wrapping algorithm.
 	private OctetString clientSystemTitle = null;	//Carries the current client system title
 	private OctetString serverSystemTitle = null;	//Carries the server system title
-	
+
 	/** Attribute numbers */
 	private static final int ATTRB_SECURITY_POLICY = 2;
 	private static final int ATTRB_SECURITY_SUITE = 3;
 	private static final int ATTRB_CLIENT_SYSTEM_TITLE = 4;
 	private static final int ATTRB_SERVER_SYSTEM_TITLE = 5;
-	
+
 	/** Methods */
 	private static final int METHOD_SECURITY_ACTIVATE = 1;		// Activates and strengthens the security policy
 	private static final int METHOD_GLOBAL_KEY_TRANSFER = 2;	// Update one or more global keys
-	
+
 	public SecuritySetup(ProtocolLink protocolLink,	ObjectReference objectReference) {
 		super(protocolLink, objectReference);
 	}
-	
+
 	public SecuritySetup(ProtocolLink protocolLink){
 		super(protocolLink, new ObjectReference(LN));
 	}
 
 	public static ObisCode getObisCode() {
 		return ObisCode.fromByteArray(LN) ;
-	} 
-	
+	}
+
 	protected int getClassId() {
-		return this.CLASSID;
+		return DLMSClassId.SECURITY_SETUP.getClassId();
 	}
 
 	/**
 	 * Read the current securityPolicy from the device
-	 * @return 
+	 * @return
 	 * @throws IOException
 	 */
 	public TypeEnum readSecurityPolicy() throws IOException{
@@ -70,7 +69,7 @@ public class SecuritySetup extends AbstractCosemObject{
 			return this.securityPolicy;
 		}
 	}
-	
+
 	/**
 	 * Read the current securitySuite from the device
 	 * @return
@@ -82,7 +81,7 @@ public class SecuritySetup extends AbstractCosemObject{
 			return this.securitySuite;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Couldn't read the securitySuite." + e.getMessage()); 
+			throw new IOException("Couldn't read the securitySuite." + e.getMessage());
 		}
 	}
 	/**
@@ -109,7 +108,7 @@ public class SecuritySetup extends AbstractCosemObject{
 			throw new IOException("Couldn't write the securitySuite to the device." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * @return the current clientSystem title
 	 * @throws IOException
@@ -123,7 +122,7 @@ public class SecuritySetup extends AbstractCosemObject{
 			throw new IOException("Couldn't read the current client system title from the device." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * @return the serverSystem title
 	 * @throws IOException
@@ -134,21 +133,21 @@ public class SecuritySetup extends AbstractCosemObject{
 			return this.serverSystemTitle;
 		} catch(IOException e){
 			e.printStackTrace();
-			throw new IOException("Couldn't read the server system title." + e.getMessage()); 
+			throw new IOException("Couldn't read the server system title." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Activate the given securityPolicy for this device.
 	 * <b>NOTE:</b> THE SECURITY POLICY CAN ONLY BE STRENGTHENED
 	 * @param securityPolicy
 	 * <pre>Values for securityPolicy:
-	 * 	(0)    nothing, 
-	 *	(1)    all messages to be authenticated, 
-	 *	(2)    all messages to be encrypted, 
-	 *	(3)    all messages to be authenticated and encrypted. 
+	 * 	(0)    nothing,
+	 *	(1)    all messages to be authenticated,
+	 *	(2)    all messages to be encrypted,
+	 *	(3)    all messages to be authenticated and encrypted.
 	 * </pre>
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */
@@ -160,7 +159,7 @@ public class SecuritySetup extends AbstractCosemObject{
 			throw new IOException("Could not activate the securityPolicy." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Transfer one or more global keys to the device.
 	 * The global keys must be wrapped with the MasterKey

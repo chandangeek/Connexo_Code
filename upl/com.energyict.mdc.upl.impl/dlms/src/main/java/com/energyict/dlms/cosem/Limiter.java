@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.dlms.cosem;
 
@@ -19,21 +19,21 @@ import com.energyict.obis.ObisCode;
 
 /**
  * @author gna
- * 
+ *
  * Some more info about certain attributes:
- * 
+ *
 	 * The monitoredValue structure contains:
 	 * 		- a long-unsigned(Unsigned16) class_id
-	 * 		- an octet-string(OctetString) logical_name 
+	 * 		- an octet-string(OctetString) logical_name
 	 * 		- an integer(Integer8) attribute_index
 	 * (See class valueDefinitionType)
 
 	 * The emergencyProfile structure contains:
-	 * 		- a long-unsigned(Unsigned16) emergency_profile_id	
+	 * 		- a long-unsigned(Unsigned16) emergency_profile_id
 	 *		- an octet-string(OctetString) emergency_activation_time	-> Defines date and time when the emergency_profile activated
 	 *		- a double-long-unsigned(Unsigned32) emergency_duration		-> Defines the duration in seconds, for which the emergency_profile is activated
 	 * (See class EmergencyProfile)
-			 
+
 	 * The emergencyProfile can be activated only if emergency_profile_id element of the emergencyProfile type matches one of the
 	 * elements on the emergencyProfileGroupIdList.
 	 * (All Array elements are long-unsigned(Unsigned16))
@@ -43,17 +43,15 @@ import com.energyict.obis.ObisCode;
 	 * 															-> direction and remains over threshold for minimal overThresholdDuration time
 	 * 		- an actionItem(Structure) action_under_threshold	-> Defines the action when the value of the attribute monitored crosses the threshold in downwards
 	 * 															-> direction and remains under threshold for minimal underThresholdDuration time
-	 * (See class ActionType) 
-	 
-	 * The actionItem structure contains:	-> indicates a certain script table		
+	 * (See class ActionType)
+
+	 * The actionItem structure contains:	-> indicates a certain script table
 	 * 		- an octet-string(OctetString) script_logical_name
 	 * 		- a long-unsigned(Unsigned16) script_selector
 	 * (See class ActionItem)
  */
 public class Limiter extends AbstractCosemObject{
-	
-	private int CLASSID = 71;
-	
+
 	/** Attributes */
 	private ValueDefinitionType monitoredValue = null;	// Defines an attribute of an object to be monitored. Only simple data types allowed.
 	private AbstractDataType thresholdActive = null;	// Provides the active threshold value to which the attribute monitored is compared.
@@ -66,7 +64,7 @@ public class Limiter extends AbstractCosemObject{
 	private Array emergencyProfileGroupIdList = null;	// Defines a list of group id-s of the emergency profile
 	private BooleanObject emergencyProfileActive = null;	// Indicates that the emergencyProfile is active
 	private ActionType actions = null;	// Defines the scripts to be executed when the monitored value crosses the threshold for minimal duration time
-	
+
 	/** Attribute numbers */
 	private static final int ATTRB_MONITORED_VALUE = 2;
 	private static final int ATTRB_THRESHOLD_ACTIVE = 3;
@@ -78,18 +76,18 @@ public class Limiter extends AbstractCosemObject{
 	private static final int ATTRB_EMERGENCY_PROFILE_GROUP_ID_LIST = 9;
 	private static final int ATTRB_EMERGENCY_PROFILE_ACTIVE = 10;
 	private static final int ATTRB_ACTIONS = 11;
-	
+
 	/** Method invoke */
 	// none
-	
+
 	public Limiter(ProtocolLink protocolLink, ObjectReference objectReference) {
 		super(protocolLink, objectReference);
 	}
 
 	protected int getClassId() {
-		return this.CLASSID;
+		return DLMSClassId.LIMITER.getClassId();
 	}
-	
+
 	/**
 	 * Read the monitoredValue structure from the device
 	 * @return
@@ -104,7 +102,7 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not read the monitoredValue" + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Get the latest retrieved monitoredValue, if its not there yet, read if from device
 	 * @return
@@ -116,7 +114,7 @@ public class Limiter extends AbstractCosemObject{
 		}
 		return this.monitoredValue;
 	}
-	
+
 	/**
 	 * Write the given monitoredValue structure to the device
 	 * @param monitoredValue
@@ -126,7 +124,7 @@ public class Limiter extends AbstractCosemObject{
 		write(ATTRB_MONITORED_VALUE, monitoredValue.getBEREncodedByteArray());
 		this.monitoredValue = monitoredValue;
 	}
-	
+
 	/**
 	 * Retrieve the current thresholdActive object from the device
 	 * @return
@@ -141,7 +139,7 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not retrieve the thresholdActive value." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Write the given thresholdActive value to the device.
 	 * Note: Don't know if the writing of this object is allowed ...
@@ -157,10 +155,10 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not write the thresholdActive value." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Retrieve the current thresholdNormal value from the device
-	 * @return 
+	 * @return
 	 * @throws IOException
 	 */
 	public AbstractDataType readThresholdNormal() throws IOException{
@@ -172,7 +170,7 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not retrieve the thresholdNormal value." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Write the given thresholdNormal value to the device
 	 * @param thresholdNormal
@@ -187,10 +185,10 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not write the thresholdNormal value." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Retrieve the current thresholdEmergency value from the device
-	 * @return 
+	 * @return
 	 * @throws IOException
 	 */
 	public AbstractDataType readThresholdEmergency() throws IOException{
@@ -202,7 +200,7 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not retrieve the thresholdEmergency value." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Write the given thresholdEmergency value to the device
 	 * @param thresholdNormal
@@ -217,7 +215,7 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not write the thresholdEmergency value." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Retrieve the current minOverThresholdDuration value from the device
 	 * @return
@@ -232,7 +230,7 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not retrieve the minOverThresholdDuration value." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Write the given minOverThresholdDuration value to the device
 	 * @param minOverThresholdDuration
@@ -247,7 +245,7 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not write the minOverThresholdDuration value." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Retrieve the current minUnderThresholdDuration value from the device
 	 * @return
@@ -262,7 +260,7 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not retrieve the minUnderThresholdDuration value." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Write the given minUnderThresholdDuration value to the device
 	 * @param minOverThresholdDuration
@@ -277,7 +275,7 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not write the minUnderThresholdDuration value." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Retrieve the current emergencyProfile from the device
 	 * @return
@@ -292,7 +290,7 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not retrieve the emergencyProfile." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Write the given emergycyProfile structure to the device
 	 * @param emergencyProfile
@@ -307,7 +305,7 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not write the emergencyProfile structure." + e.getMessage());
 		}
 	}
-	
+
 	public void writeEmergencyProfile(byte[] berEncodedByteArray) throws IOException{
 		try{
 			write(ATTRB_EMERGENCY_PROFILE, berEncodedByteArray);
@@ -321,7 +319,7 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not write the emergencyProfile structure." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Retrieve the current emergecyProfileGroupIdList from the device
 	 * @return
@@ -351,7 +349,7 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not write the emergencyProfileGroupIdList array." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Retrieve the current state of the emergencyProfileActive boolean from the device
 	 * @return
@@ -366,7 +364,7 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not retrieve the emergencyProfileActive boolean." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * @return true or false, depending on the state of the emergencyProfile
 	 * @throws IOException
@@ -374,7 +372,7 @@ public class Limiter extends AbstractCosemObject{
 	public boolean isEmergencyProfileActive() throws IOException{
 		return getEmergencyProfileActive().getState();
 	}
-	
+
 	/**
 	 * Write the given emergencyProfileActive boolean to the device
 	 * @param emergencyProfileActive
@@ -389,7 +387,7 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not write the current emergencyProfileActive booleanObject." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Retrieve the actions from the device
 	 * @return
@@ -404,7 +402,7 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not read the actions." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * @return the latest retrieved actions attribute from the device
 	 * @throws IOExcepiton
@@ -415,7 +413,7 @@ public class Limiter extends AbstractCosemObject{
 		}
 		return this.actions;
 	}
-	
+
 	/**
 	 * Write the given actions to the device
 	 * @param actions
@@ -430,50 +428,50 @@ public class Limiter extends AbstractCosemObject{
 			throw new IOException("Could not write the actions to the device." + e.getMessage());
 		}
 	}
-	
+
 	public class ValueDefinitionType extends Structure{
 		private static final int ITEM_CLASS_ID = 0;
 		private static final int ITEM_LOGICAL_NAME = 1;
 		private static final int ITEM_ATTRIBUTE_INDEX = 2;
-		
+
 		public ValueDefinitionType(){
 			super();
 		}
-		
+
 		public ValueDefinitionType(byte[] berEncodedData, int offset, int level) throws IOException{
 			super(berEncodedData, offset, level);
 		}
-		
+
 		public Unsigned16 getClassId(){
 			return (Unsigned16) getDataType(ITEM_CLASS_ID);
 		}
-		
+
 		public OctetString getLogicalName(){
 			return (OctetString) getDataType(ITEM_LOGICAL_NAME);
 		}
-		
+
 		public ObisCode getObisCode(){
 			OctetString ln = getLogicalName();
 			String strOc = ""+ln.getOctetStr()[0]+"."+ln.getOctetStr()[1]+"."+ln.getOctetStr()[2]+"."+ln.getOctetStr()[3]+"."
 							+ln.getOctetStr()[4]+"."+(ln.getOctetStr()[5]&0xFF);
 			return ObisCode.fromString(strOc);
 			}
-		
+
 		public Integer8 getAttributeIndex(){
 			return (Integer8) getDataType(ITEM_ATTRIBUTE_INDEX);
 		}
 	}
-	
+
 	public class EmergencyProfile extends Structure{
-		
+
 		private static final int ITEM_EMERGENCY_PROFILE_ID = 0;
 		private static final int ITEM_EMERGENCY_ACTIVATION_TIME = 1;
 		private static final int ITEM_EMERGENCY_DURATION = 2;
-		
+
 		public EmergencyProfile(){
 			super();
 		}
-		
+
 		public void setStructure(byte[] berEncodedByteArray) {
 			//TODO complete
 //			super();
@@ -483,76 +481,76 @@ public class Limiter extends AbstractCosemObject{
 		public EmergencyProfile(byte[] berEncodedData, int offset, int level) throws IOException{
 			super(berEncodedData, offset, level);
 		}
-		
+
 		public Unsigned16 getEmergencyProfileId(){
 			return (Unsigned16) getDataType(ITEM_EMERGENCY_PROFILE_ID);
 		}
-		
+
 		public OctetString getEmergencyActivationTime(){
 			return (OctetString) getDataType(ITEM_EMERGENCY_ACTIVATION_TIME);
 		}
-		
+
 		public Unsigned32 getEmergencyDuration(){
 			return (Unsigned32) getDataType(ITEM_EMERGENCY_DURATION);
 		}
 	}
-	
+
 	public class ActionType extends Structure{
-		
+
 		private static final int ITEM_ACTION_OVER_THRESHOLD = 0;
 		private static final int ITEM_ACTION_UNDER_THRESHOLD = 1;
-		
+
 		public ActionType(){
 			super();
 		}
-		
+
 		public ActionType(ActionItem actionOverThreshold, ActionItem actionUnderThreshold){
 			super();
 			addDataType(actionOverThreshold);
 			addDataType(actionUnderThreshold);
 		}
-		
+
 		public ActionType(byte[] berEncodedData, int offset, int level) throws IOException{
 			super(berEncodedData, offset, level);
 		}
-		
+
 		public ActionItem getActionOverThreshold() throws IOException{
 			return  new ActionItem(getDataType(ITEM_ACTION_OVER_THRESHOLD).getBEREncodedByteArray(), 0, 0);
 		}
-		
+
 		public ActionItem getActionUnderThreshold() throws IOException{
 			return new ActionItem(getDataType(ITEM_ACTION_UNDER_THRESHOLD).getBEREncodedByteArray(), 0, 0);
 		}
-		
+
 	}
-	
+
 	public class ActionItem extends Structure{
-		
+
 		private static final int ITEM_LOGICAL_NAME = 0;
 		private static final int ITEM_SELECTOR = 1;
-		
+
 		public ActionItem(){
 			super();
 		}
-		
+
 		public ActionItem(OctetString scriptLogicalName, Unsigned16 scriptSelector){
 			super();
 			addDataType(scriptLogicalName);
 			addDataType(scriptSelector);
 		}
-		
+
 		public ActionItem(byte[] berEncodedData, int offset, int level) throws IOException{
 			super(berEncodedData, offset, level);
 		}
-		
+
 		public OctetString getScriptLogicalName(){
 			return (OctetString) getDataType(ITEM_LOGICAL_NAME);
 		}
-		
+
 		public Unsigned16 getScriptSelector(){
 			return (Unsigned16) getDataType(ITEM_SELECTOR);
 		}
-		
+
 	}
 
 	public static void main(String args[]){
@@ -563,7 +561,7 @@ public class Limiter extends AbstractCosemObject{
 			System.out.println(actionType);
 			System.out.println("ActionItem Over: " + actionType.getActionOverThreshold());
 			System.out.println("ActionItem Under: " + actionType.getActionUnderThreshold());
-			
+
 			System.out.println("ActionItem Over logicalName: " + actionType.getActionOverThreshold().getScriptLogicalName());
 			System.out.println("ActionItem Over selector: " + actionType.getActionOverThreshold().getScriptSelector());
 		} catch (IOException e) {
@@ -571,5 +569,5 @@ public class Limiter extends AbstractCosemObject{
 			System.out.println("To bad, try again.");
 		}
 	}
-	
+
 }

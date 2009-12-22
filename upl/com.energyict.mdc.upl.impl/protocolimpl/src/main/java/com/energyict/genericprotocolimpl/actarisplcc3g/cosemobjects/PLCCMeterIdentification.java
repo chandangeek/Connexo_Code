@@ -1,41 +1,39 @@
 package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
-import com.energyict.genericprotocolimpl.common.*;
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.*;
-import com.energyict.genericprotocolimpl.actarisplcc3g.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ObjectIdentification;
-import com.energyict.dlms.cosem.AbstractCosemObject;
+import com.energyict.genericprotocolimpl.common.ParseUtils;
+import com.energyict.protocol.ProtocolUtils;
 
 public class PLCCMeterIdentification extends AbstractPLCCObject {
-    
+
     private String identification;
-    
+
     static public final int MANUF_ACTARIS=03;
     static public final int MANUF_LNG=04;
     static public final int MANUF_ISKRA=27;
     private int constructorCode;
-    
+
     private int year;
-    
+
     static public final int TYPE_MONOPHASE=90;
     static public final int TYPE_POLYPHASE=91;
     private int type;
-    
+
     private int serialnr;
-    
+
     public PLCCMeterIdentification(PLCCObjectFactory objectFactory) {
         super(objectFactory);
     }
 
     protected ObjectIdentification getId() {
-        return new ObjectIdentification("0.0.96.2.0.255", AbstractCosemObject.CLASSID_DATA );
+        return new ObjectIdentification("0.0.96.2.0.255", DLMSClassId.DATA.getClassId() );
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -46,8 +44,8 @@ public class PLCCMeterIdentification extends AbstractPLCCObject {
         strBuff.append("   type="+getType()+"\n");
         strBuff.append("   year="+getYear()+"\n");
         return strBuff.toString();
-    }    
-    
+    }
+
     protected void doInvoke() throws IOException {
         AbstractDataType o = AXDRDecoder.decode(getCosemObjectFactory().getData(getId().getObisCode()).getData());
         if (o.isVisibleString()) {
@@ -106,7 +104,7 @@ public class PLCCMeterIdentification extends AbstractPLCCObject {
     private void setIdentification(String identification) {
         this.identification = identification;
     }
-    
+
     public com.energyict.edf.messages.objects.MeterIdentification toMeterIdentification() throws IOException {
         com.energyict.edf.messages.objects.MeterIdentification meterIdentification = new com.energyict.edf.messages.objects.MeterIdentification();
         byte[] data = new byte[6];
@@ -118,7 +116,7 @@ public class PLCCMeterIdentification extends AbstractPLCCObject {
         data[5] = ProtocolUtils.hex2BCD(getSerialnr()%100);
         meterIdentification.setId(data);
         return meterIdentification;
-    }    
-    
+    }
+
 
 }

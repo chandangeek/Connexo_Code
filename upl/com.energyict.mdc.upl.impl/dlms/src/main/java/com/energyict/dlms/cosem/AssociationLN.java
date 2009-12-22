@@ -24,14 +24,13 @@ import com.energyict.obis.ObisCode;
 /**
  *
  * @author  Koen
- * @changes 
+ * @changes
  * GNA |15062009| Implemented more attributes and methods
  * TODO Test all implemented methods
  */
 public class AssociationLN extends AbstractCosemObject {
     public final int DEBUG=0;
-    public static final int CLASSID=15;
-    
+
     /** Attributes */
     private UniversalObject[] buffer;	// the objectList
     private Structure associatedPartnersId; //
@@ -48,7 +47,7 @@ public class AssociationLN extends AbstractCosemObject {
 		// NOTE: in case of HLS with GMAC, the secret is held by the SecuritySetup object attr. 4
     private TypeEnum associationStatus; // indicates the current status of the object
     private OctetString securitySetupReference; //References the SecuritySetup object by its logical name
-    
+
     /** Attribute numbers */
     private static final int ATTRB_OBJECT_LIST = 2;
     private static final int ATTRB_ASSOCIATION_PRTN_ID = 3;
@@ -58,38 +57,38 @@ public class AssociationLN extends AbstractCosemObject {
     private static final int ATTRB_SECRET = 7;
     private static final int ATTRB_ASSOCIATON_STATUS = 8;
     private static final int ATTRB_SECURITY_SETUP_REFERENCE = 9;
-    
+
     /** Method invoke */
     private static final int METHOD_REPLY_TO_HLS_AUTHENTICATION = 1;
     private static final int METHOD_CHANGE_HLS_SECRET = 2;
     private static final int METHOD_ADD_OBJECT = 3;
     private static final int METHOD_REMOVE_OBJECT = 4;
-    
+
     static final byte[] LN=new byte[]{0,0,(byte)40,0,0,(byte)255};
-    
+
     private static int API_CLIENT_SAP = 0;
     private static int API_SERVER_SAP = 1;
-    
+
     /** Return the Class id */
     protected int getClassId() {
-        return CLASSID;
+        return DLMSClassId.ASSOCIATION_LN.getClassId();
     }
-    
+
     /** Creates a new instance of AssociationLN */
     public AssociationLN(ProtocolLink protocolLink){
     	super(protocolLink, new ObjectReference(LN));
     }
-    
+
     /** Creates a new instance of AssociationLN */
     public AssociationLN(ProtocolLink protocolLink,ObjectReference objectReference) {
         super(protocolLink,objectReference);
     }
-    
+
     /** Return the logicalName (obiscode) of this object */
     public static ObisCode getObisCode(){
     	return ObisCode.fromByteArray(LN);
     }
-    
+
     /**
      * Read the objectList from the current association
      * @return an array of UO containing the information of the objects in the device
@@ -97,7 +96,7 @@ public class AssociationLN extends AbstractCosemObject {
      */
     public UniversalObject[] getBuffer() throws IOException {
         byte[] responseData = getResponseData(ASSOC_SN_ATTR_OBJ_LST);
-        
+
         // KV_DEBUG
         if (DEBUG>=2) {
             File file = new File("responseData.bin");
@@ -105,11 +104,11 @@ public class AssociationLN extends AbstractCosemObject {
             fos.write(responseData);
             fos.close();
         }
-        
+
         buffer = data2UOL(responseData);
         return buffer;
     }
-    
+
     private UniversalObject[] parseResponseData() {
         if (DEBUG>=1) {
             byte[] data=null;
@@ -119,7 +118,7 @@ public class AssociationLN extends AbstractCosemObject {
                 data = new byte[(int)file.length()];
                 fis.read(data);
                 fis.close();
-                
+
                 DataContainer dc = new DataContainer();
                 dc.parseObjectList(data,protocolLink.getLogger());
                 System.out.println(dc.getText(","));
@@ -145,7 +144,7 @@ public class AssociationLN extends AbstractCosemObject {
     	this.associatedPartnersId = new Structure(getLNResponseData(ATTRB_ASSOCIATION_PRTN_ID), 0, 0);
     	return this.associatedPartnersId;
     }
-    
+
     /**
      * @return the current associatedPartnersIds
      * @throws IOException if read fails, or if parsing the response isn't correct
@@ -158,22 +157,22 @@ public class AssociationLN extends AbstractCosemObject {
     		return this.associatedPartnersId;
     	}
     }
-    
+
     /**
      * @return the client_SAP of the associatedPartnersObject
-     * @throws IOException if read fails, or if parsing the response isn't correct 
+     * @throws IOException if read fails, or if parsing the response isn't correct
      */
     public Integer8 getClientSAP() throws IOException{
     	return (Integer8)getAssociatedPartnersId().getDataType(API_CLIENT_SAP);
     }
     /**
      * @return the server_SAP of the associatedPartnersObject
-     * @throws IOException if read fails, or if parsing the response isn't correct 
+     * @throws IOException if read fails, or if parsing the response isn't correct
      */
     public Unsigned16 getServerSAP() throws IOException{
     	return (Unsigned16)getAssociatedPartnersId().getDataType(API_SERVER_SAP);
     }
-    
+
     /**
      * Write the given associatedParntersID, containing the client- and serverSAP, to the device
      * @param associatedParntersId is a structure of an Integer8 and Unsigned16
@@ -183,8 +182,8 @@ public class AssociationLN extends AbstractCosemObject {
     	write(ATTRB_ASSOCIATION_PRTN_ID, associatedParntersId.getBEREncodedByteArray());
     	this.associatedPartnersId = associatedParntersId;
     }
-    
-    /** 
+
+    /**
      * Write a new clientSAP to the device
      * @param clientSAP
      * @throws IOException when writing fails or when decoding the object failed
@@ -195,7 +194,7 @@ public class AssociationLN extends AbstractCosemObject {
     	api.addDataType(getServerSAP());
     	writeAssociatedPartnersId(api);
     }
-    
+
     /**
      * Write a new serverSAP to the device
      * @param serverSAP
@@ -207,9 +206,9 @@ public class AssociationLN extends AbstractCosemObject {
     	api.addDataType(new Unsigned16(serverSAP));
     	writeAssociatedPartnersId(api);
     }
-    
+
     /**
-     * Read the xDlmsContextInfo from the device 
+     * Read the xDlmsContextInfo from the device
      * <pre>
      * @return a structure containing the:
      * 				- conformance block
@@ -219,17 +218,17 @@ public class AssociationLN extends AbstractCosemObject {
      * 				- QOS
      * 				- ciphering INFO
      * </pre>
-     * @throws IOException if read fails, or if parsing the response isn't correct 
+     * @throws IOException if read fails, or if parsing the response isn't correct
      */
-    public Structure readXdlmsContextInfo() throws IOException{ 
+    public Structure readXdlmsContextInfo() throws IOException{
     	this.xDlmsContextInfo = new Structure(getLNResponseData(ATTRB_XDLMS_CONTEXT_INFO),0,0);
     	return this.xDlmsContextInfo;
     }
-    
+
     /**
      * Get the current xDlmsContextInfo
-     * @return the structure with 6 elements 
-     * @throws IOException if read fails, or if parsing the response isn't correct 
+     * @return the structure with 6 elements
+     * @throws IOException if read fails, or if parsing the response isn't correct
      */
     public Structure getXdlmsContextInfo() throws IOException{
     	if(this.xDlmsContextInfo == null){
@@ -238,7 +237,7 @@ public class AssociationLN extends AbstractCosemObject {
     		return this.xDlmsContextInfo;
     	}
     }
-    
+
     /**
      * Write the given xDlmsContextInfo, containing all 6 elements, to the device
      * @param xDlmsContextInfo
@@ -248,7 +247,7 @@ public class AssociationLN extends AbstractCosemObject {
     	write(ATTRB_XDLMS_CONTEXT_INFO, xDlmsContextInfo.getBEREncodedByteArray());
     	this.xDlmsContextInfo = xDlmsContextInfo;
     }
-    
+
     /**
      * @return a Structure or an OctetString containing the authentication mechanism name
      * @throws IOException when the response type isn't correct or when the reading failed
@@ -264,17 +263,17 @@ public class AssociationLN extends AbstractCosemObject {
     	}
     	return this.authenticationMechanismName;
     }
-    
+
     /**
      * Write the given authenticationMechanismName to the device
      * @param amn, the abstractDataType(octetString or structure) containing the authMechName
      * @throws IOException the type isn't correct or when the writing fails
      */
-    public void writeAuthenticationMechanismName(AbstractDataType amn) throws IOException{ 
+    public void writeAuthenticationMechanismName(AbstractDataType amn) throws IOException{
     	write(ATTRB_AUTHENTICATION_MECH_NAME, amn.getBEREncodedByteArray());
     	this.authenticationMechanismName = amn;
     }
-    
+
     /**
      * Write the given secret to the attribute
      * @param secret - the octetString containing the secret
@@ -284,7 +283,7 @@ public class AssociationLN extends AbstractCosemObject {
     	write(ATTRB_SECRET, secret.getBEREncodedByteArray());
     	this.secret = secret;
     }
-    
+
     /**
      * @return a Structure or an OctetString containing the applicationContextName
      * @throws IOException when the response type isn't correct or when the reading failed
@@ -300,17 +299,17 @@ public class AssociationLN extends AbstractCosemObject {
     	}
     	return this.applicationContextName;
     }
-    
+
     /**
      * Write the given ApplicationContextName to the device
      * @param acn, the abstractDataType(octetString or structure) containing the applicationContextName
      * @throws IOException the type isn't correct or when the writing fails
      */
-    public void writeApplicationContextName(AbstractDataType acn) throws IOException{ 
+    public void writeApplicationContextName(AbstractDataType acn) throws IOException{
     	write(ATTRB_APPLICATION_CONTEXT_NAME, acn.getBEREncodedByteArray());
     	this.applicationContextName = acn;
     }
-    
+
     /**
      * Read the associationStatus from the device
      * <pre>
@@ -325,7 +324,7 @@ public class AssociationLN extends AbstractCosemObject {
     	this.associationStatus = new TypeEnum(getLNResponseData(ATTRB_ASSOCIATON_STATUS), 0);
     	return this.associationStatus;
     }
-    
+
     /**
      * Read the securitySetupReference logicalName from the device
      * @return the securitySetupReference
@@ -335,7 +334,7 @@ public class AssociationLN extends AbstractCosemObject {
     	this.securitySetupReference = new OctetString(getLNResponseData(ATTRB_SECURITY_SETUP_REFERENCE), 0);
     	return this.securitySetupReference;
     }
-    
+
     /**
      * Write the given securitySetupReference to the device
      * @param securitySetupReference
@@ -345,7 +344,7 @@ public class AssociationLN extends AbstractCosemObject {
     	write(ATTRB_SECURITY_SETUP_REFERENCE, securitySetupReference.getBEREncodedByteArray());
     	this.securitySetupReference = securitySetupReference;
     }
-    
+
     /**
      * Reply to the server with his encrypted challenge
      * @param encryptedChallenge is the response from the associationRequest, encrypted with the HLSKey
@@ -355,7 +354,7 @@ public class AssociationLN extends AbstractCosemObject {
     public byte[] replyToHLSAuthentication(byte[] encryptedChallenge) throws IOException{
     	return invoke(METHOD_REPLY_TO_HLS_AUTHENTICATION, new OctetString(encryptedChallenge).getBEREncodedByteArray());
     }
-    
+
     /**
      * Change the HLS_Secret, depending on the securityMechanism implementation, the new secret may contain
      * additional check bits and it may be encrypted
@@ -366,7 +365,7 @@ public class AssociationLN extends AbstractCosemObject {
     public byte[] changeHLSSecret(byte[] hlsSecret)throws IOException {
     	return invoke(METHOD_CHANGE_HLS_SECRET, new OctetString(hlsSecret).getBEREncodedByteArray());
     }
-    
+
     /**
      * Add the given object to the ObjectList of the device.
      * The definition of the object is object-independent,
@@ -378,7 +377,7 @@ public class AssociationLN extends AbstractCosemObject {
     public byte[] addObject(Structure object)throws IOException {
     	return invoke(METHOD_ADD_OBJECT, object.getBEREncodedByteArray());
     }
-    
+
     /**
      * Remove the given object from the ObjectList of the device.
      * The definition of the object is object-independent,

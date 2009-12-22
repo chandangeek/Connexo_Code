@@ -43,8 +43,8 @@ import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.AssociationSN;
 import com.energyict.dlms.cosem.AutoConnect;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DemandRegister;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.GenericInvoke;
@@ -906,7 +906,7 @@ public class MessageExecutor extends GenericMessageExecutor{
     	  return getCosemObjectFactory().getRegister(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];
       } else if (getMeterConfig().getClassId(vdt.getObisCode()) == ExtendedRegister.CLASSID){
     	  return getCosemObjectFactory().getExtendedRegister(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];
-      }else if (getMeterConfig().getClassId(vdt.getObisCode()) == DemandRegister.CLASSID){
+      }else if (getMeterConfig().getClassId(vdt.getObisCode()) == DLMSClassId.DEMAND_REGISTER.getClassId()){
     	  return getCosemObjectFactory().getDemandRegister(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];
       }else if (getMeterConfig().getClassId(vdt.getObisCode()) == Data.CLASSID){
     	  return getCosemObjectFactory().getData(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];

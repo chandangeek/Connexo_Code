@@ -6,17 +6,10 @@
 
 package com.energyict.dlms.cosem;
 
-import java.io.*;
-import java.util.*;
-import java.math.BigDecimal;
+import java.io.IOException;
 
-import com.energyict.protocolimpl.dlms.*;
-import com.energyict.protocol.*;
-import com.energyict.cbo.Unit;
-import com.energyict.cbo.Quantity;
-import com.energyict.dlms.cosem.AbstractCosemObject;
-import com.energyict.dlms.OctetString;
 import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.OctetString;
 import com.energyict.dlms.ProtocolLink;
 
 /**
@@ -25,15 +18,15 @@ import com.energyict.dlms.ProtocolLink;
  */
 public class GenericRead extends AbstractCosemObject {
     public final int DEBUG=0;
-    
+
     int attr;
-    
+
     /** Creates a new instance of GenericRead */
     public GenericRead(ProtocolLink protocolLink, ObjectReference objectReference, int attr) {
         super(protocolLink,objectReference);
         this.attr=attr;
     }
-    
+
     public String toString() {
         try {
            return "value="+getDataContainer().toString();
@@ -42,15 +35,15 @@ public class GenericRead extends AbstractCosemObject {
            return "DataGeneric retrieving error!";
         }
     }
-   
+
     public long getValue() throws IOException {
         DataContainer dataContainer=getDataContainer();
         if (dataContainer.getRoot().isInteger(0)) {
-           return (long)((Integer)dataContainer.getRoot().getElement(0)).intValue(); 
+           return (long)((Integer)dataContainer.getRoot().getElement(0)).intValue();
         }
         throw new IOException("DataGeneric, getValue(), invalid data value type...");
     }
-    
+
     public String getString() throws IOException {
         DataContainer dataContainer=getDataContainer();;
         if (dataContainer.getRoot().isOctetString(0)) {
@@ -65,16 +58,18 @@ public class GenericRead extends AbstractCosemObject {
     public DataContainer getDataContainer() throws IOException {
         DataContainer dataContainer = new DataContainer();
         dataContainer.parseObjectList(getResponseData(attr),protocolLink.getLogger());
-        if (DEBUG >= 1) dataContainer.printDataContainer();
+        if (DEBUG >= 1) {
+			dataContainer.printDataContainer();
+		}
         return dataContainer;
     }
-    
+
     public byte[] getResponseData() throws IOException {
         return getResponseData(attr);
     }
-    
+
     protected int getClassId() {
         return getObjectReference().getClassId();
     }
-    
+
 }

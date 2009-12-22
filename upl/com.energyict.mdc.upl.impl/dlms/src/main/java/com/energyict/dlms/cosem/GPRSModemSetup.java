@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.dlms.cosem;
 
@@ -15,22 +15,20 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
  *
  */
 public class GPRSModemSetup extends AbstractCosemObject {
-	
+
 	/** Attributes */
 	private OctetString apn = null;	// Defines the accessPoint name of the network
 	private Unsigned16 pincode = null;	// Holds the personal identification number
 	private Structure qualityOfService = null;
-	
+
 	/** Attribute numbers */
 	private static final int ATTRB_APN = 2;
 	private static final int ATTRB_PIN_CODE = 3;
 	private static final int ATTRB_QUALITY_OF_SERVICE = 4;
-	
+
 	/** Method invoke */
 	// none
-	
-	private int CLASSID = 45;
-	
+
 	private static final int QOS_DEFAULT = 0;
 	private static final int QOS_REQUESTED = 1;
 
@@ -43,9 +41,9 @@ public class GPRSModemSetup extends AbstractCosemObject {
 	}
 
 	protected int getClassId() {
-		return this.CLASSID;
+		return DLMSClassId.GPRS_SETUP.getClassId();
 	}
-	
+
 	/**
 	 * Reads the current APN from the device
 	 * @return
@@ -60,7 +58,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 			throw new IOException("Could not retrieve the Access Point Name(apn)." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Return the latest retrieved apn
 	 * @return
@@ -72,7 +70,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 		}
 		return this.apn;
 	}
-	
+
 	/**
 	 * Write the given apn octetString to the device
 	 * @param apn
@@ -96,7 +94,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 	public void writeAPN(String apn) throws IOException{
 		this.writeAPN(OctetString.fromString(apn));
 	}
-	
+
 	/**
 	 * Read the current pincode from the device
 	 * @return
@@ -111,7 +109,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 			throw new IOException("Could not retrieve the pincode." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Return the latest retrieved pincode
 	 * @return
@@ -123,7 +121,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 		}
 		return this.pincode;
 	}
-	
+
 	/**
 	 * Write the given unsigned16 pincode to the device
 	 * @param pincode
@@ -138,7 +136,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 			throw new IOException("Could not write the pincode." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Write the given pincode to the device
 	 * @param pincode
@@ -147,7 +145,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 	public void writePinCode(long pincode) throws IOException{
 		this.writePinCode(new Unsigned16((int)pincode));
 	}
-	
+
 	/**
 	 * Read the current quality of Service from the device
 	 * @return
@@ -162,7 +160,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 			throw new IOException("Could not retrieve the quality of service." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Get the latest retrieved quality of service structure
 	 * @return
@@ -174,7 +172,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 		}
 		return this.qualityOfService;
 	}
-	
+
 	/**
 	 * Return the default QOS structure
 	 * @return
@@ -187,7 +185,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 			throw new IOException("The QOS structure does not contain a default QOS structure ...");
 		}
 	}
-	
+
 	/**
 	 * Return the requested QOS structure
 	 * @return
@@ -200,7 +198,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 			throw new IOException("The QOS structure does not contain a requested QOS structure ...");
 		}
 	}
-	
+
 	/**
 	 * Write the given quality of service structure to the device
 	 * @param qos
@@ -215,7 +213,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 			throw new IOException("Could not write the pincode." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Write the given default and requested qos structures to the device
 	 * @param defaultQOS

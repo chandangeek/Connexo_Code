@@ -26,23 +26,13 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 	private static final int DEBUG=0;
 
-	public static final int CLASSID_DATA=1;
-	public static final int CLASSID_REGISTER=3;
-	public static final int CLASSID_EXTENDED_REGISTER=4;
-	public static final int CLASSID_DEMAND_REGISTER=5;
-	public static final int CLASSID_PROFILE_GENERIC=7;
-	public static final int CLASSID_CLOCK=8;
-	public static final int CLASSID_SCRIPTTABLE=9;
-	public static final int CLASSID_ACTIVITY_CALENDAR=20;
-	public static final int CLASSID_REGISTER_MONITOR=21;
-	public static final int CLASSID_SINGLE_ACTION_SCHEDULE=22;
-	public static final int CLASSID_IPV4SETUP=42;
-	public static final int CLASSID_SMTP_SETUP=46;
-	public static final int CLASSID_SPECIAL_DAYS_TABLE=11;
-
 	protected ProtocolLink protocolLink;
 	private ObjectReference objectReference;
 
+	/**
+	 * Getter for the dlms class id
+	 * @return the id of the dlms class
+	 */
 	abstract protected int getClassId();
 	private byte INVOKE_ID_AND_PRIORITY;
 

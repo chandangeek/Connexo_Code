@@ -5,12 +5,8 @@
  */
 
 package com.energyict.dlms.cosem;
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocolimpl.dlms.*;
-import com.energyict.obis.ObisCode;
 import com.energyict.dlms.OctetString;
+import com.energyict.obis.ObisCode;
 /**
  *
  * @author  Koen
@@ -21,16 +17,18 @@ public class LogicalName {
     public LogicalName(OctetString octetString) {
         this.octetString=octetString;
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         for (int i=0;i<octetString.getArray().length;i++) {
-            if (i!=0) strBuff.append(".");
+            if (i!=0) {
+				strBuff.append(".");
+			}
             strBuff.append(Integer.toString(octetString.getArray()[i] & 0xFF));
         }
         return strBuff.toString();
     }
-    
+
     public ObisCode getObisCode() {
         String codeString = ((int)getA()&0xFF)+"."+
                             ((int)getB()&0xFF)+"."+
@@ -40,7 +38,7 @@ public class LogicalName {
                             ((int)getF()&0xFF)+".";
        return ObisCode.fromString(codeString);
     }
-    
+
     public int getA() {
         return octetString.getArray()[0] & 0xFF;
     }
@@ -59,6 +57,6 @@ public class LogicalName {
     public int getF() {
         return octetString.getArray()[5] & 0xFF;
     }
-    
-    
+
+
 }

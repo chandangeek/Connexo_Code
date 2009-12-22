@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.dlms.cosem;
 
@@ -19,30 +19,30 @@ import com.energyict.dlms.axrdencoding.TypeEnum;
  * 				NOTE: check the executedScript, it is possible that you have to use a ScriptTable object instead of a Structure
  */
 public class SingleActionSchedule extends AbstractCosemObject{
-	
+
 	/** Attributes */
 //	private ScriptTable executedScript = null;
 	private Structure executedScript = null;	// The Structure is a combination of the script_LogicalName and the script_Selector
 	private TypeEnum type = null;				// Let's you define wildcards in the datetime
-	private Array executionTime = null;	
-	
+	private Array executionTime = null;
+
 	/** Attribute numbers */
 	private static final int ATTRB_EXECUTED_SCRIPT = 2;
 	private static final int ATTRB_TYPE = 3;
 	private static final int ATTRB_EXECUTION_TIME = 4;
-	
+
 	/** Method invoke */
 	// none
-	
-	
+
+
 	public SingleActionSchedule(ProtocolLink protocolLink,ObjectReference objectReference) {
 		super(protocolLink, objectReference);
 	}
 
 	protected int getClassId() {
-		return AbstractCosemObject.CLASSID_SINGLE_ACTION_SCHEDULE;
+		return DLMSClassId.SINGLE_ACTION_SCHEDULE.getClassId();
 	}
-	
+
 	/**
 	 * Get the latest retrieved executedScript
 	 * @return
@@ -54,7 +54,7 @@ public class SingleActionSchedule extends AbstractCosemObject{
 		}
 		return this.executedScript;
 	}
-	
+
 	/**
 	 * Read the executedScript from the device
 	 * @return
@@ -64,7 +64,7 @@ public class SingleActionSchedule extends AbstractCosemObject{
 		this.executedScript = new Structure(getLNResponseData(ATTRB_EXECUTED_SCRIPT), 0, 0);
 		return this.executedScript;
 	}
-	
+
 	/**
 	 * Get the latest retrieved type
 	 * @return
@@ -76,7 +76,7 @@ public class SingleActionSchedule extends AbstractCosemObject{
 		}
 		return this.type;
 	}
-	
+
 	/**
 	 * Read the type from the device
 	 * @return
@@ -86,7 +86,7 @@ public class SingleActionSchedule extends AbstractCosemObject{
 		this.type = new TypeEnum(getLNResponseData(ATTRB_TYPE), 0);
 		return this.type;
 	}
-	
+
 	/**
 	 * Write a type to the device
 	 * @param type
@@ -96,7 +96,7 @@ public class SingleActionSchedule extends AbstractCosemObject{
 		write(ATTRB_TYPE, type.getBEREncodedByteArray());
 		this.type = type;
 	}
-	
+
 	/**
 	 * Write a specific scriptStructure to the device
 	 * @param script
@@ -118,7 +118,7 @@ public class SingleActionSchedule extends AbstractCosemObject{
 		}
 		return executionTime;
 	}
-	
+
 	/**
 	 * Writes an Array of possible executionTime STRUCTURES.
 	 * @param executionTime
@@ -128,5 +128,5 @@ public class SingleActionSchedule extends AbstractCosemObject{
         write(ATTRB_EXECUTION_TIME, executionTime.getBEREncodedByteArray());
         this.executionTime=executionTime;
     }
-    
+
 }

@@ -10,11 +10,12 @@
 
 package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ObjectIdentification;
-import com.energyict.dlms.cosem.AbstractCosemObject;
 import com.energyict.dlms.cosem.ProfileGeneric;
 
 
@@ -23,27 +24,27 @@ import com.energyict.dlms.cosem.ProfileGeneric;
  * @author kvds
  */
 public class PLCCPLCEquipmentList extends AbstractPLCCObject {
-    
+
     List equipmentList;
     ProfileGeneric profileGeneric;
-    
+
     /**
-     * Creates a new instance of PLCCPLCEquipmentList 
+     * Creates a new instance of PLCCPLCEquipmentList
      */
     public PLCCPLCEquipmentList(PLCCObjectFactory pLCCObjectFactory) {
         super(pLCCObjectFactory);
     }
-    
+
     protected void doInvoke() throws IOException {
         profileGeneric = getCosemObjectFactory().getProfileGeneric(getId().getObisCode());
     }
-    
+
     List getEquipmentList( ){
         return new ArrayList();
     }
 
     protected ObjectIdentification getId() {
-        return new ObjectIdentification( "0.0.98.139.0.255", AbstractCosemObject.CLASSID_PROFILE_GENERIC);
+        return new ObjectIdentification( "0.0.98.139.0.255", DLMSClassId.PROFILE_GENERIC.getClassId());
     }
 
     public void initialDiscover() throws IOException {
@@ -55,5 +56,5 @@ public class PLCCPLCEquipmentList extends AbstractPLCCObject {
     public void setAllNew() throws IOException {
         profileGeneric.invoke(136);
     }
-    
+
 }

@@ -6,33 +6,31 @@
 
 package com.energyict.dlms.cosem;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 
-import com.energyict.cbo.*;
-import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.protocol.*;
-import com.energyict.dlms.cosem.AbstractCosemObject;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned16;
 /**
  *
  * @author  Koen
  */
 public class SMTPSetup extends AbstractCosemObject {
-    
+
     private Unsigned16 serverPort=null;
     private OctetString userName=null;
     private OctetString loginPassword=null;
     private OctetString serverAddress=null;
     private OctetString senderAddress=null;
-    
+
     /** Creates a new instance of Data */
     public SMTPSetup(ProtocolLink protocolLink,ObjectReference objectReference) {
         super(protocolLink,objectReference);
     }
-    
+
     protected int getClassId() {
-        return AbstractCosemObject.CLASSID_SMTP_SETUP;
+        return DLMSClassId.SMTP_SETUP.getClassId();
     }
 
     public void writeServerPort(Unsigned16 serverPort) throws IOException {
@@ -68,7 +66,7 @@ public class SMTPSetup extends AbstractCosemObject {
         return loginPassword;
     }
 
-    
+
     public void writeServerAddress(OctetString serverAddress) throws IOException {
         write(5, serverAddress.getBEREncodedByteArray());
         this.serverAddress=serverAddress;

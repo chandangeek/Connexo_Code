@@ -20,27 +20,27 @@ import com.energyict.dlms.axrdencoding.OctetString;
  * GNA|02022009| Added the activatePassiveCalendar method
  */
 public class ActivityCalendar extends AbstractCosemObject {
-    
-    private OctetString calendarNameActive=null; 
+
+    private OctetString calendarNameActive=null;
     private Array seasonProfileActive=null;
     private Array weekProfileTableActive=null;
     private Array dayProfileTableActive=null;
-    
+
     private OctetString calendarNamePassive=null;
     private Array seasonProfilePassive=null;
     private Array weekProfileTablePassive=null;
     private Array dayProfileTablePassive=null;
-            
+
     private OctetString activatePassiveCalendarTime=null;
     private static int ACTIVATE_PASSIVE_CALENDAR = 1;
-    
+
     /** Creates a new instance of Data */
     public ActivityCalendar(ProtocolLink protocolLink,ObjectReference objectReference) {
         super(protocolLink,objectReference);
     }
-    
+
     protected int getClassId() {
-        return AbstractCosemObject.CLASSID_ACTIVITY_CALENDAR;
+        return DLMSClassId.ACTIVITY_CALENDAR.getClassId();
     }
 
     public void writeCalendarNameActive(OctetString calendarNameActive) throws IOException {
@@ -53,7 +53,7 @@ public class ActivityCalendar extends AbstractCosemObject {
         }
         return calendarNameActive;
     }
-    
+
     public void writeSeasonProfileActive(Array seasonProfileActive) throws IOException {
         write(3, seasonProfileActive.getBEREncodedByteArray());
         this.seasonProfileActive=seasonProfileActive;
@@ -64,7 +64,7 @@ public class ActivityCalendar extends AbstractCosemObject {
         }
         return seasonProfileActive;
     }
-    
+
     public void writeWeekProfileTableActive(Array weekProfileTableActive) throws IOException {
         write(4, weekProfileTableActive.getBEREncodedByteArray());
         this.weekProfileTableActive=weekProfileTableActive;
@@ -75,7 +75,7 @@ public class ActivityCalendar extends AbstractCosemObject {
         }
         return weekProfileTableActive;
     }
-    
+
     public void writeDayProfileTableActive(Array dayProfileTableActive) throws IOException {
         write(5, dayProfileTableActive.getBEREncodedByteArray());
         this.dayProfileTableActive=dayProfileTableActive;
@@ -86,7 +86,7 @@ public class ActivityCalendar extends AbstractCosemObject {
         }
         return dayProfileTableActive;
     }
-    
+
     public void writeCalendarNamePassive(OctetString calendarNamePassive) throws IOException {
         write(6, calendarNamePassive.getBEREncodedByteArray());
         this.calendarNamePassive=calendarNamePassive;
@@ -97,7 +97,7 @@ public class ActivityCalendar extends AbstractCosemObject {
         }
         return calendarNamePassive;
     }
-    
+
     public void writeSeasonProfilePassive(Array seasonProfilePassive) throws IOException {
         write(7, seasonProfilePassive.getBEREncodedByteArray());
         this.seasonProfilePassive=seasonProfilePassive;
@@ -108,7 +108,7 @@ public class ActivityCalendar extends AbstractCosemObject {
         }
         return seasonProfilePassive;
     }
-    
+
     public void writeWeekProfileTablePassive(Array weekProfileTablePassive) throws IOException {
         write(8, weekProfileTablePassive.getBEREncodedByteArray());
         this.weekProfileTablePassive=weekProfileTablePassive;
@@ -119,7 +119,7 @@ public class ActivityCalendar extends AbstractCosemObject {
         }
         return weekProfileTablePassive;
     }
-    
+
     public void writeDayProfileTablePassive(Array dayProfileTablePassive) throws IOException {
         write(9, dayProfileTablePassive.getBEREncodedByteArray());
         this.dayProfileTablePassive=dayProfileTablePassive;
@@ -130,7 +130,7 @@ public class ActivityCalendar extends AbstractCosemObject {
         }
         return dayProfileTablePassive;
     }
-    
+
     public void writeActivatePassiveCalendarTime(OctetString activatePassiveCalendarTime) throws IOException {
         write(10, activatePassiveCalendarTime.getBEREncodedByteArray());
         this.activatePassiveCalendarTime=activatePassiveCalendarTime;

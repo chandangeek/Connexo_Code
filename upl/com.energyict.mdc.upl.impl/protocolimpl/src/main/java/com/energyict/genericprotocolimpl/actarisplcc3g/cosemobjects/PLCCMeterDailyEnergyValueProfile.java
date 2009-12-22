@@ -12,42 +12,42 @@ package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
 
 
-import com.energyict.genericprotocolimpl.common.DailyBillingEntry;
-import java.io.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.AbstractCosemObject;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.axrdencoding.util.*;
-import com.energyict.genericprotocolimpl.actarisplcc3g.*;
-
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ObjectIdentification;
-import java.util.*;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.genericprotocolimpl.common.DailyBillingEntry;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
  * @author kvds
  */
 public class PLCCMeterDailyEnergyValueProfile extends AbstractPLCCObject {
-    
+
     private Date from;
     private Date to;
-    
+
     private Array buffer;
-    
+
     private List dailyBillingEntries=null;
-    
+
     /** Creates a new instance of PLCCTemplateObject */
     public PLCCMeterDailyEnergyValueProfile(PLCCObjectFactory objectFactory) {
         super(objectFactory);
     }
-    
+
     protected ObjectIdentification getId() {
-        return new ObjectIdentification(ObisCode.fromString("1.0.98.1.0.255"), AbstractCosemObject.CLASSID_PROFILE_GENERIC);
+        return new ObjectIdentification(ObisCode.fromString("1.0.98.1.0.255"), DLMSClassId.PROFILE_GENERIC.getClassId());
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -61,13 +61,13 @@ public class PLCCMeterDailyEnergyValueProfile extends AbstractPLCCObject {
     protected void doInvoke() throws IOException {
         ProfileGeneric o = getCosemObjectFactory().getProfileGeneric(getId().getObisCode());
         Calendar calFrom,calTo;
-        if (getTo()==null)
-            calTo = ProtocolUtils.getCalendar(getPLCCObjectFactory().getConcentrator().getTimeZone()); // KV_TO_DO concentrator timezone if all meters are in the same timezone...
-        else {
+        if (getTo()==null) {
+			calTo = ProtocolUtils.getCalendar(getPLCCObjectFactory().getConcentrator().getTimeZone()); // KV_TO_DO concentrator timezone if all meters are in the same timezone...
+		} else {
             calTo = ProtocolUtils.getCalendar(getPLCCObjectFactory().getConcentrator().getTimeZone());
             calTo.setTime(getTo());
         }
-        
+
         if (getFrom()==null) {
             calFrom = ProtocolUtils.getCalendar(getPLCCObjectFactory().getConcentrator().getTimeZone()); // KV_TO_DO concentrator timezone if all meters are in the same timezone...
             calFrom.add(Calendar.DATE,-1);
@@ -77,22 +77,23 @@ public class PLCCMeterDailyEnergyValueProfile extends AbstractPLCCObject {
             calFrom.setTime(getFrom());
         }
         setBuffer(o.readBufferAttr(calFrom, calTo));
-        
+
         setDailyBillingEntries(new ArrayList());
         Calendar calendar=null;
         for (int index=0;index<buffer.nrOfDataTypes();index++) {
             DailyBillingEntry dbe = new DailyBillingEntry(buffer.getDataType(index).getStructure(),getPLCCObjectFactory().getConcentrator().getTimeZone());
-            
-            if (dbe.getCalendar() != null)
-                calendar = (Calendar)dbe.getCalendar().clone();
-            else
-                dbe.setCalendar((Calendar)calendar.clone());
+
+            if (dbe.getCalendar() != null) {
+				calendar = (Calendar)dbe.getCalendar().clone();
+			} else {
+				dbe.setCalendar((Calendar)calendar.clone());
+			}
             getDailyBillingEntries().add(dbe);
        //System.out.println(dbe+", "+getDailyBillingEntries().size());
             calendar.add(Calendar.DATE,1);
-        }        
-        
-        
+        }
+
+
     }
 
     public Date getFrom() {

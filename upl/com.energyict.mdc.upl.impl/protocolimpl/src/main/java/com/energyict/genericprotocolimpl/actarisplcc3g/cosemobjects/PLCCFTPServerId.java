@@ -12,41 +12,41 @@ package com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects;
 
 
 
-import java.io.*;
+import java.io.IOException;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ObjectIdentification;
-import com.energyict.dlms.cosem.AbstractCosemObject;
 import com.energyict.dlms.cosem.SMTPSetup;
+import com.energyict.obis.ObisCode;
 
 /**
  *
  * @author kvds
  */
 public class PLCCFTPServerId extends AbstractPLCCObject {
-    
+
     private SMTPSetup smtpSetup=null;
-    
+
     /** Creates a new instance of PLCCTemplateObject */
     public PLCCFTPServerId(PLCCObjectFactory objectFactory) {
         super(objectFactory);
     }
-    
+
     protected ObjectIdentification getId() {
-        return new ObjectIdentification(ObisCode.fromString("0.0.25.5.0.255"), AbstractCosemObject.CLASSID_SMTP_SETUP);
+        return new ObjectIdentification(ObisCode.fromString("0.0.25.5.0.255"), DLMSClassId.SMTP_SETUP.getClassId());
     }
 
     protected void doInvoke() throws IOException {
         smtpSetup = getCosemObjectFactory().getSMTPSetup(getId().getObisCode());
-    }    
-    
+    }
+
     public SMTPSetup getSMTPSetup() throws IOException {
         return smtpSetup;
     }
-    
-    
+
+
     public void writeFtpServerId(com.energyict.edf.messages.objects.FtpServerId ftpServerId) throws IOException {
         smtpSetup.writeServerPort(new Unsigned16(ftpServerId.getPortNumber()));
         smtpSetup.writeUserName(OctetString.fromString(ftpServerId.getUsername(),32));
@@ -54,8 +54,8 @@ public class PLCCFTPServerId extends AbstractPLCCObject {
         smtpSetup.writeServerAddress(OctetString.fromString(ftpServerId.getServerAddress(),64));
         smtpSetup.writeSenderAddress(OctetString.fromString(ftpServerId.getSenderAddress(),64));
     }
-    
-    
+
+
     public com.energyict.edf.messages.objects.FtpServerId readFtpServerId() throws IOException {
         com.energyict.edf.messages.objects.FtpServerId ftpServerId = new com.energyict.edf.messages.objects.FtpServerId();
         ftpServerId.setPortNumber(smtpSetup.readServerPort().intValue());
@@ -64,6 +64,6 @@ public class PLCCFTPServerId extends AbstractPLCCObject {
         ftpServerId.setServerAddress(smtpSetup.readServerAddress().stringValue());
         ftpServerId.setSenderAddress(smtpSetup.readSenderAddress().stringValue());
         return ftpServerId;
-    }         
-    
+    }
+
 }

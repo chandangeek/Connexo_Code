@@ -24,7 +24,8 @@ import com.energyict.obis.*;
 import com.energyict.protocol.*;
 import com.energyict.dlms.cosem.ObjectIdentification;
 import java.math.*;
-import com.energyict.dlms.cosem.AbstractCosemObject;
+
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.ScalerUnit;
 
@@ -43,7 +44,7 @@ public class PLCCMeterTimeThresholdForLongPowerFailure extends AbstractPLCCObjec
     }
     
     protected ObjectIdentification getId() {
-        return new ObjectIdentification(ObisCode.fromString("0.0.96.7.20.255"), AbstractCosemObject.CLASSID_REGISTER);
+        return new ObjectIdentification(ObisCode.fromString("0.0.96.7.20.255"), DLMSClassId.REGISTER.getClassId());
     }
     
     protected void doInvoke() throws IOException {

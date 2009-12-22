@@ -1,12 +1,11 @@
 package com.energyict.protocolimpl.dlms;
 
 /**
- * @deprecated  As of 11022009, replaced by
- * com.energyict.dlms.cosem.CaptureObject 
- * 
+ * @deprecated As of 11022009, replaced by
+ * {@link com.energyict.dlms.cosem.CapturedObject}
  */
 public class LNObject {
-	
+
     int classId;
     int attribute;
     byte[] logicalName;

@@ -1159,10 +1159,6 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
 
     }
 
-    /**
-     * Getter for property meterConfig.
-     * @return Value of property meterConfig.
-     */
     public DLMSMeterConfig getMeterConfig() {
         return meterConfig;
     }

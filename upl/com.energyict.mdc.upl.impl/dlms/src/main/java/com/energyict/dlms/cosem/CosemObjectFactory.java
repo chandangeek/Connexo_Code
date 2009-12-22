@@ -247,11 +247,11 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 				return new Register(protocolLink,getObjectReference(obisCode));
 			} else if (protocolLink.getMeterConfig().getClassId(obisCode) == ExtendedRegister.CLASSID) {
 				return new ExtendedRegister(protocolLink,getObjectReference(obisCode));
-			} else if (protocolLink.getMeterConfig().getClassId(obisCode) == DemandRegister.CLASSID) {
+			} else if (protocolLink.getMeterConfig().getClassId(obisCode) == DLMSClassId.DEMAND_REGISTER.getClassId()) {
 				return new DemandRegister(protocolLink,getObjectReference(obisCode));
 			} else if (protocolLink.getMeterConfig().getClassId(obisCode) == Data.CLASSID) {
 				return new Data(protocolLink,getObjectReference(obisCode));
-			} else if (protocolLink.getMeterConfig().getClassId(obisCode) == ProfileGeneric.CLASSID) {
+			} else if (protocolLink.getMeterConfig().getClassId(obisCode) == DLMSClassId.PROFILE_GENERIC.getClassId()) {
 				return new ProfileGeneric(protocolLink,getObjectReference(obisCode));
 			} else {
 				throw new IOException("CosemObjectFactory, getCosemObject, invalid classId "+protocolLink.getMeterConfig().getClassId(obisCode)+" for obisCode "+obisCode.toString()) ;

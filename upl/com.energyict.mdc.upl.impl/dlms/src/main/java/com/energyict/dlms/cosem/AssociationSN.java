@@ -19,44 +19,41 @@ import com.energyict.obis.ObisCode;
  */
 public class AssociationSN extends AbstractCosemObject {
     public final int DEBUG=0;
-    public static final int CLASSID=12;
-    
-    
     /** Attributes */
     private UniversalObject[] buffer; // the objectList
     private Array accessRightsList; // contains the access rights to attributes and methods
     private OctetString securitySetupReference; //References the SecuritySetup object by its logical name
-    
+
     /** Attribute numbers (shortname notation ...) */
     private static final int ATTRB_OBJECT_LIST = 0x08;
     private static final int ATTRB_ACCESS_RIGHTS = 0x10;
     private static final int ATTRB_SECURITY_SETUP_REF = 0x18;
-    
+
     /** Method invoke */
     private static int METHOD_READ_BY_LOGICAL_NAME = 3;
     private static int METHOD_CHANGE_SECRET = 5;
     private static int METHOD_REPLY_TO_HLS_AUTHENTICATION = 8;
-    
+
     static final byte[] LN=new byte[]{0,0,(byte)40,0,0,(byte)255};
-    
+
     public AssociationSN(ProtocolLink protocolLink){
     	super(protocolLink, new ObjectReference(LN));
     }
-    
+
     /** Creates a new instance of AssociationSN */
     public AssociationSN(ProtocolLink protocolLink,ObjectReference objectReference) {
         super(protocolLink,objectReference );
     }
-    
+
     protected int getClassId() {
-        return CLASSID;
+        return DLMSClassId.ASSOCIATION_SN.getClassId();
     }
-    
+
     /** Return the logicalName (obiscode) of this object */
     public static ObisCode getObisCode(){
     	return ObisCode.fromByteArray(LN);
     }
-    
+
     /**
      * Read the objectList from the current association
      * @return an array of UO containing the information of the objects in the device
@@ -66,7 +63,7 @@ public class AssociationSN extends AbstractCosemObject {
     	buffer = data2UOL(getResponseData(ASSOC_SN_ATTR_OBJ_LST));
     	return buffer;
     }
-   
+
     /**
      * Reply to the server with his encrypted challenge
      * @param encryptedChallenge is the response from the associationRequest, encrypted with the HLSKey
@@ -75,7 +72,7 @@ public class AssociationSN extends AbstractCosemObject {
     public byte[] replyToHLSAuthentication(byte[] encryptedChallenge) throws IOException {
     	return invoke(METHOD_REPLY_TO_HLS_AUTHENTICATION, new OctetString(encryptedChallenge).getBEREncodedByteArray());
     }
-    
+
     /**
      * Change the HLS_Secret, depending on the securityMechanism implementation, the new secret may contain
      * additional check bits and it may be encrypted

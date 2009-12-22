@@ -11,14 +11,14 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.obis.ObisCode;
 
 /**
- * 
+ *
  * @author gna
- *	This IC allows modeling the management of data transfer from the device to one or several 
- *	destinations. 
- *	The messages to be sent, the conditions on which they shall be sent and the relation between the 
- *	various modes, the calling windows and destinations are not defined here. 
- *	Depending on the mode, one or more instances of this IC may be necessary to perform the function 
- *	of sending out messages. 
+ *	This IC allows modeling the management of data transfer from the device to one or several
+ *	destinations.
+ *	The messages to be sent, the conditions on which they shall be sent and the relation between the
+ *	various modes, the calling windows and destinations are not defined here.
+ *	Depending on the mode, one or more instances of this IC may be necessary to perform the function
+ *	of sending out messages.
  * @beginChanges
  * GNA |01042009| Adding and deleting from the destinationList is not updated immediately, the user(programmer) has to use the updatePhoneList
  * 					method to send the list to the meter.
@@ -26,27 +26,26 @@ import com.energyict.obis.ObisCode;
  */
 
 public class AutoConnect extends AbstractCosemObject {
-	
-	private int CLASSID = 29;
+
 	static final byte[] LN = new byte[] { 0, 0, 2, 1, 0, (byte) 255 };
-	
+
 	/** Attributes */
 	private TypeEnum mode = null; // Defines the working mode of the line when the device is auto answer
 	private Unsigned8 repetitions = null; // Maximum number of trials in the case of unsuccessful dialling attempts
-	private Unsigned16 repetitionDelay = null; // The time delay, expressed in seconds until an unsuccessful dial attempt can be repeated 
+	private Unsigned16 repetitionDelay = null; // The time delay, expressed in seconds until an unsuccessful dial attempt can be repeated
 	private Array callingWindow = null; // contains the start and end date/time stamp when the window becomes active or inactive
-	private Array destinationList = null; // contains a list of destinations(phone numbers, email addresses, combination) where the message have to be sent 
-	
+	private Array destinationList = null; // contains a list of destinations(phone numbers, email addresses, combination) where the message have to be sent
+
 	/** Attribute numbers */
 	private static final int ATTRB_MODE = 2;
 	private static final int ATTRB_REPETITIONS = 3;
 	private static final int ATTRB_REPETITION_DELAY = 4;
 	private static final int ATTRB_CALLING_WINDOW = 5;
 	private static final int ATTRB_DESTINATION_LIST = 6;
-	
+
 	/** Methods */
 	//none
-	
+
 	public AutoConnect(ProtocolLink protocolLink){
 		super(protocolLink, new ObjectReference(LN));
 	}
@@ -58,11 +57,11 @@ public class AutoConnect extends AbstractCosemObject {
 	public ObisCode getObisCode(){
 		return ObisCode.fromByteArray(LN);
 	}
-	
+
 	protected int getClassId() {
-		return this.CLASSID;
+		return DLMSClassId.AUTO_CONNECT.getClassId();
 	}
-	
+
 	/**
 	 * Read the current mode from the device
 	 * @return
@@ -75,7 +74,7 @@ public class AutoConnect extends AbstractCosemObject {
 			throw new IOException("Could not read the mode. " + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Get the current mode, if it's not read yet, read if from the device
 	 * @return
@@ -87,7 +86,7 @@ public class AutoConnect extends AbstractCosemObject {
 		}
 		return this.mode;
 	}
-	
+
 	/**
 	 * Write the given mode to the device
 	 * @param mode
@@ -101,18 +100,18 @@ public class AutoConnect extends AbstractCosemObject {
 			throw new IOException("Could not write the mode. " + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Write the given mode to the device
 	 * @param mode - > possible values are:
 	 * <pre>
-	 * (0)  no auto dialling, 
-	 * (1)  auto dialling allowed anytime, 
-	 * (2)  auto dialling allowed within the validity time of the calling window, 
-	 * (3)  “regular” auto dialling allowed within the validity time of the calling window; “alarm” initiated auto dialling allowed anytime, 
-	 * (4)  SMS sending via Public Land Mobile Network (PLMN), 
-	 * (5)  SMS sending via PSTN, 
-	 * (6)  email  sending, 
+	 * (0)  no auto dialling,
+	 * (1)  auto dialling allowed anytime,
+	 * (2)  auto dialling allowed within the validity time of the calling window,
+	 * (3)  “regular” auto dialling allowed within the validity time of the calling window; “alarm” initiated auto dialling allowed anytime,
+	 * (4)  SMS sending via Public Land Mobile Network (PLMN),
+	 * (5)  SMS sending via PSTN,
+	 * (6)  email  sending,
 	 * (200..255)   manufacturer specific modes
 	 * </pre>
 	 * @throws IOException
@@ -133,7 +132,7 @@ public class AutoConnect extends AbstractCosemObject {
 			throw new IOException("Could not read the repetitions value. " + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Get the repetition value, if it's not read yet, read it from the device
 	 * @return
@@ -145,7 +144,7 @@ public class AutoConnect extends AbstractCosemObject {
 		}
 		return this.repetitions;
 	}
-	
+
 	/**
 	 * Write the given repetitions to the device
 	 * @param repetitions
@@ -158,7 +157,7 @@ public class AutoConnect extends AbstractCosemObject {
 			throw new IOException("Could not write the repetions value. " + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Write the given repetitions to the device
 	 * @param repetitions
@@ -167,7 +166,7 @@ public class AutoConnect extends AbstractCosemObject {
 	public void writeRepetitions(int repetitions) throws IOException{
 		writeRepetitions(new Unsigned8(repetitions));
 	}
-	
+
 	/**
 	 * Read the repetitionDelay from the device
 	 * @return
@@ -180,7 +179,7 @@ public class AutoConnect extends AbstractCosemObject {
 			throw new IOException("Could not read the repetitiondelay. " + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Get the repetitionDelay, if it's not read yet, read it from the device
 	 * @return
@@ -192,7 +191,7 @@ public class AutoConnect extends AbstractCosemObject {
 		}
 		return this.repetitionDelay;
 	}
-	
+
 	/**
 	 * Write the given repetitionDelay to the device
 	 * @param repetitionDelay
@@ -205,7 +204,7 @@ public class AutoConnect extends AbstractCosemObject {
 			throw new IOException("Could not write the repetitiondelay. " + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Write the given repetitionDelay to the device
 	 * @param repetitionDelay
@@ -214,7 +213,7 @@ public class AutoConnect extends AbstractCosemObject {
 	public void writeRepetitionDelay(int repetitionDelay) throws IOException {
 		writeRepetitionDelay(new Unsigned16(repetitionDelay));
 	}
-	
+
 	/**
 	 * Read the callingWindow array from the device
 	 * @return
@@ -227,7 +226,7 @@ public class AutoConnect extends AbstractCosemObject {
 			throw new IOException("Could not read the calling window array. " + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Get the callingWindow, if it's not read yet, read it from the device
 	 * @return
@@ -239,7 +238,7 @@ public class AutoConnect extends AbstractCosemObject {
 		}
 		return this.callingWindow;
 	}
-	
+
 	/**
 	 * Write the given callingWindow to the device
 	 * @param callingWindow
@@ -252,7 +251,7 @@ public class AutoConnect extends AbstractCosemObject {
 			throw new IOException("Could not write the calling window. " + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Read the destinationList from the device
 	 * @return
@@ -265,7 +264,7 @@ public class AutoConnect extends AbstractCosemObject {
 			throw new IOException("Could not read the destinationList. " + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Get the destinationList, if it's not read yet, read it from the device
 	 * @return
@@ -277,7 +276,7 @@ public class AutoConnect extends AbstractCosemObject {
 		}
 		return this.destinationList;
 	}
-	
+
 	/**
 	 * Write the given destinationList to the device
 	 * @param destinationList
@@ -290,7 +289,7 @@ public class AutoConnect extends AbstractCosemObject {
 			throw new IOException("Could not write the given destinationList. " + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Add a phone or email address to the destinationList
 	 * @param number
@@ -304,7 +303,7 @@ public class AutoConnect extends AbstractCosemObject {
 			throw new IOException("Could not add " + number.toString() + " to the destinationList." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Add a phone or email address to the destinationList
 	 * @param number
@@ -332,7 +331,7 @@ public class AutoConnect extends AbstractCosemObject {
 			throw new IOException("Could not delete " + number.toString() + " from the destinationList." + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Delete a phone or email address from the destinationList
 	 * @param number
@@ -352,7 +351,7 @@ public class AutoConnect extends AbstractCosemObject {
 		temp.addDataType(OctetString.fromString(""));
 		writeDestinationList(temp);
 	}
-	
+
 	/**
 	 * Write the updated phoneList to the device
 	 * @throws IOException

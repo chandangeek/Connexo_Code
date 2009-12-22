@@ -21,7 +21,6 @@ import com.energyict.dlms.ProtocolLink;
  */
 public class SAPAssignment extends AbstractCosemObject {
     public final int DEBUG=0;
-    static public final int CLASSID=17;
     List logicalDeviceNames=null; 
     /** Creates a new instance of SAPAssignment */
     public SAPAssignment(ProtocolLink protocolLink) {
@@ -29,7 +28,7 @@ public class SAPAssignment extends AbstractCosemObject {
     }
     
     protected int getClassId() {
-        return CLASSID;
+        return DLMSClassId.SAP_ASSIGNMENT.getClassId();
     }
     
     public List getLogicalDeviceNames() throws IOException {

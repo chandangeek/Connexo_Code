@@ -9,8 +9,8 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.obis.ObisCode;
 
 /**
- * @author gna 
- * 		   
+ * @author gna
+ *
  * 		This IC allows modelling the setup of the TCP or UDP sub-layer of
  *         the COSEM TCP or UDP based transport layer of a TCP-UDP/IP based
  *         communication profile. In TCP-UDP/IP based communication profiles,
@@ -25,14 +25,13 @@ import com.energyict.obis.ObisCode;
  *         transport layer may be capable to support more than one TCP or UDP
  *         connections, between a physical device and several peer physical
  *         devices hosting COSEM application processes.
- * 
+ *
  *         NOTE: When a COSEM physical device supports various data link layers
  *         – for example Ethernet and PPP – an instance of the TCP-UDP setup
  *         object is necessary for each of them.
  */
 public class TCPUDPSetup extends AbstractCosemObject {
 
-	private int CLASSID = 41;
 	static final byte[] LN = new byte[] { 0, 0, 25, 0, 0, (byte) 255 };
 
 	/** Attributes */
@@ -78,7 +77,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 	}
 
 	protected int getClassId() {
-		return this.CLASSID;
+		return DLMSClassId.TCP_UDP_SETUP.getClassId();
 	}
 
 	public static ObisCode getObisCode() {
@@ -87,7 +86,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 
 	/**
 	 * Read the inactivity timeout from the device
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */
@@ -105,7 +104,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 	/**
 	 * Get the inactivity timeout, if it's not read yet, then read if from the
 	 * device
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */
@@ -118,7 +117,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 
 	/**
 	 * Write the given inactivityTimeout to the device
-	 * 
+	 *
 	 * @param inactivityTimeout
 	 * @throws IOException
 	 */
@@ -129,7 +128,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 
 	/**
 	 * Write the given inactivityTimeout to the device
-	 * 
+	 *
 	 * @param inactivityTimeout
 	 * @throws IOException
 	 */
@@ -148,7 +147,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 
 	/**
 	 * Read the logical name of the IPReference from the device
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */
@@ -166,7 +165,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 	/**
 	 * Get the logical name of the IPReference, if it's not read yet, then read
 	 * it from the device
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */
@@ -179,7 +178,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 
 	/**
 	 * Write the given IPReference to the device
-	 * 
+	 *
 	 * @param ipReference
 	 * @throws IOException
 	 */
@@ -189,7 +188,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 
 	/**
 	 * Write the given IPReference to the device
-	 * 
+	 *
 	 * @param ipReference
 	 * @throws IOException
 	 */
@@ -206,7 +205,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 
 	/**
 	 * Read the maximum segment size from the device
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */
@@ -223,7 +222,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 	/**
 	 * Get the maximum segment size, if it's not read yet, read if from the
 	 * device
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */
@@ -236,7 +235,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 
 	/**
 	 * Write the maximum segment size to the device
-	 * 
+	 *
 	 * @param mss
 	 * @throws IOException
 	 */
@@ -246,7 +245,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 
 	/**
 	 * Write the maximum segment size to the device
-	 * 
+	 *
 	 * @param mss
 	 * @throws IOException
 	 */
@@ -262,7 +261,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 
 	/**
 	 * Read the TCP/UDP portnumber from the device
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */
@@ -279,7 +278,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 	/**
 	 * Get the TCP/UDP port number, if it's not read yet, read it from the
 	 * device
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */
@@ -292,7 +291,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 
 	/**
 	 * Write the given portnumber to the device
-	 * 
+	 *
 	 * @param port
 	 * @throws IOException
 	 */
@@ -302,7 +301,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 
 	/**
 	 * Write the given portnumber to the device
-	 * 
+	 *
 	 * @param port
 	 * @throws IOException
 	 */
@@ -318,7 +317,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 
 	/**
 	 * Read the maximum number of simultaneous connections from the device
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */
@@ -336,7 +335,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 	/**
 	 * Get the maximum number of simultaneous connections, if it's not read yet,
 	 * read it from the device
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */
@@ -349,7 +348,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 
 	/**
 	 * Write the given number of simultaneous connections to the device
-	 * 
+	 *
 	 * @param nbOfSimConn
 	 * @throws IOException
 	 */
@@ -359,7 +358,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 
 	/**
 	 * Write the given number of simultaneous connections to the device
-	 * 
+	 *
 	 * @param nbOfSimConn
 	 * @throws IOException
 	 */

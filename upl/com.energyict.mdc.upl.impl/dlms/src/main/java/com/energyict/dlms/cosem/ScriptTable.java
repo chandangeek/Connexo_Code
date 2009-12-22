@@ -14,16 +14,16 @@ import com.energyict.obis.ObisCode;
  * @author  Koen
  */
 public class ScriptTable extends AbstractCosemObject {
-    
+
 	/** Attributes */
     private Array scripts=null;
-    
+
     /** Attribute numbers */
     private static final int ATTRB_SCRIPTS = 2;
-    
+
     /** Methods */
     private static final int EXECUTE_SCRIPT = 1;
-	
+
 	public static final byte[] LN_GLOBAL_METER_RESET = new byte[]{0,0,10,0,0,(byte)255};
 	public static final byte[] LN_MDI_RESET = new byte[]{0,0,10,0,1,(byte)255};
 	public static final byte[] LN_TARIFFICATION_SCRIPT_TABLE = new byte[]{0,0,10,0,100,(byte)255};
@@ -35,24 +35,24 @@ public class ScriptTable extends AbstractCosemObject {
 	public static final byte[] LN_DISCONNECT_CONTROL = new byte[]{0,0,10,0,106,(byte)255};
 	public static final byte[] LN_IMAGE_ACTIVATION = new byte[]{0,0,10,0,107,(byte)255};
 	public static final byte[] LN_BROADCAST_SCRIPT_TABLE = new byte[]{0,0,10,0,125,(byte)255};
-    
+
     /** Creates a new instance of Data */
     public ScriptTable(ProtocolLink protocolLink,ObjectReference objectReference) {
         super(protocolLink,objectReference);
     }
-    
+
 	public ScriptTable(ProtocolLink protocolLink, byte[] scriptType) {
         super(protocolLink,new ObjectReference(scriptType));
     }
-	
+
 	public static ObisCode getGlobalResetObisCode() {
 		return ObisCode.fromByteArray(LN_GLOBAL_METER_RESET);
 	}
-    
+
     protected int getClassId() {
-        return AbstractCosemObject.CLASSID_SCRIPTTABLE;
+        return DLMSClassId.SCRIPT_TABLE.getClassId();
     }
-    
+
     public void writeScripts(Array scripts) throws IOException {
         write(ATTRB_SCRIPTS, scripts.getBEREncodedByteArray());
     }
@@ -61,11 +61,11 @@ public class ScriptTable extends AbstractCosemObject {
             scripts = (Array)AXDRDecoder.decode(getLNResponseData(2));
         }
         return scripts;
-    }    
-    
+    }
+
     public void execute(int data) throws IOException {
         Unsigned16 u16 = new Unsigned16(data);
         invoke(EXECUTE_SCRIPT,u16.getBEREncodedByteArray());
     }
-    
+
 }

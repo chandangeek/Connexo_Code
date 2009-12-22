@@ -67,17 +67,17 @@ import com.energyict.protocolimpl.base.ParseUtils;
 
 public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProtocol {
 
-	private static String CONNECT = "ConnectLoad";
-	private static String DISCONNECT = "DisconnectLoad";
-	private static String ARM = "ArmMeter";
-	private static String TARIFF_OPTION_SWITCH_BASE = "TariffOptionSwitchBase";
-	private static String TARIFF_OPTION_SWITCH_DAYNIGHT = "TariffOptionSwitchDayNight";
+	private static final String	CONNECT									= "ConnectLoad";
+	private static final String	DISCONNECT								= "DisconnectLoad";
+	private static final String	ARM										= "ArmMeter";
+	private static final String	TARIFF_OPTION_SWITCH_BASE				= "TariffOptionSwitchBase";
+	private static final String	TARIFF_OPTION_SWITCH_DAYNIGHT			= "TariffOptionSwitchDayNight";
 
-	private static String CONNECT_DISPLAY = "Connect Load";
-	private static String DISCONNECT_DISPLAY = "Disconnect Load";
-	private static String ARM_DISPLAY = "Arm Meter";
-	private static String TARIFF_OPTION_SWITCH_BASE_DISPLAY = "Switch tariff option BASE";
-	private static String TARIFF_OPTION_SWITCH_DAYNIGHT_DISPLAY = "Switch tariff option DAY/NIGHT";
+	private static final String	CONNECT_DISPLAY							= "Connect Load";
+	private static final String	DISCONNECT_DISPLAY						= "Disconnect Load";
+	private static final String	ARM_DISPLAY								= "Arm Meter";
+	private static final String	TARIFF_OPTION_SWITCH_BASE_DISPLAY		= "Switch tariff option BASE";
+	private static final String	TARIFF_OPTION_SWITCH_DAYNIGHT_DISPLAY	= "Switch tariff option DAY/NIGHT";
 
     public AS220() {
 
@@ -89,34 +89,35 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     }
 
     //KV 27102003
-    public Calendar initCalendarSW(boolean protocolDSTFlag,TimeZone timeZone) {
-        Calendar calendar;
-        if (protocolDSTFlag) {
+	public Calendar initCalendarSW(boolean protocolDSTFlag, TimeZone timeZone) {
+		Calendar calendar;
+		if (protocolDSTFlag) {
 			calendar = Calendar.getInstance(ProtocolUtils.getSummerTimeZone(timeZone));
 		} else {
 			calendar = Calendar.getInstance(ProtocolUtils.getWinterTimeZone(timeZone));
 		}
-        return calendar;
-    }
-
+		return calendar;
+	}
 
     private List<MeterEvent> readMainLogbook(Calendar fromCalendar, Calendar toCalendar) throws IOException {
-        DataContainer dc = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.1.255")).getBuffer(fromCalendar,toCalendar);
+
+    	DataContainer dc = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.1.255")).getBuffer(fromCalendar,toCalendar);
+
         if (isDebug()) {
 			System.out.println("readMainLogbook");
 			dc.printDataContainer();
 		}
 
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-        for (int i=0;i<dc.getRoot().getNrOfElements();i++) {
-           Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
-           int id=0;
-           id = dc.getRoot().getStructure(i).getInteger(1);
-           MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime);
-           if (meterEvent != null) {
-			meterEvents.add(meterEvent);
+		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+		for (int i = 0; i < dc.getRoot().getNrOfElements(); i++) {
+			Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
+			int id = 0;
+			id = dc.getRoot().getStructure(i).getInteger(1);
+			MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime);
+			if (meterEvent != null) {
+				meterEvents.add(meterEvent);
+			}
 		}
-        }
 
         return meterEvents;
     }
@@ -131,41 +132,40 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 		}
 
 
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-        for (int i=0;i<dc.getRoot().getNrOfElements();i++) {
-           Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
-           int id=dc.getRoot().getStructure(i).getInteger(1);
-    	   MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime);
-           if (meterEvent != null) {
-			meterEvents.add(meterEvent);
+		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+		for (int i = 0; i < dc.getRoot().getNrOfElements(); i++) {
+			Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
+			int id = dc.getRoot().getStructure(i).getInteger(1);
+			MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime);
+			if (meterEvent != null) {
+				meterEvents.add(meterEvent);
+			}
 		}
-        }
 
         return meterEvents;
     }
 
-    private List<MeterEvent> readCoverLogbook(Calendar fromCalendar, Calendar toCalendar) throws IOException {
+	private List<MeterEvent> readCoverLogbook(Calendar fromCalendar, Calendar toCalendar) throws IOException {
 
-        DataContainer dc = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.2.255")).getBuffer(fromCalendar,toCalendar);
+		DataContainer dc = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.2.255")).getBuffer(fromCalendar, toCalendar);
 
-        if (isDebug()) {
+		if (isDebug()) {
 			System.out.println("readCoverLogbook");
 			dc.printDataContainer();
 		}
 
-
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-        for (int i=0;i<dc.getRoot().getNrOfElements();i++) {
-           Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
-           int id=dc.getRoot().getStructure(i).getInteger(1);
-    	   MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime);
-           if (meterEvent != null) {
-			meterEvents.add(meterEvent);
+		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+		for (int i = 0; i < dc.getRoot().getNrOfElements(); i++) {
+			Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
+			int id = dc.getRoot().getStructure(i).getInteger(1);
+			MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime);
+			if (meterEvent != null) {
+				meterEvents.add(meterEvent);
+			}
 		}
-        }
 
-        return meterEvents;
-    }
+		return meterEvents;
+	}
 
     @Override
 	protected void getEventLog(ProfileData profileData,Calendar fromCalendar, Calendar toCalendar) throws IOException {
@@ -381,7 +381,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
         // b. Attributes
         for (Iterator<MessageAttribute> it = msgTag.getAttributes().iterator(); it.hasNext();) {
             MessageAttribute att = it.next();
-            if (att.getValue()==null || att.getValue().length()==0) {
+            if ((att.getValue()==null) || (att.getValue().length()==0)) {
 				continue;
 			}
             buf.append(" ").append(att.getSpec().getName());
@@ -396,7 +396,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 				buf.append( writeTag((MessageTag)elt) );
 			} else if (elt.isValue()) {
                 String value = writeValue((MessageValue)elt);
-                if (value==null || value.length()==0) {
+                if ((value==null) || (value.length()==0)) {
 					return "";
 				}
                 buf.append(value);
@@ -422,7 +422,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
         // b. Attributes
         for (Iterator<MessageAttribute> it = msgTag.getAttributes().iterator(); it.hasNext();) {
             MessageAttribute att = it.next();
-            if (att.getValue() == null || att.getValue().length() == 0) {
+            if ((att.getValue() == null) || (att.getValue().length() == 0)) {
 				continue;
 			}
             buf.append(" ").append(att.getSpec().getName());
@@ -440,7 +440,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 				buf.append(writeTag((MessageTag) elt));
 			} else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0) {
+                if ((value == null) || (value.length() == 0)) {
 					return "";
 				}
                 buf.append(value);
@@ -465,50 +465,43 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 	}
 
 	public MessageResult queryMessage(MessageEntry messageEntry) {
-
 		try {
-			if (messageEntry.getContent().indexOf("<"+DISCONNECT)>=0) {
-				getCosemObjectFactory().getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).writeControlState(new TypeEnum(0));
+			if (messageEntry.getContent().indexOf("<" + DISCONNECT) >= 0) {
 				getLogger().info("DISCONNECT message received");
+				getCosemObjectFactory().getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).writeControlState(new TypeEnum(0));
 				if (isDebug()) {
 					System.out.println("DISCONNECT message received");
 				}
-			}
-			else if (messageEntry.getContent().indexOf("<"+CONNECT)>=0) {
-				getCosemObjectFactory().getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).writeControlState(new TypeEnum(1));
+			} else if (messageEntry.getContent().indexOf("<" + CONNECT) >= 0) {
 				getLogger().info("CONNECT message received");
+				getCosemObjectFactory().getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).writeControlState(new TypeEnum(1));
 				if (isDebug()) {
 					System.out.println("CONNECT message received");
 				}
-			}
-			else if (messageEntry.getContent().indexOf("<"+ARM)>=0) {
-				getCosemObjectFactory().getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).writeControlState(new TypeEnum(2));
+			} else if (messageEntry.getContent().indexOf("<" + ARM) >= 0) {
 				getLogger().info("ARM message received");
+				getCosemObjectFactory().getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).writeControlState(new TypeEnum(2));
 				if (isDebug()) {
 					System.out.println("ARM message received");
 				}
-			}
-			else if (messageEntry.getContent().indexOf("<"+TARIFF_OPTION_SWITCH_BASE)>=0) {
-				getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.0.255")).setValueAttr(new TypeEnum(0));
+			} else if (messageEntry.getContent().indexOf("<" + TARIFF_OPTION_SWITCH_BASE) >= 0) {
 				getLogger().info("TARIFF_OPTION_SWITCH_BASE message received");
+				getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.0.255")).setValueAttr(new TypeEnum(0));
 				if (isDebug()) {
 					System.out.println("TARIFF_OPTION_SWITCH_BASE message received");
 				}
-			}
-			else if (messageEntry.getContent().indexOf("<"+TARIFF_OPTION_SWITCH_DAYNIGHT)>=0) {
-				getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.0.255")).setValueAttr(new TypeEnum(1));
+			} else if (messageEntry.getContent().indexOf("<" + TARIFF_OPTION_SWITCH_DAYNIGHT) >= 0) {
 				getLogger().info("TARIFF_OPTION_SWITCH_DAYNIGHT message received");
+				getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.0.255")).setValueAttr(new TypeEnum(1));
 				if (isDebug()) {
 					System.out.println("TARIFF_OPTION_SWITCH_DAYNIGHT message received");
 				}
 			}
 			return MessageResult.createSuccess(messageEntry);
-		}
-		catch(IOException e) {
-			getLogger().severe("QueryMessage(), "+e.getMessage());
+		} catch (IOException e) {
+			getLogger().severe("QueryMessage(), " + e.getMessage());
 			return MessageResult.createFailed(messageEntry);
 		}
 	}
-
 
 } // public class DLMSZMD
