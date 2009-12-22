@@ -17,7 +17,6 @@ import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.energyict.cbo.BusinessException;
@@ -33,6 +32,7 @@ import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.core.RtuMessageState;
 import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.shadow.GroupShadow;
 import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.protocolimpl.utils.Utilities;
 
@@ -118,11 +118,7 @@ public class P2LPCTest {
 			}
 		}
 	}
-	
-	/**
-	 * Ignore test because the group doesn't seem to find the device in the database ...
-	 */
-	@Ignore
+
 	@Test
 	public void firmwareUpgradeConcentratorMessageTest(){
 		
@@ -226,12 +222,17 @@ public class P2LPCTest {
 				dummyUserFile.deleteOnExit();
 				uf = Utilities.createDummyNotEmptyUserFile(dummyUserFile);
 				
+				GroupShadow grShadow = gr.getShadow();
+				grShadow.setFolderId(concentrator.getFolderId());
+				gr.update(grShadow);
+				
 				System.out.println("FolderID Group: " + gr.getFolderId());
 				System.out.println("FolderID GroupSearchFilter: " + gr.getSearchFilter().getFolderId());
 				System.out.println("TypeId Group: " + gr.getSearchFilter().getTypeId());
 				System.out.println("TypeId object: " + gr.getObjectType());
 				System.out.println("Concentrator rtuTypeId: " + concentrator.getTypeId());
 				System.out.println("Group fullname " + gr.getFullName());
+				System.out.println("GroupMembers : " + gr.getMembers());
 				
 				rms.setState(rmt);
 				rms.setContents("<"+ RtuMessageConstant.FIRMWARE +">" + uf.getId() + "</"+RtuMessageConstant.FIRMWARE + "><GroupID of meters to receive new firmware>" + gr.getId() + "</GroupID of meters to receive new firmware>");
