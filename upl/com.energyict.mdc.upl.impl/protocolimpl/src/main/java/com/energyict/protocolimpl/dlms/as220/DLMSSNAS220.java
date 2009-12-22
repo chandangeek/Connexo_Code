@@ -126,13 +126,31 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
     int addressingMode;
     int connectionMode;
 
-    public boolean isDebug() {
-		return debug;
-	}
+    private byte[] aarqlowlevel={
+            (byte)0xE6,(byte)0xE6,(byte)0x00,
+            (byte)0x60,
+            (byte)0x35,
+            (byte)0xA1,(byte)0x09,(byte)0x06,(byte)0x07,
+            (byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x01,(byte)0x02, //application context name
+            (byte)0x8A,(byte)0x02,(byte)0x07,(byte)0x80,
+            (byte)0x8B,(byte)0x07,(byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x02,(byte)0x01};
 
-    public void setDebug(boolean debug) {
-		this.debug = debug;
-	}
+    private byte[] aarqlowlevel_2={
+            (byte)0xBE,(byte)0x0F,(byte)0x04,(byte)0x0D,
+            (byte)0x01,
+            (byte)0x00,(byte)0x00,(byte)0x00,
+            (byte)0x06,  // dlms version nr
+            (byte)0x5F,(byte)0x04,(byte)0x00,(byte)0x18,(byte)0x02,(byte)0x20,
+            (byte)0xFF,(byte)0xFF};
+
+    private byte[] aarqlowestlevel={
+            (byte)0xE6,(byte)0xE6,(byte)0x00,
+            (byte)0x60,
+            (byte)0x1C, // bytes to follow
+            (byte)0xA1,(byte)0x09,(byte)0x06,(byte)0x07,(byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x01,(byte)0x02,
+            (byte)0xBE,(byte)0x0F,(byte)0x04,
+            (byte)0x0D,(byte)0x01,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x06,(byte)0x5F,(byte)0x04,(byte)0x00,(byte)0x18,(byte)0x02,
+            (byte)0x20,(byte)0xFF,(byte)0xFF};
 
 	/** Creates a new instance of DLMSSNAS220, empty constructor */
     public DLMSSNAS220() {
@@ -641,96 +659,13 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
         getCosemObjectFactory().getGenericWrite((short)meterConfig.getObject(dlmsObis).getBaseName(),(dlmsObis.getOffset()-1)*8).write(data);
     } // public void setValue(...) throws IOException
 
-    /*
-    byte[] aarq = {0x60, 0x36, (byte) 0xA1, 0x09, 0x06, 0x07,
-            0x60, (byte)0x85, 0x74, 0x05, 0x08, 0x01,
-            0x02, (byte)0x8A, 0x02, 0x07, (byte)0x80, (byte)0x8B,
-            0x07, 0x60, (byte)0x85, 0x74, 0x05, 0x08,
-            0x02, 0x01, (byte)0xAC, 0x0A, (byte)0x80, 0x08,
-            0x31, 0x32, 0x33, 0x34, 0x35, 0x36,
-            0x37, 0x38, (byte)0xBE, 0x10, 0x04, 0x0E,
-            0x01, 0x00, 0x00, 0x00, 0x06, 0x5F,
-            0x1F, 0x04, 0x00, 0x18, 0x02, 0x20,
-            0x00, (byte)0xEF
-            };
-*/
-    byte[] aarqlowlevel={
-        (byte)0xE6,(byte)0xE6,(byte)0x00,
-        (byte)0x60,
-        (byte)0x35,
-        (byte)0xA1,(byte)0x09,(byte)0x06,(byte)0x07,
-        (byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x01,(byte)0x02, //application context name
-        (byte)0x8A,(byte)0x02,(byte)0x07,(byte)0x80,
-        (byte)0x8B,(byte)0x07,(byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x02,(byte)0x01};
-        //(byte)0xAC}; //,(byte)0x0A,(byte)0x80}; //,(byte)0x08,(byte)0x36,(byte)0x36,(byte)0x36,(byte)0x36,(byte)0x36,(byte)0x36,(byte)0x36,(byte)0x36,
-    byte[] aarqlowlevel_2={
-        (byte)0xBE,(byte)0x0F,(byte)0x04,(byte)0x0D,
-        (byte)0x01,
-        (byte)0x00,(byte)0x00,(byte)0x00,
-        (byte)0x06,  // dlms version nr
-        (byte)0x5F,(byte)0x04,(byte)0x00,(byte)0x18,(byte)0x02,(byte)0x20,
-        (byte)0xFF,(byte)0xFF};
-
-        byte[] aarqlowestlevel={
-            (byte)0xE6,(byte)0xE6,(byte)0x00,
-            (byte)0x60,
-            (byte)0x1C, // bytes to follow
-            (byte)0xA1,(byte)0x09,(byte)0x06,(byte)0x07,(byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x01,(byte)0x02,
-            (byte)0xBE,(byte)0x0F,(byte)0x04,
-            (byte)0x0D,(byte)0x01,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x06,(byte)0x5F,(byte)0x04,(byte)0x00,(byte)0x18,(byte)0x02,
-            (byte)0x20,(byte)0xFF,(byte)0xFF};
-
-    protected byte[] getLowLevelSecurity() {
-        return buildaarq(aarqlowlevel,aarqlowlevel_2);
-    }
-
-    protected byte[] buildaarq(byte[] aarq1,byte[] aarq2) {
-       byte[] aarq=null;
-       int i,t=0;
-       // prepare aarq buffer
-       aarq = new byte[3+aarq1.length+1+strPassword.length()+aarq2.length];
-       // copy aarq1 to aarq buffer
-       for (i=0;i<aarq1.length;i++) {
-		aarq[t++] = aarq1[i];
+	private void requestApplAssoc(int iLevel) throws IOException {
+		doRequestApplAssoc(iLevel == 0 ? aarqlowestlevel : getLowLevelSecurity());
 	}
 
-       // calling authentification
-       aarq[t++] = (byte)0xAC; // calling authentification tag
-       aarq[t++] = (byte)(strPassword.length()+2); // length to follow
-       aarq[t++] = (byte)0x80; // tag representation
-       // copy password to aarq buffer
-       aarq[t++] = (byte)strPassword.length();
-       for (i=0;i<strPassword.length();i++) {
-		aarq[t++] = (byte)strPassword.charAt(i);
+	protected byte[] getLowLevelSecurity() {
+		return AS220AAREUtil.buildaarq(aarqlowlevel, aarqlowlevel_2, strPassword);
 	}
-
-
-       // copy in aarq2 to aarq buffer
-       for (i=0;i<aarq2.length;i++) {
-		aarq[t++] = aarq2[i];
-	}
-
-       aarq[4] = (byte)((aarq.length&0xFF)-5); // Total length of frame - headerlength
-
-       return aarq;
-    }
-
-    private void requestApplAssoc(int iLevel) throws IOException {
-        byte[] aarq;
-
-        if (iLevel == 0) {
-            aarq = aarqlowestlevel;
-        }
-        else if (iLevel == 1) {
-            aarq = getLowLevelSecurity();
-        }
-        else {
-            aarq = getLowLevelSecurity();
-        }
-
-        doRequestApplAssoc(aarq);
-
-    } // public void requestApplAssoc(int iLevel) throws IOException
 
     private void doRequestApplAssoc(byte[] aarq) throws IOException {
         byte[] responseData;
@@ -739,8 +674,7 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
         if (isDebug()) {
 			ProtocolUtils.printResponseData(responseData);
 		}
-
-    } // public void doRequestApplAssoc(int iLevel) throws IOException
+    }
 
     /** this implementation calls <code> validateProperties </code>
      * and assigns the argument to the properties field
@@ -789,25 +723,20 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
      * @throws UnsupportedException <br>
      * @throws NoSuchRegisterException <br>
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
-
-        DLMSObis ln = new DLMSObis(name);
-
-        if (ln.isLogicalName()) {
-            String str = requestAttribute(meterConfig.getObject(ln).getBaseName(),(short)((ln.getOffset()-1)*8));
-            return str;
-        }
-
-        else if (name.compareTo("PROGRAM_CONF_CHANGES")==0) {
+	public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+		DLMSObis ln = new DLMSObis(name);
+		if (ln.isLogicalName()) {
+			String str = requestAttribute(meterConfig.getObject(ln).getBaseName(), (short) ((ln.getOffset() - 1) * 8));
+			return str;
+		} else if (name.compareTo("PROGRAM_CONF_CHANGES") == 0) {
 			return String.valueOf(requestConfigurationProgramChanges());
-		} else if (name.compareTo("GET_CLOCK_OBJECT")==0) {
-            requestClockObject();
-            return null;
-        } else {
-			throw new NoSuchRegisterException("DLMS,getRegister, register "+name+" does not exist.");
+		} else if (name.compareTo("GET_CLOCK_OBJECT") == 0) {
+			requestClockObject();
+			return null;
+		} else {
+			throw new NoSuchRegisterException("DLMS,getRegister, register " + name + " does not exist.");
 		}
-
-    }
+	}
 
     /** this implementation throws UnsupportedException. Subclasses may override
      * @param name <br>
@@ -991,6 +920,13 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
         return storedValuesImpl;
     }
 
+    public boolean isDebug() {
+		return debug;
+	}
+
+    public void setDebug(boolean debug) {
+		this.debug = debug;
+	}
 
 } // public class DLMSSNAS220
 
