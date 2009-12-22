@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.After;
@@ -120,8 +121,6 @@ public class P2LPCTest {
 		result.addAll(Utilities.mw().getUserFileFactory().findByName(Utilities.emptyUserFile));
 		result.addAll(Utilities.mw().getUserFileFactory().findByName(Utilities.notEmptyUserFile));
 		result.addAll(Utilities.mw().getModemPoolFactory().findByName(Utilities.dummyModemPool));
-//		result.addAll(Utilities.mw().getFolderFactory().findByName(folderName));
-//		result.addAll(Utilities.mw().getFolderTypeFactory().findByName(folderTypeName));
 		
 		if(result.size() > 0){
 			for(int i = 0; i < result.size(); i++){
@@ -195,7 +194,6 @@ public class P2LPCTest {
 				rtum = getJustExecutedPendingMessage(Utilities.mw().getRtuMessageFactory().findByRtu(concentrator), pendingMessageID);
 				assertTrue(rtum.isFailed());	// there is no GroupID with the value 17800
 				
-//				Group gr = Utilities.createEmptyRtuGroup();
 				rms.setState(rmt);
 				rms.setContents("<"+ RtuMessageConstant.FIRMWARE +">"  + gr.getId() + "</"+RtuMessageConstant.FIRMWARE + "><GroupID of meters to receive new firmware>" + gr.getId() + "</GroupID of meters to receive new firmware>");
 				concentrator.createMessage(rms);
@@ -235,19 +233,8 @@ public class P2LPCTest {
 				uf = Utilities.createDummyNotEmptyUserFile(dummyUserFile);
 				
 				Folder folder = Utilities.mw().getFolderFactory().find(2);
-				
 				Group group2 = Utilities.createNotEmptyGroup();
 				group2.moveToFolder(folder);
-				System.out.println("FolderMembers: " + group2.getMembers().size());
-				concentrator.moveToFolder(folder);
-				System.out.println("FolderMembers after move: " + group2.getMembers().size());
-				
-				System.out.println("FolderID Group: " + group2.getFolderId());
-				System.out.println("FolderID GroupSearchFilter: " + group2.getSearchFilter().getFolderId());
-				System.out.println("TypeId Group: " + group2.getSearchFilter().getTypeId());
-				System.out.println("TypeId object: " + group2.getObjectType());
-				System.out.println("Group fullname :" + group2.getFullName());
-				System.out.println("Group members : " + group2.getMembers());
 
 				rms.setState(rmt);
 				rms.setContents("<"+ RtuMessageConstant.FIRMWARE +">" + uf.getId() + "</"+RtuMessageConstant.FIRMWARE + "><GroupID of meters to receive new firmware>" + group2.getId() + "</GroupID of meters to receive new firmware>");
@@ -266,16 +253,16 @@ public class P2LPCTest {
 			}
 			
 		} catch (BusinessException e) {
-			e.printStackTrace();
+			finest(e.getMessage());
 			fail();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			finest(e.getMessage());
 			fail();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			finest(e.getMessage());
 			fail();
 		} catch (IOException e) {
-			e.printStackTrace();
+			finest(e.getMessage());
 			fail();
 		}
 	}
@@ -321,16 +308,16 @@ public class P2LPCTest {
 			assertTrue(rtum.isConfirmed());
 			
 		} catch (BusinessException e) {
-			e.printStackTrace();
+			finest(e.getMessage());
 			fail();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			finest(e.getMessage());
 			fail();
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
+			finest(e.getMessage());
 			fail();
 		} catch (IOException e) {
-			e.printStackTrace();
+			finest(e.getMessage());
 			fail();
 		}
 	}
@@ -430,13 +417,13 @@ public class P2LPCTest {
 			
 			
 		} catch (BusinessException e) {
-			e.printStackTrace();
+			finest(e.getMessage());
 			fail();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			finest(e.getMessage());
 			fail();
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
+			finest(e.getMessage());
 			fail();
 		}
 	}
@@ -479,5 +466,13 @@ public class P2LPCTest {
 		} else {
 			rtuTypeMeter = (RtuType)result.get(0);
 		}
+	}
+	
+	/**
+	 * Log a certain stacktrace to the logger
+	 * @param message - the message to log
+	 */
+	private void finest(String message){
+		logger.log(Level.FINEST, message);
 	}
 }
