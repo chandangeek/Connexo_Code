@@ -25,6 +25,7 @@ import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.Folder;
 import com.energyict.mdw.core.Group;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Rtu;
@@ -32,7 +33,6 @@ import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.core.RtuMessageState;
 import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.shadow.GroupShadow;
 import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.protocolimpl.utils.Utilities;
 
@@ -53,6 +53,8 @@ public class P2LPCTest {
 	private RtuType rtuTypeMeter = null;
 	private String testMeter = "TestMeter";
 	private String testConcentrator = "TestConcentrator";
+	private String folderTypeName = "FolderTypeName";
+	private String folderName = "FolderName";
 	
 	private String jcnIskraMeter = "com.energyict.genericprotocolimpl.iskrap2lpc.Meter";
 	private String jcnConcentrator = "com.energyict.genericprotocolimpl.iskrap2lpc.Concentrator";
@@ -74,6 +76,12 @@ public class P2LPCTest {
 		iskraConcentrator.setConnection(connection);
 		meterReadTransaction = new MeterReadTransaction(iskraConcentrator, null, "12121212", null);
 		
+		
+		// Create unique names
+		testMeter = "TestMeter"+System.currentTimeMillis();
+		testConcentrator = "TestConcentrator"+System.currentTimeMillis();
+		folderTypeName = "FolderTypeName"+System.currentTimeMillis();
+		folderName = "FolderName"+System.currentTimeMillis();
 		
 		// find out if the communication profile exists, if not, create it
 		result = Utilities.mw().getCommunicationProtocolFactory().findAll();
@@ -108,15 +116,19 @@ public class P2LPCTest {
 		result.addAll(Utilities.mw().getCommunicationProfileFactory().findByName(Utilities.commProfile_All));
 		result.addAll(Utilities.mw().getCommunicationProfileFactory().findByName(Utilities.commProfile_ReadDemandValues));
 		result.addAll(Utilities.mw().getGroupFactory().findByName(Utilities.emptyGroup));
+		result.addAll(Utilities.mw().getGroupFactory().findByName(Utilities.notEmptyGroup));
 		result.addAll(Utilities.mw().getUserFileFactory().findByName(Utilities.emptyUserFile));
 		result.addAll(Utilities.mw().getUserFileFactory().findByName(Utilities.notEmptyUserFile));
 		result.addAll(Utilities.mw().getModemPoolFactory().findByName(Utilities.dummyModemPool));
+//		result.addAll(Utilities.mw().getFolderFactory().findByName(folderName));
+//		result.addAll(Utilities.mw().getFolderTypeFactory().findByName(folderTypeName));
 		
 		if(result.size() > 0){
 			for(int i = 0; i < result.size(); i++){
 				((PersistentObject) result.get(i)).delete();
 			}
 		}
+		
 	}
 
 	@Test
@@ -222,20 +234,23 @@ public class P2LPCTest {
 				dummyUserFile.deleteOnExit();
 				uf = Utilities.createDummyNotEmptyUserFile(dummyUserFile);
 				
-				GroupShadow grShadow = gr.getShadow();
-				grShadow.setFolderId(concentrator.getFolderId());
-				gr.update(grShadow);
+				Folder folder = Utilities.mw().getFolderFactory().find(2);
 				
-				System.out.println("FolderID Group: " + gr.getFolderId());
-				System.out.println("FolderID GroupSearchFilter: " + gr.getSearchFilter().getFolderId());
-				System.out.println("TypeId Group: " + gr.getSearchFilter().getTypeId());
-				System.out.println("TypeId object: " + gr.getObjectType());
-				System.out.println("Concentrator rtuTypeId: " + concentrator.getTypeId());
-				System.out.println("Group fullname " + gr.getFullName());
-				System.out.println("GroupMembers : " + gr.getMembers());
+				Group group2 = Utilities.createNotEmptyGroup();
+				group2.moveToFolder(folder);
+				System.out.println("FolderMembers: " + group2.getMembers().size());
+				concentrator.moveToFolder(folder);
+				System.out.println("FolderMembers after move: " + group2.getMembers().size());
 				
+				System.out.println("FolderID Group: " + group2.getFolderId());
+				System.out.println("FolderID GroupSearchFilter: " + group2.getSearchFilter().getFolderId());
+				System.out.println("TypeId Group: " + group2.getSearchFilter().getTypeId());
+				System.out.println("TypeId object: " + group2.getObjectType());
+				System.out.println("Group fullname :" + group2.getFullName());
+				System.out.println("Group members : " + group2.getMembers());
+
 				rms.setState(rmt);
-				rms.setContents("<"+ RtuMessageConstant.FIRMWARE +">" + uf.getId() + "</"+RtuMessageConstant.FIRMWARE + "><GroupID of meters to receive new firmware>" + gr.getId() + "</GroupID of meters to receive new firmware>");
+				rms.setContents("<"+ RtuMessageConstant.FIRMWARE +">" + uf.getId() + "</"+RtuMessageConstant.FIRMWARE + "><GroupID of meters to receive new firmware>" + group2.getId() + "</GroupID of meters to receive new firmware>");
 				concentrator.createMessage(rms);
 				pendingMessageID = ((RtuMessage)concentrator.getPendingMessages().get(0)).getId();
 				

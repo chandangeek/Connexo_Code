@@ -55,10 +55,11 @@ public class Utilities {
 	 */
 	public static String commProfile_SendRtuMessage = "sendRtuMessage";
 
-	public static String emptyGroup = "emptyGroup";
-	public static String emptyUserFile = "emptyUserFile";
-	public static String notEmptyUserFile = "notEmptyUserFile";
-	public static String dummyModemPool = "dummyModemPool";
+	public static String emptyGroup = "emptyGroup"+System.currentTimeMillis();
+	public static String notEmptyGroup = "notEmptyGroup"+System.currentTimeMillis();
+	public static String emptyUserFile = "emptyUserFile"+System.currentTimeMillis();
+	public static String notEmptyUserFile = "notEmptyUserFile"+System.currentTimeMillis();
+	public static String dummyModemPool = "dummyModemPool"+System.currentTimeMillis();
 
 	/**
 	 * Create a new default {@link Environment}
@@ -297,12 +298,25 @@ public class Utilities {
 	public static Group createEmptyRtuGroup() throws SQLException, BusinessException{
 		GroupShadow grs = new GroupShadow();
 		grs.setName(emptyGroup);
-		grs.setObjectType(mw().getRtuFactory().getId());
-//		grs.getSearchFilter().setFolderId(0);
+//		grs.setObjectType(mw().getRtuFactory().getId());
 		grs.getSearchFilter().setUseMaxResults(false);
 		return mw().getGroupFactory().create(grs);
 	}
 
+	/**
+	 * Create a Group with some members in it
+	 * @return
+	 * @throws BusinessException 
+	 * @throws SQLException 
+	 */
+	public static Group createNotEmptyGroup() throws SQLException, BusinessException {
+		GroupShadow grs = new GroupShadow();
+		grs.setName(notEmptyGroup);
+		grs.setObjectType(MeteringWarehouse.FACTORYID_RTU);
+		grs.getSearchFilter().setUseMaxResults(false);
+		return mw().getGroupFactory().create(grs);
+	}
+	
 	/**
 	 * @return
 	 * @throws SQLException
@@ -410,4 +424,5 @@ public class Utilities {
 			throw new IOException("Failed to readin the file." + "("+e.getMessage()+")");
 		}
     }
+
 }
