@@ -235,7 +235,8 @@ public class P2LPCTest {
 				Folder folder = Utilities.mw().getFolderFactory().find(2);
 				Group group2 = Utilities.createNotEmptyGroup();
 				group2.moveToFolder(folder);
-
+				concentrator.moveToFolder(folder);
+				
 				rms.setState(rmt);
 				rms.setContents("<"+ RtuMessageConstant.FIRMWARE +">" + uf.getId() + "</"+RtuMessageConstant.FIRMWARE + "><GroupID of meters to receive new firmware>" + group2.getId() + "</GroupID of meters to receive new firmware>");
 				concentrator.createMessage(rms);
