@@ -2,7 +2,13 @@ package com.energyict.protocolimpl.base;
 
 import java.io.IOException;
 
+/**
+ * Interface with contactor related methods
+ * @author jme
+ */
 public interface ContactorController {
+
+	enum ContactorState{OPEN, ARMED, CLOSED};
 
 	/**
 	 * This command tries to switch off (disconnect) the contactor in the device.
@@ -23,5 +29,11 @@ public interface ContactorController {
 	 * @throws IOException
 	 */
 	void doConnect() throws IOException;
+
+	/**
+	 * This command tries to read the state of the contactor in the device.
+	 * @throws IOException
+	 */
+	ContactorState getContactorState() throws IOException;
 
 }

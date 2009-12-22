@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.iec1107.abba230;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ContactorController;
 
 public class ABBA230ContactorController implements ContactorController {
@@ -141,5 +142,8 @@ public class ABBA230ContactorController implements ContactorController {
 		}
 	}
 
+	public ContactorState getContactorState() throws IOException {
+		throw new UnsupportedException("Reading the contactor state is not suported yet for this protocol.");
+	}
 
 }

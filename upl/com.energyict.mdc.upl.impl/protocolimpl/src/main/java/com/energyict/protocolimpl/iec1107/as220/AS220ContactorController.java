@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.iec1107.as220;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ContactorController;
 
 public class AS220ContactorController implements ContactorController {
@@ -79,6 +80,11 @@ public class AS220ContactorController implements ContactorController {
 	public void doConnect() throws IOException {
 		getLogger().info("*************************** CONNECT CONTACTOR **************************");
 		getAS220Registry().setRegister(AS220Registry.CONTACTOR_REGISTER, CONTACTOR_CLOSED);
+	}
+
+	public ContactorState getContactorState() throws IOException {
+		getLogger().info("**************************** READ CONTACTOR STATE **********************");
+		throw new UnsupportedException("Reading the contactor state is not suported yet for this protocol.");
 	}
 
 }

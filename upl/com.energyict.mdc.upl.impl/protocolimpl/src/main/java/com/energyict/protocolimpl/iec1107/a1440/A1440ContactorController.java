@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.iec1107.a1440;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ContactorController;
 
 public class A1440ContactorController implements ContactorController {
@@ -70,6 +71,14 @@ public class A1440ContactorController implements ContactorController {
 	public void doConnect() throws IOException {
 		getLogger().info("*************************** CONNECT CONTACTOR **************************");
 		getA1440Registry().setRegister(A1440Registry.CONTACTOR_REGISTER, CONTACTOR_CLOSED);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.energyict.protocolimpl.base.ContactorController#getContactorState()
+	 */
+	public ContactorState getContactorState() throws IOException {
+		getLogger().info("**************************** READ CONTACTOR STATE **********************");
+		throw new UnsupportedException("Reading the contactor state is not suported yet for this protocol.");
 	}
 
 }
