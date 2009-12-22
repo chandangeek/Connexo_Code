@@ -10,8 +10,9 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore;
 
-import com.energyict.protocol.*;
-import java.io.*;
+import java.io.IOException;
+
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -39,13 +40,17 @@ abstract public class ConfirmedRespAPSE extends AbstractAPSEPDU {
     
     void parse(byte[] data) throws IOException {
         
-        if (DEBUG>=1) System.out.println("KV_DEBUG> "+ProtocolUtils.outputHexString(data));
+        if (DEBUG>=1){
+        	System.out.println("KV_DEBUG> "+ProtocolUtils.outputHexString(data));
+        }
         int offset=0;
         int tag = ProtocolUtils.getInt(data,offset++,1);
-        if (tag == CONFIRMED_ERROR_APSE)
-            throw new IOException("ConfirmedRespAPSE, parse, ConfirmedErrorAPSE received!");
-        if (tag != CONFIRMED_RESP_APSE)
-            throw new IOException("ConfirmedRespAPSE, parse, invalid tag 0x"+Integer.toHexString(tag)+" received");
+        if (tag == CONFIRMED_ERROR_APSE) {
+			throw new IOException("ConfirmedRespAPSE, parse, ConfirmedErrorAPSE received!");
+		}
+        if (tag != CONFIRMED_RESP_APSE) {
+			throw new IOException("ConfirmedRespAPSE, parse, invalid tag 0x"+Integer.toHexString(tag)+" received");
+		}
         parsePDU(ProtocolUtils.getSubArray(data,offset));        
     }
 }

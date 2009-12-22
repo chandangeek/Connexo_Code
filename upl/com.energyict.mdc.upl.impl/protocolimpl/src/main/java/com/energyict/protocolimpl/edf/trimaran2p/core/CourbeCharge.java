@@ -116,8 +116,9 @@ public class CourbeCharge {
                 Thread.sleep(1000);
                 AccessPartiel ap = getTrimaranObjectFactory().readAccessPartiel();
                 if (DEBUG>=2) System.out.println("GN_DEBUG> "+ap);
-                if (ap.getNomAccess() == 0)
-                    return;
+                if (ap.getNomAccess() == 0){
+                	return;
+                }
             }
             catch(InterruptedException e) {
                 // absorb

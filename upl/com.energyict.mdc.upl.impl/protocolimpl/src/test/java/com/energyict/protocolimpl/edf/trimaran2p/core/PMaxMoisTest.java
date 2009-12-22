@@ -4,18 +4,17 @@
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.TimeZone;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.energyict.cbo.Utils;
@@ -51,7 +50,6 @@ public class PMaxMoisTest {
 		fis.close();
 	}
 	
-	@Ignore
 	@Test
 	public void parseTest(){
 		PMaxMois pmaxMois = new PMaxMois(deuxP.getTrimaranObjectFactory());
@@ -63,10 +61,13 @@ public class PMaxMoisTest {
 	        fis.read(data);
 	        pmaxMois.parse(data);
 	        
-	        
+	        assertEquals(0, pmaxMois.getPAnMax(0).getAmount().intValue());
+	        assertEquals(0, pmaxMois.getPAnMax(1).getAmount().intValue());
+	        assertEquals(0, pmaxMois.getPAnMax(2).getAmount().intValue());
+	        assertEquals(0, pmaxMois.getPAnMax(3).getAmount().intValue());
+	        assertEquals(0, pmaxMois.getPAnMax(4).getAmount().intValue());
 	        // has no decent values to check, they are all zero's
 	        // TODO check if you get these values from other meters!
-	        assertTrue(true);
 	        
 		} catch (FileNotFoundException e) {
 			fail();

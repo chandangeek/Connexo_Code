@@ -10,10 +10,11 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import com.energyict.dialer.connection.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
+import java.io.IOException;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 /**
  *
@@ -79,7 +80,9 @@ public class Datalink6205641 {
     // from above, the transportlayer
     public void request(DSDU dsdu) throws IOException {
         
-        if (DEBUG>=2) System.out.println("KV_DEBUG> "+dsdu);
+        if (DEBUG>=2){
+        	System.out.println("KV_DEBUG> "+dsdu);
+        }
         setDsdu(dsdu);
         stateMachine(DL_REQUEST);
     }
@@ -184,7 +187,9 @@ public class Datalink6205641 {
                             } // PHY_ABORT
                             
                             case T1_TIMEOUT: {
-                                if (DEBUG>=1) System.out.println("KV_DEBUG> T1_TIMEOUT in MREC at "+System.currentTimeMillis());
+                                if (DEBUG>=1) {
+									System.out.println("KV_DEBUG> T1_TIMEOUT in MREC at "+System.currentTimeMillis());
+								}
                                 state = STOPPED;
                                 connection.getPhysical6205641().abort();
                                 throw new DatalinkAbortException("Datalink6205641, stateMachine, EL-4F eror (Expiry of the period T1 without any frame being received)", 4);
@@ -211,7 +216,9 @@ public class Datalink6205641 {
                             case PHY_INDICATE: {
                                 stopTimer();
                                 state = DFRAME;
-                                if (DEBUG>=2) System.out.println("KV_DEBUG> PHY_INDICATE "+System.currentTimeMillis());
+                                if (DEBUG>=2) {
+									System.out.println("KV_DEBUG> PHY_INDICATE "+System.currentTimeMillis());
+								}
                             } break; // PHY_INDICATE
                             
                             default:
@@ -224,11 +231,15 @@ public class Datalink6205641 {
                     case DFRAME: {
                         boolean ack = isAck();
                         
-                        if (DEBUG>=2) System.out.println("KV_DEBUG> Datalink, DFRAME, getFrameReceived().isCheckFrame()="+getFrameReceived().isCheckFrame()+", isAck()="+ack+", getFrameReceived().isText()="+getFrameReceived().isText());
+                        if (DEBUG>=2) {
+							System.out.println("KV_DEBUG> Datalink, DFRAME, getFrameReceived().isCheckFrame()="+getFrameReceived().isCheckFrame()+", isAck()="+ack+", getFrameReceived().isText()="+getFrameReceived().isText());
+						}
                         
                         // Response received
                         if (getFrameReceived().isCheckFrame() && ack && getFrameReceived().isText()) {
-                            if (DEBUG>=2) System.out.println("KV_DEBUG> Datalink, frame received at "+System.currentTimeMillis());
+                            if (DEBUG>=2) {
+								System.out.println("KV_DEBUG> Datalink, frame received at "+System.currentTimeMillis());
+							}
                             setAckExpected(false);
                             toggleConfirm();
                             state = MSEND;
@@ -236,7 +247,9 @@ public class Datalink6205641 {
                             
                             if ((previousFrameReceived != null) && (previousFrameReceived.isSend() == frameReceived.isSend()) && !dsduReceived.isEnd()) {
                                 dsduReceived=null;
-                                if (DEBUG>=1) System.out.println("KV_DEBUG> Datalink, duplicate frame received!");
+                                if (DEBUG>=1) {
+									System.out.println("KV_DEBUG> Datalink, duplicate frame received!");
+								}
                             }    
                             previousFrameReceived = getFrameReceived();
                             
@@ -244,14 +257,17 @@ public class Datalink6205641 {
                         
                         // ACK received
                         if (getFrameReceived().isCheckFrame() && ack && !getFrameReceived().isText()) {
-                            if (DEBUG>=2) System.out.println("KV_DEBUG> Datalink, ack received at "+System.currentTimeMillis());
+                            if (DEBUG>=2) {
+								System.out.println("KV_DEBUG> Datalink, ack received at "+System.currentTimeMillis());
+							}
                             setAckExpected(false);
                             state = MSEND;
                             
                             previousFrameReceived = getFrameReceived();
                             
-                            if ((dsduReceived != null) && (dsduReceived.isEnd()))
-                                return;
+                            if ((dsduReceived != null) && (dsduReceived.isEnd())) {
+								return;
+							}
                             
                             
                         }
@@ -259,7 +275,9 @@ public class Datalink6205641 {
                         // bad frame retry
                         if (!(getFrameReceived().isCheckFrame() && ack) && (index <= getMaxRetry())) {
                             previousFrameReceived=null;
-                            if (DEBUG>=1) System.out.println("KV_DEBUG> Datalink, error frame received at "+System.currentTimeMillis());
+                            if (DEBUG>=1) {
+								System.out.println("KV_DEBUG> Datalink, error frame received at "+System.currentTimeMillis());
+							}
                             initTimer();
                             reSendFrame(); //getDsdu());
                             state = MREC;
@@ -267,7 +285,9 @@ public class Datalink6205641 {
                         
                         // bad frame max retries
                         if (!(getFrameReceived().isCheckFrame() && ack) && (index > getMaxRetry())) {
-                            if (DEBUG>=1) System.out.println("KV_DEBUG> Datalink, error frame max retries "+System.currentTimeMillis());
+                            if (DEBUG>=1) {
+								System.out.println("KV_DEBUG> Datalink, error frame max retries "+System.currentTimeMillis());
+							}
                             previousFrameReceived=null;
                             connection.getPhysical6205641().abort();
                             state = STOPPED;
@@ -281,7 +301,9 @@ public class Datalink6205641 {
                         switch(event) {
                             
                             case DL_REQUEST: {
-                                if (DEBUG>=2) System.out.println("KV_DEBUG> MSEND, send frame "+System.currentTimeMillis());
+                                if (DEBUG>=2) {
+									System.out.println("KV_DEBUG> MSEND, send frame "+System.currentTimeMillis());
+								}
                                 toggleSend();
                                 state = MREC;
                                 sendFrame(getDsdu());
@@ -289,15 +311,21 @@ public class Datalink6205641 {
                             
                             default: {
                                 // send ACK
-                                if (DEBUG>=2) System.out.println("KV_DEBUG> MSEND, send ack "+System.currentTimeMillis());
+                                if (DEBUG>=2) {
+									System.out.println("KV_DEBUG> MSEND, send ack "+System.currentTimeMillis());
+								}
                                 state = MREC;
                                 sendFrame();
                                 
-                                if (dsduReceived != null)
-                                    if (DEBUG>=2) System.out.println("KV_DEBUG> MSEND, send ack, "+dsduReceived);
+                                if (dsduReceived != null) {
+									if (DEBUG>=2) {
+										System.out.println("KV_DEBUG> MSEND, send ack, "+dsduReceived);
+									}
+								}
                                     
-                                if ((dsduReceived==null) || ((dsduReceived!=null) && (!dsduReceived.isEnd())))
-                                    return;
+                                if ((dsduReceived==null) || ((dsduReceived!=null) && (!dsduReceived.isEnd()))) {
+									return;
+								}
 
                             } break;
                             
@@ -309,17 +337,23 @@ public class Datalink6205641 {
                 event = NO_EVENT; // reset event
             } 
             catch(PhysicalAbortException e) {
-                if (DEBUG>=1) System.out.println("KV_DEBUG> Datalink, PhysicalAbortException, "+e.toString()+" at "+System.currentTimeMillis()+", generates PHY_ABORT event!");
+                if (DEBUG>=1) {
+					System.out.println("KV_DEBUG> Datalink, PhysicalAbortException, "+e.toString()+" at "+System.currentTimeMillis()+", generates PHY_ABORT event!");
+				}
                 errorNr = e.getErrorNr();
                 errorDescription = e.toString();
                 event = PHY_ABORT;
             }
             catch(ProtocolConnectionException e) {
                 event = T1_TIMEOUT;
-                if (DEBUG>=1) System.out.println("KV_DEBUG> Datalink, ProtocolConnectionException, "+e.toString()+" at "+System.currentTimeMillis()+", generates T1_TIMEOUT event!");
+                if (DEBUG>=1) {
+					System.out.println("KV_DEBUG> Datalink, ProtocolConnectionException, "+e.toString()+" at "+System.currentTimeMillis()+", generates T1_TIMEOUT event!");
+				}
             } // catch(ProtocolConnectionException e)
             catch(ConnectionException e) {
-                if (DEBUG>=1) System.out.println("KV_DEBUG> Datalink, ConnectionException, "+e.toString()+" at "+System.currentTimeMillis());
+                if (DEBUG>=1) {
+					System.out.println("KV_DEBUG> Datalink, ConnectionException, "+e.toString()+" at "+System.currentTimeMillis());
+				}
                 throw e;
             } // catch(ConnectionException e)
             
@@ -358,9 +392,9 @@ public class Datalink6205641 {
     }
     private void sendFrame(DSDU dsdu) throws IOException {
         Frame frame = new Frame();
-        if (dsdu == null)
-            frame.init(isSend(),isConfirm());
-        else {
+        if (dsdu == null) {
+			frame.init(isSend(),isConfirm());
+		} else {
             setAckExpected(true);
             dsduReceived = null;
             frame.init(isSend(),isConfirm(), dsdu);
@@ -372,21 +406,27 @@ public class Datalink6205641 {
         initTimer();
         setIndex(1);
         
-        if (DEBUG>=2) System.out.println("KV_DEBUG> sendFrame(), index="+index+", frame data: "+ProtocolUtils.outputHexString(frame.getData()));
+        if (DEBUG>=2) {
+			System.out.println("KV_DEBUG> sendFrame(), index="+index+", frame data: "+ProtocolUtils.outputHexString(frame.getData()));
+		}
         getConnection().getPhysical6205641().request(frame);
     }
     private void reSendFrame() throws IOException {
-        if (DEBUG>=1) System.out.println("KV_DEBUG> Datalink, reSendFrame, "+ProtocolUtils.outputHexString(dsdu.getData()));
+        if (DEBUG>=1) {
+			System.out.println("KV_DEBUG> Datalink, reSendFrame, "+ProtocolUtils.outputHexString(dsdu.getData()));
+		}
         Frame frame = new Frame();
-        if (previousDsdu == null)
-            frame.init(isSend(),isConfirm());
-        else {
+        if (previousDsdu == null) {
+			frame.init(isSend(),isConfirm());
+		} else {
             dsduReceived = null;
             frame.init(isSend(),isConfirm(), previousDsdu);
         }
         initTimer();
         index++;
-        if (DEBUG>=2) System.out.println("KV_DEBUG> reSendFrame(), index="+index+", frame data: "+ProtocolUtils.outputHexString(frame.getData()));
+        if (DEBUG>=2) {
+			System.out.println("KV_DEBUG> reSendFrame(), index="+index+", frame data: "+ProtocolUtils.outputHexString(frame.getData()));
+		}
         getConnection().getPhysical6205641().request(frame);
     }
     
@@ -429,14 +469,20 @@ public class Datalink6205641 {
     }
     
     private boolean toggleSend() {
-        if (isSend()) setSend(false);
-        else setSend(true);
+        if (isSend()) {
+			setSend(false);
+		} else {
+			setSend(true);
+		}
         return isSend();
     }
     
     private boolean toggleConfirm() {
-        if (isConfirm()) setConfirm(false);
-        else setConfirm(true);
+        if (isConfirm()) {
+			setConfirm(false);
+		} else {
+			setConfirm(true);
+		}
         return isConfirm();
     }
     

@@ -40,8 +40,9 @@ public class XID extends AbstractSPDU {
     
     protected void parse(byte[] data) throws IOException {
         int pa = ProtocolUtils.getIntLE(data,2,2);
-        if (pa != slavePassword)
+        if (pa != slavePassword){
             throw new IOException("Password verification failed! config="+slavePassword+", meter="+pa);
+        }
         
    }
 

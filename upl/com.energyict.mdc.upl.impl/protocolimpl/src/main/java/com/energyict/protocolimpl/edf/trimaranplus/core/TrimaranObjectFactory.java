@@ -10,10 +10,12 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.edf.trimaranplus.*;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.edf.trimaranplus.TrimaranPlus;
 
 /**
  *
@@ -41,10 +43,12 @@ public class TrimaranObjectFactory {
     public TempsFonctionnementValues readTempsFonctionnementValues() throws IOException {
         if (tempsFonctionnementValues == null) {
            tempsFonctionnementValues = new TempsFonctionnementValues();
-           for (int i=152;i<=160;i+=8)
+           for (int i=152;i<=160;i+=8){
               tempsFonctionnementValues.addTempsFonctionnement(readTempsFonctionnementReader(i).getTempsFonctionnement());
-           for (int i=272;i<=280;i+=8)
-              tempsFonctionnementValues.addTempsFonctionnement(readTempsFonctionnementReader(i).getTempsFonctionnement());
+           }
+           for (int i=272;i<=280;i+=8) {
+			tempsFonctionnementValues.addTempsFonctionnement(readTempsFonctionnementReader(i).getTempsFonctionnement());
+           }
 //           for (int i=392;i<=400;i+=8)
 //              tempsFonctionnementValues.addTempsFonctionnement(readTempsFonctionnementReader(i).getTempsFonctionnement());
         }
@@ -62,12 +66,14 @@ public class TrimaranObjectFactory {
     public DepassementQuadratiqueValues readDepassementQuadratiqueValues() throws IOException {
         if (depassementQuadratiqueValues == null) {
            depassementQuadratiqueValues = new DepassementQuadratiqueValues();
-           for (int i=136;i<=144;i+=8)
-              depassementQuadratiqueValues.addDepassementQuadratique(readDepassementQuadratiqueReader(i).getDepassementQuadratique());
-           for (int i=256;i<=264;i+=8)
-              depassementQuadratiqueValues.addDepassementQuadratique(readDepassementQuadratiqueReader(i).getDepassementQuadratique());
+           for (int i=136;i<=144;i+=8) {
+			depassementQuadratiqueValues.addDepassementQuadratique(readDepassementQuadratiqueReader(i).getDepassementQuadratique());
+		}
+           for (int i=256;i<=264;i+=8) {
+			depassementQuadratiqueValues.addDepassementQuadratique(readDepassementQuadratiqueReader(i).getDepassementQuadratique());
 //           for (int i=376;i<=384;i+=8)
 //              depassementQuadratiqueValues.addDepassementQuadratique(readDepassementQuadratiqueReader(i).getDepassementQuadratique());
+		}
         }
         return depassementQuadratiqueValues;
     }   
@@ -82,12 +88,14 @@ public class TrimaranObjectFactory {
     public DureeDepassementValues readDureeDepassementValues() throws IOException {
         if (dureeDepassementValues == null) {
            dureeDepassementValues = new DureeDepassementValues();
-           for (int i=120;i<=128;i+=8)
-              dureeDepassementValues.addDureeDepassement(readDureeDepassementReader(i).getDureeDepassement());
-           for (int i=240;i<=248;i+=8)
-              dureeDepassementValues.addDureeDepassement(readDureeDepassementReader(i).getDureeDepassement());
+           for (int i=120;i<=128;i+=8) {
+			dureeDepassementValues.addDureeDepassement(readDureeDepassementReader(i).getDureeDepassement());
+		}
+           for (int i=240;i<=248;i+=8) {
+			dureeDepassementValues.addDureeDepassement(readDureeDepassementReader(i).getDureeDepassement());
 //           for (int i=360;i<=368;i+=8)
 //              dureeDepassementValues.addDureeDepassement(readDureeDepassementReader(i).getDureeDepassement());
+		}
         }
         return dureeDepassementValues;
     }   
@@ -103,12 +111,14 @@ public class TrimaranObjectFactory {
     public PmaxValues readPmaxValues() throws IOException {
         if (pmaxValues == null) {
            pmaxValues = new PmaxValues();
-           for (int i=104;i<=112;i+=8)
-              pmaxValues.addPmax(readPmaxReader(i).getPmax());
-           for (int i=224;i<=232;i+=8)
-              pmaxValues.addPmax(readPmaxReader(i).getPmax());
+           for (int i=104;i<=112;i+=8) {
+			pmaxValues.addPmax(readPmaxReader(i).getPmax());
+		}
+           for (int i=224;i<=232;i+=8) {
+			pmaxValues.addPmax(readPmaxReader(i).getPmax());
 //           for (int i=344;i<=352;i+=8)
 //              pmaxValues.addPmax(readPmaxReader(i).getPmax());
+		}
         }
         return pmaxValues;
     }   
@@ -123,12 +133,14 @@ public class TrimaranObjectFactory {
     public EnergieIndex readEnergieIndex() throws IOException {
         if (energieIndex == null) {
            energieIndex = new EnergieIndex();
-           for (int i=56;i<=96;i+=8)
-              energieIndex.addEnergie(readEnergieIndexReader(i).getEnergie());
-           for (int i=176;i<=216;i+=8)
-              energieIndex.addEnergie(readEnergieIndexReader(i).getEnergie());
+           for (int i=56;i<=96;i+=8) {
+			energieIndex.addEnergie(readEnergieIndexReader(i).getEnergie());
+		}
+           for (int i=176;i<=216;i+=8) {
+			energieIndex.addEnergie(readEnergieIndexReader(i).getEnergie());
 //           for (int i=296;i<=336;i+=8)
 //              energieIndex.addEnergie(readEnergieIndexReader(i).getEnergie());
+		}
         }
         return energieIndex;
     }   

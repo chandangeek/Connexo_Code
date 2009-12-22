@@ -10,9 +10,12 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import com.energyict.dialer.connection.*;
-import com.energyict.protocol.*;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -127,18 +130,24 @@ public class Transport6205651 {
                             case DL_INDICATE: {
                                 if (getDsduReceived() == null) {
                                     //return;
-                                    if (DEBUG>=1) System.out.println("KV_DEBUG> Transport6205651, getDsduReceived() == null !!!");
+                                    if (DEBUG>=1) {
+										System.out.println("KV_DEBUG> Transport6205651, getDsduReceived() == null !!!");
+									}
                                     throw new ConnectionException("Transport6205641, stateMachine, no response from meter!",connection.getPROTOCOL_ERROR());
                                 }
                                 
                                 if (getDsduReceived().checkSgt() && !getDsduReceived().lastSgt()) {
-                                    if (DEBUG>=1) System.out.println("KV_DEBUG> Transport6205651, end false segment "+ProtocolUtils.outputHexString(getDsduReceived().getSegmentData()));
+                                    if (DEBUG>=1) {
+										System.out.println("KV_DEBUG> Transport6205651, end false segment "+ProtocolUtils.outputHexString(getDsduReceived().getSegmentData()));
+									}
                                     baos.write(getDsduReceived().getSegmentData());
                                     return;
                                     //connection.getDatalink6205641().respond();
                                 }
                                 else if (getDsduReceived().checkSgt() && getDsduReceived().lastSgt()) {
-                                    if (DEBUG>=1) System.out.println("KV_DEBUG> Transport6205651, end true segment "+ProtocolUtils.outputHexString(getDsduReceived().getSegmentData()));
+                                    if (DEBUG>=1){
+                                    	System.out.println("KV_DEBUG> Transport6205651, end true segment "+ProtocolUtils.outputHexString(getDsduReceived().getSegmentData()));
+                                    }
                                     
                                     baos.write(getDsduReceived().getSegmentData());
                                     tsduReceived = new TSDU();

@@ -10,9 +10,9 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import com.energyict.dialer.connection.*;
-import com.energyict.protocol.*;
-import java.io.*;
+import java.io.IOException;
+
+import com.energyict.dialer.connection.ConnectionException;
 
 /**
  *
@@ -39,36 +39,45 @@ public class LayerManager {
             try {
                 TSDU tsdu = new TSDU();
                 tsdu.init(applicationData);
-                if (DEBUG>=1) System.out.println("KV_DEBUG> ********************** LayerManager, request");
+                if (DEBUG>=1) {
+					System.out.println("KV_DEBUG> ********************** LayerManager, request");
+				}
                 connection.getTransport6205651().request(false,sourceTransportAddress,destinationTransportAddress,tsdu);
             }
             catch(ConnectionException e) {
                 if (e.getReason() == connection.getPROTOCOL_ERROR()) {
-                    if (retryRequest++>=5)
+                    if (retryRequest++>=5){
                         throw new IOException(e.toString()+", max retries!");
-                    else
-                        continue;
-                }
-                else throw e;
+                    } else {
+						continue;
+					}
+                } else {
+					throw e;
+				}
             }
             
             while(true) {
                 try {
-                    if (DEBUG>=1) System.out.println("KV_DEBUG> ********************** LayerManager, respond");
+                    if (DEBUG>=1) {
+						System.out.println("KV_DEBUG> ********************** LayerManager, respond");
+					}
                     return connection.getTransport6205651().respond().getData();
                 }
                 catch(ConnectionException e) {
                     if (e.getReason() == connection.getPROTOCOL_ERROR()) {
-                        if (retryRespond++>=50) //1000)
-                            throw new IOException(e.toString()+", max retries "+retryRespond+"!");
+                        if (retryRespond++>=50) {
+							throw new IOException(e.toString()+", max retries "+retryRespond+"!");
+						}
                     }
                     else if (e.getReason() == connection.getTIMEOUT_ERROR()) {
-                        if (retryTimeout++>=5) //1000)
-                            throw new IOException(e.toString()+", max retries "+retryTimeout+"!");
-                        else 
-                            break; // retry with send!
-                    }
-                    else throw e;
+                        if (retryTimeout++>=5) {
+							throw new IOException(e.toString()+", max retries "+retryTimeout+"!");
+						} else {
+							break; // retry with send!
+						}
+                    } else {
+						throw e;
+					}
                 }
             } // while(true)
             

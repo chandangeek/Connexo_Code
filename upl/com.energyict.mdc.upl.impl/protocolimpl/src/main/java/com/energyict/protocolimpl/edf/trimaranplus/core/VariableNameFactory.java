@@ -10,11 +10,13 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.edf.trimarandlms.common.VariableName;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-import java.util.*;
-import java.io.*;
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.edf.trimarandlms.common.VariableName;
 
 /**
  *
@@ -94,8 +96,9 @@ public class VariableNameFactory {
         Iterator it = list.iterator();
         while(it.hasNext()) {
             VariableName obj = (VariableName)it.next();
-            if (obj.getCode() == variableName)
+            if (obj.getCode() == variableName){
                 return obj;
+            }
         }
         throw new IOException("VariableNameFactory, invalid variableName code "+variableName);
     }

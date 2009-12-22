@@ -66,9 +66,15 @@ public class CourbeChargePartielle1 extends AbstractTrimaranObject {
 //        dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
         dc.parseObjectList(data, null);
         
-        if (DEBUG>=1) System.out.println("CourbeChargePartielle1, parse, "+ProtocolUtils.outputHexString(data));
-        if (DEBUG>=1) System.out.println("CourbeChargePartielle1, parse, dc.getRoot().getNrOfElements()="+dc.getRoot().getNrOfElements());
-        if (DEBUG>=1) System.out.println("CourbeChargePartielle1, parse, "+dc.print2strDataContainer());
+        if (DEBUG>=1){ 
+        	System.out.println("CourbeChargePartielle1, parse, "+ProtocolUtils.outputHexString(data)); 
+    	}
+        if (DEBUG>=1) {
+			System.out.println("CourbeChargePartielle1, parse, dc.getRoot().getNrOfElements()="+dc.getRoot().getNrOfElements());
+		}
+        if (DEBUG>=1) {
+			System.out.println("CourbeChargePartielle1, parse, "+dc.print2strDataContainer());
+		}
         
         setValues(new int[dc.getRoot().getNrOfElements()]);
         for (int i=0;i<getValues().length;i++) {

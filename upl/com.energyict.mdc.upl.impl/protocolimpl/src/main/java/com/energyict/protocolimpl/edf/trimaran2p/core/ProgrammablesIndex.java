@@ -44,8 +44,9 @@ public class ProgrammablesIndex{
         Iterator it = getProgrammables().iterator();
         while(it.hasNext()) {
             Programmables obj = (Programmables)it.next();
-            if (obj.getVariableName() == variableName)
+            if (obj.getVariableName() == variableName){
                 return obj;
+            }
         }
         throw new IOException("ProgrammablesIndex, invalid variableName "+variableName);
 	}

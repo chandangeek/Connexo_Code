@@ -12,8 +12,6 @@ package com.energyict.protocolimpl.edf.trimarancje.core;
 
 import java.io.IOException;
 
-import com.energyict.protocol.ProtocolUtils;
-
 /**
  *
  * @author Koen
@@ -34,9 +32,9 @@ public class ENQ extends AbstractSPDU {
         byte[] data = new byte[3]; 
         data[0] = SPDU_ENQ;
         data[1] = (byte)getCode();
-        if(getIndex() == -1)
+        if(getIndex() == -1){
         	data[2] = 0x10;
-        else{
+        } else{
 //        	data[2] = ProtocolUtils.hex2BCD(getIndex()+10);
 //        	data[2] = (byte)(getIndex()+10);
         	setIndex(-1);

@@ -3,8 +3,6 @@
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 
@@ -81,13 +79,14 @@ public class ParametersMoins1 extends AbstractTrimaranObject{
 		if(getTrimaranObjectFactory().getTrimaran().isTECMeter()){
 			// Only with TEC meter
 			if(dc.getRoot().isInteger(offset)){
-				if (dc.getRoot().getInteger(offset) == 1)
+				if (dc.getRoot().getInteger(offset) == 1){
 					setCcReact_Moins1(true);
-				else
+				} else {
 					setCcReact_Moins1(false);
-			}
-			else
+				}
+			} else {
 				setCcReact_Moins1(false);
+			}
 		}
 	}
 

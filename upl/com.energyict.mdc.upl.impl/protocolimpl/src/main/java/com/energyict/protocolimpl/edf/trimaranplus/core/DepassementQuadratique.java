@@ -43,8 +43,9 @@ public class DepassementQuadratique {
             getValueDepassementQuadratique()[i] = new Quantity(BigDecimal.valueOf(dc.getRoot().getStructure(offset).getLong(i)),VariableNameFactory.getVariableName(variableName).getUnit());
         }
         offset++;
-        if (dc.getRoot().getNrOfElements() == 5) 
+        if (dc.getRoot().getNrOfElements() == 5){ 
            setEnergiesDepassement(new Quantity(BigDecimal.valueOf(dc.getRoot().getLong(offset)), VariableNameFactory.getVariableName(variableName).getUnit().getVolumeUnit()));
+        }
     }
 
     public String toString() {
@@ -62,8 +63,9 @@ public class DepassementQuadratique {
         for (int i=0;i<getValueDepassementQuadratique().length;i++) {
             strBuff.append("       DepassementQuadratique["+i+"]="+getValueDepassementQuadratique()[i]+"\n");
         }
-        if (getEnergiesDepassement() != null)
-            strBuff.append("   EnergiesDepassement="+getEnergiesDepassement()+"\n");
+        if (getEnergiesDepassement() != null) {
+			strBuff.append("   EnergiesDepassement="+getEnergiesDepassement()+"\n");
+		}
         return strBuff.toString();
     }        
     

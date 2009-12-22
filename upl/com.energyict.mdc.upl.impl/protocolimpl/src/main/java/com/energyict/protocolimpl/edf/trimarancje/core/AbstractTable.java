@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimarancje.core;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
@@ -52,14 +52,18 @@ abstract public class AbstractTable {
                 break;
             }
             catch(IOException e) {
-                if (retries++>=3)
+                if (retries++>=3){
                     throw new IOException(e.toString()+", "+getLogInfo());
-                else if (DEBUG>=1) System.out.println("KV_DEBUG> AbstractTable, invoke(), "+e.toString()+", retry "+retries);
+                } else if (DEBUG>=1) {
+					System.out.println("KV_DEBUG> AbstractTable, invoke(), "+e.toString()+", retry "+retries);
+				}
             }
             catch(ArrayIndexOutOfBoundsException e) {
-                if (retries++>=3)
-                    throw new IOException(e.toString()+", "+getLogInfo());
-                else if (DEBUG>=1) System.out.println("KV_DEBUG> AbstractTable, invoke(), "+e.toString()+", retry "+retries);
+                if (retries++>=3) {
+					throw new IOException(e.toString()+", "+getLogInfo());
+				} else if (DEBUG>=1) {
+					System.out.println("KV_DEBUG> AbstractTable, invoke(), "+e.toString()+", retry "+retries);
+				}
             }
         } // while(true)
         

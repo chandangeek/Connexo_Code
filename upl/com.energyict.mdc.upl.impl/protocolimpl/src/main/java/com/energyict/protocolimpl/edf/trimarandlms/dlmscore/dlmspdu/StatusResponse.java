@@ -10,8 +10,6 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import com.energyict.protocol.ProtocolUtils;
@@ -69,15 +67,19 @@ public class StatusResponse extends ConfirmedRespAPSE {
     	
     	
         int offset=0;
-        if (DEBUG>=1) System.out.println("KV_DEBUG> "+ProtocolUtils.outputHexString(data));
+        if (DEBUG>=1) {
+			System.out.println("KV_DEBUG> "+ProtocolUtils.outputHexString(data));
+		}
         
         int length = ProtocolUtils.getInt(data,offset++,1);
-        if ((length & 0x80) == 0x80)
+        if ((length & 0x80) == 0x80){
             offset++;
+        }
         
         int tag = ProtocolUtils.getInt(data,offset++,1);
-        if (tag != DLMSPDU_STATUS_RESPONSE)
-            throw new IOException("StatusResponse, parse, invalid tag 0x"+Integer.toHexString(tag)+" received");
+        if (tag != DLMSPDU_STATUS_RESPONSE) {
+			throw new IOException("StatusResponse, parse, invalid tag 0x"+Integer.toHexString(tag)+" received");
+		}
         
         setVDEType(ProtocolUtils.getInt(data,offset, 2));
         offset+=2;

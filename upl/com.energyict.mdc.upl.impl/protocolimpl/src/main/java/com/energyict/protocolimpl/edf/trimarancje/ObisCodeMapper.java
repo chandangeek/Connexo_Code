@@ -40,8 +40,9 @@ public class ObisCodeMapper {
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
 
         Register register = trimeran.getRegisterFactory().findRegister(obisCode);
-        if (register != null)
+        if (register != null){
             return register.getRegisterValue();
+        }
         
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
         

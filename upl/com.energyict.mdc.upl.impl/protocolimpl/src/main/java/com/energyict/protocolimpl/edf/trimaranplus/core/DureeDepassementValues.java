@@ -9,8 +9,10 @@
  */
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
-import java.util.*;
-import java.io.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -51,8 +53,9 @@ public class DureeDepassementValues {
         Iterator it = getDureeDepassements().iterator();
         while(it.hasNext()) {
             DureeDepassement obj = (DureeDepassement)it.next();
-            if (obj.getVariableName() == variableName)
+            if (obj.getVariableName() == variableName){
                 return obj;
+            }
         }
         throw new IOException("DureeDepassementIndex, invalid variableName "+variableName);
     }

@@ -5,11 +5,12 @@
  */
 
 package com.energyict.protocolimpl.edf.trimarandlms.axdr;
-import java.util.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.logging.Logger;
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
+
+import com.energyict.cbo.Utils;
+import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author  Koen
@@ -61,19 +62,26 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
             while (++iCount[iparseLevel] < iLength[iparseLevel]) {
                 for (i=0;i<iparseLevel;i++) {
 		     //strout.append("        ");
-                     if (i==(iparseLevel-1))
+                     if (i==(iparseLevel-1)){
                          strout.append(" ("+iparseLevel+"/"+(iCount[iparseLevel]+1)+") ");
+                     }
                 }
-                if (dataStructure.isLong(iCount[iparseLevel])) strout.append(dataStructure.getLong(iCount[iparseLevel])+delimiter);
+                if (dataStructure.isLong(iCount[iparseLevel])) {
+					strout.append(dataStructure.getLong(iCount[iparseLevel])+delimiter);
+				}
                 
-                if (dataStructure.isInteger(iCount[iparseLevel])) strout.append(dataStructure.getInteger(iCount[iparseLevel])+delimiter);
+                if (dataStructure.isInteger(iCount[iparseLevel])) {
+					strout.append(dataStructure.getInteger(iCount[iparseLevel])+delimiter);
+				}
                 
                 if (dataStructure.isOctetString(iCount[iparseLevel])) {
                     int val;
                     boolean readable=true;
                     for (int t=0; t<dataStructure.getOctetString(iCount[iparseLevel]).getArray().length;t++) {
                         val = (int)dataStructure.getOctetString(iCount[iparseLevel]).getArray()[t]&0xFF;
-                        if ((val < 0x20) || (val > 0x7E)) readable = false;
+                        if ((val < 0x20) || (val > 0x7E)) {
+							readable = false;
+						}
                         strout.append(ProtocolUtils.outputHexString(val));
                         strout.append(" ");
                     }
@@ -83,16 +91,18 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
                        strout.append(str);
                     }
 
-                    if (dataStructure.getOctetString(iCount[iparseLevel]).getArray().length == 6)
-                        strout.append("("+DLMSUtils.getInfoLN(dataStructure.getOctetString(iCount[iparseLevel]).getArray())+")");
+                    if (dataStructure.getOctetString(iCount[iparseLevel]).getArray().length == 6) {
+						strout.append("("+DLMSUtils.getInfoLN(dataStructure.getOctetString(iCount[iparseLevel]).getArray())+")");
+					}
 
 
                     strout.append(delimiter);
 
                 }
                 
-                if (dataStructure.isString(iCount[iparseLevel])) 
-                    strout.append(dataStructure.getString(iCount[iparseLevel])+delimiter);
+                if (dataStructure.isString(iCount[iparseLevel])) {
+					strout.append(dataStructure.getString(iCount[iparseLevel])+delimiter);
+				}
                 
                 if (dataStructure.isStructure(iCount[iparseLevel])) {
                     strout.append("S("+dataStructure.getStructure(iCount[iparseLevel]).element.length+")"+delimiter);
@@ -134,8 +144,9 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
             while (++iCount[iparseLevel] < iLength[iparseLevel]) {
                 for (i=0;i<iparseLevel;i++) {
 		     strout.append("        ");
-                     if (i==(iparseLevel-1))
-                         strout.append(" ("+iparseLevel+"/"+(iCount[iparseLevel]+1)+") ");
+                     if (i==(iparseLevel-1)) {
+						strout.append(" ("+iparseLevel+"/"+(iCount[iparseLevel]+1)+") ");
+					}
                 }
 
 //System.out.println("KV_EXTRA_DEBUG> BREAKPOINT iCount[iparseLevel]="+iCount[iparseLevel]+", iparseLevel="+iparseLevel+", dataStructure.getInteger()=0x"+Integer.toHexString(dataStructure.getInteger(iCount[iparseLevel])));    
@@ -144,16 +155,22 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 //}                
 
 
-                if (dataStructure.isLong(iCount[iparseLevel])) strout.append(dataStructure.getLong(iCount[iparseLevel])+"\n");
+                if (dataStructure.isLong(iCount[iparseLevel])) {
+					strout.append(dataStructure.getLong(iCount[iparseLevel])+"\n");
+				}
                 
-                if (dataStructure.isInteger(iCount[iparseLevel])) strout.append(dataStructure.getInteger(iCount[iparseLevel])+"\n");
+                if (dataStructure.isInteger(iCount[iparseLevel])) {
+					strout.append(dataStructure.getInteger(iCount[iparseLevel])+"\n");
+				}
                 
                 if (dataStructure.isOctetString(iCount[iparseLevel])) {
                     int val;
                     boolean readable=true;
                     for (int t=0; t<dataStructure.getOctetString(iCount[iparseLevel]).getArray().length;t++) {
                         val = (int)dataStructure.getOctetString(iCount[iparseLevel]).getArray()[t]&0xFF;
-                        if ((val < 0x20) || (val > 0x7E)) readable = false;
+                        if ((val < 0x20) || (val > 0x7E)) {
+							readable = false;
+						}
                         strout.append(ProtocolUtils.outputHexString(val));
                         strout.append(" ");
                     }
@@ -163,16 +180,18 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
                        strout.append(str);
                     }
 
-                    if (dataStructure.getOctetString(iCount[iparseLevel]).getArray().length == 6)
-                        strout.append(" "+DLMSUtils.getInfoLN(dataStructure.getOctetString(iCount[iparseLevel]).getArray()));
+                    if (dataStructure.getOctetString(iCount[iparseLevel]).getArray().length == 6) {
+						strout.append(" "+DLMSUtils.getInfoLN(dataStructure.getOctetString(iCount[iparseLevel]).getArray()));
+					}
 
 
                     strout.append("\n");
 
                 }
                 
-                if (dataStructure.isString(iCount[iparseLevel])) 
-                    strout.append(dataStructure.getString(iCount[iparseLevel])+"\n");
+                if (dataStructure.isString(iCount[iparseLevel])) {
+					strout.append(dataStructure.getString(iCount[iparseLevel])+"\n");
+				}
                 
                 if (dataStructure.isStructure(iCount[iparseLevel])) {
                     strout.append("Struct with "+dataStructure.getStructure(iCount[iparseLevel]).element.length+" elements.\n");
@@ -202,18 +221,24 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 
     private void levelDown() throws DataContainerException {
         while(true) {
-            if (iLevel > 0) iLevel--;
+            if (iLevel > 0) {
+				iLevel--;
+			}
             if (dataStructure.parent != null)
             {
                dataStructure=dataStructure.parent;
                // Get next index...
-               for (iIndex=0;iIndex<dataStructure.element.length;iIndex++)
-                  if (dataStructure.element[iIndex] == null) return;
-               if ((iIndex==dataStructure.element.length) && (iLevel == 0))
-                  throw new DataContainerException("LevelDown error, no more free entries!");        
-            }
-            else
-               throw new DataContainerException("LevelDown error, no parent!");         
+               for (iIndex=0;iIndex<dataStructure.element.length;iIndex++) {
+				if (dataStructure.element[iIndex] == null) {
+					return;
+				}
+			}
+               if ((iIndex==dataStructure.element.length) && (iLevel == 0)) {
+				throw new DataContainerException("LevelDown error, no more free entries!");
+			}        
+            } else {
+				throw new DataContainerException("LevelDown error, no parent!");
+			}         
         }
     }
 
@@ -264,14 +289,17 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
         }
         else
         {
-           if (iIndex >= dataStructure.element.length)
-               levelDown();
+           if (iIndex >= dataStructure.element.length) {
+			levelDown();
+		}
 
            dataStructure.element[iIndex] = new DataStructure(iNROfElements); 
            ((DataStructure)dataStructure.element[iIndex]).parent = dataStructure;
            dataStructure = (DataStructure)dataStructure.element[iIndex];
            iLevel++;
-           if (iLevel > iMaxLevel) iMaxLevel = iLevel;
+           if (iLevel > iMaxLevel) {
+			iMaxLevel = iLevel;
+		}
            iIndex=0;
 
         }
@@ -301,7 +329,9 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
                    {
                        i++;
                        int iprevlevel=iLevel;
-                       if (iLevel++ >= (MAX_LEVELS-1)) throw new IOException("Max printlevel exceeds!");  
+                       if (iLevel++ >= (MAX_LEVELS-1)) {
+						throw new IOException("Max printlevel exceeds!");
+					}  
 
                        LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
                        addStructure(LevelNROfElements[iLevel]);
@@ -314,7 +344,9 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
                    {
                        i++;
                        int iprevlevel=iLevel;
-                       if (iLevel++ >= (MAX_LEVELS-1)) throw new IOException("Max printlevel exceeds!");  
+                       if (iLevel++ >= (MAX_LEVELS-1)) {
+						throw new IOException("Max printlevel exceeds!");
+					}  
                        LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
                        addStructure(LevelNROfElements[iLevel]);
                        i += DLMSUtils.getAXDRLengthOffset(responseData,i);
@@ -344,7 +376,9 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
                        t = (int)DLMSUtils.getAXDRLength(responseData,i);
                        byte[] array = new byte[t];
                        i += DLMSUtils.getAXDRLengthOffset(responseData,i);
-                       for (s=0;s<t;s++) array[s] = responseData[i+s];
+                       for (s=0;s<t;s++) {
+						array[s] = responseData[i+s];
+					}
                        addOctetString(array);
                        i += t; 
                    } break;
@@ -384,11 +418,16 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
                       i += DLMSUtils.getAXDRLengthOffset(responseData,i); 
 
                       // calc nr of bytes
-                      if ((t%8) == 0) t = (t/8);
-                      else t = ((t/8)+1);
+                      if ((t%8) == 0) {
+						t = (t/8);
+					} else {
+						t = ((t/8)+1);
+					}
 
                       long value=0;
-                      for (s=0;s<t;s++) value += (((long)responseData[i+(t-1)-s]&0xff)<<(s*8));
+                      for (s=0;s<t;s++) {
+						value += (((long)responseData[i+(t-1)-s]&0xff)<<(s*8));
+					}
                       addLong(value);
 
                       i+=t;
@@ -432,15 +471,17 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
                            iLevel=0;
                            break;
                        }
-                   }
-                   else break;
+                   } else {
+					break;
+				}
                }
            }
            catch(DataContainerException e) {
-               if (logger == null)
-                   System.out.println(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
-               else
-                   logger.severe(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+               if (logger == null) {
+				System.out.println(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+			} else {
+				logger.severe(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+			}
                return; 
            }
            

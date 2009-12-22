@@ -79,12 +79,15 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
         getAPSEFactory().getAuthenticationReqAPSE();
         getDLMSPDUFactory().getInitiateRequest();
         getLogger().info(getDLMSPDUFactory().getStatusResponse().toString());
-        if (getDLMSPDUFactory().getStatusResponse().getVDEType() == 770)
+        if (getDLMSPDUFactory().getStatusResponse().getVDEType() == 770){
             getVDEType().setVDEType(VDEType.getVDEBASE());
-        if (getDLMSPDUFactory().getStatusResponse().getVDEType() == 771)
-            getVDEType().setVDEType(VDEType.getVDEEJP());
-        if (getDLMSPDUFactory().getStatusResponse().getVDEType() == 772)
-            getVDEType().setVDEType(VDEType.getVDEMODULABLE());
+        }
+        if (getDLMSPDUFactory().getStatusResponse().getVDEType() == 771) {
+			getVDEType().setVDEType(VDEType.getVDEEJP());
+		}
+        if (getDLMSPDUFactory().getStatusResponse().getVDEType() == 772) {
+			getVDEType().setVDEType(VDEType.getVDEMODULABLE());
+		}
     }
     protected void doDisConnect() throws IOException {
         
@@ -97,9 +100,13 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
     protected void validateSerialNumber() throws IOException {
         
         boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
+        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) {
+			return;
+		}
         String sn = getDLMSPDUFactory().getStatusResponse().getSerialNumber();
-        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
+        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) {
+			return;
+		}
         throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
         
     }    
@@ -119,10 +126,11 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
         
         this.safetyTimeout = Integer.parseInt(properties.getProperty("SafetyTimeOut", "300000")); // Safety timeout in the transport layer
         
-        if(Integer.parseInt(properties.getProperty("DelayAfterConnect", "0")) == 1)
-        	delayAfterConnect = 6000;
-        else 
-        	delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "0").trim());
+        if(Integer.parseInt(properties.getProperty("DelayAfterConnect", "0")) == 1) {
+			delayAfterConnect = 6000;
+		} else {
+			delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "0").trim());
+		}
         
         try {
             getAPSEParameters().setKey(ProtocolUtils.convert2ascii(getInfoTypePassword().getBytes()));
@@ -390,8 +398,9 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
     }
 
     public RegisterFactory getRegisterFactory() throws IOException {
-        if (registerFactory==null) 
-           setRegisterFactory(new RegisterFactory(this));
+        if (registerFactory==null) {
+			setRegisterFactory(new RegisterFactory(this));
+		}
         return registerFactory;
     }
 

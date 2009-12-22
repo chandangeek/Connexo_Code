@@ -10,15 +10,18 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import com.energyict.cbo.*;
-import com.energyict.dialer.connection.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.edf.trimaran.core.*;
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-import com.energyict.protocolimpl.base.*;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 /**
  *
  * @author Koen
@@ -161,7 +164,9 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
     
     
     public void sendData(byte[] data) throws IOException {
-        if (DEBUG>=1) System.out.println("KV_DEBUG> sendData, "+ProtocolUtils.outputHexString(data)+", "+System.currentTimeMillis());
+        if (DEBUG>=1){
+        	System.out.println("KV_DEBUG> sendData, "+ProtocolUtils.outputHexString(data)+", "+System.currentTimeMillis());
+        }
 //        getHalfDuplexController().setRTS(true);
         sendOut(data);
 //        getHalfDuplexController().setRTS(false);
@@ -199,17 +204,22 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
                         interFrameTimeout = System.currentTimeMillis() + getT1Timeout();
                         len=kar+4;
                         if ((kar >= 0) && (kar <= 0x7E)) {
-                            if (DEBUG >= 1) System.out.println("KV_DEBUG> collect frame with len="+len);
+                            if (DEBUG >= 1) {
+								System.out.println("KV_DEBUG> collect frame with len="+len);
+							}
                             state = WAIT_FOR_FRAME;
                             len--;
-                        } 
-                        else frameArrayOutputStream.reset();
+                        } else {
+							frameArrayOutputStream.reset();
+						}
                         
                         break; // WAIT_FOR_LENGTH
                         
                     case WAIT_FOR_FRAME:
                         if (len--<=1) { 
-                            if (DEBUG>=1) System.out.println("KV_DEBUG> Frame received... "+ProtocolUtils.outputHexString(frameArrayOutputStream.toByteArray())+", "+System.currentTimeMillis());
+                            if (DEBUG>=1) {
+								System.out.println("KV_DEBUG> Frame received... "+ProtocolUtils.outputHexString(frameArrayOutputStream.toByteArray())+", "+System.currentTimeMillis());
+							}
                             return (frameArrayOutputStream.toByteArray()); 
                         }
                         break; // WAIT_FOR_FRAME

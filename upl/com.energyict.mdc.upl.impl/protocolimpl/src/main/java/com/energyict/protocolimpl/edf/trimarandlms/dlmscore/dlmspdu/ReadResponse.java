@@ -43,15 +43,19 @@ public class ReadResponse extends ConfirmedRespAPSE {
     
     protected void parsePDU(byte[] data) throws IOException {
         int offset=0;
-        if (DEBUG>=1) System.out.println("KV_DEBUG> "+ProtocolUtils.outputHexString(data));
+        if (DEBUG>=1){
+        	System.out.println("KV_DEBUG> "+ProtocolUtils.outputHexString(data));
+        }
         
         int length = ProtocolUtils.getInt(data,offset++,1);
-        if ((length & 0x80) == 0x80)
-            offset++;
+        if ((length & 0x80) == 0x80) {
+			offset++;
+		}
         
         int tag = ProtocolUtils.getInt(data,offset++,1);
-        if (tag != DLMSPDU_READ_RESPONSE)
-            throw new IOException("ReadResponse, parse, invalid tag 0x"+Integer.toHexString(tag)+" received");
+        if (tag != DLMSPDU_READ_RESPONSE) {
+			throw new IOException("ReadResponse, parse, invalid tag 0x"+Integer.toHexString(tag)+" received");
+		}
         
         
          

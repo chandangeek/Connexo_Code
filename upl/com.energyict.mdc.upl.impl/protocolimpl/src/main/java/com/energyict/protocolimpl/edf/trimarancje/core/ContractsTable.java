@@ -5,7 +5,6 @@ package com.energyict.protocolimpl.edf.trimarancje.core;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import com.energyict.protocol.ProtocolUtils;
@@ -36,8 +35,9 @@ public class ContractsTable extends AbstractTable{
 		int offset = 0;
 		
 		while(true){
-			if (offset == data.length)
+			if (offset == data.length){
 				break;
+			}
 			
 			int temp = ProtocolUtils.getIntLE(data,offset, 2); offset+=2;
 			System.out.println(temp);

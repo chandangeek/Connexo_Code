@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
@@ -30,8 +30,9 @@ abstract public class AbstractAPSEPDU {
 
     public void invoke() throws IOException {
         byte[] data = getAPSEFactory().getProtocolLink().getConnection62056().getLayerManager().send(preparebuild());
-        if (data != null)
+        if (data != null){
             parse(data);
+        }
     }
     
     

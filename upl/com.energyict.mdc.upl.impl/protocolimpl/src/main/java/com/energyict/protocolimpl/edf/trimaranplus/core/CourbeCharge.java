@@ -10,10 +10,28 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import java.util.*;
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
+
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.MagicNumberConstants;
 
 /**
  *
@@ -21,48 +39,59 @@ import java.io.*;
  */
 public class CourbeCharge {
     
-    int FILE_OPERATION=0;
-    final int DEBUG=0;
-     
+    private static final int fileOperation=0;
+    private static final int debug=0;
+    private static final int defaultProfileInterval = 600;
+    private static final int blockSize = 1250;
+    private static final String debugStartString = "KV_DEBUG> ";
+    private static final String saisonMobileString = "saisonMobile=";
+    private static final String posteHoraireString = "posteHoraire=";
+    private static final String modeString = "mode=";
+    private static final String marquageString = "marquage=";
+    
     private TrimaranObjectFactory trimaranObjectFactory;
     private List elements;
     
-    Date now;
+    private Date now;
     private ProfileData profileData=null;
-    int elementId,previousElementId;
+    private int elementId,previousElementId;
     
     /** Creates a new instance of CourbeCharge */
     public CourbeCharge(TrimaranObjectFactory trimaranObjectFactory) {
-        this.setTrimaranObjectFactory(trimaranObjectFactory);
+    	this.trimaranObjectFactory = trimaranObjectFactory;
     }
  
     public String toString() {
          StringBuffer strBuff = new StringBuffer();
          for(int i=0;i<getElements().size();i++) {
              strBuff.append("value "+i+" = 0x"+Integer.toHexString(((Integer)getElements().get(i)).intValue()));    
-             if (i<(getElements().size()-1))
+             if (i<(getElements().size()-1)){
                  strBuff.append(", ");
+             }
          }
          return strBuff.toString();
     }
     
     private int getProfileInterval() throws IOException {
-       if (getTrimaranObjectFactory() == null)
-           return 600;
-       else
-           return getTrimaranObjectFactory().getTrimaran().getProfileInterval();
+       if (getTrimaranObjectFactory() == null) {
+		return defaultProfileInterval;
+	} else {
+		return getTrimaranObjectFactory().getTrimaran().getProfileInterval();
+	}
     }
     
     private TimeZone getTimeZone() {
-       if (getTrimaranObjectFactory() == null)
-           return TimeZone.getTimeZone("ECT");
-       else
-           return getTrimaranObjectFactory().getTrimaran().getTimeZone();
+       if (getTrimaranObjectFactory() == null) {
+		return TimeZone.getTimeZone("ECT");
+	} else {
+		return getTrimaranObjectFactory().getTrimaran().getTimeZone();
+	}
     }
 
     
     private void initCollections() {
-        elementId=previousElementId=1250;
+        elementId = blockSize;
+        previousElementId = blockSize;
         setElements(new ArrayList());
         setProfileData(new ProfileData());
         getProfileData().addChannel(new ChannelInfo(0,"Trimeran ICE kW channel",Unit.get("kW")));
@@ -70,13 +99,16 @@ public class CourbeCharge {
     
     private void waitUntilCopied() throws IOException { // max 20 sec
         int retry=0;
-        while(retry++<15) {
+        while(retry++<MagicNumberConstants.fifteen.getValue()) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(MagicNumberConstants.thousand.getValue());
                 AccessPartiel ap = getTrimaranObjectFactory().readAccessPartiel();
-                if (DEBUG>=2) System.out.println("KV_DEBUG> "+ap);
-                if (ap.getNomAccess() == 0)
-                    return;
+                if (debug>=2) {
+					System.out.println(debugStartString +ap);
+				}
+                if (ap.getNomAccess() == 0) {
+					return;
+				}
             }
             catch(InterruptedException e) {
                 // absorb
@@ -92,30 +124,38 @@ public class CourbeCharge {
             retrieve();
             
             // if earliest interval is before the from, leave loop
-            if (getProfileData().getIntervalData(0).getEndTime().before(from))
-                break;
+            if (getProfileData().getIntervalData(0).getEndTime().before(from)) {
+				break;
+			}
             // safety, if earliest interval is after previous interval, that means we wrap around in the buffer
-            if ((previousEndTime != null) && (getProfileData().getIntervalData(0).getEndTime().after(previousEndTime)))
-                break;
+            if ((previousEndTime != null) && (getProfileData().getIntervalData(0).getEndTime().after(previousEndTime))) {
+				break;
+			}
             
             previousEndTime = getProfileData().getIntervalData(0).getEndTime();                            
             
-            if (DEBUG>=1) System.out.println("KV_DEBUG> do retrieve() ... while ("+elementId+" <= ("+(30*1250)+") ?");
+            if (debug>=1) {
+				System.out.println(debugStartString + "do retrieve() ... while ("+elementId+" <= ("+(MagicNumberConstants.thirty.getValue()*blockSize)+") ?");
+			}
             
             if (elementId==previousElementId) {
-                if (DEBUG >= 1) System.out.println("elementId==previousElementId --> break");
+                if (debug >= 1) {
+					System.out.println("elementId==previousElementId --> break");
+				}
                 break;
             }
             previousElementId = elementId;
             
-        }  while(elementId<=(30*1250)); // safety margin of 30 blocks to avoid looping!
+        }  while(elementId<=(MagicNumberConstants.thirty.getValue()*blockSize)); // safety margin of 30 blocks to avoid looping!
         
         // if the connection of data takes more then the profileinterval, a duplicate interval will occur
         aggregateAndRemoveDuplicates();
         
-        if (DEBUG >= 1) System.out.println(getProfileData());
+        if (debug >= 1) {
+			System.out.println(getProfileData());
+		}
         
-        if (FILE_OPERATION==1) {
+        if (fileOperation==1) {
             FileOutputStream fos = new FileOutputStream(new File("trimeranplus.bin"));
             DataOutputStream dos = new DataOutputStream(fos);
             dos.writeLong(now.getTime());
@@ -149,7 +189,11 @@ public class CourbeCharge {
         }
     }
     
-    
+    /**
+     * @deprecated 
+     * @param from
+     * @throws IOException
+     */
     private void retrieve(Date from) throws IOException {
         now = new Date();
         getTrimaranObjectFactory().writeAccessPartiel(from);
@@ -161,7 +205,9 @@ public class CourbeCharge {
     
     private void retrieve() throws IOException {
         now = new Date();
-        if (DEBUG>=1) System.out.println("KV_DEBUG> retrieve elementId "+elementId);
+        if (debug>=1) {
+			System.out.println(debugStartString + "retrieve elementId "+elementId);
+		}
         getTrimaranObjectFactory().writeAccessPartiel(elementId);
         waitUntilCopied();
         int[] values = getTrimaranObjectFactory().getCourbeChargePartielle().getValues();
@@ -183,24 +229,24 @@ public class CourbeCharge {
     } // private void addValues(int[] values) throws IOException
     
     
-    final int ELEMENT_BEGIN=-1;
-    final int ELEMENT_PUISSANCE=0;
-    final int ELEMENT_PUISSANCE_TRONQUE=1;
-    final int ELEMENT_DATATION_HEURE=2;
-    final int ELEMENT_DATATION_DATE=3;
-    final int ELEMENT_DATATION_MINUTE_SECONDE=4;
-    final int ELEMENT_DATATION_POSTE=5;
+    private static final int elementBegin=-1;
+    private static final int elementPuissance=0;
+    private static final int elementPuissanceTronque=1;
+    private static final int elementDatationHeure=2;
+    private static final int elementDatationDate=3;
+    private static final int elementDatationMinuteSeconde=4;
+    private static final int elementDatationPoste=5;
     
     
-    final int STATE_PUISSANCE=0;
-    final int STATE_OLD_TIME=1;
-    final int STATE_NEW_TIME=2;
+    private static final int statePuissance=0;
+    private static final int stateOldTime=1;
+    private static final int stateNewTime=2;
     
     public void doParse(boolean file) throws IOException {
-        int previousElement=ELEMENT_BEGIN;
-        int currentElement=ELEMENT_BEGIN;
+        int previousElement=elementBegin;
+        int currentElement=elementBegin;
         int type=0;
-        int state=STATE_PUISSANCE;
+        int state=statePuissance;
         Calendar calSetClock=null;
         IntervalData intervalData=null;
         int tariff=0;
@@ -210,13 +256,13 @@ public class CourbeCharge {
         List intervalDatas=new ArrayList();
         int i=0;
         
-        if ((FILE_OPERATION==1) && (file)) {
+        if ((fileOperation==1) && (file)) {
             try {
                 initCollections();
                 File f = new File("trimeranplus.bin");
                 FileInputStream fis = new FileInputStream(f);
                 DataInputStream dis = new DataInputStream(fis);
-                int length = (int)(f.length()-8)/4;
+                int length = (int)(f.length()-MagicNumberConstants.eight.getValue())/MagicNumberConstants.four.getValue();
                 now = new Date(dis.readLong());
                 for (int t=0;t<length;t++) {
                     getElements().add(new Integer(dis.readInt()));
@@ -232,7 +278,9 @@ public class CourbeCharge {
         cal = null;
         elementOffset = 0;
         
-        if (DEBUG>=2) System.out.println("KV_DEBUG> load profile up to now="+now);
+        if (debug>=2) {
+			System.out.println(debugStartString + "load profile up to now="+now);
+		}
         
         Iterator it = getElements().iterator();
         while(it.hasNext()) {
@@ -240,12 +288,14 @@ public class CourbeCharge {
             
             i++;
             
-            if ((val & 0x8000) == 0) {
-                if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", val="+val);
+            if ((val & MagicNumberConstants.h8000.getValue()) == 0) {
+                if (debug>=2) {
+					System.out.println(debugStartString + +i+", val="+val);
+				}
                 if (cal != null) {
                     cal.add(Calendar.SECOND,getProfileInterval());
-                    currentElement=ELEMENT_PUISSANCE;
-                    state = STATE_PUISSANCE;
+                    currentElement=elementPuissance;
+                    state = statePuissance;
                     // bit 14..0 Valeur de la puissance sans coupure
 
                     if (now.after(cal.getTime())) {
@@ -255,35 +305,41 @@ public class CourbeCharge {
                     }
                 }
             }
-            else if ((val & 0xC000) == 0x8000) {
+            else if ((val & 0xC000) == MagicNumberConstants.h8000.getValue()) {
                 // bit 13..0 Valeur de la puissance avec coupure (� tronqu�e �)
                 val &= 0x3FFF;
-                if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", shortlong, val="+val);
+                if (debug>=2) {
+					System.out.println(debugStartString +i+", shortlong, val="+val);
+				}
                 if (cal != null) {
                     cal.add(Calendar.SECOND,getProfileInterval());
-                    currentElement=ELEMENT_PUISSANCE_TRONQUE;
-                    state = STATE_PUISSANCE;
+                    currentElement=elementPuissanceTronque;
+                    state = statePuissance;
 
                     if (now.after(cal.getTime())) {
                         intervalData = new IntervalData(new Date(cal.getTime().getTime()),0,0,tariff);
                         intervalData.addValue(new Integer(val));
                         intervalData.addEiStatus(IntervalStateBits.SHORTLONG);
-                        if (type == 6) intervalData.addEiStatus(IntervalStateBits.POWERUP);;
+                        if (type == MagicNumberConstants.six.getValue()) {
+							intervalData.addEiStatus(IntervalStateBits.POWERUP);
+						}
                         intervalDatas.add(intervalData);
                     }
                 }
             }
             else if ((val & 0xE000) == 0xC000) {
                 
-                currentElement=ELEMENT_DATATION_DATE;
+                currentElement=elementDatationDate;
                 // element date
                 // bit 12..9 chiffre des unit�s de l'ann�e bit 8..5 mois bit 4..0 jour
-                int year = (val & 0x1E00) >> 9;
-                int month = (val & 0x01E0) >> 5;
+                int year = (val & 0x1E00) >> MagicNumberConstants.nine.getValue();
+                int month = (val & 0x01E0) >> MagicNumberConstants.five.getValue();
                 int day = (val & 0x001F);
                 
                 if ((elementOffset>0) && (cal == null)) {
-                    if (DEBUG>=2) System.out.println("KV_DEBUG> set calendar date");
+                    if (debug>=2) {
+						System.out.println(debugStartString + "set calendar date");
+					}
                 }                
                 
                 cal = ProtocolUtils.getCleanCalendar(getTimeZone());
@@ -292,28 +348,32 @@ public class CourbeCharge {
                 cal.set(Calendar.DAY_OF_MONTH,day);
                 
                  
-                if (DEBUG>=2) System.out.println("KV_DEBUG> ********************************************* "+i+", cal="+cal.getTime());
+                if (debug>=2) {
+					System.out.println(debugStartString + "********************************************* "+i+", cal="+cal.getTime());
+				}
                 
             } // else if ((val & 0xE000) == 0xC000)
             // ************************************************************************************************************************ 
             // ************************************************ ELEMENT_DATATION_HEURE ************************************************
             // ************************************************************************************************************************ 
             else if ((val & 0xF000) == 0xE000) {
-                currentElement=ELEMENT_DATATION_HEURE;
+                currentElement=elementDatationHeure;
                 // element heure
                 // bit 11..9 type 8..4 heure bit 3..0 minutes en multiples de Tc 
-                type = (val & 0x0E00) >> 9;
-                int hour = (val & 0x01F0) >> 4;
-                int minutes = (val & 0x000F)*(getProfileInterval()/60);
+                type = (val & 0x0E00) >> MagicNumberConstants.nine.getValue();
+                int hour = (val & 0x01F0) >> MagicNumberConstants.four.getValue();
+                int minutes = (val & 0x000F)*(getProfileInterval()/MagicNumberConstants.sixty.getValue());
                 //if (((previousElement == ELEMENT_BEGIN) || (previousElement == ELEMENT_DATATION_DATE)) && (cal != null)) {
                 if (cal != null) {
                     cal.set(Calendar.HOUR_OF_DAY,hour);
                     cal.set(Calendar.MINUTE,minutes);
                 }
                 
-                if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", type=0x"+Integer.toHexString(type)+", cal="+(cal!=null?""+cal.getTime():"no start calendar"));
+                if (debug>=2) {
+					System.out.println(debugStartString +i+", type=0x"+Integer.toHexString(type)+", cal="+(cal!=null?""+cal.getTime():"no start calendar"));
+				}
                 
-                
+/* All empty If - statments                 
                 if (type == 0) { // every hour
                     // heure ronde ou changement de jour tarifaire ; dans le cas d'une heure ronde seule, l'�l�ment-date n'est pas
                     // ins�r� ; ce type de marquage n'est fait que s'il n'y a pas d'autre marquage � faire � la m�me date
@@ -341,126 +401,145 @@ public class CourbeCharge {
                 else if (type == 5) {
                     // changement de la valeur de la dur�e de la p�riode d�int�gration Tc (�l�ment-date et �l�ment-heure)
                 }
-                else if (type == 6) {
+                */
+                if (type == MagicNumberConstants.six.getValue()) {
                     
                     intervalData.addEiStatus(IntervalStateBits.POWERDOWN);
                     meterEvents.add(new MeterEvent(cal.getTime(),MeterEvent.POWERUP));
                     // retour de l�alimentation r�seau apr�s une coupure ; si la dur�e de la coupure exc�de la r�serve de marche, la
                     // date enregistr�e correspond au 1er Janvier 1992, et l'heure enregistr�e est 00h00    
                 }
-                else if (type == 7) {
+//                else if (type == MagicNumberConstants.seven.getValue()) {
                     // multi-marquage. Dans ce cas, un enregistrement compl�mentaire est effectu� pour pr�ciser les marquages.
                     // Le multi-marquage ne concerne pas le marquage de � remise � l'heure � ou de � changement d'heure
                     // l�gale � qui est effectu� ind�pendamment du reste.
-                }
+//                }
             }
             // ************************************************************************************************************************ 
             // ****************************** ELEMENT_DATATION_MINUTE_SECONDE or ELEMENT_DATATION_POSTE *******************************
             // ************************************************************************************************************************ 
             else if ((val & 0xF000) == 0xF000) {
-                if (previousElement == ELEMENT_DATATION_HEURE) {
-                    if (type == 0) {
+                if (previousElement == elementDatationHeure) {
+//                    if (type == 0) {
                         // heure ronde ou changement de jour tarifaire ; dans le cas d'une heure ronde seule, l'�l�ment-date n'est pas
                         // ins�r� ; ce type de marquage n'est fait que s'il n'y a pas d'autre marquage � faire � la m�me date ;
-                    }
-                    else if (type == 1) {
+//                    }
+                    if (type == 1) {
                         
-                        currentElement=ELEMENT_DATATION_MINUTE_SECONDE;
+                        currentElement=elementDatationMinuteSeconde;
                         
-                        if ((previousElement == ELEMENT_DATATION_HEURE) && (state == STATE_PUISSANCE)) {
-                             currentElement=ELEMENT_DATATION_MINUTE_SECONDE;
+                        if ((previousElement == elementDatationHeure) && (state == statePuissance)) {
+                             currentElement=elementDatationMinuteSeconde;
                              int minute = (val & 0x0FC0)>>6;
                              int seconde = (val & 0x003F);
                              calSetClock = (Calendar)cal.clone();
                              calSetClock.set(Calendar.MINUTE,minute);
                              calSetClock.set(Calendar.SECOND,seconde);
                              meterEvents.add(new MeterEvent(calSetClock.getTime(),MeterEvent.SETCLOCK_BEFORE));
-                             state = STATE_OLD_TIME;
-                             if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", minute="+minute+", seconde="+seconde);
+                             state = stateOldTime;
+                             if (debug>=2) {
+								System.out.println(debugStartString +i+", minute="+minute+", seconde="+seconde);
+							}
                         }
-                        else if ((previousElement == ELEMENT_DATATION_HEURE) && (state == STATE_OLD_TIME)) {
-                             currentElement=ELEMENT_DATATION_MINUTE_SECONDE;
+                        else if ((previousElement == elementDatationHeure) && (state == stateOldTime)) {
+                             currentElement=elementDatationMinuteSeconde;
                              int minute = (val & 0x0FC0)>>6;
                              int seconde = (val & 0x003F);
                              calSetClock = (Calendar)cal.clone();
                              calSetClock.set(Calendar.MINUTE,minute);
                              calSetClock.set(Calendar.SECOND,seconde);
                              meterEvents.add(new MeterEvent(calSetClock.getTime(),MeterEvent.SETCLOCK_AFTER));
-                             state = STATE_NEW_TIME;
-                             if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", minute="+minute+", seconde="+seconde);
+                             state = stateNewTime;
+                             if (debug>=2) {
+								System.out.println(debugStartString +i+", minute="+minute+", seconde="+seconde);
+							}
                         }
-                        else if ((previousElement == ELEMENT_DATATION_MINUTE_SECONDE) && (state == STATE_NEW_TIME)) {
-                             currentElement=ELEMENT_DATATION_POSTE;
+                        else if ((previousElement == elementDatationMinuteSeconde) && (state == stateNewTime)) {
+                             currentElement=elementDatationPoste;
                              int saisonMobile = (val & 0x0C00)>>10;
                              int posteHoraire = (val & 0x0300)>>8;
                              int a = (val & 0x0080)>>7;
                              int mode = (val & 0x0040)>>6;
                              int marquage = (val & 0x003F);
-                             state = STATE_PUISSANCE;
-                             if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", saisonMobile="+saisonMobile+", posteHoraire="+posteHoraire+", a="+a+", mode="+mode+", marquage="+marquage);
+                             state = statePuissance;
+                             if (debug>=2) {
+								System.out.println(debugStartString +i+", " + saisonMobileString +saisonMobile+", " + posteHoraireString +posteHoraire+", a="+a+", " + modeString +mode+", " + marquageString +marquage);
+							}
                              tariff=val&0xFFF;
                              //getMeterEvents().add(new MeterEvent(calSetClock.getTime(),MeterEvent.OTHER,val&0xFFF));
                         }
                     }
                     else if (type == 2) {
-                        currentElement=ELEMENT_DATATION_POSTE;
+                        currentElement=elementDatationPoste;
                         int saisonMobile = (val & 0x0C00)>>10;
                         int posteHoraire = (val & 0x0300)>>8;
                         int a = (val & 0x0080)>>7;
                         int mode = (val & 0x0040)>>6;
                         int marquage = (val & 0x003F);
                         tariff=val&0xFFF;
-                        if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", saisonMobile="+saisonMobile+", posteHoraire="+posteHoraire+", a="+a+", mode="+mode+", marquage="+marquage);
+                        if (debug>=2) {
+							System.out.println(debugStartString +i+", " + saisonMobileString +saisonMobile+", " + posteHoraireString +posteHoraire+", a="+a+", " + modeString +mode+", " + marquageString +marquage);
+						}
                     }
-                    else if (type == 3) {
-                        currentElement=ELEMENT_DATATION_POSTE;
+                    else if (type == MagicNumberConstants.three.getValue()) {
+                        currentElement=elementDatationPoste;
                         int saisonMobile = (val & 0x0C00)>>10;
                         int posteHoraire = (val & 0x0300)>>8;
                         int a = (val & 0x0080)>>7;
                         int mode = (val & 0x0040)>>6;
                         int marquage = (val & 0x003F);
                         tariff=val&0xFFF;
-                        if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", saisonMobile="+saisonMobile+", posteHoraire="+posteHoraire+", a="+a+", mode="+mode+", marquage="+marquage);
+                        if (debug>=2) {
+							System.out.println(debugStartString +i+", " + saisonMobileString +saisonMobile+", " + posteHoraireString +posteHoraire+", a="+a+", " + modeString +mode+", " + marquageString +marquage);
+						}
                     }
-                    else if (type == 4) {
-                        currentElement=ELEMENT_DATATION_POSTE;
+                    else if (type == MagicNumberConstants.four.getValue()) {
+                        currentElement=elementDatationPoste;
                         int saisonMobile = (val & 0x0C00)>>10;
                         int posteHoraire = (val & 0x0300)>>8;
                         int a = (val & 0x0080)>>7;
                         int mode = (val & 0x0040)>>6;
                         int marquage = (val & 0x003F);
                         tariff=val&0xFFF;
-                        if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", saisonMobile="+saisonMobile+", posteHoraire="+posteHoraire+", a="+a+", mode="+mode+", marquage="+marquage);
+                        if (debug>=2) {
+							System.out.println(debugStartString +i+", " + saisonMobileString +saisonMobile+", " + posteHoraireString +posteHoraire+", a="+a+", " + modeString +mode+", " + marquageString +marquage);
+						}
                     }
-                    else if (type == 5) {
-                        currentElement=ELEMENT_DATATION_POSTE;
+                    else if (type == MagicNumberConstants.five.getValue()) {
+                        currentElement=elementDatationPoste;
                         int saisonMobile = (val & 0x0C00)>>10;
                         int posteHoraire = (val & 0x0300)>>8;
                         int a = (val & 0x0080)>>7;
                         int mode = (val & 0x0040)>>6;
                         int marquage = (val & 0x003F);
                         tariff=val&0xFFF;
-                        if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", saisonMobile="+saisonMobile+", posteHoraire="+posteHoraire+", a="+a+", mode="+mode+", marquage="+marquage);
+                        if (debug>=2) {
+							System.out.println(debugStartString +i+", " + saisonMobileString +saisonMobile+", " + posteHoraireString +posteHoraire+", a="+a+", " + modeString +mode+", " + marquageString +marquage);
+						}
                     }
-                    else if (type == 6) {
-                        currentElement=ELEMENT_DATATION_POSTE;
+                    else if (type == MagicNumberConstants.six.getValue()) {
+                        currentElement=elementDatationPoste;
                         int saisonMobile = (val & 0x0C00)>>10;
                         int posteHoraire = (val & 0x0300)>>8;
                         int a = (val & 0x0080)>>7;
                         int mode = (val & 0x0040)>>6;
                         int marquage = (val & 0x003F);
                         tariff=val&0xFFF;
-                        if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", saisonMobile="+saisonMobile+", posteHoraire="+posteHoraire+", a="+a+", mode="+mode+", marquage="+marquage);
+                        if (debug>=2) {
+							System.out.println(debugStartString +i+", " + saisonMobileString +saisonMobile+", " + posteHoraireString +posteHoraire+", a="+a+", " + modeString +mode+", " + marquageString +marquage);
+						}
                     }
-                    else if (type == 7) {
-                        currentElement=ELEMENT_DATATION_POSTE;
+                    else if (type == MagicNumberConstants.seven.getValue()) {
+                        currentElement=elementDatationPoste;
                         int saisonMobile = (val & 0x0C00)>>10;
                         int posteHoraire = (val & 0x0300)>>8;
                         int a = (val & 0x0080)>>7;
                         int mode = (val & 0x0040)>>6;
                         int marquage = (val & 0x003F);
                         tariff=val&0xFFF; 
-                        if (DEBUG>=2) System.out.println("KV_DEBUG> "+i+", saisonMobile="+saisonMobile+", posteHoraire="+posteHoraire+", a="+a+", mode="+mode+", marquage="+marquage);
+                        if (debug>=2) {
+							System.out.println(debugStartString +i+", " + saisonMobileString +saisonMobile+", " + posteHoraireString +posteHoraire+", a="+a+", " + modeString +mode+", " + marquageString +marquage);
+						}
                     }
                     else {
                        throw new IOException("Courbecharge, parse(), invalid element 0x"+Integer.toHexString(val)+", type="+type+", currentElement="+currentElement+", previousElement="+previousElement);
@@ -480,20 +559,27 @@ public class CourbeCharge {
             
         } // while(count<getValues().length)  
         
-        if (DEBUG>=1) System.out.println("doParse(), elementId="+elementId+" elementOffset="+elementOffset);
+        if (debug>=1) {
+			System.out.println("doParse(), elementId="+elementId+" elementOffset="+elementOffset);
+		}
         
-        elementId = elementId + (1250-elementOffset);
+        elementId = elementId + (blockSize-elementOffset);
         
-        if (DEBUG>=1) System.out.println("doParse(), elementId="+elementId+" --> elementId + (1250-elementOffset)");
+        if (debug>=1) {
+			System.out.println("doParse(), elementId="+elementId+" --> elementId + (" + blockSize + "-elementOffset)");
+		}
         
         getProfileData().setMeterEvents(meterEvents);
         getProfileData().setIntervalDatas(intervalDatas);
         getProfileData().sort();
         
-        if ((FILE_OPERATION==1) && (file)) 
-            aggregateAndRemoveDuplicates();
+        if ((fileOperation==1) && (file)) {
+			aggregateAndRemoveDuplicates();
+		}
         
-        if (DEBUG >= 1) System.out.println(getProfileData());
+        if (debug >= 1) {
+			System.out.println(getProfileData());
+		}
         
     } // public void doParse() throws IOException
     
@@ -514,7 +600,7 @@ public class CourbeCharge {
         this.trimaranObjectFactory = trimaranObjectFactory;
     }
     
-    static public void main(String[] args) {
+    public static void main(String[] args) {
         try {
             CourbeCharge cc = new CourbeCharge(null);
             cc.doParse(true);

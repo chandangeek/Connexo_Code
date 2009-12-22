@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.edf.trimarancje;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -11,7 +11,6 @@ import java.util.TimeZone;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.energyict.cbo.Unit;

@@ -41,8 +41,9 @@ public class InitiateResponse extends InitiateRespAPSE {
         int offset=0;
         offset++; // skip length
         int tag = ProtocolUtils.getInt(data,offset++,1);
-        if (tag != DLMSPDU_INITIATE_RESPONSE)
+        if (tag != DLMSPDU_INITIATE_RESPONSE){
             throw new IOException("InitiateResponse, parse, invalid tag 0x"+Integer.toHexString(tag)+" received");
+        }
         
         initiateResponseData = ProtocolUtils.getSubArray(data,offset);
         

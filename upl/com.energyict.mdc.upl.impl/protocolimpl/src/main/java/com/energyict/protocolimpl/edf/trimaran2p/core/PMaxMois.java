@@ -3,8 +3,6 @@
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 
@@ -112,37 +110,45 @@ public class PMaxMois extends AbstractTrimaranObject{
 //    	File file = new File("c://TEST_FILES/089807000857PMaxMois.bin");
 //    	FileOutputStream fos = new FileOutputStream(file);
 //    	fos.write(data);
-//    	fos.close();
+//    	fos.close(); 
 		
 		int offset = 0;
 		DataContainer dc = new DataContainer();
 		dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
 		
 		setNumMois(dc.getRoot().getInteger(offset++));
-		for(int i = 0; i < 5; i++)
+		for(int i = 0; i < 5; i++) {
 			setPApMax(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kW")), i);
+		}
 		offset++;
-		for(int i = 0; i < 5; i++)
+		for(int i = 0; i < 5; i++) {
 			setPAnMax(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kW")), i);
+		}
 		offset++;
-		for(int i = 0; i < 5; i++)
+		for(int i = 0; i < 5; i++) {
 			setPRpMax(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kW")), i);
+		}
 		offset++;
-		for(int i = 0; i < 5; i++)
+		for(int i = 0; i < 5; i++) {
 			setPRnMax(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kW")), i);
+		}
 		offset++;
 		
-		for(int i = 0; i < 5; i++)
+		for(int i = 0; i < 5; i++) {
 			setDatesPApMax(new DateType(dc.getRoot().getStructure(offset).getLong(i), getTrimaranObjectFactory().getTrimaran().getTimeZone()), i);
+		}
 		offset++;
-		for(int i = 0; i < 5; i++)
+		for(int i = 0; i < 5; i++) {
 			setDatesPAnMax(new DateType(dc.getRoot().getStructure(offset).getLong(i), getTrimaranObjectFactory().getTrimaran().getTimeZone()), i);
+		}
 		offset++;
-		for(int i = 0; i < 5; i++)
+		for(int i = 0; i < 5; i++) {
 			setDatesPRpMax(new DateType(dc.getRoot().getStructure(offset).getLong(i), getTrimaranObjectFactory().getTrimaran().getTimeZone()), i);
+		}
 		offset++;
-		for(int i = 0; i < 5; i++)
+		for(int i = 0; i < 5; i++) {
 			setDatesPRnMax(new DateType(dc.getRoot().getStructure(offset).getLong(i), getTrimaranObjectFactory().getTrimaran().getTimeZone()), i);
+		}
 		offset++;
 	}
 

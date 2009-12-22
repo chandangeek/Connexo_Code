@@ -16,7 +16,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
@@ -27,7 +26,6 @@ import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.edf.trimaran2p.core.TrimaranObjectFactory;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.APSEPDUFactory;
-import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.StatusIdentify;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu.DLMSPDUFactory;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.APSEParameters;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.Connection62056;
@@ -69,10 +67,11 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	protected void doConnect() throws IOException {
 		getAPSEFactory().getAuthenticationReqAPSE();
 		getDLMSPDUFactory().getInitiateRequest();
-		if(getDLMSPDUFactory().getStatusResponse().getStatusIdentifies()[0].getResources().indexOf("TEC") != -1)
+		if(getDLMSPDUFactory().getStatusResponse().getStatusIdentifies()[0].getResources().indexOf("TEC") != -1){
 			setMeterVersion("TEC");
-		else if(getDLMSPDUFactory().getStatusResponse().getStatusIdentifies()[0].getResources().indexOf("TEP") != -1)
+		} else if(getDLMSPDUFactory().getStatusResponse().getStatusIdentifies()[0].getResources().indexOf("TEP") != -1) {
 			setMeterVersion("TEP");
+		}
 		getLogger().info(getDLMSPDUFactory().getStatusResponse().toString());
 	}
 
@@ -85,10 +84,14 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	}
 	
 	protected void validateSerialNumber() throws IOException{
-		if((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber()) == 0)) return;
+		if((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber()) == 0)) {
+			return;
+		}
 		
 		String serialNumber = getDLMSPDUFactory().getStatusResponse().getSerialNumber();
-		if(serialNumber.compareTo(getInfoTypeSerialNumber()) == 0) return;
+		if(serialNumber.compareTo(getInfoTypeSerialNumber()) == 0) {
+			return;
+		}
 		
 		throw new IOException("SerialNumber mismatch! Meter serialNumber = "+serialNumber+", configured serialNumber = "+getInfoTypeSerialNumber());
 	}
@@ -152,10 +155,11 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 		
 		setInfoTypePassword(properties.getProperty(MeterProtocol.PASSWORD,"0000000000000000"));
 		
-        if(Integer.parseInt(properties.getProperty("DelayAfterConnect", "0")) == 1)
-        	delayAfterConnect = 6000;
-        else 
-        	delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "0").trim());
+        if(Integer.parseInt(properties.getProperty("DelayAfterConnect", "0")) == 1) {
+			delayAfterConnect = 6000;
+		} else {
+			delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "0").trim());
+		}
         
         try {
 			getAPSEParameters().setKey(ProtocolUtils.convert2ascii(getInfoTypePassword().getBytes()));
@@ -166,10 +170,11 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	}
 	
 	public int getNumberOfChannels() throws IOException{
-		if(getTrimaranObjectFactory().readParameters().isCcReact())
+		if(getTrimaranObjectFactory().readParameters().isCcReact()) {
 			return 6;
-		else
+		} else {
 			return 2;
+		}
 	}
 	
 	public int getProfileInterval() throws IOException{
@@ -233,8 +238,9 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
     } 
 	
 	public RegisterFactory getRegisterFactory() throws IOException{
-		if(registerFactory == null)
+		if(registerFactory == null) {
 			setRegisterFactory(new RegisterFactory(this));
+		}
 		return registerFactory;
 	}
 	
@@ -369,17 +375,19 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	}
 	
 	public boolean isTECMeter(){
-		if(getMeterVersion().equalsIgnoreCase("TEC"))
+		if(getMeterVersion().equalsIgnoreCase("TEC")) {
 			return true;
-		else
+		} else {
 			return false;
+		}
 	}
 	
 	public boolean isTEPMeter(){
-		if(getMeterVersion().equalsIgnoreCase("TEP"))
+		if(getMeterVersion().equalsIgnoreCase("TEP")) {
 			return true;
-		else
+		} else {
 			return false;
+		}
 	}
 
 }

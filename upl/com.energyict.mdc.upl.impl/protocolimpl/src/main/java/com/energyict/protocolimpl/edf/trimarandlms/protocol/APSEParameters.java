@@ -10,7 +10,6 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import com.energyict.protocol.*;
     
 /**
  *
@@ -64,8 +63,9 @@ public class APSEParameters {
     public boolean checkCipheredClientRandom(byte[] cipheredClientRandom2Check) {        
         byte[] cipheredClientRandom = SHA1Encryptor.getCipheredRandomNumber(getClientRandom(), getKey());        
         for (int i=0;i<cipheredClientRandom.length;i++) {
-            if (cipheredClientRandom2Check[i] != cipheredClientRandom[i])
+            if (cipheredClientRandom2Check[i] != cipheredClientRandom[i]){
                 return false;
+            }
         }
         return true;
     }

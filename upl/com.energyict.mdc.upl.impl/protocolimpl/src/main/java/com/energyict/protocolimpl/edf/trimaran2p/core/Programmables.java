@@ -40,17 +40,19 @@ public class Programmables{
 		setNombre(dc.getRoot().getInteger(offset++));
 		setDernierHorodate(new DateType(dc.getRoot().getLong(offset++), timeZone));
 		for(int i = 0; i < 6; i++){
-			if (i < 2)
+			if (i < 2) {
 				setIxProg(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kWh")), i);
-			else
+			} else {
 				setIxProg(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kvarh")), i);
+			}
 		}
 		offset++;
 		for(int i = 0; i < 6; i++){
-			if (i < 2)
+			if (i < 2) {
 				setIxProgMoins1(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kWh")), i);
-			else
+			} else {
 				setIxProgMoins1(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kvarh")), i);
+			}
 		}
 		
 	}

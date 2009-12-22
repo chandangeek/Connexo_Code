@@ -58,16 +58,18 @@ public class TrimaranProfile {
     			// in the ACCOR project.
     			//**********************************************************************************
 	    		while(true){
-	    			if(getDemandData() == null)
+	    			if(getDemandData() == null){
 	    				setDemandData(trimaran.getDataFactory().getDemandData(pointer));
+	    			}
 	    			if (pointer == 1){
 	    				if(Arrays.equals(getDemandData(0).getData(), getDemandData(1).getData())){
 	    					break;          
 	    				}
 	    			}
 	    			incrementPointer();
-	    			if (pointer >= 16)
-	    				break;
+	    			if (pointer >= 16) {
+						break;
+					}
 	    		}
 	    		if(pointer >= 16){
 	    			
@@ -105,8 +107,9 @@ public class TrimaranProfile {
     }
     
     public int getProfileInterval() throws IOException{
-    	if(getDemandData() == null)
-    		setDemandData(trimaran.getDataFactory().getDemandData());
+    	if(getDemandData() == null) {
+			setDemandData(trimaran.getDataFactory().getDemandData());
+		}
     	return getDemandData().getProfileInterval();
     }
 

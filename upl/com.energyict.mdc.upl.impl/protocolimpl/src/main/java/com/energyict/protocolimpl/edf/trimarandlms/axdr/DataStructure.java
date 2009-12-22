@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.axdr;
 
-import java.util.*;
-import java.io.*;
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
+import java.io.Serializable;
+
+import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author  Koen
@@ -53,42 +53,49 @@ public class DataStructure implements Serializable {
         StringBuffer strbuff = new StringBuffer();
         int[] intarray = ProtocolUtils.toIntArray(array);
         for (int i=0;i<intarray.length;i++) {
-            if (intarray[i] < 16) strbuff.append("0");
+            if (intarray[i] < 16){
+            	strbuff.append("0");
+            }
             strbuff.append(Integer.toHexString(intarray[i])); 
         }
         return strbuff.toString();
     }
     
     public boolean isOctetString(int index) {
-        if (element[index] instanceof OctetString)
-            return true;
-        else
-            return false;
+        if (element[index] instanceof OctetString) {
+			return true;
+		} else {
+			return false;
+		}
     }
     
     public boolean isStructure(int index) {
-        if (element[index] instanceof DataStructure)
-            return true;
-        else
-            return false;
+        if (element[index] instanceof DataStructure) {
+			return true;
+		} else {
+			return false;
+		}
     }
     public boolean isInteger(int index) {
-        if (element[index].getClass().getName().compareTo("java.lang.Integer") == 0)
-            return true;
-        else
-            return false;
+        if (element[index].getClass().getName().compareTo("java.lang.Integer") == 0) {
+			return true;
+		} else {
+			return false;
+		}
     }
     public boolean isLong(int index) {
-        if (element[index].getClass().getName().compareTo("java.lang.Long") == 0)
-            return true;
-        else
-            return false;
+        if (element[index].getClass().getName().compareTo("java.lang.Long") == 0) {
+			return true;
+		} else {
+			return false;
+		}
     }
     public boolean isString(int index) {
-        if (element[index].getClass().getName().compareTo("java.lang.String") == 0)
-            return true;
-        else
-            return false;
+        if (element[index].getClass().getName().compareTo("java.lang.String") == 0) {
+			return true;
+		} else {
+			return false;
+		}
     }
     
     public DataStructure(int iNROfEntries) {
@@ -96,11 +103,13 @@ public class DataStructure implements Serializable {
     } // public DataStructure()
     
     public long getValue(int index) {
-        if (isLong(index)) 
-            return getLong(index);
-        else if (isInteger(index))
-            return ((int)getInteger(index)& 0xffffffff);
-        else return 0;
+        if (isLong(index)) {
+			return getLong(index);
+		} else if (isInteger(index)) {
+			return ((int)getInteger(index)& 0xffffffff);
+		} else {
+			return 0;
+		}
     }
     
     public void addInteger(int index,int iValue) {
@@ -117,12 +126,13 @@ public class DataStructure implements Serializable {
     }
     
     public Long convert2Long(int index) throws IOException {
-        if (isLong(index))
-            return (Long)getElement(index);
-        else if (isInteger(index))
-            return (new Long((long)getInteger(index)));
-        else if (isString(index))
-            return (Long.decode(getString(index)));
+        if (isLong(index)) {
+			return (Long)getElement(index);
+		} else if (isInteger(index)) {
+			return (new Long((long)getInteger(index)));
+		} else if (isString(index)) {
+			return (Long.decode(getString(index)));
+		}
         
         throw new IOException("DataStructure, Error converting element of type "+element[index].getClass().getName()+" to Long object");
     }

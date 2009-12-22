@@ -10,12 +10,22 @@
 
 package com.energyict.protocolimpl.edf.trimarancje.core;
 
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.ansi.c12.procedures.SetDateTime;
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
+
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 
 /**
  *
@@ -67,22 +77,25 @@ public class DemandData extends AbstractTable {
     }
     
     public int getProfileInterval() {
-    	if(profileInterval == -1)
+    	if(profileInterval == -1){
     		return profileChoises[choise];
-    	else
-    		return profileInterval;
+    	} else {
+			return profileInterval;
+		}
     }
     
     private TimeZone getTimeZone() {
-        if (getDataFactory()==null)
-            return TimeZone.getTimeZone("ECT");
-        else
-            return getDataFactory().getTrimaran().getTimeZone();
+        if (getDataFactory()==null) {
+			return TimeZone.getTimeZone("ECT");
+		} else {
+			return getDataFactory().getTrimaran().getTimeZone();
+		}
     }
     
     private void addValue(DemandValues demandValues, Interval val) {
-        if (demandValues != null)
-            demandValues.addValue(val);
+        if (demandValues != null) {
+			demandValues.addValue(val);
+		}
     }
     
     private DemandValues createDemandValues(Calendar cal, int tariff) {
@@ -112,15 +125,19 @@ public class DemandData extends AbstractTable {
         try {
             while(true) {
             	
-            	if (offset == data.length)
-            		break;
+            	if (offset == data.length) {
+					break;
+				}
             	
                 int temp = ProtocolUtils.getIntLE(data,offset, 2); offset+=2;
                     
                 if ((temp&0x8000)==0) {
-                	if(traceCalendar != null)
-                		traceCalendar.add(Calendar.SECOND, getProfileInterval());
-                    if (DEBUG>=2) System.out.println("value = "+temp); 
+                	if(traceCalendar != null) {
+						traceCalendar.add(Calendar.SECOND, getProfileInterval());
+					}
+                    if (DEBUG>=2) {
+						System.out.println("value = "+temp);
+					} 
                     infoDeCoupure = (temp&0x6000) >> 13;
                     if( (demandValues != null) && (posteHoraire == -1) ){
                     	posteHoraire = (temp&0x1800) >> 11 ;		
@@ -136,10 +153,11 @@ public class DemandData extends AbstractTable {
                     	addValue(demandValues, new Interval(valDePuissance, IntervalStateBits.POWERDOWN|IntervalStateBits.POWERUP));
                     }break;
                     case 2:{
-                    	if(valDePuissance==0)
-                    		addValue(demandValues, new Interval(valDePuissance, IntervalStateBits.MISSING));
+                    	if(valDePuissance==0) {
+							addValue(demandValues, new Interval(valDePuissance, IntervalStateBits.MISSING));
                     	//TODO grande coupure - greater then 60s, but can be in same interval? 
                     	// So wait until next interval to see
+						}
                     }break;
                     case 3:{
                     	addValue(demandValues, new Interval(valDePuissance, IntervalStateBits.SHORTLONG));
@@ -152,17 +170,22 @@ public class DemandData extends AbstractTable {
 
                 } else {
                     if ((temp&0x4000)==0) {		// l'élément-dates
-                    	if(DEBUG>=2)System.out.println("dates");
+                    	if(DEBUG>=2) {
+							System.out.println("dates");
+						}
                     	int temp2 = ProtocolUtils.getIntLE(data,offset, 2); offset+=2;
                     	if(((temp2&0x4000) >> 14) == 1){
                     		Calendar cal = getCurrentDate(temp&0x1FFF, temp2&0x1FFF, getTimeZone());
-                    		if (DEBUG>=2) System.out.println("date = "+cal.getTime());
+                    		if (DEBUG>=2) {
+								System.out.println("date = "+cal.getTime());
+							}
                     		if (traceCalendar == null){
                     			traceCalendar = Calendar.getInstance();
                     			traceCalendar.setTime(cal.getTime());
                     		}
-                    		if ( cal.getTimeInMillis() != traceCalendar.getTimeInMillis() )
-                    			fillInTheGaps(cal, traceCalendar, demandValues);
+                    		if ( cal.getTimeInMillis() != traceCalendar.getTimeInMillis() ) {
+								fillInTheGaps(cal, traceCalendar, demandValues);
+							}
                     		posteHoraire = -1;
                     		demandValues = createDemandValues(cal, 0);
                     	}
@@ -172,7 +195,9 @@ public class DemandData extends AbstractTable {
                     	}
                     } else {					// l'élément-heures
                     	// should never get here, the dates come first.
-                    	if(DEBUG>=2)System.out.println("houres");
+                    	if(DEBUG>=2) {
+							System.out.println("houres");
+						}
                     }
                 }
             } // while(true)
@@ -193,25 +218,29 @@ public class DemandData extends AbstractTable {
     	Calendar cal2 = null;
     	try {
 			while (true) {
-				if (offset == getData().length)
+				if (offset == getData().length) {
 					break;
+				}
 
 				int temp = ProtocolUtils.getIntLE(getData(), offset, 2);
 				offset += 2;
 				
 				if (((temp&0x6000) >> 13) == 2){ 	// in case of a gap!
-					if(checkGap(offset-2))
+					if(checkGap(offset-2)) {
 						break;
+					}
 				}
 				
-				if(cal1 != null) counter++;
+				if(cal1 != null) {
+					counter++;
+				}
 				
 				if (((temp&0x8000)>>15)==1) {
 					int temp2 = ProtocolUtils.getIntLE(data,offset, 2); offset+=2;
 					if(((temp2&0x4000) >> 14) == 1){
-						if(cal1 == null)
+						if(cal1 == null) {
 							cal1 = getCurrentDate(temp&0x1FFF, temp2&0x1FFF, getTimeZone());
-						else{
+						} else{
 							cal2 = getCurrentDate(temp&0x1FFF, temp2&0x1FFF, getTimeZone());
 							interval = (cal2.getTimeInMillis() - cal1.getTimeInMillis())/(1000*(counter-1));
 							if((interval == profileChoises[0]) || (interval == profileChoises[1]) || (interval == profileChoises[2])){
@@ -241,8 +270,9 @@ public class DemandData extends AbstractTable {
 		int counter = 0;
 		while(true){
 			
-			if (offset == getData().length)
+			if (offset == getData().length) {
 				return false;
+			}
 			
 			int temp = ProtocolUtils.getIntLE(getData(), offset, 2);
 			offset += 2;

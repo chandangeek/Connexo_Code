@@ -9,8 +9,10 @@
  */
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
-import java.util.*;
-import java.io.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -51,8 +53,9 @@ public class EnergieIndex {
         Iterator it = getEnergies().iterator();
         while(it.hasNext()) {
             Energie obj = (Energie)it.next();
-            if (obj.getVariableName() == variableName)
+            if (obj.getVariableName() == variableName){
                 return obj;
+            }
         }
         throw new IOException("EnergieIndex, invalid variableName "+variableName);
     }

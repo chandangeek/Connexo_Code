@@ -58,31 +58,35 @@ public class ArreteJournalier extends AbstractTrimaranObject{
 		
 		setDernierHoroDate(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaran().getTimeZone()));
 		for(int i = 0; i <= 5; i++){
-			if (i < 2)
+			if (i < 2){
 				setIxJour(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kWh")), i);
-			else
+			} else {
 				setIxJour(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kvarh")), i);
+			}
 		}
 		offset++;
 		for(int i = 0; i <= 5; i++){
-			if (i < 2)
+			if (i < 2) {
 				setIxJourmoins1(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kWh")), i);
-			else
+			} else {
 				setIxJourmoins1(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kvarh")), i);
+			}
 		}
 		offset++;
 		for(int i = 0; i <= 5; i++){
-			if (i < 2)
+			if (i < 2) {
 				setIxJourmoins2(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kWh")), i);
-			else 
+			} else {
 				setIxJourmoins2(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kvarh")), i);
+			}
 		}
 		offset++;
 		for(int i = 0; i <= 5; i++){
-			if (i < 2)
+			if (i < 2) {
 				setIxJourmoins3(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kWh")), i);
-			else
+			} else {
 				setIxJourmoins3(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kvarh")), i);
+			}
 		}
 	}
 

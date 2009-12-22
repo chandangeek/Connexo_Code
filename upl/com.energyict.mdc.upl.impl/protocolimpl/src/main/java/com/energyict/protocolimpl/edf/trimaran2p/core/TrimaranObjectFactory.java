@@ -135,8 +135,9 @@ public class TrimaranObjectFactory {
 		if(energieIndex == null){
 			energieIndex = new EnergieIndex();
 			energieIndex.addEnergie(readEnergieIndexReader(brute).getEnergie());
-			if(getTrimaran().isTECMeter())
+			if(getTrimaran().isTECMeter()){
 				energieIndex.addEnergie(readEnergieIndexReader(nette).getEnergie());	// not with TEP
+			}
 		}
 		return energieIndex;
 	}
@@ -189,8 +190,12 @@ public class TrimaranObjectFactory {
         AccessPartiel acp = new AccessPartiel(this);
         acp.setDateAccess(dateAccess);
         acp.setNomAccess(1);
-        if (DEBUG>=1) System.out.println("GN_DEBUG> AccesPartiel: " + acp.toString());
-        if (DEBUG>=1) System.out.println("GN_DEBUG> The DateType: " + new DateType(acp.getDateAccess(), acp.getTrimaranObjectFactory().getTrimaran().getTimeZone()));
+        if (DEBUG>=1) {
+			System.out.println("GN_DEBUG> AccesPartiel: " + acp.toString());
+		}
+        if (DEBUG>=1) {
+			System.out.println("GN_DEBUG> The DateType: " + new DateType(acp.getDateAccess(), acp.getTrimaranObjectFactory().getTrimaran().getTimeZone()));
+		}
         acp.write();
     }
     

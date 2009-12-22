@@ -1,13 +1,14 @@
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Calendar;
-import java.util.Properties;
 import java.util.TimeZone;
 
 import org.junit.After;
@@ -17,16 +18,8 @@ import org.junit.Test;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.cbo.Utils;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.LinkException;
 import com.energyict.protocolimpl.edf.trimaran2p.Trimaran2P;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
-import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.APSEPDUFactory;
-import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu.DLMSPDUFactory;
-import com.energyict.protocolimpl.edf.trimarandlms.protocol.APSEParameters;
-import com.energyict.protocolimpl.utils.Utilities;
-
-import static org.junit.Assert.*;
 
 public class TrimaranObjectFactoryTest {
 	
@@ -93,8 +86,9 @@ public class TrimaranObjectFactoryTest {
 			energieIndex = new EnergieIndex();
 			energieIndex.addEnergie(energieIndexReader.getEnergie());
 			
-			if(energieIndex.energies.size() > 1)
+			if(energieIndex.energies.size() > 1){
 				fail();
+			}
 			Quantity testIxNRJact = energieIndex.getEnergie(56).getIxNRJact(0).add(energieIndex.getEnergie(56).getNRJact_Reste(0));
 			assertEquals(expected.getAmount(), testIxNRJact.getAmount());
 			

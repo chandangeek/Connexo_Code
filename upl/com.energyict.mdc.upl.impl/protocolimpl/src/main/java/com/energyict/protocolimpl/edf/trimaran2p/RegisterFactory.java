@@ -46,8 +46,9 @@ public class RegisterFactory {
 		registers = new ArrayList();
 		buildEnergieRegisters();
 		buildTempFonctionnementRegisters();
-		if(trimaran2P.isTECMeter())
+		if(trimaran2P.isTECMeter()){
 			buildArretesRegisters();
+		}
 		
 //    	System.out.println("GN_DEBUG> write to file");
 //    	File file = new File("c://TEST_FILES/BuildedRegisters.bin");

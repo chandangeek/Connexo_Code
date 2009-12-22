@@ -71,8 +71,9 @@ public class ParametresP extends AbstractTrimaranObject {
         strBuff.append("   TC="+getTC()+"\n");
         strBuff.append("   TCourbeCharge="+getTCourbeCharge()+"\n");
         strBuff.append("   TT="+getTT()+"\n");
-        if (getTrimaranObjectFactory().getTrimaran().getVDEType().isVDEBASE() || getTrimaranObjectFactory().getTrimaran().getVDEType().isVDEEJP())
+        if (getTrimaranObjectFactory().getTrimaran().getVDEType().isVDEBASE() || getTrimaranObjectFactory().getTrimaran().getVDEType().isVDEEJP()){
             strBuff.append("   a5="+isA5()+"\n");
+        }
         strBuff.append("   codeAF="+getCodeAF()+"\n");
         for (int i=0;i<getTableauHeureJour1().length;i++) {
             strBuff.append("       tableauHeureJour1["+i+"]="+getTableauHeureJour1()[i]+"\n");
@@ -123,39 +124,47 @@ public class ParametresP extends AbstractTrimaranObject {
         setTC(dc.getRoot().getInteger(offset++));
         setTT(dc.getRoot().getInteger(offset++));
         setPS(new Quantity[dc.getRoot().getStructure(offset).getNrOfElements()]);
-        for (int i=0;i<getPS().length;i++)
-            getPS()[i] = new Quantity(new BigDecimal(""+dc.getRoot().getStructure(offset).getInteger(i)),Unit.get("kW"));
+        for (int i=0;i<getPS().length;i++) {
+			getPS()[i] = new Quantity(new BigDecimal(""+dc.getRoot().getStructure(offset).getInteger(i)),Unit.get("kW"));
+		}
         offset++;
         setKJ(dc.getRoot().getInteger(offset++));
         setKPr(dc.getRoot().getInteger(offset++));
         setKF(new Quantity(new BigDecimal(""+dc.getRoot().getInteger(offset++)),Unit.get("W")));
-        if ((getTrimaranObjectFactory().getTrimaran().getVDEType().isVDEBASE() || getTrimaranObjectFactory().getTrimaran().getVDEType().isVDEEJP()))
-            setA5((dc.getRoot().getInteger(offset++)==1));
+        if ((getTrimaranObjectFactory().getTrimaran().getVDEType().isVDEBASE() || getTrimaranObjectFactory().getTrimaran().getVDEType().isVDEEJP())) {
+			setA5((dc.getRoot().getInteger(offset++)==1));
+		}
         setTCourbeCharge(dc.getRoot().getInteger(offset++));
         setTableauHeureJour1(new int[dc.getRoot().getStructure(offset).getNrOfElements()]);
-        for (int i=0;i<getTableauHeureJour1().length;i++)
-            getTableauHeureJour1()[i] = dc.getRoot().getStructure(offset).getInteger(i);
+        for (int i=0;i<getTableauHeureJour1().length;i++) {
+			getTableauHeureJour1()[i] = dc.getRoot().getStructure(offset).getInteger(i);
+		}
         offset++;
         setTableauMinuteJour1(new int[dc.getRoot().getStructure(offset).getNrOfElements()]);
-        for (int i=0;i<getTableauMinuteJour1().length;i++)
-            getTableauMinuteJour1()[i] = dc.getRoot().getStructure(offset).getInteger(i);
+        for (int i=0;i<getTableauMinuteJour1().length;i++) {
+			getTableauMinuteJour1()[i] = dc.getRoot().getStructure(offset).getInteger(i);
+		}
         offset++;
         setTableauPosteJour1(new int[dc.getRoot().getStructure(offset).getNrOfElements()]);
-        for (int i=0;i<getTableauPosteJour1().length;i++)
-            getTableauPosteJour1()[i] = dc.getRoot().getStructure(offset).getInteger(i);
+        for (int i=0;i<getTableauPosteJour1().length;i++) {
+			getTableauPosteJour1()[i] = dc.getRoot().getStructure(offset).getInteger(i);
+		}
         offset++;
         if (getTrimaranObjectFactory().getTrimaran().getVDEType().isVDEBASE() || getTrimaranObjectFactory().getTrimaran().getVDEType().isVDEEJP()) {
             setTableauHeureJour2(new int[dc.getRoot().getStructure(offset).getNrOfElements()]);
-            for (int i=0;i<getTableauHeureJour2().length;i++)
-                getTableauHeureJour2()[i] = dc.getRoot().getStructure(offset).getInteger(i);
+            for (int i=0;i<getTableauHeureJour2().length;i++) {
+				getTableauHeureJour2()[i] = dc.getRoot().getStructure(offset).getInteger(i);
+			}
             offset++;
             setTableauMinuteJour2(new int[dc.getRoot().getStructure(offset).getNrOfElements()]);
-            for (int i=0;i<getTableauMinuteJour2().length;i++)
-                getTableauMinuteJour2()[i] = dc.getRoot().getStructure(offset).getInteger(i);
+            for (int i=0;i<getTableauMinuteJour2().length;i++) {
+				getTableauMinuteJour2()[i] = dc.getRoot().getStructure(offset).getInteger(i);
+			}
             offset++;
             setTableauPosteJour2(new int[dc.getRoot().getStructure(offset).getNrOfElements()]);
-            for (int i=0;i<getTableauPosteJour2().length;i++)
-                getTableauPosteJour2()[i] = dc.getRoot().getStructure(offset).getInteger(i);
+            for (int i=0;i<getTableauPosteJour2().length;i++) {
+				getTableauPosteJour2()[i] = dc.getRoot().getStructure(offset).getInteger(i);
+			}
             offset++;
         }
     }

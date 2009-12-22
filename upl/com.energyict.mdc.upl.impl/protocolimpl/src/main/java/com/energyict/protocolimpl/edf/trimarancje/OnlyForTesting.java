@@ -10,10 +10,15 @@
 
 package com.energyict.protocolimpl.edf.trimarancje;
 
-import com.energyict.cbo.LittleEndianInputStream;
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -55,7 +60,9 @@ public class OnlyForTesting {
             int offset=0;
             while(true) {
                 int temp = ProtocolUtils.getIntLE(data,offset, 2); offset+=2;
-                if (temp == 0xFFFF) break; // Element piontage...                if (temp == 0xFFFF) break; // Element piontage...
+                if (temp == 0xFFFF){
+                	break; // Element piontage...                if (temp == 0xFFFF) break; // Element piontage...
+                }
                 //System.out.println("offset="+offset);
                 //offset+=4;
                 if ((temp&0x8000)==0) {
@@ -175,11 +182,17 @@ public class OnlyForTesting {
                 for (quinzaineDay = 0;quinzaineDay<=15;quinzaineDay++) {
                     int deltaL,deltaH;
                     int temp = retrievalDay-quinzaineDay;
-                    if (temp<0) deltaL = retrievelMonthNrOfDays -Math.abs(temp);
-                    else deltaL=temp;
+                    if (temp<0) {
+						deltaL = retrievelMonthNrOfDays -Math.abs(temp);
+					} else {
+						deltaL=temp;
+					}
                     temp = retrievalDay-(quinzaineDay+16);
-                    if (temp<0) deltaH = retrievelMonthNrOfDays -Math.abs(temp);
-                    else deltaH=temp;
+                    if (temp<0) {
+						deltaH = retrievelMonthNrOfDays -Math.abs(temp);
+					} else {
+						deltaH=temp;
+					}
                     //if (deltaL==deltaH)
                        System.out.println("deltaL="+deltaL+", deltaH="+deltaH+", retrievelMonthNrOfDays="+retrievelMonthNrOfDays+", retrievalDay="+retrievalDay+", quinzaineDay="+quinzaineDay);
                 }
@@ -260,9 +273,9 @@ public class OnlyForTesting {
              if ((previousIntervalCalendar != null) && (intervalCalendar.getTime().after(previousIntervalCalendar.getTime()))) {
                  intervalCalendar.add(Calendar.DAY_OF_MONTH,-12);
                  System.out.println("interval calendar after correction (-12) = "+intervalCalendar.getTime());
-             }
-             else
-                 System.out.println("interval calendar = "+intervalCalendar.getTime());
+             } else {
+				System.out.println("interval calendar = "+intervalCalendar.getTime());
+			}
              
              //System.out.println("now - 13 d = "+retrievalCalendar.getTime());
              previousIntervalCalendar = intervalCalendar;

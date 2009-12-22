@@ -45,8 +45,9 @@ public class EnergieIndex {
         Iterator it = getEnergies().iterator();
         while(it.hasNext()) {
             Energies obj = (Energies)it.next();
-            if (obj.getVariableName() == variableName)
-                return obj;
+            if (obj.getVariableName() == variableName){
+            	return obj;
+            }
         }
         throw new IOException("EnergieIndex, invalid variableName "+variableName);
 	}
