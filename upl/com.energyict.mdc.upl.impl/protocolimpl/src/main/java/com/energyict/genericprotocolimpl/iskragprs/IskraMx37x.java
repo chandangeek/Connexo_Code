@@ -693,8 +693,10 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 	
 	private void disConnect(){
        try {
-         	  secureConnection.disConnect();
-         	  getDLMSConnection().disconnectMAC();
+    	   if(secureConnection != null){
+    		   secureConnection.disConnect();
+    		   getDLMSConnection().disconnectMAC();
+    	   }
         } catch(DLMSConnectionException e) {
            logger.severe("DLMSLN: disconnect(), "+e.getMessage());
         } catch (IOException e) {
