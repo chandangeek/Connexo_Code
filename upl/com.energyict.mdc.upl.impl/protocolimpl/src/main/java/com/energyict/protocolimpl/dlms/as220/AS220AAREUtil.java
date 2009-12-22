@@ -1,0 +1,190 @@
+package com.energyict.protocolimpl.dlms.as220;
+
+import java.io.IOException;
+
+import com.energyict.protocol.ProtocolUtils;
+
+/**
+ * Util class containing stsic methods only used by the {@link AS220} protocol
+ *
+ * @author jme
+ */
+public class AS220AAREUtil {
+
+	private static final byte	AARE_APPLICATION_CONTEXT_NAME		= (byte) 0xA1;
+	private static final byte	AARE_RESULT							= (byte) 0xA2;
+	private static final byte	AARE_RESULT_SOURCE_DIAGNOSTIC		= (byte) 0xA3;
+	private static final byte	AARE_USER_INFORMATION				= (byte) 0xBE;
+
+	private static final byte	AARE_TAG							= 0x61;
+
+	private static final byte	ACSE_SERVICE_USER					= (byte) 0xA1;
+	private static final byte	ACSE_SERVICE_PROVIDER				= (byte) 0xA2;
+
+	private static final byte	DLMS_PDU_INITIATE_RESPONSE			= (byte) 0x08;
+	private static final byte	DLMS_PDU_CONFIRMED_SERVICE_ERROR	= (byte) 0x0E;
+
+	public static void checkAARE(byte[] responseData) throws IOException {
+		int i;
+
+		String strResultSourceDiagnostics = "";
+		InitiateResponse initiateResponse = new InitiateResponse();
+
+		i = 0;
+		while (true) {
+			if (responseData[i] == AARE_TAG) {
+				i += 2; // skip tag & length
+				while (true) {
+					if (responseData[i] == AARE_APPLICATION_CONTEXT_NAME) {
+						i++; // skip tag
+						i += responseData[i]; // skip length + data
+					} // if (responseData[i] == AARE_APPLICATION_CONTEXT_NAME)
+
+					else if (responseData[i] == AARE_RESULT) {
+						i++; // skip tag
+						if ((responseData[i] == 3) && (responseData[i + 1] == 2) && (responseData[i + 2] == 1) && (responseData[i + 3] == 0)) {
+							// Result OK
+							return;
+						}
+						i += responseData[i]; // skip length + data
+					} // else if (responseData[i] == AARE_RESULT)
+
+					else if (responseData[i] == AARE_RESULT_SOURCE_DIAGNOSTIC) {
+						i++; // skip tag
+						if (responseData[i] == 5) // check length
+						{
+							if (responseData[i + 1] == ACSE_SERVICE_USER) {
+								if ((responseData[i + 2] == 3) && (responseData[i + 3] == 2) && (responseData[i + 4] == 1)) {
+									if (responseData[i + 5] == 0x00) {
+										strResultSourceDiagnostics += ", ACSE_SERVICE_USER";
+									} else if (responseData[i + 5] == 0x01) {
+										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, no reason given";
+									} else if (responseData[i + 5] == 0x02) {
+										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Application Context Name Not Supported";
+									} else if (responseData[i + 5] == 0x0B) {
+										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Not Recognised";
+									} else if (responseData[i + 5] == 0x0C) {
+										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Required";
+									} else if (responseData[i + 5] == 0x0D) {
+										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Failure";
+									} else if (responseData[i + 5] == 0x0E) {
+										strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Required";
+									} else {
+										throw new IOException("Application Association Establishment failed, ACSE_SERVICE_USER, unknown result!");
+									}
+								} else {
+									throw new IOException(
+											"Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_USER,  wrong tag");
+								}
+							} else if (responseData[i + 1] == ACSE_SERVICE_PROVIDER) {
+								if ((responseData[i + 2] == 3) && (responseData[i + 3] == 2) && (responseData[i + 4] == 1)) {
+									if (responseData[i + 5] == 0x00) {
+										strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER!";
+									} else if (responseData[i + 5] == 0x01) {
+										strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER, No Reason Given!";
+									} else if (responseData[i + 5] == 0x02) {
+										strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER, No Common ACSE Version!";
+									} else {
+										throw new IOException("Application Association Establishment Failed, ACSE_SERVICE_PROVIDER, unknown result");
+									}
+								} else {
+									throw new IOException(
+											"Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_PROVIDER,  wrong tag");
+								}
+							} else {
+								throw new IOException("Application Association Establishment Failed, result_source_diagnostic,  wrong tag");
+							}
+						} else {
+							throw new IOException("Application Association Establishment Failed, result_source_diagnostic, wrong length");
+						}
+
+						i += responseData[i]; // skip length + data
+					} // else if (responseData[i] ==
+					// AARE_RESULT_SOURCE_DIAGNOSTIC)
+
+					else if (responseData[i] == AARE_USER_INFORMATION) {
+						i++; // skip tag
+						if (DLMS_PDU_INITIATE_RESPONSE == responseData[i + 3]) {
+							initiateResponse.setbNegotiatedQualityOfService(responseData[i + 4]);
+							initiateResponse.setbNegotiatedDLMSVersionNR(responseData[i + 5]);
+							// conformance has only 3 bytes, 24 bit
+							initiateResponse.setlNegotiatedConformance((ProtocolUtils.getInt(responseData, i + 8) & 0x00FFFFFF));
+							initiateResponse.setsServerMaxReceivePduSize(ProtocolUtils.getShort(responseData, i + 12));
+							initiateResponse.setsVAAName(ProtocolUtils.getShort(responseData, i + 14));
+							/*
+							 * System.out.println(initiateResponse.bNegotiatedDLMSVersionNR
+							 * + " "+
+							 * initiateResponse.bNegotiatedQualityOfService +
+							 * " "+
+							 * initiateResponse.lNegotiatedConformance + " "+
+							 * initiateResponse.sServerMaxReceivePduSize + " " +
+							 * initiateResponse.sVAAName);
+							 */
+
+						} else if (DLMS_PDU_CONFIRMED_SERVICE_ERROR == responseData[i + 3]) {
+							if (0x01 == responseData[i + 4]) {
+								strResultSourceDiagnostics += ", InitiateError";
+							} else if (0x02 == responseData[i + 4]) {
+								strResultSourceDiagnostics += ", getStatus";
+							} else if (0x03 == responseData[i + 4]) {
+								strResultSourceDiagnostics += ", getNameList";
+							} else if (0x13 == responseData[i + 4]) {
+								strResultSourceDiagnostics += ", terminateUpload";
+							} else {
+								throw new IOException(
+										"Application Association Establishment Failed, AARE_USER_INFORMATION, unknown ConfirmedServiceError choice");
+							}
+
+							if (0x06 != responseData[i + 5]) {
+								strResultSourceDiagnostics += ", No ServiceError tag";
+							}
+
+							if (0x00 == responseData[i + 6]) {
+								strResultSourceDiagnostics += "";
+							} else if (0x01 == responseData[i + 6]) {
+								strResultSourceDiagnostics += ", DLMS version too low";
+							} else if (0x02 == responseData[i + 6]) {
+								strResultSourceDiagnostics += ", Incompatible conformance";
+							} else if (0x03 == responseData[i + 6]) {
+								strResultSourceDiagnostics = ", pdu size too short";
+							} else if (0x04 == responseData[i + 6]) {
+								strResultSourceDiagnostics = ", refused by the VDE handler";
+							} else {
+								throw new IOException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons ");
+							}
+						} else {
+							throw new IOException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons!");
+						}
+
+						i += responseData[i]; // skip length + data
+					} // else if (responseData[i] == AARE_USER_INFORMATION)
+					else {
+						i++; // skip tag
+						// Very tricky, suppose we receive a length > 128
+						// because of corrupted data,
+						// then if we keep byte, it is signed and we can enter a
+						// LOOP because length will
+						// be subtracted from i!!!
+						i += ((responseData[i]) & 0x000000FF); // skip length +
+						// data
+					}
+
+					if (i++ >= (responseData.length - 1)) {
+						i = (responseData.length - 1);
+						break;
+					}
+				} // while(true)
+
+			} // if (responseData[i] == AARE_TAG)
+
+			if (i++ >= (responseData.length - 1)) {
+				i = (responseData.length - 1);
+				break;
+			}
+		} // while(true)
+
+		throw new IOException("Application Association Establishment Failed" + strResultSourceDiagnostics);
+
+	} // void CheckAARE(byte[] responseData) throws IOException
+
+}
