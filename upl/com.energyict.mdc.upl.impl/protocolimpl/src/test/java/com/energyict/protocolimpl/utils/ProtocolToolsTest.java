@@ -142,18 +142,18 @@ public class ProtocolToolsTest {
 	}
 
 	/**
-	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#getMergedArray(byte[], byte[])}.
+	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#concatByteArrays(byte[], byte[])}.
 	 */
 	@Test
-	public final void testGetMergedArray() {
-		assertArrayEquals(MERGE_ARRAY1, ProtocolTools.getMergedArray(MERGE_ARRAY1, new byte[0]));
-		assertArrayEquals(MERGE_ARRAY2, ProtocolTools.getMergedArray(new byte[0], MERGE_ARRAY2));
-		assertArrayEquals(MERGE_ARRAY1, ProtocolTools.getMergedArray(MERGE_ARRAY1, null));
-		assertArrayEquals(MERGE_ARRAY2, ProtocolTools.getMergedArray(null, MERGE_ARRAY2));
-		assertArrayEquals(new byte[0], ProtocolTools.getMergedArray(new byte[0], null));
-		assertArrayEquals(new byte[0], ProtocolTools.getMergedArray(null, new byte[0]));
-		assertArrayEquals(new byte[0], ProtocolTools.getMergedArray(null, null));
-		assertArrayEquals(MERGED_ARRAY, ProtocolTools.getMergedArray(MERGE_ARRAY1, MERGE_ARRAY2));
+	public final void testConcatByteArray() {
+		assertArrayEquals(MERGE_ARRAY1, ProtocolTools.concatByteArrays(MERGE_ARRAY1, new byte[0]));
+		assertArrayEquals(MERGE_ARRAY2, ProtocolTools.concatByteArrays(new byte[0], MERGE_ARRAY2));
+		assertArrayEquals(MERGE_ARRAY1, ProtocolTools.concatByteArrays(MERGE_ARRAY1, null));
+		assertArrayEquals(MERGE_ARRAY2, ProtocolTools.concatByteArrays(null, MERGE_ARRAY2));
+		assertArrayEquals(new byte[0], ProtocolTools.concatByteArrays(new byte[0], null));
+		assertArrayEquals(new byte[0], ProtocolTools.concatByteArrays(null, new byte[0]));
+		assertArrayEquals(new byte[0], ProtocolTools.concatByteArrays(null, null));
+		assertArrayEquals(MERGED_ARRAY, ProtocolTools.concatByteArrays(MERGE_ARRAY1, MERGE_ARRAY2));
 	}
 
 	/**
@@ -248,7 +248,7 @@ public class ProtocolToolsTest {
 		ProtocolTools.writeBytesToFile(FILENAME_TO_WRITE, BYTE_ARRAY, false);
 		assertArrayEquals(BYTE_ARRAY, ProtocolTools.readBytesFromFile(FILENAME_TO_WRITE));
 		ProtocolTools.writeBytesToFile(FILENAME_TO_WRITE, BYTE_ARRAY, true);
-		assertArrayEquals(ProtocolTools.getMergedArray(BYTE_ARRAY, BYTE_ARRAY), ProtocolTools.readBytesFromFile(FILENAME_TO_WRITE));
+		assertArrayEquals(ProtocolTools.concatByteArrays(BYTE_ARRAY, BYTE_ARRAY), ProtocolTools.readBytesFromFile(FILENAME_TO_WRITE));
 	}
 
 }

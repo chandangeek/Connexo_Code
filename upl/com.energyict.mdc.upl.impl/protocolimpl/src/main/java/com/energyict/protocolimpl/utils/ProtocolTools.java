@@ -124,7 +124,7 @@ public final class ProtocolTools {
 	 * @param secondArray
 	 * @return
 	 */
-	public static byte[] getMergedArray(final byte[] firstArray, final byte[] secondArray) {
+	public static byte[] concatByteArrays(final byte[] firstArray, final byte[] secondArray) {
 		if (firstArray == null) {
 			if (secondArray == null) {
 				return new byte[0];
