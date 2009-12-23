@@ -1,25 +1,26 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import java.util.Date;
-
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Integer8;
 
 public class AXDRBoolean {
 
-	
-	static public Integer8 encode(boolean val) {
-		return new Integer8(val?1:0);
+	private static final int	TRUE_VALUE	= 1;
+
+	/**
+	 * @param val
+	 * @return
+	 */
+	public static Integer8 encode(boolean val) {
+		return new Integer8(val ? TRUE_VALUE : 0);
 	}
-	
-	static public boolean decode(AbstractDataType dataType) {
-		return dataType.intValue()==1?true:false;
-	}	
-	
-	static public void main(String[] args) {
-		boolean val = false;
-		Integer8 o = encode(val);
-		System.out.println(o);
-		System.out.println(decode(o));
+
+	/**
+	 * @param dataType
+	 * @return
+	 */
+	public static boolean decode(AbstractDataType dataType) {
+		return (dataType != null) && (dataType.intValue() == TRUE_VALUE ? true : false);
 	}
-	
+
 }
