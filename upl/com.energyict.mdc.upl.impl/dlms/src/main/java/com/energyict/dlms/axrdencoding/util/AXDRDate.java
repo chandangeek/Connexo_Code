@@ -6,7 +6,7 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.NullData;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 
-public class AXDRDate {
+public final class AXDRDate {
 
 	/**
 	 * Hide the constructor for a utility class. All the methods are static

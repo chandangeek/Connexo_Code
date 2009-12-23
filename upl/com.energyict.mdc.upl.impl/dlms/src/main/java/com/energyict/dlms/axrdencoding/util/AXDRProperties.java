@@ -10,7 +10,7 @@ import com.energyict.dlms.axrdencoding.Integer32;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 
-public class AXDRProperties {
+public final class AXDRProperties {
 
 	/**
 	 * Hide the constructor for a utility class. All the methods are static
@@ -61,7 +61,7 @@ public class AXDRProperties {
 			if (keyValue.getDataType(0).isOctetString()) {
 				key = keyValue.getDataType(0).getOctetString().stringValue();
 			} else if (keyValue.getDataType(0).isInteger32()) {
-				key = new Integer(keyValue.getDataType(0).intValue());
+				key = Integer.valueOf(keyValue.getDataType(0).intValue());
 			}
 
 			String value = keyValue.getDataType(1).getOctetString().stringValue();

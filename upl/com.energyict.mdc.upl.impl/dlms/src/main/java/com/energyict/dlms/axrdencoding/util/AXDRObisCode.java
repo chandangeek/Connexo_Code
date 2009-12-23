@@ -4,7 +4,7 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.obis.ObisCode;
 
-public class AXDRObisCode {
+public final class AXDRObisCode {
 
 	/**
 	 * Hide the constructor for a utility class. All the methods are static
@@ -25,8 +25,7 @@ public class AXDRObisCode {
 	 * @return
 	 */
 	public static ObisCode decode(AbstractDataType dataType) {
-		ObisCode obisCode = ObisCode.fromString(dataType.getOctetString().stringValue());
-		return obisCode;
+		return ObisCode.fromString(dataType.getOctetString().stringValue());
 	}
 
 }

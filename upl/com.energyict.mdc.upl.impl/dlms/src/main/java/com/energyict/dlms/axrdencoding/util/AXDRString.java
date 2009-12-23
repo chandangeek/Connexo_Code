@@ -4,7 +4,7 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.NullData;
 import com.energyict.dlms.axrdencoding.OctetString;
 
-public class AXDRString {
+public final class AXDRString {
 
 	/**
 	 * Hide the constructor for a utility class. All the methods are static
@@ -16,7 +16,7 @@ public class AXDRString {
 	 * @param string
 	 * @return
 	 */
-	public AbstractDataType encode(String string) {
+	public static AbstractDataType encode(String string) {
 		if (string == null) {
 			return new NullData();
 		} else {
@@ -28,7 +28,7 @@ public class AXDRString {
 	 * @param dataType
 	 * @return
 	 */
-	public String decode(AbstractDataType dataType) {
+	public static String decode(AbstractDataType dataType) {
 		if (dataType.isNullData()) {
 			return null;
 		} else {

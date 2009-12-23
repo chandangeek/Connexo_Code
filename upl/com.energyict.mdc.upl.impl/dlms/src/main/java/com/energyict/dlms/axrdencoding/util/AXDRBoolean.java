@@ -3,7 +3,7 @@ package com.energyict.dlms.axrdencoding.util;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Integer8;
 
-public class AXDRBoolean {
+public final class AXDRBoolean {
 
 	private static final int	TRUE_VALUE	= 1;
 

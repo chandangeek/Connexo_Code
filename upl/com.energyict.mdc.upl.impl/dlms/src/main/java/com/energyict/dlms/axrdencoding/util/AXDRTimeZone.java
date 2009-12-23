@@ -5,7 +5,7 @@ import java.util.TimeZone;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 
-public class AXDRTimeZone {
+public final class AXDRTimeZone {
 
 	/**
 	 * Hide the constructor for a utility class. All the methods are static
@@ -26,8 +26,7 @@ public class AXDRTimeZone {
 	 * @return
 	 */
 	public static TimeZone decode(AbstractDataType dataType) {
-		TimeZone timeZone = TimeZone.getTimeZone(dataType.getOctetString().stringValue());
-		return timeZone;
+		return TimeZone.getTimeZone(dataType.getOctetString().stringValue());
 	}
 
 }

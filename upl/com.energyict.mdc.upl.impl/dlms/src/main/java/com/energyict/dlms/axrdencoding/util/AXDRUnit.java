@@ -4,7 +4,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 
-public class AXDRUnit {
+public final class AXDRUnit {
 
 	/**
 	 * Hide the constructor for a utility class. All the methods are static
@@ -25,8 +25,7 @@ public class AXDRUnit {
 	 * @return
 	 */
 	public static Unit decode(AbstractDataType dataType) {
-		Unit unit = Unit.fromDb(dataType.getOctetString().stringValue());
-		return unit;
+		return Unit.fromDb(dataType.getOctetString().stringValue());
 	}
 
 }

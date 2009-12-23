@@ -5,7 +5,7 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Integer32;
 import com.energyict.dlms.axrdencoding.Structure;
 
-public class AXDRTimeDuration {
+public final class AXDRTimeDuration {
 
 	/**
 	 * Hide the constructor for a utility class. All the methods are static
