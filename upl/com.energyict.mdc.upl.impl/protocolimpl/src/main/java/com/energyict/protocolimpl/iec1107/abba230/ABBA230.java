@@ -77,7 +77,7 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 /** @author  fbo */
 /*
- * 
+ *
  * KV	25112008 	Changed authentication mechanism with new security level
  * KV	02122008 	Add intervalstate bits to logbook
  * JME	23012009	Fixed Java 1.5 <=> 1.4 issues to port from 8.1 to 7.5, 7.3 or 7.1
@@ -86,7 +86,7 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
  * JME	24032009	Added delay during close contactor message execution between the ARM and CLOSE command.
  * JME	27032009	Made extended logging more robust for meter configuration
  * JME	02042009	Moved contactor code to new class and fixed bug in close message (Mantis issue 4047)
- * 
+ *
  */
 
 public class ABBA230 implements
@@ -1255,19 +1255,23 @@ RegisterProtocol, MessageProtocol, EventMapper {
 
 	}
 
+	public ABBA230RegisterFactory getRegisterFactory() {
+		return rFactory;
+	}
+
 	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 
 		try {
 			if (messageEntry.getContent().indexOf("<"+DISCONNECT)>=0) {
-				ContactorController cc = new ABBA230ContactorController(this.rFactory, this.logger);
+				ContactorController cc = new ABBA230ContactorController(this);
 				cc.doDisconnect();
 			}
 			else if (messageEntry.getContent().indexOf("<"+CONNECT)>=0) {
-				ContactorController cc = new ABBA230ContactorController(this.rFactory, this.logger);
+				ContactorController cc = new ABBA230ContactorController(this);
 				cc.doConnect();
 			}
 			else if (messageEntry.getContent().indexOf("<"+ARM)>=0) {
-				ContactorController cc = new ABBA230ContactorController(this.rFactory, this.logger);
+				ContactorController cc = new ABBA230ContactorController(this);
 				cc.doArm();
 			}
 			else if (messageEntry.getContent().indexOf("<"+TARIFFPROGRAM)>=0) {

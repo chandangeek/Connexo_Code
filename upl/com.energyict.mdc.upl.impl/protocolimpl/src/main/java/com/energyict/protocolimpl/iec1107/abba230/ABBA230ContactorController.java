@@ -3,28 +3,30 @@ package com.energyict.protocolimpl.iec1107.abba230;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.base.ContactorController;
+import com.energyict.protocolimpl.base.AbstractContactorController;
 
-public class ABBA230ContactorController implements ContactorController {
+public class ABBA230ContactorController extends AbstractContactorController {
 
-	private static final int DEBUG 							= 0;
-	private static final int CONTACTOR_STATE_CONNECTED 		= 0x00;
-	private static final int CONTACTOR_STATE_DISCONNECTED 	= 0x01;
-	private static final int CONTACTOR_STATE_ARMED 			= 0x03;
-	private static final long CONTACTOR_DELAY 				= 2000;
-	private static final int CONTACTOR_RETRIES 				= 5;
-
-	private ABBA230RegisterFactory rFactory = null;
-	private Logger logger = null;
+	private static final int	CONTACTOR_STATE_CONNECTED		= 0x00;
+	private static final int	CONTACTOR_STATE_DISCONNECTED	= 0x01;
+	private static final int	CONTACTOR_STATE_ARMED			= 0x03;
+	private static final long	CONTACTOR_DELAY					= 2000;
+	private static final int	CONTACTOR_RETRIES				= 5;
 
 	/*
 	 * Constructors
 	 */
 
-	public ABBA230ContactorController(ABBA230RegisterFactory rFactory, Logger logger) {
-		this.rFactory = rFactory;
-		this.logger = logger;
+	public ABBA230ContactorController(ABBA230 protocol) {
+		super(protocol);
+	}
+
+	private Logger getLogger() {
+		return ((ABBA230) getProtocol()).getLogger();
+	}
+
+	private ABBA230RegisterFactory getRegisterFactory() {
+		return ((ABBA230) getProtocol()).getRegisterFactory();
 	}
 
 	/*
@@ -36,7 +38,7 @@ public class ABBA230ContactorController implements ContactorController {
 		if (contactorState != CONTACTOR_STATE_DISCONNECTED) {
 			return contactorState;
 		}
-		this.rFactory.setRegister("ContactorStatus",new byte[]{0}); // arm the contactor for closing
+		getRegisterFactory().setRegister("ContactorStatus", new byte[] { 0 }); // arm the contactor for closing
 		return checkContactorState(CONTACTOR_STATE_ARMED);
 	}
 
@@ -45,7 +47,7 @@ public class ABBA230ContactorController implements ContactorController {
 		if (contactorState != CONTACTOR_STATE_ARMED) {
 			return contactorState;
 		}
-		this.rFactory.setRegister("ContactorCloser",new byte[]{0}); // close the armed contactor
+		getRegisterFactory().setRegister("ContactorCloser", new byte[] { 0 }); // close the armed contactor
 		return checkContactorState(CONTACTOR_STATE_CONNECTED);
 	}
 
@@ -54,7 +56,7 @@ public class ABBA230ContactorController implements ContactorController {
 		if ((contactorState != CONTACTOR_STATE_CONNECTED)) {
 			return contactorState;
 		}
-		this.rFactory.setRegister("ContactorStatus",new byte[]{1}); // open the contactor
+		getRegisterFactory().setRegister("ContactorStatus", new byte[] { 1 }); // open the contactor
 		return checkContactorState(CONTACTOR_STATE_DISCONNECTED);
 	}
 
@@ -64,18 +66,18 @@ public class ABBA230ContactorController implements ContactorController {
 			if (state == expected) {
 				return state;
 			}
-			try {Thread.sleep(CONTACTOR_DELAY);} catch (InterruptedException e) {}
+			try {
+				Thread.sleep(CONTACTOR_DELAY);
+			} catch (InterruptedException e) {
+			}
 			state = readContactorState();
 		}
 		return state;
 	}
 
 	private int readContactorState() throws IOException {
-		long val = ((Long)this.rFactory.getRegister("ContactorStatus")).longValue();
-		if (DEBUG > 0) {
-			System.out.println("readContactorState: contactorStatus = " + val);
-		}
-		return (int)(val & 0x00000003);
+		long val = ((Long) getRegisterFactory().getRegister("ContactorStatus")).longValue();
+		return (int) (val & 0x00000003);
 	}
 
 	/*
@@ -83,67 +85,63 @@ public class ABBA230ContactorController implements ContactorController {
 	 */
 
 	public void doConnect() throws IOException {
-		this.logger.info("*************************** CONNECT CONTACTOR **************************");
+		getLogger().info("*************************** CONNECT CONTACTOR **************************");
 
 		int state = armContactor();
 		if (state == CONTACTOR_STATE_ARMED) {
-			this.logger.info(" [CONNECT CONTACTOR] Meter set to ARMED state.");
-		} else	if (state == CONTACTOR_STATE_CONNECTED) {
-			this.logger.warning(" [CONNECT CONTACTOR] Unable to set meter to armed state. Meter is already in CONNECTED state.");
+			getLogger().info(" [CONNECT CONTACTOR] Meter set to ARMED state.");
+		} else if (state == CONTACTOR_STATE_CONNECTED) {
+			getLogger().warning(" [CONNECT CONTACTOR] Unable to set meter to armed state. Meter is already in CONNECTED state.");
 		} else if (state == CONTACTOR_STATE_DISCONNECTED) {
-			this.logger.warning(" [CONNECT CONTACTOR] Unable to set meter to armed state. Meter is still in DISCONNECTED state.");
+			getLogger().warning(" [CONNECT CONTACTOR] Unable to set meter to armed state. Meter is still in DISCONNECTED state.");
 		}
 
 		state = connectContactor();
 		if (state == CONTACTOR_STATE_CONNECTED) {
-			this.logger.info(" [CONNECT CONTACTOR] Meter connected load.");
-		} else if (state == CONTACTOR_STATE_ARMED){
+			getLogger().info(" [CONNECT CONTACTOR] Meter connected load.");
+		} else if (state == CONTACTOR_STATE_ARMED) {
 			String message = "Unable to connect load. Meter is still in ARMED state.";
-			this.logger.warning(" [CONNECT CONTACTOR] " + message);
+			getLogger().warning(" [CONNECT CONTACTOR] " + message);
 			throw new IOException(message);
-		} else if (state == CONTACTOR_STATE_DISCONNECTED){
+		} else if (state == CONTACTOR_STATE_DISCONNECTED) {
 			String message = "Unable to connect load. Meter is still in DISCONNECTED state.";
-			this.logger.warning(" [CONNECT CONTACTOR] " + message);
+			getLogger().warning(" [CONNECT CONTACTOR] " + message);
 			throw new IOException(message);
 		}
 
 	}
 
 	public void doDisconnect() throws IOException {
-		this.logger.info("************************* DISCONNECT CONTACTOR *************************");
+		getLogger().info("************************* DISCONNECT CONTACTOR *************************");
 		int state = disconnectContactor();
 
 		if (state == CONTACTOR_STATE_ARMED) {
 			String message = "Meter is in ARMED state! Unable to disconnect an armed contactor. First connect the contactor.";
-			this.logger.warning(" [DISCONNECT CONTACTOR] " + message);
+			getLogger().warning(" [DISCONNECT CONTACTOR] " + message);
 			throw new IOException(message);
 		} else if (state == CONTACTOR_STATE_CONNECTED) {
 			String message = "Meter is still in CONNECTED state! Disconnect failed.";
-			this.logger.warning(" [DISCONNECT CONTACTOR] " + message);
+			getLogger().warning(" [DISCONNECT CONTACTOR] " + message);
 			throw new IOException(message);
-		} else 	if (state == CONTACTOR_STATE_DISCONNECTED) {
+		} else if (state == CONTACTOR_STATE_DISCONNECTED) {
 			String message = "Meter disconnected load successfully.";
-			this.logger.info(" [DISCONNECT CONTACTOR] " + message);
+			getLogger().info(" [DISCONNECT CONTACTOR] " + message);
 		}
 	}
 
 	public void doArm() throws IOException {
-		this.logger.info("***************************** ARM CONTACTOR ****************************");
+		getLogger().info("***************************** ARM CONTACTOR ****************************");
 		if (armContactor() == CONTACTOR_STATE_CONNECTED) {
 			String message = "Meter is in CONNECTED state! Unable to ARM contactor. First disconnect the contactor.";
-			this.logger.warning(" [ARM CONTACTOR] " + message);
+			getLogger().warning(" [ARM CONTACTOR] " + message);
 			throw new IOException(message);
 		} else if (armContactor() == CONTACTOR_STATE_DISCONNECTED) {
 			String message = "Unable to ARM contactor. Meter is still in DISCONNECTED state.";
-			this.logger.warning(" [ARM CONTACTOR] " + message);
+			getLogger().warning(" [ARM CONTACTOR] " + message);
 			throw new IOException(message);
 		} else if (armContactor() == CONTACTOR_STATE_ARMED) {
-			this.logger.info(" [ARM CONTACTOR] Contactor is armed!");
+			getLogger().info(" [ARM CONTACTOR] Contactor is armed!");
 		}
-	}
-
-	public ContactorState getContactorState() throws IOException {
-		throw new UnsupportedException("Reading the contactor state is not suported yet for this protocol.");
 	}
 
 }

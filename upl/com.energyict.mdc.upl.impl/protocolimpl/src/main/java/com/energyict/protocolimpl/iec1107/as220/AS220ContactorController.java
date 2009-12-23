@@ -3,38 +3,40 @@ package com.energyict.protocolimpl.iec1107.as220;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.base.ContactorController;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocolimpl.base.AbstractContactorController;
 
-public class AS220ContactorController implements ContactorController {
+public class AS220ContactorController extends AbstractContactorController {
 
-	private static final String CONTACTOR_OPEN 		= "0";
-	private static final String CONTACTOR_ARMED 	= "1";
-	private static final String CONTACTOR_CLOSED 	= "2";
-
-	private AS220 as220 = null;
+	private static final String	CONTACTOR_OPEN		= "0";
+	private static final String	CONTACTOR_ARMED		= "1";
+	private static final String	CONTACTOR_CLOSED	= "2";
 
 	/**
 	 * Constructor for the AS220ContactorController
-	 * @param as220 The AS220 protocol, used to get the AS220Registry and the logger
+	 *
+	 * @param as220 The AS220 protocol, used to get the AS220Registry and the
+	 * logger
 	 */
 	public AS220ContactorController(AS220 as220) {
+		super(as220);
 		if ((as220 == null) || (as220.getAS220Registry() == null)) {
 			throw new IllegalArgumentException("Argument as220 or as220.getAS220Registry() cannot be null!");
 		}
-		this.as220 = as220;
 	}
 
-	/*
-	 * Private getters, setters and methods
+	/**
+	 * Getter for the parent {@link AS220} {@link MeterProtocol}
+	 *
+	 * @return the {@link AS220} {@link MeterProtocol}
 	 */
-
 	private AS220 getAS220() {
-		return this.as220;
+		return (AS220) getProtocol();
 	}
 
 	/**
 	 * Get the logger used in the AS220 protocol
+	 *
 	 * @return The AS220 logger
 	 */
 	private Logger getLogger() {
@@ -43,18 +45,17 @@ public class AS220ContactorController implements ContactorController {
 
 	/**
 	 * Get the AS220Registry used in the AS220 protocol
+	 *
 	 * @return The AS220Registry
 	 */
 	private AS220Registry getAS220Registry() {
 		return getAS220().getAS220Registry();
 	}
 
-	/*
-	 * Public methods
-	 */
-
 	/**
-	 * This command tries to switch off (disconnect) the contactor in the AS220 device.
+	 * This command tries to switch off (disconnect) the contactor in the AS220
+	 * device.
+	 *
 	 * @throws IOException
 	 */
 	public void doDisconnect() throws IOException {
@@ -63,9 +64,12 @@ public class AS220ContactorController implements ContactorController {
 	}
 
 	/**
-	 * This command tries to switch the contactor to ARMED mode for the AS220 device.
-	 * The armed-status allows the customer to switch the relay back on by pressing
+	 * This command tries to switch the contactor to ARMED mode for the AS220
+	 * device.
+	 * The armed-status allows the customer to switch the relay back on by
+	 * pressing
 	 * the meter button for at least 4 seconds.
+	 *
 	 * @throws IOException
 	 */
 	public void doArm() throws IOException {
@@ -74,17 +78,14 @@ public class AS220ContactorController implements ContactorController {
 	}
 
 	/**
-	 * This command tries to switch on (connect) the contactor in the AS220 device.
+	 * This command tries to switch on (connect) the contactor in the AS220
+	 * device.
+	 *
 	 * @throws IOException
 	 */
 	public void doConnect() throws IOException {
 		getLogger().info("*************************** CONNECT CONTACTOR **************************");
 		getAS220Registry().setRegister(AS220Registry.CONTACTOR_REGISTER, CONTACTOR_CLOSED);
-	}
-
-	public ContactorState getContactorState() throws IOException {
-		getLogger().info("**************************** READ CONTACTOR STATE **********************");
-		throw new UnsupportedException("Reading the contactor state is not suported yet for this protocol.");
 	}
 
 }
