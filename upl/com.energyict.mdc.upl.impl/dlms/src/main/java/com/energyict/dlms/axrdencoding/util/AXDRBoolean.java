@@ -8,6 +8,12 @@ public class AXDRBoolean {
 	private static final int	TRUE_VALUE	= 1;
 
 	/**
+	 * Hide the constructor for a utility class. All the methods are static
+	 */
+	private AXDRBoolean() {
+	}
+
+	/**
 	 * @param val
 	 * @return
 	 */

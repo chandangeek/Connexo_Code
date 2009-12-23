@@ -8,6 +8,12 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 
 public class AXDRDate {
 
+	/**
+	 * Hide the constructor for a utility class. All the methods are static
+	 */
+	private AXDRDate() {
+	}
+
 	private static final int	MILLIS_IN_ONE_SECOND	= 1000;
 
 	/**

@@ -1,26 +1,33 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import java.util.*;
+import java.util.TimeZone;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.OctetString;
 
 public class AXDRTimeZone {
-	
-	static public OctetString encode(TimeZone timeZone) {
+
+	/**
+	 * Hide the constructor for a utility class. All the methods are static
+	 */
+	private AXDRTimeZone() {
+	}
+
+	/**
+	 * @param timeZone
+	 * @return
+	 */
+	public static OctetString encode(TimeZone timeZone) {
 		return OctetString.fromString(timeZone.getID());
 	}
-	
-	static public TimeZone decode(AbstractDataType dataType) {
+
+	/**
+	 * @param dataType
+	 * @return
+	 */
+	public static TimeZone decode(AbstractDataType dataType) {
 		TimeZone timeZone = TimeZone.getTimeZone(dataType.getOctetString().stringValue());
 		return timeZone;
-	}	
-	
-	static public void main(String[] args) {
-		TimeZone timeZone = TimeZone.getTimeZone("Europe/Brussels");
-		OctetString o = encode(timeZone);
-		System.out.println(o);
-		System.out.println(decode(o).getID());
-
-		System.out.println(decode(o));
 	}
+
 }
