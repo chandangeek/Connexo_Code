@@ -20,7 +20,9 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class DataStructure implements Serializable {
     
-    /*
+	/**	Generated serialVersionUID */
+	private static final long serialVersionUID = -1718485361794272561L;
+	/*
      *   An element object can be of type DataStructure, OctetString, Integer or String.
      *   
      */

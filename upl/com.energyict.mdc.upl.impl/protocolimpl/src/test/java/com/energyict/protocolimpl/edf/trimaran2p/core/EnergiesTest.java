@@ -22,7 +22,6 @@ import org.junit.Test;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.cbo.Utils;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.edf.trimaran2p.ObisCodeMapper;
@@ -81,12 +80,15 @@ public class EnergiesTest {
 		deuxP.setMeterVersion("TEC");
 		
 		try {
-			file = new File(Utils.class.getResource("/offlineFiles/trimaran/deuxp184/Energies184.bin").getFile());
-			file.deleteOnExit();
+			file = new File(EnergiesTest.class.getResource("/offlineFiles/trimaran/deuxp184/Energies184.bin").getFile());
 			fis = new FileInputStream(file);
 			ois = new ObjectInputStream(fis);
+			
 			dc = (DataContainer)ois.readObject();
+			
 			Energies energies = new Energies(dc, TimeZone.getTimeZone("ECT"), 56);
+			
+			
 			ocm.setEnergie(energies);
 			RegisterValue rv1 = ocm.getRegisterValue(oc1);
 			RegisterValue rv2 = ocm.getRegisterValue(oc2);
