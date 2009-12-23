@@ -16,7 +16,11 @@ import com.energyict.protocol.ProtocolUtils;
  * @author  Koen
  */
 public class DataContainer implements DLMSCOSEMGlobals, Serializable {
-    protected int iLevel=0;
+	
+    /**	Generated serialVersionUID */
+	private static final long serialVersionUID = 8516323547596564299L;
+	
+	protected int iLevel=0;
     protected int iMaxLevel=0;
     protected int iIndex=0;
     protected DataStructure dataStructure=null;

@@ -82,6 +82,7 @@ public class EnergiesTest {
 		
 		try {
 			file = new File(Utils.class.getResource("/offlineFiles/trimaran/deuxp184/Energies184.bin").getFile());
+			file.deleteOnExit();
 			fis = new FileInputStream(file);
 			ois = new ObjectInputStream(fis);
 			dc = (DataContainer)ois.readObject();
