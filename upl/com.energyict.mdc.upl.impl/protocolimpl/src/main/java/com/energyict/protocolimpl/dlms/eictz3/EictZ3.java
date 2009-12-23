@@ -57,6 +57,7 @@ import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CapturedObjectsHelper;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.DemandRegister;
@@ -70,6 +71,7 @@ import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.cosem.DataAccessResultException.DataAccessResultCode;
+import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.DisconnectControlLog;
@@ -77,7 +79,6 @@ import com.energyict.genericprotocolimpl.webrtukp.eventhandling.EventsLog;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.FraudDetectionLog;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.MbusLog;
 import com.energyict.genericprotocolimpl.webrtukp.eventhandling.PowerFailureLog;
-import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
@@ -188,13 +189,13 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/** The OBIS code pointing to the serial number of the R2/Z3 itself. */
 	private static final ObisCode OBISCODE_R2_SERIAL_NUMBER = ObisCode.fromString("0.0.96.1.0.255");
-	
+
 	/** The load profile format for an MBus meter depending on the physical address. */
 	private static final MessageFormat MBUS_LOAD_PROFILE_FORMAT = new MessageFormat("0.{0}.24.3.0.255");
-	
+
 	/** This is the default Obis code for the Epio. */
 	private static final ObisCode OBIS_CODE_EPIO_LOAD_PROFILE = ObisCode.fromString("1.0.99.1.0.255");
-	
+
 	/** Obis code we can use to request the RF network topology. */
 	private static final ObisCode OBIS_CODE_NETWORK_TOPOLOGY = ObisCode.fromString("0.128.3.0.8.255");
 
@@ -354,12 +355,12 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	/** The firmware version. */
 	private String firmwareVersion;
 
-	/** 
+	/**
 	 * This one indicates if we have set the properties yet. It is used to make sure {@link #setProperties(Properties)} is called before {@link #init(InputStream, OutputStream, TimeZone, Logger)},
 	 * as one would assume the sequence to be the other way around.
 	 */
 	private transient boolean propertiesSet = false;
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -368,14 +369,14 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	}
 
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	public final void init(final InputStream inputStream, final OutputStream outputStream, final TimeZone timeZone, final Logger logger) throws IOException {
 		if (!propertiesSet) {
 			throw new IllegalStateException("You have to call setProperties before calling init, otherwise this protocol will not work correctly.");
 		}
-		
+
 		this.timeZone = timeZone;
 
 		if (logger != null) {
@@ -394,7 +395,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 				this.dlmsConnection = new TCPIPConnection(inputStream, outputStream, this.hdlcTimeout, this.forceDelay, this.protocolRetries, this.clientMacAddress, this.serverLowerMacAddress);
 			}
-			
+
 			this.dlmsConnection.setIskraWrapper(1);
 		} catch (final DLMSConnectionException e) {
 			// JDK 5 and predecessors apparently cannot init an IOException using String, Exception, so let's do this verbosely then...
@@ -406,19 +407,19 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * Returns the {@link CapturedObjectsHelper}.
-	 * 
+	 *
 	 * @return The {@link CapturedObjectsHelper}.
-	 * 
+	 *
 	 * @throws IOException
 	 *             If something goes wrong.
 	 */
 	private final CapturedObjectsHelper getCapturedObjectsHelper() throws IOException {
 		if (this.capturedObjectsHelper == null) {
 			logger.info("Initializing the CapturedObjectsHelper using the generic profile, profile OBIS code is [" + this.getLoadprofileObisCode().toString() + "]");
-			
+
 			final ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(this.getLoadprofileObisCode());
 			this.capturedObjectsHelper = profileGeneric.getCaptureObjectsHelper();
-			
+
 			logger.info("Done, load profile [" + this.getLoadprofileObisCode() + "] has [" + this.capturedObjectsHelper.getNrOfCapturedObjects() + "] captured objects...");
 		}
 
@@ -433,7 +434,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			logger.info("Loading the number of channels, looping over the captured objects...");
 
 			this.numberOfChannels = this.getCapturedObjectsHelper().getNrOfchannels();
-			
+
 			logger.info("Got [" + this.numberOfChannels + "] channels in load profile (out of [" + this.capturedObjectsHelper.getNrOfCapturedObjects() + "] captured objects)");
 		}
 
@@ -449,48 +450,48 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 			final ProfileGeneric profileGeneric = this.getCosemObjectFactory().getProfileGeneric(this.getLoadprofileObisCode());
 			this.profileInterval = profileGeneric.getCapturePeriod();
-			
+
 			logger.info("Profile interval is [" + this.profileInterval + "]");
 		}
 
 		return this.profileInterval;
 	}
-	
+
 	/**
 	 * Returns the load profile obis code.
-	 * 
+	 *
 	 * @return	The load profile obis code.
-	 * 
+	 *
 	 * @throws	IOException	If an IO error occurs during the load profile determination.
 	 */
 	private final ObisCode getLoadprofileObisCode() throws IOException {
 		if (this.loadProfileObisCode == null) {
 			logger.info("No specific obis code has been specified, trying to determine it...");
-			
+
 			final int mbusPhysicalAddress = this.getMBusPhysicalAddress();
-			
+
 			if (mbusPhysicalAddress != -1) {
 				logger.info("Determined MBus physical address : [" + mbusPhysicalAddress + "], determining obis code to use for the load profile...");
-				
+
 				final int obisCodeId = mbusPhysicalAddress + 1;
 				this.loadProfileObisCode = ObisCode.fromString(MBUS_LOAD_PROFILE_FORMAT.format(new Object[] { obisCodeId }));
-		
+
 				logger.info("Using Obis code [" + this.loadProfileObisCode + "] for load profile...");
 			} else {
 				logger.info("Not an MBus meter, using EpIO default load profile OBIS code [" + OBIS_CODE_EPIO_LOAD_PROFILE + "]");
-				
+
 				this.loadProfileObisCode = OBIS_CODE_EPIO_LOAD_PROFILE;
 			}
 		} else {
 			logger.info("Load profile OBIS code : [" + this.loadProfileObisCode + "]");
 		}
-		
+
 		return this.loadProfileObisCode;
 	}
 
 	/**
 	 * As the meter has been invented in 2009, the from date is set fixed to 1st of January of 2009, which seems like a sensible default.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	public final ProfileData getProfileData(final boolean includeEvents) throws IOException {
@@ -529,16 +530,16 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * Gets the profile data starting from the date indicated by fromCalendar and ending at toCalendar.
-	 * 
+	 *
 	 * @param from
 	 *            The starting point.
 	 * @param to
 	 *            The ending point (this is allowed to be null).
 	 * @param includeEvents
 	 *            Indicates whether the logbook should be included or not.
-	 * 
+	 *
 	 * @return The profile data for the given period.
-	 * 
+	 *
 	 * @throws IOException
 	 *             if an error occurs during the device communication.
 	 */
@@ -546,7 +547,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		logger.info("Loading profile data starting at [" + from + "], ending at [" + to + "], " + (includeEvents ? "" : "not") + " including events");
 
 		final ProfileData profileData = new ProfileData();
-		
+
 		final ProfileGeneric profileGeneric = this.getCosemObjectFactory().getProfileGeneric(this.getLoadprofileObisCode());
 		final DataContainer datacontainer = profileGeneric.getBuffer(from, to);
 
@@ -558,12 +559,12 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			logger.info("Scaler unit for channel [" + i + "] is [" + scalerUnit + "]");
 
 			final ChannelInfo channelInfo = new ChannelInfo(i, "EICTZ3_CH_" + i, scalerUnit.getUnit());
-			
+
 			final CapturedObject channelCapturedObject = getCapturedObjectsHelper().getProfileDataChannelCapturedObject(i);
-			
+
 			if(ParseUtils.isObisCodeCumulative(channelCapturedObject.getLogicalName().getObisCode())) {
 				logger.info("Indicating that channel [" + i + "] is cumulative...");
-				
+
 				channelInfo.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
 			}
 
@@ -581,13 +582,13 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 			for (int i = 0; i < loadProfileEntries.length; i++) {
 				logger.info("Processing interval [" + i + "]");
-				
+
 				final DataStructure intervalData = datacontainer.getRoot().getStructure(i);
-				
+
 				if (logger.isLoggable(Level.FINE)) {
 					logger.log(Level.FINE, "Mapping interval end time...");
 				}
-				
+
 				Calendar calendar = ProtocolUtils.initCalendar(false, this.timeZone);
 				calendar = this.mapIntervalEndTimeToCalendar(calendar, intervalData, (byte) 0);
 
@@ -595,9 +596,9 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 				final int protocolStatus = intervalData.getInteger(1);
 
 				final IntervalData data = new IntervalData(new Date(((Calendar) calendar.clone()).getTime().getTime()), eiStatus, protocolStatus);
-				
+
 				logger.info("Adding channel data.");
-				
+
 				for (int j = 0; j < getCapturedObjectsHelper().getNrOfCapturedObjects(); j++) {
 					if (getCapturedObjectsHelper().isChannelData(j)) {
 						data.addValue(new Integer(intervalData.getInteger(j)));
@@ -619,14 +620,14 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * Loads the meter events from the meter and returns them.
-	 * 
+	 *
 	 * @param from
 	 *            The start date.
 	 * @param to
 	 *            The end date.
-	 * 
+	 *
 	 * @return The meter events for the given period.
-	 * 
+	 *
 	 * @throws IOException
 	 *             If an IO error occurs during the communication.
 	 */
@@ -711,10 +712,10 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * Maps the given protocol status to interval state bits (eistatus). (bitset).
-	 * 
+	 *
 	 * @param protocolStatus
 	 *            The protocol status to map.
-	 * 
+	 *
 	 * @return The mapped eistatus.
 	 */
 	private final int map2IntervalStateBits(final int protocolStatus) {
@@ -784,40 +785,40 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * Gets the scaler unit for the given channel.
-	 * 
+	 *
 	 * @param channelId
 	 *            The ID of the channel for which to fetch the scaler.
-	 * 
+	 *
 	 * @return The scaler.
-	 * 
+	 *
 	 * @throws IOException
 	 *             If an IO error occurs while communicating with the meter.
 	 */
 	private final ScalerUnit getRegisterScalerUnit(final int channelId) throws IOException {
 		ScalerUnit unit = null;
-		
-		if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSCOSEMGlobals.ICID_REGISTER) {
+
+		if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSClassId.REGISTER.getClassId()) {
 			unit = this.getCosemObjectFactory().getRegister(getCapturedObjectsHelper().getProfileDataChannelObisCode(channelId)).getScalerUnit();
-		} else if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSCOSEMGlobals.ICID_DEMAND_REGISTER) {
+		} else if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
 			unit = this.getCosemObjectFactory().getDemandRegister(getCapturedObjectsHelper().getProfileDataChannelObisCode(channelId)).getScalerUnit();
-		} else if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSCOSEMGlobals.ICID_EXTENDED_REGISTER) {
+		} else if (getCapturedObjectsHelper().getProfileDataChannelCapturedObject(channelId).getClassId() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
 			unit = this.getCosemObjectFactory().getExtendedRegister(getCapturedObjectsHelper().getProfileDataChannelObisCode(channelId)).getScalerUnit();
 		} else {
 			throw new IllegalArgumentException("EictZ3, getRegisterScalerUnit(), invalid channelId, " + channelId);
 		}
-		
+
 		if (unit.getUnitCode() == 0) {
 			logger.info("Channel [" + channelId + "] has a scaler unit with unit code [0], using a unitless scalerunit.");
-			
+
 			unit = new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
 		}
-		
+
 		return unit;
 	}
 
 	/**
 	 * This method sets the time/date in the remote meter equal to the system time/date of the machine where this object resides.
-	 * 
+	 *
 	 * @exception IOException
 	 */
 	public final void setTime() throws IOException {
@@ -828,7 +829,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		boolean timeAdjusted = false;
 		int currentTry = 1;
 
-		while (!timeAdjusted && currentTry <= this.numberOfClocksetTries) {
+		while (!timeAdjusted && (currentTry <= this.numberOfClocksetTries)) {
 			logger.info("Requesting clock for adjustment");
 
 			final long startTime = System.currentTimeMillis();
@@ -881,7 +882,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * Sets the device time using the DLMS set on the date_time of the clock object. This is absolute setting of time, which is used in case of a force clock, or in case the time exceeds the limits of the shift_time method (which is a quarter of an hour either back or forward shift).
-	 * 
+	 *
 	 * @param newTime
 	 *            The new time to set.
 	 */
@@ -923,9 +924,9 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * Checks if the device configuration has changed.
-	 * 
+	 *
 	 * @return True if the device configuration has changed.
-	 * 
+	 *
 	 * @throws IOException
 	 *             If an error occurs during the device communication.
 	 */
@@ -972,7 +973,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 		boolean needToLoadObjectList = false;
 
-		if (this.dlmsCache != null && this.dlmsCache.getObjectList() != null && this.dlmsCache.getObjectList().length > 0) {
+		if ((this.dlmsCache != null) && (this.dlmsCache.getObjectList() != null) && (this.dlmsCache.getObjectList().length > 0)) {
 			logger.info("We have a DLMS cache for this device, checking if it is still valid.");
 
 			// Set the object list in the meter config.
@@ -1021,12 +1022,12 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * Verifies the EIServer serial number against the device serial number.
-	 * 
+	 *
 	 * @throws IOException
 	 *             If an IO error occurs during the device communication.
 	 */
 	private final boolean verifyMeterSerialNumber() throws IOException {
-		if (this.serialNumber == null || this.serialNumber.trim().equals("")) {
+		if ((this.serialNumber == null) || this.serialNumber.trim().equals("")) {
 			logger.info("There was no serial number configured in EIServer, assuming the configuration is valid...");
 
 			return true;
@@ -1045,7 +1046,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 				logger.info("Received [" + this.mbusSerialNumbers.length + "] serial numbers for MBus devices proxied by the EpIO, validating...");
 
 				for (final String serialNumber : this.mbusSerialNumbers) {
-					if (serialNumber != null && serialNumber.toLowerCase().trim().equals(this.serialNumber)) {
+					if ((serialNumber != null) && serialNumber.toLowerCase().trim().equals(this.serialNumber)) {
 						matches = true;
 						break;
 					}
@@ -1058,11 +1059,11 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * Returns the node address as it is filled in in EIServer.
-	 * 
+	 *
 	 * @return The node address as it is filled in in EIServer.
 	 */
 	private final int getNodeAddress() {
-		if (this.nodeAddress == null || this.nodeAddress.trim().equals("")) {
+		if ((this.nodeAddress == null) || this.nodeAddress.trim().equals("")) {
 			return -1;
 		} else {
 			try {
@@ -1077,9 +1078,9 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * This method uses two behaviours, depending on the fact whether you have filled in a Node Address or not. If the node address > 0, then node address - 1 is returned. If the node address is 0, we try to find the MBus meter based on the serial number. If the node address is 0, this means no MBus meter is meant. The method returns -1 if no MBus device with the given serial number can be found.
-	 * 
+	 *
 	 * @return The MBus meter index.
-	 * 
+	 *
 	 * @throws IOException
 	 *             If an IO error occurs during the fetch of the MBus serial numbers.
 	 */
@@ -1099,7 +1100,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			}
 
 			for (int i = 0; i < this.maximumNumberOfMBusDevices; i++) {
-				if (mbusSerialNumbers[i] != null && mbusSerialNumbers[i].trim().equals(this.serialNumber)) {
+				if ((mbusSerialNumbers[i] != null) && mbusSerialNumbers[i].trim().equals(this.serialNumber)) {
 					return i;
 				}
 			}
@@ -1110,9 +1111,9 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * Requests the serial numbers of the remote device.
-	 * 
+	 *
 	 * @return The requested serial numbers.
-	 * 
+	 *
 	 * @throws IOException
 	 *             If an IO error should occur when requesting the MBus serial numbers from the meter.
 	 */
@@ -1129,12 +1130,12 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * Gets the serial number of the MBus device on the given index.
-	 * 
+	 *
 	 * @param mbusPhysicalAddress
 	 *            The index of the sought after MBus device.
-	 * 
+	 *
 	 * @return The serial number of the device, <code>null</code> if there is no such device.
-	 * 
+	 *
 	 * @throws IOException
 	 *             If an IO error occurs during the query for the MBus serial number.
 	 */
@@ -1142,7 +1143,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		logger.info("Requesting serial number for MBus device, physical address [" + mbusPhysicalAddress + "]");
 
 		final UniversalObject serialNumberObject = this.meterConfig.getMbusSerialNumber(mbusPhysicalAddress);
-		
+
 		try {
 			final String serialNumber = this.cosemObjectFactory.getGenericRead(serialNumberObject).getString();
 
@@ -1152,7 +1153,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		} catch (final DataAccessResultException e) {
 			if (e.getCode() == DataAccessResultCode.OBJECT_UNDEFINED) {
 				logger.info("No MBus device on physical address [" + mbusPhysicalAddress + "]");
-				
+
 				return null;
 			} else {
 				throw e;
@@ -1172,7 +1173,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			}
 		} catch (final DLMSConnectionException e) {
 			logger.log(Level.SEVERE, "DLMS connection error when disconnecting from device : [" + e.getMessage() + "]", e);
-				
+
 			// JDK 5 and predecessors apparently cannot init an IOException using String, Exception, so let's do this verbosely then...
 			final IOException ioException = new IOException("DLMS connection error when disconnecting from device : [" + e.getMessage() + "]");
 			ioException.initCause(e);
@@ -1182,7 +1183,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * This method requests for the COSEM object list in the remote meter. A list is byuild with LN and SN references. This method must be executed before other request methods.
-	 * 
+	 *
 	 * @exception IOException
 	 */
 	private final void requestObjectList() throws IOException {
@@ -1230,13 +1231,13 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * Configures this protocol based on the {@link Properties}.
-	 * 
+	 *
 	 * @param properties
 	 *            The {@link Properties} that are supplied as configuration to {@link #setProperties(Properties)}.
 	 */
 	private final void configure(final Properties properties) throws InvalidPropertyException {
 		if (properties.containsKey(MeterProtocol.ADDRESS)) {
-			if (properties.getProperty(MeterProtocol.ADDRESS) != null && properties.getProperty(MeterProtocol.ADDRESS).length() <= 16) {
+			if ((properties.getProperty(MeterProtocol.ADDRESS) != null) && (properties.getProperty(MeterProtocol.ADDRESS).length() <= 16)) {
 				this.deviceId = properties.getProperty(MeterProtocol.ADDRESS);
 			} else {
 				throw new InvalidPropertyException("Property [" + MeterProtocol.ADDRESS + "] should have 16 characters or less if it is specified, you specified [" + properties.getProperty(MeterProtocol.ADDRESS).length() + "] characters !");
@@ -1287,16 +1288,16 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 			this.numberOfClocksetTries = DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES;
 		}
-		
+
 		this.propertiesSet = true;
 	}
 
 	/**
 	 * Checks if all required properties are present in the given {@link Properties} object.
-	 * 
+	 *
 	 * @param properties
 	 *            The properties object to check.
-	 * 
+	 *
 	 * @throws MissingPropertyException
 	 *             If a required property is missing.
 	 */
@@ -1310,7 +1311,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * this implementation throws UnsupportedException. Subclasses may override
-	 * 
+	 *
 	 * @param name
 	 * <br>
 	 * @return the register value
@@ -1364,7 +1365,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * this implementation throws UnsupportedException. Subclasses may override
-	 * 
+	 *
 	 * @param name
 	 * <br>
 	 * @param value
@@ -1391,10 +1392,10 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * Converts the given string.
-	 * 
+	 *
 	 * @param s
 	 *            The string.
-	 * 
+	 *
 	 * @return
 	 */
 	private final byte[] convert(final String s) {
@@ -1413,7 +1414,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * this implementation throws UnsupportedException. Subclasses may override
-	 * 
+	 *
 	 * @throws IOException
 	 * <br>
 	 * @throws UnsupportedException
@@ -1425,7 +1426,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * the implementation returns both the address and password key
-	 * 
+	 *
 	 * @return a list of strings
 	 */
 	public List<String> getRequiredKeys() {
@@ -1436,7 +1437,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * this implementation returns an empty list
-	 * 
+	 *
 	 * @return a list of strings
 	 */
 	public final List<String> getOptionalKeys() {
@@ -1485,9 +1486,9 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * This is a default implementation, and it throws an exception telling the developer of calling it that if he/she wants this to work, he/she needs to provide an override that will work in his/her given situation (which will largely depend on EIServer database access).
-	 * 
+	 *
 	 * As such this method is marked overridable (which translates to non-final in Java).
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	public Object fetchCache(final int rtuid) throws SQLException, BusinessException {
@@ -1497,9 +1498,9 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * This is a default implementation, and it throws an exception telling the developer of calling it that if he/she wants this to work, he/she needs to provide an override that will work in his/her given situation (which will largely depend on EIServer database access).
-	 * 
+	 *
 	 * As such this method is marked overridable (which translates to non-final in Java).
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	public void updateCache(final int rtuid, final Object cacheObject) throws SQLException, BusinessException {
@@ -1584,7 +1585,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * Getter for property cosemObjectFactory.
-	 * 
+	 *
 	 * @return Value of property cosemObjectFactory.
 	 */
 	public com.energyict.dlms.cosem.CosemObjectFactory getCosemObjectFactory() {
@@ -1593,7 +1594,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * This one returns the file name for the DLMS cache.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	public final String getFileName() {
@@ -1615,16 +1616,16 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		try {
 
 			final UniversalObject uo = getMeterConfig().findObject(obisCode);
-			if (uo.getClassID() == DLMSCOSEMGlobals.ICID_REGISTER) {
+			if (uo.getClassID() == DLMSClassId.REGISTER.getClassId()) {
 				final Register register = getCosemObjectFactory().getRegister(obisCode);
 				return new RegisterValue(obisCode, register.getQuantityValue());
-			} else if (uo.getClassID() == DLMSCOSEMGlobals.ICID_DEMAND_REGISTER) {
+			} else if (uo.getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
 				final DemandRegister register = getCosemObjectFactory().getDemandRegister(obisCode);
 				return new RegisterValue(obisCode, register.getQuantityValue());
-			} else if (uo.getClassID() == DLMSCOSEMGlobals.ICID_EXTENDED_REGISTER) {
+			} else if (uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
 				final ExtendedRegister register = getCosemObjectFactory().getExtendedRegister(obisCode);
 				return new RegisterValue(obisCode, register.getQuantityValue());
-			} else if (uo.getClassID() == DLMSCOSEMGlobals.ICID_DISCONNECT_CONTROL) {
+			} else if (uo.getClassID() == DLMSClassId.DISCONNECT_CONTROL.getClassId()) {
 				final Disconnector register = getCosemObjectFactory().getDisconnector(obisCode);
 				return new RegisterValue(obisCode, "" + register.getState());
 			}
@@ -1647,20 +1648,20 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 	 */
 	public final List<MessageCategorySpec> getMessageCategories() {
 		final List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
-		
+
 		// Firmware.
 		//categories.add(this.getFirmwareMessages());
-		
+
 		// Disconnect control.
 		final MessageCategorySpec catDisconnect = new MessageCategorySpec("Disconnect Control");
-		
+
 		MessageSpec msgSpec = addConnectControl("Disconnect", RtuMessageConstant.DISCONNECT_LOAD, false);
 		catDisconnect.addMessageSpec(msgSpec);
 		msgSpec = addConnectControl("Connect", RtuMessageConstant.CONNECT_LOAD, false);
 		catDisconnect.addMessageSpec(msgSpec);
 		msgSpec = addConnectControlMode("ConnectControl mode", RtuMessageConstant.CONNECT_CONTROL_MODE, false);
 		catDisconnect.addMessageSpec(msgSpec);
-		
+
 		// MBus messages.
 		final MessageCategorySpec catMbusSetup = new MessageCategorySpec("Mbus setup");
 
@@ -1671,7 +1672,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 		categories.add(catDisconnect);
 		categories.add(catMbusSetup);
-		
+
 		return categories;
 	}
 
@@ -1753,7 +1754,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		// b. Attributes
 		for (final Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
 			final MessageAttribute att = (MessageAttribute) it.next();
-			if (att.getValue() == null || att.getValue().length() == 0) {
+			if ((att.getValue() == null) || (att.getValue().length() == 0)) {
 				continue;
 			}
 			buf.append(" ").append(att.getSpec().getName());
@@ -1771,7 +1772,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 				buf.append(writeTag((MessageTag) elt));
 			} else if (elt.isValue()) {
 				final String value = writeValue((MessageValue) elt);
-				if (value == null || value.length() == 0) {
+				if ((value == null) || (value.length() == 0)) {
 					return "";
 				}
 				buf.append(value);
@@ -1869,82 +1870,82 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 			throw new IOException("String " + string + " can not be formatted to byteArray");
 		}
 	}
-	
+
 	/**
 	 * Indicates whether the message concerns an EpIO upgrade message.
-	 * 
+	 *
 	 * @param 		messageContents		The contents of the message.
-	 * 
+	 *
 	 * @return		<code>true</code> if the message contents concern a firmware upgrade.
 	 */
 	private final boolean isEpIOFirmwareUpgrade(final String messageContents) {
-		return messageContents != null && messageContents.contains("<FirmwareUpdate>");
+		return (messageContents != null) && messageContents.contains("<FirmwareUpdate>");
 	}
 
 	/**
 	 * Upgrades the remote device using the image specified.
-	 * 
+	 *
 	 * @param 	image			The new image to push to the remote device.
-	 * 
+	 *
 	 * @throws	IOException		If an IO error occurs during the upgrade.
 	 */
 	private final void upgradeDevice(final byte[] image) throws IOException {
 		logger.info("Upgrading EpIO with new firmware image of size [" + image.length + "] bytes");
-		
+
 		final ImageTransfer imageTransfer = this.getCosemObjectFactory().getImageTransfer();
-		
+
 		try {
 			logger.info("Converting received image to binary using a Base64 decoder...");
-			
+
 			final BASE64Decoder decoder = new BASE64Decoder();
 			final byte[] binaryImage = decoder.decodeBuffer(new String(image));
-			
+
 			logger.info("Commencing upgrade...");
-			
+
 			imageTransfer.upgrade(binaryImage);
 			imageTransfer.imageActivation();
-			
+
 			logger.info("Upgrade has finished successfully...");
 		} catch (final InterruptedException e) {
 			logger.log(Level.SEVERE, "Interrupted while uploading firmware image [" + e.getMessage() + "]", e);
-			
+
 			final IOException ioException = new IOException(e.getMessage());
 			ioException.initCause(e);
-			
+
 			throw ioException;
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public final MessageResult queryMessage(final MessageEntry messageEntry) {
 		if (isEpIOFirmwareUpgrade(messageEntry.getContent())) {
 			logger.info("Received a firmware upgrade message, using firmware message builder...");
-			
+
 			final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder();
-			
+
 			try {
 				builder.initFromXml(messageEntry.getContent());
 			} catch (final SAXException e) {
 				logger.log(Level.SEVERE, "Cannot process firmware upgrade message due to an XML parsing error [" + e.getMessage() + "]", e);
-				
+
 				// Set the message failed.
 				return MessageResult.createFailed(messageEntry);
 			} catch (final IOException e) {
 				if (logger.isLoggable(Level.SEVERE)) {
 					logger.log(Level.SEVERE, "Got an IO error when loading firmware message content [" + e.getMessage() + "]", e);
 				}
-				
+
 				return MessageResult.createFailed(messageEntry);
 			}
-			
+
 			// We requested an inlined file...
 			if (builder.getUserFile() != null) {
 				logger.info("Pulling out user file and dispatching to the device...");
-				
+
 				final byte[] upgradeFileData = builder.getUserFile().loadFileInByteArray();
-				
+
 				if (upgradeFileData.length > 0) {
 					try {
 						this.upgradeDevice(builder.getUserFile().loadFileInByteArray());
@@ -1957,40 +1958,40 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 					if (logger.isLoggable(Level.WARNING)) {
 						logger.log(Level.WARNING, "Length of the upgrade file is not valid [" + upgradeFileData + " bytes], failing message.");
 					}
-					
+
 					return MessageResult.createFailed(messageEntry);
 				}
 			} else {
 				logger.log(Level.WARNING, "The message did not contain a user file to use for the upgrade, message fails...");
-				
+
 				return MessageResult.createFailed(messageEntry);
 			}
-			
+
 			logger.info("Upgrade message has been processed successfully, marking message as successfully processed...");
-			
+
 			return MessageResult.createSuccess(messageEntry);
 		} else {
 			final MessageHandler messageHandler = new MessageHandler();
 			boolean success = false;
 			try {
 				importMessage(messageEntry.getContent(), messageHandler);
-	
+
 				final boolean connect = messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
 				final boolean disconnect = messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
 				final boolean connectMode = messageHandler.getType().equals(RtuMessageConstant.CONNECT_CONTROL_MODE);
 				final boolean decommission = messageHandler.getType().equals(RtuMessageConstant.MBUS_DECOMMISSION);
 				final boolean mbusEncryption = messageHandler.getType().equals(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
-	
+
 				if (connect) {
-	
+
 					getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Connect");
-	
+
 					if (!messageHandler.getConnectDate().equals("")) { // use the
 						// disconnectControlScheduler
-	
+
 						final Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
 						final SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getMBusPhysicalAddress()).getObisCode());
-	
+
 						final ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getMBusPhysicalAddress()).getObisCode());
 						final byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
 						final Structure scriptStruct = new Structure();
@@ -1999,27 +2000,27 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 						// is the
 						// 'remote_connect'
 						// method
-	
+
 						sasConnect.writeExecutedScript(scriptStruct);
 						sasConnect.writeExecutionTime(executionTimeArray);
-	
+
 					} else { // immediate connect
 						final Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMBusPhysicalAddress()).getObisCode());
 						connector.remoteReconnect();
 					}
-	
+
 					success = true;
-	
+
 				} else if (disconnect) {
-	
+
 					getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Disconnect");
-	
+
 					if (!messageHandler.getDisconnectDate().equals("")) { // use the
 						// disconnectControlScheduler
-	
+
 						final Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
 						final SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getMBusPhysicalAddress()).getObisCode());
-	
+
 						final ScriptTable disconnectorScriptTable = getCosemObjectFactory().getScriptTable(getMeterConfig().getMbusDisconnectorScriptTable(getMBusPhysicalAddress()).getObisCode());
 						final byte[] scriptLogicalName = disconnectorScriptTable.getObjectReference().getLn();
 						final Structure scriptStruct = new Structure();
@@ -2028,33 +2029,33 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 						// is the
 						// 'remote_disconnect'
 						// method
-	
+
 						sasDisconnect.writeExecutedScript(scriptStruct);
 						sasDisconnect.writeExecutionTime(executionTimeArray);
-	
+
 					} else { // immediate disconnect
 						final Disconnector connector = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMBusPhysicalAddress()).getObisCode());
 						connector.remoteDisconnect();
 					}
-	
+
 					success = true;
 				} else if (connectMode) {
-	
+
 					getLogger().log(Level.INFO, "Handling message " + messageEntry + ": ConnectControl mode");
 					final String mode = messageHandler.getConnectControlMode();
-	
+
 					if (mode != null) {
 						try {
 							final int modeInt = Integer.parseInt(mode);
-	
+
 							if ((modeInt >= 0) && (modeInt <= 6)) {
 								final Disconnector connectorMode = getCosemObjectFactory().getDisconnector(getMeterConfig().getMbusDisconnectControl(getMBusPhysicalAddress()).getObisCode());
 								connectorMode.writeControlMode(new TypeEnum(modeInt));
-	
+
 							} else {
 								throw new IOException("Mode is not a valid entry for message " + messageEntry + ", value must be between 0 and 6");
 							}
-	
+
 						} catch (final NumberFormatException e) {
 							e.printStackTrace();
 							throw new IOException("Mode is not a valid entry for message " + messageEntry);
@@ -2063,25 +2064,25 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 						// should never get to the else, can't leave message empty
 						throw new IOException("Message " + messageEntry + " can not be empty");
 					}
-	
+
 					success = true;
 				} else if (decommission) {
-	
+
 					getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Decommission MBus device");
-	
+
 					final MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMBusPhysicalAddress()).getObisCode());
 					mbusClient.deinstallSlave();
-	
+
 					success = true;
 				} else if (mbusEncryption) {
-	
+
 					getLogger().log(Level.INFO, "Handling MbusMessage " + messageEntry + ": Set encryption keys");
-	
+
 					final String openKey = messageHandler.getOpenKey();
 					final String transferKey = messageHandler.getTransferKey();
-	
+
 					final MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMBusPhysicalAddress()).getObisCode());
-	
+
 					if (openKey == null) {
 						mbusClient.setEncryptionKey("");
 					} else if (transferKey != null) {
@@ -2090,12 +2091,12 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 					} else {
 						throw new IOException("Transfer key may not be empty when setting the encryption keys.");
 					}
-	
+
 					success = true;
 				} else { // unknown message
 					success = false;
 				}
-	
+
 				if (success) {
 					getLogger().log(Level.INFO, "Message " + messageEntry + " has finished.");
 					return MessageResult.createSuccess(messageEntry);
@@ -2105,11 +2106,11 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 				}
 			} catch (final IOException e) {
 				logger.log(Level.SEVERE, "Caught an IO error while querying message [" + messageEntry.getTrackingId() + "], message was [" + e.getMessage() + "]", e);
-	
+
 				return MessageResult.createFailed(messageEntry);
 			} catch (final BusinessException e) {
 				logger.log(Level.SEVERE, "Caught an business error while querying message [" + messageEntry.getTrackingId() + "], message was [" + e.getMessage() + "]", e);
-	
+
 				return MessageResult.createFailed(messageEntry);
 			}
 		}
@@ -2117,9 +2118,9 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * Fetches the device serial number from the device itself.
-	 * 
+	 *
 	 * @return The device serial number from the device itself.
-	 * 
+	 *
 	 * @throws IOException
 	 *             If an error occurs during the communication with the device.
 	 */
@@ -2140,7 +2141,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * We use {@link UserFile}s to do this.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	public final boolean supportsUrls() {
@@ -2149,7 +2150,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * So this is true.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	public final boolean supportsUserFilesForFirmwareUpdate() {
@@ -2158,50 +2159,50 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 
 	/**
 	 * And we don't have access to the database so we don't want references.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	public final boolean supportsUserFileReferences() {
 		return false;
 	}
-	
+
 	/**
 	 * Returns the CyNet RF network topology. This is a really specific method that will poll a specific register on the EpIO (in which the current
 	 * RF topology is stored).
-	 * 
-	 * @return	The CyNet RF network topology. The string has one line per node in the topology, and each line is manufacturerID and routing address, 
+	 *
+	 * @return	The CyNet RF network topology. The string has one line per node in the topology, and each line is manufacturerID and routing address,
 	 * 			separated by a comma.
 	 */
 	public final String getRFNetworkTopology() throws IOException {
 		if (logger.isLoggable(Level.FINE)) {
 			logger.log(Level.FINE, "Requesting RF network topology from Z3.");
 		}
-		
+
 		try {
 			final Data cosemTopology = this.getCosemObjectFactory().getData(OBIS_CODE_NETWORK_TOPOLOGY);
-			
+
 			if (cosemTopology != null) {
 				final StringBuilder stringBuilder = new StringBuilder();
 				final DataStructure root = (cosemTopology).getDataContainer().getRoot();
-				
+
 				for (int i = 0; i < root.element.length; i++) {
 					final DataStructure topologyEntry = (DataStructure)root.element[i];
-					
+
 					final String manufacturerId = Long.toHexString((((Integer)topologyEntry.element[0]).intValue() & 0xFFFFFFFFl));
 					final String routingAddress = Long.toHexString((((Integer)topologyEntry.element[1]).intValue() & 0xFFFFFFFFl));
-					
+
 					stringBuilder.append(manufacturerId).append(',').append(routingAddress).append("\n");
 				}
-				
+
 				if (logger.isLoggable(Level.FINE)) {
 					logger.log(Level.FINE, "Got routing table [" + stringBuilder.toString() + "] from the Z3.");
 				}
-				
+
 				return stringBuilder.toString();
 			} else {
 				logger.log(Level.WARNING, "Query for OBIS code [" + OBIS_CODE_NETWORK_TOPOLOGY + "] did not yield any result, assuming no RF available.");
 			}
-			
+
 			// The EpIO did not return anything when requested for the particular register, so we do neither.
 			return null;
 		} catch (final DataAccessResultException e) {
@@ -2209,7 +2210,7 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 				// No such register.
 				logger.log(Level.INFO, "The EpIO says there is no register with Obis code [" + OBIS_CODE_NETWORK_TOPOLOGY + "], assuming it is not acting as an RF master.");
 			}
-			
+
 			return null;
 		}
 	}
