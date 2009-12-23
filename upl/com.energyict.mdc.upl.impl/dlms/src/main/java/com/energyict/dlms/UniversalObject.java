@@ -6,17 +6,18 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.obis.ObisCode;
 
 
 public class UniversalObject implements DLMSCOSEMGlobals,Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -5227477714920108186L;
-	
-	
+
+
 	// Captured Object List
 	private static final byte COL_CLASSID=0;
 	private static final byte COL_LN_A=1;
@@ -278,30 +279,30 @@ public class UniversalObject implements DLMSCOSEMGlobals,Serializable {
 
 
 	public int getValueAttributeOffset() throws IOException {
-		if (getClassID() == ICID_REGISTER) {
+		if (getClassID() == DLMSClassId.REGISTER.getClassId()) {
 			return 8;
-		} else if (getClassID() == ICID_EXTENDED_REGISTER) {
+		} else if (getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
 			return 8;
-		} else if (getClassID() == ICID_DEMAND_REGISTER) {
+		} else if (getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
 			return 16; // last average value
-		} else if (getClassID() == ICID_DATA) {
+		} else if (getClassID() == DLMSClassId.DATA.getClassId()) {
 			return 8;
-		} else if (getClassID() == ICID_PROFILE_GENERIC) {
+		} else if (getClassID() == DLMSClassId.PROFILE_GENERIC.getClassId()) {
 			return 8;
-		} else if (getClassID() == ICID_CLOCK) {
+		} else if (getClassID() == DLMSClassId.CLOCK.getClassId()) {
 			return 8;
 		} else {
 			throw new IOException("UniversalObject, wrong object for value attribute!");
 		}
 	}
 	public int getScalerAttributeOffset() throws IOException {
-		if (getClassID() == ICID_REGISTER) {
+		if (getClassID() == DLMSClassId.REGISTER.getClassId()) {
 			return 16;
-		} else if (getClassID() == ICID_EXTENDED_REGISTER) {
+		} else if (getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
 			return 16;
-		} else if (getClassID() == ICID_DEMAND_REGISTER) {
+		} else if (getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
 			return 24;
-		} else if (getClassID() == ICID_DATA) {
+		} else if (getClassID() == DLMSClassId.DATA.getClassId()) {
 			return 8;
 		} else {
 			throw new IOException("UniversalObject, wrong object for scaler attribute!");

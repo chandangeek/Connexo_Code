@@ -1,7 +1,8 @@
 package com.energyict.dlms.cosem;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.obis.ObisCode;
@@ -26,8 +27,9 @@ public class CapturedObjectsHelper implements DLMSCOSEMGlobals {
 		int id = 0;
 		for (int index = 0; index < getNrOfCapturedObjects(); index++) {
 			if (isChannelData(index)) {
-				if (id == channelId)
+				if (id == channelId) {
 					return capturedObjects.get(index);
+				}
 				id++;
 			}
 		}
@@ -40,9 +42,10 @@ public class CapturedObjectsHelper implements DLMSCOSEMGlobals {
 		int id = 0;
 		for (int index = 0; index < getNrOfCapturedObjects(); index++) {
 			if (isChannelData(index)) {
-				if (id == channelId)
+				if (id == channelId) {
 					return capturedObjects.get(index).getLogicalName()
 							.getObisCode();
+				}
 				id++;
 			}
 		}
@@ -53,16 +56,18 @@ public class CapturedObjectsHelper implements DLMSCOSEMGlobals {
 		// IOException
 
 	public boolean isClassIdData(int index) throws IOException {
-		if (index >= capturedObjects.size())
+		if (index >= capturedObjects.size()) {
 			throw new IOException("CapturedObjectsHelper, invalid index "+ index);
+		}
 		CapturedObject co = capturedObjects.get(index);
-		return co.getClassId() == DLMSCOSEMGlobals.ICID_DATA;
+		return co.getClassId() == DLMSClassId.DATA.getClassId();
 	}
-	
+
 	public boolean isChannelData(int index) throws IOException {
-		if (index >= capturedObjects.size())
+		if (index >= capturedObjects.size()) {
 			throw new IOException("CapturedObjectsHelper, invalid index "
 					+ index);
+		}
 		CapturedObject co = capturedObjects.get(index);
 		return isChannelData(co);
 	}
@@ -75,28 +80,28 @@ public class CapturedObjectsHelper implements DLMSCOSEMGlobals {
 		//
 		// Blue book 5.3
 		if ((co.getLogicalName().getA() != 0)
-			&& ((co.getLogicalName().getB() >= 0 && co.getLogicalName().getB() <= 64) || (co.getLogicalName().getB() >= 128 && co.getLogicalName().getB() <= 199))
-			&& ((co.getClassId() == ICID_REGISTER) || (co.getClassId() == ICID_DEMAND_REGISTER))) {
+			&& (((co.getLogicalName().getB() >= 0) && (co.getLogicalName().getB() <= 64)) || ((co.getLogicalName().getB() >= 128) && (co.getLogicalName().getB() <= 199)))
+			&& ((co.getClassId() == DLMSClassId.REGISTER.getClassId()) || (co.getClassId() == DLMSClassId.DEMAND_REGISTER.getClassId()))) {
 			return true;
 		}
-		
+
 		// Changed GN 29022008 to add the extended register for the Iskra MBus
 		// meter
-		else if (((co.getLogicalName().getA() == 0) || (co.getLogicalName()
-				.getA()) == 7)
+		else if (((co.getLogicalName().getA() == 0) || ((co.getLogicalName()
+				.getA()) == 7))
 				&& (co.getLogicalName().getB() == 1)
 				&& (co.getLogicalName().getC() == (byte) 0x80)
 				&& (co.getLogicalName().getD() == 50)
 				&& (co.getLogicalName().getE() >= 0)
 				&& (co.getLogicalName().getE() <= 3)
-				&& (co.getClassId() == ICID_EXTENDED_REGISTER)) {
+				&& (co.getClassId() == DLMSClassId.EXTENDED_REGISTER.getClassId())) {
 			return true;
 		}
 		// Changed KV 11022009 to add the mbus register 0-1:24.3.0.255
 		else if ((co.getLogicalName().getA() == 0)
 				&& (co.getLogicalName().getB() > 0)
 				&& (co.getLogicalName().getC() == 24)
-				&& (co.getClassId() == ICID_EXTENDED_REGISTER)) {
+				&& (co.getClassId() == DLMSClassId.EXTENDED_REGISTER.getClassId())) {
 			return true;
 		}
 		return false;
@@ -106,15 +111,15 @@ public class CapturedObjectsHelper implements DLMSCOSEMGlobals {
 		if (nrOfChannels == -1) {
 			nrOfChannels = 0;
 			Iterator<CapturedObject> it = capturedObjects.iterator();
-			
+
 			int i = 0;
-			
+
 			while (it.hasNext()) {
 				CapturedObject co = it.next();
 				if (isChannelData(co)) {
 					nrOfChannels++;
 				}
-				
+
 				i++;
 			}
 		}

@@ -32,17 +32,6 @@ public interface DLMSCOSEMGlobals {
 	byte TYPEDESC_LONG64=0x14;
 	byte TYPEDESC_ENUM=0x16;
 
-	// DLMS Interface class id's
-	short ICID_DATA=1;
-	short ICID_REGISTER=3;
-	short ICID_EXTENDED_REGISTER=4; // new KV 03042003
-	short ICID_DEMAND_REGISTER=5;
-	short ICID_CLOCK=0x08;
-	short ICID_PROFILE_GENERIC=7;
-	short ICID_SAP=0x0011;
-	short ICID_LNREG=0x0003;
-	short ICID_DISCONNECT_CONTROL=70;
-
 	byte LN_A=0;
 	byte LN_B=1;
 	byte LN_C=2;
