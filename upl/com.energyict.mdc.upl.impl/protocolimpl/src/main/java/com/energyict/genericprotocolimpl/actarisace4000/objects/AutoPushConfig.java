@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
@@ -17,7 +17,7 @@ import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
  *
  */
 public class AutoPushConfig extends AbstractActarisObject {
-	
+
 	private String reqString = null;
 	private int trackingID;
 
@@ -41,41 +41,41 @@ public class AutoPushConfig extends AbstractActarisObject {
 	protected void setTrackingID(int trackingID) {
 		this.trackingID = trackingID;
 	}
-	
+
 	protected void prepareXML(int enableState, int open, int close, boolean random){
 		Document doc = createDomDocument();
-		
-		Element root = doc.createElement(XMLTags.mPull);
+
+		Element root = doc.createElement(XMLTags.MPULL);
 		doc.appendChild(root);
-		Element md = doc.createElement(XMLTags.meterData);
+		Element md = doc.createElement(XMLTags.METERDATA);
 		root.appendChild(md);
-		Element s = doc.createElement(XMLTags.serialNumber);
+		Element s = doc.createElement(XMLTags.SERIALNUMBER);
 		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
 		md.appendChild(s);
-		Element t = doc.createElement(XMLTags.tracker);
+		Element t = doc.createElement(XMLTags.TRACKER);
 		t.setTextContent(String.valueOf(trackingID));
 		md.appendChild(t);
-		
-		Element cf = doc.createElement(XMLTags.configHandling);
+
+		Element cf = doc.createElement(XMLTags.CONFIGHANDLING);
 		md.appendChild(cf);
-		Element ps = doc.createElement(XMLTags.puschSchedule);
+		Element ps = doc.createElement(XMLTags.PUSCHSCHEDULE);
 		cf.appendChild(ps);
-		Element enable = doc.createElement(XMLTags.enableState);
+		Element enable = doc.createElement(XMLTags.ENABLESTATE);
 		enable.setTextContent(Integer.toString(enableState, 16));
 		ps.appendChild(enable);
-		Element tmo = doc.createElement(XMLTags.timeOpen);
+		Element tmo = doc.createElement(XMLTags.TIMEOPEN);
 		tmo.setTextContent(Integer.toString(open, 16));
 		ps.appendChild(tmo);
-		Element tmc = doc.createElement(XMLTags.timeClose);
+		Element tmc = doc.createElement(XMLTags.TIMECLOSE);
 		tmc.setTextContent(Integer.toString(close, 16));
 		ps.appendChild(tmc);
 		if(random){
-			Element rand = doc.createElement(XMLTags.random);
+			Element rand = doc.createElement(XMLTags.RANDOM);
 			ps.appendChild(rand);
 		}
-			
+
 		String msg = convertDocumentToString(doc);
-		
+
 		setReqString(msg.substring(msg.indexOf("?>")+2));
 	}
 
@@ -83,42 +83,42 @@ public class AutoPushConfig extends AbstractActarisObject {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		
+
 		AutoPushConfig apc = new AutoPushConfig(null);
 
         DocumentBuilder builder;
 		try {
 			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document doc = builder.newDocument();
-			Element root = doc.createElement(XMLTags.mPull);
+			Element root = doc.createElement(XMLTags.MPULL);
 			doc.appendChild(root);
-			Element md = doc.createElement(XMLTags.meterData);
+			Element md = doc.createElement(XMLTags.METERDATA);
 			root.appendChild(md);
-			Element s = doc.createElement(XMLTags.serialNumber);
+			Element s = doc.createElement(XMLTags.SERIALNUMBER);
 			s.setTextContent("123456789");
 			md.appendChild(s);
-			Element t = doc.createElement(XMLTags.tracker);
+			Element t = doc.createElement(XMLTags.TRACKER);
 			t.setTextContent(String.valueOf(1));
 			md.appendChild(t);
-			
+
 			System.out.println(apc.convertDocumentToString(doc));
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	protected String getReqString() {
 		return reqString;
 	}
-	
+
 	private void setReqString(String reqString){
 		this.reqString = reqString;
 	}
 
 	protected void setElement(Element element) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 }

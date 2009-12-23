@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
@@ -27,14 +27,14 @@ import com.energyict.protocol.RegisterValue;
  *
  */
 public class CurrentReadings extends AbstractActarisObject {
-	
+
 	private int DEBUG = 0;
-	
+
 	private int trackingID;
 	private String reqString = null;
-	
+
 	private String subSet = null;
-	
+
 	private Date timeStamp = null;
 	private Quantity totalForward = null;
 	private Quantity totalReverse = null;
@@ -56,7 +56,7 @@ public class CurrentReadings extends AbstractActarisObject {
 	protected String getReqString() {
 		return reqString;
 	}
-	
+
 	private void setReqString(String reqString){
 		this.reqString = reqString;
 	}
@@ -86,14 +86,14 @@ public class CurrentReadings extends AbstractActarisObject {
 				(byte) 0x00, (byte) 0x00, (byte) 0x28, (byte) 0xC6, (byte) 0x00, (byte) 0x00, (byte) 0x28, (byte) 0xCD,
 				(byte) 0x00, (byte) 0x00, (byte) 0x28, (byte) 0xD7, (byte) 0x00, (byte) 0x00, (byte) 0x28, (byte) 0xD9,
 				(byte) 0x00, (byte) 0x00, (byte) 0x28, (byte) 0xDA, (byte) 0x12, (byte) 0x34};
-		
+
 //			byte[] decoded = Base64.encode(text);
 			String encoded = Base64.encode(b);
 			System.out.println(encoded);
-			
+
 //			byte[] b2 = Base64.decode(text.getBytes());
 			byte[] b2 = Base64.decode(text);
-			
+
 			CurrentReadings cr = new CurrentReadings(null);
 			long time = (long)(cr.getNumberFromB64(b2, 0, 4))*1000;
 			Calendar cal1 = Calendar.getInstance();
@@ -107,62 +107,67 @@ public class CurrentReadings extends AbstractActarisObject {
 			System.out.println(tfr2);
 			System.out.println(tfr3);
 			System.out.println(tfr4);
-			
-			
+
+
 			String result = "";
 			for (int i=0; i < b2.length; i++) {
 				result += Integer.toString( ( b2[i] & 0xff ) + 0x100, 16).substring( 1 );
 //				result += Integer.toHexString(b2[i]);
 			}
-			
-			
+
+
 			System.out.println(result);
-		
-		
+
+
 		String str = "41915A00";
 		long milli = Long.parseLong(str, 16);
 		Calendar cal = Calendar.getInstance();
 		System.out.println(cal.getTimeInMillis());
 		cal.setTimeInMillis(milli*1000);
 		System.out.println(cal.getTime());
-		
+
 		String str2 = "28C3";
 		int intStr = Integer.parseInt(str2, 16);
 		System.out.println(intStr);
-		
+
 		byte[] b3 = {(byte)0x28, (byte)0xC3};
 		int i3 = ((b3[0]&0xFF)<<8)+(b3[1]&0xFF);
 		System.out.println(i3);
-		
+
 		byte[] b4 = {0, 0, 40, -61};
 		int i4 = ((b4[0]&0xFF)<<24)+((b4[1]&0xFF)<<16)+((b4[2]&0xFF)<<8)+(b4[3]&0xFF);
 		System.out.println(i4);
-		
+
 	}
-	
+
 	protected void setElement(Element mdElement) {
-		subSet = mdElement.getAttribute(XMLTags.crAttr);
-		
+		subSet = mdElement.getAttribute(XMLTags.CRATTR);
+
 		NodeList list = mdElement.getChildNodes();
-		
+
 		for(int i = 0; i < list.getLength(); i++){
 			Element element = (Element)list.item(i);
-			
-			if(element.getNodeName().equalsIgnoreCase(XMLTags.readingData))
+
+			if(element.getNodeName().equalsIgnoreCase(XMLTags.READINGDATA)) {
 				setReadingData(element.getTextContent());
-			
+			}
+
 		}
 	}
 
 	private void setReadingData(String textContent) {
 		int offset = 0;
 		byte[] decoded = Base64.decode(textContent);
-		if(DEBUG >=1)System.out.println(new String(decoded));
+		if(DEBUG >=1) {
+			System.out.println(new String(decoded));
+		}
 		long timeStamp = (long)(getNumberFromB64(decoded, offset, 4))*1000;
-		if(DEBUG >= 1)System.out.println(new Date(timeStamp));
+		if(DEBUG >= 1) {
+			System.out.println(new Date(timeStamp));
+		}
 		setTimeStamp(new Date(timeStamp));
 		offset+=4;
-		
+
 		if(subSet != null){
 			MeterReadingData mrd = new MeterReadingData();
 			RegisterValue rv = null;
@@ -182,7 +187,7 @@ public class CurrentReadings extends AbstractActarisObject {
 					}
 				}
 			}
-			
+
 			if(subSet.indexOf("R") != -1){
 				setTotalReverse(new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR)));
 				offset+=4;
@@ -197,7 +202,7 @@ public class CurrentReadings extends AbstractActarisObject {
 					}
 				}
 			}
-			
+
 			if(subSet.indexOf("1") != -1){
 				setRate1(new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR)));
 				offset+=4;
@@ -212,7 +217,7 @@ public class CurrentReadings extends AbstractActarisObject {
 					}
 				}
 			}
-			
+
 			if(subSet.indexOf("2") != -1){
 				setRate2(new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR)));
 				offset+=4;
@@ -227,7 +232,7 @@ public class CurrentReadings extends AbstractActarisObject {
 					}
 				}
 			}
-			
+
 			if(subSet.indexOf("3") != -1){
 				setRate3(new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR)));
 				offset+=4;
@@ -242,7 +247,7 @@ public class CurrentReadings extends AbstractActarisObject {
 					}
 				}
 			}
-			
+
 			if(subSet.indexOf("4") != -1){
 				setRate4(new Quantity(getNumberFromB64(decoded, offset, 4), Unit.get(BaseUnit.WATTHOUR)));
 				offset+=4;
@@ -257,7 +262,7 @@ public class CurrentReadings extends AbstractActarisObject {
 					}
 				}
 			}
-			
+
 			if(mrd.getRegisterValues().size() != 0){
 				try {
 					getObjectFactory().getAace().getMeter().store(mrd);
@@ -329,5 +334,5 @@ public class CurrentReadings extends AbstractActarisObject {
 	protected void setTimeStamp(Date timeStamp) {
 		this.timeStamp = timeStamp;
 	}
-	
+
 }

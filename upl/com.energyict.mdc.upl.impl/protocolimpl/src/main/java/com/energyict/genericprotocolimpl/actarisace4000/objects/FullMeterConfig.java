@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
@@ -15,7 +15,7 @@ import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
  *
  */
 public class FullMeterConfig extends AbstractActarisObject {
-	
+
 	private String reqString = null;
 	private int trackingID;
 
@@ -32,7 +32,7 @@ public class FullMeterConfig extends AbstractActarisObject {
 	protected String getReqString() {
 		return reqString;
 	}
-	
+
 	private void setReqString(String reqString){
 		this.reqString = reqString;
 	}
@@ -50,40 +50,41 @@ public class FullMeterConfig extends AbstractActarisObject {
 	protected void setTrackingID(int trackingID) {
 		this.trackingID = trackingID;
 	}
-	
+
 	protected void prepareXML(){
 		Document doc = createDomDocument();
-		
-		Element root = doc.createElement(XMLTags.mPull);
+
+		Element root = doc.createElement(XMLTags.MPULL);
 		doc.appendChild(root);
-		Element md = doc.createElement(XMLTags.meterData);
+		Element md = doc.createElement(XMLTags.METERDATA);
 		root.appendChild(md);
-		Element s = doc.createElement(XMLTags.serialNumber);
+		Element s = doc.createElement(XMLTags.SERIALNUMBER);
 		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
 		md.appendChild(s);
-		Element t = doc.createElement(XMLTags.tracker);
+		Element t = doc.createElement(XMLTags.TRACKER);
 		t.setTextContent(String.valueOf(trackingID));
 		md.appendChild(t);
-		
-		Element cf = doc.createElement(XMLTags.fullConfig);
+
+		Element cf = doc.createElement(XMLTags.FULLCONFIG);
 		md.appendChild(cf);
 
 		String msg = convertDocumentToString(doc);
-		
+
 		setReqString(msg.substring(msg.indexOf("?>")+2));
 	}
 
 	protected void setElement(Element mdElement) {
 		NodeList list = mdElement.getChildNodes();
-		
+
 		for(int i = 0; i < list.getLength(); i++){
 			Element element = (Element)list.item(i);
-			
+
 			// TODO handle the other config parameters
-			if(element.getNodeName().equalsIgnoreCase(XMLTags.billingConf))
+			if(element.getNodeName().equalsIgnoreCase(XMLTags.BILLINGCONF)) {
 				getObjectFactory().getBillingData().setConfig(element);
-			
-		}		
+			}
+
+		}
 	}
 
 }

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
@@ -7,10 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.logging.Level;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -27,7 +24,6 @@ import org.xml.sax.SAXException;
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.genericprotocolimpl.actarisace4000.ActarisACE4000;
-import com.energyict.genericprotocolimpl.actarisace4000.objects.tables.EnableTable;
 import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
 
 /**
@@ -35,9 +31,9 @@ import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
  *
  */
 public class ObjectFactory {
-	
+
 	private int DEBUG = 0;
-	
+
 	private ActarisACE4000 		aace;
 	private Acknowledge 		acknowledge;
 	private FirmwareVersion 	firmwareVersion = null;
@@ -51,24 +47,24 @@ public class ObjectFactory {
 	private MBCurrentReadings	mbCurrReadings	= null;
 	private Time				time			= null;
 	private BillingData			billingData		= null;
-	
+
 	private int tempTrackingID = -1;
 	/**
-	 * 
+	 *
 	 */
 	public ObjectFactory(ActarisACE4000 aace) {
 		this.aace = aace;
 	}
-	
+
 	public FullMeterConfig getFullMeterConfig(){
 		if(fullMeterConfig == null){
 			fullMeterConfig = new FullMeterConfig(this);
 		}
 		return fullMeterConfig;
 	}
-	
-	
-	/** 
+
+
+	/**
 	 * Send a request for full meter configuration
 	 * @throws IOException
 	 */
@@ -78,14 +74,14 @@ public class ObjectFactory {
 		getFullMeterConfig().prepareXML();
 		getFullMeterConfig().request();
 	}
-	
+
 	public AutoPushConfig getAutoPushConfig(){
 		if(autoPushConfig == null){
 			autoPushConfig = new AutoPushConfig(this);
 		}
 		return autoPushConfig;
 	}
-	
+
 	/**
 	 * Send xml with the meters autopush config - Startime, Stoptime pushwindow ...
 	 * @throws IOException
@@ -100,35 +96,35 @@ public class ObjectFactory {
 		getAutoPushConfig().prepareXML(enabled, start, stop, random);
 		getAutoPushConfig().request();
 	}
-	
+
 	public Announcement getAnnouncement(){
 		if(announcement == null){
 			announcement = new Announcement(this);
 		}
 		return announcement;
 	}
-	
+
 	public CurrentReadings getCurrentReadings(){
 		if(currentReadings == null){
 			currentReadings = new CurrentReadings(this);
 		}
 		return currentReadings;
 	}
-	
+
 	public MBCurrentReadings getMBCurrentReadings(){
 		if(mbCurrReadings == null){
 			mbCurrReadings = new MBCurrentReadings(this);
 		}
 		return mbCurrReadings;
 	}
-	
+
 	public LoadProfile getLoadProfile(){
 		if(loadProfile == null){
 			loadProfile = new LoadProfile(this);
 		}
 		return loadProfile;
 	}
-	
+
 	/**
 	 * Request all the loadprofile data
 	 * @throws IOException
@@ -139,7 +135,7 @@ public class ObjectFactory {
 		getLoadProfile().prepareXML();
 		getLoadProfile().request();
 	}
-	
+
 	/**
 	 * Request the loadprofile data from a certain point in time
 	 * @param from equals the the point in time
@@ -151,14 +147,14 @@ public class ObjectFactory {
 		getLoadProfile().prepareXML(from);
 		getLoadProfile().request();
 	}
-	
+
 	public MBLoadProfile getMBLoadProfile(){
 		if(mbLoadProfile == null){
 			mbLoadProfile = new MBLoadProfile(this);
 		}
 		return mbLoadProfile;
 	}
-	
+
 	/**
 	 * Request all the MBus loadprofile data
 	 * @throws IOException
@@ -169,7 +165,7 @@ public class ObjectFactory {
 		getMBLoadProfile().prepareXML();
 		getMBLoadProfile().request();
 	}
-	
+
 	/**
 	 * Request the MBus loadprofile data from a certain point in time
 	 * @param from equals the point in time
@@ -181,14 +177,14 @@ public class ObjectFactory {
 		getMBLoadProfile().prepareXML(from);
 		getMBLoadProfile().request();
 	}
-	
+
 	public BillingData getBillingData(){
 		if(billingData == null){
 			billingData = new BillingData(this);
 		}
 		return billingData;
 	}
-	
+
 	/**
 	 * Request all billingdata from the E-meter
 	 * @throws IOException
@@ -199,7 +195,7 @@ public class ObjectFactory {
 		getBillingData().prepareXML();
 		getBillingData().request();
 	}
-	
+
 	/**
 	 * Request the billingdata from the E-meter from a certain point in time
 	 * @param from equals the point in time
@@ -211,7 +207,7 @@ public class ObjectFactory {
 		getBillingData().prepareXML(from);
 		getBillingData().request();
 	}
-	
+
 	/**
 	 * Send the E-meters billingdata  configuration
 	 * @param enabled - billingdata is enabled/disabled
@@ -225,14 +221,14 @@ public class ObjectFactory {
 		getBillingData().prepareXMLConfig(enabled, intervals, numbOfInt);
 		getBillingData().request();
 	}
-	
+
 	public Time getTime(){
 		if(time == null){
 			time = new Time(this);
 		}
 		return time;
 	}
-	
+
 	/**
 	 * Force the meter time to the system time
 	 * @throws IOException
@@ -243,7 +239,7 @@ public class ObjectFactory {
 		getTime().prepareXML();
 		getTime().request();
 	}
-	
+
 	/**
 	 * Sync the meter time to the system time
 	 * @throws IOException
@@ -254,7 +250,7 @@ public class ObjectFactory {
 		getTime().prepareSyncXML();
 		getTime().request();
 	}
-	
+
 	/**
 	 * Send the timesync configuration
 	 * @param diff - maximum allowed time difference for timesync to take place (in seconds)
@@ -268,14 +264,14 @@ public class ObjectFactory {
 		getTime().prepareXMLConfig(diff, trip, retry);
 		getTime().request();
 	}
-	
+
 	public Acknowledge getAcknowledge(){
 		if(acknowledge == null){
 			acknowledge = new Acknowledge(this);
 		}
 		return acknowledge;
 	}
-	
+
 	/**
 	 * Send an acknowledgment with for a certain message with a given tracking number
 	 * @param tracker equals the tracking number
@@ -287,14 +283,14 @@ public class ObjectFactory {
 		getAcknowledge().prepareXML();
 		getAcknowledge().request();
 	}
-	
+
 	public FirmwareVersion getFirmwareVersion(){
 		if(firmwareVersion == null){
 			firmwareVersion = new FirmwareVersion(this);
 		}
 		return firmwareVersion;
 	}
-	
+
 	/**
 	 * Request the firmwareversions of the meter
 	 * @throws IOException
@@ -305,14 +301,14 @@ public class ObjectFactory {
 		getFirmwareVersion().prepareXML();
 		getFirmwareVersion().request();
 	}
-	
+
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		ObjectFactory of = new ObjectFactory(null);
 		String testStr = "<Mpush><MD><M>E2G8NRB1D2110D07</M><T>0033</T></MD></Mpush>";
-		
+
 //		of.parseXML(testStr);
 	}
 
@@ -323,20 +319,22 @@ public class ObjectFactory {
 	public void setAace(ActarisACE4000 aace) {
 		this.aace = aace;
 	}
-	
+
 	/**
 	 * Parse the received XML to the corresponding object
 	 * @param xml - the received MeterXML string
 	 * @throws ParserConfigurationException
 	 * @throws SAXException
 	 * @throws IOException
-	 * @throws BusinessException 
+	 * @throws BusinessException
 	 */
 	public void parseXML(String xml) throws ParserConfigurationException, SAXException, IOException, BusinessException{
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		
-		if(DEBUG >=1)System.out.println(xml);
-		
+
+		if(DEBUG >=1) {
+			System.out.println(xml);
+		}
+
 		try {
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document document = builder.parse(new InputSource(new StringReader(xml)));
@@ -360,12 +358,12 @@ public class ObjectFactory {
 		} catch (BusinessException e) {
 			e.printStackTrace();
 			throw new BusinessException(e.getMessage() + "(Received xml: " + xml + ")");
-		} 
+		}
 	}
-	
+
 	public void parseXML(InputStream is) throws ParserConfigurationException, SAXException, IOException{
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		
+
 		try {
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document document = builder.parse(is);
@@ -388,91 +386,91 @@ public class ObjectFactory {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void parseElements(Element element) throws IOException, SQLException, BusinessException{
-		
+
 		String nodeName = element.getNodeName();
 		setTempTrackingID(-1);	// clear the tracker again
-		
+
 		try {
-			if(nodeName.equalsIgnoreCase(XMLTags.mPush)){
-				NodeList nodes = element.getElementsByTagName(XMLTags.meterData);
+			if(nodeName.equalsIgnoreCase(XMLTags.MPUSH)){
+				NodeList nodes = element.getElementsByTagName(XMLTags.METERDATA);
 				Element md = (Element)nodes.item(0);
-				
-				if(md.getNodeName().equalsIgnoreCase(XMLTags.meterData)){
+
+				if(md.getNodeName().equalsIgnoreCase(XMLTags.METERDATA)){
 					NodeList mdNodeList = md.getChildNodes();
-					
+
 					for(int i = 0; i < mdNodeList.getLength(); i++){
 						Element mdElement = (Element)mdNodeList.item(i);
-						
-						if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.serialNumber)){
+
+						if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.SERIALNUMBER)){
 							getAace().setSerialnumbers(mdElement.getTextContent());
 						}
-						
-						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.tracker)){
+
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.TRACKER)){
 							setTempTrackingID(Integer.parseInt(mdElement.getTextContent(), 16));	// add the radius because we receive hex
 						}
-						
-						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.loadPr)){
-							log(Level.INFO, "Received a loadProfile element.");
-							getLoadProfile().setTrackingID(getTempTrackingID());		// need the tracking ID to 'ACK'the UDP packet
-							getLoadProfile().setElement(mdElement);	
-						}
-						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.loadPrAbs)){
+
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.LOADPR)){
 							log(Level.INFO, "Received a loadProfile element.");
 							getLoadProfile().setTrackingID(getTempTrackingID());		// need the tracking ID to 'ACK'the UDP packet
 							getLoadProfile().setElement(mdElement);
 						}
-						
-						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.mbusLP)){
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.LOADPRABS)){
+							log(Level.INFO, "Received a loadProfile element.");
+							getLoadProfile().setTrackingID(getTempTrackingID());		// need the tracking ID to 'ACK'the UDP packet
+							getLoadProfile().setElement(mdElement);
+						}
+
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.MBUSLP)){
 							log(Level.INFO, "Received an MBus loadProfile element.");
 							getMBLoadProfile().setTrackingID(getTempTrackingID());		// need the tracking ID to 'ACK'the UDP packet
 							getMBLoadProfile().setElement(mdElement);
 						}
-						
+
 						// TODO extend this functionality
 //					else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.announce)){
 //						getAnnouncement().setElement(mdElement);
 //					}
-							
-						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.curReading)){
+
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.CURREADING)){
 							log(Level.INFO, "Received current readings from meter.");
 							getCurrentReadings().setElement(mdElement);
 						}
-						
-						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.mbusCReading)){
+
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.MBUSCREADING)){
 							log(Level.INFO, "Received current readings from MBus meter.");
 							getMBCurrentReadings().setElement(mdElement);
 						}
-						
-						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.resFirmware)){
+
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.RESFIRMWARE)){
 							log(Level.INFO, "Received firmware versions.");
 							getFirmwareVersion().setElement(mdElement);
 						}
-						
-						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.billData)){
+
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.BILLDATA)){
 							log(Level.INFO, "Received billing data from meter.");
 							getBillingData().setTrackingID(getTempTrackingID());		// need the tracking ID to 'ACK'the UDP packet
 							getBillingData().setElement(mdElement);
 						}
-						
-						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.configHandling)){
+
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.CONFIGHANDLING)){
 							log(Level.INFO, "Received configuration from meter.");
 							getFullMeterConfig().setElement(mdElement);
 						}
-						
+
 						// TODO verify timezone Stuff
-						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.meterTime)){
+						else if(mdElement.getNodeName().equalsIgnoreCase(XMLTags.METERTIME)){
 							log(Level.INFO, "Received timing parameters.");
 							getTime().setElement(mdElement);
 						}
 					}
-				}
-				else
+				} else {
 					throw new ApplicationException("Unknown tag found in xml responce: " + nodes.item(0).getNodeName());
-			}
-			else
+				}
+			} else {
 				throw new ApplicationException("Unknown tag found in xml responce: " + element.getNodeName());
+			}
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
 			throw e;
@@ -490,7 +488,7 @@ public class ObjectFactory {
 			throw e;
 		}
 	}
-	
+
 	protected void log(Level level, String msg){
 		getAace().getLogger().log(level, msg);
 	}

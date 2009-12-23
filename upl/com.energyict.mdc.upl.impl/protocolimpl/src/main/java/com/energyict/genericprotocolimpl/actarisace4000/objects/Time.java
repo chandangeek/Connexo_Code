@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
@@ -11,7 +11,6 @@ import java.util.logging.Level;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
 import com.energyict.protocol.ProtocolUtils;
@@ -21,12 +20,12 @@ import com.energyict.protocol.ProtocolUtils;
  *
  */
 public class Time extends AbstractActarisObject {
-	
+
 	private int DEBUG = 0;
-	
+
 	private String reqString = null;
 	private int trackingID;
-	
+
 	private long meterTime;
 	private long receiveTime;
 	private long minDiff = -1;
@@ -52,7 +51,7 @@ public class Time extends AbstractActarisObject {
 	protected String getReqString() {
 		return reqString;
 	}
-	
+
 	private void setReqString(String reqString){
 		this.reqString = reqString;
 	}
@@ -70,77 +69,77 @@ public class Time extends AbstractActarisObject {
 	protected void setTrackingID(int trackingID) {
 		this.trackingID = trackingID;
 	}
-	
+
 	/**
 	 * Force the Meter time to the System time
 	 */
 	protected void prepareXML(){
 		Document doc = createDomDocument();
-		
-		Element root = doc.createElement(XMLTags.mPull);
+
+		Element root = doc.createElement(XMLTags.MPULL);
 		doc.appendChild(root);
-		Element md = doc.createElement(XMLTags.meterData);
+		Element md = doc.createElement(XMLTags.METERDATA);
 		root.appendChild(md);
-		Element s = doc.createElement(XMLTags.serialNumber);
+		Element s = doc.createElement(XMLTags.SERIALNUMBER);
 		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
 		md.appendChild(s);
-		Element t = doc.createElement(XMLTags.tracker);
+		Element t = doc.createElement(XMLTags.TRACKER);
 		t.setTextContent(String.valueOf(trackingID));
 		md.appendChild(t);
-		
+
 		Calendar cal = ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT"));
 		String hexString = Long.toHexString(cal.getTimeInMillis()/1000);
-		
-		Element ft = doc.createElement(XMLTags.forceTime);
+
+		Element ft = doc.createElement(XMLTags.FORCETIME);
 		md.appendChild(ft);
-		Element t1 = doc.createElement(XMLTags.time1);
+		Element t1 = doc.createElement(XMLTags.TIME1);
 		t1.setTextContent("00000000");
 		ft.appendChild(t1);
-		Element t2 = doc.createElement(XMLTags.time2);
+		Element t2 = doc.createElement(XMLTags.TIME2);
 		t2.setTextContent(hexString);
 		ft.appendChild(t2);
-		Element t3 = doc.createElement(XMLTags.time3);
+		Element t3 = doc.createElement(XMLTags.TIME3);
 		t3.setTextContent(hexString);
 		ft.appendChild(t3);
-		
+
 		String msg = convertDocumentToString(doc);
 		setReqString(msg.substring(msg.indexOf("?>")+2));
 	}
-	
+
 	/**
 	 * Sync the meter time to the system time
 	 */
 	protected void prepareSyncXML(){
 		Document doc = createDomDocument();
-		
-		Element root = doc.createElement(XMLTags.mPull);
+
+		Element root = doc.createElement(XMLTags.MPULL);
 		doc.appendChild(root);
-		Element md = doc.createElement(XMLTags.meterData);
+		Element md = doc.createElement(XMLTags.METERDATA);
 		root.appendChild(md);
-		Element s = doc.createElement(XMLTags.serialNumber);
+		Element s = doc.createElement(XMLTags.SERIALNUMBER);
 		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
 		md.appendChild(s);
-		Element t = doc.createElement(XMLTags.tracker);
+		Element t = doc.createElement(XMLTags.TRACKER);
 		t.setTextContent(String.valueOf(trackingID));
 		md.appendChild(t);
-		
-		Element ft = doc.createElement(XMLTags.forceTime);
+
+		Element ft = doc.createElement(XMLTags.FORCETIME);
 		md.appendChild(ft);
-		Element t1 = doc.createElement(XMLTags.time1);
+		Element t1 = doc.createElement(XMLTags.TIME1);
 		t1.setTextContent(Long.toHexString(getMeterTime()));
 		ft.appendChild(t1);
-		Element t2 = doc.createElement(XMLTags.time2);
+		Element t2 = doc.createElement(XMLTags.TIME2);
 		t2.setTextContent(Long.toHexString(getReceiveTime()/1000));
 		ft.appendChild(t2);
-		Element t3 = doc.createElement(XMLTags.time3);
+		Element t3 = doc.createElement(XMLTags.TIME3);
 //		t3.setTextContent(Long.toHexString(ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT")).getTimeInMillis()/1000));
 		t3.setTextContent(Long.toHexString(System.currentTimeMillis()/1000));
 		ft.appendChild(t3);
-		
+
 		String msg = convertDocumentToString(doc);
 		setReqString(msg.substring(msg.indexOf("?>")+2));
 	}
-	
+
 	/**
 	 * Sends a new time configuration to the meter
 	 * @param diff Maximum time difference allowed for clock synchronization in seconds
@@ -149,42 +148,42 @@ public class Time extends AbstractActarisObject {
 	 */
 	protected void prepareXMLConfig(int diff, int trip, int retry){
 		Document doc = createDomDocument();
-		
-		Element root = doc.createElement(XMLTags.mPull);
+
+		Element root = doc.createElement(XMLTags.MPULL);
 		doc.appendChild(root);
-		Element md = doc.createElement(XMLTags.meterData);
+		Element md = doc.createElement(XMLTags.METERDATA);
 		root.appendChild(md);
-		Element s = doc.createElement(XMLTags.serialNumber);
+		Element s = doc.createElement(XMLTags.SERIALNUMBER);
 		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
 		md.appendChild(s);
-		Element t = doc.createElement(XMLTags.tracker);
+		Element t = doc.createElement(XMLTags.TRACKER);
 		t.setTextContent(String.valueOf(trackingID));
 		md.appendChild(t);
-		
-		Element cf = doc.createElement(XMLTags.configHandling);
+
+		Element cf = doc.createElement(XMLTags.CONFIGHANDLING);
 		md.appendChild(cf);
-		Element ps = doc.createElement(XMLTags.timeSync);
+		Element ps = doc.createElement(XMLTags.TIMESYNC);
 		cf.appendChild(ps);
-		Element tDiff = doc.createElement(XMLTags.diff);
+		Element tDiff = doc.createElement(XMLTags.DIFF);
 		tDiff.setTextContent(Integer.toString(diff, 16));
 		ps.appendChild(tDiff);
-		Element tTrip = doc.createElement(XMLTags.trip);
+		Element tTrip = doc.createElement(XMLTags.TRIPP);
 		tTrip.setTextContent(Integer.toString(trip, 16));
 		ps.appendChild(tTrip);
-		Element tRetry = doc.createElement(XMLTags.retry);
+		Element tRetry = doc.createElement(XMLTags.RETRY);
 		tRetry.setTextContent(Integer.toString(retry, 16));
 		ps.appendChild(tRetry);
-			
+
 		String msg = convertDocumentToString(doc);
 		setReqString(msg.substring(msg.indexOf("?>")+2));
 	}
-	
+
 	protected void setElement(Element mdElement) throws IOException{
-		if(getMaxDiff() != -1 && getMinDiff() != -1){
+		if((getMaxDiff() != -1) && (getMinDiff() != -1)){
 //			setReceiveTime(ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT")).getTimeInMillis());
 			setReceiveTime(System.currentTimeMillis());
 			setMeterTime(Long.valueOf(mdElement.getTextContent(), 16));
-			long diff = Math.abs(getMeterTime()*1000 - getReceiveTime()); 
+			long diff = Math.abs(getMeterTime()*1000 - getReceiveTime());
 			getObjectFactory().getAace().getLogger().log(Level.INFO, "MeterTime: " + new Date(getMeterTime()*1000) + " - SystemTime: " + new Date(getReceiveTime()) + " - Difference = " + diff/1000 + "s.");
 			if(diff > minDiff){
 				if(diff < maxDiff){
@@ -210,11 +209,11 @@ public class Time extends AbstractActarisObject {
 		Calendar cal2 = ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT"));
 		cal2.setTimeInMillis(timeLong);
 		System.out.println(cal2.getTime());
-		
+
 		String hex2 = "11bd5b0d434";
 		Long long2 = Long.valueOf(hex2, 16);
 		System.out.println(new Date(long2));
-		
+
 		Calendar cal = ProtocolUtils.getCalendar(TimeZone.getTimeZone("GMT"));
 		String hexString2 = Long.toHexString(cal.getTimeInMillis()/1000);
 		Long long3 = Long.valueOf(hexString2, 16);
@@ -243,12 +242,12 @@ public class Time extends AbstractActarisObject {
 	private void setMaxDiff(long max){
 		this.maxDiff = max;
 	}
-	
+
 	private long getMinDiff(){
 		return minDiff;
 	}
 	private long getMaxDiff(){
 		return maxDiff;
 	}
-	
+
 }

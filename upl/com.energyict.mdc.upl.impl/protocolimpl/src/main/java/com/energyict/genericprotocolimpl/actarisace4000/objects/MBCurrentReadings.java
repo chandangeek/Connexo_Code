@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
@@ -34,14 +34,14 @@ import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
  *
  */
 public class MBCurrentReadings extends AbstractActarisObject {
-	
+
 	private int DEBUG = 0;
-	
+
 	private int trackingID;
 	private String reqString = null;
-	
+
 	MeterReadingData mrd = new MeterReadingData();
-	
+
 	private Date timeStamp = null;
 
 	/**
@@ -57,7 +57,7 @@ public class MBCurrentReadings extends AbstractActarisObject {
 	protected String getReqString() {
 		return reqString;
 	}
-	
+
 	private void setReqString(String reqString){
 		this.reqString = reqString;
 	}
@@ -87,14 +87,14 @@ public class MBCurrentReadings extends AbstractActarisObject {
 				(byte) 0x00, (byte) 0x00, (byte) 0x28, (byte) 0xC6, (byte) 0x00, (byte) 0x00, (byte) 0x28, (byte) 0xCD,
 				(byte) 0x00, (byte) 0x00, (byte) 0x28, (byte) 0xD7, (byte) 0x00, (byte) 0x00, (byte) 0x28, (byte) 0xD9,
 				(byte) 0x00, (byte) 0x00, (byte) 0x28, (byte) 0xDA, (byte) 0x12, (byte) 0x34};
-		
+
 //			byte[] decoded = Base64.encode(text);
 			String encoded = Base64.encode(b);
 			System.out.println(encoded);
-			
+
 //			byte[] b2 = Base64.decode(text.getBytes());
 			byte[] b2 = Base64.decode(text);
-			
+
 			CurrentReadings cr = new CurrentReadings(null);
 			long time = (long)(cr.getNumberFromB64(b2, 0, 4))*1000;
 			Calendar cal1 = Calendar.getInstance();
@@ -108,49 +108,49 @@ public class MBCurrentReadings extends AbstractActarisObject {
 			System.out.println(tfr2);
 			System.out.println(tfr3);
 			System.out.println(tfr4);
-			
-			
+
+
 			String result = "";
 			for (int i=0; i < b2.length; i++) {
 				result += Integer.toString( ( b2[i] & 0xff ) + 0x100, 16).substring( 1 );
 //				result += Integer.toHexString(b2[i]);
 			}
-			
-			
+
+
 			System.out.println(result);
-		
-		
+
+
 		String str = "41915A00";
 		long milli = Long.parseLong(str, 16);
 		Calendar cal = Calendar.getInstance();
 		System.out.println(cal.getTimeInMillis());
 		cal.setTimeInMillis(milli*1000);
 		System.out.println(cal.getTime());
-		
+
 		String str2 = "28C3";
 		int intStr = Integer.parseInt(str2, 16);
 		System.out.println(intStr);
-		
+
 		byte[] b3 = {(byte)0x28, (byte)0xC3};
 		int i3 = ((b3[0]&0xFF)<<8)+(b3[1]&0xFF);
 		System.out.println(i3);
-		
+
 		byte[] b4 = {0, 0, 40, -61};
 		int i4 = ((b4[0]&0xFF)<<24)+((b4[1]&0xFF)<<16)+((b4[2]&0xFF)<<8)+(b4[3]&0xFF);
 		System.out.println(i4);
-		
+
 	}
-	
+
 	protected void setElement(Element mdElement) throws DOMException, IOException, SQLException, BusinessException {
 		NodeList list = mdElement.getChildNodes();
-		
+
 		for(int i = 0; i < list.getLength(); i++){
 			Element element = (Element)list.item(i);
-			if(element.getNodeName().equalsIgnoreCase(XMLTags.mbusRaw)){
+			if(element.getNodeName().equalsIgnoreCase(XMLTags.MBUSRAW)){
 				setMBReadingData(element.getTextContent());
 			}
 		}
-		
+
 		if(getMrd().getRegisterValues().size() > 0){
 			try {
 //				getObjectFactory().getAace().getMeter().store(mrd);
@@ -181,16 +181,16 @@ public class MBCurrentReadings extends AbstractActarisObject {
 		}
 		setTimeStamp(new Date(timeStamp));
 		offset+=4;
-		
+
 		RegisterValue rv = null;
 		RtuRegister register = null;
-		
+
 		//TODO get the timeZone of the meter, if it is null, get a default one
 //		CIField72h ciField72h = new CIField72h(getObjectFactory().getAace().getMeter().getDeviceTimeZone());
 		CIField72h ciField72h = new CIField72h(TimeZone.getDefault());
 		byte[] rawFrame = new byte[decoded.length-offset];
 		System.arraycopy(decoded, offset, rawFrame, 0, rawFrame.length);
-		
+
 		try {
 			ciField72h.parse(rawFrame);
 			List dataRecords = ciField72h.getDataRecords();
@@ -201,26 +201,26 @@ public class MBCurrentReadings extends AbstractActarisObject {
 					System.out.println(dRecord);
 				}
 			}
-			
-			
+
+
 	        for (Object dataRecord : dataRecords) {
 				//TODO verify allot of stuff, just added some data
 				DataRecord record;
 				ValueInformationfieldCoding valueInfo;
 				String obisString;
-				
+
 				record = (DataRecord) dataRecord;
 				valueInfo = record.getDataRecordHeader().getValueInformationBlock().getValueInformationfieldCoding();
-				
+
 				if(valueInfo.isTypeUnit() && valueInfo.getDescription().equalsIgnoreCase("Volume")){
 					valueInfo.getObisCodeCreator().setA(ciField72h.getDeviceType().getObisA());
 					obisString = valueInfo.getObisCodeCreator().toString();
 					ObisCode oc = ObisCode.fromString(obisString);
-					
+
 					for( int i = 0; i < mbusSerials().size(); i++){
 						Rtu mbusDevice = mbusDevices().get(mbusSerials().get(i));
 						register = mbusDevice.getRegister(oc);
-						if(register != null && register.getReadingAt(getTimeStamp()) == null){
+						if((register != null) && (register.getReadingAt(getTimeStamp()) == null)){
 							RegisterValue value = new RegisterValue(oc, record.getQuantity(), getTimeStamp());
 							value.setRtuRegisterId(register.getId());
 							getMrd().add(value);
@@ -233,11 +233,11 @@ public class MBCurrentReadings extends AbstractActarisObject {
 			throw new IOException("Failed to parse the RawMBusFrame." + e1.getMessage());
 		}
 	}
-	
+
 	private List mbusSerials(){
 		return getObjectFactory().getAace().getMBSerialNumber();
 	}
-	
+
 	private HashMap<String, Rtu> mbusDevices(){
 		return getObjectFactory().getAace().getMbusMetersMap();
 	}
@@ -257,5 +257,5 @@ public class MBCurrentReadings extends AbstractActarisObject {
 	protected void setMrd(MeterReadingData mrd) {
 		this.mrd = mrd;
 	}
-	
+
 }

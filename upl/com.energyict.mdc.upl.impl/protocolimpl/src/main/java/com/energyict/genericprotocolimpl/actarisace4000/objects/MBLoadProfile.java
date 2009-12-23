@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
@@ -35,17 +35,17 @@ import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
  *
  */
 public class MBLoadProfile extends AbstractActarisObject {
-	
+
 	private int DEBUG = 0;
 	private int STATE_OK = IntervalStateBits.OK;
 	private int STATE_SL = IntervalStateBits.SHORTLONG;
-	
+
 	private String reqString = null;
 	private int trackingID;
-	
+
 	private int lpInterval;
 	private ProfileData profileData;
-	
+
 	/**
 	 * @param of
 	 */
@@ -59,32 +59,32 @@ public class MBLoadProfile extends AbstractActarisObject {
 	protected String getReqString() {
 		return reqString;
 	}
-	
+
 	private void setReqString(String reqString){
 		this.reqString = reqString;
 	}
-	
+
 	/**
 	 * Request all loadProfileIntervals
 	 */
 	protected void prepareXML(){
-		
+
 		Document doc = createDomDocument();
-		
-		Element root = doc.createElement(XMLTags.mPull);
+
+		Element root = doc.createElement(XMLTags.MPULL);
 		doc.appendChild(root);
-		Element md = doc.createElement(XMLTags.meterData);
+		Element md = doc.createElement(XMLTags.METERDATA);
 		root.appendChild(md);
-		Element s = doc.createElement(XMLTags.serialNumber);
+		Element s = doc.createElement(XMLTags.SERIALNUMBER);
 		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
 		md.appendChild(s);
-		Element t = doc.createElement(XMLTags.tracker);
+		Element t = doc.createElement(XMLTags.TRACKER);
 		t.setTextContent(String.valueOf(trackingID));
 		md.appendChild(t);
-		
-		Element lp = doc.createElement(XMLTags.reqMBAllData);
+
+		Element lp = doc.createElement(XMLTags.REQMBALLDATA);
 		md.appendChild(lp);
-		
+
 		String msg = convertDocumentToString(doc);
 		setReqString(msg.substring(msg.indexOf("?>")+2));
 	}
@@ -94,26 +94,26 @@ public class MBLoadProfile extends AbstractActarisObject {
 	 * TODO the form is not correct yet! will not work!
 	 */
 	protected void prepareXML(Date from){
-		
+
 		//TODO
-		
+
 		Document doc = createDomDocument();
-		
-		Element root = doc.createElement(XMLTags.mPull);
+
+		Element root = doc.createElement(XMLTags.MPULL);
 		doc.appendChild(root);
-		Element md = doc.createElement(XMLTags.meterData);
+		Element md = doc.createElement(XMLTags.METERDATA);
 		root.appendChild(md);
-		Element s = doc.createElement(XMLTags.serialNumber);
+		Element s = doc.createElement(XMLTags.SERIALNUMBER);
 		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
 		md.appendChild(s);
-		Element t = doc.createElement(XMLTags.tracker);
+		Element t = doc.createElement(XMLTags.TRACKER);
 		t.setTextContent(String.valueOf(trackingID));
 		md.appendChild(t);
-		
-		Element lp = doc.createElement(XMLTags.reqMBrange);
+
+		Element lp = doc.createElement(XMLTags.REQMBRANGE);
 		lp.setTextContent(Long.toHexString(from.getTime()/1000)+Long.toHexString(System.currentTimeMillis()/1000));
 		md.appendChild(lp);
-		
+
 		String msg = convertDocumentToString(doc);
 		setReqString(msg.substring(msg.indexOf("?>")+2));
 	}
@@ -136,9 +136,9 @@ public class MBLoadProfile extends AbstractActarisObject {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		
+
 		String str = "Q/H/f3hWNBJ3BAsESgAAAAx4AAAAAAQGGSgAAAwWhyMAAAstIgAACzsAGAAKWmcBCl5WAQthCQEABG0PAs0CAicGAAn9DhAJ/Q8YDwAI";
-		
+
 		ActarisACE4000 aace = new ActarisACE4000();
 		ObjectFactory of = new ObjectFactory(aace);
 		MBLoadProfile mblp = new MBLoadProfile(of);
@@ -151,19 +151,19 @@ public class MBLoadProfile extends AbstractActarisObject {
 
 	protected void setElement(Element mdElement) throws DOMException, IOException, SQLException, BusinessException {
 		NodeList list = mdElement.getChildNodes();
-		
+
 		for(int i = 0; i < list.getLength(); i++){
 			Element element = (Element)list.item(i);
-			if(element.getNodeName().equalsIgnoreCase(XMLTags.mbusRaw)){
+			if(element.getNodeName().equalsIgnoreCase(XMLTags.MBUSRAW)){
 				setMBLoadProfile(element.getTextContent());
 			}
 		}
 	}
-	
+
 	private void setMBLoadProfile(String data) throws IOException{
 		int offset = 0;
 		byte[] decoded = Base64.decode(data);
-		
+
 		long timeStamp = (long)(getNumberFromB64(decoded, offset, 4))*1000;
 		if(DEBUG >= 1) {
 			System.out.println(new Date(timeStamp));
@@ -176,7 +176,7 @@ public class MBLoadProfile extends AbstractActarisObject {
 		if(Math.abs(cal.getTimeInMillis() - timeStamp) > 60000){
 			state = STATE_SL;
 		}
-		
+
 		//TODO get the timeZone of the meter, if it is null, get a default one
 //		CIField72h ciField72h = new CIField72h(getObjectFactory().getAace().getMeter().getDeviceTimeZone());
 		CIField72h ciField72h = new CIField72h(TimeZone.getDefault());
@@ -192,23 +192,23 @@ public class MBLoadProfile extends AbstractActarisObject {
 					System.out.println(dRecord);
 				}
 			}
-			
+
 			//TODO verify allot of stuff, just added some data
 //			if(true){
 				DataRecord record;
 				ValueInformationfieldCoding vInfo;
-				
+
 				IntervalData id = null;
 				int value;
-				
+
 				// TODO add the proper channel, you can get the unit from the mbus frame
 				if(getProfileData().getChannelInfos().size() == 0) {
 					getProfileData().addChannel(getDefaultChannelInfo());
 				}
-				
+
 				for(Object dataRecord : dataRecords){
 					record = (DataRecord) dataRecord;
-					
+
 					if(record.getQuantity() != null){
 						id = new IntervalData(cal.getTime(), state);
 						id.addValue(record.getQuantity().getAmount());
@@ -216,12 +216,12 @@ public class MBLoadProfile extends AbstractActarisObject {
 					}
 				}
 //			}
-			
+
 			if(getTrackingID() != -1){
 				getObjectFactory().sendAcknowledge(getTrackingID());
 				getObjectFactory().getAace().getLogger().log(Level.INFO, "Sent MBus loadprofile ACK for tracknr: " + getTrackingID());
 			}
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Failed to parse the RawMBusFrame." + e.getMessage());
@@ -242,7 +242,7 @@ public class MBLoadProfile extends AbstractActarisObject {
 		}
 		return profileData;
 	}
-	
+
 	private ChannelInfo getDefaultChannelInfo(){
 		return new ChannelInfo(0, 0, "Actaris ACE4000 MBUS Channel 1", Unit.get(BaseUnit.CUBICMETER));
 	}

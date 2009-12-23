@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
@@ -16,14 +16,14 @@ public class Acknowledge extends AbstractActarisObject{
 
 	private int trackingID;
 	private String reqString = null;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public Acknowledge() {
 		this(null);
 	}
-	
+
 	public Acknowledge(ObjectFactory objectFactory){
 		super(objectFactory);
 	}
@@ -53,27 +53,27 @@ public class Acknowledge extends AbstractActarisObject{
 
 	protected void setElement(Element element) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void prepareXML() {
 		Document doc = createDomDocument();
-		
-		Element root = doc.createElement(XMLTags.mPull);
+
+		Element root = doc.createElement(XMLTags.MPULL);
 		doc.appendChild(root);
-		Element md = doc.createElement(XMLTags.meterData);
+		Element md = doc.createElement(XMLTags.METERDATA);
 		root.appendChild(md);
-		Element s = doc.createElement(XMLTags.serialNumber);
+		Element s = doc.createElement(XMLTags.SERIALNUMBER);
 		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
 		md.appendChild(s);
-		
-		Element ak = doc.createElement(XMLTags.acknowledge);
+
+		Element ak = doc.createElement(XMLTags.ACKNOWLEDGE);
 		ak.setTextContent(Integer.toHexString(getTrackingID()));
 		md.appendChild(ak);
 
 		String msg = convertDocumentToString(doc);
-		
+
 		setReqString(msg.substring(msg.indexOf("?>")+2));
-		
+
 	}
 }

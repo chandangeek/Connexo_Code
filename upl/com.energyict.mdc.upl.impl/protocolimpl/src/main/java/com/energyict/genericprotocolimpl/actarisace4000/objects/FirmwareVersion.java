@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
@@ -14,7 +14,7 @@ import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
  *
  */
 public class FirmwareVersion extends AbstractActarisObject{
-	
+
 	private String metrologyFirmwareVersion = null;
 	private String auxiliaryFirmwareVersion = null;
 	private String reqString = null;
@@ -26,30 +26,30 @@ public class FirmwareVersion extends AbstractActarisObject{
 	public FirmwareVersion() {
 		this(null);
 	}
-	
+
 	public FirmwareVersion(ObjectFactory of) {
 		super(of);
 	}
 
 	protected void prepareXML(){
 		Document doc = createDomDocument();
-		
-		Element root = doc.createElement(XMLTags.mPull);
+
+		Element root = doc.createElement(XMLTags.MPULL);
 		doc.appendChild(root);
-		Element md = doc.createElement(XMLTags.meterData);
+		Element md = doc.createElement(XMLTags.METERDATA);
 		root.appendChild(md);
-		Element s = doc.createElement(XMLTags.serialNumber);
+		Element s = doc.createElement(XMLTags.SERIALNUMBER);
 		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
 		md.appendChild(s);
-		Element t = doc.createElement(XMLTags.tracker);
+		Element t = doc.createElement(XMLTags.TRACKER);
 		t.setTextContent(String.valueOf(trackingID));
 		md.appendChild(t);
-		
-		Element cf = doc.createElement(XMLTags.reqFirmware);
+
+		Element cf = doc.createElement(XMLTags.REQFIRMWARE);
 		md.appendChild(cf);
 
 		String msg = convertDocumentToString(doc);
-		
+
 		setReqString(msg.substring(msg.indexOf("?>")+2));
 	}
 
@@ -69,15 +69,16 @@ public class FirmwareVersion extends AbstractActarisObject{
 
 	protected void setElement(Element mdElement) {
 		NodeList list = mdElement.getChildNodes();
-		
+
 		for(int i = 0; i < list.getLength(); i++){
 			Element element = (Element)list.item(i);
-			
-			if(element.getNodeName().equalsIgnoreCase(XMLTags.auxFirmVers))
+
+			if(element.getNodeName().equalsIgnoreCase(XMLTags.AUXFIRMVERS)) {
 				setAuxiliaryFirmwareVersion(element.getTextContent());
-			else if(element.getNodeName().equalsIgnoreCase(XMLTags.metFirmVers))
+			} else if(element.getNodeName().equalsIgnoreCase(XMLTags.METFIRMVERS)) {
 				setMetrologyFirmwareVersion(element.getTextContent());
-			
+			}
+
 		}
 	}
 

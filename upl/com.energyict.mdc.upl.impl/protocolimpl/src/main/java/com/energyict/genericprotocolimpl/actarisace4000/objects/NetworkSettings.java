@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
@@ -13,7 +13,7 @@ import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
  *
  */
 public class NetworkSettings extends AbstractActarisObject {
-	
+
 	private int trackingID;
 	private String reqString = null;
 
@@ -31,7 +31,7 @@ public class NetworkSettings extends AbstractActarisObject {
 	protected String getReqString() {
 		return reqString;
 	}
-	
+
 	private void setReqString(String reqString){
 		this.reqString = reqString;
 	}
@@ -52,45 +52,45 @@ public class NetworkSettings extends AbstractActarisObject {
 
 	protected void prepareXML(String dnsIPAddress, String username, String password, String apn, String port, String ip){
 		Document doc = createDomDocument();
-		
-		Element root = doc.createElement(XMLTags.mPull);
+
+		Element root = doc.createElement(XMLTags.MPULL);
 		doc.appendChild(root);
-		Element md = doc.createElement(XMLTags.meterData);
+		Element md = doc.createElement(XMLTags.METERDATA);
 		root.appendChild(md);
-		Element s = doc.createElement(XMLTags.serialNumber);
+		Element s = doc.createElement(XMLTags.SERIALNUMBER);
 		s.setTextContent(getObjectFactory().getAace().getNecessarySerialnumber());
 		md.appendChild(s);
-		Element t = doc.createElement(XMLTags.tracker);
+		Element t = doc.createElement(XMLTags.TRACKER);
 		t.setTextContent(String.valueOf(trackingID));
 		md.appendChild(t);
-		
-		Element cf = doc.createElement(XMLTags.configHandling);
+
+		Element cf = doc.createElement(XMLTags.CONFIGHANDLING);
 		md.appendChild(cf);
-		Element ipdef = doc.createElement(XMLTags.systemIPAddress);
+		Element ipdef = doc.createElement(XMLTags.SYSTEMIPADDRESS);
 		ipdef.setTextContent(ip);
 		cf.appendChild(ipdef);
-		Element ns = doc.createElement(XMLTags.networkSettings);
+		Element ns = doc.createElement(XMLTags.NETWORKSETTINGS);
 		cf.appendChild(ns);
-		Element dnsip = doc.createElement(XMLTags.dnsIPAddress);
+		Element dnsip = doc.createElement(XMLTags.DNSIPADDRESS);
 		dnsip.setTextContent(dnsIPAddress);
 		ns.appendChild(dnsip);
-		Element gun = doc.createElement(XMLTags.gprsUsername);
+		Element gun = doc.createElement(XMLTags.GPRSUSERNAME);
 		gun.setTextContent(username);
 		ns.appendChild(gun);
-		Element gpw = doc.createElement(XMLTags.gprsPassword);
+		Element gpw = doc.createElement(XMLTags.GPRSPASSWORD);
 		gpw.setTextContent(password);
 		ns.appendChild(gpw);
-		Element gapn = doc.createElement(XMLTags.gprsAccessPoint);
+		Element gapn = doc.createElement(XMLTags.GPRSACCESSPOINT);
 		gapn.setTextContent(apn);
 		ns.appendChild(gapn);
-		Element csprt = doc.createElement(XMLTags.systemIPPortnr);
+		Element csprt = doc.createElement(XMLTags.SYSTEMIPPORTNR);
 		csprt.setTextContent(port);
 		ns.appendChild(csprt);
-		
+
 		String msg = convertDocumentToString(doc);
 		setReqString(msg.substring(msg.indexOf("?>")+2));
 	}
-	
+
 	/**
 	 * @param args
 	 */
@@ -101,7 +101,7 @@ public class NetworkSettings extends AbstractActarisObject {
 
 	protected void setElement(Element element) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

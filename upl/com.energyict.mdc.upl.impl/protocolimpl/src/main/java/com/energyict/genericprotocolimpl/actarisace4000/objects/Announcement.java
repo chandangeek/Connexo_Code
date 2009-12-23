@@ -1,9 +1,8 @@
 /**
- * 
+ *
  */
 package com.energyict.genericprotocolimpl.actarisace4000.objects;
 
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -15,17 +14,17 @@ import com.energyict.genericprotocolimpl.actarisace4000.objects.xml.XMLTags;
  *
  */
 public class Announcement extends AbstractActarisObject {
-	
+
 	private String reqString = null;
 	private int trackingID;
-	
+
 	private String ICID 	= null;		// SIM card ICID number
-	private String type		= null;		// meter type code 	
+	private String type		= null;		// meter type code
 	private int sStrength 	= 0;		// GSM signal strength
 	private int bStationID	= 0;		// GSM cell base station ID
 	private String opName	= null;		// GSM opertor name
 	private String cString	= null;		// meter codification string
-	
+
 
 	/**
 	 * @param of
@@ -40,7 +39,7 @@ public class Announcement extends AbstractActarisObject {
 	protected String getReqString() {
 		return reqString;
 	}
-	
+
 	private void setReqString(String reqString){
 		this.reqString = reqString;
 	}
@@ -65,32 +64,32 @@ public class Announcement extends AbstractActarisObject {
 	public static void main(String[] args) {
 
 	}
-	
+
 	protected void setElement(Element mdElement) {
-		NodeList list = mdElement.getElementsByTagName(XMLTags.announce);
-		
+		NodeList list = mdElement.getElementsByTagName(XMLTags.ANNOUNCE);
+
 		// TODO only create slave meters!!!
 		getObjectFactory().getAace().findOrCreateMeter();
-		
+
 		for(int i = 0; i < list.getLength(); i++){
 			Element element = (Element)list.item(i);
-			
-			if(element.getNodeName().equalsIgnoreCase(XMLTags.icid))
+
+			if(element.getNodeName().equalsIgnoreCase(XMLTags.ICID)) {
 				setICID(element.getTextContent());
-			else if(element.getNodeName().equalsIgnoreCase(XMLTags.type))
+			} else if(element.getNodeName().equalsIgnoreCase(XMLTags.TYPE)) {
 				setType(MeterTypeTable.meterType[Integer.parseInt(element.getTextContent())]);
-			else if(element.getNodeName().equalsIgnoreCase(XMLTags.sStrength))
+			} else if(element.getNodeName().equalsIgnoreCase(XMLTags.SSTRENGTH)) {
 				setSStrength(Integer.parseInt(element.getTextContent()));
-			else if(element.getNodeName().equalsIgnoreCase(XMLTags.bStation))
+			} else if(element.getNodeName().equalsIgnoreCase(XMLTags.BSTATION)) {
 				setBStationID(Integer.parseInt(element.getTextContent()));
-			else if(element.getNodeName().equalsIgnoreCase(XMLTags.operatorName))
+			} else if(element.getNodeName().equalsIgnoreCase(XMLTags.OPERATORNAME)) {
 				setOpName(element.getTextContent());
-			else if(element.getNodeName().equalsIgnoreCase(XMLTags.codString))
+			} else if(element.getNodeName().equalsIgnoreCase(XMLTags.CODSTRING)) {
 				setCString(element.getTextContent());
-			else if(element.getNodeName().equalsIgnoreCase(XMLTags.curReading)){
+			} else if(element.getNodeName().equalsIgnoreCase(XMLTags.CURREADING)){
 				getObjectFactory().getCurrentReadings().setElement(element);
 			}
-			
+
 		}
 	}
 
