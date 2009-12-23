@@ -63,6 +63,7 @@ import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.base.ParseUtils;
 
 public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProtocol {
@@ -79,14 +80,20 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 	private static final String	TARIFF_OPTION_SWITCH_BASE_DISPLAY		= "Switch tariff option BASE";
 	private static final String	TARIFF_OPTION_SWITCH_DAYNIGHT_DISPLAY	= "Switch tariff option DAY/NIGHT";
 
-    public AS220() {
+	private final ContactorController contactorController;
 
+    public AS220() {
+    	this.contactorController = new AS220ContactorController(this);
     }
 
     @Override
 	protected String getDeviceID() {
         return "GEC";
     }
+
+    public ContactorController getContactorController() {
+    	return contactorController;
+	}
 
     //KV 27102003
 	public Calendar initCalendarSW(boolean protocolDSTFlag, TimeZone timeZone) {
@@ -472,23 +479,11 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 	public MessageResult queryMessage(MessageEntry messageEntry) {
 		try {
 			if (messageEntry.getContent().indexOf("<" + DISCONNECT) >= 0) {
-				getLogger().info("DISCONNECT message received");
-				getCosemObjectFactory().getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).writeControlState(new TypeEnum(0));
-				if (isDebug()) {
-					System.out.println("DISCONNECT message received");
-				}
+				getContactorController().doDisconnect();
 			} else if (messageEntry.getContent().indexOf("<" + CONNECT) >= 0) {
-				getLogger().info("CONNECT message received");
-				getCosemObjectFactory().getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).writeControlState(new TypeEnum(1));
-				if (isDebug()) {
-					System.out.println("CONNECT message received");
-				}
+				getContactorController().doConnect();
 			} else if (messageEntry.getContent().indexOf("<" + ARM) >= 0) {
-				getLogger().info("ARM message received");
-				getCosemObjectFactory().getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).writeControlState(new TypeEnum(2));
-				if (isDebug()) {
-					System.out.println("ARM message received");
-				}
+				getContactorController().doArm();
 			} else if (messageEntry.getContent().indexOf("<" + TARIFF_OPTION_SWITCH_BASE) >= 0) {
 				getLogger().info("TARIFF_OPTION_SWITCH_BASE message received");
 				getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.0.255")).setValueAttr(new TypeEnum(0));
