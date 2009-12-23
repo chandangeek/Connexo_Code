@@ -70,11 +70,11 @@ public class PMaxMoisTest {
 	        // TODO check if you get these values from other meters!
 	        
 		} catch (FileNotFoundException e) {
-			fail();
 			e.printStackTrace();
+			fail();
 		} catch (IOException e) {
-			fail();
 			e.printStackTrace();
+			fail();
 		}
 	}
 

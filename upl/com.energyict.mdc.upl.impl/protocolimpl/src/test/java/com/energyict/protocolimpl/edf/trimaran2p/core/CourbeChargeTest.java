@@ -112,45 +112,51 @@ public class CourbeChargeTest {
 			
 			IntervalData inter160 = new IntervalData(interval160.toDate(deuxP.getTimeZone()), 0, 0, 0);
 			inter160.addValue(new Integer(992)); inter160.addValue(new Integer(0)); inter160.addValue(new Integer(899)); inter160.addValue(new Integer(0)); inter160.addValue(new Integer(0)); inter160.addValue(new Integer(0));
-			for(int i = 0; i < inter160.getIntervalValues().size(); i++)
+			for(int i = 0; i < inter160.getIntervalValues().size(); i++) {
 				assertEquals(cc.getProfileData().getIntervalData(160).get(i), inter160.get(i));
+			}
 			
 			IntervalData inter304 = new IntervalData(interval304.toDate(deuxP.getTimeZone()), 0, 0, 0);
 			inter304.addValue(new Integer(1026)); inter304.addValue(new Integer(0)); inter304.addValue(new Integer(938)); inter304.addValue(new Integer(0)); inter304.addValue(new Integer(0)); inter304.addValue(new Integer(0));
-			for(int i = 0; i < inter304.getIntervalValues().size(); i++)
+			for(int i = 0; i < inter304.getIntervalValues().size(); i++) {
 				assertEquals(cc.getProfileData().getIntervalData(304).get(i), inter304.get(i));
+			}
 			
 			IntervalData inter448 = new IntervalData(interval448.toDate(deuxP.getTimeZone()), 0, 0, 0);
 			inter448.addValue(new Integer(921)); inter448.addValue(new Integer(0)); inter448.addValue(new Integer(834)); inter448.addValue(new Integer(0)); inter448.addValue(new Integer(0)); inter448.addValue(new Integer(0));
-			for(int i = 0; i < inter448.getIntervalValues().size(); i++)
+			for(int i = 0; i < inter448.getIntervalValues().size(); i++) {
 				assertEquals(cc.getProfileData().getIntervalData(448).get(i), inter448.get(i));
+			}
 			
 			IntervalData inter592 = new IntervalData(interval592.toDate(deuxP.getTimeZone()), 0, 0, 0);
 			inter592.addValue(new Integer(222)); inter592.addValue(new Integer(0)); inter592.addValue(new Integer(219)); inter592.addValue(new Integer(0)); inter592.addValue(new Integer(0)); inter592.addValue(new Integer(0));
-			for(int i = 0; i < inter592.getIntervalValues().size(); i++)
+			for(int i = 0; i < inter592.getIntervalValues().size(); i++) {
 				assertEquals(cc.getProfileData().getIntervalData(592).get(i), inter592.get(i));
+			}
 			
 			IntervalData inter736 = new IntervalData(interval736.toDate(deuxP.getTimeZone()), 0, 0, 0);
 			inter736.addValue(new Integer(206)); inter736.addValue(new Integer(0)); inter736.addValue(new Integer(199)); inter736.addValue(new Integer(0)); inter736.addValue(new Integer(0)); inter736.addValue(new Integer(0));
-			for(int i = 0; i < inter736.getIntervalValues().size(); i++)
+			for(int i = 0; i < inter736.getIntervalValues().size(); i++) {
 				assertEquals(cc.getProfileData().getIntervalData(736).get(i), inter736.get(i));
+			}
 			
 			IntervalData inter767 = new IntervalData(interval767.toDate(deuxP.getTimeZone()), 0, 0, 0);
 			inter767.addValue(new Integer(225)); inter767.addValue(new Integer(0)); inter767.addValue(new Integer(222)); inter767.addValue(new Integer(0)); inter767.addValue(new Integer(0)); inter767.addValue(new Integer(0));
-			for(int i = 0; i < inter767.getIntervalValues().size(); i++)
+			for(int i = 0; i < inter767.getIntervalValues().size(); i++) {
 				assertEquals(cc.getProfileData().getIntervalData(cc.getProfileData().getIntervalDatas().size()-1).get(i), inter767.get(i));
+			}
 			
 			
 			
 		} catch (FileNotFoundException e) {
-			fail();
 			e.printStackTrace();
+			fail();
 		} catch (IOException e) {
-			fail();
 			e.printStackTrace();
+			fail();
 		} catch (ClassNotFoundException e) {
-			fail();
 			e.printStackTrace();
+			fail();
 		}
 	}
 	
@@ -213,14 +219,14 @@ public class CourbeChargeTest {
 			
 			
 		} catch (FileNotFoundException e) {
-			fail();
 			e.printStackTrace();
+			fail();
 		} catch (IOException e) {
-			fail();
 			e.printStackTrace();
+			fail();
 		} catch (ClassNotFoundException e) {
-			fail();
 			e.printStackTrace();
+			fail();
 		}
 		
 	}
@@ -259,48 +265,54 @@ public class CourbeChargeTest {
 			IntervalData inter540 = new IntervalData(interval540.toDate(deuxP.getTimeZone()), 4, 0, 0);
 			inter540.addValue(new Integer(0)); inter540.addValue(new Integer(0)); inter540.addValue(new Integer(0));
 			inter540.addValue(new Integer(2)); inter540.addValue(new Integer(0)); inter540.addValue(new Integer(4));
-			for(int i = 0; i < inter540.getIntervalValues().size(); i++)
+			for(int i = 0; i < inter540.getIntervalValues().size(); i++) {
 				assertEquals(cc.getProfileData().getIntervalData(540).get(i), inter540.get(i));
+			}
 
 			IntervalData inter542 = new IntervalData(interval542.toDate(deuxP.getTimeZone()), 36, 0, 0);
 			inter542.addValue(new Integer(0)); inter542.addValue(new Integer(0)); inter542.addValue(new Integer(0));
 			inter542.addValue(new Integer(0)); inter542.addValue(new Integer(0)); inter542.addValue(new Integer(0));
-			for(int i = 0; i < inter542.getIntervalValues().size(); i++)
+			for(int i = 0; i < inter542.getIntervalValues().size(); i++) {
 				assertEquals(cc.getProfileData().getIntervalData(542).get(i), inter542.get(i));
+			}
 			
 			IntervalData inter555 = new IntervalData(interval555.toDate(deuxP.getTimeZone()), 0, 0, 0);
 			inter555.addValue(new Integer(1980)); inter555.addValue(new Integer(0)); inter555.addValue(new Integer(1142));
 			inter555.addValue(new Integer(0)); inter555.addValue(new Integer(0)); inter555.addValue(new Integer(0));
-			for(int i = 0; i < inter555.getIntervalValues().size(); i++)
+			for(int i = 0; i < inter555.getIntervalValues().size(); i++) {
 				assertEquals(cc.getProfileData().getIntervalData(555).get(i), inter555.get(i));
+			}
 			
 			IntervalData inter568 = new IntervalData(interval568.toDate(deuxP.getTimeZone()), 0, 0, 0);
 			inter568.addValue(new Integer(1208)); inter568.addValue(new Integer(808)); inter568.addValue(new Integer(705));
 			inter568.addValue(new Integer(297)); inter568.addValue(new Integer(10)); inter568.addValue(new Integer(0));
-			for(int i = 0; i < inter568.getIntervalValues().size(); i++)
+			for(int i = 0; i < inter568.getIntervalValues().size(); i++) {
 				assertEquals(cc.getProfileData().getIntervalData(568).get(i), inter568.get(i));
+			}
 			
 			IntervalData inter569 = new IntervalData(interval569.toDate(deuxP.getTimeZone()), 0, 0, 0);
 			inter569.addValue(new Integer(0)); inter569.addValue(new Integer(2148)); inter569.addValue(new Integer(0));
 			inter569.addValue(new Integer(781)); inter569.addValue(new Integer(0)); inter569.addValue(new Integer(0));
-			for(int i = 0; i < inter569.getIntervalValues().size(); i++)
+			for(int i = 0; i < inter569.getIntervalValues().size(); i++) {
 				assertEquals(cc.getProfileData().getIntervalData(569).get(i), inter569.get(i));
+			}
 			
 			IntervalData inter586 = new IntervalData(interval586.toDate(deuxP.getTimeZone()), 0, 0, 0);
 			inter586.addValue(new Integer(0)); inter586.addValue(new Integer(854)); inter586.addValue(new Integer(0));
 			inter586.addValue(new Integer(310)); inter586.addValue(new Integer(0)); inter586.addValue(new Integer(0));
-			for(int i = 0; i < inter586.getIntervalValues().size(); i++)
+			for(int i = 0; i < inter586.getIntervalValues().size(); i++) {
 				assertEquals(cc.getProfileData().getIntervalData(586).get(i), inter586.get(i));
+			}
 			
 		} catch (FileNotFoundException e) {
-			fail();
 			e.printStackTrace();
+			fail();
 		} catch (IOException e) {
-			fail();
 			e.printStackTrace();
+			fail();
 		} catch (ClassNotFoundException e) {
-			fail();
 			e.printStackTrace();
+			fail();
 		}
 	}
 

@@ -96,14 +96,14 @@ public class EnergiesTest {
 			assertEquals(r3.getQuantity().getAmount(),rv3.getQuantity().getAmount());
 			assertEquals(r4.getQuantity().getAmount(),rv4.getQuantity().getAmount());
 		} catch (FileNotFoundException e) {
-			fail();
 			e.printStackTrace();
+			fail();
 		} catch (ClassNotFoundException e) {
-			fail();
 			e.printStackTrace();
+			fail();
 		} catch (IOException e) {
-			fail();
 			e.printStackTrace();
+			fail();
 		}
 		
 		
