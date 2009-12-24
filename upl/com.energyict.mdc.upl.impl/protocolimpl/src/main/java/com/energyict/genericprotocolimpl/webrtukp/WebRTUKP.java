@@ -43,7 +43,6 @@ import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.StoredValues;
@@ -76,6 +75,7 @@ import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.base.MagicNumberConstants;
 import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.HDLC2Connection;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
@@ -114,7 +114,6 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 
 public class WebRTUKP extends MeterMessages implements GenericProtocol, ProtocolLink, HHUEnabler, MeterToolProtocol {
 
-	private boolean DEBUG = false;
 	private boolean connected = false;
 	private boolean badTime = false;
 	private boolean enforceSerialNumber = true;
@@ -133,7 +132,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	private DLMSCache dlmsCache = new DLMSCache();	// this cache object is supported by 7.5
 
 	private MbusDevice[] mbusDevices;
-	private HashMap<String, Integer> ghostMbusDevices = new HashMap<String, Integer>();	// GhostMbusDevices are Mbus meters that are connected with their gateway in EIServer, but not on the physical device anymore
+	private Map<String, Integer> ghostMbusDevices = new HashMap<String, Integer>();	// GhostMbusDevices are Mbus meters that are connected with their gateway in EIServer, but not on the physical device anymore
 	private TicDevice ticDevice;
 	private Clock deviceClock;
 	private StoreObject storeObject;
@@ -303,14 +302,14 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 			success = true;
 
 		} catch (DLMSConnectionException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			disConnect();
 		} catch (ClassCastException e) {
 			// Mostly programmers fault if you get here ...
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			disConnect();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			disConnect();
 
 			/** Close the connection after an SQL exception, connection will startup again if requested */
@@ -387,13 +386,13 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 					return true;
 				}
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 //				should never come here because if the rtuType has the className, then you should be able to create a class for it...
 			} catch (InstantiationException e) {
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.INFO, "Could not check for TicDevices exists.");
 			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.INFO, "Could not check for TicDevices exists.");
 			}
 		}
@@ -410,9 +409,9 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 
 		this.timeDifference = Math.abs(meterTime.getTime() - systemTime.getTime());
 		long diff = this.timeDifference; // in milliseconds
-		if ((diff / 1000 > this.commProfile.getMaximumClockDifference())) {
+		if ((diff / MagicNumberConstants.thousand.getValue() > this.commProfile.getMaximumClockDifference())) {
 
-			String msg = "Time difference exceeds configured maximum: (" + (diff / 1000) + " s > " + this.commProfile.getMaximumClockDifference() + " s )";
+			String msg = "Time difference exceeds configured maximum: (" + (diff / MagicNumberConstants.thousand.getValue()) + " s > " + this.commProfile.getMaximumClockDifference() + " s )";
 
 			getLogger().log(Level.SEVERE, msg);
 
@@ -592,13 +591,13 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 			}
 
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException(e.getMessage());
+			log(Level.FINEST, e.getMessage());
+			throw e;
 		} catch (DLMSConnectionException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			throw new IOException(e.getMessage());
 		} catch (BusinessException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			throw new BusinessException(e);
 		}
 	}
@@ -624,10 +623,10 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 
 			getMeter().update(shadow);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			throw new IOException("Could not set the IP address.");
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			throw new SQLException("Could not update the IP address.");
 		}
 	}
@@ -647,52 +646,6 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	}
 
 	/**
-	 * Just to test some objects
-	 */
-	private void doSomeTestCalls(){
-		
-//		try {
-//			MessageExecutor messageExecutor = new MessageExecutor(this);
-//			Calendar cal = Calendar.getInstance();
-//			cal.add(Calendar.MINUTE, 2);
-//			SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
-//			System.out.println(cal.getTimeInMillis()/1000);
-//			String strDate = Long.toString(cal.getTimeInMillis()/1000);
-//			Array dateArray = messageExecutor.convertUnixToDateTimeArray(strDate);
-//			sas.writeExecutionTime(dateArray);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		
-//		try {
-//			getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.0.42.0.0.255"), DLMSUtils.attrLN2SN(2), 1);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-		
-//		try {
-//			AssociationLN aln = getCosemObjectFactory().getAssociationLN();
-//			
-//			System.out.println(aln.getBuffer());
-//			System.out.println(aln.getAssociatedPartnersId());
-//			System.out.println(aln.getClientSAP());
-//			System.out.println(aln.getServerSAP());
-//			System.out.println(aln.getXdlmsContextInfo());
-//			System.out.println(aln.readApplicationContextName());
-//			System.out.println(aln.readAuthenticationMechanismName());
-//			System.out.println(aln.readSecuritySetupReference());
-//			
-//			ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255"));
-//			Array dpta = ac.readDayProfileTableActive();
-//			ac.writeDayProfileTablePassive(dpta);
-//			
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-	}
-
-	/**
 	 * Handles all the MBus devices like a separate device
 	 */
 	private void handleMbusMeters() {
@@ -708,7 +661,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 				/*
 				 * A single MBusMeter failed: log and try next MBusMeter.
 				 */
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
 
 			} catch (SQLException e) {
@@ -719,7 +672,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 				/*
 				 * A single MBusMeter failed: log and try next MBusMeter.
 				 */
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
 
 			} catch (IOException e) {
@@ -727,7 +680,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 				/*
 				 * A single MBusMeter failed: log and try next MBusMeter.
 				 */
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed. [" + e.getMessage() + "]");
 
 			}
@@ -759,12 +712,12 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 							getStoreObject().add(rr, rv);
 						}
 					} catch (NoSuchRegisterException e) {
-						e.printStackTrace();
+						log(Level.FINEST, e.getMessage());
 						getLogger().log(Level.INFO, "ObisCode " + oc + " is not supported by the meter.");
 					}
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.INFO, "Reading register with obisCode " + oc + " FAILED.");
 //				throw new IOException(e.getMessage());
 			}
@@ -787,27 +740,6 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		return false;
 	}
 
-	/**
-	 * TestMethod to read a certain obisCode from the meter
-	 * 
-	 * @param name - the Obiscode in String format
-	 * @throws IOException
-	 */
-	private void readFromMeter(String name) throws IOException {
-		try {
-			CosemObject cobj = getCosemObjectFactory().getCosemObject(ObisCode.fromString(name));
-			cobj.getText();
-			long value = cobj.getValue();
-
-			// String value = "";
-			// getCosemObjectFactory().getGenericRead(getMeterConfig().getMbusSerialNumber(0)).getString();
-			// System.out.println("Value: " + value);
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("Reading of object has failed!");
-		}
-	}
-
 	public RegisterValue readRegister(ObisCode obisCode) throws IOException {
 		if (ocm == null) {
 			ocm = new ObisCodeMapper(getCosemObjectFactory());
@@ -819,7 +751,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		try {
 			return getCosemObjectFactory().getGenericRead(getMeterConfig().getVersionObject()).getString();
 		} catch (IOException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			throw new IOException("Could not fetch the firmwareVersion.");
 		}
 	}
@@ -840,7 +772,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		try {
 			return getCosemObjectFactory().getGenericRead(getMeterConfig().getSerialNumberObject()).getString();
 		} catch (IOException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			throw new IOException("Could not retrieve the serialnumber of the meter." + e);
 		}
 	}
@@ -878,7 +810,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 
 			return strBuilder.toString();
 		} catch (IOException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			throw new IOException("Could not generate the extended loggings." + e);
 		}
 	}
@@ -898,10 +830,10 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 			}
 			getDLMSConnection().disconnectMAC();
 		} catch (IOException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			throw new IOException();
 		} catch (DLMSConnectionException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			throw new IOException("Failed to access the dlmsConnection");
 		}
 	}
@@ -921,7 +853,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 				log(Level.INFO, "Checking the configuration parameters.");
 				configNumber = requestConfigurationChanges();
 			} catch (IOException e) {
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				configNumber = -1;
 				log(Level.SEVERE, "Config change parameter could not be retrieved, configuration is forced to be read.");
 				requestConfiguration();
@@ -944,7 +876,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 				dlmsCache.saveObjectList(getMeterConfig().getInstantiatedObjectList());
 				dlmsCache.setConfProgChange(configNumber);
 			} catch (IOException e) {
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				configNumber = -1;
 			}
 		}
@@ -967,7 +899,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		try {
 			return (int) getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode()).getValue();
 		} catch (IOException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			throw new IOException("Could not retrieve the configuration change parameter" + e);
 		}
 	}
@@ -982,7 +914,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		try {
 			getMeterConfig().setInstantiatedObjectList(getCosemObjectFactory().getAssociationLN().getBuffer());
 		} catch (IOException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 		}
 	}
 
@@ -1024,7 +956,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 			Date now = Calendar.getInstance(getTimeZone()).getTime();
 
 			this.timeDifference = Math.abs(now.getTime() - meterTime.getTime());
-			long diff = this.timeDifference / 1000;
+			long diff = this.timeDifference / MagicNumberConstants.thousand.getValue();
 
 			log(Level.INFO, "Difference between metertime(" + meterTime + ") and systemtime(" + now + ") is " + diff + "s.");
 			if (this.commProfile.getWriteClock()) {
@@ -1039,7 +971,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 			}
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			throw e;
 		}
 
@@ -1050,7 +982,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 			// getCosemObjectFactory().getClock().setTimeAttr(new DateTime(currentTime));
 			getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(getRoundTripCorrected(currentTime)));
 		} catch (IOException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			throw new IOException("Could not force to set the Clock object.");
 		}
 	}
@@ -1062,7 +994,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 			meterTime = deviceClock.getDateTime();
 			return meterTime;
 		} catch (IOException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			throw new IOException("Could not retrieve the Clock object.");
 		}
 	}
@@ -1073,7 +1005,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 			// getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(time));
 			getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(getRoundTripCorrected(time)));
 		} catch (IOException e) {
-			e.printStackTrace();
+			log(Level.FINEST, e.getMessage());
 			throw new IOException("Could not set the Clock object.");
 		}
 	}
@@ -1109,7 +1041,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	public void discoverMbusDevices() throws SQLException, BusinessException{
 		
 		// get a MbusDeviceMap 
-		HashMap<String, Integer> mbusMap = getMbusMapper();
+		Map<String, Integer> mbusMap = getMbusMapper();
 		
 		// check if the current mbus slaves are still on the meter disappeared
 		checkForDisappearedMbusMeters(mbusMap);
@@ -1117,7 +1049,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		checkToUpdateMbusMeters(mbusMap);
 	}
 	
-	private void checkForDisappearedMbusMeters(HashMap<String, Integer> mbusMap){
+	private void checkForDisappearedMbusMeters(Map<String, Integer> mbusMap){
 
 		List<Rtu> mbusSlaves = getMeter().getDownstreamRtus();
 		Iterator<Rtu> it = mbusSlaves.iterator();
@@ -1133,13 +1065,13 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 					}
 				}
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				// should never come here because if the rtuType has the className, then you should be able to create a class for it...
 			} catch (InstantiationException e) {
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.INFO, "Could not check if the mbusDevice " + mbus.getSerialNumber() + " exists.");
 			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.INFO, "Could not check if the mbusDevice " + mbus.getSerialNumber() + " exists.");
 			}
 		}
@@ -1153,7 +1085,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	 * @throws BusinessException 
 	 * @throws SQLException 
 	 */
-	private void checkToUpdateMbusMeters(HashMap<String, Integer> mbusMap) throws SQLException, BusinessException{
+	private void checkToUpdateMbusMeters(Map<String, Integer> mbusMap) throws SQLException, BusinessException{
 		Iterator<Entry<String, Integer>>  mbusIt = mbusMap.entrySet().iterator();
 		int count = 0;
 		while(mbusIt.hasNext()){
@@ -1234,9 +1166,9 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
         return (String)properties.get(key);
     }
 	
-	private HashMap<String, Integer> getMbusMapper(){
+	private Map<String, Integer> getMbusMapper(){
 		String mbusSerial;
-		HashMap<String, Integer> mbusMap = new HashMap<String, Integer>();
+		Map<String, Integer> mbusMap = new HashMap<String, Integer>();
 		MbusProvider mp = new MbusProvider(getCosemObjectFactory());
 		for (int i = 0; i < this.maxMbusDevices; i++) {
 			mbusSerial = "";
@@ -1297,23 +1229,21 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 					}
 				} // else it should be a Tic device
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				// should never come here because if the rtuType has the className, then you should be able to create a class for it...
 			} catch (InstantiationException e) {
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.INFO, "Could not check if the mbusDevice " + serialMbus + " exists.");
 			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+				log(Level.FINEST, e.getMessage());
 				getLogger().log(Level.INFO, "Could not check if the mbusDevice " + serialMbus + " exists.");
 			}
 			
 		}
 
 		for (int i = 0; i < this.maxMbusDevices; i++) {
-			if (mbusDevice(i) != null) {
-				if (isValidMbusMeter(i)) {
-					return true;
-				}
+			if (mbusDevice(i) != null && isValidMbusMeter(i)) {
+				return true;
 			}
 		}
 
@@ -1335,7 +1265,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 					return i;
 				}
 			} catch (IOException e) {
-				e.printStackTrace(); // catch and go to next
+				log(Level.FINEST, e.getMessage()); // catch and go to next
 				log(Level.INFO, "Could not retrieve the mbusSerialNumber for channel " + (i + 1));
 			}
 		}
@@ -1372,17 +1302,17 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 			}
 		}
 
-		if (getMeter() != null && getMeter().getDeviceId() != "") {
+		if (getMeter() != null && !getMeter().getDeviceId().equalsIgnoreCase("")) {
 			this.deviceId = getMeter().getDeviceId();
 		} else {
 			this.deviceId = "!";
 		}
-		if (getMeter() != null && getMeter().getPassword() != "") {
+		if (getMeter() != null && !getMeter().getPassword().equalsIgnoreCase("")) {
 			this.password = getMeter().getPassword();
 		} else if(getMeter() == null){
 			this.password = properties.getProperty("Password","");
 		}
-		if (getMeter() != null && getMeter().getSerialNumber() != "") {
+		if (getMeter() != null && !getMeter().getSerialNumber().equalsIgnoreCase("")) {
 			this.serialNumber = getMeter().getSerialNumber();
 		} else {
 			this.serialNumber = "";
@@ -1433,7 +1363,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	}
 
 	public List<String> getOptionalKeys() {
-		List<String> result = new ArrayList<String>(30);
+		List<String> result = new ArrayList<String>(MagicNumberConstants.thirty.getValue());
 		result.add("Timeout");
 		result.add("Retries");
 		result.add("DelayAfterFail");
@@ -1473,8 +1403,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	}
 
 	public List<String> getRequiredKeys() {
-		List<String> result = new ArrayList<String>();
-		return result;
+		return new ArrayList<String>();
 	}
 
 	public DLMSConnection getDLMSConnection() {
@@ -1581,7 +1510,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	}
 
 	public static void main(String args[]) {
-		WebRTUKP wkp = new WebRTUKP();
+//		WebRTUKP wkp = new WebRTUKP();
 
 		// try {
 		// Utilities.createEnvironment();
@@ -1597,7 +1526,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		// wkp.doReadRegisters();
 		// } catch (IOException e) {
 		// // TODO Auto-generated catch block
-		// e.printStackTrace();
+		// log(Level.FINEST, e.getMessage());
 		// }
 
 		// RtuMessageShadow rms = new RtuMessageShadow();
@@ -1609,10 +1538,10 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		// // wkp.handleMessage(wkp.mw().getRtuMessageFactory().create(rms));
 		// } catch (BusinessException e) {
 		// // TODO Auto-generated catch block
-		// e.printStackTrace();
+		// log(Level.FINEST, e.getMessage());
 		// } catch (SQLException e) {
 		// // TODO Auto-generated catch block
-		// e.printStackTrace();
+		// log(Level.FINEST, e.getMessage());
 		// }
 
 		// try {
@@ -1621,28 +1550,28 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		// System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("GMT")));
 		// System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
 		// System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
-		// System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1236761593")*1000)/3600000);
+		// System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1236761593")*MagicNumberConstants.thousand.getValue())/3600000);
 		//			
 		// axdrDateTime = wkp.convertUnixToGMTDateTime("1236761593", TimeZone.getTimeZone("Europe/Brussels"));
 		// System.out.println(axdrDateTime.getValue().getTime());
 		// System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("Europe/Brussels")));
 		// System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
 		// System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
-		// System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1236761593")*1000)/3600000);
+		// System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1236761593")*MagicNumberConstants.thousand.getValue())/3600000);
 		//			
 		// axdrDateTime = wkp.convertUnixToGMTDateTime("1234947193", TimeZone.getTimeZone("GMT"));
 		// System.out.println(axdrDateTime.getValue().getTime());
 		// System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("GMT")));
 		// System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
 		// System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
-		// System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1234947193")*1000)/3600000);
+		// System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1234947193")*MagicNumberConstants.thousand.getValue())/3600000);
 		//			
 		// axdrDateTime = wkp.convertUnixToGMTDateTime("1234947193", TimeZone.getTimeZone("Europe/Brussels"));
 		// System.out.println(axdrDateTime.getValue().getTime());
 		// System.out.println(wkp.getFirstDate(axdrDateTime.getValue().getTime(), "day", TimeZone.getTimeZone("Europe/Brussels")));
 		// System.out.println(axdrDateTime.getValue().get(Calendar.HOUR_OF_DAY));
 		// System.out.println(axdrDateTime.getValue().getTimeZone().getRawOffset()/3600000);
-		// System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1234947193")*1000)/3600000);
+		// System.out.println(axdrDateTime.getValue().getTimeZone().getOffset(Long.parseLong("1234947193")*MagicNumberConstants.thousand.getValue())/3600000);
 		//			
 		// Date nextDate = wkp.getFirstDate(axdrDateTime.getValue().getTime(), "month", TimeZone.getTimeZone("Europe/Brussels"));
 		// int days = 0;
@@ -1658,7 +1587,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		// }
 		//			
 		// } catch (IOException e) {
-		// e.printStackTrace();
+		// log(Level.FINEST, e.getMessage());
 		// }
 
 //		String comm = "612aa109060760857405080101a203020100a305a103020100be11040f080100065f1f0400007c1f04000007";

@@ -51,6 +51,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
         
         // registers
         getRegisters().add(new HoldingRegister(1835,2,ObisCode.fromString("1.1.16.8.0.255"),Unit.get("kWh")).setParser("decimal10000")); 	// active Energy+
+        getRegisters().add(new HoldingRegister(1837,2,ObisCode.fromString("1.1.36.8.0.255"),Unit.get("kvarh")).setParser("decimal10000")); 	// reactive Energy+
         getRegisters().add(new HoldingRegister(1803,1,ObisCode.fromString("1.1.1.7.0.255"),Unit.get("kW")).setParser("power"));				// Active Power
         getRegisters().add(new HoldingRegister(1804,1,ObisCode.fromString("1.1.3.7.0.255"),Unit.get("kvar")).setParser("power"));			// Reactive Power
         getRegisters().add(new HoldingRegister(1805,1,ObisCode.fromString("1.1.9.7.0.255"),Unit.get("kVA")).setParser("power"));			// Apparent Power
