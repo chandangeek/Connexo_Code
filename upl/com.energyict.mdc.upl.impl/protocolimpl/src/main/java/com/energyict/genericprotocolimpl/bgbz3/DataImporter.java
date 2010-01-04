@@ -52,10 +52,15 @@ public class DataImporter extends DefaultHandler {
 		this.currentDate.setTimeInMillis(System.currentTimeMillis());
 		this.registers = registers;
 //    	try {
-//			File file2 = new File("c://TEST_FILES/RtuRegisterList.bin");
+//    		Iterator<RtuRegister> it = this.registers.iterator();
+//    		List<RtuRegisterShadow> rrs = new ArrayList<RtuRegisterShadow>();
+//    		while(it.hasNext()){
+//    			rrs.add(it.next().getShadow());
+//    		}
+//			File file2 = new File("c://TEST_FILES/RtuRegisterShadowList.bin");
 //			FileOutputStream fos = new FileOutputStream(file2);
 //			ObjectOutputStream oos = new ObjectOutputStream(fos);
-//			oos.writeObject(registers);
+//			oos.writeObject(rrs);
 //			oos.close();
 //			fos.close();
 //		} catch (FileNotFoundException e) {

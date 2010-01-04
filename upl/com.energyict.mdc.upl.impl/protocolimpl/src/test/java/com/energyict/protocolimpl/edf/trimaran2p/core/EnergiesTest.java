@@ -30,7 +30,6 @@ import com.energyict.protocolimpl.edf.trimarandlms.axdr.DataContainer;
 
 /**
  * @author gna
- * FIXME: You need to rebuild the resources with the fixed SerialVersionUID of the VariableName
  *
  */
 public class EnergiesTest {

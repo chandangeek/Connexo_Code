@@ -138,8 +138,6 @@ public class BgbZ3 implements GenericProtocol{
 	 * {@inheritDoc}
 	 */
 	public void addProperties(Properties properties) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	/**
