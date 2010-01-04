@@ -1,9 +1,12 @@
 package com.energyict.protocolimpl.utils;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 
 import com.energyict.protocol.ProtocolUtils;
@@ -190,16 +193,16 @@ public final class ProtocolTools {
 	 * @param append
 	 */
 	public static void writeBytesToFile(final String fileName, final byte[] bytes, final boolean append) {
-		FileOutputStream fileOutputStream = null;
+		OutputStream os = null;
 		try {
-			fileOutputStream = new FileOutputStream(fileName, append);
-			fileOutputStream.write(bytes);
+			os = new FileOutputStream(fileName, append);
+			os.write(bytes);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			if (fileOutputStream != null) {
+			if (os != null) {
 				try {
-					fileOutputStream.close();
+					os.close();
 				} catch (IOException e) {
 					// Absorb
 				}
@@ -212,26 +215,28 @@ public final class ProtocolTools {
 	 * @return
 	 */
 	public static byte[] readBytesFromFile(final String fileName) {
-		ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
-		FileInputStream fileInputStream = null;
+		File file = new File(fileName);
+		byte[] buffer = new byte[(int) file.length()];
+		InputStream is = null;
 		try {
-			fileInputStream = new FileInputStream(fileName);
-			int byteIn;
-			while ((byteIn = fileInputStream.read()) != -1) {
-				byteArray.write(byteIn);
+			is = new FileInputStream(file);
+			int offset = 0;
+			int numRead = 0;
+			while ((offset < buffer.length) && ((numRead = is.read(buffer, offset, buffer.length - offset)) >= 0)) {
+				offset += numRead;
 			}
 		} catch (IOException e) {
-			byteArray.reset();
+			buffer = new byte[0];
 		} finally {
-			if (fileInputStream != null) {
+			if (is != null) {
 				try {
-					fileInputStream.close();
+					is.close();
 				} catch (IOException e) {
 					// Absorb
 				}
 			}
 		}
-		return byteArray.toByteArray();
+		return buffer;
 	}
 
 	/**
