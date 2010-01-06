@@ -25,7 +25,7 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
  */
 public class Register extends AbstractCosemObject implements CosemObject {
     public final int DEBUG=0;
-    static public final int CLASSID = DLMSClassId.REGISTER.getClassId();
+    public static final int CLASSID = DLMSClassId.REGISTER.getClassId();
 
     long value; // instance specific value converted to long
     ScalerUnit scalerUnit=null;
