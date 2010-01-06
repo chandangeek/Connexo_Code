@@ -52,7 +52,7 @@ public class CommunicationDumpFile {
 		}
 	}
 
-	public List getEntries() {
+	public List<CommunicationDumpEntry> getEntries() {
 		return entries;
 	}
 
