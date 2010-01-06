@@ -40,7 +40,7 @@ import com.energyict.protocolimpl.base.MagicNumberConstants;
 public class CourbeCharge {
     
     private static final int fileOperation=0;
-    private static final int debug=2;
+    private static final int debug=0;
     private static final int defaultProfileInterval = 600;
     private static final int blockSize = 1250;
     private static final String debugStartString = "KV_DEBUG> ";
