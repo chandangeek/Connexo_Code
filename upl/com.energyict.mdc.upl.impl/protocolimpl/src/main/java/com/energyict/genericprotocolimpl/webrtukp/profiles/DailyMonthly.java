@@ -73,7 +73,7 @@ public class DailyMonthly {
 				buildProfileData(dc, profileData, genericProfile, TimeDuration.DAYS);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 				final ProfileData pd = sortOutProfiledate(profileData, TimeDuration.DAYS);
-				
+				pd.sort();
 				// We save the profileData to a tempObject so we can store everything at the end of the communication
 //			webrtu.getStoreObject().add(getMeter(), pd);
 				webrtu.getStoreObject().add(pd, getMeter());
@@ -151,7 +151,7 @@ public class DailyMonthly {
 				buildProfileData(dc, profileData, genericProfile, TimeDuration.MONTHS);
 				ParseUtils.validateProfileData(profileData, toCalendar.getTime());
 				final ProfileData pd = sortOutProfiledate(profileData, TimeDuration.MONTHS);
-				
+				pd.sort();
 				// We save the profileData to a tempObject so we can store everything at the end of the communication
 //			webrtu.getStoreObject().add(getMeter(), pd);
 				if(webrtu.getMarkedAsBadTime()){

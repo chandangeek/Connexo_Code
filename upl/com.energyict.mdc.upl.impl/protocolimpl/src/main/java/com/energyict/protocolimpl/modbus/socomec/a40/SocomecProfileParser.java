@@ -25,10 +25,10 @@ import com.energyict.protocolimpl.base.ParseUtils;
  */
 public class SocomecProfileParser {
 	
-	private final static int normalState = 0;
-	private final static int timedValue = 1;
-	private final static int powerUp = 2;
-	private final static int powerDown = 3;
+	private static final int normalState = 0;
+	private static final int timedValue = 1;
+	private static final int powerUp = 2;
+	private static final int powerDown = 3;
 
 	/** ChannelInfoNames to construct the ChannelInfo List */
 	private static String[] channelInfoNames = new String[]{"Active Energy plus", "Active Energy minus", 

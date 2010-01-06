@@ -40,7 +40,7 @@ import com.energyict.protocolimpl.base.MagicNumberConstants;
 public class CourbeCharge {
     
     private static final int fileOperation=0;
-    private static final int debug=0;
+    private static final int debug=2;
     private static final int defaultProfileInterval = 600;
     private static final int blockSize = 1250;
     private static final String debugStartString = "KV_DEBUG> ";
@@ -55,10 +55,20 @@ public class CourbeCharge {
     private Date now;
     private ProfileData profileData=null;
     private int elementId,previousElementId;
+    private long currentMillis;
+    
+    /**
+     * This is a shiftable years table. The meter will not contain more then ten years of data,
+     * but because the ProfileTimestamp has only a unit from the year in it, we have to be able to
+     * loop over a decennium.
+     */
+    private int[] decenniumYears = new int[10];
     
     /** Creates a new instance of CourbeCharge */
     public CourbeCharge(TrimaranObjectFactory trimaranObjectFactory) {
     	this.trimaranObjectFactory = trimaranObjectFactory;
+    	setCurrentTime(Calendar.getInstance(getTimeZone()).getTimeInMillis());
+    	constructDecenniumTable();
     }
  
     public String toString() {
@@ -122,6 +132,16 @@ public class CourbeCharge {
         initCollections();
         do {
             retrieve();
+            
+            
+            // TODO to test:
+            // the last interval endtime wasn't correct so the loop keept looping.
+            // hope it changes after we sort the data ...
+            
+//            this.profileData.sort();
+            
+            
+            
             
             // if earliest interval is before the from, leave loop
             if (getProfileData().getIntervalData(0).getEndTime().before(from)) {
@@ -343,13 +363,12 @@ public class CourbeCharge {
                 }                
                 
                 cal = ProtocolUtils.getCleanCalendar(getTimeZone());
-                cal.set(Calendar.YEAR,year > 50?1990+year:2000+year);
+                cal.set(Calendar.YEAR, getDecenniumYearTable()[year]);
                 cal.set(Calendar.MONTH,month-1);
                 cal.set(Calendar.DAY_OF_MONTH,day);
-                
                  
                 if (debug>=2) {
-					System.out.println(debugStartString + "********************************************* "+i+", cal="+cal.getTime());
+					System.out.println(debugStartString + "********************************************* "+i+", cal="+cal.getTime() + ", yearUnit was : " + year);
 				}
                 
             } // else if ((val & 0xE000) == 0xC000)
@@ -618,5 +637,46 @@ public class CourbeCharge {
         this.profileData = profileData;
     }
 
-    
+	/**
+	 * Setter for the currentMillis
+	 * 
+	 * @param currentTimeInMillis
+	 */
+	protected void setCurrentTime(long currentTimeInMillis) {
+		this.currentMillis = currentTimeInMillis;
+	}
+
+	/**
+	 * Getter for the currentMillis
+	 * @return the current millis
+	 */
+	private long getCurrentMillis(){
+		return this.currentMillis;
+	}
+	
+	/**
+	 * Constructs a table of the last TEN years.
+	 */
+	protected void constructDecenniumTable(){
+		Calendar cal = Calendar.getInstance(getTimeZone());
+		cal.setTimeInMillis(getCurrentMillis());
+		int year = cal.get(Calendar.YEAR);
+		int yearUnit = year%10;
+		for(int i = 0; i < 10; i++){
+			this.decenniumYears[yearUnit] = year--;
+			if(yearUnit == 0){
+				yearUnit = 9;
+			} else {
+				yearUnit--;
+			}
+		}
+	}
+	
+	/**
+	 * Getter for the decenniumYear table
+	 * @return the current decenniumYears table
+	 */
+	protected int[] getDecenniumYearTable(){
+		return this.decenniumYears;
+	}
 }
