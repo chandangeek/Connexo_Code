@@ -25,7 +25,16 @@ public final class AXDRUnit {
 	 * @return
 	 */
 	public static Unit decode(AbstractDataType dataType) {
-		return Unit.fromDb(dataType.getOctetString().stringValue());
+		if ((dataType == null) || (dataType.isNullData())) {
+			return null;
+		} else {
+			String unitAsString = dataType.getOctetString().stringValue();
+			if ((unitAsString == null) || (unitAsString.length() == 0)) {
+				return null;
+			} else {
+				return Unit.fromDb(unitAsString);
+			}
+		}
 	}
 
 }
