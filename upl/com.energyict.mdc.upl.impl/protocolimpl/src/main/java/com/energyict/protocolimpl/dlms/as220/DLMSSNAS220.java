@@ -42,6 +42,7 @@ import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DLMSObis;
+import com.energyict.dlms.LLCConnection;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
@@ -59,6 +60,7 @@ import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
@@ -74,10 +76,10 @@ import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 
 abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism {
 
-	abstract protected String getDeviceID();
+	private static final ObisCode	ENERGY_PROFILE_OBISCODE	= ObisCode.fromString("1.1.99.1.0.255");
+
     abstract protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,List<LoadProfileCompactArrayEntry> values)  throws IOException;
     abstract protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
-    abstract protected void getEventLog(ProfileData profileDate,Calendar fromCalendar, Calendar toCalendar) throws IOException;
 
 	private boolean debug = false;
 
@@ -86,7 +88,7 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
     protected String strID;
     protected String strPassword;
 
-    protected int iHDLCTimeoutProperty;
+    protected int iTimeoutProperty;
     protected int iProtocolRetriesProperty;
     protected int iDelayAfterFailProperty;
     protected int iSecurityLevelProperty;
@@ -96,25 +98,25 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
     protected int iServerUpperMacAddress;
     protected int iServerLowerMacAddress;
     protected int iRequestClockObject;
-    protected String nodeId;
+    private String nodeId;
     private String serialNumber;
     private int iInterval=-1;
     private int iNROfIntervals=-1;
     private int extendedLogging;
-    protected ProtocolChannelMap channelMap;
+    private ProtocolChannelMap channelMap;
 
     //private boolean boolAbort=false;
 
-    DLMSConnection dlmsConnection=null;
-    CosemObjectFactory cosemObjectFactory=null;
-    StoredValuesImpl storedValuesImpl=null;
+    private DLMSConnection dlmsConnection=null;
+    private CosemObjectFactory cosemObjectFactory=null;
+    private StoredValuesImpl storedValuesImpl=null;
 
     // lazy initializing
     private int iNumberOfChannels=-1;
     private int iMeterTimeZoneOffset=255;
     private int iConfigProgramChange=-1;
 
-    DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance();
+    private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance();
 
     // Added for MeterProtocol interface implementation
     private Logger logger=null;
@@ -123,8 +125,8 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
 
     // filled in when getTime is invoked!
     private int dstFlag; // -1=unknown, 0=not set, 1=set
-    int addressingMode;
-    int connectionMode;
+    private int addressingMode;
+    private int connectionMode;
 
     private byte[] aarqlowlevel={
             (byte)0xE6,(byte)0xE6,(byte)0x00,
@@ -147,7 +149,8 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
             (byte)0xE6,(byte)0xE6,(byte)0x00,
             (byte)0x60,
             (byte)0x1C, // bytes to follow
-            (byte)0xA1,(byte)0x09,(byte)0x06,(byte)0x07,(byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x01,(byte)0x02,
+            (byte)0xA1,(byte)0x09,(byte)0x06,(byte)0x07,
+            (byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x01,(byte)0x02, //application context name
             (byte)0xBE,(byte)0x0F,(byte)0x04,
             (byte)0x0D,(byte)0x01,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x06,(byte)0x5F,(byte)0x04,(byte)0x00,(byte)0x18,(byte)0x02,
             (byte)0x20,(byte)0xFF,(byte)0xFF};
@@ -155,6 +158,10 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
 	/** Creates a new instance of DLMSSNAS220, empty constructor */
     public DLMSSNAS220() {
 
+    }
+
+	private String getDeviceID() {
+        return "GEC";
     }
 
     public DLMSConnection getDLMSConnection() {
@@ -181,11 +188,13 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
             storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
             // KV 19092003 set forcedelay to 100 ms for the optical delay when using HHU?
             if (connectionMode==0) {
-				dlmsConnection=new HDLCConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress,iServerUpperMacAddress,addressingMode);
+				dlmsConnection=new HDLCConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress,iServerUpperMacAddress,addressingMode);
 			} else if (connectionMode==1) {
-				dlmsConnection=new TCPIPConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
+				dlmsConnection=new TCPIPConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
 			} else if (connectionMode==2) {
-				dlmsConnection=new CosemPDUConnection(inputStream,outputStream,iHDLCTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
+				dlmsConnection=new CosemPDUConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
+			} else if (connectionMode==3) {
+				dlmsConnection=new LLCConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
 			}
         }
         catch(DLMSConnectionException e) {
@@ -295,16 +304,19 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
 
                 }
                 catch(IOException e) {
+                    e.printStackTrace();
                     throw new IOException("connect() error, "+e.getMessage());
                 }
 
             }
             catch(IOException e) {
-                throw new IOException(e.getMessage());
+                e.printStackTrace();
+            	throw new IOException(e.getMessage());
             }
         }
         catch(IOException e) {
-            throw new IOException(e.getMessage());
+            e.printStackTrace();
+        	throw new IOException(e.getMessage());
         }
 
         validateSerialNumber(); // KV 19012004
@@ -620,17 +632,19 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
             profileData.addChannel(channelInfo);
         }
 
-        ProfileGeneric pg = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("1.1.99.1.0.255"));
+        ProfileGeneric pg = getCosemObjectFactory().getProfileGeneric(ENERGY_PROFILE_OBISCODE);
         byte[] data = pg.getBufferData(fromCalendar, toCalendar);
         // decode the compact array here and convert to a universallist...
-        LoadProfileCompactArray o = new LoadProfileCompactArray(getTimeZone());
+        LoadProfileCompactArray o = new LoadProfileCompactArray();
         o.parse(data);
         List<LoadProfileCompactArrayEntry> loadProfileCompactArrayEntries = o.getLoadProfileCompactArrayEntries();
 
         buildProfileData(bNROfChannels,profileData,scalerunit,loadProfileCompactArrayEntries);
 
         if (includeEvents) {
-            getEventLog(profileData,fromCalendar,toCalendar);
+            EventLogs eventLogs = new EventLogs(this);
+        	List<MeterEvent> meterEvents = eventLogs.getEventLog(fromCalendar, toCalendar);
+        	profileData.setMeterEvents(meterEvents);
             // Apply the events to the channel statusvalues
             profileData.applyEvents(getProfileInterval()/60);
         }
@@ -856,7 +870,6 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache)cacheObject;
             if (dc.isChanged()) {
-                //System.out.println("KV_DEBUG>> rtuid="+rtuid+", "+new Date()+" update cache="+dc.getObjectList()+", confchange="+dc.getConfProgChange()+", ischanged="+dc.isChanged()); // KV_DEBUG
                 RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
                 RtuDLMS rtu = new RtuDLMS(rtuid);
                 rtuCache.saveObjectList(dc.getObjectList());
@@ -878,7 +891,7 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn =
-              new IEC1107HHUConnection(commChannel,iHDLCTimeoutProperty,iProtocolRetriesProperty,300,0);
+              new IEC1107HHUConnection(commChannel,iTimeoutProperty,iProtocolRetriesProperty,300,0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);

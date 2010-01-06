@@ -30,13 +30,11 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 
-import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.obis.ObisCode;
@@ -46,7 +44,6 @@ import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
@@ -68,27 +65,22 @@ import com.energyict.protocolimpl.base.ParseUtils;
 
 public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProtocol {
 
-	private static final String	CONNECT									= "ConnectLoad";
-	private static final String	DISCONNECT								= "DisconnectLoad";
-	private static final String	ARM										= "ArmMeter";
-	private static final String	TARIFF_OPTION_SWITCH_BASE				= "TariffOptionSwitchBase";
-	private static final String	TARIFF_OPTION_SWITCH_DAYNIGHT			= "TariffOptionSwitchDayNight";
+	private static final String			CONNECT									= "ConnectLoad";
+	private static final String			DISCONNECT								= "DisconnectLoad";
+	private static final String			ARM										= "ArmMeter";
+	private static final String			TARIFF_OPTION_SWITCH_BASE				= "TariffOptionSwitchBase";
+	private static final String			TARIFF_OPTION_SWITCH_DAYNIGHT			= "TariffOptionSwitchDayNight";
 
-	private static final String	CONNECT_DISPLAY							= "Connect Load";
-	private static final String	DISCONNECT_DISPLAY						= "Disconnect Load";
-	private static final String	ARM_DISPLAY								= "Arm Meter";
-	private static final String	TARIFF_OPTION_SWITCH_BASE_DISPLAY		= "Switch tariff option BASE";
-	private static final String	TARIFF_OPTION_SWITCH_DAYNIGHT_DISPLAY	= "Switch tariff option DAY/NIGHT";
+	private static final String			CONNECT_DISPLAY							= "Connect Load";
+	private static final String			DISCONNECT_DISPLAY						= "Disconnect Load";
+	private static final String			ARM_DISPLAY								= "Arm Meter";
+	private static final String			TARIFF_OPTION_SWITCH_BASE_DISPLAY		= "Switch tariff option BASE";
+	private static final String			TARIFF_OPTION_SWITCH_DAYNIGHT_DISPLAY	= "Switch tariff option DAY/NIGHT";
 
 	private final ContactorController contactorController;
 
     public AS220() {
     	this.contactorController = new AS220ContactorController(this);
-    }
-
-    @Override
-	protected String getDeviceID() {
-        return "GEC";
     }
 
     public ContactorController getContactorController() {
@@ -105,83 +97,6 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 		}
 		return calendar;
 	}
-
-    private List<MeterEvent> readMainLogbook(Calendar fromCalendar, Calendar toCalendar) throws IOException {
-
-    	DataContainer dc = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.1.255")).getBuffer(fromCalendar,toCalendar);
-
-        if (isDebug()) {
-			System.out.println("readMainLogbook");
-			dc.printDataContainer();
-		}
-
-		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-		for (int i = 0; i < dc.getRoot().getNrOfElements(); i++) {
-			Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
-			int id = 0;
-			id = dc.getRoot().getStructure(i).getInteger(1);
-			MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime);
-			if (meterEvent != null) {
-				meterEvents.add(meterEvent);
-			}
-		}
-
-        return meterEvents;
-    }
-
-    private List<MeterEvent> readVoltageCutLogbook(Calendar fromCalendar, Calendar toCalendar) throws IOException {
-
-        DataContainer dc = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.5.255")).getBuffer(fromCalendar,toCalendar);
-
-        if (isDebug()) {
-			System.out.println("readVoltageCutLogbook");
-			dc.printDataContainer();
-		}
-
-
-		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-		for (int i = 0; i < dc.getRoot().getNrOfElements(); i++) {
-			Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
-			int id = dc.getRoot().getStructure(i).getInteger(1);
-			MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime);
-			if (meterEvent != null) {
-				meterEvents.add(meterEvent);
-			}
-		}
-
-        return meterEvents;
-    }
-
-	private List<MeterEvent> readCoverLogbook(Calendar fromCalendar, Calendar toCalendar) throws IOException {
-
-		DataContainer dc = getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.0.99.98.2.255")).getBuffer(fromCalendar, toCalendar);
-
-		if (isDebug()) {
-			System.out.println("readCoverLogbook");
-			dc.printDataContainer();
-		}
-
-		List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-		for (int i = 0; i < dc.getRoot().getNrOfElements(); i++) {
-			Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
-			int id = dc.getRoot().getStructure(i).getInteger(1);
-			MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime);
-			if (meterEvent != null) {
-				meterEvents.add(meterEvent);
-			}
-		}
-
-		return meterEvents;
-	}
-
-    @Override
-	protected void getEventLog(ProfileData profileData,Calendar fromCalendar, Calendar toCalendar) throws IOException {
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-        meterEvents.addAll(readMainLogbook(fromCalendar, toCalendar));
-        meterEvents.addAll(readVoltageCutLogbook(fromCalendar, toCalendar));
-        meterEvents.addAll(readCoverLogbook(fromCalendar, toCalendar));
-        profileData.setMeterEvents(meterEvents);
-    }
 
     @Override
 	protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,List<LoadProfileCompactArrayEntry> loadProfileCompactArrayEntries)  throws IOException {
@@ -317,8 +232,8 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 				throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
 			}
 
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD);
-            iHDLCTimeoutProperty=Integer.parseInt(properties.getProperty("Timeout","10000").trim());
+            strPassword = properties.getProperty(MeterProtocol.PASSWORD, "123456789");
+            iTimeoutProperty=Integer.parseInt(properties.getProperty("Timeout","10000").trim());
             iProtocolRetriesProperty=Integer.parseInt(properties.getProperty("Retries","5").trim());
             iDelayAfterFailProperty=Integer.parseInt(properties.getProperty("DelayAfterfail","3000").trim());
             iRequestTimeZone=Integer.parseInt(properties.getProperty("RequestTimeZone","0").trim());
@@ -340,6 +255,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 			ObisCodeMapper ocm = new ObisCodeMapper(getCosemObjectFactory());
 			return ocm.getRegisterValue(obisCode);
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
 		}
     }

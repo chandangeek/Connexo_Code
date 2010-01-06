@@ -4,6 +4,7 @@ package com.energyict.protocolimpl.dlms.as220;
  * @author jme
  */
 public class InitiateResponse {
+
 	private byte	bNegotiatedQualityOfService;
 	private byte	bNegotiatedDLMSVersionNR;
 	private long	lNegotiatedConformance;

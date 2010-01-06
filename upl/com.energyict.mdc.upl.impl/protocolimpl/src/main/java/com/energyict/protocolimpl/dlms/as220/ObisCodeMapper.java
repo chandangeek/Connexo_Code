@@ -16,7 +16,8 @@ import com.energyict.protocol.RegisterValue;
  * @author Koen
  */
 public class ObisCodeMapper {
-    CosemObjectFactory cof;
+
+	private CosemObjectFactory cof;
 
 	/** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(CosemObjectFactory cof) {
