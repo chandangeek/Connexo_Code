@@ -27,23 +27,18 @@ package com.energyict.protocolimpl.dlms.as220;
 
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
-import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
@@ -57,7 +52,6 @@ import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.ContactorController;
-import com.energyict.protocolimpl.base.ParseUtils;
 
 public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProtocol {
 
@@ -93,124 +87,6 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 		}
 		return calendar;
 	}
-
-    @Override
-	protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,List<LoadProfileCompactArrayEntry> loadProfileCompactArrayEntries)  throws IOException {
-
-        int i;
-        List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
-        int latestProfileInterval= getProfileInterval();
-        int eiCode=0;
-        if (isDebug()) {
-			System.out.println("loadProfileCompactArrayEntries.size() = "+loadProfileCompactArrayEntries.size());
-		}
-
-        LoadProfileCompactArrayEntry dateStamp=null;
-        Calendar calendar = null;
-        for (i=0;i<loadProfileCompactArrayEntries.size();i++) {
-        	LoadProfileCompactArrayEntry lpcae = loadProfileCompactArrayEntries.get(i);
-        	if (isDebug()) {
-				System.out.println(lpcae);
-			}
-
-        	if (lpcae.isValue()) { // normal interval value
-        		if (calendar == null) {
-					continue; // first the calendar has to be initialized with the start of load profile marker
-				}
-        		IntervalData ivd = new IntervalData(calendar.getTime());
-        		ivd.addValue(new BigDecimal(""+lpcae.getValue()));
-        		intervalDatas.add(ivd);
-        		latestProfileInterval = lpcae.getIntervalInSeconds();
-           		calendar.add(Calendar.SECOND,latestProfileInterval); // set the calendar to the next interval endtime
-        	}
-        	else if (lpcae.isPartialValue()) { // partial interval value
-        		//eiCode |= IntervalStateBits.SHORTLONG;
-        		if (calendar == null) {
-					continue; // first the calendar has to be initialized with the start of load profile marker
-				}
-        		IntervalData ivd = new IntervalData(calendar.getTime(),eiCode);
-        		eiCode = 0;
-        		ivd.addValue(new BigDecimal(""+lpcae.getValue()));
-        		intervalDatas.add(ivd);
-        		latestProfileInterval = lpcae.getIntervalInSeconds();
-        		calendar.add(Calendar.SECOND,latestProfileInterval); // set the calendar to the next interval endtime
-        	}
-        	else if (lpcae.isDate()) { // date stamp
-        		// date always followed by time? Do the processing if time is received
-        		dateStamp = lpcae;
-        	}
-        	else if (lpcae.isTime()) { // time stamp
-        		if (dateStamp ==null) {
-
-        			// change of the interval...
-        			// only timestamp is received...
-        			// adjust time here...
-        		}
-        		else {
-        			// set the calendar
-            		calendar = ProtocolUtils.getCleanCalendar(getTimeZone());
-            		calendar.set(Calendar.YEAR, dateStamp.getYear());
-            		calendar.set(Calendar.MONTH, dateStamp.getMonth());
-            		calendar.set(Calendar.DATE, dateStamp.getDay());
-            		calendar.set(Calendar.HOUR_OF_DAY, lpcae.getHours());
-            		calendar.set(Calendar.MINUTE, lpcae.getMinutes());
-            		calendar.set(Calendar.SECOND, lpcae.getSeconds());
-            		dateStamp = null; // reset the dateStamp
-
-	            	if (lpcae.isStartOfLoadProfile()) {
-	            		// do nothing special...
-	            	}
-	            	else if (lpcae.isPowerOff()) {
-	            		ParseUtils.roundUp2nearestInterval(calendar, latestProfileInterval);
-	            		eiCode = IntervalStateBits.POWERDOWN;
-	            	}
-	            	else if (lpcae.isPowerOn()) {
-	            		ParseUtils.roundUp2nearestInterval(calendar, latestProfileInterval);
-	            		eiCode = IntervalStateBits.POWERUP;
-	            	}
-	            	else if (lpcae.isChangeclockOldTime()) {
-	            		ParseUtils.roundUp2nearestInterval(calendar, latestProfileInterval);
-	            		eiCode = IntervalStateBits.SHORTLONG;
-
-	            	}
-	            	else if (lpcae.isChangeclockNewTime()) {
-	            		ParseUtils.roundUp2nearestInterval(calendar, latestProfileInterval);
-	            		eiCode = IntervalStateBits.SHORTLONG;
-	            	}
-        		}
-        	} // time
-
-
-        } // for (i=0;i<loadProfileCompactArrayEntries.size();i++) {
-
-        if (isDebug()) {
-			System.out.println("\nintervalDatas.size() = "+intervalDatas.size());
-		}
-        profileData.setIntervalDatas(intervalDatas);
-
-    } // ProfileData buildProfileData(...)
-
-    @Override
-	protected byte[] getLowLevelSecurity() {
-        final byte[] aarqlowlevelAS220 = {
-        		(byte)0xE6, (byte)0xE6, (byte)0x00,
-        		(byte)0x60,
-        		(byte)0x36,
-        		(byte)0xA1, (byte)0x09, (byte)0x06, (byte)0x07,
-        		(byte)0x60, (byte)0x85, (byte)0x74, (byte)0x05, (byte)0x08, (byte)0x01, (byte)0x02,
-        		(byte)0x8A, (byte)0x02, (byte)0x07, (byte)0x80,
-        		(byte)0x8B, (byte)0x07, (byte)0x60, (byte)0x85, (byte)0x74, (byte)0x05, (byte)0x08, (byte)0x02, (byte)0x01};
-
-        final byte[] aarqlowlevelAS220_2= {
-        		(byte)0xBE, (byte)0x10, (byte)0x04, (byte)0x0E,
-        		(byte)0x01,
-        		(byte)0x00, (byte)0x00, (byte)0x00,
-        		(byte)0x06,
-        		(byte)0x5F, (byte)0x1F, (byte)0x04, (byte)0x00, (byte)0x18, (byte)0x02, (byte)0x20,
-                (byte)0x00, (byte)0xEF};
-
-    	return AS220AAREUtil.buildaarq(aarqlowlevelAS220,aarqlowlevelAS220_2, strPassword);
-    }
 
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {

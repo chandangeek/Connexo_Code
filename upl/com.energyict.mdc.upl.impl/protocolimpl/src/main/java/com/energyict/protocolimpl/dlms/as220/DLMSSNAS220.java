@@ -20,7 +20,6 @@ package com.energyict.protocolimpl.dlms.as220;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -59,6 +58,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocol;
@@ -76,35 +76,35 @@ import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 
 abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism {
 
-	private static final ObisCode	ENERGY_PROFILE_OBISCODE	= ObisCode.fromString("1.1.99.1.0.255");
+	private static final int		CONNECTION_MODE_HDLC		= 0;
+	private static final int		CONNECTION_MODE_TCPIP		= 1;
+	private static final int		CONNECTION_MODE_COSEM_PDU	= 2;
+	private static final int		CONNECTION_MODE_LLC			= 3;
 
-    abstract protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,List<LoadProfileCompactArrayEntry> values)  throws IOException;
+	private static final ObisCode	ENERGY_PROFILE_OBISCODE	= ObisCode.fromString("1.1.99.1.0.255");
 
 	private boolean debug = false;
 
     private DLMSCache dlmsCache=new DLMSCache();
 
-    protected String strID;
-    protected String strPassword;
+    private String strID;
+    private String strPassword;
 
-    protected int iTimeoutProperty;
-    protected int iProtocolRetriesProperty;
-    protected int iDelayAfterFailProperty;
-    protected int iSecurityLevelProperty;
-    protected int iRequestTimeZone;
-    protected int iRoundtripCorrection;
-    protected int iClientMacAddress;
-    protected int iServerUpperMacAddress;
-    protected int iServerLowerMacAddress;
-    protected int iRequestClockObject;
+    private int iTimeoutProperty;
+    private int iProtocolRetriesProperty;
+    private int iSecurityLevelProperty;
+    private int iRequestTimeZone;
+    private int iRoundtripCorrection;
+    private int iClientMacAddress;
+    private int iServerUpperMacAddress;
+    private int iServerLowerMacAddress;
+    private int iRequestClockObject;
     private String nodeId;
     private String serialNumber;
     private int iInterval=-1;
     private int iNROfIntervals=-1;
     private int extendedLogging;
     private ProtocolChannelMap channelMap;
-
-    //private boolean boolAbort=false;
 
     private DLMSConnection dlmsConnection=null;
     private CosemObjectFactory cosemObjectFactory=null;
@@ -120,29 +120,11 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
     // Added for MeterProtocol interface implementation
     private Logger logger=null;
     private TimeZone timeZone=null;
-    //private Properties properties=null;
 
     // filled in when getTime is invoked!
     private int dstFlag; // -1=unknown, 0=not set, 1=set
     private int addressingMode;
     private int connectionMode;
-
-    private byte[] aarqlowlevel={
-            (byte)0xE6,(byte)0xE6,(byte)0x00,
-            (byte)0x60,
-            (byte)0x35,
-            (byte)0xA1,(byte)0x09,(byte)0x06,(byte)0x07,
-            (byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x01,(byte)0x02, //application context name
-            (byte)0x8A,(byte)0x02,(byte)0x07,(byte)0x80,
-            (byte)0x8B,(byte)0x07,(byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x02,(byte)0x01};
-
-    private byte[] aarqlowlevel_2={
-            (byte)0xBE,(byte)0x0F,(byte)0x04,(byte)0x0D,
-            (byte)0x01,
-            (byte)0x00,(byte)0x00,(byte)0x00,
-            (byte)0x06,  // dlms version nr
-            (byte)0x5F,(byte)0x04,(byte)0x00,(byte)0x18,(byte)0x02,(byte)0x20,
-            (byte)0xFF,(byte)0xFF};
 
     private byte[] aarqlowestlevel={
             (byte)0xE6,(byte)0xE6,(byte)0x00,
@@ -154,12 +136,19 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
             (byte)0x0D,(byte)0x01,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x06,(byte)0x5F,(byte)0x04,(byte)0x00,(byte)0x18,(byte)0x02,
             (byte)0x20,(byte)0xFF,(byte)0xFF};
 
-	/** Creates a new instance of DLMSSNAS220, empty constructor */
+    /**
+	 *  Creates a new instance of DLMSSNAS220, empty constructor
+     */
     public DLMSSNAS220() {
 
     }
 
-	private String getDeviceID() {
+	/**
+	 * Getter for the manufacturer deviceId.
+	 * In our case, this is Elster so the ID = 'GEC'
+	 * @return the deviceId
+	 */
+	public String getDeviceID() {
         return "GEC";
     }
 
@@ -186,17 +175,24 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
             cosemObjectFactory = new CosemObjectFactory(this);
             storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
             // KV 19092003 set forcedelay to 100 ms for the optical delay when using HHU?
-            if (connectionMode==0) {
-				dlmsConnection=new HDLCConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress,iServerUpperMacAddress,addressingMode);
-			} else if (connectionMode==1) {
-				dlmsConnection=new TCPIPConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
-			} else if (connectionMode==2) {
-				dlmsConnection=new CosemPDUConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
-			} else if (connectionMode==3) {
-				dlmsConnection=new LLCConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
+
+            switch (connectionMode) {
+				case CONNECTION_MODE_HDLC:
+					dlmsConnection=new HDLCConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress,iServerUpperMacAddress,addressingMode);
+					break;
+				case CONNECTION_MODE_TCPIP:
+					dlmsConnection=new TCPIPConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
+					break;
+				case CONNECTION_MODE_COSEM_PDU:
+					dlmsConnection=new CosemPDUConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
+					break;
+				case CONNECTION_MODE_LLC:
+					dlmsConnection=new LLCConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
+					break;
+				default:
+					throw new IOException("Unable to initialize dlmsConnection, connection property unknown: " + connectionMode);
 			}
-        }
-        catch(DLMSConnectionException e) {
+		} catch (DLMSConnectionException e) {
             //logger.severe ("DLMSSN init(...), "+e.getMessage());
             throw new IOException(e.getMessage());
         }
@@ -204,33 +200,22 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
         iInterval=-1;
         iNROfIntervals=-1;
 
-        //boolAbort = false;
     }
 
-    /** Subclasses may override
-     * @return the current profileinterval in seconds
-     * @throws IOException <br>
-     * @throws UnsupportedException <br>
-     */
     public int getProfileInterval() throws UnsupportedException, IOException {
         if (iInterval == -1) {
            iInterval = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCapturePeriod();
         }
         return iInterval;
-    } // public int getProfileInterval() throws UnsupportedException, IOException
+    }
 
-    /** this implementation throws UnSupportedException. Subclasses may override
-     * @return the number of channels
-     * @throws IOException <br>
-     * @throws UnsupportedException <br>
-     */
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
-        if (iNumberOfChannels == -1) {
-             meterConfig.setCapturedObjectList(getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjectsAsUniversalObjects());
-            iNumberOfChannels = meterConfig.getNumberOfChannels();
-        }
-        return iNumberOfChannels;
-    } // public int getNumberOfChannels()  throws IOException
+	public int getNumberOfChannels() throws IOException {
+		if (iNumberOfChannels == -1) {
+            meterConfig.setCapturedObjectList(getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjectsAsUniversalObjects());
+			iNumberOfChannels = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getNumberOfProfileChannels();
+		}
+		return iNumberOfChannels;
+	}
 
     public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
         throw new UnsupportedException();
@@ -238,12 +223,6 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
 
     public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
         throw new UnsupportedException();
-    }
-
-    private ScalerUnit getMeterDemandRegisterScalerUnit(int iChannelNR) throws IOException {
-        ObisCode obisCode = meterConfig.getMeterDemandObject(iChannelNR).getObisCode();
-        return getCosemObjectFactory().getCosemObject(obisCode).getScalerUnit();
-        //return doGetMeterReadingScalerUnit(uo.getBaseName(), uo.getScalerAttributeOffset());
     }
 
     public void connect() throws IOException {
@@ -478,7 +457,6 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
 
     // KV 19012004
     private void validateSerialNumber() throws IOException {
-        boolean check = true;
         if ((serialNumber == null) || ("".compareTo(serialNumber)==0)) {
 			return;
 		}
@@ -488,15 +466,6 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
 		}
         throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+serialNumber);
     }
-
-    /**
-     * This method requests for the COSEM object Logical Name register.
-     * @exception IOException
-     */
-    private String requestLNREG() throws IOException {
-        return getCosemObjectFactory().getData(LNREG_OBJECT_SN).getString();
-    } // public String requestLNREG() throws IOException
-
 
     /**
      * This method requests for the COSEM object Logical Name register.
@@ -566,13 +535,13 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
         int iInterval = getProfileInterval()/60;
         Calendar fromCalendar = ProtocolUtils.getCalendar(getTimeZone());
         fromCalendar.add(Calendar.MINUTE,(-1)*iNROfIntervals*iInterval);
-        return doGetProfileData(fromCalendar,ProtocolUtils.getCalendar(getTimeZone()),includeEvents);
+        return doGetDemandValues(fromCalendar,ProtocolUtils.getCalendar(getTimeZone()),includeEvents);
     }
 
     public ProfileData getProfileData(Date lastReading,boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
         fromCalendar.setTime(lastReading);
-        return doGetProfileData(fromCalendar,ProtocolUtils.getCalendar(getTimeZone()),includeEvents);
+        return doGetDemandValues(fromCalendar,ProtocolUtils.getCalendar(getTimeZone()),includeEvents);
     }
 
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException,UnsupportedException {
@@ -580,105 +549,62 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
         fromCalendar.setTime(from);
         Calendar toCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
         toCalendar.setTime(to);
-        return doGetProfileData(fromCalendar,toCalendar,includeEvents);
+        return doGetDemandValues(fromCalendar,toCalendar,includeEvents);
     }
 
-    private ProfileData doGetProfileData(Calendar fromCalendar,Calendar toCalendar, boolean includeEvents) throws IOException {
-        byte bNROfChannels = (byte)getNumberOfChannels(); 	//GN |13052008| otherwise this stays at -1
-        return doGetDemandValues(fromCalendar,toCalendar,bNROfChannels,includeEvents);
-    }
+    private ProfileData doGetDemandValues(Calendar fromCalendar,Calendar toCalendar, boolean includeEvents) throws IOException {
+        ProfileBuilder profileBuilder = new ProfileBuilder(this);
+		ProfileData profileData = new ProfileData();
+		ScalerUnit[] scalerunit = profileBuilder.buildScalerUnits((byte) getNumberOfChannels());
 
+        List<ChannelInfo> channelInfos = profileBuilder.buildChannelInfos(scalerunit);
+        profileData.setChannelInfos(channelInfos);
 
-
-    private ProfileData doGetDemandValues(Calendar fromCalendar,Calendar toCalendar, byte bNROfChannels, boolean includeEvents) throws IOException {
-        ProfileData profileData;
-        ScalerUnit[] scalerunit;
-
-
-        profileData = new ProfileData();
-        scalerunit = new ScalerUnit[bNROfChannels];
-        for (int i=0;i<bNROfChannels;i++) {
-            scalerunit[i] = getMeterDemandRegisterScalerUnit(i);
-            ChannelInfo channelInfo = new ChannelInfo(i,"dlms"+getDeviceID()+"_channel_"+i,scalerunit[i].getUnit());
-
-            if (isDebug()) {
-				System.out.println("KV_DEBUG> "+meterConfig.getChannelObject(i).toStringCo());
-			}
-
-            if (meterConfig.getChannelObject(i).isCapturedObjectCumulative()) {
-
-                if (meterConfig.getChannelObject(i).isCapturedObjectPulses()) {
-                	if(channelMap != null){
-                		channelInfo.setCumulativeWrapValue((channelMap.getProtocolChannel(i) != null)?channelMap.getProtocolChannel(i).getWrapAroundValue():BigDecimal.valueOf(Long.MAX_VALUE));
-                	} else {
-                		channelInfo.setCumulativeWrapValue(BigDecimal.valueOf(Long.MAX_VALUE));
-                		if (isDebug()) {
-							System.out.println("KV_DEBUG> channel "+i+" is cumulative 64 bit");
-						}
-                	}
-                }
-                else {
-                	if(channelMap != null){
-                		channelInfo.setCumulativeWrapValue((channelMap.getProtocolChannel(i) != null)?channelMap.getProtocolChannel(i).getWrapAroundValue():BigDecimal.valueOf(2^32));
-                	} else {
-                		channelInfo.setCumulativeWrapValue(BigDecimal.valueOf(2^32));
-                		if (isDebug()) {
-							System.out.println("KV_DEBUG> channel "+i+" is cumulative 32 bit");
-						}
-                	}
-                }
-            }
-            profileData.addChannel(channelInfo);
-        }
-
-        ProfileGeneric pg = getCosemObjectFactory().getProfileGeneric(ENERGY_PROFILE_OBISCODE);
-        byte[] data = pg.getBufferData(fromCalendar, toCalendar);
         // decode the compact array here and convert to a universallist...
-        LoadProfileCompactArray o = new LoadProfileCompactArray();
-        o.parse(data);
-        List<LoadProfileCompactArrayEntry> loadProfileCompactArrayEntries = o.getLoadProfileCompactArrayEntries();
+        ProfileGeneric pg = getCosemObjectFactory().getProfileGeneric(ENERGY_PROFILE_OBISCODE);
+		LoadProfileCompactArray loadProfileCompactArray = new LoadProfileCompactArray();
+		loadProfileCompactArray.parse(pg.getBufferData(fromCalendar, toCalendar));
+		List<LoadProfileCompactArrayEntry> loadProfileCompactArrayEntries = loadProfileCompactArray.getLoadProfileCompactArrayEntries();
 
-        buildProfileData(bNROfChannels,profileData,scalerunit,loadProfileCompactArrayEntries);
+        List<IntervalData> intervalDatas = profileBuilder.buildIntervalData(scalerunit,loadProfileCompactArrayEntries);
+        profileData.setIntervalDatas(intervalDatas);
 
         if (includeEvents) {
-            EventLogs eventLogs = new EventLogs(this);
-        	List<MeterEvent> meterEvents = eventLogs.getEventLog(fromCalendar, toCalendar);
-        	profileData.setMeterEvents(meterEvents);
-            // Apply the events to the channel statusvalues
-            profileData.applyEvents(getProfileInterval()/60);
+			EventLogs eventLogs = new EventLogs(this);
+			List<MeterEvent> meterEvents = eventLogs.getEventLog(fromCalendar, toCalendar);
+			profileData.setMeterEvents(meterEvents);
+			profileData.applyEvents(getProfileInterval() / 60);
         }
 
         profileData.sort();
-
-        if (isDebug()) {
-			System.out.println(profileData);
-		}
-
         return profileData;
 
     } // private ProfileData doGetDemandValues(Calendar fromCalendar,Calendar toCalendar, byte bNROfChannels) throws IOException
-
-
-
-    /**
-     * This method can be used to set a specific attribute in anremote meter object.
-     * @param sLNOBIS Index to the Long name OBIS reference.
-     * @param sOffset Offset to the attribute.
-     * @param data Byte array to send.
-     * @exception IOException
-     */
-    private void setValue(String str,short sOffset,byte[] data) throws IOException {
-        DLMSObis dlmsObis = new DLMSObis(str);
-        getCosemObjectFactory().getGenericWrite((short)meterConfig.getObject(dlmsObis).getBaseName(),(dlmsObis.getOffset()-1)*8).write(data);
-    } // public void setValue(...) throws IOException
 
 	private void requestApplAssoc(int iLevel) throws IOException {
 		doRequestApplAssoc(iLevel == 0 ? aarqlowestlevel : getLowLevelSecurity());
 	}
 
 	protected byte[] getLowLevelSecurity() {
-		return AS220AAREUtil.buildaarq(aarqlowlevel, aarqlowlevel_2, strPassword);
-	}
+        final byte[] aarqlowlevelAS220 = {
+        		(byte)0xE6, (byte)0xE6, (byte)0x00,
+        		(byte)0x60,
+        		(byte)0x36,
+        		(byte)0xA1, (byte)0x09, (byte)0x06, (byte)0x07,
+        		(byte)0x60, (byte)0x85, (byte)0x74, (byte)0x05, (byte)0x08, (byte)0x01, (byte)0x02,
+        		(byte)0x8A, (byte)0x02, (byte)0x07, (byte)0x80,
+        		(byte)0x8B, (byte)0x07, (byte)0x60, (byte)0x85, (byte)0x74, (byte)0x05, (byte)0x08, (byte)0x02, (byte)0x01};
+
+        final byte[] aarqlowlevelAS220_2= {
+        		(byte)0xBE, (byte)0x10, (byte)0x04, (byte)0x0E,
+        		(byte)0x01,
+        		(byte)0x00, (byte)0x00, (byte)0x00,
+        		(byte)0x06,
+        		(byte)0x5F, (byte)0x1F, (byte)0x04, (byte)0x00, (byte)0x18, (byte)0x02, (byte)0x20,
+                (byte)0x00, (byte)0xEF};
+
+    	return AS220AAREUtil.buildaarq(aarqlowlevelAS220,aarqlowlevelAS220_2, strPassword);
+    }
 
     private void doRequestApplAssoc(byte[] aarq) throws IOException {
         byte[] responseData;
@@ -740,7 +666,6 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
 			strPassword = properties.getProperty(MeterProtocol.PASSWORD, "123456789");
 			iTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
 			iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
-			iDelayAfterFailProperty = Integer.parseInt(properties.getProperty("DelayAfterfail", "3000").trim());
 			iRequestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0").trim());
 			iRequestClockObject = Integer.parseInt(properties.getProperty("RequestClockObject", "0").trim());
 			iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
@@ -957,6 +882,10 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
     public StoredValues getStoredValues() {
         return storedValuesImpl;
     }
+
+    public ProtocolChannelMap getChannelMap() {
+		return channelMap;
+	}
 
     public boolean isDebug() {
 		return debug;
