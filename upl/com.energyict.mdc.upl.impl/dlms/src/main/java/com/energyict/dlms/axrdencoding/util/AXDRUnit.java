@@ -17,7 +17,7 @@ public final class AXDRUnit {
 	 * @return
 	 */
 	public static OctetString encode(Unit unit) {
-		return OctetString.fromString(unit.dbString());
+		return unit != null ? OctetString.fromString(unit.dbString()) : null;
 	}
 
 	/**
