@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 
 import com.energyict.dlms.ScalerUnit;
@@ -40,12 +39,9 @@ import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -214,40 +210,6 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
                 (byte)0x00, (byte)0xEF};
 
     	return AS220AAREUtil.buildaarq(aarqlowlevelAS220,aarqlowlevelAS220_2, strPassword);
-    }
-
-    @Override
-	protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        try {
-            Iterator<String> iterator= getRequiredKeys().iterator();
-            while (iterator.hasNext()) {
-                String key = iterator.next();
-                if (properties.getProperty(key) == null) {
-					throw new MissingPropertyException(key + " key missing");
-				}
-            }
-            strID = properties.getProperty(MeterProtocol.ADDRESS);
-            // KV 19012004
-            if ((strID != null) &&(strID.length()>16)) {
-				throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
-			}
-
-            strPassword = properties.getProperty(MeterProtocol.PASSWORD, "123456789");
-            iTimeoutProperty=Integer.parseInt(properties.getProperty("Timeout","10000").trim());
-            iProtocolRetriesProperty=Integer.parseInt(properties.getProperty("Retries","5").trim());
-            iDelayAfterFailProperty=Integer.parseInt(properties.getProperty("DelayAfterfail","3000").trim());
-            iRequestTimeZone=Integer.parseInt(properties.getProperty("RequestTimeZone","0").trim());
-            iRequestClockObject=Integer.parseInt(properties.getProperty("RequestClockObject","0").trim());
-            iRoundtripCorrection=Integer.parseInt(properties.getProperty("RoundtripCorrection","0").trim());
-            iSecurityLevelProperty=Integer.parseInt(properties.getProperty("SecurityLevel","1").trim());
-            iClientMacAddress=Integer.parseInt(properties.getProperty("ClientMacAddress","32").trim());
-            iServerUpperMacAddress=Integer.parseInt(properties.getProperty("ServerUpperMacAddress","1").trim());
-            iServerLowerMacAddress=Integer.parseInt(properties.getProperty("ServerLowerMacAddress","0").trim());
-
-        }
-        catch (NumberFormatException e) {
-            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());
-        }
     }
 
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {

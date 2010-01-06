@@ -79,7 +79,6 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
 	private static final ObisCode	ENERGY_PROFILE_OBISCODE	= ObisCode.fromString("1.1.99.1.0.255");
 
     abstract protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,List<LoadProfileCompactArrayEntry> values)  throws IOException;
-    abstract protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
 
 	private boolean debug = false;
 
@@ -709,26 +708,52 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
      */
-    private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        try {
-            nodeId=properties.getProperty(MeterProtocol.NODEID,"");
-            // KV 19012004 get the serialNumber
-            serialNumber=properties.getProperty(MeterProtocol.SERIALNUMBER);
-            extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0"));
-            addressingMode=Integer.parseInt(properties.getProperty("AddressingMode","-1"));
-            connectionMode = Integer.parseInt(properties.getProperty("Connection","0")); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection
-            if(properties.getProperty("ChannelMap", "").equalsIgnoreCase("")){
-            	channelMap = null;
-            } else {
-            	channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap"));
-            }
-            doValidateProperties(properties);
-        }
-        catch (NumberFormatException e) {
-            throw new InvalidPropertyException(" validateProperties, NumberFormatException, "+e.getMessage());
-        }
+	private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+		try {
 
-    }
+			Iterator<String> iterator = getRequiredKeys().iterator();
+			while (iterator.hasNext()) {
+				String key = iterator.next();
+				if (properties.getProperty(key) == null) {
+					throw new MissingPropertyException(key + " key missing");
+				}
+			}
+
+			nodeId = properties.getProperty(MeterProtocol.NODEID, "");
+			// KV 19012004 get the serialNumber
+			serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
+			extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
+			addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "-1"));
+			connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection 3=LLCConnection
+
+			if (properties.getProperty("ChannelMap", "").equalsIgnoreCase("")) {
+				channelMap = null;
+			} else {
+				channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap"));
+			}
+
+			strID = properties.getProperty(MeterProtocol.ADDRESS);
+			if ((strID != null) && (strID.length() > 16)) {
+				throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
+			}
+
+			strPassword = properties.getProperty(MeterProtocol.PASSWORD, "123456789");
+			iTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
+			iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
+			iDelayAfterFailProperty = Integer.parseInt(properties.getProperty("DelayAfterfail", "3000").trim());
+			iRequestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0").trim());
+			iRequestClockObject = Integer.parseInt(properties.getProperty("RequestClockObject", "0").trim());
+			iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
+			iSecurityLevelProperty = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
+			iClientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "32").trim());
+			iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "1").trim());
+			iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "0").trim());
+
+		} catch (NumberFormatException e) {
+			throw new InvalidPropertyException(" validateProperties, NumberFormatException, " + e.getMessage());
+		}
+
+	}
 
     /** this implementation throws UnsupportedException. Subclasses may override
      * @param name <br>
