@@ -17,7 +17,7 @@ public final class AXDRObisCode {
 	 * @return
 	 */
 	public static OctetString encode(ObisCode obisCode) {
-		return OctetString.fromString(obisCode.toString());
+			return (obisCode == null) ? null : OctetString.fromString(obisCode.toString());
 	}
 
 	/**
@@ -25,7 +25,11 @@ public final class AXDRObisCode {
 	 * @return
 	 */
 	public static ObisCode decode(AbstractDataType dataType) {
-		return ObisCode.fromString(dataType.getOctetString().stringValue());
+		if ((dataType == null) || (dataType.isNullData())) {
+			return null;
+		} else {
+			return ObisCode.fromString(dataType.getOctetString().stringValue());
+		}
 	}
 
 }
