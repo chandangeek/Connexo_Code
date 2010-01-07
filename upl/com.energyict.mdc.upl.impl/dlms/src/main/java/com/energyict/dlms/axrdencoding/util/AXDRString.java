@@ -29,7 +29,7 @@ public final class AXDRString {
 	 * @return
 	 */
 	public static String decode(AbstractDataType dataType) {
-		if (dataType.isNullData()) {
+		if ((dataType == null) || dataType.isNullData()) {
 			return null;
 		} else {
 			return dataType.getOctetString().stringValue();
