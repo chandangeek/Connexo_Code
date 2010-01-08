@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.AbstractContactorController;
 
 /**
@@ -14,6 +13,12 @@ import com.energyict.protocolimpl.base.AbstractContactorController;
  * @author jme
  */
 public class AS220ContactorController extends AbstractContactorController {
+
+	public static final ObisCode	DISCONNECTOR_OBISCODE	= ObisCode.fromString("0.0.96.3.10.255");
+
+	private static final int DISCONNECT	= 0;
+	private static final int CONNECT	= 1;
+	private static final int ARM		= 2;
 
 	public AS220ContactorController(AS220 protocol) {
 		super(protocol);
@@ -30,21 +35,21 @@ public class AS220ContactorController extends AbstractContactorController {
 
 	public void doArm() throws IOException {
 		getAs220().getLogger().info("ARM message received");
-		getAs220().getCosemObjectFactory().getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).writeControlState(new TypeEnum(2));
+		getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).writeControlState(new TypeEnum(ARM));
 	}
 
 	public void doConnect() throws IOException {
 		getAs220().getLogger().info("CONNECT message received");
-		getAs220().getCosemObjectFactory().getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).writeControlState(new TypeEnum(1));
+		getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).writeControlState(new TypeEnum(CONNECT));
 	}
 
 	public void doDisconnect() throws IOException {
 		getAs220().getLogger().info("DISCONNECT message received");
-		getAs220().getCosemObjectFactory().getDisconnector(ObisCode.fromString("0.0.96.3.10.255")).writeControlState(new TypeEnum(0));
+		getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).writeControlState(new TypeEnum(DISCONNECT));
 	}
 
 	public ContactorState getContactorState() throws IOException {
-		throw new UnsupportedException("Reading the contactor state is not suported yet for this protocol.");
+		return ContactorState.UNKNOWN;
 	}
 
 }
