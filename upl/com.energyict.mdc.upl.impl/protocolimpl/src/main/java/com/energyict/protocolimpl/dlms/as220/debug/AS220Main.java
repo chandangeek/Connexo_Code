@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.dlms.as220.debug;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -12,7 +13,9 @@ import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Register;
+import com.energyict.protocol.MessageEntry;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 
@@ -63,7 +66,7 @@ public class AS220Main {
 		properties.setProperty("CorrectTime", "0");
 
 		properties.setProperty("Retries", "0");
-		properties.setProperty("Timeout", "10000");
+		properties.setProperty("Timeout", "20000");
 
 		properties.setProperty("SecurityLevel", "2");
 		properties.setProperty("ProfileInterval", "900");
@@ -98,7 +101,28 @@ public class AS220Main {
 		}
 	}
 
-	public static void main(String[] args) throws LinkException, IOException {
+	public static void pulseContactor() throws IOException {
+		getAs220().queryMessage(new MessageEntry("<DisconnectLoad>1</DisconnectLoad>", "1"));
+		getAs220().queryMessage(new MessageEntry("<ArmMeter>1</ArmMeter>", "3"));
+		getAs220().queryMessage(new MessageEntry("<ConnectLoad>1</ConnectLoad>", "2"));
+	}
+
+	public static void readObiscodes() throws IOException {
+		UniversalObject[] uo = getAs220().getMeterConfig().getInstantiatedObjectList();
+		for (UniversalObject universalObject : uo) {
+			System.out.println(universalObject.getObisCode() + " = " + DLMSClassId.findById(universalObject.getClassID()));
+		}
+	}
+
+	public static void getAndSetTime() throws IOException {
+		Date date = getAs220().getTime();
+		System.out.println(date);
+		getAs220().setTime();
+		date = getAs220().getTime();
+		System.out.println(date);
+	}
+
+	public static void main(String[] args) throws LinkException, IOException, InterruptedException {
 
 		getDialer().init(COMPORT);
 		getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
@@ -109,8 +133,8 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			//readRegisters();
-			readProfile(true);
+			getAndSetTime();
+
 
 		} finally {
 			System.out.println("\nDone. Closing connections. \n");

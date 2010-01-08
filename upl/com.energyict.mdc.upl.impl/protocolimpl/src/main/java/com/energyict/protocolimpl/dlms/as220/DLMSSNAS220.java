@@ -50,7 +50,6 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
@@ -109,6 +108,7 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
     private DLMSConnection dlmsConnection=null;
     private CosemObjectFactory cosemObjectFactory=null;
     private StoredValuesImpl storedValuesImpl=null;
+    private AS220ClockController clockController=null;
 
     // lazy initializing
     private int iNumberOfChannels=-1;
@@ -156,6 +156,13 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
         return dlmsConnection;
     }
 
+    public AS220ClockController getClockController() {
+    	if (clockController == null) {
+    		clockController = new AS220ClockController(this);
+    	}
+    	return clockController;
+	}
+
     /** initializes the receiver
      * @param inputStream <br>
      * @param outputStream <br>
@@ -166,7 +173,7 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
         this.timeZone = timeZone;
         this.logger = logger;
 
-        dstFlag=-1;
+        setDstFlag(-1);
         iNumberOfChannels = -1; // Lazy initializing
         iMeterTimeZoneOffset = 255; // Lazy initializing
         iConfigProgramChange = -1; // Lazy initializing
@@ -351,96 +358,40 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
             //throw new IOException(e.getMessage());
         }
 
-    } // public void disconnect() throws IOException
+    }
 
     /**
      * This method sets the time/date in the remote meter equal to the system time/date of the machine where this object resides.
      * @exception IOException
      */
     public void setTime() throws IOException {
-        Calendar calendar=null;
-        if (isRequestTimeZone()) {
-            if (dstFlag == 0) {
-				calendar = ProtocolUtils.getCalendar(false,requestTimeZone());
-			} else if (dstFlag == 1) {
-				calendar = ProtocolUtils.getCalendar(true,requestTimeZone());
-			} else {
-				throw new IOException("setTime(), dst flag is unknown! setTime() before getTime()!");
-			}
-        } else {
-			calendar = ProtocolUtils.initCalendar(false,getTimeZone());
-		}
+    	getClockController().setTime();
+    }
 
-        calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);
-        doSetTime(calendar);
-    } // public void setTime() throws IOException
-
-
-    private void doSetTime(Calendar calendar) throws IOException {
-        //byte[] responseData;
-        byte[] byteTimeBuffer = new byte[15];
-
-        byteTimeBuffer[0]=1;
-        byteTimeBuffer[1]=TYPEDESC_OCTET_STRING;
-        byteTimeBuffer[2]=12; // length
-        byteTimeBuffer[3]=(byte)(calendar.get(Calendar.YEAR) >> 8);
-        byteTimeBuffer[4]=(byte)calendar.get(Calendar.YEAR);
-        byteTimeBuffer[5]=(byte)(calendar.get(Calendar.MONTH)+1);
-        byteTimeBuffer[6]=(byte)calendar.get(Calendar.DAY_OF_MONTH);
-        byte bDOW = (byte)calendar.get(Calendar.DAY_OF_WEEK);
-        byteTimeBuffer[7]=bDOW--==1?(byte)7:bDOW;
-        byteTimeBuffer[8]=(byte)calendar.get(Calendar.HOUR_OF_DAY);
-        byteTimeBuffer[9]=(byte)calendar.get(Calendar.MINUTE);
-        byteTimeBuffer[10]=(byte)calendar.get(Calendar.SECOND);
-        byteTimeBuffer[11]=(byte)0xFF;
-        byteTimeBuffer[12]=(byte)0x80;
-        byteTimeBuffer[13]=0x00;
-
-        if (isRequestTimeZone()) {
-            if (dstFlag == 0) {
-				byteTimeBuffer[14]=0x00;
-			} else if (dstFlag == 1) {
-				byteTimeBuffer[14]=(byte)0x80;
-			} else {
-				throw new IOException("doSetTime(), dst flag is unknown! setTime() before getTime()!");
-			}
-        }
-        else {
-            if (getTimeZone().inDaylightTime(calendar.getTime())) {
-				byteTimeBuffer[14]=(byte)0x80;
-			} else {
-				byteTimeBuffer[14]=0x00;
-			}
-        }
-
-        getCosemObjectFactory().getGenericWrite((short)meterConfig.getClockSN(),TIME_TIME).write(byteTimeBuffer);
-
-    } // private void doSetTime(Calendar calendar)
-
-    /**
-     * Method that requests the time/date in the remote meter.
-     * @return Date representing the time/date of the remote meter.
-     * @exception IOException
-     */
+	/**
+	 * Method that requests the time/date in the remote meter.
+	 *
+	 * @return Date representing the time/date of the remote meter.
+	 * @exception IOException
+	 */
     public Date getTime() throws IOException {
-        Clock clock = getCosemObjectFactory().getClock();
-        Date date = clock.getDateTime();
-        dstFlag = clock.getDstFlag();
-        return date;
-    } // public Date getTime() throws IOException
+        return getClockController().getTime();
+    }
 
     private boolean requestDaylightSavingEnabled() throws IOException {
        return getCosemObjectFactory().getClock().isDsEnabled();
-    } // private boolean requestDaylightSavingEnabled() throws IOException
+    }
 
-    /**
-     * This method requests for the COSEM object list in the remote meter. A list is byuild with LN and SN references.
-     * This method must be executed before other request methods.
-     * @exception IOException
-     */
+	/**
+	 * This method requests for the COSEM object list in the remote meter. A
+	 * list is byuild with LN and SN references.
+	 * This method must be executed before other request methods.
+	 *
+	 * @exception IOException
+	 */
     private void requestObjectList() throws IOException {
         meterConfig.setInstantiatedObjectList(getCosemObjectFactory().getAssociationSN().getBuffer());
-    } // public void requestObjectList() throws IOException
+    }
 
     /**
      * This method requests for the COSEM object SAP.
@@ -668,7 +619,7 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
 			iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
 			iRequestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0").trim());
 			iRequestClockObject = Integer.parseInt(properties.getProperty("RequestClockObject", "0").trim());
-			iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
+			setiRoundtripCorrection(Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim()));
 			iSecurityLevelProperty = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
 			iClientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "32").trim());
 			iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "1").trim());
@@ -859,10 +810,6 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
         return meterConfig;
     }
 
-    public int getRoundTripCorrection() {
-        return iRoundtripCorrection;
-    }
-
     public Logger getLogger() {
         return logger;
     }
@@ -893,6 +840,31 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
 
     public void setDebug(boolean debug) {
 		this.debug = debug;
+	}
+
+	public void setDstFlag(int dstFlag) {
+		this.dstFlag = dstFlag;
+	}
+
+	/**
+	 * @return the dstFlag
+	 */
+	public int getDstFlag() {
+		return dstFlag;
+	}
+
+	/**
+	 * @param iRoundtripCorrection the iRoundtripCorrection to set
+	 */
+	public void setiRoundtripCorrection(int iRoundtripCorrection) {
+		this.iRoundtripCorrection = iRoundtripCorrection;
+	}
+
+	/**
+	 * @return the iRoundtripCorrection
+	 */
+	public int getRoundTripCorrection() {
+		return iRoundtripCorrection;
 	}
 
 } // public class DLMSSNAS220

@@ -1,5 +1,7 @@
 package com.energyict.dlms.cosem;
 
+import java.io.IOException;
+
 /**
  * This enum contains all the dlms class id's
  *
@@ -67,6 +69,15 @@ public enum DLMSClassId {
 	 */
 	public int getClassId() {
 		return classId;
+	}
+
+	public static DLMSClassId findById(int id) throws IOException {
+		for (DLMSClassId classId : DLMSClassId.values()) {
+			if (classId.getClassId() == id) {
+				return classId;
+			}
+		}
+		throw new IOException("No DLMSClassId found for id = " + id);
 	}
 
 }
