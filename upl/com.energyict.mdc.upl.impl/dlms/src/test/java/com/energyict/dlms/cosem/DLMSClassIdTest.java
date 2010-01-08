@@ -3,8 +3,11 @@
  */
 package com.energyict.dlms.cosem;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.io.IOException;
 
 import org.junit.Test;
 
@@ -13,9 +16,10 @@ import org.junit.Test;
  */
 public class DLMSClassIdTest {
 
+	private static final int	NON_EXISTING_CLASSID	= -1;
+
 	/**
-	 * Test method for {@link com.energyict.dlms.cosem.DLMSClassId#getClassId()}
-	 * .
+	 * Test method for {@link com.energyict.dlms.cosem.DLMSClassId#getClassId()}.
 	 */
 	@Test
 	public final void testGetClassId() {
@@ -31,7 +35,28 @@ public class DLMSClassIdTest {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Test method for {@link com.energyict.dlms.cosem.DLMSClassId#findById(int)}.
+	 */
+	@Test
+	public final void testfindById() {
+		DLMSClassId[] values = DLMSClassId.values();
+		for (DLMSClassId dlmsClassId : values) {
+			try {
+				assertEquals(dlmsClassId, DLMSClassId.findById(dlmsClassId.getClassId()));
+			} catch (IOException e) {
+				fail("This should not generate an IOException, because [" + dlmsClassId + "] with id=" + dlmsClassId.getClassId() + " exists for sure.");
+			}
+		}
+
+		try {
+			DLMSClassId.findById(NON_EXISTING_CLASSID);
+			fail("Requested nonexisting DLMSClassId [" + NON_EXISTING_CLASSID + "], but no exception was catched!");
+		} catch (IOException e) {}
 
 	}
+
 
 }
