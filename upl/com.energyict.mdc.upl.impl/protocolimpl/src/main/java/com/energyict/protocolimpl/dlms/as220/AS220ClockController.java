@@ -1,12 +1,10 @@
 package com.energyict.protocolimpl.dlms.as220;
 
-import static com.energyict.dlms.DLMSCOSEMGlobals.TIME_TIME;
-import static com.energyict.dlms.DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
-
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
@@ -18,8 +16,12 @@ import com.energyict.protocolimpl.base.ClockController;
  */
 public class AS220ClockController implements ClockController {
 
-	private static final int	BYTE_LENGTH	= 8;
-	private final DLMSSNAS220	as220;
+	private static final int		DATA_LENGTH		= 12;
+	private static final int		BYTE_LENGTH		= 8;
+
+	private static final ObisCode	CLOCK_OBISCODE	= ObisCode.fromString("0.0.1.0.0.255");
+
+	private final DLMSSNAS220		as220;
 
 	public AS220ClockController(DLMSSNAS220 as220) {
 		this.as220 = as220;
@@ -30,7 +32,7 @@ public class AS220ClockController implements ClockController {
 	}
 
 	public Date getTime() throws IOException {
-		Clock clock = getAs220().getCosemObjectFactory().getClock(ObisCode.fromString("0.0.1.0.0.255"));
+		Clock clock = getAs220().getCosemObjectFactory().getClock(CLOCK_OBISCODE);
 		Date date = clock.getDateTime();
 		getAs220().setDstFlag(clock.getDstFlag());
 		return date;
@@ -69,8 +71,8 @@ public class AS220ClockController implements ClockController {
 		byte[] byteTimeBuffer = new byte[15];
 
 		byteTimeBuffer[0] = 1;
-		byteTimeBuffer[1] = TYPEDESC_OCTET_STRING;
-		byteTimeBuffer[2] = 12; // length
+		byteTimeBuffer[1] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+		byteTimeBuffer[2] = DATA_LENGTH; // length
 		byteTimeBuffer[3] = (byte) (calendar.get(Calendar.YEAR) >> BYTE_LENGTH);
 		byteTimeBuffer[4] = (byte) calendar.get(Calendar.YEAR);
 		byteTimeBuffer[5] = (byte) (calendar.get(Calendar.MONTH) + 1);
@@ -100,7 +102,7 @@ public class AS220ClockController implements ClockController {
 			}
 		}
 
-		getAs220().getCosemObjectFactory().getGenericWrite((short) getAs220().getMeterConfig().getClockSN(), TIME_TIME).write(byteTimeBuffer);
+		getAs220().getCosemObjectFactory().getGenericWrite((short) getAs220().getMeterConfig().getClockSN(), DLMSCOSEMGlobals.TIME_TIME).write(byteTimeBuffer);
 
 	}
 

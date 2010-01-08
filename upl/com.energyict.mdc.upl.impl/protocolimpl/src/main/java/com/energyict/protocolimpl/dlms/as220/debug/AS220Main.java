@@ -84,8 +84,8 @@ public class AS220Main {
 
 	public static void readProfile(boolean incluideEvents) throws IOException {
 		Calendar from = Calendar.getInstance(DEFAULT_TIMEZONE);
-		from.add(Calendar.HOUR_OF_DAY, -12);
-		System.out.println(getAs220().getProfileData(from.getTime(), incluideEvents));
+		from.add(Calendar.DAY_OF_YEAR, -1);
+		getLogger().log(Level.INFO, getAs220().getProfileData(from.getTime(), incluideEvents).toString());
 	}
 
 	public static void readRegisters() {
@@ -93,7 +93,7 @@ public class AS220Main {
 		for (UniversalObject uo : universalObjects) {
 			if (uo.getClassID() == Register.CLASSID) {
 				try {
-					System.out.println(getAs220().readRegister(uo.getObisCode()));
+					getLogger().log(Level.INFO, getAs220().readRegister(uo.getObisCode()).toString());
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -110,16 +110,16 @@ public class AS220Main {
 	public static void readObiscodes() throws IOException {
 		UniversalObject[] uo = getAs220().getMeterConfig().getInstantiatedObjectList();
 		for (UniversalObject universalObject : uo) {
-			System.out.println(universalObject.getObisCode() + " = " + DLMSClassId.findById(universalObject.getClassID()));
+			getLogger().log(Level.INFO, universalObject.getObisCode() + " = " + DLMSClassId.findById(universalObject.getClassID()));
 		}
 	}
 
 	public static void getAndSetTime() throws IOException {
 		Date date = getAs220().getTime();
-		System.out.println(date);
+		getLogger().log(Level.INFO, date.toString());
 		getAs220().setTime();
 		date = getAs220().getTime();
-		System.out.println(date);
+		getLogger().log(Level.INFO, date.toString());
 	}
 
 	public static void main(String[] args) throws LinkException, IOException, InterruptedException {
@@ -133,13 +133,12 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			getAndSetTime();
-
+			readProfile(true);
 
 		} finally {
-			System.out.println("\nDone. Closing connections. \n");
+			getLogger().log(Level.INFO, "\nDone. Closing connections. \n");
 			getAs220().disconnect();
-			System.out.println("\n");
+			getLogger().log(Level.INFO, "\n");
 			getDialer().disConnect();
 		}
 

@@ -17,6 +17,8 @@ public class EventLogs {
 
 	private static final ObisCode	STANDARD_EVENTLOG_OBISCODE	= ObisCode.fromString("0.0.99.98.1.255");
 	private static final ObisCode	COVER_LOGBOOK_OBISCODE		= ObisCode.fromString("0.0.99.98.2.255");
+	private static final ObisCode	UNKNOWN_LOGBOOK3_OBISCODE	= ObisCode.fromString("0.0.99.98.3.255");
+	private static final ObisCode	UNKNOWN_LOGBOOK4_OBISCODE	= ObisCode.fromString("0.0.99.98.4.255");
 	private static final ObisCode	VOLTAGECUT_LOGBOOK_OBISCODE	= ObisCode.fromString("0.0.99.98.5.255");
 
 	private final DLMSSNAS220 as220;
@@ -44,6 +46,8 @@ public class EventLogs {
 		meterEvents.addAll(readLogbook(STANDARD_EVENTLOG_OBISCODE, fromCalendar, toCalendar));
 		meterEvents.addAll(readLogbook(VOLTAGECUT_LOGBOOK_OBISCODE, fromCalendar, toCalendar));
 		meterEvents.addAll(readLogbook(COVER_LOGBOOK_OBISCODE, fromCalendar, toCalendar));
+		meterEvents.addAll(readLogbook(UNKNOWN_LOGBOOK3_OBISCODE, fromCalendar, toCalendar));
+		meterEvents.addAll(readLogbook(UNKNOWN_LOGBOOK4_OBISCODE, fromCalendar, toCalendar));
 		return meterEvents;
 	}
 
