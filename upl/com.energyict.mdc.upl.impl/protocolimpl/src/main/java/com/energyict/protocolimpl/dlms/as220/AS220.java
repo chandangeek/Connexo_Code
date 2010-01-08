@@ -126,6 +126,10 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
+    /**
+     * Getter for the as220Messaging
+     * @return the current {@link AS220Messaging} object
+     */
     public AS220Messaging getMessaging() {
 		return messaging;
 	}
