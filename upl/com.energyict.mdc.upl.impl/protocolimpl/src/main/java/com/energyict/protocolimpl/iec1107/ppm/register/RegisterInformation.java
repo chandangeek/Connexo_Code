@@ -23,15 +23,22 @@ import com.energyict.protocolimpl.iec1107.ppm.RegisterFactory;
 
 public class RegisterInformation {
 
+	private static final String	LINE_FEED	= "\n";
+	private static final String	OBIS_ENERGY_PREFIX	= "1.1.";
+	private static final String	VOLT_AMP		= "VA";
+	private static final String	VOLT_AMP_HOUR	= "VAh";
+	private static final String	EXPORT_STRING	= "Export";
+	private static final String	IMPORT_STRING	= "Import";
+
 	private BaseUnit wattHour = BaseUnit.get(BaseUnit.WATTHOUR);
 	private BaseUnit varhHour = BaseUnit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR);
 	private BaseUnit vAHour = BaseUnit.get(BaseUnit.VOLTAMPEREHOUR);
 
-	private MetaRegister importWh = cr("Import", RegisterFactory.R_TOTAL_IMPORT_WH, this.wattHour);
-	private MetaRegister exportWh = cr("Export", RegisterFactory.R_TOTAL_EXPORT_WH, this.wattHour);
-	private MetaRegister importVarh = cr("Import", RegisterFactory.R_TOTAL_IMPORT_VARH, this.varhHour);
-	private MetaRegister exportVarh = cr("Export", RegisterFactory.R_TOTAL_EXPORT_VARH, this.varhHour);
-	private MetaRegister vAh = cr("VAh", RegisterFactory.R_TOTAL_VAH, this.vAHour);
+	private MetaRegister importWh = cr(IMPORT_STRING, RegisterFactory.R_TOTAL_IMPORT_WH, this.wattHour);
+	private MetaRegister exportWh = cr(EXPORT_STRING, RegisterFactory.R_TOTAL_EXPORT_WH, this.wattHour);
+	private MetaRegister importVarh = cr(IMPORT_STRING, RegisterFactory.R_TOTAL_IMPORT_VARH, this.varhHour);
+	private MetaRegister exportVarh = cr(EXPORT_STRING, RegisterFactory.R_TOTAL_EXPORT_VARH, this.varhHour);
+	private MetaRegister vAh = cr(VOLT_AMP_HOUR, RegisterFactory.R_TOTAL_VAH, this.vAHour);
 
 	private MetaRegister[] energyDefinition = { this.importWh, this.exportWh, this.importVarh, this.exportVarh, this.vAh };
 
@@ -39,11 +46,11 @@ public class RegisterInformation {
 	private BaseUnit varhUnit = BaseUnit.get(BaseUnit.VOLTAMPEREREACTIVE);
 	private BaseUnit vAUnit = BaseUnit.get(BaseUnit.VOLTAMPERE);
 
-	private MetaRegister importW = cr("Import", this.wattUnit);
-	private MetaRegister exportW = cr("Export", this.wattUnit);
-	private MetaRegister importVar = cr("Import", this.varhUnit);
-	private MetaRegister exportVar = cr("Export", this.varhUnit);
-	private MetaRegister vA = cr("VA", this.vAUnit);
+	private MetaRegister importW = cr(IMPORT_STRING, this.wattUnit);
+	private MetaRegister exportW = cr(EXPORT_STRING, this.wattUnit);
+	private MetaRegister importVar = cr(IMPORT_STRING, this.varhUnit);
+	private MetaRegister exportVar = cr(EXPORT_STRING, this.varhUnit);
+	private MetaRegister vA = cr(VOLT_AMP, this.vAUnit);
 
 	private MetaRegister[] demandDefinition = { this.importW, this.exportW, this.importVar, this.exportVar, this.vA };
 
@@ -320,7 +327,7 @@ public class RegisterInformation {
 		for( int ei = 0; ei < this.energyDefinition.length; ei ++ ) {
 			for( int i = 0; i < 8; i++) {
 				if( this.energyDefinition[ei].equals( this.touRegister[i].getSourceRegister() ) ) {
-					String code = "1.1." + (ei+1) + ".8.0" + (i+1) + ".255";
+					String code = OBIS_ENERGY_PREFIX + (ei+1) + ".8.0" + (i+1) + ".255";
 					result.add( ObisCode.fromString( code ) );
 				}
 			}
@@ -335,10 +342,10 @@ public class RegisterInformation {
 				if( this.demandDefinition[di].equals( this.mdRegister[i].getSourceRegister() ) ) {
 					String code = null;
 					if( !found ) {
-						code = "1.1." + dom[di] + ".6.0.255";
+						code = OBIS_ENERGY_PREFIX + dom[di] + ".6.0.255";
 						result.add( ObisCode.fromString( code ) );
 					}
-					code = "1.1." + dom[di] + ".6." + ( 128 + i ) + ".255";
+					code = OBIS_ENERGY_PREFIX + dom[di] + ".6." + ( 128 + i ) + ".255";
 					result.add( ObisCode.fromString( code ) );
 					found = true;
 				}
@@ -351,10 +358,10 @@ public class RegisterInformation {
 				if( this.demandDefinition[di].equals( this.cmdRegister[i].getSourceRegister() ) ) {
 					String code = null;
 					if( !found ) {
-						code = "1.1." + dom[di] + ".2.0.255";
+						code = OBIS_ENERGY_PREFIX + dom[di] + ".2.0.255";
 						result.add( ObisCode.fromString( code ) );
 					}
-					code = "1.1." + dom[di] + ".2." + ( 128 + i ) + ".255";
+					code = OBIS_ENERGY_PREFIX + dom[di] + ".2." + ( 128 + i ) + ".255";
 					result.add( ObisCode.fromString( code ) );
 					found = true;
 				}
@@ -416,7 +423,7 @@ public class RegisterInformation {
 		Iterator o = getAvailableObisCodes().iterator();
 		while( o.hasNext() ){
 			ObisCode code = (ObisCode)o.next();
-			r.append( code.toString() + " = " + ObisCodeMapper.getRegisterInfo( code ) + "\n" );
+			r.append( code.toString() + " = " + ObisCodeMapper.getRegisterInfo( code ) + LINE_FEED );
 		}
 
 		r.append( "Register mappings are identical for historical values F= 255, VZ, VZ-1, VZ-2 and VZ-3" );
@@ -429,31 +436,35 @@ public class RegisterInformation {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 
-		sb.append("importWh   \t[" + this.importWh + "]\n");
-		sb.append("exportWh   \t[" + this.exportWh + "]\n");
-		sb.append("importVarh \t[" + this.importVarh + "]\n");
-		sb.append("exportVarh \t[" + this.exportVarh + "]\n");
-		sb.append("vAh        \t[" + this.vAh + "]\n\n");
+		sb.append("importWh   \t[").append(this.importWh).append("]\n");
+		sb.append("exportWh   \t[").append(this.exportWh).append("]\n");
+		sb.append("importVarh \t[").append(this.importVarh).append("]\n");
+		sb.append("exportVarh \t[").append(this.exportVarh).append("]\n");
+		sb.append("vAh        \t[").append(this.vAh).append("]\n");
+		sb.append(LINE_FEED);
 
-		sb.append("importW " + this.importW + "\n");
-		sb.append("exportW " + this.exportW + "\n");
-		sb.append("importVar " + this.importVar + "\n");
-		sb.append("exportVar " + this.exportVar + "\n");
-		sb.append("vA " + this.vA + "\n\n");
+		sb.append("importW ").append(this.importW).append(LINE_FEED);
+		sb.append("exportW ").append(this.exportW).append(LINE_FEED);
+		sb.append("importVar ").append(this.importVar).append(LINE_FEED);
+		sb.append("exportVar ").append(this.exportVar).append(LINE_FEED);
+		sb.append("vA ").append(this.vA).append(LINE_FEED);
+		sb.append(LINE_FEED);
 
-		sb.append(this.tou1.toString() + "\n");
-		sb.append(this.tou2.toString() + "\n");
-		sb.append(this.tou3.toString() + "\n");
-		sb.append(this.tou4.toString() + "\n");
-		sb.append(this.tou5.toString() + "\n");
-		sb.append(this.tou6.toString() + "\n");
-		sb.append(this.tou7.toString() + "\n");
-		sb.append(this.tou8.toString() + "\n\n");
+		sb.append(this.tou1.toString()).append(LINE_FEED);
+		sb.append(this.tou2.toString()).append(LINE_FEED);
+		sb.append(this.tou3.toString()).append(LINE_FEED);
+		sb.append(this.tou4.toString()).append(LINE_FEED);
+		sb.append(this.tou5.toString()).append(LINE_FEED);
+		sb.append(this.tou6.toString()).append(LINE_FEED);
+		sb.append(this.tou7.toString()).append(LINE_FEED);
+		sb.append(this.tou8.toString()).append(LINE_FEED);
+		sb.append(LINE_FEED);
 
-		sb.append(this.mdTou1.toString() + "\n");
-		sb.append(this.mdTou2.toString() + "\n");
-		sb.append(this.mdTou3.toString() + "\n");
-		sb.append(this.mdTou4.toString() + "\n\n");
+		sb.append(this.mdTou1.toString()).append(LINE_FEED);
+		sb.append(this.mdTou2.toString()).append(LINE_FEED);
+		sb.append(this.mdTou3.toString()).append(LINE_FEED);
+		sb.append(this.mdTou4.toString()).append(LINE_FEED);
+		sb.append(LINE_FEED);
 
 		sb.append(this.scalingFactor);
 
