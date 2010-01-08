@@ -18,7 +18,7 @@ public final class AXDRTimeZone {
 	 * @return
 	 */
 	public static OctetString encode(TimeZone timeZone) {
-		return OctetString.fromString(timeZone.getID());
+		return (timeZone == null) ? null : OctetString.fromString(timeZone.getID());
 	}
 
 	/**
@@ -26,7 +26,7 @@ public final class AXDRTimeZone {
 	 * @return
 	 */
 	public static TimeZone decode(AbstractDataType dataType) {
-		return TimeZone.getTimeZone(dataType.getOctetString().stringValue());
+		return ((dataType == null) || (!dataType.isOctetString())) ? null : TimeZone.getTimeZone(dataType.getOctetString().stringValue());
 	}
 
 }
