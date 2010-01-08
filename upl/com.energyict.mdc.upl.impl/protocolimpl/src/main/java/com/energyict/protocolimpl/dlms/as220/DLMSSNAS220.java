@@ -47,8 +47,6 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
@@ -73,7 +71,7 @@ import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 
-abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism {
+abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism {
 
 	private static final int		CONNECTION_MODE_HDLC		= 0;
 	private static final int		CONNECTION_MODE_TCPIP		= 1;
@@ -108,7 +106,6 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
     private DLMSConnection dlmsConnection=null;
     private CosemObjectFactory cosemObjectFactory=null;
     private StoredValuesImpl storedValuesImpl=null;
-    private AS220ClockController clockController=null;
 
     // lazy initializing
     private int iNumberOfChannels=-1;
@@ -155,13 +152,6 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
     public DLMSConnection getDLMSConnection() {
         return dlmsConnection;
     }
-
-    public AS220ClockController getClockController() {
-    	if (clockController == null) {
-    		clockController = new AS220ClockController(this);
-    	}
-    	return clockController;
-	}
 
     /** initializes the receiver
      * @param inputStream <br>
@@ -360,24 +350,6 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
 
     }
 
-    /**
-     * This method sets the time/date in the remote meter equal to the system time/date of the machine where this object resides.
-     * @exception IOException
-     */
-    public void setTime() throws IOException {
-    	getClockController().setTime();
-    }
-
-	/**
-	 * Method that requests the time/date in the remote meter.
-	 *
-	 * @return Date representing the time/date of the remote meter.
-	 * @exception IOException
-	 */
-    public Date getTime() throws IOException {
-        return getClockController().getTime();
-    }
-
     private boolean requestDaylightSavingEnabled() throws IOException {
        return getCosemObjectFactory().getClock().isDsEnabled();
     }
@@ -424,39 +396,13 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
      */
     private String requestAttribute(int iBaseName,int iOffset) throws IOException {
         return getCosemObjectFactory().getGenericRead(iBaseName,iOffset).getDataContainer().toString();
-    } // public void requestAttribute(int iBaseName,int iOffset) throws IOException
-
-
-    public String getProtocolVersion() {
-    	String rev = "$Revision: 33703 $"+" - "+"$Date: 2009-06-02 17:34:52 +0200 (di, 02 jun 2009) $";
-    	String manipulated = "Revision "+rev.substring(rev.indexOf("$Revision: ")+"$Revision: ".length(), rev.indexOf("$ -"))
-    						+"at "
-    						 +rev.substring(rev.indexOf("$Date: ")+"$Date: ".length(), rev.indexOf("$Date: ")+"$Date: ".length()+19);
-    	return manipulated;
     }
 
     /**
-     * This method requests for the version string.
-     * @return String representing the version.
-     * @exception IOException
+     * Read the serialNumber from the device
+     * @return the serial number from the device as {@link String}
+     * @throws IOException
      */
-    public String getFirmwareVersion() throws IOException,UnsupportedException {
-        StringBuffer strBuff = new StringBuffer();
-    	UniversalObject uo = getMeterConfig().getVersionObject();
-        byte[] responsedata = getCosemObjectFactory().getGenericRead(uo.getBaseName(),uo.getValueAttributeOffset()).getResponseData();
-
-        Array array = AXDRDecoder.decode(responsedata).getArray();
-        Structure structure = array.getDataType(0).getStructure();
-        strBuff.append(ProtocolUtils.outputHexString(structure.getNextDataType().getOctetString().getOctetStr()));
-        strBuff.append(", "+structure.getNextDataType().intValue());
-        strBuff.append(", "+structure.getNextDataType().intValue());
-        strBuff.append(", "+structure.getNextDataType().intValue());
-        strBuff.append(", "+structure.getNextDataType().longValue());
-        return strBuff.toString();
-
-
-    } // public String getFirmwareVersion()
-
     private String getSerialNumber() throws IOException {
         UniversalObject uo = getMeterConfig().getSerialNumberObject();
         byte[] responsedata = getCosemObjectFactory().getGenericRead(uo.getBaseName(),uo.getValueAttributeOffset()).getResponseData();
@@ -466,7 +412,7 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
         	strBuff.append(ProtocolUtils.buildStringHex(octetStr[i]&0xff, 2));
         }
         return strBuff.toString();
-    } // public String getSerialNumber()
+    }
 
     /**
      * This method requests for the NR of intervals that can be stored in the memory of the remote meter.
@@ -476,9 +422,9 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
     private int getNROfIntervals() throws IOException {
         if (iNROfIntervals == -1) {
             iNROfIntervals = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getProfileEntries();
-        } // if (iNROfIntervals == -1)
+        }
         return iNROfIntervals;
-    } // private int getNROfIntervals() throws IOException
+    }
 
 
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
@@ -706,38 +652,36 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
         if (iRequestClockObject == 1) {
             try{logger.severe("DLMSSNAS220 Clock time                       : "+getTime());}catch(IOException e){logger.severe("time attribute error");}
             //try{logger.severe ("DLMSSNAS220 Clock time_zone                  : "+requestTimeZone());}catch(IOException e){logger.severe ("time_zone attribute error");}
-            try{logger.severe("DLMSSNAS220 Clock time_zone                  : "+requestAttributeLong(meterConfig.getClockSN(),TIME_TIME_ZONE));}catch(IOException e){logger.severe("time_zone attribute error");}
-            try{logger.severe("DLMSSNAS220 Clock status                     : "+requestAttributeLong(meterConfig.getClockSN(),TIME_STATUS));}catch(IOException e){logger.severe("status attribute error");}
-            try{logger.severe("DLMSSNAS220 Clock daylight_savings_begin     : "+requestAttributeString(meterConfig.getClockSN(),TIME_DS_BEGIN));}catch(IOException e){logger.severe("DS begin attribute error");}
-            try{logger.severe("DLMSSNAS220 Clock daylight_savings_end       : "+requestAttributeString(meterConfig.getClockSN(),TIME_DS_END));}catch(IOException e){logger.severe("DS end attribute error");}
-            try{logger.severe("DLMSSNAS220 Clock daylight_savings_deviation : "+requestAttributeLong(meterConfig.getClockSN(),TIME_DS_DEVIATION));}catch(IOException e){logger.severe("DS deviation attribute error");}
+            try{logger.severe("DLMSSNAS220 Clock time_zone                  : "+requestAttributeLong(meterConfig.getClockSN(),DLMSCOSEMGlobals.TIME_TIME_ZONE));}catch(IOException e){logger.severe("time_zone attribute error");}
+            try{logger.severe("DLMSSNAS220 Clock status                     : "+requestAttributeLong(meterConfig.getClockSN(),DLMSCOSEMGlobals.TIME_STATUS));}catch(IOException e){logger.severe("status attribute error");}
+            try{logger.severe("DLMSSNAS220 Clock daylight_savings_begin     : "+requestAttributeString(meterConfig.getClockSN(),DLMSCOSEMGlobals.TIME_DS_BEGIN));}catch(IOException e){logger.severe("DS begin attribute error");}
+            try{logger.severe("DLMSSNAS220 Clock daylight_savings_end       : "+requestAttributeString(meterConfig.getClockSN(),DLMSCOSEMGlobals.TIME_DS_END));}catch(IOException e){logger.severe("DS end attribute error");}
+            try{logger.severe("DLMSSNAS220 Clock daylight_savings_deviation : "+requestAttributeLong(meterConfig.getClockSN(),DLMSCOSEMGlobals.TIME_DS_DEVIATION));}catch(IOException e){logger.severe("DS deviation attribute error");}
             try{logger.severe("DLMSSNAS220 Clock daylight_saving_enabled    : "+requestDaylightSavingEnabled());}catch(IOException e){logger.severe("DS enebled attribute error");}
-
-        } // if (iRequestClockObject == 1)
-
-    } // private void requestClockObject()
+        }
+    }
 
     public int requestConfigurationProgramChanges() throws IOException {
         if (iConfigProgramChange == -1) {
 			iConfigProgramChange = (int)getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode()).getValue();
 		}
         return iConfigProgramChange;
-    } // public int requestConfigurationProgramChanges() throws IOException
+    }
 
     protected int requestTimeZone() throws IOException {
         if (iMeterTimeZoneOffset == 255) {
 			iMeterTimeZoneOffset = getCosemObjectFactory().getClock().getTimeZone();
 		}
         return iMeterTimeZoneOffset;
-    } // protected int requestTimeZone() throws IOException
+    }
 
     private long requestAttributeLong(int iBaseName,int iOffset) throws IOException {
         return getCosemObjectFactory().getGenericRead(iBaseName,iOffset).getValue();
-    } // private long requestAttributeLong(int iBaseName,int iOffset) throws IOException
+    }
 
     private String requestAttributeString(int iBaseName,int iOffset) throws IOException {
         return getCosemObjectFactory().getGenericRead(iBaseName,iOffset).toString();
-    } // private String requestAttributeString(int iBaseName,int iOffset) throws IOException
+    }
 
     public boolean isRequestTimeZone() {
         return (iRequestTimeZone != 0);
@@ -867,5 +811,5 @@ abstract public class DLMSSNAS220 implements DLMSCOSEMGlobals, MeterProtocol, HH
 		return iRoundtripCorrection;
 	}
 
-} // public class DLMSSNAS220
+}
 

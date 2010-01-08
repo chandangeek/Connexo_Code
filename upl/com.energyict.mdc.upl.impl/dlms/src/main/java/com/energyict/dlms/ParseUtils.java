@@ -2,37 +2,64 @@ package com.energyict.dlms;
 
 import com.energyict.obis.ObisCode;
 
-public class ParseUtils {
+/**
+ * DLMS ParseUtils
+ *
+ */
+public final class ParseUtils {
 
-	static public boolean isObisCodeAbstract(ObisCode obisCode) {
+	/**
+	 * Hide this static util class
+	 */
+	private ParseUtils() {
+		// Hide this static util class
+	}
+
+	/**
+	 * @param obisCode
+	 * @return
+	 */
+	public static boolean isObisCodeAbstract(ObisCode obisCode) {
 		return (obisCode.getA()==0) && (obisCode.getB()==0);
 	}
-	static public boolean isObisCodeCumulative(ObisCode obisCode) {
-		// no abstract code AND d field time integral 1, 7 or 8 These time integrals specify values from first start of measurement (origin) 
+
+	/**
+	 * @param obisCode
+	 * @return
+	 */
+	public static boolean isObisCodeCumulative(ObisCode obisCode) {
+		// no abstract code AND d field time integral 1, 7 or 8 These time integrals specify values from first start of measurement (origin)
 		return (obisCode.getA()!=0) && (obisCode.getC()!=0) && ((obisCode.getD()==8) || (obisCode.getD()==17) || (obisCode.getD()==18));
 	}
-	static public boolean isObisCodeChannelIntervalStatus(ObisCode obisCode) {
-		// no abstract code AND d field time integral 1, 7 or 8 These time integrals specify values from first start of measurement (origin) 
+
+	/**
+	 * @param obisCode
+	 * @return
+	 */
+	public static boolean isObisCodeChannelIntervalStatus(ObisCode obisCode) {
+		// no abstract code AND d field time integral 1, 7 or 8 These time integrals specify values from first start of measurement (origin)
 		return (obisCode.getA()==0) && (obisCode.getB()==0) && (obisCode.getC()==96) && (obisCode.getD()==60) && (obisCode.getE()>0) && (obisCode.getF()==0);
 	}
-	
-	static public boolean isElectricityObisCode(ObisCode obisCode){
-		if ((obisCode.getA() == 1) && (obisCode.getB() >= 0) && (obisCode.getB() <= 64)){
-			return true;
-		}
-        else{
-        	return false;
-        }
+
+	/**
+	 * @param obisCode
+	 * @return
+	 */
+	public static boolean isElectricityObisCode(ObisCode obisCode){
+		return ((obisCode.getA() == 1) && (obisCode.getB() >= 0) && (obisCode.getB() <= 64));
 	}
-	
-	static public byte[] concatArray(byte[] array1, byte[] array2) {
-		if ((array1==null) && (array2==null)) {
+
+	/**
+	 * @param array1
+	 * @param array2
+	 * @return
+	 */
+	public static byte[] concatArray(byte[] array1, byte[] array2) {
+		if ((array1 == null) && (array2 == null)) {
 			return null;
-		}
-		if (array1==null) {
+		} else if (array1 == null) {
 			return array2;
-		}
-		if (array2==null) {
+		} else if (array2 == null) {
 			return array1;
 		}
 		byte[] newArray = new byte[array1.length+array2.length];
@@ -40,10 +67,14 @@ public class ParseUtils {
 		System.arraycopy(array2, 0, newArray, array1.length,array2.length);
 		return newArray;
 	}
-	
-	static public boolean isObisCode(String code) {
+
+	/**
+	 * @param code
+	 * @return
+	 */
+	public static boolean isObisCode(String code) {
 		try {
-			ObisCode o = ObisCode.fromString(code);
+			ObisCode.fromString(code).toString();
 			return true;
 		}
 		catch(NumberFormatException e) {
@@ -53,6 +84,6 @@ public class ParseUtils {
 			return false;
 		}
 	}
-	
+
 
 }

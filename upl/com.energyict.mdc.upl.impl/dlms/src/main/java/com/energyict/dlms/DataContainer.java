@@ -150,14 +150,17 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 					}
 				}
 				if (dataStructure.isLong(iCount[iparseLevel])) {
+					strout.append("Long: ");
 					strout.append(dataStructure.getLong(iCount[iparseLevel])+"\n");
 				}
 
 				if (dataStructure.isInteger(iCount[iparseLevel])) {
+					strout.append("Integer: ");
 					strout.append(dataStructure.getInteger(iCount[iparseLevel])+"\n");
 				}
 
 				if (dataStructure.isOctetString(iCount[iparseLevel])) {
+					strout.append("OctetString: ");
 					int val;
 					boolean readable=true;
 					for (int t=0; t<dataStructure.getOctetString(iCount[iparseLevel]).getArray().length;t++) {
@@ -184,6 +187,7 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 				}
 
 				if (dataStructure.isString(iCount[iparseLevel])) {
+					strout.append("String: ");
 					strout.append(dataStructure.getString(iCount[iparseLevel])+"\n");
 				}
 
@@ -214,20 +218,19 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 	}
 
 	private void levelDown() throws DataContainerException {
-		while(true) {
+		while (true) {
 			if (this.iLevel > 0) {
 				this.iLevel--;
 			}
-			if (this.dataStructure.parent != null)
-			{
-				this.dataStructure=this.dataStructure.parent;
+			if (this.dataStructure.parent != null) {
+				this.dataStructure = this.dataStructure.parent;
 				// Get next index...
-				for (this.iIndex=0;this.iIndex<this.dataStructure.element.length;this.iIndex++) {
+				for (this.iIndex = 0; this.iIndex < this.dataStructure.element.length; this.iIndex++) {
 					if (this.dataStructure.element[this.iIndex] == null) {
 						return;
 					}
 				}
-				if ((this.iIndex==this.dataStructure.element.length) && (this.iLevel == 0)) {
+				if ((this.iIndex == this.dataStructure.element.length) && (this.iLevel == 0)) {
 					throw new DataContainerException("LevelDown error, no more free entries!");
 				}
 			} else {
@@ -245,8 +248,7 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 			this.iLevel=0;
 			this.iMaxLevel = this.iLevel;
 			this.iIndex=0;
-		}
-		else if (this.iIndex >= this.dataStructure.element.length) {
+		} else if (this.iIndex >= this.dataStructure.element.length) {
 			levelDown();
 		}
 	}

@@ -84,8 +84,8 @@ public class AS220Main {
 
 	public static void readProfile(boolean incluideEvents) throws IOException {
 		Calendar from = Calendar.getInstance(DEFAULT_TIMEZONE);
-		from.add(Calendar.DAY_OF_YEAR, -1);
-		getLogger().log(Level.INFO, getAs220().getProfileData(from.getTime(), incluideEvents).toString());
+		from.add(Calendar.YEAR, -5);
+		log(getAs220().getProfileData(from.getTime(), incluideEvents));
 	}
 
 	public static void readRegisters() {
@@ -93,7 +93,7 @@ public class AS220Main {
 		for (UniversalObject uo : universalObjects) {
 			if (uo.getClassID() == Register.CLASSID) {
 				try {
-					getLogger().log(Level.INFO, getAs220().readRegister(uo.getObisCode()).toString());
+					log(getAs220().readRegister(uo.getObisCode()));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -110,16 +110,28 @@ public class AS220Main {
 	public static void readObiscodes() throws IOException {
 		UniversalObject[] uo = getAs220().getMeterConfig().getInstantiatedObjectList();
 		for (UniversalObject universalObject : uo) {
-			getLogger().log(Level.INFO, universalObject.getObisCode() + " = " + DLMSClassId.findById(universalObject.getClassID()));
+			log(universalObject.getObisCode() + " = " + DLMSClassId.findById(universalObject.getClassID()));
 		}
+	}
+
+	public static void readDataObjects() {
+		UniversalObject[] uo = getAs220().getMeterConfig().getInstantiatedObjectList();
+		for (UniversalObject universalObject : uo) {
+			if (universalObject.getClassID() == DLMSClassId.DATA.getClassId()) {
+				try {
+					logger.log(Level.INFO, universalObject.getObisCode() + " = " + getAs220().getCosemObjectFactory().getData(universalObject.getObisCode()).getDataContainer().doPrintDataContainer());
+				} catch (IOException e) {}
+			}
+		}
+
 	}
 
 	public static void getAndSetTime() throws IOException {
 		Date date = getAs220().getTime();
-		getLogger().log(Level.INFO, date.toString());
+		log(date);
 		getAs220().setTime();
 		date = getAs220().getTime();
-		getLogger().log(Level.INFO, date.toString());
+		log(date);
 	}
 
 	public static void main(String[] args) throws LinkException, IOException, InterruptedException {
@@ -133,15 +145,21 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			readProfile(true);
+			//readDataObjects();
+			log(getAs220().getFirmwareVersion());
+			//log(getAs220().getCosemObjectFactory().getData(ObisCode.fromString("0.0.42.0.0.255")).getText());
+
 
 		} finally {
-			getLogger().log(Level.INFO, "\nDone. Closing connections. \n");
+			log("Done. Closing connections. \n");
 			getAs220().disconnect();
-			getLogger().log(Level.INFO, "\n");
 			getDialer().disConnect();
 		}
 
+	}
+
+	private static void log(Object message) {
+		getLogger().log(Level.INFO, message == null ? "null" : message.toString());
 	}
 
 }

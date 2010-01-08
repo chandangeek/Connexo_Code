@@ -21,9 +21,9 @@ public class AS220ClockController implements ClockController {
 
 	private static final ObisCode	CLOCK_OBISCODE	= ObisCode.fromString("0.0.1.0.0.255");
 
-	private final DLMSSNAS220		as220;
+	private final AS220		as220;
 
-	public AS220ClockController(DLMSSNAS220 as220) {
+	public AS220ClockController(AS220 as220) {
 		this.as220 = as220;
 	}
 
