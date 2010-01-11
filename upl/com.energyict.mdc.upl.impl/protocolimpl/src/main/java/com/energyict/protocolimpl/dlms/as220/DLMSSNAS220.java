@@ -73,6 +73,8 @@ import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 
 abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism {
 
+	private static final int		SEC_PER_MIN					= 60;
+
 	private static final int		CONNECTION_MODE_HDLC		= 0;
 	private static final int		CONNECTION_MODE_TCPIP		= 1;
 	private static final int		CONNECTION_MODE_COSEM_PDU	= 2;
@@ -123,7 +125,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     private int addressingMode;
     private int connectionMode;
 
-    private byte[] aarqlowestlevel={
+    private static final byte[] AARQ_LOWEST_LEVEL = {
             (byte)0xE6,(byte)0xE6,(byte)0x00,
             (byte)0x60,
             (byte)0x1C, // bytes to follow
@@ -131,7 +133,8 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
             (byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x01,(byte)0x02, //application context name
             (byte)0xBE,(byte)0x0F,(byte)0x04,
             (byte)0x0D,(byte)0x01,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x06,(byte)0x5F,(byte)0x04,(byte)0x00,(byte)0x18,(byte)0x02,
-            (byte)0x20,(byte)0xFF,(byte)0xFF};
+            (byte)0x20,(byte)0xFF,(byte)0xFF
+    };
 
     /**
 	 *  Creates a new instance of DLMSSNAS220, empty constructor
@@ -342,8 +345,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
             if (getDLMSConnection() != null) {
 				getDLMSConnection().disconnectMAC();
 			}
-        }
-        catch(DLMSConnectionException e) {
+		} catch (DLMSConnectionException e) {
             logger.severe("DLMSSNAS220AS220: disconnect(), "+e.getMessage());
             //throw new IOException(e.getMessage());
         }
@@ -427,27 +429,23 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     }
 
 
-    public ProfileData getProfileData(boolean includeEvents) throws IOException {
-        int iNROfIntervals = getNROfIntervals();
-        int iInterval = getProfileInterval()/60;
-        Calendar fromCalendar = ProtocolUtils.getCalendar(getTimeZone());
-        fromCalendar.add(Calendar.MINUTE,(-1)*iNROfIntervals*iInterval);
-        return doGetDemandValues(fromCalendar,ProtocolUtils.getCalendar(getTimeZone()),includeEvents);
-    }
+	public ProfileData getProfileData(boolean includeEvents) throws IOException {
+		Calendar fromCalendar = ProtocolUtils.getCalendar(getTimeZone());
+		fromCalendar.add(Calendar.MINUTE, (-1) * getNROfIntervals() * (getProfileInterval() / SEC_PER_MIN));
+		return getProfileData(fromCalendar.getTime(), includeEvents);
+	}
 
-    public ProfileData getProfileData(Date lastReading,boolean includeEvents) throws IOException {
-        Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
-        fromCalendar.setTime(lastReading);
-        return doGetDemandValues(fromCalendar,ProtocolUtils.getCalendar(getTimeZone()),includeEvents);
-    }
+	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
+		return getProfileData(lastReading, new Date(), includeEvents);
+	}
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException,UnsupportedException {
-        Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
-        fromCalendar.setTime(from);
-        Calendar toCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
-        toCalendar.setTime(to);
-        return doGetDemandValues(fromCalendar,toCalendar,includeEvents);
-    }
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+		Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
+		fromCalendar.setTime(from);
+		Calendar toCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
+		toCalendar.setTime(to);
+		return doGetDemandValues(fromCalendar, toCalendar, includeEvents);
+	}
 
     private ProfileData doGetDemandValues(Calendar fromCalendar,Calendar toCalendar, boolean includeEvents) throws IOException {
         ProfileBuilder profileBuilder = new ProfileBuilder(this);
@@ -470,7 +468,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 			EventLogs eventLogs = new EventLogs(this);
 			List<MeterEvent> meterEvents = eventLogs.getEventLog(fromCalendar, toCalendar);
 			profileData.setMeterEvents(meterEvents);
-			profileData.applyEvents(getProfileInterval() / 60);
+			profileData.applyEvents(getProfileInterval() / SEC_PER_MIN);
         }
 
         profileData.sort();
@@ -479,7 +477,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     } // private ProfileData doGetDemandValues(Calendar fromCalendar,Calendar toCalendar, byte bNROfChannels) throws IOException
 
 	private void requestApplAssoc(int iLevel) throws IOException {
-		doRequestApplAssoc(iLevel == 0 ? aarqlowestlevel : getLowLevelSecurity());
+		doRequestApplAssoc(iLevel == 0 ? AARQ_LOWEST_LEVEL : getLowLevelSecurity());
 	}
 
 	protected byte[] getLowLevelSecurity() {
@@ -668,7 +666,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         return iConfigProgramChange;
     }
 
-    protected int requestTimeZone() throws IOException {
+    public int requestTimeZone() throws IOException {
         if (iMeterTimeZoneOffset == 255) {
 			iMeterTimeZoneOffset = getCosemObjectFactory().getClock().getTimeZone();
 		}

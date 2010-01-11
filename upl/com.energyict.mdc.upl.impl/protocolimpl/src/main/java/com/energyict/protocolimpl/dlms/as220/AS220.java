@@ -48,38 +48,37 @@ import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocolimpl.base.ClockController;
-import com.energyict.protocolimpl.base.ContactorController;
+import com.energyict.protocolimpl.dlms.as220.emeter.EMeter;
+import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 
 public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProtocol {
 
-	private final ContactorController contactorController;
 	private final AS220Messaging messaging;
-    private final AS220ClockController clockController;
+
+    private final GMeter gMeter = new GMeter(this);
+    private final EMeter eMeter = new EMeter(this);
 
     /**
      * Create a new instance of the {@link AS220} dlms protocol
      */
     public AS220() {
-    	this.contactorController = new AS220ContactorController(this);
     	this.messaging = new AS220Messaging(this);
-    	this.clockController = new AS220ClockController(this);
     }
 
-    /**
-     * Getter for the {@link ClockController} field
-     * @return the current {@link ClockController}
-     */
-    public AS220ClockController getClockController() {
-    	return clockController;
-    }
+    public GMeter getgMeter() {
+		return gMeter;
+	}
+
+    public EMeter geteMeter() {
+		return eMeter;
+	}
 
     public void setTime() throws IOException {
-    	getClockController().setTime();
+    	geteMeter().getClockController().setTime();
     }
 
     public Date getTime() throws IOException {
-        return getClockController().getTime();
+        return geteMeter().getClockController().getTime();
     }
 
     public String getProtocolVersion() {
@@ -104,19 +103,11 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
         return strBuff.toString();
     }
 
-    /**
-     * Getter for the {@link ContactorController} field
-     * @return the current {@link ContactorController}
-     */
-    public ContactorController getContactorController() {
-    	return contactorController;
-	}
-
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
 			ObisCodeMapper ocm = new ObisCodeMapper(getCosemObjectFactory());
 			return ocm.getRegisterValue(obisCode);
-		} catch (Exception e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
 		}

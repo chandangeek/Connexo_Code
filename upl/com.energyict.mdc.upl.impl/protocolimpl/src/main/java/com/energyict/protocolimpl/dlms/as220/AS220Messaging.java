@@ -21,18 +21,33 @@ import com.energyict.protocol.messaging.MessageValue;
 
 public class AS220Messaging implements MessageProtocol {
 
-	private static final String			CONNECT									= "ConnectLoad";
-	private static final String			DISCONNECT								= "DisconnectLoad";
-	private static final String			ARM										= "ArmMeter";
-	private static final String			TARIFF_OPTION_SWITCH_BASE				= "TariffOptionSwitchBase";
-	private static final String			TARIFF_OPTION_SWITCH_DAYNIGHT			= "TariffOptionSwitchDayNight";
+	/**
+	 * Message tags
+	 */
+	public static final String	CONNECT_EMETER					= "ConnectEmeter";
+	public static final String	DISCONNECT_EMETER				= "DisconnectEmeter";
+	public static final String	ARM_EMETER						= "ArmEmeter";
 
-	private static final String			CONNECT_DISPLAY							= "Connect Load";
-	private static final String			DISCONNECT_DISPLAY						= "Disconnect Load";
-	private static final String			ARM_DISPLAY								= "Arm Meter";
-	private static final String			TARIFF_OPTION_SWITCH_BASE_DISPLAY		= "Switch tariff option BASE";
-	private static final String			TARIFF_OPTION_SWITCH_DAYNIGHT_DISPLAY	= "Switch tariff option DAY/NIGHT";
+	public static final String	CONNECT_GMETER					= "ConnectGmeter";
+	public static final String	DISCONNECT_GMETER				= "DisconnectGmeter";
+	public static final String	ARM_GMETER						= "ArmGmeter";
 
+	public static final String	TOPT_SWITCH_BASE				= "TariffOptionSwitchBase";
+	public static final String	TOPT_SWITCH_DAYNIGHT			= "TariffOptionSwitchDayNight";
+
+	/**
+	 * Message descriptions
+	 */
+	private static final String	CONNECT_EMETER_DISPLAY			= "Connect E-Meter Load";
+	private static final String	DISCONNECT_EMETER_DISPLAY		= "Disconnect E-Meter Load";
+	private static final String	ARM_EMETER_DISPLAY				= "Arm E-Meter";
+
+	private static final String	CONNECT_GMETER_DISPLAY			= "Connect G-Meter Load";
+	private static final String	DISCONNECT_GMETER_DISPLAY		= "Disconnect G-Meter Load";
+	private static final String	ARM_GMETER_DISPLAY				= "Arm G-Meter";
+
+	private static final String	TOPT_SWITCH_BASE_DISPLAY		= "Switch tariff option BASE";
+	private static final String	TOPT_SWITCH_DAYNIGHT_DISPLAY	= "Switch tariff option DAY/NIGHT";
 
 	private final AS220 as220;
 
@@ -47,20 +62,30 @@ public class AS220Messaging implements MessageProtocol {
 	public List<MessageCategorySpec> getMessageCategories() {
         List<MessageCategorySpec> theCategories = new ArrayList<MessageCategorySpec>();
         MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
+        MessageSpec msgSpec;
 
-        MessageSpec msgSpec = addBasicMsg(DISCONNECT_DISPLAY, DISCONNECT, false);
+        msgSpec = addBasicMsg(DISCONNECT_EMETER_DISPLAY, DISCONNECT_EMETER, false);
         cat.addMessageSpec(msgSpec);
 
-        msgSpec = addBasicMsg(ARM_DISPLAY, ARM, false);
+        msgSpec = addBasicMsg(ARM_EMETER_DISPLAY, ARM_EMETER, false);
         cat.addMessageSpec(msgSpec);
 
-        msgSpec = addBasicMsg(CONNECT_DISPLAY, CONNECT, false);
+        msgSpec = addBasicMsg(CONNECT_EMETER_DISPLAY, CONNECT_EMETER, false);
         cat.addMessageSpec(msgSpec);
 
-        msgSpec = addBasicMsg(TARIFF_OPTION_SWITCH_BASE_DISPLAY, TARIFF_OPTION_SWITCH_BASE, false);
+        msgSpec = addBasicMsg(DISCONNECT_GMETER_DISPLAY, DISCONNECT_GMETER, false);
         cat.addMessageSpec(msgSpec);
 
-        msgSpec = addBasicMsg(TARIFF_OPTION_SWITCH_DAYNIGHT_DISPLAY, TARIFF_OPTION_SWITCH_DAYNIGHT, false);
+        msgSpec = addBasicMsg(ARM_GMETER_DISPLAY, ARM_GMETER, false);
+        cat.addMessageSpec(msgSpec);
+
+        msgSpec = addBasicMsg(CONNECT_GMETER_DISPLAY, CONNECT_GMETER, false);
+        cat.addMessageSpec(msgSpec);
+
+        msgSpec = addBasicMsg(TOPT_SWITCH_BASE_DISPLAY, TOPT_SWITCH_BASE, false);
+        cat.addMessageSpec(msgSpec);
+
+        msgSpec = addBasicMsg(TOPT_SWITCH_DAYNIGHT_DISPLAY, TOPT_SWITCH_DAYNIGHT, false);
         cat.addMessageSpec(msgSpec);
 
         theCategories.add(cat);
@@ -74,18 +99,21 @@ public class AS220Messaging implements MessageProtocol {
 
 	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 		try {
-			if (messageEntry.getContent().indexOf("<" + DISCONNECT) >= 0) {
-				getAs220().getContactorController().doDisconnect();
-			} else if (messageEntry.getContent().indexOf("<" + CONNECT) >= 0) {
-				getAs220().getContactorController().doConnect();
-			} else if (messageEntry.getContent().indexOf("<" + ARM) >= 0) {
-				getAs220().getContactorController().doArm();
-			} else if (messageEntry.getContent().indexOf("<" + TARIFF_OPTION_SWITCH_BASE) >= 0) {
+			if (messageEntry.getContent().indexOf("<" + DISCONNECT_EMETER) >= 0) {
+				getAs220().geteMeter().getContactorController().doDisconnect();
+			} else if (messageEntry.getContent().indexOf("<" + CONNECT_EMETER) >= 0) {
+				getAs220().geteMeter().getContactorController().doConnect();
+			} else if (messageEntry.getContent().indexOf("<" + ARM_EMETER) >= 0) {
+				getAs220().geteMeter().getContactorController().doArm();
+			} else if (messageEntry.getContent().indexOf("<" + TOPT_SWITCH_BASE) >= 0) {
 				getAs220().getLogger().info("TARIFF_OPTION_SWITCH_BASE message received");
 				getAs220().getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.0.255")).setValueAttr(new TypeEnum(0));
-			} else if (messageEntry.getContent().indexOf("<" + TARIFF_OPTION_SWITCH_DAYNIGHT) >= 0) {
+			} else if (messageEntry.getContent().indexOf("<" + TOPT_SWITCH_DAYNIGHT) >= 0) {
 				getAs220().getLogger().info("TARIFF_OPTION_SWITCH_DAYNIGHT message received");
 				getAs220().getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.0.255")).setValueAttr(new TypeEnum(1));
+			} else {
+				getAs220().getLogger().severe("Received unknown message: " + messageEntry);
+				return MessageResult.createFailed(messageEntry);
 			}
 			return MessageResult.createSuccess(messageEntry);
 		} catch (IOException e) {
@@ -143,6 +171,13 @@ public class AS220Messaging implements MessageProtocol {
 		return null;
 	}
 
+    /**
+     * Generate a {@link MessageSpec}, that can be added to the list of supported messages
+     * @param keyId
+     * @param tagName
+     * @param advanced
+     * @return
+     */
     private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);

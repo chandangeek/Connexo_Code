@@ -38,6 +38,7 @@ public class AS220Main {
 	public static AS220 getAs220() {
 		if (as220 == null) {
 			as220 = new AS220();
+			log("Created new instance of " + as220.getClass().getCanonicalName() + " [" + as220.getProtocolVersion() + "]");
 		}
 		return as220;
 	}
@@ -93,7 +94,7 @@ public class AS220Main {
 		for (UniversalObject uo : universalObjects) {
 			if (uo.getClassID() == Register.CLASSID) {
 				try {
-					log(getAs220().readRegister(uo.getObisCode()));
+					System.out.println(getAs220().readRegister(uo.getObisCode()));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -123,7 +124,6 @@ public class AS220Main {
 				} catch (IOException e) {}
 			}
 		}
-
 	}
 
 	public static void getAndSetTime() throws IOException {
@@ -145,9 +145,7 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			//readDataObjects();
-			log(getAs220().getFirmwareVersion());
-			//log(getAs220().getCosemObjectFactory().getData(ObisCode.fromString("0.0.42.0.0.255")).getText());
+			pulseContactor();
 
 
 		} finally {

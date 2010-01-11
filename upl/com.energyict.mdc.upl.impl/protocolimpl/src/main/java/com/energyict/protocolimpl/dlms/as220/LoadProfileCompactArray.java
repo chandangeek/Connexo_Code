@@ -9,6 +9,7 @@ import com.energyict.protocol.ProtocolUtils;
 
 public class LoadProfileCompactArray {
 
+	private static final int					UNSIGNED32_LENGTH				= 4;
 	private static final int					DEBUG							= 1;
 	private List<LoadProfileCompactArrayEntry>	loadProfileCompactArrayEntries	= new ArrayList<LoadProfileCompactArrayEntry>();
 
@@ -24,22 +25,22 @@ public class LoadProfileCompactArray {
 			//throw new IOException("No compact array!");
 		}
 
-		offset += 4; // skip compact array tag AND TypeDescription
+		offset += UNSIGNED32_LENGTH; // skip compact array tag AND TypeDescription
 
 		int length = (int) DLMSUtils.getAXDRLength(data, offset);
 		offset += DLMSUtils.getAXDRLengthOffset(data, offset);
 
-		if ((length % 4) != 0) {
+		if ((length % UNSIGNED32_LENGTH) != 0) {
 			throw new IOException("Not an integer number of unsigned32 data values in the compact array!");
 		}
 
 		if (DEBUG >= 1) {
-			System.out.println("LoadProfileCompactArray, parse " + (length / 4) + " values");
+			System.out.println("LoadProfileCompactArray, parse " + (length / UNSIGNED32_LENGTH) + " values");
 		}
 
-		for (int i = 0; i < length / 4; i++) {
-			Long value = new Long(ProtocolUtils.getLong(data, offset, 4));
-			offset += 4;
+		for (int i = 0; i < length / UNSIGNED32_LENGTH; i++) {
+			Long value = new Long(ProtocolUtils.getLong(data, offset, UNSIGNED32_LENGTH));
+			offset += UNSIGNED32_LENGTH;
 			loadProfileCompactArrayEntries.add(new LoadProfileCompactArrayEntry(value));
 		}
 

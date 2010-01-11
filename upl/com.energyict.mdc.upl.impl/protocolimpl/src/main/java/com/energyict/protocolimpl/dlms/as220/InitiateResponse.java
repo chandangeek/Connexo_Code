@@ -5,19 +5,11 @@ package com.energyict.protocolimpl.dlms.as220;
  */
 public class InitiateResponse {
 
-	private byte	bNegotiatedQualityOfService;
-	private byte	bNegotiatedDLMSVersionNR;
-	private long	lNegotiatedConformance;
-	private short	sServerMaxReceivePduSize;
-	private short	sVAAName;
-
-	public InitiateResponse() {
-		bNegotiatedQualityOfService = 0;
-		bNegotiatedDLMSVersionNR = 0;
-		lNegotiatedConformance = 0;
-		sServerMaxReceivePduSize = 0;
-		sVAAName = 0;
-	}
+	private byte	bNegotiatedQualityOfService	= 0;
+	private byte	bNegotiatedDLMSVersionNR	= 0;
+	private long	lNegotiatedConformance		= 0;
+	private short	sServerMaxReceivePduSize	= 0;
+	private short	sVAAName					= 0;
 
 	public void setbNegotiatedDLMSVersionNR(byte bNegotiatedDLMSVersionNR) {
 		this.bNegotiatedDLMSVersionNR = bNegotiatedDLMSVersionNR;

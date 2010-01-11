@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.dlms.as220;
+package com.energyict.protocolimpl.dlms.as220.emeter;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -9,6 +9,8 @@ import com.energyict.dlms.cosem.Clock;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ClockController;
+import com.energyict.protocolimpl.dlms.as220.AS220;
+import com.energyict.protocolimpl.dlms.as220.DLMSSNAS220;
 
 /**
  * @author jme
