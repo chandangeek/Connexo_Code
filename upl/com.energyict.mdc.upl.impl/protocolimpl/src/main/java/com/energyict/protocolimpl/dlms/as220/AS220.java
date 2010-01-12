@@ -53,16 +53,15 @@ import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 
 public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProtocol {
 
-	private final AS220Messaging messaging;
-
-    private final GMeter gMeter = new GMeter(this);
-    private final EMeter eMeter = new EMeter(this);
+	private final GMeter			gMeter		= new GMeter(this);
+	private final EMeter			eMeter		= new EMeter(this);
+	private final MessageProtocol	messaging	= new AS220Messaging(this);
 
     /**
      * Create a new instance of the {@link AS220} dlms protocol
      */
     public AS220() {
-    	this.messaging = new AS220Messaging(this);
+
     }
 
     public GMeter getgMeter() {
@@ -105,7 +104,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
-			ObisCodeMapper ocm = new ObisCodeMapper(getCosemObjectFactory());
+			ObisCodeMapperImpl ocm = new ObisCodeMapperImpl(getCosemObjectFactory());
 			return ocm.getRegisterValue(obisCode);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -114,14 +113,15 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     }
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return ObisCodeMapper.getRegisterInfo(obisCode);
+    	ObisCodeMapperImpl ocm = new ObisCodeMapperImpl(getCosemObjectFactory());
+    	return ocm.getRegisterInfo(obisCode);
     }
 
     /**
      * Getter for the as220Messaging
      * @return the current {@link AS220Messaging} object
      */
-    public AS220Messaging getMessaging() {
+    public MessageProtocol getMessaging() {
 		return messaging;
 	}
 

@@ -105,6 +105,12 @@ public class AS220Messaging implements MessageProtocol {
 				getAs220().geteMeter().getContactorController().doConnect();
 			} else if (messageEntry.getContent().indexOf("<" + ARM_EMETER) >= 0) {
 				getAs220().geteMeter().getContactorController().doArm();
+			} else if (messageEntry.getContent().indexOf("<" + DISCONNECT_GMETER) >= 0) {
+				getAs220().getgMeter().getGasValveController().doDisconnect();
+			} else if (messageEntry.getContent().indexOf("<" + CONNECT_GMETER) >= 0) {
+				getAs220().getgMeter().getGasValveController().doConnect();
+			} else if (messageEntry.getContent().indexOf("<" + ARM_GMETER) >= 0) {
+				getAs220().getgMeter().getGasValveController().doArm();
 			} else if (messageEntry.getContent().indexOf("<" + TOPT_SWITCH_BASE) >= 0) {
 				getAs220().getLogger().info("TARIFF_OPTION_SWITCH_BASE message received");
 				getAs220().getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.0.255")).setValueAttr(new TypeEnum(0));

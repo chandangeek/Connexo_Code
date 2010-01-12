@@ -9,13 +9,13 @@ import com.energyict.protocolimpl.base.AbstractContactorController;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 
 /**
- * This class is used to change the contactor state of an AS220 device
+ * This class is used to change the valve state of an G-Meter connected to the AS220 device
  *
  * @author jme
  */
 public class GasValveController extends AbstractContactorController {
 
-	public static final ObisCode	DISCONNECTOR_OBISCODE	= ObisCode.fromString("0.0.96.3.10.255");
+	public static final ObisCode	DISCONNECTOR_OBISCODE	= ObisCode.fromString("0.0.24.4.0.255");
 
 	private static final int DISCONNECT	= 0;
 	private static final int CONNECT	= 1;

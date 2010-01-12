@@ -23,8 +23,6 @@ public class EventNumber {
     private static final int VOLTAGECUTLOGBOOK=1;
     private static final int COVEROGBOOK=2;
 
-    private static final String[] strTypes={" (Alert)"," (Error)",""," (Error/Alert)"};
-
     private static final List<EventNumber> EVENTS = new ArrayList<EventNumber>();
     static {
         EVENTS.add(new EventNumber(51,"phase 1 fail",VOLTAGECUTLOGBOOK,MeterEvent.PHASE_FAILURE));
@@ -108,6 +106,13 @@ public class EventNumber {
 	 */
 	public int getMeterEventCode() {
 		return meterEventCode;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getType() {
+		return type;
 	}
 
 }

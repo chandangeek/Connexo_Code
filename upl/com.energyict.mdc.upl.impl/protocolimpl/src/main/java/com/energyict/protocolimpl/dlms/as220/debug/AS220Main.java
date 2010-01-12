@@ -15,11 +15,22 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Register;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.dlms.as220.AS220;
+import com.energyict.protocolimpl.dlms.as220.AS220Messaging;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 public class AS220Main {
+
+	private static final String		DISCONNECT_EMETER	= "<" + AS220Messaging.DISCONNECT_EMETER + ">1</" + AS220Messaging.DISCONNECT_EMETER + ">";
+	private static final String		CONNECT_EMETER		= "<" + AS220Messaging.CONNECT_EMETER + ">1</" + AS220Messaging.CONNECT_EMETER + ">";
+	private static final String		ARM_EMETER			= "<" + AS220Messaging.ARM_EMETER + ">1</" + AS220Messaging.ARM_EMETER + ">";
+
+	private static final String		DISCONNECT_GMETER	= "<" + AS220Messaging.DISCONNECT_GMETER + ">1</" + AS220Messaging.DISCONNECT_GMETER + ">";
+	private static final String		CONNECT_GMETER		= "<" + AS220Messaging.CONNECT_GMETER + ">1</" + AS220Messaging.CONNECT_GMETER + ">";
+	private static final String		ARM_GMETER			= "<" + AS220Messaging.ARM_GMETER + ">1</" + AS220Messaging.ARM_GMETER + ">";
 
 	private static final String		OBSERVER_FILENAME	= "c:\\logging\\AS220Main\\communications.log";
 	private static final Level		LOG_LEVEL			= Level.ALL;
@@ -30,6 +41,8 @@ public class AS220Main {
 	private static final int		DATABITS			= SerialCommunicationChannel.DATABITS_8;
 	private static final int		PARITY				= SerialCommunicationChannel.PARITY_NONE;
 	private static final int		STOPBITS			= SerialCommunicationChannel.STOPBITS_1;
+
+	private static final int		DELAY_BEFORE_DISCONNECT	= 100;
 
 	private static AS220 as220 = null;
 	private static Dialer dialer = null;
@@ -103,9 +116,15 @@ public class AS220Main {
 	}
 
 	public static void pulseContactor() throws IOException {
-		getAs220().queryMessage(new MessageEntry("<DisconnectLoad>1</DisconnectLoad>", "1"));
-		getAs220().queryMessage(new MessageEntry("<ArmMeter>1</ArmMeter>", "3"));
-		getAs220().queryMessage(new MessageEntry("<ConnectLoad>1</ConnectLoad>", "2"));
+		getAs220().queryMessage(new MessageEntry(DISCONNECT_EMETER, "1"));
+		getAs220().queryMessage(new MessageEntry(ARM_EMETER, "2"));
+		getAs220().queryMessage(new MessageEntry(CONNECT_EMETER, "3"));
+	}
+
+	public static void pulseValve() throws IOException {
+		getAs220().queryMessage(new MessageEntry(DISCONNECT_GMETER, "1"));
+		getAs220().queryMessage(new MessageEntry(ARM_GMETER, "2"));
+		getAs220().queryMessage(new MessageEntry(CONNECT_GMETER, "3"));
 	}
 
 	public static void readObiscodes() throws IOException {
@@ -145,14 +164,22 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			pulseContactor();
+			doTest();
 
 
 		} finally {
+			ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
 			log("Done. Closing connections. \n");
 			getAs220().disconnect();
 			getDialer().disConnect();
 		}
+
+	}
+
+	private static void doTest() throws IOException {
+
+		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.97.97.0.255")));
+		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.97.98.0.255")));
 
 	}
 
