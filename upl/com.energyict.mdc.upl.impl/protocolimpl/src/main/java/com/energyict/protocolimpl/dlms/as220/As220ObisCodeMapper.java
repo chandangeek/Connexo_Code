@@ -17,16 +17,27 @@ import com.energyict.protocolimpl.base.ObiscodeMapper;
  *
  * @author Koen
  */
-public class ObisCodeMapperImpl implements ObiscodeMapper {
+public class As220ObisCodeMapper implements ObiscodeMapper {
+
 
 	private static final int	VALUE_OFFSET	= 8;
-	private static final ObisCode	ERROR_REG_OBISCODE	= ObisCode.fromString("0.0.97.97.0.255");
-	private static final ObisCode	ALARM_REG_OBISCODE	= ObisCode.fromString("0.0.97.98.0.255");
+
+	public static final ObisCode	NR_CONFIGCHANGES_OBISCODE	= ObisCode.fromString("0.0.96.2.0.255");
+	public static final ObisCode	ALARM_REGISTER_OBISCODE		= ObisCode.fromString("0.0.97.98.0.255");
+	public static final ObisCode	FILTER_REGISTER_OBISCODE	= ObisCode.fromString("0.0.97.98.10.255");
+	public static final ObisCode	ERROR_REGISTER_OBISCODE		= ObisCode.fromString("0.0.97.97.0.255");
+
+	private static final ObisCode[] simpleDataRegisters = new ObisCode[] {
+		NR_CONFIGCHANGES_OBISCODE,
+		ALARM_REGISTER_OBISCODE,
+		FILTER_REGISTER_OBISCODE,
+	    ERROR_REGISTER_OBISCODE,
+	};
 
 	private CosemObjectFactory cosemObjectFactory;
 
 	/** Creates a new instance of ObisCodeMapper */
-    public ObisCodeMapperImpl(CosemObjectFactory cof) {
+    public As220ObisCodeMapper(CosemObjectFactory cof) {
         this.cosemObjectFactory=cof;
     }
 
@@ -40,11 +51,11 @@ public class ObisCodeMapperImpl implements ObiscodeMapper {
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
 
-    	if (obisCode.equals(ERROR_REG_OBISCODE)) {
-    		return getErrorRegister();
-    	} else if (obisCode.equals(ALARM_REG_OBISCODE)) {
-    		return getAlarmRegister();
-    	}
+    	for (int i = 0; i < simpleDataRegisters.length; i++) {
+    		if (obisCode.equals(simpleDataRegisters[i])) {
+    			return readDataAsRegisterValue(obisCode);
+    		}
+		}
 
         RegisterValue registerValue=null;
         int billingPoint=-1;
@@ -108,23 +119,15 @@ public class ObisCodeMapperImpl implements ObiscodeMapper {
     } // private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException
 
 	/**
-	 * @return
+	 * This method reads a data class from the device, and creates a
+	 * {@link RegisterValue} with a {@link Quantity} of the dlms attribute 8.
+	 * This attribute is expected to be a numerical value (Integer, unsigned, ...)
+	 * @return The {@link RegisterValue}
 	 * @throws IOException
 	 */
-	private RegisterValue getAlarmRegister() throws IOException {
-        RegisterValue alarmRegister = new RegisterValue(ALARM_REG_OBISCODE);
-		long alarmValue = getCosemObjectFactory().getGenericRead(ALARM_REG_OBISCODE, VALUE_OFFSET).getValue();
-        alarmRegister.setQuantity(new Quantity(alarmValue, Unit.getUndefined()));
-		return alarmRegister;
-	}
-
-	/**
-	 * @return
-	 * @throws IOException
-	 */
-	private RegisterValue getErrorRegister()  throws IOException {
-        RegisterValue errorRegister = new RegisterValue(ERROR_REG_OBISCODE);
-		long errorValue = getCosemObjectFactory().getGenericRead(ERROR_REG_OBISCODE, VALUE_OFFSET).getValue();
+	private RegisterValue readDataAsRegisterValue(ObisCode obisCode) throws IOException {
+		RegisterValue errorRegister = new RegisterValue(obisCode);
+		long errorValue = getCosemObjectFactory().getGenericRead(obisCode, VALUE_OFFSET).getValue();
 		errorRegister.setQuantity(new Quantity(errorValue, Unit.getUndefined()));
 		return errorRegister;
 	}

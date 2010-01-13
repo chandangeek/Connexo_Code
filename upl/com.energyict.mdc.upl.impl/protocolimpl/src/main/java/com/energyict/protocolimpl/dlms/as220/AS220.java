@@ -48,6 +48,7 @@ import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocolimpl.base.ObiscodeMapper;
 import com.energyict.protocolimpl.dlms.as220.emeter.EMeter;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 
@@ -104,7 +105,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
-			ObisCodeMapperImpl ocm = new ObisCodeMapperImpl(getCosemObjectFactory());
+			ObiscodeMapper ocm = new As220ObisCodeMapper(getCosemObjectFactory());
 			return ocm.getRegisterValue(obisCode);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -113,7 +114,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     }
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-    	ObisCodeMapperImpl ocm = new ObisCodeMapperImpl(getCosemObjectFactory());
+    	ObiscodeMapper ocm = new As220ObisCodeMapper(getCosemObjectFactory());
     	return ocm.getRegisterInfo(obisCode);
     }
 
