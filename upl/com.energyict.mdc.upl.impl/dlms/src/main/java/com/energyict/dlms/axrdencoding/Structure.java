@@ -26,16 +26,16 @@ import com.energyict.protocol.ProtocolUtils;
  * @author kvds
  */
 public class Structure extends AbstractDataType {
-    
+
     protected List dataTypes;
     private int offsetBegin,offsetEnd;
     int autoIndex=0;
-    
+
     /** Creates a new instance of Structure */
     public Structure() {
         dataTypes = new ArrayList();
     }
-    
+
     public Structure(byte[] berEncodedData, int offset, int level) throws IOException {
         offsetBegin = offset;
         if (berEncodedData[offset] != DLMSCOSEMGlobals.TYPEDESC_STRUCTURE) {
@@ -47,15 +47,15 @@ public class Structure extends AbstractDataType {
         offset += DLMSUtils.getAXDRLengthOffset(berEncodedData,offset);
         //setLevel(getLevel()+1);
         for (int i=0;i<length;i++) {
-           AbstractDataType adt = AXDRDecoder.decode(berEncodedData,offset,getLevel()+1); 
+           AbstractDataType adt = AXDRDecoder.decode(berEncodedData,offset,getLevel()+1);
            adt.setLevel(level);
-           dataTypes.add(adt);      
+           dataTypes.add(adt);
            offset+=adt.size();
         }
         offsetEnd = offset;
-        
+
     }
-    
+
     public boolean hasMoreElements() {
     	if (autoIndex == nrOfDataTypes()) {
 			return false;
@@ -63,23 +63,23 @@ public class Structure extends AbstractDataType {
 			return true;
 		}
     }
-    
+
     public AbstractDataType getNextDataType() {
-        return (AbstractDataType)dataTypes.get(autoIndex++);    
+        return (AbstractDataType)dataTypes.get(autoIndex++);
     }
-    
+
     public AbstractDataType getDataType() {
-        return (AbstractDataType)dataTypes.get(autoIndex==0?0:autoIndex-1);    
+        return (AbstractDataType)dataTypes.get(autoIndex==0?0:autoIndex-1);
     }
-    
+
     public AbstractDataType getDataType(int index) {
     	autoIndex=index+1;
-        return (AbstractDataType)dataTypes.get(index);    
+        return (AbstractDataType)dataTypes.get(index);
     }
     public int nrOfDataTypes() {
         return dataTypes.size();
     }
-    
+
     public String toString() {
         StringBuffer strBuffTab = new StringBuffer();
         for (int i=0;i<getLevel();i++) {
@@ -94,7 +94,7 @@ public class Structure extends AbstractDataType {
         }
         return strBuff.toString();
     }
-    
+
     protected byte[] doGetBEREncodedByteArray() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         baos.write(DLMSCOSEMGlobals.TYPEDESC_STRUCTURE);
@@ -110,30 +110,30 @@ public class Structure extends AbstractDataType {
         }
         return baos.toByteArray();
     }
-    
+
     public Structure addDataType(AbstractDataType dataType) {
         dataTypes.add(dataType);
         return this;
     }
-    
+
     protected int size() {
         return offsetEnd-offsetBegin;
     }
-    
+
     public BigDecimal toBigDecimal() {
         return null;
     }
-    
+
     public int intValue() {
         return -1;
     }
-    
+
     public long longValue() {
         return -1;
-    }        
-    
-    
-    static public void main(String[] args) {  
+    }
+
+
+    static public void main(String[] args) {
         try {
             Structure s = new Structure();
             s.addDataType(new VisibleString("LGZ123456",20));
@@ -148,9 +148,9 @@ public class Structure extends AbstractDataType {
             s.addDataType(new Integer16(1309));
             byte[] data = s.getBEREncodedByteArray();
             System.out.println(ProtocolUtils.outputHexString(data));
-            
+
             System.out.println(AXDRDecoder.decode(data));
-            
+
             System.out.println(s.nrOfDataTypes());
             System.out.println(s.getDataType(0));
             System.out.println(s.getDataType(1));
@@ -162,6 +162,6 @@ public class Structure extends AbstractDataType {
         }
     }
 
-    
+
 
 }

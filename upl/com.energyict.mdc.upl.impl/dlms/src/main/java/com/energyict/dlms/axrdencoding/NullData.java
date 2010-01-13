@@ -20,34 +20,36 @@ import com.energyict.dlms.DLMSCOSEMGlobals;
  * @author kvds
  */
 public class NullData extends AbstractDataType {
-            
+
     /** Creates a new instance of Enum */
     public NullData(byte[] berEncodedData, int offset) throws IOException {
-        if (berEncodedData[offset] != 0)
-            throw new IOException("Nulldata, invalid identifier "+berEncodedData[offset]);
+        if (berEncodedData[offset] != 0) {
+			throw new IOException("Nulldata, invalid identifier "+berEncodedData[offset]);
+		}
         offset++;
     }
-    
+
     public String toString() {
         StringBuffer strBuffTab = new StringBuffer();
-        for (int i=0;i<getLevel();i++) 
-            strBuffTab.append("  ");
+        for (int i=0;i<getLevel();i++) {
+			strBuffTab.append("  ");
+		}
         return strBuffTab.toString()+"NullData\n";
     }
-    
+
     public NullData() {
     }
-    
+
     protected byte[] doGetBEREncodedByteArray() {
         byte[] data = new byte[1];
         data[0] = 0;
         return data;
     }
-    
+
     protected int size() {
         return 1;
     }
-    
+
     static public void main(String[]  artgs) {
         try {
            NullData v = new NullData(new byte[]{DLMSCOSEMGlobals.TYPEDESC_NULL,(byte)0x81}, 0);
@@ -56,17 +58,17 @@ public class NullData extends AbstractDataType {
         catch(IOException e) {
             e.printStackTrace();
         }
-                
+
     }
-    
+
     public BigDecimal toBigDecimal() {
         return new BigDecimal("0");
     }
     public int intValue() {
         return 0;
     }
-    
+
     public long longValue() {
         return 0;
-    }        
+    }
 }
