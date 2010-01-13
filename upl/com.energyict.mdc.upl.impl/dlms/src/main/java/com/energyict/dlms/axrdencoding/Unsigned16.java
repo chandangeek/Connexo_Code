@@ -22,7 +22,8 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class Unsigned16 extends AbstractDataType {
 
-    private int value;
+    private static final int SIZE = 3;
+	private int value;
 
     /** Creates a new instance of Enum */
     public Unsigned16(byte[] berEncodedData, int offset) throws IOException {
@@ -55,18 +56,7 @@ public class Unsigned16 extends AbstractDataType {
     }
 
     protected int size() {
-        return 3;
-    }
-
-    static public void main(String[]  artgs) {
-        try {
-           Unsigned16 v = new Unsigned16(new byte[]{18,1,1}, 0);
-           System.out.println(v);
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-
+        return SIZE;
     }
 
     public int getValue() {

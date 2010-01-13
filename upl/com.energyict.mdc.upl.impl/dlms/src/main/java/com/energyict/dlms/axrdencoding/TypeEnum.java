@@ -21,7 +21,8 @@ import com.energyict.dlms.DLMSCOSEMGlobals;
  */
 public class TypeEnum extends AbstractDataType {
 
-    private int value;
+    private static final int SIZE = 2;
+	private int value;
 
     /**
      * Creates a new instance of TypeEnum
@@ -31,7 +32,7 @@ public class TypeEnum extends AbstractDataType {
 			throw new IOException("Enum, invalid identifier "+berEncodedData[offset]);
 		}
         offset++;
-        setValue((int)berEncodedData[offset++]&0xff);
+        setValue(berEncodedData[offset++]&0xff);
         offset++;
     }
 
@@ -55,18 +56,7 @@ public class TypeEnum extends AbstractDataType {
     }
 
     protected int size() {
-        return 2;
-    }
-
-    static public void main(String[]  artgs) {
-        try {
-           TypeEnum v = new TypeEnum(new byte[]{0x16,0x01}, 0);
-           System.out.println(v);
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-
+        return SIZE;
     }
 
     public int getValue() {
@@ -82,10 +72,10 @@ public class TypeEnum extends AbstractDataType {
     }
 
     public int intValue() {
-        return (int)value;
+        return value;
     }
 
     public long longValue() {
-        return (long)value;
+        return value;
     }
 }

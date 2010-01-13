@@ -21,7 +21,8 @@ import com.energyict.dlms.DLMSCOSEMGlobals;
  */
 public class Unsigned8 extends AbstractDataType {
 
-    private int value;
+    private static final int SIZE = 2;
+	private int value;
 
     /** Creates a new instance of Enum */
     public Unsigned8(byte[] berEncodedData, int offset) throws IOException {
@@ -29,7 +30,7 @@ public class Unsigned8 extends AbstractDataType {
 			throw new IOException("Unsigned8, invalid identifier "+berEncodedData[offset]);
 		}
         offset++;
-        setValue((int)berEncodedData[offset++]&0xff);
+        setValue(berEncodedData[offset++]&0xff);
         offset++;
     }
 
@@ -53,18 +54,7 @@ public class Unsigned8 extends AbstractDataType {
     }
 
     protected int size() {
-        return 2;
-    }
-
-    static public void main(String[]  artgs) {
-        try {
-           Unsigned8 v = new Unsigned8(new byte[]{17,0x01}, 0);
-           System.out.println(v);
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-
+        return SIZE;
     }
 
     public int getValue() {

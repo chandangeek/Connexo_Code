@@ -8,7 +8,8 @@ import com.energyict.protocol.ProtocolUtils;
 
 public class Unsigned32 extends AbstractDataType {
 
-    private long value;
+    private static final int SIZE = 5;
+	private long value;
 
     /** Creates a new instance of Enum */
     public Unsigned32(byte[] berEncodedData, int offset) throws IOException {
@@ -47,18 +48,7 @@ public class Unsigned32 extends AbstractDataType {
     }
 
     protected int size() {
-        return 5;
-    }
-
-    static public void main(String[]  artgs) {
-        try {
-            Unsigned32 v = new Unsigned32(new byte[]{6,0,0,0,1}, 0);
-           System.out.println(v);
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-
+        return SIZE;
     }
 
     public long getValue() {

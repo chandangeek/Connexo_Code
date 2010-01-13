@@ -13,50 +13,131 @@ import java.math.BigDecimal;
 
 /**
  * @author kvds
- * changes:
- * jme |04022009| Added isUnsigned32() method.
  */
 abstract public class AbstractDataType {
 
-	protected abstract byte[] doGetBEREncodedByteArray() throws IOException;
-
-	protected abstract int size();
-
-	public abstract BigDecimal toBigDecimal();
-
-	public abstract int intValue();
-
-	public abstract long longValue();
-
 	private int	level;
 
-	/** Creates a new instance of AbstractDataType */
-	public AbstractDataType() {
+	protected abstract byte[] doGetBEREncodedByteArray() throws IOException;
+	protected abstract int size();
+	public abstract int intValue();
+	public abstract BigDecimal toBigDecimal();
+	public abstract long longValue();
 
-	}
-
-	public int getDecodedSize() {
-		return size();
+	public Array getArray() {
+		return isArray() ? (Array) this : null;
 	}
 
 	public byte[] getBEREncodedByteArray() throws IOException {
 		return doGetBEREncodedByteArray();
 	}
 
-	public Structure getStructure() {
-		return (Structure) this;
+	public BitString getBitString() {
+		return isBitString() ? (BitString) this : null;
 	}
 
-	public Array getArray() {
-		return (Array) this;
+	public int getDecodedSize() {
+		return size();
+	}
+
+	public Integer16 getInteger16() {
+		return isInteger16() ? (Integer16) this : null;
+	}
+
+	public Integer32 getInteger32() {
+		return isInteger32() ? (Integer32) this : null;
+	}
+
+	public Integer64 getInteger64() {
+		return isInteger64() ? (Integer64) this : null;
+	}
+
+	public Integer8 getInteger8() {
+		return isInteger8() ? (Integer8) this : null;
+	}
+
+	public int getLevel() {
+		return level;
+	}
+
+	public NullData getNullData() {
+		return isNullData() ? (NullData) this : null;
+	}
+
+	public OctetString getOctetString() {
+		return isOctetString() ? (OctetString) this : null;
+	}
+
+	public Structure getStructure() {
+		return isStructure() ? (Structure) this : null;
 	}
 
 	public TypeEnum getTypeEnum() {
-		return (TypeEnum) this;
+		return isTypeEnum() ? (TypeEnum) this : null;
+	}
+
+	public Unsigned16 getUnsigned16() {
+		return isUnsigned16() ? (Unsigned16) this : null;
+	}
+
+	public Unsigned32 getUnsigned32() {
+		return isUnsigned32() ? (Unsigned32) this : null;
+	}
+
+	public Unsigned8 getUnsigned8() {
+		return isUnsigned8() ? (Unsigned8) this : null;
+	}
+
+	public VisibleString getVisibleString() {
+		return isVisibleString() ? (VisibleString) this : null;
+	}
+
+	public boolean isArray() {
+		return this instanceof Array;
+	}
+
+	public boolean isBitString() {
+		return this instanceof BitString;
+	}
+
+	public boolean isInteger16() {
+		return this instanceof Integer16;
+	}
+
+	public boolean isInteger32() {
+		return this instanceof Integer32;
+	}
+
+	public boolean isInteger64() {
+		return this instanceof Integer64;
+	}
+
+	public boolean isInteger8() {
+		return this instanceof Integer8;
+	}
+
+	public boolean isNullData() {
+		return this instanceof NullData;
+	}
+
+	public boolean isOctetString() {
+		return this instanceof OctetString;
 	}
 
 	public boolean isStructure() {
 		return this instanceof Structure;
+	}
+
+	public boolean isTypeEnum() {
+		return this instanceof TypeEnum;
+	}
+
+	public boolean isUnsigned16() {
+		return this instanceof Unsigned32;
+	}
+
+	public boolean isUnsigned32() {
+		return this instanceof Unsigned32;
 	}
 
 	public boolean isUnsigned8() {
@@ -65,74 +146,6 @@ abstract public class AbstractDataType {
 
 	public boolean isVisibleString() {
 		return this instanceof VisibleString;
-	}
-
-	public boolean isOctetString() {
-		return this instanceof OctetString;
-	}
-
-	public boolean isInteger32() {
-		return this instanceof Integer32;
-	}
-
-	public boolean isNullData() {
-		return this instanceof NullData;
-	}
-
-	public boolean isArray() {
-		return this instanceof Array;
-	}
-
-	public boolean isUnsigned32() {
-		return this instanceof Unsigned32;
-	}
-
-	public VisibleString getVisibleString() {
-		return (VisibleString) this;
-	}
-
-	public OctetString getOctetString() {
-		return (OctetString) this;
-	}
-
-	public Integer8 getInteger8() {
-		return (Integer8) this;
-	}
-
-	public Integer16 getInteger16() {
-		return (Integer16) this;
-	}
-
-	public Integer64 getInteger64() {
-		return (Integer64) this;
-	}
-
-	public Integer32 getInteger32() {
-		return (Integer32) this;
-	}
-
-	public Unsigned8 getUnsigned8() {
-		return (Unsigned8) this;
-	}
-
-	public Unsigned16 getUnsigned16() {
-		return (Unsigned16) this;
-	}
-
-	public Unsigned32 getUnsigned32() {
-		return (Unsigned32) this;
-	}
-
-	public BitString getBitString() {
-		return (BitString) this;
-	}
-
-	public NullData getNullData() {
-		return (NullData) this;
-	}
-
-	public int getLevel() {
-		return level;
 	}
 
 	public void setLevel(int level) {

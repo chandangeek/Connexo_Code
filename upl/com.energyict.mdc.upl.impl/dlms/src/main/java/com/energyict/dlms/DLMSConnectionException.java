@@ -9,35 +9,33 @@ package com.energyict.dlms;
  * @version 1.0
  */
 
-public class DLMSConnectionException extends Exception
-{
-  private short sReason;
+public class DLMSConnectionException extends Exception {
 
-  public short getReason()
-  {
-     return sReason;
-  }
+	private static final int UNKNOWN_REASON = -1;
+	private short sReason;
 
-  public DLMSConnectionException(String str)
-  {
-      super(str);
-      this.sReason = -1;
-  } // public DLMSConnectionException(String str)
+	public DLMSConnectionException(String str) {
+		super(str);
+		this.sReason = UNKNOWN_REASON;
+	}
 
-  public DLMSConnectionException()
-  {
-      super();
-      this.sReason = -1;
-  } // public DLMSConnectionException()
+	public DLMSConnectionException() {
+		super();
+		this.sReason = UNKNOWN_REASON;
+	}
 
-  public DLMSConnectionException(String str, short sReason)
-  {
-      super(str);
-      this.sReason = sReason;
+	public DLMSConnectionException(String str, short sReason) {
+		super(str);
+		this.sReason = sReason;
+	}
 
-  } // public DLMSConnectionException(String str)
-  
-  public DLMSConnectionException(Throwable ex) {
-	  super(ex);
-  }
+	public DLMSConnectionException(Throwable ex) {
+		super(ex);
+		this.sReason = UNKNOWN_REASON;
+	}
+
+	public short getReason() {
+		return sReason;
+	}
+
 }

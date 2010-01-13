@@ -1,11 +1,11 @@
 package com.energyict.dlms;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class ReceiveBuffer {
-    
-   ByteArrayOutputStream baos; 
+
+   private ByteArrayOutputStream baos;
 
    public ReceiveBuffer() {
       baos = new ByteArrayOutputStream();
@@ -14,17 +14,17 @@ public class ReceiveBuffer {
    public void addArray(byte[] byteBuffer) throws IOException {
       baos.write(byteBuffer);
    }
-   
+
    public void addArray(byte[] byteBuffer,int offset) {
       baos.write(byteBuffer,offset, byteBuffer.length - offset);
    }
 
    public byte[] getArray() {
       return baos.toByteArray();
-   } // public byte[] getArray()
+   }
 
    public int bytesReceived() {
-       return baos.size();   
+       return baos.size();
    }
-   
-} // public class ReceiveBuffer
+
+}
