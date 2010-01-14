@@ -90,9 +90,12 @@ public class LoadSurveyData {
 			records += farc.getNumberOfRecords();
 			byteArrayOutputStream.write(farc.getData(),0,farc.getData().length);
 			if (DEBUG>=1) {
-				getLoadSurvey().getCommandFactory().getMk10().sendDebug(farc.toString());
+				System.out.println();
+				System.out.println("ls.stored entries: " + getLoadSurvey().getStoredEntries());
+				System.out.println("farc.startRecord:  " + farc.getStartRecord());
+				System.out.println("farc.numberofRec:  " + farc.getNumberOfRecords());
 			}
-		} while((getLoadSurvey().getStoredEntries()  - (farc.getStartRecord() + farc.getNumberOfRecords())) > 0);
+		} while((getLoadSurvey().getLastEntry()  - (farc.getStartRecord() + farc.getNumberOfRecords())) > 0);
 
 		setNumberOfRecords(records);
 		setData(byteArrayOutputStream.toByteArray());

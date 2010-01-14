@@ -33,9 +33,9 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper;
 
 /**
  * @author  jme
- * 
+ *
  * Changes:
- * 
+ *
  * jme: 17/11/2008 -> Fixed meter event bugs (wrong mappings from event number to description string)
  * jme: 17/11/2008 -> Fixed bug in load profile raw data conversion (negative units & overflow)
  * jme: 17/11/2008 -> Fixed bug in load profile (start date <-> first entry) first entry can be different from 0 !!!
@@ -49,6 +49,7 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper;
  * jme: 20/01/2009 -> Fixed register scaling and decimal point.
  * jme: 21/01/2009 -> Added custom property to disable log-off after communication to prevent modem disconnect.
  * gna: 24/02/2009 -> Added the units and extra scaler for instantaneous values.
+ * jme: 14/01/2010 -> Fixed bug in load profile. Protocol was unable to read all the data from the meter (CRM ticket 12855)
  */
 public class MK10 extends AbstractProtocol {
 

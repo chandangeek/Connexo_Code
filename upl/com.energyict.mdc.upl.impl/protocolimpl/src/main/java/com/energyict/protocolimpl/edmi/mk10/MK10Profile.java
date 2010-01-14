@@ -112,29 +112,24 @@ public class MK10Profile {
 	} // private List buildChannelInfos(LoadSurveyData loadSurveyData)
 
 	private List buildIntervalDatas(LoadSurveyData loadSurveyData) throws IOException {
-		int infochannel = loadSurveyData.getLoadSurvey().getNrOfChannels()-1;
+		int infochannel = loadSurveyData.getLoadSurvey().getNrOfChannels() - 1;
 		List intervalDatas = new ArrayList();
 		Calendar cal = ProtocolUtils.getCleanCalendar(mk10.getTimeZone());
 		cal.setTime(loadSurveyData.getFirstTimeStamp());
-		for (int interval=0; interval<loadSurveyData.getNumberOfRecords(); interval++) {
-			IntervalData intervalData= new IntervalData(new Date(cal.getTime().getTime()));
-			for (int channel=0; channel<loadSurveyData.getLoadSurvey().getNrOfChannels()-1 ; channel++) {
-				int protocolStatus=loadSurveyData.getChannelValues(interval)[infochannel].getBigDecimal().intValue();
-				int eiStatus=mapProtocolStatus2EiStatus(protocolStatus);
+		for (int interval = 0; interval < loadSurveyData.getNumberOfRecords(); interval++) {
+			IntervalData intervalData = new IntervalData(new Date(cal.getTime().getTime()));
+			for (int channel = 0; channel < loadSurveyData.getLoadSurvey().getNrOfChannels() - 1; channel++) {
+				int protocolStatus = loadSurveyData.getChannelValues(interval)[infochannel].getBigDecimal().intValue();
+				int eiStatus = mapProtocolStatus2EiStatus(protocolStatus);
 				intervalData.setEiStatus(eiStatus);
 				intervalData.setProtocolStatus(protocolStatus);
 				intervalData.addValue(loadSurveyData.getChannelValues(interval)[channel].getBigDecimal());
-
-				//                }
-			} // for (int channel=1; channel<loadSurveyData.getLoadSurvey().getNrOfChannels(); channel++)
+			}
 			intervalDatas.add(intervalData);
-			cal.add(Calendar.SECOND,loadSurveyData.getLoadSurvey().getProfileInterval());
-		} // for (int interval=0; interval<loadSurveyData.getNumberOfRecords(); interval++)
-
+			cal.add(Calendar.SECOND, loadSurveyData.getLoadSurvey().getProfileInterval());
+		}
 		return intervalDatas;
-
-	} // private List buildIntervalDatas(LoadSurveyData loadSurveyData)
-
+	}
 
 	private List buildMeterEvents(LinkedHashSet eventLogData) throws IOException {
 		Calendar cal = ProtocolUtils.getCleanCalendar(mk10.getTimeZone());

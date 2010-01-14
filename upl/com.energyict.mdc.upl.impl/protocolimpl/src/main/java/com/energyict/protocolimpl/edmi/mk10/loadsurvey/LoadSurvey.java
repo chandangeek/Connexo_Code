@@ -27,6 +27,7 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10Register;
  */
 public class LoadSurvey {
 
+	private static final String	LF	= "\n";
 	private static final int BASE_REGISTER_ID = MK10Register.SURVEY1_STARTDATE;
 	private static final int DEBUG = 0;
 
@@ -53,17 +54,18 @@ public class LoadSurvey {
 
 	public String toString() {
 		StringBuffer strBuff = new StringBuffer();
-		strBuff.append("LoadSurvey:\n");
-		strBuff.append("registerId=0x"+Integer.toHexString(getRegisterId())+"\n");
-		strBuff.append("nrOfChannels="+nrOfChannels+"\n");
-		strBuff.append("profileInterval="+getProfileInterval()+"\n");
-		strBuff.append("nrOfEntries="+getNrOfEntries()+"\n");
-		strBuff.append("entryWidth="+getEntryWidth()+"\n");
-		strBuff.append("storedEntries="+getStoredEntries()+"\n");
-		strBuff.append("startTime="+getStartTime()+"\n");
-
-		for (int channel = 0; channel <  getLoadSurveyChannels().length; channel++) {
-			strBuff.append("channel "+channel+": "+getLoadSurveyChannels()[channel]);
+		strBuff.append("LoadSurvey:" + LF);
+		strBuff.append("  registerId=0x" + Integer.toHexString(getRegisterId()) + LF);
+		strBuff.append("  nrOfChannels=" + nrOfChannels + LF);
+		strBuff.append("  profileInterval=" + getProfileInterval() + LF);
+		strBuff.append("  nrOfEntries=" + getNrOfEntries() + LF);
+		strBuff.append("  firstEntry=" + getFirstEntry() + LF);
+		strBuff.append("  lastEntry=" + getLastEntry() + LF);
+		strBuff.append("  entryWidth=" + getEntryWidth() + LF);
+		strBuff.append("  storedEntries=" + getStoredEntries() + LF);
+		strBuff.append("  startTime=" + getStartTime() + LF);
+		for (int channel = 0; channel < getLoadSurveyChannels().length; channel++) {
+			strBuff.append("channel " + channel + ": " + getLoadSurveyChannels()[channel]);
 		}
 		return strBuff.toString();
 	}
@@ -105,11 +107,7 @@ public class LoadSurvey {
 			}
 			else {
 				int tempreg = (BASE_REGISTER_ID + 0x0040 + channel + (0x0020 * getLoadSurveyNumber()));
-				int ChannelDef = getCommandFactory().
-				getReadCommand(tempreg).
-				getRegister().
-				getBigDecimal().
-				intValue();
+				int ChannelDef = getCommandFactory().getReadCommand(tempreg).getRegister().getBigDecimal().intValue();
 				String registeridstr = "0x" + ProtocolUtils.buildStringHex(tempreg, 4);
 				if (DEBUG == 1) {
 					this.commandFactory.getMk10().sendDebug("Channel " + String.valueOf(channel) + " RegisterID: " + registeridstr + " Value: 0x" + ProtocolUtils.buildStringHex(ChannelDef, 4));
@@ -131,12 +129,6 @@ public class LoadSurvey {
 					lsc.setScalingFactor(ctp.getScalingFactor());
 				}
 
-				//	            ReadCommand scaleD808 = getCommandFactory().getReadCommand(0xD808);
-				//	            ReadCommand scaleD809 = getCommandFactory().getReadCommand(0xD809);
-				//	            ReadCommand scaleD80A = getCommandFactory().getReadCommand(0xD80A);
-				//	            ReadCommand scaleD80B = getCommandFactory().getReadCommand(0xD80B);
-				//	            ReadCommand scaleD80C = getCommandFactory().getReadCommand(0xD80C);
-				////	            int scalingFactor = getCommandFactory().getReadCommand(0xD808).getRegister().getBigDecimal().
 			}
 			getLoadSurveyChannels()[channel]=lsc;
 		}
