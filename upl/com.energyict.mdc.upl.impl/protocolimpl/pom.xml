@@ -78,14 +78,33 @@
                     <groupId>xml-apis</groupId>
                     <artifactId>xml-apis</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>ehcache</groupId>
+                    <artifactId>ehcache</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
-         -->
          
-         <dependency>
-         	<groupId>org.hibernate</groupId>
+         -->
+		
+		<!-- If we use the Hibernate dependency from EIServer, then we can't use the C3P0ConnectionProvider anymore -->
+		<!-- To prevent version clashes we deleted the ehcache jar and added the one explicitly form the EIServer version -->
+        <dependency>
+        	<groupId>org.hibernate</groupId>
 			<artifactId>hibernate</artifactId>
 			<version>3.2.1.ga</version>
+			<exclusions>
+                <exclusion>
+                    <groupId>ehcache</groupId>
+                    <artifactId>ehcache</artifactId>
+                </exclusion>
+            </exclusions>
+         </dependency>
+         
+         <dependency>
+         	<groupId>net.sf.ehcache</groupId>
+         	<artifactId>ehcache</artifactId>
+         	<version>1.6.2</version>
          </dependency>
          
 		<dependency>
