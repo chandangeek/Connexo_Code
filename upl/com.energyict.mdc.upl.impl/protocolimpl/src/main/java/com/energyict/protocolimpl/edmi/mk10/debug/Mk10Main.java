@@ -28,7 +28,7 @@ public class Mk10Main {
 	private static final int		STOPBITS			= SerialCommunicationChannel.STOPBITS_1;
 
 	private static final String		MODEM_INIT			= "ATM0";
-	private static final String		PHONE_NUMBER		= "000447872368862";
+	private static final String		PHONE_NUMBER		= "000447703556023";
 	private static final int		CONNECT_TIMEOUT		= 60 * 1000;
 
 	private static MK10 mk10 = null;
@@ -43,7 +43,11 @@ public class Mk10Main {
 
 	public static Dialer getDialer() throws LinkException {
 		if (dialer == null) {
+			if (PHONE_NUMBER != null) {
 			dialer = DialerFactory.getStandardModemDialer().newDialer();
+			} else {
+				dialer = DialerFactory.getDirectDialer().newDialer();
+			}
 			dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, false));
 			getDialer().init(COMPORT, MODEM_INIT);
 		}
@@ -96,13 +100,27 @@ public class Mk10Main {
 
 		properties.setProperty("ProfileInterval", "1800");
 
-//		properties.setProperty("DevideId", "EDMI");
-//		properties.setProperty("Password", "IMDEIMDE");
+		/* My own device
+		properties.setProperty("DevideId", "EDMI");
+		properties.setProperty("Password", "IMDEIMDE");
+		properties.setProperty("SerialNumber", "206332371");
+		 */
+
+		/* Imserv settings for device on phone: 000447872368862
+		properties.setProperty("DevideId", "READER");
+		properties.setProperty("Password", "READER");
+		properties.setProperty("SerialNumber", "204618802");
+		 */
+
+		/* Imserv settings for device on phone: 000447703556023
+		properties.setProperty("DevideId", "READER");
+		properties.setProperty("Password", "READER");
+		properties.setProperty("SerialNumber", "206902570");
+		 */
 
 		properties.setProperty("DevideId", "READER");
 		properties.setProperty("Password", "READER");
-
-		properties.setProperty("SerialNumber", "204618802");
+		properties.setProperty("SerialNumber", "206902570");
 
 		return properties;
 	}
