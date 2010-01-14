@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import com.energyict.protocol.IntervalData;
@@ -265,8 +266,9 @@ public final class ProtocolTools {
 		Date oldest = null;
 		Date newest = null;
 
-		List<IntervalData> intervals = profileData.getIntervalDatas();
-		for (IntervalData intervalData : intervals) {
+		List intervals = profileData.getIntervalDatas();
+		for (Iterator iterator = intervals.iterator(); iterator.hasNext();) {
+			IntervalData intervalData = (IntervalData) iterator.next();
 			if ((oldest == null) || (newest == null)) {
 				oldest = intervalData.getEndTime();
 				newest = intervalData.getEndTime();
