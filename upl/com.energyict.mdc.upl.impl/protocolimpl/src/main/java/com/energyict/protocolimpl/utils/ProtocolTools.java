@@ -261,7 +261,7 @@ public final class ProtocolTools {
 	 * @return
 	 */
 	public static String getProfileInfo(ProfileData profileData) {
-		StringBuilder sb = new StringBuilder();
+		StringBuffer sb = new StringBuffer();
 
 		Date oldest = null;
 		Date newest = null;
