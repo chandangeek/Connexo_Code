@@ -8,7 +8,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -19,6 +23,7 @@ import com.energyict.protocol.ProtocolUtils;
 public final class ProtocolTools {
 
 	private static final int	HEX_PRESENTATION	= 16;
+	private static final String	CRLF				= "\r\n";
 
 	private ProtocolTools() {
 		// Hide constructor for Util class with static methods
@@ -248,6 +253,40 @@ public final class ProtocolTools {
 		} catch (InterruptedException e) {
 			// Absorb
 		}
+	}
+
+	/**
+	 * @param profileData
+	 * @return
+	 */
+	public static String getProfileInfo(ProfileData profileData) {
+		StringBuilder sb = new StringBuilder();
+
+		Date oldest = null;
+		Date newest = null;
+
+		List<IntervalData> intervals = profileData.getIntervalDatas();
+		for (IntervalData intervalData : intervals) {
+			if ((oldest == null) || (newest == null)) {
+				oldest = intervalData.getEndTime();
+				newest = intervalData.getEndTime();
+			} else {
+				if (oldest.after(intervalData.getEndTime())) {
+					oldest = intervalData.getEndTime();
+				}
+				if (newest.before(intervalData.getEndTime())) {
+					newest = intervalData.getEndTime();
+				}
+			}
+		}
+
+		sb.append("Channels:   ").append(profileData.getNumberOfChannels()).append(CRLF);
+		sb.append("Intervals:  ").append(profileData.getNumberOfIntervals()).append(CRLF);
+		sb.append("Events:     ").append(profileData.getNumberOfEvents()).append(CRLF);
+		sb.append("First data: ").append(oldest).append(CRLF);
+		sb.append("Lates data: ").append(newest).append(CRLF).append(CRLF);
+
+		return sb.toString();
 	}
 
 }
