@@ -21,7 +21,7 @@ public class AS220ClockController implements ClockController {
 	private static final int		DATA_LENGTH		= 12;
 	private static final int		BYTE_LENGTH		= 8;
 
-	private static final ObisCode	CLOCK_OBISCODE	= ObisCode.fromString("0.0.1.0.0.255");
+	public static final ObisCode	CLOCK_OBISCODE	= ObisCode.fromString("0.0.1.0.0.255");
 
 	private final AS220		as220;
 

@@ -13,6 +13,8 @@ import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.dlms.cosem.Register;
@@ -21,6 +23,7 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.AS220Messaging;
+import com.energyict.protocolimpl.dlms.as220.As220ObisCodeMapper;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 public class AS220Main {
@@ -191,26 +194,41 @@ public class AS220Main {
 //		System.out.println(getAs220().readRegister(DEVICE_ID4_OBISCODE));
 //		System.out.println(getAs220().readRegister(DEVICE_ID5_OBISCODE));
 
-		examineObisCode(ObisCode.fromString("1.0.0.2.0.255"));
+//		examineObisCode(ObisCode.fromString("1.0.0.2.0.255"));
+//		examineObisCode(ObisCode.fromString("0.0.42.0.0.255"));
+//		examineObisCode(ObisCode.fromString("1.0.96.63.11.255"));
+//		examineObisCode(ObisCode.fromString("1.0.0.0.0.255"));
+//		examineObisCode(ObisCode.fromString("0.0.23.1.0.255"));
+//		examineObisCode(ObisCode.fromString("1.0.96.63.1.255"));
+//		examineObisCode(ObisCode.fromString("0.0.96.63.10.255"));
+//		examineObisCode(ObisCode.fromString("0.0.96.15.0.255"));
+//		examineObisCode(ObisCode.fromString("0.0.96.15.1.255"));
+//		examineObisCode(ObisCode.fromString("1.0.96.5.1.255"));
+//		examineObisCode(ObisCode.fromString("0.0.96.50.0.255"));
+//		examineObisCode(ObisCode.fromString("0.0.96.3.10.255"));
 
-//		System.out.println(getAs220().readRegister(As220ObisCodeMapper.NR_CONFIGCHANGES_OBISCODE));
-//		System.out.println(getAs220().readRegister(As220ObisCodeMapper.ERROR_REGISTER_OBISCODE));
-//		System.out.println(getAs220().readRegister(As220ObisCodeMapper.ALARM_REGISTER_OBISCODE));
-//		System.out.println(getAs220().readRegister(As220ObisCodeMapper.FILTER_REGISTER_OBISCODE));
+		System.out.println(getAs220().readRegister(As220ObisCodeMapper.NR_CONFIGCHANGES_OBISCODE));
+		System.out.println(getAs220().readRegister(As220ObisCodeMapper.ERROR_REGISTER_OBISCODE));
+		System.out.println(getAs220().readRegister(As220ObisCodeMapper.ALARM_REGISTER_OBISCODE));
+		System.out.println(getAs220().readRegister(As220ObisCodeMapper.FILTER_REGISTER_OBISCODE));
+		System.out.println(getAs220().readRegister(As220ObisCodeMapper.LOGICAL_DEVICENAME_OBISCODE));
 
 	}
 
 	private static void examineObisCode(ObisCode obisCode) {
-		for (int i = 0; i < 1024; i++) {
+		System.out.println();
+		System.out.println(obisCode + " = " + obisCode.getDescription());
+		for (int i = 0; i < 0x70; i += 8) {
 			try {
 				GenericRead gr = getAs220().getCosemObjectFactory().getGenericRead(obisCode, i);
-				gr.getDataContainer().getRoot().print();
-//				String value = ProtocolTools.getHexStringFromBytes(gr.getResponseData());
-//				System.out.println(i + " = " + value);
+				AbstractDataType dataType = AXDRDecoder.decode(gr.getResponseData());
+				String value = ProtocolTools.getHexStringFromBytes(gr.getResponseData());
+				System.out.println(i + " = " + dataType.getClass().getSimpleName() + " " + value);
 			} catch (IOException e) {
 
 			}
 		}
+		System.out.println();
 	}
 
 	private static void log(Object message) {

@@ -5,8 +5,12 @@ import java.util.Date;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
@@ -26,12 +30,14 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 	public static final ObisCode	ALARM_REGISTER_OBISCODE		= ObisCode.fromString("0.0.97.98.0.255");
 	public static final ObisCode	FILTER_REGISTER_OBISCODE	= ObisCode.fromString("0.0.97.98.10.255");
 	public static final ObisCode	ERROR_REGISTER_OBISCODE		= ObisCode.fromString("0.0.97.97.0.255");
+	public static final ObisCode	LOGICAL_DEVICENAME_OBISCODE	= ObisCode.fromString("0.0.42.0.0.255");
 
 	private static final ObisCode[] simpleDataRegisters = new ObisCode[] {
 		NR_CONFIGCHANGES_OBISCODE,
 		ALARM_REGISTER_OBISCODE,
 		FILTER_REGISTER_OBISCODE,
 	    ERROR_REGISTER_OBISCODE,
+	    LOGICAL_DEVICENAME_OBISCODE
 	};
 
 	private CosemObjectFactory cosemObjectFactory;
@@ -122,14 +128,23 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 	 * This method reads a data class from the device, and creates a
 	 * {@link RegisterValue} with a {@link Quantity} of the dlms attribute 8.
 	 * This attribute is expected to be a numerical value (Integer, unsigned, ...)
+	 * or an {@link OctetString}
 	 * @return The {@link RegisterValue}
 	 * @throws IOException
 	 */
 	private RegisterValue readDataAsRegisterValue(ObisCode obisCode) throws IOException {
-		RegisterValue errorRegister = new RegisterValue(obisCode);
-		long errorValue = getCosemObjectFactory().getGenericRead(obisCode, VALUE_OFFSET).getValue();
-		errorRegister.setQuantity(new Quantity(errorValue, Unit.getUndefined()));
-		return errorRegister;
+		RegisterValue register;
+		GenericRead gr = getCosemObjectFactory().getGenericRead(obisCode, VALUE_OFFSET);
+		AbstractDataType adt = AXDRDecoder.decode(gr.getResponseData());
+		if (adt.isOctetString()) {
+			String text = adt.getOctetString().stringValue();
+			register = new RegisterValue(obisCode, null, new Date(), null, new Date(), new Date(), 0, text);
+		} else {
+			register = new RegisterValue(obisCode);
+			Quantity quantity = new Quantity(adt.longValue(), Unit.getUndefined());
+			register.setQuantity(quantity);
+		}
+		return register;
 	}
 
 } // public class ObisCodeMapper
