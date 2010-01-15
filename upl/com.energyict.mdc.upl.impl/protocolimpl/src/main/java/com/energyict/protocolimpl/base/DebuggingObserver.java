@@ -48,7 +48,7 @@ public class DebuggingObserver implements InputStreamObserver, OutputStreamObser
 			log("RX[" + System.currentTimeMillis() + "] <= ");
 			setLastDirection(DIRECTION_READING);
 		}
-		log(ProtocolTools.getHexStringFromBytes(b) + " ");
+		log(ProtocolTools.getHexStringFromBytes(b));
 		setLastAction();
 	}
 
@@ -70,7 +70,7 @@ public class DebuggingObserver implements InputStreamObserver, OutputStreamObser
 			log("TX[" + System.currentTimeMillis() + "] => ");
 			setLastDirection(DIRECTION_WRITING);
 		}
-		log(ProtocolTools.getHexStringFromBytes(b) + " ");
+		log(ProtocolTools.getHexStringFromBytes(b));
 		setLastAction();
 	}
 
