@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.iec1107.ppmi1.parser;
 
@@ -26,13 +26,13 @@ class NumberAssembler implements Assembler {
 	public void workOn(Assembly ta) throws IOException {
 
 		Day day = (Day) ta.getTarget();
-		int tempVal = (int) PPMUtils.hex2dec(((Byte) ta.pop()).byteValue());
+		Byte bte = ((Byte) ta.pop()).byteValue();
 
 		if (day == null) {
 			return;
 		}
 
-		getVal()[this.byteNr] = (byte) tempVal;
+		getVal()[this.byteNr] = bte.byteValue();
 		this.byteNr++;
 
 		if (this.byteNr != (getProfileParser().getNrOfChannels() * BYTES_PER_VALUE + BYTES_PER_STATUS)) {
@@ -43,7 +43,7 @@ class NumberAssembler implements Assembler {
 		if ((day.getReadIndex() < 48) && day.getReading()[day.getReadIndex()].getDate().before(getProfileParser().getMeterTime())) {
 
 			/* 1) create a status object */
-			day.setStatus(new LoadProfileStatus((byte) (getVal()[0]/10)), day.getReadIndex());
+			day.setStatus(new LoadProfileStatus((byte) ((getVal()[0] >> 4) & 0x0F)), day.getReadIndex());
 
 			/* 2) create a reading */
 			for (int vi = 0; vi < getProfileParser().getNrOfChannels(); vi++) {
@@ -76,9 +76,9 @@ class NumberAssembler implements Assembler {
 	}
 
 	private BigDecimal constructValue(int[] iArray, int i) throws IOException {
-		long v = (iArray[i] % 10) * 10000;
-		v += (iArray[i + 1] * 100);
-		v += iArray[i + 2];
+		long v = PPMUtils.hex2dec((byte) (iArray[i] & 0x0F)) * 10000;
+		v += PPMUtils.hex2dec((byte) ((iArray[i + 1]))) * 100;
+		v += PPMUtils.hex2dec((byte) iArray[i + 2]);
 		return getProfileParser().getScalingFactor().toProfileNumber(v);
 	}
 
@@ -86,7 +86,4 @@ class NumberAssembler implements Assembler {
 		return profileParser;
 	}
 
-	public static void main(String[] args) {
-
-	}
 }

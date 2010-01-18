@@ -103,15 +103,14 @@ public class PPM2Main {
 			getPPM().enableHHUSignOn(getDialer().getSerialCommunicationChannel());
 			getPPM().connect();
 
-			Calendar from = Calendar.getInstance();
-			Calendar to = Calendar.getInstance();
+			Calendar from = Calendar.getInstance(DEFAULT_TIMEZONE);
+			Calendar to = Calendar.getInstance(DEFAULT_TIMEZONE);
 
-			from.set(2009, Calendar.DECEMBER, 1, 0, 0, 0);
-			to.set(2010, Calendar.JANUARY, 11, 0, 0, 0);
+			from.set(2010, Calendar.JANUARY, 12, 0, 33, 0);
+			//to.set(2010, Calendar.JANUARY, 13, 0, 0, 0);
 			System.out.println(ProtocolTools.getProfileInfo(getPPM().getProfileData(from.getTime(), to.getTime(), false)));
 
 			System.out.println();
-
 
 		} finally {
 			ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);

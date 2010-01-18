@@ -29,7 +29,7 @@ public class Profile {
 	/** The following statics are only used for debugging purposes */
 	private static final boolean	READFROMFILE		= false;
 	private static final boolean	WRITETOFILE			= false;
-	private static final String		FILENAME			= "1257407814849_PR";
+	private static final String		FILENAME			= "IMSERV_DEBUG_PPM_PROFILE_30-12-2009";
 	private static final String		PATHNAME			= "C:\\EnergyICT\\WorkingDir\\ppm_profiles\\";
 	private static final String		EXTENSION			= ".hex";
 
@@ -200,7 +200,7 @@ public class Profile {
 		ProfileReverseParser prp = new ProfileReverseParser(date, nrChannels, intervalLength * SECONDS_PER_MINUTE, ppm.getTimeZone());
 		prp.setInput(data);
 
-		ProfileParser pp = new ProfileParser(ppm, rFactory, rFactory.getTimeDate(), rFactory.getLoadProfileDefinition(), false);
+		ProfileParser pp = new ProfileParser(ppm, rFactory, rFactory.getTimeDate(), rFactory.getLoadProfileDefinition());
 		pp.setInput(new ByteArrayInputStream(prp.match()));
 
 		ProfileData pd = pp.getProfileData();

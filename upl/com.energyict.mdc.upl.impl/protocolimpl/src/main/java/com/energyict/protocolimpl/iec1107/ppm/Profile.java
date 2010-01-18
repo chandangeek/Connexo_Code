@@ -70,7 +70,7 @@ public class Profile {
 
 	/**
 	 * Read the meterDate from the device
-	 * 
+	 *
 	 * @return The date of the meter
 	 * @throws IOException
 	 */
@@ -102,7 +102,7 @@ public class Profile {
 
 	/**
 	 * Get the {@link ProfileData} using the OPUS protocol version
-	 * 
+	 *
 	 * @return The {@link ProfileData} from the meter
 	 * @throws NestedIOException
 	 * @throws ConnectionException
@@ -170,7 +170,7 @@ public class Profile {
 
 	/**
 	 * Get the {@link ProfileData} using the IEC1107 protocol version
-	 * 
+	 *
 	 * @return The {@link ProfileData} from the meter
 	 * @throws IOException
 	 */
@@ -212,7 +212,7 @@ public class Profile {
 
 	/**
 	 * ( nr sec day / int. duration sec ) + 1 +1 for extra iperiod
-	 * 
+	 *
 	 * @param interval The profileInterval in seconds
 	 * @return The maximum of intervals in one day
 	 */
@@ -242,14 +242,14 @@ public class Profile {
 	 */
 	private static long nrDaysInPeriodOPUS(Date start, Date end) {
 		// day index since start of count
-		long sd = start.getTime() / MS_PER_SECOND / SECONDS_PER_MINUTE / MINUTES_PER_HOUR / HOURS_PER_DAY;
-		long ed = end.getTime() / MS_PER_SECOND / SECONDS_PER_MINUTE / MINUTES_PER_HOUR / HOURS_PER_DAY;
+		long sd = start.getTime() / (MS_PER_SECOND * SECONDS_PER_MINUTE * MINUTES_PER_HOUR * HOURS_PER_DAY);
+		long ed = end.getTime() / (MS_PER_SECOND * SECONDS_PER_MINUTE * MINUTES_PER_HOUR * HOURS_PER_DAY);
 		return ed - sd;
 	}
 
 	/**
 	 * Get the number of days passed since 1970 for a given {@link Date} and {@link TimeZone}
-	 * 
+	 *
 	 * @param timeZone The {@link TimeZone} used in the calculations
 	 * @param date The date to count to
 	 * @return The number of days from 1970 to the given date
@@ -300,7 +300,7 @@ public class Profile {
 	/**
 	 * Calculate the number of bytes to read from the profile, given a timeframe
 	 * (Start and end date), the interval length and the number of channels.
-	 * 
+	 *
 	 * @param start The startdate
 	 * @param end The enddate
 	 * @param intervalLength The length of the interval in seconds

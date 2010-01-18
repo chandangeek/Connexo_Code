@@ -5,26 +5,26 @@ import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
 
 /**
  * can parse a status from a byte, and display itself.
- * 
+ *
  * @author fbo
  */
 
 public class LoadProfileStatus {
 
 	/* LoadProfileStatus Type */
-	private static final byte	SS_DIAGNOSTIC_FLAG	= 0x01;
-	private static final byte	SS_WRITE_ACCESS		= 0x02;
-	private static final byte	SS_PARTIAL_DEMAND	= 0x04;
-	private static final byte	SS_REVERSE_RUN		= 0x08;
+	public static final byte	SS_DIAGNOSTIC_FLAG	= 0x01;
+	public static final byte	SS_WRITE_ACCESS		= 0x02;
+	public static final byte	SS_PARTIAL_DEMAND	= 0x04;
+	public static final byte	SS_REVERSE_RUN		= 0x08;
 
 	private int status;
 
 	public LoadProfileStatus(byte b) {
-		this.status = Integer.parseInt(Byte.toString(b), 16);
+		status = b & 0x0F;
 	}
 
 	public LoadProfileStatus(int i) {
-		this.status = i;
+		this.status = i & 0x0F;
 	}
 
 	public int getEIStatus() {

@@ -12,15 +12,17 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
 
-/* @author fbo */
-
+/**
+ * @author fbo
+ *
+ */
 public class MaximumDemand {
 
-	Quantity[] quantity = new Quantity[3];
-	Date[] date = new Date[3];
-	Unit unit = null;
+	private Quantity[] quantity = new Quantity[3];
+	private Date[] date = new Date[3];
+	private Unit unit = null;
 
-	TimeZone timeZone;
+	private TimeZone timeZone;
 
 	public MaximumDemand(Unit unit, byte[] data, BigDecimal scalingFactor, TimeZone timeZone) throws IOException {
 		this.unit = unit;

@@ -10,12 +10,11 @@ import com.energyict.protocolimpl.iec1107.ppmi1.RegisterFactory;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileDefinition;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.ScalingFactor;
 
-/** @author fbo */
-
+/**
+ * @author fbo
+ *
+ */
 public class ProfileParser {
-
-	/* debug */
-	private boolean DBG = false;
 
 	private PPM ppm = null;
 	private RegisterFactory rFactory = null;
@@ -39,24 +38,17 @@ public class ProfileParser {
 	private NumberAssembler numberAssembler = new NumberAssembler(this);
 	private AAAssembler aaAssembler = new AAAssembler(this);
 
-	public ProfileParser(PPM ppm, RegisterFactory registerFactory, Date meterTime, LoadProfileDefinition loadDef, boolean dbg) throws IOException {
-
-		this.DBG = dbg;
-
+	public ProfileParser(PPM ppm, RegisterFactory registerFactory, Date meterTime, LoadProfileDefinition loadDef) throws IOException {
 		this.ppm = ppm;
 		this.rFactory = registerFactory;
 		this.meterTime = meterTime;
 		this.loadDef = loadDef;
 		this.nrOfChannels = loadDef.getNrOfChannels();
 
-		if (!this.DBG) {
-			this.integrationPeriod = this.rFactory.getIntegrationPeriod().intValue() * 60;
-			this.scalingFactor = this.rFactory.getScalingFactor();
-		} else {
-			this.integrationPeriod = 1800;
-			this.scalingFactor = ScalingFactor.REGISTER_CATEGORY_3;
-		}
+		this.integrationPeriod = this.rFactory.getIntegrationPeriod().intValue() * 60;
+		this.scalingFactor = this.rFactory.getScalingFactor();
 
+		setAssemblerTable(0x00, 0xFF, this.numberAssembler);
 		setAssemblerTable(0xFF, 0xFF, this.ffAssembler);
 		setAssemblerTable(0xAA, 0xAA, this.aaAssembler);
 		setAssemblerTable(0xE4, 0xE4, this.dayAssembler);
@@ -93,18 +85,14 @@ public class ProfileParser {
 			character = this.assembly.read();
 		} while (character != -1);
 
-		if( this.assembly.getTarget() != null ) {
-			this.dayAssembler.createProfileData( (Day) this.assembly.getTarget() );
-		}
-
-		if( ! ((Day)this.assembly.getTarget()).isEmpty() ) {
-			System.out.println(this.assembly.getTarget());
+		if (this.assembly.getTarget() != null) {
+			this.dayAssembler.createProfileData((Day) this.assembly.getTarget());
 		}
 
 	}
 
 	public ProfileData getProfileData() throws IOException {
-		if( this.targetProfileData == null ) {
+		if (this.targetProfileData == null) {
 			this.targetProfileData = new ProfileData();
 		}
 		this.targetProfileData.setChannelInfos(this.loadDef.toChannelInfoList());
@@ -131,10 +119,6 @@ public class ProfileParser {
 
 	public Date getMeterTime() {
 		return meterTime;
-	}
-
-	public boolean isDebug() {
-		return DBG;
 	}
 
 	protected ProfileData getTargetProfileData() {

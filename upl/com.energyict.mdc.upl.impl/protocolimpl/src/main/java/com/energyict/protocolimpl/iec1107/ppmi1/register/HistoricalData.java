@@ -6,39 +6,41 @@ import java.util.TimeZone;
 import com.energyict.protocolimpl.iec1107.ppmi1.MetaRegister;
 import com.energyict.protocolimpl.iec1107.ppmi1.RegisterFactory;
 
-/** @author fbo */
+/**
+ * @author fbo
+ *
+ */
+public class HistoricalData {
 
-public class HistoricalData { 
+	private int				billingCount;
 
-	int billingCount;
+	private Date			date;
+	private TimeZone		timeZone;
 
-	Date date;
-	TimeZone timeZone;
+	private MainRegister	importKWh;
+	private MainRegister	exportKWh;
+	private MainRegister	importKvarh;
+	private MainRegister	exportKvarh;
+	private MainRegister	totalKVAh;
 
-	MainRegister importKWh;
-	MainRegister exportKWh;
-	MainRegister importKvarh;
-	MainRegister exportKvarh;
-	MainRegister totalKVAh;
+	private MainRegister	timeOfUse1;
+	private MainRegister	timeOfUse2;
+	private MainRegister	timeOfUse3;
+	private MainRegister	timeOfUse4;
+	private MainRegister	timeOfUse5;
+	private MainRegister	timeOfUse6;
+	private MainRegister	timeOfUse7;
+	private MainRegister	timeOfUse8;
 
-	MainRegister timeOfUse1;
-	MainRegister timeOfUse2;
-	MainRegister timeOfUse3;
-	MainRegister timeOfUse4;
-	MainRegister timeOfUse5;
-	MainRegister timeOfUse6;
-	MainRegister timeOfUse7;
-	MainRegister timeOfUse8;
+	private MaximumDemand	maxDemand1;
+	private MaximumDemand	maxDemand2;
+	private MaximumDemand	maxDemand3;
+	private MaximumDemand	maxDemand4;
 
-	MaximumDemand maxDemand1;
-	MaximumDemand maxDemand2;
-	MaximumDemand maxDemand3;
-	MaximumDemand maxDemand4;
-
-	MainRegister cumulativeMaxDemand1;
-	MainRegister cumulativeMaxDemand2;
-	MainRegister cumulativeMaxDemand3;
-	MainRegister cumulativeMaxDemand4;
+	private MainRegister	cumulativeMaxDemand1;
+	private MainRegister	cumulativeMaxDemand2;
+	private MainRegister	cumulativeMaxDemand3;
+	private MainRegister	cumulativeMaxDemand4;
 
 	public MainRegister getExportKWh() {
 		return exportKWh;
@@ -231,59 +233,80 @@ public class HistoricalData {
 	public void setTotalKVAh(MainRegister totalKVAh) {
 		this.totalKVAh = totalKVAh;
 	}
-	
-	public Object get( MetaRegister register ){
-		return get( register.getRegisterFactoryKey() );
+
+	public Object get(MetaRegister register) {
+		return get(register.getRegisterFactoryKey());
 	}
-	
-	public Object get( String key ){
-		
-		if( key.equals( RegisterFactory.R_TOTAL_IMPORT_WH ) )
+
+	public Object get(String key) {
+
+		if (key.equals(RegisterFactory.R_TOTAL_IMPORT_WH)) {
 			return importKWh;
-		if( key.equals( RegisterFactory.R_TOTAL_EXPORT_WH ) )
+		}
+		if (key.equals(RegisterFactory.R_TOTAL_EXPORT_WH)) {
 			return exportKWh;
-		if( key.equals( RegisterFactory.R_TOTAL_IMPORT_VARH ) )
+		}
+		if (key.equals(RegisterFactory.R_TOTAL_IMPORT_VARH)) {
 			return importKvarh;
-		if( key.equals( RegisterFactory.R_TOTAL_EXPORT_VARH ) )
+		}
+		if (key.equals(RegisterFactory.R_TOTAL_EXPORT_VARH)) {
 			return exportKvarh;
-		if( key.equals( RegisterFactory.R_TOTAL_VAH ) )
+		}
+		if (key.equals(RegisterFactory.R_TOTAL_VAH)) {
 			return totalKVAh;
-		
-		if( key.equals( RegisterFactory.R_TIME_OF_USE_1 ) )
+		}
+
+		if (key.equals(RegisterFactory.R_TIME_OF_USE_1)) {
 			return timeOfUse1;
-		if( key.equals( RegisterFactory.R_TIME_OF_USE_2 ) )
-			return timeOfUse2;		
-		if( key.equals( RegisterFactory.R_TIME_OF_USE_3 ) )
+		}
+		if (key.equals(RegisterFactory.R_TIME_OF_USE_2)) {
+			return timeOfUse2;
+		}
+		if (key.equals(RegisterFactory.R_TIME_OF_USE_3)) {
 			return timeOfUse3;
-		if( key.equals( RegisterFactory.R_TIME_OF_USE_4 ) )
+		}
+		if (key.equals(RegisterFactory.R_TIME_OF_USE_4)) {
 			return timeOfUse4;
-		if( key.equals( RegisterFactory.R_TIME_OF_USE_5 ) )
+		}
+		if (key.equals(RegisterFactory.R_TIME_OF_USE_5)) {
 			return timeOfUse5;
-		if( key.equals( RegisterFactory.R_TIME_OF_USE_6 ) )
+		}
+		if (key.equals(RegisterFactory.R_TIME_OF_USE_6)) {
 			return timeOfUse6;
-		if( key.equals( RegisterFactory.R_TIME_OF_USE_7 ) )
+		}
+		if (key.equals(RegisterFactory.R_TIME_OF_USE_7)) {
 			return timeOfUse7;
-		if( key.equals( RegisterFactory.R_TIME_OF_USE_8 ) )
+		}
+		if (key.equals(RegisterFactory.R_TIME_OF_USE_8)) {
 			return timeOfUse8;
-		
-		if( key.equals( RegisterFactory.R_MAXIMUM_DEMAND_1 ) )
+		}
+
+		if (key.equals(RegisterFactory.R_MAXIMUM_DEMAND_1)) {
 			return maxDemand1;
-		if( key.equals( RegisterFactory.R_MAXIMUM_DEMAND_2 ) )
+		}
+		if (key.equals(RegisterFactory.R_MAXIMUM_DEMAND_2)) {
 			return maxDemand2;
-		if( key.equals( RegisterFactory.R_MAXIMUM_DEMAND_3 ) )
+		}
+		if (key.equals(RegisterFactory.R_MAXIMUM_DEMAND_3)) {
 			return maxDemand3;
-		if( key.equals( RegisterFactory.R_MAXIMUM_DEMAND_4 ) )
+		}
+		if (key.equals(RegisterFactory.R_MAXIMUM_DEMAND_4)) {
 			return maxDemand4;
-		
-		if( key.equals( RegisterFactory.R_CUMULATIVE_MAXIMUM_DEMAND1 ) )
+		}
+
+		if (key.equals(RegisterFactory.R_CUMULATIVE_MAXIMUM_DEMAND1)) {
 			return cumulativeMaxDemand1;
-		if( key.equals( RegisterFactory.R_CUMULATIVE_MAXIMUM_DEMAND2 ) )
+		}
+		if (key.equals(RegisterFactory.R_CUMULATIVE_MAXIMUM_DEMAND2)) {
 			return cumulativeMaxDemand2;
-		if( key.equals( RegisterFactory.R_CUMULATIVE_MAXIMUM_DEMAND3 ) )
+		}
+		if (key.equals(RegisterFactory.R_CUMULATIVE_MAXIMUM_DEMAND3)) {
 			return cumulativeMaxDemand3;
-		if( key.equals( RegisterFactory.R_CUMULATIVE_MAXIMUM_DEMAND4 ) )
+		}
+		if (key.equals(RegisterFactory.R_CUMULATIVE_MAXIMUM_DEMAND4)) {
 			return cumulativeMaxDemand4;
-		
+		}
+
 		return null;
 	}
 

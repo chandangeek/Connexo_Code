@@ -106,8 +106,8 @@ public class PPM1Main {
 			Calendar from = Calendar.getInstance();
 			Calendar to = Calendar.getInstance();
 
-			from.set(2007, Calendar.JANUARY, 1, 0, 0, 0);
-			to.set(2012, Calendar.JANUARY, 15, 0, 0, 0);
+			from.set(2009, Calendar.JANUARY, 1, 0, 0, 0);
+			//to.set(2012, Calendar.JANUARY, 15, 0, 0, 0);
 			System.out.println(ProtocolTools.getProfileInfo(getPPM().getProfileData(from.getTime(), to.getTime(), false)));
 
 			System.out.println();

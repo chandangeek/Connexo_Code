@@ -201,9 +201,7 @@ public class ProfileParser {
 				return;
 			}
 
-			if ((day.readIndex < 48 // TODO can be 49 too ... // sh*t!
-			)
-			&& day.reading[day.readIndex].date.before(ProfileParser.this.meterTime)) {
+			if ((day.readIndex < 48) && day.reading[day.readIndex].date.before(ProfileParser.this.meterTime)) {
 
 				/* 1) create a status object */
 				day.status[day.readIndex] = new LoadProfileStatus((byte) getVal()[0]);
@@ -290,6 +288,8 @@ public class ProfileParser {
 	 */
 	class Day {
 
+		private static final int	SECONDS_PER_DAY	= 24 * 3600;
+
 		int readIndex = 0;
 
 		int day = 0;
@@ -304,8 +304,22 @@ public class ProfileParser {
 			Calendar c = ProtocolUtils.getCalendar(ProfileParser.this.ppm.getTimeZone());
 			c.set(c.get(Calendar.YEAR), month - 1, day, 0, 0, 0);
 
+			/*
+			 * The meter only uses the month and the day, so the year is never
+			 * stored together with the profile data. During the new year period,
+			 * this can cause problems with the time stamp, because the profile data
+			 * from the meter is data from the previous year, but the calendar is
+			 * created with the new year (the time of the commserver). This will
+			 * result in profile time stamps in the future. This bug is fixed in the
+			 * following code.
+			 */
+			int currentMonth = ProtocolUtils.getCalendar(ProfileParser.this.ppm.getTimeZone()).get(Calendar.MONTH);
+			if (currentMonth < c.get(Calendar.MONTH)) {
+				c.add(Calendar.YEAR, -1);
+			}
+
 			int iSec = ProfileParser.this.integrationPeriod;
-			int iPerDay = 86400 /* =secs/day *// iSec + 1;
+			int iPerDay = SECONDS_PER_DAY/ iSec + 1;
 
 			this.day = day;
 			this.month = month;

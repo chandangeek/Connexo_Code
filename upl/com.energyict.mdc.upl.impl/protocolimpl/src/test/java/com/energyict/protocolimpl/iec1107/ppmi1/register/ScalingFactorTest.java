@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.iec1107.ppmi1;
+package com.energyict.protocolimpl.iec1107.ppmi1.register;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
