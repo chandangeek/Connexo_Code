@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.iec1107.ppm.register;
 
 import java.util.Comparator;
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -22,37 +23,37 @@ import java.util.TreeMap;
  * The sollution is to sort on the billingpoint counter.  This is a 4-digit
  * counter with a range from 0000-9999.  The BillingPointComparator implements
  * this sorting.
- * 
+ *
  *</pre>
  *@author fbo
  */
 
 public class HistoricalDataSet {
 
-	private TreeMap billingPointMap = new TreeMap(new ReverseComparator(new BillingPointComparator()));
+	private Map billingPointMap = new TreeMap(new ReverseComparator(new BillingPointComparator()));
 	private HistoricalData[] hd = null;
 
 	public HistoricalDataSet() {
 	}
 
 	public void add(HistoricalData historicalData) {
-		this.billingPointMap.put(new Integer(historicalData.getBillingCount()), historicalData);
-		this.hd = (HistoricalData[]) this.billingPointMap.values().toArray(new HistoricalData[0]);
+		billingPointMap.put(new Integer(historicalData.getBillingCount()), historicalData);
+		hd = (HistoricalData[]) billingPointMap.values().toArray(new HistoricalData[0]);
 	}
 
 	/* -1 = current, 0 = last billing point, 1 = 2-throws last billing point, ...*/
 	public HistoricalData get(int billingCount) {
-		return this.hd[billingCount];
+		return hd[billingCount];
 	}
 
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 
-		sb.append("\nHistorical Data Set (size=" + this.hd.length + ")\n\n");
+		sb.append("\nHistorical Data Set (size=" + hd.length + ")\n\n");
 
-		for (int i = 0; i < this.hd.length; i++) {
+		for (int i = 0; i < hd.length; i++) {
 			sb.append("internal billing count = " + i + "\n");
-			sb.append(this.hd[i].toString() + "\n");
+			sb.append(hd[i].toString() + "\n");
 		}
 
 		return sb.toString();
@@ -97,7 +98,7 @@ public class HistoricalDataSet {
 		}
 
 		public int compare(Object object1, Object object2) {
-			int r = this.comparator.compare(object1, object2);
+			int r = comparator.compare(object1, object2);
 			if (r > 0) {
 				return -1;
 			}
