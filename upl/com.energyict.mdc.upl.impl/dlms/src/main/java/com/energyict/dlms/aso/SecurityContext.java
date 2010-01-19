@@ -92,7 +92,7 @@ public class SecurityContext {
 		this.securityProvider = securityProvider;
 		this.authenticationAlgorithm = authenticationEncryptions[this.authenticationLevel];
 		this.frameCounter = getRandomFrameCounter();
-		this.systemTitle = systemIdentifier.clone();
+		this.systemTitle = systemIdentifier != null ? systemIdentifier.clone() : null;
 		this.responseFrameCounter = 0;
 	}
 
@@ -502,6 +502,6 @@ public class SecurityContext {
 	}
 
 	public void setSystemTitle(byte[] respondingAPTtitle) {
-		this.systemTitle = respondingAPTtitle.clone();
+		this.systemTitle = respondingAPTtitle != null ? respondingAPTtitle.clone() : null;
 	}
 }
