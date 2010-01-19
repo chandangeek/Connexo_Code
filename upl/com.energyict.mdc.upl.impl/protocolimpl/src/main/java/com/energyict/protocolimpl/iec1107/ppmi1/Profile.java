@@ -2,17 +2,12 @@ package com.energyict.protocolimpl.iec1107.ppmi1;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.iec1107.ppmi1.opus.OpusProfileParser;
+import com.energyict.protocolimpl.iec1107.ppmi1.opus.OpusProfile;
 import com.energyict.protocolimpl.iec1107.ppmi1.parser.ProfileParser;
 import com.energyict.protocolimpl.iec1107.ppmi1.parser.ProfileReverseParser;
 
@@ -44,8 +39,6 @@ public class Profile {
 	private static final int		STATUS_BYTE_SIZE		= 1;
 	private static final int		E4_BYTE_SIZE			= 2;
 	private static final int		DATE_BYTE_SIZE			= 4;
-	private static final int		OPUSVALUES_PER_PACKET	= 8;
-	private static final long		OPUS_SPECIALDAY_NR		= 10;
 
 	private PPM ppm = null;
 	private RegisterFactory rFactory = null;
@@ -56,10 +49,11 @@ public class Profile {
 	private Date meterDate = null;
 
 	private boolean includeEvents = false;
+
 	/**
 	 * Creates a new instance of Profile
 	 */
-	public Profile(PPM ppm, RegisterFactory rf) throws IOException {
+	public Profile(PPM ppm, RegisterFactory rf) {
 		this.ppm = ppm;
 		rFactory = rf;
 		if (ppm != null) {
@@ -73,7 +67,7 @@ public class Profile {
 	 * @return The date of the meter
 	 * @throws IOException
 	 */
-	private Date getMeterDate() throws IOException {
+	public Date getMeterDate() throws IOException {
 		if (meterDate == null) {
 			this.meterDate = rFactory.getTimeDate();
 		}
@@ -86,6 +80,9 @@ public class Profile {
 	 *
 	 * @param beginDate for retrieving meterreadings
 	 * @param endDate for retrieving meterreadings
+	 * @param includeEvents
+	 * @return the {@link ProfileData} from the device for the given period
+	 * @throws IOException
 	 */
 	public ProfileData getProfileData(Date beginDate, Date endDate, boolean includeEvents) throws IOException {
 		this.beginDate = beginDate;
@@ -103,70 +100,11 @@ public class Profile {
 	 * Get the {@link ProfileData} using the OPUS protocol version
 	 *
 	 * @return The {@link ProfileData} from the meter
-	 * @throws NestedIOException
-	 * @throws ConnectionException
 	 * @throws IOException
 	 */
 	private ProfileData doOpusProtocol() throws IOException {
-		OpusProfileParser opp = new OpusProfileParser(ppm, rFactory, getMeterDate());
-
-		long bDate = daySince1970(ppm.getTimeZone(), beginDate);
-		long eDate = daySince1970(ppm.getTimeZone(), endDate);
-		long mDate = daySince1970(ppm.getTimeZone(), getMeterDate());
-
-		Calendar current = Calendar.getInstance( ppm.getTimeZone() );
-		current.setTime( beginDate );
-
-		String logMessage = "Retrieve profile begin:" + beginDate + " end: " + endDate;
-		ppm.getLogger().fine( logMessage );
-
-		for (; (bDate <= mDate) && (bDate <= eDate); bDate++) {
-
-			int nrHours = PPMUtils.hoursInDay( current );
-
-			logMessage = "Retieve profile for " + current.getTime() + " nrHours= " + nrHours;
-			ppm.getLogger().fine(logMessage);
-
-			/*
-			 * The nr of packets to retrieve is calculated:
-			 * NR PACKETS = NR CHANNELS * NR INTERVALS per day
-			 * NR INTERVALS per day = LENGTH OF DAY (in sec) / PROFILE INTERVAL
-			 * In 1 packet there is room for 8 values, so devide by 8
-			 */
-			int nrSeconds = nrHours * MINUTES_PER_HOUR * SECONDS_PER_MINUTE;
-			int nrPackets = (ppm.getNumberOfChannels() * (nrSeconds / ppm.getProfileInterval())) / OPUSVALUES_PER_PACKET;
-
-			long opusDayNr = mDate - bDate + OPUS_SPECIALDAY_NR;
-			boolean doAdd = true;
-
-			if( opusDayNr == OPUS_SPECIALDAY_NR ) {
-				Calendar mCalendar = ProtocolUtils.getCalendar( ppm.getTimeZone() );
-				mCalendar.setTime(meterDate);
-				int hour = mCalendar.get(Calendar.HOUR_OF_DAY);
-				if( hour <= 0 ) {
-					long iPeriod = rFactory.getIntegrationPeriod().intValue();
-					long minutes = mCalendar.get(Calendar.MINUTE);
-					if( minutes < (iPeriod+(PPM.MINIMUM_INTERVAL_AGE/MS_PER_SECOND/SECONDS_PER_MINUTE) ) ) {
-						doAdd = false;
-					}
-				}
-			}
-
-			if(doAdd) {
-				opp.add(ppm.getOpusConnection().readRegister("550", 0, (int) opusDayNr, nrPackets, true));
-			}
-
-			current.add( Calendar.DAY_OF_YEAR, 1 );
-
-		}
-
-		ProfileData pd = opp.getProfileData();
-		if (isIncludeEvents()) {
-			pd.generateEvents();
-		}
-
-		return pd;
-
+		OpusProfile op = new OpusProfile(ppm, rFactory);
+		return op.getProfileData(beginDate, endDate, isIncludeEvents(), getMeterDate());
 	}
 
 	/**
@@ -193,14 +131,13 @@ public class Profile {
 			}
 		}
 
-		Date date = rFactory.getTimeDate();
 		int nrChannels = rFactory.getLoadProfileDefinition().getNrOfChannels();
 		int intervalLength = rFactory.getIntegrationPeriod().intValue();
 
-		ProfileReverseParser prp = new ProfileReverseParser(date, nrChannels, intervalLength * SECONDS_PER_MINUTE, ppm.getTimeZone());
+		ProfileReverseParser prp = new ProfileReverseParser(getMeterDate(), nrChannels, intervalLength * SECONDS_PER_MINUTE, ppm.getTimeZone());
 		prp.setInput(data);
 
-		ProfileParser pp = new ProfileParser(ppm, rFactory, rFactory.getTimeDate(), rFactory.getLoadProfileDefinition());
+		ProfileParser pp = new ProfileParser(ppm, rFactory, getMeterDate(), rFactory.getLoadProfileDefinition());
 		pp.setInput(new ByteArrayInputStream(prp.match()));
 
 		ProfileData pd = pp.getProfileData();
@@ -243,29 +180,6 @@ public class Profile {
 		long sd = start.getTime() / MS_PER_SECOND / SECONDS_PER_MINUTE / MINUTES_PER_HOUR / HOURS_PER_DAY;
 		long ed = end.getTime() / MS_PER_SECOND / SECONDS_PER_MINUTE / MINUTES_PER_HOUR / HOURS_PER_DAY;
 		return ed - sd + 1;
-	}
-
-	/**
-	 * Get the number of days passed since 1970 for a given {@link Date} and {@link TimeZone}
-	 *
-	 * @param timeZone The {@link TimeZone} used in the calculations
-	 * @param date The date to count to
-	 * @return The number of days from 1970 to the given date
-	 */
-	private static long daySince1970(TimeZone timeZone, Date date) {
-		Calendar inputCalendar = ProtocolUtils.getCalendar( timeZone );
-		inputCalendar.setTime(date);
-
-		Calendar calendar = ProtocolUtils.getCalendar( timeZone );
-		calendar.clear();
-
-		int day = inputCalendar.get(Calendar.DAY_OF_MONTH);
-		int month = inputCalendar.get(Calendar.MONTH);
-		int year = inputCalendar.get(Calendar.YEAR);
-
-		calendar.set(year, month, day);
-
-		return calendar.getTimeInMillis() / MS_PER_SECOND / SECONDS_PER_MINUTE / MINUTES_PER_HOUR / HOURS_PER_DAY;
 	}
 
 	/**
@@ -319,6 +233,5 @@ public class Profile {
 	public boolean isIncludeEvents() {
 		return includeEvents;
 	}
-
 
 }

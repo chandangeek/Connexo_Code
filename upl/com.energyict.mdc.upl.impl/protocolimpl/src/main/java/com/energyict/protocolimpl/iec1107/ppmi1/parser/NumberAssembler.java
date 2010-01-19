@@ -26,13 +26,13 @@ class NumberAssembler implements Assembler {
 	public void workOn(Assembly ta) throws IOException {
 
 		Day day = (Day) ta.getTarget();
-		Byte bte = ((Byte) ta.pop()).byteValue();
+		byte bte = ((Byte)ta.pop()).byteValue();
 
 		if (day == null) {
 			return;
 		}
 
-		getVal()[this.byteNr] = bte.byteValue();
+		getVal()[this.byteNr] = bte;
 		this.byteNr++;
 
 		if (this.byteNr != (getProfileParser().getNrOfChannels() * BYTES_PER_VALUE + BYTES_PER_STATUS)) {

@@ -21,10 +21,17 @@ public class Interval {
 		this.value = new BigDecimal[getProfileParser().getLoadDef().getNrOfChannels()];
 	}
 
+	/**
+	 * @return
+	 */
 	private ProfileParser getProfileParser() {
 		return profileParser;
 	}
 
+	/**
+	 * Check if the interval contains elements
+	 * @return
+	 */
 	boolean isEmpty() {
 		for (int i = 0; i < this.value.length; i++) {
 			if (this.value[i] != null) {
@@ -50,19 +57,29 @@ public class Interval {
 		this.date = date;
 	}
 
+	/**
+	 * @return
+	 */
 	public BigDecimal[] getValue() {
 		return value;
 	}
 
+	/**
+	 * @param index
+	 * @return
+	 */
 	public BigDecimal getValue(int index) {
 		return value[index];
 	}
 
+	/**
+	 * @param value
+	 * @param index
+	 */
 	public void setValue(BigDecimal value, int index) {
 		this.value[index] = value;
 	}
 
-	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("[ ");

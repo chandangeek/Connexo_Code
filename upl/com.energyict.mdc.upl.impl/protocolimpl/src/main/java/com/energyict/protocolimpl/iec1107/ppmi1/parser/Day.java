@@ -126,7 +126,6 @@ public class Day {
 		this.status[index] = status;
 	}
 
-	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("Day :: day ");

@@ -654,7 +654,7 @@ public class PPM extends AbstractPPM {
 	 * Getter for the {@link OpusConnection}
 	 * @return the {@link OpusConnection}
 	 */
-	protected OpusConnection getOpusConnection() {
+	public OpusConnection getOpusConnection() {
 		return opusConnection;
 	}
 

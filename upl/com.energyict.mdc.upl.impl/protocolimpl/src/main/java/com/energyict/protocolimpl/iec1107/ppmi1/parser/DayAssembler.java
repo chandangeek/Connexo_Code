@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.energyict.protocolimpl.iec1107.ppmi1.parser;
 
 import java.io.IOException;
@@ -8,11 +5,18 @@ import java.io.IOException;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
 
+/**
+ * @author fbo
+ *
+ */
 class DayAssembler implements Assembler {
 
 	private int dayNr = 0;
 	private ProfileParser profileParser;
 
+	/**
+	 * @param profileParser
+	 */
 	public DayAssembler(ProfileParser profileParser) {
 		this.profileParser = profileParser;
 	}
@@ -63,6 +67,9 @@ class DayAssembler implements Assembler {
 		}
 	}
 
+	/**
+	 * @return
+	 */
 	public ProfileParser getProfileParser() {
 		return profileParser;
 	}

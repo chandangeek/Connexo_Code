@@ -17,8 +17,10 @@ import com.energyict.protocolimpl.iec1107.ppmi1.register.MainRegister;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.MaximumDemand;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.RegisterInformation;
 
-/** @author fbo */
-
+/**
+ * @author fbo
+ *
+ */
 public class HistoricalDataParser {
 
 	private ByteAssembly bAss = null;
@@ -28,16 +30,29 @@ public class HistoricalDataParser {
 	private RegisterFactory rf;
 	private TimeZone timeZone;
 
+	/**
+	 * @param ppm
+	 * @param rf
+	 * @throws IOException
+	 */
 	public HistoricalDataParser(PPM ppm, RegisterFactory rf) throws IOException {
 		this.rf = rf;
 		this.timeZone = ppm.getTimeZone();
 	}
 
+	/**
+	 * @param input
+	 */
 	public void setInput(byte[] input) {
 		this.bAss = new ByteAssembly();
 		this.bAss.setInput(input);
 	}
 
+	/**
+	 * @return
+	 * @throws NumberFormatException
+	 * @throws IOException
+	 */
 	public HistoricalDataSet match() throws NumberFormatException, IOException {
 		this.historicalDataSet = new HistoricalDataSet();
 		for (int i = 0; i < PPM.NR_HISTORICAL_DATA; i++) {
@@ -52,6 +67,10 @@ public class HistoricalDataParser {
 		return this.historicalDataSet;
 	}
 
+	/**
+	 * @throws NumberFormatException
+	 * @throws IOException
+	 */
 	void matchCumulative() throws NumberFormatException, IOException {
 
 		this.hd.setImportKWh(createMR(RegisterFactory.R_TOTAL_IMPORT_WH));
@@ -71,6 +90,10 @@ public class HistoricalDataParser {
 		this.bAss.addToIndex(4);
 	}
 
+	/**
+	 * @throws NumberFormatException
+	 * @throws IOException
+	 */
 	void matchTimeOfUse() throws NumberFormatException, IOException {
 
 		this.hd.setTimeOfUse1(createMR(RegisterFactory.R_TIME_OF_USE_1));
@@ -89,6 +112,10 @@ public class HistoricalDataParser {
 
 	}
 
+	/**
+	 * @throws NumberFormatException
+	 * @throws IOException
+	 */
 	public void matchMaximumDemands() throws NumberFormatException, IOException {
 
 		RegisterInformation ri = this.rf.getRegisterInformation();
@@ -140,6 +167,10 @@ public class HistoricalDataParser {
 
 	}
 
+	/**
+	 * @throws NumberFormatException
+	 * @throws IOException
+	 */
 	void matchCumulativeMaximumDemands() throws NumberFormatException, IOException {
 		this.hd.setCumulativeMaxDemand1(createMR(RegisterFactory.R_MAXIMUM_DEMAND_1));
 		this.hd.setCumulativeMaxDemand2(createMR(RegisterFactory.R_MAXIMUM_DEMAND_2));
@@ -149,6 +180,11 @@ public class HistoricalDataParser {
 		this.bAss.addToIndex(6);
 	}
 
+	/**
+	 * @param RegisterId
+	 * @return
+	 * @throws IOException
+	 */
 	private MainRegister createMR(String RegisterId) throws IOException {
 		MainRegister m = null;
 		MetaRegister metaRegister = this.rf.getRegisterInformation().get(RegisterId);
@@ -165,6 +201,11 @@ public class HistoricalDataParser {
 		return m;
 	}
 
+	/**
+	 * @param u
+	 * @return
+	 * @throws IOException
+	 */
 	public Quantity getQuantity(Unit u) throws IOException {
 		Quantity q = PPMUtils.parseQuantity(this.bAss.getInput(), this.bAss.getIndex(), 5, this.rf
 				.getScalingFactor().getRegisterScaleFactor(), u);
