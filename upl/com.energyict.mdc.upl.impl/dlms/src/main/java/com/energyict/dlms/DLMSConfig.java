@@ -84,9 +84,16 @@ public final class DLMSConfig {
 		new DLMSConfig("ISK",1,1,0,96,240,0,255)
 	};
 
+	/**
+	 * For the NTA meters, there has been some changes regarding the A-field.
+	 * Because the Mbus values are stored in the same Profile as the E-meter values, the A field should be '0'(meaning generic).
+	 * But the other party decided to leave this to '1'...
+	 * 
+	 * @return the DLMSConfig for the DailyLoadProfile.
+	 */
 	private static final DLMSConfig[] dailyProfile = {
-//		new DLMSConfig("WKP",7,1,0,99,2,0,255)
-		new DLMSConfig("WKP",7,0,0,99,2,0,255)
+		new DLMSConfig("WKP",7,1,0,99,2,0,255)
+//		new DLMSConfig("WKP",7,0,0,99,2,0,255)
 	};
 
 	private static final DLMSConfig[] monthlyProfile = {
