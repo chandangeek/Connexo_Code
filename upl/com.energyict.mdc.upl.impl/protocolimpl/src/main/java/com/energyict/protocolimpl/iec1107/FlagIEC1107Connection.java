@@ -57,9 +57,9 @@ public class FlagIEC1107Connection extends Connection {
     private int iIEC1107Compatible;
     private int iSecurityLevel;
     
-    private static final byte SOH=0x01;
-    private static final byte STX=0x02;
-    private static final byte ETX=0x03;
+    protected static final byte SOH=0x01;
+    protected static final byte STX=0x02;
+    protected static final byte ETX=0x03;
     private static final byte EOT=0x04;
     private static final byte ACK=0x06;
     private static final byte NAK=0x15;

@@ -97,6 +97,11 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     private int iClientMacAddress;
     private int iServerUpperMacAddress;
     private int iServerLowerMacAddress;
+    private int transparentConnectTime;
+    private int transparentDatabits;
+    private int transparentStopbits;
+    private int transparentParity;
+    private int transparentBaudrate;
     private int iRequestClockObject;
     private String nodeId;
     private String serialNumber;
@@ -568,6 +573,11 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 			iClientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "32").trim());
 			iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "1").trim());
 			iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "0").trim());
+			transparentConnectTime = Integer.parseInt(properties.getProperty("TransparentConnectTime", "10"));
+			transparentBaudrate = Integer.parseInt(properties.getProperty("TransparentBaudrate", "9600"));
+			transparentDatabits = Integer.parseInt(properties.getProperty("TransparentDatabits", "8"));
+			transparentStopbits = Integer.parseInt(properties.getProperty("TransparentStopbits", "1"));
+			transparentParity = Integer.parseInt(properties.getProperty("TransparentParity", "0"));
 
 		} catch (NumberFormatException e) {
 			throw new InvalidPropertyException(" validateProperties, NumberFormatException, " + e.getMessage());
@@ -643,6 +653,11 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         result.add("EventIdIndex");
         result.add("ChannelMap");
         result.add("Connection");
+        result.add("TransparentConnectTime");
+        result.add("TransparentBaudrate");
+        result.add("TransparentDatabits");
+        result.add("TransparentStopbits");
+        result.add("TransparentParity");
         return result;
     }
 
@@ -733,8 +748,8 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
-        HHUSignOn hhuSignOn =
-              new IEC1107HHUConnection(commChannel,iTimeoutProperty,iProtocolRetriesProperty,300,0);
+    	HHUSignOn hhuSignOn = new AS220TransparentConnection(commChannel, transparentConnectTime, transparentBaudrate, transparentDatabits, transparentStopbits,
+    			transparentParity, iSecurityLevelProperty, strPassword);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);

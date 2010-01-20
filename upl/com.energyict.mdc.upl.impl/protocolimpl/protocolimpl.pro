@@ -279,6 +279,10 @@
 
 -keepnames class com.energyict.protocolimpl.dlms.as220.AS220
 
+-keep public class com.energyict.protocolimpl.dlms.as220.DLMSSNAS220{
+	public *;
+}
+
 # Keep annotations, 
 -keepattributes *Annotation*
 
