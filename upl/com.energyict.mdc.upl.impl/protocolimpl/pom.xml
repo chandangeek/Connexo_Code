@@ -73,6 +73,7 @@
 			<groupId>com.energyict</groupId>
 			<artifactId>dlms</artifactId>
 			<version>${project.version}</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<!--

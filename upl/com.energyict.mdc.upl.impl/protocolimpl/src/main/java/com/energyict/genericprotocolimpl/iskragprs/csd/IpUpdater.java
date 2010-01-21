@@ -9,8 +9,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
 
-import org.hibernate.connection.C3P0ConnectionProvider;
+import javax.persistence.EntityManagerFactory;
 
+import org.hibernate.ejb.Ejb3Configuration;
+import org.hibernate.ejb.EntityManagerImpl;
+
+import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Environment;
 import com.energyict.cpo.SqlBuilder;
@@ -19,12 +23,18 @@ import com.energyict.mdw.core.Rtu;
 
 public class IpUpdater {
 
-	private static C3P0ConnectionProvider connectionProvider;
+	private static EntityManagerFactory factory;
 	
 	static {
-		connectionProvider = new C3P0ConnectionProvider();
 		Properties properties = getProperties();
-		connectionProvider.configure(properties);
+		try {
+			Ejb3Configuration ejbconf = new Ejb3Configuration();
+			Ejb3Configuration newConfig = ejbconf.configure("IpUpdater", properties);
+			factory = newConfig.buildEntityManagerFactory();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ApplicationException("Caught exception while initializing persistence factory", e);
+		}
 	};
 //	private static String request = "select FRAMED_IP_ADDRESS from RADIUSACCOUNTING where CALLING_STATION_ID like ? and ? < to_date(EVENT_TIMESTAMP, 'MM/DD/YY hh24:mi:ss')";
 	private static String request = "select FRAMED_IP_ADDRESS from RADIUSACCOUNTING where CALLING_STATION_ID like ? and ? < LOG_DATE";
@@ -37,18 +47,10 @@ public class IpUpdater {
 
 	private static Properties getProperties() {
 		Properties properties = new Properties();
-		properties.put("hibernate.c3p0.acquire_increment", Environment.getDefault().getProperty("radius.connection.acquire_increment", "1"));
-		properties.put("hibernate.c3p0.min_size", Environment.getDefault().getProperty("radius.connection.minimum", "5"));
-		properties.put("hibernate.c3p0.max_size", Environment.getDefault().getProperty("radius.connection.maximum", "20"));
-		properties.put("hibernate.c3p0.timeout", Environment.getDefault().getProperty("radius.connection.timeout", "5000"));
-		properties.put("hibernate.c3p0.max_statements", Environment.getDefault().getProperty("radius.connection.max_statements", "50"));
-		properties.put("hibernate.c3p0.idle_test_period", Environment.getDefault().getProperty("radius.connection.test_idle_time", "300"));
-		
-		properties.put("hibernate.connection.driver_class", Environment.getDefault().getProperty("radius.ipfinder.driver_class", "oracle.jdbc.driver.OracleDriver"));
+		properties.put("hibernate.connection.driver_class", Environment.getDefault().getProperty("radius.ipfinder.driver_class", "oracle.jdbc.OracleDriver"));
 		properties.put("hibernate.connection.url", Environment.getDefault().getProperty("radius.ipfinder.connection_url", "jdbc:oracle:thin:@localhost:1521:eiserver"));
 		properties.put("hibernate.connection.username", Environment.getDefault().getProperty("radius.ipfinder.user", "DEMO"));
 		properties.put("hibernate.connection.password", Environment.getDefault().getProperty("radius.ipfinder.password", "zorro"));
-//		properties.put("hibernate.dialect", "org.hibernate.dialect.OracleDialect");
 		return properties;
 	}
 	
@@ -78,7 +80,7 @@ public class IpUpdater {
 			PreparedStatement statement = null;
 			try {
 				
-				connection = connectionProvider.getConnection();
+				connection = getConnection();
 				 
 				SqlBuilder builder = new SqlBuilder(request);
 				builder.bindString(getSQLLikePhoneNumber(phone));
@@ -123,7 +125,7 @@ public class IpUpdater {
 				}
 			} finally {
 				if(connection != null){
-					connectionProvider.closeConnection(connection);
+					connection.close();
 				}
 				if(statement != null){
 					statement.close();
@@ -135,6 +137,15 @@ public class IpUpdater {
             }
 		}
 		return ipAddress;
+	}
+	
+	/**
+	 * Get a connection from Hibernate, just hope he (or she) does this in a proper way
+	 * 
+	 * @return a {@link Connection}
+	 */
+	private Connection getConnection(){
+		return ((EntityManagerImpl)factory.createEntityManager()).getSession().connection();
 	}
 
 	private String getSQLLikePhoneNumber(String phoneNumber) {

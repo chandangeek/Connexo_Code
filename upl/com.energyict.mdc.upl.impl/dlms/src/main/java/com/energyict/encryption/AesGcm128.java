@@ -187,8 +187,8 @@ public class AesGcm128 {
 		
 		BitVector t2 = BitVector.addition(x, aesEncrypt(y0)).Msb2(this.tagSize);
 		
-		System.out.println(t2.toString());
-		System.out.println(t.toString());
+//		System.out.println(t2.toString());
+//		System.out.println(t.toString());
 		
 		if ((t.getValue().length != 0) && (!t2.equals(t))) {
 			return false;
