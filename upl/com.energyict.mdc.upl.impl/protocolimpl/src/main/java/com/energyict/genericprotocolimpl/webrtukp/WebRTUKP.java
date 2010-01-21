@@ -114,6 +114,7 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 
 public class WebRTUKP extends MeterMessages implements GenericProtocol, ProtocolLink, HHUEnabler, MeterToolProtocol {
 
+	private static String ignoreIskraGostMbusDevice = "@@@0000000000000";
 	private boolean connected = false;
 	private boolean badTime = false;
 	private boolean enforceSerialNumber = true;
@@ -827,6 +828,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 				// otherwise you will retry for a certain time ...
 				// aarq.disConnect();
 				this.aso.releaseAssociation();
+				
 			}
 			getDLMSConnection().disconnectMAC();
 		} catch (IOException e) {
@@ -1079,8 +1081,9 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 	}
 	
 	/**
+	 * Check the ghostMbusDevices and create the mbusDevices.
+	 * Also check if the dummy iskra MBus device is in the list (@@@0000000000000), this should be ignored as wel. 
 	 * 
-	 * Check the ghostMbusDevices and create the mbusDevices
 	 * @param mbusMap
 	 * @throws BusinessException 
 	 * @throws SQLException 
@@ -1090,7 +1093,7 @@ public class WebRTUKP extends MeterMessages implements GenericProtocol, Protocol
 		int count = 0;
 		while(mbusIt.hasNext()){
 			Map.Entry<String, Integer> entry = mbusIt.next();
-			if(!ghostMbusDevices.containsKey(entry.getKey())){ // ghostMeters don't need to be read because they are not on the meter anymore
+			if(!ghostMbusDevices.containsKey(entry.getKey()) && !ignoreIskraGostMbusDevice.equals(entry.getKey())){ // ghostMeters don't need to be read because they are not on the meter anymore
 				Rtu mbus = findOrCreateMbusDevice(entry.getKey());
 				if(mbus != null){
 					this.mbusDevices[count++] = new MbusDevice(entry.getKey(), entry.getValue(), mbus, getLogger());
