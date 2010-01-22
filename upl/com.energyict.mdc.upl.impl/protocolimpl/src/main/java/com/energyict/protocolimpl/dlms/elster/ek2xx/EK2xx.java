@@ -363,14 +363,8 @@ public class EK2xx implements DLMSCOSEMGlobals, MeterProtocol, HHUEnabler, Proto
 
 			if (DEBUG >= 1) {
 				System.out.println(" ################ fromDate_ptr = " + fromDate_ptr.getTime().toString());
-			}
-			if (DEBUG >= 1) {
 				System.out.println(" ################ toDate_ptr   = " + toDate_ptr.getTime().toString());
-			}
-			if (DEBUG >= 1) {
 				System.out.println(" ################ fromCalendar = " + fromCalendar.getTime().toString());
-			}
-			if (DEBUG >= 1) {
 				System.out.println(" ################ toCalendar   = " + toCalendar.getTime().toString());
 			}
 
