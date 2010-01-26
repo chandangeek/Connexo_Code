@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.edmi.mk6.core;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 
 /**
  *

@@ -10,12 +10,13 @@
 
 package com.energyict.protocolimpl.edmi.mk6.command;
 
-import com.energyict.cbo.*;
-import java.io.*;
+import java.io.IOException;
 
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.edmi.mk6.core.*;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.edmi.mk6.core.AbstractRegisterType;
+import com.energyict.protocolimpl.edmi.mk6.core.RegisterTypeParser;
+import com.energyict.protocolimpl.edmi.mk6.core.RegisterUnitParser;
 
 /**
  *
@@ -76,20 +77,23 @@ public class ReadCommand extends AbstractCommand {
 
     protected void parse(byte[] rawData) throws IOException {
         
-        if (COMMAND != (char)rawData[0])
-             throw new CommandResponseException("ReadCommand, request command "+COMMAND+" != response command "+(char)rawData[0]);
+        if (COMMAND != (char)rawData[0]) {
+			throw new CommandResponseException("ReadCommand, request command "+COMMAND+" != response command "+(char)rawData[0]);
+		}
         
         if (COMMAND=='M') { 
             int tempRegisterId = ProtocolUtils.getInt(rawData,1,4);
-            if (tempRegisterId != getRegisterId())
-                throw new CommandResponseException("ReadCommand, request regnum "+getRegisterId()+" != response regnum "+tempRegisterId);
+            if (tempRegisterId != getRegisterId()) {
+				throw new CommandResponseException("ReadCommand, request regnum "+getRegisterId()+" != response regnum "+tempRegisterId);
+			}
             setRegisterId(tempRegisterId);
             setData(ProtocolUtils.getSubArray(rawData,5, rawData.length-1));
         }
         else if (COMMAND=='R') {
             int tempRegisterId = ProtocolUtils.getInt(rawData,1,2);
-            if (tempRegisterId != getRegisterId())
-                throw new CommandResponseException("ReadCommand, request regnum "+getRegisterId()+" != response regnum "+tempRegisterId);
+            if (tempRegisterId != getRegisterId()) {
+				throw new CommandResponseException("ReadCommand, request regnum "+getRegisterId()+" != response regnum "+tempRegisterId);
+			}
             setRegisterId(tempRegisterId);
             setData(ProtocolUtils.getSubArray(rawData,3, rawData.length-1));
         }

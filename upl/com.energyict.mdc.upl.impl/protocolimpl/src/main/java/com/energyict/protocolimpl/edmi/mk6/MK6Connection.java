@@ -10,35 +10,42 @@
 
 package com.energyict.protocolimpl.edmi.mk6;
 
-import com.energyict.cbo.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 
-import com.energyict.dialer.connection.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.CRCGenerator;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.edmi.mk6.core.ResponseData;
 
 /**
  *
  * @author koen
  */
-public class MK6Connection extends Connection  implements ProtocolConnection {
+public class MK6Connection extends Connection  implements ProtocolConnection, Serializable {
     
-    private static final int DEBUG=0;
+    /** Generated SerialVersionUID */
+	private static final long serialVersionUID = 4993375627564701564L;
+	private static final int DEBUG=0;
     private static final long TIMEOUT=60000;
     
-    int timeout;
-    int maxRetries;
-    ByteArrayOutputStream txOutputStream = new ByteArrayOutputStream();
+    private int timeout;
+    private int maxRetries;
+    private transient ByteArrayOutputStream txOutputStream = new ByteArrayOutputStream();
     
-    
-    long sourceId;
-    long destinationId=-1;
-    int sequenceNr=0xFFFE; // initial sequencenumber
-    long forcedDelay;
-    
+    private long sourceId;
+    private long destinationId=-1;
+    private int sequenceNr=0xFFFE; // initial sequencenumber
+    private long forcedDelay;
     
     /** Creates a new instance of AlphaConnection */
     public MK6Connection(InputStream inputStream,
@@ -53,8 +60,9 @@ public class MK6Connection extends Connection  implements ProtocolConnection {
           this.timeout = timeout;
           this.maxRetries=maxRetries;
           this.forcedDelay=forcedDelay;
-          if ((serialNumber!=null) && ("".compareTo(serialNumber)!=0))
-              destinationId=Long.parseLong(serialNumber);
+          if ((serialNumber!=null) && ("".compareTo(serialNumber)!=0)) {
+			destinationId=Long.parseLong(serialNumber);
+		}
     } // EZ7Connection(...)
     
     public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException, ProtocolConnectionException {
@@ -98,20 +106,23 @@ public class MK6Connection extends Connection  implements ProtocolConnection {
             try {
                 delayAndFlush(forcedDelay); // KV_DEBUG
                 sendFrame();
-                ResponseData rd = receiveFrame();
-                return rd;
+                return receiveFrame();
             }
             catch(ConnectionException e) { 
                 if (retry++>=maxRetries) {
-                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
+//                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
+                	throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e);
                 }
             }
         } // while(true)
     } // public void sendCommand(byte[] cmdData) throws ConnectionException
     
     private void genSequenceNr() {
-        if ((sequenceNr==0) || (sequenceNr==0xFFFF)) sequenceNr=1;
-        else sequenceNr++;
+        if ((sequenceNr==0) || (sequenceNr==0xFFFF)) {
+			sequenceNr=1;
+		} else {
+			sequenceNr++;
+		}
     }
     
     private byte[] getExtendedCommandHeader() {
@@ -152,10 +163,11 @@ public class MK6Connection extends Connection  implements ProtocolConnection {
         byte[] cmdData=rawData;
         byte[] txFrame=null;
         if (isExtendedCommunication()) {  // multidrop...
-            if (rawData==null)
-               cmdData = getExtendedCommandHeader();
-            else
-               cmdData = ProtocolUtils.concatByteArrays(getExtendedCommandHeader(),rawData);
+            if (rawData==null) {
+				cmdData = getExtendedCommandHeader();
+			} else {
+				cmdData = ProtocolUtils.concatByteArrays(getExtendedCommandHeader(),rawData);
+			}
         }
         if ((cmdData!=null) && (cmdData.length>0)) {
             txFrame = new byte[cmdData.length+1+2]; // [STX][cmdData array bytes][CRC 16 bit]
@@ -164,16 +176,17 @@ public class MK6Connection extends Connection  implements ProtocolConnection {
             int crc = CRCGenerator.ccittCRC(txFrame, txFrame.length-2);
             txFrame[txFrame.length-2]=(byte)(crc>>8);
             txFrame[txFrame.length-1]=(byte)(crc);
-            for (int i=1; i<(txFrame.length); i++)
-                sendByte(txFrame[i]);
+            for (int i=1; i<(txFrame.length); i++) {
+				sendByte(txFrame[i]);
+			}
         }
         
         assembleFrame(ETX); // [ETX]
     } // void sendData(byte[] cmdData) throws ConnectionException
 
     
-    private final int STATE_WAIT_FOR_STX=0;
-    private final int STATE_WAIT_FOR_DATA=1;
+    private static final int STATE_WAIT_FOR_STX=0;
+    private static final int STATE_WAIT_FOR_DATA=1;
     
     public ResponseData receiveFrame() throws NestedIOException, IOException {
         
@@ -223,13 +236,14 @@ public class MK6Connection extends Connection  implements ProtocolConnection {
 //System.out.println("rxFrame = "+ProtocolUtils.outputHexString(rxFrame));    
                                 if (isExtendedCommunication()) {
                                    int rxSequenceNr = (((int)rxFrame[10]&0xFF)<<8) | ((int)rxFrame[11]&0xFF);
-                                   if (rxSequenceNr != sequenceNr)
-                                       throw new ProtocolConnectionException("receiveFrame() rxSequenceNr("+rxSequenceNr+") != sequenceNr("+sequenceNr+")",PROTOCOL_ERROR);
-                                   else
-                                       return new ResponseData(ProtocolUtils.getSubArray(rxFrame,12, rxFrame.length-3));
-                                }
-                                else
-                                   return new ResponseData(ProtocolUtils.getSubArray(rxFrame,1, rxFrame.length-3)); 
+                                   if (rxSequenceNr != sequenceNr) {
+									throw new ProtocolConnectionException("receiveFrame() rxSequenceNr("+rxSequenceNr+") != sequenceNr("+sequenceNr+")",PROTOCOL_ERROR);
+								} else {
+									return new ResponseData(ProtocolUtils.getSubArray(rxFrame,12, rxFrame.length-3));
+								}
+                                } else {
+									return new ResponseData(ProtocolUtils.getSubArray(rxFrame,1, rxFrame.length-3));
+								} 
                             }
                             else {
                                 // ERROR, CRC error

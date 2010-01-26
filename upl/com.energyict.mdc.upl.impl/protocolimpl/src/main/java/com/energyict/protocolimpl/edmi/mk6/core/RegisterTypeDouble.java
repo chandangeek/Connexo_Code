@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.edmi.mk6.core;
 
-import java.math.*;
-import java.io.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
@@ -45,8 +45,9 @@ public class RegisterTypeDouble extends AbstractRegisterType {
                         (((int)data[3] & 0xff));
 
             this.setValue((double)Float.intBitsToFloat(bits));
-        }
-        else throw new IOException("RegisterTypeDouble: data length error, not possible to parse fload or double (length="+data.length+")!");
+        } else {
+			throw new IOException("RegisterTypeDouble: data length error, not possible to parse fload or double (length="+data.length+")!");
+		}
 
     }
 

@@ -10,18 +10,21 @@
 
 package com.energyict.protocolimpl.edmi.mk6.loadsurvey;
 
-import com.energyict.protocolimpl.edmi.mk6.core.*;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Date;
 
-import com.energyict.protocolimpl.edmi.mk6.command.*;
+import com.energyict.protocolimpl.edmi.mk6.command.CommandFactory;
+import com.energyict.protocolimpl.edmi.mk6.core.RegisterUnitParser;
 /**
  *
  * @author koen
  */
-public class LoadSurvey {
+public class LoadSurvey implements Serializable {
     
-    private CommandFactory commandFactory;
+    /** Generated SerailVersionUID */
+	private static final long serialVersionUID = 1342735526534898542L;
+	private CommandFactory commandFactory;
     private int registerId;
     
     private int nrOfChannels;

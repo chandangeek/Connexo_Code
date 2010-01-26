@@ -10,19 +10,23 @@
 
 package com.energyict.protocolimpl.edmi.mk6.command;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Date;
 
-import com.energyict.protocolimpl.edmi.mk6.*;
+import com.energyict.protocolimpl.edmi.mk6.MK6;
 
 
 /**
  *
  * @author koen
  */
-public class CommandFactory {
+public class CommandFactory implements Serializable{
     
-    private final int DEBUG=0;
+    /** Generated SerialVersionUID */
+	private static final long serialVersionUID = 6867441710215466900L;
+
+	private final int DEBUG=0;
     
     private MK6 mk6;
             
@@ -68,8 +72,9 @@ public class CommandFactory {
                 return ic;
             }
             catch(CommandResponseException e) {
-                if (retries++>=5)
-                    throw new IOException("CommandFactory, getInformationCommand() Max retries "+e.toString());
+                if (retries++>=5) {
+					throw new IOException("CommandFactory, getInformationCommand() Max retries "+e.toString());
+				}
             }
         }
         
@@ -85,8 +90,9 @@ public class CommandFactory {
                 return rc;
             }
             catch(CommandResponseException e) {
-                if (retries++>=5)
-                    throw new IOException("CommandFactory, getInformationCommand() Max retries "+e.toString());
+                if (retries++>=5) {
+					throw new IOException("CommandFactory, getInformationCommand() Max retries "+e.toString());
+				}
             }
         }
     }
@@ -99,11 +105,15 @@ public class CommandFactory {
     }
     
     public FileAccessInfoCommand getFileAccessInfoCommand(int registerId) throws IOException {
-        if (DEBUG>=1) System.out.println("KV_DEBUG> getFileAccessInfoCommand(registerId=0x"+Integer.toHexString(registerId));        
+        if (DEBUG>=1) {
+			System.out.println("KV_DEBUG> getFileAccessInfoCommand(registerId=0x"+Integer.toHexString(registerId));
+		}        
         FileAccessInfoCommand faic = new FileAccessInfoCommand(this);
         faic.setRegisterId(registerId);
         faic.invoke();
-        if (DEBUG>=1) System.out.println("KV_DEBUG> getFileAccessInfoCommand()="+faic);
+        if (DEBUG>=1) {
+			System.out.println("KV_DEBUG> getFileAccessInfoCommand()="+faic);
+		}
         return faic;
     }
     
@@ -121,19 +131,25 @@ public class CommandFactory {
     }
     
     public FileAccessSearchCommand getFileAccessSearchCommand(int registerId, long startRecord, Date date, int direction) throws IOException {
-        if (DEBUG>=1) System.out.println("KV_DEBUG> getFileAccessSearchCommand(registerId=0x"+Integer.toHexString(registerId)+", startRecord="+startRecord+", date="+date+", direction="+direction+")");        
+        if (DEBUG>=1) {
+			System.out.println("KV_DEBUG> getFileAccessSearchCommand(registerId=0x"+Integer.toHexString(registerId)+", startRecord="+startRecord+", date="+date+", direction="+direction+")");
+		}        
         FileAccessSearchCommand fasc = new FileAccessSearchCommand(this);
         fasc.setRegisterId(registerId);
         fasc.setStartRecord(startRecord);
         fasc.setDate(date);
         fasc.setDirection(direction);
         fasc.invoke();
-        if (DEBUG>=1) System.out.println("KV_DEBUG> getFileAccessSearchCommand()="+fasc);
+        if (DEBUG>=1) {
+			System.out.println("KV_DEBUG> getFileAccessSearchCommand()="+fasc);
+		}
         return fasc;
     }
     
     public FileAccessReadCommand getFileAccessReadCommand(int registerId, long startRecord, int numberOfRecords, int recordOffset, int recordSize) throws IOException {
-        if (DEBUG>=1) System.out.println("KV_DEBUG> getFileAccessReadCommand(registerId=0x"+Integer.toHexString(registerId)+", startRecord="+startRecord+", numberOfRecords="+numberOfRecords+", recordOffset="+recordOffset+", recordSize"+recordSize+")");        
+        if (DEBUG>=1) {
+			System.out.println("KV_DEBUG> getFileAccessReadCommand(registerId=0x"+Integer.toHexString(registerId)+", startRecord="+startRecord+", numberOfRecords="+numberOfRecords+", recordOffset="+recordOffset+", recordSize"+recordSize+")");
+		}        
         FileAccessReadCommand farc = new FileAccessReadCommand(this);
         farc.setRegisterId(registerId);
         farc.setStartRecord(startRecord);
@@ -141,7 +157,9 @@ public class CommandFactory {
         farc.setRecordOffset(recordOffset);
         farc.setRecordSize(recordSize);
         farc.invoke();
-        if (DEBUG>=1) System.out.println("KV_DEBUG> getFileAccessReadCommand()="+farc);
+        if (DEBUG>=1) {
+			System.out.println("KV_DEBUG> getFileAccessReadCommand()="+farc);
+		}
         return farc;
     }
     

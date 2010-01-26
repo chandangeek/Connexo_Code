@@ -10,22 +10,30 @@
 
 package com.energyict.protocolimpl.edmi.mk6.registermapping;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.edmi.mk6.command.*;
-import java.io.*;
-import java.util.*;
-import com.energyict.protocolimpl.edmi.mk6.*;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.edmi.mk6.MK6;
+import com.energyict.protocolimpl.edmi.mk6.command.ReadCommand;
 
 /**
  *
  * @author koen
  */
-public class ObisCodeFactory {
+public class ObisCodeFactory implements Serializable{
     
-    MK6 mk6;
-    List touRegisterInfos;
+    /** Generated SerialVersionUID */
+	private static final long serialVersionUID = -7421692268267373026L;
+	private MK6 mk6;
+    private List touRegisterInfos;
     private BillingInfo billingInfo=null;
     
     /** Creates a new instance of ObisCodeFactory */
@@ -35,25 +43,25 @@ public class ObisCodeFactory {
     }
     
     // tou register type
-    private final int TYPE_ENERGY=0;
-    private final int TYPE_MAX_DEMAND=1;
-    private final int TYPE_TIME_OF_MAX_DEMAND=8;
+    private static final int TYPE_ENERGY=0;
+    private static final int TYPE_MAX_DEMAND=1;
+    private static final int TYPE_TIME_OF_MAX_DEMAND=8;
     
     
     // tou period
-    private final int PERIOD_CURRENT=0;
-    private final int PERIOD_PREVIOUS1=2;
-    private final int PERIOD_BILLING_TOTAL=4;
-    private final int PERIOD_TOTAL=6;
+    private static final int PERIOD_CURRENT=0;
+    private static final int PERIOD_PREVIOUS1=2;
+    private static final int PERIOD_BILLING_TOTAL=4;
+    private static final int PERIOD_TOTAL=6;
     
     // tou channel
-    private final int CHANNEL_START=0;
-    private final int CHANNEL_NR_OF_CHANNELS=12;
+    private static final int CHANNEL_START=0;
+    private static final int CHANNEL_NR_OF_CHANNELS=12;
     
     // tou register function
-    private final int RATE_UNIFIED=9;
-    private final int RATE_START=0;
-    private final int RATE_NR_OF_RATES=8;
+    private static final int RATE_UNIFIED=9;
+    private static final int RATE_START=0;
+    private static final int RATE_NR_OF_RATES=8;
     
     
     public void initTOURegisterInfos() throws IOException {

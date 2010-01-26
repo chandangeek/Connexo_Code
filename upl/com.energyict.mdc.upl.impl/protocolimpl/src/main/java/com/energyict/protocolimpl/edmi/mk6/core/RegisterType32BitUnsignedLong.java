@@ -10,11 +10,13 @@
 
 package com.energyict.protocolimpl.edmi.mk6.core;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -60,10 +62,11 @@ public class RegisterType32BitUnsignedLong extends AbstractRegisterType {
     }
 
     public String getString() {
-        if (timeZone != null)
-            return ""+getDate();
-        else
-            return ""+getValue();
+        if (timeZone != null) {
+			return ""+getDate();
+		} else {
+			return ""+getValue();
+		}
     }
     
     public void setDate(Date date) {

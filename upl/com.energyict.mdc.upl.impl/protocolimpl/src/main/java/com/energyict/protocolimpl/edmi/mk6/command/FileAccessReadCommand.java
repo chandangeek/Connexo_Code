@@ -10,11 +10,9 @@
 
 package com.energyict.protocolimpl.edmi.mk6.command;
 
-import com.energyict.protocolimpl.edmi.mk6.core.*;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -35,10 +33,6 @@ public class FileAccessReadCommand extends AbstractCommand {
     public FileAccessReadCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
-
-    
-
     
     protected byte[] prepareBuild() {
         byte[] data = new byte[16];

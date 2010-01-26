@@ -10,9 +10,8 @@
 
 package com.energyict.protocolimpl.edmi.mk6.core;
 
-import com.energyict.protocol.*;
-import java.util.*;
-import java.io.*;
+import java.util.Date;
+import java.util.TimeZone;
 
 
 
@@ -27,12 +26,13 @@ public class RegisterTypeDate extends AbstractRegisterType {
     
     /** Creates a new instance of RegisterTypeDate */
     public RegisterTypeDate(TimeZone timeZone, byte[] data, boolean T, boolean D) {
-        if (T & D) 
-            setDate(DateTimeBuilder.getDateFromDDMMYYHHMMSS(timeZone,data));
-        else if (T & !D)
-            setDate(DateTimeBuilder.getDateFromHHMMSS(timeZone,data));
-        else if (D & !T)
-            setDate(DateTimeBuilder.getDateFromDDMMYY(timeZone,data));
+        if (T & D) {
+			setDate(DateTimeBuilder.getDateFromDDMMYYHHMMSS(timeZone,data));
+		} else if (T & !D) {
+			setDate(DateTimeBuilder.getDateFromHHMMSS(timeZone,data));
+		} else if (D & !T) {
+			setDate(DateTimeBuilder.getDateFromDDMMYY(timeZone,data));
+		}
     }
 
     public Date getDate() {

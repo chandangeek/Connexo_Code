@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.edmi.mk6.core;
 
-import java.io.*;
-import java.math.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *

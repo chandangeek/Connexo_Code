@@ -10,20 +10,21 @@
 
 package com.energyict.protocolimpl.edmi.mk6.loadsurvey;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import java.io.Serializable;
+import java.math.BigDecimal;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.Unit;
 
 
 /**
  *
  * @author koen
  */
-public class LoadSurveyChannel {
-    
-    private int register;
+public class LoadSurveyChannel implements Serializable{
+	
+	/** Generated SerialVersionUID */
+	private static final long serialVersionUID = -2989828166913742560L;
+	private int register;
     private int width;
     private int type; // internal data type
     private Unit unit;

@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.edmi.mk6.core;
 
-import java.math.*;
-import java.io.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
@@ -31,8 +31,9 @@ public class RegisterTypeFloat extends AbstractRegisterType {
                    (((int)data[3] & 0xff));
                 
         this.setValue(Float.intBitsToFloat(bits));
-        }
-        else throw new IOException("RegisterTypeFloat: data length error, not possible to parse fload (length="+data.length+")!");
+        } else {
+			throw new IOException("RegisterTypeFloat: data length error, not possible to parse fload (length="+data.length+")!");
+		}
     }
     
     public BigDecimal getBigDecimal() {

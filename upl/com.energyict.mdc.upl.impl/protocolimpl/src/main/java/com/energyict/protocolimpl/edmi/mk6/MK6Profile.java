@@ -10,23 +10,38 @@
 
 package com.energyict.protocolimpl.edmi.mk6;
 
-import com.energyict.protocolimpl.edmi.mk6.loadsurvey.*;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.edmi.mk6.loadsurvey.ExtensionFactory;
+import com.energyict.protocolimpl.edmi.mk6.loadsurvey.LoadSurvey;
+import com.energyict.protocolimpl.edmi.mk6.loadsurvey.LoadSurveyData;
 
 /**
  *
  * @author koen
  */
-public class MK6Profile {
+public class MK6Profile implements Serializable{
     
-    private final int DEBUG=0;
-    MK6 mk6;
-    LoadSurvey loadSurvey=null;
-    LoadSurvey eventLog=null;
-    ExtensionFactory extensionFactory=null;
+	/** Generated SerialVersionUID */
+	private static final long serialVersionUID = -249157060352419036L;
+	private final int DEBUG=0;
+	private LoadSurveyData loadSurveyData;
+    private MK6 mk6;
+    private LoadSurvey loadSurvey=null;
+    private LoadSurvey eventLog=null;
+    
+    private ExtensionFactory extensionFactory=null;
     
     /** Creates a new instance of MK6ProfileData */
     public MK6Profile(MK6 mk6) {
@@ -63,26 +78,55 @@ public class MK6Profile {
     }
     
     
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         ProfileData profileData=new ProfileData();
         
-        if (DEBUG>=1) System.out.println("KV_DEBUG> "+getLoadSurvey());
-        LoadSurveyData loadSurveyData = getLoadSurvey().readFile(from);
-        if (DEBUG>=1) System.out.println("KV_DEBUG> "+loadSurveyData);
+        if (DEBUG>=1) {
+			System.out.println("KV_DEBUG> "+getLoadSurvey());
+		}
+        LoadSurveyData loadSurveyData = getLoadSurveyData(from);
+        if (DEBUG>=1) {
+			System.out.println("KV_DEBUG> "+loadSurveyData);
+		}
 
         profileData.setChannelInfos(buildChannelInfos(loadSurveyData));
         profileData.setIntervalDatas(buildIntervalDatas(loadSurveyData));
         
         if (includeEvents) {
-            if (DEBUG>=1) System.out.println("KV_DEBUG> "+getEventLog());
+            if (DEBUG>=1) {
+				System.out.println("KV_DEBUG> "+getEventLog());
+			}
             LoadSurveyData eventLogData = getEventLog().readFile(from);
-            if (DEBUG>=1) System.out.println("KV_DEBUG> "+eventLogData);
+            if (DEBUG>=1) {
+				System.out.println("KV_DEBUG> "+eventLogData);
+			}
             profileData.setMeterEvents(buildMeterEvents(eventLogData));
             profileData.applyEvents(loadSurvey.getProfileInterval()/60);
         }
         
         return profileData;
     } // public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException 
+    
+    /**
+     * Get the {@link LoadSurveyData} if it's not available yet, then read if from the device
+     * @param from - the date to start reading from
+     * @return the LoadSurveyData
+     * @throws IOException if something goes wrong during the read
+     */
+    protected LoadSurveyData getLoadSurveyData(Date from)throws IOException{
+    	if(this.loadSurveyData == null){
+    		this.loadSurveyData = getLoadSurvey().readFile(from);
+    	}
+    	return this.loadSurveyData; 
+    }
+    
+    /**
+     * Setter for the LoadSurveyData (mainly for testing purposes)
+     * @param loadSurveyData - the {@link LoadSurveyData} to set
+     */
+    protected void setLoadSurveydata(LoadSurveyData loadSurveyData){
+    	this.loadSurveyData = loadSurveyData;
+    }
     
     private List buildChannelInfos(LoadSurveyData loadSurveyData) {
         List channelInfos = new ArrayList();
@@ -132,7 +176,6 @@ public class MK6Profile {
     private final int MISSING_DATA=0x0002; 
     private final int POWER_FAILED_DURING_INTERVAL=0x0004;
     private final int INCOMPLETE_INTERVAL=0x0008;
-    private final int DST_IN_EFFECT=0x0010;
     private final int CALIBRATION_LOST=0x0020;
     private final int SVFRM_FAILURE=0x0040;
     private final int EFA_FAILURE_USER_FLAG=0x0080;
@@ -184,14 +227,18 @@ public class MK6Profile {
  
     private int mapEventLogMessage2MeterEventEICode(String message) {
         
-        if (message.indexOf("Power Off")>=0)
-            return MeterEvent.POWERDOWN;
-        if (message.indexOf("Power On")>=0)
-            return MeterEvent.POWERUP;
-        if (message.indexOf("Changing System Time")>=0)
-            return MeterEvent.SETCLOCK_BEFORE;
-        if (message.indexOf("System Time Changed")>=0)
-            return MeterEvent.SETCLOCK_AFTER;
+        if (message.indexOf("Power Off")>=0) {
+			return MeterEvent.POWERDOWN;
+		}
+        if (message.indexOf("Power On")>=0) {
+			return MeterEvent.POWERUP;
+		}
+        if (message.indexOf("Changing System Time")>=0) {
+			return MeterEvent.SETCLOCK_BEFORE;
+		}
+        if (message.indexOf("System Time Changed")>=0) {
+			return MeterEvent.SETCLOCK_AFTER;
+		}
         
         return MeterEvent.OTHER;
     }

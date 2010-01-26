@@ -10,14 +10,18 @@
 
 package com.energyict.protocolimpl.edmi.mk6.loadsurvey;
 
+import java.io.Serializable;
+
 
 /**
  *
  * @author koen
  */
-public class Extension {
+public class Extension implements Serializable{
     
-    private String name;
+	/** Generated SerialVersionUID */
+	private static final long serialVersionUID = 7839896346244404521L;
+	private String name;
     private int registerId;
     
     /** Creates a new instance of ExtensionControl */

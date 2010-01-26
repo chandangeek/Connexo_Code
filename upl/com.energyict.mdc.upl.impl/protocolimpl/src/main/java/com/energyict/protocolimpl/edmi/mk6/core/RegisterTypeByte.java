@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edmi.mk6.core;
 
-import java.math.*;
+import java.math.BigDecimal;
 
 /**
  *

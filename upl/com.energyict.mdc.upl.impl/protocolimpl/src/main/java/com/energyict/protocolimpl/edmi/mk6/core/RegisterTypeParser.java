@@ -10,10 +10,8 @@
 
 package com.energyict.protocolimpl.edmi.mk6.core;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocol.*;
+import java.io.IOException;
+import java.util.TimeZone;
 
 /**
  *
@@ -49,13 +47,19 @@ public class RegisterTypeParser {
             case 'D': // Double   
                 return new RegisterTypeDouble(data);
             case 'E': // EFA String
-                if (external) return new RegisterTypeString(data);
-                else return new RegisterType16BitUnsignedInt(data);
+                if (external) {
+					return new RegisterTypeString(data);
+				} else {
+					return new RegisterType16BitUnsignedInt(data);
+				}
             case 'F': // Float   
                 return new RegisterTypeFloat(data);
             case 'G': // String/Long 
-                if (external) return new RegisterTypeString(data);
-                else return new RegisterType32BitSignedInt(data);
+                if (external) {
+					return new RegisterTypeString(data);
+				} else {
+					return new RegisterType32BitSignedInt(data);
+				}
             case 'H': // Hex Short 
                 return new RegisterType16BitUnsignedInt(data);
             case 'I': // Short  
@@ -67,25 +71,42 @@ public class RegisterTypeParser {
             case 'N': // Invalid type 
                 return null;
             case 'O': // Float energy 
-                if (external) return new RegisterTypeFloat(data);
+                if (external) {
+					return new RegisterTypeFloat(data);
+				}
                 return new RegisterType32BitUnsignedLong(data);
             case 'P': // Power factor 
-                if (external) return new RegisterTypeFloat(data);
-                else  return new RegisterType16BitSignedInt(data);
+                if (external) {
+					return new RegisterTypeFloat(data);
+				} else {
+					return new RegisterType16BitSignedInt(data);
+				}
             case 'Q': // Time seconds since midnight  
-                if (external) return new RegisterTypeDate(timeZone,data,true,false);
-                else return new RegisterType32BitUnsignedLong(data);
+                if (external) {
+					return new RegisterTypeDate(timeZone,data,true,false);
+				} else {
+					return new RegisterType32BitUnsignedLong(data);
+				}
             case 'R': // Date seconds since 1/1/96
-                if (external) return new RegisterTypeDate(timeZone,data,false,true);
-                else return new RegisterType32BitUnsignedLong(data, timeZone);
+                if (external) {
+					return new RegisterTypeDate(timeZone,data,false,true);
+				} else {
+					return new RegisterType32BitUnsignedLong(data, timeZone);
+				}
             case 'S': // Special type    
                 return new RegisterTypeRawData(data);
             case 'T': // Time/Date seconds since 1/1/96   
-                if (external) return new RegisterTypeDate(timeZone,data,true,true);
-                else return new RegisterType32BitUnsignedLong(data, timeZone);
+                if (external) {
+					return new RegisterTypeDate(timeZone,data,true,true);
+				} else {
+					return new RegisterType32BitUnsignedLong(data, timeZone);
+				}
             case 'U': // Double Energy
-                if (external) return new RegisterTypeDouble(data);
-                else return new RegisterType64BitSignedLong(data);
+                if (external) {
+					return new RegisterTypeDouble(data);
+				} else {
+					return new RegisterType64BitSignedLong(data);
+				}
             case 'V': // Long Long
                 return new RegisterType64BitSignedLong(data);
             case 'W': // Waveform

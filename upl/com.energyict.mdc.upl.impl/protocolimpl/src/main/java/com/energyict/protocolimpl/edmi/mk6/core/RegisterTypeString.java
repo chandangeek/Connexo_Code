@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edmi.mk6.core;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
 
 
 /**
@@ -24,8 +24,11 @@ public class RegisterTypeString extends AbstractRegisterType {
     /** Creates a new instance of RegisterTypeString */
     public RegisterTypeString(byte[] data) {
         int i;
-        for (i=0;i<data.length;i++)
-            if (data[i]==0) break;
+        for (i=0;i<data.length;i++) {
+			if (data[i]==0) {
+				break;
+			}
+		}
         this.value = new String(ProtocolUtils.getSubArray2(data,0, i==data.length?data.length-1:i));
     }
 

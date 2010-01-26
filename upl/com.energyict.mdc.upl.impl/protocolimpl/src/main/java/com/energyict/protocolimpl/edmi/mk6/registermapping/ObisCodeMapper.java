@@ -10,13 +10,16 @@
 
 package com.energyict.protocolimpl.edmi.mk6.registermapping;
 
-import com.energyict.cbo.*;
-import java.io.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.edmi.mk6.*;
-import java.math.*;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.edmi.mk6.MK6;
 
 /**
  *
@@ -24,7 +27,7 @@ import java.math.*;
  */
 public class ObisCodeMapper {
     
-    MK6 mk6;
+    private MK6 mk6;
             
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(MK6 mk6) {
@@ -40,13 +43,15 @@ public class ObisCodeMapper {
         int billingPoint=-1;
         
         // obis F code
-        if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
-            billingPoint = obisCode.getF();
-        else if ((obisCode.getF()  <=0) && (obisCode.getF() >= -99))
-            billingPoint = obisCode.getF()*-1;
-        else if (obisCode.getF() == 255)
-            billingPoint = -1;
-        else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+        if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99)) {
+			billingPoint = obisCode.getF();
+		} else if ((obisCode.getF()  <=0) && (obisCode.getF() >= -99)) {
+			billingPoint = obisCode.getF()*-1;
+		} else if (obisCode.getF() == 255) {
+			billingPoint = -1;
+		} else {
+			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+		}
         
         // ********************************************************************************* 
         // General purpose ObisRegisters & abstract general service
@@ -56,8 +61,9 @@ public class ObisCodeMapper {
         else if ((obisCode.toString().indexOf("1.0.0.1.2.") != -1) || (obisCode.toString().indexOf("1.1.0.1.2.") != -1)) { // billing point timestamp
             if (billingPoint == 0) {
                 return new RegisterValue(obisCode,mk6.getObicCodeFactory().getBillingInfo().getToDate());
-            }
-            else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+            } else {
+				throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+			}
         } // billing point timestamp
         else if ((obisCode.toString().indexOf("1.0.0.4.2.255") != -1) ||(obisCode.toString().indexOf("1.1.0.4.2.255") != -1)) { // CT numerator
             return new RegisterValue(obisCode,new Quantity(mk6.getCommandFactory().getReadCommand(0xF700).getRegister().getBigDecimal(),Unit.get("")));

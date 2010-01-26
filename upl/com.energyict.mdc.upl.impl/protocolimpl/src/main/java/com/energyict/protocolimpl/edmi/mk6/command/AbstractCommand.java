@@ -10,10 +10,8 @@
 
 package com.energyict.protocolimpl.edmi.mk6.command;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 
-import com.energyict.protocolimpl.edmi.mk6.*;
 import com.energyict.protocolimpl.edmi.mk6.core.ResponseData;
 
 

@@ -13,6 +13,7 @@ package com.energyict.protocolimpl.edmi.mk6;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -28,7 +29,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -47,17 +47,21 @@ import com.energyict.protocolimpl.edmi.mk6.registermapping.ObisCodeMapper;
  * JM|22092009|Added custom property to disable log-off after communication to prevent modem disconnect.
  * @endchanges
  */
-public class MK6 extends AbstractProtocol {
+public class MK6 extends AbstractProtocol implements Serializable{
 
-	private MK6Connection mk6Connection=null;
+	/** Generated SerialVersionUID */
+	private static final long serialVersionUID = 4668911907276635756L;
+	private transient MK6Connection mk6Connection=null;
 	private CommandFactory commandFactory=null;
 	private ObisCodeFactory obisCodeFactory=null;
-	MK6Profile mk6Profile=null;
+	private MK6Profile mk6Profile=null;
 	private String eventLogName;
 	private String loadSurveyName;
 	private int statusFlagChannel;
 	private boolean logOffDisabled = true;
-
+	private TimeZone timeZone;
+	private boolean useOldProfileFromDate;
+	
 	/** Creates a new instance of MK6 */
 	public MK6() {
 	}
@@ -82,13 +86,14 @@ public class MK6 extends AbstractProtocol {
 		setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
 		setStatusFlagChannel(Integer.parseInt(properties.getProperty("StatusFlagChannel","0").trim()));
 		setLogOffDisabled(Integer.parseInt(properties.getProperty("DisableLogOff","0").trim()));
+		setUseOldProfileFromDate(properties.getProperty("UseOldProfileFromDate","0").equalsIgnoreCase("1"));
 	}
 
-	public int getProfileInterval() throws UnsupportedException, IOException {
+	public int getProfileInterval() throws IOException {
 		return this.mk6Profile.getProfileInterval();
 	}
 
-	public int getNumberOfChannels() throws UnsupportedException, IOException {
+	public int getNumberOfChannels() throws IOException {
 		return this.mk6Profile.getNumberOfChannels();
 	}
 
@@ -98,6 +103,7 @@ public class MK6 extends AbstractProtocol {
 		result.add("LoadSurveyName");
 		result.add("StatusFlagChannel");
 		result.add("DisableLogOff");
+		result.add("UseOldProfileFromDate");
 		return result;
 	}
 
@@ -121,7 +127,7 @@ public class MK6 extends AbstractProtocol {
 		return "$Revision: 1.7 $";
 	}
 
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
+	public String getFirmwareVersion() throws IOException {
 		return "Equipment model id:"+getCommandFactory().getReadCommand(0xF000).getRegister().getString()+"\n"+ // Equipment model id
 		"Software revision:"+getCommandFactory().getReadCommand(0xF003).getRegister().getString()+"\n"+ // software version
 		"Last version nr:"+getCommandFactory().getReadCommand(0xFC18).getRegister().getString()+"\n"+ // last version number
@@ -134,7 +140,7 @@ public class MK6 extends AbstractProtocol {
 		return getCommandFactory().getReadCommand(0xF002).getRegister().getString(); // Serial number
 	}
 
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 		return this.mk6Profile.getProfileData(from, to, includeEvents);
 	}
 
@@ -155,8 +161,15 @@ public class MK6 extends AbstractProtocol {
 		return getObicCodeFactory().getRegisterInfoDescription();
 	}
 
+	/**
+	 * Get the timeZone
+	 * @return the TimeZone
+	 */
 	public TimeZone getTimeZone() {
-		return ProtocolUtils.getWinterTimeZone(super.getTimeZone());
+		if(this.timeZone == null){
+			this.timeZone = ProtocolUtils.getWinterTimeZone(super.getTimeZone()); 
+		}
+		return this.timeZone;
 	}
 
 	public MK6Connection getMk6Connection() {
@@ -206,4 +219,26 @@ public class MK6 extends AbstractProtocol {
 		this.logOffDisabled = (logOffDisabled == 1);
 	}
 
+	/**
+	 * Protected setter for the MK6Connection
+	 * 
+	 * @param connection - MK6Connection
+	 */
+	protected void setMK6Connection(MK6Connection connection){
+		this.mk6Connection = connection;
+	}
+
+	/**
+	 * @return the useOldProfileFromDate
+	 */
+	public boolean useOldProfileFromDate() {
+		return useOldProfileFromDate;
+	}
+
+	/**
+	 * @param useOldProfileFromDate the useOldProfileFromDate to set
+	 */
+	public void setUseOldProfileFromDate(boolean useOldProfileFromDate) {
+		this.useOldProfileFromDate = useOldProfileFromDate;
+	}
 }

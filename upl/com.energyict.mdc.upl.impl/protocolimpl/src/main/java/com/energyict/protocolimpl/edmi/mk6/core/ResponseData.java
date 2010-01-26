@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.edmi.mk6.core;
 
-import com.energyict.dialer.connection.*;
-import com.energyict.protocol.*;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -53,10 +53,11 @@ public class ResponseData {
     }
     
     public int getCANCode() {
-        if (getData().length == 2)
-            return getData()[1];
-        else 
-            return -1;
+        if (getData().length == 2) {
+			return getData()[1];
+		} else {
+			return -1;
+		}
     }
     
     public byte[] getData() {

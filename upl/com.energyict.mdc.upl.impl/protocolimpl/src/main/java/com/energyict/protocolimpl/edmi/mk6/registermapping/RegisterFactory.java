@@ -10,10 +10,9 @@
 
 package com.energyict.protocolimpl.edmi.mk6.registermapping;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.obis.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -125,8 +124,9 @@ public class RegisterFactory {
         Iterator it = list.iterator();
         while(it.hasNext()) {
             RegisterInf ri = (RegisterInf)it.next();
-            if (ri.getEdmiEnergyRegisterId() == edmiEnergyRegisterId)
-                return ri.getObisCField();
+            if (ri.getEdmiEnergyRegisterId() == edmiEnergyRegisterId) {
+				return ri.getObisCField();
+			}
         }
         return -1;
     }
@@ -135,8 +135,9 @@ public class RegisterFactory {
         Iterator it = list.iterator();
         while(it.hasNext()) {
             RegisterInf ri = (RegisterInf)it.next();
-            if (ri.getEdmiEnergyRegisterId() == edmiEnergyRegisterId)
-                return ri;
+            if (ri.getEdmiEnergyRegisterId() == edmiEnergyRegisterId) {
+				return ri;
+			}
         }
         return null;
     }
@@ -146,8 +147,9 @@ public class RegisterFactory {
         Iterator it = list.iterator();
         while(it.hasNext()) {
             RegisterInf ri = (RegisterInf)it.next();
-            if (ri.getEdmiEnergyRegisterId() == edmiEnergyRegisterId)
-                return ri.getDescription();
+            if (ri.getEdmiEnergyRegisterId() == edmiEnergyRegisterId) {
+				return ri.getDescription();
+			}
         }
         return null;
     }

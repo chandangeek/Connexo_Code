@@ -10,9 +10,11 @@
 
 package com.energyict.protocolimpl.edmi.mk6.registermapping;
 
-import com.energyict.protocolimpl.edmi.mk6.command.*;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Date;
+
+import com.energyict.protocolimpl.edmi.mk6.command.CommandFactory;
 
 
 
@@ -20,9 +22,13 @@ import java.util.*;
  *
  * @author koen
  */
-public class BillingInfo {
+public class BillingInfo implements Serializable
+{
     
-    private CommandFactory commandFactory;
+	/** Generated SerialVersionUID */
+	private static final long serialVersionUID = -9204872710461066424L;
+
+	private CommandFactory commandFactory;
     
     private int nrOfBillingResets;
     private Date toDate;

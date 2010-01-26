@@ -10,17 +10,19 @@
 
 package com.energyict.protocolimpl.edmi.mk6.loadsurvey;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.Serializable;
 
-import com.energyict.protocolimpl.edmi.mk6.command.*;
+import com.energyict.protocolimpl.edmi.mk6.command.CommandFactory;
 /**
  *
  * @author koen
  */
-public class ExtensionFactory {
+public class ExtensionFactory implements Serializable{
     
-    private Extension[] extensions;
+	/** Generated SerialVersionUID */
+	private static final long serialVersionUID = -5199838318963041028L;
+	private Extension[] extensions;
     private int nrOfLoadedExtensions;
     CommandFactory commandFactory;
     
@@ -67,7 +69,9 @@ public class ExtensionFactory {
     private String getExtensionNames() {
         StringBuffer strBuff = new StringBuffer();
         for (int extension = 0;extension < getNrOfLoadedExtensions(); extension++) {
-            if (extension>0) strBuff.append(", ");
+            if (extension>0) {
+				strBuff.append(", ");
+			}
             strBuff.append(getExtensions()[extension].getName());
         }
         return strBuff.toString();

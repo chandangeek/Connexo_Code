@@ -10,10 +10,11 @@
 
 package com.energyict.protocolimpl.edmi.mk6.core;
 
-import java.io.*;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
 
 
 /**

@@ -10,9 +10,9 @@
 
 package com.energyict.protocolimpl.edmi.mk6.command;
 
-import java.io.*;
+import java.io.IOException;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -64,20 +64,23 @@ public class InformationCommand extends AbstractCommand {
     protected void parse(byte[] data) throws IOException {
         int offset = 1;
         
-        if (COMMAND != (char)data[0])
-             throw new CommandResponseException("InformationCommand, request command "+COMMAND+" != response command "+(char)data[0]);
+        if (COMMAND != (char)data[0]) {
+			throw new CommandResponseException("InformationCommand, request command "+COMMAND+" != response command "+(char)data[0]);
+		}
         
         if (COMMAND == 'I') {
             int tempRegisterId = ProtocolUtils.getInt(data,offset,2);
-            if (tempRegisterId != getRegisterId())
-                throw new CommandResponseException("InformationCommand, request regnum "+getRegisterId()+" != response regnum "+tempRegisterId);
+            if (tempRegisterId != getRegisterId()) {
+				throw new CommandResponseException("InformationCommand, request regnum "+getRegisterId()+" != response regnum "+tempRegisterId);
+			}
             setRegisterId(tempRegisterId);
             offset+=2;
         }
         else if (COMMAND == 'O') {
             int tempRegisterId = ProtocolUtils.getInt(data,offset,4);
-            if (tempRegisterId != getRegisterId())
-                throw new CommandResponseException("InformationCommand, request regnum "+getRegisterId()+" != response regnum "+tempRegisterId);
+            if (tempRegisterId != getRegisterId()) {
+				throw new CommandResponseException("InformationCommand, request regnum "+getRegisterId()+" != response regnum "+tempRegisterId);
+			}
             setRegisterId(tempRegisterId);
             offset+=4;
         }
