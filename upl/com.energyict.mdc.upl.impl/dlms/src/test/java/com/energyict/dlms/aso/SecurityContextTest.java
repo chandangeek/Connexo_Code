@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.mocks.MockSecurityProvider;
+import com.energyict.protocol.ProtocolUtils;
 
 
 public class SecurityContextTest {
@@ -177,6 +178,61 @@ public class SecurityContextTest {
 			sc.setFrameCounter(19088743); 		// this is '0x01234567'
 			cipheredResponse = sc.dataTransportEncryption(DLMSUtils.hexStringToByteArray(unSecuredRequest));
 			assertArrayEquals(DLMSUtils.hexStringToByteArray(testDecryptAE), cipheredResponse);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail();
+		}
+	}
+	
+	@Test
+	public void realTimeTestAuthenticationTag(){
+		
+		String unSecuredRequest = "c001c100010000600200ff0200";
+		
+		String globalKey = "12348765AABBCCDD55443322ABABCDCD";
+		String authenticationKey = "43218765AABBCCDD55443322ABABCDCD";
+		String testDecryptA =  "1e10dd1628bbc001c100010000600200ff020084e00541ccc73874c70b8f0c";		
+		
+		try {
+			MockSecurityProvider msp = new MockSecurityProvider();
+			msp.setAuthenticationKey(DLMSUtils.hexStringToByteArray(authenticationKey));
+			msp.setGlobalkey(DLMSUtils.hexStringToByteArray(globalKey));
+			
+			byte[] temp = new byte[]{(byte)0x4B, (byte)0x41, (byte)0x4D, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x51};
+			// Only authentication
+			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_AUTHENTICATION, 0,0,temp, msp);
+			sc.setFrameCounter(Long.valueOf("3709216955")); 		// this is '0x01234567'
+			byte[] cipheredResponse = sc.dataTransportEncryption(DLMSUtils.hexStringToByteArray(unSecuredRequest));
+			assertArrayEquals(DLMSUtils.hexStringToByteArray(testDecryptA), cipheredResponse);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			fail();
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail();
+		}
+	}
+	
+	@Test
+	public void iskraHLSTest(){
+		String digest = "3F2E2FA23A4CFCD40B0CD7091300673D";
+		
+		try {
+			AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, 3, null);
+			String hlSecurityResponse = "614AA109060760857405080101A203020100A305A10302010E88020780890760857405080203AA1280104C332F6263564447365070506C556455BE10040E0800065F1F040000FC1F04000007";
+			acse.analyzeAARE(DLMSUtils.hexStringToByteArray(hlSecurityResponse));
+			MockSecurityProvider msp = new MockSecurityProvider();
+//			msp.setHLSSecretString("12345678");
+//			msp.setHLSSecretByteArray("12345678".getBytes());
+//			msp.setHLSSecretByteArray(new byte[]{0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte)0x88, (byte)0x99, (byte)0xAA, (byte)0xBB, (byte)0xCC, (byte)0xDD, (byte)0xEE, (byte)0xFF});
+			msp.setHLSSecretByteArray(DLMSUtils.hexStringToByteArray("00112233445566778899AABBCCDDEEFF"));
+			msp.setCallingAuthenticationValue(acse.getRespondingAuthenticationValue());
+			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_NONE, 3,0,null, msp);
+			
+			byte[] plainText = ProtocolUtils.concatByteArrays(sc.getSecurityProvider().getCallingAuthenticationValue(), sc.getSecurityProvider().getHLSSecret());
+			
+			assertArrayEquals(DLMSUtils.hexStringToByteArray(digest), sc.associationEncryption(plainText));
 			
 		} catch (IOException e) {
 			e.printStackTrace();

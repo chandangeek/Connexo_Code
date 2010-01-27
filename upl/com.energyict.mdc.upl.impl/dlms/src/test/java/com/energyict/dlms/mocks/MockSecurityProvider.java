@@ -16,6 +16,8 @@ public class MockSecurityProvider implements SecurityProvider{
 	private byte[] authenticationKey;
 	private byte[] dedicatedKey;
 	private byte[] globalKey;
+	private byte[] hlsSecret;
+	private byte[] callingAuthenticationValue;
 	
 	public MockSecurityProvider(){
 		
@@ -28,10 +30,22 @@ public class MockSecurityProvider implements SecurityProvider{
 		this.authenticationKey = ak;
 	}
 
+	/**
+	 * Getter for the CallingAuthenticationValue (the challenge from the server/meter)
+	 * @return the CallingAuthenticationValue
+	 */
 	public byte[] getCallingAuthenticationValue() throws IOException {
-		return this.cTOs;
+		return this.callingAuthenticationValue;
 	}
 
+	/**
+	 * Setter for the callingAuthenticationValue
+	 * @param callingAuthenticationValue
+	 */
+	public void setCallingAuthenticationValue(byte[] callingAuthenticationValue) {
+		this.callingAuthenticationValue = callingAuthenticationValue;
+	}
+	
 	public byte[] getDedicatedKey() throws IOException {
 		return this.dedicatedKey;
 	}
@@ -46,8 +60,35 @@ public class MockSecurityProvider implements SecurityProvider{
 		this.globalKey = gk;
 	}
 
+	/**
+	 * Getter for the HLSSecret
+	 * @return the HLSSecret
+	 */
 	public byte[] getHLSSecret() throws IOException {
-		return new byte[]{(byte)0xFF,(byte)0x00,(byte)0xEE,(byte)0x11,(byte)0xDD,(byte)0x22,(byte)0xCC,(byte)0x33};
+		if(hlsSecret == null){
+			return new byte[]{(byte)0xFF,(byte)0x00,(byte)0xEE,(byte)0x11,(byte)0xDD,(byte)0x22,(byte)0xCC,(byte)0x33};
+		} else{
+			return hlsSecret;
+		}
+	}
+	
+	/**
+	 * Setter of the HLS secret (as a byteArray)
+	 * @param hls - the HLS Secret as a byteArray
+	 */
+	public void setHLSSecretByteArray(byte[] hls){
+		this.hlsSecret = hls;
+	}
+	
+	/**
+	 * Setter for the HLS secret (as a string)
+	 * @param password - the HLS Secret as a String (plaintext)
+	 */
+	public void setHLSSecretString(String password){
+		this.hlsSecret = new byte[password.length()];
+		for(int i = 0; i < password.length(); i++){
+			hlsSecret[i] = (byte)password.charAt(i);
+		}
 	}
 	
 	public String getAlgorithm() {

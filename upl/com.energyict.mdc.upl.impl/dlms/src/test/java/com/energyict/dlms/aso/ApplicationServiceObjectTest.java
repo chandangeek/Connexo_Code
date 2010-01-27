@@ -1,6 +1,6 @@
 package com.energyict.dlms.aso;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
@@ -14,6 +14,9 @@ import com.energyict.dlms.mocks.MockSecurityProvider;
 
 public class ApplicationServiceObjectTest {
 
+	/**
+	 * TODO make it more useful. The test should check the results!
+	 */
 	@Test
 	public void handleHighLevelSecurityAuthenticationTest(){
 		
@@ -30,6 +33,7 @@ public class ApplicationServiceObjectTest {
 			aso = new ApplicationServiceObject(null, dpl, sc, 1);
 			aso.acse.setRespondingAuthenticationValue(DLMSUtils.hexStringToByteArray("9999")); // This value doesn't matter
 			dsp.setCTOs(DLMSUtils.hexStringToByteArray("0102030405060708"));
+			dsp.setCallingAuthenticationValue(DLMSUtils.hexStringToByteArray("0102030405060708"));	// just need to set
 			aso.handleHighLevelSecurityAuthentication();	// this may not fail!
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -43,6 +47,7 @@ public class ApplicationServiceObjectTest {
 			aso = new ApplicationServiceObject(null, dpl, sc, 1);
 			aso.acse.setRespondingAuthenticationValue(DLMSUtils.hexStringToByteArray("9999")); // This value doesn't matter
 			dsp.setCTOs(DLMSUtils.hexStringToByteArray("0102030405060708"));
+			dsp.setCallingAuthenticationValue(DLMSUtils.hexStringToByteArray("0102030405060708"));	// just need to set
 			aso.handleHighLevelSecurityAuthentication();	// this may not fail!
 		} catch (IOException e) {
 			e.printStackTrace();
