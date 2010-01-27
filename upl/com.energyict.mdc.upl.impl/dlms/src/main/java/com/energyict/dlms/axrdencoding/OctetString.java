@@ -139,7 +139,8 @@ public class OctetString extends AbstractDataType {
 	}
 
 	protected int size() {
-		return offsetEnd - offsetBegin;
+		return getOctetStr() != null ? getOctetStr().length : 0;
+		//return offsetEnd - offsetBegin;
 	}
 
 	public byte[] getContentBytes() {
