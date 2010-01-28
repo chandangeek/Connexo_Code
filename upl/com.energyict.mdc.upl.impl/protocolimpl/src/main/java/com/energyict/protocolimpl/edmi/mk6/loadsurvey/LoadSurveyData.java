@@ -53,29 +53,46 @@ public class LoadSurveyData implements Serializable{
 		}
         
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        byteArrayOutputStream.reset();
+        FileAccessReadCommand farc;
+        FileAccessSearchCommand fasc;
+        long beforeStoredEntries = 0;
+        long afterStoredEntries = 0;
+        int records;
         
-        FileAccessSearchCommand fasc = getLoadSurvey().getCommandFactory().getFileAccessSearchForwardCommand((getLoadSurvey().getRegisterId()<<16)|0x5F008, from);
-        long startRecord = fasc.getStartRecord();
-        int records = 0;
-        
-        FileAccessReadCommand farc=null;
-         
-        // KV_TO_DO Int  The EDMI meter crashes when ist calculates to high buffer.
-        int nrOfRecords2Request = 2013 / getLoadSurvey().getEntryWidth();
-        do {
-//            if (DEBUG>=1) System.out.println("KV_DEBUG> FR startRecord "+startRecord+", getLoadSurvey().getNrOfEntries() "+getLoadSurvey().getNrOfEntries()+" actual "+nrOfRecords2Request+", 0, getLoadSurvey().getEntryWidth() "+getLoadSurvey().getEntryWidth());
-//            farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand((getLoadSurvey().getRegisterId()<<16)|0x5F008, startRecord, getLoadSurvey().getNrOfEntries(), 0, getLoadSurvey().getEntryWidth());
-            farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand((getLoadSurvey().getRegisterId()<<16)|0x5F008, startRecord, nrOfRecords2Request, 0, getLoadSurvey().getEntryWidth());
-            if (DEBUG>=1) {
-				System.out.println("KV_DEBUG> FR response startRecord "+farc.getStartRecord()+", farc.getNumberOfRecords() "+farc.getNumberOfRecords()+", farc.getRecordOffset() "+farc.getRecordOffset()+", farc.getRecordSize() "+farc.getRecordSize());
-			}
-            records += farc.getNumberOfRecords();
-            startRecord = farc.getStartRecord()+farc.getNumberOfRecords();
-            byteArrayOutputStream.write(farc.getData(),0,farc.getData().length);
-            
-        }  while((getLoadSurvey().getStoredEntries()  - (farc.getStartRecord() + farc.getNumberOfRecords())) > 0);
-        
+        do{
+        	beforeStoredEntries = getLoadSurvey().getUpdatedStoredEntries();
+            if (DEBUG==-1) {
+    			System.out.println("GNA -> BeforeStoredEntries: "+ beforeStoredEntries);
+    			System.out.println("GNA -> Normal: "+ getLoadSurvey().getStoredEntries());
+    		}
+        	records = 0;
+        	byteArrayOutputStream = new ByteArrayOutputStream();
+  			byteArrayOutputStream.reset();
+  			
+  			fasc = getLoadSurvey().getCommandFactory().getFileAccessSearchForwardCommand((getLoadSurvey().getRegisterId()<<16)|0x5F008, from);
+  			long startRecord = fasc.getStartRecord();
+  			
+  			farc=null;
+  			int nrOfRecords2Request = 2013 / getLoadSurvey().getEntryWidth();
+  			
+  			do {
+  				farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(
+					(getLoadSurvey().getRegisterId() << 16) | 0x5F008,
+					startRecord, nrOfRecords2Request, 0,
+					getLoadSurvey().getEntryWidth());
+  				records += farc.getNumberOfRecords();
+  				startRecord = farc.getStartRecord() + farc.getNumberOfRecords();
+  				byteArrayOutputStream.write(farc.getData(),0,farc.getData().length);
+	        
+  			}  while((getLoadSurvey().getStoredEntries()  - (farc.getStartRecord() + farc.getNumberOfRecords())) > 0);
+        	
+  			afterStoredEntries = getLoadSurvey().getUpdatedStoredEntries();
+            if (DEBUG==-1) {
+    			System.out.println("GNA -> AfterStoredEntries: "+ afterStoredEntries);
+    			System.out.println("GNA -> Normal: "+ getLoadSurvey().getStoredEntries());
+    		}
+  			
+        }while (beforeStoredEntries != afterStoredEntries);
         
         setNumberOfRecords(records);
         setData(byteArrayOutputStream.toByteArray());
@@ -94,10 +111,16 @@ public class LoadSurveyData implements Serializable{
             if (DEBUG>=1) {
 				System.out.println("KV_DEBUG> load survey start timestamp ="+cal.getTime());
 			}
-            cal.add(Calendar.SECOND,(int)(getLoadSurvey().getStoredEntries() - getNumberOfRecords())*getLoadSurvey().getProfileInterval());
+            cal.add(Calendar.SECOND,(int)(afterStoredEntries - getNumberOfRecords())*getLoadSurvey().getProfileInterval());
+            
+            
             /*
              * There is no reason why the fasc date is used. It's even incorrect if the buffer overflows.
              * Thats why the cal.getTime is again used as default.
+             * 
+             * 26012010 -> By now I probably know why the fasc date was used. If an interval is added in the meter while you 
+             * are reading profileData, then the data will be shifted. With the fasc date is will probably not be shifted, 
+             * but if you collect data larger then the buffer, then you get incorrect intervals!!!
              */
             if(getLoadSurvey().getCommandFactory().getMk6().useOldProfileFromDate()){
             	setFirstTimeStamp(fasc.getDate());

@@ -161,6 +161,15 @@ public class LoadSurvey implements Serializable {
         this.storedEntries = storedEntries;
     }
 
+    /**
+     * Read the storedEntries from the device again
+     * @return the number of the stored Entries
+     * @throws IOException
+     */
+    public long getUpdatedStoredEntries() throws IOException{
+    	return getCommandFactory().getReadCommand((registerId<<16)|0x5F021).getRegister().getBigDecimal().intValue();
+    }
+    
     public Date getStartTime() {
         return startTime;
     }
@@ -168,9 +177,5 @@ public class LoadSurvey implements Serializable {
     public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
-    
-    
-    
-    
-    
+
 }
