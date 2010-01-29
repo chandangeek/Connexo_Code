@@ -43,59 +43,90 @@ public class LoadSurveyData {
 
 
 	private void init(Date from) throws IOException {
+		
+        long beforeUpdatedFirstEntry = 0;
+        long afterUpdatedFirstEntry = 0;
+        
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        
+        int records = 0;
+        
 		FileAccessReadCommand farc;
 		long startRecord;
 
 		long interval = getLoadSurvey().getProfileInterval();
 		long first = getLoadSurvey().getFirstEntry();
 		Date loadSurveyStartDate = getLoadSurvey().getStartTime();
-		Date firstdate = new Date(loadSurveyStartDate.getTime() + (first * (interval * 1000)));
-
-		long seconds_div = (from.getTime() - firstdate.getTime()) / 1000;
-		int records = 0;
-
-		if (DEBUG>=1) {
-			System.out.println("KV_DEBUG> LoadSurveyData, init() getLoadSurvey()="+getLoadSurvey());
-		}
-
-		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		byteArrayOutputStream.reset();
-
-		if (seconds_div < 0) {
-			startRecord = first;
-		} else {
-			startRecord = first + (seconds_div / interval) + 1;
-		}
-
-		if (DEBUG>=1) {
-			loadSurvey.getCommandFactory().getMk10().sendDebug("From date:               " + from.toGMTString());
-			loadSurvey.getCommandFactory().getMk10().sendDebug("Survey start date:       " + loadSurveyStartDate.toGMTString());
-			loadSurvey.getCommandFactory().getMk10().sendDebug("Survey first entry:      " + first);
-			loadSurvey.getCommandFactory().getMk10().sendDebug("Survey first entry date: " + firstdate.toGMTString());
-			loadSurvey.getCommandFactory().getMk10().sendDebug("Survey entry interval:   " + interval);
-			loadSurvey.getCommandFactory().getMk10().sendDebug("seconds_div:             " + seconds_div);
-			loadSurvey.getCommandFactory().getMk10().sendDebug("startRecord:             " + startRecord);
-		}
-
-		farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(getLoadSurvey().getLoadSurveyNumber(), startRecord, 0x0001);
-		startRecord = farc.getStartRecord();
-
-		if (DEBUG>=1) {
-			loadSurvey.getCommandFactory().getMk10().sendDebug("new startRecord:         " + startRecord);
-		}
-
-		do {
-			farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(getLoadSurvey().getLoadSurveyNumber(), startRecord, READBUFFER);
-			startRecord += farc.getNumberOfRecords();
-			records += farc.getNumberOfRecords();
-			byteArrayOutputStream.write(farc.getData(),0,farc.getData().length);
+		Date firstdate = new Date();
+		
+		do{
+            if (DEBUG==-1) {
+    			System.out.println("GNA -> getLoadSurvey().getFirstEntry() 1 : "+ getLoadSurvey().getFirstEntry());
+    			System.out.println("GNA -> getLoadSurvey().getUpdatedFirstEntry() 1 : "+ getLoadSurvey().getUpdatedFirstEntry());
+    		}
+            records = 0;
+			
+			byteArrayOutputStream = new ByteArrayOutputStream();
+	        byteArrayOutputStream.reset();
+	        first = getLoadSurvey().getUpdatedFirstEntry();
+			firstdate = new Date(loadSurveyStartDate.getTime() + (first * (interval * 1000)));
+			
+			long seconds_div = (from.getTime() - firstdate.getTime()) / 1000;
+			
 			if (DEBUG>=1) {
-				System.out.println();
-				System.out.println("ls.stored entries: " + getLoadSurvey().getStoredEntries());
-				System.out.println("farc.startRecord:  " + farc.getStartRecord());
-				System.out.println("farc.numberofRec:  " + farc.getNumberOfRecords());
+				System.out.println("KV_DEBUG> LoadSurveyData, init() getLoadSurvey()="+getLoadSurvey());
 			}
-		} while((getLoadSurvey().getLastEntry()  - (farc.getStartRecord() + farc.getNumberOfRecords())) > 0);
+			
+			if (seconds_div < 0) {
+				startRecord = first;
+			} else {
+				startRecord = first + (seconds_div / interval) + 1;
+			}
+			
+			beforeUpdatedFirstEntry = getLoadSurvey().getUpdatedFirstEntry();
+			
+			if (DEBUG>=1) {
+				loadSurvey.getCommandFactory().getMk10().sendDebug("From date:               " + from.toGMTString());
+				loadSurvey.getCommandFactory().getMk10().sendDebug("Survey start date:       " + loadSurveyStartDate.toGMTString());
+				loadSurvey.getCommandFactory().getMk10().sendDebug("Survey first entry:      " + first);
+				loadSurvey.getCommandFactory().getMk10().sendDebug("Survey first entry date: " + firstdate.toGMTString());
+				loadSurvey.getCommandFactory().getMk10().sendDebug("Survey entry interval:   " + interval);
+				loadSurvey.getCommandFactory().getMk10().sendDebug("seconds_div:             " + seconds_div);
+				loadSurvey.getCommandFactory().getMk10().sendDebug("startRecord:             " + startRecord);
+			}
+			
+			farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(getLoadSurvey().getLoadSurveyNumber(), startRecord, 0x0001);
+			startRecord = farc.getStartRecord();
+			
+			if (DEBUG>=1) {
+				loadSurvey.getCommandFactory().getMk10().sendDebug("new startRecord:         " + startRecord);
+			}
+			
+			do {
+	            if (DEBUG==-1) {
+	    			System.out.println("GNA -> getLoadSurvey().getFirstEntry() 2 : "+ getLoadSurvey().getFirstEntry());
+	    			System.out.println("GNA -> getLoadSurvey().getUpdatedFirstEntry() 2 : "+ getLoadSurvey().getUpdatedFirstEntry());
+	    		}
+				
+				farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(getLoadSurvey().getLoadSurveyNumber(), startRecord, READBUFFER);
+				startRecord += farc.getNumberOfRecords();
+				records += farc.getNumberOfRecords();
+				byteArrayOutputStream.write(farc.getData(),0,farc.getData().length);
+				if (DEBUG>=1) {
+					System.out.println();
+					System.out.println("ls.stored entries: " + getLoadSurvey().getStoredEntries());
+					System.out.println("farc.startRecord:  " + farc.getStartRecord());
+					System.out.println("farc.numberofRec:  " + farc.getNumberOfRecords());
+				}
+			} while((getLoadSurvey().getLastEntry()  - (farc.getStartRecord() + farc.getNumberOfRecords())) > 0);
+			
+            if (DEBUG==-1) {
+    			System.out.println("GNA -> getLoadSurvey().getFirstEntry() 3 : "+ getLoadSurvey().getFirstEntry());
+    			System.out.println("GNA -> getLoadSurvey().getUpdatedFirstEntry() 3 : "+ getLoadSurvey().getUpdatedFirstEntry());
+    		}
+			afterUpdatedFirstEntry = getLoadSurvey().getUpdatedFirstEntry();
+			
+		}while(beforeUpdatedFirstEntry != afterUpdatedFirstEntry);
 
 		setNumberOfRecords(records);
 		setData(byteArrayOutputStream.toByteArray());

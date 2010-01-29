@@ -235,4 +235,31 @@ public class LoadSurvey {
 		this.startTime = startTime;
 	}
 
+    /**
+     * Read the storedEntries from the device again
+     * @return the number of the stored Entries
+     * @throws IOException
+     */
+	public long getUpdatedStoredEntries() throws IOException {
+		return getUpdatedLastEntry() - getUpdatedFirstEntry();
+	}
+	
+	/**
+	 * Read the firstEntry from the device again
+	 * @return the first entry from the buffer
+	 * @throws IOException
+	 */
+	public long getUpdatedFirstEntry() throws IOException {
+		return getCommandFactory().getReadCommand(registerId + 2).getRegister().getBigDecimal().longValue();
+	}
+	
+	/**
+	 * Read the lastEntry from the device again
+	 * @return the last entry from the buffer
+	 * @throws IOException
+	 */
+	public long getUpdatedLastEntry() throws IOException {
+		return getCommandFactory().getReadCommand(registerId + 4).getRegister().getBigDecimal().longValue();
+	}
+
 }
