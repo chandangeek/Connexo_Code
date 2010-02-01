@@ -1,5 +1,9 @@
 package com.energyict.dlms.aso;
 
+import com.energyict.protocol.ProtocolUtils;
+
+
+
 
 public class ConformanceBlock{
 	/**
@@ -50,9 +54,30 @@ public class ConformanceBlock{
 	public static final int BIT_EVENT_NOTIFY = 22;
 	public static final int BIT_ACTION = 23;
 
+	private static final String	CRLF	= "\r\n";
+
 	private byte[] block = new byte[24];
 
 	public ConformanceBlock(){}
+
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(ProtocolUtils.getResponseData(getByteValue())).append(CRLF);
+		return sb.toString();
+	}
+
+	/**
+	 * Get the {@link Long} value as a byte array of 4 bytes
+	 * @return
+	 */
+	private byte[] getByteValue() {
+		byte[] bytes = new byte[4];
+		for (int i = 0; i < bytes.length; i++) {
+			bytes[bytes.length - (i+1)] = (byte)(getValue() >> (8*i));
+		}
+		return bytes;
+	}
 
 	/**
 	 * Constructor with a given conformance. It is advisable to use one of the default LN or SN conformance blocks
