@@ -70,17 +70,11 @@ public class SecurityContext {
 	 * Note: the frameCounter can't always start from zero for security reasons. The FC is used in the
 	 * initializationVector and this one should be unique.
 	 *
-	 * @param dataTransportSecurityLevel
-	 *            - SecurityLevel during data transport
-	 * @param associationAuthenticationLevel
-	 *            - SecurityLevel during associationEstablishment
-	 * @param dataTransportEncryptionType
-	 *            - Which type of security to use during data transport
-	 * @param systemIdentifier
-	 *            - the server his logicalDeviceName, used for the construction
-	 *            of the initializationVector (ex. KAMM1436321499)
-	 * @param securityProvider
-	 *            - The securityProvider holding the keys
+	 * @param dataTransportSecurityLevel - SecurityLevel during data transport
+	 * @param associationAuthenticationLevel - SecurityLevel during associationEstablishment
+	 * @param dataTransportEncryptionType - Which type of security to use during data transport
+	 * @param systemIdentifier - the server his logicalDeviceName, used for the construction of the initializationVector (ex. KAMM1436321499)
+	 * @param securityProvider - The securityProvider holding the keys
 	 */
 	public SecurityContext(int dataTransportSecurityLevel,
 			int associationAuthenticationLevel,
@@ -153,25 +147,20 @@ public class SecurityContext {
 	}
 
 	/**
-	 * @param plainText
-	 *            - the text to encrypt ...
+	 * @param plainText - the text to encrypt ...
 	 * @return the cihperText
-	 * @throws IOException
-	 *             when the desired Encryption algorithm isn't supported
+	 * @throws IOException when the desired Encryption algorithm isn't supported
 	 */
 	public byte[] associationEncryption(byte[] plainText) throws IOException {
 		try {
 			byte[] digest;
-			MessageDigest md = MessageDigest
-					.getInstance(this.authenticationAlgorithm);
+			MessageDigest md = MessageDigest.getInstance(this.authenticationAlgorithm);
 			md.reset();
 			digest = md.digest(plainText);
 			return digest;
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
-			throw new IOException("" + this.authenticationAlgorithm
-					+ " algorithm isn't a valid algorithm type."
-					+ e.getMessage());
+			throw new IOException(this.authenticationAlgorithm + " algorithm isn't a valid algorithm type." + e.getMessage());
 		}
 	}
 
@@ -417,8 +406,8 @@ public class SecurityContext {
 	 */
 	protected byte[] getInitializationVector() {
 
-		if(this.systemTitle == null){
-			throw new IllegalArgumentException("The AssociationResponse did NOT have a server SysteTitle - Encryption can not be applied!");
+		if (this.systemTitle == null) {
+			throw new IllegalArgumentException("The AssociationResponse did NOT have a server SystemTitle - Encryption can not be applied!");
 		}
 		byte[] iv = new byte[INITIALIZATION_VECTOR_SIZE];
 		byte[] fc = new byte[FRAME_COUNTER_SIZE];
@@ -431,7 +420,7 @@ public class SecurityContext {
 	}
 
 	protected byte[] getRespondingInitializationVector() {
-		if(this.systemTitle == null){
+		if (this.systemTitle == null) {
 			throw new IllegalArgumentException("The AssociationResponse did NOT have a server SysteTitle - Encryption can not be applied!");
 		}
 		byte[] iv = new byte[INITIALIZATION_VECTOR_SIZE];
