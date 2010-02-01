@@ -31,23 +31,29 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 	/**
 	 * Getter for the dlms class id
+	 *
 	 * @return the id of the dlms class
 	 */
 	abstract protected int getClassId();
 	private byte INVOKE_ID_AND_PRIORITY;
 
-	/** Creates a new instance of AbstractCosemObject */
-	public AbstractCosemObject(ProtocolLink protocolLink,ObjectReference objectReference) {
-		this.objectReference=objectReference;
-		this.protocolLink=protocolLink;
+	/**
+	 * Creates a new instance of AbstractCosemObject
+	 *
+	 * @param protocolLink
+	 * @param objectReference
+	 */
+	public AbstractCosemObject(ProtocolLink protocolLink, ObjectReference objectReference) {
+		this.objectReference = objectReference;
+		this.protocolLink = protocolLink;
 		if (this.protocolLink != null) {
 			this.INVOKE_ID_AND_PRIORITY = this.protocolLink.getDLMSConnection().getInvokeIdAndPriority().getInvokeIdAndPriorityData();
 		}
 	}
 
 	public byte[] getCompoundData() {
-		AdaptorConnection conn = (AdaptorConnection)this.protocolLink.getDLMSConnection();
-		if (conn!=null) {
+		AdaptorConnection conn = (AdaptorConnection) this.protocolLink.getDLMSConnection();
+		if (conn != null) {
 			return conn.getCompoundData();
 		} else {
 			return null;
@@ -56,33 +62,31 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 	protected long getLongData(int attribute) throws IOException {
 		try {
-			byte[] responseData=null;
+			byte[] responseData = null;
 			if (this.objectReference.isLNReference()) {
-				responseData = this.protocolLink.getDLMSConnection().sendRequest(buildGetRequest(getClassId(),this.objectReference.getLn(),DLMSUtils.attrSN2LN(attribute),null));
+				responseData = this.protocolLink.getDLMSConnection().sendRequest(
+						buildGetRequest(getClassId(), this.objectReference.getLn(), DLMSUtils.attrSN2LN(attribute), null));
 			} else if (this.objectReference.isSNReference()) {
-				responseData = this.protocolLink.getDLMSConnection().sendRequest(buildReadRequest((short)this.objectReference.getSn(),attribute,null));
+				responseData = this.protocolLink.getDLMSConnection().sendRequest(buildReadRequest((short) this.objectReference.getSn(), attribute, null));
 			}
-
 			return DLMSUtils.parseValue2long(CheckCosemPDUResponseHeader(responseData));
-		}
-		catch(IOException e) {
+		} catch (IOException e) {
 			throw new NestedIOException(e);
 		}
 	}
 
 	public byte[] invoke(int methodId) throws IOException {
-		return invoke(methodId,null);
+		return invoke(methodId, null);
 	}
-	public byte[] invoke(int methodId,byte[] data) throws IOException {
+
+	public byte[] invoke(int methodId, byte[] data) throws IOException {
 		try {
-			byte[] responseData=null;
-			responseData = this.protocolLink.getDLMSConnection().sendRequest(buildActionRequest(getClassId(),this.objectReference.getLn(),methodId,data));
+			byte[] responseData = null;
+			responseData = this.protocolLink.getDLMSConnection().sendRequest(buildActionRequest(getClassId(), this.objectReference.getLn(), methodId, data));
 			return CheckCosemPDUResponseHeader(responseData);
-		}
-		catch(DataAccessResultException e) {
-			throw(e);
-		}
-		catch(IOException e) {
+		} catch (DataAccessResultException e) {
+			throw (e);
+		} catch (IOException e) {
 			throw new NestedIOException(e);
 		}
 	}
@@ -129,10 +133,11 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 *   2..n attribute 2..n
 	 */
 	protected byte[] getLNResponseData(int attribute) throws IOException {
-		return getLNResponseData(attribute,null,null);
+		return getLNResponseData(attribute, null, null);
 	}
-	protected byte[] getLNResponseData(int attribute,Calendar from,Calendar to) throws IOException {
-		return getResponseData((attribute-1)*8,from,to);
+
+	protected byte[] getLNResponseData(int attribute, Calendar from, Calendar to) throws IOException {
+		return getResponseData((attribute - 1) * 8, from, to);
 	}
 
 	/*
@@ -141,58 +146,59 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 *   8,16,24,..n attribute 2..n
 	 */
 	protected byte[] getResponseData(int attribute) throws IOException {
-		return getResponseData(attribute,null,null);
+		return getResponseData(attribute, null, null);
 	}
 
-	protected byte[] getResponseData(int attribute,Calendar from,Calendar to) throws IOException {
+	/**
+	 * Build up the request, send it to the device and return the checked response data as byte[]
+	 *
+	 * @param attribute - the DLMS attribute id
+	 * @param from - the from date as {@link Calendar}
+	 * @param to - the to date as {@link Calendar}
+	 * @return the validate response as byte[]
+	 * @throws IOException
+	 */
+	protected byte[] getResponseData(int attribute, Calendar from, Calendar to) throws IOException {
 		try {
-			byte[] responseData=null;
+			byte[] responseData = null;
+			byte[] request = null;
 			if (this.objectReference.isLNReference()) {
-				//               System.out.println("KV_DEBUG> LN "+objectReference+", attr"+DLMSUtils.attrSN2LN(attribute));
-				responseData = this.protocolLink.getDLMSConnection().sendRequest(buildGetRequest(getClassId(),
-						this.objectReference.getLn(),
-						DLMSUtils.attrSN2LN(attribute),
-						(from == null ? null : getBufferRangeDescriptor(from, to))));
+				byte[] selectiveBuffer = (from == null ? null : getBufferRangeDescriptor(from, to));
+				request = buildGetRequest(getClassId(), this.objectReference.getLn(), DLMSUtils.attrSN2LN(attribute), selectiveBuffer);
+			} else if (this.objectReference.isSNReference()) {
+				byte[] selectiveBuffer = (from == null ? null : getBufferRangeDescriptor(from, to));
+				request = buildReadRequest((short) this.objectReference.getSn(), attribute, selectiveBuffer);
 			}
-			else if (this.objectReference.isSNReference()) {
-				//               System.out.println("KV_DEBUG> SN "+objectReference+", attr"+attribute);
-				responseData = this.protocolLink.getDLMSConnection().sendRequest(buildReadRequest((short)this.objectReference.getSn(),
-						attribute,
-						(from == null ? null : getBufferRangeDescriptor(from, to))));
-			}
+			responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
 			return CheckCosemPDUResponseHeader(responseData);
-		}
-		catch(DataAccessResultException e) {
-			throw(e);
-		}
-		catch(IOException e) {
+		} catch (DataAccessResultException e) {
+			throw (e);
+		} catch (IOException e) {
 			throw new NestedIOException(e);
 		}
 	}
 
 
+	/**
+	 * @param blockNr
+	 * @return
+	 */
 	private byte[] buildReadRequestNext(int blockNr) {
 		// KV 06052009
 		byte[] readRequestArray = new byte[READREQUEST_DATA_SIZE];
-		readRequestArray[0] = (byte)0xE6; // Destination_LSAP
-		readRequestArray[1] = (byte)0xE6; // Source_LSAP
+		readRequestArray[0] = (byte) 0xE6; // Destination_LSAP
+		readRequestArray[1] = (byte) 0xE6; // Source_LSAP
 		readRequestArray[2] = 0x00; // LLC_Quality
 		readRequestArray[DL_COSEMPDU_OFFSET] = COSEM_READREQUEST;
 		readRequestArray[DL_COSEMPDU_LENGTH_OFFSET] = 0x01; // length of the variable length SEQUENCE OF
 		readRequestArray[DL_COSEMPDU_TAG_OFFSET] = 0x05; // block-number-access
-		readRequestArray[READREQUEST_BLOCKNR_MSB] = (byte)(((blockNr)>>8)&0x00FF);
-		readRequestArray[READREQUEST_BLOCKNR_LSB] = (byte)((blockNr)&0x00FF);
+		readRequestArray[READREQUEST_BLOCKNR_MSB] = (byte) (((blockNr) >> 8) & 0x00FF);
+		readRequestArray[READREQUEST_BLOCKNR_LSB] = (byte) ((blockNr) & 0x00FF);
 		return readRequestArray;
-	} // protected byte[] buildReadRequest(int iObj, int iAttr, byte[] byteSelectiveBuffer)
+	}
 
 	private byte[] buildReadRequest(int iObj, int iAttr, byte[] byteSelectiveBuffer) {
-		// Simple request data Array
-
-		// KV_DEBUG
-		// System.out.println("****************************** object SN: 0x"+Integer.toHexString(iObj+iAttr));
-
 		byte[] readRequestArray = new byte[READREQUEST_DATA_SIZE];
-		int i;
 
 		readRequestArray[0] = (byte)0xE6; // Destination_LSAP
 		readRequestArray[1] = (byte)0xE6; // Source_LSAP
@@ -210,18 +216,18 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		if (byteSelectiveBuffer != null) {
 			// Concatenate 2 byte arrays into requestData.
 			byte[] requestData = new byte[readRequestArray.length+byteSelectiveBuffer.length];
-			for (i=0;i<READREQUEST_DATA_SIZE;i++) {
+			for (int i = 0; i < READREQUEST_DATA_SIZE; i++) {
 				requestData[i] = readRequestArray[i];
 			}
-			for (i=READREQUEST_DATA_SIZE;i<requestData.length;i++) {
-				requestData[i] = byteSelectiveBuffer[i-READREQUEST_DATA_SIZE];
+			for (int i = READREQUEST_DATA_SIZE; i < requestData.length; i++) {
+				requestData[i] = byteSelectiveBuffer[i - READREQUEST_DATA_SIZE];
 			}
 			return requestData;
 		}
 		else {
 			return readRequestArray;
 		}
-	} // protected byte[] buildReadRequest(int iObj, int iAttr, byte[] byteSelectiveBuffer)
+	}
 
 	private byte[] buildWriteRequest(int iObj, int iAttr, byte[] byteSelectiveBuffer) throws IOException {
 		// Simple request data Array
@@ -259,7 +265,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	private byte[] buildGetRequest(int classId,byte[] LN,byte bAttr, byte[] byteSelectiveBuffer) {
 		// Simple request data Array
 		byte[] readRequestArray = new byte[GETREQUEST_DATA_SIZE];
-		int i;
 
 		readRequestArray[0] = (byte)0xE6; // Destination_LSAP
 		readRequestArray[1] = (byte)0xE6; // Source_LSAP
@@ -272,7 +277,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		readRequestArray[DL_COSEMPDU_OFFSET_CID] = (byte)(classId>>8);
 		readRequestArray[DL_COSEMPDU_OFFSET_CID+1] = (byte)classId;
 
-		for (i=0;i<6;i++) {
+		for (int i=0;i<6;i++) {
 			readRequestArray[DL_COSEMPDU_OFFSET_LN+i] = LN[i];
 		}
 
@@ -285,14 +290,13 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		else {
 			readRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR]=1; // Selective access descriptor present
 
-
 			// Concatenate 2 byte arrays into requestData.
-			byte[] requestData = new byte[readRequestArray.length+byteSelectiveBuffer.length];
-			for (i=0;i<GETREQUEST_DATA_SIZE;i++) {
+			byte[] requestData = new byte[readRequestArray.length + byteSelectiveBuffer.length];
+			for (int i = 0; i < GETREQUEST_DATA_SIZE; i++) {
 				requestData[i] = readRequestArray[i];
 			}
-			for (i=GETREQUEST_DATA_SIZE;i<requestData.length;i++) {
-				requestData[i] = byteSelectiveBuffer[i-(GETREQUEST_DATA_SIZE)];
+			for (int i = GETREQUEST_DATA_SIZE; i < requestData.length; i++) {
+				requestData[i] = byteSelectiveBuffer[i - (GETREQUEST_DATA_SIZE)];
 			}
 			return requestData;
 		}
@@ -301,17 +305,16 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 	private byte[] buildGetRequestNext(int iBlockNumber) {
 		byte[] readRequestArray = new byte[GETREQUESTNEXT_DATA_SIZE];
-
-		readRequestArray[0] = (byte)0xE6; // Destination_LSAP
-		readRequestArray[1] = (byte)0xE6; // Source_LSAP
+		readRequestArray[0] = (byte) 0xE6; // Destination_LSAP
+		readRequestArray[1] = (byte) 0xE6; // Source_LSAP
 		readRequestArray[2] = 0x00; // LLC_Quality
 		readRequestArray[DL_COSEMPDU_OFFSET] = COSEM_GETREQUEST;
-		readRequestArray[DL_COSEMPDU_OFFSET+1] = COSEM_GETREQUEST_NEXT; // get request next
-		readRequestArray[DL_COSEMPDU_OFFSET+2] = this.INVOKE_ID_AND_PRIORITY; //invoke id and priority
-		readRequestArray[DL_COSEMPDU_OFFSET+3] = (byte)(iBlockNumber>>24);
-		readRequestArray[DL_COSEMPDU_OFFSET+4] = (byte)(iBlockNumber>>16);
-		readRequestArray[DL_COSEMPDU_OFFSET+5] = (byte)(iBlockNumber>>8);
-		readRequestArray[DL_COSEMPDU_OFFSET+6] = (byte)iBlockNumber;
+		readRequestArray[DL_COSEMPDU_OFFSET + 1] = COSEM_GETREQUEST_NEXT; // get request next
+		readRequestArray[DL_COSEMPDU_OFFSET + 2] = this.INVOKE_ID_AND_PRIORITY; //invoke id and priority
+		readRequestArray[DL_COSEMPDU_OFFSET + 3] = (byte) (iBlockNumber >> 24);
+		readRequestArray[DL_COSEMPDU_OFFSET + 4] = (byte) (iBlockNumber >> 16);
+		readRequestArray[DL_COSEMPDU_OFFSET + 5] = (byte) (iBlockNumber >> 8);
+		readRequestArray[DL_COSEMPDU_OFFSET + 6] = (byte) iBlockNumber;
 		return readRequestArray;
 	}
 
