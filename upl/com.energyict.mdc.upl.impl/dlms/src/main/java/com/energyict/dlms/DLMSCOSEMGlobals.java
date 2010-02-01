@@ -282,6 +282,7 @@ public interface DLMSCOSEMGlobals {
 	byte AARE_RESULT 						= 	(byte)0xA2;
 	byte AARE_RESULT_SOURCE_DIAGNOSTIC 		= 	(byte)0xA3;
 	byte AARE_RESPONING_AP_TITLE 			= 	(byte)0xA4;
+	byte AARE_CALLING_AP_TITLE 				= 	(byte)0xA6;
 	byte AARE_MECHANISM_NAME				=	(byte)0x89;
 	byte AARE_RESPONDING_AUTHENTICATION_VALUE =	(byte)0xAA;
 	byte ACSE_SERVICE_USER 					= 	(byte)0xA1;
