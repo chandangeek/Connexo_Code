@@ -43,6 +43,7 @@ public class LLCConnection extends CosemPDUConnection implements DLMSConnection 
 	 * Append the LLC header to the packet (Hard coded to 0x90, 0x01, 0x02)
 	 */
 	public byte[] sendRequest(byte[] data) throws IOException {
+
 		int retry = 0;
 
 		byte[] byteRequestBuffer = new byte[data.length];
@@ -54,6 +55,7 @@ public class LLCConnection extends CosemPDUConnection implements DLMSConnection 
 		while (true) {
 			try {
 				sendOut(byteRequestBuffer);
+				delay(200);
 				return receiveData();
 			} catch (ConnectionException e) {
 				if (retry++ >= getMaxRetries()) {
