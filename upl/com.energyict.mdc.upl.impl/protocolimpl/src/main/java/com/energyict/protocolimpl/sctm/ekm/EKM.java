@@ -6,18 +6,17 @@
 
 package com.energyict.protocolimpl.sctm.ekm;
 
-import com.energyict.protocolimpl.siemens7ED62.*;
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocol.*;
-import java.util.logging.*;
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.metcom.Metcom2;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.customerconfig.*;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
+import com.energyict.protocolimpl.customerconfig.RegisterConfig;
+import com.energyict.protocolimpl.metcom.Metcom2;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
 /**
  *
@@ -37,8 +36,8 @@ KV|06042006|Add IntervalStatusBehaviour custom property to correct power fail st
 public class EKM extends Metcom2 implements RegisterProtocol {
     
 
-    RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
-    GenericRegisters genericRegisters;
+    private RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
+    private GenericRegisters genericRegisters;
     
     /** Creates a new instance of Metcom2 */
     public EKM() {
@@ -68,10 +67,11 @@ public class EKM extends Metcom2 implements RegisterProtocol {
     R e g i s t e r P r o t o c o l  i n t e r f a c e 
     *******************************************************************************************/
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        if (genericRegisters.isManufacturerSpecific(obisCode))
+        if (genericRegisters.isManufacturerSpecific(obisCode)) {
             return genericRegisters.getRegisterInfo(obisCode);
-        else
+		} else {
             return ObisCodeMapper.getRegisterInfo(obisCode);
+		}
     }
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         if (genericRegisters.isManufacturerSpecific(obisCode)) {

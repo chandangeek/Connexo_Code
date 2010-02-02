@@ -6,19 +6,21 @@
 
 package com.energyict.protocolimpl.sctm.ekm;
 
-import com.energyict.protocol.*;
-import java.util.*;
-import java.io.*;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.TimeZone;
 
-import com.energyict.obis.*;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.siemens7ED62.SCTMDumpData;
-import com.energyict.protocolimpl.customerconfig.*;
 /**
  *
  * @author  Koen
@@ -46,31 +48,48 @@ public class ObisCodeMapper {
         return (RegisterValue)doGetRegister(obisCode,true);
     }
     
-    public Date getBillingPointTimestamp(int billingPoint) {
-        Calendar calendar = Calendar.getInstance(timeZone);
-        calendar.add(Calendar.MONTH,(-1)*billingPoint);
-        calendar.set(Calendar.DAY_OF_MONTH,1);
-        calendar.set(Calendar.HOUR_OF_DAY,0);
-        calendar.set(Calendar.MINUTE,0);
-        calendar.set(Calendar.SECOND,0);
-        calendar.set(Calendar.MILLISECOND,0);
-        return calendar.getTime();
+    /**
+     * Fetch the BillingPoint timeStamp.
+     * 
+     * @param register - the register from which to fetch the billingpoint timeStamp
+     * @return a date, representing the time of when the billing occurred
+     * @throws IOException
+     */
+    public Date getBillingPointTimestamp(String register) throws IOException {
+    	
+    	try {
+			String reg = "40*"+register.substring(register.indexOf('*') +1);
+			
+			String searchReg = dump.searchRegister(reg);
+			int index1 = searchReg.indexOf(reg) + reg.length() +1;
+			int index2 = searchReg.indexOf(")", index1);
+			
+			String dateString = searchReg.substring(index1, index2);
+			
+			
+			return ProtocolUtils.parseDateTimeWithTimeZone(dateString, SCTMDumpData.ENERMET_DUMP_DATETIME_SIGNATURE, timeZone);
+		} catch (ParseException e) {
+			e.printStackTrace();
+			throw new IOException("Could not parse the BillingDate." + e);
+		}
     }
     
-    private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException {
+    protected Object doGetRegister(ObisCode obisCode, boolean read) throws IOException {
         RegisterValue registerValue=null;
         String registerName=null;
         Unit unit = null;
         int billingPoint=-1;
         
         // obis F code
-        if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
+        if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99)) {
             billingPoint = obisCode.getF();
-        else if ((obisCode.getF()  <=0) && (obisCode.getF() >= -99))
+		} else if ((obisCode.getF()  <=0) && (obisCode.getF() >= -99)) {
             billingPoint = obisCode.getF()*-1;
-        else if (obisCode.getF() == 255)
+		} else if (obisCode.getF() == 255) {
             billingPoint = -1;
-        else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+		} else {
+			throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+		}
         
         // *********************************************************************************
         // General purpose ObisRegisters & abstract general service
@@ -78,25 +97,31 @@ public class ObisCodeMapper {
             if (read) {
                 registerValue = new RegisterValue(obisCode,new Quantity(new BigDecimal(dump.getBillingCounter()),Unit.get("")));
                 return registerValue;
+            } else {
+				return new RegisterInfo("billing counter");
             }
-            else return new RegisterInfo("billing counter");
         } // billing counter
         else if ((obisCode.toString().indexOf("1.0.0.1.2.") != -1) || (obisCode.toString().indexOf("1.1.0.1.2.") != -1)) { // billing point timestamp
             if ((billingPoint >= 0) && (billingPoint < 99)) {
                 if (read) {
-                    registerValue = new RegisterValue(obisCode,getBillingPointTimestamp(billingPoint));
+                	ObisCode oc = new ObisCode(obisCode.getA(),1,obisCode.getC(),obisCode.getD(),obisCode.getE(),255);
+                	String strReg = regs.getMeterRegisterCode(oc);
+                    registerValue = new RegisterValue(obisCode,getBillingPointTimestamp(strReg));
                     return registerValue;
+                } else {
+					return new RegisterInfo("billing point "+billingPoint+" timestamp");
                 }
-                else return new RegisterInfo("billing point "+billingPoint+" timestamp");
+            } else {
+				throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
             }
-            else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
         } // // billing point timestamp
         else {
             if (read) {
                 ObisCode oc = new ObisCode(obisCode.getA(),1,obisCode.getC(),obisCode.getD(),obisCode.getE(),255);
                 String strReg = regs.getMeterRegisterCode(oc);
-                if (strReg == null)
+                if (strReg == null) {
                     throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+				}
                 
                 Date billingDate=null;
                 if (billingPoint != -1) {
@@ -111,20 +136,25 @@ public class ObisCodeMapper {
                     else {
                         strReg = strReg+"*"+ProtocolUtils.buildStringDecimal((VZ-billingPoint), autoBillingPointNrOfDigits);
                     }
-                    billingDate = getBillingPointTimestamp(billingPoint); 
+                    billingDate = dump.getRegisterDateTime(strReg, timeZone);
+                    if(billingDate == null){
+                    	billingDate = getBillingPointTimestamp(strReg); 
+                    }
                 }
                 
                 Quantity quantity = dump.getRegister(strReg);
 
                 Date eventDate = dump.getRegisterDateTime(strReg, timeZone);
                 if (quantity != null) {
-                    if (billingPoint != -1)
+                    if (billingPoint != -1) {
                         registerValue = new RegisterValue(obisCode,quantity, eventDate==null?billingDate:eventDate, billingDate); // eventtime = toTime
-                    else
+					} else {
                         registerValue = new RegisterValue(obisCode,quantity, eventDate);
+					}
                     return registerValue;
+                } else {
+					throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
                 }
-                else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
             }
             else {
                 return new RegisterInfo(obisCode.getDescription());
