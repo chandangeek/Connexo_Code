@@ -13,11 +13,13 @@ import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.dlms.cosem.Register;
+import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocolimpl.base.DebuggingObserver;
@@ -92,16 +94,21 @@ public class AS220Main {
 		properties.setProperty("Retries", "0");
 		properties.setProperty("Timeout", "20000");
 
-		properties.setProperty("SecurityLevel", "2");
+		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_BOTH);
 		properties.setProperty("ProfileInterval", "900");
-		properties.setProperty("Password", "12345678");
-		properties.setProperty("SerialNumber", "303135303233");
+		properties.setProperty("Password", "00000000");
+		properties.setProperty("SerialNumber", "35015023");
+		//properties.setProperty("SerialNumber", "303135303233");
 
 		properties.setProperty("AddressingMode", "-1");
 		properties.setProperty("Connection", "3");
 		properties.setProperty("ClientMacAddress", "2");
 		properties.setProperty("ServerLowerMacAddress", "1");
 		properties.setProperty("ServerUpperMacAddress", "1");
+
+		properties.setProperty(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF");
+		properties.setProperty(LocalSecurityProvider.DATATRANSPORTKEY, "000102030405060708090A0B0C0D0E0F");
+		properties.setProperty(LocalSecurityProvider.MASTERKEY, "000102030405060708090A0B0C0D0E0F");
 
 		return properties;
 	}
@@ -174,8 +181,10 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			doTest();
-
+			//doTest();
+			//pulseContactor();
+			//readProfile(true);
+			//System.out.println(getAs220().getTime());
 
 		} finally {
 			ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
