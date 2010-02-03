@@ -17,7 +17,7 @@ import com.energyict.protocol.ProtocolUtils;
  * - Data transfer
  * - Layer management...
  * </pre>
- * 
+ *
  * @author gna
  */
 public class ApplicationServiceObject {
@@ -26,26 +26,25 @@ public class ApplicationServiceObject {
 	protected AssociationControlServiceElement acse;
 	protected SecurityContext securityContext;
 	protected ProtocolLink protocolLink;
-	
+
 	private int associationStatus;
 	public static int ASSOCIATION_DISCONNECTED = 0;
 	public static int ASSOCIATION_PENDING = 1;
 	public static int ASSOCIATION_CONNECTED = 2;
 	public static int ASSOCIATION_READY_FOR_DSICONNECTION = 3;
-	
+
 	public ApplicationServiceObject(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext, int contextId) throws IOException{
 		this.xDlmsAse = xDlmsAse;
 		this.protocolLink = protocolLink;
 		this.securityContext = securityContext;
-		this.acse = new AssociationControlServiceElement(this.xDlmsAse, contextId, 
-					this.securityContext.getAuthenticationLevel(), this.securityContext.getSecurityProvider().getCallingAuthenticationValue());
+		this.acse = new AssociationControlServiceElement(this.xDlmsAse, contextId, securityContext);
 		this.associationStatus = ASSOCIATION_DISCONNECTED;
 	}
-	
+
 	public SecurityContext getSecurityContext(){
 		return this.securityContext;
 	}
-	
+
 	/**
 	 * @return the status of the current association(connected/disconnected/pending)
 	 */
@@ -55,23 +54,24 @@ public class ApplicationServiceObject {
 	public void setAssociationState(int state) {
 		this.associationStatus = state;
 	}
-	
+
 	/*******************************************************************************************************
 	 * Application association management
 	 *******************************************************************************************************/
-	
+
 	/**
 	 * Create an ApplicationAssociation.
 	 * Depending on the securityLevel encrypted challenges will be used to authenticate the client and server
-	 * 
+	 *
 	 */
 	public void createAssociation() throws IOException{
 		byte[] request = this.acse.createAssociationRequest();
 		byte[] response = this.protocolLink.getDLMSConnection().sendRequest(request);
 		this.acse.analyzeAARE(response);
-		getSecurityContext().setSystemTitle(this.acse.getRespondingAPTtitle());
+		getSecurityContext().setResponseSystemTitle(this.acse.getRespondingAPTtitle());
 		handleHighLevelSecurityAuthentication();
 	}
+
 	/**
 	 * If HighLevelSecurity/Authentication is enabled, then there are two more steps to take.
 	 * According to the level a different algorithm must be used to encrypt the challenges.
@@ -80,9 +80,9 @@ public class ApplicationServiceObject {
 	protected void handleHighLevelSecurityAuthentication() throws IOException {
 		byte[] encryptedResponse;
 		byte[] plainText;
-		
+
 		this.associationStatus = ASSOCIATION_PENDING;
-		
+
 		switch(this.securityContext.getAuthenticationLevel()){
 		case 0: {this.associationStatus = ASSOCIATION_CONNECTED;};break;
 		case 1: {this.associationStatus = ASSOCIATION_CONNECTED;};break;
@@ -144,7 +144,7 @@ public class ApplicationServiceObject {
 		if((this.acse.getContextId() == 1) || (this.acse.getContextId() == 3)){			// reply with AssociationLN
 			AssociationLN aln = new AssociationLN(this.protocolLink);
 			encryptedResponse = new OctetString(aln.replyToHLSAuthentication(digest));
-		} else if((this.acse.getContextId() == 2) || (this.acse.getContextId() == 4)){	// reply with AssociationSN 
+		} else if((this.acse.getContextId() == 2) || (this.acse.getContextId() == 4)){	// reply with AssociationSN
 			AssociationSN asn = new AssociationSN(this.protocolLink);
 			encryptedResponse = new OctetString(asn.replyToHLSAuthentication(digest));
 		} else {
@@ -165,5 +165,12 @@ public class ApplicationServiceObject {
 		this.associationStatus = ASSOCIATION_DISCONNECTED;
 	}
 
-	/*******************************************************************************************************/
+	@Override
+	public String toString() {
+		final String crlf = "\r\n";
+		StringBuilder sb = new StringBuilder();
+		sb.append("ApplicationServiceObject:").append(crlf);
+		return sb.toString();
+	}
+
 }

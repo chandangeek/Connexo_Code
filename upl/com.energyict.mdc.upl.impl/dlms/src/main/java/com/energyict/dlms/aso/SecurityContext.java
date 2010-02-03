@@ -31,6 +31,9 @@ public class SecurityContext {
 	private static final int	FRAMECOUNTER_INDEX				= 2;
 	private static final int	FRAMECOUNTER_BYTE_LENGTH		= 4;
 	private static final int	BITS_PER_BYTE					= 8;
+	private static final int	SYSTEM_TITLE_LENGTH				= 8;
+	private static final int	CB_LENGTH						= 1;
+	private static final int	FC_LENGTH						= 4;
 
 	/**
 	 * Holds the securityLevel for the DataTransport.
@@ -58,12 +61,13 @@ public class SecurityContext {
 	private long frameCounter;
 	private long responseFrameCounter;
 	private byte[] systemTitle;
+	private byte[] responseSystemTitle;
 
 	private String[] authenticationEncryptions = new String[] { "NoAlgorithm", "NoAlgorithm", "NoAlgorithm",
 			"MD5", "SHA-1", "GMAC" };
 	private String authenticationAlgorithm;
 
-	private static int DLMS_AUTHENTICATION_TAG_SIZE = 12;	// 12 bytes is specified for DLMS using GCM
+	private static int DLMS_AUTH_TAG_SIZE = 12;	// 12 bytes is specified for DLMS using GCM
 
 	/**
 	 * Creates a new instance of the securityContext.
@@ -179,105 +183,114 @@ public class SecurityContext {
 	 *         applied)
 	 * @throws IOException when Keys could not be fetched
 	 */
-	public byte[] dataTransportEncryption(byte[] plainText)
-			throws IOException {
+	public byte[] dataTransportEncryption(byte[] plainText) throws IOException {
 		int offset = 0;
 		try {
 			switch (this.securityPolicy) {
-			case 0: {
-				return plainText;
-			} // no encryption/authentication
-			case 1: {
-				AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getGlobalKey(), DLMS_AUTHENTICATION_TAG_SIZE);
+				case SECURITYPOLICY_NONE: {
+					return plainText;
+				} // no encryption/authentication
+				case SECURITYPOLICY_AUTHENTICATION: {
+					AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
 
-				/* the associatedData is a concatenation of:
-				 * - the securityControlByte
-				 * - the authenticationKey
-				 * - the plainText */
-				byte[] associatedData = new byte[plainText.length + getSecurityProvider().getAuthenticationKey().length + 1];
-				associatedData[0] = getSecurityControlByte();
-				System.arraycopy(getSecurityProvider().getAuthenticationKey(), 0, associatedData, 1, getSecurityProvider().getAuthenticationKey().length);
-				System.arraycopy(plainText, 0, associatedData, 1+getSecurityProvider().getAuthenticationKey().length, plainText.length);
+					/*
+					 * the associatedData is a concatenation of:
+					 * - the securityControlByte
+					 * - the authenticationKey
+					 * - the plainText
+					 */
+					byte[] associatedData = new byte[plainText.length + getSecurityProvider().getAuthenticationKey().length + 1];
+					associatedData[0] = getSecurityControlByte();
+					System.arraycopy(getSecurityProvider().getAuthenticationKey(), 0, associatedData, 1, getSecurityProvider().getAuthenticationKey().length);
+					System.arraycopy(plainText, 0, associatedData, 1 + getSecurityProvider().getAuthenticationKey().length, plainText.length);
 
+					ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
+					ag128.setInitializationVector(new BitVector(getInitializationVector()));
 
-				ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
-				ag128.setInitializationVector(new BitVector(getInitializationVector()));
+					ag128.encrypt();
 
-				ag128.encrypt();
+					/*
+					 * x for length, 1 for controlByte, 4 for frameCounter,
+					 * length of plainText
+					 * and 12 for the AuthenticationTag (normally this is
+					 * 16byte, but the securitySpec said it had to be 12)
+					 */
+					byte[] securedLength = DLMSUtils.getAXDRLengthEncoding(CB_LENGTH + FC_LENGTH + plainText.length + DLMS_AUTH_TAG_SIZE);
+					byte[] securedApdu = new byte[(int) (securedLength.length + DLMSUtils.getAXDRLength(securedLength, 0))];
+					System.arraycopy(securedLength, 0, securedApdu, offset, securedLength.length);
+					offset += securedLength.length;
+					securedApdu[offset] = getSecurityControlByte();
+					offset++;
+					System.arraycopy(getFrameCounterInBytes(), 0, securedApdu, offset, getFrameCounterInBytes().length);
+					offset += getFrameCounterInBytes().length;
+					System.arraycopy(plainText, 0, securedApdu, offset, plainText.length);
+					offset += plainText.length;
+					System.arraycopy(ProtocolUtils.getSubArray2(ag128.getTag().getValue(), 0, DLMS_AUTH_TAG_SIZE), 0, securedApdu, offset,
+							DLMS_AUTH_TAG_SIZE);
+					return securedApdu;
+				} // authenticated
+				case SECURITYPOLICY_ENCRYPTION: {
+					AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
 
-				/* x for length, 1 for controlByte, 4 for frameCounter, length of plainText
-				 * and 12 for the AuthenticationTag (normally this is 16byte, but the securitySpec said it had to be 12)*/
-				byte[] securedLength = DLMSUtils.getAXDRLengthEncoding(1 + 4 + plainText.length + DLMS_AUTHENTICATION_TAG_SIZE);
-				byte[] securedApdu = new byte[(int) (securedLength.length + DLMSUtils.getAXDRLength(securedLength, 0))];
-				System.arraycopy(securedLength, 0, securedApdu, offset, securedLength.length);
-				offset += securedLength.length;
-				securedApdu[offset] = getSecurityControlByte();
-				offset++;
-				System.arraycopy(getFrameCounterInBytes(), 0, securedApdu, offset, getFrameCounterInBytes().length);
-				offset += getFrameCounterInBytes().length;
-				System.arraycopy(plainText, 0, securedApdu, offset, plainText.length);
-				offset += plainText.length;
-				System.arraycopy(ProtocolUtils.getSubArray2(ag128.getTag().getValue(), 0, DLMS_AUTHENTICATION_TAG_SIZE), 0, securedApdu,
-						offset, DLMS_AUTHENTICATION_TAG_SIZE);
-				return securedApdu;
-			} // authenticated
-			case 2: {
-				AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getGlobalKey(), DLMS_AUTHENTICATION_TAG_SIZE);
+					ag128.setInitializationVector(new BitVector(getInitializationVector()));
+					ag128.setPlainText(new BitVector(plainText));
+					ag128.encrypt();
 
-				ag128.setInitializationVector(new BitVector(getInitializationVector()));
-				ag128.setPlainText(new BitVector(plainText));
-				ag128.encrypt();
+					/*
+					 * x for length, 1 for controlByte, 4 for frameCounter,
+					 * length of cipherText
+					 */
+					byte[] securedLength = DLMSUtils.getAXDRLengthEncoding(CB_LENGTH + FC_LENGTH + plainText.length);
+					byte[] securedApdu = new byte[(int) (securedLength.length + DLMSUtils.getAXDRLength(securedLength, 0))];
+					System.arraycopy(securedLength, 0, securedApdu, offset, securedLength.length);
+					offset += securedLength.length;
+					securedApdu[offset] = getSecurityControlByte();
+					offset++;
+					System.arraycopy(getFrameCounterInBytes(), 0, securedApdu, offset, getFrameCounterInBytes().length);
+					offset += getFrameCounterInBytes().length;
+					System.arraycopy(ag128.getCipherText().getValue(), 0, securedApdu, offset, ag128.getCipherText().getValue().length);
+					return securedApdu;
+				} // encrypted
+				case SECURITYPOLICY_BOTH: {
+					AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
 
-				/* x for length, 1 for controlByte, 4 for frameCounter, length of cipherText */
-				byte[] securedLength = DLMSUtils.getAXDRLengthEncoding(1 + 4 + plainText.length);
-				byte[] securedApdu = new byte[(int) (securedLength.length + DLMSUtils.getAXDRLength(securedLength, 0))];
-				System.arraycopy(securedLength, 0, securedApdu, offset, securedLength.length);
-				offset += securedLength.length;
-				securedApdu[offset] = getSecurityControlByte();
-				offset++;
-				System.arraycopy(getFrameCounterInBytes(), 0, securedApdu, offset, getFrameCounterInBytes().length);
-				offset += getFrameCounterInBytes().length;
-				System.arraycopy(ag128.getCipherText().getValue(), 0, securedApdu, offset, ag128.getCipherText().getValue().length);
-				return securedApdu;
-			} // encrypted
-			case 3: {
-				AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getGlobalKey(), DLMS_AUTHENTICATION_TAG_SIZE);
+					/*
+					 * the associatedData is a concatenation of:
+					 * - the securityControlByte
+					 * - the authenticationKey
+					 */
+					byte[] associatedData = new byte[getSecurityProvider().getAuthenticationKey().length + 1];
+					associatedData[0] = getSecurityControlByte();
+					System.arraycopy(getSecurityProvider().getAuthenticationKey(), 0, associatedData, 1, getSecurityProvider().getAuthenticationKey().length);
+					ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
+					ag128.setInitializationVector(new BitVector(getInitializationVector()));
+					ag128.setPlainText(new BitVector(plainText));
+					ag128.encrypt();
 
-				/* the associatedData is a concatenation of:
-				 * - the securityControlByte
-				 * - the authenticationKey */
-				byte[] associatedData = new byte[getSecurityProvider().getAuthenticationKey().length + 1];
-				associatedData[0] = getSecurityControlByte();
-				System.arraycopy(getSecurityProvider().getAuthenticationKey(), 0, associatedData, 1, getSecurityProvider().getAuthenticationKey().length);
-				getSecurityProvider().getGlobalKey();
-				ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
-				ag128.setInitializationVector(new BitVector(getInitializationVector()));
-				ag128.setPlainText(new BitVector(plainText));
-
-				ag128.encrypt();
-
-				/* x for length, 1 for controlByte, 4 for frameCounter, length of cipherText
-				 * and 12 for the AuthenticationTag (normally this is 16byte, but the securitySpec said it had to be 12)*/
-				byte[] securedLength = DLMSUtils.getAXDRLengthEncoding(1 + 4 + plainText.length + DLMS_AUTHENTICATION_TAG_SIZE);
-				byte[] securedApdu = new byte[(int) (securedLength.length + DLMSUtils.getAXDRLength(securedLength, 0))];
-				System.arraycopy(securedLength, 0, securedApdu, offset, securedLength.length);
-				offset += securedLength.length;
-				securedApdu[offset] = getSecurityControlByte();
-				offset++;
-				System.arraycopy(getFrameCounterInBytes(), 0, securedApdu, offset, getFrameCounterInBytes().length);
-				offset += getFrameCounterInBytes().length;
-				System.arraycopy(ag128.getCipherText().getValue(), 0, securedApdu, offset, ag128.getCipherText().getValue().length);
-				offset += ag128.getCipherText().getValue().length;
-				System.arraycopy(ProtocolUtils.getSubArray(ag128.getTag().getValue(), 0, DLMS_AUTHENTICATION_TAG_SIZE-1), 0, securedApdu,
-						offset, DLMS_AUTHENTICATION_TAG_SIZE);
-				return securedApdu;
-			} // authenticated and encrypted
-			default:
-				throw new ConnectionException("Unknown securityPolicy: "
-						+ this.securityPolicy);
+					/*
+					 * x for length, 1 for controlByte, 4 for frameCounter,
+					 * length of cipherText
+					 * and 12 for the AuthenticationTag (normally this is
+					 * 16byte, but the securitySpec said it had to be 12)
+					 */
+					byte[] securedLength = DLMSUtils.getAXDRLengthEncoding(CB_LENGTH + FC_LENGTH + plainText.length + DLMS_AUTH_TAG_SIZE);
+					byte[] secApdu = new byte[(int) (securedLength.length + DLMSUtils.getAXDRLength(securedLength, 0))];
+					System.arraycopy(securedLength, 0, secApdu, offset, securedLength.length);
+					offset += securedLength.length;
+					secApdu[offset] = getSecurityControlByte();
+					offset++;
+					System.arraycopy(getFrameCounterInBytes(), 0, secApdu, offset, getFrameCounterInBytes().length);
+					offset += getFrameCounterInBytes().length;
+					System.arraycopy(ag128.getCipherText().getValue(), 0, secApdu, offset, ag128.getCipherText().getValue().length);
+					offset += ag128.getCipherText().getValue().length;
+					System.arraycopy(ProtocolUtils.getSubArray(ag128.getTag().getValue(), 0, DLMS_AUTH_TAG_SIZE - 1), 0, secApdu, offset, DLMS_AUTH_TAG_SIZE);
+					return secApdu;
+				} // authenticated and encrypted
+				default:
+					throw new ConnectionException("Unknown securityPolicy: " + this.securityPolicy);
 			}
 		} finally {
-			this.frameCounter++;
+			incFrameCounter();
 		}
 	}
 
@@ -295,13 +308,13 @@ public class SecurityContext {
 			return cipherFrame;
 		}
 		case 1: {
-			AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getGlobalKey(), DLMS_AUTHENTICATION_TAG_SIZE);
+			AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
 
-			byte[] aTag = ProtocolUtils.getSubArray(cipherFrame, cipherFrame.length-DLMS_AUTHENTICATION_TAG_SIZE);
+			byte[] aTag = ProtocolUtils.getSubArray(cipherFrame, cipherFrame.length-DLMS_AUTH_TAG_SIZE);
 			int lengthOffset = DLMSUtils.getAXDRLengthOffset(cipherFrame, LENGTH_INDEX);
 			byte[] fc = ProtocolUtils.getSubArray2(cipherFrame, FRAMECOUNTER_INDEX+lengthOffset, FRAME_COUNTER_SIZE);
 			setResponseFrameCounter(ProtocolUtils.getInt(fc));
-			byte[] apdu = ProtocolUtils.getSubArray(cipherFrame, FRAMECOUNTER_INDEX+lengthOffset+FRAME_COUNTER_SIZE, cipherFrame.length-DLMS_AUTHENTICATION_TAG_SIZE-1);
+			byte[] apdu = ProtocolUtils.getSubArray(cipherFrame, FRAMECOUNTER_INDEX+lengthOffset+FRAME_COUNTER_SIZE, cipherFrame.length-DLMS_AUTH_TAG_SIZE-1);
 			/* the associatedData is a concatenation of:
 			 * - the securityControlByte
 			 * - the authenticationKey
@@ -323,7 +336,7 @@ public class SecurityContext {
 			}
 		}
 		case 2: {
-			AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getGlobalKey(), DLMS_AUTHENTICATION_TAG_SIZE);
+			AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
 
 			int lengthOffset = DLMSUtils.getAXDRLengthOffset(cipherFrame, LENGTH_INDEX);
 			byte[] fc = ProtocolUtils.getSubArray2(cipherFrame, FRAMECOUNTER_INDEX+lengthOffset, FRAME_COUNTER_SIZE);
@@ -340,13 +353,13 @@ public class SecurityContext {
 			}
 		}
 		case 3: {
-			AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getGlobalKey(), DLMS_AUTHENTICATION_TAG_SIZE);
+			AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getDedicatedKey(), DLMS_AUTH_TAG_SIZE);
 
-			byte[] aTag = ProtocolUtils.getSubArray(cipherFrame, cipherFrame.length-DLMS_AUTHENTICATION_TAG_SIZE);
+			byte[] aTag = ProtocolUtils.getSubArray(cipherFrame, cipherFrame.length-DLMS_AUTH_TAG_SIZE);
 			int lengthOffset = DLMSUtils.getAXDRLengthOffset(cipherFrame, LENGTH_INDEX);
 			byte[] fc = ProtocolUtils.getSubArray2(cipherFrame, FRAMECOUNTER_INDEX+lengthOffset, FRAME_COUNTER_SIZE);
 			setResponseFrameCounter(ProtocolUtils.getInt(fc));
-			byte[] cipherdAPDU = ProtocolUtils.getSubArray(cipherFrame, FRAMECOUNTER_INDEX+lengthOffset+FRAME_COUNTER_SIZE, cipherFrame.length-DLMS_AUTHENTICATION_TAG_SIZE-1);
+			byte[] cipherdAPDU = ProtocolUtils.getSubArray(cipherFrame, FRAMECOUNTER_INDEX+lengthOffset+FRAME_COUNTER_SIZE, cipherFrame.length-DLMS_AUTH_TAG_SIZE-1);
 			/* the associatedData is a concatenation of:
 			 * - the securityControlByte
 			 * - the authenticationKey */
@@ -405,8 +418,7 @@ public class SecurityContext {
 	 * @return a byteArray containing the frameCounter
 	 */
 	protected byte[] getInitializationVector() {
-
-		if (this.systemTitle == null) {
+		if (getSystemTitle() == null) {
 			throw new IllegalArgumentException("The AssociationResponse did NOT have a server SystemTitle - Encryption can not be applied!");
 		}
 		byte[] iv = new byte[INITIALIZATION_VECTOR_SIZE];
@@ -415,13 +427,13 @@ public class SecurityContext {
 		for (int i = 0; i < fc.length; i++) {
 			fc[fc.length - 1 - i] = (byte) ((this.frameCounter >> (i * BITS_PER_BYTE)) & 0xff);
 		}
-		iv = ProtocolUtils.concatByteArrays(this.systemTitle, fc);
+		iv = ProtocolUtils.concatByteArrays(getSystemTitle(), fc);
 		return iv;
 	}
 
 	protected byte[] getRespondingInitializationVector() {
-		if (this.systemTitle == null) {
-			throw new IllegalArgumentException("The AssociationResponse did NOT have a server SysteTitle - Encryption can not be applied!");
+		if (getResponseSystemTitle() == null) {
+			throw new IllegalArgumentException("The AssociationResponse did NOT have a server SystemTitle - Encryption can not be applied!");
 		}
 		byte[] iv = new byte[INITIALIZATION_VECTOR_SIZE];
 		byte[] fc = new byte[FRAME_COUNTER_SIZE];
@@ -429,8 +441,26 @@ public class SecurityContext {
 		for (int i = 0; i < fc.length; i++) {
 			fc[fc.length - 1 - i] = (byte) ((this.responseFrameCounter >> (i * BITS_PER_BYTE)) & 0xff);
 		}
-		iv = ProtocolUtils.concatByteArrays(this.systemTitle, fc);
+		iv = ProtocolUtils.concatByteArrays(getResponseSystemTitle(), fc);
 		return iv;
+	}
+
+	public byte[] getSystemTitle() {
+		return systemTitle;
+	}
+
+	public byte[] getResponseSystemTitle() {
+		return responseSystemTitle;
+	}
+
+	public void setResponseSystemTitle(byte[] title) {
+		if (title != null) {
+			this.responseSystemTitle = new byte[SYSTEM_TITLE_LENGTH];
+			int copyLength = title.length < SYSTEM_TITLE_LENGTH ? title.length : this.responseSystemTitle.length;
+			System.arraycopy(title, 0, this.responseSystemTitle, 0, copyLength);
+		} else {
+			responseSystemTitle = null;
+		}
 	}
 
 	/**
@@ -439,8 +469,20 @@ public class SecurityContext {
 	public long getFrameCounter(){
 		return this.frameCounter;
 	}
+
+	/**
+	 * Set the frameCounter with a new value
+	 * @param frameCounter
+	 */
 	public void setFrameCounter(long frameCounter){
 		this.frameCounter = frameCounter;
+	}
+
+	/**
+	 * Add 1 to the existing frameCounter
+	 */
+	public void incFrameCounter() {
+		this.frameCounter++;
 	}
 
 	/**
@@ -490,7 +532,12 @@ public class SecurityContext {
 		return "";
 	}
 
-	public void setSystemTitle(byte[] respondingAPTtitle) {
-		this.systemTitle = respondingAPTtitle != null ? respondingAPTtitle.clone() : null;
+	@Override
+	public String toString() {
+		final Object crlf = "\r\n";
+		StringBuilder sb = new StringBuilder();
+		sb.append("SecurityContext:").append(crlf);
+		return sb.toString();
 	}
+
 }
