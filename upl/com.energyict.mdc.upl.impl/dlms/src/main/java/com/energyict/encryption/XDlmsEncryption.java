@@ -10,8 +10,6 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class XDlmsEncryption {
 
-	private static final String	CRLF	= "\r\n";
-
 	private static final int	SYSTEM_TITLE_LENGTH			= 8;
 	private static final int	FRAME_COUNTER_LENGTH		= 4;
 	private static final int	GLOBAL_KEY_LENGTH			= 16;
@@ -218,88 +216,24 @@ public class XDlmsEncryption {
 
 	@Override
 	public String toString() {
+		final String crlf = "\r\n";
 		StringBuffer sb = new StringBuffer();
-		sb.append("xDLMSEncryption").append(CRLF);
-		sb.append(" > ST = ").append(ProtocolUtils.getResponseData(getSystemTitle())).append(CRLF);
-		sb.append(" > FC = ").append(ProtocolUtils.getResponseData(getFrameCounter())).append(CRLF);
-		sb.append(" > AK = ").append(ProtocolUtils.getResponseData(getAuthenticationKey())).append(CRLF);
-		sb.append(" > GK = ").append(ProtocolUtils.getResponseData(getGlobalKey())).append(CRLF);
-		sb.append(" > PT = ").append(ProtocolUtils.getResponseData(getPlainText())).append(CRLF);
-		sb.append(" > SC = ").append(ProtocolUtils.getResponseData(new byte[] { getSecurityControlByte() })).append(CRLF);
-		sb.append(CRLF);
-		sb.append(" > IV = ").append(ProtocolUtils.getResponseData(generateInitialisationVector())).append(CRLF);
-		sb.append(" > SH = ").append(ProtocolUtils.getResponseData(generateSecurityHeader())).append(CRLF);
-		sb.append(" > A  = ").append(ProtocolUtils.getResponseData(generateAssociatedData())).append(CRLF);
-		sb.append(" > C  = ").append(ProtocolUtils.getResponseData(generateCipherText())).append(CRLF);
-		sb.append(" > T  = ").append(ProtocolUtils.getResponseData(generateAuthenticationTag())).append(CRLF);
-		sb.append(CRLF);
-		sb.append(" > Ciphered APDU = ").append(ProtocolUtils.getResponseData(generateCipheredAPDU())).append(CRLF);
+		sb.append("xDLMSEncryption").append(crlf);
+		sb.append(" > ST = ").append(ProtocolUtils.getResponseData(getSystemTitle())).append(crlf);
+		sb.append(" > FC = ").append(ProtocolUtils.getResponseData(getFrameCounter())).append(crlf);
+		sb.append(" > AK = ").append(ProtocolUtils.getResponseData(getAuthenticationKey())).append(crlf);
+		sb.append(" > GK = ").append(ProtocolUtils.getResponseData(getGlobalKey())).append(crlf);
+		sb.append(" > PT = ").append(ProtocolUtils.getResponseData(getPlainText())).append(crlf);
+		sb.append(" > SC = ").append(ProtocolUtils.getResponseData(new byte[] { getSecurityControlByte() })).append(crlf);
+		sb.append(crlf);
+		sb.append(" > IV = ").append(ProtocolUtils.getResponseData(generateInitialisationVector())).append(crlf);
+		sb.append(" > SH = ").append(ProtocolUtils.getResponseData(generateSecurityHeader())).append(crlf);
+		sb.append(" > A  = ").append(ProtocolUtils.getResponseData(generateAssociatedData())).append(crlf);
+		sb.append(" > C  = ").append(ProtocolUtils.getResponseData(generateCipherText())).append(crlf);
+		sb.append(" > T  = ").append(ProtocolUtils.getResponseData(generateAuthenticationTag())).append(crlf);
+		sb.append(crlf);
+		sb.append(" > Ciphered APDU = ").append(ProtocolUtils.getResponseData(generateCipheredAPDU())).append(crlf);
 		return sb.toString();
-	}
-
-	public static void main(String[] args) {
-
-		final byte[] SYSTEM_TITLE = new byte[] { 0x4D, 0x4D, 0x4D, 0x00, 0x00, (byte) 0xBC, 0x61, 0x4E };
-		final byte[] FRAME_COUNTER = new byte[] { 0x01, 0x23, 0x45, 0x67 };
-
-		final byte[] GLOBAL_KEY = new byte[] {
-			(byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03,
-			(byte) 0x04, (byte) 0x05, (byte) 0x06, (byte) 0x07,
-			(byte) 0x08, (byte) 0x09, (byte) 0x0A, (byte) 0x0B,
-			(byte) 0x0C, (byte) 0x0D, (byte) 0x0E, (byte) 0x0F
-		};
-
-		final byte[] AUTHENTICATION_KEY = new byte[] {
-			(byte) 0xD0, (byte) 0xD1, (byte) 0xD2, (byte) 0xD3,
-			(byte) 0xD4, (byte) 0xD5, (byte) 0xD6, (byte) 0xD7,
-			(byte) 0xD8, (byte) 0xD9, (byte) 0xDA, (byte) 0xDB,
-			(byte) 0xDC, (byte) 0xDD, (byte) 0xDE, (byte) 0xDF
-		};
-
-		final byte[] PLAIN_TEXT = new byte[] {
-			(byte) 0x01, (byte) 0x01, (byte) 0x10, (byte) 0x00,
-			(byte) 0x11, (byte) 0x22, (byte) 0x33, (byte) 0x44,
-			(byte) 0x55, (byte) 0x66, (byte) 0x77, (byte) 0x88,
-			(byte) 0x99, (byte) 0xAA, (byte) 0xBB, (byte) 0xCC,
-			(byte) 0xDD, (byte) 0xEE, (byte) 0xFF, (byte) 0x00,
-			(byte) 0x00, (byte) 0x06, (byte) 0x5F, (byte) 0x1F,
-			(byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x7E,
-			(byte) 0x1F, (byte) 0x04, (byte) 0xB0
-		};
-
-
-		XDlmsEncryption xdlms = new XDlmsEncryption();
-		xdlms.setSystemTitle(SYSTEM_TITLE);
-		xdlms.setFrameCounter(FRAME_COUNTER);
-		xdlms.setGlobalKey(GLOBAL_KEY);
-		xdlms.setAuthenticationKey(AUTHENTICATION_KEY);
-		xdlms.setPlainText(PLAIN_TEXT);
-		xdlms.setSecurityControlByte((byte) 0x30);
-		xdlms.generateCipheredAPDU();
-
-		byte[] ciphered = new byte[] {
-				(byte) 0x34, (byte) 0x86, (byte) 0xE9, (byte) 0x77,
-				(byte) 0x9A, (byte) 0x65, (byte) 0x51, (byte) 0x3B,
-				(byte) 0x30, (byte) 0x5A, (byte) 0x91, (byte) 0xEE,
-				(byte) 0x1F, (byte) 0x86
-		};
-
-		byte[] tag = new byte[] {
-				(byte) 0xD1, (byte) 0xEE, (byte) 0x28, (byte) 0xA7,
-				(byte) 0xD4, (byte) 0xAC, (byte) 0x27, (byte) 0xC1,
-				(byte) 0xAD, (byte) 0x56, (byte) 0xB8, (byte) 0x02
-		};
-
-		byte[] authData = new byte[] {
-				(byte) 0x30, (byte) 0xD0, (byte) 0xD1, (byte) 0xD2,
-				(byte) 0xD3, (byte) 0xD4, (byte) 0xD5, (byte) 0xD6,
-				(byte) 0xD7, (byte) 0xD8, (byte) 0xD9, (byte) 0xDA,
-				(byte) 0xDB, (byte) 0xDC, (byte) 0xDD, (byte) 0xDE,
-				(byte) 0xDF
-		};
-
-
-
 	}
 
 }
