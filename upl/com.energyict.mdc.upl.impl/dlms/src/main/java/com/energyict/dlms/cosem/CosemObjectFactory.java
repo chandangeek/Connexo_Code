@@ -216,6 +216,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 		return new GPRSModemSetup(protocolLink, getObjectReference(GPRSMODEMSETUP, protocolLink.getMeterConfig().getGPRSModemSetupSN()));
 	}
 
+	public SFSKPhyMacSetup getSFSKPhyMacSetup(ObisCode obisCode) throws IOException {
+		return new SFSKPhyMacSetup(protocolLink, getObjectReference(obisCode));
+	}
+
 	public TCPUDPSetup getTCPUDPSetup() throws IOException{
 		return  new TCPUDPSetup(protocolLink);
 	}
