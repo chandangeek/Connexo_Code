@@ -79,6 +79,8 @@ import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 
 abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism {
 
+	private static final String			SERIAL_NUMBER_PREFIX		= "35";
+
 	private static final int			MAX_PDU_SIZE				= 1200;
 	private static final int			PROPOSED_QOS				= -1;
 	private static final int			PROPOSED_DLMS_VERSION		= 6;
@@ -147,17 +149,6 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 
 	private Properties properties;
 
-    private static final byte[] AARQ_LOWEST_LEVEL = {
-            (byte)0xE6,(byte)0xE6,(byte)0x00,
-            (byte)0x60,
-            (byte)0x1C, // bytes to follow
-            (byte)0xA1,(byte)0x09,(byte)0x06,(byte)0x07,
-            (byte)0x60,(byte)0x85,(byte)0x74,(byte)0x05,(byte)0x08,(byte)0x01,(byte)0x02, //application context name
-            (byte)0xBE,(byte)0x0F,(byte)0x04,
-            (byte)0x0D,(byte)0x01,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x06,(byte)0x5F,(byte)0x04,(byte)0x00,(byte)0x18,(byte)0x02,
-            (byte)0x20,(byte)0xFF,(byte)0xFF
-    };
-
     /**
 	 *  Creates a new instance of DLMSSNAS220, empty constructor
      */
@@ -181,12 +172,12 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     /** initializes the receiver
      * @param inputStream <br>
      * @param outputStream <br>
-     * @param timeZone <br>
-     * @param logger <br>
+     * @param tz <br>
+     * @param log <br>
      */
-	public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
-        this.timeZone = timeZone;
-        this.logger = logger;
+	public void init(InputStream inputStream, OutputStream outputStream, TimeZone tz, Logger log) throws IOException {
+        this.timeZone = tz;
+        this.logger = log;
 
         setDstFlag(-1);
         iNumberOfChannels = -1;
@@ -377,7 +368,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         try {
             if (getDLMSConnection() != null) {
     			if ((aso != null) && (aso.getAssociationStatus() != ApplicationServiceObject.ASSOCIATION_DISCONNECTED)) {
-                	aso.releaseAssociation();
+                	//aso.releaseAssociation(); //FIXME: check RLRQ
     			}
 				getDLMSConnection().disconnectMAC();
 			}
@@ -450,12 +441,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 	private String getSerialNumber() throws IOException {
 		UniversalObject uo = getMeterConfig().getSerialNumberObject();
 		byte[] responsedata = getCosemObjectFactory().getGenericRead(uo.getBaseName(), uo.getValueAttributeOffset()).getResponseData();
-		byte[] octetStr = AXDRDecoder.decode(responsedata).getOctetString().getOctetStr();
-		StringBuffer strBuff = new StringBuffer();
-		for (int i = 0; i < octetStr.length; i++) {
-			strBuff.append(ProtocolUtils.buildStringHex(octetStr[i] & 0xff, 2));
-		}
-		return strBuff.toString();
+		return SERIAL_NUMBER_PREFIX + AXDRDecoder.decode(responsedata).getOctetString().stringValue();
 	}
 
 	/**
@@ -528,48 +514,6 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         return profileData;
 
     } // private ProfileData doGetDemandValues(Calendar fromCalendar,Calendar toCalendar, byte bNROfChannels) throws IOException
-
-	/**
-	 * @param iLevel
-	 * @throws IOException
-	 */
-	private void requestApplAssoc(int iLevel) throws IOException {
-		doRequestApplAssoc(iLevel == 0 ? AARQ_LOWEST_LEVEL : getLowLevelSecurity());
-	}
-
-	protected byte[] getLowLevelSecurity() {
-        final byte[] aarqlowlevelAS220 = {
-        		(byte)0xE6, (byte)0xE6, (byte)0x00,
-        		(byte)0x60,
-        		(byte)0x36,
-        		(byte)0xA1, (byte)0x09, (byte)0x06, (byte)0x07,
-        		(byte)0x60, (byte)0x85, (byte)0x74, (byte)0x05, (byte)0x08, (byte)0x01, (byte)0x02,
-        		(byte)0x8A, (byte)0x02, (byte)0x07, (byte)0x80,
-        		(byte)0x8B, (byte)0x07, (byte)0x60, (byte)0x85, (byte)0x74, (byte)0x05, (byte)0x08, (byte)0x02, (byte)0x01};
-
-        final byte[] aarqlowlevelAS220_2= {
-        		(byte)0xBE, (byte)0x10, (byte)0x04, (byte)0x0E,
-        		(byte)0x01,
-        		(byte)0x00, (byte)0x00, (byte)0x00,
-        		(byte)0x06,
-        		(byte)0x5F, (byte)0x1F, (byte)0x04, (byte)0x00, (byte)0x18, (byte)0x02, (byte)0x20,
-                (byte)0x00, (byte)0xEF};
-
-    	return AS220AAREUtil.buildaarq(aarqlowlevelAS220,aarqlowlevelAS220_2, strPassword);
-    }
-
-    /**
-     * @param aarq
-     * @throws IOException
-     */
-    private void doRequestApplAssoc(byte[] aarq) throws IOException {
-        byte[] responseData;
-        responseData = getDLMSConnection().sendRequest(aarq);
-        AS220AAREUtil.checkAARE(responseData);
-        if (isDebug()) {
-			ProtocolUtils.printResponseData(responseData);
-		}
-    }
 
     /** this implementation calls <code> validateProperties </code>
      * and assigns the argument to the properties field
