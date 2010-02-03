@@ -33,7 +33,6 @@ import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.CosemPDUConnection;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -44,13 +43,20 @@ import com.energyict.dlms.DLMSObis;
 import com.energyict.dlms.LLCConnection;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.SecureConnection;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.ChannelInfo;
@@ -73,12 +79,16 @@ import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 
 abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism {
 
-	private static final int		SEC_PER_MIN					= 60;
+	private static final int			MAX_PDU_SIZE				= 1200;
+	private static final int			PROPOSED_QOS				= -1;
+	private static final int			PROPOSED_DLMS_VERSION		= 6;
 
-	private static final int		CONNECTION_MODE_HDLC		= 0;
-	private static final int		CONNECTION_MODE_TCPIP		= 1;
-	private static final int		CONNECTION_MODE_COSEM_PDU	= 2;
-	private static final int		CONNECTION_MODE_LLC			= 3;
+	private static final int			SEC_PER_MIN					= 60;
+
+	private static final int			CONNECTION_MODE_HDLC		= 0;
+	private static final int			CONNECTION_MODE_TCPIP		= 1;
+	private static final int			CONNECTION_MODE_COSEM_PDU	= 2;
+	private static final int			CONNECTION_MODE_LLC			= 3;
 
 	private static final ObisCode	ENERGY_PROFILE_OBISCODE	= ObisCode.fromString("1.1.99.1.0.255");
 
@@ -91,7 +101,6 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 
     private int iTimeoutProperty;
     private int iProtocolRetriesProperty;
-    private int iSecurityLevelProperty;
     private int iRequestTimeZone;
     private int iRoundtripCorrection;
     private int iClientMacAddress;
@@ -110,7 +119,13 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     private int extendedLogging;
     private ProtocolChannelMap channelMap;
 
-    private DLMSConnection dlmsConnection=null;
+    private int authenticationSecurityLevel;
+	private int	datatransportSecurityLevel;
+
+    private DLMSConnection dlmsConnection = null;
+    private SecurityContext securityContext = null;
+    private ApplicationServiceObject aso = null;
+
     private CosemObjectFactory cosemObjectFactory=null;
     private StoredValuesImpl storedValuesImpl=null;
 
@@ -129,6 +144,8 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     private int dstFlag; // -1=unknown, 0=not set, 1=set
     private int addressingMode;
     private int connectionMode;
+
+	private Properties properties;
 
     private static final byte[] AARQ_LOWEST_LEVEL = {
             (byte)0xE6,(byte)0xE6,(byte)0x00,
@@ -167,45 +184,83 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
      * @param timeZone <br>
      * @param logger <br>
      */
-    public void init(InputStream inputStream,OutputStream outputStream,TimeZone timeZone,Logger logger) throws IOException {
+	public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
         this.timeZone = timeZone;
         this.logger = logger;
 
         setDstFlag(-1);
-        iNumberOfChannels = -1; // Lazy initializing
-        iMeterTimeZoneOffset = 255; // Lazy initializing
-        iConfigProgramChange = -1; // Lazy initializing
+        iNumberOfChannels = -1;
+        iMeterTimeZoneOffset = 255;
+        iConfigProgramChange = -1;
 
-        try {
-            cosemObjectFactory = new CosemObjectFactory(this);
-            storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
-            // KV 19092003 set forcedelay to 100 ms for the optical delay when using HHU?
+        cosemObjectFactory = new CosemObjectFactory(this);
+        storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
 
-            switch (connectionMode) {
-				case CONNECTION_MODE_HDLC:
-					dlmsConnection=new HDLCConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress,iServerUpperMacAddress,addressingMode);
-					break;
-				case CONNECTION_MODE_TCPIP:
-					dlmsConnection=new TCPIPConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
-					break;
-				case CONNECTION_MODE_COSEM_PDU:
-					dlmsConnection=new CosemPDUConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
-					break;
-				case CONNECTION_MODE_LLC:
-					dlmsConnection=new LLCConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
-					break;
-				default:
-					throw new IOException("Unable to initialize dlmsConnection, connection property unknown: " + connectionMode);
-			}
-		} catch (DLMSConnectionException e) {
-            //logger.severe ("DLMSSN init(...), "+e.getMessage());
-            throw new IOException(e.getMessage());
-        }
+        initDLMSConnection(inputStream, outputStream);
 
         iInterval=-1;
         iNROfIntervals=-1;
 
     }
+
+	/**
+	 * @param inputStream
+	 * @param outputStream
+	 * @throws ConnectionException
+	 * @throws IOException
+	 */
+	private void initDLMSConnection(InputStream inputStream, OutputStream outputStream) throws ConnectionException, IOException {
+
+		DLMSConnection connection;
+
+		try {
+            switch (connectionMode) {
+				case CONNECTION_MODE_HDLC:
+					connection = new HDLCConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress,iServerUpperMacAddress,addressingMode);
+					break;
+				case CONNECTION_MODE_TCPIP:
+					connection = new TCPIPConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
+					break;
+				case CONNECTION_MODE_COSEM_PDU:
+					connection = new CosemPDUConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
+					break;
+				case CONNECTION_MODE_LLC:
+					connection = new LLCConnection(inputStream,outputStream,iTimeoutProperty,200,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
+					break;
+				default:
+					throw new IOException("Unable to initialize dlmsConnection, connection property unknown: " + connectionMode);
+			}
+		} catch (DLMSConnectionException e) {
+			throw new IOException(e.getMessage());
+        }
+
+		byte[] dedicatedKey = new byte[0x10];
+		for (byte i = 0; i < dedicatedKey.length; i++) {
+			dedicatedKey[i] = (byte) (i+1);
+		}
+
+		LocalSecurityProvider localSecurityProvider = new LocalSecurityProvider(this.properties);
+		securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, serialNumber.getBytes(), localSecurityProvider);
+		ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_SN_CONFORMANCE_BLOCK);
+		XdlmsAse xdlmsAse = new XdlmsAse(localSecurityProvider.getDedicatedKey(), true, PROPOSED_QOS, PROPOSED_DLMS_VERSION, cb, MAX_PDU_SIZE);
+		aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, AssociationControlServiceElement.SHORT_NAME_REFERENCING_WITH_CIPHERING);
+		dlmsConnection = new SecureConnection(aso, connection);
+	}
+
+	public void connect() throws IOException {
+		try {
+			getDLMSConnection().connectMAC();
+			aso.createAssociation();
+			checkCache();
+			validateSerialNumber();
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException(e.getMessage());
+		} catch (DLMSConnectionException e) {
+			e.printStackTrace();
+			throw new IOException(e.getMessage());
+		}
+	}
 
     public int getProfileInterval() throws UnsupportedException, IOException {
         if (iInterval == -1) {
@@ -230,86 +285,59 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         throw new UnsupportedException();
     }
 
-    public void connect() throws IOException {
-        try {
-            getDLMSConnection().connectMAC();
-        }
-        catch(DLMSConnectionException e) {
-            throw new IOException(e.getMessage());
-        }
-        try {
+	/**
+	 * @throws IOException
+	 */
+	private void checkCache() throws IOException {
+        System.out.println("cache="+dlmsCache.getObjectList()+", confchange="+dlmsCache.getConfProgChange()+", ischanged="+dlmsCache.isChanged());
+		try { // conf program change and object list stuff
+		    int iConf;
+		    if (dlmsCache.getObjectList() != null) {
+		        meterConfig.setInstantiatedObjectList(dlmsCache.getObjectList());
+		        try {
+		            iConf = requestConfigurationProgramChanges();
+		        }
+		        catch(IOException e) {
+		            iConf=-1;
+		            logger.severe("DLMSSNAS220 Configuration change count not accessible, request object list.");
+		            requestObjectList();
+		            dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
+		        }
 
-            requestApplAssoc(iSecurityLevelProperty);
-            try {
-                requestSAP();
-                //System.out.println("cache="+dlmsCache.getObjectList()+", confchange="+dlmsCache.getConfProgChange()+", ischanged="+dlmsCache.isChanged());
-                try { // conf program change and object list stuff
-                    int iConf;
-                    if (dlmsCache.getObjectList() != null) {
-                        meterConfig.setInstantiatedObjectList(dlmsCache.getObjectList());
-                        try {
-                            iConf = requestConfigurationProgramChanges();
-                        }
-                        catch(IOException e) {
-                            iConf=-1;
-                            logger.severe("DLMSSNAS220 Configuration change count not accessible, request object list.");
-                            requestObjectList();
-                            dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
-                        }
+		        if (iConf != dlmsCache.getConfProgChange()) {
+		            logger.severe("DLMSSNAS220 Configuration changed, request object list.");
+		            requestObjectList();           // request object list again from rtu
+		            dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
+		            dlmsCache.setConfProgChange(iConf);  // set new configuration program change
+		        }
+		    }
+		    else { // Cache not exist
+		        logger.info("DLMSSNAS220 Cache does not exist, request object list.");
+		        requestObjectList();
+		        try {
+		            iConf = requestConfigurationProgramChanges();
+		            dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
+		            dlmsCache.setConfProgChange(iConf);  // set new configuration program change
+		        }
+		        catch(IOException e) {
+		            iConf=-1;
+		        }
+		    }
 
-                        if (iConf != dlmsCache.getConfProgChange()) {
-                        // KV 19112003 ************************** DEBUGGING CODE ********************************
-                        //System.out.println("!!!!!!!!!! DEBUGGING CODE FORCED DLMS CACHE UPDATE !!!!!!!!!!");
-                        //if (true) {
-                        // ****************************************************************************
-                            logger.severe("DLMSSNAS220 Configuration changed, request object list.");
-                            requestObjectList();           // request object list again from rtu
-                            dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
-                            dlmsCache.setConfProgChange(iConf);  // set new configuration program change
-                        }
-                    }
-                    else { // Cache not exist
-                        logger.info("DLMSSNAS220 Cache does not exist, request object list.");
-                        requestObjectList();
-                        try {
-                            iConf = requestConfigurationProgramChanges();
-                            dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
-                            dlmsCache.setConfProgChange(iConf);  // set new configuration program change
-                        }
-                        catch(IOException e) {
-                            iConf=-1;
-                        }
-                    }
+		    if (extendedLogging >= 1) {
+				logger.info(getRegistersInfo());
+			}
 
-                    if (extendedLogging >= 1) {
-						logger.info(getRegistersInfo(extendedLogging));
-					}
-
-                }
-                catch(IOException e) {
-                    e.printStackTrace();
-                    throw new IOException("connect() error, "+e.getMessage());
-                }
-
-            }
-            catch(IOException e) {
-                e.printStackTrace();
-            	throw new IOException(e.getMessage());
-            }
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        	throw new IOException(e.getMessage());
-        }
-
-        validateSerialNumber(); // KV 19012004
-
-    } // public void connect() throws IOException
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("connect() error, " + e.getMessage());
+		}
+	}
 
     /*
      *  extendedLogging = 1 current set of logical addresses, extendedLogging = 2..17 historical set 1..16
      */
-    protected String getRegistersInfo(int extendedLogging) throws IOException {
+    protected String getRegistersInfo() throws IOException {
         StringBuffer strBuff = new StringBuffer();
 
         Iterator it;
@@ -348,6 +376,9 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     public void disconnect() throws IOException {
         try {
             if (getDLMSConnection() != null) {
+    			if ((aso != null) && (aso.getAssociationStatus() != ApplicationServiceObject.ASSOCIATION_DISCONNECTED)) {
+                	aso.releaseAssociation();
+    			}
 				getDLMSConnection().disconnectMAC();
 			}
 		} catch (DLMSConnectionException e) {
@@ -376,56 +407,64 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
      * This method requests for the COSEM object SAP.
      * @exception IOException
      */
-    public void requestSAP() throws IOException {
-        String devID =  (String)getCosemObjectFactory().getSAPAssignment().getLogicalDeviceNames().get(0);
-        if ((strID != null) && ("".compareTo(strID) != 0)) {
-            if (strID.compareTo(devID) != 0) {
-                throw new IOException("DLMSSNAS220, requestSAP, Wrong DeviceID!, settings="+strID+", meter="+devID);
-            }
-        }
-    } // public void requestSAP() throws IOException
-
-    // KV 19012004
-    private void validateSerialNumber() throws IOException {
-        if ((serialNumber == null) || ("".compareTo(serialNumber)==0)) {
-			return;
+	public void requestSAP() throws IOException {
+		String devID = (String) getCosemObjectFactory().getSAPAssignment().getLogicalDeviceNames().get(0);
+		if ((strID != null) && ("".compareTo(strID) != 0)) {
+			if (strID.compareTo(devID) != 0) {
+				throw new IOException("DLMSSNAS220, requestSAP, Wrong DeviceID!, settings=" + strID + ", meter=" + devID);
+			}
 		}
-        String sn = getSerialNumber();
-        if ((sn != null) && (sn.compareTo(serialNumber) == 0)) {
-			return;
-		}
-        throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+serialNumber);
-    }
+	}
 
-    /**
-     * This method requests for the COSEM object Logical Name register.
-     * @exception IOException
-     */
+	/**
+	 * Check if the serial number property is used, and compare it with the
+	 * serial number of the device. When there's no serial number entered in the
+	 * protocol properties, then no check is performed.
+	 *
+	 * @throws IOException when the serial numbers didn't match
+	 */
+	private void validateSerialNumber() throws IOException {
+		if ((serialNumber != null) && ("".compareTo(serialNumber) != 0)) {
+			String sn = getSerialNumber();
+			if ((sn == null) || (sn.compareTo(serialNumber) != 0)) {
+				throw new IOException("SerialNumber mismatch! meter sn=" + sn + ", configured sn=" + serialNumber);
+			}
+		}
+	}
+
+	/**
+	 * This method requests for the COSEM object Logical Name register.
+	 *
+	 * @exception IOException
+	 */
     private String requestAttribute(int iBaseName,int iOffset) throws IOException {
         return getCosemObjectFactory().getGenericRead(iBaseName,iOffset).getDataContainer().toString();
     }
 
-    /**
-     * Read the serialNumber from the device
-     * @return the serial number from the device as {@link String}
-     * @throws IOException
-     */
-    private String getSerialNumber() throws IOException {
-        UniversalObject uo = getMeterConfig().getSerialNumberObject();
-        byte[] responsedata = getCosemObjectFactory().getGenericRead(uo.getBaseName(),uo.getValueAttributeOffset()).getResponseData();
-        byte[] octetStr = AXDRDecoder.decode(responsedata).getOctetString().getOctetStr();
-        StringBuffer strBuff = new StringBuffer();
-        for (int i=0;i<octetStr.length;i++) {
-        	strBuff.append(ProtocolUtils.buildStringHex(octetStr[i]&0xff, 2));
-        }
-        return strBuff.toString();
-    }
+	/**
+	 * Read the serialNumber from the device
+	 *
+	 * @return the serial number from the device as {@link String}
+	 * @throws IOException
+	 */
+	private String getSerialNumber() throws IOException {
+		UniversalObject uo = getMeterConfig().getSerialNumberObject();
+		byte[] responsedata = getCosemObjectFactory().getGenericRead(uo.getBaseName(), uo.getValueAttributeOffset()).getResponseData();
+		byte[] octetStr = AXDRDecoder.decode(responsedata).getOctetString().getOctetStr();
+		StringBuffer strBuff = new StringBuffer();
+		for (int i = 0; i < octetStr.length; i++) {
+			strBuff.append(ProtocolUtils.buildStringHex(octetStr[i] & 0xff, 2));
+		}
+		return strBuff.toString();
+	}
 
-    /**
-     * This method requests for the NR of intervals that can be stored in the memory of the remote meter.
-     * @return NR of intervals that can be stored in the memory of the remote meter.
-     * @exception IOException
-     */
+	/**
+	 * This method requests for the NR of intervals that can be stored in the
+	 * memory of the remote meter.
+	 *
+	 * @return NR of intervals that can be stored in the memory of the remote meter.
+	 * @exception IOException
+	 */
     private int getNROfIntervals() throws IOException {
         if (iNROfIntervals == -1) {
             iNROfIntervals = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getProfileEntries();
@@ -452,6 +491,15 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 		return doGetDemandValues(fromCalendar, toCalendar, includeEvents);
 	}
 
+    /**
+     * Read the profile dta from the device
+     *
+     * @param fromCalendar
+     * @param toCalendar
+     * @param includeEvents
+     * @return the {@link ProfileData}
+     * @throws IOException
+     */
     private ProfileData doGetDemandValues(Calendar fromCalendar,Calendar toCalendar, boolean includeEvents) throws IOException {
         ProfileBuilder profileBuilder = new ProfileBuilder(this);
 		ProfileData profileData = new ProfileData();
@@ -481,6 +529,10 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 
     } // private ProfileData doGetDemandValues(Calendar fromCalendar,Calendar toCalendar, byte bNROfChannels) throws IOException
 
+	/**
+	 * @param iLevel
+	 * @throws IOException
+	 */
 	private void requestApplAssoc(int iLevel) throws IOException {
 		doRequestApplAssoc(iLevel == 0 ? AARQ_LOWEST_LEVEL : getLowLevelSecurity());
 	}
@@ -506,6 +558,10 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     	return AS220AAREUtil.buildaarq(aarqlowlevelAS220,aarqlowlevelAS220_2, strPassword);
     }
 
+    /**
+     * @param aarq
+     * @throws IOException
+     */
     private void doRequestApplAssoc(byte[] aarq) throws IOException {
         byte[] responseData;
         responseData = getDLMSConnection().sendRequest(aarq);
@@ -524,7 +580,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
      */
     public void setProperties(Properties properties) throws MissingPropertyException , InvalidPropertyException {
         validateProperties(properties);
-        //this.properties = properties;
+        this.properties = properties;
     }
 
     /** <p>validates the properties.</p><p>
@@ -546,7 +602,6 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 			}
 
 			nodeId = properties.getProperty(MeterProtocol.NODEID, "");
-			// KV 19012004 get the serialNumber
 			serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
 			extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
 			addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "-1"));
@@ -563,13 +618,23 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 				throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
 			}
 
-			strPassword = properties.getProperty(MeterProtocol.PASSWORD, "123456789");
+			strPassword = properties.getProperty(MeterProtocol.PASSWORD, "00000000");
 			iTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
 			iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
 			iRequestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0").trim());
 			iRequestClockObject = Integer.parseInt(properties.getProperty("RequestClockObject", "0").trim());
-			setiRoundtripCorrection(Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim()));
-			iSecurityLevelProperty = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
+			setRoundtripCorrection(Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim()));
+
+			String[] securityLevel = properties.getProperty("SecurityLevel", "0:" + SecurityContext.SECURITYPOLICY_NONE).split(":");
+			this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
+			if (securityLevel.length == 2) {
+				this.datatransportSecurityLevel = Integer.parseInt(securityLevel[1]);
+			} else if (securityLevel.length == 1) {
+				this.datatransportSecurityLevel = SecurityContext.SECURITYPOLICY_NONE;
+			} else {
+				throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty("SecurityLevel", "0"));
+			}
+
 			iClientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "32").trim());
 			iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "1").trim());
 			iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "0").trim());
@@ -653,6 +718,9 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         result.add("EventIdIndex");
         result.add("ChannelMap");
         result.add("Connection");
+        result.add(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);  //TODO: check these optional keys
+        result.add(LocalSecurityProvider.DATATRANSPORTKEY);
+        result.add(LocalSecurityProvider.MASTERKEY);
         result.add("TransparentConnectTime");
         result.add("TransparentBaudrate");
         result.add("TransparentDatabits");
@@ -749,7 +817,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
     	HHUSignOn hhuSignOn = new AS220TransparentConnection(commChannel, transparentConnectTime, transparentBaudrate, transparentDatabits, transparentStopbits,
-    			transparentParity, iSecurityLevelProperty, strPassword);
+    			transparentParity, authenticationSecurityLevel, strPassword);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
@@ -813,7 +881,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 	/**
 	 * @param iRoundtripCorrection the iRoundtripCorrection to set
 	 */
-	public void setiRoundtripCorrection(int iRoundtripCorrection) {
+	public void setRoundtripCorrection(int iRoundtripCorrection) {
 		this.iRoundtripCorrection = iRoundtripCorrection;
 	}
 
