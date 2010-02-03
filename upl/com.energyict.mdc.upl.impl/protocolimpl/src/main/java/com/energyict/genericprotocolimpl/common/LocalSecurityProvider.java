@@ -13,20 +13,21 @@ import com.energyict.protocolimpl.base.SecurityLevelException;
  * Default implementation of the securityProvider.
  * Provides all the securityKeys, just for LOCAL purpose
  * Functionality is implemented according to the NTA specification
- * 
+ *
  * @author gna
  *
  */
 public class LocalSecurityProvider implements SecurityProvider {
-	
+
 	private int securityLevel;
 	private byte[] cTOs;
 	private byte[] authenticationPassword;
 	private byte[] dataTransportPassword;
+	private byte[] dedicatedKey;
 	private byte[] masterKey;
 	private String hlsSecret;
 	private Properties properties;
-	
+
 	/** Property name of the new AutenticationKey */
 	public static final String NEW_AUTHENTICATION_KEY = "NewAuthenticationKey";
 	/** Property name of the new Global encryption Key */
@@ -41,7 +42,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 	public static final String DATATRANSPORT_AUTHENTICATIONKEY = "DataTransportAuthenticationKey";
 	/** Property name of the new LowLevel security Secret */
 	public static final String NEW_LLS_SECRET = "NewLLSSecret";
-	
+
 	/**
 	 * Create a new instance of LocalSecurityProvider
 	 * @param properties - contains the keys for the authentication/encryption
@@ -59,7 +60,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 		this.authenticationPassword = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORT_AUTHENTICATIONKEY,""));
 		this.hlsSecret = properties.getProperty(MeterProtocol.PASSWORD,"");
 	}
-	
+
 	/**
 	 * Generate a random challenge of 8 bytes long
 	 */
@@ -102,11 +103,6 @@ public class LocalSecurityProvider implements SecurityProvider {
 		}
 	}
 
-	public byte[] getDedicatedKey() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	/**
 	 * The global key or encryption key is a custom property of the rtu
 	 */
@@ -125,7 +121,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 		}
 		return byteWord;
 	}
-	
+
 	/**
 	 * The LLSSecret is the same as the HLSSecret
 	 * @return the password of the RTU
@@ -142,7 +138,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 	}
 
 	//********** Return new keys for KeyChange functionality **********/
-	
+
 	/**
 	 * @return the new data encryption Authentication Key
 	 */
@@ -172,7 +168,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 		}
 		throw new IllegalArgumentException("New HLSSecret is not correctly filled in.");
 	}
-	
+
 	/**
 	 * @return the new LLS secret
 	 * @return
@@ -188,6 +184,15 @@ public class LocalSecurityProvider implements SecurityProvider {
 			return byteWord;
 		}
 		throw new IllegalArgumentException("New LLSSecret is not correctly filled in.");
+	}
+
+	public byte[] getDedicatedKey() {
+		if (dedicatedKey == null) {
+			dedicatedKey = new byte[16];
+			Random rnd = new Random();
+			rnd.nextBytes(dedicatedKey);
+		}
+		return dedicatedKey;
 	}
 
 }
