@@ -11,7 +11,7 @@ import java.util.List;
 
 public class CommunicationDumpFile {
 
-	private List entries = new ArrayList();
+	private List<CommunicationDumpEntry> entries = new ArrayList<CommunicationDumpEntry>();
 
 	public CommunicationDumpFile(String fileName) {
 		this(new File(fileName));
@@ -67,6 +67,26 @@ public class CommunicationDumpFile {
 			}
 		}
 		return sb.toString();
+	}
+
+	public List<CommunicationDumpEntry> getRxEntries() {
+		List<CommunicationDumpEntry> rxEntries = new ArrayList<CommunicationDumpEntry>();
+		for (CommunicationDumpEntry cde : entries) {
+			if (cde.isRx()) {
+				rxEntries.add(cde);
+			}
+		}
+		return rxEntries;
+	}
+
+	public List<CommunicationDumpEntry> getTxEntries() {
+		List<CommunicationDumpEntry> txEntries = new ArrayList<CommunicationDumpEntry>();
+		for (CommunicationDumpEntry cde : entries) {
+			if (cde.isTx()) {
+				txEntries.add(cde);
+			}
+		}
+		return txEntries;
 	}
 
 }
