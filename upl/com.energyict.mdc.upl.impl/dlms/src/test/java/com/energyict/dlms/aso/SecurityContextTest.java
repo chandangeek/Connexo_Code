@@ -13,31 +13,32 @@ import com.energyict.protocol.ProtocolUtils;
 
 
 public class SecurityContextTest {
-	
+
 	private static byte[] systemTitle = new byte[]{(byte)0x4B, (byte)0x41, (byte)0x4D, (byte)0x12, (byte)0x34, (byte)0x56, (byte)0x78, (byte)0x90};
-	
+
 	@Test
 	public void getInitializationVectorTest(){
-		
+
 		SecurityContext sc = new SecurityContext(0, 1,0, systemTitle, null);
 		sc.setFrameCounter(0);
 		byte[] iv = sc.getInitializationVector();
-		
+
 		assertArrayEquals(new byte[]{(byte)0x4B, (byte)0x41, (byte)0x4D, (byte)0x12, (byte)0x34, (byte)0x56, (byte)0x78, (byte)0x90,
 				(byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00}, iv);
 
 		sc.setFrameCounter(10);
 		iv = sc.getInitializationVector();
-		
+
 		assertArrayEquals(new byte[]{(byte)0x4B, (byte)0x41, (byte)0x4D, (byte)0x12, (byte)0x34, (byte)0x56, (byte)0x78, (byte)0x90,
 				(byte)0x00, (byte)0x00, (byte)0x00, (byte)0x0A}, iv);
 	}
-	
+
 	@Test
 	public void logicalDataTransportDecryptionTest(){
-		
+
 		try {
 			String globalKey = "000102030405060708090A0B0C0D0E0F";
+			String dedicatedKey = "000102030405060708090A0B0C0D0E0F";
 			String authenticationKey = "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF";
 			String testDecryptA = "C81e1001234567C0010000080000010000FF020003C51f733571866e675bF115";
 			String testDecryptE = "C8122001234567D0BC0dE872E76d3f64CE312aB1";
@@ -45,28 +46,32 @@ public class SecurityContextTest {
 			MockSecurityProvider msp = new MockSecurityProvider();
 			msp.setAuthenticationKey(DLMSUtils.hexStringToByteArray(authenticationKey));
 			msp.setGlobalkey(DLMSUtils.hexStringToByteArray(globalKey));
-			
+			msp.setDedicatedKey(DLMSUtils.hexStringToByteArray(dedicatedKey));
+
 			// Only authentication
 			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_AUTHENTICATION, 0,0,systemTitle, msp);
+			sc.setResponseSystemTitle(systemTitle);
 			byte[] unCipherResponse = sc.dataTransportDecryption(DLMSUtils.hexStringToByteArray(testDecryptA));
 			assertArrayEquals(DLMSUtils.hexStringToByteArray("C0010000080000010000FF0200"), unCipherResponse);
-			
+
 			// Only encryption
 			sc = new SecurityContext(SecurityContext.SECURITYPOLICY_ENCRYPTION, 0, 0, systemTitle, msp);
+			sc.setResponseSystemTitle(systemTitle);
 			unCipherResponse = sc.dataTransportDecryption(DLMSUtils.hexStringToByteArray(testDecryptE));
 			assertArrayEquals(DLMSUtils.hexStringToByteArray("C0010000080000010000FF0200"), unCipherResponse);
-			
+
 			// Both encryption/authentication
 			sc = new SecurityContext(SecurityContext.SECURITYPOLICY_BOTH, 0, 0, systemTitle, msp);
+			sc.setResponseSystemTitle(systemTitle);
 			unCipherResponse = sc.dataTransportDecryption(DLMSUtils.hexStringToByteArray(testDecryptAE));
 			assertArrayEquals(DLMSUtils.hexStringToByteArray("C0010000080000010000FF0200"), unCipherResponse);
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail();
 		}
 	}
-	
+
 	/**
 	 * The intention of the test is to check for the correct positions of all fields in the frame
 	 */
@@ -109,38 +114,47 @@ public class SecurityContextTest {
 				"103ff02020f0203ff02020f0303ff";
 
 		try {
+			String key = "43218765AABBCCDD55443322ABABCDCD";
+			byte[] systemIdentifier = new byte[]{(byte)0x4B,(byte)0x41,(byte)0x4D,0x00,0x00,0x00,0x00,0x09};
+
 			MockSecurityProvider msp = new MockSecurityProvider();
-			msp.setGlobalkey(DLMSUtils.hexStringToByteArray("43218765AABBCCDD55443322ABABCDCD"));
-			
-			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_ENCRYPTION, 0, 0, 
-					new byte[]{(byte)0x4B,(byte)0x41,(byte)0x4D,0x00,0x00,0x00,0x00,0x09}, msp);
+			msp.setGlobalkey(DLMSUtils.hexStringToByteArray(key));
+			msp.setDedicatedKey(DLMSUtils.hexStringToByteArray(key));
+
+			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_ENCRYPTION, 0, 0, systemIdentifier, msp);
+			sc.setResponseSystemTitle(systemIdentifier);
 			byte[] unCipherResponse = sc.dataTransportDecryption(DLMSUtils.hexStringToByteArray(hugeFrame));
-			
+
 			assertArrayEquals(DLMSUtils.hexStringToByteArray(hugeUncipheredFrame), unCipherResponse);
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail();
 		}
 	}
-	
+
 	@Test
 	public void logicalDataEncryptionExampleFrame(){
+		byte[] sysTitle = DLMSUtils.hexStringToByteArray("4D4D4D0000BC614E");
+		int frameCounter = 0x01234567;
 		String frame = "C0010000080000010000FF0200";
 		String cipheredFrame = "1E3001234567411312FF935A47566827C467BC7D825C3BE4A77C3FCC056B6B";
 		String globalKey = "000102030405060708090A0B0C0D0E0F";
 		String authenticationKey = "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF";
+		String dedicatedKey = "000102030405060708090A0B0C0D0E0F";
 		try {
 			MockSecurityProvider msp = new MockSecurityProvider();
 			msp.setAuthenticationKey(DLMSUtils.hexStringToByteArray(authenticationKey));
 			msp.setGlobalkey(DLMSUtils.hexStringToByteArray(globalKey));
-			
+			msp.setDedicatedKey(DLMSUtils.hexStringToByteArray(dedicatedKey));
+
 			// Both authentication and encryption
-			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_BOTH, 0,0,DLMSUtils.hexStringToByteArray("4D4D4D0000BC614E"), msp);
-			sc.setFrameCounter(19088743); 		// this is '0x01234567'
+			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_BOTH, 0,0,sysTitle, msp);
+			sc.setFrameCounter(frameCounter);
+			sc.setResponseSystemTitle(sysTitle);
 			byte[] cipheredResponse = sc.dataTransportEncryption(DLMSUtils.hexStringToByteArray(frame));
 			assertArrayEquals(DLMSUtils.hexStringToByteArray(cipheredFrame), cipheredResponse);
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail();
@@ -151,54 +165,56 @@ public class SecurityContextTest {
 	public void logicalDataTransportEncryptionTest(){
 		try {
 			String globalKey = "000102030405060708090A0B0C0D0E0F";
+			String dedicatedKey = "000102030405060708090A0B0C0D0E0F";
 			String authenticationKey = "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF";
-			String unSecuredRequest = "C0010000080000010000FF0200";							// first three bytes are redundant
-			String testDecryptA =  "1e1001234567C0010000080000010000FF020003C51f733571866e675bF115";
-			String testDecryptE =  "122001234567D0BC0dE872E76d3f64CE312aB1";
+			String unSecuredRequest = "C0010000080000010000FF0200";
+			String testDecryptA = "1e1001234567C0010000080000010000FF020003C51f733571866e675bF115";
+			String testDecryptE = "122001234567D0BC0dE872E76d3f64CE312aB1";
 			String testDecryptAE = "1E3001234567D0BC0dE872E76d3f64CE312aB1475c7dC48AB69286B4E42664";
-			
+
 			MockSecurityProvider msp = new MockSecurityProvider();
 			msp.setAuthenticationKey(DLMSUtils.hexStringToByteArray(authenticationKey));
 			msp.setGlobalkey(DLMSUtils.hexStringToByteArray(globalKey));
-			
+			msp.setDedicatedKey(DLMSUtils.hexStringToByteArray(dedicatedKey));
+
 			// Only authentication
 			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_AUTHENTICATION, 0,0,systemTitle, msp);
 			sc.setFrameCounter(19088743); 		// this is '0x01234567'
 			byte[] cipheredResponse = sc.dataTransportEncryption(DLMSUtils.hexStringToByteArray(unSecuredRequest));
 			assertArrayEquals(DLMSUtils.hexStringToByteArray(testDecryptA), cipheredResponse);
-			
+
 			// Only encryption
 			sc = new SecurityContext(SecurityContext.SECURITYPOLICY_ENCRYPTION, 0,0,systemTitle, msp);
 			sc.setFrameCounter(19088743); 		// this is '0x01234567'
 			cipheredResponse = sc.dataTransportEncryption(DLMSUtils.hexStringToByteArray(unSecuredRequest));
 			assertArrayEquals(DLMSUtils.hexStringToByteArray(testDecryptE), cipheredResponse);
-			
+
 			// Both authentication and encryption
 			sc = new SecurityContext(SecurityContext.SECURITYPOLICY_BOTH, 0,0,systemTitle, msp);
 			sc.setFrameCounter(19088743); 		// this is '0x01234567'
 			cipheredResponse = sc.dataTransportEncryption(DLMSUtils.hexStringToByteArray(unSecuredRequest));
 			assertArrayEquals(DLMSUtils.hexStringToByteArray(testDecryptAE), cipheredResponse);
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail();
 		}
 	}
-	
+
 	@Test
 	public void realTimeTestAuthenticationTag(){
-		
+
 		String unSecuredRequest = "c001c100010000600200ff0200";
-		
+
 		String globalKey = "12348765AABBCCDD55443322ABABCDCD";
 		String authenticationKey = "43218765AABBCCDD55443322ABABCDCD";
-		String testDecryptA =  "1e10dd1628bbc001c100010000600200ff020084e00541ccc73874c70b8f0c";		
-		
+		String testDecryptA =  "1e10dd1628bbc001c100010000600200ff020084e00541ccc73874c70b8f0c";
+
 		try {
 			MockSecurityProvider msp = new MockSecurityProvider();
 			msp.setAuthenticationKey(DLMSUtils.hexStringToByteArray(authenticationKey));
 			msp.setGlobalkey(DLMSUtils.hexStringToByteArray(globalKey));
-			
+
 			byte[] temp = new byte[]{(byte)0x4B, (byte)0x41, (byte)0x4D, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x51};
 			// Only authentication
 			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_AUTHENTICATION, 0,0,temp, msp);
@@ -213,13 +229,13 @@ public class SecurityContextTest {
 			fail();
 		}
 	}
-	
+
 	@Test
 	public void iskraHLSTest(){
 		String digest = "3F2E2FA23A4CFCD40B0CD7091300673D";
-		
+
 		try {
-			AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, 3, null);
+			AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, new SecurityContext(3, 3, 3, new MockSecurityProvider()));
 			String hlSecurityResponse = "614AA109060760857405080101A203020100A305A10302010E88020780890760857405080203AA1280104C332F6263564447365070506C556455BE10040E0800065F1F040000FC1F04000007";
 			acse.analyzeAARE(DLMSUtils.hexStringToByteArray(hlSecurityResponse));
 			MockSecurityProvider msp = new MockSecurityProvider();
@@ -229,11 +245,11 @@ public class SecurityContextTest {
 			msp.setHLSSecretByteArray(DLMSUtils.hexStringToByteArray("00112233445566778899AABBCCDDEEFF"));
 			msp.setCallingAuthenticationValue(acse.getRespondingAuthenticationValue());
 			SecurityContext sc = new SecurityContext(SecurityContext.SECURITYPOLICY_NONE, 3,0,null, msp);
-			
+
 			byte[] plainText = ProtocolUtils.concatByteArrays(sc.getSecurityProvider().getCallingAuthenticationValue(), sc.getSecurityProvider().getHLSSecret());
-			
+
 			assertArrayEquals(DLMSUtils.hexStringToByteArray(digest), sc.associationEncryption(plainText));
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail();
