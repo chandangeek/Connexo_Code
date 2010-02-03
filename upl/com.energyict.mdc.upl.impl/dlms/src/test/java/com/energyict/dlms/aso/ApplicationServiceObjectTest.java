@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.mocks.MockDLMSConnection;
 import com.energyict.dlms.mocks.MockProtocolLink;
@@ -21,8 +22,9 @@ public class ApplicationServiceObjectTest {
 	public void handleHighLevelSecurityAuthenticationTest(){
 		
 		ApplicationServiceObject aso;
+		DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("WKP::OLD");
 		MockDLMSConnection dConnection = new MockDLMSConnection();
-		MockProtocolLink dpl = new MockProtocolLink(dConnection);
+		MockProtocolLink dpl = new MockProtocolLink(dConnection, meterConfig);
 		MockSecurityProvider dsp = new MockSecurityProvider();
 		SecurityContext sc;
 		

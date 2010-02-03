@@ -409,7 +409,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	private static final byte READRESPONSE_DATAACCESSERROR_TAG=1;
 	private static final byte READRESPONSE_DATABLOCK_RESULT_TAG=2;
 
-	private byte[] CheckCosemPDUResponseHeader(byte[] responseData) throws IOException {
+	protected byte[] CheckCosemPDUResponseHeader(byte[] responseData) throws IOException {
 		int i;
 
 		boolean boolLastBlock=true;
@@ -609,37 +609,91 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 			} break; // case COSEM_GETRESPONSE:
 
 			case COSEM_ACTIONRESPONSE: {
-				i++; // skip tag
-				switch(responseData[i]) {
-				case COSEM_ACTIONRESPONSE_NORMAL: {
+				
+				/* Implementation as from 28/01/2010 */
+				
+				if("OLD".equalsIgnoreCase(this.protocolLink.getMeterConfig().getExtra())){
+					
+					/* This is the INcorrect implementation of an ActionResponse 
+					 * We use this in old KP firmwareVersion */
+					
 					i++; // skip tag
-					i++; // skip invoke id & priority
-					//                            evalDataAccessResult(responseData[i]);
 					switch(responseData[i]) {
-					case 0: // data
-						i++;
-						receiveBuffer.addArray(responseData,i);
-						return receiveBuffer.getArray();
+					case COSEM_ACTIONRESPONSE_NORMAL: {
+						i++; // skip tag
+						i++; // skip invoke id & priority
+						//                            evalDataAccessResult(responseData[i]);
+						switch(responseData[i]) {
+						case 0: // data
+							i++;
+							receiveBuffer.addArray(responseData,i);
+							return receiveBuffer.getArray();
 
-					case 1: // data-access-result
-					{
-						i++;
-						evalDataAccessResult(responseData[i]);
-						//System.out.println("Data access result OK");
+						case 1: // data-access-result
+						{
+							i++;
+							evalDataAccessResult(responseData[i]);
+							//System.out.println("Data access result OK");
 
-					} break;  // data-access-result
+						} break;  // data-access-result
+
+						default:
+							throw new IOException("unknown COSEM_ACTIONRESPONSE_NORMAL,  "+responseData[i]);
+
+						} // switch(responseData[i])
+					} break; // case COSEM_ACTIONRESPONSE_NORMAL:
 
 					default:
-						throw new IOException("unknown COSEM_ACTIONRESPONSE_NORMAL,  "+responseData[i]);
+						throw new IOException("Unknown/unimplemented COSEM_ACTIONRESPONSE, "+responseData[i]);
 
 					} // switch(responseData[i])
-				} break; // case COSEM_ACTIONRESPONSE_NORMAL:
-
-				default:
-					throw new IOException("Unknown/unimplemented COSEM_ACTIONRESPONSE, "+responseData[i]);
-
-				} // switch(responseData[i])
-
+					
+				} else {
+					
+					/* This is the correct implementation of an ActionResponse */
+					
+					i++; 	// skipping the tag
+					switch(responseData[i]){	// ACTION-Response ::= choice
+					
+					case COSEM_ACTIONRESPONSE_NORMAL :{
+						i++;	// skip tag [1]
+						i++;	// Skip InvokeIdAndPriority
+						
+						/* Following is the ActionResponseWithOptionalData */
+						evalDataAccessResult(responseData[i]);
+						i++;	// skip the Action-Result if it was OK
+						if(i < responseData.length && responseData[i] == 1){		// Optional Get-Data-Result
+							i++;	// skip the tag [1]
+							if(responseData[i] == 0){	// Data
+								i++;	// skip the tag [1]
+								receiveBuffer.addArray(responseData,i);
+								return receiveBuffer.getArray();
+							} else  if(responseData[i] == 1){	// Data-Access-Result
+								i++;	// skip the tag [1]
+								evalDataAccessResult(responseData[i]);
+								return receiveBuffer.getArray();
+							}
+						} else {
+							return receiveBuffer.getArray();
+						}
+						
+					} break;
+					
+					case COSEM_ACTIONRESPONSE_WITH_PBLOCK :{
+						throw new IOException("Unimplemented COSEM_ACTIONRESPONSE, "+responseData[i]);
+					} 
+					
+					case COSEM_ACTIONRESPONSE_WITH_LIST :{
+						throw new IOException("Unimplemented COSEM_ACTIONRESPONSE, "+responseData[i]);
+					}
+					
+					case COSEM_ACTIONRESPONSE_NEXT_PBLOCK :{
+						throw new IOException("Unimplemented COSEM_ACTIONRESPONSE, "+responseData[i]);
+					}
+					default:
+						throw new IOException("Unimplemented COSEM_ACTIONRESPONSE, "+responseData[i]);
+					}
+				}
 			} break; // case COSEM_ACTIONRESPONSE:
 
 

@@ -11,9 +11,15 @@ import com.energyict.dlms.cosem.StoredValues;
 public class MockProtocolLink implements ProtocolLink{
 	
 	private DLMSConnection connection;
+	private DLMSMeterConfig meterConfig;
 	
 	public MockProtocolLink(DLMSConnection dlmsConnection){
+		this(dlmsConnection, null);
+	}
+	
+	public MockProtocolLink(DLMSConnection dlmsConnection, DLMSMeterConfig meterConfig){
 		this.connection = dlmsConnection;
+		this.meterConfig = meterConfig;
 	}
 
 	public DLMSConnection getDLMSConnection() {
@@ -26,8 +32,7 @@ public class MockProtocolLink implements ProtocolLink{
 	}
 
 	public DLMSMeterConfig getMeterConfig() {
-		// TODO Auto-generated method stub
-		return null;
+		return meterConfig;
 	}
 
 	public int getReference() {

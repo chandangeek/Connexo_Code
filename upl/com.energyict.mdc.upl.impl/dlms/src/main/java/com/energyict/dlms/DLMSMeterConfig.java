@@ -18,6 +18,8 @@ import com.energyict.protocol.NoSuchRegisterException;
  */
 public class DLMSMeterConfig {
 
+	private static String splitter = "::";
+	
     private UniversalObject[] IOL=null;
     
     /**
@@ -27,14 +29,23 @@ public class DLMSMeterConfig {
      */    
     private UniversalObject[] COL=null;
     
-    String manuf;
-    static private DLMSConfig config = DLMSConfig.getInstance();
+    /** A Manufacturer identification String */
+    private String manuf;
+
+	/** Extra info from the Manufacturer String */
+    private String extra;
     
-    static public DLMSMeterConfig getInstance() {
+    private static DLMSConfig config = DLMSConfig.getInstance();
+    
+    public static DLMSMeterConfig getInstance() {
         return getInstance(null);
     }
     
-    static public DLMSMeterConfig getInstance(String manuf) {
+    /**
+     * @param manuf - a Manufacturer specific identification code
+     * @return a static DLMSMeterConfig
+     */
+    public static DLMSMeterConfig getInstance(String manuf) {
         return new DLMSMeterConfig(manuf);
     }
     
@@ -44,44 +55,72 @@ public class DLMSMeterConfig {
         }
     }
     
+    /**
+     * @return true if the Manufacturer is ActarisPLCC
+     */
     public boolean isActarisPLCC() {
-        if (manuf==null) 
-            return false;
-        else
-            return "ActarisPLCC".compareTo(manuf)==0;
+        if (manuf==null) {
+			return false;
+		} else {
+			return "ActarisPLCC".compareTo(manuf)==0;
+		}
     }
     
+    /**
+     * @return true if the Manufacturer is ISK (or WKP)
+     */
     public boolean isIskra() {
-        
-        if (manuf==null) 
-            return false;
-        else
-            return ("ISK".compareTo(manuf)==0)||("WKP".compareTo(manuf)==0);
+        if (manuf==null) {
+			return false;
+		} else {
+			return ("ISK".compareTo(manuf)==0)||("WKP".compareTo(manuf)==0);
+		}
     }
     
     /** Creates a new instance of DLMSMeterConfig */
     private DLMSMeterConfig(String manuf) {
-        this.manuf = manuf;
+    	if(manuf != null){
+    		String[] manufSplit = manuf.split(splitter);
+    		setManufacturer(manufSplit[0]);
+    		if(manufSplit.length == 2){
+    			setExtra(manufSplit[1]);
+    		} else {
+    			setExtra("");
+    		}
+    	} else {
+    		setManufacturer(manuf);
+    		setExtra("");
+    	}
     }
     
     public UniversalObject findObject(ObisCode obisCode) throws IOException {
-        if (IOL == null) throw new IOException("DLMSMeterConfig, getSN, IOL empty!");
+        if (IOL == null) {
+			throw new IOException("DLMSMeterConfig, getSN, IOL empty!");
+		}
         for (int i=0;i<IOL.length;i++) {
-            if (IOL[i].equals(obisCode)) return IOL[i];
+            if (IOL[i].equals(obisCode)) {
+				return IOL[i];
+			}
         }
        throw new NoSuchRegisterException("DLMSMeterConfig, findObject, "+obisCode.toString()+" not found in meter's instantiated object list!");
     }
     
     public int getSN(ObisCode obisCode) throws IOException {
-       if (IOL == null) throw new IOException("DLMSMeterConfig, getSN, IOL empty!");
+       if (IOL == null) {
+		throw new IOException("DLMSMeterConfig, getSN, IOL empty!");
+	}
        for (int i=0;i<IOL.length;i++) {
-           if (IOL[i].equals(obisCode)) return IOL[i].getBaseName();
+           if (IOL[i].equals(obisCode)) {
+			return IOL[i].getBaseName();
+		}
        }
       throw new NoSuchRegisterException("DLMSMeterConfig, getSN, "+obisCode.toString()+" not found in meter's instantiated object list!");
     }
     
     public int getClassId(ObisCode obisCode) throws IOException {
-       if (IOL == null) throw new IOException("DLMSMeterConfig, getSN, IOL empty!");
+       if (IOL == null) {
+		throw new IOException("DLMSMeterConfig, getSN, IOL empty!");
+	}
        for (int i=0;i<IOL.length;i++) {
            if (IOL[i].equals(obisCode)) {
                int classId = IOL[i].getClassID();
@@ -207,9 +246,13 @@ public class DLMSMeterConfig {
     }
     
     public UniversalObject getObject(DLMSObis dlmsObis) throws IOException {
-       if (IOL == null) throw new IOException("DLMSMeterConfig, objectlist (IOL) empty!");
+       if (IOL == null) {
+		throw new IOException("DLMSMeterConfig, objectlist (IOL) empty!");
+	}
        for (int i=0;i<IOL.length;i++) {
-           if (IOL[i].equals(dlmsObis)) return IOL[i];
+           if (IOL[i].equals(dlmsObis)) {
+			return IOL[i];
+		}
        }
        throw new IOException("DLMSMeterConfig, dlmsObis "+dlmsObis+" not found in objectlist (IOL)!");    
     }
@@ -225,8 +268,9 @@ public class DLMSMeterConfig {
        int count=0;
        for (int i=0;i<COL.length;i++) {
            if (COL[i].isCapturedObjectNotAbstract()) {
-               if (id==count)
-                    return COL[i];
+               if (id==count) {
+				return COL[i];
+			}
                count++;
            }
        }
@@ -245,7 +289,9 @@ public class DLMSMeterConfig {
            if (COL[i].isCapturedObjectNotAbstract()) {
                if (id == count) {
                    for (int t=0;t<IOL.length;t++) {
-                      if (IOL[t].equals(COL[i])) return IOL[t];
+                      if (IOL[t].equals(COL[i])) {
+						return IOL[t];
+					}
                    }
                }
                count++;
@@ -377,6 +423,27 @@ public class DLMSMeterConfig {
 
 	public UniversalObject getMbusClient(int physicalAddress) throws IOException{
 		return config.getMbusClient(IOL, manuf, physicalAddress);
+	}
+	
+    /**
+	 * @param manuf the manuf to set
+	 */
+	protected void setManufacturer(String manuf) {
+		this.manuf = manuf;
+	}
+
+	/**
+	 * @return the extra
+	 */
+	public String getExtra() {
+		return extra;
+	}
+
+	/**
+	 * @param extra the extra to set
+	 */
+	protected void setExtra(String extra) {
+		this.extra = extra;
 	}
 	
 }
