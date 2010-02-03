@@ -31,8 +31,10 @@ public class SecureConnection implements DLMSConnection {
 
 		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_READREQUEST, DLMSCOSEMGlobals.GLO_READREQUEST);
 		encryptionTagMap.put(DLMSCOSEMGlobals.GLO_READRESPONSE, DLMSCOSEMGlobals.COSEM_READRESPONSE);
+		encryptionTagMap.put(DLMSCOSEMGlobals.DED_READRESPONSE, DLMSCOSEMGlobals.COSEM_READRESPONSE);
 		encryptionTagMap.put(DLMSCOSEMGlobals.COSEM_WRITEREQUEST, DLMSCOSEMGlobals.GLO_WRITEREQUEST);
 		encryptionTagMap.put(DLMSCOSEMGlobals.GLO_WRITERESPONSE, DLMSCOSEMGlobals.COSEM_WRITERESPONSE);
+		encryptionTagMap.put(DLMSCOSEMGlobals.DED_WRITERESPONSE, DLMSCOSEMGlobals.COSEM_WRITERESPONSE);
 
 	}
 
@@ -107,7 +109,7 @@ public class SecureConnection implements DLMSConnection {
 					// FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
 					return  ProtocolUtils.concatByteArrays(leading, decryptedResponse);
 				} else {
-					throw new IOException("Unknown GlobalCiphering-Tag : " + securedResponse[0]);
+					throw new IOException("Unknown GlobalCiphering-Tag : " + securedResponse[3]);
 				}
 			}
 		} else { /* During association establishment the request just needs to be forwarded */
