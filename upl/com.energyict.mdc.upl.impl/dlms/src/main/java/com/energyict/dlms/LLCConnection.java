@@ -21,6 +21,7 @@ public class LLCConnection extends CosemPDUConnection implements DLMSConnection 
 		byte[] data;
 		long interFrameTimeout;
 		copyEchoBuffer();
+		delay(200);
 		interFrameTimeout = System.currentTimeMillis() + getTimeout();
 		while (true) {
 			data = readInArray();
