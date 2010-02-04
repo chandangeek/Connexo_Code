@@ -257,20 +257,20 @@ public class XDlmsEncryption {
 		final String crlf = "\r\n";
 		StringBuffer sb = new StringBuffer();
 		sb.append("xDLMSEncryption").append(crlf);
-		sb.append(" > ST = ").append(getSystemTitle() != null ? ProtocolUtils.getResponseData(getSystemTitle()) : "null").append(crlf);
-		sb.append(" > FC = ").append(getFrameCounter() != null ? ProtocolUtils.getResponseData(getFrameCounter()) : "null").append(crlf);
-		sb.append(" > AK = ").append(getAuthenticationKey() != null ? ProtocolUtils.getResponseData(getAuthenticationKey()) : "null").append(crlf);
-		sb.append(" > GK = ").append(getGlobalKey() != null ? ProtocolUtils.getResponseData(getGlobalKey()) : "null").append(crlf);
-		sb.append(" > PT = ").append(getPlainText() != null ? ProtocolUtils.getResponseData(getPlainText()) : "null").append(crlf);
+		sb.append(" > ST = ").append(getSystemTitle() != null ? ProtocolUtils.getResponseData(getSystemTitle()) : null).append(crlf);
+		sb.append(" > FC = ").append(getFrameCounter() != null ? ProtocolUtils.getResponseData(getFrameCounter()) : null).append(crlf);
+		sb.append(" > AK = ").append(getAuthenticationKey() != null ? ProtocolUtils.getResponseData(getAuthenticationKey()) : null).append(crlf);
+		sb.append(" > GK = ").append(getGlobalKey() != null ? ProtocolUtils.getResponseData(getGlobalKey()) : null).append(crlf);
+		sb.append(" > PT = ").append(getPlainText() != null ? ProtocolUtils.getResponseData(getPlainText()) : null).append(crlf);
 		sb.append(" > SC = ").append(ProtocolUtils.getResponseData(new byte[] { getSecurityControlByte() })).append(crlf);
 		sb.append(crlf);
-		sb.append(" > IV = ").append(generateIV() != null ? ProtocolUtils.getResponseData(generateIV()) : "null").append(crlf);
-		sb.append(" > SH = ").append(generateSH() != null ? ProtocolUtils.getResponseData(generateSH()) : "null").append(crlf);
-		sb.append(" > A  = ").append(generateAssociatedData() != null ? ProtocolUtils.getResponseData(generateAssociatedData()) : "null").append(crlf);
-		sb.append(" > C  = ").append(generateCipherText() != null ? ProtocolUtils.getResponseData(generateCipherText()) : "null").append(crlf);
+		sb.append(" > IV = ").append(generateIV() != null ? ProtocolUtils.getResponseData(generateIV()) : null).append(crlf);
+		sb.append(" > SH = ").append(generateSH() != null ? ProtocolUtils.getResponseData(generateSH()) : null).append(crlf);
+		sb.append(" > A  = ").append(generateAssociatedData() != null ? ProtocolUtils.getResponseData(generateAssociatedData()) : null).append(crlf);
+		sb.append(" > C  = ").append(generateCipherText() != null ? ProtocolUtils.getResponseData(generateCipherText()) : null).append(crlf);
 		sb.append(" > T  = ").append(generateAuthenticationTag() != null ? ProtocolUtils.getResponseData(generateAuthenticationTag()) : null).append(crlf);
 		sb.append(crlf);
-		sb.append(" > Ciphered APDU = ").append(generateCipheredAPDU() != null ? ProtocolUtils.getResponseData(generateCipheredAPDU()) : "null").append(crlf);
+		sb.append(" > Ciphered APDU = ").append(generateCipheredAPDU() != null ? ProtocolUtils.getResponseData(generateCipheredAPDU()) : null).append(crlf);
 		return sb.toString();
 	}
 
