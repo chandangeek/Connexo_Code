@@ -10,6 +10,7 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class XDlmsEncryption {
 
+	private static final int	TAG_SIZE					= 12;
 	private static final int	SYSTEM_TITLE_LENGTH			= 8;
 	private static final int	FRAME_COUNTER_LENGTH		= 4;
 	private static final int	GLOBAL_KEY_LENGTH			= 16;
@@ -144,7 +145,7 @@ public class XDlmsEncryption {
 			aes.setInitializationVector(new BitVector(generateIV()));
 			aes.setPlainText(new BitVector(getPlainText()));
 			aes.setAdditionalAuthenticationData(new BitVector(generateAssociatedData()));
-			aes.setTagSize(12);
+			aes.setTagSize(TAG_SIZE);
 			aes.encrypt();
 			return aes.getTag().getValue().clone();
 		}
@@ -162,7 +163,7 @@ public class XDlmsEncryption {
 			aes.setInitializationVector(new BitVector(generateIV()));
 			aes.setPlainText(new BitVector(getPlainText()));
 			aes.setAdditionalAuthenticationData(new BitVector(generateAssociatedData()));
-			aes.setTagSize(12);
+			aes.setTagSize(TAG_SIZE);
 			aes.encrypt();
 			return aes.getCipherText().getValue().clone();
 		}
