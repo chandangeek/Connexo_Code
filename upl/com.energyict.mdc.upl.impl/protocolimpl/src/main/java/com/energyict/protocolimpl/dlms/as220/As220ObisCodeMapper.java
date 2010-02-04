@@ -7,10 +7,13 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.GenericRead;
+import com.energyict.dlms.cosem.SFSKPhyMacSetup;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
@@ -24,13 +27,13 @@ import com.energyict.protocolimpl.base.ObiscodeMapper;
 public class As220ObisCodeMapper implements ObiscodeMapper {
 
 
-	private static final int	VALUE_OFFSET	= 8;
+	private static final int		VALUE_OFFSET				= 8;
 
-	public static final ObisCode	NR_CONFIGCHANGES_OBISCODE	= ObisCode.fromString("0.0.96.2.0.255");
-	public static final ObisCode	ALARM_REGISTER_OBISCODE		= ObisCode.fromString("0.0.97.98.0.255");
-	public static final ObisCode	FILTER_REGISTER_OBISCODE	= ObisCode.fromString("0.0.97.98.10.255");
-	public static final ObisCode	ERROR_REGISTER_OBISCODE		= ObisCode.fromString("0.0.97.97.0.255");
-	public static final ObisCode	LOGICAL_DEVICENAME_OBISCODE	= ObisCode.fromString("0.0.42.0.0.255");
+	private static final ObisCode	NR_CONFIGCHANGES_OBISCODE	= ObisCode.fromString("0.0.96.2.0.255");
+	private static final ObisCode	ALARM_REGISTER_OBISCODE		= ObisCode.fromString("0.0.97.98.0.255");
+	private static final ObisCode	FILTER_REGISTER_OBISCODE	= ObisCode.fromString("0.0.97.98.10.255");
+	private static final ObisCode	ERROR_REGISTER_OBISCODE		= ObisCode.fromString("0.0.97.97.0.255");
+	private static final ObisCode	LOGICAL_DEVICENAME_OBISCODE	= ObisCode.fromString("0.0.42.0.0.255");
 
 	private static final ObisCode[] simpleDataRegisters = new ObisCode[] {
 		NR_CONFIGCHANGES_OBISCODE,
@@ -41,6 +44,7 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 	};
 
 	private CosemObjectFactory cosemObjectFactory;
+	private SFSKPhyMacSetup sFSKPhyMacSetup = null;
 
 	/** Creates a new instance of ObisCodeMapper */
     public As220ObisCodeMapper(CosemObjectFactory cof) {
@@ -51,8 +55,16 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 		return cosemObjectFactory;
 	}
 
+    public SFSKPhyMacSetup getsFSKPhyMacSetup() throws IOException {
+    	if (sFSKPhyMacSetup == null) {
+    		sFSKPhyMacSetup = getCosemObjectFactory().getSFSKPhyMacSetup();
+    	}
+    	return sFSKPhyMacSetup;
+	}
+
     public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        return new RegisterInfo(obisCode.getDescription());
+        RegisterInfo regInfo = RegisterDescription.getRegisterInfo(obisCode);
+    	return regInfo != null ? regInfo : new RegisterInfo(obisCode.getDescription());
     }
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
@@ -89,7 +101,24 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 			} else {
 				throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
 			}
-		} // // billing point timestamp
+		} else if ((obisCode.getA() == 0) && (obisCode.getC() == 26) && (obisCode.getD() == 0) && (obisCode.getF() == 255)) {
+			switch (obisCode.getB()) {
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+					switch (obisCode.getE()) {
+						case 0:
+						case 1:
+							Array frequencies = getsFSKPhyMacSetup().getFrequencies();
+							Structure freqStruct = frequencies.getDataType(obisCode.getB() - 1).getStructure();
+							long value = freqStruct.getDataType(obisCode.getE()).getUnsigned32().getValue();
+							return new RegisterValue(obisCode, new Quantity(value, Unit.get("Hz")));
+					}
+			}
+		}
 
         // *********************************************************************************
         CosemObject cosemObject = getCosemObjectFactory().getCosemObject(obisCode);

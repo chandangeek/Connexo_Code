@@ -332,6 +332,13 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
             strBuff.append(capturedObject.getLogicalName().getObisCode().toString()+" "+capturedObject.getLogicalName().getObisCode().getDescription()+" (load profile)\n");
         }
 
+        strBuff.append("************************** Custom registers **************************\n");
+        it = RegisterDescription.INFO.keySet().iterator();
+        while(it.hasNext()) {
+        	ObisCode oc = ObisCode.fromString((String) it.next());
+        }
+
+
         return strBuff.toString();
     }
 

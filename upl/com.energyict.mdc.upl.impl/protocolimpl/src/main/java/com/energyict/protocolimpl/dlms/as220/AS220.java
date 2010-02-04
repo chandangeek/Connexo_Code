@@ -57,6 +57,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 	private final GMeter			gMeter		= new GMeter(this);
 	private final EMeter			eMeter		= new EMeter(this);
 	private final MessageProtocol	messaging	= new AS220Messaging(this);
+	private ObiscodeMapper			ocm			= null;
 
     /**
      * Create a new instance of the {@link AS220} dlms protocol
@@ -105,15 +106,22 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
-			ObiscodeMapper ocm = new As220ObisCodeMapper(getCosemObjectFactory());
-			return ocm.getRegisterValue(obisCode);
+			return getAs220ObisCodeMapper().getRegisterValue(obisCode);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
 		}
     }
 
-    public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
+    private ObiscodeMapper getAs220ObisCodeMapper() {
+    	if (ocm  == null) {
+    		ocm = new As220ObisCodeMapper(getCosemObjectFactory());
+    	}
+    	return ocm;
+	}
+
+	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
+    	System.out.println(obisCode.toString());
     	ObiscodeMapper ocm = new As220ObisCodeMapper(getCosemObjectFactory());
     	return ocm.getRegisterInfo(obisCode);
     }
