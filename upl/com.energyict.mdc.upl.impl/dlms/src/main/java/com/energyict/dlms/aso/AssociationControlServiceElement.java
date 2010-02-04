@@ -581,7 +581,7 @@ public class AssociationControlServiceElement {
 			callingAppTitleField[0] = DLMSCOSEMGlobals.AARE_CALLING_AP_TITLE;
 			callingAppTitleField[1] = (byte) (callingAppTitleField.length - 2); // length
 			callingAppTitleField[2] = (byte) 0x04; // choice for calling app title
-			callingAppTitleField[3] = (byte) callingAppTitleField.length; // length
+			callingAppTitleField[3] = (byte) (callingAppTitleField.length - 4); // length
 			System.arraycopy(getCallingAPTitle(), 0, callingAppTitleField, 4, getCallingAPTitle().length);
 			return callingAppTitleField;
 		} else {
