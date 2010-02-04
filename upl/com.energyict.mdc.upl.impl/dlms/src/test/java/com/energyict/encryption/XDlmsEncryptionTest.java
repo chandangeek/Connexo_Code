@@ -4,6 +4,7 @@
 package com.energyict.encryption;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -152,9 +153,22 @@ public class XDlmsEncryptionTest {
 	/**
 	 * Test method for {@link com.energyict.encryption.XDlmsEncryption#toString()}.
 	 */
-	@Test @Ignore
+	@Test
 	public final void testToString() {
-		fail("Not yet implemented"); // TODO
+		XDlmsEncryption xdlms = new XDlmsEncryption();
+		assertNotNull(xdlms.toString());
+		xdlms.setSystemTitle(SYSTEM_TITLE);
+		assertNotNull(xdlms.toString());
+		xdlms.setFrameCounter(FRAME_COUNTER);
+		assertNotNull(xdlms.toString());
+		xdlms.setGlobalKey(GLOBAL_KEY);
+		assertNotNull(xdlms.toString());
+		xdlms.setAuthenticationKey(AUTHENTICATION_KEY);
+		assertNotNull(xdlms.toString());
+		xdlms.setPlainText(PLAIN_TEXT);
+		assertNotNull(xdlms.toString());
+		xdlms.setSecurityControlByte((byte) 0x30);
+		assertNotNull(xdlms.toString());
 	}
 
 }

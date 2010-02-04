@@ -76,86 +76,110 @@ public class XDlmsEncryption {
 	 * @return
 	 */
 	public byte[] generateCipheredAPDU() {
-		int length = 0;
-		length += TAG_LENGTH;
-		length += LEN_LENGTH;
-		length += generateSecurityHeader().length;
-		length += generateCipherText().length;
-		length += generateAuthenticationTag().length;
+		if (containsNull(generateSH(), generateCipherText(), generateAuthenticationTag())) {
+			return null;
+		} else {
+			int length = 0;
+			length += TAG_LENGTH;
+			length += LEN_LENGTH;
+			length += generateSH().length;
+			length += generateCipherText().length;
+			length += generateAuthenticationTag().length;
 
-		int t = 0;
-		byte[] apdu = new byte[length];
-		apdu[t++] = DLMSCOSEMGlobals.AARE_GLOBAL_INITIATE_REQUEST_TAG;
-		apdu[t++] = (byte) (generateSecurityHeader().length + generateCipherText().length + generateAuthenticationTag().length);
+			int t = 0;
+			byte[] apdu = new byte[length];
+			apdu[t++] = DLMSCOSEMGlobals.AARE_GLOBAL_INITIATE_REQUEST_TAG;
+			apdu[t++] = (byte) (generateSH().length + generateCipherText().length + generateAuthenticationTag().length);
 
-		System.arraycopy(generateSecurityHeader(), 0, apdu, t, generateSecurityHeader().length);
-		t += generateSecurityHeader().length;
+			System.arraycopy(generateSH(), 0, apdu, t, generateSH().length);
+			t += generateSH().length;
 
-		System.arraycopy(generateCipherText(), 0, apdu, t, generateCipherText().length);
-		t += generateCipherText().length;
+			System.arraycopy(generateCipherText(), 0, apdu, t, generateCipherText().length);
+			t += generateCipherText().length;
 
-		System.arraycopy(generateAuthenticationTag(), 0, apdu, t, generateAuthenticationTag().length);
-		t += generateAuthenticationTag().length;
+			System.arraycopy(generateAuthenticationTag(), 0, apdu, t, generateAuthenticationTag().length);
+			t += generateAuthenticationTag().length;
 
-		return apdu;
+			return apdu;
+		}
 	}
 
 	/**
 	 * @return
 	 */
-	private byte[] generateInitialisationVector() {
-		byte[] iv = new byte[getSystemTitle().length + getFrameCounter().length];
-		System.arraycopy(getSystemTitle(), 0, iv, 0, getSystemTitle().length);
-		System.arraycopy(getFrameCounter(), 0, iv, getSystemTitle().length, getFrameCounter().length);
-		return iv;
+	private byte[] generateIV() {
+		if (containsNull(getSystemTitle(), getFrameCounter())) {
+			return null;
+		} else {
+			byte[] iv = new byte[getSystemTitle().length + getFrameCounter().length];
+			System.arraycopy(getSystemTitle(), 0, iv, 0, getSystemTitle().length);
+			System.arraycopy(getFrameCounter(), 0, iv, getSystemTitle().length, getFrameCounter().length);
+			return iv;
+		}
 	}
 
 	/**
 	 * @return
 	 */
-	private byte[] generateSecurityHeader() {
-		byte[] sh = new byte[CONTROL_BYTE_LENGTH + getFrameCounter().length];
-		sh[0] = getSecurityControlByte();
-		System.arraycopy(getFrameCounter(), 0, sh, 1, getFrameCounter().length);
-		return sh;
+	private byte[] generateSH() {
+		if (containsNull(getFrameCounter())) {
+			return null;
+		} else {
+			byte[] sh = new byte[CONTROL_BYTE_LENGTH + getFrameCounter().length];
+			sh[0] = getSecurityControlByte();
+			System.arraycopy(getFrameCounter(), 0, sh, 1, getFrameCounter().length);
+			return sh;
+		}
 	}
 
 	/**
 	 * @return
 	 */
 	private byte[] generateAuthenticationTag() {
-		AesGcm128 aes = new AesGcm128(new BitVector(getAuthenticationKey()));
-		aes.setGlobalKey(new BitVector(getGlobalKey()));
-		aes.setInitializationVector(new BitVector(generateInitialisationVector()));
-		aes.setPlainText(new BitVector(getPlainText()));
-		aes.setAdditionalAuthenticationData(new BitVector(generateAssociatedData()));
-		aes.setTagSize(12);
-		aes.encrypt();
-		return aes.getTag().getValue().clone();
+		if (containsNull(getAuthenticationKey(), getGlobalKey(), generateIV(), getPlainText(), generateAssociatedData())) {
+			return null;
+		} else {
+			AesGcm128 aes = new AesGcm128(new BitVector(getAuthenticationKey()));
+			aes.setGlobalKey(new BitVector(getGlobalKey()));
+			aes.setInitializationVector(new BitVector(generateIV()));
+			aes.setPlainText(new BitVector(getPlainText()));
+			aes.setAdditionalAuthenticationData(new BitVector(generateAssociatedData()));
+			aes.setTagSize(12);
+			aes.encrypt();
+			return aes.getTag().getValue().clone();
+		}
 	}
 
 	/**
 	 * @return
 	 */
 	private byte[] generateCipherText() {
-		AesGcm128 aes = new AesGcm128(new BitVector(getAuthenticationKey()));
-		aes.setGlobalKey(new BitVector(getGlobalKey()));
-		aes.setInitializationVector(new BitVector(generateInitialisationVector()));
-		aes.setPlainText(new BitVector(getPlainText()));
-		aes.setAdditionalAuthenticationData(new BitVector(generateAssociatedData()));
-		aes.setTagSize(12);
-		aes.encrypt();
-		return aes.getCipherText().getValue().clone();
+		if (containsNull(getAuthenticationKey(), getGlobalKey(), generateIV(), getPlainText(), generateAssociatedData())) {
+			return null;
+		} else {
+			AesGcm128 aes = new AesGcm128(new BitVector(getAuthenticationKey()));
+			aes.setGlobalKey(new BitVector(getGlobalKey()));
+			aes.setInitializationVector(new BitVector(generateIV()));
+			aes.setPlainText(new BitVector(getPlainText()));
+			aes.setAdditionalAuthenticationData(new BitVector(generateAssociatedData()));
+			aes.setTagSize(12);
+			aes.encrypt();
+			return aes.getCipherText().getValue().clone();
+		}
 	}
 
 	/**
 	 * @return
 	 */
 	private byte[] generateAssociatedData() {
-		byte[] a = new byte[1 + getAuthenticationKey().length];
-		a[0] = getSecurityControlByte();
-		System.arraycopy(getAuthenticationKey(), 0, a, 1, getAuthenticationKey().length);
-		return a;
+		if (containsNull(getAuthenticationKey())) {
+			return null;
+		} else {
+			byte[] a = new byte[1 + getAuthenticationKey().length];
+			a[0] = getSecurityControlByte();
+			System.arraycopy(getAuthenticationKey(), 0, a, 1, getAuthenticationKey().length);
+			return a;
+		}
 	}
 
 	/**
@@ -214,25 +238,38 @@ public class XDlmsEncryption {
 		}
 	}
 
+	/**
+	 * @param object
+	 * @return
+	 */
+	private boolean containsNull(Object... object) {
+		for (Object obj : object) {
+			if (obj == null) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public String toString() {
 		final String crlf = "\r\n";
 		StringBuffer sb = new StringBuffer();
 		sb.append("xDLMSEncryption").append(crlf);
-		sb.append(" > ST = ").append(ProtocolUtils.getResponseData(getSystemTitle())).append(crlf);
-		sb.append(" > FC = ").append(ProtocolUtils.getResponseData(getFrameCounter())).append(crlf);
-		sb.append(" > AK = ").append(ProtocolUtils.getResponseData(getAuthenticationKey())).append(crlf);
-		sb.append(" > GK = ").append(ProtocolUtils.getResponseData(getGlobalKey())).append(crlf);
-		sb.append(" > PT = ").append(ProtocolUtils.getResponseData(getPlainText())).append(crlf);
+		sb.append(" > ST = ").append(getSystemTitle() != null ? ProtocolUtils.getResponseData(getSystemTitle()) : "null").append(crlf);
+		sb.append(" > FC = ").append(getFrameCounter() != null ? ProtocolUtils.getResponseData(getFrameCounter()) : "null").append(crlf);
+		sb.append(" > AK = ").append(getAuthenticationKey() != null ? ProtocolUtils.getResponseData(getAuthenticationKey()) : "null").append(crlf);
+		sb.append(" > GK = ").append(getGlobalKey() != null ? ProtocolUtils.getResponseData(getGlobalKey()) : "null").append(crlf);
+		sb.append(" > PT = ").append(getPlainText() != null ? ProtocolUtils.getResponseData(getPlainText()) : "null").append(crlf);
 		sb.append(" > SC = ").append(ProtocolUtils.getResponseData(new byte[] { getSecurityControlByte() })).append(crlf);
 		sb.append(crlf);
-		sb.append(" > IV = ").append(ProtocolUtils.getResponseData(generateInitialisationVector())).append(crlf);
-		sb.append(" > SH = ").append(ProtocolUtils.getResponseData(generateSecurityHeader())).append(crlf);
-		sb.append(" > A  = ").append(ProtocolUtils.getResponseData(generateAssociatedData())).append(crlf);
-		sb.append(" > C  = ").append(ProtocolUtils.getResponseData(generateCipherText())).append(crlf);
-		sb.append(" > T  = ").append(ProtocolUtils.getResponseData(generateAuthenticationTag())).append(crlf);
+		sb.append(" > IV = ").append(generateIV() != null ? ProtocolUtils.getResponseData(generateIV()) : "null").append(crlf);
+		sb.append(" > SH = ").append(generateSH() != null ? ProtocolUtils.getResponseData(generateSH()) : "null").append(crlf);
+		sb.append(" > A  = ").append(generateAssociatedData() != null ? ProtocolUtils.getResponseData(generateAssociatedData()) : "null").append(crlf);
+		sb.append(" > C  = ").append(generateCipherText() != null ? ProtocolUtils.getResponseData(generateCipherText()) : "null").append(crlf);
+		sb.append(" > T  = ").append(generateAuthenticationTag() != null ? ProtocolUtils.getResponseData(generateAuthenticationTag()) : null).append(crlf);
 		sb.append(crlf);
-		sb.append(" > Ciphered APDU = ").append(ProtocolUtils.getResponseData(generateCipheredAPDU())).append(crlf);
+		sb.append(" > Ciphered APDU = ").append(generateCipheredAPDU() != null ? ProtocolUtils.getResponseData(generateCipheredAPDU()) : "null").append(crlf);
 		return sb.toString();
 	}
 
