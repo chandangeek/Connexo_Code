@@ -25,7 +25,6 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.AS220Messaging;
-import com.energyict.protocolimpl.dlms.as220.As220ObisCodeMapper;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 public class AS220Main {
@@ -91,14 +90,13 @@ public class AS220Main {
 		properties.setProperty("MinimumTimeDiff", "1");
 		properties.setProperty("CorrectTime", "0");
 
-		properties.setProperty("Retries", "0");
+		properties.setProperty("Retries", "5");
 		properties.setProperty("Timeout", "20000");
 
 		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_BOTH);
 		properties.setProperty("ProfileInterval", "900");
 		properties.setProperty("Password", "00000000");
 		properties.setProperty("SerialNumber", "35015023");
-		//properties.setProperty("SerialNumber", "303135303233");
 
 		properties.setProperty("AddressingMode", "-1");
 		properties.setProperty("Connection", "3");
@@ -108,7 +106,6 @@ public class AS220Main {
 
 		properties.setProperty(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF");
 		properties.setProperty(LocalSecurityProvider.DATATRANSPORTKEY, "000102030405060708090A0B0C0D0E0F");
-		properties.setProperty(LocalSecurityProvider.MASTERKEY, "000102030405060708090A0B0C0D0E0F");
 
 		return properties;
 	}
@@ -181,10 +178,38 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			//doTest();
-			//pulseContactor();
-			//readProfile(true);
-			//System.out.println(getAs220().getTime());
+			doTest();
+
+			final ObisCode	PLC_CHANNEL_FM_CH1	= ObisCode.fromString("0.1.26.0.0.255");
+			final ObisCode	PLC_CHANNEL_FS_CH1	= ObisCode.fromString("0.1.26.0.1.255");
+			final ObisCode	PLC_CHANNEL_FM_CH2	= ObisCode.fromString("0.2.26.0.0.255");
+			final ObisCode	PLC_CHANNEL_FS_CH2	= ObisCode.fromString("0.2.26.0.1.255");
+			final ObisCode	PLC_CHANNEL_FM_CH3	= ObisCode.fromString("0.3.26.0.0.255");
+			final ObisCode	PLC_CHANNEL_FS_CH3	= ObisCode.fromString("0.3.26.0.1.255");
+			final ObisCode	PLC_CHANNEL_FM_CH4	= ObisCode.fromString("0.4.26.0.0.255");
+			final ObisCode	PLC_CHANNEL_FS_CH4	= ObisCode.fromString("0.4.26.0.1.255");
+			final ObisCode	PLC_CHANNEL_FM_CH5	= ObisCode.fromString("0.5.26.0.0.255");
+			final ObisCode	PLC_CHANNEL_FS_CH5	= ObisCode.fromString("0.5.26.0.1.255");
+			final ObisCode	PLC_CHANNEL_FM_CH6	= ObisCode.fromString("0.6.26.0.0.255");
+			final ObisCode	PLC_CHANNEL_FS_CH6	= ObisCode.fromString("0.6.26.0.1.255");
+
+			System.out.println(getAs220().readRegister(PLC_CHANNEL_FM_CH1));
+			System.out.println(getAs220().readRegister(PLC_CHANNEL_FS_CH1));
+			System.out.println(getAs220().readRegister(PLC_CHANNEL_FM_CH2));
+			System.out.println(getAs220().readRegister(PLC_CHANNEL_FS_CH2));
+			System.out.println(getAs220().readRegister(PLC_CHANNEL_FM_CH3));
+			System.out.println(getAs220().readRegister(PLC_CHANNEL_FS_CH3));
+			System.out.println(getAs220().readRegister(PLC_CHANNEL_FM_CH4));
+			System.out.println(getAs220().readRegister(PLC_CHANNEL_FS_CH4));
+			System.out.println(getAs220().readRegister(PLC_CHANNEL_FM_CH5));
+			System.out.println(getAs220().readRegister(PLC_CHANNEL_FS_CH5));
+			System.out.println(getAs220().readRegister(PLC_CHANNEL_FM_CH6));
+			System.out.println(getAs220().readRegister(PLC_CHANNEL_FS_CH6));
+
+			System.out.println(getAs220().translateRegister(PLC_CHANNEL_FS_CH6));
+
+
+			//readRegisters();
 
 		} finally {
 			ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
@@ -196,6 +221,19 @@ public class AS220Main {
 	}
 
 	private static void doTest() throws IOException {
+
+		System.out.println(getAs220().getCosemObjectFactory().getSFSKPhyMacSetup(ObisCode.fromString("0.0.26.0.0.255")).toString());
+
+		GenericRead gr = getAs220().getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.0.26.0.0.255"), 0x18);
+		System.out.println(gr);
+
+//		UniversalObject[] uo = getAs220().getMeterConfig().getInstantiatedObjectList();
+//		for (int i = 0; i < uo.length; i++) {
+//			System.out.println(uo[i].toString() + " - " + uo[i].getBaseName());
+//		}
+//
+//		gr = getAs220().getCosemObjectFactory().getGenericRead(ObisCode.fromString("1.0.0.2.0.255"), 8);
+//		System.out.println(gr);
 
 //		System.out.println(getAs220().readRegister(DEVICE_ID1_OBISCODE));
 //		System.out.println(getAs220().readRegister(DEVICE_ID2_OBISCODE));
@@ -216,11 +254,11 @@ public class AS220Main {
 //		examineObisCode(ObisCode.fromString("0.0.96.50.0.255"));
 //		examineObisCode(ObisCode.fromString("0.0.96.3.10.255"));
 
-		System.out.println(getAs220().readRegister(As220ObisCodeMapper.NR_CONFIGCHANGES_OBISCODE));
-		System.out.println(getAs220().readRegister(As220ObisCodeMapper.ERROR_REGISTER_OBISCODE));
-		System.out.println(getAs220().readRegister(As220ObisCodeMapper.ALARM_REGISTER_OBISCODE));
-		System.out.println(getAs220().readRegister(As220ObisCodeMapper.FILTER_REGISTER_OBISCODE));
-		System.out.println(getAs220().readRegister(As220ObisCodeMapper.LOGICAL_DEVICENAME_OBISCODE));
+//		System.out.println(getAs220().readRegister(As220ObisCodeMapper.NR_CONFIGCHANGES_OBISCODE));
+//		System.out.println(getAs220().readRegister(As220ObisCodeMapper.ERROR_REGISTER_OBISCODE));
+//		System.out.println(getAs220().readRegister(As220ObisCodeMapper.ALARM_REGISTER_OBISCODE));
+//		System.out.println(getAs220().readRegister(As220ObisCodeMapper.FILTER_REGISTER_OBISCODE));
+//		System.out.println(getAs220().readRegister(As220ObisCodeMapper.LOGICAL_DEVICENAME_OBISCODE));
 
 	}
 
