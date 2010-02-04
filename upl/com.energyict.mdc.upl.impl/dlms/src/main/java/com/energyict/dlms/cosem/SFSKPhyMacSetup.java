@@ -13,6 +13,7 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributeobjects.Frequencies;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.RegisterValue;
 
 /**
  * @author jme
@@ -199,6 +200,10 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 		sb.append(" > initiatorMacAddress = ").append(getInitiatorMacAddress().getValue()).append(crlf);
 		sb.append(" > synchronizationLocked = ").append(getSynchronizationLocked().getState()).append(crlf);
 		return sb.toString();
+	}
+
+	public RegisterValue asRegisterValue() {
+		return new RegisterValue(getObisCode(), getFrequencies() != null ? getFrequencies().toString() : null);
 	}
 
 }

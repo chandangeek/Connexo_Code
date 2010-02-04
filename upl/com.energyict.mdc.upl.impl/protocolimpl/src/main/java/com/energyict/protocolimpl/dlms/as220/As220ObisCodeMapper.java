@@ -100,7 +100,9 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 				throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
 			}
 		} else if (obisCode.toString().indexOf("0.0.26.0.0.255") != -1) {
-			return new RegisterValue(obisCode, getsFSKPhyMacSetup().getFrequencies().toString());
+			return getsFSKPhyMacSetup().asRegisterValue();
+		} else if (obisCode.toString().indexOf("0.0.26.2.0.255") != -1) {
+			return getCosemObjectFactory().getSFSKSyncTimeouts().asRegisterValue();
 		}
 
         // *********************************************************************************

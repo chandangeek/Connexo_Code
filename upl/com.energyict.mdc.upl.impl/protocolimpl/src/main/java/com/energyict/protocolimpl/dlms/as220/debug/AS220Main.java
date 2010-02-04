@@ -69,7 +69,7 @@ public class AS220Main {
 
 	public static Dialer getDialer() {
 		if (dialer == null) {
-			dialer = DialerFactory.getDirectDialer().newDialer();
+			dialer = DialerFactory.get("IPDIALER").newDialer();
 			dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, false));
 		}
 		return dialer;
@@ -169,18 +169,20 @@ public class AS220Main {
 
 	public static void main(String[] args) throws LinkException, IOException, InterruptedException {
 
-		getDialer().init(COMPORT);
-		getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
-		getDialer().connect();
+		//getDialer().init("linux2:10010");
+		//getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
+		getDialer().connect("linux2:10011", 10010);
 
 		try {
 			getAs220().setProperties(getProperties());
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-
 			final ObisCode	plc_sfsk_setup	= ObisCode.fromString("0.0.26.0.0.255");
 			System.out.println(getAs220().readRegister(plc_sfsk_setup));
+
+			final ObisCode	plc_sfsk_sync_timeout	= ObisCode.fromString("0.0.26.2.0.255");
+			System.out.println(getAs220().readRegister(plc_sfsk_sync_timeout));
 
 			//readRegisters();
 

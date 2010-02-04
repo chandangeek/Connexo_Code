@@ -12,6 +12,8 @@ import com.energyict.dialer.connection.ConnectionException;
  */
 public class LLCConnection extends CosemPDUConnection implements DLMSConnection {
 
+	private static final int DELAY_BEFORE_RECEIVE = 500;
+
 	public LLCConnection(InputStream inputStream, OutputStream outputStream, int timeout, int forceDelay, int maxRetries, int clientAddress, int serverAddress)
 			throws IOException {
 		super(inputStream, outputStream, timeout, forceDelay, maxRetries, clientAddress, serverAddress);
@@ -21,7 +23,7 @@ public class LLCConnection extends CosemPDUConnection implements DLMSConnection 
 		byte[] data;
 		long interFrameTimeout;
 		copyEchoBuffer();
-		delay(200);
+		delay(DELAY_BEFORE_RECEIVE);
 		interFrameTimeout = System.currentTimeMillis() + getTimeout();
 		while (true) {
 			data = readInArray();
@@ -56,7 +58,7 @@ public class LLCConnection extends CosemPDUConnection implements DLMSConnection 
 		while (true) {
 			try {
 				sendOut(byteRequestBuffer);
-				delay(200);
+				delay(DELAY_BEFORE_RECEIVE);
 				return receiveData();
 			} catch (ConnectionException e) {
 				if (retry++ >= getMaxRetries()) {
