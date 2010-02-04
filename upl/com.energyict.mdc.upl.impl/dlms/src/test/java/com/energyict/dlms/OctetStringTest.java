@@ -116,7 +116,7 @@ public class OctetStringTest {
 		final String testString = "TestString";
 		OctetString os = OctetString.fromString(testString);
 		assertNotNull(os);
-		assertEquals(testString.length(), os.getDecodedSize());
+		assertEquals(testString.length() + 2, os.getDecodedSize());
 	}
 
 	/**
@@ -136,7 +136,7 @@ public class OctetStringTest {
 		final byte[] testArray = "TestString".getBytes();
 		OctetString os = OctetString.fromByteArray(testArray, testArray.length);
 		assertNotNull(os);
-		assertEquals(testArray.length, os.getDecodedSize());
+		assertEquals(testArray.length + 2, os.getDecodedSize());
 	}
 
 	/**

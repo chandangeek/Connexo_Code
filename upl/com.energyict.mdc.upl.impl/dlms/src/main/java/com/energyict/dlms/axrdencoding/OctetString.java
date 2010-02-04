@@ -109,6 +109,8 @@ public class OctetString extends AbstractDataType {
 		this.setOctetStr(octetStr);
 		this.size = size;
 		this.fixed = (dummy == 1);
+		this.offsetBegin = 0;
+		this.offsetEnd = size + (fixed ? 1 : 2);
 	}
 
 	public String stringValue() {
@@ -139,7 +141,6 @@ public class OctetString extends AbstractDataType {
 	}
 
 	protected int size() {
-		
 		return offsetEnd - offsetBegin;
 	}
 
@@ -175,21 +176,5 @@ public class OctetString extends AbstractDataType {
 	public long longValue() {
 		return -1;
 	}
-
-//	public static void main(String[] artgs) {
-//		try {
-//			OctetString v = new OctetString(new byte[] { DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING, 0x03, (byte) 'A', (byte) 'B', (byte) 'C' }, 0);
-//			System.out.println(v);
-//			v = new OctetString(new byte[] { 1, 2, 3, 4, 5, 6 }, 6, 0);
-//			System.out.println(ProtocolUtils.outputHexString(v.getBEREncodedByteArray()));
-//			v = new OctetString(new byte[] { 1, 2, 3, 4, 5, 6 }, 6, 1);
-//			System.out.println(ProtocolUtils.outputHexString(v.getBEREncodedByteArray()));
-//			v = new OctetString(new byte[] { DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING, 1, 2, 3, 4, 5, 6 }, 0, true);
-//			System.out.println(ProtocolUtils.outputHexString(v.getBEREncodedByteArray()));
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//
-//	}
 
 }
