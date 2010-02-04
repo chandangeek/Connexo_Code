@@ -36,6 +36,10 @@ abstract public class AbstractDataType {
 		return isBitString() ? (BitString) this : null;
 	}
 
+	/**
+	 * Size of the complete abstractDatatype inclusive the length (if applicable) and tag.
+	 * @return
+	 */
 	public int getDecodedSize() {
 		return size();
 	}
