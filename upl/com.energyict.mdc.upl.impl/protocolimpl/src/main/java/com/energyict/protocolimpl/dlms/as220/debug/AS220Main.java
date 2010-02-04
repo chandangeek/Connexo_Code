@@ -178,36 +178,9 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			doTest();
 
-			final ObisCode	PLC_CHANNEL_FM_CH1	= ObisCode.fromString("0.1.26.0.0.255");
-			final ObisCode	PLC_CHANNEL_FS_CH1	= ObisCode.fromString("0.1.26.0.1.255");
-			final ObisCode	PLC_CHANNEL_FM_CH2	= ObisCode.fromString("0.2.26.0.0.255");
-			final ObisCode	PLC_CHANNEL_FS_CH2	= ObisCode.fromString("0.2.26.0.1.255");
-			final ObisCode	PLC_CHANNEL_FM_CH3	= ObisCode.fromString("0.3.26.0.0.255");
-			final ObisCode	PLC_CHANNEL_FS_CH3	= ObisCode.fromString("0.3.26.0.1.255");
-			final ObisCode	PLC_CHANNEL_FM_CH4	= ObisCode.fromString("0.4.26.0.0.255");
-			final ObisCode	PLC_CHANNEL_FS_CH4	= ObisCode.fromString("0.4.26.0.1.255");
-			final ObisCode	PLC_CHANNEL_FM_CH5	= ObisCode.fromString("0.5.26.0.0.255");
-			final ObisCode	PLC_CHANNEL_FS_CH5	= ObisCode.fromString("0.5.26.0.1.255");
-			final ObisCode	PLC_CHANNEL_FM_CH6	= ObisCode.fromString("0.6.26.0.0.255");
-			final ObisCode	PLC_CHANNEL_FS_CH6	= ObisCode.fromString("0.6.26.0.1.255");
-
-			System.out.println(getAs220().readRegister(PLC_CHANNEL_FM_CH1));
-			System.out.println(getAs220().readRegister(PLC_CHANNEL_FS_CH1));
-			System.out.println(getAs220().readRegister(PLC_CHANNEL_FM_CH2));
-			System.out.println(getAs220().readRegister(PLC_CHANNEL_FS_CH2));
-			System.out.println(getAs220().readRegister(PLC_CHANNEL_FM_CH3));
-			System.out.println(getAs220().readRegister(PLC_CHANNEL_FS_CH3));
-			System.out.println(getAs220().readRegister(PLC_CHANNEL_FM_CH4));
-			System.out.println(getAs220().readRegister(PLC_CHANNEL_FS_CH4));
-			System.out.println(getAs220().readRegister(PLC_CHANNEL_FM_CH5));
-			System.out.println(getAs220().readRegister(PLC_CHANNEL_FS_CH5));
-			System.out.println(getAs220().readRegister(PLC_CHANNEL_FM_CH6));
-			System.out.println(getAs220().readRegister(PLC_CHANNEL_FS_CH6));
-
-			System.out.println(getAs220().translateRegister(PLC_CHANNEL_FS_CH6));
-
+			final ObisCode	plc_sfsk_setup	= ObisCode.fromString("0.0.26.0.0.255");
+			System.out.println(getAs220().readRegister(plc_sfsk_setup));
 
 			//readRegisters();
 

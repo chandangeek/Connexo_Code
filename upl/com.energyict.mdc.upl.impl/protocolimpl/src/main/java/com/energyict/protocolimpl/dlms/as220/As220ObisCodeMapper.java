@@ -7,9 +7,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.GenericRead;
@@ -101,23 +99,8 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 			} else {
 				throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
 			}
-		} else if ((obisCode.getA() == 0) && (obisCode.getC() == 26) && (obisCode.getD() == 0) && (obisCode.getF() == 255)) {
-			switch (obisCode.getB()) {
-				case 1:
-				case 2:
-				case 3:
-				case 4:
-				case 5:
-				case 6:
-					switch (obisCode.getE()) {
-						case 0:
-						case 1:
-							Array frequencies = getsFSKPhyMacSetup().getFrequencies();
-							Structure freqStruct = frequencies.getDataType(obisCode.getB() - 1).getStructure();
-							long value = freqStruct.getDataType(obisCode.getE()).getUnsigned32().getValue();
-							return new RegisterValue(obisCode, new Quantity(value, Unit.get("Hz")));
-					}
-			}
+		} else if (obisCode.toString().indexOf("0.0.26.0.0.255") != -1) {
+			return new RegisterValue(obisCode, getsFSKPhyMacSetup().getFrequencies().toString());
 		}
 
         // *********************************************************************************
