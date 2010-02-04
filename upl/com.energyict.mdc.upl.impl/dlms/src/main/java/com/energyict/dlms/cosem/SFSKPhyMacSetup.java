@@ -11,6 +11,7 @@ import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.attributeobjects.Frequencies;
 import com.energyict.obis.ObisCode;
 
 /**
@@ -27,7 +28,7 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 	private Unsigned8			maxReceivingGain					= null;
 	private Unsigned8			maxTransmittingGain					= null;
 	private Unsigned8			searchInitiatorGain					= null;
-	private Array				frequencies							= null;
+	private Frequencies			frequencies							= null;
 	private Unsigned16			macAddress							= null;
 	private Array				macGroupAddresses					= null;
 	private TypeEnum			repeater							= null;
@@ -107,10 +108,10 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 		return searchInitiatorGain;
 	}
 
-	public Array getFrequencies() {
+	public Frequencies getFrequencies() {
 		if (frequencies == null) {
 			try {
-				this.frequencies = new Array(getResponseData(ATTRB_FREQUENCIES), 0, 0);
+				this.frequencies = new Frequencies(getResponseData(ATTRB_FREQUENCIES), 0, 0);
 			} catch (IOException e) {}
 		}
 		return frequencies;
