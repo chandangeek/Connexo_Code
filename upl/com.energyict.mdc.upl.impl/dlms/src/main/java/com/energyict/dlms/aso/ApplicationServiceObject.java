@@ -38,6 +38,7 @@ public class ApplicationServiceObject {
 		this.protocolLink = protocolLink;
 		this.securityContext = securityContext;
 		this.acse = new AssociationControlServiceElement(this.xDlmsAse, contextId, securityContext);
+		this.acse.setCallingAPTitle(securityContext.getSystemTitle());
 		this.associationStatus = ASSOCIATION_DISCONNECTED;
 	}
 
