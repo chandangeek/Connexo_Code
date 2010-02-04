@@ -74,7 +74,6 @@ public class XdlmsAse {
 		xDlmsASEReq[t++] = DLMSCOSEMGlobals.COSEM_INITIATEREQUEST;
 
 		if (getDedicatedKey() != null) {
-			System.out.println(ProtocolUtils.getResponseData(getDedicatedKey().getOctetStr()));
 			xDlmsASEReq[t++] = (byte) 0x01; // indicating the presence of the key
 			xDlmsASEReq[t++] = (byte) getDedicatedKey().getOctetStr().length;
 			System.arraycopy(getDedicatedKey().getBEREncodedByteArray(), 2,
