@@ -16,29 +16,56 @@ import com.energyict.dlms.axrdencoding.Structure;
  */
 public class Frequencies extends Array {
 
+	private static final int	FS_INDEX	= 0;
+	private static final int	FM_INDEX	= 1;
+
 	public Frequencies(byte[] berEncodedData, int offset, int level) throws IOException {
 		super(berEncodedData, offset, level);
+	}
+
+	/**
+	 * @param channel (1 based, so value can be 1-6)
+	 * @return
+	 */
+	public long getMarkFrequency(int channel) {
+		if (!isValidChannel(channel)) {
+			throw new IllegalArgumentException("ChannelNumber " + channel + " is not valid!");
+		}
+		return getDataType(channel-1).getStructure().getDataType(FM_INDEX).longValue();
+	}
+
+	/**
+	 * @param channel (1 based, so value can be 1-6)
+	 * @return
+	 */
+	public long getSpaceFrequency(int channel) {
+		if (!isValidChannel(channel)) {
+			throw new IllegalArgumentException("ChannelNumber " + channel + " is not valid!");
+		}
+		return getDataType(channel-1).getStructure().getDataType(FS_INDEX).longValue();
+	}
+
+	public int getNumberOfChannels() {
+		return nrOfDataTypes();
+	}
+
+	private boolean isValidChannel(int channel) {
+		return ((channel >= 1) && (channel <= (nrOfDataTypes()+1)));
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < nrOfDataTypes(); i++) {
-			if (getDataType(i).isStructure()) {
-				Structure struct = getDataType(i).getStructure();
+		sb.append("[channel](Fs,Fm): ");
+		for (int channelNr = 0; channelNr < getNumberOfChannels(); channelNr++) {
+			if (getDataType(channelNr).isStructure()) {
+				Structure struct = getDataType(channelNr).getStructure();
 				if (struct.nrOfDataTypes() == 2) {
-					for (int j = 0; j < 2; j++) {
-						if (struct.getDataType(j).isUnsigned32()) {
-							String frequencyType = j == 0 ? "Fs" : "Fm";
-							String channel = "[" + (i + 1) + "]";
-							long value = struct.getDataType(j).getUnsigned32().longValue();
-							sb.append(frequencyType);
-							sb.append(channel);
-							sb.append("=");
-							sb.append(value);
-							sb.append(", ");
-						}
-					}
+					sb.append("[").append(channelNr+1).append("]=(");
+					sb.append(getSpaceFrequency(channelNr+1)).append("Hz");
+					sb.append(",");
+					sb.append(getMarkFrequency(channelNr+1)).append("Hz");
+					sb.append("); ");
 				}
 			}
 		}
