@@ -179,4 +179,8 @@ public class CosemPDUConnection extends Connection implements DLMSConnection {
 		return maxRetries;
 	}
 
+    public long getForceDelay() {
+		return forceDelay;
+	}
+
 } // public class TCPIPConnection
