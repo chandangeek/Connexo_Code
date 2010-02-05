@@ -38,6 +38,13 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 	private Unsigned16			initiatorMacAddress					= null;
 	private BooleanObject		synchronizationLocked				= null;
 
+	/**
+	 * This attribute is not described in the DLMS blue book 9, but it's
+	 * implemented in the AM500 module. It's used to read/write the active PLC
+	 * channel
+	 */
+	private Unsigned8			activeChannel						= null;
+
 	/** Attribute numbers */
 	private static final int	ATTRB_INITIATOR_ELECTRICAL_PHASE	= 0x08;
 	private static final int	ATTRB_DELTA_ELECTRICAL_PHASE		= 0x10;
@@ -53,6 +60,13 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 	private static final int	ATTRB_INITIATOR_MAC_ADDRESS			= 0x60;
 	private static final int	ATTRB_SYNCHRONIZATION_LOCKED		= 0x68;
 
+	/**
+	 * This attribute is not described in the DLMS blue book 9, but it's
+	 * implemented in the AM500 module. It's used to read/write the active PLC
+	 * channel
+	 */
+	private static final int	ATTRB_ACTIVE_CHANNEL				= 0x78;
+
 	public static ObisCode getObisCode() {
 		return ObisCode.fromByteArray(LN);
 	}
@@ -66,6 +80,17 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 		return DLMSClassId.S_FSK_PHY_MAC_SETUP.getClassId();
 	}
 
+
+	/**
+	 * Holds the MIB variable initiator-electrical-phase (variable 18) specified in IEC 61334-4-512 5.8.
+	 * It is written by the client system to indicate the phase to which it is connected.
+	 * enum: 	(0) Not defined (default),
+	 * 			(1) Phase 1,
+	 * 			(2) Phase 2,
+	 * 			(3) Phase 3.
+	 *
+	 * @return {@link TypeEnum} with the current value
+	 */
 	public TypeEnum getInitiatorElectricalPhase() {
 		if (initiatorElectricalPhase == null) {
 			try {
@@ -75,6 +100,26 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 		return initiatorElectricalPhase;
 	}
 
+	/**
+	 * Holds the MIB variable delta-electrical-phase (variable 1) specified in
+	 * IEC 61334-4-512 5.2 and IEC 61334-5-1 3.5.5.3. It indicates the phase difference
+	 * between the client's connecting phase and the server's connecting phase.
+	 *
+	 * The following values are predefined:
+	 * enum:	(0) Not defined: the server is temporarily not able to
+	 * 				determine the phase difference,
+	 * 			(1) The server system is connected to the same phase as
+	 * 				the client system.
+	 * 				The phase difference between the server's connecting
+	 * 				phase and the client's connecting phase is equal to:
+	 * 			(2) 60 degrees,
+	 * 			(3) 120 degrees,
+	 * 			(4) 180 degrees,
+	 * 			(5) -120 degrees,
+	 * 			(6) -60 degrees.
+	 *
+	 * @return
+	 */
 	public TypeEnum getDeltaElectricalPhase() {
 		try {
 			this.deltaElectricalPhase = new TypeEnum(getResponseData(ATTRB_DELTA_ELECTRICAL_PHASE), 0);
@@ -82,6 +127,17 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 		return deltaElectricalPhase;
 	}
 
+	/**
+	 * Holds the MIB variable max-receiving-gain (variable 2) specified in IEC
+	 * 61334-4-512 5.2 and in IEC 61334-5-1 3.5.5.3. Corresponds to the maximum
+	 * allowed gain bound to be used by the server system in the receiving mode.
+	 * The default unit is dB. NOTE 1 In IEC 61334-4-512, no units is specified.
+	 * NOTE 2 The possible values of the gain may depend on the hardware.
+	 * Therefore, after writing a value to this attribute, the value should be
+	 * read back to know the actual value.
+	 *
+	 * @return
+	 */
 	public Unsigned8 getMaxReceivingGain() {
 		if (maxReceivingGain == null) {
 			try {
@@ -91,6 +147,15 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 		return maxReceivingGain;
 	}
 
+	/**
+	 * Holds the value of the max-transmitting-gain. Corresponds to the maximum
+	 * attenuation bound to be used by the server system in the transmitting
+	 * mode. The default unit is dB. NOTE The possible values of the gain may
+	 * depend on the hardware. Therefore, after writing a value to this
+	 * attribute, the value should be read back to know the actual value.
+	 *
+	 * @return
+	 */
 	public Unsigned8 getMaxTransmittingGain() {
 		if (maxTransmittingGain == null) {
 			try {
@@ -100,6 +165,13 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 		return maxTransmittingGain;
 	}
 
+	/**
+	 * This attribute is used in the intelligent search initiator process. If
+	 * the value of the max_receiving_gain is below the value of this attribute,
+	 * a fast synchronization process is possible.
+	 *
+	 * @return
+	 */
 	public Unsigned8 getSearchInitiatorGain() {
 		if (searchInitiatorGain == null) {
 			try {
@@ -109,6 +181,12 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 		return searchInitiatorGain;
 	}
 
+	/**
+	 * Contains frequencies required for S-FSK modulation.
+	 * The default unit is Hz.
+	 *
+	 * @return
+	 */
 	public Frequencies getFrequencies() {
 		if (frequencies == null) {
 			try {
@@ -118,6 +196,27 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 		return frequencies;
 	}
 
+	/**
+	 * Holds the MIB variable mac-address (variable 3) specified in IEC 61334-4-512 5.3 and in IEC 61334-5-1 4.3.7.6.
+	 * NOTE MAC addresses are expressed on 12 bits.
+	 *
+	 * Contains the value of the address of the physical attachment (MAC address)
+	 * associated to the local system. In the unconfigured state, the MAC address is “NEW-address”.
+	 * This attribute is locally written by the CIASE when the system is registered
+	 * (with a Register service). The value is used in each outgoing or incoming
+	 * frame. The default value is "NEW-address".
+	 *
+	 * This attribute is set to NEW:
+	 * - by the MAC sub-layer, once the time-out-not-addressed delay is exceeded;
+	 * - when a client system “resets” the server system.
+	 *
+	 * When this attribute is set to NEW:
+	 * - the system loses its synchronization (function of the MAC-sublayer);
+	 * - the mac_group_address attribute is reset (array of 0 elements);
+	 * - the system automatically releases all AAs which can be released.
+	 *
+	 * @return
+	 */
 	public Unsigned16 getMacAddress() {
 		try {
 			this.macAddress = new Unsigned16(getResponseData(ATTRB_MAC_ADDRESS), 0);
@@ -171,6 +270,13 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 		return synchronizationLocked;
 	}
 
+	public Unsigned8 getActiveChannel() {
+		try {
+			this.activeChannel = new Unsigned8(getResponseData(ATTRB_ACTIVE_CHANNEL), 0);
+		} catch (IOException e) {}
+		return activeChannel;
+	}
+
 	public void clearCache() {
 		initiatorElectricalPhase = null;
 		maxReceivingGain = null;
@@ -199,11 +305,15 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 		sb.append(" > minDeltaCredit = ").append(getMinDeltaCredit().getValue()).append(crlf);
 		sb.append(" > initiatorMacAddress = ").append(getInitiatorMacAddress().getValue()).append(crlf);
 		sb.append(" > synchronizationLocked = ").append(getSynchronizationLocked().getState()).append(crlf);
+		sb.append(" > activeChannel = ").append(getActiveChannel().getValue()).append(crlf);
 		return sb.toString();
 	}
 
 	public RegisterValue asRegisterValue() {
-		return new RegisterValue(getObisCode(), getFrequencies() != null ? getFrequencies().toString() : null);
+		StringBuffer sb = new StringBuffer();
+		sb.append("activeChannel=").append(getActiveChannel() != null ? getActiveChannel().getValue() : null).append(", ");
+		sb.append(getFrequencies() != null ? getFrequencies().toString() : null);
+		return new RegisterValue(getObisCode(), sb.toString());
 	}
 
 }
