@@ -81,7 +81,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 
 	private static final String			SERIAL_NUMBER_PREFIX		= "35";
 
-	private static final int			MAX_PDU_SIZE				= 1200;
+	private static final int			MAX_PDU_SIZE				= 200;
 	private static final int			PROPOSED_QOS				= -1;
 	private static final int			PROPOSED_DLMS_VERSION		= 6;
 
