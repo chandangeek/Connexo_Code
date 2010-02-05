@@ -285,7 +285,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 				} else {
 					throw new ConnectionException("CSD Wakeup call failed.");
 				}
-			}			
+			} else if(scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer")){
+				throw new IOException("NoDialer is only allowed for CSD calls (CsdCall property should be set to 1)");
+			}		
 			
 			init(this.link.getInputStream(),this.link.getOutputStream());
 			
