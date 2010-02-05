@@ -69,7 +69,8 @@ public class AS220Main {
 
 	public static Dialer getDialer() {
 		if (dialer == null) {
-			dialer = DialerFactory.get("IPDIALER").newDialer();
+			//dialer = DialerFactory.get("IPDIALER").newDialer();
+			dialer = DialerFactory.getDirectDialer().newDialer();
 			dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, false));
 		}
 		return dialer;
@@ -94,7 +95,7 @@ public class AS220Main {
 		properties.setProperty("Timeout", "20000");
 		properties.setProperty("ForcedDelay", "500");
 
-		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_BOTH);
+		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
 		properties.setProperty("ProfileInterval", "900");
 		properties.setProperty("Password", "00000000");
 		properties.setProperty("SerialNumber", "35015023");
@@ -170,22 +171,19 @@ public class AS220Main {
 
 	public static void main(String[] args) throws LinkException, IOException, InterruptedException {
 
-		//getDialer().init("linux2:10010");
-		//getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
-		getDialer().connect("10.0.2.127:10011", 10010);
+		getDialer().init(COMPORT);
+		getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
+		//getDialer().connect("10.0.2.127:10011", 10010);
+		getDialer().connect();
 
 		try {
 			getAs220().setProperties(getProperties());
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			final ObisCode	plc_sfsk_setup	= ObisCode.fromString("0.0.26.0.0.255");
-			System.out.println(getAs220().readRegister(plc_sfsk_setup));
 
-			final ObisCode	plc_sfsk_sync_timeout	= ObisCode.fromString("0.0.26.2.0.255");
-			System.out.println(getAs220().readRegister(plc_sfsk_sync_timeout));
+			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.0.0.255")));
 
-			//readRegisters();
 
 		} finally {
 			ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
