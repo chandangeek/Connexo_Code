@@ -17,8 +17,16 @@
 
 package com.energyict.protocolimpl.dlms.as220;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import com.energyict.cbo.NotFoundException;
@@ -44,12 +52,29 @@ import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.dlms.*;
+import com.energyict.protocolimpl.dlms.DLMSCache;
+import com.energyict.protocolimpl.dlms.HDLCConnection;
+import com.energyict.protocolimpl.dlms.RtuDLMS;
+import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 
 abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism {
@@ -124,6 +149,8 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 
 	private Properties properties;
 
+	private int	iForcedDelay;
+
     /**
 	 *  Creates a new instance of DLMSSNAS220, empty constructor
      */
@@ -182,16 +209,16 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 		try {
             switch (connectionMode) {
 				case CONNECTION_MODE_HDLC:
-					connection = new HDLCConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress,iServerUpperMacAddress,addressingMode);
+					connection = new HDLCConnection(inputStream,outputStream,iTimeoutProperty,iForcedDelay,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress,iServerUpperMacAddress,addressingMode);
 					break;
 				case CONNECTION_MODE_TCPIP:
-					connection = new TCPIPConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
+					connection = new TCPIPConnection(inputStream,outputStream,iTimeoutProperty,iForcedDelay,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
 					break;
 				case CONNECTION_MODE_COSEM_PDU:
-					connection = new CosemPDUConnection(inputStream,outputStream,iTimeoutProperty,100,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
+					connection = new CosemPDUConnection(inputStream,outputStream,iTimeoutProperty,iForcedDelay,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
 					break;
 				case CONNECTION_MODE_LLC:
-					connection = new LLCConnection(inputStream,outputStream,iTimeoutProperty,200,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
+					connection = new LLCConnection(inputStream,outputStream,iTimeoutProperty,iForcedDelay,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
 					break;
 				default:
 					throw new IOException("Unable to initialize dlmsConnection, connection property unknown: " + connectionMode);
@@ -546,6 +573,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 
 			strPassword = properties.getProperty(MeterProtocol.PASSWORD, "00000000");
 			iTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
+			iForcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay", "10").trim());
 			iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
 			iRequestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0").trim());
 			iRequestClockObject = Integer.parseInt(properties.getProperty("RequestClockObject", "0").trim());
@@ -631,6 +659,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     public List<String> getOptionalKeys() {
         List<String> result = new ArrayList<String>();
         result.add("Timeout");
+        result.add("ForcedDelay");
         result.add("Retries");
         result.add("DelayAfterFail");
         result.add("RequestTimeZone");

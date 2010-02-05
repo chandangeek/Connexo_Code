@@ -92,6 +92,7 @@ public class AS220Main {
 
 		properties.setProperty("Retries", "5");
 		properties.setProperty("Timeout", "20000");
+		properties.setProperty("ForcedDelay", "500");
 
 		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_BOTH);
 		properties.setProperty("ProfileInterval", "900");
@@ -171,7 +172,7 @@ public class AS220Main {
 
 		//getDialer().init("linux2:10010");
 		//getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
-		getDialer().connect("linux2:10011", 10010);
+		getDialer().connect("10.0.2.127:10011", 10010);
 
 		try {
 			getAs220().setProperties(getProperties());
