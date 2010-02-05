@@ -568,7 +568,7 @@ public class AS220Test {
 	}
 
 	/**
-	 * Test method for {@link com.energyict.protocolimpl.dlms.as220.DLMSSNAS220#setiRoundtripCorrection(int)}.
+	 * Test method for {@link com.energyict.protocolimpl.dlms.as220.DLMSSNAS220#setRoundtripCorrection(int)}.
 	 */
 	@Test
 	@Ignore
