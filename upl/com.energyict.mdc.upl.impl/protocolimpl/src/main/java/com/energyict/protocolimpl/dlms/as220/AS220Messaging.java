@@ -61,34 +61,26 @@ public class AS220Messaging implements MessageProtocol {
 
 	public List<MessageCategorySpec> getMessageCategories() {
         List<MessageCategorySpec> theCategories = new ArrayList<MessageCategorySpec>();
-        MessageCategorySpec cat = new MessageCategorySpec("BasicMessages");
-        MessageSpec msgSpec;
+        MessageCategorySpec eMeterCat = new MessageCategorySpec("E-Meter ");
+        MessageCategorySpec gMeterCat = new MessageCategorySpec("G-Meter");
+        MessageCategorySpec plcMeterCat = new MessageCategorySpec("PLC related");
+        MessageCategorySpec otherMeterCat = new MessageCategorySpec("Other");
 
-        msgSpec = addBasicMsg(DISCONNECT_EMETER_DISPLAY, DISCONNECT_EMETER, false);
-        cat.addMessageSpec(msgSpec);
+        eMeterCat.addMessageSpec(createMessageSpec(DISCONNECT_EMETER_DISPLAY, DISCONNECT_EMETER, false));
+        eMeterCat.addMessageSpec(createMessageSpec(ARM_EMETER_DISPLAY, ARM_EMETER, false));
+        eMeterCat.addMessageSpec(createMessageSpec(CONNECT_EMETER_DISPLAY, CONNECT_EMETER, false));
 
-        msgSpec = addBasicMsg(ARM_EMETER_DISPLAY, ARM_EMETER, false);
-        cat.addMessageSpec(msgSpec);
+        gMeterCat.addMessageSpec(createMessageSpec(DISCONNECT_GMETER_DISPLAY, DISCONNECT_GMETER, false));
+        gMeterCat.addMessageSpec(createMessageSpec(ARM_GMETER_DISPLAY, ARM_GMETER, false));
+        gMeterCat.addMessageSpec(createMessageSpec(CONNECT_GMETER_DISPLAY, CONNECT_GMETER, false));
 
-        msgSpec = addBasicMsg(CONNECT_EMETER_DISPLAY, CONNECT_EMETER, false);
-        cat.addMessageSpec(msgSpec);
+        otherMeterCat.addMessageSpec(createMessageSpec(TOPT_SWITCH_BASE_DISPLAY, TOPT_SWITCH_BASE, false));
+        otherMeterCat.addMessageSpec(createMessageSpec(TOPT_SWITCH_DAYNIGHT_DISPLAY, TOPT_SWITCH_DAYNIGHT, false));
 
-        msgSpec = addBasicMsg(DISCONNECT_GMETER_DISPLAY, DISCONNECT_GMETER, false);
-        cat.addMessageSpec(msgSpec);
-
-        msgSpec = addBasicMsg(ARM_GMETER_DISPLAY, ARM_GMETER, false);
-        cat.addMessageSpec(msgSpec);
-
-        msgSpec = addBasicMsg(CONNECT_GMETER_DISPLAY, CONNECT_GMETER, false);
-        cat.addMessageSpec(msgSpec);
-
-        msgSpec = addBasicMsg(TOPT_SWITCH_BASE_DISPLAY, TOPT_SWITCH_BASE, false);
-        cat.addMessageSpec(msgSpec);
-
-        msgSpec = addBasicMsg(TOPT_SWITCH_DAYNIGHT_DISPLAY, TOPT_SWITCH_DAYNIGHT, false);
-        cat.addMessageSpec(msgSpec);
-
-        theCategories.add(cat);
+        theCategories.add(eMeterCat);
+        theCategories.add(gMeterCat);
+        theCategories.add(plcMeterCat);
+        theCategories.add(otherMeterCat);
         return theCategories;
 	}
 
@@ -184,7 +176,7 @@ public class AS220Messaging implements MessageProtocol {
      * @param advanced
      * @return
      */
-    private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
+    private MessageSpec createMessageSpec(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         msgSpec.add(tagSpec);
