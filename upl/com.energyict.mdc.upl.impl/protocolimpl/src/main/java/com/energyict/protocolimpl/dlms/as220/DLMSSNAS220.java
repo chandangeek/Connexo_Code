@@ -227,17 +227,34 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 			throw new IOException(e.getMessage());
         }
 
-		byte[] dedicatedKey = new byte[0x10];
-		for (byte i = 0; i < dedicatedKey.length; i++) {
-			dedicatedKey[i] = (byte) (i+1);
-		}
-
 		LocalSecurityProvider localSecurityProvider = new LocalSecurityProvider(this.properties);
 		securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, serialNumber.getBytes(), localSecurityProvider);
 		ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_SN_CONFORMANCE_BLOCK);
-		XdlmsAse xdlmsAse = new XdlmsAse(localSecurityProvider.getDedicatedKey(), true, PROPOSED_QOS, PROPOSED_DLMS_VERSION, cb, MAX_PDU_SIZE);
-		aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, AssociationControlServiceElement.SHORT_NAME_REFERENCING_WITH_CIPHERING);
+		XdlmsAse xdlmsAse = new XdlmsAse(isCiphered() ? localSecurityProvider.getDedicatedKey() : null, true, PROPOSED_QOS, PROPOSED_DLMS_VERSION, cb, MAX_PDU_SIZE);
+		aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, getContextId());
 		dlmsConnection = new SecureConnection(aso, connection);
+	}
+
+	private boolean isCiphered() {
+		return (getContextId() == AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_WITH_CIPHERING) || (getContextId() == AssociationControlServiceElement.SHORT_NAME_REFERENCING_WITH_CIPHERING);
+	}
+
+	/**
+	 * Define the contextID of the associationServiceObject.
+	 * Depending on the reference(see {@link ProtocolLink#LN_REFERENCE} and {@link ProtocolLink#SN_REFERENCE}, the value can be different.
+	 *
+	 * @return the contextId
+	 */
+	private int getContextId(){
+		if(getReference() == ProtocolLink.LN_REFERENCE){
+			return (this.datatransportSecurityLevel == 0)?AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING:
+				AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_WITH_CIPHERING;
+		} else if( getReference() == ProtocolLink.SN_REFERENCE){
+			return (this.datatransportSecurityLevel == 0)?AssociationControlServiceElement.SHORT_NAME_REFERENCING_NO_CIPHERING:
+				AssociationControlServiceElement.SHORT_NAME_REFERENCING_WITH_CIPHERING;
+		} else {
+			throw new IllegalArgumentException("Invalid reference method, only 0 and 1 are allowed.");
+		}
 	}
 
 	public void connect() throws IOException {
