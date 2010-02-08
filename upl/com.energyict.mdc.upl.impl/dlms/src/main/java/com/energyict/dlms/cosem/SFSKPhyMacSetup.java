@@ -277,6 +277,10 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 		return activeChannel;
 	}
 
+	public void setActiveChannel(Unsigned8 activeChannel) throws IOException {
+			write(ATTRB_ACTIVE_CHANNEL, activeChannel.getBEREncodedByteArray());
+	}
+
 	public void clearCache() {
 		initiatorElectricalPhase = null;
 		maxReceivingGain = null;

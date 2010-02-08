@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.cosem.attributeobjects.InitiatorDescriptor;
+import com.energyict.dlms.cosem.attributeobjects.MacAddress;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 
@@ -18,11 +19,12 @@ public class SFSKActiveInitiator extends AbstractCosemObject {
 
 	private static final byte[]	LN	= ObisCode.fromString("0.0.26.1.0.255").getLN();
 
-	/** Attributes */                                           
+	/** Attributes */
 	private InitiatorDescriptor	activeInitiator			= null;
 
 	/** Attribute numbers */
-	private static final int	ATTRB_ACTIVE_INITIATOR	= 0x08;
+	private static final int	ATTRB_ACTIVE_INITIATOR		= 0x08;
+	private static final int	ATTRB_RESET_NEW_NOT_SYNC	= 0x10;
 
 	public static ObisCode getObisCode() {
 		return ObisCode.fromByteArray(LN);
@@ -43,7 +45,11 @@ public class SFSKActiveInitiator extends AbstractCosemObject {
 		} catch (IOException e) {}
 		return activeInitiator;
 	}
-	
+
+	public void doResetNewNotSynchronized(MacAddress mac) throws IOException {
+		write(ATTRB_RESET_NEW_NOT_SYNC, mac.getBEREncodedByteArray());
+	}
+
 	@Override
 	public String toString() {
 		final String crlf = "\r\n";
@@ -56,5 +62,5 @@ public class SFSKActiveInitiator extends AbstractCosemObject {
 	public RegisterValue asRegisterValue() {
 		return new RegisterValue(getObisCode(), toString());
 	}
-	
+
 }
