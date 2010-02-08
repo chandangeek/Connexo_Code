@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.attributeobjects.MacAddress;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
@@ -35,6 +37,9 @@ public class AS220Messaging implements MessageProtocol {
 	public static final String	TOPT_SWITCH_BASE				= "TariffOptionSwitchBase";
 	public static final String	TOPT_SWITCH_DAYNIGHT			= "TariffOptionSwitchDayNight";
 
+	public static final String	RESCAN_PLCBUS					= "RescanPlcBus";
+	public static final String	SET_ACTIVE_PLC_CHANNEL			= "SetActivePlcChannel";
+
 	/**
 	 * Message descriptions
 	 */
@@ -48,6 +53,9 @@ public class AS220Messaging implements MessageProtocol {
 
 	private static final String	TOPT_SWITCH_BASE_DISPLAY		= "Switch tariff option BASE";
 	private static final String	TOPT_SWITCH_DAYNIGHT_DISPLAY	= "Switch tariff option DAY/NIGHT";
+
+	private static final String	RESCAN_PLCBUS_DISPLAY			= "Force manual rescan PLC bus";
+	private static final String	SET_ACTIVE_PLC_CHANNEL_DISPLAY	= "Set active PLC channel";
 
 	private final AS220 as220;
 
@@ -64,7 +72,7 @@ public class AS220Messaging implements MessageProtocol {
         MessageCategorySpec eMeterCat = new MessageCategorySpec("E-Meter ");
         MessageCategorySpec gMeterCat = new MessageCategorySpec("G-Meter");
         MessageCategorySpec plcMeterCat = new MessageCategorySpec("PLC related");
-        MessageCategorySpec otherMeterCat = new MessageCategorySpec("Other");
+        MessageCategorySpec otherMeterCat = new MessageCategorySpec("zzz_Other");
 
         eMeterCat.addMessageSpec(createMessageSpec(DISCONNECT_EMETER_DISPLAY, DISCONNECT_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(ARM_EMETER_DISPLAY, ARM_EMETER, false));
@@ -73,6 +81,9 @@ public class AS220Messaging implements MessageProtocol {
         gMeterCat.addMessageSpec(createMessageSpec(DISCONNECT_GMETER_DISPLAY, DISCONNECT_GMETER, false));
         gMeterCat.addMessageSpec(createMessageSpec(ARM_GMETER_DISPLAY, ARM_GMETER, false));
         gMeterCat.addMessageSpec(createMessageSpec(CONNECT_GMETER_DISPLAY, CONNECT_GMETER, false));
+
+        plcMeterCat.addMessageSpec(createMessageSpec(RESCAN_PLCBUS_DISPLAY, RESCAN_PLCBUS, false));
+        plcMeterCat.addMessageSpec(createMessageSpec(SET_ACTIVE_PLC_CHANNEL_DISPLAY, SET_ACTIVE_PLC_CHANNEL, false));
 
         otherMeterCat.addMessageSpec(createMessageSpec(TOPT_SWITCH_BASE_DISPLAY, TOPT_SWITCH_BASE, false));
         otherMeterCat.addMessageSpec(createMessageSpec(TOPT_SWITCH_DAYNIGHT_DISPLAY, TOPT_SWITCH_DAYNIGHT, false));
@@ -91,24 +102,28 @@ public class AS220Messaging implements MessageProtocol {
 
 	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 		try {
-			if (messageEntry.getContent().indexOf("<" + DISCONNECT_EMETER) >= 0) {
+			if (isMessageTag(DISCONNECT_EMETER, messageEntry)) {
 				getAs220().geteMeter().getContactorController().doDisconnect();
-			} else if (messageEntry.getContent().indexOf("<" + CONNECT_EMETER) >= 0) {
+			} else if (isMessageTag(CONNECT_EMETER, messageEntry)) {
 				getAs220().geteMeter().getContactorController().doConnect();
-			} else if (messageEntry.getContent().indexOf("<" + ARM_EMETER) >= 0) {
+			} else if (isMessageTag(ARM_EMETER, messageEntry)) {
 				getAs220().geteMeter().getContactorController().doArm();
-			} else if (messageEntry.getContent().indexOf("<" + DISCONNECT_GMETER) >= 0) {
+			} else if (isMessageTag(DISCONNECT_GMETER, messageEntry)) {
 				getAs220().getgMeter().getGasValveController().doDisconnect();
-			} else if (messageEntry.getContent().indexOf("<" + CONNECT_GMETER) >= 0) {
+			} else if (isMessageTag(CONNECT_GMETER, messageEntry)) {
 				getAs220().getgMeter().getGasValveController().doConnect();
-			} else if (messageEntry.getContent().indexOf("<" + ARM_GMETER) >= 0) {
+			} else if (isMessageTag(ARM_GMETER, messageEntry)) {
 				getAs220().getgMeter().getGasValveController().doArm();
-			} else if (messageEntry.getContent().indexOf("<" + TOPT_SWITCH_BASE) >= 0) {
+			} else if (isMessageTag(TOPT_SWITCH_BASE, messageEntry)) {
 				getAs220().getLogger().info("TARIFF_OPTION_SWITCH_BASE message received");
 				getAs220().getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.0.255")).setValueAttr(new TypeEnum(0));
-			} else if (messageEntry.getContent().indexOf("<" + TOPT_SWITCH_DAYNIGHT) >= 0) {
+			} else if (isMessageTag(TOPT_SWITCH_DAYNIGHT, messageEntry)) {
 				getAs220().getLogger().info("TARIFF_OPTION_SWITCH_DAYNIGHT message received");
 				getAs220().getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.0.255")).setValueAttr(new TypeEnum(1));
+			} else if (isMessageTag(RESCAN_PLCBUS, messageEntry)) {
+				rescanPLCBus();
+			} else if (isMessageTag(SET_ACTIVE_PLC_CHANNEL, messageEntry)) {
+				setActivePLCChannel(0);
 			} else {
 				getAs220().getLogger().severe("Received unknown message: " + messageEntry);
 				return MessageResult.createFailed(messageEntry);
@@ -118,6 +133,17 @@ public class AS220Messaging implements MessageProtocol {
 			getAs220().getLogger().severe("QueryMessage(), " + e.getMessage());
 			return MessageResult.createFailed(messageEntry);
 		}
+	}
+
+	private void setActivePLCChannel(int channelNr) throws IOException {
+		getAs220().getLogger().info("SET_ACTIVE_PLC_CHANNEL message received");
+		getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setActiveChannel(new Unsigned8(channelNr));
+	}
+
+	private void rescanPLCBus() throws IOException {
+		getAs220().getLogger().info("RESCAN_PLCBUS message received");
+		getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setActiveChannel(new Unsigned8(0));
+		getAs220().getCosemObjectFactory().getSFSKActiveInitiator().doResetNewNotSynchronized(new MacAddress(0));
 	}
 
 	public String writeMessage(Message msg) {
@@ -182,5 +208,14 @@ public class AS220Messaging implements MessageProtocol {
         msgSpec.add(tagSpec);
         return msgSpec;
     }
+
+	/**
+	 * @param tag
+	 * @param messageEntry
+	 * @return
+	 */
+	private boolean isMessageTag(String tag, MessageEntry messageEntry) {
+		return (messageEntry.getContent().indexOf("<" + tag) >= 0);
+	}
 
 }
