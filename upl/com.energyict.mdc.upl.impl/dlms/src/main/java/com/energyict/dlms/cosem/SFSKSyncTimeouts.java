@@ -85,12 +85,12 @@ public class SFSKSyncTimeouts extends AbstractCosemObject {
 	}
 
 	public RegisterValue asRegisterValue() {
-		StringBuffer sb = new StringBuffer();
-		sb.append("searchInitiatorTimeout=").append(getSearchInitiatorTimeout() != null ? getSearchInitiatorTimeout().getValue() : null).append(", ");
-		sb.append("syncConfirmTimeout=").append(getSyncConfirmTimeout() != null ? getSyncConfirmTimeout().getValue() : null).append(", ");
-		sb.append("timeoutNotAddressed=").append(getTimeoutNotAddressed() != null ? getTimeoutNotAddressed().getValue() : null).append(", ");
-		sb.append("timeoutFrameNotOk=").append(getTimeoutFrameNotOk() != null ? getTimeoutFrameNotOk().getValue() : null);
-		return new RegisterValue(getObisCode(), sb.toString());
+//		StringBuffer sb = new StringBuffer();
+//		sb.append("searchInitiatorTimeout=").append(getSearchInitiatorTimeout() != null ? getSearchInitiatorTimeout().getValue() : null).append(", ");
+//		sb.append("syncConfirmTimeout=").append(getSyncConfirmTimeout() != null ? getSyncConfirmTimeout().getValue() : null).append(", ");
+//		sb.append("timeoutNotAddressed=").append(getTimeoutNotAddressed() != null ? getTimeoutNotAddressed().getValue() : null).append(", ");
+//		sb.append("timeoutFrameNotOk=").append(getTimeoutFrameNotOk() != null ? getTimeoutFrameNotOk().getValue() : null);
+		return new RegisterValue(getObisCode(), toString());
 	}
 	
 }

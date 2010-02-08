@@ -224,6 +224,14 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 		return new SFSKPhyMacSetup(protocolLink, getObjectReference(obisCode));
 	}
 
+	public SFSKActiveInitiator getSFSKActiveInitiator() throws IOException {
+		return getSFSKActiveInitiator(SFSKActiveInitiator.getObisCode());
+	}
+
+	public SFSKActiveInitiator getSFSKActiveInitiator(ObisCode obisCode) throws IOException {
+		return new SFSKActiveInitiator(protocolLink, getObjectReference(obisCode));
+	}
+
 	public SFSKSyncTimeouts getSFSKSyncTimeouts() throws IOException {
 		return getSFSKSyncTimeouts(SFSKSyncTimeouts.getObisCode());
 	}

@@ -6,12 +6,12 @@ package com.energyict.dlms.cosem;
 import java.io.IOException;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributeobjects.Frequencies;
+import com.energyict.dlms.cosem.attributeobjects.MacAddress;
+import com.energyict.dlms.cosem.attributeobjects.MacAddressList;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 
@@ -30,12 +30,12 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 	private Unsigned8			maxTransmittingGain					= null;
 	private Unsigned8			searchInitiatorGain					= null;
 	private Frequencies			frequencies							= null;
-	private Unsigned16			macAddress							= null;
-	private Array				macGroupAddresses					= null;
+	private MacAddress			macAddress							= null;
+	private MacAddressList		macGroupAddresses					= null;
 	private TypeEnum			repeater							= null;
 	private BooleanObject		repeaterStatus						= null;
 	private Unsigned8			minDeltaCredit						= null;
-	private Unsigned16			initiatorMacAddress					= null;
+	private MacAddress			initiatorMacAddress					= null;
 	private BooleanObject		synchronizationLocked				= null;
 
 	/**
@@ -217,17 +217,17 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 	 *
 	 * @return
 	 */
-	public Unsigned16 getMacAddress() {
+	public MacAddress getMacAddress() {
 		try {
-			this.macAddress = new Unsigned16(getResponseData(ATTRB_MAC_ADDRESS), 0);
+			this.macAddress = new MacAddress(getResponseData(ATTRB_MAC_ADDRESS), 0);
 		} catch (IOException e) {}
 		return macAddress;
 	}
 
-	public Array getMacGroupAddresses() {
+	public MacAddressList getMacGroupAddresses() {
 		if (macGroupAddresses == null) {
 			try {
-				this.macGroupAddresses = new Array(getResponseData(ATTRB_MAC_GROUP_ADDRESSES), 0, 0);
+				this.macGroupAddresses = new MacAddressList(getResponseData(ATTRB_MAC_GROUP_ADDRESSES), 0, 0);
 			} catch (IOException e) {}
 		}
 		return macGroupAddresses;
@@ -256,9 +256,9 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 		return minDeltaCredit;
 	}
 
-	public Unsigned16 getInitiatorMacAddress() {
+	public MacAddress getInitiatorMacAddress() {
 		try {
-			this.initiatorMacAddress = new Unsigned16(getResponseData(ATTRB_INITIATOR_MAC_ADDRESS), 0);
+			this.initiatorMacAddress = new MacAddress(getResponseData(ATTRB_INITIATOR_MAC_ADDRESS), 0);
 		} catch (IOException e) {}
 		return initiatorMacAddress;
 	}
@@ -298,22 +298,22 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 		sb.append(" > maxTransmittingGain = ").append(getMaxTransmittingGain().getValue()).append(crlf);
 		sb.append(" > searchInitiatorGain = ").append(getSearchInitiatorGain().getValue()).append(crlf);
 		sb.append(" > frequencies = ").append(getFrequencies().toString().replace("\n", " ").replace("\r", "")).append(crlf);
-		sb.append(" > macAddress = ").append(getMacAddress().getValue()).append(crlf);
+		sb.append(" > macAddress = ").append(getMacAddress()).append(crlf);
 		sb.append(" > macGroupAddresses = ").append(getMacGroupAddresses().toString().replace("\n", " ").replace("\r", "")).append(crlf);
 		sb.append(" > repeater = ").append(getRepeater().getValue()).append(crlf);
 		sb.append(" > repearterStatus = ").append(getRepeaterStatus().getState()).append(crlf);
 		sb.append(" > minDeltaCredit = ").append(getMinDeltaCredit().getValue()).append(crlf);
-		sb.append(" > initiatorMacAddress = ").append(getInitiatorMacAddress().getValue()).append(crlf);
+		sb.append(" > initiatorMacAddress = ").append(getInitiatorMacAddress()).append(crlf);
 		sb.append(" > synchronizationLocked = ").append(getSynchronizationLocked().getState()).append(crlf);
 		sb.append(" > activeChannel = ").append(getActiveChannel().getValue()).append(crlf);
 		return sb.toString();
 	}
 
 	public RegisterValue asRegisterValue() {
-		StringBuffer sb = new StringBuffer();
-		sb.append("activeChannel=").append(getActiveChannel() != null ? getActiveChannel().getValue() : null).append(", ");
-		sb.append(getFrequencies() != null ? getFrequencies().toString() : null);
-		return new RegisterValue(getObisCode(), sb.toString());
+//		StringBuffer sb = new StringBuffer();
+//		sb.append("activeChannel=").append(getActiveChannel() != null ? getActiveChannel().getValue() : null).append(", ");
+//		sb.append(getFrequencies() != null ? getFrequencies().toString() : null);
+		return new RegisterValue(getObisCode(), toString());
 	}
 
 }

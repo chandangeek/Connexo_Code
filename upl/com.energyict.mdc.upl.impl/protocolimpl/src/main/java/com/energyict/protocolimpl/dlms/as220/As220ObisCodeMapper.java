@@ -41,6 +41,10 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 	    LOGICAL_DEVICENAME_OBISCODE
 	};
 
+	private static final ObisCode	SFSK_PHY_MAC_SETUP			= ObisCode.fromString("0.0.26.0.0.255");
+	private static final ObisCode	SFSK_ACTIVE_INITIATOR		= ObisCode.fromString("0.0.26.1.0.255");
+	private static final ObisCode	SFSK_SYNC_TIMEOUTS			= ObisCode.fromString("0.0.26.2.0.255");
+
 	private CosemObjectFactory cosemObjectFactory;
 	private SFSKPhyMacSetup sFSKPhyMacSetup = null;
 
@@ -99,9 +103,11 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 			} else {
 				throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
 			}
-		} else if (obisCode.toString().indexOf("0.0.26.0.0.255") != -1) {
+		} else if (obisCode.equals(SFSK_PHY_MAC_SETUP)) {
 			return getsFSKPhyMacSetup().asRegisterValue();
-		} else if (obisCode.toString().indexOf("0.0.26.2.0.255") != -1) {
+		} else if (obisCode.equals(SFSK_ACTIVE_INITIATOR)) {
+			return getCosemObjectFactory().getSFSKActiveInitiator().asRegisterValue();
+		} else if (obisCode.equals(SFSK_SYNC_TIMEOUTS)) {
 			return getCosemObjectFactory().getSFSKSyncTimeouts().asRegisterValue();
 		}
 
