@@ -171,10 +171,12 @@ public class AS220Main {
 
 	public static void main(String[] args) throws LinkException, IOException, InterruptedException {
 
-		getDialer().init(COMPORT);
-		getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
-		//getDialer().connect("10.0.2.127:10011", 10010);
-		getDialer().connect();
+		//getDialer().init(COMPORT);
+		//getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
+		//getDialer().connect();
+
+		getDialer().init("linux2:10011");
+		getDialer().connect("linux2:10011", 10010);
 
 		try {
 			getAs220().setProperties(getProperties());
@@ -183,6 +185,8 @@ public class AS220Main {
 
 
 			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.0.0.255")));
+			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.1.0.255")));
+			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.2.0.255")));
 
 
 		} finally {

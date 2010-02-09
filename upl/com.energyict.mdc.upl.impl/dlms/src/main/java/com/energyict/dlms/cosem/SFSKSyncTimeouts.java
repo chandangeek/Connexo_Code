@@ -75,21 +75,22 @@ public class SFSKSyncTimeouts extends AbstractCosemObject {
 	@Override
 	public String toString() {
 		final String crlf = "\r\n";
+		
+		Unsigned16 searchInitiatorTimeout = getSearchInitiatorTimeout();
+		Unsigned16 syncConfirmTimeout = getSyncConfirmTimeout();
+		Unsigned16 timeoutNotAddressed = getTimeoutNotAddressed();
+		Unsigned16 timeoutFrameNotOk = getTimeoutFrameNotOk(); 
+		
 		StringBuffer sb = new StringBuffer();
 		sb.append("SFSKSyncTimeouts").append(crlf);
-		sb.append(" > searchInitiatorTimeout = ").append(getSearchInitiatorTimeout() != null ? getSearchInitiatorTimeout().getValue() : null).append(crlf);
-		sb.append(" > syncConfirmTimeout = ").append(getSyncConfirmTimeout() != null ? getSyncConfirmTimeout().getValue() : null).append(crlf);
-		sb.append(" > timeoutNotAddressed = ").append(getTimeoutNotAddressed() != null ? getTimeoutNotAddressed().getValue() : null).append(crlf);
-		sb.append(" > timeoutFrameNotOk = ").append(getTimeoutFrameNotOk() != null ? getTimeoutFrameNotOk().getValue() : null).append(crlf);
+		sb.append(" > searchInitiatorTimeout = ").append(searchInitiatorTimeout != null ? searchInitiatorTimeout.getValue() : null).append(crlf);
+		sb.append(" > syncConfirmTimeout = ").append(syncConfirmTimeout != null ? syncConfirmTimeout.getValue() : null).append(crlf);
+		sb.append(" > timeoutNotAddressed = ").append(timeoutNotAddressed != null ? timeoutNotAddressed.getValue() : null).append(crlf);
+		sb.append(" > timeoutFrameNotOk = ").append(timeoutFrameNotOk != null ? timeoutFrameNotOk.getValue() : null).append(crlf);
 		return sb.toString();
 	}
 
 	public RegisterValue asRegisterValue() {
-//		StringBuffer sb = new StringBuffer();
-//		sb.append("searchInitiatorTimeout=").append(getSearchInitiatorTimeout() != null ? getSearchInitiatorTimeout().getValue() : null).append(", ");
-//		sb.append("syncConfirmTimeout=").append(getSyncConfirmTimeout() != null ? getSyncConfirmTimeout().getValue() : null).append(", ");
-//		sb.append("timeoutNotAddressed=").append(getTimeoutNotAddressed() != null ? getTimeoutNotAddressed().getValue() : null).append(", ");
-//		sb.append("timeoutFrameNotOk=").append(getTimeoutFrameNotOk() != null ? getTimeoutFrameNotOk().getValue() : null);
 		return new RegisterValue(getObisCode(), toString());
 	}
 	

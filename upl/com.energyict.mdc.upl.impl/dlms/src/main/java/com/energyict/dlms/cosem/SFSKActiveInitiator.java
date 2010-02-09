@@ -32,7 +32,7 @@ public class SFSKActiveInitiator extends AbstractCosemObject {
 
 	@Override
 	protected int getClassId() {
-		return DLMSClassId.S_FSK_MAC_SYNC_TIMEOUTS.getClassId();
+		return DLMSClassId.S_FSK_ACTIVE_INITIATOR.getClassId();
 	}
 
 	public SFSKActiveInitiator(ProtocolLink protocolLink, ObjectReference objectReference) {
@@ -53,9 +53,12 @@ public class SFSKActiveInitiator extends AbstractCosemObject {
 	@Override
 	public String toString() {
 		final String crlf = "\r\n";
+		
+		InitiatorDescriptor activeInitiator = getActiveInitiator(); 
+		
 		StringBuffer sb = new StringBuffer();
 		sb.append("SFSKActiveInitiator").append(crlf);
-		sb.append(" > activeInitiator = ").append(getActiveInitiator() != null ? getActiveInitiator() : null).append(crlf);
+		sb.append(" > activeInitiator = ").append(activeInitiator != null ? activeInitiator : null).append(crlf);
 		return sb.toString();
 	}
 

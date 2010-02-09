@@ -294,22 +294,38 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 	@Override
 	public String toString() {
 		final String crlf = "\r\n";
+
+		TypeEnum initiatorElectricalPhase = getInitiatorElectricalPhase();
+		TypeEnum deltaElectricalPhase = getDeltaElectricalPhase();
+		Unsigned8 maxReceivingGain = getMaxReceivingGain();
+		Unsigned8 maxTransmittingGain = getMaxTransmittingGain();
+		Unsigned8 searchInitiatorGain = getSearchInitiatorGain();
+		Frequencies frequencies = getFrequencies();
+		MacAddress macAddress = getMacAddress();
+		MacAddressList macGroupAddresses = getMacGroupAddresses();
+		TypeEnum repeater = getRepeater();
+		BooleanObject repeaterStatus = getRepeaterStatus();
+		Unsigned8 minDeltaCredit = getMinDeltaCredit();
+		MacAddress initiatorMacAddress = getInitiatorMacAddress();
+		BooleanObject synchronizationLocked = getSynchronizationLocked();
+		Unsigned8 activeChannel = getActiveChannel();
+
 		StringBuffer sb = new StringBuffer();
 		sb.append("SFSKPhyMacSetup").append(crlf);
-		sb.append(" > initiatorElectricalPhase = ").append(getInitiatorElectricalPhase().getValue()).append(crlf);
-		sb.append(" > deltaElectricalPhase = ").append(getDeltaElectricalPhase().getValue()).append(crlf);
-		sb.append(" > maxReceivingGain = ").append(getMaxReceivingGain().getValue()).append(crlf);
-		sb.append(" > maxTransmittingGain = ").append(getMaxTransmittingGain().getValue()).append(crlf);
-		sb.append(" > searchInitiatorGain = ").append(getSearchInitiatorGain().getValue()).append(crlf);
-		sb.append(" > frequencies = ").append(getFrequencies().toString().replace("\n", " ").replace("\r", "")).append(crlf);
-		sb.append(" > macAddress = ").append(getMacAddress()).append(crlf);
-		sb.append(" > macGroupAddresses = ").append(getMacGroupAddresses().toString().replace("\n", " ").replace("\r", "")).append(crlf);
-		sb.append(" > repeater = ").append(getRepeater().getValue()).append(crlf);
-		sb.append(" > repearterStatus = ").append(getRepeaterStatus().getState()).append(crlf);
-		sb.append(" > minDeltaCredit = ").append(getMinDeltaCredit().getValue()).append(crlf);
-		sb.append(" > initiatorMacAddress = ").append(getInitiatorMacAddress()).append(crlf);
-		sb.append(" > synchronizationLocked = ").append(getSynchronizationLocked().getState()).append(crlf);
-		sb.append(" > activeChannel = ").append(getActiveChannel().getValue()).append(crlf);
+		sb.append(" > initiatorElectricalPhase = ").append(initiatorElectricalPhase != null ? initiatorElectricalPhase.getValue() : null).append(crlf);
+		sb.append(" > deltaElectricalPhase = ").append(deltaElectricalPhase != null ? deltaElectricalPhase.getValue() : null).append(crlf);
+		sb.append(" > maxReceivingGain = ").append(maxReceivingGain != null ? maxReceivingGain.getValue() : null).append(crlf);
+		sb.append(" > maxTransmittingGain = ").append(maxTransmittingGain != null ? maxTransmittingGain.getValue() : null).append(crlf);
+		sb.append(" > searchInitiatorGain = ").append(searchInitiatorGain != null ? searchInitiatorGain.getValue() : null).append(crlf);
+		sb.append(" > frequencies = ").append(frequencies != null ? frequencies.toString().replace("\n", " ").replace("\r", "") : null).append(crlf);
+		sb.append(" > macAddress = ").append(macAddress != null ? macAddress : null).append(crlf);
+		sb.append(" > macGroupAddresses = ").append(macGroupAddresses != null ? macGroupAddresses.toString().replace("\n", " ").replace("\r", "") : null).append(crlf);
+		sb.append(" > repeater = ").append(repeater != null ? repeater.getValue() : null).append(crlf);
+		sb.append(" > repeaterStatus = ").append(repeaterStatus != null ? repeaterStatus.getState() : null).append(crlf);
+		sb.append(" > minDeltaCredit = ").append(minDeltaCredit != null ? minDeltaCredit.getValue() : null).append(crlf);
+		sb.append(" > initiatorMacAddress = ").append(initiatorMacAddress != null ? initiatorMacAddress : null).append(crlf);
+		sb.append(" > synchronizationLocked = ").append(synchronizationLocked != null ? synchronizationLocked.getState() : null).append(crlf);
+		sb.append(" > activeChannel = ").append(activeChannel != null ? activeChannel.getValue() : null).append(crlf);
 		return sb.toString();
 	}
 
