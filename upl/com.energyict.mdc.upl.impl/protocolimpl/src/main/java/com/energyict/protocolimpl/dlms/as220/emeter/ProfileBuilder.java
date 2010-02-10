@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.dlms.as220;
+package com.energyict.protocolimpl.dlms.as220.emeter;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -14,6 +14,7 @@ import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.dlms.as220.DLMSSNAS220;
 
 /**
  * @author jme

@@ -1,32 +1,8 @@
-/**
- * @version  2.0
- * @author   Koenraad Vanderschaeve
- * <P>
- * <B>Description :</B><BR>
- * Class that implements the Siemens ZMD DLMS profile implementation
- * <BR>
- * <B>@beginchanges</B><BR>
-KV|08042003|Initial version
-KV|08102003|Set default of RequestTimeZone to 0
-KV|10102003|generate OTHER MeterEvent when statusbit is not supported
-KV|27102003|changed code for correct dst transition S->W
-KV|20082004|Extended with obiscode mapping for register reading
-KV|17032005|improved registerreading
-KV|23032005|Changed header to be compatible with protocol version tool
-KV|30032005|Improved registerreading, configuration data
-KV|31032005|Handle DataContainerException
-KV|15072005|applyEvents() done AFTER getting the logbook!
-KV|10102006|extension to support cumulative values in load profile
-KV|10102006|fix to support 64 bit values in load profile
-KV|29042009|as220
-
- * @endchanges
- */
-
 package com.energyict.protocolimpl.dlms.as220;
 
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -39,6 +15,7 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
@@ -51,12 +28,23 @@ import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.ObiscodeMapper;
 import com.energyict.protocolimpl.dlms.as220.emeter.EMeter;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
+import com.energyict.protocolimpl.dlms.as220.plc.PLC;
 
+/**
+ * @author kvds, jme
+ *
+ */
 public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProtocol {
+
+	private static final int SEC_PER_MIN = 60;
+
+	private int iNROfIntervals=-1;
 
 	private final GMeter			gMeter		= new GMeter(this);
 	private final EMeter			eMeter		= new EMeter(this);
 	private final MessageProtocol	messaging	= new AS220Messaging(this);
+	private final PLC				plc			= new PLC(this);
+
 	private ObiscodeMapper			ocm			= null;
 
     /**
@@ -74,6 +62,10 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 		return eMeter;
 	}
 
+    public PLC getPlc() {
+		return plc;
+	}
+    
     public void setTime() throws IOException {
     	geteMeter().getClockController().setTime();
     }
@@ -132,6 +124,35 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 		return messaging;
 	}
 
+	/**
+	 * This method requests for the NR of intervals that can be stored in the
+	 * memory of the remote meter.
+	 *
+	 * @return NR of intervals that can be stored in the memory of the remote meter.
+	 * @exception IOException
+	 */
+    private int getNROfIntervals() throws IOException {
+        if (iNROfIntervals == -1) {
+            iNROfIntervals = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getProfileEntries();
+        }
+        return iNROfIntervals;
+    }
+
+	public ProfileData getProfileData(boolean includeEvents) throws IOException {
+		Calendar fromCalendar = ProtocolUtils.getCalendar(getTimeZone());
+		fromCalendar.add(Calendar.MINUTE, (-1) * getNROfIntervals() * (getProfileInterval() / SEC_PER_MIN));
+		return getProfileData(fromCalendar.getTime(), includeEvents);
+	}
+
+	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
+		return getProfileData(lastReading, new Date(), includeEvents);
+	}
+
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+		ProfileData eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
+		return eMeterProfile;
+	}
+    
     public List<MessageCategorySpec> getMessageCategories() {
 		return getMessaging().getMessageCategories();
 	}

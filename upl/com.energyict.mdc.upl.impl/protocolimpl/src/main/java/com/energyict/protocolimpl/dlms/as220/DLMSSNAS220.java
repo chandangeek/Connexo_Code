@@ -85,14 +85,11 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 	private static final int			PROPOSED_QOS				= -1;
 	private static final int			PROPOSED_DLMS_VERSION		= 6;
 
-	private static final int			SEC_PER_MIN					= 60;
-
 	private static final int			CONNECTION_MODE_HDLC		= 0;
 	private static final int			CONNECTION_MODE_TCPIP		= 1;
 	private static final int			CONNECTION_MODE_COSEM_PDU	= 2;
 	private static final int			CONNECTION_MODE_LLC			= 3;
 
-	private static final ObisCode	ENERGY_PROFILE_OBISCODE	= ObisCode.fromString("1.1.99.1.0.255");
 
 	private boolean debug = false;
 
@@ -117,7 +114,6 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     private String nodeId;
     private String serialNumber;
     private int iInterval=-1;
-    private int iNROfIntervals=-1;
     private int extendedLogging;
     private ProtocolChannelMap channelMap;
 
@@ -192,7 +188,6 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         initDLMSConnection(inputStream, outputStream);
 
         iInterval=-1;
-        iNROfIntervals=-1;
 
     }
 
@@ -469,77 +464,6 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 		byte[] responsedata = getCosemObjectFactory().getGenericRead(uo.getBaseName(), uo.getValueAttributeOffset()).getResponseData();
 		return SERIAL_NUMBER_PREFIX + AXDRDecoder.decode(responsedata).getOctetString().stringValue();
 	}
-
-	/**
-	 * This method requests for the NR of intervals that can be stored in the
-	 * memory of the remote meter.
-	 *
-	 * @return NR of intervals that can be stored in the memory of the remote meter.
-	 * @exception IOException
-	 */
-    private int getNROfIntervals() throws IOException {
-        if (iNROfIntervals == -1) {
-            iNROfIntervals = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getProfileEntries();
-        }
-        return iNROfIntervals;
-    }
-
-
-	public ProfileData getProfileData(boolean includeEvents) throws IOException {
-		Calendar fromCalendar = ProtocolUtils.getCalendar(getTimeZone());
-		fromCalendar.add(Calendar.MINUTE, (-1) * getNROfIntervals() * (getProfileInterval() / SEC_PER_MIN));
-		return getProfileData(fromCalendar.getTime(), includeEvents);
-	}
-
-	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-		return getProfileData(lastReading, new Date(), includeEvents);
-	}
-
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
-		Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
-		fromCalendar.setTime(from);
-		Calendar toCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
-		toCalendar.setTime(to);
-		return doGetDemandValues(fromCalendar, toCalendar, includeEvents);
-	}
-
-    /**
-     * Read the profile dta from the device
-     *
-     * @param fromCalendar
-     * @param toCalendar
-     * @param includeEvents
-     * @return the {@link ProfileData}
-     * @throws IOException
-     */
-    private ProfileData doGetDemandValues(Calendar fromCalendar,Calendar toCalendar, boolean includeEvents) throws IOException {
-        ProfileBuilder profileBuilder = new ProfileBuilder(this);
-		ProfileData profileData = new ProfileData();
-		ScalerUnit[] scalerunit = profileBuilder.buildScalerUnits((byte) getNumberOfChannels());
-
-        List<ChannelInfo> channelInfos = profileBuilder.buildChannelInfos(scalerunit);
-        profileData.setChannelInfos(channelInfos);
-
-        // decode the compact array here and convert to a universallist...
-        ProfileGeneric pg = getCosemObjectFactory().getProfileGeneric(ENERGY_PROFILE_OBISCODE);
-		LoadProfileCompactArray loadProfileCompactArray = new LoadProfileCompactArray();
-		loadProfileCompactArray.parse(pg.getBufferData(fromCalendar, toCalendar));
-		List<LoadProfileCompactArrayEntry> loadProfileCompactArrayEntries = loadProfileCompactArray.getLoadProfileCompactArrayEntries();
-
-        List<IntervalData> intervalDatas = profileBuilder.buildIntervalData(scalerunit,loadProfileCompactArrayEntries);
-        profileData.setIntervalDatas(intervalDatas);
-
-        if (includeEvents) {
-			EventLogs eventLogs = new EventLogs(this);
-			List<MeterEvent> meterEvents = eventLogs.getEventLog(fromCalendar, toCalendar);
-			profileData.setMeterEvents(meterEvents);
-			profileData.applyEvents(getProfileInterval() / SEC_PER_MIN);
-        }
-
-        profileData.sort();
-        return profileData;
-
-    } // private ProfileData doGetDemandValues(Calendar fromCalendar,Calendar toCalendar, byte bNROfChannels) throws IOException
 
     /** this implementation calls <code> validateProperties </code>
      * and assigns the argument to the properties field

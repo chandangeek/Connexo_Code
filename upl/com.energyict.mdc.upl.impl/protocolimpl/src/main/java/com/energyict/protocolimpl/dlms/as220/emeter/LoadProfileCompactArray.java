@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.dlms.as220;
+package com.energyict.protocolimpl.dlms.as220.emeter;
 
 import java.io.IOException;
 import java.util.ArrayList;

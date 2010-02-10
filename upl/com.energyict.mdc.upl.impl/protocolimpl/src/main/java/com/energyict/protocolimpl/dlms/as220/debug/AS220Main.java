@@ -74,7 +74,7 @@ public class AS220Main {
 		if (dialer == null) {
 			//dialer = DialerFactory.get("IPDIALER").newDialer();
 			dialer = DialerFactory.getDirectDialer().newDialer();
-			dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, false));
+			dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, true));
 		}
 		return dialer;
 	}
@@ -96,7 +96,7 @@ public class AS220Main {
 
 		properties.setProperty("Retries", "5");
 		properties.setProperty("Timeout", "20000");
-		properties.setProperty("ForcedDelay", "500");
+		properties.setProperty("ForcedDelay", "750");
 
 		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
 		properties.setProperty("ProfileInterval", "900");
@@ -117,7 +117,7 @@ public class AS220Main {
 
 	public static void readProfile(boolean incluideEvents) throws IOException {
 		Calendar from = Calendar.getInstance(DEFAULT_TIMEZONE);
-		from.add(Calendar.YEAR, -5);
+		from.add(Calendar.HOUR, -4);
 		log(getAs220().getProfileData(from.getTime(), incluideEvents));
 	}
 
@@ -146,7 +146,7 @@ public class AS220Main {
 		getAs220().queryMessage(new MessageEntry(CONNECT_GMETER, "3"));
 	}
 
-	private static void rescanPLCBus() throws IOException {
+	public static void rescanPLCBus() throws IOException {
 		getAs220().queryMessage(new MessageEntry(RESCAN_PLCBUS, ""));
 	}
 
@@ -178,68 +178,34 @@ public class AS220Main {
 
 	public static void main(String[] args) throws LinkException, IOException, InterruptedException {
 
-		getDialer().init(COMPORT);
-		getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
-		getDialer().connect();
+//		getDialer().init(COMPORT);
+//		getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
+//		getDialer().connect();
 
 //		getDialer().init("10.0.2.127:10011");
 //		getDialer().connect("10.0.2.127:10011", 10010);
+
+		getDialer().init("linux2:10010");
+		getDialer().connect("linux2:10010", 10010);
 
 		try {
 			getAs220().setProperties(getProperties());
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			readProfile(true);
+			getAs220().getCosemObjectFactory().getGenericRead(28800, 0).getDataContainer().getRoot().print();
+			//getAs220().getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.0.53.0.0.255"), 0).getDataContainer().printDataContainer();
+			
+			//System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.0.0.0.0")));
 
+		} catch (Exception e) {
+			e.printStackTrace();
 		} finally {
 			ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
 			log("Done. Closing connections. \n");
 			getAs220().disconnect();
 			getDialer().disConnect();
 		}
-
-	}
-
-	private static void doTest() throws IOException {
-
-		System.out.println(getAs220().getCosemObjectFactory().getSFSKPhyMacSetup(ObisCode.fromString("0.0.26.0.0.255")).toString());
-
-		GenericRead gr = getAs220().getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.0.26.0.0.255"), 0x18);
-		System.out.println(gr);
-
-//		UniversalObject[] uo = getAs220().getMeterConfig().getInstantiatedObjectList();
-//		for (int i = 0; i < uo.length; i++) {
-//			System.out.println(uo[i].toString() + " - " + uo[i].getBaseName());
-//		}
-//
-//		gr = getAs220().getCosemObjectFactory().getGenericRead(ObisCode.fromString("1.0.0.2.0.255"), 8);
-//		System.out.println(gr);
-
-//		System.out.println(getAs220().readRegister(DEVICE_ID1_OBISCODE));
-//		System.out.println(getAs220().readRegister(DEVICE_ID2_OBISCODE));
-//		System.out.println(getAs220().readRegister(DEVICE_ID3_OBISCODE));
-//		System.out.println(getAs220().readRegister(DEVICE_ID4_OBISCODE));
-//		System.out.println(getAs220().readRegister(DEVICE_ID5_OBISCODE));
-
-//		examineObisCode(ObisCode.fromString("1.0.0.2.0.255"));
-//		examineObisCode(ObisCode.fromString("0.0.42.0.0.255"));
-//		examineObisCode(ObisCode.fromString("1.0.96.63.11.255"));
-//		examineObisCode(ObisCode.fromString("1.0.0.0.0.255"));
-//		examineObisCode(ObisCode.fromString("0.0.23.1.0.255"));
-//		examineObisCode(ObisCode.fromString("1.0.96.63.1.255"));
-//		examineObisCode(ObisCode.fromString("0.0.96.63.10.255"));
-//		examineObisCode(ObisCode.fromString("0.0.96.15.0.255"));
-//		examineObisCode(ObisCode.fromString("0.0.96.15.1.255"));
-//		examineObisCode(ObisCode.fromString("1.0.96.5.1.255"));
-//		examineObisCode(ObisCode.fromString("0.0.96.50.0.255"));
-//		examineObisCode(ObisCode.fromString("0.0.96.3.10.255"));
-
-//		System.out.println(getAs220().readRegister(As220ObisCodeMapper.NR_CONFIGCHANGES_OBISCODE));
-//		System.out.println(getAs220().readRegister(As220ObisCodeMapper.ERROR_REGISTER_OBISCODE));
-//		System.out.println(getAs220().readRegister(As220ObisCodeMapper.ALARM_REGISTER_OBISCODE));
-//		System.out.println(getAs220().readRegister(As220ObisCodeMapper.FILTER_REGISTER_OBISCODE));
-//		System.out.println(getAs220().readRegister(As220ObisCodeMapper.LOGICAL_DEVICENAME_OBISCODE));
 
 	}
 
