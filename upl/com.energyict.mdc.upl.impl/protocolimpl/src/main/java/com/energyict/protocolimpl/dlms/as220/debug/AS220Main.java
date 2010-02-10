@@ -43,6 +43,9 @@ public class AS220Main {
 	private static final String		CONNECT_GMETER		= "<" + AS220Messaging.CONNECT_GMETER + ">1</" + AS220Messaging.CONNECT_GMETER + ">";
 	private static final String		ARM_GMETER			= "<" + AS220Messaging.ARM_GMETER + ">1</" + AS220Messaging.ARM_GMETER + ">";
 
+	private static final String		RESCAN_PLCBUS		= "<" + AS220Messaging.RESCAN_PLCBUS + ">1</" + AS220Messaging.RESCAN_PLCBUS + ">";
+
+
 	private static final String		OBSERVER_FILENAME	= "c:\\logging\\AS220Main\\communications.log";
 	private static final Level		LOG_LEVEL			= Level.ALL;
 	private static final TimeZone	DEFAULT_TIMEZONE	= TimeZone.getTimeZone("GMT+01");
@@ -69,8 +72,8 @@ public class AS220Main {
 
 	public static Dialer getDialer() {
 		if (dialer == null) {
-			//dialer = DialerFactory.get("IPDIALER").newDialer();
-			dialer = DialerFactory.getDirectDialer().newDialer();
+			dialer = DialerFactory.get("IPDIALER").newDialer();
+			//dialer = DialerFactory.getDirectDialer().newDialer();
 			dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, false));
 		}
 		return dialer;
@@ -143,6 +146,10 @@ public class AS220Main {
 		getAs220().queryMessage(new MessageEntry(CONNECT_GMETER, "3"));
 	}
 
+	private static void rescanPLCBus() throws IOException {
+		getAs220().queryMessage(new MessageEntry(RESCAN_PLCBUS, ""));
+	}
+
 	public static void readObiscodes() throws IOException {
 		UniversalObject[] uo = getAs220().getMeterConfig().getInstantiatedObjectList();
 		for (UniversalObject universalObject : uo) {
@@ -175,19 +182,20 @@ public class AS220Main {
 		//getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
 		//getDialer().connect();
 
-		getDialer().init("linux2:10011");
-		getDialer().connect("linux2:10011", 10010);
+		getDialer().init("10.0.2.127:10011");
+		getDialer().connect("10.0.2.127:10011", 10010);
 
 		try {
 			getAs220().setProperties(getProperties());
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-
+			
 			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.0.0.255")));
 			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.1.0.255")));
 			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.2.0.255")));
 
+			rescanPLCBus();
 
 		} finally {
 			ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
