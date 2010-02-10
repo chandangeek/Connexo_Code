@@ -115,15 +115,13 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
     private ObiscodeMapper getAs220ObisCodeMapper() {
     	if (ocm  == null) {
-    		ocm = new As220ObisCodeMapper(getCosemObjectFactory());
+    		ocm = new As220ObisCodeMapper(this);
     	}
     	return ocm;
 	}
 
 	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-    	System.out.println(obisCode.toString());
-    	ObiscodeMapper ocm = new As220ObisCodeMapper(getCosemObjectFactory());
-    	return ocm.getRegisterInfo(obisCode);
+    	return getAs220ObisCodeMapper().getRegisterInfo(obisCode);
     }
 
     /**

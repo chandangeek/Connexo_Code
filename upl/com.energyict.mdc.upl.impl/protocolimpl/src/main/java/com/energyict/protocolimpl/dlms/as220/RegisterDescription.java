@@ -18,7 +18,10 @@ public class RegisterDescription {
 	public static final Map<String, String> INFO = new HashMap<String, String>();
 	static {
 		INFO.put("0.0.26.0.0.255", "PLC S-FSK frequencies channel 1-6");
+		INFO.put("0.0.26.1.0.255", "PLC S-FSK active initiator");
 		INFO.put("0.0.26.2.0.255", "PLC S-FSK MAC sync timeouts");
+		INFO.put("0.0.26.3.0.255", "PLC S-FSK MAC counters");
+		INFO.put("0.0.0.0.0.0", "Debugging register");
 	}
 
 	public static RegisterInfo getRegisterInfo(ObisCode obisCode) {

@@ -13,6 +13,7 @@ import com.energyict.dlms.cosem.attributeobjects.Frequencies;
 import com.energyict.dlms.cosem.attributeobjects.MacAddress;
 import com.energyict.dlms.cosem.attributeobjects.MacAddressList;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
 
 /**
@@ -190,8 +191,12 @@ public class SFSKPhyMacSetup extends AbstractCosemObject {
 	public Frequencies getFrequencies() {
 		if (frequencies == null) {
 			try {
-				this.frequencies = new Frequencies(getResponseData(ATTRB_FREQUENCIES), 0, 0);
-			} catch (IOException e) {}
+				byte[] ber = getResponseData(ATTRB_FREQUENCIES);
+				System.out.println(ProtocolUtils.getResponseData(ber));
+				this.frequencies = new Frequencies(ber, 0, 0);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		return frequencies;
 	}

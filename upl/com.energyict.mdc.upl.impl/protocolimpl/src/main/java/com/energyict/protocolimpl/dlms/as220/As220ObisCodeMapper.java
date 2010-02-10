@@ -5,11 +5,13 @@ import java.util.Date;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.dlms.cosem.SFSKPhyMacSetup;
 import com.energyict.obis.ObisCode;
@@ -44,17 +46,22 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 	private static final ObisCode	SFSK_PHY_MAC_SETUP			= ObisCode.fromString("0.0.26.0.0.255");
 	private static final ObisCode	SFSK_ACTIVE_INITIATOR		= ObisCode.fromString("0.0.26.1.0.255");
 	private static final ObisCode	SFSK_SYNC_TIMEOUTS			= ObisCode.fromString("0.0.26.2.0.255");
+	private static final ObisCode	SFSK_MAC_COUNTERS			= ObisCode.fromString("0.0.26.3.0.255");
 
-	private CosemObjectFactory cosemObjectFactory;
 	private SFSKPhyMacSetup sFSKPhyMacSetup = null;
 
-	/** Creates a new instance of ObisCodeMapper */
-    public As220ObisCodeMapper(CosemObjectFactory cof) {
-        this.cosemObjectFactory=cof;
+	private AS220	as220;
+
+    public As220ObisCodeMapper(AS220 as220) {
+    	this.as220 = as220;
+    }
+
+    public AS220 getAs220() {
+    	return as220;
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
-		return cosemObjectFactory;
+		return getAs220().getCosemObjectFactory();
 	}
 
     public SFSKPhyMacSetup getsFSKPhyMacSetup() throws IOException {
@@ -76,6 +83,19 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
     			return readDataAsRegisterValue(obisCode);
     		}
 		}
+
+    	if (obisCode.equals(ObisCode.fromString("0.0.0.0.0.0"))) {
+    		UniversalObject[] uo = getAs220().getMeterConfig().getInstantiatedObjectList();
+    		StringBuilder sb = new StringBuilder();
+    		for (UniversalObject universalObject : uo) {
+    			sb.append(universalObject.getObisCode()).append(" = ");
+    			sb.append(DLMSClassId.findById(universalObject.getClassID()));
+    			sb.append(" [").append(universalObject.getBaseName()).append("] ");
+    			sb.append(universalObject.getObisCode().getDescription());
+    			sb.append("\r\n");
+    		}
+			return new RegisterValue(obisCode, sb.toString());
+    	}
 
         RegisterValue registerValue=null;
         int billingPoint=-1;
@@ -109,6 +129,8 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 			return getCosemObjectFactory().getSFSKActiveInitiator().asRegisterValue();
 		} else if (obisCode.equals(SFSK_SYNC_TIMEOUTS)) {
 			return getCosemObjectFactory().getSFSKSyncTimeouts().asRegisterValue();
+		} else if (obisCode.equals(SFSK_MAC_COUNTERS)) {
+			return getCosemObjectFactory().getSFSKMacCounters().asRegisterValue();
 		}
 
         // *********************************************************************************
