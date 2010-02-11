@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.dlms.as220;
 
@@ -9,12 +9,19 @@ import java.util.Properties;
 
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 
 /**
  * @author jeroen.meulemeester
  *
  */
 public class GasDevice extends AS220 {
+
+	private final GMeter		gMeter			= new GMeter(this);
+
+    public GMeter getgMeter() {
+		return gMeter;
+	}
 
 	private static final String PROP_GAS_DEVICE = "GasDevice";
 
@@ -30,5 +37,5 @@ public class GasDevice extends AS220 {
 		requiredKeys.add(PROP_GAS_DEVICE);
 		return requiredKeys;
 	}
-	
+
 }

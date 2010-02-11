@@ -26,8 +26,8 @@ import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.ObiscodeMapper;
+import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import com.energyict.protocolimpl.dlms.as220.emeter.EMeter;
-import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 import com.energyict.protocolimpl.dlms.as220.plc.PLC;
 
 /**
@@ -40,7 +40,6 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
 	private int iNROfIntervals=-1;
 
-	private final GMeter			gMeter		= new GMeter(this);
 	private final EMeter			eMeter		= new EMeter(this);
 	private final MessageProtocol	messaging	= new AS220Messaging(this);
 	private final PLC				plc			= new PLC(this);
@@ -54,10 +53,6 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
     }
 
-    public GMeter getgMeter() {
-		return gMeter;
-	}
-
     public EMeter geteMeter() {
 		return eMeter;
 	}
@@ -65,7 +60,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     public PLC getPlc() {
 		return plc;
 	}
-    
+
     public void setTime() throws IOException {
     	geteMeter().getClockController().setTime();
     }
@@ -152,7 +147,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 		ProfileData eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
 		return eMeterProfile;
 	}
-    
+
     public List<MessageCategorySpec> getMessageCategories() {
 		return getMessaging().getMessageCategories();
 	}

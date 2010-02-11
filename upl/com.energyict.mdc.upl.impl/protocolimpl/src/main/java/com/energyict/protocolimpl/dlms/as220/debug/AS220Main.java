@@ -24,7 +24,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.dlms.as220.AS220;
-import com.energyict.protocolimpl.dlms.as220.AS220Messaging;
+import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 public class AS220Main {
@@ -38,10 +38,6 @@ public class AS220Main {
 	private static final String		DISCONNECT_EMETER	= "<" + AS220Messaging.DISCONNECT_EMETER + ">1</" + AS220Messaging.DISCONNECT_EMETER + ">";
 	private static final String		CONNECT_EMETER		= "<" + AS220Messaging.CONNECT_EMETER + ">1</" + AS220Messaging.CONNECT_EMETER + ">";
 	private static final String		ARM_EMETER			= "<" + AS220Messaging.ARM_EMETER + ">1</" + AS220Messaging.ARM_EMETER + ">";
-
-	private static final String		DISCONNECT_GMETER	= "<" + AS220Messaging.DISCONNECT_GMETER + ">1</" + AS220Messaging.DISCONNECT_GMETER + ">";
-	private static final String		CONNECT_GMETER		= "<" + AS220Messaging.CONNECT_GMETER + ">1</" + AS220Messaging.CONNECT_GMETER + ">";
-	private static final String		ARM_GMETER			= "<" + AS220Messaging.ARM_GMETER + ">1</" + AS220Messaging.ARM_GMETER + ">";
 
 	private static final String		RESCAN_PLCBUS		= "<" + AS220Messaging.RESCAN_PLCBUS + ">1</" + AS220Messaging.RESCAN_PLCBUS + ">";
 
@@ -140,12 +136,6 @@ public class AS220Main {
 		getAs220().queryMessage(new MessageEntry(CONNECT_EMETER, "3"));
 	}
 
-	public static void pulseValve() throws IOException {
-		getAs220().queryMessage(new MessageEntry(DISCONNECT_GMETER, "1"));
-		getAs220().queryMessage(new MessageEntry(ARM_GMETER, "2"));
-		getAs220().queryMessage(new MessageEntry(CONNECT_GMETER, "3"));
-	}
-
 	public static void rescanPLCBus() throws IOException {
 		getAs220().queryMessage(new MessageEntry(RESCAN_PLCBUS, ""));
 	}
@@ -182,11 +172,11 @@ public class AS220Main {
 //		getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
 //		getDialer().connect();
 
-//		getDialer().init("10.0.2.127:10011");
-//		getDialer().connect("10.0.2.127:10011", 10010);
+		getDialer().init("10.0.2.127:10011");
+		getDialer().connect("10.0.2.127:10011", 10010);
 
-		getDialer().init("linux2:10010");
-		getDialer().connect("linux2:10010", 10010);
+//		getDialer().init("linux2:10010");
+//		getDialer().connect("linux2:10010", 10010);
 
 		try {
 			getAs220().setProperties(getProperties());
@@ -195,7 +185,7 @@ public class AS220Main {
 
 			getAs220().getCosemObjectFactory().getGenericRead(28800, 0).getDataContainer().getRoot().print();
 			//getAs220().getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.0.53.0.0.255"), 0).getDataContainer().printDataContainer();
-			
+
 			//System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.0.0.0.0")));
 
 		} catch (Exception e) {

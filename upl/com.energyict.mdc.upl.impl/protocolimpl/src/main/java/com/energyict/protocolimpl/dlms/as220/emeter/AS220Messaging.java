@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.dlms.as220;
+package com.energyict.protocolimpl.dlms.as220.emeter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,6 +20,7 @@ import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocolimpl.dlms.as220.AS220;
 
 public class AS220Messaging implements MessageProtocol {
 
@@ -29,10 +30,6 @@ public class AS220Messaging implements MessageProtocol {
 	public static final String	CONNECT_EMETER					= "ConnectEmeter";
 	public static final String	DISCONNECT_EMETER				= "DisconnectEmeter";
 	public static final String	ARM_EMETER						= "ArmEmeter";
-
-	public static final String	CONNECT_GMETER					= "ConnectGmeter";
-	public static final String	DISCONNECT_GMETER				= "DisconnectGmeter";
-	public static final String	ARM_GMETER						= "ArmGmeter";
 
 	public static final String	TOPT_SWITCH_BASE				= "TariffOptionSwitchBase";
 	public static final String	TOPT_SWITCH_DAYNIGHT			= "TariffOptionSwitchDayNight";
@@ -46,10 +43,6 @@ public class AS220Messaging implements MessageProtocol {
 	private static final String	CONNECT_EMETER_DISPLAY			= "Connect E-Meter Load";
 	private static final String	DISCONNECT_EMETER_DISPLAY		= "Disconnect E-Meter Load";
 	private static final String	ARM_EMETER_DISPLAY				= "Arm E-Meter";
-
-	private static final String	CONNECT_GMETER_DISPLAY			= "Connect G-Meter Load";
-	private static final String	DISCONNECT_GMETER_DISPLAY		= "Disconnect G-Meter Load";
-	private static final String	ARM_GMETER_DISPLAY				= "Arm G-Meter";
 
 	private static final String	TOPT_SWITCH_BASE_DISPLAY		= "Switch tariff option BASE";
 	private static final String	TOPT_SWITCH_DAYNIGHT_DISPLAY	= "Switch tariff option DAY/NIGHT";
@@ -70,17 +63,12 @@ public class AS220Messaging implements MessageProtocol {
 	public List<MessageCategorySpec> getMessageCategories() {
         List<MessageCategorySpec> theCategories = new ArrayList<MessageCategorySpec>();
         MessageCategorySpec eMeterCat = new MessageCategorySpec("E-Meter ");
-        MessageCategorySpec gMeterCat = new MessageCategorySpec("G-Meter");
         MessageCategorySpec plcMeterCat = new MessageCategorySpec("PLC related");
         MessageCategorySpec otherMeterCat = new MessageCategorySpec("zzz_Other");
 
         eMeterCat.addMessageSpec(createMessageSpec(DISCONNECT_EMETER_DISPLAY, DISCONNECT_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(ARM_EMETER_DISPLAY, ARM_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(CONNECT_EMETER_DISPLAY, CONNECT_EMETER, false));
-
-        gMeterCat.addMessageSpec(createMessageSpec(DISCONNECT_GMETER_DISPLAY, DISCONNECT_GMETER, false));
-        gMeterCat.addMessageSpec(createMessageSpec(ARM_GMETER_DISPLAY, ARM_GMETER, false));
-        gMeterCat.addMessageSpec(createMessageSpec(CONNECT_GMETER_DISPLAY, CONNECT_GMETER, false));
 
         plcMeterCat.addMessageSpec(createMessageSpec(RESCAN_PLCBUS_DISPLAY, RESCAN_PLCBUS, false));
         plcMeterCat.addMessageSpec(createMessageSpec(SET_ACTIVE_PLC_CHANNEL_DISPLAY, SET_ACTIVE_PLC_CHANNEL, false));
@@ -89,7 +77,6 @@ public class AS220Messaging implements MessageProtocol {
         otherMeterCat.addMessageSpec(createMessageSpec(TOPT_SWITCH_DAYNIGHT_DISPLAY, TOPT_SWITCH_DAYNIGHT, false));
 
         theCategories.add(eMeterCat);
-        theCategories.add(gMeterCat);
         theCategories.add(plcMeterCat);
         theCategories.add(otherMeterCat);
         return theCategories;
@@ -108,12 +95,6 @@ public class AS220Messaging implements MessageProtocol {
 				getAs220().geteMeter().getContactorController().doConnect();
 			} else if (isMessageTag(ARM_EMETER, messageEntry)) {
 				getAs220().geteMeter().getContactorController().doArm();
-			} else if (isMessageTag(DISCONNECT_GMETER, messageEntry)) {
-				getAs220().getgMeter().getGasValveController().doDisconnect();
-			} else if (isMessageTag(CONNECT_GMETER, messageEntry)) {
-				getAs220().getgMeter().getGasValveController().doConnect();
-			} else if (isMessageTag(ARM_GMETER, messageEntry)) {
-				getAs220().getgMeter().getGasValveController().doArm();
 			} else if (isMessageTag(TOPT_SWITCH_BASE, messageEntry)) {
 				getAs220().getLogger().info("TARIFF_OPTION_SWITCH_BASE message received");
 				getAs220().getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.0.255")).setValueAttr(new TypeEnum(0));
