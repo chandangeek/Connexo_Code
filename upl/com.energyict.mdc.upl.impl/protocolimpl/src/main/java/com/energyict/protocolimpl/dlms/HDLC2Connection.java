@@ -323,41 +323,60 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
        }
     } 
 
-    private void getHDLCParameters(byte[] byteReceiveBuffer) throws DLMSConnectionException {
-       int negosMaxRXIFSize=128;
-       int negosMaxTXIFSize=128;       
-       
-       if ((byteReceiveBuffer[OFFSET_TO_FORMAT_ID] != (byte)0x81) || (byteReceiveBuffer[OFFSET_TO_GROUP_ID] != (byte)0x80)) {
-		throw new DLMSConnectionException("HDLC2Connection, getHDLCParameters, format (0x"+((int)byteReceiveBuffer[OFFSET_TO_FORMAT_ID]&0xFF)+") and/or group identifier (0x"+((int)byteReceiveBuffer[OFFSET_TO_GROUP_ID]&0xFF)+") wrong!");
+    /**
+     * Initialize the receivers Max. InformationFieldSizes
+     * 
+     * @param byteReceiveBuffer
+     * @throws DLMSConnectionException
+     */
+    protected void getHDLCParameters(byte[] byteReceiveBuffer) throws DLMSConnectionException {
+	int negosMaxRXIFSize = 128;
+	int negosMaxTXIFSize = 128;
+
+	if ((byteReceiveBuffer[OFFSET_TO_FORMAT_ID] != (byte) 0x81)
+		|| (byteReceiveBuffer[OFFSET_TO_GROUP_ID] != (byte) 0x80)) {
+	    throw new DLMSConnectionException("HDLC2Connection, getHDLCParameters, format (0x"
+		    + ((int) byteReceiveBuffer[OFFSET_TO_FORMAT_ID] & 0xFF) + ") and/or group identifier (0x"
+		    + ((int) byteReceiveBuffer[OFFSET_TO_GROUP_ID] & 0xFF) + ") wrong!");
 	}                   
-       for (int i = 0 ; i< (byteReceiveBuffer.length-OFFSET_TO_DATA);) {
-          int data = byteReceiveBuffer[OFFSET_TO_DATA+i]& 0xFF;
+	for (int i = 0; i < (byteReceiveBuffer.length - OFFSET_TO_DATA);) {
+	    int data = byteReceiveBuffer[OFFSET_TO_DATA + i] & 0xFF;
           int valLen = 0;          
           try {
-              switch(data) {
+		switch (data) {
                   case RX_FRAME_SIZE:
                       i++;
-                      valLen = (int)byteReceiveBuffer[OFFSET_TO_DATA+i]&0xFF;
+		    valLen = (int) byteReceiveBuffer[OFFSET_TO_DATA + i] & 0xFF;
                       i++;
-                      negosMaxRXIFSize=(short)(ProtocolUtils.getLongFromBytes(byteReceiveBuffer,OFFSET_TO_DATA+i, valLen).intValue());
+		    if (valLen == 0) { // use default
+			negosMaxRXIFSize = ISIZE;
+		    } else {
+			negosMaxRXIFSize = (short) (ProtocolUtils.getLongFromBytes(byteReceiveBuffer, OFFSET_TO_DATA
+				+ i, valLen).intValue());
                       i += valLen;
+		    }
                   break;
                   case TX_FRAME_SIZE:
                       i++;
-                      valLen = (int)byteReceiveBuffer[OFFSET_TO_DATA+i]&0xFF;
+		    valLen = (int) byteReceiveBuffer[OFFSET_TO_DATA + i] & 0xFF;
                       i++;
-                      negosMaxTXIFSize=(short)(ProtocolUtils.getLongFromBytes(byteReceiveBuffer,OFFSET_TO_DATA+i, valLen).intValue());
+		    if (valLen == 0) { // use default
+			negosMaxTXIFSize = ISIZE;
+		    } else {
+			negosMaxTXIFSize = (short) (ProtocolUtils.getLongFromBytes(byteReceiveBuffer, OFFSET_TO_DATA
+				+ i, valLen).intValue());
                       i += valLen;
+		    }
                   break;
                   case RX_WINDOW_SIZE:
                       i++;
-                      valLen = (int)byteReceiveBuffer[OFFSET_TO_DATA+i]&0xFF;
+		    valLen = (int) byteReceiveBuffer[OFFSET_TO_DATA + i] & 0xFF;
                       i++;     
                       i += valLen;
                   break;
                   case TX_WINDOW_SIZE:
                       i++;
-                      valLen = (int)byteReceiveBuffer[OFFSET_TO_DATA+i]&0xFF;
+		    valLen = (int) byteReceiveBuffer[OFFSET_TO_DATA + i] & 0xFF;
                       i++;
                       i += valLen;
                   break;
@@ -365,15 +384,15 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
                      i++; 
                   break;    
               } 
-          } catch(IOException e) {
-              throw new DLMSConnectionException("HDLC2Connection, getHDLCParameters, IOException, "+e.getMessage());
+	    } catch (IOException e) {
+		throw new DLMSConnectionException("HDLC2Connection, getHDLCParameters, IOException, " + e.getMessage());
           }
        }       
        // Use smallest parameters negotiated.
-       if (negosMaxRXIFSize<sMaxRXIFSize) {
+	if (negosMaxRXIFSize < sMaxRXIFSize) {
 		sMaxRXIFSize = negosMaxRXIFSize;
 	}
-       if (negosMaxTXIFSize<sMaxTXIFSize) {
+	if (negosMaxTXIFSize < sMaxTXIFSize) {
 		sMaxTXIFSize = negosMaxTXIFSize;
 	}
     }
@@ -761,6 +780,31 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
     	return this.invokeIdAndPriority;
     }
   
+    /**
+     * Getter for the Servers' max receive Information size
+     * 
+     * @return the servers's max receive information size
+     */
+    protected int getServerMaxRXIFSize() {
+	return sMaxRXIFSize;
+    }
+
+    /**
+     * Getter for the Servers' max transmit Information size
+     * 
+     * @return the servers' max transmit information size
+     */
+    protected int getServerMaxTXIFSize() {
+	return sMaxTXIFSize;
+    }
+
+    /**
+     * Set the servers' maximum information field sizes to a default value
+     */
+    protected void initServerMaxSizes() {
+	sMaxRXIFSize = 0x00F8;
+	sMaxTXIFSize = 0x00F8;
+    }
     private class HDLCFrame {
     
     	private int sLength;
