@@ -62,9 +62,9 @@ public class AS220Messaging implements MessageProtocol {
 
 	public List<MessageCategorySpec> getMessageCategories() {
         List<MessageCategorySpec> theCategories = new ArrayList<MessageCategorySpec>();
-        MessageCategorySpec eMeterCat = new MessageCategorySpec("E-Meter ");
-        MessageCategorySpec plcMeterCat = new MessageCategorySpec("PLC related");
-        MessageCategorySpec otherMeterCat = new MessageCategorySpec("zzz_Other");
+        MessageCategorySpec eMeterCat = new MessageCategorySpec("[01] E-Meter ");
+        MessageCategorySpec plcMeterCat = new MessageCategorySpec("[02] PLC related");
+        MessageCategorySpec otherMeterCat = new MessageCategorySpec("[03] Other");
 
         eMeterCat.addMessageSpec(createMessageSpec(DISCONNECT_EMETER_DISPLAY, DISCONNECT_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(ARM_EMETER_DISPLAY, ARM_EMETER, false));

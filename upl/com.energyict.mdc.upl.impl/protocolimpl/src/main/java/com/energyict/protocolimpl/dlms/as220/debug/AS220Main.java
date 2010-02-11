@@ -70,7 +70,7 @@ public class AS220Main {
 		if (dialer == null) {
 			//dialer = DialerFactory.get("IPDIALER").newDialer();
 			dialer = DialerFactory.getDirectDialer().newDialer();
-			dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, true));
+			dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, false));
 		}
 		return dialer;
 	}
@@ -172,8 +172,8 @@ public class AS220Main {
 //		getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
 //		getDialer().connect();
 
-		getDialer().init("10.0.2.127:10011");
-		getDialer().connect("10.0.2.127:10011", 10010);
+		getDialer().init("10.0.2.127:10010");
+		getDialer().connect("10.0.2.127:10010", 10010);
 
 //		getDialer().init("linux2:10010");
 //		getDialer().connect("linux2:10010", 10010);
@@ -183,10 +183,10 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			getAs220().getCosemObjectFactory().getGenericRead(28800, 0).getDataContainer().getRoot().print();
-			//getAs220().getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.0.53.0.0.255"), 0).getDataContainer().printDataContainer();
-
-			//System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.0.0.0.0")));
+			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.0.0.255")) + "\r\n");
+			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.1.0.255")) + "\r\n");
+			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.2.0.255")) + "\r\n");
+			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.3.0.255")) + "\r\n");
 
 		} catch (Exception e) {
 			e.printStackTrace();
