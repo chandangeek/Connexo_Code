@@ -6,6 +6,7 @@ package com.energyict.dlms.cosem;
 import java.io.IOException;
 
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.RegisterReadable;
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned8;
@@ -19,7 +20,7 @@ import com.energyict.protocol.RegisterValue;
  * @author jme
  *
  */
-public class SFSKPhyMacSetup extends AbstractCosemObject {
+public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterReadable {
 
 	private static final byte[]	LN	= ObisCode.fromString("0.0.26.0.0.255").getLN();
 

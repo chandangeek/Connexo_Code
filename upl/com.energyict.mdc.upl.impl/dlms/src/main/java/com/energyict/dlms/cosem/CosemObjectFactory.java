@@ -248,6 +248,14 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 		return new SFSKSyncTimeouts(protocolLink, getObjectReference(obisCode));
 	}
 
+	public MBusSlavePortSetup getMBusSlavePortSetup() throws IOException {
+		return getMBusSlavePortSetup(MBusSlavePortSetup.getObisCode());
+	}
+
+	public MBusSlavePortSetup getMBusSlavePortSetup(ObisCode obisCode) throws IOException {
+		return new MBusSlavePortSetup(protocolLink, getObjectReference(obisCode));
+	}
+
 	public TCPUDPSetup getTCPUDPSetup() throws IOException{
 		return  new TCPUDPSetup(protocolLink);
 	}

@@ -3,6 +3,7 @@ package com.energyict.dlms.cosem;
 import java.io.IOException;
 
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.RegisterReadable;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
@@ -14,7 +15,7 @@ import com.energyict.protocol.RegisterValue;
  * @author jme
  *
  */
-public class SFSKMacCounters extends AbstractCosemObject {
+public class SFSKMacCounters extends AbstractCosemObject implements RegisterReadable {
 
 	private static final byte[]	LN	= ObisCode.fromString("0.0.26.3.0.255").getLN();
 

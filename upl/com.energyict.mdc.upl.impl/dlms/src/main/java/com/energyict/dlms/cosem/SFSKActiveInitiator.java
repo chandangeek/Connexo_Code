@@ -6,6 +6,7 @@ package com.energyict.dlms.cosem;
 import java.io.IOException;
 
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.RegisterReadable;
 import com.energyict.dlms.cosem.attributeobjects.InitiatorDescriptor;
 import com.energyict.dlms.cosem.attributeobjects.MacAddress;
 import com.energyict.obis.ObisCode;
@@ -15,7 +16,7 @@ import com.energyict.protocol.RegisterValue;
  * @author jme
  *
  */
-public class SFSKActiveInitiator extends AbstractCosemObject {
+public class SFSKActiveInitiator extends AbstractCosemObject implements RegisterReadable {
 
 	private static final byte[]	LN	= ObisCode.fromString("0.0.26.1.0.255").getLN();
 
@@ -53,9 +54,9 @@ public class SFSKActiveInitiator extends AbstractCosemObject {
 	@Override
 	public String toString() {
 		final String crlf = "\r\n";
-		
-		InitiatorDescriptor activeInitiator = getActiveInitiator(); 
-		
+
+		InitiatorDescriptor activeInitiator = getActiveInitiator();
+
 		StringBuffer sb = new StringBuffer();
 		sb.append("SFSKActiveInitiator").append(crlf);
 		sb.append(" > activeInitiator = ").append(activeInitiator != null ? activeInitiator : null).append(crlf);

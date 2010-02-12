@@ -183,20 +183,7 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			getAs220().geteMeter().getContactorController().doConnect();
-			getAs220().geteMeter().getContactorController().doDisconnect();
-			getAs220().geteMeter().getContactorController().doConnect();
-
-			getAs220().getTime();
-			getAs220().setTime();
-
 			readProfile(true);
-
-			rescanPLCBus();
-
-			readSFSKObjects();
-
-			readRegisters();
 
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -6,6 +6,7 @@ package com.energyict.dlms.cosem;
 import java.io.IOException;
 
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.RegisterReadable;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
@@ -14,11 +15,11 @@ import com.energyict.protocol.RegisterValue;
  * @author jme
  *
  */
-public class SFSKSyncTimeouts extends AbstractCosemObject {
+public class SFSKSyncTimeouts extends AbstractCosemObject implements RegisterReadable {
 
 	private static final byte[]	LN	= ObisCode.fromString("0.0.26.2.0.255").getLN();
 
-	/** Attributes */                                           
+	/** Attributes */
 	private Unsigned16			searchInitiatorTimeout			= null;
 	private Unsigned16			syncConfirmTimeout				= null;
 	private Unsigned16			timeoutNotAddressed				= null;
@@ -50,21 +51,21 @@ public class SFSKSyncTimeouts extends AbstractCosemObject {
 		} catch (IOException e) {}
 		return searchInitiatorTimeout;
 	}
-	
+
 	public Unsigned16 getSyncConfirmTimeout() {
 		try {
 			this.syncConfirmTimeout = new Unsigned16(getResponseData(ATTRB_SYNC_CONFIRM_TIMEOUT), 0);
 		} catch (IOException e) {}
 		return syncConfirmTimeout;
 	}
-	
+
 	public Unsigned16 getTimeoutNotAddressed() {
 		try {
 			this.timeoutNotAddressed = new Unsigned16(getResponseData(ATTRB_TIMEOUT_NOT_ADDRESSED), 0);
 		} catch (IOException e) {}
 		return timeoutNotAddressed;
 	}
-	
+
 	public Unsigned16 getTimeoutFrameNotOk() {
 		try {
 			this.timeoutFrameNotOk = new Unsigned16(getResponseData(ATTRB_TIMEOUT_FRAME_NOT_OK), 0);
@@ -75,12 +76,12 @@ public class SFSKSyncTimeouts extends AbstractCosemObject {
 	@Override
 	public String toString() {
 		final String crlf = "\r\n";
-		
+
 		Unsigned16 searchInitiatorTimeout = getSearchInitiatorTimeout();
 		Unsigned16 syncConfirmTimeout = getSyncConfirmTimeout();
 		Unsigned16 timeoutNotAddressed = getTimeoutNotAddressed();
-		Unsigned16 timeoutFrameNotOk = getTimeoutFrameNotOk(); 
-		
+		Unsigned16 timeoutFrameNotOk = getTimeoutFrameNotOk();
+
 		StringBuffer sb = new StringBuffer();
 		sb.append("SFSKSyncTimeouts").append(crlf);
 		sb.append(" > searchInitiatorTimeout = ").append(searchInitiatorTimeout != null ? searchInitiatorTimeout.getValue() : null).append(crlf);
@@ -93,5 +94,5 @@ public class SFSKSyncTimeouts extends AbstractCosemObject {
 	public RegisterValue asRegisterValue() {
 		return new RegisterValue(getObisCode(), toString());
 	}
-	
+
 }
