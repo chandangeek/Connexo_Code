@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import org.apache.commons.logging.LogFactory;
+
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.AdaptorConnection;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -24,10 +26,13 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
-	private static final int DEBUG=0;
+	private static final byte READRESPONSE_DATA_TAG=0;
+	private static final byte READRESPONSE_DATAACCESSERROR_TAG=1;
+	private static final byte READRESPONSE_DATABLOCK_RESULT_TAG=2;
 
-	protected ProtocolLink protocolLink;
-	private ObjectReference objectReference;
+	protected ProtocolLink		protocolLink	= null;
+	private ObjectReference		objectReference	= null;
+	private byte				invokeIdAndPriority;
 
 	/**
 	 * Getter for the dlms class id
@@ -35,7 +40,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 * @return the id of the dlms class
 	 */
 	abstract protected int getClassId();
-	private byte INVOKE_ID_AND_PRIORITY;
 
 	/**
 	 * Creates a new instance of AbstractCosemObject
@@ -47,10 +51,13 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		this.objectReference = objectReference;
 		this.protocolLink = protocolLink;
 		if (this.protocolLink != null) {
-			this.INVOKE_ID_AND_PRIORITY = this.protocolLink.getDLMSConnection().getInvokeIdAndPriority().getInvokeIdAndPriorityData();
+			this.invokeIdAndPriority = this.protocolLink.getDLMSConnection().getInvokeIdAndPriority().getInvokeIdAndPriorityData();
 		}
 	}
 
+	/**
+	 * @return
+	 */
 	public byte[] getCompoundData() {
 		AdaptorConnection conn = (AdaptorConnection) this.protocolLink.getDLMSConnection();
 		if (conn != null) {
@@ -60,14 +67,20 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		}
 	}
 
+	/**
+	 * @param attribute
+	 * @return
+	 * @throws IOException
+	 */
 	protected long getLongData(int attribute) throws IOException {
 		try {
 			byte[] responseData = null;
 			if (this.objectReference.isLNReference()) {
-				responseData = this.protocolLink.getDLMSConnection().sendRequest(
-						buildGetRequest(getClassId(), this.objectReference.getLn(), DLMSUtils.attrSN2LN(attribute), null));
+				byte[] request = buildGetRequest(getClassId(), this.objectReference.getLn(), DLMSUtils.attrSN2LN(attribute), null);
+				responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
 			} else if (this.objectReference.isSNReference()) {
-				responseData = this.protocolLink.getDLMSConnection().sendRequest(buildReadRequest((short) this.objectReference.getSn(), attribute, null));
+				byte[] request = buildReadRequest((short) this.objectReference.getSn(), attribute, null);
+				responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
 			}
 			return DLMSUtils.parseValue2long(CheckCosemPDUResponseHeader(responseData));
 		} catch (IOException e) {
@@ -75,15 +88,31 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		}
 	}
 
+	/**
+	 * @param methodId
+	 * @return
+	 * @throws IOException
+	 */
 	public byte[] invoke(int methodId) throws IOException {
 		return invoke(methodId, null);
 	}
 
+	/**
+	 * @param methodId
+	 * @param data
+	 * @return
+	 * @throws IOException
+	 */
 	public byte[] invoke(int methodId, byte[] data) throws IOException {
 		try {
-			byte[] responseData = null;
-			responseData = this.protocolLink.getDLMSConnection().sendRequest(buildActionRequest(getClassId(), this.objectReference.getLn(), methodId, data));
-			return CheckCosemPDUResponseHeader(responseData);
+			if (objectReference.isLNReference()) {
+				byte[] responseData = null;
+				byte[] request = buildActionRequest(getClassId(), this.objectReference.getLn(), methodId, data);
+				responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
+				return CheckCosemPDUResponseHeader(responseData);
+			} else {
+				return write(methodId, data);
+			}
 		} catch (DataAccessResultException e) {
 			throw (e);
 		} catch (IOException e) {
@@ -91,12 +120,18 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		}
 	}
 
-	protected byte[] write(int attribute,byte[] data) throws IOException {
+	/**
+	 * @param attribute
+	 * @param data
+	 * @return
+	 * @throws IOException
+	 */
+	protected byte[] write(int attribute, byte[] data) throws IOException {
 		try {
-			byte[] responseData=null;
+			byte[] responseData = null;
 			if (this.objectReference.isLNReference()) {
-				//responseData = protocolLink.getDLMSConnection().sendRequest(buildSetRequest(getClassId(),objectReference.getLn(),DLMSUtils.attrSN2LN(attribute),data));
-				responseData = this.protocolLink.getDLMSConnection().sendRequest(buildSetRequest(getClassId(),this.objectReference.getLn(),(byte)attribute,data));
+				byte[] request = buildSetRequest(getClassId(), this.objectReference.getLn(), (byte) attribute, data);
+				responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
 			} else if (this.objectReference.isSNReference()) {
 
 				// very dirty trick because there is a lot of legacy code that passes the attribute as
@@ -104,46 +139,60 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				// use the method for write in this abstract class with attribute id 0,1,...
 				// so, only for attribute = 8 or a multiple of 8 can be a problem....
 				if ((attribute < 8) || ((attribute % 8) != 0)) {
-					attribute = (attribute-1)*8;
-					byte[] data2 = new byte[data.length+1];
+					attribute = (attribute - 1) * 8;
+					byte[] data2 = new byte[data.length + 1];
 					System.arraycopy(data, 0, data2, 1, data.length);
 					data = data2;
 					data[0] = 0x01;
 				}
 
-
-				responseData = this.protocolLink.getDLMSConnection().sendRequest(buildWriteRequest((short)this.objectReference.getSn(),attribute,data));
+				byte[] request = buildWriteRequest((short) this.objectReference.getSn(), attribute, data);
+				responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
 			}
 			if (this.protocolLink.getDLMSConnection() instanceof AdaptorConnection) {
 				return responseData;
 			} else {
 				return CheckCosemPDUResponseHeader(responseData);
 			}
-		}
-		catch(DataAccessResultException e) {
-			throw(e);
-		}
-		catch(IOException e) {
+		} catch (DataAccessResultException e) {
+			throw (e);
+		} catch (IOException e) {
 			throw new NestedIOException(e);
 		}
 	}
-	/*
-	 *   attribute as defined in the object docs
-	 *   1 - logical name
-	 *   2..n attribute 2..n
+
+	/**
+	 * Attribute as defined in the object docs
+	 * 1 - logical name
+	 * 2..n attribute 2..n
+	 *
+	 * @param attribute
+	 * @return
+	 * @throws IOException
 	 */
 	protected byte[] getLNResponseData(int attribute) throws IOException {
 		return getLNResponseData(attribute, null, null);
 	}
 
+	/**
+	 * @param attribute
+	 * @param from
+	 * @param to
+	 * @return
+	 * @throws IOException
+	 */
 	protected byte[] getLNResponseData(int attribute, Calendar from, Calendar to) throws IOException {
 		return getResponseData((attribute - 1) * 8, from, to);
 	}
 
-	/*
-	 *   attribute as defined in the object docs fopr short name reference
-	 *   0 = logical name attribute 1
-	 *   8,16,24,..n attribute 2..n
+	/**
+	 * Attribute as defined in the object docs fopr short name reference
+	 * 0 = logical name attribute 1
+	 * 8,16,24,..n attribute 2..n
+	 *
+	 * @param attribute
+	 * @return
+	 * @throws IOException
 	 */
 	protected byte[] getResponseData(int attribute) throws IOException {
 		return getResponseData(attribute, null, null);
@@ -178,7 +227,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		}
 	}
 
-
 	/**
 	 * @param blockNr
 	 * @return
@@ -197,25 +245,33 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		return readRequestArray;
 	}
 
+	/**
+	 * @param iObj
+	 * @param iAttr
+	 * @param byteSelectiveBuffer
+	 * @return
+	 */
 	private byte[] buildReadRequest(int iObj, int iAttr, byte[] byteSelectiveBuffer) {
 		byte[] readRequestArray = new byte[READREQUEST_DATA_SIZE];
 
-		readRequestArray[0] = (byte)0xE6; // Destination_LSAP
-		readRequestArray[1] = (byte)0xE6; // Source_LSAP
+		readRequestArray[0] = (byte) 0xE6; // Destination_LSAP
+		readRequestArray[1] = (byte) 0xE6; // Source_LSAP
 		readRequestArray[2] = 0x00; // LLC_Quality
 		readRequestArray[DL_COSEMPDU_OFFSET] = COSEM_READREQUEST;
 		readRequestArray[DL_COSEMPDU_LENGTH_OFFSET] = 0x01; // length of the variable length SEQUENCE OF
+
 		if (byteSelectiveBuffer == null) {
 			readRequestArray[DL_COSEMPDU_TAG_OFFSET] = 0x02; // implicit objectname
 		} else {
 			readRequestArray[DL_COSEMPDU_TAG_OFFSET] = 0x04; // object name integer data
 		}
 
-		readRequestArray[READREQUEST_SN_MSB] = (byte)(((iObj+iAttr)>>8)&0x00FF);
-		readRequestArray[READREQUEST_SN_LSB] = (byte)((iObj+iAttr)&0x00FF);
+		readRequestArray[READREQUEST_SN_MSB] = (byte) (((iObj + iAttr) >> 8) & 0x00FF);
+		readRequestArray[READREQUEST_SN_LSB] = (byte) ((iObj + iAttr) & 0x00FF);
+
 		if (byteSelectiveBuffer != null) {
 			// Concatenate 2 byte arrays into requestData.
-			byte[] requestData = new byte[readRequestArray.length+byteSelectiveBuffer.length];
+			byte[] requestData = new byte[readRequestArray.length + byteSelectiveBuffer.length];
 			for (int i = 0; i < READREQUEST_DATA_SIZE; i++) {
 				requestData[i] = readRequestArray[i];
 			}
@@ -223,72 +279,77 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				requestData[i] = byteSelectiveBuffer[i - READREQUEST_DATA_SIZE];
 			}
 			return requestData;
-		}
-		else {
+		} else {
 			return readRequestArray;
 		}
 	}
 
+	/**
+	 * @param iObj
+	 * @param iAttr
+	 * @param byteSelectiveBuffer
+	 * @return
+	 * @throws IOException
+	 */
 	private byte[] buildWriteRequest(int iObj, int iAttr, byte[] byteSelectiveBuffer) throws IOException {
-		// Simple request data Array
-		byte[] readRequestArray = new byte[READREQUEST_DATA_SIZE];
-		int i;
+		byte[] writeRequestArray = new byte[WRITEREQUEST_DATA_SIZE];
 
-		//if (byteSelectiveBuffer == null) throw new IOException("No data to write!");
+		writeRequestArray[0] = (byte) 0xE6; // Destination_LSAP
+		writeRequestArray[1] = (byte) 0xE6; // Source_LSAP
+		writeRequestArray[2] = 0x00; // LLC_Quality
 
-		readRequestArray[0] = (byte)0xE6; // Destination_LSAP
-		readRequestArray[1] = (byte)0xE6; // Source_LSAP
-		readRequestArray[2] = 0x00; // LLC_Quality
-		readRequestArray[DL_COSEMPDU_OFFSET] = COSEM_WRITEREQUEST;
-		readRequestArray[DL_COSEMPDU_LENGTH_OFFSET] = 0x01; // length of the variable length SEQUENCE OF
-		readRequestArray[DL_COSEMPDU_TAG_OFFSET] = 0x02; // implicit objectname
+		writeRequestArray[DL_COSEMPDU_OFFSET] = COSEM_WRITEREQUEST;
+		writeRequestArray[DL_COSEMPDU_LENGTH_OFFSET] = 0x01; // length of the variable length SEQUENCE OF
+		writeRequestArray[DL_COSEMPDU_TAG_OFFSET] = 0x02; // implicit objectname
+		writeRequestArray[READREQUEST_SN_MSB] = (byte) (((iObj + iAttr) >> 8) & 0x00FF);
+		writeRequestArray[READREQUEST_SN_LSB] = (byte) ((iObj + iAttr) & 0x00FF);
+		writeRequestArray[WRITEREQUEST_NR_OF_OBJECTS] = 0x01; // one object
 
-		readRequestArray[READREQUEST_SN_MSB] = (byte)(((iObj+iAttr)>>8)&0x00FF);
-		readRequestArray[READREQUEST_SN_LSB] = (byte)((iObj+iAttr)&0x00FF);
 		if (byteSelectiveBuffer != null) {
 			// Concatenate 2 byte arrays into requestData.
-			byte[] requestData = new byte[readRequestArray.length+byteSelectiveBuffer.length];
-			for (i=0;i<READREQUEST_DATA_SIZE;i++) {
-				requestData[i] = readRequestArray[i];
+			byte[] requestData = new byte[writeRequestArray.length + byteSelectiveBuffer.length];
+			for (int i = 0; i < WRITEREQUEST_DATA_SIZE; i++) {
+				requestData[i] = writeRequestArray[i];
 			}
-			for (i=READREQUEST_DATA_SIZE;i<requestData.length;i++) {
-				requestData[i] = byteSelectiveBuffer[i-READREQUEST_DATA_SIZE];
+			for (int i = WRITEREQUEST_DATA_SIZE; i < requestData.length; i++) {
+				requestData[i] = byteSelectiveBuffer[i - WRITEREQUEST_DATA_SIZE];
 			}
 			return requestData;
+		} else {
+			return writeRequestArray;
 		}
-		else {
-			return readRequestArray;
-		}
-	} // private byte[] buildWriteRequest(short sObj, short sAttr, byte[] byteSelectiveBuffer)
+	}
 
-
-	private byte[] buildGetRequest(int classId,byte[] LN,byte bAttr, byte[] byteSelectiveBuffer) {
-		// Simple request data Array
+	/**
+	 * @param classId
+	 * @param LN
+	 * @param bAttr
+	 * @param byteSelectiveBuffer
+	 * @return
+	 */
+	private byte[] buildGetRequest(int classId, byte[] LN, byte bAttr, byte[] byteSelectiveBuffer) {
 		byte[] readRequestArray = new byte[GETREQUEST_DATA_SIZE];
 
-		readRequestArray[0] = (byte)0xE6; // Destination_LSAP
-		readRequestArray[1] = (byte)0xE6; // Source_LSAP
+		readRequestArray[0] = (byte) 0xE6; // Destination_LSAP
+		readRequestArray[1] = (byte) 0xE6; // Source_LSAP
 		readRequestArray[2] = 0x00; // LLC_Quality
 		readRequestArray[DL_COSEMPDU_OFFSET] = COSEM_GETREQUEST;
-		readRequestArray[DL_COSEMPDU_OFFSET+1] = COSEM_GETREQUEST_NORMAL; // get request normal
+		readRequestArray[DL_COSEMPDU_OFFSET + 1] = COSEM_GETREQUEST_NORMAL; // get request normal
+		readRequestArray[DL_COSEMPDU_OFFSET + 2] = this.invokeIdAndPriority; //invoke id and priority
+		readRequestArray[DL_COSEMPDU_OFFSET_CID] = (byte) (classId >> 8);
+		readRequestArray[DL_COSEMPDU_OFFSET_CID + 1] = (byte) classId;
 
-		readRequestArray[DL_COSEMPDU_OFFSET+2] = this.INVOKE_ID_AND_PRIORITY; //invoke id and priority
-
-		readRequestArray[DL_COSEMPDU_OFFSET_CID] = (byte)(classId>>8);
-		readRequestArray[DL_COSEMPDU_OFFSET_CID+1] = (byte)classId;
-
-		for (int i=0;i<6;i++) {
-			readRequestArray[DL_COSEMPDU_OFFSET_LN+i] = LN[i];
+		for (int i = 0; i < 6; i++) {
+			readRequestArray[DL_COSEMPDU_OFFSET_LN + i] = LN[i];
 		}
 
 		readRequestArray[DL_COSEMPDU_OFFSET_ATTR] = bAttr;
 
 		if (byteSelectiveBuffer == null) {
-			readRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR]=0; // Selective access descriptor NOT present
+			readRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR] = 0; // Selective access descriptor NOT present
 			return readRequestArray;
-		}
-		else {
-			readRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR]=1; // Selective access descriptor present
+		} else {
+			readRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR] = 1; // Selective access descriptor present
 
 			// Concatenate 2 byte arrays into requestData.
 			byte[] requestData = new byte[readRequestArray.length + byteSelectiveBuffer.length];
@@ -301,8 +362,12 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 			return requestData;
 		}
 
-	} // private byte[] buildGetRequest(short sIC,byte[] LN,byte bAttr, byte[] byteSelectiveBuffer)
+	}
 
+	/**
+	 * @param iBlockNumber
+	 * @return
+	 */
 	private byte[] buildGetRequestNext(int iBlockNumber) {
 		byte[] readRequestArray = new byte[GETREQUESTNEXT_DATA_SIZE];
 		readRequestArray[0] = (byte) 0xE6; // Destination_LSAP
@@ -310,7 +375,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		readRequestArray[2] = 0x00; // LLC_Quality
 		readRequestArray[DL_COSEMPDU_OFFSET] = COSEM_GETREQUEST;
 		readRequestArray[DL_COSEMPDU_OFFSET + 1] = COSEM_GETREQUEST_NEXT; // get request next
-		readRequestArray[DL_COSEMPDU_OFFSET + 2] = this.INVOKE_ID_AND_PRIORITY; //invoke id and priority
+		readRequestArray[DL_COSEMPDU_OFFSET + 2] = this.invokeIdAndPriority; //invoke id and priority
 		readRequestArray[DL_COSEMPDU_OFFSET + 3] = (byte) (iBlockNumber >> 24);
 		readRequestArray[DL_COSEMPDU_OFFSET + 4] = (byte) (iBlockNumber >> 16);
 		readRequestArray[DL_COSEMPDU_OFFSET + 5] = (byte) (iBlockNumber >> 8);
@@ -318,425 +383,443 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		return readRequestArray;
 	}
 
-	private byte[] buildSetRequest(int classId,byte[] LN,byte bAttr, byte[] byteSelectiveBuffer) {
-		// Simple request data Array
+	/**
+	 * @param classId
+	 * @param LN
+	 * @param bAttr
+	 * @param byteSelectiveBuffer
+	 * @return
+	 */
+	private byte[] buildSetRequest(int classId, byte[] LN, byte bAttr, byte[] byteSelectiveBuffer) {
 		byte[] writeRequestArray = new byte[SETREQUEST_DATA_SIZE];
 		int i;
 
-		writeRequestArray[0] = (byte)0xE6; // Destination_LSAP
-		writeRequestArray[1] = (byte)0xE6; // Source_LSAP
+		writeRequestArray[0] = (byte) 0xE6; // Destination_LSAP
+		writeRequestArray[1] = (byte) 0xE6; // Source_LSAP
 		writeRequestArray[2] = 0x00; // LLC_Quality
-		writeRequestArray[DL_COSEMPDU_OFFSET] = COSEM_SETREQUEST;
-		writeRequestArray[DL_COSEMPDU_OFFSET+1] = COSEM_SETREQUEST_NORMAL; // get request normal
-		writeRequestArray[DL_COSEMPDU_OFFSET+2] = this.INVOKE_ID_AND_PRIORITY; //invoke id and priority
 
-		writeRequestArray[DL_COSEMPDU_OFFSET_CID] = (byte)(classId>>8);
-		writeRequestArray[DL_COSEMPDU_OFFSET_CID+1] = (byte)classId;
-		for (i=0;i<6;i++) {
-			writeRequestArray[DL_COSEMPDU_OFFSET_LN+i] = LN[i];
+		writeRequestArray[DL_COSEMPDU_OFFSET] = COSEM_SETREQUEST;
+		writeRequestArray[DL_COSEMPDU_OFFSET + 1] = COSEM_SETREQUEST_NORMAL; // get request normal
+		writeRequestArray[DL_COSEMPDU_OFFSET + 2] = this.invokeIdAndPriority; //invoke id and priority
+		writeRequestArray[DL_COSEMPDU_OFFSET_CID] = (byte) (classId >> 8);
+		writeRequestArray[DL_COSEMPDU_OFFSET_CID + 1] = (byte) classId;
+
+		for (i = 0; i < 6; i++) {
+			writeRequestArray[DL_COSEMPDU_OFFSET_LN + i] = LN[i];
 		}
 		writeRequestArray[DL_COSEMPDU_OFFSET_ATTR] = bAttr;
 
 		if (byteSelectiveBuffer == null) {
-			writeRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR]=0;
+			writeRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR] = 0;
 			return writeRequestArray;
-		}
-		else {
-			writeRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR]=0;
+		} else {
+			writeRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR] = 0;
 			// Concatenate 2 byte arrays into requestData.
-			byte[] requestData = new byte[writeRequestArray.length+byteSelectiveBuffer.length];
-			for (i=0;i<GETREQUEST_DATA_SIZE;i++) {
+			byte[] requestData = new byte[writeRequestArray.length + byteSelectiveBuffer.length];
+			for (i = 0; i < GETREQUEST_DATA_SIZE; i++) {
 				requestData[i] = writeRequestArray[i];
 			}
-			for (i=GETREQUEST_DATA_SIZE;i<requestData.length;i++) {
-				requestData[i] = byteSelectiveBuffer[i-(GETREQUEST_DATA_SIZE)];
+			for (i = GETREQUEST_DATA_SIZE; i < requestData.length; i++) {
+				requestData[i] = byteSelectiveBuffer[i - (GETREQUEST_DATA_SIZE)];
 			}
 			return requestData;
 		}
+	}
 
-	} // private byte[] buildSetRequest(short sIC,byte[] LN,byte bAttr, byte[] byteSelectiveBuffer)
-
-	private byte[] buildActionRequest(int classId,byte[] LN,int methodId, byte[] data) {
-		// Simple request data Array
+	/**
+	 * @param classId
+	 * @param LN
+	 * @param methodId
+	 * @param data
+	 * @return
+	 */
+	private byte[] buildActionRequest(int classId, byte[] LN, int methodId, byte[] data) {
 		byte[] writeRequestArray = new byte[ACTIONREQUEST_DATA_SIZE];
-		int i;
 
-		writeRequestArray[0] = (byte)0xE6; // Destination_LSAP
-		writeRequestArray[1] = (byte)0xE6; // Source_LSAP
+		writeRequestArray[0] = (byte) 0xE6; // Destination_LSAP
+		writeRequestArray[1] = (byte) 0xE6; // Source_LSAP
 		writeRequestArray[2] = 0x00; // LLC_Quality
-		writeRequestArray[DL_COSEMPDU_OFFSET] = COSEM_ACTIONREQUEST;
-		writeRequestArray[DL_COSEMPDU_OFFSET+1] = COSEM_ACTIONREQUEST_NORMAL; // get request normal
-		writeRequestArray[DL_COSEMPDU_OFFSET+2] = this.INVOKE_ID_AND_PRIORITY; //invoke id and priority
 
-		writeRequestArray[DL_COSEMPDU_OFFSET_CID] = (byte)(classId>>8);
-		writeRequestArray[DL_COSEMPDU_OFFSET_CID+1] = (byte)classId;
-		for (i=0;i<6;i++) {
-			writeRequestArray[DL_COSEMPDU_OFFSET_LN+i] = LN[i];
+		writeRequestArray[DL_COSEMPDU_OFFSET] = COSEM_ACTIONREQUEST;
+		writeRequestArray[DL_COSEMPDU_OFFSET + 1] = COSEM_ACTIONREQUEST_NORMAL; // get request normal
+		writeRequestArray[DL_COSEMPDU_OFFSET + 2] = this.invokeIdAndPriority; //invoke id and priority
+		writeRequestArray[DL_COSEMPDU_OFFSET_CID] = (byte) (classId >> 8);
+		writeRequestArray[DL_COSEMPDU_OFFSET_CID + 1] = (byte) classId;
+
+		for (int i = 0; i < 6; i++) {
+			writeRequestArray[DL_COSEMPDU_OFFSET_LN + i] = LN[i];
 		}
-		writeRequestArray[DL_COSEMPDU_OFFSET_ATTR] = (byte)methodId;
+		writeRequestArray[DL_COSEMPDU_OFFSET_ATTR] = (byte) methodId;
 
 		if (data == null) {
-			writeRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR]=0;
+			writeRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR] = 0;
 			return writeRequestArray;
-		}
-		else {
-			writeRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR]=1;
+		} else {
+			writeRequestArray[DL_COSEMPDU_OFFSET_ACCESS_SELECTOR] = 1;
 			// Concatenate 2 byte arrays into requestData.
-			byte[] requestData = new byte[writeRequestArray.length+data.length];
-			for (i=0;i<ACTIONREQUEST_DATA_SIZE;i++) {
+			byte[] requestData = new byte[writeRequestArray.length + data.length];
+			for (int i = 0; i < ACTIONREQUEST_DATA_SIZE; i++) {
 				requestData[i] = writeRequestArray[i];
 			}
-			for (i=ACTIONREQUEST_DATA_SIZE;i<requestData.length;i++) {
-				requestData[i] = data[i-(ACTIONREQUEST_DATA_SIZE)];
+			for (int i = ACTIONREQUEST_DATA_SIZE; i < requestData.length; i++) {
+				requestData[i] = data[i - (ACTIONREQUEST_DATA_SIZE)];
 			}
 			return requestData;
 		}
+	}
 
-	} // private byte[] buildActionRequest(int classId,byte[] LN,int methodId, byte[] data)
-
-
+	/**
+	 * @param bVal
+	 * @throws IOException
+	 */
 	private void evalDataAccessResult(byte bVal) throws IOException {
 		if (bVal != 0) {
-			throw new DataAccessResultException(bVal&0xFF);
+			throw new DataAccessResultException(bVal & 0xFF);
 		}
-	} // private void evalDataAccessResult(byte bVal) throws IOException
-
-
-	private static final byte SERVICEERROR_ACCESS_TAG=5;
-	private static final byte ACCESS_AUTHORIZATION=1;
-
-	private static final byte READRESPONSE_DATA_TAG=0;
-	private static final byte READRESPONSE_DATAACCESSERROR_TAG=1;
-	private static final byte READRESPONSE_DATABLOCK_RESULT_TAG=2;
+	}
 
 	protected byte[] CheckCosemPDUResponseHeader(byte[] responseData) throws IOException {
 		int i;
 
-		boolean boolLastBlock=true;
+		boolean boolLastBlock = true;
 		int iBlockNumber;
 		int iBlockSize;
 		int iArrayNROfEntries;
-		ReceiveBuffer receiveBuffer=new ReceiveBuffer();
+		ReceiveBuffer receiveBuffer = new ReceiveBuffer();
 
 		do {
-			i=DL_COSEMPDU_OFFSET;
+			i = DL_COSEMPDU_OFFSET;
 
-			switch(responseData[i]) {
-			case COSEM_READRESPONSE: {
-				switch(responseData[DL_COSEMPDU_OFFSET+2]) {
+			switch (responseData[i]) {
+				case COSEM_READRESPONSE: {
+					switch (responseData[DL_COSEMPDU_OFFSET + 2]) {
 
-				case READRESPONSE_DATA_TAG:
-					receiveBuffer.addArray(responseData,DL_COSEMPDU_OFFSET+3);
-					return receiveBuffer.getArray();
-
-				case READRESPONSE_DATAACCESSERROR_TAG:
-					evalDataAccessResult(responseData[DL_COSEMPDU_OFFSET+3]);
-					receiveBuffer.addArray(responseData,DL_COSEMPDU_OFFSET+3);
-					return receiveBuffer.getArray();
-
-				case READRESPONSE_DATABLOCK_RESULT_TAG: {
-					i=DL_COSEMPDU_OFFSET+3; // to point to the block last
-
-					boolLastBlock = (responseData[i] != 0x00);
-					i++; // skip lastblock
-					iBlockNumber = ProtocolUtils.getInt(responseData,i,2);
-					i+=2; // skip iBlockNumber
-
-					iBlockSize = (int)DLMSUtils.getAXDRLength(responseData,i);
-
-					i += DLMSUtils.getAXDRLengthOffset(responseData,i);
-
-					if (iBlockNumber==1) {
-						i+=2; // skip the tricky read response sequence of choice and data encoding 0100
-					}
-
-					if (DEBUG>=1) {
-						System.out.println("last block="+boolLastBlock+", blockNumber="+iBlockNumber+", blockSize="+iBlockSize+", offset="+i);
-					}
-
-					receiveBuffer.addArray(responseData,i);
-
-					if (!boolLastBlock) {
-						try {
-							if (DEBUG>=1) {
-								System.out.println("Acknowledge block "+iBlockNumber);
-							}
-							responseData = this.protocolLink.getDLMSConnection().sendRequest(buildReadRequestNext(iBlockNumber));
-							if (DEBUG>=1) {
-								System.out.println("next response data = "+ProtocolUtils.outputHexString(responseData));
-							}
-						}
-						catch(IOException e) {
-							throw new NestedIOException(e,"Error in COSEM_GETRESPONSE_WITH_DATABLOCK");
-						}
-					}
-					else {
-						return (receiveBuffer.getArray());
-					}
-
-
-				} break; // READRESPONSE_DATABLOCK_RESULT_TAG
-
-				} // switch(responseData[DL_COSEMPDU_OFFSET+2])
-
-			} break; //COSEM_READRESPONSE
-
-			case COSEM_WRITERESPONSE: {
-				if (responseData[DL_COSEMPDU_OFFSET+2] == READRESPONSE_DATAACCESSERROR_TAG) {
-					evalDataAccessResult(responseData[DL_COSEMPDU_OFFSET+3]);
-				}
-				receiveBuffer.addArray(responseData,DL_COSEMPDU_OFFSET+3);
-				return receiveBuffer.getArray();
-			} // COSEM_WRITERESPONSE
-
-			case COSEM_CONFIRMEDSERVICEERROR: {
-				//                    if ((responseData[DL_COSEMPDU_OFFSET+1] == CONFIRMEDSERVICEERROR_READ_TAG) &&
-				//                    (responseData[DL_COSEMPDU_OFFSET+2] == SERVICEERROR_ACCESS_TAG) &&
-				//                    (responseData[DL_COSEMPDU_OFFSET+3] == ACCESS_AUTHORIZATION)) {
-				//                        throw new IOException("Access denied through authorization!");
-				//                    }
-				//                    else {
-				//                        throw new IOException("Unknown service error, "+responseData[DL_COSEMPDU_OFFSET+1]+
-				//                        responseData[DL_COSEMPDU_OFFSET+2]+
-				//                        responseData[DL_COSEMPDU_OFFSET+3]);
-				//                    }
-
-				switch(responseData[DL_COSEMPDU_OFFSET+1]){
-				case CONFIRMEDSERVICEERROR_INITIATEERROR_TAG:{
-					throw new IOException("Confirmed Service Error - 'Initiate error' - Reason: " + getServiceError(responseData[DL_COSEMPDU_OFFSET+2],responseData[DL_COSEMPDU_OFFSET+3]));
-				}
-				case CONFIRMEDSERVICEERROR_READ_TAG:{
-					throw new IOException("Confirmed Service Error - 'Read error' - Reason: " + getServiceError(responseData[DL_COSEMPDU_OFFSET+2],responseData[DL_COSEMPDU_OFFSET+3]));
-				}
-				case CONFIRMEDSERVICEERROR_WRITE_TAG:{
-					throw new IOException("Confirmed Service Error - 'Write error' - Reason: " + getServiceError(responseData[DL_COSEMPDU_OFFSET+2],responseData[DL_COSEMPDU_OFFSET+3]));
-				}
-				default:{
-					throw new IOException("Unknown service error, "+responseData[DL_COSEMPDU_OFFSET+1]+
-							responseData[DL_COSEMPDU_OFFSET+2]+
-							responseData[DL_COSEMPDU_OFFSET+3]);
-				}
-				}
-			} // !!! break !!! COSEM_CONFIRMEDSERVICEERROR
-
-			case COSEM_GETRESPONSE: {
-				i++; // skip tag
-				switch(responseData[i]) {
-				case COSEM_GETRESPONSE_NORMAL: {
-					i++; // skip tag
-					i++; // skip invoke id & priority
-					switch(responseData[i]) {
-					case 0: // data
-						i++;
-						receiveBuffer.addArray(responseData,i);
-						return receiveBuffer.getArray();
-
-					case 1: // data-access-result
-					{
-						i++;
-						evalDataAccessResult(responseData[i]);
-						//System.out.println("Data access result OK");
-
-					} break;  // data-access-result
-
-					default:
-						throw new IOException("unknown COSEM_GETRESPONSE_NORMAL,  "+responseData[i]);
-
-					} // switch(responseData[i])
-
-				} break; // case COSEM_GETRESPONSE_NORMAL:
-
-				case COSEM_GETRESPONSE_WITH_DATABLOCK: {
-					i++; // skip tag
-					i++; // skip invoke id & priority
-
-					boolLastBlock = (responseData[i] != 0x00);
-					i++; // skip lastblock
-					iBlockNumber = ProtocolUtils.getInt(responseData,i);
-					i+=4; // skip iBlockNumber
-					switch(responseData[i]) {
-					case 0: // data
-					{
-						i++; // skip tag
-
-						if (iBlockNumber==1) {
-							iBlockSize = (int)DLMSUtils.getAXDRLength(responseData,i);
-							i += DLMSUtils.getAXDRLengthOffset(responseData,i);
-							receiveBuffer.addArray(responseData,i);
-							i++; /// skip array tag
-							iArrayNROfEntries = (int)DLMSUtils.getAXDRLength(responseData,i);
-							i += DLMSUtils.getAXDRLengthOffset(responseData,i);
-						}
-						else {
-							iBlockSize = (int)DLMSUtils.getAXDRLength(responseData,i);
-							i += DLMSUtils.getAXDRLengthOffset(responseData,i);
-							receiveBuffer.addArray(responseData,i);
-						}
-
-						if (!(boolLastBlock)) {
-							try {
-								responseData = this.protocolLink.getDLMSConnection().sendRequest(buildGetRequestNext(iBlockNumber));
-							}
-							catch(IOException e) {
-								throw new NestedIOException(e,"Error in COSEM_GETRESPONSE_WITH_DATABLOCK");
-							}
-						}
-						else {
-							return (receiveBuffer.getArray());
-						}
-
-					} break; // data
-
-					case 1: // data-access-result
-					{
-						i++;
-						evalDataAccessResult(responseData[i]);
-						//System.out.println("Data access result OK");
-
-					} break;  // data-access-result
-
-					default:
-						throw new IOException("unknown COSEM_GETRESPONSE_WITH_DATABLOCK,  "+responseData[i]);
-					}
-
-				} break; // case COSEM_GETRESPONSE_WITH_DATABLOCK:
-
-				default:
-					throw new IOException("Unknown/unimplemented COSEM_GETRESPONSE, "+responseData[i]);
-
-				} // switch(responseData[i])
-
-			} break; // case COSEM_GETRESPONSE:
-
-			case COSEM_ACTIONRESPONSE: {
-				
-				/* Implementation as from 28/01/2010 */
-				
-				if("OLD".equalsIgnoreCase(this.protocolLink.getMeterConfig().getExtra())){
-					
-					/* This is the INcorrect implementation of an ActionResponse 
-					 * We use this in old KP firmwareVersion */
-					
-					i++; // skip tag
-					switch(responseData[i]) {
-					case COSEM_ACTIONRESPONSE_NORMAL: {
-						i++; // skip tag
-						i++; // skip invoke id & priority
-						//                            evalDataAccessResult(responseData[i]);
-						switch(responseData[i]) {
-						case 0: // data
-							i++;
-							receiveBuffer.addArray(responseData,i);
+						case READRESPONSE_DATA_TAG:
+							receiveBuffer.addArray(responseData, DL_COSEMPDU_OFFSET + 3);
 							return receiveBuffer.getArray();
 
-						case 1: // data-access-result
-						{
-							i++;
-							evalDataAccessResult(responseData[i]);
-							//System.out.println("Data access result OK");
+						case READRESPONSE_DATAACCESSERROR_TAG:
+							evalDataAccessResult(responseData[DL_COSEMPDU_OFFSET + 3]);
+							receiveBuffer.addArray(responseData, DL_COSEMPDU_OFFSET + 3);
+							return receiveBuffer.getArray();
 
-						} break;  // data-access-result
+						case READRESPONSE_DATABLOCK_RESULT_TAG: {
+							i = DL_COSEMPDU_OFFSET + 3; // to point to the block last
+
+							boolLastBlock = (responseData[i] != 0x00);
+							i++; // skip lastblock
+							iBlockNumber = ProtocolUtils.getInt(responseData, i, 2);
+							i += 2; // skip iBlockNumber
+
+							iBlockSize = (int) DLMSUtils.getAXDRLength(responseData, i);
+
+							i += DLMSUtils.getAXDRLengthOffset(responseData, i);
+
+							if (iBlockNumber == 1) {
+								i += 2; // skip the tricky read response sequence of choice and data encoding 0100
+							}
+
+							LogFactory.getLog(getClass()).debug(
+									"last block=" + boolLastBlock + ", blockNumber=" + iBlockNumber + ", blockSize=" + iBlockSize + ", offset=" + i);
+
+							receiveBuffer.addArray(responseData, i);
+
+							if (!boolLastBlock) {
+								try {
+									LogFactory.getLog(getClass()).debug("Acknowledge block " + iBlockNumber);
+									responseData = this.protocolLink.getDLMSConnection().sendRequest(buildReadRequestNext(iBlockNumber));
+									LogFactory.getLog(getClass()).debug("next response data = " + ProtocolUtils.outputHexString(responseData));
+								} catch (IOException e) {
+									throw new NestedIOException(e, "Error in COSEM_GETRESPONSE_WITH_DATABLOCK");
+								}
+							} else {
+								return (receiveBuffer.getArray());
+							}
+
+						}
+							break; // READRESPONSE_DATABLOCK_RESULT_TAG
+
+					} // switch(responseData[DL_COSEMPDU_OFFSET+2])
+
+				}
+					break; //COSEM_READRESPONSE
+
+				case COSEM_WRITERESPONSE: {
+					if (responseData[DL_COSEMPDU_OFFSET + 2] == READRESPONSE_DATAACCESSERROR_TAG) {
+						evalDataAccessResult(responseData[DL_COSEMPDU_OFFSET + 3]);
+					}
+					receiveBuffer.addArray(responseData, DL_COSEMPDU_OFFSET + 3);
+					return receiveBuffer.getArray();
+				} // COSEM_WRITERESPONSE
+
+				case COSEM_CONFIRMEDSERVICEERROR: {
+					//                    if ((responseData[DL_COSEMPDU_OFFSET+1] == CONFIRMEDSERVICEERROR_READ_TAG) &&
+					//                    (responseData[DL_COSEMPDU_OFFSET+2] == SERVICEERROR_ACCESS_TAG) &&
+					//                    (responseData[DL_COSEMPDU_OFFSET+3] == ACCESS_AUTHORIZATION)) {
+					//                        throw new IOException("Access denied through authorization!");
+					//                    }
+					//                    else {
+					//                        throw new IOException("Unknown service error, "+responseData[DL_COSEMPDU_OFFSET+1]+
+					//                        responseData[DL_COSEMPDU_OFFSET+2]+
+					//                        responseData[DL_COSEMPDU_OFFSET+3]);
+					//                    }
+
+					switch (responseData[DL_COSEMPDU_OFFSET + 1]) {
+						case CONFIRMEDSERVICEERROR_INITIATEERROR_TAG: {
+							throw new IOException("Confirmed Service Error - 'Initiate error' - Reason: "
+									+ getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+						}
+						case CONFIRMEDSERVICEERROR_READ_TAG: {
+							throw new IOException("Confirmed Service Error - 'Read error' - Reason: "
+									+ getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+						}
+						case CONFIRMEDSERVICEERROR_WRITE_TAG: {
+							throw new IOException("Confirmed Service Error - 'Write error' - Reason: "
+									+ getServiceError(responseData[DL_COSEMPDU_OFFSET + 2], responseData[DL_COSEMPDU_OFFSET + 3]));
+						}
+						default: {
+							throw new IOException("Unknown service error, " + responseData[DL_COSEMPDU_OFFSET + 1] + responseData[DL_COSEMPDU_OFFSET + 2]
+									+ responseData[DL_COSEMPDU_OFFSET + 3]);
+						}
+					}
+				} // !!! break !!! COSEM_CONFIRMEDSERVICEERROR
+
+				case COSEM_GETRESPONSE: {
+					i++; // skip tag
+					switch (responseData[i]) {
+						case COSEM_GETRESPONSE_NORMAL: {
+							i++; // skip tag
+							i++; // skip invoke id & priority
+							switch (responseData[i]) {
+								case 0: // data
+									i++;
+									receiveBuffer.addArray(responseData, i);
+									return receiveBuffer.getArray();
+
+								case 1: // data-access-result
+								{
+									i++;
+									evalDataAccessResult(responseData[i]);
+									//LogFactory.getLog(getClass()).debug("Data access result OK");
+
+								}
+									break; // data-access-result
+
+								default:
+									throw new IOException("unknown COSEM_GETRESPONSE_NORMAL,  " + responseData[i]);
+
+							} // switch(responseData[i])
+
+						}
+							break; // case COSEM_GETRESPONSE_NORMAL:
+
+						case COSEM_GETRESPONSE_WITH_DATABLOCK: {
+							i++; // skip tag
+							i++; // skip invoke id & priority
+
+							boolLastBlock = (responseData[i] != 0x00);
+							i++; // skip lastblock
+							iBlockNumber = ProtocolUtils.getInt(responseData, i);
+							i += 4; // skip iBlockNumber
+							switch (responseData[i]) {
+								case 0: // data
+								{
+									i++; // skip tag
+
+									if (iBlockNumber == 1) {
+										iBlockSize = (int) DLMSUtils.getAXDRLength(responseData, i);
+										i += DLMSUtils.getAXDRLengthOffset(responseData, i);
+										receiveBuffer.addArray(responseData, i);
+										i++; /// skip array tag
+										iArrayNROfEntries = (int) DLMSUtils.getAXDRLength(responseData, i);
+										i += DLMSUtils.getAXDRLengthOffset(responseData, i);
+									} else {
+										iBlockSize = (int) DLMSUtils.getAXDRLength(responseData, i);
+										i += DLMSUtils.getAXDRLengthOffset(responseData, i);
+										receiveBuffer.addArray(responseData, i);
+									}
+
+									if (!(boolLastBlock)) {
+										try {
+											responseData = this.protocolLink.getDLMSConnection().sendRequest(buildGetRequestNext(iBlockNumber));
+										} catch (IOException e) {
+											throw new NestedIOException(e, "Error in COSEM_GETRESPONSE_WITH_DATABLOCK");
+										}
+									} else {
+										return (receiveBuffer.getArray());
+									}
+
+								}
+									break; // data
+
+								case 1: // data-access-result
+								{
+									i++;
+									evalDataAccessResult(responseData[i]);
+									//LogFactory.getLog(getClass()).debug("Data access result OK");
+
+								}
+									break; // data-access-result
+
+								default:
+									throw new IOException("unknown COSEM_GETRESPONSE_WITH_DATABLOCK,  " + responseData[i]);
+							}
+
+						}
+							break; // case COSEM_GETRESPONSE_WITH_DATABLOCK:
 
 						default:
-							throw new IOException("unknown COSEM_ACTIONRESPONSE_NORMAL,  "+responseData[i]);
+							throw new IOException("Unknown/unimplemented COSEM_GETRESPONSE, " + responseData[i]);
+
+					} // switch(responseData[i])
+
+				}
+					break; // case COSEM_GETRESPONSE:
+
+				case COSEM_ACTIONRESPONSE: {
+
+					/* Implementation as from 28/01/2010 */
+
+					if ("OLD".equalsIgnoreCase(this.protocolLink.getMeterConfig().getExtra())) {
+
+						/*
+						 * This is the INcorrect implementation of an
+						 * ActionResponse
+						 * We use this in old KP firmwareVersion
+						 */
+
+						i++; // skip tag
+						switch (responseData[i]) {
+							case COSEM_ACTIONRESPONSE_NORMAL: {
+								i++; // skip tag
+								i++; // skip invoke id & priority
+								//                            evalDataAccessResult(responseData[i]);
+								switch (responseData[i]) {
+									case 0: // data
+										i++;
+										receiveBuffer.addArray(responseData, i);
+										return receiveBuffer.getArray();
+
+									case 1: // data-access-result
+									{
+										i++;
+										evalDataAccessResult(responseData[i]);
+										//LogFactory.getLog(getClass()).debug("Data access result OK");
+
+									}
+										break; // data-access-result
+
+									default:
+										throw new IOException("unknown COSEM_ACTIONRESPONSE_NORMAL,  " + responseData[i]);
+
+								} // switch(responseData[i])
+							}
+								break; // case COSEM_ACTIONRESPONSE_NORMAL:
+
+							default:
+								throw new IOException("Unknown/unimplemented COSEM_ACTIONRESPONSE, " + responseData[i]);
 
 						} // switch(responseData[i])
-					} break; // case COSEM_ACTIONRESPONSE_NORMAL:
 
-					default:
-						throw new IOException("Unknown/unimplemented COSEM_ACTIONRESPONSE, "+responseData[i]);
+					} else {
 
-					} // switch(responseData[i])
-					
-				} else {
-					
-					/* This is the correct implementation of an ActionResponse */
-					
-					i++; 	// skipping the tag
-					switch(responseData[i]){	// ACTION-Response ::= choice
-					
-					case COSEM_ACTIONRESPONSE_NORMAL :{
-						i++;	// skip tag [1]
-						i++;	// Skip InvokeIdAndPriority
-						
-						/* Following is the ActionResponseWithOptionalData */
-						evalDataAccessResult(responseData[i]);
-						i++;	// skip the Action-Result if it was OK
-						if(i < responseData.length && responseData[i] == 1){		// Optional Get-Data-Result
-							i++;	// skip the tag [1]
-							if(responseData[i] == 0){	// Data
-								i++;	// skip the tag [1]
-								receiveBuffer.addArray(responseData,i);
-								return receiveBuffer.getArray();
-							} else  if(responseData[i] == 1){	// Data-Access-Result
-								i++;	// skip the tag [1]
+						/*
+						 * This is the correct implementation of an
+						 * ActionResponse
+						 */
+
+						i++; // skipping the tag
+						switch (responseData[i]) { // ACTION-Response ::= choice
+
+							case COSEM_ACTIONRESPONSE_NORMAL: {
+								i++; // skip tag [1]
+								i++; // Skip InvokeIdAndPriority
+
+								/*
+								 * Following is the
+								 * ActionResponseWithOptionalData
+								 */
 								evalDataAccessResult(responseData[i]);
-								return receiveBuffer.getArray();
+								i++; // skip the Action-Result if it was OK
+								if ((i < responseData.length) && (responseData[i] == 1)) { // Optional Get-Data-Result
+									i++; // skip the tag [1]
+									if (responseData[i] == 0) { // Data
+										i++; // skip the tag [1]
+										receiveBuffer.addArray(responseData, i);
+										return receiveBuffer.getArray();
+									} else if (responseData[i] == 1) { // Data-Access-Result
+										i++; // skip the tag [1]
+										evalDataAccessResult(responseData[i]);
+										return receiveBuffer.getArray();
+									}
+								} else {
+									return receiveBuffer.getArray();
+								}
+
 							}
-						} else {
-							return receiveBuffer.getArray();
+								break;
+
+							case COSEM_ACTIONRESPONSE_WITH_PBLOCK: {
+								throw new IOException("Unimplemented COSEM_ACTIONRESPONSE, " + responseData[i]);
+							}
+
+							case COSEM_ACTIONRESPONSE_WITH_LIST: {
+								throw new IOException("Unimplemented COSEM_ACTIONRESPONSE, " + responseData[i]);
+							}
+
+							case COSEM_ACTIONRESPONSE_NEXT_PBLOCK: {
+								throw new IOException("Unimplemented COSEM_ACTIONRESPONSE, " + responseData[i]);
+							}
+							default:
+								throw new IOException("Unimplemented COSEM_ACTIONRESPONSE, " + responseData[i]);
 						}
-						
-					} break;
-					
-					case COSEM_ACTIONRESPONSE_WITH_PBLOCK :{
-						throw new IOException("Unimplemented COSEM_ACTIONRESPONSE, "+responseData[i]);
-					} 
-					
-					case COSEM_ACTIONRESPONSE_WITH_LIST :{
-						throw new IOException("Unimplemented COSEM_ACTIONRESPONSE, "+responseData[i]);
-					}
-					
-					case COSEM_ACTIONRESPONSE_NEXT_PBLOCK :{
-						throw new IOException("Unimplemented COSEM_ACTIONRESPONSE, "+responseData[i]);
-					}
-					default:
-						throw new IOException("Unimplemented COSEM_ACTIONRESPONSE, "+responseData[i]);
 					}
 				}
-			} break; // case COSEM_ACTIONRESPONSE:
+					break; // case COSEM_ACTIONRESPONSE:
 
-
-			case COSEM_SETRESPONSE: {
-				i++; // skip tag
-				switch(responseData[i]) {
-				case COSEM_SETRESPONSE_NORMAL: {
+				case COSEM_SETRESPONSE: {
 					i++; // skip tag
-					i++; // skip invoke id & priority
-					//                            evalDataAccessResult(responseData[i]);
-					switch(responseData[i]) {
-					case 0: // data
-						i++;
-						receiveBuffer.addArray(responseData,i);
-						return receiveBuffer.getArray();
+					switch (responseData[i]) {
+						case COSEM_SETRESPONSE_NORMAL: {
+							i++; // skip tag
+							i++; // skip invoke id & priority
+							//                            evalDataAccessResult(responseData[i]);
+							switch (responseData[i]) {
+								case 0: // data
+									i++;
+									receiveBuffer.addArray(responseData, i);
+									return receiveBuffer.getArray();
 
-					case 1: // data-access-result
-					{
-						i++;
-						evalDataAccessResult(responseData[i]);
-						//System.out.println("Data access result OK");
+								case 1: // data-access-result
+								{
+									i++;
+									evalDataAccessResult(responseData[i]);
+									//LogFactory.getLog(getClass()).debug("Data access result OK");
 
-					} break;  // data-access-result
+								}
+									break; // data-access-result
 
-					default:
-						throw new IOException("unknown COSEM_SETRESPONSE_NORMAL,  "+responseData[i]);
+								default:
+									throw new IOException("unknown COSEM_SETRESPONSE_NORMAL,  " + responseData[i]);
+
+							} // switch(responseData[i])
+						}
+							break; // case COSEM_SETRESPONSE_NORMAL:
+
+						default:
+							throw new IOException("Unknown/unimplemented COSEM_SETRESPONSE, " + responseData[i]);
 
 					} // switch(responseData[i])
-				} break; // case COSEM_SETRESPONSE_NORMAL:
 
-				default:
-					throw new IOException("Unknown/unimplemented COSEM_SETRESPONSE, "+responseData[i]);
+				}
+					break; // case COSEM_SETRESPONSE:
 
-				} // switch(responseData[i])
-
-			} break; // case COSEM_SETRESPONSE:
-
-			default: {
-				throw new IOException("Unknown COSEM PDU, "+" 0x"+Integer.toHexString(ProtocolUtils.byte2int(responseData[DL_COSEMPDU_OFFSET]))+
-						" 0x"+Integer.toHexString(ProtocolUtils.byte2int(responseData[DL_COSEMPDU_OFFSET+1]))+
-						" 0x"+Integer.toHexString(ProtocolUtils.byte2int(responseData[DL_COSEMPDU_OFFSET+2]))+
-						" 0x"+Integer.toHexString(ProtocolUtils.byte2int(responseData[DL_COSEMPDU_OFFSET+3])));
-			} // !!! break !!! default
+				default: {
+					throw new IOException("Unknown COSEM PDU, " + " 0x" + Integer.toHexString(ProtocolUtils.byte2int(responseData[DL_COSEMPDU_OFFSET])) + " 0x"
+							+ Integer.toHexString(ProtocolUtils.byte2int(responseData[DL_COSEMPDU_OFFSET + 1])) + " 0x"
+							+ Integer.toHexString(ProtocolUtils.byte2int(responseData[DL_COSEMPDU_OFFSET + 2])) + " 0x"
+							+ Integer.toHexString(ProtocolUtils.byte2int(responseData[DL_COSEMPDU_OFFSET + 3])));
+				} // !!! break !!! default
 
 			} // switch(responseData[i])
 
@@ -744,8 +827,13 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 		return null;
 
-	} // byte[] CheckCosemPDUResponseHeader(byte[] responseData) throws IOException
+	}
 
+	/**
+	 * @param b
+	 * @param c
+	 * @return
+	 */
 	private String getServiceError(byte b, byte c) {
 		switch(b){
 		case 0:{ // Application-reference
@@ -844,6 +932,11 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		return "";
 	}
 
+	/**
+	 * @param fromCalendar
+	 * @param toCalendar
+	 * @return
+	 */
 	private byte[] getBufferRangeDescriptor(Calendar fromCalendar, Calendar toCalendar) {
 		if (toCalendar == null) {
 			return getBufferRangeDescriptorSL7000(fromCalendar);
@@ -854,6 +947,11 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		}
 	}
 
+	/**
+	 * @param fromCalendar
+	 * @param toCalendar
+	 * @return
+	 */
 	private byte[] getBufferRangeDescriptorActarisPLCC(Calendar fromCalendar,Calendar toCalendar) {
 
 		byte[] intreq={(byte)0x01, // range descriptor
@@ -905,6 +1003,10 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 	}
 
+	/**
+	 * @param fromCalendar
+	 * @return
+	 */
 	private byte[] getBufferRangeDescriptorSL7000(Calendar fromCalendar) {
 
 		byte[] intreq={(byte)0x01, // range descriptor
@@ -921,8 +1023,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 		final int CAPTURE_FROM_OFFSET=4;
 		final int CAPTURE_TO_OFFSET=18;
-
-
 
 		intreq[CAPTURE_FROM_OFFSET]=TYPEDESC_OCTET_STRING;
 		intreq[CAPTURE_FROM_OFFSET+1]=12; // length
@@ -957,6 +1057,11 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		return intreq;
 	}
 
+	/**
+	 * @param fromCalendar
+	 * @param toCalendar
+	 * @return
+	 */
 	private byte[] getBufferRangeDescriptorDefault(Calendar fromCalendar, Calendar toCalendar) {
 
 		byte[] intreq={(byte)0x01, // range descriptor
@@ -975,110 +1080,107 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				// selected values
 				(byte)0x01,(byte)0x00};
 
-		int CAPTURE_FROM_OFFSET=21;
-		int CAPTURE_TO_OFFSET=35;
+		int CAPTURE_FROM_OFFSET = 21;
+		int CAPTURE_TO_OFFSET = 35;
 
-
-		intreq[CAPTURE_FROM_OFFSET]=TYPEDESC_OCTET_STRING;
-		intreq[CAPTURE_FROM_OFFSET+1]=12; // length
-		intreq[CAPTURE_FROM_OFFSET+2]=(byte)(fromCalendar.get(Calendar.YEAR) >> 8);
-		intreq[CAPTURE_FROM_OFFSET+3]=(byte)fromCalendar.get(Calendar.YEAR);
-		intreq[CAPTURE_FROM_OFFSET+4]=(byte)(fromCalendar.get(Calendar.MONTH)+1);
-		intreq[CAPTURE_FROM_OFFSET+5]=(byte)fromCalendar.get(Calendar.DAY_OF_MONTH);
+		intreq[CAPTURE_FROM_OFFSET] = TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_FROM_OFFSET + 1] = 12; // length
+		intreq[CAPTURE_FROM_OFFSET + 2] = (byte) (fromCalendar.get(Calendar.YEAR) >> 8);
+		intreq[CAPTURE_FROM_OFFSET + 3] = (byte) fromCalendar.get(Calendar.YEAR);
+		intreq[CAPTURE_FROM_OFFSET + 4] = (byte) (fromCalendar.get(Calendar.MONTH) + 1);
+		intreq[CAPTURE_FROM_OFFSET + 5] = (byte) fromCalendar.get(Calendar.DAY_OF_MONTH);
 		//             bDOW = (byte)fromCalendar.get(Calendar.DAY_OF_WEEK);
 		//             intreq[CAPTURE_FROM_OFFSET+6]=bDOW--==1?(byte)7:bDOW;
-		intreq[CAPTURE_FROM_OFFSET+6]=(byte)0xff;
-		intreq[CAPTURE_FROM_OFFSET+7]=(byte)fromCalendar.get(Calendar.HOUR_OF_DAY);
-		intreq[CAPTURE_FROM_OFFSET+8]=(byte)fromCalendar.get(Calendar.MINUTE);
+		intreq[CAPTURE_FROM_OFFSET + 6] = (byte) 0xff;
+		intreq[CAPTURE_FROM_OFFSET + 7] = (byte) fromCalendar.get(Calendar.HOUR_OF_DAY);
+		intreq[CAPTURE_FROM_OFFSET + 8] = (byte) fromCalendar.get(Calendar.MINUTE);
 		//             intreq[CAPTURE_FROM_OFFSET+9]=(byte)fromCalendar.get(Calendar.SECOND);
 
 		if (this.protocolLink.getMeterConfig().isIskra()) {
-			intreq[CAPTURE_FROM_OFFSET+9]=0;
+			intreq[CAPTURE_FROM_OFFSET + 9] = 0;
 		} else {
-			intreq[CAPTURE_FROM_OFFSET+9]=0x01;
+			intreq[CAPTURE_FROM_OFFSET + 9] = 0x01;
 		}
 
-		intreq[CAPTURE_FROM_OFFSET+10]=(byte)0xFF;
-		intreq[CAPTURE_FROM_OFFSET+11]=(byte)0x80;
-		intreq[CAPTURE_FROM_OFFSET+12]=0x00;
+		intreq[CAPTURE_FROM_OFFSET + 10] = (byte) 0xFF;
+		intreq[CAPTURE_FROM_OFFSET + 11] = (byte) 0x80;
+		intreq[CAPTURE_FROM_OFFSET + 12] = 0x00;
+
 		if (this.protocolLink.getTimeZone().inDaylightTime(fromCalendar.getTime())) {
-			intreq[CAPTURE_FROM_OFFSET+13]=(byte)0x80;
+			intreq[CAPTURE_FROM_OFFSET + 13] = (byte) 0x80;
 		} else {
-			intreq[CAPTURE_FROM_OFFSET+13]=0x00;
+			intreq[CAPTURE_FROM_OFFSET + 13] = 0x00;
 		}
 
-
-
-		intreq[CAPTURE_TO_OFFSET]=TYPEDESC_OCTET_STRING;
-		intreq[CAPTURE_TO_OFFSET+1]=12; // length
-		intreq[CAPTURE_TO_OFFSET+2]=(byte)(toCalendar.get(Calendar.YEAR) >> 8);
-		intreq[CAPTURE_TO_OFFSET+3]=(byte)toCalendar.get(Calendar.YEAR);
-		intreq[CAPTURE_TO_OFFSET+4]=(byte)(toCalendar.get(Calendar.MONTH)+1);
-		intreq[CAPTURE_TO_OFFSET+5]=(byte)toCalendar.get(Calendar.DAY_OF_MONTH);
+		intreq[CAPTURE_TO_OFFSET] = TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_TO_OFFSET + 1] = 12; // length
+		intreq[CAPTURE_TO_OFFSET + 2] = (byte) (toCalendar.get(Calendar.YEAR) >> 8);
+		intreq[CAPTURE_TO_OFFSET + 3] = (byte) toCalendar.get(Calendar.YEAR);
+		intreq[CAPTURE_TO_OFFSET + 4] = (byte) (toCalendar.get(Calendar.MONTH) + 1);
+		intreq[CAPTURE_TO_OFFSET + 5] = (byte) toCalendar.get(Calendar.DAY_OF_MONTH);
 		//             bDOW = (byte)toCalendar.get(Calendar.DAY_OF_WEEK);
 		//             intreq[CAPTURE_TO_OFFSET+6]=bDOW--==1?(byte)7:bDOW;
-		intreq[CAPTURE_TO_OFFSET+6]=(byte)0xFF;
-		intreq[CAPTURE_TO_OFFSET+7]=(byte)toCalendar.get(Calendar.HOUR_OF_DAY);
-		intreq[CAPTURE_TO_OFFSET+8]=(byte)toCalendar.get(Calendar.MINUTE);
+		intreq[CAPTURE_TO_OFFSET + 6] = (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 7] = (byte) toCalendar.get(Calendar.HOUR_OF_DAY);
+		intreq[CAPTURE_TO_OFFSET + 8] = (byte) toCalendar.get(Calendar.MINUTE);
 		//             intreq[CAPTURE_TO_OFFSET+9]=(byte)toCalendar.get(Calendar.SECOND);
-		intreq[CAPTURE_TO_OFFSET+9]=0x00;
-		intreq[CAPTURE_TO_OFFSET+10]=(byte)0xFF;
-		intreq[CAPTURE_TO_OFFSET+11]=(byte)0x80;
-		intreq[CAPTURE_TO_OFFSET+12]=0x00;
-		if (this.protocolLink.getTimeZone().inDaylightTime(toCalendar.getTime())) {
-			intreq[CAPTURE_TO_OFFSET+13]=(byte)0x80;
-		} else {
-			intreq[CAPTURE_TO_OFFSET+13]=0x00;
-		}
+		intreq[CAPTURE_TO_OFFSET + 9] = 0x00;
+		intreq[CAPTURE_TO_OFFSET + 10] = (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 11] = (byte) 0x80;
+		intreq[CAPTURE_TO_OFFSET + 12] = 0x00;
 
+		if (this.protocolLink.getTimeZone().inDaylightTime(toCalendar.getTime())) {
+			intreq[CAPTURE_TO_OFFSET + 13] = (byte) 0x80;
+		} else {
+			intreq[CAPTURE_TO_OFFSET + 13] = 0x00;
+		}
 
 		return intreq;
 	}
 
+	/**
+	 * @param responseData
+	 * @return
+	 * @throws IOException
+	 */
 	protected UniversalObject[] data2UOL(byte[] responseData) throws IOException {
-		long lNrOfItemsInArray=0;
+		long lNrOfItemsInArray = 0;
 		int itemInArray;
-		byte bOffset=0;
-		short sBaseName,sClassID;
-		byte A,B,C,D,E,F;
-		int t=0,iFieldIndex;
-		UniversalObject[] universalObject=null;
-		int level=0;
-		if (DEBUG>=1) {
-			System.out.println("KV_DEBUG> responseData="+ProtocolUtils.outputHexString(responseData));
-		}
+		byte bOffset = 0;
+		short sBaseName, sClassID;
+		byte A, B, C, D, E, F;
+		int t = 0, iFieldIndex;
+		UniversalObject[] universalObject = null;
+		int level = 0;
+		LogFactory.getLog(getClass()).debug("KV_DEBUG> responseData=" + ProtocolUtils.outputHexString(responseData));
 		List values = new ArrayList();
 		try {
 
 			if (responseData[0] == TYPEDESC_ARRAY) {
 				if ((responseData[1] & 0x80) != 0) {
-					bOffset = (byte)(responseData[1]&(byte)0x7F);
-					for (int i=0;i<bOffset;i++) {
+					bOffset = (byte) (responseData[1] & (byte) 0x7F);
+					for (int i = 0; i < bOffset; i++) {
 						lNrOfItemsInArray = lNrOfItemsInArray << 8;
-						lNrOfItemsInArray |= ((long)responseData[2+i]& 0x000000ff);
+						lNrOfItemsInArray |= ((long) responseData[2 + i] & 0x000000ff);
 					}
 				} else {
-					lNrOfItemsInArray = (long)responseData[1] & 0x000000FF;
+					lNrOfItemsInArray = (long) responseData[1] & 0x000000FF;
 				}
 
 				if (lNrOfItemsInArray == 0) {
 					this.protocolLink.getLogger().warning("DLMSZMD: No new profile data.");
 				}
-				universalObject = new UniversalObject[(int)lNrOfItemsInArray];
+				universalObject = new UniversalObject[(int) lNrOfItemsInArray];
 
-				t = 2+bOffset;
-				for (itemInArray=0; itemInArray<lNrOfItemsInArray;itemInArray++) {
+				t = 2 + bOffset;
+				for (itemInArray = 0; itemInArray < lNrOfItemsInArray; itemInArray++) {
 
-					if (DEBUG>=1) {
-						System.out.println("KV_DEBUG> itemInArray="+itemInArray);
-					}
+					LogFactory.getLog(getClass()).debug("KV_DEBUG> itemInArray=" + itemInArray);
 
 					if (responseData[t] == TYPEDESC_STRUCTURE) {
-						if (DEBUG>=1) {
-							System.out.println("KV_DEBUG> TYPEDESC_STRUCTURE");
-						}
+						LogFactory.getLog(getClass()).debug("KV_DEBUG> TYPEDESC_STRUCTURE");
 						int iNROfItems;
-						int iIndex=0;
+						int iIndex = 0;
 
 						t++; // skip structure tag
 						iNROfItems = responseData[t];
@@ -1086,75 +1188,50 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 						values.clear();
 
-						for (iFieldIndex=0;iFieldIndex<iNROfItems;iFieldIndex++) {
-
-							if (DEBUG>=1) {
-								System.out.println("KV_DEBUG> iFieldIndex="+iFieldIndex);
-							}
-
-							if ((responseData[t] == TYPEDESC_LONG) ||
-									(responseData[t] == TYPEDESC_LONG_UNSIGNED)) {
-								if (DEBUG>=1) {
-									System.out.println("KV_DEBUG> TYPEDESC_LONG | TYPEDESC_LONG_UNSIGNED");
-								}
+						for (iFieldIndex = 0; iFieldIndex < iNROfItems; iFieldIndex++) {
+							LogFactory.getLog(getClass()).debug("KV_DEBUG> iFieldIndex=" + iFieldIndex);
+							if ((responseData[t] == TYPEDESC_LONG) || (responseData[t] == TYPEDESC_LONG_UNSIGNED)) {
+								LogFactory.getLog(getClass()).debug("KV_DEBUG> TYPEDESC_LONG | TYPEDESC_LONG_UNSIGNED");
 								t++; // skip tag
-								values.add(new Long((long)ProtocolUtils.getShort(responseData,t) & 0x0000FFFF));
-								t+=2; // skip (unsigned) long (2byte) value
-							}
-							else if ((responseData[t] == TYPEDESC_OCTET_STRING) ||
-									(responseData[t] == TYPEDESC_VISIBLE_STRING)) {
-								if (DEBUG>=1) {
-									System.out.println("KV_DEBUG> TYPEDESC_OCTET_STRING | TYPEDESC_VISIBLE_STRING");
-								}
+								values.add(new Long((long) ProtocolUtils.getShort(responseData, t) & 0x0000FFFF));
+								t += 2; // skip (unsigned) long (2byte) value
+							} else if ((responseData[t] == TYPEDESC_OCTET_STRING) || (responseData[t] == TYPEDESC_VISIBLE_STRING)) {
+								LogFactory.getLog(getClass()).debug("KV_DEBUG> TYPEDESC_OCTET_STRING | TYPEDESC_VISIBLE_STRING");
 								t++; // skip tag
 								int iLength = responseData[t];
 								t++; // skip length byte
 								int temp;
-								for (temp=0;temp<iLength;temp++) {
-									values.add(new Long((long)responseData[t+temp]&0x000000FF));
+								for (temp = 0; temp < iLength; temp++) {
+									values.add(new Long((long) responseData[t + temp] & 0x000000FF));
 								}
-								t+=iLength; // skip string, iLength bytes
-							}
-							else if ((responseData[t] == TYPEDESC_DOUBLE_LONG_UNSIGNED) ||
-									(responseData[t] == TYPEDESC_DOUBLE_LONG)) {
-								if (DEBUG>=1) {
-									System.out.println("KV_DEBUG> TYPEDESC_DOUBLE_LONG_UNSIGNED | TYPEDESC_DOUBLE_LONG");
-								}
+								t += iLength; // skip string, iLength bytes
+							} else if ((responseData[t] == TYPEDESC_DOUBLE_LONG_UNSIGNED) || (responseData[t] == TYPEDESC_DOUBLE_LONG)) {
+								LogFactory.getLog(getClass()).debug("KV_DEBUG> TYPEDESC_DOUBLE_LONG_UNSIGNED | TYPEDESC_DOUBLE_LONG");
 								t++; // skip tag
-								values.add(new Long(ProtocolUtils.getInt(responseData,t)));
-								t+=4; // skip double unsigned long (4byte) value
-							}
-							else if ((responseData[t] == TYPEDESC_BOOLEAN) ||
-									(responseData[t] == TYPEDESC_INTEGER) ||
-									(responseData[t] == TYPEDESC_UNSIGNED)) {
-								if (DEBUG>=1) {
-									System.out.println("KV_DEBUG> TYPEDESC_BOOLEAN | TYPEDESC_INTEGER | TYPEDESC_UNSIGNED");
-								}
+								values.add(new Long(ProtocolUtils.getInt(responseData, t)));
+								t += 4; // skip double unsigned long (4byte) value
+							} else if ((responseData[t] == TYPEDESC_BOOLEAN) || (responseData[t] == TYPEDESC_INTEGER) || (responseData[t] == TYPEDESC_UNSIGNED)) {
+								LogFactory.getLog(getClass()).debug("KV_DEBUG> TYPEDESC_BOOLEAN | TYPEDESC_INTEGER | TYPEDESC_UNSIGNED");
 								t++; // skip tag
-								values.add(new Long((long)responseData[t]&0x000000FF));
+								values.add(new Long((long) responseData[t] & 0x000000FF));
 								t++; // skip (1byte) value
 							}
 							// KV 29072004
 							else if (responseData[t] == TYPEDESC_LONG64) {
-								if (DEBUG>=1) {
-									System.out.println("KV_DEBUG> TYPEDESC_LONG64");
-								}
+								LogFactory.getLog(getClass()).debug("KV_DEBUG> TYPEDESC_LONG64");
 								t++; // skip tag
-								values.add(new Long(ProtocolUtils.getLong(responseData,t))); // KV 09/10/2006
-								t+=8; // skip double unsigned long (8byte) value
-							}
-							else if (responseData[t] == TYPEDESC_STRUCTURE) {
-								if (DEBUG>=1) {
-									System.out.println("KV_DEBUG> TYPEDESC_STRUCTURE");
-								}
-								t=skipStructure(responseData,t);
+								values.add(new Long(ProtocolUtils.getLong(responseData, t))); // KV 09/10/2006
+								t += 8; // skip double unsigned long (8byte) value
+							} else if (responseData[t] == TYPEDESC_STRUCTURE) {
+								LogFactory.getLog(getClass()).debug("KV_DEBUG> TYPEDESC_STRUCTURE");
+								t = skipStructure(responseData, t);
 							} else {
 								throw new IOException("Error parsing objectlistdata, unknown type.");
 							}
 
 						} // for (iFieldIndex=0;iFieldIndex<universalObject[(int)i].lFields.length;iFieldIndex++)
 
-						universalObject[itemInArray] = new UniversalObject(values,this.protocolLink.getReference());
+						universalObject[itemInArray] = new UniversalObject(values, this.protocolLink.getReference());
 
 					} // if (responseData[t] == TYPEDESC_STRUCTURE)  // structure
 					else {
@@ -1167,73 +1244,58 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 			else {
 				throw new IOException("Error parsing objectlistdata, no array found.");
 			}
-		}
-		catch(ArrayIndexOutOfBoundsException e) {
-			if (DEBUG>=1) {
-				e.printStackTrace();
-			}
-
-			throw new IOException("Error bad data received, index out of bounds, datalength="+responseData.length+", lNrOfItemsInArray="+lNrOfItemsInArray+", t="+t+", bOffset="+bOffset);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new IOException("Error bad data received, index out of bounds, datalength=" + responseData.length + ", lNrOfItemsInArray="
+					+ lNrOfItemsInArray + ", t=" + t + ", bOffset=" + bOffset);
 		}
 		return universalObject;
 
-	} // private UniversalObject[] Data2UOL(byte[] responseData) throws IOException
+	}
 
-	private int skipStructure(byte[] responseData,int t) throws IOException {
+	/**
+	 * @param responseData
+	 * @param t
+	 * @return
+	 * @throws IOException
+	 */
+	private int skipStructure(byte[] responseData, int t) throws IOException {
 
-
-		int level=0;
-		long elementsInArray=0;
+		int level = 0;
+		long elementsInArray = 0;
 		int[] membersInStructure = new int[10]; // max structure depth = 10!!!!
 		t++; //skip structure tag
 		membersInStructure[level] = responseData[t];
 		t++; // skip structure nr of members
-		while((level>0) || ((level==0) && (membersInStructure[level]>0))) {
-			if ((responseData[t] == TYPEDESC_LONG) ||
-					(responseData[t] == TYPEDESC_LONG_UNSIGNED)) {
+		while ((level > 0) || ((level == 0) && (membersInStructure[level] > 0))) {
+			if ((responseData[t] == TYPEDESC_LONG) || (responseData[t] == TYPEDESC_LONG_UNSIGNED)) {
 				t++; // skip tag
-				t+=2; // skip (unsigned) long (2byte) value
+				t += 2; // skip (unsigned) long (2byte) value
 				membersInStructure[level]--;
-				if (DEBUG>=1) {
-					System.out.println("KV_DEBUG> skipStructure (t="+t+"), TYPEDESC_LONG | TYPEDESC_LONG_UNSIGNED, level="+level);
-				}
-			}
-			else if ((responseData[t] == TYPEDESC_OCTET_STRING) ||
-					(responseData[t] == TYPEDESC_VISIBLE_STRING)) {
+				LogFactory.getLog(getClass()).debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_LONG | TYPEDESC_LONG_UNSIGNED, level=" + level);
+			} else if ((responseData[t] == TYPEDESC_OCTET_STRING) || (responseData[t] == TYPEDESC_VISIBLE_STRING)) {
 				t++; // skip tag
-				t+=(responseData[t]+1); // skip string, iLength bytes
+				t += (responseData[t] + 1); // skip string, iLength bytes
 				membersInStructure[level]--;
-				if (DEBUG>=1) {
-					System.out.println("KV_DEBUG> skipStructure (t="+t+"), TYPEDESC_OCTET_STRING | TYPEDESC_VISIBLE_STRING, level="+level);
-				}
-			}
-			else if ((responseData[t] == TYPEDESC_DOUBLE_LONG_UNSIGNED) ||
-					(responseData[t] == TYPEDESC_DOUBLE_LONG)) {
+				LogFactory.getLog(getClass()).debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_OCTET_STRING | TYPEDESC_VISIBLE_STRING, level=" + level);
+			} else if ((responseData[t] == TYPEDESC_DOUBLE_LONG_UNSIGNED) || (responseData[t] == TYPEDESC_DOUBLE_LONG)) {
 				t++; // skip tag
-				t+=4; // skip double unsigned long (4byte) value
+				t += 4; // skip double unsigned long (4byte) value
 				membersInStructure[level]--;
-				if (DEBUG>=1) {
-					System.out.println("KV_DEBUG> skipStructure (t="+t+"), TYPEDESC_DOUBLE_LONG_UNSIGNED | TYPEDESC_DOUBLE_LONG, level="+level);
-				}
-			}
-			else if ((responseData[t] == TYPEDESC_BOOLEAN) ||
-					(responseData[t] == TYPEDESC_INTEGER) ||
-					(responseData[t] == TYPEDESC_UNSIGNED)) {
+				LogFactory.getLog(getClass()).debug(
+						"KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_DOUBLE_LONG_UNSIGNED | TYPEDESC_DOUBLE_LONG, level=" + level);
+			} else if ((responseData[t] == TYPEDESC_BOOLEAN) || (responseData[t] == TYPEDESC_INTEGER) || (responseData[t] == TYPEDESC_UNSIGNED)) {
 				t++; // skip tag
 				t++; // skip (1byte) value
 				membersInStructure[level]--;
-				if (DEBUG>=1) {
-					System.out.println("KV_DEBUG> skipStructure (t="+t+"), TYPEDESC_BOOLEAN | TYPEDESC_INTEGER | TYPEDESC_UNSIGNED, level="+level);
-				}
+				LogFactory.getLog(getClass()).debug(
+						"KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_BOOLEAN | TYPEDESC_INTEGER | TYPEDESC_UNSIGNED, level=" + level);
 			}
 			// KV 28072004
 			else if (responseData[t] == TYPEDESC_LONG64) {
 				t++; // skip tag
-				t+=8; // skip (8byte) value
+				t += 8; // skip (8byte) value
 				membersInStructure[level]--;
-				if (DEBUG>=1) {
-					System.out.println("KV_DEBUG> skipStructure (t="+t+"), TYPEDESC_LONG64, level="+level);
-				}
+				LogFactory.getLog(getClass()).debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_LONG64, level=" + level);
 			}
 			// Skip the access rights structure in case of long name referencing...
 			else if (responseData[t] == TYPEDESC_STRUCTURE) {
@@ -1242,53 +1304,44 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				level++;
 				membersInStructure[level] = responseData[t];
 				t++; // skip nr of members
-				if (DEBUG>=1) {
-					System.out.println("KV_DEBUG> skipStructure (t="+t+"), TYPEDESC_STRUCTURE, level="+level);
-				}
-			}
-			else if (responseData[t] == TYPEDESC_ARRAY) {
+				LogFactory.getLog(getClass()).debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_STRUCTURE, level=" + level);
+			} else if (responseData[t] == TYPEDESC_ARRAY) {
 				t++; // skip array tag
-				int offset=0;
+				int offset = 0;
 				if ((responseData[t] & 0x80) != 0) {
-					offset = (int)(responseData[t+1]&(byte)0x7F);
-					for (int i=0;i<offset;i++) {
+					offset = (int) (responseData[t + 1] & (byte) 0x7F);
+					for (int i = 0; i < offset; i++) {
 						elementsInArray = elementsInArray << 8;
-						elementsInArray |= ((long)responseData[t+2+(int)i]& 0x000000ff);
+						elementsInArray |= ((long) responseData[t + 2 + (int) i] & 0x000000ff);
 					}
 				} else {
-					elementsInArray = (long)responseData[t] & 0x000000FF;
+					elementsInArray = (long) responseData[t] & 0x000000FF;
 				}
-				t += (offset+1); // skip nr of elements
+				t += (offset + 1); // skip nr of elements
 
 				membersInStructure[level]--;
 				level++;
-				membersInStructure[level] = (int)elementsInArray;
+				membersInStructure[level] = (int) elementsInArray;
 
-				if (DEBUG>=1) {
-					System.out.println("KV_DEBUG> skipStructure (t="+t+"), TYPEDESC_ARRAY, level="+level+", elementsInArray="+elementsInArray);
-				}
-			}
-			else if (responseData[t] == TYPEDESC_NULL) {
+				LogFactory.getLog(getClass()).debug(
+						"KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_ARRAY, level=" + level + ", elementsInArray=" + elementsInArray);
+			} else if (responseData[t] == TYPEDESC_NULL) {
 				t++; // skip tag
 				membersInStructure[level]--;
-				if (DEBUG>=1) {
-					System.out.println("KV_DEBUG> skipStructure (t="+t+"), TYPEDESC_NULL, level="+level);
-				}
+				LogFactory.getLog(getClass()).debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_NULL, level=" + level);
 			}
 			// KV 05042007
-			else if (responseData[t] ==TYPEDESC_ENUM) {
+			else if (responseData[t] == TYPEDESC_ENUM) {
 				t++; // skip tag
 				t++; // skip (1byte) value
 				membersInStructure[level]--;
-				if (DEBUG>=1) {
-					System.out.println("KV_DEBUG> skipStructure (t="+t+"), TYPEDESC_ENUM, level="+level);
-				}
+				LogFactory.getLog(getClass()).debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_ENUM, level=" + level);
 			} else {
-				throw new IOException("AbsrtactCosemObject, skipStructure, Error parsing objectlistdata, unknown response tag "+responseData[t]);
+				throw new IOException("AbsrtactCosemObject, skipStructure, Error parsing objectlistdata, unknown response tag " + responseData[t]);
 			}
 
 			// if all members of a structure are handled, decrement level...
-			while(level>0) {
+			while (level > 0) {
 				if (membersInStructure[level] == 0) {
 					level--;
 				} else {
@@ -1300,15 +1353,21 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 		return t;
 
-	} // private int skipStructure(byte[] responseData,int t) throws IOException
+	}
 
-	protected ObjectReference getObjectReference(byte[] ln,int sn) throws IOException {
+	/**
+	 * @param ln
+	 * @param sn
+	 * @return
+	 * @throws IOException
+	 */
+	protected ObjectReference getObjectReference(byte[] ln, int sn) throws IOException {
 		if (this.protocolLink.getReference() == ProtocolLink.LN_REFERENCE) {
 			return new ObjectReference(ln);
 		} else if (this.protocolLink.getReference() == ProtocolLink.SN_REFERENCE) {
 			return new ObjectReference(sn);
 		}
-		throw new IOException("AbstractCosemObject, getObjectReference, invalid reference type "+this.protocolLink.getReference());
+		throw new IOException("AbstractCosemObject, getObjectReference, invalid reference type " + this.protocolLink.getReference());
 	}
 
 	/**
