@@ -33,10 +33,12 @@ public class Clock extends AbstractCosemObject {
 	private static final int DEBUG = 0;
 
     /** Method ID of the shift_clock method. */
-    private static final int METHODID_SHIFT_TIME = 6;
+	private static final int	METHODID_SHIFT_TIME		= 6;
+	private static final int	METHODID_SHIFT_TIME_SN	= 0x88;
 
     /** Long name of the clock object as defined in the spec. */
     private static final byte[] LN = new byte[] { 0, 0, 1, 0, 0, (byte)255 };
+
 
     Date dateTime;
     boolean dateTimeCached=false;
@@ -277,6 +279,10 @@ public class Clock extends AbstractCosemObject {
     		throw new IllegalArgumentException("Offset must be between -" + MAX_TIME_SHIFT_SECONDS + " and " + MAX_TIME_SHIFT_SECONDS + " seconds (inclusive) (DLMS blue book 4.5.1), you specified [" + offset + "]");
     	}
 
-    	this.invoke(METHODID_SHIFT_TIME, new Integer16(offset).getBEREncodedByteArray());
+    	if (getObjectReference().isLNReference()) {
+    		this.invoke(METHODID_SHIFT_TIME, new Integer16(offset).getBEREncodedByteArray());
+		} else {
+    		this.invoke(METHODID_SHIFT_TIME_SN, new Integer16(offset).getBEREncodedByteArray());
+    	}
     }
 }
