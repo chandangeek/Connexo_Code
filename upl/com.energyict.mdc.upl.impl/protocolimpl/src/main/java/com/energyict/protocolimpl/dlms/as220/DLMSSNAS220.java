@@ -287,7 +287,6 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 	 * @throws IOException
 	 */
 	private void checkCache() throws IOException {
-        System.out.println("cache="+dlmsCache.getObjectList()+", confchange="+dlmsCache.getConfProgChange()+", ischanged="+dlmsCache.isChanged());
 		try { // conf program change and object list stuff
 		    int iConf;
 		    if (dlmsCache.getObjectList() != null) {

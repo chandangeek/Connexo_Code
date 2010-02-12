@@ -97,7 +97,7 @@ public class AS220Main {
 		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
 		properties.setProperty("ProfileInterval", "900");
 		properties.setProperty("Password", "00000000");
-		properties.setProperty("SerialNumber", "35015023");
+		properties.setProperty("SerialNumber", "35021370");
 
 		properties.setProperty("AddressingMode", "-1");
 		properties.setProperty("Connection", "3");
@@ -190,9 +190,13 @@ public class AS220Main {
 			getAs220().getTime();
 			getAs220().setTime();
 
+			readProfile(true);
+
 			rescanPLCBus();
 
 			readSFSKObjects();
+
+			readRegisters();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -210,9 +214,9 @@ public class AS220Main {
 	 */
 	private static void readSFSKObjects() throws IOException {
 		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.0.0.255")) + "\r\n");
-//		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.1.0.255")) + "\r\n");
-//		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.2.0.255")) + "\r\n");
-//		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.3.0.255")) + "\r\n");
+		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.1.0.255")) + "\r\n");
+		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.2.0.255")) + "\r\n");
+		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.3.0.255")) + "\r\n");
 	}
 
 	private static void examineObisCode(ObisCode obisCode) {
