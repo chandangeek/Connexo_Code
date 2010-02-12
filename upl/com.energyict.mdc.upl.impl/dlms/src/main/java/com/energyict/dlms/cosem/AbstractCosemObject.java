@@ -140,10 +140,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				// so, only for attribute = 8 or a multiple of 8 can be a problem....
 				if ((attribute < 8) || ((attribute % 8) != 0)) {
 					attribute = (attribute - 1) * 8;
-					byte[] data2 = new byte[data.length + 1];
-					System.arraycopy(data, 0, data2, 1, data.length);
-					data = data2;
-					data[0] = 0x01;
 				}
 
 				byte[] request = buildWriteRequest((short) this.objectReference.getSn(), attribute, data);
