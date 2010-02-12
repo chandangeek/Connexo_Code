@@ -92,7 +92,7 @@ public class AS220Main {
 
 		properties.setProperty("Retries", "5");
 		properties.setProperty("Timeout", "20000");
-		properties.setProperty("ForcedDelay", "750");
+		//properties.setProperty("ForcedDelay", "500");
 
 		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
 		properties.setProperty("ProfileInterval", "900");
@@ -113,7 +113,7 @@ public class AS220Main {
 
 	public static void readProfile(boolean incluideEvents) throws IOException {
 		Calendar from = Calendar.getInstance(DEFAULT_TIMEZONE);
-		from.add(Calendar.HOUR, -4);
+		from.add(Calendar.DAY_OF_YEAR, -10);
 		log(getAs220().getProfileData(from.getTime(), incluideEvents));
 	}
 
@@ -168,12 +168,12 @@ public class AS220Main {
 
 	public static void main(String[] args) throws LinkException, IOException, InterruptedException {
 
-//		getDialer().init(COMPORT);
-//		getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
-//		getDialer().connect();
+		getDialer().init(COMPORT);
+		getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
+		getDialer().connect();
 
-		getDialer().init("10.0.2.127:10010");
-		getDialer().connect("10.0.2.127:10010", 10010);
+//		getDialer().init("10.0.2.127:10010");
+//		getDialer().connect("10.0.2.127:10010", 10010);
 
 //		getDialer().init("linux2:10010");
 //		getDialer().connect("linux2:10010", 10010);
@@ -183,10 +183,16 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.0.0.255")) + "\r\n");
-			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.1.0.255")) + "\r\n");
-			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.2.0.255")) + "\r\n");
-			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.3.0.255")) + "\r\n");
+			getAs220().geteMeter().getContactorController().doConnect();
+			getAs220().geteMeter().getContactorController().doDisconnect();
+			getAs220().geteMeter().getContactorController().doConnect();
+
+			getAs220().getTime();
+			getAs220().setTime();
+
+			rescanPLCBus();
+
+			readSFSKObjects();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -197,6 +203,16 @@ public class AS220Main {
 			getDialer().disConnect();
 		}
 
+	}
+
+	/**
+	 * @throws IOException
+	 */
+	private static void readSFSKObjects() throws IOException {
+		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.0.0.255")) + "\r\n");
+//		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.1.0.255")) + "\r\n");
+//		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.2.0.255")) + "\r\n");
+//		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.3.0.255")) + "\r\n");
 	}
 
 	private static void examineObisCode(ObisCode obisCode) {

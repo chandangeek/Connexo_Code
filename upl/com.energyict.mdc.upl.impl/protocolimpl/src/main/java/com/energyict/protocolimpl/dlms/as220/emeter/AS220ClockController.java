@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.commons.logging.LogFactory;
+
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.obis.ObisCode;
@@ -117,7 +119,6 @@ public class AS220ClockController implements ClockController {
 	}
 
 	public void shiftTime(Date date) throws IOException {
-		Date started = new Date();
 		Date meterTime = getTime();
 		Date endDate = new Date();
 		int shiftValue = (int) ((endDate.getTime() - meterTime.getTime()) / 1000);
@@ -128,9 +129,11 @@ public class AS220ClockController implements ClockController {
 			shiftValue = MIN_SHIFT_VALUE;
 		}
 
-		System.out.println(shiftValue);
 		if (shiftValue == 0) {
+			LogFactory.getLog(getClass()).info("Skipping shiftTime. Time is up to date. (shiftValue=0)");
 			return;
+		} else {
+			LogFactory.getLog(getClass()).debug("Shifting time " + shiftValue + " seconds.");
 		}
 
 		getAs220().getCosemObjectFactory().getClock(CLOCK_OBISCODE).shiftTime(shiftValue);
