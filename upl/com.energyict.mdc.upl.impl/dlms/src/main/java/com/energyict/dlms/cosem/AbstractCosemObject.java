@@ -1,10 +1,10 @@
 /*
  * AbstractCosemObject.java
- *
  * Created on 18 augustus 2004, 11:57
  */
 
 package com.energyict.dlms.cosem;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -20,19 +20,21 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ReceiveBuffer;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.protocol.ProtocolUtils;
+
 /**
- *
- * @author  Koen
+ * @author Koen
  */
 public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
-	private static final byte READRESPONSE_DATA_TAG=0;
-	private static final byte READRESPONSE_DATAACCESSERROR_TAG=1;
-	private static final byte READRESPONSE_DATABLOCK_RESULT_TAG=2;
+	private static final boolean	DEBUG								= false;
 
-	protected ProtocolLink		protocolLink	= null;
-	private ObjectReference		objectReference	= null;
-	private byte				invokeIdAndPriority;
+	private static final byte		READRESPONSE_DATA_TAG				= 0;
+	private static final byte		READRESPONSE_DATAACCESSERROR_TAG	= 1;
+	private static final byte		READRESPONSE_DATABLOCK_RESULT_TAG	= 2;
+
+	protected ProtocolLink			protocolLink						= null;
+	private ObjectReference			objectReference						= null;
+	private byte					invokeIdAndPriority;
 
 	/**
 	 * Getter for the dlms class id
@@ -195,7 +197,8 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	}
 
 	/**
-	 * Build up the request, send it to the device and return the checked response data as byte[]
+	 * Build up the request, send it to the device and return the checked
+	 * response data as byte[]
 	 *
 	 * @param attribute - the DLMS attribute id
 	 * @param from - the from date as {@link Calendar}
@@ -515,16 +518,15 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 								i += 2; // skip the tricky read response sequence of choice and data encoding 0100
 							}
 
-							LogFactory.getLog(getClass()).debug(
-									"last block=" + boolLastBlock + ", blockNumber=" + iBlockNumber + ", blockSize=" + iBlockSize + ", offset=" + i);
+							debug("last block=" + boolLastBlock + ", blockNumber=" + iBlockNumber + ", blockSize=" + iBlockSize + ", offset=" + i);
 
 							receiveBuffer.addArray(responseData, i);
 
 							if (!boolLastBlock) {
 								try {
-									LogFactory.getLog(getClass()).debug("Acknowledge block " + iBlockNumber);
+									debug("Acknowledge block " + iBlockNumber);
 									responseData = this.protocolLink.getDLMSConnection().sendRequest(buildReadRequestNext(iBlockNumber));
-									LogFactory.getLog(getClass()).debug("next response data = " + ProtocolUtils.outputHexString(responseData));
+									debug("next response data = " + ProtocolUtils.outputHexString(responseData));
 								} catch (IOException e) {
 									throw new NestedIOException(e, "Error in COSEM_GETRESPONSE_WITH_DATABLOCK");
 								}
@@ -596,7 +598,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 								{
 									i++;
 									evalDataAccessResult(responseData[i]);
-									//LogFactory.getLog(getClass()).debug("Data access result OK");
+									//debug("Data access result OK");
 
 								}
 									break; // data-access-result
@@ -652,7 +654,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 								{
 									i++;
 									evalDataAccessResult(responseData[i]);
-									//LogFactory.getLog(getClass()).debug("Data access result OK");
+									//debug("Data access result OK");
 
 								}
 									break; // data-access-result
@@ -700,7 +702,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 									{
 										i++;
 										evalDataAccessResult(responseData[i]);
-										//LogFactory.getLog(getClass()).debug("Data access result OK");
+										//debug("Data access result OK");
 
 									}
 										break; // data-access-result
@@ -790,7 +792,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 								{
 									i++;
 									evalDataAccessResult(responseData[i]);
-									//LogFactory.getLog(getClass()).debug("Data access result OK");
+									//debug("Data access result OK");
 
 								}
 									break; // data-access-result
@@ -831,99 +833,164 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 * @return
 	 */
 	private String getServiceError(byte b, byte c) {
-		switch(b){
-		case 0:{ // Application-reference
-			switch(c){
-			case 0 : return "Application-reference - Other";
-			case 1 : return "Application-reference - Time out since request sent";
-			case 2 : return "Application-reference - Peer AEi not reachable";
-			case 3 : return "Application-reference - Addressing trouble";
-			case 4 : return "Application-reference - Application-context incompatibility";
-			case 5 : return "Application-reference - Error at the local or distant equipment";
-			case 6 : return "Application-reference - Error detected by the deciphering function";
-			}; break ;
-		}
-		case 1:{ // Hardware-resource
-			switch(c){
-			case 0 : return "Hardware-resource - Other";
-			case 1 : return "Hardware-resource - Memory unavailable";
-			case 2 : return "Hardware-resource - Processor-resource unavailable";
-			case 3 : return "Hardware-resource - Mass-storage unavailable";
-			case 4 : return "Hardware-resource - Other resource unavailable";
-			}; break ;
-		}
-		case 2:{ // VDE-State-error
-			switch(c){
-			case 0 : return "VDE-State-error - Other";
-			case 1 : return "VDE-State-error - No DLMS context";
-			case 2 : return "VDE-State-error - Loading data-set";
-			case 3 : return "VDE-State-error - Status nochange";
-			case 4 : return "VDE-State-error - Status inoperable";
-			}; break ;
-		}
-		case 3:{ // Service
-			switch(c){
-			case 0: return "Service - Other";
-			case 1: return "Service - PDU size to long";
-			case 2: return "Service - Service unsupported";
-			}; break ;
-		}
-		case 4:{ // Definition
-			switch(c){
-			case 0: return "Definition - Other";
-			case 1: return "Definition - Object undefined";
-			case 2: return "Definition - Object class inconsistent";
-			case 3: return "Definition - Object attribute inconsistent";
-			}; break ;
-		}
-		case 5:{ // Access
-			switch(c){
-			case 0: return "Access - Other";
-			case 1: return "Access - Scope of access violated";
-			case 2: return "Access - Object access violated";
-			case 3: return "Access - Hardware-fault";
-			case 4: return "Access - Object unavailable";
-			}; break ;
-		}
-		case 6:{ // Initiate
-			switch(c){
-			case 0: return "Initiate - Other";
-			case 1: return "Initiate - DLMS version too low";
-			case 2: return "Initiate - Incompatible conformance";
-			case 3: return "Initiate - PDU size too short";
-			case 4: return "Initiate - Refused by the VDE Handler";
-			}; break ;
-		}
-		case 7:{ // Load-Data-Set
-			switch(c){
-			case 0: return "Load-Data-Set - Other";
-			case 1: return "Load-Data-Set - Primitive out of sequence";
-			case 2: return "Load-Data-Set - Not loadable";
-			case 3: return "Load-Data-Set - Evaluated data set size too large";
-			case 4: return "Load-Data-Set - Proposed segment not awaited";
-			case 5: return "Load-Data-Set - Segment interpretation error";
-			case 6: return "Load-Data-Set - Segment storage error";
-			case 7: return "Load-Data-Set - Data set not in correct state for uploading";
-			}; break ;
-		}
-		case 8:{ // Change scope
-			return "Change Scope";
-		}
-		case 9:{ // Task
-			switch(c){
-			case 0: return "Task - Other";
-			case 1: return "Task - Remote control parameter set to FALSE";
-			case 2: return "Task - TI in stopped state";
-			case 3: return "Task - TI in running state";
-			case 4: return "Task - TI in unusable state";
-			}; break ;
-		}
-		case 10:{ // Other
-			return "Other";
-		}
-		default:{
-			return "Other";
-		}
+		switch (b) {
+			case 0: { // Application-reference
+				switch (c) {
+					case 0:
+						return "Application-reference - Other";
+					case 1:
+						return "Application-reference - Time out since request sent";
+					case 2:
+						return "Application-reference - Peer AEi not reachable";
+					case 3:
+						return "Application-reference - Addressing trouble";
+					case 4:
+						return "Application-reference - Application-context incompatibility";
+					case 5:
+						return "Application-reference - Error at the local or distant equipment";
+					case 6:
+						return "Application-reference - Error detected by the deciphering function";
+				}
+				;
+				break;
+			}
+			case 1: { // Hardware-resource
+				switch (c) {
+					case 0:
+						return "Hardware-resource - Other";
+					case 1:
+						return "Hardware-resource - Memory unavailable";
+					case 2:
+						return "Hardware-resource - Processor-resource unavailable";
+					case 3:
+						return "Hardware-resource - Mass-storage unavailable";
+					case 4:
+						return "Hardware-resource - Other resource unavailable";
+				}
+				;
+				break;
+			}
+			case 2: { // VDE-State-error
+				switch (c) {
+					case 0:
+						return "VDE-State-error - Other";
+					case 1:
+						return "VDE-State-error - No DLMS context";
+					case 2:
+						return "VDE-State-error - Loading data-set";
+					case 3:
+						return "VDE-State-error - Status nochange";
+					case 4:
+						return "VDE-State-error - Status inoperable";
+				}
+				;
+				break;
+			}
+			case 3: { // Service
+				switch (c) {
+					case 0:
+						return "Service - Other";
+					case 1:
+						return "Service - PDU size to long";
+					case 2:
+						return "Service - Service unsupported";
+				}
+				;
+				break;
+			}
+			case 4: { // Definition
+				switch (c) {
+					case 0:
+						return "Definition - Other";
+					case 1:
+						return "Definition - Object undefined";
+					case 2:
+						return "Definition - Object class inconsistent";
+					case 3:
+						return "Definition - Object attribute inconsistent";
+				}
+				;
+				break;
+			}
+			case 5: { // Access
+				switch (c) {
+					case 0:
+						return "Access - Other";
+					case 1:
+						return "Access - Scope of access violated";
+					case 2:
+						return "Access - Object access violated";
+					case 3:
+						return "Access - Hardware-fault";
+					case 4:
+						return "Access - Object unavailable";
+				}
+				;
+				break;
+			}
+			case 6: { // Initiate
+				switch (c) {
+					case 0:
+						return "Initiate - Other";
+					case 1:
+						return "Initiate - DLMS version too low";
+					case 2:
+						return "Initiate - Incompatible conformance";
+					case 3:
+						return "Initiate - PDU size too short";
+					case 4:
+						return "Initiate - Refused by the VDE Handler";
+				}
+				;
+				break;
+			}
+			case 7: { // Load-Data-Set
+				switch (c) {
+					case 0:
+						return "Load-Data-Set - Other";
+					case 1:
+						return "Load-Data-Set - Primitive out of sequence";
+					case 2:
+						return "Load-Data-Set - Not loadable";
+					case 3:
+						return "Load-Data-Set - Evaluated data set size too large";
+					case 4:
+						return "Load-Data-Set - Proposed segment not awaited";
+					case 5:
+						return "Load-Data-Set - Segment interpretation error";
+					case 6:
+						return "Load-Data-Set - Segment storage error";
+					case 7:
+						return "Load-Data-Set - Data set not in correct state for uploading";
+				}
+				;
+				break;
+			}
+			case 8: { // Change scope
+				return "Change Scope";
+			}
+			case 9: { // Task
+				switch (c) {
+					case 0:
+						return "Task - Other";
+					case 1:
+						return "Task - Remote control parameter set to FALSE";
+					case 2:
+						return "Task - TI in stopped state";
+					case 3:
+						return "Task - TI in running state";
+					case 4:
+						return "Task - TI in unusable state";
+				}
+				;
+				break;
+			}
+			case 10: { // Other
+				return "Other";
+			}
+			default: {
+				return "Other";
+			}
 		}
 		return "";
 	}
@@ -937,9 +1004,9 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		if (toCalendar == null) {
 			return getBufferRangeDescriptorSL7000(fromCalendar);
 		} else if (this.protocolLink.getMeterConfig().isActarisPLCC()) {
-			return getBufferRangeDescriptorActarisPLCC(fromCalendar,toCalendar);
+			return getBufferRangeDescriptorActarisPLCC(fromCalendar, toCalendar);
 		} else {
-			return getBufferRangeDescriptorDefault(fromCalendar,toCalendar);
+			return getBufferRangeDescriptorDefault(fromCalendar, toCalendar);
 		}
 	}
 
@@ -948,52 +1015,56 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 * @param toCalendar
 	 * @return
 	 */
-	private byte[] getBufferRangeDescriptorActarisPLCC(Calendar fromCalendar,Calendar toCalendar) {
+	private byte[] getBufferRangeDescriptorActarisPLCC(Calendar fromCalendar, Calendar toCalendar) {
 
-		byte[] intreq={(byte)0x01, // range descriptor
-				(byte)0x02, // structure
-				(byte)0x04, // 4 items in structure
+		byte[] intreq = {
+				(byte) 0x01, // range descriptor
+				(byte) 0x02, // structure
+				(byte) 0x04, // 4 items in structure
 				// capture object definition
-				(byte)0x0F,(byte)0x00,
+				(byte) 0x0F,
+				(byte) 0x00,
 				// from value
-				(byte)0x09,(byte)0x0C,(byte)0x07,(byte)0xD2,(byte)0x05,(byte)23,(byte)0xFF,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xFF,(byte)0x80,(byte)0x00,(byte)0x00,
+				(byte) 0x09, (byte) 0x0C, (byte) 0x07, (byte) 0xD2, (byte) 0x05, (byte) 23, (byte) 0xFF, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xFF,
+				(byte) 0x80, (byte) 0x00, (byte) 0x00,
 				// to value
-				(byte)0x09,(byte)0x0C,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xFF,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xFF,(byte)0xff,(byte)0xff,(byte)0xff,
-				// selected values
+				(byte) 0x09, (byte) 0x0C, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xFF, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xFF,
+				(byte) 0xff, (byte) 0xff, (byte) 0xff,
+		// selected values
 		}; //(byte)0x00};
 
-		final int CAPTURE_FROM_OFFSET=5; // was 4
-		final int CAPTURE_TO_OFFSET=19; // was 18
+		final int CAPTURE_FROM_OFFSET = 5; // was 4
+		final int CAPTURE_TO_OFFSET = 19; // was 18
 
-		intreq[CAPTURE_FROM_OFFSET]=TYPEDESC_OCTET_STRING;
-		intreq[CAPTURE_FROM_OFFSET+1]=12; // length
-		intreq[CAPTURE_FROM_OFFSET+2]=(byte)(fromCalendar.get(Calendar.YEAR) >> 8);
-		intreq[CAPTURE_FROM_OFFSET+3]=(byte)fromCalendar.get(Calendar.YEAR);
-		intreq[CAPTURE_FROM_OFFSET+4]=(byte)(fromCalendar.get(Calendar.MONTH)+1);
-		intreq[CAPTURE_FROM_OFFSET+5]=(byte)fromCalendar.get(Calendar.DAY_OF_MONTH);
-		intreq[CAPTURE_FROM_OFFSET+6]=(byte)0xff;
-		intreq[CAPTURE_FROM_OFFSET+7]=(byte)fromCalendar.get(Calendar.HOUR_OF_DAY);
-		intreq[CAPTURE_FROM_OFFSET+8]=(byte)fromCalendar.get(Calendar.MINUTE);
-		intreq[CAPTURE_FROM_OFFSET+9]=(byte)0x00;
-		intreq[CAPTURE_FROM_OFFSET+10]=(byte)0xFF;
-		intreq[CAPTURE_FROM_OFFSET+11]=(byte)0x80;
-		intreq[CAPTURE_FROM_OFFSET+12]=0x00;
-		intreq[CAPTURE_FROM_OFFSET+13]=0x00;
+		intreq[CAPTURE_FROM_OFFSET] = TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_FROM_OFFSET + 1] = 12; // length
+		intreq[CAPTURE_FROM_OFFSET + 2] = (byte) (fromCalendar.get(Calendar.YEAR) >> 8);
+		intreq[CAPTURE_FROM_OFFSET + 3] = (byte) fromCalendar.get(Calendar.YEAR);
+		intreq[CAPTURE_FROM_OFFSET + 4] = (byte) (fromCalendar.get(Calendar.MONTH) + 1);
+		intreq[CAPTURE_FROM_OFFSET + 5] = (byte) fromCalendar.get(Calendar.DAY_OF_MONTH);
+		intreq[CAPTURE_FROM_OFFSET + 6] = (byte) 0xff;
+		intreq[CAPTURE_FROM_OFFSET + 7] = (byte) fromCalendar.get(Calendar.HOUR_OF_DAY);
+		intreq[CAPTURE_FROM_OFFSET + 8] = (byte) fromCalendar.get(Calendar.MINUTE);
+		intreq[CAPTURE_FROM_OFFSET + 9] = (byte) 0x00;
+		intreq[CAPTURE_FROM_OFFSET + 10] = (byte) 0xFF;
+		intreq[CAPTURE_FROM_OFFSET + 11] = (byte) 0x80;
+		intreq[CAPTURE_FROM_OFFSET + 12] = 0x00;
+		intreq[CAPTURE_FROM_OFFSET + 13] = 0x00;
 
-		intreq[CAPTURE_TO_OFFSET]=TYPEDESC_OCTET_STRING;
-		intreq[CAPTURE_TO_OFFSET+1]=12; // length
-		intreq[CAPTURE_TO_OFFSET+2]=(byte)(toCalendar.get(Calendar.YEAR) >> 8);
-		intreq[CAPTURE_TO_OFFSET+3]=(byte)(toCalendar.get(Calendar.YEAR));
-		intreq[CAPTURE_TO_OFFSET+4]=(byte)(toCalendar.get(Calendar.MONTH)+1);
-		intreq[CAPTURE_TO_OFFSET+5]=(byte)(toCalendar.get(Calendar.DAY_OF_MONTH));
-		intreq[CAPTURE_TO_OFFSET+6]=(byte)0xFF;
-		intreq[CAPTURE_TO_OFFSET+7]=(byte)toCalendar.get(Calendar.HOUR_OF_DAY);
-		intreq[CAPTURE_TO_OFFSET+8]=(byte)toCalendar.get(Calendar.MINUTE);
-		intreq[CAPTURE_TO_OFFSET+9]=(byte)0x00;
-		intreq[CAPTURE_TO_OFFSET+10]=(byte)0xFF;
-		intreq[CAPTURE_TO_OFFSET+11]=(byte)0x80;
-		intreq[CAPTURE_TO_OFFSET+12]=(byte)0x00;
-		intreq[CAPTURE_TO_OFFSET+13]=(byte)0x00;
+		intreq[CAPTURE_TO_OFFSET] = TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_TO_OFFSET + 1] = 12; // length
+		intreq[CAPTURE_TO_OFFSET + 2] = (byte) (toCalendar.get(Calendar.YEAR) >> 8);
+		intreq[CAPTURE_TO_OFFSET + 3] = (byte) (toCalendar.get(Calendar.YEAR));
+		intreq[CAPTURE_TO_OFFSET + 4] = (byte) (toCalendar.get(Calendar.MONTH) + 1);
+		intreq[CAPTURE_TO_OFFSET + 5] = (byte) (toCalendar.get(Calendar.DAY_OF_MONTH));
+		intreq[CAPTURE_TO_OFFSET + 6] = (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 7] = (byte) toCalendar.get(Calendar.HOUR_OF_DAY);
+		intreq[CAPTURE_TO_OFFSET + 8] = (byte) toCalendar.get(Calendar.MINUTE);
+		intreq[CAPTURE_TO_OFFSET + 9] = (byte) 0x00;
+		intreq[CAPTURE_TO_OFFSET + 10] = (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 11] = (byte) 0x80;
+		intreq[CAPTURE_TO_OFFSET + 12] = (byte) 0x00;
+		intreq[CAPTURE_TO_OFFSET + 13] = (byte) 0x00;
 
 		return intreq;
 
@@ -1005,50 +1076,53 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 */
 	private byte[] getBufferRangeDescriptorSL7000(Calendar fromCalendar) {
 
-		byte[] intreq={(byte)0x01, // range descriptor
-				(byte)0x02, // structure
-				(byte)0x04, // 4 items in structure
+		byte[] intreq = {
+				(byte) 0x01, // range descriptor
+				(byte) 0x02, // structure
+				(byte) 0x04, // 4 items in structure
 				// capture object definition
-				(byte)0x00,
+				(byte) 0x00,
 				// from value
-				(byte)0x09,(byte)0x0C,(byte)0x07,(byte)0xD2,(byte)0x05,(byte)23,(byte)0xFF,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xFF,(byte)0x80,(byte)0x00,(byte)0x00,
+				(byte) 0x09, (byte) 0x0C, (byte) 0x07, (byte) 0xD2, (byte) 0x05, (byte) 23, (byte) 0xFF, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xFF,
+				(byte) 0x80, (byte) 0x00, (byte) 0x00,
 				// to value
-				(byte)0x09,(byte)0x0C,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xFF,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xFF,(byte)0xff,(byte)0xff,(byte)0xff,
+				(byte) 0x09, (byte) 0x0C, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xFF, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xFF,
+				(byte) 0xff, (byte) 0xff, (byte) 0xff,
 				// selected values
-				(byte)0x00};
+				(byte) 0x00 };
 
-		final int CAPTURE_FROM_OFFSET=4;
-		final int CAPTURE_TO_OFFSET=18;
+		final int CAPTURE_FROM_OFFSET = 4;
+		final int CAPTURE_TO_OFFSET = 18;
 
-		intreq[CAPTURE_FROM_OFFSET]=TYPEDESC_OCTET_STRING;
-		intreq[CAPTURE_FROM_OFFSET+1]=12; // length
-		intreq[CAPTURE_FROM_OFFSET+2]=(byte)(fromCalendar.get(Calendar.YEAR) >> 8);
-		intreq[CAPTURE_FROM_OFFSET+3]=(byte)fromCalendar.get(Calendar.YEAR);
-		intreq[CAPTURE_FROM_OFFSET+4]=(byte)(fromCalendar.get(Calendar.MONTH)+1);
-		intreq[CAPTURE_FROM_OFFSET+5]=(byte)fromCalendar.get(Calendar.DAY_OF_MONTH);
-		intreq[CAPTURE_FROM_OFFSET+6]=(byte)0xff;
-		intreq[CAPTURE_FROM_OFFSET+7]=(byte)0xff; //fromCalendar.get(Calendar.HOUR_OF_DAY);
-		intreq[CAPTURE_FROM_OFFSET+8]=(byte)0xff; //fromCalendar.get(Calendar.MINUTE);
-		intreq[CAPTURE_FROM_OFFSET+9]=(byte)0xFF;
-		intreq[CAPTURE_FROM_OFFSET+10]=(byte)0xFF;
-		intreq[CAPTURE_FROM_OFFSET+11]=(byte)0x80;
-		intreq[CAPTURE_FROM_OFFSET+12]=0x00;
-		intreq[CAPTURE_FROM_OFFSET+13]=0x00;
+		intreq[CAPTURE_FROM_OFFSET] = TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_FROM_OFFSET + 1] = 12; // length
+		intreq[CAPTURE_FROM_OFFSET + 2] = (byte) (fromCalendar.get(Calendar.YEAR) >> 8);
+		intreq[CAPTURE_FROM_OFFSET + 3] = (byte) fromCalendar.get(Calendar.YEAR);
+		intreq[CAPTURE_FROM_OFFSET + 4] = (byte) (fromCalendar.get(Calendar.MONTH) + 1);
+		intreq[CAPTURE_FROM_OFFSET + 5] = (byte) fromCalendar.get(Calendar.DAY_OF_MONTH);
+		intreq[CAPTURE_FROM_OFFSET + 6] = (byte) 0xff;
+		intreq[CAPTURE_FROM_OFFSET + 7] = (byte) 0xff; //fromCalendar.get(Calendar.HOUR_OF_DAY);
+		intreq[CAPTURE_FROM_OFFSET + 8] = (byte) 0xff; //fromCalendar.get(Calendar.MINUTE);
+		intreq[CAPTURE_FROM_OFFSET + 9] = (byte) 0xFF;
+		intreq[CAPTURE_FROM_OFFSET + 10] = (byte) 0xFF;
+		intreq[CAPTURE_FROM_OFFSET + 11] = (byte) 0x80;
+		intreq[CAPTURE_FROM_OFFSET + 12] = 0x00;
+		intreq[CAPTURE_FROM_OFFSET + 13] = 0x00;
 
-		intreq[CAPTURE_TO_OFFSET]=TYPEDESC_OCTET_STRING;
-		intreq[CAPTURE_TO_OFFSET+1]=12; // length
-		intreq[CAPTURE_TO_OFFSET+2]=(byte)0xff; //(toCalendar.get(Calendar.YEAR) >> 8);
-		intreq[CAPTURE_TO_OFFSET+3]=(byte)0xff; //toCalendar.get(Calendar.YEAR);
-		intreq[CAPTURE_TO_OFFSET+4]=(byte)0xff; //(toCalendar.get(Calendar.MONTH)+1);
-		intreq[CAPTURE_TO_OFFSET+5]=(byte)0xff; //toCalendar.get(Calendar.DAY_OF_MONTH);
-		intreq[CAPTURE_TO_OFFSET+6]=(byte)0xFF;
-		intreq[CAPTURE_TO_OFFSET+7]=(byte)0xff; //toCalendar.get(Calendar.HOUR_OF_DAY);
-		intreq[CAPTURE_TO_OFFSET+8]=(byte)0xff; //toCalendar.get(Calendar.MINUTE);
-		intreq[CAPTURE_TO_OFFSET+9]=(byte)0xff; //0x00;
-		intreq[CAPTURE_TO_OFFSET+10]=(byte)0xFF;
-		intreq[CAPTURE_TO_OFFSET+11]=(byte)0xff; //0x80;
-		intreq[CAPTURE_TO_OFFSET+12]=(byte)0xff; //0x00;
-		intreq[CAPTURE_TO_OFFSET+13]=(byte)0xff; //0x00;
+		intreq[CAPTURE_TO_OFFSET] = TYPEDESC_OCTET_STRING;
+		intreq[CAPTURE_TO_OFFSET + 1] = 12; // length
+		intreq[CAPTURE_TO_OFFSET + 2] = (byte) 0xff; //(toCalendar.get(Calendar.YEAR) >> 8);
+		intreq[CAPTURE_TO_OFFSET + 3] = (byte) 0xff; //toCalendar.get(Calendar.YEAR);
+		intreq[CAPTURE_TO_OFFSET + 4] = (byte) 0xff; //(toCalendar.get(Calendar.MONTH)+1);
+		intreq[CAPTURE_TO_OFFSET + 5] = (byte) 0xff; //toCalendar.get(Calendar.DAY_OF_MONTH);
+		intreq[CAPTURE_TO_OFFSET + 6] = (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 7] = (byte) 0xff; //toCalendar.get(Calendar.HOUR_OF_DAY);
+		intreq[CAPTURE_TO_OFFSET + 8] = (byte) 0xff; //toCalendar.get(Calendar.MINUTE);
+		intreq[CAPTURE_TO_OFFSET + 9] = (byte) 0xff; //0x00;
+		intreq[CAPTURE_TO_OFFSET + 10] = (byte) 0xFF;
+		intreq[CAPTURE_TO_OFFSET + 11] = (byte) 0xff; //0x80;
+		intreq[CAPTURE_TO_OFFSET + 12] = (byte) 0xff; //0x00;
+		intreq[CAPTURE_TO_OFFSET + 13] = (byte) 0xff; //0x00;
 
 		return intreq;
 	}
@@ -1060,21 +1134,22 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 */
 	private byte[] getBufferRangeDescriptorDefault(Calendar fromCalendar, Calendar toCalendar) {
 
-		byte[] intreq={(byte)0x01, // range descriptor
-				(byte)0x02, // structure
-				(byte)0x04, // 4 items in structure
+		byte[] intreq = {
+				(byte) 0x01, // range descriptor
+				(byte) 0x02, // structure
+				(byte) 0x04, // 4 items in structure
 				// capture object definition
-				(byte)0x02,(byte)0x04,
-				(byte)0x12,(byte)0x00,(byte)0x08,
-				(byte)0x09,(byte)0x06,(byte)0x00,(byte)0x00,(byte)0x01,(byte)0x00,(byte)0x00,(byte)0xFF,
-				(byte)0x0F,(byte)0x02,
-				(byte)0x12,(byte)0x00,(byte)0x00,
+				(byte) 0x02, (byte) 0x04, (byte) 0x12, (byte) 0x00, (byte) 0x08, (byte) 0x09, (byte) 0x06, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x00,
+				(byte) 0x00, (byte) 0xFF, (byte) 0x0F, (byte) 0x02, (byte) 0x12, (byte) 0x00,
+				(byte) 0x00,
 				// from value
-				(byte)0x09,(byte)0x0C,(byte)0x07,(byte)0xD2,(byte)0x05,(byte)23,(byte)0xFF,(byte)11,(byte)0x00,(byte)0x00,(byte)0xFF,(byte)0x80,(byte)0x00,(byte)0x00,
+				(byte) 0x09, (byte) 0x0C, (byte) 0x07, (byte) 0xD2, (byte) 0x05, (byte) 23, (byte) 0xFF, (byte) 11, (byte) 0x00, (byte) 0x00, (byte) 0xFF,
+				(byte) 0x80, (byte) 0x00, (byte) 0x00,
 				// to value
-				(byte)0x09,(byte)0x0C,(byte)0x07,(byte)0xD2,(byte)0x05,(byte)23,(byte)0xFF,(byte)13,(byte)0x00,(byte)0x00,(byte)0xFF,(byte)0x80,(byte)0x00,(byte)0x00,
+				(byte) 0x09, (byte) 0x0C, (byte) 0x07, (byte) 0xD2, (byte) 0x05, (byte) 23, (byte) 0xFF, (byte) 13, (byte) 0x00, (byte) 0x00, (byte) 0xFF,
+				(byte) 0x80, (byte) 0x00, (byte) 0x00,
 				// selected values
-				(byte)0x01,(byte)0x00};
+				(byte) 0x01, (byte) 0x00 };
 
 		int CAPTURE_FROM_OFFSET = 21;
 		int CAPTURE_TO_OFFSET = 35;
@@ -1148,7 +1223,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		int t = 0, iFieldIndex;
 		UniversalObject[] universalObject = null;
 		int level = 0;
-		LogFactory.getLog(getClass()).debug("KV_DEBUG> responseData=" + ProtocolUtils.outputHexString(responseData));
+		debug("KV_DEBUG> responseData=" + ProtocolUtils.outputHexString(responseData));
 		List values = new ArrayList();
 		try {
 
@@ -1171,10 +1246,10 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				t = 2 + bOffset;
 				for (itemInArray = 0; itemInArray < lNrOfItemsInArray; itemInArray++) {
 
-					LogFactory.getLog(getClass()).debug("KV_DEBUG> itemInArray=" + itemInArray);
+					debug("KV_DEBUG> itemInArray=" + itemInArray);
 
 					if (responseData[t] == TYPEDESC_STRUCTURE) {
-						LogFactory.getLog(getClass()).debug("KV_DEBUG> TYPEDESC_STRUCTURE");
+						debug("KV_DEBUG> TYPEDESC_STRUCTURE");
 						int iNROfItems;
 						int iIndex = 0;
 
@@ -1185,14 +1260,14 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 						values.clear();
 
 						for (iFieldIndex = 0; iFieldIndex < iNROfItems; iFieldIndex++) {
-							LogFactory.getLog(getClass()).debug("KV_DEBUG> iFieldIndex=" + iFieldIndex);
+							debug("KV_DEBUG> iFieldIndex=" + iFieldIndex);
 							if ((responseData[t] == TYPEDESC_LONG) || (responseData[t] == TYPEDESC_LONG_UNSIGNED)) {
-								LogFactory.getLog(getClass()).debug("KV_DEBUG> TYPEDESC_LONG | TYPEDESC_LONG_UNSIGNED");
+								debug("KV_DEBUG> TYPEDESC_LONG | TYPEDESC_LONG_UNSIGNED");
 								t++; // skip tag
 								values.add(new Long((long) ProtocolUtils.getShort(responseData, t) & 0x0000FFFF));
 								t += 2; // skip (unsigned) long (2byte) value
 							} else if ((responseData[t] == TYPEDESC_OCTET_STRING) || (responseData[t] == TYPEDESC_VISIBLE_STRING)) {
-								LogFactory.getLog(getClass()).debug("KV_DEBUG> TYPEDESC_OCTET_STRING | TYPEDESC_VISIBLE_STRING");
+								debug("KV_DEBUG> TYPEDESC_OCTET_STRING | TYPEDESC_VISIBLE_STRING");
 								t++; // skip tag
 								int iLength = responseData[t];
 								t++; // skip length byte
@@ -1202,24 +1277,24 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 								}
 								t += iLength; // skip string, iLength bytes
 							} else if ((responseData[t] == TYPEDESC_DOUBLE_LONG_UNSIGNED) || (responseData[t] == TYPEDESC_DOUBLE_LONG)) {
-								LogFactory.getLog(getClass()).debug("KV_DEBUG> TYPEDESC_DOUBLE_LONG_UNSIGNED | TYPEDESC_DOUBLE_LONG");
+								debug("KV_DEBUG> TYPEDESC_DOUBLE_LONG_UNSIGNED | TYPEDESC_DOUBLE_LONG");
 								t++; // skip tag
 								values.add(new Long(ProtocolUtils.getInt(responseData, t)));
 								t += 4; // skip double unsigned long (4byte) value
 							} else if ((responseData[t] == TYPEDESC_BOOLEAN) || (responseData[t] == TYPEDESC_INTEGER) || (responseData[t] == TYPEDESC_UNSIGNED)) {
-								LogFactory.getLog(getClass()).debug("KV_DEBUG> TYPEDESC_BOOLEAN | TYPEDESC_INTEGER | TYPEDESC_UNSIGNED");
+								debug("KV_DEBUG> TYPEDESC_BOOLEAN | TYPEDESC_INTEGER | TYPEDESC_UNSIGNED");
 								t++; // skip tag
 								values.add(new Long((long) responseData[t] & 0x000000FF));
 								t++; // skip (1byte) value
 							}
 							// KV 29072004
 							else if (responseData[t] == TYPEDESC_LONG64) {
-								LogFactory.getLog(getClass()).debug("KV_DEBUG> TYPEDESC_LONG64");
+								debug("KV_DEBUG> TYPEDESC_LONG64");
 								t++; // skip tag
 								values.add(new Long(ProtocolUtils.getLong(responseData, t))); // KV 09/10/2006
 								t += 8; // skip double unsigned long (8byte) value
 							} else if (responseData[t] == TYPEDESC_STRUCTURE) {
-								LogFactory.getLog(getClass()).debug("KV_DEBUG> TYPEDESC_STRUCTURE");
+								debug("KV_DEBUG> TYPEDESC_STRUCTURE");
 								t = skipStructure(responseData, t);
 							} else {
 								throw new IOException("Error parsing objectlistdata, unknown type.");
@@ -1267,31 +1342,29 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				t++; // skip tag
 				t += 2; // skip (unsigned) long (2byte) value
 				membersInStructure[level]--;
-				LogFactory.getLog(getClass()).debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_LONG | TYPEDESC_LONG_UNSIGNED, level=" + level);
+				debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_LONG | TYPEDESC_LONG_UNSIGNED, level=" + level);
 			} else if ((responseData[t] == TYPEDESC_OCTET_STRING) || (responseData[t] == TYPEDESC_VISIBLE_STRING)) {
 				t++; // skip tag
 				t += (responseData[t] + 1); // skip string, iLength bytes
 				membersInStructure[level]--;
-				LogFactory.getLog(getClass()).debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_OCTET_STRING | TYPEDESC_VISIBLE_STRING, level=" + level);
+				debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_OCTET_STRING | TYPEDESC_VISIBLE_STRING, level=" + level);
 			} else if ((responseData[t] == TYPEDESC_DOUBLE_LONG_UNSIGNED) || (responseData[t] == TYPEDESC_DOUBLE_LONG)) {
 				t++; // skip tag
 				t += 4; // skip double unsigned long (4byte) value
 				membersInStructure[level]--;
-				LogFactory.getLog(getClass()).debug(
-						"KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_DOUBLE_LONG_UNSIGNED | TYPEDESC_DOUBLE_LONG, level=" + level);
+				debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_DOUBLE_LONG_UNSIGNED | TYPEDESC_DOUBLE_LONG, level=" + level);
 			} else if ((responseData[t] == TYPEDESC_BOOLEAN) || (responseData[t] == TYPEDESC_INTEGER) || (responseData[t] == TYPEDESC_UNSIGNED)) {
 				t++; // skip tag
 				t++; // skip (1byte) value
 				membersInStructure[level]--;
-				LogFactory.getLog(getClass()).debug(
-						"KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_BOOLEAN | TYPEDESC_INTEGER | TYPEDESC_UNSIGNED, level=" + level);
+				debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_BOOLEAN | TYPEDESC_INTEGER | TYPEDESC_UNSIGNED, level=" + level);
 			}
 			// KV 28072004
 			else if (responseData[t] == TYPEDESC_LONG64) {
 				t++; // skip tag
 				t += 8; // skip (8byte) value
 				membersInStructure[level]--;
-				LogFactory.getLog(getClass()).debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_LONG64, level=" + level);
+				debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_LONG64, level=" + level);
 			}
 			// Skip the access rights structure in case of long name referencing...
 			else if (responseData[t] == TYPEDESC_STRUCTURE) {
@@ -1300,7 +1373,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				level++;
 				membersInStructure[level] = responseData[t];
 				t++; // skip nr of members
-				LogFactory.getLog(getClass()).debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_STRUCTURE, level=" + level);
+				debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_STRUCTURE, level=" + level);
 			} else if (responseData[t] == TYPEDESC_ARRAY) {
 				t++; // skip array tag
 				int offset = 0;
@@ -1319,19 +1392,18 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 				level++;
 				membersInStructure[level] = (int) elementsInArray;
 
-				LogFactory.getLog(getClass()).debug(
-						"KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_ARRAY, level=" + level + ", elementsInArray=" + elementsInArray);
+				debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_ARRAY, level=" + level + ", elementsInArray=" + elementsInArray);
 			} else if (responseData[t] == TYPEDESC_NULL) {
 				t++; // skip tag
 				membersInStructure[level]--;
-				LogFactory.getLog(getClass()).debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_NULL, level=" + level);
+				debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_NULL, level=" + level);
 			}
 			// KV 05042007
 			else if (responseData[t] == TYPEDESC_ENUM) {
 				t++; // skip tag
 				t++; // skip (1byte) value
 				membersInStructure[level]--;
-				LogFactory.getLog(getClass()).debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_ENUM, level=" + level);
+				debug("KV_DEBUG> skipStructure (t=" + t + "), TYPEDESC_ENUM, level=" + level);
 			} else {
 				throw new IOException("AbsrtactCosemObject, skipStructure, Error parsing objectlistdata, unknown response tag " + responseData[t]);
 			}
@@ -1352,6 +1424,15 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	}
 
 	/**
+	 * @param message
+	 */
+	private void debug(String message) {
+		if (DEBUG) {
+			LogFactory.getLog(getClass()).debug(message);
+		}
+	}
+
+	/**
 	 * @param ln
 	 * @param sn
 	 * @return
@@ -1368,6 +1449,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 
 	/**
 	 * Getter for property objectReference.
+	 *
 	 * @return Value of property objectReference.
 	 */
 	public com.energyict.dlms.cosem.ObjectReference getObjectReference() {
