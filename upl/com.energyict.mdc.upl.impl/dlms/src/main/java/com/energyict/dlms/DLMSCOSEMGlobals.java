@@ -180,7 +180,8 @@ public interface DLMSCOSEMGlobals {
 	byte READREQUEST_DATA_SIZE=8; // Size of readrequest data and offset to selective data
 	byte READREQUEST_SN_MSB=6;
 	byte READREQUEST_SN_LSB=7;
-
+	byte WRITEREQUEST_NR_OF_OBJECTS=8;
+	byte WRITEREQUEST_DATA_SIZE=9;
 
 	byte READREQUEST_BLOCKNR_MSB=6;
 	byte READREQUEST_BLOCKNR_LSB=7;
