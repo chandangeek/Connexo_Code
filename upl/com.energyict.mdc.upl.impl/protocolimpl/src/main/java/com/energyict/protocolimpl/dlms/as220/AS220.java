@@ -62,7 +62,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 	}
 
     public void setTime() throws IOException {
-    	geteMeter().getClockController().setTime();
+    	geteMeter().getClockController().shiftTime();
     }
 
     public Date getTime() throws IOException {

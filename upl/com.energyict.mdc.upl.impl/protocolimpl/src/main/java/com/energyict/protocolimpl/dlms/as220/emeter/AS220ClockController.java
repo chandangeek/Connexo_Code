@@ -18,6 +18,9 @@ import com.energyict.protocolimpl.dlms.as220.DLMSSNAS220;
  */
 public class AS220ClockController implements ClockController {
 
+	private static final int		MX_SHIFT_VALUE	= 900;
+	private static final int		MIN_SHIFT_VALUE	= -900;
+
 	private static final int		DATA_LENGTH		= 12;
 	private static final int		BYTE_LENGTH		= 8;
 
@@ -35,9 +38,9 @@ public class AS220ClockController implements ClockController {
 
 	public Date getTime() throws IOException {
 		Clock clock = getAs220().getCosemObjectFactory().getClock(CLOCK_OBISCODE);
-		Date date = clock.getDateTime();
+		clock.getDateTime().getTime();
 		getAs220().setDstFlag(clock.getDstFlag());
-		return date;
+		return clock.getDateTime();
 	}
 
 	public void setTime() throws IOException {
@@ -45,14 +48,15 @@ public class AS220ClockController implements ClockController {
 	}
 
 	public void setTime(Date date) throws IOException {
+		Date correctedTime = new Date(date.getTime());
 		Calendar calendar = null;
 		if (getAs220().isRequestTimeZone()) {
 			if (getAs220().getDstFlag() == 0) {
 				calendar = ProtocolUtils.getCalendar(false, getAs220().requestTimeZone());
-				calendar.setTime(date);
+				calendar.setTime(correctedTime);
 			} else if (getAs220().getDstFlag() == 1) {
 				calendar = ProtocolUtils.getCalendar(true, getAs220().requestTimeZone());
-				calendar.setTime(date);
+				calendar.setTime(correctedTime);
 			} else {
 				throw new IOException("setTime(), dst flag is unknown! setTime() before getTime()!");
 			}
@@ -105,6 +109,31 @@ public class AS220ClockController implements ClockController {
 		}
 
 		getAs220().getCosemObjectFactory().getGenericWrite((short) getAs220().getMeterConfig().getClockSN(), DLMSCOSEMGlobals.TIME_TIME).write(byteTimeBuffer);
+
+	}
+
+	public void shiftTime() throws IOException {
+		shiftTime(new Date());
+	}
+
+	public void shiftTime(Date date) throws IOException {
+		Date started = new Date();
+		Date meterTime = getTime();
+		Date endDate = new Date();
+		int shiftValue = (int) ((endDate.getTime() - meterTime.getTime()) / 1000);
+
+		if (shiftValue > 900) {
+			shiftValue = MX_SHIFT_VALUE;
+		} else if (shiftValue < MIN_SHIFT_VALUE) {
+			shiftValue = MIN_SHIFT_VALUE;
+		}
+
+		System.out.println(shiftValue);
+		if (shiftValue == 0) {
+			return;
+		}
+
+		getAs220().getCosemObjectFactory().getClock(CLOCK_OBISCODE).shiftTime(shiftValue);
 
 	}
 

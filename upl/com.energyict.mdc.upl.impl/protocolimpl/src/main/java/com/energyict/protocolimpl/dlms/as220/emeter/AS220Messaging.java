@@ -33,6 +33,7 @@ public class AS220Messaging implements MessageProtocol {
 
 	public static final String	TOPT_SWITCH_BASE				= "TariffOptionSwitchBase";
 	public static final String	TOPT_SWITCH_DAYNIGHT			= "TariffOptionSwitchDayNight";
+	public static final String	FORCE_SET_CLOCK					= "ForceSetClock";
 
 	public static final String	RESCAN_PLCBUS					= "RescanPlcBus";
 	public static final String	SET_ACTIVE_PLC_CHANNEL			= "SetActivePlcChannel";
@@ -46,6 +47,7 @@ public class AS220Messaging implements MessageProtocol {
 
 	private static final String	TOPT_SWITCH_BASE_DISPLAY		= "Switch tariff option BASE";
 	private static final String	TOPT_SWITCH_DAYNIGHT_DISPLAY	= "Switch tariff option DAY/NIGHT";
+	public static final String	FORCE_SET_CLOCK_DISPLAY			= "Force set clock";
 
 	private static final String	RESCAN_PLCBUS_DISPLAY			= "Force manual rescan PLC bus";
 	private static final String	SET_ACTIVE_PLC_CHANNEL_DISPLAY	= "Set active PLC channel";
@@ -73,6 +75,7 @@ public class AS220Messaging implements MessageProtocol {
         plcMeterCat.addMessageSpec(createMessageSpec(RESCAN_PLCBUS_DISPLAY, RESCAN_PLCBUS, false));
         plcMeterCat.addMessageSpec(createMessageSpec(SET_ACTIVE_PLC_CHANNEL_DISPLAY, SET_ACTIVE_PLC_CHANNEL, false));
 
+        otherMeterCat.addMessageSpec(createMessageSpec(FORCE_SET_CLOCK_DISPLAY, FORCE_SET_CLOCK, false));
         otherMeterCat.addMessageSpec(createMessageSpec(TOPT_SWITCH_BASE_DISPLAY, TOPT_SWITCH_BASE, false));
         otherMeterCat.addMessageSpec(createMessageSpec(TOPT_SWITCH_DAYNIGHT_DISPLAY, TOPT_SWITCH_DAYNIGHT, false));
 
@@ -105,6 +108,8 @@ public class AS220Messaging implements MessageProtocol {
 				rescanPLCBus();
 			} else if (isMessageTag(SET_ACTIVE_PLC_CHANNEL, messageEntry)) {
 				setActivePLCChannel(0);
+			} else if (isMessageTag(FORCE_SET_CLOCK, messageEntry)) {
+				getAs220().geteMeter().getClockController().setTime();
 			} else {
 				getAs220().getLogger().severe("Received unknown message: " + messageEntry);
 				return MessageResult.createFailed(messageEntry);
