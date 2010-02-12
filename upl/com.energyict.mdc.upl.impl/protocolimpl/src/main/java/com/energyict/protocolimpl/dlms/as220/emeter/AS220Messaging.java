@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.cosem.attributeobjects.MacAddress;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
@@ -20,6 +19,7 @@ import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 
 public class AS220Messaging implements MessageProtocol {
@@ -73,7 +73,7 @@ public class AS220Messaging implements MessageProtocol {
         eMeterCat.addMessageSpec(createMessageSpec(CONNECT_EMETER_DISPLAY, CONNECT_EMETER, false));
 
         plcMeterCat.addMessageSpec(createMessageSpec(RESCAN_PLCBUS_DISPLAY, RESCAN_PLCBUS, false));
-        plcMeterCat.addMessageSpec(createMessageSpec(SET_ACTIVE_PLC_CHANNEL_DISPLAY, SET_ACTIVE_PLC_CHANNEL, false));
+        plcMeterCat.addMessageSpec(createActivePLCChannelMessageSpec(SET_ACTIVE_PLC_CHANNEL_DISPLAY, SET_ACTIVE_PLC_CHANNEL, false));
 
         otherMeterCat.addMessageSpec(createMessageSpec(FORCE_SET_CLOCK_DISPLAY, FORCE_SET_CLOCK, false));
         otherMeterCat.addMessageSpec(createMessageSpec(TOPT_SWITCH_BASE_DISPLAY, TOPT_SWITCH_BASE, false));
@@ -107,7 +107,7 @@ public class AS220Messaging implements MessageProtocol {
 			} else if (isMessageTag(RESCAN_PLCBUS, messageEntry)) {
 				rescanPLCBus();
 			} else if (isMessageTag(SET_ACTIVE_PLC_CHANNEL, messageEntry)) {
-				setActivePLCChannel(0);
+				setActivePLCChannel(messageEntry);
 			} else if (isMessageTag(FORCE_SET_CLOCK, messageEntry)) {
 				getAs220().geteMeter().getClockController().setTime();
 			} else {
@@ -121,15 +121,41 @@ public class AS220Messaging implements MessageProtocol {
 		}
 	}
 
-	private void setActivePLCChannel(int channelNr) throws IOException {
+	private void setActivePLCChannel(MessageEntry messageEntry) throws IOException {
 		getAs220().getLogger().info("SET_ACTIVE_PLC_CHANNEL message received");
-		getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setActiveChannel(new Unsigned8(channelNr));
+		String messageContent = getMessageEntryContent(messageEntry);
+		int channel;
+		try {
+			channel = Integer.valueOf(messageContent).intValue();
+		} catch (NumberFormatException e) {
+			throw new IOException("Invalid channel value: '" + messageContent + "'");
+		}
+		setActivePLCChannel(channel);
+	}
+
+	private void setActivePLCChannel(int channel) throws IOException {
+		if ((channel < 0) || (channel > 6)) {
+			throw new IOException("Channel can only be 0-6, but was " + channel);
+		}
+		getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setActiveChannel(new Unsigned8(channel));
 	}
 
 	private void rescanPLCBus() throws IOException {
 		getAs220().getLogger().info("RESCAN_PLCBUS message received");
-		getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setActiveChannel(new Unsigned8(0));
-		getAs220().getCosemObjectFactory().getSFSKActiveInitiator().doResetNewNotSynchronized(new MacAddress(0));
+		setActivePLCChannel(0);
+	}
+
+	private String getMessageEntryContent(MessageEntry messageEntry) {
+		String returnValue = "";
+		if ((messageEntry != null) && (messageEntry.getContent() != null)) {
+			String content = messageEntry.getContent();
+			int firstPos = content.indexOf('>');
+			int lastPosPos = content.lastIndexOf('<');
+			if ((firstPos != -1) && (lastPosPos != -1) && ((firstPos + 1) < lastPosPos)) {
+				returnValue = content.substring(firstPos + 1, lastPosPos);
+			}
+		}
+		return returnValue;
 	}
 
 	public String writeMessage(Message msg) {
@@ -177,8 +203,7 @@ public class AS220Messaging implements MessageProtocol {
 	}
 
 	public String writeValue(MessageValue value) {
-		// TODO Auto-generated method stub
-		return null;
+		return value.getValue();
 	}
 
     /**
@@ -194,6 +219,17 @@ public class AS220Messaging implements MessageProtocol {
         msgSpec.add(tagSpec);
         return msgSpec;
     }
+
+    private MessageSpec createActivePLCChannelMessageSpec(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+
+        MessageValueSpec mvs = new MessageValueSpec();
+        tagSpec.add(mvs);
+
+        msgSpec.add(tagSpec);
+        return msgSpec;
+	}
 
 	/**
 	 * @param tag
