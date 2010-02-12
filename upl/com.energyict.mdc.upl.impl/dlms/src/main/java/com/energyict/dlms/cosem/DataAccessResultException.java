@@ -17,7 +17,7 @@ import java.io.IOException;
  * @author kvds
  */
 public final class DataAccessResultException extends IOException {
-	
+
 	/** Required for serializable classes. */
 	private static final long serialVersionUID = 1L;
 
@@ -34,16 +34,16 @@ public final class DataAccessResultException extends IOException {
 		ACCESS_SCOPE_VIOLATION(13, "Scope of access violation"),
 		DATA_BLOCK_UNAVAILABLE(14, "Data block unavailable"),
 		OTHER(255, "Other reason");
-		
+
 		/** This is the integer result code returned by the device. */
 		private final int result;
-		
+
 		/** The description of the error. */
 		private final String description;
-		
+
 		/**
 		 * Create a new instance using the result and description.
-		 * 
+		 *
 		 * @param 	result			The result.
 		 * @param 	rescription		The description.
 		 */
@@ -51,30 +51,30 @@ public final class DataAccessResultException extends IOException {
 			this.result = result;
 			this.description = description;
 		}
-		
+
 		/**
 		 * Returns the result code as it was returned by the device.
-		 * 
+		 *
 		 * @return	The result code as it was returned by the device.
 		 */
 		public final int getResultCode() {
 			return this.result;
 		}
-		
+
 		/**
 		 * Returns the description.
-		 * 
+		 *
 		 * @return	The description.
 		 */
 		public final String getDescription() {
 			return this.description;
 		}
-		
+
 		/**
 		 * Returns the corresponding data access result code.
-		 * 
+		 *
 		 * @param 	resultCode		The result code.
-		 * 
+		 *
 		 * @return	The corresponding {@link DataAccessResultCode}.
 		 */
 		private static final DataAccessResultCode byResultCode(final int resultCode) {
@@ -83,45 +83,45 @@ public final class DataAccessResultException extends IOException {
 					return code;
 				}
 			}
-			
+
 			return null;
 		}
 	}
-    
+
 	/** The code as it was returned by the device. This is always filled in. */
     private final int dataAccessResult;
-    
+
     /** This is a "parsed" version of the preceding field. */
     private final DataAccessResultCode dataAccessResultCode;
-    
+
     /** Creates a new instance of DataAccessResultException */
     public DataAccessResultException(int dataAccessResult) {
         this(dataAccessResult,"Cosem Data-Access-Result exception "+evalDataAccessResult(dataAccessResult));
     }
-    
+
     public DataAccessResultException(int dataAccessResult, String message) {
         super(message);
-        
+
         this.dataAccessResult = dataAccessResult;
         this.dataAccessResultCode = DataAccessResultCode.byResultCode(dataAccessResult);
     }
-    
+
     public String toString() {
         return super.toString()+", "+evalDataAccessResult(getDataAccessResult());
     }
-    
-    
+
+
     public boolean isEvalDataAccessResultStandard() {
         return (dataAccessResult <=14) || (dataAccessResult == 250);
-        
+
     }
-    
+
     static public String evalDataAccessResult(int val) {
         String strErr;
         switch(val) {
             case 0: strErr = "success";
             case 1: strErr = "Hardware fault";break;
-            case 2: strErr = "Temporary fauilure";break;
+            case 2: strErr = "Temporary failure";break;
             case 3: strErr = "R/W denied";break;
             case 4: strErr = "Object undefined";break;
             case 9: strErr = "Object class inconsistent";break;
@@ -133,16 +133,16 @@ public final class DataAccessResultException extends IOException {
             default: strErr = "Unknown data-access-result code "+val;break;
         }
         return strErr;
-        
-    } // private void evalDataAccessResult(int val) throws IOException            
+
+    } // private void evalDataAccessResult(int val) throws IOException
 
     public int getDataAccessResult() {
         return dataAccessResult;
     }
-     
+
     /**
-     * Returns the data access result code if there is one. 
-     * 
+     * Returns the data access result code if there is one.
+     *
      * @return	The data access result code if there is one.
      */
     public final DataAccessResultCode getCode() {
