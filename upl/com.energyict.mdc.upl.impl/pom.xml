@@ -207,10 +207,10 @@
 						<groupId>javax.activation</groupId>
 						<artifactId>activation</artifactId>
 					</exclusion>
-					<exclusion>
+					<!--exclusion>
 						<groupId>commons-logging</groupId>
 						<artifactId>commons-logging</artifactId>
-					</exclusion>
+					</exclusion-->
 					<exclusion>
 						<groupId>wsdl4j</groupId>
 						<artifactId>wsdl4j</artifactId>
