@@ -327,3 +327,5 @@
 -keepnames class com.energyict.genericprotocolimpl.edmi.mk10.MK10Push
 
 -keepnames class com.energyict.genericprotocolimpl.bgbz3.BgbZ3
+
+-keepnames class com.energyict.protocolimpl.dlms.as220.GasDevice
