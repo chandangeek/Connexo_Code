@@ -73,6 +73,7 @@ public class AXDRDateTime extends AbstractDataType {
 	private static final int	DOUBTFUL_STATUS_MASK				= 0x02;
 	private static final int	INVALID_STATUS_MASK					= 0x01;
 
+	private static final byte[]	NO_DEVIATION						= new byte[] { (byte) 0x80, (byte) 0x00 };
 	private static final int	SIZE								= 12;
 
 	private Calendar dateTime;
@@ -104,15 +105,18 @@ public class AXDRDateTime extends AbstractDataType {
 
     public AXDRDateTime(byte[] berEncodedData, int offset) throws IOException {
     	int ptr = offset;
-
     	if (berEncodedData[ptr] != DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING){
             throw new IOException("AXDRDateTime, invalid identifier "+berEncodedData[ptr]);
     	}
     	ptr = ptr + 2;
 
-    	int tOffset = (short)ProtocolUtils.getInt(berEncodedData,11,2);
-    	tOffset *= -1;
-    	int deviation = tOffset/SECONDS_PER_MINUTE;
+		int deviation = 0;
+		if ((berEncodedData[offset + 11] != NO_DEVIATION[0]) || (berEncodedData[offset + 12] != NO_DEVIATION[1])) {
+			int tOffset = (short) ProtocolUtils.getInt(berEncodedData, offset + 11, 2);
+			tOffset *= -1;
+			deviation = tOffset / SECONDS_PER_MINUTE;
+		}
+
         TimeZone tz = TimeZone.getTimeZone("GMT"+(deviation<0?"":"+")+deviation);
     	dateTime = Calendar.getInstance(tz);
 
@@ -239,5 +243,15 @@ public class AXDRDateTime extends AbstractDataType {
     public long longValue() {
         return getValue().getTime().getTime();
     }
+
+    @Override
+	public String toString() {
+		String rawData = "?";
+		try {
+			rawData = ProtocolUtils.getResponseData(getBEREncodedByteArray());
+		} catch (IOException e) {
+		}
+		return getValue().getTime().toString() + " [" + rawData + "]";
+	}
 
 }
