@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -175,6 +176,21 @@ public class OctetString extends AbstractDataType {
 
 	public long longValue() {
 		return -1;
+	}
+
+	/**
+	 * @return
+	 * @throws IOException
+	 */
+	public AXDRDateTime getDateTime() {
+		try {
+			if ((getBEREncodedByteArray() == null) || (getBEREncodedByteArray().length != 14)) {
+				throw new IOException("AXDRDateTime is expecting an OctetString with a data length of 12.");
+			}
+			return new AXDRDateTime(this);
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 }
