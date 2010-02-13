@@ -6,11 +6,11 @@ import java.util.TimeZone;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 
-public class PLCStatictics extends Array {
+public class PLCStatistics extends Array {
 
 	private final TimeZone timeZone;
 
-	public PLCStatictics(byte[] profile, TimeZone timeZone) throws IOException {
+	public PLCStatistics(byte[] profile, TimeZone timeZone) throws IOException {
 		super(profile, 0, 0);
 		this.timeZone = timeZone;
 	}
