@@ -323,13 +323,14 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public ObjectReference getObjectReference(byte[] ln,int sn) throws IOException {
         return getObjectReference(ln,-1,sn);
     }
-    public ObjectReference getObjectReference(byte[] ln,int classId,int sn) throws IOException {
-        if (protocolLink.getReference() == ProtocolLink.LN_REFERENCE) {
-			return new ObjectReference(ln,classId);
+
+	public ObjectReference getObjectReference(byte[] ln, int classId, int sn) throws IOException {
+		if (protocolLink.getReference() == ProtocolLink.LN_REFERENCE) {
+			return new ObjectReference(ln, classId);
 		} else if (protocolLink.getReference() == ProtocolLink.SN_REFERENCE) {
 			return new ObjectReference(sn);
 		}
-        throw new IOException("CosemObjectFactory, getObjectReference, invalid reference type "+protocolLink.getReference());
-    }
+		throw new IOException("CosemObjectFactory, getObjectReference, invalid reference type " + protocolLink.getReference());
+	}
 
 }
