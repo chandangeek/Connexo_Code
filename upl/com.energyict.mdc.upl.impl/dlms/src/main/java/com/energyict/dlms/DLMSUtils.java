@@ -541,8 +541,8 @@ public final class DLMSUtils implements DLMSCOSEMGlobals {
 			str += " ???, value A = "+aField+" unknown";
 		}
 
-
-		return str;
+		// The OBJECTDESCRIPTION field in the DB has a max size of 100
+		return str.substring(0, (str.length() >=100)?99:str.length());
 
 	} // protected String getInfoLN(byte[] LN)
 
