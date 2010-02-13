@@ -1,10 +1,12 @@
 package com.energyict.protocolimpl.dlms.as220.plc.statistics;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TimeZone;
 
 import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.protocol.IntervalData;
 
 public class PLCStatistics extends Array {
 
@@ -15,8 +17,19 @@ public class PLCStatistics extends Array {
 		this.timeZone = timeZone;
 	}
 
-	public TimeZone getTz() {
+	public TimeZone getTimeZone() {
 		return timeZone;
+	}
+
+	public List<IntervalData> getProfileData() throws IOException {
+		List<IntervalData> intervals = new ArrayList<IntervalData>();
+
+		for (int i = 0; i < nrOfDataTypes(); i++) {
+			StatisticsInterval interval = new StatisticsInterval(getDataType(i).getBEREncodedByteArray(), getTimeZone());
+			System.out.println(interval);
+		}
+
+		return intervals;
 	}
 
 	@Override
@@ -25,9 +38,11 @@ public class PLCStatistics extends Array {
 
 		StringBuilder sb = new StringBuilder();
 
-		for (int i = 0; i < nrOfDataTypes(); i++) {
-			DateTime timeStamp = getDataType(i).getStructure().getDataType(0).getOctetString().getDateTime(timeZone);
-			sb.append(timeStamp.getValue().getTime()).append(crlf);
+		try {
+			getProfileData();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		return sb.toString();
