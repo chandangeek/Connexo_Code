@@ -183,7 +183,7 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			readProfile(true);
+			getAs220().getPlc().getStatistics(new Date(0), new Date());
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -204,6 +204,7 @@ public class AS220Main {
 		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.1.0.255")) + "\r\n");
 		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.2.0.255")) + "\r\n");
 		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.3.0.255")) + "\r\n");
+		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.5.0.255")) + "\r\n");
 	}
 
 	private static void examineObisCode(ObisCode obisCode) {

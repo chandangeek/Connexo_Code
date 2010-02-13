@@ -95,6 +95,10 @@ public class DateTime extends AbstractDataType {
     	this(octetString.getBEREncodedByteArray());
     }
 
+    public DateTime(OctetString octetString, TimeZone tz) throws IOException {
+    	this(octetString.getBEREncodedByteArray(),0,tz);
+    }
+
     public DateTime(byte[] berEncodedData) {
     	this(berEncodedData,0,TimeZone.getTimeZone("GMT"));
     }
@@ -222,6 +226,16 @@ public class DateTime extends AbstractDataType {
 
 	public long longValue() {
 		return getValue().getTime().getTime();
+	}
+
+    @Override
+	public String toString() {
+		String rawData = "?";
+		try {
+			rawData = ProtocolUtils.getResponseData(getBEREncodedByteArray());
+		} catch (IOException e) {
+		}
+		return getValue().getTime().toString() + " [" + rawData + "]";
 	}
 
 }

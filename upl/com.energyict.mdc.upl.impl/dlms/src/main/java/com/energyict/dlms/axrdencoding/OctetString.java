@@ -10,10 +10,11 @@ package com.energyict.dlms.axrdencoding;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.TimeZone;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -182,12 +183,16 @@ public class OctetString extends AbstractDataType {
 	 * @return
 	 * @throws IOException
 	 */
-	public AXDRDateTime getDateTime() {
+	public DateTime getDateTime(TimeZone tz) {
 		try {
 			if ((getBEREncodedByteArray() == null) || (getBEREncodedByteArray().length != 14)) {
 				throw new IOException("AXDRDateTime is expecting an OctetString with a data length of 12.");
 			}
-			return new AXDRDateTime(this);
+			if (tz == null) {
+				return new DateTime(this);
+			} else {
+				return new DateTime(this, tz);
+			}
 		} catch (IOException e) {
 			return null;
 		}

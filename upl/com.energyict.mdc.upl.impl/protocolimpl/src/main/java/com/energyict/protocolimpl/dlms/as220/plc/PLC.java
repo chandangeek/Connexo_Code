@@ -41,7 +41,7 @@ public class PLC {
 
 		byte[] profile = pg.getBufferData();
 		System.out.println(ProtocolTools.getHexStringFromBytes(profile));
-		PLCStatictics plcStatictics = new PLCStatictics(profile);
+		PLCStatictics plcStatictics = new PLCStatictics(profile, getAs220().getTimeZone());
 		System.out.println(plcStatictics);
 
 		return null;
