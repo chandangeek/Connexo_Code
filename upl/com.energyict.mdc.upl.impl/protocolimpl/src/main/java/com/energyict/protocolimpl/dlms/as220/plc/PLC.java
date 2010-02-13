@@ -10,6 +10,7 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.dlms.as220.AS220;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * @author jme
@@ -37,6 +38,11 @@ public class PLC {
 
 	public ProfileData getStatistics(Date from, Date to) throws IOException {
 		ProfileGeneric pg = getAs220().getCosemObjectFactory().getProfileGeneric(PLC_STATISTICS_OBISCODE);
+
+		byte[] profile = pg.getBufferData();
+		System.out.println(ProtocolTools.getHexStringFromBytes(profile));
+		PLCStatictics plcStatictics = new PLCStatictics(profile);
+		System.out.println(plcStatictics);
 
 		return null;
 	}
