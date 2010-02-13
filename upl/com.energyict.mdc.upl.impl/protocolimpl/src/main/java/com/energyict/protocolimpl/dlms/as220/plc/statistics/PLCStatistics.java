@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.dlms.as220.plc;
+package com.energyict.protocolimpl.dlms.as220.plc.statistics;
 
 import java.io.IOException;
 import java.util.TimeZone;
@@ -27,7 +27,7 @@ public class PLCStatistics extends Array {
 
 		for (int i = 0; i < nrOfDataTypes(); i++) {
 			DateTime timeStamp = getDataType(i).getStructure().getDataType(0).getOctetString().getDateTime(timeZone);
-			sb.append(timeStamp).append(crlf);
+			sb.append(timeStamp.getValue().getTime()).append(crlf);
 		}
 
 		return sb.toString();
