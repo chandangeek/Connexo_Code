@@ -71,8 +71,6 @@ import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 
 abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism {
 
-	private static final String			SERIAL_NUMBER_PREFIX		= "35";
-
 	private static final int			MAX_PDU_SIZE				= 200;
 	private static final int			PROPOSED_QOS				= -1;
 	private static final int			PROPOSED_DLMS_VERSION		= 6;
@@ -451,10 +449,10 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 	 * @return the serial number from the device as {@link String}
 	 * @throws IOException
 	 */
-	private String getSerialNumber() throws IOException {
+	public String getSerialNumber() throws IOException {
 		UniversalObject uo = getMeterConfig().getSerialNumberObject();
 		byte[] responsedata = getCosemObjectFactory().getGenericRead(uo.getBaseName(), uo.getValueAttributeOffset()).getResponseData();
-		return SERIAL_NUMBER_PREFIX + AXDRDecoder.decode(responsedata).getOctetString().stringValue();
+		return AXDRDecoder.decode(responsedata).getOctetString().stringValue();
 	}
 
     /** this implementation calls <code> validateProperties </code>
