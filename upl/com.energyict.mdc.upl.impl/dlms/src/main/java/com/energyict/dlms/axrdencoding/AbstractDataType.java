@@ -137,7 +137,7 @@ abstract public class AbstractDataType {
 	}
 
 	public boolean isUnsigned16() {
-		return this instanceof Unsigned32;
+		return this instanceof Unsigned16;
 	}
 
 	public boolean isUnsigned32() {
