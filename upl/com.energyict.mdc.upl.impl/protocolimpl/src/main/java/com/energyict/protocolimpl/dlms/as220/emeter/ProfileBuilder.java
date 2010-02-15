@@ -15,6 +15,7 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.dlms.as220.DLMSSNAS220;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * @author jme
@@ -97,7 +98,8 @@ public class ProfileBuilder {
 				if (calendar == null) {
 					continue; // first the calendar has to be initialized with the start of load profile marker
 				}
-				IntervalData ivd = new IntervalData(calendar.getTime());
+				IntervalData ivd = new IntervalData(ProtocolTools.roundUpToNearestInterval(calendar.getTime(), latestProfileInterval/60));
+//				IntervalData ivd = new IntervalData(calendar.getTime());
 				ivd.addValue(new BigDecimal("" + lpcae.getValue()));
 				intervalDatas.add(ivd);
 				latestProfileInterval = lpcae.getIntervalInSeconds();
@@ -107,7 +109,8 @@ public class ProfileBuilder {
 				if (calendar == null) {
 					continue; // first the calendar has to be initialized with the start of load profile marker
 				}
-				IntervalData ivd = new IntervalData(calendar.getTime(), eiCode);
+				IntervalData ivd = new IntervalData(ProtocolTools.roundUpToNearestInterval(calendar.getTime(), latestProfileInterval/60), eiCode);
+//				IntervalData ivd = new IntervalData(calendar.getTime(), eiCode);
 				eiCode = 0;
 				ivd.addValue(new BigDecimal("" + lpcae.getValue()));
 				intervalDatas.add(ivd);
@@ -144,17 +147,16 @@ public class ProfileBuilder {
 					} else if (lpcae.isChangeclockOldTime()) {
 						ParseUtils.roundUp2nearestInterval(calendar, latestProfileInterval);
 						eiCode = IntervalStateBits.SHORTLONG;
-
 					} else if (lpcae.isChangeclockNewTime()) {
 						ParseUtils.roundUp2nearestInterval(calendar, latestProfileInterval);
 						eiCode = IntervalStateBits.SHORTLONG;
 					}
 				}
-			} // time
+			}
 
-		} // for (i=0;i<loadProfileCompactArrayEntries.size();i++) {
+		}
 
-		return intervalDatas;
+		return ProtocolTools.mergeDuplicateIntervals(intervalDatas);
 	}
 
 }
