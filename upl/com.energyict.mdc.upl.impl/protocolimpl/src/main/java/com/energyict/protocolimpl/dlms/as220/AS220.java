@@ -145,10 +145,11 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
 		ProfileData eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
-		return eMeterProfile;
+		ProfileData plcStatistics = getPlc().getStatistics(from, to);
+		return ProfileAppender.appendProfiles(eMeterProfile, plcStatistics);
 	}
 
-    public List<MessageCategorySpec> getMessageCategories() {
+	public List<MessageCategorySpec> getMessageCategories() {
 		return getMessaging().getMessageCategories();
 	}
 

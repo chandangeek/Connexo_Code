@@ -2,8 +2,6 @@ package com.energyict.protocolimpl.dlms.as220.plc.statistics;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -11,6 +9,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 public class PLCStatistics extends Array {
 
@@ -34,7 +33,7 @@ public class PLCStatistics extends Array {
 
 		for (int i = 0; i < nrOfDataTypes(); i++) {
 			StatisticsInterval statsInterval = new StatisticsInterval(getDataType(i).getBEREncodedByteArray(), getTimeZone());
-			IntervalData id = new IntervalData(getIntervalTimeStamp(statsInterval.getTimeStamp(), statsInterval.getIntervalLength()));
+			IntervalData id = new IntervalData(ProtocolTools.roundUpToNearestInterval(statsInterval.getTimeStamp(), statsInterval.getIntervalLength()));
 			id.addValue(statsInterval.getPlcSNR().getChannelNr());
 			id.addValue(statsInterval.getPlcSNR().getSnr0());
 			id.addValue(statsInterval.getPlcSNR().getSnr1());
@@ -47,33 +46,7 @@ public class PLCStatistics extends Array {
 			intervals.add(id);
 		}
 
-		return intervals;
-	}
-
-	/**
-	 * @param timeStamp
-	 * @param intervalLength
-	 * @return
-	 */
-	private static Date getIntervalTimeStamp(Date timeStamp, int intervalLength) {
-		int intervalMillis = intervalLength * 1000 * 60;
-
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(timeStamp);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-
-
-		long diff = timeStamp.getTime() - cal.getTimeInMillis();
-		long overTime = diff % intervalMillis;
-		long beforeTime = intervalMillis - overTime;
-
-		Calendar returnDate = Calendar.getInstance();
-		returnDate.setTime(timeStamp);
-		returnDate.add(Calendar.MILLISECOND, (int) beforeTime);
-
-		return returnDate.getTime();
+		return ProtocolTools.mergeDuplicateIntervals(intervals);
 	}
 
 	/**
@@ -95,14 +68,19 @@ public class PLCStatistics extends Array {
 
 	@Override
 	public String toString() {
+		final String crlf = "\r\n";
 		StringBuilder sb = new StringBuilder();
-
-		try {
-			getIntervalDatas();
-		} catch (IOException e) {
-			e.printStackTrace();
+		sb.append("ChannelInfos:");
+		for (ChannelInfo ci : getChannelInfos()) {
+			sb.append(" ").append(ci.toString()).append(crlf);
 		}
-
+		sb.append("IntervalDatas:");
+		try {
+			for (IntervalData ci : getIntervalDatas()) {
+				sb.append(" ").append(ci.toString()).append(crlf);
+			}
+		} catch (IOException e) {
+		}
 		return sb.toString();
 	}
 

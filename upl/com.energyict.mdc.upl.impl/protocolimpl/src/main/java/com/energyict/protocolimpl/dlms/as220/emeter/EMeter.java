@@ -80,10 +80,6 @@ public class EMeter {
         if (includeEvents) {
 			EventLogs eventLogs = new EventLogs(getAs220());
 			List<MeterEvent> meterEvents = eventLogs.getEventLog(fromCalendar, toCalendar);
-			for (MeterEvent meterEvent : meterEvents) {
-				System.out.println("Events: " + meterEvent);
-			}
-
 			profileData.setMeterEvents(meterEvents);
 			profileData.applyEvents(getAs220().getProfileInterval() / SEC_PER_MIN);
         }

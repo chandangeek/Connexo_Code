@@ -4,6 +4,7 @@
 package com.energyict.protocolimpl.dlms.as220.plc;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 
 import com.energyict.dlms.cosem.ProfileGeneric;
@@ -39,9 +40,14 @@ public class PLC {
 	public ProfileData getStatistics(Date from, Date to) throws IOException {
 		ProfileGeneric pg = getAs220().getCosemObjectFactory().getProfileGeneric(PLC_STATISTICS_OBISCODE);
 
-		byte[] profile = pg.getBufferData();
+		Calendar fromCal = Calendar.getInstance(getAs220().getTimeZone());
+		fromCal.setTime(from);
+
+		Calendar toCal = Calendar.getInstance(getAs220().getTimeZone());
+		toCal.setTime(to);
+
+		byte[] profile = pg.getBufferData(fromCal, toCal);
 		PLCStatistics plcStatictics = new PLCStatistics(profile, getAs220().getTimeZone());
-		System.out.println(plcStatictics);
 
 		ProfileData pd = new ProfileData();
 		pd.setChannelInfos(plcStatictics.getChannelInfos());

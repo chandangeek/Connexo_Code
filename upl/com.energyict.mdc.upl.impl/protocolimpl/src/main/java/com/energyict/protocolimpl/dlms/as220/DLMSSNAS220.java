@@ -73,14 +73,15 @@ import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 
 abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, FirmwareUpdateMessaging {
 
-	private static final int			MAX_PDU_SIZE			= 200;
-	private static final int			PROPOSED_QOS			= -1;
+	private static final int			NR_OF_PLC_CHANNELS			= 0;
+	private static final int			MAX_PDU_SIZE				= 200;
+	private static final int			PROPOSED_QOS				= -1;
 	private static final int			PROPOSED_DLMS_VERSION		= 6;
 
 	private static final int			CONNECTION_MODE_HDLC		= 0;
 	private static final int			CONNECTION_MODE_TCPIP		= 1;
 	private static final int			CONNECTION_MODE_COSEM_PDU	= 2;
-	private static final int			CONNECTION_MODE_LLC		= 3;
+	private static final int			CONNECTION_MODE_LLC			= 3;
 
 
 	private boolean debug = false;
@@ -110,7 +111,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     private ProtocolChannelMap channelMap;
 
     private int authenticationSecurityLevel;
-    private int	datatransportSecurityLevel;
+	private int	datatransportSecurityLevel;
 
     private DLMSConnection dlmsConnection = null;
     private SecurityContext securityContext = null;
@@ -270,7 +271,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 	public int getNumberOfChannels() throws IOException {
 		if (iNumberOfChannels == -1) {
             meterConfig.setCapturedObjectList(getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjectsAsUniversalObjects());
-			iNumberOfChannels = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getNumberOfProfileChannels();
+			iNumberOfChannels = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getNumberOfProfileChannels() + NR_OF_PLC_CHANNELS;
 		}
 		return iNumberOfChannels;
 	}
