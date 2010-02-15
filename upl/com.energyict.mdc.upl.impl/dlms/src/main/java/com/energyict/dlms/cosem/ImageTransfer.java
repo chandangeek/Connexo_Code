@@ -347,7 +347,7 @@ public class ImageTransfer extends AbstractCosemObject{
 	}
 
 	/**
-	 * Write the given state ot the imageTransfer enabled attribute
+	 * Write the given state to the imageTransfer enabled attribute
 	 * @param state : true to indicate that in imageTransfer will be done, false otherwise
 	 * @throws IOException
 	 */

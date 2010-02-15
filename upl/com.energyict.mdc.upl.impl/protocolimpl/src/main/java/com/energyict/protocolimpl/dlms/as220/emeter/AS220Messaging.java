@@ -8,6 +8,8 @@ import java.util.logging.Level;
 
 import org.xml.sax.SAXException;
 
+import sun.misc.BASE64Decoder;
+
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ImageTransfer;
@@ -32,16 +34,19 @@ public class AS220Messaging implements MessageProtocol {
 	/**
 	 * Message tags
 	 */
-	public static final String	CONNECT_EMETER					= "ConnectEmeter";
-	public static final String	DISCONNECT_EMETER				= "DisconnectEmeter";
-	public static final String	ARM_EMETER						= "ArmEmeter";
+	public static final String	CONNECT_EMETER				= "ConnectEmeter";
+	public static final String	DISCONNECT_EMETER			= "DisconnectEmeter";
+	public static final String	ARM_EMETER				= "ArmEmeter";
 
-	public static final String	TOPT_SWITCH_BASE				= "TariffOptionSwitchBase";
+	public static final String	TOPT_SWITCH_BASE			= "TariffOptionSwitchBase";
 	public static final String	TOPT_SWITCH_DAYNIGHT			= "TariffOptionSwitchDayNight";
-	public static final String	FORCE_SET_CLOCK					= "ForceSetClock";
+	public static final String	FORCE_SET_CLOCK				= "ForceSetClock";
 
-	public static final String	RESCAN_PLCBUS					= "RescanPlcBus";
+	public static final String	RESCAN_PLCBUS				= "RescanPlcBus";
 	public static final String	SET_ACTIVE_PLC_CHANNEL			= "SetActivePlcChannel";
+	
+	public static final String 	FIRMWARE_UPDATE				= "FirmwareUpdate";
+	
 
 	/**
 	 * Message descriptions
@@ -115,7 +120,7 @@ public class AS220Messaging implements MessageProtocol {
 				setActivePLCChannel(messageEntry);
 			} else if (isMessageTag(FORCE_SET_CLOCK, messageEntry)) {
 				getAs220().geteMeter().getClockController().setTime();
-			}else if (isMessageTag("firmwareUpgrade", messageEntry)) {
+			}else if (isMessageTag(FIRMWARE_UPDATE, messageEntry)) {
 				upgradeFirmware(messageEntry);    
 			} else {
 				getAs220().getLogger().severe("Received unknown message: " + messageEntry);
@@ -133,25 +138,27 @@ public class AS220Messaging implements MessageProtocol {
 	 * @throws IOException 
 	 */
 	protected void upgradeFirmware(MessageEntry messageEntry) throws IOException {
-//		logger.info("Received a firmware upgrade message, using firmware message builder...");
-
+		getAs220().getLogger().info("Received a firmware upgrade message, using firmware message builder...");
+		String errorMessage = "";
 		final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder();
 
 		try {
-			builder.initFromXml(messageEntry.getContent());
-		} catch (final SAXException e) {
-		    getAs220().getLogger().log(Level.SEVERE, "Cannot process firmware upgrade message due to an XML parsing error [" + e.getMessage() + "]", e);
-		    throw new IOException(e.getMessage());
+		    builder.initFromXml(messageEntry.getContent());
 		} catch (final IOException e) {
+		    errorMessage = "Got an IO error when loading firmware message content [" + e.getMessage() + "]";
 			if (getAs220().getLogger().isLoggable(Level.SEVERE)) {
-			    getAs220().getLogger().log(Level.SEVERE, "Got an IO error when loading firmware message content [" + e.getMessage() + "]", e);
+			    getAs220().getLogger().log(Level.SEVERE, errorMessage, e);
 			}
-			 throw new IOException(e.getMessage());
+			 throw new IOException(errorMessage + e.getMessage());
+		} catch (SAXException e) {
+		    errorMessage = "Cannot process firmware upgrade message due to an XML parsing error [" + e.getMessage() + "]";
+		    getAs220().getLogger().log(Level.SEVERE, errorMessage, e);
+		    throw new IOException(errorMessage + e.getMessage());
 		}
-
+		
 		// We requested an inlined file...
 		if (builder.getUserFile() != null) {
-		    getAs220().getLogger().info("Pulling out user file and dispatching to the device...");
+			getAs220().getLogger().info("Pulling out user file and dispatching to the device...");
 
 			final byte[] upgradeFileData = builder.getUserFile().loadFileInByteArray();
 
@@ -159,22 +166,26 @@ public class AS220Messaging implements MessageProtocol {
 				try {
 					this.upgradeDevice(builder.getUserFile().loadFileInByteArray());
 				} catch (final IOException e) {
-				    getAs220().getLogger().log(Level.SEVERE, "Caught an IO error when trying upgrade [" + e.getMessage() + "]", e);
-				    throw e;
+				    errorMessage = "Caught an IO error when trying upgrade [" + e.getMessage() + "]";
+					if (getAs220().getLogger().isLoggable(Level.SEVERE)) {
+					    getAs220().getLogger().log(Level.SEVERE, errorMessage, e);
+					}
+					throw new IOException(errorMessage);
 				}
 			} else {
+			    errorMessage = "Length of the upgrade file is not valid [" + upgradeFileData + " bytes], failing message.";
 				if (getAs220().getLogger().isLoggable(Level.WARNING)) {
-				    getAs220().getLogger().log(Level.WARNING, "Length of the upgrade file is not valid [" + upgradeFileData + " bytes], failing message.");
+				    getAs220().getLogger().log(Level.WARNING, errorMessage);
 				}
+				throw new IOException(errorMessage);
 
 			}
 		} else {
-		    getAs220().getLogger().log(Level.WARNING, "The message did not contain a user file to use for the upgrade, message fails...");
-
+		    errorMessage = "The message did not contain a user file to use for the upgrade, message fails...";
+		    getAs220().getLogger().log(Level.WARNING, errorMessage);
+		    
+		    throw new IOException(errorMessage);
 		}
-
-		getAs220().getLogger().info("Upgrade message has been processed successfully, marking message as successfully processed...");
-
 	}
 	
 	/**
@@ -185,16 +196,19 @@ public class AS220Messaging implements MessageProtocol {
 	 * @throws	IOException		If an IO error occurs during the upgrade.
 	 */
 	public final void upgradeDevice(final byte[] image) throws IOException {
-	    getAs220().getLogger().info("Upgrading EpIO with new firmware image of size [" + image.length + "] bytes");
+	    getAs220().getLogger().info("Upgrading AM500 module with new firmware image of size [" + image.length + "] bytes");
 
 		final ImageTransfer imageTransfer = getAs220().getCosemObjectFactory().getImageTransferSN();
 
 		try {
-		    getAs220().getLogger().info("Converting received image to binary using a Base64 decoder...");
+			getAs220().getLogger().info("Converting received image to binary using a Base64 decoder...");
 
+			final BASE64Decoder decoder = new BASE64Decoder();
+			final byte[] binaryImage = decoder.decodeBuffer(new String(image));
+			
 			getAs220().getLogger().info("Commencing upgrade...");
 
-			imageTransfer.upgrade(image, false);
+			imageTransfer.upgrade(binaryImage, false);
 			imageTransfer.imageActivation();
 
 			getAs220().getLogger().info("Upgrade has finished successfully...");

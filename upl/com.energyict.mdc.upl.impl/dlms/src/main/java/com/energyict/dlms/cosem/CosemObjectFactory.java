@@ -287,8 +287,8 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 
 	/**
 	 * Getter for the ImageTransfer Object with a given obisCode.
-	 * If it is the default you need, then it is advised to use {@link CosemObjectFactory#.getImageTransfer()}
-	 * or {@link CosemObjectFactory#.getImageTransferSN()}
+	 * If it is the default you need, then it is advised to use {@link #getImageTransfer()}
+	 * or {@link #getImageTransferSN()}
 	 */
 	public ImageTransfer getImageTransfer(ObisCode obisCode) throws IOException {
 		return new ImageTransfer(protocolLink, getObjectReference(obisCode));
