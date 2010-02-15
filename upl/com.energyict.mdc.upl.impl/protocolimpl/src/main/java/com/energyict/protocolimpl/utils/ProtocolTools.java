@@ -7,7 +7,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -257,6 +259,32 @@ public final class ProtocolTools {
 	}
 
 	/**
+	 * @param timeStamp
+	 * @param intervalInSeconds
+	 * @return
+	 */
+	public static Date roundUpToNearestInterval(Date timeStamp, int intervalInSeconds) {
+		int intervalMillis = intervalInSeconds * 1000 * 60;
+
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(timeStamp);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+
+
+		long diff = timeStamp.getTime() - cal.getTimeInMillis();
+		long overTime = diff % intervalMillis;
+		long beforeTime = intervalMillis - overTime;
+
+		Calendar returnDate = Calendar.getInstance();
+		returnDate.setTime(timeStamp);
+		returnDate.add(Calendar.MILLISECOND, overTime != 0 ? (int) beforeTime : 0);
+
+		return returnDate.getTime();
+	}
+
+	/**
 	 * @param profileData
 	 * @return
 	 */
@@ -290,5 +318,48 @@ public final class ProtocolTools {
 
 		return sb.toString();
 	}
+
+	/**
+	 * @param intervals
+	 * @return
+	 */
+	public static List<IntervalData> mergeDuplicateIntervals(List<IntervalData> intervals) {
+		List<IntervalData> mergedIntervals = new ArrayList<IntervalData>();
+		for (IntervalData id2compare : intervals) {
+			boolean allreadyProcessed = false;
+			for (IntervalData merged : mergedIntervals) {
+				if (merged.getEndTime().compareTo(id2compare.getEndTime()) == 0) {
+					allreadyProcessed = true;
+					break;
+				}
+			}
+
+			if (!allreadyProcessed) {
+				List<IntervalData> toAdd = new ArrayList<IntervalData>();
+				for (IntervalData id : intervals) {
+					if (id.getEndTime().compareTo(id2compare.getEndTime()) == 0) {
+						toAdd.add(id);
+					}
+				}
+				Number[] value = new Number[id2compare.getValueCount()];
+				IntervalData md = new IntervalData(id2compare.getEndTime());
+				for (IntervalData intervalData : toAdd) {
+					for (int i = 0; i < value.length; i++) {
+						if (value[i] == null) {
+							value[i] = intervalData.get(i);
+						} else {
+							value[i] = NumberTools.add(value[i], intervalData.get(i));
+						}
+					}
+				}
+				md.addValues(value);
+				mergedIntervals.add(md);
+			}
+
+		}
+		return mergedIntervals;
+	}
+
+
 
 }
