@@ -16,16 +16,6 @@ public class StatisticsInterval extends Structure {
 
 	private TimeZone	timeZone;
 
-	private Date		timeStamp;
-	private int			intervalLength;
-	private PlcSNR		plcSNR;
-	private long		framesCRCOk;
-	private long		framesCRCNotOk;
-	private long		framesTransmitted;
-	private long		framesRepeated;
-	private long		framesCorrected;
-	private long		badFrameIndicator;
-
 	public StatisticsInterval(byte[] berEncodedByteArray, TimeZone timezone) throws IOException {
 		super(berEncodedByteArray, 0, 0);
 		this.timeZone = timezone;
@@ -33,14 +23,44 @@ public class StatisticsInterval extends Structure {
 
 	public Date getTimeStamp() {
 		DateTime dt = getDataType(0).getOctetString().getDateTime(getTimeZone());
-		timeStamp = dt.getValue().getTime();
-		return timeStamp;
+		return dt.getValue().getTime();
 	}
 
 	public int getIntervalLength() {
 		Unsigned8 il = getDataType(1).getUnsigned8();
-		this.intervalLength = il.getValue();
-		return intervalLength;
+		return il.getValue();
+	}
+
+	public PlcSNR getPlcSNR() {
+		try {
+			return new PlcSNR(getDataType(2).getBEREncodedByteArray());
+		} catch (IOException e) {
+			return null;
+		}
+	}
+
+	public long getFramesCRCOk() {
+		return getDataType(3).getUnsigned32().getValue();
+	}
+
+	public long getFramesCRCNotOk() {
+		return getDataType(4).getUnsigned32().getValue();
+	}
+
+	public long getFramesTransmitted() {
+		return getDataType(5).getUnsigned32().getValue();
+	}
+
+	public long getFramesRepeated() {
+		return getDataType(6).getUnsigned32().getValue();
+	}
+
+	public long getFramesCorrected() {
+		return getDataType(7).getUnsigned32().getValue();
+	}
+
+	public long getBadFramesIndicator() {
+		return getDataType(8).getUnsigned32().getValue();
 	}
 
 	private TimeZone getTimeZone() {
@@ -49,11 +69,16 @@ public class StatisticsInterval extends Structure {
 
 	@Override
 	public String toString() {
-		final String crlf = "\r\n";
-
 		StringBuffer sb = new StringBuffer();
 		sb.append("[").append(getTimeStamp()).append("] ");
-		sb.append(getIntervalLength());
+		sb.append("IL=").append(getIntervalLength()).append(", ");
+		sb.append(getPlcSNR()).append(", ");
+		sb.append("CRC_OK=").append(getFramesCRCOk()).append(", ");
+		sb.append("CRC_NOK=").append(getFramesCRCNotOk()).append(", ");
+		sb.append("TX=").append(getFramesTransmitted()).append(", ");
+		sb.append("REP=").append(getFramesRepeated()).append(", ");
+		sb.append("COR=").append(getFramesCorrected()).append(", ");
+		sb.append("BAD=").append(getBadFramesIndicator());
 		return sb.toString();
 	}
 

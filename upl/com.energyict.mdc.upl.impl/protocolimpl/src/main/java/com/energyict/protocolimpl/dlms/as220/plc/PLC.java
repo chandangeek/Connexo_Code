@@ -11,7 +11,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.plc.statistics.PLCStatistics;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * @author jme
@@ -41,11 +40,14 @@ public class PLC {
 		ProfileGeneric pg = getAs220().getCosemObjectFactory().getProfileGeneric(PLC_STATISTICS_OBISCODE);
 
 		byte[] profile = pg.getBufferData();
-		System.out.println(ProtocolTools.getHexStringFromBytes(profile));
 		PLCStatistics plcStatictics = new PLCStatistics(profile, getAs220().getTimeZone());
 		System.out.println(plcStatictics);
 
-		return null;
+		ProfileData pd = new ProfileData();
+		pd.setChannelInfos(plcStatictics.getChannelInfos());
+		pd.setIntervalDatas(plcStatictics.getIntervalDatas());
+
+		return pd;
 	}
 
 
