@@ -106,6 +106,8 @@ public interface DLMSCOSEMGlobals {
 	// SAP OBJECT
 	short SAP_OBJECT_SN=(short)0xFC00;
 	short SAP_ATTR_ASSIGNMENT_LIST=(short)8;
+	
+	short IMAGE_TRANSFER_SN = (short)0x6FB8;
 
 	// **********************************************************************************************
 	// Offsets for interface classes

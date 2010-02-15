@@ -62,6 +62,8 @@ import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.HDLC2Connection;
@@ -69,16 +71,16 @@ import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 
-abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism {
+abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, FirmwareUpdateMessaging {
 
-	private static final int			MAX_PDU_SIZE				= 200;
-	private static final int			PROPOSED_QOS				= -1;
+	private static final int			MAX_PDU_SIZE			= 200;
+	private static final int			PROPOSED_QOS			= -1;
 	private static final int			PROPOSED_DLMS_VERSION		= 6;
 
 	private static final int			CONNECTION_MODE_HDLC		= 0;
 	private static final int			CONNECTION_MODE_TCPIP		= 1;
 	private static final int			CONNECTION_MODE_COSEM_PDU	= 2;
-	private static final int			CONNECTION_MODE_LLC			= 3;
+	private static final int			CONNECTION_MODE_LLC		= 3;
 
 
 	private boolean debug = false;
@@ -108,7 +110,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     private ProtocolChannelMap channelMap;
 
     private int authenticationSecurityLevel;
-	private int	datatransportSecurityLevel;
+    private int	datatransportSecurityLevel;
 
     private DLMSConnection dlmsConnection = null;
     private SecurityContext securityContext = null;
@@ -778,5 +780,38 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 		return iRoundtripCorrection;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
+	    return new FirmwareUpdateMessageBuilder();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Currently URL's are not supported
+	 */
+	public boolean supportsUrls() {
+	    return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * We don't have database access so we don't need references
+	 */
+	public boolean supportsUserFileReferences() {
+	    return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Userfiles are supported for upgrades
+	 */
+	public boolean supportsUserFilesForFirmwareUpdate() {
+	    return true;
+	}
 }
 

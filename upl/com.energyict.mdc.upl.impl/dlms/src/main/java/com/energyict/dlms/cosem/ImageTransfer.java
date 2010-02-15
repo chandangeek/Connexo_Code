@@ -17,7 +17,7 @@ import com.energyict.obis.ObisCode;
 /**
  *
  * @author gna
- *
+ * <pre>
  * The Image transfer takes place in several steps:
  * Step 1:   The client gets the ImageBlockSize from each server individually;
  * Step 2:   The client initiates the Image transfer process individually or using broadcast;
@@ -25,8 +25,8 @@ import com.energyict.obis.ObisCode;
  * Step 4:   The client checks the completeness of the Image in each server individually and transfers any ImageBlocks not (yet) transferred;
  * Step 5:   The Image is verified;
  * Step 6:   Before activation, the Image is checked;
- * Step 7:   The Image(s) is (are) activated.
- *
+ * Step 7:   The Image(s) is(/are) activated.
+ * </pre>
  */
 
 public class ImageTransfer extends AbstractCosemObject{
@@ -35,10 +35,10 @@ public class ImageTransfer extends AbstractCosemObject{
 	private static int delay = 3000;
 	private int maxBlockRetryCount = 3;
 	private int maxTotalRetryCount = 500;
-
+	
 	private ProtocolLink protocolLink;
 
-	/** Attributes */
+	/* Attributes */
 	private Unsigned32 imageMaxBlockSize = null; // holds the max size of the imageblocks to be sent to the server(meter)
 	private BitString imageTransferBlocksStatus = null; // Provides information about the transfer status of each imageBlock (1=Transfered, 0=NotTransfered)
 	private Unsigned32 imageFirstNotTransferedBlockNumber = null; // Provides the blocknumber of the first not transfered imageblock
@@ -46,7 +46,7 @@ public class ImageTransfer extends AbstractCosemObject{
 	private TypeEnum imageTransferStatus = null; // Holds the status of the image transfer process
 	private Array imageToActivateInfo = null;	// Provides information on the image(s) ready for activation
 
-	/** Attribute numbers */
+	/* Attribute numbers */
 	private static final int ATTRB_IMAGE_BLOCK_SIZE = 2;
 	private static final int ATTRB_IMAGE_TRANSFER_BLOCK_STATUS = 3;
 	private static final int ATTRB_IMAGE_FIRST_NOT_TRANSFERED_BLOCK = 4;
@@ -54,13 +54,18 @@ public class ImageTransfer extends AbstractCosemObject{
 	private static final int ATTRB_IMAGE_TRANSFER_STATUS = 6;
 	private static final int ATTRB_IMAGE_TO_ACTIVATE_INFO = 7;
 
-	/** Method invoke */
+	/* Method invoke */
 	private static final int IMAGE_TRANSFER_INITIATE = 1;
 	private static final int IMAGE_BLOCK_TRANSFER = 2;
 	private static final int IMAGE_VERIFICATION = 3;
 	private static final int IMAGE_ACTIVATION = 4;
-
-	/** Image info */
+	/* Method writes SN */
+	private static final int IMAGE_TRANSFER_INITIATE_SN = 0x40;
+	private static final int IMAGE_BLOCK_TRANSFER_SN = 0x48;
+	private static final int IMAGE_VERIFICATION_SN = 0x50;
+	private static final int IMAGE_ACTIVATION_SN = 0x58;
+	
+	/* Image info */
 	private Unsigned32 size = null; 	// the size of the image
 	private byte[] data = null; // the complete image in byte
 	private int blockCount = -1; // the amount of block numbers
@@ -70,9 +75,9 @@ public class ImageTransfer extends AbstractCosemObject{
 	static final byte[] LN=new byte[]{0,0,44,0,0,(byte)255};
 
 	public ImageTransfer(ProtocolLink protocolLink) {
-        super(protocolLink,new ObjectReference(LN));
-        this.protocolLink = protocolLink;
-    }
+            super(protocolLink,new ObjectReference(LN));
+            this.protocolLink = protocolLink;
+        }
 
 	public ImageTransfer(ProtocolLink protocolLink, ObjectReference objectReference) {
 		super(protocolLink, objectReference);
@@ -94,16 +99,35 @@ public class ImageTransfer extends AbstractCosemObject{
 	}
 
 	/**
-	 * Start the automatic upgrade procedure
-	 * @param data - the image to transfer
-	 * @throws IOException
-	 * @throws InterruptedException
+	 * Start the automatic upgrade procedure. If the last block is not a multiple of the blockSize, then additional zeros will be padded at the end.
+	 * If you don't want this behavior then use {{@link #upgrade(byte[], boolean)} instead.
+	 * 
+	 * @param data 
+	 * 		- the image to transfer
+	 * 
+	 * @throws IOException if something went wrong during the upgrade.
+	 * @throws InterruptedException when interrupted while sleeping
 	 */
 	public void upgrade(byte[] data) throws IOException, InterruptedException{
+	    this.upgrade(data, true);
+	}
+	
+	/**
+	 * Start the automatic upgrade procedure. You may choose to add additional zeros at in the last block to match the blockSize for each block.
+	 * 
+	 * @param data 
+	 * 		- the image to transfer
+	 * @param additionalZeros
+	 * 		- indicate whether you need to add zeros to the last block to match the blockSize
+	 * 
+	 * @throws IOException when something went wrong during the upgrade
+	 * @throws InterruptedException when interrupted while sleeping
+	 */
+	public void upgrade(byte[] data, boolean additionalZeros) throws IOException, InterruptedException{
 		this.data = data;
 		this.size = new Unsigned32(data.length);
 
-		// Set the imageTransferEnabledState to true
+		// Set the imageTransferEnabledState to true (otherwise the upgrade can not be performed)
 		writeImageTransferEnabledState(true);
 
 		if(getImageTransferEnabledState().getState()){
@@ -122,7 +146,7 @@ public class ImageTransfer extends AbstractCosemObject{
 
 			// Step2: Initiate the image transfer
 			Structure imageInitiateStructure = new Structure();
-			imageInitiateStructure.addDataType(OctetString.fromString("NewImage"));
+			imageInitiateStructure.addDataType(OctetString.fromString("NewImage"));	// it's a default name for the new image
 			imageInitiateStructure.addDataType(this.size);
 
 			imageTransferInitiate(imageInitiateStructure);
@@ -132,8 +156,7 @@ public class ImageTransfer extends AbstractCosemObject{
 
 
 			// Step3: Transfer image blocks
-			//TODO - TOTEST
-			transferImageBlocks();
+			transferImageBlocks(additionalZeros);
 			if(DEBUG) {
 				System.out.println("ImageTrans: Transfered " + this.blockCount + " blocks.");
 			}
@@ -144,7 +167,6 @@ public class ImageTransfer extends AbstractCosemObject{
 //			checkAndSendMissingBlocks();
 
 			// Step5: Verify image
-			//TODO - TOTEST
 			verifyAndRetryImage();
 			if(DEBUG) {
 				System.out.println("ImageTrans: Verification successfull.");
@@ -165,10 +187,18 @@ public class ImageTransfer extends AbstractCosemObject{
 	}
 
 	/**
-	 * Transfer all the image blocks to the meter
-	 * @throws IOException
+	 * Transfer all the image blocks to the meter.
+	 * 
+	 * @param additionalZeros 
+	 * 		- add additional zeros to match the last blocksize to a multiple of the fileSize
+	 *  
+	 * @throws IOException if something went wrong during the upgrade
 	 */
-	private void transferImageBlocks() throws IOException {
+	private void transferImageBlocks(boolean additionalZeros) throws IOException {
+	    
+//	    File file = new File("C:\\testDebugFile.txt");
+//	    FileOutputStream fos = new FileOutputStream(file);
+	    
 		byte[] octetStringData = null;
 		OctetString os = null;
 		Structure imageBlockTransfer;
@@ -178,16 +208,27 @@ public class ImageTransfer extends AbstractCosemObject{
 				System.arraycopy(this.data, (int)(i*readImageBlockSize().getValue()), octetStringData, 0,
 						(int)readImageBlockSize().getValue());
 			} else {
-				long blockSize = this.size.getValue() - (i*readImageBlockSize().getValue());
+			    /*
+			     * If it is the last block then it is dependent from vendor to vendor whether they want the size of the last block
+			     * to be the same as the others, or just the size of the remaining bytes. 
+			     */
+			    long blockSize = this.size.getValue() - (i*readImageBlockSize().getValue());
+			    if(additionalZeros){
 				octetStringData = new byte[(int)readImageBlockSize().getValue()];
 				System.arraycopy(this.data, (int)(i*readImageBlockSize().getValue()), octetStringData, 0,
 						(int)blockSize);
-
+			    } else {
+				octetStringData = new byte[(int)blockSize];
+				System.arraycopy(this.data, (int)(i*readImageBlockSize().getValue()), octetStringData, 0,
+					(int)blockSize);
+			    }
+			    
 			}
 			os = new OctetString(octetStringData);
 			imageBlockTransfer = new Structure();
 			imageBlockTransfer.addDataType(new Unsigned32(i));
 			imageBlockTransfer.addDataType(os);
+//			fos.write(octetStringData);
 			imageBlockTransfer(imageBlockTransfer);
 
 			if(i % 50 == 0){ // i is multiple of 50
@@ -197,7 +238,14 @@ public class ImageTransfer extends AbstractCosemObject{
 			if(DEBUG) {
 				System.out.println("ImageTrans: Write block " + i + " success.");
 			}
+//			try {
+//				Thread.sleep(100);
+//			} catch (InterruptedException e) {
+//				this.protocolLink.getLogger().log(Level.INFO, "Interrupted while sleeping");
+//			}
+			
 		}
+//		fos.close();
 	}
 
 	/**
@@ -226,53 +274,6 @@ public class ImageTransfer extends AbstractCosemObject{
 			throw new IOException("Could not verify the image." + e.getMessage());
 		}
 	}
-
-//	/**
-//	 * Check if there are missing blocks, if so, resent them
-//	 * @throws IOException
-//	 */
-//	private void checkAndSendMissingBlocks() throws IOException{
-//
-//		byte[] octetStringData = null;
-//		OctetString os = null;
-//		long previousMissingBlock = -1;
-//		int retryBlock = 0;
-//		int totalRetry = 0;
-//		while(readFirstMissingBlock().getValue() < this.blockCount){
-//
-//			if(DEBUG)System.out.println("ImageTrans: First Missing block is " + getFirstMissingBlock().getValue());
-//
-//			if(previousMissingBlock == getFirstMissingBlock().getValue()){
-//				if(retryBlock++ == this.maxBlockRetryCount){
-//					throw new IOException("Exceeding the maximum retry for block " + getFirstMissingBlock().getValue() + ", Image transfer is canceled.");
-//				} else if(totalRetry++ == this.maxTotalRetryCount){
-//					throw new IOException("Exceeding the total maximum retry count, Image transfer is canceled.");
-//				}
-//			} else {
-//				previousMissingBlock = getFirstMissingBlock().getValue();
-//				retryBlock = 0;
-//			}
-//
-//			if (getFirstMissingBlock().getValue() < this.blockCount -1) {
-//				octetStringData = new byte[(int)getMaxImageBlockSize().getValue()];
-//				System.arraycopy(this.data, (int)(getFirstMissingBlock().getValue()*getMaxImageBlockSize().getValue()), octetStringData, 0,
-//						(int)getMaxImageBlockSize().getValue());
-//			} else {
-//				long blockSize = this.size.getValue() - (getFirstMissingBlock().getValue()*getMaxImageBlockSize().getValue());
-//				octetStringData = new byte[(int)blockSize];
-//				System.arraycopy(this.data, (int)(getFirstMissingBlock().getValue()*getMaxImageBlockSize().getValue()), octetStringData, 0,
-//						(int)blockSize);
-//			}
-//
-//			os = new OctetString(trimByteArray(octetStringData));
-//			this.imageBlockTransfer = new Structure();
-//			this.imageBlockTransfer.addDataType(new Unsigned32((int)getFirstMissingBlock().getValue()));
-//			this.imageBlockTransfer.addDataType(os);
-//			writeImageBlock(this.imageBlockTransfer);
-//			if(DEBUG)System.out.println("ImageTrans: Write block " + (int)getFirstMissingBlock().getValue() + " success.");
-//		}
-//	}
-
 
 	/**
 	 * Get the maximum block image size from the device
@@ -330,7 +331,7 @@ public class ImageTransfer extends AbstractCosemObject{
 	/**
 	 * Controls enabling the Image transfer process. The method can be
 	 * invoked successfully only if the value of this attribute is TRUE.
-	 * boolean: FALSE = Disabled,
+	 * Boolean: FALSE = Disabled,
 	 * 			TRUE = Enabled
 	 * @return
 	 * @throws IOException
@@ -362,7 +363,7 @@ public class ImageTransfer extends AbstractCosemObject{
 	/**
 	 * Controls enabling the Image transfer process. The method can be
 	 * invoked successfully only if the value of this attribute is TRUE.
-	 * boolean: FALSE = Disabled,
+	 * Boolean: FALSE = Disabled,
 	 * 			TRUE = Enabled
 	 * @return
 	 * @throws IOException
@@ -381,6 +382,7 @@ public class ImageTransfer extends AbstractCosemObject{
 	}
 
 	/**
+	 * <pre>
 	 * Holds the status of the Image transfer process.
 	 * enum:  (0)  Image transfer not initiated,
 	 * 		(1)  Image transfer initiated,
@@ -390,6 +392,7 @@ public class ImageTransfer extends AbstractCosemObject{
 	 * 		(5)  Image activation initiated,
 	 * 		(6)  Image activation successful
 	 * 		(7)  Image activation failed
+	 * </pre>
 	 * @return
 	 * @throws IOException
 	 */
@@ -420,6 +423,7 @@ public class ImageTransfer extends AbstractCosemObject{
 		}
 	}
 	/**
+	 * <pre>
 	 * Initializes the Image transfer process.
 	 * The structure has the form of :
 	 * 		data ::= structure
@@ -430,18 +434,24 @@ public class ImageTransfer extends AbstractCosemObject{
 	 * 		where:
 	 * 		-  image_identifier identifies the Image to be transferred;
 	 * 		-  image_size holds the ImageSize, expressed in octets.
+	 * </pre>
 	 * @param imageInfo
 	 * @throws IOException
 	 */
 	public void imageTransferInitiate(Structure imageInfo) throws IOException {
+	    if(getObjectReference().isLNReference()){
 		try {
-			invoke(IMAGE_TRANSFER_INITIATE, imageInfo.getBEREncodedByteArray());
+		    invoke(IMAGE_TRANSFER_INITIATE, imageInfo.getBEREncodedByteArray());
 		} catch (IOException e){
-			throw new IOException("Could not initiate the imageTransfer" + e.getMessage());
+		    throw new IOException("Could not initiate the imageTransfer" + e.getMessage());
 		}
+	    } else { // SN referencing
+		write(IMAGE_TRANSFER_INITIATE_SN, imageInfo.getBEREncodedByteArray());
+	    }
 	}
 
 	/**
+	 * <pre>
 	 * Transfers one block of the Image to the server.
 	 * The structure has the form of :
 	 * 		data ::= structure
@@ -450,15 +460,20 @@ public class ImageTransfer extends AbstractCosemObject{
  	 * 		image_block_value:   octet-string
 	 * 		}
 	 * 		NOTE: the first ImageBlock sent is block 0.
+	 * </pre>
 	 * @param imageData
 	 * @throws IOException
 	 */
 	public void imageBlockTransfer(Structure imageData) throws IOException {
+	    if(getObjectReference().isLNReference()){
 		try{
-			invoke(IMAGE_BLOCK_TRANSFER, imageData.getBEREncodedByteArray());
+		    invoke(IMAGE_BLOCK_TRANSFER, imageData.getBEREncodedByteArray());
 		} catch (IOException e) {
-			throw new IOException("Could not write the current imageData block" + e.getMessage());
+		    throw new IOException("Could not write the current imageData block" + e.getMessage());
 		}
+	    } else {
+		write(IMAGE_BLOCK_TRANSFER_SN, imageData.getBEREncodedByteArray());
+	    }
 	}
 
 	/**
@@ -471,11 +486,15 @@ public class ImageTransfer extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void imageVerification() throws IOException {
+	    if(getObjectReference().isLNReference()){
 		try{
-			invoke(IMAGE_VERIFICATION, new Integer8(0).getBEREncodedByteArray());
+		    invoke(IMAGE_VERIFICATION, new Integer8(0).getBEREncodedByteArray());
 		} catch (IOException e) {
-			throw new IOException("Could not verify the imageData" + e.getMessage());
+		    throw new IOException("Could not verify the imageData" + e.getMessage());
 		}
+	    } else {
+		write(IMAGE_VERIFICATION_SN, new Integer8(0).getBEREncodedByteArray());
+	    }
 	}
 
 	/**
@@ -490,10 +509,14 @@ public class ImageTransfer extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void imageActivation() throws IOException {
+	    if(getObjectReference().isLNReference()){
 		try{
-			invoke(IMAGE_ACTIVATION, new Integer8(0).getBEREncodedByteArray());
+		    invoke(IMAGE_ACTIVATION, new Integer8(0).getBEREncodedByteArray());
 		} catch (IOException e) {
-			throw new IOException("Could not activate the image." + e.getMessage());
+		    throw new IOException("Could not activate the image." + e.getMessage());
 		}
+	    } else {
+		write(IMAGE_ACTIVATION_SN, new Integer8(0).getBEREncodedByteArray());
+	    }
 	}
 }

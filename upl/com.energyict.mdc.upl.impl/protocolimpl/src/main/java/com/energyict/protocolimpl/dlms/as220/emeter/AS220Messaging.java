@@ -4,13 +4,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+
+import org.xml.sax.SAXException;
 
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -110,6 +115,8 @@ public class AS220Messaging implements MessageProtocol {
 				setActivePLCChannel(messageEntry);
 			} else if (isMessageTag(FORCE_SET_CLOCK, messageEntry)) {
 				getAs220().geteMeter().getClockController().setTime();
+			}else if (isMessageTag("firmwareUpgrade", messageEntry)) {
+				upgradeFirmware(messageEntry);    
 			} else {
 				getAs220().getLogger().severe("Received unknown message: " + messageEntry);
 				return MessageResult.createFailed(messageEntry);
@@ -118,6 +125,86 @@ public class AS220Messaging implements MessageProtocol {
 		} catch (IOException e) {
 			getAs220().getLogger().severe("QueryMessage(), " + e.getMessage());
 			return MessageResult.createFailed(messageEntry);
+		}
+	}
+
+	/**
+	 * @param messageEntry
+	 * @throws IOException 
+	 */
+	protected void upgradeFirmware(MessageEntry messageEntry) throws IOException {
+//		logger.info("Received a firmware upgrade message, using firmware message builder...");
+
+		final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder();
+
+		try {
+			builder.initFromXml(messageEntry.getContent());
+		} catch (final SAXException e) {
+		    getAs220().getLogger().log(Level.SEVERE, "Cannot process firmware upgrade message due to an XML parsing error [" + e.getMessage() + "]", e);
+		    throw new IOException(e.getMessage());
+		} catch (final IOException e) {
+			if (getAs220().getLogger().isLoggable(Level.SEVERE)) {
+			    getAs220().getLogger().log(Level.SEVERE, "Got an IO error when loading firmware message content [" + e.getMessage() + "]", e);
+			}
+			 throw new IOException(e.getMessage());
+		}
+
+		// We requested an inlined file...
+		if (builder.getUserFile() != null) {
+		    getAs220().getLogger().info("Pulling out user file and dispatching to the device...");
+
+			final byte[] upgradeFileData = builder.getUserFile().loadFileInByteArray();
+
+			if (upgradeFileData.length > 0) {
+				try {
+					this.upgradeDevice(builder.getUserFile().loadFileInByteArray());
+				} catch (final IOException e) {
+				    getAs220().getLogger().log(Level.SEVERE, "Caught an IO error when trying upgrade [" + e.getMessage() + "]", e);
+				    throw e;
+				}
+			} else {
+				if (getAs220().getLogger().isLoggable(Level.WARNING)) {
+				    getAs220().getLogger().log(Level.WARNING, "Length of the upgrade file is not valid [" + upgradeFileData + " bytes], failing message.");
+				}
+
+			}
+		} else {
+		    getAs220().getLogger().log(Level.WARNING, "The message did not contain a user file to use for the upgrade, message fails...");
+
+		}
+
+		getAs220().getLogger().info("Upgrade message has been processed successfully, marking message as successfully processed...");
+
+	}
+	
+	/**
+	 * Upgrades the remote device using the image specified.
+	 *
+	 * @param 	image			The new image to push to the remote device.
+	 *
+	 * @throws	IOException		If an IO error occurs during the upgrade.
+	 */
+	public final void upgradeDevice(final byte[] image) throws IOException {
+	    getAs220().getLogger().info("Upgrading EpIO with new firmware image of size [" + image.length + "] bytes");
+
+		final ImageTransfer imageTransfer = getAs220().getCosemObjectFactory().getImageTransferSN();
+
+		try {
+		    getAs220().getLogger().info("Converting received image to binary using a Base64 decoder...");
+
+			getAs220().getLogger().info("Commencing upgrade...");
+
+			imageTransfer.upgrade(image, false);
+			imageTransfer.imageActivation();
+
+			getAs220().getLogger().info("Upgrade has finished successfully...");
+		} catch (final InterruptedException e) {
+		    getAs220().getLogger().log(Level.SEVERE, "Interrupted while uploading firmware image [" + e.getMessage() + "]", e);
+
+			final IOException ioException = new IOException(e.getMessage());
+			ioException.initCause(e);
+
+			throw ioException;
 		}
 	}
 

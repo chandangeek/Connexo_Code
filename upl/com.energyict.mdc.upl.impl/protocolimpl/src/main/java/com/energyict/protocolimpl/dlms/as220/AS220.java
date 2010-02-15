@@ -41,10 +41,10 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 	private int iNROfIntervals=-1;
 
 	private final EMeter			eMeter		= new EMeter(this);
-	private final MessageProtocol	messaging	= new AS220Messaging(this);
-	private final PLC				plc			= new PLC(this);
+	private final MessageProtocol		messaging	= new AS220Messaging(this);
+	private final PLC			plc		= new PLC(this);
 
-	private ObiscodeMapper			ocm			= null;
+	private ObiscodeMapper			ocm		= null;
 
     /**
      * Create a new instance of the {@link AS220} dlms protocol

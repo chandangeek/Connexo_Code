@@ -904,8 +904,8 @@ public final class EictZ3 implements MeterProtocol, HHUEnabler, ProtocolLink, Ca
 		byteTimeBuffer[8] = (byte) newTime.get(Calendar.MINUTE);
 		byteTimeBuffer[9] = (byte) newTime.get(Calendar.SECOND);
 		byteTimeBuffer[10] = (byte) 0xFF;
-		byteTimeBuffer[11] = (byte) 0xFF; // 0x80;
-		byteTimeBuffer[12] = (byte) 0xFF; // 0x00;
+		byteTimeBuffer[11] = (byte) 0x80; // 0x80;
+		byteTimeBuffer[12] = (byte) 0x00; // 0x00;
 		if (timeZone.inDaylightTime(newTime.getTime())) {
 			byteTimeBuffer[13] = (byte) 0x80; // 0x00;
 		} else {

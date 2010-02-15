@@ -272,10 +272,24 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 		return new AutoConnect(protocolLink);
 	}
 
+	/**
+	 * Getter for the LongName ImageTransfer Object
+	 */
 	public ImageTransfer getImageTransfer() throws IOException {
 		return new ImageTransfer(protocolLink);
 	}
+	/**
+	 * Getter for the ShortName ImageTransfer Object
+	 */
+	public ImageTransfer getImageTransferSN() throws IOException {
+	    return new ImageTransfer(protocolLink, new ObjectReference(IMAGE_TRANSFER_SN));
+	}
 
+	/**
+	 * Getter for the ImageTransfer Object with a given obisCode.
+	 * If it is the default you need, then it is advised to use {@link CosemObjectFactory#.getImageTransfer()}
+	 * or {@link CosemObjectFactory#.getImageTransferSN()}
+	 */
 	public ImageTransfer getImageTransfer(ObisCode obisCode) throws IOException {
 		return new ImageTransfer(protocolLink, getObjectReference(obisCode));
 	}
