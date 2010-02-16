@@ -272,9 +272,30 @@ public class ProtocolToolsTest {
 		for (int i = 0; i < profileInterval.length; i++) {
 			corrected.set(2010, 1, 1, 1, profileInterval[i], 0);
 			original = (Calendar) corrected.clone();
-			for (int j = 1; j < (profileInterval[i] * SECONDS_PER_MINUTE); j++) {
-				original.add(Calendar.SECOND, -1);
+			for (int j = 0; j < (profileInterval[i] * SECONDS_PER_MINUTE); j++) {
 				assertEquals(corrected.getTime(), ProtocolTools.roundUpToNearestInterval(original.getTime(), profileInterval[i]));
+				original.add(Calendar.SECOND, -1);
+			}
+		}
+
+	}
+
+	/**
+	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#roundDownToNearestInterval(Date, int)}.
+	 */
+	@Test
+	public void testRoundDownToNearestInterval() {
+		final int[] profileInterval = {1, 2, 5, 10, 15, 20, 30, 60};
+		Calendar original;
+		Calendar corrected = Calendar.getInstance();
+		corrected.set(Calendar.MILLISECOND, 0);
+
+		for (int i = 0; i < profileInterval.length; i++) {
+			corrected.set(2010, 1, 1, 1, 0, 0);
+			original = (Calendar) corrected.clone();
+			for (int j = 0; j < (profileInterval[i] * SECONDS_PER_MINUTE); j++) {
+				assertEquals("Error whil rounding date: " + original.getTime() , corrected.getTime(), ProtocolTools.roundDownToNearestInterval(original.getTime(), profileInterval[i]));
+				original.add(Calendar.SECOND, 1);
 			}
 		}
 

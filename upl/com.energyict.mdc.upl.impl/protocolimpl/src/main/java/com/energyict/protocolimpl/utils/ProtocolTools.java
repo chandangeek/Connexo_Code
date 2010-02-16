@@ -260,11 +260,11 @@ public final class ProtocolTools {
 
 	/**
 	 * @param timeStamp
-	 * @param intervalInSeconds
+	 * @param intervalInMinutes
 	 * @return
 	 */
-	public static Date roundUpToNearestInterval(Date timeStamp, int intervalInSeconds) {
-		int intervalMillis = intervalInSeconds * 1000 * 60;
+	public static Date roundUpToNearestInterval(Date timeStamp, int intervalInMinutes) {
+		int intervalMillis = intervalInMinutes * 1000 * 60;
 
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(timeStamp);
@@ -272,17 +272,30 @@ public final class ProtocolTools {
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 
-
 		long diff = timeStamp.getTime() - cal.getTimeInMillis();
 		long overTime = diff % intervalMillis;
 		long beforeTime = intervalMillis - overTime;
 
 		Calendar returnDate = Calendar.getInstance();
 		returnDate.setTime(timeStamp);
-		returnDate.add(Calendar.MILLISECOND, overTime != 0 ? (int) beforeTime : 0);
+		if (intervalInMinutes > 0) {
+			returnDate.add(Calendar.MILLISECOND, overTime != 0 ? (int) beforeTime : 0);
+		} else {
+			returnDate.add(Calendar.MILLISECOND, (overTime != 0 ? (int) overTime : 0) * (-1));
+		}
 
 		return returnDate.getTime();
 	}
+
+	/**
+	 * @param timeStamp
+	 * @param intervalInMinutes
+	 * @return
+	 */
+	public static Object roundDownToNearestInterval(Date timeStamp, int intervalInMinutes) {
+		return roundUpToNearestInterval(timeStamp, intervalInMinutes * (-1));
+	}
+
 
 	/**
 	 * @param profileData
@@ -359,7 +372,5 @@ public final class ProtocolTools {
 		}
 		return mergedIntervals;
 	}
-
-
 
 }
