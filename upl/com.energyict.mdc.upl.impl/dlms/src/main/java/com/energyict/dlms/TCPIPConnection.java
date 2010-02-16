@@ -410,4 +410,9 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
 	public InvokeIdAndPriority getInvokeIdAndPriority(){
 		return this.invokeIdAndPriority;
 	}
+
+	public int getMaxRetries() {
+		return maxRetries;
+	}
+
 } // public class TCPIPConnection

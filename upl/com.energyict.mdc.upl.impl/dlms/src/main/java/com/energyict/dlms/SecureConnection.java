@@ -135,4 +135,8 @@ public class SecureConnection implements DLMSConnection {
 		getTransportConnection().setSNRMType(type);
 	}
 
+	public int getMaxRetries() {
+		return getTransportConnection().getMaxRetries();
+	}
+
 }

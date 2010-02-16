@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.dlms.mocks;
 
@@ -15,11 +15,11 @@ import com.energyict.dlms.InvokeIdAndPriority;
  *
  */
 public class MockDLMSConnection implements DLMSConnection {
-	
+
 	private byte[] responseByte;
 
 	/**
-	 * 
+	 *
 	 */
 	public MockDLMSConnection() {
 	}
@@ -64,13 +64,16 @@ public class MockDLMSConnection implements DLMSConnection {
 
 	public void setSNRMType(int type) {
 	}
-	
+
 	/**
 	 * Set the responseBytes you want to get back from the sendRequest
 	 * @param response
 	 */
 	public void setResponseByte(byte[] response){
 		this.responseByte = response;
+	}
+	public int getMaxRetries() {
+		return 0;
 	}
 
 }

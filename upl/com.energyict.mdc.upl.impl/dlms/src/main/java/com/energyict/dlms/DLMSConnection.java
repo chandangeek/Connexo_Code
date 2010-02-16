@@ -43,4 +43,6 @@ public interface DLMSConnection {
 
 	InvokeIdAndPriority getInvokeIdAndPriority();
 
+	int getMaxRetries();
+
 }

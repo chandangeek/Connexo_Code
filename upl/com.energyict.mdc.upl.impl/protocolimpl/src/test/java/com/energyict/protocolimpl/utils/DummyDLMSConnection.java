@@ -10,20 +10,20 @@ import com.energyict.dlms.InvokeIdAndPriority;
 /**
  * Dummy DLMS connection class.
  * Just for testing purposes.
- * 
+ *
  * Before each DLMSRequest you must set the response with {@link DummyDLMSConnection#setResponseByte(byte[])}
- * 
+ *
  * @author gna
  *
  */
 public class DummyDLMSConnection implements DLMSConnection {
-	
+
 	/** the expected response */
 	private byte[] responseByte;
 	private byte[] sentBytes;
 
 	/**
-	 * 
+	 *
 	 */
 	public DummyDLMSConnection() {
 	}
@@ -95,7 +95,7 @@ public class DummyDLMSConnection implements DLMSConnection {
 	 */
 	public void setSNRMType(int type) {
 	}
-	
+
 	/**
 	 * Set the desired response for your next DLMS request.
 	 * @param response - the response you would like to receive
@@ -103,12 +103,16 @@ public class DummyDLMSConnection implements DLMSConnection {
 	public void setResponseByte(byte[] response){
 		this.responseByte = response.clone();
 	}
-	
+
 	/**
 	 * @return the last byteArray you send over
 	 */
 	public byte[] getSentBytes(){
 		return this.sentBytes;
+	}
+
+	public int getMaxRetries() {
+		return 0;
 	}
 
 }
