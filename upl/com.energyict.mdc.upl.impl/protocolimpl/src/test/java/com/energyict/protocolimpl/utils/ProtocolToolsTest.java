@@ -8,6 +8,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -15,12 +19,15 @@ import org.junit.Test;
 
 import antlr.Utils;
 
+import com.energyict.protocol.IntervalData;
+
 /**
  * @author jme
  *
  */
 public class ProtocolToolsTest {
 
+	private static final int	SECONDS_PER_MINUTE	= 60;
 	private static final String	NON_EXISTING_FILE_NAME	= "nonexistingfilename";
 	private static final String	FILENAME_TO_READ		= "/com/energyict/utils/ProtocolToolsReadFileTest.txt";
 	private static final String	FILENAME_TO_WRITE		= System.getProperty("java.io.tmpdir") + "/ProtocolToolsReadFileTest.tmp";
@@ -249,6 +256,57 @@ public class ProtocolToolsTest {
 		assertArrayEquals(BYTE_ARRAY, ProtocolTools.readBytesFromFile(FILENAME_TO_WRITE));
 		ProtocolTools.writeBytesToFile(FILENAME_TO_WRITE, BYTE_ARRAY, true);
 		assertArrayEquals(ProtocolTools.concatByteArrays(BYTE_ARRAY, BYTE_ARRAY), ProtocolTools.readBytesFromFile(FILENAME_TO_WRITE));
+	}
+
+
+	/**
+	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#roundUpToNearestInterval(Date, int)}.
+	 */
+	@Test
+	public void testRoundUpToNearestInterval() {
+		final int[] profileInterval = {1, 2, 5, 10, 15, 20, 30, 60};
+		Calendar original;
+		Calendar corrected = Calendar.getInstance();
+		corrected.set(Calendar.MILLISECOND, 0);
+
+		for (int i = 0; i < profileInterval.length; i++) {
+			corrected.set(2010, 1, 1, 1, profileInterval[i], 0);
+			original = (Calendar) corrected.clone();
+			for (int j = 1; j < (profileInterval[i] * SECONDS_PER_MINUTE); j++) {
+				original.add(Calendar.SECOND, -1);
+				assertEquals(corrected.getTime(), ProtocolTools.roundUpToNearestInterval(original.getTime(), profileInterval[i]));
+			}
+		}
+
+	}
+
+	/**
+	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#mergeDuplicateIntervals(java.util.List)}.
+	 */
+	@Test
+	public final void testMergeDuplicateIntervals() {
+
+		List<IntervalData> in = new ArrayList<IntervalData>();
+		for (int i = 0; i < 15; i++) {
+			IntervalData id = new IntervalData(new Date(123456789));
+			for (int value = 0; value < 5; value++) {
+				id.addValue(value);
+			}
+			in.add(id);
+		}
+
+		for (int i = 0; i < 10; i++) {
+			IntervalData id = new IntervalData(new Date(124456788));
+			for (int value = 0; value < 5; value++) {
+				id.addValue(value * 2);
+			}
+			in.add(id);
+		}
+
+		List<IntervalData> out = ProtocolTools.mergeDuplicateIntervals(in);
+		assertNotNull(out);
+		assertEquals(2, out.size());
+
 	}
 
 }
