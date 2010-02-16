@@ -109,6 +109,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     private int iInterval=-1;
     private int extendedLogging;
     private ProtocolChannelMap channelMap;
+    private int opticalBaudrate;
 
     private int authenticationSecurityLevel;
 	private int	datatransportSecurityLevel;
@@ -198,7 +199,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
             switch (connectionMode) {
 				case CONNECTION_MODE_HDLC:
 				    connection = new HDLC2Connection(inputStream, outputStream, iTimeoutProperty, 100, iProtocolRetriesProperty, iClientMacAddress,
-			iServerLowerMacAddress, iServerUpperMacAddress, addressingMode, -1, 5);
+			iServerLowerMacAddress, iServerUpperMacAddress, addressingMode, -1, opticalBaudrate);
 					break;
 				case CONNECTION_MODE_TCPIP:
 					connection = new TCPIPConnection(inputStream,outputStream,iTimeoutProperty,iForcedDelay,iProtocolRetriesProperty,iClientMacAddress,iServerLowerMacAddress);
@@ -489,7 +490,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 			}
 
 			nodeId = properties.getProperty(MeterProtocol.NODEID, "");
-			serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
+			serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
 			extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
 			addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "-1"));
 			connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection 3=LLCConnection
@@ -531,6 +532,8 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 			transparentDatabits = Integer.parseInt(properties.getProperty("TransparentDatabits", "8"));
 			transparentStopbits = Integer.parseInt(properties.getProperty("TransparentStopbits", "1"));
 			transparentParity = Integer.parseInt(properties.getProperty("TransparentParity", "0"));
+			
+			opticalBaudrate = Integer.parseInt(properties.getProperty("OpticalBaudrate", "-1"));
 
 		} catch (NumberFormatException e) {
 			throw new InvalidPropertyException(" validateProperties, NumberFormatException, " + e.getMessage());
@@ -615,6 +618,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         result.add("TransparentDatabits");
         result.add("TransparentStopbits");
         result.add("TransparentParity");
+        result.add("OpticalBaudrate");
         return result;
     }
 
