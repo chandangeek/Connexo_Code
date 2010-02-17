@@ -32,28 +32,27 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 public class AS220Main {
 
-	private static final ObisCode	DEVICE_ID1_OBISCODE			= ObisCode.fromString("0.0.96.0.0.255");
-	private static final ObisCode	DEVICE_ID2_OBISCODE			= ObisCode.fromString("0.0.96.1.0.255");
-	private static final ObisCode	DEVICE_ID3_OBISCODE			= ObisCode.fromString("0.0.96.2.0.255");
-	private static final ObisCode	DEVICE_ID4_OBISCODE			= ObisCode.fromString("0.0.96.3.0.255");
-	private static final ObisCode	DEVICE_ID5_OBISCODE			= ObisCode.fromString("0.0.96.4.0.255");
+	private static final ObisCode	DEVICE_ID1_OBISCODE		= ObisCode.fromString("0.0.96.0.0.255");
+	private static final ObisCode	DEVICE_ID2_OBISCODE		= ObisCode.fromString("0.0.96.1.0.255");
+	private static final ObisCode	DEVICE_ID3_OBISCODE		= ObisCode.fromString("0.0.96.2.0.255");
+	private static final ObisCode	DEVICE_ID4_OBISCODE		= ObisCode.fromString("0.0.96.3.0.255");
+	private static final ObisCode	DEVICE_ID5_OBISCODE		= ObisCode.fromString("0.0.96.4.0.255");
 
-	private static final String		DISCONNECT_EMETER	= "<" + AS220Messaging.DISCONNECT_EMETER + ">1</" + AS220Messaging.DISCONNECT_EMETER + ">";
-	private static final String		CONNECT_EMETER		= "<" + AS220Messaging.CONNECT_EMETER + ">1</" + AS220Messaging.CONNECT_EMETER + ">";
-	private static final String		ARM_EMETER			= "<" + AS220Messaging.ARM_EMETER + ">1</" + AS220Messaging.ARM_EMETER + ">";
+	private static final String		DISCONNECT_EMETER		= "<" + AS220Messaging.DISCONNECT_EMETER + ">1</" + AS220Messaging.DISCONNECT_EMETER + ">";
+	private static final String		CONNECT_EMETER			= "<" + AS220Messaging.CONNECT_EMETER + ">1</" + AS220Messaging.CONNECT_EMETER + ">";
+	private static final String		ARM_EMETER				= "<" + AS220Messaging.ARM_EMETER + ">1</" + AS220Messaging.ARM_EMETER + ">";
 
-	private static final String		RESCAN_PLCBUS		= "<" + AS220Messaging.RESCAN_PLCBUS + ">1</" + AS220Messaging.RESCAN_PLCBUS + ">";
+	private static final String		RESCAN_PLCBUS			= "<" + AS220Messaging.RESCAN_PLCBUS + ">1</" + AS220Messaging.RESCAN_PLCBUS + ">";
 
+	private static final String		OBSERVER_FILENAME		= "c:\\logging\\AS220Main\\communications.log";
+	private static final Level		LOG_LEVEL				= Level.ALL;
+	protected static final TimeZone	DEFAULT_TIMEZONE		= TimeZone.getTimeZone("GMT+01");
 
-	private static final String		OBSERVER_FILENAME	= "c:\\logging\\AS220Main\\communications.log";
-	private static final Level		LOG_LEVEL			= Level.ALL;
-	protected static final TimeZone	DEFAULT_TIMEZONE	= TimeZone.getTimeZone("GMT+01");
-
-	protected static final String		COMPORT				= "COM13";
-	protected static final int		BAUDRATE			= 115200;
-	protected static final int		DATABITS			= SerialCommunicationChannel.DATABITS_8;
-	protected static final int		PARITY				= SerialCommunicationChannel.PARITY_NONE;
-	protected static final int		STOPBITS			= SerialCommunicationChannel.STOPBITS_1;
+	protected static final String	COMPORT					= "COM5";
+	protected static final int		BAUDRATE				= 115200;
+	protected static final int		DATABITS				= SerialCommunicationChannel.DATABITS_8;
+	protected static final int		PARITY					= SerialCommunicationChannel.PARITY_NONE;
+	protected static final int		STOPBITS				= SerialCommunicationChannel.STOPBITS_1;
 
 	protected static final int		DELAY_BEFORE_DISCONNECT	= 100;
 
@@ -77,7 +76,7 @@ public class AS220Main {
 		}
 		return dialer;
 	}
-	
+
 	/**
 	 * @return an {@link OpticalDialer}
 	 */
@@ -111,20 +110,20 @@ public class AS220Main {
 		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
 		properties.setProperty("ProfileInterval", "900");
 		properties.setProperty("Password", "00000000");
-		properties.setProperty("SerialNumber", "35016036");
+		properties.setProperty("SerialNumber", "35021373");
 
 		properties.setProperty("AddressingMode", "-1");
 		properties.setProperty("Connection", "3");
 		properties.setProperty("ClientMacAddress", "2");
 		properties.setProperty("ServerLowerMacAddress", "1");
 		properties.setProperty("ServerUpperMacAddress", "1");
-		
+
 		properties.setProperty(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF");
 		properties.setProperty(LocalSecurityProvider.DATATRANSPORTKEY, "000102030405060708090A0B0C0D0E0F");
 
 		return properties;
 	}
-	
+
 	private static Properties getOpticalProperties() {
 		Properties properties = new Properties();
 
@@ -139,7 +138,7 @@ public class AS220Main {
 		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
 		properties.setProperty("ProfileInterval", "900");
 		properties.setProperty("Password", "00000000");
-		properties.setProperty("SerialNumber", "35016036");
+		properties.setProperty("SerialNumber", "35021373");
 
 		properties.setProperty("AddressingMode", "2");
 		properties.setProperty("Connection", "0");
@@ -147,13 +146,13 @@ public class AS220Main {
 		properties.setProperty("ServerLowerMacAddress", "17");
 		properties.setProperty("ServerUpperMacAddress", "1");
 		properties.setProperty("OpticalBaudrate", "5");
-		
+
 		properties.setProperty(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF");
 		properties.setProperty(LocalSecurityProvider.DATATRANSPORTKEY, "000102030405060708090A0B0C0D0E0F");
 
 		return properties;
 	}
-	
+
 
 	public static void readProfile(boolean incluideEvents) throws IOException {
 		Calendar from = Calendar.getInstance(DEFAULT_TIMEZONE);
@@ -226,13 +225,17 @@ public class AS220Main {
 			getAs220().setProperties(getProperties());
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
-//			getAs220().geteMeter().getContactorController().doConnect();
-//			getAs220().geteMeter().getContactorController().doDisconnect();
-//			getAs220().geteMeter().getContactorController().doConnect();
+
+			getAs220().geteMeter().getContactorController().doConnect();
+			getAs220().geteMeter().getContactorController().doDisconnect();
+			getAs220().geteMeter().getContactorController().doConnect();
+			getAs220().geteMeter().getContactorController().doDisconnect();
+			getAs220().geteMeter().getContactorController().doConnect();
+
 //			log("FirmwareVersion :" + getAs220().getFirmwareVersion());
 //			((AS220Messaging)getAs220().getMessaging()).upgradeDevice(getFirmware18ByteArray());
 //			((AS220Messaging)getAs220().getMessaging()).upgradeDevice(getFirmware19ByteArray());
-			((AS220Messaging)getAs220().getMessaging()).upgradeDevice(getFirmware19ByteArray());
+//			((AS220Messaging)getAs220().getMessaging()).upgradeDevice(getFirmware19ByteArray());
 //			log("FirmwareVersion :" + getAs220().getPassiveFirmwareVersion());
 //			getAs220().getCosemObjectFactory().getImageTransferSN().imageActivation();
 //			log(getAs220().getFirmwareVersion());
@@ -240,8 +243,8 @@ public class AS220Main {
 //			getAs220().getCosemObjectFactory().getImageTransferSN().verifyAndRetryImage();
 //			getAs220().getCosemObjectFactory().getImageTransferSN().readImageTransferStatus();
 //			log(getAs220().getFirmwareVersion());
-			
-			log(getAs220().getgMeter().getProfileData(new Date(0), new Date(), false));
+
+//			log(getAs220().getgMeter().getProfileData(new Date(0), new Date(), false));
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -293,7 +296,7 @@ public class AS220Main {
         	fis.close();
         	return content;
         }
-	
+
 	private static byte[] getFirmware19ByteArray() throws IOException {
         	File file = new File(AS220Main.class.getClassLoader().getResource("com/energyict/protocolimpl/dlms/as220/debug/firmware17022010B64.bin").getFile());
         	FileInputStream fis = new FileInputStream(file);
@@ -302,6 +305,6 @@ public class AS220Main {
         	fis.close();
         	return content;
         }
-	
+
 
 }
