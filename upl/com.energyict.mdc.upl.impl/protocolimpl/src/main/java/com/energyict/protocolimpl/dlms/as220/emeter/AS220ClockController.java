@@ -30,10 +30,16 @@ public class AS220ClockController implements ClockController {
 
 	private final AS220		as220;
 
+	/**
+	 * @param as220
+	 */
 	public AS220ClockController(AS220 as220) {
 		this.as220 = as220;
 	}
 
+	/**
+	 * @return
+	 */
 	public DLMSSNAS220 getAs220() {
 		return as220;
 	}
@@ -76,39 +82,40 @@ public class AS220ClockController implements ClockController {
 	 * @throws IOException
 	 */
 	private void doSetTime(Calendar calendar) throws IOException {
-		byte[] byteTimeBuffer = new byte[15];
-
-		byteTimeBuffer[0] = 1;
-		byteTimeBuffer[1] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
-		byteTimeBuffer[2] = DATA_LENGTH; // length
-		byteTimeBuffer[3] = (byte) (calendar.get(Calendar.YEAR) >> BYTE_LENGTH);
-		byteTimeBuffer[4] = (byte) calendar.get(Calendar.YEAR);
-		byteTimeBuffer[5] = (byte) (calendar.get(Calendar.MONTH) + 1);
-		byteTimeBuffer[6] = (byte) calendar.get(Calendar.DAY_OF_MONTH);
+		byte[] byteTimeBuffer = new byte[14];
 		byte dayOfWeek = (byte) calendar.get(Calendar.DAY_OF_WEEK);
-		byteTimeBuffer[7] = (dayOfWeek-- == 1) ? (byte) 7 : dayOfWeek;
-		byteTimeBuffer[8] = (byte) calendar.get(Calendar.HOUR_OF_DAY);
-		byteTimeBuffer[9] = (byte) calendar.get(Calendar.MINUTE);
-		byteTimeBuffer[10] = (byte) calendar.get(Calendar.SECOND);
-		byteTimeBuffer[11] = (byte) 0xFF;
-		byteTimeBuffer[12] = (byte) 0x80;
-		byteTimeBuffer[13] = 0x00;
+		int ptr = 0;
 
+		byte dstFlag;
 		if (getAs220().isRequestTimeZone()) {
-			if (getAs220().getDstFlag() == 0) {
-				byteTimeBuffer[14] = 0x00;
-			} else if (getAs220().getDstFlag() == 1) {
-				byteTimeBuffer[14] = (byte) 0x80;
-			} else {
-				throw new IOException("doSetTime(), dst flag is unknown! setTime() before getTime()!");
+			switch (getAs220().getDstFlag()) {
+				case 0:
+					dstFlag = (byte) 0x00;
+					break;
+				case 1:
+					dstFlag = (byte) 0x80;
+					break;
+				default:
+					throw new IOException("doSetTime(), dst flag is unknown! setTime() before getTime()!");
 			}
 		} else {
-			if (getAs220().getTimeZone().inDaylightTime(calendar.getTime())) {
-				byteTimeBuffer[14] = (byte) 0x80;
-			} else {
-				byteTimeBuffer[14] = 0x00;
-			}
+			dstFlag = getAs220().getTimeZone().inDaylightTime(calendar.getTime()) ? (byte) 0x80 : (byte) 0x00;
 		}
+
+		byteTimeBuffer[ptr++] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+		byteTimeBuffer[ptr++] = DATA_LENGTH; // length
+		byteTimeBuffer[ptr++] = (byte) (calendar.get(Calendar.YEAR) >> BYTE_LENGTH);
+		byteTimeBuffer[ptr++] = (byte) calendar.get(Calendar.YEAR);
+		byteTimeBuffer[ptr++] = (byte) (calendar.get(Calendar.MONTH) + 1);
+		byteTimeBuffer[ptr++] = (byte) calendar.get(Calendar.DAY_OF_MONTH);
+		byteTimeBuffer[ptr++] = (dayOfWeek-- == 1) ? (byte) 7 : dayOfWeek;
+		byteTimeBuffer[ptr++] = (byte) calendar.get(Calendar.HOUR_OF_DAY);
+		byteTimeBuffer[ptr++] = (byte) calendar.get(Calendar.MINUTE);
+		byteTimeBuffer[ptr++] = (byte) calendar.get(Calendar.SECOND);
+		byteTimeBuffer[ptr++] = (byte) 0xFF;
+		byteTimeBuffer[ptr++] = (byte) 0x80;
+		byteTimeBuffer[ptr++] = 0x00;
+		byteTimeBuffer[ptr++] = dstFlag;
 
 		getAs220().getCosemObjectFactory().getGenericWrite((short) getAs220().getMeterConfig().getClockSN(), DLMSCOSEMGlobals.TIME_TIME).write(byteTimeBuffer);
 
