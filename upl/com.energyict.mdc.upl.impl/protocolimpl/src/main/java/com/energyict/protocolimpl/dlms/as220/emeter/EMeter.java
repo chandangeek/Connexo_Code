@@ -70,8 +70,9 @@ public class EMeter {
 
         // decode the compact array here and convert to a universallist...
         ProfileGeneric pg = getAs220().getCosemObjectFactory().getProfileGeneric(ENERGY_PROFILE_OBISCODE);
+		byte[] profileRawData = pg.getBufferData(fromCalendar, toCalendar);
 		LoadProfileCompactArray loadProfileCompactArray = new LoadProfileCompactArray();
-		loadProfileCompactArray.parse(pg.getBufferData(fromCalendar, toCalendar));
+		loadProfileCompactArray.parse(profileRawData);
 		List<LoadProfileCompactArrayEntry> loadProfileCompactArrayEntries = loadProfileCompactArray.getLoadProfileCompactArrayEntries();
 
         List<IntervalData> intervalDatas = profileBuilder.buildIntervalData(scalerunit,loadProfileCompactArrayEntries);

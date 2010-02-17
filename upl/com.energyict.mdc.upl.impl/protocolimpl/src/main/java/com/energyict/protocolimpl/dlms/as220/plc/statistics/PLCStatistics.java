@@ -7,19 +7,39 @@ import java.util.TimeZone;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
+/**
+ * This class parses the raw data of the PLC statistics ({@link ProfileGeneric}) <br>
+ * The PLC statistics contains 8 channels and are assembled as follows:
+ * <li>CH1=SNR0</li> <li>CH2=SNR1</li> <li>CH3=CRC_OK</li> <li>CH4=CRC_NOK</li>
+ * <li>CH5=FR_TX</li> <li>CH6=FR_REP</li> <li>CH7=FR_CORR</li> <li>CH8=FR_BAD</li>
+ * <br>
+ * @author jme
+ */
 public class PLCStatistics extends Array {
 
-	private final TimeZone timeZone;
+	/**
+	 * The {@link TimeZone} used to parse the time stamps on the PLC profile data
+	 */
+	private final TimeZone	timeZone;
 
+	/**
+	 * @param profile
+	 * @param timeZone
+	 * @throws IOException
+	 */
 	public PLCStatistics(byte[] profile, TimeZone timeZone) throws IOException {
 		super(profile, 0, 0);
 		this.timeZone = timeZone;
 	}
 
+	/**
+	 * @return
+	 */
 	public TimeZone getTimeZone() {
 		return timeZone;
 	}
@@ -34,7 +54,6 @@ public class PLCStatistics extends Array {
 		for (int i = 0; i < nrOfDataTypes(); i++) {
 			StatisticsInterval statsInterval = new StatisticsInterval(getDataType(i).getBEREncodedByteArray(), getTimeZone());
 			IntervalData id = new IntervalData(ProtocolTools.roundUpToNearestInterval(statsInterval.getTimeStamp(), statsInterval.getIntervalLength()));
-			id.addValue(statsInterval.getPlcSNR().getChannelNr());
 			id.addValue(statsInterval.getPlcSNR().getSnr0());
 			id.addValue(statsInterval.getPlcSNR().getSnr1());
 			id.addValue(statsInterval.getFramesCRCOk());
@@ -54,7 +73,6 @@ public class PLCStatistics extends Array {
 	 */
 	public List<ChannelInfo> getChannelInfos() {
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-		channelInfos.add(new ChannelInfo(0, "ActiveChannel", Unit.getUndefined()));
 		channelInfos.add(new ChannelInfo(1, "SNR0", Unit.getUndefined()));
 		channelInfos.add(new ChannelInfo(2, "SNR1", Unit.getUndefined()));
 		channelInfos.add(new ChannelInfo(3, "CRC_OK", Unit.getUndefined()));
@@ -66,21 +84,38 @@ public class PLCStatistics extends Array {
 		return channelInfos;
 	}
 
-	@Override
-	public String toString() {
-		final String crlf = "\r\n";
+	/**
+	 * @return
+	 */
+	private String getChannelInfosToString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("ChannelInfos:");
 		for (ChannelInfo ci : getChannelInfos()) {
-			sb.append(" ").append(ci.toString()).append(crlf);
+			sb.append(" ").append(ci.toString()).append("\r\n");
 		}
+		return sb.toString();
+	}
+
+	/**
+	 * @return
+	 */
+	private String getIntervalDatasToString() {
+		StringBuilder sb = new StringBuilder();
 		sb.append("IntervalDatas:");
 		try {
 			for (IntervalData ci : getIntervalDatas()) {
-				sb.append(" ").append(ci.toString()).append(crlf);
+				sb.append(" ").append(ci.toString()).append("\r\n");
 			}
 		} catch (IOException e) {
 		}
+		return sb.toString();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(getChannelInfosToString());
+		sb.append(getIntervalDatasToString());
 		return sb.toString();
 	}
 

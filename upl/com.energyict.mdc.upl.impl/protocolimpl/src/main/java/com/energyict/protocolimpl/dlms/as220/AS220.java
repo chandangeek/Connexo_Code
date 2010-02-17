@@ -41,10 +41,10 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
 	private int iNROfIntervals=-1;
 
-	private final EMeter			eMeter		= new EMeter(this);
+	private final EMeter			eMeter			= new EMeter(this);
 	private final GMeter			gMeter		= new GMeter(this);
-	private final MessageProtocol		messaging	= new AS220Messaging(this);
-	private final PLC			plc		= new PLC(this);
+	private final MessageProtocol	messaging		= new AS220Messaging(this);
+	private final PLC				plc				= new PLC(this);
 
 	private ObiscodeMapper			ocm		= null;
 
@@ -62,10 +62,10 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     public EMeter geteMeter() {
 		return eMeter;
 	}
-    
+
     /**
      * Getter for the G-Meter
-     * @return 
+     * @return
      */
     public GMeter getgMeter(){
     	return gMeter;
@@ -104,7 +104,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
         strBuff.append(", "+structure.getNextDataType().longValue());
         return strBuff.toString();
     }
-    
+
     public String getPassiveFirmwareVersion() throws IOException,UnsupportedException {
         StringBuffer strBuff = new StringBuffer();
     	UniversalObject uo = getMeterConfig().getVersionObject();
@@ -173,9 +173,24 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 	}
 
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
-		ProfileData eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
-		ProfileData plcStatistics = getPlc().getStatistics(from, to);
-		return ProfileAppender.appendProfiles(eMeterProfile, plcStatistics);
+
+		ProfileData eMeterProfile;
+		ProfileData plcStatistics;
+
+		switch (getProfileType()) {
+			case 0:
+				eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
+				plcStatistics = getPlc().getStatistics(from, to);
+				return ProfileAppender.appendProfiles(eMeterProfile, plcStatistics);
+			case 1:
+				eMeterProfile = geteMeter().getProfileData(from, to, includeEvents);
+				return eMeterProfile;
+			case 2:
+				plcStatistics = getPlc().getStatistics(from, to);
+				return plcStatistics;
+			default : return new ProfileData();
+		}
+
 	}
 
 	public List<MessageCategorySpec> getMessageCategories() {

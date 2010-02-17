@@ -18,6 +18,8 @@ import com.energyict.protocol.ProfileData;
  */
 public class ProfileAppender {
 
+	private static final int	PLC_CHANNELS	= 9;
+
 	/**
 	 * @param firstProfile
 	 * @param secondProfile
@@ -27,7 +29,7 @@ public class ProfileAppender {
 	public static ProfileData appendProfiles(ProfileData firstProfile, ProfileData secondProfile) {
 		ProfileData pd = new ProfileData();
 
-		pd.setIntervalDatas(appendIntervalDatas(firstProfile.getIntervalDatas(), secondProfile.getIntervalDatas()));
+		pd.setIntervalDatas(appendIntervalDatas(firstProfile.getIntervalDatas(), secondProfile.getIntervalDatas(), firstProfile.getNumberOfChannels() + secondProfile.getNumberOfChannels()));
 		pd.setChannelInfos(appendChannelInfos(firstProfile.getChannelInfos(), secondProfile.getChannelInfos()));
 		pd.setMeterEvents(appendMeterEvents(firstProfile.getMeterEvents(), secondProfile.getMeterEvents()));
 
@@ -39,15 +41,15 @@ public class ProfileAppender {
 	 * @param intervalDatas2
 	 * @return
 	 */
-	public static List<IntervalData> appendIntervalDatas(List<IntervalData> firstIntervalDatas, List<IntervalData> secondIntervalDatas) {
+	public static List<IntervalData> appendIntervalDatas(List<IntervalData> firstIntervalDatas, List<IntervalData> secondIntervalDatas, int totalChannels) {
 		List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
-		int firstNrOfChannels = firstIntervalDatas.get(0).getValueCount();
-		int secondNrOfChannels = secondIntervalDatas.get(0).getValueCount();
-		int nrOfChannels = firstNrOfChannels + secondNrOfChannels;
 
 		for (IntervalData fid : firstIntervalDatas) {
 			IntervalData intervalData = null;
 			IntervalData id = null;
+
+			int firstChannelCount = fid.getValueCount();
+			int secondChannelCount = totalChannels - firstChannelCount;
 
 			for (IntervalData sid : secondIntervalDatas) {
 				if (fid.getEndTime().compareTo(sid.getEndTime()) == 0) {
@@ -72,10 +74,9 @@ public class ProfileAppender {
 				for (IntervalValue iv : intervalValues) {
 					intervalData.addValue(iv.getNumber(), iv.getEiStatus(), iv.getEiStatus());
 				}
-				for (int i = 0; i < secondNrOfChannels; i++) {
+				for (int i = 0; i < secondChannelCount; i++) {
 					intervalData.addValue(0, IntervalData.MISSING, IntervalData.MISSING);
 				}
-
 			}
 			intervalDatas.add(intervalData);
 		}

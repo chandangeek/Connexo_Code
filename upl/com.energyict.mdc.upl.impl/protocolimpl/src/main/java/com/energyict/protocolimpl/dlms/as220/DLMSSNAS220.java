@@ -110,6 +110,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     private int extendedLogging;
     private ProtocolChannelMap channelMap;
     private int opticalBaudrate;
+    private int profileType = 0;
 
     private int authenticationSecurityLevel;
 	private int	datatransportSecurityLevel;
@@ -160,6 +161,10 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     public DLMSConnection getDLMSConnection() {
         return dlmsConnection;
     }
+
+    public int getProfileType() {
+		return profileType;
+	}
 
     /** initializes the receiver
      * @param inputStream <br>
@@ -532,7 +537,8 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 			transparentDatabits = Integer.parseInt(properties.getProperty("TransparentDatabits", "8"));
 			transparentStopbits = Integer.parseInt(properties.getProperty("TransparentStopbits", "1"));
 			transparentParity = Integer.parseInt(properties.getProperty("TransparentParity", "0"));
-			
+			profileType = Integer.parseInt(properties.getProperty("ProfileType", "0"));
+
 			opticalBaudrate = Integer.parseInt(properties.getProperty("OpticalBaudrate", "-1"));
 
 		} catch (NumberFormatException e) {
@@ -618,6 +624,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         result.add("TransparentDatabits");
         result.add("TransparentStopbits");
         result.add("TransparentParity");
+        result.add("ProfileType");
         result.add("OpticalBaudrate");
         return result;
     }
@@ -794,7 +801,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Currently URL's are not supported
 	 */
 	public boolean supportsUrls() {
@@ -803,7 +810,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * We don't have database access so we don't need references
 	 */
 	public boolean supportsUserFileReferences() {
@@ -812,7 +819,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Userfiles are supported for upgrades
 	 */
 	public boolean supportsUserFilesForFirmwareUpdate() {
