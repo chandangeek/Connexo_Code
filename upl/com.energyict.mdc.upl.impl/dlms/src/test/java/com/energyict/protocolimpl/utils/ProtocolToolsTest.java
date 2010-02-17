@@ -29,7 +29,7 @@ public class ProtocolToolsTest {
 
 	private static final int	SECONDS_PER_MINUTE	= 60;
 	private static final String	NON_EXISTING_FILE_NAME	= "nonexistingfilename";
-	private static final String	FILENAME_TO_READ		= "/com/energyict/utils/ProtocolToolsReadFileTest.txt";
+	private static final String	FILENAME_TO_READ		= "/com/energyict/protocolimpl/utils/ProtocolToolsReadFileTest.txt";
 	private static final String	FILENAME_TO_WRITE		= System.getProperty("java.io.tmpdir") + "/ProtocolToolsReadFileTest.tmp";
 	private static final String	VALUE_TO_READ_FROM_FILE	= "9876543210123456789";
 
