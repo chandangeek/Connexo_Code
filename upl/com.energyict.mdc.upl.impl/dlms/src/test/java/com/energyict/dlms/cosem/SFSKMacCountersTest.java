@@ -110,33 +110,41 @@ public class SFSKMacCountersTest {
 	/**
 	 * Test method for {@link com.energyict.dlms.cosem.SFSKMacCounters#getRepetitionsCounter()}.
 	 */
-	@Test @Ignore
+	@Test
 	public final void testGetRepetitionsCounter() {
-		fail("Not yet implemented"); // TODO
+		assertNotNull(getSFSKMacCounter().getRepetitionsCounter());
+		assertTrue(getSFSKMacCounter().getRepetitionsCounter().isUnsigned32());
+		assertEquals(305419776, getSFSKMacCounter().getRepetitionsCounter().getValue());
 	}
 
 	/**
 	 * Test method for {@link com.energyict.dlms.cosem.SFSKMacCounters#getTransmissionsCounter()}.
 	 */
-	@Test @Ignore
+	@Test
 	public final void testGetTransmissionsCounter() {
-		fail("Not yet implemented"); // TODO
+		assertNotNull(getSFSKMacCounter().getTransmissionsCounter());
+		assertTrue(getSFSKMacCounter().getTransmissionsCounter().isUnsigned32());
+		assertEquals(3430008, getSFSKMacCounter().getTransmissionsCounter().getValue());
 	}
 
 	/**
 	 * Test method for {@link com.energyict.dlms.cosem.SFSKMacCounters#getCrcOkFramesCounter()}.
 	 */
-	@Test @Ignore
+	@Test
 	public final void testGetCrcOkFramesCounter() {
-		fail("Not yet implemented"); // TODO
+		assertNotNull(getSFSKMacCounter().getCrcOkFramesCounter());
+		assertTrue(getSFSKMacCounter().getCrcOkFramesCounter().isUnsigned32());
+		assertEquals(302012024, getSFSKMacCounter().getCrcOkFramesCounter().getValue());
 	}
 
 	/**
 	 * Test method for {@link com.energyict.dlms.cosem.SFSKMacCounters#getCrcNOkFramesCounter()}.
 	 */
-	@Test @Ignore
+	@Test
 	public final void testGetCrcNOkFramesCounter() {
-		fail("Not yet implemented"); // TODO
+		assertNotNull(getSFSKMacCounter().getCrcNOkFramesCounter());
+		assertTrue(getSFSKMacCounter().getCrcNOkFramesCounter().isUnsigned32());
+		assertEquals(305397880, getSFSKMacCounter().getCrcNOkFramesCounter().getValue());
 	}
 
 	/**
@@ -181,6 +189,10 @@ public class SFSKMacCountersTest {
 		dlmsConnection.addRequestResponsePair("$E6$E6$00$05$01$02$00$08", "$E6$E6$00$0C$01$00$01$01$02$02$12$12$34$06$12$34$56$78");
 		dlmsConnection.addRequestResponsePair("$E6$E6$00$05$01$02$00$10", "$90$02$01$0C$01$00$02$05$06$00$00$00$12$06$00$00$00$34$06$00$00$00$56$06$00$00$00$78$06$00$00$00$90");
 		dlmsConnection.addRequestResponsePair("$E6$E6$00$05$01$02$00$18", "$90$02$01$0C$01$00$01$01$02$02$12$12$34$06$56$78$90$12");
+		dlmsConnection.addRequestResponsePair("$E6$E6$00$05$01$02$00$20", "$90$02$01$0C$01$00$06$12$34$56$00");
+		dlmsConnection.addRequestResponsePair("$E6$E6$00$05$01$02$00$28", "$90$02$01$0C$01$00$06$00$34$56$78");
+		dlmsConnection.addRequestResponsePair("$E6$E6$00$05$01$02$00$30", "$90$02$01$0C$01$00$06$12$00$56$78");
+		dlmsConnection.addRequestResponsePair("$E6$E6$00$05$01$02$00$38", "$90$02$01$0C$01$00$06$12$34$00$78");
 		return dlmsConnection;
 	}
 
