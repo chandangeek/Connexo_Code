@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.dlms.as220.debug;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -12,6 +14,7 @@ import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dialer.coreimpl.OpticalDialer;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
@@ -44,15 +47,15 @@ public class AS220Main {
 
 	private static final String		OBSERVER_FILENAME	= "c:\\logging\\AS220Main\\communications.log";
 	private static final Level		LOG_LEVEL			= Level.ALL;
-	private static final TimeZone	DEFAULT_TIMEZONE	= TimeZone.getTimeZone("GMT+01");
+	protected static final TimeZone	DEFAULT_TIMEZONE	= TimeZone.getTimeZone("GMT+01");
 
-	private static final String		COMPORT				= "COM5";
-	private static final int		BAUDRATE			= 115200;
-	private static final int		DATABITS			= SerialCommunicationChannel.DATABITS_8;
-	private static final int		PARITY				= SerialCommunicationChannel.PARITY_NONE;
-	private static final int		STOPBITS			= SerialCommunicationChannel.STOPBITS_1;
+	protected static final String		COMPORT				= "COM13";
+	protected static final int		BAUDRATE			= 115200;
+	protected static final int		DATABITS			= SerialCommunicationChannel.DATABITS_8;
+	protected static final int		PARITY				= SerialCommunicationChannel.PARITY_NONE;
+	protected static final int		STOPBITS			= SerialCommunicationChannel.STOPBITS_1;
 
-	private static final int		DELAY_BEFORE_DISCONNECT	= 100;
+	protected static final int		DELAY_BEFORE_DISCONNECT	= 100;
 
 	private static AS220 as220 = null;
 	private static Dialer dialer = null;
@@ -70,7 +73,18 @@ public class AS220Main {
 		if (dialer == null) {
 			//dialer = DialerFactory.get("IPDIALER").newDialer();
 			dialer = DialerFactory.getDirectDialer().newDialer();
-			dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, false));
+			dialer.setStreamObservers(new DebuggingObserver(null, true));
+		}
+		return dialer;
+	}
+	
+	/**
+	 * @return an {@link OpticalDialer}
+	 */
+	public static Dialer getOpticalDialer(){
+		if(dialer == null){
+			dialer = DialerFactory.getOpticalDialer().newDialer();
+			dialer.setStreamObservers(new DebuggingObserver(null, true));
 		}
 		return dialer;
 	}
@@ -97,19 +111,49 @@ public class AS220Main {
 		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
 		properties.setProperty("ProfileInterval", "900");
 		properties.setProperty("Password", "00000000");
-		properties.setProperty("SerialNumber", "35021370");
+		properties.setProperty("SerialNumber", "35016036");
 
 		properties.setProperty("AddressingMode", "-1");
 		properties.setProperty("Connection", "3");
 		properties.setProperty("ClientMacAddress", "2");
 		properties.setProperty("ServerLowerMacAddress", "1");
 		properties.setProperty("ServerUpperMacAddress", "1");
-
+		
 		properties.setProperty(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF");
 		properties.setProperty(LocalSecurityProvider.DATATRANSPORTKEY, "000102030405060708090A0B0C0D0E0F");
 
 		return properties;
 	}
+	
+	private static Properties getOpticalProperties() {
+		Properties properties = new Properties();
+
+		properties.setProperty("MaximumTimeDiff", "300");
+		properties.setProperty("MinimumTimeDiff", "1");
+		properties.setProperty("CorrectTime", "0");
+
+		properties.setProperty("Retries", "5");
+		properties.setProperty("Timeout", "20000");
+		//properties.setProperty("ForcedDelay", "500");
+
+		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
+		properties.setProperty("ProfileInterval", "900");
+		properties.setProperty("Password", "00000000");
+		properties.setProperty("SerialNumber", "35016036");
+
+		properties.setProperty("AddressingMode", "2");
+		properties.setProperty("Connection", "0");
+		properties.setProperty("ClientMacAddress", "1");
+		properties.setProperty("ServerLowerMacAddress", "17");
+		properties.setProperty("ServerUpperMacAddress", "1");
+		properties.setProperty("OpticalBaudrate", "5");
+		
+		properties.setProperty(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF");
+		properties.setProperty(LocalSecurityProvider.DATATRANSPORTKEY, "000102030405060708090A0B0C0D0E0F");
+
+		return properties;
+	}
+	
 
 	public static void readProfile(boolean incluideEvents) throws IOException {
 		Calendar from = Calendar.getInstance(DEFAULT_TIMEZONE);
@@ -182,8 +226,22 @@ public class AS220Main {
 			getAs220().setProperties(getProperties());
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
-
-			getAs220().getPlc().getStatistics(new Date(0), new Date());
+//			getAs220().geteMeter().getContactorController().doConnect();
+//			getAs220().geteMeter().getContactorController().doDisconnect();
+//			getAs220().geteMeter().getContactorController().doConnect();
+//			log("FirmwareVersion :" + getAs220().getFirmwareVersion());
+//			((AS220Messaging)getAs220().getMessaging()).upgradeDevice(getFirmware18ByteArray());
+//			((AS220Messaging)getAs220().getMessaging()).upgradeDevice(getFirmware19ByteArray());
+			((AS220Messaging)getAs220().getMessaging()).upgradeDevice(getFirmware19ByteArray());
+//			log("FirmwareVersion :" + getAs220().getPassiveFirmwareVersion());
+//			getAs220().getCosemObjectFactory().getImageTransferSN().imageActivation();
+//			log(getAs220().getFirmwareVersion());
+//			log("Passive : " + getAs220().getPassiveFirmwareVersion());
+//			getAs220().getCosemObjectFactory().getImageTransferSN().verifyAndRetryImage();
+//			getAs220().getCosemObjectFactory().getImageTransferSN().readImageTransferStatus();
+//			log(getAs220().getFirmwareVersion());
+			
+			log(getAs220().getgMeter().getProfileData(new Date(0), new Date(), false));
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -223,8 +281,27 @@ public class AS220Main {
 		System.out.println();
 	}
 
-	private static void log(Object message) {
+	protected static void log(Object message) {
 		getLogger().log(Level.INFO, message == null ? "null" : message.toString());
 	}
+
+	private static byte[] getFirmware18ByteArray() throws IOException {
+        	File file = new File(AS220Main.class.getClassLoader().getResource("com/energyict/protocolimpl/dlms/as220/debug/firmware18b64.bin").getFile());
+        	FileInputStream fis = new FileInputStream(file);
+        	byte[] content = new byte[(int) file.length()];
+        	fis.read(content);
+        	fis.close();
+        	return content;
+        }
+	
+	private static byte[] getFirmware19ByteArray() throws IOException {
+        	File file = new File(AS220Main.class.getClassLoader().getResource("com/energyict/protocolimpl/dlms/as220/debug/firmware17022010B64.bin").getFile());
+        	FileInputStream fis = new FileInputStream(file);
+        	byte[] content = new byte[(int) file.length()];
+        	fis.read(content);
+        	fis.close();
+        	return content;
+        }
+	
 
 }
