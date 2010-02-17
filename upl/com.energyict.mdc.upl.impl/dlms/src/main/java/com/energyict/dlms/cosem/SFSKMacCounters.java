@@ -19,15 +19,6 @@ public class SFSKMacCounters extends AbstractCosemObject implements RegisterRead
 
 	private static final byte[]	LN	= ObisCode.fromString("0.0.26.3.0.255").getLN();
 
-	/** Attributes */
-	private Array				synchronizationRegister			= null;
-	private Structure			desynchronizationListing		= null;
-	private Array				broadcastFramesCounter			= null;
-	private Unsigned32			repetitionsCounter				= null;
-	private Unsigned32			transmissionsCounter			= null;
-	private Unsigned32			crcOkFramesCounter				= null;
-	private Unsigned32			crcNOkFramesCounter				= null;
-
 	/** Attribute numbers */
 	private static final int	ATTRB_SYNCHRONIZATION_REGISTER	= 0x08;
 	private static final int	ATTRB_DESYNCHRONIZATION_LISTING	= 0x10;
@@ -59,51 +50,58 @@ public class SFSKMacCounters extends AbstractCosemObject implements RegisterRead
 
 	public Array getSynchronizationRegister() {
 		try {
-			this.synchronizationRegister = new Array(getResponseData(ATTRB_SYNCHRONIZATION_REGISTER), 0, 0);
-		} catch (IOException e) {}
-		return synchronizationRegister;
+			return new Array(getResponseData(ATTRB_SYNCHRONIZATION_REGISTER), 0, 0);
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	public Structure getDesynchronizationListing() {
 		try {
-			this.desynchronizationListing = new Structure(getResponseData(ATTRB_DESYNCHRONIZATION_LISTING), 0, 0);
-		} catch (IOException e) {}
-		return desynchronizationListing;
+			return new Structure(getResponseData(ATTRB_DESYNCHRONIZATION_LISTING), 0, 0);
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	public Array getBroadcastFramesCounter() {
 		try {
-			this.broadcastFramesCounter = new Array(getResponseData(ATTRB_BROADCAST_FRAMES_COUNTER), 0, 0);
-		} catch (IOException e) {}
-		return broadcastFramesCounter;
+			return new Array(getResponseData(ATTRB_BROADCAST_FRAMES_COUNTER), 0, 0);
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	public Unsigned32 getRepetitionsCounter() {
 		try {
-			this.repetitionsCounter = new Unsigned32(getResponseData(ATTRB_REPETITIONS_COUNTER), 0);
-		} catch (IOException e) {}
-		return repetitionsCounter;
+			return new Unsigned32(getResponseData(ATTRB_REPETITIONS_COUNTER), 0);
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	public Unsigned32 getTransmissionsCounter() {
 		try {
-			this.transmissionsCounter = new Unsigned32(getResponseData(ATTRB_TRANSMISSIONS_COUNTER), 0);
-		} catch (IOException e) {}
-		return transmissionsCounter;
+			return new Unsigned32(getResponseData(ATTRB_TRANSMISSIONS_COUNTER), 0);
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	public Unsigned32 getCrcOkFramesCounter() {
 		try {
-			this.crcOkFramesCounter = new Unsigned32(getResponseData(ATTRB_CRC_OK_FRAMES_COUNTER), 0);
-		} catch (IOException e) {}
-		return crcOkFramesCounter;
+			return new Unsigned32(getResponseData(ATTRB_CRC_OK_FRAMES_COUNTER), 0);
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	public Unsigned32 getCrcNOkFramesCounter() {
 		try {
-			this.crcNOkFramesCounter = new Unsigned32(getResponseData(ATTRB_CRC_NOK_FRAMES_COUNTER), 0);
-		} catch (IOException e) {}
-		return crcNOkFramesCounter;
+			return new Unsigned32(getResponseData(ATTRB_CRC_NOK_FRAMES_COUNTER), 0);
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	public void invokeResetData() throws IOException {

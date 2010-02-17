@@ -59,6 +59,7 @@ public class MockDLMSConnection implements DLMSConnection {
 			if (this.responseByte != null) {
 				return this.responseByte;
 			} else {
+				System.out.println(ProtocolTools.getHexStringFromBytes(byteRequestBuffer));
 				return byteRequestBuffer;
 			}
 		}

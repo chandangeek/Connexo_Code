@@ -5,12 +5,14 @@ package com.energyict.dlms.cosem;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import org.junit.Ignore;
+import java.io.IOException;
+
 import org.junit.Test;
 
+import com.energyict.dlms.mocks.MockBrokenDLMSConnection;
 import com.energyict.dlms.mocks.MockDLMSConnection;
 import com.energyict.dlms.mocks.MockProtocolLink;
 import com.energyict.obis.ObisCode;
@@ -43,7 +45,9 @@ public class SFSKMacCountersTest {
 	 */
 	@Test
 	public final void testGetSynchronizationRegister() {
+		assertNull(getEmptySFSKMacCounter().getSynchronizationRegister());
 		assertNotNull(getSFSKMacCounter().getSynchronizationRegister());
+
 		assertTrue(getSFSKMacCounter().getSynchronizationRegister().isArray());
 		assertEquals(1, getSFSKMacCounter().getSynchronizationRegister().nrOfDataTypes());
 
@@ -64,7 +68,9 @@ public class SFSKMacCountersTest {
 	 */
 	@Test
 	public final void testGetDesynchronizationListing() {
+		assertNull(getEmptySFSKMacCounter().getDesynchronizationListing());
 		assertNotNull(getSFSKMacCounter().getDesynchronizationListing());
+
 		assertTrue(getSFSKMacCounter().getDesynchronizationListing().isStructure());
 		assertEquals(5, getSFSKMacCounter().getDesynchronizationListing().nrOfDataTypes());
 
@@ -87,7 +93,9 @@ public class SFSKMacCountersTest {
 	 */
 	@Test
 	public final void testGetBroadcastFramesCounter() {
+		assertNull(getEmptySFSKMacCounter().getBroadcastFramesCounter());
 		assertNotNull(getSFSKMacCounter().getBroadcastFramesCounter());
+
 		assertTrue(getSFSKMacCounter().getBroadcastFramesCounter().isArray());
 		assertEquals(1, getSFSKMacCounter().getBroadcastFramesCounter().nrOfDataTypes());
 
@@ -112,6 +120,7 @@ public class SFSKMacCountersTest {
 	 */
 	@Test
 	public final void testGetRepetitionsCounter() {
+		assertNull(getEmptySFSKMacCounter().getRepetitionsCounter());
 		assertNotNull(getSFSKMacCounter().getRepetitionsCounter());
 		assertTrue(getSFSKMacCounter().getRepetitionsCounter().isUnsigned32());
 		assertEquals(305419776, getSFSKMacCounter().getRepetitionsCounter().getValue());
@@ -122,6 +131,7 @@ public class SFSKMacCountersTest {
 	 */
 	@Test
 	public final void testGetTransmissionsCounter() {
+		assertNull(getEmptySFSKMacCounter().getTransmissionsCounter());
 		assertNotNull(getSFSKMacCounter().getTransmissionsCounter());
 		assertTrue(getSFSKMacCounter().getTransmissionsCounter().isUnsigned32());
 		assertEquals(3430008, getSFSKMacCounter().getTransmissionsCounter().getValue());
@@ -132,6 +142,7 @@ public class SFSKMacCountersTest {
 	 */
 	@Test
 	public final void testGetCrcOkFramesCounter() {
+		assertNull(getEmptySFSKMacCounter().getCrcOkFramesCounter());
 		assertNotNull(getSFSKMacCounter().getCrcOkFramesCounter());
 		assertTrue(getSFSKMacCounter().getCrcOkFramesCounter().isUnsigned32());
 		assertEquals(302012024, getSFSKMacCounter().getCrcOkFramesCounter().getValue());
@@ -142,6 +153,7 @@ public class SFSKMacCountersTest {
 	 */
 	@Test
 	public final void testGetCrcNOkFramesCounter() {
+		assertNull(getEmptySFSKMacCounter().getCrcNOkFramesCounter());
 		assertNotNull(getSFSKMacCounter().getCrcNOkFramesCounter());
 		assertTrue(getSFSKMacCounter().getCrcNOkFramesCounter().isUnsigned32());
 		assertEquals(305397880, getSFSKMacCounter().getCrcNOkFramesCounter().getValue());
@@ -150,9 +162,13 @@ public class SFSKMacCountersTest {
 	/**
 	 * Test method for {@link com.energyict.dlms.cosem.SFSKMacCounters#invokeResetData()}.
 	 */
-	@Test @Ignore
+	@Test
 	public final void testInvokeResetData() {
-		fail("Not yet implemented"); // TODO
+		try {
+			getSFSKMacCounter().invokeResetData();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -161,6 +177,7 @@ public class SFSKMacCountersTest {
 	@Test
 	public final void testToString() {
 		assertNotNull(getSFSKMacCounter().toString());
+		assertNotNull(getEmptySFSKMacCounter().toString());
 	}
 
 	/**
@@ -168,6 +185,7 @@ public class SFSKMacCountersTest {
 	 */
 	@Test
 	public final void testAsRegisterValue() {
+		assertNotNull(getEmptySFSKMacCounter().asRegisterValue());
 		assertNotNull(getSFSKMacCounter().asRegisterValue());
 	}
 
@@ -176,6 +194,16 @@ public class SFSKMacCountersTest {
 	 */
 	private static SFSKMacCounters getSFSKMacCounter() {
 		MockProtocolLink protocolLink = new MockProtocolLink(getDlmsConnection());
+		ObjectReference objectReference = new ObjectReference(0);
+		SFSKMacCounters sfskMacCounters = new SFSKMacCounters(protocolLink, objectReference);
+		return sfskMacCounters;
+	}
+
+	/**
+	 * @return
+	 */
+	private static SFSKMacCounters getEmptySFSKMacCounter() {
+		MockProtocolLink protocolLink = new MockProtocolLink(new MockBrokenDLMSConnection());
 		ObjectReference objectReference = new ObjectReference(0);
 		SFSKMacCounters sfskMacCounters = new SFSKMacCounters(protocolLink, objectReference);
 		return sfskMacCounters;
@@ -193,6 +221,7 @@ public class SFSKMacCountersTest {
 		dlmsConnection.addRequestResponsePair("$E6$E6$00$05$01$02$00$28", "$90$02$01$0C$01$00$06$00$34$56$78");
 		dlmsConnection.addRequestResponsePair("$E6$E6$00$05$01$02$00$30", "$90$02$01$0C$01$00$06$12$00$56$78");
 		dlmsConnection.addRequestResponsePair("$E6$E6$00$05$01$02$00$38", "$90$02$01$0C$01$00$06$12$34$00$78");
+		dlmsConnection.addRequestResponsePair("$E6$E6$00$06$01$02$00$50$01$12$00$00", "$90$02$01$0D$01$00");
 		return dlmsConnection;
 	}
 
