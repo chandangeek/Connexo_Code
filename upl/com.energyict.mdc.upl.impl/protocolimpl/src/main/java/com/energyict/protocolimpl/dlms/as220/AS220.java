@@ -28,6 +28,7 @@ import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.ObiscodeMapper;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import com.energyict.protocolimpl.dlms.as220.emeter.EMeter;
+import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 import com.energyict.protocolimpl.dlms.as220.plc.PLC;
 
 /**
@@ -41,6 +42,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 	private int iNROfIntervals=-1;
 
 	private final EMeter			eMeter		= new EMeter(this);
+	private final GMeter			gMeter		= new GMeter(this);
 	private final MessageProtocol		messaging	= new AS220Messaging(this);
 	private final PLC			plc		= new PLC(this);
 
@@ -53,9 +55,21 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
     }
 
+    /**
+     * Getter for the E-meter
+     * @return
+     */
     public EMeter geteMeter() {
 		return eMeter;
 	}
+    
+    /**
+     * Getter for the G-Meter
+     * @return 
+     */
+    public GMeter getgMeter(){
+    	return gMeter;
+    }
 
     public PLC getPlc() {
 		return plc;
@@ -80,6 +94,21 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
         StringBuffer strBuff = new StringBuffer();
     	UniversalObject uo = getMeterConfig().getVersionObject();
         byte[] responsedata = getCosemObjectFactory().getGenericRead(uo.getBaseName(),uo.getValueAttributeOffset()).getResponseData();
+
+        Array array = AXDRDecoder.decode(responsedata).getArray();
+        Structure structure = array.getDataType(0).getStructure();
+        strBuff.append(ProtocolUtils.outputHexString(structure.getNextDataType().getOctetString().getOctetStr()));
+        strBuff.append(", "+structure.getNextDataType().intValue());
+        strBuff.append(", "+structure.getNextDataType().intValue());
+        strBuff.append(", "+structure.getNextDataType().intValue());
+        strBuff.append(", "+structure.getNextDataType().longValue());
+        return strBuff.toString();
+    }
+    
+    public String getPassiveFirmwareVersion() throws IOException,UnsupportedException {
+        StringBuffer strBuff = new StringBuffer();
+    	UniversalObject uo = getMeterConfig().getVersionObject();
+        byte[] responsedata = getCosemObjectFactory().getGenericRead(ObisCode.fromString("1.1.0.2.0.255"), 0x08).getResponseData();
 
         Array array = AXDRDecoder.decode(responsedata).getArray();
         Structure structure = array.getDataType(0).getStructure();

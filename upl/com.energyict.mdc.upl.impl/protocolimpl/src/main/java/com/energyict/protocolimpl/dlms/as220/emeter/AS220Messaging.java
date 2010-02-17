@@ -36,14 +36,14 @@ public class AS220Messaging implements MessageProtocol {
 	 */
 	public static final String	CONNECT_EMETER				= "ConnectEmeter";
 	public static final String	DISCONNECT_EMETER			= "DisconnectEmeter";
-	public static final String	ARM_EMETER				= "ArmEmeter";
+	public static final String	ARM_EMETER					= "ArmEmeter";
 
 	public static final String	TOPT_SWITCH_BASE			= "TariffOptionSwitchBase";
-	public static final String	TOPT_SWITCH_DAYNIGHT			= "TariffOptionSwitchDayNight";
+	public static final String	TOPT_SWITCH_DAYNIGHT		= "TariffOptionSwitchDayNight";
 	public static final String	FORCE_SET_CLOCK				= "ForceSetClock";
 
 	public static final String	RESCAN_PLCBUS				= "RescanPlcBus";
-	public static final String	SET_ACTIVE_PLC_CHANNEL			= "SetActivePlcChannel";
+	public static final String	SET_ACTIVE_PLC_CHANNEL		= "SetActivePlcChannel";
 	
 	public static final String 	FIRMWARE_UPDATE				= "FirmwareUpdate";
 	

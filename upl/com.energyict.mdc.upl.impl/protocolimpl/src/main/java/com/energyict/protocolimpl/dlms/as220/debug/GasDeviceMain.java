@@ -1,0 +1,99 @@
+/**
+ * 
+ */
+package com.energyict.protocolimpl.dlms.as220.debug;
+
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.Properties;
+
+import com.energyict.dialer.core.LinkException;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
+import com.energyict.protocolimpl.dlms.as220.GasDevice;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
+/**
+ * @author gna
+ * @since 15-feb-2010
+ *
+ */
+public class GasDeviceMain extends AS220Main {
+	
+	private static GasDevice gasDevice;
+	
+	public static GasDevice getGasDevice() {
+		if (gasDevice == null) {
+			gasDevice = new GasDevice();
+			log("Created new instance of " + gasDevice.getClass().getCanonicalName() + " [" + gasDevice.getProtocolVersion() + "]");
+		}
+		return gasDevice;
+	}
+	
+	private static Properties getProperties() {
+		Properties properties = new Properties();
+
+		properties.setProperty("MaximumTimeDiff", "300");
+		properties.setProperty("MinimumTimeDiff", "1");
+		properties.setProperty("CorrectTime", "0");
+
+		properties.setProperty("Retries", "5");
+		properties.setProperty("Timeout", "20000");
+		//properties.setProperty("ForcedDelay", "500");
+
+		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
+		properties.setProperty("ProfileInterval", "900");
+		properties.setProperty("Password", "00000000");
+		properties.setProperty("SerialNumber", "35016036");
+		properties.setProperty("NodeAddress", "35016036:1");
+
+		properties.setProperty("AddressingMode", "-1");
+		properties.setProperty("Connection", "3");
+		properties.setProperty("ClientMacAddress", "2");
+		properties.setProperty("ServerLowerMacAddress", "1");
+		properties.setProperty("ServerUpperMacAddress", "1");
+
+		properties.setProperty(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF");
+		properties.setProperty(LocalSecurityProvider.DATATRANSPORTKEY, "000102030405060708090A0B0C0D0E0F");
+
+		return properties;
+	}
+
+	public static void main(String[] args) throws LinkException, IOException, InterruptedException {
+
+		getDialer().init(COMPORT);
+		getDialer().getSerialCommunicationChannel().setParams(BAUDRATE, DATABITS, PARITY, STOPBITS);
+		getDialer().connect();
+		
+		try {
+			getGasDevice().setProperties(getProperties());
+			getGasDevice().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
+			getGasDevice().connect();
+			
+			log(getGasDevice().getSerialNumber());
+			
+//			getGasDevice().getgMeter().getGasInstallController().deinstall();
+			
+//			log(getGasDevice().getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.0.96.1.0.255"), 0x08, 1).getValue());
+//			log(getGasDevice().getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.1.96.1.0.255"), 0x08, 1).getValue());
+//			log(getGasDevice().getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.2.96.1.0.255"), 0x08, 1).getValue());
+//			log(getGasDevice().getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.3.96.1.0.255"), 0x08, 1).getValue());
+//			log(getGasDevice().getCosemObjectFactory().getGenericRead(ObisCode.fromString("0.4.24.2.0.255"), 0x08, 4));
+			
+//			getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(getGasDevice().getGasSlotId()-1).getObisCode()).getIdentificationNumber();
+			
+			getGasDevice().getgMeter().getProfileData(new Date(0), new Date(), false);
+			
+//			getGasDevice().getgMeter().getGasInstallController().install();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
+			log("Done. Closing connections. \n");
+			getGasDevice().disconnect();
+			getDialer().disConnect();
+		}
+	}
+}

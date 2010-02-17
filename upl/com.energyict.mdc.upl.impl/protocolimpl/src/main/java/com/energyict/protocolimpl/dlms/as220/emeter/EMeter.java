@@ -48,8 +48,8 @@ public class EMeter {
     /**
      * Read the profile dta from the device
      *
-     * @param fromCalendar
-     * @param toCalendar
+     * @param from
+     * @param to
      * @param includeEvents
      * @return the {@link ProfileData}
      * @throws IOException
