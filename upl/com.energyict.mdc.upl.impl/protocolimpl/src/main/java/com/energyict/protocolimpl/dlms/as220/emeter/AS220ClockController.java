@@ -86,6 +86,31 @@ public class AS220ClockController implements ClockController {
 		byte dayOfWeek = (byte) calendar.get(Calendar.DAY_OF_WEEK);
 		int ptr = 0;
 
+		byteTimeBuffer[ptr++] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
+		byteTimeBuffer[ptr++] = DATA_LENGTH; // length
+		byteTimeBuffer[ptr++] = (byte) (calendar.get(Calendar.YEAR) >> BYTE_LENGTH);
+		byteTimeBuffer[ptr++] = (byte) calendar.get(Calendar.YEAR);
+		byteTimeBuffer[ptr++] = (byte) (calendar.get(Calendar.MONTH) + 1);
+		byteTimeBuffer[ptr++] = (byte) calendar.get(Calendar.DAY_OF_MONTH);
+		byteTimeBuffer[ptr++] = (dayOfWeek-- == 1) ? (byte) 7 : dayOfWeek;
+		byteTimeBuffer[ptr++] = (byte) calendar.get(Calendar.HOUR_OF_DAY);
+		byteTimeBuffer[ptr++] = (byte) calendar.get(Calendar.MINUTE);
+		byteTimeBuffer[ptr++] = (byte) calendar.get(Calendar.SECOND);
+		byteTimeBuffer[ptr++] = (byte) 0xFF;
+		byteTimeBuffer[ptr++] = (byte) 0x80;
+		byteTimeBuffer[ptr++] = 0x00;
+		byteTimeBuffer[ptr++] = generateDstFlag(calendar);
+
+		getAs220().getCosemObjectFactory().getGenericWrite((short) getAs220().getMeterConfig().getClockSN(), DLMSCOSEMGlobals.TIME_TIME).write(byteTimeBuffer);
+
+	}
+
+	/**
+	 * @param calendar
+	 * @return
+	 * @throws IOException
+	 */
+	private byte generateDstFlag(Calendar calendar) throws IOException {
 		byte dstFlag;
 		if (getAs220().isRequestTimeZone()) {
 			switch (getAs220().getDstFlag()) {
@@ -101,24 +126,7 @@ public class AS220ClockController implements ClockController {
 		} else {
 			dstFlag = getAs220().getTimeZone().inDaylightTime(calendar.getTime()) ? (byte) 0x80 : (byte) 0x00;
 		}
-
-		byteTimeBuffer[ptr++] = DLMSCOSEMGlobals.TYPEDESC_OCTET_STRING;
-		byteTimeBuffer[ptr++] = DATA_LENGTH; // length
-		byteTimeBuffer[ptr++] = (byte) (calendar.get(Calendar.YEAR) >> BYTE_LENGTH);
-		byteTimeBuffer[ptr++] = (byte) calendar.get(Calendar.YEAR);
-		byteTimeBuffer[ptr++] = (byte) (calendar.get(Calendar.MONTH) + 1);
-		byteTimeBuffer[ptr++] = (byte) calendar.get(Calendar.DAY_OF_MONTH);
-		byteTimeBuffer[ptr++] = (dayOfWeek-- == 1) ? (byte) 7 : dayOfWeek;
-		byteTimeBuffer[ptr++] = (byte) calendar.get(Calendar.HOUR_OF_DAY);
-		byteTimeBuffer[ptr++] = (byte) calendar.get(Calendar.MINUTE);
-		byteTimeBuffer[ptr++] = (byte) calendar.get(Calendar.SECOND);
-		byteTimeBuffer[ptr++] = (byte) 0xFF;
-		byteTimeBuffer[ptr++] = (byte) 0x80;
-		byteTimeBuffer[ptr++] = 0x00;
-		byteTimeBuffer[ptr++] = dstFlag;
-
-		getAs220().getCosemObjectFactory().getGenericWrite((short) getAs220().getMeterConfig().getClockSN(), DLMSCOSEMGlobals.TIME_TIME).write(byteTimeBuffer);
-
+		return dstFlag;
 	}
 
 	public void shiftTime() throws IOException {
