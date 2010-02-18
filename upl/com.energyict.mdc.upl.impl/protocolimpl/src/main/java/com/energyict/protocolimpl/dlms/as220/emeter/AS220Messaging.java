@@ -44,9 +44,9 @@ public class AS220Messaging implements MessageProtocol {
 
 	public static final String	RESCAN_PLCBUS				= "RescanPlcBus";
 	public static final String	SET_ACTIVE_PLC_CHANNEL		= "SetActivePlcChannel";
-	
+
 	public static final String 	FIRMWARE_UPDATE				= "FirmwareUpdate";
-	
+
 
 	/**
 	 * Message descriptions
@@ -101,7 +101,10 @@ public class AS220Messaging implements MessageProtocol {
 	}
 
 	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
+		MessageResult result;
+
 		try {
+
 			if (isMessageTag(DISCONNECT_EMETER, messageEntry)) {
 				getAs220().geteMeter().getContactorController().doDisconnect();
 			} else if (isMessageTag(CONNECT_EMETER, messageEntry)) {
@@ -119,23 +122,27 @@ public class AS220Messaging implements MessageProtocol {
 			} else if (isMessageTag(SET_ACTIVE_PLC_CHANNEL, messageEntry)) {
 				setActivePLCChannel(messageEntry);
 			} else if (isMessageTag(FORCE_SET_CLOCK, messageEntry)) {
+				getAs220().getLogger().info("FORCE_SET_CLOCK message received");
 				getAs220().geteMeter().getClockController().setTime();
-			}else if (isMessageTag(FIRMWARE_UPDATE, messageEntry)) {
-				upgradeFirmware(messageEntry);    
+			} else if (isMessageTag(FIRMWARE_UPDATE, messageEntry)) {
+				upgradeFirmware(messageEntry);
 			} else {
-				getAs220().getLogger().severe("Received unknown message: " + messageEntry);
-				return MessageResult.createFailed(messageEntry);
+				throw new IOException("Received unknown message: " + messageEntry);
 			}
-			return MessageResult.createSuccess(messageEntry);
+
+			result = MessageResult.createSuccess(messageEntry);
+
 		} catch (IOException e) {
-			getAs220().getLogger().severe("QueryMessage(), " + e.getMessage());
-			return MessageResult.createFailed(messageEntry);
+			getAs220().getLogger().severe("QueryMessage(), FAILED: " + e.getMessage());
+			result = MessageResult.createFailed(messageEntry);
 		}
+
+		return result;
 	}
 
 	/**
 	 * @param messageEntry
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	protected void upgradeFirmware(MessageEntry messageEntry) throws IOException {
 		getAs220().getLogger().info("Received a firmware upgrade message, using firmware message builder...");
@@ -155,7 +162,7 @@ public class AS220Messaging implements MessageProtocol {
 		    getAs220().getLogger().log(Level.SEVERE, errorMessage, e);
 		    throw new IOException(errorMessage + e.getMessage());
 		}
-		
+
 		// We requested an inlined file...
 		if (builder.getUserFile() != null) {
 			getAs220().getLogger().info("Pulling out user file and dispatching to the device...");
@@ -183,11 +190,11 @@ public class AS220Messaging implements MessageProtocol {
 		} else {
 		    errorMessage = "The message did not contain a user file to use for the upgrade, message fails...";
 		    getAs220().getLogger().log(Level.WARNING, errorMessage);
-		    
+
 		    throw new IOException(errorMessage);
 		}
 	}
-	
+
 	/**
 	 * Upgrades the remote device using the image specified.
 	 *
@@ -205,7 +212,7 @@ public class AS220Messaging implements MessageProtocol {
 
 			final BASE64Decoder decoder = new BASE64Decoder();
 			final byte[] binaryImage = decoder.decodeBuffer(new String(image));
-			
+
 			getAs220().getLogger().info("Commencing upgrade...");
 
 			imageTransfer.upgrade(binaryImage, false);
