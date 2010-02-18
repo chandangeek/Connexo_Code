@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -35,25 +36,22 @@ public class FirmwareVersions extends Data {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
 		FirmwareVersionAttribute fw = getFirmwareVersion();
 		return (fw != null) ? fw.getVersion() : "Unknown";
 	}
 
+	/**
+	 * A firmware version attribute is in fact an {@link Array}, containing one
+	 * {@link Structure} with the following elements:
+	 * <li>FIRMWARE_ID_APP (1 for AM500 and 2 for Vitilec)</li>
+	 * <li>FIRMWARE_TYPE (Seems to be always 0x01)</li>
+	 * <li>MAJOR_VERSION</li>
+	 * <li>MINOR_VERSION</li>
+	 * <li>CRC</li>
+	 *
+	 * @author jme
+	 */
 	private class FirmwareVersionAttribute extends Array {
-
-		/*
-		 * FIRMWARE_ID_APP:
-		 * 	0x00 0x00 0x00 0x00 0x00 0x01 for meter (AM500 board)
-		 *  0x00 0x00 0x00 0x00 0x00 0x02 for vitilec board
-		 *
-		 * FIRMWARE_TYPE
-		 * 	always 0x01
-		 * MAJOR_VERSION
-		 * MINOR_VERSION
-		 * CRC
-		 *
-		 */
 
 		public FirmwareVersionAttribute(byte[] responseData) throws IOException {
 			super(responseData, 0, 0);
