@@ -12,7 +12,7 @@ import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author  Koen
- * 
+ *
  * |GNA| 19012009 - Added a valid description for Abstract objects that have no description, otherwise these are not stored correctly in database
  */
 public final class DLMSUtils implements DLMSCOSEMGlobals {
@@ -61,39 +61,42 @@ public final class DLMSUtils implements DLMSCOSEMGlobals {
 		System.out.println(getAXDRLength(data,0));
 	}
 
-	public static int getAXDRLengthOffset(byte[] byteBuffer,int iOffset)
-	{
-		if ((byteBuffer[iOffset] & (byte)0x80) != 0)
-		{
-			return  ((byteBuffer[iOffset] & 0x7f)+1);
+	/**
+	 * @param byteBuffer
+	 * @param iOffset
+	 * @return
+	 */
+	public static int getAXDRLengthOffset(byte[] byteBuffer, int iOffset) {
+		if ((byteBuffer[iOffset] & (byte) 0x80) != 0) {
+			return ((byteBuffer[iOffset] & 0x7f) + 1);
 		} else {
 			return 1;
 		}
 	}
 
-	public static long getAXDRLength(byte[] byteBuffer,int iOffset)
-	{
-		int i;
-		long lLength=0;
-		int iNROfBytes;
-
-		if ((byteBuffer[iOffset] & (byte)0x80) != 0)
-		{
-			iNROfBytes=(byteBuffer[iOffset]&0x7F);
-			for (i=0;i<iNROfBytes;i++)
-			{
-				lLength |= (((long)byteBuffer[iOffset+i+1]&0xFF) << (8*((iNROfBytes-1)-i)));
+	/**
+	 * @param byteBuffer
+	 * @param iOffset
+	 * @return
+	 */
+	public static long getAXDRLength(byte[] byteBuffer, int iOffset) {
+		long lLength = 0;
+		if ((byteBuffer[iOffset] & (byte) 0x80) != 0) {
+			int iNROfBytes = (byteBuffer[iOffset] & 0x7F);
+			for (int i = 0; i < iNROfBytes; i++) {
+				lLength |= (((long) byteBuffer[iOffset + i + 1] & 0xFF) << (8 * ((iNROfBytes - 1) - i)));
 			}
+		} else {
+			lLength = ((long) byteBuffer[iOffset] & 0xFF);
 		}
-		else
-		{
-			lLength = ((long)byteBuffer[iOffset] & 0xFF);
-		}
-
 		return lLength;
+	}
 
-	} // public static long getAXDRLength(byte[] byteBuffer,int iOffset)
-
+	/**
+	 * @param byteBuffer
+	 * @return
+	 * @throws IOException
+	 */
 	public static long parseValue2long(byte[] byteBuffer) throws IOException {
 		return parseValue2long(byteBuffer,0);
 	}
