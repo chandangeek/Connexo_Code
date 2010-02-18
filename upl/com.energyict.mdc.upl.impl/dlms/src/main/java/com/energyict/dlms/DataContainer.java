@@ -316,174 +316,179 @@ public class DataContainer implements DLMSCOSEMGlobals, Serializable {
 		{
 			LevelNROfElements[temp]=0;
 		}
+		if(responseData != null){
 
 		while(true) {
 			try {
-				switch (responseData[i])
-				{
-				case TYPEDESC_ARRAY:
-				{
-					i++;
-					if (iLevel++ >= (MAX_LEVELS-1)) {
-						throw new IOException("Max printlevel exceeds!");
-					}
-
-					LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
-					addStructure(LevelNROfElements[iLevel]);
-					i += DLMSUtils.getAXDRLengthOffset(responseData,i);
-
-
-				} break; // TYPEDESC_ARRAY
-
-				case TYPEDESC_STRUCTURE:
-				{
-					i++;
-					if (iLevel++ >= (MAX_LEVELS-1)) {
-						throw new IOException("Max printlevel exceeds!");
-					}
-					LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
-					addStructure(LevelNROfElements[iLevel]);
-					i += DLMSUtils.getAXDRLengthOffset(responseData,i);
-
-				} break; // TYPEDESC_STRUCTURE
-
-				case TYPEDESC_NULL:
-				{
-					i++;
-					addInteger(0);
-				} break;
-
-				case TYPEDESC_LONG:
-				case TYPEDESC_LONG_UNSIGNED:
-				{
-					i++;
-					addInteger(ProtocolUtils.getShort(responseData,i));
-					i+=2;
-
-				} break;
-
-				case TYPEDESC_VISIBLE_STRING:
-				case TYPEDESC_OCTET_STRING:
-				{
-					int t,s;
-					i++;
-					t = (int)DLMSUtils.getAXDRLength(responseData,i);
-					byte[] array = new byte[t];
-					i += DLMSUtils.getAXDRLengthOffset(responseData,i);
-					for (s=0;s<t;s++) {
-						array[s] = responseData[i+s];
-					}
-					addOctetString(array);
-					i += t;
-				} break;
-
-				case TYPEDESC_DOUBLE_LONG:
-				case TYPEDESC_DOUBLE_LONG_UNSIGNED:
-				{
-					i++;
-					addInteger(ProtocolUtils.getInt(responseData,i));
-					i+=4;
-				} break;
-
-				case TYPEDESC_BCD:
-				case TYPEDESC_ENUM:
-				case TYPEDESC_INTEGER:
-				case TYPEDESC_BOOLEAN:
-				case TYPEDESC_UNSIGNED:
-				{
-					i++;
-					addInteger(responseData[i]&0xFF);
-					i++;
-				} break;
-
-
-				case TYPEDESC_LONG64:
-				{
-					i++;
-					addLong(ProtocolUtils.getLong(responseData,i));
-					i+=8;
-				} break;
-
-				case TYPEDESC_BITSTRING:
-				{
-					int t,s;
-					i++;
-					t = (int)DLMSUtils.getAXDRLength(responseData,i);
-					i += DLMSUtils.getAXDRLengthOffset(responseData,i);
-
-					// calc nr of bytes
-					if ((t%8) == 0) {
-						t = (t/8);
-					} else {
-						t = ((t/8)+1);
-					}
-
-					int iValue=0;
-					for (s=0;s<t;s++) {
-						iValue += ((responseData[i+s]&0xff)<<(s*8));
-					}
-					addInteger(iValue);
-
-					i+=t;
-
-				} break; // TYPEDESC_BITSTRING
-
-				case TYPEDESC_FLOATING_POINT:
-				{
-					i++;
-					addInteger(0); // TODO
-					i+=4;
-
-				} break; // TYPEDESC_FLOATING_POINT
-
-				case TYPEDESC_TIME:
-				{
-					i++;
-					addInteger(0); // TODO
-					i+=4; // ??? generalizedTime
-
-				} break; // TYPEDESC_TIME
-
-				case TYPEDESC_COMPACT_ARRAY:
-				{
-					i++;
-					addInteger(0); // TODO
-				} break; // TYPEDESC_COMPACT_ARRAY
-
-				default:
-				{
-					i++;
-				} break;
-				}
-
-				while(true)
-				{
-					if (--LevelNROfElements[iLevel] <0)
+					
+					switch (responseData[i])
 					{
-						if (--iLevel < 0)
+					case TYPEDESC_ARRAY:
+					{
+						i++;
+						if (iLevel++ >= (MAX_LEVELS-1)) {
+							throw new IOException("Max printlevel exceeds!");
+						}
+						
+						LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
+						addStructure(LevelNROfElements[iLevel]);
+						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
+						
+						
+					} break; // TYPEDESC_ARRAY
+					
+					case TYPEDESC_STRUCTURE:
+					{
+						i++;
+						if (iLevel++ >= (MAX_LEVELS-1)) {
+							throw new IOException("Max printlevel exceeds!");
+						}
+						LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
+						addStructure(LevelNROfElements[iLevel]);
+						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
+						
+					} break; // TYPEDESC_STRUCTURE
+					
+					case TYPEDESC_NULL:
+					{
+						i++;
+						addInteger(0);
+					} break;
+					
+					case TYPEDESC_LONG:
+					case TYPEDESC_LONG_UNSIGNED:
+					{
+						i++;
+						addInteger(ProtocolUtils.getShort(responseData,i));
+						i+=2;
+						
+					} break;
+					
+					case TYPEDESC_VISIBLE_STRING:
+					case TYPEDESC_OCTET_STRING:
+					{
+						int t,s;
+						i++;
+						t = (int)DLMSUtils.getAXDRLength(responseData,i);
+						byte[] array = new byte[t];
+						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
+						for (s=0;s<t;s++) {
+							array[s] = responseData[i+s];
+						}
+						addOctetString(array);
+						i += t;
+					} break;
+					
+					case TYPEDESC_DOUBLE_LONG:
+					case TYPEDESC_DOUBLE_LONG_UNSIGNED:
+					{
+						i++;
+						addInteger(ProtocolUtils.getInt(responseData,i));
+						i+=4;
+					} break;
+					
+					case TYPEDESC_BCD:
+					case TYPEDESC_ENUM:
+					case TYPEDESC_INTEGER:
+					case TYPEDESC_BOOLEAN:
+					case TYPEDESC_UNSIGNED:
+					{
+						i++;
+						addInteger(responseData[i]&0xFF);
+						i++;
+					} break;
+					
+					
+					case TYPEDESC_LONG64:
+					{
+						i++;
+						addLong(ProtocolUtils.getLong(responseData,i));
+						i+=8;
+					} break;
+					
+					case TYPEDESC_BITSTRING:
+					{
+						int t,s;
+						i++;
+						t = (int)DLMSUtils.getAXDRLength(responseData,i);
+						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
+						
+						// calc nr of bytes
+						if ((t%8) == 0) {
+							t = (t/8);
+						} else {
+							t = ((t/8)+1);
+						}
+						
+						int iValue=0;
+						for (s=0;s<t;s++) {
+							iValue += ((responseData[i+s]&0xff)<<(s*8));
+						}
+						addInteger(iValue);
+						
+						i+=t;
+						
+					} break; // TYPEDESC_BITSTRING
+					
+					case TYPEDESC_FLOATING_POINT:
+					{
+						i++;
+						addInteger(0); // TODO
+						i+=4;
+						
+					} break; // TYPEDESC_FLOATING_POINT
+					
+					case TYPEDESC_TIME:
+					{
+						i++;
+						addInteger(0); // TODO
+						i+=4; // ??? generalizedTime
+						
+					} break; // TYPEDESC_TIME
+					
+					case TYPEDESC_COMPACT_ARRAY:
+					{
+						i++;
+						addInteger(0); // TODO
+					} break; // TYPEDESC_COMPACT_ARRAY
+					
+					default:
+					{
+						i++;
+					} break;
+					}
+					
+					while(true)
+					{
+						if (--LevelNROfElements[iLevel] <0)
 						{
-							iLevel=0;
+							if (--iLevel < 0)
+							{
+								iLevel=0;
+								break;
+							}
+						} else {
 							break;
 						}
-					} else {
-						break;
 					}
 				}
-			}
-			catch(DataContainerException e) {
-				if (logger == null) {
-					System.out.println(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
-				} else {
-					logger.severe(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+				catch(DataContainerException e) {
+					if (logger == null) {
+						System.out.println(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+					} else {
+						logger.severe(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+					}
+					return;
 				}
-				return;
-			}
-
-			if (i>=responseData.length) {
-				return;
-			}
-
-		} // while(true)
+				
+				if (i>=responseData.length) {
+					return;
+				}
+				
+			} // while(true)
+		} else {
+			return;
+		}
 
 	} //  void parseObjectList(byte[] responseData)
 

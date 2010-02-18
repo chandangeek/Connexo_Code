@@ -79,8 +79,10 @@ public class GMeter {
         	
         	ProfileGeneric pgEvents = GetMbusEventProfile();
         	DataContainer dcEvents = pgEvents.getBuffer(fromCalendar, toCalendar);
-        	GMetersLog gLog = new GMetersLog(dcEvents);
-        	profileData.getMeterEvents().addAll(gLog.getMeterEvents());
+        	if(dcEvents.getRoot() != null){
+        		GMetersLog gLog = new GMetersLog(dcEvents);
+        		profileData.getMeterEvents().addAll(gLog.getMeterEvents());
+        	}
         }
 
         profileData.sort();
