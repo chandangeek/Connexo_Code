@@ -39,6 +39,9 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
 	private static final int SEC_PER_MIN = 60;
 
+	private static final ObisCode	FW_VERSION_ACTIVE_OBISCODE	= ObisCode.fromString("1.0.0.2.0.255");
+	private static final ObisCode	FW_VERSION_PASSIVE_OBISCODE	= ObisCode.fromString("1.1.0.2.0.255");
+
 	private int iNROfIntervals=-1;
 
 	private final EMeter			eMeter			= new EMeter(this);
@@ -91,18 +94,10 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     }
 
     public String getFirmwareVersion() throws IOException,UnsupportedException {
-        StringBuffer strBuff = new StringBuffer();
-    	UniversalObject uo = getMeterConfig().getVersionObject();
-        byte[] responsedata = getCosemObjectFactory().getGenericRead(uo.getBaseName(),uo.getValueAttributeOffset()).getResponseData();
-
-        Array array = AXDRDecoder.decode(responsedata).getArray();
-        Structure structure = array.getDataType(0).getStructure();
-        strBuff.append(ProtocolUtils.outputHexString(structure.getNextDataType().getOctetString().getOctetStr()));
-        strBuff.append(", "+structure.getNextDataType().intValue());
-        strBuff.append(", "+structure.getNextDataType().intValue());
-        strBuff.append(", "+structure.getNextDataType().intValue());
-        strBuff.append(", "+structure.getNextDataType().longValue());
-        return strBuff.toString();
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("active_version=").append(new FirmwareVersions(FW_VERSION_ACTIVE_OBISCODE, this)).append(", ");
+    	sb.append("passive_version=").append(new FirmwareVersions(FW_VERSION_PASSIVE_OBISCODE, this));
+        return sb.toString();
     }
 
     public String getPassiveFirmwareVersion() throws IOException,UnsupportedException {
