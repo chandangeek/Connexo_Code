@@ -7,6 +7,7 @@ package com.energyict.protocolimpl.dlms.as220.debug;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dlms.aso.SecurityContext;
@@ -68,10 +69,13 @@ public class GasDeviceMain extends AS220Main {
 		
 		try {
 			getGasDevice().setProperties(getProperties());
-			getGasDevice().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
+			getGasDevice().init(getDialer().getInputStream(), getDialer().getOutputStream(), TimeZone.getTimeZone("GMT+01"), getLogger());
 			getGasDevice().connect();
 			
 			log(getGasDevice().getSerialNumber());
+			
+			
+//			getGasDevice().getgMeter().getGasValveController().doDisconnect();
 			
 //			getGasDevice().getgMeter().getGasInstallController().deinstall();
 			
@@ -83,6 +87,38 @@ public class GasDeviceMain extends AS220Main {
 			
 //			getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(getGasDevice().getGasSlotId()-1).getObisCode()).getIdentificationNumber();
 			
+			getGasDevice().getMeterConfig();
+//			getGasDevice().getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.4.24.3.0.255")).getCapturePeriod();
+			
+//			getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(0).getObisCode()).deinstallSlave();
+			
+//			log(getGasDevice().getProfileInterval());
+			
+//	    	getGasDevice().getgMeter().getGasInstallController().
+//    		setEncryptionKey(DLMSUtils.hexStringToByteArray("11223344556677889900AABBCCDDEEFF"));
+//    		Structure rawDataStruct = new Structure();
+//    		rawDataStruct.addDataType(new OctetString(DLMSUtils.hexStringToByteArray("11223344556677889900AABBCCDDEEFF")));
+//    		rawDataStruct.addDataType(new OctetString(DLMSUtils.hexStringToByteArray("8f2b9d68640418dc392d6634c8fc0367")));
+//			
+//    		getGasDevice().getgMeter().getGasInstallController().setBothKeysAtOnce(rawDataStruct.getBEREncodedByteArray());			
+			
+//			log(getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(0).getObisCode()).getIdentificationNumber());
+//			getGasDevice().getgMeter().getGasValveController().doDisconnect();
+//			getGasDevice().getgMeter().getGasValveController().doConnect();
+//			getGasDevice().getgMeter().getGasValveController().getContactorState();
+			
+			log(getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(0).getObisCode()).getCapturePeriod());
+			log(getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(0).getObisCode()).getIdentificationNumber());
+			
+			log(getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(1).getObisCode()).getCapturePeriod());
+			log(getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(1).getObisCode()).getIdentificationNumber());
+//			log(getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(0).getObisCode()).getCapturePeriod());
+//			getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(0).getObisCode()).setCapturePeriod(900);
+//			log(getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(0).getObisCode()).getCapturePeriod());
+			
+//			getGasDevice().getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.4.24.3.0.255")).writeCapturePeriodAttr(new Unsigned32(900));
+//			getGasDevice().getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.1.24.3.0.255"), 4).
+//			write(new byte[]{DLMSCOSEMGlobals.TYPEDESC_DOUBLE_LONG_UNSIGNED, 0x00, 0x00, 0x03, (byte)0x84});
 			getGasDevice().getgMeter().getProfileData(new Date(0), new Date(), false);
 			
 //			getGasDevice().getgMeter().getGasInstallController().install();

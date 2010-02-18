@@ -7,6 +7,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.AbstractContactorController;
 import com.energyict.protocolimpl.dlms.as220.AS220;
+import com.energyict.protocolimpl.dlms.as220.GasDevice;
 
 /**
  * This class is used to change the valve state of an G-Meter connected to the AS220 device
@@ -26,31 +27,47 @@ public class GasValveController extends AbstractContactorController {
 	}
 
 	/**
-	 * Getter for the {@link AS220} {@link MeterProtocol}
+	 * Getter for the {@link GasDevice} {@link MeterProtocol}
 	 *
-	 * @return the parent {@link AS220} {@link MeterProtocol}
+	 * @return the parent {@link GasDevice} {@link MeterProtocol}
 	 */
-	public AS220 getAs220() {
-		return (AS220) getProtocol();
+	public GasDevice getGasDevice() {
+		return (GasDevice) getProtocol();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public void doArm() throws IOException {
-		getAs220().getLogger().info("ARM message received");
-		getAs220().getCosemObjectFactory().getDisconnector(VALVE_DISCONNECTOR_OBISCODE).writeControlState(new TypeEnum(ARM));
+		getGasDevice().getLogger().info("ARM message received");
+		// TOTEST Don't know if what the functionality is
+		getGasDevice().getCosemObjectFactory().getDisconnector(VALVE_DISCONNECTOR_OBISCODE).writeControlState(new TypeEnum(ARM));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public void doConnect() throws IOException {
-		getAs220().getLogger().info("CONNECT message received");
-		getAs220().getCosemObjectFactory().getDisconnector(VALVE_DISCONNECTOR_OBISCODE).writeControlState(new TypeEnum(CONNECT));
+		getGasDevice().getLogger().info("CONNECT message received");
+		getGasDevice().getCosemObjectFactory().getDisconnector(getGasDevice().getMeterConfig().
+				getMbusDisconnectControl(getGasDevice().getPhysicalAddress()).getObisCode()).remoteReconnect();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public void doDisconnect() throws IOException {
-		getAs220().getLogger().info("DISCONNECT message received");
-		getAs220().getCosemObjectFactory().getDisconnector(VALVE_DISCONNECTOR_OBISCODE).writeControlState(new TypeEnum(DISCONNECT));
+		getGasDevice().getLogger().info("DISCONNECT message received");
+		getGasDevice().getCosemObjectFactory().getDisconnector(getGasDevice().getMeterConfig().
+				getMbusDisconnectControl(getGasDevice().getPhysicalAddress()).getObisCode()).remoteDisconnect();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public ContactorState getContactorState() throws IOException {
-		return ContactorState.UNKNOWN;
+		return ContactorState.values()[getGasDevice().getCosemObjectFactory().getDisconnector(getGasDevice().getMeterConfig().
+				getMbusDisconnectControl(getGasDevice().getPhysicalAddress()).getObisCode()).getControlState().getValue()];
 	}
 
 }

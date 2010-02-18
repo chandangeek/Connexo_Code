@@ -20,7 +20,7 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
  */
 public class MBusClient extends AbstractCosemObject{
 
-	/** Attributes */
+	/* Attributes */
 	private OctetString mbusPortReference = null;
 	private Array captureDefinition = null;
 	private Unsigned32 capturePeriod = null;
@@ -33,7 +33,7 @@ public class MBusClient extends AbstractCosemObject{
 	private Unsigned8 status = null;
 	private Unsigned8 alarm = null;
 
-	/** Attribute numbers */
+	/* Attribute numbers */
 	private static final int ATTRB_MBUS_PORT_REFERENCE = 2;
 	private static final int ATTRB_CAPTURE_DEFINITION = 3;
 	private static final int ATTRB_CAPTURE_PERIOD = 4;
@@ -45,8 +45,21 @@ public class MBusClient extends AbstractCosemObject{
 	private static final int ATTRB_ACCESS_NUMBER = 10;
 	private static final int ATTRB_STATUS = 11;
 	private static final int ATTRB_ALARM = 12;
-
-	/** Method invoke */
+	
+	/* ShortName attribute offsets */
+	private static final int ATTRB_MBUS_PORT_REFERENCE_SN = 0x10;
+	private static final int ATTRB_CAPTURE_DEFINITION_SN = 0x18;
+	private static final int ATTRB_CAPTURE_PERIOD_SN = 0x20;
+	private static final int ATTRB_PRIMARY_ADDRESS_SN = 0x28;
+	private static final int ATTRB_IDENTIFICATION_NUMBER_SN = 0x30;
+	private static final int ATTRB_MANUFACTURER_ID_SN = 0x38;
+	private static final int ATTRB_VERSION_SN = 0x40;
+	private static final int ATTRB_DEVICE_TYPE_SN = 0x48;
+	private static final int ATTRB_ACCESS_NUMBER_SN = 0x50;
+	private static final int ATTRB_STATUS_SN = 0x58;
+	private static final int ATTRB_ALARM_SN = 0x60;
+	
+	/* Method invoke */
 	private static final int METHOD_SLAVE_INSTALL = 1;
 	private static final int METHOD_SLAVE_DEINSTALL = 2;
 	private static final int METHOD_CAPTURE = 3;
@@ -55,6 +68,16 @@ public class MBusClient extends AbstractCosemObject{
 	private static final int METHOD_DATA_SEND = 6;
 	private static final int METHOD_SET_ENCRYPTION_KEY = 7;
 	private static final int METHOD_TRANSFER_KEY = 8;
+	
+	/* Method write SN */
+	private static final int METHOD_SLAVE_INSTALL_SN = 0x68;
+	private static final int METHOD_SLAVE_DEINSTALL_SN = 0x70;
+	private static final int METHOD_CAPTURE_SN = 0x78;
+	private static final int METHOD_RESET_ALARM_SN = 0x80;
+	private static final int METHOD_SYNCHRONIZE_CLOCK_SN = 0x88;
+	private static final int METHOD_DATA_SEND_SN = 0x90;
+	private static final int METHOD_SET_ENCRYPTION_KEY_SN = 0x98;
+	private static final int METHOD_TRANSFER_KEY_SN = 0xA0;
 
 	public MBusClient(ProtocolLink protocolLink, ObjectReference objectReference){
 		super(protocolLink, objectReference);
@@ -71,7 +94,11 @@ public class MBusClient extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public Unsigned32 getIdentificationNumber() throws IOException {
-		return new Unsigned32(getLNResponseData(ATTRB_IDENTIFICATION_NUMBER), 0);
+	    if(getObjectReference().isLNReference()){
+	    	return new Unsigned32(getLNResponseData(ATTRB_IDENTIFICATION_NUMBER), 0);
+	    } else {
+	    	return new Unsigned32(getResponseData(ATTRB_IDENTIFICATION_NUMBER_SN), 0);
+	    }
 	}
 
 	/**
@@ -81,7 +108,11 @@ public class MBusClient extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public Unsigned16 getManufacturerID() throws IOException {
-		return new Unsigned16(getLNResponseData(ATTRB_MANUFACTURER_ID), 0);
+	    if(getObjectReference().isLNReference()){
+	    	return new Unsigned16(getLNResponseData(ATTRB_MANUFACTURER_ID), 0);
+	    } else {
+	    	return new Unsigned16(getResponseData(ATTRB_MANUFACTURER_ID_SN), 0);
+	    }
 	}
 
 	/**
@@ -90,14 +121,22 @@ public class MBusClient extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void installSlave(int primaryAddress) throws IOException{
-		invoke(METHOD_SLAVE_INSTALL, new Integer8(primaryAddress).getBEREncodedByteArray());
+		if(getObjectReference().isLNReference()){
+			invoke(METHOD_SLAVE_INSTALL, new Integer8(primaryAddress).getBEREncodedByteArray());
+		} else {
+			write(METHOD_SLAVE_INSTALL_SN, new Integer8(primaryAddress).getBEREncodedByteArray());
+		}
 	}
 	/**
 	 * Force to deinstall the current slave meter
 	 * @throws IOException
 	 */
 	public void deinstallSlave() throws IOException {
-		invoke(METHOD_SLAVE_DEINSTALL, new Integer8(0).getBEREncodedByteArray());
+		if(getObjectReference().isLNReference()){
+			invoke(METHOD_SLAVE_DEINSTALL, new Integer8(0).getBEREncodedByteArray());
+		} else {
+			write(METHOD_SLAVE_DEINSTALL_SN, new Integer8(0).getBEREncodedByteArray());
+		}
 	}
 
 	/**
@@ -109,9 +148,9 @@ public class MBusClient extends AbstractCosemObject{
 	 */
 	public void setEncryptionKey(String openKey) throws IOException {
 		if(openKey == ""){
-			invoke(METHOD_SET_ENCRYPTION_KEY, new NullData().getBEREncodedByteArray());
+			setEncryptionKey(new NullData().getBEREncodedByteArray());
 		} else {
-			invoke(METHOD_SET_ENCRYPTION_KEY, OctetString.fromString(openKey).getBEREncodedByteArray());
+			setEncryptionKey(OctetString.fromString(openKey).getBEREncodedByteArray());
 		}
 	}
 
@@ -123,7 +162,11 @@ public class MBusClient extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void setEncryptionKey(byte[] openKey) throws IOException {
-		invoke(METHOD_SET_ENCRYPTION_KEY, new OctetString(openKey).getBEREncodedByteArray());
+		if(getObjectReference().isLNReference()){
+			invoke(METHOD_SET_ENCRYPTION_KEY, new OctetString(openKey).getBEREncodedByteArray());
+ 		} else {
+ 			write(METHOD_SET_ENCRYPTION_KEY_SN, new OctetString(openKey).getBEREncodedByteArray());
+ 		}
 	}
 
 	/**
@@ -133,7 +176,7 @@ public class MBusClient extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void setTransportKey(String encryptedkey) throws IOException {
-		invoke(METHOD_TRANSFER_KEY, OctetString.fromString(encryptedkey).getBEREncodedByteArray());
+		setTransportKey(OctetString.fromString(encryptedkey).getBEREncodedByteArray());
 	}
 
 	/**
@@ -143,7 +186,31 @@ public class MBusClient extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void setTransportKey(byte[] encryptedkey) throws IOException {
-		invoke(METHOD_TRANSFER_KEY, new OctetString(encryptedkey).getBEREncodedByteArray());
+		if(getObjectReference().isLNReference()){
+			invoke(METHOD_TRANSFER_KEY, new OctetString(encryptedkey).getBEREncodedByteArray());
+		} else {
+			write(METHOD_TRANSFER_KEY_SN, new OctetString(encryptedkey).getBEREncodedByteArray());
+		}
+	}
+	
+	/**
+	 * The AM500 modules required that the both keys are sent in one message.
+	 * The structure of the message is:
+	 * <pre>
+	 * 		rawEncryptedKeys ::= structure 
+	 *			{ 
+	 * 				OpenKey		:  OctetString 
+	 * 				TransferKey	:  OctetString
+	 *			} 
+	 * </pre>
+	 * 
+	 * @param rawEncryptedKeys
+	 * 					- the rawDataStructure with the two keys
+	 * 
+	 * @throws IOException if something went wrong during the setting of the keys
+	 */
+	public void setTransportKeyRawData(byte[] rawEncryptedKeys) throws IOException {
+		write(METHOD_TRANSFER_KEY_SN, rawEncryptedKeys);
 	}
 
 	/**
@@ -182,7 +249,11 @@ public class MBusClient extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public Unsigned8 getVersion() throws IOException{
-		return new Unsigned8(getLNResponseData(ATTRB_VERSION), 0);
+	    if(getObjectReference().isLNReference()){
+	    	return new Unsigned8(getLNResponseData(ATTRB_VERSION), 0);
+	    } else {
+	    	return new Unsigned8(getResponseData(ATTRB_VERSION_SN), 0);
+	    }
 	}
 
 	/**
@@ -191,7 +262,7 @@ public class MBusClient extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void setVersion(Unsigned8 version) throws IOException{
-		write(ATTRB_VERSION, deviceType.getBEREncodedByteArray());
+		write(ATTRB_VERSION, version.getBEREncodedByteArray());
 	}
 
 	/**
@@ -222,6 +293,42 @@ public class MBusClient extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public Array getCaptureDefiniton() throws IOException {
-		return new Array(getLNResponseData(ATTRB_CAPTURE_DEFINITION), 0, 0);
+	    if(getObjectReference().isLNReference()){
+	    	return new Array(getLNResponseData(ATTRB_CAPTURE_DEFINITION), 0, 0);
+	    } else {
+	    	return new Array(getResponseData(ATTRB_CAPTURE_DEFINITION_SN), 0, 0);
+	    }
+	    
+	}
+	
+	/**
+	 * Getter for the capturePeriod.
+	 * <pre>
+	 * <li> >= 1: Automatic capturing assumed. Specifies the capture period in seconds.
+	 * <li> 0: No automatic capturing: capturing is triggered externally or capture events occur asynchronously. 
+	 * </pre>
+	 * 
+	 * @return the capture period in seconds
+	 * 
+	 * @throws IOException if something goes wrong during the read
+	 */
+	public Unsigned32 getCapturePeriod() throws IOException{
+		if(getObjectReference().isLNReference()){
+			return new Unsigned32(getLNResponseData(ATTRB_CAPTURE_PERIOD), 0);
+		} else {
+			return new Unsigned32(getResponseData(ATTRB_CAPTURE_PERIOD_SN), 0);
+		}
+	}
+	
+	/**
+	 * Setter for the capturePeriod
+	 * 
+	 * @param period 
+	 * 			- the period in seconds
+	 * 
+	 * @throws IOException if something goes wrong during the setting 
+	 */
+	public void setCapturePeriod(int period) throws IOException {
+		write(ATTRB_CAPTURE_PERIOD, new Unsigned32(period).getBEREncodedByteArray());
 	}
 }

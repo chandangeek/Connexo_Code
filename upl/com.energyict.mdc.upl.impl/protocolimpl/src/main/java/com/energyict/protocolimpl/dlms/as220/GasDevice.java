@@ -14,6 +14,8 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeterMessaging;
@@ -29,6 +31,7 @@ public class GasDevice extends AS220{
 	
 	private String 	emeterSerialnumber;
 	private int 	gasMeterSlot = -1;
+	private int		mbusProfileInterval = -1;
 
 	private final GMeter	gMeter	= new GMeter(this);
 
@@ -48,6 +51,15 @@ public class GasDevice extends AS220{
     public int getGasSlotId(){
     	return gasMeterSlot;
     }
+    
+    /**
+     * Getter for the physical address. Start counting from zero
+     * 
+     * @return physical address (normally the slotId minus 1)
+     */
+    public int getPhysicalAddress(){
+    	return getGasSlotId() - 1;
+    }
 
     /**
 	 * Read the serialNumber from the Gas Device
@@ -56,9 +68,31 @@ public class GasDevice extends AS220{
 	 * @throws IOException
 	 */
 	public String getSerialNumber() throws IOException {
-//		getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getGasSlotId()).getObisCode()).get;
+		// TOTEST Test the serialNumber
+//		return new String(getCosemObjectFactory().getData(getMeterConfig().getMbusSerialNumber(getPhysicalAddress()).getObisCode()).getData());
 		return "35016036";
 	}
+	
+//	protected String getCorrectIdentificationNumber(byte[] rawBytes){
+//		
+//		StringBuilder strBuilder = new StringBuilder();
+//		
+//		for(int i = 0; i < rawBytes.length; i++){
+//			strBuilder.append(ProtocolUtils.hex2String(rawBytes[rawBytes.length-i]));
+//		}
+//		
+//		return strBuilder.toString();
+//	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+    public int getProfileInterval() throws UnsupportedException, IOException {
+        if (mbusProfileInterval == -1) {
+        	mbusProfileInterval = getgMeter().getMbusProfile().getCapturePeriod();
+        }
+        return mbusProfileInterval;
+    }
 	
 	/**
 	 * {@inheritDoc}
@@ -131,4 +165,38 @@ public class GasDevice extends AS220{
 		return new GMeterMessaging(this).getMessageCategories();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * 
+	 */
+	public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
+	    return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Currently URL's are not supported
+	 */
+	public boolean supportsUrls() {
+	    return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * We don't have database access so we don't need references
+	 */
+	public boolean supportsUserFileReferences() {
+	    return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Userfiles are supported for upgrades
+	 */
+	public boolean supportsUserFilesForFirmwareUpdate() {
+	    return false;
+	}
 }

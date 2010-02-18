@@ -40,7 +40,7 @@ public class GasInstallController extends AbstractMbusInstallController {
 	public void deinstall() throws IOException {
 		getGasDevice().getLogger().info("DEINSTALL (DeCommission) message received");
 		getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().
-				getMbusClient(getGasDevice().getGasSlotId()-1).getObisCode()).deinstallSlave();
+				getMbusClient(getGasDevice().getPhysicalAddress()-1).getObisCode()).deinstallSlave();
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class GasInstallController extends AbstractMbusInstallController {
 	public void install() throws IOException {
 		getGasDevice().getLogger().info("INSTALL (Commission) message received");
 		getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().
-				getMbusClient(getGasDevice().getGasSlotId()).getObisCode()).installSlave(getGasDevice().getGasSlotId());
+				getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode()).installSlave(getGasDevice().getPhysicalAddress());
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class GasInstallController extends AbstractMbusInstallController {
 	public void setEncryptionKey(byte[] encryptionKey) throws IOException {
 		getGasDevice().getLogger().info("SET ENCRYPTION KEY (open key) message received");
 		getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().
-				getMbusClient(getGasDevice().getGasSlotId()).getObisCode()).setEncryptionKey(encryptionKey);
+				getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode()).setEncryptionKey(encryptionKey);
 	}
 
 	/**
@@ -67,7 +67,12 @@ public class GasInstallController extends AbstractMbusInstallController {
 	public void setTransferKey(byte[] transferKey) throws IOException {
 		getGasDevice().getLogger().info("SET TRANSFER KEY (encrypted key) message received");
 		getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().
-				getMbusClient(getGasDevice().getGasSlotId()).getObisCode()).setTransportKey(transferKey);
+				getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode()).setTransportKey(transferKey);
 	}
 
+	public void setBothKeysAtOnce(byte[] rawDataWithKeys) throws IOException {
+		getGasDevice().getLogger().info("SET BOTH KEY (encryption and encrypted key) message received");
+		getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().
+				getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode()).setTransportKeyRawData(rawDataWithKeys);
+	}
 }

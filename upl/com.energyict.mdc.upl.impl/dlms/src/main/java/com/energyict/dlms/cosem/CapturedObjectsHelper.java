@@ -99,7 +99,7 @@ public class CapturedObjectsHelper implements DLMSCOSEMGlobals {
 		}
 		// Changed KV 11022009 to add the mbus register 0-1:24.3.0.255
 		else if ((co.getLogicalName().getA() == 0)
-				&& (co.getLogicalName().getB() > 0)
+				&& (co.getLogicalName().getB() >= 0)
 				&& (co.getLogicalName().getC() == 24)
 				&& (co.getClassId() == DLMSClassId.EXTENDED_REGISTER.getClassId())) {
 			return true;

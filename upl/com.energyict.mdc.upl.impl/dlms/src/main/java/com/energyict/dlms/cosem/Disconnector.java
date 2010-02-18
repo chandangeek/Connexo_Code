@@ -57,19 +57,23 @@ public class Disconnector extends AbstractCosemObject{
 
 	public static boolean DEBUG = true;
 
-	/** Attributes */
+	/* Attributes */
 	private BooleanObject outputState = null; 	// Shows the actual physical state of the disconnect unit, i.e. if an electricity breaker or gas valvue is open or closed
 	private TypeEnum controlState = null; 		// Shows the internal state of the disconnect control object
 	private TypeEnum controlMode = null;		// Configures the behavior of the disconnect control object for all triggers
 
-	/** Attribute numbers */
+	/* Attribute numbers */
 	private static final int ATTRB_OUTPUT_STATE = 2;
 	private static final int ATTRB_CONTROL_STATE = 3;
 	private static final int ATTRB_CONTROL_MODE = 4;
 
-	/** Method invoke */
+	/* Method invoke */
 	private static final int METHOD_REMOTE_DISCONNECT = 1;
 	private static final int METHOD_REMOTE_RECONNECT = 2;
+	
+	/* Method ShortName writes */
+	private static final int METHOD_REMOTE_DISCONNECT_SN = 0x20;
+	private static final int METHOD_REMOTE_RECONNECT_SN = 0x28;
 
 	public Disconnector(ProtocolLink protocolLink, ObjectReference objectReference) {
 		super(protocolLink, objectReference);
@@ -195,7 +199,11 @@ public class Disconnector extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void remoteDisconnect() throws IOException{
-		invoke(METHOD_REMOTE_DISCONNECT, new Integer8(0).getBEREncodedByteArray());
+		if(getObjectReference().isLNReference()){
+			invoke(METHOD_REMOTE_DISCONNECT, new Integer8(0).getBEREncodedByteArray());
+		} else {
+			write(METHOD_REMOTE_DISCONNECT_SN, new Integer8(0).getBEREncodedByteArray());
+		}
 	}
 
 	/**
@@ -207,6 +215,11 @@ public class Disconnector extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void remoteReconnect() throws IOException{
-		invoke(METHOD_REMOTE_RECONNECT, new Integer8(0).getBEREncodedByteArray());
+		if(getObjectReference().isLNReference()){
+			invoke(METHOD_REMOTE_RECONNECT, new Integer8(0).getBEREncodedByteArray());
+		} else {
+			write(METHOD_REMOTE_RECONNECT_SN, new Integer8(0).getBEREncodedByteArray());
+		}
+		
 	}
 }
