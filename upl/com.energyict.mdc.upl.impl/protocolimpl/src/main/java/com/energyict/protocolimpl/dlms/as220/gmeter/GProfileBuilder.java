@@ -16,6 +16,7 @@ import com.energyict.dlms.cosem.CapturedObjectsHelper;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 
@@ -115,25 +116,24 @@ public class GProfileBuilder {
 				
 				if(cal != null){		
 					
-//					if(getProfileStatusChannelIndex(pg) != -1){
-						profileStatus = GasStatusCodes.intervalStateBits(dc.getRoot().getStructure(i).getInteger(1));
-//					} else {
-//						profileStatus = 0;
-//					}
-					IntervalData id = new IntervalData(cal.getTime(), profileStatus);
+					profileStatus = GasStatusCodes.intervalStateBits(dc.getRoot().getStructure(i).getInteger(1));
+						
 					int value = dc.getRoot().getStructure(i).getInteger(2);
 					if((value&maskValidity) == maskValidity){
 						value = (int) (value^maskValidity);
+						profileStatus |= IntervalStateBits.MISSING;
 					} else if((value&maskEncrypted) == maskEncrypted){
 						value = (int) (value^maskEncrypted);
+					} else if((value&maskEncrypted) == 0){
+						profileStatus |= IntervalStateBits.CORRUPTED;	// if it is not an encrypted value 
 					}
+					IntervalData id = new IntervalData(cal.getTime(), profileStatus);
 					id.addValue(value);
 					
 					intervalDatas.add(id);
 				}
 			}
 		} else {
-//			log("No entries in LoadProfile");
 			getGasDevice().getLogger().info("No entries in LoadProfile");
 		}
 		return intervalDatas;

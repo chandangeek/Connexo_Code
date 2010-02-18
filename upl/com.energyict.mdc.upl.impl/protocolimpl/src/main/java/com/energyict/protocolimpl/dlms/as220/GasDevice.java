@@ -5,6 +5,7 @@ package com.energyict.protocolimpl.dlms.as220;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -14,6 +15,7 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -73,17 +75,6 @@ public class GasDevice extends AS220{
 		return "35016036";
 	}
 	
-//	protected String getCorrectIdentificationNumber(byte[] rawBytes){
-//		
-//		StringBuilder strBuilder = new StringBuilder();
-//		
-//		for(int i = 0; i < rawBytes.length; i++){
-//			strBuilder.append(ProtocolUtils.hex2String(rawBytes[rawBytes.length-i]));
-//		}
-//		
-//		return strBuilder.toString();
-//	}
-	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -124,6 +115,10 @@ public class GasDevice extends AS220{
 			System.out.println("[" + i + "] " + nd[i]);
 		}
 
+	}
+	
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+		return getgMeter().getProfileData(from, to, includeEvents);
 	}
 	
 	/**

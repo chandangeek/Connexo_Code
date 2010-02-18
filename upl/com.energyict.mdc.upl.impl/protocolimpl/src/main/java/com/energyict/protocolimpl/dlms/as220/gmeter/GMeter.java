@@ -77,11 +77,10 @@ public class GMeter {
 
         if (includeEvents) {
         	
-        	
-//			EventLogs eventLogs = new EventLogs(getAs220());
-//			List<MeterEvent> meterEvents = eventLogs.getEventLog(fromCalendar, toCalendar);
-//			profileData.setMeterEvents(meterEvents);
-//			profileData.applyEvents(getAs220().getProfileInterval() / SEC_PER_MIN);
+        	ProfileGeneric pgEvents = GetMbusEventProfile();
+        	DataContainer dcEvents = pgEvents.getBuffer(fromCalendar, toCalendar);
+        	GMetersLog gLog = new GMetersLog(dcEvents);
+        	profileData.getMeterEvents().addAll(gLog.getMeterEvents());
         }
 
         profileData.sort();
