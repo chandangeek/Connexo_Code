@@ -98,7 +98,7 @@ public class AS220Main {
 		 return logger;
 	}
 
-	private static Properties getProperties() {
+	private static Properties getCommonProperties() {
 		Properties properties = new Properties();
 
 		properties.setProperty("MaximumTimeDiff", "300");
@@ -129,31 +129,14 @@ public class AS220Main {
 	}
 
 	private static Properties getOpticalProperties() {
-		Properties properties = new Properties();
-
-		properties.setProperty("MaximumTimeDiff", "300");
-		properties.setProperty("MinimumTimeDiff", "1");
-		properties.setProperty("CorrectTime", "0");
-
-		properties.setProperty("Retries", "5");
-		properties.setProperty("Timeout", "20000");
-		properties.setProperty("ForcedDelay", "100");
-
+		Properties properties = getCommonProperties();
 		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
-		properties.setProperty("ProfileInterval", "900");
-		properties.setProperty("Password", "00000000");
-		properties.setProperty("SerialNumber", "35021373");
-
 		properties.setProperty("AddressingMode", "2");
 		properties.setProperty("Connection", "0");
 		properties.setProperty("ClientMacAddress", "1");
 		properties.setProperty("ServerLowerMacAddress", "17");
 		properties.setProperty("ServerUpperMacAddress", "1");
 		properties.setProperty("OpticalBaudrate", "5");
-
-		properties.setProperty(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF");
-		properties.setProperty(LocalSecurityProvider.DATATRANSPORTKEY, "000102030405060708090A0B0C0D0E0F");
-
 		return properties;
 	}
 
@@ -232,11 +215,11 @@ public class AS220Main {
 //		getDialer().connect("linux2:10010", 10010);
 
 		try {
-			getAs220().setProperties(getProperties());
+			getAs220().setProperties(getCommonProperties());
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			readObiscodes();
+			readProfile(false);
 
 
 //			log("FirmwareVersion :" + getAs220().getFirmwareVersion());
