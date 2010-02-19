@@ -2,9 +2,11 @@ package com.energyict.protocolimpl.dlms.as220.plc.statistics;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.ProfileGeneric;
@@ -50,10 +52,13 @@ public class PLCStatistics extends Array {
 	 */
 	public List<IntervalData> getIntervalDatas() throws IOException {
 		List<IntervalData> intervals = new ArrayList<IntervalData>();
-
 		for (int i = 0; i < nrOfDataTypes(); i++) {
 			StatisticsInterval statsInterval = new StatisticsInterval(getDataType(i).getBEREncodedByteArray(), getTimeZone());
-			IntervalData id = new IntervalData(ProtocolTools.roundUpToNearestInterval(statsInterval.getTimeStamp(), statsInterval.getIntervalLength()));
+
+			Date timeStamp = statsInterval.getTimeStamp();
+			Date correctedTimeStamp = ProtocolTools.roundUpToNearestInterval(timeStamp, statsInterval.getIntervalLength());
+
+			IntervalData id = new IntervalData(correctedTimeStamp);
 			id.addValue(statsInterval.getPlcSNR().getSnr0());
 			id.addValue(statsInterval.getPlcSNR().getSnr1());
 			id.addValue(statsInterval.getFramesCRCOk());
@@ -62,9 +67,9 @@ public class PLCStatistics extends Array {
 			id.addValue(statsInterval.getFramesRepeated());
 			id.addValue(statsInterval.getFramesCorrected());
 			id.addValue(statsInterval.getBadFramesIndicator());
+
 			intervals.add(id);
 		}
-
 		return ProtocolTools.mergeDuplicateIntervals(intervals);
 	}
 
@@ -72,15 +77,18 @@ public class PLCStatistics extends Array {
 	 * @return
 	 */
 	public List<ChannelInfo> getChannelInfos() {
+		final Unit countUnit = Unit.get(BaseUnit.COUNT);
+		final Unit ratioUnit = Unit.get(BaseUnit.RATIO);
+
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-		channelInfos.add(new ChannelInfo(1, "SNR0", Unit.getUndefined()));
-		channelInfos.add(new ChannelInfo(2, "SNR1", Unit.getUndefined()));
-		channelInfos.add(new ChannelInfo(3, "CRC_OK", Unit.getUndefined()));
-		channelInfos.add(new ChannelInfo(4, "CRC_NOK", Unit.getUndefined()));
-		channelInfos.add(new ChannelInfo(5, "Frames TX", Unit.getUndefined()));
-		channelInfos.add(new ChannelInfo(6, "Frames repeated", Unit.getUndefined()));
-		channelInfos.add(new ChannelInfo(7, "Frames corrected", Unit.getUndefined()));
-		channelInfos.add(new ChannelInfo(8, "Bad frames", Unit.getUndefined()));
+		channelInfos.add(new ChannelInfo(1, "SNR0", ratioUnit));
+		channelInfos.add(new ChannelInfo(2, "SNR1", ratioUnit));
+		channelInfos.add(new ChannelInfo(3, "CRC_OK", countUnit));
+		channelInfos.add(new ChannelInfo(4, "CRC_NOK", countUnit));
+		channelInfos.add(new ChannelInfo(5, "Frames TX", countUnit));
+		channelInfos.add(new ChannelInfo(6, "Frames repeated", countUnit));
+		channelInfos.add(new ChannelInfo(7, "Frames corrected", countUnit));
+		channelInfos.add(new ChannelInfo(8, "Bad frames", countUnit));
 		return channelInfos;
 	}
 

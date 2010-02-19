@@ -19,6 +19,8 @@ import com.energyict.protocolimpl.dlms.as220.plc.statistics.PLCStatistics;
  */
 public class PLC {
 
+	private static final int	NR_OF_PLC_CHANNELS	= 8;
+
 	private static final ObisCode PLC_STATISTICS_OBISCODE = ObisCode.fromString("0.0.53.0.0.255");
 
 	private final AS220 as220;
@@ -54,6 +56,10 @@ public class PLC {
 		pd.setIntervalDatas(plcStatictics.getIntervalDatas());
 
 		return pd;
+	}
+
+	public int getNrOfChannels() {
+		return NR_OF_PLC_CHANNELS;
 	}
 
 
