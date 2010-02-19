@@ -21,7 +21,7 @@ public class GMeter {
 	/** TODO to set correct*/
 //	private static final ObisCode GAS_PROFILE_OBISCODE = ObisCode.fromString("0.2.24.3.0.255");
 	private static final int SEC_PER_MIN = 60;
-	
+
 	private final GasValveController	gasValveController;
 	private final AS220 				as220;
 	private final GasInstallController 	gasInstallController;
@@ -43,7 +43,7 @@ public class GMeter {
 	public GasValveController getGasValveController() {
 		return gasValveController;
 	}
-	
+
 	public AS220 getAs220() {
 		return as220;
 	}
@@ -55,8 +55,8 @@ public class GMeter {
      * @param to
      * @param includeEvents
      * @return the {@link ProfileData}
-	 * @throws IOException 
-	 * @throws UnsupportedException 
+	 * @throws IOException
+	 * @throws UnsupportedException
      * @throws IOException
 	 */
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws UnsupportedException, IOException {
@@ -69,14 +69,14 @@ public class GMeter {
 		CapturedObjectsHelper coh = pg.getCaptureObjectsHelper();
 		GProfileBuilder profileBuilder = new GProfileBuilder((GasDevice) getAs220(), coh);
 		ScalerUnit[] scalerunit = profileBuilder.buildScalerUnits();
-		
+
 		List<ChannelInfo> channelInfos = profileBuilder.buildChannelInfos(scalerunit);
 		profileData.setChannelInfos(channelInfos);
 		DataContainer dc = pg.getBuffer(fromCalendar, toCalendar);
 		profileData.setIntervalDatas(profileBuilder.buildIntervalData(scalerunit, dc));
 
         if (includeEvents) {
-        	
+
         	ProfileGeneric pgEvents = GetMbusEventProfile();
         	DataContainer dcEvents = pgEvents.getBuffer(fromCalendar, toCalendar);
         	if(dcEvents.getRoot() != null){
@@ -88,7 +88,7 @@ public class GMeter {
         profileData.sort();
         return profileData;
 	}
-	
+
 	/**
 	 * Getter for the {@link GasInstallController}
 	 * @return the gasInstallController
@@ -99,29 +99,39 @@ public class GMeter {
 
 	/**
 	 * The MBus his {@link ProfileGeneric} object
-	 * 
+	 *
 	 * @return the ProfileGeneric Object
-	 * 
+	 *
 	 * @throws IOException if the object didn't exist in the objectList
 	 */
 	public ProfileGeneric getMbusProfile() throws IOException {
 		return getAs220().getCosemObjectFactory().getProfileGeneric(getGasDevice().getMeterConfig().getMbusProfile(getGasDevice().getPhysicalAddress()).getObisCode());
 	}
-	
+
+	/**
+	 * Read the number of channels from the current Gas device
+	 *
+	 * @return the number of channels
+	 * @throws IOException if an communication error occurs
+	 */
+	public int getNrOfChannels() throws IOException {
+		return getMbusProfile().getNumberOfProfileChannels();
+	}
+
 	/**
 	 * The MBus his Event profile
-	 * 
+	 *
 	 * @return the event profile object
-	 * 
+	 *
 	 * @throws IOException if the object didn't exist in the objectList
 	 */
 	public ProfileGeneric GetMbusEventProfile() throws IOException {
 		return getAs220().getCosemObjectFactory().getProfileGeneric(getGasDevice().getMeterConfig().getMbusEventLogObject().getObisCode());
 	}
-	
+
 	/**
 	 * Getter for the {@link GasDevice}
-	 * 
+	 *
 	 * @return the gasDevice
 	 */
 	private GasDevice getGasDevice(){
