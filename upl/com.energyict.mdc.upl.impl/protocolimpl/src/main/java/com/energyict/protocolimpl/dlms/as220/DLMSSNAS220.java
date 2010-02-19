@@ -374,6 +374,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         it = RegisterDescription.INFO.keySet().iterator();
         while(it.hasNext()) {
         	ObisCode oc = ObisCode.fromString((String) it.next());
+        	strBuff.append(oc.toString()).append(" = ").append(RegisterDescription.INFO.get(oc.toString()));
         }
 
 
@@ -388,15 +389,13 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         try {
             if (getDLMSConnection() != null) {
     			if ((aso != null) && (aso.getAssociationStatus() != ApplicationServiceObject.ASSOCIATION_DISCONNECTED)) {
-                	//aso.releaseAssociation(); //FIXME: check RLRQ
+                	aso.releaseAssociation();
     			}
 				getDLMSConnection().disconnectMAC();
 			}
 		} catch (DLMSConnectionException e) {
             logger.severe("DLMSSNAS220AS220: disconnect(), "+e.getMessage());
-            //throw new IOException(e.getMessage());
         }
-
     }
 
     private boolean requestDaylightSavingEnabled() throws IOException {
