@@ -25,6 +25,7 @@ import com.energyict.dlms.cosem.Register;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
@@ -43,6 +44,7 @@ public class AS220Main {
 	private static final String		ARM_EMETER				= "<" + AS220Messaging.ARM_EMETER + ">1</" + AS220Messaging.ARM_EMETER + ">";
 
 	private static final String		RESCAN_PLCBUS			= "<" + AS220Messaging.RESCAN_PLCBUS + ">1</" + AS220Messaging.RESCAN_PLCBUS + ">";
+	private static final String		FORCE_SET_CLOCK			= "<" + AS220Messaging.FORCE_SET_CLOCK + ">1</" + AS220Messaging.FORCE_SET_CLOCK + ">";
 
 	private static final String		OBSERVER_FILENAME		= "c:\\logging\\AS220Main\\communications.log";
 	private static final Level		LOG_LEVEL				= Level.ALL;
@@ -72,7 +74,7 @@ public class AS220Main {
 		if (dialer == null) {
 			//dialer = DialerFactory.get("IPDIALER").newDialer();
 			dialer = DialerFactory.getDirectDialer().newDialer();
-			dialer.setStreamObservers(new DebuggingObserver(null, true));
+			dialer.setStreamObservers(new DebuggingObserver(OBSERVER_FILENAME, false));
 		}
 		return dialer;
 	}
@@ -105,9 +107,9 @@ public class AS220Main {
 
 		properties.setProperty("Retries", "5");
 		properties.setProperty("Timeout", "20000");
-		//properties.setProperty("ForcedDelay", "500");
+		properties.setProperty("ForcedDelay", "100");
 
-		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
+		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_BOTH);
 		properties.setProperty("ProfileInterval", "900");
 		properties.setProperty("Password", "00000000");
 		properties.setProperty("SerialNumber", "35021373");
@@ -117,6 +119,8 @@ public class AS220Main {
 		properties.setProperty("ClientMacAddress", "2");
 		properties.setProperty("ServerLowerMacAddress", "1");
 		properties.setProperty("ServerUpperMacAddress", "1");
+
+		properties.setProperty("ProfileType", "1");
 
 		properties.setProperty(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF");
 		properties.setProperty(LocalSecurityProvider.DATATRANSPORTKEY, "000102030405060708090A0B0C0D0E0F");
@@ -133,7 +137,7 @@ public class AS220Main {
 
 		properties.setProperty("Retries", "5");
 		properties.setProperty("Timeout", "20000");
-		//properties.setProperty("ForcedDelay", "500");
+		properties.setProperty("ForcedDelay", "100");
 
 		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
 		properties.setProperty("ProfileInterval", "900");
@@ -154,10 +158,12 @@ public class AS220Main {
 	}
 
 
-	public static void readProfile(boolean incluideEvents) throws IOException {
+	public static ProfileData readProfile(boolean incluideEvents) throws IOException {
 		Calendar from = Calendar.getInstance(DEFAULT_TIMEZONE);
 		from.add(Calendar.DAY_OF_YEAR, -10);
-		log(getAs220().getProfileData(from.getTime(), incluideEvents));
+		ProfileData pd = getAs220().getProfileData(from.getTime(), incluideEvents);
+		log(pd);
+		return pd;
 	}
 
 	public static void readRegisters() {
@@ -181,6 +187,10 @@ public class AS220Main {
 
 	public static void rescanPLCBus() throws IOException {
 		getAs220().queryMessage(new MessageEntry(RESCAN_PLCBUS, ""));
+	}
+
+	public static void forceSetClock() throws IOException {
+		getAs220().queryMessage(new MessageEntry(FORCE_SET_CLOCK, ""));
 	}
 
 	public static void readObiscodes() throws IOException {
@@ -226,11 +236,8 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			getAs220().geteMeter().getContactorController().doConnect();
-			getAs220().geteMeter().getContactorController().doDisconnect();
-			getAs220().geteMeter().getContactorController().doConnect();
-			getAs220().geteMeter().getContactorController().doDisconnect();
-			getAs220().geteMeter().getContactorController().doConnect();
+			readObiscodes();
+
 
 //			log("FirmwareVersion :" + getAs220().getFirmwareVersion());
 //			((AS220Messaging)getAs220().getMessaging()).upgradeDevice(getFirmware18ByteArray());
