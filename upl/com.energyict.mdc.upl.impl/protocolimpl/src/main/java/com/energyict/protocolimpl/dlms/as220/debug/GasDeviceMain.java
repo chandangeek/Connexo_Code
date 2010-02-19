@@ -46,7 +46,7 @@ public class GasDeviceMain extends AS220Main {
 		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
 		properties.setProperty("ProfileInterval", "900");
 		properties.setProperty("Password", "00000000");
-		properties.setProperty("SerialNumber", "35016036");
+		properties.setProperty("SerialNumber", "00000000091827013");
 		properties.setProperty("NodeAddress", "35016036:1");
 
 		properties.setProperty("AddressingMode", "-1");
@@ -88,6 +88,8 @@ public class GasDeviceMain extends AS220Main {
 //			getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(getGasDevice().getGasSlotId()-1).getObisCode()).getIdentificationNumber();
 			
 			getGasDevice().getMeterConfig();
+			
+			log(getGasDevice().getSerialNumber());
 //			getGasDevice().getCosemObjectFactory().getProfileGeneric(ObisCode.fromString("0.4.24.3.0.255")).getCapturePeriod();
 			
 //			getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(0).getObisCode()).deinstallSlave();

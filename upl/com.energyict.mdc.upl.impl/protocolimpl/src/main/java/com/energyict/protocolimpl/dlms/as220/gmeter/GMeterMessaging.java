@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.genericprotocolimpl.common.messages.RtuMessageConstant;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
@@ -24,7 +26,7 @@ import com.energyict.protocolimpl.dlms.as220.GasDevice;
 
 public class GMeterMessaging implements MessageProtocol {
 
-	/**
+	/*
 	 * Message tags
 	 */
 	public static final String	CONNECT_GMETER					= "ConnectGmeter";
@@ -34,7 +36,7 @@ public class GMeterMessaging implements MessageProtocol {
 	public static final String 	DECOMISSION						= "Decommission";
 	public static final String  ENABLE_ENCRYPTION				= "EnableEncryption";
 
-	/**
+	/*
 	 * Message descriptions
 	 */
 	private static final String	CONNECT_GMETER_DISPLAY			= "Connect G-Meter Load";
@@ -195,13 +197,14 @@ public class GMeterMessaging implements MessageProtocol {
      * 
      * @param messageEntry 
      * 					- the messageContent from EIServer
+     * 
      * @throws IOException if something went wrong during setting of one of the keys
      */
     private void enableEncryption(MessageEntry messageEntry) throws IOException{
-    	getGasDevice().getgMeter().getGasInstallController().
-    		setEncryptionKey(DLMSUtils.hexStringToByteArray(getMessageValue(messageEntry.getContent(), RtuMessageConstant.MBUS_OPEN_KEY)));
-    	getGasDevice().getgMeter().getGasInstallController().
-    	setTransferKey(DLMSUtils.hexStringToByteArray(getMessageValue(messageEntry.getContent(), RtuMessageConstant.MBUS_TRANSFER_KEY)));
+    	Structure rawData = new Structure();
+    	rawData.addDataType(new OctetString(DLMSUtils.hexStringToByteArray(getMessageValue(messageEntry.getContent(), RtuMessageConstant.MBUS_OPEN_KEY))));
+    	rawData.addDataType(new OctetString(DLMSUtils.hexStringToByteArray(getMessageValue(messageEntry.getContent(), RtuMessageConstant.MBUS_TRANSFER_KEY))));
+    	getGasDevice().getgMeter().getGasInstallController().setBothKeysAtOnce(rawData.getBEREncodedByteArray());
     }
     
     /**

@@ -28,6 +28,7 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
@@ -142,6 +143,12 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 
 	private int	iForcedDelay;
 
+	/**
+	 * Do some extra connect settings
+	 * @throws BusinessException if no correct MBus device is found
+	 */
+	protected abstract void doConnect() throws BusinessException;
+	
     /**
 	 *  Creates a new instance of DLMSSNAS220, empty constructor
      */
@@ -166,11 +173,18 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 		return profileType;
 	}
 
-    /** initializes the receiver
-     * @param inputStream <br>
-     * @param outputStream <br>
-     * @param tz <br>
-     * @param log <br>
+    /** Initializes the receiver
+     * 
+	 * @param inputStream
+	 * 			- the inputStream form the dialer
+	 * 
+	 * @param outputStream
+	 * 			- the outputStream from the dialer
+     * @param tz
+     * 			- the {@link TimeZone} used
+     * 
+     * @param log
+     * 			- the {@link Logger} used
      */
 	public void init(InputStream inputStream, OutputStream outputStream, TimeZone tz, Logger log) throws IOException {
         this.timeZone = tz;
@@ -185,16 +199,21 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
 
         initDLMSConnection(inputStream, outputStream);
-
         iInterval=-1;
 
     }
 
 	/**
+	 * Initialize DLMS specific objects
+	 * 
 	 * @param inputStream
+	 * 			- the inputStream form the dialer
+	 * 
 	 * @param outputStream
-	 * @throws ConnectionException
-	 * @throws IOException
+	 * 			- the outputStream from the dialer
+	 * 
+	 * @throws ConnectionException if initializing the connection failed
+	 * @throws IOException if initializing the connection failed of the connectionMode is invalid
 	 */
 	private void initDLMSConnection(InputStream inputStream, OutputStream outputStream) throws ConnectionException, IOException {
 
@@ -223,11 +242,21 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         }
 
 		LocalSecurityProvider localSecurityProvider = new LocalSecurityProvider(this.properties);
-		securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, serialNumber.getBytes(), localSecurityProvider);
+		securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, getSystemIdentifier(), localSecurityProvider);
 		ConformanceBlock cb = new ConformanceBlock(ConformanceBlock.DEFAULT_SN_CONFORMANCE_BLOCK);
 		XdlmsAse xdlmsAse = new XdlmsAse(isCiphered() ? localSecurityProvider.getDedicatedKey() : null, true, PROPOSED_QOS, PROPOSED_DLMS_VERSION, cb, MAX_PDU_SIZE);
 		aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, getContextId());
 		dlmsConnection = new SecureConnection(aso, connection);
+	}
+	
+	/**
+	 * Return the SystemTitle to be used in the DLMS association request.
+	 * For the AM500 modules, this is the serialNumber of the E-METER
+	 *  
+	 * @return the SystemTitle
+	 */
+	protected byte[] getSystemIdentifier(){
+		return serialNumber.getBytes();
 	}
 
 	private boolean isCiphered() {
@@ -252,16 +281,25 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public void connect() throws IOException {
 		try {
 			getDLMSConnection().connectMAC();
 			aso.createAssociation();
 			checkCache();
+			
+	        doConnect();
+			
 			validateSerialNumber();
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException(e.getMessage());
 		} catch (DLMSConnectionException e) {
+			e.printStackTrace();
+			throw new IOException(e.getMessage());
+		} catch (BusinessException e) {
 			e.printStackTrace();
 			throw new IOException(e.getMessage());
 		}

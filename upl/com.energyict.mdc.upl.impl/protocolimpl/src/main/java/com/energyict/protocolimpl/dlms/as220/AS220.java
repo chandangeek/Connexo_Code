@@ -6,10 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.cbo.BusinessException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
@@ -98,21 +95,6 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     	sb.append("active_version=").append(new FirmwareVersions(FW_VERSION_ACTIVE_OBISCODE, this)).append(", ");
     	sb.append("passive_version=").append(new FirmwareVersions(FW_VERSION_PASSIVE_OBISCODE, this));
         return sb.toString();
-    }
-
-    public String getPassiveFirmwareVersion() throws IOException,UnsupportedException {
-        StringBuffer strBuff = new StringBuffer();
-    	UniversalObject uo = getMeterConfig().getVersionObject();
-        byte[] responsedata = getCosemObjectFactory().getGenericRead(ObisCode.fromString("1.1.0.2.0.255"), 0x08).getResponseData();
-
-        Array array = AXDRDecoder.decode(responsedata).getArray();
-        Structure structure = array.getDataType(0).getStructure();
-        strBuff.append(ProtocolUtils.outputHexString(structure.getNextDataType().getOctetString().getOctetStr()));
-        strBuff.append(", "+structure.getNextDataType().intValue());
-        strBuff.append(", "+structure.getNextDataType().intValue());
-        strBuff.append(", "+structure.getNextDataType().intValue());
-        strBuff.append(", "+structure.getNextDataType().longValue());
-        return strBuff.toString();
     }
 
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
@@ -210,6 +192,15 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
 	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 		return getMessaging().queryMessage(messageEntry);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void doConnect() throws BusinessException {
+		
+		//Nothing else to do
 	}
 
 }

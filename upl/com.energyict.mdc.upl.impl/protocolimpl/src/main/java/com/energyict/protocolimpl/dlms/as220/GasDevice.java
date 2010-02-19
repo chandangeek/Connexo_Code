@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import com.energyict.cbo.BusinessException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
@@ -30,8 +31,10 @@ public class GasDevice extends AS220{
 	
 	private final static int EMETERSERIAL = 0;
 	private final static int SLOTID = 1;
+	private final static int MAX_MBUS_CHANNELS = 4;
 	
 	private String 	emeterSerialnumber;
+	private String  gmeterSerialnumber;
 	private int 	gasMeterSlot = -1;
 	private int		mbusProfileInterval = -1;
 
@@ -45,6 +48,31 @@ public class GasDevice extends AS220{
 		return gMeter;
 	}
     
+	/**
+	 * {@inheritDoc}
+	 * @throws BusinessException 
+	 */
+	@Override
+	protected void doConnect() throws BusinessException {
+		// search for the channel of the Mbus Device
+		String tempSerial; 
+		for(int i = 0; i < MAX_MBUS_CHANNELS; i++){
+			tempSerial = "";
+			try {
+				tempSerial = getCosemObjectFactory().getData(getMeterConfig().getMbusSerialNumber(i).getObisCode()).getString();
+				if(tempSerial.equalsIgnoreCase(gmeterSerialnumber)){
+					setGasSlotId(i + 1);
+				}
+			} catch (IOException e) {
+				// fetch next
+			}
+		}
+		
+		if(getGasSlotId() == -1){
+			throw new BusinessException("No MBus device found with serialNumber " + gmeterSerialnumber + " on the E-meter.");
+		}
+	}
+    
     /**
      * Getter for the SlotId
      * 
@@ -52,6 +80,13 @@ public class GasDevice extends AS220{
      */
     public int getGasSlotId(){
     	return gasMeterSlot;
+    }
+    
+    /**
+     * Setter for the slotId
+     */
+    private void setGasSlotId(int slotId){
+    	this.gasMeterSlot = slotId;
     }
     
     /**
@@ -70,9 +105,14 @@ public class GasDevice extends AS220{
 	 * @throws IOException
 	 */
 	public String getSerialNumber() throws IOException {
-		// TOTEST Test the serialNumber
-//		return new String(getCosemObjectFactory().getData(getMeterConfig().getMbusSerialNumber(getPhysicalAddress()).getObisCode()).getData());
-		return "35016036";
+		return getCosemObjectFactory().getData(getMeterConfig().getMbusSerialNumber(getPhysicalAddress()).getObisCode()).getString();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	protected byte[] getSystemIdentifier(){
+		return this.emeterSerialnumber.getBytes();
 	}
 	
 	/**
@@ -99,21 +139,8 @@ public class GasDevice extends AS220{
 	 */
 	private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 		properties.list(System.out);
-
-		String nodeId = properties.getProperty(MeterProtocol.NODEID);
-		if (nodeId == null) {
-			throw new MissingPropertyException("Excpected a value for " + MeterProtocol.NODEID + " but was null");
-		}
-
-		String[] nd = nodeId.split(":");
-		this.emeterSerialnumber = nd[EMETERSERIAL];
-		if(nd.length == 1){
-			throw new InvalidPropertyException("NodeId should contain an MBus SlotID");
-		}
-		this.gasMeterSlot = Integer.parseInt(nd[SLOTID]);
-		for (int i = 0; i < nd.length; i++) {
-			System.out.println("[" + i + "] " + nd[i]);
-		}
+		this.gmeterSerialnumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
+		this.emeterSerialnumber = properties.getProperty(MeterProtocol.NODEID, "");		
 
 	}
 	
