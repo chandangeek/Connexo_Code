@@ -115,7 +115,14 @@ public class GMeter {
 	 * @throws IOException if an communication error occurs
 	 */
 	public int getNrOfChannels() throws IOException {
-		return getMbusProfile().getNumberOfProfileChannels();
+		/*
+		 * We should read this from the device! But at the moment the AM500
+		 * module has a bug in the CapturedObjects of the ProfileGeneric
+		 * so just return 1 because the gas devices have only 1 channel at this
+		 * moment.
+		 */
+		return 1; // FIXME !!!
+//		return getMbusProfile().getNumberOfProfileChannels();
 	}
 
 	/**
