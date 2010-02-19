@@ -7,31 +7,37 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.obis.ObisCode;
 
-
 /**
  * @author Koen
  */
 public class AssociationSN extends AbstractCosemObject {
 
-	/** Attribute numbers (shortname notation ...) */
-//	private static final int	ATTRB_OBJECT_LIST					= 0x08;
-//	private static final int	ATTRB_ACCESS_RIGHTS					= 0x10;
-//	private static final int	ATTRB_SECURITY_SETUP_REF			= 0x18;
+	private static final ObisCode	OBISCODE					= ObisCode.fromString("0.0.40.0.0.255");
+
+	/** Attribute numbers (short name notation ...) */
+	private static final int		ATTRB_OBJECT_LIST			= 0x08;
 
 	/** Method invoke */
-//	private static final int	METHOD_READ_BY_LOGICAL_NAME			= 3;
-	private static final int	METHOD_CHANGE_SECRET				= 5;
-	private static final int	METHOD_REPLY_TO_HLS_AUTHENTICATION	= 8;
+	private static final int		METHOD_CHANGE_SECRET		= 5;
+	private static final int		METHOD_REPLY_TO_HLS_AUTH	= 8;
 
-	public final int			DEBUG	= 0;
-	private UniversalObject[]	buffer	= null;
-	private static final byte[]	LN		= new byte[] { 0, 0, (byte) 40, 0, 0, (byte) 255 };
+	private UniversalObject[]		buffer						= null;
 
+	/**
+	 * Creates a new instance of AssociationSN
+	 *
+	 * @param protocolLink
+	 */
 	public AssociationSN(ProtocolLink protocolLink) {
-		super(protocolLink, new ObjectReference(LN));
+		super(protocolLink, new ObjectReference(getObisCode().getLN()));
 	}
 
-	/** Creates a new instance of AssociationSN */
+	/**
+	 * Creates a new instance of AssociationSN
+	 *
+	 * @param protocolLink
+	 * @param objectReference
+	 */
 	public AssociationSN(ProtocolLink protocolLink, ObjectReference objectReference) {
 		super(protocolLink, objectReference);
 	}
@@ -40,20 +46,23 @@ public class AssociationSN extends AbstractCosemObject {
 		return DLMSClassId.ASSOCIATION_SN.getClassId();
 	}
 
-	/** Return the logicalName (obiscode) of this object */
+	/**
+	 * Getter for the default {@link ObisCode} of this object
+	 *
+	 * @return the logicalName ({@link ObisCode}) of this object
+	 */
 	public static ObisCode getObisCode() {
-		return ObisCode.fromByteArray(LN);
+		return OBISCODE;
 	}
 
 	/**
 	 * Read the objectList from the current association
 	 *
-	 * @return an array of UO containing the information of the objects in the
-	 * device
+	 * @return an array of UO containing the information of the objects in the device
 	 * @throws IOException
 	 */
 	public UniversalObject[] getBuffer() throws IOException {
-		buffer = data2UOL(getResponseData(ASSOC_SN_ATTR_OBJ_LST));
+		buffer = data2UOL(getResponseData(ATTRB_OBJECT_LIST));
 		return buffer;
 	}
 
@@ -66,13 +75,12 @@ public class AssociationSN extends AbstractCosemObject {
 	 * the HLSKey
 	 */
 	public byte[] replyToHLSAuthentication(byte[] encryptedChallenge) throws IOException {
-		return invoke(METHOD_REPLY_TO_HLS_AUTHENTICATION, new OctetString(encryptedChallenge).getBEREncodedByteArray());
+		return invoke(METHOD_REPLY_TO_HLS_AUTH, new OctetString(encryptedChallenge).getBEREncodedByteArray());
 	}
 
 	/**
 	 * Change the HLS_Secret, depending on the securityMechanism implementation,
-	 * the new secret may contain
-	 * additional check bits and it may be encrypted
+	 * the new secret may contain additional check bits and it may be encrypted
 	 *
 	 * @param secret the new secret
 	 * @return the irrelevant response (parsing has already been done)
@@ -82,4 +90,5 @@ public class AssociationSN extends AbstractCosemObject {
 	public byte[] changeSecret(byte[] secret) throws IOException {
 		return invoke(METHOD_CHANGE_SECRET, new OctetString(secret).getBEREncodedByteArray());
 	}
+
 }
