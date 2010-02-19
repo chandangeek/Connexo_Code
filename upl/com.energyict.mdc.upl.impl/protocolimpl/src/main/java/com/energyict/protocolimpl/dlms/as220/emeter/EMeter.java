@@ -18,6 +18,10 @@ import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.EventLogs;
 
+/**
+ * @author jme
+ *
+ */
 public class EMeter {
 
 	private static final int SEC_PER_MIN = 60;
@@ -27,16 +31,25 @@ public class EMeter {
 	private final ClockController clockController;
 	private final ContactorController contactorController;
 
+	/**
+	 * @param as220
+	 */
 	public EMeter(AS220 as220) {
 		this.as220 = as220;
 		this.clockController = new AS220ClockController(as220);
 		this.contactorController = new AS220ContactorController(as220);
 	}
 
+	/**
+	 * @return
+	 */
 	public ClockController getClockController() {
 		return clockController;
 	}
 
+	/**
+	 * @return
+	 */
 	public ContactorController getContactorController() {
 		return contactorController;
 	}
@@ -63,14 +76,14 @@ public class EMeter {
 
     	ProfileBuilder profileBuilder = new ProfileBuilder(getAs220());
 		ProfileData profileData = new ProfileData();
-		ScalerUnit[] scalerunit = profileBuilder.buildScalerUnits((byte) getAs220().getNumberOfChannels());
+		ScalerUnit[] scalerunit = profileBuilder.buildScalerUnits((byte) getNrOfChannels());
 
         List<ChannelInfo> channelInfos = profileBuilder.buildChannelInfos(scalerunit);
         profileData.setChannelInfos(channelInfos);
 
         // decode the compact array here and convert to a universallist...
         ProfileGeneric pg = getAs220().getCosemObjectFactory().getProfileGeneric(ENERGY_PROFILE_OBISCODE);
-		byte[] profileRawData = pg.getBufferData(fromCalendar, toCalendar);
+        byte[] profileRawData = pg.getBufferData(fromCalendar, toCalendar);
 		LoadProfileCompactArray loadProfileCompactArray = new LoadProfileCompactArray();
 		loadProfileCompactArray.parse(profileRawData);
 		List<LoadProfileCompactArrayEntry> loadProfileCompactArrayEntries = loadProfileCompactArray.getLoadProfileCompactArrayEntries();
@@ -88,6 +101,14 @@ public class EMeter {
         profileData.sort();
         return profileData;
 
-    } // private ProfileData doGetDemandValues(Calendar fromCalendar,Calendar toCalendar, byte bNROfChannels) throws IOException
+    }
+
+    /**
+     * @return
+     * @throws IOException
+     */
+    public int getNrOfChannels() throws IOException {
+    	return getAs220().getCosemObjectFactory().getProfileGeneric(ENERGY_PROFILE_OBISCODE).getNumberOfProfileChannels();
+    }
 
 }
