@@ -106,7 +106,7 @@ public interface DLMSCOSEMGlobals {
 	// SAP OBJECT
 	short SAP_OBJECT_SN=(short)0xFC00;
 	short SAP_ATTR_ASSIGNMENT_LIST=(short)8;
-	
+
 	short IMAGE_TRANSFER_SN = (short)0x6FB8;
 
 	// **********************************************************************************************
@@ -299,6 +299,7 @@ public interface DLMSCOSEMGlobals {
 	byte DLMS_PDU_INITIATE_RESPONSE 		= 	(byte)0x08;
 	byte DLMS_PDU_CONFIRMED_SERVICE_ERROR	=	(byte)0x0E;
 	byte RLRQ_TAG							= 	(byte)0x62;
+	byte RLRQ_USER_INFORMATION 				= 	(byte)0xBE;
 	byte RLRE_TAG							=	(byte)0x63;
 	/** Not sure it's correct, we assume this is the value by looking at the results*/
 	byte RLRE_RELEASE_RESPONSE_REASON		=	(byte)0x80;

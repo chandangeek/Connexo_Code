@@ -488,7 +488,26 @@ public class AssociationControlServiceElement {
 		byte[] rlrq = new byte[1024];
 		// byte
 		rlrq[t++] = DLMSCOSEMGlobals.RLRQ_TAG;
-		rlrq[t++] = 0;
+
+		if (userInformationData != null) {
+			switch (getSecurityContext().getSecurityPolicy()) {
+				case SecurityContext.SECURITYPOLICY_BOTH:
+				case SecurityContext.SECURITYPOLICY_ENCRYPTION:
+					rlrq[t++] = (byte) (userInformationData.length + 4); // total length
+					rlrq[t++] = DLMSCOSEMGlobals.RLRQ_USER_INFORMATION;
+					rlrq[t++] = (byte) (userInformationData.length + 2); // Total length of the userInformation (including the following 2 bytes)
+					rlrq[t++] = 0x04; // OctetString
+					rlrq[t++] = (byte) userInformationData.length; // Length of the userInformation
+					for (int i = 0; i < userInformationData.length; i++) {
+						rlrq[t++] = userInformationData[i];
+					}
+					break;
+				default:
+					rlrq[t++] = 0x00;
+			}
+		} else {
+			rlrq[t++] = 0x00;
+		}
 
 		//TODO a Release-Request-Reason and UserInformationField can be added, but they are optional ...
 
