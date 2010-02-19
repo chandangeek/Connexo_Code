@@ -277,11 +277,15 @@
 
 -keepnames class com.energyict.protocolimpl.iec1107.kamstrup.unigas300.Unigas300
 
--keepnames class com.energyict.protocolimpl.dlms.as220.AS220
-
--keep public class com.energyict.protocolimpl.dlms.as220.DLMSSNAS220{
-	public *;
+-keep public class com.energyict.protocolimpl.dlms.as220.*{
+	*;
 }
+
+#-keepnames class com.energyict.protocolimpl.dlms.as220.AS220
+
+#-keep public class com.energyict.protocolimpl.dlms.as220.DLMSSNAS220{
+#	public *;
+#}
 
 # Keep annotations, 
 -keepattributes *Annotation*
