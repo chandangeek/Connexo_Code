@@ -24,7 +24,7 @@ public class LoadProfileCompactArray {
 			//throw new IOException("No compact array!");
 		}
 
-		offset += UNSIGNED32_LENGTH; // skip compact array tag AND TypeDescription
+		offset += 5; // skip compact array tag AND TypeDescription
 
 		int length = (int) DLMSUtils.getAXDRLength(data, offset);
 		offset += DLMSUtils.getAXDRLengthOffset(data, offset);

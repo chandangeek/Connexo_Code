@@ -99,11 +99,12 @@ public class ProfileBuilder {
 					continue; // first the calendar has to be initialized with the start of load profile marker
 				}
 				IntervalData ivd = new IntervalData(ProtocolTools.roundUpToNearestInterval(calendar.getTime(), latestProfileInterval/60));
-//				IntervalData ivd = new IntervalData(calendar.getTime());
-				ivd.addValue(new BigDecimal("" + lpcae.getValue()));
+				ivd.addValue(new BigDecimal("" + loadProfileCompArrEntries.get(i).getValue()));
+				ivd.addValue(new BigDecimal("" + loadProfileCompArrEntries.get(i+1).getValue()));
 				intervalDatas.add(ivd);
 				latestProfileInterval = lpcae.getIntervalInSeconds();
 				calendar.add(Calendar.SECOND, latestProfileInterval); // set the calendar to the next interval endtime
+				i++;
 			} else if (lpcae.isPartialValue()) { // partial interval value
 				//eiCode |= IntervalStateBits.SHORTLONG;
 				if (calendar == null) {
@@ -112,10 +113,12 @@ public class ProfileBuilder {
 				IntervalData ivd = new IntervalData(ProtocolTools.roundUpToNearestInterval(calendar.getTime(), latestProfileInterval/60), eiCode);
 //				IntervalData ivd = new IntervalData(calendar.getTime(), eiCode);
 				eiCode = 0;
-				ivd.addValue(new BigDecimal("" + lpcae.getValue()));
+				ivd.addValue(new BigDecimal("" + loadProfileCompArrEntries.get(i).getValue()));
+				ivd.addValue(new BigDecimal("" + loadProfileCompArrEntries.get(i+1).getValue()));
 				intervalDatas.add(ivd);
 				latestProfileInterval = lpcae.getIntervalInSeconds();
 				calendar.add(Calendar.SECOND, latestProfileInterval); // set the calendar to the next interval endtime
+				i++;
 			} else if (lpcae.isDate()) { // date stamp
 				// date always followed by time? Do the processing if time is received
 				dateStamp = lpcae;
