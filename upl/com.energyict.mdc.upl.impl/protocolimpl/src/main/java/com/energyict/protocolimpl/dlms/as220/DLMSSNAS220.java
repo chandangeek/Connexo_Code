@@ -124,7 +124,6 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     private StoredValuesImpl storedValuesImpl=null;
 
     // lazy initializing
-    private int iNumberOfChannels=-1;
     private int iMeterTimeZoneOffset=255;
     private int iConfigProgramChange=-1;
 
@@ -148,7 +147,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 	 * @throws BusinessException if no correct MBus device is found
 	 */
 	protected abstract void doConnect() throws BusinessException;
-	
+
     /**
 	 *  Creates a new instance of DLMSSNAS220, empty constructor
      */
@@ -174,15 +173,15 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 	}
 
     /** Initializes the receiver
-     * 
+     *
 	 * @param inputStream
 	 * 			- the inputStream form the dialer
-	 * 
+	 *
 	 * @param outputStream
 	 * 			- the outputStream from the dialer
      * @param tz
      * 			- the {@link TimeZone} used
-     * 
+     *
      * @param log
      * 			- the {@link Logger} used
      */
@@ -191,7 +190,6 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         this.logger = log;
 
         setDstFlag(-1);
-        iNumberOfChannels = -1;
         iMeterTimeZoneOffset = 255;
         iConfigProgramChange = -1;
 
@@ -205,13 +203,13 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 
 	/**
 	 * Initialize DLMS specific objects
-	 * 
+	 *
 	 * @param inputStream
 	 * 			- the inputStream form the dialer
-	 * 
+	 *
 	 * @param outputStream
 	 * 			- the outputStream from the dialer
-	 * 
+	 *
 	 * @throws ConnectionException if initializing the connection failed
 	 * @throws IOException if initializing the connection failed of the connectionMode is invalid
 	 */
@@ -248,11 +246,11 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 		aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, getContextId());
 		dlmsConnection = new SecureConnection(aso, connection);
 	}
-	
+
 	/**
 	 * Return the SystemTitle to be used in the DLMS association request.
 	 * For the AM500 modules, this is the serialNumber of the E-METER
-	 *  
+	 *
 	 * @return the SystemTitle
 	 */
 	protected byte[] getSystemIdentifier(){
@@ -289,9 +287,9 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 			getDLMSConnection().connectMAC();
 			aso.createAssociation();
 			checkCache();
-			
+			setObjectList();
 	        doConnect();
-			
+
 			validateSerialNumber();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -305,20 +303,19 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 		}
 	}
 
+	/**
+	 * @throws IOException
+	 */
+	private void setObjectList() throws IOException {
+		meterConfig.setCapturedObjectList(getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjectsAsUniversalObjects());
+	}
+
     public int getProfileInterval() throws UnsupportedException, IOException {
         if (iInterval == -1) {
            iInterval = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCapturePeriod();
         }
         return iInterval;
     }
-
-	public int getNumberOfChannels() throws IOException {
-		if (iNumberOfChannels == -1) {
-            meterConfig.setCapturedObjectList(getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjectsAsUniversalObjects());
-			iNumberOfChannels = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getNumberOfProfileChannels() + NR_OF_PLC_CHANNELS;
-		}
-		return iNumberOfChannels;
-	}
 
     public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
         throw new UnsupportedException();
