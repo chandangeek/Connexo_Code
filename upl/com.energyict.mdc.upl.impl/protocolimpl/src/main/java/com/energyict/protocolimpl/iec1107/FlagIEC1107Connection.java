@@ -1091,7 +1091,10 @@ public class FlagIEC1107Connection extends Connection {
         this.addCRLF = addCRLF;
     }
 
-	@Override
+    public void delayAndFlush(long delay) throws NestedIOException, ConnectionException {
+			super.delayAndFlush(delay);
+    }
+
 	public String toString() {
 		final String crlf = "\r\n";
 
