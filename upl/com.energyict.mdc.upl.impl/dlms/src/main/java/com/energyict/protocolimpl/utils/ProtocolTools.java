@@ -373,4 +373,27 @@ public final class ProtocolTools {
 		return mergedIntervals;
 	}
 
+	/**
+	 * This method converts a byte array to a readable string. Unprintable
+	 * characters are replaced by a '.'
+	 *
+	 * @param b
+	 * @return
+	 */
+	public static String getAsciiFromBytes(byte[] b) {
+		if (b != null) {
+			StringBuilder sb= new StringBuilder(b.length);
+			for (int i = 0; i < b.length; i++) {
+				if (b[i] < 0x20) {
+					sb.append(".");
+				} else {
+					sb.append((char) b[i]);
+				}
+			}
+			return sb.toString();
+		} else {
+			return "";
+		}
+	}
+
 }
