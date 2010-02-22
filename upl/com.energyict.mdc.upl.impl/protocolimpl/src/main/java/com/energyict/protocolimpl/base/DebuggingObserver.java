@@ -24,6 +24,7 @@ public class DebuggingObserver implements InputStreamObserver, OutputStreamObser
 
 	private final boolean		showCommunication;
 	private final String		fileName;
+	private final boolean		asciiMode;
 
 	private int					lastDirection		= DIRECTION_UNKNOWN;
 	private long				lastAction			= 0L;
@@ -34,8 +35,18 @@ public class DebuggingObserver implements InputStreamObserver, OutputStreamObser
 	 * @param showCommunication
 	 */
 	public DebuggingObserver(String fileName, boolean showCommunication) {
+		this(fileName, showCommunication, false);
+	}
+
+	/**
+	 * Create a new {@link DebuggingObserver}.
+	 * @param fileName
+	 * @param showCommunication
+	 */
+	public DebuggingObserver(String fileName, boolean showCommunication, boolean asciiMode) {
 		this.fileName = fileName;
 		this.showCommunication = showCommunication;
+		this.asciiMode  = asciiMode;
 		log(CRLF + CRLF + "Observer started " + new Date() + "[" + getClass().getCanonicalName() + "]" + CRLF);
 	}
 
@@ -48,7 +59,7 @@ public class DebuggingObserver implements InputStreamObserver, OutputStreamObser
 			log("RX[" + System.currentTimeMillis() + "] <= ");
 			setLastDirection(DIRECTION_READING);
 		}
-		log(ProtocolTools.getHexStringFromBytes(b));
+		log(asciiMode ? ProtocolTools.getAsciiFromBytes(b) : ProtocolTools.getHexStringFromBytes(b));
 		setLastAction();
 	}
 
@@ -70,7 +81,7 @@ public class DebuggingObserver implements InputStreamObserver, OutputStreamObser
 			log("TX[" + System.currentTimeMillis() + "] => ");
 			setLastDirection(DIRECTION_WRITING);
 		}
-		log(ProtocolTools.getHexStringFromBytes(b));
+		log(asciiMode ? ProtocolTools.getAsciiFromBytes(b) : ProtocolTools.getHexStringFromBytes(b));
 		setLastAction();
 	}
 
