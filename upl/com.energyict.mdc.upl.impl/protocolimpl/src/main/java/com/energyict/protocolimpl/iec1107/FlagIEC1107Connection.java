@@ -1097,27 +1097,27 @@ public class FlagIEC1107Connection extends Connection {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("FlagIEC1107Connection").append(crlf);
-		sb.append(" > addCRLF = ").append(addCRLF);
-		sb.append(" > authenticationCommand = ").append(authenticationCommand).append(addCRLF);
-		sb.append(" > authenticationData = ").append(authenticationData).append(addCRLF);
-		sb.append(" > baudrate = ").append(baudrate).append(addCRLF);
-		sb.append(" > boolFlagIEC1107Connected = ").append(boolFlagIEC1107Connected).append(addCRLF);
-		sb.append(" > connectCount = ").append(connectCount).append(addCRLF);
-		sb.append(" > echoByteArrayOutputStream = ").append(echoByteArrayOutputStream).append(addCRLF);
-		sb.append(" > encryptor = ").append(encryptor).append(addCRLF);
-		sb.append(" > errorSignature = ").append(errorSignature).append(addCRLF);
-		sb.append(" > hhuSignOn = ").append(hhuSignOn).append(addCRLF);
-		sb.append(" > iEchoCancelling = ").append(iEchoCancelling).append(addCRLF);
-		sb.append(" > iIEC1107Compatible = ").append(iIEC1107Compatible).append(addCRLF);
-		sb.append(" > iMaxRetries = ").append(iMaxRetries).append(addCRLF);
-		sb.append(" > iProtocolTimeout = ").append(iProtocolTimeout).append(addCRLF);
-		sb.append(" > iSecurityLevel = ").append(iSecurityLevel).append(addCRLF);
-		sb.append(" > lForceDelay = ").append(lForceDelay).append(addCRLF);
-		sb.append(" > meterID = ").append(meterID).append(addCRLF);
-		sb.append(" > sessionState = ").append(sessionState).append(addCRLF);
-		sb.append(" > software7E1 = ").append(software7E1).append(addCRLF);
-		sb.append(" > strIdentConfig = ").append(strIdentConfig).append(addCRLF);
-		sb.append(" > strPass = ").append(strPass).append(addCRLF);
+		sb.append(" > addCRLF = ").append(addCRLF).append(crlf);
+		sb.append(" > authenticationCommand = ").append(authenticationCommand).append(crlf);
+		sb.append(" > authenticationData = ").append(authenticationData).append(crlf);
+		sb.append(" > baudrate = ").append(baudrate).append(crlf);
+		sb.append(" > boolFlagIEC1107Connected = ").append(boolFlagIEC1107Connected).append(crlf);
+		sb.append(" > connectCount = ").append(connectCount).append(crlf);
+		sb.append(" > echoByteArrayOutputStream = ").append(echoByteArrayOutputStream).append(crlf);
+		sb.append(" > encryptor = ").append(encryptor).append(crlf);
+		sb.append(" > errorSignature = ").append(errorSignature).append(crlf);
+		sb.append(" > hhuSignOn = ").append(hhuSignOn).append(crlf);
+		sb.append(" > iEchoCancelling = ").append(iEchoCancelling).append(crlf);
+		sb.append(" > iIEC1107Compatible = ").append(iIEC1107Compatible).append(crlf);
+		sb.append(" > iMaxRetries = ").append(iMaxRetries).append(crlf);
+		sb.append(" > iProtocolTimeout = ").append(iProtocolTimeout).append(crlf);
+		sb.append(" > iSecurityLevel = ").append(iSecurityLevel).append(crlf);
+		sb.append(" > lForceDelay = ").append(lForceDelay).append(crlf);
+		sb.append(" > meterID = ").append(meterID).append(crlf);
+		sb.append(" > sessionState = ").append(sessionState).append(crlf);
+		sb.append(" > software7E1 = ").append(software7E1).append(crlf);
+		sb.append(" > strIdentConfig = ").append(strIdentConfig).append(crlf);
+		sb.append(" > strPass = ").append(strPass).append(crlf);
 		return sb.toString();
 	}
 
