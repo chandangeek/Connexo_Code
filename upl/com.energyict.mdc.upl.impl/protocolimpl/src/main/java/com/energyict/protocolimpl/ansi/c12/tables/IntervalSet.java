@@ -113,6 +113,27 @@ public class IntervalSet {
         return eiStatus;
     }
     
+    public int getCommon2EIStatus(boolean powerStateOn) {
+    	//powerStateOn => true, power is on, false, power is off
+        int eiStatus=0;
+        // powerfail within interval
+        if ((getCommonStatus() & 0x02)==0x02) {
+        	if (powerStateOn) {
+        		eiStatus |= IntervalStateBits.POWERUP;
+        	}
+        	else {
+        		eiStatus |= IntervalStateBits.POWERDOWN;
+        	}
+        }
+        // clock reset forward during interval
+        if ((getCommonStatus() & 0x04)==0x04)
+            eiStatus |= (IntervalStateBits.SHORTLONG);
+        // clock reset backwards during interval
+        if ((getCommonStatus() & 0x08)==0x08)
+            eiStatus |= (IntervalStateBits.SHORTLONG);
+        return eiStatus;
+    }
+    
     public int getchannel2EIStatus(int channelId) {
         switch(getChannelStatus(channelId)) {
             case 0: // no status
