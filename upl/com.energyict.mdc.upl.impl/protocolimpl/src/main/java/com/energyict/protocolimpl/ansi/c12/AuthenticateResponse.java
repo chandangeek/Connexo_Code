@@ -33,8 +33,10 @@ public class AuthenticateResponse extends AbstractResponse {
         byte[] data = responseData.getData();
         int length = C12ParseUtils.getInt(data,1);
         setSecurityLevel(C12ParseUtils.getInt(data,2));
-        if (length==0)
-        	length = 1;
+        // This was a temp fix for interrogating the Elster A1800 which returns
+        //all 0's for it's response to the authenticate command
+//        if (length==0)
+//        	length = 1;
         setDoubleEncryptedTicket(new byte[length-1]);
         System.arraycopy(data,3,getDoubleEncryptedTicket(), 0,(length-1));
     }
