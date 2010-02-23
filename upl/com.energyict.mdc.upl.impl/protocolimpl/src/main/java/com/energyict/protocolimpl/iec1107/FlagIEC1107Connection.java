@@ -1098,7 +1098,7 @@ public class FlagIEC1107Connection extends Connection {
 	public String toString() {
 		final String crlf = "\r\n";
 
-		StringBuilder sb = new StringBuilder();
+		StringBuffer sb = new StringBuffer();
 		sb.append("FlagIEC1107Connection").append(crlf);
 		sb.append(" > addCRLF = ").append(addCRLF).append(crlf);
 		sb.append(" > authenticationCommand = ").append(authenticationCommand).append(crlf);
@@ -1124,4 +1124,4 @@ public class FlagIEC1107Connection extends Connection {
 		return sb.toString();
 	}
 
-} // public class FlagIEC1107Connection
+}
