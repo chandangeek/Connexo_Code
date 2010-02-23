@@ -337,7 +337,7 @@ if (DEBUG==-1) System.out.println("KV_DEBUG> if (currentDayBlock && (i==(nrOfInt
                 	intervalDatas.add(createIntervalData(intervalSet, cal.getTime(),i, powerOn));
                 	int common2EIstatus = intervalSet.getCommon2EIStatus(powerOn);
                 	if ((((common2EIstatus & IntervalStateBits.POWERUP) == IntervalStateBits.POWERUP) &&
-                			(i>0 && !intervalSets[i-1].isValid())) ||
+                			(i>0 && (!intervalSets[i-1].isValid() || intervalSets[i-1].isPowerFailWithintheInterval() ))) ||
                 			(common2EIstatus & IntervalStateBits.POWERDOWN) == IntervalStateBits.POWERDOWN ) {
                 		powerOn = !powerOn;
                 	}
