@@ -265,13 +265,14 @@ if (DEBUG>=2) System.out.println("KV_DEBUG> (2) data lpbd="+lpbd);
         final int STATE_DST_TRANSITION_S_W=2;
         final int STATE_IDLE=0;
         int state=STATE_IDLE;
+        boolean powerOn = true;
+        boolean skipping = false;
         
         IntervalSet previousIntervalSet=null;
         //currentDayBlock=true;
         List intervalDatas = new ArrayList();
         Calendar cal=null;
         Iterator it = loadProfileBlockDatas.iterator();
-        Date previousTime;
         boolean firstInterval=true;
         while(it.hasNext()) {
             lpbd = (LoadProfileBlockData)it.next();
@@ -305,6 +306,8 @@ if (DEBUG==-1) System.out.println("KV_DEBUG> if ((previousIntervalSet != null)")
                             cal = Calendar.getInstance(alphaA3.getTimeZone());
                             cal.setTime(lpbd.getBlockEndTime());
                             ParseUtils.roundUp2nearestInterval(cal,alphaA3.getProfileInterval());
+                            skipping = true;
+                        	powerOn = !powerOn;
                         }
                         else {
 if (DEBUG==-1) System.out.println("KV_DEBUG> ***************************** BUG TRAP!! if ((previousIntervalSet != null)");        
@@ -329,9 +332,16 @@ if (DEBUG==-1) System.out.println("KV_DEBUG> if (currentDayBlock && (i==(nrOfInt
                 firstInterval=false;
                 
                 // if interval is valid, add it to the profile data
-                if (intervalSet.isValid())
-                    intervalDatas.add(createIntervalData(intervalSet, cal.getTime(),i));
-                
+                if (intervalSet.isValid()) {
+                	skipping = false;
+                	intervalDatas.add(createIntervalData(intervalSet, cal.getTime(),i, powerOn));
+                	int common2EIstatus = intervalSet.getCommon2EIStatus(powerOn);
+                	if ((((common2EIstatus & IntervalStateBits.POWERUP) == IntervalStateBits.POWERUP) &&
+                			(i>0 && !intervalSets[i-1].isValid())) ||
+                			(common2EIstatus & IntervalStateBits.POWERDOWN) == IntervalStateBits.POWERDOWN ) {
+                		powerOn = !powerOn;
+                	}
+                }
                 // KV_TO_DO, i need the missing document profile.doc from Elster. After several calls to elster in March 2007, i still didn't get that document.
                 // That document probably describes the extended status flags sequence and how to interprete them in several cases of the meter state (DST, clock set, powerfail, ...)
                 // In the meantime, i added isPartialDueToCommonState() to check if we should go into DST transition state. all other cases should remain IDLE state as
@@ -367,10 +377,11 @@ if (DEBUG==-1) System.out.println("STATE_IDLE, time="+cal.getTime());
                         }
                     }
                 }
-                previousIntervalSet=intervalSet;
                 
-                if (state == STATE_IDLE) 
+                if (state == STATE_IDLE && !skipping) 
                     cal.add(Calendar.SECOND,(-1)*alphaA3.getProfileInterval());
+               
+                previousIntervalSet=intervalSet;
                 
             } // for (int i=(nrOfIntervals-1);i>=0;i--)
             
@@ -382,10 +393,11 @@ if (DEBUG==-1) System.out.println("STATE_IDLE, time="+cal.getTime());
         
     } // private void buildIntervalData(ProfileData profileData, Date lastReading, Date to) throws IOException 
     
-    private IntervalData createIntervalData(IntervalSet intervalSet, Date endDate, int interval) throws IOException {
+    private IntervalData createIntervalData(IntervalSet intervalSet, Date endDate, int interval, boolean powerOn) throws IOException {
         
         IntervalFormat[] values = intervalSet.getIntervalData();
-        IntervalData intervalData = new IntervalData(endDate,intervalSet.getCommon2EIStatus(),intervalSet.getCommonStatus());
+        int common2EIstatus = intervalSet.getCommon2EIStatus(powerOn);
+        IntervalData intervalData = new IntervalData(endDate,common2EIstatus,intervalSet.getCommonStatus());
 
         for (int channel=0;channel<alphaA3.getNumberOfChannels();channel++) {
             BigDecimal bd = (BigDecimal)values[channel].getValue(); // raw value
