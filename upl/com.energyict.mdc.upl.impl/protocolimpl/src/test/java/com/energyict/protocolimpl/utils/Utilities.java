@@ -279,7 +279,7 @@ public class Utilities {
 	 */
 	public static void createCommunicationScheduler(Rtu rtu, String type) throws SQLException, BusinessException {
 		CommunicationSchedulerShadow css = new CommunicationSchedulerShadow();
-		css.setCommunicationProfile(createCommunicationProfile(type));
+		css.setCommunicationProfileId(createCommunicationProfile(type).getId());
 		css.setRtuId(rtu.getId());
 		ModemPool mp = createDummyModemPool();
 		css.setModemPoolId(mp.getId());
