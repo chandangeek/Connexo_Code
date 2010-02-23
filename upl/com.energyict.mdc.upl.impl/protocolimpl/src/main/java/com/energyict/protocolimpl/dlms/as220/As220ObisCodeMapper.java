@@ -19,6 +19,8 @@ import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.ObiscodeMapper;
+import com.energyict.protocolimpl.base.ContactorController.ContactorState;
+import com.energyict.protocolimpl.dlms.as220.emeter.AS220ContactorController;
 
 /**
  *
@@ -34,6 +36,8 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 	private static final ObisCode	FILTER_REGISTER_OBISCODE	= ObisCode.fromString("0.0.97.98.10.255");
 	private static final ObisCode	ERROR_REGISTER_OBISCODE		= ObisCode.fromString("0.0.97.97.0.255");
 	private static final ObisCode	LOGICAL_DEVICENAME_OBISCODE	= ObisCode.fromString("0.0.42.0.0.255");
+
+	private static final ObisCode	CONTACTOR_STATE_OBISCODE	= AS220ContactorController.DISCONNECTOR_OBISCODE;
 
 	private static final ObisCode[] simpleDataRegisters = new ObisCode[] {
 		NR_CONFIGCHANGES_OBISCODE,
@@ -137,6 +141,9 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 			return getCosemObjectFactory().getSFSKIec61334LLCSetup().asRegisterValue();
 		} else if( obisCode.equals(FIRMWARE_VERSION)) {
 		    return new RegisterValue(FIRMWARE_VERSION, getAs220().getFirmwareVersion());
+		} else if (obisCode.equals(CONTACTOR_STATE_OBISCODE)) {
+			ContactorState contactorState = getAs220().geteMeter().getContactorController().getContactorState();
+			return new RegisterValue(obisCode, contactorState != null ? contactorState.toString() : "Unknown");
 		}
 
         // *********************************************************************************

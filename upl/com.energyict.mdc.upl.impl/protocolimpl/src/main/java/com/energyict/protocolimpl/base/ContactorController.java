@@ -8,7 +8,7 @@ import java.io.IOException;
  */
 public interface ContactorController {
 
-	enum ContactorState{OPEN, ARMED, CLOSED, UNKNOWN};
+	enum ContactorState{DISCONNECTED, ARMED, CONNECTED, UNKNOWN};
 
 	/**
 	 * This command tries to switch off (disconnect) the contactor in the device.

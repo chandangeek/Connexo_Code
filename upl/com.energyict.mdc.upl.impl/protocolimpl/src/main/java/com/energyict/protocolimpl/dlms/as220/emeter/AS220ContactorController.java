@@ -50,7 +50,26 @@ public class AS220ContactorController extends AbstractContactorController {
 	}
 
 	public ContactorState getContactorState() throws IOException {
-		return ContactorState.UNKNOWN;
+		TypeEnum currentState = null;
+		try {
+			currentState = getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).getControlState();
+		} catch (IOException e) {
+		}
+
+		if (currentState == null) {
+			return ContactorState.UNKNOWN;
+		} else {
+			switch (currentState.getValue()) {
+				case ARM:
+					return ContactorState.ARMED;
+				case CONNECT:
+					return ContactorState.CONNECTED;
+				case DISCONNECT:
+					return ContactorState.DISCONNECTED;
+				default:
+					return ContactorState.UNKNOWN;
+			}
+		}
 	}
 
 }
