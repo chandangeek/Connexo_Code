@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.energyict.protocolimpl.dlms.as220.debug;
+package com.energyict.protocolimpl.debug;
 
 
 import java.io.IOException;

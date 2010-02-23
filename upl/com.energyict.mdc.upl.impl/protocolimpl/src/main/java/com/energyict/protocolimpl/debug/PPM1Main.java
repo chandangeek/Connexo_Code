@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.energyict.protocolimpl.iec1107.ppm.debug;
+package com.energyict.protocolimpl.debug;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -16,20 +16,20 @@ import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.DebuggingObserver;
-import com.energyict.protocolimpl.iec1107.ppm.PPM;
+import com.energyict.protocolimpl.iec1107.ppmi1.PPM;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
- * This class can be used to test the PPM2 protocol without the need of the
+ * This class can be used to test the PPM1 protocol without the need of the
  * CommServerJ, CommServerJOffline, EIServer or ProtocolTester. This class
  * should only be used for debugging purposes.
  *
  * @author jme
  */
-public class PPM2Main {
+public class PPM1Main {
 
 	private static final Level	LOG_LEVEL				= Level.SEVERE;
-	private static final String	OBSERVER_FILENAME		= "c:\\logging\\PPM2Main\\communications.log";
+	private static final String	OBSERVER_FILENAME		= "c:\\logging\\PPM1Main\\communications.log";
 	private static final long	DELAY_BEFORE_DISCONNECT	= 100;
 
 	private static final TimeZone	DEFAULT_TIMEZONE		= TimeZone.getTimeZone("GMT+01");
@@ -61,7 +61,7 @@ public class PPM2Main {
 
 	public static Logger getLogger() {
 		 if (logger == null) {
-			 logger = Logger.getLogger(PPM2Main.class.getCanonicalName());
+			 logger = Logger.getLogger(PPM1Main.class.getCanonicalName());
 			 logger.setLevel(LOG_LEVEL);
 		 }
 		 return logger;
@@ -80,8 +80,8 @@ public class PPM2Main {
 		properties.setProperty("OPUS", "0");
 
 		properties.setProperty(MeterProtocol.PROFILEINTERVAL, "1800");
-		properties.setProperty(MeterProtocol.PASSWORD, "ABCD0002");
-		properties.setProperty(MeterProtocol.SERIALNUMBER, "--------K9901330");
+		properties.setProperty(MeterProtocol.PASSWORD, "--------");
+		properties.setProperty(MeterProtocol.SERIALNUMBER, "--------K9302433");
 
 		return properties;
 	}
@@ -103,14 +103,15 @@ public class PPM2Main {
 			getPPM().enableHHUSignOn(getDialer().getSerialCommunicationChannel());
 			getPPM().connect();
 
-			Calendar from = Calendar.getInstance(DEFAULT_TIMEZONE);
-			Calendar to = Calendar.getInstance(DEFAULT_TIMEZONE);
+			Calendar from = Calendar.getInstance();
+			Calendar to = Calendar.getInstance();
 
-			from.set(2010, Calendar.JANUARY, 12, 0, 33, 0);
-			//to.set(2010, Calendar.JANUARY, 13, 0, 0, 0);
+			from.set(2009, Calendar.JANUARY, 1, 0, 0, 0);
+			//to.set(2012, Calendar.JANUARY, 15, 0, 0, 0);
 			System.out.println(ProtocolTools.getProfileInfo(getPPM().getProfileData(from.getTime(), to.getTime(), false)));
 
 			System.out.println();
+
 
 		} finally {
 			ProtocolTools.delay(DELAY_BEFORE_DISCONNECT);
