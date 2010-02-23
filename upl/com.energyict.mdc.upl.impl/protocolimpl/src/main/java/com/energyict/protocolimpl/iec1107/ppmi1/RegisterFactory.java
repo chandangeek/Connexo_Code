@@ -31,6 +31,9 @@ public interface RegisterFactory {
 	/** 798 Serial number */
 	String R_SERIAL_NUMBER = "SerialNumber";
 
+	/** 799 Opus password */
+	String R_OPUS_PASSWORD = "OpusPassword";
+
 	/** 795 Scheme id */
 	String R_SCHEME_ID = "SchemeId";
 
@@ -252,7 +255,7 @@ public interface RegisterFactory {
 	/**
 	 * A DataIndentity can contain multiple registers. But what if a Register is
 	 * best composed out of several other registers ?
-	 * 
+	 *
 	 * I will cache this in RegisterFactory, it could be done better .... 741 -
 	 * 745, 751 - 755 Register Allocation
 	 */

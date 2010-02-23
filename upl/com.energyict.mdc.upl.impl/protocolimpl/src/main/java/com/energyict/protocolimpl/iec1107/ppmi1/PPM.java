@@ -152,10 +152,8 @@ public class PPM extends AbstractPPM {
 	private static final String	PD_EXTENDED_LOGGING		= "0";
 	private static final int	PD_SECURITY_LEVEL		= 0;
 
-	private static final Map exception = new HashMap();
-
 	private static final long		TIME_SHIFT_RATE			= (60 * 10500) / 0x07F;
-
+	private static final Map		exception				= new HashMap();
 	static {
 		exception.put("ERR1", "Invalid Command/Function type e.g. other than W1, R1 etc");
 		exception.put("ERR2", "Invalid Data Identity Number e.g. Data id does not exist" + " in the meter");
@@ -343,13 +341,14 @@ public class PPM extends AbstractPPM {
 	public void connect() throws IOException {
 		try {
 
-			if( !isOpus() ){
+			if (!isOpus()) {
 				this.meterType  = this.flagIEC1107Connection.connectMAC(this.pAddress, this.pPassword, this.pSecurityLevel, this.pNodeId);
 				String ri = this.meterType.getReceivedIdent().substring(10, 13);
 				int version = Integer.parseInt(ri);
 				this.logger.log(Level.INFO, "Meter " + this.meterType.getReceivedIdent());
 				this.logger.log(Level.INFO, "MeterType version = " + ri + " - " + version);
 				rFactory = new OpticalRegisterFactory(this, this );
+				validatePassword();
 			} else {
 				rFactory = new OpusRegisterFactory(this, this );
 			}
@@ -380,6 +379,18 @@ public class PPM extends AbstractPPM {
 	}
 
 	/**
+	 *
+	 * @throws IOException
+	 */
+	private void validatePassword() throws IOException {
+		String pw = (String) rFactory.getRegister(RegisterFactory.R_OPUS_PASSWORD);
+		if ((pw != null) && (pPassword != null) && (pw.equals(pPassword))) {
+			return;
+		}
+		throw new InvalidPropertyException("Configured password does not match the device opus password!");
+	}
+
+	/**
 	 * Validate the serial number
 	 * change on: 26/01/2005.  The method should basically ignore the leading dashes (-) in the comparison.
 	 * @throws IOException
@@ -391,7 +402,7 @@ public class PPM extends AbstractPPM {
 		}
 
 		// at this point pSerialNumber can not be null any more
-		String sn = (String) rFactory.getRegister("SerialNumber");
+		String sn = (String) rFactory.getRegister(RegisterFactory.R_SERIAL_NUMBER);
 
 		if( sn != null ) {
 			String snNoDash = sn.replaceAll( "-+", "" );
@@ -559,7 +570,7 @@ public class PPM extends AbstractPPM {
 	/**
 	 * @return
 	 */
-	protected FlagIEC1107Connection getFlagIEC1107Connection() {
+	public FlagIEC1107Connection getFlagIEC1107Connection() {
 		return this.flagIEC1107Connection;
 	}
 

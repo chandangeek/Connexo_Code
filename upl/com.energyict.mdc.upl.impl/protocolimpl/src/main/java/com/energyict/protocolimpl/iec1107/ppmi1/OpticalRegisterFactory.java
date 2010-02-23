@@ -6,7 +6,7 @@ import com.energyict.protocol.MeterExceptionInfo;
  * There is 1 register per actual "Meter Register".
  * But a register can also be composed out of several "Meter Registers"
  * Or a register may need another meter register to interpret the value.
- * 
+ *
  * @author jme
  */
 public class OpticalRegisterFactory extends AbstractRegisterFactory {
@@ -26,6 +26,7 @@ public class OpticalRegisterFactory extends AbstractRegisterFactory {
 	private static final String	MAX_DEMAND_REGISTERS_ID		= "503";
 	private static final String	TOU_REGISTERS_ID			= "502";
 	private static final String	TOTAL_REGISTER_ID			= "501";
+	private static final String	OPUS_PASSWORD_ID			= "799";
 
 	/** Creates a new instance of RegisterFactory */
 	public OpticalRegisterFactory(PPM ppm, MeterExceptionInfo meterExceptionInfo ) {
@@ -33,6 +34,7 @@ public class OpticalRegisterFactory extends AbstractRegisterFactory {
 	}
 
 	{
+		add(OPUS_PASSWORD_ID, R_OPUS_PASSWORD, PPM1Register.STRING, 0, 8, PPM1Register.NOT_WRITEABLE, PPM1Register.CACHED);
 		add(TIME_ADJ_OPTICAL_ID, R_TIME_ADJUSTMENT_OPTICAL, PPM1Register.HEX, 0, 1, PPM1Register.WRITEABLE, PPM1Register.NOT_CACHED, false);
 		add(TIME_ADJ_RS232_ID, R_TIME_ADJUSTMENT_RS232, PPM1Register.DATE, 0, -1, PPM1Register.WRITEABLE, PPM1Register.NOT_CACHED, false);
 		add(TIME_DATA_RS232_ID, R_TIME_DATE_RS232, PPM1Register.DATE, 0, -1, PPM1Register.WRITEABLE, PPM1Register.NOT_CACHED);
