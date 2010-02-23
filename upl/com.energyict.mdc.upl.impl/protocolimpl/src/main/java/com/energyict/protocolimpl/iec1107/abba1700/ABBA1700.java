@@ -1,30 +1,3 @@
-/*
- * ABBA1700.java
- *
- * <B>Description :</B><BR>
- * Class that implements the Elster A1700 meter protocol.
- * <BR>
- * <B>@beginchanges</B><BR>
-KV|24042003|Initial version
-KV|31102003|Extract firmware version from strId, meter address
-KV|23032005|extend ABB1700_REGISTERCONFIG with external input channels
-KV|16022004|Add intervalstatusflags
-KV||Implement registerProtocol
-KV||Changed some exception messages for better understanding
-KV|13012005|Add Authenticate after 4.5 minutes to avoid ERR5, password timeout
-KV|13022005|Request for 1 more block if no streaming is used to request profile data
-KV|22022005|Bugfix for A1700 with inputmodule
-KV|15032005|Change dst behaviour checking
-KV|17032005|Add CTVT readout
-KV|23032005|Changed header to be compatible with protocol version tool
-KV|25032005|Password validation f(security level)
-KV|30032005|Improved registerreading, configuration data
-KV|30032005|Handle StringOutOfBoundException in IEC1107 connection layer
-KV|12042005|Change in MaximumDemand register
-KV|15012008|Fix to allow configuration changes
- *@endchanges
- */
-
 package com.energyict.protocolimpl.iec1107.abba1700;
 
 import java.io.IOException;
@@ -75,49 +48,48 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
  */
 public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNumber,MeterExceptionInfo,RegisterProtocol,DemandResetProtocol  { // KV 19012004
 
-    private static final byte DEBUG=0;
+	private static final int			BREAK_DELAY				= 500;
+	private static final int			BREAK_BAUDRATE			= 9600;
 
-    private static final String[] ABB1700_REGISTERCONFIG = {"CummMainImport","CummMainExport","CummMainQ1","CummMainQ2","CummMainQ3","CummMainQ4","CummMainVA","CummMainCustDef1","CummMainCustDef2","CummMainCustDef3","ExternalInput1","ExternalInput2","ExternalInput3","ExternalInput4"};
+	private static final String[] ABB1700_REGISTERCONFIG = {
+		"CummMainImport", "CummMainExport", "CummMainQ1", "CummMainQ2",
+		"CummMainQ3", "CummMainQ4", "CummMainVA", "CummMainCustDef1",
+		"CummMainCustDef2", "CummMainCustDef3", "ExternalInput1",
+		"ExternalInput2", "ExternalInput3", "ExternalInput4"
+	};
 
     // KV 19012004 implementation of MeterExceptionInfo
-    static Map exceptionInfoMap = new HashMap();
+    private static final Map<String, String> EXCEPTIONINFOMAP = new HashMap<String, String>();
     static {
-           exceptionInfoMap.put("ERR1","Invalid Command/Function type e.g. other than W1, R1 etc");
-           exceptionInfoMap.put("ERR2","Invalid Data Identity Number e.g. Data id does not exist in the meter");
-           exceptionInfoMap.put("ERR3","Invalid Packet Number");
-           exceptionInfoMap.put("ERR5","Data Identity is locked - password timeout");
-           exceptionInfoMap.put("ERR6","General Comms error");
+           EXCEPTIONINFOMAP.put("ERR1","Invalid Command/Function type e.g. other than W1, R1 etc");
+           EXCEPTIONINFOMAP.put("ERR2","Invalid Data Identity Number e.g. Data id does not exist in the meter");
+           EXCEPTIONINFOMAP.put("ERR3","Invalid Packet Number");
+           EXCEPTIONINFOMAP.put("ERR5","Data Identity is locked - password timeout");
+           EXCEPTIONINFOMAP.put("ERR6","General Comms error");
     }
 
-    private String strID;
-    private String strPassword;
-    private String serialNumber;
-    private int iIEC1107TimeoutProperty;
-    private int iProtocolRetriesProperty;
+	private boolean								soft7E1					= false;
+	private boolean								breakBeforeConnect		= false;
+	private String								nodeId					= null;
+	private String								strID					= null;
+	private String								strPassword				= null;
+	private String								serialNumber			= null;
+	private TimeZone							timeZone				= null;
+	private Logger								logger					= null;
+	private FlagIEC1107Connection				connection				= null;
+	private ABBA1700RegisterFactory				abba1700RegisterFactory	= null;
+	private ABBA1700Profile						abba1700Profile			= null;
+	private ABBA1700MeterType					abba1700MeterType		= null;
+	private SerialCommunicationChannel			commChannel				= null;
+
+    private int iTimeout;
+    private int iProtocolRetries;
     private int iRoundtripCorrection;
     private int iSecurityLevel;
-    private String nodeId;
     private int iEchoCancelling;
     private int iIEC1107Compatible;
     private int extendedLogging;
     private int forcedDelay;
-    private ABBA1700MeterType abba1700MeterType=null;
-    private boolean breakBeforeConnect = false;
-
-    private TimeZone timeZone;
-    private Logger logger;
-
-    private boolean software7E1;
-
-
-    FlagIEC1107Connection flagIEC1107Connection=null;
-
-    ABBA1700RegisterFactory abba1700RegisterFactory=null;
-    ABBA1700Profile  abba1700Profile=null;
-
-
-	private SerialCommunicationChannel	commChannel;
-
 
     /** Creates a new instance of ABBA1700 */
     public ABBA1700() {
@@ -145,45 +117,43 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
     }
 
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
-        String regName=name;
-        int billingPoint=-1;
-        if (name.indexOf("_") != -1) {
-            String[] strings = name.split("_");
-            regName = strings[0];
-            billingPoint = Integer.parseInt(strings[1]);
-            return getABBA1700RegisterFactory().getRegister(regName,billingPoint).toString()+", "+
-                   ((HistoricalValues)getABBA1700RegisterFactory().getRegister("HistoricalValues",billingPoint)).getHistoricalValueSetInfo().toString();
-        } else {
-			return getABBA1700RegisterFactory().getRegister(regName,billingPoint).toString();
+	public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+		String regName = name;
+		int billingPoint = -1;
+		String current = getABBA1700RegisterFactory().getRegister(regName, billingPoint).toString();
+		if (name.indexOf("_") != -1) {
+			String[] strings = name.split("_");
+			regName = strings[0];
+			billingPoint = Integer.parseInt(strings[1]);
+			String hist = ((HistoricalValues) getABBA1700RegisterFactory().getRegister("HistoricalValues", billingPoint)).getHistoricalValueSetInfo().toString();
+			return current + ", " + hist;
+		} else {
+			return current;
 		}
-    }
+	}
 
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
-        getABBA1700RegisterFactory().setRegister(name,value);
-    }
+	public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+		getABBA1700RegisterFactory().setRegister(name, value);
+	}
 
+	public void resetDemand() throws IOException {
+		getABBA1700RegisterFactory().invokeRegister("BillingReset");
+	}
 
-    public void resetDemand() throws IOException {
-        getABBA1700RegisterFactory().invokeRegister("BillingReset");
-    }
+	public Date getTime() throws IOException {
+		return (Date) getABBA1700RegisterFactory().getRegister("TimeDate");
+	}
 
-    public Date getTime() throws IOException {
-        return (Date)getABBA1700RegisterFactory().getRegister("TimeDate");
-    }
+	public void setTime() throws IOException {
+		Calendar calendar = ProtocolUtils.getCalendar(timeZone);
+		calendar.add(Calendar.MILLISECOND, iRoundtripCorrection);
+		getFlagIEC1107Connection().authenticate();
+		getABBA1700RegisterFactory().setRegister("TimeDate", calendar.getTime());
+	}
 
-    public void setTime() throws IOException {
-        Calendar calendar=null;
-        calendar = ProtocolUtils.getCalendar(timeZone);
-        calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);
-        getFlagIEC1107Connection().authenticate();
-        getABBA1700RegisterFactory().setRegister("TimeDate",calendar.getTime());
-    }
-
-    public void setProperties(Properties properties) throws MissingPropertyException , InvalidPropertyException {
-        validateProperties(properties);
-    }
-
+	public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+		validateProperties(properties);
+	}
 
     private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
@@ -205,8 +175,8 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
                     throw new InvalidPropertyException("Password must have a length of 8 characters!, correct first!");
                 }
             }
-            iIEC1107TimeoutProperty=Integer.parseInt(properties.getProperty("Timeout","10000").trim());
-            iProtocolRetriesProperty=Integer.parseInt(properties.getProperty("Retries","5").trim());
+            iTimeout=Integer.parseInt(properties.getProperty("Timeout","10000").trim());
+            iProtocolRetries=Integer.parseInt(properties.getProperty("Retries","5").trim());
             iRoundtripCorrection=Integer.parseInt(properties.getProperty("RoundtripCorrection","0").trim());
             iSecurityLevel=Integer.parseInt(properties.getProperty("SecurityLevel","2").trim());
             nodeId=properties.getProperty(MeterProtocol.NODEID,"");
@@ -221,7 +191,7 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
             // -1 = use identification string from signon later...
             abba1700MeterType = new ABBA1700MeterType(Integer.parseInt(properties.getProperty("MeterType","-1").trim()));
             forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay","300").trim());
-            this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
+            this.soft7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
             this.breakBeforeConnect = !properties.getProperty("BreakBeforeConnect", "0").equalsIgnoreCase("0");
 
         }
@@ -229,19 +199,14 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
             throw new InvalidPropertyException("ABBA1700, validateProperties, NumberFormatException, "+e.getMessage());
         }
     }
-    /** the implementation returns both the address and password key
-     * @return a list of strings
-     */
+
     public List getRequiredKeys() {
         List result = new ArrayList(0);
         return result;
     }
 
-    /** this implementation returns an empty list
-     * @return a list of strings
-     */
     public List getOptionalKeys() {
-        List result = new ArrayList();
+        List<String> result = new ArrayList<String>();
         result.add("Timeout");
         result.add("Retries");
         result.add("SecurityLevel");
@@ -255,42 +220,30 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
         return result;
     }
 
-
     public String getProtocolVersion() {
         return "$Revision: 1.55 $";
     }
-    public String getFirmwareVersion() throws IOException,UnsupportedException {
-        String str="unknown";
-        // KV 15122003 only if strID is filled in
-        if ((strID!=null) && (strID.length()>5)) {
-                str = strID.substring(5,strID.length());
-                //(String)getABBA1700RegisterFactory().getRegister("SerialNumber");
-        }
-        return str;
-    } // public String getFirmwareVersion()
 
-    public void initializeDevice() throws IOException, UnsupportedException {
-        throw new UnsupportedException();
-    }
+	public String getFirmwareVersion() throws IOException, UnsupportedException {
+		if ((strID != null) && (strID.length() > 5)) {
+			return strID.substring(5, strID.length());
+		} else {
+			return "Unknown";
+		}
+	}
 
-    /** initializes the receiver
-     * @param inputStream <br>
-     * @param outputStream <br>
-     * @param timeZone <br>
-     * @param logger <br>
-     */
-	public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) {
-		this.timeZone = timeZone;
-		this.logger = logger;
+	public void initializeDevice() throws IOException, UnsupportedException {
+		throw new UnsupportedException();
+	}
+
+	public void init(InputStream in, OutputStream out, TimeZone tz, Logger log) {
+		this.timeZone = tz;
+		this.logger = log;
 
 		try {
-			flagIEC1107Connection = new FlagIEC1107Connection(inputStream, outputStream, iIEC1107TimeoutProperty, iProtocolRetriesProperty, forcedDelay,
-					iEchoCancelling, iIEC1107Compatible, new CAI700(), software7E1);
-
-			//            abba1700RegisterFactory = new ABBA1700RegisterFactory((ProtocolLink)this,(MeterExceptionInfo)this,abba1700MeterType); // KV 19012004
-			//            abba1700Profile=new ABBA1700Profile(this,getABBA1700RegisterFactory());
+			connection = new FlagIEC1107Connection(in, out, iTimeout, iProtocolRetries, forcedDelay, iEchoCancelling, iIEC1107Compatible, new CAI700(), soft7E1);
 		} catch (ConnectionException e) {
-			logger.severe("ABBA1500: init(...), " + e.getMessage());
+			log.severe("ABBA1500: init(...), " + e.getMessage());
 		}
 	}
 
@@ -304,37 +257,34 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
     public void connect(int baudrate) throws IOException {
         MeterType meterType;
 
-        if (isBreakBeforeConnect()) {
-            switchBaudRate(9600);
-            getFlagIEC1107Connection().sendBreak();
-            getFlagIEC1107Connection().delayAndFlush(1000);
-        }
+		if (isBreakBeforeConnect()) {
+			switchBaudRate(BREAK_BAUDRATE);
+			getFlagIEC1107Connection().sendBreak();
+			getFlagIEC1107Connection().delayAndFlush(BREAK_DELAY);
+		}
 
-        try {
-            meterType = getFlagIEC1107Connection().connectMAC(strID,strPassword,iSecurityLevel,nodeId,baudrate);
-            if (!abba1700MeterType.isAssigned()) {
+		try {
+			meterType = getFlagIEC1107Connection().connectMAC(strID, strPassword, iSecurityLevel, nodeId, baudrate);
+			if (!abba1700MeterType.isAssigned()) {
 				abba1700MeterType.updateWith(meterType);
 			}
-            abba1700RegisterFactory = new ABBA1700RegisterFactory((ProtocolLink)this,(MeterExceptionInfo)this,abba1700MeterType); // KV 19012004
-            abba1700Profile=new ABBA1700Profile(this,getABBA1700RegisterFactory());
-        }
-        catch(FlagIEC1107ConnectionException e) {
-            throw new IOException(e.getMessage());
-        }
-        catch(IOException e) {
-            disconnect();
-            throw e;
-        }
+			abba1700RegisterFactory = new ABBA1700RegisterFactory((ProtocolLink) this, (MeterExceptionInfo) this, abba1700MeterType); // KV 19012004
+			abba1700Profile = new ABBA1700Profile(this, getABBA1700RegisterFactory());
+		} catch (FlagIEC1107ConnectionException e) {
+			throw new IOException(e.getMessage());
+		} catch (IOException e) {
+			disconnect();
+			throw e;
+		}
 
-        try {
-            validateSerialNumber(); // KV 15122003
-        }
-        catch(FlagIEC1107ConnectionException e) {
-            disconnect();
-            throw new IOException(e.getMessage());
-        }
+		try {
+			validateSerialNumber(); // KV 15122003
+		} catch (FlagIEC1107ConnectionException e) {
+			disconnect();
+			throw new IOException(e.getMessage());
+		}
 
-        if (extendedLogging >= 1) {
+		if (extendedLogging >= 1) {
 			getRegistersInfo();
 		}
     }
@@ -510,7 +460,7 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
 
     // implementing ProtocolLink
     public FlagIEC1107Connection getFlagIEC1107Connection() {
-        return flagIEC1107Connection;
+        return connection;
     }
     public TimeZone getTimeZone() {
         return timeZone;
@@ -559,7 +509,7 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
         this.commChannel = serialCommunicationChannel;
 
     	HHUSignOn hhuSignOn =
-        (HHUSignOn)new IEC1107HHUConnection(serialCommunicationChannel,iIEC1107TimeoutProperty,iProtocolRetriesProperty,300,iEchoCancelling);
+        (HHUSignOn)new IEC1107HHUConnection(serialCommunicationChannel,iTimeout,iProtocolRetries,300,iEchoCancelling);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
         hhuSignOn.enableDataReadout(datareadout);
@@ -569,61 +519,63 @@ public class ABBA1700 implements MeterProtocol,ProtocolLink,HHUEnabler,SerialNum
         return getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
     }
 
+	public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
+		SerialCommunicationChannel serialCommunicationChannel = discoverInfo.getCommChannel();
+		String nodeId = discoverInfo.getNodeId();
+		int baudrate = discoverInfo.getBaudrate();
+		Properties properties = new Properties();
+		properties.setProperty("SecurityLevel", "0");
+		properties.setProperty(MeterProtocol.NODEID, nodeId == null ? "" : nodeId);
+		properties.setProperty("IEC1107Compatible", "1");
+		setProperties(properties);
+		init(serialCommunicationChannel.getInputStream(), serialCommunicationChannel.getOutputStream(), null, null);
+		enableHHUSignOn(serialCommunicationChannel);
+		connect(baudrate);
+		String sn = getRegister("SerialNumber");
+		disconnect();
+		return sn;
+	}
 
-    // ********************************************************************************************************
-    // implementation of the SerialNumber interface
-    public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
-        SerialCommunicationChannel serialCommunicationChannel = discoverInfo.getCommChannel();
-        String nodeId = discoverInfo.getNodeId();
-        int baudrate = discoverInfo.getBaudrate();
-        Properties properties = new Properties();
-        properties.setProperty("SecurityLevel","0");
-        properties.setProperty(MeterProtocol.NODEID,nodeId==null?"":nodeId);
-        properties.setProperty("IEC1107Compatible","1");
-        setProperties(properties);
-        init(serialCommunicationChannel.getInputStream(),serialCommunicationChannel.getOutputStream(),null,null);
-        enableHHUSignOn(serialCommunicationChannel);
-        connect(baudrate);
-        String serialNumber =  getRegister("SerialNumber");
-        disconnect();
-        return serialNumber;
-    }
-
-    public String getExceptionInfo(String id) {
-        String exceptionInfo = (String)exceptionInfoMap.get(id);
-        if (exceptionInfo != null) {
-			return id+", "+exceptionInfo;
+	public String getExceptionInfo(String id) {
+		String exceptionInfo = (String) EXCEPTIONINFOMAP.get(id);
+		if (exceptionInfo != null) {
+			return id + ", " + exceptionInfo;
 		} else {
-			return "No meter specific exception info for "+id;
+			return "No meter specific exception info for " + id;
 		}
-    }
+	}
 
     public Logger getLogger() {
         return logger;
     }
 
-    // *******************************************************************************************************
-    // implementing RegisterProtocol
-    public RegisterValue readRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
-        return getABBA1700RegisterFactory().readRegister(obisCode);
-    }
+	public RegisterValue readRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
+		return getABBA1700RegisterFactory().readRegister(obisCode);
+	}
 
-    public RegisterInfo translateRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
-        return ObisCodeMapper.getRegisterInfo(obisCode);
-    }
+	public RegisterInfo translateRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
+		return ObisCodeMapper.getRegisterInfo(obisCode);
+	}
 
-    public int getNrOfRetries() {
-        return iProtocolRetriesProperty;
-    }
+	public int getNrOfRetries() {
+		return iProtocolRetries;
+	}
 
-    public boolean isRequestHeader() {
-        return false;
-    }
+	public boolean isRequestHeader() {
+		return false;
+	}
 
-    public boolean isBreakBeforeConnect() {
+	/**
+	 * @return
+	 */
+	public boolean isBreakBeforeConnect() {
 		return breakBeforeConnect;
 	}
 
+    /**
+     * @param baudRate
+     * @throws IOException
+     */
     private void switchBaudRate(int baudRate) throws IOException {
     	if (isBreakBeforeConnect() && (commChannel != null)) {
     		commChannel.setParams(baudRate, SerialCommunicationChannel.DATABITS_7, SerialCommunicationChannel.PARITY_EVEN, SerialCommunicationChannel.STOPBITS_1);
