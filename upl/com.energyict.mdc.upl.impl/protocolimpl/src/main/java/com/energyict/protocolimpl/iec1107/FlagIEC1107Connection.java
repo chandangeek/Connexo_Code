@@ -1085,7 +1085,8 @@ public class FlagIEC1107Connection extends Connection {
     /**
      * In case of a R6 command, some meters do not add CRLF at the end of a ACK-ed block of data.
      * This method enabled adding a CRLF at the end of a ACK-ed block of data.
-     * default false
+     * The default value for the addCRLF field is false
+     * @param addCRLF
      */
     public void setAddCRLF(boolean addCRLF) {
         this.addCRLF = addCRLF;
