@@ -227,6 +227,21 @@ public class AS220Main {
 				}
 			}
 
+			for (int i = 0; i <= 20; i++) {
+				try {
+					System.out.println(getAs220().readRegister(ProtocolTools.setObisCodeField(ObisCode.fromString("0.0.26.1.0.255"), 5, (byte) i)));
+				} catch (Exception e) {
+
+				}
+			}
+
+			for (int i = 0; i <= 20; i++) {
+				try {
+					System.out.println(getAs220().readRegister(ProtocolTools.setObisCodeField(ObisCode.fromString("0.0.26.2.0.255"), 5, (byte) i)));
+				} catch (Exception e) {
+
+				}
+			}
 
 //			log("FirmwareVersion :" + getAs220().getFirmwareVersion());
 //			((AS220Messaging)getAs220().getMessaging()).upgradeDevice(getFirmware18ByteArray());
