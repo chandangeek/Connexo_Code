@@ -13,4 +13,9 @@ public interface RegisterReadable {
 	 */
 	RegisterValue asRegisterValue();
 
+	/**
+	 * @return
+	 */
+	RegisterValue asRegisterValue(int attributeNumber);
+
 }

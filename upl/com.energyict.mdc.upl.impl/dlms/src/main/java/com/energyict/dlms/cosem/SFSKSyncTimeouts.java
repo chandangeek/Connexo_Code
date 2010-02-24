@@ -95,4 +95,8 @@ public class SFSKSyncTimeouts extends AbstractCosemObject implements RegisterRea
 		return new RegisterValue(getObisCode(), toString());
 	}
 
+	public RegisterValue asRegisterValue(int attributeNumber) {
+		return asRegisterValue();
+	}
+
 }

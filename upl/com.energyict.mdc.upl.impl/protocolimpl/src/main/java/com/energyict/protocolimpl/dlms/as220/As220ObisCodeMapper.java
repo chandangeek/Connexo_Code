@@ -18,9 +18,11 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.base.DLMSAttributeMapper;
 import com.energyict.protocolimpl.base.ObiscodeMapper;
 import com.energyict.protocolimpl.base.ContactorController.ContactorState;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220ContactorController;
+import com.energyict.protocolimpl.dlms.as220.plc.SFSKPhyMacSetupMapper;
 
 /**
  *
@@ -37,16 +39,6 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 	private static final ObisCode	ERROR_REGISTER_OBISCODE		= ObisCode.fromString("0.0.97.97.0.255");
 	private static final ObisCode	LOGICAL_DEVICENAME_OBISCODE	= ObisCode.fromString("0.0.42.0.0.255");
 
-	private static final ObisCode	CONTACTOR_STATE_OBISCODE	= AS220ContactorController.DISCONNECTOR_OBISCODE;
-
-	private static final ObisCode[] simpleDataRegisters = new ObisCode[] {
-		NR_CONFIGCHANGES_OBISCODE,
-		ALARM_REGISTER_OBISCODE,
-		FILTER_REGISTER_OBISCODE,
-	    ERROR_REGISTER_OBISCODE,
-	    LOGICAL_DEVICENAME_OBISCODE
-	};
-
 	private static final ObisCode	SFSK_PHY_MAC_SETUP			= ObisCode.fromString("0.0.26.0.0.255");
 	private static final ObisCode	SFSK_ACTIVE_INITIATOR		= ObisCode.fromString("0.0.26.1.0.255");
 	private static final ObisCode	SFSK_SYNC_TIMEOUTS			= ObisCode.fromString("0.0.26.2.0.255");
@@ -54,12 +46,23 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 	private static final ObisCode	SFSK_IEC_LLC_SETIP			= ObisCode.fromString("0.0.26.5.0.255");
 	private static final ObisCode 	FIRMWARE_VERSION			= ObisCode.fromString("1.0.0.2.0.255");
 
-	private SFSKPhyMacSetup sFSKPhyMacSetup = null;
+	private static final ObisCode	CONTACTOR_STATE_OBISCODE	= AS220ContactorController.DISCONNECTOR_OBISCODE;
 
-	private AS220	as220;
+	private static final ObisCode[] SIMPLE_DATA_REGISTERS = new ObisCode[] {
+		NR_CONFIGCHANGES_OBISCODE,
+		ALARM_REGISTER_OBISCODE,
+		FILTER_REGISTER_OBISCODE,
+	    ERROR_REGISTER_OBISCODE,
+	    LOGICAL_DEVICENAME_OBISCODE
+	};
+
+	private final DLMSAttributeMapper[] attributeMappers;
+	private SFSKPhyMacSetup sFSKPhyMacSetup = null;
+	private AS220 as220;
 
     public As220ObisCodeMapper(AS220 as220) {
-    	this.as220 = as220;
+		this.as220 = as220;
+		this.attributeMappers = new DLMSAttributeMapper[] { new SFSKPhyMacSetupMapper(SFSK_PHY_MAC_SETUP, as220) };
     }
 
     public AS220 getAs220() {
@@ -84,9 +87,15 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
 
-    	for (int i = 0; i < simpleDataRegisters.length; i++) {
-    		if (obisCode.equals(simpleDataRegisters[i])) {
+    	for (int i = 0; i < SIMPLE_DATA_REGISTERS.length; i++) {
+    		if (obisCode.equals(SIMPLE_DATA_REGISTERS[i])) {
     			return readDataAsRegisterValue(obisCode);
+    		}
+		}
+
+    	for (int i = 0; i < attributeMappers.length; i++) {
+    		if (attributeMappers[i].isObisCodeMapped(obisCode)) {
+    			return attributeMappers[i].getRegisterValue(obisCode);
     		}
 		}
 

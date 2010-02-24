@@ -219,7 +219,13 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			readProfile(false);
+			for (int i = 0; i <= 20; i++) {
+				try {
+					System.out.println(getAs220().readRegister(ProtocolTools.setObisCodeField(ObisCode.fromString("0.0.26.0.0.255"), 5, (byte) i)));
+				} catch (Exception e) {
+
+				}
+			}
 
 
 //			log("FirmwareVersion :" + getAs220().getFirmwareVersion());

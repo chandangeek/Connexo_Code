@@ -67,4 +67,8 @@ public class SFSKActiveInitiator extends AbstractCosemObject implements Register
 		return new RegisterValue(getObisCode(), toString());
 	}
 
+	public RegisterValue asRegisterValue(int attributeNumber) {
+		return asRegisterValue();
+	}
+
 }

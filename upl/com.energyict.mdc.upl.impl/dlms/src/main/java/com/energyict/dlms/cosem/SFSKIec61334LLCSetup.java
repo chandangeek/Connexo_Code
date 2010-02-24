@@ -78,4 +78,8 @@ public class SFSKIec61334LLCSetup extends AbstractCosemObject implements Registe
 		return new RegisterValue(getObisCode(), toString());
 	}
 
+	public RegisterValue asRegisterValue(int attributeNumber) {
+		return asRegisterValue();
+	}
+
 }

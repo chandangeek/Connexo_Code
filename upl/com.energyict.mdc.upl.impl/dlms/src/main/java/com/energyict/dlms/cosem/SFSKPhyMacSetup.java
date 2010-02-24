@@ -10,9 +10,13 @@ import com.energyict.dlms.RegisterReadable;
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.attributeobjects.DeltaElectricalPhase;
+import com.energyict.dlms.cosem.attributeobjects.ElectricalPhase;
 import com.energyict.dlms.cosem.attributeobjects.Frequencies;
 import com.energyict.dlms.cosem.attributeobjects.MacAddress;
 import com.energyict.dlms.cosem.attributeobjects.MacAddressList;
+import com.energyict.dlms.cosem.attributeobjects.Repeater;
+import com.energyict.dlms.cosem.attributes.SFSKPhyMacSetupAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 
@@ -25,19 +29,19 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	private static final byte[]	LN	= ObisCode.fromString("0.0.26.0.0.255").getLN();
 
 	/** Attributes */
-	private TypeEnum			initiatorElectricalPhase			= null;
-	private TypeEnum			deltaElectricalPhase				= null;
-	private Unsigned8			maxReceivingGain					= null;
-	private Unsigned8			maxTransmittingGain					= null;
-	private Unsigned8			searchInitiatorGain					= null;
-	private Frequencies			frequencies							= null;
-	private MacAddress			macAddress							= null;
-	private MacAddressList		macGroupAddresses					= null;
-	private TypeEnum			repeater							= null;
-	private BooleanObject		repeaterStatus						= null;
-	private Unsigned8			minDeltaCredit						= null;
-	private MacAddress			initiatorMacAddress					= null;
-	private BooleanObject		synchronizationLocked				= null;
+	private ElectricalPhase			initiatorElectricalPhase	= null;
+	private DeltaElectricalPhase	deltaElectricalPhase		= null;
+	private Unsigned8				maxReceivingGain			= null;
+	private Unsigned8				maxTransmittingGain			= null;
+	private Unsigned8				searchInitiatorGain			= null;
+	private Frequencies				frequencies					= null;
+	private MacAddress				macAddress					= null;
+	private MacAddressList			macGroupAddresses			= null;
+	private Repeater				repeater					= null;
+	private BooleanObject			repeaterStatus				= null;
+	private Unsigned8				minDeltaCredit				= null;
+	private MacAddress				initiatorMacAddress			= null;
+	private BooleanObject			synchronizationLocked		= null;
 
 	/**
 	 * This attribute is not described in the DLMS blue book 9, but it's
@@ -45,28 +49,6 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	 * channel
 	 */
 	private Unsigned8			activeChannel						= null;
-
-	/** Attribute numbers */
-	private static final int	ATTRB_INITIATOR_ELECTRICAL_PHASE	= 0x08;
-	private static final int	ATTRB_DELTA_ELECTRICAL_PHASE		= 0x10;
-	private static final int	ATTRB_MAX_RECEIVING_GAIN			= 0x18;
-	private static final int	ATTRB_MAX_TRANSMITTING_GAIN			= 0x20;
-	private static final int	ATTRB_SEARCH_INITIATOR_GAIN			= 0x28;
-	private static final int	ATTRB_FREQUENCIES					= 0x30;
-	private static final int	ATTRB_MAC_ADDRESS					= 0x38;
-	private static final int	ATTRB_MAC_GROUP_ADDRESSES			= 0x40;
-	private static final int	ATTRB_REPEATER						= 0x48;
-	private static final int	ATTRB_REPEATER_STATUS				= 0x50;
-	private static final int	ATTRB_MIN_DELTA_CREDIT				= 0x58;
-	private static final int	ATTRB_INITIATOR_MAC_ADDRESS			= 0x60;
-	private static final int	ATTRB_SYNCHRONIZATION_LOCKED		= 0x68;
-
-	/**
-	 * This attribute is not described in the DLMS blue book 9, but it's
-	 * implemented in the AM500 module. It's used to read/write the active PLC
-	 * channel
-	 */
-	private static final int	ATTRB_ACTIVE_CHANNEL				= 0x78;
 
 	public static ObisCode getObisCode() {
 		return ObisCode.fromByteArray(LN);
@@ -92,10 +74,10 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	 *
 	 * @return {@link TypeEnum} with the current value
 	 */
-	public TypeEnum getInitiatorElectricalPhase() {
+	public ElectricalPhase getInitiatorElectricalPhase() {
 		if (initiatorElectricalPhase == null) {
 			try {
-				this.initiatorElectricalPhase = new TypeEnum(getResponseData(ATTRB_INITIATOR_ELECTRICAL_PHASE), 0);
+				this.initiatorElectricalPhase = new ElectricalPhase(getResponseData(SFSKPhyMacSetupAttribute.INITIATOR_ELECTRICAL_PHASE), 0);
 			} catch (IOException e) {}
 		}
 		return initiatorElectricalPhase;
@@ -121,9 +103,9 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	 *
 	 * @return
 	 */
-	public TypeEnum getDeltaElectricalPhase() {
+	public DeltaElectricalPhase getDeltaElectricalPhase() {
 		try {
-			this.deltaElectricalPhase = new TypeEnum(getResponseData(ATTRB_DELTA_ELECTRICAL_PHASE), 0);
+			this.deltaElectricalPhase = new DeltaElectricalPhase(getResponseData(SFSKPhyMacSetupAttribute.DELTA_ELECTRICAL_PHASE), 0);
 		} catch (IOException e) {}
 		return deltaElectricalPhase;
 	}
@@ -142,7 +124,7 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	public Unsigned8 getMaxReceivingGain() {
 		if (maxReceivingGain == null) {
 			try {
-				this.maxReceivingGain = new Unsigned8(getResponseData(ATTRB_MAX_RECEIVING_GAIN), 0);
+				this.maxReceivingGain = new Unsigned8(getResponseData(SFSKPhyMacSetupAttribute.MAX_RECEIVING_GAIN), 0);
 			} catch (IOException e) {}
 		}
 		return maxReceivingGain;
@@ -160,7 +142,7 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	public Unsigned8 getMaxTransmittingGain() {
 		if (maxTransmittingGain == null) {
 			try {
-				this.maxTransmittingGain = new Unsigned8(getResponseData(ATTRB_MAX_TRANSMITTING_GAIN), 0);
+				this.maxTransmittingGain = new Unsigned8(getResponseData(SFSKPhyMacSetupAttribute.MAX_TRANSMITTING_GAIN), 0);
 			} catch (IOException e) {}
 		}
 		return maxTransmittingGain;
@@ -176,7 +158,7 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	public Unsigned8 getSearchInitiatorGain() {
 		if (searchInitiatorGain == null) {
 			try {
-				this.searchInitiatorGain = new Unsigned8(getResponseData(ATTRB_SEARCH_INITIATOR_GAIN), 0);
+				this.searchInitiatorGain = new Unsigned8(getResponseData(SFSKPhyMacSetupAttribute.SEARCH_INITIATOR_GAIN), 0);
 			} catch (IOException e) {}
 		}
 		return searchInitiatorGain;
@@ -191,7 +173,7 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	public Frequencies getFrequencies() {
 		if (frequencies == null) {
 			try {
-				this.frequencies = new Frequencies(getResponseData(ATTRB_FREQUENCIES), 0, 0);
+				this.frequencies = new Frequencies(getResponseData(SFSKPhyMacSetupAttribute.FREQUENCIES), 0, 0);
 			} catch (IOException e) {}
 		}
 		return frequencies;
@@ -220,7 +202,7 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	 */
 	public MacAddress getMacAddress() {
 		try {
-			this.macAddress = new MacAddress(getResponseData(ATTRB_MAC_ADDRESS), 0);
+			this.macAddress = new MacAddress(getResponseData(SFSKPhyMacSetupAttribute.MAC_ADDRESS), 0);
 		} catch (IOException e) {}
 		return macAddress;
 	}
@@ -228,16 +210,16 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	public MacAddressList getMacGroupAddresses() {
 		if (macGroupAddresses == null) {
 			try {
-				this.macGroupAddresses = new MacAddressList(getResponseData(ATTRB_MAC_GROUP_ADDRESSES), 0, 0);
+				this.macGroupAddresses = new MacAddressList(getResponseData(SFSKPhyMacSetupAttribute.MAC_GROUP_ADDRESSES), 0, 0);
 			} catch (IOException e) {}
 		}
 		return macGroupAddresses;
 	}
 
-	public TypeEnum getRepeater() {
+	public Repeater getRepeater() {
 		if (repeater == null) {
 			try {
-				this.repeater = new TypeEnum(getResponseData(ATTRB_REPEATER), 0);
+				this.repeater = new Repeater(getResponseData(SFSKPhyMacSetupAttribute.REPEATER), 0);
 			} catch (IOException e) {}
 		}
 		return repeater;
@@ -245,41 +227,41 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 
 	public BooleanObject getRepeaterStatus() {
 		try {
-			this.repeaterStatus = new BooleanObject(getResponseData(ATTRB_REPEATER_STATUS), 0);
+			this.repeaterStatus = new BooleanObject(getResponseData(SFSKPhyMacSetupAttribute.REPEATER_STATUS), 0);
 		} catch (IOException e) {}
 		return repeaterStatus;
 	}
 
 	public Unsigned8 getMinDeltaCredit() {
 		try {
-			this.minDeltaCredit = new Unsigned8(getResponseData(ATTRB_MIN_DELTA_CREDIT), 0);
+			this.minDeltaCredit = new Unsigned8(getResponseData(SFSKPhyMacSetupAttribute.MIN_DELTA_CREDIT), 0);
 		} catch (IOException e) {}
 		return minDeltaCredit;
 	}
 
 	public MacAddress getInitiatorMacAddress() {
 		try {
-			this.initiatorMacAddress = new MacAddress(getResponseData(ATTRB_INITIATOR_MAC_ADDRESS), 0);
+			this.initiatorMacAddress = new MacAddress(getResponseData(SFSKPhyMacSetupAttribute.INITIATOR_MAC_ADDRESS), 0);
 		} catch (IOException e) {}
 		return initiatorMacAddress;
 	}
 
 	public BooleanObject getSynchronizationLocked() {
 		try {
-			this.synchronizationLocked = new BooleanObject(getResponseData(ATTRB_SYNCHRONIZATION_LOCKED), 0);
+			this.synchronizationLocked = new BooleanObject(getResponseData(SFSKPhyMacSetupAttribute.SYNCHRONIZATION_LOCKED), 0);
 		} catch (IOException e) {}
 		return synchronizationLocked;
 	}
 
 	public Unsigned8 getActiveChannel() {
 		try {
-			this.activeChannel = new Unsigned8(getResponseData(ATTRB_ACTIVE_CHANNEL), 0);
+			this.activeChannel = new Unsigned8(getResponseData(SFSKPhyMacSetupAttribute.ACTIVE_CHANNEL), 0);
 		} catch (IOException e) {}
 		return activeChannel;
 	}
 
 	public void setActiveChannel(Unsigned8 activeChannel) throws IOException {
-			write(ATTRB_ACTIVE_CHANNEL, activeChannel.getBEREncodedByteArray());
+			write(SFSKPhyMacSetupAttribute.ACTIVE_CHANNEL, activeChannel.getBEREncodedByteArray());
 	}
 
 	public void clearCache() {
@@ -331,10 +313,59 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	}
 
 	public RegisterValue asRegisterValue() {
-//		StringBuffer sb = new StringBuffer();
-//		sb.append("activeChannel=").append(getActiveChannel() != null ? getActiveChannel().getValue() : null).append(", ");
-//		sb.append(getFrequencies() != null ? getFrequencies().toString() : null);
 		return new RegisterValue(getObisCode(), toString());
+	}
+
+	public RegisterValue asRegisterValue(int attributeNumber) {
+		SFSKPhyMacSetupAttribute attribute = SFSKPhyMacSetupAttribute.findByAttributeNumber(attributeNumber);
+		if (attribute != null) {
+			switch (attribute) {
+				case INITIATOR_ELECTRICAL_PHASE:
+					ElectricalPhase phase = getInitiatorElectricalPhase();
+					return new RegisterValue(getObisCode(), phase != null ? phase.toString() : "null");
+				case DELTA_ELECTRICAL_PHASE:
+					DeltaElectricalPhase deltaPhase = getDeltaElectricalPhase();
+					return new RegisterValue(getObisCode(), deltaPhase != null ? deltaPhase.toString() : "null");
+				case MAX_RECEIVING_GAIN:
+					Unsigned8 gainTx = getMaxReceivingGain();
+					return new RegisterValue(getObisCode(), gainTx != null ? String.valueOf(gainTx.getValue()) : "null");
+				case MAX_TRANSMITTING_GAIN:
+					Unsigned8 gainRx = getMaxTransmittingGain();
+					return new RegisterValue(getObisCode(), gainRx != null ? String.valueOf(gainRx.getValue()) : "null");
+				case SEARCH_INITIATOR_GAIN:
+					Unsigned8 gainInitiator = getSearchInitiatorGain();
+					return new RegisterValue(getObisCode(), gainInitiator != null ? String.valueOf(gainInitiator.getValue()) : "null");
+				case FREQUENCIES:
+					Frequencies freq = getFrequencies();
+					return new RegisterValue(getObisCode(), freq != null ? freq.toString() : "null");
+				case MAC_ADDRESS:
+					MacAddress mac = getMacAddress();
+					return new RegisterValue(getObisCode(), mac != null ? mac.toString() : "null");
+				case MAC_GROUP_ADDRESSES:
+					MacAddressList groupMacs = getMacGroupAddresses();
+					return new RegisterValue(getObisCode(), groupMacs != null ? groupMacs.toString() : "null");
+				case REPEATER:
+					Repeater rep = getRepeater();
+					return new RegisterValue(getObisCode(), rep != null ? rep.toString() : "null");
+				case REPEATER_STATUS:
+					BooleanObject repStatus = getRepeaterStatus();
+					return new RegisterValue(getObisCode(), repStatus != null ? String.valueOf(repStatus.getState()) : "null");
+				case MIN_DELTA_CREDIT:
+					Unsigned8 minDeltaCredit = getMinDeltaCredit();
+					return new RegisterValue(getObisCode(), minDeltaCredit != null ? String.valueOf(minDeltaCredit.getValue()) : "null");
+				case INITIATOR_MAC_ADDRESS:
+					MacAddress initMac = getInitiatorMacAddress();
+					return new RegisterValue(getObisCode(), initMac != null ? initMac.toString() : "null");
+				case SYNCHRONIZATION_LOCKED:
+					BooleanObject syncLocked = getSynchronizationLocked();
+					return new RegisterValue(getObisCode(), syncLocked != null ? String.valueOf(syncLocked.getState()) : "null");
+				case ACTIVE_CHANNEL:
+					Unsigned8 channel = getActiveChannel();
+					return new RegisterValue(getObisCode(), channel != null ? String.valueOf(channel.getValue()) : "null");
+			}
+
+		}
+		return null;
 	}
 
 }

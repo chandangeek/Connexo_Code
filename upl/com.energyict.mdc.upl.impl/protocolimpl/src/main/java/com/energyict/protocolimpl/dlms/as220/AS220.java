@@ -107,7 +107,6 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
         try {
 			return getAs220ObisCodeMapper().getRegisterValue(obisCode);
 		} catch (IOException e) {
-			e.printStackTrace();
 			throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
 		}
     }

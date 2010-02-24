@@ -3,16 +3,21 @@ package com.energyict.protocolimpl.base;
 import java.io.IOException;
 
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * @author jme
- *
  */
 public abstract class AbstractDLMSAttributeMapper implements DLMSAttributeMapper {
 
-	private ObisCode baseObjectObisCode = null;
+	private static final int	F_FIELD				= 5;
+	private final ObisCode		baseObjectObisCode;
+
+	protected abstract RegisterValue doGetAttributeValue(int attributeId) throws IOException;
+	protected abstract RegisterInfo doGetAttributeInfo(int attributeId);
 
 	public AbstractDLMSAttributeMapper(ObisCode baseObisCode) {
 		this.baseObjectObisCode = baseObisCode;
@@ -22,20 +27,48 @@ public abstract class AbstractDLMSAttributeMapper implements DLMSAttributeMapper
 		return baseObjectObisCode;
 	}
 
-	public void setBaseObjectObisCode(ObisCode obisCode) {
-		this.baseObjectObisCode = obisCode;
-	}
-
 	public boolean isObisCodeMapped(ObisCode obisCode) {
+		ObisCode bc = ProtocolTools.setObisCodeField(getBaseObjectObisCode(), F_FIELD, (byte) 0x00);
+		ObisCode oc = ProtocolTools.setObisCodeField(obisCode, F_FIELD, (byte) 0x00);
+		if (oc.equals(bc) && (getSupportedAttributes() != null)) {
+			for (int i = 0; i < getSupportedAttributes().length; i++) {
+				if (getSupportedAttributes()[i] == obisCode.getF()) {
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 
 	public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-		return new RegisterInfo(obisCode.toString());
+		if (isObisCodeMapped(obisCode)) {
+			return doGetAttributeInfo(obisCode.getE());
+		} else {
+			throw new NoSuchRegisterException("Register with obisCode: " + obisCode.toString() + " has no mapped attribute.");
+		}
 	}
 
 	public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
-		return new RegisterValue(obisCode);
+		if (isObisCodeMapped(obisCode)) {
+			RegisterValue register = doGetAttributeValue(obisCode.getF());
+			if (register != null) {
+				return new RegisterValue(
+						obisCode,
+						register.getQuantity(),
+						register.getEventTime(),
+						register.getFromTime(),
+						register.getToTime(),
+						register.getReadTime(),
+						register.getRtuRegisterId(),
+						register.getText()
+				);
+			}
+		}
+		throw new NoSuchRegisterException("Register with obisCode: " + obisCode.toString() + " has no mapped attribute.");
+	}
+
+	public int[] getSupportedAttributes() {
+		return new int[0];
 	}
 
 }

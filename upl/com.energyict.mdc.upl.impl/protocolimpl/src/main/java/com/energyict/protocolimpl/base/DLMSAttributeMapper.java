@@ -21,13 +21,6 @@ public interface DLMSAttributeMapper extends ObiscodeMapper {
 	ObisCode getBaseObjectObisCode();
 
 	/**
-	 * Set the base {@link ObisCode} for this mapper
-	 *
-	 * @param obisCode
-	 */
-	void setBaseObjectObisCode(ObisCode obisCode);
-
-	/**
 	 * Check if a given {@link ObisCode} is mapped by this {@link DLMSAttributeMapper}
 	 *
 	 * @param obisCode
@@ -35,4 +28,9 @@ public interface DLMSAttributeMapper extends ObiscodeMapper {
 	 */
 	boolean isObisCodeMapped(ObisCode obisCode);
 
+	/**
+	 * Get an array of supported attribute id's
+	 * @return
+	 */
+	int[] getSupportedAttributes();
 }

@@ -141,4 +141,8 @@ public class MBusSlavePortSetup extends AbstractCosemObject implements RegisterR
 		return new RegisterValue(getObisCode(), toString());
 	}
 
+	public RegisterValue asRegisterValue(int attributeNumber) {
+		return asRegisterValue();
+	}
+
 }

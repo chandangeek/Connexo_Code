@@ -19,6 +19,7 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ReceiveBuffer;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
 import com.energyict.protocol.ProtocolUtils;
 
 /**
@@ -160,6 +161,21 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	}
 
 	/**
+	 * @param attribute
+	 * @param data
+	 * @return
+	 * @throws IOException
+	 */
+	protected byte[] write(DLMSClassAttributes attribute, byte[] data) throws IOException {
+		if (getObjectReference().isSNReference()) {
+			return write(attribute.getShortName(), data);
+		} else {
+			return write(attribute.getAttributeNumber(), data);
+		}
+	}
+
+
+	/**
 	 * Attribute as defined in the object docs
 	 * 1 - logical name
 	 * 2..n attribute 2..n
@@ -194,6 +210,20 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 */
 	protected byte[] getResponseData(int attribute) throws IOException {
 		return getResponseData(attribute, null, null);
+	}
+
+	/**
+	 * @param attribute
+	 * @return
+	 * @throws IOException
+	 */
+	protected byte[] getResponseData(DLMSClassAttributes attribute) throws IOException {
+		if (getObjectReference().isSNReference()) {
+			return getResponseData(attribute.getShortName());
+		} else {
+			return getResponseData(attribute.getAttributeNumber());
+
+		}
 	}
 
 	/**
