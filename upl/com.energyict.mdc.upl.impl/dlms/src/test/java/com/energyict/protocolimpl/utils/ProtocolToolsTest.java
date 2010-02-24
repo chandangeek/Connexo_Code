@@ -19,6 +19,7 @@ import org.junit.Test;
 
 import antlr.Utils;
 
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 
 /**
@@ -32,6 +33,8 @@ public class ProtocolToolsTest {
 	private static final String	FILENAME_TO_READ		= "/com/energyict/protocolimpl/utils/ProtocolToolsReadFileTest.txt";
 	private static final String	FILENAME_TO_WRITE		= System.getProperty("java.io.tmpdir") + "/ProtocolToolsReadFileTest.tmp";
 	private static final String	VALUE_TO_READ_FROM_FILE	= "9876543210123456789";
+
+	private static final byte[]	LONG_NAME				= new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 };
 
 	private static final byte[]	BYTE_ARRAY				= new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05 };
 	private static final String	BYTE_ARRAY_AS_STRING	= "000102030405";
@@ -48,7 +51,6 @@ public class ProtocolToolsTest {
 	private static final byte[] MERGE_ARRAY1			= "ABC012DEF345".getBytes();
 	private static final byte[] MERGE_ARRAY2			= "GHI678JKL012".getBytes();
 	private static final byte[] MERGED_ARRAY			= "ABC012DEF345GHI678JKL012".getBytes();
-
 	@BeforeClass
 	@AfterClass
 	public static void cleanUpData() {
@@ -327,6 +329,21 @@ public class ProtocolToolsTest {
 		List<IntervalData> out = ProtocolTools.mergeDuplicateIntervals(in);
 		assertNotNull(out);
 		assertEquals(2, out.size());
+
+	}
+
+	/**
+	 * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#setObisCodeField(com.energyict.obis.ObisCode, int, byte)}.
+	 */
+	@Test
+	public final void testSetObisCodeField() {
+		for (int fieldNr = 0; fieldNr < LONG_NAME.length; fieldNr++) {
+			for (byte value = Byte.MIN_VALUE; value < Byte.MAX_VALUE; value++) {
+				byte[] ln = LONG_NAME;
+				ln[fieldNr] = value;
+				assertEquals(ObisCode.fromByteArray(ln), ProtocolTools.setObisCodeField(ObisCode.fromByteArray(LONG_NAME), fieldNr, value));
+			}
+		}
 
 	}
 

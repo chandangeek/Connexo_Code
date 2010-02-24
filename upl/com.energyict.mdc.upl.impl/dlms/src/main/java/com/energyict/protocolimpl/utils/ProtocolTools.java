@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -394,6 +395,24 @@ public final class ProtocolTools {
 		} else {
 			return "";
 		}
+	}
+
+	/**
+	 * @param obis
+	 * @param fieldNr
+	 * @param value
+	 * @return
+	 */
+	public static ObisCode setObisCodeField(ObisCode obis, int fieldNr, byte value) {
+		if ((obis == null) || (fieldNr < 0) || (fieldNr >= obis.getLN().length)) {
+			String message = "Obis should not be null and fieldNr must be 0 <= fieldNr < 6. ";
+			message += "Current values: obis=" + obis + " fieldNr=" + fieldNr;
+			throw new IllegalArgumentException(message);
+		}
+
+		byte[] ln = obis.getLN();
+		ln[fieldNr] = value;
+		return ObisCode.fromByteArray(ln);
 	}
 
 }
