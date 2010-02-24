@@ -22,6 +22,7 @@ import com.energyict.protocolimpl.base.DLMSAttributeMapper;
 import com.energyict.protocolimpl.base.ObiscodeMapper;
 import com.energyict.protocolimpl.base.ContactorController.ContactorState;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220ContactorController;
+import com.energyict.protocolimpl.dlms.as220.plc.SFSKActiveInitiatorMapper;
 import com.energyict.protocolimpl.dlms.as220.plc.SFSKPhyMacSetupMapper;
 
 /**
@@ -62,7 +63,10 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 
     public As220ObisCodeMapper(AS220 as220) {
 		this.as220 = as220;
-		this.attributeMappers = new DLMSAttributeMapper[] { new SFSKPhyMacSetupMapper(SFSK_PHY_MAC_SETUP, as220) };
+		this.attributeMappers = new DLMSAttributeMapper[] {
+				new SFSKPhyMacSetupMapper(SFSK_PHY_MAC_SETUP, as220),
+				new SFSKActiveInitiatorMapper(SFSK_ACTIVE_INITIATOR, as220),
+		};
     }
 
     public AS220 getAs220() {

@@ -9,6 +9,8 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
 import com.energyict.dlms.cosem.attributeobjects.InitiatorDescriptor;
 import com.energyict.dlms.cosem.attributeobjects.MacAddress;
+import com.energyict.dlms.cosem.attributes.SFSKActiveInitiatorAttribute;
+import com.energyict.dlms.cosem.attributes.SFSKPhyMacSetupAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 
@@ -23,8 +25,7 @@ public class SFSKActiveInitiator extends AbstractCosemObject implements Register
 	/** Attributes */
 	private InitiatorDescriptor	activeInitiator			= null;
 
-	/** Attribute numbers */
-	private static final int	ATTRB_ACTIVE_INITIATOR		= 0x08;
+	/** Method numbers */
 	private static final int	ATTRB_RESET_NEW_NOT_SYNC	= 0x10;
 
 	public static ObisCode getObisCode() {
@@ -42,7 +43,7 @@ public class SFSKActiveInitiator extends AbstractCosemObject implements Register
 
 	public InitiatorDescriptor getActiveInitiator() {
 		try {
-			this.activeInitiator = new InitiatorDescriptor(getResponseData(ATTRB_ACTIVE_INITIATOR), 0, 0);
+			this.activeInitiator = new InitiatorDescriptor(getResponseData(SFSKActiveInitiatorAttribute.ACTIVE_INITIATOR), 0, 0);
 		} catch (IOException e) {}
 		return activeInitiator;
 	}
@@ -68,7 +69,15 @@ public class SFSKActiveInitiator extends AbstractCosemObject implements Register
 	}
 
 	public RegisterValue asRegisterValue(int attributeNumber) {
-		return asRegisterValue();
+		SFSKPhyMacSetupAttribute attribute = SFSKPhyMacSetupAttribute.findByAttributeNumber(attributeNumber);
+		if (attribute != null) {
+			switch (attribute) {
+				case INITIATOR_ELECTRICAL_PHASE:
+					InitiatorDescriptor initiator = getActiveInitiator();
+					return new RegisterValue(getObisCode(), initiator != null ? initiator.toString() : "null");
+			}
+		}
+		return null;
 	}
 
 }
