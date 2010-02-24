@@ -37,7 +37,7 @@ public class Siemens7ED62Profile extends VDEWProfile {
         return profileData; 
     }
     
-    private int gotoNextOpenBracket(byte[] responseData,int i) {
+    protected int gotoNextOpenBracket(byte[] responseData,int i) {
         while(true) {
             if (responseData[i] == '(') break;
             i++;
@@ -46,7 +46,7 @@ public class Siemens7ED62Profile extends VDEWProfile {
         return i;
     }
     
-    private int gotoNextCR(byte[] responseData,int i) {
+    protected int gotoNextCR(byte[] responseData,int i) {
         while(true) {
             if (responseData[i] == '\r') break;
             i++;

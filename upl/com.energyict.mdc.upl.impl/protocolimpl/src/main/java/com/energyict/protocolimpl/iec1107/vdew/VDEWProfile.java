@@ -6,14 +6,27 @@
 
 package com.energyict.protocolimpl.iec1107.vdew;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
 /**
  *
  * @author  Koen
@@ -22,13 +35,13 @@ import com.energyict.protocolimpl.base.ParseUtils;
  */
 abstract public class VDEWProfile { 
     
-    private static final int DEBUG=0;
+    public static final int DEBUG=0;
     
     private ProtocolLink protocolLink=null;
     private AbstractVDEWRegistry abstractVDEWRegistry=null;
     private VDEWProfileHeader vdewProfileHeader=null;
     private MeterExceptionInfo meterExceptionInfo=null; // KV 17022004
-    private boolean keepStatus;
+    protected boolean keepStatus;
     
     /** Creates a new instance of VDEWProfile */
     public VDEWProfile(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink,AbstractVDEWRegistry abstractVDEWRegistry) {
@@ -45,13 +58,16 @@ abstract public class VDEWProfile {
      ******************** PUBLIC METHODS ******************
      ******************************************************/
     public VDEWProfileHeader getProfileHeader() throws IOException {
-        if (vdewProfileHeader == null) 
-            vdewProfileHeader = new VDEWProfileHeader(getProtocolLink().getFlagIEC1107Connection());
+        if (vdewProfileHeader == null) {
+			vdewProfileHeader = new VDEWProfileHeader(getProtocolLink().getFlagIEC1107Connection());
+		}
         return vdewProfileHeader;
     }
     
     public void doLogMeterDataCollection(ProfileData profileData) {
-       if (profileData == null) return;
+       if (profileData == null) {
+		return;
+	}
        int i,iNROfChannels=profileData.getNumberOfChannels();
        int t,iNROfIntervals=profileData.getNumberOfIntervals();
        int z,iNROfEvents=profileData.getNumberOfEvents();
@@ -128,6 +144,12 @@ abstract public class VDEWProfile {
                System.out.println("length = "+responseData.length);
                System.out.println(new String(responseData));
             }
+            
+//            File file = new File("C:\\LZQJProfile.bin");
+//            FileOutputStream fos = new FileOutputStream(file);
+//            fos.write(responseData);
+//            fos.close();
+            
             profileData = buildProfileData(responseData);
         }
         catch(VDEWException e) {
@@ -141,7 +163,9 @@ abstract public class VDEWProfile {
            throw new IOException("doGetProfileData> "+e.getMessage());
         }
 
-        if (DEBUG >= 2) ProtocolUtils.printResponseData(responseData);
+        if (DEBUG >= 2) {
+			ProtocolUtils.printResponseData(responseData);
+		}
 
         return profileData;
 
@@ -168,7 +192,9 @@ abstract public class VDEWProfile {
            throw new IOException("doGetLogBook> "+e.getMessage());
         }
 
-        if (DEBUG >= 2) ProtocolUtils.printResponseData(responseData);
+        if (DEBUG >= 2) {
+			ProtocolUtils.printResponseData(responseData);
+		}
 
         return meterEvents;
 
@@ -189,13 +215,14 @@ abstract public class VDEWProfile {
     
     private int getLogical0BasedChannelId(String[] edisCodes,int fysical0BasedChannelId) throws IOException {
         for (int i=0;i<edisCodes.length;i++) {
-            if (getFysical0BasedChannelId(edisCodes[i]) == (fysical0BasedChannelId+1))
-                return i;
+            if (getFysical0BasedChannelId(edisCodes[i]) == (fysical0BasedChannelId+1)) {
+				return i;
+			}
         }
         throw new IOException("VDEWProfile, getLogical0BasedChannelId(), 0-based fysical channel "+fysical0BasedChannelId+" does not exist in profileheader!");
     } 
     
-    private int getFysical0BasedChannelId(String edisCode) {
+    protected int getFysical0BasedChannelId(String edisCode) {
         return Integer.parseInt(edisCode.substring(edisCode.indexOf("-")+1,edisCode.indexOf(":")))-1;    
     }
     
@@ -221,13 +248,14 @@ abstract public class VDEWProfile {
 
             int i=0;
             while(true) {
-                
+            	
                 if (responseData[i] == 'P') {
                    i+=4; // skip P.01 
                    i=gotoNextOpenBracket(responseData,i);
                    
-                   if (dp.parseBetweenBrackets(responseData,i).compareTo("ERROR") == 0)
-                       throw new IOException("No entries in object list.");
+                   if (dp.parseBetweenBrackets(responseData,i).compareTo("ERROR") == 0) {
+					throw new IOException("No entries in object list.");
+				}
                    
                    vts.parse(dp.parseBetweenBrackets(responseData,i));
                    calendar = vts.getCalendar();
@@ -261,8 +289,9 @@ abstract public class VDEWProfile {
                    
                    i=gotoNextOpenBracket(responseData,i+1);
                    profileInterval = Integer.parseInt(dp.parseBetweenBrackets(responseData,i));
-                   if ((profileInterval*60) != getProtocolLink().getProfileInterval())
-                      throw new IOException("buildProfileData() error, mismatch between configured profileinterval ("+getProtocolLink().getProfileInterval()+") and meter profileinterval ("+(profileInterval*60)+")!");
+                   if ((profileInterval*60) != getProtocolLink().getProfileInterval()) {
+					throw new IOException("buildProfileData() error, mismatch between configured profileinterval ("+getProtocolLink().getProfileInterval()+") and meter profileinterval ("+(profileInterval*60)+")!");
+				}
                        
                    i=gotoNextOpenBracket(responseData,i+1);
                    // KV 06092005 K&P
@@ -270,8 +299,9 @@ abstract public class VDEWProfile {
                    bNROfValues = (byte)Integer.parseInt(dp.parseBetweenBrackets(responseData,i));
                    
                    units = new Unit[bNROfValues];
-                   if (bNROfValues > getProtocolLink().getNumberOfChannels()) 
-                      throw new IOException("buildProfileData() error, mismatch between configured nrOfChannels ("+getProtocolLink().getNumberOfChannels()+") and meter profile nrOfChannels ("+bNROfValues+")!");
+                   if (bNROfValues > getProtocolLink().getNumberOfChannels()) {
+					throw new IOException("buildProfileData() error, mismatch between configured nrOfChannels ("+getProtocolLink().getNumberOfChannels()+") and meter profile nrOfChannels ("+bNROfValues+")!");
+				}
                    
                    // get the units
                    edisCodes = new String[bNROfValues];
@@ -294,22 +324,25 @@ abstract public class VDEWProfile {
                                    id++;
                               }
                               if (!getProtocolLink().isRequestHeader()) {
-                                 if (getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).isCumul()) 
-                                     chi.setCumulativeWrapValue(getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).getWrapAroundValue());
+                                 if (getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).isCumul()) {
+									chi.setCumulativeWrapValue(getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).getWrapAroundValue());
+								}
                               }
                           }
                           else {
                               chi = new ChannelInfo(t,"channel_"+t,units[t]);
                               if (!getProtocolLink().isRequestHeader()) {
-                                 if (getProtocolLink().getProtocolChannelMap().getProtocolChannel(t).isCumul()) 
-                                     chi.setCumulativeWrapValue(getProtocolLink().getProtocolChannelMap().getProtocolChannel(t).getWrapAroundValue());
+                                 if (getProtocolLink().getProtocolChannelMap().getProtocolChannel(t).isCumul()) {
+									chi.setCumulativeWrapValue(getProtocolLink().getProtocolChannelMap().getProtocolChannel(t).getWrapAroundValue());
+								}
                               }
                           }
                           
                           
                           // KV 06092005 K&P changes
-                          if (chi != null)
-                              profileData.addChannel(chi);  
+                          if (chi != null) {
+							profileData.addChannel(chi);
+						}  
                        }
                        buildChannelInfos = true;
                    }
@@ -323,7 +356,9 @@ abstract public class VDEWProfile {
                   // Fill profileData     
                   IntervalData intervalData = new IntervalData(new Date(calendar.getTime().getTime()),eiCode,bStatus);
                     
-                  if (!keepStatus) eiCode=0;
+                  if (!keepStatus) {
+					eiCode=0;
+				}
                   
                   for (t=0;t<bNROfValues;t++) { // skip all obis codes
                       i=gotoNextOpenBracket(responseData,i);
@@ -332,8 +367,9 @@ abstract public class VDEWProfile {
                       // KV 06092005 K&P changes
                       if (getProtocolLink().getProtocolChannelMap().isMappedChannels()) {
                           int fysical0BasedChannelId = getFysical0BasedChannelId(edisCodes[t]);
-                          if (getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).getIntValue(0) != -1)
-                              intervalData.addValue(bd); //new Long(lVal));
+                          if (getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).getIntValue(0) != -1) {
+							intervalData.addValue(bd); //new Long(lVal));
+						}
                       }
                       else {
                           intervalData.addValue(bd); //new Long(lVal));
@@ -346,17 +382,23 @@ abstract public class VDEWProfile {
                       
                       if (intervalDataSave != null) {
                           if (intervalData.getEndTime().getTime() == intervalDataSave.getEndTime().getTime()) {
-                             if (DEBUG >= 1) System.out.println("KV_DEBUG> partialInterval, add partialInterval to currentInterval");
+                             if (DEBUG >= 1) {
+								System.out.println("KV_DEBUG> partialInterval, add partialInterval to currentInterval");
+							}
                              intervalData = addIntervalData(intervalDataSave,intervalData); // add intervals together to avoid double interval values...
                           }
                           else {
-                             if (DEBUG >= 1) System.out.println("KV_DEBUG> partialInterval, save partialInterval to profiledata and assign currentInterval to partialInterval");
+                             if (DEBUG >= 1) {
+								System.out.println("KV_DEBUG> partialInterval, save partialInterval to profiledata and assign currentInterval to partialInterval");
+							}
                              profileData.addInterval(intervalDataSave); // save the partiel interval. Timestamp has been adjusted to the next intervalboundary 
                              intervalDataSave=intervalData;
                           }
                       }
                       else {
-                          if (DEBUG >= 1) System.out.println("KV_DEBUG> partialInterval, assign currentInterval to partialInterval");
+                          if (DEBUG >= 1) {
+							System.out.println("KV_DEBUG> partialInterval, assign currentInterval to partialInterval");
+						}
                           intervalDataSave=intervalData;
                       }
                    }
@@ -366,17 +408,23 @@ abstract public class VDEWProfile {
                       // If the next interval's timestamps != timestamp of interval x, save the partial interval as separate entry for interval x.
                       if (intervalDataSave != null) {
                           if (intervalData.getEndTime().getTime() == intervalDataSave.getEndTime().getTime()) {
-                             if (DEBUG >= 1) System.out.println("KV_DEBUG> add partialInterval to currentInterval");
+                             if (DEBUG >= 1) {
+								System.out.println("KV_DEBUG> add partialInterval to currentInterval");
+							}
                              intervalData = addIntervalData(intervalDataSave,intervalData); // add intervals together to avoid double interval values...
                           }
                           else {
-                             if (DEBUG >= 1) System.out.println("KV_DEBUG> save partialInterval to profiledata");
+                             if (DEBUG >= 1) {
+								System.out.println("KV_DEBUG> save partialInterval to profiledata");
+							}
                              profileData.addInterval(intervalDataSave); // save the partiel interval. Timestamp has been adjusted to the next intervalboundary 
                           }
                           intervalDataSave = null;
                       }
                       
-                      if (DEBUG >= 1) System.out.println("KV_DEBUG> save currentInterval to profiledata");
+                      if (DEBUG >= 1) {
+						System.out.println("KV_DEBUG> save currentInterval to profiledata");
+					}
                       // save the current interval
                       profileData.addInterval(intervalData);
                    }
@@ -402,7 +450,7 @@ abstract public class VDEWProfile {
     } // private ProfileData buildProfileData(byte[] responseData) throws IOException
    
     
-    private IntervalData addIntervalData(IntervalData cumulatedIntervalData,IntervalData currentIntervalData) {
+    protected IntervalData addIntervalData(IntervalData cumulatedIntervalData,IntervalData currentIntervalData) {
         int currentCount = currentIntervalData.getValueCount();
         IntervalData intervalData = new IntervalData(currentIntervalData.getEndTime());
         
@@ -431,8 +479,9 @@ abstract public class VDEWProfile {
                    i=gotoNextOpenBracket(responseData,i);
                    
                    // geen entries in logbook
-                   if (dp.parseBetweenBrackets(responseData,i).compareTo("ERROR") == 0)
-                       return meterEvents;
+                   if (dp.parseBetweenBrackets(responseData,i).compareTo("ERROR") == 0) {
+					return meterEvents;
+				}
                        
                    
                    // P.98 (ZSTs13)(Status)()(nrofentries)(KZ1)()..(KZz)()(Element1)..(Elementz)
@@ -494,28 +543,40 @@ abstract public class VDEWProfile {
     } // private List buildMeterEvents(byte[] responseData)    
 
     
-    private int gotoNextOpenBracket(byte[] responseData,int i) {
+    protected int gotoNextOpenBracket(byte[] responseData,int i) {
         while(true) {
-            if (responseData[i] == '(') break;
+            if (responseData[i] == '(') {
+				break;
+			}
             i++;
-            if (i>=responseData.length) break;
+            if (i>=responseData.length) {
+				break;
+			}
         }
         return i;
     }
     private int gotoNextClosedBracket(byte[] responseData,int i) {
         while(true) {
-            if (responseData[i] == ')') break;
+            if (responseData[i] == ')') {
+				break;
+			}
             i++;
-            if (i>=responseData.length) break;
+            if (i>=responseData.length) {
+				break;
+			}
         }
         return i;
     }
     
-    private int gotoNextCR(byte[] responseData,int i) {
+    protected int gotoNextCR(byte[] responseData,int i) {
         while(true) {
-            if (responseData[i] == '\r') break;
+            if (responseData[i] == '\r') {
+				break;
+			}
             i++;
-            if (i>=responseData.length) break;
+            if (i>=responseData.length) {
+				break;
+			}
         }
         return i;
     }
@@ -582,7 +643,7 @@ abstract public class VDEWProfile {
         
     } // private void mapLogCodes(long lLogCode)    
     
-    private int mapStatus2IntervalStateBits(int status) {
+    protected int mapStatus2IntervalStateBits(int status) {
         switch(status) {
             case (int)CLEAR_LOADPROFILE: return(IntervalStateBits.OTHER);
             case (int)CLEAR_LOGBOOK: return(IntervalStateBits.OTHER);

@@ -1,14 +1,10 @@
 package com.energyict.protocolimpl.iec1107.unilog;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-import java.util.logging.Logger;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
@@ -17,10 +13,6 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.iec1107.ChannelMap;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
@@ -102,24 +94,28 @@ public class UnilogProfile extends VDEWProfile {
         return profileData;
     }
 
-    private int gotoNextOpenBracket(byte[] responseData, int i) {
+    protected int gotoNextOpenBracket(byte[] responseData, int i) {
         while (true) {
-            if (responseData[i] == '(')
-                break;
+            if (responseData[i] == '(') {
+				break;
+			}
             i++;
-            if (i >= responseData.length)
-                break;
+            if (i >= responseData.length) {
+				break;
+			}
         }
         return i;
     }
 
-    private int gotoNextCR(byte[] responseData, int i) {
+    protected int gotoNextCR(byte[] responseData, int i) {
         while (true) {
-            if (responseData[i] == '\r')
-                break;
+            if (responseData[i] == '\r') {
+				break;
+			}
             i++;
-            if (i >= responseData.length)
-                break;
+            if (i >= responseData.length) {
+				break;
+			}
         }
         return i;
     }
@@ -162,19 +158,22 @@ public class UnilogProfile extends VDEWProfile {
      */
     private String parseFindString(byte[] data, int iOffset) {
         int start = 0, stop = 0, i = 0;
-        if (iOffset >= data.length)
-            return null;
+        if (iOffset >= data.length) {
+			return null;
+		}
         for (i = 0; i < data.length; i++) {
-            if (data[i + iOffset] == '(')
-                start = i;
+            if (data[i + iOffset] == '(') {
+				start = i;
+			}
             if (data[i + iOffset] == ')') {
                 stop = i;
                 break;
             }
         }
         byte[] strparse = new byte[stop - start - 1];
-        for (i = 0; i < (stop - start - 1); i++)
-            strparse[i] = data[i + start + 1 + iOffset];
+        for (i = 0; i < (stop - start - 1); i++) {
+			strparse[i] = data[i + start + 1 + iOffset];
+		}
         return new String(strparse);
     } // private String parseFindString(byte[] data,int iOffset)
 
@@ -281,8 +280,9 @@ public class UnilogProfile extends VDEWProfile {
                     i += 4; // skip P.01
                     i = gotoNextOpenBracket(responseData, i);
 
-                    if (parseFindString(responseData, i).compareTo("ERROR") == 0)
-                        throw new IOException("No entries in object list.");
+                    if (parseFindString(responseData, i).compareTo("ERROR") == 0) {
+						throw new IOException("No entries in object list.");
+					}
 
                     calendar = parseDateTime(responseData, i + 1);
                     i = gotoNextOpenBracket(responseData, i + 1);
@@ -311,9 +311,10 @@ public class UnilogProfile extends VDEWProfile {
                             responseData, i));
                     i = gotoNextOpenBracket(responseData, i + 1);
                     bNROfValues = ProtocolUtils.bcd2nibble(responseData, i + 1);
-                    if (bNROfValues > nrOfChannels)
-                        throw new IOException(
+                    if (bNROfValues > nrOfChannels) {
+						throw new IOException(
                                 "buildProfileData() error, mismatch between nrOfChannels(" + nrOfChannels + ") and profile columns(" + bNROfValues + ")!");
+					}
 
                     if(profileData.getChannelInfos().size() == 0){
                     	String channelName;
@@ -355,14 +356,16 @@ public class UnilogProfile extends VDEWProfile {
                                 responseData, i)));
                         i++;
                     }
-                    if ((status & DISTURBED_MEASURE) != 0)
-                        intervalData.addStatus(IntervalData.CORRUPTED);
+                    if ((status & DISTURBED_MEASURE) != 0) {
+						intervalData.addStatus(IntervalData.CORRUPTED);
+					}
                     profileData.addInterval(intervalData);
                     calendar.add(Calendar.MINUTE, bInterval);
                     i = gotoNextCR(responseData, i + 1);
                 }
-                if (i >= responseData.length)
-                    break;
+                if (i >= responseData.length) {
+					break;
+				}
             }
             
         } catch (IOException e) {

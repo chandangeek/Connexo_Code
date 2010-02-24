@@ -33,6 +33,7 @@ public class ObisCodeMapperTest {
 			FileInputStream fis = new FileInputStream(file);
 			byte[] content = new byte[(int) file.length()];
 			fis.read(content);
+			fis.close();
 			
 			SCTMDumpData dumpData = new SCTMDumpData(content,0);
 			RegisterConfig regs = new EDPRegisterConfig();

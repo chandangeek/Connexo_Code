@@ -6,14 +6,21 @@
 
 package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
 
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.vdew.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
 
 
 /**
@@ -86,21 +93,29 @@ public class Unigas300Profile extends VDEWProfile {
        return profileData;  
     }
     
-    private int gotoNextOpenBracket(byte[] responseData,int i) {
+    protected int gotoNextOpenBracket(byte[] responseData,int i) {
         while(true) {
-            if (responseData[i] == '(') break;
+            if (responseData[i] == '(') {
+				break;
+			}
             i++;
-            if (i>=responseData.length) break;
+            if (i>=responseData.length) {
+				break;
+			}
         }
         return i;
     }
     
-    private int gotoNextCR(byte[] responseData,int i) {
+    protected int gotoNextCR(byte[] responseData,int i) {
         while(true)
         {
-            if (responseData[i] == '\r') break;
+            if (responseData[i] == '\r') {
+				break;
+			}
             i++;
-            if (i>=responseData.length) break;
+            if (i>=responseData.length) {
+				break;
+			}
         }
         return i;
     }
@@ -116,8 +131,9 @@ public class Unigas300Profile extends VDEWProfile {
        calendar.set(calendar.MINUTE,(int)ProtocolUtils.bcd2byte(data,9+iOffset));
        // KV 25032004
        int seconds = (int)ProtocolUtils.bcd2byte(data,11+iOffset);       
-       if (seconds != 0)
-           getProtocolLink().getLogger().severe ("Unigas300Profile, parseDateTime, seconds != 0 ("+seconds+")");
+       if (seconds != 0) {
+		getProtocolLink().getLogger().severe ("Unigas300Profile, parseDateTime, seconds != 0 ("+seconds+")");
+	}
        calendar.set(calendar.SECOND,0); //(int)ProtocolUtils.bcd2byte(data,11+iOffset));
        calendar.set(calendar.MILLISECOND,0);
        return calendar;
@@ -125,22 +141,32 @@ public class Unigas300Profile extends VDEWProfile {
     
     private String parseFindString(byte[] data,int iOffset) {
        int start=0,stop=0,i=0;
-       if (iOffset >= data.length) return null;
+       if (iOffset >= data.length) {
+		return null;
+	}
        for (i=0;i<data.length;i++) {
-           if (data[i+iOffset]=='(')  start = i;
+           if (data[i+iOffset]=='(') {
+			start = i;
+		}
            if (data[i+iOffset]==')') {
                stop = i;
                break;
            }
        }
        byte[] strparse=new byte[stop-start-1];
-       for (i=0;i<(stop-start-1);i++) strparse[i]=data[i+start+1+iOffset];
+       for (i=0;i<(stop-start-1);i++) {
+		strparse[i]=data[i+start+1+iOffset];
+	}
        return new String(strparse);
     } // private String parseFindString(byte[] data,int iOffset)
     
     ProfileData buildProfileData(byte[] responseData,int nrOfChannels) throws IOException {
-        if (DEBUG >= 1) System.out.println("\nresponseData = \n\n" + new String(responseData) + "\n");
-        if (DEBUG >= 1) System.out.println("nrOfChannels = " + nrOfChannels);
+        if (DEBUG >= 1) {
+			System.out.println("\nresponseData = \n\n" + new String(responseData) + "\n");
+		}
+        if (DEBUG >= 1) {
+			System.out.println("nrOfChannels = " + nrOfChannels);
+		}
     	ProfileData profileData;
         Calendar calendar;
         int status=0;
@@ -155,8 +181,12 @@ public class Unigas300Profile extends VDEWProfile {
             profileData = new ProfileData();        
             for (t=0;t<nrOfChannels;t++) {
                ChannelInfo chi = new ChannelInfo(t,"kamstrup_channel_"+t,KAMSTRUP_PROTILEDATAUNITS[t]);
-               if (DEBUG >= 1) System.out.println("t = " + t + " Channelinfo = " + chi.getName() + " [" + chi.getUnit() + "]");
-               if ((t>=0) && (t<=5)) chi.setCumulativeWrapValue(new BigDecimal("100000000"));
+               if (DEBUG >= 1) {
+				System.out.println("t = " + t + " Channelinfo = " + chi.getName() + " [" + chi.getUnit() + "]");
+			}
+               if ((t>=0) && (t<=5)) {
+				chi.setCumulativeWrapValue(new BigDecimal("100000000"));
+			}
                profileData.addChannel(chi);
             }
 
@@ -166,14 +196,17 @@ public class Unigas300Profile extends VDEWProfile {
                    i+=4; // skip P.01
                    i=gotoNextOpenBracket(responseData,i);
                    
-                   if (parseFindString(responseData,i).compareTo("ERROR") == 0)
-                       throw new IOException("No entries in object list.");
+                   if (parseFindString(responseData,i).compareTo("ERROR") == 0) {
+					throw new IOException("No entries in object list.");
+				}
                        
                    calendar = parseDateTime(responseData,i+1);
                    i=gotoNextOpenBracket(responseData,i+1);
                    status = Integer.parseInt(parseFindString(responseData,i),16);
                    status &= (SEASONAL_SWITCHOVER^0xFFFF);
-                   if (DEBUG >= 1) System.out.println("Status = " + status);
+                   if (DEBUG >= 1) {
+					System.out.println("Status = " + status);
+				}
                    for (t=0;t<16;t++) {
                       long statPart = status & (0x01<<t); 
                 	   if (statPart != 0) {
@@ -183,12 +216,17 @@ public class Unigas300Profile extends VDEWProfile {
                    
                    i=gotoNextOpenBracket(responseData,i+1);
                    bInterval = (byte)Integer.parseInt(parseFindString(responseData,i));
-                   if (DEBUG >= 1) System.out.println("bInterval = " + bInterval);
+                   if (DEBUG >= 1) {
+					System.out.println("bInterval = " + bInterval);
+				}
                    i=gotoNextOpenBracket(responseData,i+1);
                    bNROfValues = ProtocolUtils.bcd2byte(responseData,i+1);
-                   if (DEBUG >= 1) System.out.println("bNROfValues = " + bNROfValues);
-                   if (bNROfValues > nrOfChannels) 
-                      throw new IOException("buildProfileData() error, mismatch between nrOfChannels and profile columns!");
+                   if (DEBUG >= 1) {
+					System.out.println("bNROfValues = " + bNROfValues);
+				}
+                   if (bNROfValues > nrOfChannels) {
+					throw new IOException("buildProfileData() error, mismatch between nrOfChannels and profile columns!");
+				}
                    for (t=0;t<bNROfValues;t++) {
                       i=gotoNextOpenBracket(responseData,i+1);
                       i=gotoNextOpenBracket(responseData,i+1);
@@ -211,13 +249,16 @@ public class Unigas300Profile extends VDEWProfile {
                       }
                       i++;
                    }
-                   if ((status & DISTURBED_MEASURE) != 0)
-                      intervalData.addStatus(IntervalData.CORRUPTED);
+                   if ((status & DISTURBED_MEASURE) != 0) {
+					intervalData.addStatus(IntervalData.CORRUPTED);
+				}
                    profileData.addInterval(intervalData);
                    calendar.add(calendar.MINUTE,bInterval);
                    i= gotoNextCR(responseData,i+1);
                 }
-                if (i>=responseData.length) break;
+                if (i>=responseData.length) {
+					break;
+				}
             } // while(true)
         }
         catch(IOException e) {

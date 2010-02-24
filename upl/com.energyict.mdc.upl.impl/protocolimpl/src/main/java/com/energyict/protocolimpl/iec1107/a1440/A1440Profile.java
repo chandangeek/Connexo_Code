@@ -611,7 +611,7 @@ public class A1440Profile extends VDEWProfile {
 
 	} // private List buildMeterEvents(byte[] responseData)
 
-	private int gotoNextOpenBracket(byte[] responseData,int index) {
+	protected int gotoNextOpenBracket(byte[] responseData,int index) {
 		int i = index;
 		while(true) {
 			if (responseData[i] == '(') {break;}
@@ -621,7 +621,7 @@ public class A1440Profile extends VDEWProfile {
 		return i;
 	}
 
-	private int gotoNextCR(byte[] responseData, int index) {
+	protected int gotoNextCR(byte[] responseData, int index) {
 		int i = index;
 		while(true) {
 			if (responseData[i] == '\r') { break;}
@@ -631,7 +631,7 @@ public class A1440Profile extends VDEWProfile {
 		return i;
 	}
 
-	private int getFysical0BasedChannelId(String edisCode) {
+	protected int getFysical0BasedChannelId(String edisCode) {
 		return Integer.parseInt(edisCode.substring(edisCode.indexOf('-')+1,edisCode.indexOf(':')))-1;
 	}
 

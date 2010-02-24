@@ -8,7 +8,13 @@ package com.energyict.protocolimpl.iec1107.abba1350;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
@@ -108,8 +114,9 @@ public class ABBA1350Profile extends VDEWProfile {
 	    }
 	    Iterator it = eventsMap.values().iterator();
 		List result = new ArrayList();
-	    while (it.hasNext()) 
-	        result.add((MeterEvent) it.next());
+	    while (it.hasNext()) {
+			result.add((MeterEvent) it.next());
+		}
 		return result;
     }
 
@@ -173,7 +180,9 @@ public class ABBA1350Profile extends VDEWProfile {
     }
     
     private int getMeterEvent(int logcode){
-        if (DEBUG >= 1) System.out.println("getMeterEvent: " + logcode);
+        if (DEBUG >= 1) {
+			System.out.println("getMeterEvent: " + logcode);
+		}
     	switch(logcode) {
     		case FATAL_DEVICE_ERROR:            return MeterEvent.FATAL_ERROR;
             case RUNNING_RESERVE_EXHAUSTED:     return MeterEvent.OTHER;
@@ -314,8 +323,9 @@ public class ABBA1350Profile extends VDEWProfile {
                    i+=4; // skip P.01 
                    i=gotoNextOpenBracket(responseData,i);
                    
-                   if (dp.parseBetweenBrackets(responseData,i).compareTo("ERROR") == 0)
-                       throw new IOException("No entries in object list.");
+                   if (dp.parseBetweenBrackets(responseData,i).compareTo("ERROR") == 0) {
+					throw new IOException("No entries in object list.");
+				}
                    
                    //--------------------------------------------------------
                    // Data part 1: Read timestamp from loadprofile
@@ -358,8 +368,9 @@ public class ABBA1350Profile extends VDEWProfile {
                    //--------------------------------------------------------
                    i=gotoNextOpenBracket(responseData,i+1);
                    profileInterval = Integer.parseInt(dp.parseBetweenBrackets(responseData,i));
-                   if ((profileInterval*60) != getProtocolLink().getProfileInterval())
-                      throw new IOException("buildProfileData() error, mismatch between configured profileinterval ("+getProtocolLink().getProfileInterval()+") and meter profileinterval ("+(profileInterval*60)+")!");
+                   if ((profileInterval*60) != getProtocolLink().getProfileInterval()) {
+					throw new IOException("buildProfileData() error, mismatch between configured profileinterval ("+getProtocolLink().getProfileInterval()+") and meter profileinterval ("+(profileInterval*60)+")!");
+				}
                        
                    //--------------------------------------------------------
                    // Data part 4: Read number of channels from loadprofile
@@ -369,8 +380,9 @@ public class ABBA1350Profile extends VDEWProfile {
                    //bNROfValues = ProtocolUtils.bcd2nibble(responseData,i+1);
                    bNROfValues = (byte)Integer.parseInt(dp.parseBetweenBrackets(responseData,i));
                    
-                   if (bNROfValues > getProtocolLink().getNumberOfChannels()) 
-                       throw new IOException("buildProfileData() error, mismatch between configured nrOfChannels ("+getProtocolLink().getNumberOfChannels()+") and meter profile nrOfChannels ("+bNROfValues+")!");
+                   if (bNROfValues > getProtocolLink().getNumberOfChannels()) {
+					throw new IOException("buildProfileData() error, mismatch between configured nrOfChannels ("+getProtocolLink().getNumberOfChannels()+") and meter profile nrOfChannels ("+bNROfValues+")!");
+				}
 
                    //--------------------------------------------------------
                    // Data part 5 + 6: Read the channel units 
@@ -401,22 +413,25 @@ public class ABBA1350Profile extends VDEWProfile {
                                    id++;
                               }
                               if (!getProtocolLink().isRequestHeader()) {
-                                 if (getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).isCumul()) 
-                                     chi.setCumulativeWrapValue(getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).getWrapAroundValue());
+                                 if (getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).isCumul()) {
+									chi.setCumulativeWrapValue(getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).getWrapAroundValue());
+								}
                               }
                           }
                           else {
                               chi = new ChannelInfo(t,"channel_"+t,units[t]);
                               if (!getProtocolLink().isRequestHeader()) {
-                                 if (getProtocolLink().getProtocolChannelMap().getProtocolChannel(t).isCumul()) 
-                                     chi.setCumulativeWrapValue(getProtocolLink().getProtocolChannelMap().getProtocolChannel(t).getWrapAroundValue());
+                                 if (getProtocolLink().getProtocolChannelMap().getProtocolChannel(t).isCumul()) {
+									chi.setCumulativeWrapValue(getProtocolLink().getProtocolChannelMap().getProtocolChannel(t).getWrapAroundValue());
+								}
                               }
                           }
                           
                           
                           // KV 06092005 K&P changes
-                          if (chi != null)
-                              profileData.addChannel(chi);  
+                          if (chi != null) {
+							profileData.addChannel(chi);
+						}  
                        }
                        buildChannelInfos = true;
                    }
@@ -436,7 +451,9 @@ public class ABBA1350Profile extends VDEWProfile {
                 	// Fill profileData     
                   IntervalData intervalData = new IntervalData(new Date(calendar.getTime().getTime()),eiCode,bStatus);
                     
-                  if (!keepStatus) eiCode=0;
+                  if (!keepStatus) {
+					eiCode=0;
+				}
                   
                   for (t=0;t<bNROfValues;t++) { // skip all obis codes
                       i=gotoNextOpenBracket(responseData,i);
@@ -445,8 +462,9 @@ public class ABBA1350Profile extends VDEWProfile {
                       // KV 06092005 K&P changes
                       if (getProtocolLink().getProtocolChannelMap().isMappedChannels()) {
                           int fysical0BasedChannelId = getFysical0BasedChannelId(edisCodes[t]);
-                          if (getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).getIntValue(0) != -1)
-                              intervalData.addValue(bd); //new Long(lVal));
+                          if (getProtocolLink().getProtocolChannelMap().getProtocolChannel(fysical0BasedChannelId).getIntValue(0) != -1) {
+							intervalData.addValue(bd); //new Long(lVal));
+						}
                       }
                       else {
                           intervalData.addValue(bd); //new Long(lVal));
@@ -459,17 +477,23 @@ public class ABBA1350Profile extends VDEWProfile {
                       
                       if (intervalDataSave != null) {
                           if (intervalData.getEndTime().getTime() == intervalDataSave.getEndTime().getTime()) {
-                             if (DEBUG >= 1) System.out.println("KV_DEBUG> partialInterval, add partialInterval to currentInterval");
+                             if (DEBUG >= 1) {
+								System.out.println("KV_DEBUG> partialInterval, add partialInterval to currentInterval");
+							}
                              intervalData = addIntervalData(intervalDataSave,intervalData, units); // add intervals together to avoid double interval values...
                           }
                           else {
-                             if (DEBUG >= 1) System.out.println("KV_DEBUG> partialInterval, save partialInterval to profiledata and assign currentInterval to partialInterval");
+                             if (DEBUG >= 1) {
+								System.out.println("KV_DEBUG> partialInterval, save partialInterval to profiledata and assign currentInterval to partialInterval");
+							}
                              profileData.addInterval(intervalDataSave); // save the partial interval. Timestamp has been adjusted to the next intervalboundary 
                              intervalDataSave=intervalData;
                           }
                       }
                       else {
-                          if (DEBUG >= 1) System.out.println("KV_DEBUG> partialInterval, assign currentInterval to partialInterval");
+                          if (DEBUG >= 1) {
+							System.out.println("KV_DEBUG> partialInterval, assign currentInterval to partialInterval");
+						}
                           intervalDataSave=intervalData;
                       }
                    }
@@ -479,17 +503,23 @@ public class ABBA1350Profile extends VDEWProfile {
                       // If the next interval's timestamps != timestamp of interval x, save the partial interval as separate entry for interval x.
                       if (intervalDataSave != null) {
                           if (intervalData.getEndTime().getTime() == intervalDataSave.getEndTime().getTime()) {
-                             if (DEBUG >= 1) System.out.println("KV_DEBUG> add partialInterval to currentInterval");
+                             if (DEBUG >= 1) {
+								System.out.println("KV_DEBUG> add partialInterval to currentInterval");
+							}
                              intervalData = addIntervalData(intervalDataSave,intervalData, units); // add intervals together to avoid double interval values...
                           }
                           else {
-                             if (DEBUG >= 1) System.out.println("KV_DEBUG> save partialInterval to profiledata");
+                             if (DEBUG >= 1) {
+								System.out.println("KV_DEBUG> save partialInterval to profiledata");
+							}
                              profileData.addInterval(intervalDataSave); // save the partial interval. Timestamp has been adjusted to the next intervalboundary 
                           }
                           intervalDataSave = null;
                       }
                       
-                      if (DEBUG >= 1) System.out.println("KV_DEBUG> save currentInterval to profiledata");
+                      if (DEBUG >= 1) {
+						System.out.println("KV_DEBUG> save currentInterval to profiledata");
+					}
                       // save the current interval
                       profileData.addInterval(intervalData);
                    }
@@ -532,8 +562,9 @@ public class ABBA1350Profile extends VDEWProfile {
                    i=gotoNextOpenBracket(responseData,i);
                    
                    // geen entries in logbook
-                   if (dp.parseBetweenBrackets(responseData,i).compareTo("ERROR") == 0)
-                       return meterEvents;
+                   if (dp.parseBetweenBrackets(responseData,i).compareTo("ERROR") == 0) {
+					return meterEvents;
+				}
                        
                    
                    // P.98 (ZSTs13)(Status)()(nrofentries)(KZ1)()..(KZz)()(Element1)..(Elementz)
@@ -594,25 +625,33 @@ public class ABBA1350Profile extends VDEWProfile {
         
     } // private List buildMeterEvents(byte[] responseData)    
 
-    private int gotoNextOpenBracket(byte[] responseData,int i) {
+    protected int gotoNextOpenBracket(byte[] responseData,int i) {
         while(true) {
-            if (responseData[i] == '(') break;
+            if (responseData[i] == '(') {
+				break;
+			}
             i++;
-            if (i>=responseData.length) break;
+            if (i>=responseData.length) {
+				break;
+			}
         }
         return i;
     }
 
-    private int gotoNextCR(byte[] responseData,int i) {
+    protected int gotoNextCR(byte[] responseData,int i) {
         while(true) {
-            if (responseData[i] == '\r') break;
+            if (responseData[i] == '\r') {
+				break;
+			}
             i++;
-            if (i>=responseData.length) break;
+            if (i>=responseData.length) {
+				break;
+			}
         }
         return i;
     }
     
-    private int getFysical0BasedChannelId(String edisCode) {
+    protected int getFysical0BasedChannelId(String edisCode) {
         return Integer.parseInt(edisCode.substring(edisCode.indexOf("-")+1,edisCode.indexOf(":")))-1;    
     }
 
@@ -628,12 +667,14 @@ public class ABBA1350Profile extends VDEWProfile {
 
     			if ((unit != null) && (unit.isVolumeUnit())) {
     				intervalData.addValue(val1.add(val2));
-    				if (DEBUG >= 1) 
-    					System.out.println("Interval data added: val1: " + val1 + " val2: " + val2 + " Result: " + val1.add(val2));
+    				if (DEBUG >= 1) {
+						System.out.println("Interval data added: val1: " + val1 + " val2: " + val2 + " Result: " + val1.add(val2));
+					}
     			} else {
     				intervalData.addValue((val1.add(val2)).divide(new BigDecimal((int)2), BigDecimal.ROUND_HALF_UP));
-    				if (DEBUG >= 1) 
-    					System.out.println("Interval data divided: val1: " + val1 + " val2: " + val2 + " Result: " + val1.add(val2).divide(new BigDecimal((int)2), BigDecimal.ROUND_HALF_UP));
+    				if (DEBUG >= 1) {
+						System.out.println("Interval data divided: val1: " + val1 + " val2: " + val2 + " Result: " + val1.add(val2).divide(new BigDecimal((int)2), BigDecimal.ROUND_HALF_UP));
+					}
     			} 
     		}
     	} else {

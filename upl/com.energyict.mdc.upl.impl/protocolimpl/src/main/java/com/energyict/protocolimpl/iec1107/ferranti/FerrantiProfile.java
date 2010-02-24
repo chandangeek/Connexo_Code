@@ -6,14 +6,27 @@
 
 package com.energyict.protocolimpl.iec1107.ferranti;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.vdew.*;
-import java.text.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.FieldPosition;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
 /**
  *
  * @author  Koen
@@ -57,28 +70,40 @@ public class FerrantiProfile extends VDEWProfile {
         return profileData;
     }
     
-    private int gotoNextOpenBracket(byte[] responseData,int i) {
+    protected int gotoNextOpenBracket(byte[] responseData,int i) {
         while(true) {
-            if (responseData[i] == '(') break;
+            if (responseData[i] == '(') {
+				break;
+			}
             i++;
-            if (i>=responseData.length) break;
+            if (i>=responseData.length) {
+				break;
+			}
         }
         return i;
     }
     private int gotoNextClosedBracket(byte[] responseData,int i) {
         while(true) {
-            if (responseData[i] == ')') break;
+            if (responseData[i] == ')') {
+				break;
+			}
             i++;
-            if (i>=responseData.length) break;
+            if (i>=responseData.length) {
+				break;
+			}
         }
         return i;
     }
     
-    private int gotoNextCR(byte[] responseData,int i) {
+    protected int gotoNextCR(byte[] responseData,int i) {
         while(true) {
-            if (responseData[i] == '\r') break;
+            if (responseData[i] == '\r') {
+				break;
+			}
             i++;
-            if (i>=responseData.length) break;
+            if (i>=responseData.length) {
+				break;
+			}
         }
         return i;
     }
@@ -87,12 +112,14 @@ public class FerrantiProfile extends VDEWProfile {
         TimeZone timeZone;
         if (DEBUG >= 1) {
             // added for unit testing...
-            if (getProtocolLink() == null)
-               timeZone = TimeZone.getTimeZone("ECT");
-            else
-               timeZone= getProtocolLink().getTimeZone();
-        }
-        else timeZone = TimeZone.getTimeZone("ECT");
+            if (getProtocolLink() == null) {
+				timeZone = TimeZone.getTimeZone("ECT");
+			} else {
+				timeZone= getProtocolLink().getTimeZone();
+			}
+        } else {
+			timeZone = TimeZone.getTimeZone("ECT");
+		}
             
         Calendar calendar=ProtocolUtils.getCleanCalendar(timeZone);
         
@@ -109,16 +136,22 @@ public class FerrantiProfile extends VDEWProfile {
     
     private String parseFindString(byte[] data,int iOffset) {
         int start=0,stop=0,i=0;
-        if (iOffset >= data.length) return null;
+        if (iOffset >= data.length) {
+			return null;
+		}
         for (i=0;i<data.length;i++) {
-            if (data[i+iOffset]=='(')  start = i;
+            if (data[i+iOffset]=='(') {
+				start = i;
+			}
             if ((data[i+iOffset]==')') || (data[i+iOffset]=='*')) {
                 stop = i;
                 break;
             }
         }
         byte[] strparse=new byte[stop-start-1];
-        for (i=0;i<(stop-start-1);i++) strparse[i]=data[i+start+1+iOffset];
+        for (i=0;i<(stop-start-1);i++) {
+			strparse[i]=data[i+start+1+iOffset];
+		}
         return new String(strparse);
     } // private String parseFindString(byte[] data,int iOffset)
     
@@ -182,7 +215,9 @@ public class FerrantiProfile extends VDEWProfile {
             profileData = new ProfileData();
             for (t=0;t<nrOfChannels;t++) {
                 ChannelInfo chi = new ChannelInfo(t,"ferranti_channel_"+t,FERRANTI_PROTILEDATAUNITS[t]);
-                if ((t>=0) && (t<=1)) chi.setCumulativeWrapValue(new BigDecimal("100000000"));
+                if ((t>=0) && (t<=1)) {
+					chi.setCumulativeWrapValue(new BigDecimal("100000000"));
+				}
                 profileData.addChannel(chi);
             }
             
@@ -213,8 +248,9 @@ public class FerrantiProfile extends VDEWProfile {
                     i=gotoNextOpenBracket(responseData,i+1);
                     status =Integer.parseInt(parseFindString(responseData,i),16);
                     intervalData.addValue(new Integer(status));
-                    if ((status & METROLOGICAL_ALARM) != 0)
-                        intervalData.addStatus(IntervalData.CORRUPTED);
+                    if ((status & METROLOGICAL_ALARM) != 0) {
+						intervalData.addStatus(IntervalData.CORRUPTED);
+					}
                     profileData.addInterval(intervalData);
                     
                     for (t=0;t<8;t++) {
@@ -232,7 +268,9 @@ public class FerrantiProfile extends VDEWProfile {
                 } // if response data line
                 
                 
-                if (i>=responseData.length) break;
+                if (i>=responseData.length) {
+					break;
+				}
                 
             } // while(true)
         }
@@ -242,8 +280,9 @@ public class FerrantiProfile extends VDEWProfile {
         
         if (DEBUG >= 1) {
             // for the Unit testing
-            if (getProtocolLink() == null)
-               profileData.applyEvents(60);
+            if (getProtocolLink() == null) {
+				profileData.applyEvents(60);
+			}
         }
         
         profileData.sort();

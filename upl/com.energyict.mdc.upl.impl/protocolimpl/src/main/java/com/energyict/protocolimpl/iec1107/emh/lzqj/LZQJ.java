@@ -188,7 +188,7 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 	 * @throws MissingPropertyException <br>
 	 * @throws InvalidPropertyException <br>
 	 */
-	private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException
+	protected void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException
 	{
 		try {
 			Iterator iterator= getRequiredKeys().iterator();
@@ -387,7 +387,10 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 					throw new NestedIOException(e);
 				}
 			}
-
+			
+//			flagIEC1107Connection.getHhuSignOn().setMode(HHUSignOn.MODE_READOUT);
+//			flagIEC1107Connection.getHhuSignOn().setProtocol(HHUSignOn.PROTOCOL_NORMAL);
+			
 			flagIEC1107Connection.connectMAC(strID,strPassword,iSecurityLevel,nodeId);
 
 			if ((getFlagIEC1107Connection().getHhuSignOn()!=null)  && (isDataReadout())) {
@@ -813,6 +816,22 @@ public class LZQJ implements MeterProtocol, HHUEnabler, ProtocolLink, MeterExcep
 	public LZQJProfile getLzqjProfile() throws IOException {
 		lzqjProfile = new LZQJProfile(this, this, lzqjRegistry);
 		return lzqjProfile;
+	}
+	
+	/**
+	 * Setter for the TimeZone
+	 * @param timeZone - the TimeZone to set
+	 */
+	public void setTimeZone(TimeZone timeZone){
+		this.timeZone = timeZone;
+	}
+	
+	/**
+	 * Setter for the ProfileHelper
+	 * @param value
+	 */
+	public void profileHelperSetter(boolean value){
+		this.profileHelper = value;
 	}
 
 } // public class LZQJ implements MeterProtocol {
