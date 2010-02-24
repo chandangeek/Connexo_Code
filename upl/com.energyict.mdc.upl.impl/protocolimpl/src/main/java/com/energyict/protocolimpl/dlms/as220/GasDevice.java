@@ -89,7 +89,7 @@ public class GasDevice extends AS220 {
     /**
      * Setter for the slotId
      */
-    private void setGasSlotId(int slotId){
+    public void setGasSlotId(int slotId){
     	this.gasMeterSlot = slotId;
     }
 
