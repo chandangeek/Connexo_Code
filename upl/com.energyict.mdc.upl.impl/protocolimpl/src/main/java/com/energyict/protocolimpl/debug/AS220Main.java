@@ -3,7 +3,6 @@ package com.energyict.protocolimpl.debug;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -112,7 +111,7 @@ public class AS220Main {
 		properties.setProperty("Timeout", "20000");
 		properties.setProperty("ForcedDelay", "100");
 
-		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_BOTH);
+		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
 		properties.setProperty("ProfileInterval", "900");
 		properties.setProperty("Password", "00000000");
 		properties.setProperty("SerialNumber", "35021373");
@@ -222,38 +221,11 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
+			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.96.1.0.255")));
+			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.96.14.0.255")));
 
-			List<String> codes = new ArrayList<String>();
-			codes.add("0.0.26.0.0.255");
-			codes.add("0.0.26.1.0.255");
-			codes.add("0.0.26.2.0.255");
-			codes.add("0.0.26.3.0.255");
-			codes.add("0.0.26.5.0.255");
+			readProfile(false);
 
-			for (Iterator iterator = codes.iterator(); iterator.hasNext();) {
-				String code = (String) iterator.next();
-				for (int i = 0; i <= 20; i++) {
-					try {
-						ObisCode obis = ProtocolTools.setObisCodeField(ObisCode.fromString(code), 5, (byte) i);
-						System.out.println(getAs220().translateRegister(obis) + " = " + getAs220().readRegister(obis).getText());
-					} catch (Exception e) {}
-				}
-				System.out.println();
-			}
-
-//			log("FirmwareVersion :" + getAs220().getFirmwareVersion());
-//			((AS220Messaging)getAs220().getMessaging()).upgradeDevice(getFirmware18ByteArray());
-//			((AS220Messaging)getAs220().getMessaging()).upgradeDevice(getFirmware19ByteArray());
-//			((AS220Messaging)getAs220().getMessaging()).upgradeDevice(getFirmware19ByteArray());
-//			log("FirmwareVersion :" + getAs220().getPassiveFirmwareVersion());
-//			getAs220().getCosemObjectFactory().getImageTransferSN().imageActivation();
-//			log(getAs220().getFirmwareVersion());
-//			log("Passive : " + getAs220().getPassiveFirmwareVersion());
-//			getAs220().getCosemObjectFactory().getImageTransferSN().verifyAndRetryImage();
-//			getAs220().getCosemObjectFactory().getImageTransferSN().readImageTransferStatus();
-//			log(getAs220().getFirmwareVersion());
-
-//			log(getAs220().getgMeter().getProfileData(new Date(0), new Date(), false));
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -264,6 +236,22 @@ public class AS220Main {
 			getDialer().disConnect();
 		}
 
+	}
+
+	/**
+	 *
+	 */
+	private static void readMappedAttributes(List<ObisCode> codes) {
+		for (Iterator iterator = codes.iterator(); iterator.hasNext();) {
+			ObisCode code = (ObisCode) iterator.next();
+			for (int i = 0; i <= 20; i++) {
+				try {
+					ObisCode obis = ProtocolTools.setObisCodeField(code, 5, (byte) i);
+					System.out.println(obis.toString() + " " + getAs220().translateRegister(obis) + " = " + getAs220().readRegister(obis).getText());
+				} catch (Exception e) {}
+			}
+			System.out.println();
+		}
 	}
 
 	/**
