@@ -57,21 +57,6 @@ public class ProfileBuilder {
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		for (int i = 0; i < scalerunit.length; i++) {
 			ChannelInfo channelInfo = new ChannelInfo(i, "dlms" + getAs220().getDeviceID() + "_channel_" + i, scalerunit[i].getUnit());
-			if (getAs220().getMeterConfig().getChannelObject(i).isCapturedObjectCumulative()) {
-				if (getAs220().getMeterConfig().getChannelObject(i).isCapturedObjectPulses()) {
-					if ((getAs220().getChannelMap() != null) && (getAs220().getChannelMap().getProtocolChannel(i) != null)) {
-						channelInfo.setCumulativeWrapValue(getAs220().getChannelMap().getProtocolChannel(i).getWrapAroundValue());
-					} else {
-						channelInfo.setCumulativeWrapValue(BigDecimal.valueOf(Long.MAX_VALUE));
-					}
-				} else {
-					if ((getAs220().getChannelMap() != null) && (getAs220().getChannelMap().getProtocolChannel(i) != null)) {
-						channelInfo.setCumulativeWrapValue(getAs220().getChannelMap().getProtocolChannel(i).getWrapAroundValue());
-					} else {
-						channelInfo.setCumulativeWrapValue(BigDecimal.valueOf(2 ^ 32));
-					}
-				}
-			}
 			channelInfos.add(channelInfo);
 		}
 		return channelInfos;

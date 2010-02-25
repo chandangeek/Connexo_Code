@@ -80,15 +80,31 @@ public class PLCStatistics extends Array {
 		final Unit countUnit = Unit.get(BaseUnit.COUNT);
 		final Unit ratioUnit = Unit.get(BaseUnit.RATIO);
 
+		ChannelInfo snr0 = new ChannelInfo(1, "SNR0", ratioUnit);
+		ChannelInfo snr1 = new ChannelInfo(2, "SNR1", ratioUnit);
+		ChannelInfo crcOk = new ChannelInfo(3, "CRC_OK", countUnit);
+		ChannelInfo crcNotOk = new ChannelInfo(4, "CRC_NOK", countUnit);
+		ChannelInfo fTx = new ChannelInfo(5, "Frames TX", countUnit);
+		ChannelInfo fRep = new ChannelInfo(6, "Frames repeated", countUnit);
+		ChannelInfo fCor = new ChannelInfo(7, "Frames corrected", countUnit);
+		ChannelInfo fBad = new ChannelInfo(8, "Bad frames", countUnit);
+
+		crcOk.setCumulative();
+		crcNotOk.setCumulative();
+		fTx.setCumulative();
+		fRep.setCumulative();
+		fCor.setCumulative();
+		fBad.setCumulative();
+
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-		channelInfos.add(new ChannelInfo(1, "SNR0", ratioUnit));
-		channelInfos.add(new ChannelInfo(2, "SNR1", ratioUnit));
-		channelInfos.add(new ChannelInfo(3, "CRC_OK", countUnit));
-		channelInfos.add(new ChannelInfo(4, "CRC_NOK", countUnit));
-		channelInfos.add(new ChannelInfo(5, "Frames TX", countUnit));
-		channelInfos.add(new ChannelInfo(6, "Frames repeated", countUnit));
-		channelInfos.add(new ChannelInfo(7, "Frames corrected", countUnit));
-		channelInfos.add(new ChannelInfo(8, "Bad frames", countUnit));
+		channelInfos.add(snr0);
+		channelInfos.add(snr1);
+		channelInfos.add(crcOk);
+		channelInfos.add(crcNotOk);
+		channelInfos.add(fTx);
+		channelInfos.add(fRep);
+		channelInfos.add(fCor);
+		channelInfos.add(fBad);
 		return channelInfos;
 	}
 
