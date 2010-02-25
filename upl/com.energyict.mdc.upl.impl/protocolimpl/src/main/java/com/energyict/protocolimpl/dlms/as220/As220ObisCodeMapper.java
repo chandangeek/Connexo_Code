@@ -23,7 +23,10 @@ import com.energyict.protocolimpl.base.ObiscodeMapper;
 import com.energyict.protocolimpl.base.ContactorController.ContactorState;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220ContactorController;
 import com.energyict.protocolimpl.dlms.as220.plc.SFSKActiveInitiatorMapper;
+import com.energyict.protocolimpl.dlms.as220.plc.SFSKIec61334LLCSetupMapper;
+import com.energyict.protocolimpl.dlms.as220.plc.SFSKMacCountersMapper;
 import com.energyict.protocolimpl.dlms.as220.plc.SFSKPhyMacSetupMapper;
+import com.energyict.protocolimpl.dlms.as220.plc.SFSKSyncTimeoutsMapper;
 
 /**
  *
@@ -45,8 +48,8 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 	private static final ObisCode	SFSK_SYNC_TIMEOUTS			= ObisCode.fromString("0.0.26.2.0.255");
 	private static final ObisCode	SFSK_MAC_COUNTERS			= ObisCode.fromString("0.0.26.3.0.255");
 	private static final ObisCode	SFSK_IEC_LLC_SETIP			= ObisCode.fromString("0.0.26.5.0.255");
-	private static final ObisCode 	FIRMWARE_VERSION			= ObisCode.fromString("1.0.0.2.0.255");
 
+	private static final ObisCode 	FIRMWARE_VERSION			= ObisCode.fromString("1.0.0.2.0.255");
 	private static final ObisCode	CONTACTOR_STATE_OBISCODE	= AS220ContactorController.DISCONNECTOR_OBISCODE;
 
 	private static final ObisCode[] SIMPLE_DATA_REGISTERS = new ObisCode[] {
@@ -66,6 +69,9 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 		this.attributeMappers = new DLMSAttributeMapper[] {
 				new SFSKPhyMacSetupMapper(SFSK_PHY_MAC_SETUP, as220),
 				new SFSKActiveInitiatorMapper(SFSK_ACTIVE_INITIATOR, as220),
+				new SFSKSyncTimeoutsMapper(SFSK_SYNC_TIMEOUTS, as220),
+				new SFSKMacCountersMapper(SFSK_MAC_COUNTERS, as220),
+				new SFSKIec61334LLCSetupMapper(SFSK_IEC_LLC_SETIP, as220)
 		};
     }
 
@@ -85,7 +91,13 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 	}
 
     public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        RegisterInfo regInfo = RegisterDescription.getRegisterInfo(obisCode);
+    	for (int i = 0; i < attributeMappers.length; i++) {
+    		if (attributeMappers[i].isObisCodeMapped(obisCode)) {
+    			return attributeMappers[i].getRegisterInfo(obisCode);
+    		}
+		}
+
+    	RegisterInfo regInfo = RegisterDescription.getRegisterInfo(obisCode);
     	return regInfo != null ? regInfo : new RegisterInfo(obisCode.getDescription());
     }
 

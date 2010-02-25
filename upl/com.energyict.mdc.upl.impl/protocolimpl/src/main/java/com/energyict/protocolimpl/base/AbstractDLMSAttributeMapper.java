@@ -42,7 +42,7 @@ public abstract class AbstractDLMSAttributeMapper implements DLMSAttributeMapper
 
 	public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
 		if (isObisCodeMapped(obisCode)) {
-			return doGetAttributeInfo(obisCode.getE());
+			return doGetAttributeInfo(obisCode.getF());
 		} else {
 			throw new NoSuchRegisterException("Register with obisCode: " + obisCode.toString() + " has no mapped attribute.");
 		}

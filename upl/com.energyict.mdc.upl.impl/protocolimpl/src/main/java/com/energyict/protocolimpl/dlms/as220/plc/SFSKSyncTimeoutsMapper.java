@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.energyict.protocolimpl.dlms.as220.plc;
 
 import java.io.IOException;
@@ -29,6 +26,7 @@ public class SFSKSyncTimeoutsMapper extends AbstractDLMSAttributeMapper {
 
 	public int[] getSupportedAttributes() {
 		return new int[] {
+				SFSKSyncTimeoutsAttribute.LOGICAL_NAME.getAttributeNumber(),
 				SFSKSyncTimeoutsAttribute.SEARCH_INITIATOR_TIMEOUT.getAttributeNumber(),
 				SFSKSyncTimeoutsAttribute.SYNCHRONIZATION_CONFIRMATION_TIMEOUT.getAttributeNumber(),
 				SFSKSyncTimeoutsAttribute.TIME_OUT_NOT_ADDRESSED.getAttributeNumber(),
@@ -40,7 +38,7 @@ public class SFSKSyncTimeoutsMapper extends AbstractDLMSAttributeMapper {
 	protected RegisterInfo doGetAttributeInfo(int attributeNr) {
 		SFSKSyncTimeoutsAttribute attribute = SFSKSyncTimeoutsAttribute.findByAttributeNumber(attributeNr);
 		if (attribute != null) {
-			return new RegisterInfo("SFSKActiveInitiator attribute " + attributeNr + ": " + attribute);
+			return new RegisterInfo("SFSKSyncTimeouts attribute " + attributeNr + ": " + attribute);
 		} else {
 			return null;
 		}

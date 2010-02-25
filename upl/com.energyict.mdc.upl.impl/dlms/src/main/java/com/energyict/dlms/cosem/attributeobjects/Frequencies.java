@@ -56,7 +56,6 @@ public class Frequencies extends Array {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("[channel](Fs,Fm): ");
 		for (int channelNr = 0; channelNr < getNumberOfChannels(); channelNr++) {
 			if (getDataType(channelNr).isStructure()) {
 				Structure struct = getDataType(channelNr).getStructure();

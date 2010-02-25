@@ -3,8 +3,11 @@ package com.energyict.protocolimpl.debug;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -219,28 +222,23 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			for (int i = 0; i <= 20; i++) {
-				try {
-					System.out.println(getAs220().readRegister(ProtocolTools.setObisCodeField(ObisCode.fromString("0.0.26.0.0.255"), 5, (byte) i)));
-				} catch (Exception e) {
 
+			List<String> codes = new ArrayList<String>();
+			codes.add("0.0.26.0.0.255");
+			codes.add("0.0.26.1.0.255");
+			codes.add("0.0.26.2.0.255");
+			codes.add("0.0.26.3.0.255");
+			codes.add("0.0.26.5.0.255");
+
+			for (Iterator iterator = codes.iterator(); iterator.hasNext();) {
+				String code = (String) iterator.next();
+				for (int i = 0; i <= 20; i++) {
+					try {
+						ObisCode obis = ProtocolTools.setObisCodeField(ObisCode.fromString(code), 5, (byte) i);
+						System.out.println(getAs220().translateRegister(obis) + " = " + getAs220().readRegister(obis).getText());
+					} catch (Exception e) {}
 				}
-			}
-
-			for (int i = 0; i <= 20; i++) {
-				try {
-					System.out.println(getAs220().readRegister(ProtocolTools.setObisCodeField(ObisCode.fromString("0.0.26.1.0.255"), 5, (byte) i)));
-				} catch (Exception e) {
-
-				}
-			}
-
-			for (int i = 0; i <= 20; i++) {
-				try {
-					System.out.println(getAs220().readRegister(ProtocolTools.setObisCodeField(ObisCode.fromString("0.0.26.2.0.255"), 5, (byte) i)));
-				} catch (Exception e) {
-
-				}
+				System.out.println();
 			}
 
 //			log("FirmwareVersion :" + getAs220().getFirmwareVersion());

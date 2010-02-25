@@ -4,10 +4,12 @@ import java.io.IOException;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.attributeobjects.DesynchronizationListing;
+import com.energyict.dlms.cosem.attributeobjects.MacUnsigned32Couples;
+import com.energyict.dlms.cosem.attributes.SFSKMacCountersAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 
@@ -18,15 +20,6 @@ import com.energyict.protocol.RegisterValue;
 public class SFSKMacCounters extends AbstractCosemObject implements RegisterReadable {
 
 	private static final byte[]	LN	= ObisCode.fromString("0.0.26.3.0.255").getLN();
-
-	/** Attribute numbers */
-	private static final int	ATTRB_SYNCHRONIZATION_REGISTER	= 0x08;
-	private static final int	ATTRB_DESYNCHRONIZATION_LISTING	= 0x10;
-	private static final int	ATTRB_BROADCAST_FRAMES_COUNTER	= 0x18;
-	private static final int	ATTRB_REPETITIONS_COUNTER		= 0x20;
-	private static final int	ATTRB_TRANSMISSIONS_COUNTER		= 0x28;
-	private static final int	ATTRB_CRC_OK_FRAMES_COUNTER		= 0x30;
-	private static final int	ATTRB_CRC_NOK_FRAMES_COUNTER	= 0x38;
 
 	/** Method numbers */
 	private static final int	METHOD_RESET_DATA				= 0x50;
@@ -48,25 +41,37 @@ public class SFSKMacCounters extends AbstractCosemObject implements RegisterRead
 		return DLMSClassId.S_FSK_MAC_COUNTERS.getClassId();
 	}
 
-	public Array getSynchronizationRegister() {
+	/**
+	 * Get the logicalname of the object. Identifies the object instance.
+	 * @return
+	 */
+	public OctetString getLogicalName() {
 		try {
-			return new Array(getResponseData(ATTRB_SYNCHRONIZATION_REGISTER), 0, 0);
+			return new OctetString(getResponseData(SFSKMacCountersAttribute.LOGICAL_NAME));
 		} catch (IOException e) {
 			return null;
 		}
 	}
 
-	public Structure getDesynchronizationListing() {
+	public MacUnsigned32Couples getSynchronizationRegister() {
 		try {
-			return new Structure(getResponseData(ATTRB_DESYNCHRONIZATION_LISTING), 0, 0);
+			return new MacUnsigned32Couples(getResponseData(SFSKMacCountersAttribute.SYNCHRONIZATION_REGISTER), 0, 0);
 		} catch (IOException e) {
 			return null;
 		}
 	}
 
-	public Array getBroadcastFramesCounter() {
+	public DesynchronizationListing getDesynchronizationListing() {
 		try {
-			return new Array(getResponseData(ATTRB_BROADCAST_FRAMES_COUNTER), 0, 0);
+			return new DesynchronizationListing(getResponseData(SFSKMacCountersAttribute.DESYNCHRONIZATION_LISTING), 0, 0);
+		} catch (IOException e) {
+			return null;
+		}
+	}
+
+	public MacUnsigned32Couples getBroadcastFramesCounter() {
+		try {
+			return new MacUnsigned32Couples(getResponseData(SFSKMacCountersAttribute.BROADCAST_FRAMES_COUNTER), 0, 0);
 		} catch (IOException e) {
 			return null;
 		}
@@ -74,7 +79,7 @@ public class SFSKMacCounters extends AbstractCosemObject implements RegisterRead
 
 	public Unsigned32 getRepetitionsCounter() {
 		try {
-			return new Unsigned32(getResponseData(ATTRB_REPETITIONS_COUNTER), 0);
+			return new Unsigned32(getResponseData(SFSKMacCountersAttribute.REPETITIONS_COUNTER), 0);
 		} catch (IOException e) {
 			return null;
 		}
@@ -82,7 +87,7 @@ public class SFSKMacCounters extends AbstractCosemObject implements RegisterRead
 
 	public Unsigned32 getTransmissionsCounter() {
 		try {
-			return new Unsigned32(getResponseData(ATTRB_TRANSMISSIONS_COUNTER), 0);
+			return new Unsigned32(getResponseData(SFSKMacCountersAttribute.TRANSMISSIONS_COUNTER), 0);
 		} catch (IOException e) {
 			return null;
 		}
@@ -90,7 +95,7 @@ public class SFSKMacCounters extends AbstractCosemObject implements RegisterRead
 
 	public Unsigned32 getCrcOkFramesCounter() {
 		try {
-			return new Unsigned32(getResponseData(ATTRB_CRC_OK_FRAMES_COUNTER), 0);
+			return new Unsigned32(getResponseData(SFSKMacCountersAttribute.CRC_OK_FRAMES_COUNTER), 0);
 		} catch (IOException e) {
 			return null;
 		}
@@ -98,7 +103,7 @@ public class SFSKMacCounters extends AbstractCosemObject implements RegisterRead
 
 	public Unsigned32 getCrcNOkFramesCounter() {
 		try {
-			return new Unsigned32(getResponseData(ATTRB_CRC_NOK_FRAMES_COUNTER), 0);
+			return new Unsigned32(getResponseData(SFSKMacCountersAttribute.CRC_NOK_FRAMES_COUNTER), 0);
 		} catch (IOException e) {
 			return null;
 		}
@@ -112,9 +117,9 @@ public class SFSKMacCounters extends AbstractCosemObject implements RegisterRead
 	public String toString() {
 		final String crlf = "\r\n";
 
-		Array synchronizationRegister = getSynchronizationRegister();
-		Structure desynchronizationListing = getDesynchronizationListing();
-		Array broadcastFramesCounter = getBroadcastFramesCounter();
+		MacUnsigned32Couples synchronizationRegister = getSynchronizationRegister();
+		DesynchronizationListing desynchronizationListing = getDesynchronizationListing();
+		MacUnsigned32Couples broadcastFramesCounter = getBroadcastFramesCounter();
 		Unsigned32 repetitionsCounter = getRepetitionsCounter();
 		Unsigned32 transmissionsCounter = getTransmissionsCounter();
 		Unsigned32 crcOkFramesCounter = getCrcOkFramesCounter();
@@ -137,7 +142,36 @@ public class SFSKMacCounters extends AbstractCosemObject implements RegisterRead
 	}
 
 	public RegisterValue asRegisterValue(int attributeNumber) {
-		return asRegisterValue();
+		SFSKMacCountersAttribute attribute = SFSKMacCountersAttribute.findByAttributeNumber(attributeNumber);
+		if (attribute != null) {
+			switch (attribute) {
+				case LOGICAL_NAME:
+					OctetString ln = getLogicalName();
+					return new RegisterValue(getObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+				case SYNCHRONIZATION_REGISTER:
+					MacUnsigned32Couples sync = getSynchronizationRegister();
+					return new RegisterValue(getObisCode(), sync != null ? sync.toString() : "null");
+				case DESYNCHRONIZATION_LISTING:
+					DesynchronizationListing desync = getDesynchronizationListing();
+					return new RegisterValue(getObisCode(), desync != null ? desync.toString() : "null");
+				case BROADCAST_FRAMES_COUNTER:
+					MacUnsigned32Couples bc = getBroadcastFramesCounter();
+					return new RegisterValue(getObisCode(), bc != null ? bc.toString() : "null");
+				case REPETITIONS_COUNTER:
+					Unsigned32 rep = getRepetitionsCounter();
+					return new RegisterValue(getObisCode(), rep != null ? String.valueOf(rep.getValue()) : "null");
+				case TRANSMISSIONS_COUNTER:
+					Unsigned32 tx = getTransmissionsCounter();
+					return new RegisterValue(getObisCode(), tx != null ? String.valueOf(tx.getValue()) : "null");
+				case CRC_OK_FRAMES_COUNTER:
+					Unsigned32 crcOk = getCrcOkFramesCounter();
+					return new RegisterValue(getObisCode(), crcOk != null ? String.valueOf(crcOk.getValue()) : "null");
+				case CRC_NOK_FRAMES_COUNTER:
+					Unsigned32 crcNotOk = getCrcNOkFramesCounter();
+					return new RegisterValue(getObisCode(), crcNotOk != null ? String.valueOf(crcNotOk.getValue()) : "null");
+			}
+		}
+		return null;
 	}
 
 }

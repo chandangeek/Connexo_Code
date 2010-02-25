@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.energyict.protocolimpl.dlms.as220.plc;
 
 import java.io.IOException;
@@ -29,6 +26,7 @@ public class SFSKActiveInitiatorMapper extends AbstractDLMSAttributeMapper {
 
 	public int[] getSupportedAttributes() {
 		return new int[] {
+			SFSKActiveInitiatorAttribute.LOGICAL_NAME.getAttributeNumber(),
 			SFSKActiveInitiatorAttribute.ACTIVE_INITIATOR.getAttributeNumber()
 		};
 	}

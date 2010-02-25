@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.energyict.dlms.cosem;
 
 import java.io.IOException;
@@ -8,7 +5,10 @@ import java.io.IOException;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.attributeobjects.ReplyStatusList;
+import com.energyict.dlms.cosem.attributes.SFSKIec61334LLCSetupAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 
@@ -19,15 +19,6 @@ import com.energyict.protocol.RegisterValue;
 public class SFSKIec61334LLCSetup extends AbstractCosemObject implements RegisterReadable {
 
 	private static final byte[]	LN	= ObisCode.fromString("0.0.26.5.0.255").getLN();
-
-	/** Attributes */
-	private Unsigned8			maxFrameLength			= null;
-	private Array				replyStatusList			= null;
-
-	/** Attribute numbers */
-	private static final int	ATTRB_MAX_FRAME_LENGTH	= 0x08;
-	private static final int	ATTRB_REPLY_STATUS_LIST	= 0x10;
-
 
 	public static ObisCode getObisCode() {
 		return ObisCode.fromByteArray(LN);
@@ -42,35 +33,45 @@ public class SFSKIec61334LLCSetup extends AbstractCosemObject implements Registe
 		super(protocolLink, objectReference);
 	}
 
-	public Unsigned8 getMaxFrameLength() {
+	/**
+	 * Get the logicalname of the object. Identifies the object instance.
+	 * @return
+	 */
+	public OctetString getLogicalName() {
 		try {
-			maxFrameLength = new Unsigned8(getResponseData(ATTRB_MAX_FRAME_LENGTH), 0);
+			return new OctetString(getResponseData(SFSKIec61334LLCSetupAttribute.LOGICAL_NAME));
 		} catch (IOException e) {
-			e.printStackTrace();
+			return null;
 		}
-		return maxFrameLength;
 	}
 
-	public Array getReplyStatusList() {
+	public Unsigned8 getMaxFrameLength() {
 		try {
-			replyStatusList = new Array(getResponseData(ATTRB_REPLY_STATUS_LIST), 0, 0);
+			return new Unsigned8(getResponseData(SFSKIec61334LLCSetupAttribute.MAX_FRAME_LENGTH), 0);
 		} catch (IOException e) {
-			e.printStackTrace();
+			return null;
 		}
-		return replyStatusList;
+	}
+
+	public ReplyStatusList getReplyStatusList() {
+		try {
+			return new ReplyStatusList(getResponseData(SFSKIec61334LLCSetupAttribute.REPLY_STATUS_LIST), 0, 0);
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public String toString() {
 		final String crlf = "\r\n";
 
-		Unsigned8 maxFrameLength = getMaxFrameLength();
-		Array replyStatusList = getReplyStatusList();
+		Unsigned8 maxFrameLen = getMaxFrameLength();
+		Array replyStatList = getReplyStatusList();
 
 		StringBuffer sb = new StringBuffer();
 		sb.append("SFSKIec61334LLCSetup").append(crlf);
-		sb.append(" > maxFrameLength = ").append(maxFrameLength != null ? maxFrameLength.getValue() : null).append(crlf);
-		sb.append(" > replyStatusList = ").append(replyStatusList != null ? replyStatusList : null).append(crlf);
+		sb.append(" > maxFrameLength = ").append(maxFrameLen != null ? maxFrameLen.getValue() : null).append(crlf);
+		sb.append(" > replyStatusList = ").append(replyStatList != null ? replyStatList : null).append(crlf);
 		return sb.toString();
 	}
 
@@ -79,7 +80,21 @@ public class SFSKIec61334LLCSetup extends AbstractCosemObject implements Registe
 	}
 
 	public RegisterValue asRegisterValue(int attributeNumber) {
-		return asRegisterValue();
+		SFSKIec61334LLCSetupAttribute attribute = SFSKIec61334LLCSetupAttribute.findByAttributeNumber(attributeNumber);
+		if (attribute != null) {
+			switch (attribute) {
+				case LOGICAL_NAME:
+					OctetString ln = getLogicalName();
+					return new RegisterValue(getObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+				case MAX_FRAME_LENGTH:
+					Unsigned8 maxFrameLen = getMaxFrameLength();
+					return new RegisterValue(getObisCode(), maxFrameLen != null ? String.valueOf(maxFrameLen.getValue()) : "null");
+				case REPLY_STATUS_LIST:
+					ReplyStatusList reply = getReplyStatusList();
+					return new RegisterValue(getObisCode(), reply != null ? reply.toString() : "null");
+			}
+		}
+		return null;
 	}
 
 }

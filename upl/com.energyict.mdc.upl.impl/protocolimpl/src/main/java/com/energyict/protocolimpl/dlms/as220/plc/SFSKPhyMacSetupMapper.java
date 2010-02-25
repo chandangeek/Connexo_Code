@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.energyict.protocolimpl.dlms.as220.plc;
 
 import java.io.IOException;
@@ -29,6 +26,7 @@ public class SFSKPhyMacSetupMapper extends AbstractDLMSAttributeMapper {
 
 	public int[] getSupportedAttributes() {
 		return new int[] {
+			SFSKPhyMacSetupAttribute.LOGICAL_NAME.getAttributeNumber(),
 			SFSKPhyMacSetupAttribute.INITIATOR_ELECTRICAL_PHASE.getAttributeNumber(),
 			SFSKPhyMacSetupAttribute.DELTA_ELECTRICAL_PHASE.getAttributeNumber(),
 			SFSKPhyMacSetupAttribute.MAX_RECEIVING_GAIN.getAttributeNumber(),

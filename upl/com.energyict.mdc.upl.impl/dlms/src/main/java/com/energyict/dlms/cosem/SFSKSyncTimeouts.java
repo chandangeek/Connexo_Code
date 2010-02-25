@@ -1,13 +1,12 @@
-/**
- *
- */
 package com.energyict.dlms.cosem;
 
 import java.io.IOException;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.cosem.attributes.SFSKSyncTimeoutsAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 
@@ -18,19 +17,6 @@ import com.energyict.protocol.RegisterValue;
 public class SFSKSyncTimeouts extends AbstractCosemObject implements RegisterReadable {
 
 	private static final byte[]	LN	= ObisCode.fromString("0.0.26.2.0.255").getLN();
-
-	/** Attributes */
-	private Unsigned16			searchInitiatorTimeout			= null;
-	private Unsigned16			syncConfirmTimeout				= null;
-	private Unsigned16			timeoutNotAddressed				= null;
-	private Unsigned16			timeoutFrameNotOk				= null;
-
-	/** Attribute numbers */
-	private static final int	ATTRB_SEARCH_INITIATOR_TIMEOUT	= 0x08;
-	private static final int	ATTRB_SYNC_CONFIRM_TIMEOUT		= 0x10;
-	private static final int	ATTRB_TIMEOUT_NOT_ADDRESSED		= 0x18;
-	private static final int	ATTRB_TIMEOUT_FRAME_NOT_OK		= 0x20;
-
 
 	public static ObisCode getObisCode() {
 		return ObisCode.fromByteArray(LN);
@@ -45,32 +31,48 @@ public class SFSKSyncTimeouts extends AbstractCosemObject implements RegisterRea
 		super(protocolLink, objectReference);
 	}
 
+	/**
+	 * Get the logicalname of the object. Identifies the object instance.
+	 * @return
+	 */
+	public OctetString getLogicalName() {
+		try {
+			return new OctetString(getResponseData(SFSKSyncTimeoutsAttribute.LOGICAL_NAME));
+		} catch (IOException e) {
+			return null;
+		}
+	}
+
 	public Unsigned16 getSearchInitiatorTimeout() {
 		try {
-			this.searchInitiatorTimeout = new Unsigned16(getResponseData(ATTRB_SEARCH_INITIATOR_TIMEOUT), 0);
-		} catch (IOException e) {}
-		return searchInitiatorTimeout;
+			return new Unsigned16(getResponseData(SFSKSyncTimeoutsAttribute.SEARCH_INITIATOR_TIMEOUT), 0);
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	public Unsigned16 getSyncConfirmTimeout() {
 		try {
-			this.syncConfirmTimeout = new Unsigned16(getResponseData(ATTRB_SYNC_CONFIRM_TIMEOUT), 0);
-		} catch (IOException e) {}
-		return syncConfirmTimeout;
+			return new Unsigned16(getResponseData(SFSKSyncTimeoutsAttribute.SYNCHRONIZATION_CONFIRMATION_TIMEOUT), 0);
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	public Unsigned16 getTimeoutNotAddressed() {
 		try {
-			this.timeoutNotAddressed = new Unsigned16(getResponseData(ATTRB_TIMEOUT_NOT_ADDRESSED), 0);
-		} catch (IOException e) {}
-		return timeoutNotAddressed;
+			return new Unsigned16(getResponseData(SFSKSyncTimeoutsAttribute.TIME_OUT_NOT_ADDRESSED), 0);
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	public Unsigned16 getTimeoutFrameNotOk() {
 		try {
-			this.timeoutFrameNotOk = new Unsigned16(getResponseData(ATTRB_TIMEOUT_FRAME_NOT_OK), 0);
-		} catch (IOException e) {}
-		return timeoutFrameNotOk;
+			return new Unsigned16(getResponseData(SFSKSyncTimeoutsAttribute.TIME_OUT_FRAME_NOT_OK), 0);
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	@Override
@@ -96,7 +98,27 @@ public class SFSKSyncTimeouts extends AbstractCosemObject implements RegisterRea
 	}
 
 	public RegisterValue asRegisterValue(int attributeNumber) {
-		return asRegisterValue();
+		SFSKSyncTimeoutsAttribute attribute = SFSKSyncTimeoutsAttribute.findByAttributeNumber(attributeNumber);
+		if (attribute != null) {
+			switch (attribute) {
+				case LOGICAL_NAME:
+					OctetString ln = getLogicalName();
+					return new RegisterValue(getObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+				case SEARCH_INITIATOR_TIMEOUT:
+					Unsigned16 search = getSearchInitiatorTimeout();
+					return new RegisterValue(getObisCode(), search != null ? String.valueOf(search.getValue()) : "null");
+				case SYNCHRONIZATION_CONFIRMATION_TIMEOUT:
+					Unsigned16 confirmTimeout = getSyncConfirmTimeout();
+					return new RegisterValue(getObisCode(), confirmTimeout != null ? String.valueOf(confirmTimeout.getValue()) : "null");
+				case TIME_OUT_NOT_ADDRESSED:
+					Unsigned16 notAddressed = getTimeoutNotAddressed();
+					return new RegisterValue(getObisCode(), notAddressed != null ? String.valueOf(notAddressed.getValue()) : "null");
+				case TIME_OUT_FRAME_NOT_OK:
+					Unsigned16 frameNOK = getTimeoutFrameNotOk();
+					return new RegisterValue(getObisCode(), frameNOK != null ? String.valueOf(frameNOK.getValue()) : "null");
+			}
+		}
+		return null;
 	}
 
 }
