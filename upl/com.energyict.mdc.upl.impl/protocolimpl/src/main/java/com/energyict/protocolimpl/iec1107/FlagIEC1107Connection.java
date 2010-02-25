@@ -59,7 +59,7 @@ public class FlagIEC1107Connection extends Connection {
     // General attributes
     private int iProtocolTimeout;
     private int iIEC1107Compatible;
-    private int iSecurityLevel;
+    protected int iSecurityLevel;
 
     protected static final byte SOH=0x01;
     protected static final byte STX=0x02;
@@ -69,7 +69,7 @@ public class FlagIEC1107Connection extends Connection {
     private static final byte NAK=0x15;
 
     // specific IEC1107
-    private boolean boolFlagIEC1107Connected;
+    protected boolean boolFlagIEC1107Connected;
 
     private long lForceDelay;
     private int iEchoCancelling;
@@ -79,19 +79,19 @@ public class FlagIEC1107Connection extends Connection {
     private byte[] txBuffer=null,txBuffer2=null;
 
 
-    private static final int STATE_SIGNON=0;
-    private static final int STATE_PROGRAMMINGMODE=1;
+    protected static final int STATE_SIGNON=0;
+    protected static final int STATE_PROGRAMMINGMODE=1;
 
-    private int sessionState=STATE_SIGNON;
+    protected int sessionState=STATE_SIGNON;
     private String errorSignature = "ERR";
 
     private boolean addCRLF=false;
     private boolean software7E1;
 
-    String strIdentConfig;
-    String strPass;
-    String meterID;
-    int baudrate;
+    protected String strIdentConfig;
+    protected String strPass;
+    protected String meterID;
+    protected int baudrate;
     int connectCount=0;
 
 
@@ -271,7 +271,7 @@ public class FlagIEC1107Connection extends Connection {
 
     } // public MeterType connectMAC() throws HDLCConnectionException
 
-    private MeterType signOn(String strIdentConfig, String meterID) throws IOException,NestedIOException,FlagIEC1107ConnectionException {
+    protected MeterType signOn(String strIdentConfig, String meterID) throws IOException,NestedIOException,FlagIEC1107ConnectionException {
         int retries=0;
         while(true) {
             try {
@@ -320,7 +320,7 @@ public class FlagIEC1107Connection extends Connection {
 
     } // private MeterType signOn(String strIdentConfig, String meterID) throws NestedIOException,FlagIEC1107ConnectionException
 
-    private void prepareAuthentication(String strPass) throws NestedIOException,FlagIEC1107ConnectionException {
+    protected void prepareAuthentication(String strPass) throws NestedIOException,FlagIEC1107ConnectionException {
         int iRetries=0;
 
         while(true) {
@@ -1062,7 +1062,7 @@ public class FlagIEC1107Connection extends Connection {
     }
 
     // KV 18092003
-    HHUSignOn hhuSignOn=null;
+    protected HHUSignOn hhuSignOn=null;
     public void setHHUSignOn(HHUSignOn hhuSignOn) {
         this.hhuSignOn=hhuSignOn;
     }
@@ -1085,8 +1085,7 @@ public class FlagIEC1107Connection extends Connection {
     /**
      * In case of a R6 command, some meters do not add CRLF at the end of a ACK-ed block of data.
      * This method enabled adding a CRLF at the end of a ACK-ed block of data.
-     * The default value for the addCRLF field is false
-     * @param addCRLF
+     * default false
      */
     public void setAddCRLF(boolean addCRLF) {
         this.addCRLF = addCRLF;
