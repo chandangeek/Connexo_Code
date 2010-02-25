@@ -6,9 +6,14 @@ package com.energyict.dlms.cosem;
 import java.io.IOException;
 
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.RegisterReadable;
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.RegisterValue;
 
 /**
  * @author gna
@@ -53,7 +58,7 @@ import com.energyict.dlms.axrdencoding.TypeEnum;
  * 				|						| state to the Connected(1) state
  * 				|						| Note: Transition (e) and (h) are essentially the same, but their Trigger is different.
  */
-public class Disconnector extends AbstractCosemObject{
+public class Disconnector extends AbstractCosemObject implements RegisterReadable {
 
 	public static boolean DEBUG = true;
 
@@ -62,15 +67,10 @@ public class Disconnector extends AbstractCosemObject{
 	private TypeEnum controlState = null; 		// Shows the internal state of the disconnect control object
 	private TypeEnum controlMode = null;		// Configures the behavior of the disconnect control object for all triggers
 
-	/* Attribute numbers */
-	private static final int ATTRB_OUTPUT_STATE = 2;
-	private static final int ATTRB_CONTROL_STATE = 3;
-	private static final int ATTRB_CONTROL_MODE = 4;
-
 	/* Method invoke */
 	private static final int METHOD_REMOTE_DISCONNECT = 1;
 	private static final int METHOD_REMOTE_RECONNECT = 2;
-	
+
 	/* Method ShortName writes */
 	private static final int METHOD_REMOTE_DISCONNECT_SN = 0x20;
 	private static final int METHOD_REMOTE_RECONNECT_SN = 0x28;
@@ -84,13 +84,25 @@ public class Disconnector extends AbstractCosemObject{
 	}
 
 	/**
+	 * Get the logicalname of the object. Identifies the object instance.
+	 * @return
+	 */
+	public OctetString getLogicalName() {
+		try {
+			return new OctetString(getResponseData(DisconnectControlAttribute.LOGICAL_NAME));
+		} catch (IOException e) {
+			return null;
+		}
+	}
+
+	/**
 	 * Just returns the outputState that we previously read from the meter, if it is null, then we read it anyway
 	 * @return
 	 * @throws IOException
 	 */
-	public BooleanObject getOutputState() throws IOException{
+	public BooleanObject getOutputState() {
 		if(this.outputState == null){
-			readOutputState();	// do a dummy read
+			readOutputState(); // do a dummy read
 		}
 		return this.outputState;
 	}
@@ -100,11 +112,9 @@ public class Disconnector extends AbstractCosemObject{
 	 * @return true or false
 	 * @throws IOException
 	 */
-	public boolean getState() throws IOException{
-		if(this.outputState == null){
-			readOutputState();	// do a dummy read
-		}
-		return this.outputState.getState();
+	public boolean getState() {
+		BooleanObject state = getOutputState();
+		return state != null ? state.getState() : false;
 	}
 
 	/**
@@ -112,19 +122,21 @@ public class Disconnector extends AbstractCosemObject{
 	 * @return
 	 * @throws IOException
 	 */
-	public BooleanObject readOutputState() throws IOException{
-		this.outputState = new BooleanObject(getLNResponseData(ATTRB_OUTPUT_STATE),0);
+	public BooleanObject readOutputState() {
+		try {
+			this.outputState = new BooleanObject(getResponseData(DisconnectControlAttribute.OUTPUT_STATE),0);
+		} catch (IOException e) {}
 		return this.outputState;
 	}
 
 	/**
 	 * Sets the outputState in the given state
-	 * @param outputState
+	 * @param outputStat
 	 * @throws IOException
 	 */
-	public void writeOutputState(BooleanObject outputState) throws IOException{
-		write(ATTRB_OUTPUT_STATE, outputState.getBEREncodedByteArray());
-		this.outputState = outputState;
+	public void writeOutputState(BooleanObject outputStat) throws IOException{
+		write(DisconnectControlAttribute.OUTPUT_STATE, outputStat.getBEREncodedByteArray());
+		this.outputState = outputStat;
 	}
 
 	/**
@@ -132,8 +144,10 @@ public class Disconnector extends AbstractCosemObject{
 	 * @return
 	 * @throws IOException
 	 */
-	public TypeEnum readControlState() throws IOException {
-		this.controlState = new TypeEnum(getLNResponseData(ATTRB_CONTROL_STATE), 0);
+	public TypeEnum readControlState() {
+		try {
+			this.controlState = new TypeEnum(getResponseData(DisconnectControlAttribute.CONTROL_STATE), 0);
+		} catch (IOException e) {}
 		return this.controlState;
 	}
 
@@ -142,7 +156,7 @@ public class Disconnector extends AbstractCosemObject{
 	 * @return
 	 * @throws IOException
 	 */
-	public TypeEnum getControlState() throws IOException {
+	public TypeEnum getControlState() {
 		if(this.controlState == null){
 			readControlState();	// do a dummy read
 		}
@@ -151,12 +165,12 @@ public class Disconnector extends AbstractCosemObject{
 
 	/**
 	 * Write a controlState to the meter
-	 * @param controlState
+	 * @param controlStat
 	 * @throws IOException
 	 */
-	public void writeControlState(TypeEnum controlState) throws IOException {
-		write(ATTRB_CONTROL_STATE, controlState.getBEREncodedByteArray());
-		this.controlState = controlState;
+	public void writeControlState(TypeEnum controlStat) throws IOException {
+		write(DisconnectControlAttribute.CONTROL_STATE, controlStat.getBEREncodedByteArray());
+		this.controlState = controlStat;
 	}
 
 	/**
@@ -164,7 +178,7 @@ public class Disconnector extends AbstractCosemObject{
 	 * @return
 	 * @throws IOException
 	 */
-	public TypeEnum getControlMode() throws IOException {
+	public TypeEnum getControlMode() {
 		if(this.controlMode == null){
 			readControlMode(); 	// do a dummy read
 		}
@@ -176,21 +190,22 @@ public class Disconnector extends AbstractCosemObject{
 	 * @return
 	 * @throws IOException
 	 */
-	public TypeEnum readControlMode() throws IOException {
-		this.controlMode = new TypeEnum(getLNResponseData(ATTRB_CONTROL_MODE),0);
+	public TypeEnum readControlMode() {
+		try {
+			this.controlMode = new TypeEnum(getResponseData(DisconnectControlAttribute.CONTROL_MODE),0);
+		} catch (IOException e) {}
 		return this.controlMode;
 	}
 
 	/**
 	 * Note: 	The ControlMode attribute is a static attribute ... so I suppose you can not write it.
 	 * 			But wrote a protected method to write it, if it's needed, just make it public.
-	 * @param controlMode
+	 * @param ctrlMode
 	 * @throws IOException
 	 */
-	public void writeControlMode(TypeEnum controlMode) throws IOException {
-
-		write(ATTRB_CONTROL_MODE, controlMode.getBEREncodedByteArray());
-		this.controlMode = controlMode;
+	public void writeControlMode(TypeEnum ctrlMode) throws IOException {
+		write(DisconnectControlAttribute.CONTROL_MODE, ctrlMode.getBEREncodedByteArray());
+		this.controlMode = ctrlMode;
 	}
 
 	/**
@@ -220,6 +235,35 @@ public class Disconnector extends AbstractCosemObject{
 		} else {
 			write(METHOD_REMOTE_RECONNECT_SN, new Integer8(0).getBEREncodedByteArray());
 		}
-		
+
+	}
+
+	public RegisterValue asRegisterValue() {
+		return new RegisterValue(getObisCode(), super.toString());
+	}
+
+	public static ObisCode getObisCode() {
+		return ObisCode.fromString("0.0.96.3.10.255");
+	}
+
+	public RegisterValue asRegisterValue(int attributeNumber) {
+		DisconnectControlAttribute attribute = DisconnectControlAttribute.findByAttributeNumber(attributeNumber);
+		if (attribute != null) {
+			switch (attribute) {
+				case LOGICAL_NAME:
+					OctetString ln = getLogicalName();
+					return new RegisterValue(getObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
+				case OUTPUT_STATE:
+					BooleanObject output = getOutputState();
+					return new RegisterValue(getObisCode(), output != null ? String.valueOf(output.getState()) : "null");
+				case CONTROL_STATE:
+					TypeEnum ctrlStat = getControlState();
+					return new RegisterValue(getObisCode(), ctrlStat != null ? String.valueOf(ctrlStat.getValue()) : "null");
+				case CONTROL_MODE:
+					TypeEnum ctrlMode = getControlMode();
+					return new RegisterValue(getObisCode(), ctrlMode != null ? String.valueOf(ctrlMode.getValue()) : "null");
+			}
+		}
+		return null;
 	}
 }

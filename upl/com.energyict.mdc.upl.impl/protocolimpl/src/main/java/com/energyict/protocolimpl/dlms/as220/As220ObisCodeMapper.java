@@ -20,8 +20,8 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.DLMSAttributeMapper;
 import com.energyict.protocolimpl.base.ObiscodeMapper;
-import com.energyict.protocolimpl.base.ContactorController.ContactorState;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220ContactorController;
+import com.energyict.protocolimpl.dlms.as220.emeter.DisconnectControlMapper;
 import com.energyict.protocolimpl.dlms.as220.plc.SFSKActiveInitiatorMapper;
 import com.energyict.protocolimpl.dlms.as220.plc.SFSKIec61334LLCSetupMapper;
 import com.energyict.protocolimpl.dlms.as220.plc.SFSKMacCountersMapper;
@@ -50,7 +50,7 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 	private static final ObisCode	SFSK_IEC_LLC_SETIP			= ObisCode.fromString("0.0.26.5.0.255");
 
 	private static final ObisCode 	FIRMWARE_VERSION			= ObisCode.fromString("1.0.0.2.0.255");
-	private static final ObisCode	CONTACTOR_STATE_OBISCODE	= AS220ContactorController.DISCONNECTOR_OBISCODE;
+	private static final ObisCode	DISCONNECTOR_OBISCODE		= AS220ContactorController.DISCONNECTOR_OBISCODE;
 
 	private static final ObisCode[] SIMPLE_DATA_REGISTERS = new ObisCode[] {
 		NR_CONFIGCHANGES_OBISCODE,
@@ -71,7 +71,8 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 				new SFSKActiveInitiatorMapper(SFSK_ACTIVE_INITIATOR, as220),
 				new SFSKSyncTimeoutsMapper(SFSK_SYNC_TIMEOUTS, as220),
 				new SFSKMacCountersMapper(SFSK_MAC_COUNTERS, as220),
-				new SFSKIec61334LLCSetupMapper(SFSK_IEC_LLC_SETIP, as220)
+				new SFSKIec61334LLCSetupMapper(SFSK_IEC_LLC_SETIP, as220),
+				new DisconnectControlMapper(DISCONNECTOR_OBISCODE, as220)
 		};
     }
 
@@ -166,9 +167,6 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 			return getCosemObjectFactory().getSFSKIec61334LLCSetup().asRegisterValue();
 		} else if( obisCode.equals(FIRMWARE_VERSION)) {
 		    return new RegisterValue(FIRMWARE_VERSION, getAs220().getFirmwareVersion());
-		} else if (obisCode.equals(CONTACTOR_STATE_OBISCODE)) {
-			ContactorState contactorState = getAs220().geteMeter().getContactorController().getContactorState();
-			return new RegisterValue(obisCode, contactorState != null ? contactorState.toString() : "Unknown");
 		}
 
         // *********************************************************************************

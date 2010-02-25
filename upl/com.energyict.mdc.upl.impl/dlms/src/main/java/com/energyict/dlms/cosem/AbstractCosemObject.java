@@ -221,7 +221,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 		if (getObjectReference().isSNReference()) {
 			return getResponseData(attribute.getShortName());
 		} else {
-			return getResponseData(attribute.getAttributeNumber());
+			return getLNResponseData(attribute.getAttributeNumber());
 
 		}
 	}
