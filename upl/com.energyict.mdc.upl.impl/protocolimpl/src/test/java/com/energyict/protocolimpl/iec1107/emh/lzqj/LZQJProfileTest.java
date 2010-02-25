@@ -107,12 +107,12 @@ public class LZQJProfileTest {
 			ProfileData pd = lzqjProfile.buildProfileData(content);
 
 			logger.info(pd.toString());
-//			assertEquals(new BigDecimal(new BigInteger("18875"), 3), ((IntervalValue)pd.getIntervalData(34).getIntervalValues().get(0)).getNumber());
-//			assertEquals(new Date(Long.valueOf("1256432100000")), pd.getIntervalData(34).getEndTime());
-//			assertEquals(new BigDecimal(new BigInteger("18876"), 3), ((IntervalValue)pd.getIntervalData(35).getIntervalValues().get(0)).getNumber());
-//			assertEquals(new Date(Long.valueOf("1256432400000")), pd.getIntervalData(35).getEndTime());
-//			assertEquals(new BigDecimal(new BigInteger("18877"), 3), ((IntervalValue)pd.getIntervalData(36).getIntervalValues().get(0)).getNumber());
-//			assertEquals(new Date(Long.valueOf("1256432700000")), pd.getIntervalData(36).getEndTime());
+			assertEquals(new BigDecimal(new BigInteger("18850"), 3), ((IntervalValue)pd.getIntervalData(9).getIntervalValues().get(0)).getNumber());
+			assertEquals(new Date(Long.valueOf("1269737700000")), pd.getIntervalData(9).getEndTime());
+			assertEquals(new BigDecimal(new BigInteger("18851"), 3), ((IntervalValue)pd.getIntervalData(10).getIntervalValues().get(0)).getNumber());
+			assertEquals(new Date(Long.valueOf("1269738000000")), pd.getIntervalData(10).getEndTime());
+			assertEquals(new BigDecimal(new BigInteger("18852"), 3), ((IntervalValue)pd.getIntervalData(11).getIntervalValues().get(0)).getNumber());
+			assertEquals(new Date(Long.valueOf("1269738300000")), pd.getIntervalData(11).getEndTime());
 
 		} catch (IOException e) {
 			logger.log(Level.INFO, e.getMessage());
