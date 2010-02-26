@@ -23,6 +23,11 @@ public final class DataAccessResultException extends IOException {
 		TYPE_UNMATCHED(12, "Type unmatched"),
 		ACCESS_SCOPE_VIOLATION(13, "Scope of access violation"),
 		DATA_BLOCK_UNAVAILABLE(14, "Data block unavailable"),
+		LONG_GET_ABORTED(15, "Long get aborted"),
+		NO_LONG_GET_IN_PROGRESS(16, "No long get in progress"),
+		LONG_SET_ABORTED(17, "Long set aborted"),
+		NO_LONG_SET_IN_PROGRESS(18, "No long set in progress"),
+		DATA_BLOCK_NUMBER_INVALID(19, "Data block number in valid"),
 		OTHER(255, "Other reason");
 
 		/** This is the integer result code returned by the device. */
@@ -33,7 +38,7 @@ public final class DataAccessResultException extends IOException {
 
 		/**
 		 * Create a new instance using the result and description.
-		 * 
+		 *
 		 * @param result
 		 *            The result.
 		 * @param rescription
@@ -46,7 +51,7 @@ public final class DataAccessResultException extends IOException {
 
 		/**
 		 * Returns the result code as it was returned by the device.
-		 * 
+		 *
 		 * @return The result code as it was returned by the device.
 		 */
 		public int getResultCode() {
@@ -55,7 +60,7 @@ public final class DataAccessResultException extends IOException {
 
 		/**
 		 * Returns the description.
-		 * 
+		 *
 		 * @return The description.
 		 */
 		public String getDescription() {
@@ -64,10 +69,10 @@ public final class DataAccessResultException extends IOException {
 
 		/**
 		 * Returns the corresponding data access result code.
-		 * 
+		 *
 		 * @param resultCode
 		 *            The result code.
-		 * 
+		 *
 		 * @return The corresponding {@link DataAccessResultCode}.
 		 */
 		private static DataAccessResultCode byResultCode(final int resultCode) {
@@ -125,7 +130,7 @@ public final class DataAccessResultException extends IOException {
 
 	/**
 	 * Returns the data access result code if there is one.
-	 * 
+	 *
 	 * @return The data access result code if there is one.
 	 */
 	public DataAccessResultCode getCode() {
