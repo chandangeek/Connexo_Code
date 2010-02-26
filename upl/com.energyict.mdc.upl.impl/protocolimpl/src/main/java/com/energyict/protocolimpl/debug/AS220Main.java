@@ -31,6 +31,7 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
+import com.energyict.protocolimpl.dlms.as220.plc.PLCMessaging;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 public class AS220Main {
@@ -45,7 +46,7 @@ public class AS220Main {
 	private static final String		CONNECT_EMETER			= "<" + AS220Messaging.CONNECT_EMETER + ">1</" + AS220Messaging.CONNECT_EMETER + ">";
 	private static final String		ARM_EMETER				= "<" + AS220Messaging.ARM_EMETER + ">1</" + AS220Messaging.ARM_EMETER + ">";
 
-	private static final String		RESCAN_PLCBUS			= "<" + AS220Messaging.RESCAN_PLCBUS + ">1</" + AS220Messaging.RESCAN_PLCBUS + ">";
+	private static final String		RESCAN_PLCBUS			= "<" + PLCMessaging.RESCAN_PLCBUS + ">1</" + PLCMessaging.RESCAN_PLCBUS + ">";
 	private static final String		FORCE_SET_CLOCK			= "<" + AS220Messaging.FORCE_SET_CLOCK + ">1</" + AS220Messaging.FORCE_SET_CLOCK + ">";
 
 	private static final String		OBSERVER_FILENAME		= "c:\\logging\\AS220Main\\communications.log";
@@ -224,8 +225,7 @@ public class AS220Main {
 			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.96.1.0.255")));
 			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.96.14.0.255")));
 
-			readProfile(false);
-
+			pulseContactor();
 
 		} catch (Exception e) {
 			e.printStackTrace();
