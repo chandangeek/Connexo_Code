@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.attributes.SFSKSyncTimeoutsAttribute;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocol.messaging.MessageTagSpec;
@@ -108,8 +110,22 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 	}
 
 	private MessageSpec createSetMacTimeoutsMessageSpec(String keyId, String tagName, boolean advanced) {
-		// TODO Auto-generated method stub
-		return createActivePLCChannelMessageSpec(keyId, tagName, advanced);
+		System.out.println("createSetMacTimeoutsMessageSpec");
+		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+
+		// We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
+		MessageValueSpec msgVal = new MessageValueSpec();
+		msgVal.setValue(" ");
+		tagSpec.add(msgVal);
+
+		tagSpec.add(new MessageAttributeSpec(SFSKSyncTimeoutsAttribute.SEARCH_INITIATOR_TIMEOUT.name(), true));
+		tagSpec.add(new MessageAttributeSpec(SFSKSyncTimeoutsAttribute.SYNCHRONIZATION_CONFIRMATION_TIMEOUT.name(), true));
+		tagSpec.add(new MessageAttributeSpec(SFSKSyncTimeoutsAttribute.TIME_OUT_NOT_ADDRESSED.name(), true));
+		tagSpec.add(new MessageAttributeSpec(SFSKSyncTimeoutsAttribute.TIME_OUT_FRAME_NOT_OK.name(), true));
+
+		msgSpec.add(tagSpec);
+		return msgSpec;
 	}
 
 }

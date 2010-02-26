@@ -9,6 +9,7 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageElementSpec;
 import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageTagSpec;
@@ -40,7 +41,16 @@ public abstract class AbstractSubMessageProtocol implements SubMessageProtocol {
 	}
 
 	public boolean canHandleMessage(MessageSpec messageSpec) {
-		return canHandleMessage(messageSpec.getName());
+		for (Iterator iterator = messageSpec.getElements().iterator(); iterator.hasNext();) {
+			MessageElementSpec messageElementSpec = (MessageElementSpec) iterator.next();
+			if (messageElementSpec.isTag()) {
+				MessageTagSpec mts = (MessageTagSpec) messageElementSpec;
+				if (canHandleMessage(mts.getName())) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public boolean canHandleMessage(String messageTag) {
