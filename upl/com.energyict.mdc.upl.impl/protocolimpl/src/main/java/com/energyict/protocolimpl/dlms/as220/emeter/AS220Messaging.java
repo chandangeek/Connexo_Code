@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.dlms.as220.emeter;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -11,25 +10,16 @@ import org.xml.sax.SAXException;
 import sun.misc.BASE64Decoder;
 
 import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.protocolimpl.base.AbstractSubMessageProtocol;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 
-public class AS220Messaging implements MessageProtocol {
+public class AS220Messaging extends AbstractSubMessageProtocol {
 
 	/**
 	 * Message tags
@@ -41,9 +31,6 @@ public class AS220Messaging implements MessageProtocol {
 	public static final String	TOPT_SWITCH_BASE			= "TariffOptionSwitchBase";
 	public static final String	TOPT_SWITCH_DAYNIGHT		= "TariffOptionSwitchDayNight";
 	public static final String	FORCE_SET_CLOCK				= "ForceSetClock";
-
-	public static final String	RESCAN_PLCBUS				= "RescanPlcBus";
-	public static final String	SET_ACTIVE_PLC_CHANNEL		= "SetActivePlcChannel";
 
 	public static final String 	FIRMWARE_UPDATE				= "FirmwareUpdate";
 
@@ -59,13 +46,17 @@ public class AS220Messaging implements MessageProtocol {
 	private static final String	TOPT_SWITCH_DAYNIGHT_DISPLAY	= "Switch tariff option DAY/NIGHT";
 	public static final String	FORCE_SET_CLOCK_DISPLAY			= "Force set clock";
 
-	private static final String	RESCAN_PLCBUS_DISPLAY			= "Force manual rescan PLC bus";
-	private static final String	SET_ACTIVE_PLC_CHANNEL_DISPLAY	= "Set active PLC channel";
-
 	private final AS220 as220;
 
 	public AS220Messaging(AS220 as220) {
 		this.as220 = as220;
+		addSupportedMessageTag(CONNECT_EMETER);
+		addSupportedMessageTag(DISCONNECT_EMETER);
+		addSupportedMessageTag(ARM_EMETER);
+		addSupportedMessageTag(TOPT_SWITCH_BASE);
+		addSupportedMessageTag(TOPT_SWITCH_DAYNIGHT);
+		addSupportedMessageTag(FORCE_SET_CLOCK);
+		addSupportedMessageTag(FIRMWARE_UPDATE);
 	}
 
 	public AS220 getAs220() {
@@ -73,31 +64,21 @@ public class AS220Messaging implements MessageProtocol {
 	}
 
 	public List<MessageCategorySpec> getMessageCategories() {
-        List<MessageCategorySpec> theCategories = new ArrayList<MessageCategorySpec>();
+        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
         MessageCategorySpec eMeterCat = new MessageCategorySpec("[01] E-Meter ");
-        MessageCategorySpec plcMeterCat = new MessageCategorySpec("[02] PLC related");
         MessageCategorySpec otherMeterCat = new MessageCategorySpec("[03] Other");
 
         eMeterCat.addMessageSpec(createMessageSpec(DISCONNECT_EMETER_DISPLAY, DISCONNECT_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(ARM_EMETER_DISPLAY, ARM_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(CONNECT_EMETER_DISPLAY, CONNECT_EMETER, false));
 
-        plcMeterCat.addMessageSpec(createMessageSpec(RESCAN_PLCBUS_DISPLAY, RESCAN_PLCBUS, false));
-        plcMeterCat.addMessageSpec(createActivePLCChannelMessageSpec(SET_ACTIVE_PLC_CHANNEL_DISPLAY, SET_ACTIVE_PLC_CHANNEL, false));
-
         otherMeterCat.addMessageSpec(createMessageSpec(FORCE_SET_CLOCK_DISPLAY, FORCE_SET_CLOCK, false));
         otherMeterCat.addMessageSpec(createMessageSpec(TOPT_SWITCH_BASE_DISPLAY, TOPT_SWITCH_BASE, false));
         otherMeterCat.addMessageSpec(createMessageSpec(TOPT_SWITCH_DAYNIGHT_DISPLAY, TOPT_SWITCH_DAYNIGHT, false));
 
-        theCategories.add(eMeterCat);
-        theCategories.add(plcMeterCat);
-        theCategories.add(otherMeterCat);
-        return theCategories;
-	}
-
-	public void applyMessages(List messageEntries) throws IOException {
-		// TODO Auto-generated method stub
-
+        categories.add(eMeterCat);
+        categories.add(otherMeterCat);
+        return categories;
 	}
 
 	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
@@ -117,10 +98,6 @@ public class AS220Messaging implements MessageProtocol {
 			} else if (isMessageTag(TOPT_SWITCH_DAYNIGHT, messageEntry)) {
 				getAs220().getLogger().info("TARIFF_OPTION_SWITCH_DAYNIGHT message received");
 				getAs220().getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.0.255")).setValueAttr(new TypeEnum(1));
-			} else if (isMessageTag(RESCAN_PLCBUS, messageEntry)) {
-				rescanPLCBus();
-			} else if (isMessageTag(SET_ACTIVE_PLC_CHANNEL, messageEntry)) {
-				setActivePLCChannel(messageEntry);
 			} else if (isMessageTag(FORCE_SET_CLOCK, messageEntry)) {
 				getAs220().getLogger().info("FORCE_SET_CLOCK message received");
 				getAs220().geteMeter().getClockController().setTime();
@@ -227,125 +204,6 @@ public class AS220Messaging implements MessageProtocol {
 
 			throw ioException;
 		}
-	}
-
-	private void setActivePLCChannel(MessageEntry messageEntry) throws IOException {
-		getAs220().getLogger().info("SET_ACTIVE_PLC_CHANNEL message received");
-		String messageContent = getMessageEntryContent(messageEntry);
-		int channel;
-		try {
-			channel = Integer.valueOf(messageContent).intValue();
-		} catch (NumberFormatException e) {
-			throw new IOException("Invalid channel value: '" + messageContent + "'");
-		}
-		setActivePLCChannel(channel);
-	}
-
-	private void setActivePLCChannel(int channel) throws IOException {
-		if ((channel < 0) || (channel > 6)) {
-			throw new IOException("Channel can only be 0-6, but was " + channel);
-		}
-		getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setActiveChannel(new Unsigned8(channel));
-	}
-
-	private void rescanPLCBus() throws IOException {
-		getAs220().getLogger().info("RESCAN_PLCBUS message received");
-		setActivePLCChannel(0);
-	}
-
-	private String getMessageEntryContent(MessageEntry messageEntry) {
-		String returnValue = "";
-		if ((messageEntry != null) && (messageEntry.getContent() != null)) {
-			String content = messageEntry.getContent();
-			int firstPos = content.indexOf('>');
-			int lastPosPos = content.lastIndexOf('<');
-			if ((firstPos != -1) && (lastPosPos != -1) && ((firstPos + 1) < lastPosPos)) {
-				returnValue = content.substring(firstPos + 1, lastPosPos);
-			}
-		}
-		return returnValue;
-	}
-
-	public String writeMessage(Message msg) {
-		return msg.write(getAs220());
-	}
-
-	public String writeTag(MessageTag tag) {
-    	StringBuffer buf = new StringBuffer();
-
-        // a. Opening tag
-        buf.append("<");
-        buf.append( tag.getName() );
-
-        // b. Attributes
-        for (Iterator<MessageAttribute> it = tag.getAttributes().iterator(); it.hasNext();) {
-            MessageAttribute att = it.next();
-            if ((att.getValue()==null) || (att.getValue().length()==0)) {
-				continue;
-			}
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
-        }
-        buf.append(">");
-
-        // c. sub elements
-        for (Iterator<MessageElement> it = tag.getSubElements().iterator(); it.hasNext();) {
-            MessageElement elt = it.next();
-            if (elt.isTag()) {
-				buf.append( writeTag((MessageTag)elt) );
-			} else if (elt.isValue()) {
-                String value = writeValue((MessageValue)elt);
-                if ((value==null) || (value.length()==0)) {
-					return "";
-				}
-                buf.append(value);
-            }
-        }
-
-        // d. Closing tag
-        buf.append("</");
-        buf.append( tag.getName() );
-        buf.append(">");
-
-        return buf.toString();
-	}
-
-	public String writeValue(MessageValue value) {
-		return value.getValue();
-	}
-
-    /**
-     * Generate a {@link MessageSpec}, that can be added to the list of supported messages
-     * @param keyId
-     * @param tagName
-     * @param advanced
-     * @return
-     */
-    private MessageSpec createMessageSpec(String keyId, String tagName, boolean advanced) {
-        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        msgSpec.add(tagSpec);
-        return msgSpec;
-    }
-
-    private MessageSpec createActivePLCChannelMessageSpec(String keyId, String tagName, boolean advanced) {
-        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-
-        MessageValueSpec mvs = new MessageValueSpec();
-        tagSpec.add(mvs);
-
-        msgSpec.add(tagSpec);
-        return msgSpec;
-	}
-
-	/**
-	 * @param tag
-	 * @param messageEntry
-	 * @return
-	 */
-	private boolean isMessageTag(String tag, MessageEntry messageEntry) {
-		return (messageEntry.getContent().indexOf("<" + tag) >= 0);
 	}
 
 }

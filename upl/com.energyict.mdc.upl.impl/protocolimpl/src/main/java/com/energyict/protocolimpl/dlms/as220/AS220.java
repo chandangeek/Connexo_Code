@@ -2,8 +2,10 @@ package com.energyict.protocolimpl.dlms.as220;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import com.energyict.cbo.BusinessException;
@@ -23,10 +25,12 @@ import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.ObiscodeMapper;
+import com.energyict.protocolimpl.base.SubMessageProtocol;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import com.energyict.protocolimpl.dlms.as220.emeter.EMeter;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 import com.energyict.protocolimpl.dlms.as220.plc.PLC;
+import com.energyict.protocolimpl.dlms.as220.plc.PLCMessaging;
 
 /**
  * @author kvds, jme
@@ -35,9 +39,7 @@ import com.energyict.protocolimpl.dlms.as220.plc.PLC;
 public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProtocol {
 
 	private static final int	PROFILETYPE_PLC_ONLY	= 2;
-
 	private static final int	PROFILETYPE_EMETER_ONLY	= 1;
-
 	private static final int	PROFILETYPE_EMETER_PLC	= 0;
 
 	private static final int SEC_PER_MIN = 60;
@@ -47,18 +49,21 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
 	private int iNROfIntervals=-1;
 
-	private final EMeter			eMeter			= new EMeter(this);
-	private final GMeter			gMeter		= new GMeter(this);
-	private final MessageProtocol	messaging		= new AS220Messaging(this);
-	private final PLC				plc				= new PLC(this);
+	private final EMeter 	eMeter	= new EMeter(this);
+	private final GMeter 	gMeter	= new GMeter(this);
+	private final PLC 		plc		= new PLC(this);
+	private ObiscodeMapper	ocm		= null;
 
-	private ObiscodeMapper			ocm		= null;
+	private final List<SubMessageProtocol> messagingList;
+
 
     /**
      * Create a new instance of the {@link AS220} dlms protocol
      */
     public AS220() {
-
+    	messagingList = new ArrayList<SubMessageProtocol>();
+    	messagingList.add(new AS220Messaging(this));
+    	messagingList.add(new PLCMessaging(this));
     }
 
     /**
@@ -136,11 +141,11 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     }
 
     /**
-     * Getter for the as220Messaging
-     * @return the current {@link AS220Messaging} object
+     * Getter for the list of {@link SubMessageProtocol}
+     * @return the current {@link SubMessageProtocol} object
      */
-    public MessageProtocol getMessaging() {
-		return messaging;
+    public List<SubMessageProtocol> getMessagingList() {
+		return messagingList;
 	}
 
 	/**
@@ -189,15 +194,29 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 	}
 
 	public List<MessageCategorySpec> getMessageCategories() {
-		return getMessaging().getMessageCategories();
+		List<MessageCategorySpec> list = new ArrayList<MessageCategorySpec>();
+		for (SubMessageProtocol messaging : getMessagingList()) {
+			list.addAll(messaging.getMessageCategories());
+		}
+		return list;
 	}
 
 	public String writeMessage(Message msg) {
-		return getMessaging().writeMessage(msg);
+		for (SubMessageProtocol messaging : getMessagingList()) {
+			if (messaging.canHandleMessage(msg.getSpec())) {
+				return messaging.writeMessage(msg);
+			}
+		}
+		return "";
 	}
 
 	public String writeTag(MessageTag msgTag) {
-        return getMessaging().writeTag(msgTag);
+		for (SubMessageProtocol messaging : getMessagingList()) {
+			if (messaging.canHandleMessage(msgTag.getName())) {
+				return messaging.writeTag(msgTag);
+			}
+		}
+		return "";
     }
 
 	public String writeValue(MessageValue msgValue) {
@@ -205,11 +224,23 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 	}
 
 	public void applyMessages(List messageEntries) throws IOException {
-		getMessaging().applyMessages(messageEntries);
+		for (SubMessageProtocol messaging : getMessagingList()) {
+			for (Iterator iterator = messageEntries.iterator(); iterator.hasNext();) {
+				MessageEntry messageEntry = (MessageEntry) iterator.next();
+				if (messaging.canHandleMessage(messageEntry)) {
+					messaging.applyMessages(messageEntries);
+				}
+			}
+		}
 	}
 
 	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-		return getMessaging().queryMessage(messageEntry);
+		for (SubMessageProtocol messaging : getMessagingList()) {
+			if (messaging.canHandleMessage(messageEntry)) {
+				return messaging.queryMessage(messageEntry);
+			}
+		}
+		return MessageResult.createFailed(messageEntry);
 	}
 
 	/**
