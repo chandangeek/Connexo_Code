@@ -11,7 +11,7 @@ import com.energyict.dlms.axrdencoding.Array;
  */
 public abstract class AbstractPrintableArray extends Array {
 
-	abstract protected AbstractDataType getArrayItem(int itemNumber);
+	protected abstract AbstractDataType getArrayItem(int itemNumber);
 
 	public AbstractPrintableArray(byte[] berEncodedData, int offset, int level) throws IOException {
 		super(berEncodedData, offset, level);
