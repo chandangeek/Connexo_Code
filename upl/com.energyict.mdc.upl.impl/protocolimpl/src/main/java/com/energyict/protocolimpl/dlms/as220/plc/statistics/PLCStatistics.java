@@ -89,6 +89,11 @@ public class PLCStatistics extends Array {
 		ChannelInfo fCor = new ChannelInfo(7, "Frames corrected", countUnit);
 		ChannelInfo fBad = new ChannelInfo(8, "Bad frames", countUnit);
 
+		fTx.setCumulative();
+		fRep.setCumulative();
+		fCor.setCumulative();
+		fBad.setCumulative();
+
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		channelInfos.add(snr0);
 		channelInfos.add(snr1);
