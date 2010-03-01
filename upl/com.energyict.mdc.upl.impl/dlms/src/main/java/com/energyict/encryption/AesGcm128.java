@@ -12,23 +12,23 @@ import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Implementation of Galois/Counter mode of Operation(GCM)
- * 
+ *
  * <pre>
- * Galois/Counter Mode (GCM) is an algorithm for authenticated encryption with associated data. 
- * GCM is constructed from an approved symmetric key block cipher with a block size of 128 bits, 
- * such as the Advanced Encryption Standard (AES) algorithm. Thus, GCM is a mode of operation of the AES algorithm. 
- * 
+ * Galois/Counter Mode (GCM) is an algorithm for authenticated encryption with associated data.
+ * GCM is constructed from an approved symmetric key block cipher with a block size of 128 bits,
+ * such as the Advanced Encryption Standard (AES) algorithm. Thus, GCM is a mode of operation of the AES algorithm.
+ *
  * GCM provides assurance of the confidentiality of data using a variation of the Counter mode of operation for encryption.
- * 
- * GCM provides assurance of the authenticity of the confidential data (up to about 64 gigabytes per invocation) 
- * using a universal hash function that is defined over a binary Galois (i.e., finite) field. 
- * 
+ *
+ * GCM provides assurance of the authenticity of the confidential data (up to about 64 gigabytes per invocation)
+ * using a universal hash function that is defined over a binary Galois (i.e., finite) field.
+ *
  * GCM can also provide authentication assurance for additional data (of practically unlimited length per invocation) that is not encrypted.
- * If the GCM input is restricted to data that is not to be encrypted, the resulting specialization of GCM, called GMAC, 
+ * If the GCM input is restricted to data that is not to be encrypted, the resulting specialization of GCM, called GMAC,
  * is simply an authentication mode on the input data.
- * 
- * GCM provides stronger authentication assurance than a (non-cryptographic) checksum or error detecting code; in particular, GCM can detect both 
- * 	1) accidental modifications of the data and 
+ *
+ * GCM provides stronger authentication assurance than a (non-cryptographic) checksum or error detecting code; in particular, GCM can detect both
+ * 	1) accidental modifications of the data and
  * 	2) intentional, unauthorized modifications.
  * </pre>
  *
@@ -42,7 +42,7 @@ public class AesGcm128 {
 	private BitVector c;	// ciphertext
 	private BitVector t;	// authenticationtag
 	private BitVector h;	// hash
-	
+
 	private int tagSize = 16;	// The default tagSize for GCM is 16bit; NOTE: DLMS specifies a 12bit TagLength
 
 
@@ -56,7 +56,7 @@ public class AesGcm128 {
 		this.p = new BitVector(0);
 		this.a = new BitVector(0);
 		this.c = new BitVector(p.length());
-		this.t = new BitVector(16);	
+		this.t = new BitVector(16);
 	}
 
 	/**
@@ -73,7 +73,7 @@ public class AesGcm128 {
 		this.c = new BitVector(0);
 		this.t = new BitVector(0);
 	}
-	
+
 	/**
 	 * Creates a new instance of the AES Galois/Counter mode with a globalKey byteArray
 	 * @param globalKey - the global encryption Key
@@ -86,7 +86,7 @@ public class AesGcm128 {
 
 	/**
 	 * Encrypts a int[] according to AES128, using the key
-	 * @return the aes encrypted int array 
+	 * @return the aes encrypted int array
 	 */
 	public BitVector aesEncrypt(BitVector plain){
 		BitVector result = new BitVector(plain.length());
@@ -129,11 +129,11 @@ public class AesGcm128 {
 		BitVector y0 = BitVector.concatenate(iv, BitVector.convertFromInt(counter, 4));
 		int n = p.length()/16 + ((p.length()%16 > 0) ? 1 : 0);
 		int u = p.length()%16;
-		int m = a.length()/16 + ((a.length()%16 > 0) ? 1 : 0);;
+		int m = a.length()/16 + ((a.length()%16 > 0) ? 1 : 0);
 		int v = a.length()%16;
-		
+
 		c = new BitVector(p.length());
-		
+
 		for (int i = 0 ; i < n; i++){
 			counter++;
 			BitVector yi = BitVector.concatenate(iv, BitVector.convertFromInt(counter, 4));
@@ -152,11 +152,11 @@ public class AesGcm128 {
 			BitVector ci = c.get128Segment(i);
 			x = BitVector.multiplication(BitVector.addition(x, ci),h);
 		}
-		BitVector len = BitVector.concatenate(BitVector.convertFromInt(a.length()*8, 8), 
+		BitVector len = BitVector.concatenate(BitVector.convertFromInt(a.length()*8, 8),
 				BitVector.convertFromInt(c.length()*8, 8));
 		x = BitVector.multiplication(BitVector.addition(x, len),h);
-		
-		t = BitVector.addition(x, aesEncrypt(y0)).Msb2(this.tagSize);	
+
+		t = BitVector.addition(x, aesEncrypt(y0)).Msb2(this.tagSize);
 	}
 
 	/**
@@ -168,9 +168,9 @@ public class AesGcm128 {
 		BitVector y0 = BitVector.concatenate(iv, BitVector.convertFromInt(counter, 4));
 		int n = c.length()/16 + ((c.length()%16 > 0) ? 1 : 0);
 		int u = c.length()%16;
-		int m = a.length()/16 + ((a.length()%16 > 0) ? 1 : 0);;
+		int m = a.length()/16 + ((a.length()%16 > 0) ? 1 : 0);
 		int v = a.length()%16;
-		
+
 		BitVector x = new BitVector(16);
 
 		for (int i = 0; i < m; i++ ){
@@ -181,21 +181,21 @@ public class AesGcm128 {
 			BitVector ci = c.get128Segment(i);
 			x = BitVector.multiplication(BitVector.addition(x, ci),h);
 		}
-		BitVector len = BitVector.concatenate(BitVector.convertFromInt(a.length()*8, 8), 
+		BitVector len = BitVector.concatenate(BitVector.convertFromInt(a.length()*8, 8),
 				BitVector.convertFromInt(c.length()*8, 8));
 		x = BitVector.multiplication(BitVector.addition(x, len),h);
-		
+
 		BitVector t2 = BitVector.addition(x, aesEncrypt(y0)).Msb2(this.tagSize);
-		
+
 //		System.out.println(t2.toString());
 //		System.out.println(t.toString());
-		
+
 		if ((t.getValue().length != 0) && (!t2.equals(t))) {
 			return false;
 		}
-		
+
 		p = new BitVector(c.length());
-		
+
 		for (int i = 0 ; i < n; i++){
 			counter++;
 			BitVector yi = BitVector.concatenate(iv, BitVector.convertFromInt(counter, 4));
@@ -203,12 +203,12 @@ public class AesGcm128 {
 			BitVector pi = BitVector.addition(ci, aesEncrypt(yi));
 			p.set128Segment(i, pi);
 		}
-				
-		return true; 
+
+		return true;
 	}
 
 	// Getters - Setters
-	
+
 	/**
 	 * Getter for the global encryption key
 	 * @return - the globalEncryptionKey
@@ -266,7 +266,7 @@ public class AesGcm128 {
 		return a;
 	}
 
-	/** 
+	/**
 	 * Setter for the additional authenticationData
 	 * @param a - the additionalAuthenticationData
 	 */
@@ -305,7 +305,7 @@ public class AesGcm128 {
 	public void setTag(BitVector t) {
 		this.t = t;
 	}
-	
+
 	/**
 	 * Setter for the size of the authenticationTag.
 	 * Most common tagSizes are : 128, 120, 112, 104, or 96 bits
@@ -315,5 +315,5 @@ public class AesGcm128 {
 	public void setTagSize(int tagSize){
 		this.tagSize = tagSize;
 	}
-	
+
 }
