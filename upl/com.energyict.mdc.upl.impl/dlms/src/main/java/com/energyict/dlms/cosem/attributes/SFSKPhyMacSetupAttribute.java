@@ -3,7 +3,6 @@
  */
 package com.energyict.dlms.cosem.attributes;
 
-import java.io.IOException;
 
 /**
  * @author jme
@@ -46,7 +45,6 @@ public enum SFSKPhyMacSetupAttribute implements DLMSClassAttributes {
 	/**
 	 * @param attributeNumber
 	 * @return
-	 * @throws IOException
 	 */
 	public static SFSKPhyMacSetupAttribute findByAttributeNumber(int attributeNumber) {
 		for (SFSKPhyMacSetupAttribute attribute : SFSKPhyMacSetupAttribute.values()) {
@@ -60,7 +58,6 @@ public enum SFSKPhyMacSetupAttribute implements DLMSClassAttributes {
 	/**
 	 * @param shortName
 	 * @return
-	 * @throws IOException
 	 */
 	public static SFSKPhyMacSetupAttribute findByShortName(int shortName) {
 		for (SFSKPhyMacSetupAttribute attribute : SFSKPhyMacSetupAttribute.values()) {

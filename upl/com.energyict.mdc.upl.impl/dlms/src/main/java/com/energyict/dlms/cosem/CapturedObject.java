@@ -6,19 +6,18 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.OctetString;
 
 /**
  *
  * @author  Koen
  */
 public class CapturedObject {
-    
-    int classId;
-    LogicalName logicalName;
-    int attributeIndex;
-    int dataIndex;
-    
+
+    private int classId;
+    private LogicalName logicalName;
+    private int attributeIndex;
+    private int dataIndex;
+
     /** Creates a new instance of CapturedObject */
     public CapturedObject(int classId,LogicalName logicalName,int attributeIndex,int dataIndex) {
         this.classId=classId;
@@ -26,7 +25,7 @@ public class CapturedObject {
         this.attributeIndex=attributeIndex;
         this.dataIndex=dataIndex;
     }
-    
+
     public String toString() {
         return "classId="+getClassId()+", logicalName="+getLogicalName()+", attributeIndex="+getAttributeIndex()+", dataIndex="+getDataIndex();
     }
@@ -37,7 +36,7 @@ public class CapturedObject {
     public int getClassId() {
         return classId;
     }
-    
+
     /**
      * Getter for property logicalName.
      * @return Value of property logicalName.
@@ -45,7 +44,7 @@ public class CapturedObject {
     public LogicalName getLogicalName() {
         return logicalName;
     }
-    
+
     /**
      * Getter for property attributeIndex.
      * @return Value of property attributeIndex.
@@ -53,7 +52,7 @@ public class CapturedObject {
     public int getAttributeIndex() {
         return attributeIndex;
     }
-    
+
     /**
      * Getter for property dataIndex.
      * @return Value of property dataIndex.
@@ -61,5 +60,5 @@ public class CapturedObject {
     public int getDataIndex() {
         return dataIndex;
     }
- 
+
 }

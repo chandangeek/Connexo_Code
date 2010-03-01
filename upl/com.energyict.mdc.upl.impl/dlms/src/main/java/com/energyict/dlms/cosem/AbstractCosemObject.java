@@ -42,7 +42,7 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 	 *
 	 * @return the id of the dlms class
 	 */
-	abstract protected int getClassId();
+	protected abstract int getClassId();
 
 	/**
 	 * Creates a new instance of AbstractCosemObject
@@ -881,7 +881,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 					case 6:
 						return "Application-reference - Error detected by the deciphering function";
 				}
-				;
 				break;
 			}
 			case 1: { // Hardware-resource
@@ -897,7 +896,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 					case 4:
 						return "Hardware-resource - Other resource unavailable";
 				}
-				;
 				break;
 			}
 			case 2: { // VDE-State-error
@@ -913,7 +911,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 					case 4:
 						return "VDE-State-error - Status inoperable";
 				}
-				;
 				break;
 			}
 			case 3: { // Service
@@ -925,7 +922,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 					case 2:
 						return "Service - Service unsupported";
 				}
-				;
 				break;
 			}
 			case 4: { // Definition
@@ -939,7 +935,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 					case 3:
 						return "Definition - Object attribute inconsistent";
 				}
-				;
 				break;
 			}
 			case 5: { // Access
@@ -955,7 +950,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 					case 4:
 						return "Access - Object unavailable";
 				}
-				;
 				break;
 			}
 			case 6: { // Initiate
@@ -971,7 +965,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 					case 4:
 						return "Initiate - Refused by the VDE Handler";
 				}
-				;
 				break;
 			}
 			case 7: { // Load-Data-Set
@@ -993,7 +986,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 					case 7:
 						return "Load-Data-Set - Data set not in correct state for uploading";
 				}
-				;
 				break;
 			}
 			case 8: { // Change scope
@@ -1012,7 +1004,6 @@ public abstract class AbstractCosemObject implements DLMSCOSEMGlobals {
 					case 4:
 						return "Task - TI in unusable state";
 				}
-				;
 				break;
 			}
 			case 10: { // Other

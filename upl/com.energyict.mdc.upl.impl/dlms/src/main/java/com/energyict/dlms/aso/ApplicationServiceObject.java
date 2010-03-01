@@ -85,8 +85,8 @@ public class ApplicationServiceObject {
 		this.associationStatus = ASSOCIATION_PENDING;
 
 		switch(this.securityContext.getAuthenticationLevel()){
-		case 0: {this.associationStatus = ASSOCIATION_CONNECTED;};break;
-		case 1: {this.associationStatus = ASSOCIATION_CONNECTED;};break;
+		case 0: {this.associationStatus = ASSOCIATION_CONNECTED;} break;
+		case 1: {this.associationStatus = ASSOCIATION_CONNECTED;} break;
 		case 2: throw new IOException("High level security 2 is not supported.");
 		case 3:{
 			if(this.acse.getRespondingAuthenticationValue() != null){
@@ -97,7 +97,7 @@ public class ApplicationServiceObject {
 				throw new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
 				") requires the server to respond with a challenge.");
 			}
-		};break;
+		} break;
 		case 4:{
 			if(this.acse.getRespondingAuthenticationValue() != null){
 				plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
@@ -107,7 +107,7 @@ public class ApplicationServiceObject {
 				throw new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
 				") requires the server to respond with a challenge.");
 			}
-		};break;
+		} break;
 		case 5:{
 			//TODO  implement the GMAC authentication
 			throw new IOException("High level security 5 (GMAC) is not supported YET.");

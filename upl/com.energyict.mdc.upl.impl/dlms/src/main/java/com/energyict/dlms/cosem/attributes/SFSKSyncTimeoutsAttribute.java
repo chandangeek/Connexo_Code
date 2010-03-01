@@ -3,7 +3,6 @@
  */
 package com.energyict.dlms.cosem.attributes;
 
-import java.io.IOException;
 
 /**
  * @author jme
@@ -36,7 +35,6 @@ public enum SFSKSyncTimeoutsAttribute implements DLMSClassAttributes {
 	/**
 	 * @param attributeNumber
 	 * @return
-	 * @throws IOException
 	 */
 	public static SFSKSyncTimeoutsAttribute findByAttributeNumber(int attributeNumber) {
 		for (SFSKSyncTimeoutsAttribute attribute : SFSKSyncTimeoutsAttribute.values()) {
@@ -50,7 +48,6 @@ public enum SFSKSyncTimeoutsAttribute implements DLMSClassAttributes {
 	/**
 	 * @param shortName
 	 * @return
-	 * @throws IOException
 	 */
 	public static SFSKSyncTimeoutsAttribute findByShortName(int shortName) {
 		for (SFSKSyncTimeoutsAttribute attribute : SFSKSyncTimeoutsAttribute.values()) {

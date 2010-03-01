@@ -21,18 +21,18 @@ public class NumberTools {
 	private static final int	BIGINTEGER	= 4;
 	private static final int	BIGDECIMAL	= 5;
 
-	private static final Map<Class, Integer> classCodes = new HashMap<Class, Integer>();
+	private static final Map<Class, Integer> CLASSCODES = new HashMap<Class, Integer>();
 
 	static {
         Integer intcode = new Integer(INTEGER);
-        classCodes.put(Byte.class, intcode);
-        classCodes.put(Short.class, intcode);
-        classCodes.put(Integer.class, intcode);
-        classCodes.put(Long.class, new Integer(LONG));
-        classCodes.put(Float.class, new Integer(FLOAT));
-        classCodes.put(Double.class, new Integer(DOUBLE));
-        classCodes.put(BigInteger.class, new Integer(BIGINTEGER));
-        classCodes.put(BigDecimal.class, new Integer(BIGDECIMAL));
+        CLASSCODES.put(Byte.class, intcode);
+        CLASSCODES.put(Short.class, intcode);
+        CLASSCODES.put(Integer.class, intcode);
+        CLASSCODES.put(Long.class, new Integer(LONG));
+        CLASSCODES.put(Float.class, new Integer(FLOAT));
+        CLASSCODES.put(Double.class, new Integer(DOUBLE));
+        CLASSCODES.put(BigInteger.class, new Integer(BIGINTEGER));
+        CLASSCODES.put(BigDecimal.class, new Integer(BIGDECIMAL));
 	}
 
 
@@ -80,7 +80,7 @@ public class NumberTools {
 
     private static int getClassCode(Number num) {
         try {
-            return ((Integer)classCodes.get(num.getClass())).intValue();
+            return ((Integer)CLASSCODES.get(num.getClass())).intValue();
         }
         catch(NullPointerException e) {
             if(num == null) {

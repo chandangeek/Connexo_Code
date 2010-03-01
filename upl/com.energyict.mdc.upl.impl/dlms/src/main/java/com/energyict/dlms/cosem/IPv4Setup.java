@@ -39,7 +39,7 @@ public class IPv4Setup extends AbstractCosemObject{
 		super(protocolLink, objectReference);
 	}
 
-	static public ObisCode getObisCode() {
+	public static ObisCode getObisCode() {
 		return ObisCode.fromByteArray(LN) ;
 	}
 
@@ -59,14 +59,14 @@ public class IPv4Setup extends AbstractCosemObject{
 		this.dl_Reference = dlReference;
 	}
 
-	public Unsigned32 readIPAddress() throws NumberFormatException, IOException{
+	public Unsigned32 readIPAddress() throws IOException{
 		if(this.ipAddress == null){
 			this.ipAddress = new Unsigned32(getLNResponseData(3), 0);
 		}
 		return this.ipAddress;
 	}
 
-	public String getIPAddress() throws NumberFormatException, IOException{
+	public String getIPAddress() throws IOException{
 	   	StringBuffer builder = new StringBuffer();
     	for(int i = 1; i < readIPAddress().getBEREncodedByteArray().length; i++){
     		if(i != 1){

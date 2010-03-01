@@ -58,7 +58,7 @@ public class Clock extends AbstractCosemObject {
         super(protocolLink,objectReference);
     }
 
-	static public ObisCode getObisCode() {
+    public static ObisCode getObisCode() {
 		return ObisCode.fromByteArray(LN) ;
 	}
 
@@ -274,7 +274,7 @@ public class Clock extends AbstractCosemObject {
      * @throws	IOException					If an IO error occurs during the method invocation.
      * @throws	IllegalArgumentException	In case the offset does not fall between the specified boundaries (-900s <= offset <= 900s).
      */
-    public final void shiftTime(final int offset) throws IOException, IllegalArgumentException {
+    public final void shiftTime(final int offset) throws IOException {
     	if ((offset < (MAX_TIME_SHIFT_SECONDS * -1)) || (offset > MAX_TIME_SHIFT_SECONDS)) {
     		throw new IllegalArgumentException("Offset must be between -" + MAX_TIME_SHIFT_SECONDS + " and " + MAX_TIME_SHIFT_SECONDS + " seconds (inclusive) (DLMS blue book 4.5.1), you specified [" + offset + "]");
     	}

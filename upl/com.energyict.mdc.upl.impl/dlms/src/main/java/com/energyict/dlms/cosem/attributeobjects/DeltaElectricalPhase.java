@@ -13,6 +13,14 @@ import com.energyict.dlms.axrdencoding.TypeEnum;
  */
 public class DeltaElectricalPhase extends TypeEnum {
 
+	public static final int	UNDEFINED		= 0;
+	public static final int	DEGREES_0		= 1;
+	public static final int	DEGREES_60		= 2;
+	public static final int	DEGREES_120		= 3;
+	public static final int	DEGREES_180		= 4;
+	public static final int	DEGREES_MIN_120	= 5;
+	public static final int	DEGREES_MIN_60	= 6;
+
 	public DeltaElectricalPhase(byte[] berEncodedData, int offset) throws IOException {
 		super(berEncodedData, offset);
 	}
@@ -20,19 +28,19 @@ public class DeltaElectricalPhase extends TypeEnum {
 	@Override
 	public String toString() {
 		switch (getValue()) {
-			case 0:
+			case UNDEFINED:
 				return "UNDEFINED";
-			case 1:
+			case DEGREES_0:
 				return "0 degrees";
-			case 2:
+			case DEGREES_60:
 				return "60 degrees";
-			case 3:
+			case DEGREES_120:
 				return "120 degrees";
-			case 4:
+			case DEGREES_180:
 				return "180 degrees";
-			case 5:
+			case DEGREES_MIN_120:
 				return "-120 degrees";
-			case 6:
+			case DEGREES_MIN_60:
 				return "-60 degrees";
 			default:
 				return "INVALID[" + getValue() + "]!";

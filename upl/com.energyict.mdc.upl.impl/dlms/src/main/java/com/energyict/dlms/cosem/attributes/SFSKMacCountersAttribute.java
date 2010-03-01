@@ -3,7 +3,6 @@
  */
 package com.energyict.dlms.cosem.attributes;
 
-import java.io.IOException;
 
 /**
  * @author jme
@@ -39,7 +38,6 @@ public enum SFSKMacCountersAttribute implements DLMSClassAttributes {
 	/**
 	 * @param attributeNumber
 	 * @return
-	 * @throws IOException
 	 */
 	public static SFSKMacCountersAttribute findByAttributeNumber(int attributeNumber) {
 		for (SFSKMacCountersAttribute attribute : SFSKMacCountersAttribute.values()) {
@@ -53,7 +51,6 @@ public enum SFSKMacCountersAttribute implements DLMSClassAttributes {
 	/**
 	 * @param shortName
 	 * @return
-	 * @throws IOException
 	 */
 	public static SFSKMacCountersAttribute findByShortName(int shortName) {
 		for (SFSKMacCountersAttribute attribute : SFSKMacCountersAttribute.values()) {

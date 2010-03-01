@@ -3,7 +3,6 @@
  */
 package com.energyict.dlms.cosem.attributes;
 
-import java.io.IOException;
 
 /**
  * @author jme
@@ -35,7 +34,6 @@ public enum DisconnectControlAttribute implements DLMSClassAttributes {
 	/**
 	 * @param attributeNumber
 	 * @return
-	 * @throws IOException
 	 */
 	public static DisconnectControlAttribute findByAttributeNumber(int attributeNumber) {
 		for (DisconnectControlAttribute attribute : DisconnectControlAttribute.values()) {
@@ -49,7 +47,6 @@ public enum DisconnectControlAttribute implements DLMSClassAttributes {
 	/**
 	 * @param shortName
 	 * @return
-	 * @throws IOException
 	 */
 	public static DisconnectControlAttribute findByShortName(int shortName) {
 		for (DisconnectControlAttribute attribute : DisconnectControlAttribute.values()) {

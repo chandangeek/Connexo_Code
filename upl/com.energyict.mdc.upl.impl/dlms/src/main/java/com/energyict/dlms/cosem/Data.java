@@ -26,7 +26,7 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 public class Data extends AbstractCosemObject implements CosemObject {
 
 	public final int DEBUG=0;
-    static public final int CLASSID=1;
+	public static final int CLASSID=1;
 
     /** Creates a new instance of Data */
     public Data(ProtocolLink protocolLink,ObjectReference objectReference) {
@@ -68,7 +68,7 @@ public class Data extends AbstractCosemObject implements CosemObject {
     }
 
     public long getValue() throws IOException {
-        DataContainer dataContainer=getDataContainer();;
+        DataContainer dataContainer=getDataContainer();
         if (dataContainer.getRoot().isInteger(0)) {
            return (long)((Integer)dataContainer.getRoot().getElement(0)).intValue();
         }
@@ -76,7 +76,7 @@ public class Data extends AbstractCosemObject implements CosemObject {
     }
 
     public String getString() throws IOException {
-        DataContainer dataContainer=getDataContainer();;
+        DataContainer dataContainer=getDataContainer();
         if (dataContainer.getRoot().isOctetString(0)) {
            return ((OctetString)dataContainer.getRoot().getElement(0)).toString().trim();
         }

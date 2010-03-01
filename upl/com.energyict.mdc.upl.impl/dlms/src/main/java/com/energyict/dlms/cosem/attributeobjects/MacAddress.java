@@ -11,6 +11,8 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class MacAddress extends Unsigned16 {
 
+	private static final int	BYTE_LEN	= 8;
+
 	/**
 	 * @param berEncodedData
 	 * @param offset
@@ -30,7 +32,7 @@ public class MacAddress extends Unsigned16 {
 	@Override
 	public String toString() {
 		byte[] mac = new byte[2];
-		mac[0] = (byte) ((getValue() >> 8) & 0x0FF);
+		mac[0] = (byte) ((getValue() >> BYTE_LEN) & 0x0FF);
 		mac[1] = (byte) (getValue() & 0x0FF);
 		return ProtocolUtils.getResponseData(mac);
 	}

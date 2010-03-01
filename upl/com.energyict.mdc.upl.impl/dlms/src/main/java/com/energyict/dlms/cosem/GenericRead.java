@@ -45,7 +45,7 @@ public class GenericRead extends AbstractCosemObject {
     }
 
     public String getString() throws IOException {
-        DataContainer dataContainer=getDataContainer();;
+        DataContainer dataContainer=getDataContainer();
         if (dataContainer.getRoot().isOctetString(0)) {
            return ((OctetString)dataContainer.getRoot().getElement(0)).toString().trim();
         }
