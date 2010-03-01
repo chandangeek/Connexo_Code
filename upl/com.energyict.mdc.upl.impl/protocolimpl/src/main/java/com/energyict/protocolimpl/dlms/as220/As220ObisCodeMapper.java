@@ -171,7 +171,7 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 		} else if( obisCode.equals(FIRMWARE_VERSION)) {
 		    return new RegisterValue(FIRMWARE_VERSION, getAs220().getFirmwareVersion());
 		} else if ( obisCode.equals(TARIFF_OBISCODE)) {
-			return readDataAsRegisterValue(TARIF_DEVICE_REG);
+			return readDataAsRegisterValue(TARIF_DEVICE_REG, TARIFF_OBISCODE);
 		} else if ( obisCode.equals(METER_ID_OBISCODE)) {
 			return new RegisterValue(METER_ID_OBISCODE, getAs220().getSerialNumber());
 		}
@@ -209,6 +209,22 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 
     } // private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException
 
+	private RegisterValue readDataAsRegisterValue(ObisCode deviceObis, ObisCode registerObis) throws IOException {
+		RegisterValue register;
+		GenericRead gr = getCosemObjectFactory().getGenericRead(deviceObis, VALUE_OFFSET);
+		AbstractDataType adt = AXDRDecoder.decode(gr.getResponseData());
+		if (adt.isOctetString()) {
+			String text = adt.getOctetString().stringValue();
+			register = new RegisterValue(registerObis != null ? registerObis : deviceObis, null, new Date(), null, new Date(), new Date(), 0, text);
+		} else {
+			register = new RegisterValue(registerObis != null ? registerObis : deviceObis);
+			Quantity quantity = new Quantity(adt.longValue(), Unit.getUndefined());
+			register.setQuantity(quantity);
+		}
+		return register;
+	}
+
+
 	/**
 	 * This method reads a data class from the device, and creates a
 	 * {@link RegisterValue} with a {@link Quantity} of the dlms attribute 8.
@@ -218,18 +234,7 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
 	 * @throws IOException
 	 */
 	private RegisterValue readDataAsRegisterValue(ObisCode obisCode) throws IOException {
-		RegisterValue register;
-		GenericRead gr = getCosemObjectFactory().getGenericRead(obisCode, VALUE_OFFSET);
-		AbstractDataType adt = AXDRDecoder.decode(gr.getResponseData());
-		if (adt.isOctetString()) {
-			String text = adt.getOctetString().stringValue();
-			register = new RegisterValue(obisCode, null, new Date(), null, new Date(), new Date(), 0, text);
-		} else {
-			register = new RegisterValue(obisCode);
-			Quantity quantity = new Quantity(adt.longValue(), Unit.getUndefined());
-			register.setQuantity(quantity);
-		}
-		return register;
+		return readDataAsRegisterValue(obisCode, obisCode);
 	}
 
 } // public class ObisCodeMapper
