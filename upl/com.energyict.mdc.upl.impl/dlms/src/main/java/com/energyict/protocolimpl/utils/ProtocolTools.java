@@ -26,8 +26,13 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public final class ProtocolTools {
 
-	private static final int	HEX_PRESENTATION	= 16;
-	private static final String	CRLF				= "\r\n";
+	private static final int	LOWEST_VISIBLE_VALUE	= 0x20;
+	private static final int	PREFIX_AND_HEX_LENGTH	= 3;
+	private static final int	HEX						= 16;
+	private static final int	MILLIS					= 1000;
+	private static final int	SECONDS					= 60;
+	private static final int	HEX_PRESENTATION		= HEX;
+	private static final String	CRLF					= "\r\n";
 
 	private ProtocolTools() {
 		// Hide constructor for Util class with static methods
@@ -39,8 +44,8 @@ public final class ProtocolTools {
 	 */
 	public static byte[] getBytesFromHexString(final String hexString) {
 		ByteArrayOutputStream bb = new ByteArrayOutputStream();
-		for (int i = 0; i < hexString.length(); i += 3) {
-			bb.write(Integer.parseInt(hexString.substring(i + 1, i + 3), 16));
+		for (int i = 0; i < hexString.length(); i += PREFIX_AND_HEX_LENGTH) {
+			bb.write(Integer.parseInt(hexString.substring(i + 1, i + PREFIX_AND_HEX_LENGTH), HEX));
 		}
 		return bb.toByteArray();
 	}
@@ -265,7 +270,7 @@ public final class ProtocolTools {
 	 * @return
 	 */
 	public static Date roundUpToNearestInterval(Date timeStamp, int intervalInMinutes) {
-		int intervalMillis = intervalInMinutes * 1000 * 60;
+		int intervalMillis = intervalInMinutes * MILLIS * SECONDS;
 
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(timeStamp);
@@ -385,7 +390,7 @@ public final class ProtocolTools {
 		if (b != null) {
 			StringBuilder sb= new StringBuilder(b.length);
 			for (int i = 0; i < b.length; i++) {
-				if (b[i] < 0x20) {
+				if (b[i] < LOWEST_VISIBLE_VALUE) {
 					sb.append(".");
 				} else {
 					sb.append((char) b[i]);
