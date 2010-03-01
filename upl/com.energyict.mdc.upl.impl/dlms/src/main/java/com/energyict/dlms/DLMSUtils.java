@@ -42,7 +42,7 @@ public final class DLMSUtils implements DLMSCOSEMGlobals {
 			while(true) {
 				if ((val2Check<<(8*count))>length) {
 					break;
-				};
+				}
 				count++;
 			}
 			byte[] lengthEncoding = new byte[1+count];
