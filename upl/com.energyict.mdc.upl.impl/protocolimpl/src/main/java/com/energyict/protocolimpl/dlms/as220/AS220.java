@@ -50,8 +50,8 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 	private int iNROfIntervals=-1;
 
 	private final EMeter 	eMeter	= new EMeter(this);
-	private final GMeter 	gMeter	= new GMeter(this);
 	private final PLC 		plc		= new PLC(this);
+	private GMeter 	gMeter	= new GMeter(this);
 	private ObiscodeMapper	ocm		= null;
 
 	private final List<SubMessageProtocol> messagingList;
@@ -80,6 +80,14 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
      */
     public GMeter getgMeter(){
     	return gMeter;
+    }
+    
+    /**
+     * Setter for the gMeter;
+     * @param gMeter
+     */
+    public void setGMeter(GMeter gMeter){
+    	this.gMeter = gMeter;
     }
 
     public PLC getPlc() {
