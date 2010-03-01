@@ -18,6 +18,7 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 
 /**
@@ -26,18 +27,18 @@ import com.energyict.protocolimpl.dlms.as220.GasDevice;
  */
 public class GProfileBuilder {
 
-	private final GasDevice	as220;
+	private final AS220	as220;
 	private final CapturedObjectsHelper coh;
 	private static final long maskValidity  = 0x80000000;
 	private static final long maskEncrypted = 0x40000000;
 	
 
-	public GProfileBuilder(GasDevice as220, CapturedObjectsHelper coh) {
+	public GProfileBuilder(AS220 as220, CapturedObjectsHelper coh) {
 		this.as220 = as220;
 		this.coh = coh;
 	}
 
-	private GasDevice getGasDevice() {
+	private AS220 getGasDevice() {
 		return as220;
 	}
 
@@ -110,7 +111,7 @@ public class GProfileBuilder {
 					cal = new DateTime(new OctetString(dc.getRoot().getStructure(i).getOctetString(0).getArray()), getGasDevice().getTimeZone()).getValue();
 				} else {
 					if(cal != null){
-						cal.add(Calendar.SECOND, getGasDevice().getProfileInterval());	// TODO
+						cal.add(Calendar.SECOND, getGasDevice().getgMeter().getMbusProfile().getCapturePeriod());	// TODO
 					}
 				}
 				
