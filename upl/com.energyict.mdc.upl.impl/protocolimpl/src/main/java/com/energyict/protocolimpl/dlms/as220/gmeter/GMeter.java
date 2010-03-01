@@ -12,7 +12,6 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 
@@ -56,10 +55,8 @@ public class GMeter {
      * @param includeEvents
      * @return the {@link ProfileData}
 	 * @throws IOException
-	 * @throws UnsupportedException
-     * @throws IOException
 	 */
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws UnsupportedException, IOException {
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 		Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getAs220().getTimeZone());
 		Calendar toCalendar = ProtocolUtils.getCleanCalendar(getAs220().getTimeZone());
 		fromCalendar.setTime(from);
@@ -77,7 +74,7 @@ public class GMeter {
 
         if (includeEvents) {
 
-        	ProfileGeneric pgEvents = GetMbusEventProfile();
+        	ProfileGeneric pgEvents = getMbusEventProfile();
         	DataContainer dcEvents = pgEvents.getBuffer(fromCalendar, toCalendar);
         	if(dcEvents.getRoot() != null){
         		GMetersLog gLog = new GMetersLog(dcEvents);
@@ -132,7 +129,7 @@ public class GMeter {
 	 *
 	 * @throws IOException if the object didn't exist in the objectList
 	 */
-	public ProfileGeneric GetMbusEventProfile() throws IOException {
+	public ProfileGeneric getMbusEventProfile() throws IOException {
 		return getAs220().getCosemObjectFactory().getProfileGeneric(getGasDevice().getMeterConfig().getMbusEventLogObject().getObisCode());
 	}
 

@@ -21,7 +21,7 @@ public class LoadProfileCompactArrayEntry {
 	private static final int	VALUE_PARTIAL	= 1;
 	private static final int	VALUE_DATE		= 2;
 	private static final int	VALUE_TIME		= 3;
-	private static final int[]	intervals		= new int[] { 600, 900, 1800, 3600 };	// in seconds
+	private static final int[]	INTERVALS		= new int[] { 600, 900, 1800, 3600 };	// in seconds
 
 	public LoadProfileCompactArrayEntry(long rawValue) {
 
@@ -34,7 +34,7 @@ public class LoadProfileCompactArrayEntry {
 			case VALUE_PARTIAL:
 			case VALUE: {
 				value = (int) (rawValue & 0x1FFFFF);
-				intervalInSeconds = intervals[(int) ((rawValue >> 22) & 0x3)];
+				intervalInSeconds = INTERVALS[(int) ((rawValue >> 22) & 0x3)];
 			}
 				break;
 

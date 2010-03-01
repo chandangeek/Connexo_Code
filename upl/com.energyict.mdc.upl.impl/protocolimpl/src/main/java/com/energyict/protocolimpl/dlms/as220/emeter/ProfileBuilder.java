@@ -12,7 +12,6 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.dlms.as220.DLMSSNAS220;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -66,10 +65,9 @@ public class ProfileBuilder {
 	 * @param scalerunit
 	 * @param loadProfileCompArrEntries
 	 * @return
-	 * @throws UnsupportedException
 	 * @throws IOException
 	 */
-	public List<IntervalData> buildIntervalData(ScalerUnit[] scalerunit, List<LoadProfileCompactArrayEntry> loadProfileCompArrEntries) throws UnsupportedException, IOException {
+	public List<IntervalData> buildIntervalData(ScalerUnit[] scalerunit, List<LoadProfileCompactArrayEntry> loadProfileCompArrEntries) throws IOException {
 		List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
 		int latestProfileInterval = getAs220().getProfileInterval();
 		int eiCode = 0;

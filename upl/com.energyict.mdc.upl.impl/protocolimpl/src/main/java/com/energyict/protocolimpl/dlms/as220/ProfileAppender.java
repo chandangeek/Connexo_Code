@@ -16,9 +16,11 @@ import com.energyict.protocol.ProfileData;
  * @author jme
  *
  */
-public class ProfileAppender {
+public final class ProfileAppender {
 
-	private static final int	PLC_CHANNELS	= 9;
+	private ProfileAppender() {
+		// Hide util class constructor
+	}
 
 	/**
 	 * @param firstProfile

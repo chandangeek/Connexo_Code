@@ -13,7 +13,11 @@ import com.energyict.protocol.RegisterInfo;
  * @author jme
  *
  */
-public class RegisterDescription {
+public final class RegisterDescription {
+
+	private RegisterDescription() {
+		// hide util class constructor
+	}
 
 	public static final Map<String, String> INFO = new HashMap<String, String>();
 	static {

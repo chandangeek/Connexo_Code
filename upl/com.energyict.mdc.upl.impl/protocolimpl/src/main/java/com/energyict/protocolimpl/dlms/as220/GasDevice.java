@@ -17,7 +17,6 @@ import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
@@ -29,9 +28,9 @@ import com.energyict.protocolimpl.dlms.as220.gmeter.GMeterMessaging;
  */
 public class GasDevice extends AS220 {
 
-	private final static int EMETERSERIAL = 0;
-	private final static int SLOTID = 1;
-	private final static int MAX_MBUS_CHANNELS = 4;
+	private static final int EMETERSERIAL = 0;
+	private static final int SLOTID = 1;
+	private static final int MAX_MBUS_CHANNELS = 4;
 
 	private String 	emeterSerialnumber;
 	private String  gmeterSerialnumber;
@@ -122,7 +121,7 @@ public class GasDevice extends AS220 {
 	/**
 	 * {@inheritDoc}
 	 */
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if (mbusProfileInterval == -1) {
         	mbusProfileInterval = getgMeter().getMbusProfile().getCapturePeriod();
         }
@@ -148,7 +147,7 @@ public class GasDevice extends AS220 {
 
 	}
 
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 		return getgMeter().getProfileData(from, to, includeEvents);
 	}
 
@@ -161,8 +160,8 @@ public class GasDevice extends AS220 {
 	 * @return the corrected ObisCode
 	 */
 	public ObisCode getCorrectedChannelObisCode(ObisCode oc){
-		oc = new ObisCode(oc.getA(), getGasSlotId(), oc.getC(), oc.getD(), oc.getE(), oc.getF());
-		return oc;
+		ObisCode obisCode = new ObisCode(oc.getA(), getGasSlotId(), oc.getC(), oc.getD(), oc.getE(), oc.getF());
+		return obisCode;
 	}
 
 	/**

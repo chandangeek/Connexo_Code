@@ -7,7 +7,6 @@ import java.io.IOException;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -42,7 +41,7 @@ public class FirmwareVersions extends Data {
 
 	/**
 	 * A firmware version attribute is in fact an {@link Array}, containing one
-	 * {@link Structure} with the following elements:
+	 * Structure with the following elements:
 	 * <li>FIRMWARE_ID_APP (1 for AM500 and 2 for Vitilec)</li>
 	 * <li>FIRMWARE_TYPE (Seems to be always 0x01)</li>
 	 * <li>MAJOR_VERSION</li>

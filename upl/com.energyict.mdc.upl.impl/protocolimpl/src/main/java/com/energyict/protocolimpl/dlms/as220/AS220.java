@@ -19,7 +19,6 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageTag;
@@ -81,7 +80,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     public GMeter getgMeter(){
     	return gMeter;
     }
-    
+
     /**
      * Setter for the gMeter;
      * @param gMeter
@@ -109,7 +108,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     	return manipulated;
     }
 
-    public String getFirmwareVersion() throws IOException,UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
     	StringBuilder sb = new StringBuilder();
     	sb.append("active_version=").append(new FirmwareVersions(FW_VERSION_ACTIVE_OBISCODE, this)).append(", ");
     	sb.append("passive_version=").append(new FirmwareVersions(FW_VERSION_PASSIVE_OBISCODE, this));
@@ -180,7 +179,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 		return getProfileData(lastReading, new Date(), includeEvents);
 	}
 
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 
 		ProfileData eMeterProfile;
 		ProfileData plcStatistics;

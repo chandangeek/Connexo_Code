@@ -21,7 +21,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
  * settings like baud rate and data format. Pressing the push button for more
  * than 4 seconds will cancel the transparent mode manually. The maximum baud
  * rate is limited to the maximum baud rate of the optical port (9600Baud).
- * 
+ *
  * @author gna
  */
 public class AS220TransparentConnection extends FlagIEC1107Connection implements
@@ -30,14 +30,14 @@ public class AS220TransparentConnection extends FlagIEC1107Connection implements
 	private static final int MAX_RETRIES = 1;
 	private static final int TIMEOUT = 5000;
 
-	private static final Map<Integer, String> baudrates = new HashMap<Integer, String>();
+	private static final Map<Integer, String> BAUDRATES = new HashMap<Integer, String>();
 	static {
-		baudrates.put(Integer.valueOf(300), "0");
-		baudrates.put(Integer.valueOf(600), "1");
-		baudrates.put(Integer.valueOf(1200), "2");
-		baudrates.put(Integer.valueOf(2400), "3");
-		baudrates.put(Integer.valueOf(4800), "4");
-		baudrates.put(Integer.valueOf(9600), "5");
+		BAUDRATES.put(Integer.valueOf(300), "0");
+		BAUDRATES.put(Integer.valueOf(600), "1");
+		BAUDRATES.put(Integer.valueOf(1200), "2");
+		BAUDRATES.put(Integer.valueOf(2400), "3");
+		BAUDRATES.put(Integer.valueOf(4800), "4");
+		BAUDRATES.put(Integer.valueOf(9600), "5");
 	}
 
 	/** The time to be in transparent mode */
@@ -66,7 +66,7 @@ public class AS220TransparentConnection extends FlagIEC1107Connection implements
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param commChannel
 	 *            - the serial line to use
 	 * @param transparentConnectTime
@@ -144,20 +144,16 @@ public class AS220TransparentConnection extends FlagIEC1107Connection implements
 	/**
 	 * {@inheritDoc}
 	 */
-	public MeterType signOn(String strIdent, String meterID)
-			throws IOException, ConnectionException {
-		MeterType metertype = super.connectMAC("", this.password,
-				securityLevel, "");
+	public MeterType signOn(String strIdent, String meterID) throws IOException {
+		MeterType metertype = super.connectMAC("", this.password, securityLevel, "");
 
 		sendOut(buildTransparentByteArray());
 		delay(500);
 		flushInputStream();
 
-		this.commChannel.setParamsAndFlush(9600,
-				SerialCommunicationChannel.DATABITS_8,
-				SerialCommunicationChannel.PARITY_NONE,
+		this.commChannel.setParamsAndFlush(9600, SerialCommunicationChannel.DATABITS_8, SerialCommunicationChannel.PARITY_NONE,
 				SerialCommunicationChannel.STOPBITS_1);
-		
+
 		changeHHUSettings();
 
 		return metertype;
@@ -167,7 +163,7 @@ public class AS220TransparentConnection extends FlagIEC1107Connection implements
 	 * Construct a byteArray which contains a timeduration of how long the
 	 * device should be in transparent mode, and default communication settings
 	 * parameters. (9600 baud, 8 databits, 1 stopbit).
-	 * 
+	 *
 	 * @return a byteArray to set the AS220 in transparent mode
 	 * @throws ConnectionException
 	 *             if the offset in the checksum calculation is larger then the
@@ -202,7 +198,7 @@ public class AS220TransparentConnection extends FlagIEC1107Connection implements
 	/**
 	 * Convert the time from decimal to hexadecimal chars. ex. 10minutes ->
 	 * 0x30, 0x41; 20min -> 0x31, 0x34
-	 * 
+	 *
 	 * @return
 	 */
 	protected byte[] getTransparentTimeByteArray() {
@@ -215,7 +211,7 @@ public class AS220TransparentConnection extends FlagIEC1107Connection implements
 	protected byte[] getCommunicationParametersByteArray() {
 		byte[] param = new byte[2];
 
-		String b = baudrates.get(Integer.valueOf(this.transparentBaudrate));
+		String b = BAUDRATES.get(Integer.valueOf(this.transparentBaudrate));
 
 		if (b == null) {
 			throw new IllegalArgumentException("Invalid baudrate : "
@@ -261,7 +257,7 @@ public class AS220TransparentConnection extends FlagIEC1107Connection implements
 	 * {@inheritDoc}
 	 */
 	public MeterType signOn(String strIdent, String meterID, int baudrate)
-			throws IOException, ConnectionException {
+			throws IOException {
 		MeterType metertype = super.connectMAC("", this.password,
 				securityLevel, "", baudrate);
 
@@ -281,7 +277,7 @@ public class AS220TransparentConnection extends FlagIEC1107Connection implements
 	 * {@inheritDoc}
 	 */
 	public MeterType signOn(String strIdent, String meterID, boolean wakeup,
-			int baudrate) throws IOException, ConnectionException {
+			int baudrate) throws IOException {
 		// isn't used
 		return null;
 	}
@@ -302,7 +298,7 @@ public class AS220TransparentConnection extends FlagIEC1107Connection implements
 		super.setHHUSignOn(hhuSignOn);
 
 	}
-	
+
 	public void changeHHUSettings() throws ConnectionException{
 		HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(
 				this.commChannel, TIMEOUT, 1, 300, 0);

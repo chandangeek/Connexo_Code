@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.AbstractContactorController;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
@@ -18,18 +17,16 @@ public class GasValveController extends AbstractContactorController {
 
 	public static final ObisCode	VALVE_DISCONNECTOR_OBISCODE	= ObisCode.fromString("0.0.24.4.0.255");
 
-	private static final int DISCONNECT	= 0;
-	private static final int CONNECT	= 1;
-	private static final int ARM		= 2;
+	private static final int ARM = 2;
 
 	public GasValveController(AS220 protocol) {
 		super(protocol);
 	}
 
 	/**
-	 * Getter for the {@link GasDevice} {@link MeterProtocol}
+	 * Getter for the {@link GasDevice}
 	 *
-	 * @return the parent {@link GasDevice} {@link MeterProtocol}
+	 * @return the parent {@link GasDevice}
 	 */
 	public GasDevice getGasDevice() {
 		return (GasDevice) getProtocol();

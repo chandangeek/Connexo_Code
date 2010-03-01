@@ -9,13 +9,12 @@ import java.util.TimeZone;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
- * This class parses the raw data of the PLC statistics ({@link ProfileGeneric}) <br>
+ * This class parses the raw data of the PLC statistics <br>
  * The PLC statistics contains 8 channels and are assembled as follows:
  * <li>CH1=SNR0</li> <li>CH2=SNR1</li> <li>CH3=CRC_OK</li> <li>CH4=CRC_NOK</li>
  * <li>CH5=FR_TX</li> <li>CH6=FR_REP</li> <li>CH7=FR_CORR</li> <li>CH8=FR_BAD</li>

@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.AbstractContactorController;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 
@@ -26,9 +25,9 @@ public class AS220ContactorController extends AbstractContactorController {
 	}
 
 	/**
-	 * Getter for the {@link AS220} {@link MeterProtocol}
+	 * Getter for the {@link AS220}
 	 *
-	 * @return the parent {@link AS220} {@link MeterProtocol}
+	 * @return the parent {@link AS220}
 	 */
 	public AS220 getAs220() {
 		return (AS220) getProtocol();

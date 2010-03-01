@@ -72,9 +72,8 @@ import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 
-abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, FirmwareUpdateMessaging {
+public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, FirmwareUpdateMessaging {
 
-	private static final int			NR_OF_PLC_CHANNELS			= 0;
 	private static final int			MAX_PDU_SIZE				= 200;
 	private static final int			PROPOSED_QOS				= -1;
 	private static final int			PROPOSED_DLMS_VERSION		= 6;
@@ -210,10 +209,9 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 	 * @param outputStream
 	 * 			- the outputStream from the dialer
 	 *
-	 * @throws ConnectionException if initializing the connection failed
 	 * @throws IOException if initializing the connection failed of the connectionMode is invalid
 	 */
-	private void initDLMSConnection(InputStream inputStream, OutputStream outputStream) throws ConnectionException, IOException {
+	private void initDLMSConnection(InputStream inputStream, OutputStream outputStream) throws IOException {
 
 		DLMSConnection connection;
 
@@ -310,18 +308,18 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 		meterConfig.setCapturedObjectList(getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjectsAsUniversalObjects());
 	}
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if (iInterval == -1) {
            iInterval = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCapturePeriod();
         }
         return iInterval;
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -585,10 +583,8 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
      * @param name <br>
      * @return the register value
      * @throws IOException <br>
-     * @throws UnsupportedException <br>
-     * @throws NoSuchRegisterException <br>
      */
-	public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+	public String getRegister(String name) throws IOException {
 		DLMSObis ln = new DLMSObis(name);
 		if (ln.isLogicalName()) {
 			String str = requestAttribute(meterConfig.getObject(ln).getBaseName(), (short) ((ln.getOffset() - 1) * 8));
@@ -607,10 +603,8 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
      * @param name <br>
      * @param value <br>
      * @throws IOException <br>
-     * @throws NoSuchRegisterException <br>
-     * @throws UnsupportedException <br>
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -618,7 +612,7 @@ abstract public class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
      * @throws IOException <br>
      * @throws UnsupportedException <br>
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 

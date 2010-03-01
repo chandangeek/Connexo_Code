@@ -18,7 +18,7 @@ import com.energyict.protocol.MeterEvent;
  *
  * @author  Koen
  */
-public class EventNumber {
+public final class EventNumber {
 
     private static final int VOLTAGECUTLOGBOOK=1;
     private static final int COVEROGBOOK=2;
