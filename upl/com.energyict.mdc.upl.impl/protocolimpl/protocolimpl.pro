@@ -283,6 +283,9 @@
 -keep public class com.energyict.protocolimpl.dlms.as220.emeter.*{
 	*;
 }
+-keep public class com.energyict.protocolimpl.dlms.as220.gmeter.*{
+	*;
+}
 
 #-keepnames class com.energyict.protocolimpl.dlms.as220.AS220
 
