@@ -53,6 +53,16 @@ public class AS220Main {
 	private static final String		SET_PLC_TIMEOUTS3		= "<SetSFSKMacTimeouts SEARCH_INITIATOR_TIMEOUT=\"\" SYNCHRONIZATION_CONFIRMATION_TIMEOUT=\"34\" TIME_OUT_NOT_ADDRESSED=\"56\" TIME_OUT_FRAME_NOT_OK=\"78\"> </SetSFSKMacTimeouts>";
 	private static final String		SET_PLC_TIMEOUTS4		= "<SetSFSKMacTimeouts SYNCHRONIZATION_CONFIRMATION_TIMEOUT=\"34\" TIME_OUT_NOT_ADDRESSED=\"56\" TIME_OUT_FRAME_NOT_OK=\"78\"> </SetSFSKMacTimeouts>";
 
+	private static final String		SET_PLC_FREQUENCIES1	= "<SetPlcChannelFrequencies CHANNEL1_FM=\"11\" CHANNEL1_FS=\"12\" CHANNEL2_FM=\"21\" CHANNEL2_FS=\"22\" CHANNEL3_FM=\"31\" CHANNEL3_FS=\"32\" CHANNEL4_FM=\"41\" CHANNEL4_FS=\"42\" CHANNEL5_FM=\"51\" CHANNEL5_FS=\"52\" CHANNEL6_FM=\"61\" CHANNEL6_FS=\"62\"> </SetPlcChannelFrequencies>";
+	private static final String		SET_PLC_FREQUENCIES2	= "<SetPlcChannelFrequencies CHANNEL1_FM=\"-\" CHANNEL1_FS=\"12\" CHANNEL2_FM=\"21\" CHANNEL2_FS=\"22\" CHANNEL3_FM=\"31\" CHANNEL3_FS=\"32\" CHANNEL4_FM=\"41\" CHANNEL4_FS=\"42\" CHANNEL5_FM=\"51\" CHANNEL5_FS=\"52\" CHANNEL6_FM=\"61\" CHANNEL6_FS=\"62\"> </SetPlcChannelFrequencies>";
+	private static final String		SET_PLC_FREQUENCIES3	= "<SetPlcChannelFrequencies CHANNEL1_FM=\"\" CHANNEL1_FS=\"12\" CHANNEL2_FM=\"21\" CHANNEL2_FS=\"22\" CHANNEL3_FM=\"31\" CHANNEL3_FS=\"32\" CHANNEL4_FM=\"41\" CHANNEL4_FS=\"42\" CHANNEL5_FM=\"51\" CHANNEL5_FS=\"52\" CHANNEL6_FM=\"61\" CHANNEL6_FS=\"62\"> </SetPlcChannelFrequencies>";
+	private static final String		SET_PLC_FREQUENCIES4	= "<SetPlcChannelFrequencies CHANNEL1_FS=\"12\" CHANNEL2_FM=\"21\" CHANNEL2_FS=\"22\" CHANNEL3_FM=\"31\" CHANNEL3_FS=\"32\" CHANNEL4_FM=\"41\" CHANNEL4_FS=\"42\" CHANNEL5_FM=\"51\" CHANNEL5_FS=\"52\" CHANNEL6_FM=\"61\" CHANNEL6_FS=\"62\"> </SetPlcChannelFrequencies>";
+	private static final String		SET_PLC_FREQUENCIES5	= "<SetPlcChannelFrequencies CHANNEL2_FM=\"21\" CHANNEL2_FS=\"22\" CHANNEL3_FM=\"31\" CHANNEL3_FS=\"32\" CHANNEL4_FM=\"41\" CHANNEL4_FS=\"42\" CHANNEL5_FM=\"51\" CHANNEL5_FS=\"52\" CHANNEL6_FM=\"61\" CHANNEL6_FS=\"62\"> </SetPlcChannelFrequencies>";
+	private static final String		SET_PLC_FREQUENCIES6	= "<SetPlcChannelFrequencies CHANNEL1_FM=\"11\" CHANNEL1_FS=\"-\" CHANNEL2_FM=\"21\" CHANNEL2_FS=\"22\" CHANNEL3_FM=\"31\" CHANNEL3_FS=\"32\" CHANNEL4_FM=\"41\" CHANNEL4_FS=\"42\" CHANNEL5_FM=\"51\" CHANNEL5_FS=\"52\" CHANNEL6_FM=\"61\" CHANNEL6_FS=\"62\"> </SetPlcChannelFrequencies>";
+	private static final String		SET_PLC_FREQUENCIES7	= "<SetPlcChannelFrequencies CHANNEL1_FM=\"11\" CHANNEL1_FS=\"\" CHANNEL2_FM=\"21\" CHANNEL2_FS=\"22\" CHANNEL3_FM=\"31\" CHANNEL3_FS=\"32\" CHANNEL4_FM=\"41\" CHANNEL4_FS=\"42\" CHANNEL5_FM=\"51\" CHANNEL5_FS=\"52\" CHANNEL6_FM=\"61\" CHANNEL6_FS=\"62\"> </SetPlcChannelFrequencies>";
+	private static final String		SET_PLC_FREQUENCIES8	= "<SetPlcChannelFrequencies CHANNEL1_FM=\"11\" CHANNEL2_FM=\"21\" CHANNEL2_FS=\"22\" CHANNEL3_FM=\"31\" CHANNEL3_FS=\"32\" CHANNEL4_FM=\"41\" CHANNEL4_FS=\"42\" CHANNEL5_FM=\"51\" CHANNEL5_FS=\"52\" CHANNEL6_FM=\"61\" CHANNEL6_FS=\"62\"> </SetPlcChannelFrequencies>";
+	private static final String		SET_PLC_FREQUENCIES9	= "<SetPlcChannelFrequencies CHANNEL1_FM=\"rr\" CHANNEL2_FM=\"21\" CHANNEL2_FS=\"22\" CHANNEL3_FM=\"31\" CHANNEL3_FS=\"32\" CHANNEL4_FM=\"41\" CHANNEL4_FS=\"42\" CHANNEL5_FM=\"51\" CHANNEL5_FS=\"52\" CHANNEL6_FM=\"61\" CHANNEL6_FS=\"62\"> </SetPlcChannelFrequencies>";
+
 	private static final String		OBSERVER_FILENAME		= "c:\\logging\\AS220Main\\communications.log";
 	private static final Level		LOG_LEVEL				= Level.ALL;
 	protected static final TimeZone	DEFAULT_TIMEZONE		= TimeZone.getTimeZone("GMT+01");
@@ -186,6 +196,18 @@ public class AS220Main {
 		getAs220().queryMessage(new MessageEntry(SET_PLC_TIMEOUTS4, ""));
 	}
 
+	public static void setPLCFrequencies() throws IOException {
+		getAs220().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES1, ""));
+		getAs220().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES2, ""));
+		getAs220().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES3, ""));
+		getAs220().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES4, ""));
+		getAs220().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES5, ""));
+		getAs220().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES6, ""));
+		getAs220().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES7, ""));
+		getAs220().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES8, ""));
+		getAs220().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES9, ""));
+	}
+
 	public static void forceSetClock() throws IOException {
 		getAs220().queryMessage(new MessageEntry(FORCE_SET_CLOCK, ""));
 	}
@@ -233,7 +255,7 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			setPLCTimeouts();
+			setPLCFrequencies();
 
 		} catch (Exception e) {
 			e.printStackTrace();

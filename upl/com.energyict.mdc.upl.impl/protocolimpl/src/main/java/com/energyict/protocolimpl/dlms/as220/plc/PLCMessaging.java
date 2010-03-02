@@ -26,11 +26,22 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 
 	public static final String	RESCAN_PLCBUS					= "RescanPlcBus";
 	public static final String	SET_ACTIVE_PLC_CHANNEL			= "SetActivePlcChannel";
+	public static final String	SET_PLC_CHANNEL_FREQUENCIES		= "SetPlcChannelFrequencies";
 	public static final String	SET_SFSK_MAC_TIMEOUTS			= "SetSFSKMacTimeouts";
 
 	private static final String	RESCAN_PLCBUS_DISPLAY			= "Force manual rescan PLC bus";
 	private static final String	SET_ACTIVE_PLC_CHANNEL_DISPLAY	= "Set active PLC channel";
+	private static final String	SET_PLC_FREQUENCIES_DISPLAY		= "Set PLC channel frequencies";
 	private static final String	SET_SFSK_MAC_TIMEOUTS_DISPLAY	= "Set the S-FSK Mac timeouts";
+
+	private static final String[][]	FREQUENCIES_NAME = new String[][] {
+		{"CHANNEL1_FM", "CHANNEL1_FS"},
+		{"CHANNEL2_FM", "CHANNEL2_FS"},
+		{"CHANNEL3_FM", "CHANNEL3_FS"},
+		{"CHANNEL4_FM", "CHANNEL4_FS"},
+		{"CHANNEL5_FM", "CHANNEL5_FS"},
+		{"CHANNEL6_FM", "CHANNEL6_FS"}
+	};
 
 	private final AS220 as220;
 
@@ -45,6 +56,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		addSupportedMessageTag(RESCAN_PLCBUS);
 		addSupportedMessageTag(SET_ACTIVE_PLC_CHANNEL);
 		addSupportedMessageTag(SET_SFSK_MAC_TIMEOUTS);
+		addSupportedMessageTag(SET_PLC_CHANNEL_FREQUENCIES);
 	}
 
 	/**
@@ -72,6 +84,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
         plcMeterCat.addMessageSpec(createMessageSpec(RESCAN_PLCBUS_DISPLAY, RESCAN_PLCBUS, false));
         plcMeterCat.addMessageSpec(createActivePLCChannelMessageSpec(SET_ACTIVE_PLC_CHANNEL_DISPLAY, SET_ACTIVE_PLC_CHANNEL, false));
         plcMeterCat.addMessageSpec(createSetMacTimeoutsMessageSpec(SET_SFSK_MAC_TIMEOUTS_DISPLAY, SET_SFSK_MAC_TIMEOUTS, false));
+        plcMeterCat.addMessageSpec(createSetFrequenciesMessageSpec(SET_PLC_FREQUENCIES_DISPLAY, SET_PLC_CHANNEL_FREQUENCIES, false));
 
         categories.add(plcMeterCat);
 		return categories;
@@ -88,6 +101,8 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 				setActivePLCChannel(messageEntry);
 			} else if (isMessageTag(SET_SFSK_MAC_TIMEOUTS, messageEntry)) {
 				setPLCTimeouts(messageEntry);
+			} else if (isMessageTag(SET_PLC_CHANNEL_FREQUENCIES, messageEntry)) {
+				setPLCFrequencies(messageEntry);
 			} else {
 				throw new IOException("Received unknown message: " + messageEntry);
 			}
@@ -100,6 +115,20 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		}
 
 		return result;
+	}
+
+	private void setPLCFrequencies(MessageEntry messageEntry) throws IOException {
+		getAs220().getLogger().info("SET_PLC_CHANNEL_FREQUENCIES message received");
+
+		long[][] frequencies = new long[6][2];
+		for (int channel = 0; channel < 6; channel++) {
+			for (int freqType = 0; freqType < 2; freqType++) {
+				frequencies[channel][freqType] = getAttributeAsLong(messageEntry, FREQUENCIES_NAME[channel][freqType]);
+			}
+		}
+
+		//TODO: still to implement
+
 	}
 
 	/**
@@ -271,6 +300,25 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		tagSpec.add(new MessageAttributeSpec(SFSKSyncTimeoutsAttribute.SYNCHRONIZATION_CONFIRMATION_TIMEOUT.name(), false));
 		tagSpec.add(new MessageAttributeSpec(SFSKSyncTimeoutsAttribute.TIME_OUT_NOT_ADDRESSED.name(), false));
 		tagSpec.add(new MessageAttributeSpec(SFSKSyncTimeoutsAttribute.TIME_OUT_FRAME_NOT_OK.name(), false));
+
+		msgSpec.add(tagSpec);
+		return msgSpec;
+	}
+
+	private MessageSpec createSetFrequenciesMessageSpec(String keyId, String tagName, boolean advanced) {
+		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+
+		// We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
+		MessageValueSpec msgVal = new MessageValueSpec();
+		msgVal.setValue(" ");
+		tagSpec.add(msgVal);
+
+		for (int channel = 0; channel < 6; channel++) {
+			for (int freqType = 0; freqType < 2; freqType++) {
+				tagSpec.add(new MessageAttributeSpec(FREQUENCIES_NAME[channel][freqType], false));
+			}
+		}
 
 		msgSpec.add(tagSpec);
 		return msgSpec;
