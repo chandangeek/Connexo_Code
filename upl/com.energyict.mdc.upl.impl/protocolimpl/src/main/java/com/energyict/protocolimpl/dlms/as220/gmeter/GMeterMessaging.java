@@ -188,15 +188,25 @@ public class GMeterMessaging implements MessageProtocol {
 		msgSpec.add(tagSpec);
 		return msgSpec;
     }
-    
-    /**
-     * Functionality to enable the encryption over the P2 port
-     * 
-     * @param messageEntry 
-     * 					- the messageContent from EIServer
-     * 
-     * @throws IOException if something went wrong during setting of one of the keys
-     */
+
+	/**
+	 * Functionality to enable the encryption over the P2 port.<br>
+	 * <b>Note:</b><br>
+	 * The AM500 module needs a specific structure of keys.<br>
+	 * <blockquote> <code>
+	 * both_keys ::= {@link Structure}			<br>
+	 * 		{ 									<br>
+	 * 		Open_Key 	:  {@link OctetString}, <br>
+	 * 		Transfer_Key:  {@link OctetString}	<br>
+	 * 	} 
+     * </code> </blockquote>
+	 * 
+	 * @param messageEntry
+	 *            - the messageContent from EIServer
+	 * 
+	 * @throws IOException
+	 *             if something went wrong during setting of one of the keys
+	 */
     private void enableEncryption(MessageEntry messageEntry) throws IOException{
     	Structure rawData = new Structure();
     	rawData.addDataType(new OctetString(DLMSUtils.hexStringToByteArray(getMessageValue(messageEntry.getContent(), RtuMessageConstant.MBUS_OPEN_KEY))));
