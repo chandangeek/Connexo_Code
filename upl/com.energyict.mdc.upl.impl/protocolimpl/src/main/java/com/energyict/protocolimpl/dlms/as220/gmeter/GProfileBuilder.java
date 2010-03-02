@@ -123,7 +123,6 @@ public class GProfileBuilder {
 					} else if((value&MASK_ENCRYPTED) == MASK_ENCRYPTED){
 						value = (int) (value^MASK_ENCRYPTED);
 					} else if((value&MASK_ENCRYPTED) == 0){
-						value = (int) (value^MASK_ENCRYPTED);
 						profileStatus |= IntervalStateBits.CORRUPTED;	// if it is not an encrypted value
 					}
 					IntervalData id = new IntervalData(cal.getTime(), profileStatus);
