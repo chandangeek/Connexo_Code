@@ -46,12 +46,13 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
  * @beginchanges
  *	JME	28042009	Initial protocol version
  * 	JME	28052009	Fixed bug in profile parser: Last 3 channels are hex status channels and no decimal values.
+ * 	JME	02032010	Added new registermapping for Ah_used_GSM_modem (C.90.21 => 0.1.96.6.1.255)
  *
  */
 public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol { //,CommunicationParameters {
-    
+
     private static final byte DEBUG=0;
-    
+
     private static final int KAMSTRUP_NR_OF_CHANNELS=11;
     private static final String[] KAMSTRUP_METERREADINGS_979D1 = {"23.2.0","13.1.0","1:13.0.0","0:41.0.0","0:42.0.0","97.97.0"};
     private static final String[] KAMSTRUP_METERREADINGS_979E1 = {"23.2.0","1:12.0.0","1:13.0.0","0:41.0.0","0:42.0.0","97.97.0"};
@@ -60,7 +61,7 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
 
     private String strID;
     private String strPassword;
-    private int iIEC1107TimeoutProperty; 
+    private int iIEC1107TimeoutProperty;
     private int iProtocolRetriesProperty;
     private int iRoundtripCorrection;
     private int iSecurityLevel;
@@ -79,9 +80,9 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
     Unigas300Registry unigas300Registry=null;
     Unigas300Profile unigas300Profile=null;
     int extendedLogging;
-            
+
     byte[] dataReadout=null;
-    
+
     /** Creates a new instance of Unigas300, empty constructor*/
     public Unigas300() {
     } // public Unigas300()
@@ -96,35 +97,26 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
     {
         return doGetProfileData(lastReading,includeEvents);
     }
-    
+
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException,UnsupportedException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(timeZone);
         fromCalendar.setTime(from);
         Calendar toCalendar = ProtocolUtils.getCleanCalendar(timeZone);
         toCalendar.setTime(to);
-        return getUnigas300Profile().getProfileData(fromCalendar,
-                                                   toCalendar,
-                                                   getNumberOfChannels(),
-                                                   1);
+		return getUnigas300Profile().getProfileData(fromCalendar, toCalendar, getNumberOfChannels(), 1);
     }
-    
+
     private ProfileData doGetProfileData(Date lastReading,boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(timeZone);
         fromCalendar.setTime(lastReading);
-        return getUnigas300Profile().getProfileData(fromCalendar,
-                                                   ProtocolUtils.getCalendar(timeZone),
-                                                   getNumberOfChannels(),
-                                                   1);
+		return getUnigas300Profile().getProfileData(fromCalendar, ProtocolUtils.getCalendar(timeZone), getNumberOfChannels(), 1);
     }
-    
+
     // Only for debugging
     public ProfileData getProfileData(Calendar from,Calendar to) throws IOException {
-        return getUnigas300Profile().getProfileData(from,
-                                                   to,
-                                                   getNumberOfChannels(),
-                                                   1);
+		return getUnigas300Profile().getProfileData(from, to, getNumberOfChannels(), 1);
     }
-    
+
     public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
         try {
            return (Quantity)getUnigas300Registry().getRegister(name);
@@ -133,81 +125,83 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
            throw new IOException("Unigas300, getMeterReading, register "+name+" is not type Quantity");
         }
     }
-    
+
     public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
         String[] KAMSTRUP_METERREADINGS=null;
         try {
             String revision = (String)getUnigas300Registry().getRegister("UNIGAS software revision number");
-            if ("979D1".compareTo(revision) == 0)
-                KAMSTRUP_METERREADINGS = KAMSTRUP_METERREADINGS_979D1;
-            else if ("979E1".compareTo(revision) == 0)
-                KAMSTRUP_METERREADINGS = KAMSTRUP_METERREADINGS_979E1;
-            else if ("979A1".compareTo(revision) == 0)
-                KAMSTRUP_METERREADINGS = KAMSTRUP_METERREADINGS_979A1;
-            else
-                KAMSTRUP_METERREADINGS = KAMSTRUP_METERREADINGS_DEFAULT;
-            
-            if (channelId >= getNumberOfChannels())
-                throw new IOException("Unigas300, getMeterReading, invalid channelId, "+channelId);
+            if ("979D1".compareTo(revision) == 0) {
+				KAMSTRUP_METERREADINGS = KAMSTRUP_METERREADINGS_979D1;
+			} else if ("979E1".compareTo(revision) == 0) {
+				KAMSTRUP_METERREADINGS = KAMSTRUP_METERREADINGS_979E1;
+			} else if ("979A1".compareTo(revision) == 0) {
+				KAMSTRUP_METERREADINGS = KAMSTRUP_METERREADINGS_979A1;
+			} else {
+				KAMSTRUP_METERREADINGS = KAMSTRUP_METERREADINGS_DEFAULT;
+			}
+
+            if (channelId >= getNumberOfChannels()) {
+				throw new IOException("Unigas300, getMeterReading, invalid channelId, "+channelId);
+			}
             return (Quantity)getUnigas300Registry().getRegister(KAMSTRUP_METERREADINGS[channelId]);
         }
         catch(ClassCastException e) {
            throw new IOException("Unigas300, getMeterReading, register "+KAMSTRUP_METERREADINGS[channelId]+" ("+channelId+") is not type Quantity");
         }
-    } 
-    
+    }
+
 /**
  * This method sets the time/date in the remote meter equal to the system time/date of the machine where this object resides.
- * @exception IOException 
+ * @exception IOException
  */
     public void setTime() throws IOException {
        Calendar calendar=null;
        calendar = ProtocolUtils.getCalendar(timeZone);
-       calendar.add(Calendar.MILLISECOND,iRoundtripCorrection); 
+       calendar.add(Calendar.MILLISECOND,iRoundtripCorrection);
        Date date = calendar.getTime();
        getUnigas300Registry().setRegister("0.9.1",date);
        getUnigas300Registry().setRegister("0.9.2",date);
     } // public void setTime() throws IOException
-    
+
     public Date getTime() throws IOException {
-        if (DEBUG >= 1) System.out.println("DEBUG: Entering Unigas300, getTime()");
     	Date date =  (Date)getUnigas300Registry().getRegister("TimeDate");
         return new Date(date.getTime()-iRoundtripCorrection);
     }
-    
+
     public byte getLastProtocolState(){
         return -1;
     }
-    
+
     /************************************** MeterProtocol implementation ***************************************/
-    
+
     /** this implementation calls <code> validateProperties </code>
      * and assigns the argument to the properties field
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
      * @see AbstractMeterProtocol#validateProperties
-     */    
+     */
     public void setProperties(Properties properties) throws MissingPropertyException , InvalidPropertyException {
         validateProperties(properties);
     }
-    
+
     /** <p>validates the properties.</p><p>
      * The default implementation checks that all required parameters are present.
      * </p>
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
-     */    
+     */
     private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException
     {
         try {
             Iterator iterator= getRequiredKeys().iterator();
             while (iterator.hasNext())
-            { 
+            {
                 String key = (String) iterator.next();
-                if (properties.getProperty(key) == null)
-                    throw new MissingPropertyException (key + " key missing");
+                if (properties.getProperty(key) == null) {
+					throw new MissingPropertyException (key + " key missing");
+				}
             }
             strID = properties.getProperty(MeterProtocol.ADDRESS);
             strPassword = properties.getProperty(MeterProtocol.PASSWORD);
@@ -224,52 +218,52 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
             this.serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
         }
         catch (NumberFormatException e) {
-           throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
+           throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());
         }
-        
+
     }
-    
+
     /** this implementation throws UnsupportedException. Subclasses may override
      * @param name <br>
      * @return the register value
      * @throws IOException <br>
      * @throws UnsupportedException <br>
      * @throws NoSuchRegisterException <br>
-     */    
+     */
     public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
         return ProtocolUtils.obj2String(getUnigas300Registry().getRegister(name));
     }
-    
+
     /** this implementation throws UnsupportedException. Subclasses may override
      * @param name <br>
      * @param value <br>
      * @throws IOException <br>
      * @throws NoSuchRegisterException <br>
      * @throws UnsupportedException <br>
-     */    
+     */
     public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
         getUnigas300Registry().setRegister(name,value);
-    }    
+    }
 
     /** this implementation throws UnsupportedException. Subclasses may override
      * @throws IOException <br>
      * @throws UnsupportedException <br>
-     */    
+     */
     public void initializeDevice() throws IOException, UnsupportedException {
         throw new UnsupportedException();
     }
-    
+
     /** the implementation returns both the address and password key
      * @return a list of strings
-     */    
+     */
     public List getRequiredKeys() {
         List result = new ArrayList(0);
         return result;
     }
-     
+
     /** this implementation returns an empty list
      * @return a list of strings
-     */    
+     */
     public List getOptionalKeys() {
         List result = new ArrayList();
         result.add("Timeout");
@@ -285,30 +279,30 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
     public String getProtocolVersion() {
         return "$Date$";
     }
-    
+
     public String getFirmwareVersion() throws IOException,UnsupportedException {
        try {
-         return((String)getUnigas300Registry().getRegister("UNIGAS software revision number"));        
-//         return((String)getUnigas300Registry().getRegister("CI software revision number")+" "+(String)getUnigas300Registry().getRegister("UNIGAS software revision number"));        
+         return((String)getUnigas300Registry().getRegister("UNIGAS software revision number"));
+//         return((String)getUnigas300Registry().getRegister("CI software revision number")+" "+(String)getUnigas300Registry().getRegister("UNIGAS software revision number"));
        }
        catch(IOException e) {
-           throw new IOException("Unigas300, getFirmwareVersion, "+e.getMessage()); 
+           throw new IOException("Unigas300, getFirmwareVersion, "+e.getMessage());
        }
     } // public String getFirmwareVersion()
-    
+
     /** initializes the receiver
      * @param inputStream <br>
      * @param outputStream <br>
      * @param timeZone <br>
      * @param logger <br>
-     */    
+     */
     public void init(InputStream inputStream,OutputStream outputStream,TimeZone timeZone,Logger logger)
     {
         this.timeZone = timeZone;
-        this.logger = logger;     
-        
+        this.logger = logger;
+
         try {
-           
+
 //        	if (isSoftware7E1()) {
 //        		Software7E1InputStream softIn = new Software7E1InputStream(inputStream);
 //        		Software7E1OutputStream softOut = new Software7E1OutputStream(outputStream);
@@ -323,14 +317,14 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
         catch(ConnectionException e) {
            logger.severe ("ABBA1500: init(...), "+e.getMessage());
         }
-        
+
     } // public void init(InputStream inputStream,OutputStream outputStream,TimeZone timeZone,Logger logger)
 
 	/**
-     * @throws IOException  */    
+     * @throws IOException  */
     public void connect() throws IOException {
        try {
-          
+
     	  sendWakeUp();
     	  dataReadout = flagIEC1107Connection.dataReadout(strID,nodeId);
           flagIEC1107Connection.disconnectMAC();
@@ -338,10 +332,10 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
               Thread.sleep(2000);
           }
           catch(InterruptedException e) {
-              throw new NestedIOException(e); 
+              throw new NestedIOException(e);
           }*/
           flagIEC1107Connection.connectMAC(strID,strPassword,iSecurityLevel,nodeId);
-          
+
           validateSerialNumber();
           getLogger().info("Connected to device with serial number: " + getDeviceSerialNumber());
           registerInfo();
@@ -350,10 +344,12 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
           throw new IOException(e.getMessage());
        }
     }
-    
+
     private void sendWakeUp() throws ConnectionException {
  	   byte[] wakeUp = new byte[20];
-       for (int i = 0; i < wakeUp.length; i++) wakeUp[i] = (byte) 0x00;
+       for (int i = 0; i < wakeUp.length; i++) {
+			wakeUp[i] = (byte) 0x00;
+		}
  	  	getFlagIEC1107Connection().sendOut(wakeUp);
 	}
 
@@ -365,50 +361,50 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
           logger.severe("disconnect() error, "+e.getMessage());
        }
     }
-    
+
     public int getNumberOfChannels() throws UnsupportedException, IOException {
         return KAMSTRUP_NR_OF_CHANNELS;
     }
-    
+
     public int getProfileInterval() throws UnsupportedException, IOException {
         return iProfileInterval;
     }
-    
+
     public Unigas300Registry getUnigas300Registry() {
-        return unigas300Registry;   
+        return unigas300Registry;
     }
     private Unigas300Profile getUnigas300Profile() {
-        return unigas300Profile;   
+        return unigas300Profile;
     }
 
     // Implementation of interface ProtocolLink
     public FlagIEC1107Connection getFlagIEC1107Connection() {
         return flagIEC1107Connection;
     }
-    
+
     public TimeZone getTimeZone() {
         return timeZone;
     }
-    
+
     public boolean isIEC1107Compatible() {
         return (iIEC1107Compatible == 1);
     }
-    
+
     public String getPassword() {
        return strPassword;
     }
 
     public byte[] getDataReadout() {
-       return dataReadout;    
+       return dataReadout;
     }
-    
+
     public Logger getLogger() {
         return logger;
     }
-    
+
     public int getNrOfRetries() {
         return iProtocolRetriesProperty;
-    }    
+    }
 
     public boolean isRequestHeader() {
         return false;
@@ -420,30 +416,33 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
             logger.info(ocm.getRegisterInfo());
         }
     }
-    
+
     private void validateSerialNumber() throws IOException {
-        if ((getSerialNumber() == null) || ("".compareTo(getSerialNumber())==0)) return;
+        if ((getSerialNumber() == null) || ("".compareTo(getSerialNumber())==0)) {
+			return;
+		}
         String sn = getDeviceSerialNumber();
-        if (sn.compareTo(serialNumber) != 0) 
-        	throw new IOException("SerialNiumber mismatch! meter sn="+sn+", configured sn="+serialNumber);
+        if (sn.compareTo(serialNumber) != 0) {
+			throw new IOException("SerialNiumber mismatch! meter sn="+sn+", configured sn="+serialNumber);
+		}
     }
-    
+
     public String getDeviceSerialNumber() throws IOException {
     	if (deviceSerialNumber == null) {
     		deviceSerialNumber = (String)getUnigas300Registry().getRegister("DeviceSerialNumber");
     	}
     	return deviceSerialNumber;
 	}
-    
+
     public String getSerialNumber() {
 		return serialNumber;
 	}
-    
+
     // RegisterProtocol Interface implementation
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
-    
+
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
 			ObisCodeMapper ocm = new ObisCodeMapper(this);
@@ -455,7 +454,7 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
 			throw new NoSuchRegisterException("Problems while reading register " + obisCode + ": " + e.getMessage());
 		}
     }
-    
+
     //unused methods
     public Object getCache() {return null;}
     public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {return null;}
@@ -465,5 +464,5 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
     public ProtocolChannelMap getProtocolChannelMap() {return null;}
     public void release() throws IOException {}
 
-    
+
 } // public class Unigas300 implements MeterProtocol {

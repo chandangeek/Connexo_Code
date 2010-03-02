@@ -21,16 +21,16 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWRegisterDataParse;
  * @author  Koen
  */
 public class Unigas300Registry extends AbstractVDEWRegistry {
-    
+
 	private static final RegisterMappingFactory rmf = new RegisterMappingFactory();
-	
+
 	/** Creates a new instance of Unigas300Register */
     public Unigas300Registry(ProtocolLink protocolLink) {
         super(null,protocolLink);
     }
-    
+
     protected void initRegisters() {
-    	
+
     	add(RegisterMappingFactory.VM1, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
     	add(RegisterMappingFactory.VC1_ERR, VDEWRegisterDataParse.VDEW_QUANTITY, null);
     	add(RegisterMappingFactory.VC1, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
@@ -38,7 +38,7 @@ public class Unigas300Registry extends AbstractVDEWRegistry {
     	add(RegisterMappingFactory.VB1_ERR,	VDEWRegisterDataParse.VDEW_QUANTITY, null);
     	add(RegisterMappingFactory.VM2, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
     	add(RegisterMappingFactory.VM3, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
-    	
+
     	add(RegisterMappingFactory.STATUS1,	VDEWRegisterDataParse.VDEW_STRING, null);
     	add(RegisterMappingFactory.STATUS2,	VDEWRegisterDataParse.VDEW_STRING, null);
     	add(RegisterMappingFactory.STATUS3,	VDEWRegisterDataParse.VDEW_STRING, null);
@@ -107,10 +107,11 @@ public class Unigas300Registry extends AbstractVDEWRegistry {
         add(RegisterMappingFactory.GSM_CONNECTIONTIME, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
         add(RegisterMappingFactory.GSM_SIGNAL, 			VDEWRegisterDataParse.VDEW_QUANTITY, null);
 
+        add(RegisterMappingFactory.BATTERY_V_UNILOG,	VDEWRegisterDataParse.VDEW_QUANTITY, null);
+        add(RegisterMappingFactory.BATTERY_USED_UNILOG,	VDEWRegisterDataParse.VDEW_QUANTITY, null); // Only since FW 1.2.4
         add(RegisterMappingFactory.BATTERY_C_NEW, 		VDEWRegisterDataParse.VDEW_QUANTITY, null);
         add(RegisterMappingFactory.BATTERY_C_USED, 		VDEWRegisterDataParse.VDEW_QUANTITY, null);
         add(RegisterMappingFactory.BATTERY_V_UNIGAS,	VDEWRegisterDataParse.VDEW_QUANTITY, null);
-        add(RegisterMappingFactory.BATTERY_V_UNILOG,	VDEWRegisterDataParse.VDEW_QUANTITY, null);
         add(RegisterMappingFactory.OPERATING_HOURS, 	VDEWRegisterDataParse.VDEW_QUANTITY, null);
 
         add(RegisterMappingFactory.SCHEDULER_START, 	VDEWRegisterDataParse.VDEW_DATESTRING, null);
@@ -125,7 +126,7 @@ public class Unigas300Registry extends AbstractVDEWRegistry {
         registers.put("CI software revision number", new VDEWRegister("C.90.3",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
 
     }
-    
+
     private void add(String description, int parserType, Unit unit) {
     	add(description, parserType, -1, unit);
     }
@@ -143,5 +144,5 @@ public class Unigas300Registry extends AbstractVDEWRegistry {
     	String register = rm.getRegisterCode();
     	registers.put(description, new VDEWRegister(register,parserType,0,length,unit,VDEWRegister.NOT_WRITEABLE,VDEWRegister.CACHED));
 	}
-    
+
 }
