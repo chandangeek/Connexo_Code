@@ -20,26 +20,25 @@ import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.vdew.DateQuantityPair;
-import com.energyict.protocolimpl.iec1107.vdew.DateValuePair;
 
 /**
  *
  * @author Koen
  */
 public class ObisCodeMapper {
-    
-    Unigas300 unigas300;
-    
+
+	private static final RegisterMappingFactory	REGISTER_MAPPING_FACTORY	= new RegisterMappingFactory();
+	private Unigas300 unigas300;
+
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(Unigas300 unigas300) {
         this.unigas300=unigas300;
     }
-    
-    
+
+
     public String getRegisterInfo() {
         StringBuffer strBuff = new StringBuffer();
-        RegisterMappingFactory rmf = new RegisterMappingFactory();
-        Iterator it = rmf.getRegisterMappings().iterator();
+        Iterator it = REGISTER_MAPPING_FACTORY.getRegisterMappings().iterator();
         while(it.hasNext()) {
             RegisterMapping rm = (RegisterMapping)it.next();
             strBuff.append(rm.getObisCode()+", "+rm.getDescription()+", "+rm.getRegisterCode()+"\n");
@@ -47,16 +46,14 @@ public class ObisCodeMapper {
         }
         return strBuff.toString();
     }
-    
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        RegisterMappingFactory rmf = new RegisterMappingFactory();
-        RegisterMapping rm = rmf.findRegisterMapping(obisCode);
+
+	public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
+        RegisterMapping rm = REGISTER_MAPPING_FACTORY.findRegisterMapping(obisCode);
         return new RegisterInfo(rm.getDescription()+", "+rm.getRegisterCode());
     }
-    
+
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
-        RegisterMappingFactory rmf = new RegisterMappingFactory();
-        String registerCode = rmf.findRegisterCode(obisCode);
+        String registerCode = REGISTER_MAPPING_FACTORY.findRegisterCode(obisCode);
         Object o = unigas300.getUnigas300Registry().getRegister(registerCode);
         if (o instanceof Quantity) {
             return new RegisterValue(obisCode,(Quantity)o);
@@ -70,8 +67,8 @@ public class ObisCodeMapper {
         else if (o instanceof DateQuantityPair) {
             return new RegisterValue(obisCode,((DateQuantityPair)o).getQuantity(), ((DateQuantityPair)o).getDate());
         }
-        
+
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-    }    
-    
+    }
+
 }

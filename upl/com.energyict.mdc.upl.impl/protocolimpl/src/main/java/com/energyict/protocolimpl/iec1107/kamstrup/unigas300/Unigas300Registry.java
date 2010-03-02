@@ -138,6 +138,7 @@ public class Unigas300Registry extends AbstractVDEWRegistry {
 			oc = rmf.findObisCode(description);
 			rm = rmf.findRegisterMapping(oc);
 		} catch (IOException e) {
+			e.printStackTrace();
 			System.out.println(" ###### ERROR ###### " + e.getMessage());
 			return;
 		}

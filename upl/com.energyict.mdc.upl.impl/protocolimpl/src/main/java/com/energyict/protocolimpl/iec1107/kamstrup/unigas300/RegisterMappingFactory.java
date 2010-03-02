@@ -116,6 +116,16 @@ public class RegisterMappingFactory {
     /** Creates a new instance of RegisterMappingFactory */
     public RegisterMappingFactory() {
         initRegisterMapping();
+        System.out.println("\r\n");
+        for (Iterator iterator = getRegisterMappings().iterator(); iterator.hasNext();) {
+			RegisterMapping regMapping = (RegisterMapping) iterator.next();
+			System.out.print(regMapping.getRegisterCode());
+			System.out.print("\t");
+			System.out.print(regMapping.getObisCode().toString());
+			System.out.print("\t");
+			System.out.println(regMapping.getDescription());
+		}
+        System.out.println("\r\n");
     }
 
     private void initRegisterMapping() {

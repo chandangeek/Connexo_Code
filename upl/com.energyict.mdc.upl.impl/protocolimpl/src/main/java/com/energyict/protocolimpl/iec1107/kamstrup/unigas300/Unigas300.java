@@ -51,8 +51,6 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
  */
 public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol { //,CommunicationParameters {
 
-    private static final byte DEBUG=0;
-
     private static final int KAMSTRUP_NR_OF_CHANNELS=11;
     private static final String[] KAMSTRUP_METERREADINGS_979D1 = {"23.2.0","13.1.0","1:13.0.0","0:41.0.0","0:42.0.0","97.97.0"};
     private static final String[] KAMSTRUP_METERREADINGS_979E1 = {"23.2.0","1:12.0.0","1:13.0.0","0:41.0.0","0:42.0.0","97.97.0"};
@@ -76,10 +74,10 @@ public class Unigas300 implements MeterProtocol, ProtocolLink, RegisterProtocol 
     private String deviceSerialNumber = null;
     private String serialNumber = null;
 
-    FlagIEC1107Connection flagIEC1107Connection=null;
-    Unigas300Registry unigas300Registry=null;
-    Unigas300Profile unigas300Profile=null;
-    int extendedLogging;
+    private FlagIEC1107Connection flagIEC1107Connection=null;
+    private Unigas300Registry unigas300Registry=null;
+    private Unigas300Profile unigas300Profile=null;
+    private int extendedLogging;
 
     byte[] dataReadout=null;
 
