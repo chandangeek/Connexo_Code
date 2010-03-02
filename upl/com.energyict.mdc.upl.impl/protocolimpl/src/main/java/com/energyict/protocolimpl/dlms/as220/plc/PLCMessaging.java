@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.SFSKSyncTimeouts;
 import com.energyict.dlms.cosem.attributes.SFSKSyncTimeoutsAttribute;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
@@ -15,7 +16,12 @@ import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.base.AbstractSubMessageProtocol;
 import com.energyict.protocolimpl.dlms.as220.AS220;
+import com.energyict.protocolimpl.utils.MessagingTools;
 
+/**
+ * @author jme
+ *
+ */
 public class PLCMessaging extends AbstractSubMessageProtocol {
 
 	public static final String	RESCAN_PLCBUS					= "RescanPlcBus";
@@ -28,6 +34,12 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 
 	private final AS220 as220;
 
+	private SFSKSyncTimeouts sFSKSyncTimeouts = null;
+
+
+	/**
+	 * @param as220
+	 */
 	public PLCMessaging(AS220 as220) {
 		this.as220 = as220;
 		addSupportedMessageTag(RESCAN_PLCBUS);
@@ -35,8 +47,22 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		addSupportedMessageTag(SET_SFSK_MAC_TIMEOUTS);
 	}
 
+	/**
+	 * @return
+	 */
 	public AS220 getAs220() {
 		return as220;
+	}
+
+	/**
+	 * @return
+	 * @throws IOException
+	 */
+	public SFSKSyncTimeouts getsFSKSyncTimeouts() throws IOException {
+		if (sFSKSyncTimeouts == null) {
+			sFSKSyncTimeouts = getAs220().getCosemObjectFactory().getSFSKSyncTimeouts();
+		}
+		return sFSKSyncTimeouts;
 	}
 
 	public List getMessageCategories() {
@@ -60,6 +86,8 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 				rescanPLCBus();
 			} else if (isMessageTag(SET_ACTIVE_PLC_CHANNEL, messageEntry)) {
 				setActivePLCChannel(messageEntry);
+			} else if (isMessageTag(SET_SFSK_MAC_TIMEOUTS, messageEntry)) {
+				setPLCTimeouts(messageEntry);
 			} else {
 				throw new IOException("Received unknown message: " + messageEntry);
 			}
@@ -74,11 +102,116 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		return result;
 	}
 
+	/**
+	 * @param messageEntry
+	 * @throws IOException
+	 */
+	private void setPLCTimeouts(MessageEntry messageEntry) throws IOException {
+		getAs220().getLogger().info("SET_SFSK_MAC_TIMEOUTS message received");
+
+		String attributeName;
+
+		int searchInitiator = getAttributeAsInteger(messageEntry, SFSKSyncTimeoutsAttribute.SEARCH_INITIATOR_TIMEOUT.name());
+		int syncConfirm = getAttributeAsInteger(messageEntry, SFSKSyncTimeoutsAttribute.SYNCHRONIZATION_CONFIRMATION_TIMEOUT.name());
+		int notAddressed = getAttributeAsInteger(messageEntry, SFSKSyncTimeoutsAttribute.TIME_OUT_NOT_ADDRESSED.name());
+		int frNotOk = getAttributeAsInteger(messageEntry, SFSKSyncTimeoutsAttribute.TIME_OUT_FRAME_NOT_OK.name());
+
+		attributeName = SFSKSyncTimeoutsAttribute.SEARCH_INITIATOR_TIMEOUT.name();
+		if (searchInitiator != -1) {
+			getsFSKSyncTimeouts().setSearchInitiatorTimeout(searchInitiator);
+			readAfterWriteCheck(getsFSKSyncTimeouts().getSearchInitiatorTimeout().getValue(), searchInitiator, attributeName);
+		} else {
+			getAs220().getLogger().info("SET_SFSK_MAC_TIMEOUTS message: skipping write to " + attributeName + ".");
+		}
+
+		attributeName = SFSKSyncTimeoutsAttribute.SYNCHRONIZATION_CONFIRMATION_TIMEOUT.name();
+		if (syncConfirm != -1) {
+			getsFSKSyncTimeouts().setSyncConfirmTimeout(syncConfirm);
+			readAfterWriteCheck(getsFSKSyncTimeouts().getSyncConfirmTimeout().getValue(), syncConfirm, attributeName);
+		} else {
+			getAs220().getLogger().info("SET_SFSK_MAC_TIMEOUTS message: skipping write to " + attributeName + ".");
+		}
+
+		attributeName = SFSKSyncTimeoutsAttribute.TIME_OUT_NOT_ADDRESSED.name();
+		if (notAddressed != -1) {
+			getsFSKSyncTimeouts().setTimeoutNotAddressed(notAddressed);
+			readAfterWriteCheck(getsFSKSyncTimeouts().getTimeoutNotAddressed().getValue(), notAddressed, attributeName);
+		} else {
+			getAs220().getLogger().info("SET_SFSK_MAC_TIMEOUTS message: skipping write to " + attributeName + ".");
+		}
+
+		attributeName = SFSKSyncTimeoutsAttribute.TIME_OUT_FRAME_NOT_OK.name();
+		if (frNotOk != -1) {
+			getsFSKSyncTimeouts().setTimeoutFrameNotOk(frNotOk);
+			readAfterWriteCheck(getsFSKSyncTimeouts().getTimeoutFrameNotOk().getValue(), frNotOk, attributeName);
+		} else {
+			getAs220().getLogger().info("SET_SFSK_MAC_TIMEOUTS message: skipping write to " + attributeName + ".");
+		}
+
+	}
+
+	/**
+	 * @param attributeName
+	 * @param newValue
+	 * @throws IOException
+	 */
+	private void readAfterWriteCheck(int deviceValue, int writeValue, String attributeName) throws IOException {
+		if (writeValue != deviceValue) {
+			throw new IOException("Read after write check failed for attribute " + attributeName + ": '" + deviceValue + "'!='" + writeValue + "'");
+		}
+		getAs220().getLogger().info("SET_SFSK_MAC_TIMEOUTS message: Write '" + writeValue + "' to " + attributeName + " success.");
+	}
+
+	/**
+	 * @param messageEntry
+	 * @param attribute
+	 * @return
+	 * @throws IOException
+	 */
+	private int getAttributeAsInteger(MessageEntry messageEntry, String attribute) throws IOException {
+		String stringValue = MessagingTools.getContentOfAttribute(messageEntry, attribute);
+		if ((stringValue == null) || (stringValue.length() == 0) || (stringValue.equals("-"))) {
+			return -1;
+		} else {
+			try {
+				return Integer.parseInt(stringValue);
+			} catch (NumberFormatException e) {
+				throw new IOException("Message attribute contains an invalid value: '" + stringValue + "': " + e.getMessage());
+			}
+		}
+	}
+
+	/**
+	 * @param messageEntry
+	 * @param attribute
+	 * @return
+	 * @throws IOException
+	 */
+	private long getAttributeAsLong(MessageEntry messageEntry, String attribute) throws IOException {
+		String stringValue = MessagingTools.getContentOfAttribute(messageEntry, attribute);
+		if ((stringValue == null) || (stringValue.length() == 0) || (stringValue.equals("-"))) {
+			return -1;
+		} else {
+			try {
+				return Long.parseLong(stringValue);
+			} catch (NumberFormatException e) {
+				throw new IOException("Message attribute contains an invalid value: '" + stringValue + "': " + e.getMessage());
+			}
+		}
+	}
+
+	/**
+	 * @throws IOException
+	 */
 	private void rescanPLCBus() throws IOException {
 		getAs220().getLogger().info("RESCAN_PLCBUS message received");
 		setActivePLCChannel(0);
 	}
 
+	/**
+	 * @param messageEntry
+	 * @throws IOException
+	 */
 	private void setActivePLCChannel(MessageEntry messageEntry) throws IOException {
 		getAs220().getLogger().info("SET_ACTIVE_PLC_CHANNEL message received");
 		String messageContent = getMessageEntryContent(messageEntry);
@@ -91,6 +224,10 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		setActivePLCChannel(channel);
 	}
 
+	/**
+	 * @param channel
+	 * @throws IOException
+	 */
 	private void setActivePLCChannel(int channel) throws IOException {
 		if ((channel < 0) || (channel > 6)) {
 			throw new IOException("Channel can only be 0-6, but was " + channel);
@@ -98,6 +235,12 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setActiveChannel(new Unsigned8(channel));
 	}
 
+    /**
+     * @param keyId
+     * @param tagName
+     * @param advanced
+     * @return
+     */
     private MessageSpec createActivePLCChannelMessageSpec(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
@@ -109,8 +252,13 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
         return msgSpec;
 	}
 
+	/**
+	 * @param keyId
+	 * @param tagName
+	 * @param advanced
+	 * @return
+	 */
 	private MessageSpec createSetMacTimeoutsMessageSpec(String keyId, String tagName, boolean advanced) {
-		System.out.println("createSetMacTimeoutsMessageSpec");
 		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
 		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 

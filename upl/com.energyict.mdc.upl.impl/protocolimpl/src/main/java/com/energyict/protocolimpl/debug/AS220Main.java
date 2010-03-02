@@ -48,6 +48,10 @@ public class AS220Main {
 
 	private static final String		RESCAN_PLCBUS			= "<" + PLCMessaging.RESCAN_PLCBUS + ">1</" + PLCMessaging.RESCAN_PLCBUS + ">";
 	private static final String		FORCE_SET_CLOCK			= "<" + AS220Messaging.FORCE_SET_CLOCK + ">1</" + AS220Messaging.FORCE_SET_CLOCK + ">";
+	private static final String		SET_PLC_TIMEOUTS1		= "<SetSFSKMacTimeouts SEARCH_INITIATOR_TIMEOUT=\"01\" SYNCHRONIZATION_CONFIRMATION_TIMEOUT=\"34\" TIME_OUT_NOT_ADDRESSED=\"56\" TIME_OUT_FRAME_NOT_OK=\"78\"> </SetSFSKMacTimeouts>";
+	private static final String		SET_PLC_TIMEOUTS2		= "<SetSFSKMacTimeouts SEARCH_INITIATOR_TIMEOUT=\"-\" SYNCHRONIZATION_CONFIRMATION_TIMEOUT=\"34\" TIME_OUT_NOT_ADDRESSED=\"56\" TIME_OUT_FRAME_NOT_OK=\"78\"> </SetSFSKMacTimeouts>";
+	private static final String		SET_PLC_TIMEOUTS3		= "<SetSFSKMacTimeouts SEARCH_INITIATOR_TIMEOUT=\"\" SYNCHRONIZATION_CONFIRMATION_TIMEOUT=\"34\" TIME_OUT_NOT_ADDRESSED=\"56\" TIME_OUT_FRAME_NOT_OK=\"78\"> </SetSFSKMacTimeouts>";
+	private static final String		SET_PLC_TIMEOUTS4		= "<SetSFSKMacTimeouts SYNCHRONIZATION_CONFIRMATION_TIMEOUT=\"34\" TIME_OUT_NOT_ADDRESSED=\"56\" TIME_OUT_FRAME_NOT_OK=\"78\"> </SetSFSKMacTimeouts>";
 
 	private static final String		OBSERVER_FILENAME		= "c:\\logging\\AS220Main\\communications.log";
 	private static final Level		LOG_LEVEL				= Level.ALL;
@@ -175,6 +179,13 @@ public class AS220Main {
 		getAs220().queryMessage(new MessageEntry(RESCAN_PLCBUS, ""));
 	}
 
+	public static void setPLCTimeouts() throws IOException {
+		getAs220().queryMessage(new MessageEntry(SET_PLC_TIMEOUTS1, ""));
+		getAs220().queryMessage(new MessageEntry(SET_PLC_TIMEOUTS2, ""));
+		getAs220().queryMessage(new MessageEntry(SET_PLC_TIMEOUTS3, ""));
+		getAs220().queryMessage(new MessageEntry(SET_PLC_TIMEOUTS4, ""));
+	}
+
 	public static void forceSetClock() throws IOException {
 		getAs220().queryMessage(new MessageEntry(FORCE_SET_CLOCK, ""));
 	}
@@ -222,10 +233,7 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.96.1.0.255")));
-			System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.96.14.0.255")));
-
-			pulseContactor();
+			setPLCTimeouts();
 
 		} catch (Exception e) {
 			e.printStackTrace();

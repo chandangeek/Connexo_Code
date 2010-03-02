@@ -51,12 +51,20 @@ public class SFSKSyncTimeouts extends AbstractCosemObject implements RegisterRea
 		}
 	}
 
+	public void setSearchInitiatorTimeout(int value) throws IOException {
+		write(SFSKSyncTimeoutsAttribute.SEARCH_INITIATOR_TIMEOUT, new Unsigned16(value).getBEREncodedByteArray());
+	}
+
 	public Unsigned16 getSyncConfirmTimeout() {
 		try {
 			return new Unsigned16(getResponseData(SFSKSyncTimeoutsAttribute.SYNCHRONIZATION_CONFIRMATION_TIMEOUT), 0);
 		} catch (IOException e) {
 			return null;
 		}
+	}
+
+	public void setSyncConfirmTimeout(int value) throws IOException {
+		write(SFSKSyncTimeoutsAttribute.SYNCHRONIZATION_CONFIRMATION_TIMEOUT, new Unsigned16(value).getBEREncodedByteArray());
 	}
 
 	public Unsigned16 getTimeoutNotAddressed() {
@@ -67,12 +75,20 @@ public class SFSKSyncTimeouts extends AbstractCosemObject implements RegisterRea
 		}
 	}
 
+	public void setTimeoutNotAddressed(int value) throws IOException {
+		write(SFSKSyncTimeoutsAttribute.TIME_OUT_NOT_ADDRESSED, new Unsigned16(value).getBEREncodedByteArray());
+	}
+
 	public Unsigned16 getTimeoutFrameNotOk() {
 		try {
 			return new Unsigned16(getResponseData(SFSKSyncTimeoutsAttribute.TIME_OUT_FRAME_NOT_OK), 0);
 		} catch (IOException e) {
 			return null;
 		}
+	}
+
+	public void setTimeoutFrameNotOk(int value) throws IOException {
+		write(SFSKSyncTimeoutsAttribute.TIME_OUT_FRAME_NOT_OK, new Unsigned16(value).getBEREncodedByteArray());
 	}
 
 	@Override
