@@ -99,11 +99,11 @@ public class GMeterMessaging implements MessageProtocol {
 	}
 
 	public String writeMessage(Message msg) {
-		return msg.write(getGasDevice());
+		return msg.write(this);
 	}
 
 	public String writeTag(MessageTag tag) {
-    	StringBuffer buf = new StringBuffer();
+	  	StringBuffer buf = new StringBuffer();
 
         // a. Opening tag
         buf.append("<");
@@ -143,8 +143,7 @@ public class GMeterMessaging implements MessageProtocol {
 	}
 
 	public String writeValue(MessageValue value) {
-		// TODO Auto-generated method stub
-		return null;
+		return value.getValue();
 	}
 
     /**
@@ -221,9 +220,9 @@ public class GMeterMessaging implements MessageProtocol {
      * 					- the startingTag
      * @return the value
      */
-    private String getMessageValue(String content, String elementTag){
-    	int startIndex = content.indexOf(elementTag) + + elementTag.length() + 1;
-    	int endIndex = content.indexOf(elementTag, startIndex) -2;
+    protected String getMessageValue(String content, String elementTag){
+    	int startIndex = content.indexOf(elementTag) + elementTag.length() + 2;
+    	int endIndex = content.indexOf("\"", startIndex);
     	return content.substring(startIndex, endIndex);
     }
 

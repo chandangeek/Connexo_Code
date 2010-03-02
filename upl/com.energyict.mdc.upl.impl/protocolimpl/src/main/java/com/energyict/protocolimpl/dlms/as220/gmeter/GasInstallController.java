@@ -40,7 +40,7 @@ public class GasInstallController extends AbstractMbusInstallController {
 	public void deinstall() throws IOException {
 		getGasDevice().getLogger().info("DEINSTALL (DeCommission) message received");
 		getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().
-				getMbusClient(getGasDevice().getPhysicalAddress()-1).getObisCode()).deinstallSlave();
+				getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode()).deinstallSlave();
 	}
 
 	/**

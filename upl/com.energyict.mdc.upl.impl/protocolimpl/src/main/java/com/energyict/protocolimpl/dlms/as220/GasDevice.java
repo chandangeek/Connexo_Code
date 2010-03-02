@@ -13,12 +13,16 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeterMessaging;
 
@@ -26,7 +30,7 @@ import com.energyict.protocolimpl.dlms.as220.gmeter.GMeterMessaging;
  * @author jeroen.meulemeester
  *
  */
-public class GasDevice extends AS220 {
+public class GasDevice extends AS220 implements MessageProtocol{
 
 	private static final int EMETERSERIAL = 0;
 	private static final int SLOTID = 1;
@@ -38,6 +42,7 @@ public class GasDevice extends AS220 {
 	private int		mbusProfileInterval = -1;
 
 	private final GMeter	gMeter	= new GMeter(this);
+	private GMeterMessaging messaging;
 
 	@Override
 	public int getNumberOfChannels() throws IOException {
@@ -179,7 +184,7 @@ public class GasDevice extends AS220 {
 	 */
 	@Override
 	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-		return new GMeterMessaging(this).queryMessage(messageEntry);
+		return getMessaging().queryMessage(messageEntry);
 	}
 
 	/**
@@ -187,12 +192,55 @@ public class GasDevice extends AS220 {
 	 */
 	@Override
 	public List<MessageCategorySpec> getMessageCategories() {
-		return new GMeterMessaging(this).getMessageCategories();
+		return getMessaging().getMessageCategories();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String writeMessage(Message msg) {
+		return getMessaging().writeMessage(msg);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String writeTag(MessageTag msgTag) {
+		return getMessaging().writeTag(msgTag);
+    }
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String writeValue(MessageValue msgValue) {
+		return msgValue.getValue();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void applyMessages(List messageEntries) throws IOException {
+		getMessaging().applyMessages(messageEntries);
+	}
+
+	/**
+	 * Return the {@link GMeterMessaging} object
+	 */
+	private GMeterMessaging getMessaging(){
+		if(this.messaging == null){
+			this.messaging = new GMeterMessaging(this);
+		}
+		return this.messaging;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 *
+	 * FirmwareUpgrade is not supported but it's there because we inherit from AS220 ...
 	 */
 	public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
 	    return null;
@@ -219,7 +267,7 @@ public class GasDevice extends AS220 {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * Userfiles are supported for upgrades
+	 * Userfiles are not supported for upgrades
 	 */
 	public boolean supportsUserFilesForFirmwareUpdate() {
 	    return false;
