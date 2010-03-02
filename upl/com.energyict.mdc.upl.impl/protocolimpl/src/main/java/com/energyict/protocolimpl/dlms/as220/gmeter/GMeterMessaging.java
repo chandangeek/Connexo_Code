@@ -63,7 +63,6 @@ public class GMeterMessaging implements MessageProtocol {
         gMeterCat.addMessageSpec(createMessageSpec(DISCONNECT_GMETER_DISPLAY, DISCONNECT_GMETER, false));
         gMeterCat.addMessageSpec(createMessageSpec(ARM_GMETER_DISPLAY, ARM_GMETER, false));
         gMeterCat.addMessageSpec(createMessageSpec(CONNECT_GMETER_DISPLAY, CONNECT_GMETER, false));
-        gMeterCat.addMessageSpec(createMessageSpec(COMMISSION_DISPLAY, COMMISSION, false));
         gMeterCat.addMessageSpec(createMessageSpec(DECOMMISSION_DISPLAY, DECOMISSION, true));
         gMeterCat.addMessageSpec(createEncryptionMessageSpec(ENABLE_ENCRYPTION_DISPLAY, ENABLE_ENCRYPTION, false));
 
@@ -84,8 +83,6 @@ public class GMeterMessaging implements MessageProtocol {
 				getGasDevice().getgMeter().getGasValveController().doConnect();
 			} else if (isMessageTag(ARM_GMETER, messageEntry)) {
 				getGasDevice().getgMeter().getGasValveController().doArm();
-			} else if (isMessageTag(COMMISSION, messageEntry)){
-				getGasDevice().getgMeter().getGasInstallController().install();
 			} else if (isMessageTag(DECOMISSION, messageEntry)){
 				getGasDevice().getgMeter().getGasInstallController().deinstall();
 			} else if (isMessageTag(ENABLE_ENCRYPTION, messageEntry)){
