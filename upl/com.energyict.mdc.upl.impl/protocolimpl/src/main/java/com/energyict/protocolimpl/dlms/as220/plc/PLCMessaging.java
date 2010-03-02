@@ -124,8 +124,18 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		for (int channel = 0; channel < 6; channel++) {
 			for (int freqType = 0; freqType < 2; freqType++) {
 				frequencies[channel][freqType] = getAttributeAsLong(messageEntry, FREQUENCIES_NAME[channel][freqType]);
+				if (frequencies[channel][freqType] == -1) {
+					throw new IOException("Invalid or no value given for the " + FREQUENCIES_NAME[channel][freqType] + " field.");
+				}
 			}
 		}
+
+		for (int channel = 0; channel < 6; channel++) {
+			for (int freqType = 0; freqType < 2; freqType++) {
+				System.out.println("[" + channel + "][" + freqType + "]=" + frequencies[channel][freqType]);
+			}
+		}
+
 
 		//TODO: still to implement
 
