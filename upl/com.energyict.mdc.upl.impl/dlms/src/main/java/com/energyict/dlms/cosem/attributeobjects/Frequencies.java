@@ -18,8 +18,8 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
  */
 public class Frequencies extends Array implements Comparable<Frequencies> {
 
-	private static final int	FS_INDEX	= 0;
-	private static final int	FM_INDEX	= 1;
+	private static final int	FM_INDEX	= 0;
+	private static final int	FS_INDEX	= 1;
 
 	/**
 	 * @param frequencies
