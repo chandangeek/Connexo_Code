@@ -163,6 +163,22 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	}
 
 	/**
+	 * @param frequencies
+	 * @throws IOException
+	 */
+	public void setFrequencies(Frequencies frequencies) throws IOException {
+		write(SFSKPhyMacSetupAttribute.FREQUENCIES, frequencies.getBEREncodedByteArray());
+	}
+
+	/**
+	 * @param frequencies
+	 * @throws IOException
+	 */
+	public void setFrequencies(long[][] frequencies) throws IOException {
+		setFrequencies(Frequencies.fromLongArray(frequencies));
+	}
+
+	/**
 	 * Holds the MIB variable mac-address (variable 3) specified in IEC 61334-4-512 5.3 and in IEC 61334-5-1 4.3.7.6.
 	 * NOTE MAC addresses are expressed on 12 bits.
 	 *

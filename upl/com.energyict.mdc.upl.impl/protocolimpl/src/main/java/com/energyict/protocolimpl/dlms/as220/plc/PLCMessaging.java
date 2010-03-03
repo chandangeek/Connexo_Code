@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.SFSKSyncTimeouts;
+import com.energyict.dlms.cosem.attributeobjects.Frequencies;
 import com.energyict.dlms.cosem.attributes.SFSKSyncTimeoutsAttribute;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
@@ -117,6 +118,10 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		return result;
 	}
 
+	/**
+	 * @param messageEntry
+	 * @throws IOException
+	 */
 	private void setPLCFrequencies(MessageEntry messageEntry) throws IOException {
 		getAs220().getLogger().info("SET_PLC_CHANNEL_FREQUENCIES message received");
 
@@ -130,14 +135,15 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 			}
 		}
 
-		for (int channel = 0; channel < 6; channel++) {
-			for (int freqType = 0; freqType < 2; freqType++) {
-				System.out.println("[" + channel + "][" + freqType + "]=" + frequencies[channel][freqType]);
-			}
+		Frequencies write = Frequencies.fromLongArray(frequencies);
+		getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setFrequencies(frequencies);
+		Frequencies now = getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().getFrequencies();
+
+		if (!write.equals(now)) {
+			throw new IOException("Read after write check failed for attribute FREQUENCIES: '" + now + "'!='" + write + "'");
+		} else {
+			getAs220().getLogger().info("SET_PLC_CHANNEL_FREQUENCIES message: Write '" + write + "' to FREQUENCIES success.");
 		}
-
-
-		//TODO: still to implement
 
 	}
 
