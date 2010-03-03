@@ -70,6 +70,21 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	}
 
 	/**
+	 * Holds the MIB variable initiator-electrical-phase (variable 18) specified in IEC 61334-4-512 5.8.
+	 * It is written by the client system to indicate the phase to which it is connected.
+	 * enum: 	(0) Not defined (default),
+	 * 			(1) Phase 1,
+	 * 			(2) Phase 2,
+	 * 			(3) Phase 3.
+	 *
+	 * @param electricalPhase
+	 * @throws IOException
+	 */
+	public void setInitiatorElectricalPhase(ElectricalPhase electricalPhase) throws IOException {
+		write(SFSKPhyMacSetupAttribute.INITIATOR_ELECTRICAL_PHASE, electricalPhase.getBEREncodedByteArray());
+	}
+
+	/**
 	 * Holds the MIB variable delta-electrical-phase (variable 1) specified in
 	 * IEC 61334-4-512 5.2 and IEC 61334-5-1 3.5.5.3. It indicates the phase difference
 	 * between the client's connecting phase and the server's connecting phase.
@@ -117,6 +132,14 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	}
 
 	/**
+	 * @param maxRxGain
+	 * @throws IOException
+	 */
+	public void setMaxReceivingGain(int maxRxGain) throws IOException {
+		write(SFSKPhyMacSetupAttribute.MAX_RECEIVING_GAIN, new Unsigned8(maxRxGain).getBEREncodedByteArray());
+	}
+
+	/**
 	 * Holds the value of the max-transmitting-gain. Corresponds to the maximum
 	 * attenuation bound to be used by the server system in the transmitting
 	 * mode. The default unit is dB. NOTE The possible values of the gain may
@@ -134,6 +157,14 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	}
 
 	/**
+	 * @param maxTxGain
+	 * @throws IOException
+	 */
+	public void setMaxTransmittingGain(int maxTxGain) throws IOException {
+		write(SFSKPhyMacSetupAttribute.MAX_TRANSMITTING_GAIN, new Unsigned8(maxTxGain).getBEREncodedByteArray());
+	}
+
+	/**
 	 * This attribute is used in the intelligent search initiator process. If
 	 * the value of the max_receiving_gain is below the value of this attribute,
 	 * a fast synchronization process is possible.
@@ -146,6 +177,14 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 		} catch (IOException e) {
 			return null;
 		}
+	}
+
+	/**
+	 * @param searchInitGain
+	 * @throws IOException
+	 */
+	public void setSearchInitiatorGain(int searchInitGain) throws IOException {
+		write(SFSKPhyMacSetupAttribute.SEARCH_INITIATOR_GAIN, new Unsigned8(searchInitGain).getBEREncodedByteArray());
 	}
 
 	/**
@@ -221,6 +260,10 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 		} catch (IOException e) {
 			return null;
 		}
+	}
+
+	public void setRepeater(Repeater repeater) throws IOException {
+		write(SFSKPhyMacSetupAttribute.REPEATER, repeater.getBEREncodedByteArray());
 	}
 
 	public BooleanObject getRepeaterStatus() {

@@ -20,6 +20,9 @@ public class SFSKIec61334LLCSetup extends AbstractCosemObject implements Registe
 
 	private static final byte[]	LN	= ObisCode.fromString("0.0.26.5.0.255").getLN();
 
+	/**
+	 * @return
+	 */
 	public static ObisCode getObisCode() {
 		return ObisCode.fromByteArray(LN);
 	}
@@ -29,6 +32,10 @@ public class SFSKIec61334LLCSetup extends AbstractCosemObject implements Registe
 		return DLMSClassId.S_FSK_IEC_61334_4_32_LLC_SETUP.getClassId();
 	}
 
+	/**
+	 * @param protocolLink
+	 * @param objectReference
+	 */
 	public SFSKIec61334LLCSetup(ProtocolLink protocolLink, ObjectReference objectReference) {
 		super(protocolLink, objectReference);
 	}
@@ -45,6 +52,9 @@ public class SFSKIec61334LLCSetup extends AbstractCosemObject implements Registe
 		}
 	}
 
+	/**
+	 * @return
+	 */
 	public Unsigned8 getMaxFrameLength() {
 		try {
 			return new Unsigned8(getResponseData(SFSKIec61334LLCSetupAttribute.MAX_FRAME_LENGTH), 0);
@@ -53,6 +63,17 @@ public class SFSKIec61334LLCSetup extends AbstractCosemObject implements Registe
 		}
 	}
 
+	/**
+	 * @param maxFrameLength
+	 * @throws IOException
+	 */
+	public void setMaxFrameLength(int maxFrameLength) throws IOException {
+		write(SFSKIec61334LLCSetupAttribute.MAX_FRAME_LENGTH, new Unsigned8(maxFrameLength).getBEREncodedByteArray());
+	}
+
+	/**
+	 * @return
+	 */
 	public ReplyStatusList getReplyStatusList() {
 		try {
 			return new ReplyStatusList(getResponseData(SFSKIec61334LLCSetupAttribute.REPLY_STATUS_LIST), 0, 0);

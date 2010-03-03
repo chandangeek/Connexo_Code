@@ -22,6 +22,18 @@ public class ElectricalPhase extends TypeEnum {
 		super(berEncodedData, offset);
 	}
 
+	public ElectricalPhase(int value) throws IOException {
+		this(new TypeEnum(value));
+	}
+
+	public ElectricalPhase(TypeEnum typeEnum) throws IOException {
+		this(typeEnum.getBEREncodedByteArray());
+	}
+
+	public ElectricalPhase(byte[] berEncodedByteArray) throws IOException {
+		this(berEncodedByteArray, 0);
+	}
+
 	@Override
 	public String toString() {
 		switch (getValue()) {

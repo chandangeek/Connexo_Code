@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.cosem.SFSKSyncTimeouts;
+import com.energyict.dlms.cosem.attributeobjects.ElectricalPhase;
 import com.energyict.dlms.cosem.attributeobjects.Frequencies;
+import com.energyict.dlms.cosem.attributeobjects.Repeater;
 import com.energyict.dlms.cosem.attributes.SFSKIec61334LLCSetupAttribute;
 import com.energyict.dlms.cosem.attributes.SFSKPhyMacSetupAttribute;
 import com.energyict.dlms.cosem.attributes.SFSKSyncTimeoutsAttribute;
@@ -27,6 +28,9 @@ import com.energyict.protocolimpl.utils.MessagingTools;
  */
 public class PLCMessaging extends AbstractSubMessageProtocol {
 
+	private static final int		FREQUENCIES_PER_PAIR				= 2;
+	private static final int		NR_OF_CHANNELS						= 6;
+
 	public static final String		RESCAN_PLCBUS						= "RescanPlcBus";
 	public static final String		SET_ACTIVE_PLC_CHANNEL				= "SetActivePlcChannel";
 	public static final String		SET_PLC_CHANNEL_FREQUENCIES			= "SetPlcChannelFrequencies";
@@ -37,8 +41,8 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 	public static final String		SET_SFSK_MAX_FRAME_LENGTH			= "SetSFSKMaxFrameLength";
 
 	private static final String		RESCAN_PLCBUS_DISPLAY				= "Force manual rescan PLC bus";
-	private static final String		SET_ACTIVE_PLC_CHANNEL_DISPLAY		= "Set active PLC channel";
-	private static final String		SET_PLC_FREQUENCIES_DISPLAY			= "Set S-FSK channel frequencies";
+	private static final String		SET_ACTIVE_PLC_CHANNEL_DISPLAY		= "Set the S-FSK active channel";
+	private static final String		SET_PLC_FREQUENCIES_DISPLAY			= "Set the S-FSK channels frequencies";
 	private static final String		SET_SFSK_MAC_TIMEOUTS_DISPLAY		= "Set the S-FSK Mac timeouts";
 	private static final String		SET_SFSK_INITIATOR_PH_DISPLAY		= "Set the S-FSK initiator phase";
 	private static final String		SET_SFSK_GAIN_DISPLAY				= "Set the S-FSK gain properties";
@@ -55,9 +59,6 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 	};
 
 	private final AS220 as220;
-
-	private SFSKSyncTimeouts sFSKSyncTimeouts = null;
-
 
 	/**
 	 * @param as220
@@ -79,17 +80,6 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 	 */
 	public AS220 getAs220() {
 		return as220;
-	}
-
-	/**
-	 * @return
-	 * @throws IOException
-	 */
-	public SFSKSyncTimeouts getsFSKSyncTimeouts() throws IOException {
-		if (sFSKSyncTimeouts == null) {
-			sFSKSyncTimeouts = getAs220().getCosemObjectFactory().getSFSKSyncTimeouts();
-		}
-		return sFSKSyncTimeouts;
 	}
 
 	public List getMessageCategories() {
@@ -122,6 +112,14 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 				setPLCTimeouts(messageEntry);
 			} else if (isMessageTag(SET_PLC_CHANNEL_FREQUENCIES, messageEntry)) {
 				setPLCFrequencies(messageEntry);
+			} else if (isMessageTag(SET_SFSK_INITIATOR_PHASE, messageEntry)) {
+				setInitiatorPhase(messageEntry);
+			} else if (isMessageTag(SET_SFSK_GAIN, messageEntry)) {
+				setGain(messageEntry);
+			} else if (isMessageTag(SET_SFSK_REPEATER, messageEntry)) {
+				setRepeater(messageEntry);
+			} else if (isMessageTag(SET_SFSK_MAX_FRAME_LENGTH, messageEntry)) {
+				setMaxFrameLength(messageEntry);
 			} else {
 				throw new IOException("Received unknown message: " + messageEntry);
 			}
@@ -140,12 +138,124 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 	 * @param messageEntry
 	 * @throws IOException
 	 */
+	private void setMaxFrameLength(MessageEntry messageEntry) throws IOException {
+		getAs220().getLogger().info("SET_SFSK_MAX_FRAME_LENGTH message received");
+
+		int maxFrameLength = getAttributeAsInteger(messageEntry, SFSKIec61334LLCSetupAttribute.MAX_FRAME_LENGTH.name());
+
+		String attributeName = SFSKIec61334LLCSetupAttribute.MAX_FRAME_LENGTH.name();
+		if (maxFrameLength != -1) {
+			getAs220().getCosemObjectFactory().getSFSKIec61334LLCSetup().setMaxFrameLength(maxFrameLength);
+			final int value = getAs220().getCosemObjectFactory().getSFSKIec61334LLCSetup().getMaxFrameLength().getValue();
+			readAfterWriteCheck(value, maxFrameLength, attributeName);
+		} else {
+			getAs220().getLogger().info("SET_SFSK_MAX_FRAME_LENGTH message: skipping write to " + attributeName + ".");
+		}
+
+	}
+
+	/**
+	 * @param messageEntry
+	 * @throws IOException
+	 */
+	private void setInitiatorPhase(MessageEntry messageEntry) throws IOException {
+		getAs220().getLogger().info("SET_SFSK_INITIATOR_PHASE message received");
+
+		int initiatorPhase = getAttributeAsInteger(messageEntry, SFSKPhyMacSetupAttribute.INITIATOR_ELECTRICAL_PHASE.name());
+
+		String attributeName = SFSKPhyMacSetupAttribute.INITIATOR_ELECTRICAL_PHASE.name();
+		if (initiatorPhase != -1) {
+			getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setInitiatorElectricalPhase(new ElectricalPhase(initiatorPhase));
+			final int value = getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().getInitiatorElectricalPhase().getValue();
+			readAfterWriteCheck(value, initiatorPhase, attributeName);
+		} else {
+			getAs220().getLogger().info("SET_SFSK_INITIATOR_PHASE message: skipping write to " + attributeName + ".");
+		}
+
+	}
+
+	/**
+	 * @param messageEntry
+	 * @throws IOException
+	 */
+	private void setActivePLCChannel(MessageEntry messageEntry) throws IOException {
+		getAs220().getLogger().info("SET_ACTIVE_PLC_CHANNEL message received");
+		int channel = getAttributeAsInteger(messageEntry, SFSKPhyMacSetupAttribute.ACTIVE_CHANNEL.name());
+		setActivePLCChannel(channel);
+	}
+
+	/**
+	 * @param messageEntry
+	 * @throws IOException
+	 */
+	private void setRepeater(MessageEntry messageEntry) throws IOException {
+		getAs220().getLogger().info("SET_SFSK_REPEATER message received");
+
+		int repeater = getAttributeAsInteger(messageEntry, SFSKPhyMacSetupAttribute.REPEATER.name());
+
+		String attributeName = SFSKPhyMacSetupAttribute.REPEATER.name();
+		if (repeater != -1) {
+			getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setRepeater(new Repeater(repeater));
+			final int value = getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().getRepeater().getValue();
+			readAfterWriteCheck(value, repeater, attributeName);
+		} else {
+			getAs220().getLogger().info("SET_SFSK_REPEATER message: skipping write to " + attributeName + ".");
+		}
+
+	}
+
+	/**
+	 * @param messageEntry
+	 * @throws IOException
+	 */
+	private void setGain(MessageEntry messageEntry) throws IOException {
+		getAs220().getLogger().info("SET_SFSK_GAIN message received");
+
+		String attributeName;
+
+		int maxRxGain = getAttributeAsInteger(messageEntry, SFSKPhyMacSetupAttribute.MAX_RECEIVING_GAIN.name());
+		int maxTxGain = getAttributeAsInteger(messageEntry, SFSKPhyMacSetupAttribute.MAX_TRANSMITTING_GAIN.name());
+		int searchInitGain = getAttributeAsInteger(messageEntry, SFSKPhyMacSetupAttribute.SEARCH_INITIATOR_GAIN.name());
+
+		attributeName = SFSKPhyMacSetupAttribute.MAX_RECEIVING_GAIN.name();
+		if (maxRxGain != -1) {
+			getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setMaxReceivingGain(maxRxGain);
+			final int value = getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().getMaxReceivingGain().getValue();
+			readAfterWriteCheck(value, maxRxGain, attributeName);
+		} else {
+			getAs220().getLogger().info("SET_SFSK_GAIN message: skipping write to " + attributeName + ".");
+		}
+
+		attributeName = SFSKPhyMacSetupAttribute.MAX_TRANSMITTING_GAIN.name();
+		if (maxTxGain != -1) {
+			getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setMaxTransmittingGain(maxTxGain);
+			final int value = getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().getMaxTransmittingGain().getValue();
+			readAfterWriteCheck(value, maxTxGain, attributeName);
+		} else {
+			getAs220().getLogger().info("SET_SFSK_GAIN message: skipping write to " + attributeName + ".");
+		}
+
+		attributeName = SFSKPhyMacSetupAttribute.SEARCH_INITIATOR_GAIN.name();
+		if (searchInitGain != -1) {
+			getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setSearchInitiatorGain(searchInitGain);
+			final int value = getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().getSearchInitiatorGain().getValue();
+			readAfterWriteCheck(value, searchInitGain, attributeName);
+		} else {
+			getAs220().getLogger().info("SET_SFSK_GAIN message: skipping write to " + attributeName + ".");
+		}
+
+	}
+
+	/**
+	 * @param messageEntry
+	 * @throws IOException
+	 */
 	private void setPLCFrequencies(MessageEntry messageEntry) throws IOException {
 		getAs220().getLogger().info("SET_PLC_CHANNEL_FREQUENCIES message received");
 
-		long[][] frequencies = new long[6][2];
-		for (int channel = 0; channel < 6; channel++) {
-			for (int freqType = 0; freqType < 2; freqType++) {
+		long[][] frequencies = new long[NR_OF_CHANNELS][FREQUENCIES_PER_PAIR];
+		for (int channel = 0; channel < NR_OF_CHANNELS; channel++) {
+			for (int freqType = 0; freqType < FREQUENCIES_PER_PAIR; freqType++) {
 				frequencies[channel][freqType] = getAttributeAsLong(messageEntry, FREQUENCIES_NAME[channel][freqType]);
 				if (frequencies[channel][freqType] == -1) {
 					throw new IOException("Invalid or no value given for the " + FREQUENCIES_NAME[channel][freqType] + " field.");
@@ -181,32 +291,36 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 
 		attributeName = SFSKSyncTimeoutsAttribute.SEARCH_INITIATOR_TIMEOUT.name();
 		if (searchInitiator != -1) {
-			getsFSKSyncTimeouts().setSearchInitiatorTimeout(searchInitiator);
-			readAfterWriteCheck(getsFSKSyncTimeouts().getSearchInitiatorTimeout().getValue(), searchInitiator, attributeName);
+			getAs220().getCosemObjectFactory().getSFSKSyncTimeouts().setSearchInitiatorTimeout(searchInitiator);
+			final int value = getAs220().getCosemObjectFactory().getSFSKSyncTimeouts().getSearchInitiatorTimeout().getValue();
+			readAfterWriteCheck(value, searchInitiator, attributeName);
 		} else {
 			getAs220().getLogger().info("SET_SFSK_MAC_TIMEOUTS message: skipping write to " + attributeName + ".");
 		}
 
 		attributeName = SFSKSyncTimeoutsAttribute.SYNCHRONIZATION_CONFIRMATION_TIMEOUT.name();
 		if (syncConfirm != -1) {
-			getsFSKSyncTimeouts().setSyncConfirmTimeout(syncConfirm);
-			readAfterWriteCheck(getsFSKSyncTimeouts().getSyncConfirmTimeout().getValue(), syncConfirm, attributeName);
+			getAs220().getCosemObjectFactory().getSFSKSyncTimeouts().setSyncConfirmTimeout(syncConfirm);
+			final int value = getAs220().getCosemObjectFactory().getSFSKSyncTimeouts().getSyncConfirmTimeout().getValue();
+			readAfterWriteCheck(value, syncConfirm, attributeName);
 		} else {
 			getAs220().getLogger().info("SET_SFSK_MAC_TIMEOUTS message: skipping write to " + attributeName + ".");
 		}
 
 		attributeName = SFSKSyncTimeoutsAttribute.TIME_OUT_NOT_ADDRESSED.name();
 		if (notAddressed != -1) {
-			getsFSKSyncTimeouts().setTimeoutNotAddressed(notAddressed);
-			readAfterWriteCheck(getsFSKSyncTimeouts().getTimeoutNotAddressed().getValue(), notAddressed, attributeName);
+			getAs220().getCosemObjectFactory().getSFSKSyncTimeouts().setTimeoutNotAddressed(notAddressed);
+			final int value = getAs220().getCosemObjectFactory().getSFSKSyncTimeouts().getTimeoutNotAddressed().getValue();
+			readAfterWriteCheck(value, notAddressed, attributeName);
 		} else {
 			getAs220().getLogger().info("SET_SFSK_MAC_TIMEOUTS message: skipping write to " + attributeName + ".");
 		}
 
 		attributeName = SFSKSyncTimeoutsAttribute.TIME_OUT_FRAME_NOT_OK.name();
 		if (frNotOk != -1) {
-			getsFSKSyncTimeouts().setTimeoutFrameNotOk(frNotOk);
-			readAfterWriteCheck(getsFSKSyncTimeouts().getTimeoutFrameNotOk().getValue(), frNotOk, attributeName);
+			getAs220().getCosemObjectFactory().getSFSKSyncTimeouts().setTimeoutFrameNotOk(frNotOk);
+			final int value = getAs220().getCosemObjectFactory().getSFSKSyncTimeouts().getTimeoutFrameNotOk().getValue();
+			readAfterWriteCheck(value, frNotOk, attributeName);
 		} else {
 			getAs220().getLogger().info("SET_SFSK_MAC_TIMEOUTS message: skipping write to " + attributeName + ".");
 		}
@@ -222,7 +336,33 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		if (writeValue != deviceValue) {
 			throw new IOException("Read after write check failed for attribute " + attributeName + ": '" + deviceValue + "'!='" + writeValue + "'");
 		}
-		getAs220().getLogger().info("SET_SFSK_MAC_TIMEOUTS message: Write '" + writeValue + "' to " + attributeName + " success.");
+		getAs220().getLogger().info("Read after write check: Write '" + writeValue + "' to " + attributeName + " success.");
+	}
+
+	/**
+	 * @throws IOException
+	 */
+	private void rescanPLCBus() throws IOException {
+		getAs220().getLogger().info("RESCAN_PLCBUS message received");
+		setActivePLCChannel(0);
+	}
+
+	/**
+	 * @param channel
+	 * @throws IOException
+	 */
+	private void setActivePLCChannel(int channel) throws IOException {
+		if ((channel < 0) || (channel > NR_OF_CHANNELS)) {
+			throw new IOException("Channel can only be 0-6, but was " + channel);
+		}
+		String attributeName = SFSKPhyMacSetupAttribute.ACTIVE_CHANNEL.name();
+		if (channel != -1) {
+			getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setActiveChannel(new Unsigned8(channel));
+			final int value = getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().getActiveChannel().getValue();
+			readAfterWriteCheck(value, channel, attributeName);
+		} else {
+			getAs220().getLogger().info("Skipping write to " + attributeName + ".");
+		}
 	}
 
 	/**
@@ -264,55 +404,24 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 	}
 
 	/**
-	 * @throws IOException
-	 */
-	private void rescanPLCBus() throws IOException {
-		getAs220().getLogger().info("RESCAN_PLCBUS message received");
-		setActivePLCChannel(0);
-	}
-
-	/**
-	 * @param messageEntry
-	 * @throws IOException
-	 */
-	private void setActivePLCChannel(MessageEntry messageEntry) throws IOException {
-		getAs220().getLogger().info("SET_ACTIVE_PLC_CHANNEL message received");
-		String messageContent = getMessageEntryContent(messageEntry);
-		int channel;
-		try {
-			channel = Integer.valueOf(messageContent).intValue();
-		} catch (NumberFormatException e) {
-			throw new IOException("Invalid channel value: '" + messageContent + "'");
-		}
-		setActivePLCChannel(channel);
-	}
-
-	/**
-	 * @param channel
-	 * @throws IOException
-	 */
-	private void setActivePLCChannel(int channel) throws IOException {
-		if ((channel < 0) || (channel > 6)) {
-			throw new IOException("Channel can only be 0-6, but was " + channel);
-		}
-		getAs220().getCosemObjectFactory().getSFSKPhyMacSetup().setActiveChannel(new Unsigned8(channel));
-	}
-
-    /**
      * @param keyId
      * @param tagName
      * @param advanced
      * @return
      */
     private MessageSpec createActivePLCChannelMessageSpec(String keyId, String tagName, boolean advanced) {
-        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
 
-        MessageValueSpec mvs = new MessageValueSpec();
-        tagSpec.add(mvs);
+		// We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
+		MessageValueSpec msgVal = new MessageValueSpec();
+		msgVal.setValue(" ");
+		tagSpec.add(msgVal);
 
-        msgSpec.add(tagSpec);
-        return msgSpec;
+		tagSpec.add(new MessageAttributeSpec(SFSKPhyMacSetupAttribute.ACTIVE_CHANNEL.name(), false));
+
+		msgSpec.add(tagSpec);
+		return msgSpec;
 	}
 
 	/**
@@ -348,8 +457,8 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		msgVal.setValue(" ");
 		tagSpec.add(msgVal);
 
-		for (int channel = 0; channel < 6; channel++) {
-			for (int freqType = 0; freqType < 2; freqType++) {
+		for (int channel = 0; channel < NR_OF_CHANNELS; channel++) {
+			for (int freqType = 0; freqType < FREQUENCIES_PER_PAIR; freqType++) {
 				tagSpec.add(new MessageAttributeSpec(FREQUENCIES_NAME[channel][freqType], false));
 			}
 		}

@@ -13,18 +13,30 @@ import com.energyict.dlms.axrdencoding.TypeEnum;
  */
 public class Repeater extends TypeEnum {
 
+	public static final int	NEVER_REPEAT	= 0;
+	public static final int	ALWAYS_REPEAT	= 1;
+	public static final int	DYNAMIC_REPEAT	= 2;
+
 	public Repeater(byte[] berEncodedData, int offset) throws IOException {
 		super(berEncodedData, offset);
+	}
+
+	public Repeater(int value) {
+		super(value);
+	}
+
+	public Repeater(TypeEnum typeEnum) {
+		super(typeEnum.getValue());
 	}
 
 	@Override
 	public String toString() {
 		switch (getValue()) {
-			case 0:
+			case NEVER_REPEAT:
 				return "NEVER_REPEAT";
-			case 1:
+			case ALWAYS_REPEAT:
 				return "ALWAYS_REPEAT";
-			case 2:
+			case DYNAMIC_REPEAT:
 				return "DYNAMIC_REPEAT";
 			default:
 				return "INVALID[" + getValue() + "]!";

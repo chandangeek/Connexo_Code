@@ -72,7 +72,7 @@ public class AS220Main {
 	private static final Level		LOG_LEVEL				= Level.ALL;
 	protected static final TimeZone	DEFAULT_TIMEZONE		= TimeZone.getTimeZone("GMT+01");
 
-	protected static final String	COMPORT					= "COM5";
+	protected static final String	COMPORT					= "COM6";
 	protected static final int		BAUDRATE				= 115200;
 	protected static final int		DATABITS				= SerialCommunicationChannel.DATABITS_8;
 	protected static final int		PARITY					= SerialCommunicationChannel.PARITY_NONE;
@@ -267,15 +267,7 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			rescanPLCBus();
-			setPLCFrequencies();
-			setPLCTimeouts();
 
-			readSFSKObjects();
-			readObiscodes();
-			readRegisters();
-
-			readProfile(false);
 
 		} catch (Exception e) {
 			e.printStackTrace();
