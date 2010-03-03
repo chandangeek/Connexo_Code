@@ -64,6 +64,10 @@ public class AS220Main {
 	private static final String		SET_PLC_FREQUENCIES9	= "<SetPlcChannelFrequencies CHANNEL1_FM=\"rr\" CHANNEL2_FM=\"21\" CHANNEL2_FS=\"22\" CHANNEL3_FM=\"31\" CHANNEL3_FS=\"32\" CHANNEL4_FM=\"41\" CHANNEL4_FS=\"42\" CHANNEL5_FM=\"51\" CHANNEL5_FS=\"52\" CHANNEL6_FM=\"61\" CHANNEL6_FS=\"62\"> </SetPlcChannelFrequencies>";
 	private static final String		SET_PLC_FREQUENCIES0	= "<SetPlcChannelFrequencies CHANNEL1_FM=\"76800\" CHANNEL1_FS=\"72000\" CHANNEL2_FM=\"81600\" CHANNEL2_FS=\"67200\" CHANNEL3_FM=\"86400\" CHANNEL3_FS=\"62400\" CHANNEL4_FM=\"91200\" CHANNEL4_FS=\"57600\" CHANNEL5_FM=\"52800\" CHANNEL5_FS=\"48000\" CHANNEL6_FM=\"43200\" CHANNEL6_FS=\"38400\"> </SetPlcChannelFrequencies>";
 
+	private static final String		SET_PLC_GAIN0			= "<SetSFSKGain MAX_RECEIVING_GAIN=\"0\" MAX_TRANSMITTING_GAIN=\"-\" SEARCH_INITIATOR_GAIN=\"-\"> </SetSFSKGain>";
+	private static final String		SET_PLC_GAIN1			= "<SetSFSKGain MAX_RECEIVING_GAIN=\"0\" MAX_TRANSMITTING_GAIN=\"0\" SEARCH_INITIATOR_GAIN=\"-\"> </SetSFSKGain>";
+	private static final String		SET_PLC_GAIN2			= "<SetSFSKGain MAX_RECEIVING_GAIN=\"0\" MAX_TRANSMITTING_GAIN=\"-\" SEARCH_INITIATOR_GAIN=\"6\"> </SetSFSKGain>";
+
 	private static final String		OBSERVER_FILENAME		= "c:\\logging\\AS220Main\\communications.log";
 	private static final Level		LOG_LEVEL				= Level.ALL;
 	protected static final TimeZone	DEFAULT_TIMEZONE		= TimeZone.getTimeZone("GMT+01");
@@ -172,7 +176,7 @@ public class AS220Main {
 		for (UniversalObject uo : universalObjects) {
 			if (uo.getClassID() == Register.CLASSID) {
 				try {
-					System.out.println(getAs220().readRegister(uo.getObisCode()));
+					log(getAs220().readRegister(uo.getObisCode()));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -210,6 +214,12 @@ public class AS220Main {
 		getAs220().queryMessage(new MessageEntry(SET_PLC_FREQUENCIES0, ""));
 	}
 
+	public static void setPLCGain() throws IOException {
+		getAs220().queryMessage(new MessageEntry(SET_PLC_GAIN0, ""));
+		getAs220().queryMessage(new MessageEntry(SET_PLC_GAIN1, ""));
+		getAs220().queryMessage(new MessageEntry(SET_PLC_GAIN2, ""));
+	}
+
 	public static void forceSetClock() throws IOException {
 		getAs220().queryMessage(new MessageEntry(FORCE_SET_CLOCK, ""));
 	}
@@ -217,7 +227,7 @@ public class AS220Main {
 	public static void readObiscodes() throws IOException {
 		UniversalObject[] uo = getAs220().getMeterConfig().getInstantiatedObjectList();
 		for (UniversalObject universalObject : uo) {
-			System.out.println(universalObject.getObisCode() + " = " + DLMSClassId.findById(universalObject.getClassID()) + " ["+universalObject.getBaseName()+"] " + universalObject.getObisCode().getDescription());
+			log(universalObject.getObisCode() + " = " + DLMSClassId.findById(universalObject.getClassID()) + " ["+universalObject.getBaseName()+"] " + universalObject.getObisCode().getDescription());
 		}
 	}
 
@@ -257,7 +267,15 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
+			rescanPLCBus();
 			setPLCFrequencies();
+			setPLCTimeouts();
+
+			readSFSKObjects();
+			readObiscodes();
+			readRegisters();
+
+			readProfile(false);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -279,10 +297,10 @@ public class AS220Main {
 			for (int i = 0; i <= 20; i++) {
 				try {
 					ObisCode obis = ProtocolTools.setObisCodeField(code, 5, (byte) i);
-					System.out.println(obis.toString() + " " + getAs220().translateRegister(obis) + " = " + getAs220().readRegister(obis).getText());
+					log(obis.toString() + " " + getAs220().translateRegister(obis) + " = " + getAs220().readRegister(obis).getText());
 				} catch (Exception e) {}
 			}
-			System.out.println();
+			log("");
 		}
 	}
 
@@ -290,27 +308,27 @@ public class AS220Main {
 	 * @throws IOException
 	 */
 	private static void readSFSKObjects() throws IOException {
-		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.0.0.255")) + "\r\n");
-		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.1.0.255")) + "\r\n");
-		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.2.0.255")) + "\r\n");
-		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.3.0.255")) + "\r\n");
-		System.out.println(getAs220().readRegister(ObisCode.fromString("0.0.26.5.0.255")) + "\r\n");
+		log(getAs220().readRegister(ObisCode.fromString("0.0.26.0.0.255")) + "\r\n");
+		log(getAs220().readRegister(ObisCode.fromString("0.0.26.1.0.255")) + "\r\n");
+		log(getAs220().readRegister(ObisCode.fromString("0.0.26.2.0.255")) + "\r\n");
+		log(getAs220().readRegister(ObisCode.fromString("0.0.26.3.0.255")) + "\r\n");
+		log(getAs220().readRegister(ObisCode.fromString("0.0.26.5.0.255")) + "\r\n");
 	}
 
 	private static void examineObisCode(ObisCode obisCode) {
-		System.out.println();
-		System.out.println(obisCode + " = " + obisCode.getDescription());
+		log("");
+		log(obisCode + " = " + obisCode.getDescription());
 		for (int i = 0; i < 0x70; i += 8) {
 			try {
 				GenericRead gr = getAs220().getCosemObjectFactory().getGenericRead(obisCode, i);
 				AbstractDataType dataType = AXDRDecoder.decode(gr.getResponseData());
 				String value = ProtocolTools.getHexStringFromBytes(gr.getResponseData());
-				System.out.println(i + " = " + dataType.getClass().getSimpleName() + " " + value);
+				log(i + " = " + dataType.getClass().getSimpleName() + " " + value);
 			} catch (IOException e) {
 
 			}
 		}
-		System.out.println();
+		log("");
 	}
 
 	protected static void log(Object message) {
