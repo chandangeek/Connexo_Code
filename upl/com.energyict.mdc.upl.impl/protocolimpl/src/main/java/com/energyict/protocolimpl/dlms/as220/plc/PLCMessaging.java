@@ -7,6 +7,8 @@ import java.util.List;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.SFSKSyncTimeouts;
 import com.energyict.dlms.cosem.attributeobjects.Frequencies;
+import com.energyict.dlms.cosem.attributes.SFSKIec61334LLCSetupAttribute;
+import com.energyict.dlms.cosem.attributes.SFSKPhyMacSetupAttribute;
 import com.energyict.dlms.cosem.attributes.SFSKSyncTimeoutsAttribute;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
@@ -25,15 +27,23 @@ import com.energyict.protocolimpl.utils.MessagingTools;
  */
 public class PLCMessaging extends AbstractSubMessageProtocol {
 
-	public static final String	RESCAN_PLCBUS					= "RescanPlcBus";
-	public static final String	SET_ACTIVE_PLC_CHANNEL			= "SetActivePlcChannel";
-	public static final String	SET_PLC_CHANNEL_FREQUENCIES		= "SetPlcChannelFrequencies";
-	public static final String	SET_SFSK_MAC_TIMEOUTS			= "SetSFSKMacTimeouts";
+	public static final String		RESCAN_PLCBUS						= "RescanPlcBus";
+	public static final String		SET_ACTIVE_PLC_CHANNEL				= "SetActivePlcChannel";
+	public static final String		SET_PLC_CHANNEL_FREQUENCIES			= "SetPlcChannelFrequencies";
+	public static final String		SET_SFSK_MAC_TIMEOUTS				= "SetSFSKMacTimeouts";
+	public static final String		SET_SFSK_INITIATOR_PHASE			= "SetSFSKInitiatorPhase";
+	public static final String		SET_SFSK_GAIN						= "SetSFSKGain";
+	public static final String		SET_SFSK_REPEATER					= "SetSFSKRepeater";
+	public static final String		SET_SFSK_MAX_FRAME_LENGTH			= "SetSFSKMaxFrameLength";
 
-	private static final String	RESCAN_PLCBUS_DISPLAY			= "Force manual rescan PLC bus";
-	private static final String	SET_ACTIVE_PLC_CHANNEL_DISPLAY	= "Set active PLC channel";
-	private static final String	SET_PLC_FREQUENCIES_DISPLAY		= "Set PLC channel frequencies";
-	private static final String	SET_SFSK_MAC_TIMEOUTS_DISPLAY	= "Set the S-FSK Mac timeouts";
+	private static final String		RESCAN_PLCBUS_DISPLAY				= "Force manual rescan PLC bus";
+	private static final String		SET_ACTIVE_PLC_CHANNEL_DISPLAY		= "Set active PLC channel";
+	private static final String		SET_PLC_FREQUENCIES_DISPLAY			= "Set S-FSK channel frequencies";
+	private static final String		SET_SFSK_MAC_TIMEOUTS_DISPLAY		= "Set the S-FSK Mac timeouts";
+	private static final String		SET_SFSK_INITIATOR_PH_DISPLAY		= "Set the S-FSK initiator phase";
+	private static final String		SET_SFSK_GAIN_DISPLAY				= "Set the S-FSK gain properties";
+	private static final String		SET_SFSK_REPEATER_DISPLAY			= "Set the S-FSK repeater property";
+	private static final String		SET_SFSK_MAX_FRAME_LENGTH_DISPLAY	= "Set the S-FSK maximum frame length property";
 
 	private static final String[][]	FREQUENCIES_NAME = new String[][] {
 		{"CHANNEL1_FM", "CHANNEL1_FS"},
@@ -58,6 +68,10 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		addSupportedMessageTag(SET_ACTIVE_PLC_CHANNEL);
 		addSupportedMessageTag(SET_SFSK_MAC_TIMEOUTS);
 		addSupportedMessageTag(SET_PLC_CHANNEL_FREQUENCIES);
+		addSupportedMessageTag(SET_SFSK_INITIATOR_PHASE);
+		addSupportedMessageTag(SET_SFSK_GAIN);
+		addSupportedMessageTag(SET_SFSK_REPEATER);
+		addSupportedMessageTag(SET_SFSK_MAX_FRAME_LENGTH);
 	}
 
 	/**
@@ -86,6 +100,10 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
         plcMeterCat.addMessageSpec(createActivePLCChannelMessageSpec(SET_ACTIVE_PLC_CHANNEL_DISPLAY, SET_ACTIVE_PLC_CHANNEL, false));
         plcMeterCat.addMessageSpec(createSetMacTimeoutsMessageSpec(SET_SFSK_MAC_TIMEOUTS_DISPLAY, SET_SFSK_MAC_TIMEOUTS, false));
         plcMeterCat.addMessageSpec(createSetFrequenciesMessageSpec(SET_PLC_FREQUENCIES_DISPLAY, SET_PLC_CHANNEL_FREQUENCIES, false));
+        plcMeterCat.addMessageSpec(createSetInitiatorPhaseMessageSpec(SET_SFSK_INITIATOR_PH_DISPLAY, SET_SFSK_INITIATOR_PHASE, false));
+        plcMeterCat.addMessageSpec(createSetGainMessageSpec(SET_SFSK_GAIN_DISPLAY, SET_SFSK_GAIN, false));
+        plcMeterCat.addMessageSpec(createSetRepeaterMessageSpec(SET_SFSK_REPEATER_DISPLAY, SET_SFSK_REPEATER, false));
+        plcMeterCat.addMessageSpec(createSetMaxFrameLengthMessageSpec(SET_SFSK_MAX_FRAME_LENGTH_DISPLAY, SET_SFSK_MAX_FRAME_LENGTH, false));
 
         categories.add(plcMeterCat);
 		return categories;
@@ -335,6 +353,68 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 				tagSpec.add(new MessageAttributeSpec(FREQUENCIES_NAME[channel][freqType], false));
 			}
 		}
+
+		msgSpec.add(tagSpec);
+		return msgSpec;
+	}
+
+	private MessageSpec createSetGainMessageSpec(String keyId, String tagName, boolean advanced) {
+		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+
+		// We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
+		MessageValueSpec msgVal = new MessageValueSpec();
+		msgVal.setValue(" ");
+		tagSpec.add(msgVal);
+
+		tagSpec.add(new MessageAttributeSpec(SFSKPhyMacSetupAttribute.MAX_RECEIVING_GAIN.name(), false));
+		tagSpec.add(new MessageAttributeSpec(SFSKPhyMacSetupAttribute.MAX_TRANSMITTING_GAIN.name(), false));
+		tagSpec.add(new MessageAttributeSpec(SFSKPhyMacSetupAttribute.SEARCH_INITIATOR_GAIN.name(), false));
+
+		msgSpec.add(tagSpec);
+		return msgSpec;
+	}
+
+	private MessageSpec createSetInitiatorPhaseMessageSpec(String keyId, String tagName, boolean advanced) {
+		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+
+		// We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
+		MessageValueSpec msgVal = new MessageValueSpec();
+		msgVal.setValue(" ");
+		tagSpec.add(msgVal);
+
+		tagSpec.add(new MessageAttributeSpec(SFSKPhyMacSetupAttribute.INITIATOR_ELECTRICAL_PHASE.name(), false));
+
+		msgSpec.add(tagSpec);
+		return msgSpec;
+	}
+
+	private MessageSpec createSetRepeaterMessageSpec(String keyId, String tagName, boolean advanced) {
+		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+
+		// We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
+		MessageValueSpec msgVal = new MessageValueSpec();
+		msgVal.setValue(" ");
+		tagSpec.add(msgVal);
+
+		tagSpec.add(new MessageAttributeSpec(SFSKPhyMacSetupAttribute.REPEATER.name(), false));
+
+		msgSpec.add(tagSpec);
+		return msgSpec;
+	}
+
+	private MessageSpec createSetMaxFrameLengthMessageSpec(String keyId, String tagName, boolean advanced) {
+		MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+		MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+
+		// We should add this messageSpec, otherwise the other attributeSpecs wont show up in eiserver. Bug??
+		MessageValueSpec msgVal = new MessageValueSpec();
+		msgVal.setValue(" ");
+		tagSpec.add(msgVal);
+
+		tagSpec.add(new MessageAttributeSpec(SFSKIec61334LLCSetupAttribute.MAX_FRAME_LENGTH.name(), false));
 
 		msgSpec.add(tagSpec);
 		return msgSpec;
