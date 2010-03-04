@@ -101,7 +101,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     }
 
     public String getProtocolVersion() {
-		String rev = "$Revision: 33703 $" + " - " + "$Date: 2009-06-02 17:34:52 +0200 (di, 02 jun 2009) $";
+		String rev = "$Revision: 33703 $" + " - " + "$Date$";
 		String manipulated = "Revision " + rev.substring(rev.indexOf("$Revision: ") + "$Revision: ".length(), rev.indexOf("$ -")) + "at "
 				+ rev.substring(rev.indexOf("$Date: ") + "$Date: ".length(), rev.indexOf("$Date: ") + "$Date: ".length() + 19);
     	return manipulated;
