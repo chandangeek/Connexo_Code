@@ -55,7 +55,6 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
 	private final List<SubMessageProtocol> messagingList;
 
-
     /**
      * Create a new instance of the {@link AS220} dlms protocol
      */

@@ -35,11 +35,9 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.CosemPDUConnection;
-import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSObis;
 import com.energyict.dlms.LLCConnection;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.SecureConnection;
@@ -61,11 +59,9 @@ import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.dlms.DLMSCache;
 import com.energyict.protocolimpl.dlms.HDLC2Connection;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
@@ -73,6 +69,27 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 
 public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, ProtocolLink, CacheMechanism, FirmwareUpdateMessaging {
+
+	private static final String			PR_OPTICAL_BAUDRATE			= "OpticalBaudrate";
+	private static final String			PR_PROFILE_TYPE				= "ProfileType";
+	private static final String			PR_TRANSP_PARITY			= "TransparentParity";
+	private static final String			PR_TRANSP_STOPBITS			= "TransparentStopbits";
+	private static final String			PR_TRANSP_DATABITS			= "TransparentDatabits";
+	private static final String			PR_TRANSP_BAUDRATE			= "TransparentBaudrate";
+	private static final String			PR_TRANSP_CONNECT_TIME		= "TransparentConnectTime";
+	private static final String			PR_MASTERKEY				= LocalSecurityProvider.MASTERKEY;
+	private static final String			PR_DATA_KEY					= LocalSecurityProvider.DATATRANSPORTKEY;
+	private static final String			PR_CONNECTION				= "Connection";
+	private static final String			PR_ADDRESSING_MODE			= "AddressingMode";
+	private static final String			PR_EXTENDED_LOGGING			= "ExtendedLogging";
+	private static final String			PR_SRV_LOW_MACADDR			= "ServerLowerMacAddress";
+	private static final String			PR_SRV_UP_MACADDR			= "ServerUpperMacAddress";
+	private static final String			PR_CLIENT_MAC_ADDRESS		= "ClientMacAddress";
+	private static final String			PR_SECURITY_LEVEL			= "SecurityLevel";
+	private static final String			PR_REQUEST_TIME_ZONE		= "RequestTimeZone";
+	private static final String			PR_RETRIES					= "Retries";
+	private static final String			PR_FORCED_DELAY				= "ForcedDelay";
+	private static final String			PR_TIMEOUT					= "Timeout";
 
 	private static final int			MAX_PDU_SIZE				= 200;
 	private static final int			PROPOSED_QOS				= -1;
@@ -103,12 +120,10 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     private int transparentStopbits;
     private int transparentParity;
     private int transparentBaudrate;
-    private int iRequestClockObject;
     private String nodeId;
     private String serialNumber;
     private int iInterval=-1;
     private int extendedLogging;
-    private ProtocolChannelMap channelMap;
     private int opticalBaudrate;
     private int profileType = 0;
 
@@ -287,7 +302,6 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 			checkCache();
 			setObjectList();
 	        doConnect();
-
 			validateSerialNumber();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -304,6 +318,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 	/**
 	 * @throws IOException
 	 */
+	@SuppressWarnings("deprecation")
 	private void setObjectList() throws IOException {
 		meterConfig.setCapturedObjectList(getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjectsAsUniversalObjects());
 	}
@@ -431,10 +446,6 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         }
     }
 
-    private boolean requestDaylightSavingEnabled() throws IOException {
-       return getCosemObjectFactory().getClock().isDsEnabled();
-    }
-
 	/**
 	 * This method requests for the COSEM object list in the remote meter. A
 	 * list is byuild with LN and SN references.
@@ -474,15 +485,6 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 			}
 		}
 	}
-
-	/**
-	 * This method requests for the COSEM object Logical Name register.
-	 *
-	 * @exception IOException
-	 */
-    private String requestAttribute(int iBaseName,int iOffset) throws IOException {
-        return getCosemObjectFactory().getGenericRead(iBaseName,iOffset).getDataContainer().toString();
-    }
 
 	/**
 	 * Read the serialNumber from the device
@@ -528,15 +530,9 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 
 			nodeId = properties.getProperty(MeterProtocol.NODEID, "");
 			serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
-			extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
-			addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "-1"));
-			connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection 3=LLCConnection
-
-			if (properties.getProperty("ChannelMap", "").equalsIgnoreCase("")) {
-				channelMap = null;
-			} else {
-				channelMap = new ProtocolChannelMap(properties.getProperty("ChannelMap"));
-			}
+			extendedLogging = Integer.parseInt(properties.getProperty(PR_EXTENDED_LOGGING, "0"));
+			addressingMode = Integer.parseInt(properties.getProperty(PR_ADDRESSING_MODE, "-1"));
+			connectionMode = Integer.parseInt(properties.getProperty(PR_CONNECTION, "0")); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection 3=LLCConnection
 
 			strID = properties.getProperty(MeterProtocol.ADDRESS);
 			if ((strID != null) && (strID.length() > 16)) {
@@ -544,34 +540,33 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 			}
 
 			strPassword = properties.getProperty(MeterProtocol.PASSWORD, "00000000");
-			iTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "10000").trim());
-			iForcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay", "10").trim());
-			iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "5").trim());
-			iRequestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0").trim());
-			iRequestClockObject = Integer.parseInt(properties.getProperty("RequestClockObject", "0").trim());
+			iTimeoutProperty = Integer.parseInt(properties.getProperty(PR_TIMEOUT, "10000").trim());
+			iForcedDelay = Integer.parseInt(properties.getProperty(PR_FORCED_DELAY, "10").trim());
+			iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(PR_RETRIES, "5").trim());
+			iRequestTimeZone = Integer.parseInt(properties.getProperty(PR_REQUEST_TIME_ZONE, "0").trim());
 			setRoundtripCorrection(Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim()));
 
-			String[] securityLevel = properties.getProperty("SecurityLevel", "0:" + SecurityContext.SECURITYPOLICY_NONE).split(":");
+			String[] securityLevel = properties.getProperty(PR_SECURITY_LEVEL, "0:" + SecurityContext.SECURITYPOLICY_NONE).split(":");
 			this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
 			if (securityLevel.length == 2) {
 				this.datatransportSecurityLevel = Integer.parseInt(securityLevel[1]);
 			} else if (securityLevel.length == 1) {
 				this.datatransportSecurityLevel = SecurityContext.SECURITYPOLICY_NONE;
 			} else {
-				throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty("SecurityLevel", "0"));
+				throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty(PR_SECURITY_LEVEL, "0"));
 			}
 
-			iClientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "32").trim());
-			iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "1").trim());
-			iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "0").trim());
-			transparentConnectTime = Integer.parseInt(properties.getProperty("TransparentConnectTime", "10"));
-			transparentBaudrate = Integer.parseInt(properties.getProperty("TransparentBaudrate", "9600"));
-			transparentDatabits = Integer.parseInt(properties.getProperty("TransparentDatabits", "8"));
-			transparentStopbits = Integer.parseInt(properties.getProperty("TransparentStopbits", "1"));
-			transparentParity = Integer.parseInt(properties.getProperty("TransparentParity", "0"));
-			profileType = Integer.parseInt(properties.getProperty("ProfileType", "0"));
+			iClientMacAddress = Integer.parseInt(properties.getProperty(PR_CLIENT_MAC_ADDRESS, "32").trim());
+			iServerUpperMacAddress = Integer.parseInt(properties.getProperty(PR_SRV_UP_MACADDR, "1").trim());
+			iServerLowerMacAddress = Integer.parseInt(properties.getProperty(PR_SRV_LOW_MACADDR, "0").trim());
+			transparentConnectTime = Integer.parseInt(properties.getProperty(PR_TRANSP_CONNECT_TIME, "10"));
+			transparentBaudrate = Integer.parseInt(properties.getProperty(PR_TRANSP_BAUDRATE, "9600"));
+			transparentDatabits = Integer.parseInt(properties.getProperty(PR_TRANSP_DATABITS, "8"));
+			transparentStopbits = Integer.parseInt(properties.getProperty(PR_TRANSP_STOPBITS, "1"));
+			transparentParity = Integer.parseInt(properties.getProperty(PR_TRANSP_PARITY, "0"));
+			profileType = Integer.parseInt(properties.getProperty(PR_PROFILE_TYPE, "0"));
 
-			opticalBaudrate = Integer.parseInt(properties.getProperty("OpticalBaudrate", "-1"));
+			opticalBaudrate = Integer.parseInt(properties.getProperty(PR_OPTICAL_BAUDRATE, "-1"));
 
 		} catch (NumberFormatException e) {
 			throw new InvalidPropertyException(" validateProperties, NumberFormatException, " + e.getMessage());
@@ -585,18 +580,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
      * @throws IOException <br>
      */
 	public String getRegister(String name) throws IOException {
-		DLMSObis ln = new DLMSObis(name);
-		if (ln.isLogicalName()) {
-			String str = requestAttribute(meterConfig.getObject(ln).getBaseName(), (short) ((ln.getOffset() - 1) * 8));
-			return str;
-		} else if (name.compareTo("PROGRAM_CONF_CHANGES") == 0) {
-			return String.valueOf(requestConfigurationProgramChanges());
-		} else if (name.compareTo("GET_CLOCK_OBJECT") == 0) {
-			requestClockObject();
-			return null;
-		} else {
-			throw new NoSuchRegisterException("DLMS,getRegister, register " + name + " does not exist.");
-		}
+		throw new UnsupportedException("getRegister(String name) not implemented.");
 	}
 
     /** this implementation throws UnsupportedException. Subclasses may override
@@ -629,45 +613,27 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
      */
     public List<String> getOptionalKeys() {
         List<String> result = new ArrayList<String>();
-        result.add("Timeout");
-        result.add("ForcedDelay");
-        result.add("Retries");
-        result.add("DelayAfterFail");
-        result.add("RequestTimeZone");
-        result.add("RequestClockObject");
-        result.add("SecurityLevel");
-        result.add("ClientMacAddress");
-        result.add("ServerUpperMacAddress");
-        result.add("ServerLowerMacAddress");
-        result.add("ExtendedLogging");
-        result.add("AddressingMode");
-        result.add("EventIdIndex");
-        result.add("ChannelMap");
-        result.add("Connection");
-        result.add(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);  //TODO: check these optional keys
-        result.add(LocalSecurityProvider.DATATRANSPORTKEY);
-        result.add(LocalSecurityProvider.MASTERKEY);
-        result.add("TransparentConnectTime");
-        result.add("TransparentBaudrate");
-        result.add("TransparentDatabits");
-        result.add("TransparentStopbits");
-        result.add("TransparentParity");
-        result.add("ProfileType");
-        result.add("OpticalBaudrate");
+        result.add(PR_TIMEOUT);
+        result.add(PR_FORCED_DELAY);
+        result.add(PR_RETRIES);
+        result.add(PR_REQUEST_TIME_ZONE);
+        result.add(PR_SECURITY_LEVEL);
+        result.add(PR_CLIENT_MAC_ADDRESS);
+        result.add(PR_SRV_UP_MACADDR);
+        result.add(PR_SRV_LOW_MACADDR);
+        result.add(PR_EXTENDED_LOGGING);
+        result.add(PR_ADDRESSING_MODE);
+        result.add(PR_CONNECTION);
+        result.add(PR_DATA_KEY);
+        result.add(PR_MASTERKEY);
+        result.add(PR_TRANSP_CONNECT_TIME);
+        result.add(PR_TRANSP_BAUDRATE);
+        result.add(PR_TRANSP_DATABITS);
+        result.add(PR_TRANSP_STOPBITS);
+        result.add(PR_TRANSP_PARITY);
+        result.add(PR_PROFILE_TYPE);
+        result.add(PR_OPTICAL_BAUDRATE);
         return result;
-    }
-
-    private void requestClockObject() {
-        if (iRequestClockObject == 1) {
-            try{logger.severe("DLMSSNAS220 Clock time                       : "+getTime());}catch(IOException e){logger.severe("time attribute error");}
-            //try{logger.severe ("DLMSSNAS220 Clock time_zone                  : "+requestTimeZone());}catch(IOException e){logger.severe ("time_zone attribute error");}
-            try{logger.severe("DLMSSNAS220 Clock time_zone                  : "+requestAttributeLong(meterConfig.getClockSN(),DLMSCOSEMGlobals.TIME_TIME_ZONE));}catch(IOException e){logger.severe("time_zone attribute error");}
-            try{logger.severe("DLMSSNAS220 Clock status                     : "+requestAttributeLong(meterConfig.getClockSN(),DLMSCOSEMGlobals.TIME_STATUS));}catch(IOException e){logger.severe("status attribute error");}
-            try{logger.severe("DLMSSNAS220 Clock daylight_savings_begin     : "+requestAttributeString(meterConfig.getClockSN(),DLMSCOSEMGlobals.TIME_DS_BEGIN));}catch(IOException e){logger.severe("DS begin attribute error");}
-            try{logger.severe("DLMSSNAS220 Clock daylight_savings_end       : "+requestAttributeString(meterConfig.getClockSN(),DLMSCOSEMGlobals.TIME_DS_END));}catch(IOException e){logger.severe("DS end attribute error");}
-            try{logger.severe("DLMSSNAS220 Clock daylight_savings_deviation : "+requestAttributeLong(meterConfig.getClockSN(),DLMSCOSEMGlobals.TIME_DS_DEVIATION));}catch(IOException e){logger.severe("DS deviation attribute error");}
-            try{logger.severe("DLMSSNAS220 Clock daylight_saving_enabled    : "+requestDaylightSavingEnabled());}catch(IOException e){logger.severe("DS enebled attribute error");}
-        }
     }
 
     public int requestConfigurationProgramChanges() throws IOException {
@@ -682,14 +648,6 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 			iMeterTimeZoneOffset = getCosemObjectFactory().getClock().getTimeZone();
 		}
         return iMeterTimeZoneOffset;
-    }
-
-    private long requestAttributeLong(int iBaseName,int iOffset) throws IOException {
-        return getCosemObjectFactory().getGenericRead(iBaseName,iOffset).getValue();
-    }
-
-    private String requestAttributeString(int iBaseName,int iOffset) throws IOException {
-        return getCosemObjectFactory().getGenericRead(iBaseName,iOffset).toString();
     }
 
     public boolean isRequestTimeZone() {
@@ -767,6 +725,10 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         return logger;
     }
 
+    public ApplicationServiceObject getApplicationServiceObject() {
+		return aso;
+	}
+
     /**
      * Getter for property cosemObjectFactory.
      * @return Value of property cosemObjectFactory.
@@ -782,10 +744,6 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     public StoredValues getStoredValues() {
         return storedValuesImpl;
     }
-
-    public ProtocolChannelMap getChannelMap() {
-		return channelMap;
-	}
 
     public boolean isDebug() {
 		return debug;
