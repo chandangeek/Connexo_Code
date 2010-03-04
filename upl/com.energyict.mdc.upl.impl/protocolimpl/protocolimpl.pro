@@ -286,7 +286,12 @@
 -keep public class com.energyict.protocolimpl.dlms.as220.gmeter.*{
 	*;
 }
-
+-keep public class com.energyict.protocolimpl.dlms.as220.plc.*{
+	*;
+}
+-keep public class com.energyict.protocolimpl.dlms.as220.plc.statistics.*{
+	*;
+}
 #-keepnames class com.energyict.protocolimpl.dlms.as220.AS220
 
 #-keep public class com.energyict.protocolimpl.dlms.as220.DLMSSNAS220{
