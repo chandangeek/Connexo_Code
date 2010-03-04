@@ -45,7 +45,7 @@ public class MBusClient extends AbstractCosemObject{
 	private static final int ATTRB_ACCESS_NUMBER = 10;
 	private static final int ATTRB_STATUS = 11;
 	private static final int ATTRB_ALARM = 12;
-	
+
 	/* ShortName attribute offsets */
 	private static final int ATTRB_MBUS_PORT_REFERENCE_SN = 0x10;
 	private static final int ATTRB_CAPTURE_DEFINITION_SN = 0x18;
@@ -58,7 +58,7 @@ public class MBusClient extends AbstractCosemObject{
 	private static final int ATTRB_ACCESS_NUMBER_SN = 0x50;
 	private static final int ATTRB_STATUS_SN = 0x58;
 	private static final int ATTRB_ALARM_SN = 0x60;
-	
+
 	/* Method invoke */
 	private static final int METHOD_SLAVE_INSTALL = 1;
 	private static final int METHOD_SLAVE_DEINSTALL = 2;
@@ -68,7 +68,7 @@ public class MBusClient extends AbstractCosemObject{
 	private static final int METHOD_DATA_SEND = 6;
 	private static final int METHOD_SET_ENCRYPTION_KEY = 7;
 	private static final int METHOD_TRANSFER_KEY = 8;
-	
+
 	/* Method write SN */
 	private static final int METHOD_SLAVE_INSTALL_SN = 0x68;
 	private static final int METHOD_SLAVE_DEINSTALL_SN = 0x70;
@@ -192,21 +192,21 @@ public class MBusClient extends AbstractCosemObject{
 			write(METHOD_TRANSFER_KEY_SN, new OctetString(encryptedkey).getBEREncodedByteArray());
 		}
 	}
-	
+
 	/**
 	 * The AM500 modules required that the both keys are sent in one message.
 	 * The structure of the message is:
 	 * <pre>
-	 * 		rawEncryptedKeys ::= structure 
-	 *			{ 
-	 * 				OpenKey		:  OctetString 
+	 * 		rawEncryptedKeys ::= structure
+	 *			{
+	 * 				OpenKey		:  OctetString
 	 * 				TransferKey	:  OctetString
-	 *			} 
+	 *			}
 	 * </pre>
-	 * 
+	 *
 	 * @param rawEncryptedKeys
 	 * 					- the rawDataStructure with the two keys
-	 * 
+	 *
 	 * @throws IOException if something went wrong during the setting of the keys
 	 */
 	public void setTransportKeyRawData(byte[] rawEncryptedKeys) throws IOException {
@@ -298,18 +298,18 @@ public class MBusClient extends AbstractCosemObject{
 	    } else {
 	    	return new Array(getResponseData(ATTRB_CAPTURE_DEFINITION_SN), 0, 0);
 	    }
-	    
+
 	}
-	
+
 	/**
 	 * Getter for the capturePeriod.
 	 * <pre>
 	 * <li> >= 1: Automatic capturing assumed. Specifies the capture period in seconds.
-	 * <li> 0: No automatic capturing: capturing is triggered externally or capture events occur asynchronously. 
+	 * <li> 0: No automatic capturing: capturing is triggered externally or capture events occur asynchronously.
 	 * </pre>
-	 * 
+	 *
 	 * @return the capture period in seconds
-	 * 
+	 *
 	 * @throws IOException if something goes wrong during the read
 	 */
 	public Unsigned32 getCapturePeriod() throws IOException{
@@ -319,16 +319,22 @@ public class MBusClient extends AbstractCosemObject{
 			return new Unsigned32(getResponseData(ATTRB_CAPTURE_PERIOD_SN), 0);
 		}
 	}
-	
+
 	/**
 	 * Setter for the capturePeriod
-	 * 
-	 * @param period 
+	 *
+	 * @param period
 	 * 			- the period in seconds
-	 * 
-	 * @throws IOException if something goes wrong during the setting 
+	 *
+	 * @throws IOException if something goes wrong during the setting
 	 */
 	public void setCapturePeriod(int period) throws IOException {
 		write(ATTRB_CAPTURE_PERIOD, new Unsigned32(period).getBEREncodedByteArray());
 	}
+
+	@Override
+	public String toString() {
+		return super.toString();
+	}
+
 }

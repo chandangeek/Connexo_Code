@@ -72,7 +72,7 @@ public class AS220Main {
 	private static final Level		LOG_LEVEL				= Level.ALL;
 	protected static final TimeZone	DEFAULT_TIMEZONE		= TimeZone.getTimeZone("GMT+01");
 
-	protected static final String	COMPORT					= "COM6";
+	protected static final String	COMPORT					= "COM5";
 	protected static final int		BAUDRATE				= 115200;
 	protected static final int		DATABITS				= SerialCommunicationChannel.DATABITS_8;
 	protected static final int		PARITY					= SerialCommunicationChannel.PARITY_NONE;
@@ -131,7 +131,7 @@ public class AS220Main {
 		properties.setProperty("Timeout", "20000");
 		properties.setProperty("ForcedDelay", "100");
 
-		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
+		properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_BOTH);
 		properties.setProperty("ProfileInterval", "900");
 		properties.setProperty("Password", "00000000");
 		properties.setProperty("SerialNumber", "35021373");
@@ -267,7 +267,12 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
+			pulseContactor();
 
+//			log(getAs220().getCosemObjectFactory().getMbusClient(ObisCode.fromString("0.1.96.1.0.255")));
+//			log(getAs220().getCosemObjectFactory().getMbusClient(ObisCode.fromString("0.2.96.1.0.255")));
+//			log(getAs220().getCosemObjectFactory().getMbusClient(ObisCode.fromString("0.3.96.1.0.255")));
+//			log(getAs220().getCosemObjectFactory().getMbusClient(ObisCode.fromString("0.4.96.1.0.255")));
 
 		} catch (Exception e) {
 			e.printStackTrace();
