@@ -12,34 +12,34 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
  */
 public class ManufacturerObject extends AbstractObject {
 
-    /** The startAddress of this object */
-    private static String startAddress = "018A_4.0";
+	/** The startAddress of this object */
+	private static String startAddress = "018A_4.0";
 
-    /** The instance of the object */
-    private int instance = 1;
+	/** The instance of the object */
+	private int instance = 1;
 
-    /**
-     * @param link
-     *            - the used {@link ProtocolLink}
-     */
-    public ManufacturerObject(ProtocolLink link) {
-	super(link);
-    }
+	/**
+	 * @param link
+	 *            - the used {@link ProtocolLink}
+	 */
+	public ManufacturerObject(ProtocolLink link) {
+		super(link);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected String getInitialAddress() {
-	return startAddress;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected String getInitialAddress() {
+		return startAddress;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected int getObjectInstance() {
-	return instance;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected int getObjectInstance() {
+		return instance;
+	}
 
 }

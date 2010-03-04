@@ -6,22 +6,27 @@ package com.energyict.protocolimpl.iec1107.instromet.dl220.objects;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 /**
- * @author gna
- * @since 10-feb-2010
+ * Implementation of a generic archive (LoadProfile)
  * 
+ * TODO TOCOMPLETE!
+ * 
+ * @author gna
+ * @since 4-mrt-2010
+ *
  */
-public class MeterTypeObject extends AbstractObject {
+public class GenericArchiveObject extends AbstractObject {
 
 	/** The startAddress of this object */
-	private static String startAddress = "0181.0";
-
+	private static String startAddress = null;
+	
 	/** The instance of the object */
-	private int instance = 1;
-
+	private int instance = 0;
+	
+	
 	/**
 	 * @param link
 	 */
-	public MeterTypeObject(ProtocolLink link) {
+	public GenericArchiveObject(ProtocolLink link) {
 		super(link);
 	}
 
@@ -30,7 +35,10 @@ public class MeterTypeObject extends AbstractObject {
 	 */
 	@Override
 	protected String getInitialAddress() {
-		return startAddress;
+		if(this.startAddress == null){
+			throw new IllegalArgumentException("The initial address of the GenericArchive can't be NULL");
+		}
+		return this.startAddress;
 	}
 
 	/**

@@ -2,9 +2,7 @@ package com.energyict.protocolimpl.iec1107.instromet.dl220.commands;
 
 import java.io.IOException;
 
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 /**
@@ -43,14 +41,10 @@ public abstract class AbstractCommand {
      * 
      * @return a String if a response was needed
      * 
-     * @throws FlagIEC1107ConnectionException
-     *             when something goes wrong in the connection
-     * @throws ConnectionException
-     *             when something goes wrong in the connection
      * @throws IOException
      *             when a logical exception occurred
      */
-    protected abstract String invoke() throws FlagIEC1107ConnectionException, ConnectionException, IOException;
+    protected abstract String invoke() throws IOException;
 
     /**
      * Getter for the protocolConnection

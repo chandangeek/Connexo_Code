@@ -5,8 +5,6 @@ package com.energyict.protocolimpl.iec1107.instromet.dl220.commands;
 
 import java.io.IOException;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 /**
@@ -54,14 +52,11 @@ public class WriteCommand extends AbstractCommand {
      * Invoke the command
      * 
      * @return the response
-     * @throws FlagIEC1107ConnectionException
-     *             when something goes wrong in the connection
-     * @throws ConnectionException
-     *             when something goes wrong in the connection
+     * 
      * @throws IOException
      *             when a logical exception occurred
      */
-    public String invoke() throws FlagIEC1107ConnectionException, ConnectionException, IOException {
+    public String invoke() throws IOException {
         Command command = prepareBuild();
         getConnection().sendRawCommandFrame(command.getCommand(), command.getConstructedData());
         return "";
