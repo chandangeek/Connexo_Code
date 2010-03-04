@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import com.energyict.protocol.ProtocolCollection;
 import com.energyict.protocolimpl.base.ProtocolCollectionImpl;
 
 /**
@@ -18,7 +17,7 @@ public class ProtocolList {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) {
-		ProtocolCollection collection = new ProtocolCollectionImpl();
+		ProtocolCollectionImpl collection = new ProtocolCollectionImpl();
 
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < collection.getSize(); i++) {
