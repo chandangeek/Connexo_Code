@@ -77,8 +77,8 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 	private static final String			PR_TRANSP_DATABITS			= "TransparentDatabits";
 	private static final String			PR_TRANSP_BAUDRATE			= "TransparentBaudrate";
 	private static final String			PR_TRANSP_CONNECT_TIME		= "TransparentConnectTime";
-	private static final String			PR_MASTERKEY				= LocalSecurityProvider.MASTERKEY;
 	private static final String			PR_DATA_KEY					= LocalSecurityProvider.DATATRANSPORTKEY;
+	private static final String			PR_DATA_AUTH_KEY			= LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY;
 	private static final String			PR_CONNECTION				= "Connection";
 	private static final String			PR_ADDRESSING_MODE			= "AddressingMode";
 	private static final String			PR_EXTENDED_LOGGING			= "ExtendedLogging";
@@ -625,7 +625,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
         result.add(PR_ADDRESSING_MODE);
         result.add(PR_CONNECTION);
         result.add(PR_DATA_KEY);
-        result.add(PR_MASTERKEY);
+        result.add(PR_DATA_AUTH_KEY);
         result.add(PR_TRANSP_CONNECT_TIME);
         result.add(PR_TRANSP_BAUDRATE);
         result.add(PR_TRANSP_DATABITS);
