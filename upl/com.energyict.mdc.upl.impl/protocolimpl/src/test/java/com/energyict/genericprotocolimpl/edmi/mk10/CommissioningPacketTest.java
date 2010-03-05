@@ -150,20 +150,16 @@ public class CommissioningPacketTest {
 		// Small check if the toString doesn't generate NPE's or something like this
 		assertNotNull(PushPacket.getPushPacket(getBytesFromHexString(COMMISSIONING_PACKER_INVALID_CRC)));
 		assertNotNull(PushPacket.getPushPacket(getBytesFromHexString(COMMISSIONING_PACKER_INVALID_CRC)).toString());
-		System.out.println(PushPacket.getPushPacket(getBytesFromHexString(COMMISSIONING_PACKER_INVALID_CRC)).toString());
 
 
 		assertNotNull(PushPacket.getPushPacket(getBytesFromHexString(COMMISSIONING_PACKER_INVALID_MISSING)));
 		assertNotNull(PushPacket.getPushPacket(getBytesFromHexString(COMMISSIONING_PACKER_INVALID_MISSING)).toString());
-		System.out.println(PushPacket.getPushPacket(getBytesFromHexString(COMMISSIONING_PACKER_INVALID_MISSING)).toString());
 
 		assertNotNull(PushPacket.getPushPacket(getBytesFromHexString(COMMISSIONING_PACKER_INVALID_SHORT)));
 		assertNotNull(PushPacket.getPushPacket(getBytesFromHexString(COMMISSIONING_PACKER_INVALID_SHORT)).toString());
-		System.out.println(PushPacket.getPushPacket(getBytesFromHexString(COMMISSIONING_PACKER_INVALID_SHORT)).toString());
 
 		assertNotNull(PushPacket.getPushPacket(getBytesFromHexString(COMMISSIONING_PACKER_VALID)));
 		assertNotNull(PushPacket.getPushPacket(getBytesFromHexString(COMMISSIONING_PACKER_VALID)).toString());
-		System.out.println(PushPacket.getPushPacket(getBytesFromHexString(COMMISSIONING_PACKER_VALID)).toString());
 
 	}
 
