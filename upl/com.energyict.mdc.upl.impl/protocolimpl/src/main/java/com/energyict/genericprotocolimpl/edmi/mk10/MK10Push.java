@@ -225,6 +225,8 @@ public class MK10Push implements GenericProtocol {
 		case HEARTBEAT:
 			pushDevice = findMatchingMeter(packet.getSerial());
 			break;
+		case COMMISSIONING:
+			sendDebug(packet.toString(), 0);
 		default:
 			throw new BusinessException("Received wrong packet [" + packet.getPushPacketType()+ "].");
 		}
