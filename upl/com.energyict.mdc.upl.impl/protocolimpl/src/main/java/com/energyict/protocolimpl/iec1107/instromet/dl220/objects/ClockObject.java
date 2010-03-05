@@ -173,7 +173,7 @@ public class ClockObject extends AbstractObject {
 	 * 
 	 * @return the new calendar string for the meter
 	 */
-	protected String getRawData(Calendar newCalendar) {
+	protected static String getRawData(Calendar newCalendar) {
 		StringBuilder strBuilder = new StringBuilder();
 		strBuilder.append(convertToTwoDigits(newCalendar.get(Calendar.YEAR)));
 		strBuilder.append(DATE_SEPARATOR);
@@ -196,7 +196,7 @@ public class ClockObject extends AbstractObject {
 	 *            - a string value with possibly 1 digit
 	 * @return a two digit string value
 	 */
-	private String convertToTwoDigits(int possibleOneDigitValue) {
+	private static String convertToTwoDigits(int possibleOneDigitValue) {
 		if (Integer.toString(possibleOneDigitValue).length() == 1) {
 			return "0" + possibleOneDigitValue;
 		} else {

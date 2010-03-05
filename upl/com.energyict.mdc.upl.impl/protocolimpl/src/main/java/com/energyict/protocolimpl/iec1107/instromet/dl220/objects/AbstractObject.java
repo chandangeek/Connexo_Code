@@ -5,9 +5,7 @@ package com.energyict.protocolimpl.iec1107.instromet.dl220.objects;
 
 import java.io.IOException;
 
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.commands.ReadCommand;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.commands.WriteCommand;
@@ -23,6 +21,10 @@ public abstract class AbstractObject {
 
 	/** A static string colon */
 	protected static String COLON = ":";
+	/** A static string semiColon */
+	protected static String SEMI_COLON = ";";
+	/** A static string dot */
+	protected static String DOT = ".";
 
 	/** The used {@link ProtocolLink} */
 	protected ProtocolLink link;
@@ -46,10 +48,8 @@ public abstract class AbstractObject {
 	 * 
 	 * @return the value from the readCommand of this object
 	 * @throws IOException
-	 * @throws ConnectionException
-	 * @throws FlagIEC1107ConnectionException
 	 */
-	public String getValue() throws FlagIEC1107ConnectionException, ConnectionException, IOException {
+	public String getValue() throws IOException {
 		ReadCommand rc = new ReadCommand(link);
 		rc.setStartAddress(getStartAddress());
 		return ProtocolUtils.stripBrackets(rc.invoke());
@@ -58,11 +58,9 @@ public abstract class AbstractObject {
 	/**
 	 * Setter for the default value of this object
 	 * 
-	 * @throws FlagIEC1107ConnectionException
-	 * @throws ConnectionException
 	 * @throws IOException
 	 */
-	public void setValue(byte[] setValue) throws FlagIEC1107ConnectionException, ConnectionException, IOException {
+	public void setValue(byte[] setValue) throws IOException {
 		WriteCommand wc = new WriteCommand(link);
 		wc.setStartAddress(getStartAddress());
 		wc.setDataValue(setValue);

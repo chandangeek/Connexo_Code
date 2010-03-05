@@ -14,44 +14,44 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
  */
 public abstract class AbstractCommand {
 
-    /**
-     * Default constructor
-     * 
-     * @param link
-     *            - The {@link ProtocolLink}
-     */
-    public AbstractCommand(ProtocolLink link) {
-	this.link = link;
-    }
+	/**
+	 * Default constructor
+	 * 
+	 * @param link
+	 *            - The {@link ProtocolLink}
+	 */
+	public AbstractCommand(ProtocolLink link) {
+		this.link = link;
+	}
 
-    /**
-     * The protocol using this command
-     */
-    private ProtocolLink link;
+	/**
+	 * The protocol using this command
+	 */
+	private ProtocolLink link;
 
-    /**
-     * Prepare a command for execution
-     * 
-     * @return a prepared command
-     */
-    protected abstract Command prepareBuild();
+	/**
+	 * Prepare a command for execution
+	 * 
+	 * @return a prepared command
+	 */
+	protected abstract Command prepareBuild();
 
-    /**
-     * Implementation for executing the command
-     * 
-     * @return a String if a response was needed
-     * 
-     * @throws IOException
-     *             when a logical exception occurred
-     */
-    protected abstract String invoke() throws IOException;
+	/**
+	 * Implementation for executing the command
+	 * 
+	 * @return a String if a response was needed
+	 * 
+	 * @throws IOException
+	 *             when a logical exception occurred
+	 */
+	protected abstract String invoke() throws IOException;
 
-    /**
-     * Getter for the protocolConnection
-     * 
-     * @return the {@link FlagIEC1107Connection}
-     */
-    protected FlagIEC1107Connection getConnection() {
-	return this.link.getFlagIEC1107Connection();
-    }
+	/**
+	 * Getter for the protocolConnection
+	 * 
+	 * @return the {@link FlagIEC1107Connection}
+	 */
+	protected FlagIEC1107Connection getConnection() {
+		return this.link.getFlagIEC1107Connection();
+	}
 }

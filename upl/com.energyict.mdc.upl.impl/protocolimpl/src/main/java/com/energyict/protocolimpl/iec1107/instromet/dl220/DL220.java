@@ -17,6 +17,7 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
@@ -34,6 +35,9 @@ import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.SoftwareVersio
  * <br>
  * <b>Data interface:</b><br>
  * <li>Optical interface according to IEC1107 <li>Internal GSM modem
+ * <br><br>
+ * <b>Additional information:</b><br>
+ * Before getting or setting some values in the meter, it is required to enable a lock (suppliers, customers, ...)
  * 
  * @author gna
  * @since 8-feb-2010
@@ -47,6 +51,10 @@ public class DL220 extends AbstractIEC1107Protocol {
 	/** The used {@link ObjectFactory} */
 	private ObjectFactory objectFactory;
 
+	/** The index of the measurement. This is a zero based value of the two indexes */
+	private int meterIndex;
+	
+	
 	/**
 	 * Default constructor
 	 */
@@ -112,9 +120,17 @@ public class DL220 extends AbstractIEC1107Protocol {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void doValidateProperties(Properties properties) throws MissingPropertyException,
-			InvalidPropertyException {
-		// TODO Auto-generated method stub
+	protected void doValidateProperties(Properties properties) throws MissingPropertyException,	InvalidPropertyException {
+		
+		/* The NodeAddress is used to indicate which input is connected */
+		if(nodeId.equalsIgnoreCase("")){
+			meterIndex = 0;
+		} else if ((Integer.parseInt(nodeId) > 2) && ((Integer.parseInt(nodeId) < 1))){
+			throw new InvalidPropertyException("Incorrect NodeAddress property. If the value is not empty, then only 1 or 2 is allowed. " +
+					"If NodeAddress is empty, then default 1 will be used.");
+		} else {
+			meterIndex = Integer.parseInt(nodeId) - 1;
+		}
 	}
 
 	/**
@@ -147,7 +163,7 @@ public class DL220 extends AbstractIEC1107Protocol {
 	protected void validateSerialNumber() throws IOException {
 		DLObject serialNubmer = DLObject.constructObject(this, DLObject.SA_SERIALNUMBER);
 		String meterSerialNumber = serialNubmer.getValue(1);
-		if (!this.serialNumber.equals(meterSerialNumber)) {
+		if (this.serialNumber != null && !this.serialNumber.equals(meterSerialNumber)) {
 			throw new IOException("Wrong serialnumber, EIServer settings: " + this.serialNumber + " - Meter settings: " + meterSerialNumber);
 		}
 	}
@@ -182,11 +198,39 @@ public class DL220 extends AbstractIEC1107Protocol {
     }
 	
     /**
+     * {@inheritDoc}
+     */
+	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
+		return getProfileData(lastReading, new Date(), includeEvents);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+		ProfileData profileData = new ProfileData();
+
+		//TODO set channelInfos
+		profileData.setChannelInfos(getProfileObject().buildChannelInfos());
+		
+		//TODO set intervalData
+		profileData.setIntervalDatas(getProfileObject().getIntervalData(from, to));
+		
+		//TODO set events
+		if(includeEvents){
+			profileData.setMeterEvents(getProfileObject().getMeterEventList(from));
+		}
+		
+		return profileData;
+	}
+    
+    /**
      * @return	the {@link DL220Profile}
      */
     protected DL220Profile getProfileObject(){
     	if(this.profile == null){
-    		this.profile = new DL220Profile();
+    		//TODO measurement1 should be adjustable according to the meterindex
+    		this.profile = new DL220Profile(this, meterIndex, Archives.MEASUREMENT1);
     	}
     	return this.profile;
     }

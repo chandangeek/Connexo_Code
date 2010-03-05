@@ -5,8 +5,6 @@ package com.energyict.protocolimpl.iec1107.instromet.dl220.objects;
 
 import java.io.IOException;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 /**
@@ -18,8 +16,15 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
  */
 public class DLObject extends AbstractObject {
 	
+	public static final String ASTERISK = "*";
+	public static final int valueIndex = 0;
+	public static final int unitIndex = 1;
+	
 	/* Below is a list of StartAddresses of general objects */
 	
+	/** The StartAddress of the profile measurement period*/
+	public static final String SA_PROFILEMEASUREMENT_PERIOD = "150.0";
+
 	/** The StartAddress of the SerialNumber */
 	public static String SA_SERIALNUMBER = "180.0";
 	
@@ -86,12 +91,40 @@ public class DLObject extends AbstractObject {
 	 *            - the number of the objects' instance which you want to read
 	 *            
 	 * @return the value as a String
-	 * @throws FlagIEC1107ConnectionException
-	 * @throws ConnectionException
-	 * @throws IOException
+	 * @throws IOException if read exception occurred
 	 */
-	public String getValue(int instanceNumber) throws FlagIEC1107ConnectionException, ConnectionException, IOException {
+	public String getValue(int instanceNumber) throws IOException {
 		this.instance = instanceNumber;
 		return getValue();
+	}
+	
+	/**
+	 * Getter for the value without the Unit
+	 * 
+	 * @param instanceNumber
+	 * 			- the number of the objects' instance which you want to read
+	 * 
+	 * @return the value as a String without the Unit
+	 * 
+	 * @throws IOException if read exception occurred
+	 */
+	public String getValueWithoutUnit(int instanceNumber) throws IOException {
+		this.instance = instanceNumber;
+		return getValue().split(ASTERISK)[valueIndex];
+	}
+	
+	/**
+	 * Getter for the Unit without the value
+	 * 
+	 * @param instanceNumber
+	 * 			- the number of the objects' instance which you want to read
+	 * 
+	 * @return the unit as a String
+	 * 
+	 * @throws IOException if a read exception occurred
+	 */
+	public String getUnit(int instanceNumber) throws IOException {
+		this.instance = instanceNumber;
+		return getValue().split(ASTERISK)[unitIndex];
 	}
 }
