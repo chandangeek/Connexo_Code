@@ -267,7 +267,7 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			pulseContactor();
+			printExtendedLogging();
 
 //			log(getAs220().getCosemObjectFactory().getMbusClient(ObisCode.fromString("0.1.96.1.0.255")));
 //			log(getAs220().getCosemObjectFactory().getMbusClient(ObisCode.fromString("0.2.96.1.0.255")));
@@ -340,6 +340,10 @@ public class AS220Main {
         	fis.close();
         	return content;
         }
+
+	public static void printExtendedLogging() throws IOException {
+		log(getAs220().getRegistersInfo());
+	}
 
 	private static byte[] getFirmware19ByteArray() throws IOException {
         	File file = new File(AS220Main.class.getClassLoader().getResource("com/energyict/protocolimpl/dlms/as220/debug/firmware17022010B64.bin").getFile());

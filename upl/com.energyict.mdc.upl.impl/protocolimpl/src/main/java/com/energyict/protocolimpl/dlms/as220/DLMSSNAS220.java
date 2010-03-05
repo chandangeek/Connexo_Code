@@ -51,6 +51,7 @@ import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
 import com.energyict.obis.ObisCode;
@@ -389,44 +390,58 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
     /*
      *  extendedLogging = 1 current set of logical addresses, extendedLogging = 2..17 historical set 1..16
      */
-    protected String getRegistersInfo() throws IOException {
-        StringBuffer strBuff = new StringBuffer();
+    public String getRegistersInfo() throws IOException {
+		final String crlf = "\r\n";
+        StringBuffer sb = new StringBuffer();
 
         Iterator it;
 
         // all total and rate values...
-        strBuff.append("********************* All instantiated objects in the meter *********************\n");
-        for (int i=0;i<getMeterConfig().getInstantiatedObjectList().length;i++) {
-            UniversalObject uo = getMeterConfig().getInstantiatedObjectList()[i];
-            strBuff.append(uo.getObisCode().toString()+" "+uo.getObisCode().getDescription()+"\n");
-        }
+    	sb.append(crlf);
+        sb.append("********************* All instantiated objects in the meter *********************\n");
+		UniversalObject[] uo = getMeterConfig().getInstantiatedObjectList();
+		for (UniversalObject universalObject : uo) {
+			final ObisCode obisCode = universalObject.getObisCode();
+			final String shortName = "["+universalObject.getBaseName()+"]";
+			final String classType = DLMSClassId.findById(universalObject.getClassID()).name();
 
-        if (getDeviceID().compareTo("EIT")!=0) {
-            // all billing points values...
-            strBuff.append("********************* Objects captured into billing points *********************\n");
-            it = getCosemObjectFactory().getStoredValues().getProfileGeneric().getCaptureObjects().iterator();
-            while(it.hasNext()) {
-                CapturedObject capturedObject = (CapturedObject)it.next();
-                strBuff.append(capturedObject.getLogicalName().getObisCode().toString()+" "+capturedObject.getLogicalName().getObisCode().getDescription()+" (billing point)\n");
-            }
-        }
+			sb.append(obisCode.toString()).append(" ");
+			sb.append(shortName).append(" = ");
+			sb.append(classType).append(" ");
+			sb.append(obisCode.getDescription());
+			sb.append(crlf);
+		}
+		sb.append(crlf);
 
-        strBuff.append("********************* Objects captured into load profile *********************\n");
+
+//        if (getDeviceID().compareTo("EIT")!=0) {
+//            // all billing points values...
+//            strBuff.append("********************* Objects captured into billing points *********************\n");
+//            it = getCosemObjectFactory().getStoredValues().getProfileGeneric().getCaptureObjects().iterator();
+//            while(it.hasNext()) {
+//                CapturedObject capturedObject = (CapturedObject)it.next();
+//                strBuff.append(capturedObject.getLogicalName().getObisCode().toString()+" "+capturedObject.getLogicalName().getObisCode().getDescription()+" (billing point)\n");
+//            }
+//        }
+
+        sb.append("********************* Objects captured into load profile *********************\n");
         it = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjects().iterator();
         while(it.hasNext()) {
             CapturedObject capturedObject = (CapturedObject)it.next();
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString()+" "+capturedObject.getLogicalName().getObisCode().getDescription()+" (load profile)\n");
+            sb.append(capturedObject.getLogicalName().getObisCode().toString()+" "+capturedObject.getLogicalName().getObisCode().getDescription()+" (load profile)\n");
         }
+    	sb.append(crlf);
 
-        strBuff.append("************************** Custom registers **************************\n");
+        sb.append("************************** Custom registers **************************\n");
         it = RegisterDescription.INFO.keySet().iterator();
         while(it.hasNext()) {
         	ObisCode oc = ObisCode.fromString((String) it.next());
-        	strBuff.append(oc.toString()).append(" = ").append(RegisterDescription.INFO.get(oc.toString()));
+        	sb.append(oc.toString()).append(" = ").append(RegisterDescription.INFO.get(oc.toString()));
+        	sb.append(crlf);
         }
+    	sb.append(crlf);
 
-
-        return strBuff.toString();
+        return sb.toString();
     }
 
     /**
