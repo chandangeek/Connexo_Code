@@ -49,16 +49,9 @@ public class ReadArchiveCommand extends AbstractCommand {
 	 */
 	@Override
 	protected Command prepareBuild() {
-		Command command = new Command(SIMPLE_READ_COMMAND.getBytes());
+		Command command = new Command(readCommand.getBytes());
 		command.setStartAddress(address);
 		command.setData(readData);
-		return command;
-	}
-	
-	protected Command prepareBuildR1(String data){
-		Command command = new Command(SIMPLE_READ_COMMAND.getBytes());
-		command.setStartAddress(address);
-		command.setData(data.getBytes());
 		return command;
 	}
 	
@@ -129,7 +122,7 @@ public class ReadArchiveCommand extends AbstractCommand {
 	 *             when a logical exception occurred
 	 */
 	public String invokeForMultiple(String data) throws IOException {
-		this.readCommand = SIMPLE_READ_COMMAND;
+		this.readCommand = BLOCK_READ_COMMAND;
 		this.readData = data.getBytes();
 		return invoke();
 	}

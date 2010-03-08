@@ -11,6 +11,7 @@ import java.util.List;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.DLObject;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.objects.GenericArchiveObject;
@@ -34,7 +35,12 @@ public class DL220Profile {
 	/** The used {@link GenericArchiveObject} */
 	private GenericArchiveObject archiveObject;
 	
+	/** The {@link DL220IntervalRecordConfig} from the meter*/
+	private DL220IntervalRecordConfig dirc;
+	
 	private int numberOfChannels = -1;
+	private int profileRequestBlockSize;
+	private int numberOfAvailableIntervals = 0;
 	
 	/**
 	 * Default constructor
@@ -47,11 +53,15 @@ public class DL220Profile {
 	 * 
 	 * @param archive
 	 * 			- indicates which {@link Archives} is used
+	 * 
+	 * @param profileRequestBlockSize
+	 * 			- the size of the profileRequestBlocks 
 	 */
-	public DL220Profile(ProtocolLink link, int meterIndex, Archives archive){
+	public DL220Profile(ProtocolLink link, int meterIndex, Archives archive, int profileRequestBlockSize){
 		this.index = meterIndex;
 		this.link = link;
 		this.archive = archive;
+		this.profileRequestBlockSize = profileRequestBlockSize;
 	}
 
 	/**
@@ -70,7 +80,8 @@ public class DL220Profile {
 
 	/**
 	 * @return the interval of the Profile
-	 * @throws IOException 
+	 * 
+	 * @throws IOException when something happens during the read 
 	 */
 	public int getInterval() throws IOException {
 		DLObject measurementPeriod = DLObject.constructObject(link, DLObject.SA_PROFILEMEASUREMENT_PERIOD);
@@ -80,8 +91,10 @@ public class DL220Profile {
 
 	/**
 	 * Construct the channelInfos 
-	 * @return
-	 * @throws IOException 
+	 * 
+	 * @return a list of {@link ChannelInfo}s
+	 * 
+	 * @throws IOException if an error occurred during the read of the {@link ChannelInfo}s 
 	 */
 	public List<ChannelInfo> buildChannelInfos() throws IOException{
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
@@ -89,6 +102,30 @@ public class DL220Profile {
 		ci.setCumulative();
 		channelInfos.add(ci);
 		return channelInfos;
+	}
+	
+	/**
+	 * Initialized getter for the {@link DL220IntervalRecordConfig}
+	 * 
+	 * @return the meters configuration
+	 * 
+	 * @throws IOException if something happened during the read
+	 */
+	public DL220IntervalRecordConfig getIntervalRecordConfig() throws IOException{
+		if(this.dirc == null){
+			this.dirc = new DL220IntervalRecordConfig(getArchive().getCapturedObjects());
+		}
+		return this.dirc;
+	}
+	
+	/**
+	 * Setter for the {@link DL220IntervalRecordConfig}
+	 * 
+	 * @param dirc
+	 * 			- the {@link DL220IntervalRecordConfig} to set
+	 */
+	protected void setDirc(DL220IntervalRecordConfig dirc){
+		this.dirc = dirc;
 	}
 	
 	/**
@@ -125,8 +162,47 @@ public class DL220Profile {
 	 */
 	public List getIntervalData(Date from, Date to) throws NumberFormatException, IOException {
 		// TODO Auto-generated method stub
-		int numbOfInts = Integer.parseInt(getArchive().getNumberOfIntervals(from));
+		this.numberOfAvailableIntervals = Integer.parseInt(getArchive().getNumberOfIntervals(from));
+//		int numbOfRequests = numbOfInts/profileRequestBlockSize + ((numbOfInts%profileRequestBlockSize)>0?1:0);
+		StringBuilder intervalsString = new StringBuilder();
+//		File file = new File("C:\\DL220Profile.bin");
+//		FileOutputStream fos = new FileOutputStream(file);
+//		fos.write(getArchive().getIntervals(from, profileRequestBlockSize).getBytes());
+		System.out.println(intervalsString.append(getArchive().getIntervals(from, profileRequestBlockSize)));
+//		fos.close();
 		return null;
+	}
+	
+	/**
+	 * Build the list of IntervalData
+	 * 
+	 * @param rawData
+	 * 			- the raw data returned from the device
+	 * @return
+	 * 			a list of {@link IntervalData}
+	 * 
+	 * @throws IOException if an exception occurred during on of the read requests
+	 */
+	protected List<IntervalData> buildIntervalData(String rawData) throws IOException{
+		List<IntervalData> intervalList = new ArrayList<IntervalData>();
+		
+		int offset = 0;
+		DL220IntervalRecord dir;
+		String recordX;
+		IntervalData id;
+		
+		do{
+			recordX = DL220Utils.getNextRecord(rawData, offset);
+			offset = rawData.indexOf(recordX) + recordX.length();
+			dir = new DL220IntervalRecord(recordX, this.dirc);
+			id = new IntervalData(dir.getEndTime());
+			id.addValue(Integer.parseInt(dir.getValue()));
+			//TODO add the status
+			
+			intervalList.add(id);
+		}while(offset < rawData.length());
+		
+		return intervalList;
 	}
 
 	/**

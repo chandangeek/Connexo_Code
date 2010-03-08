@@ -53,8 +53,8 @@ public class DL220 extends AbstractIEC1107Protocol {
 
 	/** The index of the measurement. This is a zero based value of the two indexes */
 	private int meterIndex;
-	
-	
+	/** The size of the profileRequestBlocks */
+	private int profileRequestBlockSize;
 	/**
 	 * Default constructor
 	 */
@@ -113,7 +113,9 @@ public class DL220 extends AbstractIEC1107Protocol {
 	@Override
 	@SuppressWarnings(value = { "unchecked" })
 	protected List doGetOptionalKeys() {
-		return new ArrayList();
+		List keys = new ArrayList();
+		keys.add("ProfileRequestBlockSize");
+		return keys;
 	}
 
 	/**
@@ -131,6 +133,8 @@ public class DL220 extends AbstractIEC1107Protocol {
 		} else {
 			meterIndex = Integer.parseInt(nodeId) - 1;
 		}
+		
+		this.profileRequestBlockSize = Integer.parseInt(properties.getProperty("ProfileRequestBlockSize", "10"));
 	}
 
 	/**
@@ -230,7 +234,7 @@ public class DL220 extends AbstractIEC1107Protocol {
     protected DL220Profile getProfileObject(){
     	if(this.profile == null){
     		//TODO measurement1 should be adjustable according to the meterindex
-    		this.profile = new DL220Profile(this, meterIndex, Archives.MEASUREMENT1);
+    		this.profile = new DL220Profile(this, meterIndex, Archives.MEASUREMENT1, profileRequestBlockSize);
     	}
     	return this.profile;
     }

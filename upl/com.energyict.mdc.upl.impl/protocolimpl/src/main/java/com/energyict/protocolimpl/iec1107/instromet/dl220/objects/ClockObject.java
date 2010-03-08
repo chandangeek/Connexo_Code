@@ -147,7 +147,7 @@ public class ClockObject extends AbstractObject {
 	 * 
 	 * @return a Calender with the metertime
 	 */
-	protected Calendar parseCalendar(String rawDateTime) {
+	public static Calendar parseCalendar(String rawDateTime) {
 		Calendar meterCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		String[] dateTime = rawDateTime.split(DATE_TIME_SEPARATOR);
 		String[] date = dateTime[DATE].split(DATE_SEPARATOR);

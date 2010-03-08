@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.Archives;
@@ -38,9 +39,10 @@ public class GenericArchiveObject extends AbstractObject {
 	/** The letter V */
 	private static final String VIE = "V";
 	
-	/** A static string used for the request */
+	/** A static string used for the request, it contains a colon ':', the capital 'V' and a dot '.' */
 	private static final String COLLON_VIE_DOT = ":V.";
 
+	/** A static string representing the format of an empty request (3 SEMI-COLONS) */
 	private static final String EMPTY_REQUEST = ";;;";
 	
 	/** The startAddress of this object */
@@ -162,21 +164,66 @@ public class GenericArchiveObject extends AbstractObject {
 	
 
 	/**
-	 * @param from
+	 * Request the number of intervals 
+	 * 
+	 * TODO check the timeZone, it's possible that you need to get it from the Rtu
+	 * 
+	 * @param from 
+	 * 			- the date from where to start reading
+	 * 
 	 * @return
-	 * @throws IOException 
+	 * 			a number representing the available intervals starting from the from date
+	 * 
+	 * @throws IOException if something freaky happened during the read 
 	 */
 	public String getNumberOfIntervals(Date from) throws IOException {
-		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-		String rawFrom = ClockObject.getRawData(cal);
+		String rawFrom = getRawDate(from);
 		String requestString = buildRequestString(3, rawFrom, null, -1);
 		this.startAddress = constructStartAddress(ATTRB_NR_OF_ENTR);
 		ReadArchiveCommand rac = new ReadArchiveCommand(link);
 		rac.setStartAddress(getStartAddress());
-		return rac.invokeForOneTransaction(requestString);
+		return ProtocolUtils.stripBrackets(rac.invokeForOneTransaction(requestString));
+	}
+	
+	/**
+	 * Request the raw intervals
+	 * 
+	 * @param from
+	 * @param blockSize
+	 * @return
+	 * @throws IOException 
+	 */
+	public String getIntervals(Date from, int blockSize) throws IOException {
+		String rawFrom = getRawDate(from);
+		String requestString = buildRequestString(3, rawFrom, null, blockSize);
+		this.startAddress = constructStartAddress(ATTRB_VALUE);
+		ReadArchiveCommand rac = new ReadArchiveCommand(link);
+		rac.setStartAddress(getStartAddress());
+		if(blockSize > 1){
+			return rac.invokeForMultiple(requestString);
+		} else {
+			return rac.invokeForOneTransaction(requestString);
+		}
+	}
+	
+	/**
+	 * Construct a date in the request format
+	 * 
+	 * @param date
+	 * 			- the date to convert
+	 * 
+	 * @return raw date
+	 */
+	private String getRawDate(Date date){
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		cal.setTime(date);
+		return ClockObject.getRawData(cal);
 	}
 
 	/**
+	 * Build up the request string.<br>
+	 * A profile request string has a specific format, it can contain on or more of the following elements:
+	 * 
 	 * @param columnIndex
 	 * 			- the column index of the archive
 	 * 
