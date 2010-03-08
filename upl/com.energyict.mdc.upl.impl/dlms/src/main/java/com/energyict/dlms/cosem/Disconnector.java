@@ -254,13 +254,13 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 					OctetString ln = getLogicalName();
 					return new RegisterValue(getObisCode(), ln != null ? ObisCode.fromByteArray(ln.getContentBytes()).toString() : "null");
 				case OUTPUT_STATE:
-					BooleanObject output = getOutputState();
+					BooleanObject output = readOutputState();
 					return new RegisterValue(getObisCode(), output != null ? String.valueOf(output.getState()) : "null");
 				case CONTROL_STATE:
-					TypeEnum ctrlStat = getControlState();
+					TypeEnum ctrlStat = readControlState();
 					return new RegisterValue(getObisCode(), ctrlStat != null ? String.valueOf(ctrlStat.getValue()) : "null");
 				case CONTROL_MODE:
-					TypeEnum ctrlMode = getControlMode();
+					TypeEnum ctrlMode = readControlMode();
 					return new RegisterValue(getObisCode(), ctrlMode != null ? String.valueOf(ctrlMode.getValue()) : "null");
 			}
 		}

@@ -51,7 +51,7 @@ public class AS220ContactorController extends AbstractContactorController {
 	public ContactorState getContactorState() throws IOException {
 		TypeEnum currentState = null;
 		try {
-			currentState = getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).getControlState();
+			currentState = getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).readControlState();
 		} catch (IOException e) {
 		}
 
