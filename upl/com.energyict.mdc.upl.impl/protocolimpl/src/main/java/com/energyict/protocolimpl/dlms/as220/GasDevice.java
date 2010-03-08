@@ -66,7 +66,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
 				+ rev.substring(rev.indexOf("$Date: ") + "$Date: ".length(), rev.indexOf("$Date: ") + "$Date: ".length() + 19);
     	return manipulated;
     }
-    
+
 	/**
 	 * {@inheritDoc}
 	 * @throws BusinessException
@@ -157,7 +157,6 @@ public class GasDevice extends AS220 implements MessageProtocol{
 	 * {@inheritDoc}
 	 */
 	private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-		properties.list(System.out);
 		this.gmeterSerialnumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
 		this.emeterSerialnumber = properties.getProperty(MeterProtocol.NODEID, "");
 
@@ -205,7 +204,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
 	public List<MessageCategorySpec> getMessageCategories() {
 		return getMessaging().getMessageCategories();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -213,7 +212,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
 	public String writeMessage(Message msg) {
 		return getMessaging().writeMessage(msg);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -221,7 +220,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
 	public String writeTag(MessageTag msgTag) {
 		return getMessaging().writeTag(msgTag);
     }
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -229,7 +228,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
 	public String writeValue(MessageValue msgValue) {
 		return msgValue.getValue();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
