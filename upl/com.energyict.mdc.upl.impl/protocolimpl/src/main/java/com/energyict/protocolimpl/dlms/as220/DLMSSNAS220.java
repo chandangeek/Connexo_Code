@@ -49,12 +49,9 @@ import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.LocalSecurityProvider;
-import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
@@ -162,6 +159,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 	 * @throws BusinessException if no correct MBus device is found
 	 */
 	protected abstract void doConnect() throws BusinessException;
+    protected abstract String getRegistersInfo() throws IOException;
 
     /**
 	 *  Creates a new instance of DLMSSNAS220, empty constructor
@@ -387,64 +385,7 @@ public abstract class DLMSSNAS220 implements MeterProtocol, HHUEnabler, Protocol
 		}
 	}
 
-    /*
-     *  extendedLogging = 1 current set of logical addresses, extendedLogging = 2..17 historical set 1..16
-     */
-    public String getRegistersInfo() throws IOException {
-		final String crlf = "\r\n";
-        StringBuffer sb = new StringBuffer();
-
-        Iterator it;
-
-        // all total and rate values...
-    	sb.append(crlf);
-        sb.append("********************* All instantiated objects in the meter *********************\n");
-		UniversalObject[] uo = getMeterConfig().getInstantiatedObjectList();
-		for (UniversalObject universalObject : uo) {
-			final ObisCode obisCode = universalObject.getObisCode();
-			final String shortName = "["+universalObject.getBaseName()+"]";
-			final String classType = DLMSClassId.findById(universalObject.getClassID()).name();
-
-			sb.append(obisCode.toString()).append(" ");
-			sb.append(shortName).append(" = ");
-			sb.append(classType).append(" ");
-			sb.append(obisCode.getDescription());
-			sb.append(crlf);
-		}
-		sb.append(crlf);
-
-
-//        if (getDeviceID().compareTo("EIT")!=0) {
-//            // all billing points values...
-//            strBuff.append("********************* Objects captured into billing points *********************\n");
-//            it = getCosemObjectFactory().getStoredValues().getProfileGeneric().getCaptureObjects().iterator();
-//            while(it.hasNext()) {
-//                CapturedObject capturedObject = (CapturedObject)it.next();
-//                strBuff.append(capturedObject.getLogicalName().getObisCode().toString()+" "+capturedObject.getLogicalName().getObisCode().getDescription()+" (billing point)\n");
-//            }
-//        }
-
-        sb.append("********************* Objects captured into load profile *********************\n");
-        it = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjects().iterator();
-        while(it.hasNext()) {
-            CapturedObject capturedObject = (CapturedObject)it.next();
-            sb.append(capturedObject.getLogicalName().getObisCode().toString()+" "+capturedObject.getLogicalName().getObisCode().getDescription()+" (load profile)\n");
-        }
-    	sb.append(crlf);
-
-        sb.append("************************** Custom registers **************************\n");
-        it = RegisterDescription.INFO.keySet().iterator();
-        while(it.hasNext()) {
-        	ObisCode oc = ObisCode.fromString((String) it.next());
-        	sb.append(oc.toString()).append(" = ").append(RegisterDescription.INFO.get(oc.toString()));
-        	sb.append(crlf);
-        }
-    	sb.append(crlf);
-
-        return sb.toString();
-    }
-
-    /**
+	/**
      * This method initiates the MAC disconnect for the HDLC layer.
      * @exception IOException
      */

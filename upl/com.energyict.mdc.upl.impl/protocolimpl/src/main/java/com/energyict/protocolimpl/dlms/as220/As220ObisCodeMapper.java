@@ -83,6 +83,10 @@ public class As220ObisCodeMapper implements ObiscodeMapper {
     	return as220;
     }
 
+    public DLMSAttributeMapper[] getAttributeMappers() {
+		return attributeMappers;
+	}
+
     private CosemObjectFactory getCosemObjectFactory() {
 		return getAs220().getCosemObjectFactory();
 	}

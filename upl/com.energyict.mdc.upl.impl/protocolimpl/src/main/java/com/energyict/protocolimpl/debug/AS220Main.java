@@ -267,7 +267,7 @@ public class AS220Main {
 			getAs220().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getAs220().connect();
 
-			printExtendedLogging();
+			log(getAs220().getRegistersInfo());
 
 //			log(getAs220().getCosemObjectFactory().getMbusClient(ObisCode.fromString("0.1.96.1.0.255")));
 //			log(getAs220().getCosemObjectFactory().getMbusClient(ObisCode.fromString("0.2.96.1.0.255")));

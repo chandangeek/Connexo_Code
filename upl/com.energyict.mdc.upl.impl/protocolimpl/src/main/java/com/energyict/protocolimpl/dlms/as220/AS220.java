@@ -50,7 +50,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
 	private final EMeter 	eMeter	= new EMeter(this);
 	private final PLC 		plc		= new PLC(this);
-	private GMeter 	gMeter	= new GMeter(this);
+	private GMeter 			gMeter	= new GMeter(this);
 	private ObiscodeMapper	ocm		= null;
 
 	private final List<SubMessageProtocol> messagingList;
@@ -135,7 +135,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 		}
 	}
 
-    private ObiscodeMapper getAs220ObisCodeMapper() {
+    protected ObiscodeMapper getAs220ObisCodeMapper() {
     	if (ocm  == null) {
     		ocm = new As220ObisCodeMapper(this);
     	}
@@ -255,6 +255,12 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 	@Override
 	protected void doConnect() throws BusinessException {
 
+	}
+
+	@Override
+	public String getRegistersInfo() throws IOException {
+		ExtendedLogging el = new ExtendedLogging(this);
+		return el.getExtendedLogging();
 	}
 
 }
