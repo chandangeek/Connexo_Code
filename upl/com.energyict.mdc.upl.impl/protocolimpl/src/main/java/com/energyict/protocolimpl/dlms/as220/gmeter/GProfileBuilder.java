@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.energyict.cbo.BaseUnit;
@@ -101,7 +102,6 @@ public class GProfileBuilder {
 				//Test
 				if(dc.getRoot().getStructure(i) == null){
 					dc.printDataContainer();
-					System.out.println("Element: " + i);
 				}
 
 				if(dc.getRoot().getStructure(i).isOctetString(0)){	// it is a date
@@ -144,8 +144,7 @@ public class GProfileBuilder {
 			GProfileBuilder builder = new GProfileBuilder(null, null);
 
 			int bit = GasStatusCodes.intervalStateBits(49407);
-			System.out.println(bit);
-
+			Logger.getAnonymousLogger().log(Level.INFO, String.valueOf(bit));
 
 			DataContainer dc = new DataContainer();
 			dc.parseObjectList(b, Logger.getAnonymousLogger());
