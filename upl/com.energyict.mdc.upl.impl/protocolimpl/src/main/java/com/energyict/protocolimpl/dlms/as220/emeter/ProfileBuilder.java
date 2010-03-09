@@ -39,10 +39,11 @@ public class ProfileBuilder {
 	 */
 	public ScalerUnit[] buildScalerUnits(byte nrOfChannels) throws IOException {
 		ScalerUnit[] scalerUnits = new ScalerUnit[nrOfChannels];
+		ObisCode obisCode[] = new ObisCode[] { ObisCode.fromString("1.0.1.8.0.255"), ObisCode.fromString("1.0.2.8.0.255") };
 		for (int i = 0; i < nrOfChannels; i++) {
-	        ObisCode obisCode = getAs220().getMeterConfig().getMeterDemandObject(i).getObisCode();
-	        scalerUnits[i] = getAs220().getCosemObjectFactory().getCosemObject(obisCode).getScalerUnit();
-
+			scalerUnits[i] = getAs220().getCosemObjectFactory().getCosemObject(obisCode[i]).getScalerUnit();
+			//	       ObisCode obisCode = getAs220().getMeterConfig().getMeterDemandObject(i).getObisCode();
+			//	       scalerUnits[i] = getAs220().getCosemObjectFactory().getCosemObject(obisCode).getScalerUnit();
 		}
 		return scalerUnits;
 	}
