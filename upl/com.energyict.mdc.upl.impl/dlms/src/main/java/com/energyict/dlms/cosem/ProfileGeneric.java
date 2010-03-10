@@ -30,20 +30,19 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
  * @author  Koen
  */
 public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
-    public final int DEBUG=0;
-    List captureObjects=null; // of type CaptureObject
-    int capturePeriod=-1;
-    int profileEntries=-1;
-    int entriesInUse=-1;
+    private final int DEBUG=0;
+    private List<CapturedObject> captureObjects=null; // of type CaptureObject
+    private int capturePeriod=-1;
+    private int profileEntries=-1;
+    private int entriesInUse=-1;
 
-    byte[] capturedObjectsResponseData=null;
-    byte[] bufferResponseData=null;
+    private byte[] capturedObjectsResponseData=null;
+    private byte[] bufferResponseData=null;
 
     /** Creates a new instance of ProfileGeneric */
     public ProfileGeneric(ProtocolLink protocolLink,ObjectReference objectReference) {
         super(protocolLink,objectReference);
     }
-
 
     public DataContainer getBuffer() throws IOException {
         return getBuffer(null,null);
@@ -56,6 +55,7 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
     public DataContainer getBuffer(Calendar fromCalendar) throws IOException {
         return getBuffer(fromCalendar,null);
     }
+
     public DataContainer getBuffer(Calendar fromCalendar,Calendar toCalendar) throws IOException {
         DataContainer dataContainer = new DataContainer();
         byte[] responseData = getBufferResponseData(fromCalendar,toCalendar);
@@ -75,20 +75,22 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
         return dataContainer;
     }
 
-    public byte[] getBufferData() throws IOException {
-        return getBufferData(null,null);
-    }
-    public byte[] getBufferData(Calendar fromCalendar) throws IOException {
-        return getBufferData(fromCalendar,null);
-    }
-    public byte[] getBufferData(Calendar fromCalendar,Calendar toCalendar) throws IOException {
-        byte[] responseData = getBufferResponseData(fromCalendar,toCalendar);
-        return responseData;
-    }
+	public byte[] getBufferData() throws IOException {
+		return getBufferData(null, null);
+	}
 
-    public UniversalObject[] getBufferAsUniversalObjects() throws IOException {
-        return getBufferAsUniversalObjects(null,null);
-    }
+	public byte[] getBufferData(Calendar fromCalendar) throws IOException {
+		return getBufferData(fromCalendar, null);
+	}
+
+	public byte[] getBufferData(Calendar fromCalendar, Calendar toCalendar) throws IOException {
+		byte[] responseData = getBufferResponseData(fromCalendar, toCalendar);
+		return responseData;
+	}
+
+	public UniversalObject[] getBufferAsUniversalObjects() throws IOException {
+		return getBufferAsUniversalObjects(null, null);
+	}
 
     /**
      * Getter for property buffer.
@@ -117,7 +119,7 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
      * Getter for property captureObjects.
      * @return Value of property captureObjects.
      */
-    public java.util.List getCaptureObjects() throws IOException {
+    public List<CapturedObject> getCaptureObjects() throws IOException {
         if (captureObjects == null) {
             DataContainer dataContainer = new DataContainer();
             dataContainer.parseObjectList(getCapturedObjectsResponseData(),protocolLink.getLogger());
@@ -127,7 +129,7 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
 			}
 
             // translate dataContainer into list of captureobjects
-            this.captureObjects = new ArrayList();
+            this.captureObjects = new ArrayList<CapturedObject>();
 
             for (int index=0;index<dataContainer.getRoot().getNrOfElements();index++) {
                 if (dataContainer.getRoot().isStructure(index)) {
@@ -153,15 +155,15 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
      * Check whether the generic profile has already read his captured objects
      * @return
      */
-    public boolean containsCapturedObjects(){
-    	return this.captureObjects==null?false:true;
-    }
+	public boolean containsCapturedObjects() {
+		return this.captureObjects == null ? false : true;
+	}
 
-    public int getNumberOfProfileChannels() throws IOException{
-    	int count = 0;
-    	try {
-			for(int i = 0; i < getCaptureObjectsAsUniversalObjects().length; i++){
-				if(getCaptureObjectsAsUniversalObjects()[i].isCapturedObjectNotAbstract()){
+	public int getNumberOfProfileChannels() throws IOException {
+		int count = 0;
+		try {
+			for (int i = 0; i < getCaptureObjectsAsUniversalObjects().length; i++) {
+				if (getCaptureObjectsAsUniversalObjects()[i].isCapturedObjectNotAbstract()) {
 					count++;
 				}
 			}
@@ -170,7 +172,7 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
 			throw new IOException("Could not calculate the number of channgels");
 		}
 		return count;
-    }
+	}
 
     private byte[] getCapturedObjectsResponseData() throws IOException {
         if (capturedObjectsResponseData == null) {
@@ -263,84 +265,44 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
         }
     }
 
-    public byte[] getData(int attr,Calendar from, Calendar to) throws IOException {
-        return getLNResponseData(attr,from,to);
-    }
-    public byte[] getData(int attr) throws IOException {
-        return getLNResponseData(attr);
-    }
+	public byte[] getData(int attr, Calendar from, Calendar to) throws IOException {
+		return getLNResponseData(attr, from, to);
+	}
 
-    public Array readBufferAttr() throws IOException {
-        return AXDRDecoder.decode(getLNResponseData(2)).getArray();
-    }
-    public Array readBufferAttr(Calendar from, Calendar to) throws IOException {
-        return AXDRDecoder.decode(getLNResponseData(2,from,to)).getArray();
-    }
-    public Array readCaptureObjectsAttr() throws IOException {
-        return AXDRDecoder.decode(getLNResponseData(3)).getArray();
-    }
-    public Unsigned32 readCapturePeriodAttr() throws IOException {
-        return AXDRDecoder.decode(getLNResponseData(4)).getUnsigned32();
-    }
-    public void writeCapturePeriodAttr(Unsigned32 val) throws IOException {
-        write(4, val.getBEREncodedByteArray());
-    }
+	public byte[] getData(int attr) throws IOException {
+		return getLNResponseData(attr);
+	}
 
-    public void setBufferAttr(Array val) throws IOException {
-        write(2, val.getBEREncodedByteArray());
-    }
-    public void setCaptureObjectsAttr(Array val) throws IOException {
-        write(3, val.getBEREncodedByteArray());
-    }
-    public void setCapturePeriodAttr(Unsigned32 val) throws IOException {
-        write(4, val.getBEREncodedByteArray());
-    }
+	public Array readBufferAttr() throws IOException {
+		return AXDRDecoder.decode(getLNResponseData(2)).getArray();
+	}
 
+	public Array readBufferAttr(Calendar from, Calendar to) throws IOException {
+		return AXDRDecoder.decode(getLNResponseData(2, from, to)).getArray();
+	}
 
-    public static void main(String[] args){
-//    	0, 0, 0, -60, 2, -127, 0, 0, 0, 0, 1,
-    	byte[] response = new byte[]{ 0, -126, 1, -58, 1, -126, 2, 2, 7, -40, 11, 11, 4, 20, 4, 44, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 0, 0, 2, 12, 9, 5, 7, -40, 11, 11, 4, 9, 5, 20, 4, 44, 0, 0, 9, 5, 0, 0, 0, 0, 0, 9, 5, 13, 0, 0, 0, 0, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 2, 12, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 2, 12, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 2, 12, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 2, 12, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2, 9, 5, 2, 2, 2, 2, 2};
-    	DataContainer dc = new DataContainer();
-    	try {
-			dc.parseObjectList(response, null);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	dc.printDataContainer();
-    }
+	public Array readCaptureObjectsAttr() throws IOException {
+		return AXDRDecoder.decode(getLNResponseData(3)).getArray();
+	}
 
-//    public static void main(String[] args) {
-//
-//       ProtocolLink pl = new ProtocolLink() {
-//            public DLMSConnection getDLMSConnection() {
-//                return null;
-//            }
-//            public DLMSMeterConfig getMeterConfig() {
-//                return null;
-//            }
-//            public TimeZone getTimeZone() {
-//                return null;
-//            }
-//            public boolean isRequestTimeZone() {
-//                return false;
-//            }
-//            public int getRoundTripCorrection() {
-//                return 0;
-//            }
-//            public java.util.logging.Logger getLogger() {
-//                return null;
-//            }
-//            public int getReference() {
-//                return ProtocolLink.LN_REFERENCE;
-//            }
-//            public StoredValues getStoredValues() {
-//                return null;
-//            }
-//
-//        };
-//
-//        ProfileGeneric pg = new ProfileGeneric(pl,null);
-//        pg.parseResponseData();
-//    }
+	public Unsigned32 readCapturePeriodAttr() throws IOException {
+		return AXDRDecoder.decode(getLNResponseData(4)).getUnsigned32();
+	}
+
+	public void writeCapturePeriodAttr(Unsigned32 val) throws IOException {
+		write(4, val.getBEREncodedByteArray());
+	}
+
+	public void setBufferAttr(Array val) throws IOException {
+		write(2, val.getBEREncodedByteArray());
+	}
+
+	public void setCaptureObjectsAttr(Array val) throws IOException {
+		write(3, val.getBEREncodedByteArray());
+	}
+
+	public void setCapturePeriodAttr(Unsigned32 val) throws IOException {
+		write(4, val.getBEREncodedByteArray());
+	}
+
 } // public class ProfileGeneric
